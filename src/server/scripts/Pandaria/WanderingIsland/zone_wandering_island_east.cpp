@@ -21,3 +21,7 @@
 #include "SpellScript.h"
 #include "Vehicle.h"
 
+void AddSC_wandering_island_east()
+{
+    
+}

@@ -28,37 +28,37 @@ enum class ConversationActorType : uint32;
 
 class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversation>
 {
-    public:
-        Conversation();
-        ~Conversation();
+public:
+    Conversation();
+    ~Conversation();
 
-    protected:
-        void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;
-        void BuildValuesUpdate(ByteBuffer* data, Player const* target) const override;
-        void ClearUpdateMask(bool remove) override;
+protected:
+    void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;
+    void BuildValuesUpdate(ByteBuffer* data, Player const* target) const override;
+    void ClearUpdateMask(bool remove) override;
 
-    public:
-        void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
-            UF::ConversationData::Mask const& requestedConversationMask, Player const* target) const;
+public:
+    void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
+        UF::ConversationData::Mask const& requestedConversationMask, Player const* target) const;
 
-        struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
-        {
-            explicit ValuesUpdateForPlayerWithMaskSender(Conversation const* owner) : Owner(owner) { }
+    struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
+    {
+        explicit ValuesUpdateForPlayerWithMaskSender(Conversation const* owner) : Owner(owner) { }
 
-            Conversation const* Owner;
-            UF::ObjectData::Base ObjectMask;
-            UF::ConversationData::Base ConversationMask;
+        Conversation const* Owner;
+        UF::ObjectData::Base ObjectMask;
+        UF::ConversationData::Base ConversationMask;
 
-            void operator()(Player const* player) const;
-        };
+        void operator()(Player const* player) const;
+    };
 
-        void AddToWorld() override;
-        void RemoveFromWorld() override;
+    void AddToWorld() override;
+    void RemoveFromWorld() override;
 
-        void Update(uint32 diff) override;
-        void Remove();
-        Milliseconds GetDuration() const { return _duration; }
-        uint32 GetTextureKitId() const { return _textureKitId; }
+    void Update(uint32 diff) override;
+    void Remove();
+    Milliseconds GetDuration() const { return _duration; }
+    uint32 GetTextureKitId() const { return _textureKitId; }
 
         static Conversation* CreateConversation(uint32 conversationEntry, Unit* creator, Position const& pos, ObjectGuid privateObjectOwner, SpellInfo const* spellInfo = nullptr, bool autoStart = true);
         void Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry, Map* map, Unit* creator, Position const& pos, ObjectGuid privateObjectOwner, SpellInfo const* spellInfo = nullptr);
@@ -66,31 +66,31 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
         void AddActor(int32 actorId, uint32 actorIdx, ObjectGuid const& actorGuid);
         void AddActor(int32 actorId, uint32 actorIdx, ConversationActorType type, uint32 creatureId, uint32 creatureDisplayInfoId);
 
-        ObjectGuid const& GetCreatorGuid() const { return _creatorGuid; }
-        ObjectGuid GetOwnerGUID() const override { return GetCreatorGuid(); }
-        uint32 GetFaction() const override { return 0; }
+    ObjectGuid const& GetCreatorGuid() const { return _creatorGuid; }
+    ObjectGuid GetOwnerGUID() const override { return GetCreatorGuid(); }
+    uint32 GetFaction() const override { return 0; }
 
-        float GetStationaryX() const override { return _stationaryPosition.GetPositionX(); }
-        float GetStationaryY() const override { return _stationaryPosition.GetPositionY(); }
-        float GetStationaryZ() const override { return _stationaryPosition.GetPositionZ(); }
-        float GetStationaryO() const override { return _stationaryPosition.GetOrientation(); }
-        void RelocateStationaryPosition(Position const& pos) { _stationaryPosition.Relocate(pos); }
+    float GetStationaryX() const override { return _stationaryPosition.GetPositionX(); }
+    float GetStationaryY() const override { return _stationaryPosition.GetPositionY(); }
+    float GetStationaryZ() const override { return _stationaryPosition.GetPositionZ(); }
+    float GetStationaryO() const override { return _stationaryPosition.GetOrientation(); }
+    void RelocateStationaryPosition(Position const& pos) { _stationaryPosition.Relocate(pos); }
 
-        Milliseconds const* GetLineStartTime(LocaleConstant locale, int32 lineId) const;
-        Milliseconds GetLastLineEndTime(LocaleConstant locale) const;
+    Milliseconds const* GetLineStartTime(LocaleConstant locale, int32 lineId) const;
+    Milliseconds GetLastLineEndTime(LocaleConstant locale) const;
 
-        uint32 GetScriptId() const;
+    uint32 GetScriptId() const;
 
-        UF::UpdateField<UF::ConversationData, 0, TYPEID_CONVERSATION> m_conversationData;
+    UF::UpdateField<UF::ConversationData, 0, TYPEID_CONVERSATION> m_conversationData;
 
-    private:
-        Position _stationaryPosition;
-        ObjectGuid _creatorGuid;
-        Milliseconds _duration;
-        uint32 _textureKitId;
+private:
+    Position _stationaryPosition;
+    ObjectGuid _creatorGuid;
+    Milliseconds _duration;
+    uint32 _textureKitId;
 
-        std::unordered_map<std::pair<LocaleConstant /*locale*/, int32 /*lineId*/>, Milliseconds /*startTime*/> _lineStartTimes;
-        std::array<Milliseconds /*endTime*/, TOTAL_LOCALES> _lastLineEndTimes;
+    std::unordered_map<std::pair<LocaleConstant /*locale*/, int32 /*lineId*/>, Milliseconds /*startTime*/> _lineStartTimes;
+    std::array<Milliseconds /*endTime*/, TOTAL_LOCALES> _lastLineEndTimes;
 };
 
 #endif // TRINITYCORE_CONVERSATION_H

@@ -1,19 +1,19 @@
 /*
-* Copyright 2023 AzgathCore
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright 2023 AzgathCore
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include "siege_of_orgrimmar.hpp"
 #include "Vehicle.h"
@@ -21,3 +21,505 @@
 #include "MoveSplineInit.h"
 #include "SpellMgr.h"
 
+// todo implement movement forces
+
+enum ScriptedTexts
+{
+    SAY_AGGRO = 0,
+    SAY_DEATH_1 = 1,
+    SAY_DEATH_2 = 2,
+    SAY_WEAPON_DESTROYED = 4,
+    SAY_SHREDDER = 11,
+    SAY_KILL = 16,
+    SAY_LASER = 19,
+    SAY_MAGNET = 20,
+    SAY_OVERCHARGED_MINES = 21,
+    SAY_MINES = 22,
+    SAY_MISSILE = 23,
+    SAY_CONVEYOR_EMOTE = 24,
+    SAY_SHREDDER_EMOTE = 25,
+};
+
+enum Spells
+{
+    // Pipe transfer
+    SPELL_PIPE_TRANSFER = 143738, // removes crawler mines fixate
+    SPELL_PIPE_TRANSFER_TRANSITION = 143758, // teleports to the conveyor, applies 144236
+    SPELL_PIPE_TRANSFER_EJECTION = 143797, // teleports to ejection (?)
+    SPELL_PIPE_TRANSFER_TO_ENTRANCE = 145223, // teleports to entrance (?)
+    SPELL_PIPE_TRANSFER_TO_EXIT = 145237, // teleports to exit (?)
+    //SPELL_PIPE_TRANSFER           = , // teleports to (?)
+    SPELL_PIPE_TRANSFER_JUMP = 143798,
+    SPELL_PIPE_TRANSFER_FALL = 145224, // applies when player teleports to the conveyor
+    SPELL_PIPE_TRANSFER_FALL_2 = 145238, // applies when player teleports to the conveyor
+
+    SPELL_PATTERN_RECOGNITION = 144236,
+
+    // The boss
+
+    SPELL_MAGNETIC_LASSO = 145351,
+    SPELL_MAGNETIC_LASSO_JUMP = 145358, // to pull player back to the platform
+
+    SPELL_TELEPORT_FORCE = 149427, // ? in sniffs
+    SPELL_TELEPORT = 149426, // ? in sniffs
+
+    SPELL_LOAD_SAWBLADE = 143264,
+    SPELL_LAUNCH_SAWBLADE = 143265,
+    SPELL_LAUNCH_SAWBLADE_JUMP = 143266,
+    SPELL_LAUNCH_SAWBLADE_AOE = 143291, // targets player
+    SPELL_LAUNCH_SAWBLADE_AURA = 143329, // casted by sawblade on self by 143265
+    SPELL_LAUNCH_SAWBLADE_REMOVE = 144028,
+
+    SPELL_SERRATED_SLASH_DMG = 143328, // damages shredders
+    SPELL_SERRATED_SLASH_MARK = 145381,
+    SPELL_SERRATED_SLASH_KNOCKBACK = 143327, // damages players
+    SPELL_SERRATED_SLASH_REMOVE = 145370, // removes 143327
+
+    SPELL_PROTECTIVE_FRENZY = 145365,
+
+    SPELL_ELECTROSTATIC_CHARGE = 143385,
+
+    SPELL_AUTOMATIC_REPAIR_BEAM_MARK_1 = 144212, // on caster
+    SPELL_AUTOMATIC_REPAIR_BEAM_HEAL = 144213,
+    SPELL_AUTOMATIC_REPAIR_BEAM_MARK_2 = 145701, // not used in sniffs
+
+    SPELL_ENERGIZED_DEFENSIVE_MATRIX = 148990,
+
+    // Laser Array Bunny
+    SPELL_CONVEYOR_DEATH_BEAM_DUMMY = 144284,
+    SPELL_CONVEYOR_DEATH_BEAM_AREATRIGGER = 144282,
+    SPELL_MATTER_PURIFICATION_BEAM = 144335,
+
+    // Laser Array Target Vehicle
+    SPELL_RELAY_CLOSE_PIPE_HANDLER = 148779,
+
+    // Steam Vent
+    SPELL_STEAM_VENT = 145209,
+
+    // Conveyor
+    SPELL_ON_PLATFORM = 145480,
+    SPELL_ON_CONVEYOR = 144287,
+    SPELL_CREATE_CONVEYOR_TRIGGER = 145272, // 2033.77 -5563.46 -266.2
+
+    // Siege Engineer Helper
+    SPELL_SIEGE_ENGINEER_HELPER_PERIODIC = 143531,
+    SPELL_OPEN_PIPE_HANDLER = 143485,
+    SPELL_CLOSE_PIPE_HANDLER = 144242,
+
+    SPELL_SUMMON_DEACTIVATED_TURRET_VEHICLE = 143528,  // 1962.337 -5452.712 -303.1317
+    SPELL_SUMMON_DEACTIVATED_ROCKET_TURRET = 143526, // 1962.337 -5452.712 -303.1317
+    SPELL_SUMMON_DISASSEMBLED_CRAWLER_MINE_VEHICLE = 144012, // 1962.337 -5452.712 -303.1317
+    SPELL_SUMMON_DEACTIVATED_LASER_TURRET = 143263, // 1962.337 -5452.712 -303.1317
+    SPELL_SUMMON_DEACTIVATED_MAGNET_TURRET = 143936, // 1962.337 -5452.712 -303.1317
+
+    SPELL_SUMMON_ACTIVATED_TURRET_VEHICLE = 143560, // 1935.752 -5739.543 -302.998
+    SPELL_SUMMON_ACTIVATED_TURRET_PLACEHOLDER = 143565, // 1962.337 -5452.712 -303.1317
+    SPELL_SUMMON_ACTIVATED_ROCKET_TURRET = 143561, // 1935.752 -5739.543 -302.998
+    SPELL_SUMMON_ACTIVATED_CRAWLER_MINE_CONTROLLER = 144011, // 1935.752 -5739.543 -302.998
+    SPELL_SUMMON_ACTIVATED_MAGNET_TURRET = 143938,
+    SPELL_SUMMON_ACTIVATED_LASER_TURRET = 143711,
+
+    SPELL_ACTIVATED_TURRET_VEHICLE_FIRE_NOTIFICATION = 143651,
+    SPELL_ACTIVATED_LEAVE_HANDLER = 143490,
+    SPELL_DESPAWN_AREATRIGGERS = 144200,
+    SPELL_DESPAWN_PASSENGERS = 143553, // by 71614 71751
+
+    SPELL_TURRET_DEATH_PING = 144292, // by 71751
+    SPELL_DEACTIVATED_TURRET_DEATH_REPORT = 143558, // by 71751
+    SPELL_TURRET_EXPLOSION = 144510, // by 71751
+
+    SPELL_ELECTROMAGNETIC_BARRIER_DUMMY = 146663,
+    SPELL_ELECTROMAGNETIC_BARRIER_IMMUNITY = 145154,
+
+    // Automated Shredder
+    SPELL_REACTIVE_ARMOR = 143387,
+    SPELL_DEATH_FROM_ABOVE = 144208,
+    SPELL_DEATH_FROM_ABOVE_MISSILE = 147010,
+    SPELL_DEATH_FROM_ABOVE_DMG = 144210,
+    SPELL_OVERLOAD = 145444,
+    SPELL_AUTOMATED_SHREDDER_DEATH_NOTIFY = 145453,
+
+    // Laser Turret
+    SPELL_LOCKED_ON = 143828,
+    SPELL_LASER_GROUND_EFFECT_PERIODIC = 143829,
+    SPELL_LASER_GROUND_EFFECT = 143830,
+    SPELL_LASER_TURRET_TARGETTING_FORCE = 145906,
+    SPELL_LASER_TURRET_TARGETTING_AOE = 143833,
+    SPELL_LASER_TURRET_TARGETTING_SUMMON = 143838,
+    SPELL_LASER_VISUAL_FORCECAST = 143866,
+    SPELL_DESINTEGRATION_LASER = 143867, // visual ray
+    SPELL_DESINTEGRATION_LASER_2 = 146680, // visual ray
+    SPELL_SUPERHEATED_AURA = 144040,
+    SPELL_SUPERHEATED_DMG = 143856,
+    SPELL_SUPERHEATED_DUMMY = 145347,
+
+    // Crawler Mine
+    SPELL_BREAK_IN_PERIOD = 145269,
+    SPELL_READY_TO_GO = 145580,
+    SPELL_CRAWLER_MINE_JUMP = 144008,
+    SPELL_CRAWLER_MINE_FIXATE_TARGETTING = 144009, // triggered by 144008
+    SPELL_CRAWLER_MINE_FIXATE = 144010,
+    SPELL_DETONATE = 144026,
+    SPELL_DETONATE_DMG = 143002,
+    SPELL_BREAK_PLAYER_TARGETTING = 140562, // in sniffs
+
+    // Electromagnet
+    SPELL_MAGNETIC_CRUSH = 143487, // casted by electromagnet in normal mode
+    SPELL_MAGNETIC_CRUSH_DMG = 144466,
+    SPELL_MAGNETIC_PULSE_SCRIPT = 143357, // triggered by 143487, targets sawblade (I think)
+    SPELL_MAGNETIC_PULSE_JUMP = 143945, // casted by sawblade
+    SPELL_MAGNETIC_PULSE_JUMP_2 = 143359, // triggered by 143945
+    SPELL_MAGNETIC_CRUSH_PULL = 147369, // casted by electromagnet in heroic mode. Periodic trigger for 147370 in 5 secs, but 147369 has 4.5 secs duration. Do it manually.
+    SPELL_MAGNETIC_CRUSH_PUSH = 147370, // casted by electromagnet in heroic mode. Periodic trigger for 147369 in 5 secs, but 147370 has 4.5 secs duration. Do it manually.
+    SPELL_MAGNETIC_PULSE_SCRIPT_PULL = 147458, // triggered by 147369, targets sawblade (I think) (heroic)
+    SPELL_MAGNETIC_PULSE_JUMP_PULL = 147459, // (heroic)
+    SPELL_MAGNETIC_PULSE_SCRIPT_PUSH = 147380, // triggered by 147370, targets sawblade (I think) (heroic)
+    SPELL_MAGNETIC_PULSE_JUMP_PUSH = 147379, // (heroic)
+
+
+    // Shockwave Missile Turret
+    SPELL_SHOCKWAVE_MISSILE = 143639, // casted by turret
+    SPELL_SHOCKWAVE_MISSILE_AOE = 143642, // targettting
+    SPELL_SHOCKWAVE_MISSILE_PERIODIC = 146149, // triggers 146154 periodically (in heroic)
+    SPELL_SHOCKWAVE_MISSILE_AOE_2 = 146154, // targettting (in heroic)
+    SPELL_SHOCKWAVE_MISSILE_MISSILE = 143640,
+    SPELL_SHOCKWAVE_MISSILE_MISSILE_2 = 146153, // (in heroic)
+    SPELL_SHOCKWAVE_MISSILE_SUMMON = 143641,
+    SPELL_SHOCKWAVE_MISSILE_SUMMON_2 = 146152, // (in heroic)
+    SPELL_SHOCKWAVE_MISSILE_DMG_10 = 144658, // 10 yards
+    SPELL_SHOCKWAVE_MISSILE_DMG_25 = 144660,
+    SPELL_SHOCKWAVE_MISSILE_DMG_45 = 144661,
+    SPELL_SHOCKWAVE_MISSILE_DMG_65 = 144662,
+    SPELL_SHOCKWAVE_MISSILE_DMG_85 = 144663,
+    SPELL_SHOCKWAVE_MISSILE_DMG_105 = 144664,
+    SPELL_SHOCKWAVE_MISSILE_VISUAL_1 = 144647, // visual for shockwave missile
+    SPELL_SHOCKWAVE_MISSILE_VISUAL_2 = 146155, // visual for overcharged shockwave missile
+};
+
+enum Adds
+{
+    NPC_SIEGECRAFTER_BLACKFUSE_GOBLIN = 72694,
+    NPC_SAWBLADE = 71532,
+
+    NPC_AUTOMATED_SHREDDER = 71591,
+
+    NPC_SIEGE_ENGINEER_HELPER_BUNNY = 71520, // for example, casts conveyor trigger
+
+    NPC_STEAM_VENT_BUNNY = 72345,
+    NPC_LASER_ARRAY_BUNNY = 71910,
+    NPC_LASER_ARRAY_TARGET_VEHICLE = 71912, // is transport for 71910
+
+    NPC_DEACTIVATED_TURRET_VEHICLE = 71614, // vehicle for 71606 71790 71751 71694
+    NPC_DEACTIVATED_MISSILE_TURRET = 71606,
+    NPC_DISASSEMBLED_CRAWLER_MINES = 71790,
+    NPC_DEACTIVATED_LASER_TURRET = 71751,
+    NPC_DEACTIVATED_ELECTROMAGNET = 71694,
+
+    NPC_ACTIVATED_TURRET_VEHICLE = 71637, // by 143560, vehicle for 72027 71795 71639 72015 71696
+    NPC_ACTIVATED_TURRET_PLACEHOLDER = 71639, // by 143565, spawns instead of killed weapon
+    NPC_ACTIVATED_MISSILE_TURRET_BASE = 72027, // by 143561, vehicle for 71638
+    NPC_ACTIVATED_MISSILE_TURRET = 71638,
+    NPC_SHOCKWAVE_MISSILE = 72052,
+    NPC_ACTIVATED_CRAWLER_MINE_VEHICLE = 71795, // by 144011, vehicle for 71788
+    NPC_CRAWLER_MINE = 71788,
+    NPC_ACTIVATED_ELECTROMAGNET = 71696, // by 143938
+    NPC_ACTIVATED_LASER_TURRET_BASE = 72015, // by 143711, vehicle for 71752
+    NPC_ACTIVATED_LASER_TURRET = 71752,
+
+
+    NPC_OVERCHARGED_MISSILE_TURRET = 72831,
+    NPC_OVERCHARGED_SHOCKWAVE_MISSILE = 72832,
+    NPC_OVERCHARGED_MISSILE_CASTER_STALKER = 72834, // ?
+    NPC_OVERCHARGED_CRAWLER_MINE = 72668,
+    NPC_OVERCHARGED_LASER_TURRET = 72773,
+    NPC_OVERCHARGED_ELECTROMAGNET = 73387,
+
+    NPC_LASER_TARGET_BUNNY = 71740,
+};
+
+enum Events
+{
+    EVENT_ELECTROSTATIC_CHARGE = 1,
+    EVENT_LAUCH_SAWBLADE,
+    EVENT_AUTOMATED_SHREDDER,
+    EVENT_AUTOMATED_SHREDDER_REPAIR,
+    EVENT_OVERLOAD,
+    EVENT_DEATH_FROM_ABOVE,
+    EVENT_SPAWN_DEACTIVATED_WEAPON,
+    EVENT_SPAWN_ACTIVATED_WEAPON,
+    EVENT_LASER_TURRET,
+    EVENT_LASER_TARGET_TARGET,
+    EVENT_LASER_TARGET_TARGET_STOP,
+    EVENT_CRAWLER_MINE_PREPARE,
+    EVENT_CRAWLER_MINE,
+    EVENT_CRAWLER_MINE_START,
+    EVENT_CRAWLER_MINE_READY_TO_GO,
+    EVENT_ELECTROMAGNET,
+    EVENT_ELECTROMAGNET_SWITCH,
+    EVENT_SHOCKWAVE_MISSILE_TURRET,
+    EVENT_SHOCKWAVE_MISSILE,
+};
+
+enum Datas
+{
+    DATA_DESTROYED_DEACTIVATED_WEAPON = 1,
+    DATA_LASER_TARGET_GUID,
+    DATA_CRAWLER_MINE_COUNTER,
+    DATA_CRAWLER_MINE_FIXATE,
+    DATA_SAWBLADE_ON_GROUND,                // to see when a sawblade is on the ground
+    DATA_SAWBLADE_TO_ELECTROMAGNET_PULL,    // to see when a sawblade is pulled by an electromagnet
+    DATA_SAWBLADE_TO_ELECTROMAGNET_PUSH,    // to see when a sawblade is pushed by an electromagnet
+
+    DATA_LASERS_KILLED,
+    DATA_MINES_KILLED,
+    DATA_MAGNETS_KILLED,
+    DATA_SHOCKWAVE_KILLED,
+};
+
+enum Actions
+{
+    ACTION_MOVE_WITH_CONVEYOR = 1,    // used to trigger weapons to move with the conveyor
+    ACTION_END_OF_CONVEYOR,             // used to trigger the controller when deactivated weapons reach the end of the conveyor
+    ACTION_WEAPON_READY,                // used to trigger the controller when activated weapons reach the end of the conveyor
+    ACTION_CRAWLER_MINE_START,          // used to trigger crawler mine moving after an overcharged crawler mine's death
+};
+
+enum DisplayIds
+{
+
+};
+
+enum Timers
+{
+    TIMER_BERSERK = 10 * MINUTE * IN_MILLISECONDS,
+    TIMER_ELECTROSTATIC_CHARGE_FIRST = 250,
+    TIMER_ELECTROSTATIC_CHARGE = 17 * IN_MILLISECONDS,
+    TIMER_LAUNCH_SAWBLADE_FIRST = 10 * IN_MILLISECONDS,
+    TIMER_LAUNCH_SAWBLADE = 15 * IN_MILLISECONDS,
+    TIMER_SAWVBLADE_TARGETS = 1 * IN_MILLISECONDS,
+    TIMER_OVERLOAD = 10 * IN_MILLISECONDS,
+    TIMER_DEATH_FROM_ABOVE_FIRST = 18 * IN_MILLISECONDS,
+    TIMER_DEATH_FROM_ABOVE = 40 * IN_MILLISECONDS,
+    TIMER_AUTOMATED_SHREDDER_FIRST = 35 * IN_MILLISECONDS,
+    TIMER_AUTOMATED_SHREDDER = 60 * IN_MILLISECONDS,
+    TIMER_AUTOMATED_SHREDDER_REPAIR = 3 * IN_MILLISECONDS,
+    TIMER_DEACTIVATED_WEAPON_FIRST = 2 * IN_MILLISECONDS,
+    TIMER_DEACTIVATED_WEAPON = 65 * IN_MILLISECONDS,
+
+    TIMER_LASER_TURRET_ACTIVATION = 1 * IN_MILLISECONDS,
+    TIMER_LASER_TARGET_MOVE = 2 * IN_MILLISECONDS,
+    TIMER_LASER_DURATION_NORMAL = 15 * IN_MILLISECONDS,
+    TIMER_LASER_DURATION_HEROIC = 50 * IN_MILLISECONDS,
+    TIMER_SUPERHEATED_DURATION = 50 * IN_MILLISECONDS,
+    TIMER_CRAWLER_MINE_ACTIVATION_FIRST = 2 * IN_MILLISECONDS,
+    TIMER_CRAWLER_MINE_ACTIVATION = 5 * IN_MILLISECONDS,
+    TIMER_CRAWLER_MINE_READY_TO_GO = 60 * IN_MILLISECONDS,
+    TIMER_ELECTROMAGNET_ACTIVATION = 2 * IN_MILLISECONDS,
+    TIMER_ELECTROMAGNET_SWITCH = 5 * IN_MILLISECONDS,
+    TIMER_SHOCKWAVE_MISSILE_ACTIVATION = 2 * IN_MILLISECONDS,
+    TIMER_SHOCKWAVE_MISSILE_FIRST = 2 * IN_MILLISECONDS,
+    TIMER_SHOCKWAVE_MISSILE = 4 * IN_MILLISECONDS,
+};
+
+enum VehicleSeats
+{
+    SEAT_SAWBLADE = 0,
+    SEAT_BLACKFUSE = 1,
+};
+
+enum MovementPoints : int
+{
+    POINT_END_OF_CONVEYOR = 1,
+    POINT_SAWBLADE_ELECTROMAGNET,
+};
+
+enum WeaponTypes : int
+{
+    WEAPON_SHOCKWAVE_MISSILE_TURRET,
+    WEAPON_LASER_TURRET,
+    WEAPON_ELECTROMAGNET,
+    WEAPON_CRAWLER_MINE,
+    WEAPON_COUNT,
+
+    WEAPON_NONE,
+};
+
+#define WEAPON_SEQUENCE_COUNT 12
+#define WEAPON_PER_LINE 3
+#define WEAPON_TO_READY 4
+const WeaponTypes weaponSequences[WEAPON_SEQUENCE_COUNT][WEAPON_PER_LINE]
+{
+    { WEAPON_SHOCKWAVE_MISSILE_TURRET, WEAPON_CRAWLER_MINE, WEAPON_LASER_TURRET },
+    { WEAPON_CRAWLER_MINE, WEAPON_LASER_TURRET, WEAPON_SHOCKWAVE_MISSILE_TURRET },
+    { WEAPON_LASER_TURRET, WEAPON_ELECTROMAGNET, WEAPON_SHOCKWAVE_MISSILE_TURRET },
+    { WEAPON_LASER_TURRET, WEAPON_SHOCKWAVE_MISSILE_TURRET, WEAPON_CRAWLER_MINE },
+    { WEAPON_SHOCKWAVE_MISSILE_TURRET, WEAPON_ELECTROMAGNET, WEAPON_CRAWLER_MINE },
+    { WEAPON_LASER_TURRET, WEAPON_CRAWLER_MINE, WEAPON_CRAWLER_MINE },
+    { WEAPON_CRAWLER_MINE, WEAPON_LASER_TURRET, WEAPON_SHOCKWAVE_MISSILE_TURRET },
+    { WEAPON_SHOCKWAVE_MISSILE_TURRET, WEAPON_ELECTROMAGNET, WEAPON_CRAWLER_MINE },
+    { WEAPON_LASER_TURRET, WEAPON_CRAWLER_MINE, WEAPON_LASER_TURRET },
+    { WEAPON_SHOCKWAVE_MISSILE_TURRET, WEAPON_LASER_TURRET, WEAPON_CRAWLER_MINE },
+    { WEAPON_SHOCKWAVE_MISSILE_TURRET, WEAPON_ELECTROMAGNET, WEAPON_SHOCKWAVE_MISSILE_TURRET },
+    { WEAPON_CRAWLER_MINE, WEAPON_ELECTROMAGNET, WEAPON_LASER_TURRET }
+};
+
+const WeaponTypes overchargeSequence[WEAPON_COUNT] =
+{
+    WEAPON_ELECTROMAGNET,
+    WEAPON_CRAWLER_MINE,
+    WEAPON_SHOCKWAVE_MISSILE_TURRET,
+    WEAPON_LASER_TURRET,
+};
+
+// MOVEMENTFLAG_DISABLE_GRAVITY, MOVEMENTFLAG_ROOT (1536)
+const Position siegeEngineerHelperPos = { 1956.205f, -5608.715f, -309.2436f, 5.302907f };
+
+#define LASER_ARRAY_LINES_COUNT 5
+#define LASER_ARRAY_POINTS_COUNT 5
+const Position laserArrayPos[LASER_ARRAY_LINES_COUNT][LASER_ARRAY_POINTS_COUNT] =
+{
+    // * * * * * from north-west to south-east
+    // * * * * *
+    // * * * * *
+    // * * * * *
+    // * * * * *
+    {
+        { 1970.609f, -5494.204f, -303.2739f, 5.283258f },
+        { 1976.499f, -5490.422f, -303.2739f, 5.283258f },
+        { 1982.389f, -5486.639f, -303.2739f, 5.283258f },
+        { 1988.279f, -5482.856f, -303.2739f, 5.283258f },
+        { 1994.169f, -5479.074f, -303.2739f, 5.283258f }
+    },
+    {
+        { 1999.539f, -5537.805f, -302.9146f, 5.283258f },
+        { 2005.429f, -5534.022f, -302.9146f, 5.283258f },
+        { 2011.319f, -5530.24f, -302.9146f, 5.283258f },
+        { 2017.209f, -5526.457f, -302.9146f, 5.283258f },
+        { 2023.099f, -5522.675f, -302.9146f, 5.283258f }
+    },
+    {
+        { 2017.534f, -5563.981f, -303.5679f, 5.283258f },
+        { 2023.424f, -5560.199f, -303.5679f, 5.283258f },
+        { 2029.314f, -5556.417f, -303.5679f, 5.283258f },
+        { 2035.204f, -5552.634f, -303.5679f, 5.283258f },
+        { 2041.094f, -5548.852f, -303.5679f, 5.283258f }
+    },
+    {
+        { 2056.919f, -5572.532f, -303.2581f, 5.283258f },
+        { 2051.029f, -5576.314f, -303.2581f, 5.283258f },
+        { 2045.139f, -5580.097f, -303.2581f, 5.283258f },
+        { 2039.249f, -5583.88f, -303.2581f, 5.283258f },
+        { 2033.359f, -5587.662f, -303.2581f, 5.283258f }
+    },
+    {
+        { 2076.56f, -5601.192f, -302.9146f, 5.283258f },
+        { 2070.67f, -5604.974f, -302.9146f, 5.283258f },
+        { 2064.78f, -5608.757f, -302.9146f, 5.283258f },
+        { 2058.889f, -5612.54f, -302.9146f, 5.283258f },
+        { 2053.0f, -5616.322f, -302.9146f, 5.283258f }
+    }
+};
+
+#define STEAM_VENTS_COUNT 6
+const Position steamVentsPos[STEAM_VENTS_COUNT] =
+{
+    { 1887.135f, -5588.172f, -313.0506f, 6.104739f },
+    { 1885.184f, -5607.734f, -311.1529f, 6.209213f },
+    { 1878.431f, -5595.221f, -313.1387f, 6.146268f },
+    { 1894.163f, -5573.434f, -310.1116f, 6.011731f },
+    { 1902.306f, -5563.738f, -311.4448f, 5.93033f },
+    { 1914.462f, -5550.249f, -311.7415f, 5.93033f }
+};
+
+#define SHOCKWAVE_MOSSILE_POS_COUNT 21
+const Position shockwaveMissileTurretPos[SHOCKWAVE_MOSSILE_POS_COUNT] =
+{
+    { 1926.40f, -5653.87f, -309.31f, 0.94f },
+    { 1957.464844f, -5557.352051f, -309.31f, 0.265050f },
+    { 1965.199951f, -5559.879395f, -309.31f, 5.781598f },
+    { 1973.733398f, -5565.924316f, -309.31f, 5.583068f },
+    { 1980.425049f, -5571.562012f, -309.31f, 5.583068f },
+    { 1988.175903f, -5578.030762f, -309.31f, 5.708295f },
+    { 1997.459106f, -5585.757324f, -309.31f, 4.944715f },
+    { 1991.042236f, -5595.712402f, -309.31f, 3.496964f },
+    { 1981.834106f, -5597.989746f, -309.31f, 3.225127f },
+    { 1970.801147f, -5592.247559f, -309.31f, 2.556231f },
+    { 1963.507813f, -5587.413086f, -309.31f, 2.556231f },
+    { 1957.432861f, -5582.482422f, -309.31f, 2.369915f },
+    { 1953.587158f, -5578.071777f, -309.31f, 2.156111f },
+    { 1950.186768f, -5569.683594f, -309.31f, 1.783483f },
+    { 1950.400879f, -5560.945313f, -309.31f, 1.349768f },
+    { 1953.021851f, -5553.578125f, -309.31f, 0.928270f },
+    { 1959.958862f, -5549.662109f, -309.08f, 0.283807f },
+    { 1964.802490f, -5549.130371f, -308.31f, 6.093574f },
+    { 1972.494873f, -5551.299316f, -308.31f, 5.833957f },
+    { 1977.761230f, -5554.484375f, -309.31f, 5.696512f },
+    { 1981.235840f, -5556.780273f, -309.31f, 5.702621f }
+};
+
+const Position endOfFirstConveyorPos = { 2095.06f, -5652.94f, -302.87f, 2.15f };
+const Position endOfSecondConveyorPos = { 1855.05f, -5618.66f, -302.87f, 2.23f };
+const Position automatedShredderPos = { 1975.13f, -5637.32f, -309.31f, 2.18f };
+const Position crawlerMineJumpPos = { 1911.91f, -5634.93f, -309.31f, 0.53f };
+#define SAWBLADE_PULL_POS_COUNT 3
+const Position sawbladePullPos[SAWBLADE_PULL_POS_COUNT] =
+{
+    { 1892.182861f, -5618.150391f, -308.321320f, 5.058303f },
+    { 1899.715576f, -5637.610352f, -308.321320f, 5.195741f },
+    { 1914.891357f, -5657.220215f, -308.321320f, 5.614177f }
+};
+#define SAWBLADE_PUSH_POS_COUNT 9
+const Position sawbladePushPos[SAWBLADE_PUSH_POS_COUNT] =
+{
+    { 2020.556274f, -5611.636719f, -308.320587f, 1.820267f },
+    { 2020.556274f, -5611.636719f, -308.320587f, 1.746963f },
+    { 2019.040649f, -5603.019043f, -308.320587f, 1.743909f },
+    { 2013.899170f, -5584.634277f, -308.320587f, 2.085994f },
+    { 2005.456787f, -5570.866699f, -308.320587f, 2.226496f },
+    { 1998.943481f, -5563.477539f, -308.320587f, 2.412812f },
+    { 1990.494751f, -5557.254395f, -308.320587f, 2.593019f },
+    { 1986.861328f, -5555.219727f, -308.320587f, 2.644942f },
+    { 1973.175659f, -5549.339844f, -308.320587f, 2.867910f }
+};
+const Position centerPos = { 1956.14f, -5608.56f, -309.32f, 2.14f };
+
+const static float s_SerratedLashRange = 4.25f;
+
+#define CRAWLER_MINES_COUNT 3
+
+#define LASER_GROUND_EFFECT_SIZE 3.f
+
+bool IsOnConveyor(Unit* target)
+{
+    return target->HasAura(SPELL_ON_CONVEYOR);
+}
+
+Creature* GetBlackfuse(WorldObject* p_Searcher)
+{
+    if (InstanceScript* l_Instance = p_Searcher->GetInstanceScript())
+    {
+        return l_Instance->instance->GetCreature(l_Instance->GetObjectGuid(DATA_SIEGECRAFTER_BLACKFUSE));
+    }
+
+    return nullptr;
+}
+
+const Position& GetNearestPullPositionToMagnet(Unit* p_Magnet)
+{
+    int32 l_Index = -1;
+    for (int32 l_I = 0; l_I < SAWBLADE_PULL_POS_COUNT; ++l_I)
+    {
+        if (l_Index == -1 || p_Magnet->GetDistance(sawbladePullPos[l_I]) < p_Magnet->GetDistance(sawbladePullPos[l_Index]))
+            l_Index = l_I;
+    }
+
+    if (l_Index < 0)
+        return sawbladePullPos[0];
+
+    return sawbladePullPos[l_Index];
+}
+
+void AddSC_boss_siegecrafter_blackfuse()
+{
+    
+}

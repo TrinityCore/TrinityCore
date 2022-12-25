@@ -25,3 +25,46 @@
 #include "SpellScript.h"
 #include "Vehicle.h"
 
+std::vector<uint32> m_uiVillage
+{
+    NPC_SASSY_SEEDLING,
+    NPC_CURSED_JADE,
+    NPC_WILY_WOODLING,
+    NPC_GREENSTONE_TERROR,
+    NPC_DOOM_BLOOM,
+    NPC_CURSED_BREW,
+    NPC_BELLIGERENT_BLOSSOM,
+};
+
+enum Spells
+{
+    SPELL_COSMETIC_ATTACK = 118179, // used for texture visual attack (wood trigger)
+    SPELL_COSMETIC_WOOD_STRIKE = 130556,
+    SPELL_KEG_DELIVERY_CREDIT = 122935,
+    SPELL_RIDE_ON_VEHICLE = 43671,
+    SPELL_GREENSTONE_KICKSTART = 123064,
+    SPELL_GREENSTONE_SHARDS_D = 119401,
+    // destroyer
+    SPELL_OVERPOWER = 118865,
+    SPELL_JADE_BLAZE_SUMM = 122208,
+    SPELL_JADE_BLAZE_AURA = 122210,
+    SPELL_JADE_BLAZE_PERIODIC = 122212,
+    // beast
+    SPELL_JADE_POUNCE_JUMP = 131209,
+    SPELL_JADE_POUNCE_DAMAGE = 119382,
+    SPELL_JADE_STATUE = 119364,
+    // Vengeful Hui
+    SPELL_GIANT_HUI = 122213,
+    SPELL_HUI_KNUCKLE = 124303,
+    SPELL_SUMM_SEEDLINGS = 117664,
+};
+
+enum Events
+{
+    EVENT_COSMETIC = 1,
+};
+
+void AddSC_greenstone_village()
+{
+    
+}

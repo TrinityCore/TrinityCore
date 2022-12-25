@@ -21,3 +21,16 @@
 #include "Log.h"
 #include "SpellAuras.h"
 
+class isProtectorDeadPredicate
+{
+public:
+    bool operator()(Unit* target) const
+    {
+        return target && !target->IsAlive();
+    }
+};
+
+void AddSC_instance_terrace_of_endless_spring()
+{
+    
+}

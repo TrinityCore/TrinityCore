@@ -21,3 +21,7 @@
 #include "blood_in_the_snow.h"
 #include "ScenarioMgr.h"
 
+void AddSC_instance_blood_in_the_snow()
+{
+    
+}

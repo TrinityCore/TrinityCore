@@ -26,3 +26,7 @@
 #include "Vehicle.h"
 #include "LFGMgr.h"
 
+void AddSC_secret_ingridient()
+{
+    
+}

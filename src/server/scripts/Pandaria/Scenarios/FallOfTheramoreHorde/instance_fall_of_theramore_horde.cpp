@@ -21,3 +21,7 @@
 #include "fall_of_theramore_horde.h"
 #include "ScenarioMgr.h"
 
+void AddSC_instance_fall_of_theramore_horde()
+{
+   
+}

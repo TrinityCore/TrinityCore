@@ -21,3 +21,63 @@
 #include "Vehicle.h"
 #include "GameObject.h"
 
+enum spells
+{
+    SPELL_MANTID_MUNITION_EXPLOSION = 107153,
+    SPELL_EXPLOSE_GATE = 115456,
+
+    SPELL_BOMB_CAST_VISUAL = 106729,
+    SPELL_BOMB_AURA = 106875
+};
+
+class mob_serpent_spine_defender : public CreatureScript
+{
+public:
+    mob_serpent_spine_defender() : CreatureScript("mob_serpent_spine_defender") { }
+
+    struct mob_serpent_spine_defenderAI : public ScriptedAI
+    {
+        mob_serpent_spine_defenderAI(Creature* creature) : ScriptedAI(creature) {}
+
+        uint32 attackTimer;
+
+        void Reset() override
+        {
+            attackTimer = urand(1000, 5000);
+        }
+
+        void DamageDealt(Unit* /*target*/, uint32& damage, DamageEffectType /*damageType*/) override
+        {
+            damage = 0;
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!me->IsInCombat())
+            {
+                if (attackTimer <= diff)
+                {
+                    if (Unit* target = me->SelectNearestTarget(5.0f))
+                        if (!target->IsFriendlyTo(me))
+                            AttackStart(target);
+                }
+                else
+                    attackTimer -= diff;
+            }
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new mob_serpent_spine_defenderAI(creature);
+    }
+};
+
+#ifndef __clang_analyzer__
+void AddSC_gate_setting_sun()
+{
+    
+}
+#endif

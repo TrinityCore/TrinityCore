@@ -22,3 +22,13 @@
 #include "LFGMgr.h"
 #include "Group.h"
 
+WorldLocation ExitPos[2] =
+{
+    WorldLocation{ 1064, 7168.998f, 6307.999f, 16.016f, 2.3503f },
+    WorldLocation{ 1064, 6142.931f, 5037.585f, 37.008f, 0.0462f },
+};
+
+void AddSC_instance_isle_of_thunder()
+{
+    
+}

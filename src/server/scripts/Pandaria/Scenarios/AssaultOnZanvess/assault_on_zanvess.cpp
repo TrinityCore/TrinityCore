@@ -25,3 +25,7 @@
 #include "SpellScript.h"
 #include "Vehicle.h"
 
+void AddSC_assault_on_zanvess()
+{
+    
+}

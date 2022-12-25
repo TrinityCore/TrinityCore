@@ -21,3 +21,7 @@
 #include "battle_on_the_high_seas.h"
 #include "ScenarioMgr.h"
 
+void AddSC_instance_battle_on_the_high_seas()
+{
+    
+}

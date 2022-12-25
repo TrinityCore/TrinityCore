@@ -329,6 +329,9 @@ class TC_GAME_API BossAI : public ScriptedAI
 
         virtual void ScheduleTasks() { }
 
+        //For lock
+        bool IsLock;
+
         void Reset() override { _Reset(); }
         void JustEngagedWith(Unit* who) override { _JustEngagedWith(who); }
         void JustDied(Unit* /*killer*/) override { _JustDied(); }

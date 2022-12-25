@@ -20,3 +20,7 @@
 #include "ScriptedEscortAI.h"
 #include "Vehicle.h"
 
+void AddSC_wandering_island_south()
+{
+   
+}

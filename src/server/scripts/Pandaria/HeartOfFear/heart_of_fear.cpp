@@ -23,3 +23,7 @@
 #include "CreatureAI.h"
 #include "MoveSplineInit.h"
 
+void AddSC_heart_of_fear()
+{
+    
+}

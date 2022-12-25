@@ -21,3 +21,7 @@
 #include "little_patience.h"
 #include "ScenarioMgr.h"
 
+void AddSC_instance_little_patience()
+{
+    
+}

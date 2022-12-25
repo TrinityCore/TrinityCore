@@ -18,3 +18,52 @@
 #include "shadopan_monastery.h"
 #include "SpellAuras.h"
 
+enum eSpells
+{
+    SPELL_STEALTH_COSMETIC = 91194,
+    SPELL_CRISE = 128248,
+    SPELL_ICE_ARROW = 126114,
+    SPELL_EXPLOSION_DAMAGE = 106966,
+    SPELL_PURIFICATION_RITUAL = 111690,
+    SPELL_APPARITIONS_AURA = 112060,
+
+    // Residual Hatred
+    SPELL_CURSE_OF_AGONY = 112999,
+    SPELL_RING_OF_MALICE = 112932,
+    SPELL_SHADOW_BOLT = 112998,
+
+    // Vestige of Hatred
+    SPELL_BLACK_CLEAVE = 113020,
+    SPELL_DEATH_GRIP = 113021,
+    SPELL_ICE_TRAP = 135382,
+    SPELL_TOUCH_OF_WEAKNESS = 113022,
+
+    // Fragment of Hatred
+    //SPELL_ICE_TRAP              = 135382,
+    SPELL_SINISTER_STRIKE = 112931,
+    SPELL_VOLLEY_OF_HATRED = 112911
+};
+
+enum eEvents
+{
+    // Residual Hatred
+    EVENT_CURSE_OF_AGONY = 1,
+    EVENT_RING_OF_MALICE = 2,
+    EVENT_SHADOW_BOLT = 3,
+
+    // Vestige of Hatred
+    EVENT_BLACK_CLEAVE = 4,
+    EVENT_DEATH_GRIP = 5,
+    EVENT_ICE_TRAP = 6,
+    EVENT_TOUCH_OF_WEAKNESS = 7,
+
+    // Fragment of Hatred
+    //EVENT_ICE_TRAP              = 8,
+    EVENT_SINISTER_STRIKE = 9,
+    EVENT_VOLLEY_OF_HATRED = 10
+};
+
+void AddSC_shadopan_monastery()
+{
+    
+}

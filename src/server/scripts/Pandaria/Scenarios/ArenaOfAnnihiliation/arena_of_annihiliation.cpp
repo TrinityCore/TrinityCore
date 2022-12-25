@@ -25,3 +25,18 @@
 #include "SpellScript.h"
 #include "Vehicle.h"
 
+enum Spells
+{
+    SPELL_DIZZY = 123930,
+    SPELL_ANGRY = 123936,
+    SPELL_HEADBUTT = 123931,
+    SPELL_FLAMELINE_AREA = 123959,
+    SPELL_GROWTH = 122213,
+    SPELL_TRAILBLAZE = 123971,
+    SPELL_FLYING_SERPENT_KICK_EFF = 127807,
+};
+
+void AddSC_arena_of_annihiliation()
+{
+    
+}

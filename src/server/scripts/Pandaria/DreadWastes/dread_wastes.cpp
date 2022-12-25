@@ -23,3 +23,7 @@
 #include "Player.h"
 #include "GameObject.h"
 
+void AddSC_dread_wastes()
+{
+    
+}

@@ -90,7 +90,7 @@ bool MapDb2Entries::IsInstanceIdBound() const
     return !Map->IsFlexLocking() && !MapDifficulty->IsUsingEncounterLocks();
 }
 
-InstanceLockUpdateEvent::InstanceLockUpdateEvent(InstanceLockUpdateEvent&& other) noexcept = default;
+InstanceLockUpdateEvent::InstanceLockUpdateEvent(InstanceLockUpdateEvent && other) noexcept = default;
 InstanceLockUpdateEvent& InstanceLockUpdateEvent::operator=(InstanceLockUpdateEvent&&) noexcept = default;
 InstanceLockUpdateEvent::~InstanceLockUpdateEvent() = default;
 
@@ -271,7 +271,7 @@ InstanceLock* InstanceLockMgr::CreateInstanceLockForNewInstance(ObjectGuid const
 }
 
 InstanceLock* InstanceLockMgr::UpdateInstanceLockForPlayer(CharacterDatabaseTransaction trans, ObjectGuid const& playerGuid,
-    MapDb2Entries const& entries, InstanceLockUpdateEvent&& updateEvent)
+    MapDb2Entries const& entries, InstanceLockUpdateEvent && updateEvent)
 {
     InstanceLock* instanceLock = FindActiveInstanceLock(playerGuid, entries, true, true);
     if (!instanceLock)
@@ -392,7 +392,7 @@ InstanceLock* InstanceLockMgr::UpdateInstanceLockForPlayer(CharacterDatabaseTran
     return instanceLock;
 }
 
-void InstanceLockMgr::UpdateSharedInstanceLock(CharacterDatabaseTransaction trans, InstanceLockUpdateEvent&& updateEvent)
+void InstanceLockMgr::UpdateSharedInstanceLock(CharacterDatabaseTransaction trans, InstanceLockUpdateEvent && updateEvent)
 {
     auto sharedDataItr = _instanceLockDataById.find(updateEvent.InstanceId);
     ASSERT(sharedDataItr != _instanceLockDataById.end());
@@ -462,7 +462,7 @@ std::pair<InstanceResetTimePoint, InstanceResetTimePoint> InstanceLockMgr::Updat
 }
 
 void InstanceLockMgr::ResetInstanceLocksForPlayer(ObjectGuid const& playerGuid, Optional<uint32> mapId, Optional<Difficulty> difficulty,
-    std::vector<InstanceLock const*>* locksReset, std::vector<InstanceLock const*>* locksFailedToReset)
+    std::vector<InstanceLock const*>*locksReset, std::vector<InstanceLock const*>*locksFailedToReset)
 {
     auto playerLocksItr = _instanceLocksByPlayer.find(playerGuid);
     if (playerLocksItr == _instanceLocksByPlayer.end())
@@ -523,27 +523,27 @@ InstanceResetTimePoint InstanceLockMgr::GetNextResetTime(MapDb2Entries const& en
     int32 resetHour = sWorld->getIntConfig(CONFIG_RESET_SCHEDULE_HOUR);
     switch (entries.MapDifficulty->ResetInterval)
     {
-        case MAP_DIFFICULTY_RESET_DAILY:
-        {
-            if (dateTime.tm_hour >= resetHour)
-                ++dateTime.tm_mday;
+    case MAP_DIFFICULTY_RESET_DAILY:
+    {
+        if (dateTime.tm_hour >= resetHour)
+            ++dateTime.tm_mday;
 
-            dateTime.tm_hour = resetHour;
-            break;
-        }
-        case MAP_DIFFICULTY_RESET_WEEKLY:
-        {
-            int32 resetDay = sWorld->getIntConfig(CONFIG_RESET_SCHEDULE_WEEK_DAY);
-            int32 daysAdjust = resetDay - dateTime.tm_wday;
-            if (dateTime.tm_wday > resetDay || (dateTime.tm_wday == resetDay && dateTime.tm_hour >= resetHour))
-                daysAdjust += 7; // passed it for current week, grab time from next week
+        dateTime.tm_hour = resetHour;
+        break;
+    }
+    case MAP_DIFFICULTY_RESET_WEEKLY:
+    {
+        int32 resetDay = sWorld->getIntConfig(CONFIG_RESET_SCHEDULE_WEEK_DAY);
+        int32 daysAdjust = resetDay - dateTime.tm_wday;
+        if (dateTime.tm_wday > resetDay || (dateTime.tm_wday == resetDay && dateTime.tm_hour >= resetHour))
+            daysAdjust += 7; // passed it for current week, grab time from next week
 
-            dateTime.tm_hour = resetHour;
-            dateTime.tm_mday += daysAdjust;
-            break;
-        }
-        default:
-            break;
+        dateTime.tm_hour = resetHour;
+        dateTime.tm_mday += daysAdjust;
+        break;
+    }
+    default:
+        break;
     }
 
     return std::chrono::system_clock::from_time_t(mktime(&dateTime));

@@ -21,3 +21,7 @@
 #include "ScriptedEscortAI.h"
 #include "valley_of_the_four_winds.h"
 
+void AddSC_valley_of_the_four_winds()
+{
+   
+}

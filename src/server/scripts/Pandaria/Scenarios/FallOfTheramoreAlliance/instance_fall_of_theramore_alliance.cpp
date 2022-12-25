@@ -22,3 +22,7 @@
 #include "fall_of_theramore_alliance.h"
 #include "ScenarioMgr.h"
 
+void AddSC_instance_fall_of_theramore_alliance()
+{
+    
+}

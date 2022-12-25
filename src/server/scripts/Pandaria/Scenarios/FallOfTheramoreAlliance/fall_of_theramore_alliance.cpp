@@ -21,3 +21,16 @@
 #include "GridNotifiers.h"
 #include "fall_of_theramore_alliance.h"
 
+enum Talks
+{
+    TALK_INTRO,
+    TALK_SPECIAL_1,
+    TALK_SPECIAL_2,
+    TALK_SPECIAL_3,
+    TALK_SPECIAL_4,
+};
+
+void AddSC_fall_of_theramore_alliance_scenario()
+{
+    
+}

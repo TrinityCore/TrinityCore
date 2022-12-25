@@ -20,3 +20,7 @@
 #include "stormstout_brewery.h"
 #include "Vehicle.h"
 
+void AddSC_boss_ook_ook()
+{
+    
+}

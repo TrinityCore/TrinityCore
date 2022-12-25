@@ -19,3 +19,29 @@
 #include "ScriptedCreature.h"
 #include "gate_setting_sun.h"
 
+enum eSpells
+{
+    // Commander Rimok
+    SPELL_VISCOUS_FLUID_SUMMON = 107078,
+    SPELL_VISCOUS_FLUID_DMG_UP = 107091,
+    SPELL_VISCOUS_FLUID_DMG_DOWN = 107122,
+    SPELL_FRENZIED_ASSAULT = 107120,
+
+    // Add Generator
+    SPELL_PERIODIC_SPAWN_SWARMER = 115052,
+    SPELL_PERIODIC_SPAWN_SABOTEUR = 116621,
+
+    // Saboteur
+    SPELL_BOMBARD = 120559
+};
+
+enum eEvents
+{
+    EVENT_FRENZIED_ASSAULT = 1,
+    EVENT_VISCOUS_FLUID = 2
+};
+
+void AddSC_boss_commander_rimok()
+{
+    
+}

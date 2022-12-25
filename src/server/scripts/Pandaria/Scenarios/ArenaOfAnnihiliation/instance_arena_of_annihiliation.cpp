@@ -21,3 +21,7 @@
 #include "arena_of_annihiliation.h"
 #include "ScenarioMgr.h"
 
+void AddSC_instance_instance_arena_of_annihiliation()
+{
+ 
+}

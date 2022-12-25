@@ -21,3 +21,7 @@
 #include "greenstone_village.h"
 #include "ScenarioMgr.h"
 
+void AddSC_instance_greenstone_village()
+{
+    
+}

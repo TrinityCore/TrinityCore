@@ -1,0 +1,369 @@
+/*
+ * Copyright 2023 AzgathCore
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "AreaTriggerAI.h"
+#include "thenighthold.h"
+#include "WaypointManager.h"
+#include "AreaTrigger.h"
+#include "AreaTriggerTemplate.h"
+#include "SpellAuraDefines.h"
+#include "SpellAuraEffects.h"
+#include "AreaTrigger.h"
+#include "AreaTriggerTemplate.h"
+#include "Spline/Spline.h"
+
+enum Says
+{
+    SAY_AGGRO = 4,
+    SAY_HELLFIRE = 5,
+    SAY_HAND_1 = 6,
+    SAY_FEL_EFLUX_1 = 7,
+    SAY_HAND_2 = 8,
+    SAY_HAND_3 = 9,
+    SAY_PEREPHASE = 10,
+    SAY_PEREPHASE_END = 11,
+    SAY_PHASE_2_START = 12,
+    SAY_EMPOWERED_1 = 13,
+    SAY_EMPOWERED_1_2 = 14,
+    SAY_EYES = 15,
+    SAY_HELLFIRE_1 = 16,
+    SAY_EMPOWERED_2_1 = 17,
+    SAY_EMPOWERED_2_2 = 18,
+    SAY_EMPOWERED_BOUNDS = 19,
+    SAY_EMPOWERED_3_1 = 20,
+    SAY_EMPOWERED_3_2 = 21,
+    SAY_KILLED = 22,
+    SAY_PEREPHASE_2 = 23,
+    SAY_PHASE_3_START = 24,
+    SAY_BLACK_HARVEST = 25,
+    SAY_STORM = 26,
+};
+
+enum Spells
+{
+    //! general
+    SPELL_LIQUID_HELLFIRE = 206219,
+    SPELL_LIQUID_HELLFIRE_SUMMON = 206561,
+    SPELL_LIQUID_HELLFIRE_SUMMON_TRIGGER = 206554,
+    SPELL_LIQUID_HELLFIRE_SUMMON_AT = 206611,
+    SPELL_LIQUID_HELLFIRE_UNKNWN = 206616,
+
+    SPELL_HAND_OF_GULDAN = 212256,
+    SPELL_HAND_OF_GULDAN_SUMMON_1 = 215736,
+    SPELL_HAND_OF_GULDAN_SUMMON_2 = 215738,
+    SPELL_HAND_OF_GULDAN_SUMMON_3 = 215739,
+    SPELL_HAND_OF_GULDAN_SUMMON_4 = 209126, // her +
+    SPELL_HAND_OF_GULDAN_SUMMON_5 = 212721, // her +
+    SPELL_HAND_OF_GULDAN_SUMMON_6 = 212722, // her +
+    SPELL_SUMMON_VISUAL = 210277,
+
+
+    SPELL_FEL_EFFLUX = 206514,
+    SPELL_FEL_EFLUX_DUMMY = 216953,
+
+    SPELL_ZERO_ENERGY = 118357,
+
+    //! second phase
+    SPELL_EMPOWERED_LIQUID_HELLFIRE = 206220,
+    SPELL_EMPOWERED_LIQUID_AT = 206581,
+    SPELL_EMPOWERED_LIQUID_HELLFIRE_SUMMON_TRIGGER = 206586,
+    SPELL_EMPOWERED_LIQUID_HELLFIRE_DMG_TICK = 209191,
+
+    SPELL_BOUNDS_OF_FEL = 206222,
+    SPELL_BOUNDS_OF_FEL_DUMMY = 206330,
+    SPELL_BOUNDS_OF_FEL_TICK = 209011,
+    SPELL_BOUNDS_OF_FEL_DMG = 206339,
+    SPELL_BOUNDS_OF_FEL_DMG_AOE = 206340,
+
+    SPELL_EMPOWERED_BOUNDS_OF_FEL = 206221,
+    SPELL_EMPOWERED_BOUNDS_OF_FEL_KNOCK = 206366,
+    SPELL_EMPOWERED_BOUNDS_OF_FEL_DUMMY = 209029,
+    SPELL_EMPOWERED_BOUNDS_OF_FEL_TICK = 206384,
+    SPELL_EMPOWERED_BOUNDS_OF_FEL_AT = 209086,
+    SPELL_EMPOWERED_BOUNDS_OF_FEL_DMG = 206367,
+    SPELL_EMPOWERED_BOUNDS_OF_FEL_DMG_AOE = 206370,
+
+    SPELL_FEL_SCYTHE = 227554,
+    SPELL_FEL_SCYTHE_TRIGGER = 228163,
+    SPELL_FEL_SCYTHE_DMG = 227550,
+    SPELL_FEL_SCYTHE_RISE_DMG = 227557,
+    SPELL_FURRY_OF_THE_FEL = 227556,
+
+
+    SPELL_EYE_OF_GULDAN = 206226,
+    SPELL_EYE_OF_GULDAN_PERIODIC = 209454,
+    SPELL_EYE_OF_GULDAN_SPAWN = 207718,
+    SPELL_EYE_OF_GULDAN_SPAWN_1 = 211133,
+    SPELL_EYE_OF_GULDAN_COPY = 209291,
+    SPELL_EYE_OF_GULDAN_COPY_BURN = 209296,
+    SPELL_EYE_OF_GULDAN_COPY_JUMP = 209297,
+
+    SPELL_EMPOWERED_EYE_OF_GULDAN = 211152,
+    SPELL_EMPOWERED_EYE_OF_GULDAN_PERIODIC = 209489,
+    SPELL_EMPOWERED_EYE_OF_GULDAN_SPAWN = 211107,
+
+    //! third phase
+    SPELL_WIND = 211101,
+    SPELL_WELL_OF_SOULS = 206939,
+
+    SPELL_SOUL_CORROSION = 208802,
+    SPELL_SOUL_CORROSION_VISUAL = 212140,
+
+    SPELL_SOUL_SIPHON = 217766,
+    SPELL_SOUL_SIPHON_ABSORB = 221891,
+
+    SPELL_BLACK_HARVEST = 206744,
+    SPELL_BLACK_HARVEST_SOUL = 209087,
+
+    SPELL_FEL_OF_SARGERAS = 221783,
+    SPELL_FEL_OF_SARGERAS_TRIGGER = 221606,
+    SPELL_FEL_OF_SARGERAS_AURA = 221603,
+
+    SPELL_STORM_OF_THE_DESTROYER = 161121,
+
+    STORM_OF_THE_DESTROYER_VISUAL = 61453,
+    STORM_OF_THE_DESTROYER_ORPHAN_1 = 55649,
+    STORM_OF_THE_DESTROYER_ORPHAN_2 = 55677,
+    STORM_OF_THE_DESTROYER_ORPHAN_3 = 55683,
+    STORM_OF_THE_DESTROYER_ORPHAN_4 = 61442,
+
+    SPELL_STORM_OF_THE_DESTROYER_END = 152987,
+    SPELL_TELEPORT_AFTER_STORM = 227732,
+
+    // perephase
+    SPELL_EYE_OF_AMANTHUL_PHASE_3 = 227489,
+    SPELL_EYE_OF_AMANTHUL_PHASE_3_1 = 227426,
+    SPELL_EYE_OF_AMANTHUL_PHASE_3_AT = 227755,
+    SPELL_EYE_OF_AMANTHUL_PHASE_3_AT_END = 232848,
+
+    SPELL_EYE_OF_AMANTHUL_PHASE_2 = 227323,
+    SPELL_EYE_OF_AMANTHUL_PEREPHASE_TO_2 = 206516,
+
+    // visual and events
+    SPELL_INTRO_FOCUS_ILLIDAN = 227758,
+    SPELL_INTRO_VISUAL_CHARGING = 227433,
+
+    SPELL_INTRO = 227743,
+    SPELL_VISUAL_CHARGING_1 = 227745,
+    SPELL_VISUAL_CHARGING_2 = 227749,
+    SPELL_VISUAL_CHARGING_3 = 227750,
+
+    SPELL_BERSERK = 64238,
+    SPELL_MOVIE = 234147,
+    SPELL_UNKNWN_RESET_SPELLS = 179300,
+    SPELL_UNKNWN_RESET_SPELLS_1 = 179296,
+    SPELL_UNKNWN_EDEGES_OF_ROOM = 206261,
+    SPELL_UNKNWN_DESPAWN_AT = 115905,
+    SPELL_DEAD = 206500,
+    SPELL_RESONANT_BARRIER = 210336,
+    SPELL_TIME_DILATION = 210345,
+    SPELL_SCATTERING_FIELD = 210332,
+};
+
+enum Misc
+{
+    EVENT_1 = 1,
+    EVENT_2,
+    EVENT_3,
+    EVENT_4,
+    EVENT_6,
+    EVENT_5,
+};
+
+enum SpellsDemon
+{
+
+    SPELL_DEMON_INTRO = 210969,
+    SPELL_DEMON_INTRO_END = 211439,
+
+    SPELL_PARASITIC_WOUND = 227035,
+    SPELL_PARASITIC_WOUND_DMG = 206847,
+    SPELL_PARASITIC_EXPULSION = 226955,
+    SPELL_SHADOWY_GAZE = 206983,
+
+    SPELL_SOULSEVER = 220957,
+    SPELL_SOULSEVER_AT = 208229,
+    SPELL_SHARED_SOUL = 206458,
+    SPELL_SHARED_SOUL_ABSORB = 206506,
+    SPELL_SHARED_SOUL_DMG = 227040,
+    SPELL_SHARED_SOUL_CLONE = 229524,
+    SPELL_SHARED_SOUL_SIZE = 229534,
+
+    SPELL_FIELD_OF_FLAME = 227094,
+    SPELL_FIELD_OF_FLAME_DUMMY = 227103,
+    SPELL_FIELD_OF_FLAME_TELE = 227106,
+
+    SPELL_AZZINOTHES = 221149,
+    SPELL_AZZINOTHES_1 = 227277,
+    SPELL_DEMONIC_ESSENSE = 221434,
+
+    SPELL_SUMMON_NIGHT_SPHERE = 227283,
+    SPELL_TIMESTOP_AREA_AT = 211832,
+
+    SPELL_DARK_TITAN = 226979,
+    SPELL_DARK_TITAN_EFFECT = 226982,
+    SPELL_DARK_TITAN_SCREEN = 227032,
+    SPELL_DARK_TITAN_AURA = 227008,
+
+
+    SPELL_STUN_WHEN_INTERRUPT = 227009,
+
+    SPELL_DEAD_1 = 227401,
+
+    SPELL_DEMONBANE = 226842,
+    SPELL_SHIELD_OF_AZZINOTH = 221299,
+};
+
+enum eEvents
+{
+    EVENT_LIQUID_HELLFIRE = 1,
+    EVENT_HAND_OF_GULDAN_1,
+    EVENT_HAND_OF_GULDAN_2,
+    EVENT_HAND_OF_GULDAN_3,
+    EVENT_FEL_EFFLUX,
+
+    EVENT_PEREPHASE_1_TO_2,
+
+    EVENT_BOUNDS_OF_FEL,
+    EVENT_EYE_OF_GULDAN,
+
+    EVENT_SOUL_SIPHON,
+    EVENT_BLACK_HARVEST,
+    EVENT_FEL_OF_SARGERAS,
+    EVENT_STORM_OF_DESTROYER,
+    EVENT_WIND,
+
+    EVENT_FULL_ENERGY,
+    EVENT_DARK_TITAN,
+    EVENT_AZZINOTHES,
+    EVENT_NIGHTHOLD_SPHERE,
+    EVENT_PARASITIC
+};
+
+enum Phases : uint8
+{
+    PHASE_FIRST = 1,
+    PHASE_PEREPHASE_1_TO_2,
+    PHASE_SECOND,
+    PHASE_THIRD
+};
+
+uint32 handOfGuldanSpells[6]
+{
+    SPELL_HAND_OF_GULDAN_SUMMON_1,
+    SPELL_HAND_OF_GULDAN_SUMMON_2,
+    SPELL_HAND_OF_GULDAN_SUMMON_3,
+    SPELL_HAND_OF_GULDAN_SUMMON_4,
+    SPELL_HAND_OF_GULDAN_SUMMON_5,
+    SPELL_HAND_OF_GULDAN_SUMMON_6,
+};
+
+uint32 textsBySummons[3]
+{
+    SAY_HAND_1,
+    SAY_HAND_2,
+    SAY_HAND_3
+};
+
+uint32 textsForEmpowered[6]
+{
+    SAY_EMPOWERED_1,
+    SAY_EMPOWERED_1_2,
+
+    SAY_EMPOWERED_2_1,
+    SAY_EMPOWERED_2_2,
+
+    SAY_EMPOWERED_3_1,
+    SAY_EMPOWERED_3_2,
+};
+
+template<typename T>
+struct MySpecialList : public std::list<T>
+{
+    MySpecialList() = default;
+
+    MySpecialList(const std::initializer_list<T>& _list) :
+        std::list<T>(_list) {};
+
+    T popAndSafeLast()
+    {
+        if (this->empty())
+            throw "MySpecialList is empty!";
+
+        T val = this->front();
+        if (this->size() > 1)
+            this->pop_front();
+
+        return val;
+    }
+};
+
+
+MySpecialList<uint32> felEfluxTimersNormalAndLfr{ 11000, 14000, 19900, 15600, 16800, 15900, 15800, 12000 };
+MySpecialList<uint32> felEfluxTimersHeroic{ 11000, 14000, 18500, 12000 };
+
+
+MySpecialList<uint32> liquidHellfireTimersLfr{ 67000, 44000, 44000, 88000, 44000, 88000, 38600, 44000 };
+MySpecialList<uint32> liquidHellfireTimersNormal{ 63000, 41000, 41000, 84000, 41000, 84000, 36000, 41000 };
+MySpecialList<uint32> liquidHellfireTimersHeroic{ 59000, 36000, 36000, 74000, 36000, 74000, 31600, 36000 };
+MySpecialList<uint32> liquidHellfireTimersMythic{ 36000, 33000, 33000, 66000, 33000, 66000, 28900, 33000 };
+
+
+MySpecialList<uint32> eyeOfGuldanTimersNormal{ 42500, 71500, 71400, 28600, 114000 };
+MySpecialList<uint32> eyeOfGuldanTimersHeroic{ 39100, 625000, 625000, 25000, 100000 };
+MySpecialList<uint32> eyeOfGuldanTimersMythic{ 35100, 52600, 53300, 20400, 84200, 52600 };
+
+MySpecialList<uint32> blackHarvestTimersNormal{ 63000, 82900, 100000, 100000 };
+MySpecialList<uint32> blackHarvestTimersHeroic{ 64100, 72500, 87500,  87500 };
+MySpecialList<uint32> blackHarvestTimersMythic{ 55700, 61000, 75300,  86800 };
+
+MySpecialList<uint32> stormTimersNormal{ 94000, 78600, 70000, 87000 };
+MySpecialList<uint32> stormTimersHeroic{ 84100, 68700, 61300, 76500 };
+MySpecialList<uint32> stormTimersMythic{ 57900, 51600, 64700, 57400 };
+
+MySpecialList<uint32> darkTitanTimer{ 95000, 90000, 150000, 90000 };
+MySpecialList<uint32> nightOrbTimer{ 39000, 45000, 60000, 40000 };
+
+Position const positionsOfStatues[4]
+{
+    {320.24f, 3173.72f, 465.85f, 3.90f},
+    {320.49f, 3097.39f, 465.85f, 2.33f},
+    {244.45f, 3097.04f, 465.85f, 0.82f},
+    {244.07f, 3173.33f, 465.85f, 5.47f},
+
+};
+
+uint32 spellsVisualCharging[4]
+{
+    SPELL_INTRO_FOCUS_ILLIDAN,
+    SPELL_VISUAL_CHARGING_1,
+    SPELL_VISUAL_CHARGING_2,
+    SPELL_VISUAL_CHARGING_3,
+};
+
+uint32 statuesVisual[4]
+{
+    GO_STATUE_1,
+    GO_STATUE_2,
+    GO_STATUE_3,
+    GO_STATUE_4
+};
+
+void AddSC_boss_guldan()
+{
+    
+}

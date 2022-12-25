@@ -20,3 +20,9 @@
 #include "shadopan_monastery.h"
 #include "InstanceScript.h"
 
+Position snowdriftCenterPos = { 3659.08f, 3015.38f, 804.74f };
+
+void AddSC_instance_shadopan_monastery()
+{
+    
+}

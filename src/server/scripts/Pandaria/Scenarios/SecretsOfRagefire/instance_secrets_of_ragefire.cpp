@@ -21,3 +21,7 @@
 #include "secrets_of_ragefire.h"
 #include "ScenarioMgr.h"
 
+void AddSC_instance_secrets_of_ragefire()
+{
+    
+}

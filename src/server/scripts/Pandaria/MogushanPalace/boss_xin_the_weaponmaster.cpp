@@ -21,3 +21,7 @@
 #include "ScriptedCreature.h"
 #include "mogu_shan_palace.h"
 
+void AddSC_boss_xin_the_weaponmaster()
+{
+    
+}

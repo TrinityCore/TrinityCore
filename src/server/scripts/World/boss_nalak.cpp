@@ -21,3 +21,36 @@
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 
+#define BOSS_NALAK 0
+
+enum eSpells
+{
+    SPELL_STATIC_SHIELD = 136341,
+    SPELL_ARC_NOVA = 136338,
+    SPELL_LIGHTNING_TETHER = 136339,
+    SPELL_LIGHTNING_TETHER_10K = 136353,
+    SPELL_LIGHTNING_TETHER_20K = 136349,
+    SPELL_STORM_CLOUD = 136340
+};
+
+enum eEvents
+{
+    EVENT_ARC_NOVA = 1,
+    EVENT_LIGHTNING_TETHER,
+    EVENT_STORM_CLOUD
+};
+
+enum eSays
+{
+    TALK_INTRO,         // I am born of thunder!
+    TALK_AGGRO,         // Can you feel a chill wind blow? The storm is coming...
+    TALK_ARC_NOVA,      // The clouds arc with vengeance!
+    TALK_STORMCLOUD,    // The air crackles with anger!
+    TALK_SLAY,          // The sky weeps for your demise!
+    TALK_DEATH          // I am but...the darkness...before the storm...
+};
+
+void AddSC_boss_nalak()
+{
+    
+}

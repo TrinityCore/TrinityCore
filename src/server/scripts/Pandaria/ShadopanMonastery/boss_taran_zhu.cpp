@@ -21,3 +21,31 @@
 #include "shadopan_monastery.h"
 #include "SpellAuras.h"
 
+enum eSpells
+{
+    SPELL_CORRUPTED = 131530,
+
+    SPELL_RISING_HATE = 107356,
+    SPELL_RING_OF_MALICE = 131521,
+    SPELL_SHA_BLAST = 114999,
+    SPELL_SUMMON_GRIPPING_HATRED = 115002,
+
+    // Gripping Hatred
+    SPELL_GRIP_OF_HATE = 115010,
+    SPELL_POOL_OF_SHADOWS = 112929
+};
+
+enum eEvents
+{
+    EVENT_RISING_HATE = 1,
+    EVENT_RING_OF_MALICE = 2,
+    EVENT_SHA_BLAST = 3,
+    EVENT_SUMMON_GRIPPING_HATRED = 4,
+
+    EVENT_GRIP_OF_HATE = 5
+};
+
+void AddSC_boss_taran_zhu()
+{
+   
+}

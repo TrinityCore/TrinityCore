@@ -20,3 +20,7 @@
 #include "pursuing_the_black_harvest.h"
 #include "ScenarioMgr.h"
 
+void AddSC_instance_pursuing_the_black_harvest()
+{
+    
+}

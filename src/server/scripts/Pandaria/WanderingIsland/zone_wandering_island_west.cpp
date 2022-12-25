@@ -22,3 +22,10 @@
 #include "Vehicle.h"
 #include "CreatureTextMgr.h"
 
+#define GOSSIP_WIND "I would like to go back on the top of the temple"
+
+
+void AddSC_wandering_island_west()
+{
+    
+}

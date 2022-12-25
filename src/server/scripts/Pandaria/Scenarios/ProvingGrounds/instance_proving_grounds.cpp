@@ -19,3 +19,7 @@
 #include "proving_grounds.h"
 #include "ScenarioMgr.h"
 
+void AddSC_instance_proving_grounds()
+{
+    
+}

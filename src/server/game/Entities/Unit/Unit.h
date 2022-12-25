@@ -37,6 +37,7 @@
 #include <map>
 #include <memory>
 #include <stack>
+#include <BrawlersGuild/BrawlersGuild.h>
 
 #define VISUAL_WAYPOINT 1 // Creature Entry ID used for waypoints show, visible only for GMs
 #define WORLD_TRIGGER 12999
@@ -1275,6 +1276,7 @@ class TC_GAME_API Unit : public WorldObject
 
         ObjectGuid GetCharmerGUID() const { return m_unitData->CharmedBy; }
         Unit* GetCharmer() const { return m_charmer; }
+        BrawlersGuild* GetBrawlerGuild();
 
         ObjectGuid GetCharmedGUID() const { return m_unitData->Charm; }
         Unit* GetCharmed() const { return m_charmed; }

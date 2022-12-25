@@ -25,3 +25,45 @@
 #include "SpellScript.h"
 #include "ScenarioMgr.h"
 
+enum spells
+{
+    SPELL_UNCONTROLLED_ANGER = 129025,
+    SPELL_ANGER_SPAWN_GENERATOR = 128777,
+    SPELL_SHADOW_EXPLOSION_COSMETIC = 120686,
+    SPELL_SHADOW_EXPLOSION_SUMMON = 120689,
+    SPELL_BREATH_OF_HATE = 120222,
+    SPELL_TIGER_PALM = 120911,
+    SPELL_STONE_FORM = 117838,
+    SPELL_LIGHTNING_TRAP_BUNNY = 119747,
+    SPELL_LIGHTNING_TRAP = 119748,
+    SPELL_FIRE_TRAP = 119667,
+    SPELL_TRIGGER_FIRE_TRAP = 120349,
+    SPELL_TRIGGER_LIGHTNING_TRAP = 123800,
+    SPELL_KNOCKBACK_TRAP = 120365,
+    SPELL_ACHIEV_FIGHT_WITH_ANGER = 143316,
+};
+
+enum Talks
+{
+    TALK_INTRO = 0,
+    TALK_SPECIAL = 1,
+};
+
+/*
+const std::vector<float> CircleOri =
+{
+    2 * M_PI,
+    M_PI / 4,
+    M_PI / 2,
+    3 * M_PI / 4,
+    M_PI,
+    5 * M_PI / 4,
+    3 * M_PI / 2,
+    7 * M_PI / 4
+};
+*/
+
+void AddSC_crypt_of_forgotten_kings()
+{
+    
+}

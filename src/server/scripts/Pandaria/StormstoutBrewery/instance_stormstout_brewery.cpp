@@ -15,7 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//Missing scripts and bosses
+ //Missing scripts and bosses
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
@@ -41,24 +41,24 @@ public:
 
         void Initialize()
         {
-            ookookGUID      = ObjectGuid::Empty;
-            hoptallusGUID   = ObjectGuid::Empty;
-            yanzhuGUID      = ObjectGuid::Empty;
+            ookookGUID = ObjectGuid::Empty;
+            hoptallusGUID = ObjectGuid::Empty;
+            yanzhuGUID = ObjectGuid::Empty;
         }
 
         void OnCreatureCreate(Creature* creature) override
         {
             switch (creature->GetEntry())
             {
-                case NPC_OOK_OOK:
-                    ookookGUID = creature->GetGUID();
-                    break;
-                case NPC_HOPTALLUS:
-                    hoptallusGUID = creature->GetGUID();
-                    break;
-                case NPC_YAN_ZHU:
-                    yanzhuGUID = creature->GetGUID();
-                    break;
+            case NPC_OOK_OOK:
+                ookookGUID = creature->GetGUID();
+                break;
+            case NPC_HOPTALLUS:
+                hoptallusGUID = creature->GetGUID();
+                break;
+            case NPC_YAN_ZHU:
+                yanzhuGUID = creature->GetGUID();
+                break;
             }
         }
 
@@ -77,12 +77,12 @@ public:
         {
             switch (type)
             {
-                case NPC_OOK_OOK:
-                    return ookookGUID;
-                case NPC_HOPTALLUS:
-                    return hoptallusGUID;
-                case NPC_YAN_ZHU:
-                    return yanzhuGUID;
+            case NPC_OOK_OOK:
+                return ookookGUID;
+            case NPC_HOPTALLUS:
+                return hoptallusGUID;
+            case NPC_YAN_ZHU:
+                return yanzhuGUID;
             }
 
             return ObjectGuid::Empty;

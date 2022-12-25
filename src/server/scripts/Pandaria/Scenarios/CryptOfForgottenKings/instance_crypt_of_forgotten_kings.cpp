@@ -21,3 +21,12 @@
 #include "crypt_of_forgotten_kings.h"
 #include "ScenarioMgr.h"
 
+static std::vector<DoorData> const doorData =
+{
+    { GO_GOLDEN_DOORS_2, DATA_POOL_OF_LIFE, DOOR_TYPE_PASSAGE },
+};
+
+void AddSC_instance_crypt_of_forgotten_kings()
+{
+    
+}

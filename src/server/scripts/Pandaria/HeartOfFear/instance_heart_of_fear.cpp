@@ -20,3 +20,22 @@
 #include "VMapFactory.h"
 #include "heart_of_fear.h"
 
+DoorData const doorData[] =
+{
+    {GOB_ANTECHAMBER_DOOR_ENTRANCE, 0,              DOOR_TYPE_ROOM      },
+    {GOB_ANTECHAMBER_DOOR_EXIT,     0,              DOOR_TYPE_ROOM      },
+    {GOB_ORATIUM_DOOR_ENTRANCE,     DATA_ZORLOK,    DOOR_TYPE_ROOM      },
+    {GOB_QUARTERS_DOOR_ENTRANCE,    DATA_ZORLOK,    DOOR_TYPE_PASSAGE   },
+    {GOB_QUARTERS_DOOR_EXIT,        DATA_TAYAK,     DOOR_TYPE_PASSAGE   },
+    {GOB_STAIRWAYS_DOOR_EXIT,       0,              DOOR_TYPE_ROOM      },
+    {GOB_BALCONY_DOOR_EXIT,         DATA_MELJARAK,  DOOR_TYPE_PASSAGE   },
+    {GOB_ATRIUM_DOOR_ENTRANCE,      0,              DOOR_TYPE_ROOM      },
+    {GOB_ATRIUM_DOOR_EXIT,          0,              DOOR_TYPE_ROOM      },
+    {GOB_SANCTUM_DOOR_ENTRANCE,     0,              DOOR_TYPE_ROOM      },
+    {GOB_HEARTOFFEAR_DOOR_ENTRANCE, DATA_UNSOK,     DOOR_TYPE_PASSAGE   }
+};
+
+void AddSC_instance_heart_of_fear()
+{
+   
+}

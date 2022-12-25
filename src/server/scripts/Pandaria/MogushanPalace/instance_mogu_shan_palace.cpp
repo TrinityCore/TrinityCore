@@ -22,3 +22,7 @@
 #include "VMapFactory.h"
 #include "mogu_shan_palace.h"
 
+void AddSC_instance_mogu_shan_palace()
+{
+    
+}

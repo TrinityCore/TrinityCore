@@ -19,3 +19,39 @@
 #include "ScriptedCreature.h"
 #include "mogu_shan_palace.h"
 
+#define TYPE_GET_ENTOURAGE 14
+
+enum eSpells
+{
+    SPELL_RECKLESS_INSPIRATION = 118988,
+    SPELL_SHANK = 118963,
+    SPELL_IRON_PROTECTOR = 118958,
+    SPELL_CLEANSING_FLAME = 118940,
+    SPELL_FIRE_BOLT = 118936,
+    SPELL_HEX_OF_LETHARGY = 118903,
+    SPELL_DARK_BOLT = 118917
+};
+
+enum eActions
+{
+    ACTION_ENTOURAGE_DIED
+};
+
+enum eEvents
+{
+    EVENT_RECKLESS_INSPIRATION
+};
+
+enum eTalks
+{
+    TALK_INTRO,
+    TALK_KILLING,
+    TALK_SPELL,
+    TALK_AGGRO,
+    TALK_DEATH
+};
+
+void AddSC_boss_gekkan()
+{
+   
+}

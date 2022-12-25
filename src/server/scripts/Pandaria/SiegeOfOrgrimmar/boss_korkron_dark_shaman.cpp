@@ -1,21 +1,233 @@
 /*
-* Copyright 2023 AzgathCore
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright 2023 AzgathCore
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "siege_of_orgrimmar.h"
+#include "siege_of_orgrimmar.hpp"
 
+enum ScriptedTextHaromm
+{
+    SAY_HAROMM_INTRO = 0,
+    SAY_HAROMM_AGGRO = 1,
+    SAY_HAROMM_DEATH = 2,
+    SAY_HAROMM_INTRO_1 = 3,
+    SAY_HAROMM_INTRO_2 = 4,
+    SAY_HAROMM_KILL = 5,
+    SAY_HAROMM_WATER = 6,
+    SAY_HAROMM_EARTH = 7,
+    SAY_HAROMM_SPELL = 8,
+};
+
+enum ScriptedTextKardris
+{
+    SAY_KARDRIS_INTRO = 0,
+    SAY_KARDRIS_AGGRO = 1,
+    SAY_KARDRIS_DEATH = 2,
+    SAY_KARDRIS_INTRO_1 = 3,
+    SAY_KARDRIS_KILL = 4,
+    SAY_KARDRIS_WIND = 5,
+    SAY_KARDRIS_FIRE = 6,
+    SAY_KARDRIS_SPELL = 7,
+};
+
+enum Spells
+{
+    // Shamans shared
+    SPELL_SPIRIT_LINK_HAROMM = 144227,
+    SPELL_SPIRIT_LINK_KARDRIS = 144226,
+    SPELL_BLOODLUST = 144302,
+
+    SPELL_POISONMIST_TOTEM = 144288,
+    SPELL_FOULSTREAM_TOTEM = 144289,
+    SPELL_ASHFLARE_TOTEM = 144290,
+    SPELL_RUSTEDIRON_TOTEM = 144291,
+
+    SPELL_BERSERK = 26662,
+
+    // Darkfang & Bloodclaw
+    SPELL_SWIPE = 144303,
+    SPELL_REND = 144304,
+
+    // Earthbreaker Haromm
+    SPELL_FROSTSTORM_STRIKE = 144215,
+
+    SPELL_TOXIC_MIST = 144089,
+    SPELL_TOXICITY = 144107,
+
+    SPELL_FOUL_STREAM = 144090,
+
+    SPELL_ASHEN_WALL = 144070,
+    SPELL_ASHEN_WALL_SUMMON = 144071,
+    SPELL_ASH_ELEMENTAL_SPAWN = 144222,
+
+    SPELL_IRON_TOMB_AOE = 144328,
+    SPELL_IRON_TOMB_SUMMON = 144329,
+    SPELL_IRON_TOMB_DMG = 144334,
+
+    // Wavebinder Kardris
+    SPELL_FROSTSTORM_BOLT = 144214,
+
+    SPELL_TOXIC_STORM_SUMMON = 144005,
+    SPELL_TOXIC_STORM_AURA = 144006,
+    SPELL_TOXIC_STORM_DMG = 144017,
+    SPELL_TOXIC_STORM_TORNADO = 144019, // summons toxic tornado
+    SPELL_TOXIC_TORNADO_AURA = 144029,
+    SPELL_TOXIC_TORNADO_DMG = 144030,
+
+    SPELL_FOUL_GEYSER = 143990,
+    SPELL_FOUL_GEYSER_MISSILE = 143992,
+    SPELL_FOUL_GEYSER_DMG = 143993,
+
+    SPELL_FOULNESS = 144064,
+    SPELL_FOULNESS_DMG = 144066,
+
+    SPELL_FALLING_ASH_SUMMON = 143973,
+    SPELL_FALLING_ASH_COSMETIC = 143986,
+    SPELL_FALLING_ASH_DMG = 143987,
+
+    SPELL_IRON_PRISON_AOE = 144330,
+    SPELL_IRON_PRISON_DMG = 144331,
+};
+
+enum Adds
+{
+    NPC_DARKFANG = 71921,
+    NPC_BLOODCLAW = 71923,
+
+    NPC_ASH_ELEMENTAL = 71827,
+    NPC_IRON_TOMB = 71941,
+
+    NPC_TOXIC_STORM = 71801,
+    NPC_TOXIC_TORNADO = 71817,
+    NPC_FOUL_SLIME = 71825,
+    NPC_FALLING_ASH = 71789,
+
+    NPC_POISONMIST_TOTEM = 71915,
+    NPC_FOULSTREAM_TOTEM = 71916,
+    NPC_ASHFLARE_TOTEM = 71917,
+    NPC_RUSTEDIRON_TOTEM = 71918,
+};
+
+enum Gos
+{
+    GO_IRON_TOMB = 220864,
+};
+
+enum Events
+{
+    // Darkfang & BloodClaw
+    EVENT_SWIPE = 1,
+    EVENT_REND,
+
+    // Haromm
+    EVENT_FROSTSTORM_STRIKE,
+    EVENT_TOXIC_MIST,
+    EVENT_FOUL_STREAM,
+    EVENT_ASHEN_WALL,
+    EVENT_IRON_TOMB,
+
+    // Kardris
+    EVENT_FROSTSTORM_BOLT,
+    EVENT_TOXIC_STORM,
+    EVENT_FOUL_GEYSER,
+    EVENT_FALLING_ASH,
+    EVENT_IRON_PRISON,
+};
+
+enum Actions
+{
+
+};
+
+enum DisplayIds
+{
+    DISPLAY_KARDRIS_SCEPTER = 103936,
+    DISPLAY_HAROMMS_FROZEN_CRESCENT = 103926,
+};
+
+#define FALLING_ASH_OFFSET 30.0f
+#define FALLING_ASH_SPEED 0.3f
+
+#define TIMER_SWIPE_FIRST urand(5000, 10000)
+#define TIMER_REND_FIRST urand(5000, 10000)
+#define TIMER_SWIPE urand(15000, 20000)
+#define TIMER_REND urand(15000, 20000)
+
+#define EVADE_DISTANCE 115.f
+
+enum Timers
+{
+    TIMER_SYNC_HEALTH = 1 * IN_MILLISECONDS,
+    TIMER_TOTEM_CHECK = 1 * IN_MILLISECONDS,
+    TIMER_BLOODLUST_CHECK = 1 * IN_MILLISECONDS,
+    TIMER_EVADE_CHECK = 5 * IN_MILLISECONDS,
+    TIMER_BERSERK = 9 * MINUTE * IN_MILLISECONDS,
+
+    TIMER_FROSTSTORM_STRIKE_FIRST = 10 * IN_MILLISECONDS,
+    TIMER_FROSTSTORM_STRIKE = 9 * IN_MILLISECONDS,
+    TIMER_TOXIC_MIST_FIRST = 10 * IN_MILLISECONDS,
+    TIMER_TOXIC_MIST = 32 * IN_MILLISECONDS,
+    TIMER_FOUL_STREAM_FIRST = 10 * IN_MILLISECONDS,
+    TIMER_FOUL_STREAM = 32500,
+    TIMER_ASHEN_WALL_FIRST = 10 * IN_MILLISECONDS,
+    TIMER_ASHEN_WALL = 32500,
+    TIMER_IRON_TOMB = 31500,
+
+    // Kardris
+    TIMER_FROSTSTORM_BOLT_FIRST = 7 * IN_MILLISECONDS,
+    TIMER_FROSTSTORM_BOLT = 10 * IN_MILLISECONDS,
+    TIMER_TOXIC_STORM_FIRST = 10 * IN_MILLISECONDS,
+    TIMER_TOXIC_STORM = 32 * IN_MILLISECONDS,
+    TIMER_FOUL_GEYSER_FIRST = 10 * IN_MILLISECONDS,
+    TIMER_FOUL_GEYSER = 32500,
+    TIMER_FALLING_ASH_FIRST = 10 * IN_MILLISECONDS,
+    TIMER_FALLING_ASH = 32500,
+    TIMER_IRON_PRISON = 31500,
+
+    TIMER_TOXIC_TORNADO = 10000,
+
+    TIMER_FOUL_SLIME_MOVE = 2000, // slimes wait for 2 seconds before moving
+};
+
+enum MovementPoints : int
+{
+    POINT_FALLING_ASH = 1,
+};
+
+enum TotemTypes : int
+{
+    POISONMIST_TOTEM = 0,
+    FOULSTREAM_TOTEM = 1,
+    ASHFLARE_TOTEM = 2,
+    RUSTEDIRON_TOTEM = 3,
+
+    MAX_TOTEM_TYPES,
+};
+
+enum Items
+{
+    ITEM_KORKRON_SHAMANS_TREASURE = 105751,
+};
+
+const Position newHomePositions[2] =
+{
+    { 1602.82f, -4381.28f, 20.71f, 3.68f},  // Haromm
+    { 1600.19f, -4376.89f, 20.95f, 3.68f}   // Kardris
+};
+
+void AddSC_boss_korkron_dark_shaman()
+{
+    
+}

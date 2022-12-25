@@ -1,0 +1,210 @@
+/*
+ * Copyright 2023 AzgathCore
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "AreaTriggerAI.h"
+#include "tomb_of_sargeras.h"
+#include "GameObject.h"
+#include "AreaTrigger.h"
+#include "AreaTriggerTemplate.h"
+#include "SpellAuraDefines.h"
+#include "SpellAuraEffects.h"
+
+enum Says
+{
+    SAY_ILLIDAN_STAGE_4 = 0,
+
+    SAY_AGGRO = 0,
+    SAY_ARMAGEDDON = 1,
+    SAY_WARN_ARMAGEDDON = 2,
+    SAY_REFLECTION_ERUPTING = 3,
+    SAY_RUPTURING_SINGULARITY = 4,
+    SAY_WARN_RUPTURING_SINGULARITY = 5,
+    SAY_STAGE_2_CHANGE = 6,
+    SAY_FLY_POINT_1 = 7,
+    SAY_BURSTING_DREADFLAME = 8,
+    SAY_FOCUSED_DREADFLAME = 9,
+    SAY_WARN_FOCUSED_DREADFLAME = 10,
+    SAY_WAILING = 11,
+    SAY_HOPELESS = 12,
+    SAY_STAGE_4_CHANGE = 13,
+    SAY_DECEIVER_VEIL_FINISH_CAST = 14,
+    SAY_STAGE_5 = 15,
+    SAY_TEAR_RIFT = 16,
+    SAY_DARKNESS_THOUSAND_SOULS = 17,
+    SAY_FLAMING_ORB = 18,
+};
+
+enum Spells
+{
+    SPELL_KILJAEDEN_BONUS_ROLL = 240662,
+    SPELL_BERSERK = 47008,
+    SPELL_FELCLAWS = 239932,
+    SPELL_RUPTURING_SINGULARITY = 235059,
+    SPELL_ARMAGEDDON_DUMMY = 240910,
+    SPELL_ARMAGEDDON_RAIN_AT = 234295,
+    SPELL_ARMAGEDDON_RAIN_SELF = 234309,
+    SPELL_ARMAGEDDON_RAIN_DMG = 234310,
+    SPELL_ARMAGEDDON_RAIN_VISUAL = 240832,
+    SPELL_ARMAGEDDON_HAIL_AT = 240911,
+    SPELL_ARMAGEDDON_HAIL_SELF = 240912,
+    SPELL_ARMAGEDDON_HAIL_VISUAL = 240915,
+    SPELL_ARMAGEDDON_HAIL_DMG = 240916,
+    SPELL_ARMAGEDDON_BLAST = 240908,
+    SPELL_BURSTING_DREADFLAME_FILTER = 238429,
+    SPELL_FOCUSED_DREADFLAME_FILTER = 238505,
+    SPELL_FOCUSED_DREADFLAME_DMG = 238502,
+    SPELL_FOCUSED_DREADBURST = 238503, //Heroc+
+    SPELL_SHADOW_REFLECTION_ERUPTING = 236710,
+    SPELL_SHADOW_REFLECTION_WAILING = 236378, //Mythic
+    SPELL_SHADOW_REFLECTION_HOPELESS = 237590, //Mythic
+    SPELL_SUM_SHADOW_REFLECTION_ERUPTING = 242032,
+    SPELL_ERUPTING_REFLECTION_CLONE = 236711,
+    SPELL_DARKNESS_THOUSAND_SOULS = 238999,
+    SPELL_DARKNESS_THOUSAND_SOULS_DMG = 239112,
+    SPELL_DARKNESS_THOUSAND_SOULS_DUMMY = 239129,
+    SPELL_DARKNESS_THOUSAND_SOULS_AURA = 239216,
+    SPELL_TEAR_RIFT = 243982,
+    SPELL_TEAR_RIFT_AT = 239130,
+    SPELL_GRAVITY_SQUEEZE_DUMMY = 239154,
+    SPELL_GRAVITY_SQUEEZE_DOT = 239155,
+    SPELL_FLAMING_ORB_FILTER = 244856,
+
+    SPELL_KILJAEDEN_PLAYERS_TELEPOT = 244719,
+    SPELL_KILJAEDEN_PLAY_MOVIE = 246240,
+
+    //Change phase
+    SPELL_WINGSPAN_SOUND = 242377,
+    SPELL_NETHER_GALE = 244834,
+
+    SPELL_DECEIVER_VEIL_AT = 241983,
+    SPELL_DECEIVER_VEIL_1 = 236555, //Decrease Hit chance
+    SPELL_DECEIVER_VEIL_2 = 242696, //Hit ok
+    SPELL_CURSED_SIGHT = 241768,
+    SPELL_ILLIDAN_SIGHTLESS_GAZE = 241721,
+
+    //Erupting Reflection
+    SPELL_ERUPTING_DREADFLAME = 235120,
+    SPELL_LINGERING_ERUPTION = 243536, //Mythic
+    SPELL_LATENT_ERUPTION = 245014,
+    SPELL_ERUPTING_ORB_AT = 243542, //Dmg 245017
+
+    //Wailing Reflection
+    SPELL_SORROWFUL_WAIL_AT = 241564,
+    SPELL_SORROWFUL_WAIL_DMG = 236381,
+    SPELL_LINGERING_WAIL = 243624,
+    SPELL_WAILING_GRASP_FILTER = 243625,
+    SPELL_WAILING_GRASP_JUMP = 243626,
+
+    //Hopeless Reflection
+    SPELL_HOPELESSNESS_DUMMY = 237725,
+    SPELL_HOPELESSNESS_AT = 237728,
+    SPELL_LINGERING_HOPE = 243621,
+
+    //Shadowsoul
+    SPELL_SPAWN_VISUAL = 241905,
+    SPELL_DESTABILIZED_SHADOWSOUL_DMG = 241702,
+    SPELL_DESTABILIZED_SHADOWSOUL_TP = 242074,
+
+    //Demonic Obelisk
+    SPELL_DEMONIC_OBELISK_VISUAL = 239785,
+    SPELL_DEMONIC_OBELISK_DMG = 239852,
+
+    //Nether Rift
+    SPELL_TEAR_RIFT_VISUAL = 240020,
+
+    //Flaming Orb
+    SPELL_FLAMING_ORB_AT = 239256,
+    SPELL_ORG_FIXATE = 239280,
+    SPELL_FLAMING_DETONATION = 239267,
+};
+
+enum eEvents
+{
+    EVENT_FELCLAWS = 1,
+    EVENT_RUPTURING_SINGULARITY = 2,
+    EVENT_ARMAGEDDON = 3,
+    EVENT_BURSTING_DREADFLAME = 4,
+    EVENT_FOCUSED_DREADFLAME = 5,
+    EVENT_SHADOW_REFLECTION_ERUPTING = 6,
+    EVENT_DECEIVER_VEIL = 7,
+    EVENT_DARKNESS_THOUSAND_SOULS = 8,
+    EVENT_DEMONIC_OBELISK = 9,
+    EVENT_TEAR_RIFT = 10,
+    EVENT_FLAMING_ORB = 11,
+    EVENT_SHADOW_REFLECTION_WAILING = 12, //Heroic+
+    EVENT_SHADOW_REFLECTION_HOPELESS = 13, //Mythic
+};
+
+enum Stages
+{
+    S1_P1 = 1,
+    S2_CHANGE = 2,
+    S3_P2 = 3,
+    S4_CHANGE = 4,
+    S5_P3 = 5
+};
+
+enum eAnim
+{
+    //Illidan
+    ILLIDAN_ANIM_1 = 12447, //SMSG_PLAY_ONE_SHOT_ANIM_KIT
+    ILLIDAN_ANIM_2 = 12448,
+    OBELISK_ANIM_1 = 4396,
+    OBELISK_ANIM_2 = 8216,
+};
+
+enum eMisc
+{
+    DATA_HOPELESS_HEALTH_EVENT = 1,
+    DATA_ACHIEVEMENT,
+    
+    EVENT_1,
+    ACTION_1,
+};
+
+Position const centrPos = { 4500.39f, -1510.12f, 5385.64f };
+
+Position const singularPos[5] =
+{
+    {4538.57f, -1548.27f, 5385.64f},
+    {4462.66f, -1547.71f, 5385.64f},
+    {4462.46f, -1472.97f, 5385.64f},
+    {4538.33f, -1472.74f, 5385.64f},
+    {4500.39f, -1510.12f, 5385.64f} //Center
+};
+
+Position const flyPos[5] =
+{
+    {4552.45f, -1458.32f, 5395.64f},
+    {4552.29f, -1562.31f, 5395.64f},
+    {4448.31f, -1561.16f, 5395.64f},
+    {4445.37f, -1457.75f, 5395.64f},
+    {4500.39f, -1510.12f, 5395.64f} //Center
+};
+
+Position const riftPos[4] =
+{
+    {4472.49f, -1449.58f, 5385.99f},
+    {4528.95f, -1450.75f, 5385.99f},
+    {4532.03f, -1568.90f, 5385.99f},
+    {4469.95f, -1570.39f, 5385.99f}
+};
+
+void AddSC_boss_tos_kiljaeden()
+{
+   
+}

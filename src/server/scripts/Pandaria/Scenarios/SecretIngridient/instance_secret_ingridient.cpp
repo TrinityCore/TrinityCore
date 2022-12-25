@@ -21,3 +21,7 @@
 #include "secret_ingridient.h"
 #include "ScenarioMgr.h"
 
+void AddSC_instance_secret_ingridient()
+{
+    
+}

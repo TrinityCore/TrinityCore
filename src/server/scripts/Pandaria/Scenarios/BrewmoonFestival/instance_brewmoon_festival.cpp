@@ -21,3 +21,7 @@
 #include "brewmoon_festival.h"
 #include "ScenarioMgr.h"
 
+void AddSC_instance_brewmoon_festival()
+{
+   
+}

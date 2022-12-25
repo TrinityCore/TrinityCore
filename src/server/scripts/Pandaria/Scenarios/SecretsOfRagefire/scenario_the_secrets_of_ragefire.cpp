@@ -1,20 +1,3 @@
-/*
-* Copyright 2023 AzgathCore
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
-
 #include "Log.h"
 #include "Scenario.h"
 #include "GameObject.h"
@@ -27,3 +10,110 @@
 #include "Player.h"
 #include "WorldSession.h"
 
+enum DataTypes
+{
+    DATA_STAGE_1 = 1,
+    DATA_STAGE_2,
+    DATA_STAGE_3,
+    DATA_STAGE_4,
+    DATA_STAGE_5,
+    DATA_MAX_ENCOUNTERS,
+
+    SCENARIO_ID = 219,
+};
+
+Position const finalBossPos = { 1452.521729f, 1046.348877f, 33.847805f, 4.314608f };
+Position const spawnPosIron = { 1436.746338f, 1021.107483f, 34.471546f, 4.888280f };
+
+enum RageFireCreaIds
+{
+    //gob squad
+    NPC_PATCH = 70607,
+    NPC_GRIT = 70605,
+    NPC_NEWT = 70606,
+    NPC_TICKER = 70609,
+    NPC_VOLT = 70608,
+    //stage 3
+    NPC_MATID_BOMB = 71174,
+    NPC_CANNON_BALLS = 71176,
+    NPC_BATTERY = 71195,
+    NPC_POOL_PONY = 71175,
+    NPC_EGG_YOLK = 71197,
+
+    //stage 4
+    NPC_TRIGGER_1 = 98000,
+    NPC_TRIGGER_2 = 98001,
+    NPC_TRIGGER_3 = 98002,
+    NPC_TRIGGER_4 = 98003,
+    NPC_TRIGGER_5 = 98004,
+
+    NPC_KORKRON_SHADOWBLADE = 71244,
+    NPC_KOR_KRON_DIRE_SOLDIER = 70665,
+    NPC_DARK_SHAMAN = 71245,
+    NPC_FLAME_HOUND = 70702,
+    NPC_EMBER_GUARD = 70798,
+    NPC_OVERSEER_ELAGLO = 71030,
+    NPC_IRON_BODY_PONSHU_RAGEFIRE = 98005,
+};
+
+enum RageFireGobIds
+{
+    GOBJ_INITIAL_TELEPORTER = 220065,
+    GOBJ_EMERGENCY_TELEPORTER = 220066,
+};
+
+enum stage3SpellIds
+{
+    SPELL_CANNON_BALL = 141832,
+    SPELL_THROW_CANNON_BALL = 141937,
+    SPELL_ATTACH_CANNON_BALL1 = 141879,
+    SPELL_ATTACH_CANNON_BALL2 = 141880,
+    SPELL_ATTACH_CANNON_BALL3 = 141881,
+    SPELL_ATTACH_BATTERY1 = 141887,
+    SPELL_ATTACH_BATTERY2 = 141888,
+    SPELL_BATTERY = 141904,
+    SPELL_THROW_BATTERY = 141949,
+    SPELL_POOL_PONY = 141898,
+    SPELL_ATTACH_POOL_PONY = 141889,
+    SPELL_THROW_POOL_PONY = 141951,
+    SPELL_EGG_YOLK = 141914,
+    SPELL_ATTACH_EGG_YOLK = 141891,
+    SPELL_HUGE_EXPLOSION = 141954,//mantid bomb
+    SPELL_MASSIVE_EXPLOSION = 142438,
+    SPELL_GHOST_AURA = 137125,
+};
+
+enum CriteriaTrees
+{
+    CRITERIA_TREE_BREACH_THE_MAIN_CHAMBER_AND_STOP_THE_ABDUCTIONS = 32524,
+    CRITERIA_TREE_INVESTIGATE_THE_MAIN_CHAMBER = 32588,
+    CRITERIA_TREE_HELP_TICKER_BUILD_A_DEVICE_TO_OPEN_THE_NEXT_GATE = 32589,
+    CRITERIA_TREE_DEFEND_THE_GOB_SQUAD_WHILE_PATCH_ESTABLISHES_AN_ESCAPE_ROUTE = 32590,
+    CRITERIA_TREE_COMPLETE_ALL_BONUS_OBJECTIVES_TO_RECEIVE_BONUS_VALOR = 32799,
+};
+
+enum ScenarioEvents
+{
+    //stage 1
+    SCENARIO_EVENT_DETONATION = 35961,
+    SCENARIO_EVENT_ENEMY_FORCES = 36187,
+    //stage 2
+    SCENARIO_EVENT_PROTO_DRAKE = 36074,
+    SCENARIO_EVENT_SUPPLY_CRATES = 36076,
+    SCENARIO_EVENT_PANDARIA_ARTIFACTS = 36077,
+    //stage 3
+    SCENARIO_EVENT_MEET_UP = 36305,
+    SCENARIO_EVENT_CANNON_BALLS = 36190,
+    SCENARIO_EVENT_BATTERIES = 36193,
+    SCENARIO_EVENT_POOL_PONY = 36191,
+    SCENARIO_EVENT_EGG_YOLK = 36192,
+    //stage 4
+    SCENARIO_EVENT_GOB_SQUAD_DEFEATED = 36194,
+    //stage 5
+    SCENARIO_EVENT_COMPLETE_ALL_BONUS_OBJECTIVES_TO_RECEIVE_BONUS_VALOR = 32799,//treeid
+};
+
+void AddSC_scenario_the_secrets_of_ragefire()
+{
+   
+}

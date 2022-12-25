@@ -1,5 +1,6 @@
 /*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * Copyright 2023 AzgathCore
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,7 +15,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
+ 
 /*
  * Scripts for spells with SPELLFAMILY_EVOKER and SPELLFAMILY_GENERIC spells used by evoker players.
  * Ordered alphabetically using scriptname.
@@ -139,7 +140,7 @@ class spell_evo_living_flame : public SpellScript
     }
 };
 
-void AddSC_evoker_spell_scripts()
+ void AddSC_evoker_spell_scripts()
 {
     RegisterSpellScript(spell_evo_azure_strike);
     RegisterSpellScript(spell_evo_glide);

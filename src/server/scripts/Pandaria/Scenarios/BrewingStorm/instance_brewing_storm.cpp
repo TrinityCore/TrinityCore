@@ -21,3 +21,7 @@
 #include "brewing_storm.h"
 #include "ScenarioMgr.h"
 
+void AddSC_instance_brewing_storm()
+{
+    
+}

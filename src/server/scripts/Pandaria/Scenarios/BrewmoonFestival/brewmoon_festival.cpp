@@ -25,3 +25,15 @@
 #include "SpellScript.h"
 #include "Vehicle.h"
 
+enum Events
+{
+    EVENT_PATH = 1,
+    EVENT_PATH_END = 2,
+    EVENT_BLOAT_PATH = 3,
+    EVENT_BLOAT_PATH_END = 4,
+};
+
+void AddSC_brewmoon_festival()
+{
+    
+}

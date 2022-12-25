@@ -21,3 +21,7 @@
 #include "dagger_in_the_dark.h"
 #include "ScenarioMgr.h"
 
+void AddSC_instance_dagger_in_the_dark()
+{
+    
+}

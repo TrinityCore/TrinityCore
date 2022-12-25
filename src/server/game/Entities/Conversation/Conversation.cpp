@@ -279,7 +279,7 @@ uint32 Conversation::GetScriptId() const
     return sConversationDataStore->GetConversationTemplate(GetEntry())->ScriptId;
 }
 
-void Conversation::BuildValuesCreate(ByteBuffer* data, Player const* target) const
+void Conversation::BuildValuesCreate(ByteBuffer * data, Player const* target) const
 {
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     std::size_t sizePos = data->wpos();
@@ -290,7 +290,7 @@ void Conversation::BuildValuesCreate(ByteBuffer* data, Player const* target) con
     data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
 }
 
-void Conversation::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
+void Conversation::BuildValuesUpdate(ByteBuffer * data, Player const* target) const
 {
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
     std::size_t sizePos = data->wpos();
@@ -306,7 +306,7 @@ void Conversation::BuildValuesUpdate(ByteBuffer* data, Player const* target) con
     data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
 }
 
-void Conversation::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
+void Conversation::BuildValuesUpdateForPlayerWithMask(UpdateData * data, UF::ObjectData::Mask const& requestedObjectMask,
     UF::ConversationData::Mask const& requestedConversationMask, Player const* target) const
 {
     UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;

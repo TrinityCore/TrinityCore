@@ -119,7 +119,7 @@ struct TransferAbortParams
     int32 MapDifficultyXConditionId;
 
     operator bool() const { return Reason != TRANSFER_ABORT_NONE; }
-    //Map::EnterState CannotEnter(Player*);//自己瞎改的
+    //Map::EnterState CannotEnter(Player*);//�Լ�Ϲ�ĵ�
 };
 
 struct ScriptAction
@@ -137,7 +137,7 @@ struct ScriptAction
 //    uint32 asUInt;  ///> uint32 representation
 //};
 
-union u_map_magic_TCB   //后改
+union u_map_magic_TCB   //���
 {
     char asChar[4]; ///> Non-null terminated string
     uint32 asUInt;  ///> uint32 representation
@@ -149,8 +149,8 @@ struct map_fileheader_TCB
     uint32 asUInt;  ///> uint32 representation
     u_map_magic_TCB mapMagic;
     u_map_magic_TCB versionMagic;
-    u_map_magic_TCB  mapMagic_TCB;//后加
-    u_map_magic_TCB  versionMagic_TCB;//后加
+    u_map_magic_TCB  mapMagic_TCB;//���
+    u_map_magic_TCB  versionMagic_TCB;//���
     uint32 buildMagic;
     uint32 areaMapOffset;
     uint32 areaMapSize;
@@ -222,7 +222,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         Map(uint32 id, time_t, uint32 InstanceId, Difficulty SpawnMode);
         virtual ~Map();
         MapEntry const* GetEntry() const { return i_mapEntry; }
-        //bool ExistMap(uint32 mapid, int gx, int gy, bool log);//系统自动生成
+        //bool ExistMap(uint32 mapid, int gx, int gy, bool log);//ϵͳ�Զ�����
         static bool ExistMap(uint32 mapid, int gx, int gy, bool log = true);
         void DiscoverGridMapFiles();
 
@@ -292,7 +292,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         static void InitStateMachine();
         static void DeleteStateMachine();
 
-        void AddChildTerrainMap(Map* map) { m_childTerrainMaps->push_back(map); map->m_parentTerrainMap = this; }   //后加
+        void AddChildTerrainMap(Map* map) { m_childTerrainMaps->push_back(map); map->m_parentTerrainMap = this; }   //���
 
         TerrainInfo* GetTerrain() const { return m_terrain.get(); }
 
@@ -370,6 +370,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         bool Is25ManRaid() const;
         bool IsMythicRaid() const { return i_spawnMode == DIFFICULTY_MYTHIC_RAID; }//后加
         bool IsHeroicPlusRaid() const { return i_spawnMode == DIFFICULTY_HEROIC_RAID || i_spawnMode == DIFFICULTY_MYTHIC_RAID; }//后加
+        bool IsMythic() const;
         bool IsBattleground() const;
         bool IsBattleArena() const;
         bool IsBattlegroundOrArena() const;
@@ -545,7 +546,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         WeatherState GetZoneWeather(uint32 zoneId) const;
         void SetZoneWeather(uint32 zoneId, WeatherState weatherId, float intensity);
         void SetZoneOverrideLight(uint32 zoneId, uint32 areaLightId, uint32 overrideLightId, Milliseconds transitionTime);
-
+        BrawlersGuild* m_brawlerGuild;
         void UpdateAreaDependentAuras();
 
         template<HighGuid high>
@@ -875,7 +876,7 @@ enum class InstanceResetMethod : uint8
     Expire
 };
 
-//enum class InstanceResetMethod  //后加,如果报错,删除
+//enum class InstanceResetMethod  //���,�������,ɾ��
 //{
 //    Manual,
 //    OnChangeDifficulty,

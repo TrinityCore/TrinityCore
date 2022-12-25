@@ -21,3 +21,7 @@
 #include "assault_on_zanvess.h"
 #include "ScenarioMgr.h"
 
+void AddSC_instance_assault_on_zanvess()
+{
+   
+}

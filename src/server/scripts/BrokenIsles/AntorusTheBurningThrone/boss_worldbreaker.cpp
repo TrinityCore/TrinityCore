@@ -1,0 +1,144 @@
+/*
+ * Copyright 2023 AzgathCore
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "AreaTriggerAI.h"
+#include "antorus.h"
+#include "AreaTrigger.h"
+#include "AreaTriggerTemplate.h"
+#include "SpellAuraDefines.h"
+#include "SpellAuraEffects.h"
+
+enum Says
+{
+    SAY_AGGRO = 0,
+    SAY_ANNIHILATION = 1,
+    SAY_DECIMATION = 2,
+    SAY_WARN_DECIMATION = 3,
+    SAY_WARN_APOCALYPSE_DRIVE = 4,
+    SAY_APOCALYPSE_DRIVE = 5,
+    SAY_WARN_ERADICATION = 6,
+    SAY_ERADICATION = 7,
+    SAY_DEATH = 8,
+};
+
+enum Spells
+{
+    //Intro
+    SPELL_INTRO = 246256,
+    SPELL_CONV = 249111,
+    SPELL_ERADICATION_INTRO_CAST = 249114,
+    SPELL_OUTRO_CONV = 249117,
+
+    //Boss Fight
+    SPELL_FEL_BOMBARDMENT_FILTER = 244150,
+    SPELL_FEL_BOMBARDMENT_MISSILE = 244533,
+    SPELL_FEL_BOMBARDMENT_AURA = 244536,
+    SPELL_FEL_BOMBARDMENT_MARK = 246220,
+    SPELL_APOCALYPSE_DRIVE_AURA = 244152,
+    SPELL_APOCALYPSE_DRIVE_CAST_DMG = 240277,
+    SPELL_APOCALYPSE_DRIVE_DMG = 253300,
+    SPELL_EMPOWERED = 245237,
+    SPELL_ERADICATION = 244969,
+    SPELL_CARNAGE = 244106,
+    SPELL_SEARING_BARRAGE_1 = 244395,
+    SPELL_SEARING_BARRAGE_1_DUMMY = 246369,
+    SPELL_SEARING_BARRAGE_1_DMG = 244400,
+    SPELL_SEARING_BARRAGE_2 = 246368,
+    SPELL_SEARING_BARRAGE_2_DUMMY = 244398,
+    SPELL_SEARING_BARRAGE_2_DMG = 246373,
+    SPELL_SEARING_BARRAGE_FILTER = 246360,
+    SPELL_DROP_ANNIHILATION = 245527,
+    SPELL_DROP_DECIMATOR = 245515,
+
+    SPELL_TRANSFORM_INVISIBLE_CANNON = 245125,
+
+    SPELL_ANNIHILATION = 244294,
+    SPELL_ANNIHILATION_MISSILE = 244758,
+    SPELL_ANNIHILATION_DMG = 244761,
+    SPELL_ANNIHILATION_BLAST = 244762,
+    SPELL_ANNIHILATION_SUMMON = 244790,
+    SPELL_ANNIHILATION_AT = 244795,
+    SPELL_ANNIHILATION_IN_AT = 244799,
+
+    SPELL_DECIMATION_FILTER = 244399,
+    SPELL_DECIMATION_MARK = 244410,
+    SPELL_DECIMATION_MISSILE = 244448,
+
+    //Heroic+
+    SPELL_SURGING_FEL_AT = 246655,
+    SPELL_SURGING_FEL_DMG = 246663,
+    SPELL_SURGING_FEL_SUMMON = 249969,
+    SPELL_SURGING_FEL_VISUAL = 249970,
+
+    //Mythic
+    SPELL_HAYWIRE_ANNIHILATION_DUMMY = 246965,
+    SPELL_HAYWIRE_ANNIHILATION = 246968,
+    SPELL_HAYWIRE_ANNIHILATION_MISSILE = 246969,
+    SPELL_HAYWIRE_ANNIHILATION_DMG = 246971,
+    SPELL_HAYWIRE_ANNIHILATION_SHRAPNEL = 247044,
+
+    SPELL_HAYWIRE_DECIMATION_DUMMY = 246897,
+    SPELL_HAYWIRE_DECIMATION_FILTER = 246919,
+    SPELL_HAYWIRE_DECIMATION_MARK = 246920,
+    SPELL_HAYWIRE_DECIMATION_MISSILE = 254946,
+
+    SPELL_LURING_DESTRUCTION = 246848,
+
+    SPELL_DAILY_ESSENCE_WORLDBREAKER = 305307,
+};
+
+enum eEvents
+{
+    EVENT_FEL_BOMBARDMENT = 1,
+    EVENT_ANNIHILATOR_OR_DECIMATOR = 2,
+    EVENT_ERADICATION = 3,
+    EVENT_CHECK_NEAREST_PLAYER = 4,
+};
+
+enum Misc
+{
+    SPECIAL_ANNIHILATOR = 0,
+    SPECIAL_DECIMATOR = 1,
+    SPECIAL_RANDOM_DISABLED = 2,
+
+    //SMSG_PLAY_ONE_SHOT_ANIM_KIT
+    ANIM_CANNON_DROP = 13264,
+
+    ACTION_1,
+    ACTION_2,
+    ACTION_3,
+
+    EVENT_1,
+    EVENT_2,
+    EVENT_3,
+};
+
+Position const centerPos = { -3300.20f, 9772.24f, -63.35f };
+
+Position const surgingPos[5] =
+{
+    {-3322.0f, 9810.8f, -64.84f, 4.57f},
+    {-3292.0f, 9810.8f, -64.07f, 4.57f},
+    {-3277.0f, 9810.8f, -63.68f, 4.57f},
+    {-3307.0f, 9810.8f, -63.85f, 4.57f},
+    {-3262.0f, 9810.8f, -63.93f, 4.57f}
+};
+
+void AddSC_boss_worldbreaker()
+{
+    
+}

@@ -21,3 +21,7 @@
 #include "unga_ingoo.h"
 #include "ScenarioMgr.h"
 
+void AddSC_instance_unga_ingoo()
+{
+   
+}

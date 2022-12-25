@@ -27,31 +27,31 @@
 #include <shared_mutex>
 #include <unordered_map>
 
-/*
- * - Resetting instance difficulties with reset schedule from UI seems only possible either when its completed or in group (and only with LockID)
- * - All difficulties of all maps with ResetInterval share locks - KEY is (MapID, LockID)
- *
- * DATABASE
- * character_instance_lock
- *   `guid` bigint(20) unsigned NOT NULL,
- *   `mapId` int(10) unsigned NOT NULL,
- *   `lockId` int(10) unsigned NOT NULL,
- *   `instanceId` int(10) unsigned,                 REFERENCES instance for instanceId based locks
- *   `difficulty` tinyint(3) unsigned,
- *   `data` text,                                   ALWAYS FILLED (also might not match instance data for instanceId based locks)
- *   `completedEncountersMask` int(10) unsigned,    ALWAYS FILLED (also might not match instance data for instanceId based locks)
- *   `entranceWorldSafeLocId` int(10) unsigned,     ALWAYS FILLED (also might not match instance data for instanceId based locks)
- *   `expiryTime` bigint(20) unsigned,
- *   `extended` tinyint(1) unsigned,
- *   PRIMARY KEY (`guid`,`mapId`,`lockId`),
- *
- * instance
- *   `instanceId` int(10) unsigned NOT NULL,
- *   `data` text,                                   FILLED ONLY FOR ID BASED LOCKS
- *   `completedEncountersMask` int(10) unsigned,    FILLED ONLY FOR ID BASED LOCKS
- *   `entranceWorldSafeLocId` int(10) unsigned,     FILLED ONLY FOR ID BASED LOCKS
- *   PRIMARY KEY (`instanceId`)
- */
+ /*
+  * - Resetting instance difficulties with reset schedule from UI seems only possible either when its completed or in group (and only with LockID)
+  * - All difficulties of all maps with ResetInterval share locks - KEY is (MapID, LockID)
+  *
+  * DATABASE
+  * character_instance_lock
+  *   `guid` bigint(20) unsigned NOT NULL,
+  *   `mapId` int(10) unsigned NOT NULL,
+  *   `lockId` int(10) unsigned NOT NULL,
+  *   `instanceId` int(10) unsigned,                 REFERENCES instance for instanceId based locks
+  *   `difficulty` tinyint(3) unsigned,
+  *   `data` text,                                   ALWAYS FILLED (also might not match instance data for instanceId based locks)
+  *   `completedEncountersMask` int(10) unsigned,    ALWAYS FILLED (also might not match instance data for instanceId based locks)
+  *   `entranceWorldSafeLocId` int(10) unsigned,     ALWAYS FILLED (also might not match instance data for instanceId based locks)
+  *   `expiryTime` bigint(20) unsigned,
+  *   `extended` tinyint(1) unsigned,
+  *   PRIMARY KEY (`guid`,`mapId`,`lockId`),
+  *
+  * instance
+  *   `instanceId` int(10) unsigned NOT NULL,
+  *   `data` text,                                   FILLED ONLY FOR ID BASED LOCKS
+  *   `completedEncountersMask` int(10) unsigned,    FILLED ONLY FOR ID BASED LOCKS
+  *   `entranceWorldSafeLocId` int(10) unsigned,     FILLED ONLY FOR ID BASED LOCKS
+  *   PRIMARY KEY (`instanceId`)
+  */
 
 struct DungeonEncounterEntry;
 struct MapEntry;

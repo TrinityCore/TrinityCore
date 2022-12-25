@@ -1,6 +1,6 @@
 /*
  * Copyright 2023 AzgathCore
- * 
+ *
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,3 +20,16 @@
 #include "ScriptedCreature.h"
 #include "mogu_shan_palace.h"
 
+#define SPELL_GUARDIAN_GRUNT 85667
+
+enum eBosses
+{
+    BOSS_MING_THE_CUNNING,
+    BOSS_KUAI_THE_BRUTE,
+    BOSS_HAIYAN_THE_UNSTOPPABLE
+};
+
+void AddSC_boss_trial_of_the_king()
+{
+    
+}

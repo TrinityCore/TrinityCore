@@ -19,3 +19,27 @@
 #include "ScriptedCreature.h"
 #include "shadopan_monastery.h"
 
+enum eSpells
+{
+    SPELL_SMOKE_BLADES = 106826,
+    SPELL_SHA_SPIKE = 106871,
+    SPELL_DISORIENTING_SMASH = 106872,
+    SPELL_PARTING_SMOKE = 127576,
+    SPELL_ENRAGE = 130196,
+
+    SPELL_ICE_TRAP = 110610,
+    SPELL_EXPLOSION = 106966
+};
+
+enum eEvents
+{
+    // Gu
+    EVENT_SMOKE_BLADES = 1,
+    EVENT_SHA_SPIKE = 2,
+    EVENT_DISORIENTING_SMASH = 3
+};
+
+void AddSC_boss_sha_of_violence()
+{
+   
+}

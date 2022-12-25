@@ -21,3 +21,7 @@
 #include "SpellScript.h"
 #include "Object.h"
 
+void AddSC_wandering_island_north()
+{
+    
+}

@@ -1,5 +1,456 @@
+/*
+* Copyright 2023 AzgathCore
+*
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the
+* Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "SpellAuraDefines.h"
 #include "SpellAuraEffects.h"
 #include "throne_of_thunder.h"
 #include "GameObject.h"
 
+Position PillarPosition[4] =
+{
+    { 5771.50f, 4093.77f, 156.46f, 0.05f }, // North
+    { 5710.80f, 4031.62f, 156.46f, 4.69f }, // East 
+    { 5646.67f, 4094.85f, 156.46f, 3.12f }, // South
+    { 5710.40f, 4158.81f, 156.46f, 1.53f }, // West
+};
+
+static const Position OverloadedCircuitsBouncingBall[51] =
+{
+    { 5741.24f, 4136.01f, 156.464f, 3.90927f },
+    { 5705.91f, 4107.4f, 156.464f, 2.34397f },
+    { 5710.17f, 4104.29f, 156.464f, 5.4777f },
+    { 5711.01f, 4105.67f, 156.464f, 3.93283f },
+    { 5723.29f, 4117.92f, 156.464f, 3.9132f },
+    { 5717.49f, 4112.25f, 156.464f, 3.95247f },
+    { 5730.41f, 4124.96f, 156.464f, 3.89749f },
+    { 5735.79f, 4130.27f, 156.464f, 3.95246f },
+    { 5736.12f, 4140.73f, 156.464f, 3.93047f },
+    { 5680.94f, 4134.37f, 156.464f, 5.50519f },
+    { 5684.8f, 4130.67f, 156.464f, 5.48556f },
+    { 5688.54f, 4126.58f, 156.464f, 5.44629f },
+    { 5691.55f, 4123.24f, 156.464f, 5.44629f },
+    { 5694.56f, 4119.9f, 156.464f, 5.44629f },
+    { 5697.58f, 4116.56f, 156.464f, 5.44629f },
+    { 5700.59f, 4113.22f, 156.464f, 5.44629f },
+    { 5729.21f, 4133.77f, 156.464f, 3.93047f },
+    { 5702.1f, 4111.55f, 156.464f, 5.44236f },
+    { 5724.12f, 4128.65f, 156.464f, 3.93047f },
+    { 5716.46f, 4120.93f, 156.464f, 3.93047f },
+    { 5709.59f, 4114.01f, 156.464f, 3.93047f },
+    { 5705.67f, 4119.14f, 156.464f, 2.36752f },
+    { 5700.98f, 4123.76f, 156.464f, 2.3636f },
+    { 5694.00f, 4130.64f, 156.464f, 2.3636f },
+    { 5688.41f, 4136.14f, 156.464f, 2.3636f },
+    { 5689.2f, 4141.54f, 156.464f, 0.659281f },
+    { 5695.89f, 4148.51f, 156.464f, 0.792799f },
+    { 5704.04f, 4156.79f, 156.464f, 0.792799f },
+    { 5710.66f, 4163.04f, 156.464f, 0.757456f },
+    { 5716.71f, 4159.68f, 156.464f, 5.6662f },
+    { 5720.99f, 4154.67f, 156.464f, 5.4188f },
+    { 5725.21f, 4149.72f, 156.464f, 5.4188f },
+    { 5729.65f, 4144.96f, 156.464f, 5.34811f },
+    { 5726.8f, 4139.03f, 156.464f, 3.80481f },
+    { 5721.09f, 4133.75f, 156.464f, 3.88728f },
+    { 5713.34f, 4128.35f, 156.464f, 3.74983f },
+    { 5704.45f, 4128.67f, 156.464f, 3.10581f },
+    { 5703.42f, 4137.00f, 156.464f, 1.82561f },
+    { 5694.84f, 4137.72f, 156.464f, 3.05868f },
+    { 5701.94f, 4144.17f, 156.464f, 0.737831f },
+    { 5708.78f, 4150.69f, 156.464f, 0.761393f },
+    { 5712.07f, 4144.91f, 156.464f, 5.23031f },
+    { 5716.23f, 4139.63f, 156.464f, 0.184124f },
+    { 5713.06f, 4134.54f, 156.464f, 0.380474f },
+    { 5721.86f, 4145.03f, 156.464f, 1.72743f },
+    { 5715.73f, 4151.17f, 156.464f, 2.35575f },
+    { 5710.67f, 4157.7f, 156.464f, 2.23009f },
+    { 5701.75f, 4161.24f, 156.464f, 3.48673f },
+    { 5695.15f, 4158.71f, 156.464f, 3.60846f },
+    { 5690.09f, 4155.19f, 156.464f, 3.74983f },
+    { 5710.69f, 4171.01f, 156.464f, 2.52461f },
+};
+
+static const Position OverloadedCircuitsDiffusionChain[38] =
+{
+    { 5716.78f, 4058.26f, 156.463f, 2.82385f },
+    { 5715.94f, 4047.68f, 156.463f, 5.56489f },
+    { 5710.4f, 4052.52f, 156.463f, 5.56096f },
+    { 5703.89f, 4058.26f, 156.463f, 0.538339f },
+    { 5698.45f, 4053.87f, 156.463f, 2.17982f },
+    { 5703.97f, 4045.94f, 156.463f, 2.46649f },
+    { 5710.86f, 4040.43f, 156.463f, 2.09343f },
+    { 5711.7f, 4031.29f, 156.463f, 0.228107f },
+    { 5706.84f, 4030.67f, 156.463f, 5.40781f },
+    { 5700.52f, 4038.25f, 156.463f, 5.37247f },
+    { 5693.31f, 4047.54f, 156.463f, 5.39996f },
+    { 5689.26f, 4052.98f, 156.463f, 4.07264f },
+    { 5696.64f, 4059.52f, 156.463f, 3.82917f },
+    { 5705.19f, 4066.54f, 156.463f, 3.7074f },
+    { 5713.95f, 4067.98f, 156.463f, 2.60395f },
+    { 5719.12f, 4064.89f, 156.463f, 2.17983f },
+    { 5724.55f, 4056.41f, 156.463f, 2.01097f },
+    { 5714.89f, 4079.95f, 156.463f, 2.36047f },
+    { 5719.66f, 4075.21f, 156.463f, 2.36047f },
+    { 5726.52f, 4068.41f, 156.463f, 2.36047f },
+    { 5730.8f, 4064.17f, 156.463f, 2.36047f },
+    { 5734.62f, 4060.38f, 156.463f, 2.36047f },
+    { 5738.41f, 4056.26f, 156.463f, 0.754334f },
+    { 5731.47f, 4049.74f, 156.463f, 0.770042f },
+    { 5724.29f, 4042.78f, 156.463f, 1.36302f },
+    { 5723.69f, 4034.4f, 156.463f, 0.836801f },
+    { 5717.46f, 4027.48f, 156.463f, 0.938903f },
+    { 5710.11f, 4019.04f, 156.463f, 3.91949f },
+    { 5701.12f, 4028.16f, 156.463f, 3.91949f },
+    { 5690.9f, 4038.54f, 156.463f, 3.91949f },
+    { 5678.15f, 4051.52f, 156.463f, 3.92342f },
+    { 5682.44f, 4055.83f, 156.463f, 3.93912f },
+    { 5686.65f, 4060.14f, 156.463f, 3.9352f },
+    { 5691.54f, 4064.93f, 156.463f, 3.91556f },
+    { 5697.84f, 4072.1f, 156.463f, 3.96269f },
+    { 5703.2f, 4077.78f, 156.463f, 3.86451f },
+    { 5708.04f, 4083.04f, 156.463f, 3.91164f },
+    { 5711.04f, 4087.85f, 156.463f, 2.30549f },
+};
+
+static const Position OverloadedCircuitsStaticShock[55] =
+{
+    { 5755.76f, 4094.53f, 156.463f, 1.79102f },
+    { 5742.07f, 4093.58f, 156.463f, 0.0592208f },
+    { 5751.12f, 4089.47f, 156.463f, 2.32902f },
+    { 5752.1f, 4081.79f, 156.463f, 5.02686f },
+    { 5748.86f, 4096.33f, 156.463f, 4.66559f },
+    { 5749.28f, 4105.21f, 156.463f, 4.66559f },
+    { 5749.59f, 4111.78f, 156.463f, 4.66559f },
+    { 5756.77f, 4113.79f, 156.463f, 2.73744f },
+    { 5765.53f, 4110.06f, 156.463f, 2.76886f },
+    { 5774.1f, 4106.6f, 156.463f, 2.59214f },
+    { 5780.13f, 4102.92f, 156.463f, 2.79635f },
+    { 5776.52f, 4098.91f, 156.463f, 0.821068f },
+    { 5771.18f, 4093.18f, 156.463f, 0.821068f },
+    { 5765.64f, 4087.23f, 156.463f, 0.821068f },
+    { 5761.54f, 4082.83f, 156.463f, 0.821068f },
+    { 5756.49f, 4077.39f, 156.463f, 0.958513f },
+    { 5752.32f, 4072.68f, 156.463f, 5.59236f },
+    { 5747.41f, 4076.74f, 156.463f, 5.60022f },
+    { 5740.67f, 4082.22f, 156.463f, 5.60414f },
+    { 5734.56f, 4087.13f, 156.463f, 5.612f },
+    { 5729.47f, 4094.63f, 156.463f, 3.97052f },
+    { 5735.00f, 4100.67f, 156.463f, 3.97052f },
+    { 5739.59f, 4105.68f, 156.463f, 3.97052f },
+    { 5745.31f, 4111.92f, 156.463f, 3.97052f },
+    { 5750.71f, 4117.8f, 156.463f, 3.96659f },
+    { 5755.09f, 4121.4f, 156.463f, 3.5464f },
+    { 5757.49f, 4119.05f, 156.463f, 2.68639f },
+    { 5766.46f, 4115.49f, 156.463f, 2.8709f },
+    { 5774.15f, 4113.35f, 156.463f, 2.6589f },
+    { 5780.01f, 4109.8f, 156.463f, 2.57643f },
+    { 5785.36f, 4106.22f, 156.463f, 2.31333f },
+    { 5785.65f, 4100.58f, 156.463f, 1.41797f },
+    { 5783.53f, 4091.81f, 156.463f, 1.37085f },
+    { 5781.62f, 4082.41f, 156.463f, 0.978148f },
+    { 5774.61f, 4072.89f, 156.463f, 0.860339f },
+    { 5766.67f, 4079.01f, 156.463f, 2.38794f },
+    { 5759.77f, 4071.66f, 156.463f, 2.38794f },
+    { 5755.99f, 4067.62f, 156.463f, 2.38794f },
+    { 5751.73f, 4063.17f, 156.463f, 2.65497f },
+    { 5746.16f, 4068.91f, 156.463f, 5.5099f },
+    { 5741.06f, 4073.9f, 156.463f, 5.5099f },
+    { 5733.99f, 4080.79f, 156.463f, 5.5099f },
+    { 5728.58f, 4086.07f, 156.463f, 5.5099f },
+    { 5723.83f, 4091.26f, 156.463f, 5.47456f },
+    { 5720.1f, 4095.16f, 156.463f, 3.95089f },
+    { 5721.35f, 4096.48f, 156.463f, 3.9234f },
+    { 5727.97f, 4103.02f, 156.463f, 3.91948f },
+    { 5733.31f, 4108.27f, 156.463f, 3.91948f },
+    { 5739.64f, 4114.51f, 156.463f, 3.91948f },
+    { 5744.83f, 4119.62f, 156.463f, 3.91948f },
+    { 5749.45f, 4123.84f, 156.463f, 3.91555f },
+    { 5752.12f, 4100.1f, 156.463f, 1.1038f },
+    { 5757.00f, 4105.6f, 156.463f, 0.844619f },
+    { 5764.9f, 4101.15f, 156.463f, 4.55563f },
+    { 5763.38f, 4107.48f, 156.463f, 0.161322f },
+};
+
+static const Position OverloadedCircuitsOvercharge[40] =
+{
+    { 5677.79f, 4079.75f, 156.463f, 0.813231f },
+    { 5671.99f, 4077.31f, 156.463f, 5.03867f },
+    { 5669.53f, 4083.04f, 156.463f, 0.400895f },
+    { 5661.21f, 4079.52f, 156.463f, 5.26644f },
+    { 5657.29f, 4088.88f, 156.463f, 5.86334f },
+    { 5649.04f, 4092.56f, 156.463f, 4.37109f },
+    { 5652.32f, 4101.8f, 156.463f, 4.67739f },
+    { 5665.09f, 4100.15f, 156.463f, 2.49791f },
+    { 5673.04f, 4094.18f, 156.463f, 2.68248f },
+    { 5681.76f, 4089.87f, 156.463f, 3.85273f },
+    { 5687.23f, 4094.58f, 156.463f, 5.49813f },
+    { 5679.5f, 4102.3f, 156.463f, 5.83585f },
+    { 5671.61f, 4106.08f, 156.463f, 4.72452f },
+    { 5671.52f, 4113.92f, 156.463f, 5.34891f },
+    { 5665.18f, 4117.89f, 156.463f, 0.82893f },
+    { 5660.59f, 4112.89f, 156.463f, 0.730759f },
+    { 5653.12f, 4107.57f, 156.463f, 0.349841f },
+    { 5645.03f, 4104.62f, 156.463f, 0.883912f },
+    { 5638.6f, 4096.77f, 156.463f, 1.22556f },
+    { 5635.4f, 4090.55f, 156.463f, 2.05023f },
+    { 5639.23f, 4084.86f, 156.463f, 2.41544f },
+    { 5646.98f, 4077.98f, 156.463f, 2.80028f },
+    { 5657.01f, 4075.7f, 156.463f, 2.44686f },
+    { 5666.21f, 4068.04f, 156.463f, 2.4822f },
+    { 5669.21f, 4061.79f, 156.463f, 3.9666f },
+    { 5675.08f, 4067.68f, 156.463f, 3.93126f },
+    { 5679.84f, 4072.45f, 156.463f, 3.95089f },
+    { 5683.65f, 4076.52f, 156.463f, 3.94304f },
+    { 5687.67f, 4080.57f, 156.463f, 3.92733f },
+    { 5692.76f, 4085.67f, 156.463f, 3.88413f },
+    { 5696.88f, 4089.44f, 156.463f, 3.85272f },
+    { 5700.14f, 4093.48f, 156.463f, 5.49813f },
+    { 5698.65f, 4094.97f, 156.463f, 5.49813f },
+    { 5695.48f, 4098.13f, 156.463f, 5.49813f },
+    { 5691.62f, 4101.99f, 156.463f, 5.49813f },
+    { 5686.92f, 4106.69f, 156.463f, 5.49813f },
+    { 5682.22f, 4111.31f, 156.463f, 5.50598f },
+    { 5677.46f, 4115.85f, 156.463f, 5.52169f },
+    { 5673.45f, 4120.05f, 156.463f, 5.47849f },
+    { 5669.77f, 4124.17f, 156.463f, 5.68269f },
+};
+
+enum Spells
+{
+    // Stage One
+    SPELL_DISCHARGE_VISUAL = 134820,
+    SPELL_DISCHARGE_DAMAGE_AND_STACKS = 134821,
+
+    SPELL_DECAPITATE_MARKER = 135000,
+    SPELL_DECAPITATE_MARKER_VISUAL = 134912,
+    SPELL_DECAPITATE_MISSILE = 134990,
+
+    SPELL_THUNDERSTRUCK = 135095,
+
+    SPELL_CRASHING_THUNDER = 135150,
+    SPELL_CRASHING_THUNDER_DOT = 135153,
+
+    // Stage Two
+    SPELL_FUSION_SLASH = 136478,
+
+    SPELL_LIGHTNING_WHIP = 136850,
+
+    SPELL_SUMMON_BALL_LIGHTNING = 136543,
+
+    // Stage Three
+    SPELL_OVERWHELMING_POWER = 136913,
+
+    SPELL_VIOLENT_GALE_WINDS = 136889,
+
+    // Intermissions
+    SPELL_HELM_OF_COMMAND = 139011,
+    SPELL_OVERLOADED_CIRCUITS = 137176,
+    SPELL_SUPERCHARGE_CONDUITS = 137045,
+
+    // Power bar
+    SPELL_PB_OVERCHARGE = 139272,
+    SPELL_PB_STATIC_SHOCK = 139271,
+    SPELL_PB_BOUNCING_BOLT = 137581,
+    SPELL_PB_DIFFUSION_CHAIN = 139273,
+
+    SPELL_PB_PLAYER = 137607,
+
+    // Conduits
+    // North Conduit -> Static Shock
+    SPELL_STATIC_SHOCK = 135695,
+
+    // South Conduit -> Overcharge
+    SPELL_LEI_SHEN_OVERCHARGE = 135682,
+
+    SPELL_OVERCHARGED = 136295, // main spell
+    SPELL_OVERCHARGE = 136326, // if player was hit by OVERCHARGED 
+
+    // West Conduit -> Bouncing Bolt
+    SPELL_LEI_SHEN_BOUNCING_BOLT = 135683,
+
+    SPELL_BOUNCING_BOLT_MISSILE = 136361, //near
+    SPELL_BOUNCING_BOLT_MISSILE_FARTHEST = 138706, // used in intermission
+    SPELL_BOUNCING_BOLT_SUMMON = 136372,
+
+    // East Conduit -> Diffusion Chain
+    SPELL_LEI_SHEN_DIFFUSION_CHAIN = 135681,
+
+    SPELL_DIFFUSION_CHAIN_SUMMON_LOW = 135992, // when power is 1
+    SPELL_DIFFUSION_CHAIN_SUMMON_MINOR = 135993, // when power is 2
+    SPELL_DIFFUSION_CHAIN_SUMMON_BIG = 135994, // when power is 3
+    SPELL_DIFFUSION_CHAIN_DAMAGE = 135991,
+
+    // Miscs
+    // more visuals: 138974 bot
+    SPELL_PILLAR_VISUALS = 134843, // for conduits 
+    SPELL_PILLAR_ON_LEISHEN = 134803,
+
+    //adds
+    SPELL_CHAIN_LIGHTNING_DIFFUSION = 136018,
+};
+
+enum Creatures
+{
+    NPC_STATIC_SHOCK_CONDUIT = 68398,
+    NPC_DIFFUSION_CHAIN_CONDUIT = 68696,
+    NPC_OVERCHARGE_CONDUIT = 68697,
+    NPC_BOUNCING_BOLT_CONDUIT = 68698,
+    NPC_LESSER_DIFFUSED_LIGHTNING = 69012,
+    NPC_DIFFUSED_LIGHTNING = 69013,
+    NPC_GREATER_DIFFUSED_LIGHTNING = 69014,
+    NPC_UNHARNESSED_POWER = 69133,
+    NPC_BALL_LIGHTNING = 69462,
+
+    NPC_OVERLOADED_CIRCUITS = 999277,
+};
+
+enum Miscs
+{
+    GO_FLOOR_NORTH = 218420,
+    GO_FLOOR_SOUTH = 218419,
+    GO_FLOOR_EAST = 218422,
+    GO_FLOOR_WEST = 218421,
+
+    GO_INTERMISSION = 218397,
+};
+
+enum Events
+{
+    EVENT_BERSERK = 1,
+    EVENT_THUNDERSTRUCK,
+    EVENT_CRASHING_THUNDER,
+    EVENT_DIFFUSION_CHAIN_PILLAR_EVENT,
+    EVENT_DECAPITATE,
+    EVENT_RUSH_PLAYER,
+    EVENT_HELM_OF_COMMAND,
+    EVENT_FIXATE_PLAYER,
+    EVENT_SUMMON_BALL_LIGHTNING,
+    EVENT_INTERMISSION_PILLARS,
+    EVENT_STATIC_SHOCK_PILLAR_EVENT,
+    EVENT_OVERCHARGED_PILLAR_EVENT,
+    EVENT_BOUNCE_AGAIN,
+    EVENT_LIGHTNING_WHIP,
+    EVENT_DECAPITATE_SPELL,
+    EVENT_TELEPORT_TO_PILLARS,
+    EVENT_RETURN_TO_COMBAT,
+    EVENT_OBJECT_VISUAL,
+    EVENT_VIOLENT_GALE_WINDS,
+    EVENT_BOUNCING_BALL_PILLAR_EVENT,
+    EVENT_STATIC_SHOCK_DISABLED,
+    EVENT_INTERMISSION_PILLARS_3,
+    EVENT_INTERMISSION_PILLARS_4,
+    EVENT_OVERCHARGED_DISABLED,
+    EVENT_BOUNCING_BALL_DISABLED,
+    EVENT_DIFFUSION_CHAIN_DISABLED,
+    EVENT_INTERMISSION_PILLARS_2,
+    EVENT_FUSION_FLASH,
+
+    EVENT_BEGIN_PHASE_2,
+    EVENT_BEGIN_PHASE_3,
+
+    EVENT_KILL_PLAYERS_WITHOUT_PLATFORM,
+};
+
+enum Timers
+{
+    TIMER_BERSERK = 12 * IN_MILLISECONDS * MINUTE,
+
+    TIMER_THUNDERSTRUCK = 25 * IN_MILLISECONDS,
+    TIMER_THUNDERSTRUCK_SECOND = 45 * IN_MILLISECONDS,
+
+    TIMER_CRASHING_THUNDER = 27 * IN_MILLISECONDS,
+
+    TIMER_DECAPITATE = 40 * IN_MILLISECONDS,
+    TIMER_DECAPITATE_SPELL = 5 * IN_MILLISECONDS,
+
+    TIMER_CONDUIT_ABILITY = 35 * IN_MILLISECONDS,
+
+    TIMER_SUMMON_BALL_LIGHTNING = 18 * IN_MILLISECONDS,
+    TIMER_SUMMON_BALL_LIGHTNING_SECOND = 45 * IN_MILLISECONDS,
+
+    TIMER_LIGHTNING_WHIP = 45 * IN_MILLISECONDS,
+    TIMER_FUSION_FLASH = 1 * IN_MILLISECONDS * MINUTE,
+
+    TIMER_VIOLENT_GALE_WINDS = 30 * IN_MILLISECONDS,
+};
+
+enum Actions
+{
+    ACTION_LEI_SHEN_NEAR_PILLAR = 1,
+    ACTION_LEI_SHEN_NOT_NEAR_PILLAR = 2,
+};
+
+enum StaticShockEvents
+{
+    EVENT_CHECK_LEI_SHEN = 1,
+    EVENT_ADD_POWERS = 2,
+    EVENT_CHECK_POWER = 3,
+};
+
+enum PillarsActions
+{
+    ACTION_STATIC_SHOCK_ON = 1,
+    ACTION_STATIC_SHOCK_OFF = 2,
+
+    ACTION_OVERCHARGE_CONDUIT_ON = 3,
+    ACTION_OVERCHARGE_OFF = 4,
+
+    ACTION_DIFFUSION_ON = 5,
+    ACTION_DIFFUSION_OFF = 6,
+
+    ACTION_BOUNCING_ON = 7,
+    ACTION_BOUNCING_OFF = 8,
+
+    // pillars actions, acting for lei shen (req spellscripts)
+    ACTION_STATIC_SHOCK_PILLAR_ON = 9,
+    ACTION_STATIC_SHOCK_PILLAR_OFF = 10,
+
+    ACTION_OVERCHARGE_PILLAR_OFF = 11,
+    ACTION_OVERCHARGE_PILLAR_ON = 12,
+
+    ACTION_BOUNCING_BOLT_PILLAR_OFF = 13,
+    ACTION_BOUNCING_BOLT_PILLAR_ON = 14,
+
+    ACTION_DIFFUSION_CHAIN_PILLAR_ON = 15,
+    ACTION_DIFFUSION_CHAIN_PILLAR_OFF = 16,
+
+    ACTION_STATIC_SHOCK_DISABLED = 17,
+    ACTION_DIFFUSION_CHAIN_DISABLED = 18,
+    ACTION_OVERCHARGED_DISABLED = 19,
+    ACTION_BOUNCING_BALL_DISABLED = 20,
+};
+
+enum ObjectVisuals
+{
+    FLOOR_POWER_SHUT_DOWN = 3704, // used on JustDied
+    FLOOR_POWER_CONDUIT_ELECTRIFIED = 3702, // used on conduit which has been "destroyed"
+};
+
+enum Talks
+{
+    TALK_AGGRO = 1,
+    TALK_THUNDERSTRUCK = 2,
+    TALK_LIGHTNING_WHIP = 3,
+    TALK_GALE_WINDS = 4,
+    TALK_P2 = 5,
+    TALK_P3 = 6,
+    TALK_DEATH = 7,
+};
+
+void AddSC_bfa_boss_lei_shen()
+{
+    
+}
