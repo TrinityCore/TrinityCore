@@ -223,8 +223,8 @@ void WorldPackets::Item::AutoEquipItemSlot::Read()
 void WorldPackets::Item::AutoStoreBagItem::Read()
 {
     _worldPacket >> Inv;
-    _worldPacket >> ContainerSlotB;
     _worldPacket >> ContainerSlotA;
+    _worldPacket >> ContainerSlotB;    
     _worldPacket >> SlotA;
 }
 
