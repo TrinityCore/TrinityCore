@@ -171,7 +171,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint64 Action = 0; ///< two packed uint32 (action and type)
+            uint32 Action = 0;
             uint8 Index = 0;
         };
 
