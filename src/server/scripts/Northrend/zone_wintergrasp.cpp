@@ -173,7 +173,7 @@ class npc_wg_demolisher_engineer : public CreatureScript
         private:
             bool CanBuild() const
             {
-                Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
+                Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefieldByBattleId(me->GetMap(), BATTLEFIELD_BATTLEID_WG);
                 if (!wintergrasp)
                     return false;
 
@@ -215,7 +215,7 @@ class npc_wg_spirit_guide : public CreatureScript
                 if (me->IsQuestGiver())
                     player->PrepareQuestMenu(me->GetGUID());
 
-                Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
+                Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefieldByBattleId(me->GetMap(), BATTLEFIELD_BATTLEID_WG);
                 if (!wintergrasp)
                     return true;
 
@@ -233,7 +233,7 @@ class npc_wg_spirit_guide : public CreatureScript
                 uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
                 CloseGossipMenuFor(player);
 
-                Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
+                Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefieldByBattleId(me->GetMap(), BATTLEFIELD_BATTLEID_WG);
                 if (wintergrasp)
                 {
                     GraveyardVect gy = wintergrasp->GetGraveyardVector();
@@ -295,7 +295,7 @@ class npc_wg_queue : public CreatureScript
                 if (me->IsQuestGiver())
                     player->PrepareQuestMenu(me->GetGUID());
 
-                Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
+                Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefieldByBattleId(me->GetMap(), BATTLEFIELD_BATTLEID_WG);
                 if (!wintergrasp)
                     return true;
 
@@ -323,7 +323,7 @@ class npc_wg_queue : public CreatureScript
             {
                 CloseGossipMenuFor(player);
 
-                Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
+                Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefieldByBattleId(me->GetMap(), BATTLEFIELD_BATTLEID_WG);
                 if (!wintergrasp)
                     return true;
 
@@ -496,10 +496,10 @@ class spell_wintergrasp_defender_teleport : public SpellScriptLoader
         {
             SpellCastResult CheckCast()
             {
-                if (Battlefield* wg = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG))
-                    if (Player* target = GetExplTargetUnit()->ToPlayer())
+                if (Player* target = GetExplTargetUnit()->ToPlayer())
+                    if (Battlefield* wg = sBattlefieldMgr->GetBattlefieldByBattleId(target->GetMap(), BATTLEFIELD_BATTLEID_WG))
                         // check if we are in Wintergrasp at all, SotA uses same teleport spells
-                        if ((target->GetZoneId() == 4197 && target->GetTeamId() != wg->GetDefenderTeam()) || target->HasAura(SPELL_WINTERGRASP_TELEPORT_TRIGGER))
+                        if ((target->GetZoneId() == AREA_WINTERGRASP && target->GetTeamId() != wg->GetDefenderTeam()) || target->HasAura(SPELL_WINTERGRASP_TELEPORT_TRIGGER))
                             return SPELL_FAILED_BAD_TARGETS;
                 return SPELL_CAST_OK;
             }
@@ -549,10 +549,12 @@ class condition_is_wintergrasp_horde : public ConditionScript
     public:
         condition_is_wintergrasp_horde() : ConditionScript("condition_is_wintergrasp_horde") { }
 
-        bool OnConditionCheck(Condition const* /* condition */, ConditionSourceInfo& /* sourceInfo */)
+        bool OnConditionCheck(Condition const* /* condition */, ConditionSourceInfo& sourceInfo)
         {
-            Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
-            if (wintergrasp && wintergrasp->IsEnabled() && wintergrasp->GetDefenderTeam() == TEAM_HORDE)
+            if (!sourceInfo.mConditionMap)
+                return false;
+            Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefieldByBattleId(sourceInfo.mConditionMap, BATTLEFIELD_BATTLEID_WG);
+            if (wintergrasp->IsEnabled() && wintergrasp->GetDefenderTeam() == TEAM_HORDE)
                 return true;
             return false;
         }
@@ -563,10 +565,12 @@ class condition_is_wintergrasp_alliance : public ConditionScript
     public:
         condition_is_wintergrasp_alliance() : ConditionScript("condition_is_wintergrasp_alliance") { }
 
-        bool OnConditionCheck(Condition const* /* condition */, ConditionSourceInfo& /* sourceInfo */)
+        bool OnConditionCheck(Condition const* /* condition */, ConditionSourceInfo& sourceInfo)
         {
-            Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG);
-            if (wintergrasp && wintergrasp->IsEnabled() && wintergrasp->GetDefenderTeam() == TEAM_ALLIANCE)
+            if (!sourceInfo.mConditionMap)
+                return false;
+            Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefieldByBattleId(sourceInfo.mConditionMap, BATTLEFIELD_BATTLEID_WG);
+            if (wintergrasp->IsEnabled() && wintergrasp->GetDefenderTeam() == TEAM_ALLIANCE)
                 return true;
             return false;
         }

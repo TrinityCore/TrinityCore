@@ -34,10 +34,9 @@
 #include "ObjectMgr.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "WorldStatePackets.h"
 #include <G3D/g3dmath.h>
 
-Battlefield::Battlefield()
+Battlefield::Battlefield(Map* map)
 {
     m_Timer = 0;
     m_IsEnabled = true;
@@ -47,8 +46,8 @@ Battlefield::Battlefield()
     m_TypeId = 0;
     m_BattleId = 0;
     m_ZoneId = 0;
-    m_Map = nullptr;
-    m_MapId = 0;
+    m_Map = map;
+    m_MapId = map->GetId();
     m_MaxPlayer = 0;
     m_MinPlayer = 0;
     m_MinLevel = 0;

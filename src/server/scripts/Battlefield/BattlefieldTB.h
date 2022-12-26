@@ -346,6 +346,7 @@ class TolBaradCapturePoint : public BfCapturePoint
 class BattlefieldTB : public Battlefield
 {
     public:
+        using Battlefield::Battlefield;
         ~BattlefieldTB();
 
         void OnStartGrouping() override;

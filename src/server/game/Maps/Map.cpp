@@ -16,6 +16,7 @@
  */
 
 #include "Map.h"
+#include "BattlefieldMgr.h"
 #include "Battleground.h"
 #include "CellImpl.h"
 #include "DatabaseEnv.h"
@@ -39,6 +40,7 @@
 #include "ObjectAccessor.h"
 #include "ObjectGridLoader.h"
 #include "ObjectMgr.h"
+#include "OutdoorPvPMgr.h"
 #include "Pet.h"
 #include "PoolMgr.h"
 #include "PhasingHandler.h"
@@ -89,6 +91,9 @@ Map::~Map()
 
     if (!m_scriptSchedule.empty())
         sMapMgr->DecreaseScheduledScriptCount(m_scriptSchedule.size());
+
+    sOutdoorPvPMgr->DestroyOutdoorPvPForMap(this);
+    sBattlefieldMgr->DestroyBattlefieldsForMap(this);
 
     MMAP::MMapFactory::createOrGetMMapManager()->unloadMapInstance(GetId(), i_InstanceId);
 }
@@ -146,6 +151,9 @@ i_scriptLock(false), _respawnCheckTimer(0)
     MMAP::MMapFactory::createOrGetMMapManager()->loadMapInstance(sWorld->GetDataPath(), GetId(), i_InstanceId);
 
     _worldStateValues = sWorldStateMgr->GetInitialWorldStatesForMap(this);
+
+    sOutdoorPvPMgr->CreateOutdoorPvPForMap(this);
+    sBattlefieldMgr->CreateBattlefieldsForMap(this);
 
     sScriptMgr->OnCreateMap(this);
 }
