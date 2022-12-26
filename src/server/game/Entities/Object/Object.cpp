@@ -2154,7 +2154,7 @@ ZoneScript* WorldObject::FindZoneScript() const
             if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
                 return bf;
             else
-                return sOutdoorPvPMgr->GetZoneScript(GetZoneId());
+                return sOutdoorPvPMgr->GetOutdoorPvPToZoneId(map, GetZoneId());
         }
     }
     return nullptr;

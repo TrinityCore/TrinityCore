@@ -164,7 +164,7 @@ class TC_GAME_API OutdoorPvP : public ZoneScript
     public:
 
         // ctor
-        OutdoorPvP();
+        OutdoorPvP(Map* map);
 
         // dtor
         virtual ~OutdoorPvP();
@@ -187,8 +187,6 @@ class TC_GAME_API OutdoorPvP : public ZoneScript
 
         void OnGameObjectCreate(GameObject* go) override;
         void OnGameObjectRemove(GameObject* go) override;
-        void OnCreatureCreate(Creature*) override;
-        void OnCreatureRemove(Creature*) override;
 
         // send world state update to all players present
         int32 GetWorldState(int32 worldStateId) const;
@@ -275,11 +273,6 @@ class TC_GAME_API OutdoorPvP : public ZoneScript
 
         template<class Worker>
         void BroadcastWorker(Worker& _worker, uint32 zoneId);
-
-        // Hack to store map because this code is just shit
-        void SetMapFromZone(uint32 zone);
-        std::map<ObjectGuid::LowType, GameObject*> m_GoScriptStore;
-        std::map<ObjectGuid::LowType, Creature*> m_CreatureScriptStore;
 
         Map* m_map;
 };

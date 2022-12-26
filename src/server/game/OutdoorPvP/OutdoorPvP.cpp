@@ -18,7 +18,6 @@
 #include "OutdoorPvP.h"
 #include "CellImpl.h"
 #include "DatabaseEnv.h"
-#include "DBCStores.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "Log.h"
@@ -108,7 +107,7 @@ bool OPvPCapturePoint::SetCapturePointData(uint32 entry)
     return true;;
 }
 
-OutdoorPvP::OutdoorPvP() : m_TypeId(0), m_map(nullptr) { }
+OutdoorPvP::OutdoorPvP(Map* map) : m_TypeId(0), m_map(map) { }
 
 OutdoorPvP::~OutdoorPvP() = default;
 
@@ -471,35 +470,20 @@ void OutdoorPvP::TeamApplyBuff(TeamId team, uint32 spellId, uint32 spellId2)
 
 void OutdoorPvP::OnGameObjectCreate(GameObject* go)
 {
-    GoScriptPair sp(go->GetGUID().GetCounter(), go);
-    m_GoScriptStore.insert(sp);
     if (go->GetGoType() != GAMEOBJECT_TYPE_CAPTURE_POINT)
         return;
 
-    if (OPvPCapturePoint *cp = GetCapturePoint(go->GetSpawnId()))
+    if (OPvPCapturePoint* cp = GetCapturePoint(go->GetSpawnId()))
         cp->m_capturePoint = go;
 }
 
 void OutdoorPvP::OnGameObjectRemove(GameObject* go)
 {
-    m_GoScriptStore.erase(go->GetGUID().GetCounter());
-
     if (go->GetGoType() != GAMEOBJECT_TYPE_CAPTURE_POINT)
         return;
 
-    if (OPvPCapturePoint *cp = GetCapturePoint(go->GetSpawnId()))
+    if (OPvPCapturePoint* cp = GetCapturePoint(go->GetSpawnId()))
         cp->m_capturePoint = nullptr;
-}
-
-void OutdoorPvP::OnCreatureCreate(Creature* creature)
-{
-    CreatureScriptPair sp(creature->GetGUID().GetCounter(), creature);
-    m_CreatureScriptStore.insert(sp);
-}
-
-void OutdoorPvP::OnCreatureRemove(Creature* creature)
-{
-    m_CreatureScriptStore.erase(creature->GetGUID().GetCounter());
 }
 
 void OutdoorPvP::SendDefenseMessage(uint32 zoneId, uint32 id)
@@ -517,13 +501,4 @@ void OutdoorPvP::BroadcastWorker(Worker& _worker, uint32 zoneId)
             if (Player* player = ObjectAccessor::FindPlayer(*itr))
                 if (player->GetZoneId() == zoneId)
                     _worker(player);
-}
-
-void OutdoorPvP::SetMapFromZone(uint32 zone)
-{
-    AreaTableEntry const* areaTable = sAreaTableStore.LookupEntry(zone);
-    ASSERT(areaTable);
-    Map* map = sMapMgr->CreateBaseMap(areaTable->ContinentID);
-    ASSERT(!map->Instanceable());
-    m_map = map;
 }

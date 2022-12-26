@@ -84,7 +84,7 @@ uint32 const TFTowerPlayerLeaveEvents[TF_TOWER_NUM] =
 };
 */
 
-OutdoorPvPTF::OutdoorPvPTF()
+OutdoorPvPTF::OutdoorPvPTF(Map* map) : OutdoorPvP(map)
 {
     m_TypeId = OUTDOOR_PVP_TF;
 
@@ -268,8 +268,6 @@ bool OutdoorPvPTF::SetupOutdoorPvP()
     second_digit = 0;
     first_digit = 0;
 
-    SetMapFromZone(OutdoorPvPTFBuffZones[0]);
-
     // add the zones affected by the pvp buff
     for (uint8 i = 0; i < OutdoorPvPTFBuffZonesNum; ++i)
         RegisterZone(OutdoorPvPTFBuffZones[i]);
@@ -386,9 +384,9 @@ class OutdoorPvP_terokkar_forest : public OutdoorPvPScript
     public:
         OutdoorPvP_terokkar_forest() : OutdoorPvPScript("outdoorpvp_tf") { }
 
-        OutdoorPvP* GetOutdoorPvP() const override
+        OutdoorPvP* GetOutdoorPvP(Map* map) const override
         {
-            return new OutdoorPvPTF();
+            return new OutdoorPvPTF(map);
         }
 };
 

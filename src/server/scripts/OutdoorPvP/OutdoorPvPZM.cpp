@@ -173,7 +173,7 @@ void OutdoorPvPZM::HandlePlayerLeaveZone(Player* player, uint32 zone)
     OutdoorPvP::HandlePlayerLeaveZone(player, zone);
 }
 
-OutdoorPvPZM::OutdoorPvPZM()
+OutdoorPvPZM::OutdoorPvPZM(Map* map) : OutdoorPvP(map)
 {
     m_TypeId = OUTDOOR_PVP_ZM;
     m_Graveyard = nullptr;
@@ -185,8 +185,6 @@ bool OutdoorPvPZM::SetupOutdoorPvP()
 {
     m_AllianceTowersControlled = 0;
     m_HordeTowersControlled = 0;
-
-    SetMapFromZone(OutdoorPvPZMBuffZones[0]);
 
     // add the zones affected by the pvp buff
     for (uint8 i = 0; i < OutdoorPvPZMBuffZonesNum; ++i)
@@ -446,9 +444,9 @@ class OutdoorPvP_zangarmarsh : public OutdoorPvPScript
     public:
         OutdoorPvP_zangarmarsh() : OutdoorPvPScript("outdoorpvp_zm") { }
 
-        OutdoorPvP* GetOutdoorPvP() const override
+        OutdoorPvP* GetOutdoorPvP(Map* map) const override
         {
-            return new OutdoorPvPZM();
+            return new OutdoorPvPZM(map);
         }
 };
 
