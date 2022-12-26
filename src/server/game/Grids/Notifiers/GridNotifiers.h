@@ -542,21 +542,6 @@ namespace Trinity
 
     // Last accepted by Check Creature if any (Check can change requirements at each call)
     template<class Check>
-    struct CreatureWithoutPhaseLastSearcher
-    {
-        WorldObject const* _searcher;
-        Creature* &i_object;
-        Check & i_check;
-
-        CreatureWithoutPhaseLastSearcher(WorldObject const* searcher, Creature* & result, Check & check)
-            : _searcher(searcher), i_object(result), i_check(check) { }
-
-        void Visit(CreatureMapType &m);
-
-        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
-    };
-
-    template<class Check>
     struct CreatureLastSearcher
     {
         PhaseShift const* i_phaseShift;
@@ -1459,51 +1444,47 @@ namespace Trinity
     class NearestCreatureEntryWithOptionsInObjectRangeCheck
     {
         public:
-            NearestCreatureEntryWithOptionsInObjectRangeCheck(WorldObject const& obj, uint32 entry, float range, FindCreatureExtraArgs const* args = { })
-                : i_obj(obj), i_entry(entry), i_args(args), i_range(range) { }
+            NearestCreatureEntryWithOptionsInObjectRangeCheck(WorldObject const& obj, float range, FindCreatureOptions const& args)
+                : i_obj(obj), i_args(args), i_range(range) { }
 
             bool operator()(Creature* u)
             {
                 if (u->getDeathState() == DEAD) // Despawned
                     return false;
 
-                if (u->GetGUID() == i_obj.GetGUID() || u->GetEntry() != i_entry)
+                if (u->GetGUID() == i_obj.GetGUID())
                     return false;
 
-                // Why is that needed? Cell::VisitAllObjects already does that, doesnt it?
-                //if (!i_obj.IsInMap(u) || !i_obj.IsWithinDist(u, i_range))
-                //    return false;
+                if (!i_obj.IsWithinDistInMap(u, i_range))
+                    return false;
 
-                if (i_args)
-                {
-                    if (i_args->IsAlive.has_value() && u->IsAlive() != i_args->IsAlive)
-                        return false;
+                if (i_args.CreatureId && u->GetEntry() != i_args.CreatureId)
+                    return false;
 
-                    if (i_args->IsInPhase.has_value() && !i_obj.IsInPhase(u))
-                        return false;
+                if (i_args.IsAlive.has_value() && u->IsAlive() != i_args.IsAlive)
+                    return false;
 
-                    if (i_args->IsSummon.has_value() && !u->IsSummon())
-                        return false;
+                if (i_args.IsSummon.has_value() && u->IsSummon() != i_args.IsSummon)
+                    return false;
 
-                    if (i_args->IsInCombat.has_value() && !u->IsInCombat())
-                        return false;
+                if (i_args.IsInCombat.has_value() && u->IsInCombat() != i_args.IsInCombat)
+                    return false;
 
-                    if ((i_args->OwnerGuid.has_value() && u->GetOwnerGUID() != i_args->OwnerGuid)
-                        || (i_args->CharmerGuid.has_value() && u->GetCharmerGUID() != i_args->CharmerGuid)
-                        || (i_args->CreatorGuid.has_value() && u->GetCreatorGUID() != i_args->CreatorGuid)
-                        || (i_args->DemonCreatorGuid.has_value() && u->GetDemonCreatorGUID() != i_args->DemonCreatorGuid)
-                        || (i_args->PrivateObjectOwnerGuid.has_value() && u->GetPrivateObjectOwner() != i_args->PrivateObjectOwnerGuid))
-                        return false;
+                if ((i_args.OwnerGuid && u->GetOwnerGUID() != i_args.OwnerGuid)
+                    || (i_args.CharmerGuid && u->GetCharmerGUID() != i_args.CharmerGuid)
+                    || (i_args.CreatorGuid && u->GetCreatorGUID() != i_args.CreatorGuid)
+                    || (i_args.DemonCreatorGuid && u->GetDemonCreatorGUID() != i_args.DemonCreatorGuid)
+                    || (i_args.PrivateObjectOwnerGuid && u->GetPrivateObjectOwner() != i_args.PrivateObjectOwnerGuid))
+                    return false;
 
-                    if (i_args->IgnorePrivateObjects.has_value() && u->IsPrivateObject())
-                        return false;
+                if (i_args.IgnorePrivateObjects && u->IsPrivateObject())
+                    return false;
 
-                    if (i_args->IgnoreNotOwnedPrivateObjects.has_value() && !u->CheckPrivateObjectOwnerVisibility(&i_obj))
-                        return false;
+                if (i_args.IgnoreNotOwnedPrivateObjects && !u->CheckPrivateObjectOwnerVisibility(&i_obj))
+                    return false;
 
-                    if (i_args->AuraSpellId.has_value() && !u->HasAura(i_args->AuraSpellId.value()))
-                        return false;
-                }
+                if (i_args.AuraSpellId && !u->HasAura(*i_args.AuraSpellId))
+                    return false;
 
                 i_range = i_obj.GetDistance(u);         // use found unit range as new range limit for next check
                 return true;
@@ -1511,45 +1492,8 @@ namespace Trinity
 
         private:
             WorldObject const& i_obj;
-            uint32 i_entry;
-            FindCreatureExtraArgs const* i_args;
-            float  i_range;
-
-            // prevent clone this object
-            NearestCreatureEntryWithOptionsInObjectRangeCheck(NearestCreatureEntryWithOptionsInObjectRangeCheck const&) = delete;
-    };
-
-    class NearestCreatureEntryWithLiveStateAndAuraInObjectRangeCheck
-    {
-        public:
-            NearestCreatureEntryWithLiveStateAndAuraInObjectRangeCheck(WorldObject const& obj, uint32 entry, uint32 spellId, bool alive, float range)
-                : i_obj(obj), i_entry(entry), i_spellId(spellId), i_alive(alive), i_range(range) { }
-
-        bool operator()(Creature* u)
-        {
-            if (u->getDeathState() != DEAD
-                && u->GetEntry() == i_entry
-                && u->HasAura(i_spellId)
-                && u->IsAlive() == i_alive
-                && u->GetGUID() != i_obj.GetGUID()
-                && i_obj.IsWithinDistInMap(u, i_range)
-                && u->CheckPrivateObjectOwnerVisibility(&i_obj))
-            {
-                i_range = i_obj.GetDistance(u);         // use found unit range as new range limit for next check
-                return true;
-            }
-            return false;
-        }
-
-    private:
-        WorldObject const& i_obj;
-        uint32 i_entry;
-        uint32 i_spellId;
-        bool   i_alive;
-        float  i_range;
-
-        // prevent clone this object
-        NearestCreatureEntryWithLiveStateAndAuraInObjectRangeCheck(NearestCreatureEntryWithLiveStateAndAuraInObjectRangeCheck const&) = delete;
+            FindCreatureOptions const& i_args;
+            float i_range;
     };
 
     class AnyPlayerInObjectRangeCheck

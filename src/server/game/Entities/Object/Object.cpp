@@ -2115,20 +2115,14 @@ Creature* WorldObject::FindNearestCreature(uint32 entry, float range, bool alive
     return creature;
 }
 
-Creature* WorldObject::FindNearestCreatureWithOptions(uint32 entry, float range, FindCreatureExtraArgs const& args /*= { }*/) const
+Creature* WorldObject::FindNearestCreatureWithOptions(float range, FindCreatureOptions const& options) const
 {
     Creature* creature = nullptr;
-    Trinity::NearestCreatureEntryWithOptionsInObjectRangeCheck checker(*this, entry, range, &args);
-    Trinity::CreatureWithoutPhaseLastSearcher<Trinity::NearestCreatureEntryWithOptionsInObjectRangeCheck> searcher(this, creature, checker);
-    Cell::VisitAllObjects(this, searcher, range);
-    return creature;
-}
+    Trinity::NearestCreatureEntryWithOptionsInObjectRangeCheck checker(*this, range, options);
+    Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithOptionsInObjectRangeCheck> searcher(this, creature, checker);
+    if (options.IgnorePhases)
+        searcher.i_phaseShift = &PhasingHandler::GetAlwaysVisiblePhaseShift();
 
-Creature* WorldObject::FindNearestCreatureWithAura(uint32 entry, uint32 spellId, float range, bool alive) const
-{
-    Creature* creature = nullptr;
-    Trinity::NearestCreatureEntryWithLiveStateAndAuraInObjectRangeCheck checker(*this, entry, spellId, alive, range);
-    Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateAndAuraInObjectRangeCheck> searcher(this, creature, checker);
     Cell::VisitAllObjects(this, searcher, range);
     return creature;
 }
