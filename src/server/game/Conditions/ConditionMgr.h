@@ -27,6 +27,7 @@
 #include <vector>
 
 class Creature;
+class Map;
 class Player;
 class Unit;
 class WorldObject;
@@ -144,7 +145,12 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_PHASE                          = 26,
     CONDITION_SOURCE_TYPE_GRAVEYARD                      = 27,
     CONDITION_SOURCE_TYPE_SPELL_AREA                     = 28,
-    CONDITION_SOURCE_TYPE_MAX                            = 29  // MAX
+    //CONDITION_SOURCE_TYPE_CONVERSATION_LINE              = 29, // master only
+    //CONDITION_SOURCE_TYPE_AREATRIGGER_CLIENT_TRIGGERED   = 30, // master only
+    //CONDITION_SOURCE_TYPE_TRAINER_SPELL                  = 31, // master only
+    //CONDITION_SOURCE_TYPE_OBJECT_ID_VISIBILITY           = 32, // master only
+    CONDITION_SOURCE_TYPE_SPAWN_GROUP                    = 33,
+    CONDITION_SOURCE_TYPE_MAX                            = 34  // MAX
 };
 
 enum RelationType
@@ -174,14 +180,10 @@ enum MaxConditionTargets
 struct TC_GAME_API ConditionSourceInfo
 {
     WorldObject* mConditionTargets[MAX_CONDITION_TARGETS]; // an array of targets available for conditions
+    Map const* mConditionMap;
     Condition const* mLastFailedCondition;
-    ConditionSourceInfo(WorldObject* target0, WorldObject* target1 = nullptr, WorldObject* target2 = nullptr)
-    {
-        mConditionTargets[0] = target0;
-        mConditionTargets[1] = target1;
-        mConditionTargets[2] = target2;
-        mLastFailedCondition = nullptr;
-    }
+    ConditionSourceInfo(WorldObject* target0, WorldObject* target1 = nullptr, WorldObject* target2 = nullptr);
+    ConditionSourceInfo(Map const* map);
 };
 
 struct TC_GAME_API Condition
@@ -254,8 +256,10 @@ class TC_GAME_API ConditionMgr
         bool IsObjectMeetToConditions(ConditionSourceInfo& sourceInfo, ConditionContainer const& conditions) const;
         static bool CanHaveSourceGroupSet(ConditionSourceType sourceType);
         static bool CanHaveSourceIdSet(ConditionSourceType sourceType);
+        static bool CanHaveConditionType(ConditionSourceType sourceType, ConditionTypes conditionType);
         bool IsObjectMeetingNotGroupedConditions(ConditionSourceType sourceType, uint32 entry, ConditionSourceInfo& sourceInfo) const;
         bool IsObjectMeetingNotGroupedConditions(ConditionSourceType sourceType, uint32 entry, WorldObject* target0, WorldObject* target1 = nullptr, WorldObject* target2 = nullptr) const;
+        bool IsMapMeetingNotGroupedConditions(ConditionSourceType sourceType, uint32 entry, Map const* map) const;
         bool HasConditionsForNotGroupedEntry(ConditionSourceType sourceType, uint32 entry) const;
         bool IsObjectMeetingSpellClickConditions(uint32 creatureId, uint32 spellId, WorldObject* clicker, WorldObject* target) const;
         ConditionContainer const* GetConditionsForSpellClickEvent(uint32 creatureId, uint32 spellId) const;

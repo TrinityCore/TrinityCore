@@ -66,7 +66,12 @@ char const* const ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX] 
     "Terrain Swap",
     "Phase",
     "Graveyard",
-    "Spell Area"
+    "Spell Area",
+    "ConversationLine",
+    "AreaTrigger Client Triggered",
+    "Trainer Spell",
+    "Object Visibility (by ID)",
+    "Spawn Group"
 };
 
 ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[CONDITION_MAX] =
@@ -121,24 +126,97 @@ ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[COND
     { "Quest state mask",     true,  true, false }
 };
 
+ConditionSourceInfo::ConditionSourceInfo(WorldObject* target0, WorldObject* target1, WorldObject* target2)
+{
+    mConditionTargets[0] = target0;
+    mConditionTargets[1] = target1;
+    mConditionTargets[2] = target2;
+    mConditionMap = target0 ? target0->GetMap() : nullptr;
+    mLastFailedCondition = nullptr;
+}
+
+ConditionSourceInfo::ConditionSourceInfo(Map const* map)
+{
+    std::fill(std::begin(mConditionTargets), std::end(mConditionTargets), nullptr);
+    mConditionMap = map;
+    mLastFailedCondition = nullptr;
+}
+
+
 // Checks if object meets the condition
 // Can have CONDITION_SOURCE_TYPE_NONE && !mReferenceId if called from a special event (ie: SmartAI)
 bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
 {
     ASSERT(ConditionTarget < MAX_CONDITION_TARGETS);
-    WorldObject* object = sourceInfo.mConditionTargets[ConditionTarget];
-    // object not present, return false
-    if (!object)
-    {
-        TC_LOG_DEBUG("condition", "Condition object not found for %s", ToString().c_str());
-        return false;
-    }
+
+    Map const* map = sourceInfo.mConditionMap;
     bool condMeets = false;
+    bool needsObject = false;
     switch (ConditionType)
     {
         case CONDITION_NONE:
             condMeets = true;                                    // empty condition, always met
             break;
+        case CONDITION_ACTIVE_EVENT:
+            condMeets = sGameEventMgr->IsActiveEvent(ConditionValue1);
+            break;
+        case CONDITION_INSTANCE_INFO:
+        {
+            if (map->IsDungeon())
+            {
+                if (InstanceScript const* instance = ((InstanceMap*)map)->GetInstanceScript())
+                {
+                    switch (ConditionValue3)
+                    {
+                        case INSTANCE_INFO_DATA:
+                            condMeets = instance->GetData(ConditionValue1) == ConditionValue2;
+                            break;
+                        case INSTANCE_INFO_GUID_DATA:
+                            condMeets = instance->GetGuidData(ConditionValue1) == ObjectGuid(uint64(ConditionValue2));
+                            break;
+                        case INSTANCE_INFO_BOSS_STATE:
+                            condMeets = instance->GetBossState(ConditionValue1) == EncounterState(ConditionValue2);
+                            break;
+                        case INSTANCE_INFO_DATA64:
+                            condMeets = instance->GetData64(ConditionValue1) == ConditionValue2;
+                            break;
+                        default:
+                            condMeets = false;
+                            break;
+                    }
+                }
+            }
+            break;
+        }
+        case CONDITION_MAPID:
+            condMeets = map->GetId() == ConditionValue1;
+            break;
+        case CONDITION_WORLD_STATE:
+        {
+            condMeets = sWorldStateMgr->GetValue(ConditionValue1, map) == int32(ConditionValue2);
+            break;
+        }
+        case CONDITION_REALM_ACHIEVEMENT:
+        {
+            AchievementEntry const* achievement = sAchievementStore.LookupEntry(ConditionValue1);
+            if (achievement && sAchievementMgr->IsRealmCompleted(achievement))
+                condMeets = true;
+            break;
+        }
+        default:
+            needsObject = true;
+            break;
+    }
+
+    WorldObject* object = sourceInfo.mConditionTargets[ConditionTarget];
+    // object not present, return false
+    if (needsObject && !object)
+    {
+        TC_LOG_DEBUG("condition", "Condition object not found for %s", ToString().c_str());
+        return false;
+    }
+    switch (ConditionType)
+    {
         case CONDITION_AURA:
         {
             if (Unit* unit = object->ToUnit())
@@ -248,38 +326,6 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
             }
             break;
         }
-        case CONDITION_ACTIVE_EVENT:
-            condMeets = sGameEventMgr->IsActiveEvent(ConditionValue1);
-            break;
-        case CONDITION_INSTANCE_INFO:
-        {
-            Map* map = object->GetMap();
-            if (map->IsDungeon())
-            {
-                if (InstanceScript const* instance = ((InstanceMap*)map)->GetInstanceScript())
-                {
-                    switch (ConditionValue3)
-                    {
-                        case INSTANCE_INFO_DATA:
-                            condMeets = instance->GetData(ConditionValue1) == ConditionValue2;
-                            break;
-                        case INSTANCE_INFO_GUID_DATA:
-                            condMeets = instance->GetGuidData(ConditionValue1) == ObjectGuid(uint64(ConditionValue2));
-                            break;
-                        case INSTANCE_INFO_BOSS_STATE:
-                            condMeets = instance->GetBossState(ConditionValue1) == EncounterState(ConditionValue2);
-                            break;
-                        case INSTANCE_INFO_DATA64:
-                            condMeets = instance->GetData64(ConditionValue1) == ConditionValue2;
-                            break;
-                    }
-                }
-            }
-            break;
-        }
-        case CONDITION_MAPID:
-            condMeets = object->GetMapId() == ConditionValue1;
-            break;
         case CONDITION_AREAID:
             condMeets = object->GetAreaId() == ConditionValue1;
             break;
@@ -409,11 +455,6 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
                 condMeets = CompareValues(static_cast<ComparisionType>(ConditionValue2), unit->GetHealthPct(), static_cast<float>(ConditionValue1));
             break;
         }
-        case CONDITION_WORLD_STATE:
-        {
-            condMeets = sWorldStateMgr->GetValue(ConditionValue1, object->GetMap()) == int32(ConditionValue2);
-            break;
-        }
         case CONDITION_PHASEID:
         {
             condMeets = object->GetPhaseShift().HasPhase(ConditionValue1);
@@ -445,13 +486,6 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         case CONDITION_TERRAIN_SWAP:
         {
             condMeets = object->GetPhaseShift().HasVisibleMapId(ConditionValue1);
-            break;
-        }
-        case CONDITION_REALM_ACHIEVEMENT:
-        {
-            AchievementEntry const* achievement = sAchievementMgr->GetAchievement(ConditionValue1);
-            if (achievement && sAchievementMgr->IsRealmCompleted(achievement))
-                condMeets = true;
             break;
         }
         case CONDITION_IN_WATER:
@@ -514,7 +548,6 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
             break;
         }
         default:
-            condMeets = false;
             break;
     }
 
@@ -909,6 +942,30 @@ bool ConditionMgr::CanHaveSourceIdSet(ConditionSourceType sourceType)
     return (sourceType == CONDITION_SOURCE_TYPE_SMART_EVENT);
 }
 
+bool ConditionMgr::CanHaveConditionType(ConditionSourceType sourceType, ConditionTypes conditionType)
+{
+    switch (sourceType)
+    {
+        case CONDITION_SOURCE_TYPE_SPAWN_GROUP:
+            switch (conditionType)
+            {
+                case CONDITION_NONE:
+                case CONDITION_ACTIVE_EVENT:
+                case CONDITION_INSTANCE_INFO:
+                case CONDITION_MAPID:
+                case CONDITION_WORLD_STATE:
+                case CONDITION_REALM_ACHIEVEMENT:
+                    return true;
+                default:
+                    return false;
+            }
+            break;
+        default:
+            break;
+    }
+    return true;
+}
+
 bool ConditionMgr::IsObjectMeetingNotGroupedConditions(ConditionSourceType sourceType, uint32 entry, ConditionSourceInfo& sourceInfo) const
 {
     if (sourceType > CONDITION_SOURCE_TYPE_NONE && sourceType < CONDITION_SOURCE_TYPE_MAX)
@@ -927,6 +984,12 @@ bool ConditionMgr::IsObjectMeetingNotGroupedConditions(ConditionSourceType sourc
 bool ConditionMgr::IsObjectMeetingNotGroupedConditions(ConditionSourceType sourceType, uint32 entry, WorldObject* target0, WorldObject* target1 /*= nullptr*/, WorldObject* target2 /*= nullptr*/) const
 {
     ConditionSourceInfo conditionSource(target0, target1, target2);
+    return IsObjectMeetingNotGroupedConditions(sourceType, entry, conditionSource);
+}
+
+bool ConditionMgr::IsMapMeetingNotGroupedConditions(ConditionSourceType sourceType, uint32 entry, Map const* map) const
+{
+    ConditionSourceInfo conditionSource(map);
     return IsObjectMeetingNotGroupedConditions(sourceType, entry, conditionSource);
 }
 
@@ -1900,6 +1963,21 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
                 return false;
             }
             break;
+        case CONDITION_SOURCE_TYPE_SPAWN_GROUP:
+        {
+            SpawnGroupTemplateData const* spawnGroup = sObjectMgr->GetSpawnGroupData(cond->SourceEntry);
+            if (!spawnGroup)
+            {
+                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in `spawn_group_template`, ignoring.", cond->ToString().c_str());
+                return false;
+            }
+            if (spawnGroup->flags & (SPAWNGROUP_FLAG_SYSTEM | SPAWNGROUP_FLAG_MANUAL_SPAWN))
+            {
+                TC_LOG_ERROR("sql.sql", "%s in `spawn_group_template` table cannot have SPAWNGROUP_FLAG_SYSTEM or SPAWNGROUP_FLAG_MANUAL_SPAWN flags, ignoring.", cond->ToString().c_str());
+                return false;
+            }
+            break;
+        }
         default:
             break;
     }
