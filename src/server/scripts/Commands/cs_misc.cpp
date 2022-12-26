@@ -550,7 +550,7 @@ public:
                 if (!target->GetMap()->IsBattlegroundOrArena())
                     target->SetBattlegroundEntryPoint();
             }
-            else if (map->Instanceable())
+            else if (map->IsDungeon())
             {
                 Map* targetMap = target->GetMap();
                 Player* targetGroupLeader = nullptr;

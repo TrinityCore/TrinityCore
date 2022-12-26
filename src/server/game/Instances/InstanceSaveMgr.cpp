@@ -598,7 +598,7 @@ void InstanceSaveManager::_ResetInstance(uint32 mapid, uint32 instanceId)
 {
     TC_LOG_DEBUG("maps", "InstanceSaveMgr::_ResetInstance %u, %u", mapid, instanceId);
     Map const* map = sMapMgr->CreateBaseMap(mapid);
-    if (!map->Instanceable())
+    if (!map->IsDungeon())
         return;
 
     InstanceSaveHashMap::iterator itr = m_instanceSaveById.find(instanceId);
@@ -609,11 +609,9 @@ void InstanceSaveManager::_ResetInstance(uint32 mapid, uint32 instanceId)
 
     Map* iMap = ((MapInstanced*)map)->FindInstanceMap(instanceId);
 
-    if (iMap && iMap->IsDungeon())
-        ((InstanceMap*)iMap)->Reset(INSTANCE_RESET_RESPAWN_DELAY);
-
     if (iMap)
     {
+        ((InstanceMap*)iMap)->Reset(INSTANCE_RESET_RESPAWN_DELAY);
         iMap->DeleteRespawnTimes();
         iMap->DeleteCorpseData();
     }

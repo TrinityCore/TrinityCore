@@ -138,7 +138,7 @@ Map* MapInstanced::CreateInstanceForPlayer(uint32 mapId, Player* player, uint32 
             }
         }
     }
-    else
+    else if (IsDungeon())
     {
         InstancePlayerBind* pBind = player->GetBoundInstance(GetId(), player->GetDifficulty(IsRaid()));
         InstanceSave* pSave = pBind ? pBind->save : nullptr;

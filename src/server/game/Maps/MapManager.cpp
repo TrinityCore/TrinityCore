@@ -293,11 +293,10 @@ uint32 MapManager::GetNumInstances()
     for (MapMapType::iterator itr = i_maps.begin(); itr != i_maps.end(); ++itr)
     {
         Map* map = itr->second;
-        if (!map->Instanceable())
+        if (!map->IsDungeon())
             continue;
         MapInstanced::InstancedMaps &maps = ((MapInstanced*)map)->GetInstancedMaps();
-        for (MapInstanced::InstancedMaps::iterator mitr = maps.begin(); mitr != maps.end(); ++mitr)
-            if (mitr->second->IsDungeon()) ret++;
+        ret += maps.size();
     }
     return ret;
 }
@@ -310,12 +309,11 @@ uint32 MapManager::GetNumPlayersInInstances()
     for (MapMapType::iterator itr = i_maps.begin(); itr != i_maps.end(); ++itr)
     {
         Map* map = itr->second;
-        if (!map->Instanceable())
+        if (!map->IsDungeon())
             continue;
         MapInstanced::InstancedMaps &maps = ((MapInstanced*)map)->GetInstancedMaps();
         for (MapInstanced::InstancedMaps::iterator mitr = maps.begin(); mitr != maps.end(); ++mitr)
-            if (mitr->second->IsDungeon())
-                ret += ((InstanceMap*)mitr->second)->GetPlayers().getSize();
+            ret += mitr->second->GetPlayers().getSize();
     }
     return ret;
 }

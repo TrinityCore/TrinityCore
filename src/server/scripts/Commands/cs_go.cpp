@@ -320,7 +320,7 @@ public:
 
         std::shared_ptr<TerrainInfo> terrain = sTerrainMgr.LoadTerrain(zoneEntry->ContinentID);
         MapEntry const* mapEntry = sMapStore.LookupEntry(terrain->GetId());
-        if (!mapEntry || !mapEntry->Instanceable())
+        if (!mapEntry || !mapEntry->IsDungeon())
         {
             handler->PSendSysMessage(LANG_INVALID_ZONE_MAP, areaEntry->ID, areaEntry->AreaName, terrain->GetId(), terrain->GetMapName());
             handler->SetSentErrorMessage(true);
