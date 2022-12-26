@@ -1,5 +1,5 @@
 DELETE FROM `gameobject` WHERE `guid` BETWEEN 23303 AND 23313;
-INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `ScriptName`, `VerifiedBuild`) VALUES
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `ScriptName`, `VerifiedBuild`) VALUES
 (23303, 183104, 530, 0, 0, 1, 0, 0, 0, -1, -3081.65, 5335.03, 17.1853, -2.146750, 0, 0, 0.878817, -0.477159, 0, 0, 1, '', 0),
 (23304, 183411, 530, 0, 0, 1, 0, 0, 0, -1, -2939.90, 4788.73, 18.9870, 2.775070, 0, 0, 0.983255, 0.182236, 0, 0, 1, '', 0),
 (23305, 183412, 530, 0, 0, 1, 0, 0, 0, -1, -3174.94, 4440.97, 16.2281, 1.867500, 0, 0, 0.803857, 0.594823, 0, 0, 1, '', 0),
