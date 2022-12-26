@@ -319,15 +319,12 @@ public:
         ASSERT(zoneEntry);
 
         std::shared_ptr<TerrainInfo> terrain = sTerrainMgr.LoadTerrain(zoneEntry->ContinentID);
-        MapEntry const* mapEntry = sMapStore.LookupEntry(terrain->GetId());
-        if (!mapEntry || !mapEntry->IsDungeon())
+        if (!sDBCManager.Zone2MapCoordinates(x, y, zoneEntry->ID))
         {
             handler->PSendSysMessage(LANG_INVALID_ZONE_MAP, areaEntry->ID, areaEntry->AreaName, terrain->GetId(), terrain->GetMapName());
             handler->SetSentErrorMessage(true);
             return false;
         }
-
-        sDBCManager.Zone2MapCoordinates(x, y, zoneEntry->ID);
 
         if (!MapManager::IsValidMapCoord(zoneEntry->ContinentID, x, y))
         {

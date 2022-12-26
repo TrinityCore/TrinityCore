@@ -229,7 +229,7 @@ public:
     static uint32 GetMaxLevelForExpansion(uint32 expansion);
     ContentLevels GetContentLevelsForMapAndZone(uint32 mapid, uint32 zoneId);
     static bool IsTotemCategoryCompatibleWith(uint32 itemTotemCategoryId, uint32 requiredTotemCategoryId);
-    void Zone2MapCoordinates(float &x, float &y, uint32 zone);
+    bool Zone2MapCoordinates(float &x, float &y, uint32 zone) const;
     void Map2ZoneCoordinates(float &x, float &y, uint32 zone);
     MapDifficulty const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty);
     MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &difficulty);

@@ -955,17 +955,19 @@ bool DBCManager::IsTotemCategoryCompatibleWith(uint32 itemTotemCategoryId, uint3
     return (itemEntry->TotemCategoryMask & reqEntry->TotemCategoryMask) == reqEntry->TotemCategoryMask;
 }
 
-void DBCManager::Zone2MapCoordinates(float& x, float& y, uint32 zone)
+bool DBCManager::Zone2MapCoordinates(float& x, float& y, uint32 zone) const
 {
     WorldMapAreaEntry const* maEntry = sWorldMapAreaStore.LookupEntry(zone);
 
     // if not listed then map coordinates (instance)
     if (!maEntry)
-        return;
+        return false;
 
     std::swap(x, y);                                         // at client map coords swapped
     x = x * ((maEntry->LocBottom - maEntry->LocTop) / 100) + maEntry->LocTop;
     y = y * ((maEntry->LocRight - maEntry->LocLeft) / 100) + maEntry->LocLeft;      // client y coord from top to down
+
+    return true;
 }
 
 void DBCManager::Map2ZoneCoordinates(float& x, float& y, uint32 zone)
