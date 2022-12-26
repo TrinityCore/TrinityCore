@@ -4343,8 +4343,8 @@ void ObjectMgr::LoadPlayerInfo()
                 if (sWorld->getIntConfig(CONFIG_EXPANSION) < EXPANSION_DRAGONFLIGHT && class_ == CLASS_EVOKER)
                     continue;
 
-                // fatal error if no level 1 data except evoker
-                if (!playerInfo->get()->levelInfo || playerInfo->get()->levelInfo[0].stats[0] == 0 && class_ != CLASS_EVOKER)
+                // fatal error if no level 1 data
+                if (!playerInfo->get()->levelInfo || playerInfo->get()->levelInfo[0].stats[0] == 0)
                 {
                     TC_LOG_ERROR("sql.sql", "Race %i Class %i Level 1 does not have stats data!", race, class_);
                     ABORT();

@@ -26,27 +26,26 @@
 enum TheWarCreche
 {
 	// Spells
-
-	SPELL_DRACTHYR_LOGIN 							= 369728, // teleports to random room, plays scene for the room, binds the home position
-    SPELL_STASIS_1                                  = 369735, // triggers 366620
-    SPELL_STASIS_2                                  = 366620, // triggers 366636
-    SPELL_STASIS_3                                  = 366636, // removes 365560, sends first quest (64864)
-	SPELL_STASIS_4                                 	= 365560, // freeze the target
-	SPELL_DRACTHYR_EVOKER_LOGIN_POST_MOVIE_ROOM_01	= 394245, // scene for room 1
-	SPELL_DRACTHYR_EVOKER_LOGIN_POST_MOVIE_ROOM_02	= 394279, // scene for room 2
-	SPELL_DRACTHYR_EVOKER_LOGIN_POST_MOVIE_ROOM_03	= 394281, // scene for room 3
-	SPELL_DRACTHYR_EVOKER_LOGIN_POST_MOVIE_ROOM_04	= 394282, // scene for room 4
-	//SPELL_DRACTHYR_EVOKER_LOGIN_POST_MOVIE_ROOM_05	= 394283, // scene for room 5 (only plays sound)
+	SPELL_DRACTHYR_LOGIN 			= 369728, // teleports to random room, plays scene for the room, binds the home position
+    SPELL_STASIS_1                  = 369735, // triggers 366620
+    SPELL_STASIS_2                  = 366620, // triggers 366636
+    SPELL_STASIS_3                  = 366636, // removes 365560, sends first quest (64864)
+	SPELL_STASIS_4                  = 365560, // freeze the target
+	SPELL_DRACTHYR_MOVIE_ROOM_01	= 394245, // scene for room 1
+	SPELL_DRACTHYR_MOVIE_ROOM_02	= 394279, // scene for room 2
+	SPELL_DRACTHYR_MOVIE_ROOM_03	= 394281, // scene for room 3
+	SPELL_DRACTHYR_MOVIE_ROOM_04	= 394282, // scene for room 4
+ //SPELL_DRACTHYR_EVOKER_LOGIN_POST_MOVIE_ROOM_05	= 394283, // scene for room 5 (only plays sound)
 };
 
-typedef std::vector<std::pair<uint32, Position>> RoomPositionList;
-
-RoomPositionList roomPositions =
+std::array<std::pair<uint32, Position>, 4> roomData =
 {
-    {SPELL_DRACTHYR_EVOKER_LOGIN_POST_MOVIE_ROOM_01, Position(5725.32f, -3024.26f, 251.047f, 0.01745329238474369f)},
-    {SPELL_DRACTHYR_EVOKER_LOGIN_POST_MOVIE_ROOM_02, Position(5743.03f, -3067.28f, 251.047f, 0.798488140106201171f)},
-    {SPELL_DRACTHYR_EVOKER_LOGIN_POST_MOVIE_ROOM_03, Position(5787.1597f, -3083.3906f, 251.04698f, 1.570796370506286621f)},
-    {SPELL_DRACTHYR_EVOKER_LOGIN_POST_MOVIE_ROOM_04, Position(5829.32f, -3064.49f, 251.047f, 2.364955902099609375f)}
+    {
+        //{SPELL_DRACTHYR_EVOKER_LOGIN_POST_MOVIE_ROOM_01, Position(5725.32f, -3024.26f, 251.047f, 0.01745329238474369f)},
+        //{SPELL_DRACTHYR_EVOKER_LOGIN_POST_MOVIE_ROOM_02, Position(5743.03f, -3067.28f, 251.047f, 0.798488140106201171f)},
+        {SPELL_DRACTHYR_EVOKER_LOGIN_POST_MOVIE_ROOM_03, Position(5787.1597f, -3083.3906f, 251.04698f, 1.570796370506286621f)},
+        {SPELL_DRACTHYR_EVOKER_LOGIN_POST_MOVIE_ROOM_04, Position(5829.32f, -3064.49f, 251.047f, 2.364955902099609375f)}
+    }
 };
 
 /*######
@@ -61,15 +60,16 @@ class spell_dracthyr_login : public SpellScript
         return ValidateSpellInfo({ SPELL_DRACTHYR_LOGIN });
     }
 
-    std::vector<std::pair<uint32, Position>>::iterator targetRoom = roomPositions.begin();
-
     void HandleTeleport(SpellEffIndex effIndex)
     {
-        Trinity::Containers::RandomShuffle(roomPositions);
+        std::pair<uint32, Position> const& room = Trinity::Containers::SelectRandomContainerElement(roomData);
+
         WorldLocation dest = GetHitUnit()->GetWorldLocation();
         SetExplTargetDest(dest);
-        GetHitDest()->Relocate(targetRoom->second);
-        GetCaster()->CastSpell(GetHitUnit(), targetRoom->first, true);
+
+        GetHitDest()->Relocate(room.second);
+
+        GetCaster()->CastSpell(GetHitUnit(), room.first, true);
     }
 
     void Register() override
