@@ -4446,19 +4446,7 @@ enum WorldState : uint32
     WS_BATTLEFIELD_TB_EAST_INTACT_ALLIANCE   = 5446,
     WS_BATTLEFIELD_TB_EAST_DAMAGED_ALLIANCE  = 5447,
     WS_BATTLEFIELD_TB_EAST_INTACT_NEUTRAL    = 5451,
-    WS_BATTLEFIELD_TB_EAST_DAMAGED_NEUTRAL   = 5452,
-
-
-    WS_ARENA_DISTRIBUTION_TIME  = 20001,                     // Next arena distribution time
-    WS_WEEKLY_QUEST_RESET_TIME  = 20002,                     // Next weekly quest reset time
-    WS_BG_DAILY_RESET_TIME      = 20003,                     // Next daily BG reset time
-    WS_CLEANING_FLAGS           = 20004,                     // Cleaning Flags
-    WS_GUILD_DAILY_RESET_TIME   = 20006,                     // Next guild cap reset time
-    WS_MONTHLY_QUEST_RESET_TIME = 20007,                     // Next monthly quest reset time
-    WS_DAILY_QUEST_RESET_TIME   = 20008,                     // Next daily quest reset time
-    // Cata specific custom worldstates
-    WS_GUILD_WEEKLY_RESET_TIME  = 20050,                     // Next guild week reset time
-    WS_CURRENCY_RESET_TIME      = 20051,                     // Custom worldstate
+    WS_BATTLEFIELD_TB_EAST_DAMAGED_NEUTRAL   = 5452
 };
 
 enum class PursuingType : uint8

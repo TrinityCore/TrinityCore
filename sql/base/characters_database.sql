@@ -3060,6 +3060,7 @@ INSERT INTO `updates` VALUES
 ('2022_09_01_00_characters.sql','E3C0DA9995BA71ED5A267294470CD03DC51862DD','RELEASED','2022-09-01 14:51:33',0),
 ('2022_09_03_00_characters.sql','50429D68E6EBD1149CDA14A9EA642BC06A1FAE3D','RELEASED','2022-09-03 11:03:06',0),
 ('2022_12_24_00_characters.sql','D3F04078C0846BCF7C8330AC20C39B8C3AEE7002','RELEASED','2022-12-24 23:52:52',0),
+('2022_12_26_00_characters.sql','74EDF8E4AC31419144E4535A295DB8B189CFAF95','RELEASED','2022-12-26 10:51:39',0),
 ('custom_2017_12_21_00_characters.sql','2D5B3830D47E4BC717EC468E18E477A32B9A21BF','ARCHIVED','2019-11-06 00:17:44',0),
 ('custom_2018_01_07_00_characters.sql','7437B6243B3CB6FA08F6A37BB39E38930B0DCFD3','ARCHIVED','2019-11-06 00:17:44',0),
 ('custom_2018_03_18_00_characters.sql','8D1E81A7272F643687C67443C270D17255A9AA84','ARCHIVED','2019-11-06 00:17:44',0),
@@ -3124,35 +3125,59 @@ LOCK TABLES `warden_action` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `worldstates`
+-- Table structure for table `world_state_value`
 --
 
-DROP TABLE IF EXISTS `worldstates`;
+DROP TABLE IF EXISTS `world_state_value`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `worldstates` (
-  `entry` int unsigned NOT NULL DEFAULT '0',
-  `value` int unsigned NOT NULL DEFAULT '0',
-  `comment` tinytext COLLATE utf8mb4_unicode_ci,
-  PRIMARY KEY (`entry`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Variable Saves';
+CREATE TABLE `world_state_value` (
+  `Id` int NOT NULL,
+  `Value` int NOT NULL,
+  PRIMARY KEY (`Id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `worldstates`
+-- Dumping data for table `world_state_value`
 --
 
-LOCK TABLES `worldstates` WRITE;
-/*!40000 ALTER TABLE `worldstates` DISABLE KEYS */;
-INSERT INTO `worldstates` VALUES
-(20001,0,'NextArenaPointDistributionTime'),
-(20002,0,'NextWeeklyQuestResetTime'),
-(20003,0,'NextBGRandomDailyResetTime'),
-(20004,0,'cleaning_flags'),
-(20006,0,'NextGuildDailyResetTime'),
-(20007,0,'NextMonthlyQuestResetTime'),
-(20008,0,'NextDailyQuestResetTime');
-/*!40000 ALTER TABLE `worldstates` ENABLE KEYS */;
+LOCK TABLES `world_state_value` WRITE;
+/*!40000 ALTER TABLE `world_state_value` DISABLE KEYS */;
+/*!40000 ALTER TABLE `world_state_value` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `world_variable`
+--
+
+DROP TABLE IF EXISTS `world_variable`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `world_variable` (
+  `ID` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Value` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `world_variable`
+--
+
+LOCK TABLES `world_variable` WRITE;
+/*!40000 ALTER TABLE `world_variable` DISABLE KEYS */;
+INSERT INTO `world_variable` VALUES
+('NextCurrencyResetTime',0),
+('NextWeeklyQuestResetTime',0),
+('NextBGRandomDailyResetTime',0),
+('PersistentCharacterCleanFlags',0),
+('NextGuildDailyResetTime',0),
+('NextMonthlyQuestResetTime',0),
+('NextDailyQuestResetTime',0),
+('NextOldCalendarEventDeletionTime',0),
+('NextGuildWeeklyResetTime',0);
+/*!40000 ALTER TABLE `world_variable` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --

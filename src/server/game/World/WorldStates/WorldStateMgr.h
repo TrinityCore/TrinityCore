@@ -39,6 +39,8 @@ public:
 
     int32 GetValue(int32 worldStateId, Map const* map) const;
     void SetValue(int32 worldStateId, int32 value, bool hidden, Map* map);
+    void SaveValueInDb(int32 worldStateId, int32 value);
+    void SetValueAndSaveInDb(int32 worldStateId, int32 value, bool hidden, Map* map);
 
     WorldStateValueContainer GetInitialWorldStatesForMap(Map const* map) const;
 
