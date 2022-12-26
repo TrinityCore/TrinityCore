@@ -38,6 +38,12 @@
 namespace
 {
 PhaseShift const Empty;
+PhaseShift const AlwaysVisible = []
+{
+    PhaseShift phaseShift;
+    PhasingHandler::InitDbPhaseShift(phaseShift, PHASE_USE_FLAGS_ALWAYS_VISIBLE, 0, 0);
+    return phaseShift;
+}();
 
 inline PhaseFlags GetPhaseFlags(uint32 phaseId)
 {
@@ -512,6 +518,11 @@ void PhasingHandler::FillPartyMemberPhase(WorldPackets::Party::PartyMemberPhaseS
 PhaseShift const& PhasingHandler::GetEmptyPhaseShift()
 {
     return Empty;
+}
+
+PhaseShift const& PhasingHandler::GetAlwaysVisiblePhaseShift()
+{
+    return AlwaysVisible;
 }
 
 void PhasingHandler::InitDbPhaseShift(PhaseShift& phaseShift, uint8 phaseUseFlags, uint16 phaseId, uint32 phaseGroupId)
