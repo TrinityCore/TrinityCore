@@ -36,6 +36,10 @@ DELETE FROM `player_classlevelstats` WHERE `class`=13 AND `level`=1;
 INSERT INTO `player_classlevelstats` (`class`, `level`, `str`, `agi`, `sta`, `inte`, `VerifiedBuild`) VALUES 
 (13, 1, 3, 4, 6, 6, 0);
 
+DELETE FROM `quest_template_addon` WHERE `ID`=64864;
+INSERT INTO `quest_template_addon` (`ID`, `MaxLevel`, `AllowableClasses`, `SourceSpellID`, `PrevQuestID`, `NextQuestID`, `ExclusiveGroup`, `BreadcrumbForQuestId`, `RewardMailTemplateID`, `RewardMailDelay`, `RequiredSkillID`, `RequiredSkillPoints`, `RequiredMinRepFaction`, `RequiredMaxRepFaction`, `RequiredMinRepValue`, `RequiredMaxRepValue`, `ProvidedItemCount`, `SpecialFlags`, `ScriptName`) VALUES 
+(64864, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, '');
+
 DELETE FROM `race_unlock_requirement` WHERE `raceID` IN (52, 70);
 INSERT INTO `race_unlock_requirement` (`raceID`, `expansion`, `achievementId`) VALUES 
 (52, 9, 0),
