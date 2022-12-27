@@ -111,7 +111,7 @@ struct SpawnData : public SpawnMetadata
     int32 spawntimesecs = 0;
     std::vector<Difficulty> spawnDifficulties;
     uint32 scriptId = 0;
-    uint32 StringIdIndex = 0;
+    std::string StringId;
 
     protected:
     SpawnData(SpawnObjectType t) : SpawnMetadata(t) {}

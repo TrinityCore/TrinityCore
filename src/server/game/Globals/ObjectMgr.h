@@ -1136,34 +1136,6 @@ class TC_GAME_API ObjectMgr
             std::unordered_set<std::string> GetAllDBScriptNames() const;
         };
 
-        class StringIdContainer
-        {
-        public:
-            struct Entry
-            {
-                Entry() = default;
-                Entry(uint32 index) : Index(index) { }
-
-                uint32 Index = 0;
-            };
-
-        private:
-            using NameMap = std::map<std::string, Entry>;
-
-            NameMap NameToIndex;
-            std::vector<NameMap::const_iterator> IndexToName;
-
-        public:
-            StringIdContainer();
-
-            void reserve(size_t capacity);
-            uint32 insert(std::string const& stringId);
-            size_t size() const;
-            NameMap::const_iterator find(size_t index) const;
-            NameMap::const_iterator find(std::string const& name) const;
-            NameMap::const_iterator end() const;
-        };
-
         typedef std::map<uint32, uint32> CharacterConversionMap;
 
         GameObjectTemplate const* GetGameObjectTemplate(uint32 entry) const;
@@ -1702,8 +1674,6 @@ class TC_GAME_API ObjectMgr
         std::string const& GetScriptName(uint32 id) const;
         bool IsScriptDatabaseBound(uint32 id) const;
         uint32 GetScriptId(std::string const& name, bool isDatabaseBound = true);
-        uint32 GetStringIdIndex(std::string const& name);
-        std::string const& GetStringId(uint32 index) const;
 
         Trinity::IteratorPair<SpellClickInfoContainer::const_iterator> GetSpellClickInfoMapBounds(uint32 creature_id) const
         {
@@ -1890,7 +1860,6 @@ class TC_GAME_API ObjectMgr
         GameTeleContainer _gameTeleStore;
 
         ScriptNameContainer _scriptNamesStore;
-        StringIdContainer _stringIdStore;
 
         SpellClickInfoContainer _spellClickInfoStore;
 

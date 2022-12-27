@@ -690,6 +690,8 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
     //We must update last scriptId or it looks like we reloaded a script, breaking some things such as gossip temporarily
     LastUsedScriptID = GetScriptId();
 
+    m_stringIds[0] = cInfo->StringId;
+
     return true;
 }
 
@@ -1810,6 +1812,8 @@ bool Creature::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap, 
 
     // checked at creature_template loading
     m_defaultMovementType = MovementGeneratorType(data->movementType);
+
+    m_stringIds[1] = data->StringId;
 
     if (addToMap && !GetMap()->AddToMap(this))
         return false;
@@ -3010,18 +3014,23 @@ uint32 Creature::GetScriptId() const
     return ASSERT_NOTNULL(sObjectMgr->GetCreatureTemplate(GetEntry()))->ScriptID;
 }
 
-std::string Creature::GetStringId() const
+bool Creature::HasStringId(std::string_view id) const
 {
-    return sObjectMgr->GetStringId(GetStringIdIndex());
+    return std::find(m_stringIds.begin(), m_stringIds.end(), id) != m_stringIds.end();
 }
 
-uint32 Creature::GetStringIdIndex() const
+void Creature::SetScriptStringId(std::string id)
 {
-    if (CreatureData const* creatureData = GetCreatureData())
-        if (uint32 stringIdIndex = creatureData->StringIdIndex)
-            return stringIdIndex;
-
-    return ASSERT_NOTNULL(sObjectMgr->GetCreatureTemplate(GetEntry()))->StringIdIndex;
+    if (!id.empty())
+    {
+        m_scriptStringId.emplace(std::move(id));
+        m_stringIds[2] = *m_scriptStringId;
+    }
+    else
+    {
+        m_scriptStringId.reset();
+        m_stringIds[2] = {};
+    }
 }
 
 VendorItemData const* Creature::GetVendorItems() const

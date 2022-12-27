@@ -1491,7 +1491,7 @@ namespace Trinity
                 if (i_args.CreatureId && u->GetEntry() != i_args.CreatureId)
                     return false;
 
-                if (i_args.StringIdIndex && u->GetStringIdIndex() != i_args.StringIdIndex)
+                if (i_args.StringId && u->HasStringId(*i_args.StringId))
                     return false;
 
                 if (i_args.IsAlive.has_value() && u->IsAlive() != i_args.IsAlive)

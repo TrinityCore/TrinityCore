@@ -501,7 +501,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.SpellSchoolImmuneMask  = fields[68].GetUInt32();
     creatureTemplate.flags_extra            = fields[69].GetUInt32();
     creatureTemplate.ScriptID               = GetScriptId(fields[70].GetString());
-    creatureTemplate.StringIdIndex          = GetStringIdIndex(fields[71].GetString());
+    creatureTemplate.StringId               = fields[71].GetString();
 }
 
 void ObjectMgr::LoadCreatureTemplateResistances()
@@ -2262,7 +2262,7 @@ void ObjectMgr::LoadCreatures()
         data.phaseGroup     = fields[25].GetUInt32();
         data.terrainSwapMap = fields[26].GetInt32();
         data.scriptId       = GetScriptId(fields[27].GetString());
-        data.StringIdIndex  = GetStringIdIndex(fields[28].GetString());
+        data.StringId       = fields[28].GetString();
         data.spawnGroupData = IsTransportMap(data.mapId) ? GetLegacySpawnGroup() : GetDefaultSpawnGroup(); // transport spawns default to compatibility group
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapId);
@@ -10076,75 +10076,6 @@ bool ObjectMgr::IsScriptDatabaseBound(uint32 id) const
 uint32 ObjectMgr::GetScriptId(std::string const& name, bool isDatabaseBound)
 {
     return _scriptNamesStore.insert(name, isDatabaseBound);
-}
-
-uint32 ObjectMgr::GetStringIdIndex(std::string const& name)
-{
-    return _stringIdStore.insert(name);
-}
-
-std::string const& ObjectMgr::GetStringId(uint32 index) const
-{
-    auto const itr = _stringIdStore.find(index);
-    if (itr != _stringIdStore.end())
-    {
-        return itr->first;
-    }
-    else
-    {
-        static std::string const empty;
-        return empty;
-    }
-}
-
-ObjectMgr::StringIdContainer::StringIdContainer()
-{
-    // We insert an empty placeholder here so we can use the
-    // stringId index 0 as dummy for "no stringid found".
-    [[maybe_unused]] uint32 const index = insert("");
-
-    ASSERT(index == 0);
-}
-
-void ObjectMgr::StringIdContainer::reserve(size_t capacity)
-{
-    IndexToName.reserve(capacity);
-}
-
-uint32 ObjectMgr::StringIdContainer::insert(std::string const& stringId)
-{
-    auto result = NameToIndex.try_emplace(stringId, static_cast<uint32>(NameToIndex.size()));
-    if (result.second)
-    {
-        ASSERT(NameToIndex.size() <= std::numeric_limits<uint32>::max());
-        IndexToName.emplace_back(result.first);
-    }
-
-    return result.first->second.Index;
-}
-
-size_t ObjectMgr::StringIdContainer::size() const
-{
-    return IndexToName.size();
-}
-
-ObjectMgr::StringIdContainer::NameMap::const_iterator ObjectMgr::StringIdContainer::find(size_t index) const
-{
-    return index < IndexToName.size() ? IndexToName[index] : end();
-}
-
-ObjectMgr::StringIdContainer::NameMap::const_iterator ObjectMgr::StringIdContainer::find(std::string const& name) const
-{
-    // assume "" is the first element
-    if (name.empty())
-        return end();
-
-    return NameToIndex.find(name);
-}
-
-ObjectMgr::StringIdContainer::NameMap::const_iterator ObjectMgr::StringIdContainer::end() const
-{
-    return NameToIndex.end();
 }
 
 CreatureBaseStats const* ObjectMgr::GetCreatureBaseStats(uint8 level, uint8 unitClass)
