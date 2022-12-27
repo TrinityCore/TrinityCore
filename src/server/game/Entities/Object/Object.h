@@ -633,9 +633,6 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         GameObject* FindNearestGameObjectOfType(GameobjectTypes type, float range) const;
         Player* SelectNearestPlayer(float distance) const;
 
-        template <typename Container>
-        Container   GetCreatureListWithOptions(float maxSearchRange, FindCreatureOptions const& options) const;
-
         virtual ObjectGuid GetOwnerGUID() const = 0;
         virtual ObjectGuid GetCharmerOrOwnerGUID() const { return GetOwnerGUID(); }
         ObjectGuid GetCharmerOrOwnerOrOwnGUID() const;
@@ -703,6 +700,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         template <typename Container>
         void GetCreatureListWithEntryInGrid(Container& creatureContainer, uint32 entry, float maxSearchRange = 250.0f) const;
+
+        template <typename Container>
+        void GetCreatureListWithOptionsInGrid(Container& creatureContainer, float maxSearchRange, FindCreatureOptions const& options) const;
 
         template <typename Container>
         void GetPlayerListInGrid(Container& playerContainer, float maxSearchRange, bool alive = true) const;

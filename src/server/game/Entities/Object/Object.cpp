@@ -2118,26 +2118,14 @@ Creature* WorldObject::FindNearestCreature(uint32 entry, float range, bool alive
 Creature* WorldObject::FindNearestCreatureWithOptions(float range, FindCreatureOptions const& options) const
 {
     Creature* creature = nullptr;
-    Trinity::NearestCreatureEntryWithOptionsInObjectRangeCheck checker(*this, range, options);
-    Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithOptionsInObjectRangeCheck> searcher(this, creature, checker);
+    Trinity::NearestCheckCustomizer checkCustomizer(*this, range);
+    Trinity::CreatureEntryWithOptionsInObjectRangeCheck checker(*this, checkCustomizer, options);
+    Trinity::CreatureLastSearcher searcher(this, creature, checker);
     if (options.IgnorePhases)
         searcher.i_phaseShift = &PhasingHandler::GetAlwaysVisiblePhaseShift();
 
     Cell::VisitAllObjects(this, searcher, range);
     return creature;
-}
-
-template <typename Container>
-Container WorldObject::GetCreatureListWithOptions(float maxSearchRange, FindCreatureOptions const& options) const
-{
-    Container creatureContainer;
-    Trinity::AllCreaturesWithOptionsInObjectRange check(*this, options);
-    Trinity::CreatureListSearcher<Trinity::AllCreaturesWithOptionsInObjectRange> searcher(this, creatureContainer, check);
-    if (options.IgnorePhases)
-        searcher.i_phaseShift = &PhasingHandler::GetAlwaysVisiblePhaseShift();
-
-    Cell::VisitGridObjects(this, searcher, maxSearchRange);
-    return creatureContainer;
 }
 
 GameObject* WorldObject::FindNearestGameObject(uint32 entry, float range, bool spawnedOnly) const
@@ -3297,6 +3285,18 @@ void WorldObject::GetCreatureListWithEntryInGrid(Container& creatureContainer, u
 }
 
 template <typename Container>
+void WorldObject::GetCreatureListWithOptionsInGrid(Container& creatureContainer, float maxSearchRange, FindCreatureOptions const& options) const
+{
+    Trinity::NoopCheckCustomizer checkCustomizer;
+    Trinity::CreatureEntryWithOptionsInObjectRangeCheck check(*this, checkCustomizer, options);
+    Trinity::CreatureListSearcher searcher(this, creatureContainer, check);
+    if (options.IgnorePhases)
+        searcher.i_phaseShift = &PhasingHandler::GetAlwaysVisiblePhaseShift();
+
+    Cell::VisitGridObjects(this, searcher, maxSearchRange);
+}
+
+template <typename Container>
 void WorldObject::GetPlayerListInGrid(Container& playerContainer, float maxSearchRange, bool alive /*= true*/) const
 {
     Trinity::AnyPlayerInObjectRangeCheck checker(this, maxSearchRange, alive);
@@ -3728,10 +3728,6 @@ std::string WorldObject::GetDebugInfo() const
     return sstr.str();
 }
 
-template TC_GAME_API std::list<Creature*> WorldObject::GetCreatureListWithOptions(float, FindCreatureOptions const&) const;
-template TC_GAME_API std::deque<Creature*> WorldObject::GetCreatureListWithOptions(float, FindCreatureOptions const&) const;
-template TC_GAME_API std::vector<Creature*> WorldObject::GetCreatureListWithOptions(float, FindCreatureOptions const&) const;
-
 template TC_GAME_API void WorldObject::GetGameObjectListWithEntryInGrid(std::list<GameObject*>&, uint32, float) const;
 template TC_GAME_API void WorldObject::GetGameObjectListWithEntryInGrid(std::deque<GameObject*>&, uint32, float) const;
 template TC_GAME_API void WorldObject::GetGameObjectListWithEntryInGrid(std::vector<GameObject*>&, uint32, float) const;
@@ -3739,6 +3735,10 @@ template TC_GAME_API void WorldObject::GetGameObjectListWithEntryInGrid(std::vec
 template TC_GAME_API void WorldObject::GetCreatureListWithEntryInGrid(std::list<Creature*>&, uint32, float) const;
 template TC_GAME_API void WorldObject::GetCreatureListWithEntryInGrid(std::deque<Creature*>&, uint32, float) const;
 template TC_GAME_API void WorldObject::GetCreatureListWithEntryInGrid(std::vector<Creature*>&, uint32, float) const;
+
+template TC_GAME_API void WorldObject::GetCreatureListWithOptionsInGrid(std::list<Creature*>&, float, FindCreatureOptions const&) const;
+template TC_GAME_API void WorldObject::GetCreatureListWithOptionsInGrid(std::deque<Creature*>&,float, FindCreatureOptions const&) const;
+template TC_GAME_API void WorldObject::GetCreatureListWithOptionsInGrid(std::vector<Creature*>&, float, FindCreatureOptions const&) const;
 
 template TC_GAME_API void WorldObject::GetPlayerListInGrid(std::list<Player*>&, float, bool) const;
 template TC_GAME_API void WorldObject::GetPlayerListInGrid(std::deque<Player*>&, float, bool) const;
