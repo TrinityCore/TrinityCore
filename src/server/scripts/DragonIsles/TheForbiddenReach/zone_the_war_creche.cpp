@@ -90,6 +90,11 @@ public:
     {
         player->CastSpell(player, SPELL_STASIS_1, true);
     }
+
+    void OnSceneCancel(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
+    {
+        player->CastSpell(player, SPELL_STASIS_1, true);
+    }
 };
 
 /*######
