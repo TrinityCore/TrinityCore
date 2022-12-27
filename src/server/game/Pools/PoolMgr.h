@@ -19,9 +19,15 @@
 #define TRINITY_POOLHANDLER_H
 
 #include "Define.h"
-#include "Creature.h"
-#include "GameObject.h"
 #include "SpawnData.h"
+#include <map>
+#include <set>
+#include <unordered_map>
+#include <vector>
+
+class Creature;
+class GameObject;
+class Quest;
 
 struct PoolTemplateData
 {
@@ -45,6 +51,14 @@ typedef std::map<uint32, uint32> ActivePoolPools;
 class TC_GAME_API ActivePoolData
 {
     public:
+        explicit ActivePoolData();
+        ~ActivePoolData();
+
+        ActivePoolData(ActivePoolData const& right) = delete;
+        ActivePoolData(ActivePoolData&& right) = delete;
+        ActivePoolData& operator=(ActivePoolData const& right) = delete;
+        ActivePoolData& operator=(ActivePoolData&& right) = delete;
+
         template<typename T>
         bool IsActiveObject(uint32 db_guid_or_pool_id) const;
 
@@ -66,9 +80,15 @@ class TC_GAME_API PoolGroup
 {
     typedef std::vector<PoolObject> PoolObjectList;
     public:
-        explicit PoolGroup() : poolId(0) { }
+        explicit PoolGroup();
+        ~PoolGroup();
+
+        PoolGroup(PoolGroup const& right) = delete;
+        PoolGroup(PoolGroup&& right) = delete;
+        PoolGroup& operator=(PoolGroup const& right) = delete;
+        PoolGroup& operator=(PoolGroup&& right) = delete;
+
         void SetPoolId(uint32 pool_id) { poolId = pool_id; }
-        ~PoolGroup() { };
         bool isEmpty() const { return ExplicitlyChanced.empty() && EqualChanced.empty(); }
         void AddEntry(PoolObject& poolitem, uint32 maxentries);
         bool CheckPool() const;
@@ -97,9 +117,14 @@ class TC_GAME_API PoolMgr
 {
     private:
         PoolMgr();
-        ~PoolMgr() { };
+        ~PoolMgr();
 
     public:
+        PoolMgr(PoolMgr const& right) = delete;
+        PoolMgr(PoolMgr&& right) = delete;
+        PoolMgr& operator=(PoolMgr const& right) = delete;
+        PoolMgr& operator=(PoolMgr&& right) = delete;
+
         static PoolMgr* instance();
 
         void LoadFromDB();

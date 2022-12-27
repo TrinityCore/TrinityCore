@@ -17,13 +17,19 @@
 
 #include "PoolMgr.h"
 #include "Containers.h"
+#include "Creature.h"
 #include "DatabaseEnv.h"
+#include "GameObject.h"
 #include "Log.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
+#include <sstream>
 
 ////////////////////////////////////////////////////////////
 // template class ActivePoolData
+
+ActivePoolData::ActivePoolData() = default;
+ActivePoolData::~ActivePoolData() = default;
 
 // Method that tell amount spawned objects/subpools
 uint32 ActivePoolData::GetActiveObjectCount(uint32 pool_id) const
@@ -103,6 +109,14 @@ void ActivePoolData::RemoveObject<Pool>(uint32 sub_pool_id, uint32 pool_id)
 
 ////////////////////////////////////////////////////////////
 // Methods of template class PoolGroup
+
+template <class T>
+PoolGroup<T>::PoolGroup() : poolId(0)
+{
+}
+
+template <class T>
+PoolGroup<T>::~PoolGroup() = default;
 
 // Method to add a gameobject/creature guid to the proper list depending on pool type and chance value
 template <class T>
@@ -426,7 +440,8 @@ void PoolGroup<Pool>::RemoveRespawnTimeFromDB(ObjectGuid::LowType /*guid*/) { }
 ////////////////////////////////////////////////////////////
 // Methods of class PoolMgr
 
-PoolMgr::PoolMgr() { }
+PoolMgr::PoolMgr() = default;
+PoolMgr::~PoolMgr() = default;
 
 void PoolMgr::Initialize()
 {
