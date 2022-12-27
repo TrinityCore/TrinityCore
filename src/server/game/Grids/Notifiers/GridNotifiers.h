@@ -1461,6 +1461,9 @@ namespace Trinity
                 if (i_args.CreatureId && u->GetEntry() != i_args.CreatureId)
                     return false;
 
+                if (i_args.StringIdIndex && u->GetStringIdIndex() != i_args.StringIdIndex)
+                    return false;
+
                 if (i_args.IsAlive.has_value() && u->IsAlive() != i_args.IsAlive)
                     return false;
 
@@ -1494,6 +1497,59 @@ namespace Trinity
             WorldObject const& i_obj;
             FindCreatureOptions const& i_args;
             float i_range;
+    };
+
+    class AllCreaturesWithOptionsInObjectRange
+    {
+        public:
+            AllCreaturesWithOptionsInObjectRange(WorldObject const& obj, FindCreatureOptions const& args)
+                : i_obj(obj), i_args(args) { }
+
+            bool operator()(Creature* u) const
+            {
+                if (u->getDeathState() == DEAD) // Despawned
+                    return false;
+
+                if (u->GetGUID() == i_obj.GetGUID())
+                    return false;
+
+                if (i_args.CreatureId && u->GetEntry() != i_args.CreatureId)
+                    return false;
+
+                if (i_args.StringIdIndex && u->GetStringIdIndex() != i_args.StringIdIndex)
+                    return false;
+
+                if (i_args.IsAlive.has_value() && u->IsAlive() != i_args.IsAlive)
+                    return false;
+
+                if (i_args.IsSummon.has_value() && u->IsSummon() != i_args.IsSummon)
+                    return false;
+
+                if (i_args.IsInCombat.has_value() && u->IsInCombat() != i_args.IsInCombat)
+                    return false;
+
+                if ((i_args.OwnerGuid && u->GetOwnerGUID() != i_args.OwnerGuid)
+                    || (i_args.CharmerGuid && u->GetCharmerGUID() != i_args.CharmerGuid)
+                    || (i_args.CreatorGuid && u->GetCreatorGUID() != i_args.CreatorGuid)
+                    || (i_args.DemonCreatorGuid && u->GetDemonCreatorGUID() != i_args.DemonCreatorGuid)
+                    || (i_args.PrivateObjectOwnerGuid && u->GetPrivateObjectOwner() != i_args.PrivateObjectOwnerGuid))
+                    return false;
+
+                if (i_args.IgnorePrivateObjects && u->IsPrivateObject())
+                    return false;
+
+                if (i_args.IgnoreNotOwnedPrivateObjects && !u->CheckPrivateObjectOwnerVisibility(&i_obj))
+                    return false;
+
+                if (i_args.AuraSpellId && !u->HasAura(*i_args.AuraSpellId))
+                    return false;
+
+                return true;
+            }
+
+        private:
+            WorldObject const& i_obj;
+            FindCreatureOptions const& i_args;
     };
 
     class AnyPlayerInObjectRangeCheck

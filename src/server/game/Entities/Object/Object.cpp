@@ -2127,6 +2127,19 @@ Creature* WorldObject::FindNearestCreatureWithOptions(float range, FindCreatureO
     return creature;
 }
 
+template <typename Container>
+Container WorldObject::GetCreatureListWithOptions(float maxSearchRange, FindCreatureOptions const& options) const
+{
+    Container creatureContainer;
+    Trinity::AllCreaturesWithOptionsInObjectRange check(*this, options);
+    Trinity::CreatureListSearcher<Trinity::AllCreaturesWithOptionsInObjectRange> searcher(this, creatureContainer, check);
+    if (options.IgnorePhases)
+        searcher.i_phaseShift = &PhasingHandler::GetAlwaysVisiblePhaseShift();
+
+    Cell::VisitGridObjects(this, searcher, maxSearchRange);
+    return creatureContainer;
+}
+
 GameObject* WorldObject::FindNearestGameObject(uint32 entry, float range, bool spawnedOnly) const
 {
     GameObject* go = nullptr;
@@ -3714,6 +3727,10 @@ std::string WorldObject::GetDebugInfo() const
          << "Name: " << GetName();
     return sstr.str();
 }
+
+template TC_GAME_API std::list<Creature*> WorldObject::GetCreatureListWithOptions(float, FindCreatureOptions const&) const;
+template TC_GAME_API std::deque<Creature*> WorldObject::GetCreatureListWithOptions(float, FindCreatureOptions const&) const;
+template TC_GAME_API std::vector<Creature*> WorldObject::GetCreatureListWithOptions(float, FindCreatureOptions const&) const;
 
 template TC_GAME_API void WorldObject::GetGameObjectListWithEntryInGrid(std::list<GameObject*>&, uint32, float) const;
 template TC_GAME_API void WorldObject::GetGameObjectListWithEntryInGrid(std::deque<GameObject*>&, uint32, float) const;

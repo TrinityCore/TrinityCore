@@ -437,6 +437,7 @@ struct FindCreatureOptions
     FindCreatureOptions() = default;
 
     FindCreatureOptions& SetCreatureId(uint32 creatureId) { CreatureId = creatureId; return *this; }
+    FindCreatureOptions& SetStringIdIndex(uint32 stringIdIndex) { StringIdIndex = stringIdIndex; return *this; }
 
     FindCreatureOptions& SetIsAlive(bool isAlive) { IsAlive = isAlive; return *this; }
     FindCreatureOptions& SetIsInCombat(bool isInCombat) { IsInCombat = isInCombat; return *this; }
@@ -454,6 +455,7 @@ struct FindCreatureOptions
     FindCreatureOptions& SetPrivateObjectOwner(ObjectGuid privateObjectOwnerGuid) { PrivateObjectOwnerGuid = privateObjectOwnerGuid; return *this; }
 
     Optional<uint32> CreatureId;
+    Optional<uint32> StringIdIndex;
 
     Optional<bool> IsAlive;
     Optional<bool> IsInCombat;
@@ -630,6 +632,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         GameObject* FindNearestUnspawnedGameObject(uint32 entry, float range) const;
         GameObject* FindNearestGameObjectOfType(GameobjectTypes type, float range) const;
         Player* SelectNearestPlayer(float distance) const;
+
+        template <typename Container>
+        Container   GetCreatureListWithOptions(float maxSearchRange, FindCreatureOptions const& options) const;
 
         virtual ObjectGuid GetOwnerGUID() const = 0;
         virtual ObjectGuid GetCharmerOrOwnerGUID() const { return GetOwnerGUID(); }
