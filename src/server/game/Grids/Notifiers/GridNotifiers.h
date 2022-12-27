@@ -686,6 +686,35 @@ namespace Trinity
 
     // CHECKS && DO classes
 
+    // CHECK modifiers
+    class NoopCheckCustomizer
+    {
+    public:
+        bool Test(WorldObject const* /*o*/) const { return true; }
+
+        void Update(WorldObject const* /*o*/) { }
+    };
+
+    class NearestCheckCustomizer
+    {
+    public:
+        explicit NearestCheckCustomizer(WorldObject const& obj, float range) : i_obj(obj), i_range(range) { }
+
+        bool Test(WorldObject const* o) const
+        {
+            return i_obj.IsWithinDistInMap(o, i_range);
+        }
+
+        void Update(WorldObject const* o)
+        {
+            i_range = i_obj.GetDistance(o);
+        }
+
+    private:
+        WorldObject const& i_obj;
+        float i_range;
+    };
+
     // WorldObject check classes
 
     class TC_GAME_API AnyDeadUnitObjectInRangeCheck
@@ -1441,13 +1470,14 @@ namespace Trinity
             NearestCreatureEntryWithLiveStateInObjectRangeCheck(NearestCreatureEntryWithLiveStateInObjectRangeCheck const&) = delete;
     };
 
-    class NearestCreatureEntryWithOptionsInObjectRangeCheck
+    template <typename Customizer = NoopCheckCustomizer>
+    class CreatureWithOptionsInObjectRangeCheck
     {
         public:
-            NearestCreatureEntryWithOptionsInObjectRangeCheck(WorldObject const& obj, float range, FindCreatureOptions const& args)
-                : i_obj(obj), i_args(args), i_range(range) { }
+            CreatureWithOptionsInObjectRangeCheck(WorldObject const& obj, Customizer& customizer, FindCreatureOptions const& args)
+                : i_obj(obj), i_args(args), i_customizer(customizer) { }
 
-            bool operator()(Creature* u)
+            bool operator()(Creature* u) const
             {
                 if (u->getDeathState() == DEAD) // Despawned
                     return false;
@@ -1455,10 +1485,13 @@ namespace Trinity
                 if (u->GetGUID() == i_obj.GetGUID())
                     return false;
 
-                if (!i_obj.IsWithinDistInMap(u, i_range))
+                if (!i_customizer.Test(u))
                     return false;
 
                 if (i_args.CreatureId && u->GetEntry() != i_args.CreatureId)
+                    return false;
+
+                if (i_args.StringId && u->HasStringId(*i_args.StringId))
                     return false;
 
                 if (i_args.IsAlive.has_value() && u->IsAlive() != i_args.IsAlive)
@@ -1486,14 +1519,14 @@ namespace Trinity
                 if (i_args.AuraSpellId && !u->HasAura(*i_args.AuraSpellId))
                     return false;
 
-                i_range = i_obj.GetDistance(u);         // use found unit range as new range limit for next check
+                i_customizer.Update(u);
                 return true;
             }
 
         private:
             WorldObject const& i_obj;
             FindCreatureOptions const& i_args;
-            float i_range;
+            Customizer& i_customizer;
     };
 
     class AnyPlayerInObjectRangeCheck

@@ -437,6 +437,7 @@ struct FindCreatureOptions
     FindCreatureOptions() = default;
 
     FindCreatureOptions& SetCreatureId(uint32 creatureId) { CreatureId = creatureId; return *this; }
+    FindCreatureOptions& SetStringId(std::string_view stringId) { StringId = stringId; return *this; }
 
     FindCreatureOptions& SetIsAlive(bool isAlive) { IsAlive = isAlive; return *this; }
     FindCreatureOptions& SetIsInCombat(bool isInCombat) { IsInCombat = isInCombat; return *this; }
@@ -454,6 +455,7 @@ struct FindCreatureOptions
     FindCreatureOptions& SetPrivateObjectOwner(ObjectGuid privateObjectOwnerGuid) { PrivateObjectOwnerGuid = privateObjectOwnerGuid; return *this; }
 
     Optional<uint32> CreatureId;
+    Optional<std::string_view> StringId;
 
     Optional<bool> IsAlive;
     Optional<bool> IsInCombat;
@@ -698,6 +700,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         template <typename Container>
         void GetCreatureListWithEntryInGrid(Container& creatureContainer, uint32 entry, float maxSearchRange = 250.0f) const;
+
+        template <typename Container>
+        void GetCreatureListWithOptionsInGrid(Container& creatureContainer, float maxSearchRange, FindCreatureOptions const& options) const;
 
         template <typename Container>
         void GetPlayerListInGrid(Container& playerContainer, float maxSearchRange, bool alive = true) const;
