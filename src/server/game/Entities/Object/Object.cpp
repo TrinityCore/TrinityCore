@@ -2119,7 +2119,7 @@ Creature* WorldObject::FindNearestCreatureWithOptions(float range, FindCreatureO
 {
     Creature* creature = nullptr;
     Trinity::NearestCheckCustomizer checkCustomizer(*this, range);
-    Trinity::CreatureEntryWithOptionsInObjectRangeCheck checker(*this, checkCustomizer, options);
+    Trinity::CreatureWithOptionsInObjectRangeCheck checker(*this, checkCustomizer, options);
     Trinity::CreatureLastSearcher searcher(this, creature, checker);
     if (options.IgnorePhases)
         searcher.i_phaseShift = &PhasingHandler::GetAlwaysVisiblePhaseShift();
@@ -3288,7 +3288,7 @@ template <typename Container>
 void WorldObject::GetCreatureListWithOptionsInGrid(Container& creatureContainer, float maxSearchRange, FindCreatureOptions const& options) const
 {
     Trinity::NoopCheckCustomizer checkCustomizer;
-    Trinity::CreatureEntryWithOptionsInObjectRangeCheck check(*this, checkCustomizer, options);
+    Trinity::CreatureWithOptionsInObjectRangeCheck check(*this, checkCustomizer, options);
     Trinity::CreatureListSearcher searcher(this, creatureContainer, check);
     if (options.IgnorePhases)
         searcher.i_phaseShift = &PhasingHandler::GetAlwaysVisiblePhaseShift();

@@ -1471,10 +1471,10 @@ namespace Trinity
     };
 
     template <typename Customizer = NoopCheckCustomizer>
-    class CreatureEntryWithOptionsInObjectRangeCheck
+    class CreatureWithOptionsInObjectRangeCheck
     {
         public:
-            CreatureEntryWithOptionsInObjectRangeCheck(WorldObject const& obj, Customizer& customizer, FindCreatureOptions const& args)
+            CreatureWithOptionsInObjectRangeCheck(WorldObject const& obj, Customizer& customizer, FindCreatureOptions const& args)
                 : i_obj(obj), i_args(args), i_customizer(customizer) { }
 
             bool operator()(Creature* u) const
