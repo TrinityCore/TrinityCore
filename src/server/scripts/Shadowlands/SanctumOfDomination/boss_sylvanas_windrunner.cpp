@@ -240,7 +240,7 @@ struct boss_sylvanas_windrunner : public BossAI
             {
                 case EVENT_INTRODUCTION:
                     Conversation::CreateConversation(CONVERSATION_INTRO, me, me->GetPosition(), ObjectGuid::Empty);
-                    events.ScheduleEvent(EVENT_INTRODUCTION + 1, 1s + 500ms, EVENT_GROUP_INTRODUCTION_EVENTS, PHASE_ONE);
+                    events.ScheduleEvent(EVENT_INTRODUCTION + 1, 1s + 500ms, EVENT_GROUP_INTRODUCTION_EVENTS);
                     break;
 
                 case EVENT_INTRODUCTION + 1:
