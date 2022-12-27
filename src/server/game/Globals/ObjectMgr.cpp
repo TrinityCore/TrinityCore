@@ -495,7 +495,9 @@ void ObjectMgr::LoadCreatureTemplates()
         // 62
         "flags_extra,"
         // 63
-        "ScriptName"
+        "ScriptName,"
+        // 64
+        "StringId"
         " FROM creature_template ct"
         " LEFT JOIN creature_template_movement ctm ON ct.entry = ctm.CreatureId");
 
@@ -615,6 +617,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.SpellSchoolImmuneMask = fields[61].GetUInt32();
     creatureTemplate.flags_extra           = fields[62].GetUInt32();
     creatureTemplate.ScriptID              = GetScriptId(fields[63].GetString());
+    creatureTemplate.StringId              = fields[64].GetString();
 }
 
 void ObjectMgr::LoadCreatureTemplateResistances()
@@ -2164,8 +2167,8 @@ void ObjectMgr::LoadCreatures()
     QueryResult result = WorldDatabase.Query("SELECT creature.guid, id, map, position_x, position_y, position_z, orientation, modelid, equipment_id, spawntimesecs, wander_distance, "
     //   11               12         13       14            15         16          17          18                19                   20                    21
         "currentwaypoint, curhealth, curmana, MovementType, spawnMask, phaseMask, eventEntry, poolSpawnId, creature.npcflag, creature.unit_flags, creature.dynamicflags, "
-    //   22
-        "creature.ScriptName "
+    //   22                   23
+        "creature.ScriptName, creature.StringId "
         "FROM creature "
         "LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid "
         "LEFT OUTER JOIN pool_members ON pool_members.type = 0 AND creature.guid = pool_members.spawnId");
@@ -2221,6 +2224,7 @@ void ObjectMgr::LoadCreatures()
         data.unit_flags     = fields[20].GetUInt32();
         data.dynamicflags   = fields[21].GetUInt32();
         data.scriptId       = GetScriptId(fields[22].GetString());
+        data.StringId       = fields[23].GetString();
         data.spawnGroupData = GetDefaultSpawnGroup();
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapId);
