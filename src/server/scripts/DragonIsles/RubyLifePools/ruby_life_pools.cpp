@@ -18,6 +18,7 @@
 #include "SpellAuras.h"
 #include "SpellScript.h"
 #include "ScriptMgr.h"
+#include "Unit.h"
 #include "ruby_life_pools.h"
 
 enum Misc

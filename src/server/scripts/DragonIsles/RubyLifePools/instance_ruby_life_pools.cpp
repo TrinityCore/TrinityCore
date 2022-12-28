@@ -16,7 +16,7 @@
  */
 
 #include "InstanceScript.h"
-#include "Map.h"
+#include "ScriptMgr.h"
 #include "ruby_life_pools.h"
 
 ObjectData const creatureData[] =
