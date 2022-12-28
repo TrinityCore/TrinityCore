@@ -16,6 +16,7 @@
  */
 
 #include "SpellAuras.h"
+#include "SpellScript.h"
 #include "ScriptMgr.h"
 #include "ruby_life_pools.h"
 

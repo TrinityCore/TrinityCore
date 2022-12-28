@@ -15,8 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ruby_life_pools.h"
 #include "InstanceScript.h"
+#include "Map.h"
+#include "ruby_life_pools.h"
 
 ObjectData const creatureData[] =
 {
