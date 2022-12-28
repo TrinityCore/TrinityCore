@@ -1765,7 +1765,7 @@ void World::SetInitialWorldSettings()
             !TerrainMgr::ExistMapAndVMap(530, 10349.6f, -6357.29f) ||
             !TerrainMgr::ExistMapAndVMap(530, -3961.64f, -13931.2f))))
     {
-        TC_LOG_FATAL("server.loading", "Unable to load critical files - server shutting down !!!");
+        TC_LOG_FATAL("server.loading", "Unable to load map and vmap data for starting zones - server shutting down!");
         exit(1);
     }
 
@@ -1883,7 +1883,11 @@ void World::SetInitialWorldSettings()
     sLanguageMgr->LoadLanguagesWords();
 
     TC_LOG_INFO("server.loading", "Loading GameObject models...");
-    LoadGameObjectModelList(m_dataPath);
+    if (!LoadGameObjectModelList(m_dataPath))
+    {
+        TC_LOG_FATAL("server.loading", "Unable to load gameobject models, objects using WMO models will crash the client - server shutting down!");
+        exit(1);
+    }
 
     TC_LOG_INFO("server.loading", "Loading Instance Template...");
     sObjectMgr->LoadInstanceTemplate();

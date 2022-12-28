@@ -977,7 +977,7 @@ bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& e)
             case SMART_ACTION_GAME_EVENT_STOP: return sizeof(SmartAction::gameEventStop);
             case SMART_ACTION_GAME_EVENT_START: return sizeof(SmartAction::gameEventStart);
             case SMART_ACTION_START_CLOSEST_WAYPOINT: return sizeof(SmartAction::closestWaypointFromList);
-            case SMART_ACTION_MOVE_OFFSET: return NO_PARAMS;
+            case SMART_ACTION_MOVE_OFFSET: return sizeof(SmartAction::moveOffset);
             case SMART_ACTION_RANDOM_SOUND: return sizeof(SmartAction::randomSound);
             case SMART_ACTION_SET_CORPSE_DELAY: return sizeof(SmartAction::corpseDelay);
             case SMART_ACTION_DISABLE_EVADE: return sizeof(SmartAction::disableEvade);

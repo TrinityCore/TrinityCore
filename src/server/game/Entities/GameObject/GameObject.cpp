@@ -991,10 +991,7 @@ void GameObject::Update(uint32 diff)
                     // If there is no restock timer, or if the restock timer passed, the chest becomes ready to loot
                     m_restockTime = 0;
                     m_lootState = GO_READY;
-                    m_loot = nullptr;
-                    m_personalLoot.clear();
-                    m_unique_users.clear();
-                    m_usetimes = 0;
+                    ClearLoot();
                     UpdateDynamicFlagsForNearbyPlayers();
                     break;
                 default:
@@ -1223,10 +1220,7 @@ void GameObject::Update(uint32 diff)
                     {
                         m_restockTime = 0;
                         m_lootState = GO_READY;
-                        m_loot = nullptr;
-                        m_personalLoot.clear();
-                        m_unique_users.clear();
-                        m_usetimes = 0;
+                        ClearLoot();
                         UpdateDynamicFlagsForNearbyPlayers();
                     }
                     break;
@@ -1300,10 +1294,7 @@ void GameObject::Update(uint32 diff)
                         return;
             }
 
-            m_loot = nullptr;
-            m_personalLoot.clear();
-            m_unique_users.clear();
-            m_usetimes = 0;
+            ClearLoot();
 
             // Do not delete chests or goobers that are not consumed on loot, while still allowing them to despawn when they expire if summoned
             bool isSummonedAndExpired = (GetOwner() || GetSpellId()) && m_respawnTime == 0;
@@ -3323,6 +3314,18 @@ void GameObject::SetLootState(LootState state, Unit* unit)
     }
 }
 
+void GameObject::ClearLoot()
+{
+    // Unlink loot objects from this GameObject before destroying to avoid accessing freed memory from Loot destructor
+    std::unique_ptr<Loot> loot(std::move(m_loot));
+    std::unordered_map<ObjectGuid, std::unique_ptr<Loot>> personalLoot(std::move(m_personalLoot));
+
+    loot.reset();
+    personalLoot.clear();
+    m_unique_users.clear();
+    m_usetimes = 0;
+}
+
 bool GameObject::IsFullyLooted() const
 {
     if (m_loot && !m_loot->isLooted())
@@ -3876,6 +3879,8 @@ void GameObject::UpdateCapturePoint()
             bg->UpdateWorldState(GetGOInfo()->capturePoint.worldState1, AsUnderlyingType(m_goValue.CapturePoint.State));
         }
     }
+
+    GetMap()->UpdateSpawnGroupConditions();
 }
 
 bool GameObject::CanInteractWithCapturePoint(Player const* target) const
@@ -4005,7 +4010,7 @@ bool GameObject::IsAtInteractDistance(Position const& pos, float radius) const
 
 bool GameObject::IsWithinDistInMap(Player const* player) const
 {
-    return IsInMap(player) && IsInPhase(player) && IsAtInteractDistance(player);
+    return IsInMap(player) && InSamePhase(player) && IsAtInteractDistance(player);
 }
 
 SpellInfo const* GameObject::GetSpellForLock(Player const* player) const

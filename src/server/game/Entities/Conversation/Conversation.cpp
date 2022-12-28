@@ -91,7 +91,7 @@ void Conversation::Remove()
     }
 }
 
-Conversation* Conversation::CreateConversation(uint32 conversationEntry, Unit* creator, Position const& pos, ObjectGuid privateObjectOwner, SpellInfo const* spellInfo /*= nullptr*/)
+Conversation* Conversation::CreateConversation(uint32 conversationEntry, Unit* creator, Position const& pos, ObjectGuid privateObjectOwner, SpellInfo const* spellInfo /*= nullptr*/, bool autoStart /*= true*/)
 {
     ConversationTemplate const* conversationTemplate = sConversationDataStore->GetConversationTemplate(conversationEntry);
     if (!conversationTemplate)
@@ -100,7 +100,8 @@ Conversation* Conversation::CreateConversation(uint32 conversationEntry, Unit* c
     ObjectGuid::LowType lowGuid = creator->GetMap()->GenerateLowGuid<HighGuid::Conversation>();
 
     Conversation* conversation = new Conversation();
-    if (!conversation->Create(lowGuid, conversationEntry, creator->GetMap(), creator, pos, privateObjectOwner, spellInfo))
+    conversation->Create(lowGuid, conversationEntry, creator->GetMap(), creator, pos, privateObjectOwner, spellInfo);
+    if (autoStart && !conversation->Start())
     {
         delete conversation;
         return nullptr;
@@ -155,7 +156,7 @@ private:
     ConversationActorTemplate const& _actor;
 };
 
-bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry, Map* map, Unit* creator, Position const& pos, ObjectGuid privateObjectOwner, SpellInfo const* /*spellInfo = nullptr*/)
+void Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry, Map* map, Unit* creator, Position const& pos, ObjectGuid privateObjectOwner, SpellInfo const* /*spellInfo = nullptr*/)
 {
     ConversationTemplate const* conversationTemplate = sConversationDataStore->GetConversationTemplate(conversationEntry);
     ASSERT(conversationTemplate);
@@ -181,14 +182,12 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     for (ConversationActorTemplate const& actor : conversationTemplate->Actors)
         std::visit(ConversationActorFillVisitor(this, creator, map, actor), actor.Data);
 
-    std::set<uint16> actorIndices;
     std::vector<UF::ConversationLine> lines;
     for (ConversationLineTemplate const* line : conversationTemplate->Lines)
     {
         if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_CONVERSATION_LINE, line->Id, creator))
             continue;
 
-        actorIndices.insert(line->ActorIdx);
         lines.emplace_back();
 
         UF::ConversationLine& lineField = lines.back();
@@ -223,14 +222,16 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     _duration += 10s;
 
     sScriptMgr->OnConversationCreate(this, creator);
+}
 
-    // All actors need to be set
-    for (uint16 actorIndex : actorIndices)
+bool Conversation::Start()
+{
+    for (UF::ConversationLine const& line : *m_conversationData->Lines)
     {
-        UF::ConversationActor const* actor = actorIndex < m_conversationData->Actors.size() ? &m_conversationData->Actors[actorIndex] : nullptr;
+        UF::ConversationActor const* actor = line.ActorIndex < m_conversationData->Actors.size() ? &m_conversationData->Actors[line.ActorIndex] : nullptr;
         if (!actor || (!actor->CreatureID && actor->ActorGUID.IsEmpty() && !actor->NoActorObject))
         {
-            TC_LOG_ERROR("entities.conversation", "Failed to create conversation (Id: %u) due to missing actor (Idx: %u).", conversationEntry, actorIndex);
+            TC_LOG_ERROR("entities.conversation", "Failed to create conversation (Id: %u) due to missing actor (Idx: %u).", GetEntry(), line.ActorIndex);
             return false;
         }
     }

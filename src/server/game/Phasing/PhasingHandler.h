@@ -59,6 +59,7 @@ public:
     static void FillPartyMemberPhase(WorldPackets::Party::PartyMemberPhaseStates* partyMemberPhases, PhaseShift const& phaseShift);
 
     static PhaseShift const& GetEmptyPhaseShift();
+    static PhaseShift const& GetAlwaysVisiblePhaseShift();
     static void InitDbPhaseShift(PhaseShift& phaseShift, uint8 phaseUseFlags, uint16 phaseId, uint32 phaseGroupId);
     static void InitDbPersonalOwnership(PhaseShift& phaseShift, ObjectGuid const& personalGuid);
     static void InitDbVisibleMapId(PhaseShift& phaseShift, int32 visibleMapId);

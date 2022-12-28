@@ -96,7 +96,7 @@ public:
     Difficulty GetDifficultyId() const { return _difficultyId; }
 
     uint32 GetInstanceId() const { return _instanceId; }
-    virtual void SetInstanceId(uint32 instanceId) { _instanceId = instanceId; }
+    void SetInstanceId(uint32 instanceId) { _instanceId = instanceId; }
 
     InstanceResetTimePoint GetExpiryTime() const { return _expiryTime; }
     void SetExpiryTime(InstanceResetTimePoint expiryTime) { _expiryTime = expiryTime; }
@@ -142,12 +142,6 @@ class TC_GAME_API SharedInstanceLock : public InstanceLock
 {
 public:
     SharedInstanceLock(uint32 mapId, Difficulty difficultyId, InstanceResetTimePoint expiryTime, uint32 instanceId, std::shared_ptr<SharedInstanceLockData> sharedData);
-
-    void SetInstanceId(uint32 instanceId) override
-    {
-        InstanceLock::SetInstanceId(instanceId);
-        _sharedData->InstanceId = instanceId;
-    }
 
     InstanceLockData const* GetInstanceInitializationData() const override { return _sharedData.get(); }
 
