@@ -18,7 +18,6 @@
 #ifndef IteratorPair_h__
 #define IteratorPair_h__
 
-#include "Define.h"
 #include <utility>
 
 namespace Trinity
@@ -32,12 +31,12 @@ namespace Trinity
     class IteratorPair
     {
     public:
-        IteratorPair() : _iterators() { }
-        IteratorPair(iterator first, iterator second) : _iterators(first, second) { }
-        IteratorPair(std::pair<iterator, iterator> iterators) : _iterators(iterators) { }
+        constexpr IteratorPair() : _iterators() { }
+        constexpr IteratorPair(iterator first, iterator second) : _iterators(first, second) { }
+        constexpr IteratorPair(std::pair<iterator, iterator> iterators) : _iterators(iterators) { }
 
-        iterator begin() const { return _iterators.first; }
-        iterator end() const { return _iterators.second; }
+        constexpr iterator begin() const { return _iterators.first; }
+        constexpr iterator end() const { return _iterators.second; }
 
     private:
         std::pair<iterator, iterator> _iterators;
@@ -45,6 +44,18 @@ namespace Trinity
 
     namespace Containers
     {
+        template<typename iterator>
+        constexpr Trinity::IteratorPair<iterator> MakeIteratorPair(iterator first, iterator second)
+        {
+            return { first, second };
+        }
+
+        template<typename iterator>
+        constexpr Trinity::IteratorPair<iterator> MakeIteratorPair(std::pair<iterator, iterator> iterators)
+        {
+            return iterators;
+        }
+
         template<class M>
         inline auto MapEqualRange(M& map, typename M::key_type const& key) -> IteratorPair<decltype(map.begin())>
         {
