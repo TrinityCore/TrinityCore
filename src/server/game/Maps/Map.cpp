@@ -146,6 +146,8 @@ i_scriptLock(false), _respawnCheckTimer(0)
 
     _weatherUpdateTimer.SetInterval(time_t(1 * IN_MILLISECONDS));
 
+    _poolData = sPoolMgr->InitPoolsForMap(this);
+
     sTransportMgr->CreateTransportsForMap(this);
 
     MMAP::MMapFactory::createOrGetMMapManager()->loadMapInstance(sWorld->GetDataPath(), GetId(), i_InstanceId);
@@ -1968,7 +1970,7 @@ void Map::ProcessRespawns()
             GetRespawnMapForType(next->type).erase(next->spawnId);
 
             // step 2: tell pooling logic to do its thing
-            sPoolMgr->UpdatePool(poolId, next->type, next->spawnId);
+            sPoolMgr->UpdatePool(GetPoolData(), poolId, next->type, next->spawnId);
 
             // step 3: get rid of the actual entry
             RemoveRespawnTime(next->type, next->spawnId, nullptr, true);
@@ -2060,6 +2062,10 @@ bool Map::ShouldBeSpawnedOnGridLoad(SpawnObjectType type, ObjectGuid::LowType sp
     SpawnGroupTemplateData const* spawnGroup = ASSERT_NOTNULL(spawnData->spawnGroupData);
     if (!(spawnGroup->flags & SPAWNGROUP_FLAG_SYSTEM))
         if (!IsSpawnGroupActive(spawnGroup->groupId))
+            return false;
+
+    if (spawnData->ToSpawnData()->poolId)
+        if (!GetPoolData().IsSpawnedObject(type, spawnId))
             return false;
 
     return true;

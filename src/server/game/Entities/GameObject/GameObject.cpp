@@ -941,9 +941,9 @@ void GameObject::Update(uint32 diff)
                             AI()->Reset();
 
                         // Respawn timer
-                        uint32 poolid = GetSpawnId() ? sPoolMgr->IsPartOfAPool<GameObject>(GetSpawnId()) : 0;
+                        uint32 poolid = GetGameObjectData() ? GetGameObjectData()->poolId : 0;
                         if (poolid)
-                            sPoolMgr->UpdatePool<GameObject>(poolid, GetSpawnId());
+                            sPoolMgr->UpdatePool<GameObject>(GetMap()->GetPoolData(), poolid, GetSpawnId());
                         else
                             GetMap()->AddToMap(this);
                     }
@@ -1237,9 +1237,9 @@ void GameObject::Delete()
     if (GameObjectTemplateAddon const* addon = GetTemplateAddon())
         SetUInt32Value(GAMEOBJECT_FLAGS, addon->flags);
 
-    uint32 poolid = GetSpawnId() ? sPoolMgr->IsPartOfAPool<GameObject>(GetSpawnId()) : 0;
+    uint32 poolid = GetGameObjectData() ? GetGameObjectData()->poolId : 0;
     if (poolid)
-        sPoolMgr->UpdatePool<GameObject>(poolid, GetSpawnId());
+        sPoolMgr->UpdatePool<GameObject>(GetMap()->GetPoolData(), poolid, GetSpawnId());
     else
         AddObjectToRemoveList();
 }
