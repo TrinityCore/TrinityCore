@@ -35,6 +35,7 @@
 #include "GuildMgr.h"
 #include "IpAddress.h"
 #include "Log.h"
+#include "Map.h"
 #include "MapManager.h"
 #include "Metric.h"
 #include "ObjectAccessor.h"

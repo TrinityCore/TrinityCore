@@ -16,20 +16,19 @@
  */
 
 #include "ObjectMgr.h"
-#include "ScriptMgr.h"
+#include "blackwing_descent.h"
 #include "CommonPredicates.h"
 #include "DBCStores.h"
 #include "GridNotifiers.h"
-#include "PassiveAI.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "SpellMgr.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
+#include "PassiveAI.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "SpellAuraEffects.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
 #include "TemporarySummon.h"
-#include "MapInstanced.h"
-#include "blackwing_descent.h"
 
 enum Spells
 {

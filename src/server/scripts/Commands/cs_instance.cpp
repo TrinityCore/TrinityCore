@@ -29,6 +29,7 @@ EndScriptData */
 #include "InstanceSaveMgr.h"
 #include "InstanceScript.h"
 #include "Language.h"
+#include "Map.h"
 #include "MapManager.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"

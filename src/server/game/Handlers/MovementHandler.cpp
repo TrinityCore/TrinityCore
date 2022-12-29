@@ -21,6 +21,7 @@
 #include "ObjectAccessor.h"
 #include "Opcodes.h"
 #include "Log.h"
+#include "Map.h"
 #include "Corpse.h"
 #include "DBCStores.h"
 #include "Player.h"

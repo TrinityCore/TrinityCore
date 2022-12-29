@@ -727,7 +727,7 @@ void Spell::EffectTriggerRitualOfSummoning(SpellEffIndex effIndex)
                 continue;
             }
 
-            Map::EnterState enterState = sMapMgr->PlayerCannotEnter(player->GetMapId(), member, false);
+            Map::EnterState enterState = Map::PlayerCannotEnter(player->GetMapId(), member, false);
             if (enterState != Map::CAN_ENTER)
             {
                 if (enterState == Map::CANNOT_ENTER_INSTANCE_BIND_MISMATCH)

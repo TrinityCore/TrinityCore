@@ -22,7 +22,7 @@
 #include "GameObjectData.h"
 #include "InstanceScript.h"
 #include "Log.h"
-#include "MapManager.h"
+#include "Map.h"
 #include "MoveSplineInitArgs.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"

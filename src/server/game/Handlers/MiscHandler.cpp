@@ -41,8 +41,10 @@
 #include "GuildMgr.h"
 #include "InspectPackets.h"
 #include "InstanceScript.h"
+#include "InstanceSaveMgr.h"
 #include "Language.h"
 #include "Log.h"
+#include "Map.h"
 #include "MapManager.h"
 #include "MiscPackets.h"
 #include "Object.h"
@@ -702,7 +704,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
     bool teleported = false;
     if (player->GetMapId() != at->target_mapId)
     {
-        if (Map::EnterState denyReason = sMapMgr->PlayerCannotEnter(at->target_mapId, player, false))
+        if (Map::EnterState denyReason = Map::PlayerCannotEnter(at->target_mapId, player, false))
         {
             bool reviveAtTrigger = false; // should we revive the player if he is trying to enter the correct instance?
             switch (denyReason)

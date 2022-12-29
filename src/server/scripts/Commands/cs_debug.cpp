@@ -31,6 +31,7 @@ EndScriptData */
 #include "DBCStores.h"
 #include "GossipDef.h"
 #include "GridNotifiersImpl.h"
+#include "InstanceSaveMgr.h"
 #include "InstanceScript.h"
 #include "Language.h"
 #include "Log.h"
@@ -1622,14 +1623,31 @@ public:
         if (*args)
         {
             int32 mapId = atoi(args);
-            map = sMapMgr->FindBaseNonInstanceMap(mapId);
+            sMapMgr->DoForAllMapsWithMapId(mapId, [&](Map* map)
+            {
+                HandleDebugLoadCellsCommandHelper(handler, map);
+            });
+            return true;
         }
+
         if (!map)
-            map = player->GetMap();
+        {
+            // Fallback to player's map if no map has been specified
+            return HandleDebugLoadCellsCommandHelper(handler, player->GetMap());
+        }
+
+        return false;
+    }
+
+    static bool HandleDebugLoadCellsCommandHelper(ChatHandler* handler, Map* map)
+    {
+        if (!map)
+            return false;
 
         handler->PSendSysMessage("Loading all cells (mapId: %u). Current next GameObject %u, Creature %u", map->GetId(), map->GetMaxLowGuid<HighGuid::GameObject>(), map->GetMaxLowGuid<HighGuid::Unit>());
         map->LoadAllCells();
         handler->PSendSysMessage("Cells loaded (mapId: %u) After load - Next GameObject %u, Creature %u", map->GetId(), map->GetMaxLowGuid<HighGuid::GameObject>(), map->GetMaxLowGuid<HighGuid::Unit>());
+
         return true;
     }
 

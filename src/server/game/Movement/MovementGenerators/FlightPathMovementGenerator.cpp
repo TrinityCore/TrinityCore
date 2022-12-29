@@ -19,7 +19,7 @@
 #include "DBCStores.h"
 #include "GameEventSender.h"
 #include "Log.h"
-#include "MapManager.h"
+#include "Map.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "ObjectMgr.h"
@@ -190,7 +190,7 @@ bool FlightPathMovementGenerator::DoUpdate(Player* player, uint32 /*diff*/)
                 break;
 
             if (_currentNode == _preloadTargetNode)
-                PreloadEndGrid();
+                PreloadEndGrid(player);
             _currentNode += departureEvent ? 1 : 0;
             departureEvent = !departureEvent;
         } while (_currentNode < _path.size() - 1);
@@ -240,14 +240,18 @@ void FlightPathMovementGenerator::InitEndGridInfo()
     uint32 nodeCount = _path.size();        //! Number of nodes in path.
     _endMapId = _path[nodeCount - 1]->ContinentID; //! MapId of last node
     _preloadTargetNode = nodeCount - 3;
+
+    while (_path[_preloadTargetNode]->ContinentID != _endMapId)
+        ++_preloadTargetNode;
+
     _endGridX = _path[nodeCount - 1]->Loc.X;
     _endGridY = _path[nodeCount - 1]->Loc.Y;
 }
 
-void FlightPathMovementGenerator::PreloadEndGrid()
+void FlightPathMovementGenerator::PreloadEndGrid(Player* owner)
 {
-    // used to preload the final grid where the flightmaster is
-    Map* endMap = sMapMgr->FindBaseNonInstanceMap(_endMapId);
+    // Used to preload the final grid where the flightmaster is
+    Map* endMap = owner->GetMap();
 
     // Load the grid
     if (endMap)

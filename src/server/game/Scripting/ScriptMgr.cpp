@@ -27,6 +27,7 @@
 #include "Item.h"
 #include "LFGScripts.h"
 #include "Log.h"
+#include "Map.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"

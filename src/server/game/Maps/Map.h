@@ -47,7 +47,6 @@ class Group;
 class InstanceMap;
 class InstanceSave;
 class InstanceScript;
-class MapInstanced;
 class Object;
 class PhaseShift;
 class Player;
@@ -166,7 +165,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 {
     friend class MapReference;
     public:
-        Map(uint32 id, time_t, uint32 InstanceId, uint8 SpawnMode, Map* _parent = nullptr);
+        Map(uint32 id, time_t, uint32 InstanceId, uint8 SpawnMode);
         virtual ~Map();
 
         MapEntry const* GetEntry() const { return i_mapEntry; }
@@ -294,6 +293,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
             CANNOT_ENTER_UNSPECIFIED_REASON
         };
 
+        static EnterState PlayerCannotEnter(uint32 mapid, Player* player, bool loginCheck = false);
         virtual EnterState CannotEnter(Player* /*player*/) { return CAN_ENTER; }
         char const* GetMapName() const;
 
@@ -401,9 +401,6 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
             return nullptr;
         }
-
-        MapInstanced* ToMapInstanced() { if (Instanceable()) return reinterpret_cast<MapInstanced*>(this); return nullptr; }
-        MapInstanced const* ToMapInstanced() const { if (Instanceable()) return reinterpret_cast<MapInstanced const*>(this); return nullptr; }
 
         InstanceMap* ToInstanceMap() { if (IsDungeon()) return reinterpret_cast<InstanceMap*>(this); else return nullptr;  }
         InstanceMap const* ToInstanceMap() const { if (IsDungeon()) return reinterpret_cast<InstanceMap const*>(this); return nullptr; }
@@ -519,9 +516,9 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         bool _dynamicObjectsToMoveLock;
         std::vector<DynamicObject*> _dynamicObjectsToMove;
 
-        bool IsGridLoaded(const GridCoord &) const;
-        void EnsureGridCreated(const GridCoord &);
-        void EnsureGridCreated_i(const GridCoord &);
+        bool IsGridLoaded(GridCoord const&) const;
+        void EnsureGridCreated(GridCoord const&);
+        void EnsureGridCreated_i(GridCoord const&);
         bool EnsureGridLoaded(Cell const&);
         void EnsureGridLoadedForActiveObject(Cell const&, WorldObject* object);
 
@@ -542,8 +539,6 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void SendObjectUpdates();
 
     protected:
-        std::mutex _mapLock;
-        std::mutex _gridLock;
 
         MapEntry const* i_mapEntry;
         uint8 i_spawnMode;
@@ -768,7 +763,7 @@ enum InstanceResetMethod
 class TC_GAME_API InstanceMap : public Map
 {
     public:
-        InstanceMap(uint32 id, time_t, uint32 InstanceId, uint8 SpawnMode, Map* _parent, TeamId InstanceTeam);
+        InstanceMap(uint32 id, time_t, uint32 InstanceId, uint8 SpawnMode, TeamId InstanceTeam);
         ~InstanceMap();
         bool AddPlayerToMap(Player*) override;
         void RemovePlayerFromMap(Player*, bool) override;
@@ -805,7 +800,7 @@ class TC_GAME_API InstanceMap : public Map
 class TC_GAME_API BattlegroundMap : public Map
 {
     public:
-        BattlegroundMap(uint32 id, time_t, uint32 InstanceId, Map* _parent, uint8 spawnMode);
+        BattlegroundMap(uint32 id, time_t, uint32 InstanceId, uint8 spawnMode);
         ~BattlegroundMap();
 
         bool AddPlayerToMap(Player*) override;

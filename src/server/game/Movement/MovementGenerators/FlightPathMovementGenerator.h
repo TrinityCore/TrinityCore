@@ -49,7 +49,7 @@ public:
 
     bool GetResetPos(Player*, float& x, float& y, float& z);
     void InitEndGridInfo();
-    void PreloadEndGrid();
+    void PreloadEndGrid(Player* owner);
 
 private:
 

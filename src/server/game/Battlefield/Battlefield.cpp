@@ -28,12 +28,10 @@
 #include "GroupMgr.h"
 #include "Log.h"
 #include "Map.h"
-#include "MapManager.h"
 #include "MiscPackets.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
 #include <G3D/g3dmath.h>
 
 Battlefield::Battlefield(Map* map)

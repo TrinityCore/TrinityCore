@@ -31,6 +31,7 @@ EndScriptData */
 #include "GameObject.h"
 #include "Language.h"
 #include "Log.h"
+#include "Map.h"
 #include "MapManager.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"

@@ -59,6 +59,7 @@
 #include "LootItemStorage.h"
 #include "LootMgr.h"
 #include "M2Stores.h"
+#include "Map.h"
 #include "MapManager.h"
 #include "Metric.h"
 #include "MMapFactory.h"
@@ -2345,19 +2346,6 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Calculate next currency reset time...");
     InitCurrencyResetTime();
-
-    // Preload all cells, if required for the base maps
-    if (sWorld->getBoolConfig(CONFIG_BASEMAP_LOAD_GRIDS))
-    {
-        sMapMgr->DoForAllMaps([](Map* map)
-        {
-            if (!map->Instanceable())
-            {
-                TC_LOG_INFO("server.loading", "Pre-loading base map data for map %u", map->GetId());
-                map->LoadAllCells();
-            }
-        });
-    }
 
     uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
 

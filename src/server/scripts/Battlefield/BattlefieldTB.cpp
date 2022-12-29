@@ -28,7 +28,6 @@
 #include "Creature.h"
 #include "GameObject.h"
 #include "GameTime.h"
-#include "MapManager.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "Random.h"

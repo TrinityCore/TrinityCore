@@ -22,7 +22,6 @@
 #include "Group.h"
 #include "Log.h"
 #include "Map.h"
-#include "MapManager.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"

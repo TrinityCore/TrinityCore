@@ -26,6 +26,7 @@
 #include "GameTime.h"
 #include "Language.h"
 #include "Log.h"
+#include "Map.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
 #include "Player.h"

@@ -17,7 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
-#include "MapManager.h"
+#include "Map.h"
 #include "OutdoorPvP.h"
 #include "OutdoorPvPHP.h"
 #include "OutdoorPvPMgr.h"
@@ -260,7 +260,7 @@ void OPvPCapturePointHP::ChangeState()
         break;
     }
 
-    Map* map = sMapMgr->FindMap(530, 0);
+    Map* map = m_PvP->GetMap();
     auto bounds = map->GetGameObjectBySpawnIdStore().equal_range(m_capturePointSpawnId);
     for (auto itr = bounds.first; itr != bounds.second; ++itr)
         itr->second->SetGoArtKit(artkit);

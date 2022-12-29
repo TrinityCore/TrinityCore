@@ -39,7 +39,6 @@
 #include "Formulas.h"
 #include "GameEventMgr.h"
 #include "Language.h"
-#include "Map.h"
 #include "MapManager.h"
 #include "SharedDefines.h"
 #include "ObjectMgr.h"
