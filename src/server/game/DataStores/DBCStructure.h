@@ -225,8 +225,6 @@ struct AreaTableEntry
     // helpers
     bool IsSanctuary() const
     {
-        if (ContinentID == 609)
-            return true;
         return (Flags & AREA_FLAG_SANCTUARY) != 0;
     }
 
@@ -1256,11 +1254,21 @@ struct MapEntry
 
     bool IsContinent() const
     {
-        return ID == 0 || ID == 1 || ID == 530 || ID == 571;
+        switch (ID)
+        {
+            case 0:
+            case 1:
+            case 530:
+            case 571:
+                return true;
+            default:
+                return false;
+        }
     }
 
     bool IsDynamicDifficultyMap() const { return GetFlags().HasFlag(MapFlags::DynamicDifficulty); }
     bool IsFlexLocking() const { return GetFlags().HasFlag(MapFlags::FlexibleRaidLocking); }
+    bool IsSplitByFaction() const { return ID == 609; }
 
     EnumFlag<MapFlags> GetFlags() const { return static_cast<MapFlags>(Flags); }
 };
