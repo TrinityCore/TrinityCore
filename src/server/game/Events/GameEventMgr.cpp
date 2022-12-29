@@ -18,6 +18,7 @@
 #include "GameEventMgr.h"
 #include "BattlegroundMgr.h"
 #include "CreatureAI.h"
+#include "Creature.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
 #include "GameObjectAI.h"
