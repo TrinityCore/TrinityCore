@@ -22,6 +22,7 @@
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
 #include "GameObjectAI.h"
+#include "GameObject.h"
 #include "GameTime.h"
 #include "Language.h"
 #include "Log.h"
