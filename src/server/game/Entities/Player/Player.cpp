@@ -491,8 +491,8 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     SetWatchedFactionIndex(-1);
 
     SetCustomizations(Trinity::Containers::MakeIteratorPair(createInfo->Customizations.begin(), createInfo->Customizations.end()));
-    SetRestState(REST_TYPE_XP, (GetSession()->IsARecruiter() || GetSession()->GetRecruiterId() != 0) ? REST_STATE_RAF_LINKED : REST_STATE_NOT_RAF_LINKED);
-    SetRestState(REST_TYPE_HONOR, REST_STATE_NOT_RAF_LINKED);
+    SetRestState(REST_TYPE_XP, (GetSession()->IsARecruiter() || GetSession()->GetRecruiterId() != 0) ? REST_STATE_RAF_LINKED : REST_STATE_NORMAL);
+    SetRestState(REST_TYPE_HONOR, REST_STATE_NORMAL);
     SetNativeGender(Gender(createInfo->Sex));
     SetInventorySlotCount(INVENTORY_DEFAULT_SIZE);
 
@@ -7999,7 +7999,7 @@ void Player::ApplyItemObtainSpells(Item* item, bool apply)
         if (apply)
         {
             if (!HasAura(spellId))
-                CastSpell(this, spellId, item);
+                CastSpell(this, spellId, CastSpellExtraArgs().SetCastItem(item));
         }
         else
             RemoveAurasDueToSpell(spellId);
@@ -14082,11 +14082,16 @@ uint32 Player::GetDefaultGossipMenuForSource(WorldObject* source)
 
 int32 Player::GetQuestMinLevel(Quest const* quest) const
 {
-    if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(quest->GetContentTuningId(), m_playerData->CtrOptions->ContentTuningConditionMask))
+    return GetQuestMinLevel(quest->GetContentTuningId());
+}
+
+int32 Player::GetQuestMinLevel(uint32 contentTuningId) const
+{
+    if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(contentTuningId, m_playerData->CtrOptions->ContentTuningConditionMask))
     {
         ChrRacesEntry const* race = sChrRacesStore.AssertEntry(GetRace());
         FactionTemplateEntry const* raceFaction = sFactionTemplateStore.AssertEntry(race->FactionID);
-        int32 questFactionGroup = sContentTuningStore.AssertEntry(quest->GetContentTuningId())->GetScalingFactionGroup();
+        int32 questFactionGroup = sContentTuningStore.AssertEntry(contentTuningId)->GetScalingFactionGroup();
         if (questFactionGroup && raceFaction->FactionGroup != questFactionGroup)
             return questLevels->MaxLevel;
 
@@ -14101,9 +14106,14 @@ int32 Player::GetQuestLevel(Quest const* quest) const
     if (!quest)
         return 0;
 
-    if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(quest->GetContentTuningId(), m_playerData->CtrOptions->ContentTuningConditionMask))
+    return GetQuestLevel(quest->GetContentTuningId());
+}
+
+int32 Player::GetQuestLevel(uint32 contentTuningId) const
+{
+    if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(contentTuningId, m_playerData->CtrOptions->ContentTuningConditionMask))
     {
-        int32 minLevel = GetQuestMinLevel(quest);
+        int32 minLevel = GetQuestMinLevel(contentTuningId);
         int32 maxLevel = questLevels->MaxLevel;
         int32 level = GetLevel();
         if (level >= minLevel)
