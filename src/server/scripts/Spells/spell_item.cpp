@@ -5104,6 +5104,62 @@ class spell_item_blaze_of_life : public SpellScript
     }
 };
 
+enum ItemObsidianArmor
+{
+    SPELL_FIRE_RESISTANCE       = 27533,
+    SPELL_ARCANCE_RESISTANCE    = 27540,
+    SPELL_NATURE_RESISTANCE     = 27538,
+    SPELL_HOLY_RESISTANCE       = 27536,
+    SPELL_SHADOW_RESISTANCE     = 27535,
+    SPELL_FROST_RESISTANCE      = 27534,
+
+};
+
+static std::array<uint32 /*spellId*/, MAX_SPELL_SCHOOL> const ResistanceSpellsBySchool =
+{
+    0,                          // SPELL_SCHOOL_NORMAL - no shield
+    SPELL_HOLY_RESISTANCE,      // SPELL_SCHOOL_HOLY
+    SPELL_FIRE_RESISTANCE,      // SPELL_SCHOOL_FIRE
+    SPELL_NATURE_RESISTANCE,    // SPELL_SCHOOL_NATURE
+    SPELL_FROST_RESISTANCE,     // SPELL_SCHOOL_FROST
+    SPELL_SHADOW_RESISTANCE,    // SPELL_SCHOOL_SHADOW
+    SPELL_ARCANCE_RESISTANCE    // SPELL_SCHOOL_ARCANE
+};
+
+// 27539 - Obsidian Armor
+class spell_item_obsidian_armor : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_HOLY_RESISTANCE,
+                SPELL_FIRE_RESISTANCE,
+                SPELL_NATURE_RESISTANCE,
+                SPELL_FROST_RESISTANCE,
+                SPELL_SHADOW_RESISTANCE,
+                SPELL_ARCANCE_RESISTANCE
+            });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+
+        // There are spells which have multiple schools (Frostfire Bolt for example). So we proc multiple shields
+        for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
+        {
+            if ((eventInfo.GetSpellInfo()->GetSchoolMask() & (1 << i)) != 0)
+                GetTarget()->CastSpell(GetTarget(), ResistanceSpellsBySchool[i], aurEff);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectProc.Register(&spell_item_obsidian_armor::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -5240,4 +5296,5 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_jom_gabbar);
     RegisterSpellScript(spell_item_satisfied);
     RegisterSpellScript(spell_item_blaze_of_life);
+    RegisterSpellScript(spell_item_obsidian_armor);
 }
