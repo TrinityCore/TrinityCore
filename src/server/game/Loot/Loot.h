@@ -209,15 +209,8 @@ class LootValidatorRefManager : public RefManager<Loot, LootValidatorRef>
 
 //=====================================================
 
-struct LootView;
-
-ByteBuffer& operator<<(ByteBuffer& b, LootItem const& li);
-ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv);
-
 struct TC_GAME_API Loot
 {
-    friend ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv);
-
     NotNormalLootItemMap const& GetPlayerQuestItems() const { return PlayerQuestItems; }
     NotNormalLootItemMap const& GetPlayerFFAItems() const { return PlayerFFAItems; }
     NotNormalLootItemMap const& GetPlayerNonQuestNonFFAConditionalItems() const { return PlayerNonQuestNonFFAConditionalItems; }
