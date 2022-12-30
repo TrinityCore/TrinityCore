@@ -10913,7 +10913,7 @@ void Unit::SetControlled(bool apply, UnitState state)
         switch (state)
         {
             case UNIT_STATE_STUNNED:
-                if (HasAuraType(SPELL_AURA_MOD_STUN))
+                if (HasAuraType(SPELL_AURA_MOD_STUN) || HasAuraType(SPELL_AURA_MOD_STUN_DISABLE_GRAVITY))
                     return;
 
                 ClearUnitState(state);
@@ -10952,7 +10952,7 @@ void Unit::SetControlled(bool apply, UnitState state)
 void Unit::ApplyControlStatesIfNeeded()
 {
     // Unit States might have been already cleared but auras still present. I need to check with HasAuraType
-    if (HasUnitState(UNIT_STATE_STUNNED) || HasAuraType(SPELL_AURA_MOD_STUN))
+    if (HasUnitState(UNIT_STATE_STUNNED) || HasAuraType(SPELL_AURA_MOD_STUN) || HasAuraType(SPELL_AURA_MOD_STUN_DISABLE_GRAVITY))
         SetStunned(true);
 
     if (HasUnitState(UNIT_STATE_ROOT) || HasAuraType(SPELL_AURA_MOD_ROOT) || HasAuraType(SPELL_AURA_MOD_ROOT_2))
