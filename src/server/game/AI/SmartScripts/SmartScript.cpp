@@ -32,6 +32,7 @@
 #include "Log.h"
 #include "Map.h"
 #include "MotionMaster.h"
+#include "MovementTypedefs.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "PhasingHandler.h"
@@ -1850,9 +1851,29 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_JUMP_TO_POS:
         {
-            for (WorldObject* target : targets)
-                if (Creature* creature = target->ToCreature())
-                    creature->GetMotionMaster()->MoveJump(e.target.x, e.target.y, e.target.z, 0.0f, float(e.action.jump.speedxy), float(e.action.jump.speedz)); // @todo add optional jump orientation support?
+            WorldObject* target = nullptr;
+
+            if (!targets.empty())
+                target = Trinity::Containers::SelectRandomContainerElement(targets);
+
+            Position pos(e.target.x, e.target.y, e.target.z);
+            if (target)
+            {
+                float x, y, z;
+                target->GetPosition(x, y, z);
+                if (e.action.jump.ContactDistance > 0)
+                    target->GetContactPoint(me, x, y, z, e.action.jump.ContactDistance);
+                pos = Position(x + e.target.x, y + e.target.y, z + e.target.z);
+            }
+
+            if (e.action.jump.Gravity || e.action.jump.UseDefaultGravity)
+            {
+                float gravity = e.action.jump.UseDefaultGravity ? Movement::gravity : e.action.jump.Gravity;
+                me->GetMotionMaster()->MoveJumpWithGravity(pos, float(e.action.jump.SpeedXY), gravity, e.action.jump.PointId);
+            }
+            else
+                me->GetMotionMaster()->MoveJump(pos, float(e.action.jump.SpeedXY), float(e.action.jump.SpeedZ), e.action.jump.PointId);
+
             break;
         }
         case SMART_ACTION_GO_SET_LOOT_STATE:
