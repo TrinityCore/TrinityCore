@@ -33,7 +33,7 @@ typedef uint32 SAIBool;
 enum eSmartAI
 {
     SMART_EVENT_PARAM_COUNT = 4,
-    SMART_ACTION_PARAM_COUNT = 6,
+    SMART_ACTION_PARAM_COUNT = 7,
     SMART_SUMMON_COUNTER = 0xFFFFFF,
     SMART_ESCORT_LAST_OOC_POINT = 0xFFFFFF,
     SMART_RANDOM_POINT = 0xFFFFFE,
@@ -1247,6 +1247,7 @@ struct SmartAction
             uint32 param4;
             uint32 param5;
             uint32 param6;
+            uint32 param7;
         } raw;
     };
 };
