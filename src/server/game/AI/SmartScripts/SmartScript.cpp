@@ -32,7 +32,7 @@
 #include "Log.h"
 #include "Map.h"
 #include "MotionMaster.h"
-#include <MovementTypedefs.h>
+#include "MovementTypedefs.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "PhasingHandler.h"
