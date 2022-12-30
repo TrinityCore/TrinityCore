@@ -63,25 +63,23 @@ void RestMgr::SetRestBonus(RestTypes restType, float restBonus)
     if (restBonus > rest_bonus_max)
         restBonus = rest_bonus_max;
 
+    uint32 oldBonus = uint32(_restBonus[restType]);
     _restBonus[restType] = restBonus;
 
-    uint32 oldBonus = uint32(_restBonus[restType]);
-    if (oldBonus == uint32(restBonus))
+    PlayerRestState oldRestState = static_cast<PlayerRestState>(*_player->m_activePlayerData->RestInfo[restType].StateID);
+    PlayerRestState newRestState = REST_STATE_NORMAL;
+
+    if (affectedByRaF && _player->GetsRecruitAFriendBonus(true) && (_player->GetSession()->IsARecruiter() || _player->GetSession()->GetRecruiterId() != 0))
+        newRestState = REST_STATE_RAF_LINKED;
+    else if (_restBonus[restType] >= 1)
+        newRestState = REST_STATE_RESTED;
+
+    if (oldBonus == uint32(restBonus) && oldRestState == newRestState)
         return;
 
     // update data for client
-    if (affectedByRaF && _player->GetsRecruitAFriendBonus(true) && (_player->GetSession()->IsARecruiter() || _player->GetSession()->GetRecruiterId() != 0))
-        _player->SetRestState(restType, REST_STATE_RAF_LINKED);
-    else
-    {
-        if (_restBonus[restType] > 10)
-            _player->SetRestState(restType, REST_STATE_RESTED);
-        else if (_restBonus[restType] <= 1)
-            _player->SetRestState(restType, REST_STATE_NOT_RAF_LINKED);
-    }
-
-    // RestTickUpdate
     _player->SetRestThreshold(restType, uint32(_restBonus[restType]));
+    _player->SetRestState(restType, newRestState);
 }
 
 void RestMgr::AddRestBonus(RestTypes restType, float restBonus)
