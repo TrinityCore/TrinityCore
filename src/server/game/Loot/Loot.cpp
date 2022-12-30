@@ -288,10 +288,6 @@ void Loot::FillNotNormalLootFor(Player* player, bool presentAtLooting)
     qmapitr = PlayerNonQuestNonFFAConditionalItems.find(plguid);
     if (qmapitr == PlayerNonQuestNonFFAConditionalItems.end())
         FillNonQuestNonFFAConditionalLoot(player, presentAtLooting);
-
-    // if not auto-processed player will have to come and pick it up manually
-    if (!presentAtLooting)
-        return;
 }
 
 NotNormalLootItemList* Loot::FillFFALoot(Player* player)
