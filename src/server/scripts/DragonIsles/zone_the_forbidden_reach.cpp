@@ -18,12 +18,11 @@
 #include "ScriptMgr.h"
 #include "Containers.h"
 #include "Player.h"
-#include "Random.h"
 #include "Spell.h"
 #include "SpellScript.h"
 #include "Log.h"
 
-enum TheWarCreche
+enum DracthyrLoginSpells
 {
 	// Spells
 	SPELL_DRACTHYR_LOGIN 			= 369728, // teleports to random room, plays scene for the room, binds the home position
@@ -35,34 +34,32 @@ enum TheWarCreche
 	SPELL_DRACTHYR_MOVIE_ROOM_02	= 394279, // scene for room 2
 	SPELL_DRACTHYR_MOVIE_ROOM_03	= 394281, // scene for room 3
 	SPELL_DRACTHYR_MOVIE_ROOM_04	= 394282, // scene for room 4
-    //SPELL_DRACTHYR_MOVIE_ROOM_05	= 394283, // scene for room 5 (only plays sound)
+    //SPELL_DRACTHYR_MOVIE_ROOM_05	= 394283, // scene for room 5 (only plays sound, unused?)
 };
 
-std::array<std::pair<uint32, Position>, 4> roomData =
+std::array<std::pair<uint32, Position>, 4> LoginRoomData =
 {
     {
-        //{SPELL_DRACTHYR_MOVIE_ROOM_01, Position(5725.32f, -3024.26f, 251.047f, 0.01745329238474369f)},
-        //{SPELL_DRACTHYR_MOVIE_ROOM_02, Position(5743.03f, -3067.28f, 251.047f, 0.798488140106201171f)},
-        {SPELL_DRACTHYR_MOVIE_ROOM_03, Position(5787.1597f, -3083.3906f, 251.04698f, 1.570796370506286621f)},
-        {SPELL_DRACTHYR_MOVIE_ROOM_04, Position(5829.32f, -3064.49f, 251.047f, 2.364955902099609375f)}
+        { SPELL_DRACTHYR_MOVIE_ROOM_01, { 5725.32f, -3024.26f, 251.047f, 0.01745329238474369f } },
+        { SPELL_DRACTHYR_MOVIE_ROOM_02, { 5743.03f, -3067.28f, 251.047f, 0.798488140106201171f } },
+        { SPELL_DRACTHYR_MOVIE_ROOM_03, { 5787.1597f, -3083.3906f, 251.04698f, 1.570796370506286621f } },
+        { SPELL_DRACTHYR_MOVIE_ROOM_04, { 5829.32f, -3064.49f, 251.047f, 2.364955902099609375f } }
     }
 };
 
-/*######
-## 369728 - Dracthyr Login
-######*/
+// 369728 - Dracthyr Login
 class spell_dracthyr_login : public SpellScript
 {
     PrepareSpellScript(spell_dracthyr_login);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DRACTHYR_LOGIN });
+        return ValidateSpellInfo({ SPELL_DRACTHYR_MOVIE_ROOM_01, SPELL_DRACTHYR_MOVIE_ROOM_02, SPELL_DRACTHYR_MOVIE_ROOM_03, SPELL_DRACTHYR_MOVIE_ROOM_04 });
     }
 
-    void HandleTeleport(SpellEffIndex effIndex)
+    void HandleTeleport(SpellEffIndex /*effIndex*/)
     {
-        std::pair<uint32, Position> const& room = Trinity::Containers::SelectRandomContainerElement(roomData);
+        std::pair<uint32, Position> const& room = Trinity::Containers::SelectRandomContainerElement(LoginRoomData);
 
         WorldLocation dest = GetHitUnit()->GetWorldLocation();
         SetExplTargetDest(dest);
@@ -78,9 +75,7 @@ class spell_dracthyr_login : public SpellScript
     }
 };
 
-/*######
-## 3730 - Dracthyr Evoker Intro (Post Movie)
-######*/
+// 3730 - Dracthyr Evoker Intro (Post Movie)
 class scene_dracthyr_evoker_intro : public SceneScript
 {
 public:
@@ -97,11 +92,7 @@ public:
     }
 };
 
-/*######
-## AddSC
-######*/
-
-void AddSC_the_war_creche()
+void AddSC_zone_the_forbidden_reach()
 {
     RegisterSpellScript(spell_dracthyr_login);
     new scene_dracthyr_evoker_intro();
