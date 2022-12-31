@@ -1917,6 +1917,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void ProcessDelayedOperations();
 
         void CheckAreaExploreAndOutdoor(void);
+        void SetAreaExplored(uint32 areaId);
 
         static uint32 TeamForRace(uint8 race);
         uint32 GetTeam() const { return m_team; }
