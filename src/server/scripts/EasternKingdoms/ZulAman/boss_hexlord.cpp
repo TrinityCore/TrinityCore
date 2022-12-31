@@ -710,7 +710,7 @@ class boss_gazakroth : public CreatureScript
                 if (firebolt_timer <= diff)
                 {
                     DoCastVictim(SPELL_FIREBOLT, false);
-                    firebolt_timer = 0.7 * IN_MILLISECONDS;
+                    firebolt_timer = 700;
                 }
                 else
                     firebolt_timer -= diff;

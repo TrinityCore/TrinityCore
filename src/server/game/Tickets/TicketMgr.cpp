@@ -30,7 +30,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
-inline float GetAge(uint64 t) { return float(GameTime::GetGameTime() - t) / DAY; }
+inline float GetAge(uint64 t) { return float(GameTime::GetGameTime() - t) / float(DAY); }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // GM ticket

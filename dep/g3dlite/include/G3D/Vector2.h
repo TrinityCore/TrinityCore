@@ -19,19 +19,20 @@
 
 #include "G3D/platform.h"
 #include "G3D/g3dmath.h"
-#include "G3D/Table.h"
 #include "G3D/HashTrait.h"
 #include "G3D/Vector2int16.h"
 #include "G3D/Vector2unorm16.h"
-#include "G3D/Random.h"
 
 namespace G3D {
 
+class Random;
 class Vector2;    
 class Vector3;
 class Vector4;
 class Vector2int32;
 class Any;
+
+Random& commonRandom();
 
 /**
  Do not subclass-- this implementation makes assumptions about the
@@ -210,7 +211,7 @@ public:
     }
 
     /** Uniformly distributed random vector on the unit sphere */
-    static Vector2 random(Random& r = Random::common());
+    static Vector2 random(Random& r = commonRandom());
 
     // Special values.
     // Intentionally not inlined: see Matrix3::identity() for details.

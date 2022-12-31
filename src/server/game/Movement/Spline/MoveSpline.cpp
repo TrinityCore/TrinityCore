@@ -220,14 +220,11 @@ bool MoveSplineInitArgs::_checkPathBounds() const
 {
     if (!(flags & MoveSplineFlag::Mask_CatmullRom) && path.size() > 2)
     {
-        enum{
-            MAX_OFFSET = (1 << 11) / 2
-        };
+        constexpr float MAX_OFFSET = float((1 << 11) / 2);
         Vector3 middle = (path.front()+path.back()) / 2;
-        Vector3 offset;
         for (uint32 i = 1; i < path.size()-1; ++i)
         {
-            offset = path[i] - middle;
+            Vector3 offset = path[i] - middle;
             if (std::fabs(offset.x) >= MAX_OFFSET || std::fabs(offset.y) >= MAX_OFFSET || std::fabs(offset.z) >= MAX_OFFSET)
             {
                 TC_LOG_ERROR("misc", "MoveSplineInitArgs::_checkPathBounds check failed");

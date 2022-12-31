@@ -1258,7 +1258,7 @@ void Guild::HandleRoster(WorldSession* session)
         memberData.Guid = member.GetGUID();
         memberData.RankID = int32(member.GetRankId());
         memberData.AreaID = int32(member.GetZoneId());
-        memberData.LastSave = float(float(GameTime::GetGameTime() - member.GetLogoutTime()) / DAY);
+        memberData.LastSave = float(float(GameTime::GetGameTime() - member.GetLogoutTime()) / float(DAY));
 
         memberData.Status = member.GetFlags();
         memberData.Level = member.GetLevel();
