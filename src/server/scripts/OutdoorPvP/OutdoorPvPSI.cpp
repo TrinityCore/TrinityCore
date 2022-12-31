@@ -19,6 +19,7 @@
 #include "DBCStores.h"
 #include "GameObject.h"
 #include "Language.h"
+#include "Map.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
