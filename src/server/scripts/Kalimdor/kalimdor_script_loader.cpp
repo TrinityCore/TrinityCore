@@ -146,6 +146,7 @@ void AddSC_mulgore();
 void AddSC_silithus();
 void AddSC_tanaris();
 void AddSC_northern_barrens();
+void AddSC_southern_barrens();
 void AddSC_thunder_bluff();
 void AddSC_ungoro_crater();
 void AddSC_winterspring();
@@ -285,6 +286,7 @@ void AddKalimdorScripts()
     AddSC_silithus();
     AddSC_tanaris();
     AddSC_northern_barrens();
+    AddSC_southern_barrens();
     AddSC_thunder_bluff();
     AddSC_ungoro_crater();
     AddSC_winterspring();
