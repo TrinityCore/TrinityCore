@@ -15,17 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: The_Barrens
-SD%Complete: 90
-SDComment: Quest support: 863
-SDCategory: Barrens
-EndScriptData */
-
-/* ContentData
-npc_wizzlecrank_shredder
-EndContentData */
-
 #include "ScriptMgr.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -657,7 +646,7 @@ public:
 
 };
 
-void AddSC_the_barrens()
+void AddSC_northern_barrens()
 {
     new npc_wizzlecrank_shredder();
 }
