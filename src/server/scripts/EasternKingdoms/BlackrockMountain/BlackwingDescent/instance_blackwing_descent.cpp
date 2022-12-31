@@ -19,6 +19,7 @@
 #include "Creature.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "MapManager.h"
 #include "Transport.h"
 #include "EventMap.h"
