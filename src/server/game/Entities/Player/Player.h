@@ -675,6 +675,14 @@ enum TransferAbortReason
     TRANSFER_ABORT_ALREADY_COMPLETED_ENCOUNTER  = 0x13         // 4.2.2
 };
 
+enum class TransferAbortedUniqueMessageArgs : uint8
+{
+    None                                        = 0,
+    StillWithinTheLichKingsGrasp                = 1,
+    DestinyOfTheBilgewaterCartelStillUndecided  = 2,
+    FateOfGilneasHasNotBeenDecidedYet           = 3
+};
+
 enum InstanceResetWarningType
 {
     RAID_INSTANCE_WARNING_HOURS     = 1,                    // WARNING! %s is scheduled to reset in %d hour(s).

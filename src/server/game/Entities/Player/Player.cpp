@@ -1525,10 +1525,23 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     }
     else
     {
-        if (getClass() == CLASS_DEATH_KNIGHT && GetMapId() == 609 && !IsGameMaster() && !HasSpell(50977))
+        if (!IsGameMaster())
         {
-            SendTransferAborted(mapid, TRANSFER_ABORT_UNIQUE_MESSAGE, 1);
-            return false;
+            if (getClass() == CLASS_DEATH_KNIGHT && GetMapId() == 609 && !HasSpell(50977))
+            {
+                SendTransferAborted(mapid, TRANSFER_ABORT_UNIQUE_MESSAGE, AsUnderlyingType(TransferAbortedUniqueMessageArgs::StillWithinTheLichKingsGrasp));
+                return false;
+            }
+            else if (getRace() == RACE_GOBLIN && GetMapId() == 648 && GetQuestStatus(25265) != QUEST_STATUS_REWARDED)
+            {
+                SendTransferAborted(mapid, TRANSFER_ABORT_UNIQUE_MESSAGE, AsUnderlyingType(TransferAbortedUniqueMessageArgs::DestinyOfTheBilgewaterCartelStillUndecided));
+                return false;
+            }
+            else if (getRace() == RACE_WORGEN && GetMapId() == 654 && GetQuestStatus(26706) != QUEST_STATUS_REWARDED)
+            {
+                SendTransferAborted(mapid, TRANSFER_ABORT_UNIQUE_MESSAGE, AsUnderlyingType(TransferAbortedUniqueMessageArgs::FateOfGilneasHasNotBeenDecidedYet));
+                return false;
+            }
         }
 
         // far teleport to another map
