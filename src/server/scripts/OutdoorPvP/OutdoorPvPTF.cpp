@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
+#include "Map.h"
 #include "MapManager.h"
 #include "ObjectAccessor.h"
 #include "OutdoorPvP.h"
