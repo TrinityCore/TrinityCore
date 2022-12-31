@@ -21808,6 +21808,26 @@ void Player::LeaveAllArenaTeams(ObjectGuid guid)
     }
 }
 
+uint32 Player::GetArenaPersonalRating(uint8 slot) const
+{
+    if (UF::PVPInfo const* pvpInfo = GetPvpInfoForBracket(slot))
+        return pvpInfo->Rating;
+
+    return 0;
+}
+
+UF::PVPInfo const* Player::GetPvpInfoForBracket(int8 bracket) const
+{
+    int32 index = m_activePlayerData->PvpInfo.FindIndexIf([bracket](UF::PVPInfo const& pvpInfo)
+    {
+        return pvpInfo.Bracket == bracket && !*pvpInfo.Disqualified;
+    });
+    if (index >= 0)
+        return &m_activePlayerData->PvpInfo[index];
+
+    return nullptr;
+}
+
 bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc /*= nullptr*/, uint32 spellid /*= 0*/, uint32 preferredMountDisplay /*= 0*/)
 {
     if (nodes.size() < 2)
