@@ -361,7 +361,7 @@ void PhasingHandler::OnAreaChange(WorldObject* object)
     UpdateVisibilityIfNeeded(object, true, changed);
 }
 
-void PhasingHandler::OnConditionChange(WorldObject* object, bool updateVisibility /*= true*/)
+bool PhasingHandler::OnConditionChange(WorldObject* object, bool updateVisibility /*= true*/)
 {
     PhaseShift& phaseShift = object->GetPhaseShift();
     PhaseShift& suppressedPhaseShift = object->GetSuppressedPhaseShift();

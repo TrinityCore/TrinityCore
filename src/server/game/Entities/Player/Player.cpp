@@ -14962,7 +14962,7 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
 
     SendQuestGiverStatusMultiple();
 
-    SendQuestUpdate(quest_id, false);
+    bool conditionChanged = SendQuestUpdate(quest_id, false);
 
     //lets remove flag for delayed teleports
     SetCanDelayTeleport(false);
@@ -15022,7 +15022,8 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
     sScriptMgr->OnQuestStatusChange(this, quest_id);
     sScriptMgr->OnQuestStatusChange(this, quest, oldStatus, QUEST_STATUS_REWARDED);
 
-    UpdateObjectVisibility();
+    if (conditionChanged)
+        UpdateObjectVisibility();
 }
 
 void Player::SetRewardedQuest(uint32 quest_id)
@@ -15713,7 +15714,7 @@ void Player::RemoveRewardedQuest(uint32 questId, bool update /*= true*/)
         SendQuestUpdate(questId);
 }
 
-void Player::SendQuestUpdate(uint32 questId, bool updateVisiblity /*= true*/)
+bool Player::SendQuestUpdate(uint32 questId, bool updateVisiblity /*= true*/)
 {
     SpellAreaForQuestMapBounds saBounds = sSpellMgr->GetSpellAreaForQuestMapBounds(questId);
 
@@ -15762,7 +15763,7 @@ void Player::SendQuestUpdate(uint32 questId, bool updateVisiblity /*= true*/)
     }
 
     UpdateVisibleGameobjectsOrSpellClicks();
-    PhasingHandler::OnConditionChange(this, updateVisiblity);
+    return PhasingHandler::OnConditionChange(this, updateVisiblity);
 }
 
 QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)
