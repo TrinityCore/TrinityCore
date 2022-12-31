@@ -981,7 +981,7 @@ private:
         // the module which prevents it from unloading.
         // The module will be unloaded once all scripts provided from the module
         // are destroyed.
-        if (!ref->second.first.unique())
+        if (ref->second.first.use_count() != 1)
         {
             TC_LOG_INFO("scripts.hotswap",
                 "Script module %s is still used by %lu spell, aura or instance scripts. "
@@ -1564,7 +1564,7 @@ void SourceUpdateListener::handleFileAction(efsw::WatchID watchid, std::string c
         return;
     }
 
-    auto const path = fs::absolute(
+    fs::path path = fs::absolute(
         filename,
         dir);
 
@@ -1573,7 +1573,7 @@ void SourceUpdateListener::handleFileAction(efsw::WatchID watchid, std::string c
         return;
 
     /// Thread safe part
-    sScriptReloadMgr->QueueMessage([=](HotSwapScriptReloadMgr* reloader)
+    sScriptReloadMgr->QueueMessage([=, this, path = std::move(path)](HotSwapScriptReloadMgr* reloader)
     {
         TC_LOG_TRACE("scripts.hotswap", "Detected source change on module \"%s\", "
             "queued for recompilation...", script_module_name_.c_str());

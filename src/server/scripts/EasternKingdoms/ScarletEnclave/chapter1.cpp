@@ -477,7 +477,7 @@ struct npc_eye_of_acherus : public ScriptedAI
                     break;
                 case EVENT_LAUNCH_TOWARDS_DESTINATION:
                 {
-                    std::function<void(Movement::MoveSplineInit&)> initializer = [=](Movement::MoveSplineInit& init)
+                    std::function<void(Movement::MoveSplineInit&)> initializer = [=, me = me](Movement::MoveSplineInit& init)
                     {
                         Movement::PointsArray path(EyeOfAcherusPath, EyeOfAcherusPath + EyeOfAcherusPathSize);
                         init.MovebyPath(path);

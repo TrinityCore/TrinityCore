@@ -3757,8 +3757,7 @@ void AuraEffect::HandleAuraModMaxPower(AuraApplication const* aurApp, uint8 mode
 
     Unit* target = aurApp->GetTarget();
 
-    Powers power = Powers(GetMiscValue());
-    UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + power);
+    UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + GetMiscValue());
 
     target->HandleStatFlatModifier(unitMod, TOTAL_VALUE, float(GetAmount()), apply);
 }
@@ -3844,8 +3843,7 @@ void AuraEffect::HandleAuraModIncreaseEnergy(AuraApplication const* aurApp, uint
         return;
 
     Unit* target = aurApp->GetTarget();
-    Powers powerType = Powers(GetMiscValue());
-    UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + powerType);
+    UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + GetMiscValue());
 
     target->HandleStatFlatModifier(unitMod, TOTAL_VALUE, float(GetAmount()), apply);
 }
@@ -3858,7 +3856,7 @@ void AuraEffect::HandleAuraModIncreaseEnergyPercent(AuraApplication const* aurAp
     Unit* target = aurApp->GetTarget();
 
     Powers powerType = Powers(GetMiscValue());
-    UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + powerType);
+    UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + GetMiscValue());
 
     // Save old powers for further calculation
     int32 oldPower = target->GetPower(powerType);
@@ -4003,7 +4001,7 @@ void AuraEffect::HandleAuraModMaxPowerPct(AuraApplication const* aurApp, uint8 m
         return;
 
     Powers powerType = Powers(GetMiscValue());
-    UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + powerType);
+    UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + GetMiscValue());
 
     // Save old powers for further calculation
     int32 oldPower = target->GetPower(powerType);

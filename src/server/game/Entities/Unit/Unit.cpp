@@ -4924,7 +4924,7 @@ void Unit::UpdateStatBuffMod(Stats stat)
     float modNeg = 0.0f;
     float factor = 0.0f;
 
-    UnitMods const unitMod = static_cast<UnitMods>(UNIT_MOD_STAT_START + stat);
+    UnitMods const unitMod = static_cast<UnitMods>(UNIT_MOD_STAT_START + AsUnderlyingType(stat));
 
     // includes value from items and enchantments
     float modValue = GetFlatModifierValue(unitMod, BASE_VALUE);
@@ -8903,7 +8903,7 @@ void Unit::UpdateAllDamagePctDoneMods()
 
 float Unit::GetTotalStatValue(Stats stat) const
 {
-    UnitMods unitMod = UnitMods(UNIT_MOD_STAT_START + stat);
+    UnitMods unitMod = UnitMods(UNIT_MOD_STAT_START + AsUnderlyingType(stat));
 
     // value = ((base_value * base_pct) + total_value) * total_pct
     float value = CalculatePct(GetFlatModifierValue(unitMod, BASE_VALUE), std::max(GetFlatModifierValue(unitMod, BASE_PCT_EXCLUDE_CREATE), -100.0f));
@@ -12190,7 +12190,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
         }
     }
 
-    std::function<void(Movement::MoveSplineInit&)> initializer = [=, vehicleCollisionHeight = vehicle->GetBase()->GetCollisionHeight()](Movement::MoveSplineInit& init)
+    std::function<void(Movement::MoveSplineInit&)> initializer = [=, this, vehicleCollisionHeight = vehicle->GetBase()->GetCollisionHeight()](Movement::MoveSplineInit& init)
     {
         float height = pos.GetPositionZ() + vehicleCollisionHeight;
 

@@ -8240,7 +8240,7 @@ void Player::ApplyArtifactPowerRank(Item* artifact, ArtifactPowerRankEntry const
             args.SetCastItem(artifact);
             if (artifactPowerRank->AuraPointsOverride)
                 for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
-                    args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + spellEffectInfo.EffectIndex), artifactPowerRank->AuraPointsOverride);
+                    args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + AsUnderlyingType(spellEffectInfo.EffectIndex)), artifactPowerRank->AuraPointsOverride);
 
             CastSpell(this, artifactPowerRank->SpellID, args);
         }
@@ -8541,7 +8541,7 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
 
                     for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
                         if (spellEffectInfo.IsEffect())
-                            args.AddSpellMod(static_cast<SpellValueMod>(SPELLVALUE_BASE_POINT0 + spellEffectInfo.EffectIndex), CalculatePct(spellEffectInfo.CalcValue(this), effectPct));
+                            args.AddSpellMod(static_cast<SpellValueMod>(SPELLVALUE_BASE_POINT0 + AsUnderlyingType(spellEffectInfo.EffectIndex)), CalculatePct(spellEffectInfo.CalcValue(this), effectPct));
                 }
                 CastSpell(target, spellInfo->Id, args);
             }
@@ -27190,10 +27190,12 @@ void Player::StartLoadingActionButtons(std::function<void()>&& callback /*= null
         // safe callback, we can't pass this pointer directly
         // in case player logs out before db response (player would be deleted in that case)
         if (Player* thisPlayer = mySess->GetPlayer(); thisPlayer && thisPlayer->GetGUID() == myGuid)
+        {
             thisPlayer->LoadActions(result);
 
-        if (callback)
-            callback();
+            if (callback)
+                callback();
+        }
     }));
 }
 
@@ -27292,7 +27294,7 @@ void Player::UpdateTraitConfig(WorldPackets::Traits::TraitConfig&& newConfig, in
             break;
     }
 
-    std::function<void()> finalizeTraitConfigUpdate = [=, newConfig = std::move(newConfig)]()
+    std::function<void()> finalizeTraitConfigUpdate = [=, this, newConfig = std::move(newConfig)]()
     {
         SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData)
             .ModifyValue(&UF::ActivePlayerData::TraitConfigs, index)

@@ -307,12 +307,12 @@ class npc_chromie_start : public CreatureScript
                 {
                     InitGossipMenuFor(player, GOSSIP_MENU_INITIAL);
                     if (player->CanBeGameMaster()) // GM instance state override menu
-                        AddGossipItemFor(player, GossipOptionNpc::None, "[GM] Access instance control panel", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + GOSSIP_OFFSET_OPEN_GM_MENU);
+                        AddGossipItemFor(player, GossipOptionNpc::None, "[GM] Access instance control panel", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + AsUnderlyingType(GOSSIP_OFFSET_OPEN_GM_MENU));
 
                     uint32 state = instance->GetData(DATA_INSTANCE_PROGRESS);
                     if (state < PURGE_STARTING)
                     {
-                        AddGossipItemFor(player, GOSSIP_MENU_INITIAL, GOSSIP_OPTION_EXPLAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + GOSSIP_OFFSET_EXPLAIN);
+                        AddGossipItemFor(player, GOSSIP_MENU_INITIAL, GOSSIP_OPTION_EXPLAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + AsUnderlyingType(GOSSIP_OFFSET_EXPLAIN));
                         {
                             bool shouldAddSkipGossip = true;
                             Map::PlayerList const& players = instance->instance->GetPlayers();
@@ -330,13 +330,13 @@ class npc_chromie_start : public CreatureScript
                                 }
                             }
                             if (shouldAddSkipGossip)
-                                AddGossipItemFor(player, GOSSIP_MENU_INITIAL, GOSSIP_OPTION_SKIP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + GOSSIP_OFFSET_SKIP);
+                                AddGossipItemFor(player, GOSSIP_MENU_INITIAL, GOSSIP_OPTION_SKIP, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + AsUnderlyingType(GOSSIP_OFFSET_SKIP));
                         }
                         SendGossipMenuFor(player, GOSSIP_TEXT_INITIAL, me->GetGUID());
                     }
                     else
                     {
-                        AddGossipItemFor(player, GOSSIP_MENU_INITIAL, GOSSIP_OPTION_TELEPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + GOSSIP_OFFSET_TELEPORT);
+                        AddGossipItemFor(player, GOSSIP_MENU_INITIAL, GOSSIP_OPTION_TELEPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + AsUnderlyingType(GOSSIP_OFFSET_TELEPORT));
                         SendGossipMenuFor(player, GOSSIP_TEXT_TELEPORT, me->GetGUID());
                     }
                 }
@@ -353,12 +353,12 @@ class npc_chromie_start : public CreatureScript
                 {
                     case GOSSIP_OFFSET_EXPLAIN:
                         InitGossipMenuFor(player, GOSSIP_MENU_EXPLAIN_1);
-                        AddGossipItemFor(player, GOSSIP_MENU_EXPLAIN_1, GOSSIP_OPTION_EXPLAIN_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + GOSSIP_OFFSET_EXPLAIN_1);
+                        AddGossipItemFor(player, GOSSIP_MENU_EXPLAIN_1, GOSSIP_OPTION_EXPLAIN_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + AsUnderlyingType(GOSSIP_OFFSET_EXPLAIN_1));
                         SendGossipMenuFor(player, GOSSIP_TEXT_EXPLAIN_1, me->GetGUID());
                         break;
                     case GOSSIP_OFFSET_SKIP:
                         InitGossipMenuFor(player, GOSSIP_MENU_SKIP_1);
-                        AddGossipItemFor(player, GOSSIP_MENU_SKIP_1, GOSSIP_OPTION_SKIP_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + GOSSIP_OFFSET_SKIP_1);
+                        AddGossipItemFor(player, GOSSIP_MENU_SKIP_1, GOSSIP_OPTION_SKIP_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + AsUnderlyingType(GOSSIP_OFFSET_SKIP_1));
                         SendGossipMenuFor(player, GOSSIP_TEXT_SKIP_1, me->GetGUID());
                         break;
                     case GOSSIP_OFFSET_SKIP_1:
@@ -370,7 +370,7 @@ class npc_chromie_start : public CreatureScript
                         break;
                     case GOSSIP_OFFSET_EXPLAIN_1:
                         InitGossipMenuFor(player, GOSSIP_MENU_EXPLAIN_2);
-                        AddGossipItemFor(player, GOSSIP_MENU_EXPLAIN_2, GOSSIP_OPTION_EXPLAIN_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + GOSSIP_OFFSET_EXPLAIN_2);
+                        AddGossipItemFor(player, GOSSIP_MENU_EXPLAIN_2, GOSSIP_OPTION_EXPLAIN_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + AsUnderlyingType(GOSSIP_OFFSET_EXPLAIN_2));
                         SendGossipMenuFor(player, GOSSIP_TEXT_EXPLAIN_2, me->GetGUID());
                         break;
                     case GOSSIP_OFFSET_EXPLAIN_2:
@@ -380,16 +380,16 @@ class npc_chromie_start : public CreatureScript
                             me->CastSpell(player, SPELL_SUMMON_ARCANE_DISRUPTOR);
                         break;
                     case GOSSIP_OFFSET_OPEN_GM_MENU:
-                        AddGossipItemFor(player, GossipOptionNpc::None, "Teleport all players to Arthas", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + GOSSIP_OFFSET_GM_INITIAL);
+                        AddGossipItemFor(player, GossipOptionNpc::None, "Teleport all players to Arthas", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + AsUnderlyingType(GOSSIP_OFFSET_GM_INITIAL));
                         for (uint32 state = 1; state <= COMPLETE; state = state << 1)
                         {
                             if (GetStableStateFor(COSProgressStates(state)) == state)
-                                AddGossipItemFor(player, GossipOptionNpc::None, Trinity::StringFormat("Set instance progress to 0x%05X", state), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + GOSSIP_OFFSET_GM_INITIAL + state);
+                                AddGossipItemFor(player, GossipOptionNpc::None, Trinity::StringFormat("Set instance progress to 0x%05X", state), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + AsUnderlyingType(GOSSIP_OFFSET_GM_INITIAL) + state);
                         }
                         for (uint32 state = 1; state <= COMPLETE; state = state << 1)
                         {
                             if (GetStableStateFor(COSProgressStates(state)) != state)
-                                AddGossipItemFor(player, GossipOptionNpc::None, Trinity::StringFormat("Force state to 0x%05X (UNSTABLE)", state), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + GOSSIP_OFFSET_GM_INITIAL + state);
+                                AddGossipItemFor(player, GossipOptionNpc::None, Trinity::StringFormat("Force state to 0x%05X (UNSTABLE)", state), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + AsUnderlyingType(GOSSIP_OFFSET_GM_INITIAL) + state);
                         }
                         SendGossipMenuFor(player, GOSSIP_TEXT_SKIP_1, me->GetGUID());
                         break;
@@ -405,7 +405,7 @@ class npc_chromie_start : public CreatureScript
                         if (!player->CanBeGameMaster())
                             break;
                         if (InstanceScript* instance = me->GetInstanceScript())
-                            instance->SetData(DATA_GM_OVERRIDE, action - GOSSIP_ACTION_INFO_DEF - GOSSIP_OFFSET_GM_INITIAL);
+                            instance->SetData(DATA_GM_OVERRIDE, action - GOSSIP_ACTION_INFO_DEF - AsUnderlyingType(GOSSIP_OFFSET_GM_INITIAL));
                         break;
                 }
                 return false;
@@ -515,7 +515,7 @@ class npc_chromie_middle : public CreatureScript
                     player->PrepareQuestMenu(me->GetGUID());
 
                 if (Instance->GetData(DATA_INSTANCE_PROGRESS) == CRATES_DONE)
-                    AddGossipItemFor(player, GOSSIP_MENU_STEP1, GOSSIP_OPTION_STEP1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + GOSSIP_OFFSET_STEP1);
+                    AddGossipItemFor(player, GOSSIP_MENU_STEP1, GOSSIP_OPTION_STEP1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + AsUnderlyingType(GOSSIP_OFFSET_STEP1));
                 SendGossipMenuFor(player, GOSSIP_TEXT_STEP1, me->GetGUID());
                 return true;
             }
@@ -528,12 +528,12 @@ class npc_chromie_middle : public CreatureScript
                 {
                     case GOSSIP_OFFSET_STEP1:
                         InitGossipMenuFor(player, GOSSIP_MENU_STEP2);
-                        AddGossipItemFor(player, GOSSIP_MENU_STEP2, GOSSIP_OPTION_STEP2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + GOSSIP_OFFSET_STEP2);
+                        AddGossipItemFor(player, GOSSIP_MENU_STEP2, GOSSIP_OPTION_STEP2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + AsUnderlyingType(GOSSIP_OFFSET_STEP2));
                         SendGossipMenuFor(player, GOSSIP_TEXT_STEP2, me->GetGUID());
                         break;
                     case GOSSIP_OFFSET_STEP2:
                         InitGossipMenuFor(player, GOSSIP_MENU_STEP3);
-                        AddGossipItemFor(player, GOSSIP_MENU_STEP3, GOSSIP_OPTION_STEP3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + GOSSIP_OFFSET_STEP3);
+                        AddGossipItemFor(player, GOSSIP_MENU_STEP3, GOSSIP_OPTION_STEP3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + AsUnderlyingType(GOSSIP_OFFSET_STEP3));
                         SendGossipMenuFor(player, GOSSIP_TEXT_STEP3, me->GetGUID());
                         break;
                     case GOSSIP_OFFSET_STEP3:
