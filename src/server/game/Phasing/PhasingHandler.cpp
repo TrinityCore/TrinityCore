@@ -474,6 +474,7 @@ bool PhasingHandler::OnConditionChange(WorldObject* object, bool updateVisibilit
     }
 
     UpdateVisibilityIfNeeded(object, updateVisibility, changed);
+    return changed;
 }
 
 void PhasingHandler::SendToPlayer(Player const* player, PhaseShift const& phaseShift)
