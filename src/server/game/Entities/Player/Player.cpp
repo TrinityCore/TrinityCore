@@ -13754,6 +13754,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId, bool showQues
                     break;
                 case GossipOptionNpc::None:
                 case GossipOptionNpc::Vendor:
+					break;
                 case GossipOptionNpc::Trainer:
 					if (uint32 trainerId = sObjectMgr->GetCreatureTrainerForGossipOption(creature->GetEntry(), gossipMenuItem.MenuID, gossipMenuItem.OrderIndex))
                         GetSession()->SendTrainerList(creature, trainerId);
