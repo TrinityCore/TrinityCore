@@ -24,16 +24,13 @@
 #include "Unit.h"
 
 GenericMovementGenerator::GenericMovementGenerator(Movement::MoveSplineInit&& splineInit, MovementGeneratorType type, uint32 id,
-    Optional<JumpArrivalActionArgs> arrivalActions, Spell* spell)
-    : _splineInit(std::move(splineInit)), _type(type), _pointId(id), _duration(0), _arrivalActions(arrivalActions), _spell(spell)
+    uint32 arrivalSpellId /*= 0*/, ObjectGuid const& arrivalSpellTargetGuid /*= ObjectGuid::Empty*/, Spell* spell /*= nullptr*/)
+    : _splineInit(std::move(splineInit)), _type(type), _pointId(id), _duration(0), _arrivalSpellId(arrivalSpellId), _arrivalSpellTargetGuid(arrivalSpellTargetGuid), _spell(spell)
 {
     Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     BaseUnitState = UNIT_STATE_ROAMING;
-
-    if (_spell)
-        _spell->SetIsDelayedByMotionMaster(true);
 }
 
 void GenericMovementGenerator::Initialize(Unit* /*owner*/)
@@ -61,6 +58,9 @@ bool GenericMovementGenerator::Update(Unit* owner, uint32 diff)
     if (!owner || HasFlag(MOVEMENTGENERATOR_FLAG_FINALIZED))
         return false;
 
+    if (_spell)
+        _spell->SetIsDelayedByMotionMaster(true);
+
     _duration.Update(diff);
     if (_duration.Passed() || owner->movespline->Finalized())
     {
@@ -82,25 +82,22 @@ void GenericMovementGenerator::Finalize(Unit* owner, bool/* active*/, bool movem
     if (movementInform && HasFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED))
         MovementInform(owner);
 
-    if (_spell)
-    {
-        // we handle it outside of MovementInform because the MovementGenerator can be cleared or deleted without executing MovementInform,
-        // in that case we handle it here to avoid having an unlimited lifetime for the spell.
-        // Note: We can't prevent the effects associated to the movement from firing the Hit hooks due to other effects being delayed as well, we have to handle the whole spell here
-        if (_spell->IsDelayedByMotionMaster())
-            _spell->handle_delayed(1);
+    //if (_spell)
+    //{
+    //    // we handle it outside of MovementInform because the MovementGenerator can be cleared or deleted without executing MovementInform,
+    //    // in that case we handle it here to avoid having an unlimited lifetime for the spell.
+    //    // Note: We can't prevent the effects associated to the movement from firing the Hit hooks due to other effects being delayed as well, we have to handle the whole spell here
+    //    if (_spell->IsDelayedByMotionMaster())
+    //        _spell->handle_delayed(1);
 
-        _spell = nullptr;
-    }
+    //    _spell = nullptr;
+    //}
 }
 
 void GenericMovementGenerator::MovementInform(Unit* owner)
 {
-    if (_arrivalActions)
-    {
-        for (auto action : _arrivalActions->Actions)
-            action(owner, true);
-    }
+    if (_arrivalSpellId)
+        owner->CastSpell(ObjectAccessor::GetUnit(*owner, _arrivalSpellTargetGuid), _arrivalSpellId, true);
 
     if (Creature* creature = owner->ToCreature())
     {

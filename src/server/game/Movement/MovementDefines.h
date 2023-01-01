@@ -21,8 +21,6 @@
 #include "Common.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
-#include "Unit.h"
-#include "Util.h"
 
 #define SPEED_CHARGE 42.0f // assume it is 25 yard per 0.6 second
 
@@ -101,9 +99,10 @@ struct TC_GAME_API ChaseAngle
     bool IsAngleOkay(float relativeAngle) const;
 };
 
-struct JumpArrivalActionArgs
+struct JumpArrivalCastArgs
 {
-    HookList<std::function<void(Unit*, bool)>> Actions;
+    uint32 SpellId = 0;
+    ObjectGuid Target;
 };
 
 struct JumpChargeParams

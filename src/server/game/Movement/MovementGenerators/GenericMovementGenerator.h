@@ -18,7 +18,6 @@
 #ifndef TRINITY_GENERICMOVEMENTGENERATOR_H
 #define TRINITY_GENERICMOVEMENTGENERATOR_H
 
-#include "MovementDefines.h"
 #include "MovementGenerator.h"
 #include "MoveSplineInit.h"
 #include "Timer.h"
@@ -32,7 +31,7 @@ class GenericMovementGenerator : public MovementGenerator
 {
     public:
         explicit GenericMovementGenerator(Movement::MoveSplineInit&& splineInit, MovementGeneratorType type, uint32 id,
-            Optional<JumpArrivalActionArgs> arrivalActions = {}, Spell* spell = nullptr);
+            uint32 arrivalSpellId = 0, ObjectGuid const& arrivalSpellTargetGuid = ObjectGuid::Empty, Spell* spell = nullptr);
 
         void Initialize(Unit*) override;
         void Reset(Unit*) override;
@@ -49,8 +48,8 @@ class GenericMovementGenerator : public MovementGenerator
         uint32 _pointId;
         TimeTrackerSmall _duration;
 
-        Optional<JumpArrivalActionArgs> const _arrivalActions;
-
+        uint32 _arrivalSpellId;
+        ObjectGuid _arrivalSpellTargetGuid;
         Spell* _spell;
 };
 

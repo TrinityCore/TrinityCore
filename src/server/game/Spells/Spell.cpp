@@ -7586,7 +7586,7 @@ bool SpellEvent::Execute(uint64 e_time, uint32 p_time)
                     // finish update event will be re-added automatically at the end of routine)
                 }
             }
-            else if (!m_Spell->IsDelayedByMotionMaster()) // Wait until the movement generator frees it
+            else if (!m_Spell->IsDelayedByMotionMaster())
             {
                 // delaying had just started, record the moment
                 m_Spell->SetDelayStart(e_time);
@@ -7609,6 +7609,10 @@ bool SpellEvent::Execute(uint64 e_time, uint32 p_time)
             break;
         }
     }
+
+    // If the spell is still being delayed by motion master, GenericMovementGenerator::Update will set it to true again
+    if (m_Spell->IsDelayedByMotionMaster())
+        m_Spell->SetIsDelayedByMotionMaster(false);
 
     // spell processing not complete, plan event on the next update interval
     m_Spell->GetCaster()->m_Events.AddEvent(this, e_time + 1, false);
@@ -8087,18 +8091,6 @@ bool Spell::CheckScriptEffectImplicitTargets(uint32 effIndex, uint32 effIndexToC
                 return false;
     }
     return true;
-}
-
-void Spell::SetJumpArrivalActionsFromScripts(HookList<std::function<void(Unit* /*caster*/, bool /*hasMovementStarted*/)>>& jumpArrivalActions)
-{
-    // Skip if there are not any script
-    if (m_loadedScripts.empty())
-        return;
-
-    for (const auto& script : m_loadedScripts)
-    {
-        jumpArrivalActions += script->GetJumpArrivalAction();
-    }
 }
 
 bool Spell::CanExecuteTriggersOnHit(uint32 effMask, SpellInfo const* triggeredByAura /*= nullptr*/) const
