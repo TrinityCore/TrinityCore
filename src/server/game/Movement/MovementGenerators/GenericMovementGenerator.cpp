@@ -32,6 +32,9 @@ GenericMovementGenerator::GenericMovementGenerator(std::function<void(Movement::
     Priority = MOTION_PRIORITY_NORMAL;
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     BaseUnitState = UNIT_STATE_ROAMING;
+    
+    if (_spell)
+        _spell->SetIsDelayedByMotionMaster(true);
 }
 
 void GenericMovementGenerator::Initialize(Unit* owner)
