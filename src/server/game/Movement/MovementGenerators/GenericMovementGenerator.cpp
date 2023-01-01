@@ -25,7 +25,7 @@
 
 GenericMovementGenerator::GenericMovementGenerator(std::function<void(Movement::MoveSplineInit& init)>&& initializer, MovementGeneratorType type, uint32 id,
     uint32 arrivalSpellId /*= 0*/, ObjectGuid const& arrivalSpellTargetGuid /*= ObjectGuid::Empty*/, Spell* spell /*= nullptr*/)
-    : _splineInit(std::move(initializer)), _type(type), _pointId(id), _duration(0), 
+    : _splineInit(std::move(initializer)), _type(type), _pointId(id), _duration(0),
     _arrivalSpellId(arrivalSpellId), _arrivalSpellTargetGuid(arrivalSpellTargetGuid), _spell(spell)
 {
     Mode = MOTION_MODE_DEFAULT;
