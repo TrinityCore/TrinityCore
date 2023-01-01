@@ -5697,7 +5697,7 @@ void Spell::EffectJumpCharge()
         this);
     if (hasMovementStarted)
         return;
-        
+
     // In case the motion master didn't start, handle the action immediately
     if (arrivalCast)
         unitCaster->CastSpell(nullptr, effectInfo->TriggerSpell, true);
