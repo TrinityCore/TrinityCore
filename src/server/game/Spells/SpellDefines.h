@@ -450,6 +450,7 @@ struct TC_GAME_API CastSpellExtraArgs
     CastSpellExtraArgs& SetOriginalCaster(ObjectGuid const& guid) { OriginalCaster = guid; return *this; }
     CastSpellExtraArgs& SetCastDifficulty(Difficulty castDifficulty) { CastDifficulty = castDifficulty; return *this; }
     CastSpellExtraArgs& SetOriginalCastId(ObjectGuid const& castId) { OriginalCastId = castId; return *this; }
+    CastSpellExtraArgs& SetDelay(uint32 delay) { Delay = delay;  return *this; }
     CastSpellExtraArgs& AddSpellMod(SpellValueMod mod, int32 val) { SpellValueOverrides.AddMod(mod, val); return *this; }
     CastSpellExtraArgs& AddSpellBP0(int32 val) { return AddSpellMod(SPELLVALUE_BASE_POINT0, val); } // because i don't want to type SPELLVALUE_BASE_POINT0 300 times
     CastSpellExtraArgs& SetCustomArg(std::any customArg) { CustomArg = std::move(customArg); return *this; }
@@ -462,6 +463,7 @@ struct TC_GAME_API CastSpellExtraArgs
     Difficulty CastDifficulty = Difficulty(0);
     ObjectGuid OriginalCastId = ObjectGuid::Empty;
     Optional<int32> OriginalCastItemLevel;
+    uint32 Delay;
     struct
     {
         friend struct CastSpellExtraArgs;

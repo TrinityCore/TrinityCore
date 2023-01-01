@@ -547,6 +547,7 @@ class TC_GAME_API Spell
         ObjectGuid m_originalCastId;
         bool m_fromClient;
         uint32 m_castFlagsEx;
+        uint32 m_delay;
         union
         {
             // Alternate names for this value
