@@ -59,7 +59,7 @@ class spell_dracthyr_login : public SpellScript
 
     void HandleTeleport(SpellEffIndex /*effIndex*/)
     {
-        std::pair<uint32, Position> const& room = Trinity::Containers::SelectRandomContainerElement(LoginRoomData);
+        std::pair<uint32, Position> const& room = LoginRoomData[urand(0, 3)];
 
         WorldLocation dest = GetHitUnit()->GetWorldLocation();
         SetExplTargetDest(dest);
