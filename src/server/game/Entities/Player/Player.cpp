@@ -13895,7 +13895,7 @@ void Player::OnGossipSelect(WorldObject* source, int32 gossipOptionId, uint32 me
             GetSession()->SendTaxiMenu(source->ToCreature());
             break;
         case GossipOptionNpc::Trainer:
-            GetSession()->SendTrainerList(source->ToCreature(), sObjectMgr->GetCreatureTrainerForGossipOption(source->GetEntry(), menuId, gossipOptionId));
+            GetSession()->SendTrainerList(source->ToCreature(), sObjectMgr->GetCreatureTrainerForGossipOption(source->GetEntry(), menuId, item->OrderIndex));
             break;
         case GossipOptionNpc::SpiritHealer:
             source->CastSpell(source->ToCreature(), 17251, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetOriginalCaster(GetGUID()));
