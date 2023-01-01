@@ -60,36 +60,8 @@ public:
 
             switch (creature->GetEntry())
             {
-                case BOSS_SYLVANAS_WINDRUNNER:
-                    SylvanasGUID = creature->GetGUID();
-                    break;
-
-                case NPC_SYLVANAS_SHADOWCOPY_RIDING:
-                    SylvanasShadowcopyRidingGUID = creature->GetGUID();
-                    break;
-
                 case NPC_SYLVANAS_SHADOWCOPY_FIGHTER:
                     SylvanasShadowcopyGUID.push_back(creature->GetGUID());
-                    break;
-
-                case NPC_BOLVAR_FORDRAGON_PINNACLE:
-                    BolvarPinnacleGUID = creature->GetGUID();
-                    break;
-
-                case NPC_JAINA_PROUDMOORE_PINNACLE:
-                    JainaPinnacleGUID = creature->GetGUID();
-                    break;
-
-                case NPC_THRALL_PINNACLE:
-                    ThrallPinnacleGUID = creature->GetGUID();
-                    break;
-
-                case NPC_ANDUIN_CRUCIBLE:
-                    AnduinCrucibleGUID = creature->GetGUID();
-                    break;
-
-                case NPC_THRONE_OF_THE_DAMNED:
-                    ThroneOfTheDamnedGUID = creature->GetGUID();
                     break;
 
                 default:
@@ -129,20 +101,6 @@ public:
         {
             switch (type)
             {
-                case DATA_SYLVANAS_WINDRUNNER:
-                    return SylvanasGUID;
-                case DATA_SYLVANAS_SHADOWCOPY_RIDING:
-                    return SylvanasShadowcopyRidingGUID;
-                case DATA_BOLVAR_FORDRAGON_PINNACLE:
-                    return BolvarPinnacleGUID;
-                case DATA_JAINA_PROUDMOORE_PINNACLE:
-                    return JainaPinnacleGUID;
-                case DATA_THRALL_PINNACLE:
-                    return ThrallPinnacleGUID;
-                case DATA_THRONE_OF_THE_DAMNED:
-                    return ThroneOfTheDamnedGUID;
-                case DATA_ANDUIN_CRUCIBLE:
-                    return AnduinCrucibleGUID;
                 case DATA_SYLVANAS_SHADOWCOPY_00:
                     return SylvanasShadowcopyGUID[0];
                 case DATA_SYLVANAS_SHADOWCOPY_01:
@@ -171,7 +129,7 @@ public:
                     break;
             }
 
-            return ObjectGuid::Empty;
+            return InstanceScript::GetGuidData(type);
         }
 
         bool SetBossState(uint32 id, EncounterState state) override
@@ -382,14 +340,7 @@ public:
 
         protected:
             EventMap Events;
-            ObjectGuid SylvanasGUID;
-            ObjectGuid SylvanasShadowcopyRidingGUID;
             std::vector<ObjectGuid> SylvanasShadowcopyGUID;
-            ObjectGuid BolvarPinnacleGUID;
-            ObjectGuid JainaPinnacleGUID;
-            ObjectGuid ThrallPinnacleGUID;
-            ObjectGuid AnduinCrucibleGUID;
-            ObjectGuid ThroneOfTheDamnedGUID;
             std::vector<ObjectGuid> TorghastSpikeGUID;
             std::vector<ObjectGuid> InvisibleWallPhaseTwoGUID;
             uint8 SylvanasIntroductionData;
