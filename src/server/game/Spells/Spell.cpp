@@ -9127,6 +9127,13 @@ CastSpellExtraArgs& CastSpellExtraArgs::SetTriggeringAura(AuraEffect const* trig
     return *this;
 }
 
+CastSpellExtraArgs& CastSpellExtraArgs::SetDelay(uint32 delay)
+{
+    Delay = delay;
+
+    return *this;
+}
+
 SpellCastVisual::operator UF::SpellCastVisual() const
 {
     UF::SpellCastVisual visual;
