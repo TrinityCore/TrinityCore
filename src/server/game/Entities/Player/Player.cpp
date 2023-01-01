@@ -13755,6 +13755,11 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId, bool showQues
                 case GossipOptionNpc::None:
                 case GossipOptionNpc::Vendor:
                 case GossipOptionNpc::Trainer:
+					if (uint32 trainerId = sObjectMgr->GetCreatureTrainerForGossipOption(creature->GetEntry(), gossipMenuItem.MenuID, gossipMenuItem.OrderIndex))
+                        GetSession()->SendTrainerList(creature, trainerId);
+                    else
+                        TC_LOG_DEBUG("network", "Player::PrepareGossipMenu - Creature id %u was trying to SendTrainerList without trainer data.", creature->GetEntry());
+                    break;
                 case GossipOptionNpc::Binder:
                 case GossipOptionNpc::Banker:
                 case GossipOptionNpc::PetitionVendor:
