@@ -555,6 +555,7 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
     m_castItemEntry = 0;
     m_castItemLevel = -1;
     m_castFlagsEx = 0;
+    m_delay = 1ms;
 
     if (IsIgnoringCooldowns())
         m_castFlagsEx |= CAST_FLAG_EX_IGNORE_COOLDOWN;
@@ -3318,7 +3319,7 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
 
     // create and add update event for this spell
     _spellEvent = new SpellEvent(this);
-    m_caster->m_Events.AddEvent(_spellEvent, m_caster->m_Events.CalculateTime(m_delay ? Milliseconds(m_delay) : 1ms));
+    m_caster->m_Events.AddEvent(_spellEvent, m_caster->m_Events.CalculateTime(m_delay));
 
     // check disables
     if (DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, m_caster))
