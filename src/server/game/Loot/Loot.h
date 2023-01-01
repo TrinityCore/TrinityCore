@@ -18,19 +18,26 @@
 #ifndef Loot_h__
 #define Loot_h__
 
-#include "Define.h"
 #include "ConditionMgr.h"
 #include "DBCEnums.h"
+#include "Define.h"
+#include "Duration.h"
 #include "ItemEnchantmentMgr.h"
 #include "ObjectGuid.h"
-#include "RefManager.h"
+#include "Optional.h"
 #include "SharedDefines.h"
+#include <memory>
 #include <unordered_map>
 #include <vector>
 
+constexpr Minutes LOOT_ROLL_TIMEOUT = 1min;
+
+class Group;
 class Item;
 class LootStore;
+class Map;
 class Player;
+struct ItemDisenchantLootEntry;
 struct Loot;
 struct LootStoreItem;
 
@@ -38,6 +45,7 @@ namespace WorldPackets
 {
     namespace Loot
     {
+        struct LootItemData;
         class LootResponse;
     }
 }
@@ -51,6 +59,16 @@ enum RollType
     MAX_ROLL_TYPE     = 4
 };
 
+enum class RollVote
+{
+    Pass            = 0,
+    Need            = 1,
+    Greed           = 2,
+    Disenchant      = 3,
+    NotEmitedYet    = 4,
+    NotValid        = 5
+};
+
 enum RollMask
 {
     ROLL_FLAG_TYPE_PASS         = 0x01,
@@ -62,27 +80,16 @@ enum RollMask
     ROLL_ALL_TYPE_MASK          = 0x0F
 };
 
-#define MAX_NR_LOOT_ITEMS 16
-// note: the client cannot show more than 16 items total
-#define MAX_NR_QUEST_ITEMS 32
-// unrelated to the number of quest items shown, just for reserve
+#define MAX_NR_LOOT_ITEMS 18
 
 enum LootMethod : uint8
 {
     FREE_FOR_ALL      = 0,
+    ROUND_ROBIN       = 1,
     MASTER_LOOT       = 2,
     GROUP_LOOT        = 3,
+    NEED_BEFORE_GREED = 4,
     PERSONAL_LOOT     = 5
-};
-
-enum PermissionTypes
-{
-    ALL_PERMISSION              = 0,
-    GROUP_PERMISSION            = 1,
-    MASTER_PERMISSION           = 2,
-    RESTRICTED_PERMISSION       = 3,
-    OWNER_PERMISSION            = 5,
-    NONE_PERMISSION             = 6
 };
 
 enum LootType : uint8
@@ -93,15 +100,36 @@ enum LootType : uint8
     LOOT_PICKPOCKETING          = 2,
     LOOT_FISHING                = 3,
     LOOT_DISENCHANTING          = 4,
-                                                            // ignored always by client
+    LOOT_ITEM                   = 5,
     LOOT_SKINNING               = 6,
-    LOOT_PROSPECTING            = 7,
-    LOOT_MILLING                = 8,
+    LOOT_GATHERING_NODE         = 8,
+    LOOT_CHEST                  = 9,
+    LOOT_CORPSE_PERSONAL        = 14,
 
     LOOT_FISHINGHOLE            = 20,                       // unsupported by client, sending LOOT_FISHING instead
     LOOT_INSIGNIA               = 21,                       // unsupported by client, sending LOOT_CORPSE instead
-    LOOT_FISHING_JUNK           = 22                        // unsupported by client, sending LOOT_FISHING instead
+    LOOT_FISHING_JUNK           = 22,                       // unsupported by client, sending LOOT_FISHING instead
+    LOOT_PROSPECTING            = 23,
+    LOOT_MILLING                = 24,
 };
+
+constexpr LootType GetLootTypeForClient(LootType lootType)
+{
+    switch (lootType)
+    {
+        case LOOT_PROSPECTING:
+        case LOOT_MILLING:
+            return LOOT_DISENCHANTING;
+        case LOOT_INSIGNIA:
+            return LOOT_SKINNING;
+        case LOOT_FISHINGHOLE:
+        case LOOT_FISHING_JUNK:
+            return LOOT_FISHING;
+        default:
+            break;
+    }
+    return lootType;
+}
 
 enum LootError : uint8
 {
@@ -131,15 +159,27 @@ enum LootSlotType
     LOOT_SLOT_TYPE_OWNER        = 4                         // ignore binding confirmation and etc, for single player looting
 };
 
+enum class LootRollIneligibilityReason : uint32
+{
+    None                    = 0,
+    UnusableByClass         = 1, // Your class may not roll need on this item.
+    MaxUniqueItemCount      = 2, // You already have the maximum amount of this item.
+    CannotBeDisenchanted    = 3, // This item may not be disenchanted.
+    EnchantingSkillTooLow   = 4, // You do not have an Enchanter of skill %d in your group.
+    NeedDisabled            = 5, // Need rolls are disabled for this item.
+    OwnBetterItem           = 6  // You already have a powerful version of this item.
+};
+
 struct TC_GAME_API LootItem
 {
     uint32  itemid;
+    uint32  LootListId;
     ItemRandomBonusListId randomBonusListId;
     std::vector<int32> BonusListIDs;
     ItemContext context;
-    ConditionContainer conditions;                               // additional loot condition
+    ConditionContainer conditions;                          // additional loot condition
     GuidSet allowedGUIDs;
-    ObjectGuid rollWinnerGUID;                                   // Stores the guid of person who won loot, if his bags are full only he can see the item in loot list!
+    ObjectGuid rollWinnerGUID;                              // Stores the guid of person who won loot, if his bags are full only he can see the item in loot list!
     uint8   count             : 8;
     bool    is_looted         : 1;
     bool    is_blocked        : 1;
@@ -154,131 +194,159 @@ struct TC_GAME_API LootItem
     explicit LootItem(LootStoreItem const& li);
 
     // Empty constructor for creating an empty LootItem to be filled in with DB data
-    LootItem() : itemid(0), randomBonusListId(0), context(ItemContext::NONE), count(0), is_looted(false), is_blocked(false),
-                 freeforall(false), is_underthreshold(false), is_counted(false), needs_quest(false), follow_loot_rules(false) { };
+    LootItem() : itemid(0), LootListId(0), randomBonusListId(0), context(ItemContext::NONE), count(0), is_looted(false), is_blocked(false),
+                 freeforall(false), is_underthreshold(false), is_counted(false), needs_quest(false), follow_loot_rules(false) { }
 
-    // Basic checks for player/item compatibility - if false no chance to see the item in the loot
-    bool AllowedForPlayer(Player const* player) const;
+    LootItem(LootItem const&);
+    LootItem(LootItem&&) noexcept;
+    LootItem& operator=(LootItem const&);
+    LootItem& operator=(LootItem&&) noexcept;
+    ~LootItem();
+
+    // Basic checks for player/item compatibility - if false no chance to see the item in the loot - used only for loot generation
+    bool AllowedForPlayer(Player const* player, Loot const* loot) const;
+    static bool AllowedForPlayer(Player const* player, Loot const* loot, uint32 itemid, bool needs_quest, bool follow_loot_rules, bool strictUsabilityCheck,
+        ConditionContainer const& conditions);
     void AddAllowedLooter(Player const* player);
     GuidSet const& GetAllowedLooters() const { return allowedGUIDs; }
+    bool HasAllowedLooter(ObjectGuid const& looter) const;
+    Optional<LootSlotType> GetUiTypeForPlayer(Player const* player, Loot const& loot) const;
 };
 
 struct NotNormalLootItem
 {
-    uint8   index;                                          // position in quest_items or items;
+    uint8   LootListId;
     bool    is_looted;
 
     NotNormalLootItem()
-        : index(0), is_looted(false) { }
+        : LootListId(0), is_looted(false) { }
 
     NotNormalLootItem(uint8 _index, bool _islooted = false)
-        : index(_index), is_looted(_islooted) { }
+        : LootListId(_index), is_looted(_islooted) { }
 };
 
 typedef std::vector<NotNormalLootItem> NotNormalLootItemList;
 typedef std::vector<LootItem> LootItemList;
-typedef std::unordered_map<ObjectGuid, NotNormalLootItemList*> NotNormalLootItemMap;
+typedef std::unordered_map<ObjectGuid, std::unique_ptr<NotNormalLootItemList>> NotNormalLootItemMap;
 
 //=====================================================
 
-class LootValidatorRef : public Reference<Loot, LootValidatorRef>
+struct PlayerRollVote
 {
-public:
-    LootValidatorRef() { }
-    void targetObjectDestroyLink() override { }
-    void sourceObjectDestroyLink() override { }
+    PlayerRollVote() : Vote(RollVote::NotValid), RollNumber(0) { }
+    RollVote Vote;
+    uint8    RollNumber;
 };
 
-//=====================================================
-
-class LootValidatorRefManager : public RefManager<Loot, LootValidatorRef>
+class LootRoll
 {
 public:
-    typedef LinkedListHead::Iterator<LootValidatorRef> iterator;
+    using RollVoteMap = std::unordered_map<ObjectGuid, PlayerRollVote>;
 
-    LootValidatorRef* getFirst() { return (LootValidatorRef*)RefManager<Loot, LootValidatorRef>::getFirst(); }
+    LootRoll() : m_map(nullptr), m_isStarted(false), m_lootItem(nullptr), m_loot(nullptr), m_voteMask(), m_endTime(TimePoint::min()) { }
+    ~LootRoll();
 
-    iterator begin() { return iterator(getFirst()); }
-    iterator end() { return iterator(nullptr); }
+    LootRoll(LootRoll const&) = delete;
+    LootRoll(LootRoll&&) = delete;
+    LootRoll& operator=(LootRoll const&) = delete;
+    LootRoll& operator=(LootRoll&&) = delete;
+
+    bool TryToStart(Map* map, Loot& loot, uint32 lootListId, uint16 enchantingSkill);
+    bool PlayerVote(Player* player, RollVote vote);
+    bool UpdateRoll();
+
+    bool IsLootItem(ObjectGuid const& lootObject, uint32 lootListId) const;
+
+private:
+    void SendStartRoll();
+    void SendAllPassed();
+    void SendRoll(ObjectGuid const& targetGuid, int32 rollNumber, RollVote rollType, Optional<ObjectGuid> const& rollWinner);
+    void SendLootRollWon(ObjectGuid const& targetGuid, int32 rollNumber, RollVote rollType);
+    void FillPacket(WorldPackets::Loot::LootItemData& lootItem) const;
+    void Finish(RollVoteMap::const_iterator winnerItr);
+    bool AllPlayerVoted(RollVoteMap::const_iterator& winnerItr);
+    ItemDisenchantLootEntry const* GetItemDisenchantLoot() const;
+    Map*        m_map;
+    RollVoteMap m_rollVoteMap;
+    bool        m_isStarted;
+    LootItem*   m_lootItem;
+    Loot*       m_loot;
+    RollMask    m_voteMask;
+    TimePoint   m_endTime;
 };
-
-//=====================================================
 
 struct TC_GAME_API Loot
 {
-    NotNormalLootItemMap const& GetPlayerQuestItems() const { return PlayerQuestItems; }
     NotNormalLootItemMap const& GetPlayerFFAItems() const { return PlayerFFAItems; }
-    NotNormalLootItemMap const& GetPlayerNonQuestNonFFAConditionalItems() const { return PlayerNonQuestNonFFAConditionalItems; }
 
     std::vector<LootItem> items;
-    std::vector<LootItem> quest_items;
     uint32 gold;
     uint8 unlootedCount;
     ObjectGuid roundRobinPlayer;                            // GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
     LootType loot_type;                                     // required for achievement system
-    uint8 maxDuplicates;                                    // Max amount of items with the same entry that can drop (default is 1; on 25 man raid mode 3)
 
-    // GUID of container that holds this loot (item_instance.entry)
-    //  Only set for inventory items that can be right-click looted
-    ObjectGuid containerID;
-
-    Loot(uint32 _gold = 0);
+    explicit Loot(Map* map, ObjectGuid owner, LootType type, Group const* group);
     ~Loot();
 
-    ObjectGuid const& GetGUID() const { return _GUID; }
-    void SetGUID(ObjectGuid const& guid) { _GUID = guid; }
+    Loot(Loot const&) = delete;
+    Loot(Loot&&) = delete;
+    Loot& operator=(Loot const&) = delete;
+    Loot& operator=(Loot&&) = delete;
 
-    // if loot becomes invalid this reference is used to inform the listener
-    void addLootValidatorRef(LootValidatorRef* pLootValidatorRef)
-    {
-        i_LootValidatorRefManager.insertFirst(pLootValidatorRef);
-    }
+    ObjectGuid const& GetGUID() const { return _guid; }
+    ObjectGuid const& GetOwnerGUID() const { return _owner; }
+    ItemContext GetItemContext() const { return _itemContext; }
+    void SetItemContext(ItemContext context) { _itemContext = context; }
+    LootMethod GetLootMethod() const { return _lootMethod; }
+    ObjectGuid const& GetLootMasterGUID() const { return _lootMaster; }
+    uint32 GetDungeonEncounterId() const { return _dungeonEncounterId; }
+    void SetDungeonEncounterId(uint32 dungeonEncounterId) { _dungeonEncounterId = dungeonEncounterId; }
 
-    void clear();
-
-    bool empty() const { return items.empty() && gold == 0; }
     bool isLooted() const { return gold == 0 && unlootedCount == 0; }
 
-    void NotifyItemRemoved(uint8 lootIndex);
-    void NotifyQuestItemRemoved(uint8 questIndex);
-    void NotifyMoneyRemoved();
+    void NotifyLootList(Map const* map) const;
+    void NotifyItemRemoved(uint8 lootListId, Map const* map);
+    void NotifyMoneyRemoved(Map const* map);
+    void OnLootOpened(Map* map, ObjectGuid looter);
     void AddLooter(ObjectGuid GUID) { PlayersLooting.insert(GUID); }
     void RemoveLooter(ObjectGuid GUID) { PlayersLooting.erase(GUID); }
 
+    bool HasAllowedLooter(ObjectGuid const& looter) const;
+
     void generateMoneyLoot(uint32 minAmount, uint32 maxAmount);
     bool FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bool personal, bool noEmptyError = false, uint16 lootMode = LOOT_MODE_DEFAULT, ItemContext context = ItemContext::NONE);
+    void FillNotNormalLootFor(Player const* player);        // count unlooted items
 
     // Inserts the item into the loot (called by LootTemplate processors)
-    void AddItem(LootStoreItem const & item);
+    void AddItem(LootStoreItem const& item);
 
-    LootItem const* GetItemInSlot(uint32 lootSlot) const;
-    LootItem* LootItemInSlot(uint32 lootslot, Player* player, NotNormalLootItem** qitem = nullptr, NotNormalLootItem** ffaitem = nullptr, NotNormalLootItem** conditem = nullptr);
-    uint32 GetMaxSlotInLootFor(Player* player) const;
+    bool AutoStore(Player* player, uint8 bag, uint8 slot, bool broadcast = false, bool createdByPlayer = false);
+
+    LootItem const* GetItemInSlot(uint32 lootListId) const;
+    LootItem* LootItemInSlot(uint32 lootListId, Player const* player, NotNormalLootItem** ffaItem = nullptr);
     bool hasItemForAll() const;
     bool hasItemFor(Player const* player) const;
     bool hasOverThresholdItem() const;
 
     // Builds data for SMSG_LOOT_RESPONSE
-    void BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* viewer, PermissionTypes permission = ALL_PERMISSION) const;
+    void BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player const* viewer) const;
+
+    void Update();
 
 private:
-
-    void FillNotNormalLootFor(Player* player, bool presentAtLooting);
-    NotNormalLootItemList* FillFFALoot(Player* player);
-    NotNormalLootItemList* FillQuestLoot(Player* player);
-    NotNormalLootItemList* FillNonQuestNonFFAConditionalLoot(Player* player, bool presentAtLooting);
-
     GuidSet PlayersLooting;
-    NotNormalLootItemMap PlayerQuestItems;
     NotNormalLootItemMap PlayerFFAItems;
-    NotNormalLootItemMap PlayerNonQuestNonFFAConditionalItems;
-
-    // All rolls are registered here. They need to know, when the loot is not valid anymore
-    LootValidatorRefManager i_LootValidatorRefManager;
 
     // Loot GUID
-    ObjectGuid _GUID;
+    ObjectGuid _guid;
+    ObjectGuid _owner;                                              // The WorldObject that holds this loot
     ItemContext _itemContext;
+    LootMethod _lootMethod;
+    std::unordered_map<uint32, LootRoll> _rolls;                    // used if an item is under rolling
+    ObjectGuid _lootMaster;
+    GuidUnorderedSet _allowedLooters;
+    bool _wasOpened;                                                // true if at least one player received the loot content
+    uint32 _dungeonEncounterId;
 };
 
 class TC_GAME_API AELootResult
@@ -289,11 +357,12 @@ public:
         Item* item;
         uint8 count;
         LootType lootType;
+        uint32 dungeonEncounterId;
     };
 
     typedef std::vector<ResultValue> OrderedStorage;
 
-    void Add(Item* item, uint8 count, LootType lootType);
+    void Add(Item* item, uint8 count, LootType lootType, uint32 dungeonEncounterId);
 
     OrderedStorage::const_iterator begin() const;
     OrderedStorage::const_iterator end() const;

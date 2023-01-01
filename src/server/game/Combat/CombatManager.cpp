@@ -43,6 +43,9 @@
         return false;
     if (a->HasUnitState(UNIT_STATE_IN_FLIGHT) || b->HasUnitState(UNIT_STATE_IN_FLIGHT))
         return false;
+    // ... both units must be allowed to enter combat
+    if (a->IsCombatDisallowed() || b->IsCombatDisallowed())
+        return false;
     if (a->IsFriendlyTo(b) || b->IsFriendlyTo(a))
         return false;
     Player const* playerA = a->GetCharmerOrOwnerPlayerOrPlayerItself();
@@ -81,18 +84,8 @@ void CombatReference::EndCombat()
     delete this;
 }
 
-bool PvPCombatReference::Update(uint32 tdiff)
+void CombatReference::Refresh()
 {
-    if (_combatTimer <= tdiff)
-        return false;
-    _combatTimer -= tdiff;
-    return true;
-}
-
-void PvPCombatReference::Refresh()
-{
-    _combatTimer = PVP_COMBAT_TIMEOUT;
-
     bool needFirstAI = false, needSecondAI = false;
     if (_suppressFirst)
     {
@@ -111,12 +104,25 @@ void PvPCombatReference::Refresh()
         CombatManager::NotifyAICombat(second, first);
 }
 
-void PvPCombatReference::SuppressFor(Unit* who)
+void CombatReference::SuppressFor(Unit* who)
 {
     Suppress(who);
     if (who->GetCombatManager().UpdateOwnerCombatState())
         if (UnitAI* ai = who->GetAI())
             ai->JustExitedCombat();
+}
+
+bool PvPCombatReference::Update(uint32 tdiff)
+{
+    if (_combatTimer <= tdiff)
+        return false;
+    _combatTimer -= tdiff;
+    return true;
+}
+
+void PvPCombatReference::RefreshTimer()
+{
+    _combatTimer = PVP_COMBAT_TIMEOUT;
 }
 
 CombatManager::~CombatManager()
@@ -141,6 +147,23 @@ void CombatManager::Update(uint32 tdiff)
     }
 }
 
+bool CombatManager::HasPvECombat() const
+{
+    for (auto const& [guid, ref] : _pveRefs)
+        if (!ref->IsSuppressedFor(_owner))
+            return true;
+    return false;
+}
+
+bool CombatManager::HasPvECombatWithPlayers() const
+{
+    for (std::pair<ObjectGuid const, CombatReference*> const& reference : _pveRefs)
+        if (!reference.second->IsSuppressedFor(_owner) && reference.second->GetOther(_owner)->GetTypeId() == TYPEID_PLAYER)
+            return true;
+
+    return false;
+}
+
 bool CombatManager::HasPvPCombat() const
 {
     for (auto const& pair : _pvpRefs)
@@ -151,25 +174,29 @@ bool CombatManager::HasPvPCombat() const
 
 Unit* CombatManager::GetAnyTarget() const
 {
-    if (!_pveRefs.empty())
-        return _pveRefs.begin()->second->GetOther(_owner);
+    for (auto const& pair : _pveRefs)
+        if (!pair.second->IsSuppressedFor(_owner))
+            return pair.second->GetOther(_owner);
     for (auto const& pair : _pvpRefs)
         if (!pair.second->IsSuppressedFor(_owner))
             return pair.second->GetOther(_owner);
     return nullptr;
 }
 
-bool CombatManager::SetInCombatWith(Unit* who)
+bool CombatManager::SetInCombatWith(Unit* who, bool addSecondUnitSuppressed)
 {
     // Are we already in combat? If yes, refresh pvp combat
-    auto it = _pvpRefs.find(who->GetGUID());
-    if (it != _pvpRefs.end())
+    if (PvPCombatReference* existingPvpRef = Trinity::Containers::MapGetValuePtr(_pvpRefs, who->GetGUID()))
     {
-        it->second->Refresh();
+        existingPvpRef->RefreshTimer();
+        existingPvpRef->Refresh();
         return true;
     }
-    else if (_pveRefs.find(who->GetGUID()) != _pveRefs.end())
+    if (CombatReference* existingPveRef = Trinity::Containers::MapGetValuePtr(_pveRefs, who->GetGUID()))
+    {
+        existingPveRef->Refresh();
         return true;
+    }
 
     // Otherwise, check validity...
     if (!CombatManager::CanBeginCombat(_owner, who))
@@ -181,6 +208,9 @@ bool CombatManager::SetInCombatWith(Unit* who)
         ref = new PvPCombatReference(_owner, who);
     else
         ref = new CombatReference(_owner, who);
+
+    if (addSecondUnitSuppressed)
+        ref->Suppress(who);
 
     // ...and insert it into both managers
     PutReference(who->GetGUID(), ref);
@@ -224,14 +254,11 @@ void CombatManager::InheritCombatStatesFrom(Unit const* who)
     }
     for (auto& ref : mgr._pvpRefs)
     {
-        if (!IsInCombatWith(ref.first))
-        {
-            Unit* target = ref.second->GetOther(who);
-            if ((_owner->IsImmuneToPC() && target->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED)) ||
-                (_owner->IsImmuneToNPC() && !target->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED)))
-                continue;
-            SetInCombatWith(target);
-        }
+        Unit* target = ref.second->GetOther(who);
+        if ((_owner->IsImmuneToPC() && target->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED)) ||
+            (_owner->IsImmuneToNPC() && !target->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED)))
+            continue;
+        SetInCombatWith(target);
     }
 }
 
@@ -285,6 +312,35 @@ void CombatManager::EndAllPvECombat()
         _pveRefs.begin()->second->EndCombat();
 }
 
+void CombatManager::RevalidateCombat()
+{
+    auto it = _pveRefs.begin(), end = _pveRefs.end();
+    while (it != end)
+    {
+        CombatReference* const ref = it->second;
+        if (!CanBeginCombat(_owner, ref->GetOther(_owner)))
+        {
+            it = _pveRefs.erase(it), end = _pveRefs.end(); // erase manually here to avoid iterator invalidation
+            ref->EndCombat();
+        }
+        else
+            ++it;
+    }
+
+    auto it2 = _pvpRefs.begin(), end2 = _pvpRefs.end();
+    while (it2 != end2)
+    {
+        CombatReference* const ref = it2->second;
+        if (!CanBeginCombat(_owner, ref->GetOther(_owner)))
+        {
+            it2 = _pvpRefs.erase(it2), end2 = _pvpRefs.end(); // erase manually here to avoid iterator invalidation
+            ref->EndCombat();
+        }
+        else
+            ++it2;
+    }
+}
+
 void CombatManager::EndAllPvPCombat()
 {
     while (!_pvpRefs.empty())
@@ -293,13 +349,8 @@ void CombatManager::EndAllPvPCombat()
 
 /*static*/ void CombatManager::NotifyAICombat(Unit* me, Unit* other)
 {
-    if (!me->IsAIEnabled())
-        return;
-    me->GetAI()->JustEnteredCombat(other);
-
-    if (Creature* cMe = me->ToCreature())
-        if (!cMe->CanHaveThreatList())
-            cMe->AI()->JustEngagedWith(other);
+    if (UnitAI* ai = me->GetAI())
+        ai->JustEnteredCombat(other);
 }
 
 void CombatManager::PutReference(ObjectGuid const& guid, CombatReference* ref)
@@ -334,13 +385,17 @@ bool CombatManager::UpdateOwnerCombatState() const
 
     if (combatState)
     {
-        _owner->AddUnitFlag(UNIT_FLAG_IN_COMBAT);
+        _owner->SetUnitFlag(UNIT_FLAG_IN_COMBAT);
         _owner->AtEnterCombat();
+        if (_owner->GetTypeId() != TYPEID_UNIT)
+            _owner->AtEngage(GetAnyTarget());
     }
     else
     {
         _owner->RemoveUnitFlag(UNIT_FLAG_IN_COMBAT);
         _owner->AtExitCombat();
+        if (_owner->GetTypeId() != TYPEID_UNIT)
+            _owner->AtDisengage();
     }
 
     if (Unit* master = _owner->GetCharmerOrOwner())

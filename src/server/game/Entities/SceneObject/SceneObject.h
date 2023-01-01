@@ -19,6 +19,7 @@
 #define SceneObject_h__
 
 #include "Object.h"
+#include "GridObject.h"
 
 struct SceneTemplate;
 
@@ -42,6 +43,17 @@ protected:
 public:
     void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
         UF::SceneObjectData::Mask const& requestedSceneObjectMask, Player const* target) const;
+
+    struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
+    {
+        explicit ValuesUpdateForPlayerWithMaskSender(SceneObject const* owner) : Owner(owner) { }
+
+        SceneObject const* Owner;
+        UF::ObjectData::Base ObjectMask;
+        UF::SceneObjectData::Base SceneObjectMask;
+
+        void operator()(Player const* player) const;
+    };
 
     void AddToWorld() override;
     void RemoveFromWorld() override;

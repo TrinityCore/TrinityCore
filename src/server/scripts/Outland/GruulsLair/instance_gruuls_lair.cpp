@@ -37,6 +37,12 @@ MinionData const minionData[] =
     { 0, 0 }
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_MAULGAR, {{ 649 }} },
+    { DATA_GRUUL, {{ 650 }} }
+};
+
 class instance_gruuls_lair : public InstanceMapScript
 {
     public:
@@ -50,6 +56,7 @@ class instance_gruuls_lair : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
                 LoadMinionData(minionData);
+                LoadDungeonEncounterData(encounters);
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -60,7 +67,7 @@ class instance_gruuls_lair : public InstanceMapScript
                 {
                     case NPC_MAULGAR:
                         MaulgarGUID = creature->GetGUID();
-                        /* fallthrough */
+                        [[fallthrough]];
                     case NPC_KROSH_FIREHAND:
                     case NPC_OLM_THE_SUMMONER:
                     case NPC_KIGGLER_THE_CRAZED:

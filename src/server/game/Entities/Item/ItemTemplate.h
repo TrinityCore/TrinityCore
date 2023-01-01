@@ -20,9 +20,9 @@
 
 #include "Common.h"
 #include "DB2Structure.h"
+#include "Errors.h"
 #include "SharedDefines.h"
 #include <bitset>
-#include <unordered_map>
 #include <vector>
 
 enum ItemModType
@@ -101,21 +101,15 @@ enum ItemModType
 
 enum ItemSpelltriggerType
 {
-    ITEM_SPELLTRIGGER_ON_USE          = 0,                  // use after equip cooldown
-    ITEM_SPELLTRIGGER_ON_EQUIP        = 1,
-    ITEM_SPELLTRIGGER_CHANCE_ON_HIT   = 2,
-    ITEM_SPELLTRIGGER_SOULSTONE       = 4,
-    /*
-     * ItemSpelltriggerType 5 might have changed on 2.4.3/3.0.3: Such auras
-     * will be applied on item pickup and removed on item loss - maybe on the
-     * other hand the item is destroyed if the aura is removed ("removed on
-     * death" of spell 57348 makes me think so)
-     */
-    ITEM_SPELLTRIGGER_ON_OBTAIN       = 5,
-    ITEM_SPELLTRIGGER_LEARN_SPELL_ID  = 6                   // used in ItemEffect in second slot with spell_id with SPELL_GENERIC_LEARN in spell_1
+    ITEM_SPELLTRIGGER_ON_USE            = 0,                  // use after equip cooldown
+    ITEM_SPELLTRIGGER_ON_EQUIP          = 1,
+    ITEM_SPELLTRIGGER_ON_PROC           = 2,
+    ITEM_SPELLTRIGGER_SUMMONED_BY_SPELL = 3,
+    ITEM_SPELLTRIGGER_ON_DEATH          = 4,
+    ITEM_SPELLTRIGGER_ON_PICKUP         = 5,
+    ITEM_SPELLTRIGGER_ON_LEARN          = 6,                  // used in ItemEffect in second slot with spell_id with SPELL_GENERIC_LEARN in spell_1
+    ITEM_SPELLTRIGGER_ON_LOOTED         = 7,
 };
-
-#define MAX_ITEM_SPELLTRIGGER           7
 
 enum ItemBondingType
 {
@@ -168,10 +162,14 @@ enum ItemFieldFlags : uint32
     ITEM_FIELD_FLAG_UNK26         = 0x80000000
 };
 
+DEFINE_ENUM_FLAG(ItemFieldFlags);
+
 enum ItemFieldFlags2 : uint32
 {
     ITEM_FIELD_FLAG2_EQUIPPED   = 0x1
 };
+
+DEFINE_ENUM_FLAG(ItemFieldFlags2);
 
 enum ItemFlags : uint32
 {
@@ -213,7 +211,7 @@ enum ItemFlags2 : uint32
 {
     ITEM_FLAG2_FACTION_HORDE                            = 0x00000001,
     ITEM_FLAG2_FACTION_ALLIANCE                         = 0x00000002,
-    ITEM_FLAG2_DONT_IGNORE_BUY_PRICE                    = 0x00000004, // when item uses extended cost, gold is also required
+    ITEM_FLAG2_DONT_IGNORE_BUY_PRICE                    = 0x00000004, // when item uses extended cost, gold is also required // deprecated
     ITEM_FLAG2_CLASSIFY_AS_CASTER                       = 0x00000008,
     ITEM_FLAG2_CLASSIFY_AS_PHYSICAL                     = 0x00000010,
     ITEM_FLAG2_EVERYONE_CAN_ROLL_NEED                   = 0x00000020,
@@ -404,10 +402,16 @@ enum InventoryType : uint8
     INVTYPE_THROWN                              = 25,
     INVTYPE_RANGEDRIGHT                         = 26,
     INVTYPE_QUIVER                              = 27,
-    INVTYPE_RELIC                               = 28
+    INVTYPE_RELIC                               = 28,
+    INVTYPE_PROFESSION_TOOL                     = 29,
+    INVTYPE_PROFESSION_GEAR                     = 30,
+    INVTYPE_EQUIPABLE_SPELL_OFFENSIVE           = 31,
+    INVTYPE_EQUIPABLE_SPELL_UTILITY             = 32,
+    INVTYPE_EQUIPABLE_SPELL_DEFENSIVE           = 33,
+    INVTYPE_EQUIPABLE_SPELL_MOBILITY            = 34
 };
 
-#define MAX_INVTYPE                               29
+#define MAX_INVTYPE                               35
 
 enum ItemClass : uint8
 {
@@ -429,10 +433,11 @@ enum ItemClass : uint8
     ITEM_CLASS_MISCELLANEOUS                    = 15,
     ITEM_CLASS_GLYPH                            = 16,
     ITEM_CLASS_BATTLE_PETS                      = 17,
-    ITEM_CLASS_WOW_TOKEN                        = 18
+    ITEM_CLASS_WOW_TOKEN                        = 18,
+    ITEM_CLASS_PROFESSION                       = 19
 };
 
-#define MAX_ITEM_CLASS                            19
+#define MAX_ITEM_CLASS                            20
 
 enum ItemSubclassConsumable
 {
@@ -462,10 +467,11 @@ enum ItemSubclassContainer
     ITEM_SUBCLASS_LEATHERWORKING_CONTAINER      = 7,
     ITEM_SUBCLASS_INSCRIPTION_CONTAINER         = 8,
     ITEM_SUBCLASS_TACKLE_CONTAINER              = 9,
-    ITEM_SUBCLASS_COOKING_CONTAINER             = 10
+    ITEM_SUBCLASS_COOKING_CONTAINER             = 10,
+    ITEM_SUBCLASS_REAGENT_CONTAINER             = 11
 };
 
-#define MAX_ITEM_SUBCLASS_CONTAINER               11
+#define MAX_ITEM_SUBCLASS_CONTAINER               12
 
 enum ItemSubclassWeapon
 {
@@ -537,10 +543,11 @@ enum ItemSubclassArmor
 enum ItemSubclassReagent
 {
     ITEM_SUBCLASS_REAGENT                       = 0,
-    ITEM_SUBCLASS_KEYSTONE                      = 1
+    ITEM_SUBCLASS_KEYSTONE                      = 1,
+    ITEM_SUBCLASS_CONTEXT_TOKEN                 = 2
 };
 
-#define MAX_ITEM_SUBCLASS_REAGENT                 2
+#define MAX_ITEM_SUBCLASS_REAGENT                 3
 
 enum ItemSubclassProjectile
 {
@@ -572,10 +579,12 @@ enum ItemSubclassTradeGoods
     ITEM_SUBCLASS_ENCHANTMENT                   = 14,
     ITEM_SUBCLASS_WEAPON_ENCHANTMENT            = 15,
     ITEM_SUBCLASS_INSCRIPTION                   = 16,
-    ITEM_SUBCLASS_EXPLOSIVES_DEVICES            = 17
+    ITEM_SUBCLASS_EXPLOSIVES_DEVICES            = 17,
+    ITEM_SUBCLASS_OPTIONAL_REAGENT              = 18,
+    ITEM_SUBCLASS_FINISHING_REAGENT             = 19,
 };
 
-#define MAX_ITEM_SUBCLASS_TRADE_GOODS             18
+#define MAX_ITEM_SUBCLASS_TRADE_GOODS             20
 
 enum ItemSubclassItemEnhancement
 {
@@ -592,10 +601,11 @@ enum ItemSubclassItemEnhancement
     ITEM_SUBCLASS_ITEM_ENHANCEMENT_FINGER               = 10,
     ITEM_SUBCLASS_ITEM_ENHANCEMENT_WEAPON               = 11,
     ITEM_SUBCLASS_ITEM_ENHANCEMENT_TWO_HANDED_WEAPON    = 12,
-    ITEM_SUBCLASS_ITEM_ENHANCEMENT_SHIELD_OFF_HAND      = 13
+    ITEM_SUBCLASS_ITEM_ENHANCEMENT_SHIELD_OFF_HAND      = 13,
+    ITEM_SUBCLASS_ITEM_ENHANCEMENT_MISC                 = 14
 };
 
-#define MAX_ITEM_SUBCLASS_ITEM_ENHANCEMENT                14
+#define MAX_ITEM_SUBCLASS_ITEM_ENHANCEMENT                15
 
 enum ItemSubclassRecipe
 {
@@ -664,9 +674,10 @@ enum ItemSubclassJunk
     ITEM_SUBCLASS_MISCELLANEOUS_HOLIDAY         = 3,
     ITEM_SUBCLASS_MISCELLANEOUS_OTHER           = 4,
     ITEM_SUBCLASS_MISCELLANEOUS_MOUNT           = 5,
+    ITEM_SUBCLASS_MISCELLANEOUS_MOUNT_EQUIPMENT = 6
 };
 
-#define MAX_ITEM_SUBCLASS_MISCELLANEOUS           6
+#define MAX_ITEM_SUBCLASS_MISCELLANEOUS           7
 
 enum ItemSubclassGlyph
 {
@@ -700,6 +711,26 @@ enum ItemSubclassWowToken
 
 #define MAX_ITEM_SUBCLASS_WOW_TOKEN               1
 
+enum ItemSubclassPorfession
+{
+    ITEM_SUBCLASS_PROFESSION_BLACKSMITHING      = 0,
+    ITEM_SUBCLASS_PROFESSION_LEATHERWORKING     = 1,
+    ITEM_SUBCLASS_PROFESSION_ALCHEMY            = 2,
+    ITEM_SUBCLASS_PROFESSION_HERBALISM          = 3,
+    ITEM_SUBCLASS_PROFESSION_COOKING            = 4,
+    ITEM_SUBCLASS_PROFESSION_MINING             = 5,
+    ITEM_SUBCLASS_PROFESSION_TAILORING          = 6,
+    ITEM_SUBCLASS_PROFESSION_ENGINEERING        = 7,
+    ITEM_SUBCLASS_PROFESSION_ENCHANTING         = 8,
+    ITEM_SUBCLASS_PROFESSION_FISHING            = 9,
+    ITEM_SUBCLASS_PROFESSION_SKINNING           = 10,
+    ITEM_SUBCLASS_PROFESSION_JEWELCRAFTING      = 11,
+    ITEM_SUBCLASS_PROFESSION_INSCRIPTION        = 12,
+    ITEM_SUBCLASS_PROFESSION_ARCHAEOLOGY        = 13
+};
+
+#define MAX_ITEM_SUBCLASS_PROFESSION              14
+
 const uint32 MaxItemSubclassValues[MAX_ITEM_CLASS] =
 {
     MAX_ITEM_SUBCLASS_CONSUMABLE,
@@ -720,7 +751,8 @@ const uint32 MaxItemSubclassValues[MAX_ITEM_CLASS] =
     MAX_ITEM_SUBCLASS_MISCELLANEOUS,
     MAX_ITEM_SUBCLASS_GLYPH,
     MAX_ITEM_SUBCLASS_BATTLE_PET,
-    MAX_ITEM_SUBCLASS_WOW_TOKEN
+    MAX_ITEM_SUBCLASS_WOW_TOKEN,
+    MAX_ITEM_SUBCLASS_PROFESSION
 };
 
 #define MAX_ITEM_SUBCLASS_TOTAL 21
@@ -743,10 +775,6 @@ struct TC_GAME_API ItemTemplate
     uint32 GetClass() const { return BasicData->ClassID; }
     uint32 GetSubClass() const { return BasicData->SubclassID; }
     uint32 GetQuality() const { return ExtendedData->OverallQualityID; }
-    uint32 GetFlags() const { return ExtendedData->Flags[0]; }
-    uint32 GetFlags2() const { return ExtendedData->Flags[1]; }
-    uint32 GetFlags3() const { return ExtendedData->Flags[2]; }
-    uint32 GetFlags4() const { return ExtendedData->Flags[3]; }
     uint32 GetOtherFactionItemId() const { return ExtendedData->FactionRelated; }
     float GetPriceRandomValue() const { return ExtendedData->PriceRandomValue; }
     float GetPriceVariance() const { return ExtendedData->PriceVariance; }
@@ -821,20 +849,27 @@ struct TC_GAME_API ItemTemplate
     uint32 GetSkill() const;
 
     bool IsPotion() const { return GetClass() == ITEM_CLASS_CONSUMABLE && GetSubClass() == ITEM_SUBCLASS_POTION; }
-    bool IsVellum() const { return GetFlags3() & ITEM_FLAG3_CAN_STORE_ENCHANTS; }
-    bool IsConjuredConsumable() const { return GetClass() == ITEM_CLASS_CONSUMABLE && (GetFlags() & ITEM_FLAG_CONJURED); }
-    bool IsCraftingReagent() const { return (GetFlags2() & ITEM_FLAG2_USED_IN_A_TRADESKILL) != 0; }
+    bool IsVellum() const { return HasFlag(ITEM_FLAG3_CAN_STORE_ENCHANTS); }
+    bool IsConjuredConsumable() const { return GetClass() == ITEM_CLASS_CONSUMABLE && HasFlag(ITEM_FLAG_CONJURED); }
+    bool IsCraftingReagent() const { return HasFlag(ITEM_FLAG2_USED_IN_A_TRADESKILL); }
     bool HasSignature() const;
 
     bool IsWeapon() const { return GetClass() == ITEM_CLASS_WEAPON; }
+    bool IsArmor() const { return GetClass() == ITEM_CLASS_ARMOR; }
 
     bool IsRangedWeapon() const
     {
-        return IsWeapon() ||
-               GetSubClass() == ITEM_SUBCLASS_WEAPON_BOW ||
+        return IsWeapon() &&
+               (GetSubClass() == ITEM_SUBCLASS_WEAPON_BOW ||
                GetSubClass() == ITEM_SUBCLASS_WEAPON_GUN ||
-               GetSubClass() == ITEM_SUBCLASS_WEAPON_CROSSBOW;
+               GetSubClass() == ITEM_SUBCLASS_WEAPON_CROSSBOW);
     }
+
+    inline bool HasFlag(ItemFlags flag) const { return (ExtendedData->Flags[0] & flag) != 0; }
+    inline bool HasFlag(ItemFlags2 flag) const { return (ExtendedData->Flags[1] & flag) != 0; }
+    inline bool HasFlag(ItemFlags3 flag) const { return (ExtendedData->Flags[2] & flag) != 0; }
+    inline bool HasFlag(ItemFlags4 flag) const { return (ExtendedData->Flags[3] & flag) != 0; }
+    inline bool HasFlag(ItemFlagsCustom customFlag) const { return (FlagsCu & customFlag) != 0; }
 
     char const* GetDefaultLocaleName() const;
     uint32 GetArmor(uint32 itemLevel) const;

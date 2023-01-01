@@ -46,6 +46,14 @@ ObjectData const creatureData[] =
     { 0, 0 } // END
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_CORBORUS, {{ 1056 }} },
+    { DATA_SLABHIDE, {{ 1059 }} },
+    { DATA_OZRUK, {{ 1058 }} },
+    { DATA_HIGH_PRIESTESS_AZIL, {{ 1057 }} }
+};
+
 class instance_stonecore : public InstanceMapScript
 {
     public:
@@ -58,6 +66,7 @@ class instance_stonecore : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(MAX_ENCOUNTER);
                 LoadObjectData(creatureData, nullptr);
+                LoadDungeonEncounterData(encounters);
             }
 
             void OnGameObjectCreate(GameObject* go) override
@@ -198,13 +207,13 @@ class instance_stonecore : public InstanceMapScript
             void MillhouseEvent_Despawn()
             {
                 if (Creature* Millhouse = GetCreature(DATA_MILLHOUSE_MANASTORM))
-                    Millhouse->DespawnOrUnsummon(3000);
+                    Millhouse->DespawnOrUnsummon(3s);
                 for (GuidVector::const_iterator itr = millhouseTrashGUIDs.begin(); itr != millhouseTrashGUIDs.end(); ++itr)
                     if (Creature* creature = instance->GetCreature(*itr))
-                        creature->DespawnOrUnsummon(3000);
+                        creature->DespawnOrUnsummon(3s);
                 for (GuidVector::const_iterator itr = millhouseLastGroupGUIDs.begin(); itr != millhouseLastGroupGUIDs.end(); ++itr)
                     if (Creature* creature = instance->GetCreature(*itr))
-                        creature->DespawnOrUnsummon(3000);
+                        creature->DespawnOrUnsummon(3s);
             }
 
             void ActivateTeleporter(Creature* teleporter)
@@ -213,7 +222,7 @@ class instance_stonecore : public InstanceMapScript
                     return;
 
                 teleporter->CastSpell(teleporter, SPELL_TELEPORTER_ACTIVE_VISUAL, true);
-                teleporter->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
+                teleporter->SetNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
             }
 
             GuidVector millhouseTrashGUIDs;

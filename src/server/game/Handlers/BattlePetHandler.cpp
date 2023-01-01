@@ -37,14 +37,14 @@ void WorldSession::HandleBattlePetRequestJournalLock(WorldPackets::BattlePet::Ba
 
 void WorldSession::HandleBattlePetSetBattleSlot(WorldPackets::BattlePet::BattlePetSetBattleSlot& battlePetSetBattleSlot)
 {
-    if (BattlePetMgr::BattlePet* pet = GetBattlePetMgr()->GetPet(battlePetSetBattleSlot.PetGuid))
-        if (WorldPackets::BattlePet::BattlePetSlot* slot = GetBattlePetMgr()->GetSlot(battlePetSetBattleSlot.Slot))
+    if (BattlePets::BattlePet* pet = GetBattlePetMgr()->GetPet(battlePetSetBattleSlot.PetGuid))
+        if (WorldPackets::BattlePet::BattlePetSlot* slot = GetBattlePetMgr()->GetSlot(BattlePets::BattlePetSlot(battlePetSetBattleSlot.Slot)))
             slot->Pet = pet->PacketInfo;
 }
 
 void WorldSession::HandleBattlePetModifyName(WorldPackets::BattlePet::BattlePetModifyName& battlePetModifyName)
 {
-    GetBattlePetMgr()->ModifyName(battlePetModifyName.PetGuid, battlePetModifyName.Name, battlePetModifyName.DeclinedNames.get_ptr());
+    GetBattlePetMgr()->ModifyName(battlePetModifyName.PetGuid, battlePetModifyName.Name, std::move(battlePetModifyName.DeclinedNames));
 }
 
 void WorldSession::HandleQueryBattlePetName(WorldPackets::BattlePet::QueryBattlePetName& queryBattlePetName)
@@ -62,14 +62,14 @@ void WorldSession::HandleQueryBattlePetName(WorldPackets::BattlePet::QueryBattle
     response.CreatureID = summonedBattlePet->GetEntry();
     response.Timestamp = summonedBattlePet->GetBattlePetCompanionNameTimestamp();
 
-    Unit* petOwner = summonedBattlePet->ToTempSummon()->GetSummoner();
+    Unit* petOwner = summonedBattlePet->ToTempSummon()->GetSummonerUnit();
     if (!petOwner->IsPlayer())
     {
         SendPacket(response.Write());
         return;
     }
 
-    BattlePetMgr::BattlePet const* battlePet = petOwner->ToPlayer()->GetSession()->GetBattlePetMgr()->GetPet(queryBattlePetName.BattlePetID);
+    BattlePets::BattlePet const* battlePet = petOwner->ToPlayer()->GetSession()->GetBattlePetMgr()->GetPet(queryBattlePetName.BattlePetID);
     if (!battlePet)
     {
         SendPacket(response.Write());
@@ -98,15 +98,15 @@ void WorldSession::HandleBattlePetSetFlags(WorldPackets::BattlePet::BattlePetSet
     if (!GetBattlePetMgr()->HasJournalLock())
         return;
 
-    if (BattlePetMgr::BattlePet* pet = GetBattlePetMgr()->GetPet(battlePetSetFlags.PetGuid))
+    if (BattlePets::BattlePet* pet = GetBattlePetMgr()->GetPet(battlePetSetFlags.PetGuid))
     {
-        if (battlePetSetFlags.ControlType == FLAGS_CONTROL_TYPE_APPLY)
+        if (battlePetSetFlags.ControlType == BattlePets::FLAGS_CONTROL_TYPE_APPLY)
             pet->PacketInfo.Flags |= battlePetSetFlags.Flags;
         else // FLAGS_CONTROL_TYPE_REMOVE
             pet->PacketInfo.Flags &= ~battlePetSetFlags.Flags;
 
-        if (pet->SaveInfo != BATTLE_PET_NEW)
-            pet->SaveInfo = BATTLE_PET_CHANGED;
+        if (pet->SaveInfo != BattlePets::BATTLE_PET_NEW)
+            pet->SaveInfo = BattlePets::BATTLE_PET_CHANGED;
     }
 }
 
@@ -126,4 +126,9 @@ void WorldSession::HandleBattlePetSummon(WorldPackets::BattlePet::BattlePetSummo
         GetBattlePetMgr()->SummonPet(battlePetSummon.PetGuid);
     else
         GetBattlePetMgr()->DismissPet();
+}
+
+void WorldSession::HandleBattlePetUpdateNotify(WorldPackets::BattlePet::BattlePetUpdateNotify& battlePetUpdateNotify)
+{
+    GetBattlePetMgr()->UpdateBattlePetData(battlePetUpdateNotify.PetGuid);
 }

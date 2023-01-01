@@ -18,7 +18,6 @@
 #ifndef AsyncCallbackProcessor_h__
 #define AsyncCallbackProcessor_h__
 
-#include "Define.h"
 #include <algorithm>
 #include <vector>
 

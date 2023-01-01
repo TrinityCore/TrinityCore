@@ -76,6 +76,8 @@ enum LfgType
     LFG_TYPE_NONE                                = 0,
     LFG_TYPE_DUNGEON                             = 1,
     LFG_TYPE_RAID                                = 2,
+    LFG_TYPE_QUEST                               = 3,
+    LFG_TYPE_ZONE                                = 4,
     LFG_TYPE_HEROIC                              = 5,
     LFG_TYPE_RANDOM                              = 6
 };
@@ -316,6 +318,11 @@ class TC_GAME_API LFGMgr
         ~LFGMgr();
 
     public:
+        LFGMgr(LFGMgr const& right) = delete;
+        LFGMgr(LFGMgr&& right) = delete;
+        LFGMgr& operator=(LFGMgr const& right) = delete;
+        LFGMgr& operator=(LFGMgr&& right) = delete;
+
         static LFGMgr* instance();
 
         // Functions used outside lfg namespace
@@ -441,6 +448,7 @@ class TC_GAME_API LFGMgr
 
     private:
         uint8 GetTeam(ObjectGuid guid);
+        uint8 FilterClassRoles(Player* player, uint8 roles);
         void RestoreState(ObjectGuid guid, char const* debugMsg);
         void ClearState(ObjectGuid guid, char const* debugMsg);
         void SetDungeon(ObjectGuid guid, uint32 dungeon);
@@ -482,7 +490,7 @@ class TC_GAME_API LFGMgr
         LfgCachedDungeonContainer CachedDungeonMapStore;   /// Stores all dungeons by groupType
         // Reward System
         LfgRewardContainer RewardMapStore;                 /// Stores rewards for random dungeons
-        LFGDungeonContainer  LfgDungeonStore;
+        LFGDungeonContainer LfgDungeonStore;
         // Rolecheck - Proposal - Vote Kicks
         LfgRoleCheckContainer RoleChecksStore;             /// Current Role checks
         LfgProposalContainer ProposalsStore;               /// Current Proposals

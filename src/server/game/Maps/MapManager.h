@@ -18,52 +18,44 @@
 #ifndef TRINITY_MAPMANAGER_H
 #define TRINITY_MAPMANAGER_H
 
-#include "Object.h"
-#include "Map.h"
-#include "MapInstanced.h"
-#include "GridStates.h"
+#include "GridDefines.h"
+#include "IteratorPair.h"
 #include "MapUpdater.h"
-#include <boost/dynamic_bitset.hpp>
+#include "Position.h"
+#include "SharedDefines.h"
+#include <boost/dynamic_bitset_fwd.hpp>
+#include <map>
+#include <shared_mutex>
 
-class PhaseShift;
-class Transport;
-struct TransportCreatureProto;
+class Battleground;
+class BattlegroundMap;
+class GarrisonMap;
+class Group;
+class InstanceLock;
+class InstanceMap;
+class Map;
+class Player;
+enum Difficulty : uint8;
 
 class TC_GAME_API MapManager
 {
+        MapManager();
+        ~MapManager();
+
     public:
+        MapManager(MapManager const&) = delete;
+        MapManager(MapManager&&) = delete;
+        MapManager& operator=(MapManager const&) = delete;
+        MapManager& operator=(MapManager&&) = delete;
+
         static MapManager* instance();
 
-        Map* CreateBaseMap(uint32 mapId);
-        Map* FindBaseNonInstanceMap(uint32 mapId) const;
-        Map* CreateMap(uint32 mapId, Player* player, uint32 loginInstanceId=0);
+        Map* CreateMap(uint32 mapId, Player* player);
         Map* FindMap(uint32 mapId, uint32 instanceId) const;
-
-        uint32 GetAreaId(PhaseShift const& phaseShift, uint32 mapid, float x, float y, float z)
-        {
-            Map* m = CreateBaseMap(mapid);
-            return m->GetAreaId(phaseShift, x, y, z);
-        }
-        uint32 GetAreaId(PhaseShift const& phaseShift, uint32 mapid, Position const& pos) { return GetAreaId(phaseShift, mapid, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()); }
-        uint32 GetAreaId(PhaseShift const& phaseShift, WorldLocation const& loc) { return GetAreaId(phaseShift, loc.GetMapId(), loc); }
-        uint32 GetZoneId(PhaseShift const& phaseShift, uint32 mapid, float x, float y, float z)
-        {
-            Map* m = CreateBaseMap(mapid);
-            return m->GetZoneId(phaseShift, x, y, z);
-        }
-        uint32 GetZoneId(PhaseShift const& phaseShift, uint32 mapid, Position const& pos) { return GetZoneId(phaseShift, mapid, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()); }
-        uint32 GetZoneId(PhaseShift const& phaseShift, WorldLocation const& loc) { return GetZoneId(phaseShift, loc.GetMapId(), loc); }
-        void GetZoneAndAreaId(PhaseShift const& phaseShift, uint32& zoneid, uint32& areaid, uint32 mapid, float x, float y, float z)
-        {
-            Map* m = CreateBaseMap(mapid);
-            m->GetZoneAndAreaId(phaseShift, zoneid, areaid, x, y, z);
-        }
-        void GetZoneAndAreaId(PhaseShift const& phaseShift, uint32& zoneid, uint32& areaid, uint32 mapid, Position const& pos) { GetZoneAndAreaId(phaseShift, zoneid, areaid, mapid, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()); }
-        void GetZoneAndAreaId(PhaseShift const& phaseShift, uint32& zoneid, uint32& areaid, WorldLocation const& loc) { GetZoneAndAreaId(phaseShift, zoneid, areaid, loc.GetMapId(), loc); }
+        uint32 FindInstanceIdForPlayer(uint32 mapId, Player const* player) const;
 
         void Initialize();
-        void InitializeParentMapData(std::unordered_map<uint32, std::vector<uint32>> const& mapData);
-        void Update(uint32);
+        void Update(uint32 diff);
 
         void SetGridCleanUpDelay(uint32 t)
         {
@@ -82,40 +74,40 @@ class TC_GAME_API MapManager
             i_timer.Reset();
         }
 
-        //void LoadGrid(int mapid, int instId, float x, float y, WorldObject const* obj, bool no_unload = false);
         void UnloadAll();
 
-        static bool ExistMapAndVMap(uint32 mapid, float x, float y);
-        static bool IsValidMAP(uint32 mapid, bool startUp);
+        static bool IsValidMAP(uint32 mapId);
 
         static bool IsValidMapCoord(uint32 mapid, float x, float y)
         {
-            return IsValidMAP(mapid, false) && Trinity::IsValidMapCoord(x, y);
+            return IsValidMAP(mapid) && Trinity::IsValidMapCoord(x, y);
         }
 
         static bool IsValidMapCoord(uint32 mapid, float x, float y, float z)
         {
-            return IsValidMAP(mapid, false) && Trinity::IsValidMapCoord(x, y, z);
+            return IsValidMAP(mapid) && Trinity::IsValidMapCoord(x, y, z);
         }
 
         static bool IsValidMapCoord(uint32 mapid, float x, float y, float z, float o)
         {
-            return IsValidMAP(mapid, false) && Trinity::IsValidMapCoord(x, y, z, o);
+            return IsValidMAP(mapid) && Trinity::IsValidMapCoord(x, y, z, o);
+        }
+
+        static bool IsValidMapCoord(uint32 mapid, Position const& pos)
+        {
+            return IsValidMapCoord(mapid, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
         }
 
         static bool IsValidMapCoord(WorldLocation const& loc)
         {
-            return IsValidMapCoord(loc.GetMapId(), loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation());
+            return IsValidMapCoord(loc.GetMapId(), loc);
         }
 
-        void DoDelayedMovesAndRemoves();
-
-        Map::EnterState PlayerCannotEnter(uint32 mapid, Player* player, bool loginCheck = false);
         void InitializeVisibilityDistanceInfo();
 
         /* statistics */
-        uint32 GetNumInstances();
-        uint32 GetNumPlayersInInstances();
+        uint32 GetNumInstances() const;
+        uint32 GetNumPlayersInInstances() const;
 
         // Instance ID management
         void InitInstanceIds();
@@ -136,78 +128,58 @@ class TC_GAME_API MapManager
         void DecreaseScheduledScriptCount(std::size_t count) { _scheduledScripts -= count; }
         bool IsScriptScheduled() const { return _scheduledScripts > 0; }
 
+        void AddSC_BuiltInScripts();
+
     private:
-        typedef std::unordered_map<uint32, Map*> MapMapType;
+        using MapKey = std::pair<uint32, uint32>;
+        typedef std::map<MapKey, Map*> MapMapType;
         typedef boost::dynamic_bitset<size_t> InstanceIds;
 
-        MapManager();
-        ~MapManager();
+        Map* FindMap_i(uint32 mapId, uint32 instanceId) const;
 
-        Map* FindBaseMap(uint32 mapId) const
-        {
-            MapMapType::const_iterator iter = i_maps.find(mapId);
-            return (iter == i_maps.end() ? nullptr : iter->second);
-        }
+        Map* CreateWorldMap(uint32 mapId, uint32 instanceId);
+        InstanceMap* CreateInstance(uint32 mapId, uint32 instanceId, InstanceLock* instanceLock, Difficulty difficulty, TeamId team, Group* group);
+        BattlegroundMap* CreateBattleground(uint32 mapId, uint32 instanceId, Battleground* bg);
+        GarrisonMap* CreateGarrison(uint32 mapId, uint32 instanceId, Player* owner);
 
-        Map* CreateBaseMap_i(MapEntry const* mapEntry);
+        bool DestroyMap(Map* map);
 
-        MapManager(MapManager const&) = delete;
-        MapManager& operator=(MapManager const&) = delete;
-
-        std::mutex _mapsLock;
+        mutable std::shared_mutex _mapsLock;
         uint32 i_gridCleanUpDelay;
         MapMapType i_maps;
         IntervalTimer i_timer;
 
-        InstanceIds _freeInstanceIds;
+        std::unique_ptr<InstanceIds> _freeInstanceIds;
         uint32 _nextInstanceId;
         MapUpdater m_updater;
 
         // atomic op counter for active scripts amount
         std::atomic<std::size_t> _scheduledScripts;
-
-        // parent map links
-        std::unordered_map<uint32, std::vector<uint32>> _parentMapData;
 };
 
 template<typename Worker>
 void MapManager::DoForAllMaps(Worker&& worker)
 {
-    std::lock_guard<std::mutex> lock(_mapsLock);
+    std::shared_lock<std::shared_mutex> lock(_mapsLock);
 
-    for (auto& mapPair : i_maps)
-    {
-        Map* map = mapPair.second;
-        if (MapInstanced* mapInstanced = map->ToMapInstanced())
-        {
-            MapInstanced::InstancedMaps& instances = mapInstanced->GetInstancedMaps();
-            for (auto& instancePair : instances)
-                worker(instancePair.second);
-        }
-        else
-            worker(map);
-    }
+    for (auto const& [key, map] : i_maps)
+        worker(map);
 }
 
 template<typename Worker>
-inline void MapManager::DoForAllMapsWithMapId(uint32 mapId, Worker&& worker)
+void MapManager::DoForAllMapsWithMapId(uint32 mapId, Worker&& worker)
 {
-    std::lock_guard<std::mutex> lock(_mapsLock);
+    std::shared_lock<std::shared_mutex> lock(_mapsLock);
 
-    auto itr = i_maps.find(mapId);
-    if (itr != i_maps.end())
-    {
-        Map* map = itr->second;
-        if (MapInstanced* mapInstanced = map->ToMapInstanced())
-        {
-            MapInstanced::InstancedMaps& instances = mapInstanced->GetInstancedMaps();
-            for (auto& p : instances)
-                worker(p.second);
-        }
-        else
-            worker(map);
-    }
+    auto range = Trinity::Containers::MakeIteratorPair(
+        i_maps.lower_bound({ mapId, 0 }),
+        i_maps.upper_bound({ mapId, std::numeric_limits<uint32>::max() })
+    );
+
+    for (auto const& [key, map] : range)
+        worker(map);
 }
 
 #define sMapMgr MapManager::instance()
+
 #endif

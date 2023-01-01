@@ -25,14 +25,20 @@
 
 struct BattlePetSpeciesEntry;
 
+namespace BattlePets
+{
 enum BattlePetMisc
 {
-    MAX_PET_BATTLE_SLOTS                = 3,
     DEFAULT_MAX_BATTLE_PETS_PER_SPECIES = 3,
     BATTLE_PET_CAGE_ITEM_ID             = 82800,
-    DEFAULT_SUMMON_BATTLE_PET_SPELL     = 118301,
-    SPELL_VISUAL_UNCAGE_PET             = 222
+    SPELL_VISUAL_UNCAGE_PET             = 222,
+
+    SPELL_BATTLE_PET_TRAINING           = 125610,
+    SPELL_REVIVE_BATTLE_PETS            = 125439,
+    SPELL_SUMMON_BATTLE_PET             = 118301
 };
+
+static constexpr uint16 MAX_BATTLE_PET_LEVEL = 25;
 
 enum class BattlePetBreedQuality : uint8
 {
@@ -67,6 +73,23 @@ enum class BattlePetError : uint8
     CantHaveMorePetsOfType = 3, // You can't have any more pets of that type.
     CantHaveMorePets       = 4, // You can't have any more pets.
     TooHighLevelToUncage   = 7  // This pet is too high level for you to uncage.
+};
+
+enum class BattlePetSlot : uint8
+{
+    Slot0 = 0,
+    Slot1 = 1,
+    Slot2 = 2,
+
+    Count
+};
+
+enum class BattlePetXpSource : uint8
+{
+    PetBattle   = 0,
+    SpellEffect = 1,
+
+    Count
 };
 
 // 6.2.4
@@ -110,43 +133,48 @@ enum BattlePetSaveInfo
     BATTLE_PET_REMOVED   = 3
 };
 
-class BattlePetMgr
+struct BattlePet
+{
+    void CalculateStats();
+
+    WorldPackets::BattlePet::BattlePet PacketInfo;
+    time_t NameTimestamp = time_t(0);
+    std::unique_ptr<::DeclinedName> DeclinedName;
+    BattlePetSaveInfo SaveInfo = BATTLE_PET_UNCHANGED;
+};
+
+class TC_GAME_API BattlePetMgr
 {
 public:
-    struct BattlePet
-    {
-        void CalculateStats();
-
-        WorldPackets::BattlePet::BattlePet PacketInfo;
-        time_t NameTimestamp = time_t(0);
-        std::unique_ptr<::DeclinedName> DeclinedName;
-        BattlePetSaveInfo SaveInfo = BATTLE_PET_UNCHANGED;
-    };
-
     explicit BattlePetMgr(WorldSession* owner);
+    BattlePetMgr(BattlePetMgr const& right) = delete;
+    BattlePetMgr(BattlePetMgr&& right) = delete;
 
     static void Initialize();
 
+    static void AddBattlePetSpeciesBySpell(uint32 spellId, BattlePetSpeciesEntry const* speciesEntry);
+    static BattlePetSpeciesEntry const* GetBattlePetSpeciesByCreature(uint32 creatureId);
+    static BattlePetSpeciesEntry const* GetBattlePetSpeciesBySpell(uint32 spellId);
     static uint16 RollPetBreed(uint32 species);
     static BattlePetBreedQuality GetDefaultPetQuality(uint32 species);
     static uint32 SelectPetDisplay(BattlePetSpeciesEntry const* speciesEntry);
 
     void LoadFromDB(PreparedQueryResult pets, PreparedQueryResult slots);
-    void SaveToDB(LoginDatabaseTransaction& trans);
+    void SaveToDB(LoginDatabaseTransaction trans);
 
     BattlePet* GetPet(ObjectGuid guid);
     void AddPet(uint32 species, uint32 display, uint16 breed, BattlePetBreedQuality quality, uint16 level = 1);
     void RemovePet(ObjectGuid guid);
     void ClearFanfare(ObjectGuid guid);
-    void ModifyName(ObjectGuid guid, std::string const& name, DeclinedName* declinedName);
+    void ModifyName(ObjectGuid guid, std::string const& name, std::unique_ptr<DeclinedName> declinedName);
     bool IsPetInSlot(ObjectGuid guid);
 
     uint8 GetPetCount(BattlePetSpeciesEntry const* battlePetSpecies, ObjectGuid ownerGuid) const;
     bool HasMaxPetCount(BattlePetSpeciesEntry const* battlePetSpecies, ObjectGuid ownerGuid) const;
     uint32 GetPetUniqueSpeciesCount() const;
 
-    WorldPackets::BattlePet::BattlePetSlot* GetSlot(uint8 slot) { return slot < _slots.size() ? &_slots[slot] : nullptr; }
-    void UnlockSlot(uint8 slot);
+    WorldPackets::BattlePet::BattlePetSlot* GetSlot(BattlePetSlot slot) { return slot < BattlePetSlot::Count ? &_slots[size_t(slot)] : nullptr; }
+    void UnlockSlot(BattlePetSlot slot);
 
     WorldSession* GetOwner() const { return _owner; }
 
@@ -155,7 +183,11 @@ public:
     std::vector<WorldPackets::BattlePet::BattlePetSlot> const& GetSlots() const { return _slots; }
 
     void CageBattlePet(ObjectGuid guid);
+    void ChangeBattlePetQuality(ObjectGuid guid, BattlePetBreedQuality quality);
+    void GrantBattlePetExperience(ObjectGuid guid, uint16 xp, BattlePetXpSource xpSource);
+    void GrantBattlePetLevel(ObjectGuid guid, uint16 grantedLevels);
     void HealBattlePetsPct(uint8 pct);
+    void UpdateBattlePetData(ObjectGuid guid);
 
     void SummonPet(ObjectGuid guid);
     void DismissPet();
@@ -169,6 +201,8 @@ public:
     bool HasJournalLock() const { return _hasJournalLock; }
     void ToggleJournalLock(bool lock) { _hasJournalLock = lock; }
 
+    bool IsBattlePetSystemEnabled() { return GetSlot(BattlePetSlot::Slot0)->Locked != true; }
+
 private:
     WorldSession* _owner;
     bool _hasJournalLock = false;
@@ -178,12 +212,6 @@ private:
 
     static void LoadAvailablePetBreeds();
     static void LoadDefaultPetQualities();
-
-    // hash no longer required in C++14
-    static std::unordered_map<uint16 /*BreedID*/, std::unordered_map<BattlePetState /*state*/, int32 /*value*/, std::hash<std::underlying_type<BattlePetState>::type> >> _battlePetBreedStates;
-    static std::unordered_map<uint32 /*SpeciesID*/, std::unordered_map<BattlePetState /*state*/, int32 /*value*/, std::hash<std::underlying_type<BattlePetState>::type> >> _battlePetSpeciesStates;
-    static std::unordered_map<uint32 /*SpeciesID*/, std::unordered_set<uint8 /*breed*/>> _availableBreedsPerSpecies;
-    static std::unordered_map<uint32 /*SpeciesID*/, uint8 /*quality*/> _defaultQualityPerSpecies;
 };
-
+}
 #endif // BattlePetMgr_h__

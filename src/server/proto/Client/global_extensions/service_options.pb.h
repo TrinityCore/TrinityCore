@@ -330,7 +330,6 @@ class TC_PROTO_API SDKServiceOptions : public ::google::protobuf::Message {
 };
 // ===================================================================
 
-
 // ===================================================================
 
 static const int kServiceOptionsFieldNumber = 90000;
@@ -723,7 +722,6 @@ inline void SDKServiceOptions::set_use_client_id(bool value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.SDKServiceOptions.use_client_id)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace protocol
@@ -732,13 +730,11 @@ inline void SDKServiceOptions::set_use_client_id(bool value) {
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
 template <> struct is_proto_enum< ::bgs::protocol::BGSServiceOptions_ServiceType> : ::google::protobuf::internal::true_type {};
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::BGSServiceOptions_ServiceType>() {
   return ::bgs::protocol::BGSServiceOptions_ServiceType_descriptor();
 }
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

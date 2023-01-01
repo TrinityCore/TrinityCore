@@ -27,7 +27,6 @@
 #include "Player.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
-#include "SpellMgr.h"
 #include "SpellScript.h"
 #include <numeric>
 
@@ -53,6 +52,7 @@ enum DeathKnightSpells
     SPELL_DK_DEATH_STRIKE_OFFHAND               = 66188,
     SPELL_DK_FESTERING_WOUND                    = 194310,
     SPELL_DK_FROST                              = 137006,
+    SPELL_DK_FROST_SCYTHE                       = 207230,
     SPELL_DK_GLYPH_OF_FOUL_MENAGERIE            = 58642,
     SPELL_DK_GLYPH_OF_THE_GEIST                 = 58640,
     SPELL_DK_GLYPH_OF_THE_SKELETON              = 146652,
@@ -88,7 +88,7 @@ class spell_dk_advantage_t10_4p : public AuraScript
         if (Unit* caster = eventInfo.GetActor())
         {
             Player* player = caster->ToPlayer();
-            if (!player  || caster->getClass() != CLASS_DEATH_KNIGHT)
+            if (!player  || caster->GetClass() != CLASS_DEATH_KNIGHT)
                 return false;
 
             for (uint8 i = 0; i < player->GetMaxPower(POWER_RUNES); ++i)
@@ -367,7 +367,7 @@ class spell_dk_death_gate : public SpellScript
 
     SpellCastResult CheckClass()
     {
-        if (GetCaster()->getClass() != CLASS_DEATH_KNIGHT)
+        if (GetCaster()->GetClass() != CLASS_DEATH_KNIGHT)
         {
             SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_MUST_BE_DEATH_KNIGHT);
             return SPELL_FAILED_CUSTOM_ERROR;
@@ -430,7 +430,6 @@ class spell_dk_death_grip_initial : public SpellScript
         OnEffectHitTarget += SpellEffectFn(spell_dk_death_grip_initial::HandleDummy, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
-
 
 // 48743 - Death Pact
 class spell_dk_death_pact : public AuraScript
@@ -597,6 +596,46 @@ class spell_dk_ghoul_explode : public SpellScript
     }
 };
 
+// 69961 - Glyph of Scourge Strike
+class spell_dk_glyph_of_scourge_strike_script : public SpellScript
+{
+    PrepareSpellScript(spell_dk_glyph_of_scourge_strike_script);
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        Unit::AuraEffectList const& mPeriodic = target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
+        for (Unit::AuraEffectList::const_iterator i = mPeriodic.begin(); i != mPeriodic.end(); ++i)
+        {
+            AuraEffect const* aurEff = *i;
+            SpellInfo const* spellInfo = aurEff->GetSpellInfo();
+            // search our Blood Plague and Frost Fever on target
+            if (spellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && spellInfo->SpellFamilyFlags[2] & 0x2 &&
+                aurEff->GetCasterGUID() == caster->GetGUID())
+            {
+                uint32 countMin = aurEff->GetBase()->GetMaxDuration();
+                uint32 countMax = spellInfo->GetMaxDuration();
+
+                // this Glyph
+                countMax += 9000;
+
+                if (countMin < countMax)
+                {
+                    aurEff->GetBase()->SetDuration(aurEff->GetBase()->GetDuration() + 3000);
+                    aurEff->GetBase()->SetMaxDuration(countMin + 3000);
+                }
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dk_glyph_of_scourge_strike_script::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 // 206940 - Mark of Blood
 class spell_dk_mark_of_blood : public AuraScript
 {
@@ -757,6 +796,31 @@ class spell_dk_raise_dead : public SpellScript
     }
 };
 
+// 59057 - Rime
+class spell_dk_rime : public AuraScript
+{
+    PrepareAuraScript(spell_dk_rime);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return spellInfo->GetEffects().size() > EFFECT_1 && ValidateSpellInfo({ SPELL_DK_FROST_SCYTHE });
+    }
+
+    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        float chance = static_cast<float>(GetSpellInfo()->GetEffect(EFFECT_1).CalcValue(GetTarget()));
+        if (eventInfo.GetSpellInfo()->Id == SPELL_DK_FROST_SCYTHE)
+            chance /= 2.f;
+
+        return roll_chance_f(chance);
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_dk_rime::CheckProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
 // 55233 - Vampiric Blood
 class spell_dk_vampiric_blood : public AuraScript
 {
@@ -775,25 +839,27 @@ class spell_dk_vampiric_blood : public AuraScript
 
 void AddSC_deathknight_spell_scripts()
 {
-    RegisterAuraScript(spell_dk_advantage_t10_4p);
-    RegisterAuraScript(spell_dk_anti_magic_shell);
+    RegisterSpellScript(spell_dk_advantage_t10_4p);
+    RegisterSpellScript(spell_dk_anti_magic_shell);
     RegisterSpellScript(spell_dk_army_transform);
     RegisterSpellScript(spell_dk_blood_boil);
-    RegisterAuraScript(spell_dk_dancing_rune_weapon);
+    RegisterSpellScript(spell_dk_dancing_rune_weapon);
     RegisterSpellAndAuraScriptPair(spell_dk_death_and_decay, spell_dk_death_and_decay_AuraScript);
     RegisterSpellScript(spell_dk_death_coil);
     RegisterSpellScript(spell_dk_death_gate);
     RegisterSpellScript(spell_dk_death_grip_initial);
-    RegisterAuraScript(spell_dk_death_pact);
+    RegisterSpellScript(spell_dk_death_pact);
     RegisterSpellScript(spell_dk_death_strike);
-    RegisterAuraScript(spell_dk_death_strike_enabler);
+    RegisterSpellScript(spell_dk_death_strike_enabler);
     RegisterSpellScript(spell_dk_festering_strike);
     RegisterSpellScript(spell_dk_ghoul_explode);
-    RegisterAuraScript(spell_dk_mark_of_blood);
-    RegisterAuraScript(spell_dk_necrosis);
+    RegisterSpellScript(spell_dk_glyph_of_scourge_strike_script);
+    RegisterSpellScript(spell_dk_mark_of_blood);
+    RegisterSpellScript(spell_dk_necrosis);
     RegisterSpellScript(spell_dk_pet_geist_transform);
     RegisterSpellScript(spell_dk_pet_skeleton_transform);
-    RegisterAuraScript(spell_dk_pvp_4p_bonus);
+    RegisterSpellScript(spell_dk_pvp_4p_bonus);
     RegisterSpellScript(spell_dk_raise_dead);
-    RegisterAuraScript(spell_dk_vampiric_blood);
+    RegisterSpellScript(spell_dk_rime);
+    RegisterSpellScript(spell_dk_vampiric_blood);
 }

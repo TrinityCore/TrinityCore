@@ -72,13 +72,13 @@ class DatabaseWorkerPool
 
         //! Enqueues a one-way SQL operation in string format -with variable args- that will be executed asynchronously.
         //! This method should only be used for queries that are only executed once, e.g during startup.
-        template<typename Format, typename... Args>
-        void PExecute(Format&& sql, Args&&... args)
+        template<typename... Args>
+        void PExecute(std::string_view sql, Args&&... args)
         {
             if (Trinity::IsFormatEmptyOrNull(sql))
                 return;
 
-            Execute(Trinity::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...).c_str());
+            Execute(Trinity::StringFormat(sql, std::forward<Args>(args)...).c_str());
         }
 
         //! Enqueues a one-way SQL operation in prepared statement format that will be executed asynchronously.
@@ -95,13 +95,13 @@ class DatabaseWorkerPool
 
         //! Directly executes a one-way SQL operation in string format -with variable args-, that will block the calling thread until finished.
         //! This method should only be used for queries that are only executed once, e.g during startup.
-        template<typename Format, typename... Args>
-        void DirectPExecute(Format&& sql, Args&&... args)
+        template<typename... Args>
+        void DirectPExecute(std::string_view sql, Args&&... args)
         {
             if (Trinity::IsFormatEmptyOrNull(sql))
                 return;
 
-            DirectExecute(Trinity::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...).c_str());
+            DirectExecute(Trinity::StringFormat(sql, std::forward<Args>(args)...).c_str());
         }
 
         //! Directly executes a one-way SQL operation in prepared statement format, that will block the calling thread until finished.
@@ -118,24 +118,24 @@ class DatabaseWorkerPool
 
         //! Directly executes an SQL query in string format -with variable args- that will block the calling thread until finished.
         //! Returns reference counted auto pointer, no need for manual memory management in upper level code.
-        template<typename Format, typename... Args>
-        QueryResult PQuery(Format&& sql, T* conn, Args&&... args)
+        template<typename... Args>
+        QueryResult PQuery(std::string_view sql, T* conn, Args&&... args)
         {
             if (Trinity::IsFormatEmptyOrNull(sql))
                 return QueryResult(nullptr);
 
-            return Query(Trinity::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...).c_str(), conn);
+            return Query(Trinity::StringFormat(sql, std::forward<Args>(args)...).c_str(), conn);
         }
 
         //! Directly executes an SQL query in string format -with variable args- that will block the calling thread until finished.
         //! Returns reference counted auto pointer, no need for manual memory management in upper level code.
-        template<typename Format, typename... Args>
-        QueryResult PQuery(Format&& sql, Args&&... args)
+        template<typename... Args>
+        QueryResult PQuery(std::string_view sql, Args&&... args)
         {
             if (Trinity::IsFormatEmptyOrNull(sql))
                 return QueryResult(nullptr);
 
-            return Query(Trinity::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...).c_str());
+            return Query(Trinity::StringFormat(sql, std::forward<Args>(args)...).c_str());
         }
 
         //! Directly executes an SQL query in prepared format that will block the calling thread until finished.
@@ -160,7 +160,7 @@ class DatabaseWorkerPool
         //! return object as soon as the query is executed.
         //! The return value is then processed in ProcessQueryCallback methods.
         //! Any prepared statements added to this holder need to be prepared with the CONNECTION_ASYNC flag.
-        QueryResultHolderFuture DelayQueryHolder(SQLQueryHolder<T>* holder);
+        SQLQueryHolderCallback DelayQueryHolder(std::shared_ptr<SQLQueryHolder<T>> holder);
 
         /**
             Transaction context methods.
@@ -206,6 +206,15 @@ class DatabaseWorkerPool
         //! Keeps all our MySQL connections alive, prevent the server from disconnecting us.
         void KeepAlive();
 
+        void WarnAboutSyncQueries([[maybe_unused]] bool warn)
+        {
+#ifdef TRINITY_DEBUG
+            _warnSyncQueries = warn;
+#endif
+        }
+
+        size_t QueueSize() const;
+
     private:
         uint32 OpenConnections(InternalIndex type, uint8 numConnections);
 
@@ -225,6 +234,9 @@ class DatabaseWorkerPool
         std::unique_ptr<MySQLConnectionInfo> _connectionInfo;
         std::vector<uint8> _preparedStatementSize;
         uint8 _async_threads, _synch_threads;
+#ifdef TRINITY_DEBUG
+        static inline thread_local bool _warnSyncQueries = false;
+#endif
 };
 
 #endif

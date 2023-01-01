@@ -354,9 +354,7 @@ class TC_PROTO_API InvitationParams : public ::google::protobuf::Message {
 };
 // ===================================================================
 
-
 // ===================================================================
-
 
 // ===================================================================
 
@@ -848,7 +846,6 @@ inline void InvitationParams::set_expiration_time(::google::protobuf::uint64 val
   // @@protoc_insertion_point(field_set:bgs.protocol.InvitationParams.expiration_time)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace protocol
@@ -857,7 +854,6 @@ inline void InvitationParams::set_expiration_time(::google::protobuf::uint64 val
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
 template <> struct is_proto_enum< ::bgs::protocol::InvitationRemovedReason> : ::google::protobuf::internal::true_type {};
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::InvitationRemovedReason>() {
@@ -868,7 +864,6 @@ template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::SuggestionRemovedReason>() {
   return ::bgs::protocol::SuggestionRemovedReason_descriptor();
 }
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

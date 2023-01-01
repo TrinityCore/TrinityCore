@@ -32,7 +32,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 
 }  // namespace
 
-
 void protobuf_AssignDesc_role_5ftypes_2eproto() {
   protobuf_AddDesc_role_5ftypes_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -144,7 +143,6 @@ struct StaticDescriptorInitializer_role_5ftypes_2eproto {
     protobuf_AddDesc_role_5ftypes_2eproto();
   }
 } static_descriptor_initializer_role_5ftypes_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -767,7 +765,6 @@ void Role::CopyFrom(const Role& from) {
 
 bool Role::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
-
   return true;
 }
 
@@ -795,7 +792,6 @@ void Role::Swap(Role* other) {
   metadata.reflection = Role_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1394,7 +1390,6 @@ void RoleState::CopyFrom(const RoleState& from) {
 }
 
 bool RoleState::IsInitialized() const {
-
   return true;
 }
 
@@ -1421,7 +1416,6 @@ void RoleState::Swap(RoleState* other) {
   metadata.reflection = RoleState_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

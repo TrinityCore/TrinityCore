@@ -21,8 +21,8 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "PhasingHandler.h"
+#include "Player.h"
 #include "SpellAuras.h"
-#include "Unit.h"
 #include "UpdateData.h"
 #include "Util.h"
 
@@ -119,6 +119,9 @@ bool SceneObject::Create(ObjectGuid::LowType lowGuid, SceneType type, uint32 sce
     Object::_Create(ObjectGuid::Create<HighGuid::SceneObject>(GetMapId(), sceneId, lowGuid));
     PhasingHandler::InheritPhaseShift(this, creator);
 
+    UpdatePositionData();
+    SetZoneScript();
+
     SetEntry(scriptPackageId);
     SetObjectScale(1.0f);
 
@@ -170,7 +173,7 @@ void SceneObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Objec
     if (requestedSceneObjectMask.IsAnySet())
         valuesMask.Set(TYPEID_SCENEOBJECT);
 
-    ByteBuffer buffer = PrepareValuesUpdateBuffer();
+    ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
     buffer << uint32(valuesMask.GetBlock(0));
@@ -183,7 +186,18 @@ void SceneObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Objec
 
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
-    data->AddUpdateBlock(buffer);
+    data->AddUpdateBlock();
+}
+
+void SceneObject::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const
+{
+    UpdateData udata(Owner->GetMapId());
+    WorldPacket packet;
+
+    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), SceneObjectMask.GetChangesMask(), player);
+
+    udata.BuildPacket(&packet);
+    player->SendDirectMessage(&packet);
 }
 
 void SceneObject::ClearUpdateMask(bool remove)

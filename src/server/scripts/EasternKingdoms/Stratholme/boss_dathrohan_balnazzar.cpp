@@ -124,7 +124,7 @@ public:
             for (uint8 i=0; i<uiCount; ++i)
                 me->SummonCreature(NPC_ZOMBIE,
                 m_aSummonPoint[i].m_fX, m_aSummonPoint[i].m_fY, m_aSummonPoint[i].m_fZ, m_aSummonPoint[i].m_fOrient,
-                TEMPSUMMON_TIMED_DESPAWN, HOUR*IN_MILLISECONDS);
+                TEMPSUMMON_TIMED_DESPAWN, 1h);
         }
 
         void JustEngagedWith(Unit* /*who*/) override
@@ -198,7 +198,7 @@ public:
                 //PsychicScream
                 if (m_uiPsychicScream_Timer <= uiDiff)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_PSYCHICSCREAM);
 
                     m_uiPsychicScream_Timer = 20000;
@@ -207,7 +207,7 @@ public:
                 //DeepSleep
                 if (m_uiDeepSleep_Timer <= uiDiff)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_SLEEP);
 
                     m_uiDeepSleep_Timer = 15000;

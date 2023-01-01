@@ -54,4 +54,6 @@ inline AI* GetObsidianSanctumAI(T* obj)
     return GetInstanceAI<AI>(obj, OSScriptName);
 }
 
+#define RegisterObsidianSanctumCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetObsidianSanctumAI)
+
 #endif // OBSIDIAN_SANCTUM_H_

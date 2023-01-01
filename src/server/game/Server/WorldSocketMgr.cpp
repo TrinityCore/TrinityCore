@@ -92,13 +92,13 @@ bool WorldSocketMgr::StartWorldNetwork(Trinity::Asio::IoContext& ioContext, std:
     if (!instanceAcceptor->Bind())
     {
         TC_LOG_ERROR("network", "StartNetwork failed to bind instance socket acceptor");
+        delete instanceAcceptor;
         return false;
     }
 
     _instanceAcceptor = instanceAcceptor;
 
-    _acceptor->SetSocketFactory(std::bind(&BaseSocketMgr::GetSocketForAccept, this));
-    _instanceAcceptor->SetSocketFactory(std::bind(&BaseSocketMgr::GetSocketForAccept, this));
+    _instanceAcceptor->SetSocketFactory([this]() { return GetSocketForAccept(); });
 
     _acceptor->AsyncAcceptWithCallback<&OnSocketAccept>();
     _instanceAcceptor->AsyncAcceptWithCallback<&OnSocketAccept>();

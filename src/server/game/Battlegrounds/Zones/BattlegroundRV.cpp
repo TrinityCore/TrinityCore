@@ -20,7 +20,6 @@
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "WorldStatePackets.h"
 
 BattlegroundRV::BattlegroundRV(BattlegroundTemplate const* battlegroundTemplate) : Arena(battlegroundTemplate)
 {
@@ -98,13 +97,6 @@ void BattlegroundRV::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
             Battleground::HandleAreaTrigger(player, trigger, entered);
             break;
     }
-}
-
-void BattlegroundRV::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
-{
-    packet.Worldstates.emplace_back(BG_RV_WORLD_STATE, 1);
-
-    Arena::FillInitialWorldStates(packet);
 }
 
 bool BattlegroundRV::SetupBattleground()

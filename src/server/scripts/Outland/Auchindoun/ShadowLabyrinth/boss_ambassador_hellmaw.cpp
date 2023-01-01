@@ -51,138 +51,127 @@ enum Events
     EVENT_BERSERK
 };
 
-class boss_ambassador_hellmaw : public CreatureScript
+struct boss_ambassador_hellmaw : public EscortAI
 {
-    public:
-        boss_ambassador_hellmaw() : CreatureScript("boss_ambassador_hellmaw") { }
+    boss_ambassador_hellmaw(Creature* creature) : EscortAI(creature)
+    {
+        _instance = creature->GetInstanceScript();
+        _intro = false;
+    }
 
-        struct boss_ambassador_hellmawAI : public EscortAI
+    void Reset() override
+    {
+        if (!me->IsAlive())
+            return;
+
+        _events.Reset();
+        _instance->SetBossState(DATA_AMBASSADOR_HELLMAW, NOT_STARTED);
+
+        _events.ScheduleEvent(EVENT_CORROSIVE_ACID, 5s, 10s);
+        _events.ScheduleEvent(EVENT_FEAR, 25s, 30s);
+        if (IsHeroic())
+            _events.ScheduleEvent(EVENT_BERSERK, 3min);
+
+        DoAction(ACTION_AMBASSADOR_HELLMAW_BANISH);
+    }
+
+    void MoveInLineOfSight(Unit* who) override
+    {
+        if (me->HasAura(SPELL_BANISH))
+            return;
+
+        EscortAI::MoveInLineOfSight(who);
+    }
+
+    void DoAction(int32 actionId) override
+    {
+        if (actionId == ACTION_AMBASSADOR_HELLMAW_INTRO)
+            DoIntro();
+        else if (actionId == ACTION_AMBASSADOR_HELLMAW_BANISH)
         {
-            boss_ambassador_hellmawAI(Creature* creature) : EscortAI(creature)
-            {
-                _instance = creature->GetInstanceScript();
-                _intro = false;
-            }
-
-            void Reset() override
-            {
-                if (!me->IsAlive())
-                    return;
-
-                _events.Reset();
-                _instance->SetBossState(DATA_AMBASSADOR_HELLMAW, NOT_STARTED);
-
-                _events.ScheduleEvent(EVENT_CORROSIVE_ACID, 5s, 10s);
-                _events.ScheduleEvent(EVENT_FEAR, 25s, 30s);
-                if (IsHeroic())
-                    _events.ScheduleEvent(EVENT_BERSERK, 3min);
-
-                DoAction(ACTION_AMBASSADOR_HELLMAW_BANISH);
-            }
-
-            void MoveInLineOfSight(Unit* who) override
-            {
-                if (me->HasAura(SPELL_BANISH))
-                    return;
-
-                EscortAI::MoveInLineOfSight(who);
-            }
-
-            void DoAction(int32 actionId) override
-            {
-                if (actionId == ACTION_AMBASSADOR_HELLMAW_INTRO)
-                    DoIntro();
-                else if (actionId == ACTION_AMBASSADOR_HELLMAW_BANISH)
-                {
-                    if (_instance->GetData(DATA_FEL_OVERSEER) && me->HasAura(SPELL_BANISH))
-                        DoCast(me, SPELL_BANISH, true); // this will not work, because he is immune to banish
-                }
-            }
-
-            void DoIntro()
-            {
-                if (_intro)
-                    return;
-
-                _intro = true;
-
-                if (me->HasAura(SPELL_BANISH))
-                    me->RemoveAurasDueToSpell(SPELL_BANISH);
-
-                Talk(SAY_INTRO);
-                Start(true, false, ObjectGuid::Empty, nullptr, false, true);
-            }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                _instance->SetBossState(DATA_AMBASSADOR_HELLMAW, IN_PROGRESS);
-                Talk(SAY_AGGRO);
-            }
-
-            void KilledUnit(Unit* who) override
-            {
-                if (who->GetTypeId() == TYPEID_PLAYER)
-                    Talk(SAY_SLAY);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _instance->SetBossState(DATA_AMBASSADOR_HELLMAW, DONE);
-                Talk(SAY_DEATH);
-            }
-
-            void UpdateEscortAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                if (me->HasAura(SPELL_BANISH))
-                {
-                    EnterEvadeMode(EVADE_REASON_OTHER);
-                    return;
-                }
-
-                _events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_CORROSIVE_ACID:
-                            DoCastVictim(SPELL_CORROSIVE_ACID);
-                            _events.ScheduleEvent(EVENT_CORROSIVE_ACID, 15s, 25s);
-                            break;
-                        case EVENT_FEAR:
-                            DoCastAOE(SPELL_FEAR);
-                            _events.ScheduleEvent(EVENT_FEAR, 20s, 35s);
-                            break;
-                        case EVENT_BERSERK:
-                            DoCast(me, SPELL_ENRAGE, true);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            InstanceScript* _instance;
-            EventMap _events;
-            bool _intro;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetShadowLabyrinthAI<boss_ambassador_hellmawAI>(creature);
+            if (_instance->GetData(DATA_FEL_OVERSEER) && me->HasAura(SPELL_BANISH))
+                DoCast(me, SPELL_BANISH, true); // this will not work, because he is immune to banish
         }
+    }
+
+    void DoIntro()
+    {
+        if (_intro)
+            return;
+
+        _intro = true;
+
+        if (me->HasAura(SPELL_BANISH))
+            me->RemoveAurasDueToSpell(SPELL_BANISH);
+
+        Talk(SAY_INTRO);
+        Start(true, false, ObjectGuid::Empty, nullptr, false, true);
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _instance->SetBossState(DATA_AMBASSADOR_HELLMAW, IN_PROGRESS);
+        Talk(SAY_AGGRO);
+    }
+
+    void KilledUnit(Unit* who) override
+    {
+        if (who->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_SLAY);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _instance->SetBossState(DATA_AMBASSADOR_HELLMAW, DONE);
+        Talk(SAY_DEATH);
+    }
+
+    void UpdateEscortAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        if (me->HasAura(SPELL_BANISH))
+        {
+            EnterEvadeMode(EVADE_REASON_OTHER);
+            return;
+        }
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_CORROSIVE_ACID:
+                    DoCastVictim(SPELL_CORROSIVE_ACID);
+                    _events.ScheduleEvent(EVENT_CORROSIVE_ACID, 15s, 25s);
+                    break;
+                case EVENT_FEAR:
+                    DoCastAOE(SPELL_FEAR);
+                    _events.ScheduleEvent(EVENT_FEAR, 20s, 35s);
+                    break;
+                case EVENT_BERSERK:
+                    DoCast(me, SPELL_ENRAGE, true);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    InstanceScript* _instance;
+    EventMap _events;
+    bool _intro;
 };
 
 void AddSC_boss_ambassador_hellmaw()
 {
-    new boss_ambassador_hellmaw();
+    RegisterShadowLabyrinthCreatureAI(boss_ambassador_hellmaw);
 }

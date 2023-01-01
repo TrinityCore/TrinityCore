@@ -1,0 +1,28 @@
+SET @TEL_ID := 1824;
+
+DELETE FROM `game_tele` WHERE `id` BETWEEN @TEL_ID+0 AND @TEL_ID+23;
+INSERT INTO `game_tele` (`id`,`position_x`,`position_y`,`position_z`,`orientation`,`map`,`name`) VALUES
+(@TEL_ID+0,2136.67,-470.646,392.818,3.69623,870,'CaveOfWords'),
+(@TEL_ID+1,1504.99,-1819.17,246.181,5.73436,870,'DawnsBlossom'),
+(@TEL_ID+2,-592.447,-2314.25,18.6739,2.02886,870,'DreamersPavilion'),
+(@TEL_ID+3,2394.59,-2101.85,229.807,4.0913,870,'EmperorsOmen'),
+(@TEL_ID+4,-776.149,-1708.06,10.3117,1.50263,870,'GarrosharPoint'),
+(@TEL_ID+5,1951.6,-1880.63,202.695,5.4579,870,'GreenstoneVillage'),
+(@TEL_ID+6,1482.19,-501.094,344.538,3.11346,870,'GrookinHill'),
+(@TEL_ID+7,3030.5,-548.475,248.218,4.65206,870,'HoneydewVillage'),
+(@TEL_ID+8,1026.32,-2270.98,155.081,4.38974,870,'JadeTempleGrounds'),
+(@TEL_ID+9,1506,-1260.76,244.06,4.54525,870,'LairOfTheJadeWitch'),
+(@TEL_ID+10,-413.377,-3150.7,31.3174,4.54212,870,'MoonwaterRetreat'),
+(@TEL_ID+11,127.433,-1599.83,93.2041,5.38956,870,'NectarbreezeOrchad'),
+(@TEL_ID+12,-299.193,-1760.02,61.5926,5.31967,870,'PawdonVillage'),
+(@TEL_ID+13,-177.643,-2635.19,1.02293,3.36324,870,'PearlfinVillage'),
+(@TEL_ID+14,918.133,-1969.98,65.7898,2.55977,870,'SerpentsHeart'),
+(@TEL_ID+15,317.844,-2542.86,42.96,1.32906,870,'ShangsValley'),
+(@TEL_ID+16,2546.14,-2422.13,24.1133,0.476881,870,'SriLaVillage'),
+(@TEL_ID+17,2495.14,-529.772,343.843,0.696005,870,'StrongarmAirstrip'),
+(@TEL_ID+18,2883.16,-1649.84,255.71,6.27233,870,'TerraceOfTenThunders'),
+(@TEL_ID+19,1560.99,-2565.59,151.276,1.51283,870,'TheArboretum'),
+(@TEL_ID+20,3157.57,-956.048,324.696,1.5301,870,'ThunderHold'),
+(@TEL_ID+21,2487.89,-1549.94,400.822,4.71723,870,'TianMonastery'),
+(@TEL_ID+22,-200.064,-1441.57,72.5813,6.259,870,'TwinspireKeep'),
+(@TEL_ID+23,2180.42,-3113.79,42.9664,0.301739,870,'WindwardIsle');

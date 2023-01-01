@@ -70,7 +70,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            me->SummonCreature(13716, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 600000);
+            me->SummonCreature(13716, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10min);
         }
 
         void UpdateAI(uint32 diff) override
@@ -81,7 +81,7 @@ public:
             //Wrath
             if (WrathTimer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_WRATH);
                 WrathTimer = 8000;
             }

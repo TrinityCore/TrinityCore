@@ -21,15 +21,13 @@
 #include "Group.h"
 #include "GroupMgr.h"
 #include "Log.h"
-#include "LootPackets.h"
+#include "Loot.h"
 #include "MiscPackets.h"
 #include "ObjectAccessor.h"
 #include "PartyPackets.h"
 #include "Player.h"
 #include "SocialMgr.h"
-#include "Util.h"
 #include "World.h"
-#include "WorldPacket.h"
 
 class Aura;
 
@@ -107,7 +105,7 @@ void WorldSession::HandlePartyInviteOpcode(WorldPackets::Party::PartyInviteClien
         return;
     }
 
-    if (!invitedPlayer->GetSocial()->HasFriend(invitingPlayer->GetGUID()) && invitingPlayer->getLevel() < sWorld->getIntConfig(CONFIG_PARTY_LEVEL_REQ))
+    if (!invitedPlayer->GetSocial()->HasFriend(invitingPlayer->GetGUID()) && invitingPlayer->GetLevel() < sWorld->getIntConfig(CONFIG_PARTY_LEVEL_REQ))
     {
         SendPartyResult(PARTY_OP_INVITE, invitedPlayer->GetName(), ERR_INVITE_RESTRICTED);
         return;
@@ -204,7 +202,7 @@ void WorldSession::HandlePartyInviteResponseOpcode(WorldPackets::Party::PartyInv
 
         if (group->GetLeaderGUID() == GetPlayer()->GetGUID())
         {
-            TC_LOG_ERROR("network", "HandleGroupAcceptOpcode: player %s (%s) tried to accept an invite to his own group", GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().ToString().c_str());
+            TC_LOG_ERROR("network", "HandleGroupAcceptOpcode: player %s %s tried to accept an invite to his own group", GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().ToString().c_str());
             return;
         }
 
@@ -262,7 +260,7 @@ void WorldSession::HandlePartyUninviteOpcode(WorldPackets::Party::PartyUninvite&
     // can't uninvite yourself
     if (packet.TargetGUID == GetPlayer()->GetGUID())
     {
-        TC_LOG_ERROR("network", "WorldSession::HandleGroupUninviteGuidOpcode: leader %s (%s) tried to uninvite himself from the group.",
+        TC_LOG_ERROR("network", "WorldSession::HandleGroupUninviteGuidOpcode: leader %s %s tried to uninvite himself from the group.",
             GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().ToString().c_str());
         return;
     }
@@ -362,14 +360,18 @@ void WorldSession::HandleLeaveGroupOpcode(WorldPackets::Party::LeaveGroup& /*pac
     }
 }
 
-void WorldSession::HandleSetLootMethodOpcode(WorldPackets::Party::SetLootMethod& packet)
+void WorldSession::HandleSetLootMethodOpcode(WorldPackets::Party::SetLootMethod& /*packet*/)
 {
+    // not allowed to change
+    /*
     Group* group = GetPlayer()->GetGroup();
     if (!group)
         return;
 
-    /** error handling **/
     if (!group->IsLeader(GetPlayer()->GetGUID()))
+        return;
+
+    if (group->isLFGGroup())
         return;
 
     switch (packet.LootMethod)
@@ -388,32 +390,13 @@ void WorldSession::HandleSetLootMethodOpcode(WorldPackets::Party::SetLootMethod&
 
     if (packet.LootMethod == MASTER_LOOT && !group->IsMember(packet.LootMasterGUID))
         return;
-    /********************/
 
     // everything's fine, do it
     group->SetLootMethod(static_cast<LootMethod>(packet.LootMethod));
     group->SetMasterLooterGuid(packet.LootMasterGUID);
     group->SetLootThreshold(static_cast<ItemQualities>(packet.LootThreshold));
     group->SendUpdate();
-}
-
-void WorldSession::HandleLootRoll(WorldPackets::Loot::LootRoll& packet)
-{
-    Group* group = GetPlayer()->GetGroup();
-    if (!group)
-        return;
-
-    group->CountRollVote(GetPlayer()->GetGUID(), packet.LootObj, packet.LootListID - 1, packet.RollType);
-
-    switch (packet.RollType)
-    {
-        case ROLL_NEED:
-            GetPlayer()->UpdateCriteria(CriteriaType::RollAnyNeed, 1);
-            break;
-        case ROLL_GREED:
-            GetPlayer()->UpdateCriteria(CriteriaType::RollAnyGreed, 1);
-            break;
-    }
+    */
 }
 
 void WorldSession::HandleMinimapPingOpcode(WorldPackets::Party::MinimapPingClient& packet)
@@ -431,7 +414,7 @@ void WorldSession::HandleMinimapPingOpcode(WorldPackets::Party::MinimapPingClien
 void WorldSession::HandleRandomRollOpcode(WorldPackets::Misc::RandomRollClient& packet)
 {
     /** error handling **/
-    if (packet.Min > packet.Max || packet.Max > 10000)                // < 32768 for urand call
+    if (packet.Min > packet.Max || packet.Max > 1000000)
         return;
     /********************/
 
@@ -559,6 +542,7 @@ void WorldSession::HandleSetPartyAssignment(WorldPackets::Party::SetPartyAssignm
         case GROUP_ASSIGN_MAINTANK:
             group->RemoveUniqueGroupMemberFlag(MEMBER_FLAG_MAINTANK);           // Remove main assist flag from current if any.
             group->SetGroupMemberFlag(packet.Target, packet.Set, MEMBER_FLAG_MAINTANK);
+            break;
         default:
             break;
     }

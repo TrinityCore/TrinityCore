@@ -19,6 +19,10 @@ class FileSystem
 		static bool isDirectory( const std::string& path );
 
 		static bool isRemoteFS( const std::string& directory );
+
+		static bool changeWorkingDirectory( const std::string & path );
+
+		static std::string getCurrentWorkingDirectory();
 };
 
 }}

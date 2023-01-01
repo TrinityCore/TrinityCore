@@ -44,6 +44,7 @@ class DispelInfo;
 class DynObjAura;
 class ChargeDropEvent;
 class DynamicObject;
+class HealInfo;
 class ProcEventInfo;
 class Unit;
 class UnitAura;
@@ -83,7 +84,7 @@ class TC_GAME_API AuraApplication
         bool IsSelfcast() const { return (_flags & AFLAG_NOCASTER) != 0; }
 
         uint32 GetEffectsToApply() const { return _effectsToApply; }
-        void UpdateApplyEffectMask(uint32 newEffMask);
+        void UpdateApplyEffectMask(uint32 newEffMask, bool canHandleNewEffects);
 
         void SetRemoveMode(AuraRemoveMode mode) { _removeMode = mode; }
         AuraRemoveMode GetRemoveMode() const { return _removeMode; }
@@ -92,6 +93,8 @@ class TC_GAME_API AuraApplication
         bool IsNeedClientUpdate() const { return _needClientUpdate; }
         void BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo, bool remove);
         void ClientUpdate(bool remove = false);
+
+        std::string GetDebugInfo() const;
 };
 
 // Structure representing database aura primary key fields
@@ -124,7 +127,7 @@ class TC_GAME_API Aura
         typedef std::unordered_map<ObjectGuid, AuraApplication*> ApplicationMap;
 
         static uint32 BuildEffectMaskForOwner(SpellInfo const* spellProto, uint32 availableEffectMask, WorldObject* owner);
-        static Aura* TryRefreshStackOrCreate(AuraCreateInfo& createInfo);
+        static Aura* TryRefreshStackOrCreate(AuraCreateInfo& createInfo, bool updateEffectMask = true);
         static Aura* TryCreate(AuraCreateInfo& createInfo);
         static Aura* Create(AuraCreateInfo& createInfo);
         explicit Aura(AuraCreateInfo const& createInfo);
@@ -143,6 +146,7 @@ class TC_GAME_API Aura
         int32 GetCastItemLevel() const { return m_castItemLevel; }
         SpellCastVisual GetSpellVisual() const { return m_spellVisual; }
         Unit* GetCaster() const;
+        WorldObject* GetWorldObjectCaster() const;
         WorldObject* GetOwner() const { return m_owner; }
         Unit* GetUnitOwner() const { ASSERT(GetType() == UNIT_AURA_TYPE); return m_owner->ToUnit(); }
         DynamicObject* GetDynobjOwner() const { ASSERT(GetType() == DYNOBJ_AURA_TYPE); return m_owner->ToDynObject(); }
@@ -243,18 +247,20 @@ class TC_GAME_API Aura
         bool CheckAreaTarget(Unit* target);
         bool CanStackWith(Aura const* existingAura) const;
 
-        bool IsProcOnCooldown(std::chrono::steady_clock::time_point now) const;
-        void AddProcCooldown(std::chrono::steady_clock::time_point cooldownEnd);
+        bool IsProcOnCooldown(TimePoint now) const;
+        void AddProcCooldown(SpellProcEntry const* procEntry, TimePoint now);
         void ResetProcCooldown();
         bool IsUsingCharges() const { return m_isUsingCharges; }
         void SetUsingCharges(bool val) { m_isUsingCharges = val; }
-        void PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInfo, std::chrono::steady_clock::time_point now);
-        uint32 GetProcEffectMask(AuraApplication* aurApp, ProcEventInfo& eventInfo, std::chrono::steady_clock::time_point now) const;
+        void PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInfo, TimePoint now);
+        void PrepareProcChargeDrop(SpellProcEntry const* procEntry, ProcEventInfo const& eventInfo);
+        void ConsumeProcCharges(SpellProcEntry const* procEntry);
+        uint32 GetProcEffectMask(AuraApplication* aurApp, ProcEventInfo& eventInfo, TimePoint now) const;
         float CalcProcChance(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo) const;
         void TriggerProcOnEvent(uint32 procEffectMask, AuraApplication* aurApp, ProcEventInfo& eventInfo);
         float CalcPPMProcChance(Unit* actor) const;
-        void SetLastProcAttemptTime(std::chrono::steady_clock::time_point lastProcAttemptTime) { m_lastProcAttemptTime = lastProcAttemptTime; }
-        void SetLastProcSuccessTime(std::chrono::steady_clock::time_point lastProcSuccessTime) { m_lastProcSuccessTime = lastProcSuccessTime; }
+        void SetLastProcAttemptTime(TimePoint lastProcAttemptTime) { m_lastProcAttemptTime = lastProcAttemptTime; }
+        void SetLastProcSuccessTime(TimePoint lastProcSuccessTime) { m_lastProcSuccessTime = lastProcSuccessTime; }
 
         // AuraScript
         void LoadScripts();
@@ -273,6 +279,8 @@ class TC_GAME_API Aura
         void CallScriptEffectCalcCritChanceHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, Unit const* victim, float& critChance);
         void CallScriptEffectAbsorbHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo& dmgInfo, uint32& absorbAmount, bool & defaultPrevented);
         void CallScriptEffectAfterAbsorbHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo& dmgInfo, uint32& absorbAmount);
+        void CallScriptEffectAbsorbHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, HealInfo& healInfo, uint32& absorbAmount, bool& defaultPrevented);
+        void CallScriptEffectAfterAbsorbHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, HealInfo& healInfo, uint32& absorbAmount);
         void CallScriptEffectManaShieldHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo& dmgInfo, uint32& absorbAmount, bool & defaultPrevented);
         void CallScriptEffectAfterManaShieldHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo& dmgInfo, uint32& absorbAmount);
         void CallScriptEffectSplitHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo& dmgInfo, uint32& splitAmount);
@@ -303,6 +311,12 @@ class TC_GAME_API Aura
         AuraEffectVector const& GetAuraEffects() const { return _effects; }
 
         virtual std::string GetDebugInfo() const;
+
+        Aura(Aura const&) = delete;
+        Aura(Aura&&) = delete;
+
+        Aura& operator=(Aura const&) = delete;
+        Aura& operator=(Aura&&) = delete;
 
     private:
         AuraScript* GetScriptByType(std::type_info const& type) const;
@@ -338,9 +352,9 @@ class TC_GAME_API Aura
 
         ChargeDropEvent* m_dropEvent;
 
-        std::chrono::steady_clock::time_point m_procCooldown;
-        std::chrono::steady_clock::time_point m_lastProcAttemptTime;
-        std::chrono::steady_clock::time_point m_lastProcSuccessTime;
+        TimePoint m_procCooldown;
+        TimePoint m_lastProcAttemptTime;
+        TimePoint m_lastProcSuccessTime;
 
     private:
         std::vector<AuraApplication*> _removedApplications;

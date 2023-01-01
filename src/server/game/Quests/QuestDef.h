@@ -19,8 +19,8 @@
 #define TRINITYCORE_QUEST_H
 
 #include "Common.h"
-#include "DBCEnums.h"
 #include "DatabaseEnvFwd.h"
+#include "EnumFlag.h"
 #include "LootItemType.h"
 #include "Optional.h"
 #include "RaceMask.h"
@@ -30,6 +30,7 @@
 #include <vector>
 
 class Player;
+enum Difficulty : uint8;
 
 namespace WorldPackets
 {
@@ -39,7 +40,7 @@ namespace WorldPackets
     }
 }
 
-#define MAX_QUEST_LOG_SIZE 25
+#define MAX_QUEST_LOG_SIZE 35
 
 #define QUEST_ITEM_DROP_COUNT 4
 #define QUEST_REWARD_CHOICES_COUNT 6
@@ -50,24 +51,26 @@ namespace WorldPackets
 #define QUEST_REWARD_CURRENCY_COUNT 4
 #define QUEST_REWARD_DISPLAY_SPELL_COUNT 3
 
-enum QuestFailedReason
+// EnumUtils: DESCRIBE THIS
+enum QuestFailedReason : uint32
 {
     QUEST_ERR_NONE                              = 0,
-    QUEST_ERR_FAILED_LOW_LEVEL                  = 1,        // "You are not high enough level for that quest.""
-    QUEST_ERR_FAILED_WRONG_RACE                 = 6,        // "That quest is not available to your race."
-    QUEST_ERR_ALREADY_DONE                      = 7,        // "You have completed that daily quest today."
-    QUEST_ERR_ONLY_ONE_TIMED                    = 12,       // "You can only be on one timed quest at a time"
-    QUEST_ERR_ALREADY_ON1                       = 13,       // "You are already on that quest"
-    QUEST_ERR_FAILED_EXPANSION                  = 16,       // "This quest requires an expansion enabled account."
-    QUEST_ERR_ALREADY_ON2                       = 18,       // "You are already on that quest"
-    QUEST_ERR_FAILED_MISSING_ITEMS              = 21,       // "You don't have the required items with you.  Check storage."
-    QUEST_ERR_FAILED_NOT_ENOUGH_MONEY           = 23,       // "You don't have enough money for that quest"
-    QUEST_ERR_FAILED_CAIS                       = 24,       // "You cannot complete quests once you have reached tired time"
-    QUEST_ERR_ALREADY_DONE_DAILY                = 26,       // "You have completed that daily quest today."
-    QUEST_ERR_FAILED_SPELL                      = 28,       // "You haven't learned the required spell."
-    QUEST_ERR_HAS_IN_PROGRESS                   = 30        // "Progress Bar objective not completed"
+    QUEST_ERR_FAILED_LOW_LEVEL                  = 1,        // DESCRIPTION "You are not high enough level for that quest.""
+    QUEST_ERR_FAILED_WRONG_RACE                 = 6,        // DESCRIPTION "That quest is not available to your race."
+    QUEST_ERR_ALREADY_DONE                      = 7,        // DESCRIPTION "You have completed that daily quest today."
+    QUEST_ERR_ONLY_ONE_TIMED                    = 12,       // DESCRIPTION "You can only be on one timed quest at a time"
+    QUEST_ERR_ALREADY_ON1                       = 13,       // DESCRIPTION "You are already on that quest"
+    QUEST_ERR_FAILED_EXPANSION                  = 16,       // DESCRIPTION "This quest requires an expansion enabled account."
+    QUEST_ERR_ALREADY_ON2                       = 18,       // DESCRIPTION "You are already on that quest"
+    QUEST_ERR_FAILED_MISSING_ITEMS              = 21,       // DESCRIPTION "You don't have the required items with you.  Check storage."
+    QUEST_ERR_FAILED_NOT_ENOUGH_MONEY           = 23,       // DESCRIPTION "You don't have enough money for that quest"
+    QUEST_ERR_FAILED_CAIS                       = 24,       // DESCRIPTION "You cannot complete quests once you have reached tired time"
+    QUEST_ERR_ALREADY_DONE_DAILY                = 26,       // DESCRIPTION "You have completed that daily quest today."
+    QUEST_ERR_FAILED_SPELL                      = 28,       // DESCRIPTION "You haven't learned the required spell."
+    QUEST_ERR_HAS_IN_PROGRESS                   = 30        // DESCRIPTION "Progress Bar objective not completed"
 };
 
+// EnumUtils: DESCRIBE THIS
 enum class QuestPushReason : uint8
 {
     Success                         = 0,    // "Sharing quest with %s..."
@@ -185,7 +188,7 @@ enum QuestFlags : uint32
     QUEST_FLAGS_RAID                        = 0x00000040,   // Can be completed while in raid
     QUEST_FLAGS_WAR_MODE_REWARDS_OPT_IN     = 0x00000080,   // Not used currently
     QUEST_FLAGS_NO_MONEY_FROM_XP            = 0x00000100,   // Not used currently: Experience is not converted to gold at max level
-    QUEST_FLAGS_HIDDEN_REWARDS              = 0x00000200,   // Items and money rewarded only sent in SMSG_QUESTGIVER_OFFER_REWARD (not in SMSG_QUESTGIVER_QUEST_DETAILS or in client quest log(SMSG_QUEST_QUERY_RESPONSE))
+    QUEST_FLAGS_HIDDEN_REWARDS              = 0x00000200,   // Items and money rewarded only sent in SMSG_QUESTGIVER_OFFER_REWARD (not in SMSG_QUEST_GIVER_QUEST_DETAILS or in client quest log(SMSG_QUEST_QUERY_RESPONSE))
     QUEST_FLAGS_TRACKING                    = 0x00000400,   // These quests are automatically rewarded on quest complete and they will never appear in quest log client side.
     QUEST_FLAGS_DEPRECATE_REPUTATION        = 0x00000800,   // Not used currently
     QUEST_FLAGS_DAILY                       = 0x00001000,   // Used to know quest is Daily one
@@ -469,6 +472,13 @@ struct QuestRewardDisplaySpell
     uint32 PlayerConditionId;
 };
 
+struct QuestConditionalText
+{
+    int32 PlayerConditionId = 0;
+    int32 QuestgiverCreatureId = 0;
+    std::vector<std::string> Text;
+};
+
 // This Quest class provides a convenient way to access a few pretotaled (cached) quest details,
 // all base quest information, and any utility functions such as generating the amount of
 // xp to give
@@ -489,9 +499,16 @@ class TC_GAME_API Quest
         void LoadQuestMailSender(Field* fields);
         void LoadQuestObjective(Field* fields);
         void LoadQuestObjectiveVisualEffect(Field* fields);
+        void LoadConditionalConditionalQuestDescription(Field* fields);
+        void LoadConditionalConditionalRequestItemsText(Field* fields);
+        void LoadConditionalConditionalOfferRewardText(Field* fields);
+        void LoadConditionalConditionalQuestCompletionLog(Field* fields);
 
         uint32 XPValue(Player const* player) const;
+        static uint32 XPValue(Player const* player, uint32 contentTuningId, uint32 xpDifficulty, float xpMultiplier = 1.0f, int32 expansion = -1);
         uint32 MoneyValue(Player const* player) const;
+        uint32 MaxMoneyValue() const;
+        uint32 GetMaxMoneyReward() const;
         Optional<QuestTagType> GetQuestTag() const;
 
         bool HasFlag(QuestFlags flag) const { return (_flags & uint32(flag)) != 0; }
@@ -507,6 +524,9 @@ class TC_GAME_API Quest
 
         // Possibly deprecated flag
         bool IsUnavailable() const { return HasFlag(QUEST_FLAGS_UNAVAILABLE); }
+
+        // whether the quest is globally enabled (spawned by pool, game event active etc.)
+        static bool IsTakingQuestEnabled(uint32 questId);
 
         // table data accessors:
         uint32 GetQuestId() const { return _id; }
@@ -527,7 +547,7 @@ class TC_GAME_API Quest
         uint32 GetSuggestedPlayers() const { return _suggestedPlayers; }
         uint32 GetLimitTime() const { return _limitTime; }
         int32  GetPrevQuestId() const { return _prevQuestID; }
-        uint32  GetNextQuestId() const { return _nextQuestID; }
+        uint32 GetNextQuestId() const { return _nextQuestID; }
         int32  GetExclusiveGroup() const { return _exclusiveGroup; }
         int32  GetBreadcrumbForQuestId() const { return _breadcrumbForQuestId; }
         uint32 GetNextQuestInChain() const { return _nextQuestInChain; }
@@ -541,21 +561,24 @@ class TC_GAME_API Quest
         std::string const& GetLogTitle() const { return _logTitle; }
         std::string const& GetLogDescription() const { return _logDescription; }
         std::string const& GetQuestDescription() const { return _questDescription; }
+        std::vector<QuestConditionalText> const& GetConditionalQuestDescription() const { return _conditionalQuestDescription; }
         std::string const& GetAreaDescription() const { return _areaDescription; }
         std::string const& GetOfferRewardText() const { return _offerRewardText; }
+        std::vector<QuestConditionalText> const& GetConditionalOfferRewardText() const { return _conditionalOfferRewardText; }
         std::string const& GetRequestItemsText() const { return _requestItemsText; }
+        std::vector<QuestConditionalText> const& GetConditionalRequestItemsText() const { return _conditionalRequestItemsText; }
         std::string const& GetQuestCompletionLog() const { return _questCompletionLog; }
+        std::vector<QuestConditionalText> const& GetConditionalQuestCompletionLog() const { return _conditionalQuestCompletionLog; }
         std::string const& GetPortraitGiverText() const { return _portraitGiverText; }
         std::string const& GetPortraitGiverName() const { return _portraitGiverName; }
         std::string const& GetPortraitTurnInText() const { return _portraitTurnInText; }
         std::string const& GetPortraitTurnInName() const { return _portraitTurnInName; }
         QuestObjectives const& GetObjectives() const { return Objectives; }
-        uint32 GetRewMoney() const { return _rewardMoney; }
         uint32 GetRewMoneyDifficulty() const { return _rewardMoneyDifficulty; }
         uint32 GetRewHonor() const { return _rewardHonor; }
         uint32 GetRewKillHonor() const { return _rewardKillHonor; }
         uint32 GetArtifactXPDifficulty() const { return _rewardArtifactXPDifficulty; }
-        float  GetArtifactXPMultiplier() const { return _rewardArtifactXPMultiplier; }
+        float GetArtifactXPMultiplier() const { return _rewardArtifactXPMultiplier; }
         uint32 GetArtifactCategoryId() const { return _rewardArtifactCategoryID; }
         uint32 GetRewMoneyMaxLevel() const; // use in XP calculation at client
         uint32 GetRewSpell() const { return _rewardSpell; }
@@ -564,8 +587,8 @@ class TC_GAME_API Quest
         uint32 GetRewMailSenderEntry() const { return _rewardMailSenderEntry; }
         uint32 GetRewTitle() const { return _rewardTitleId; }
         uint32 GetPOIContinent() const { return _poiContinent; }
-        float  GetPOIx() const { return _poix; }
-        float  GetPOIy() const { return _poiy; }
+        float GetPOIx() const { return _poix; }
+        float GetPOIy() const { return _poiy; }
         uint32 GetPOIPriority() const { return _poiPriority; }
         uint32 GetSoundAccept() const { return _soundAccept; }
         uint32 GetSoundTurnIn() const { return _soundTurnIn; }
@@ -573,9 +596,9 @@ class TC_GAME_API Quest
         uint32 GetCompleteEmote() const { return _emoteOnComplete; }
         uint32 GetIncompleteEmoteDelay() const { return _emoteOnIncompleteDelay; }
         uint32 GetCompleteEmoteDelay() const { return _emoteOnCompleteDelay; }
-        bool   IsRepeatable() const { return _specialFlags & QUEST_SPECIAL_FLAGS_REPEATABLE; }
-        bool   IsAutoAccept() const;
-        bool   IsAutoComplete() const;
+        bool IsRepeatable() const { return _specialFlags & QUEST_SPECIAL_FLAGS_REPEATABLE; }
+        bool IsAutoAccept() const;
+        bool IsAutoComplete() const;
         uint32 GetFlags() const { return _flags; }
         uint32 GetFlagsEx() const { return _flagsEx; }
         uint32 GetFlagsEx2() const { return _flagsEx2; }
@@ -593,16 +616,16 @@ class TC_GAME_API Quest
         int32 GetQuestGiverPortraitMount() const { return _questGiverPortraitMount; }
         int32 GetQuestGiverPortraitModelSceneId() const { return _questGiverPortraitModelSceneId; }
         uint32 GetQuestTurnInPortrait() const { return _questTurnInPortrait; }
-        bool   IsDaily() const { return (_flags & QUEST_FLAGS_DAILY) != 0; }
-        bool   IsWeekly() const { return (_flags & QUEST_FLAGS_WEEKLY) != 0; }
-        bool   IsMonthly() const { return (_specialFlags & QUEST_SPECIAL_FLAGS_MONTHLY) != 0; }
-        bool   IsSeasonal() const { return (_questSortID == -QUEST_SORT_SEASONAL || _questSortID == -QUEST_SORT_SPECIAL || _questSortID == -QUEST_SORT_LUNAR_FESTIVAL || _questSortID == -QUEST_SORT_MIDSUMMER || _questSortID == -QUEST_SORT_BREWFEST || _questSortID == -QUEST_SORT_LOVE_IS_IN_THE_AIR || _questSortID == -QUEST_SORT_NOBLEGARDEN) && !IsRepeatable(); }
-        bool   IsDailyOrWeekly() const { return (_flags & (QUEST_FLAGS_DAILY | QUEST_FLAGS_WEEKLY)) != 0; }
-        bool   IsRaidQuest(Difficulty difficulty) const;
-        bool   IsAllowedInRaid(Difficulty difficulty) const;
-        bool   IsDFQuest() const { return (_specialFlags & QUEST_SPECIAL_FLAGS_DF_QUEST) != 0; }
+        bool IsDaily() const { return (_flags & QUEST_FLAGS_DAILY) != 0; }
+        bool IsWeekly() const { return (_flags & QUEST_FLAGS_WEEKLY) != 0; }
+        bool IsMonthly() const { return (_specialFlags & QUEST_SPECIAL_FLAGS_MONTHLY) != 0; }
+        bool IsSeasonal() const { return (_questSortID == -QUEST_SORT_SEASONAL || _questSortID == -QUEST_SORT_SPECIAL || _questSortID == -QUEST_SORT_LUNAR_FESTIVAL || _questSortID == -QUEST_SORT_MIDSUMMER || _questSortID == -QUEST_SORT_BREWFEST || _questSortID == -QUEST_SORT_LOVE_IS_IN_THE_AIR || _questSortID == -QUEST_SORT_NOBLEGARDEN) && !IsRepeatable(); }
+        bool IsDailyOrWeekly() const { return (_flags & (QUEST_FLAGS_DAILY | QUEST_FLAGS_WEEKLY)) != 0; }
+        bool IsRaidQuest(Difficulty difficulty) const;
+        bool IsAllowedInRaid(Difficulty difficulty) const;
+        bool IsDFQuest() const { return (_specialFlags & QUEST_SPECIAL_FLAGS_DF_QUEST) != 0; }
         uint32 CalculateHonorGain(uint8 level) const;
-        bool   CanIncreaseRewardedQuestCounters() const;
+        bool CanIncreaseRewardedQuestCounters() const;
 
         // multiple values
         std::vector<QuestRewardDisplaySpell> RewardDisplaySpell;
@@ -623,7 +646,7 @@ class TC_GAME_API Quest
         QuestObjectives Objectives;
         std::array<uint32, QUEST_EMOTE_COUNT> DetailsEmote = { };
         std::array<uint32, QUEST_EMOTE_COUNT> DetailsEmoteDelay = { };
-        std::array<uint32, QUEST_EMOTE_COUNT> OfferRewardEmote = { };
+        std::array<int32, QUEST_EMOTE_COUNT> OfferRewardEmote = { };
         std::array<uint32, QUEST_EMOTE_COUNT> OfferRewardEmoteDelay = { };
 
         uint32 GetRewChoiceItemsCount() const { return _rewChoiceItemsCount; }
@@ -634,9 +657,12 @@ class TC_GAME_API Quest
         uint16 GetEventIdForQuest() const { return _eventIdForQuest; }
 
         void InitializeQueryData();
-        WorldPacket BuildQueryData(LocaleConstant loc) const;
+        WorldPacket BuildQueryData(LocaleConstant loc, Player* player) const;
 
         void BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player) const;
+
+        // Helpers
+        static uint32 RoundXPValue(uint32 xp);
 
         std::vector<uint32> DependentPreviousQuests;
         std::vector<uint32> DependentBreadcrumbQuests;
@@ -653,32 +679,31 @@ class TC_GAME_API Quest
         uint32 _type = 0;
         uint32 _packageID = 0;
         uint32 _contentTuningID = 0;
-        int32  _questSortID = 0;
+        int32 _questSortID = 0;
         uint32 _questInfoID = 0;
         uint32 _suggestedPlayers = 0;
         uint32 _nextQuestInChain = 0;
         uint32 _rewardXPDifficulty = 0;
-        float  _rewardXPMultiplier = 0.f;
-        int32  _rewardMoney = 0;
+        float _rewardXPMultiplier = 0.f;
         uint32 _rewardMoneyDifficulty = 0;
-        float  _rewardMoneyMultiplier = 0.f;
+        float _rewardMoneyMultiplier = 0.f;
         uint32 _rewardBonusMoney = 0;
         uint32 _rewardSpell = 0;
         uint32 _rewardHonor = 0;
         uint32 _rewardKillHonor = 0;
         uint32 _rewardArtifactXPDifficulty = 0;
-        float  _rewardArtifactXPMultiplier = 0.f;
+        float _rewardArtifactXPMultiplier = 0.f;
         uint32 _rewardArtifactCategoryID = 0;
         uint32 _sourceItemId = 0;
         uint32 _flags = 0;
         uint32 _flagsEx = 0;
         uint32 _flagsEx2 = 0;
         uint32 _poiContinent = 0;
-        float  _poix = 0.f;
-        float  _poiy = 0.f;
+        float _poix = 0.f;
+        float _poiy = 0.f;
         uint32 _poiPriority = 0;
         uint32 _rewardTitleId = 0;
-        int32  _rewardArenaPoints = 0;
+        int32 _rewardArenaPoints = 0;
         uint32 _rewardSkillId = 0;
         uint32 _rewardSkillPoints = 0;
         uint32 _questGiverPortrait = 0;
@@ -705,40 +730,49 @@ class TC_GAME_API Quest
         std::string _portraitTurnInName;
         std::string _questCompletionLog;
 
+        // quest_description_conditional
+        std::vector<QuestConditionalText> _conditionalQuestDescription;
+
+        // quest_completion_log_conditional
+        std::vector<QuestConditionalText> _conditionalQuestCompletionLog;
+
         // quest_request_items table
-        uint32 _emoteOnComplete          = 0;
-        uint32 _emoteOnIncomplete        = 0;
-        uint32 _emoteOnCompleteDelay     = 0;
-        uint32 _emoteOnIncompleteDelay   = 0;
+        uint32 _emoteOnComplete = 0;
+        uint32 _emoteOnIncomplete = 0;
+        uint32 _emoteOnCompleteDelay = 0;
+        uint32 _emoteOnIncompleteDelay = 0;
         std::string _requestItemsText;
+
+        // quest_request_items_conditional
+        std::vector<QuestConditionalText> _conditionalRequestItemsText;
 
         // quest_offer_reward table
         std::string _offerRewardText;
 
-        // quest_template_addon table (custom data)
-        uint32 _maxLevel             = 0;
-        uint32 _allowableClasses     = 0;
-        uint32 _sourceSpellID        = 0;
-        int32  _prevQuestID          = 0;
-        uint32  _nextQuestID         = 0;
-        int32  _exclusiveGroup       = 0;
-        int32  _breadcrumbForQuestId = 0;
-        uint32 _rewardMailTemplateId = 0;
-        uint32 _rewardMailDelay      = 0;
-        uint32 _requiredSkillId      = 0;
-        uint32 _requiredSkillPoints  = 0;
-        uint32 _requiredMinRepFaction = 0;
-        int32  _requiredMinRepValue  = 0;
-        uint32 _requiredMaxRepFaction = 0;
-        int32  _requiredMaxRepValue  = 0;
-        uint32 _sourceItemIdCount    = 0;
-        uint32 _rewardMailSenderEntry = 0;
-        uint32 _specialFlags         = 0; // custom flags, not sniffed/WDB
-        std::bitset<MAX_QUEST_OBJECTIVE_TYPE> _usedQuestObjectiveTypes;
-        uint32 _scriptId             = 0;
+        // quest_offer_reward_conditional
+        std::vector<QuestConditionalText> _conditionalOfferRewardText;
 
-        // Helpers
-        static uint32 RoundXPValue(uint32 xp);
+        // quest_template_addon table (custom data)
+        uint32 _maxLevel = 0;
+        uint32 _allowableClasses = 0;
+        uint32 _sourceSpellID = 0;
+        int32 _prevQuestID = 0;
+        uint32 _nextQuestID = 0;
+        int32 _exclusiveGroup = 0;
+        int32 _breadcrumbForQuestId = 0;
+        uint32 _rewardMailTemplateId = 0;
+        uint32 _rewardMailDelay = 0;
+        uint32 _requiredSkillId = 0;
+        uint32 _requiredSkillPoints = 0;
+        uint32 _requiredMinRepFaction = 0;
+        int32 _requiredMinRepValue = 0;
+        uint32 _requiredMaxRepFaction = 0;
+        int32 _requiredMaxRepValue = 0;
+        uint32 _sourceItemIdCount = 0;
+        uint32 _rewardMailSenderEntry = 0;
+        uint32 _specialFlags = 0; // custom flags, not sniffed/WDB
+        std::bitset<MAX_QUEST_OBJECTIVE_TYPE> _usedQuestObjectiveTypes;
+        uint32 _scriptId = 0;
 };
 
 struct QuestStatusData

@@ -23,7 +23,7 @@
 uint32 const EncounterCount         = 23;
 
 #define BRSScriptName "instance_blackrock_spire"
-#define DataHeader    "BRS"
+#define DataHeader    "BRSv1"
 
 enum BRSDataTypes
 {
@@ -51,7 +51,8 @@ enum BRSDataTypes
     DATA_HALL_RUNE_5                = 20,
     DATA_HALL_RUNE_6                = 21,
     DATA_HALL_RUNE_7                = 22,
-    DATA_SCARSHIELD_INFILTRATOR     = 23
+    DATA_SCARSHIELD_INFILTRATOR     = 23,
+    DATA_BLACKHAND_INCARCERATOR     = 24
 };
 
 enum BRSCreaturesIds
@@ -127,5 +128,7 @@ inline AI* GetBlackrockSpireAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, BRSScriptName);
 }
+
+#define RegisterBlackrockSpireCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetBlackrockSpireAI)
 
 #endif

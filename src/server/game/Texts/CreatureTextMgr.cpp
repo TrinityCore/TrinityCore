@@ -30,6 +30,9 @@
 #include "ObjectMgr.h"
 #include "World.h"
 
+CreatureTextMgr::CreatureTextMgr() = default;
+CreatureTextMgr::~CreatureTextMgr() = default;
+
 CreatureTextMgr* CreatureTextMgr::instance()
 {
     static CreatureTextMgr instance;
@@ -215,7 +218,7 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, WorldObject 
         finalPlayType = playType;
     }
     else if (BroadcastTextEntry const* bct = sBroadcastTextStore.LookupEntry(iter->BroadcastTextId))
-        if (uint32 broadcastTextSoundId = bct->SoundKitID[source->getGender() == GENDER_FEMALE ? 1 : 0])
+        if (uint32 broadcastTextSoundId = bct->SoundKitID[source->GetGender() == GENDER_FEMALE ? 1 : 0])
             finalSound = broadcastTextSoundId;
 
     if (range == TEXT_RANGE_NORMAL)
@@ -233,12 +236,12 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, WorldObject 
 
     if (srcPlr)
     {
-        Trinity::CreatureTextTextBuilder builder(source, finalSource, finalSource->getGender(), finalType, iter->groupId, iter->id, finalLang, whisperTarget);
+        Trinity::CreatureTextTextBuilder builder(source, finalSource, finalSource->GetGender(), finalType, iter->groupId, iter->id, finalLang, whisperTarget);
         SendChatPacket(finalSource, builder, finalType, whisperTarget, range, team, gmOnly);
     }
     else
     {
-        Trinity::CreatureTextTextBuilder builder(finalSource, finalSource, finalSource->getGender(), finalType, iter->groupId, iter->id, finalLang, whisperTarget);
+        Trinity::CreatureTextTextBuilder builder(finalSource, finalSource, finalSource->GetGender(), finalType, iter->groupId, iter->id, finalLang, whisperTarget);
         SendChatPacket(finalSource, builder, finalType, whisperTarget, range, team, gmOnly);
     }
 
@@ -325,7 +328,7 @@ void CreatureTextMgr::SendNonChatPacket(WorldObject* source, WorldPacket const* 
             uint32 areaId = source->GetAreaId();
             Map::PlayerList const& players = source->GetMap()->GetPlayers();
             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                if (itr->GetSource()->GetAreaId() == areaId && (!team || Team(itr->GetSource()->GetTeam()) == team) && (!gmOnly || itr->GetSource()->IsGameMaster()))
+                if (itr->GetSource()->GetAreaId() == areaId && (!team || Team(itr->GetSource()->GetEffectiveTeam()) == team) && (!gmOnly || itr->GetSource()->IsGameMaster()))
                     itr->GetSource()->SendDirectMessage(data);
             return;
         }
@@ -334,7 +337,7 @@ void CreatureTextMgr::SendNonChatPacket(WorldObject* source, WorldPacket const* 
             uint32 zoneId = source->GetZoneId();
             Map::PlayerList const& players = source->GetMap()->GetPlayers();
             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                if (itr->GetSource()->GetZoneId() == zoneId && (!team || Team(itr->GetSource()->GetTeam()) == team) && (!gmOnly || itr->GetSource()->IsGameMaster()))
+                if (itr->GetSource()->GetZoneId() == zoneId && (!team || Team(itr->GetSource()->GetEffectiveTeam()) == team) && (!gmOnly || itr->GetSource()->IsGameMaster()))
                     itr->GetSource()->SendDirectMessage(data);
             return;
         }
@@ -342,7 +345,7 @@ void CreatureTextMgr::SendNonChatPacket(WorldObject* source, WorldPacket const* 
         {
             Map::PlayerList const& players = source->GetMap()->GetPlayers();
             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                if ((!team || Team(itr->GetSource()->GetTeam()) == team) && (!gmOnly || itr->GetSource()->IsGameMaster()))
+                if ((!team || Team(itr->GetSource()->GetEffectiveTeam()) == team) && (!gmOnly || itr->GetSource()->IsGameMaster()))
                     itr->GetSource()->SendDirectMessage(data);
             return;
         }
@@ -370,7 +373,7 @@ void CreatureTextMgr::SendNonChatPacket(WorldObject* source, WorldPacket const* 
     source->SendMessageToSetInRange(data, dist, true);
 }
 
-void CreatureTextMgr::SendEmote(Unit* source, uint32 emote)
+void CreatureTextMgr::SendEmote(Unit* source, Emote emote)
 {
     if (!source)
         return;

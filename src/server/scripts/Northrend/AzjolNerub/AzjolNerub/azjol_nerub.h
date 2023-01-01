@@ -72,4 +72,6 @@ inline AI* GetAzjolNerubAI(T* obj)
     return GetInstanceAI<AI>(obj, AzjolNerubScriptName);
 }
 
+#define RegisterAzjolNerubCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetAzjolNerubAI)
+
 #endif // AZJOL_NERUB_H_

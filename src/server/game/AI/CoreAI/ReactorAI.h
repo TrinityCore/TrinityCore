@@ -23,7 +23,6 @@
 class TC_GAME_API ReactorAI : public CreatureAI
 {
     public:
-
         using CreatureAI::CreatureAI;
 
         void MoveInLineOfSight(Unit*) override { }

@@ -23,7 +23,6 @@
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "Unit.h"
-#include "advstd.h"
 
 IdleMovementGenerator::IdleMovementGenerator()
 {
@@ -101,7 +100,7 @@ bool RotateMovementGenerator::Update(Unit* owner, uint32 diff)
 
     float angle = owner->GetOrientation();
     angle += (float(diff) * static_cast<float>(M_PI * 2) / _maxDuration) * (_direction == ROTATE_DIRECTION_LEFT ? 1.0f : -1.0f);
-    angle = advstd::clamp(angle, 0.0f, static_cast<float>(M_PI * 2));
+    angle = std::clamp(angle, 0.0f, static_cast<float>(M_PI * 2));
 
     Movement::MoveSplineInit init(owner);
     init.MoveTo(PositionToVector3(*owner), false);

@@ -34,7 +34,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 
 }  // namespace
 
-
 void protobuf_AssignDesc_profanity_5ffilter_5fconfig_2eproto() {
   protobuf_AddDesc_profanity_5ffilter_5fconfig_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -126,7 +125,6 @@ struct StaticDescriptorInitializer_profanity_5ffilter_5fconfig_2eproto {
     protobuf_AddDesc_profanity_5ffilter_5fconfig_2eproto();
   }
 } static_descriptor_initializer_profanity_5ffilter_5fconfig_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -409,7 +407,6 @@ void WordFilter::CopyFrom(const WordFilter& from) {
 
 bool WordFilter::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
-
   return true;
 }
 
@@ -430,7 +427,6 @@ void WordFilter::Swap(WordFilter* other) {
   metadata.reflection = WordFilter_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -629,7 +625,6 @@ void WordFilters::CopyFrom(const WordFilters& from) {
 }
 
 bool WordFilters::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->filters())) return false;
   return true;
 }
@@ -650,7 +645,6 @@ void WordFilters::Swap(WordFilters* other) {
   metadata.reflection = WordFilters_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

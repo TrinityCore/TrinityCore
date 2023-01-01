@@ -23,12 +23,13 @@
 
 struct TC_GAME_API SplineChainLink
 {
-    SplineChainLink(Movement::PointsArray const& points, uint32 expectedDuration, uint32 msToNext) : Points(points), ExpectedDuration(expectedDuration), TimeToNext(msToNext) { }
-    template <typename iteratorType> SplineChainLink(iteratorType begin, iteratorType end, uint32 expectedDuration, uint32 msToNext) : Points(begin, end), ExpectedDuration(expectedDuration), TimeToNext(msToNext) { }
-    SplineChainLink(uint32 expectedDuration, uint32 msToNext) : Points(), ExpectedDuration(expectedDuration), TimeToNext(msToNext) { }
+    SplineChainLink(Movement::PointsArray const& points, uint32 expectedDuration, uint32 msToNext, float velocity) : Points(points), ExpectedDuration(expectedDuration), TimeToNext(msToNext), Velocity(velocity) { }
+    template <typename iteratorType> SplineChainLink(iteratorType begin, iteratorType end, uint32 expectedDuration, uint32 msToNext, float velocity) : Points(begin, end), ExpectedDuration(expectedDuration), TimeToNext(msToNext), Velocity(velocity) { }
+    SplineChainLink(uint32 expectedDuration, uint32 msToNext, float velocity) : Points(), ExpectedDuration(expectedDuration), TimeToNext(msToNext), Velocity(velocity) { }
     Movement::PointsArray Points;
     uint32 ExpectedDuration;
     uint32 TimeToNext;
+    float Velocity;
 };
 
 struct TC_GAME_API SplineChainResumeInfo

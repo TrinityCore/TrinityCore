@@ -31,7 +31,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 
 }  // namespace
 
-
 void protobuf_AssignDesc_api_2fclient_2fv1_2fchannel_5fid_2eproto() {
   protobuf_AddDesc_api_2fclient_2fv1_2fchannel_5fid_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -104,7 +103,6 @@ struct StaticDescriptorInitializer_api_2fclient_2fv1_2fchannel_5fid_2eproto {
     protobuf_AddDesc_api_2fclient_2fv1_2fchannel_5fid_2eproto();
   }
 } static_descriptor_initializer_api_2fclient_2fv1_2fchannel_5fid_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -399,7 +397,6 @@ void ChannelId::CopyFrom(const ChannelId& from) {
 }
 
 bool ChannelId::IsInitialized() const {
-
   if (has_host()) {
     if (!this->host().IsInitialized()) return false;
   }
@@ -424,7 +421,6 @@ void ChannelId::Swap(ChannelId* other) {
   metadata.reflection = ChannelId_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

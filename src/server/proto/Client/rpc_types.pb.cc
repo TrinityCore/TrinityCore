@@ -53,7 +53,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 
 }  // namespace
 
-
 void protobuf_AssignDesc_rpc_5ftypes_2eproto() {
   protobuf_AddDesc_rpc_5ftypes_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -357,7 +356,6 @@ struct StaticDescriptorInitializer_rpc_5ftypes_2eproto {
     protobuf_AddDesc_rpc_5ftypes_2eproto();
   }
 } static_descriptor_initializer_rpc_5ftypes_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -512,7 +510,6 @@ void NO_RESPONSE::CopyFrom(const NO_RESPONSE& from) {
 }
 
 bool NO_RESPONSE::IsInitialized() const {
-
   return true;
 }
 
@@ -530,7 +527,6 @@ void NO_RESPONSE::Swap(NO_RESPONSE* other) {
   metadata.reflection = NO_RESPONSE_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -794,7 +790,6 @@ void Address::CopyFrom(const Address& from) {
 
 bool Address::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
   return true;
 }
 
@@ -815,7 +810,6 @@ void Address::Swap(Address* other) {
   metadata.reflection = Address_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1069,7 +1063,6 @@ void ProcessId::CopyFrom(const ProcessId& from) {
 
 bool ProcessId::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
-
   return true;
 }
 
@@ -1090,7 +1083,6 @@ void ProcessId::Swap(ProcessId* other) {
   metadata.reflection = ProcessId_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1338,7 +1330,6 @@ void ObjectAddress::CopyFrom(const ObjectAddress& from) {
 
 bool ObjectAddress::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
   if (has_host()) {
     if (!this->host().IsInitialized()) return false;
   }
@@ -1362,7 +1353,6 @@ void ObjectAddress::Swap(ObjectAddress* other) {
   metadata.reflection = ObjectAddress_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1518,7 +1508,6 @@ void NoData::CopyFrom(const NoData& from) {
 }
 
 bool NoData::IsInitialized() const {
-
   return true;
 }
 
@@ -1536,7 +1525,6 @@ void NoData::Swap(NoData* other) {
   metadata.reflection = NoData_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1872,7 +1860,6 @@ void ErrorInfo::CopyFrom(const ErrorInfo& from) {
 
 bool ErrorInfo::IsInitialized() const {
   if ((_has_bits_[0] & 0x0000000f) != 0x0000000f) return false;
-
   if (has_object_address()) {
     if (!this->object_address().IsInitialized()) return false;
   }
@@ -1898,7 +1885,6 @@ void ErrorInfo::Swap(ErrorInfo* other) {
   metadata.reflection = ErrorInfo_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2207,7 +2193,6 @@ void FanoutTarget::CopyFrom(const FanoutTarget& from) {
 }
 
 bool FanoutTarget::IsInitialized() const {
-
   return true;
 }
 
@@ -2229,7 +2214,6 @@ void FanoutTarget::Swap(FanoutTarget* other) {
   metadata.reflection = FanoutTarget_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3204,7 +3188,6 @@ void Header::CopyFrom(const Header& from) {
 
 bool Header::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000005) != 0x00000005) return false;
-
   if (!::google::protobuf::internal::AllAreInitialized(this->error())) return false;
   if (!::google::protobuf::internal::AllAreInitialized(this->forward_targets())) return false;
   return true;
@@ -3244,7 +3227,6 @@ void Header::Swap(Header* other) {
   metadata.reflection = Header_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3849,7 +3831,6 @@ void KafkaHeader::CopyFrom(const KafkaHeader& from) {
 }
 
 bool KafkaHeader::IsInitialized() const {
-
   if (has_forward_target()) {
     if (!this->forward_target().IsInitialized()) return false;
   }
@@ -3881,7 +3862,6 @@ void KafkaHeader::Swap(KafkaHeader* other) {
   metadata.reflection = KafkaHeader_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

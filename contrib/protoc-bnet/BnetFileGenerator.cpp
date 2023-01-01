@@ -201,10 +201,13 @@ void BnetFileGenerator::GenerateHeader(pb::io::Printer* printer)
         "shutdownfilename", pbcpp::GlobalShutdownFileName(file_->name()));
 
     // Generate forward declarations of classes.
-    for (int i = 0; i < file_->message_type_count(); i++)
-        message_generators_[i]->GenerateForwardDeclaration(printer);
+    if (file_->message_type_count() > 0)
+    {
+        for (int i = 0; i < file_->message_type_count(); i++)
+            message_generators_[i]->GenerateForwardDeclaration(printer);
 
-    printer->Print("\n");
+        printer->Print("\n");
+    }
 
     // Generate enum definitions.
     for (int i = 0; i < file_->message_type_count(); i++)
@@ -214,14 +217,13 @@ void BnetFileGenerator::GenerateHeader(pb::io::Printer* printer)
         enum_generators_[i]->GenerateDefinition(printer);
 
     printer->Print(pbcpp::kThickSeparator);
-    printer->Print("\n");
 
     // Generate class definitions.
     for (int i = 0; i < file_->message_type_count(); i++)
     {
+        printer->Print("\n");
         if (i > 0)
         {
-            printer->Print("\n");
             printer->Print(pbcpp::kThinSeparator);
             printer->Print("\n");
         }
@@ -230,14 +232,13 @@ void BnetFileGenerator::GenerateHeader(pb::io::Printer* printer)
 
     printer->Print("\n");
     printer->Print(pbcpp::kThickSeparator);
-    printer->Print("\n");
 
     // Generate service definitions.
     for (int i = 0; i < file_->service_count(); i++)
     {
+        printer->Print("\n");
         if (i > 0)
         {
-            printer->Print("\n");
             printer->Print(pbcpp::kThinSeparator);
             printer->Print("\n");
         }
@@ -246,32 +247,36 @@ void BnetFileGenerator::GenerateHeader(pb::io::Printer* printer)
 
     printer->Print("\n");
     printer->Print(pbcpp::kThickSeparator);
-    printer->Print("\n");
 
     // Declare extension identifiers.
-    for (int i = 0; i < file_->extension_count(); i++)
+    if (file_->extension_count() > 0)
     {
-        extension_generators_[i]->GenerateDeclaration(printer);
+        printer->Print("\n");
+        for (int i = 0; i < file_->extension_count(); i++)
+        {
+            extension_generators_[i]->GenerateDeclaration(printer);
+        }
     }
 
     printer->Print("\n");
     printer->Print(pbcpp::kThickSeparator);
-    printer->Print("\n");
-
 
     // Generate class inline methods.
-    for (int i = 0; i < file_->message_type_count(); i++)
+    if (file_->message_type_count() > 0)
     {
-        if (i > 0)
+        printer->Print("\n");
+        for (int i = 0; i < file_->message_type_count(); i++)
         {
-            printer->Print(pbcpp::kThinSeparator);
-            printer->Print("\n");
+            if (i > 0)
+            {
+                printer->Print(pbcpp::kThinSeparator);
+                printer->Print("\n");
+            }
+            message_generators_[i]->GenerateInlineMethods(printer);
         }
-        message_generators_[i]->GenerateInlineMethods(printer);
     }
 
     printer->Print(
-        "\n"
             "// @@protoc_insertion_point(namespace_scope)\n");
 
     // Close up namespace.
@@ -287,8 +292,7 @@ void BnetFileGenerator::GenerateHeader(pb::io::Printer* printer)
         printer->Print(
             "\n"
                 "#ifndef SWIG\n"
-                "namespace google {\nnamespace protobuf {\n"
-                "\n");
+                "namespace google {\nnamespace protobuf {\n");
         for (int i = 0; i < file_->message_type_count(); i++)
         {
             message_generators_[i]->GenerateGetEnumDescriptorSpecializations(printer);
@@ -298,7 +302,6 @@ void BnetFileGenerator::GenerateHeader(pb::io::Printer* printer)
             enum_generators_[i]->GenerateGetEnumDescriptorSpecializations(printer);
         }
         printer->Print(
-            "\n"
                 "}  // namespace google\n}  // namespace protobuf\n"
                 "#endif  // SWIG\n");
     }
@@ -364,7 +367,10 @@ void BnetFileGenerator::GenerateSource(pb::io::Printer* printer)
 
     GenerateNamespaceOpeners(printer);
 
-    if (pbcpp::HasDescriptorMethods(file_))
+    if (pbcpp::HasDescriptorMethods(file_)
+        && (file_->message_type_count()  > 0
+            || file_->enum_type_count() > 0
+            || file_->service_count() > 0))
     {
         printer->Print(
             "\n"
@@ -390,8 +396,7 @@ void BnetFileGenerator::GenerateSource(pb::io::Printer* printer)
 
         printer->Print(
             "\n"
-                "}  // namespace\n"
-                "\n");
+                "}  // namespace\n");
     }
 
     // Define our externally-visible BuildDescriptors() function.  (For the lite
@@ -407,7 +412,6 @@ void BnetFileGenerator::GenerateSource(pb::io::Printer* printer)
     // Generate classes.
     for (int i = 0; i < file_->message_type_count(); i++)
     {
-        printer->Print("\n");
         printer->Print(pbcpp::kThickSeparator);
         printer->Print("\n");
         message_generators_[i]->GenerateClassMethods(printer);
@@ -416,8 +420,6 @@ void BnetFileGenerator::GenerateSource(pb::io::Printer* printer)
     // Generate services.
     for (int i = 0; i < file_->service_count(); i++)
     {
-        if (i == 0)
-            printer->Print("\n");
         printer->Print(pbcpp::kThickSeparator);
         printer->Print("\n");
         service_generators_[i]->GenerateImplementation(printer);
@@ -430,7 +432,6 @@ void BnetFileGenerator::GenerateSource(pb::io::Printer* printer)
     }
 
     printer->Print(
-        "\n"
             "// @@protoc_insertion_point(namespace_scope)\n");
 
     GenerateNamespaceClosers(printer);

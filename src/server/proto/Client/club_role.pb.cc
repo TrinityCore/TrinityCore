@@ -37,7 +37,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 
 }  // namespace
 
-
 void protobuf_AssignDesc_club_5frole_2eproto() {
   protobuf_AddDesc_club_5frole_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -248,7 +247,6 @@ struct StaticDescriptorInitializer_club_5frole_2eproto {
     protobuf_AddDesc_club_5frole_2eproto();
   }
 } static_descriptor_initializer_club_5frole_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -2183,7 +2181,6 @@ void ClubPrivilegeSet::CopyFrom(const ClubPrivilegeSet& from) {
 }
 
 bool ClubPrivilegeSet::IsInitialized() const {
-
   return true;
 }
 
@@ -2252,7 +2249,6 @@ void ClubPrivilegeSet::Swap(ClubPrivilegeSet* other) {
   metadata.reflection = ClubPrivilegeSet_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2626,7 +2622,6 @@ void ClubRole::CopyFrom(const ClubRole& from) {
 }
 
 bool ClubRole::IsInitialized() const {
-
   return true;
 }
 
@@ -2650,7 +2645,6 @@ void ClubRole::Swap(ClubRole* other) {
   metadata.reflection = ClubRole_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3013,7 +3007,6 @@ void ClubRoleSet::CopyFrom(const ClubRoleSet& from) {
 }
 
 bool ClubRoleSet::IsInitialized() const {
-
   return true;
 }
 
@@ -3036,7 +3029,6 @@ void ClubRoleSet::Swap(ClubRoleSet* other) {
   metadata.reflection = ClubRoleSet_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

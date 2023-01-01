@@ -44,6 +44,8 @@ void DirectorySnapshot::deleteAll( DirectorySnapshotDiff& Diff )
 			Diff.FilesDeleted.push_back( fi );
 		}
 	}
+
+	Files.clear();
 }
 
 void DirectorySnapshot::setDirectoryInfo( std::string directory )

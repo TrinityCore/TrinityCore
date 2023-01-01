@@ -18,7 +18,7 @@
 #include "Field.h"
 #include "Errors.h"
 #include "Log.h"
-#include "MySQLHacks.h"
+#include <cstring>
 
 Field::Field()
 {
@@ -235,6 +235,18 @@ std::string Field::GetString() const
         return "";
 
     return std::string(string, data.length);
+}
+
+std::string_view Field::GetStringView() const
+{
+    if (!data.value)
+        return {};
+
+    char const* const string = GetCString();
+    if (!string)
+        return {};
+
+    return { string, data.length };
 }
 
 std::vector<uint8> Field::GetBinary() const

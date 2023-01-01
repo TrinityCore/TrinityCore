@@ -18,6 +18,7 @@
 #include "TCSoap.h"
 #include "soapH.h"
 #include "soapStub.h"
+#include "Realm.h"
 #include "World.h"
 #include "AccountMgr.h"
 #include "Log.h"
@@ -55,6 +56,8 @@ void TCSoapThread(const std::string& host, uint16 port)
         process_message(thread_soap);
     }
 
+    soap_destroy(&soap);
+    soap_end(&soap);
     soap_done(&soap);
 }
 
@@ -65,8 +68,7 @@ void process_message(struct soap* soap_message)
     soap_serve(soap_message);
     soap_destroy(soap_message); // dealloc C++ data
     soap_end(soap_message); // dealloc data and clean up
-    soap_done(soap_message); // detach soap struct
-    free(soap_message);
+    soap_free(soap_message); // detach soap struct and free up the memory
 }
 /*
 Code used for generating stubs:
@@ -95,7 +97,7 @@ int ns1__executeCommand(soap* soap, char* command, char** result)
         return 401;
     }
 
-    if (AccountMgr::GetSecurity(accountId) < SEC_ADMINISTRATOR)
+    if (AccountMgr::GetSecurity(accountId, realm.Id.Realm) < SEC_ADMINISTRATOR)
     {
         TC_LOG_INFO("network.soap", "%s's gmlevel is too low", soap->userid);
         return 403;

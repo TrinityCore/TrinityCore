@@ -18,6 +18,8 @@
 #ifndef TRINITY_CREATUREAISELECTOR_H
 #define TRINITY_CREATUREAISELECTOR_H
 
+#include "Define.h"
+
 class CreatureAI;
 class Creature;
 class MovementGenerator;
@@ -38,4 +40,5 @@ namespace FactorySelector
     TC_GAME_API uint32 GetSelectedAIId(GameObject const* go);
     TC_GAME_API uint32 GetSelectedAIId(AreaTrigger const* at);
 }
+
 #endif

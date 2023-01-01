@@ -40,7 +40,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 
 }  // namespace
 
-
 void protobuf_AssignDesc_notification_5ftypes_2eproto() {
   protobuf_AddDesc_notification_5ftypes_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -208,7 +207,6 @@ struct StaticDescriptorInitializer_notification_5ftypes_2eproto {
     protobuf_AddDesc_notification_5ftypes_2eproto();
   }
 } static_descriptor_initializer_notification_5ftypes_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -475,7 +473,6 @@ void Target::CopyFrom(const Target& from) {
 }
 
 bool Target::IsInitialized() const {
-
   if (has_identity()) {
     if (!this->identity().IsInitialized()) return false;
   }
@@ -499,7 +496,6 @@ void Target::Swap(Target* other) {
   metadata.reflection = Target_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -751,7 +747,6 @@ void TargetIdentity::CopyFrom(const TargetIdentity& from) {
 }
 
 bool TargetIdentity::IsInitialized() const {
-
   if (has_account()) {
     if (!this->account().IsInitialized()) return false;
   }
@@ -778,7 +773,6 @@ void TargetIdentity::Swap(TargetIdentity* other) {
   metadata.reflection = TargetIdentity_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1062,7 +1056,6 @@ void Subscription::CopyFrom(const Subscription& from) {
 }
 
 bool Subscription::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->target())) return false;
   if (has_subscriber()) {
     if (!this->subscriber().IsInitialized()) return false;
@@ -1088,7 +1081,6 @@ void Subscription::Swap(Subscription* other) {
   metadata.reflection = Subscription_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1687,7 +1679,6 @@ void Notification::CopyFrom(const Notification& from) {
 
 bool Notification::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000006) != 0x00000006) return false;
-
   if (has_sender_id()) {
     if (!this->sender_id().IsInitialized()) return false;
   }
@@ -1731,7 +1722,6 @@ void Notification::Swap(Notification* other) {
   metadata.reflection = Notification_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

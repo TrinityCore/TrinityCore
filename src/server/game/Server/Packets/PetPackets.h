@@ -269,6 +269,16 @@ namespace WorldPackets
             ObjectGuid UnitGUID;
             int32 Action = 0;
         };
+
+        class PetTameFailure final : public ServerPacket
+        {
+        public:
+            PetTameFailure() : ServerPacket(SMSG_PET_TAME_FAILURE, 1) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 Result = 0;
+        };
     }
 }
 

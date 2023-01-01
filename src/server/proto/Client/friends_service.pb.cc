@@ -92,7 +92,6 @@ const ::google::protobuf::ServiceDescriptor* FriendsListener_descriptor_ = NULL;
 
 }  // namespace
 
-
 void protobuf_AssignDesc_friends_5fservice_2eproto() {
   protobuf_AddDesc_friends_5fservice_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -706,7 +705,6 @@ struct StaticDescriptorInitializer_friends_5fservice_2eproto {
     protobuf_AddDesc_friends_5fservice_2eproto();
   }
 } static_descriptor_initializer_friends_5fservice_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -953,7 +951,6 @@ void SubscribeRequest::CopyFrom(const SubscribeRequest& from) {
 
 bool SubscribeRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000002) != 0x00000002) return false;
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -977,7 +974,6 @@ void SubscribeRequest::Swap(SubscribeRequest* other) {
   metadata.reflection = SubscribeRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1224,7 +1220,6 @@ void UnsubscribeRequest::CopyFrom(const UnsubscribeRequest& from) {
 }
 
 bool UnsubscribeRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -1248,7 +1243,6 @@ void UnsubscribeRequest::Swap(UnsubscribeRequest* other) {
   metadata.reflection = UnsubscribeRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1544,7 +1538,6 @@ void SendInvitationRequest::CopyFrom(const SendInvitationRequest& from) {
 
 bool SendInvitationRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000006) != 0x00000006) return false;
-
   if (has_agent_identity()) {
     if (!this->agent_identity().IsInitialized()) return false;
   }
@@ -1575,7 +1568,6 @@ void SendInvitationRequest::Swap(SendInvitationRequest* other) {
   metadata.reflection = SendInvitationRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1820,7 +1812,6 @@ void RevokeInvitationRequest::CopyFrom(const RevokeInvitationRequest& from) {
 }
 
 bool RevokeInvitationRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -1844,7 +1835,6 @@ void RevokeInvitationRequest::Swap(RevokeInvitationRequest* other) {
   metadata.reflection = RevokeInvitationRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2133,7 +2123,6 @@ void AcceptInvitationRequest::CopyFrom(const AcceptInvitationRequest& from) {
 
 bool AcceptInvitationRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000002) != 0x00000002) return false;
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -2158,7 +2147,6 @@ void AcceptInvitationRequest::Swap(AcceptInvitationRequest* other) {
   metadata.reflection = AcceptInvitationRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2404,7 +2392,6 @@ void DeclineInvitationRequest::CopyFrom(const DeclineInvitationRequest& from) {
 
 bool DeclineInvitationRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000002) != 0x00000002) return false;
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -2428,7 +2415,6 @@ void DeclineInvitationRequest::Swap(DeclineInvitationRequest* other) {
   metadata.reflection = DeclineInvitationRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2674,7 +2660,6 @@ void IgnoreInvitationRequest::CopyFrom(const IgnoreInvitationRequest& from) {
 
 bool IgnoreInvitationRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000002) != 0x00000002) return false;
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -2698,7 +2683,6 @@ void IgnoreInvitationRequest::Swap(IgnoreInvitationRequest* other) {
   metadata.reflection = IgnoreInvitationRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2951,7 +2935,6 @@ void RemoveFriendRequest::CopyFrom(const RemoveFriendRequest& from) {
 
 bool RemoveFriendRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000002) != 0x00000002) return false;
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -2978,7 +2961,6 @@ void RemoveFriendRequest::Swap(RemoveFriendRequest* other) {
   metadata.reflection = RemoveFriendRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3185,7 +3167,6 @@ void RevokeAllInvitationsRequest::CopyFrom(const RevokeAllInvitationsRequest& fr
 }
 
 bool RevokeAllInvitationsRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -3208,7 +3189,6 @@ void RevokeAllInvitationsRequest::Swap(RevokeAllInvitationsRequest* other) {
   metadata.reflection = RevokeAllInvitationsRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3461,7 +3441,6 @@ void ViewFriendsRequest::CopyFrom(const ViewFriendsRequest& from) {
 
 bool ViewFriendsRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000002) != 0x00000002) return false;
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -3488,7 +3467,6 @@ void ViewFriendsRequest::Swap(ViewFriendsRequest* other) {
   metadata.reflection = ViewFriendsRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3687,7 +3665,6 @@ void ViewFriendsResponse::CopyFrom(const ViewFriendsResponse& from) {
 }
 
 bool ViewFriendsResponse::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->friends())) return false;
   return true;
 }
@@ -3708,7 +3685,6 @@ void ViewFriendsResponse::Swap(ViewFriendsResponse* other) {
   metadata.reflection = ViewFriendsResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3999,7 +3975,6 @@ void UpdateFriendStateRequest::CopyFrom(const UpdateFriendStateRequest& from) {
 
 bool UpdateFriendStateRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000002) != 0x00000002) return false;
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -4028,7 +4003,6 @@ void UpdateFriendStateRequest::Swap(UpdateFriendStateRequest* other) {
   metadata.reflection = UpdateFriendStateRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4235,7 +4209,6 @@ void GetFriendListRequest::CopyFrom(const GetFriendListRequest& from) {
 }
 
 bool GetFriendListRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -4258,7 +4231,6 @@ void GetFriendListRequest::Swap(GetFriendListRequest* other) {
   metadata.reflection = GetFriendListRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4457,7 +4429,6 @@ void GetFriendListResponse::CopyFrom(const GetFriendListResponse& from) {
 }
 
 bool GetFriendListResponse::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->friends())) return false;
   return true;
 }
@@ -4478,7 +4449,6 @@ void GetFriendListResponse::Swap(GetFriendListResponse* other) {
   metadata.reflection = GetFriendListResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4793,7 +4763,6 @@ void CreateFriendshipRequest::CopyFrom(const CreateFriendshipRequest& from) {
 }
 
 bool CreateFriendshipRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -4821,7 +4790,6 @@ void CreateFriendshipRequest::Swap(CreateFriendshipRequest* other) {
   metadata.reflection = CreateFriendshipRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -5074,7 +5042,6 @@ void FriendNotification::CopyFrom(const FriendNotification& from) {
 
 bool FriendNotification::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
   if (has_target()) {
     if (!this->target().IsInitialized()) return false;
   }
@@ -5101,7 +5068,6 @@ void FriendNotification::Swap(FriendNotification* other) {
   metadata.reflection = FriendNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -5354,7 +5320,6 @@ void UpdateFriendStateNotification::CopyFrom(const UpdateFriendStateNotification
 
 bool UpdateFriendStateNotification::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
   if (has_changed_friend()) {
     if (!this->changed_friend().IsInitialized()) return false;
   }
@@ -5381,7 +5346,6 @@ void UpdateFriendStateNotification::Swap(UpdateFriendStateNotification* other) {
   metadata.reflection = UpdateFriendStateNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -5672,7 +5636,6 @@ void InvitationNotification::CopyFrom(const InvitationNotification& from) {
 
 bool InvitationNotification::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
   if (has_invitation()) {
     if (!this->invitation().IsInitialized()) return false;
   }
@@ -5700,7 +5663,6 @@ void InvitationNotification::Swap(InvitationNotification* other) {
   metadata.reflection = InvitationNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -5952,7 +5914,6 @@ void SentInvitationAddedNotification::CopyFrom(const SentInvitationAddedNotifica
 }
 
 bool SentInvitationAddedNotification::IsInitialized() const {
-
   if (has_account_id()) {
     if (!this->account_id().IsInitialized()) return false;
   }
@@ -5979,7 +5940,6 @@ void SentInvitationAddedNotification::Swap(SentInvitationAddedNotification* othe
   metadata.reflection = SentInvitationAddedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -6275,7 +6235,6 @@ void SentInvitationRemovedNotification::CopyFrom(const SentInvitationRemovedNoti
 }
 
 bool SentInvitationRemovedNotification::IsInitialized() const {
-
   if (has_account_id()) {
     if (!this->account_id().IsInitialized()) return false;
   }
@@ -6300,7 +6259,6 @@ void SentInvitationRemovedNotification::Swap(SentInvitationRemovedNotification* 
   metadata.reflection = SentInvitationRemovedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -6799,7 +6757,6 @@ void FriendsListener::CallServerMethod(uint32 token, uint32 methodId, MessageBuf
   TC_LOG_ERROR("service.protobuf", "%s Server tried to call server method %u",
     GetCallerInfo().c_str(), methodId);
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

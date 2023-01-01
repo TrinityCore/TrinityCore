@@ -120,7 +120,7 @@ void QuestObjectiveCriteriaMgr::LoadFromDB(PreparedQueryResult objectiveResult, 
     }
 }
 
-void QuestObjectiveCriteriaMgr::SaveToDB(CharacterDatabaseTransaction& trans)
+void QuestObjectiveCriteriaMgr::SaveToDB(CharacterDatabaseTransaction trans)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA);
     stmt->setUInt64(0, _owner->GetGUID().GetCounter());

@@ -25,6 +25,8 @@
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 
+Position const Executioner = { 152.8524f, -83.63912f, 2.021005f, 0.06981317f };
+
 class at_nethekurse_exit : public AreaTriggerScript
 {
     public:
@@ -143,13 +145,13 @@ class boss_shattered_executioner : public CreatureScript
                     {
                         case 3:
                             me->RemoveLootMode(LOOT_MODE_HARD_MODE_1);
-                            /* fallthrough */
+                            [[fallthrough]];
                         case 2:
                             me->RemoveLootMode(LOOT_MODE_HARD_MODE_2);
-                            /* fallthrough */
+                            [[fallthrough]];
                         case 1:
                             me->RemoveLootMode(LOOT_MODE_HARD_MODE_3);
-                            /* fallthrough */
+                            [[fallthrough]];
                         default:
                             break;
                     }
@@ -181,6 +183,7 @@ class boss_shattered_executioner : public CreatureScript
         }
 };
 
+// 39288, 39289, 39290 - Kargath's Executioner
 class spell_kargath_executioner : public SpellScriptLoader
 {
     public:
@@ -215,6 +218,7 @@ class spell_kargath_executioner : public SpellScriptLoader
         }
 };
 
+// 39291 - Remove Kargath's Executioner
 class spell_remove_kargath_executioner : public SpellScriptLoader
 {
     public:

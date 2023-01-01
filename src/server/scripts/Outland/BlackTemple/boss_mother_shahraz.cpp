@@ -15,11 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include "ScriptMgr.h"
 #include "black_temple.h"
-#include "Containers.h"
-#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
@@ -108,9 +105,9 @@ struct boss_mother_shahraz : public BossAI
         _enraged = false;
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
         events.ScheduleEvent(EVENT_SILENCING_SHRIEK, 22s);
         events.ScheduleEvent(EVENT_PRISMATIC_SHIELD, 15s);
@@ -137,7 +134,7 @@ struct boss_mother_shahraz : public BossAI
         _DespawnAtEvade();
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32 &damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (!_enraged && me->HealthBelowPctDamaged(10, damage))
         {
@@ -260,7 +257,7 @@ class spell_mother_shahraz_saber_lash : public AuraScript
         PreventDefaultAction();
 
         uint32 triggerSpell = aurEff->GetSpellEffectInfo().TriggerSpell;
-        if (Unit* target = GetUnitOwner()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0))
+        if (Unit* target = GetUnitOwner()->GetAI()->SelectTarget(SelectTargetMethod::Random, 0))
             GetUnitOwner()->CastSpell(target, triggerSpell, true);
     }
 
@@ -289,7 +286,7 @@ class spell_mother_shahraz_generic_periodic : public AuraScript
         PreventDefaultAction();
 
         uint32 triggerSpell = aurEff->GetSpellEffectInfo().TriggerSpell;
-        if (Unit* target = GetUnitOwner()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0))
+        if (Unit* target = GetUnitOwner()->GetAI()->SelectTarget(SelectTargetMethod::Random, 0))
             GetUnitOwner()->CastSpell(target, triggerSpell, true);
     }
 
@@ -326,7 +323,7 @@ void AddSC_boss_mother_shahraz()
     RegisterBlackTempleCreatureAI(boss_mother_shahraz);
     RegisterSpellScript(spell_mother_shahraz_fatal_attraction);
     RegisterSpellScript(spell_mother_shahraz_fatal_attraction_link);
-    RegisterAuraScript(spell_mother_shahraz_saber_lash);
-    RegisterAuraScript(spell_mother_shahraz_generic_periodic);
-    RegisterAuraScript(spell_mother_shahraz_random_periodic);
+    RegisterSpellScript(spell_mother_shahraz_saber_lash);
+    RegisterSpellScript(spell_mother_shahraz_generic_periodic);
+    RegisterSpellScript(spell_mother_shahraz_random_periodic);
 }

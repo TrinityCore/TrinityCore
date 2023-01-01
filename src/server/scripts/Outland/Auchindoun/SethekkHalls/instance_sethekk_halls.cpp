@@ -33,6 +33,13 @@ ObjectData const gameObjectData[] =
     { 0,                    0                      } // END
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_DARKWEAVER_SYTH, {{ 1903 }} },
+    { DATA_TALON_KING_IKISS, {{ 1902 }} },
+    { DATA_ANZU, {{ 1904 }} }
+};
+
 class instance_sethekk_halls : public InstanceMapScript
 {
     public:
@@ -46,6 +53,7 @@ class instance_sethekk_halls : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
                 LoadObjectData(nullptr, gameObjectData);
+                LoadDungeonEncounterData(encounters);
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -73,7 +81,7 @@ class instance_sethekk_halls : public InstanceMapScript
                             ///              gameobject should have GO_DYNFLAG_LO_ACTIVATE too, which makes gobs interactable with GO_FLAG_INTERACT_COND
                             ///              so just removed GO_FLAG_INTERACT_COND
                             if (GameObject* coffer = GetGameObject(DATA_TALON_KING_COFFER))
-                                coffer->RemoveFlag(GameObjectFlags(GO_FLAG_INTERACT_COND | GO_FLAG_NOT_SELECTABLE));
+                                coffer->RemoveFlag(GO_FLAG_INTERACT_COND | GO_FLAG_NOT_SELECTABLE);
                         }
                         break;
                     default:

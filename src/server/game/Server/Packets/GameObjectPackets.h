@@ -19,9 +19,9 @@
 #define GOPackets_h__
 
 #include "Packet.h"
-#include "DB2Stores.h"
 #include "GameObject.h"
-#include "WorldSession.h"
+
+enum class PlayerInteractionType : int32;
 
 namespace WorldPackets
 {
@@ -35,6 +35,7 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid Guid;
+            bool IsSoftInteract = false;
         };
 
         class GameObjReportUse final : public ClientPacket
@@ -45,6 +46,7 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid Guid;
+            bool IsSoftInteract = false;
         };
 
         class GameObjectDespawn final : public ServerPacket
@@ -121,17 +123,6 @@ namespace WorldPackets
             bool PlayAsDespawn = false;
         };
 
-        class GameObjectUILink final : public ServerPacket
-        {
-        public:
-            GameObjectUILink() : ServerPacket(SMSG_GAME_OBJECT_UI_LINK, 16 + 4) { }
-
-            WorldPacket const* Write() override;
-
-            ObjectGuid ObjectGUID;
-            int32 UILink = 0;
-        };
-
         class GameObjectPlaySpellVisual final : public ServerPacket
         {
         public:
@@ -142,6 +133,38 @@ namespace WorldPackets
             ObjectGuid ObjectGUID;
             ObjectGuid ActivatorGUID;
             int32 SpellVisualID = 0;
+        };
+
+        class GameObjectSetStateLocal final : public ServerPacket
+        {
+        public:
+            GameObjectSetStateLocal() : ServerPacket(SMSG_GAME_OBJECT_SET_STATE_LOCAL, 16 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ObjectGUID;
+            uint8 State = 0;
+        };
+
+        class GameObjectInteraction final : public ServerPacket
+        {
+        public:
+            GameObjectInteraction() : ServerPacket(SMSG_GAME_OBJECT_INTERACTION, 16 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ObjectGUID;
+            PlayerInteractionType InteractionType = {};
+        };
+
+        class GameObjectCloseInteraction final : public ServerPacket
+        {
+        public:
+            GameObjectCloseInteraction() : ServerPacket(SMSG_GAME_OBJECT_CLOSE_INTERACTION, 4) { }
+
+            WorldPacket const* Write() override;
+
+            PlayerInteractionType InteractionType = {};
         };
     }
 }

@@ -113,4 +113,6 @@ inline AI* GetOculusAI(T* obj)
     return GetInstanceAI<AI>(obj, OculusScriptName);
 }
 
+#define RegisterOculusCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetOculusAI)
+
 #endif // OCULUS_H_

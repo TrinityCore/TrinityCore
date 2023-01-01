@@ -687,9 +687,7 @@ class TC_PROTO_API ChannelState : public ::google::protobuf::Message {
 };
 // ===================================================================
 
-
 // ===================================================================
-
 
 // ===================================================================
 
@@ -1197,7 +1195,6 @@ inline void ChannelState::set_healing(bool value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.presence.v1.ChannelState.healing)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -1208,13 +1205,11 @@ inline void ChannelState::set_healing(bool value) {
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
 template <> struct is_proto_enum< ::bgs::protocol::presence::v1::FieldOperation_OperationType> : ::google::protobuf::internal::true_type {};
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::presence::v1::FieldOperation_OperationType>() {
   return ::bgs::protocol::presence::v1::FieldOperation_OperationType_descriptor();
 }
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

@@ -22,16 +22,12 @@
 #include "IpAddress.h"
 #include "Log.h"
 #include <boost/asio/ip/tcp.hpp>
-#include <functional>
 #include <atomic>
+#include <functional>
 
 using boost::asio::ip::tcp;
 
-#if BOOST_VERSION >= 106600
 #define TRINITY_MAX_LISTEN_CONNECTIONS boost::asio::socket_base::max_listen_connections
-#else
-#define TRINITY_MAX_LISTEN_CONNECTIONS boost::asio::socket_base::max_connections
-#endif
 
 class AsyncAcceptor
 {

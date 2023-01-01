@@ -56,11 +56,11 @@ class boss_karsh_steelbender : public CreatureScript
                 _Reset();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 Talk(YELL_AGGRO);
-                events.ScheduleEvent(EVENT_CLEAVE, 10000);
+                events.ScheduleEvent(EVENT_CLEAVE, 10s);
             }
 
             void KilledUnit(Unit* who) override
@@ -91,7 +91,7 @@ class boss_karsh_steelbender : public CreatureScript
                     {
                         case EVENT_CLEAVE:
                             DoCastVictim(SPELL_CLEAVE);
-                            events.ScheduleEvent(EVENT_CLEAVE, 10000);
+                            events.ScheduleEvent(EVENT_CLEAVE, 10s);
                             break;
                         default:
                             break;

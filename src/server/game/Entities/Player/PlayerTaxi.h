@@ -36,11 +36,11 @@ namespace WorldPackets
 class TC_GAME_API PlayerTaxi
 {
     public:
-        PlayerTaxi() : m_flightMasterFactionId(0) { m_taximask.fill(0); }
+        PlayerTaxi() : m_flightMasterFactionId(0) { }
         ~PlayerTaxi() { }
         // Nodes
         void InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level);
-        void LoadTaxiMask(std::string const& data);
+        bool LoadTaxiMask(std::string const& data);
 
         bool IsTaximaskNodeKnown(uint32 nodeidx) const
         {
@@ -64,7 +64,7 @@ class TC_GAME_API PlayerTaxi
         TaxiMask const& GetTaxiMask() const { return m_taximask; }
 
         // Destinations
-        bool LoadTaxiDestinationsFromString(std::string const& values, uint32 team);
+        [[nodiscard]] bool LoadTaxiDestinationsFromString(std::string const& values, uint32 team);
         std::string SaveTaxiDestinationsToString();
 
         void ClearTaxiDestinations() { m_TaxiDestinations.clear(); }

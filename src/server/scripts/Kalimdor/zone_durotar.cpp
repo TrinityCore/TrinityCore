@@ -15,14 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
 #include "CreatureAIImpl.h"
 #include "GameObject.h"
 #include "MotionMaster.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
+#include "ScriptedGossip.h"
 
 /*######
 ## Quest 37446: Lazy Peons
@@ -79,7 +80,7 @@ public:
                 work = true;
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spell) override
         {
             if (spell->Id != SPELL_AWAKEN_PEON)
                 return;
@@ -124,42 +125,63 @@ enum VoodooSpells
     SPELL_LAUNCH    = 16716, // Launch (Whee!)
 };
 
-// 17009
-class spell_voodoo : public SpellScriptLoader
+// 17009 - Voodoo
+class spell_voodoo : public SpellScript
 {
-    public:
-        spell_voodoo() : SpellScriptLoader("spell_voodoo") { }
+    PrepareSpellScript(spell_voodoo);
 
-        class spell_voodoo_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_voodoo_SpellScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_BREW, SPELL_GHOSTLY, SPELL_HEX1, SPELL_HEX2, SPELL_HEX3, SPELL_GROW, SPELL_LAUNCH });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_BREW, SPELL_GHOSTLY, SPELL_HEX1, SPELL_HEX2, SPELL_HEX3, SPELL_GROW, SPELL_LAUNCH });
-            }
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        uint32 spellid = RAND(SPELL_BREW, SPELL_GHOSTLY, RAND(SPELL_HEX1, SPELL_HEX2, SPELL_HEX3), SPELL_GROW, SPELL_LAUNCH);
+        if (Unit* target = GetHitUnit())
+            GetCaster()->CastSpell(target, spellid, false);
+    }
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                uint32 spellid = RAND(SPELL_BREW, SPELL_GHOSTLY, RAND(SPELL_HEX1, SPELL_HEX2, SPELL_HEX3), SPELL_GROW, SPELL_LAUNCH);
-                if (Unit* target = GetHitUnit())
-                    GetCaster()->CastSpell(target, spellid, false);
-            }
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_voodoo::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
 
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_voodoo_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
+enum Mithaka
+{
+    DATA_SHIP_DOCKED    = 1,
+    GOSSIP_MENU_MITHAKA = 23225,
+    GOSSIP_TEXT_MITHAKA = 35969
+};
 
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_voodoo_SpellScript();
-        }
+struct npc_mithaka : ScriptedAI
+{
+    npc_mithaka(Creature* creature) : ScriptedAI(creature), _shipInPort(false) { }
+
+    void SetData(uint32 /*type*/, uint32 data) override
+    {
+        if (data == DATA_SHIP_DOCKED)
+            _shipInPort = true;
+        else
+            _shipInPort = false;
+    }
+
+    bool OnGossipHello(Player* player) override
+    {
+        InitGossipMenuFor(player, GOSSIP_MENU_MITHAKA);
+        if (!_shipInPort)
+            AddGossipItemFor(player, GOSSIP_MENU_MITHAKA, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        SendGossipMenuFor(player, GOSSIP_TEXT_MITHAKA, me->GetGUID());
+        return true;
+    }
+private:
+    bool _shipInPort;
 };
 
 void AddSC_durotar()
 {
     new npc_lazy_peon();
-    new spell_voodoo();
+    RegisterSpellScript(spell_voodoo);
+    RegisterCreatureAI(npc_mithaka);
 }

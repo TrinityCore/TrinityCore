@@ -39,7 +39,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Calendar::CalendarSendCal
     data << uint64(lockoutInfo.InstanceID);
     data << int32(lockoutInfo.MapID);
     data << uint32(lockoutInfo.DifficultyID);
-    data << uint32(lockoutInfo.ExpireTime);
+    data << int32(lockoutInfo.ExpireTime);
 
     return data;
 }
@@ -94,13 +94,13 @@ ByteBuffer& operator>>(ByteBuffer& buffer, WorldPackets::Calendar::CalendarAddEv
     buffer >> invite.Status;
     buffer >> invite.Moderator;
     if (buffer.ReadBit())
-        invite.Unused_801_1 = boost::in_place();
+        invite.Unused_801_1.emplace();
 
     if (buffer.ReadBit())
-        invite.Unused_801_2 = boost::in_place();
+        invite.Unused_801_2.emplace();
 
     if (buffer.ReadBit())
-        invite.Unused_801_3 = boost::in_place();
+        invite.Unused_801_3.emplace();
 
     if (invite.Unused_801_1)
         buffer >> *invite.Unused_801_1;
@@ -448,11 +448,11 @@ WorldPacket const* WorldPackets::Calendar::CalendarRaidLockoutRemoved::Write()
 
 WorldPacket const* WorldPackets::Calendar::CalendarRaidLockoutUpdated::Write()
 {
-    _worldPacket << uint32(ServerTime);
+    _worldPacket.AppendPackedTime(ServerTime);
     _worldPacket << int32(MapID);
     _worldPacket << uint32(DifficultyID);
-    _worldPacket << int32(NewTimeRemaining);
     _worldPacket << int32(OldTimeRemaining);
+    _worldPacket << int32(NewTimeRemaining);
 
     return &_worldPacket;
 }

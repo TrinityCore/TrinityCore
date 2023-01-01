@@ -42,13 +42,6 @@ struct SQLElementData
     SQLElementDataType type;
 };
 
-//- For ambigious resultsets
-union SQLResultSetUnion
-{
-    PreparedResultSet* presult;
-    ResultSet* qresult;
-};
-
 class MySQLConnection;
 
 class TC_DATABASE_API SQLOperation

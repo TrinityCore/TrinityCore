@@ -227,4 +227,9 @@ void Random::sphere(float& x, float& y, float& z) {
     z *= s;
 }
 
+Random& commonRandom()
+{
+    return Random::common();
+}
+
 } // G3D

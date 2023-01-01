@@ -31,7 +31,6 @@ const ::google::protobuf::ServiceDescriptor* ClubService_descriptor_ = NULL;
 
 }  // namespace
 
-
 void protobuf_AssignDesc_club_5fservice_2eproto() {
   protobuf_AddDesc_club_5fservice_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -218,7 +217,6 @@ struct StaticDescriptorInitializer_club_5fservice_2eproto {
     protobuf_AddDesc_club_5fservice_2eproto();
   }
 } static_descriptor_initializer_club_5fservice_2eproto_;
-
 // ===================================================================
 
 ClubService::ClubService(bool use_original_hash) : service_hash_(use_original_hash ? OriginalHash::value : NameHash::value) {
@@ -2000,7 +1998,6 @@ uint32 ClubService::HandleGetStreamMessage(::bgs::protocol::club::v1::GetStreamM
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

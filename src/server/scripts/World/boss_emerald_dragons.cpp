@@ -17,7 +17,6 @@
 
 #include "ScriptMgr.h"
 #include "MotionMaster.h"
-#include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
@@ -96,12 +95,12 @@ struct emerald_dragonAI : public WorldBossAI
     void Reset() override
     {
         WorldBossAI::Reset();
-        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE));
+        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_NON_ATTACKABLE);
         me->SetReactState(REACT_AGGRESSIVE);
         DoCast(me, SPELL_MARK_OF_NATURE_AURA, true);
         events.ScheduleEvent(EVENT_TAIL_SWEEP, 4s);
-        events.ScheduleEvent(EVENT_NOXIOUS_BREATH, urand(7500, 15000));
-        events.ScheduleEvent(EVENT_SEEPING_FOG, urand(12500, 20000));
+        events.ScheduleEvent(EVENT_NOXIOUS_BREATH, 7500ms, 15s);
+        events.ScheduleEvent(EVENT_SEEPING_FOG, 12500ms, 20s);
     }
 
     // Target killed during encounter, mark them as suspectible for Aura Of Nature
@@ -121,12 +120,12 @@ struct emerald_dragonAI : public WorldBossAI
                 // Despawntime is 2 minutes, so reschedule it for new cast after 2 minutes + a minor "random time" (30 seconds at max)
                 DoCast(me, SPELL_SEEPING_FOG_LEFT, true);
                 DoCast(me, SPELL_SEEPING_FOG_RIGHT, true);
-                events.ScheduleEvent(EVENT_SEEPING_FOG, urand(120000, 150000));
+                events.ScheduleEvent(EVENT_SEEPING_FOG, 120s, 150s);
                 break;
             case EVENT_NOXIOUS_BREATH:
                 // Noxious Breath is cast on random intervals, no less than 7.5 seconds between
                 DoCast(me, SPELL_NOXIOUS_BREATH);
-                events.ScheduleEvent(EVENT_NOXIOUS_BREATH, urand(7500, 15000));
+                events.ScheduleEvent(EVENT_NOXIOUS_BREATH, 7500ms, 15s);
                 break;
             case EVENT_TAIL_SWEEP:
                 // Tail Sweep is cast every two seconds, no matter what goes on in front of the dragon
@@ -154,7 +153,7 @@ struct emerald_dragonAI : public WorldBossAI
                 return;
         }
 
-        if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0, -50.0f, true))
+        if (Unit* target = SelectTarget(SelectTargetMethod::MaxThreat, 0, -50.0f, true))
             DoCast(target, SPELL_SUMMON_PLAYER);
 
         DoMeleeAttackIfReady();
@@ -195,7 +194,7 @@ class npc_dream_fog : public CreatureScript
                 if (!_roamTimer)
                 {
                     // Chase target, but don't attack - otherwise just roam around
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                     {
                         _roamTimer = urand(15000, 30000);
                         me->GetMotionMaster()->Clear();
@@ -279,7 +278,7 @@ class boss_ysondre : public CreatureScript
             }
 
             // Summon druid spirits on 75%, 50% and 25% health
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (!HealthAbovePct(100 - 25 * _stage))
                 {
@@ -372,7 +371,7 @@ class boss_lethon : public CreatureScript
                 WorldBossAI::JustEngagedWith(who);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (!HealthAbovePct(100 - 25 * _stage))
                 {
@@ -382,12 +381,12 @@ class boss_lethon : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_DRAW_SPIRIT && target->GetTypeId() == TYPEID_PLAYER)
+                if (spellInfo->Id == SPELL_DRAW_SPIRIT && target->GetTypeId() == TYPEID_PLAYER)
                 {
                     Position targetPos = target->GetPosition();
-                    me->SummonCreature(NPC_SPIRIT_SHADE, targetPos, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 50000);
+                    me->SummonCreature(NPC_SPIRIT_SHADE, targetPos, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 50s);
                 }
             }
 
@@ -426,8 +425,12 @@ class npc_spirit_shade : public CreatureScript
             {
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(WorldObject* summonerWO) override
             {
+                Unit* summoner = summonerWO->ToUnit();
+                if (!summoner)
+                    return;
+
                 _summonerGuid = summoner->GetGUID();
                 me->GetMotionMaster()->MoveFollow(summoner, 0.0f, 0.0f);
             }
@@ -437,7 +440,7 @@ class npc_spirit_shade : public CreatureScript
                 if (moveType == FOLLOW_MOTION_TYPE && data == _summonerGuid.GetCounter())
                 {
                     me->CastSpell(nullptr, SPELL_DARK_OFFERING, false);
-                    me->DespawnOrUnsummon(1000);
+                    me->DespawnOrUnsummon(1s);
                 }
             }
 
@@ -507,7 +510,7 @@ class boss_emeriss : public CreatureScript
                 WorldBossAI::JustEngagedWith(who);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 if (!HealthAbovePct(100 - 25 * _stage))
                 {
@@ -523,7 +526,7 @@ class boss_emeriss : public CreatureScript
                 {
                     case EVENT_VOLATILE_INFECTION:
                         DoCastVictim(SPELL_VOLATILE_INFECTION);
-                        events.ScheduleEvent(EVENT_VOLATILE_INFECTION, 120000);
+                        events.ScheduleEvent(EVENT_VOLATILE_INFECTION, 120s);
                         break;
                     default:
                         emerald_dragonAI::ExecuteEvent(eventId);
@@ -610,7 +613,7 @@ class boss_taerar : public CreatureScript
                 --_shades;
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 // At 75, 50 or 25 percent health, we need to activate the shades and go "banished"
                 // Note: _stage holds the amount of times they have been summoned
@@ -630,7 +633,7 @@ class boss_taerar : public CreatureScript
                     _shades += count;
 
                     DoCast(SPELL_SHADE);
-                    me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE));
+                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_NON_ATTACKABLE);
                     me->SetReactState(REACT_PASSIVE);
 
                     ++_stage;
@@ -667,7 +670,7 @@ class boss_taerar : public CreatureScript
                     {
                         _banished = false;
 
-                        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE));
+                        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_NON_ATTACKABLE);
                         me->RemoveAurasDueToSpell(SPELL_SHADE);
                         me->SetReactState(REACT_AGGRESSIVE);
                     }
@@ -714,6 +717,7 @@ class DreamFogTargetSelector
         }
 };
 
+// 24778 - Sleep
 class spell_dream_fog_sleep : public SpellScriptLoader
 {
     public:
@@ -758,6 +762,7 @@ class MarkOfNatureTargetSelector
         }
 };
 
+// 25042 - Triggerspell - Mark of Nature
 class spell_mark_of_nature : public SpellScriptLoader
 {
     public:

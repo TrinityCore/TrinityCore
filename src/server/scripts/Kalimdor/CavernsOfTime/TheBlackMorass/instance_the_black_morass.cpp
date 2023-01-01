@@ -28,7 +28,6 @@ Category: Caverns of Time, The Black Morass
 #include "Log.h"
 #include "Map.h"
 #include "Player.h"
-#include "SpellInfo.h"
 #include "the_black_morass.h"
 #include "TemporarySummon.h"
 
@@ -51,17 +50,17 @@ float PortalLocation[4][4]=
 struct Wave
 {
     uint32 PortalBoss;                                      //protector of current portal
-    uint32 NextPortalTime;                                  //time to next portal, or 0 if portal boss need to be killed
+    Milliseconds NextPortalTime;                            //time to next portal, or 0 if portal boss need to be killed
 };
 
 static Wave RiftWaves[]=
 {
-    { RIFT_BOSS,                0 },
-    { NPC_CRONO_LORD_DEJA,      0 },
-    { RIFT_BOSS,           120000 },
-    { NPC_TEMPORUS,        140000 },
-    { RIFT_BOSS,           120000 },
-    { NPC_AEONUS,               0 }
+    { RIFT_BOSS,             0s },
+    { NPC_CRONO_LORD_DEJA,   0s },
+    { RIFT_BOSS,           120s },
+    { NPC_TEMPORUS,        140s },
+    { RIFT_BOSS,           120s },
+    { NPC_AEONUS,            0s }
 };
 
 enum EventIds
@@ -109,27 +108,12 @@ public:
             _currentRiftId      = 0;
         }
 
-        void InitWorldState(bool Enable = true)
-        {
-            DoUpdateWorldState(WORLD_STATE_BM, Enable ? 1 : 0);
-            DoUpdateWorldState(WORLD_STATE_BM_SHIELD, 100);
-            DoUpdateWorldState(WORLD_STATE_BM_RIFT, 0);
-        }
-
         bool IsEncounterInProgress() const override
         {
             if (GetData(TYPE_MEDIVH) == IN_PROGRESS)
                 return true;
 
             return false;
-        }
-
-        void OnPlayerEnter(Player* player) override
-        {
-            if (GetData(TYPE_MEDIVH) == IN_PROGRESS)
-                return;
-
-            player->SendUpdateWorldState(WORLD_STATE_BM, 0);
         }
 
         void OnCreatureCreate(Creature* creature) override
@@ -193,9 +177,9 @@ public:
                     if (data == IN_PROGRESS)
                     {
                         TC_LOG_DEBUG("scripts", "Instance The Black Morass: Starting event.");
-                        InitWorldState();
+                        DoUpdateWorldState(WORLD_STATE_BM, 1);
                         m_auiEncounter[1] = IN_PROGRESS;
-                        ScheduleEventNextPortal(15000);
+                        ScheduleEventNextPortal(15s);
                     }
 
                     if (data == DONE)
@@ -227,7 +211,7 @@ public:
                 if (data == SPECIAL)
                 {
                     if (mRiftPortalCount < 7)
-                        ScheduleEventNextPortal(5000);
+                        ScheduleEventNextPortal(5s);
                 }
                 else
                     m_auiEncounter[1] = data;
@@ -273,7 +257,7 @@ public:
             //normalize Z-level if we can, if rift is not at ground level.
             pos.m_positionZ = std::max(me->GetMap()->GetHeight(me->GetPhaseShift(), pos.m_positionX, pos.m_positionY, MAX_HEIGHT), me->GetMap()->GetWaterLevel(me->GetPhaseShift(), pos.m_positionX, pos.m_positionY));
 
-            if (Creature* summon = me->SummonCreature(entry, pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000))
+            if (Creature* summon = me->SummonCreature(entry, pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10min))
                 return summon;
 
             TC_LOG_DEBUG("scripts", "Instance The Black Morass: What just happened there? No boss, no loot, no fun...");
@@ -295,12 +279,9 @@ public:
 
                 Creature* temp = medivh->SummonCreature(NPC_TIME_RIFT,
                     PortalLocation[tmp][0], PortalLocation[tmp][1], PortalLocation[tmp][2], PortalLocation[tmp][3],
-                    TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    TEMPSUMMON_CORPSE_DESPAWN);
                 if (temp)
                 {
-                    temp->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-                    temp->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
-
                     if (Creature* boss = SummonedPortalBoss(temp))
                     {
                         if (boss->GetEntry() == NPC_AEONUS)
@@ -338,9 +319,9 @@ public:
             }
         }
 
-        void ScheduleEventNextPortal(uint32 nextPortalTime)
+        void ScheduleEventNextPortal(Milliseconds nextPortalTime)
         {
-            if (nextPortalTime > 0)
+            if (nextPortalTime > 0s)
                 Events.RescheduleEvent(EVENT_NEXT_PORTAL, nextPortalTime);
         }
 

@@ -56,6 +56,11 @@ class TC_GAME_API LanguageMgr
 
     // Accessors (const or static functions)
     public:
+        LanguageMgr(LanguageMgr const& right) = delete;
+        LanguageMgr(LanguageMgr&& right) = delete;
+        LanguageMgr& operator=(LanguageMgr const& right) = delete;
+        LanguageMgr& operator=(LanguageMgr&& right) = delete;
+
         static LanguageMgr* instance();
 
         //

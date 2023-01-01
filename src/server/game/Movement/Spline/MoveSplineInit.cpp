@@ -16,6 +16,7 @@
  */
 
 #include "MoveSplineInit.h"
+#include "Creature.h"
 #include "MovementPackets.h"
 #include "MoveSpline.h"
 #include "PathGenerator.h"
@@ -85,7 +86,8 @@ namespace Movement
         // correct first vertex
         args.path[0] = real_position;
         args.initialOrientation = real_position.orientation;
-        move_spline.onTransport = !unit->GetTransGUID().IsEmpty();
+        args.flags.enter_cycle = args.flags.cyclic;
+        move_spline.onTransport = transport;
 
         uint32 moveFlags = unit->m_movementInfo.GetMovementFlags();
         if (!args.flags.backward)
@@ -107,6 +109,9 @@ namespace Movement
                 moveFlagsForSpeed &= ~MOVEMENTFLAG_WALKING;
 
             args.velocity = unit->GetSpeed(SelectSpeedType(moveFlagsForSpeed));
+            if (Creature* creature = unit->ToCreature())
+                if (creature->HasSearchedAssistance())
+                    args.velocity *= 0.66f;
         }
 
         // limit the speed in the same way the client does
@@ -228,8 +233,8 @@ namespace Movement
         {
             if (Unit* vehicle = unit->GetVehicleBase())
                 angle -= vehicle->GetOrientation();
-            else if (Transport* transport = unit->GetTransport())
-                angle -= transport->GetOrientation();
+            else if (TransportBase* transport = unit->GetTransport())
+                angle -= transport->GetTransportOrientation();
         }
 
         args.facing.angle = G3D::wrap(angle, 0.f, (float)G3D::twoPi());

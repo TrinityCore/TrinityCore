@@ -20,12 +20,31 @@
 
 #include "CreatureAIImpl.h"
 
+#define TheUndebogDataHeader "UBOG"
 #define TheUndebogScriptName "instance_the_underbog"
+
+constexpr uint32 TheUnderbogBossCount = 4;
+
+enum TheUnderbogDataId
+{
+    DATA_HUNGARFEN          = 0,
+    DATA_GHAZAN             = 1,
+    DATA_SWAMPLORD_MUSELEK  = 2,
+    DATA_THE_BLACK_STALKER  = 3
+};
+
+enum TheUnderbogCreatureId
+{
+    NPC_GHAZAN              = 18105,
+    NPC_SWAMPLORD_MUSELEK   = 17826
+};
 
 template <class AI, class T>
 inline AI* GetTheUnderbogAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, TheUndebogScriptName);
 }
+
+#define RegisterTheUnderbogCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetTheUnderbogAI)
 
 #endif // the_underbog_h__

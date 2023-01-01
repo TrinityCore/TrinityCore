@@ -55,9 +55,9 @@ class boss_lord_alexei_barov : public CreatureScript
                     DoCast(me, SPELL_UNHOLY_AURA);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 events.ScheduleEvent(EVENT_IMMOLATE, 7s);
                 events.ScheduleEvent(EVENT_VEILOFSHADOW, 15s);
             }
@@ -77,7 +77,7 @@ class boss_lord_alexei_barov : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_IMMOLATE:
-                            DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_IMMOLATE, true);
+                            DoCast(SelectTarget(SelectTargetMethod::Random, 0, 100, true), SPELL_IMMOLATE, true);
                             events.ScheduleEvent(EVENT_IMMOLATE, 12s);
                             break;
                         case EVENT_VEILOFSHADOW:

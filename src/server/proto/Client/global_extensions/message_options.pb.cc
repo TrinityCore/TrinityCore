@@ -29,7 +29,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 
 }  // namespace
 
-
 void protobuf_AssignDesc_global_5fextensions_2fmessage_5foptions_2eproto() {
   protobuf_AddDesc_global_5fextensions_2fmessage_5foptions_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -108,7 +107,6 @@ struct StaticDescriptorInitializer_global_5fextensions_2fmessage_5foptions_2epro
     protobuf_AddDesc_global_5fextensions_2fmessage_5foptions_2eproto();
   }
 } static_descriptor_initializer_global_5fextensions_2fmessage_5foptions_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -356,7 +354,6 @@ void BGSMessageOptions::CopyFrom(const BGSMessageOptions& from) {
 }
 
 bool BGSMessageOptions::IsInitialized() const {
-
   return true;
 }
 
@@ -381,7 +378,6 @@ void BGSMessageOptions::Swap(BGSMessageOptions* other) {
 ::google::protobuf::internal::ExtensionIdentifier< ::google::protobuf::MessageOptions,
     ::google::protobuf::internal::MessageTypeTraits< ::bgs::protocol::BGSMessageOptions >, 11, false >
   message_options(kMessageOptionsFieldNumber, ::bgs::protocol::BGSMessageOptions::default_instance());
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace protocol

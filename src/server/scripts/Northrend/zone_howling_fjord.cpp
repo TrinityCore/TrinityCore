@@ -18,318 +18,16 @@
 #include "ScriptMgr.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "QuestDef.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
-#include "ScriptedGossip.h"
+#include "Spell.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"
-
-/*######
-## npc_apothecary_hanes
-######*/
-enum Entries
-{
-    NPC_APOTHECARY_HANES = 23784,
-    QUEST_TRAIL_OF_FIRE  = 11241,
-
-    SPELL_HEALING_POTION = 17534,
-    SPELL_BURN           = 42685,
-
-    EVENT_EMOTE_BEG    = 1,
-    EVENT_BEGIN        = 2,
-    EVENT_START_ESCORT = 3,
-    EVENT_TALK_1       = 4,
-    EVENT_KNEEL        = 5,
-    EVENT_TALK_2       = 6,
-    EVENT_BURN_CRATES  = 7,
-    EVENT_TALK_3       = 8,
-    EVENT_TALK_4       = 9,
-    EVENT_LAUGH        = 10,
-    EVENT_TALK_5       = 11,
-    EVENT_TALK_6       = 12,
-    EVENT_TALK_8       = 13,
-
-    TALK_0 = 0,
-    TALK_1 = 1,
-    TALK_2 = 2,
-    TALK_3 = 3,
-    TALK_4 = 4,
-    TALK_5 = 5,
-    TALK_6 = 6,
-    TALK_7 = 7,
-    TALK_8 = 8,
-
-    EQUIP_TORCH = 2
-};
-
-class npc_apothecary_hanes : public CreatureScript
-{
-public:
-    npc_apothecary_hanes() : CreatureScript("npc_apothecary_hanes") { }
-
-    struct npc_Apothecary_HanesAI : public EscortAI
-    {
-        npc_Apothecary_HanesAI(Creature* creature) : EscortAI(creature)
-        {
-            Initialize();
-        }
-
-        void StartEscort(Player* player)
-        {
-            events.ScheduleEvent(EVENT_BEGIN, 2s);
-            events.ScheduleEvent(EVENT_START_ESCORT, 6s);
-            _player = player->GetGUID();
-        }
-
-        void Initialize()
-        {
-            PotTimer = 10000; //10 sec cooldown on potion
-            events.Reset();
-            events.ScheduleEvent(EVENT_EMOTE_BEG, 2s);
-            me->SetStandState(UNIT_STAND_STATE_KNEEL);
-            _player = ObjectGuid();
-        }
-
-        uint32 PotTimer;
-        EventMap events;
-        ObjectGuid _player;
-
-        void Reset() override
-        {
-            SetDespawnAtFar(false);
-            Initialize();
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            if (Player* player = GetPlayerForEscort())
-                player->FailQuest(QUEST_TRAIL_OF_FIRE);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (HealthBelowPct(75))
-            {
-                if (PotTimer <= diff)
-                {
-                    DoCast(me, SPELL_HEALING_POTION, true);
-                    PotTimer = 10000;
-                } else PotTimer -= diff;
-            }
-
-            if (IsActiveAttacker() && UpdateVictim())
-                DoMeleeAttackIfReady();
-
-            EscortAI::UpdateAI(diff);
-
-            if (me->IsInCombat())
-                return;
-
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_EMOTE_BEG:
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_BEG);
-                        events.ScheduleEvent(EVENT_EMOTE_BEG, 25s);
-                        break;
-                    case EVENT_BEGIN:
-                        if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
-                            Talk(TALK_0, player);
-                        break;
-                    case EVENT_START_ESCORT:
-                        events.Reset();
-                        me->SetFaction(FACTION_ESCORTEE_H_PASSIVE);
-                        me->SetReactState(REACT_AGGRESSIVE);
-                        ENSURE_AI(EscortAI, (me->AI()))->Start(true, true, _player);
-                        break;
-                    case EVENT_TALK_1:
-                        if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
-                            Talk(TALK_1, player);
-                        break;
-                    case EVENT_KNEEL:
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_KNEEL);
-                        break;
-                    case EVENT_TALK_2:
-                        if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
-                            Talk(TALK_2, player);
-                        me->LoadEquipment(EQUIP_TORCH);
-                        me->SetSheath(SHEATH_STATE_MELEE);
-                        break;
-                    case EVENT_BURN_CRATES:
-                        DoCastAOE(SPELL_BURN, true);
-                        break;
-                    case EVENT_TALK_3:
-                        if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
-                            Talk(TALK_3, player);
-                        break;
-                    case EVENT_TALK_4:
-                        if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
-                            Talk(TALK_4, player);
-                        break;
-                    case EVENT_LAUGH:
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
-                        break;
-                    case EVENT_TALK_5:
-                        if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
-                            Talk(TALK_5, player);
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_RUDE);
-                        break;
-                    case EVENT_TALK_6:
-                        if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
-                            Talk(TALK_6, player);
-                        break;
-                    case EVENT_TALK_8:
-                        if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
-                            Talk(TALK_8, player);
-                        break;
-                }
-            }
-        }
-
-        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
-        {
-            if (!GetPlayerForEscort())
-                return;
-
-            switch (waypointId)
-            {
-                case 1:
-                    events.ScheduleEvent(EVENT_TALK_1, Seconds(3));
-                    events.ScheduleEvent(EVENT_KNEEL, 5s);
-                    events.ScheduleEvent(EVENT_TALK_2, Seconds(6));
-                    me->SetStandState(UNIT_STAND_STATE_STAND);
-                    break;
-                case 12:
-                    events.ScheduleEvent(EVENT_BURN_CRATES, 1s);
-                    events.ScheduleEvent(EVENT_TALK_3, Seconds(3));
-                    break;
-                case 20:
-                    events.ScheduleEvent(EVENT_BURN_CRATES, 0);
-                    break;
-                case 21:
-                    events.ScheduleEvent(EVENT_BURN_CRATES, 0);
-                    events.ScheduleEvent(EVENT_TALK_4, Seconds(3));
-                    break;
-                case 28:
-                    events.ScheduleEvent(EVENT_BURN_CRATES, 0);
-                    events.ScheduleEvent(EVENT_LAUGH, 7s);
-                    events.ScheduleEvent(EVENT_TALK_5, Seconds(9));
-                    events.ScheduleEvent(EVENT_TALK_6, Seconds(17));
-                    break;
-                case 35:
-                    if (Player* pl = ObjectAccessor::GetPlayer(*me, _player))
-                        Talk(TALK_7, pl);
-                    break;
-                case 40:
-                    if (Player* pl = ObjectAccessor::GetPlayer(*me, _player))
-                        pl->GroupEventHappens(QUEST_TRAIL_OF_FIRE, me);
-                    events.ScheduleEvent(EVENT_TALK_8, Seconds(4));
-                    break;
-            }
-        }
-
-        void QuestAccept(Player* player, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_TRAIL_OF_FIRE)
-                StartEscort(player);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_Apothecary_HanesAI(creature);
-    }
-};
-
-/*######
-## npc_razael_and_lyana
-######*/
-
-#define GOSSIP_RAZAEL_REPORT "High Executor Anselm wants a report on the situation."
-#define GOSSIP_LYANA_REPORT "High Executor Anselm requests your report."
-
-enum Razael
-{
-    QUEST_REPORTS_FROM_THE_FIELD = 11221,
-    NPC_RAZAEL = 23998,
-    NPC_LYANA = 23778,
-    GOSSIP_TEXTID_RAZAEL1 = 11562,
-    GOSSIP_TEXTID_RAZAEL2 = 11564,
-    GOSSIP_TEXTID_LYANA1 = 11586,
-    GOSSIP_TEXTID_LYANA2 = 11588
-};
-
-class npc_razael_and_lyana : public CreatureScript
-{
-public:
-    npc_razael_and_lyana() : CreatureScript("npc_razael_and_lyana") { }
-
-    struct npc_razael_and_lyanaAI : public ScriptedAI
-    {
-        npc_razael_and_lyanaAI(Creature* creature) : ScriptedAI(creature) { }
-
-        bool GossipHello(Player* player) override
-        {
-            if (me->IsQuestGiver())
-                player->PrepareQuestMenu(me->GetGUID());
-
-            if (player->GetQuestStatus(QUEST_REPORTS_FROM_THE_FIELD) == QUEST_STATUS_INCOMPLETE)
-            {
-                switch (me->GetEntry())
-                {
-                    case NPC_RAZAEL:
-                        if (!player->GetReqKillOrCastCurrentCount(QUEST_REPORTS_FROM_THE_FIELD, NPC_RAZAEL))
-                        {
-                            AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_RAZAEL_REPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                            SendGossipMenuFor(player, GOSSIP_TEXTID_RAZAEL1, me->GetGUID());
-                            return true;
-                        }
-                        break;
-                    case NPC_LYANA:
-                        if (!player->GetReqKillOrCastCurrentCount(QUEST_REPORTS_FROM_THE_FIELD, NPC_LYANA))
-                        {
-                            AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_LYANA_REPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                            SendGossipMenuFor(player, GOSSIP_TEXTID_LYANA1, me->GetGUID());
-                            return true;
-                        }
-                        break;
-                }
-            }
-            SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
-            return true;
-        }
-
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
-        {
-            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-            ClearGossipMenuFor(player);
-            switch (action)
-            {
-                case GOSSIP_ACTION_INFO_DEF + 1:
-                    SendGossipMenuFor(player, GOSSIP_TEXTID_RAZAEL2, me->GetGUID());
-                    player->TalkedToCreature(NPC_RAZAEL, me->GetGUID());
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 2:
-                    SendGossipMenuFor(player, GOSSIP_TEXTID_LYANA2, me->GetGUID());
-                    player->TalkedToCreature(NPC_LYANA, me->GetGUID());
-                    break;
-            }
-            return true;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_razael_and_lyanaAI(creature);
-    }
-};
 
 /*######
 ## npc_daegarn
@@ -454,7 +152,7 @@ struct npc_daegarn : public ScriptedAI
         SummonGladiator(entry);
     }
 
-    void QuestAccept(Player* player, Quest const* quest) override
+    void OnQuestAccept(Player* player, Quest const* quest) override
     {
         if (quest->GetQuestId() == QUEST_DEFEAT_AT_RING)
         {
@@ -496,7 +194,7 @@ struct npc_daegarn : public ScriptedAI
 private:
     void SummonGladiator(uint32 entry)
     {
-        me->SummonCreature(entry, daegarnSummonPosition, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30 * IN_MILLISECONDS);
+        me->SummonCreature(entry, daegarnSummonPosition, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30s);
     }
 
     bool _eventInProgress;
@@ -505,100 +203,79 @@ private:
     SummonList _summons;
 };
 
-enum MindlessAbomination
+/*######
+## Quest 11310: Warning: Some Assembly Required
+######*/
+
+enum SomeAssemblyRequired
 {
-    EVENT_CHECK_CHARMED                = 1
+    SPELL_MINDLESS_ABOMINATION_CONTROL         = 42168,
+    SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON    = 42266,
+    SPELL_RANDOM_CIRCUMFERENCE_POINT_BONE      = 42267,
+    SPELL_RANDOM_CIRCUMFERENCE_POINT_BONE_2    = 42274
 };
 
-class npc_mindless_abomination : public CreatureScript
+// 43393 - Ping Master
+class spell_fjord_mindless_abomination_ping_master : public SpellScript
 {
-public:
-    npc_mindless_abomination() : CreatureScript("npc_mindless_abomination") { }
+    PrepareSpellScript(spell_fjord_mindless_abomination_ping_master);
 
-    struct npc_mindless_abominationAI : public ScriptedAI
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        npc_mindless_abominationAI(Creature* creature) : ScriptedAI(creature) { }
+        return ValidateSpellInfo({ SPELL_MINDLESS_ABOMINATION_CONTROL });
+    }
 
-        void Reset() override
-        {
-            events.ScheduleEvent(EVENT_CHECK_CHARMED, 1s);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_CHECK_CHARMED:
-                        if (!me->IsCharmedOwnedByPlayerOrPlayer())
-                            me->DespawnOrUnsummon();
-                        else
-                            events.ScheduleEvent(EVENT_CHECK_CHARMED, 1s);
-                        break;
-                }
-            }
-        }
-
-    private:
-        EventMap events;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
+    void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        return new npc_mindless_abominationAI(creature);
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_MINDLESS_ABOMINATION_CONTROL);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_fjord_mindless_abomination_ping_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
-class spell_mindless_abomination_explosion_fx_master : public SpellScriptLoader
+// 42268 - Quest - Mindless Abomination Explosion FX Master
+class spell_fjord_mindless_abomination_explosion_fx_master : public SpellScript
 {
-    enum Spells
+    PrepareSpellScript(spell_fjord_mindless_abomination_explosion_fx_master);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON = 42266,
-        SPELL_COSMETIC_BLOOD_EXPLOSION_GREEN_LARGE = 43401
-    };
-
-    public:
-        spell_mindless_abomination_explosion_fx_master() : SpellScriptLoader("spell_mindless_abomination_explosion_fx_master") { }
-
-        class spell_mindless_abomination_explosion_fx_master_SpellScript : public SpellScript
+        return ValidateSpellInfo(
         {
-            PrepareSpellScript(spell_mindless_abomination_explosion_fx_master_SpellScript);
+            SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON,
+            SPELL_RANDOM_CIRCUMFERENCE_POINT_BONE,
+            SPELL_RANDOM_CIRCUMFERENCE_POINT_BONE_2
+        });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON, SPELL_COSMETIC_BLOOD_EXPLOSION_GREEN_LARGE });
-            }
+    void HandleScript(SpellEffIndex /*eff*/)
+    {
+        Unit* caster = GetCaster();
 
-            void HandleScript(SpellEffIndex /*eff*/)
-            {
-                Creature* caster = GetCaster()->ToCreature();
-                if (!caster)
-                    return;
+        for (uint8 i = 0; i < 11; ++i)
+            caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON);
 
-                caster->CastSpell(caster, SPELL_COSMETIC_BLOOD_EXPLOSION_GREEN_LARGE);
+        for (uint8 i = 0; i < 6; ++i)
+            caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_BONE);
 
-                for (uint8 i = 0; i < 10; ++i)
-                    caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON);
+        for (uint8 i = 0; i < 4; ++i)
+            caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_BONE_2);
+    }
 
-                caster->DespawnOrUnsummon(4000);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_mindless_abomination_explosion_fx_master_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_mindless_abomination_explosion_fx_master_SpellScript();
-        }
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_fjord_mindless_abomination_explosion_fx_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
-enum SummonSpells
+/*######
+## Quest 11296: Rivenwood Captives
+######*/
+
+enum RivenwoodCaptives
 {
     SPELL_SUMMON_BABY_RIVEN_WIDOWS        = 43275,
     SPELL_SUMMON_DARKCLAW_BAT             = 43276,
@@ -611,11 +288,10 @@ enum SummonSpells
     SPELL_SUMMON_WINTERSKORN_WOODSMAN     = 43283,
     SPELL_SUMMON_WINTERSKORN_TRIBESMAN    = 43284,
     SPELL_SUMMON_WINTERSKORN_ORACLE       = 43285,
-    SPELL_SUMMON_FREED_MIST_WHISPER_SCOUT = 43289,
-    NPC_MIST_WHISPER_SCOUT                = 24211
+    SPELL_SUMMON_FREED_MIST_WHISPER_SCOUT = 43289
 };
 
-const uint32 rivenWidowCocoonVictims[11] =
+std::array<uint32, 11> const CocoonSummonSpells =
 {
     SPELL_SUMMON_BABY_RIVEN_WIDOWS,
     SPELL_SUMMON_DARKCLAW_BAT,
@@ -630,48 +306,270 @@ const uint32 rivenWidowCocoonVictims[11] =
     SPELL_SUMMON_WINTERSKORN_ORACLE
 };
 
-class npc_riven_widow_cocoon : public CreatureScript
+// 43288 - Rivenwood Captives: Player Not On Quest
+class spell_fjord_rivenwood_captives_not_on_quest : public SpellScript
 {
-public:
-    npc_riven_widow_cocoon() : CreatureScript("npc_riven_widow_cocoon") { }
+    PrepareSpellScript(spell_fjord_rivenwood_captives_not_on_quest);
 
-    struct npc_riven_widow_cocoonAI : public ScriptedAI
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        npc_riven_widow_cocoonAI(Creature* creature) : ScriptedAI(creature) { }
+        return ValidateSpellInfo(CocoonSummonSpells);
+    }
 
-        void Reset() override { }
-        void JustEngagedWith(Unit* /*who*/) override { }
-        void MoveInLineOfSight(Unit* /*who*/) override { }
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetCaster(), Trinity::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
+    }
 
-        void JustDied(Unit* killer) override
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_fjord_rivenwood_captives_not_on_quest::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 43287 - Rivenwood Captives: Player On Quest
+class spell_fjord_rivenwood_captives_on_quest : public SpellScript
+{
+    PrepareSpellScript(spell_fjord_rivenwood_captives_on_quest);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(CocoonSummonSpells) && ValidateSpellInfo({ SPELL_SUMMON_FREED_MIST_WHISPER_SCOUT });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        if (roll_chance_i(80))
+            target->CastSpell(caster, Trinity::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
+        else
+            target->CastSpell(caster, SPELL_SUMMON_FREED_MIST_WHISPER_SCOUT, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_fjord_rivenwood_captives_on_quest::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+/*######
+## Quest 11317, 11322: The Cleansing
+######*/
+
+enum TheCleansing
+{
+    SPELL_CLEANSING_SOUL            = 43351,
+    SPELL_SUMMON_INNER_TURMOIL      = 50167,
+    SPELL_RECENT_MEDITATION         = 61720,
+    SPELL_MIRROR_IMAGE_AURA         = 50218,
+
+    QUEST_THE_CLEANSING_H           = 11317,
+    QUEST_THE_CLEANSING_A           = 11322
+};
+
+// 43365 - The Cleansing: Shrine Cast
+class spell_fjord_the_cleansing_shrine_cast : public SpellScript
+{
+    PrepareSpellScript(spell_fjord_the_cleansing_shrine_cast);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_RECENT_MEDITATION, SPELL_CLEANSING_SOUL }) &&
+            sObjectMgr->GetQuestTemplate(QUEST_THE_CLEANSING_H) &&
+            sObjectMgr->GetQuestTemplate(QUEST_THE_CLEANSING_A);
+    }
+
+    SpellCastResult CheckCast()
+    {
+        // Error is correct for quest check but may be not correct for aura and this may be a wrong place to send error
+        if (Player* target = GetExplTargetUnit()->ToPlayer())
         {
-            if (!killer || killer->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            Player* player = killer->ToPlayer();
-
-            if (roll_chance_i(20))
+            if (target->HasAura(SPELL_RECENT_MEDITATION) || (!(target->GetQuestStatus(QUEST_THE_CLEANSING_H) == QUEST_STATUS_INCOMPLETE ||
+                target->GetQuestStatus(QUEST_THE_CLEANSING_A) == QUEST_STATUS_INCOMPLETE)))
             {
-                player->CastSpell(me, SPELL_SUMMON_FREED_MIST_WHISPER_SCOUT, true);
-                player->KilledMonsterCredit(NPC_MIST_WHISPER_SCOUT);
+                Spell::SendCastResult(target, GetSpellInfo(), GetSpell()->m_SpellVisual, GetSpell()->m_castId, SPELL_FAILED_FIZZLE);
+                return SPELL_FAILED_FIZZLE;
             }
-            else
-                player->CastSpell(me, rivenWidowCocoonVictims[urand(0, 10)], true);
         }
-    };
+        return SPELL_CAST_OK;
+    }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        return new npc_riven_widow_cocoonAI(creature);
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_CLEANSING_SOUL, true);
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_fjord_the_cleansing_shrine_cast::CheckCast);
+        OnEffectHitTarget += SpellEffectFn(spell_fjord_the_cleansing_shrine_cast::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 43351 - Cleansing Soul
+class spell_fjord_the_cleansing_cleansing_soul : public AuraScript
+{
+    PrepareAuraScript(spell_fjord_the_cleansing_cleansing_soul);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_INNER_TURMOIL, SPELL_RECENT_MEDITATION });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->SetStandState(UNIT_STAND_STATE_SIT);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->SetStandState(UNIT_STAND_STATE_STAND);
+        target->CastSpell(target, SPELL_SUMMON_INNER_TURMOIL, true);
+        target->CastSpell(target, SPELL_RECENT_MEDITATION, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_fjord_the_cleansing_cleansing_soul::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_fjord_the_cleansing_cleansing_soul::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 50217 - The Cleansing: Script Effect Player Cast Mirror Image
+class spell_fjord_the_cleansing_mirror_image_script_effect : public SpellScript
+{
+    PrepareSpellScript(spell_fjord_the_cleansing_mirror_image_script_effect);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MIRROR_IMAGE_AURA });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_MIRROR_IMAGE_AURA);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_fjord_the_cleansing_mirror_image_script_effect::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 50238 - The Cleansing: Your Inner Turmoil's On Death Cast on Master
+class spell_fjord_the_cleansing_on_death_cast_on_master : public SpellScript
+{
+    PrepareSpellScript(spell_fjord_the_cleansing_on_death_cast_on_master);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (TempSummon* casterSummon = GetCaster()->ToTempSummon())
+            if (Unit* summoner = casterSummon->GetSummonerUnit())
+                summoner->CastSpell(summoner, uint32(GetEffectValue()));
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_fjord_the_cleansing_on_death_cast_on_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 11472: The Way to His Heart...
+######*/
+
+enum TheWayToHisHeart
+{
+    SPELL_CREATE_TASTY_REEF_FISH   = 12602,
+    SPELL_FISHED_UP_REEF_SHARK     = 20713
+};
+
+// 21014 - Anuniaq's Net
+class spell_fjord_the_way_to_his_heart_anuniaq_net : public SpellScript
+{
+    PrepareSpellScript(spell_fjord_the_way_to_his_heart_anuniaq_net);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_CREATE_TASTY_REEF_FISH, SPELL_FISHED_UP_REEF_SHARK });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, roll_chance_i(75) ? SPELL_CREATE_TASTY_REEF_FISH : SPELL_FISHED_UP_REEF_SHARK, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_fjord_the_way_to_his_heart_anuniaq_net::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 44455 - The Way to His Heart...: Character Script Effect Reverse Cast
+class spell_fjord_the_way_to_his_heart_reverse_cast : public SpellScript
+{
+    PrepareSpellScript(spell_fjord_the_way_to_his_heart_reverse_cast);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetCaster(), uint32(GetEffectValue()), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_fjord_the_way_to_his_heart_reverse_cast::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 44462 - The Way to His Heart...: Cast Quest Complete on Master
+class spell_fjord_the_way_to_his_heart_quest_complete : public SpellScript
+{
+    PrepareSpellScript(spell_fjord_the_way_to_his_heart_quest_complete);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (TempSummon* casterSummon = GetCaster()->ToTempSummon())
+            if (Unit* summoner = casterSummon->GetSummonerUnit())
+                summoner->CastSpell(summoner, uint32(GetEffectValue()), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_fjord_the_way_to_his_heart_quest_complete::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 void AddSC_howling_fjord()
 {
-    new npc_apothecary_hanes();
-    new npc_razael_and_lyana();
     RegisterCreatureAI(npc_daegarn);
-    new npc_mindless_abomination();
-    new spell_mindless_abomination_explosion_fx_master();
-    new npc_riven_widow_cocoon();
- }
+    RegisterSpellScript(spell_fjord_mindless_abomination_ping_master);
+    RegisterSpellScript(spell_fjord_mindless_abomination_explosion_fx_master);
+    RegisterSpellScript(spell_fjord_rivenwood_captives_not_on_quest);
+    RegisterSpellScript(spell_fjord_rivenwood_captives_on_quest);
+    RegisterSpellScript(spell_fjord_the_cleansing_shrine_cast);
+    RegisterSpellScript(spell_fjord_the_cleansing_cleansing_soul);
+    RegisterSpellScript(spell_fjord_the_cleansing_mirror_image_script_effect);
+    RegisterSpellScript(spell_fjord_the_cleansing_on_death_cast_on_master);
+    RegisterSpellScript(spell_fjord_the_way_to_his_heart_anuniaq_net);
+    RegisterSpellScript(spell_fjord_the_way_to_his_heart_reverse_cast);
+    RegisterSpellScript(spell_fjord_the_way_to_his_heart_quest_complete);
+}

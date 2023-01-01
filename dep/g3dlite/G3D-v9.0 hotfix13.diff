@@ -1,0 +1,25 @@
+diff --git a/dep/g3dlite/include/G3D/g3dmath.h b/dep/g3dlite/include/G3D/g3dmath.h
+index 54cc6ed370..002cd3858d 100644
+--- a/dep/g3dlite/include/G3D/g3dmath.h
++++ b/dep/g3dlite/include/G3D/g3dmath.h
+@@ -27,6 +27,7 @@
+ #include "G3D/platform.h"
+ #include <ctype.h>
+ #include <float.h>
++#include <algorithm>
+ #include <limits>
+ #include <stdlib.h>
+ #include <stdint.h>
+diff --git a/dep/g3dlite/source/debugAssert.cpp b/dep/g3dlite/source/debugAssert.cpp
+index cfccf9a0cc..3c3e43a0af 100644
+--- a/dep/g3dlite/source/debugAssert.cpp
++++ b/dep/g3dlite/source/debugAssert.cpp
+@@ -99,7 +99,7 @@ static void createErrorMessage(
+         }
+ 
+         // Make sure the message got translated into something.
+-        LPTSTR realLastErr;
++        LPCTSTR realLastErr;
+         if (NULL != formatMsg) {
+             realLastErr = formatMsg;
+         } else {

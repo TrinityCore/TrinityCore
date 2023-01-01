@@ -42,24 +42,15 @@ using SRP6 = Trinity::Crypto::SRP6;
     return res;
 }
 
-/*static*/ std::pair<SRP6::Salt, SRP6::Verifier> SRP6::MakeRegistrationDataFromHash_DEPRECATED_DONOTUSE(SHA1::Digest const& hash)
-{
-    std::pair<SRP6::Salt, SRP6::Verifier> res;
-    Crypto::GetRandomBytes(res.first);
-    res.second = CalculateVerifierFromHash(hash, res.first);
-    return res;
-}
-
 /*static*/ SRP6::Verifier SRP6::CalculateVerifier(std::string const& username, std::string const& password, SRP6::Salt const& salt)
 {
     // v = g ^ H(s || H(u || ':' || p)) mod N
-    return CalculateVerifierFromHash(SHA1::GetDigestOf(username, ":", password), salt);
-}
-
-// merge this into CalculateVerifier once the sha_pass hack finally gets nuked from orbit
-/*static*/ SRP6::Verifier SRP6::CalculateVerifierFromHash(SHA1::Digest const& hash, SRP6::Salt const& salt)
-{
-    return _g.ModExp(SHA1::GetDigestOf(salt, hash), _N).ToByteArray<32>();
+    return _g.ModExp(
+        SHA1::GetDigestOf(
+            salt,
+            SHA1::GetDigestOf(username, ":", password)
+        )
+    ,_N).ToByteArray<32>();
 }
 
 /*static*/ SessionKey SRP6::SHA1Interleave(SRP6::EphemeralKey const& S)

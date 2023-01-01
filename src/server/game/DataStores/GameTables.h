@@ -54,6 +54,14 @@ struct GtBaseMPEntry
     float DeathKnight = 0.0f;
     float Monk = 0.0f;
     float DemonHunter = 0.0f;
+    float Evoker = 0.0f;
+    float Adventurer = 0.0f;
+};
+
+struct GtBattlePetXPEntry
+{
+    float Wins = 0.0f;
+    float Xp = 0.0f;
 };
 
 struct GtCombatRatingsEntry
@@ -129,6 +137,8 @@ struct GtSpellScalingEntry
     float DeathKnight = 0.0f;
     float Monk = 0.0f;
     float DemonHunter = 0.0f;
+    float Evoker = 0.0f;
+    float Adventurer = 0.0f;
     float Item = 0.0f;
     float Consumable = 0.0f;
     float Gem1 = 0.0f;
@@ -137,6 +147,7 @@ struct GtSpellScalingEntry
     float Health = 0.0f;
     float DamageReplaceStat = 0.0f;
     float DamageSecondary = 0.0f;
+    float ManaConsumable = 0.0f;
 };
 
 struct GtStaminaMultByILvl
@@ -180,6 +191,7 @@ TC_GAME_API extern GameTable<GtArtifactKnowledgeMultiplierEntry>    sArtifactKno
 TC_GAME_API extern GameTable<GtArtifactLevelXPEntry>                sArtifactLevelXPGameTable;
 TC_GAME_API extern GameTable<GtBarberShopCostBaseEntry>             sBarberShopCostBaseGameTable;
 TC_GAME_API extern GameTable<GtBaseMPEntry>                         sBaseMPGameTable;
+TC_GAME_API extern GameTable<GtBattlePetXPEntry>                    sBattlePetXPGameTable;
 TC_GAME_API extern GameTable<GtCombatRatingsEntry>                  sCombatRatingsGameTable;
 TC_GAME_API extern GameTable<GtCombatRatingsMultByILvl>             sCombatRatingsMultByILvlGameTable;
 TC_GAME_API extern GameTable<GtHpPerStaEntry>                       sHpPerStaGameTable;
@@ -220,6 +232,10 @@ inline float GetGameTableColumnForClass(T const* row, int32 class_)
             return row->Druid;
         case CLASS_DEMON_HUNTER:
             return row->DemonHunter;
+        case CLASS_EVOKER:
+            return row->Evoker;
+        case CLASS_ADVENTURER:
+            return row->Adventurer;
         default:
             break;
     }
@@ -255,6 +271,10 @@ inline float GetSpellScalingColumnForClass(GtSpellScalingEntry const* row, int32
             return row->Druid;
         case CLASS_DEMON_HUNTER:
             return row->DemonHunter;
+        case CLASS_EVOKER:
+            return row->Evoker;
+        case CLASS_ADVENTURER:
+            return row->Adventurer;
         case -1:
         case -7:
             return row->Item;
@@ -272,11 +292,18 @@ inline float GetSpellScalingColumnForClass(GtSpellScalingEntry const* row, int32
             return row->DamageReplaceStat;
         case -9:
             return row->DamageSecondary;
+        case -10:
+            return row->ManaConsumable;
         default:
             break;
     }
 
     return 0.0f;
+}
+
+inline float GetBattlePetXPPerLevel(GtBattlePetXPEntry const* row)
+{
+    return row->Wins * row->Xp;
 }
 
 template<class T>

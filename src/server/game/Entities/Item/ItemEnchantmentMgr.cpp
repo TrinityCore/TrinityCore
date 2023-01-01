@@ -22,13 +22,9 @@
 #include "ItemTemplate.h"
 #include "Log.h"
 #include "ObjectMgr.h"
-#include "Random.h"
 #include "Timer.h"
-#include "Util.h"
-
 #include <list>
 #include <vector>
-#include <stdlib.h>
 
 namespace
 {

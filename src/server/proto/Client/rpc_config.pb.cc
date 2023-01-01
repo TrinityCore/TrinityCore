@@ -39,7 +39,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 
 }  // namespace
 
-
 void protobuf_AssignDesc_rpc_5fconfig_2eproto() {
   protobuf_AddDesc_rpc_5fconfig_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -206,7 +205,6 @@ struct StaticDescriptorInitializer_rpc_5fconfig_2eproto {
     protobuf_AddDesc_rpc_5fconfig_2eproto();
   }
 } static_descriptor_initializer_rpc_5fconfig_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -986,7 +984,6 @@ void RPCMethodConfig::CopyFrom(const RPCMethodConfig& from) {
 }
 
 bool RPCMethodConfig::IsInitialized() const {
-
   return true;
 }
 
@@ -1020,7 +1017,6 @@ void RPCMethodConfig::Swap(RPCMethodConfig* other) {
   metadata.reflection = RPCMethodConfig_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1387,7 +1383,6 @@ void RPCMeterConfig::CopyFrom(const RPCMeterConfig& from) {
 }
 
 bool RPCMeterConfig::IsInitialized() const {
-
   return true;
 }
 
@@ -1411,7 +1406,6 @@ void RPCMeterConfig::Swap(RPCMeterConfig* other) {
   metadata.reflection = RPCMeterConfig_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1695,7 +1689,6 @@ void ProtocolAlias::CopyFrom(const ProtocolAlias& from) {
 
 bool ProtocolAlias::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
-
   return true;
 }
 
@@ -1716,7 +1709,6 @@ void ProtocolAlias::Swap(ProtocolAlias* other) {
   metadata.reflection = ProtocolAlias_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1915,7 +1907,6 @@ void ServiceAliases::CopyFrom(const ServiceAliases& from) {
 }
 
 bool ServiceAliases::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->protocol_alias())) return false;
   return true;
 }
@@ -1936,7 +1927,6 @@ void ServiceAliases::Swap(ServiceAliases* other) {
   metadata.reflection = ServiceAliases_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

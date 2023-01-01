@@ -17,7 +17,6 @@
 
 #include "ScriptMgr.h"
 #include "Conversation.h"
-#include "ObjectAccessor.h"
 #include "Player.h"
 
 class conversation_allied_race_dk_defender_of_azeroth : public ConversationScript
@@ -33,9 +32,8 @@ public:
 
     conversation_allied_race_dk_defender_of_azeroth() : ConversationScript("conversation_allied_race_dk_defender_of_azeroth") { }
 
-    void OnConversationCreate(Conversation* conversation, Unit* creator) override
+    void OnConversationCreate(Conversation* /*conversation*/, Unit* creator) override
     {
-        conversation->AddActor(ObjectGuid::Create<HighGuid::Player>(0xFFFFFFFFFFFFFFFF), 1);
         if (Player* player = creator->ToPlayer())
             player->KilledMonsterCredit(NPC_TALK_TO_YOUR_COMMANDER_CREDIT);
     }

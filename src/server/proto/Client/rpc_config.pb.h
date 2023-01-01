@@ -575,9 +575,7 @@ class TC_PROTO_API ServiceAliases : public ::google::protobuf::Message {
 };
 // ===================================================================
 
-
 // ===================================================================
-
 
 // ===================================================================
 
@@ -1367,7 +1365,6 @@ ServiceAliases::mutable_protocol_alias() {
   return &protocol_alias_;
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace config
@@ -1377,8 +1374,6 @@ ServiceAliases::mutable_protocol_alias() {
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

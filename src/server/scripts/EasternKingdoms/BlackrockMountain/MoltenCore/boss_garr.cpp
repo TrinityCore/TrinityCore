@@ -24,7 +24,6 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "molten_core.h"
-#include "ObjectMgr.h"
 #include "ScriptedCreature.h"
 
 enum Spells
@@ -100,7 +99,7 @@ struct npc_firesworn : public ScriptedAI
         // Timers for this are probably wrong
         _scheduler.Schedule(4s, [this](TaskContext context)
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 DoCast(target, SPELL_IMMOLATE);
 
             context.Repeat(5s, 10s);
@@ -129,7 +128,7 @@ struct npc_firesworn : public ScriptedAI
         ScheduleTasks();
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         uint32 const health10pct = me->CountPctFromMaxHealth(10);
         uint32 health = me->GetHealth();

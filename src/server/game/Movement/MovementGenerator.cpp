@@ -21,9 +21,22 @@
 #include "MovementDefines.h"
 #include "PathGenerator.h"
 #include "RandomMovementGenerator.h"
+#include "UnitAI.h"
 #include "WaypointMovementGenerator.h"
+#include <sstream>
 
 MovementGenerator::~MovementGenerator() { }
+
+std::string MovementGenerator::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << std::boolalpha
+        << "Mode: " << std::to_string(Mode)
+        << " Priority: " << std::to_string(Priority)
+        << " Flags: " << Flags
+        << " BaseUniteState: " << BaseUnitState;
+    return sstr.str();
+}
 
 IdleMovementFactory::IdleMovementFactory() : MovementGeneratorCreator(IDLE_MOTION_TYPE) { }
 

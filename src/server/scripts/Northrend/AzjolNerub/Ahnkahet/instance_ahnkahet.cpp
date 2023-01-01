@@ -15,16 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
-#include "AreaBoundary.h"
 #include "ahnkahet.h"
-#include "Creature.h"
+#include "AreaBoundary.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
-#include "SpellInfo.h"
-#include "SpellScript.h"
-#include <sstream>
+#include "ScriptMgr.h"
 
 DoorData const doorData[] =
 {
@@ -53,6 +49,15 @@ BossBoundaryData const boundaries =
     { DATA_JEDOGA_SHADOWSEEKER, new ParallelogramBoundary(Position(460.365f, -661.997f, -20.985f), Position(364.958f,-790.211f, -14.207f), Position(347.436f,-657.978f,14.478f)) }
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_ELDER_NADOX, {{ 1969 }} },
+    { DATA_PRINCE_TALDARAM, {{ 1966 }} },
+    { DATA_JEDOGA_SHADOWSEEKER, {{ 1967 }} },
+    { DATA_AMANITAR, {{ 1989 }} },
+    { DATA_HERALD_VOLAZJ, {{ 1968 }} }
+};
+
 class instance_ahnkahet : public InstanceMapScript
 {
     public:
@@ -67,6 +72,7 @@ class instance_ahnkahet : public InstanceMapScript
                 LoadDoorData(doorData);
                 LoadObjectData(creatureData, gameObjectData);
                 LoadBossBoundaries(boundaries);
+                LoadDungeonEncounterData(encounters);
 
                 SpheresState[0]             = 0;
                 SpheresState[1]             = 0;
@@ -86,7 +92,7 @@ class instance_ahnkahet : public InstanceMapScript
                         if (SpheresState[0])
                         {
                             go->SetGoState(GO_STATE_ACTIVE);
-                            go->AddFlag(GO_FLAG_NOT_SELECTABLE);
+                            go->SetFlag(GO_FLAG_NOT_SELECTABLE);
                         }
                         else
                             go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
@@ -95,7 +101,7 @@ class instance_ahnkahet : public InstanceMapScript
                         if (SpheresState[1])
                         {
                             go->SetGoState(GO_STATE_ACTIVE);
-                            go->AddFlag(GO_FLAG_NOT_SELECTABLE);
+                            go->SetFlag(GO_FLAG_NOT_SELECTABLE);
                         }
                         else
                             go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
@@ -131,15 +137,13 @@ class instance_ahnkahet : public InstanceMapScript
                 return 0;
             }
 
-            void WriteSaveDataMore(std::ostringstream& data) override
+            void AfterDataLoad() override
             {
-                data << SpheresState[0] << ' ' << SpheresState[1];
-            }
-
-            void ReadSaveDataMore(std::istringstream& data) override
-            {
-                data >> SpheresState[0];
-                data >> SpheresState[1];
+                if (GetBossState(DATA_PRINCE_TALDARAM) == DONE)
+                {
+                    SpheresState[0] = IN_PROGRESS;
+                    SpheresState[1] = IN_PROGRESS;
+                }
             }
 
         protected:
@@ -152,26 +156,7 @@ class instance_ahnkahet : public InstanceMapScript
         }
 };
 
-// 56584 - Combined Toxins
-class spell_combined_toxins : public AuraScript
-{
-    PrepareAuraScript(spell_combined_toxins);
-
-    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
-    {
-        // only procs on poisons (damage class check to exclude stuff like Envenom)
-        SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
-        return (spellInfo && spellInfo->Dispel == DISPEL_POISON && spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MELEE);
-    }
-
-    void Register() override
-    {
-        DoCheckEffectProc += AuraCheckEffectProcFn(spell_combined_toxins::CheckProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_DAMAGE);
-    }
-};
-
 void AddSC_instance_ahnkahet()
 {
     new instance_ahnkahet();
-    RegisterAuraScript(spell_combined_toxins);
 }

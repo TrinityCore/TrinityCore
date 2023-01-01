@@ -26,12 +26,10 @@ EndScriptData */
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "InstanceScript.h"
-#include "Log.h"
 #include "Map.h"
 #include "Player.h"
 #include "serpent_shrine.h"
 #include "TemporarySummon.h"
-#include <sstream>
 
 #define MAX_ENCOUNTER 6
 
@@ -49,7 +47,6 @@ enum Misc
     MIN_KILLS                       = 30
 };
 
-
 //NOTE: there are 6 platforms
 //there should be 3 shatterers and 2 priestess on all platforms, total of 30 elites, else it won't work!
 //delete all other elites not on platforms! these mobs should only be on those platforms nowhere else.
@@ -63,6 +60,16 @@ enum Misc
 5 - Lady Vashj Event
 */
 
+DungeonEncounterData const encounters[] =
+{
+    { BOSS_HYDROSS_THE_UNSTABLE, {{ 623 }} },
+    { BOSS_THE_LURKER_BELOW, {{ 624 }} },
+    { BOSS_LEOTHERAS_THE_BLIND, {{ 625 }} },
+    { BOSS_FATHOM_LORD_KARATHRESS, {{ 626 }} },
+    { BOSS_MOROGRIM_TIDEWALKER, {{ 627 }} },
+    { BOSS_LADY_VASHJ, {{ 628 }} }
+};
+
 class go_bridge_console : public GameObjectScript
 {
     public:
@@ -74,7 +81,7 @@ class go_bridge_console : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* /*player*/) override
+            bool OnGossipHello(Player* /*player*/) override
             {
                 if (instance)
                     instance->SetData(DATA_CONTROL_CONSOLE, DONE);
@@ -98,7 +105,8 @@ class instance_serpent_shrine : public InstanceMapScript
             instance_serpentshrine_cavern_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
-                memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+                SetBossNumber(MAX_ENCOUNTER);
+                LoadDungeonEncounterData(encounters);
 
                 StrangePool = 0;
                 Water = WATERSTATE_FRENZY;
@@ -112,15 +120,6 @@ class instance_serpent_shrine : public InstanceMapScript
                 FrenzySpawnTimer = 2000;
                 DoSpawnFrenzy = false;
                 TrashCount = 0;
-            }
-
-            bool IsEncounterInProgress() const override
-            {
-                for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                    if (m_auiEncounter[i] == IN_PROGRESS)
-                        return true;
-
-                return false;
             }
 
             void Update(uint32 diff) override
@@ -153,7 +152,7 @@ class instance_serpent_shrine : public InstanceMapScript
                                     //spawn frenzy
                                     if (DoSpawnFrenzy)
                                     {
-                                        if (Creature* frenzy = player->SummonCreature(NPC_COILFANG_FRENZY, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 2000))
+                                        if (Creature* frenzy = player->SummonCreature(NPC_COILFANG_FRENZY, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 2s))
                                         {
                                             frenzy->Attack(player, false);
                                             frenzy->SetSwim(true);
@@ -295,36 +294,9 @@ class instance_serpent_shrine : public InstanceMapScript
                     case DATA_TRASH:
                         if (data == 1 && TrashCount < MIN_KILLS)
                             ++TrashCount;//+1 died
-                        SaveToDB();
                         break;
                     case DATA_WATER:
                         Water = data;
-                        break;
-                    case DATA_HYDROSSTHEUNSTABLEEVENT:
-                        m_auiEncounter[0] = data;
-                        break;
-                    case DATA_LEOTHERASTHEBLINDEVENT:
-                        m_auiEncounter[1] = data;
-                        break;
-                    case DATA_THELURKERBELOWEVENT:
-                        m_auiEncounter[2] = data;
-                        break;
-                    case DATA_KARATHRESSEVENT:
-                        m_auiEncounter[3] = data;
-                        break;
-                    case DATA_MOROGRIMTIDEWALKEREVENT:
-                        m_auiEncounter[4] = data;
-                        break;
-                        //Lady Vashj
-                    case DATA_LADYVASHJEVENT:
-                        if (data == NOT_STARTED)
-                        {
-                            ShieldGeneratorDeactivated[0] = false;
-                            ShieldGeneratorDeactivated[1] = false;
-                            ShieldGeneratorDeactivated[2] = false;
-                            ShieldGeneratorDeactivated[3] = false;
-                        }
-                        m_auiEncounter[5] = data;
                         break;
                     case DATA_SHIELDGENERATOR1:
                         ShieldGeneratorDeactivated[0] = data != 0;
@@ -341,28 +313,28 @@ class instance_serpent_shrine : public InstanceMapScript
                     default:
                         break;
                 }
+            }
 
-                if (data == DONE)
-                    SaveToDB();
+            bool SetBossState(uint32 id, EncounterState state) override
+            {
+                if (!InstanceScript::SetBossState(id, state))
+                    return false;
+
+                if (id == BOSS_LADY_VASHJ && state == NOT_STARTED)
+                {
+                    ShieldGeneratorDeactivated[0] = false;
+                    ShieldGeneratorDeactivated[1] = false;
+                    ShieldGeneratorDeactivated[2] = false;
+                    ShieldGeneratorDeactivated[3] = false;
+                }
+
+                return true;
             }
 
             uint32 GetData(uint32 type) const override
             {
                 switch (type)
                 {
-                    case DATA_HYDROSSTHEUNSTABLEEVENT:
-                        return m_auiEncounter[0];
-                    case DATA_LEOTHERASTHEBLINDEVENT:
-                        return m_auiEncounter[1];
-                    case DATA_THELURKERBELOWEVENT:
-                        return m_auiEncounter[2];
-                    case DATA_KARATHRESSEVENT:
-                        return m_auiEncounter[3];
-                    case DATA_MOROGRIMTIDEWALKEREVENT:
-                        return m_auiEncounter[4];
-                        //Lady Vashj
-                    case DATA_LADYVASHJEVENT:
-                        return m_auiEncounter[5];
                     case DATA_SHIELDGENERATOR1:
                         return ShieldGeneratorDeactivated[0];
                     case DATA_SHIELDGENERATOR2:
@@ -386,36 +358,6 @@ class instance_serpent_shrine : public InstanceMapScript
                 return 0;
             }
 
-            std::string GetSaveData() override
-            {
-                OUT_SAVE_INST_DATA;
-                std::ostringstream stream;
-                stream << m_auiEncounter[0] << ' ' << m_auiEncounter[1] << ' ' << m_auiEncounter[2] << ' '
-                    << m_auiEncounter[3] << ' ' << m_auiEncounter[4] << ' ' << m_auiEncounter[5] << ' ' << TrashCount;
-                OUT_SAVE_INST_DATA_COMPLETE;
-                return stream.str();
-            }
-
-            void Load(char const* in) override
-            {
-                if (!in)
-                {
-                    OUT_LOAD_INST_DATA_FAIL;
-                    return;
-                }
-
-                OUT_LOAD_INST_DATA(in);
-                std::istringstream stream(in);
-                stream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3]
-                    >> m_auiEncounter[4] >> m_auiEncounter[5] >> TrashCount;
-
-                for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                    if (m_auiEncounter[i] == IN_PROGRESS)                // Do not load an encounter as "In Progress" - reset it instead.
-                        m_auiEncounter[i] = NOT_STARTED;
-
-                OUT_LOAD_INST_DATA_COMPLETE;
-            }
-
         private:
             ObjectGuid LurkerBelow;
             ObjectGuid Sharkkis;
@@ -437,7 +379,6 @@ class instance_serpent_shrine : public InstanceMapScript
             uint32 TrashCount;
 
             bool ShieldGeneratorDeactivated[4];
-            uint32 m_auiEncounter[MAX_ENCOUNTER];
             bool DoSpawnFrenzy;
         };
 

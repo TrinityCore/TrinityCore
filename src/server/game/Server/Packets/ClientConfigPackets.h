@@ -29,7 +29,7 @@ namespace WorldPackets
         class AccountDataTimes final : public ServerPacket
         {
         public:
-            AccountDataTimes() : ServerPacket(SMSG_ACCOUNT_DATA_TIMES, 4 + 4 * NUM_ACCOUNT_DATA_TYPES) { }
+            AccountDataTimes() : ServerPacket(SMSG_ACCOUNT_DATA_TIMES, 16 + 8 + 8 * NUM_ACCOUNT_DATA_TYPES) { }
 
             WorldPacket const* Write() override;
 

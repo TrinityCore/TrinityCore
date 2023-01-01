@@ -25,7 +25,6 @@
 #include "Player.h"
 #include "World.h"
 #include "WorldSession.h"
-#include "WorldStatePackets.h"
 
 Arena::Arena(BattlegroundTemplate const* battlegroundTemplate) : Battleground(battlegroundTemplate)
 {
@@ -42,19 +41,21 @@ Arena::Arena(BattlegroundTemplate const* battlegroundTemplate) : Battleground(ba
 
 void Arena::AddPlayer(Player* player)
 {
+    bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
     Battleground::AddPlayer(player);
-    PlayerScores[player->GetGUID()] = new ArenaScore(player->GetGUID(), player->GetBGTeam());
+    if (!isInBattleground)
+        PlayerScores[player->GetGUID()] = new ArenaScore(player->GetGUID(), player->GetBGTeam());
 
     if (player->GetBGTeam() == ALLIANCE)        // gold
     {
-        if (player->GetTeam() == HORDE)
+        if (player->GetEffectiveTeam() == HORDE)
             player->CastSpell(player, SPELL_HORDE_GOLD_FLAG, true);
         else
             player->CastSpell(player, SPELL_ALLIANCE_GOLD_FLAG, true);
     }
     else                                        // green
     {
-        if (player->GetTeam() == HORDE)
+        if (player->GetEffectiveTeam() == HORDE)
             player->CastSpell(player, SPELL_HORDE_GREEN_FLAG, true);
         else
             player->CastSpell(player, SPELL_ALLIANCE_GREEN_FLAG, true);
@@ -70,12 +71,6 @@ void Arena::RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*
 
     UpdateArenaWorldState();
     CheckWinConditions();
-}
-
-void Arena::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
-{
-    packet.Worldstates.emplace_back(ARENA_WORLD_STATE_ALIVE_PLAYERS_GREEN, GetAlivePlayersCountByTeam(HORDE));
-    packet.Worldstates.emplace_back(ARENA_WORLD_STATE_ALIVE_PLAYERS_GOLD, GetAlivePlayersCountByTeam(ALLIANCE));
 }
 
 void Arena::UpdateArenaWorldState()
@@ -101,7 +96,7 @@ void Arena::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPMatchStatistics
 
     if (isRated())
     {
-        pvpLogData.Ratings = boost::in_place();
+        pvpLogData.Ratings.emplace();
 
         for (uint8 i = 0; i < PVP_TEAMS_COUNT; ++i)
         {

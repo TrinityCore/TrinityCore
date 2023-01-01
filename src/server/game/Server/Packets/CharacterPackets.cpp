@@ -20,6 +20,7 @@
 #include "Field.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "StringConvert.h"
 #include "World.h"
 
 namespace UF
@@ -83,7 +84,7 @@ EnumCharactersResult::CharacterInfo::CharacterInfo(Field* fields)
     ExperienceLevel   = fields[5].GetUInt8();
     ZoneID            = int32(fields[6].GetUInt16());
     MapID             = int32(fields[7].GetUInt16());
-    PreloadPos        = Position(fields[8].GetFloat(), fields[8].GetFloat(), fields[10].GetFloat());
+    PreloadPos        = Position(fields[8].GetFloat(), fields[9].GetFloat(), fields[10].GetFloat());
 
     if (ObjectGuid::LowType guildId = fields[11].GetUInt64())
         GuildGUID = ObjectGuid::Create<HighGuid::Guild>(guildId);
@@ -132,7 +133,7 @@ EnumCharactersResult::CharacterInfo::CharacterInfo(Field* fields)
     ProfessionIds[0] = 0;
     ProfessionIds[1] = 0;
 
-    Tokenizer equipment(fields[17].GetString(), ' ');
+    std::vector<std::string_view> equipment = Trinity::Tokenize(fields[17].GetStringView(), ' ', false);
     ListPosition = fields[19].GetUInt8();
     LastPlayedTime = fields[20].GetInt64();
     if (ChrSpecializationEntry const* spec = sDB2Manager.GetChrSpecializationByIndex(ClassID, fields[21].GetUInt8()))
@@ -140,14 +141,14 @@ EnumCharactersResult::CharacterInfo::CharacterInfo(Field* fields)
 
     LastLoginVersion = fields[22].GetUInt32();
 
-    for (uint8 slot = 0; slot < INVENTORY_SLOT_BAG_END; ++slot)
+    for (uint8 slot = 0; slot < REAGENT_BAG_SLOT_END; ++slot)
     {
         uint32 visualBase = slot * 5;
-        VisualItems[slot].InvType = Player::GetUInt32ValueFromArray(equipment, visualBase);
-        VisualItems[slot].DisplayID = Player::GetUInt32ValueFromArray(equipment, visualBase + 1);
-        VisualItems[slot].DisplayEnchantID = Player::GetUInt32ValueFromArray(equipment, visualBase + 2);
-        VisualItems[slot].Subclass = Player::GetUInt32ValueFromArray(equipment, visualBase + 3);
-        VisualItems[slot].SecondaryItemModifiedAppearanceID = Player::GetUInt32ValueFromArray(equipment, visualBase + 4);
+        VisualItems[slot].InvType = Trinity::StringTo<uint8>(equipment[visualBase + 0]).value_or(0);
+        VisualItems[slot].DisplayID = Trinity::StringTo<uint32>(equipment[visualBase + 1]).value_or(0);
+        VisualItems[slot].DisplayEnchantID = Trinity::StringTo<uint32>(equipment[visualBase + 2]).value_or(0);
+        VisualItems[slot].Subclass = Trinity::StringTo<uint8>(equipment[visualBase + 3]).value_or(0);
+        VisualItems[slot].SecondaryItemModifiedAppearanceID = Trinity::StringTo<int32>(equipment[visualBase + 4]).value_or(0);
     }
 }
 
@@ -192,9 +193,9 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterInfo con
         data << visualItem;
 
     data << charInfo.LastPlayedTime;
-    data << uint16(charInfo.SpecID);
-    data << uint32(charInfo.Unknown703);
-    data << uint32(charInfo.LastLoginVersion);
+    data << int16(charInfo.SpecID);
+    data << int32(charInfo.Unknown703);
+    data << int32(charInfo.LastLoginVersion);
     data << uint32(charInfo.Flags4);
     data << uint32(charInfo.MailSenders.size());
     data << uint32(charInfo.MailSenderTypes.size());
@@ -244,6 +245,14 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::UnlockedCondition
     return data;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::RaceLimitDisableInfo const& raceLimitDisableInfo)
+{
+    data << int32(raceLimitDisableInfo.RaceID);
+    data << int32(raceLimitDisableInfo.BlockReason);
+
+    return data;
+}
+
 WorldPacket const* EnumCharactersResult::Write()
 {
     _worldPacket.reserve(9 + Characters.size() * sizeof(CharacterInfo) + RaceUnlockData.size() * sizeof(RaceUnlock));
@@ -253,18 +262,23 @@ WorldPacket const* EnumCharactersResult::Write()
     _worldPacket.WriteBit(IsNewPlayerRestrictionSkipped);
     _worldPacket.WriteBit(IsNewPlayerRestricted);
     _worldPacket.WriteBit(IsNewPlayer);
-    _worldPacket.WriteBit(DisabledClassesMask.is_initialized());
+    _worldPacket.WriteBit(IsTrialAccountRestricted);
+    _worldPacket.WriteBit(DisabledClassesMask.has_value());
     _worldPacket.WriteBit(IsAlliedRacesCreationAllowed);
     _worldPacket << uint32(Characters.size());
     _worldPacket << int32(MaxCharacterLevel);
     _worldPacket << uint32(RaceUnlockData.size());
     _worldPacket << uint32(UnlockedConditionalAppearances.size());
+    _worldPacket << uint32(RaceLimitDisables.size());
 
     if (DisabledClassesMask)
         _worldPacket << uint32(*DisabledClassesMask);
 
     for (UnlockedConditionalAppearance const& unlockedConditionalAppearance : UnlockedConditionalAppearances)
         _worldPacket << unlockedConditionalAppearance;
+
+    for (RaceLimitDisableInfo const& raceLimitDisableInfo : RaceLimitDisables)
+        _worldPacket << raceLimitDisableInfo;
 
     for (CharacterInfo const& charInfo : Characters)
         _worldPacket << charInfo;
@@ -339,7 +353,7 @@ void CharacterRenameRequest::Read()
 WorldPacket const* CharacterRenameResult::Write()
 {
     _worldPacket << uint8(Result);
-    _worldPacket.WriteBit(Guid.is_initialized());
+    _worldPacket.WriteBit(Guid.has_value());
     _worldPacket.WriteBits(Name.length(), 6);
     _worldPacket.FlushBits();
 
@@ -376,6 +390,7 @@ void CharRaceOrFactionChange::Read()
     _worldPacket >> RaceOrFactionChangeInfo->Guid;
     _worldPacket >> RaceOrFactionChangeInfo->SexID;
     _worldPacket >> RaceOrFactionChangeInfo->RaceID;
+    _worldPacket >> RaceOrFactionChangeInfo->InitialRaceID;
     RaceOrFactionChangeInfo->Customizations.resize(_worldPacket.read<uint32>());
     RaceOrFactionChangeInfo->Name = _worldPacket.ReadString(nameLength);
     for (ChrCustomizationChoice& customization : RaceOrFactionChangeInfo->Customizations)
@@ -388,7 +403,7 @@ WorldPacket const* CharFactionChangeResult::Write()
 {
     _worldPacket << uint8(Result);
     _worldPacket << Guid;
-    _worldPacket.WriteBit(Display.is_initialized());
+    _worldPacket.WriteBit(Display.has_value());
     _worldPacket.FlushBits();
 
     if (Display)
@@ -536,6 +551,7 @@ void AlterApperance::Read()
 {
     Customizations.resize(_worldPacket.read<uint32>());
     _worldPacket >> NewSex;
+    _worldPacket >> CustomizedRace;
     for (ChrCustomizationChoice& customization : Customizations)
         _worldPacket >> customization;
 
@@ -555,7 +571,6 @@ WorldPacket const* LogXPGain::Write()
     _worldPacket << uint8(Reason);
     _worldPacket << int32(Amount);
     _worldPacket << float(GroupBonus);
-    _worldPacket << uint8(ReferAFriendBonusType);
 
     return &_worldPacket;
 }

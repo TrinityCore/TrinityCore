@@ -50,6 +50,8 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creat
         void DoDeactivate(Creature*);
         void DoFinalize(Creature*, bool, bool);
 
+        std::string GetDebugInfo() const override;
+
     private:
         void MovementInform(Creature*);
         void OnArrived(Creature*);
@@ -66,7 +68,7 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creat
             return false;
         }
 
-        TimeTrackerSmall _nextMoveTime;
+        TimeTracker _nextMoveTime;
         uint32 _pathId;
         bool _repeating;
         bool _loadedFromDB;

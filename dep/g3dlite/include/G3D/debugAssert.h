@@ -32,6 +32,7 @@
 #include <cstdlib>
 
 #ifdef _MSC_VER
+#include <intrin.h>
 // conditional expression is constant
 #   pragma warning (disable : 4127)
 #endif
@@ -116,7 +117,7 @@ namespace _internal {
 #ifdef G3D_DEBUG
 
 #    if defined(_MSC_VER) 
-#       define rawBreak()  ::DebugBreak();
+#       define rawBreak()  ::__debugbreak();
 #    elif defined(__i386__)
         // gcc on intel
 #       define rawBreak() __asm__ __volatile__ ( "int $3" ); 

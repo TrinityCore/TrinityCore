@@ -113,6 +113,13 @@ namespace WorldPackets
             int32 PlayerConditionID = 0;
         };
 
+        struct ConditionalQuestText
+        {
+            int32 PlayerConditionID = 0;
+            int32 QuestGiverCreatureID = 0;
+            std::string_view Text;
+        };
+
         struct QuestInfo
         {
             int32 QuestID                   = 0;
@@ -171,7 +178,10 @@ namespace WorldPackets
             int32 Expansion                 = 0;
             int32 ManagedWorldStateID       = 0;
             int32 QuestSessionBonus         = 0;
+            int32 QuestGiverCreatureID      = 0; // used to select ConditionalQuestText
             std::vector<QuestObjective> Objectives;
+            std::vector<ConditionalQuestText> ConditionalQuestDescription;
+            std::vector<ConditionalQuestText> ConditionalQuestCompletionLog;
             int32 RewardItems[QUEST_REWARD_ITEM_COUNT] = { };
             int32 RewardAmount[QUEST_REWARD_ITEM_COUNT] = { };
             int32 ItemDrop[QUEST_ITEM_DROP_COUNT] = { };
@@ -287,7 +297,7 @@ namespace WorldPackets
             int32 SuggestedPartyMembers     = 0;
             QuestRewards Rewards;
             std::vector<QuestDescEmote> Emotes;
-            int32 QuestFlags[2]             = { }; // Flags and FlagsEx
+            int32 QuestFlags[3]             = { }; // Flags and FlagsEx
         };
 
         class QuestGiverOfferRewardMessage final : public ServerPacket
@@ -301,12 +311,14 @@ namespace WorldPackets
             int32 PortraitGiver = 0;
             int32 PortraitGiverMount = 0;
             int32 PortraitGiverModelSceneID = 0;
+            int32 QuestGiverCreatureID = 0;
             std::string QuestTitle;
             std::string RewardText;
             std::string PortraitGiverText;
             std::string PortraitGiverName;
             std::string PortraitTurnInText;
             std::string PortraitTurnInName;
+            std::vector<ConditionalQuestText> ConditionalRewardText;
             QuestGiverOfferReward QuestData;
             int32 QuestPackageID = 0;
         };
@@ -383,7 +395,7 @@ namespace WorldPackets
             ObjectGuid InformUnit;
             int32 QuestID           = 0;
             int32 QuestPackageID    = 0;
-            uint32 QuestFlags[2]    = { };
+            uint32 QuestFlags[3]    = { };
             int32 SuggestedPartyMembers = 0;
             QuestRewards Rewards;
             std::vector<QuestObjectiveSimple> Objectives;
@@ -395,6 +407,7 @@ namespace WorldPackets
             int32 PortraitGiverModelSceneID = 0;
             int32 QuestStartItemID = 0;
             int32 QuestSessionBonus = 0;
+            int32 QuestGiverCreatureID = 0;
             std::string PortraitGiverText;
             std::string PortraitGiverName;
             std::string PortraitTurnInText;
@@ -402,6 +415,7 @@ namespace WorldPackets
             std::string QuestTitle;
             std::string LogDescription;
             std::string DescriptionText;
+            std::vector<ConditionalQuestText> ConditionalDescriptionText;
             bool DisplayPopup = false;
             bool StartCheat = false;
             bool AutoLaunched = false;
@@ -440,9 +454,10 @@ namespace WorldPackets
             std::vector<QuestObjectiveCollect> Collect;
             std::vector<QuestCurrency> Currency;
             int32 StatusFlags           = 0;
-            uint32 QuestFlags[2]        = { };
+            uint32 QuestFlags[3]        = { };
             std::string QuestTitle;
             std::string CompletionText;
+            std::vector<ConditionalQuestText> ConditionalCompletionText;
         };
 
         class QuestGiverRequestReward final : public ClientPacket
@@ -678,8 +693,8 @@ namespace WorldPackets
         {
             int32 Unused901_1 = 0;
             int32 TypeArtFileID = 0;
-            int32 Rarity = 0;
-            uint32 RarityColor = 0;
+            Optional<int32> Rarity;
+            Optional<uint32> RarityColor;
             int32 Unused901_2 = 0;
             int32 SpellID = 0;
             int32 MaxStacks = 0;
@@ -696,12 +711,12 @@ namespace WorldPackets
             uint32 SoundKitID = 0;
             uint8 GroupID = 0;
             int32 UiTextureKitID = 0;
-            std::string Answer;
-            std::string Header;
-            std::string SubHeader;
-            std::string ButtonTooltip;
-            std::string Description;
-            std::string Confirmation;
+            std::string_view Answer;
+            std::string_view Header;
+            std::string_view SubHeader;
+            std::string_view ButtonTooltip;
+            std::string_view Description;
+            std::string_view Confirmation;
             Optional<PlayerChoiceResponseReward> Reward;
             Optional<uint32> RewardQuestID;
             Optional<PlayerChoiceResponseMawPower> MawPower;
@@ -718,8 +733,11 @@ namespace WorldPackets
             int32 ChoiceID = 0;
             int32 UiTextureKitID = 0;
             uint32 SoundKitID = 0;
+            uint32 CloseUISoundKitID = 0;
             uint8 NumRerolls = 0;
-            std::string Question;
+            WorldPackets::Duration<Seconds> Duration;
+            std::string_view Question;
+            std::string_view PendingChoiceText;
             std::vector<PlayerChoiceResponse> Responses;
             bool CloseChoiceFrame = false;
             bool HideWarboardHeader = false;
@@ -734,7 +752,7 @@ namespace WorldPackets
             void Read() override;
 
             int32 ChoiceID = 0;
-            int32 ResponseID = 0;
+            int32 ResponseIdentifier = 0;
             bool IsReroll = false;
         };
     }

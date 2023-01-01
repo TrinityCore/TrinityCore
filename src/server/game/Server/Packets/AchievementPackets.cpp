@@ -36,7 +36,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Achievement::CriteriaProg
     data << criteria.TimeFromStart;
     data << criteria.TimeFromCreate;
     data.WriteBits(criteria.Flags, 4);
-    data.WriteBit(criteria.RafAcceptanceID.is_initialized());
+    data.WriteBit(criteria.RafAcceptanceID.has_value());
     data.FlushBits();
 
     if (criteria.RafAcceptanceID)
@@ -92,7 +92,7 @@ WorldPacket const* WorldPackets::Achievement::CriteriaUpdate::Write()
     _worldPacket.AppendPackedTime(CurrentTime);
     _worldPacket << ElapsedTime;
     _worldPacket << CreationTime;
-    _worldPacket.WriteBit(RafAcceptanceID.is_initialized());
+    _worldPacket.WriteBit(RafAcceptanceID.has_value());
     _worldPacket.FlushBits();
 
     if (RafAcceptanceID)

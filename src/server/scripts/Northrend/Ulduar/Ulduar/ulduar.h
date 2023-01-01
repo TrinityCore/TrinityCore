@@ -30,27 +30,27 @@ extern Position const ObservationRingKeepersPos[4];
 extern Position const YSKeepersPos[4];
 extern Position const AlgalonLandPos;
 
+static constexpr uint8 const MAX_ENCOUNTER = 17;
+
 enum UlduarBosses
 {
-    MAX_ENCOUNTER            = 17,
-
-    BOSS_LEVIATHAN           = 0,
-    BOSS_IGNIS               = 1,
-    BOSS_RAZORSCALE          = 2,
-    BOSS_XT002               = 3,
-    BOSS_ASSEMBLY_OF_IRON    = 4,
-    BOSS_KOLOGARN            = 5,
-    BOSS_AURIAYA             = 6,
-    BOSS_HODIR               = 7,
-    BOSS_THORIM              = 8,
-    BOSS_FREYA               = 9,
-    BOSS_MIMIRON             = 10,
-    BOSS_VEZAX               = 11,
-    BOSS_YOGG_SARON          = 12,
-    BOSS_ALGALON             = 13,
-    BOSS_BRIGHTLEAF          = 14,
-    BOSS_IRONBRANCH          = 15,
-    BOSS_STONEBARK           = 16,
+    DATA_FLAME_LEVIATHAN     = 0,
+    DATA_IGNIS               = 1,
+    DATA_RAZORSCALE          = 2,
+    DATA_XT002               = 3,
+    DATA_ASSEMBLY_OF_IRON    = 4,
+    DATA_KOLOGARN            = 5,
+    DATA_AURIAYA             = 6,
+    DATA_HODIR               = 7,
+    DATA_THORIM              = 8,
+    DATA_FREYA               = 9,
+    DATA_MIMIRON             = 10,
+    DATA_VEZAX               = 11,
+    DATA_YOGG_SARON          = 12,
+    DATA_ALGALON             = 13,
+    DATA_BRIGHTLEAF          = 14,
+    DATA_IRONBRANCH          = 15,
+    DATA_STONEBARK           = 16,
 };
 
 enum UlduarNPCs
@@ -357,14 +357,6 @@ enum UlduarAchievementCriteriaIds
     CRITERIA_WAITS_DREAMING_ICECROWN_10      = 10326,
     CRITERIA_DRIVE_ME_CRAZY_10               = 10185,
     CRITERIA_DRIVE_ME_CRAZY_25               = 10296,
-    CRITERIA_THREE_LIGHTS_IN_THE_DARKNESS_10 = 10410,
-    CRITERIA_THREE_LIGHTS_IN_THE_DARKNESS_25 = 10414,
-    CRITERIA_TWO_LIGHTS_IN_THE_DARKNESS_10   = 10388,
-    CRITERIA_TWO_LIGHTS_IN_THE_DARKNESS_25   = 10415,
-    CRITERIA_ONE_LIGHT_IN_THE_DARKNESS_10    = 10409,
-    CRITERIA_ONE_LIGHT_IN_THE_DARKNESS_25    = 10416,
-    CRITERIA_ALONE_IN_THE_DARKNESS_10        = 10412,
-    CRITERIA_ALONE_IN_THE_DARKNESS_25        = 10417,
     CRITERIA_HERALD_OF_TITANS                = 10678,
 
     // Champion of Ulduar
@@ -475,16 +467,18 @@ enum UlduarData
 
 enum UlduarWorldStates
 {
-    WORLD_STATE_ALGALON_DESPAWN_TIMER   = 4131,
-    WORLD_STATE_ALGALON_TIMER_ENABLED   = 4132,
+    WORLD_STATE_FLAME_LEVIATHAN_DESTROYED_TOWERS    = 4129,
+    WORLD_STATE_YOGG_SARON_KEEPERS                  = 4116,
+    WORLD_STATE_ALGALON_DESPAWN_TIMER               = 4131,
+    WORLD_STATE_ALGALON_TIMER_ENABLED               = 5636,
 };
 
 enum UlduarAchievementData
 {
     // FL Achievement boolean
     DATA_UNBROKEN               = 29052906, // 2905, 2906 are achievement IDs,
-    MAX_HERALD_ARMOR_ITEMLEVEL  = 226,
-    MAX_HERALD_WEAPON_ITEMLEVEL = 232
+    MAX_HERALD_ARMOR_ITEMLEVEL  = 35,
+    MAX_HERALD_WEAPON_ITEMLEVEL = 35
 };
 
 enum UlduarSharedSpells
@@ -495,8 +489,6 @@ enum UlduarSharedSpells
 
 enum UlduarEvents
 {
-    EVENT_DESPAWN_ALGALON       = 1,
-    EVENT_UPDATE_ALGALON_TIMER  = 2,
     ACTION_INIT_ALGALON         = 6,
     EVENT_DESPAWN_LEVIATHAN_VEHICLES = 7,
     EVENT_LEVIATHAN_BREAK_DOOR   = 8
@@ -514,13 +506,13 @@ class Creature;
 class UlduarKeeperDespawnEvent : public BasicEvent
 {
     public:
-        UlduarKeeperDespawnEvent(Creature* owner, uint32 despawnTimerOffset = 500);
+        UlduarKeeperDespawnEvent(Creature* owner, Milliseconds despawnTimerOffset = 500ms);
 
         bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/) override;
 
-private:
-    Creature* _owner;
-    uint32 _despawnTimer;
+    private:
+        Creature* _owner;
+        Milliseconds _despawnTimer;
 };
 
 template <class AI, class T>

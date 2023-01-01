@@ -16,13 +16,14 @@
  */
 
 #include "GuildMgr.h"
-#include "DB2Stores.h"
+#include "AchievementMgr.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "Guild.h"
 #include "Log.h"
 #include "ObjectMgr.h"
+#include "Util.h"
 #include "World.h"
-#include <algorithm>
 
 GuildMgr::GuildMgr() : NextGuildId(UI64LIT(1))
 {
@@ -81,17 +82,12 @@ Guild* GuildMgr::GetGuildByGuid(ObjectGuid guid) const
     return nullptr;
 }
 
-Guild* GuildMgr::GetGuildByName(const std::string& guildName) const
+Guild* GuildMgr::GetGuildByName(std::string_view guildName) const
 {
-    std::string search = guildName;
-    std::transform(search.begin(), search.end(), search.begin(), ::toupper);
-    for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
-    {
-        std::string gname = itr->second->GetName();
-        std::transform(gname.begin(), gname.end(), gname.begin(), ::toupper);
-        if (search == gname)
-            return itr->second;
-    }
+    for (auto [id, guild] : GuildStore)
+        if (StringEqualI(guild->GetName(), guildName))
+            return guild;
+
     return nullptr;
 }
 
@@ -168,8 +164,8 @@ void GuildMgr::LoadGuilds()
         // Delete orphaned guild rank entries before loading the valid ones
         CharacterDatabase.DirectExecute("DELETE gr FROM guild_rank gr LEFT JOIN guild g ON gr.guildId = g.guildId WHERE g.guildId IS NULL");
 
-        //                                                         0    1      2       3                4
-        QueryResult result = CharacterDatabase.Query("SELECT guildid, rid, rname, rights, BankMoneyPerDay FROM guild_rank ORDER BY guildid ASC, rid ASC");
+        //                                                         0    1          2      3       4                5
+        QueryResult result = CharacterDatabase.Query("SELECT guildid, rid, RankOrder, rname, rights, BankMoneyPerDay FROM guild_rank ORDER BY guildid ASC, rid ASC");
 
         if (!result)
         {
@@ -205,8 +201,8 @@ void GuildMgr::LoadGuilds()
 
                                                 //           0           1        2     3      4        5       6       7       8       9       10
         QueryResult result = CharacterDatabase.Query("SELECT gm.guildid, gm.guid, `rank`, pnote, offnote, w.tab0, w.tab1, w.tab2, w.tab3, w.tab4, w.tab5, "
-                                                //    11      12      13       14      15       16       17        18      19         20
-                                                     "w.tab6, w.tab7, w.money, c.name, c.level, c.class, c.gender, c.zone, c.account, c.logout_time "
+                                                //    11      12      13       14      15       16      17       18        19      20         21
+                                                     "w.tab6, w.tab7, w.money, c.name, c.level, c.race, c.class, c.gender, c.zone, c.account, c.logout_time "
                                                      "FROM guild_member gm "
                                                      "LEFT JOIN guild_member_withdraw w ON gm.guid = w.guid "
                                                      "LEFT JOIN characters c ON c.guid = gm.guid ORDER BY gm.guildid ASC");
@@ -364,7 +360,6 @@ void GuildMgr::LoadGuilds()
             TC_LOG_INFO("server.loading", ">> Loaded %u guild new logs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         }
     }
-
 
     // 8. Load all guild bank tabs
     TC_LOG_INFO("server.loading", "Loading guild bank tabs...");

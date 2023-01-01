@@ -32,7 +32,7 @@ EndContentData */
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
+#include "SpellScript.h"
 
 /*######
 ## npc_lady_sylvanas_windrunner
@@ -126,7 +126,7 @@ public:
             DoPlaySoundToSet(me, SOUND_AGGRO);
             _events.ScheduleEvent(EVENT_FADE, 30s);
             _events.ScheduleEvent(EVENT_SUMMON_SKELETON, 20s);
-            _events.ScheduleEvent(EVENT_BLACK_ARROW, 15000);
+            _events.ScheduleEvent(EVENT_BLACK_ARROW, 15s);
             _events.ScheduleEvent(EVENT_SHOOT, 8s);
             _events.ScheduleEvent(EVENT_MULTI_SHOT, 10s);
         }
@@ -142,7 +142,7 @@ public:
                 LamentEvent = true;
 
                 for (uint8 i = 0; i < 4; ++i)
-                    me->SummonCreature(NPC_HIGHBORNE_LAMENTER, HighborneLoc[i][0], HighborneLoc[i][1], HIGHBORNE_LOC_Y, HighborneLoc[i][2], TEMPSUMMON_TIMED_DESPAWN, 160000);
+                    me->SummonCreature(NPC_HIGHBORNE_LAMENTER, HighborneLoc[i][0], HighborneLoc[i][1], HIGHBORNE_LOC_Y, HighborneLoc[i][2], TEMPSUMMON_TIMED_DESPAWN, 160s);
 
                 _events.ScheduleEvent(EVENT_LAMENT_OF_THE_HIGHBORN, 2s);
                 _events.ScheduleEvent(EVENT_SUNSORROW_WHISPER, 10s);
@@ -219,7 +219,7 @@ public:
                         }
                         else
                         {
-                            DoSummon(NPC_HIGHBORNE_BUNNY, me, 10.0f, 3000, TEMPSUMMON_TIMED_DESPAWN);
+                            DoSummon(NPC_HIGHBORNE_BUNNY, me, 10.0f, 3s, TEMPSUMMON_TIMED_DESPAWN);
                             _events.ScheduleEvent(EVENT_LAMENT_OF_THE_HIGHBORN, 2s);
                         }
                         break;
@@ -236,7 +236,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void QuestReward(Player* player, Quest const* quest, LootItemType /*type*/, uint32 /*opt*/) override
+        void OnQuestReward(Player* player, Quest const* quest, LootItemType /*type*/, uint32 /*opt*/) override
         {
             if (quest->GetQuestId() == QUEST_JOURNEY_TO_UNDERCITY)
                 SetGUID(player->GetGUID(), GUID_EVENT_INVOKER);
@@ -321,6 +321,37 @@ public:
 };
 
 /*######
+## Quest 1846: Dragonmaw Shinbones
+######*/
+
+enum DragonmawShinbones
+{
+    SPELL_BENDING_SHINBONE1 = 8854,
+    SPELL_BENDING_SHINBONE2 = 8855
+};
+
+// 8856 - Bending Shinbone
+class spell_undercity_bending_shinbone : public SpellScript
+{
+    PrepareSpellScript(spell_undercity_bending_shinbone);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_BENDING_SHINBONE1, SPELL_BENDING_SHINBONE2 });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), roll_chance_i(20) ? SPELL_BENDING_SHINBONE1 : SPELL_BENDING_SHINBONE2, GetSpell());
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_undercity_bending_shinbone::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
 ## AddSC
 ######*/
 
@@ -328,4 +359,5 @@ void AddSC_undercity()
 {
     new npc_lady_sylvanas_windrunner();
     new npc_highborne_lamenter();
+    RegisterSpellScript(spell_undercity_bending_shinbone);
 }

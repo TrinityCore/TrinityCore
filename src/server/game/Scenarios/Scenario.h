@@ -64,6 +64,7 @@ class TC_GAME_API Scenario : public CriteriaHandler
         virtual void Update(uint32 /*diff*/) { }
 
         bool IsComplete();
+        bool IsCompletedStep(ScenarioStepEntry const* step);
         void SetStepState(ScenarioStepEntry const* step, ScenarioStepState state) { _stepStates[step] = state; }
         ScenarioEntry const* GetEntry() const;
         ScenarioStepState GetStepState(ScenarioStepEntry const* step);

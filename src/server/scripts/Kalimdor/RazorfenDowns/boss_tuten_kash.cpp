@@ -51,9 +51,9 @@ public:
                 DoCast(me, SPELL_VIRULENT_POISON);
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
             events.ScheduleEvent(EVENT_WEB_SPRAY, 3s, 5s);
             events.ScheduleEvent(EVENT_CURSE_OF_TUTENKASH, 9s, 14s);
         }
@@ -78,7 +78,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_WEB_SPRAY:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, false))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, false))
                         {
                             if (!target->HasAura(SPELL_WEB_SPRAY))
                                 DoCast(target, SPELL_WEB_SPRAY);

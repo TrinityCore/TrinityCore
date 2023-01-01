@@ -42,16 +42,16 @@ enum OutdoorPvPTF_TowerType
 
 enum TFWorldStates
 {
-    TF_UI_TOWER_COUNT_H = 0xa3e,
-    TF_UI_TOWER_COUNT_A = 0xa3d,
-    TF_UI_TOWERS_CONTROLLED_DISPLAY = 0xa3c,
+    TF_UI_TOWER_COUNT_H = 2622,
+    TF_UI_TOWER_COUNT_A = 2621,
+    TF_UI_TOWERS_CONTROLLED_DISPLAY = 2620,
 
-    TF_UI_LOCKED_TIME_MINUTES_FIRST_DIGIT = 0x9d0,
-    TF_UI_LOCKED_TIME_MINUTES_SECOND_DIGIT = 0x9ce,
-    TF_UI_LOCKED_TIME_HOURS = 0x9cd,
-    TF_UI_LOCKED_DISPLAY_NEUTRAL = 0x9cc,
-    TF_UI_LOCKED_DISPLAY_HORDE = 0xad0,
-    TF_UI_LOCKED_DISPLAY_ALLIANCE = 0xacf
+    TF_UI_LOCKED_TIME_MINUTES_FIRST_DIGIT = 2512,
+    TF_UI_LOCKED_TIME_MINUTES_SECOND_DIGIT = 2510,
+    TF_UI_LOCKED_TIME_HOURS = 2509,
+    TF_UI_LOCKED_DISPLAY_NEUTRAL = 2508,
+    TF_UI_LOCKED_DISPLAY_HORDE = 2768,
+    TF_UI_LOCKED_DISPLAY_ALLIANCE = 2767
 };
 
 enum TFTowerStates
@@ -64,11 +64,10 @@ enum TFTowerStates
 class OPvPCapturePointTF : public OPvPCapturePoint
 {
     public:
-        OPvPCapturePointTF(OutdoorPvP* pvp, OutdoorPvPTF_TowerType type);
+        OPvPCapturePointTF(OutdoorPvP* pvp, OutdoorPvPTF_TowerType type, GameObject* go);
 
         bool Update(uint32 diff) override;
         void ChangeState() override;
-        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 
         void UpdateTowerState();
 
@@ -80,13 +79,13 @@ class OPvPCapturePointTF : public OPvPCapturePoint
 class OutdoorPvPTF : public OutdoorPvP
 {
     public:
-        OutdoorPvPTF();
+        OutdoorPvPTF(Map* map);
 
         bool SetupOutdoorPvP() override;
+        void OnGameObjectCreate(GameObject* go) override;
         void HandlePlayerEnterZone(Player* player, uint32 zone) override;
         void HandlePlayerLeaveZone(Player* player, uint32 zone) override;
         bool Update(uint32 diff) override;
-        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
         void SendRemoveWorldStates(Player* player) override;
 
         uint32 GetAllianceTowersControlled() const;

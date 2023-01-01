@@ -140,6 +140,8 @@ namespace WorldPackets
                     bool InGameRoom = false;
                 };
 
+                AuthSuccessInfo() { } // work around clang bug https://gcc.gnu.org/bugzilla/show_bug.cgi?id=101227
+
                 uint8 ActiveExpansionLevel = 0; ///< the current server expansion, the possible values are in @ref Expansions
                 uint8 AccountExpansionLevel = 0; ///< the current expansion of this account, the possible values are in @ref Expansions
                 uint32 TimeRested = 0; ///< affects the return value of the GetBillingTimeRested() client API call, it is the number of seconds you have left until the experience points and loot you receive from creatures and quests is reduced. It is only used in the Asia region in retail, it's not implemented in TC and will probably never be.
@@ -160,7 +162,7 @@ namespace WorldPackets
                 bool ForceCharacterTemplate = false; ///< forces the client to always use a character template when creating a new character. @see Templates. @todo implement
                 Optional<uint16> NumPlayersHorde; ///< number of horde players in this realm. @todo implement
                 Optional<uint16> NumPlayersAlliance; ///< number of alliance players in this realm. @todo implement
-                Optional<int32> ExpansionTrialExpiration; ///< expansion trial expiration unix timestamp
+                Optional<Timestamp<>> ExpansionTrialExpiration; ///< expansion trial expiration unix timestamp
             };
 
             AuthResponse() : ServerPacket(SMSG_AUTH_RESPONSE, 132) { }
@@ -201,13 +203,15 @@ namespace WorldPackets
             WorldAttempt5   = 89
         };
 
-        class ConnectTo final : public ServerPacket
+        class TC_GAME_API ConnectTo final : public ServerPacket
         {
         public:
             static bool InitializeEncryption();
+            static void ShutdownEncryption();
 
             enum AddressType : uint8
             {
+                None = 0,
                 IPv4 = 1,
                 IPv6 = 2,
                 NamedSocket = 3 // not supported by windows client
@@ -215,20 +219,20 @@ namespace WorldPackets
 
             struct SocketAddress
             {
-                AddressType Type;
+                AddressType Type = None;
                 union
                 {
                     std::array<uint8, 4> V4;
                     std::array<uint8, 16> V6;
                     std::array<char, 128> Name;
-                } Address;
+                } Address = { };
             };
 
             struct ConnectPayload
             {
                 SocketAddress Where;
-                uint16 Port;
-                std::array<uint8, 256> Signature;
+                uint16 Port = 0;
+                std::array<uint8, 256> Signature = { };
             };
 
             ConnectTo();
@@ -281,17 +285,20 @@ namespace WorldPackets
             void Read() override;
         };
 
-        class EnterEncryptedMode final : public ServerPacket
+        class TC_GAME_API EnterEncryptedMode final : public ServerPacket
         {
         public:
-            EnterEncryptedMode(uint8 const* encryptionKey, bool enabled) : ServerPacket(SMSG_ENTER_ENCRYPTED_MODE, 256 + 1),
+            static bool InitializeEncryption();
+            static void ShutdownEncryption();
+
+            EnterEncryptedMode(std::array<uint8, 16> const& encryptionKey, bool enabled) : ServerPacket(SMSG_ENTER_ENCRYPTED_MODE, 256 + 1),
                 EncryptionKey(encryptionKey), Enabled(enabled)
             {
             }
 
             WorldPacket const* Write() override;
 
-            uint8 const* EncryptionKey;
+            std::array<uint8, 16> const& EncryptionKey;
             bool Enabled = false;
         };
     }

@@ -12,17 +12,6 @@ if(WIN32)
   set(BOOST_DEBUG ON)
   if(DEFINED ENV{BOOST_ROOT})
     set(BOOST_ROOT $ENV{BOOST_ROOT})
-    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0)
-      set(BOOST_LIBRARYDIR ${BOOST_ROOT}/lib${PLATFORM}-msvc-12.0)
-    elseif(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.10)
-      set(BOOST_LIBRARYDIR ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.0)
-    else()
-      list(APPEND BOOST_LIBRARYDIR
-        ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.1
-        ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.0)
-    endif()
-  elseif(NOT DEFINED Boost_DIR AND NOT DEFINED BOOST_ROOT AND NOT DEFINED BOOSTROOT)
-    message(FATAL_ERROR "No BOOST_ROOT environment variable could be found! Please make sure it is set and the points to your Boost installation.")
   endif()
 
   set(Boost_USE_STATIC_LIBS        ON)
@@ -30,35 +19,22 @@ if(WIN32)
   set(Boost_USE_STATIC_RUNTIME     OFF)
 endif()
 
-if (CMAKE_VERSION VERSION_LESS "3.16.0")
-  # boost's own cmake file adds extra compile definitions that cotire fails to pick up
-  set(Boost_NO_BOOST_CMAKE ON)
-endif()
-
 include (CheckCXXSourceCompiles)
 
 if (WIN32)
   # On windows the requirements are higher according to the wiki.
-  set(BOOST_REQUIRED_VERSION 1.66)
+  set(BOOST_REQUIRED_VERSION 1.73)
 else()
-  set(BOOST_REQUIRED_VERSION 1.58)
+  set(BOOST_REQUIRED_VERSION 1.71)
 endif()
 
-find_package(Boost ${BOOST_REQUIRED_VERSION} REQUIRED system filesystem thread program_options iostreams regex)
+find_package(Boost ${BOOST_REQUIRED_VERSION} REQUIRED system filesystem program_options iostreams regex)
 
-# Find if Boost was compiled in C++03 mode because it requires -DBOOST_NO_CXX11_SCOPED_ENUMS
-
-set(CMAKE_REQUIRED_INCLUDES ${Boost_INCLUDE_DIR})
-set(CMAKE_REQUIRED_LIBRARIES ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY} ${Boost_IOSTREAMS_LIBRARY})
-set(CMAKE_REQUIRED_FLAGS "-std=c++11")
-check_cxx_source_compiles("
-  #include <boost/filesystem/path.hpp>
-  #include <boost/filesystem/operations.hpp>
-  int main() { boost::filesystem::copy_file(boost::filesystem::path(), boost::filesystem::path()); }"
-boost_filesystem_copy_links_without_NO_SCOPED_ENUM)
-unset(CMAKE_REQUIRED_INCLUDES)
-unset(CMAKE_REQUIRED_LIBRARIES)
-unset(CMAKE_REQUIRED_FLAGS)
+if(NOT Boost_FOUND)
+  if(NOT DEFINED ENV{BOOST_ROOT} AND NOT DEFINED Boost_DIR AND NOT DEFINED BOOST_ROOT AND NOT DEFINED BOOSTROOT)
+    message(FATAL_ERROR "No BOOST_ROOT environment variable could be found! Please make sure it is set and the points to your Boost installation.")
+  endif()
+endif()
 
 add_library(boost INTERFACE)
 
@@ -72,24 +48,30 @@ target_include_directories(boost
 
 target_compile_definitions(boost
   INTERFACE
-    -DBOOST_DATE_TIME_NO_LIB
-    -DBOOST_REGEX_NO_LIB
-    -DBOOST_CHRONO_NO_LIB
-	# Due to MSVC linking error boost::none" already defined in scripts_...
-    # May be removed when the requirement is raised to boost 1.61 on windows.
-    -DBOOST_OPTIONAL_USE_OLD_DEFINITION_OF_NONE
-    -DBOOST_SERIALIZATION_NO_LIB
+    -DBOOST_ALL_NO_LIB
     -DBOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE
     -DBOOST_ASIO_NO_DEPRECATED
     -DBOOST_BIND_NO_PLACEHOLDERS
     -DBOOST_SYSTEM_USE_UTF8)
 
-if (NOT boost_filesystem_copy_links_without_NO_SCOPED_ENUM)
+if (WITH_BOOST_STACKTRACE AND NOT WIN32)
+  message("*** libbacktrace will be linked")
+
+  if (BOOST_STACKTRACE_BACKTRACE_INCLUDE_FILE)
+    CHECK_INCLUDE_FILE(${BOOST_STACKTRACE_BACKTRACE_INCLUDE_FILE} HAS_BACKTRACE)
+  else()
+    CHECK_INCLUDE_FILE("backtrace.h" HAS_BACKTRACE)
+  endif()
+
+  if (NOT HAS_BACKTRACE)
+    message(FATAL_ERROR "Required header 'backtrace.h' not found. If building with a compiler other than GCC, please specify the full path in the CMake option BOOST_STACKTRACE_BACKTRACE_INCLUDE_FILE.")
+  endif()
+
   target_compile_definitions(boost
     INTERFACE
-      -DBOOST_NO_CXX11_SCOPED_ENUMS)
-endif()
+      -DBOOST_STACKTRACE_USE_BACKTRACE)
 
-target_compile_definitions(boost
-  INTERFACE
-    -DTC_HAS_BROKEN_WSTRING_REGEX)
+  target_link_libraries(boost
+    INTERFACE
+      backtrace)
+endif()

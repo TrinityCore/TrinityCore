@@ -18,7 +18,6 @@
 #include "vmapexport.h"
 #include "adtfile.h"
 #include "StringFormat.h"
-#include <algorithm>
 #include <cstdio>
 #include "Errors.h"
 

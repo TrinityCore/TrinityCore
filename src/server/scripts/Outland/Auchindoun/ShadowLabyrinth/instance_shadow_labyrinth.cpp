@@ -30,6 +30,14 @@ DoorData const doorData[] =
     { 0,                        0,                              DOOR_TYPE_ROOM } // END
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_AMBASSADOR_HELLMAW, {{ 1908 }} },
+    { DATA_BLACKHEART_THE_INCITER, {{ 1909 }} },
+    { DATA_GRANDMASTER_VORPIL, {{ 1911 }} },
+    { DATA_MURMUR, {{ 1910 }} }
+};
+
 class instance_shadow_labyrinth : public InstanceMapScript
 {
     public:
@@ -42,6 +50,7 @@ class instance_shadow_labyrinth : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
+                LoadDungeonEncounterData(encounters);
 
                 FelOverseerCount      = 0;
             }

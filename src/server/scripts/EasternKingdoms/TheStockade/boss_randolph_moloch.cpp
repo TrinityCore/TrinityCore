@@ -118,7 +118,7 @@ struct boss_randolph_moloch : public BossAI
                 events.ScheduleEvent(EVENT_JUST_VANISHED, 2s);
                 break;
             case EVENT_JUST_VANISHED:
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                     DoCast(target, SPELL_SHADOWSTEP, true);
                 me->SetReactState(REACT_AGGRESSIVE);
                 break;
@@ -127,7 +127,7 @@ struct boss_randolph_moloch : public BossAI
         }
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (me->HealthBelowPctDamaged(71, damage) && me->HealthAbovePct(59) && !_firstVanish)
         {

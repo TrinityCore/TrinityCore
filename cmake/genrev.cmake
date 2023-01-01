@@ -20,6 +20,8 @@ if(WITHOUT_GIT)
   set(rev_date "1970-01-01 00:00:00 +0000")
   set(rev_hash "unknown")
   set(rev_branch "Archived")
+  # No valid git commit date, use today
+  string(TIMESTAMP rev_date_fallback "%Y-%m-%d %H:%M:%S" UTC)
 else()
   if(GIT_EXECUTABLE)
     # Retrieve repository dirty status
@@ -102,9 +104,19 @@ else()
     set(rev_date "1970-01-01 00:00:00 +0000")
     set(rev_hash "unknown")
     set(rev_branch "Archived")
+    # No valid git commit date, use today
+    string(TIMESTAMP rev_date_fallback "%Y-%m-%d %H:%M:%S" UTC)
   else()
+    # We have valid date from git commit, use that
+    set(rev_date_fallback ${rev_date})
   endif()
 endif()
+
+# For package/copyright information we always need a proper date - keep "Archived/1970" for displaying git info but a valid year elsewhere
+string(REGEX MATCH "([0-9]+)-([0-9]+)-([0-9]+)" rev_date_fallback_match ${rev_date_fallback})
+set(rev_year ${CMAKE_MATCH_1})
+set(rev_month ${CMAKE_MATCH_2})
+set(rev_day ${CMAKE_MATCH_3})
 
 # Create the actual revision_data.h file from the above params
 if(NOT "${rev_hash_cached}" STREQUAL "${rev_hash}" OR NOT "${rev_branch_cached}" STREQUAL "${rev_branch}" OR NOT EXISTS "${BUILDDIR}/revision_data.h")

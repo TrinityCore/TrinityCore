@@ -25,6 +25,7 @@
 #include "OutdoorPvP.h"
 #include "Player.h"
 #include "SpellMgr.h"
+#include "StringConvert.h"
 #include "VMapManager2.h"
 #include "World.h"
 
@@ -109,16 +110,24 @@ void LoadDisables()
 
                 if (flags & SPELL_DISABLE_MAP)
                 {
-                    Tokenizer tokens(params_0, ',');
-                    for (uint8 i = 0; i < tokens.size(); )
-                        data.params[0].insert(atoi(tokens[i++]));
+                    for (std::string_view mapStr : Trinity::Tokenize(params_0, ',', true))
+                    {
+                        if (Optional<uint32> mapId = Trinity::StringTo<uint32>(mapStr))
+                            data.params[0].insert(*mapId);
+                        else
+                            TC_LOG_ERROR("sql.sql", "Disable map '%s' for spell %u is invalid, skipped.", std::string(mapStr).c_str(), entry);
+                    }
                 }
 
                 if (flags & SPELL_DISABLE_AREA)
                 {
-                    Tokenizer tokens(params_1, ',');
-                    for (uint8 i = 0; i < tokens.size(); )
-                        data.params[1].insert(atoi(tokens[i++]));
+                    for (std::string_view areaStr : Trinity::Tokenize(params_1, ',', true))
+                    {
+                        if (Optional<uint32> areaId = Trinity::StringTo<uint32>(areaStr))
+                            data.params[1].insert(*areaId);
+                        else
+                            TC_LOG_ERROR("sql.sql", "Disable area '%s' for spell %u is invalid, skipped.", std::string(areaStr).c_str(), entry);
+                    }
                 }
 
                 break;
@@ -296,7 +305,7 @@ bool IsDisabledFor(DisableType type, uint32 entry, WorldObject const* ref, uint8
                 {
                     if (spellFlags & (SPELL_DISABLE_ARENAS | SPELL_DISABLE_BATTLEGROUNDS))
                     {
-                        if (Map const* map = ref->GetMap())
+                        if (Map const* map = ref->FindMap())
                         {
                             if (spellFlags & SPELL_DISABLE_ARENAS && map->IsBattleArena())
                                 return true;                                    // Current map is Arena and this spell is disabled here

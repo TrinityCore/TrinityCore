@@ -67,7 +67,6 @@ const ::google::protobuf::ServiceDescriptor* GameUtilitiesService_descriptor_ = 
 
 }  // namespace
 
-
 void protobuf_AssignDesc_game_5futilities_5fservice_2eproto() {
   protobuf_AddDesc_game_5futilities_5fservice_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -455,7 +454,6 @@ struct StaticDescriptorInitializer_game_5futilities_5fservice_2eproto {
     protobuf_AddDesc_game_5futilities_5fservice_2eproto();
   }
 } static_descriptor_initializer_game_5futilities_5fservice_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -867,7 +865,6 @@ void ClientRequest::CopyFrom(const ClientRequest& from) {
 }
 
 bool ClientRequest::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->attribute())) return false;
   if (has_host()) {
     if (!this->host().IsInitialized()) return false;
@@ -902,7 +899,6 @@ void ClientRequest::Swap(ClientRequest* other) {
   metadata.reflection = ClientRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1101,7 +1097,6 @@ void ClientResponse::CopyFrom(const ClientResponse& from) {
 }
 
 bool ClientResponse::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->attribute())) return false;
   return true;
 }
@@ -1122,7 +1117,6 @@ void ClientResponse::Swap(ClientResponse* other) {
   metadata.reflection = ClientResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1407,7 +1401,6 @@ void ServerRequest::CopyFrom(const ServerRequest& from) {
 
 bool ServerRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000002) != 0x00000002) return false;
-
   if (!::google::protobuf::internal::AllAreInitialized(this->attribute())) return false;
   if (has_host()) {
     if (!this->host().IsInitialized()) return false;
@@ -1433,7 +1426,6 @@ void ServerRequest::Swap(ServerRequest* other) {
   metadata.reflection = ServerRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1632,7 +1624,6 @@ void ServerResponse::CopyFrom(const ServerResponse& from) {
 }
 
 bool ServerResponse::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->attribute())) return false;
   return true;
 }
@@ -1653,7 +1644,6 @@ void ServerResponse::Swap(ServerResponse* other) {
   metadata.reflection = ServerResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1992,7 +1982,6 @@ void PresenceChannelCreatedRequest::CopyFrom(const PresenceChannelCreatedRequest
 
 bool PresenceChannelCreatedRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
   if (has_id()) {
     if (!this->id().IsInitialized()) return false;
   }
@@ -2027,7 +2016,6 @@ void PresenceChannelCreatedRequest::Swap(PresenceChannelCreatedRequest* other) {
   metadata.reflection = PresenceChannelCreatedRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2339,7 +2327,6 @@ void GameAccountOnlineNotification::CopyFrom(const GameAccountOnlineNotification
 
 bool GameAccountOnlineNotification::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
   if (has_game_account_id()) {
     if (!this->game_account_id().IsInitialized()) return false;
   }
@@ -2367,7 +2354,6 @@ void GameAccountOnlineNotification::Swap(GameAccountOnlineNotification* other) {
   metadata.reflection = GameAccountOnlineNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2679,7 +2665,6 @@ void GameAccountOfflineNotification::CopyFrom(const GameAccountOfflineNotificati
 
 bool GameAccountOfflineNotification::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
   if (has_game_account_id()) {
     if (!this->game_account_id().IsInitialized()) return false;
   }
@@ -2707,7 +2692,6 @@ void GameAccountOfflineNotification::Swap(GameAccountOfflineNotification* other)
   metadata.reflection = GameAccountOfflineNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3011,7 +2995,6 @@ void GetAllValuesForAttributeRequest::CopyFrom(const GetAllValuesForAttributeReq
 }
 
 bool GetAllValuesForAttributeRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -3036,7 +3019,6 @@ void GetAllValuesForAttributeRequest::Swap(GetAllValuesForAttributeRequest* othe
   metadata.reflection = GetAllValuesForAttributeRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3235,7 +3217,6 @@ void GetAllValuesForAttributeResponse::CopyFrom(const GetAllValuesForAttributeRe
 }
 
 bool GetAllValuesForAttributeResponse::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->attribute_value())) return false;
   return true;
 }
@@ -3256,7 +3237,6 @@ void GetAllValuesForAttributeResponse::Swap(GetAllValuesForAttributeResponse* ot
   metadata.reflection = GetAllValuesForAttributeResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3495,7 +3475,6 @@ void RegisterUtilitiesRequest::CopyFrom(const RegisterUtilitiesRequest& from) {
 }
 
 bool RegisterUtilitiesRequest::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->attribute())) return false;
   return true;
 }
@@ -3517,7 +3496,6 @@ void RegisterUtilitiesRequest::Swap(RegisterUtilitiesRequest* other) {
   metadata.reflection = RegisterUtilitiesRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3740,7 +3718,6 @@ void RegisterUtilitiesResponse::CopyFrom(const RegisterUtilitiesResponse& from) 
 }
 
 bool RegisterUtilitiesResponse::IsInitialized() const {
-
   return true;
 }
 
@@ -3760,7 +3737,6 @@ void RegisterUtilitiesResponse::Swap(RegisterUtilitiesResponse* other) {
   metadata.reflection = RegisterUtilitiesResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3916,7 +3892,6 @@ void UnregisterUtilitiesRequest::CopyFrom(const UnregisterUtilitiesRequest& from
 }
 
 bool UnregisterUtilitiesRequest::IsInitialized() const {
-
   return true;
 }
 
@@ -3934,7 +3909,6 @@ void UnregisterUtilitiesRequest::Swap(UnregisterUtilitiesRequest* other) {
   metadata.reflection = UnregisterUtilitiesRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4250,7 +4224,6 @@ uint32 GameUtilitiesService::HandleUnregisterUtilities(::bgs::protocol::game_uti
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

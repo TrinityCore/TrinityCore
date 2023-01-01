@@ -80,7 +80,7 @@ void SystemMgr::LoadScriptWaypoints()
 
         WaypointPath& path = _waypointStore[entry];
         path.id = entry;
-        path.nodes.emplace_back(id, x, y, z, 0.f, waitTime);
+        path.nodes.emplace_back(id, x, y, z, std::nullopt, waitTime);
 
         ++count;
     } while (result->NextRow());
@@ -94,9 +94,9 @@ void SystemMgr::LoadScriptSplineChains()
 
     m_mSplineChainsMap.clear();
 
-    //                                                     0       1        2             3               4
-    QueryResult resultMeta = WorldDatabase.Query("SELECT entry, chainId, splineId, expectedDuration, msUntilNext FROM script_spline_chain_meta ORDER BY entry asc, chainId asc, splineId asc");
-    //                                                  0       1         2       3   4  5  6
+    //                                                   0      1        2         3                 4            5
+    QueryResult resultMeta = WorldDatabase.Query("SELECT entry, chainId, splineId, expectedDuration, msUntilNext, velocity FROM script_spline_chain_meta ORDER BY entry asc, chainId asc, splineId asc");
+    //                                                 0      1        2         3     4  5  6
     QueryResult resultWP = WorldDatabase.Query("SELECT entry, chainId, splineId, wpId, x, y, z FROM script_spline_chain_waypoints ORDER BY entry asc, chainId asc, splineId asc, wpId asc");
     if (!resultMeta || !resultWP)
     {
@@ -121,7 +121,8 @@ void SystemMgr::LoadScriptSplineChains()
 
             uint32 expectedDuration = fieldsMeta[3].GetUInt32();
             uint32 msUntilNext = fieldsMeta[4].GetUInt32();
-            chain.emplace_back(expectedDuration, msUntilNext);
+            float velocity = fieldsMeta[5].GetFloat();
+            chain.emplace_back(expectedDuration, msUntilNext, velocity);
 
             if (splineId == 0)
                 ++chainCount;

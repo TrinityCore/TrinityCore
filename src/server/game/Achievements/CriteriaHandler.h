@@ -19,7 +19,6 @@
 #define CriteriaHandler_h__
 
 #include "Common.h"
-#include "DatabaseEnvFwd.h"
 #include "DBCEnums.h"
 #include "Duration.h"
 #include "ObjectGuid.h"
@@ -269,6 +268,11 @@ public:
     CriteriaHandler();
     virtual ~CriteriaHandler();
 
+    CriteriaHandler(CriteriaHandler const& right) = delete;
+    CriteriaHandler(CriteriaHandler&& right) = delete;
+    CriteriaHandler& operator=(CriteriaHandler const& right) = delete;
+    CriteriaHandler& operator=(CriteriaHandler&& right) = delete;
+
     virtual void Reset();
 
     void UpdateCriteria(CriteriaType type, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, WorldObject const* ref = nullptr, Player* referencePlayer = nullptr);
@@ -313,10 +317,15 @@ protected:
 
 class TC_GAME_API CriteriaMgr
 {
-    CriteriaMgr() { }
+    CriteriaMgr();
     ~CriteriaMgr();
 
 public:
+    CriteriaMgr(CriteriaMgr const& right) = delete;
+    CriteriaMgr(CriteriaMgr&& right) = delete;
+    CriteriaMgr& operator=(CriteriaMgr const& right) = delete;
+    CriteriaMgr& operator=(CriteriaMgr&& right) = delete;
+
     static char const* GetCriteriaTypeString(CriteriaType type);
     static char const* GetCriteriaTypeString(uint32 type);
 
@@ -329,10 +338,7 @@ public:
         return _guildCriteriasByType[size_t(type)];
     }
 
-    CriteriaList const& GetScenarioCriteriaByType(CriteriaType type) const
-    {
-        return _scenarioCriteriasByType[size_t(type)];
-    }
+    CriteriaList const& GetScenarioCriteriaByTypeAndScenario(CriteriaType type, uint32 scenarioId) const;
 
     CriteriaList const& GetQuestObjectiveCriteriaByType(CriteriaType type) const
     {
@@ -406,10 +412,11 @@ private:
     std::unordered_map<uint32, CriteriaTreeList> _criteriaTreeByCriteria;
 
     // store criterias by type to speed up lookup
+    static CriteriaList const EmptyCriteriaList;
     CriteriaList _criteriasByType[size_t(CriteriaType::Count)];
     CriteriaListByAsset _criteriasByAsset[size_t(CriteriaType::Count)];
     CriteriaList _guildCriteriasByType[size_t(CriteriaType::Count)];
-    CriteriaList _scenarioCriteriasByType[size_t(CriteriaType::Count)];
+    CriteriaListByAsset _scenarioCriteriasByTypeAndScenarioId[size_t(CriteriaType::Count)];
     CriteriaList _questObjectiveCriteriasByType[size_t(CriteriaType::Count)];
 
     CriteriaList _criteriasByTimedType[size_t(CriteriaStartEvent::Count)];

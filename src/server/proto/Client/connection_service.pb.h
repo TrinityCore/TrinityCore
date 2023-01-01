@@ -1202,7 +1202,6 @@ class TC_PROTO_API ConnectionService : public ServiceBase
 
 // ===================================================================
 
-
 // ===================================================================
 
 // ConnectRequest
@@ -2323,7 +2322,6 @@ inline void DisconnectNotification::set_allocated_reason(::std::string* reason) 
 
 // EncryptRequest
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -2334,8 +2332,6 @@ inline void DisconnectNotification::set_allocated_reason(::std::string* reason) 
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

@@ -56,7 +56,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 
 }  // namespace
 
-
 void protobuf_AssignDesc_channel_5ftypes_2eproto() {
   protobuf_AddDesc_channel_5ftypes_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -369,7 +368,6 @@ struct StaticDescriptorInitializer_channel_5ftypes_2eproto {
     protobuf_AddDesc_channel_5ftypes_2eproto();
   }
 } static_descriptor_initializer_channel_5ftypes_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -584,7 +582,6 @@ void Message::CopyFrom(const Message& from) {
 }
 
 bool Message::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->attribute())) return false;
 
   if (!_extensions_.IsInitialized()) return false;  return true;
@@ -607,7 +604,6 @@ void Message::Swap(Message* other) {
   metadata.reflection = Message_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1133,7 +1129,6 @@ void ListChannelsOptions::CopyFrom(const ListChannelsOptions& from) {
 
 bool ListChannelsOptions::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000040) != 0x00000040) return false;
-
   if (has_attribute_filter()) {
     if (!this->attribute_filter().IsInitialized()) return false;
   }
@@ -1163,7 +1158,6 @@ void ListChannelsOptions::Swap(ListChannelsOptions* other) {
   metadata.reflection = ListChannelsOptions_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1454,7 +1448,6 @@ void ChannelDescription::CopyFrom(const ChannelDescription& from) {
 
 bool ChannelDescription::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
   if (has_channel_id()) {
     if (!this->channel_id().IsInitialized()) return false;
   }
@@ -1482,7 +1475,6 @@ void ChannelDescription::Swap(ChannelDescription* other) {
   metadata.reflection = ChannelDescription_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1728,7 +1720,6 @@ void ChannelInfo::CopyFrom(const ChannelInfo& from) {
 
 bool ChannelInfo::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
   if (has_description()) {
     if (!this->description().IsInitialized()) return false;
   }
@@ -1753,7 +1744,6 @@ void ChannelInfo::Swap(ChannelInfo* other) {
   metadata.reflection = ChannelInfo_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2404,7 +2394,6 @@ void ChannelState::CopyFrom(const ChannelState& from) {
 }
 
 bool ChannelState::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->attribute())) return false;
   if (!::google::protobuf::internal::AllAreInitialized(this->invitation())) return false;
 
@@ -2437,7 +2426,6 @@ void ChannelState::Swap(ChannelState* other) {
   metadata.reflection = ChannelState_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2660,7 +2648,6 @@ void MemberAccountInfo::CopyFrom(const MemberAccountInfo& from) {
 }
 
 bool MemberAccountInfo::IsInitialized() const {
-
   return true;
 }
 
@@ -2680,7 +2667,6 @@ void MemberAccountInfo::Swap(MemberAccountInfo* other) {
   metadata.reflection = MemberAccountInfo_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3029,7 +3015,6 @@ void MemberState::CopyFrom(const MemberState& from) {
 }
 
 bool MemberState::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->attribute())) return false;
   return true;
 }
@@ -3053,7 +3038,6 @@ void MemberState::Swap(MemberState* other) {
   metadata.reflection = MemberState_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3306,7 +3290,6 @@ void Member::CopyFrom(const Member& from) {
 
 bool Member::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
-
   if (has_identity()) {
     if (!this->identity().IsInitialized()) return false;
   }
@@ -3333,7 +3316,6 @@ void Member::Swap(Member* other) {
   metadata.reflection = Member_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3628,7 +3610,6 @@ void SubscriberId::CopyFrom(const SubscriberId& from) {
 }
 
 bool SubscriberId::IsInitialized() const {
-
   if (has_account()) {
     if (!this->account().IsInitialized()) return false;
   }
@@ -3659,7 +3640,6 @@ void SubscriberId::Swap(SubscriberId* other) {
   metadata.reflection = SubscriberId_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

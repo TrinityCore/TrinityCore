@@ -20,7 +20,9 @@
 #include "MessageBuffer.h"
 #include "Log.h"
 #include "Util.h"
+#include <utf8.h>
 #include <sstream>
+#include <cmath>
 #include <ctime>
 
 ByteBuffer::ByteBuffer(MessageBuffer&& buffer) : _rpos(0), _wpos(0), _bitpos(InitialBitPos), _curbitval(0), _storage(buffer.Move())
@@ -38,11 +40,16 @@ ByteBufferPositionException::ByteBufferPositionException(size_t pos, size_t size
     message().assign(ss.str());
 }
 
+ByteBufferInvalidValueException::ByteBufferInvalidValueException(char const* type, char const* value)
+{
+    message().assign(Trinity::StringFormat("Invalid %s value (%s) found in ByteBuffer", type, value));
+}
+
 ByteBuffer& ByteBuffer::operator>>(float& value)
 {
     value = read<float>();
     if (!std::isfinite(value))
-        throw ByteBufferException();
+        throw ByteBufferInvalidValueException("float", "infinity");
     return *this;
 }
 
@@ -50,8 +57,39 @@ ByteBuffer& ByteBuffer::operator>>(double& value)
 {
     value = read<double>();
     if (!std::isfinite(value))
-        throw ByteBufferException();
+        throw ByteBufferInvalidValueException("double", "infinity");
     return *this;
+}
+
+std::string ByteBuffer::ReadCString(bool requireValidUtf8 /*= true*/)
+{
+    std::string value;
+    while (rpos() < size())                         // prevent crash at wrong string format in packet
+    {
+        char c = read<char>();
+        if (c == 0)
+            break;
+        value += c;
+    }
+    if (requireValidUtf8 && !utf8::is_valid(value.begin(), value.end()))
+        throw ByteBufferInvalidValueException("string", value.c_str());
+    return value;
+}
+
+std::string ByteBuffer::ReadString(uint32 length, bool requireValidUtf8 /*= true*/)
+{
+    if (_rpos + length > size())
+        throw ByteBufferPositionException(_rpos, length, size());
+
+    ResetBitPos();
+    if (!length)
+        return std::string();
+
+    std::string value(reinterpret_cast<char const*>(&_storage[_rpos]), length);
+    _rpos += length;
+    if (requireValidUtf8 && !utf8::is_valid(value.begin(), value.end()))
+        throw ByteBufferInvalidValueException("string", value.c_str());
+    return value;
 }
 
 uint32 ByteBuffer::ReadPackedTime()

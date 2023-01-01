@@ -20,11 +20,13 @@
 void WorldPackets::GameObject::GameObjUse::Read()
 {
     _worldPacket >> Guid;
+    IsSoftInteract = _worldPacket.ReadBit();
 }
 
 void WorldPackets::GameObject::GameObjReportUse::Read()
 {
     _worldPacket >> Guid;
+    IsSoftInteract = _worldPacket.ReadBit();
 }
 
 WorldPacket const* WorldPackets::GameObject::GameObjectDespawn::Write()
@@ -70,19 +72,34 @@ WorldPacket const* WorldPackets::GameObject::GameObjectCustomAnim::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::GameObject::GameObjectUILink::Write()
-{
-    _worldPacket << ObjectGUID;
-    _worldPacket << int32(UILink);
-
-    return &_worldPacket;
-}
-
 WorldPacket const* WorldPackets::GameObject::GameObjectPlaySpellVisual::Write()
 {
     _worldPacket << ObjectGUID;
     _worldPacket << ActivatorGUID;
     _worldPacket << int32(SpellVisualID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::GameObject::GameObjectSetStateLocal::Write()
+{
+    _worldPacket << ObjectGUID;
+    _worldPacket << uint8(State);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::GameObject::GameObjectInteraction::Write()
+{
+    _worldPacket << ObjectGUID;
+    _worldPacket << int32(InteractionType);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::GameObject::GameObjectCloseInteraction::Write()
+{
+    _worldPacket << int32(InteractionType);
 
     return &_worldPacket;
 }

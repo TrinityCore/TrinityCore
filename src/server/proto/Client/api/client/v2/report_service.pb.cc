@@ -39,7 +39,6 @@ const ::google::protobuf::ServiceDescriptor* ReportService_descriptor_ = NULL;
 
 }  // namespace
 
-
 void protobuf_AssignDesc_api_2fclient_2fv2_2freport_5fservice_2eproto() {
   protobuf_AddDesc_api_2fclient_2fv2_2freport_5fservice_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -133,7 +132,6 @@ struct StaticDescriptorInitializer_api_2fclient_2fv2_2freport_5fservice_2eproto 
     protobuf_AddDesc_api_2fclient_2fv2_2freport_5fservice_2eproto();
   }
 } static_descriptor_initializer_api_2fclient_2fv2_2freport_5fservice_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -231,7 +229,6 @@ void SubmitReportRequest::clear_type() {
   }
   _oneof_case_[0] = TYPE_NOT_SET;
 }
-
 
 void SubmitReportRequest::Clear() {
   if (_has_bits_[0 / 32] & 3) {
@@ -554,7 +551,6 @@ void SubmitReportRequest::CopyFrom(const SubmitReportRequest& from) {
 }
 
 bool SubmitReportRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -583,7 +579,6 @@ void SubmitReportRequest::Swap(SubmitReportRequest* other) {
   metadata.reflection = SubmitReportRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -638,7 +633,6 @@ uint32 ReportService::HandleSubmitReport(::bgs::protocol::report::v2::SubmitRepo
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

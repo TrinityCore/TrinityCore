@@ -35,7 +35,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 
 }  // namespace
 
-
 void protobuf_AssignDesc_global_5fextensions_2frange_2eproto() {
   protobuf_AddDesc_global_5fextensions_2frange_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -150,7 +149,6 @@ struct StaticDescriptorInitializer_global_5fextensions_2frange_2eproto {
     protobuf_AddDesc_global_5fextensions_2frange_2eproto();
   }
 } static_descriptor_initializer_global_5fextensions_2frange_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -402,7 +400,6 @@ void UnsignedIntRange::CopyFrom(const UnsignedIntRange& from) {
 }
 
 bool UnsignedIntRange::IsInitialized() const {
-
   return true;
 }
 
@@ -423,7 +420,6 @@ void UnsignedIntRange::Swap(UnsignedIntRange* other) {
   metadata.reflection = UnsignedIntRange_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -676,7 +672,6 @@ void SignedIntRange::CopyFrom(const SignedIntRange& from) {
 }
 
 bool SignedIntRange::IsInitialized() const {
-
   return true;
 }
 
@@ -697,7 +692,6 @@ void SignedIntRange::Swap(SignedIntRange* other) {
   metadata.reflection = SignedIntRange_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -946,7 +940,6 @@ void FloatRange::CopyFrom(const FloatRange& from) {
 }
 
 bool FloatRange::IsInitialized() const {
-
   return true;
 }
 
@@ -967,7 +960,6 @@ void FloatRange::Swap(FloatRange* other) {
   metadata.reflection = FloatRange_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

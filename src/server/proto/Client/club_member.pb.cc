@@ -73,7 +73,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 
 }  // namespace
 
-
 void protobuf_AssignDesc_club_5fmember_2eproto() {
   protobuf_AddDesc_club_5fmember_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -535,7 +534,6 @@ struct StaticDescriptorInitializer_club_5fmember_2eproto {
     protobuf_AddDesc_club_5fmember_2eproto();
   }
 } static_descriptor_initializer_club_5fmember_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -1220,7 +1218,6 @@ void Member::CopyFrom(const Member& from) {
 }
 
 bool Member::IsInitialized() const {
-
   if (has_id()) {
     if (!this->id().IsInitialized()) return false;
   }
@@ -1253,7 +1250,6 @@ void Member::Swap(Member* other) {
   metadata.reflection = Member_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1500,7 +1496,6 @@ void MemberResult::CopyFrom(const MemberResult& from) {
 }
 
 bool MemberResult::IsInitialized() const {
-
   if (has_member_id()) {
     if (!this->member_id().IsInitialized()) return false;
   }
@@ -1524,7 +1519,6 @@ void MemberResult::Swap(MemberResult* other) {
   metadata.reflection = MemberResult_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1777,7 +1771,6 @@ void RemoveMemberOptions::CopyFrom(const RemoveMemberOptions& from) {
 }
 
 bool RemoveMemberOptions::IsInitialized() const {
-
   if (has_id()) {
     if (!this->id().IsInitialized()) return false;
   }
@@ -1801,7 +1794,6 @@ void RemoveMemberOptions::Swap(RemoveMemberOptions* other) {
   metadata.reflection = RemoveMemberOptions_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2054,7 +2046,6 @@ void MemberRemovedAssignment::CopyFrom(const MemberRemovedAssignment& from) {
 }
 
 bool MemberRemovedAssignment::IsInitialized() const {
-
   if (has_id()) {
     if (!this->id().IsInitialized()) return false;
   }
@@ -2078,7 +2069,6 @@ void MemberRemovedAssignment::Swap(MemberRemovedAssignment* other) {
   metadata.reflection = MemberRemovedAssignment_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2407,7 +2397,6 @@ void MemberVoiceOptions::CopyFrom(const MemberVoiceOptions& from) {
 }
 
 bool MemberVoiceOptions::IsInitialized() const {
-
   return true;
 }
 
@@ -2430,7 +2419,6 @@ void MemberVoiceOptions::Swap(MemberVoiceOptions* other) {
   metadata.reflection = MemberVoiceOptions_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2820,7 +2808,6 @@ void MemberVoiceState::CopyFrom(const MemberVoiceState& from) {
 }
 
 bool MemberVoiceState::IsInitialized() const {
-
   return true;
 }
 
@@ -2844,7 +2831,6 @@ void MemberVoiceState::Swap(MemberVoiceState* other) {
   metadata.reflection = MemberVoiceState_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3089,7 +3075,6 @@ void CreateMemberOptions::CopyFrom(const CreateMemberOptions& from) {
 }
 
 bool CreateMemberOptions::IsInitialized() const {
-
   if (has_id()) {
     if (!this->id().IsInitialized()) return false;
   }
@@ -3113,7 +3098,6 @@ void CreateMemberOptions::Swap(CreateMemberOptions* other) {
   metadata.reflection = CreateMemberOptions_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3381,7 +3365,6 @@ void MemberDescription::CopyFrom(const MemberDescription& from) {
 }
 
 bool MemberDescription::IsInitialized() const {
-
   if (has_id()) {
     if (!this->id().IsInitialized()) return false;
   }
@@ -3405,7 +3388,6 @@ void MemberDescription::Swap(MemberDescription* other) {
   metadata.reflection = MemberDescription_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3675,7 +3657,6 @@ void RoleOptions::CopyFrom(const RoleOptions& from) {
 }
 
 bool RoleOptions::IsInitialized() const {
-
   if (has_member_id()) {
     if (!this->member_id().IsInitialized()) return false;
   }
@@ -3699,7 +3680,6 @@ void RoleOptions::Swap(RoleOptions* other) {
   metadata.reflection = RoleOptions_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3969,7 +3949,6 @@ void RoleAssignment::CopyFrom(const RoleAssignment& from) {
 }
 
 bool RoleAssignment::IsInitialized() const {
-
   if (has_member_id()) {
     if (!this->member_id().IsInitialized()) return false;
   }
@@ -3993,7 +3972,6 @@ void RoleAssignment::Swap(RoleAssignment* other) {
   metadata.reflection = RoleAssignment_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4238,7 +4216,6 @@ void MemberAttributeAssignment::CopyFrom(const MemberAttributeAssignment& from) 
 }
 
 bool MemberAttributeAssignment::IsInitialized() const {
-
   if (has_member_id()) {
     if (!this->member_id().IsInitialized()) return false;
   }
@@ -4262,7 +4239,6 @@ void MemberAttributeAssignment::Swap(MemberAttributeAssignment* other) {
   metadata.reflection = MemberAttributeAssignment_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4469,7 +4445,6 @@ void SubscriberStateOptions::CopyFrom(const SubscriberStateOptions& from) {
 }
 
 bool SubscriberStateOptions::IsInitialized() const {
-
   return true;
 }
 
@@ -4489,7 +4464,6 @@ void SubscriberStateOptions::Swap(SubscriberStateOptions* other) {
   metadata.reflection = SubscriberStateOptions_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4777,7 +4751,6 @@ void SubscriberStateAssignment::CopyFrom(const SubscriberStateAssignment& from) 
 }
 
 bool SubscriberStateAssignment::IsInitialized() const {
-
   if (has_member_id()) {
     if (!this->member_id().IsInitialized()) return false;
   }
@@ -4802,7 +4775,6 @@ void SubscriberStateAssignment::Swap(SubscriberStateAssignment* other) {
   metadata.reflection = SubscriberStateAssignment_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -5203,7 +5175,6 @@ void MemberStateOptions::CopyFrom(const MemberStateOptions& from) {
 }
 
 bool MemberStateOptions::IsInitialized() const {
-
   return true;
 }
 
@@ -5227,7 +5198,6 @@ void MemberStateOptions::Swap(MemberStateOptions* other) {
   metadata.reflection = MemberStateOptions_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -5670,7 +5640,6 @@ void MemberStateAssignment::CopyFrom(const MemberStateAssignment& from) {
 }
 
 bool MemberStateAssignment::IsInitialized() const {
-
   if (has_member_id()) {
     if (!this->member_id().IsInitialized()) return false;
   }
@@ -5698,7 +5667,6 @@ void MemberStateAssignment::Swap(MemberStateAssignment* other) {
   metadata.reflection = MemberStateAssignment_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

@@ -52,7 +52,7 @@ class boss_ambassador_flamelash : public CreatureScript
 
             void SummonSpirit(Unit* victim)
             {
-                if (Creature* spirit = DoSpawnCreature(9178, frand(-9, 9), frand(-9, 9), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000))
+                if (Creature* spirit = DoSpawnCreature(9178, frand(-9, 9), frand(-9, 9), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60s))
                     spirit->AI()->AttackStart(victim);
             }
 

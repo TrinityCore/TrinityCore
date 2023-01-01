@@ -19,7 +19,6 @@
 #include "DatabaseEnv.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
-#include "ObjectMgr.h"
 #include "Player.h"
 #include "Timer.h"
 #include "WorldSession.h"

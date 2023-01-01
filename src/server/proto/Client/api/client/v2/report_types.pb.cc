@@ -46,7 +46,6 @@ const ::google::protobuf::EnumDescriptor* ClubSource_descriptor_ = NULL;
 
 }  // namespace
 
-
 void protobuf_AssignDesc_api_2fclient_2fv2_2freport_5ftypes_2eproto() {
   protobuf_AddDesc_api_2fclient_2fv2_2freport_5ftypes_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -279,7 +278,6 @@ bool ClubSource_IsValid(int value) {
   }
 }
 
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -355,7 +353,6 @@ void ReportItem::clear_type() {
   }
   _oneof_case_[0] = TYPE_NOT_SET;
 }
-
 
 void ReportItem::Clear() {
   clear_type();
@@ -506,7 +503,6 @@ void ReportItem::CopyFrom(const ReportItem& from) {
 }
 
 bool ReportItem::IsInitialized() const {
-
   return true;
 }
 
@@ -527,7 +523,6 @@ void ReportItem::Swap(ReportItem* other) {
   metadata.reflection = ReportItem_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -880,7 +875,6 @@ void UserOptions::CopyFrom(const UserOptions& from) {
 }
 
 bool UserOptions::IsInitialized() const {
-
   if (has_target_id()) {
     if (!this->target_id().IsInitialized()) return false;
   }
@@ -906,7 +900,6 @@ void UserOptions::Swap(UserOptions* other) {
   metadata.reflection = UserOptions_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1290,7 +1283,6 @@ void ClubOptions::CopyFrom(const ClubOptions& from) {
 }
 
 bool ClubOptions::IsInitialized() const {
-
   return true;
 }
 
@@ -1314,7 +1306,6 @@ void ClubOptions::Swap(ClubOptions* other) {
   metadata.reflection = ClubOptions_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1635,7 +1626,6 @@ void EntityOptions::CopyFrom(const EntityOptions& from) {
 }
 
 bool EntityOptions::IsInitialized() const {
-
   return true;
 }
 
@@ -1657,7 +1647,6 @@ void EntityOptions::Swap(EntityOptions* other) {
   metadata.reflection = EntityOptions_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

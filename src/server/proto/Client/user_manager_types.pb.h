@@ -293,9 +293,7 @@ class TC_PROTO_API BlockedPlayer : public ::google::protobuf::Message {
 };
 // ===================================================================
 
-
 // ===================================================================
-
 
 // ===================================================================
 
@@ -671,7 +669,6 @@ inline void BlockedPlayer::set_privileges(::google::protobuf::uint64 value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.user_manager.v1.BlockedPlayer.privileges)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -682,8 +679,6 @@ inline void BlockedPlayer::set_privileges(::google::protobuf::uint64 value) {
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

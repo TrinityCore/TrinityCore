@@ -19,15 +19,6 @@
 #include "Common.h"
 #include "Errors.h"
 
-DB2MetaField::DB2MetaField(DBCFormer type, uint8 arraySize, bool isSigned) : Type(type), ArraySize(arraySize), IsSigned(isSigned)
-{
-}
-
-DB2Meta::DB2Meta(uint32 fileDataId, int32 indexField, uint32 fieldCount, uint32 fileFieldCount, uint32 layoutHash, DB2MetaField const* fields, int32 parentIndexField)
-    : FileDataId(fileDataId),IndexField(indexField), ParentIndexField(parentIndexField), FieldCount(fieldCount), FileFieldCount(fileFieldCount), LayoutHash(layoutHash), Fields(fields)
-{
-}
-
 bool DB2Meta::HasIndexFieldInData() const
 {
     return IndexField != -1;
@@ -73,7 +64,7 @@ uint32 DB2Meta::GetRecordSize() const
                     size += sizeof(char*);
                     break;
                 default:
-                    ASSERT(false, "Unsupported column type specified %c", Fields[i].Type);
+                    ABORT_MSG("Unsupported column type specified %c", Fields[i].Type);
                     break;
             }
         }
@@ -124,7 +115,7 @@ uint32 DB2Meta::GetIndexFieldOffset() const
                     offset += sizeof(char*);
                     break;
                 default:
-                    ASSERT(false, "Unsupported column type specified %c", Fields[i].Type);
+                    ABORT_MSG("Unsupported column type specified %c", Fields[i].Type);
                     break;
             }
         }
@@ -168,7 +159,7 @@ int32 DB2Meta::GetParentIndexFieldOffset() const
                     offset += sizeof(char*);
                     break;
                 default:
-                    ASSERT(false, "Unsupported column type specified %c", Fields[i].Type);
+                    ABORT_MSG("Unsupported column type specified %c", Fields[i].Type);
                     break;
             }
         }

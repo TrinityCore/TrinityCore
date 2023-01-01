@@ -190,7 +190,6 @@ class TC_PROTO_API BGSMethodOptions : public ::google::protobuf::Message {
 };
 // ===================================================================
 
-
 // ===================================================================
 
 static const int kMethodOptionsFieldNumber = 90000;
@@ -475,7 +474,6 @@ inline void BGSMethodOptions::set_handle_destination_unreachable(bool value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.BGSMethodOptions.handle_destination_unreachable)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace protocol
@@ -484,8 +482,6 @@ inline void BGSMethodOptions::set_handle_destination_unreachable(bool value) {
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

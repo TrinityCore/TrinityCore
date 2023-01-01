@@ -65,7 +65,6 @@ const ::google::protobuf::ServiceDescriptor* UserManagerListener_descriptor_ = N
 
 }  // namespace
 
-
 void protobuf_AssignDesc_user_5fmanager_5fservice_2eproto() {
   protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -431,7 +430,6 @@ struct StaticDescriptorInitializer_user_5fmanager_5fservice_2eproto {
     protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
   }
 } static_descriptor_initializer_user_5fmanager_5fservice_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -678,7 +676,6 @@ void SubscribeRequest::CopyFrom(const SubscribeRequest& from) {
 
 bool SubscribeRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000002) != 0x00000002) return false;
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -702,7 +699,6 @@ void SubscribeRequest::Swap(SubscribeRequest* other) {
   metadata.reflection = SubscribeRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -939,7 +935,6 @@ void SubscribeResponse::CopyFrom(const SubscribeResponse& from) {
 }
 
 bool SubscribeResponse::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->blocked_players())) return false;
   if (!::google::protobuf::internal::AllAreInitialized(this->recent_players())) return false;
   return true;
@@ -962,7 +957,6 @@ void SubscribeResponse::Swap(SubscribeResponse* other) {
   metadata.reflection = SubscribeResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1209,7 +1203,6 @@ void UnsubscribeRequest::CopyFrom(const UnsubscribeRequest& from) {
 }
 
 bool UnsubscribeRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -1233,7 +1226,6 @@ void UnsubscribeRequest::Swap(UnsubscribeRequest* other) {
   metadata.reflection = UnsubscribeRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1519,7 +1511,6 @@ void AddRecentPlayersRequest::CopyFrom(const AddRecentPlayersRequest& from) {
 }
 
 bool AddRecentPlayersRequest::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->players())) return false;
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
@@ -1545,7 +1536,6 @@ void AddRecentPlayersRequest::Swap(AddRecentPlayersRequest* other) {
   metadata.reflection = AddRecentPlayersRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1792,7 +1782,6 @@ void ClearRecentPlayersRequest::CopyFrom(const ClearRecentPlayersRequest& from) 
 }
 
 bool ClearRecentPlayersRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -1816,7 +1805,6 @@ void ClearRecentPlayersRequest::Swap(ClearRecentPlayersRequest* other) {
   metadata.reflection = ClearRecentPlayersRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2069,7 +2057,6 @@ void BlockPlayerRequest::CopyFrom(const BlockPlayerRequest& from) {
 
 bool BlockPlayerRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000002) != 0x00000002) return false;
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -2096,7 +2083,6 @@ void BlockPlayerRequest::Swap(BlockPlayerRequest* other) {
   metadata.reflection = BlockPlayerRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2349,7 +2335,6 @@ void UnblockPlayerRequest::CopyFrom(const UnblockPlayerRequest& from) {
 
 bool UnblockPlayerRequest::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000002) != 0x00000002) return false;
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -2376,7 +2361,6 @@ void UnblockPlayerRequest::Swap(UnblockPlayerRequest* other) {
   metadata.reflection = UnblockPlayerRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2672,7 +2656,6 @@ void BlockedPlayerAddedNotification::CopyFrom(const BlockedPlayerAddedNotificati
 
 bool BlockedPlayerAddedNotification::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
   if (has_player()) {
     if (!this->player().IsInitialized()) return false;
   }
@@ -2703,7 +2686,6 @@ void BlockedPlayerAddedNotification::Swap(BlockedPlayerAddedNotification* other)
   metadata.reflection = BlockedPlayerAddedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2999,7 +2981,6 @@ void BlockedPlayerRemovedNotification::CopyFrom(const BlockedPlayerRemovedNotifi
 
 bool BlockedPlayerRemovedNotification::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
   if (has_player()) {
     if (!this->player().IsInitialized()) return false;
   }
@@ -3030,7 +3011,6 @@ void BlockedPlayerRemovedNotification::Swap(BlockedPlayerRemovedNotification* ot
   metadata.reflection = BlockedPlayerRemovedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3229,7 +3209,6 @@ void RecentPlayersAddedNotification::CopyFrom(const RecentPlayersAddedNotificati
 }
 
 bool RecentPlayersAddedNotification::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->player())) return false;
   return true;
 }
@@ -3250,7 +3229,6 @@ void RecentPlayersAddedNotification::Swap(RecentPlayersAddedNotification* other)
   metadata.reflection = RecentPlayersAddedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3449,7 +3427,6 @@ void RecentPlayersRemovedNotification::CopyFrom(const RecentPlayersRemovedNotifi
 }
 
 bool RecentPlayersRemovedNotification::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->player())) return false;
   return true;
 }
@@ -3470,7 +3447,6 @@ void RecentPlayersRemovedNotification::Swap(RecentPlayersRemovedNotification* ot
   metadata.reflection = RecentPlayersRemovedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3759,7 +3735,6 @@ void UserManagerListener::CallServerMethod(uint32 token, uint32 methodId, Messag
   TC_LOG_ERROR("service.protobuf", "%s Server tried to call server method %u",
     GetCallerInfo().c_str(), methodId);
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

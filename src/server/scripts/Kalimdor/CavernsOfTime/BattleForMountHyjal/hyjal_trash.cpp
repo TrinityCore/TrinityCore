@@ -18,7 +18,6 @@
 #include "ScriptMgr.h"
 #include "hyjal.h"
 #include "hyjal_trash.h"
-#include "hyjalAI.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -45,6 +44,12 @@ enum Spells
     SPELL_FROST_BREATH      = 31688,
     SPELL_GARGOYLE_STRIKE   = 31664,
     SPELL_EXPLODING_SHOT    = 7896,
+};
+
+enum HyjalCreatureText
+{
+    TRASH_SAY_SLAY           = 0,
+    TRASH_SAY_DEATH          = 1,
 };
 
 float HordeWPs[8][3]=//basic waypoints from spawn to leader
@@ -192,7 +197,7 @@ hyjal_trashAI::hyjal_trashAI(Creature* creature) : EscortAI(creature)
     Reset();
 }
 
-void hyjal_trashAI::DamageTaken(Unit* done_by, uint32 &damage)
+void hyjal_trashAI::DamageTaken(Unit* done_by, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/)
 {
     if (!done_by || done_by->GetTypeId() == TYPEID_PLAYER || done_by->IsPet())
     {
@@ -421,10 +426,17 @@ public:
             CanMove = false;
             Delay = rand32() % 30000;
             me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-            me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             me->SetDisplayId(MODEL_INVIS);
             go = false;
-            Reset();
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            spawnTimer = 2000;
+            FlameBuffetTimer = 2000;
+            imol = false;
         }
 
         bool meteor;
@@ -436,9 +448,7 @@ public:
 
         void Reset() override
         {
-            spawnTimer = 2000;
-            FlameBuffetTimer= 2000;
-            imol = false;
+            Initialize();
         }
 
         void JustEngagedWith(Unit* /*who*/) override { }
@@ -469,10 +479,8 @@ public:
             }
             if (!meteor)
             {
-                if (Creature* trigger = me->SummonCreature(NPC_WORLD_TRIGGER_TINY, me->GetPositionWithOffset({ 8.0f, 8.0f, frand(25.0f, 35.0f), 0.0f }), TEMPSUMMON_TIMED_DESPAWN, 1000))
+                if (Creature* trigger = me->SummonCreature(NPC_WORLD_TRIGGER_TINY, me->GetPositionWithOffset({ 8.0f, 8.0f, frand(25.0f, 35.0f), 0.0f }), TEMPSUMMON_TIMED_DESPAWN, 1s))
                 {
-                    trigger->SetVisible(false);
-                    trigger->SetFaction(me->GetFaction());
                     trigger->SetDisableGravity(true);
                     trigger->CastSpell(me, SPELL_METEOR, true);
                 }
@@ -482,7 +490,7 @@ public:
                 if (spawnTimer <= diff)
                 {
                     me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-                    me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     me->SetDisplayId(me->GetNativeDisplayId());
                     CanMove = true;
                     if (instance->GetData(DATA_ALLIANCE_RETREAT) && !instance->GetData(DATA_HORDE_RETREAT))
@@ -548,14 +556,19 @@ public:
         {
             instance = creature->GetInstanceScript();
             go = false;
-            Reset();
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            KnockDownTimer = 10000;
         }
 
         bool go;
         uint32 KnockDownTimer;
         void Reset() override
         {
-            KnockDownTimer = 10000;
+            Initialize();
         }
 
         void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
@@ -642,7 +655,14 @@ public:
         {
             instance = creature->GetInstanceScript();
             go = false;
-            Reset();
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            FrenzyTimer = 5000 + rand32() % 5000;
+            MoveTimer = 2000;
+            RandomMove = false;
         }
 
         bool go;
@@ -651,9 +671,7 @@ public:
         bool RandomMove;
         void Reset() override
         {
-            FrenzyTimer = 5000 + rand32() % 5000;
-            MoveTimer = 2000;
-            RandomMove = false;
+            Initialize();
         }
 
         void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
@@ -740,7 +758,12 @@ public:
         {
             instance = creature->GetInstanceScript();
             go = false;
-            Reset();
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            ShadowBoltTimer = 1000 + rand32() % 5000;
         }
 
         SummonList summons;
@@ -749,13 +772,13 @@ public:
 
         void Reset() override
         {
-            ShadowBoltTimer = 1000 + rand32() % 5000;
+            Initialize();
             summons.DespawnAll();
         }
 
         void JustSummoned(Creature* summon) override
         {
-            Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30, true);
+            Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30, true);
             if (target)
                 summon->Attack(target, false);
             summons.Summon(summon);
@@ -787,23 +810,30 @@ public:
 
         void KilledUnit(Unit* /*victim*/) override
         {
+            Talk(TRASH_SAY_SLAY);
             switch (urand(0, 2))
             {
                 case 0:
-                    DoSpawnCreature(17902, 3, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 60000);
-                    DoSpawnCreature(17902, -3, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 60000);
+                    DoSpawnCreature(17902, 3, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 60s);
+                    DoSpawnCreature(17902, -3, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 60s);
                     break;
                 case 1:
-                    DoSpawnCreature(17903, 3, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 60000);
-                    DoSpawnCreature(17903, -3, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 60000);
+                    DoSpawnCreature(17903, 3, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 60s);
+                    DoSpawnCreature(17903, -3, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 60s);
                     break;
                 case 2:
-                    DoSpawnCreature(RAND(17902, 17903), 3, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 60000);
+                    DoSpawnCreature(RAND(17902, 17903), 3, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 60s);
                     break;
             }
         }
 
         void JustEngagedWith(Unit* /*who*/) override { }
+
+        void JustDied(Unit* killer) override
+        {
+            hyjal_trashAI::JustDied(killer);
+            Talk(TRASH_SAY_DEATH);
+        }
 
         void UpdateAI(uint32 diff) override
         {
@@ -864,7 +894,14 @@ public:
         {
             instance = creature->GetInstanceScript();
             go = false;
-            Reset();
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            CourseTimer = 20000 + rand32() % 5000;
+            WailTimer = 15000 + rand32() % 5000;
+            ShellTimer = 50000 + rand32() % 10000;
         }
 
         bool go;
@@ -874,9 +911,7 @@ public:
 
         void Reset() override
         {
-            CourseTimer = 20000 + rand32() % 5000;
-            WailTimer = 15000 + rand32() % 5000;
-            ShellTimer = 50000 + rand32() % 10000;
+            Initialize();
         }
 
         void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
@@ -896,6 +931,17 @@ public:
                         AddThreat(target, 0.0f);
                 }
             }
+        }
+
+        void KilledUnit(Unit* /*victim*/) override
+        {
+            Talk(TRASH_SAY_SLAY);
+        }
+
+        void JustDied(Unit* killer) override
+        {
+            hyjal_trashAI::JustDied(killer);
+            Talk(TRASH_SAY_DEATH);
         }
 
         void JustEngagedWith(Unit* /*who*/) override { }
@@ -964,7 +1010,12 @@ public:
         {
             instance = creature->GetInstanceScript();
             go = false;
-            Reset();
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            WebTimer = 20000 + rand32() % 5000;
         }
 
         bool go;
@@ -972,7 +1023,7 @@ public:
 
         void Reset() override
         {
-            WebTimer = 20000 + rand32() % 5000;
+            Initialize();
         }
 
         void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
@@ -1050,7 +1101,12 @@ public:
         {
             instance = creature->GetInstanceScript();
             go = false;
-            Reset();
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            ManaBurnTimer = 9000 + rand32() % 5000;
         }
 
         bool go;
@@ -1058,7 +1114,7 @@ public:
 
         void Reset() override
         {
-            ManaBurnTimer = 9000 + rand32() % 5000;
+            Initialize();
         }
 
         void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
@@ -1152,7 +1208,6 @@ public:
         void Reset() override
         {
             Initialize();
-            me->SetDisableGravity(true);
         }
 
         void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
@@ -1196,21 +1251,20 @@ public:
             {
                 if (!go)
                 {
-                    go = true;
+
                     if (!useFlyPath)
                     {
                         for (uint8 i = 0; i < 3; ++i)
                             AddWaypoint(i, FrostWyrmWPs[i][0],    FrostWyrmWPs[i][1],    FrostWyrmWPs[i][2]);
-                        Start(false, true);
-                        SetDespawnAtEnd(false);
                     }
                     else
                     {//fly path FlyPathWPs
                         for (uint8 i = 0; i < 3; ++i)
                             AddWaypoint(i, FlyPathWPs[i][0]+irand(-10, 10),    FlyPathWPs[i][1]+irand(-10, 10),    FlyPathWPs[i][2]);
-                        Start(false, true);
-                        SetDespawnAtEnd(false);
                     }
+                    go = true;
+                    Start(false, true);
+                    SetDespawnAtEnd(false);
                 }
             }
 
@@ -1262,7 +1316,15 @@ public:
             go = false;
             for (uint8 i = 0; i < 3; ++i)
                 DummyTarget[i] = 0;
-            Reset();
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            forcemove = true;
+            Zpos = 10.0f;
+            StrikeTimer = 2000 + rand32() % 5000;
+            MoveTimer = 0;
         }
 
         bool go;
@@ -1273,11 +1335,7 @@ public:
 
         void Reset() override
         {
-            forcemove = true;
-            Zpos = 10.0f;
-            StrikeTimer = 2000 + rand32() % 5000;
-            MoveTimer = 0;
-            me->SetDisableGravity(true);
+            Initialize();
         }
 
         void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
@@ -1317,19 +1375,17 @@ public:
             {
                 if (!go)
                 {
-                    go = true;
                     if (!useFlyPath)
                     {
                         for (uint8 i = 0; i < 3; ++i)
                             AddWaypoint(i, GargoyleWPs[i][0]+irand(-10, 10), GargoyleWPs[i][1]+irand(-10, 10), GargoyleWPs[i][2]);
-                        Start(false, true);
-                        SetDespawnAtEnd(false);
                     }else{//fly path FlyPathWPs
                         for (uint8 i = 0; i < 3; ++i)
                             AddWaypoint(i, FlyPathWPs[i][0]+irand(-10, 10),    FlyPathWPs[i][1]+irand(-10, 10),    FlyPathWPs[i][2]);
-                        Start(false, true);
-                        SetDespawnAtEnd(false);
                     }
+                    go = true;
+                    Start(false, true);
+                    SetDespawnAtEnd(false);
                 }
             }
 
@@ -1353,7 +1409,7 @@ public:
                 if (forcemove)
                 {
                     forcemove = false;
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         me->Attack(target, false);
                 }
                 if (MoveTimer <= diff)

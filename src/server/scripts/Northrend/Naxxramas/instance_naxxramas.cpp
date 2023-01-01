@@ -18,12 +18,13 @@
 #include "ScriptMgr.h"
 #include "AreaBoundary.h"
 #include "CreatureAI.h"
+#include "EventMap.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
-#include "MotionMaster.h"
 #include "naxxramas.h"
 #include "TemporarySummon.h"
+#include <sstream>
 
 BossBoundaryData const boundaries =
 {
@@ -106,6 +107,25 @@ ObjectData const objectData[] =
     { 0,                        0,                         }
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { BOSS_ANUBREKHAN, {{ 1107 }} },
+    { BOSS_FAERLINA, {{  1110 }} },
+    { BOSS_MAEXXNA, {{ 1116 }} },
+    { BOSS_NOTH, {{ 1117 }} },
+    { BOSS_HEIGAN, {{ 1112 }} },
+    { BOSS_LOATHEB, {{ 1115 }} },
+    { BOSS_PATCHWERK, {{ 1118 }} },
+    { BOSS_GROBBULUS, {{ 1111 }} },
+    { BOSS_GLUTH, {{ 1108 }} },
+    { BOSS_THADDIUS, {{ 1120 }} },
+    { BOSS_RAZUVIOUS, {{ 1113 }} },
+    { BOSS_GOTHIK, {{ 1109 }} },
+    { BOSS_HORSEMEN, {{ 1121 }} },
+    { BOSS_SAPPHIRON, {{ 1119 }} },
+    { BOSS_KELTHUZAD, {{ 1114 }} }
+};
+
 class instance_naxxramas : public InstanceMapScript
 {
     public:
@@ -120,14 +140,10 @@ class instance_naxxramas : public InstanceMapScript
                 LoadBossBoundaries(boundaries);
                 LoadDoorData(doorData);
                 LoadObjectData(nullptr, objectData);
+                LoadDungeonEncounterData(encounters);
 
                 hadSapphironBirth       = false;
                 CurrentWingTaunt        = SAY_KELTHUZAD_FIRST_WING_TAUNT;
-
-                playerDied              = 0;
-
-                nextFroggerWave         = 0;
-                events.ScheduleEvent(EVENT_SUMMON_FROGGER_WAVE, 1s);
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -252,12 +268,6 @@ class instance_naxxramas : public InstanceMapScript
 
             void OnUnitDeath(Unit* unit) override
             {
-                if (unit->GetTypeId() == TYPEID_PLAYER && IsEncounterInProgress())
-                {
-                    playerDied = 1;
-                    SaveToDB();
-                }
-
                 if (Creature* creature = unit->ToCreature())
                     if (creature->GetEntry() == NPC_BIGGLESWORTH)
                     {
@@ -472,16 +482,6 @@ class instance_naxxramas : public InstanceMapScript
                                 kelthuzad->AI()->Talk(CurrentWingTaunt);
                             ++CurrentWingTaunt;
                             break;
-                        case EVENT_SUMMON_FROGGER_WAVE:
-                        {
-                            std::list<TempSummon*> spawns;
-                            instance->SummonCreatureGroup(nextFroggerWave, &spawns);
-                            if (!spawns.empty())
-                                spawns.front()->GetMotionMaster()->MovePath(10 * NPC_FROGGER + nextFroggerWave, false);
-                            events.Repeat(Seconds(1) + Milliseconds(666));
-                            nextFroggerWave = (nextFroggerWave+1) % 3;
-                            break;
-                        }
                         case EVENT_DIALOGUE_SAPPHIRON_KELTHUZAD:
                             if (Creature* kelthuzad = instance->GetCreature(KelthuzadGUID))
                                 kelthuzad->AI()->Talk(SAY_DIALOGUE_SAPPHIRON_KELTHUZAD);
@@ -556,8 +556,6 @@ class instance_naxxramas : public InstanceMapScript
                     case 13239: // Loatheb
                     case 13240: // Thaddius
                     case 7617:  // Kel'Thuzad
-                        if (AreAllEncountersDone() && !playerDied)
-                            return true;
                         return false;
                 }
 
@@ -607,11 +605,6 @@ class instance_naxxramas : public InstanceMapScript
             ObjectGuid LichKingGUID;
             bool hadSapphironBirth;
             uint8 CurrentWingTaunt;
-
-            /* The Immortal / The Undying */
-            uint32 playerDied;
-
-            int8 nextFroggerWave;
 
             EventMap events;
         };

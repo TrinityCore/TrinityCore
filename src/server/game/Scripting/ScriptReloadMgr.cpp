@@ -17,7 +17,6 @@
 
 #include "ScriptReloadMgr.h"
 #include "Errors.h"
-#include "Optional.h"
 
 #ifndef TRINITY_API_USE_DYNAMIC_LINKING
 
@@ -44,6 +43,7 @@ ScriptReloadMgr* ScriptReloadMgr::instance()
 #include "Duration.h"
 #include "Log.h"
 #include "MPSCQueue.h"
+#include "Optional.h"
 #include "Regex.h"
 #include "ScriptMgr.h"
 #include "StartProcess.h"
@@ -51,6 +51,7 @@ ScriptReloadMgr* ScriptReloadMgr::instance()
 #include "Util.h"
 #include "World.h"
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/dll/runtime_symbol_info.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/system/system_error.hpp>
 #include <efsw/efsw.hpp>
@@ -108,14 +109,7 @@ typedef void* HandleType;
 
 static fs::path GetDirectoryOfExecutable()
 {
-    ASSERT((!sConfigMgr->GetArguments().empty()),
-           "Expected the arguments to contain at least 1 element!");
-
-    fs::path path(sConfigMgr->GetArguments()[0]);
-    if (path.is_absolute())
-        return path.parent_path();
-    else
-        return fs::canonical(fs::absolute(path)).parent_path();
+    return boost::dll::program_location().parent_path();
 }
 
 class SharedLibraryUnloader
@@ -278,7 +272,7 @@ Optional<std::shared_ptr<ScriptModule>>
                          path.generic_string().c_str());
         }
 
-        return boost::none;
+        return {};
     }
 
     // Use RAII to release the library on failure.
@@ -305,7 +299,7 @@ Optional<std::shared_ptr<ScriptModule>>
         TC_LOG_ERROR("scripts.hotswap", "Could not extract all required functions from the shared library \"%s\"!",
             path.generic_string().c_str());
 
-        return boost::none;
+        return {};
     }
 }
 
@@ -358,7 +352,7 @@ namespace std
     {
         hash<string> hasher;
 
-        std::size_t operator()(fs::path const& key) const
+        std::size_t operator()(fs::path const& key) const noexcept
         {
             return hasher(key.generic_string());
         }
@@ -371,7 +365,6 @@ static int InvokeCMakeCommand(T&&... args)
 {
     auto const executable = BuiltInConfig::GetCMakeCommand();
     return Trinity::StartProcess(executable, {
-        executable,
         std::forward<T>(args)...
     }, "scripts.hotswap");
 }
@@ -382,7 +375,6 @@ static std::shared_ptr<Trinity::AsyncProcessResult> InvokeAsyncCMakeCommand(T&&.
 {
     auto const executable = BuiltInConfig::GetCMakeCommand();
     return Trinity::StartAsyncProcess(executable, {
-        executable,
         std::forward<T>(args)...
     }, "scripts.hotswap");
 }
@@ -614,7 +606,7 @@ public:
         boost::system::error_code code;
         if ((!fs::exists(temporary_cache_path_, code)
              || (fs::remove_all(temporary_cache_path_, code) > 0)) &&
-             !fs::create_directory(temporary_cache_path_, code))
+             !fs::create_directories(temporary_cache_path_, code))
         {
             TC_LOG_ERROR("scripts.hotswap", "Couldn't create the cache directory at \"%s\".",
                 temporary_cache_path_.generic_string().c_str());
@@ -989,7 +981,7 @@ private:
         // the module which prevents it from unloading.
         // The module will be unloaded once all scripts provided from the module
         // are destroyed.
-        if (!ref->second.first.unique())
+        if (ref->second.first.use_count() != 1)
         {
             TC_LOG_INFO("scripts.hotswap",
                 "Script module %s is still used by %lu spell, aura or instance scripts. "
@@ -1361,7 +1353,7 @@ private:
                         return;
 
                     TC_LOG_INFO("scripts.hotswap", ">> Found outdated CMAKE_INSTALL_PREFIX (\"%s\"), "
-                        "worldserver is currently installed at %s...",
+                        "worldserver is currently installed at %s",
                         value.generic_string().c_str(), current_path.generic_string().c_str());
                 }
                 else
@@ -1572,7 +1564,7 @@ void SourceUpdateListener::handleFileAction(efsw::WatchID watchid, std::string c
         return;
     }
 
-    auto const path = fs::absolute(
+    fs::path path = fs::absolute(
         filename,
         dir);
 
@@ -1581,7 +1573,7 @@ void SourceUpdateListener::handleFileAction(efsw::WatchID watchid, std::string c
         return;
 
     /// Thread safe part
-    sScriptReloadMgr->QueueMessage([=](HotSwapScriptReloadMgr* reloader)
+    sScriptReloadMgr->QueueMessage([=, this, path = std::move(path)](HotSwapScriptReloadMgr* reloader)
     {
         TC_LOG_TRACE("scripts.hotswap", "Detected source change on module \"%s\", "
             "queued for recompilation...", script_module_name_.c_str());

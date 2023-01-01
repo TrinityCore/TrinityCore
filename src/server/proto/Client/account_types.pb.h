@@ -4157,9 +4157,7 @@ class TC_PROTO_API IgrAddress : public ::google::protobuf::Message {
 };
 // ===================================================================
 
-
 // ===================================================================
-
 
 // ===================================================================
 
@@ -9240,7 +9238,6 @@ inline void IgrAddress::set_region(::google::protobuf::uint32 value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.IgrAddress.region)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -9251,7 +9248,6 @@ inline void IgrAddress::set_region(::google::protobuf::uint32 value) {
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
 template <> struct is_proto_enum< ::bgs::protocol::account::v1::PrivacyInfo_GameInfoPrivacy> : ::google::protobuf::internal::true_type {};
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::account::v1::PrivacyInfo_GameInfoPrivacy>() {
@@ -9262,7 +9258,6 @@ template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::account::v1::IdentityVerificationStatus>() {
   return ::bgs::protocol::account::v1::IdentityVerificationStatus_descriptor();
 }
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

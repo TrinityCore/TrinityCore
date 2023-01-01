@@ -23,7 +23,7 @@
 #define ZGScriptName "instance_zulgurub"
 #define DataHeader "ZG"
 
-uint32 const EncounterCount = 5;
+uint32 const EncounterCount = 9;
 
 enum ZGDataTypes
 {
@@ -94,5 +94,8 @@ inline AI* GetZulGurubAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, ZGScriptName);
 }
+
+#define RegisterZulGurubCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetZulGurubAI)
+#define RegisterZulGurubGameObjectAI(ai_name) RegisterGameObjectAIWithFactory(ai_name, GetZulGurubAI)
 
 #endif

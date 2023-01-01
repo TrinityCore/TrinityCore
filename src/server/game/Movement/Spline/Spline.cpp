@@ -165,9 +165,9 @@ float SplineBase::SegLengthCatmullRom(index_type index) const
 
     index_type i = 1;
     float length = 0;
-    while (i <= STEPS_PER_SEGMENT)
+    while (i <= stepsPerSegment)
     {
-        C_Evaluate(p, float(i) / float(STEPS_PER_SEGMENT), s_catmullRomCoeffs, nextPos);
+        C_Evaluate(p, float(i) / float(stepsPerSegment), s_catmullRomCoeffs, nextPos);
         length += (nextPos - curPos).length();
         curPos = nextPos;
         ++i;
@@ -188,9 +188,9 @@ float SplineBase::SegLengthBezier3(index_type index) const
 
     index_type i = 1;
     float length = 0;
-    while (i <= STEPS_PER_SEGMENT)
+    while (i <= stepsPerSegment)
     {
-        C_Evaluate(p, float(i) / float(STEPS_PER_SEGMENT), s_Bezier3Coeffs, nextPos);
+        C_Evaluate(p, float(i) / float(stepsPerSegment), s_Bezier3Coeffs, nextPos);
         length += (nextPos - curPos).length();
         curPos = nextPos;
         ++i;
@@ -281,6 +281,12 @@ void SplineBase::InitBezier3(Vector3 const* controls, index_type count, index_ty
     index_hi = t-1;
     //mov_assert(points.size() % 3 == 0);
 }
+
+SplineBase::SplineBase(): index_lo(0), index_hi(0), m_mode(UninitializedMode), cyclic(false), initialOrientation(0.f)
+{
+}
+
+SplineBase::~SplineBase() = default;
 
 void SplineBase::clear()
 {

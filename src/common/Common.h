@@ -121,7 +121,7 @@ enum class CascLocaleBit : uint8
 
 TC_COMMON_API extern char const* localeNames[TOTAL_LOCALES];
 
-TC_COMMON_API LocaleConstant GetLocaleByName(std::string const& name);
+TC_COMMON_API LocaleConstant GetLocaleByName(std::string_view name);
 
 TC_COMMON_API extern CascLocaleBit WowLocaleToCascLocaleBit[TOTAL_LOCALES];
 
@@ -139,7 +139,7 @@ struct LocalizedString
         return Str[locale];
     }
 
-    char const* Str[TOTAL_LOCALES];
+    std::array<char const*, TOTAL_LOCALES> Str;
 };
 
 #pragma pack(pop)

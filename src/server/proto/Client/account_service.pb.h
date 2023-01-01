@@ -2504,7 +2504,6 @@ class TC_PROTO_API AccountListener : public ServiceBase
 
 // ===================================================================
 
-
 // ===================================================================
 
 // ResolveAccountRequest
@@ -4616,7 +4615,6 @@ inline void GameAccountSessionNotification::set_allocated_session_info(::bgs::pr
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.account.v1.GameAccountSessionNotification.session_info)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -4627,8 +4625,6 @@ inline void GameAccountSessionNotification::set_allocated_session_info(::bgs::pr
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

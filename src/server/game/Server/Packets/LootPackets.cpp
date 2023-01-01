@@ -33,6 +33,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Loot::LootItemData const&
 void WorldPackets::Loot::LootUnit::Read()
 {
     _worldPacket >> Unit;
+    IsSoftInteract = _worldPacket.ReadBit();
 }
 
 WorldPacket const* WorldPackets::Loot::LootResponse::Write()
@@ -143,8 +144,8 @@ WorldPacket const* WorldPackets::Loot::LootList::Write()
     _worldPacket << Owner;
     _worldPacket << LootObj;
 
-    _worldPacket.WriteBit(Master.is_initialized());
-    _worldPacket.WriteBit(RoundRobinWinner.is_initialized());
+    _worldPacket.WriteBit(Master.has_value());
+    _worldPacket.WriteBit(RoundRobinWinner.has_value());
 
     _worldPacket.FlushBits();
 
@@ -166,8 +167,9 @@ WorldPacket const* WorldPackets::Loot::StartLootRoll::Write()
 {
     _worldPacket << LootObj;
     _worldPacket << int32(MapID);
-    _worldPacket << uint32(RollTime);
+    _worldPacket << RollTime;
     _worldPacket << uint8(ValidRolls);
+    _worldPacket.append(LootRollIneligibleReason.data(), LootRollIneligibleReason.size());
     _worldPacket << uint8(Method);
     _worldPacket << Item;
 

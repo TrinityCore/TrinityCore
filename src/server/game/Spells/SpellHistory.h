@@ -75,19 +75,26 @@ public:
     using ChargeStorageType = std::unordered_map<uint32 /*categoryId*/, ChargeEntryCollection>;
     using GlobalCooldownStorageType = std::unordered_map<uint32 /*categoryId*/, Clock::time_point>;
 
-    explicit SpellHistory(Unit* owner) : _owner(owner), _schoolLockouts() { }
+    explicit SpellHistory(Unit* owner);
+    ~SpellHistory();
+
+    SpellHistory(SpellHistory const&) = delete;
+    SpellHistory(SpellHistory&&) = delete;
+
+    SpellHistory& operator=(SpellHistory const&) = delete;
+    SpellHistory& operator=(SpellHistory&&) = delete;
 
     template<class OwnerType>
     void LoadFromDB(PreparedQueryResult cooldownsResult, PreparedQueryResult chargesResult);
 
     template<class OwnerType>
-    void SaveToDB(CharacterDatabaseTransaction& trans);
+    void SaveToDB(CharacterDatabaseTransaction trans);
 
     void Update();
 
     void HandleCooldowns(SpellInfo const* spellInfo, Item const* item, Spell* spell = nullptr);
     void HandleCooldowns(SpellInfo const* spellInfo, uint32 itemId, Spell* spell = nullptr);
-    bool IsReady(SpellInfo const* spellInfo, uint32 itemId = 0, bool ignoreCategoryCooldown = false) const;
+    bool IsReady(SpellInfo const* spellInfo, uint32 itemId = 0) const;
     template<class PacketType>
     void WritePacket(PacketType* packet) const;
 
@@ -99,15 +106,26 @@ public:
 
     void AddCooldown(uint32 spellId, uint32 itemId, Duration cooldownDuration)
     {
-        Clock::time_point now = GameTime::GetGameTimePoint<Clock>();
+        Clock::time_point now = GameTime::GetTime<Clock>();
         AddCooldown(spellId, itemId, now + cooldownDuration, 0, now);
     }
 
     void AddCooldown(uint32 spellId, uint32 itemId, Clock::time_point cooldownEnd, uint32 categoryId, Clock::time_point categoryEnd, bool onHold = false);
-    void ModifyCooldown(uint32 spellId, Duration cooldownMod);
-    void ModifyCooldown(SpellInfo const* spellInfo, Duration cooldownMod);
+    void ModifyCooldown(uint32 spellId, Duration cooldownMod, bool withoutCategoryCooldown = false);
+    void ModifyCooldown(SpellInfo const* spellInfo, Duration cooldownMod, bool withoutCategoryCooldown = false);
+    template<typename Predicate>
+    void ModifyCoooldowns(Predicate&& predicate, Duration cooldownMod, bool withoutCategoryCooldown = false)
+    {
+        for (auto itr = _spellCooldowns.begin(); itr != _spellCooldowns.end();)
+        {
+            if (predicate(itr))
+                ModifySpellCooldown(itr, cooldownMod, withoutCategoryCooldown);
+            else
+                ++itr;
+        }
+    }
+
     void ResetCooldown(uint32 spellId, bool update = false);
-    void ResetCooldown(CooldownStorageType::iterator& itr, bool update = false);
     template<typename Predicate>
     void ResetCooldowns(Predicate predicate, bool update = false)
     {
@@ -129,9 +147,11 @@ public:
     }
 
     void ResetAllCooldowns();
-    bool HasCooldown(SpellInfo const* spellInfo, uint32 itemId = 0, bool ignoreCategoryCooldown = false) const;
-    bool HasCooldown(uint32 spellId, uint32 itemId = 0, bool ignoreCategoryCooldown = false) const;
+    bool HasCooldown(SpellInfo const* spellInfo, uint32 itemId = 0) const;
+    bool HasCooldown(uint32 spellId, uint32 itemId = 0) const;
     Duration GetRemainingCooldown(SpellInfo const* spellInfo) const;
+    Duration GetRemainingCategoryCooldown(uint32 categoryId) const;
+    Duration GetRemainingCategoryCooldown(SpellInfo const* spellInfo) const;
 
     // School lockouts
     void LockSpellSchool(SpellSchoolMask schoolMask, Duration lockoutTime);
@@ -157,7 +177,9 @@ public:
 
 private:
     Player* GetPlayerOwner() const;
-    void ModifySpellCooldown(uint32 spellId, Duration cooldownMod);
+    void ModifySpellCooldown(uint32 spellId, Duration cooldownMod, bool withoutCategoryCooldown);
+    void ModifySpellCooldown(CooldownStorageType::iterator& itr, Duration cooldownMod, bool withoutCategoryCooldown);
+    void ResetCooldown(CooldownStorageType::iterator& itr, bool update = false);
     void SendClearCooldowns(std::vector<int32> const& cooldowns) const;
     CooldownStorageType::iterator EraseCooldown(CooldownStorageType::iterator itr)
     {

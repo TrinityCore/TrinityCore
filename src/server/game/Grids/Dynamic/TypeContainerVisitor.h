@@ -24,7 +24,6 @@
  * to overload its types as a visit method is called.
  */
 
-#include "Define.h"
 #include "Dynamic/TypeContainer.h"
 
 // forward declaration

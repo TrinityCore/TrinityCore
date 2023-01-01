@@ -26,6 +26,7 @@
 #include "Player.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "TemporarySummon.h"
 #include "World.h"
 #include "WorldSession.h"
 
@@ -34,6 +35,25 @@ namespace UF
 template<typename Tag>
 class ViewerDependentValue
 {
+};
+
+template<>
+class ViewerDependentValue<UF::ObjectData::EntryIDTag>
+{
+public:
+    using value_type = UF::ObjectData::EntryIDTag::value_type;
+
+    static value_type GetValue(UF::ObjectData const* objectData, Object const* object, Player const* receiver)
+    {
+        value_type entryId = objectData->EntryID;
+
+        if (Unit const* unit = object->ToUnit())
+            if (TempSummon const* summon = unit->ToTempSummon())
+                if (summon->GetSummonerGUID() == receiver->GetGUID() && summon->GetCreatureIdVisibleToSummoner())
+                    entryId = *summon->GetCreatureIdVisibleToSummoner();
+
+        return entryId;
+    }
 };
 
 template<>
@@ -47,15 +67,16 @@ public:
         value_type dynamicFlags = objectData->DynamicFlags;
         if (Unit const* unit = object->ToUnit())
         {
-            dynamicFlags &= ~UNIT_DYNFLAG_TAPPED;
-
             if (Creature const* creature = object->ToCreature())
             {
-                if (creature->hasLootRecipient() && !creature->isTappedBy(receiver))
-                    dynamicFlags |= UNIT_DYNFLAG_TAPPED;
+                if (dynamicFlags & UNIT_DYNFLAG_TAPPED && creature->isTappedBy(receiver))
+                    dynamicFlags &= ~UNIT_DYNFLAG_TAPPED;
 
-                if (!receiver->isAllowedToLoot(creature))
+                if (dynamicFlags & UNIT_DYNFLAG_LOOTABLE && !receiver->isAllowedToLoot(creature))
                     dynamicFlags &= ~UNIT_DYNFLAG_LOOTABLE;
+
+                if (dynamicFlags & UNIT_DYNFLAG_CAN_SKIN && creature->IsSkinnedBy(receiver))
+                    dynamicFlags &= ~UNIT_DYNFLAG_CAN_SKIN;
             }
 
             // unit UNIT_DYNFLAG_TRACK_UNIT should only be sent to caster of SPELL_AURA_MOD_STALKED auras
@@ -74,31 +95,52 @@ public:
                         dynFlags |= GO_DYNFLAG_LO_ACTIVATE;
                     break;
                 case GAMEOBJECT_TYPE_CHEST:
+                    if (gameObject->ActivateToQuest(receiver))
+                        dynFlags |= GO_DYNFLAG_LO_ACTIVATE | GO_DYNFLAG_LO_SPARKLE | GO_DYNFLAG_LO_HIGHLIGHT;
+                    else if (receiver->IsGameMaster())
+                        dynFlags |= GO_DYNFLAG_LO_ACTIVATE;
+                    break;
                 case GAMEOBJECT_TYPE_GOOBER:
                     if (gameObject->ActivateToQuest(receiver))
-                        dynFlags |= GO_DYNFLAG_LO_ACTIVATE | GO_DYNFLAG_LO_SPARKLE;
+                    {
+                        dynFlags |= GO_DYNFLAG_LO_HIGHLIGHT;
+                        if (gameObject->GetGoStateFor(receiver->GetGUID()) != GO_STATE_ACTIVE)
+                            dynFlags |= GO_DYNFLAG_LO_ACTIVATE;
+                    }
                     else if (receiver->IsGameMaster())
                         dynFlags |= GO_DYNFLAG_LO_ACTIVATE;
                     break;
                 case GAMEOBJECT_TYPE_GENERIC:
                     if (gameObject->ActivateToQuest(receiver))
-                        dynFlags |= GO_DYNFLAG_LO_SPARKLE;
+                        dynFlags |= GO_DYNFLAG_LO_SPARKLE | GO_DYNFLAG_LO_HIGHLIGHT;
                     break;
                 case GAMEOBJECT_TYPE_TRANSPORT:
                 case GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT:
                 {
-                    if (uint32 transportPeriod = gameObject->GetTransportPeriod())
-                    {
-                        float timer = float(gameObject->GetGOValue()->Transport.PathProgress % transportPeriod);
-                        pathProgress = uint16(timer / float(transportPeriod) * 65535.0f);
-                    }
+                    dynFlags = dynamicFlags & 0xFFFF;
+                    pathProgress = dynamicFlags >> 16;
                     break;
                 }
+                case GAMEOBJECT_TYPE_CAPTURE_POINT:
+                    if (!gameObject->CanInteractWithCapturePoint(receiver))
+                        dynFlags |= GO_DYNFLAG_LO_NO_INTERACT;
+                    else
+                        dynFlags &= ~GO_DYNFLAG_LO_NO_INTERACT;
+                    break;
+                case GAMEOBJECT_TYPE_GATHERING_NODE:
+                    if (gameObject->ActivateToQuest(receiver))
+                        dynFlags |= GO_DYNFLAG_LO_ACTIVATE | GO_DYNFLAG_LO_SPARKLE | GO_DYNFLAG_LO_HIGHLIGHT;
+                    if (gameObject->GetGoStateFor(receiver->GetGUID()) == GO_STATE_ACTIVE)
+                        dynFlags |= GO_DYNFLAG_LO_DEPLETED;
+                    break;
                 default:
                     break;
             }
 
-            dynamicFlags = (pathProgress << 16) | dynFlags;
+            if (!gameObject->MeetsInteractCondition(receiver))
+                dynFlags |= GO_DYNFLAG_LO_NO_INTERACT;
+
+            dynamicFlags = (uint32(pathProgress) << 16) | uint32(dynFlags);
         }
 
         return dynamicFlags;
@@ -117,6 +159,18 @@ public:
         if (unit->IsCreature())
         {
             CreatureTemplate const* cinfo = unit->ToCreature()->GetCreatureTemplate();
+
+            if (TempSummon const* summon = unit->ToTempSummon())
+            {
+                if (summon->GetSummonerGUID() == receiver->GetGUID())
+                {
+                    if (summon->GetCreatureIdVisibleToSummoner())
+                        cinfo = sObjectMgr->GetCreatureTemplate(*summon->GetCreatureIdVisibleToSummoner());
+
+                    if (summon->GetDisplayIdVisibleToSummoner())
+                        displayId = *summon->GetDisplayIdVisibleToSummoner();
+                }
+            }
 
             // this also applies for transform auras
             if (SpellInfo const* transform = sSpellMgr->GetSpellInfo(unit->GetTransformSpell(), unit->GetMap()->GetDifficultyID()))
@@ -174,9 +228,25 @@ public:
     static value_type GetValue(UF::UnitData const* unitData, Unit const* /*unit*/, Player const* receiver)
     {
         value_type flags = unitData->Flags;
-        // Gamemasters should be always able to select units - remove not selectable flag
+        // Gamemasters should be always able to interact with units - remove uninteractible flag
         if (receiver->IsGameMaster())
-            flags &= ~UNIT_FLAG_NOT_SELECTABLE;
+            flags &= ~UNIT_FLAG_UNINTERACTIBLE;
+
+        return flags;
+    }
+};
+
+template<>
+class ViewerDependentValue<UF::UnitData::Flags3Tag>
+{
+public:
+    using value_type = UF::UnitData::Flags3Tag::value_type;
+
+    static value_type GetValue(UF::UnitData const* unitData, Unit const* unit, Player const* receiver)
+    {
+        value_type flags = unitData->Flags3;
+        if (flags & UNIT_FLAG3_ALREADY_SKINNED && unit->IsCreature() && !unit->ToCreature()->IsSkinnedBy(receiver))
+            flags &= ~UNIT_FLAG3_ALREADY_SKINNED;
 
         return flags;
     }
@@ -251,34 +321,14 @@ public:
 };
 
 template<>
-class ViewerDependentValue<UF::GameObjectData::LevelTag>
-{
-public:
-    using value_type = UF::GameObjectData::LevelTag::value_type;
-
-    static value_type GetValue(UF::GameObjectData const* gameObjectData, GameObject const* gameObject, Player const* /*receiver*/)
-    {
-        value_type level = gameObjectData->Level;
-        bool isStoppableTransport = gameObject->GetGoType() == GAMEOBJECT_TYPE_TRANSPORT && !gameObject->GetGOValue()->Transport.StopFrames->empty();
-        return isStoppableTransport ? gameObject->GetGOValue()->Transport.PathProgress : level;
-    }
-};
-
-template<>
 class ViewerDependentValue<UF::GameObjectData::StateTag>
 {
 public:
     using value_type = UF::GameObjectData::StateTag::value_type;
 
-    static value_type GetValue(UF::GameObjectData const* gameObjectData, GameObject const* gameObject, Player const* /*receiver*/)
+    static value_type GetValue(UF::GameObjectData const* /*gameObjectData*/, GameObject const* gameObject, Player const* receiver)
     {
-        value_type state = gameObjectData->State;
-        bool isStoppableTransport = gameObject->GetGoType() == GAMEOBJECT_TYPE_TRANSPORT && !gameObject->GetGOValue()->Transport.StopFrames->empty();
-        if (isStoppableTransport && gameObject->GetGoState() == GO_STATE_TRANSPORT_ACTIVE)
-            if ((gameObject->GetGOValue()->Transport.StateUpdateTimer / 20000) & 1)
-                state = GO_STATE_TRANSPORT_STOPPED;
-
-        return state;
+        return gameObject->GetGoStateFor(receiver->GetGUID());
     }
 };
 

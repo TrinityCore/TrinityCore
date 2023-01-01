@@ -23,6 +23,7 @@
 #include "MovementGenerator.h"
 #include "Optional.h"
 #include "Position.h"
+#include "Timer.h"
 
 class PathGenerator;
 class Unit;
@@ -45,14 +46,14 @@ class FollowMovementGenerator : public MovementGenerator, public AbstractFollowe
         void UnitSpeedChanged() override { _lastTargetPosition.reset(); }
 
     private:
-        static constexpr uint32 CHECK_INTERVAL = 500;
+        static constexpr uint32 CHECK_INTERVAL = 100;
 
         void UpdatePetSpeed(Unit* owner);
 
         float const _range;
         ChaseAngle const _angle;
 
-        uint32 _checkTimer = CHECK_INTERVAL;
+        TimeTracker _checkTimer;
         std::unique_ptr<PathGenerator> _path;
         Optional<Position> _lastTargetPosition;
 };

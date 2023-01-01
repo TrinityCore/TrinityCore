@@ -106,7 +106,7 @@ void WorldPackets::Party::PartyInviteResponse::Read()
     bool hasRolesDesired = _worldPacket.ReadBit();
     if (hasRolesDesired)
     {
-        RolesDesired = boost::in_place();
+        RolesDesired.emplace();
         _worldPacket >> *RolesDesired;
     }
 }
@@ -221,12 +221,12 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::PartyMemberStats c
     for (WorldPackets::Party::PartyMemberAuraStates const& aura : memberStats.Auras)
         data << aura;
 
-    data.WriteBit(memberStats.PetStats.is_initialized());
+    data.WriteBit(memberStats.PetStats.has_value());
     data.FlushBits();
 
     data << memberStats.DungeonScore;
 
-    if (memberStats.PetStats.is_initialized())
+    if (memberStats.PetStats.has_value())
         data << *memberStats.PetStats;
 
     return data;
@@ -255,7 +255,6 @@ void WorldPackets::Party::SetPartyAssignment::Read()
     _worldPacket >> Target;
     Set = _worldPacket.ReadBit();
 }
-
 
 void WorldPackets::Party::SetRole::Read()
 {
@@ -424,14 +423,15 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::PartyPlayerInfo co
 {
     data.WriteBits(playerInfo.Name.size(), 6);
     data.WriteBits(playerInfo.VoiceStateID.size() + 1, 6);
-    data.WriteBit(playerInfo.FromSocialQueue);
+    data.WriteBit(playerInfo.Connected);
     data.WriteBit(playerInfo.VoiceChatSilenced);
+    data.WriteBit(playerInfo.FromSocialQueue);
     data << playerInfo.GUID;
-    data << uint8(playerInfo.Status);
     data << uint8(playerInfo.Subgroup);
     data << uint8(playerInfo.Flags);
     data << uint8(playerInfo.RolesAssigned);
     data << uint8(playerInfo.Class);
+    data << uint8(playerInfo.FactionGroup);
     data.WriteString(playerInfo.Name);
     if (!playerInfo.VoiceStateID.empty())
         data << playerInfo.VoiceStateID;
@@ -483,22 +483,23 @@ WorldPacket const* WorldPackets::Party::PartyUpdate::Write()
     _worldPacket << PartyGUID;
     _worldPacket << uint32(SequenceNum);
     _worldPacket << LeaderGUID;
+    _worldPacket << uint8(LeaderFactionGroup);
     _worldPacket << uint32(PlayerList.size());
-    _worldPacket.WriteBit(LfgInfos.is_initialized());
-    _worldPacket.WriteBit(LootSettings.is_initialized());
-    _worldPacket.WriteBit(DifficultySettings.is_initialized());
+    _worldPacket.WriteBit(LfgInfos.has_value());
+    _worldPacket.WriteBit(LootSettings.has_value());
+    _worldPacket.WriteBit(DifficultySettings.has_value());
     _worldPacket.FlushBits();
 
     for (WorldPackets::Party::PartyPlayerInfo const& playerInfos : PlayerList)
         _worldPacket << playerInfos;
 
-    if (LootSettings.is_initialized())
+    if (LootSettings.has_value())
         _worldPacket << *LootSettings;
 
-    if (DifficultySettings.is_initialized())
+    if (DifficultySettings.has_value())
         _worldPacket << *DifficultySettings;
 
-    if (LfgInfos.is_initialized())
+    if (LfgInfos.has_value())
         _worldPacket << *LfgInfos;
 
     return &_worldPacket;
@@ -580,7 +581,7 @@ void WorldPackets::Party::PartyMemberFullState::Initialize(Player const* player)
         MemberStats.Status |= MEMBER_STATUS_VEHICLE;
 
     // Level
-    MemberStats.Level = player->getLevel();
+    MemberStats.Level = player->GetLevel();
 
     // Health
     MemberStats.CurrentHealth = player->GetHealth();
@@ -605,8 +606,9 @@ void WorldPackets::Party::PartyMemberFullState::Initialize(Player const* player)
     MemberStats.WmoDoodadPlacementID = 0;
 
     // Vehicle
-    if (player->GetVehicle() && player->GetVehicle()->GetVehicleInfo())
-        MemberStats.VehicleSeat = player->GetVehicle()->GetVehicleInfo()->SeatID[player->m_movementInfo.transport.seat];
+    if (::Vehicle const* vehicle = player->GetVehicle())
+        if (VehicleSeatEntry const* vehicleSeat = vehicle->GetSeatForPassenger(player))
+            MemberStats.VehicleSeat = vehicleSeat->ID;
 
     // Auras
     for (AuraApplication const* aurApp : player->GetVisibleAuras())
@@ -640,7 +642,7 @@ void WorldPackets::Party::PartyMemberFullState::Initialize(Player const* player)
     {
         ::Pet* pet = player->GetPet();
 
-        MemberStats.PetStats = boost::in_place();
+        MemberStats.PetStats.emplace();
 
         MemberStats.PetStats->GUID = pet->GetGUID();
         MemberStats.PetStats->Name = pet->GetName();
@@ -678,6 +680,22 @@ WorldPacket const* WorldPackets::Party::PartyKillLog::Write()
 {
     _worldPacket << Player;
     _worldPacket << Victim;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Party::BroadcastSummonCast::Write()
+{
+    _worldPacket << Target;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Party::BroadcastSummonResponse::Write()
+{
+    _worldPacket << Target;
+    _worldPacket.WriteBit(Accepted);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }

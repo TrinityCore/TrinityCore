@@ -256,7 +256,7 @@ public:
             if (Unit* pet = GetUnitOwner())
                 if (_tempBonus)
                 {
-                    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->getLevel());
+                    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->GetLevel());
                     uint32 healthMod = 0;
                     uint32 baseHealth = pInfo->health;
                     switch (pet->GetEntry())
@@ -288,7 +288,7 @@ public:
             if (Unit* pet = GetUnitOwner())
                 if (pet->IsPet())
                 {
-                    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->getLevel());
+                    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->GetLevel());
                     pet->ToPet()->SetCreateHealth(pInfo->health);
                 }
         }
@@ -400,7 +400,7 @@ public:
             if (Unit* pet = GetUnitOwner())
                 if (_tempBonus)
                 {
-                    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->getLevel());
+                    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->GetLevel());
                     uint32 manaMod = 0;
                     uint32 baseMana = pInfo->mana;
                     switch (pet->GetEntry())
@@ -428,7 +428,7 @@ public:
             if (Unit* pet = GetUnitOwner())
                 if (pet->IsPet())
                 {
-                    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->getLevel());
+                    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->GetLevel());
                     pet->ToPet()->SetCreateMana(pInfo->mana);
                 }
         }

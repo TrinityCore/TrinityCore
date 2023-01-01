@@ -71,7 +71,7 @@ public:
                 case GO_GONG:
                     goGongGUID = gameObject->GetGUID();
                     if (GetBossState(DATA_TUTEN_KASH) == DONE)
-                        gameObject->AddFlag(GO_FLAG_NOT_SELECTABLE);
+                        gameObject->SetFlag(GO_FLAG_NOT_SELECTABLE);
                     break;
                 case GO_IDOL_OVEN_FIRE:
                 case GO_IDOL_CUP_FIRE:
@@ -114,7 +114,7 @@ public:
                     case IN_PROGRESS:
                     {
                         if (GameObject* go = instance->GetGameObject(goGongGUID))
-                            go->AddFlag(GO_FLAG_NOT_SELECTABLE);
+                            go->SetFlag(GO_FLAG_NOT_SELECTABLE);
 
                         switch (gongWave)
                         {

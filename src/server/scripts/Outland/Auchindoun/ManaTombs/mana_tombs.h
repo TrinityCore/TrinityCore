@@ -34,10 +34,17 @@ enum MTDataTypes
     DATA_YOR                    = 3
 };
 
+enum MTCreatureIds
+{
+    NPC_TAVAROK = 18343
+};
+
 template <class AI, class T>
 inline AI* GetManaTombsAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, MTScriptName);
 }
+
+#define RegisterManaTombsCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetManaTombsAI)
 
 #endif // MANA_TOMBS_H_

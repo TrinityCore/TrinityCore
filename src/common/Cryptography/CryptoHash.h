@@ -23,28 +23,19 @@
 #include "Errors.h"
 #include <array>
 #include <string>
-//#include <string_view>
+#include <string_view>
 #include <openssl/evp.h>
-#include <cstring>
-#include "advstd.h" // data/size
 
 class BigNumber;
 
-namespace Trinity
-{
-namespace Impl
+namespace Trinity::Impl
 {
     struct GenericHashImpl
     {
         typedef EVP_MD const* (*HashCreator)();
 
-#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x10100000L
-        static EVP_MD_CTX* MakeCTX() { return EVP_MD_CTX_create(); }
-        static void DestroyCTX(EVP_MD_CTX* ctx) { EVP_MD_CTX_destroy(ctx); }
-#else
-        static EVP_MD_CTX* MakeCTX() { return EVP_MD_CTX_new(); }
+        static EVP_MD_CTX* MakeCTX() noexcept { return EVP_MD_CTX_new(); }
         static void DestroyCTX(EVP_MD_CTX* ctx) { EVP_MD_CTX_free(ctx); }
-#endif
     };
 
     template <GenericHashImpl::HashCreator HashCreator, size_t DigestLength>
@@ -62,26 +53,11 @@ namespace Impl
                 return hash.GetDigest();
             }
 
-        private: // c++17
-            template <typename T>
-            static void UpdateData_OLDCPP(GenericHash& hash, T const& data)
-            {
-                hash.UpdateData(data);
-            }
-
-            template <typename T, typename... TRest>
-            static void UpdateData_OLDCPP(GenericHash& hash, T const& data, TRest&&... rest)
-            {
-                hash.UpdateData(data);
-                UpdateData_OLDCPP(hash, std::forward<TRest>(rest)...);
-            }
-
-        public:
             template <typename... Ts>
-            static auto GetDigestOf(Ts&&... pack) -> std::enable_if_t<advstd::conjunction<advstd::negation<std::is_integral<Ts>>...>::value, Digest>
+            static auto GetDigestOf(Ts&&... pack) -> std::enable_if_t<std::conjunction_v<std::negation<std::is_integral<Ts>>...>, Digest>
             {
                 GenericHash hash;
-                UpdateData_OLDCPP(hash, std::forward<Ts>(pack)...);
+                (hash.UpdateData(std::forward<Ts>(pack)), ...);
                 hash.Finalize();
                 return hash.GetDigest();
             }
@@ -92,6 +68,16 @@ namespace Impl
                 ASSERT(result == 1);
             }
 
+            GenericHash(GenericHash const& right) : _ctx(GenericHashImpl::MakeCTX())
+            {
+                *this = right;
+            }
+
+            GenericHash(GenericHash&& right) noexcept
+            {
+                *this = std::move(right);
+            }
+
             ~GenericHash()
             {
                 if (!_ctx)
@@ -100,16 +86,37 @@ namespace Impl
                 _ctx = nullptr;
             }
 
+            GenericHash& operator=(GenericHash const& right)
+            {
+                if (this == &right)
+                    return *this;
+
+                int result = EVP_MD_CTX_copy_ex(_ctx, right._ctx);
+                ASSERT(result == 1);
+                _digest = right._digest;
+                return *this;
+            }
+
+            GenericHash& operator=(GenericHash&& right) noexcept
+            {
+                if (this == &right)
+                    return *this;
+
+                _ctx = std::exchange(right._ctx, GenericHashImpl::MakeCTX());
+                _digest = std::exchange(right._digest, Digest{});
+                return *this;
+            }
+
             void UpdateData(uint8 const* data, size_t len)
             {
                 int result = EVP_DigestUpdate(_ctx, data, len);
                 ASSERT(result == 1);
             }
-            // c++17 void UpdateData(std::string_view str) { UpdateData(reinterpret_cast<uint8 const*>(str.data()), str.size()); }
-            void UpdateData(std::string const& str) { UpdateData(str.c_str()); } /* explicit overload to avoid using the container template */
-            void UpdateData(char const* str) { UpdateData(reinterpret_cast<uint8 const*>(str), strlen(str)); } /* explicit overload to avoid using the container template */
+            void UpdateData(std::string_view str) { UpdateData(reinterpret_cast<uint8 const*>(str.data()), str.size()); }
+            void UpdateData(std::string const& str) { UpdateData(std::string_view(str)); } /* explicit overload to avoid using the container template */
+            void UpdateData(char const* str) { UpdateData(std::string_view(str)); } /* explicit overload to avoid using the container template */
             template <typename Container>
-            void UpdateData(Container const& c) { UpdateData(advstd::data(c), advstd::size(c)); }
+            void UpdateData(Container const& c) { UpdateData(std::data(c), std::size(c)); }
 
             void Finalize()
             {
@@ -117,8 +124,6 @@ namespace Impl
                 int result = EVP_DigestFinal_ex(_ctx, _digest.data(), &length);
                 ASSERT(result == 1);
                 ASSERT(length == DIGEST_LENGTH);
-                GenericHashImpl::DestroyCTX(_ctx);
-                _ctx = nullptr;
             }
 
             Digest const& GetDigest() const { return _digest; }
@@ -128,15 +133,12 @@ namespace Impl
             Digest _digest = { };
     };
 }
-}
 
-namespace Trinity
+namespace Trinity::Crypto
 {
-namespace Crypto
-{
+    using MD5 = Trinity::Impl::GenericHash<EVP_md5, Constants::MD5_DIGEST_LENGTH_BYTES>;
     using SHA1 = Trinity::Impl::GenericHash<EVP_sha1, Constants::SHA1_DIGEST_LENGTH_BYTES>;
     using SHA256 = Trinity::Impl::GenericHash<EVP_sha256, Constants::SHA256_DIGEST_LENGTH_BYTES>;
-}
 }
 
 #endif

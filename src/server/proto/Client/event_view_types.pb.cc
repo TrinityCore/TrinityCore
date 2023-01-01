@@ -33,7 +33,6 @@ const ::google::protobuf::EnumDescriptor* EventOrder_descriptor_ = NULL;
 
 }  // namespace
 
-
 void protobuf_AssignDesc_event_5fview_5ftypes_2eproto() {
   protobuf_AddDesc_event_5fview_5ftypes_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -145,7 +144,6 @@ bool EventOrder_IsValid(int value) {
       return false;
   }
 }
-
 
 // ===================================================================
 
@@ -478,7 +476,6 @@ void GetEventOptions::CopyFrom(const GetEventOptions& from) {
 }
 
 bool GetEventOptions::IsInitialized() const {
-
   return true;
 }
 
@@ -501,7 +498,6 @@ void GetEventOptions::Swap(GetEventOptions* other) {
   metadata.reflection = GetEventOptions_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -754,7 +750,6 @@ void ViewMarker::CopyFrom(const ViewMarker& from) {
 }
 
 bool ViewMarker::IsInitialized() const {
-
   return true;
 }
 
@@ -775,7 +770,6 @@ void ViewMarker::Swap(ViewMarker* other) {
   metadata.reflection = ViewMarker_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

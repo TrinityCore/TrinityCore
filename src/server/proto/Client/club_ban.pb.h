@@ -300,9 +300,7 @@ class TC_PROTO_API ClubBan : public ::google::protobuf::Message {
 };
 // ===================================================================
 
-
 // ===================================================================
-
 
 // ===================================================================
 
@@ -747,7 +745,6 @@ inline void ClubBan::set_creation_time(::google::protobuf::uint64 value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.ClubBan.creation_time)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -758,8 +755,6 @@ inline void ClubBan::set_creation_time(::google::protobuf::uint64 value) {
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

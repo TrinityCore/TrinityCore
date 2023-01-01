@@ -20,7 +20,6 @@
 
 #include "Define.h"
 #include "IoContext.h"
-#include "IpAddress.h"
 #include "Login.pb.h"
 #include "Session.h"
 #include <boost/asio/ip/tcp.hpp>
@@ -77,11 +76,11 @@ private:
         static int32 Init(soap* s, soap_plugin*, void*);
         static int32 Copy(soap* s, soap_plugin* dst, soap_plugin* src);
         static void Destroy(soap* s, soap_plugin* p);
-        static int32 ChangeResponse(soap* s, int32 originalResponse, size_t contentLength);
+        static int32 ChangeResponse(soap* s, int32 originalResponse, uint64 contentLength);
 
         static ResponseCodePlugin* GetForClient(soap* s);
 
-        int32(*fresponse)(soap* s, int32 status, size_t length);
+        int32(*fresponse)(soap* s, int32 status, uint64 length);
         int32 ErrorCode;
     };
 

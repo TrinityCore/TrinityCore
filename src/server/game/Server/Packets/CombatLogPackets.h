@@ -329,6 +329,23 @@ namespace WorldPackets
             int32 OriginalDamage = 0;
             bool Unk = false;
         };
+
+        class SpellHealAbsorbLog final : public ServerPacket
+        {
+        public:
+            SpellHealAbsorbLog() : ServerPacket(SMSG_SPELL_HEAL_ABSORB_LOG, 100) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Healer;
+            ObjectGuid Target;
+            ObjectGuid AbsorbCaster;
+            int32 AbsorbSpellID = 0;
+            int32 AbsorbedSpellID = 0;
+            int32 Absorbed = 0;
+            int32 OriginalHeal = 0;
+            Optional<Spells::ContentTuningParams> ContentTuning;
+        };
     }
 }
 

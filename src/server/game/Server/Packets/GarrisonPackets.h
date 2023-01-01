@@ -102,19 +102,15 @@ namespace WorldPackets
             std::string CustomName;
         };
 
-        struct GarrisonMission
+        struct GarrisonEncounter
         {
-            uint64 DbID = 0;
-            uint32 MissionRecID = 0;
-            Timestamp<> OfferTime;
-            Duration<Seconds> OfferDuration;
-            Timestamp<> StartTime = time_t(2288912640);
-            Duration<Seconds> TravelDuration;
-            Duration<Seconds> MissionDuration;
-            uint32 MissionState = 0;
-            uint32 SuccessChance = 0;
-            uint32 Flags = 0;
-            float MissionScalar = 1.0f;
+            int32 GarrEncounterID = 0;
+            std::vector<int32> Mechanics;
+            int32 GarrAutoCombatantID = 0;
+            int32 Health = 0;
+            int32 MaxHealth = 0;
+            int32 Attack = 0;
+            int8 BoardIndex = 0;
         };
 
         struct GarrisonMissionReward
@@ -127,6 +123,25 @@ namespace WorldPackets
             uint32 GarrMssnBonusAbilityID = 0;
             int32 ItemFileDataID = 0;
             Optional<Item::ItemInstance> ItemInstance;
+        };
+
+        struct GarrisonMission
+        {
+            uint64 DbID = 0;
+            int32 MissionRecID = 0;
+            Timestamp<> OfferTime;
+            Duration<Seconds> OfferDuration;
+            Timestamp<> StartTime = time_t(2288912640);
+            Duration<Seconds> TravelDuration;
+            Duration<Seconds> MissionDuration;
+            int32 MissionState = 0;
+            int32 SuccessChance = 0;
+            uint32 Flags = 0;
+            float MissionScalar = 1.0f;
+            int32 ContentTuningID = 0;
+            std::vector<GarrisonEncounter> Encounters;
+            std::vector<GarrisonMissionReward> Rewards;
+            std::vector<GarrisonMissionReward> OvermaxRewards;
         };
 
         struct GarrisonMissionBonusAbility

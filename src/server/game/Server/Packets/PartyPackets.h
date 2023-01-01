@@ -505,13 +505,14 @@ namespace WorldPackets
             ObjectGuid GUID;
             std::string Name;
             std::string VoiceStateID;   // same as bgs.protocol.club.v1.MemberVoiceState.id
-            uint8 Class = 0;
-            uint8 Status = 0u;
+            uint8 Class = 0u;
             uint8 Subgroup = 0u;
             uint8 Flags = 0u;
             uint8 RolesAssigned = 0u;
+            uint8 FactionGroup = 0u;
             bool FromSocialQueue = false;
             bool VoiceChatSilenced = false;
+            bool Connected = false;
         };
 
         struct PartyLFGInfo
@@ -555,6 +556,7 @@ namespace WorldPackets
 
             ObjectGuid PartyGUID;
             ObjectGuid LeaderGUID;
+            uint8 LeaderFactionGroup = 0;
 
             int32 MyIndex = 0;
             int32 SequenceNum = 0;
@@ -641,6 +643,27 @@ namespace WorldPackets
             GroupDestroyed() : ServerPacket(SMSG_GROUP_DESTROYED, 0) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
+        class BroadcastSummonCast final : public ServerPacket
+        {
+        public:
+            BroadcastSummonCast() : ServerPacket(SMSG_BROADCAST_SUMMON_CAST, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Target;
+        };
+
+        class BroadcastSummonResponse final : public ServerPacket
+        {
+        public:
+            BroadcastSummonResponse() : ServerPacket(SMSG_BROADCAST_SUMMON_RESPONSE, 16 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Target;
+            bool Accepted = false;
         };
     }
 }

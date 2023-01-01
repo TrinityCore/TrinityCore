@@ -18,6 +18,13 @@
 #include "PhaseShift.h"
 #include "Containers.h"
 
+PhaseShift::PhaseShift() = default;
+PhaseShift::PhaseShift(PhaseShift const& right) = default;
+PhaseShift::PhaseShift(PhaseShift&& right)  noexcept = default;
+PhaseShift& PhaseShift::operator=(PhaseShift const& right) = default;
+PhaseShift& PhaseShift::operator=(PhaseShift&& right) noexcept = default;
+PhaseShift::~PhaseShift() = default;
+
 bool PhaseShift::AddPhase(uint32 phaseId, PhaseFlags flags, std::vector<Condition*> const* areaConditions, int32 references /*= 1*/)
 {
     auto insertResult = Phases.emplace(phaseId, flags, nullptr);
@@ -185,4 +192,12 @@ void PhaseShift::UpdatePersonalGuid()
 {
     if (!PersonalReferences)
         PersonalGuid.Clear();
+}
+
+bool PhaseShift::HasPersonalPhase() const
+{
+    for (PhaseRef const& phaseRef : GetPhases())
+        if (phaseRef.IsPersonal())
+            return true;
+    return false;
 }

@@ -19,7 +19,6 @@
 #include "G3D/g3dmath.h"
 #include "G3D/Vector3.h"
 #include "G3D/Vector2.h"
-#include "G3D/Table.h"
 #include "G3D/HashTrait.h"
 #include "G3D/PositionTrait.h"
 #include <string>

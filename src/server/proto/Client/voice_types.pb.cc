@@ -32,7 +32,6 @@ const ::google::protobuf::EnumDescriptor* VoiceProviderVersion_descriptor_ = NUL
 
 }  // namespace
 
-
 void protobuf_AssignDesc_voice_5ftypes_2eproto() {
   protobuf_AddDesc_voice_5ftypes_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -160,7 +159,6 @@ bool VoiceProviderVersion_IsValid(int value) {
       return false;
   }
 }
-
 
 // ===================================================================
 
@@ -602,7 +600,6 @@ void VoiceCredentials::CopyFrom(const VoiceCredentials& from) {
 }
 
 bool VoiceCredentials::IsInitialized() const {
-
   return true;
 }
 
@@ -626,7 +623,6 @@ void VoiceCredentials::Swap(VoiceCredentials* other) {
   metadata.reflection = VoiceCredentials_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

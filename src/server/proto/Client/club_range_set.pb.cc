@@ -49,7 +49,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 
 }  // namespace
 
-
 void protobuf_AssignDesc_club_5frange_5fset_2eproto() {
   protobuf_AddDesc_club_5frange_5fset_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -295,7 +294,6 @@ struct StaticDescriptorInitializer_club_5frange_5fset_2eproto {
     protobuf_AddDesc_club_5frange_5fset_2eproto();
   }
 } static_descriptor_initializer_club_5frange_5fset_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -896,7 +894,6 @@ void ClubTypeRangeSet::CopyFrom(const ClubTypeRangeSet& from) {
 }
 
 bool ClubTypeRangeSet::IsInitialized() const {
-
   return true;
 }
 
@@ -925,7 +922,6 @@ void ClubTypeRangeSet::Swap(ClubTypeRangeSet* other) {
   metadata.reflection = ClubTypeRangeSet_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1263,7 +1259,6 @@ void ClubMemberRangeSet::CopyFrom(const ClubMemberRangeSet& from) {
 }
 
 bool ClubMemberRangeSet::IsInitialized() const {
-
   return true;
 }
 
@@ -1286,7 +1281,6 @@ void ClubMemberRangeSet::Swap(ClubMemberRangeSet* other) {
   metadata.reflection = ClubMemberRangeSet_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1624,7 +1618,6 @@ void ClubStreamRangeSet::CopyFrom(const ClubStreamRangeSet& from) {
 }
 
 bool ClubStreamRangeSet::IsInitialized() const {
-
   return true;
 }
 
@@ -1647,7 +1640,6 @@ void ClubStreamRangeSet::Swap(ClubStreamRangeSet* other) {
   metadata.reflection = ClubStreamRangeSet_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1854,7 +1846,6 @@ void ClubInvitationRangeSet::CopyFrom(const ClubInvitationRangeSet& from) {
 }
 
 bool ClubInvitationRangeSet::IsInitialized() const {
-
   return true;
 }
 
@@ -1874,7 +1865,6 @@ void ClubInvitationRangeSet::Swap(ClubInvitationRangeSet* other) {
   metadata.reflection = ClubInvitationRangeSet_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2081,7 +2071,6 @@ void ClubSuggestionRangeSet::CopyFrom(const ClubSuggestionRangeSet& from) {
 }
 
 bool ClubSuggestionRangeSet::IsInitialized() const {
-
   return true;
 }
 
@@ -2101,7 +2090,6 @@ void ClubSuggestionRangeSet::Swap(ClubSuggestionRangeSet* other) {
   metadata.reflection = ClubSuggestionRangeSet_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2308,7 +2296,6 @@ void ClubTicketRangeSet::CopyFrom(const ClubTicketRangeSet& from) {
 }
 
 bool ClubTicketRangeSet::IsInitialized() const {
-
   return true;
 }
 
@@ -2328,7 +2315,6 @@ void ClubTicketRangeSet::Swap(ClubTicketRangeSet* other) {
   metadata.reflection = ClubTicketRangeSet_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2580,7 +2566,6 @@ void ClubBanRangeSet::CopyFrom(const ClubBanRangeSet& from) {
 }
 
 bool ClubBanRangeSet::IsInitialized() const {
-
   return true;
 }
 
@@ -2601,7 +2586,6 @@ void ClubBanRangeSet::Swap(ClubBanRangeSet* other) {
   metadata.reflection = ClubBanRangeSet_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

@@ -52,7 +52,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 
 }  // namespace
 
-
 void protobuf_AssignDesc_friends_5ftypes_2eproto() {
   protobuf_AddDesc_friends_5ftypes_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -358,7 +357,6 @@ struct StaticDescriptorInitializer_friends_5ftypes_2eproto {
     protobuf_AddDesc_friends_5ftypes_2eproto();
   }
 } static_descriptor_initializer_friends_5ftypes_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -794,7 +792,6 @@ void Friend::CopyFrom(const Friend& from) {
 
 bool Friend::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
   if (has_account_id()) {
     if (!this->account_id().IsInitialized()) return false;
   }
@@ -823,7 +820,6 @@ void Friend::Swap(Friend* other) {
   metadata.reflection = Friend_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1250,7 +1246,6 @@ void FriendOfFriend::CopyFrom(const FriendOfFriend& from) {
 }
 
 bool FriendOfFriend::IsInitialized() const {
-
   if (has_account_id()) {
     if (!this->account_id().IsInitialized()) return false;
   }
@@ -1277,7 +1272,6 @@ void FriendOfFriend::Swap(FriendOfFriend* other) {
   metadata.reflection = FriendOfFriend_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1787,7 +1781,6 @@ void ReceivedInvitation::CopyFrom(const ReceivedInvitation& from) {
 
 bool ReceivedInvitation::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
-
   if (has_inviter_identity()) {
     if (!this->inviter_identity().IsInitialized()) return false;
   }
@@ -1821,7 +1814,6 @@ void ReceivedInvitation::Swap(ReceivedInvitation* other) {
   metadata.reflection = ReceivedInvitation_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2088,7 +2080,6 @@ void FriendInvitation::CopyFrom(const FriendInvitation& from) {
 }
 
 bool FriendInvitation::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->attribute())) return false;
   return true;
 }
@@ -2110,7 +2101,6 @@ void FriendInvitation::Swap(FriendInvitation* other) {
   metadata.reflection = FriendInvitation_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2533,7 +2523,6 @@ void SentInvitation::CopyFrom(const SentInvitation& from) {
 }
 
 bool SentInvitation::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->attribute())) return false;
   return true;
 }
@@ -2559,7 +2548,6 @@ void SentInvitation::Swap(SentInvitation* other) {
   metadata.reflection = SentInvitation_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3043,7 +3031,6 @@ void FriendInvitationParams::CopyFrom(const FriendInvitationParams& from) {
 }
 
 bool FriendInvitationParams::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->attribute())) return false;
   return true;
 }
@@ -3069,7 +3056,6 @@ void FriendInvitationParams::Swap(FriendInvitationParams* other) {
   metadata.reflection = FriendInvitationParams_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3514,7 +3500,6 @@ void SubscribeResponse::CopyFrom(const SubscribeResponse& from) {
 }
 
 bool SubscribeResponse::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->role())) return false;
   if (!::google::protobuf::internal::AllAreInitialized(this->friends())) return false;
   if (!::google::protobuf::internal::AllAreInitialized(this->received_invitations())) return false;
@@ -3544,7 +3529,6 @@ void SubscribeResponse::Swap(SubscribeResponse* other) {
   metadata.reflection = SubscribeResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3795,7 +3779,6 @@ void AcceptInvitationOptions::CopyFrom(const AcceptInvitationOptions& from) {
 }
 
 bool AcceptInvitationOptions::IsInitialized() const {
-
   return true;
 }
 
@@ -3816,7 +3799,6 @@ void AcceptInvitationOptions::Swap(AcceptInvitationOptions* other) {
   metadata.reflection = AcceptInvitationOptions_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

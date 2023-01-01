@@ -28,6 +28,7 @@ GameTable<GtArtifactKnowledgeMultiplierEntry>   sArtifactKnowledgeMultiplierGame
 GameTable<GtArtifactLevelXPEntry>               sArtifactLevelXPGameTable;
 GameTable<GtBarberShopCostBaseEntry>            sBarberShopCostBaseGameTable;
 GameTable<GtBaseMPEntry>                        sBaseMPGameTable;
+GameTable<GtBattlePetXPEntry>                   sBattlePetXPGameTable;
 GameTable<GtCombatRatingsEntry>                 sCombatRatingsGameTable;
 GameTable<GtCombatRatingsMultByILvl>            sCombatRatingsMultByILvlGameTable;
 GameTable<GtHpPerStaEntry>                      sHpPerStaGameTable;
@@ -54,7 +55,7 @@ inline uint32 LoadGameTable(std::vector<std::string>& errors, GameTable<T>& stor
         return 0;
     }
 
-    Tokenizer columnDefs(headers, '\t', 0, false);
+    std::vector<std::string_view> columnDefs = Trinity::Tokenize(headers, '\t', false);
 
     ASSERT(columnDefs.size() - 1 == sizeof(T) / sizeof(float),
         "GameTable '%s' has different count of columns " SZFMTD " than expected by size of C++ structure (" SZFMTD ").",
@@ -66,13 +67,13 @@ inline uint32 LoadGameTable(std::vector<std::string>& errors, GameTable<T>& stor
     std::string line;
     while (std::getline(stream, line))
     {
-        Tokenizer values(line, '\t', uint32(columnDefs.size()));
-        if (!values.size())
+        std::vector<std::string_view> values = Trinity::Tokenize(line, '\t', true);
+        if (values.empty())
             break;
 
         // make end point just after last nonempty token
         auto end = values.begin() + values.size() - 1;
-        while (!strlen(*end) && end != values.begin())
+        while (end->empty() && end != values.begin())
             --end;
 
         if (values.begin() == end)
@@ -90,7 +91,7 @@ inline uint32 LoadGameTable(std::vector<std::string>& errors, GameTable<T>& stor
         data.emplace_back();
         float* row = reinterpret_cast<float*>(&data.back());
         for (auto itr = values.begin() + 1; itr != end; ++itr)
-            *row++ = strtof(*itr, nullptr);
+            *row++ = strtof(itr->data(), nullptr);
     }
 
     storage.SetData(std::move(data));
@@ -113,6 +114,7 @@ void LoadGameTables(std::string const& dataPath)
     LOAD_GT(sArtifactLevelXPGameTable, "ArtifactLevelXP.txt");
     LOAD_GT(sBarberShopCostBaseGameTable, "BarberShopCostBase.txt");
     LOAD_GT(sBaseMPGameTable, "BaseMp.txt");
+    LOAD_GT(sBattlePetXPGameTable, "BattlePetXP.txt");
     LOAD_GT(sCombatRatingsGameTable, "CombatRatings.txt");
     LOAD_GT(sCombatRatingsMultByILvlGameTable, "CombatRatingsMultByILvl.txt");
     LOAD_GT(sItemSocketCostPerLevelGameTable, "ItemSocketCostPerLevel.txt");

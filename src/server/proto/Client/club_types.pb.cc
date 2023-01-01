@@ -23,12 +23,6 @@ namespace protocol {
 namespace club {
 namespace v1 {
 
-namespace {
-
-
-}  // namespace
-
-
 void protobuf_AssignDesc_club_5ftypes_2eproto() {
   protobuf_AddDesc_club_5ftypes_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -100,7 +94,6 @@ struct StaticDescriptorInitializer_club_5ftypes_2eproto {
     protobuf_AddDesc_club_5ftypes_2eproto();
   }
 } static_descriptor_initializer_club_5ftypes_2eproto_;
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1

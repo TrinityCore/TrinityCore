@@ -47,104 +47,93 @@ enum Events
     EVENT_RANDOM_YELL
 };
 
-class boss_drekthar : public CreatureScript
+struct boss_drekthar : public ScriptedAI
 {
-public:
-    boss_drekthar() : CreatureScript("boss_drekthar") { }
+    boss_drekthar(Creature* creature) : ScriptedAI(creature) { }
 
-    struct boss_drektharAI : public ScriptedAI
+    void Reset() override
     {
-        boss_drektharAI(Creature* creature) : ScriptedAI(creature) { }
+        events.Reset();
+    }
 
-        void Reset() override
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        Talk(SAY_AGGRO);
+        events.ScheduleEvent(EVENT_WHIRLWIND, 1s, 20s);
+        events.ScheduleEvent(EVENT_WHIRLWIND2, 1s, 20s);
+        events.ScheduleEvent(EVENT_KNOCKDOWN, 12s);
+        events.ScheduleEvent(EVENT_FRENZY, 6s);
+        events.ScheduleEvent(EVENT_RANDOM_YELL, 20s, 30s);
+    }
+
+    void JustAppeared() override
+    {
+        Reset();
+        Talk(SAY_RESPAWN);
+    }
+
+    bool CheckInRoom() override
+    {
+        if (me->GetDistance2d(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY()) > 50)
         {
-            events.Reset();
+            EnterEvadeMode();
+            Talk(SAY_EVADE);
+            return false;
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-            Talk(SAY_AGGRO);
-            events.ScheduleEvent(EVENT_WHIRLWIND, 1s, 20s);
-            events.ScheduleEvent(EVENT_WHIRLWIND2, urand(1 * IN_MILLISECONDS, 20 * IN_MILLISECONDS));
-            events.ScheduleEvent(EVENT_KNOCKDOWN, 12s);
-            events.ScheduleEvent(EVENT_FRENZY, 6s);
-            events.ScheduleEvent(EVENT_RANDOM_YELL, 20s, 30s); //20 to 30 seconds
-        }
+        return true;
+    }
 
-        void JustAppeared() override
-        {
-            Reset();
-            Talk(SAY_RESPAWN);
-        }
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim() || !CheckInRoom())
+            return;
 
-        bool CheckInRoom() override
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            if (me->GetDistance2d(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY()) > 50)
+            switch (eventId)
             {
-                EnterEvadeMode();
-                Talk(SAY_EVADE);
-                return false;
+                case EVENT_WHIRLWIND:
+                    DoCastVictim(SPELL_WHIRLWIND);
+                    events.ScheduleEvent(EVENT_WHIRLWIND, 8s, 18s);
+                    break;
+                case EVENT_WHIRLWIND2:
+                    DoCastVictim(SPELL_WHIRLWIND2);
+                    events.ScheduleEvent(EVENT_WHIRLWIND2, 7s, 25s);
+                    break;
+                case EVENT_KNOCKDOWN:
+                    DoCastVictim(SPELL_KNOCKDOWN);
+                    events.ScheduleEvent(EVENT_KNOCKDOWN, 10s, 15s);
+                    break;
+                case EVENT_FRENZY:
+                    DoCastVictim(SPELL_FRENZY);
+                    events.ScheduleEvent(EVENT_FRENZY, 20s, 30s);
+                    break;
+                case EVENT_RANDOM_YELL:
+                    Talk(SAY_RANDOM);
+                    events.ScheduleEvent(EVENT_RANDOM_YELL, 20s, 30s);
+                    break;
+                default:
+                    break;
             }
-
-            return true;
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim() || !CheckInRoom())
-                return;
-
-            events.Update(diff);
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_WHIRLWIND:
-                        DoCastVictim(SPELL_WHIRLWIND);
-                        events.ScheduleEvent(EVENT_WHIRLWIND, 8s, 18s);
-                        break;
-                    case EVENT_WHIRLWIND2:
-                        DoCastVictim(SPELL_WHIRLWIND2);
-                        events.ScheduleEvent(EVENT_WHIRLWIND2, urand(7 * IN_MILLISECONDS, 25 * IN_MILLISECONDS));
-                        break;
-                    case EVENT_KNOCKDOWN:
-                        DoCastVictim(SPELL_KNOCKDOWN);
-                        events.ScheduleEvent(EVENT_KNOCKDOWN, 10s, 15s);
-                        break;
-                    case EVENT_FRENZY:
-                        DoCastVictim(SPELL_FRENZY);
-                        events.ScheduleEvent(EVENT_FRENZY, 20s, 30s);
-                        break;
-                    case EVENT_RANDOM_YELL:
-                        Talk(SAY_RANDOM);
-                        events.ScheduleEvent(EVENT_RANDOM_YELL, 20s, 30s);
-                        break;
-                    default:
-                        break;
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-            }
-
-            DoMeleeAttackIfReady();
         }
 
-        private:
-            EventMap events;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new boss_drektharAI(creature);
+        DoMeleeAttackIfReady();
     }
+
+    private:
+        EventMap events;
 };
 
 void AddSC_boss_drekthar()
 {
-    new boss_drekthar;
+    RegisterCreatureAI(boss_drekthar);
 }

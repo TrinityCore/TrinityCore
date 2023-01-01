@@ -62,7 +62,6 @@ const ::google::protobuf::ServiceDescriptor* ClubMembershipService_descriptor_ =
 
 }  // namespace
 
-
 void protobuf_AssignDesc_club_5fmembership_5fservice_2eproto() {
   protobuf_AddDesc_club_5fmembership_5fservice_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -384,7 +383,6 @@ struct StaticDescriptorInitializer_club_5fmembership_5fservice_2eproto {
     protobuf_AddDesc_club_5fmembership_5fservice_2eproto();
   }
 } static_descriptor_initializer_club_5fmembership_5fservice_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -635,7 +633,6 @@ void SubscribeRequest::CopyFrom(const SubscribeRequest& from) {
 }
 
 bool SubscribeRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -662,7 +659,6 @@ void SubscribeRequest::Swap(SubscribeRequest* other) {
   metadata.reflection = SubscribeRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -869,7 +865,6 @@ void SubscribeResponse::CopyFrom(const SubscribeResponse& from) {
 }
 
 bool SubscribeResponse::IsInitialized() const {
-
   if (has_state()) {
     if (!this->state().IsInitialized()) return false;
   }
@@ -892,7 +887,6 @@ void SubscribeResponse::Swap(SubscribeResponse* other) {
   metadata.reflection = SubscribeResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1099,7 +1093,6 @@ void UnsubscribeRequest::CopyFrom(const UnsubscribeRequest& from) {
 }
 
 bool UnsubscribeRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -1122,7 +1115,6 @@ void UnsubscribeRequest::Swap(UnsubscribeRequest* other) {
   metadata.reflection = UnsubscribeRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1374,7 +1366,6 @@ void GetStateRequest::CopyFrom(const GetStateRequest& from) {
 }
 
 bool GetStateRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -1401,7 +1392,6 @@ void GetStateRequest::Swap(GetStateRequest* other) {
   metadata.reflection = GetStateRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1608,7 +1598,6 @@ void GetStateResponse::CopyFrom(const GetStateResponse& from) {
 }
 
 bool GetStateResponse::IsInitialized() const {
-
   if (has_state()) {
     if (!this->state().IsInitialized()) return false;
   }
@@ -1631,7 +1620,6 @@ void GetStateResponse::Swap(GetStateResponse* other) {
   metadata.reflection = GetStateResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1883,7 +1871,6 @@ void UpdateClubSharedSettingsRequest::CopyFrom(const UpdateClubSharedSettingsReq
 }
 
 bool UpdateClubSharedSettingsRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -1907,7 +1894,6 @@ void UpdateClubSharedSettingsRequest::Swap(UpdateClubSharedSettingsRequest* othe
   metadata.reflection = UpdateClubSharedSettingsRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2195,7 +2181,6 @@ void GetStreamMentionsRequest::CopyFrom(const GetStreamMentionsRequest& from) {
 }
 
 bool GetStreamMentionsRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -2220,7 +2205,6 @@ void GetStreamMentionsRequest::Swap(GetStreamMentionsRequest* other) {
   metadata.reflection = GetStreamMentionsRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2461,7 +2445,6 @@ void GetStreamMentionsResponse::CopyFrom(const GetStreamMentionsResponse& from) 
 }
 
 bool GetStreamMentionsResponse::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->mention())) return false;
   return true;
 }
@@ -2483,7 +2466,6 @@ void GetStreamMentionsResponse::Swap(GetStreamMentionsResponse* other) {
   metadata.reflection = GetStreamMentionsResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2728,7 +2710,6 @@ void RemoveStreamMentionsRequest::CopyFrom(const RemoveStreamMentionsRequest& fr
 }
 
 bool RemoveStreamMentionsRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -2752,7 +2733,6 @@ void RemoveStreamMentionsRequest::Swap(RemoveStreamMentionsRequest* other) {
   metadata.reflection = RemoveStreamMentionsRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2959,7 +2939,6 @@ void AdvanceStreamMentionViewTimeRequest::CopyFrom(const AdvanceStreamMentionVie
 }
 
 bool AdvanceStreamMentionViewTimeRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -2982,7 +2961,6 @@ void AdvanceStreamMentionViewTimeRequest::Swap(AdvanceStreamMentionViewTimeReque
   metadata.reflection = AdvanceStreamMentionViewTimeRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3229,7 +3207,6 @@ uint32 ClubMembershipService::HandleAdvanceStreamMentionViewTime(::bgs::protocol
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

@@ -16,7 +16,6 @@
  */
 
 #include "ItemPackets.h"
-#include "Player.h"
 
 void WorldPackets::Item::BuyBackItem::Read()
 {
@@ -106,7 +105,7 @@ WorldPacket const* WorldPackets::Item::ItemPurchaseRefundResult::Write()
 {
     _worldPacket << ItemGUID;
     _worldPacket << uint8(Result);
-    _worldPacket.WriteBit(Contents.is_initialized());
+    _worldPacket.WriteBit(Contents.has_value());
     _worldPacket.FlushBits();
     if (Contents)
         _worldPacket << *Contents;
@@ -259,13 +258,26 @@ WorldPacket const* WorldPackets::Item::ItemPushResult::Write()
     _worldPacket << uint32(BattlePetBreedQuality);
     _worldPacket << int32(BattlePetLevel);
     _worldPacket << ItemGUID;
+    _worldPacket << uint32(Toasts.size());
+    for (UiEventToast const& uiEventToast : Toasts)
+        _worldPacket << uiEventToast;
+
     _worldPacket.WriteBit(Pushed);
     _worldPacket.WriteBit(Created);
     _worldPacket.WriteBits(DisplayText, 3);
     _worldPacket.WriteBit(IsBonusRoll);
     _worldPacket.WriteBit(IsEncounterLoot);
+    _worldPacket.WriteBit(CraftingData.has_value());
+    _worldPacket.WriteBit(FirstCraftOperationID.has_value());
     _worldPacket.FlushBits();
+
     _worldPacket << Item;
+
+    if (FirstCraftOperationID)
+        _worldPacket << uint32(*FirstCraftOperationID);
+
+    if (CraftingData)
+        _worldPacket << *CraftingData;
 
     return &_worldPacket;
 }

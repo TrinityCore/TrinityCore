@@ -30,6 +30,11 @@ BossBoundaryData const boundaries =
     { DATA_MALYGOS_EVENT, new CircleBoundary(Position(754.362f, 1301.609985f), 280.0) } // sanity check boundary
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_MALYGOS_EVENT, {{ 1094 }} }
+};
+
 class instance_eye_of_eternity : public InstanceMapScript
 {
 public:
@@ -47,12 +52,19 @@ public:
             SetHeaders(DataHeader);
             SetBossNumber(MAX_ENCOUNTER);
             LoadBossBoundaries(boundaries);
+            LoadDungeonEncounterData(encounters);
         }
 
         void OnPlayerEnter(Player* player) override
         {
             if (GetBossState(DATA_MALYGOS_EVENT) == DONE)
                 player->CastSpell(player, SPELL_SUMMOM_RED_DRAGON_BUDDY, true);
+        }
+
+        void OnPlayerLeave(Player* player) override
+        {
+            if (!player->IsAlive())
+                player->SetControlled(false, UNIT_STATE_ROOT);
         }
 
         bool SetBossState(uint32 type, EncounterState state) override
@@ -153,7 +165,7 @@ public:
             unit->SetControlled(true, UNIT_STATE_ROOT);
         }
 
-        void ProcessEvent(WorldObject* /*obj*/, uint32 eventId) override
+        void ProcessEvent(WorldObject* /*obj*/, uint32 eventId, WorldObject* /*invoker*/) override
         {
             if (eventId == EVENT_FOCUSING_IRIS)
             {
@@ -161,7 +173,7 @@ public:
                     alexstraszaBunny->CastSpell(alexstraszaBunny, SPELL_IRIS_OPENED);
 
                 if (GameObject* iris = instance->GetGameObject(irisGUID))
-                    iris->AddFlag(GO_FLAG_IN_USE);
+                    iris->SetFlag(GO_FLAG_IN_USE);
 
                 if (Creature* malygos = instance->GetCreature(malygosGUID))
                     malygos->AI()->DoAction(0); // ACTION_LAND_ENCOUNTER_START

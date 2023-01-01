@@ -286,7 +286,7 @@ bool AuctionBotSeller::Initialize()
                             continue;
                 }
 
-                if (prototype->GetFlags() & ITEM_FIELD_FLAG_UNLOCKED)
+                if (prototype->HasFlag(ITEM_FLAG_HAS_LOOT))
                 {
                     // skip any not locked lootable items (mostly quest specific or reward cases)
                     if (!prototype->GetLockID())
@@ -355,9 +355,9 @@ bool AuctionBotSeller::Initialize()
 
     if (sLog->ShouldLog("ahbot", LOG_LEVEL_DEBUG))
     {
-        sLog->outMessage("ahbot", LOG_LEVEL_DEBUG, "Items loaded \tGray\tWhite\tGreen\tBlue\tPurple\tOrange\tYellow");
+        sLog->OutMessage("ahbot", LOG_LEVEL_DEBUG, "Items loaded \tGray\tWhite\tGreen\tBlue\tPurple\tOrange\tYellow");
         for (uint32 i = 0; i < MAX_ITEM_CLASS; ++i)
-            sLog->outMessage("ahbot", LOG_LEVEL_DEBUG, "\t\t%u\t%u\t%u\t%u\t%u\t%u\t%u",
+            sLog->OutMessage("ahbot", LOG_LEVEL_DEBUG, "\t\t%u\t%u\t%u\t%u\t%u\t%u\t%u",
             (uint32)_itemPool[0][i].size(), (uint32)_itemPool[1][i].size(), (uint32)_itemPool[2][i].size(),
                 (uint32)_itemPool[3][i].size(), (uint32)_itemPool[4][i].size(), (uint32)_itemPool[5][i].size(),
                 (uint32)_itemPool[6][i].size());
@@ -771,15 +771,15 @@ void AuctionBotSeller::SetItemsRatioForHouse(AuctionHouseType house, uint32 val)
     LoadItemsQuantity(_houseConfig[house]);
 }
 
-void AuctionBotSeller::SetItemsAmount(uint32(&vals)[MAX_AUCTION_QUALITY])
+void AuctionBotSeller::SetItemsAmount(std::array<uint32, MAX_AUCTION_QUALITY> const& amounts)
 {
-    sAuctionBotConfig->SetConfig(CONFIG_AHBOT_ITEM_GRAY_AMOUNT, vals[AUCTION_QUALITY_GRAY]);
-    sAuctionBotConfig->SetConfig(CONFIG_AHBOT_ITEM_WHITE_AMOUNT, vals[AUCTION_QUALITY_WHITE]);
-    sAuctionBotConfig->SetConfig(CONFIG_AHBOT_ITEM_GREEN_AMOUNT, vals[AUCTION_QUALITY_GREEN]);
-    sAuctionBotConfig->SetConfig(CONFIG_AHBOT_ITEM_BLUE_AMOUNT, vals[AUCTION_QUALITY_BLUE]);
-    sAuctionBotConfig->SetConfig(CONFIG_AHBOT_ITEM_PURPLE_AMOUNT, vals[AUCTION_QUALITY_PURPLE]);
-    sAuctionBotConfig->SetConfig(CONFIG_AHBOT_ITEM_ORANGE_AMOUNT, vals[AUCTION_QUALITY_ORANGE]);
-    sAuctionBotConfig->SetConfig(CONFIG_AHBOT_ITEM_YELLOW_AMOUNT, vals[AUCTION_QUALITY_YELLOW]);
+    sAuctionBotConfig->SetConfig(CONFIG_AHBOT_ITEM_GRAY_AMOUNT, amounts[AUCTION_QUALITY_GRAY]);
+    sAuctionBotConfig->SetConfig(CONFIG_AHBOT_ITEM_WHITE_AMOUNT, amounts[AUCTION_QUALITY_WHITE]);
+    sAuctionBotConfig->SetConfig(CONFIG_AHBOT_ITEM_GREEN_AMOUNT, amounts[AUCTION_QUALITY_GREEN]);
+    sAuctionBotConfig->SetConfig(CONFIG_AHBOT_ITEM_BLUE_AMOUNT, amounts[AUCTION_QUALITY_BLUE]);
+    sAuctionBotConfig->SetConfig(CONFIG_AHBOT_ITEM_PURPLE_AMOUNT, amounts[AUCTION_QUALITY_PURPLE]);
+    sAuctionBotConfig->SetConfig(CONFIG_AHBOT_ITEM_ORANGE_AMOUNT, amounts[AUCTION_QUALITY_ORANGE]);
+    sAuctionBotConfig->SetConfig(CONFIG_AHBOT_ITEM_YELLOW_AMOUNT, amounts[AUCTION_QUALITY_YELLOW]);
 
     for (int i = 0; i < MAX_AUCTION_HOUSE_TYPE; ++i)
         LoadItemsQuantity(_houseConfig[i]);
@@ -899,7 +899,7 @@ void AuctionBotSeller::AddNewAuctions(SellerConfiguration& config)
             auction.MinBid = bidPrice;
 
         auction.BuyoutOrUnitPrice = buyoutPrice;
-        auction.StartTime = GameTime::GetGameTimeSystemPoint();
+        auction.StartTime = GameTime::GetSystemTime();
         auction.EndTime = auction.StartTime + Hours(urand(config.GetMinTime(), config.GetMaxTime()));
 
         auctionHouse->AddAuction(trans, std::move(auction));

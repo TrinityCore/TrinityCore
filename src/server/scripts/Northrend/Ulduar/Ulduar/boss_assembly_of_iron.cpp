@@ -139,7 +139,7 @@ class boss_steelbreaker : public CreatureScript
 
         struct boss_steelbreakerAI : public BossAI
         {
-            boss_steelbreakerAI(Creature* creature) : BossAI(creature, BOSS_ASSEMBLY_OF_IRON)
+            boss_steelbreakerAI(Creature* creature) : BossAI(creature, DATA_ASSEMBLY_OF_IRON)
             {
                 Initialize();
             }
@@ -158,9 +158,9 @@ class boss_steelbreaker : public CreatureScript
                 me->RemoveAllAuras();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_STEELBREAKER_AGGRO);
                 DoCast(me, SPELL_HIGH_VOLTAGE);
                 events.SetPhase(++phase);
@@ -184,9 +184,9 @@ class boss_steelbreaker : public CreatureScript
                         me->SetFullHealth();
                         me->AddAura(SPELL_SUPERCHARGE, me);
                         events.SetPhase(++phase);
-                        events.RescheduleEvent(EVENT_FUSION_PUNCH, 15000);
+                        events.RescheduleEvent(EVENT_FUSION_PUNCH, 15s);
                         if (phase >= 2)
-                            events.RescheduleEvent(EVENT_STATIC_DISRUPTION, 30000);
+                            events.RescheduleEvent(EVENT_STATIC_DISRUPTION, 30s);
                         if (phase >= 3)
                             events.RescheduleEvent(EVENT_OVERWHELMING_POWER, 2s, 5s);
                         break;
@@ -200,14 +200,14 @@ class boss_steelbreaker : public CreatureScript
             {
                 _JustDied();
 
-                if (instance->GetBossState(BOSS_ASSEMBLY_OF_IRON) == DONE)
+                if (instance->GetBossState(DATA_ASSEMBLY_OF_IRON) == DONE)
                 {
                     DoCastAOE(SPELL_KILL_CREDIT, true);
                     Talk(SAY_STEELBREAKER_ENCOUNTER_DEFEATED);
                 }
                 else
                 {
-                    me->SetLootRecipient(nullptr);
+                    me->SetTappedBy(nullptr);
                     Talk(SAY_STEELBREAKER_DEATH);
                     //DoCastAOE(SPELL_SUPERCHARGE, true);
 
@@ -255,14 +255,14 @@ class boss_steelbreaker : public CreatureScript
                             events.ScheduleEvent(EVENT_FUSION_PUNCH, 13s, 22s);
                             break;
                         case EVENT_STATIC_DISRUPTION:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 DoCast(target, SPELL_STATIC_DISRUPTION);
                             events.ScheduleEvent(EVENT_STATIC_DISRUPTION, 20s, 40s);
                             break;
                         case EVENT_OVERWHELMING_POWER:
                             Talk(SAY_STEELBREAKER_POWER);
                             DoCastVictim(SPELL_OVERWHELMING_POWER);
-                            events.ScheduleEvent(EVENT_OVERWHELMING_POWER, RAID_MODE(60000, 35000));
+                            events.ScheduleEvent(EVENT_OVERWHELMING_POWER, RAID_MODE(60s, 35s));
                             break;
                     }
 
@@ -287,7 +287,7 @@ class boss_runemaster_molgeim : public CreatureScript
 
         struct boss_runemaster_molgeimAI : public BossAI
         {
-            boss_runemaster_molgeimAI(Creature* creature) : BossAI(creature, BOSS_ASSEMBLY_OF_IRON)
+            boss_runemaster_molgeimAI(Creature* creature) : BossAI(creature, DATA_ASSEMBLY_OF_IRON)
             {
                 Initialize();
             }
@@ -306,9 +306,9 @@ class boss_runemaster_molgeim : public CreatureScript
                 me->RemoveAllAuras();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_MOLGEIM_AGGRO);
                 events.SetPhase(++phase);
                 events.ScheduleEvent(EVENT_BERSERK, 15min);
@@ -333,12 +333,12 @@ class boss_runemaster_molgeim : public CreatureScript
                         me->SetFullHealth();
                         me->AddAura(SPELL_SUPERCHARGE, me);
                         events.SetPhase(++phase);
-                        events.RescheduleEvent(EVENT_SHIELD_OF_RUNES, 27000);
-                        events.RescheduleEvent(EVENT_RUNE_OF_POWER, 25000);
+                        events.RescheduleEvent(EVENT_SHIELD_OF_RUNES, 27s);
+                        events.RescheduleEvent(EVENT_RUNE_OF_POWER, 25s);
                         if (phase >= 2)
-                            events.RescheduleEvent(EVENT_RUNE_OF_DEATH, 30000);
+                            events.RescheduleEvent(EVENT_RUNE_OF_DEATH, 30s);
                         if (phase >= 3)
-                            events.RescheduleEvent(EVENT_RUNE_OF_SUMMONING, urand(20000, 30000));
+                            events.RescheduleEvent(EVENT_RUNE_OF_SUMMONING, 20s, 30s);
                         break;
                     }
                 }
@@ -348,14 +348,14 @@ class boss_runemaster_molgeim : public CreatureScript
             {
                 _JustDied();
 
-                if (instance->GetBossState(BOSS_ASSEMBLY_OF_IRON) == DONE)
+                if (instance->GetBossState(DATA_ASSEMBLY_OF_IRON) == DONE)
                 {
                     DoCastAOE(SPELL_KILL_CREDIT, true);
                     Talk(SAY_MOLGEIM_ENCOUNTER_DEFEATED);
                 }
                 else
                 {
-                    me->SetLootRecipient(nullptr);
+                    me->SetTappedBy(nullptr);
                     Talk(SAY_MOLGEIM_DEATH);
                     //DoCastAOE(SPELL_SUPERCHARGE, true);
 
@@ -422,13 +422,13 @@ class boss_runemaster_molgeim : public CreatureScript
                             break;
                         case EVENT_RUNE_OF_DEATH:
                             Talk(SAY_MOLGEIM_RUNE_DEATH);
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 DoCast(target, SPELL_RUNE_OF_DEATH);
                             events.ScheduleEvent(EVENT_RUNE_OF_DEATH, 30s, 40s);
                             break;
                         case EVENT_RUNE_OF_SUMMONING:
                             Talk(SAY_MOLGEIM_SUMMON);
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 DoCast(target, SPELL_RUNE_OF_SUMMONING);
                             events.ScheduleEvent(EVENT_RUNE_OF_SUMMONING, 30s, 45s);
                             break;
@@ -455,7 +455,7 @@ class boss_stormcaller_brundir : public CreatureScript
 
         struct boss_stormcaller_brundirAI : public BossAI
         {
-            boss_stormcaller_brundirAI(Creature* creature) : BossAI(creature, BOSS_ASSEMBLY_OF_IRON)
+            boss_stormcaller_brundirAI(Creature* creature) : BossAI(creature, DATA_ASSEMBLY_OF_IRON)
             {
                 Initialize();
             }
@@ -485,15 +485,18 @@ class boss_stormcaller_brundir : public CreatureScript
                 return 0;
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_BRUNDIR_AGGRO);
                 events.SetPhase(++phase);
                 events.ScheduleEvent(EVENT_MOVE_POSITION, 1s);
                 events.ScheduleEvent(EVENT_BERSERK, 15min);
                 events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 4s);
-                events.ScheduleEvent(EVENT_OVERLOAD, urand(60000, 120000));
+                events.ScheduleEvent(EVENT_OVERLOAD, 60s, 120s);
+
+                if (Creature* trigger = me->FindNearestCreature(NPC_WORLD_TRIGGER, 100.0f))
+                    m_TriggerGUID = trigger->GetGUID();
             }
 
             void DoAction(int32 action) override
@@ -506,13 +509,13 @@ class boss_stormcaller_brundir : public CreatureScript
                         me->AddAura(SPELL_SUPERCHARGE, me);
                         events.SetPhase(++phase);
                         events.RescheduleEvent(EVENT_CHAIN_LIGHTNING, 7s, 12s);
-                        events.RescheduleEvent(EVENT_OVERLOAD, urand(40000, 50000));
+                        events.RescheduleEvent(EVENT_OVERLOAD, 40s, 50s);
                         if (phase >= 2)
-                            events.RescheduleEvent(EVENT_LIGHTNING_WHIRL, urand(15000, 250000));
+                            events.RescheduleEvent(EVENT_LIGHTNING_WHIRL, 15s, 250s);
                         if (phase >= 3)
                         {
                             DoCast(me, SPELL_STORMSHIELD);
-                            events.RescheduleEvent(EVENT_LIGHTNING_TENDRILS, urand(50000, 60000));
+                            events.RescheduleEvent(EVENT_LIGHTNING_TENDRILS, 50s, 60s);
                             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true); // Apply immumity to stuns
                         }
                         break;
@@ -524,14 +527,14 @@ class boss_stormcaller_brundir : public CreatureScript
             {
                 _JustDied();
 
-                if (instance->GetBossState(BOSS_ASSEMBLY_OF_IRON) == DONE)
+                if (instance->GetBossState(DATA_ASSEMBLY_OF_IRON) == DONE)
                 {
                     DoCastAOE(SPELL_KILL_CREDIT, true);
                     Talk(SAY_BRUNDIR_ENCOUNTER_DEFEATED);
                 }
                 else
                 {
-                    me->SetLootRecipient(nullptr);
+                    me->SetTappedBy(nullptr);
                     Talk(SAY_BRUNDIR_DEATH);
                     //DoCastAOE(SPELL_SUPERCHARGE, true);
 
@@ -571,7 +574,7 @@ class boss_stormcaller_brundir : public CreatureScript
                             events.CancelEvent(EVENT_BERSERK);
                             break;
                         case EVENT_CHAIN_LIGHTNING:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 DoCast(target, SPELL_CHAIN_LIGHTNING);
                             events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 7s, 10s);
                             break;
@@ -579,7 +582,7 @@ class boss_stormcaller_brundir : public CreatureScript
                             Talk(EMOTE_BRUNDIR_OVERLOAD);
                             Talk(SAY_BRUNDIR_SPECIAL);
                             DoCast(SPELL_OVERLOAD);
-                            events.ScheduleEvent(EVENT_OVERLOAD, urand(60000, 120000));
+                            events.ScheduleEvent(EVENT_OVERLOAD, 60s, 120s);
                             break;
                         case EVENT_LIGHTNING_WHIRL:
                             DoCast(SPELL_LIGHTNING_WHIRL);
@@ -591,13 +594,13 @@ class boss_stormcaller_brundir : public CreatureScript
                             DoCast(me, SPELL_LIGHTNING_TENDRILS_VISUAL);
                             me->AttackStop();
                             me->SetHover(true);
-                            events.DelayEvents(35000);
+                            events.DelayEvents(35s);
                             events.ScheduleEvent(EVENT_FLIGHT, 2500ms);
-                            events.ScheduleEvent(EVENT_ENDFLIGHT, 32500);
+                            events.ScheduleEvent(EVENT_ENDFLIGHT, 32500ms);
                             events.ScheduleEvent(EVENT_LIGHTNING_TENDRILS, 90s);
                             break;
                         case EVENT_FLIGHT:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 me->GetMotionMaster()->MovePoint(0, *target);
                             events.ScheduleEvent(EVENT_FLIGHT, 6s);
                             break;
@@ -625,13 +628,22 @@ class boss_stormcaller_brundir : public CreatureScript
                             {
                                 float x = float(irand(-25, 25));
                                 float y = float(irand(-25, 25));
-                                me->GetMotionMaster()->MovePoint(0, me->GetPositionX() + x, me->GetPositionY() + y, me->GetPositionZ());
+
+                                Position pos = me->GetPosition();
+
+                                pos.m_positionX += x;
+                                pos.m_positionY += y;
+
                                 // Prevention to go outside the room or into the walls
-                                if (Creature* trigger = me->FindNearestCreature(NPC_WORLD_TRIGGER, 100.0f, true))
-                                    if (me->GetDistance(trigger) >= 50.0f)
+                                if (Creature* trigger = ObjectAccessor::GetCreature(*me, m_TriggerGUID))
+                                {
+                                    if (pos.GetExactDist2d(trigger) >= 50.0f)
                                         me->GetMotionMaster()->MovePoint(0, *trigger);
+                                    else
+                                        me->GetMotionMaster()->MovePoint(0, pos);
+                                }
                             }
-                            events.ScheduleEvent(EVENT_MOVE_POSITION, urand(7500, 10000));
+                            events.ScheduleEvent(EVENT_MOVE_POSITION, 7500ms, 10s);
                             break;
                         default:
                             break;
@@ -643,6 +655,9 @@ class boss_stormcaller_brundir : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
+
+            private:
+                ObjectGuid m_TriggerGUID;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -732,7 +747,7 @@ class spell_assembly_rune_of_summoning : public SpellScriptLoader
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (TempSummon* summ = GetTarget()->ToTempSummon())
-                    summ->DespawnOrUnsummon(1);
+                    summ->DespawnOrUnsummon(1ms);
             }
 
             void Register() override

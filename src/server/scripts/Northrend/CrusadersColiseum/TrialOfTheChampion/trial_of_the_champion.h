@@ -21,14 +21,15 @@
 #include "CreatureAIImpl.h"
 
 #define ToCScriptName "instance_trial_of_the_champion"
-#define DataHeader "TC"
+#define DataHeader "TCv0.1"
 
 enum TCData
 {
-    BOSS_GRAND_CHAMPIONS,
-    BOSS_ARGENT_CHALLENGE_E,
-    BOSS_ARGENT_CHALLENGE_P,
-    BOSS_BLACK_KNIGHT,
+    BOSS_GRAND_CHAMPIONS    = 0,
+    BOSS_ARGENT_CHALLENGE_E = 1,
+    BOSS_ARGENT_CHALLENGE_P = 2,
+    BOSS_BLACK_KNIGHT       = 3,
+
     DATA_MOVEMENT_DONE,
     DATA_LESSER_CHAMPIONS_DEFEATED,
     DATA_START,

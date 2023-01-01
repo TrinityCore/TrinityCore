@@ -1029,7 +1029,6 @@ class TC_PROTO_API PresenceService : public ServiceBase
 
 // ===================================================================
 
-
 // ===================================================================
 
 // SubscribeRequest
@@ -1961,7 +1960,6 @@ inline void BatchUnsubscribeRequest::set_object_id(::google::protobuf::uint64 va
   // @@protoc_insertion_point(field_set:bgs.protocol.presence.v1.BatchUnsubscribeRequest.object_id)
 }
 
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace v1
@@ -1972,8 +1970,6 @@ inline void BatchUnsubscribeRequest::set_object_id(::google::protobuf::uint64 va
 #ifndef SWIG
 namespace google {
 namespace protobuf {
-
-
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

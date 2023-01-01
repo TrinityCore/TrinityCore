@@ -17,6 +17,7 @@
 
 #include "AzeriteItem.h"
 #include "AzeritePackets.h"
+#include "ConditionMgr.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "GameObject.h"
@@ -45,7 +46,7 @@ bool AzeriteItem::Create(ObjectGuid::LowType guidlow, uint32 itemId, ItemContext
     return true;
 }
 
-void AzeriteItem::SaveToDB(CharacterDatabaseTransaction& trans)
+void AzeriteItem::SaveToDB(CharacterDatabaseTransaction trans)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_AZERITE);
     stmt->setUInt64(0, GetGUID().GetCounter());
@@ -189,7 +190,7 @@ void AzeriteItem::LoadAzeriteItemData(Player const* owner, AzeriteItemData& azer
     }
 }
 
-void AzeriteItem::DeleteFromDB(CharacterDatabaseTransaction& trans, ObjectGuid::LowType itemGuid)
+void AzeriteItem::DeleteFromDB(CharacterDatabaseTransaction trans, ObjectGuid::LowType itemGuid)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_AZERITE);
     stmt->setUInt64(0, itemGuid);
@@ -204,7 +205,7 @@ void AzeriteItem::DeleteFromDB(CharacterDatabaseTransaction& trans, ObjectGuid::
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
-void AzeriteItem::DeleteFromDB(CharacterDatabaseTransaction& trans)
+void AzeriteItem::DeleteFromDB(CharacterDatabaseTransaction trans)
 {
     AzeriteItem::DeleteFromDB(trans, GetGUID().GetCounter());
     Item::DeleteFromDB(trans);
@@ -461,7 +462,7 @@ void AzeriteItem::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Objec
     if (azeriteItemMask.IsAnySet())
         valuesMask.Set(TYPEID_AZERITE_ITEM);
 
-    ByteBuffer buffer = PrepareValuesUpdateBuffer();
+    ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
     buffer << uint32(valuesMask.GetBlock(0));
@@ -477,7 +478,18 @@ void AzeriteItem::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Objec
 
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
-    data->AddUpdateBlock(buffer);
+    data->AddUpdateBlock();
+}
+
+void AzeriteItem::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const
+{
+    UpdateData udata(player->GetMapId());
+    WorldPacket packet;
+
+    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), ItemMask.GetChangesMask(), AzeriteItemMask.GetChangesMask(), player);
+
+    udata.BuildPacket(&packet);
+    player->SendDirectMessage(&packet);
 }
 
 void AzeriteItem::ClearUpdateMask(bool remove)

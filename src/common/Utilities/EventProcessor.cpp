@@ -75,7 +75,7 @@ void EventProcessor::Update(uint32 p_time)
 
         // Reschedule non deletable events to be checked at
         // the next update tick
-        AddEvent(event, CalculateTime(1), false);
+        AddEvent(event, CalculateTime(1ms), false);
     }
 }
 
@@ -110,24 +110,24 @@ void EventProcessor::KillAllEvents(bool force)
         m_events.clear();
 }
 
-void EventProcessor::AddEvent(BasicEvent* event, uint64 e_time, bool set_addtime)
+void EventProcessor::AddEvent(BasicEvent* event, Milliseconds e_time, bool set_addtime)
 {
     if (set_addtime)
         event->m_addTime = m_time;
-    event->m_execTime = e_time;
-    m_events.insert(std::pair<uint64, BasicEvent*>(e_time, event));
+    event->m_execTime = e_time.count();
+    m_events.insert(std::pair<uint64, BasicEvent*>(e_time.count(), event));
 }
 
-void EventProcessor::ModifyEventTime(BasicEvent* event, uint64 newTime)
+void EventProcessor::ModifyEventTime(BasicEvent* event, Milliseconds newTime)
 {
     for (auto itr = m_events.begin(); itr != m_events.end(); ++itr)
     {
         if (itr->second != event)
             continue;
 
-        event->m_execTime = newTime;
+        event->m_execTime = newTime.count();
         m_events.erase(itr);
-        m_events.insert(std::pair<uint64, BasicEvent*>(newTime, event));
+        m_events.insert(std::pair<uint64, BasicEvent*>(newTime.count(), event));
         break;
     }
 }

@@ -277,7 +277,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 
 }  // namespace
 
-
 void protobuf_AssignDesc_club_5frequest_2eproto() {
   protobuf_AddDesc_club_5frequest_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -2457,7 +2456,6 @@ struct StaticDescriptorInitializer_club_5frequest_2eproto {
     protobuf_AddDesc_club_5frequest_2eproto();
   }
 } static_descriptor_initializer_club_5frequest_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -2703,7 +2701,6 @@ void SubscribeRequest::CopyFrom(const SubscribeRequest& from) {
 }
 
 bool SubscribeRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -2727,7 +2724,6 @@ void SubscribeRequest::Swap(SubscribeRequest* other) {
   metadata.reflection = SubscribeRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2974,7 +2970,6 @@ void UnsubscribeRequest::CopyFrom(const UnsubscribeRequest& from) {
 }
 
 bool UnsubscribeRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -2998,7 +2993,6 @@ void UnsubscribeRequest::Swap(UnsubscribeRequest* other) {
   metadata.reflection = UnsubscribeRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3250,7 +3244,6 @@ void CreateRequest::CopyFrom(const CreateRequest& from) {
 }
 
 bool CreateRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -3277,7 +3270,6 @@ void CreateRequest::Swap(CreateRequest* other) {
   metadata.reflection = CreateRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3479,7 +3471,6 @@ void CreateResponse::CopyFrom(const CreateResponse& from) {
 }
 
 bool CreateResponse::IsInitialized() const {
-
   return true;
 }
 
@@ -3499,7 +3490,6 @@ void CreateResponse::Swap(CreateResponse* other) {
   metadata.reflection = CreateResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3746,7 +3736,6 @@ void DestroyRequest::CopyFrom(const DestroyRequest& from) {
 }
 
 bool DestroyRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -3770,7 +3759,6 @@ void DestroyRequest::Swap(DestroyRequest* other) {
   metadata.reflection = DestroyRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4017,7 +4005,6 @@ void GetDescriptionRequest::CopyFrom(const GetDescriptionRequest& from) {
 }
 
 bool GetDescriptionRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -4041,7 +4028,6 @@ void GetDescriptionRequest::Swap(GetDescriptionRequest* other) {
   metadata.reflection = GetDescriptionRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4248,7 +4234,6 @@ void GetDescriptionResponse::CopyFrom(const GetDescriptionResponse& from) {
 }
 
 bool GetDescriptionResponse::IsInitialized() const {
-
   if (has_club()) {
     if (!this->club().IsInitialized()) return false;
   }
@@ -4271,7 +4256,6 @@ void GetDescriptionResponse::Swap(GetDescriptionResponse* other) {
   metadata.reflection = GetDescriptionResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4523,7 +4507,6 @@ void GetClubTypeRequest::CopyFrom(const GetClubTypeRequest& from) {
 }
 
 bool GetClubTypeRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -4547,7 +4530,6 @@ void GetClubTypeRequest::Swap(GetClubTypeRequest* other) {
   metadata.reflection = GetClubTypeRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4842,7 +4824,6 @@ void GetClubTypeResponse::CopyFrom(const GetClubTypeResponse& from) {
 }
 
 bool GetClubTypeResponse::IsInitialized() const {
-
   return true;
 }
 
@@ -4864,7 +4845,6 @@ void GetClubTypeResponse::Swap(GetClubTypeResponse* other) {
   metadata.reflection = GetClubTypeResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -5154,7 +5134,6 @@ void UpdateClubStateRequest::CopyFrom(const UpdateClubStateRequest& from) {
 }
 
 bool UpdateClubStateRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -5179,7 +5158,6 @@ void UpdateClubStateRequest::Swap(UpdateClubStateRequest* other) {
   metadata.reflection = UpdateClubStateRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -5469,7 +5447,6 @@ void UpdateClubSettingsRequest::CopyFrom(const UpdateClubSettingsRequest& from) 
 }
 
 bool UpdateClubSettingsRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -5494,7 +5471,6 @@ void UpdateClubSettingsRequest::Swap(UpdateClubSettingsRequest* other) {
   metadata.reflection = UpdateClubSettingsRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -5784,7 +5760,6 @@ void AddMemberRequest::CopyFrom(const AddMemberRequest& from) {
 }
 
 bool AddMemberRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -5812,7 +5787,6 @@ void AddMemberRequest::Swap(AddMemberRequest* other) {
   metadata.reflection = AddMemberRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -6102,7 +6076,6 @@ void JoinRequest::CopyFrom(const JoinRequest& from) {
 }
 
 bool JoinRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -6130,7 +6103,6 @@ void JoinRequest::Swap(JoinRequest* other) {
   metadata.reflection = JoinRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -6377,7 +6349,6 @@ void LeaveRequest::CopyFrom(const LeaveRequest& from) {
 }
 
 bool LeaveRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -6401,7 +6372,6 @@ void LeaveRequest::Swap(LeaveRequest* other) {
   metadata.reflection = LeaveRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -6691,7 +6661,6 @@ void KickRequest::CopyFrom(const KickRequest& from) {
 }
 
 bool KickRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -6719,7 +6688,6 @@ void KickRequest::Swap(KickRequest* other) {
   metadata.reflection = KickRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -7009,7 +6977,6 @@ void GetMemberRequest::CopyFrom(const GetMemberRequest& from) {
 }
 
 bool GetMemberRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -7037,7 +7004,6 @@ void GetMemberRequest::Swap(GetMemberRequest* other) {
   metadata.reflection = GetMemberRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -7244,7 +7210,6 @@ void GetMemberResponse::CopyFrom(const GetMemberResponse& from) {
 }
 
 bool GetMemberResponse::IsInitialized() const {
-
   if (has_member()) {
     if (!this->member().IsInitialized()) return false;
   }
@@ -7267,7 +7232,6 @@ void GetMemberResponse::Swap(GetMemberResponse* other) {
   metadata.reflection = GetMemberResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -7565,7 +7529,6 @@ void GetMembersRequest::CopyFrom(const GetMembersRequest& from) {
 }
 
 bool GetMembersRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -7590,7 +7553,6 @@ void GetMembersRequest::Swap(GetMembersRequest* other) {
   metadata.reflection = GetMembersRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -7831,7 +7793,6 @@ void GetMembersResponse::CopyFrom(const GetMembersResponse& from) {
 }
 
 bool GetMembersResponse::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->member())) return false;
   return true;
 }
@@ -7853,7 +7814,6 @@ void GetMembersResponse::Swap(GetMembersResponse* other) {
   metadata.reflection = GetMembersResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -8186,7 +8146,6 @@ void UpdateMemberStateRequest::CopyFrom(const UpdateMemberStateRequest& from) {
 }
 
 bool UpdateMemberStateRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -8215,7 +8174,6 @@ void UpdateMemberStateRequest::Swap(UpdateMemberStateRequest* other) {
   metadata.reflection = UpdateMemberStateRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -8505,7 +8463,6 @@ void UpdateSubscriberStateRequest::CopyFrom(const UpdateSubscriberStateRequest& 
 }
 
 bool UpdateSubscriberStateRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -8530,7 +8487,6 @@ void UpdateSubscriberStateRequest::Swap(UpdateSubscriberStateRequest* other) {
   metadata.reflection = UpdateSubscriberStateRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -8820,7 +8776,6 @@ void AssignRoleRequest::CopyFrom(const AssignRoleRequest& from) {
 }
 
 bool AssignRoleRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -8848,7 +8803,6 @@ void AssignRoleRequest::Swap(AssignRoleRequest* other) {
   metadata.reflection = AssignRoleRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -9138,7 +9092,6 @@ void UnassignRoleRequest::CopyFrom(const UnassignRoleRequest& from) {
 }
 
 bool UnassignRoleRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -9166,7 +9119,6 @@ void UnassignRoleRequest::Swap(UnassignRoleRequest* other) {
   metadata.reflection = UnassignRoleRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -9456,7 +9408,6 @@ void SendInvitationRequest::CopyFrom(const SendInvitationRequest& from) {
 }
 
 bool SendInvitationRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -9484,7 +9435,6 @@ void SendInvitationRequest::Swap(SendInvitationRequest* other) {
   metadata.reflection = SendInvitationRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -9780,7 +9730,6 @@ void AcceptInvitationRequest::CopyFrom(const AcceptInvitationRequest& from) {
 }
 
 bool AcceptInvitationRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -9805,7 +9754,6 @@ void AcceptInvitationRequest::Swap(AcceptInvitationRequest* other) {
   metadata.reflection = AcceptInvitationRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -10101,7 +10049,6 @@ void DeclineInvitationRequest::CopyFrom(const DeclineInvitationRequest& from) {
 }
 
 bool DeclineInvitationRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -10126,7 +10073,6 @@ void DeclineInvitationRequest::Swap(DeclineInvitationRequest* other) {
   metadata.reflection = DeclineInvitationRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -10422,7 +10368,6 @@ void RevokeInvitationRequest::CopyFrom(const RevokeInvitationRequest& from) {
 }
 
 bool RevokeInvitationRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -10447,7 +10392,6 @@ void RevokeInvitationRequest::Swap(RevokeInvitationRequest* other) {
   metadata.reflection = RevokeInvitationRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -10743,7 +10687,6 @@ void GetInvitationRequest::CopyFrom(const GetInvitationRequest& from) {
 }
 
 bool GetInvitationRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -10768,7 +10711,6 @@ void GetInvitationRequest::Swap(GetInvitationRequest* other) {
   metadata.reflection = GetInvitationRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -10975,7 +10917,6 @@ void GetInvitationResponse::CopyFrom(const GetInvitationResponse& from) {
 }
 
 bool GetInvitationResponse::IsInitialized() const {
-
   if (has_invitation()) {
     if (!this->invitation().IsInitialized()) return false;
   }
@@ -10998,7 +10939,6 @@ void GetInvitationResponse::Swap(GetInvitationResponse* other) {
   metadata.reflection = GetInvitationResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -11296,7 +11236,6 @@ void GetInvitationsRequest::CopyFrom(const GetInvitationsRequest& from) {
 }
 
 bool GetInvitationsRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -11321,7 +11260,6 @@ void GetInvitationsRequest::Swap(GetInvitationsRequest* other) {
   metadata.reflection = GetInvitationsRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -11562,7 +11500,6 @@ void GetInvitationsResponse::CopyFrom(const GetInvitationsResponse& from) {
 }
 
 bool GetInvitationsResponse::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->invitation())) return false;
   return true;
 }
@@ -11584,7 +11521,6 @@ void GetInvitationsResponse::Swap(GetInvitationsResponse* other) {
   metadata.reflection = GetInvitationsResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -11874,7 +11810,6 @@ void SendSuggestionRequest::CopyFrom(const SendSuggestionRequest& from) {
 }
 
 bool SendSuggestionRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -11902,7 +11837,6 @@ void SendSuggestionRequest::Swap(SendSuggestionRequest* other) {
   metadata.reflection = SendSuggestionRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -12198,7 +12132,6 @@ void AcceptSuggestionRequest::CopyFrom(const AcceptSuggestionRequest& from) {
 }
 
 bool AcceptSuggestionRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -12223,7 +12156,6 @@ void AcceptSuggestionRequest::Swap(AcceptSuggestionRequest* other) {
   metadata.reflection = AcceptSuggestionRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -12519,7 +12451,6 @@ void DeclineSuggestionRequest::CopyFrom(const DeclineSuggestionRequest& from) {
 }
 
 bool DeclineSuggestionRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -12544,7 +12475,6 @@ void DeclineSuggestionRequest::Swap(DeclineSuggestionRequest* other) {
   metadata.reflection = DeclineSuggestionRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -12840,7 +12770,6 @@ void GetSuggestionRequest::CopyFrom(const GetSuggestionRequest& from) {
 }
 
 bool GetSuggestionRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -12865,7 +12794,6 @@ void GetSuggestionRequest::Swap(GetSuggestionRequest* other) {
   metadata.reflection = GetSuggestionRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -13072,7 +13000,6 @@ void GetSuggestionResponse::CopyFrom(const GetSuggestionResponse& from) {
 }
 
 bool GetSuggestionResponse::IsInitialized() const {
-
   if (has_suggestion()) {
     if (!this->suggestion().IsInitialized()) return false;
   }
@@ -13095,7 +13022,6 @@ void GetSuggestionResponse::Swap(GetSuggestionResponse* other) {
   metadata.reflection = GetSuggestionResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -13393,7 +13319,6 @@ void GetSuggestionsRequest::CopyFrom(const GetSuggestionsRequest& from) {
 }
 
 bool GetSuggestionsRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -13418,7 +13343,6 @@ void GetSuggestionsRequest::Swap(GetSuggestionsRequest* other) {
   metadata.reflection = GetSuggestionsRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -13659,7 +13583,6 @@ void GetSuggestionsResponse::CopyFrom(const GetSuggestionsResponse& from) {
 }
 
 bool GetSuggestionsResponse::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->suggestion())) return false;
   return true;
 }
@@ -13681,7 +13604,6 @@ void GetSuggestionsResponse::Swap(GetSuggestionsResponse* other) {
   metadata.reflection = GetSuggestionsResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -13971,7 +13893,6 @@ void CreateTicketRequest::CopyFrom(const CreateTicketRequest& from) {
 }
 
 bool CreateTicketRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -13996,7 +13917,6 @@ void CreateTicketRequest::Swap(CreateTicketRequest* other) {
   metadata.reflection = CreateTicketRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -14203,7 +14123,6 @@ void CreateTicketResponse::CopyFrom(const CreateTicketResponse& from) {
 }
 
 bool CreateTicketResponse::IsInitialized() const {
-
   if (has_ticket()) {
     if (!this->ticket().IsInitialized()) return false;
   }
@@ -14226,7 +14145,6 @@ void CreateTicketResponse::Swap(CreateTicketResponse* other) {
   metadata.reflection = CreateTicketResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -14532,7 +14450,6 @@ void DestroyTicketRequest::CopyFrom(const DestroyTicketRequest& from) {
 }
 
 bool DestroyTicketRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -14557,7 +14474,6 @@ void DestroyTicketRequest::Swap(DestroyTicketRequest* other) {
   metadata.reflection = DestroyTicketRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -14825,7 +14741,6 @@ void RedeemTicketRequest::CopyFrom(const RedeemTicketRequest& from) {
 }
 
 bool RedeemTicketRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -14849,7 +14764,6 @@ void RedeemTicketRequest::Swap(RedeemTicketRequest* other) {
   metadata.reflection = RedeemTicketRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -15117,7 +15031,6 @@ void GetTicketRequest::CopyFrom(const GetTicketRequest& from) {
 }
 
 bool GetTicketRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -15141,7 +15054,6 @@ void GetTicketRequest::Swap(GetTicketRequest* other) {
   metadata.reflection = GetTicketRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -15348,7 +15260,6 @@ void GetTicketResponse::CopyFrom(const GetTicketResponse& from) {
 }
 
 bool GetTicketResponse::IsInitialized() const {
-
   if (has_ticket()) {
     if (!this->ticket().IsInitialized()) return false;
   }
@@ -15371,7 +15282,6 @@ void GetTicketResponse::Swap(GetTicketResponse* other) {
   metadata.reflection = GetTicketResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -15669,7 +15579,6 @@ void GetTicketsRequest::CopyFrom(const GetTicketsRequest& from) {
 }
 
 bool GetTicketsRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -15694,7 +15603,6 @@ void GetTicketsRequest::Swap(GetTicketsRequest* other) {
   metadata.reflection = GetTicketsRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -15935,7 +15843,6 @@ void GetTicketsResponse::CopyFrom(const GetTicketsResponse& from) {
 }
 
 bool GetTicketsResponse::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->ticket())) return false;
   return true;
 }
@@ -15957,7 +15864,6 @@ void GetTicketsResponse::Swap(GetTicketsResponse* other) {
   metadata.reflection = GetTicketsResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -16247,7 +16153,6 @@ void AddBanRequest::CopyFrom(const AddBanRequest& from) {
 }
 
 bool AddBanRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -16275,7 +16180,6 @@ void AddBanRequest::Swap(AddBanRequest* other) {
   metadata.reflection = AddBanRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -16565,7 +16469,6 @@ void RemoveBanRequest::CopyFrom(const RemoveBanRequest& from) {
 }
 
 bool RemoveBanRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -16593,7 +16496,6 @@ void RemoveBanRequest::Swap(RemoveBanRequest* other) {
   metadata.reflection = RemoveBanRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -16883,7 +16785,6 @@ void GetBanRequest::CopyFrom(const GetBanRequest& from) {
 }
 
 bool GetBanRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -16911,7 +16812,6 @@ void GetBanRequest::Swap(GetBanRequest* other) {
   metadata.reflection = GetBanRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -17118,7 +17018,6 @@ void GetBanResponse::CopyFrom(const GetBanResponse& from) {
 }
 
 bool GetBanResponse::IsInitialized() const {
-
   if (has_ban()) {
     if (!this->ban().IsInitialized()) return false;
   }
@@ -17141,7 +17040,6 @@ void GetBanResponse::Swap(GetBanResponse* other) {
   metadata.reflection = GetBanResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -17439,7 +17337,6 @@ void GetBansRequest::CopyFrom(const GetBansRequest& from) {
 }
 
 bool GetBansRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -17464,7 +17361,6 @@ void GetBansRequest::Swap(GetBansRequest* other) {
   metadata.reflection = GetBansRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -17705,7 +17601,6 @@ void GetBansResponse::CopyFrom(const GetBansResponse& from) {
 }
 
 bool GetBansResponse::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->ban())) return false;
   return true;
 }
@@ -17727,7 +17622,6 @@ void GetBansResponse::Swap(GetBansResponse* other) {
   metadata.reflection = GetBansResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -18018,7 +17912,6 @@ void SubscribeStreamRequest::CopyFrom(const SubscribeStreamRequest& from) {
 }
 
 bool SubscribeStreamRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -18043,7 +17936,6 @@ void SubscribeStreamRequest::Swap(SubscribeStreamRequest* other) {
   metadata.reflection = SubscribeStreamRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -18334,7 +18226,6 @@ void UnsubscribeStreamRequest::CopyFrom(const UnsubscribeStreamRequest& from) {
 }
 
 bool UnsubscribeStreamRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -18359,7 +18250,6 @@ void UnsubscribeStreamRequest::Swap(UnsubscribeStreamRequest* other) {
   metadata.reflection = UnsubscribeStreamRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -18649,7 +18539,6 @@ void CreateStreamRequest::CopyFrom(const CreateStreamRequest& from) {
 }
 
 bool CreateStreamRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -18674,7 +18563,6 @@ void CreateStreamRequest::Swap(CreateStreamRequest* other) {
   metadata.reflection = CreateStreamRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -18927,7 +18815,6 @@ void CreateStreamResponse::CopyFrom(const CreateStreamResponse& from) {
 }
 
 bool CreateStreamResponse::IsInitialized() const {
-
   return true;
 }
 
@@ -18948,7 +18835,6 @@ void CreateStreamResponse::Swap(CreateStreamResponse* other) {
   metadata.reflection = CreateStreamResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -19246,7 +19132,6 @@ void DestroyStreamRequest::CopyFrom(const DestroyStreamRequest& from) {
 }
 
 bool DestroyStreamRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -19271,7 +19156,6 @@ void DestroyStreamRequest::Swap(DestroyStreamRequest* other) {
   metadata.reflection = DestroyStreamRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -19569,7 +19453,6 @@ void GetStreamRequest::CopyFrom(const GetStreamRequest& from) {
 }
 
 bool GetStreamRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -19594,7 +19477,6 @@ void GetStreamRequest::Swap(GetStreamRequest* other) {
   metadata.reflection = GetStreamRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -19801,7 +19683,6 @@ void GetStreamResponse::CopyFrom(const GetStreamResponse& from) {
 }
 
 bool GetStreamResponse::IsInitialized() const {
-
   return true;
 }
 
@@ -19821,7 +19702,6 @@ void GetStreamResponse::Swap(GetStreamResponse* other) {
   metadata.reflection = GetStreamResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -20119,7 +19999,6 @@ void GetStreamsRequest::CopyFrom(const GetStreamsRequest& from) {
 }
 
 bool GetStreamsRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -20144,7 +20023,6 @@ void GetStreamsRequest::Swap(GetStreamsRequest* other) {
   metadata.reflection = GetStreamsRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -20423,7 +20301,6 @@ void GetStreamsResponse::CopyFrom(const GetStreamsResponse& from) {
 }
 
 bool GetStreamsResponse::IsInitialized() const {
-
   return true;
 }
 
@@ -20445,7 +20322,6 @@ void GetStreamsResponse::Swap(GetStreamsResponse* other) {
   metadata.reflection = GetStreamsResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -20786,7 +20662,6 @@ void UpdateStreamStateRequest::CopyFrom(const UpdateStreamStateRequest& from) {
 }
 
 bool UpdateStreamStateRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -20812,7 +20687,6 @@ void UpdateStreamStateRequest::Swap(UpdateStreamStateRequest* other) {
   metadata.reflection = UpdateStreamStateRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -21145,7 +21019,6 @@ void SetStreamFocusRequest::CopyFrom(const SetStreamFocusRequest& from) {
 }
 
 bool SetStreamFocusRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -21171,7 +21044,6 @@ void SetStreamFocusRequest::Swap(SetStreamFocusRequest* other) {
   metadata.reflection = SetStreamFocusRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -21512,7 +21384,6 @@ void CreateMessageRequest::CopyFrom(const CreateMessageRequest& from) {
 }
 
 bool CreateMessageRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -21541,7 +21412,6 @@ void CreateMessageRequest::Swap(CreateMessageRequest* other) {
   metadata.reflection = CreateMessageRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -21748,7 +21618,6 @@ void CreateMessageResponse::CopyFrom(const CreateMessageResponse& from) {
 }
 
 bool CreateMessageResponse::IsInitialized() const {
-
   if (has_message()) {
     if (!this->message().IsInitialized()) return false;
   }
@@ -21771,7 +21640,6 @@ void CreateMessageResponse::Swap(CreateMessageResponse* other) {
   metadata.reflection = CreateMessageResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -22112,7 +21980,6 @@ void DestroyMessageRequest::CopyFrom(const DestroyMessageRequest& from) {
 }
 
 bool DestroyMessageRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -22138,7 +22005,6 @@ void DestroyMessageRequest::Swap(DestroyMessageRequest* other) {
   metadata.reflection = DestroyMessageRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -22345,7 +22211,6 @@ void DestroyMessageResponse::CopyFrom(const DestroyMessageResponse& from) {
 }
 
 bool DestroyMessageResponse::IsInitialized() const {
-
   if (has_message()) {
     if (!this->message().IsInitialized()) return false;
   }
@@ -22368,7 +22233,6 @@ void DestroyMessageResponse::Swap(DestroyMessageResponse* other) {
   metadata.reflection = DestroyMessageResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -22752,7 +22616,6 @@ void EditMessageRequest::CopyFrom(const EditMessageRequest& from) {
 }
 
 bool EditMessageRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -22782,7 +22645,6 @@ void EditMessageRequest::Swap(EditMessageRequest* other) {
   metadata.reflection = EditMessageRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -22989,7 +22851,6 @@ void EditMessageResponse::CopyFrom(const EditMessageResponse& from) {
 }
 
 bool EditMessageResponse::IsInitialized() const {
-
   if (has_message()) {
     if (!this->message().IsInitialized()) return false;
   }
@@ -23012,7 +22873,6 @@ void EditMessageResponse::Swap(EditMessageResponse* other) {
   metadata.reflection = EditMessageResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -23310,7 +23170,6 @@ void SetMessagePinnedRequest::CopyFrom(const SetMessagePinnedRequest& from) {
 }
 
 bool SetMessagePinnedRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -23335,7 +23194,6 @@ void SetMessagePinnedRequest::Swap(SetMessagePinnedRequest* other) {
   metadata.reflection = SetMessagePinnedRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -23676,7 +23534,6 @@ void SetTypingIndicatorRequest::CopyFrom(const SetTypingIndicatorRequest& from) 
 }
 
 bool SetTypingIndicatorRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -23702,7 +23559,6 @@ void SetTypingIndicatorRequest::Swap(SetTypingIndicatorRequest* other) {
   metadata.reflection = SetTypingIndicatorRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -24063,7 +23919,6 @@ void AdvanceStreamViewTimeRequest::CopyFrom(const AdvanceStreamViewTimeRequest& 
 }
 
 bool AdvanceStreamViewTimeRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -24089,7 +23944,6 @@ void AdvanceStreamViewTimeRequest::Swap(AdvanceStreamViewTimeRequest* other) {
   metadata.reflection = AdvanceStreamViewTimeRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -24387,7 +24241,6 @@ void AdvanceStreamMentionViewTimeRequest::CopyFrom(const AdvanceStreamMentionVie
 }
 
 bool AdvanceStreamMentionViewTimeRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -24412,7 +24265,6 @@ void AdvanceStreamMentionViewTimeRequest::Swap(AdvanceStreamMentionViewTimeReque
   metadata.reflection = AdvanceStreamMentionViewTimeRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -24659,7 +24511,6 @@ void AdvanceActivityViewTimeRequest::CopyFrom(const AdvanceActivityViewTimeReque
 }
 
 bool AdvanceActivityViewTimeRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -24683,7 +24534,6 @@ void AdvanceActivityViewTimeRequest::Swap(AdvanceActivityViewTimeRequest* other)
   metadata.reflection = AdvanceActivityViewTimeRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -25024,7 +24874,6 @@ void GetStreamHistoryRequest::CopyFrom(const GetStreamHistoryRequest& from) {
 }
 
 bool GetStreamHistoryRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -25050,7 +24899,6 @@ void GetStreamHistoryRequest::Swap(GetStreamHistoryRequest* other) {
   metadata.reflection = GetStreamHistoryRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -25291,7 +25139,6 @@ void GetStreamHistoryResponse::CopyFrom(const GetStreamHistoryResponse& from) {
 }
 
 bool GetStreamHistoryResponse::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->message())) return false;
   return true;
 }
@@ -25313,7 +25160,6 @@ void GetStreamHistoryResponse::Swap(GetStreamHistoryResponse* other) {
   metadata.reflection = GetStreamHistoryResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -25654,7 +25500,6 @@ void GetStreamMessageRequest::CopyFrom(const GetStreamMessageRequest& from) {
 }
 
 bool GetStreamMessageRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -25680,7 +25525,6 @@ void GetStreamMessageRequest::Swap(GetStreamMessageRequest* other) {
   metadata.reflection = GetStreamMessageRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -25887,7 +25731,6 @@ void GetStreamMessageResponse::CopyFrom(const GetStreamMessageResponse& from) {
 }
 
 bool GetStreamMessageResponse::IsInitialized() const {
-
   if (has_message()) {
     if (!this->message().IsInitialized()) return false;
   }
@@ -25910,7 +25753,6 @@ void GetStreamMessageResponse::Swap(GetStreamMessageResponse* other) {
   metadata.reflection = GetStreamMessageResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -26200,7 +26042,6 @@ void GetClubActivityRequest::CopyFrom(const GetClubActivityRequest& from) {
 }
 
 bool GetClubActivityRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -26225,7 +26066,6 @@ void GetClubActivityRequest::Swap(GetClubActivityRequest* other) {
   metadata.reflection = GetClubActivityRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -26427,7 +26267,6 @@ void GetClubActivityResponse::CopyFrom(const GetClubActivityResponse& from) {
 }
 
 bool GetClubActivityResponse::IsInitialized() const {
-
   return true;
 }
 
@@ -26447,7 +26286,6 @@ void GetClubActivityResponse::Swap(GetClubActivityResponse* other) {
   metadata.reflection = GetClubActivityResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -26782,7 +26620,6 @@ void GetStreamVoiceTokenRequest::CopyFrom(const GetStreamVoiceTokenRequest& from
 }
 
 bool GetStreamVoiceTokenRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -26808,7 +26645,6 @@ void GetStreamVoiceTokenRequest::Swap(GetStreamVoiceTokenRequest* other) {
   metadata.reflection = GetStreamVoiceTokenRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -27076,7 +26912,6 @@ void GetStreamVoiceTokenResponse::CopyFrom(const GetStreamVoiceTokenResponse& fr
 }
 
 bool GetStreamVoiceTokenResponse::IsInitialized() const {
-
   return true;
 }
 
@@ -27097,7 +26932,6 @@ void GetStreamVoiceTokenResponse::Swap(GetStreamVoiceTokenResponse* other) {
   metadata.reflection = GetStreamVoiceTokenResponse_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -27438,7 +27272,6 @@ void KickFromStreamVoiceRequest::CopyFrom(const KickFromStreamVoiceRequest& from
 }
 
 bool KickFromStreamVoiceRequest::IsInitialized() const {
-
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
@@ -27467,7 +27300,6 @@ void KickFromStreamVoiceRequest::Swap(KickFromStreamVoiceRequest* other) {
   metadata.reflection = KickFromStreamVoiceRequest_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

@@ -16,7 +16,6 @@
  */
 
 #include "VoidStoragePackets.h"
-#include "SharedDefines.h"
 
 WorldPacket const* WorldPackets::VoidStorage::VoidTransferResult::Write()
 {

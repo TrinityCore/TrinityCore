@@ -19,10 +19,12 @@
 #define TRINITYCORE_CONVERSATION_H
 
 #include "Object.h"
+#include "GridObject.h"
 #include "Hash.h"
 
 class Unit;
 class SpellInfo;
+enum class ConversationActorType : uint32;
 
 class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversation>
 {
@@ -39,6 +41,17 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
         void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
             UF::ConversationData::Mask const& requestedConversationMask, Player const* target) const;
 
+        struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
+        {
+            explicit ValuesUpdateForPlayerWithMaskSender(Conversation const* owner) : Owner(owner) { }
+
+            Conversation const* Owner;
+            UF::ObjectData::Base ObjectMask;
+            UF::ConversationData::Base ConversationMask;
+
+            void operator()(Player const* player) const;
+        };
+
         void AddToWorld() override;
         void RemoveFromWorld() override;
 
@@ -47,9 +60,11 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
         Milliseconds GetDuration() const { return _duration; }
         uint32 GetTextureKitId() const { return _textureKitId; }
 
-        static Conversation* CreateConversation(uint32 conversationEntry, Unit* creator, Position const& pos, ObjectGuid privateObjectOwner, SpellInfo const* spellInfo = nullptr);
-        bool Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry, Map* map, Unit* creator, Position const& pos, ObjectGuid privateObjectOwner, SpellInfo const* spellInfo = nullptr);
-        void AddActor(ObjectGuid const& actorGuid, uint16 actorIdx);
+        static Conversation* CreateConversation(uint32 conversationEntry, Unit* creator, Position const& pos, ObjectGuid privateObjectOwner, SpellInfo const* spellInfo = nullptr, bool autoStart = true);
+        void Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry, Map* map, Unit* creator, Position const& pos, ObjectGuid privateObjectOwner, SpellInfo const* spellInfo = nullptr);
+        bool Start();
+        void AddActor(int32 actorId, uint32 actorIdx, ObjectGuid const& actorGuid);
+        void AddActor(int32 actorId, uint32 actorIdx, ConversationActorType type, uint32 creatureId, uint32 creatureDisplayInfoId);
 
         ObjectGuid const& GetCreatorGuid() const { return _creatorGuid; }
         ObjectGuid GetOwnerGUID() const override { return GetCreatorGuid(); }
@@ -67,12 +82,6 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
         uint32 GetScriptId() const;
 
         UF::UpdateField<UF::ConversationData, 0, TYPEID_CONVERSATION> m_conversationData;
-
-        enum class ActorType
-        {
-            WorldObjectActor = 0,
-            CreatureActor = 1
-        };
 
     private:
         Position _stationaryPosition;

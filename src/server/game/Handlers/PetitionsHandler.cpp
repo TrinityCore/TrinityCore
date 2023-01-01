@@ -25,12 +25,10 @@
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "PetitionMgr.h"
 #include "PetitionPackets.h"
 #include "Player.h"
 #include "World.h"
-#include "WorldPacket.h"
 #include <sstream>
 
 #define CHARTER_DISPLAY_ID 16161
@@ -108,7 +106,7 @@ void WorldSession::HandlePetitionBuy(WorldPackets::Petition::PetitionBuy& packet
     {
         // clear from petition store
         sPetitionMgr->RemovePetition(petition->PetitionGuid);
-        TC_LOG_DEBUG("network", "Invalid petition GUID: %s", petition->PetitionGuid.ToString().c_str());
+        TC_LOG_DEBUG("network", "Invalid petition %s", petition->PetitionGuid.ToString().c_str());
     }
 
     // fill petition store
@@ -120,7 +118,7 @@ void WorldSession::HandlePetitionShowSignatures(WorldPackets::Petition::Petition
     Petition const* petition = sPetitionMgr->GetPetition(packet.Item);
     if (!petition)
     {
-        TC_LOG_DEBUG("entities.player.items", "Petition %s is not found for %s %s", packet.Item.ToString().c_str(), GetPlayer()->GetGUID().ToString().c_str(), GetPlayer()->GetName().c_str());
+        TC_LOG_DEBUG("entities.player.items", "Petition %s is not found for player %s %s", packet.Item.ToString().c_str(), GetPlayer()->GetGUID().ToString().c_str(), GetPlayer()->GetName().c_str());
         return;
     }
 
@@ -128,7 +126,7 @@ void WorldSession::HandlePetitionShowSignatures(WorldPackets::Petition::Petition
     if (_player->GetGuildId())
         return;
 
-    TC_LOG_DEBUG("network", "CMSG_PETITION_SHOW_SIGNATURES %s", packet.Item.ToString().c_str());
+    TC_LOG_DEBUG("network", "CMSG_PETITION_SHOW_SIGNATURES petition %s", packet.Item.ToString().c_str());
 
     SendPetitionSigns(petition, _player);
 }
@@ -228,7 +226,7 @@ void WorldSession::HandleSignPetition(WorldPackets::Petition::SignPetition& pack
     Petition* petition = sPetitionMgr->GetPetition(packet.PetitionGUID);
     if (!petition)
     {
-        TC_LOG_ERROR("network", "Petition %s is not found for %s %s", packet.PetitionGUID.ToString().c_str(), GetPlayer()->GetGUID().ToString().c_str(), GetPlayer()->GetName().c_str());
+        TC_LOG_ERROR("network", "Petition %s is not found for player %s %s", packet.PetitionGUID.ToString().c_str(), GetPlayer()->GetGUID().ToString().c_str(), GetPlayer()->GetName().c_str());
         return;
     }
 
@@ -366,7 +364,7 @@ void WorldSession::HandleTurnInPetition(WorldPackets::Petition::TurnInPetition& 
     Petition const* petition = sPetitionMgr->GetPetition(packet.Item);
     if (!petition)
     {
-        TC_LOG_ERROR("entities.player.cheat", "Player %s (%s) tried to turn in petition (%s) that is not present in the database", _player->GetName().c_str(), _player->GetGUID().ToString().c_str(), packet.Item.ToString().c_str());
+        TC_LOG_ERROR("entities.player.cheat", "Player %s %s tried to turn in petition (%s) that is not present in the database", _player->GetName().c_str(), _player->GetGUID().ToString().c_str(), packet.Item.ToString().c_str());
         return;
     }
 

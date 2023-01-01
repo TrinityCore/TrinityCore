@@ -16,7 +16,6 @@
  */
 
 #include "SocialPackets.h"
-#include "ObjectMgr.h"
 #include "SocialMgr.h"
 #include "World.h"
 
@@ -138,4 +137,12 @@ void WorldPackets::Social::AddIgnore::Read()
 void WorldPackets::Social::DelIgnore::Read()
 {
     _worldPacket >> Player;
+}
+
+WorldPacket const* WorldPackets::Social::SocialContractRequestResponse::Write()
+{
+    _worldPacket.WriteBit(ShowSocialContract);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
 }

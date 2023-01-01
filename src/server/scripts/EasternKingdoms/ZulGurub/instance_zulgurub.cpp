@@ -15,10 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
+#include "zulgurub.h"
 #include "Creature.h"
 #include "InstanceScript.h"
-#include "zulgurub.h"
+#include "ScriptMgr.h"
 
 DoorData const doorData[] =
 {
@@ -28,6 +28,19 @@ DoorData const doorData[] =
     { GO_ZANZIL_DOOR,                   DATA_ZANZIL,    DOOR_TYPE_ROOM },
     //{ GO_THE_CACHE_OF_MADNESS_DOOR,     DATA_xxxxxxx,   DOOR_TYPE_ROOM },
     { 0,                                0,              DOOR_TYPE_ROOM }
+};
+
+DungeonEncounterData const encounters[] =
+{
+    { DATA_VENOXIS, {{ 1178 }} },
+    { DATA_MANDOKIR, {{ 1179 }} },
+    { DATA_KILNARA, {{ 1180 }} },
+    { DATA_ZANZIL, {{ 1181 }} },
+    { DATA_JINDO, {{ 1182 }} },
+    { DATA_HAZZARAH, {{ 1188 }} },
+    { DATA_RENATAKI, {{ 1188 }} },
+    { DATA_WUSHOOLAY, {{ 1188 }} },
+    { DATA_GRILEK, {{ 1188 }} }
 };
 
 class instance_zulgurub : public InstanceMapScript
@@ -42,6 +55,7 @@ class instance_zulgurub : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
+                LoadDungeonEncounterData(encounters);
             }
 
             void OnCreatureCreate(Creature* creature) override

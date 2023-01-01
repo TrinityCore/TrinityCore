@@ -19,6 +19,7 @@
 #define MovementPackets_h__
 
 #include "Packet.h"
+#include "CombatLogPacketsCommon.h"
 #include "Object.h"
 #include "Optional.h"
 
@@ -104,8 +105,7 @@ namespace WorldPackets
             struct Inner
             {
                 int32 Unknown_1 = 0;
-                int32 Unknown_2 = 0;
-                int32 Unknown_3 = 0;
+                Spells::SpellCastVisual Visual;
                 uint32 Unknown_4 = 0;
             };
 
@@ -168,6 +168,17 @@ namespace WorldPackets
             TaggedPosition<Position::XYZ> Pos;
         };
 
+        class FlightSplineSync final : public ServerPacket
+        {
+        public:
+            FlightSplineSync() : ServerPacket(SMSG_FLIGHT_SPLINE_SYNC, 16 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+            float SplineDist = 0.0f;
+        };
+
         class MoveSplineSetSpeed : public ServerPacket
         {
         public:
@@ -223,14 +234,14 @@ namespace WorldPackets
             uint32 SequenceIndex = 0; ///< Unit movement packet index, incremented each time
         };
 
+        struct ShipTransferPending
+        {
+            uint32 ID = 0;              ///< gameobject_template.entry of the transport the player is teleporting on
+            int32 OriginMapID = -1;     ///< Map id the player is currently on (before teleport)
+        };
+
         class TransferPending final : public ServerPacket
         {
-            struct ShipTransferPending
-            {
-                uint32 ID = 0;              ///< gameobject_template.entry of the transport the player is teleporting on
-                int32 OriginMapID = -1;     ///< Map id the player is currently on (before teleport)
-            };
-
         public:
             TransferPending() : ServerPacket(SMSG_TRANSFER_PENDING, 16) { }
 
@@ -659,6 +670,12 @@ namespace WorldPackets
                 float InitVertSpeed = 0.0f;
             };
 
+            struct SpeedRange
+            {
+                float Min = 0.0f;
+                float Max = 0.0f;
+            };
+
             struct MoveStateChange
             {
                 MoveStateChange(OpcodeServer messageId, uint32 sequenceIndex) : MessageID(messageId), SequenceIndex(sequenceIndex) { }
@@ -666,11 +683,14 @@ namespace WorldPackets
                 uint16 MessageID = 0;
                 uint32 SequenceIndex = 0;
                 Optional<float> Speed;
+                Optional<MoveSetCompoundState::SpeedRange> SpeedRange;
                 Optional<KnockBackInfo> KnockBack;
                 Optional<int32> VehicleRecID;
                 Optional<CollisionHeightInfo> CollisionHeight;
                 Optional<MovementForce> MovementForce_;
                 Optional<ObjectGuid> MovementForceGUID;
+                Optional<int32> MovementInertiaID;
+                Optional<uint32> MovementInertiaLifetimeMs;
             };
 
             MoveSetCompoundState() : ServerPacket(SMSG_MOVE_SET_COMPOUND_STATE, 4 + 1) { }
@@ -679,6 +699,16 @@ namespace WorldPackets
 
             ObjectGuid MoverGUID;
             std::vector<MoveStateChange> StateChanges;
+        };
+
+        class MoveInitActiveMoverComplete final : public ClientPacket
+        {
+        public:
+            MoveInitActiveMoverComplete(WorldPacket&& packet) : ClientPacket(CMSG_MOVE_INIT_ACTIVE_MOVER_COMPLETE, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 Ticks = 0;
         };
     }
 

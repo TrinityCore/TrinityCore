@@ -76,6 +76,7 @@ ObjectData const creatureData[] =
     { NPC_BLOOD_ELF_COUNCIL_VOICE,      DATA_BLOOD_ELF_COUNCIL_VOICE    },
     { NPC_BLACK_TEMPLE_TRIGGER,         DATA_BLACK_TEMPLE_TRIGGER       },
     { NPC_MAIEV_SHADOWSONG,             DATA_MAIEV                      },
+    { NPC_RELIQUARY_COMBAT_TRIGGER,     DATA_RELIQUARY_COMBAT_TRIGGER   },
     { 0,                                0                               } // END
 };
 
@@ -85,6 +86,19 @@ ObjectData const gameObjectData[] =
     { GO_DEN_OF_MORTAL_DOOR,          DATA_GO_DEN_OF_MORTAL_DOOR    },
     { GO_ILLIDAN_MUSIC_CONTROLLER,    DATA_ILLIDAN_MUSIC_CONTROLLER },
     { 0,                              0                             } //END
+};
+
+DungeonEncounterData const encounters[] =
+{
+    { DATA_HIGH_WARLORD_NAJENTUS, {{ 601 }} },
+    { DATA_SUPREMUS, {{ 602 }} },
+    { DATA_SHADE_OF_AKAMA, {{ 603 }} },
+    { DATA_TERON_GOREFIEND, {{ 604 }} },
+    { DATA_GURTOGG_BLOODBOIL, {{ 605 }} },
+    { DATA_RELIQUARY_OF_SOULS, {{ 606 }} },
+    { DATA_MOTHER_SHAHRAZ, {{ 607 }} },
+    { DATA_ILLIDARI_COUNCIL, {{ 608 }} },
+    { DATA_ILLIDAN_STORMRAGE, {{ 609 }} }
 };
 
 class instance_black_temple : public InstanceMapScript
@@ -101,8 +115,8 @@ class instance_black_temple : public InstanceMapScript
                 LoadDoorData(doorData);
                 LoadObjectData(creatureData, gameObjectData);
                 LoadBossBoundaries(boundaries);
+                LoadDungeonEncounterData(encounters);
                 AkamaState = AKAMA_INTRO;
-                TeronGorefiendIntro = 1;
                 AkamaIllidanIntro = 1;
             }
 
@@ -143,8 +157,6 @@ class instance_black_temple : public InstanceMapScript
                 {
                     case DATA_AKAMA:
                         return AkamaState;
-                    case DATA_TERON_GOREFIEND_INTRO:
-                        return TeronGorefiendIntro;
                     case DATA_AKAMA_ILLIDAN_INTRO:
                         return AkamaIllidanIntro;
                     default:
@@ -163,11 +175,9 @@ class instance_black_temple : public InstanceMapScript
                         if (GameObject* illidanGate = GetGameObject(DATA_GO_ILLIDAN_GATE))
                             HandleGameObject(ObjectGuid::Empty, true, illidanGate);
                         break;
-                    case DATA_TERON_GOREFIEND_INTRO:
-                        TeronGorefiendIntro = data;
-                        break;
                     case DATA_AKAMA_ILLIDAN_INTRO:
                         AkamaIllidanIntro = data;
+                        break;
                     default:
                         break;
                 }
@@ -190,7 +200,7 @@ class instance_black_temple : public InstanceMapScript
                             for (ObjectGuid ashtongueGuid : AshtongueGUIDs)
                                 if (Creature* ashtongue = instance->GetCreature(ashtongueGuid))
                                     ashtongue->SetFaction(FACTION_ASHTONGUE_DEATHSWORN);
-                        /* fallthrough */
+                        [[fallthrough]];
                     case DATA_TERON_GOREFIEND:
                     case DATA_GURTOGG_BLOODBOIL:
                     case DATA_RELIQUARY_OF_SOULS:
@@ -226,7 +236,6 @@ class instance_black_temple : public InstanceMapScript
         protected:
             GuidVector AshtongueGUIDs;
             uint8 AkamaState;
-            uint8 TeronGorefiendIntro;
             uint8 AkamaIllidanIntro;
         };
 

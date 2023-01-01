@@ -86,13 +86,13 @@ public:
             Initialize();
 
             if (IsEvent)
-                instance->SetData(DATA_AZGALOREVENT, NOT_STARTED);
+                instance->SetBossState(DATA_AZGALOR, NOT_STARTED);
         }
 
         void JustEngagedWith(Unit* /*who*/) override
         {
             if (IsEvent)
-                instance->SetData(DATA_AZGALOREVENT, IN_PROGRESS);
+                instance->SetBossState(DATA_AZGALOR, IN_PROGRESS);
 
             Talk(SAY_ONAGGRO);
         }
@@ -116,7 +116,7 @@ public:
         {
             hyjal_trashAI::JustDied(killer);
             if (IsEvent)
-                instance->SetData(DATA_AZGALOREVENT, DONE);
+                instance->SetBossState(DATA_AZGALOR, DONE);
             Talk(SAY_ONDEATH);
         }
 
@@ -148,13 +148,13 @@ public:
 
             if (RainTimer <= diff)
             {
-                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 30, true), SPELL_RAIN_OF_FIRE);
+                DoCast(SelectTarget(SelectTargetMethod::Random, 0, 30, true), SPELL_RAIN_OF_FIRE);
                 RainTimer = 20000 + rand32() % 15000;
             } else RainTimer -= diff;
 
             if (DoomTimer <= diff)
             {
-                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true), SPELL_DOOM);//never on tank
+                DoCast(SelectTarget(SelectTargetMethod::Random, 1, 100, true), SPELL_DOOM);//never on tank
                 DoomTimer = 45000 + rand32() % 5000;
             } else DoomTimer -= diff;
 
@@ -264,7 +264,7 @@ public:
 
             if (CrippleTimer <= diff)
             {
-                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_CRIPPLE);
+                DoCast(SelectTarget(SelectTargetMethod::Random, 0, 100, true), SPELL_CRIPPLE);
                 CrippleTimer = 25000 + rand32() % 5000;
             } else CrippleTimer -= diff;
 

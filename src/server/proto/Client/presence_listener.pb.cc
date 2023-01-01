@@ -37,7 +37,6 @@ const ::google::protobuf::ServiceDescriptor* PresenceListener_descriptor_ = NULL
 
 }  // namespace
 
-
 void protobuf_AssignDesc_presence_5flistener_2eproto() {
   protobuf_AddDesc_presence_5flistener_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -147,7 +146,6 @@ struct StaticDescriptorInitializer_presence_5flistener_2eproto {
     protobuf_AddDesc_presence_5flistener_2eproto();
   }
 } static_descriptor_initializer_presence_5flistener_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -391,7 +389,6 @@ void SubscribeNotification::CopyFrom(const SubscribeNotification& from) {
 }
 
 bool SubscribeNotification::IsInitialized() const {
-
   if (has_subscriber_id()) {
     if (!this->subscriber_id().IsInitialized()) return false;
   }
@@ -416,7 +413,6 @@ void SubscribeNotification::Swap(SubscribeNotification* other) {
   metadata.reflection = SubscribeNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -661,7 +657,6 @@ void StateChangedNotification::CopyFrom(const StateChangedNotification& from) {
 }
 
 bool StateChangedNotification::IsInitialized() const {
-
   if (has_subscriber_id()) {
     if (!this->subscriber_id().IsInitialized()) return false;
   }
@@ -686,7 +681,6 @@ void StateChangedNotification::Swap(StateChangedNotification* other) {
   metadata.reflection = StateChangedNotification_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -717,7 +711,6 @@ void PresenceListener::CallServerMethod(uint32 token, uint32 methodId, MessageBu
   TC_LOG_ERROR("service.protobuf", "%s Server tried to call server method %u",
     GetCallerInfo().c_str(), methodId);
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

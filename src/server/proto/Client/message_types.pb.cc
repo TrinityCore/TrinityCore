@@ -30,7 +30,6 @@ const ::google::protobuf::EnumDescriptor* TypingIndicator_descriptor_ = NULL;
 
 }  // namespace
 
-
 void protobuf_AssignDesc_message_5ftypes_2eproto() {
   protobuf_AddDesc_message_5ftypes_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -114,7 +113,6 @@ bool TypingIndicator_IsValid(int value) {
       return false;
   }
 }
-
 
 // ===================================================================
 
@@ -367,7 +365,6 @@ void MessageId::CopyFrom(const MessageId& from) {
 }
 
 bool MessageId::IsInitialized() const {
-
   return true;
 }
 
@@ -388,7 +385,6 @@ void MessageId::Swap(MessageId* other) {
   metadata.reflection = MessageId_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

@@ -17,11 +17,10 @@
 
 #include "ItemPacketsCommon.h"
 #include "Item.h"
+#include "Loot.h"
 #include "Player.h"
 
-namespace WorldPackets
-{
-namespace Item
+namespace WorldPackets::Item
 {
 bool ItemBonuses::operator==(ItemBonuses const& r) const
 {
@@ -50,10 +49,10 @@ bool ItemModList::operator==(ItemModList const& r) const
 void ItemInstance::Initialize(::Item const* item)
 {
     ItemID = item->GetEntry();
-    std::vector<int32> const& bonusListIds = item->m_itemData->BonusListIDs;
+    std::vector<int32> const& bonusListIds = item->GetBonusListIDs();
     if (!bonusListIds.empty())
     {
-        ItemBonus = boost::in_place();
+        ItemBonus.emplace();
         ItemBonus->BonusListIDs.insert(ItemBonus->BonusListIDs.end(), bonusListIds.begin(), bonusListIds.end());
         ItemBonus->Context = item->GetContext();
     }
@@ -78,11 +77,11 @@ void ItemInstance::Initialize(UF::SocketedGem const* gem)
 
 void ItemInstance::Initialize(::LootItem const& lootItem)
 {
-    ItemID               = lootItem.itemid;
+    ItemID = lootItem.itemid;
 
     if (!lootItem.BonusListIDs.empty() || lootItem.randomBonusListId)
     {
-        ItemBonus = boost::in_place();
+        ItemBonus.emplace();
         ItemBonus->BonusListIDs = lootItem.BonusListIDs;
         ItemBonus->Context = lootItem.context;
         if (lootItem.randomBonusListId)
@@ -102,7 +101,7 @@ void ItemInstance::Initialize(::VoidStorageItem const* voidItem)
 
     if (!voidItem->BonusListIDs.empty())
     {
-        ItemBonus = boost::in_place();
+        ItemBonus.emplace();
         ItemBonus->Context = voidItem->Context;
         ItemBonus->BonusListIDs = voidItem->BonusListIDs;
     }
@@ -113,13 +112,27 @@ bool ItemInstance::operator==(ItemInstance const& r) const
     if (ItemID != r.ItemID)
         return false;
 
-    if (ItemBonus.is_initialized() != r.ItemBonus.is_initialized())
+    if (ItemBonus.has_value() != r.ItemBonus.has_value())
         return false;
 
     if (Modifications != r.Modifications)
         return false;
 
-    if (ItemBonus.is_initialized() && *ItemBonus != *r.ItemBonus)
+    if (ItemBonus.has_value() && *ItemBonus != *r.ItemBonus)
+        return false;
+
+    return true;
+}
+
+bool ItemBonusKey::operator==(ItemBonusKey const& right) const
+{
+    if (ItemID != right.ItemID)
+        return false;
+
+    if (BonusListIDs != right.BonusListIDs)
+        return false;
+
+    if (Modifications != right.Modifications)
         return false;
 
     return true;
@@ -194,7 +207,7 @@ ByteBuffer& operator<<(ByteBuffer& data, ItemInstance const& itemInstance)
 {
     data << int32(itemInstance.ItemID);
 
-    data.WriteBit(itemInstance.ItemBonus.is_initialized());
+    data.WriteBit(itemInstance.ItemBonus.has_value());
     data.FlushBits();
 
     data << itemInstance.Modifications;
@@ -216,9 +229,24 @@ ByteBuffer& operator>>(ByteBuffer& data, ItemInstance& itemInstance)
 
     if (hasItemBonus)
     {
-        itemInstance.ItemBonus = boost::in_place();
+        itemInstance.ItemBonus.emplace();
         data >> *itemInstance.ItemBonus;
     }
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, ItemBonusKey const& itemBonusKey)
+{
+    data << int32(itemBonusKey.ItemID);
+    data << uint32(itemBonusKey.BonusListIDs.size());
+    data << uint32(itemBonusKey.Modifications.size());
+
+    if (!itemBonusKey.BonusListIDs.empty())
+        data.append(itemBonusKey.BonusListIDs.data(), itemBonusKey.BonusListIDs.size());
+
+    for (ItemMod const& modification : itemBonusKey.Modifications)
+        data << modification;
 
     return data;
 }
@@ -258,5 +286,12 @@ ByteBuffer& operator>>(ByteBuffer& data, InvUpdate& invUpdate)
 
     return data;
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, UiEventToast const& uiEventToast)
+{
+    data << int32(uiEventToast.UiEventToastID);
+    data << int32(uiEventToast.Asset);
+
+    return data;
 }
 }

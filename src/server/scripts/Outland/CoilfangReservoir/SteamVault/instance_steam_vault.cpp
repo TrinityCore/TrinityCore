@@ -21,19 +21,18 @@
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "InstanceScript.h"
-#include "Log.h"
 #include "steam_vault.h"
 
 struct go_main_chambers_access_panel : public GameObjectAI
 {
     go_main_chambers_access_panel(GameObject* go) : GameObjectAI(go), _instance(go->GetInstanceScript()) { }
 
-    bool GossipHello(Player* /*player*/) override
+    bool OnGossipHello(Player* /*player*/) override
     {
         if (Creature* controller = _instance->GetCreature(DATA_DOOR_CONTROLLER))
             controller->AI()->Talk(CONTROLLER_TEXT_ACESS_USED);
         _instance->SetData(ACTION_OPEN_DOOR, 0);
-        me->AddFlag(GO_FLAG_NOT_SELECTABLE);
+        me->SetFlag(GO_FLAG_NOT_SELECTABLE);
         me->SetGoState(GO_STATE_ACTIVE);
         return true;
     }
@@ -59,6 +58,13 @@ ObjectData const creatureData[] =
     { 0,                            0                          } // END
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_HYDROMANCER_THESPIA, {{ 1942 }} },
+    { DATA_MEKGINEER_STEAMRIGGER, {{ 1943 }} },
+    { DATA_WARLORD_KALITHRESH, {{ 1944 }} }
+};
+
 class instance_steam_vault : public InstanceMapScript
 {
     public:
@@ -71,6 +77,7 @@ class instance_steam_vault : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadObjectData(creatureData, gameObjectData);
+                LoadDungeonEncounterData(encounters);
                 distillerState = 0;
             }
 
@@ -91,7 +98,7 @@ class instance_steam_vault : public InstanceMapScript
                     if (GameObject* mainDoor = GetGameObject(DATA_MAIN_DOOR))
                     {
                         HandleGameObject(ObjectGuid::Empty, true, mainDoor);
-                        mainDoor->AddFlag(GO_FLAG_NOT_SELECTABLE);
+                        mainDoor->SetFlag(GO_FLAG_NOT_SELECTABLE);
                     }
                 }
             }

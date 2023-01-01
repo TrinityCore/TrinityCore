@@ -25,7 +25,6 @@
 #include "Transport.h"
 #include "UnitAI.h"
 #include "Vehicle.h"
-#include "WorldStatePackets.h"
 
 BattlegroundIC::BattlegroundIC(BattlegroundTemplate const* battlegroundTemplate) : Battleground(battlegroundTemplate)
 {
@@ -56,10 +55,10 @@ BattlegroundIC::~BattlegroundIC() { }
 
 void BattlegroundIC::HandlePlayerResurrect(Player* player)
 {
-    if (nodePoint[NODE_TYPE_QUARRY].nodeState == (player->GetTeamId() == TEAM_ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H))
+    if (nodePoint[NODE_TYPE_QUARRY].nodeState == (GetPlayerTeam(player->GetGUID()) == ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H))
         player->CastSpell(player, SPELL_QUARRY, true);
 
-    if (nodePoint[NODE_TYPE_REFINERY].nodeState == (player->GetTeamId() == TEAM_ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H))
+    if (nodePoint[NODE_TYPE_REFINERY].nodeState == (GetPlayerTeam(player->GetGUID()) == ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H))
         player->CastSpell(player, SPELL_OIL_REFINERY, true);
 }
 
@@ -72,12 +71,12 @@ void BattlegroundIC::PostUpdateImpl(uint32 diff)
     {
         if (closeFortressDoorsTimer <= diff)
         {
-            GetBGObject(BG_IC_GO_DOODAD_ND_HUMAN_GATE_CLOSEDFX_DOOR01)->RemoveFromWorld();
-            GetBGObject(BG_IC_GO_DOODAD_ND_WINTERORC_WALL_GATEFX_DOOR01)->RemoveFromWorld();
-            GetBGObject(BG_IC_GO_DOODAD_ND_HUMAN_GATE_CLOSEDFX_DOOR02)->RemoveFromWorld();
-            GetBGObject(BG_IC_GO_DOODAD_ND_WINTERORC_WALL_GATEFX_DOOR02)->RemoveFromWorld();
-            GetBGObject(BG_IC_GO_DOODAD_ND_HUMAN_GATE_CLOSEDFX_DOOR03)->RemoveFromWorld();
-            GetBGObject(BG_IC_GO_DOODAD_ND_WINTERORC_WALL_GATEFX_DOOR03)->RemoveFromWorld();
+            RemoveObjectFromWorld(BG_IC_GO_DOODAD_ND_HUMAN_GATE_CLOSEDFX_DOOR01);
+            RemoveObjectFromWorld(BG_IC_GO_DOODAD_ND_WINTERORC_WALL_GATEFX_DOOR01);
+            RemoveObjectFromWorld(BG_IC_GO_DOODAD_ND_HUMAN_GATE_CLOSEDFX_DOOR02);
+            RemoveObjectFromWorld(BG_IC_GO_DOODAD_ND_WINTERORC_WALL_GATEFX_DOOR02);
+            RemoveObjectFromWorld(BG_IC_GO_DOODAD_ND_HUMAN_GATE_CLOSEDFX_DOOR03);
+            RemoveObjectFromWorld(BG_IC_GO_DOODAD_ND_WINTERORC_WALL_GATEFX_DOOR03);
 
             GetBGObject(BG_IC_GO_ALLIANCE_GATE_1)->SetDestructibleState(GO_DESTRUCTIBLE_DAMAGED);
             GetBGObject(BG_IC_GO_HORDE_GATE_1)->SetDestructibleState(GO_DESTRUCTIBLE_DAMAGED);
@@ -137,9 +136,9 @@ void BattlegroundIC::PostUpdateImpl(uint32 diff)
                     {
                         if (siege->IsAlive())
                         {
-                            if (siege->HasUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_CANNOT_SWIM | UNIT_FLAG_IMMUNE_TO_PC)))
+                            if (siege->HasUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_CANT_SWIM | UNIT_FLAG_IMMUNE_TO_PC))
                                 // following sniffs the vehicle always has UNIT_FLAG_CANNOT_SWIM
-                                siege->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC));
+                                siege->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_IMMUNE_TO_PC);
                             else
                                 siege->SetHealth(siege->GetMaxHealth());
                         }
@@ -207,7 +206,7 @@ void BattlegroundIC::PostUpdateImpl(uint32 diff)
             {
                 factionReinforcements[nodePoint[i].faction] += 1;
                 RewardHonorToTeam(RESOURCE_HONOR_AMOUNT, nodePoint[i].faction == TEAM_ALLIANCE ? ALLIANCE : HORDE);
-                UpdateWorldState((nodePoint[i].faction == TEAM_ALLIANCE ? BG_IC_ALLIANCE_RENFORT : BG_IC_HORDE_RENFORT), factionReinforcements[nodePoint[i].faction]);
+                UpdateWorldState((nodePoint[i].faction == TEAM_ALLIANCE ? BG_IC_ALLIANCE_REINFORCEMENTS : BG_IC_HORDE_REINFORCEMENTS), factionReinforcements[nodePoint[i].faction]);
             }
         }
         resourceTimer = IC_RESOURCE_TIME;
@@ -242,13 +241,15 @@ void BattlegroundIC::StartingEventOpenDoors()
 
 void BattlegroundIC::AddPlayer(Player* player)
 {
+    bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
     Battleground::AddPlayer(player);
-    PlayerScores[player->GetGUID()] = new BattlegroundICScore(player->GetGUID(), player->GetBGTeam());
+    if (!isInBattleground)
+        PlayerScores[player->GetGUID()] = new BattlegroundICScore(player->GetGUID(), player->GetBGTeam());
 
-    if (nodePoint[NODE_TYPE_QUARRY].nodeState == (player->GetTeamId() == TEAM_ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H))
+    if (nodePoint[NODE_TYPE_QUARRY].nodeState == (GetPlayerTeam(player->GetGUID()) == ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H))
         player->CastSpell(player, SPELL_QUARRY, true);
 
-    if (nodePoint[NODE_TYPE_REFINERY].nodeState == (player->GetTeamId() == TEAM_ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H))
+    if (nodePoint[NODE_TYPE_REFINERY].nodeState == (GetPlayerTeam(player->GetGUID()) == ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H))
         player->CastSpell(player, SPELL_OIL_REFINERY, true);
 }
 
@@ -269,37 +270,20 @@ void BattlegroundIC::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
             TeleportPlayerToExploitLocation(player);
 
     /// @hack: this spell should be cast by npc 22515 (World Trigger) and not by the player
-    if (trigger == 5555 && player->GetTeamId() == TEAM_HORDE)
+    if (trigger == 5555 && GetPlayerTeam(player->GetGUID()) == HORDE)
     {
         if (GateStatus[BG_IC_A_FRONT] != BG_IC_GATE_DESTROYED
             && GateStatus[BG_IC_A_WEST] != BG_IC_GATE_DESTROYED
             && GateStatus[BG_IC_A_EAST] != BG_IC_GATE_DESTROYED)
         player->CastSpell(player, SPELL_BACK_DOOR_JOB_ACHIEVEMENT, true);
     }
-    else if (trigger == 5535 && player->GetTeamId() == TEAM_ALLIANCE)
+    else if (trigger == 5535 && GetPlayerTeam(player->GetGUID()) == ALLIANCE)
     {
         if (GateStatus[BG_IC_H_FRONT] != BG_IC_GATE_DESTROYED
             && GateStatus[BG_IC_H_WEST] != BG_IC_GATE_DESTROYED
             && GateStatus[BG_IC_H_EAST] != BG_IC_GATE_DESTROYED)
         player->CastSpell(player, SPELL_BACK_DOOR_JOB_ACHIEVEMENT, true);
     }
-}
-
-void BattlegroundIC::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
-{
-    packet.Worldstates.emplace_back(BG_IC_ALLIANCE_RENFORT_SET, 1);
-    packet.Worldstates.emplace_back(BG_IC_HORDE_RENFORT_SET, 1);
-    packet.Worldstates.emplace_back(BG_IC_ALLIANCE_RENFORT, factionReinforcements[TEAM_ALLIANCE]);
-    packet.Worldstates.emplace_back(BG_IC_HORDE_RENFORT, factionReinforcements[TEAM_HORDE]);
-
-    for (uint8 itr = 0; itr < MAX_FORTRESS_GATES_SPAWNS; ++itr)
-    {
-        int32 worldState = GetWorldStateFromGateEntry(BG_IC_ObjSpawnlocs[itr].entry, (GateStatus[GetGateIDFromEntry(BG_IC_ObjSpawnlocs[itr].entry)] == BG_IC_GATE_DESTROYED ? true : false));
-        packet.Worldstates.emplace_back(worldState, 1);
-    }
-
-    for (uint8 itr = 0; itr < MAX_NODE_TYPES; ++itr)
-        packet.Worldstates.emplace_back(nodePoint[itr].worldStates[nodePoint[itr].nodeState], 1);
 }
 
 bool BattlegroundIC::SetupBattleground()
@@ -349,8 +333,8 @@ bool BattlegroundIC::SetupBattleground()
         return false;
     }
 
-    gunshipHorde = sTransportMgr->CreateTransport(GO_HORDE_GUNSHIP, UI64LIT(0), GetBgMap());
-    gunshipAlliance = sTransportMgr->CreateTransport(GO_ALLIANCE_GUNSHIP, UI64LIT(0), GetBgMap());
+    gunshipHorde = sTransportMgr->CreateTransport(GO_HORDE_GUNSHIP, GetBgMap());
+    gunshipAlliance = sTransportMgr->CreateTransport(GO_ALLIANCE_GUNSHIP, GetBgMap());
 
     if (!gunshipAlliance || !gunshipHorde)
     {
@@ -404,13 +388,14 @@ void BattlegroundIC::HandleKillPlayer(Player* player, Player* killer)
 
     Battleground::HandleKillPlayer(player, killer);
 
-    factionReinforcements[player->GetTeamId()] -= 1;
+    TeamId victimTeamId = GetTeamIndexByTeamId(GetPlayerTeam(player->GetGUID()));
+    factionReinforcements[victimTeamId] -= 1;
 
-    UpdateWorldState((player->GetTeamId() == TEAM_ALLIANCE ? BG_IC_ALLIANCE_RENFORT : BG_IC_HORDE_RENFORT), factionReinforcements[player->GetTeamId()]);
+    UpdateWorldState((GetPlayerTeam(player->GetGUID()) == ALLIANCE ? BG_IC_ALLIANCE_REINFORCEMENTS : BG_IC_HORDE_REINFORCEMENTS), factionReinforcements[victimTeamId]);
 
     // we must end the battleground
-    if (factionReinforcements[player->GetTeamId()] < 1)
-        EndBattleground(killer->GetTeam());
+    if (factionReinforcements[victimTeamId] < 1)
+        EndBattleground(GetPlayerTeam(killer->GetGUID()));
 }
 
 void BattlegroundIC::EventPlayerClickedOnFlag(Player* player, GameObject* target_obj)
@@ -423,14 +408,16 @@ void BattlegroundIC::EventPlayerClickedOnFlag(Player* player, GameObject* target
     {
         if (nodePoint[i].gameobject_entry == target_obj->GetEntry())
         {
+            TeamId teamId = GetTeamIndexByTeamId(GetPlayerTeam(player->GetGUID()));
+
             // THIS SHOULD NEEVEER HAPPEN
-            if (nodePoint[i].faction == player->GetTeamId())
+            if (nodePoint[i].faction == teamId)
                 return;
 
-            uint32 nextBanner = GetNextBanner(&nodePoint[i], player->GetTeamId(), false);
+            uint32 nextBanner = GetNextBanner(&nodePoint[i], teamId, false);
 
             // we set the new settings of the nodePoint
-            nodePoint[i].faction = player->GetTeamId();
+            nodePoint[i].faction = teamId;
             nodePoint[i].last_entry = nodePoint[i].gameobject_entry;
             nodePoint[i].gameobject_entry = nextBanner;
 
@@ -440,13 +427,13 @@ void BattlegroundIC::EventPlayerClickedOnFlag(Player* player, GameObject* target
                 nodePoint[i].timer = BANNER_STATE_CHANGE_TIME; // 1 minute for last change (real faction banner)
                 nodePoint[i].needChange = true;
 
-                RelocateDeadPlayers(BgCreatures[BG_IC_NPC_SPIRIT_GUIDE_1 + nodePoint[i].nodeType - 2]);
+                RelocateDeadPlayers(BgCreatures[BG_IC_NPC_SPIRIT_GUIDE_1 + uint32(nodePoint[i].nodeType) - 2]);
 
                 // if we are here means that the point has been lost, or it is the first capture
 
                 if (nodePoint[i].nodeType != NODE_TYPE_REFINERY && nodePoint[i].nodeType != NODE_TYPE_QUARRY)
-                    if (!BgCreatures[BG_IC_NPC_SPIRIT_GUIDE_1 + (nodePoint[i].nodeType) - 2].IsEmpty())
-                        DelCreature(BG_IC_NPC_SPIRIT_GUIDE_1 + (nodePoint[i].nodeType) - 2);
+                    if (!BgCreatures[BG_IC_NPC_SPIRIT_GUIDE_1 + uint32(nodePoint[i].nodeType) - 2].IsEmpty())
+                        DelCreature(BG_IC_NPC_SPIRIT_GUIDE_1 + uint32(nodePoint[i].nodeType) - 2);
 
                 UpdatePlayerScore(player, SCORE_BASES_ASSAULTED, 1);
 
@@ -507,7 +494,7 @@ void BattlegroundIC::UpdateNodeWorldState(ICNodePoint* node)
     else if (node->gameobject_entry == node->banners[BANNER_H_CONTESTED])
         node->nodeState = NODE_STATE_CONFLICT_H;
 
-    uint32 worldstate = node->worldStates[node->nodeState];
+    int32 worldstate = node->worldStates[node->nodeState];
 
     // with this we are sure we dont bug the client
     for (uint8 i = 0; i < 5; ++i)
@@ -518,6 +505,7 @@ void BattlegroundIC::UpdateNodeWorldState(ICNodePoint* node)
     }
 
     UpdateWorldState(worldstate, 1);
+    UpdateWorldState(node->worldStates[5], node->nodeState == NODE_STATE_CONTROLLED_H ? 2 : node->nodeState == NODE_STATE_CONTROLLED_A ? 1 : 0);
 }
 
 uint32 BattlegroundIC::GetNextBanner(ICNodePoint* node, uint32 team, bool returnDefinitve)
@@ -575,7 +563,7 @@ void BattlegroundIC::HandleContestedNodes(ICNodePoint* node)
         for (Creature* cannon : cannons)
         {
             cannon->GetVehicleKit()->RemoveAllPassengers();
-            cannon->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+            cannon->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
         }
     }
     else if (node->nodeType == NODE_TYPE_WORKSHOP)
@@ -589,7 +577,7 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* node, bool recapture)
 {
     if (node->nodeType != NODE_TYPE_REFINERY && node->nodeType != NODE_TYPE_QUARRY)
     {
-        if (!AddSpiritGuide(BG_IC_NPC_SPIRIT_GUIDE_1+node->nodeType-2, BG_IC_SpiritGuidePos[node->nodeType], node->faction))
+        if (!AddSpiritGuide(BG_IC_NPC_SPIRIT_GUIDE_1 + uint32(node->nodeType) - 2, BG_IC_SpiritGuidePos[node->nodeType], node->faction))
             TC_LOG_ERROR("bg.battleground", "Isle of Conquest: Failed to spawn spirit guide! point: %u, team: %u, ", node->nodeType, node->faction);
     }
 
@@ -607,7 +595,7 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* node, bool recapture)
                     gunshipHorde->GetCreatureListWithEntryInGrid(cannons, NPC_HORDE_GUNSHIP_CANNON, 150.0f);
 
                 for (Creature* cannon : cannons)
-                    cannon->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                    cannon->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
 
                 for (uint8 u = 0; u < MAX_HANGAR_TELEPORTERS_SPAWNS; ++u)
                 {
@@ -762,7 +750,7 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* node, bool recapture)
 
                         if (Creature* siegeEngine = GetBGCreature(siegeType))
                         {
-                            siegeEngine->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_CANNOT_SWIM));
+                            siegeEngine->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_CANT_SWIM);
                             siegeEngine->SetImmuneToPC(true);
                             siegeEngine->SetFaction(BG_IC_Factions[(node->faction == TEAM_ALLIANCE ? 0 : 1)]);
                         }
@@ -792,14 +780,14 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* node, bool recapture)
 void BattlegroundIC::DestroyGate(Player* player, GameObject* go)
 {
     GateStatus[GetGateIDFromEntry(go->GetEntry())] = BG_IC_GATE_DESTROYED;
-    uint32 uws_open = GetWorldStateFromGateEntry(go->GetEntry(), true);
-    uint32 uws_close = GetWorldStateFromGateEntry(go->GetEntry(), false);
+    int32 uws_open = GetWorldStateFromGateEntry(go->GetEntry(), true);
+    int32 uws_close = GetWorldStateFromGateEntry(go->GetEntry(), false);
     if (uws_open)
     {
         UpdateWorldState(uws_close, 0);
         UpdateWorldState(uws_open, 1);
     }
-    if (player->GetTeamId() == TEAM_ALLIANCE)
+    if (GetPlayerTeam(player->GetGUID()) == ALLIANCE)
     {
         DoorOpen(BG_IC_GO_HORDE_KEEP_PORTCULLIS);
         GetBGObject(BG_IC_GO_HORDE_BANNER)->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
@@ -858,12 +846,12 @@ void BattlegroundIC::DestroyGate(Player* player, GameObject* go)
 
 WorldSafeLocsEntry const* BattlegroundIC::GetClosestGraveyard(Player* player)
 {
-    TeamId teamIndex = GetTeamIndexByTeamId(player->GetTeam());
+    TeamId teamIndex = GetTeamIndexByTeamId(GetPlayerTeam(player->GetGUID()));
 
     // Is there any occupied node for this team?
     std::vector<uint8> nodes;
     for (uint8 i = 0; i < MAX_NODE_TYPES; ++i)
-        if (nodePoint[i].faction == player->GetTeamId())
+        if (nodePoint[i].faction == GetTeamIndexByTeamId(GetPlayerTeam(player->GetGUID())))
             nodes.push_back(i);
 
     WorldSafeLocsEntry const* good_entry = nullptr;
@@ -890,7 +878,7 @@ WorldSafeLocsEntry const* BattlegroundIC::GetClosestGraveyard(Player* player)
     }
     // If not, place ghost on starting location
     if (!good_entry)
-        good_entry = sObjectMgr->GetWorldSafeLoc(BG_IC_GraveyardIds[teamIndex+MAX_NODE_TYPES]);
+        good_entry = sObjectMgr->GetWorldSafeLoc(BG_IC_GraveyardIds[uint32(teamIndex) + MAX_NODE_TYPES]);
 
     return good_entry;
 }
@@ -900,19 +888,6 @@ WorldSafeLocsEntry const * BattlegroundIC::GetExploitTeleportLocation(Team team)
     return sObjectMgr->GetWorldSafeLoc(team == ALLIANCE ? IC_EXPLOIT_TELEPORT_LOCATION_ALLIANCE : IC_EXPLOIT_TELEPORT_LOCATION_HORDE);
 }
 
-bool BattlegroundIC::IsAllNodesControlledByTeam(uint32 team) const
-{
-    uint32 count = 0;
-    ICNodeState controlledState = team == ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H;
-    for (int i = 0; i < NODE_TYPE_WORKSHOP; ++i)
-    {
-        if (nodePoint[i].nodeState == controlledState)
-            ++count;
-    }
-
-    return count == NODE_TYPE_WORKSHOP;
-}
-
 bool BattlegroundIC::IsSpellAllowed(uint32 spellId, Player const* player) const
 {
     switch (spellId)
@@ -920,9 +895,9 @@ bool BattlegroundIC::IsSpellAllowed(uint32 spellId, Player const* player) const
         case SPELL_OIL_REFINERY:
         case SPELL_QUARRY:
         {
-            uint32 team = player->GetTeamId();
+            uint32 team = GetPlayerTeam(player->GetGUID());
             uint8 nodeType = spellId == SPELL_OIL_REFINERY ? NODE_TYPE_REFINERY : NODE_TYPE_QUARRY;
-            uint8 nodeState = team == TEAM_ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H;
+            uint8 nodeState = team == ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H;
             return GetNodeState(nodeType) == nodeState;
         }
         default:

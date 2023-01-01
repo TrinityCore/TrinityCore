@@ -19,6 +19,7 @@
 #define TRINITY_OBJECTACCESSOR_H
 
 #include "ObjectGuid.h"
+#include <shared_mutex>
 #include <unordered_map>
 
 class AreaTrigger;
@@ -35,11 +36,6 @@ class SceneObject;
 class Transport;
 class Unit;
 class WorldObject;
-
-namespace boost
-{
-    class shared_mutex;
-}
 
 template <class T>
 class TC_GAME_API HashMapHolder
@@ -59,7 +55,7 @@ public:
 
     static MapType& GetContainer();
 
-    static boost::shared_mutex* GetLock();
+    static std::shared_mutex* GetLock();
 };
 
 namespace ObjectAccessor
@@ -69,8 +65,7 @@ namespace ObjectAccessor
     TC_GAME_API Object* GetObjectByTypeMask(WorldObject const&, ObjectGuid const&, uint32 typemask);
     TC_GAME_API Corpse* GetCorpse(WorldObject const& u, ObjectGuid const& guid);
     TC_GAME_API GameObject* GetGameObject(WorldObject const& u, ObjectGuid const& guid);
-    TC_GAME_API Transport* GetTransportOnMap(WorldObject const& u, ObjectGuid const& guid);
-    TC_GAME_API Transport* GetTransport(ObjectGuid const& guid);
+    TC_GAME_API Transport* GetTransport(WorldObject const& u, ObjectGuid const& guid);
     TC_GAME_API DynamicObject* GetDynamicObject(WorldObject const& u, ObjectGuid const& guid);
     TC_GAME_API AreaTrigger* GetAreaTrigger(WorldObject const& u, ObjectGuid const& guid);
     TC_GAME_API SceneObject* GetSceneObject(WorldObject const& u, ObjectGuid const& guid);
@@ -85,12 +80,12 @@ namespace ObjectAccessor
     // these functions return objects if found in whole world
     // ACCESS LIKE THAT IS NOT THREAD SAFE
     TC_GAME_API Player* FindPlayer(ObjectGuid const&);
-    TC_GAME_API Player* FindPlayerByName(std::string const& name);
+    TC_GAME_API Player* FindPlayerByName(std::string_view name);
     TC_GAME_API Player* FindPlayerByLowGUID(ObjectGuid::LowType lowguid);
 
     // this returns Player even if he is not in world, for example teleporting
     TC_GAME_API Player* FindConnectedPlayer(ObjectGuid const&);
-    TC_GAME_API Player* FindConnectedPlayerByName(std::string const& name);
+    TC_GAME_API Player* FindConnectedPlayerByName(std::string_view name);
 
     // when using this, you must use the hashmapholder's lock
     TC_GAME_API HashMapHolder<Player>::MapType const& GetPlayers();

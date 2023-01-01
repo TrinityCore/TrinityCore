@@ -398,7 +398,7 @@ uint32 AuctionBotBuyer::GetChanceMultiplier(uint32 quality)
 // Buys the auction and does necessary actions to complete the buyout
 void AuctionBotBuyer::BuyEntry(AuctionPosting* auction, AuctionHouseObject* auctionHouse)
 {
-    TC_LOG_DEBUG("ahbot", "AHBot: Entry %u bought at %.2fg", auction->Id, float(auction->BuyoutOrUnitPrice) / GOLD);
+    TC_LOG_DEBUG("ahbot", "AHBot: Entry %u bought at %.2fg", auction->Id, float(auction->BuyoutOrUnitPrice) / float(GOLD));
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
@@ -426,7 +426,7 @@ void AuctionBotBuyer::BuyEntry(AuctionPosting* auction, AuctionHouseObject* auct
 // Bids on the auction and does the necessary actions for bidding
 void AuctionBotBuyer::PlaceBidToEntry(AuctionPosting* auction, AuctionHouseObject* auctionHouse, uint32 bidPrice)
 {
-    TC_LOG_DEBUG("ahbot", "AHBot: Bid placed to entry %u, %.2fg", auction->Id, float(bidPrice) / GOLD);
+    TC_LOG_DEBUG("ahbot", "AHBot: Bid placed to entry %u, %.2fg", auction->Id, float(bidPrice) / float(GOLD));
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
@@ -439,12 +439,14 @@ void AuctionBotBuyer::PlaceBidToEntry(AuctionPosting* auction, AuctionHouseObjec
     // Set bot as bidder and set new bid amount
     auction->Bidder = newBidder;
     auction->BidAmount = bidPrice;
+    auction->ServerFlags &= ~AuctionPostingServerFlag::GmLogBuyer;
 
     // Update auction to DB
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_AUCTION_BID);
     stmt->setUInt64(0, auction->Bidder.GetCounter());
-    stmt->setUInt32(1, auction->BidAmount);
-    stmt->setUInt32(2, auction->Id);
+    stmt->setUInt64(1, auction->BidAmount);
+    stmt->setUInt8(2, auction->ServerFlags.AsUnderlyingType());
+    stmt->setUInt32(3, auction->Id);
     trans->Append(stmt);
 
     // Run SQLs

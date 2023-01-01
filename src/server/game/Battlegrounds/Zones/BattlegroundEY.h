@@ -51,7 +51,7 @@ enum BG_EY_WorldStates
     PROGRESS_BAR_PERCENT_GREY       = 2720,                 //100 = empty (only grey), 0 = blue|red (no grey)
     PROGRESS_BAR_STATUS             = 2719,                 //50 init!, 48 ... hordak bere .. 33 .. 0 = full 100% hordacky, 100 = full alliance
     PROGRESS_BAR_SHOW               = 2718,                 //1 init, 0 druhy send - bez messagu, 1 = controlled aliance
-    NETHERSTORM_FLAG                = 2757,
+    NETHERSTORM_FLAG                = 8863,
     //set to 2 when flag is picked up, and to 1 if it is dropped
     NETHERSTORM_FLAG_STATE_ALLIANCE = 9808,
     NETHERSTORM_FLAG_STATE_HORDE    = 9809,
@@ -98,18 +98,29 @@ enum BG_EY_Spells
 
 enum EYBattlegroundObjectEntry
 {
-    BG_OBJECT_A_DOOR_EY_ENTRY           = 184719,           //Alliance door
-    BG_OBJECT_H_DOOR_EY_ENTRY           = 184720,           //Horde door
-    BG_OBJECT_FLAG1_EY_ENTRY            = 184493,           //Netherstorm flag (generic)
-    BG_OBJECT_FLAG2_EY_ENTRY            = 184141,           //Netherstorm flag (flagstand)
-    BG_OBJECT_FLAG3_EY_ENTRY            = 184142,           //Netherstorm flag (flagdrop)
-    BG_OBJECT_A_BANNER_EY_ENTRY         = 184381,           //Visual Banner (Alliance)
-    BG_OBJECT_H_BANNER_EY_ENTRY         = 184380,           //Visual Banner (Horde)
-    BG_OBJECT_N_BANNER_EY_ENTRY         = 184382,           //Visual Banner (Neutral)
-    BG_OBJECT_BE_TOWER_CAP_EY_ENTRY     = 184080,           //BE Tower Cap Pt
-    BG_OBJECT_FR_TOWER_CAP_EY_ENTRY     = 184081,           //Fel Reaver Cap Pt
-    BG_OBJECT_HU_TOWER_CAP_EY_ENTRY     = 184082,           //Human Tower Cap Pt
-    BG_OBJECT_DR_TOWER_CAP_EY_ENTRY     = 184083            //Draenei Tower Cap Pt
+    BG_OBJECT_A_DOOR_EY_ENTRY                           = 184719,           //Alliance door
+    BG_OBJECT_H_DOOR_EY_ENTRY                           = 184720,           //Horde door
+    BG_OBJECT_FLAG1_EY_ENTRY                            = 184493,           //Netherstorm flag (generic)
+    BG_OBJECT_FLAG2_EY_ENTRY                            = 208977,           //Netherstorm flag (flagstand)
+    BG_OBJECT_A_BANNER_EY_ENTRY                         = 184381,           //Visual Banner (Alliance)
+    BG_OBJECT_H_BANNER_EY_ENTRY                         = 184380,           //Visual Banner (Horde)
+    BG_OBJECT_N_BANNER_EY_ENTRY                         = 184382,           //Visual Banner (Neutral)
+    BG_OBJECT_BE_TOWER_CAP_EY_ENTRY                     = 184080,           //BE Tower Cap Pt
+    BG_OBJECT_FR_TOWER_CAP_EY_ENTRY                     = 184081,           //Fel Reaver Cap Pt
+    BG_OBJECT_HU_TOWER_CAP_EY_ENTRY                     = 184082,           //Human Tower Cap Pt
+    BG_OBJECT_DR_TOWER_CAP_EY_ENTRY                     = 184083,           //Draenei Tower Cap Pt
+    BG_OBJECT_SPEED_BUFF_FEL_REAVER_EY_ENTRY            = 184970,
+    BG_OBJECT_RESTORATION_BUFF_FEL_REAVER_EY_ENTRY      = 184971,
+    BG_OBJECT_BERSERK_BUFF_FEL_REAVER_EY_ENTRY          = 184972,
+    BG_OBJECT_SPEED_BUFF_BLOOD_ELF_EY_ENTRY             = 184964,
+    BG_OBJECT_RESTORATION_BUFF_BLOOD_ELF_EY_ENTRY       = 184965,
+    BG_OBJECT_BERSERK_BUFF_BLOOD_ELF_EY_ENTRY           = 184966,
+    BG_OBJECT_SPEED_BUFF_DRAENEI_RUINS_EY_ENTRY         = 184976,
+    BG_OBJECT_RESTORATION_BUFF_DRAENEI_RUINS_EY_ENTRY   = 184977,
+    BG_OBJECT_BERSERK_BUFF_DRAENEI_RUINS_EY_ENTRY       = 184978,
+    BG_OBJECT_SPEED_BUFF_MAGE_TOWER_EY_ENTRY            = 184973,
+    BG_OBJECT_RESTORATION_BUFF_MAGE_TOWER_EY_ENTRY      = 184974,
+    BG_OBJECT_BERSERK_BUFF_MAGE_TOWER_EY_ENTRY          = 184975,
 };
 
 enum EYBattlegroundPointsTrigger
@@ -233,7 +244,7 @@ enum EYBattlegroundObjectTypes
 enum BG_EY_Score
 {
     BG_EY_WARNING_NEAR_VICTORY_SCORE    = 1400,
-    BG_EY_MAX_TEAM_SCORE                = 1600
+    BG_EY_MAX_TEAM_SCORE                = 1500
 };
 
 enum BG_EY_FlagState
@@ -274,8 +285,8 @@ enum BG_EY_BroadcastTexts
     BG_EY_TEXT_ALLIANCE_LOST_BLOOD_ELF_TOWER    = 17831,
     BG_EY_TEXT_HORDE_LOST_BLOOD_ELF_TOWER       = 17832,
 
-    BG_EY_TEXT_ALLIANCE_TAKEN_DRAENEI_RUINS     = 17826,
-    BG_EY_TEXT_HORDE_TAKEN_DRAENEI_RUINS        = 17827,
+    BG_EY_TEXT_ALLIANCE_TAKEN_DRAENEI_RUINS     = 17827,
+    BG_EY_TEXT_HORDE_TAKEN_DRAENEI_RUINS        = 17826,
     BG_EY_TEXT_ALLIANCE_LOST_DRAENEI_RUINS      = 17833,
     BG_EY_TEXT_HORDE_LOST_DRAENEI_RUINS         = 17834,
 
@@ -431,16 +442,12 @@ class BattlegroundEY : public Battleground
         void UpdateTeamScore(uint32 Team);
         void EndBattleground(uint32 winner) override;
         bool UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true) override;
-        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
         void SetDroppedFlagGUID(ObjectGuid guid, int32 /*TeamID*/ = -1) override  { m_DroppedFlagGUID = guid; }
         ObjectGuid GetDroppedFlagGUID() const { return m_DroppedFlagGUID; }
 
         /* Battleground Events */
         void EventPlayerClickedOnFlag(Player* Source, GameObject* target_obj) override;
         void EventPlayerDroppedFlag(Player* Source) override;
-
-        /* achievement req. */
-        bool IsAllNodesControlledByTeam(uint32 team) const override;
 
         uint32 GetPrematureWinner() override;
 protected:

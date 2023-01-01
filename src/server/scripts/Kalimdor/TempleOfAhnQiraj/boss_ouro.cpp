@@ -81,10 +81,10 @@ public:
             _Reset();
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
             DoCastVictim(SPELL_BIRTH);
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
         }
 
         void UpdateAI(uint32 diff) override
@@ -112,7 +112,7 @@ public:
             {
                 //Cast
                 me->HandleEmoteCommand(EMOTE_ONESHOT_SUBMERGE);
-                me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->SetFaction(FACTION_FRIENDLY);
                 DoCast(me, SPELL_DIRTMOUND_PASSIVE);
 
@@ -123,7 +123,7 @@ public:
             //ChangeTarget_Timer
             if (Submerged && ChangeTarget_Timer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoTeleportTo(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
 
                 ChangeTarget_Timer = urand(10000, 20000);
@@ -132,7 +132,7 @@ public:
             //Back_Timer
             if (Submerged && Back_Timer <= diff)
             {
-                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->SetFaction(FACTION_MONSTER);
 
                 DoCastVictim(SPELL_GROUND_RUPTURE);

@@ -137,7 +137,6 @@ const ::google::protobuf::EnumDescriptor* IdentityVerificationStatus_descriptor_
 
 }  // namespace
 
-
 void protobuf_AssignDesc_account_5ftypes_2eproto() {
   protobuf_AddDesc_account_5ftypes_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -1192,7 +1191,6 @@ bool IdentityVerificationStatus_IsValid(int value) {
   }
 }
 
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -1392,7 +1390,6 @@ void AccountId::CopyFrom(const AccountId& from) {
 
 bool AccountId::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
   return true;
 }
 
@@ -1412,7 +1409,6 @@ void AccountId::Swap(AccountId* other) {
   metadata.reflection = AccountId_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1666,7 +1662,6 @@ void AccountLicense::CopyFrom(const AccountLicense& from) {
 
 bool AccountLicense::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
   return true;
 }
 
@@ -1687,7 +1682,6 @@ void AccountLicense::Swap(AccountLicense* other) {
   metadata.reflection = AccountLicense_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1974,7 +1968,6 @@ void GameAccountHandle::CopyFrom(const GameAccountHandle& from) {
 
 bool GameAccountHandle::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
-
   return true;
 }
 
@@ -1996,7 +1989,6 @@ void GameAccountHandle::Swap(GameAccountHandle* other) {
   metadata.reflection = GameAccountHandle_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2467,7 +2459,6 @@ void AccountReference::CopyFrom(const AccountReference& from) {
 }
 
 bool AccountReference::IsInitialized() const {
-
   if (has_handle()) {
     if (!this->handle().IsInitialized()) return false;
   }
@@ -2495,7 +2486,6 @@ void AccountReference::Swap(AccountReference* other) {
   metadata.reflection = AccountReference_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2747,7 +2737,6 @@ void Identity::CopyFrom(const Identity& from) {
 }
 
 bool Identity::IsInitialized() const {
-
   if (has_account()) {
     if (!this->account().IsInitialized()) return false;
   }
@@ -2774,7 +2763,6 @@ void Identity::Swap(Identity* other) {
   metadata.reflection = Identity_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3023,7 +3011,6 @@ void ProgramTag::CopyFrom(const ProgramTag& from) {
 }
 
 bool ProgramTag::IsInitialized() const {
-
   return true;
 }
 
@@ -3044,7 +3031,6 @@ void ProgramTag::Swap(ProgramTag* other) {
   metadata.reflection = ProgramTag_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3293,7 +3279,6 @@ void RegionTag::CopyFrom(const RegionTag& from) {
 }
 
 bool RegionTag::IsInitialized() const {
-
   return true;
 }
 
@@ -3314,7 +3299,6 @@ void RegionTag::Swap(RegionTag* other) {
   metadata.reflection = RegionTag_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -3748,7 +3732,6 @@ void AccountFieldTags::CopyFrom(const AccountFieldTags& from) {
 }
 
 bool AccountFieldTags::IsInitialized() const {
-
   return true;
 }
 
@@ -3774,7 +3757,6 @@ void AccountFieldTags::Swap(AccountFieldTags* other) {
   metadata.reflection = AccountFieldTags_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4093,7 +4075,6 @@ void GameAccountFieldTags::CopyFrom(const GameAccountFieldTags& from) {
 }
 
 bool GameAccountFieldTags::IsInitialized() const {
-
   return true;
 }
 
@@ -4116,7 +4097,6 @@ void GameAccountFieldTags::Swap(GameAccountFieldTags* other) {
   metadata.reflection = GameAccountFieldTags_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4577,7 +4557,6 @@ void AccountFieldOptions::CopyFrom(const AccountFieldOptions& from) {
 }
 
 bool AccountFieldOptions::IsInitialized() const {
-
   return true;
 }
 
@@ -4604,7 +4583,6 @@ void AccountFieldOptions::Swap(AccountFieldOptions* other) {
   metadata.reflection = AccountFieldOptions_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -4960,7 +4938,6 @@ void GameAccountFieldOptions::CopyFrom(const GameAccountFieldOptions& from) {
 }
 
 bool GameAccountFieldOptions::IsInitialized() const {
-
   return true;
 }
 
@@ -4984,7 +4961,6 @@ void GameAccountFieldOptions::Swap(GameAccountFieldOptions* other) {
   metadata.reflection = GameAccountFieldOptions_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -5441,7 +5417,6 @@ void SubscriberReference::CopyFrom(const SubscriberReference& from) {
 }
 
 bool SubscriberReference::IsInitialized() const {
-
   if (has_entity_id()) {
     if (!this->entity_id().IsInitialized()) return false;
   }
@@ -5470,7 +5445,6 @@ void SubscriberReference::Swap(SubscriberReference* other) {
   metadata.reflection = SubscriberReference_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -6352,7 +6326,6 @@ void AccountLevelInfo::CopyFrom(const AccountLevelInfo& from) {
 }
 
 bool AccountLevelInfo::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->licenses())) return false;
   return true;
 }
@@ -6388,7 +6361,6 @@ void AccountLevelInfo::Swap(AccountLevelInfo* other) {
   metadata.reflection = AccountLevelInfo_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -6776,7 +6748,6 @@ void PrivacyInfo::CopyFrom(const PrivacyInfo& from) {
 }
 
 bool PrivacyInfo::IsInitialized() const {
-
   return true;
 }
 
@@ -6800,7 +6771,6 @@ void PrivacyInfo::Swap(PrivacyInfo* other) {
   metadata.reflection = PrivacyInfo_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -7296,7 +7266,6 @@ void ParentalControlInfo::CopyFrom(const ParentalControlInfo& from) {
 }
 
 bool ParentalControlInfo::IsInitialized() const {
-
   return true;
 }
 
@@ -7323,7 +7292,6 @@ void ParentalControlInfo::Swap(ParentalControlInfo* other) {
   metadata.reflection = ParentalControlInfo_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -7588,7 +7556,6 @@ void PlayScheduleRestriction::CopyFrom(const PlayScheduleRestriction& from) {
 }
 
 bool PlayScheduleRestriction::IsInitialized() const {
-
   return true;
 }
 
@@ -7609,7 +7576,6 @@ void PlayScheduleRestriction::Swap(PlayScheduleRestriction* other) {
   metadata.reflection = PlayScheduleRestriction_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -8142,7 +8108,6 @@ void GameLevelInfo::CopyFrom(const GameLevelInfo& from) {
 }
 
 bool GameLevelInfo::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->licenses())) return false;
   return true;
 }
@@ -8171,7 +8136,6 @@ void GameLevelInfo::Swap(GameLevelInfo* other) {
   metadata.reflection = GameLevelInfo_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -8492,7 +8456,6 @@ void GameTimeInfo::CopyFrom(const GameTimeInfo& from) {
 }
 
 bool GameTimeInfo::IsInitialized() const {
-
   return true;
 }
 
@@ -8515,7 +8478,6 @@ void GameTimeInfo::Swap(GameTimeInfo* other) {
   metadata.reflection = GameTimeInfo_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -8842,7 +8804,6 @@ void GameTimeRemainingInfo::CopyFrom(const GameTimeRemainingInfo& from) {
 }
 
 bool GameTimeRemainingInfo::IsInitialized() const {
-
   return true;
 }
 
@@ -8865,7 +8826,6 @@ void GameTimeRemainingInfo::Swap(GameTimeRemainingInfo* other) {
   metadata.reflection = GameTimeRemainingInfo_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -9258,7 +9218,6 @@ void GameStatus::CopyFrom(const GameStatus& from) {
 }
 
 bool GameStatus::IsInitialized() const {
-
   return true;
 }
 
@@ -9283,7 +9242,6 @@ void GameStatus::Swap(GameStatus* other) {
   metadata.reflection = GameStatus_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -9494,7 +9452,6 @@ void RAFInfo::CopyFrom(const RAFInfo& from) {
 }
 
 bool RAFInfo::IsInitialized() const {
-
   return true;
 }
 
@@ -9514,7 +9471,6 @@ void RAFInfo::Swap(RAFInfo* other) {
   metadata.reflection = RAFInfo_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -9960,7 +9916,6 @@ void GameSessionInfo::CopyFrom(const GameSessionInfo& from) {
 }
 
 bool GameSessionInfo::IsInitialized() const {
-
   if (has_igr_id()) {
     if (!this->igr_id().IsInitialized()) return false;
   }
@@ -9989,7 +9944,6 @@ void GameSessionInfo::Swap(GameSessionInfo* other) {
   metadata.reflection = GameSessionInfo_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -10196,7 +10150,6 @@ void GameSessionUpdateInfo::CopyFrom(const GameSessionUpdateInfo& from) {
 }
 
 bool GameSessionUpdateInfo::IsInitialized() const {
-
   return true;
 }
 
@@ -10216,7 +10169,6 @@ void GameSessionUpdateInfo::Swap(GameSessionUpdateInfo* other) {
   metadata.reflection = GameSessionUpdateInfo_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -10537,7 +10489,6 @@ void GameSessionLocation::CopyFrom(const GameSessionLocation& from) {
 }
 
 bool GameSessionLocation::IsInitialized() const {
-
   return true;
 }
 
@@ -10559,7 +10510,6 @@ void GameSessionLocation::Swap(GameSessionLocation* other) {
   metadata.reflection = GameSessionLocation_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -10849,7 +10799,6 @@ void CAIS::CopyFrom(const CAIS& from) {
 }
 
 bool CAIS::IsInitialized() const {
-
   return true;
 }
 
@@ -10871,7 +10820,6 @@ void CAIS::Swap(CAIS* other) {
   metadata.reflection = CAIS_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -11111,7 +11059,6 @@ void GameAccountList::CopyFrom(const GameAccountList& from) {
 }
 
 bool GameAccountList::IsInitialized() const {
-
   if (!::google::protobuf::internal::AllAreInitialized(this->handle())) return false;
   return true;
 }
@@ -11133,7 +11080,6 @@ void GameAccountList::Swap(GameAccountList* other) {
   metadata.reflection = GameAccountList_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -11489,7 +11435,6 @@ void SecurityStatus::CopyFrom(const SecurityStatus& from) {
 }
 
 bool SecurityStatus::IsInitialized() const {
-
   return true;
 }
 
@@ -11513,7 +11458,6 @@ void SecurityStatus::Swap(SecurityStatus* other) {
   metadata.reflection = SecurityStatus_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -12008,7 +11952,6 @@ void AccountState::CopyFrom(const AccountState& from) {
 }
 
 bool AccountState::IsInitialized() const {
-
   if (has_account_level_info()) {
     if (!this->account_level_info().IsInitialized()) return false;
   }
@@ -12040,7 +11983,6 @@ void AccountState::Swap(AccountState* other) {
   metadata.reflection = AccountState_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -12292,7 +12234,6 @@ void AccountStateTagged::CopyFrom(const AccountStateTagged& from) {
 }
 
 bool AccountStateTagged::IsInitialized() const {
-
   if (has_account_state()) {
     if (!this->account_state().IsInitialized()) return false;
   }
@@ -12316,7 +12257,6 @@ void AccountStateTagged::Swap(AccountStateTagged* other) {
   metadata.reflection = AccountStateTagged_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -12654,7 +12594,6 @@ void GameAccountState::CopyFrom(const GameAccountState& from) {
 }
 
 bool GameAccountState::IsInitialized() const {
-
   if (has_game_level_info()) {
     if (!this->game_level_info().IsInitialized()) return false;
   }
@@ -12680,7 +12619,6 @@ void GameAccountState::Swap(GameAccountState* other) {
   metadata.reflection = GameAccountState_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -12932,7 +12870,6 @@ void GameAccountStateTagged::CopyFrom(const GameAccountStateTagged& from) {
 }
 
 bool GameAccountStateTagged::IsInitialized() const {
-
   if (has_game_account_state()) {
     if (!this->game_account_state().IsInitialized()) return false;
   }
@@ -12956,7 +12893,6 @@ void GameAccountStateTagged::Swap(GameAccountStateTagged* other) {
   metadata.reflection = GameAccountStateTagged_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -13223,7 +13159,6 @@ void AuthorizedData::CopyFrom(const AuthorizedData& from) {
 }
 
 bool AuthorizedData::IsInitialized() const {
-
   return true;
 }
 
@@ -13244,7 +13179,6 @@ void AuthorizedData::Swap(AuthorizedData* other) {
   metadata.reflection = AuthorizedData_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -13334,7 +13268,6 @@ void IgrId::clear_type() {
   }
   _oneof_case_[0] = TYPE_NOT_SET;
 }
-
 
 void IgrId::Clear() {
   clear_type();
@@ -13569,7 +13502,6 @@ void IgrId::CopyFrom(const IgrId& from) {
 }
 
 bool IgrId::IsInitialized() const {
-
   if (has_game_account()) {
     if (!this->game_account().IsInitialized()) return false;
   }
@@ -13593,7 +13525,6 @@ void IgrId::Swap(IgrId* other) {
   metadata.reflection = IgrId_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -13856,7 +13787,6 @@ void IgrAddress::CopyFrom(const IgrAddress& from) {
 }
 
 bool IgrAddress::IsInitialized() const {
-
   return true;
 }
 
@@ -13877,7 +13807,6 @@ void IgrAddress::Swap(IgrAddress* other) {
   metadata.reflection = IgrAddress_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

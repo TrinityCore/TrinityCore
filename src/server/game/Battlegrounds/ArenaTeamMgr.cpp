@@ -15,12 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Define.h"
 #include "ArenaTeamMgr.h"
-#include "World.h"
-#include "Log.h"
 #include "DatabaseEnv.h"
-#include "Player.h"
+#include "Define.h"
+#include "Log.h"
+#include "Util.h"
+#include "World.h"
 
 ArenaTeamMgr::ArenaTeamMgr()
 {
@@ -45,36 +45,30 @@ ArenaTeam* ArenaTeamMgr::GetArenaTeamById(uint32 arenaTeamId) const
     ArenaTeamContainer::const_iterator itr = ArenaTeamStore.find(arenaTeamId);
     if (itr != ArenaTeamStore.end())
         return itr->second;
-
     return nullptr;
 }
 
-ArenaTeam* ArenaTeamMgr::GetArenaTeamByName(const std::string& arenaTeamName) const
+ArenaTeam* ArenaTeamMgr::GetArenaTeamByName(std::string_view arenaTeamName) const
 {
-    std::string search = arenaTeamName;
-    std::transform(search.begin(), search.end(), search.begin(), ::toupper);
-    for (ArenaTeamContainer::const_iterator itr = ArenaTeamStore.begin(); itr != ArenaTeamStore.end(); ++itr)
-    {
-        std::string teamName = itr->second->GetName();
-        std::transform(teamName.begin(), teamName.end(), teamName.begin(), ::toupper);
-        if (search == teamName)
-            return itr->second;
-    }
+    for (auto [teamId, team] : ArenaTeamStore)
+        if (StringEqualI(arenaTeamName, team->GetName()))
+            return team;
     return nullptr;
 }
 
 ArenaTeam* ArenaTeamMgr::GetArenaTeamByCaptain(ObjectGuid guid) const
 {
-    for (ArenaTeamContainer::const_iterator itr = ArenaTeamStore.begin(); itr != ArenaTeamStore.end(); ++itr)
-        if (itr->second->GetCaptain() == guid)
-            return itr->second;
-
+    for (auto [teamId, team] : ArenaTeamStore)
+        if (team->GetCaptain() == guid)
+            return team;
     return nullptr;
 }
 
 void ArenaTeamMgr::AddArenaTeam(ArenaTeam* arenaTeam)
 {
-    ArenaTeamStore[arenaTeam->GetId()] = arenaTeam;
+    ArenaTeam*& team = ArenaTeamStore[arenaTeam->GetId()];
+    ASSERT((team == nullptr) || (team == arenaTeam), "Duplicate arena team with ID %u", arenaTeam->GetId());
+    team = arenaTeam;
 }
 
 void ArenaTeamMgr::RemoveArenaTeam(uint32 arenaTeamId)

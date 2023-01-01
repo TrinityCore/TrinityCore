@@ -18,7 +18,6 @@
 #ifndef LFGPacketsCommon_h__
 #define LFGPacketsCommon_h__
 
-#include "Packet.h"
 #include "ObjectGuid.h"
 #include "PacketUtilities.h"
 
@@ -39,6 +38,7 @@ namespace WorldPackets
             uint32 Id = 0;
             RideType Type = RideType::None;
             Timestamp<> Time;
+            bool Unknown925 = false;
         };
     }
 }

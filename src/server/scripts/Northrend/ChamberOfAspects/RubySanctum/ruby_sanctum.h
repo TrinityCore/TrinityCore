@@ -135,4 +135,6 @@ inline AI* GetRubySanctumAI(T* obj)
     return GetInstanceAI<AI>(obj, RSScriptName);
 }
 
+#define RegisterRubySanctumCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetRubySanctumAI)
+
 #endif // RUBY_SANCTUM_H_

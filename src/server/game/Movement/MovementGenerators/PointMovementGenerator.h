@@ -57,7 +57,7 @@ class PointMovementGenerator : public MovementGeneratorMedium<T, PointMovementGe
         //! if set then unit will turn to specified _orient in provided _pos
         Optional<float> _finalOrient;
         Unit const* i_faceTarget;
-        Movement::SpellEffectExtraData const* i_spellEffectExtra;
+        std::unique_ptr<Movement::SpellEffectExtraData> i_spellEffectExtra;
 };
 
 class AssistanceMovementGenerator : public PointMovementGenerator<Creature>

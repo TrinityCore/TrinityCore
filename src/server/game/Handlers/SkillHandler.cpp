@@ -92,18 +92,12 @@ void WorldSession::HandleConfirmRespecWipeOpcode(WorldPackets::Talent::ConfirmRe
     if (!unit->CanResetTalents(_player))
         return;
 
-    if (!_player->PlayerTalkClass->GetGossipMenu().HasMenuItemType(GOSSIP_OPTION_UNLEARNTALENTS))
-        return;
-
     // remove fake death
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     if (!_player->ResetTalents())
-    {
-        GetPlayer()->SendRespecWipeConfirm(ObjectGuid::Empty, 0);
         return;
-    }
 
     _player->SendTalentsInfoData();
     unit->CastSpell(_player, 14867, true);                  //spell: "Untalent Visual Effect"
@@ -111,9 +105,17 @@ void WorldSession::HandleConfirmRespecWipeOpcode(WorldPackets::Talent::ConfirmRe
 
 void WorldSession::HandleUnlearnSkillOpcode(WorldPackets::Spells::UnlearnSkill& packet)
 {
-    SkillRaceClassInfoEntry const* rcEntry = sDB2Manager.GetSkillRaceClassInfo(packet.SkillLine, GetPlayer()->getRace(), GetPlayer()->getClass());
+    SkillRaceClassInfoEntry const* rcEntry = sDB2Manager.GetSkillRaceClassInfo(packet.SkillLine, GetPlayer()->GetRace(), GetPlayer()->GetClass());
     if (!rcEntry || !(rcEntry->Flags & SKILL_FLAG_UNLEARNABLE))
         return;
 
     GetPlayer()->SetSkill(packet.SkillLine, 0, 0, 0);
+}
+
+void WorldSession::HandleTradeSkillSetFavorite(WorldPackets::Spells::TradeSkillSetFavorite const& tradeSkillSetFavorite)
+{
+    if (!_player->HasSpell(tradeSkillSetFavorite.RecipeID))
+        return;
+
+    _player->SetSpellFavorite(tradeSkillSetFavorite.RecipeID, tradeSkillSetFavorite.IsFavorite);
 }

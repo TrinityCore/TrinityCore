@@ -20,6 +20,7 @@
 
 #include "Define.h"
 
+// EnumUtils: DESCRIBE THIS
 enum InventoryResult : uint8
 {
     EQUIP_ERR_OK                                           = 0,
@@ -125,17 +126,24 @@ enum InventoryResult : uint8
     EQUIP_ERR_CANT_BE_OBLITERATED                          = 100,// You can't obliterate that item
     EQUIP_ERR_GUILD_BANK_CONJURED_ITEM                     = 101,// You cannot store conjured items in the guild bank
     EQUIP_ERR_BAG_FULL_6                                   = 102,// That bag is full.
-    EQUIP_ERR_CANT_BE_SCRAPPED                             = 103,// You can't scrap that item
-    EQUIP_ERR_BAG_FULL_7                                   = 104,// That bag is full.
-    EQUIP_ERR_NOT_IN_PET_BATTLE                            = 105,// You cannot do that while in a pet battle
-    EQUIP_ERR_BAG_FULL_8                                   = 106,// That bag is full.
-    EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW                       = 107,// You can't do that right now.
-    EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW_2                     = 108,// You can't do that right now.
-    EQUIP_ERR_NOT_IN_NPE                                   = 109,// Not available during the tutorial
-    EQUIP_ERR_ITEM_COOLDOWN                                = 110,// Item is not ready yet.
-    EQUIP_ERR_NOT_IN_RATED_BATTLEGROUND                    = 111,// You can't do that in a rated battleground.
+    EQUIP_ERR_BAG_FULL_7                                   = 103,// That bag is full.
+    EQUIP_ERR_CANT_BE_SCRAPPED                             = 104,// You can't scrap that item
+    EQUIP_ERR_BAG_FULL_8                                   = 105,// That bag is full.
+    EQUIP_ERR_NOT_IN_PET_BATTLE                            = 106,// You cannot do that while in a pet battle
+    EQUIP_ERR_BAG_FULL_9                                   = 107,// That bag is full.
+    EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW                       = 108,// You can't do that right now.
+    EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW_2                     = 109,// You can't do that right now.
+    EQUIP_ERR_NOT_IN_NPE                                   = 110,// Not available during the tutorial
+    EQUIP_ERR_ITEM_COOLDOWN                                = 111,// Item is not ready yet.
+    EQUIP_ERR_NOT_IN_RATED_BATTLEGROUND                    = 112,// You can't do that in a rated battleground.
+    EQUIP_ERR_EQUIPABLESPELLS_SLOTS_FULL                   = 113,
+    EQUIP_ERR_CANT_BE_RECRAFTED                            = 114,// You can't recraft that itemv
+    EQUIP_ERR_REAGENTBAG_WRONG_SLOT                        = 115,// Reagent Bags can only be placed in the reagent bag slot.
+    EQUIP_ERR_SLOT_ONLY_REAGENTBAG                         = 116,// Only Reagent Bags can be placed in the reagent bag slot.
+    EQUIP_ERR_REAGENTBAG_ITEM_TYPE                         = 117,// Only Reagents can be placed in Reagent Bags.
 };
 
+// EnumUtils: DESCRIBE THIS
 enum BuyResult
 {
     BUY_ERR_CANT_FIND_ITEM                      = 0,
@@ -149,15 +157,16 @@ enum BuyResult
     BUY_ERR_REPUTATION_REQUIRE                  = 12
 };
 
+// EnumUtils: DESCRIBE THIS
 enum SellResult
 {
-    SELL_ERR_CANT_FIND_ITEM                      = 1,       // The item was not found.
-    SELL_ERR_CANT_SELL_ITEM                      = 2,       // The merchant doesn't want that item.
-    SELL_ERR_CANT_FIND_VENDOR                    = 3,       // The merchant doesn't like you.
-    SELL_ERR_YOU_DONT_OWN_THAT_ITEM              = 4,       // You don't own that item.
-    SELL_ERR_UNK                                 = 5,       // nothing appears...
-    SELL_ERR_ONLY_EMPTY_BAG                      = 6,       // You can only do that with empty bags.
-    SELL_ERR_CANT_SELL_TO_THIS_MERCHANT          = 7        // You cannot sell items to this merchant.
+    SELL_ERR_CANT_FIND_ITEM                      = 1,       // DESCRIPTION The item was not found.
+    SELL_ERR_CANT_SELL_ITEM                      = 2,       // DESCRIPTION The merchant doesn't want that item.
+    SELL_ERR_CANT_FIND_VENDOR                    = 3,       // DESCRIPTION The merchant doesn't like you.
+    SELL_ERR_YOU_DONT_OWN_THAT_ITEM              = 4,       // DESCRIPTION You don't own that item.
+    SELL_ERR_UNK                                 = 5,       // DESCRIPTION nothing appears...
+    SELL_ERR_ONLY_EMPTY_BAG                      = 6,       // DESCRIPTION You can only do that with empty bags.
+    SELL_ERR_CANT_SELL_TO_THIS_MERCHANT          = 7        // DESCRIPTION You cannot sell items to this merchant.
 };
 
 // -1 from client enchantment slot number

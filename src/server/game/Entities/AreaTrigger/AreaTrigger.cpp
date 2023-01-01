@@ -39,7 +39,7 @@
 #include "Unit.h"
 #include "UpdateData.h"
 
-AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(), _aurEff(nullptr), _maxSearchRadius(0.0f),
+AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(), _spawnId(0), _aurEff(nullptr), _maxSearchRadius(0.0f),
     _duration(0), _totalDuration(0), _timeSinceCreated(0), _previousCheckOrientation(std::numeric_limits<float>::infinity()),
     _isRemoved(false), _reachedDestination(true), _lastSplineIndex(0), _movementTime(0),
     _areaTriggerCreateProperties(nullptr), _areaTriggerTemplate(nullptr)
@@ -61,6 +61,9 @@ void AreaTrigger::AddToWorld()
     if (!IsInWorld())
     {
         GetMap()->GetObjectsStore().Insert<AreaTrigger>(GetGUID(), this);
+        if (_spawnId)
+            GetMap()->GetAreaTriggerBySpawnIdStore().insert(std::make_pair(_spawnId, this));
+
         WorldObject::AddToWorld();
     }
 }
@@ -81,6 +84,9 @@ void AreaTrigger::RemoveFromWorld()
         _ai->OnRemove();
 
         WorldObject::RemoveFromWorld();
+
+        if (_spawnId)
+            Trinity::Containers::MultimapErasePair(GetMap()->GetAreaTriggerBySpawnIdStore(), _spawnId, this);
         GetMap()->GetObjectsStore().Remove<AreaTrigger>(GetGUID());
     }
 }
@@ -160,6 +166,9 @@ bool AreaTrigger::Create(uint32 areaTriggerCreatePropertiesId, Unit* caster, Uni
         m_movementInfo.transport.guid = target->GetGUID();
     }
 
+    UpdatePositionData();
+    SetZoneScript();
+
     UpdateShape();
 
     uint32 timeToTarget = GetCreateProperties()->TimeToTarget != 0 ? GetCreateProperties()->TimeToTarget : *m_areaTriggerData->Duration;
@@ -180,7 +189,7 @@ bool AreaTrigger::Create(uint32 areaTriggerCreatePropertiesId, Unit* caster, Uni
     }
 
     // movement on transport of areatriggers on unit is handled by themself
-    Transport* transport = m_movementInfo.transport.guid.IsEmpty() ? caster->GetTransport() : nullptr;
+    TransportBase* transport = m_movementInfo.transport.guid.IsEmpty() ? caster->GetTransport() : nullptr;
     if (transport)
     {
         float x, y, z, o;
@@ -225,8 +234,15 @@ AreaTrigger* AreaTrigger::CreateAreaTrigger(uint32 areaTriggerCreatePropertiesId
     return at;
 }
 
+ObjectGuid AreaTrigger::CreateNewMovementForceId(Map* map, uint32 areaTriggerId)
+{
+    return ObjectGuid::Create<HighGuid::AreaTrigger>(map->GetId(), areaTriggerId, map->GenerateLowGuid<HighGuid::AreaTrigger>());
+}
+
 bool AreaTrigger::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool /*addToMap*/, bool /*allowDuplicate*/)
 {
+    _spawnId = spawnId;
+
     AreaTriggerSpawn const* position = sAreaTriggerDataStore->GetAreaTriggerSpawn(spawnId);
     if (!position)
         return false;
@@ -241,7 +257,7 @@ bool AreaTrigger::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool /*addTo
 bool AreaTrigger::CreateServer(Map* map, AreaTriggerTemplate const* areaTriggerTemplate, AreaTriggerSpawn const& position)
 {
     SetMap(map);
-    Relocate(position.Location);
+    Relocate(position.spawnPoint);
     if (!IsPositionValid())
     {
         TC_LOG_ERROR("entities.areatrigger", "AreaTriggerServer (id %u) not created. Invalid coordinates (X: %f Y: %f)",
@@ -260,8 +276,8 @@ bool AreaTrigger::CreateServer(Map* map, AreaTriggerTemplate const* areaTriggerT
     _shape = position.Shape;
     _maxSearchRadius = _shape.GetMaxSearchRadius();
 
-    if (position.PhaseUseFlags || position.PhaseId || position.PhaseGroup)
-        PhasingHandler::InitDbPhaseShift(GetPhaseShift(), position.PhaseUseFlags, position.PhaseId, position.PhaseGroup);
+    if (position.phaseUseFlags || position.phaseId || position.phaseGroup)
+        PhasingHandler::InitDbPhaseShift(GetPhaseShift(), position.phaseUseFlags, position.phaseId, position.phaseGroup);
 
     UpdateShape();
 
@@ -361,6 +377,12 @@ void AreaTrigger::UpdateTargetList()
         case AREATRIGGER_TYPE_CYLINDER:
             SearchUnitInCylinder(targetList);
             break;
+        case AREATRIGGER_TYPE_DISK:
+            SearchUnitInDisk(targetList);
+            break;
+        case AREATRIGGER_TYPE_BOUNDED_PLANE:
+            SearchUnitInBoundedPlane(targetList);
+            break;
         default:
             break;
     }
@@ -456,6 +478,35 @@ void AreaTrigger::SearchUnitInCylinder(std::vector<Unit*>& targetList)
     }), targetList.end());
 }
 
+void AreaTrigger::SearchUnitInDisk(std::vector<Unit*>& targetList)
+{
+    SearchUnits(targetList, GetMaxSearchRadius(), false);
+
+    float innerRadius = _shape.DiskDatas.InnerRadius;
+    float height = _shape.DiskDatas.Height;
+    float minZ = GetPositionZ() - height;
+    float maxZ = GetPositionZ() + height;
+
+    targetList.erase(std::remove_if(targetList.begin(), targetList.end(), [this, innerRadius, minZ, maxZ](Unit const* unit) -> bool
+    {
+        return unit->IsInDist2d(this, innerRadius) ||  unit->GetPositionZ() < minZ || unit->GetPositionZ() > maxZ;
+    }), targetList.end());
+}
+
+void AreaTrigger::SearchUnitInBoundedPlane(std::vector<Unit*>& targetList)
+{
+    SearchUnits(targetList, GetMaxSearchRadius(), false);
+
+    Position const& boxCenter = GetPosition();
+    float extentsX = _shape.BoxDatas.Extents[0];
+    float extentsY = _shape.BoxDatas.Extents[1];
+
+    targetList.erase(std::remove_if(targetList.begin(), targetList.end(), [boxCenter, extentsX, extentsY](Unit const* unit) -> bool
+    {
+        return !unit->IsWithinBox(boxCenter, extentsX, extentsY, MAP_SIZE);
+    }), targetList.end());
+}
+
 void AreaTrigger::HandleUnitEnterExit(std::vector<Unit*> const& newTargetList)
 {
     GuidUnorderedSet exitUnits(std::move(_insideUnits));
@@ -512,7 +563,13 @@ AreaTriggerTemplate const* AreaTrigger::GetTemplate() const
 
 uint32 AreaTrigger::GetScriptId() const
 {
-    return GetTemplate() ? GetTemplate()->ScriptId : 0;
+    if (_spawnId)
+        return ASSERT_NOTNULL(sAreaTriggerDataStore->GetAreaTriggerSpawn(_spawnId))->scriptId;
+
+    if (GetCreateProperties())
+        return GetCreateProperties()->ScriptId;
+
+    return 0;
 }
 
 Unit* AreaTrigger::GetCaster() const
@@ -758,7 +815,7 @@ void AreaTrigger::InitSplines(std::vector<G3D::Vector3> splinePoints, uint32 tim
 
         WorldPackets::AreaTrigger::AreaTriggerRePath reshape;
         reshape.TriggerGUID = GetGUID();
-        reshape.AreaTriggerSpline = boost::in_place();
+        reshape.AreaTriggerSpline.emplace();
         reshape.AreaTriggerSpline->ElapsedTimeForMovement = GetElapsedTimeForMovement();
         reshape.AreaTriggerSpline->TimeToTarget = timeToTarget;
         for (G3D::Vector3 const& vec : splinePoints)
@@ -778,7 +835,7 @@ bool AreaTrigger::HasSplines() const
 void AreaTrigger::InitOrbit(AreaTriggerOrbitInfo const& orbit, uint32 timeToTarget)
 {
     // Circular movement requires either a center position or an attached unit
-    ASSERT(orbit.Center.is_initialized() || orbit.PathTarget.is_initialized());
+    ASSERT(orbit.Center.has_value() || orbit.PathTarget.has_value());
 
     // should be sent in object create packets only
     DoWithSuppressingObjectUpdates([&]()
@@ -804,19 +861,19 @@ void AreaTrigger::InitOrbit(AreaTriggerOrbitInfo const& orbit, uint32 timeToTarg
 
 bool AreaTrigger::HasOrbit() const
 {
-    return _orbitInfo.is_initialized();
+    return _orbitInfo.has_value();
 }
 
 Position const* AreaTrigger::GetOrbitCenterPosition() const
 {
-    if (!_orbitInfo.is_initialized())
+    if (!_orbitInfo)
         return nullptr;
 
-    if (_orbitInfo->PathTarget.is_initialized())
+    if (_orbitInfo->PathTarget)
         if (WorldObject* center = ObjectAccessor::GetWorldObject(*this, *_orbitInfo->PathTarget))
             return center;
 
-    if (_orbitInfo->Center.is_initialized())
+    if (_orbitInfo->Center)
         return &_orbitInfo->Center->Pos;
 
     return nullptr;
@@ -948,7 +1005,7 @@ void AreaTrigger::DebugVisualizePosition()
     if (Unit* caster = GetCaster())
         if (Player* player = caster->ToPlayer())
             if (player->isDebugAreaTriggers)
-                player->SummonCreature(1, *this, TEMPSUMMON_TIMED_DESPAWN, GetTimeToTarget());
+                player->SummonCreature(1, *this, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(GetTimeToTarget()));
 }
 
 void AreaTrigger::AI_Initialize()
@@ -962,7 +1019,6 @@ void AreaTrigger::AI_Destroy()
 {
     _ai.reset();
 }
-
 
 void AreaTrigger::BuildValuesCreate(ByteBuffer* data, Player const* target) const
 {
@@ -1001,7 +1057,7 @@ void AreaTrigger::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Objec
     if (requestedAreaTriggerMask.IsAnySet())
         valuesMask.Set(TYPEID_AREATRIGGER);
 
-    ByteBuffer buffer = PrepareValuesUpdateBuffer();
+    ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
     buffer << uint32(valuesMask.GetBlock(0));
@@ -1014,7 +1070,18 @@ void AreaTrigger::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Objec
 
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
-    data->AddUpdateBlock(buffer);
+    data->AddUpdateBlock();
+}
+
+void AreaTrigger::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const
+{
+    UpdateData udata(Owner->GetMapId());
+    WorldPacket packet;
+
+    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), AreaTriggerMask.GetChangesMask(), player);
+
+    udata.BuildPacket(&packet);
+    player->SendDirectMessage(&packet);
 }
 
 void AreaTrigger::ClearUpdateMask(bool remove)

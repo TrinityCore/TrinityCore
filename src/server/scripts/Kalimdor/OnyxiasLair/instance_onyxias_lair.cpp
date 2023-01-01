@@ -25,6 +25,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "AreaBoundary.h"
 #include "CellImpl.h"
+#include "CreatureAI.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "Map.h"
@@ -34,6 +35,11 @@ EndScriptData */
 BossBoundaryData const boundaries =
 {
     { DATA_ONYXIA, new CircleBoundary(Position(-34.3697f, -212.3296f), 100.0) }
+};
+
+DungeonEncounterData const encounters[] =
+{
+    { DATA_ONYXIA, {{ 1084 }} }
 };
 
 class instance_onyxias_lair : public InstanceMapScript
@@ -53,6 +59,7 @@ public:
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
             LoadBossBoundaries(boundaries);
+            LoadDungeonEncounterData(encounters);
 
             onyxiaLiftoffTimer = 0;
             manyWhelpsCounter = 0;
@@ -112,7 +119,9 @@ public:
                 //THIS GOB IS A TRAP - What shall i do? =(
                 //Cast it spell? Copyed Heigan method
                 floorEruption->SendCustomAnim(floorEruption->GetGoAnimProgress());
-                floorEruption->CastSpell(nullptr, instance->GetDifficultyID() == DIFFICULTY_10_N ? 17731 : 69294); //pFloorEruption->GetGOInfo()->trap.spellId
+                CastSpellExtraArgs args;
+                args.OriginalCaster = onyxiaGUID;
+                floorEruption->CastSpell(floorEruption, floorEruption->GetGOInfo()->trap.spell, args);
 
                 //Get all immediatly nearby floors
                 std::list<GameObject*> nearFloorList;

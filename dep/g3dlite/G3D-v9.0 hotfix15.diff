@@ -1,0 +1,288 @@
+diff --git a/dep/g3dlite/include/G3D/AABox.h b/dep/g3dlite/include/G3D/AABox.h
+index 7a47ea63aa..97a47cf986 100644
+--- a/dep/g3dlite/include/G3D/AABox.h
++++ b/dep/g3dlite/include/G3D/AABox.h
+@@ -17,14 +17,14 @@
+ 
+ #include "G3D/platform.h"
+ #include "G3D/debug.h"
+-#include "G3D/Array.h"
+-#include "G3D/Plane.h"
+-#include "G3D/Sphere.h"
+ #include "G3D/Vector3.h"
+ 
+ namespace G3D {
+ 
+ class Any;
++template <class T, size_t MIN_ELEMENTS> class Array;
++class Plane;
++class Sphere;
+ 
+ /**
+  An axis-aligned box.
+@@ -221,7 +221,7 @@ public:
+        
+      */
+     bool culledBy
+-    (const Array<Plane>&    plane,
++    (const Array<Plane, 10>&    plane,
+      int32&            cullingPlaneIndex,
+      const uint32          testMask,
+      uint32&                    childMask) const;
+@@ -230,7 +230,7 @@ public:
+      Conservative culling test that does not produce a mask for children.
+      */
+     bool culledBy
+-    (const Array<Plane>&        plane,
++    (const Array<Plane, 10>&        plane,
+      int32&                        cullingPlaneIndex = dummy,
+      const uint32               testMask  = 0xFFFFFFFF) const;
+ 
+diff --git a/dep/g3dlite/include/G3D/AtomicInt32.h b/dep/g3dlite/include/G3D/AtomicInt32.h
+index 9824d426d7..51561e3dcc 100644
+--- a/dep/g3dlite/include/G3D/AtomicInt32.h
++++ b/dep/g3dlite/include/G3D/AtomicInt32.h
+@@ -12,7 +12,9 @@
+ #include "G3D/platform.h"
+ #include "G3D/g3dmath.h"
+ 
+-#if defined(G3D_OSX)
++#if defined(G3D_WINDOWS)
++#   include <Windows.h>
++#elif defined(G3D_OSX)
+ #   include <libkern/OSAtomic.h>
+ #endif
+ 
+diff --git a/dep/g3dlite/include/G3D/HashTrait.h b/dep/g3dlite/include/G3D/HashTrait.h
+index 1de3777bae..6199f4504e 100644
+--- a/dep/g3dlite/include/G3D/HashTrait.h
++++ b/dep/g3dlite/include/G3D/HashTrait.h
+@@ -13,7 +13,6 @@
+ #define G3D_HashTrait_h
+ 
+ #include "G3D/platform.h"
+-#include "G3D/Crypto.h"
+ #include "G3D/g3dmath.h"
+ #include "G3D/uint128.h"
+ #include <typeinfo>
+diff --git a/dep/g3dlite/include/G3D/Random.h b/dep/g3dlite/include/G3D/Random.h
+index 9d911806a9..359755044a 100644
+--- a/dep/g3dlite/include/G3D/Random.h
++++ b/dep/g3dlite/include/G3D/Random.h
+@@ -159,6 +159,7 @@ public:
+     static Random& common();
+ };
+ 
++Random& commonRandom();
+ }
+ 
+ #endif
+diff --git a/dep/g3dlite/include/G3D/System.h b/dep/g3dlite/include/G3D/System.h
+index 9ed88957d7..81c83527c9 100644
+--- a/dep/g3dlite/include/G3D/System.h
++++ b/dep/g3dlite/include/G3D/System.h
+@@ -21,6 +21,10 @@
+ #include "G3D/FileNotFound.h"
+ #include <string>
+ 
++#ifdef G3D_WINDOWS
++#include <Windows.h>
++#endif
++
+ #if defined(__aarch64__)
+ #include <sys/time.h>
+ #endif
+diff --git a/dep/g3dlite/include/G3D/Vector2.h b/dep/g3dlite/include/G3D/Vector2.h
+index 65cf7fa8f2..696889d630 100644
+--- a/dep/g3dlite/include/G3D/Vector2.h
++++ b/dep/g3dlite/include/G3D/Vector2.h
+@@ -19,20 +19,21 @@
+ 
+ #include "G3D/platform.h"
+ #include "G3D/g3dmath.h"
+-#include "G3D/Table.h"
+ #include "G3D/HashTrait.h"
+ #include "G3D/Vector2int16.h"
+ #include "G3D/Vector2unorm16.h"
+-#include "G3D/Random.h"
+ 
+ namespace G3D {
+ 
++class Random;
+ class Vector2;    
+ class Vector3;
+ class Vector4;
+ class Vector2int32;
+ class Any;
+ 
++Random& commonRandom();
++
+ /**
+  Do not subclass-- this implementation makes assumptions about the
+  memory layout.
+@@ -210,7 +211,7 @@ public:
+     }
+ 
+     /** Uniformly distributed random vector on the unit sphere */
+-    static Vector2 random(Random& r = Random::common());
++    static Vector2 random(Random& r = commonRandom());
+ 
+     // Special values.
+     // Intentionally not inlined: see Matrix3::identity() for details.
+diff --git a/dep/g3dlite/include/G3D/Vector3.h b/dep/g3dlite/include/G3D/Vector3.h
+index 05d9b11ed5..c79f70b916 100644
+--- a/dep/g3dlite/include/G3D/Vector3.h
++++ b/dep/g3dlite/include/G3D/Vector3.h
+@@ -17,9 +17,7 @@
+ 
+ #include "G3D/platform.h"
+ #include "G3D/g3dmath.h"
+-#include "G3D/Random.h"
+ #include "G3D/Vector2.h"
+-#include "G3D/Table.h"
+ #include "G3D/HashTrait.h"
+ #include "G3D/PositionTrait.h"
+ #include "G3D/Vector2.h"
+@@ -365,7 +363,7 @@ public:
+        Distribution rendered by G3D::DirectionHistogram:
+        \image html vector3-random.png
+       */
+-    static Vector3 random(Random& r = Random::common());
++    static Vector3 random(Random& r = commonRandom());
+ 
+     /** \brief Random unit vector, distributed according to \f$\max(\cos \theta,0)\f$.
+ 
+@@ -380,9 +378,9 @@ public:
+ 
+         @cite Henrik Wann Jensen, Realistic Image Synthesis using Photon Mapping eqn 2.24
+     */
+-    static Vector3 cosHemiRandom(const Vector3& n, Random& r = Random::common());
++    static Vector3 cosHemiRandom(const Vector3& n, Random& r = commonRandom());
+ 
+-    static Vector3 cosSphereRandom(const Vector3& n, Random& r = Random::common());
++    static Vector3 cosSphereRandom(const Vector3& n, Random& r = commonRandom());
+ 
+     /** \brief Random unit vector, distributed according to \f$\max(\cos^k \theta,0)\f$.
+ 
+@@ -397,7 +395,7 @@ public:
+ 
+         @cite Ashikhmin and Shirley, An anisotropic Phong BRDF model, Journal of Graphics Tools, 2002
+     */
+-    static Vector3 cosPowHemiRandom(const Vector3& n, const float k, Random& r = Random::common());
++    static Vector3 cosPowHemiRandom(const Vector3& n, const float k, Random& r = commonRandom());
+ 
+     /**
+      \brief Random vector distributed over the hemisphere about normal.
+@@ -405,7 +403,7 @@ public:
+      Distribution rendered by G3D::DirectionHistogram:
+       \image html vector3-hemirandom.png
+      */
+-    static Vector3 hemiRandom(const Vector3& normal, Random& r = Random::common());
++    static Vector3 hemiRandom(const Vector3& normal, Random& r = commonRandom());
+ 
+     inline float sum() const {
+         return x + y + z;
+diff --git a/dep/g3dlite/include/G3D/Vector4.h b/dep/g3dlite/include/G3D/Vector4.h
+index 24521efc93..0f0ea459df 100644
+--- a/dep/g3dlite/include/G3D/Vector4.h
++++ b/dep/g3dlite/include/G3D/Vector4.h
+@@ -19,7 +19,6 @@
+ #include "G3D/g3dmath.h"
+ #include "G3D/Vector3.h"
+ #include "G3D/Vector2.h"
+-#include "G3D/Table.h"
+ #include "G3D/HashTrait.h"
+ #include "G3D/PositionTrait.h"
+ #include <string>
+diff --git a/dep/g3dlite/include/G3D/debugAssert.h b/dep/g3dlite/include/G3D/debugAssert.h
+index edff671061..197312bd12 100644
+--- a/dep/g3dlite/include/G3D/debugAssert.h
++++ b/dep/g3dlite/include/G3D/debugAssert.h
+@@ -32,6 +32,7 @@
+ #include <cstdlib>
+
+ #ifdef _MSC_VER
++#include <intrin.h>
+ // conditional expression is constant
+ #   pragma warning (disable : 4127)
+ #endif
+@@ -116,7 +117,7 @@ namespace _internal {
+ #ifdef G3D_DEBUG
+
+ #    if defined(_MSC_VER)
+-#       define rawBreak()  ::DebugBreak();
++#       define rawBreak()  ::__debugbreak();
+ #    elif defined(__i386__)
+         // gcc on intel
+ #       define rawBreak() __asm__ __volatile__ ( "int $3" );
+diff --git a/dep/g3dlite/include/G3D/platform.h b/dep/g3dlite/include/G3D/platform.h
+index d043f21491..9202fe41d0 100644
+--- a/dep/g3dlite/include/G3D/platform.h
++++ b/dep/g3dlite/include/G3D/platform.h
+@@ -190,6 +190,7 @@ These control the version of Winsock used by G3D.
+     //  http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vccore98/HTML/_core_Compiler_Reference.asp
+     //
+ 
++#if 0
+     // DLL runtime
+     #ifndef _DLL
+         #define _DLL
+@@ -227,6 +228,8 @@ These control the version of Winsock used by G3D.
+ #   undef WIN32_LEAN_AND_MEAN
+ #   undef NOMINMAX
+ 
++#endif // 0
++
+ #   ifdef _G3D_INTERNAL_HIDE_WINSOCK_
+ #      undef _G3D_INTERNAL_HIDE_WINSOCK_
+ #      undef _WINSOCKAPI_
+diff --git a/dep/g3dlite/source/Random.cpp b/dep/g3dlite/source/Random.cpp
+index cbfa07dec0..a31d52a557 100644
+--- a/dep/g3dlite/source/Random.cpp
++++ b/dep/g3dlite/source/Random.cpp
+@@ -227,4 +227,9 @@ void Random::sphere(float& x, float& y, float& z) {
+     z *= s;
+ }
+ 
++Random& commonRandom()
++{
++    return Random::common();
++}
++
+ } // G3D
+diff --git a/dep/g3dlite/source/Vector2.cpp b/dep/g3dlite/source/Vector2.cpp
+index a6edea9a83..194cd3090d 100644
+--- a/dep/g3dlite/source/Vector2.cpp
++++ b/dep/g3dlite/source/Vector2.cpp
+@@ -23,6 +23,7 @@
+ #include "G3D/TextInput.h"
+ #include "G3D/TextOutput.h"
+ #include "G3D/Any.h"
++#include "G3D/Random.h"
+ 
+ namespace G3D {
+ 
+diff --git a/dep/g3dlite/source/Vector3.cpp b/dep/g3dlite/source/Vector3.cpp
+index e2d9643e5c..ccbf7d6a0b 100644
+--- a/dep/g3dlite/source/Vector3.cpp
++++ b/dep/g3dlite/source/Vector3.cpp
+@@ -28,6 +28,7 @@
+ #include "G3D/Vector4.h"
+ #include "G3D/Vector3int32.h"
+ #include "G3D/Any.h"
++#include "G3D/Random.h"
+  
+ namespace G3D {
+ 
+diff --git a/dep/g3dlite/source/debugAssert.cpp b/dep/g3dlite/source/debugAssert.cpp
+index 3c3e43a0af..ff843fb7ee 100644
+--- a/dep/g3dlite/source/debugAssert.cpp
++++ b/dep/g3dlite/source/debugAssert.cpp
+@@ -23,6 +23,7 @@
+ #include <cstdlib>
+ 
+ #ifdef _MSC_VER
++#include <Windows.h>
+     // disable: "C++ exception handler used"
+ #   pragma warning (push)
+ #   pragma warning (disable : 4530)

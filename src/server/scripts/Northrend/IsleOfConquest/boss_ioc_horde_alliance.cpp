@@ -35,98 +35,91 @@ enum BossEvents
     EVENT_CHECK_RANGE         = 4
 };
 
-class boss_ioc_horde_alliance : public CreatureScript
+struct boss_ioc_horde_alliance : public ScriptedAI
 {
-public:
-    boss_ioc_horde_alliance() : CreatureScript("boss_ioc_horde_alliance") { }
+    boss_ioc_horde_alliance(Creature* creature) : ScriptedAI(creature) { }
 
-    struct boss_ioc_horde_allianceAI : public ScriptedAI
+    void Reset() override
     {
-        boss_ioc_horde_allianceAI(Creature* creature) : ScriptedAI(creature) { }
+        _events.Reset();
 
-        void Reset() override
-        {
-            _events.Reset();
+        uint32 _npcGuard;
+        if (me->GetEntry() == NPC_HIGH_COMMANDER_HALFORD_WYRMBANE)
+            _npcGuard = NPC_SEVEN_TH_LEGION_INFANTRY;
+        else
+            _npcGuard = NPC_KOR_KRON_GUARD;
 
-            uint32 _npcGuard;
-            if (me->GetEntry() == NPC_HIGH_COMMANDER_HALFORD_WYRMBANE)
-                _npcGuard = NPC_SEVEN_TH_LEGION_INFANTRY;
-            else
-                _npcGuard = NPC_KOR_KRON_GUARD;
-
-            std::list<Creature*> guardsList;
-            me->GetCreatureListWithEntryInGrid(guardsList, _npcGuard, 100.0f);
-            for (std::list<Creature*>::const_iterator itr = guardsList.begin(); itr != guardsList.end(); ++itr)
-                (*itr)->Respawn();
-        };
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-            _events.ScheduleEvent(EVENT_BRUTAL_STRIKE, 5s);
-            _events.ScheduleEvent(EVENT_DAGGER_THROW,  7 * IN_MILLISECONDS);
-            _events.ScheduleEvent(EVENT_CHECK_RANGE,   1 * IN_MILLISECONDS);
-            _events.ScheduleEvent(EVENT_CRUSHING_LEAP, 15s);
-        }
-
-        void SpellHit(Unit* caster, SpellInfo const* /*spell*/) override
-        {
-            if (caster->IsVehicle())
-                Unit::Kill(me, caster);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            _events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = _events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_BRUTAL_STRIKE:
-                        DoCastVictim(SPELL_BRUTAL_STRIKE);
-                        _events.ScheduleEvent(EVENT_BRUTAL_STRIKE, 5s);
-                        break;
-                    case EVENT_DAGGER_THROW:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                            DoCast(target, SPELL_DAGGER_THROW);
-                        _events.ScheduleEvent(EVENT_DAGGER_THROW, 7s);
-                        break;
-                    case EVENT_CRUSHING_LEAP:
-                        DoCastVictim(SPELL_CRUSHING_LEAP);
-                        _events.ScheduleEvent(EVENT_CRUSHING_LEAP, 25s);
-                        break;
-                    case EVENT_CHECK_RANGE:
-                        if (me->GetDistance(me->GetHomePosition()) > 25.0f)
-                            DoCast(me, SPELL_RAGE);
-                        else
-                            me->RemoveAurasDueToSpell(SPELL_RAGE);
-                        _events.ScheduleEvent(EVENT_CHECK_RANGE, 1s);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            DoMeleeAttackIfReady();
-        }
-
-    private:
-        EventMap _events;
+        std::list<Creature*> guardsList;
+        me->GetCreatureListWithEntryInGrid(guardsList, _npcGuard, 100.0f);
+        for (std::list<Creature*>::const_iterator itr = guardsList.begin(); itr != guardsList.end(); ++itr)
+            (*itr)->Respawn();
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    void JustEngagedWith(Unit* /*who*/) override
     {
-        return new boss_ioc_horde_allianceAI(creature);
+        _events.ScheduleEvent(EVENT_BRUTAL_STRIKE, 5s);
+        _events.ScheduleEvent(EVENT_DAGGER_THROW, 7s);
+        _events.ScheduleEvent(EVENT_CHECK_RANGE, 1s);
+        _events.ScheduleEvent(EVENT_CRUSHING_LEAP, 15s);
     }
+
+    void SpellHit(WorldObject* caster, SpellInfo const* /*spellInfo*/) override
+    {
+        Unit* unitCaster = caster->ToUnit();
+        if (!unitCaster)
+            return;
+
+        if (unitCaster->IsVehicle())
+            Unit::Kill(me, unitCaster);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_BRUTAL_STRIKE:
+                    DoCastVictim(SPELL_BRUTAL_STRIKE);
+                    _events.ScheduleEvent(EVENT_BRUTAL_STRIKE, 5s);
+                    break;
+                case EVENT_DAGGER_THROW:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
+                        DoCast(target, SPELL_DAGGER_THROW);
+                    _events.ScheduleEvent(EVENT_DAGGER_THROW, 7s);
+                    break;
+                case EVENT_CRUSHING_LEAP:
+                    DoCastVictim(SPELL_CRUSHING_LEAP);
+                    _events.ScheduleEvent(EVENT_CRUSHING_LEAP, 25s);
+                    break;
+                case EVENT_CHECK_RANGE:
+                    if (me->GetDistance(me->GetHomePosition()) > 25.0f)
+                        DoCast(me, SPELL_RAGE);
+                    else
+                        me->RemoveAurasDueToSpell(SPELL_RAGE);
+                    _events.ScheduleEvent(EVENT_CHECK_RANGE, 1s);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
 };
 
 void AddSC_boss_ioc_horde_alliance()
 {
-    new boss_ioc_horde_alliance();
+    RegisterCreatureAI(boss_ioc_horde_alliance);
 }

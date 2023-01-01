@@ -37,7 +37,6 @@ const ::google::protobuf::ServiceDescriptor* ChallengeListener_descriptor_ = NUL
 
 }  // namespace
 
-
 void protobuf_AssignDesc_challenge_5fservice_2eproto() {
   protobuf_AddDesc_challenge_5fservice_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -142,7 +141,6 @@ struct StaticDescriptorInitializer_challenge_5fservice_2eproto {
     protobuf_AddDesc_challenge_5fservice_2eproto();
   }
 } static_descriptor_initializer_challenge_5fservice_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -470,7 +468,6 @@ void ChallengeExternalRequest::CopyFrom(const ChallengeExternalRequest& from) {
 }
 
 bool ChallengeExternalRequest::IsInitialized() const {
-
   return true;
 }
 
@@ -492,7 +489,6 @@ void ChallengeExternalRequest::Swap(ChallengeExternalRequest* other) {
   metadata.reflection = ChallengeExternalRequest_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -753,7 +749,6 @@ void ChallengeExternalResult::CopyFrom(const ChallengeExternalResult& from) {
 }
 
 bool ChallengeExternalResult::IsInitialized() const {
-
   return true;
 }
 
@@ -774,7 +769,6 @@ void ChallengeExternalResult::Swap(ChallengeExternalResult* other) {
   metadata.reflection = ChallengeExternalResult_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -805,7 +799,6 @@ void ChallengeListener::CallServerMethod(uint32 token, uint32 methodId, MessageB
   TC_LOG_ERROR("service.protobuf", "%s Server tried to call server method %u",
     GetCallerInfo().c_str(), methodId);
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

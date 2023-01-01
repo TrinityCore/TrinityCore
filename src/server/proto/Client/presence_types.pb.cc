@@ -47,7 +47,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 
 }  // namespace
 
-
 void protobuf_AssignDesc_presence_5ftypes_2eproto() {
   protobuf_AddDesc_presence_5ftypes_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -259,7 +258,6 @@ struct StaticDescriptorInitializer_presence_5ftypes_2eproto {
     protobuf_AddDesc_presence_5ftypes_2eproto();
   }
 } static_descriptor_initializer_presence_5ftypes_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -545,7 +543,6 @@ void RichPresenceLocalizationKey::CopyFrom(const RichPresenceLocalizationKey& fr
 
 bool RichPresenceLocalizationKey::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
-
   return true;
 }
 
@@ -567,7 +564,6 @@ void RichPresenceLocalizationKey::Swap(RichPresenceLocalizationKey* other) {
   metadata.reflection = RichPresenceLocalizationKey_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -895,7 +891,6 @@ void FieldKey::CopyFrom(const FieldKey& from) {
 
 bool FieldKey::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
-
   return true;
 }
 
@@ -918,7 +913,6 @@ void FieldKey::Swap(FieldKey* other) {
   metadata.reflection = FieldKey_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1171,7 +1165,6 @@ void Field::CopyFrom(const Field& from) {
 
 bool Field::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
-
   if (has_key()) {
     if (!this->key().IsInitialized()) return false;
   }
@@ -1198,7 +1191,6 @@ void Field::Swap(Field* other) {
   metadata.reflection = Field_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1473,7 +1465,6 @@ void FieldOperation::CopyFrom(const FieldOperation& from) {
 
 bool FieldOperation::IsInitialized() const {
   if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-
   if (has_field()) {
     if (!this->field().IsInitialized()) return false;
   }
@@ -1497,7 +1488,6 @@ void FieldOperation::Swap(FieldOperation* other) {
   metadata.reflection = FieldOperation_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1742,7 +1732,6 @@ void PresenceState::CopyFrom(const PresenceState& from) {
 }
 
 bool PresenceState::IsInitialized() const {
-
   if (has_entity_id()) {
     if (!this->entity_id().IsInitialized()) return false;
   }
@@ -1767,7 +1756,6 @@ void PresenceState::Swap(PresenceState* other) {
   metadata.reflection = PresenceState_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -2056,7 +2044,6 @@ void ChannelState::CopyFrom(const ChannelState& from) {
 }
 
 bool ChannelState::IsInitialized() const {
-
   if (has_entity_id()) {
     if (!this->entity_id().IsInitialized()) return false;
   }
@@ -2082,7 +2069,6 @@ void ChannelState::Swap(ChannelState* other) {
   metadata.reflection = ChannelState_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

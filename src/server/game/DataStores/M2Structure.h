@@ -19,7 +19,6 @@
 #define TRINITY_M2STRUCTURE_H
 
 #include "Common.h"
-#include "Util.h"
 
 #include <G3D/Vector3.h>
 #include <G3D/AABox.h>

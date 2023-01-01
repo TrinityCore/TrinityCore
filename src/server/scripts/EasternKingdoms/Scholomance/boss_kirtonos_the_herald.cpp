@@ -20,7 +20,6 @@
 #include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
-#include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "scholomance.h"
@@ -87,7 +86,7 @@ class boss_kirtonos_the_herald : public CreatureScript
                 _Reset();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
                 events.ScheduleEvent(EVENT_SWOOP, 8s, 8s);
                 events.ScheduleEvent(EVENT_WING_FLAP, 15s, 15s);
@@ -97,7 +96,7 @@ class boss_kirtonos_the_herald : public CreatureScript
                 events.ScheduleEvent(EVENT_CURSE_OF_TONGUES, 53s, 53s);
                 events.ScheduleEvent(EVENT_DOMINATE_MIND, 34s, 48s);
                 events.ScheduleEvent(EVENT_KIRTONOS_TRANSFORM, 20s, 20s);
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -121,15 +120,15 @@ class boss_kirtonos_the_herald : public CreatureScript
                     brazier->ResetDoorOrButton();
                     brazier->SetGoState(GO_STATE_READY);
                 }
-                me->DespawnOrUnsummon(5000);
+                me->DespawnOrUnsummon(5s);
             }
 
-            void IsSummonedBy(Unit* /*summoner*/) override
+            void IsSummonedBy(WorldObject* /*summoner*/) override
             {
-                events.ScheduleEvent(INTRO_1, 500);
+                events.ScheduleEvent(INTRO_1, 500ms);
                 me->SetDisableGravity(true);
                 me->SetReactState(REACT_PASSIVE);
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
+                me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
                 Talk(EMOTE_SUMMONED);
             }
 
@@ -141,7 +140,7 @@ class boss_kirtonos_the_herald : public CreatureScript
             void MovementInform(uint32 type, uint32 id) override
             {
                 if (type == WAYPOINT_MOTION_TYPE && id == POINT_KIRTONOS_LAND)
-                    events.ScheduleEvent(INTRO_2, 1500);
+                    events.ScheduleEvent(INTRO_2, 1500ms);
             }
 
             void UpdateAI(uint32 diff) override
@@ -159,13 +158,13 @@ class boss_kirtonos_the_herald : public CreatureScript
                                 break;
                             case INTRO_2:
                                 me->GetMotionMaster()->MovePoint(0, PosMove[0]);
-                                events.ScheduleEvent(INTRO_3, 1000);
+                                events.ScheduleEvent(INTRO_3, 1s);
                                 break;
                             case INTRO_3:
                                 if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_GATE_KIRTONOS)))
                                     gate->SetGoState(GO_STATE_READY);
                                 me->SetFacingTo(0.01745329f);
-                                events.ScheduleEvent(INTRO_4, 3000);
+                                events.ScheduleEvent(INTRO_4, 3s);
                                 break;
                             case INTRO_4:
                                 if (GameObject* brazier = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_BRAZIER_OF_THE_HERALD)))
@@ -174,14 +173,14 @@ class boss_kirtonos_the_herald : public CreatureScript
                                 me->SetDisableGravity(false);
                                 DoCast(me, SPELL_KIRTONOS_TRANSFORM);
                                 me->SetCanFly(false);
-                                events.ScheduleEvent(INTRO_5, 1000);
+                                events.ScheduleEvent(INTRO_5, 1s);
                                 break;
                             case INTRO_5:
                                 me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
                                 me->SetVirtualItem(0, uint32(WEAPON_KIRTONOS_STAFF));
-                                me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
+                                me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
                                 me->SetReactState(REACT_AGGRESSIVE);
-                                events.ScheduleEvent(INTRO_6, 5000);
+                                events.ScheduleEvent(INTRO_6, 5s);
                                 break;
                             case INTRO_6:
                                 me->GetMotionMaster()->MovePoint(0, PosMove[1]);
@@ -286,11 +285,11 @@ class go_brazier_of_the_herald : public GameObjectScript
         {
             go_brazier_of_the_heraldAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 me->UseDoorOrButton();
                 me->PlayDirectSound(SOUND_SCREECH, nullptr);
-                player->SummonCreature(NPC_KIRTONOS, PosSummon[0], TEMPSUMMON_DEAD_DESPAWN, 900000);
+                player->SummonCreature(NPC_KIRTONOS, PosSummon[0], TEMPSUMMON_DEAD_DESPAWN, 15min);
                 return true;
             }
         };

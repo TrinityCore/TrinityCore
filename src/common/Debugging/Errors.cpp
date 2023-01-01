@@ -35,10 +35,12 @@
 
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
 #include <Windows.h>
+#include <intrin.h>
 #define Crash(message) \
     ULONG_PTR execeptionArgs[] = { reinterpret_cast<ULONG_PTR>(strdup(message)), reinterpret_cast<ULONG_PTR>(_ReturnAddress()) }; \
     RaiseException(EXCEPTION_ASSERTION_FAILURE, 0, 2, execeptionArgs);
 #else
+#include <cstring>
 // should be easily accessible in gdb
 extern "C" { TC_COMMON_API char const* TrinityAssertionFailedMessage = nullptr; }
 #define Crash(message) \
@@ -124,6 +126,20 @@ void Abort(char const* file, int line, char const* function)
     std::string formattedMessage = StringFormat("\n%s:%i in %s ABORTED.\n", file, line, function);
     fprintf(stderr, "%s", formattedMessage.c_str());
     fflush(stderr);
+    Crash(formattedMessage.c_str());
+}
+
+void Abort(char const* file, int line, char const* function, char const* message, ...)
+{
+    va_list args;
+    va_start(args, message);
+
+    std::string formattedMessage = StringFormat("\n%s:%i in %s ABORTED:\n", file, line, function) + FormatAssertionMessage(message, args) + '\n';
+    va_end(args);
+
+    fprintf(stderr, "%s", formattedMessage.c_str());
+    fflush(stderr);
+
     Crash(formattedMessage.c_str());
 }
 

@@ -24,9 +24,11 @@
 #include "Position.h"
 #include <array>
 
-enum class GossipOptionIcon : uint8;
+enum class GossipOptionFlags : int32;
+enum class GossipOptionNpc : uint8;
 enum class GossipOptionStatus : uint8;
 enum class GossipOptionRewardType : uint8;
+enum class PlayerInteractionType : int32;
 
 namespace WorldPackets
 {
@@ -49,6 +51,18 @@ namespace WorldPackets
             ObjectGuid Unit;
         };
 
+        class TC_GAME_API NPCInteractionOpenResult final : public ServerPacket
+        {
+        public:
+            NPCInteractionOpenResult() : ServerPacket(SMSG_NPC_INTERACTION_OPEN_RESULT, 16 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Npc;
+            PlayerInteractionType InteractionType = {};
+            bool Success = true;
+        };
+
         struct TreasureItem
         {
             GossipOptionRewardType Type = GossipOptionRewardType(0);
@@ -63,15 +77,19 @@ namespace WorldPackets
 
         struct ClientGossipOptions
         {
-            int32 ClientOption  = 0;
-            GossipOptionIcon OptionNPC = GossipOptionIcon(0);
+            int32 GossipOptionID  = 0;
+            GossipOptionNpc OptionNPC = {};
             uint8 OptionFlags   = 0;
             int32 OptionCost    = 0;
-            GossipOptionStatus Status = GossipOptionStatus(0);
-            std::string Text;
-            std::string Confirm;
+            uint32 OptionLanguage = 0;
+            GossipOptionFlags Flags = {};
+            int32 OrderIndex = 0;
+            GossipOptionStatus Status = {};
+            std::string_view Text;
+            std::string_view Confirm;
             TreasureLootList Treasure;
             Optional<int32> SpellID;
+            Optional<int32> OverrideIconID;
         };
 
         struct ClientGossipText
@@ -97,7 +115,8 @@ namespace WorldPackets
             int32 FriendshipFactionID = 0;
             ObjectGuid GossipGUID;
             std::vector<ClientGossipText> GossipText;
-            int32 TextID = 0;
+            Optional<int32> TextID;
+            Optional<int32> TextID2;
             int32 GossipID = 0;
         };
 
@@ -109,9 +128,21 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid GossipUnit;
-            int32 GossipIndex = 0;
+            int32 GossipOptionID = 0;
             int32 GossipID = 0;
             std::string PromotionCode;
+        };
+
+        class GossipOptionNPCInteraction final : public ServerPacket
+        {
+        public:
+            GossipOptionNPCInteraction() : ServerPacket(SMSG_GOSSIP_OPTION_NPC_INTERACTION, 16 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid GossipGUID;
+            int32 GossipNpcOptionID = 0;
+            Optional<int32> FriendshipFactionID;
         };
 
         class GossipComplete final : public ServerPacket
@@ -119,7 +150,9 @@ namespace WorldPackets
         public:
             GossipComplete() : ServerPacket(SMSG_GOSSIP_COMPLETE, 0) { }
 
-            WorldPacket const* Write() override { return &_worldPacket; }
+            WorldPacket const* Write() override;
+
+            bool SuppressSound = false;
         };
 
         struct VendorItem
@@ -175,26 +208,6 @@ namespace WorldPackets
             std::string Greeting;
         };
 
-        class ShowBank final : public ServerPacket
-        {
-        public:
-            ShowBank() : ServerPacket(SMSG_SHOW_BANK, 16) { }
-
-            WorldPacket const* Write() override;
-
-            ObjectGuid Guid;
-        };
-
-        class PlayerTabardVendorActivate final : public ServerPacket
-        {
-        public:
-            PlayerTabardVendorActivate() : ServerPacket(SMSG_PLAYER_TABARD_VENDOR_ACTIVATE, 16) { }
-
-            WorldPacket const* Write() override;
-
-            ObjectGuid Vendor;
-        };
-
         class GossipPOI final : public ServerPacket
         {
         public:
@@ -207,7 +220,7 @@ namespace WorldPackets
             TaggedPosition<Position::XYZ> Pos;
             int32 Icon          = 0;
             int32 Importance    = 0;
-            int32 Unknown905    = 0;
+            int32 WMOGroupID    = 0;
             std::string Name;
         };
 
@@ -219,16 +232,6 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid Healer;
-        };
-
-        class TC_GAME_API SpiritHealerConfirm final : public ServerPacket
-        {
-        public:
-            SpiritHealerConfirm() : ServerPacket(SMSG_SPIRIT_HEALER_CONFIRM, 16) { }
-
-            WorldPacket const* Write() override;
-
-            ObjectGuid Unit;
         };
 
         class TrainerBuySpell final : public ClientPacket
@@ -263,6 +266,18 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid StableMaster;
+        };
+
+        class SetPetSlot final : public ClientPacket
+        {
+        public:
+            SetPetSlot(WorldPacket&& packet) : ClientPacket(CMSG_SET_PET_SLOT, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid StableMaster;
+            uint32 PetNumber = 0;
+            uint8 DestSlot = 0;
         };
     }
 }

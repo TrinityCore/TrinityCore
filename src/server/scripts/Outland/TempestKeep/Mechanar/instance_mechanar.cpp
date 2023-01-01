@@ -16,7 +16,6 @@
  */
 
 #include "ScriptMgr.h"
-#include "GameObject.h"
 #include "InstanceScript.h"
 #include "mechanar.h"
 
@@ -26,6 +25,15 @@ static DoorData const doorData[] =
     { GO_DOOR_MOARG_2,          DATA_GATEWATCHER_GYROKILL,      DOOR_TYPE_PASSAGE },
     { GO_DOOR_NETHERMANCER,     DATA_NETHERMANCER_SEPRETHREA,   DOOR_TYPE_ROOM    },
     { 0,                        0,                              DOOR_TYPE_ROOM    }
+};
+
+DungeonEncounterData const encounters[] =
+{
+    { DATA_GATEWATCHER_GYROKILL, {{ 1933 }} },
+    { DATA_GATEWATCHER_IRON_HAND, {{ 1934 }} },
+    { DATA_MECHANOLORD_CAPACITUS, {{ 1932 }} },
+    { DATA_NETHERMANCER_SEPRETHREA, {{ 1930 }} },
+    { DATA_PATHALEON_THE_CALCULATOR, {{ 1931 }} }
 };
 
 class instance_mechanar : public InstanceMapScript
@@ -40,6 +48,7 @@ class instance_mechanar : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
+                LoadDungeonEncounterData(encounters);
             }
 
             bool SetBossState(uint32 type, EncounterState state) override

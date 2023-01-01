@@ -44,7 +44,7 @@ enum SHCreatureIds
 
 enum SHGameObjectIds
 {
-    GO_IKISS_DOOR                       = 177203,
+    GO_IKISS_DOOR                       = 183398,
     GO_TALON_KING_COFFER                = 187372
 };
 
@@ -53,5 +53,7 @@ inline AI* GetSethekkHallsAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, SHScriptName);
 }
+
+#define RegisterSethekkHallsCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetSethekkHallsAI)
 
 #endif // SETHEKK_HALLS_H_

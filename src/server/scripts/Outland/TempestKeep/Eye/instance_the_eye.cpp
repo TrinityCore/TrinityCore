@@ -15,23 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Instance_The_Eye
-SD%Complete: 100
-SDComment:
-SDCategory: Tempest Keep, The Eye
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "Creature.h"
 #include "InstanceScript.h"
 #include "the_eye.h"
 
 /* The Eye encounters:
-0 - Kael'thas event
-1 - Al' ar event
-2 - Solarian Event
-3 - Void Reaver event
+0 - Al'ar
+1 - Void Reaver
+2 - Solarian
+3 - Kael'thas
 */
 
 DoorData const doorData[] =
@@ -41,12 +34,33 @@ DoorData const doorData[] =
     {                    0,             0, DOOR_TYPE_ROOM } // END
 };
 
+ObjectData const creatureData[] =
+{
+    { NPC_ALAR,        DATA_ALAR        },
+    { NPC_VOID_REAVER, DATA_VOID_REAVER },
+    { NPC_SOLARIAN,    DATA_SOLARIAN    },
+    { NPC_KAELTHAS,    DATA_KAELTHAS    },
+    { NPC_CAPERNIAN,   DATA_CAPERNIAN   },
+    { NPC_SANGUINAR,   DATA_SANGUINAR   },
+    { NPC_TELONICUS,   DATA_TELONICUS   },
+    { NPC_THALADRED,   DATA_THALADRED   },
+    { 0,               0                } // END
+};
+
 ObjectData const gameObjectData[] =
 {
     { GO_KAEL_STATUE_RIGHT,      DATA_KAEL_STATUE_RIGHT     },
     { GO_KAEL_STATUE_LEFT,       DATA_KAEL_STATUE_LEFT      },
     { GO_TEMPEST_BRIDDGE_WINDOW, DATA_TEMPEST_BRIDGE_WINDOW },
     {                         0, 0                          } // END
+};
+
+DungeonEncounterData const encounters[] =
+{
+    { DATA_KAELTHAS, {{ 733 }} },
+    { DATA_ALAR, {{ 730 }} },
+    { DATA_SOLARIAN, {{ 732 }} },
+    { DATA_VOID_REAVER, {{ 731 }} }
 };
 
 class instance_the_eye : public InstanceMapScript
@@ -61,60 +75,8 @@ class instance_the_eye : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
-                LoadObjectData(nullptr, gameObjectData);
-            }
-
-            ObjectGuid ThaladredTheDarkener;
-            ObjectGuid LordSanguinar;
-            ObjectGuid GrandAstromancerCapernian;
-            ObjectGuid MasterEngineerTelonicus;
-            ObjectGuid Kaelthas;
-            ObjectGuid Astromancer;
-            ObjectGuid Alar;
-
-            void OnCreatureCreate(Creature* creature) override
-            {
-                switch (creature->GetEntry())
-                {
-                    case NPC_SANGUINAR:
-                        LordSanguinar = creature->GetGUID();
-                        break;
-                    case NPC_CAPERNIAN:
-                        GrandAstromancerCapernian = creature->GetGUID();
-                        break;
-                    case NPC_TELONICUS:
-                        MasterEngineerTelonicus = creature->GetGUID();
-                        break;
-                    case NPC_THALADRED:
-                        ThaladredTheDarkener = creature->GetGUID();
-                        break;
-                    case NPC_KAELTHAS:
-                        Kaelthas = creature->GetGUID();
-                        break;
-                    case NPC_HIGH_ASTROMANCER_SOLARIAN:
-                        Astromancer = creature->GetGUID();
-                        break;
-                    case NPC_ALAR:
-                        Alar = creature->GetGUID();
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            ObjectGuid GetGuidData(uint32 identifier) const override
-            {
-                switch (identifier)
-                {
-                    case DATA_THALADREDTHEDARKENER:         return ThaladredTheDarkener;
-                    case DATA_LORDSANGUINAR:                return LordSanguinar;
-                    case DATA_GRANDASTROMANCERCAPERNIAN:    return GrandAstromancerCapernian;
-                    case DATA_MASTERENGINEERTELONICUS:      return MasterEngineerTelonicus;
-                    case DATA_KAELTHAS:                     return Kaelthas;
-                    case DATA_HIGH_ASTROMANCER_SOLARIAN:    return Astromancer;
-                    case DATA_ALAR:                         return Alar;
-                }
-                return ObjectGuid::Empty;
+                LoadObjectData(creatureData, gameObjectData);
+                LoadDungeonEncounterData(encounters);
             }
         };
 
@@ -123,6 +85,7 @@ class instance_the_eye : public InstanceMapScript
             return new instance_the_eye_InstanceMapScript(map);
         }
 };
+
 void AddSC_instance_the_eye()
 {
     new instance_the_eye;

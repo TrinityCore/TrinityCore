@@ -35,7 +35,7 @@ void WorldSession::SendAuthResponse(uint32 code, bool queued, uint32 queuePos)
 
     if (code == ERROR_OK)
     {
-        response.SuccessInfo = boost::in_place();
+        response.SuccessInfo.emplace();
 
         response.SuccessInfo->ActiveExpansionLevel = GetExpansion();
         response.SuccessInfo->AccountExpansionLevel = GetAccountExpansion();
@@ -58,14 +58,14 @@ void WorldSession::SendAuthResponse(uint32 code, bool queued, uint32 queuePos)
 
     if (queued)
     {
-        response.WaitInfo = boost::in_place();
+        response.WaitInfo.emplace();
         response.WaitInfo->WaitCount = queuePos;
     }
 
     SendPacket(response.Write());
 }
 
-void WorldSession::SendAuthWaitQue(uint32 position)
+void WorldSession::SendAuthWaitQueue(uint32 position)
 {
     if (position)
     {
@@ -93,6 +93,7 @@ void WorldSession::SendSetTimeZoneInformation()
     WorldPackets::System::SetTimeZoneInformation packet;
     packet.ServerTimeTZ = "Europe/Paris";
     packet.GameTimeTZ = "Europe/Paris";
+    packet.ServerRegionalTZ = "Europe/Paris";
 
     SendPacket(packet.Write());
 }

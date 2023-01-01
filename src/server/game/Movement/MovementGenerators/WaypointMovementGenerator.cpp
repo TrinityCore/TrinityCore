@@ -27,6 +27,7 @@
 #include "ObjectMgr.h"
 #include "Transport.h"
 #include "WaypointManager.h"
+#include <sstream>
 
 WaypointMovementGenerator<Creature>::WaypointMovementGenerator(uint32 pathId, bool repeating) : _nextMoveTime(0), _pathId(pathId), _repeating(repeating), _loadedFromDB(true)
 {
@@ -55,6 +56,10 @@ void WaypointMovementGenerator<Creature>::Pause(uint32 timer/* = 0*/)
 {
     if (timer)
     {
+        // Don't try to paused an already paused generator
+        if (HasFlag(MOVEMENTGENERATOR_FLAG_PAUSED))
+            return;
+
         AddFlag(MOVEMENTGENERATOR_FLAG_TIMED_PAUSED);
         _nextMoveTime.Reset(timer);
         RemoveFlag(MOVEMENTGENERATOR_FLAG_PAUSED);
@@ -114,10 +119,6 @@ void WaypointMovementGenerator<Creature>::DoInitialize(Creature* owner)
     owner->StopMoving();
 
     _nextMoveTime.Reset(1000);
-
-    // inform AI
-    if (CreatureAI* AI = owner->AI())
-        AI->WaypointPathStarted(_path->id);
 }
 
 void WaypointMovementGenerator<Creature>::DoReset(Creature* owner)
@@ -300,9 +301,9 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
                 owner->SetHomePosition(x, y, z, o);
             else
             {
-                if (Transport* trans = owner->GetTransport())
+                if (TransportBase* trans = owner->GetTransport())
                 {
-                    o -= trans->GetOrientation();
+                    o -= trans->GetTransportOrientation();
                     owner->SetTransportHomePosition(x, y, z, o);
                     trans->CalculatePassengerPosition(x, y, z, &o);
                     owner->SetHomePosition(x, y, z, o);
@@ -329,7 +330,6 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
 
     ASSERT(_currentNode < _path->nodes.size(), "WaypointMovementGenerator::StartMove: tried to reference a node id (%u) which is not included in path (%u)", _currentNode, _path->id);
     WaypointNode const &waypoint = _path->nodes[_currentNode];
-    Position formationDest(waypoint.x, waypoint.y, waypoint.z, (waypoint.orientation && waypoint.delay) ? waypoint.orientation : 0.0f);
 
     RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_INFORM_ENABLED | MOVEMENTGENERATOR_FLAG_TIMED_PAUSED);
 
@@ -339,31 +339,22 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
 
     //! If creature is on transport, we assume waypoints set in DB are already transport offsets
     if (transportPath)
-    {
         init.DisableTransportPathTransformations();
-        if (TransportBase* trans = owner->GetDirectTransport())
-        {
-            float orientation = formationDest.GetOrientation();
-            trans->CalculatePassengerPosition(formationDest.m_positionX, formationDest.m_positionY, formationDest.m_positionZ, &orientation);
-            formationDest.SetOrientation(orientation);
-        }
-    }
 
     //! Do not use formationDest here, MoveTo requires transport offsets due to DisableTransportPathTransformations() call
     //! but formationDest contains global coordinates
     init.MoveTo(waypoint.x, waypoint.y, waypoint.z);
 
-    //! Accepts angles such as 0.00001 and -0.00001, 0 must be ignored, default value in waypoint table
-    if (waypoint.orientation && waypoint.delay)
-        init.SetFacing(waypoint.orientation);
+    if (waypoint.orientation.has_value() && waypoint.delay > 0)
+        init.SetFacing(*waypoint.orientation);
 
     switch (waypoint.moveType)
     {
         case WAYPOINT_MOVE_TYPE_LAND:
-            init.SetAnimation(Movement::ToGround);
+            init.SetAnimation(AnimTier::Ground);
             break;
         case WAYPOINT_MOVE_TYPE_TAKEOFF:
-            init.SetAnimation(Movement::ToFly);
+            init.SetAnimation(AnimTier::Hover);
             break;
         case WAYPOINT_MOVE_TYPE_RUN:
             init.SetWalk(false);
@@ -378,7 +369,7 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
     init.Launch();
 
     // inform formation
-    owner->SignalFormationMovement(formationDest, waypoint.id, waypoint.moveType, (waypoint.orientation && waypoint.delay) ? true : false);
+    owner->SignalFormationMovement();
 }
 
 bool WaypointMovementGenerator<Creature>::ComputeNextNode()
@@ -388,4 +379,12 @@ bool WaypointMovementGenerator<Creature>::ComputeNextNode()
 
     _currentNode = (_currentNode + 1) % _path->nodes.size();
     return true;
+}
+
+std::string WaypointMovementGenerator<Creature>::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << PathMovementBase::GetDebugInfo() << "\n"
+        << MovementGeneratorMedium::GetDebugInfo();
+    return sstr.str();
 }

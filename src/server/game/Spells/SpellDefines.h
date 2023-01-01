@@ -19,10 +19,12 @@
 #define TRINITY_SPELLDEFINES_H
 
 #include "Define.h"
+#include "FlagsArray.h"
 #include "EnumFlag.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "Position.h"
+#include <any>
 #include <vector>
 
 class AuraEffect;
@@ -30,9 +32,12 @@ class Corpse;
 class GameObject;
 class Item;
 class Player;
+class Spell;
 class Unit;
 class WorldObject;
 enum Difficulty : uint8;
+enum ProcFlags : uint32;
+enum ProcFlags2 : int32;
 
 namespace UF
 {
@@ -117,7 +122,7 @@ enum class SpellAuraInterruptFlags2 : uint32
     Ground                      = 0x00000008,
     Transform                   = 0x00000010, // NYI
     Jump                        = 0x00000020,
-    ChangeSpec                  = 0x00000040, // NYI
+    ChangeSpec                  = 0x00000040,
     AbandonVehicle              = 0x00000080, // NYI
     StartOfEncounter            = 0x00000100, // NYI
     EndOfEncounter              = 0x00000200, // NYI
@@ -125,8 +130,8 @@ enum class SpellAuraInterruptFlags2 : uint32
     EnteringInstance            = 0x00000800, // NYI
     DuelEnd                     = 0x00001000, // NYI
     LeaveArenaOrBattleground    = 0x00002000, // NYI
-    ChangeTalent                = 0x00004000, // NYI
-    ChangeGlyph                 = 0x00008000, // NYI
+    ChangeTalent                = 0x00004000,
+    ChangeGlyph                 = 0x00008000,
     SeamlessTransfer            = 0x00010000, // NYI
     WarModeLeave                = 0x00020000, // NYI
     TouchingGround              = 0x00040000, // NYI
@@ -303,6 +308,7 @@ struct TC_GAME_API SpellDestination
     SpellDestination();
     SpellDestination(float x, float y, float z, float orientation = 0.0f, uint32 mapId = MAPID_INVALID);
     SpellDestination(Position const& pos);
+    SpellDestination(WorldLocation const& loc);
     SpellDestination(WorldObject const& wObj);
 
     void Relocate(Position const& pos);
@@ -326,9 +332,6 @@ public:
     void SetTargetMask(uint32 newMask) { m_targetMask = newMask; }
 
     void SetTargetFlag(SpellCastTargetFlags flag) { m_targetMask |= flag; }
-
-    ObjectGuid GetOrigUnitTargetGUID() const;
-    void SetOrigUnitTarget(Unit* target);
 
     ObjectGuid GetUnitTargetGUID() const;
     Unit* GetUnitTarget() const;
@@ -395,7 +398,6 @@ private:
     Item* m_itemTarget;
 
     // object GUID/etc, can be used always
-    ObjectGuid m_origObjectTargetGUID;
     ObjectGuid m_objectTargetGUID;
     ObjectGuid m_itemTargetGUID;
     uint32 m_itemTargetEntry;
@@ -436,25 +438,30 @@ struct TC_GAME_API CastSpellExtraArgs
     CastSpellExtraArgs(bool triggered) : TriggerFlags(triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE) {}
     CastSpellExtraArgs(TriggerCastFlags trigger) : TriggerFlags(trigger) {}
     CastSpellExtraArgs(Item* item) : TriggerFlags(TRIGGERED_FULL_MASK), CastItem(item) {}
+    CastSpellExtraArgs(Spell const* triggeringSpell) : TriggerFlags(TRIGGERED_FULL_MASK) { SetTriggeringSpell(triggeringSpell); }
     CastSpellExtraArgs(AuraEffect const* eff) : TriggerFlags(TRIGGERED_FULL_MASK) { SetTriggeringAura(eff); }
     CastSpellExtraArgs(Difficulty castDifficulty) : CastDifficulty(castDifficulty) {}
     CastSpellExtraArgs(SpellValueMod mod, int32 val) { SpellValueOverrides.AddMod(mod, val); }
 
     CastSpellExtraArgs& SetTriggerFlags(TriggerCastFlags flag) { TriggerFlags = flag; return *this; }
     CastSpellExtraArgs& SetCastItem(Item* item) { CastItem = item; return *this; }
+    CastSpellExtraArgs& SetTriggeringSpell(Spell const* triggeringSpell);
     CastSpellExtraArgs& SetTriggeringAura(AuraEffect const* triggeringAura);
     CastSpellExtraArgs& SetOriginalCaster(ObjectGuid const& guid) { OriginalCaster = guid; return *this; }
     CastSpellExtraArgs& SetCastDifficulty(Difficulty castDifficulty) { CastDifficulty = castDifficulty; return *this; }
     CastSpellExtraArgs& SetOriginalCastId(ObjectGuid const& castId) { OriginalCastId = castId; return *this; }
     CastSpellExtraArgs& AddSpellMod(SpellValueMod mod, int32 val) { SpellValueOverrides.AddMod(mod, val); return *this; }
     CastSpellExtraArgs& AddSpellBP0(int32 val) { return AddSpellMod(SPELLVALUE_BASE_POINT0, val); } // because i don't want to type SPELLVALUE_BASE_POINT0 300 times
+    CastSpellExtraArgs& SetCustomArg(std::any customArg) { CustomArg = std::move(customArg); return *this; }
 
     TriggerCastFlags TriggerFlags = TRIGGERED_NONE;
     Item* CastItem = nullptr;
+    Spell const* TriggeringSpell = nullptr;
     AuraEffect const* TriggeringAura = nullptr;
     ObjectGuid OriginalCaster = ObjectGuid::Empty;
     Difficulty CastDifficulty = Difficulty(0);
     ObjectGuid OriginalCastId = ObjectGuid::Empty;
+    Optional<int32> OriginalCastItemLevel;
     struct
     {
         friend struct CastSpellExtraArgs;
@@ -468,6 +475,13 @@ struct TC_GAME_API CastSpellExtraArgs
 
         std::vector<std::pair<SpellValueMod, int32>> data;
     } SpellValueOverrides;
+    std::any CustomArg;
+
+    CastSpellExtraArgs(CastSpellExtraArgs const&) = delete;
+    CastSpellExtraArgs(CastSpellExtraArgs&&) = delete;
+
+    CastSpellExtraArgs& operator=(CastSpellExtraArgs const&) = delete;
+    CastSpellExtraArgs& operator=(CastSpellExtraArgs&&) = delete;
 };
 
 struct SpellCastVisual
@@ -477,6 +491,51 @@ struct SpellCastVisual
 
     operator UF::SpellCastVisual() const;
     operator WorldPackets::Spells::SpellCastVisual() const;
+};
+
+class ProcFlagsInit : public FlagsArray<int32, 2>
+{
+    using Base = FlagsArray<int32, 2>;
+
+public:
+    constexpr ProcFlagsInit(ProcFlags procFlags = {}, ProcFlags2 procFlags2 = {})
+    {
+        _storage[0] = int32(procFlags);
+        _storage[1] = int32(procFlags2);
+    }
+
+    constexpr ProcFlagsInit& operator|=(ProcFlags procFlags)
+    {
+        _storage[0] |= int32(procFlags);
+        return *this;
+    }
+
+    constexpr ProcFlagsInit& operator|=(ProcFlags2 procFlags2)
+    {
+        _storage[1] |= int32(procFlags2);
+        return *this;
+    }
+
+    using Base::operator&;
+
+    constexpr ProcFlags operator&(ProcFlags procFlags) const
+    {
+        return static_cast<ProcFlags>(_storage[0] & procFlags);
+    }
+
+    constexpr ProcFlags2 operator&(ProcFlags2 procFlags2) const
+    {
+        return static_cast<ProcFlags2>(_storage[1] & procFlags2);
+    }
+
+    using Base::operator=;
+
+    constexpr ProcFlagsInit& operator=(Base const& right)
+    {
+        _storage[0] = right[0];
+        _storage[1] = right[1];
+        return *this;
+    }
 };
 
 #endif

@@ -17,15 +17,19 @@
 
 #include "ScriptMgr.h"
 #include "Chat.h"
+#include "ChatCommand.h"
 #include "DatabaseEnv.h"
 #include "Item.h"
 #include "Language.h"
 #include "Mail.h"
 #include "ObjectMgr.h"
-#include "Pet.h"
 #include "Player.h"
 #include "RBAC.h"
 #include "WorldSession.h"
+
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 
 class send_commandscript : public CommandScript
 {

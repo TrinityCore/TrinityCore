@@ -27,14 +27,15 @@
 
 DoorData const doorData[] =
 {
-    { GO_PORTCULLIS,             DATA_RAZORGORE_THE_UNTAMED,  DOOR_TYPE_PASSAGE },
-    { GO_DRAKE_RIDER_PORTCULLIS, DATA_VAELASTRAZ_THE_CORRUPT, DOOR_TYPE_PASSAGE },
-    { GO_ALTERAC_VALLEY_GATE,    DATA_BROODLORD_LASHLAYER,    DOOR_TYPE_PASSAGE },
-    { GO_GATE,                   DATA_FIREMAW,                DOOR_TYPE_PASSAGE },
-    { GO_GATE,                   DATA_EBONROC,                DOOR_TYPE_PASSAGE },
-    { GO_GATE,                   DATA_FLAMEGOR,               DOOR_TYPE_PASSAGE },
-    { GO_VACCUUM_EXIT_GATE,      DATA_CHROMAGGUS,             DOOR_TYPE_PASSAGE },
-    { 0,                         0,                           DOOR_TYPE_ROOM } // END
+    { GO_PORTCULLIS_RAZORGORE,    DATA_RAZORGORE_THE_UNTAMED,  DOOR_TYPE_PASSAGE },
+    { GO_PORTCULLIS_VAELASTRASZ,  DATA_VAELASTRAZ_THE_CORRUPT, DOOR_TYPE_PASSAGE },
+    { GO_PORTCULLIS_BROODLORD,    DATA_BROODLORD_LASHLAYER,    DOOR_TYPE_PASSAGE },
+    { GO_PORTCULLIS_THREEDRAGONS, DATA_FIREMAW,                DOOR_TYPE_PASSAGE },
+    { GO_PORTCULLIS_THREEDRAGONS, DATA_EBONROC,                DOOR_TYPE_PASSAGE },
+    { GO_PORTCULLIS_THREEDRAGONS, DATA_FLAMEGOR,               DOOR_TYPE_PASSAGE },
+    { GO_PORTCULLIS_CHROMAGGUS,   DATA_CHROMAGGUS,             DOOR_TYPE_PASSAGE },
+    { GO_PORTCULLIS_NEFARIAN,     DATA_NEFARIAN,               DOOR_TYPE_ROOM },
+    { 0,                         0,                            DOOR_TYPE_ROOM } // END
 };
 
 ObjectData const creatureData[] =
@@ -49,6 +50,24 @@ ObjectData const creatureData[] =
     { NPC_NEFARIAN,        DATA_NEFARIAN               },
     { NPC_VICTOR_NEFARIUS, DATA_LORD_VICTOR_NEFARIUS   },
     { 0,                   0                           } // END
+};
+
+ObjectData const gameObjectData[] =
+{
+    { GO_CHROMAGGUS_DOOR,             DATA_GO_CHROMAGGUS_DOOR },
+    { 0,                              0                       } //END
+};
+
+DungeonEncounterData const encounters[] =
+{
+    { DATA_RAZORGORE_THE_UNTAMED, {{ 610 }} },
+    { DATA_VAELASTRAZ_THE_CORRUPT, {{ 611 }} },
+    { DATA_BROODLORD_LASHLAYER, {{ 612 }} },
+    { DATA_FIREMAW, {{ 613 }} },
+    { DATA_EBONROC, {{ 614 }} },
+    { DATA_FLAMEGOR, {{ 615 }} },
+    { DATA_CHROMAGGUS, {{ 616 }} },
+    { DATA_NEFARIAN, {{ 617 }} }
 };
 
 Position const SummonPosition[8] =
@@ -77,7 +96,8 @@ public:
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
             LoadDoorData(doorData);
-            LoadObjectData(creatureData, nullptr);
+            LoadObjectData(creatureData, gameObjectData);
+            LoadDungeonEncounterData(encounters);
 
             // Razorgore
             EggCount = 0;
@@ -95,7 +115,8 @@ public:
                 case NPC_BLACKWING_LEGIONAIRE:
                 case NPC_BLACKWING_WARLOCK:
                     if (Creature* razor = GetCreature(DATA_RAZORGORE_THE_UNTAMED))
-                        razor->AI()->JustSummoned(creature);
+                        if (CreatureAI* razorAI = razor->AI())
+                            razorAI->JustSummoned(creature);
                     break;
                 default:
                     break;
@@ -113,8 +134,14 @@ public:
         {
             InstanceScript::OnGameObjectCreate(go);
 
-            if (go->GetEntry() == GO_BLACK_DRAGON_EGG)
-                EggList.push_back(go->GetGUID());
+            switch(go->GetEntry())
+            {
+                case GO_BLACK_DRAGON_EGG:
+                    EggList.push_back(go->GetGUID());
+                    break;
+                default:
+                    break;
+            }
         }
 
         void OnGameObjectRemove(GameObject* go) override
@@ -179,7 +206,7 @@ public:
                                 nefarian->DespawnOrUnsummon();
                             break;
                         case FAIL:
-                            _events.ScheduleEvent(EVENT_RESPAWN_NEFARIUS, 15 * IN_MILLISECONDS * MINUTE);
+                            _events.ScheduleEvent(EVENT_RESPAWN_NEFARIUS, 15min);
                             SetBossState(DATA_NEFARIAN, NOT_STARTED);
                             break;
                         default:
@@ -213,7 +240,7 @@ public:
                             {
                                 SetData(DATA_EGG_EVENT, DONE);
                                 razor->RemoveAurasDueToSpell(42013); // MindControl
-                                DoRemoveAurasDueToSpellOnPlayers(42013);
+                                DoRemoveAurasDueToSpellOnPlayers(42013, true, true);
                             }
                             _events.ScheduleEvent(EVENT_RAZOR_PHASE_TWO, 1s);
                             _events.CancelEvent(EVENT_RAZOR_SPAWN);

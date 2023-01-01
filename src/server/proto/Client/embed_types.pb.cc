@@ -38,7 +38,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 
 }  // namespace
 
-
 void protobuf_AssignDesc_embed_5ftypes_2eproto() {
   protobuf_AddDesc_embed_5ftypes_2eproto();
   const ::google::protobuf::FileDescriptor* file =
@@ -186,7 +185,6 @@ struct StaticDescriptorInitializer_embed_5ftypes_2eproto {
     protobuf_AddDesc_embed_5ftypes_2eproto();
   }
 } static_descriptor_initializer_embed_5ftypes_2eproto_;
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -499,7 +497,6 @@ void EmbedImage::CopyFrom(const EmbedImage& from) {
 }
 
 bool EmbedImage::IsInitialized() const {
-
   return true;
 }
 
@@ -521,7 +518,6 @@ void EmbedImage::Swap(EmbedImage* other) {
   metadata.reflection = EmbedImage_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -744,7 +740,6 @@ void Provider::CopyFrom(const Provider& from) {
 }
 
 bool Provider::IsInitialized() const {
-
   return true;
 }
 
@@ -764,7 +759,6 @@ void Provider::Swap(Provider* other) {
   metadata.reflection = Provider_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1078,7 +1072,6 @@ void EmbedHTML::CopyFrom(const EmbedHTML& from) {
 }
 
 bool EmbedHTML::IsInitialized() const {
-
   return true;
 }
 
@@ -1100,7 +1093,6 @@ void EmbedHTML::Swap(EmbedHTML* other) {
   metadata.reflection = EmbedHTML_reflection_;
   return metadata;
 }
-
 
 // ===================================================================
 
@@ -1628,7 +1620,6 @@ void EmbedInfo::CopyFrom(const EmbedInfo& from) {
 }
 
 bool EmbedInfo::IsInitialized() const {
-
   return true;
 }
 
@@ -1654,7 +1645,6 @@ void EmbedInfo::Swap(EmbedInfo* other) {
   metadata.reflection = EmbedInfo_reflection_;
   return metadata;
 }
-
 
 // @@protoc_insertion_point(namespace_scope)
 

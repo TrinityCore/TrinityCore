@@ -24,17 +24,16 @@ EndScriptData */
 
 /* ContentData
 npc_maghar_captive
-npc_creditmarker_visit_with_ancestors
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "GameObject.h"
+#include "ConditionMgr.h"
 #include "GameObjectAI.h"
 #include "MotionMaster.h"
 #include "Player.h"
 #include "ScriptedEscortAI.h"
-#include "ScriptedGossip.h"
 #include "SpellInfo.h"
+#include "SpellScript.h"
 #include "TemporarySummon.h"
 
 /*######
@@ -74,7 +73,17 @@ public:
 
     struct npc_maghar_captiveAI : public EscortAI
     {
-        npc_maghar_captiveAI(Creature* creature) : EscortAI(creature) { Reset(); }
+        npc_maghar_captiveAI(Creature* creature) : EscortAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            ChainLightningTimer = 1000;
+            HealTimer = 0;
+            FrostShockTimer = 6000;
+        }
 
         uint32 ChainLightningTimer;
         uint32 HealTimer;
@@ -82,9 +91,7 @@ public:
 
         void Reset() override
         {
-            ChainLightningTimer = 1000;
-            HealTimer = 0;
-            FrostShockTimer = 6000;
+            Initialize();
         }
 
         void JustEngagedWith(Unit* /*who*/) override
@@ -111,12 +118,12 @@ public:
                 case 7:
                     Talk(SAY_MAG_MORE);
 
-                    if (Creature* temp = me->SummonCreature(NPC_MURK_PUTRIFIER, m_afAmbushB[0], m_afAmbushB[1], m_afAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000))
+                    if (Creature* temp = me->SummonCreature(NPC_MURK_PUTRIFIER, m_afAmbushB[0], m_afAmbushB[1], m_afAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25s))
                         temp->AI()->Talk(SAY_MAG_MORE_REPLY);
 
-                    me->SummonCreature(NPC_MURK_PUTRIFIER, m_afAmbushB[0]-2.5f, m_afAmbushB[1]-2.5f, m_afAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    me->SummonCreature(NPC_MURK_SCAVENGER, m_afAmbushB[0]+2.5f, m_afAmbushB[1]+2.5f, m_afAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    me->SummonCreature(NPC_MURK_SCAVENGER, m_afAmbushB[0]+2.5f, m_afAmbushB[1]-2.5f, m_afAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                    me->SummonCreature(NPC_MURK_PUTRIFIER, m_afAmbushB[0]-2.5f, m_afAmbushB[1]-2.5f, m_afAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25s);
+                    me->SummonCreature(NPC_MURK_SCAVENGER, m_afAmbushB[0]+2.5f, m_afAmbushB[1]+2.5f, m_afAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25s);
+                    me->SummonCreature(NPC_MURK_SCAVENGER, m_afAmbushB[0]+2.5f, m_afAmbushB[1]-2.5f, m_afAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25s);
                     break;
                 case 16:
                     Talk(SAY_MAG_COMPLETE);
@@ -143,9 +150,9 @@ public:
 
         }
 
-        void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+        void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spellInfo) override
         {
-            if (spell->Id == SPELL_CHAIN_LIGHTNING)
+            if (spellInfo->Id == SPELL_CHAIN_LIGHTNING)
             {
                 if (rand32() % 10)
                     return;
@@ -194,7 +201,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_TOTEM_KARDASH_H)
             {
@@ -203,9 +210,9 @@ public:
                 Start(true, false, player->GetGUID(), quest);
                 Talk(SAY_MAG_START);
 
-                me->SummonCreature(NPC_MURK_RAIDER, m_afAmbushA[0] + 2.5f, m_afAmbushA[1] - 2.5f, m_afAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                me->SummonCreature(NPC_MURK_PUTRIFIER, m_afAmbushA[0] - 2.5f, m_afAmbushA[1] + 2.5f, m_afAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                me->SummonCreature(NPC_MURK_BRUTE, m_afAmbushA[0], m_afAmbushA[1], m_afAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                me->SummonCreature(NPC_MURK_RAIDER, m_afAmbushA[0] + 2.5f, m_afAmbushA[1] - 2.5f, m_afAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25s);
+                me->SummonCreature(NPC_MURK_PUTRIFIER, m_afAmbushA[0] - 2.5f, m_afAmbushA[1] + 2.5f, m_afAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25s);
+                me->SummonCreature(NPC_MURK_BRUTE, m_afAmbushA[0], m_afAmbushA[1], m_afAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25s);
             }
         }
     };
@@ -215,186 +222,6 @@ public:
         return new npc_maghar_captiveAI(creature);
     }
 
-};
-
-/*######
-## npc_creditmarker_visist_with_ancestors
-######*/
-
-class npc_creditmarker_visit_with_ancestors : public CreatureScript
-{
-public:
-    npc_creditmarker_visit_with_ancestors() : CreatureScript("npc_creditmarker_visit_with_ancestors") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_creditmarker_visit_with_ancestorsAI(creature);
-    }
-
-    struct npc_creditmarker_visit_with_ancestorsAI : public ScriptedAI
-    {
-        npc_creditmarker_visit_with_ancestorsAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset() override { }
-
-        void JustEngagedWith(Unit* /*who*/) override { }
-
-        void MoveInLineOfSight(Unit* who) override
-        {
-            if (!who)
-                return;
-
-            Player* player = who->ToPlayer();
-            if (player && player->GetQuestStatus(10085) == QUEST_STATUS_INCOMPLETE)
-            {
-                uint32 creditMarkerId = me->GetEntry();
-                if (creditMarkerId >= 18840 && creditMarkerId <= 18843)
-                {
-                    // 18840: Sunspring, 18841: Laughing, 18842: Garadar, 18843: Bleeding
-                    if (!player->GetReqKillOrCastCurrentCount(10085, creditMarkerId))
-                        player->KilledMonsterCredit(creditMarkerId, me->GetGUID());
-                }
-            }
-        }
-    };
-};
-
-/*######
-## go_corkis_prison and npc_corki
-######*/
-
-enum CorkiData
-{
-  // first quest
-  QUEST_HELP                                    = 9923,
-  NPC_CORKI                                     = 18445,
-  NPC_CORKI_CREDIT_1                            = 18369,
-  GO_CORKIS_PRISON                              = 182349,
-  CORKI_SAY_THANKS                              = 0,
-  // 2nd quest
-  QUEST_CORKIS_GONE_MISSING_AGAIN               = 9924,
-  NPC_CORKI_2                                   = 20812,
-  GO_CORKIS_PRISON_2                            = 182350,
-  CORKI_SAY_PROMISE                             = 0,
-  // 3rd quest
-  QUEST_CHOWAR_THE_PILLAGER                     = 9955,
-  NPC_CORKI_3                                   = 18369,
-  NPC_CORKI_CREDIT_3                            = 18444,
-  GO_CORKIS_PRISON_3                            = 182521,
-  CORKI_SAY_LAST                                = 0
-};
-
-class go_corkis_prison : public GameObjectScript
-{
-public:
-    go_corkis_prison() : GameObjectScript("go_corkis_prison") { }
-
-    struct go_corkis_prisonAI : public GameObjectAI
-    {
-        go_corkis_prisonAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            me->SetGoState(GO_STATE_READY);
-            if (me->GetEntry() == GO_CORKIS_PRISON)
-            {
-                if (Creature* corki = me->FindNearestCreature(NPC_CORKI, 25, true))
-                {
-                    corki->GetMotionMaster()->MovePoint(1, me->GetPositionX() + 5, me->GetPositionY(), me->GetPositionZ());
-                    if (player)
-                        player->KilledMonsterCredit(NPC_CORKI_CREDIT_1);
-                }
-            }
-
-            if (me->GetEntry() == GO_CORKIS_PRISON_2)
-            {
-                if (Creature* corki = me->FindNearestCreature(NPC_CORKI_2, 25, true))
-                {
-                    corki->GetMotionMaster()->MovePoint(1, me->GetPositionX() - 5, me->GetPositionY(), me->GetPositionZ());
-                    if (player)
-                        player->KilledMonsterCredit(NPC_CORKI_2);
-                }
-            }
-
-            if (me->GetEntry() == GO_CORKIS_PRISON_3)
-            {
-                if (Creature* corki = me->FindNearestCreature(NPC_CORKI_3, 25, true))
-                {
-                    corki->GetMotionMaster()->MovePoint(1, me->GetPositionX() + 4, me->GetPositionY(), me->GetPositionZ());
-                    if (player)
-                        player->KilledMonsterCredit(NPC_CORKI_CREDIT_3);
-                }
-            }
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_corkis_prisonAI(go);
-    }
-};
-
-class npc_corki : public CreatureScript
-{
-public:
-  npc_corki() : CreatureScript("npc_corki") { }
-
-  CreatureAI* GetAI(Creature* creature) const override
-  {
-      return new npc_corkiAI(creature);
-  }
-
-  struct npc_corkiAI : public ScriptedAI
-  {
-      npc_corkiAI(Creature* creature) : ScriptedAI(creature)
-      {
-          Initialize();
-      }
-
-      void Initialize()
-      {
-          Say_Timer = 5000;
-          ReleasedFromCage = false;
-      }
-
-      uint32 Say_Timer;
-      bool ReleasedFromCage;
-
-      void Reset() override
-      {
-          Initialize();
-      }
-
-      void UpdateAI(uint32 diff) override
-      {
-          if (ReleasedFromCage)
-          {
-              if (Say_Timer <= diff)
-              {
-                  me->DespawnOrUnsummon();
-                  ReleasedFromCage = false;
-              }
-              else
-                  Say_Timer -= diff;
-          }
-      }
-
-      void MovementInform(uint32 type, uint32 id) override
-      {
-          if (type == POINT_MOTION_TYPE && id == 1)
-          {
-              Say_Timer = 5000;
-              ReleasedFromCage = true;
-              if (me->GetEntry() == NPC_CORKI)
-                  Talk(CORKI_SAY_THANKS);
-              if (me->GetEntry() == NPC_CORKI_2)
-                  Talk(CORKI_SAY_PROMISE);
-              if (me->GetEntry() == NPC_CORKI_3)
-                  Talk(CORKI_SAY_LAST);
-          }
-      };
-  };
 };
 
 /*#####
@@ -480,12 +307,12 @@ public:
                 {
                     Talk(SAY_KUR_MORE);
 
-                    if (me->SummonCreature(NPC_KUR_MURK_PUTRIFIER, kurenaiAmbushB[0], kurenaiAmbushB[1], kurenaiAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000))
+                    if (me->SummonCreature(NPC_KUR_MURK_PUTRIFIER, kurenaiAmbushB[0], kurenaiAmbushB[1], kurenaiAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25s))
                         Talk(SAY_KUR_MORE_TWO);
 
-                    me->SummonCreature(NPC_KUR_MURK_PUTRIFIER, kurenaiAmbushB[0]-2.5f, kurenaiAmbushB[1]-2.5f, kurenaiAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    me->SummonCreature(NPC_KUR_MURK_SCAVENGER, kurenaiAmbushB[0]+2.5f, kurenaiAmbushB[1]+2.5f, kurenaiAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    me->SummonCreature(NPC_KUR_MURK_SCAVENGER, kurenaiAmbushB[0]+2.5f, kurenaiAmbushB[1]-2.5f, kurenaiAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                    me->SummonCreature(NPC_KUR_MURK_PUTRIFIER, kurenaiAmbushB[0]-2.5f, kurenaiAmbushB[1]-2.5f, kurenaiAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25s);
+                    me->SummonCreature(NPC_KUR_MURK_SCAVENGER, kurenaiAmbushB[0]+2.5f, kurenaiAmbushB[1]+2.5f, kurenaiAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25s);
+                    me->SummonCreature(NPC_KUR_MURK_SCAVENGER, kurenaiAmbushB[0]+2.5f, kurenaiAmbushB[1]-2.5f, kurenaiAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25s);
                     break;
                 }
                 case 7:
@@ -515,9 +342,9 @@ public:
             summoned->AI()->AttackStart(me);
         }
 
-        void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+        void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spellInfo) override
         {
-            if (spell->Id == SPELL_KUR_CHAIN_LIGHTNING)
+            if (spellInfo->Id == SPELL_KUR_CHAIN_LIGHTNING)
             {
                 if (rand32() % 30)
                     return;
@@ -525,7 +352,7 @@ public:
                 Talk(SAY_KUR_LIGHTNING);
             }
 
-            if (spell->Id == SPELL_KUR_FROST_SHOCK)
+            if (spellInfo->Id == SPELL_KUR_FROST_SHOCK)
             {
                 if (rand32() % 30)
                     return;
@@ -568,7 +395,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_TOTEM_KARDASH_A)
             {
@@ -577,9 +404,9 @@ public:
                 Start(true, false, player->GetGUID(), quest);
                 Talk(SAY_KUR_START);
 
-                me->SummonCreature(NPC_KUR_MURK_RAIDER, kurenaiAmbushA[0] + 2.5f, kurenaiAmbushA[1] - 2.5f, kurenaiAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                me->SummonCreature(NPC_KUR_MURK_BRUTE, kurenaiAmbushA[0] - 2.5f, kurenaiAmbushA[1] + 2.5f, kurenaiAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                me->SummonCreature(NPC_KUR_MURK_SCAVENGER, kurenaiAmbushA[0], kurenaiAmbushA[1], kurenaiAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                me->SummonCreature(NPC_KUR_MURK_RAIDER, kurenaiAmbushA[0] + 2.5f, kurenaiAmbushA[1] - 2.5f, kurenaiAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25s);
+                me->SummonCreature(NPC_KUR_MURK_BRUTE, kurenaiAmbushA[0] - 2.5f, kurenaiAmbushA[1] + 2.5f, kurenaiAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25s);
+                me->SummonCreature(NPC_KUR_MURK_SCAVENGER, kurenaiAmbushA[0], kurenaiAmbushA[1], kurenaiAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25s);
             }
         }
     };
@@ -588,50 +415,6 @@ public:
     {
         return new npc_kurenai_captiveAI(creature);
     }
-};
-
-/*######
-## go_warmaul_prison
-######*/
-
-enum FindingTheSurvivorsData
-{
-    QUEST_FINDING_THE_SURVIVORS                     = 9948,
-    NPC_MAGHAR_PRISONER                             = 18428,
-
-    SAY_FREE                                        = 0,
-};
-
-class go_warmaul_prison : public GameObjectScript
-{
-    public:
-        go_warmaul_prison() : GameObjectScript("go_warmaul_prison") { }
-
-        struct go_warmaul_prisonAI : public GameObjectAI
-        {
-            go_warmaul_prisonAI(GameObject* go) : GameObjectAI(go) { }
-
-            bool GossipHello(Player* player) override
-            {
-                me->UseDoorOrButton();
-                if (player->GetQuestStatus(QUEST_FINDING_THE_SURVIVORS) != QUEST_STATUS_INCOMPLETE)
-                    return false;
-
-                if (Creature* prisoner = me->FindNearestCreature(NPC_MAGHAR_PRISONER, 5.0f))
-                {
-                    player->KilledMonsterCredit(NPC_MAGHAR_PRISONER);
-
-                    prisoner->AI()->Talk(SAY_FREE, player);
-                    prisoner->DespawnOrUnsummon(6000);
-                }
-                return true;
-            }
-        };
-
-        GameObjectAI* GetAI(GameObject* go) const override
-        {
-            return new go_warmaul_prisonAI(go);
-        }
 };
 
 enum PlantBannerQuests
@@ -667,7 +450,7 @@ public:
             scheduler.CancelAll();
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
             if (spellInfo->Id == SPELL_PLANT_WARMAUL_OGRE_BANNER || spellInfo->Id == SPELL_PLANT_KIL_SORROW_BANNER)
                 bannered = true;
@@ -721,7 +504,7 @@ public:
                 })
                 .Schedule(Seconds(3), Seconds(6), [this](TaskContext ChainsOfIce)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random))
                         DoCast(target, SPELL_CHAINS_OF_ICE, true);
                     ChainsOfIce.Repeat(Seconds(20),Seconds(25));
                 });
@@ -748,7 +531,7 @@ public:
             });
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if (!has_fled && me->GetHealth() > damage && me->HealthBelowPctDamaged(15, damage))
             {
@@ -800,7 +583,7 @@ public:
             used_bloodthirst = false;
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if (!used_bloodthirst && me->GetHealth() > damage && me->HealthBelowPctDamaged(50, damage))
             {
@@ -829,7 +612,7 @@ public:
             used_transform = false;
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if (!used_transform && me->GetHealth() > damage && me->HealthBelowPctDamaged(65, damage))
             {
@@ -870,7 +653,7 @@ public:
                 });
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
         {
             if (!used_healing && me->GetHealth() > damage && me->HealthBelowPctDamaged(50, damage))
             {
@@ -910,8 +693,8 @@ public:
 
     bool OnConditionCheck(Condition const* condition, ConditionSourceInfo& sourceInfo) override
     {
-        WorldObject* target = sourceInfo.mConditionTargets[condition->ConditionTarget];
-        if (Creature* creature = target->ToCreature())
+        WorldObject const* target = sourceInfo.mConditionTargets[condition->ConditionTarget];
+        if (Creature const* creature = target->ToCreature())
         {
             if (npc_nagrand_banner::npc_nagrand_bannerAI *ai = CAST_AI(npc_nagrand_banner::npc_nagrand_bannerAI, creature->AI()))
                 return !ai->IsBannered();
@@ -920,14 +703,88 @@ public:
     }
 };
 
+enum FireBomb
+{
+    SPELL_FIRE_BOMB_TARGET_SUMMON_EFFECT    = 31960,
+    SPELL_FIRE_BOMB_DAMAGE_MISSILE          = 31961,
+    SPELL_FIRE_BOMB_SUMMON_CATAPULT_BLAZE   = 31963,
+    SPELL_FIRE_BOMB_FLAMES                  = 34658
+};
+
+// 31959 - Fire Bomb Target Summon Trigger
+class spell_nagrand_fire_bomb_target_summon_trigger : public SpellScript
+{
+    PrepareSpellScript(spell_nagrand_fire_bomb_target_summon_trigger);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FIRE_BOMB_TARGET_SUMMON_EFFECT });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (TempSummon* casterSummon = GetCaster()->ToTempSummon())
+            if (Unit* summoner = casterSummon->GetSummonerUnit())
+                casterSummon->CastSpell(summoner, SPELL_FIRE_BOMB_TARGET_SUMMON_EFFECT);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_nagrand_fire_bomb_target_summon_trigger::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 31960 - Fire Bomb Target Summon Effect
+class spell_nagrand_fire_bomb_target_summon_effect : public SpellScript
+{
+    PrepareSpellScript(spell_nagrand_fire_bomb_target_summon_effect);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FIRE_BOMB_DAMAGE_MISSILE });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetCaster(), SPELL_FIRE_BOMB_DAMAGE_MISSILE);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_nagrand_fire_bomb_target_summon_effect::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 31961 - Fire Bomb
+class spell_nagrand_fire_bomb_damage_missile : public SpellScript
+{
+    PrepareSpellScript(spell_nagrand_fire_bomb_damage_missile);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FIRE_BOMB_SUMMON_CATAPULT_BLAZE, SPELL_FIRE_BOMB_FLAMES });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+        target->CastSpell(target, SPELL_FIRE_BOMB_SUMMON_CATAPULT_BLAZE);
+        target->CastSpell(target, SPELL_FIRE_BOMB_FLAMES);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_nagrand_fire_bomb_damage_missile::HandleScript, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_nagrand()
 {
     new npc_maghar_captive();
-    new npc_creditmarker_visit_with_ancestors();
-    new npc_corki();
-    new go_corkis_prison();
     new npc_kurenai_captive();
-    new go_warmaul_prison();
     new npc_nagrand_banner();
     new condition_nagrand_banner();
+    RegisterSpellScript(spell_nagrand_fire_bomb_target_summon_trigger);
+    RegisterSpellScript(spell_nagrand_fire_bomb_target_summon_effect);
+    RegisterSpellScript(spell_nagrand_fire_bomb_damage_missile);
 }

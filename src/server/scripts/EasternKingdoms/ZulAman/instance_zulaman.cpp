@@ -21,9 +21,17 @@
 #include "InstanceScript.h"
 #include "Map.h"
 #include "ScriptedCreature.h"
-#include "WorldStatePackets.h"
 #include "zulaman.h"
-#include <sstream>
+
+DungeonEncounterData const encounters[] =
+{
+    { DATA_AKILZON, {{ 1189 }} },
+    { DATA_NALORAKK, {{ 1190 }} },
+    { DATA_JANALAI, {{ 1191 }} },
+    { DATA_HALAZZI, {{ 1192 }} },
+    { DATA_HEXLORD, {{ 1193 }} },
+    { DATA_DAAKARA, {{ 1194 }} }
+};
 
 class instance_zulaman : public InstanceMapScript
 {
@@ -32,20 +40,16 @@ class instance_zulaman : public InstanceMapScript
 
         struct instance_zulaman_InstanceScript : public InstanceScript
         {
-            instance_zulaman_InstanceScript(InstanceMap* map) : InstanceScript(map)
+            instance_zulaman_InstanceScript(InstanceMap* map) : InstanceScript(map),
+                ZulAmanState(*this, "TimedRunState", NOT_STARTED)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
+                LoadDungeonEncounterData(encounters);
 
-                SpeedRunTimer           = 16;
+                SpeedRunTimer           = 15;
                 ZulAmanState            = NOT_STARTED;
                 ZulAmanBossCount        = 0;
-            }
-
-            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override
-            {
-                packet.Worldstates.emplace_back(uint32(WORLD_STATE_ZULAMAN_TIMER_ENABLED), int32(ZulAmanState ? 1 : 0));
-                packet.Worldstates.emplace_back(uint32(WORLD_STATE_ZULAMAN_TIMER), int32(SpeedRunTimer));
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -150,10 +154,9 @@ class instance_zulaman : public InstanceMapScript
                         {
                             DoUpdateWorldState(WORLD_STATE_ZULAMAN_TIMER_ENABLED, 1);
                             DoUpdateWorldState(WORLD_STATE_ZULAMAN_TIMER, 15);
-                            events.ScheduleEvent(EVENT_UPDATE_ZULAMAN_TIMER, 60000);
+                            events.ScheduleEvent(EVENT_UPDATE_ZULAMAN_TIMER, 1min);
                             SpeedRunTimer = 15;
                             ZulAmanState = data;
-                            SaveToDB();
                         }
                         break;
                     }
@@ -219,7 +222,7 @@ class instance_zulaman : public InstanceMapScript
                 return true;
             }
 
-            void ProcessEvent(WorldObject* /*obj*/, uint32 eventId) override
+            void ProcessEvent(WorldObject* /*obj*/, uint32 eventId, WorldObject* /*invoker*/) override
             {
                 switch (eventId)
                 {
@@ -247,10 +250,9 @@ class instance_zulaman : public InstanceMapScript
                     switch (eventId)
                     {
                         case EVENT_UPDATE_ZULAMAN_TIMER:
-                            SaveToDB();
                             DoUpdateWorldState(WORLD_STATE_ZULAMAN_TIMER, --SpeedRunTimer);
                             if (SpeedRunTimer)
-                                events.ScheduleEvent(EVENT_UPDATE_ZULAMAN_TIMER, 60000);
+                                events.ScheduleEvent(EVENT_UPDATE_ZULAMAN_TIMER, 1min);
                             else
                             {
                                 DoUpdateWorldState(WORLD_STATE_ZULAMAN_TIMER_ENABLED, 0);
@@ -264,24 +266,13 @@ class instance_zulaman : public InstanceMapScript
                 }
             }
 
-            void WriteSaveDataMore(std::ostringstream& data) override
+            void AfterDataLoad() override
             {
-                data << ZulAmanState  << ' '
-                     << SpeedRunTimer << ' '
-                     << ZulAmanBossCount;
-            }
-
-            void ReadSaveDataMore(std::istringstream& data) override
-            {
-                data >> ZulAmanState;
-                data >> SpeedRunTimer;
-                data >> ZulAmanBossCount;
-
-                if (ZulAmanState == IN_PROGRESS && SpeedRunTimer && SpeedRunTimer <= 15)
+                // Speed run cannot be resumed after reset/crash
+                if (ZulAmanState != NOT_STARTED)
                 {
-                    events.ScheduleEvent(EVENT_UPDATE_ZULAMAN_TIMER, 60000);
-                    DoUpdateWorldState(WORLD_STATE_ZULAMAN_TIMER_ENABLED, 1);
-                    DoUpdateWorldState(WORLD_STATE_ZULAMAN_TIMER, SpeedRunTimer);
+                    SpeedRunTimer = 0;
+                    ZulAmanState.LoadValue(FAIL);
                 }
             }
 
@@ -298,7 +289,7 @@ class instance_zulaman : public InstanceMapScript
             ObjectGuid StrangeGongGUID;
             ObjectGuid MasiveGateGUID;
             uint32 SpeedRunTimer;
-            uint32 ZulAmanState;
+            PersistentInstanceScriptValue<uint32> ZulAmanState;
             uint32 ZulAmanBossCount;
         };
 

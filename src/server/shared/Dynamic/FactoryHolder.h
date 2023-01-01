@@ -20,7 +20,6 @@
 
 #include "Define.h"
 #include "ObjectRegistry.h"
-#include "TypeList.h"
 
 /** FactoryHolder holds a factory object of a specific type
  */
