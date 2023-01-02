@@ -20,6 +20,8 @@
  * Ordered alphabetically using scriptname.
  * Scriptnames of files in this file should be prefixed with "spell_evo_".
  */
+
+#include "Containers.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "Spell.h"
