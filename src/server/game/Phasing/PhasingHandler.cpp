@@ -474,10 +474,10 @@ bool PhasingHandler::InDbPhaseShift(WorldObject const* object, uint8 phaseUseFla
     return object->GetPhaseShift().CanSee(phaseShift);
 }
 
-uint32 PhasingHandler::GetTerrainMapId(PhaseShift const& phaseShift, TerrainInfo const* terrain, float x, float y)
+uint32 PhasingHandler::GetTerrainMapId(PhaseShift const& phaseShift, uint32 mapId, TerrainInfo const* terrain, float x, float y)
 {
     if (phaseShift.VisibleMapIds.empty())
-        return terrain->GetId();
+        return mapId;
 
     if (phaseShift.VisibleMapIds.size() == 1)
         return phaseShift.VisibleMapIds.begin()->first;
@@ -490,7 +490,7 @@ uint32 PhasingHandler::GetTerrainMapId(PhaseShift const& phaseShift, TerrainInfo
         if (terrain->HasChildTerrainGridFile(visibleMap.first, gx, gy))
             return visibleMap.first;
 
-    return terrain->GetId();
+    return mapId;
 }
 
 void PhasingHandler::SetAlwaysVisible(PhaseShift& phaseShift, bool apply)

@@ -3466,7 +3466,7 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
     // Unit is flying. Do a VMap check to avoid moving the position into walls or obstacles
     if (path.GetPathType() & PATHFIND_NOT_USING_PATH)
     {
-        uint32 terrainMapId = PhasingHandler::GetTerrainMapId(GetPhaseShift(), GetMap()->GetTerrain(), pos.m_positionX, pos.m_positionY);
+        uint32 terrainMapId = PhasingHandler::GetTerrainMapId(GetPhaseShift(), GetMapId(), GetMap()->GetTerrain(), pos.m_positionX, pos.m_positionY);
         col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(terrainMapId,
             pos.m_positionX, pos.m_positionY, pos.m_positionZ + halfHeight,
             destx, desty, destz + halfHeight,

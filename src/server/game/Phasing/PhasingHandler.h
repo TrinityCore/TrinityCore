@@ -62,7 +62,7 @@ public:
     static void InitDbVisibleMapId(PhaseShift& phaseShift, int32 visibleMapId);
     static bool InDbPhaseShift(WorldObject const* object, uint8 phaseUseFlags, uint16 phaseId, uint32 phaseGroupId);
 
-    static uint32 GetTerrainMapId(PhaseShift const& phaseShift, TerrainInfo const* terrain, float x, float y);
+    static uint32 GetTerrainMapId(PhaseShift const& phaseShift, uint32 mapId, TerrainInfo const* terrain, float x, float y);
 
     static void SetAlwaysVisible(PhaseShift& phaseShift, bool apply);
     static void SetInversed(PhaseShift& phaseShift, bool apply);
