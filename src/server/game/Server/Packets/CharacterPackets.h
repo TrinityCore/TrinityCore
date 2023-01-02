@@ -60,7 +60,7 @@ namespace WorldPackets
             uint8 Race            = RACE_NONE;
             uint8 Class           = CLASS_NONE;
             uint8 Sex             = GENDER_NONE;
-            Array<ChrCustomizationChoice, 50> Customizations;
+            Array<ChrCustomizationChoice, 72> Customizations;
             Optional<int32> TemplateSet;
             bool IsTrialBoost     = false;
             bool UseNPE           = false;
@@ -81,7 +81,7 @@ namespace WorldPackets
             ObjectGuid CharGUID;
             uint8 SexID             = GENDER_NONE;
             std::string CharName;
-            Array<ChrCustomizationChoice, 50> Customizations;
+            Array<ChrCustomizationChoice, 72> Customizations;
         };
 
         struct CharRaceOrFactionChangeInfo
@@ -92,7 +92,7 @@ namespace WorldPackets
             ObjectGuid Guid;
             bool FactionChange      = false;
             std::string Name;
-            Array<ChrCustomizationChoice, 50> Customizations;
+            Array<ChrCustomizationChoice, 72> Customizations;
         };
 
         struct CharacterUndeleteInfo
@@ -366,7 +366,7 @@ namespace WorldPackets
             std::string Name;
             uint8 SexID             = 0;
             uint8 RaceID            = RACE_NONE;
-            Array<ChrCustomizationChoice, 50> const* Customizations = nullptr;
+            Array<ChrCustomizationChoice, 72> const* Customizations = nullptr;
         };
 
         class CharFactionChangeResult final : public ServerPacket
@@ -637,7 +637,7 @@ namespace WorldPackets
             void Read() override;
 
             uint8 NewSex = 0;
-            Array<ChrCustomizationChoice, 50> Customizations;
+            Array<ChrCustomizationChoice, 72> Customizations;
             int32 CustomizedRace = 0;
         };
 
@@ -744,7 +744,7 @@ namespace WorldPackets
             ObjectGuid CharGUID;
             std::string CharName;
             uint8 SexID = 0;
-            Array<ChrCustomizationChoice, 50> const& Customizations;
+            Array<ChrCustomizationChoice, 72> const& Customizations;
         };
 
         class CharCustomizeFailure final : public ServerPacket
