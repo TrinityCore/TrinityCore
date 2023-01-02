@@ -902,6 +902,9 @@ LootItem const* Loot::GetItemInSlot(uint32 lootListId) const
 
 LootItem* Loot::LootItemInSlot(uint32 lootListId, Player const* player, NotNormalLootItem** ffaItem)
 {
+    if (lootListId >= items.size())
+        return nullptr;
+
     LootItem* item = &items[lootListId];
     bool is_looted = item->is_looted;
 
