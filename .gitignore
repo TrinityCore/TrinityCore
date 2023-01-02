@@ -1,5 +1,5 @@
 
-build*/
+#build*/
 .directory
 .mailmap
 *.orig
@@ -23,3 +23,16 @@ nbproject/*
 cmake-build-*/*
 .vs
 *.user
+/out/build/x64-Debug/.cmake/api/v1
+/out/build/x64-Debug/VSInheritEnvironments.txt
+/out/build/x64-Debug/Testing/Temporary
+/out/build/x64-Debug/src
+/out/build/x64-Debug/revision_data.h
+/out/build/x64-Debug/Directory.Build.props
+/out/build/x64-Debug/dep
+/out/build/x64-Debug/cmake_install.cmake
+/out/build/x64-Debug/CMakeFiles
+/out/build/x64-Debug/CMakeCache.txt
+/out/build/x64-Debug/build.ninja
+/out/build/x64-Debug/.ninja_log
+/out/build/x64-Debug/.ninja_deps
