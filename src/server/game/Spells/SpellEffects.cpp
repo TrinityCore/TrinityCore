@@ -1984,30 +1984,27 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
         }
     }
 
-    if (unitCaster)
+    for (uint32 i = 0; i < summonCount; ++i)
     {
-        for (uint32 i = 0; i < summonCount; ++i)
+        Position dest = *destTarget;
+        if (summonCount > 1)
         {
-            Position dest = *destTarget;
-            if (summonCount > 1)
+            // Multiple summons are summoned at random points within the destination radius
+            float radius = m_spellInfo->Effects[effIndex].CalcRadius();
+            dest = caster->GetRandomPoint(*destTarget, radius);
+        }
+
+        if (TempSummon* summon = caster->GetMap()->SummonCreature(entry, *destTarget, extraArgs))
+        {
+            ExecuteLogEffectSummonObject(effIndex, summon);
+
+            if (summonCount == 1 && summon->IsVehicle())
             {
-                // Multiple summons are summoned at random points within the destination radius
-                float radius = m_spellInfo->Effects[effIndex].CalcRadius();
-                dest = unitCaster->GetRandomPoint(*destTarget, radius);
-            }
+                if (useHardcodedRideSpell)
+                    caster->CastSpell(summon, VEHICLE_SPELL_RIDE_HARDCODED, CastSpellExtraArgs(true).AddSpellBP0(extraArgs.SeatNumber));
+                else if (extraArgs.RideSpell)
+                    caster->CastSpell(summon, extraArgs.RideSpell, true);
 
-            if (TempSummon* summon = unitCaster->GetMap()->SummonCreature(entry, *destTarget, extraArgs))
-            {
-                ExecuteLogEffectSummonObject(effIndex, summon);
-
-                if (summonCount == 1 && summon->IsVehicle())
-                {
-                    if (useHardcodedRideSpell)
-                        unitCaster->CastSpell(summon, VEHICLE_SPELL_RIDE_HARDCODED, CastSpellExtraArgs(true).AddSpellBP0(extraArgs.SeatNumber));
-                    else if (extraArgs.RideSpell)
-                        unitCaster->CastSpell(summon, extraArgs.RideSpell, true);
-
-                }
             }
         }
     }
