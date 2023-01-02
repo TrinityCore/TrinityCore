@@ -29,9 +29,9 @@
 
 enum EvokerSpells
 {
-    SPELL_GLIDE_KNOCKBACK           = 358736,
-    SPELL_HOVER                     = 358267,
-    SPELL_SOAR_RACIAL               = 369536
+    SPELL_EVOKER_GLIDE_KNOCKBACK           = 358736,
+    SPELL_EVOKER_HOVER                     = 358267,
+    SPELL_EVOKER_SOAR_RACIAL               = 369536
 };
 
 // 358733 - Glide (Racial)
@@ -41,7 +41,7 @@ class spell_evo_glide : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_GLIDE_KNOCKBACK, SPELL_HOVER, SPELL_SOAR_RACIAL });
+        return ValidateSpellInfo({ SPELL_EVOKER_GLIDE_KNOCKBACK, SPELL_EVOKER_HOVER, SPELL_EVOKER_SOAR_RACIAL });
     }
 
     SpellCastResult CheckCast()
@@ -60,10 +60,10 @@ class spell_evo_glide : public SpellScript
         if (!caster)
             return;
 
-        caster->CastSpell(caster, SPELL_GLIDE_KNOCKBACK, true);
+        caster->CastSpell(caster, SPELL_EVOKER_GLIDE_KNOCKBACK, true);
 
-        caster->GetSpellHistory()->StartCooldown(sSpellMgr->AssertSpellInfo(SPELL_HOVER, GetCastDifficulty()), 0, nullptr, false, 250ms);
-        caster->GetSpellHistory()->StartCooldown(sSpellMgr->AssertSpellInfo(SPELL_SOAR_RACIAL, GetCastDifficulty()), 0, nullptr, false, 250ms);
+        caster->GetSpellHistory()->StartCooldown(sSpellMgr->AssertSpellInfo(SPELL_EVOKER_HOVER, GetCastDifficulty()), 0, nullptr, false, 250ms);
+        caster->GetSpellHistory()->StartCooldown(sSpellMgr->AssertSpellInfo(SPELL_EVOKER_SOAR_RACIAL, GetCastDifficulty()), 0, nullptr, false, 250ms);
     }
 
     void Register() override
