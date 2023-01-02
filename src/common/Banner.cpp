@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -31,7 +31,11 @@ void Trinity::Banner::Show(char const* applicationName, void(*log)(char const* t
     log("     \\ \\_\\ \\_\\  \\ \\_\\ \\_\\ \\_\\ \\_\\ \\__\\\\/`____ \\");
     log("      \\/_/\\/_/   \\/_/\\/_/\\/_/\\/_/\\/__/ `/___/> \\");
     log("                                 C O R E  /\\___/");
-    log("http://TrinityCore.org                    \\/__/\n");
+
+    //log("http://TrinityCore.org                    \\/__/\n");
+    log("http://TrinityCore.org                    \\/__/");
+    log("XGirl Self Development and improvement Edition.");
+    log("小女孩自研版.\n");
 
     if (logExtraInfo)
         logExtraInfo();
