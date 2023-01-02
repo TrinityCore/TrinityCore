@@ -34,6 +34,22 @@ enum EvokerSpells
     SPELL_EVOKER_SOAR_RACIAL               = 369536
 };
 
+// 362969 - Azure Strike (blue)
+class spell_evo_azure_strike : public SpellScript
+{
+    PrepareSpellScript(spell_evo_azure_strike);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        Trinity::Containers::RandomResize(targets, GetEffectInfo(EFFECT_0).CalcValue());
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_evo_azure_strike::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
+    }
+};
+
 // 358733 - Glide (Racial)
 class spell_evo_glide : public SpellScript
 {
@@ -75,5 +91,6 @@ class spell_evo_glide : public SpellScript
 
 void AddSC_evoker_spell_scripts()
 {
+    RegisterSpellScript(spell_evo_azure_strike);
     RegisterSpellScript(spell_evo_glide);
 }
