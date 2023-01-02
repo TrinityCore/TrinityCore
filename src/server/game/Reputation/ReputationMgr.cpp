@@ -146,7 +146,7 @@ int32 ReputationMgr::GetMaxReputation(FactionEntry const* factionEntry) const
     if (ParagonReputationEntry const* paragonReputation = sDB2Manager.GetParagonReputation(factionEntry->ID))
     {
         // has reward quest, cap is just before threshold for another quest reward
-        // for example: if current reputation is 12345 and questa are given every 10000 and player has unclaimed reward
+        // for example: if current reputation is 12345 and quests are given every 10000 and player has unclaimed reward
         // then cap will be 19999
 
         // otherwise cap is one theshold level larger
@@ -160,6 +160,14 @@ int32 ReputationMgr::GetMaxReputation(FactionEntry const* factionEntry) const
             cap += paragonReputation->LevelThreshold;
 
         return cap;
+    }
+
+    if (IsRenownReputation(factionEntry))
+    {
+        // Compared to a paragon reputation, DF renown reputations
+        // have a maximum value of 2500 which resets with each level of renown acquired.
+        // We calculate the total reputation necessary to raise the renown to the maximum
+        return GetRenownMaxLevel(factionEntry) * GetRenownLevelThreshold(factionEntry);
     }
 
     if (DB2Manager::FriendshipRepReactionSet const* friendshipReactions = sDB2Manager.GetFriendshipRepReactions(factionEntry->FriendshipRepID))
@@ -217,6 +225,14 @@ ReputationRank const* ReputationMgr::GetForcedRankIfAny(FactionTemplateEntry con
     return GetForcedRankIfAny(factionTemplateEntry->Faction);
 }
 
+bool ReputationMgr::IsParagonReputation(FactionEntry const* factionEntry) const
+{
+    if (sDB2Manager.GetParagonReputation(factionEntry->ID))
+        return true;
+
+    return false;
+}
+
 int32 ReputationMgr::GetParagonLevel(uint32 paragonFactionId) const
 {
     return GetParagonLevel(sFactionStore.LookupEntry(paragonFactionId));
@@ -229,6 +245,53 @@ int32 ReputationMgr::GetParagonLevel(FactionEntry const* paragonFactionEntry) co
 
     if (ParagonReputationEntry const* paragonReputation = sDB2Manager.GetParagonReputation(paragonFactionEntry->ID))
         return GetReputation(paragonFactionEntry) / paragonReputation->LevelThreshold;
+
+    return 0;
+}
+
+bool ReputationMgr::HasMaximumRenownReputation(FactionEntry const* factionEntry) const
+{
+    if (!IsRenownReputation(factionEntry))
+        return false;
+
+    return GetRenownLevel(factionEntry) >= GetRenownMaxLevel(factionEntry);
+}
+
+bool ReputationMgr::IsRenownReputation(FactionEntry const* factionEntry) const
+{
+    return factionEntry->RenownCurrencyID > 0;
+}
+
+int32 ReputationMgr::GetRenownLevel(FactionEntry const* renownFactionEntry) const
+{
+    if (!renownFactionEntry)
+        return 0;
+
+    if (CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(renownFactionEntry->RenownCurrencyID))
+        return _player->GetCurrency(currency->ID);
+
+    return 0;
+}
+
+int32 ReputationMgr::GetRenownLevelThreshold(FactionEntry const* renownFactionEntry) const
+{
+    if (!renownFactionEntry || !IsRenownReputation(renownFactionEntry))
+        return 0;
+
+    int32 dataIndex = GetFactionDataIndexForRaceAndClass(renownFactionEntry);
+    if (dataIndex >= 0)
+        return renownFactionEntry->ReputationMax[dataIndex];
+
+    return 0;
+}
+
+int32 ReputationMgr::GetRenownMaxLevel(FactionEntry const* renownFactionEntry) const
+{
+    if (!renownFactionEntry)
+        return 0;
+
+    if (CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(renownFactionEntry->RenownCurrencyID))
+        return currency->MaxQty;
 
     return 0;
 }
@@ -279,8 +342,10 @@ void ReputationMgr::SendState(FactionState const* faction)
     WorldPackets::Reputation::SetFactionStanding setFactionStanding;
     setFactionStanding.BonusFromAchievementSystem = 0.0f;
 
+    int32 standing = faction->VisualStandingIncrease ? faction->VisualStandingIncrease : faction->Standing;
+
     if (faction)
-        setFactionStanding.Faction.emplace_back(int32(faction->ReputationListID), faction->Standing);
+        setFactionStanding.Faction.emplace_back(int32(faction->ReputationListID), standing);
 
     for (FactionStateList::iterator itr = _factions.begin(); itr != _factions.end(); ++itr)
     {
@@ -288,7 +353,10 @@ void ReputationMgr::SendState(FactionState const* faction)
         {
             itr->second.needSend = false;
             if (!faction || itr->second.ReputationListID != faction->ReputationListID)
-                setFactionStanding.Faction.emplace_back(int32(itr->second.ReputationListID), itr->second.Standing);
+            {
+                standing = itr->second.VisualStandingIncrease ? itr->second.VisualStandingIncrease : itr->second.Standing;
+                setFactionStanding.Faction.emplace_back(int32(itr->second.ReputationListID), standing);
+            }
         }
     }
 
@@ -341,6 +409,7 @@ void ReputationMgr::Initialize()
             newFaction.ID = factionEntry->ID;
             newFaction.ReputationListID = factionEntry->ReputationIndex;
             newFaction.Standing = 0;
+            newFaction.VisualStandingIncrease = 0;
             newFaction.Flags = GetDefaultStateFlags(factionEntry);
             newFaction.needSend = true;
             newFaction.needSave = true;
@@ -448,13 +517,22 @@ bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, in
     FactionStateList::iterator itr = _factions.find(factionEntry->ReputationIndex);
     if (itr != _factions.end())
     {
-        int32 BaseRep = GetBaseReputation(factionEntry);
+        // Ignore renown reputation already raised to the maximum level
+        if (HasMaximumRenownReputation(factionEntry))
+        {
+            itr->second.needSend = false;
+            itr->second.needSave = false;
+            return false;
+        }
 
-        if (incremental)
+        int32 baseRep = GetBaseReputation(factionEntry);
+        int32 oldStanding = itr->second.Standing + baseRep;
+
+        if (incremental || IsRenownReputation(factionEntry))
         {
             // int32 *= float cause one point loss?
             standing = int32(floor((float)standing * sWorld->getRate(RATE_REPUTATION_GAIN) + 0.5f));
-            standing += itr->second.Standing + BaseRep;
+            standing += oldStanding;
         }
 
         if (standing > GetMaxReputation(factionEntry))
@@ -462,25 +540,61 @@ bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, in
         else if (standing < GetMinReputation(factionEntry))
             standing = GetMinReputation(factionEntry);
 
-        ReputationRank old_rank = ReputationToRank(factionEntry, itr->second.Standing + BaseRep);
-        ReputationRank new_rank = ReputationToRank(factionEntry, standing);
+        // Ignore rank for paragon or renown reputation
+        if (!IsParagonReputation(factionEntry) && !IsRenownReputation(factionEntry))
+        {
+            ReputationRank oldRank = ReputationToRank(factionEntry, oldStanding);
+            ReputationRank newRank = ReputationToRank(factionEntry, standing);
 
-        int32 oldStanding = itr->second.Standing + BaseRep;
-        int32 newStanding = standing - BaseRep;
+            if (newRank <= REP_HOSTILE)
+                SetAtWar(&itr->second, true);
 
-        _player->ReputationChanged(factionEntry, newStanding - itr->second.Standing);
+            if (newRank > oldRank)
+                _sendFactionIncreased = true;
+
+            if (!factionEntry->FriendshipRepID)
+                UpdateRankCounters(oldRank, newRank);
+        }
+        else
+            _sendFactionIncreased = true; // TODO: Check Paragon reputation
+
+        // Calculate new standing and reputation change
+        int32 newStanding = 0;
+        int32 reputationChange = standing - oldStanding;
+
+        if (!IsRenownReputation(factionEntry))
+            newStanding = standing - baseRep;
+        else
+        {
+            if (CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(factionEntry->RenownCurrencyID))
+            {
+                int32 renownLevelThreshold = GetRenownLevelThreshold(factionEntry);
+                int32 oldRenownLevel = GetRenownLevel(factionEntry);
+
+                int32 totalReputation = (oldRenownLevel * renownLevelThreshold) + (standing - baseRep);
+                int32 newRenownLevel = totalReputation / renownLevelThreshold;
+                newStanding = totalReputation % renownLevelThreshold;
+
+                if (newRenownLevel >= GetRenownMaxLevel(factionEntry))
+                {
+                    newStanding = 0;
+                    reputationChange += (GetRenownMaxLevel(factionEntry) * renownLevelThreshold) - totalReputation;
+                }
+
+                itr->second.VisualStandingIncrease = reputationChange;
+
+                if (oldRenownLevel != newRenownLevel)
+                    _player->ModifyCurrency(currency->ID, newRenownLevel - oldRenownLevel, false);
+            }
+        }
+
+        _player->ReputationChanged(factionEntry, reputationChange);
 
         itr->second.Standing = newStanding;
         itr->second.needSend = true;
         itr->second.needSave = true;
 
         SetVisible(&itr->second);
-
-        if (new_rank <= REP_HOSTILE)
-            SetAtWar(&itr->second, true);
-
-        if (new_rank > old_rank)
-            _sendFactionIncreased = true;
 
         ParagonReputationEntry const* paragonReputation = sDB2Manager.GetParagonReputation(factionEntry->ID);
         if (paragonReputation)
@@ -491,9 +605,6 @@ bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, in
                 if (Quest const* paragonRewardQuest = sObjectMgr->GetQuestTemplate(paragonReputation->QuestID))
                     _player->AddQuestAndCheckCompletion(paragonRewardQuest, nullptr);
         }
-
-        if (!factionEntry->FriendshipRepID && !paragonReputation)
-            UpdateRankCounters(old_rank, new_rank);
 
         _player->UpdateCriteria(CriteriaType::TotalFactionsEncountered, factionEntry->ID);
         _player->UpdateCriteria(CriteriaType::ReputationGained,         factionEntry->ID);
@@ -740,7 +851,7 @@ bool ReputationMgr::CanGainParagonReputationForFaction(FactionEntry const* facti
     if (!sFactionStore.LookupEntry(factionEntry->ParagonFactionID))
         return false;
 
-    if (GetRank(factionEntry) != REP_EXALTED)
+    if (GetRank(factionEntry) != REP_EXALTED && !HasMaximumRenownReputation(factionEntry))
         return false;
 
     ParagonReputationEntry const* paragonReputation = sDB2Manager.GetParagonReputation(factionEntry->ParagonFactionID);
