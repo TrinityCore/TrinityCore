@@ -2856,9 +2856,10 @@ SpellCastResult WorldObject::CastSpell(CastSpellTargetArg const& targets, uint32
 
     spell->m_customArg = args.CustomArg;
 
-    spell->m_delay = args.Delay;
-
-    return spell->prepare(*targets.Targets, args.TriggeringAura);
+    if (args.Delay > 0ms)
+        this->m_Events.AddEventAtOffset([this, spell, targets, &args]() { return spell->prepare(*targets.Targets, args.TriggeringAura); }, args.Delay);
+    else
+        return spell->prepare(*targets.Targets, args.TriggeringAura);
 }
 
 void WorldObject::SendPlaySpellVisual(WorldObject* target, uint32 spellVisualId, uint16 missReason, uint16 reflectStatus, float travelSpeed, bool speedAsTime /*= false*/)
