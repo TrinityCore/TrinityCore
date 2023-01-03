@@ -2857,7 +2857,7 @@ SpellCastResult WorldObject::CastSpell(CastSpellTargetArg const& targets, uint32
     spell->m_customArg = args.CustomArg;
 
     if (args.Delay > 0ms)
-        this->m_Events.AddEventAtOffset([this, spell, targets, &args]() { return spell->prepare(*targets.Targets, args.TriggeringAura); }, args.Delay);
+        this->m_Events.AddEventAtOffset([spell, targets, &args]() { return spell->prepare(*targets.Targets, args.TriggeringAura); }, args.Delay);
     else
         return spell->prepare(*targets.Targets, args.TriggeringAura);
 }
