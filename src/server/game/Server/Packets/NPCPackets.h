@@ -141,7 +141,7 @@ namespace WorldPackets
             bool Repeatable = false;
         };
 
-        struct GossipOptions
+        struct SGossipOptions
         {
             int32 ClientOption = 0;
             int32 OptionCost = 0;
@@ -161,7 +161,7 @@ namespace WorldPackets
             ObjectGuid GossipGUID;
             int32 TextID = 0;
             int32 GossipID = 0;
-            std::vector<GossipOptions> GossipOptions;
+            std::vector<SGossipOptions> GossipOptions;
             std::vector<GossipText> GossipQuestText;
         };
     }

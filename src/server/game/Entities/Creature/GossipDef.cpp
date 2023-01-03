@@ -211,7 +211,7 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, ObjectGuid objectGUID)
     gossipMessage.GossipOptions.reserve(_gossipMenu.GetMenuItems().size());
     for (auto const& itr : _gossipMenu.GetMenuItems())
     {
-        WorldPackets::NPC::GossipOptions& option = gossipMessage.GossipOptions.emplace_back();
+        WorldPackets::NPC::SGossipOptions& option = gossipMessage.GossipOptions.emplace_back();
         option.ClientOption = itr.first;
         option.OptionNPC = itr.second.MenuItemIcon;
         option.OptionFlags = itr.second.IsCoded;     // makes pop up box password

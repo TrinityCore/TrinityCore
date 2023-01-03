@@ -132,7 +132,7 @@ WorldPacket const* WorldPackets::NPC::VendorInventory::Write()
     return &_worldPacket;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::NPC::GossipOptions const& gossipOption)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::NPC::SGossipOptions const& gossipOption)
 {
     data << int32(gossipOption.ClientOption);
     data << uint8(gossipOption.OptionNPC);
@@ -163,7 +163,7 @@ WorldPacket const* WorldPackets::NPC::GossipMessage::Write()
     _worldPacket << uint32(TextID);
 
     _worldPacket << uint32(GossipOptions.size());
-    for (WorldPackets::NPC::GossipOptions const& gossipOption : GossipOptions)
+    for (WorldPackets::NPC::SGossipOptions const& gossipOption : GossipOptions)
         _worldPacket << gossipOption;
 
     _worldPacket << uint32(GossipQuestText.size());
