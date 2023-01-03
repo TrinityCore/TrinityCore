@@ -174,7 +174,10 @@ bool Scenario::CanUpdateCriteriaTree(Criteria const * /*criteria*/, CriteriaTree
 
 bool Scenario::CanCompleteCriteriaTree(CriteriaTree const* tree)
 {
-    ScenarioStepEntry const* step = ASSERT_NOTNULL(tree->ScenarioStep);
+    ScenarioStepEntry const* step = tree->ScenarioStep;
+    if (!step)
+        return false;
+
     ScenarioStepState const state = GetStepState(step);
     if (state == SCENARIO_STEP_DONE)
         return false;

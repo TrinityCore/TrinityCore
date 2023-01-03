@@ -454,8 +454,15 @@ bool MeetsTraitCondition(WorldPackets::Traits::TraitConfig const& traitConfig, P
     if (condition->AchievementID && !player->HasAchieved(condition->AchievementID))
         return false;
 
-    if (condition->SpecSetID && !sDB2Manager.IsSpecSetMember(condition->SpecSetID, player->GetPrimarySpecialization()))
-        return false;
+    if (condition->SpecSetID)
+    {
+        uint32 chrSpecializationId = player->GetPrimarySpecialization();
+        if (traitConfig.Type == TraitConfigType::Combat)
+            chrSpecializationId = traitConfig.ChrSpecializationID;
+
+        if (!sDB2Manager.IsSpecSetMember(condition->SpecSetID, chrSpecializationId))
+            return false;
+    }
 
     if (condition->TraitCurrencyID && condition->SpentAmountRequired)
     {
@@ -587,6 +594,23 @@ TalentLearnResult ValidateConfig(WorldPackets::Traits::TraitConfig const& traitC
     Optional<std::map<int32, int32>> spentCurrencies;
     FillSpentCurrenciesMap(traitConfig, spentCurrencies.emplace());
 
+    auto meetsConditions = [&](std::vector<TraitCondEntry const*> const& conditions)
+    {
+        bool hasConditions = false;
+        for (TraitCondEntry const* condition : conditions)
+        {
+            if (condition->GetCondType() == TraitConditionType::Available || condition->GetCondType() == TraitConditionType::Visible)
+            {
+                if (MeetsTraitCondition(traitConfig, player, condition, spentCurrencies))
+                   return true;
+
+                hasConditions = true;
+            }
+        }
+
+        return !hasConditions;
+    };
+
     for (WorldPackets::Traits::TraitEntry const& traitEntry : traitConfig.Entries)
     {
         if (!IsValidEntry(traitEntry))
@@ -598,21 +622,15 @@ TalentLearnResult ValidateConfig(WorldPackets::Traits::TraitConfig const& traitC
                 return TALENT_FAILED_UNKNOWN;
 
         for (NodeEntry const& entry : node->Entries)
-            for (TraitCondEntry const* condition : entry.Conditions)
-                if ((condition->GetCondType() == TraitConditionType::Available || condition->GetCondType() == TraitConditionType::Visible)
-                    && !MeetsTraitCondition(traitConfig, player, condition, spentCurrencies))
-                    return TALENT_FAILED_UNKNOWN;
-
-        for (TraitCondEntry const* condition : node->Conditions)
-            if ((condition->GetCondType() == TraitConditionType::Available || condition->GetCondType() == TraitConditionType::Visible)
-                && !MeetsTraitCondition(traitConfig, player, condition, spentCurrencies))
+            if (!meetsConditions(entry.Conditions))
                 return TALENT_FAILED_UNKNOWN;
 
+        if (!meetsConditions(node->Conditions))
+            return TALENT_FAILED_UNKNOWN;
+
         for (NodeGroup const* group : node->Groups)
-            for (TraitCondEntry const* condition : group->Conditions)
-                if ((condition->GetCondType() == TraitConditionType::Available || condition->GetCondType() == TraitConditionType::Visible)
-                    && !MeetsTraitCondition(traitConfig, player, condition, spentCurrencies))
-                    return TALENT_FAILED_UNKNOWN;
+            if (!meetsConditions(group->Conditions))
+                return TALENT_FAILED_UNKNOWN;
 
         if (!node->ParentNodes.empty())
         {
@@ -721,7 +739,7 @@ void InitializeStarterBuildTraitConfig(WorldPackets::Traits::TraitConfig& traitC
             newEntry.Rank = addedRanks;
 
             if (!HasEnoughCurrency(newEntry, currencies))
-                break;
+                continue;
 
             if (entryInConfig)
                 entryInConfig->Rank += addedRanks;

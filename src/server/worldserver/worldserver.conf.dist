@@ -924,6 +924,14 @@ StartDeathKnightPlayerLevel = 8
 StartDemonHunterPlayerLevel = 8
 
 #
+#    StartEvokerPlayerLevel
+#        Description: Staring level for evokers after creation.
+#        Range:       1-MaxPlayerLevel
+#        Default:     58
+
+StartEvokerPlayerLevel = 58
+
+#
 #    StartAlliedRacePlayerLevel
 #        Description: Staring level for allied races after creation.
 #        Range:       1-MaxPlayerLevel

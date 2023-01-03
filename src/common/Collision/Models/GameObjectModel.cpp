@@ -227,7 +227,9 @@ bool GameObjectModel::GetLocationInfo(G3D::Vector3 const& point, VMAP::LocationI
     Vector3 pModel = iInvRot * (point - iPos) * iInvScale;
     Vector3 zDirModel = iInvRot * Vector3(0.f, 0.f, -1.f);
     float zDist;
-    if (iModel->GetLocationInfo(pModel, zDirModel, zDist, info))
+
+    VMAP::GroupLocationInfo groupInfo;
+    if (iModel->GetLocationInfo(pModel, zDirModel, zDist, groupInfo))
     {
         Vector3 modelGround = pModel + zDist * zDirModel;
         float world_Z = ((modelGround * iInvRot) * iScale + iPos).z;

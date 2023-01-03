@@ -18,6 +18,7 @@
 #include "BankPackets.h"
 #include "Item.h"
 #include "DB2Stores.h"
+#include "GossipDef.h"
 #include "Log.h"
 #include "NPCPackets.h"
 #include "Player.h"
@@ -29,7 +30,7 @@ void WorldSession::HandleAutoBankItemOpcode(WorldPackets::Bank::AutoBankItem& pa
 
     if (!CanUseBank())
     {
-        TC_LOG_ERROR("network", "WORLD: HandleAutoBankItemOpcode - Unit (%s) not found or you can't interact with him.", m_currentBankerGUID.ToString().c_str());
+        TC_LOG_ERROR("network", "WORLD: HandleAutoBankItemOpcode - Unit (%s) not found or you can't interact with him.", _player->PlayerTalkClass->GetInteractionData().SourceGuid.ToString().c_str());
         return;
     }
 
@@ -80,7 +81,7 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPackets::Bank::AutoStoreBa
 
     if (!CanUseBank())
     {
-        TC_LOG_ERROR("network", "WORLD: HandleAutoStoreBankItemOpcode - Unit (%s) not found or you can't interact with him.", m_currentBankerGUID.ToString().c_str());
+        TC_LOG_ERROR("network", "WORLD: HandleAutoStoreBankItemOpcode - Unit (%s) not found or you can't interact with him.", _player->PlayerTalkClass->GetInteractionData().SourceGuid.ToString().c_str());
         return;
     }
 
@@ -218,7 +219,7 @@ void WorldSession::HandleAutoBankReagentOpcode(WorldPackets::Bank::AutoBankReage
 {
     if (!CanUseBank())
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleAutoBankReagentOpcode - %s not found or you can't interact with him.", m_currentBankerGUID.ToString().c_str());
+        TC_LOG_DEBUG("network", "WORLD: HandleAutoBankReagentOpcode - %s not found or you can't interact with him.", _player->PlayerTalkClass->GetInteractionData().SourceGuid.ToString().c_str());
         return;
     }
 
@@ -254,7 +255,7 @@ void WorldSession::HandleAutoStoreBankReagentOpcode(WorldPackets::Bank::AutoStor
 {
     if (!CanUseBank())
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleAutoBankReagentOpcode - %s not found or you can't interact with him.", m_currentBankerGUID.ToString().c_str());
+        TC_LOG_DEBUG("network", "WORLD: HandleAutoBankReagentOpcode - %s not found or you can't interact with him.", _player->PlayerTalkClass->GetInteractionData().SourceGuid.ToString().c_str());
         return;
     }
 
@@ -298,7 +299,8 @@ void WorldSession::HandleAutoStoreBankReagentOpcode(WorldPackets::Bank::AutoStor
 
 void WorldSession::SendShowBank(ObjectGuid guid)
 {
-    m_currentBankerGUID = guid;
+    _player->PlayerTalkClass->GetInteractionData().Reset();
+    _player->PlayerTalkClass->GetInteractionData().SourceGuid = guid;
     WorldPackets::NPC::NPCInteractionOpenResult npcInteraction;
     npcInteraction.Npc = guid;
     npcInteraction.InteractionType = PlayerInteractionType::Banker;

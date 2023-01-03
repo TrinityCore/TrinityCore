@@ -30,6 +30,7 @@ namespace VMAP
     class TreeNode;
     struct AreaInfo;
     struct LocationInfo;
+    struct GroupLocationInfo;
     enum class ModelIgnoreFlags : uint32;
 
     class TC_COMMON_API MeshTriangle
@@ -112,7 +113,7 @@ namespace VMAP
             void setRootWmoID(uint32 id) { RootWMOID = id; }
             bool IntersectRay(const G3D::Ray &ray, float &distance, bool stopAtFirstHit, ModelIgnoreFlags ignoreFlags) const;
             bool IntersectPoint(const G3D::Vector3 &p, const G3D::Vector3 &down, float &dist, AreaInfo &info) const;
-            bool GetLocationInfo(const G3D::Vector3 &p, const G3D::Vector3 &down, float &dist, LocationInfo &info) const;
+            bool GetLocationInfo(const G3D::Vector3 &p, const G3D::Vector3 &down, float &dist, GroupLocationInfo& info) const;
             bool writeFile(const std::string &filename);
             bool readFile(const std::string &filename);
             void getGroupModels(std::vector<GroupModel>& outGroupModels);

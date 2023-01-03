@@ -1665,74 +1665,74 @@ void Map::UnloadAll()
 void Map::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, float x, float y, float z, PositionFullTerrainStatus& data,
     map_liquidHeaderTypeFlags reqLiquidType, float collisionHeight)
 {
-    m_terrain->GetFullTerrainStatusForPosition(phaseShift, x, y, z, data, reqLiquidType, collisionHeight, &_dynamicTree);
+    m_terrain->GetFullTerrainStatusForPosition(phaseShift, GetId(), x, y, z, data, reqLiquidType, collisionHeight, &_dynamicTree);
 }
 
 ZLiquidStatus Map::GetLiquidStatus(PhaseShift const& phaseShift, float x, float y, float z, map_liquidHeaderTypeFlags ReqLiquidType, LiquidData* data,
     float collisionHeight)
 {
-    return m_terrain->GetLiquidStatus(phaseShift, x, y, z, ReqLiquidType, data, collisionHeight);
+    return m_terrain->GetLiquidStatus(phaseShift, GetId(), x, y, z, ReqLiquidType, data, collisionHeight);
 }
 
 bool Map::GetAreaInfo(PhaseShift const& phaseShift, float x, float y, float z, uint32& mogpflags, int32& adtId, int32& rootId, int32& groupId)
 {
-    return m_terrain->GetAreaInfo(phaseShift, x, y, z, mogpflags, adtId, rootId, groupId, &_dynamicTree);
+    return m_terrain->GetAreaInfo(phaseShift, GetId(), x, y, z, mogpflags, adtId, rootId, groupId, &_dynamicTree);
 }
 
 uint32 Map::GetAreaId(PhaseShift const& phaseShift, float x, float y, float z)
 {
-    return m_terrain->GetAreaId(phaseShift, x, y, z, &_dynamicTree);
+    return m_terrain->GetAreaId(phaseShift, GetId(), x, y, z, &_dynamicTree);
 }
 
 uint32 Map::GetZoneId(PhaseShift const& phaseShift, float x, float y, float z)
 {
-    return m_terrain->GetZoneId(phaseShift, x, y, z, &_dynamicTree);
+    return m_terrain->GetZoneId(phaseShift, GetId(), x, y, z, &_dynamicTree);
 }
 
 void Map::GetZoneAndAreaId(PhaseShift const& phaseShift, uint32& zoneid, uint32& areaid, float x, float y, float z)
 {
-    return m_terrain->GetZoneAndAreaId(phaseShift, zoneid, areaid, x, y, z, &_dynamicTree);
+    return m_terrain->GetZoneAndAreaId(phaseShift, GetId(), zoneid, areaid, x, y, z, &_dynamicTree);
 }
 
 float Map::GetMinHeight(PhaseShift const& phaseShift, float x, float y)
 {
-    return m_terrain->GetMinHeight(phaseShift, x, y);
+    return m_terrain->GetMinHeight(phaseShift, GetId(), x, y);
 }
 
 float Map::GetGridHeight(PhaseShift const& phaseShift, float x, float y)
 {
-    return m_terrain->GetGridHeight(phaseShift, x, y);
+    return m_terrain->GetGridHeight(phaseShift, GetId(), x, y);
 }
 
 float Map::GetStaticHeight(PhaseShift const& phaseShift, float x, float y, float z, bool checkVMap, float maxSearchDist)
 {
-    return m_terrain->GetStaticHeight(phaseShift, x, y, z, checkVMap, maxSearchDist);
+    return m_terrain->GetStaticHeight(phaseShift, GetId(), x, y, z, checkVMap, maxSearchDist);
 }
 
 float Map::GetWaterLevel(PhaseShift const& phaseShift, float x, float y)
 {
-    return m_terrain->GetWaterLevel(phaseShift, x, y);
+    return m_terrain->GetWaterLevel(phaseShift, GetId(), x, y);
 }
 
 bool Map::IsInWater(PhaseShift const& phaseShift, float x, float y, float z, LiquidData* data)
 {
-    return m_terrain->IsInWater(phaseShift, x, y, z, data);
+    return m_terrain->IsInWater(phaseShift, GetId(), x, y, z, data);
 }
 
 bool Map::IsUnderWater(PhaseShift const& phaseShift, float x, float y, float z)
 {
-    return m_terrain->IsUnderWater(phaseShift, x, y, z);
+    return m_terrain->IsUnderWater(phaseShift, GetId(), x, y, z);
 }
 
 float Map::GetWaterOrGroundLevel(PhaseShift const& phaseShift, float x, float y, float z, float* ground, bool swim, float collisionHeight)
 {
-    return m_terrain->GetWaterOrGroundLevel(phaseShift, x, y, z, ground, swim, collisionHeight, &_dynamicTree);
+    return m_terrain->GetWaterOrGroundLevel(phaseShift, GetId(), x, y, z, ground, swim, collisionHeight, &_dynamicTree);
 }
 
 bool Map::isInLineOfSight(PhaseShift const& phaseShift, float x1, float y1, float z1, float x2, float y2, float z2, LineOfSightChecks checks, VMAP::ModelIgnoreFlags ignoreFlags) const
 {
     if ((checks & LINEOFSIGHT_CHECK_VMAP)
-      && !VMAP::VMapFactory::createOrGetVMapManager()->isInLineOfSight(PhasingHandler::GetTerrainMapId(phaseShift, m_terrain.get(), x1, y1), x1, y1, z1, x2, y2, z2, ignoreFlags))
+      && !VMAP::VMapFactory::createOrGetVMapManager()->isInLineOfSight(PhasingHandler::GetTerrainMapId(phaseShift, GetId(), m_terrain.get(), x1, y1), x1, y1, z1, x2, y2, z2, ignoreFlags))
         return false;
     if (sWorld->getBoolConfig(CONFIG_CHECK_GOBJECT_LOS) && (checks & LINEOFSIGHT_CHECK_GOBJECT)
       && !_dynamicTree.isInLineOfSight({ x1, y1, z1 }, { x2, y2, z2 }, phaseShift))

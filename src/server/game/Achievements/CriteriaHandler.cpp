@@ -3204,10 +3204,10 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             PvpTierEntry const* pvpTier = sPvpTierStore.LookupEntry(reqValue);
             if (!pvpTier)
                 return false;
-            if (std::size_t(pvpTier->BracketID) >= referencePlayer->m_activePlayerData->PvpInfo.size())
+            UF::PVPInfo const* pvpInfo = referencePlayer->GetPvpInfoForBracket(pvpTier->BracketID);
+            if (!pvpInfo)
                 return false;
-            UF::PVPInfo const& pvpInfo = referencePlayer->m_activePlayerData->PvpInfo[pvpTier->BracketID];
-            if (pvpTier->ID != pvpInfo.PvpTierID || *pvpInfo.Disqualified)
+            if (pvpTier->ID != pvpInfo->PvpTierID)
                 return false;
             break;
         }
@@ -3243,10 +3243,10 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::PlayerPvpTierInBracketEqualOrGreaterThan: // 239
         {
-            if (secondaryAsset >= referencePlayer->m_activePlayerData->PvpInfo.size())
+            UF::PVPInfo const* pvpInfo = referencePlayer->GetPvpInfoForBracket(secondaryAsset);
+            if (!pvpInfo)
                 return false;
-            UF::PVPInfo const& pvpInfo = referencePlayer->m_activePlayerData->PvpInfo[secondaryAsset];
-            PvpTierEntry const* pvpTier = sPvpTierStore.LookupEntry(pvpInfo.PvpTierID);
+            PvpTierEntry const* pvpTier = sPvpTierStore.LookupEntry(pvpInfo->PvpTierID);
             if (!pvpTier)
                 return false;
             if (pvpTier->Rank < int32(reqValue))
@@ -3725,19 +3725,19 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             PvpTierEntry const* pvpTier = sPvpTierStore.LookupEntry(reqValue);
             if (!pvpTier)
                 return false;
-            if (std::size_t(pvpTier->BracketID) >= referencePlayer->m_activePlayerData->PvpInfo.size())
+            UF::PVPInfo const* pvpInfo = referencePlayer->GetPvpInfoForBracket(pvpTier->BracketID);
+            if (!pvpInfo)
                 return false;
-            UF::PVPInfo const& pvpInfo = referencePlayer->m_activePlayerData->PvpInfo[pvpTier->BracketID];
-            if (pvpTier->ID != pvpInfo.WeeklyBestWinPvpTierID || *pvpInfo.Disqualified)
+            if (pvpTier->ID != pvpInfo->WeeklyBestWinPvpTierID)
                 return false;
             break;
         }
         case ModifierTreeType::PlayerBestWeeklyWinPvpTierInBracketEqualOrGreaterThan: // 325
         {
-            if (secondaryAsset >= referencePlayer->m_activePlayerData->PvpInfo.size())
+            UF::PVPInfo const* pvpInfo = referencePlayer->GetPvpInfoForBracket(secondaryAsset);
+            if (!pvpInfo)
                 return false;
-            UF::PVPInfo const& pvpInfo = referencePlayer->m_activePlayerData->PvpInfo[secondaryAsset];
-            PvpTierEntry const* pvpTier = sPvpTierStore.LookupEntry(pvpInfo.WeeklyBestWinPvpTierID);
+            PvpTierEntry const* pvpTier = sPvpTierStore.LookupEntry(pvpInfo->WeeklyBestWinPvpTierID);
             if (!pvpTier)
                 return false;
             if (pvpTier->Rank < int32(reqValue))
