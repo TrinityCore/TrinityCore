@@ -1,5 +1,5 @@
-SET @CGUID := xxxx;
-SET @OGUID := xxxx;
+SET @CGUID := 1251484;
+SET @OGUID := 700086;
 
 DELETE FROM `creature` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+305;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
