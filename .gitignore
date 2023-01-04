@@ -36,3 +36,4 @@ cmake-build-*/*
 /out/build/x64-Debug/build.ninja
 /out/build/x64-Debug/.ninja_log
 /out/build/x64-Debug/.ninja_deps
+/out/build/x64-Debug/bin/Crashes
