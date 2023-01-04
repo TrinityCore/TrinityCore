@@ -109,7 +109,6 @@ enum TotTCreatureIds
 
 enum TotTGameObjectIds
 {
-    GO_TEMP_FALLING_ROCKS                   = 202742,
     GO_DOODAD_ABYSSAL_MAW_DOOR_1            = 204338,
     GO_DOODAD_ABYSSAL_MAW_DOOR_2            = 204339,
     GO_DOODAD_ABYSSAL_MAW_DOOR_4            = 204341,

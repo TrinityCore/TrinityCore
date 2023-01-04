@@ -366,6 +366,18 @@ private:
     InstanceScript * _instance;
 };
 
+struct go_tott_temp_falling_rocks : public GameObjectAI
+{
+    go_tott_temp_falling_rocks(GameObject* go) : GameObjectAI(go) { }
+
+    void JustAppeared() override
+    {
+        me->SetGoState(GO_STATE_ACTIVE);
+        me->SendCustomAnim(0);
+    }
+};
+
+
 class spell_tott_camera: public SpellScript
 {
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
@@ -511,6 +523,7 @@ void AddSC_throne_of_the_tides()
     RegisterThroneOfTheTidesCreatureAI(npc_tott_lady_nazjar);
     RegisterSpellScript(spell_tott_trigger_murloc);
     RegisterGameObjectAI(go_tott_defense_system);
+    RegisterGameObjectAI(go_tott_temp_falling_rocks);
     RegisterSpellScript(spell_tott_camera);
     RegisterSpellScript(spell_tott_shock_defense_script);
     RegisterSpellScript(spell_tott_ulthok_intro_visual_impact);

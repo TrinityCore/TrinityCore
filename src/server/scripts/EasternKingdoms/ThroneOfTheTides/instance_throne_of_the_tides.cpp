@@ -340,9 +340,6 @@ class instance_throne_of_the_tides : public InstanceMapScript
 
                 switch (go->GetEntry())
                 {
-                    case GO_TEMP_FALLING_ROCKS:
-                        go->SendCustomAnim(0);
-                        break;
                     case GO_DOODAD_ABYSSAL_MAW_DOOR_1:
                         if (_eventIndex >= EVENT_INDEX_LADY_NAZJAR_GAUNTLET)
                             go->SetGoState(GO_STATE_ACTIVE);

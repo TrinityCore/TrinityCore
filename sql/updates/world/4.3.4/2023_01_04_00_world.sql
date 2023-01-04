@@ -1,0 +1,1 @@
+UPDATE `gameobject_template` SET `ScriptName`= 'go_tott_temp_falling_rocks' WHERE `entry`= 202742;
