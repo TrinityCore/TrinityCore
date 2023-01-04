@@ -4,7 +4,6 @@
 #define INTERNAL_SUPPRESS_PROTOBUF_FIELD_DEPRECATION
 #include "challenge_service.pb.h"
 
-#include <algorithm>
 #include <utility>
 
 #include <google/protobuf/stubs/common.h>
@@ -15,8 +14,6 @@
 #include <google/protobuf/generated_message_reflection.h>
 #include <google/protobuf/reflection_ops.h>
 #include <google/protobuf/wire_format.h>
-#include "Log.h"
-#include "Errors.h"
 #include "BattlenetRpcErrorCodes.h"
 // @@protoc_insertion_point(includes)
 
@@ -125,7 +122,7 @@ void protobuf_AddDesc_challenge_5fservice_2eproto() {
     "protocol.challenge.v1.ChallengeExternalR"
     "esult\032\031.bgs.protocol.NO_RESPONSE\"\006\202\371+\002\010\004"
     "\0323\202\371+)\n\'bnet.protocol.challenge.Challeng"
-    "eNotify\212\371+\002\010\001B\005H\001\200\001\000", 540);
+    "eNotify\212\371+\002\010\001B\005H\002\200\001\000", 540);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "challenge_service.proto", &protobuf_RegisterTypes);
   ChallengeExternalRequest::default_instance_ = new ChallengeExternalRequest();
@@ -214,272 +211,9 @@ ChallengeExternalRequest* ChallengeExternalRequest::New() const {
   return new ChallengeExternalRequest;
 }
 
-void ChallengeExternalRequest::Clear() {
-  if (_has_bits_[0 / 32] & 7) {
-    if (has_request_token()) {
-      if (request_token_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-        request_token_->clear();
-      }
-    }
-    if (has_payload_type()) {
-      if (payload_type_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-        payload_type_->clear();
-      }
-    }
-    if (has_payload()) {
-      if (payload_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-        payload_->clear();
-      }
-    }
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool ChallengeExternalRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.challenge.v1.ChallengeExternalRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional string request_token = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_request_token()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-            this->request_token().data(), this->request_token().length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "request_token");
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_payload_type;
-        break;
-      }
-
-      // optional string payload_type = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_payload_type:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_payload_type()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-            this->payload_type().data(), this->payload_type().length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "payload_type");
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(26)) goto parse_payload;
-        break;
-      }
-
-      // optional bytes payload = 3;
-      case 3: {
-        if (tag == 26) {
-         parse_payload:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
-                input, this->mutable_payload()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.challenge.v1.ChallengeExternalRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.challenge.v1.ChallengeExternalRequest)
-  return false;
-#undef DO_
-}
-
-void ChallengeExternalRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.challenge.v1.ChallengeExternalRequest)
-  // optional string request_token = 1;
-  if (has_request_token()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->request_token().data(), this->request_token().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "request_token");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      1, this->request_token(), output);
-  }
-
-  // optional string payload_type = 2;
-  if (has_payload_type()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->payload_type().data(), this->payload_type().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "payload_type");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      2, this->payload_type(), output);
-  }
-
-  // optional bytes payload = 3;
-  if (has_payload()) {
-    ::google::protobuf::internal::WireFormatLite::WriteBytesMaybeAliased(
-      3, this->payload(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.challenge.v1.ChallengeExternalRequest)
-}
-
-::google::protobuf::uint8* ChallengeExternalRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.challenge.v1.ChallengeExternalRequest)
-  // optional string request_token = 1;
-  if (has_request_token()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->request_token().data(), this->request_token().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "request_token");
-    target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        1, this->request_token(), target);
-  }
-
-  // optional string payload_type = 2;
-  if (has_payload_type()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->payload_type().data(), this->payload_type().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "payload_type");
-    target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        2, this->payload_type(), target);
-  }
-
-  // optional bytes payload = 3;
-  if (has_payload()) {
-    target =
-      ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
-        3, this->payload(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.challenge.v1.ChallengeExternalRequest)
-  return target;
-}
-
-int ChallengeExternalRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional string request_token = 1;
-    if (has_request_token()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::StringSize(
-          this->request_token());
-    }
-
-    // optional string payload_type = 2;
-    if (has_payload_type()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::StringSize(
-          this->payload_type());
-    }
-
-    // optional bytes payload = 3;
-    if (has_payload()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::BytesSize(
-          this->payload());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void ChallengeExternalRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const ChallengeExternalRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const ChallengeExternalRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void ChallengeExternalRequest::MergeFrom(const ChallengeExternalRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_request_token()) {
-      set_request_token(from.request_token());
-    }
-    if (from.has_payload_type()) {
-      set_payload_type(from.payload_type());
-    }
-    if (from.has_payload()) {
-      set_payload(from.payload());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void ChallengeExternalRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void ChallengeExternalRequest::CopyFrom(const ChallengeExternalRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool ChallengeExternalRequest::IsInitialized() const {
-  return true;
-}
-
 void ChallengeExternalRequest::Swap(ChallengeExternalRequest* other) {
   if (other != this) {
-    std::swap(request_token_, other->request_token_);
-    std::swap(payload_type_, other->payload_type_);
-    std::swap(payload_, other->payload_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata ChallengeExternalRequest::GetMetadata() const {
@@ -555,211 +289,9 @@ ChallengeExternalResult* ChallengeExternalResult::New() const {
   return new ChallengeExternalResult;
 }
 
-void ChallengeExternalResult::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
-    if (has_request_token()) {
-      if (request_token_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-        request_token_->clear();
-      }
-    }
-    passed_ = true;
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool ChallengeExternalResult::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.challenge.v1.ChallengeExternalResult)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional string request_token = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_request_token()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-            this->request_token().data(), this->request_token().length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "request_token");
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(16)) goto parse_passed;
-        break;
-      }
-
-      // optional bool passed = 2 [default = true];
-      case 2: {
-        if (tag == 16) {
-         parse_passed:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
-                 input, &passed_)));
-          set_has_passed();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.challenge.v1.ChallengeExternalResult)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.challenge.v1.ChallengeExternalResult)
-  return false;
-#undef DO_
-}
-
-void ChallengeExternalResult::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.challenge.v1.ChallengeExternalResult)
-  // optional string request_token = 1;
-  if (has_request_token()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->request_token().data(), this->request_token().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "request_token");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      1, this->request_token(), output);
-  }
-
-  // optional bool passed = 2 [default = true];
-  if (has_passed()) {
-    ::google::protobuf::internal::WireFormatLite::WriteBool(2, this->passed(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.challenge.v1.ChallengeExternalResult)
-}
-
-::google::protobuf::uint8* ChallengeExternalResult::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.challenge.v1.ChallengeExternalResult)
-  // optional string request_token = 1;
-  if (has_request_token()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->request_token().data(), this->request_token().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "request_token");
-    target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        1, this->request_token(), target);
-  }
-
-  // optional bool passed = 2 [default = true];
-  if (has_passed()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(2, this->passed(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.challenge.v1.ChallengeExternalResult)
-  return target;
-}
-
-int ChallengeExternalResult::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional string request_token = 1;
-    if (has_request_token()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::StringSize(
-          this->request_token());
-    }
-
-    // optional bool passed = 2 [default = true];
-    if (has_passed()) {
-      total_size += 1 + 1;
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void ChallengeExternalResult::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const ChallengeExternalResult* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const ChallengeExternalResult*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void ChallengeExternalResult::MergeFrom(const ChallengeExternalResult& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_request_token()) {
-      set_request_token(from.request_token());
-    }
-    if (from.has_passed()) {
-      set_passed(from.passed());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void ChallengeExternalResult::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void ChallengeExternalResult::CopyFrom(const ChallengeExternalResult& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool ChallengeExternalResult::IsInitialized() const {
-  return true;
-}
-
 void ChallengeExternalResult::Swap(ChallengeExternalResult* other) {
   if (other != this) {
-    std::swap(request_token_, other->request_token_);
-    std::swap(passed_, other->passed_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata ChallengeExternalResult::GetMetadata() const {
@@ -772,7 +304,7 @@ void ChallengeExternalResult::Swap(ChallengeExternalResult* other) {
 
 // ===================================================================
 
-ChallengeListener::ChallengeListener(bool use_original_hash) : service_hash_(use_original_hash ? OriginalHash::value : NameHash::value) {
+ChallengeListener::ChallengeListener(bool use_original_hash) : ServiceBase(use_original_hash ? OriginalHash::value : NameHash::value) {
 }
 
 ChallengeListener::~ChallengeListener() {
@@ -784,20 +316,17 @@ google::protobuf::ServiceDescriptor const* ChallengeListener::descriptor() {
 }
 
 void ChallengeListener::OnExternalChallenge(::bgs::protocol::challenge::v1::ChallengeExternalRequest const* request, bool client /*= false*/, bool server /*= false*/) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method ChallengeListener.OnExternalChallenge(bgs.protocol.challenge.v1.ChallengeExternalRequest{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  LogCallClientMethod("ChallengeListener.OnExternalChallenge", "bgs.protocol.challenge.v1.ChallengeExternalRequest", request);
   SendRequest(service_hash_, 3 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
 void ChallengeListener::OnExternalChallengeResult(::bgs::protocol::challenge::v1::ChallengeExternalResult const* request, bool client /*= false*/, bool server /*= false*/) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method ChallengeListener.OnExternalChallengeResult(bgs.protocol.challenge.v1.ChallengeExternalResult{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  LogCallClientMethod("ChallengeListener.OnExternalChallengeResult", "bgs.protocol.challenge.v1.ChallengeExternalResult", request);
   SendRequest(service_hash_, 4 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
-void ChallengeListener::CallServerMethod(uint32 token, uint32 methodId, MessageBuffer /*buffer*/) {
-  TC_LOG_ERROR("service.protobuf", "%s Server tried to call server method %u",
-    GetCallerInfo().c_str(), methodId);
+void ChallengeListener::CallServerMethod(uint32 /*token*/, uint32 methodId, MessageBuffer /*buffer*/) {
+  LogDisallowedMethod(methodId);
 }
 
 // @@protoc_insertion_point(namespace_scope)

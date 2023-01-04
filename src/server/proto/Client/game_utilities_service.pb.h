@@ -87,19 +87,6 @@ class TC_PROTO_API ClientRequest : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   ClientRequest* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const ClientRequest& from);
-  void MergeFrom(const ClientRequest& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -227,19 +214,6 @@ class TC_PROTO_API ClientResponse : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   ClientResponse* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const ClientResponse& from);
-  void MergeFrom(const ClientResponse& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -309,19 +283,6 @@ class TC_PROTO_API ServerRequest : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   ServerRequest* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const ServerRequest& from);
-  void MergeFrom(const ServerRequest& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -413,19 +374,6 @@ class TC_PROTO_API ServerResponse : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   ServerResponse* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const ServerResponse& from);
-  void MergeFrom(const ServerResponse& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -495,19 +443,6 @@ class TC_PROTO_API PresenceChannelCreatedRequest : public ::google::protobuf::Me
   // implements Message ----------------------------------------------
 
   PresenceChannelCreatedRequest* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const PresenceChannelCreatedRequest& from);
-  void MergeFrom(const PresenceChannelCreatedRequest& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -612,19 +547,6 @@ class TC_PROTO_API GameAccountOnlineNotification : public ::google::protobuf::Me
   // implements Message ----------------------------------------------
 
   GameAccountOnlineNotification* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const GameAccountOnlineNotification& from);
-  void MergeFrom(const GameAccountOnlineNotification& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -720,19 +642,6 @@ class TC_PROTO_API GameAccountOfflineNotification : public ::google::protobuf::M
   // implements Message ----------------------------------------------
 
   GameAccountOfflineNotification* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const GameAccountOfflineNotification& from);
-  void MergeFrom(const GameAccountOfflineNotification& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -828,19 +737,6 @@ class TC_PROTO_API GetAllValuesForAttributeRequest : public ::google::protobuf::
   // implements Message ----------------------------------------------
 
   GetAllValuesForAttributeRequest* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const GetAllValuesForAttributeRequest& from);
-  void MergeFrom(const GetAllValuesForAttributeRequest& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -934,19 +830,6 @@ class TC_PROTO_API GetAllValuesForAttributeResponse : public ::google::protobuf:
   // implements Message ----------------------------------------------
 
   GetAllValuesForAttributeResponse* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const GetAllValuesForAttributeResponse& from);
-  void MergeFrom(const GetAllValuesForAttributeResponse& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -1016,19 +899,6 @@ class TC_PROTO_API RegisterUtilitiesRequest : public ::google::protobuf::Message
   // implements Message ----------------------------------------------
 
   RegisterUtilitiesRequest* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const RegisterUtilitiesRequest& from);
-  void MergeFrom(const RegisterUtilitiesRequest& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -1108,19 +978,6 @@ class TC_PROTO_API RegisterUtilitiesResponse : public ::google::protobuf::Messag
   // implements Message ----------------------------------------------
 
   RegisterUtilitiesResponse* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const RegisterUtilitiesResponse& from);
-  void MergeFrom(const RegisterUtilitiesResponse& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -1192,19 +1049,6 @@ class TC_PROTO_API UnregisterUtilitiesRequest : public ::google::protobuf::Messa
   // implements Message ----------------------------------------------
 
   UnregisterUtilitiesRequest* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const UnregisterUtilitiesRequest& from);
-  void MergeFrom(const UnregisterUtilitiesRequest& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -1238,6 +1082,10 @@ class TC_PROTO_API GameUtilitiesService : public ServiceBase
  public:
 
   explicit GameUtilitiesService(bool use_original_hash);
+  GameUtilitiesService(GameUtilitiesService const&) = delete;
+  GameUtilitiesService(GameUtilitiesService&&) = delete;
+  GameUtilitiesService& operator=(GameUtilitiesService const&) = delete;
+  GameUtilitiesService& operator=(GameUtilitiesService&&) = delete;
   virtual ~GameUtilitiesService();
 
   typedef std::integral_constant<uint32, 0x3FC1274Du> OriginalHash;
@@ -1269,9 +1117,14 @@ class TC_PROTO_API GameUtilitiesService : public ServiceBase
   virtual uint32 HandleUnregisterUtilities(::bgs::protocol::game_utilities::v1::UnregisterUtilitiesRequest const* request);
 
  private:
-  uint32 service_hash_;
-
-  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(GameUtilitiesService);
+  void ParseAndHandleProcessClientRequest(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandlePresenceChannelCreated(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleProcessServerRequest(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleOnGameAccountOnline(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleOnGameAccountOffline(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleGetAllValuesForAttribute(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleRegisterUtilities(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleUnregisterUtilities(uint32 token, uint32 methodId, MessageBuffer& buffer);
 };
 
 // ===================================================================

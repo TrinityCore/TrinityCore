@@ -4,7 +4,6 @@
 #define INTERNAL_SUPPRESS_PROTOBUF_FIELD_DEPRECATION
 #include "friends_service.pb.h"
 
-#include <algorithm>
 #include <utility>
 
 #include <google/protobuf/stubs/common.h>
@@ -15,8 +14,6 @@
 #include <google/protobuf/generated_message_reflection.h>
 #include <google/protobuf/reflection_ops.h>
 #include <google/protobuf/wire_format.h>
-#include "Log.h"
-#include "Errors.h"
 #include "BattlenetRpcErrorCodes.h"
 // @@protoc_insertion_point(includes)
 
@@ -653,7 +650,7 @@ void protobuf_AddDesc_friends_5fservice_2eproto() {
     "dStateNotification\032\031.bgs.protocol.NO_RES"
     "PONSE\"\006\202\371+\002\010\007\032/\202\371+%\n#bnet.protocol.frien"
     "ds.FriendsNotify\212\371+\002\010\001B7\n\030bnet.protocol."
-    "friends.v1B\023FriendsServiceProtoH\001\200\001\000\210\001\001", 4839);
+    "friends.v1B\023FriendsServiceProtoH\002\200\001\000\210\001\001", 4839);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "friends_service.proto", &protobuf_RegisterTypes);
   SubscribeRequest::default_instance_ = new SubscribeRequest();
@@ -768,203 +765,9 @@ SubscribeRequest* SubscribeRequest::New() const {
   return new SubscribeRequest;
 }
 
-void SubscribeRequest::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
-    if (has_agent_id()) {
-      if (agent_id_ != NULL) agent_id_->::bgs::protocol::EntityId::Clear();
-    }
-    object_id_ = GOOGLE_ULONGLONG(0);
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool SubscribeRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.friends.v1.SubscribeRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.EntityId agent_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(16)) goto parse_object_id;
-        break;
-      }
-
-      // required uint64 object_id = 2;
-      case 2: {
-        if (tag == 16) {
-         parse_object_id:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
-                 input, &object_id_)));
-          set_has_object_id();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.friends.v1.SubscribeRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.friends.v1.SubscribeRequest)
-  return false;
-#undef DO_
-}
-
-void SubscribeRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.friends.v1.SubscribeRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->agent_id(), output);
-  }
-
-  // required uint64 object_id = 2;
-  if (has_object_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(2, this->object_id(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.friends.v1.SubscribeRequest)
-}
-
-::google::protobuf::uint8* SubscribeRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.friends.v1.SubscribeRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->agent_id(), target);
-  }
-
-  // required uint64 object_id = 2;
-  if (has_object_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(2, this->object_id(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.friends.v1.SubscribeRequest)
-  return target;
-}
-
-int SubscribeRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.EntityId agent_id = 1;
-    if (has_agent_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_id());
-    }
-
-    // required uint64 object_id = 2;
-    if (has_object_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt64Size(
-          this->object_id());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void SubscribeRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const SubscribeRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const SubscribeRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void SubscribeRequest::MergeFrom(const SubscribeRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_agent_id()) {
-      mutable_agent_id()->::bgs::protocol::EntityId::MergeFrom(from.agent_id());
-    }
-    if (from.has_object_id()) {
-      set_object_id(from.object_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void SubscribeRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void SubscribeRequest::CopyFrom(const SubscribeRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool SubscribeRequest::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000002) != 0x00000002) return false;
-  if (has_agent_id()) {
-    if (!this->agent_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void SubscribeRequest::Swap(SubscribeRequest* other) {
   if (other != this) {
-    std::swap(agent_id_, other->agent_id_);
-    std::swap(object_id_, other->object_id_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata SubscribeRequest::GetMetadata() const {
@@ -1038,202 +841,9 @@ UnsubscribeRequest* UnsubscribeRequest::New() const {
   return new UnsubscribeRequest;
 }
 
-void UnsubscribeRequest::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
-    if (has_agent_id()) {
-      if (agent_id_ != NULL) agent_id_->::bgs::protocol::EntityId::Clear();
-    }
-    object_id_ = GOOGLE_ULONGLONG(0);
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool UnsubscribeRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.friends.v1.UnsubscribeRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.EntityId agent_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(16)) goto parse_object_id;
-        break;
-      }
-
-      // optional uint64 object_id = 2;
-      case 2: {
-        if (tag == 16) {
-         parse_object_id:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
-                 input, &object_id_)));
-          set_has_object_id();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.friends.v1.UnsubscribeRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.friends.v1.UnsubscribeRequest)
-  return false;
-#undef DO_
-}
-
-void UnsubscribeRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.friends.v1.UnsubscribeRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->agent_id(), output);
-  }
-
-  // optional uint64 object_id = 2;
-  if (has_object_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(2, this->object_id(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.friends.v1.UnsubscribeRequest)
-}
-
-::google::protobuf::uint8* UnsubscribeRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.friends.v1.UnsubscribeRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->agent_id(), target);
-  }
-
-  // optional uint64 object_id = 2;
-  if (has_object_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(2, this->object_id(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.friends.v1.UnsubscribeRequest)
-  return target;
-}
-
-int UnsubscribeRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.EntityId agent_id = 1;
-    if (has_agent_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_id());
-    }
-
-    // optional uint64 object_id = 2;
-    if (has_object_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt64Size(
-          this->object_id());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void UnsubscribeRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const UnsubscribeRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const UnsubscribeRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void UnsubscribeRequest::MergeFrom(const UnsubscribeRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_agent_id()) {
-      mutable_agent_id()->::bgs::protocol::EntityId::MergeFrom(from.agent_id());
-    }
-    if (from.has_object_id()) {
-      set_object_id(from.object_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void UnsubscribeRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void UnsubscribeRequest::CopyFrom(const UnsubscribeRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool UnsubscribeRequest::IsInitialized() const {
-  if (has_agent_id()) {
-    if (!this->agent_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void UnsubscribeRequest::Swap(UnsubscribeRequest* other) {
   if (other != this) {
-    std::swap(agent_id_, other->agent_id_);
-    std::swap(object_id_, other->object_id_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata UnsubscribeRequest::GetMetadata() const {
@@ -1313,252 +923,9 @@ SendInvitationRequest* SendInvitationRequest::New() const {
   return new SendInvitationRequest;
 }
 
-void SendInvitationRequest::Clear() {
-  if (_has_bits_[0 / 32] & 7) {
-    if (has_agent_identity()) {
-      if (agent_identity_ != NULL) agent_identity_->::bgs::protocol::Identity::Clear();
-    }
-    if (has_target_id()) {
-      if (target_id_ != NULL) target_id_->::bgs::protocol::EntityId::Clear();
-    }
-    if (has_params()) {
-      if (params_ != NULL) params_->::bgs::protocol::InvitationParams::Clear();
-    }
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool SendInvitationRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.friends.v1.SendInvitationRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.Identity agent_identity = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_identity()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_target_id;
-        break;
-      }
-
-      // required .bgs.protocol.EntityId target_id = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_target_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_target_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(26)) goto parse_params;
-        break;
-      }
-
-      // required .bgs.protocol.InvitationParams params = 3;
-      case 3: {
-        if (tag == 26) {
-         parse_params:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_params()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.friends.v1.SendInvitationRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.friends.v1.SendInvitationRequest)
-  return false;
-#undef DO_
-}
-
-void SendInvitationRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.friends.v1.SendInvitationRequest)
-  // optional .bgs.protocol.Identity agent_identity = 1;
-  if (has_agent_identity()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->agent_identity(), output);
-  }
-
-  // required .bgs.protocol.EntityId target_id = 2;
-  if (has_target_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->target_id(), output);
-  }
-
-  // required .bgs.protocol.InvitationParams params = 3;
-  if (has_params()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      3, this->params(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.friends.v1.SendInvitationRequest)
-}
-
-::google::protobuf::uint8* SendInvitationRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.friends.v1.SendInvitationRequest)
-  // optional .bgs.protocol.Identity agent_identity = 1;
-  if (has_agent_identity()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->agent_identity(), target);
-  }
-
-  // required .bgs.protocol.EntityId target_id = 2;
-  if (has_target_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->target_id(), target);
-  }
-
-  // required .bgs.protocol.InvitationParams params = 3;
-  if (has_params()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        3, this->params(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.friends.v1.SendInvitationRequest)
-  return target;
-}
-
-int SendInvitationRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.Identity agent_identity = 1;
-    if (has_agent_identity()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_identity());
-    }
-
-    // required .bgs.protocol.EntityId target_id = 2;
-    if (has_target_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->target_id());
-    }
-
-    // required .bgs.protocol.InvitationParams params = 3;
-    if (has_params()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->params());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void SendInvitationRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const SendInvitationRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const SendInvitationRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void SendInvitationRequest::MergeFrom(const SendInvitationRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_agent_identity()) {
-      mutable_agent_identity()->::bgs::protocol::Identity::MergeFrom(from.agent_identity());
-    }
-    if (from.has_target_id()) {
-      mutable_target_id()->::bgs::protocol::EntityId::MergeFrom(from.target_id());
-    }
-    if (from.has_params()) {
-      mutable_params()->::bgs::protocol::InvitationParams::MergeFrom(from.params());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void SendInvitationRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void SendInvitationRequest::CopyFrom(const SendInvitationRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool SendInvitationRequest::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000006) != 0x00000006) return false;
-  if (has_agent_identity()) {
-    if (!this->agent_identity().IsInitialized()) return false;
-  }
-  if (has_target_id()) {
-    if (!this->target_id().IsInitialized()) return false;
-  }
-  if (has_params()) {
-    if (!this->params().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void SendInvitationRequest::Swap(SendInvitationRequest* other) {
   if (other != this) {
-    std::swap(agent_identity_, other->agent_identity_);
-    std::swap(target_id_, other->target_id_);
-    std::swap(params_, other->params_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata SendInvitationRequest::GetMetadata() const {
@@ -1632,200 +999,9 @@ RevokeInvitationRequest* RevokeInvitationRequest::New() const {
   return new RevokeInvitationRequest;
 }
 
-void RevokeInvitationRequest::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
-    if (has_agent_id()) {
-      if (agent_id_ != NULL) agent_id_->::bgs::protocol::EntityId::Clear();
-    }
-    invitation_id_ = GOOGLE_ULONGLONG(0);
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool RevokeInvitationRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.friends.v1.RevokeInvitationRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.EntityId agent_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(17)) goto parse_invitation_id;
-        break;
-      }
-
-      // optional fixed64 invitation_id = 2;
-      case 2: {
-        if (tag == 17) {
-         parse_invitation_id:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_FIXED64>(
-                 input, &invitation_id_)));
-          set_has_invitation_id();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.friends.v1.RevokeInvitationRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.friends.v1.RevokeInvitationRequest)
-  return false;
-#undef DO_
-}
-
-void RevokeInvitationRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.friends.v1.RevokeInvitationRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->agent_id(), output);
-  }
-
-  // optional fixed64 invitation_id = 2;
-  if (has_invitation_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteFixed64(2, this->invitation_id(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.friends.v1.RevokeInvitationRequest)
-}
-
-::google::protobuf::uint8* RevokeInvitationRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.friends.v1.RevokeInvitationRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->agent_id(), target);
-  }
-
-  // optional fixed64 invitation_id = 2;
-  if (has_invitation_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteFixed64ToArray(2, this->invitation_id(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.friends.v1.RevokeInvitationRequest)
-  return target;
-}
-
-int RevokeInvitationRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.EntityId agent_id = 1;
-    if (has_agent_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_id());
-    }
-
-    // optional fixed64 invitation_id = 2;
-    if (has_invitation_id()) {
-      total_size += 1 + 8;
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void RevokeInvitationRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const RevokeInvitationRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const RevokeInvitationRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void RevokeInvitationRequest::MergeFrom(const RevokeInvitationRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_agent_id()) {
-      mutable_agent_id()->::bgs::protocol::EntityId::MergeFrom(from.agent_id());
-    }
-    if (from.has_invitation_id()) {
-      set_invitation_id(from.invitation_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void RevokeInvitationRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void RevokeInvitationRequest::CopyFrom(const RevokeInvitationRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool RevokeInvitationRequest::IsInitialized() const {
-  if (has_agent_id()) {
-    if (!this->agent_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void RevokeInvitationRequest::Swap(RevokeInvitationRequest* other) {
   if (other != this) {
-    std::swap(agent_id_, other->agent_id_);
-    std::swap(invitation_id_, other->invitation_id_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata RevokeInvitationRequest::GetMetadata() const {
@@ -1903,241 +1079,9 @@ AcceptInvitationRequest* AcceptInvitationRequest::New() const {
   return new AcceptInvitationRequest;
 }
 
-void AcceptInvitationRequest::Clear() {
-  if (_has_bits_[0 / 32] & 7) {
-    if (has_agent_id()) {
-      if (agent_id_ != NULL) agent_id_->::bgs::protocol::EntityId::Clear();
-    }
-    invitation_id_ = GOOGLE_ULONGLONG(0);
-    if (has_options()) {
-      if (options_ != NULL) options_->::bgs::protocol::friends::v1::AcceptInvitationOptions::Clear();
-    }
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool AcceptInvitationRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.friends.v1.AcceptInvitationRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.EntityId agent_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(25)) goto parse_invitation_id;
-        break;
-      }
-
-      // required fixed64 invitation_id = 3;
-      case 3: {
-        if (tag == 25) {
-         parse_invitation_id:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_FIXED64>(
-                 input, &invitation_id_)));
-          set_has_invitation_id();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(34)) goto parse_options;
-        break;
-      }
-
-      // optional .bgs.protocol.friends.v1.AcceptInvitationOptions options = 4;
-      case 4: {
-        if (tag == 34) {
-         parse_options:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_options()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.friends.v1.AcceptInvitationRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.friends.v1.AcceptInvitationRequest)
-  return false;
-#undef DO_
-}
-
-void AcceptInvitationRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.friends.v1.AcceptInvitationRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->agent_id(), output);
-  }
-
-  // required fixed64 invitation_id = 3;
-  if (has_invitation_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteFixed64(3, this->invitation_id(), output);
-  }
-
-  // optional .bgs.protocol.friends.v1.AcceptInvitationOptions options = 4;
-  if (has_options()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      4, this->options(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.friends.v1.AcceptInvitationRequest)
-}
-
-::google::protobuf::uint8* AcceptInvitationRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.friends.v1.AcceptInvitationRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->agent_id(), target);
-  }
-
-  // required fixed64 invitation_id = 3;
-  if (has_invitation_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteFixed64ToArray(3, this->invitation_id(), target);
-  }
-
-  // optional .bgs.protocol.friends.v1.AcceptInvitationOptions options = 4;
-  if (has_options()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        4, this->options(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.friends.v1.AcceptInvitationRequest)
-  return target;
-}
-
-int AcceptInvitationRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.EntityId agent_id = 1;
-    if (has_agent_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_id());
-    }
-
-    // required fixed64 invitation_id = 3;
-    if (has_invitation_id()) {
-      total_size += 1 + 8;
-    }
-
-    // optional .bgs.protocol.friends.v1.AcceptInvitationOptions options = 4;
-    if (has_options()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->options());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void AcceptInvitationRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const AcceptInvitationRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const AcceptInvitationRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void AcceptInvitationRequest::MergeFrom(const AcceptInvitationRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_agent_id()) {
-      mutable_agent_id()->::bgs::protocol::EntityId::MergeFrom(from.agent_id());
-    }
-    if (from.has_invitation_id()) {
-      set_invitation_id(from.invitation_id());
-    }
-    if (from.has_options()) {
-      mutable_options()->::bgs::protocol::friends::v1::AcceptInvitationOptions::MergeFrom(from.options());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void AcceptInvitationRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void AcceptInvitationRequest::CopyFrom(const AcceptInvitationRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool AcceptInvitationRequest::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000002) != 0x00000002) return false;
-  if (has_agent_id()) {
-    if (!this->agent_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void AcceptInvitationRequest::Swap(AcceptInvitationRequest* other) {
   if (other != this) {
-    std::swap(agent_id_, other->agent_id_);
-    std::swap(invitation_id_, other->invitation_id_);
-    std::swap(options_, other->options_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata AcceptInvitationRequest::GetMetadata() const {
@@ -2211,201 +1155,9 @@ DeclineInvitationRequest* DeclineInvitationRequest::New() const {
   return new DeclineInvitationRequest;
 }
 
-void DeclineInvitationRequest::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
-    if (has_agent_id()) {
-      if (agent_id_ != NULL) agent_id_->::bgs::protocol::EntityId::Clear();
-    }
-    invitation_id_ = GOOGLE_ULONGLONG(0);
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool DeclineInvitationRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.friends.v1.DeclineInvitationRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.EntityId agent_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(25)) goto parse_invitation_id;
-        break;
-      }
-
-      // required fixed64 invitation_id = 3;
-      case 3: {
-        if (tag == 25) {
-         parse_invitation_id:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_FIXED64>(
-                 input, &invitation_id_)));
-          set_has_invitation_id();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.friends.v1.DeclineInvitationRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.friends.v1.DeclineInvitationRequest)
-  return false;
-#undef DO_
-}
-
-void DeclineInvitationRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.friends.v1.DeclineInvitationRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->agent_id(), output);
-  }
-
-  // required fixed64 invitation_id = 3;
-  if (has_invitation_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteFixed64(3, this->invitation_id(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.friends.v1.DeclineInvitationRequest)
-}
-
-::google::protobuf::uint8* DeclineInvitationRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.friends.v1.DeclineInvitationRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->agent_id(), target);
-  }
-
-  // required fixed64 invitation_id = 3;
-  if (has_invitation_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteFixed64ToArray(3, this->invitation_id(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.friends.v1.DeclineInvitationRequest)
-  return target;
-}
-
-int DeclineInvitationRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.EntityId agent_id = 1;
-    if (has_agent_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_id());
-    }
-
-    // required fixed64 invitation_id = 3;
-    if (has_invitation_id()) {
-      total_size += 1 + 8;
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void DeclineInvitationRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const DeclineInvitationRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const DeclineInvitationRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void DeclineInvitationRequest::MergeFrom(const DeclineInvitationRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_agent_id()) {
-      mutable_agent_id()->::bgs::protocol::EntityId::MergeFrom(from.agent_id());
-    }
-    if (from.has_invitation_id()) {
-      set_invitation_id(from.invitation_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void DeclineInvitationRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void DeclineInvitationRequest::CopyFrom(const DeclineInvitationRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool DeclineInvitationRequest::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000002) != 0x00000002) return false;
-  if (has_agent_id()) {
-    if (!this->agent_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void DeclineInvitationRequest::Swap(DeclineInvitationRequest* other) {
   if (other != this) {
-    std::swap(agent_id_, other->agent_id_);
-    std::swap(invitation_id_, other->invitation_id_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata DeclineInvitationRequest::GetMetadata() const {
@@ -2479,201 +1231,9 @@ IgnoreInvitationRequest* IgnoreInvitationRequest::New() const {
   return new IgnoreInvitationRequest;
 }
 
-void IgnoreInvitationRequest::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
-    if (has_agent_id()) {
-      if (agent_id_ != NULL) agent_id_->::bgs::protocol::EntityId::Clear();
-    }
-    invitation_id_ = GOOGLE_ULONGLONG(0);
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool IgnoreInvitationRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.friends.v1.IgnoreInvitationRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.EntityId agent_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(25)) goto parse_invitation_id;
-        break;
-      }
-
-      // required fixed64 invitation_id = 3;
-      case 3: {
-        if (tag == 25) {
-         parse_invitation_id:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_FIXED64>(
-                 input, &invitation_id_)));
-          set_has_invitation_id();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.friends.v1.IgnoreInvitationRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.friends.v1.IgnoreInvitationRequest)
-  return false;
-#undef DO_
-}
-
-void IgnoreInvitationRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.friends.v1.IgnoreInvitationRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->agent_id(), output);
-  }
-
-  // required fixed64 invitation_id = 3;
-  if (has_invitation_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteFixed64(3, this->invitation_id(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.friends.v1.IgnoreInvitationRequest)
-}
-
-::google::protobuf::uint8* IgnoreInvitationRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.friends.v1.IgnoreInvitationRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->agent_id(), target);
-  }
-
-  // required fixed64 invitation_id = 3;
-  if (has_invitation_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteFixed64ToArray(3, this->invitation_id(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.friends.v1.IgnoreInvitationRequest)
-  return target;
-}
-
-int IgnoreInvitationRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.EntityId agent_id = 1;
-    if (has_agent_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_id());
-    }
-
-    // required fixed64 invitation_id = 3;
-    if (has_invitation_id()) {
-      total_size += 1 + 8;
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void IgnoreInvitationRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const IgnoreInvitationRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const IgnoreInvitationRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void IgnoreInvitationRequest::MergeFrom(const IgnoreInvitationRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_agent_id()) {
-      mutable_agent_id()->::bgs::protocol::EntityId::MergeFrom(from.agent_id());
-    }
-    if (from.has_invitation_id()) {
-      set_invitation_id(from.invitation_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void IgnoreInvitationRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void IgnoreInvitationRequest::CopyFrom(const IgnoreInvitationRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool IgnoreInvitationRequest::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000002) != 0x00000002) return false;
-  if (has_agent_id()) {
-    if (!this->agent_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void IgnoreInvitationRequest::Swap(IgnoreInvitationRequest* other) {
   if (other != this) {
-    std::swap(agent_id_, other->agent_id_);
-    std::swap(invitation_id_, other->invitation_id_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata IgnoreInvitationRequest::GetMetadata() const {
@@ -2749,209 +1309,9 @@ RemoveFriendRequest* RemoveFriendRequest::New() const {
   return new RemoveFriendRequest;
 }
 
-void RemoveFriendRequest::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
-    if (has_agent_id()) {
-      if (agent_id_ != NULL) agent_id_->::bgs::protocol::EntityId::Clear();
-    }
-    if (has_target_id()) {
-      if (target_id_ != NULL) target_id_->::bgs::protocol::EntityId::Clear();
-    }
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool RemoveFriendRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.friends.v1.RemoveFriendRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.EntityId agent_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_target_id;
-        break;
-      }
-
-      // required .bgs.protocol.EntityId target_id = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_target_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_target_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.friends.v1.RemoveFriendRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.friends.v1.RemoveFriendRequest)
-  return false;
-#undef DO_
-}
-
-void RemoveFriendRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.friends.v1.RemoveFriendRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->agent_id(), output);
-  }
-
-  // required .bgs.protocol.EntityId target_id = 2;
-  if (has_target_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->target_id(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.friends.v1.RemoveFriendRequest)
-}
-
-::google::protobuf::uint8* RemoveFriendRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.friends.v1.RemoveFriendRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->agent_id(), target);
-  }
-
-  // required .bgs.protocol.EntityId target_id = 2;
-  if (has_target_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->target_id(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.friends.v1.RemoveFriendRequest)
-  return target;
-}
-
-int RemoveFriendRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.EntityId agent_id = 1;
-    if (has_agent_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_id());
-    }
-
-    // required .bgs.protocol.EntityId target_id = 2;
-    if (has_target_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->target_id());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void RemoveFriendRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const RemoveFriendRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const RemoveFriendRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void RemoveFriendRequest::MergeFrom(const RemoveFriendRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_agent_id()) {
-      mutable_agent_id()->::bgs::protocol::EntityId::MergeFrom(from.agent_id());
-    }
-    if (from.has_target_id()) {
-      mutable_target_id()->::bgs::protocol::EntityId::MergeFrom(from.target_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void RemoveFriendRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void RemoveFriendRequest::CopyFrom(const RemoveFriendRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool RemoveFriendRequest::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000002) != 0x00000002) return false;
-  if (has_agent_id()) {
-    if (!this->agent_id().IsInitialized()) return false;
-  }
-  if (has_target_id()) {
-    if (!this->target_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void RemoveFriendRequest::Swap(RemoveFriendRequest* other) {
   if (other != this) {
-    std::swap(agent_id_, other->agent_id_);
-    std::swap(target_id_, other->target_id_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata RemoveFriendRequest::GetMetadata() const {
@@ -3023,163 +1383,9 @@ RevokeAllInvitationsRequest* RevokeAllInvitationsRequest::New() const {
   return new RevokeAllInvitationsRequest;
 }
 
-void RevokeAllInvitationsRequest::Clear() {
-  if (has_agent_id()) {
-    if (agent_id_ != NULL) agent_id_->::bgs::protocol::EntityId::Clear();
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool RevokeAllInvitationsRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.friends.v1.RevokeAllInvitationsRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.EntityId agent_id = 2;
-      case 2: {
-        if (tag == 18) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.friends.v1.RevokeAllInvitationsRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.friends.v1.RevokeAllInvitationsRequest)
-  return false;
-#undef DO_
-}
-
-void RevokeAllInvitationsRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.friends.v1.RevokeAllInvitationsRequest)
-  // optional .bgs.protocol.EntityId agent_id = 2;
-  if (has_agent_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->agent_id(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.friends.v1.RevokeAllInvitationsRequest)
-}
-
-::google::protobuf::uint8* RevokeAllInvitationsRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.friends.v1.RevokeAllInvitationsRequest)
-  // optional .bgs.protocol.EntityId agent_id = 2;
-  if (has_agent_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->agent_id(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.friends.v1.RevokeAllInvitationsRequest)
-  return target;
-}
-
-int RevokeAllInvitationsRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.EntityId agent_id = 2;
-    if (has_agent_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_id());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void RevokeAllInvitationsRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const RevokeAllInvitationsRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const RevokeAllInvitationsRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void RevokeAllInvitationsRequest::MergeFrom(const RevokeAllInvitationsRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_agent_id()) {
-      mutable_agent_id()->::bgs::protocol::EntityId::MergeFrom(from.agent_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void RevokeAllInvitationsRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void RevokeAllInvitationsRequest::CopyFrom(const RevokeAllInvitationsRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool RevokeAllInvitationsRequest::IsInitialized() const {
-  if (has_agent_id()) {
-    if (!this->agent_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void RevokeAllInvitationsRequest::Swap(RevokeAllInvitationsRequest* other) {
   if (other != this) {
-    std::swap(agent_id_, other->agent_id_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata RevokeAllInvitationsRequest::GetMetadata() const {
@@ -3255,209 +1461,9 @@ ViewFriendsRequest* ViewFriendsRequest::New() const {
   return new ViewFriendsRequest;
 }
 
-void ViewFriendsRequest::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
-    if (has_agent_id()) {
-      if (agent_id_ != NULL) agent_id_->::bgs::protocol::EntityId::Clear();
-    }
-    if (has_target_id()) {
-      if (target_id_ != NULL) target_id_->::bgs::protocol::EntityId::Clear();
-    }
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool ViewFriendsRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.friends.v1.ViewFriendsRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.EntityId agent_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_target_id;
-        break;
-      }
-
-      // required .bgs.protocol.EntityId target_id = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_target_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_target_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.friends.v1.ViewFriendsRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.friends.v1.ViewFriendsRequest)
-  return false;
-#undef DO_
-}
-
-void ViewFriendsRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.friends.v1.ViewFriendsRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->agent_id(), output);
-  }
-
-  // required .bgs.protocol.EntityId target_id = 2;
-  if (has_target_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->target_id(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.friends.v1.ViewFriendsRequest)
-}
-
-::google::protobuf::uint8* ViewFriendsRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.friends.v1.ViewFriendsRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->agent_id(), target);
-  }
-
-  // required .bgs.protocol.EntityId target_id = 2;
-  if (has_target_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->target_id(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.friends.v1.ViewFriendsRequest)
-  return target;
-}
-
-int ViewFriendsRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.EntityId agent_id = 1;
-    if (has_agent_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_id());
-    }
-
-    // required .bgs.protocol.EntityId target_id = 2;
-    if (has_target_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->target_id());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void ViewFriendsRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const ViewFriendsRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const ViewFriendsRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void ViewFriendsRequest::MergeFrom(const ViewFriendsRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_agent_id()) {
-      mutable_agent_id()->::bgs::protocol::EntityId::MergeFrom(from.agent_id());
-    }
-    if (from.has_target_id()) {
-      mutable_target_id()->::bgs::protocol::EntityId::MergeFrom(from.target_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void ViewFriendsRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void ViewFriendsRequest::CopyFrom(const ViewFriendsRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool ViewFriendsRequest::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000002) != 0x00000002) return false;
-  if (has_agent_id()) {
-    if (!this->agent_id().IsInitialized()) return false;
-  }
-  if (has_target_id()) {
-    if (!this->target_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void ViewFriendsRequest::Swap(ViewFriendsRequest* other) {
   if (other != this) {
-    std::swap(agent_id_, other->agent_id_);
-    std::swap(target_id_, other->target_id_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata ViewFriendsRequest::GetMetadata() const {
@@ -3526,156 +1532,9 @@ ViewFriendsResponse* ViewFriendsResponse::New() const {
   return new ViewFriendsResponse;
 }
 
-void ViewFriendsResponse::Clear() {
-  friends_.Clear();
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool ViewFriendsResponse::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.friends.v1.ViewFriendsResponse)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // repeated .bgs.protocol.friends.v1.FriendOfFriend friends = 1;
-      case 1: {
-        if (tag == 10) {
-         parse_friends:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-                input, add_friends()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(10)) goto parse_friends;
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.friends.v1.ViewFriendsResponse)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.friends.v1.ViewFriendsResponse)
-  return false;
-#undef DO_
-}
-
-void ViewFriendsResponse::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.friends.v1.ViewFriendsResponse)
-  // repeated .bgs.protocol.friends.v1.FriendOfFriend friends = 1;
-  for (int i = 0; i < this->friends_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->friends(i), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.friends.v1.ViewFriendsResponse)
-}
-
-::google::protobuf::uint8* ViewFriendsResponse::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.friends.v1.ViewFriendsResponse)
-  // repeated .bgs.protocol.friends.v1.FriendOfFriend friends = 1;
-  for (int i = 0; i < this->friends_size(); i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->friends(i), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.friends.v1.ViewFriendsResponse)
-  return target;
-}
-
-int ViewFriendsResponse::ByteSize() const {
-  int total_size = 0;
-
-  // repeated .bgs.protocol.friends.v1.FriendOfFriend friends = 1;
-  total_size += 1 * this->friends_size();
-  for (int i = 0; i < this->friends_size(); i++) {
-    total_size +=
-      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-        this->friends(i));
-  }
-
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void ViewFriendsResponse::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const ViewFriendsResponse* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const ViewFriendsResponse*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void ViewFriendsResponse::MergeFrom(const ViewFriendsResponse& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  friends_.MergeFrom(from.friends_);
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void ViewFriendsResponse::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void ViewFriendsResponse::CopyFrom(const ViewFriendsResponse& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool ViewFriendsResponse::IsInitialized() const {
-  if (!::google::protobuf::internal::AllAreInitialized(this->friends())) return false;
-  return true;
-}
-
 void ViewFriendsResponse::Swap(ViewFriendsResponse* other) {
   if (other != this) {
-    friends_.Swap(&other->friends_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata ViewFriendsResponse::GetMetadata() const {
@@ -3752,248 +1611,9 @@ UpdateFriendStateRequest* UpdateFriendStateRequest::New() const {
   return new UpdateFriendStateRequest;
 }
 
-void UpdateFriendStateRequest::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
-    if (has_agent_id()) {
-      if (agent_id_ != NULL) agent_id_->::bgs::protocol::EntityId::Clear();
-    }
-    if (has_target_id()) {
-      if (target_id_ != NULL) target_id_->::bgs::protocol::EntityId::Clear();
-    }
-  }
-  attribute_.Clear();
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool UpdateFriendStateRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.friends.v1.UpdateFriendStateRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.EntityId agent_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_target_id;
-        break;
-      }
-
-      // required .bgs.protocol.EntityId target_id = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_target_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_target_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(26)) goto parse_attribute;
-        break;
-      }
-
-      // repeated .bgs.protocol.Attribute attribute = 3;
-      case 3: {
-        if (tag == 26) {
-         parse_attribute:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-                input, add_attribute()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(26)) goto parse_attribute;
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.friends.v1.UpdateFriendStateRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.friends.v1.UpdateFriendStateRequest)
-  return false;
-#undef DO_
-}
-
-void UpdateFriendStateRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.friends.v1.UpdateFriendStateRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->agent_id(), output);
-  }
-
-  // required .bgs.protocol.EntityId target_id = 2;
-  if (has_target_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->target_id(), output);
-  }
-
-  // repeated .bgs.protocol.Attribute attribute = 3;
-  for (int i = 0; i < this->attribute_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      3, this->attribute(i), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.friends.v1.UpdateFriendStateRequest)
-}
-
-::google::protobuf::uint8* UpdateFriendStateRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.friends.v1.UpdateFriendStateRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->agent_id(), target);
-  }
-
-  // required .bgs.protocol.EntityId target_id = 2;
-  if (has_target_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->target_id(), target);
-  }
-
-  // repeated .bgs.protocol.Attribute attribute = 3;
-  for (int i = 0; i < this->attribute_size(); i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        3, this->attribute(i), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.friends.v1.UpdateFriendStateRequest)
-  return target;
-}
-
-int UpdateFriendStateRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.EntityId agent_id = 1;
-    if (has_agent_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_id());
-    }
-
-    // required .bgs.protocol.EntityId target_id = 2;
-    if (has_target_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->target_id());
-    }
-
-  }
-  // repeated .bgs.protocol.Attribute attribute = 3;
-  total_size += 1 * this->attribute_size();
-  for (int i = 0; i < this->attribute_size(); i++) {
-    total_size +=
-      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-        this->attribute(i));
-  }
-
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void UpdateFriendStateRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const UpdateFriendStateRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const UpdateFriendStateRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void UpdateFriendStateRequest::MergeFrom(const UpdateFriendStateRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  attribute_.MergeFrom(from.attribute_);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_agent_id()) {
-      mutable_agent_id()->::bgs::protocol::EntityId::MergeFrom(from.agent_id());
-    }
-    if (from.has_target_id()) {
-      mutable_target_id()->::bgs::protocol::EntityId::MergeFrom(from.target_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void UpdateFriendStateRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void UpdateFriendStateRequest::CopyFrom(const UpdateFriendStateRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool UpdateFriendStateRequest::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000002) != 0x00000002) return false;
-  if (has_agent_id()) {
-    if (!this->agent_id().IsInitialized()) return false;
-  }
-  if (has_target_id()) {
-    if (!this->target_id().IsInitialized()) return false;
-  }
-  if (!::google::protobuf::internal::AllAreInitialized(this->attribute())) return false;
-  return true;
-}
-
 void UpdateFriendStateRequest::Swap(UpdateFriendStateRequest* other) {
   if (other != this) {
-    std::swap(agent_id_, other->agent_id_);
-    std::swap(target_id_, other->target_id_);
-    attribute_.Swap(&other->attribute_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata UpdateFriendStateRequest::GetMetadata() const {
@@ -4065,163 +1685,9 @@ GetFriendListRequest* GetFriendListRequest::New() const {
   return new GetFriendListRequest;
 }
 
-void GetFriendListRequest::Clear() {
-  if (has_agent_id()) {
-    if (agent_id_ != NULL) agent_id_->::bgs::protocol::EntityId::Clear();
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool GetFriendListRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.friends.v1.GetFriendListRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.EntityId agent_id = 2;
-      case 2: {
-        if (tag == 18) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.friends.v1.GetFriendListRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.friends.v1.GetFriendListRequest)
-  return false;
-#undef DO_
-}
-
-void GetFriendListRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.friends.v1.GetFriendListRequest)
-  // optional .bgs.protocol.EntityId agent_id = 2;
-  if (has_agent_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->agent_id(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.friends.v1.GetFriendListRequest)
-}
-
-::google::protobuf::uint8* GetFriendListRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.friends.v1.GetFriendListRequest)
-  // optional .bgs.protocol.EntityId agent_id = 2;
-  if (has_agent_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->agent_id(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.friends.v1.GetFriendListRequest)
-  return target;
-}
-
-int GetFriendListRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.EntityId agent_id = 2;
-    if (has_agent_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_id());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void GetFriendListRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const GetFriendListRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const GetFriendListRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void GetFriendListRequest::MergeFrom(const GetFriendListRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_agent_id()) {
-      mutable_agent_id()->::bgs::protocol::EntityId::MergeFrom(from.agent_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void GetFriendListRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void GetFriendListRequest::CopyFrom(const GetFriendListRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool GetFriendListRequest::IsInitialized() const {
-  if (has_agent_id()) {
-    if (!this->agent_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void GetFriendListRequest::Swap(GetFriendListRequest* other) {
   if (other != this) {
-    std::swap(agent_id_, other->agent_id_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata GetFriendListRequest::GetMetadata() const {
@@ -4290,156 +1756,9 @@ GetFriendListResponse* GetFriendListResponse::New() const {
   return new GetFriendListResponse;
 }
 
-void GetFriendListResponse::Clear() {
-  friends_.Clear();
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool GetFriendListResponse::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.friends.v1.GetFriendListResponse)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // repeated .bgs.protocol.friends.v1.Friend friends = 1;
-      case 1: {
-        if (tag == 10) {
-         parse_friends:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-                input, add_friends()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(10)) goto parse_friends;
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.friends.v1.GetFriendListResponse)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.friends.v1.GetFriendListResponse)
-  return false;
-#undef DO_
-}
-
-void GetFriendListResponse::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.friends.v1.GetFriendListResponse)
-  // repeated .bgs.protocol.friends.v1.Friend friends = 1;
-  for (int i = 0; i < this->friends_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->friends(i), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.friends.v1.GetFriendListResponse)
-}
-
-::google::protobuf::uint8* GetFriendListResponse::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.friends.v1.GetFriendListResponse)
-  // repeated .bgs.protocol.friends.v1.Friend friends = 1;
-  for (int i = 0; i < this->friends_size(); i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->friends(i), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.friends.v1.GetFriendListResponse)
-  return target;
-}
-
-int GetFriendListResponse::ByteSize() const {
-  int total_size = 0;
-
-  // repeated .bgs.protocol.friends.v1.Friend friends = 1;
-  total_size += 1 * this->friends_size();
-  for (int i = 0; i < this->friends_size(); i++) {
-    total_size +=
-      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-        this->friends(i));
-  }
-
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void GetFriendListResponse::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const GetFriendListResponse* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const GetFriendListResponse*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void GetFriendListResponse::MergeFrom(const GetFriendListResponse& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  friends_.MergeFrom(from.friends_);
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void GetFriendListResponse::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void GetFriendListResponse::CopyFrom(const GetFriendListResponse& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool GetFriendListResponse::IsInitialized() const {
-  if (!::google::protobuf::internal::AllAreInitialized(this->friends())) return false;
-  return true;
-}
-
 void GetFriendListResponse::Swap(GetFriendListResponse* other) {
   if (other != this) {
-    friends_.Swap(&other->friends_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata GetFriendListResponse::GetMetadata() const {
@@ -4480,7 +1799,6 @@ void CreateFriendshipRequest::SharedCtor() {
   _cached_size_ = 0;
   agent_id_ = NULL;
   target_id_ = NULL;
-  _role_cached_byte_size_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -4517,270 +1835,9 @@ CreateFriendshipRequest* CreateFriendshipRequest::New() const {
   return new CreateFriendshipRequest;
 }
 
-void CreateFriendshipRequest::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
-    if (has_agent_id()) {
-      if (agent_id_ != NULL) agent_id_->::bgs::protocol::EntityId::Clear();
-    }
-    if (has_target_id()) {
-      if (target_id_ != NULL) target_id_->::bgs::protocol::EntityId::Clear();
-    }
-  }
-  role_.Clear();
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool CreateFriendshipRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.friends.v1.CreateFriendshipRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.EntityId agent_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_target_id;
-        break;
-      }
-
-      // optional .bgs.protocol.EntityId target_id = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_target_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_target_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(26)) goto parse_role;
-        break;
-      }
-
-      // repeated uint32 role = 3 [packed = true];
-      case 3: {
-        if (tag == 26) {
-         parse_role:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 input, this->mutable_role())));
-        } else if (tag == 24) {
-          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 1, 26, input, this->mutable_role())));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.friends.v1.CreateFriendshipRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.friends.v1.CreateFriendshipRequest)
-  return false;
-#undef DO_
-}
-
-void CreateFriendshipRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.friends.v1.CreateFriendshipRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->agent_id(), output);
-  }
-
-  // optional .bgs.protocol.EntityId target_id = 2;
-  if (has_target_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->target_id(), output);
-  }
-
-  // repeated uint32 role = 3 [packed = true];
-  if (this->role_size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteTag(3, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
-    output->WriteVarint32(_role_cached_byte_size_);
-  }
-  for (int i = 0; i < this->role_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32NoTag(
-      this->role(i), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.friends.v1.CreateFriendshipRequest)
-}
-
-::google::protobuf::uint8* CreateFriendshipRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.friends.v1.CreateFriendshipRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->agent_id(), target);
-  }
-
-  // optional .bgs.protocol.EntityId target_id = 2;
-  if (has_target_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->target_id(), target);
-  }
-
-  // repeated uint32 role = 3 [packed = true];
-  if (this->role_size() > 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
-      3,
-      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
-      target);
-    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
-      _role_cached_byte_size_, target);
-  }
-  for (int i = 0; i < this->role_size(); i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteUInt32NoTagToArray(this->role(i), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.friends.v1.CreateFriendshipRequest)
-  return target;
-}
-
-int CreateFriendshipRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.EntityId agent_id = 1;
-    if (has_agent_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_id());
-    }
-
-    // optional .bgs.protocol.EntityId target_id = 2;
-    if (has_target_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->target_id());
-    }
-
-  }
-  // repeated uint32 role = 3 [packed = true];
-  {
-    int data_size = 0;
-    for (int i = 0; i < this->role_size(); i++) {
-      data_size += ::google::protobuf::internal::WireFormatLite::
-        UInt32Size(this->role(i));
-    }
-    if (data_size > 0) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
-    }
-    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-    _role_cached_byte_size_ = data_size;
-    GOOGLE_SAFE_CONCURRENT_WRITES_END();
-    total_size += data_size;
-  }
-
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void CreateFriendshipRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const CreateFriendshipRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const CreateFriendshipRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void CreateFriendshipRequest::MergeFrom(const CreateFriendshipRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  role_.MergeFrom(from.role_);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_agent_id()) {
-      mutable_agent_id()->::bgs::protocol::EntityId::MergeFrom(from.agent_id());
-    }
-    if (from.has_target_id()) {
-      mutable_target_id()->::bgs::protocol::EntityId::MergeFrom(from.target_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void CreateFriendshipRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void CreateFriendshipRequest::CopyFrom(const CreateFriendshipRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool CreateFriendshipRequest::IsInitialized() const {
-  if (has_agent_id()) {
-    if (!this->agent_id().IsInitialized()) return false;
-  }
-  if (has_target_id()) {
-    if (!this->target_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void CreateFriendshipRequest::Swap(CreateFriendshipRequest* other) {
   if (other != this) {
-    std::swap(agent_id_, other->agent_id_);
-    std::swap(target_id_, other->target_id_);
-    role_.Swap(&other->role_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata CreateFriendshipRequest::GetMetadata() const {
@@ -4856,209 +1913,9 @@ FriendNotification* FriendNotification::New() const {
   return new FriendNotification;
 }
 
-void FriendNotification::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
-    if (has_target()) {
-      if (target_ != NULL) target_->::bgs::protocol::friends::v1::Friend::Clear();
-    }
-    if (has_account_id()) {
-      if (account_id_ != NULL) account_id_->::bgs::protocol::EntityId::Clear();
-    }
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool FriendNotification::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.friends.v1.FriendNotification)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required .bgs.protocol.friends.v1.Friend target = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_target()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(42)) goto parse_account_id;
-        break;
-      }
-
-      // optional .bgs.protocol.EntityId account_id = 5;
-      case 5: {
-        if (tag == 42) {
-         parse_account_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_account_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.friends.v1.FriendNotification)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.friends.v1.FriendNotification)
-  return false;
-#undef DO_
-}
-
-void FriendNotification::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.friends.v1.FriendNotification)
-  // required .bgs.protocol.friends.v1.Friend target = 1;
-  if (has_target()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->target(), output);
-  }
-
-  // optional .bgs.protocol.EntityId account_id = 5;
-  if (has_account_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      5, this->account_id(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.friends.v1.FriendNotification)
-}
-
-::google::protobuf::uint8* FriendNotification::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.friends.v1.FriendNotification)
-  // required .bgs.protocol.friends.v1.Friend target = 1;
-  if (has_target()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->target(), target);
-  }
-
-  // optional .bgs.protocol.EntityId account_id = 5;
-  if (has_account_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        5, this->account_id(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.friends.v1.FriendNotification)
-  return target;
-}
-
-int FriendNotification::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required .bgs.protocol.friends.v1.Friend target = 1;
-    if (has_target()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->target());
-    }
-
-    // optional .bgs.protocol.EntityId account_id = 5;
-    if (has_account_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->account_id());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void FriendNotification::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const FriendNotification* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const FriendNotification*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void FriendNotification::MergeFrom(const FriendNotification& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_target()) {
-      mutable_target()->::bgs::protocol::friends::v1::Friend::MergeFrom(from.target());
-    }
-    if (from.has_account_id()) {
-      mutable_account_id()->::bgs::protocol::EntityId::MergeFrom(from.account_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void FriendNotification::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void FriendNotification::CopyFrom(const FriendNotification& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool FriendNotification::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-  if (has_target()) {
-    if (!this->target().IsInitialized()) return false;
-  }
-  if (has_account_id()) {
-    if (!this->account_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void FriendNotification::Swap(FriendNotification* other) {
   if (other != this) {
-    std::swap(target_, other->target_);
-    std::swap(account_id_, other->account_id_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata FriendNotification::GetMetadata() const {
@@ -5134,209 +1991,9 @@ UpdateFriendStateNotification* UpdateFriendStateNotification::New() const {
   return new UpdateFriendStateNotification;
 }
 
-void UpdateFriendStateNotification::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
-    if (has_changed_friend()) {
-      if (changed_friend_ != NULL) changed_friend_->::bgs::protocol::friends::v1::Friend::Clear();
-    }
-    if (has_account_id()) {
-      if (account_id_ != NULL) account_id_->::bgs::protocol::EntityId::Clear();
-    }
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool UpdateFriendStateNotification::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.friends.v1.UpdateFriendStateNotification)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required .bgs.protocol.friends.v1.Friend changed_friend = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_changed_friend()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(42)) goto parse_account_id;
-        break;
-      }
-
-      // optional .bgs.protocol.EntityId account_id = 5;
-      case 5: {
-        if (tag == 42) {
-         parse_account_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_account_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.friends.v1.UpdateFriendStateNotification)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.friends.v1.UpdateFriendStateNotification)
-  return false;
-#undef DO_
-}
-
-void UpdateFriendStateNotification::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.friends.v1.UpdateFriendStateNotification)
-  // required .bgs.protocol.friends.v1.Friend changed_friend = 1;
-  if (has_changed_friend()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->changed_friend(), output);
-  }
-
-  // optional .bgs.protocol.EntityId account_id = 5;
-  if (has_account_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      5, this->account_id(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.friends.v1.UpdateFriendStateNotification)
-}
-
-::google::protobuf::uint8* UpdateFriendStateNotification::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.friends.v1.UpdateFriendStateNotification)
-  // required .bgs.protocol.friends.v1.Friend changed_friend = 1;
-  if (has_changed_friend()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->changed_friend(), target);
-  }
-
-  // optional .bgs.protocol.EntityId account_id = 5;
-  if (has_account_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        5, this->account_id(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.friends.v1.UpdateFriendStateNotification)
-  return target;
-}
-
-int UpdateFriendStateNotification::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required .bgs.protocol.friends.v1.Friend changed_friend = 1;
-    if (has_changed_friend()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->changed_friend());
-    }
-
-    // optional .bgs.protocol.EntityId account_id = 5;
-    if (has_account_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->account_id());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void UpdateFriendStateNotification::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const UpdateFriendStateNotification* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const UpdateFriendStateNotification*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void UpdateFriendStateNotification::MergeFrom(const UpdateFriendStateNotification& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_changed_friend()) {
-      mutable_changed_friend()->::bgs::protocol::friends::v1::Friend::MergeFrom(from.changed_friend());
-    }
-    if (from.has_account_id()) {
-      mutable_account_id()->::bgs::protocol::EntityId::MergeFrom(from.account_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void UpdateFriendStateNotification::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void UpdateFriendStateNotification::CopyFrom(const UpdateFriendStateNotification& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool UpdateFriendStateNotification::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-  if (has_changed_friend()) {
-    if (!this->changed_friend().IsInitialized()) return false;
-  }
-  if (has_account_id()) {
-    if (!this->account_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void UpdateFriendStateNotification::Swap(UpdateFriendStateNotification* other) {
   if (other != this) {
-    std::swap(changed_friend_, other->changed_friend_);
-    std::swap(account_id_, other->account_id_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata UpdateFriendStateNotification::GetMetadata() const {
@@ -5414,246 +2071,9 @@ InvitationNotification* InvitationNotification::New() const {
   return new InvitationNotification;
 }
 
-void InvitationNotification::Clear() {
-  if (_has_bits_[0 / 32] & 7) {
-    if (has_invitation()) {
-      if (invitation_ != NULL) invitation_->::bgs::protocol::friends::v1::ReceivedInvitation::Clear();
-    }
-    reason_ = 0u;
-    if (has_account_id()) {
-      if (account_id_ != NULL) account_id_->::bgs::protocol::EntityId::Clear();
-    }
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool InvitationNotification::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.friends.v1.InvitationNotification)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required .bgs.protocol.friends.v1.ReceivedInvitation invitation = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_invitation()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(24)) goto parse_reason;
-        break;
-      }
-
-      // optional uint32 reason = 3 [default = 0];
-      case 3: {
-        if (tag == 24) {
-         parse_reason:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 input, &reason_)));
-          set_has_reason();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(42)) goto parse_account_id;
-        break;
-      }
-
-      // optional .bgs.protocol.EntityId account_id = 5;
-      case 5: {
-        if (tag == 42) {
-         parse_account_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_account_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.friends.v1.InvitationNotification)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.friends.v1.InvitationNotification)
-  return false;
-#undef DO_
-}
-
-void InvitationNotification::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.friends.v1.InvitationNotification)
-  // required .bgs.protocol.friends.v1.ReceivedInvitation invitation = 1;
-  if (has_invitation()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->invitation(), output);
-  }
-
-  // optional uint32 reason = 3 [default = 0];
-  if (has_reason()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(3, this->reason(), output);
-  }
-
-  // optional .bgs.protocol.EntityId account_id = 5;
-  if (has_account_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      5, this->account_id(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.friends.v1.InvitationNotification)
-}
-
-::google::protobuf::uint8* InvitationNotification::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.friends.v1.InvitationNotification)
-  // required .bgs.protocol.friends.v1.ReceivedInvitation invitation = 1;
-  if (has_invitation()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->invitation(), target);
-  }
-
-  // optional uint32 reason = 3 [default = 0];
-  if (has_reason()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(3, this->reason(), target);
-  }
-
-  // optional .bgs.protocol.EntityId account_id = 5;
-  if (has_account_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        5, this->account_id(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.friends.v1.InvitationNotification)
-  return target;
-}
-
-int InvitationNotification::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required .bgs.protocol.friends.v1.ReceivedInvitation invitation = 1;
-    if (has_invitation()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->invitation());
-    }
-
-    // optional uint32 reason = 3 [default = 0];
-    if (has_reason()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt32Size(
-          this->reason());
-    }
-
-    // optional .bgs.protocol.EntityId account_id = 5;
-    if (has_account_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->account_id());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void InvitationNotification::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const InvitationNotification* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const InvitationNotification*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void InvitationNotification::MergeFrom(const InvitationNotification& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_invitation()) {
-      mutable_invitation()->::bgs::protocol::friends::v1::ReceivedInvitation::MergeFrom(from.invitation());
-    }
-    if (from.has_reason()) {
-      set_reason(from.reason());
-    }
-    if (from.has_account_id()) {
-      mutable_account_id()->::bgs::protocol::EntityId::MergeFrom(from.account_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void InvitationNotification::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void InvitationNotification::CopyFrom(const InvitationNotification& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool InvitationNotification::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-  if (has_invitation()) {
-    if (!this->invitation().IsInitialized()) return false;
-  }
-  if (has_account_id()) {
-    if (!this->account_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void InvitationNotification::Swap(InvitationNotification* other) {
   if (other != this) {
-    std::swap(invitation_, other->invitation_);
-    std::swap(reason_, other->reason_);
-    std::swap(account_id_, other->account_id_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata InvitationNotification::GetMetadata() const {
@@ -5729,208 +2149,9 @@ SentInvitationAddedNotification* SentInvitationAddedNotification::New() const {
   return new SentInvitationAddedNotification;
 }
 
-void SentInvitationAddedNotification::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
-    if (has_account_id()) {
-      if (account_id_ != NULL) account_id_->::bgs::protocol::EntityId::Clear();
-    }
-    if (has_invitation()) {
-      if (invitation_ != NULL) invitation_->::bgs::protocol::friends::v1::SentInvitation::Clear();
-    }
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool SentInvitationAddedNotification::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.friends.v1.SentInvitationAddedNotification)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.EntityId account_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_account_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_invitation;
-        break;
-      }
-
-      // optional .bgs.protocol.friends.v1.SentInvitation invitation = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_invitation:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_invitation()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.friends.v1.SentInvitationAddedNotification)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.friends.v1.SentInvitationAddedNotification)
-  return false;
-#undef DO_
-}
-
-void SentInvitationAddedNotification::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.friends.v1.SentInvitationAddedNotification)
-  // optional .bgs.protocol.EntityId account_id = 1;
-  if (has_account_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->account_id(), output);
-  }
-
-  // optional .bgs.protocol.friends.v1.SentInvitation invitation = 2;
-  if (has_invitation()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->invitation(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.friends.v1.SentInvitationAddedNotification)
-}
-
-::google::protobuf::uint8* SentInvitationAddedNotification::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.friends.v1.SentInvitationAddedNotification)
-  // optional .bgs.protocol.EntityId account_id = 1;
-  if (has_account_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->account_id(), target);
-  }
-
-  // optional .bgs.protocol.friends.v1.SentInvitation invitation = 2;
-  if (has_invitation()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->invitation(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.friends.v1.SentInvitationAddedNotification)
-  return target;
-}
-
-int SentInvitationAddedNotification::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.EntityId account_id = 1;
-    if (has_account_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->account_id());
-    }
-
-    // optional .bgs.protocol.friends.v1.SentInvitation invitation = 2;
-    if (has_invitation()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->invitation());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void SentInvitationAddedNotification::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const SentInvitationAddedNotification* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const SentInvitationAddedNotification*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void SentInvitationAddedNotification::MergeFrom(const SentInvitationAddedNotification& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_account_id()) {
-      mutable_account_id()->::bgs::protocol::EntityId::MergeFrom(from.account_id());
-    }
-    if (from.has_invitation()) {
-      mutable_invitation()->::bgs::protocol::friends::v1::SentInvitation::MergeFrom(from.invitation());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void SentInvitationAddedNotification::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void SentInvitationAddedNotification::CopyFrom(const SentInvitationAddedNotification& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool SentInvitationAddedNotification::IsInitialized() const {
-  if (has_account_id()) {
-    if (!this->account_id().IsInitialized()) return false;
-  }
-  if (has_invitation()) {
-    if (!this->invitation().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void SentInvitationAddedNotification::Swap(SentInvitationAddedNotification* other) {
   if (other != this) {
-    std::swap(account_id_, other->account_id_);
-    std::swap(invitation_, other->invitation_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata SentInvitationAddedNotification::GetMetadata() const {
@@ -6006,250 +2227,9 @@ SentInvitationRemovedNotification* SentInvitationRemovedNotification::New() cons
   return new SentInvitationRemovedNotification;
 }
 
-void SentInvitationRemovedNotification::Clear() {
-#define OFFSET_OF_FIELD_(f) (reinterpret_cast<char*>(      \
-  &reinterpret_cast<SentInvitationRemovedNotification*>(16)->f) - \
-   reinterpret_cast<char*>(16))
-
-#define ZR_(first, last) do {                              \
-    size_t f = OFFSET_OF_FIELD_(first);                    \
-    size_t n = OFFSET_OF_FIELD_(last) - f + sizeof(last);  \
-    ::memset(&first, 0, n);                                \
-  } while (0)
-
-  if (_has_bits_[0 / 32] & 7) {
-    ZR_(invitation_id_, reason_);
-    if (has_account_id()) {
-      if (account_id_ != NULL) account_id_->::bgs::protocol::EntityId::Clear();
-    }
-  }
-
-#undef OFFSET_OF_FIELD_
-#undef ZR_
-
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool SentInvitationRemovedNotification::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.friends.v1.SentInvitationRemovedNotification)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.EntityId account_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_account_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(17)) goto parse_invitation_id;
-        break;
-      }
-
-      // optional fixed64 invitation_id = 2;
-      case 2: {
-        if (tag == 17) {
-         parse_invitation_id:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_FIXED64>(
-                 input, &invitation_id_)));
-          set_has_invitation_id();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(24)) goto parse_reason;
-        break;
-      }
-
-      // optional uint32 reason = 3;
-      case 3: {
-        if (tag == 24) {
-         parse_reason:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 input, &reason_)));
-          set_has_reason();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.friends.v1.SentInvitationRemovedNotification)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.friends.v1.SentInvitationRemovedNotification)
-  return false;
-#undef DO_
-}
-
-void SentInvitationRemovedNotification::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.friends.v1.SentInvitationRemovedNotification)
-  // optional .bgs.protocol.EntityId account_id = 1;
-  if (has_account_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->account_id(), output);
-  }
-
-  // optional fixed64 invitation_id = 2;
-  if (has_invitation_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteFixed64(2, this->invitation_id(), output);
-  }
-
-  // optional uint32 reason = 3;
-  if (has_reason()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(3, this->reason(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.friends.v1.SentInvitationRemovedNotification)
-}
-
-::google::protobuf::uint8* SentInvitationRemovedNotification::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.friends.v1.SentInvitationRemovedNotification)
-  // optional .bgs.protocol.EntityId account_id = 1;
-  if (has_account_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->account_id(), target);
-  }
-
-  // optional fixed64 invitation_id = 2;
-  if (has_invitation_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteFixed64ToArray(2, this->invitation_id(), target);
-  }
-
-  // optional uint32 reason = 3;
-  if (has_reason()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(3, this->reason(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.friends.v1.SentInvitationRemovedNotification)
-  return target;
-}
-
-int SentInvitationRemovedNotification::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.EntityId account_id = 1;
-    if (has_account_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->account_id());
-    }
-
-    // optional fixed64 invitation_id = 2;
-    if (has_invitation_id()) {
-      total_size += 1 + 8;
-    }
-
-    // optional uint32 reason = 3;
-    if (has_reason()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt32Size(
-          this->reason());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void SentInvitationRemovedNotification::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const SentInvitationRemovedNotification* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const SentInvitationRemovedNotification*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void SentInvitationRemovedNotification::MergeFrom(const SentInvitationRemovedNotification& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_account_id()) {
-      mutable_account_id()->::bgs::protocol::EntityId::MergeFrom(from.account_id());
-    }
-    if (from.has_invitation_id()) {
-      set_invitation_id(from.invitation_id());
-    }
-    if (from.has_reason()) {
-      set_reason(from.reason());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void SentInvitationRemovedNotification::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void SentInvitationRemovedNotification::CopyFrom(const SentInvitationRemovedNotification& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool SentInvitationRemovedNotification::IsInitialized() const {
-  if (has_account_id()) {
-    if (!this->account_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void SentInvitationRemovedNotification::Swap(SentInvitationRemovedNotification* other) {
   if (other != this) {
-    std::swap(account_id_, other->account_id_);
-    std::swap(invitation_id_, other->invitation_id_);
-    std::swap(reason_, other->reason_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata SentInvitationRemovedNotification::GetMetadata() const {
@@ -6262,7 +2242,7 @@ void SentInvitationRemovedNotification::Swap(SentInvitationRemovedNotification* 
 
 // ===================================================================
 
-FriendsService::FriendsService(bool use_original_hash) : service_hash_(use_original_hash ? OriginalHash::value : NameHash::value) {
+FriendsService::FriendsService(bool use_original_hash) : ServiceBase(use_original_hash ? OriginalHash::value : NameHash::value) {
 }
 
 FriendsService::~FriendsService() {
@@ -6275,432 +2255,315 @@ google::protobuf::ServiceDescriptor const* FriendsService::descriptor() {
 
 void FriendsService::CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) {
   switch(methodId & 0x3FFFFFFF) {
-    case 1: {
-      ::bgs::protocol::friends::v1::SubscribeRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for FriendsService.Subscribe server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.Subscribe(bgs.protocol.friends.v1.SubscribeRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::friends::v1::SubscribeResponse::descriptor());
-        FriendsService* self = static_cast<FriendsService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.Subscribe() returned bgs.protocol.friends.v1.SubscribeResponse{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::friends::v1::SubscribeResponse response;
-      uint32 status = HandleSubscribe(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
+    case 1:
+      ParseAndHandleSubscribe(token, methodId, buffer);
       break;
-    }
-    case 2: {
-      ::bgs::protocol::friends::v1::SendInvitationRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for FriendsService.SendInvitation server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.SendInvitation(bgs.protocol.friends.v1.SendInvitationRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
-        FriendsService* self = static_cast<FriendsService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.SendInvitation() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::NoData response;
-      uint32 status = HandleSendInvitation(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
+    case 2:
+      ParseAndHandleSendInvitation(token, methodId, buffer);
       break;
-    }
-    case 3: {
-      ::bgs::protocol::friends::v1::AcceptInvitationRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for FriendsService.AcceptInvitation server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.AcceptInvitation(bgs.protocol.friends.v1.AcceptInvitationRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
-        FriendsService* self = static_cast<FriendsService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.AcceptInvitation() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::NoData response;
-      uint32 status = HandleAcceptInvitation(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
+    case 3:
+      ParseAndHandleAcceptInvitation(token, methodId, buffer);
       break;
-    }
-    case 4: {
-      ::bgs::protocol::friends::v1::RevokeInvitationRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for FriendsService.RevokeInvitation server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.RevokeInvitation(bgs.protocol.friends.v1.RevokeInvitationRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
-        FriendsService* self = static_cast<FriendsService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.RevokeInvitation() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::NoData response;
-      uint32 status = HandleRevokeInvitation(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
+    case 4:
+      ParseAndHandleRevokeInvitation(token, methodId, buffer);
       break;
-    }
-    case 5: {
-      ::bgs::protocol::friends::v1::DeclineInvitationRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for FriendsService.DeclineInvitation server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.DeclineInvitation(bgs.protocol.friends.v1.DeclineInvitationRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
-        FriendsService* self = static_cast<FriendsService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.DeclineInvitation() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::NoData response;
-      uint32 status = HandleDeclineInvitation(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
+    case 5:
+      ParseAndHandleDeclineInvitation(token, methodId, buffer);
       break;
-    }
-    case 6: {
-      ::bgs::protocol::friends::v1::IgnoreInvitationRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for FriendsService.IgnoreInvitation server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.IgnoreInvitation(bgs.protocol.friends.v1.IgnoreInvitationRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
-        FriendsService* self = static_cast<FriendsService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.IgnoreInvitation() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::NoData response;
-      uint32 status = HandleIgnoreInvitation(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
+    case 6:
+      ParseAndHandleIgnoreInvitation(token, methodId, buffer);
       break;
-    }
-    case 8: {
-      ::bgs::protocol::friends::v1::RemoveFriendRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for FriendsService.RemoveFriend server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.RemoveFriend(bgs.protocol.friends.v1.RemoveFriendRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
-        FriendsService* self = static_cast<FriendsService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.RemoveFriend() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::NoData response;
-      uint32 status = HandleRemoveFriend(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
+    case 8:
+      ParseAndHandleRemoveFriend(token, methodId, buffer);
       break;
-    }
-    case 9: {
-      ::bgs::protocol::friends::v1::ViewFriendsRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for FriendsService.ViewFriends server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.ViewFriends(bgs.protocol.friends.v1.ViewFriendsRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::friends::v1::ViewFriendsResponse::descriptor());
-        FriendsService* self = static_cast<FriendsService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.ViewFriends() returned bgs.protocol.friends.v1.ViewFriendsResponse{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::friends::v1::ViewFriendsResponse response;
-      uint32 status = HandleViewFriends(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
+    case 9:
+      ParseAndHandleViewFriends(token, methodId, buffer);
       break;
-    }
-    case 10: {
-      ::bgs::protocol::friends::v1::UpdateFriendStateRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for FriendsService.UpdateFriendState server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.UpdateFriendState(bgs.protocol.friends.v1.UpdateFriendStateRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
-        FriendsService* self = static_cast<FriendsService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.UpdateFriendState() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::NoData response;
-      uint32 status = HandleUpdateFriendState(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
+    case 10:
+      ParseAndHandleUpdateFriendState(token, methodId, buffer);
       break;
-    }
-    case 11: {
-      ::bgs::protocol::friends::v1::UnsubscribeRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for FriendsService.Unsubscribe server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.Unsubscribe(bgs.protocol.friends.v1.UnsubscribeRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
-        FriendsService* self = static_cast<FriendsService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.Unsubscribe() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::NoData response;
-      uint32 status = HandleUnsubscribe(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
+    case 11:
+      ParseAndHandleUnsubscribe(token, methodId, buffer);
       break;
-    }
-    case 12: {
-      ::bgs::protocol::friends::v1::RevokeAllInvitationsRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for FriendsService.RevokeAllInvitations server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.RevokeAllInvitations(bgs.protocol.friends.v1.RevokeAllInvitationsRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
-        FriendsService* self = static_cast<FriendsService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.RevokeAllInvitations() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::NoData response;
-      uint32 status = HandleRevokeAllInvitations(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
+    case 12:
+      ParseAndHandleRevokeAllInvitations(token, methodId, buffer);
       break;
-    }
-    case 13: {
-      ::bgs::protocol::friends::v1::GetFriendListRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for FriendsService.GetFriendList server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.GetFriendList(bgs.protocol.friends.v1.GetFriendListRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::friends::v1::GetFriendListResponse::descriptor());
-        FriendsService* self = static_cast<FriendsService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.GetFriendList() returned bgs.protocol.friends.v1.GetFriendListResponse{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::friends::v1::GetFriendListResponse response;
-      uint32 status = HandleGetFriendList(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
+    case 13:
+      ParseAndHandleGetFriendList(token, methodId, buffer);
       break;
-    }
-    case 14: {
-      ::bgs::protocol::friends::v1::CreateFriendshipRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for FriendsService.CreateFriendship server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.CreateFriendship(bgs.protocol.friends.v1.CreateFriendshipRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
-        FriendsService* self = static_cast<FriendsService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method FriendsService.CreateFriendship() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::NoData response;
-      uint32 status = HandleCreateFriendship(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
+    case 14:
+      ParseAndHandleCreateFriendship(token, methodId, buffer);
       break;
-    }
     default:
-      TC_LOG_ERROR("service.protobuf", "Bad method id %u.", methodId);
+      LogInvalidMethod(methodId);
       SendResponse(service_hash_, methodId, token, ERROR_RPC_INVALID_METHOD);
       break;
     }
 }
 
-uint32 FriendsService::HandleSubscribe(::bgs::protocol::friends::v1::SubscribeRequest const* request, ::bgs::protocol::friends::v1::SubscribeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method FriendsService.Subscribe({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+uint32 FriendsService::HandleSubscribe(::bgs::protocol::friends::v1::SubscribeRequest const* request, ::bgs::protocol::friends::v1::SubscribeResponse* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("FriendsService.Subscribe", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 FriendsService::HandleSendInvitation(::bgs::protocol::friends::v1::SendInvitationRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method FriendsService.SendInvitation({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+uint32 FriendsService::HandleSendInvitation(::bgs::protocol::friends::v1::SendInvitationRequest const* request, ::bgs::protocol::NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("FriendsService.SendInvitation", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 FriendsService::HandleAcceptInvitation(::bgs::protocol::friends::v1::AcceptInvitationRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method FriendsService.AcceptInvitation({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+uint32 FriendsService::HandleAcceptInvitation(::bgs::protocol::friends::v1::AcceptInvitationRequest const* request, ::bgs::protocol::NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("FriendsService.AcceptInvitation", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 FriendsService::HandleRevokeInvitation(::bgs::protocol::friends::v1::RevokeInvitationRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method FriendsService.RevokeInvitation({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+uint32 FriendsService::HandleRevokeInvitation(::bgs::protocol::friends::v1::RevokeInvitationRequest const* request, ::bgs::protocol::NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("FriendsService.RevokeInvitation", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 FriendsService::HandleDeclineInvitation(::bgs::protocol::friends::v1::DeclineInvitationRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method FriendsService.DeclineInvitation({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+uint32 FriendsService::HandleDeclineInvitation(::bgs::protocol::friends::v1::DeclineInvitationRequest const* request, ::bgs::protocol::NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("FriendsService.DeclineInvitation", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 FriendsService::HandleIgnoreInvitation(::bgs::protocol::friends::v1::IgnoreInvitationRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method FriendsService.IgnoreInvitation({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+uint32 FriendsService::HandleIgnoreInvitation(::bgs::protocol::friends::v1::IgnoreInvitationRequest const* request, ::bgs::protocol::NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("FriendsService.IgnoreInvitation", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 FriendsService::HandleRemoveFriend(::bgs::protocol::friends::v1::RemoveFriendRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method FriendsService.RemoveFriend({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+uint32 FriendsService::HandleRemoveFriend(::bgs::protocol::friends::v1::RemoveFriendRequest const* request, ::bgs::protocol::NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("FriendsService.RemoveFriend", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 FriendsService::HandleViewFriends(::bgs::protocol::friends::v1::ViewFriendsRequest const* request, ::bgs::protocol::friends::v1::ViewFriendsResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method FriendsService.ViewFriends({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+uint32 FriendsService::HandleViewFriends(::bgs::protocol::friends::v1::ViewFriendsRequest const* request, ::bgs::protocol::friends::v1::ViewFriendsResponse* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("FriendsService.ViewFriends", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 FriendsService::HandleUpdateFriendState(::bgs::protocol::friends::v1::UpdateFriendStateRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method FriendsService.UpdateFriendState({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+uint32 FriendsService::HandleUpdateFriendState(::bgs::protocol::friends::v1::UpdateFriendStateRequest const* request, ::bgs::protocol::NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("FriendsService.UpdateFriendState", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 FriendsService::HandleUnsubscribe(::bgs::protocol::friends::v1::UnsubscribeRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method FriendsService.Unsubscribe({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+uint32 FriendsService::HandleUnsubscribe(::bgs::protocol::friends::v1::UnsubscribeRequest const* request, ::bgs::protocol::NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("FriendsService.Unsubscribe", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 FriendsService::HandleRevokeAllInvitations(::bgs::protocol::friends::v1::RevokeAllInvitationsRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method FriendsService.RevokeAllInvitations({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+uint32 FriendsService::HandleRevokeAllInvitations(::bgs::protocol::friends::v1::RevokeAllInvitationsRequest const* request, ::bgs::protocol::NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("FriendsService.RevokeAllInvitations", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 FriendsService::HandleGetFriendList(::bgs::protocol::friends::v1::GetFriendListRequest const* request, ::bgs::protocol::friends::v1::GetFriendListResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method FriendsService.GetFriendList({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+uint32 FriendsService::HandleGetFriendList(::bgs::protocol::friends::v1::GetFriendListRequest const* request, ::bgs::protocol::friends::v1::GetFriendListResponse* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("FriendsService.GetFriendList", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 FriendsService::HandleCreateFriendship(::bgs::protocol::friends::v1::CreateFriendshipRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method FriendsService.CreateFriendship({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+uint32 FriendsService::HandleCreateFriendship(::bgs::protocol::friends::v1::CreateFriendshipRequest const* request, ::bgs::protocol::NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("FriendsService.CreateFriendship", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
+}
+
+void FriendsService::ParseAndHandleSubscribe(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::friends::v1::SubscribeRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("FriendsService.Subscribe");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("FriendsService.Subscribe", "bgs.protocol.friends.v1.SubscribeRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "FriendsService.Subscribe", ::bgs::protocol::friends::v1::SubscribeResponse::descriptor());
+  ::bgs::protocol::friends::v1::SubscribeResponse response;
+  uint32 status = HandleSubscribe(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
+}
+
+void FriendsService::ParseAndHandleSendInvitation(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::friends::v1::SendInvitationRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("FriendsService.SendInvitation");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("FriendsService.SendInvitation", "bgs.protocol.friends.v1.SendInvitationRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "FriendsService.SendInvitation", ::bgs::protocol::NoData::descriptor());
+  ::bgs::protocol::NoData response;
+  uint32 status = HandleSendInvitation(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
+}
+
+void FriendsService::ParseAndHandleAcceptInvitation(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::friends::v1::AcceptInvitationRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("FriendsService.AcceptInvitation");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("FriendsService.AcceptInvitation", "bgs.protocol.friends.v1.AcceptInvitationRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "FriendsService.AcceptInvitation", ::bgs::protocol::NoData::descriptor());
+  ::bgs::protocol::NoData response;
+  uint32 status = HandleAcceptInvitation(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
+}
+
+void FriendsService::ParseAndHandleRevokeInvitation(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::friends::v1::RevokeInvitationRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("FriendsService.RevokeInvitation");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("FriendsService.RevokeInvitation", "bgs.protocol.friends.v1.RevokeInvitationRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "FriendsService.RevokeInvitation", ::bgs::protocol::NoData::descriptor());
+  ::bgs::protocol::NoData response;
+  uint32 status = HandleRevokeInvitation(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
+}
+
+void FriendsService::ParseAndHandleDeclineInvitation(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::friends::v1::DeclineInvitationRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("FriendsService.DeclineInvitation");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("FriendsService.DeclineInvitation", "bgs.protocol.friends.v1.DeclineInvitationRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "FriendsService.DeclineInvitation", ::bgs::protocol::NoData::descriptor());
+  ::bgs::protocol::NoData response;
+  uint32 status = HandleDeclineInvitation(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
+}
+
+void FriendsService::ParseAndHandleIgnoreInvitation(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::friends::v1::IgnoreInvitationRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("FriendsService.IgnoreInvitation");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("FriendsService.IgnoreInvitation", "bgs.protocol.friends.v1.IgnoreInvitationRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "FriendsService.IgnoreInvitation", ::bgs::protocol::NoData::descriptor());
+  ::bgs::protocol::NoData response;
+  uint32 status = HandleIgnoreInvitation(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
+}
+
+void FriendsService::ParseAndHandleRemoveFriend(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::friends::v1::RemoveFriendRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("FriendsService.RemoveFriend");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("FriendsService.RemoveFriend", "bgs.protocol.friends.v1.RemoveFriendRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "FriendsService.RemoveFriend", ::bgs::protocol::NoData::descriptor());
+  ::bgs::protocol::NoData response;
+  uint32 status = HandleRemoveFriend(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
+}
+
+void FriendsService::ParseAndHandleViewFriends(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::friends::v1::ViewFriendsRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("FriendsService.ViewFriends");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("FriendsService.ViewFriends", "bgs.protocol.friends.v1.ViewFriendsRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "FriendsService.ViewFriends", ::bgs::protocol::friends::v1::ViewFriendsResponse::descriptor());
+  ::bgs::protocol::friends::v1::ViewFriendsResponse response;
+  uint32 status = HandleViewFriends(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
+}
+
+void FriendsService::ParseAndHandleUpdateFriendState(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::friends::v1::UpdateFriendStateRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("FriendsService.UpdateFriendState");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("FriendsService.UpdateFriendState", "bgs.protocol.friends.v1.UpdateFriendStateRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "FriendsService.UpdateFriendState", ::bgs::protocol::NoData::descriptor());
+  ::bgs::protocol::NoData response;
+  uint32 status = HandleUpdateFriendState(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
+}
+
+void FriendsService::ParseAndHandleUnsubscribe(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::friends::v1::UnsubscribeRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("FriendsService.Unsubscribe");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("FriendsService.Unsubscribe", "bgs.protocol.friends.v1.UnsubscribeRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "FriendsService.Unsubscribe", ::bgs::protocol::NoData::descriptor());
+  ::bgs::protocol::NoData response;
+  uint32 status = HandleUnsubscribe(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
+}
+
+void FriendsService::ParseAndHandleRevokeAllInvitations(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::friends::v1::RevokeAllInvitationsRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("FriendsService.RevokeAllInvitations");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("FriendsService.RevokeAllInvitations", "bgs.protocol.friends.v1.RevokeAllInvitationsRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "FriendsService.RevokeAllInvitations", ::bgs::protocol::NoData::descriptor());
+  ::bgs::protocol::NoData response;
+  uint32 status = HandleRevokeAllInvitations(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
+}
+
+void FriendsService::ParseAndHandleGetFriendList(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::friends::v1::GetFriendListRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("FriendsService.GetFriendList");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("FriendsService.GetFriendList", "bgs.protocol.friends.v1.GetFriendListRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "FriendsService.GetFriendList", ::bgs::protocol::friends::v1::GetFriendListResponse::descriptor());
+  ::bgs::protocol::friends::v1::GetFriendListResponse response;
+  uint32 status = HandleGetFriendList(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
+}
+
+void FriendsService::ParseAndHandleCreateFriendship(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::friends::v1::CreateFriendshipRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("FriendsService.CreateFriendship");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("FriendsService.CreateFriendship", "bgs.protocol.friends.v1.CreateFriendshipRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "FriendsService.CreateFriendship", ::bgs::protocol::NoData::descriptor());
+  ::bgs::protocol::NoData response;
+  uint32 status = HandleCreateFriendship(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
 }
 
 // ===================================================================
 
-FriendsListener::FriendsListener(bool use_original_hash) : service_hash_(use_original_hash ? OriginalHash::value : NameHash::value) {
+FriendsListener::FriendsListener(bool use_original_hash) : ServiceBase(use_original_hash ? OriginalHash::value : NameHash::value) {
 }
 
 FriendsListener::~FriendsListener() {
@@ -6712,50 +2575,42 @@ google::protobuf::ServiceDescriptor const* FriendsListener::descriptor() {
 }
 
 void FriendsListener::OnFriendAdded(::bgs::protocol::friends::v1::FriendNotification const* request, bool client /*= false*/, bool server /*= false*/) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsListener.OnFriendAdded(bgs.protocol.friends.v1.FriendNotification{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  LogCallClientMethod("FriendsListener.OnFriendAdded", "bgs.protocol.friends.v1.FriendNotification", request);
   SendRequest(service_hash_, 1 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
 void FriendsListener::OnFriendRemoved(::bgs::protocol::friends::v1::FriendNotification const* request, bool client /*= false*/, bool server /*= false*/) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsListener.OnFriendRemoved(bgs.protocol.friends.v1.FriendNotification{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  LogCallClientMethod("FriendsListener.OnFriendRemoved", "bgs.protocol.friends.v1.FriendNotification", request);
   SendRequest(service_hash_, 2 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
 void FriendsListener::OnReceivedInvitationAdded(::bgs::protocol::friends::v1::InvitationNotification const* request, bool client /*= false*/, bool server /*= false*/) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsListener.OnReceivedInvitationAdded(bgs.protocol.friends.v1.InvitationNotification{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  LogCallClientMethod("FriendsListener.OnReceivedInvitationAdded", "bgs.protocol.friends.v1.InvitationNotification", request);
   SendRequest(service_hash_, 3 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
 void FriendsListener::OnReceivedInvitationRemoved(::bgs::protocol::friends::v1::InvitationNotification const* request, bool client /*= false*/, bool server /*= false*/) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsListener.OnReceivedInvitationRemoved(bgs.protocol.friends.v1.InvitationNotification{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  LogCallClientMethod("FriendsListener.OnReceivedInvitationRemoved", "bgs.protocol.friends.v1.InvitationNotification", request);
   SendRequest(service_hash_, 4 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
 void FriendsListener::OnSentInvitationAdded(::bgs::protocol::friends::v1::SentInvitationAddedNotification const* request, bool client /*= false*/, bool server /*= false*/) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsListener.OnSentInvitationAdded(bgs.protocol.friends.v1.SentInvitationAddedNotification{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  LogCallClientMethod("FriendsListener.OnSentInvitationAdded", "bgs.protocol.friends.v1.SentInvitationAddedNotification", request);
   SendRequest(service_hash_, 5 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
 void FriendsListener::OnSentInvitationRemoved(::bgs::protocol::friends::v1::SentInvitationRemovedNotification const* request, bool client /*= false*/, bool server /*= false*/) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsListener.OnSentInvitationRemoved(bgs.protocol.friends.v1.SentInvitationRemovedNotification{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  LogCallClientMethod("FriendsListener.OnSentInvitationRemoved", "bgs.protocol.friends.v1.SentInvitationRemovedNotification", request);
   SendRequest(service_hash_, 6 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
 void FriendsListener::OnUpdateFriendState(::bgs::protocol::friends::v1::UpdateFriendStateNotification const* request, bool client /*= false*/, bool server /*= false*/) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method FriendsListener.OnUpdateFriendState(bgs.protocol.friends.v1.UpdateFriendStateNotification{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  LogCallClientMethod("FriendsListener.OnUpdateFriendState", "bgs.protocol.friends.v1.UpdateFriendStateNotification", request);
   SendRequest(service_hash_, 7 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
-void FriendsListener::CallServerMethod(uint32 token, uint32 methodId, MessageBuffer /*buffer*/) {
-  TC_LOG_ERROR("service.protobuf", "%s Server tried to call server method %u",
-    GetCallerInfo().c_str(), methodId);
+void FriendsListener::CallServerMethod(uint32 /*token*/, uint32 methodId, MessageBuffer /*buffer*/) {
+  LogDisallowedMethod(methodId);
 }
 
 // @@protoc_insertion_point(namespace_scope)
