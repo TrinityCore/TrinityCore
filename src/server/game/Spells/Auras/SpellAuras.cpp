@@ -1799,6 +1799,9 @@ uint32 Aura::GetProcEffectMask(AuraApplication* aurApp, ProcEventInfo& eventInfo
 
         if (spell->GetSpellInfo()->HasAttribute(SPELL_ATTR4_SUPPRESS_WEAPON_PROCS) && GetSpellInfo()->HasAttribute(SPELL_ATTR6_AURA_IS_WEAPON_PROC))
             return 0;
+
+        if (GetSpellInfo()->HasAttribute(SPELL_ATTR12_ONLY_PROC_FROM_CLASS_ABILITIES) && !spell->GetSpellInfo()->HasAttribute(SPELL_ATTR13_ALLOW_CLASS_ABILITY_PROCS))
+            return 0;
     }
 
     // check don't break stealth attr present
