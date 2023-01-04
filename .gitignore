@@ -58,3 +58,4 @@ cmake-build-*/*
 /out/build/x64-Debug/bin/bnetserver.pdb
 /out/build/x64-Debug/bin/bnetserver.exe.manifest
 /out/build/x64-Debug/bin/bnetserver.exe
+/837数据迁移/world/creature/2023_01_02_03_world.sql
