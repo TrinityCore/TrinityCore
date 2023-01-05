@@ -35,6 +35,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "Vehicle.h"
+#include <boost/container/flat_set.hpp>
 #include <G3D/g3dmath.h>
 
 uint32 GetTargetFlagMask(SpellTargetObjectTypes objType)
@@ -217,12 +218,25 @@ uint32 SpellImplicitTargetInfo::GetExplicitTargetMask(bool& srcSet, bool& dstSet
     return targetMask;
 }
 
-ImmunityInfo::ImmunityInfo() = default;
-ImmunityInfo::~ImmunityInfo() = default;
-ImmunityInfo::ImmunityInfo(ImmunityInfo const&) = default;
-ImmunityInfo::ImmunityInfo(ImmunityInfo&&) noexcept = default;
-ImmunityInfo& ImmunityInfo::operator=(ImmunityInfo const&) = default;
-ImmunityInfo& ImmunityInfo::operator=(ImmunityInfo&&) noexcept = default;
+struct SpellEffectInfo::ImmunityInfo
+{
+    ImmunityInfo() = default;
+    ~ImmunityInfo() = default;
+
+    ImmunityInfo(ImmunityInfo const&) = delete;
+    ImmunityInfo(ImmunityInfo&&) noexcept = delete;
+    ImmunityInfo& operator=(ImmunityInfo const&) = delete;
+    ImmunityInfo& operator=(ImmunityInfo&&) noexcept = delete;
+
+    uint32 SchoolImmuneMask = 0;
+    uint32 ApplyHarmfulAuraImmuneMask = 0;
+    uint64 MechanicImmuneMask = 0;
+    uint32 DispelImmune = 0;
+    uint32 DamageSchoolMask = 0;
+
+    boost::container::flat_set<AuraType> AuraTypeImmune;
+    boost::container::flat_set<SpellEffectName> SpellEffectImmune;
+};
 
 std::array<SpellImplicitTargetInfo::StaticData, TOTAL_SPELL_TARGETS> SpellImplicitTargetInfo::_data =
 { {
@@ -386,7 +400,7 @@ SpellEffectInfo::SpellEffectInfo(SpellInfo const* spellInfo): _spellInfo(spellIn
     BonusCoefficient(0), MiscValue(0), MiscValueB(0), Mechanic(MECHANIC_NONE), PositionFacing(0),
     RadiusEntry(nullptr), MaxRadiusEntry(nullptr), ChainTargets(0), ItemType(0), TriggerSpell(0),
     BonusCoefficientFromAP(0.0f), ImplicitTargetConditions(nullptr),
-    EffectAttributes(SpellEffectAttributes::None), Scaling()
+    EffectAttributes(SpellEffectAttributes::None), Scaling(), _immunityInfo(nullptr)
 {
 }
 
@@ -425,13 +439,18 @@ SpellEffectInfo::SpellEffectInfo(SpellInfo const* spellInfo, SpellEffectEntry co
     Scaling.ResourceCoefficient = _effect.ResourceCoefficient;
     ImplicitTargetConditions = nullptr;
     EffectAttributes = _effect.GetEffectAttributes();
+    _immunityInfo = nullptr;
 }
 
 SpellEffectInfo::SpellEffectInfo(SpellEffectInfo const&) = default;
 SpellEffectInfo::SpellEffectInfo(SpellEffectInfo&&) noexcept = default;
-SpellEffectInfo::~SpellEffectInfo() = default;
 SpellEffectInfo& SpellEffectInfo::operator=(SpellEffectInfo const&) = default;
 SpellEffectInfo& SpellEffectInfo::operator=(SpellEffectInfo&&) noexcept = default;
+
+SpellEffectInfo::~SpellEffectInfo()
+{
+    delete _immunityInfo;
+}
 
 bool SpellEffectInfo::IsEffect() const
 {
@@ -3226,6 +3245,8 @@ int32 SpellInfo::GetDiminishingReturnsLimitDuration() const
 
 void SpellInfo::_LoadImmunityInfo()
 {
+    std::unique_ptr<SpellEffectInfo::ImmunityInfo> workBuffer = std::make_unique<SpellEffectInfo::ImmunityInfo>();
+
     for (SpellEffectInfo& effect : _effects)
     {
         uint32 schoolImmunityMask = 0;
@@ -3237,7 +3258,7 @@ void SpellInfo::_LoadImmunityInfo()
         int32 miscVal = effect.MiscValue;
         int32 amount = effect.CalcValue();
 
-        ImmunityInfo& immuneInfo = effect._immunityInfo;
+        SpellEffectInfo::ImmunityInfo& immuneInfo = *workBuffer;
 
         switch (effect.ApplyAuraName)
         {
@@ -3432,7 +3453,7 @@ void SpellInfo::_LoadImmunityInfo()
                         break;
                     default:
                         if (miscVal < 1)
-                            return;
+                            break;
 
                         mechanicImmunityMask |= UI64LIT(1) << miscVal;
                         break;
@@ -3482,6 +3503,18 @@ void SpellInfo::_LoadImmunityInfo()
         immuneInfo.AuraTypeImmune.shrink_to_fit();
         immuneInfo.SpellEffectImmune.shrink_to_fit();
 
+        if (immuneInfo.SchoolImmuneMask
+            || immuneInfo.ApplyHarmfulAuraImmuneMask
+            || immuneInfo.MechanicImmuneMask
+            || immuneInfo.DispelImmune
+            || immuneInfo.DamageSchoolMask
+            || !immuneInfo.AuraTypeImmune.empty()
+            || !immuneInfo.SpellEffectImmune.empty())
+        {
+            effect._immunityInfo = workBuffer.release();
+            workBuffer = std::make_unique<SpellEffectInfo::ImmunityInfo>();
+        }
+
         _allowedMechanicMask |= immuneInfo.MechanicImmuneMask;
     }
 
@@ -3525,9 +3558,11 @@ void SpellInfo::_LoadImmunityInfo()
 
 void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, SpellEffectInfo const& spellEffectInfo, bool apply) const
 {
-    ImmunityInfo const& immuneInfo = spellEffectInfo.GetImmunityInfo();
+    SpellEffectInfo::ImmunityInfo const* immuneInfo = spellEffectInfo.GetImmunityInfo();
+    if (!immuneInfo)
+        return;
 
-    if (uint32 schoolImmunity = immuneInfo.SchoolImmuneMask)
+    if (uint32 schoolImmunity = immuneInfo->SchoolImmuneMask)
     {
         target->ApplySpellImmune(Id, IMMUNITY_SCHOOL, schoolImmunity, apply);
 
@@ -3548,7 +3583,7 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, SpellEffectInfo const& s
             target->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::InvulnerabilityBuff);
     }
 
-    if (uint64 mechanicImmunity = immuneInfo.MechanicImmuneMask)
+    if (uint64 mechanicImmunity = immuneInfo->MechanicImmuneMask)
     {
         for (uint32 i = 0; i < MAX_MECHANIC; ++i)
             if (mechanicImmunity & (UI64LIT(1) << i))
@@ -3573,7 +3608,7 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, SpellEffectInfo const& s
         }
     }
 
-    if (uint32 dispelImmunity = immuneInfo.DispelImmune)
+    if (uint32 dispelImmunity = immuneInfo->DispelImmune)
     {
         target->ApplySpellImmune(Id, IMMUNITY_DISPEL, dispelImmunity, apply);
 
@@ -3590,7 +3625,7 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, SpellEffectInfo const& s
         }
     }
 
-    if (uint32 damageImmunity = immuneInfo.DamageSchoolMask)
+    if (uint32 damageImmunity = immuneInfo->DamageSchoolMask)
     {
         target->ApplySpellImmune(Id, IMMUNITY_DAMAGE, damageImmunity, apply);
 
@@ -3598,7 +3633,7 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, SpellEffectInfo const& s
             target->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::InvulnerabilityBuff);
     }
 
-    for (AuraType auraType : immuneInfo.AuraTypeImmune)
+    for (AuraType auraType : immuneInfo->AuraTypeImmune)
     {
         target->ApplySpellImmune(Id, IMMUNITY_STATE, auraType, apply);
         if (apply && HasAttribute(SPELL_ATTR1_IMMUNITY_PURGES_EFFECT))
@@ -3609,7 +3644,7 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, SpellEffectInfo const& s
             });
     }
 
-    for (SpellEffectName effectType : immuneInfo.SpellEffectImmune)
+    for (SpellEffectName effectType : immuneInfo->SpellEffectImmune)
         target->ApplySpellImmune(Id, IMMUNITY_EFFECT, effectType, apply);
 }
 
@@ -3623,20 +3658,22 @@ bool SpellInfo::CanSpellProvideImmunityAgainstAura(SpellInfo const* auraSpellInf
         if (!effectInfo.IsEffect())
             continue;
 
-        ImmunityInfo const& immuneInfo = effectInfo.GetImmunityInfo();
+        SpellEffectInfo::ImmunityInfo const* immuneInfo = effectInfo.GetImmunityInfo();
+        if (!immuneInfo)
+            continue;
 
         if (!auraSpellInfo->HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS) && !auraSpellInfo->HasAttribute(SPELL_ATTR2_NO_SCHOOL_IMMUNITIES))
         {
-            if (uint32 schoolImmunity = immuneInfo.SchoolImmuneMask)
+            if (uint32 schoolImmunity = immuneInfo->SchoolImmuneMask)
                 if ((auraSpellInfo->SchoolMask & schoolImmunity) != 0)
                     return true;
         }
 
-        if (uint64 mechanicImmunity = immuneInfo.MechanicImmuneMask)
+        if (uint64 mechanicImmunity = immuneInfo->MechanicImmuneMask)
             if ((mechanicImmunity & (UI64LIT(1) << auraSpellInfo->Mechanic)) != 0)
                 return true;
 
-        if (uint32 dispelImmunity = immuneInfo.DispelImmune)
+        if (uint32 dispelImmunity = immuneInfo->DispelImmune)
             if (auraSpellInfo->Dispel == dispelImmunity)
                 return true;
 
@@ -3646,8 +3683,8 @@ bool SpellInfo::CanSpellProvideImmunityAgainstAura(SpellInfo const* auraSpellInf
             if (!auraSpellEffectInfo.IsEffect())
                 continue;
 
-            auto spellImmuneItr = immuneInfo.SpellEffectImmune.find(auraSpellEffectInfo.Effect);
-            if (spellImmuneItr == immuneInfo.SpellEffectImmune.cend())
+            auto spellImmuneItr = immuneInfo->SpellEffectImmune.find(auraSpellEffectInfo.Effect);
+            if (spellImmuneItr == immuneInfo->SpellEffectImmune.cend())
             {
                 immuneToAllEffects = false;
                 break;
@@ -3655,7 +3692,7 @@ bool SpellInfo::CanSpellProvideImmunityAgainstAura(SpellInfo const* auraSpellInf
 
             if (uint32 mechanic = auraSpellEffectInfo.Mechanic)
             {
-                if (!(immuneInfo.MechanicImmuneMask & (UI64LIT(1) << mechanic)))
+                if (!(immuneInfo->MechanicImmuneMask & (UI64LIT(1) << mechanic)))
                 {
                     immuneToAllEffects = false;
                     break;
@@ -3667,13 +3704,13 @@ bool SpellInfo::CanSpellProvideImmunityAgainstAura(SpellInfo const* auraSpellInf
                 if (AuraType auraName = auraSpellEffectInfo.ApplyAuraName)
                 {
                     bool isImmuneToAuraEffectApply = false;
-                    auto auraImmuneItr = immuneInfo.AuraTypeImmune.find(auraName);
-                    if (auraImmuneItr != immuneInfo.AuraTypeImmune.cend())
+                    auto auraImmuneItr = immuneInfo->AuraTypeImmune.find(auraName);
+                    if (auraImmuneItr != immuneInfo->AuraTypeImmune.cend())
                         isImmuneToAuraEffectApply = true;
 
                     if (!isImmuneToAuraEffectApply && !auraSpellInfo->IsPositiveEffect(auraSpellEffectInfo.EffectIndex) && !auraSpellInfo->HasAttribute(SPELL_ATTR2_NO_SCHOOL_IMMUNITIES))
                     {
-                        if (uint32 applyHarmfulAuraImmunityMask = immuneInfo.ApplyHarmfulAuraImmuneMask)
+                        if (uint32 applyHarmfulAuraImmunityMask = immuneInfo->ApplyHarmfulAuraImmuneMask)
                             if ((auraSpellInfo->GetSchoolMask() & applyHarmfulAuraImmunityMask) != 0)
                                 isImmuneToAuraEffectApply = true;
                     }
