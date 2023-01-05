@@ -1,8 +1,8 @@
 @echo off
 set num=10
-echo %num%æ¬¡push
+echo ±¾³ÌÐò¹²Ö´ÐÐ%num%´Îpush...
 cd /d D:\Program Files (x86)\WOWDIY\TrinityCore
 for /l %%i in (1,1,%num%) do (
-echo ç¬¬%%iæ¬¡push
+echo µÚ%%i´Îpush
  git push
 )
