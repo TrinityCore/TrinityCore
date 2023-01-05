@@ -1,0 +1,3 @@
+D:\Program Files (x86)\WOWDIY\TrinityCore\.git\hooks\post-checkout
+
+提示git lfs不可用需要删除
