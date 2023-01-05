@@ -1,5 +1,5 @@
 @echo off
-echo æ— é™push
+echo ÎŞÏŞpush
 cd /d D:\Program Files (x86)\WOWDIY\TrinityCore
 :push
 git push
