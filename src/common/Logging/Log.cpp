@@ -20,6 +20,7 @@
 #include "AppenderFile.h"
 #include "Common.h"
 #include "Config.h"
+#include "Duration.h"
 #include "Errors.h"
 #include "Logger.h"
 #include "LogMessage.h"
@@ -27,7 +28,6 @@
 #include "Strand.h"
 #include "StringConvert.h"
 #include "Util.h"
-#include <chrono>
 #include <sstream>
 
 Log::Log() : AppenderId(0), lowestLogLevel(LOG_LEVEL_FATAL), _ioContext(nullptr), _strand(nullptr)
