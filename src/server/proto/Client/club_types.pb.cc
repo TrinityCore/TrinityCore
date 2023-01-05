@@ -4,7 +4,6 @@
 #define INTERNAL_SUPPRESS_PROTOBUF_FIELD_DEPRECATION
 #include "club_types.pb.h"
 
-#include <algorithm>
 #include <utility>
 
 #include <google/protobuf/stubs/common.h>
@@ -15,7 +14,6 @@
 #include <google/protobuf/generated_message_reflection.h>
 #include <google/protobuf/reflection_ops.h>
 #include <google/protobuf/wire_format.h>
-#include "Log.h"
 // @@protoc_insertion_point(includes)
 
 namespace bgs {
@@ -82,7 +80,7 @@ void protobuf_AddDesc_club_5ftypes_2eproto() {
     "vent_view_types.proto\032\026invitation_types."
     "proto\032\023message_types.proto\032\017ets_types.pr"
     "oto\032\021voice_types.proto\032\017rpc_types.protoB"
-    "\002H\001P\000P\001P\002P\003P\004P\005P\006P\007P\010P\tP\nP\013P\014P\rP\016P\017P\020", 437);
+    "\002H\002P\000P\001P\002P\003P\004P\005P\006P\007P\010P\tP\nP\013P\014P\rP\016P\017P\020", 437);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "club_types.proto", &protobuf_RegisterTypes);
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_club_5ftypes_2eproto);

@@ -72,19 +72,6 @@ class TC_PROTO_API ClubPrivilegeSet : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   ClubPrivilegeSet* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const ClubPrivilegeSet& from);
-  void MergeFrom(const ClubPrivilegeSet& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -631,19 +618,6 @@ class TC_PROTO_API ClubRole : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   ClubRole* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const ClubRole& from);
-  void MergeFrom(const ClubRole& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -754,19 +728,6 @@ class TC_PROTO_API ClubRoleSet : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   ClubRoleSet* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const ClubRoleSet& from);
-  void MergeFrom(const ClubRoleSet& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -835,7 +796,6 @@ class TC_PROTO_API ClubRoleSet : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::ClubRole > role_;
   ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > default_role_;
-  mutable int _default_role_cached_byte_size_;
   ::std::string* subtype_;
   bool assignment_respects_relegation_chain_;
   friend void TC_PROTO_API protobuf_AddDesc_club_5frole_2eproto();
