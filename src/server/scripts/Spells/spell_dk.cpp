@@ -343,6 +343,21 @@ class spell_dk_death_coil : public SpellScript
 // 52751 - Death Gate
 class spell_dk_death_gate : public SpellScript
 {
+    void HandleScript(SpellEffIndex effIndex)
+    {
+        if (Unit* target = GetHitUnit())
+            target->CastSpell(target, GetEffectValue(), false);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget.Register(&spell_dk_death_gate::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 53822 - Death Gate
+class spell_dk_death_gate_teleport : public SpellScript
+{
     SpellCastResult CheckClass()
     {
         if (GetCaster()->getClass() != CLASS_DEATH_KNIGHT)
@@ -354,17 +369,9 @@ class spell_dk_death_gate : public SpellScript
         return SPELL_CAST_OK;
     }
 
-    void HandleScript(SpellEffIndex effIndex)
-    {
-        PreventHitDefaultEffect(effIndex);
-        if (Unit* target = GetHitUnit())
-            target->CastSpell(target, GetEffectValue(), false);
-    }
-
     void Register() override
     {
-        OnCheckCast.Register(&spell_dk_death_gate::CheckClass);
-        OnEffectHitTarget.Register(&spell_dk_death_gate::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnCheckCast.Register(&spell_dk_death_gate_teleport::CheckClass);
     }
 };
 
@@ -1839,6 +1846,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_death_and_decay);
     RegisterSpellScript(spell_dk_death_coil);
     RegisterSpellScript(spell_dk_death_gate);
+    RegisterSpellScript(spell_dk_death_gate_teleport);
     RegisterSpellScript(spell_dk_death_grip);
     RegisterSpellScript(spell_dk_death_grip_initial);
     RegisterSpellScript(spell_dk_item_death_knight_t12_dps_4p_bonus);
