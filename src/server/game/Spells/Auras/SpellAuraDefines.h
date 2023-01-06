@@ -181,7 +181,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN                     = 87,
     SPELL_AURA_MOD_HEALTH_REGEN_PERCENT                     = 88,
     SPELL_AURA_PERIODIC_DAMAGE_PERCENT                      = 89,
-    SPELL_AURA_90                                           = 90,   // old SPELL_AURA_MOD_RESIST_CHANCE
+    SPELL_AURA_CANCEL_EQUIPMENT_STATS                       = 90,
     SPELL_AURA_MOD_DETECT_RANGE                             = 91,
     SPELL_AURA_PREVENTS_FLEEING                             = 92,
     SPELL_AURA_MOD_UNATTACKABLE                             = 93,
