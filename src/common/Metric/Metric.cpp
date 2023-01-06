@@ -152,8 +152,14 @@ void Metric::SendBatch()
         if (!_realmName.empty())
             batchedData << ",realm=" << _realmName;
 
-        for (MetricTag const& tag : data->Tags)
-            batchedData << "," << tag.first << "=" << FormatInfluxDBTagValue(tag.second);
+        if (data->Tags)
+        {
+            auto begin = std::visit([](auto&& value) { return value.data(); }, *data->Tags);
+            auto end = std::visit([](auto&& value) { return value.data() + value.size(); }, *data->Tags);
+            for (auto itr = begin; itr != end; ++itr)
+                if (!itr->first.empty())
+                    batchedData << "," << itr->first << "=" << FormatInfluxDBTagValue(itr->second);
+        }
 
         batchedData << " ";
 
