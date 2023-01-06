@@ -212,6 +212,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         std::string const& GetAIName() const;
         std::string GetScriptName() const;
         uint32 GetScriptId() const;
+        bool HasStringId(std::string_view id) const;
+        void SetScriptStringId(std::string id);
+        std::array<std::string_view, 3> const& GetStringIds() const { return m_stringIds; }
 
         // override WorldObject function for proper name localization
         std::string GetNameForLocaleIdx(LocaleConstant locale) const override;
@@ -433,6 +436,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         CreatureTemplate const* m_creatureInfo;                 // Can differ from sObjectMgr->GetCreatureTemplate(GetEntry()) in difficulty mode > 0
         CreatureData const* m_creatureData;
+        std::array<std::string_view, 3> m_stringIds;
+        Optional<std::string> m_scriptStringId;
 
         uint16 m_LootMode;                                  // Bitmask (default: LOOT_MODE_DEFAULT) that determines what loot will be lootable
 

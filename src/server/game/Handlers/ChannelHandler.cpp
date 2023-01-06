@@ -44,56 +44,51 @@ void WorldSession::HandleJoinChannel(WorldPackets::Channel::JoinChannel& packet)
             return;
     }
 
-    if (packet.ChannelName.empty() || isdigit((unsigned char)packet.ChannelName[0]))
-    {
-        WorldPackets::Channel::ChannelNotify channelNotify;
-        channelNotify.Type = CHAT_INVALID_NAME_NOTICE;
-        channelNotify._Channel = packet.ChannelName;
-        SendPacket(channelNotify.Write());
+    ChannelMgr* cMgr = ChannelMgr::ForTeam(GetPlayer()->GetTeam());
+    if (!cMgr)
         return;
+
+    if (packet.ChatChannelId)
+    { // system channel
+        if (Channel* channel = cMgr->GetSystemChannel(packet.ChatChannelId, zone))
+            channel->JoinChannel(GetPlayer());
     }
-
-    if (packet.ChannelName.length() > MAX_CHANNEL_NAME_STR)
-    {
-        WorldPackets::Channel::ChannelNotify channelNotify;
-        channelNotify.Type = CHAT_INVALID_NAME_NOTICE;
-        channelNotify._Channel = packet.ChannelName;
-        SendPacket(channelNotify.Write());
-        TC_LOG_ERROR("network", "Player %s tried to create a channel with a name more than " SZFMTD " characters long - blocked", GetPlayer()->GetGUID().ToString().c_str(), MAX_CHANNEL_NAME_STR);
-        return;
-    }
-
-    if (packet.Password.length() > MAX_CHANNEL_PASS_STR)
-    {
-        TC_LOG_ERROR("network", "Player %s tried to create a channel with a password more than " SZFMTD " characters long - blocked", GetPlayer()->GetGUID().ToString().c_str(), MAX_CHANNEL_PASS_STR);
-        return;
-    }
-
-    if (!DisallowHyperlinksAndMaybeKick(packet.ChannelName))
-        return;
-
-    if (ChannelMgr* cMgr = ChannelMgr::ForTeam(GetPlayer()->GetTeam()))
-    {
-        if (packet.ChatChannelId)
-        { // system channel
-            if (Channel* channel = cMgr->GetSystemChannel(packet.ChatChannelId, zone))
-                channel->JoinChannel(GetPlayer());
+    else
+    { // custom channel
+        if (packet.ChannelName.empty() || isdigit((unsigned char)packet.ChannelName[0]))
+        {
+            WorldPackets::Channel::ChannelNotify channelNotify;
+            channelNotify.Type = CHAT_INVALID_NAME_NOTICE;
+            channelNotify._Channel = packet.ChannelName;
+            SendPacket(channelNotify.Write());
+            return;
         }
-        else
-        { // custom channel
-            if (packet.ChannelName.length() > MAX_CHANNEL_NAME_STR)
-            {
-                TC_LOG_ERROR("network", "Player %s tried to create a channel with a name more than " SZFMTD " characters long - blocked", GetPlayer()->GetGUID().ToString().c_str(), MAX_CHANNEL_NAME_STR);
-                return;
-            }
 
-            if (Channel* channel = cMgr->GetCustomChannel(packet.ChannelName))
-                channel->JoinChannel(GetPlayer(), packet.Password);
-            else if (Channel* channel = cMgr->CreateCustomChannel(packet.ChannelName))
-            {
-                channel->SetPassword(packet.Password);
-                channel->JoinChannel(GetPlayer(), packet.Password);
-            }
+        if (utf8length(packet.ChannelName) > MAX_CHANNEL_NAME_STR)
+        {
+            WorldPackets::Channel::ChannelNotify channelNotify;
+            channelNotify.Type = CHAT_INVALID_NAME_NOTICE;
+            channelNotify._Channel = packet.ChannelName;
+            SendPacket(channelNotify.Write());
+            TC_LOG_ERROR("network", "Player %s tried to create a channel with a name more than " SZFMTD " characters long - blocked", GetPlayer()->GetGUID().ToString().c_str(), MAX_CHANNEL_NAME_STR);
+            return;
+        }
+
+        if (packet.Password.length() > MAX_CHANNEL_PASS_STR)
+        {
+            TC_LOG_ERROR("network", "Player %s tried to create a channel with a password more than " SZFMTD " characters long - blocked", GetPlayer()->GetGUID().ToString().c_str(), MAX_CHANNEL_PASS_STR);
+            return;
+        }
+
+        if (!DisallowHyperlinksAndMaybeKick(packet.ChannelName))
+            return;
+
+        if (Channel* channel = cMgr->GetCustomChannel(packet.ChannelName))
+            channel->JoinChannel(GetPlayer(), packet.Password);
+        else if (Channel* channel = cMgr->CreateCustomChannel(packet.ChannelName))
+        {
+            channel->SetPassword(packet.Password);
+            channel->JoinChannel(GetPlayer(), packet.Password);
         }
     }
 }

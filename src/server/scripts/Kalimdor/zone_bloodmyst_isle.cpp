@@ -425,12 +425,12 @@ public:
                             break;
                         case PHASE_PLANT_FIRST_STAND: // plant first explosives stage 1 stand
                             me->SetStandState(UNIT_STAND_STATE_STAND);
-                            _moveTimer = 0.5* IN_MILLISECONDS;
+                            _moveTimer = 0.5* AsUnderlyingType(IN_MILLISECONDS);
                             _phase = PHASE_PLANT_FIRST_WORK;
                             break;
                         case PHASE_PLANT_FIRST_WORK: // plant first explosives stage 2 work
                             Talk(SAY_LEGOSO_4);
-                            _moveTimer = 17.5 * IN_MILLISECONDS;
+                            _moveTimer = 17.5 * AsUnderlyingType(IN_MILLISECONDS);
                             _phase = PHASE_PLANT_FIRST_FINISH;
                             break;
                         case PHASE_PLANT_FIRST_FINISH: // plant first explosives finish
@@ -444,7 +444,7 @@ public:
                             // force runoff movement so he will not screw up next waypoint
                             me->GetMotionMaster()->MovePoint(WP_EXPLOSIVES_FIRST_RUNOFF, -1955.6f, -10669.8f, 110.65f, false);
                             Talk(SAY_LEGOSO_5);
-                            _moveTimer = 1.5 * IN_MILLISECONDS;
+                            _moveTimer = 1.5 * AsUnderlyingType(IN_MILLISECONDS);
                             _phase = PHASE_CONTINUE;
                             break;
                         case PHASE_PLANT_FIRST_TIMER_1: // first explosives detonate timer 1
@@ -650,7 +650,7 @@ public:
                     SetEscortPaused(true);
                     me->SetFacingToObject(player);
                     Talk(SAY_LEGOSO_1);
-                    _moveTimer = 2.5 * IN_MILLISECONDS;
+                    _moveTimer = 2.5 * AsUnderlyingType(IN_MILLISECONDS);
                     _phase = PHASE_CONTINUE;
                     break;
                 case WP_EXPLOSIVES_FIRST_POINT:
@@ -670,7 +670,7 @@ public:
                     break;
                 case WP_DEBUG_1:
                     SetEscortPaused(true);
-                    _moveTimer = 0.5 * IN_MILLISECONDS;
+                    _moveTimer = 0.5 * AsUnderlyingType(IN_MILLISECONDS);
                     _phase = PHASE_WP_26;
                     break;
                 case WP_SIRONAS_HILL:
@@ -697,12 +697,12 @@ public:
                 }
                 case WP_EXPLOSIVES_SECOND_BATTLEROAR:
                     SetEscortPaused(true);
-                    _moveTimer = 0.2 * IN_MILLISECONDS;
+                    _moveTimer = 0.2 * AsUnderlyingType(IN_MILLISECONDS);
                     _phase = PHASE_MEET_SIRONAS_ROAR;
                     break;
                 case WP_EXPLOSIVES_SECOND_PLANT:
                     SetEscortPaused(true);
-                    _moveTimer = 0.5 * IN_MILLISECONDS;
+                    _moveTimer = 0.5 * AsUnderlyingType(IN_MILLISECONDS);
                     _phase = PHASE_PLANT_SECOND_KNEEL;
                     break;
                 case WP_EXPLOSIVES_SECOND_DETONATE:

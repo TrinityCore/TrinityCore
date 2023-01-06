@@ -68,19 +68,6 @@ class TC_PROTO_API Role : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   Role* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const Role& from);
-  void MergeFrom(const Role& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -205,14 +192,11 @@ class TC_PROTO_API Role : public ::google::protobuf::Message {
   ::std::string* name_;
   ::google::protobuf::RepeatedPtrField< ::std::string> privilege_;
   ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > assignable_role_;
-  mutable int _assignable_role_cached_byte_size_;
   ::google::protobuf::uint32 id_;
   bool required_;
   bool unique_;
   ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > kickable_role_;
-  mutable int _kickable_role_cached_byte_size_;
   ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > removable_role_;
-  mutable int _removable_role_cached_byte_size_;
   ::google::protobuf::uint32 relegation_role_;
   friend void TC_PROTO_API protobuf_AddDesc_role_5ftypes_2eproto();
   friend void protobuf_AssignDesc_role_5ftypes_2eproto();
@@ -251,19 +235,6 @@ class TC_PROTO_API RoleState : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   RoleState* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const RoleState& from);
-  void MergeFrom(const RoleState& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -374,16 +345,12 @@ class TC_PROTO_API RoleState : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::std::string* name_;
   ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > assignable_role_;
-  mutable int _assignable_role_cached_byte_size_;
   bool required_;
   bool unique_;
   ::google::protobuf::uint32 relegation_role_;
   ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > kickable_role_;
-  mutable int _kickable_role_cached_byte_size_;
   ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > removable_role_;
-  mutable int _removable_role_cached_byte_size_;
   ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > mentionable_role_;
-  mutable int _mentionable_role_cached_byte_size_;
   friend void TC_PROTO_API protobuf_AddDesc_role_5ftypes_2eproto();
   friend void protobuf_AssignDesc_role_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_role_5ftypes_2eproto();

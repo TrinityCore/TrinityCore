@@ -491,8 +491,8 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     SetWatchedFactionIndex(-1);
 
     SetCustomizations(Trinity::Containers::MakeIteratorPair(createInfo->Customizations.begin(), createInfo->Customizations.end()));
-    SetRestState(REST_TYPE_XP, (GetSession()->IsARecruiter() || GetSession()->GetRecruiterId() != 0) ? REST_STATE_RAF_LINKED : REST_STATE_NOT_RAF_LINKED);
-    SetRestState(REST_TYPE_HONOR, REST_STATE_NOT_RAF_LINKED);
+    SetRestState(REST_TYPE_XP, (GetSession()->IsARecruiter() || GetSession()->GetRecruiterId() != 0) ? REST_STATE_RAF_LINKED : REST_STATE_NORMAL);
+    SetRestState(REST_TYPE_HONOR, REST_STATE_NORMAL);
     SetNativeGender(Gender(createInfo->Sex));
     SetInventorySlotCount(INVENTORY_DEFAULT_SIZE);
 
@@ -7999,7 +7999,7 @@ void Player::ApplyItemObtainSpells(Item* item, bool apply)
         if (apply)
         {
             if (!HasAura(spellId))
-                CastSpell(this, spellId, item);
+                CastSpell(this, spellId, CastSpellExtraArgs().SetCastItem(item));
         }
         else
             RemoveAurasDueToSpell(spellId);
@@ -8240,7 +8240,7 @@ void Player::ApplyArtifactPowerRank(Item* artifact, ArtifactPowerRankEntry const
             args.SetCastItem(artifact);
             if (artifactPowerRank->AuraPointsOverride)
                 for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
-                    args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + spellEffectInfo.EffectIndex), artifactPowerRank->AuraPointsOverride);
+                    args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + AsUnderlyingType(spellEffectInfo.EffectIndex)), artifactPowerRank->AuraPointsOverride);
 
             CastSpell(this, artifactPowerRank->SpellID, args);
         }
@@ -8541,7 +8541,7 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
 
                     for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
                         if (spellEffectInfo.IsEffect())
-                            args.AddSpellMod(static_cast<SpellValueMod>(SPELLVALUE_BASE_POINT0 + spellEffectInfo.EffectIndex), CalculatePct(spellEffectInfo.CalcValue(this), effectPct));
+                            args.AddSpellMod(static_cast<SpellValueMod>(SPELLVALUE_BASE_POINT0 + AsUnderlyingType(spellEffectInfo.EffectIndex)), CalculatePct(spellEffectInfo.CalcValue(this), effectPct));
                 }
                 CastSpell(target, spellInfo->Id, args);
             }
@@ -13895,7 +13895,7 @@ void Player::OnGossipSelect(WorldObject* source, int32 gossipOptionId, uint32 me
             GetSession()->SendTaxiMenu(source->ToCreature());
             break;
         case GossipOptionNpc::Trainer:
-            GetSession()->SendTrainerList(source->ToCreature(), sObjectMgr->GetCreatureTrainerForGossipOption(source->GetEntry(), menuId, gossipOptionId));
+            GetSession()->SendTrainerList(source->ToCreature(), sObjectMgr->GetCreatureTrainerForGossipOption(source->GetEntry(), menuId, item->OrderIndex));
             break;
         case GossipOptionNpc::SpiritHealer:
             source->CastSpell(source->ToCreature(), 17251, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetOriginalCaster(GetGUID()));
@@ -14082,11 +14082,16 @@ uint32 Player::GetDefaultGossipMenuForSource(WorldObject* source)
 
 int32 Player::GetQuestMinLevel(Quest const* quest) const
 {
-    if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(quest->GetContentTuningId(), m_playerData->CtrOptions->ContentTuningConditionMask))
+    return GetQuestMinLevel(quest->GetContentTuningId());
+}
+
+int32 Player::GetQuestMinLevel(uint32 contentTuningId) const
+{
+    if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(contentTuningId, m_playerData->CtrOptions->ContentTuningConditionMask))
     {
         ChrRacesEntry const* race = sChrRacesStore.AssertEntry(GetRace());
         FactionTemplateEntry const* raceFaction = sFactionTemplateStore.AssertEntry(race->FactionID);
-        int32 questFactionGroup = sContentTuningStore.AssertEntry(quest->GetContentTuningId())->GetScalingFactionGroup();
+        int32 questFactionGroup = sContentTuningStore.AssertEntry(contentTuningId)->GetScalingFactionGroup();
         if (questFactionGroup && raceFaction->FactionGroup != questFactionGroup)
             return questLevels->MaxLevel;
 
@@ -14101,9 +14106,14 @@ int32 Player::GetQuestLevel(Quest const* quest) const
     if (!quest)
         return 0;
 
-    if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(quest->GetContentTuningId(), m_playerData->CtrOptions->ContentTuningConditionMask))
+    return GetQuestLevel(quest->GetContentTuningId());
+}
+
+int32 Player::GetQuestLevel(uint32 contentTuningId) const
+{
+    if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(contentTuningId, m_playerData->CtrOptions->ContentTuningConditionMask))
     {
-        int32 minLevel = GetQuestMinLevel(quest);
+        int32 minLevel = GetQuestMinLevel(contentTuningId);
         int32 maxLevel = questLevels->MaxLevel;
         int32 level = GetLevel();
         if (level >= minLevel)
@@ -21798,6 +21808,26 @@ void Player::LeaveAllArenaTeams(ObjectGuid guid)
     }
 }
 
+uint32 Player::GetArenaPersonalRating(uint8 slot) const
+{
+    if (UF::PVPInfo const* pvpInfo = GetPvpInfoForBracket(slot))
+        return pvpInfo->Rating;
+
+    return 0;
+}
+
+UF::PVPInfo const* Player::GetPvpInfoForBracket(int8 bracket) const
+{
+    int32 index = m_activePlayerData->PvpInfo.FindIndexIf([bracket](UF::PVPInfo const& pvpInfo)
+    {
+        return pvpInfo.Bracket == bracket && !*pvpInfo.Disqualified;
+    });
+    if (index >= 0)
+        return &m_activePlayerData->PvpInfo[index];
+
+    return nullptr;
+}
+
 bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc /*= nullptr*/, uint32 spellid /*= 0*/, uint32 preferredMountDisplay /*= 0*/)
 {
     if (nodes.size() < 2)
@@ -22997,6 +23027,8 @@ uint8 Player::GetStartLevel(uint8 race, uint8 playerClass, Optional<int32> chara
     }
     else if (playerClass == CLASS_DEMON_HUNTER)
         startLevel = std::max<uint8>(sWorld->getIntConfig(CONFIG_START_DEMON_HUNTER_PLAYER_LEVEL), startLevel);
+    else if (playerClass == CLASS_EVOKER)
+        startLevel = std::max<uint8>(sWorld->getIntConfig(CONFIG_START_EVOKER_PLAYER_LEVEL), startLevel);
 
     if (characterTemplateId)
     {
@@ -23566,12 +23598,12 @@ void Player::SendInitialPacketsAfterAddToMap()
             auraList.front()->HandleEffect(this, AURA_EFFECT_HANDLE_SEND_FOR_CLIENT, true);
     }
 
-    if (HasAuraType(SPELL_AURA_MOD_STUN))
+    if (HasAuraType(SPELL_AURA_MOD_STUN) || HasAuraType(SPELL_AURA_MOD_STUN_DISABLE_GRAVITY))
         SetRooted(true);
 
     WorldPackets::Movement::MoveSetCompoundState setCompoundState;
     // manual send package (have code in HandleEffect(this, AURA_EFFECT_HANDLE_SEND_FOR_CLIENT, true); that must not be re-applied.
-    if (HasAuraType(SPELL_AURA_MOD_ROOT) || HasAuraType(SPELL_AURA_MOD_ROOT_2))
+    if (HasAuraType(SPELL_AURA_MOD_ROOT) || HasAuraType(SPELL_AURA_MOD_ROOT_2) || HasAuraType(SPELL_AURA_MOD_ROOT_DISABLE_GRAVITY))
         setCompoundState.StateChanges.emplace_back(SMSG_MOVE_ROOT, m_movementCounter++);
 
     if (HasAuraType(SPELL_AURA_FEATHER_FALL))
@@ -23582,6 +23614,9 @@ void Player::SendInitialPacketsAfterAddToMap()
 
     if (HasAuraType(SPELL_AURA_HOVER))
         setCompoundState.StateChanges.emplace_back(SMSG_MOVE_SET_HOVERING, m_movementCounter++);
+
+    if (HasAuraType(SPELL_AURA_MOD_ROOT_DISABLE_GRAVITY) || HasAuraType(SPELL_AURA_MOD_STUN_DISABLE_GRAVITY))
+        setCompoundState.StateChanges.emplace_back(SMSG_MOVE_DISABLE_GRAVITY, m_movementCounter++);
 
     if (HasAuraType(SPELL_AURA_CAN_TURN_WHILE_FALLING))
         setCompoundState.StateChanges.emplace_back(SMSG_MOVE_SET_CAN_TURN_WHILE_FALLING, m_movementCounter++);
@@ -27157,10 +27192,12 @@ void Player::StartLoadingActionButtons(std::function<void()>&& callback /*= null
         // safe callback, we can't pass this pointer directly
         // in case player logs out before db response (player would be deleted in that case)
         if (Player* thisPlayer = mySess->GetPlayer(); thisPlayer && thisPlayer->GetGUID() == myGuid)
+        {
             thisPlayer->LoadActions(result);
 
-        if (callback)
-            callback();
+            if (callback)
+                callback();
+        }
     }));
 }
 
@@ -27259,7 +27296,7 @@ void Player::UpdateTraitConfig(WorldPackets::Traits::TraitConfig&& newConfig, in
             break;
     }
 
-    std::function<void()> finalizeTraitConfigUpdate = [=, newConfig = std::move(newConfig)]()
+    std::function<void()> finalizeTraitConfigUpdate = [=, this, newConfig = std::move(newConfig)]()
     {
         SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData)
             .ModifyValue(&UF::ActivePlayerData::TraitConfigs, index)
