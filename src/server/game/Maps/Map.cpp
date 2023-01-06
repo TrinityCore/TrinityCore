@@ -20,6 +20,7 @@
 #include "Battleground.h"
 #include "CellImpl.h"
 #include "CharacterPackets.h"
+#include "Containers.h"
 #include "Conversation.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"

@@ -41,6 +41,7 @@
 #include "ChatCommand.h"
 #include "ChatPackets.h"
 #include "Config.h"
+#include "Containers.h"
 #include "ConversationDataStore.h"
 #include "CreatureAIRegistry.h"
 #include "CreatureGroups.h"

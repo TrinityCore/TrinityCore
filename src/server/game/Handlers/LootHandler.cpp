@@ -18,6 +18,7 @@
 #include "WorldSession.h"
 #include "CellImpl.h"
 #include "Common.h"
+#include "Containers.h"
 #include "Corpse.h"
 #include "Creature.h"
 #include "DB2Stores.h"

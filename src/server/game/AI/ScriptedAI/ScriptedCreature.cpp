@@ -20,6 +20,7 @@
 #include "DB2Stores.h"
 #include "Cell.h"
 #include "CellImpl.h"
+#include "Containers.h"
 #include "CreatureAIImpl.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"

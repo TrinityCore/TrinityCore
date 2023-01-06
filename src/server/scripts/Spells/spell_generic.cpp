@@ -26,6 +26,7 @@
 #include "Battleground.h"
 #include "BattlePetMgr.h"
 #include "CellImpl.h"
+#include "Containers.h"
 #include "CreatureAI.h"
 #include "DB2Stores.h"
 #include "GameTime.h"

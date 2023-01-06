@@ -21,6 +21,7 @@
 #include "DB2Stores.h"
 #include "CellImpl.h"
 #include "ChatTextBuilder.h"
+#include "Containers.h"
 #include "DatabaseEnv.h"
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"

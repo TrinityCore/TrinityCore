@@ -16,6 +16,7 @@
  */
 
 #include "culling_of_stratholme.h"
+#include "Containers.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Log.h"

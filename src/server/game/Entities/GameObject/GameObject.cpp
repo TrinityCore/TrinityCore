@@ -22,6 +22,7 @@
 #include "Battleground.h"
 #include "BattlegroundPackets.h"
 #include "CellImpl.h"
+#include "Containers.h"
 #include "CreatureAISelector.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
