@@ -72,3 +72,7 @@ rapidjson (A fast JSON parser/generator for C++ with both SAX/DOM style API http
 protobuf (Protocol Buffers - Google's data interchange format https://developers.google.com/protocol-buffers/)
   https://github.com/google/protobuf
   Version: v2.6.1
+
+short_alloc (Stack based allocator) https://howardhinnant.github.io/stack_alloc.html
+  https://howardhinnant.github.io/short_alloc.h
+  Version: N/A
