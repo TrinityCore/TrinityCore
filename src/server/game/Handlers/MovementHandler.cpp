@@ -40,6 +40,7 @@
 #include <boost/accumulators/statistics/variance.hpp>
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics.hpp>
+#include <boost/circular_buffer.hpp>
 
 void WorldSession::HandleMoveWorldportAckOpcode(WorldPackets::Movement::WorldPortResponse& /*packet*/)
 {
@@ -757,7 +758,7 @@ void WorldSession::HandleTimeSyncResponse(WorldPackets::Misc::TimeSyncResponse& 
     serverTime = clockDelta + clientTime
     */
     int64 clockDelta = (int64)serverTimeAtSent + (int64)lagDelay - (int64)timeSyncResponse.ClientTime;
-    _timeSyncClockDeltaQueue.push_back(std::pair<int64, uint32>(clockDelta, roundTripDuration));
+    _timeSyncClockDeltaQueue->push_back(std::pair<int64, uint32>(clockDelta, roundTripDuration));
     ComputeNewClockDelta();
 }
 
@@ -770,18 +771,18 @@ void WorldSession::ComputeNewClockDelta()
 
     accumulator_set<uint32, features<tag::mean, tag::median, tag::variance(lazy)> > latencyAccumulator;
 
-    for (auto pair : _timeSyncClockDeltaQueue)
-        latencyAccumulator(pair.second);
+    for (auto [_, roundTripDuration] : *_timeSyncClockDeltaQueue)
+        latencyAccumulator(roundTripDuration);
 
     uint32 latencyMedian = static_cast<uint32>(std::round(median(latencyAccumulator)));
     uint32 latencyStandardDeviation = static_cast<uint32>(std::round(sqrt(variance(latencyAccumulator))));
 
     accumulator_set<int64, features<tag::mean> > clockDeltasAfterFiltering;
     uint32 sampleSizeAfterFiltering = 0;
-    for (auto pair : _timeSyncClockDeltaQueue)
+    for (auto [clockDelta, roundTripDuration] : *_timeSyncClockDeltaQueue)
     {
-        if (pair.second < latencyStandardDeviation + latencyMedian) {
-            clockDeltasAfterFiltering(pair.first);
+        if (roundTripDuration < latencyStandardDeviation + latencyMedian) {
+            clockDeltasAfterFiltering(clockDelta);
             sampleSizeAfterFiltering++;
         }
     }
@@ -793,10 +794,7 @@ void WorldSession::ComputeNewClockDelta()
             _timeSyncClockDelta = meanClockDelta;
     }
     else if (_timeSyncClockDelta == 0)
-    {
-        std::pair<int64, uint32> back = _timeSyncClockDeltaQueue.back();
-        _timeSyncClockDelta = back.first;
-    }
+        _timeSyncClockDelta = _timeSyncClockDeltaQueue->back().first;
 }
 
 void WorldSession::HandleMoveInitActiveMoverComplete(WorldPackets::Movement::MoveInitActiveMoverComplete& moveInitActiveMoverComplete)
