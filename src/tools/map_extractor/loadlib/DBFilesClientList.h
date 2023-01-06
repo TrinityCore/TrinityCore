@@ -15,13 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DBFilesClientList_h__
+#ifndef DBFilesClientList_h__   //宏定义开始
 #define DBFilesClientList_h__
 
-struct DB2FileInfo
+struct DB2FileInfo  //结构 DB2文件
 {
-    uint32 FileDataId;
-    char const* Name;
+    uint32 FileDataId;  //32位无符号整数 文件数据编号
+    char const* Name;   //字符 静态指针 名称    
 };
 
 DB2FileInfo const DBFilesClientList[] =
@@ -939,4 +939,4 @@ DB2FileInfo const DBFilesClientList[] =
     { 1797864, "ZoneStory.db2" },
 };
 
-#endif // DBFilesClientList_h__
+#endif // DBFilesClientList_h__ ////宏定义结束
