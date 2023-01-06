@@ -20,6 +20,7 @@
 #include "Containers.h"
 #include "Corpse.h"
 #include "DB2Stores.h"
+#include "FlatSet.h"
 #include "GameTables.h"
 #include "InstanceScript.h"
 #include "Item.h"
@@ -35,7 +36,6 @@
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "Vehicle.h"
-#include <boost/container/flat_set.hpp>
 #include <G3D/g3dmath.h>
 
 uint32 GetTargetFlagMask(SpellTargetObjectTypes objType)
@@ -234,8 +234,8 @@ struct SpellEffectInfo::ImmunityInfo
     uint32 DispelImmune = 0;
     uint32 DamageSchoolMask = 0;
 
-    boost::container::flat_set<AuraType> AuraTypeImmune;
-    boost::container::flat_set<SpellEffectName> SpellEffectImmune;
+    Trinity::Containers::FlatSet<AuraType> AuraTypeImmune;
+    Trinity::Containers::FlatSet<SpellEffectName> SpellEffectImmune;
 };
 
 std::array<SpellImplicitTargetInfo::StaticData, TOTAL_SPELL_TARGETS> SpellImplicitTargetInfo::_data =
@@ -3684,7 +3684,7 @@ bool SpellInfo::CanSpellProvideImmunityAgainstAura(SpellInfo const* auraSpellInf
                 continue;
 
             auto spellImmuneItr = immuneInfo->SpellEffectImmune.find(auraSpellEffectInfo.Effect);
-            if (spellImmuneItr == immuneInfo->SpellEffectImmune.cend())
+            if (spellImmuneItr == immuneInfo->SpellEffectImmune.end())
             {
                 immuneToAllEffects = false;
                 break;
@@ -3705,7 +3705,7 @@ bool SpellInfo::CanSpellProvideImmunityAgainstAura(SpellInfo const* auraSpellInf
                 {
                     bool isImmuneToAuraEffectApply = false;
                     auto auraImmuneItr = immuneInfo->AuraTypeImmune.find(auraName);
-                    if (auraImmuneItr != immuneInfo->AuraTypeImmune.cend())
+                    if (auraImmuneItr != immuneInfo->AuraTypeImmune.end())
                         isImmuneToAuraEffectApply = true;
 
                     if (!isImmuneToAuraEffectApply && !auraSpellInfo->IsPositiveEffect(auraSpellEffectInfo.EffectIndex) && !auraSpellInfo->HasAttribute(SPELL_ATTR2_NO_SCHOOL_IMMUNITIES))
