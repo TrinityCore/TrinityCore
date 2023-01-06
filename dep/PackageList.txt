@@ -72,3 +72,7 @@ argon2
 catch2
   https://github.com/catchorg/Catch2
   Version: v2.13.0
+
+short_alloc (Stack based allocator) https://howardhinnant.github.io/stack_alloc.html
+  https://howardhinnant.github.io/short_alloc.h
+  Version: N/A
