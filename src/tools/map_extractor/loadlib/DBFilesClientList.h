@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -15,30 +15,33 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+本文件是客户端DB2文件编号和文件名对应列表
+*/
 #ifndef DBFilesClientList_h__   //宏定义开始
 #define DBFilesClientList_h__
 
-struct DB2FileInfo  //结构 DB2文件
+struct DB2FileInfo  //结构 DB2文件信息
 {
     uint32 FileDataId;  //32位无符号整数 文件数据编号
     char const* Name;   //字符 静态指针 名称    
 };
 
-DB2FileInfo const DBFilesClientList[] =
+DB2FileInfo const DBFilesClientList[] =     //DB2文件信息 静态 DB文件客户端列表
 {
-    { 1260179, "Achievement.db2" },
-    { 1324299, "Achievement_Category.db2" },
-    { 1115949, "AdventureJournal.db2" },
-    { 1267070, "AdventureMapPOI.db2" },
-    { 1710672, "AlliedRace.db2" },
-    { 1304323, "AnimKit.db2" },
-    { 1375433, "AnimKitBoneSet.db2" },
-    { 1266937, "AnimKitBoneSetAlias.db2" },
-    { 1300872, "AnimKitConfig.db2" },
-    { 1300873, "AnimKitConfigBoneSet.db2" },
-    { 1266540, "AnimKitPriority.db2" },
-    { 1559807, "AnimKitReplacement.db2" },
-    { 1304324, "AnimKitSegment.db2" },
+    { 1260179, "Achievement.db2" },         //成就
+    { 1324299, "Achievement_Category.db2" },//成就_目录
+    { 1115949, "AdventureJournal.db2" },    //冒险旅程
+    { 1267070, "AdventureMapPOI.db2" },     //冒险地图兴趣点
+    { 1710672, "AlliedRace.db2" },          //联盟阵营
+    { 1304323, "AnimKit.db2" },             //动画配件
+    { 1375433, "AnimKitBoneSet.db2" },      //动画配件骨骼设置
+    { 1266937, "AnimKitBoneSetAlias.db2" }, //动画配件骨骼设置别名
+    { 1300872, "AnimKitConfig.db2" },       //动画配件设置
+    { 1300873, "AnimKitConfigBoneSet.db2" },//动画配件骨骼配置设置
+    { 1266540, "AnimKitPriority.db2" },     //动画配件属性
+    { 1559807, "AnimKitReplacement.db2" },  //动画配件替换
+    { 1304324, "AnimKitSegment.db2" },      //动画配件片段
     { 1301100, "AnimReplacement.db2" },
     { 1284817, "AnimReplacementSet.db2" },
     { 3286805, "AnimaCable.db2" },
