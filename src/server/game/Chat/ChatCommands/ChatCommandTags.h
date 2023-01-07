@@ -18,7 +18,6 @@
 #ifndef TRINITY_CHATCOMMANDTAGS_H
 #define TRINITY_CHATCOMMANDTAGS_H
 
-#include "advstd.h"
 #include "ChatCommandHelpers.h"
 #include "Hyperlinks.h"
 #include "ObjectGuid.h"
@@ -211,7 +210,7 @@ namespace Trinity::ChatCommands
     struct Hyperlink : Trinity::Impl::ChatCommands::ContainerTag
     {
         using value_type = typename linktag::value_type;
-        using storage_type = advstd::remove_cvref_t<value_type>;
+        using storage_type = std::remove_cvref_t<value_type>;
 
         operator value_type() const { return val; }
         value_type operator*() const { return val; }
