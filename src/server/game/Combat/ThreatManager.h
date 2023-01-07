@@ -23,6 +23,7 @@
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
 #include <array>
+#include <memory>
 #include <unordered_map>
 #include <vector>
 
