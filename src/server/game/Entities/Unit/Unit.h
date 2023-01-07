@@ -20,12 +20,12 @@
 
 #include "Object.h"
 #include "CombatManager.h"
+#include "FlatSet.h"
 #include "SpellAuraDefines.h"
 #include "ThreatManager.h"
 #include "Timer.h"
 #include "UnitDefines.h"
 #include "Util.h"
-#include <boost/container/flat_set.hpp>
 #include <array>
 #include <map>
 #include <stack>
@@ -1964,7 +1964,7 @@ class TC_GAME_API Unit : public WorldObject
         bool m_canModifyStats;
 
         VisibleAuraContainer m_visibleAuras;
-        boost::container::flat_set<AuraApplication*, VisibleAuraSlotCompare> m_visibleAurasToUpdate;
+        Trinity::Containers::FlatSet<AuraApplication*, VisibleAuraSlotCompare> m_visibleAurasToUpdate;
 
         float m_speed_rate[MAX_MOVE_TYPE];
 

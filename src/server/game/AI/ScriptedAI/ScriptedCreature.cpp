@@ -20,6 +20,7 @@
 #include "DB2Stores.h"
 #include "Cell.h"
 #include "CellImpl.h"
+#include "Containers.h"
 #include "CreatureAIImpl.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
@@ -108,8 +109,11 @@ bool SummonList::HasEntry(uint32 entry) const
     return false;
 }
 
-void SummonList::DoActionImpl(int32 action, StorageType const& summons)
+void SummonList::DoActionImpl(int32 action, StorageType& summons, uint16 max)
 {
+    if (max)
+        Trinity::Containers::RandomResize(summons, max);
+
     for (ObjectGuid const& guid : summons)
     {
         Creature* summon = ObjectAccessor::GetCreature(*_me, guid);

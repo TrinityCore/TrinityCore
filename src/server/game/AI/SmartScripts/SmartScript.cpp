@@ -18,6 +18,7 @@
 #include "SmartScript.h"
 #include "CellImpl.h"
 #include "ChatTextBuilder.h"
+#include "Containers.h"
 #include "Creature.h"
 #include "CreatureTextMgr.h"
 #include "CreatureTextMgrImpl.h"

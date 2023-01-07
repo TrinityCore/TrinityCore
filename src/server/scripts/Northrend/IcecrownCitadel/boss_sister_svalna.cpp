@@ -17,6 +17,7 @@
 
 #include "icecrown_citadel.h"
 #include "CellImpl.h"
+#include "Containers.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"

@@ -21,6 +21,7 @@
 #include "AreaTriggerPackets.h"
 #include "CellImpl.h"
 #include "Chat.h"
+#include "Containers.h"
 #include "CreatureAISelector.h"
 #include "DB2Stores.h"
 #include "GridNotifiersImpl.h"

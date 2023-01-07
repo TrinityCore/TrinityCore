@@ -16,10 +16,9 @@
  */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "CreatureAIImpl.h"
 #include "CreatureGroups.h"
-#include "GameEventMgr.h"
-#include "GameTime.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"

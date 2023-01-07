@@ -23,6 +23,7 @@
 
 #include "ScriptMgr.h"
 #include "AreaTriggerAI.h"
+#include "Containers.h"
 #include "G3DPosition.hpp"
 #include "GridNotifiers.h"
 #include "Log.h"

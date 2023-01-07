@@ -21,6 +21,7 @@
 #include "Chat.h"
 #include "ChatTextBuilder.h"
 #include "Common.h"
+#include "Containers.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "GridNotifiersImpl.h"
