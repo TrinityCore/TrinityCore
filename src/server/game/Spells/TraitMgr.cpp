@@ -16,10 +16,10 @@
  */
 
 #include "TraitMgr.h"
-#include "Containers.h"
 #include "DB2Stores.h"
 #include "IteratorPair.h"
 #include "Player.h"
+#include "MapUtils.h"
 #include "TraitPacketsCommon.h"
 
 namespace TraitMgr
