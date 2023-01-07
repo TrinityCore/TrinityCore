@@ -65,3 +65,16 @@ cmake-build-*/*
 /out/build/x64-Debug/Data/dbc/zhCN
 /out/build/x64-Debug/Data/cameras
 /out/build/x64-Debug/Data/Buildings
+/out/build/x64-Debug/bin/worldserver.conf
+/out/build/x64-Debug/bin/ssleay32.dll
+/out/build/x64-Debug/bin/Server.log
+/out/build/x64-Debug/bin/libssl-1_1-x64.dll
+/out/build/x64-Debug/bin/libmysql.dll
+/out/build/x64-Debug/bin/libeay32.dll
+/out/build/x64-Debug/bin/libcrypto-1_1-x64.dll
+/out/build/x64-Debug/bin/GM.log
+/out/build/x64-Debug/bin/DBErrors.log
+/out/build/x64-Debug/bin/bnetserver.key.pem
+/out/build/x64-Debug/bin/bnetserver.cert.pem
+/out/build/x64-Debug/bin/Bnet.log
+/out/build/x64-Debug/bin/worldserver.conf
