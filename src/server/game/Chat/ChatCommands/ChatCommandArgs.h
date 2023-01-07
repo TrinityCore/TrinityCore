@@ -62,12 +62,12 @@ namespace Trinity::Impl::ChatCommands
             if (Optional<T> v = StringTo<T>(token, 0))
                 val = *v;
             else
-                return FormatTrinityString(handler, LANG_CMDPARSER_STRING_VALUE_INVALID, STRING_VIEW_FMT_ARG(token), GetTypeName<T>().c_str());
+                return FormatTrinityString(handler, LANG_CMDPARSER_STRING_VALUE_INVALID, STRING_VIEW_FMT_ARG(token), Trinity::GetTypeName<T>().c_str());
 
             if constexpr (std::is_floating_point_v<T>)
             {
                 if (!std::isfinite(val))
-                    return FormatTrinityString(handler, LANG_CMDPARSER_STRING_VALUE_INVALID, STRING_VIEW_FMT_ARG(token), GetTypeName<T>().c_str());
+                    return FormatTrinityString(handler, LANG_CMDPARSER_STRING_VALUE_INVALID, STRING_VIEW_FMT_ARG(token), Trinity::GetTypeName<T>().c_str());
             }
 
             return tail;
@@ -200,7 +200,7 @@ namespace Trinity::Impl::ChatCommands
             }
 
             if (next1)
-                return FormatTrinityString(handler, LANG_CMDPARSER_STRING_VALUE_INVALID, STRING_VIEW_FMT_ARG(strVal), GetTypeName<T>().c_str());
+                return FormatTrinityString(handler, LANG_CMDPARSER_STRING_VALUE_INVALID, STRING_VIEW_FMT_ARG(strVal), Trinity::GetTypeName<T>().c_str());
             else
                 return next1;
         }
