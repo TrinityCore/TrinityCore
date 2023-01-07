@@ -15,10 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Banner.h"
-#include "CascHandles.h"
-#include "Common.h"
-#include "DB2CascFileSource.h"
+#include "Banner.h"                             //包含 横幅(库)
+#include "CascHandles.h"                        //Casc句柄 //关于Casc,可参照TrinityCore\通用\个人学习\CASC文件格式.txt
+#include "Common.h"                             //通用库
+#include "DB2CascFileSource.h"                  //DB2Casc文件源
 #include "DB2Meta.h"
 #include "DBFilesClientList.h"
 #include "ExtractorDB2LoadInfo.h"
@@ -37,11 +37,11 @@
 #include <unordered_map>
 #include <cstdlib>
 #include <cstring>
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
-#include <io.h>
-#else
-#include <unistd.h>
-#endif
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS    //如果两个值(TC_平台和TC_平台_视窗<值为0>)相等
+#include <io.h>                                     //包含 输入输出库
+#else                                               //否则
+#include <unistd.h>                                 //包含unistd.h //unistd.h是 C 和 C++ 程序设计语言中提供对 POSIX 操作系统 API 的访问功能的头文件的名称。
+#endif                                              //结束如果语句
 
 std::shared_ptr<CASC::Storage> CascStorage;
 
