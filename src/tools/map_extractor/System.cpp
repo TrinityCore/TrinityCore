@@ -1,4 +1,4 @@
-﻿/*
+/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -266,7 +266,7 @@ void TryLoadDB2(char const* name, DB2CascFileSource* source, DB2FileLoader* db2,
 }
 
 void ReadMapDBC()   //阅读地图DBC
-{显示
+{
     printf("Read Map.db2 file...\n");   //显示输出:正在读取地图db2文件...
 
     DB2CascFileSource source(CascStorage, MapLoadInfo::Instance()->Meta->FileDataId);
