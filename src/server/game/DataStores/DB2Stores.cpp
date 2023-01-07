@@ -365,7 +365,6 @@ TaxiMask                                        sTaxiNodesMask;
 TaxiMask                                        sOldContinentsNodesMask;
 TaxiMask                                        sHordeTaxiNodesMask;
 TaxiMask                                        sAllianceTaxiNodesMask;
-TaxiPathSetBySource                             sTaxiPathSetBySource;
 TaxiPathNodesByPath                             sTaxiPathNodesByPath;
 
 DEFINE_DB2_SET_COMPARATOR(ChrClassesXPowerTypesEntry)
@@ -382,7 +381,7 @@ void LoadAzeriteEmpoweredItemUnlockMappings(std::unordered_map<int32, std::vecto
 typedef std::map<uint32 /*hash*/, DB2StorageBase*> StorageMap;
 typedef std::unordered_map<uint32 /*areaGroupId*/, std::vector<uint32/*areaId*/>> AreaGroupMemberContainer;
 typedef std::unordered_map<uint32, std::vector<ArtifactPowerEntry const*>> ArtifactPowersContainer;
-typedef std::unordered_map<uint32, std::unordered_set<uint32>> ArtifactPowerLinksContainer;
+typedef std::unordered_map<uint32, std::vector<uint32>> ArtifactPowerLinksContainer;
 typedef std::unordered_map<std::pair<uint32, uint8>, ArtifactPowerRankEntry const*> ArtifactPowerRanksContainer;
 typedef ChrSpecializationEntry const* ChrSpecializationByIndexContainer[MAX_CLASSES + 1][MAX_SPECIALIZATIONS];
 typedef std::unordered_map<uint32 /*curveID*/, std::vector<CurvePointEntry const*>> CurvePointsContainer;
@@ -402,6 +401,7 @@ typedef std::unordered_map<uint32 /*itemId | appearanceMod << 24*/, ItemModified
 typedef std::unordered_map<uint32, std::set<ItemBonusTreeNodeEntry const*>> ItemBonusTreeContainer;
 typedef std::unordered_map<uint32, std::vector<ItemSetSpellEntry const*>> ItemSetSpellContainer;
 typedef std::unordered_map<uint32, std::vector<ItemSpecOverrideEntry const*>> ItemSpecOverridesContainer;
+typedef std::unordered_map<uint32, std::unordered_map<uint32, MapDifficultyEntry const*>> MapDifficultyContainer;
 typedef std::unordered_map<uint32, DB2Manager::MountTypeXCapabilitySet> MountCapabilitiesByTypeContainer;
 typedef std::unordered_map<uint32, DB2Manager::MountXDisplayContainer> MountDisplaysCointainer;
 typedef std::unordered_map<uint32, std::array<std::vector<NameGenEntry const*>, 2>> NameGenContainer;
@@ -456,7 +456,7 @@ namespace
     std::unordered_map<std::pair<uint8, uint8>, ChrModelEntry const*> _chrModelsByRaceAndGender;
     std::map<std::tuple<uint8 /*race*/, uint8/*gender*/, uint8/*shapeshift*/>, ShapeshiftFormModelData> _chrCustomizationChoicesForShapeshifts;
     std::unordered_map<std::pair<uint8 /*race*/, uint8/*gender*/>, std::vector<ChrCustomizationOptionEntry const*>> _chrCustomizationOptionsByRaceAndGender;
-    std::unordered_map<uint32 /*chrCustomizationReqId*/, std::unordered_map<uint32 /*chrCustomizationOptionId*/, std::vector<uint32>>> _chrCustomizationRequiredChoices;
+    std::unordered_map<uint32 /*chrCustomizationReqId*/, std::vector<std::pair<uint32 /*chrCustomizationOptionId*/, std::vector<uint32>>>> _chrCustomizationRequiredChoices;
     ChrSpecializationByIndexContainer _chrSpecializationsByIndex;
     std::unordered_multimap<uint32, CurrencyContainerEntry const*> _currencyContainers;
     CurvePointsContainer _curvePoints;
@@ -481,7 +481,7 @@ namespace
     ItemSetSpellContainer _itemSetSpells;
     ItemSpecOverridesContainer _itemSpecOverrides;
     std::vector<JournalTierEntry const*> _journalTiersByIndex;
-    DB2Manager::MapDifficultyContainer _mapDifficulties;
+    MapDifficultyContainer _mapDifficulties;
     std::unordered_map<uint32, DB2Manager::MapDifficultyConditionsContainer> _mapDifficultyConditions;
     std::unordered_map<uint32, MountEntry const*> _mountsBySpellId;
     MountCapabilitiesByTypeContainer _mountCapabilitiesByType;
@@ -493,7 +493,7 @@ namespace
     PowerTypesContainer _powerTypes;
     std::unordered_map<uint32, uint8> _pvpItemBonus;
     PvpTalentSlotUnlockEntry const* _pvpTalentSlotUnlock[MAX_PVP_TALENT_SLOTS];
-    std::unordered_map<uint32, std::unordered_set<QuestLineXQuestEntry const*>> _questsByQuestLine;
+    std::unordered_map<uint32, std::vector<QuestLineXQuestEntry const*>> _questsByQuestLine;
     QuestPackageItemContainer _questPackages;
     std::unordered_map<uint32, std::vector<RewardPackXCurrencyTypeEntry const*>> _rewardPackCurrencyTypes;
     std::unordered_map<uint32, std::vector<RewardPackXItemEntry const*>> _rewardPackItems;
@@ -507,6 +507,7 @@ namespace
     SpellProcsPerMinuteModContainer _spellProcsPerMinuteMods;
     std::unordered_map<int32, std::vector<SpellVisualMissileEntry const*>> _spellVisualMissilesBySet;
     TalentsByPosition _talentsByPosition;
+    std::unordered_map<std::pair<uint32, uint32>, TaxiPathEntry const*> _taxiPaths;
     ToyItemIdsContainer _toys;
     std::unordered_map<uint32, TransmogIllusionEntry const*> _transmogIllusionsByEnchantmentId;
     std::unordered_map<uint32, std::vector<TransmogSetEntry const*>> _transmogSetsByItemModifiedAppearance;
@@ -995,8 +996,8 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
 
     for (ArtifactPowerLinkEntry const* artifactPowerLink : sArtifactPowerLinkStore)
     {
-        _artifactPowerLinks[artifactPowerLink->PowerA].insert(artifactPowerLink->PowerB);
-        _artifactPowerLinks[artifactPowerLink->PowerB].insert(artifactPowerLink->PowerA);
+        _artifactPowerLinks[artifactPowerLink->PowerA].push_back(artifactPowerLink->PowerB);
+        _artifactPowerLinks[artifactPowerLink->PowerB].push_back(artifactPowerLink->PowerA);
     }
 
     for (ArtifactPowerRankEntry const* artifactPowerRank : sArtifactPowerRankStore)
@@ -1112,8 +1113,28 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
         customizationOptionsByModel[customizationOption->ChrModelID].push_back(customizationOption);
 
     for (ChrCustomizationReqChoiceEntry const* reqChoice : sChrCustomizationReqChoiceStore)
+    {
         if (ChrCustomizationChoiceEntry const* customizationChoice = sChrCustomizationChoiceStore.LookupEntry(reqChoice->ChrCustomizationChoiceID))
-            _chrCustomizationRequiredChoices[reqChoice->ChrCustomizationReqID][customizationChoice->ChrCustomizationOptionID].push_back(reqChoice->ChrCustomizationChoiceID);
+        {
+            std::vector<std::pair<uint32, std::vector<uint32>>>& requiredChoicesForReq = _chrCustomizationRequiredChoices[reqChoice->ChrCustomizationReqID];
+            std::vector<uint32>* choices = nullptr;
+            for (std::pair<uint32, std::vector<uint32>>& choicesForOption : requiredChoicesForReq)
+            {
+                if (int32(choicesForOption.first) == customizationChoice->ChrCustomizationOptionID)
+                {
+                    choices = &choicesForOption.second;
+                    break;
+                }
+            }
+            if (!choices)
+            {
+                std::pair<uint32, std::vector<uint32>>& choicesForReq = requiredChoicesForReq.emplace_back();
+                choicesForReq.first = customizationChoice->ChrCustomizationOptionID;
+                choices = &choicesForReq.second;
+            }
+            choices->push_back(reqChoice->ChrCustomizationChoiceID);
+        }
+    }
 
     std::unordered_map<uint32, uint32> parentRaces;
     for (ChrRacesEntry const* chrRace : sChrRacesStore)
@@ -1379,7 +1400,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     }
 
     for (QuestLineXQuestEntry const* questLineQuest : sQuestLineXQuestStore)
-        _questsByQuestLine[questLineQuest->QuestLineID].insert(questLineQuest);
+        _questsByQuestLine[questLineQuest->QuestLineID].push_back(questLineQuest);
 
     for (QuestPackageItemEntry const* questPackageItem : sQuestPackageItemStore)
     {
@@ -1434,7 +1455,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     }
 
     for (TaxiPathEntry const* entry : sTaxiPathStore)
-        sTaxiPathSetBySource[entry->FromTaxiNode][entry->ToTaxiNode] = TaxiPathBySourceAndDestination(entry->ID, entry->Cost);
+        _taxiPaths[{ entry->FromTaxiNode, entry->ToTaxiNode }] = entry;
 
     uint32 pathCount = sTaxiPathStore.GetNumRows();
 
@@ -1871,7 +1892,7 @@ std::vector<ArtifactPowerEntry const*> DB2Manager::GetArtifactPowers(uint8 artif
     return std::vector<ArtifactPowerEntry const*>{};
 }
 
-std::unordered_set<uint32> const* DB2Manager::GetArtifactPowerLinks(uint32 artifactPowerId) const
+std::vector<uint32> const* DB2Manager::GetArtifactPowerLinks(uint32 artifactPowerId) const
 {
     return Trinity::Containers::MapGetValuePtr(_artifactPowerLinks, artifactPowerId);
 }
@@ -1984,7 +2005,7 @@ std::vector<ChrCustomizationOptionEntry const*> const* DB2Manager::GetCustomizti
     return Trinity::Containers::MapGetValuePtr(_chrCustomizationOptionsByRaceAndGender, { race,gender });
 }
 
-std::unordered_map<uint32, std::vector<uint32>> const* DB2Manager::GetRequiredCustomizationChoices(uint32 chrCustomizationReqId) const
+std::vector<std::pair<uint32, std::vector<uint32>>> const* DB2Manager::GetRequiredCustomizationChoices(uint32 chrCustomizationReqId) const
 {
     return Trinity::Containers::MapGetValuePtr(_chrCustomizationRequiredChoices, chrCustomizationReqId);
 }
@@ -2686,11 +2707,6 @@ uint32 DB2Manager::GetLiquidFlags(uint32 liquidType)
     return 0;
 }
 
-DB2Manager::MapDifficultyContainer const& DB2Manager::GetMapDifficulties() const
-{
-    return _mapDifficulties;
-}
-
 MapDifficultyEntry const* DB2Manager::GetDefaultMapDifficulty(uint32 mapId, Difficulty* difficulty /*= nullptr*/) const
 {
     auto itr = _mapDifficulties.find(mapId);
@@ -2896,7 +2912,7 @@ int32 DB2Manager::GetPvpTalentNumSlotsAtLevel(uint32 level, Classes class_) cons
     return slots;
 }
 
-std::unordered_set<QuestLineXQuestEntry const*> const* DB2Manager::GetQuestsForQuestLine(uint32 questLineId) const
+std::vector<QuestLineXQuestEntry const*> const* DB2Manager::GetQuestsForQuestLine(uint32 questLineId) const
 {
     return Trinity::Containers::MapGetValuePtr(_questsByQuestLine, questLineId);
 }
@@ -3051,6 +3067,11 @@ std::vector<SpellVisualMissileEntry const*> const* DB2Manager::GetSpellVisualMis
 std::vector<TalentEntry const*> const& DB2Manager::GetTalentsByPosition(uint32 class_, uint32 tier, uint32 column) const
 {
     return _talentsByPosition[class_][tier][column];
+}
+
+TaxiPathEntry const* DB2Manager::GetTaxiPath(uint32 from, uint32 to) const
+{
+    return Trinity::Containers::MapGetValuePtr(_taxiPaths, { from, to });
 }
 
 bool DB2Manager::IsTotemCategoryCompatibleWith(uint32 itemTotemCategoryId, uint32 requiredTotemCategoryId)

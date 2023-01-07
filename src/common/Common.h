@@ -20,25 +20,8 @@
 
 #include "Define.h"
 #include <array>
-#include <memory>
 #include <string>
-#include <utility>
-
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
-#  if TRINITY_COMPILER == TRINITY_COMPILER_INTEL
-#    if !defined(BOOST_ASIO_HAS_MOVE)
-#      define BOOST_ASIO_HAS_MOVE
-#    endif // !defined(BOOST_ASIO_HAS_MOVE)
-#  endif // if TRINITY_COMPILER == TRINITY_COMPILER_INTEL
-#else
-#  include <sys/types.h>
-#  include <sys/ioctl.h>
-#  include <sys/socket.h>
-#  include <netinet/in.h>
-#  include <unistd.h>
-#  include <netdb.h>
-#  include <cstdlib>
-#endif
+#include <cstdlib>
 
 #if TRINITY_COMPILER == TRINITY_COMPILER_MICROSOFT
 

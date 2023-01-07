@@ -21,6 +21,7 @@
 #include "Common.h"
 #include "SceneDefines.h"
 #include <map>
+#include <memory>
 #include <vector>
 
 class Player;

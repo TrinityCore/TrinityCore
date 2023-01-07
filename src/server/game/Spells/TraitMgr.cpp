@@ -18,9 +18,9 @@
 #include "TraitMgr.h"
 #include "DB2Stores.h"
 #include "IteratorPair.h"
-#include "Player.h"
 #include "MapUtils.h"
 #include "TraitPacketsCommon.h"
+#include "UpdateFields.h"
 
 namespace TraitMgr
 {
@@ -359,7 +359,7 @@ void TakeCurrencyCost(WorldPackets::Traits::TraitEntry const& entry, std::map<in
             currencies[cost->TraitCurrencyID] -= cost->Amount * entry.Rank;
 }
 
-void FillOwnedCurrenciesMap(WorldPackets::Traits::TraitConfig const& traitConfig, Player const* player, std::map<int32, int32>& currencies)
+void FillOwnedCurrenciesMap(WorldPackets::Traits::TraitConfig const& traitConfig, PlayerDataAccessor player, std::map<int32, int32>& currencies)
 {
     std::vector<Tree const*> const* trees = GetTreesForConfig(traitConfig);
     if (!trees)
@@ -382,27 +382,27 @@ void FillOwnedCurrenciesMap(WorldPackets::Traits::TraitConfig const& traitConfig
                 case TraitCurrencyType::Gold:
                 {
                     int32& amount = currencies[currency->ID];
-                    if (player->GetMoney() > uint64(std::numeric_limits<int32>::max() - amount))
+                    if (player.GetMoney() > uint64(std::numeric_limits<int32>::max() - amount))
                         amount = std::numeric_limits<int32>::max();
                     else
-                        amount += player->GetMoney();
+                        amount += player.GetMoney();
                     break;
                 }
                 case TraitCurrencyType::CurrencyTypesBased:
-                    currencies[currency->ID] += player->GetCurrency(currency->CurrencyTypesID);
+                    currencies[currency->ID] += player.GetCurrency(currency->CurrencyTypesID);
                     break;
                 case TraitCurrencyType::TraitSourced:
                     if (std::vector<TraitCurrencySourceEntry const*>* currencySources = Trinity::Containers::MapGetValuePtr(_traitCurrencySourcesByCurrency, currency->ID))
                     {
                         for (TraitCurrencySourceEntry const* currencySource : *currencySources)
                         {
-                            if (currencySource->QuestID && !player->IsQuestRewarded(currencySource->QuestID))
+                            if (currencySource->QuestID && !player.IsQuestRewarded(currencySource->QuestID))
                                 continue;
 
-                            if (currencySource->AchievementID && !player->HasAchieved(currencySource->AchievementID))
+                            if (currencySource->AchievementID && !player.HasAchieved(currencySource->AchievementID))
                                 continue;
 
-                            if (currencySource->PlayerLevel && player->GetLevel() < currencySource->PlayerLevel)
+                            if (currencySource->PlayerLevel && player.GetLevel() < currencySource->PlayerLevel)
                                 continue;
 
                             if (currencySource->TraitNodeEntryID && !hasTraitNodeEntry(currencySource->TraitNodeEntryID))
@@ -445,18 +445,18 @@ void FillSpentCurrenciesMap(WorldPackets::Traits::TraitConfig const& traitConfig
         FillSpentCurrenciesMap(entry, cachedCurrencies);
 }
 
-bool MeetsTraitCondition(WorldPackets::Traits::TraitConfig const& traitConfig, Player const* player, TraitCondEntry const* condition,
+bool MeetsTraitCondition(WorldPackets::Traits::TraitConfig const& traitConfig, PlayerDataAccessor player, TraitCondEntry const* condition,
     Optional<std::map<int32, int32>>& cachedCurrencies)
 {
-    if (condition->QuestID && !player->IsQuestRewarded(condition->QuestID))
+    if (condition->QuestID && !player.IsQuestRewarded(condition->QuestID))
         return false;
 
-    if (condition->AchievementID && !player->HasAchieved(condition->AchievementID))
+    if (condition->AchievementID && !player.HasAchieved(condition->AchievementID))
         return false;
 
     if (condition->SpecSetID)
     {
-        uint32 chrSpecializationId = player->GetPrimarySpecialization();
+        uint32 chrSpecializationId = player.GetPrimarySpecialization();
         if (traitConfig.Type == TraitConfigType::Combat)
             chrSpecializationId = traitConfig.ChrSpecializationID;
 
@@ -483,13 +483,13 @@ bool MeetsTraitCondition(WorldPackets::Traits::TraitConfig const& traitConfig, P
         }
     }
 
-    if (condition->RequiredLevel && int32(player->GetLevel()) < condition->RequiredLevel)
+    if (condition->RequiredLevel && player.GetLevel() < condition->RequiredLevel)
         return false;
 
     return true;
 }
 
-std::vector<UF::TraitEntry> GetGrantedTraitEntriesForConfig(WorldPackets::Traits::TraitConfig const& traitConfig, Player const* player)
+std::vector<UF::TraitEntry> GetGrantedTraitEntriesForConfig(WorldPackets::Traits::TraitConfig const& traitConfig, PlayerDataAccessor player)
 {
     std::vector<UF::TraitEntry> entries;
     std::vector<Tree const*> const* trees = GetTreesForConfig(traitConfig);
@@ -556,7 +556,7 @@ bool IsValidEntry(WorldPackets::Traits::TraitEntry const& traitEntry)
     return true;
 }
 
-TalentLearnResult ValidateConfig(WorldPackets::Traits::TraitConfig const& traitConfig, Player const* player, bool requireSpendingAllCurrencies /*= false*/)
+LearnResult ValidateConfig(WorldPackets::Traits::TraitConfig const& traitConfig, PlayerDataAccessor player, bool requireSpendingAllCurrencies /*= false*/)
 {
     auto getNodeEntryCount = [&](int32 traitNodeId)
     {
@@ -614,23 +614,23 @@ TalentLearnResult ValidateConfig(WorldPackets::Traits::TraitConfig const& traitC
     for (WorldPackets::Traits::TraitEntry const& traitEntry : traitConfig.Entries)
     {
         if (!IsValidEntry(traitEntry))
-            return TALENT_FAILED_UNKNOWN;
+            return LearnResult::Unknown;
 
         Node const* node = Trinity::Containers::MapGetValuePtr(_traitNodes, traitEntry.TraitNodeID);
         if (node->Data->GetType() == TraitNodeType::Selection)
             if (getNodeEntryCount(traitEntry.TraitNodeID) != 1)
-                return TALENT_FAILED_UNKNOWN;
+                return LearnResult::Unknown;
 
         for (NodeEntry const& entry : node->Entries)
             if (!meetsConditions(entry.Conditions))
-                return TALENT_FAILED_UNKNOWN;
+                return LearnResult::Unknown;
 
         if (!meetsConditions(node->Conditions))
-            return TALENT_FAILED_UNKNOWN;
+            return LearnResult::Unknown;
 
         for (NodeGroup const* group : node->Groups)
             if (!meetsConditions(group->Conditions))
-                return TALENT_FAILED_UNKNOWN;
+                return LearnResult::Unknown;
 
         if (!node->ParentNodes.empty())
         {
@@ -640,7 +640,7 @@ TalentLearnResult ValidateConfig(WorldPackets::Traits::TraitConfig const& traitC
                 if (!isNodeFullyFilled(parentNode))
                 {
                     if (edgeType == TraitEdgeType::RequiredForAvailability)
-                        return TALENT_FAILED_NOT_ENOUGH_TALENTS_IN_PRIMARY_TREE;
+                        return LearnResult::NotEnoughTalentsInPrimaryTree;
 
                     continue;
                 }
@@ -649,7 +649,7 @@ TalentLearnResult ValidateConfig(WorldPackets::Traits::TraitConfig const& traitC
             }
 
             if (!hasAnyParentTrait)
-                return TALENT_FAILED_NOT_ENOUGH_TALENTS_IN_PRIMARY_TREE;
+                return LearnResult::NotEnoughTalentsInPrimaryTree;
         }
     }
 
@@ -666,7 +666,7 @@ TalentLearnResult ValidateConfig(WorldPackets::Traits::TraitConfig const& traitC
 
         int32* grantedCount = Trinity::Containers::MapGetValuePtr(grantedCurrencies, traitCurrencyId);
         if (!grantedCount || *grantedCount < spentAmount)
-            return TALENT_FAILED_NOT_ENOUGH_TALENTS_IN_PRIMARY_TREE;
+            return LearnResult::NotEnoughTalentsInPrimaryTree;
 
     }
 
@@ -679,11 +679,11 @@ TalentLearnResult ValidateConfig(WorldPackets::Traits::TraitConfig const& traitC
 
             int32* spentAmount = Trinity::Containers::MapGetValuePtr(*spentCurrencies, traitCurrencyId);
             if (!spentAmount || *spentAmount != grantedAmount)
-                return TALENT_FAILED_UNSPENT_TALENT_POINTS;
+                return LearnResult::UnspentTalentPoints;
         }
     }
 
-    return TALENT_LEARN_OK;
+    return LearnResult::Ok;
 }
 
 std::vector<TraitDefinitionEffectPointsEntry const*> const* GetTraitDefinitionEffectPointModifiers(int32 traitDefinitionId)
@@ -691,7 +691,7 @@ std::vector<TraitDefinitionEffectPointsEntry const*> const* GetTraitDefinitionEf
     return Trinity::Containers::MapGetValuePtr(_traitDefinitionEffectPointModifiers, traitDefinitionId);
 }
 
-void InitializeStarterBuildTraitConfig(WorldPackets::Traits::TraitConfig& traitConfig, Player const* player)
+void InitializeStarterBuildTraitConfig(WorldPackets::Traits::TraitConfig& traitConfig, PlayerDataAccessor player)
 {
     traitConfig.Entries.clear();
     std::vector<Tree const*> const* trees = GetTreesForConfig(traitConfig);

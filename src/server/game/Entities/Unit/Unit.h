@@ -28,6 +28,7 @@
 #include "Util.h"
 #include <array>
 #include <map>
+#include <memory>
 #include <stack>
 
 #define VISUAL_WAYPOINT 1 // Creature Entry ID used for waypoints show, visible only for GMs

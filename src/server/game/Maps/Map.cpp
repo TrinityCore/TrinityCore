@@ -164,7 +164,7 @@ i_scriptLock(false), _respawnTimes(std::make_unique<RespawnListContainer>()), _r
 
     _weatherUpdateTimer.SetInterval(time_t(1 * IN_MILLISECONDS));
 
-    GetGuidSequenceGenerator<HighGuid::Transport>().Set(sObjectMgr->GetGenerator<HighGuid::Transport>().GetNextAfterMaxUsed());
+    GetGuidSequenceGenerator(HighGuid::Transport).Set(sObjectMgr->GetGenerator<HighGuid::Transport>().GetNextAfterMaxUsed());
 
     _poolData = sPoolMgr->InitPoolsForMap(this);
 
@@ -2474,6 +2474,15 @@ void Map::UpdateSpawnGroupConditions()
     }
 }
 
+ObjectGuidGenerator& Map::GetGuidSequenceGenerator(HighGuid high)
+{
+    auto itr = _guidGenerators.find(high);
+    if (itr == _guidGenerators.end())
+        itr = _guidGenerators.insert(std::make_pair(high, std::make_unique<ObjectGuidGenerator>(high))).first;
+
+    return *itr->second;
+}
+
 void Map::AddFarSpellCallback(FarSpellCallback&& callback)
 {
     _farSpellCallbacks.Enqueue(new FarSpellCallback(std::move(callback)));
@@ -3913,3 +3922,5 @@ std::string InstanceMap::GetDebugInfo() const
         << "ScriptId: " << GetScriptId() << " ScriptName: " << GetScriptName();
     return sstr.str();
 }
+
+template class TC_GAME_API TypeUnorderedMapContainer<AllMapStoredObjectTypes, ObjectGuid>;
