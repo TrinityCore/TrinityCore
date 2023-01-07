@@ -1,0 +1,14 @@
+
+帖子来自逍遥论坛，觉得很有用，又需要做论坛任务，所以转载一下
+
+本帖内容取自梦神ayase的研究成果，在此感谢。
+
+TC原版的随机地下城必须凑满5人的小队才能进入，这对于单机来说是个不可能完成的事情，怎么把它设置成单人可进呢？
+
+用VS2013（及以上版本）打开TC的源码，右边找到game项，双击后找到Source Files选项，再次双击后找到LFGQueue.cpp文件，搜索uint8 numPlayers，大概在第350行左右的位置可以找到。
+把它后面的=号右边的0改成4，之后保存即可
+
+
+最后编译出服务端程序，即可实现单人进随机本的目的。
+
+来源:https://uiwow.com/forum.php?mod=viewthread&tid=4112&highlight=%E9%9A%8F%E6%9C%BA%E5%9C%B0%E4%B8%8B%E5%9F%8E%E5%A6%82%E4%BD%95%E4%BF%AE%E6%94%B9%E5%8D%95%E4%BA%BA%E5%8F%AF%E8%BF%9B&extra=&_dsign=0de92bd4
