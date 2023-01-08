@@ -54,20 +54,20 @@ void CollectionMgr::LoadMountDefinitions()
 
         if (!sDB2Manager.GetMount(spellId))
         {
-            TC_LOG_ERROR("sql.sql", "Mount spell %u defined in `mount_definitions` does not exist in Mount.db2, skipped", spellId);
+            TC_LOG_ERROR("sql.sql", "Mount spell {} defined in `mount_definitions` does not exist in Mount.db2, skipped", spellId);
             continue;
         }
 
         if (otherFactionSpellId && !sDB2Manager.GetMount(otherFactionSpellId))
         {
-            TC_LOG_ERROR("sql.sql", "otherFactionSpellId %u defined in `mount_definitions` for spell %u does not exist in Mount.db2, skipped", otherFactionSpellId, spellId);
+            TC_LOG_ERROR("sql.sql", "otherFactionSpellId {} defined in `mount_definitions` for spell {} does not exist in Mount.db2, skipped", otherFactionSpellId, spellId);
             continue;
         }
 
         FactionSpecificMounts[spellId] = otherFactionSpellId;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " mount definitions in %u ms", FactionSpecificMounts.size(), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} mount definitions in {} ms", FactionSpecificMounts.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 namespace

@@ -279,12 +279,6 @@ namespace Trinity::ChatCommands
             return operator*();
         }
 
-        template<bool C = have_operators>
-        operator std::enable_if_t<C && !std::is_same_v<first_type, size_t> && std::is_convertible_v<first_type, size_t>, size_t>() const
-        {
-            return operator*();
-        }
-
         template <bool C = have_operators>
         std::enable_if_t<C, bool> operator!() const { return !**this; }
 

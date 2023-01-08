@@ -91,13 +91,13 @@ void OPvPCapturePoint::SendChangePhase()
 
 bool OPvPCapturePoint::SetCapturePointData(uint32 entry)
 {
-    TC_LOG_DEBUG("outdoorpvp", "Creating capture point %u", entry);
+    TC_LOG_DEBUG("outdoorpvp", "Creating capture point {}", entry);
 
     // check info existence
     GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(entry);
     if (!goinfo || goinfo->type != GAMEOBJECT_TYPE_CONTROL_ZONE)
     {
-        TC_LOG_ERROR("outdoorpvp", "OutdoorPvP: GO %u is not capture point!", entry);
+        TC_LOG_ERROR("outdoorpvp", "OutdoorPvP: GO {} is not capture point!", entry);
         return false;
     }
 
@@ -127,7 +127,7 @@ void OutdoorPvP::HandlePlayerLeaveZone(Player* player, uint32 /*zone*/)
     if (!player->GetSession()->PlayerLogout())
         SendRemoveWorldStates(player);
     m_players[player->GetTeamId()].erase(player->GetGUID());
-    TC_LOG_DEBUG("outdoorpvp", "Player %s left an outdoorpvp zone", player->GetName().c_str());
+    TC_LOG_DEBUG("outdoorpvp", "Player {} left an outdoorpvp zone", player->GetName());
 }
 
 void OutdoorPvP::HandlePlayerResurrects(Player* /*player*/, uint32 /*zone*/) { }
@@ -255,7 +255,7 @@ bool OPvPCapturePoint::Update(uint32 diff)
 
     if (m_OldState != m_State)
     {
-        //TC_LOG_ERROR("outdoorpvp", "%u->%u", m_OldState, m_State);
+        //TC_LOG_ERROR("outdoorpvp", "{}->{}", m_OldState, m_State);
         if (oldTeam != m_team)
             ChangeTeam(oldTeam);
         ChangeState();
@@ -404,7 +404,7 @@ void OutdoorPvP::AddCapturePoint(OPvPCapturePoint* cp)
     OPvPCapturePointMap::iterator i = m_capturePoints.find(cp->m_capturePointSpawnId);
     if (i != m_capturePoints.end())
     {
-        TC_LOG_ERROR("outdoorpvp", "OutdoorPvP::AddCapturePoint: CapturePoint " UI64FMTD " already exists!", cp->m_capturePointSpawnId);
+        TC_LOG_ERROR("outdoorpvp", "OutdoorPvP::AddCapturePoint: CapturePoint {} already exists!", cp->m_capturePointSpawnId);
         delete i->second;
     }
     m_capturePoints[cp->m_capturePointSpawnId] = cp;

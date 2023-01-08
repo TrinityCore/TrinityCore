@@ -66,8 +66,8 @@ inline bool ValidateMessage(Player const* player, std::string& msg)
     {
         if (isNasty(c))
         {
-            TC_LOG_ERROR("network", "Player %s %s sent a message containing invalid character %u - blocked", player->GetName().c_str(),
-                player->GetGUID().ToString().c_str(), uint32(c));
+            TC_LOG_ERROR("network", "Player {} {} sent a message containing invalid character {} - blocked", player->GetName(),
+                player->GetGUID().ToString(), uint32(c));
             return false;
         }
     }
@@ -113,7 +113,7 @@ void WorldSession::HandleChatMessageOpcode(WorldPackets::Chat::ChatMessage& chat
             type = CHAT_MSG_INSTANCE_CHAT;
             break;
         default:
-            TC_LOG_ERROR("network", "HandleMessagechatOpcode : Unknown chat opcode (%u)", chatMessage.GetOpcode());
+            TC_LOG_ERROR("network", "HandleMessagechatOpcode : Unknown chat opcode ({})", chatMessage.GetOpcode());
             return;
     }
 
@@ -141,7 +141,7 @@ void WorldSession::HandleChatMessage(ChatMsg type, Language lang, std::string ms
 
     if (lang == LANG_UNIVERSAL && type != CHAT_MSG_EMOTE)
     {
-        TC_LOG_ERROR("entities.player.cheat", "CMSG_MESSAGECHAT: Possible hacking-attempt: %s tried to send a message in universal language", GetPlayerInfo().c_str());
+        TC_LOG_ERROR("entities.player.cheat", "CMSG_MESSAGECHAT: Possible hacking-attempt: {} tried to send a message in universal language", GetPlayerInfo());
         SendNotification(LANG_UNKNOWN_LANGUAGE);
         return;
     }
@@ -445,7 +445,7 @@ void WorldSession::HandleChatMessage(ChatMsg type, Language lang, std::string ms
             break;
         }
         default:
-            TC_LOG_ERROR("network", "CHAT: unknown message type %u, lang: %u", type, lang);
+            TC_LOG_ERROR("network", "CHAT: unknown message type {}, lang: {}", type, lang);
             break;
     }
 }
@@ -551,7 +551,7 @@ void WorldSession::HandleChatAddonMessage(ChatMsg type, std::string prefix, std:
         }
         default:
         {
-            TC_LOG_ERROR("misc", "HandleAddonMessagechatOpcode: unknown addon message type %u", type);
+            TC_LOG_ERROR("misc", "HandleAddonMessagechatOpcode: unknown addon message type {}", type);
             break;
         }
     }

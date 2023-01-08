@@ -18,22 +18,24 @@
 #ifndef TRINITYCORE_STRING_FORMAT_H
 #define TRINITYCORE_STRING_FORMAT_H
 
-#include "fmt/printf.h"
+#include "fmt/core.h"
 
 namespace Trinity
 {
+    template<typename... Args>
+    using FormatString = std::string_view;
+
     /// Default TC string format function.
     template<typename... Args>
-    std::string StringFormat(std::string_view fmt, Args&&... args)
+    inline std::string StringFormat(FormatString<Args...> fmt, Args&&... args)
     {
         try
         {
-            return fmt::sprintf(fmt, std::forward<Args>(args)...);
+            return fmt::format(fmt, std::forward<Args>(args)...);
         }
-        catch (fmt::format_error const& formatError)
+        catch (std::exception const& formatError)
         {
-            std::string error = "An error occurred formatting string \"" + std::string(fmt) + "\" : " + formatError.what();
-            return error;
+            return fmt::format("An error occurred formatting string \"{}\" : {}", fmt, formatError.what());
         }
     }
 
@@ -50,7 +52,7 @@ namespace Trinity
     }
 
     /// Returns true if the given std::string_view is empty.
-    inline bool IsFormatEmptyOrNull(std::string_view const& fmt)
+    inline constexpr bool IsFormatEmptyOrNull(std::string_view fmt)
     {
         return fmt.empty();
     }

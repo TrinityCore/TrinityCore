@@ -135,7 +135,7 @@ void MultiPersonalPhaseTracker::LoadGrid(PhaseShift const& phaseShift, NGridType
         if (playerTracker.IsGridLoadedForPhase(grid.GetGridId(), phaseRef.Id))
             continue;
 
-        TC_LOG_DEBUG("maps", "Loading personal phase objects (phase %u) in grid[%u, %u] for map %u instance %u",
+        TC_LOG_DEBUG("maps", "Loading personal phase objects (phase {}) in grid[{}, {}] for map {} instance {}",
             phaseRef.Id, cell.GridX(), cell.GridY(), map->GetId(), map->GetInstanceId());
 
         loader.Load(phaseRef.Id);

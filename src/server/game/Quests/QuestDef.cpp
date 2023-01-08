@@ -138,13 +138,13 @@ void Quest::LoadRewardDisplaySpell(Field* fields)
 
     if (!sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE))
     {
-        TC_LOG_ERROR("sql.sql", "Table `quest_reward_display_spell` has non-existing Spell (%u) set for quest %u. Skipped.", spellId, fields[0].GetUInt32());
+        TC_LOG_ERROR("sql.sql", "Table `quest_reward_display_spell` has non-existing Spell ({}) set for quest {}. Skipped.", spellId, fields[0].GetUInt32());
         return;
     }
 
     if (playerConditionId && !sPlayerConditionStore.LookupEntry(playerConditionId))
     {
-        TC_LOG_ERROR("sql.sql", "Table `quest_reward_display_spell` has non-existing PlayerCondition (%u) set for quest %u and spell %u. Set to 0.", playerConditionId, fields[0].GetUInt32(), spellId);
+        TC_LOG_ERROR("sql.sql", "Table `quest_reward_display_spell` has non-existing PlayerCondition ({}) set for quest {} and spell {}. Set to 0.", playerConditionId, fields[0].GetUInt32(), spellId);
         playerConditionId = 0;
     }
 
@@ -163,7 +163,7 @@ void Quest::LoadQuestDetails(Field* fields)
     {
         if (!sEmotesStore.LookupEntry(fields[1 + i].GetUInt16()))
         {
-            TC_LOG_ERROR("sql.sql", "Table `quest_details` has non-existing Emote%i (%u) set for quest %u. Skipped.", 1+i, fields[1+i].GetUInt16(), fields[0].GetUInt32());
+            TC_LOG_ERROR("sql.sql", "Table `quest_details` has non-existing Emote{} ({}) set for quest {}. Skipped.", 1+i, fields[1+i].GetUInt16(), fields[0].GetUInt32());
             continue;
         }
 
@@ -180,10 +180,10 @@ void Quest::LoadQuestRequestItems(Field* fields)
     _emoteOnIncomplete = fields[2].GetUInt16();
 
     if (!sEmotesStore.LookupEntry(_emoteOnComplete))
-        TC_LOG_ERROR("sql.sql", "Table `quest_request_items` has non-existing EmoteOnComplete (%u) set for quest %u.", _emoteOnComplete, fields[0].GetUInt32());
+        TC_LOG_ERROR("sql.sql", "Table `quest_request_items` has non-existing EmoteOnComplete ({}) set for quest {}.", _emoteOnComplete, fields[0].GetUInt32());
 
     if (!sEmotesStore.LookupEntry(_emoteOnIncomplete))
-        TC_LOG_ERROR("sql.sql", "Table `quest_request_items` has non-existing EmoteOnIncomplete (%u) set for quest %u.", _emoteOnIncomplete, fields[0].GetUInt32());
+        TC_LOG_ERROR("sql.sql", "Table `quest_request_items` has non-existing EmoteOnIncomplete ({}) set for quest {}.", _emoteOnIncomplete, fields[0].GetUInt32());
 
     _emoteOnCompleteDelay = fields[3].GetUInt32();
     _emoteOnIncompleteDelay = fields[4].GetUInt32();
@@ -196,7 +196,7 @@ void Quest::LoadQuestOfferReward(Field* fields)
     {
         if (!sEmotesStore.LookupEntry(fields[1 + i].GetUInt16()))
         {
-            TC_LOG_ERROR("sql.sql", "Table `quest_offer_reward` has non-existing Emote%i (%u) set for quest %u. Skipped.", 1+i, fields[1+i].GetUInt16(), fields[0].GetUInt32());
+            TC_LOG_ERROR("sql.sql", "Table `quest_offer_reward` has non-existing Emote{} ({}) set for quest {}. Skipped.", 1+i, fields[1+i].GetUInt16(), fields[0].GetUInt32());
             continue;
         }
 
@@ -280,7 +280,7 @@ void Quest::LoadConditionalConditionalQuestDescription(Field* fields)
     LocaleConstant locale = GetLocaleByName(fields[4].GetStringView());
     if (locale >= TOTAL_LOCALES)
     {
-        TC_LOG_ERROR("sql.sql", "Table `quest_description_conditional` has invalid locale %s set for quest %u. Skipped.", fields[4].GetCString(), fields[0].GetUInt32());
+        TC_LOG_ERROR("sql.sql", "Table `quest_description_conditional` has invalid locale {} set for quest {}. Skipped.", fields[4].GetCString(), fields[0].GetUInt32());
         return;
     }
 
@@ -300,7 +300,7 @@ void Quest::LoadConditionalConditionalRequestItemsText(Field* fields)
     LocaleConstant locale = GetLocaleByName(fields[4].GetStringView());
     if (locale >= TOTAL_LOCALES)
     {
-        TC_LOG_ERROR("sql.sql", "Table `quest_request_items_conditional` has invalid locale %s set for quest %u. Skipped.", fields[4].GetCString(), fields[0].GetUInt32());
+        TC_LOG_ERROR("sql.sql", "Table `quest_request_items_conditional` has invalid locale {} set for quest {}. Skipped.", fields[4].GetCString(), fields[0].GetUInt32());
         return;
     }
 
@@ -320,7 +320,7 @@ void Quest::LoadConditionalConditionalOfferRewardText(Field* fields)
     LocaleConstant locale = GetLocaleByName(fields[4].GetStringView());
     if (locale >= TOTAL_LOCALES)
     {
-        TC_LOG_ERROR("sql.sql", "Table `quest_offer_reward_conditional` has invalid locale %s set for quest %u. Skipped.", fields[4].GetCString(), fields[0].GetUInt32());
+        TC_LOG_ERROR("sql.sql", "Table `quest_offer_reward_conditional` has invalid locale {} set for quest {}. Skipped.", fields[4].GetCString(), fields[0].GetUInt32());
         return;
     }
 
@@ -340,7 +340,7 @@ void Quest::LoadConditionalConditionalQuestCompletionLog(Field* fields)
     LocaleConstant locale = GetLocaleByName(fields[4].GetStringView());
     if (locale >= TOTAL_LOCALES)
     {
-        TC_LOG_ERROR("sql.sql", "Table `quest_completion_log_conditional` has invalid locale %s set for quest %u. Skipped.", fields[4].GetCString(), fields[0].GetUInt32());
+        TC_LOG_ERROR("sql.sql", "Table `quest_completion_log_conditional` has invalid locale {} set for quest {}. Skipped.", fields[4].GetCString(), fields[0].GetUInt32());
         return;
     }
 

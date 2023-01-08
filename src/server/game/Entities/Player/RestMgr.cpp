@@ -132,7 +132,7 @@ uint32 RestMgr::GetRestBonusFor(RestTypes restType, uint32 xp)
 
     SetRestBonus(restType, GetRestBonus(restType) - rested_loss);
 
-    TC_LOG_DEBUG("entities.player", "RestMgr::GetRestBonus: Player '%s' (%s) gain %u xp (+%u Rested Bonus). Rested points=%f", _player->GetGUID().ToString().c_str(), _player->GetName().c_str(), xp + rested_bonus, rested_bonus, GetRestBonus(restType));
+    TC_LOG_DEBUG("entities.player", "RestMgr::GetRestBonus: Player '{}' ({}) gain {} xp (+{} Rested Bonus). Rested points={}", _player->GetGUID().ToString(), _player->GetName(), xp + rested_bonus, rested_bonus, GetRestBonus(restType));
     return rested_bonus;
 }
 

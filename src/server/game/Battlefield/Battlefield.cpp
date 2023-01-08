@@ -294,7 +294,7 @@ void Battlefield::InitStalker(uint32 entry, Position const& pos)
     if (Creature* creature = SpawnCreature(entry, pos))
         StalkerGuid = creature->GetGUID();
     else
-        TC_LOG_ERROR("bg.battlefield", "Battlefield::InitStalker: Could not spawn Stalker (Creature entry %u), zone messages will be unavailable!", entry);
+        TC_LOG_ERROR("bg.battlefield", "Battlefield::InitStalker: Could not spawn Stalker (Creature entry {}), zone messages will be unavailable!", entry);
 }
 
 void Battlefield::KickAfkPlayers()
@@ -452,7 +452,7 @@ void Battlefield::AddCapturePoint(BfCapturePoint* cp)
     Battlefield::BfCapturePointMap::iterator i = m_capturePoints.find(cp->GetCapturePointEntry());
     if (i != m_capturePoints.end())
     {
-        TC_LOG_ERROR("bg.battlefield", "Battlefield::AddCapturePoint: CapturePoint %u already exists!", cp->GetCapturePointEntry());
+        TC_LOG_ERROR("bg.battlefield", "Battlefield::AddCapturePoint: CapturePoint {} already exists!", cp->GetCapturePointEntry());
         delete i->second;
     }
     m_capturePoints[cp->GetCapturePointEntry()] = cp;
@@ -562,10 +562,10 @@ BfGraveyard* Battlefield::GetGraveyardById(uint32 id) const
         if (BfGraveyard* graveyard = m_GraveyardList.at(id))
             return graveyard;
         else
-            TC_LOG_ERROR("bg.battlefield", "Battlefield::GetGraveyardById Id:%u does not exist.", id);
+            TC_LOG_ERROR("bg.battlefield", "Battlefield::GetGraveyardById Id:{} does not exist.", id);
     }
     else
-        TC_LOG_ERROR("bg.battlefield", "Battlefield::GetGraveyardById Id:%u could not be found.", id);
+        TC_LOG_ERROR("bg.battlefield", "Battlefield::GetGraveyardById Id:{} could not be found.", id);
 
     return nullptr;
 }
@@ -773,14 +773,14 @@ Creature* Battlefield::SpawnCreature(uint32 entry, Position const& pos)
 {
     if (!sObjectMgr->GetCreatureTemplate(entry))
     {
-        TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnCreature: entry %u does not exist.", entry);
+        TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnCreature: entry {} does not exist.", entry);
         return nullptr;
     }
 
     Creature* creature = Creature::CreateCreature(entry, m_Map, pos);
     if (!creature)
     {
-        TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnCreature: Can't create creature entry: %u", entry);
+        TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnCreature: Can't create creature entry: {}", entry);
         return nullptr;
     }
 
@@ -799,7 +799,7 @@ GameObject* Battlefield::SpawnGameObject(uint32 entry, Position const& pos, Quat
 {
     if (!sObjectMgr->GetGameObjectTemplate(entry))
     {
-        TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnGameObject: GameObject template %u not found in database! Battlefield not created!", entry);
+        TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnGameObject: GameObject template {} not found in database! Battlefield not created!", entry);
         return nullptr;
     }
 
@@ -807,7 +807,7 @@ GameObject* Battlefield::SpawnGameObject(uint32 entry, Position const& pos, Quat
     GameObject* go = GameObject::CreateGameObject(entry, m_Map, pos, rot, 255, GO_STATE_READY);
     if (!go)
     {
-        TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnGameObject: Could not create gameobject template %u! Battlefield has not been created!", entry);
+        TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnGameObject: Could not create gameobject template {}! Battlefield has not been created!", entry);
         return nullptr;
     }
 
@@ -900,7 +900,7 @@ bool BfCapturePoint::SetCapturePointData(GameObject* capturePoint)
 {
     ASSERT(capturePoint);
 
-    TC_LOG_DEBUG("bg.battlefield", "Creating capture point %u", capturePoint->GetEntry());
+    TC_LOG_DEBUG("bg.battlefield", "Creating capture point {}", capturePoint->GetEntry());
 
     m_capturePointGUID = capturePoint->GetGUID();
     m_capturePointEntry = capturePoint->GetEntry();
@@ -909,7 +909,7 @@ bool BfCapturePoint::SetCapturePointData(GameObject* capturePoint)
     GameObjectTemplate const* goinfo = capturePoint->GetGOInfo();
     if (goinfo->type != GAMEOBJECT_TYPE_CONTROL_ZONE)
     {
-        TC_LOG_ERROR("misc", "OutdoorPvP: GO %u is not a capture point!", capturePoint->GetEntry());
+        TC_LOG_ERROR("misc", "OutdoorPvP: GO {} is not a capture point!", capturePoint->GetEntry());
         return false;
     }
 
@@ -1067,7 +1067,7 @@ bool BfCapturePoint::Update(uint32 diff)
 
     if (m_OldState != m_State)
     {
-        //TC_LOG_ERROR("bg.battlefield", "%u->%u", m_OldState, m_State);
+        //TC_LOG_ERROR("bg.battlefield", "{}->{}", m_OldState, m_State);
         if (oldTeam != m_team)
             ChangeTeam(oldTeam);
         return true;

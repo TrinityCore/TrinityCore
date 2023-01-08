@@ -81,7 +81,7 @@ void FlightPathMovementGenerator::DoReset(Player* owner)
 
     if (currentNodeId == end)
     {
-        TC_LOG_DEBUG("movement.flightpath", "FlightPathMovementGenerator::DoReset: trying to start a flypath from the end point. %s", owner->GetDebugInfo().c_str());
+        TC_LOG_DEBUG("movement.flightpath", "FlightPathMovementGenerator::DoReset: trying to start a flypath from the end point. {}", owner->GetDebugInfo());
         return;
     }
 
@@ -266,7 +266,7 @@ void FlightPathMovementGenerator::DoEventIfAny(Player* owner, TaxiPathNodeEntry 
 
     if (uint32 eventid = departure ? node->DepartureEventID : node->ArrivalEventID)
     {
-        TC_LOG_DEBUG("maps.script", "FlightPathMovementGenerator::DoEventIfAny: taxi %s event %u of node %u of path %u for player %s", departure ? "departure" : "arrival", eventid, node->NodeIndex, node->PathID, owner->GetName().c_str());
+        TC_LOG_DEBUG("maps.script", "FlightPathMovementGenerator::DoEventIfAny: taxi {} event {} of node {} of path {} for player {}", departure ? "departure" : "arrival", eventid, node->NodeIndex, node->PathID, owner->GetName());
         GameEvents::Trigger(eventid, owner, owner);
     }
 }
@@ -300,7 +300,7 @@ void FlightPathMovementGenerator::PreloadEndGrid(Player* owner)
     // Load the grid
     if (endMap)
     {
-        TC_LOG_DEBUG("movement.flightpath", "FlightPathMovementGenerator::PreloadEndGrid: preloading grid (%f, %f) for map %u at node index %u/%u", _endGridX, _endGridY, _endMapId, _preloadTargetNode, uint32(_path.size() - 1));
+        TC_LOG_DEBUG("movement.flightpath", "FlightPathMovementGenerator::PreloadEndGrid: preloading grid ({}, {}) for map {} at node index {}/{}", _endGridX, _endGridY, _endMapId, _preloadTargetNode, uint32(_path.size() - 1));
         endMap->LoadGrid(_endGridX, _endGridY);
     }
     else

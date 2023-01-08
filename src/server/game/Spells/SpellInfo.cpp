@@ -1940,7 +1940,7 @@ SpellCastResult SpellInfo::CheckShapeshift(uint32 form) const
         shapeInfo = sSpellShapeshiftFormStore.LookupEntry(form);
         if (!shapeInfo)
         {
-            TC_LOG_ERROR("spells", "GetErrorAtShapeshiftedCast: unknown shapeshift %u", form);
+            TC_LOG_ERROR("spells", "GetErrorAtShapeshiftedCast: unknown shapeshift {}", form);
             return SPELL_CAST_OK;
         }
         actAsShifted = !shapeInfo->GetFlags().HasFlag(SpellShapeshiftFormFlags::Stance);
@@ -3956,7 +3956,7 @@ Optional<SpellPowerCost> SpellInfo::CalcPowerCost(SpellPowerEntry const* power, 
             return cost;
         }
 
-        TC_LOG_ERROR("spells", "SpellInfo::CalcPowerCost: Unknown power type '%d' in spell %d", power->PowerType, Id);
+        TC_LOG_ERROR("spells", "SpellInfo::CalcPowerCost: Unknown power type '{}' in spell {}", power->PowerType, Id);
         return {};
     }
 
@@ -3981,7 +3981,7 @@ Optional<SpellPowerCost> SpellInfo::CalcPowerCost(SpellPowerEntry const* power, 
                     powerCost += int32(CalculatePct(unitCaster->GetCreateMana(), power->PowerCostPct));
                     break;
                 case POWER_ALTERNATE_POWER:
-                    TC_LOG_ERROR("spells", "SpellInfo::CalcPowerCost: Unknown power type POWER_ALTERNATE_POWER in spell %d", Id);
+                    TC_LOG_ERROR("spells", "SpellInfo::CalcPowerCost: Unknown power type POWER_ALTERNATE_POWER in spell {}", Id);
                     return {};
                 default:
                 {
@@ -3991,7 +3991,7 @@ Optional<SpellPowerCost> SpellInfo::CalcPowerCost(SpellPowerEntry const* power, 
                         break;
                     }
 
-                    TC_LOG_ERROR("spells", "SpellInfo::CalcPowerCost: Unknown power type '%d' in spell %d", power->PowerType, Id);
+                    TC_LOG_ERROR("spells", "SpellInfo::CalcPowerCost: Unknown power type '{}' in spell {}", power->PowerType, Id);
                     return {};
                 }
             }
@@ -4013,7 +4013,7 @@ Optional<SpellPowerCost> SpellInfo::CalcPowerCost(SpellPowerEntry const* power, 
                     powerCost += int32(CalculatePct(unitCaster->GetCreateMana(), power->OptionalCostPct));
                     break;
                 case POWER_ALTERNATE_POWER:
-                    TC_LOG_ERROR("spells", "SpellInfo::CalcPowerCost: Unsupported power type POWER_ALTERNATE_POWER in spell %d for optional cost percent", Id);
+                    TC_LOG_ERROR("spells", "SpellInfo::CalcPowerCost: Unsupported power type POWER_ALTERNATE_POWER in spell {} for optional cost percent", Id);
                     return {};
                 default:
                 {
@@ -4023,7 +4023,7 @@ Optional<SpellPowerCost> SpellInfo::CalcPowerCost(SpellPowerEntry const* power, 
                         break;
                     }
 
-                    TC_LOG_ERROR("spells", "SpellInfo::CalcPowerCost: Unknown power type '%d' in spell %d for optional cost percent", power->PowerType, Id);
+                    TC_LOG_ERROR("spells", "SpellInfo::CalcPowerCost: Unknown power type '{}' in spell {} for optional cost percent", power->PowerType, Id);
                     return {};
                 }
             }

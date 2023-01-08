@@ -71,7 +71,7 @@ void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packe
 {
     if (CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(packet.CreatureID))
     {
-        TC_LOG_DEBUG("network", "WORLD: CMSG_QUERY_CREATURE '%s' - Entry: %u.", ci->Name.c_str(), packet.CreatureID);
+        TC_LOG_DEBUG("network", "WORLD: CMSG_QUERY_CREATURE '{}' - Entry: {}.", ci->Name, packet.CreatureID);
         if (sWorld->getBoolConfig(CONFIG_CACHE_DATA_QUERIES))
             SendPacket(&ci->QueryData[static_cast<uint32>(GetSessionDbLocaleIndex())]);
         else
@@ -83,7 +83,7 @@ void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packe
     }
     else
     {
-        TC_LOG_DEBUG("network", "WORLD: CMSG_QUERY_CREATURE - NO CREATURE INFO! (ENTRY: %u)", packet.CreatureID);
+        TC_LOG_DEBUG("network", "WORLD: CMSG_QUERY_CREATURE - NO CREATURE INFO! (ENTRY: {})", packet.CreatureID);
 
         WorldPackets::Query::QueryCreatureResponse response;
         response.CreatureID = packet.CreatureID;
@@ -108,7 +108,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObj
     }
     else
     {
-        TC_LOG_DEBUG("network", "WORLD: CMSG_GAMEOBJECT_QUERY - Missing gameobject info for (ENTRY: %u)", packet.GameObjectID);
+        TC_LOG_DEBUG("network", "WORLD: CMSG_GAMEOBJECT_QUERY - Missing gameobject info for (ENTRY: {})", packet.GameObjectID);
 
         WorldPackets::Query::QueryGameObjectResponse response;
         response.GameObjectID = packet.GameObjectID;
@@ -169,7 +169,7 @@ void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLoc
 
 void WorldSession::HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_NPC_TEXT_QUERY TextId: %u", packet.TextID);
+    TC_LOG_DEBUG("network", "WORLD: CMSG_NPC_TEXT_QUERY TextId: {}", packet.TextID);
 
     NpcText const* npcText = sObjectMgr->GetNpcText(packet.TextID);
 
@@ -188,7 +188,7 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPackets::Query::QueryNPCText& p
     }
 
     if (!response.Allow)
-        TC_LOG_ERROR("sql.sql", "HandleNpcTextQueryOpcode: no BroadcastTextID found for text %u in `npc_text table`", packet.TextID);
+        TC_LOG_ERROR("sql.sql", "HandleNpcTextQueryOpcode: no BroadcastTextID found for text {} in `npc_text table`", packet.TextID);
 
     SendPacket(response.Write());
 }
@@ -254,7 +254,7 @@ void WorldSession::HandleQueryQuestCompletionNPCs(WorldPackets::Query::QueryQues
 
         if (!sObjectMgr->GetQuestTemplate(questID))
         {
-            TC_LOG_DEBUG("network", "WORLD: Unknown quest %u in CMSG_QUERY_QUEST_COMPLETION_NPCS by %s", questID, _player->GetGUID().ToString().c_str());
+            TC_LOG_DEBUG("network", "WORLD: Unknown quest {} in CMSG_QUERY_QUEST_COMPLETION_NPCS by {}", questID, _player->GetGUID().ToString());
             continue;
         }
 

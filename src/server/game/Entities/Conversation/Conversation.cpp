@@ -231,7 +231,7 @@ bool Conversation::Start()
         UF::ConversationActor const* actor = line.ActorIndex < m_conversationData->Actors.size() ? &m_conversationData->Actors[line.ActorIndex] : nullptr;
         if (!actor || (!actor->CreatureID && actor->ActorGUID.IsEmpty() && !actor->NoActorObject))
         {
-            TC_LOG_ERROR("entities.conversation", "Failed to create conversation (Id: %u) due to missing actor (Idx: %u).", GetEntry(), line.ActorIndex);
+            TC_LOG_ERROR("entities.conversation", "Failed to create conversation (Id: {}) due to missing actor (Idx: {}).", GetEntry(), line.ActorIndex);
             return false;
         }
     }

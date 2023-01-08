@@ -87,10 +87,10 @@ _flags(AFLAG_NONE), _effectsToApply(effMask), _needClientUpdate(false), _effectM
         _slot = slot;
         GetTarget()->SetVisibleAura(this);
         _needClientUpdate = true;
-        TC_LOG_DEBUG("spells", "Aura: %u Effect: %d put to unit visible auras slot: %u", GetBase()->GetId(), GetEffectMask(), slot);
+        TC_LOG_DEBUG("spells", "Aura: {} Effect: {} put to unit visible auras slot: {}", GetBase()->GetId(), GetEffectMask(), slot);
     }
     else
-        TC_LOG_ERROR("spells", "Aura: %u Effect: %d could not find empty unit visible slot", GetBase()->GetId(), GetEffectMask());
+        TC_LOG_ERROR("spells", "Aura: {} Effect: {} could not find empty unit visible slot", GetBase()->GetId(), GetEffectMask());
 
     _InitFlags(caster, effMask);
 }
@@ -156,13 +156,13 @@ void AuraApplication::_HandleEffect(uint8 effIndex, bool apply)
     AuraEffect* aurEff = GetBase()->GetEffect(effIndex);
     if (!aurEff)
     {
-        TC_LOG_ERROR("spells", "Aura %u has no effect at effectIndex %u but _HandleEffect was called", GetBase()->GetSpellInfo()->Id, uint32(effIndex));
+        TC_LOG_ERROR("spells", "Aura {} has no effect at effectIndex {} but _HandleEffect was called", GetBase()->GetSpellInfo()->Id, uint32(effIndex));
         return;
     }
     ASSERT(aurEff);
     ASSERT(HasEffect(effIndex) == (!apply));
     ASSERT((1<<effIndex) & _effectsToApply);
-    TC_LOG_DEBUG("spells", "AuraApplication::_HandleEffect: %u, apply: %u: amount: %u", aurEff->GetAuraType(), apply, aurEff->GetAmount());
+    TC_LOG_DEBUG("spells", "AuraApplication::_HandleEffect: {}, apply: {}: amount: {}", aurEff->GetAuraType(), apply, aurEff->GetAmount());
 
     if (apply)
     {
@@ -568,8 +568,8 @@ void Aura::_UnapplyForTarget(Unit* target, Unit* caster, AuraApplication* auraAp
     /// @todo Figure out why this happens
     if (itr == m_applications.end())
     {
-        TC_LOG_ERROR("spells", "Aura::_UnapplyForTarget, target: %s, caster: %s, spell:%u was not found in owners application map!",
-        target->GetGUID().ToString().c_str(), caster ? caster->GetGUID().ToString().c_str() : "Empty", auraApp->GetBase()->GetSpellInfo()->Id);
+        TC_LOG_ERROR("spells", "Aura::_UnapplyForTarget, target: {}, caster: {}, spell:{} was not found in owners application map!",
+        target->GetGUID().ToString(), caster ? caster->GetGUID().ToString().c_str() : "Empty", auraApp->GetBase()->GetSpellInfo()->Id);
         ABORT();
     }
 
@@ -705,9 +705,9 @@ void Aura::UpdateTargetMap(Unit* caster, bool apply)
             if (!GetOwner()->IsSelfOrInSameMap(itr->first))
             {
                 /// @todo There is a crash caused by shadowfiend load addon
-                TC_LOG_FATAL("spells", "Aura %u: Owner %s (map %u) is not in the same map as target %s (map %u).", GetSpellInfo()->Id,
-                    GetOwner()->GetName().c_str(), GetOwner()->IsInWorld() ? GetOwner()->GetMap()->GetId() : uint32(-1),
-                    itr->first->GetName().c_str(), itr->first->IsInWorld() ? itr->first->GetMap()->GetId() : uint32(-1));
+                TC_LOG_FATAL("spells", "Aura {}: Owner {} (map {}) is not in the same map as target {} (map {}).", GetSpellInfo()->Id,
+                    GetOwner()->GetName(), GetOwner()->IsInWorld() ? GetOwner()->GetMap()->GetId() : uint32(-1),
+                    itr->first->GetName(), itr->first->IsInWorld() ? itr->first->GetMap()->GetId() : uint32(-1));
                 ABORT();
             }
 
@@ -1992,7 +1992,7 @@ void Aura::LoadScripts()
     sScriptMgr->CreateAuraScripts(m_spellInfo->Id, m_loadedScripts, this);
     for (auto itr = m_loadedScripts.begin(); itr != m_loadedScripts.end(); ++itr)
     {
-        TC_LOG_DEBUG("spells", "Aura::LoadScripts: Script `%s` for aura `%u` is loaded now", (*itr)->_GetScriptName()->c_str(), m_spellInfo->Id);
+        TC_LOG_DEBUG("spells", "Aura::LoadScripts: Script `{}` for aura `{}` is loaded now", (*itr)->_GetScriptName()->c_str(), m_spellInfo->Id);
         (*itr)->Register();
     }
 }

@@ -143,8 +143,8 @@ void InstanceLockMgr::Load()
                 auto sharedDataItr = instanceLockDataById.find(instanceId);
                 if (sharedDataItr == instanceLockDataById.end())
                 {
-                    TC_LOG_ERROR("instance.locks", "Missing instance data for instance id based lock (id %u)", instanceId);
-                    CharacterDatabase.PExecute("DELETE FROM character_instance_lock WHERE instanceId = %u", instanceId);
+                    TC_LOG_ERROR("instance.locks", "Missing instance data for instance id based lock (id {})", instanceId);
+                    CharacterDatabase.PExecute("DELETE FROM character_instance_lock WHERE instanceId = {}", instanceId);
                     continue;
                 }
 
@@ -263,10 +263,10 @@ InstanceLock* InstanceLockMgr::CreateInstanceLockForNewInstance(ObjectGuid const
             GetNextResetTime(entries), 0);
 
     _temporaryInstanceLocksByPlayer[playerGuid][entries.GetKey()].reset(instanceLock);
-    TC_LOG_DEBUG("instance.locks", "[%u-%s | %u-%s] Created new temporary instance lock for %s in instance %u",
+    TC_LOG_DEBUG("instance.locks", "[{}-{} | {}-{}] Created new temporary instance lock for {} in instance {}",
         entries.Map->ID, entries.Map->MapName[sWorld->GetDefaultDbcLocale()],
         uint32(entries.MapDifficulty->DifficultyID), sDifficultyStore.AssertEntry(entries.MapDifficulty->DifficultyID)->Name[sWorld->GetDefaultDbcLocale()],
-        playerGuid.ToString().c_str(), instanceId);
+        playerGuid.ToString(), instanceId);
     return instanceLock;
 }
 
@@ -294,10 +294,10 @@ InstanceLock* InstanceLockMgr::UpdateInstanceLockForPlayer(CharacterDatabaseTran
                 if (playerLocksItr->second.empty())
                     _temporaryInstanceLocksByPlayer.erase(playerLocksItr);
 
-                TC_LOG_DEBUG("instance.locks", "[%u-%s | %u-%s] Promoting temporary lock to permanent for %s in instance %u",
+                TC_LOG_DEBUG("instance.locks", "[{}-{} | {}-{}] Promoting temporary lock to permanent for {} in instance {}",
                     entries.Map->ID, entries.Map->MapName[sWorld->GetDefaultDbcLocale()],
                     uint32(entries.MapDifficulty->DifficultyID), sDifficultyStore.AssertEntry(entries.MapDifficulty->DifficultyID)->Name[sWorld->GetDefaultDbcLocale()],
-                    playerGuid.ToString().c_str(), updateEvent.InstanceId);
+                    playerGuid.ToString(), updateEvent.InstanceId);
             }
         }
     }
@@ -324,10 +324,10 @@ InstanceLock* InstanceLockMgr::UpdateInstanceLockForPlayer(CharacterDatabaseTran
             _instanceLocksByPlayer[playerGuid][entries.GetKey()].reset(instanceLock);
         }
 
-        TC_LOG_DEBUG("instance.locks", "[%u-%s | %u-%s] Created new instance lock for %s in instance %u",
+        TC_LOG_DEBUG("instance.locks", "[{}-{} | {}-{}] Created new instance lock for {} in instance {}",
             entries.Map->ID, entries.Map->MapName[sWorld->GetDefaultDbcLocale()],
             uint32(entries.MapDifficulty->DifficultyID), sDifficultyStore.AssertEntry(entries.MapDifficulty->DifficultyID)->Name[sWorld->GetDefaultDbcLocale()],
-            playerGuid.ToString().c_str(), updateEvent.InstanceId);
+            playerGuid.ToString(), updateEvent.InstanceId);
     }
     else
     {
@@ -346,10 +346,10 @@ InstanceLock* InstanceLockMgr::UpdateInstanceLockForPlayer(CharacterDatabaseTran
     if (updateEvent.CompletedEncounter)
     {
         instanceLock->GetData()->CompletedEncountersMask |= 1u << updateEvent.CompletedEncounter->Bit;
-        TC_LOG_DEBUG("instance.locks", "[%u-%s | %u-%s] Instance lock for %s in instance %u gains completed encounter [%u-%s]",
+        TC_LOG_DEBUG("instance.locks", "[{}-{} | {}-{}] Instance lock for {} in instance {} gains completed encounter [{}-{}]",
             entries.Map->ID, entries.Map->MapName[sWorld->GetDefaultDbcLocale()],
             uint32(entries.MapDifficulty->DifficultyID), sDifficultyStore.AssertEntry(entries.MapDifficulty->DifficultyID)->Name[sWorld->GetDefaultDbcLocale()],
-            playerGuid.ToString().c_str(), updateEvent.InstanceId,
+            playerGuid.ToString(), updateEvent.InstanceId,
             updateEvent.CompletedEncounter->ID, updateEvent.CompletedEncounter->Name[sWorld->GetDefaultDbcLocale()]);
     }
 
@@ -364,10 +364,10 @@ InstanceLock* InstanceLockMgr::UpdateInstanceLockForPlayer(CharacterDatabaseTran
     {
         instanceLock->SetExpiryTime(GetNextResetTime(entries));
         instanceLock->SetExtended(false);
-        TC_LOG_DEBUG("instance.locks", "[%u-%s | %u-%s] Expired instance lock for %s in instance %u is now active",
+        TC_LOG_DEBUG("instance.locks", "[{}-{} | {}-{}] Expired instance lock for {} in instance {} is now active",
             entries.Map->ID, entries.Map->MapName[sWorld->GetDefaultDbcLocale()],
             uint32(entries.MapDifficulty->DifficultyID), sDifficultyStore.AssertEntry(entries.MapDifficulty->DifficultyID)->Name[sWorld->GetDefaultDbcLocale()],
-            playerGuid.ToString().c_str(), updateEvent.InstanceId);
+            playerGuid.ToString(), updateEvent.InstanceId);
     }
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_INSTANCE_LOCK);
@@ -404,7 +404,7 @@ void InstanceLockMgr::UpdateSharedInstanceLock(CharacterDatabaseTransaction tran
     if (updateEvent.CompletedEncounter)
     {
         sharedData->CompletedEncountersMask |= 1u << updateEvent.CompletedEncounter->Bit;
-        TC_LOG_DEBUG("instance.locks", "Instance %u gains completed encounter [%u-%s]",
+        TC_LOG_DEBUG("instance.locks", "Instance {} gains completed encounter [{}-{}]",
             updateEvent.InstanceId, updateEvent.CompletedEncounter->ID, updateEvent.CompletedEncounter->Name[sWorld->GetDefaultDbcLocale()]);
     }
 
@@ -432,7 +432,7 @@ void InstanceLockMgr::OnSharedInstanceLockDataDelete(uint32 instanceId)
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INSTANCE);
     stmt->setUInt32(0, instanceId);
     CharacterDatabase.Execute(stmt);
-    TC_LOG_DEBUG("instance.locks", "Deleting instance %u as it is no longer referenced by any player", instanceId);
+    TC_LOG_DEBUG("instance.locks", "Deleting instance {} as it is no longer referenced by any player", instanceId);
 }
 
 std::pair<InstanceResetTimePoint, InstanceResetTimePoint> InstanceLockMgr::UpdateInstanceLockExtensionForPlayer(ObjectGuid const& playerGuid,
@@ -450,10 +450,10 @@ std::pair<InstanceResetTimePoint, InstanceResetTimePoint> InstanceLockMgr::Updat
         stmt->setUInt32(3, entries.MapDifficulty->LockID);
         CharacterDatabase.Execute(stmt);
 
-        TC_LOG_DEBUG("instance.locks", "[%u-%s | %u-%s] Instance lock for %s is %s extended",
+        TC_LOG_DEBUG("instance.locks", "[{}-{} | {}-{}] Instance lock for {} is {} extended",
             entries.Map->ID, entries.Map->MapName[sWorld->GetDefaultDbcLocale()],
             uint32(entries.MapDifficulty->DifficultyID), sDifficultyStore.AssertEntry(entries.MapDifficulty->DifficultyID)->Name[sWorld->GetDefaultDbcLocale()],
-            playerGuid.ToString().c_str(), extended ? "now" : "no longer");
+            playerGuid.ToString(), extended ? "now" : "no longer");
 
         return { oldExpiryTime, instanceLock->GetEffectiveExpiryTime() };
     }
