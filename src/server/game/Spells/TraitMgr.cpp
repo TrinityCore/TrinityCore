@@ -389,7 +389,7 @@ void FillOwnedCurrenciesMap(WorldPackets::Traits::TraitConfig const& traitConfig
                     break;
                 }
                 case TraitCurrencyType::CurrencyTypesBased:
-                    currencies[currency->ID] += player.GetCurrency(currency->CurrencyTypesID);
+                    currencies[currency->ID] += player.GetCurrencyQuantity(currency->CurrencyTypesID);
                     break;
                 case TraitCurrencyType::TraitSourced:
                     if (std::vector<TraitCurrencySourceEntry const*>* currencySources = Trinity::Containers::MapGetValuePtr(_traitCurrencySourcesByCurrency, currency->ID))

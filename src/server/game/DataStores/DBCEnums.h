@@ -666,6 +666,62 @@ enum class ChrCustomizationReqFlag : int32
 
 DEFINE_ENUM_FLAG(ChrCustomizationReqFlag);
 
+enum CurrencyConsts
+{
+    CURRENCY_TYPE_ANCIENT_MANA    = 1155,
+    CURRENCY_TYPE_AZERITE         = 1553,
+
+    CURRENCY_MAX_CAP_ANCIENT_MANA = 2000
+};
+
+enum CurrencyTypesFlags : uint32
+{
+    CurrencyTradable                           = 0x00000001, // NYI
+    CurrencyAppearsInLootWindow                = 0x00000002, // NYI
+    CurrencyComputedWeeklyMaximum              = 0x00000004, // NYI
+    Currency_100_Scaler                        = 0x00000008,
+    CurrencyNoLowLevelDrop                     = 0x00000010, // NYI
+    CurrencyIgnoreMaxQtyOnLoad                 = 0x00000020,
+    CurrencyLogOnWorldChange                   = 0x00000040, // NYI
+    CurrencyTrackQuantity                      = 0x00000080,
+    CurrencyResetTrackedQuantity               = 0x00000100, // NYI
+    CurrencyUpdateVersionIgnoreMax             = 0x00000200,
+    CurrencySuppressChatMessageOnVersionChange = 0x00000400,
+    CurrencySingleDropInLoot                   = 0x00000800, // NYI
+    CurrencyHasWeeklyCatchup                   = 0x00001000, // NYI
+    CurrencyDoNotCompressChat                  = 0x00002000, // NYI
+    CurrencyDoNotLogAcquisitionToBi            = 0x00004000, // NYI
+    CurrencyNoRaidDrop                         = 0x00008000, // NYI
+    CurrencyNotPersistent                      = 0x00010000, // NYI
+    CurrencyDeprecated                         = 0x00020000, // NYI
+    CurrencyDynamicMaximum                     = 0x00040000,
+    CurrencySuppressChatMessages               = 0x00080000,
+    CurrencyDoNotToast                         = 0x00100000, // NYI
+    CurrencyDestroyExtraOnLoot                 = 0x00200000, // NYI
+    CurrencyDontShowTotalInTooltip             = 0x00400000, // NYI
+    CurrencyDontCoalesceInLootWindow           = 0x00800000, // NYI
+    CurrencyAccountWide                        = 0x01000000, // NYI
+    CurrencyAllowOverflowMailer                = 0x02000000, // NYI
+    CurrencyHideAsReward                       = 0x04000000, // NYI
+    CurrencyHasWarmodeBonus                    = 0x08000000, // NYI
+    CurrencyIsAllianceOnly                     = 0x10000000,
+    CurrencyIsHordeOnly                        = 0x20000000,
+    CurrencyLimitWarmodeBonusOncePerTooltip    = 0x40000000, // NYI
+    DeprecatedCurrencyFlag                     = 0x80000000
+};
+
+DEFINE_ENUM_FLAG(CurrencyTypesFlags);
+
+enum CurrencyTypesFlagsB : uint32
+{
+    CurrencyBUseTotalEarnedForEarned             = 0x01,
+    CurrencyBShowQuestXPGainInTooltip            = 0x02, // NYI
+    CurrencyBNoNotificationMailOnOfflineProgress = 0x04, // NYI
+    CurrencyBBattlenetVirtualCurrency            = 0x08  // NYI
+};
+
+DEFINE_ENUM_FLAG(CurrencyTypesFlagsB);
+
 enum Curves
 {
     CURVE_ID_ARTIFACT_RELIC_ITEM_LEVEL_BONUS    = 1718,
@@ -2197,15 +2253,6 @@ enum VehicleSeatFlagsB
     VEHICLE_SEAT_FLAG_B_USABLE_FORCED_4          = 0x02000000,
     VEHICLE_SEAT_FLAG_B_CAN_SWITCH               = 0x04000000,
     VEHICLE_SEAT_FLAG_B_VEHICLE_PLAYERFRAME_UI   = 0x80000000            // Lua_UnitHasVehiclePlayerFrameUI - actually checked for flagsb &~ 0x80000000
-};
-
-// CurrencyTypes.dbc
-enum CurrencyTypes
-{
-    CURRENCY_TYPE_JUSTICE_POINTS        = 395,
-    CURRENCY_TYPE_VALOR_POINTS          = 396,
-    CURRENCY_TYPE_APEXIS_CRYSTALS       = 823,
-    CURRENCY_TYPE_AZERITE               = 1553
 };
 
 enum WorldMapTransformsFlags

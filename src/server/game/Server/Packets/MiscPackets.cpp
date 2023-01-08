@@ -50,14 +50,19 @@ WorldPacket const* WorldPackets::Misc::SetCurrency::Write()
     _worldPacket << int32(Type);
     _worldPacket << int32(Quantity);
     _worldPacket << uint32(Flags);
+    _worldPacket << uint32(Toasts.size());
+
+    for (WorldPackets::Item::UiEventToast const& toast : Toasts)
+        _worldPacket << toast;
+
     _worldPacket.WriteBit(WeeklyQuantity.has_value());
     _worldPacket.WriteBit(TrackedQuantity.has_value());
     _worldPacket.WriteBit(MaxQuantity.has_value());
     _worldPacket.WriteBit(TotalEarned.has_value());
     _worldPacket.WriteBit(SuppressChatLog);
     _worldPacket.WriteBit(QuantityChange.has_value());
-    _worldPacket.WriteBit(QuantityLostSource.has_value());
     _worldPacket.WriteBit(QuantityGainSource.has_value());
+    _worldPacket.WriteBit(QuantityLostSource.has_value());
     _worldPacket.WriteBit(FirstCraftOperationID.has_value());
     _worldPacket.WriteBit(LastSpendTime.has_value());
     _worldPacket.FlushBits();
@@ -77,11 +82,11 @@ WorldPacket const* WorldPackets::Misc::SetCurrency::Write()
     if (QuantityChange)
         _worldPacket << int32(*QuantityChange);
 
-    if (QuantityLostSource)
-        _worldPacket << int32(*QuantityLostSource);
-
     if (QuantityGainSource)
         _worldPacket << int32(*QuantityGainSource);
+
+    if (QuantityLostSource)
+        _worldPacket << int32(*QuantityLostSource);
 
     if (FirstCraftOperationID)
         _worldPacket << uint32(*FirstCraftOperationID);
@@ -112,7 +117,7 @@ WorldPacket const* WorldPackets::Misc::SetupCurrency::Write()
         _worldPacket.WriteBit(data.MaxQuantity.has_value());
         _worldPacket.WriteBit(data.TotalEarned.has_value());
         _worldPacket.WriteBit(data.LastSpendTime.has_value());
-        _worldPacket.WriteBits(data.Flags, 5);
+        _worldPacket.WriteBits(uint8(data.Flags), 5);
         _worldPacket.FlushBits();
 
         if (data.WeeklyQuantity)
