@@ -752,70 +752,27 @@ ByteBuffer& operator>>(ByteBuffer& buf, ObjectGuid& guid)
     return buf;
 }
 
-void ObjectGuidGeneratorBase::HandleCounterOverflow(HighGuid high)
+ObjectGuid::LowType ObjectGuidGenerator::Generate()
 {
-    TC_LOG_ERROR("misc", "%s guid overflow!! Can't continue, shutting down server. ", ObjectGuid::GetTypeName(high));
+    if (_nextGuid >= ObjectGuid::GetMaxCounter(_high) - 1)
+        HandleCounterOverflow();
+
+    if (_high == HighGuid::Creature || _high == HighGuid::Vehicle || _high == HighGuid::GameObject || _high == HighGuid::Transport)
+        CheckGuidTrigger();
+
+    return _nextGuid++;
+}
+
+void ObjectGuidGenerator::HandleCounterOverflow()
+{
+    TC_LOG_ERROR("misc", "%s guid overflow!! Can't continue, shutting down server. ", ObjectGuid::GetTypeName(_high));
     World::StopNow(ERROR_EXIT_CODE);
 }
 
-void ObjectGuidGeneratorBase::CheckGuidTrigger(ObjectGuid::LowType guidlow)
+void ObjectGuidGenerator::CheckGuidTrigger()
 {
-    if (!sWorld->IsGuidAlert() && guidlow > sWorld->getIntConfig(CONFIG_RESPAWN_GUIDALERTLEVEL))
+    if (!sWorld->IsGuidAlert() && _nextGuid > sWorld->getIntConfig(CONFIG_RESPAWN_GUIDALERTLEVEL))
         sWorld->TriggerGuidAlert();
-    else if (!sWorld->IsGuidWarning() && guidlow > sWorld->getIntConfig(CONFIG_RESPAWN_GUIDWARNLEVEL))
+    else if (!sWorld->IsGuidWarning() && _nextGuid > sWorld->getIntConfig(CONFIG_RESPAWN_GUIDWARNLEVEL))
         sWorld->TriggerGuidWarning();
 }
-
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Null>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Uniq>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Player>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Item>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::WorldTransaction>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::StaticDoor>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Transport>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Conversation>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Creature>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Vehicle>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Pet>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::GameObject>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::DynamicObject>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::AreaTrigger>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Corpse>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::LootObject>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::SceneObject>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Scenario>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::AIGroup>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::DynamicDoor>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::ClientActor>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Vignette>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::CallForHelp>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::AIResource>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::AILock>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::AILockTicket>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::ChatChannel>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Party>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Guild>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::WowAccount>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::BNetAccount>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::GMTask>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::MobileSession>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::RaidGroup>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Spell>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Mail>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::WebObj>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::LFGObject>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::LFGList>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::UserRouter>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::PVPQueueGroup>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::UserClient>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::PetBattle>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::UniqUserClient>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::BattlePet>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::CommerceObj>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::ClientSession>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Cast>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::ClientConnection>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::ClubFinder>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::ToolsClient>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::WorldLayer>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::ArenaTeam>;

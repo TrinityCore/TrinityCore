@@ -2214,9 +2214,8 @@ void ObjectMgr::LoadCreatures()
 
     // Build single time for check spawnmask
     std::unordered_map<uint32, std::set<Difficulty>> spawnMasks;
-    for (auto& mapDifficultyPair : sDB2Manager.GetMapDifficulties())
-        for (auto& difficultyPair : mapDifficultyPair.second)
-            spawnMasks[mapDifficultyPair.first].insert(Difficulty(difficultyPair.first));
+    for (MapDifficultyEntry const* mapDifficulty : sMapDifficultyStore)
+        spawnMasks[mapDifficulty->MapID].insert(Difficulty(mapDifficulty->DifficultyID));
 
     PhaseShift phaseShift;
 
@@ -2532,9 +2531,8 @@ void ObjectMgr::LoadGameObjects()
 
     // build single time for check spawnmask
     std::unordered_map<uint32, std::set<Difficulty>> spawnMasks;
-    for (auto& mapDifficultyPair : sDB2Manager.GetMapDifficulties())
-        for (auto& difficultyPair : mapDifficultyPair.second)
-            spawnMasks[mapDifficultyPair.first].insert(Difficulty(difficultyPair.first));
+    for (MapDifficultyEntry const* mapDifficulty : sMapDifficultyStore)
+        spawnMasks[mapDifficulty->MapID].insert(Difficulty(mapDifficulty->DifficultyID));
 
     PhaseShift phaseShift;
 
@@ -6837,26 +6835,17 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
 
 void ObjectMgr::GetTaxiPath(uint32 source, uint32 destination, uint32 &path, uint32 &cost)
 {
-    TaxiPathSetBySource::iterator src_i = sTaxiPathSetBySource.find(source);
-    if (src_i == sTaxiPathSetBySource.end())
+    TaxiPathEntry const* taxiPath = sDB2Manager.GetTaxiPath(source, destination);
+    if (taxiPath)
+    {
+        path = taxiPath->ID;
+        cost = taxiPath->Cost;
+    }
+    else
     {
         path = 0;
         cost = 0;
-        return;
     }
-
-    TaxiPathSetForSource& pathSet = src_i->second;
-
-    TaxiPathSetForSource::iterator dest_i = pathSet.find(destination);
-    if (dest_i == pathSet.end())
-    {
-        path = 0;
-        cost = 0;
-        return;
-    }
-
-    cost = dest_i->second.price;
-    path = dest_i->second.ID;
 }
 
 uint32 ObjectMgr::GetTaxiMountDisplayId(uint32 id, uint32 team, bool allowed_alt_team /* = false */)
@@ -7454,22 +7443,22 @@ void ObjectMgr::SetHighestGuids()
 {
     QueryResult result = CharacterDatabase.Query("SELECT MAX(guid) FROM characters");
     if (result)
-        GetGuidSequenceGenerator<HighGuid::Player>().Set((*result)[0].GetUInt64() + 1);
+        GetGuidSequenceGenerator(HighGuid::Player).Set((*result)[0].GetUInt64() + 1);
 
     result = CharacterDatabase.Query("SELECT MAX(guid) FROM item_instance");
     if (result)
-        GetGuidSequenceGenerator<HighGuid::Item>().Set((*result)[0].GetUInt64() + 1);
+        GetGuidSequenceGenerator(HighGuid::Item).Set((*result)[0].GetUInt64() + 1);
 
     // Cleanup other tables from nonexistent guids ( >= _hiItemGuid)
-    CharacterDatabase.PExecute("DELETE FROM character_inventory WHERE item >= '%u'", GetGuidSequenceGenerator<HighGuid::Item>().GetNextAfterMaxUsed());    // One-time query
-    CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid >= '%u'", GetGuidSequenceGenerator<HighGuid::Item>().GetNextAfterMaxUsed());        // One-time query
+    CharacterDatabase.PExecute("DELETE FROM character_inventory WHERE item >= '%u'", GetGuidSequenceGenerator(HighGuid::Item).GetNextAfterMaxUsed());    // One-time query
+    CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid >= '%u'", GetGuidSequenceGenerator(HighGuid::Item).GetNextAfterMaxUsed());        // One-time query
     CharacterDatabase.PExecute("DELETE a, ab, ai FROM auctionhouse a LEFT JOIN auction_bidders ab ON ab.auctionId = a.id LEFT JOIN auction_items ai ON ai.auctionId = a.id WHERE ai.itemGuid >= '%u'",
-        GetGuidSequenceGenerator<HighGuid::Item>().GetNextAfterMaxUsed());       // One-time query
-    CharacterDatabase.PExecute("DELETE FROM guild_bank_item WHERE item_guid >= '%u'", GetGuidSequenceGenerator<HighGuid::Item>().GetNextAfterMaxUsed());   // One-time query
+        GetGuidSequenceGenerator(HighGuid::Item).GetNextAfterMaxUsed());       // One-time query
+    CharacterDatabase.PExecute("DELETE FROM guild_bank_item WHERE item_guid >= '%u'", GetGuidSequenceGenerator(HighGuid::Item).GetNextAfterMaxUsed());   // One-time query
 
     result = WorldDatabase.Query("SELECT MAX(guid) FROM transports");
     if (result)
-        GetGuidSequenceGenerator<HighGuid::Transport>().Set((*result)[0].GetUInt64() + 1);
+        GetGuidSequenceGenerator(HighGuid::Transport).Set((*result)[0].GetUInt64() + 1);
 
     result = CharacterDatabase.Query("SELECT MAX(id) FROM auctionhouse");
     if (result)
@@ -7506,6 +7495,15 @@ void ObjectMgr::SetHighestGuids()
     result = WorldDatabase.Query("SELECT MAX(guid) FROM gameobject");
     if (result)
         _gameObjectSpawnId = (*result)[0].GetUInt64() + 1;
+}
+
+ObjectGuidGenerator& ObjectMgr::GetGuidSequenceGenerator(HighGuid high)
+{
+    auto itr = _guidGenerators.find(high);
+    if (itr == _guidGenerators.end())
+        itr = _guidGenerators.insert(std::make_pair(high, std::make_unique<ObjectGuidGenerator>(high))).first;
+
+    return *itr->second;
 }
 
 uint32 ObjectMgr::GenerateAuctionID()

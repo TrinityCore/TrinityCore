@@ -20,12 +20,10 @@
 
 #include "DB2Store.h"
 #include "DB2Structure.h"
-#include <Optional.h>
+#include "Optional.h"
 #include "SharedDefines.h"
 #include <map>
 #include <set>
-#include <unordered_map>
-#include <unordered_set>
 #include <vector>
 
  // temporary hack until includes are sorted out (don't want to pull in Windows.h)
@@ -169,6 +167,7 @@ TC_GAME_API extern DB2Storage<LockEntry>                            sLockStore;
 TC_GAME_API extern DB2Storage<MailTemplateEntry>                    sMailTemplateStore;
 TC_GAME_API extern DB2Storage<MapEntry>                             sMapStore;
 TC_GAME_API extern DB2Storage<MapChallengeModeEntry>                sMapChallengeModeStore;
+TC_GAME_API extern DB2Storage<MapDifficultyEntry>                   sMapDifficultyStore;
 TC_GAME_API extern DB2Storage<MawPowerEntry>                        sMawPowerStore;
 TC_GAME_API extern DB2Storage<ModifierTreeEntry>                    sModifierTreeStore;
 TC_GAME_API extern DB2Storage<MountCapabilityEntry>                 sMountCapabilityStore;
@@ -304,9 +303,6 @@ struct TaxiPathBySourceAndDestination
     uint32 price;
 };
 
-using TaxiPathSetForSource = std::map<uint32, TaxiPathBySourceAndDestination>;
-using TaxiPathSetBySource = std::map<uint32, TaxiPathSetForSource>;
-
 using TaxiPathNodeList = std::vector<TaxiPathNodeEntry const*>;
 using TaxiPathNodesByPath = std::vector<TaxiPathNodeList>;
 
@@ -314,7 +310,6 @@ TC_GAME_API extern TaxiMask                                         sTaxiNodesMa
 TC_GAME_API extern TaxiMask                                         sOldContinentsNodesMask;
 TC_GAME_API extern TaxiMask                                         sHordeTaxiNodesMask;
 TC_GAME_API extern TaxiMask                                         sAllianceTaxiNodesMask;
-TC_GAME_API extern TaxiPathSetBySource                              sTaxiPathSetBySource;
 TC_GAME_API extern TaxiPathNodesByPath                              sTaxiPathNodesByPath;
 
 #define DEFINE_DB2_SET_COMPARATOR(structure) \
@@ -373,7 +368,6 @@ public:
 
     using FriendshipRepReactionSet = std::set<FriendshipRepReactionEntry const*, FriendshipRepReactionEntryComparator>;
     using ItemBonusList = std::vector<ItemBonusEntry const*>;
-    using MapDifficultyContainer = std::unordered_map<uint32, std::unordered_map<uint32, MapDifficultyEntry const*>>;
     using MapDifficultyConditionsContainer = std::vector<std::pair<uint32, PlayerConditionEntry const*>>;
     using MountTypeXCapabilitySet = std::set<MountTypeXCapabilityEntry const*, MountTypeXCapabilityEntryComparator>;
     using MountXDisplayContainer = std::vector<MountXDisplayEntry const*>;
@@ -395,7 +389,7 @@ public:
     std::vector<uint32> GetAreasForGroup(uint32 areaGroupId) const;
     static bool IsInArea(uint32 objectAreaId, uint32 areaId);
     std::vector<ArtifactPowerEntry const*> GetArtifactPowers(uint8 artifactId) const;
-    std::unordered_set<uint32> const* GetArtifactPowerLinks(uint32 artifactPowerId) const;
+    std::vector<uint32> const* GetArtifactPowerLinks(uint32 artifactPowerId) const;
     ArtifactPowerRankEntry const* GetArtifactPowerRank(uint32 artifactPowerId, uint8 rank) const;
     AzeriteEmpoweredItemEntry const* GetAzeriteEmpoweredItem(uint32 itemId) const;
     bool IsAzeriteItem(uint32 itemId) const;
@@ -411,7 +405,7 @@ public:
     uint32 GetPowerIndexByClass(Powers power, uint32 classId) const;
     std::vector<ChrCustomizationChoiceEntry const*> const* GetCustomiztionChoices(uint32 chrCustomizationOptionId) const;
     std::vector<ChrCustomizationOptionEntry const*> const* GetCustomiztionOptions(uint8 race, uint8 gender) const;
-    std::unordered_map<uint32, std::vector<uint32>> const* GetRequiredCustomizationChoices(uint32 chrCustomizationReqId) const;
+    std::vector<std::pair<uint32, std::vector<uint32>>> const* GetRequiredCustomizationChoices(uint32 chrCustomizationReqId) const;
     ChrModelEntry const* GetChrModel(uint8 race, uint8 gender) const;
     static char const* GetChrRaceName(uint8 race, LocaleConstant locale = DEFAULT_LOCALE);
     ChrSpecializationEntry const* GetChrSpecializationByIndex(uint32 class_, uint32 index) const;
@@ -446,7 +440,6 @@ public:
     static LFGDungeonsEntry const* GetLfgDungeon(uint32 mapId, Difficulty difficulty);
     static uint32 GetDefaultMapLight(uint32 mapId);
     static uint32 GetLiquidFlags(uint32 liquidType);
-    MapDifficultyContainer const& GetMapDifficulties() const;
     MapDifficultyEntry const* GetDefaultMapDifficulty(uint32 mapId, Difficulty* difficulty = nullptr) const;
     MapDifficultyEntry const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty) const;
     MapDifficultyEntry const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &difficulty) const;
@@ -467,7 +460,7 @@ public:
     static PVPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundBracketId id);
     uint32 GetRequiredLevelForPvpTalentSlot(uint8 slot, Classes class_) const;
     int32 GetPvpTalentNumSlotsAtLevel(uint32 level, Classes class_) const;
-    std::unordered_set<QuestLineXQuestEntry const*> const* GetQuestsForQuestLine(uint32 questLineId) const;
+    std::vector<QuestLineXQuestEntry const*> const* GetQuestsForQuestLine(uint32 questLineId) const;
     std::vector<QuestPackageItemEntry const*> const* GetQuestPackageItems(uint32 questPackageID) const;
     std::vector<QuestPackageItemEntry const*> const* GetQuestPackageItemsFallback(uint32 questPackageID) const;
     uint32 GetQuestUniqueBitFlag(uint32 questId);
@@ -485,6 +478,7 @@ public:
     std::vector<SpellProcsPerMinuteModEntry const*> GetSpellProcsPerMinuteMods(uint32 spellprocsPerMinuteId) const;
     std::vector<SpellVisualMissileEntry const*> const* GetSpellVisualMissiles(int32 spellVisualMissileSetId) const;
     std::vector<TalentEntry const*> const& GetTalentsByPosition(uint32 class_, uint32 tier, uint32 column) const;
+    TaxiPathEntry const* GetTaxiPath(uint32 from, uint32 to) const;
     static bool IsTotemCategoryCompatibleWith(uint32 itemTotemCategoryId, uint32 requiredTotemCategoryId);
     bool IsToyItem(uint32 toy) const;
     TransmogIllusionEntry const* GetTransmogIllusionForEnchantment(uint32 spellItemEnchantmentId) const;

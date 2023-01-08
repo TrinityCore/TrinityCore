@@ -178,6 +178,7 @@ inline bool CompareRespawnInfo::operator()(RespawnInfo const* a, RespawnInfo con
     return a->type < b->type;
 }
 
+extern template class TypeUnorderedMapContainer<AllMapStoredObjectTypes, ObjectGuid>;
 typedef TypeUnorderedMapContainer<AllMapStoredObjectTypes, ObjectGuid> MapStoredObjectTypesContainer;
 
 class TC_GAME_API Map : public GridRefManager<NGridType>
@@ -494,14 +495,14 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         inline ObjectGuid::LowType GenerateLowGuid()
         {
             static_assert(ObjectGuidTraits<high>::SequenceSource.HasFlag(ObjectGuidSequenceSource::Map), "Only map specific guid can be generated in Map context");
-            return GetGuidSequenceGenerator<high>().Generate();
+            return GetGuidSequenceGenerator(high).Generate();
         }
 
         template<HighGuid high>
         inline ObjectGuid::LowType GetMaxLowGuid()
         {
             static_assert(ObjectGuidTraits<high>::SequenceSource.HasFlag(ObjectGuidSequenceSource::Map), "Only map specific guid can be retrieved in Map context");
-            return GetGuidSequenceGenerator<high>().GetNextAfterMaxUsed();
+            return GetGuidSequenceGenerator(high).GetNextAfterMaxUsed();
         }
 
         void AddUpdateObject(Object* obj)
@@ -762,17 +763,9 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         ZoneDynamicInfoMap _zoneDynamicInfo;
         IntervalTimer _weatherUpdateTimer;
 
-        template<HighGuid high>
-        inline ObjectGuidGeneratorBase& GetGuidSequenceGenerator()
-        {
-            auto itr = _guidGenerators.find(high);
-            if (itr == _guidGenerators.end())
-                itr = _guidGenerators.insert(std::make_pair(high, std::make_unique<ObjectGuidGenerator<high>>())).first;
+        ObjectGuidGenerator& GetGuidSequenceGenerator(HighGuid high);
 
-            return *itr->second;
-        }
-
-        std::map<HighGuid, std::unique_ptr<ObjectGuidGeneratorBase>> _guidGenerators;
+        std::map<HighGuid, std::unique_ptr<ObjectGuidGenerator>> _guidGenerators;
         std::unique_ptr<SpawnedPoolData> _poolData;
         MapStoredObjectTypesContainer _objectsStore;
         CreatureBySpawnIdContainer _creatureBySpawnIdStore;

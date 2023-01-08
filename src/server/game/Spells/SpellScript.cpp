@@ -412,6 +412,12 @@ void SpellScript::DestinationTargetSelectHandler::Call(SpellScript* spellScript,
     (spellScript->*DestinationTargetSelectHandlerScript)(target);
 }
 
+SpellScript::SpellScript(): m_spell(nullptr), m_hitPreventEffectMask(0), m_hitPreventDefaultEffectMask(0)
+{
+}
+
+SpellScript::~SpellScript() = default;
+
 bool SpellScript::_Validate(SpellInfo const* entry)
 {
     for (auto itr = OnEffectLaunch.begin(); itr != OnEffectLaunch.end(); ++itr)
@@ -1274,6 +1280,12 @@ void AuraScript::EnterLeaveCombatHandler::Call(AuraScript* auraScript, bool isNo
 {
     (auraScript->*_handlerScript)(isNowInCombat);
 }
+
+AuraScript::AuraScript(): _SpellScript(), m_aura(nullptr), m_auraApplication(nullptr), m_defaultActionPrevented(false)
+{
+}
+
+AuraScript::~AuraScript() = default;
 
 bool AuraScript::_Load(Aura* aura)
 {

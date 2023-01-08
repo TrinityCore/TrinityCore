@@ -534,12 +534,12 @@ bool WorldSession::MeetsChrCustomizationReq(ChrCustomizationReqEntry const* req,
 
     if (checkRequiredDependentChoices)
     {
-        if (std::unordered_map<uint32, std::vector<uint32>> const* requiredChoices = sDB2Manager.GetRequiredCustomizationChoices(req->ID))
+        if (std::vector<std::pair<uint32, std::vector<uint32>>> const* requiredChoices = sDB2Manager.GetRequiredCustomizationChoices(req->ID))
         {
-            for (std::pair<uint32 const /*chrCustomizationOptionId*/, std::vector<uint32>> const& requiredChoicesForOption : *requiredChoices)
+            for (auto const& [chrCustomizationOptionId, requiredChoicesForOption] : *requiredChoices)
             {
                 bool hasRequiredChoiceForOption = false;
-                for (uint32 requiredChoice : requiredChoicesForOption.second)
+                for (uint32 requiredChoice : requiredChoicesForOption)
                 {
                     auto choiceItr = std::find_if(selectedChoices.begin(), selectedChoices.end(), [requiredChoice](UF::ChrCustomizationChoice const& choice)
                     {

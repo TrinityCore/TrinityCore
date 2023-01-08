@@ -1187,7 +1187,7 @@ void Battleground::EventPlayerLoggedIn(Player* player)
 {
     ObjectGuid guid = player->GetGUID();
     // player is correct pointer
-    for (GuidDeque::iterator itr = m_OfflineQueue.begin(); itr != m_OfflineQueue.end(); ++itr)
+    for (auto itr = m_OfflineQueue.begin(); itr != m_OfflineQueue.end(); ++itr)
     {
         if (*itr == guid)
         {
