@@ -674,7 +674,7 @@ enum CurrencyConsts
     CURRENCY_MAX_CAP_ANCIENT_MANA = 2000
 };
 
-enum CurrencyTypesFlags : uint32
+enum class CurrencyTypesFlags : uint32
 {
     CurrencyTradable                           = 0x00000001, // NYI
     CurrencyAppearsInLootWindow                = 0x00000002, // NYI
@@ -712,7 +712,7 @@ enum CurrencyTypesFlags : uint32
 
 DEFINE_ENUM_FLAG(CurrencyTypesFlags);
 
-enum CurrencyTypesFlagsB : uint32
+enum class CurrencyTypesFlagsB : uint32
 {
     CurrencyBUseTotalEarnedForEarned             = 0x01,
     CurrencyBShowQuestXPGainInTooltip            = 0x02, // NYI
