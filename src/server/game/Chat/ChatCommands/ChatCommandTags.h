@@ -310,4 +310,17 @@ namespace Trinity::ChatCommands
     };
 }
 
+template <typename T1, typename... Ts>
+struct fmt::formatter<Trinity::ChatCommands::Variant<T1, Ts...>> : ostream_formatter {};
+
+template <typename T1, typename... Ts>
+struct fmt::printf_formatter<Trinity::ChatCommands::Variant<T1, Ts...>> : formatter<T1>
+{
+    template <typename T, typename OutputIt>
+    auto format(T const& value, basic_format_context<OutputIt, char>& ctx) const -> OutputIt
+    {
+        return formatter<T1>::format(*value, ctx);
+    }
+};
+
 #endif

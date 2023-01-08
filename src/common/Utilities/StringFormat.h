@@ -23,7 +23,7 @@
 namespace Trinity
 {
     template<typename... Args>
-    using FormatString = std::string_view;
+    using FormatString = fmt::format_string<Args...>;
 
     /// Default TC string format function.
     template<typename... Args>
@@ -55,6 +55,11 @@ namespace Trinity
     inline constexpr bool IsFormatEmptyOrNull(std::string_view fmt)
     {
         return fmt.empty();
+    }
+
+    inline constexpr bool IsFormatEmptyOrNull(fmt::string_view fmt)
+    {
+        return fmt.size() == 0;
     }
 }
 
