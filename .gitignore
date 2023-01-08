@@ -59,12 +59,6 @@ cmake-build-*/*
 /out/build/x64-Debug/bin/bnetserver.exe.manifest
 /out/build/x64-Debug/bin/bnetserver.exe
 /837数据迁移/world/creature/2023_01_02_03_world.sql
-/out/build/x64-Debug/Data/vmaps
-/out/build/x64-Debug/Data/maps
-/out/build/x64-Debug/Data/gt
-/out/build/x64-Debug/Data/dbc/zhCN
-/out/build/x64-Debug/Data/cameras
-/out/build/x64-Debug/Data/Buildings
 /out/build/x64-Debug/bin/worldserver.conf
 /out/build/x64-Debug/bin/ssleay32.dll
 /out/build/x64-Debug/bin/Server.log
