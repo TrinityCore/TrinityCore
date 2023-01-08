@@ -387,7 +387,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
         check.push_front(frontGuid);
     }
 
-    // Check if more than one LFG group and number of players joining   //检查是否超过一个随机地下城小组和加入的玩家数量
+    // Check if more than one LFG group and number of players joining   //检查是否有超过一个的随机地下城小队正在加入和加入的玩家数量
     uint8 numPlayers = 4;//原来为0,为了单人进随机地下城,改成了4,不知是否有效
     uint8 numLfgGroups = 0;
     for (GuidList::const_iterator it = check.begin(); it != check.end() && numLfgGroups < 2 && numPlayers <= MAX_GROUP_SIZE; ++it)
