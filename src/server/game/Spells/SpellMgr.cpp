@@ -104,7 +104,7 @@ PetFamilySpellsStore sPetFamilySpellsStore;
 bool IsPrimaryProfessionSkill(uint32 skill)
 {
     SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(skill);
-    return pSkill && pSkill->CategoryID == SKILL_CATEGORY_PROFESSION;
+    return pSkill && pSkill->CategoryID == SKILL_CATEGORY_PROFESSION && !pSkill->ParentSkillLineID;
 }
 
 bool IsWeaponSkill(uint32 skill)
