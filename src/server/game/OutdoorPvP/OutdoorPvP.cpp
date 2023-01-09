@@ -439,7 +439,7 @@ void OutdoorPvP::AddCapturePoint(OPvPCapturePoint* cp)
     OPvPCapturePointMap::iterator i = m_capturePoints.find(cp->m_capturePointSpawnId);
     if (i != m_capturePoints.end())
     {
-        TC_LOG_ERROR("outdoorpvp", "OutdoorPvP::AddCapturePoint: CapturePoint {} already exists!", cp->m_capturePointSpawnId);
+        TC_LOG_ERROR("outdoorpvp", "OutdoorPvP::AddCapturePoint: CapturePoint %u already exists!", cp->m_capturePointSpawnId);
         if (i->second.get() == cp)
             return;
     }
