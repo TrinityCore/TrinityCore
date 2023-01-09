@@ -711,8 +711,8 @@ void ObjectMgr::LoadCreatureTemplateAddons()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0      1        2      3           4         5                6            7         8      9                       10
-    QueryResult result = WorldDatabase.Query("SELECT entry, path_id, mount, StandState, AnimTier, VisibilityFlags, SheathState, PvPFlags, emote, visibilityDistanceType, auras FROM creature_template_addon");
+    //                                               0      1        2      3           4         5         6            7         8      9                       10
+    QueryResult result = WorldDatabase.Query("SELECT entry, path_id, mount, StandState, AnimTier, VisFlags, SheathState, PvPFlags, emote, visibilityDistanceType, auras FROM creature_template_addon");
 
     if (!result)
     {
@@ -739,7 +739,7 @@ void ObjectMgr::LoadCreatureTemplateAddons()
         creatureAddon.mount                     = fields[2].GetUInt32();
         creatureAddon.standState                = fields[3].GetUInt8();
         creatureAddon.animTier                  = fields[4].GetUInt8();
-        creatureAddon.visibilityFlags           = fields[5].GetUInt8();
+        creatureAddon.visFlags                  = fields[5].GetUInt8();
         creatureAddon.sheathState               = fields[6].GetUInt8();
         creatureAddon.pvpFlags                  = fields[7].GetUInt8();
         creatureAddon.emote                     = fields[8].GetUInt32();
@@ -1282,8 +1282,8 @@ void ObjectMgr::LoadCreatureAddons()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0     1        2      3           4         5                6            7         8      9                       10
-    QueryResult result = WorldDatabase.Query("SELECT guid, path_id, mount, StandState, AnimTier, VisibilityFlags, SheathState, PvPFlags, emote, visibilityDistanceType, auras FROM creature_addon");
+    //                                               0     1        2      3           4         5         6            7         8      9                       10
+    QueryResult result = WorldDatabase.Query("SELECT guid, path_id, mount, StandState, AnimTier, VisFlags, SheathState, PvPFlags, emote, visibilityDistanceType, auras FROM creature_addon");
 
     if (!result)
     {
@@ -1317,7 +1317,7 @@ void ObjectMgr::LoadCreatureAddons()
         creatureAddon.mount                     = fields[2].GetUInt32();
         creatureAddon.standState                = fields[3].GetUInt8();
         creatureAddon.animTier                  = fields[4].GetUInt8();
-        creatureAddon.visibilityFlags           = fields[5].GetUInt8();
+        creatureAddon.visFlags                  = fields[5].GetUInt8();
         creatureAddon.sheathState               = fields[6].GetUInt8();
         creatureAddon.pvpFlags                  = fields[7].GetUInt8();
         creatureAddon.emote                     = fields[8].GetUInt32();

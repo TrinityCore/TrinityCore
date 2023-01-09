@@ -2520,7 +2520,7 @@ bool Creature::LoadCreaturesAddon()
     // UNIT_FIELD_BYTES_1 values
     SetStandState(UnitStandStateType(creatureAddon->standState));
     SetAnimTier(AnimTier(creatureAddon->animTier));
-    ReplaceAllVisFlags(UnitVisFlags(creatureAddon->visibilityFlags));
+    ReplaceAllVisFlags(UnitVisFlags(creatureAddon->visFlags));
 
     //! Suspected correlation between UNIT_FIELD_BYTES_1, offset 3, value 0x2:
     //! If no inhabittype_fly (if no MovementFlag_DisableGravity or MovementFlag_CanFly flag found in sniffs)
