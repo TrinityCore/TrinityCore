@@ -16,6 +16,7 @@
  */
 
 #include "OutdoorPvPMgr.h"
+#include "Containers.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "DisableMgr.h"
@@ -119,6 +120,10 @@ void OutdoorPvPMgr::CreateOutdoorPvPForMap(Map* map)
 
 void OutdoorPvPMgr::DestroyOutdoorPvPForMap(Map* map)
 {
+    Trinity::Containers::EraseIf(m_OutdoorPvPMap, [map](OutdoorPvPMap::value_type const& pair)
+    {
+        return pair.first.first == map;
+    });
     m_OutdoorPvPByMap.erase(map);
 }
 
