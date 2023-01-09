@@ -74,7 +74,6 @@ class TC_GAME_API InstanceSave
         void SetResetTime(time_t resetTime) { m_resetTime = resetTime; }
         time_t GetResetTimeForDB();
 
-        InstanceTemplate const* GetTemplate();
         MapEntry const* GetMapEntry();
 
         /* online players bound to the instance (perm/solo)

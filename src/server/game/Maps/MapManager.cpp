@@ -391,16 +391,9 @@ bool MapManager::DestroyMap(Map* map)
     return true;
 }
 
-bool MapManager::IsValidMAP(uint32 mapid, bool startUp)
+bool MapManager::IsValidMAP(uint32 mapId)
 {
-    MapEntry const* mEntry = sMapStore.LookupEntry(mapid);
-
-    if (startUp)
-        return mEntry ? true : false;
-    else
-        return mEntry && (!mEntry->IsDungeon() || sObjectMgr->GetInstanceTemplate(mapid));
-
-    /// @todo add check for battleground template
+    return sMapStore.LookupEntry(mapId) != nullptr;
 }
 
 void MapManager::UnloadAll()
