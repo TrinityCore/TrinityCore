@@ -16,6 +16,13 @@
  */
 
 //Zones
+//DragonIsles
+void AddSC_dragon_isles_script_loader();
+void AddSC_Zone_the_forbidden_reach();
+//RubyLifePools
+void AddSC_instance_ruby_life_pools();
+void AddSC_ruby_life_pools();
+//
 void AddSC_Zone_Ohnahran_Plains();
 void AddSC_Zone_Valdrakken();
 //
@@ -106,6 +113,12 @@ void AddDragonflightScripts()
 {
     //Zones
     AddSC_Zone_Ohnahran_Plains();
+    //DragonIsles
+    AddSC_dragon_isles_script_loader();
+    AddSC_Zone_the_forbidden_reach();
+    //RubyLifePools
+    AddSC_instance_ruby_life_pools();
+    AddSC_ruby_life_pools();
     //
     AddSC_Zone_Thaldraszus();
     AddSC_Zone_Valdrakken();
