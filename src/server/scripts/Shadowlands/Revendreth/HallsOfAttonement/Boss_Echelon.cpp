@@ -199,16 +199,7 @@ struct Echelon : public BossAI
         }    
     }
 
-    void ExecuteEvent(uint32 eventId) override
-
-events.ScheduleEvent(SPELL_STONE_FORM, 30s);
-        events.ScheduleEvent(SPELL_STONE_CAll, 1.5s);
-        events.ScheduleEvent(SPELL_VOLATILE_TRANSFORMATION, 0s);
-        events.ScheduleEvent(SPELL_VILLAINOUS_BOLT, 3s);
-        events.ScheduleEvent(SPELL_CURSE_OF_STONE, 5s);
-        events.ScheduleEvent(SPELL_SHATTERED, 8s);
-        events.ScheduleEvent(SPELL_BLOOD_TORRENT, 125s);
-
+    void ExecuteEvent(uint32 eventId) override 
 
     {
         switch (eventId)
