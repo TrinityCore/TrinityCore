@@ -251,7 +251,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
 
                 if (type < EncounterCount)
                 {
-                    TC_LOG_DEBUG("scripts", "[ToCr] BossState(type %u) %u = state %u;", type, GetBossState(type), state);
+                    TC_LOG_DEBUG("scripts", "[ToCr] BossState(type {}) {} = state {};", type, GetBossState(type), state);
                     if (state == FAIL)
                     {
                         EventStage = (type == DATA_NORTHREND_BEASTS ? 666 : 0);

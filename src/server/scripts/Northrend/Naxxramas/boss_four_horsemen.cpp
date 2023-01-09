@@ -147,7 +147,7 @@ struct boss_four_horsemen_baseAI : public BossAI
                             uint32 deathTime = cBoss->AI()->GetData(DATA_DEATH_TIME);
                             if (!deathTime)
                             {
-                                TC_LOG_WARN("scripts", "FourHorsemenAI: Checking for achievement credit but horseman %s is reporting not dead", cBoss->GetName().c_str());
+                                TC_LOG_WARN("scripts", "FourHorsemenAI: Checking for achievement credit but horseman {} is reporting not dead", cBoss->GetName());
                                 return 0;
                             }
                             if (!minTime || deathTime < minTime)
@@ -157,7 +157,7 @@ struct boss_four_horsemen_baseAI : public BossAI
                         }
                         else
                         {
-                            TC_LOG_WARN("scripts", "FourHorsemenAI: Checking for achievement credit but horseman with id %u is not present", uint32(boss));
+                            TC_LOG_WARN("scripts", "FourHorsemenAI: Checking for achievement credit but horseman with id {} is not present", uint32(boss));
                             return 0;
                         }
                     return (getMSTimeDiff(minTime, maxTime) <= 15 * IN_MILLISECONDS) ? 1 : 0;
@@ -195,7 +195,7 @@ struct boss_four_horsemen_baseAI : public BossAI
                 }
                 else
                 {
-                    TC_LOG_WARN("scripts", "FourHorsemenAI: Checking if movement is finished but horseman with id %u is not present", uint32(boss));
+                    TC_LOG_WARN("scripts", "FourHorsemenAI: Checking if movement is finished but horseman with id {} is not present", uint32(boss));
                     ResetEncounter();
                     return;
                 }
@@ -252,7 +252,7 @@ struct boss_four_horsemen_baseAI : public BossAI
                 }
                 else
                 {
-                    TC_LOG_WARN("scripts", "FourHorsemenAI: Encounter starting but horseman with id %u is not present", uint32(boss));
+                    TC_LOG_WARN("scripts", "FourHorsemenAI: Encounter starting but horseman with id {} is not present", uint32(boss));
                     ResetEncounter();
                     return;
                 }
@@ -269,7 +269,7 @@ struct boss_four_horsemen_baseAI : public BossAI
                 if (Creature* cBoss = getHorsemanHandle(boss))
                     cBoss->DespawnOrUnsummon(0s, 15s);
                 else
-                    TC_LOG_WARN("scripts", "FourHorsemenAI: Encounter resetting but horseman with id %u is not present", uint32(boss));
+                    TC_LOG_WARN("scripts", "FourHorsemenAI: Encounter resetting but horseman with id {} is not present", uint32(boss));
             }
         }
 
@@ -340,7 +340,7 @@ struct boss_four_horsemen_baseAI : public BossAI
                 }
                 else
                 {
-                    TC_LOG_WARN("scripts", "FourHorsemenAI: %s died but horseman with id %u is not present", me->GetName().c_str(), uint32(boss));
+                    TC_LOG_WARN("scripts", "FourHorsemenAI: {} died but horseman with id {} is not present", me->GetName(), uint32(boss));
                     ResetEncounter();
                 }
             }

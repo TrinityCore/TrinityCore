@@ -430,7 +430,7 @@ struct LinkValidator<LinkTags::keystone>
 
         for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
         {
-            std::string expectedText = Trinity::StringFormat("%s (%u)", data.Map->Name[i], data.Level);
+            std::string expectedText = Trinity::StringFormat("{} ({})", data.Map->Name[i], data.Level);
             if (expectedText == text)
                 return true;
         }
@@ -601,7 +601,7 @@ struct LinkValidator<LinkTags::transmogset>
         {
             if (ItemNameDescriptionEntry const* itemNameDescription = sItemNameDescriptionStore.LookupEntry(set->ItemNameDescriptionID))
             {
-                std::string expectedText = Trinity::StringFormat("%s (%s)", set->Name[i], itemNameDescription->Description[i]);
+                std::string expectedText = Trinity::StringFormat("{} ({})", set->Name[i], itemNameDescription->Description[i]);
                 if (expectedText.c_str() == text)
                     return true;
             }

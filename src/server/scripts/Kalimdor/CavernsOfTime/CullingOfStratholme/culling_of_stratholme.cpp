@@ -384,12 +384,12 @@ class npc_chromie_start : public CreatureScript
                         for (uint32 state = 1; state <= COMPLETE; state = state << 1)
                         {
                             if (GetStableStateFor(COSProgressStates(state)) == state)
-                                AddGossipItemFor(player, GossipOptionNpc::None, Trinity::StringFormat("Set instance progress to 0x%05X", state), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + AsUnderlyingType(GOSSIP_OFFSET_GM_INITIAL) + state);
+                                AddGossipItemFor(player, GossipOptionNpc::None, Trinity::StringFormat("Set instance progress to 0x{:05X}", state), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + AsUnderlyingType(GOSSIP_OFFSET_GM_INITIAL) + state);
                         }
                         for (uint32 state = 1; state <= COMPLETE; state = state << 1)
                         {
                             if (GetStableStateFor(COSProgressStates(state)) != state)
-                                AddGossipItemFor(player, GossipOptionNpc::None, Trinity::StringFormat("Force state to 0x%05X (UNSTABLE)", state), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + AsUnderlyingType(GOSSIP_OFFSET_GM_INITIAL) + state);
+                                AddGossipItemFor(player, GossipOptionNpc::None, Trinity::StringFormat("Force state to 0x{:05X} (UNSTABLE)", state), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + AsUnderlyingType(GOSSIP_OFFSET_GM_INITIAL) + state);
                         }
                         SendGossipMenuFor(player, GOSSIP_TEXT_SKIP_1, me->GetGUID());
                         break;

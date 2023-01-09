@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "CombatAI.h"
+#include "Containers.h"
 #include "DB2Stores.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"

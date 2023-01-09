@@ -65,8 +65,8 @@ void WorldSession::HandleDuelAccepted(ObjectGuid arbiterGuid)
     if (*target->m_playerData->DuelArbiter != arbiterGuid)
         return;
 
-    TC_LOG_DEBUG("network", "Player 1 is: %s (%s)", player->GetGUID().ToString().c_str(), player->GetName().c_str());
-    TC_LOG_DEBUG("network", "Player 2 is: %s (%s)", target->GetGUID().ToString().c_str(), target->GetName().c_str());
+    TC_LOG_DEBUG("network", "Player 1 is: {} ({})", player->GetGUID().ToString(), player->GetName());
+    TC_LOG_DEBUG("network", "Player 2 is: {} ({})", target->GetGUID().ToString(), target->GetName());
 
     time_t now = GameTime::GetGameTime();
     player->duel->StartTime = now + 3;

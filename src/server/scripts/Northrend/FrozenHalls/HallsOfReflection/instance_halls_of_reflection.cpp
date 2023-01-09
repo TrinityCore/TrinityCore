@@ -16,6 +16,7 @@
  */
 
 #include "halls_of_reflection.h"
+#include "Containers.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "PhasingHandler.h"

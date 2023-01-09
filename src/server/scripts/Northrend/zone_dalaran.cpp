@@ -24,6 +24,7 @@ SDCategory: Dalaran
 Script Data End */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "DatabaseEnv.h"
 #include "Mail.h"
 #include "Map.h"

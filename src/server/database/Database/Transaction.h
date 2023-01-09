@@ -41,7 +41,7 @@ class TC_DATABASE_API TransactionBase
 
         void Append(char const* sql);
         template<typename... Args>
-        void PAppend(std::string_view sql, Args&&... args)
+        void PAppend(Trinity::FormatString<Args...> sql, Args&&... args)
         {
             Append(Trinity::StringFormat(sql, std::forward<Args>(args)...).c_str());
         }
