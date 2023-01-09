@@ -77,7 +77,9 @@ void WorldSession::HandleMoveWorldportAck()
         GetPlayer()->m_InstanceValid = true;
 
     Map* oldMap = GetPlayer()->GetMap();
-    Map* newMap = sMapMgr->CreateMap(loc.GetMapId(), GetPlayer());
+    Map* newMap = GetPlayer()->GetTeleportDestInstanceId() ?
+        sMapMgr->FindMap(loc.GetMapId(), *GetPlayer()->GetTeleportDestInstanceId()) :
+        sMapMgr->CreateMap(loc.GetMapId(), GetPlayer());
 
     MovementInfo::TransportInfo transportInfo = GetPlayer()->m_movementInfo.transport;
     if (TransportBase* transport = GetPlayer()->GetTransport())
