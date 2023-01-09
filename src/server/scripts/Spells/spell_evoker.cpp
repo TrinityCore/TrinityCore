@@ -44,7 +44,7 @@ class spell_evo_azure_strike : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        Trinity::Containers::RandomResize(targets, GetEffectInfo(EFFECT_0).CalcValue());
+        Trinity::Containers::RandomResize(targets, GetEffectInfo(EFFECT_0).CalcValue(GetCaster()));
     }
 
     void Register() override
