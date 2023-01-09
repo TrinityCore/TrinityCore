@@ -18418,8 +18418,13 @@ InstanceSave* Player::GetInstanceSave(uint32 mapid, bool raid)
 
 void Player::UnbindInstance(uint32 mapid, Difficulty difficulty, bool unload)
 {
-    BoundInstancesMap::iterator itr = m_boundInstances[difficulty].find(mapid);
-    UnbindInstance(itr, difficulty, unload);
+    auto difficultyItr = m_boundInstances.find(difficulty);
+    if (difficultyItr != m_boundInstances.end())
+    {
+        auto itr = difficultyItr->second.find(mapid);
+        if (itr != difficultyItr->second.end())
+            UnbindInstance(itr, difficultyItr, unload);
+    }
 }
 
 void Player::UnbindInstance(BoundInstancesMap::iterator &itr, Difficulty difficulty, bool unload)
