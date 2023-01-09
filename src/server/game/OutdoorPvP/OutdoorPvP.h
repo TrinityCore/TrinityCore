@@ -23,6 +23,7 @@
 #include "SharedDefines.h"
 #include "ZoneScript.h"
 #include <map>
+#include <memory>
 
 namespace WorldPackets
 {
@@ -169,7 +170,8 @@ class TC_GAME_API OutdoorPvP : public ZoneScript
         // dtor
         virtual ~OutdoorPvP();
 
-        typedef std::map<ObjectGuid::LowType/*spawnId*/, OPvPCapturePoint*> OPvPCapturePointMap;
+        typedef std::map<ObjectGuid::LowType/*spawnId*/, std::unique_ptr<OPvPCapturePoint>> OPvPCapturePointMap;
+
         typedef std::pair<ObjectGuid::LowType, GameObject*> GoScriptPair;
         typedef std::pair<ObjectGuid::LowType, Creature*> CreatureScriptPair;
 
@@ -251,19 +253,9 @@ class TC_GAME_API OutdoorPvP : public ZoneScript
 
         virtual void HandlePlayerResurrects(Player* player, uint32 zone);
 
-        void AddCapturePoint(OPvPCapturePoint* cp)
-        {
-            m_capturePoints[cp->m_capturePointSpawnId] = cp;
-        }
+        void AddCapturePoint(OPvPCapturePoint* cp);
 
-        OPvPCapturePoint* GetCapturePoint(ObjectGuid::LowType spawnId) const
-        {
-            OutdoorPvP::OPvPCapturePointMap::const_iterator itr = m_capturePoints.find(spawnId);
-            if (itr != m_capturePoints.end())
-                return itr->second;
-
-            return nullptr;
-        }
+        OPvPCapturePoint* GetCapturePoint(ObjectGuid::LowType spawnId) const;
 
         void RegisterZone(uint32 zoneid);
 

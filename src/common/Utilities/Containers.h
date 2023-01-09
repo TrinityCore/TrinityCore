@@ -272,6 +272,77 @@ namespace Trinity
                     ++itr;
             }
         }
+
+        namespace Impl
+        {
+            template <typename Container, typename Predicate>
+            void EraseIfMoveAssignable(Container& c, Predicate p)
+            {
+                auto wpos = c.begin();
+                for (auto rpos = c.begin(), end = c.end(); rpos != end; ++rpos)
+                {
+                    if (!p(*rpos))
+                    {
+                        if (rpos != wpos)
+                            std::swap(*rpos, *wpos);
+                        ++wpos;
+                    }
+                }
+                c.erase(wpos, c.end());
+            }
+
+            template <typename Container, typename Predicate>
+            void EraseIfNotMoveAssignable(Container& c, Predicate p)
+            {
+                for (auto it = c.begin(); it != c.end();)
+                {
+                    if (p(*it))
+                        it = c.erase(it);
+                    else
+                        ++it;
+                }
+            }
+        }
+
+        template <typename Container, typename Predicate>
+        void EraseIf(Container& c, Predicate p)
+        {
+            if constexpr (std::is_move_assignable_v<decltype(*c.begin())>)
+                Impl::EraseIfMoveAssignable(c, std::ref(p));
+            else
+                Impl::EraseIfNotMoveAssignable(c, std::ref(p));
+        }
+
+        /**
+         * Returns a mutable reference to element at index i
+         * Will resize vector if neccessary to ensure element at i can be safely written
+         *
+         * This exists as separate overload instead of one function with default argument to allow using
+         * with vectors of non-default-constructible classes
+         */
+        template<typename T>
+        inline decltype(auto) EnsureWritableVectorIndex(std::vector<T>& vec, typename std::vector<T>::size_type i)
+        {
+            if (i >= vec.size())
+                vec.resize(i + 1);
+
+            return vec[i];
+        }
+
+        /**
+         * Returns a mutable reference to element at index i
+         * Will resize vector if neccessary to ensure element at i can be safely written
+         *
+         * This overload allows specifying what value to pad vector with during .resize
+         */
+        template<typename T>
+        inline decltype(auto) EnsureWritableVectorIndex(std::vector<T>& vec, typename std::vector<T>::size_type i, T const& resizeDefault)
+        {
+            if (i >= vec.size())
+                vec.resize(i + 1, resizeDefault);
+
+            return vec[i];
+        }
     }
     //! namespace Containers
 }
