@@ -154,7 +154,7 @@ typedef std::map<uint32, PageText> PageTextContainer;
 
 struct InstanceTemplate
 {
-    InstanceTemplate() : Parent(0), ScriptId(0), AllowMount(false) { }
+    InstanceTemplate() : Parent(0), ScriptId(0) { }
 
     uint32 Parent;
     uint32 ScriptId;
