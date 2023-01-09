@@ -169,13 +169,14 @@ void WorldSession::HandleMoveWorldportAck()
     // resurrect character at enter into instance where his corpse exist after add to map
 
     if (mEntry->IsDungeon() && !GetPlayer()->IsAlive())
+    {
         if (GetPlayer()->GetCorpseLocation().GetMapId() == mEntry->ID)
         {
             GetPlayer()->ResurrectPlayer(0.5f, false);
             GetPlayer()->SpawnCorpseBones();
         }
+    }
 
-    bool allowMount = !mEntry->IsDungeon() || mEntry->IsBattlegroundOrArena();
     if (mInstance)
     {
         // check if this instance has a reset time and send it to player if so
@@ -195,14 +196,7 @@ void WorldSession::HandleMoveWorldportAck()
         // check if instance is valid
         if (!GetPlayer()->CheckInstanceValidity(false))
             GetPlayer()->m_InstanceValid = false;
-
-        // instance mounting is handled in InstanceTemplate
-        allowMount = mInstance->AllowMount;
     }
-
-    // mount allow check
-    if (!allowMount)
-        _player->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
     // update zone immediately, otherwise leave channel will cause crash in mtmap
     uint32 newzone, newarea;

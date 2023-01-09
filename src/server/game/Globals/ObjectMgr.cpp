@@ -5520,8 +5520,8 @@ void ObjectMgr::LoadInstanceTemplate()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                0     1       2        4
-    QueryResult result = WorldDatabase.Query("SELECT map, parent, script, allowMount FROM instance_template");
+    //                                                0     1       2
+    QueryResult result = WorldDatabase.Query("SELECT map, parent, script FROM instance_template");
 
     if (!result)
     {
@@ -5543,8 +5543,6 @@ void ObjectMgr::LoadInstanceTemplate()
         }
 
         InstanceTemplate instanceTemplate;
-
-        instanceTemplate.AllowMount = fields[3].GetBool();
         instanceTemplate.Parent     = uint32(fields[1].GetUInt16());
         instanceTemplate.ScriptId   = sObjectMgr->GetScriptId(fields[2].GetString());
 
