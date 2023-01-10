@@ -103,7 +103,7 @@ void InstanceScenario::LoadInstanceData()
 
 std::string InstanceScenario::GetOwnerInfo() const
 {
-    return Trinity::StringFormat("Instance ID %u", _map->GetInstanceId());
+    return Trinity::StringFormat("Instance ID {}", _map->GetInstanceId());
 }
 
 void InstanceScenario::SendPacket(WorldPacket const* data) const

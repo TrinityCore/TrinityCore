@@ -20,7 +20,6 @@
 
 #include "Define.h"
 #include "EnumFlag.h"
-#include <deque>
 #include <functional>
 #include <list>
 #include <set>
@@ -384,42 +383,24 @@ class TC_GAME_API ObjectGuid
 // Some Shared defines
 using GuidSet = std::set<ObjectGuid>;
 using GuidList = std::list<ObjectGuid>;
-using GuidDeque = std::deque<ObjectGuid>;
 using GuidVector = std::vector<ObjectGuid>;
 using GuidUnorderedSet = std::unordered_set<ObjectGuid>;
 
-class TC_GAME_API ObjectGuidGeneratorBase
+class TC_GAME_API ObjectGuidGenerator
 {
 public:
-    ObjectGuidGeneratorBase(ObjectGuid::LowType start = UI64LIT(1)) : _nextGuid(start) { }
-    virtual ~ObjectGuidGeneratorBase() = default;
+    explicit ObjectGuidGenerator(HighGuid high, ObjectGuid::LowType start = UI64LIT(1)) : _high(high), _nextGuid(start) { }
+    ~ObjectGuidGenerator() = default;
 
-    virtual void Set(ObjectGuid::LowType val) { _nextGuid = val; }
-    virtual ObjectGuid::LowType Generate() = 0;
+    void Set(ObjectGuid::LowType val) { _nextGuid = val; }
+    ObjectGuid::LowType Generate();
     ObjectGuid::LowType GetNextAfterMaxUsed() const { return _nextGuid; }
 
 protected:
-    static void HandleCounterOverflow(HighGuid high);
-    static void CheckGuidTrigger(ObjectGuid::LowType guid);
+    void HandleCounterOverflow();
+    void CheckGuidTrigger();
+    HighGuid _high;
     ObjectGuid::LowType _nextGuid;
-};
-
-template<HighGuid high>
-class TC_GAME_API ObjectGuidGenerator : public ObjectGuidGeneratorBase
-{
-public:
-    explicit ObjectGuidGenerator(ObjectGuid::LowType start = UI64LIT(1)) : ObjectGuidGeneratorBase(start) { }
-
-    ObjectGuid::LowType Generate() override
-    {
-        if (_nextGuid >= ObjectGuid::GetMaxCounter(high) - 1)
-            HandleCounterOverflow(high);
-
-        if (high == HighGuid::Creature || high == HighGuid::Vehicle || high == HighGuid::GameObject || high == HighGuid::Transport)
-            CheckGuidTrigger(_nextGuid);
-
-        return _nextGuid++;
-    }
 };
 
 TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, ObjectGuid const& guid);

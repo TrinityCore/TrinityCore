@@ -45,12 +45,13 @@ enum AreaTriggerFlags
 
 enum AreaTriggerTypes
 {
-    AREATRIGGER_TYPE_SPHERE     = 0,
-    AREATRIGGER_TYPE_BOX        = 1,
-    AREATRIGGER_TYPE_UNK        = 2,
-    AREATRIGGER_TYPE_POLYGON    = 3,
-    AREATRIGGER_TYPE_CYLINDER   = 4,
-    AREATRIGGER_TYPE_DISK       = 5,
+    AREATRIGGER_TYPE_SPHERE         = 0,
+    AREATRIGGER_TYPE_BOX            = 1,
+    AREATRIGGER_TYPE_UNK            = 2,
+    AREATRIGGER_TYPE_POLYGON        = 3,
+    AREATRIGGER_TYPE_CYLINDER       = 4,
+    AREATRIGGER_TYPE_DISK           = 5,
+    AREATRIGGER_TYPE_BOUNDED_PLANE  = 6,
     AREATRIGGER_TYPE_MAX
 };
 
@@ -120,11 +121,12 @@ struct AreaTriggerShapeInfo
 {
     AreaTriggerShapeInfo();
 
-    bool IsSphere()     const { return Type == AREATRIGGER_TYPE_SPHERE;     }
-    bool IsBox()        const { return Type == AREATRIGGER_TYPE_BOX;        }
-    bool IsPolygon()    const { return Type == AREATRIGGER_TYPE_POLYGON;    }
-    bool IsCylinder()   const { return Type == AREATRIGGER_TYPE_CYLINDER;   }
-    bool IsDisk()       const { return Type == AREATRIGGER_TYPE_DISK;   }
+    bool IsSphere()         const { return Type == AREATRIGGER_TYPE_SPHERE;         }
+    bool IsBox()            const { return Type == AREATRIGGER_TYPE_BOX;            }
+    bool IsPolygon()        const { return Type == AREATRIGGER_TYPE_POLYGON;        }
+    bool IsCylinder()       const { return Type == AREATRIGGER_TYPE_CYLINDER;       }
+    bool IsDisk()           const { return Type == AREATRIGGER_TYPE_DISK;           }
+    bool IsBoudedPlane()    const { return Type == AREATRIGGER_TYPE_BOUNDED_PLANE;  }
     float GetMaxSearchRadius() const;
 
     AreaTriggerTypes Type;
@@ -180,6 +182,13 @@ struct AreaTriggerShapeInfo
             float LocationZOffset;
             float LocationZOffsetTarget;
         } DiskDatas;
+
+        // AREATRIGGER_TYPE_BOUNDED_PLANE
+        struct
+        {
+            float Extents[2];
+            float ExtentsTarget[2];
+        } BoundedPlaneDatas;
     };
 };
 

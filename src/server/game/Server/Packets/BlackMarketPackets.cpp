@@ -22,15 +22,6 @@ void WorldPackets::BlackMarket::BlackMarketOpen::Read()
     _worldPacket >> Guid;
 }
 
-WorldPacket const* WorldPackets::BlackMarket::BlackMarketOpenResult::Write()
-{
-    _worldPacket << Guid;
-    _worldPacket.WriteBit(Enable);
-    _worldPacket.FlushBits();
-
-    return &_worldPacket;
-}
-
 void WorldPackets::BlackMarket::BlackMarketRequestItems::Read()
 {
     _worldPacket >> Guid;
