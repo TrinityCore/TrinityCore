@@ -21,7 +21,7 @@
 
 void Trinity::Banner::Show(char const* applicationName, void(*log)(char const* text), void(*logExtraInfo)())
 {
-    log(Trinity::StringFormat("{} ({})", GitRevision::GetFullVersion(), applicationName).c_str());
+    log(Trinity::StringFormat("{} ({})", GitRevision::GetFullVersion(), applicationName).c_str());  //新的更新会让此处显示生产版本,而不是以前固定的值
     log(R"(<Ctrl-C> to stop.)");
     log(R"( ______                       __)");
     log(R"(/\__  _\       __          __/\ \__)");
