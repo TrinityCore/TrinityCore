@@ -58,7 +58,8 @@ Location MoveSpline::computePosition(int32 time_point, int32 point_index) const
         {
             Vector3 hermite;
             spline.evaluate_derivative(point_Idx, u, hermite);
-            c.orientation = std::atan2(hermite.y, hermite.x);
+            if (hermite.x != 0.f || hermite.y != 0.f)
+                c.orientation = std::atan2(hermite.y, hermite.x);
         }
 
         if (splineflags.backward)
@@ -239,9 +240,9 @@ bool MoveSplineInitArgs::Validate(Unit* unit) const
     if (!(exp))\
     {\
         if (unit)\
-            TC_LOG_ERROR("misc.movesplineinitargs", "MoveSplineInitArgs::Validate: expression '%s' failed for %s", #exp, (verbose ? unit->GetDebugInfo() : unit->GetGUID().ToString()).c_str());\
+            TC_LOG_ERROR("misc.movesplineinitargs", "MoveSplineInitArgs::Validate: expression '{}' failed for {}", #exp, (verbose ? unit->GetDebugInfo() : unit->GetGUID().ToString()));\
         else\
-            TC_LOG_ERROR("misc.movesplineinitargs", "MoveSplineInitArgs::Validate: expression '%s' failed for cyclic spline continuation", #exp); \
+            TC_LOG_ERROR("misc.movesplineinitargs", "MoveSplineInitArgs::Validate: expression '{}' failed for cyclic spline continuation", #exp); \
         return false;\
     }
     CHECK(path.size() > 1, true);

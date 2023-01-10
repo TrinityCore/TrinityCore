@@ -759,7 +759,7 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
     if (!tab)
     {
         if (!noEmptyError)
-            TC_LOG_ERROR("sql.sql", "Table '%s' loot id #%u used but it doesn't have records.", store.GetName(), lootId);
+            TC_LOG_ERROR("sql.sql", "Table '{}' loot id #{} used but it doesn't have records.", store.GetName(), lootId);
         return false;
     }
 
@@ -902,6 +902,9 @@ LootItem const* Loot::GetItemInSlot(uint32 lootListId) const
 
 LootItem* Loot::LootItemInSlot(uint32 lootListId, Player const* player, NotNormalLootItem** ffaItem)
 {
+    if (lootListId >= items.size())
+        return nullptr;
+
     LootItem* item = &items[lootListId];
     bool is_looted = item->is_looted;
 

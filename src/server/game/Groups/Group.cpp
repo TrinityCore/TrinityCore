@@ -1390,7 +1390,7 @@ void Group::BroadcastGroupUpdate(void)
         {
             pp->ForceUpdateFieldChange(pp->m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PvpFlags));
             pp->ForceUpdateFieldChange(pp->m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::FactionTemplate));
-            TC_LOG_DEBUG("misc", "-- Forced group value update for '%s'", pp->GetName().c_str());
+            TC_LOG_DEBUG("misc", "-- Forced group value update for '{}'", pp->GetName());
         }
     }
 }

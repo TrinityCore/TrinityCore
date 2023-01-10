@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "AreaBoundary.h"
 #include "azjol_nerub.h"
+#include "Containers.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"

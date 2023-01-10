@@ -4,7 +4,6 @@
 #define INTERNAL_SUPPRESS_PROTOBUF_FIELD_DEPRECATION
 #include "user_manager_service.pb.h"
 
-#include <algorithm>
 #include <utility>
 
 #include <google/protobuf/stubs/common.h>
@@ -15,8 +14,6 @@
 #include <google/protobuf/generated_message_reflection.h>
 #include <google/protobuf/reflection_ops.h>
 #include <google/protobuf/wire_format.h>
-#include "Log.h"
-#include "Errors.h"
 #include "BattlenetRpcErrorCodes.h"
 // @@protoc_insertion_point(includes)
 
@@ -396,7 +393,7 @@ void protobuf_AddDesc_user_5fmanager_5fservice_2eproto() {
     ".protocol.user_manager.v1.RecentPlayersR"
     "emovedNotification\032\031.bgs.protocol.NO_RES"
     "PONSE\"\006\202\371+\002\010\014\0328\202\371+.\n,bnet.protocol.user_"
-    "manager.UserManagerNotify\212\371+\002\010\001B\005H\001\200\001\000", 2958);
+    "manager.UserManagerNotify\212\371+\002\010\001B\005H\002\200\001\000", 2958);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "user_manager_service.proto", &protobuf_RegisterTypes);
   SubscribeRequest::default_instance_ = new SubscribeRequest();
@@ -493,203 +490,9 @@ SubscribeRequest* SubscribeRequest::New() const {
   return new SubscribeRequest;
 }
 
-void SubscribeRequest::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
-    if (has_agent_id()) {
-      if (agent_id_ != NULL) agent_id_->::bgs::protocol::EntityId::Clear();
-    }
-    object_id_ = GOOGLE_ULONGLONG(0);
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool SubscribeRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.user_manager.v1.SubscribeRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.EntityId agent_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(16)) goto parse_object_id;
-        break;
-      }
-
-      // required uint64 object_id = 2;
-      case 2: {
-        if (tag == 16) {
-         parse_object_id:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
-                 input, &object_id_)));
-          set_has_object_id();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.user_manager.v1.SubscribeRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.user_manager.v1.SubscribeRequest)
-  return false;
-#undef DO_
-}
-
-void SubscribeRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.user_manager.v1.SubscribeRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->agent_id(), output);
-  }
-
-  // required uint64 object_id = 2;
-  if (has_object_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(2, this->object_id(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.user_manager.v1.SubscribeRequest)
-}
-
-::google::protobuf::uint8* SubscribeRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.user_manager.v1.SubscribeRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->agent_id(), target);
-  }
-
-  // required uint64 object_id = 2;
-  if (has_object_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(2, this->object_id(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.user_manager.v1.SubscribeRequest)
-  return target;
-}
-
-int SubscribeRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.EntityId agent_id = 1;
-    if (has_agent_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_id());
-    }
-
-    // required uint64 object_id = 2;
-    if (has_object_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt64Size(
-          this->object_id());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void SubscribeRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const SubscribeRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const SubscribeRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void SubscribeRequest::MergeFrom(const SubscribeRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_agent_id()) {
-      mutable_agent_id()->::bgs::protocol::EntityId::MergeFrom(from.agent_id());
-    }
-    if (from.has_object_id()) {
-      set_object_id(from.object_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void SubscribeRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void SubscribeRequest::CopyFrom(const SubscribeRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool SubscribeRequest::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000002) != 0x00000002) return false;
-  if (has_agent_id()) {
-    if (!this->agent_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void SubscribeRequest::Swap(SubscribeRequest* other) {
   if (other != this) {
-    std::swap(agent_id_, other->agent_id_);
-    std::swap(object_id_, other->object_id_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata SubscribeRequest::GetMetadata() const {
@@ -759,195 +562,9 @@ SubscribeResponse* SubscribeResponse::New() const {
   return new SubscribeResponse;
 }
 
-void SubscribeResponse::Clear() {
-  blocked_players_.Clear();
-  recent_players_.Clear();
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool SubscribeResponse::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.user_manager.v1.SubscribeResponse)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // repeated .bgs.protocol.user_manager.v1.BlockedPlayer blocked_players = 1;
-      case 1: {
-        if (tag == 10) {
-         parse_blocked_players:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-                input, add_blocked_players()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(10)) goto parse_blocked_players;
-        if (input->ExpectTag(18)) goto parse_recent_players;
-        break;
-      }
-
-      // repeated .bgs.protocol.user_manager.v1.RecentPlayer recent_players = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_recent_players:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-                input, add_recent_players()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_recent_players;
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.user_manager.v1.SubscribeResponse)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.user_manager.v1.SubscribeResponse)
-  return false;
-#undef DO_
-}
-
-void SubscribeResponse::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.user_manager.v1.SubscribeResponse)
-  // repeated .bgs.protocol.user_manager.v1.BlockedPlayer blocked_players = 1;
-  for (int i = 0; i < this->blocked_players_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->blocked_players(i), output);
-  }
-
-  // repeated .bgs.protocol.user_manager.v1.RecentPlayer recent_players = 2;
-  for (int i = 0; i < this->recent_players_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->recent_players(i), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.user_manager.v1.SubscribeResponse)
-}
-
-::google::protobuf::uint8* SubscribeResponse::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.user_manager.v1.SubscribeResponse)
-  // repeated .bgs.protocol.user_manager.v1.BlockedPlayer blocked_players = 1;
-  for (int i = 0; i < this->blocked_players_size(); i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->blocked_players(i), target);
-  }
-
-  // repeated .bgs.protocol.user_manager.v1.RecentPlayer recent_players = 2;
-  for (int i = 0; i < this->recent_players_size(); i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->recent_players(i), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.user_manager.v1.SubscribeResponse)
-  return target;
-}
-
-int SubscribeResponse::ByteSize() const {
-  int total_size = 0;
-
-  // repeated .bgs.protocol.user_manager.v1.BlockedPlayer blocked_players = 1;
-  total_size += 1 * this->blocked_players_size();
-  for (int i = 0; i < this->blocked_players_size(); i++) {
-    total_size +=
-      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-        this->blocked_players(i));
-  }
-
-  // repeated .bgs.protocol.user_manager.v1.RecentPlayer recent_players = 2;
-  total_size += 1 * this->recent_players_size();
-  for (int i = 0; i < this->recent_players_size(); i++) {
-    total_size +=
-      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-        this->recent_players(i));
-  }
-
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void SubscribeResponse::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const SubscribeResponse* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const SubscribeResponse*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void SubscribeResponse::MergeFrom(const SubscribeResponse& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  blocked_players_.MergeFrom(from.blocked_players_);
-  recent_players_.MergeFrom(from.recent_players_);
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void SubscribeResponse::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void SubscribeResponse::CopyFrom(const SubscribeResponse& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool SubscribeResponse::IsInitialized() const {
-  if (!::google::protobuf::internal::AllAreInitialized(this->blocked_players())) return false;
-  if (!::google::protobuf::internal::AllAreInitialized(this->recent_players())) return false;
-  return true;
-}
-
 void SubscribeResponse::Swap(SubscribeResponse* other) {
   if (other != this) {
-    blocked_players_.Swap(&other->blocked_players_);
-    recent_players_.Swap(&other->recent_players_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata SubscribeResponse::GetMetadata() const {
@@ -1021,202 +638,9 @@ UnsubscribeRequest* UnsubscribeRequest::New() const {
   return new UnsubscribeRequest;
 }
 
-void UnsubscribeRequest::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
-    if (has_agent_id()) {
-      if (agent_id_ != NULL) agent_id_->::bgs::protocol::EntityId::Clear();
-    }
-    object_id_ = GOOGLE_ULONGLONG(0);
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool UnsubscribeRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.user_manager.v1.UnsubscribeRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.EntityId agent_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(16)) goto parse_object_id;
-        break;
-      }
-
-      // optional uint64 object_id = 2;
-      case 2: {
-        if (tag == 16) {
-         parse_object_id:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
-                 input, &object_id_)));
-          set_has_object_id();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.user_manager.v1.UnsubscribeRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.user_manager.v1.UnsubscribeRequest)
-  return false;
-#undef DO_
-}
-
-void UnsubscribeRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.user_manager.v1.UnsubscribeRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->agent_id(), output);
-  }
-
-  // optional uint64 object_id = 2;
-  if (has_object_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(2, this->object_id(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.user_manager.v1.UnsubscribeRequest)
-}
-
-::google::protobuf::uint8* UnsubscribeRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.user_manager.v1.UnsubscribeRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->agent_id(), target);
-  }
-
-  // optional uint64 object_id = 2;
-  if (has_object_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(2, this->object_id(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.user_manager.v1.UnsubscribeRequest)
-  return target;
-}
-
-int UnsubscribeRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.EntityId agent_id = 1;
-    if (has_agent_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_id());
-    }
-
-    // optional uint64 object_id = 2;
-    if (has_object_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt64Size(
-          this->object_id());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void UnsubscribeRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const UnsubscribeRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const UnsubscribeRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void UnsubscribeRequest::MergeFrom(const UnsubscribeRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_agent_id()) {
-      mutable_agent_id()->::bgs::protocol::EntityId::MergeFrom(from.agent_id());
-    }
-    if (from.has_object_id()) {
-      set_object_id(from.object_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void UnsubscribeRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void UnsubscribeRequest::CopyFrom(const UnsubscribeRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool UnsubscribeRequest::IsInitialized() const {
-  if (has_agent_id()) {
-    if (!this->agent_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void UnsubscribeRequest::Swap(UnsubscribeRequest* other) {
   if (other != this) {
-    std::swap(agent_id_, other->agent_id_);
-    std::swap(object_id_, other->object_id_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata UnsubscribeRequest::GetMetadata() const {
@@ -1291,242 +715,9 @@ AddRecentPlayersRequest* AddRecentPlayersRequest::New() const {
   return new AddRecentPlayersRequest;
 }
 
-void AddRecentPlayersRequest::Clear() {
-  if (_has_bits_[0 / 32] & 6) {
-    if (has_agent_id()) {
-      if (agent_id_ != NULL) agent_id_->::bgs::protocol::EntityId::Clear();
-    }
-    program_ = 0u;
-  }
-  players_.Clear();
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool AddRecentPlayersRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.user_manager.v1.AddRecentPlayersRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // repeated .bgs.protocol.user_manager.v1.RecentPlayer players = 1;
-      case 1: {
-        if (tag == 10) {
-         parse_players:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-                input, add_players()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(10)) goto parse_players;
-        if (input->ExpectTag(18)) goto parse_agent_id;
-        break;
-      }
-
-      // optional .bgs.protocol.EntityId agent_id = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_agent_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(24)) goto parse_program;
-        break;
-      }
-
-      // optional uint32 program = 3;
-      case 3: {
-        if (tag == 24) {
-         parse_program:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 input, &program_)));
-          set_has_program();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.user_manager.v1.AddRecentPlayersRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.user_manager.v1.AddRecentPlayersRequest)
-  return false;
-#undef DO_
-}
-
-void AddRecentPlayersRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.user_manager.v1.AddRecentPlayersRequest)
-  // repeated .bgs.protocol.user_manager.v1.RecentPlayer players = 1;
-  for (int i = 0; i < this->players_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->players(i), output);
-  }
-
-  // optional .bgs.protocol.EntityId agent_id = 2;
-  if (has_agent_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->agent_id(), output);
-  }
-
-  // optional uint32 program = 3;
-  if (has_program()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(3, this->program(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.user_manager.v1.AddRecentPlayersRequest)
-}
-
-::google::protobuf::uint8* AddRecentPlayersRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.user_manager.v1.AddRecentPlayersRequest)
-  // repeated .bgs.protocol.user_manager.v1.RecentPlayer players = 1;
-  for (int i = 0; i < this->players_size(); i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->players(i), target);
-  }
-
-  // optional .bgs.protocol.EntityId agent_id = 2;
-  if (has_agent_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->agent_id(), target);
-  }
-
-  // optional uint32 program = 3;
-  if (has_program()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(3, this->program(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.user_manager.v1.AddRecentPlayersRequest)
-  return target;
-}
-
-int AddRecentPlayersRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[1 / 32] & (0xffu << (1 % 32))) {
-    // optional .bgs.protocol.EntityId agent_id = 2;
-    if (has_agent_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_id());
-    }
-
-    // optional uint32 program = 3;
-    if (has_program()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt32Size(
-          this->program());
-    }
-
-  }
-  // repeated .bgs.protocol.user_manager.v1.RecentPlayer players = 1;
-  total_size += 1 * this->players_size();
-  for (int i = 0; i < this->players_size(); i++) {
-    total_size +=
-      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-        this->players(i));
-  }
-
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void AddRecentPlayersRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const AddRecentPlayersRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const AddRecentPlayersRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void AddRecentPlayersRequest::MergeFrom(const AddRecentPlayersRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  players_.MergeFrom(from.players_);
-  if (from._has_bits_[1 / 32] & (0xffu << (1 % 32))) {
-    if (from.has_agent_id()) {
-      mutable_agent_id()->::bgs::protocol::EntityId::MergeFrom(from.agent_id());
-    }
-    if (from.has_program()) {
-      set_program(from.program());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void AddRecentPlayersRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void AddRecentPlayersRequest::CopyFrom(const AddRecentPlayersRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool AddRecentPlayersRequest::IsInitialized() const {
-  if (!::google::protobuf::internal::AllAreInitialized(this->players())) return false;
-  if (has_agent_id()) {
-    if (!this->agent_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void AddRecentPlayersRequest::Swap(AddRecentPlayersRequest* other) {
   if (other != this) {
-    players_.Swap(&other->players_);
-    std::swap(agent_id_, other->agent_id_);
-    std::swap(program_, other->program_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata AddRecentPlayersRequest::GetMetadata() const {
@@ -1600,202 +791,9 @@ ClearRecentPlayersRequest* ClearRecentPlayersRequest::New() const {
   return new ClearRecentPlayersRequest;
 }
 
-void ClearRecentPlayersRequest::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
-    if (has_agent_id()) {
-      if (agent_id_ != NULL) agent_id_->::bgs::protocol::EntityId::Clear();
-    }
-    program_ = 0u;
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool ClearRecentPlayersRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.user_manager.v1.ClearRecentPlayersRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.EntityId agent_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(16)) goto parse_program;
-        break;
-      }
-
-      // optional uint32 program = 2;
-      case 2: {
-        if (tag == 16) {
-         parse_program:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 input, &program_)));
-          set_has_program();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.user_manager.v1.ClearRecentPlayersRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.user_manager.v1.ClearRecentPlayersRequest)
-  return false;
-#undef DO_
-}
-
-void ClearRecentPlayersRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.user_manager.v1.ClearRecentPlayersRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->agent_id(), output);
-  }
-
-  // optional uint32 program = 2;
-  if (has_program()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(2, this->program(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.user_manager.v1.ClearRecentPlayersRequest)
-}
-
-::google::protobuf::uint8* ClearRecentPlayersRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.user_manager.v1.ClearRecentPlayersRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->agent_id(), target);
-  }
-
-  // optional uint32 program = 2;
-  if (has_program()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(2, this->program(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.user_manager.v1.ClearRecentPlayersRequest)
-  return target;
-}
-
-int ClearRecentPlayersRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.EntityId agent_id = 1;
-    if (has_agent_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_id());
-    }
-
-    // optional uint32 program = 2;
-    if (has_program()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt32Size(
-          this->program());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void ClearRecentPlayersRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const ClearRecentPlayersRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const ClearRecentPlayersRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void ClearRecentPlayersRequest::MergeFrom(const ClearRecentPlayersRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_agent_id()) {
-      mutable_agent_id()->::bgs::protocol::EntityId::MergeFrom(from.agent_id());
-    }
-    if (from.has_program()) {
-      set_program(from.program());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void ClearRecentPlayersRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void ClearRecentPlayersRequest::CopyFrom(const ClearRecentPlayersRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool ClearRecentPlayersRequest::IsInitialized() const {
-  if (has_agent_id()) {
-    if (!this->agent_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void ClearRecentPlayersRequest::Swap(ClearRecentPlayersRequest* other) {
   if (other != this) {
-    std::swap(agent_id_, other->agent_id_);
-    std::swap(program_, other->program_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata ClearRecentPlayersRequest::GetMetadata() const {
@@ -1871,209 +869,9 @@ BlockPlayerRequest* BlockPlayerRequest::New() const {
   return new BlockPlayerRequest;
 }
 
-void BlockPlayerRequest::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
-    if (has_agent_id()) {
-      if (agent_id_ != NULL) agent_id_->::bgs::protocol::EntityId::Clear();
-    }
-    if (has_target_id()) {
-      if (target_id_ != NULL) target_id_->::bgs::protocol::EntityId::Clear();
-    }
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool BlockPlayerRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.user_manager.v1.BlockPlayerRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.EntityId agent_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_target_id;
-        break;
-      }
-
-      // required .bgs.protocol.EntityId target_id = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_target_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_target_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.user_manager.v1.BlockPlayerRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.user_manager.v1.BlockPlayerRequest)
-  return false;
-#undef DO_
-}
-
-void BlockPlayerRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.user_manager.v1.BlockPlayerRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->agent_id(), output);
-  }
-
-  // required .bgs.protocol.EntityId target_id = 2;
-  if (has_target_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->target_id(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.user_manager.v1.BlockPlayerRequest)
-}
-
-::google::protobuf::uint8* BlockPlayerRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.user_manager.v1.BlockPlayerRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->agent_id(), target);
-  }
-
-  // required .bgs.protocol.EntityId target_id = 2;
-  if (has_target_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->target_id(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.user_manager.v1.BlockPlayerRequest)
-  return target;
-}
-
-int BlockPlayerRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.EntityId agent_id = 1;
-    if (has_agent_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_id());
-    }
-
-    // required .bgs.protocol.EntityId target_id = 2;
-    if (has_target_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->target_id());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void BlockPlayerRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const BlockPlayerRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const BlockPlayerRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void BlockPlayerRequest::MergeFrom(const BlockPlayerRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_agent_id()) {
-      mutable_agent_id()->::bgs::protocol::EntityId::MergeFrom(from.agent_id());
-    }
-    if (from.has_target_id()) {
-      mutable_target_id()->::bgs::protocol::EntityId::MergeFrom(from.target_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void BlockPlayerRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void BlockPlayerRequest::CopyFrom(const BlockPlayerRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool BlockPlayerRequest::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000002) != 0x00000002) return false;
-  if (has_agent_id()) {
-    if (!this->agent_id().IsInitialized()) return false;
-  }
-  if (has_target_id()) {
-    if (!this->target_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void BlockPlayerRequest::Swap(BlockPlayerRequest* other) {
   if (other != this) {
-    std::swap(agent_id_, other->agent_id_);
-    std::swap(target_id_, other->target_id_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata BlockPlayerRequest::GetMetadata() const {
@@ -2149,209 +947,9 @@ UnblockPlayerRequest* UnblockPlayerRequest::New() const {
   return new UnblockPlayerRequest;
 }
 
-void UnblockPlayerRequest::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
-    if (has_agent_id()) {
-      if (agent_id_ != NULL) agent_id_->::bgs::protocol::EntityId::Clear();
-    }
-    if (has_target_id()) {
-      if (target_id_ != NULL) target_id_->::bgs::protocol::EntityId::Clear();
-    }
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool UnblockPlayerRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.user_manager.v1.UnblockPlayerRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.EntityId agent_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_target_id;
-        break;
-      }
-
-      // required .bgs.protocol.EntityId target_id = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_target_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_target_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.user_manager.v1.UnblockPlayerRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.user_manager.v1.UnblockPlayerRequest)
-  return false;
-#undef DO_
-}
-
-void UnblockPlayerRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.user_manager.v1.UnblockPlayerRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->agent_id(), output);
-  }
-
-  // required .bgs.protocol.EntityId target_id = 2;
-  if (has_target_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->target_id(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.user_manager.v1.UnblockPlayerRequest)
-}
-
-::google::protobuf::uint8* UnblockPlayerRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.user_manager.v1.UnblockPlayerRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->agent_id(), target);
-  }
-
-  // required .bgs.protocol.EntityId target_id = 2;
-  if (has_target_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->target_id(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.user_manager.v1.UnblockPlayerRequest)
-  return target;
-}
-
-int UnblockPlayerRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.EntityId agent_id = 1;
-    if (has_agent_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_id());
-    }
-
-    // required .bgs.protocol.EntityId target_id = 2;
-    if (has_target_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->target_id());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void UnblockPlayerRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const UnblockPlayerRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const UnblockPlayerRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void UnblockPlayerRequest::MergeFrom(const UnblockPlayerRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_agent_id()) {
-      mutable_agent_id()->::bgs::protocol::EntityId::MergeFrom(from.agent_id());
-    }
-    if (from.has_target_id()) {
-      mutable_target_id()->::bgs::protocol::EntityId::MergeFrom(from.target_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void UnblockPlayerRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void UnblockPlayerRequest::CopyFrom(const UnblockPlayerRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool UnblockPlayerRequest::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000002) != 0x00000002) return false;
-  if (has_agent_id()) {
-    if (!this->agent_id().IsInitialized()) return false;
-  }
-  if (has_target_id()) {
-    if (!this->target_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void UnblockPlayerRequest::Swap(UnblockPlayerRequest* other) {
   if (other != this) {
-    std::swap(agent_id_, other->agent_id_);
-    std::swap(target_id_, other->target_id_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata UnblockPlayerRequest::GetMetadata() const {
@@ -2431,252 +1029,9 @@ BlockedPlayerAddedNotification* BlockedPlayerAddedNotification::New() const {
   return new BlockedPlayerAddedNotification;
 }
 
-void BlockedPlayerAddedNotification::Clear() {
-  if (_has_bits_[0 / 32] & 7) {
-    if (has_player()) {
-      if (player_ != NULL) player_->::bgs::protocol::user_manager::v1::BlockedPlayer::Clear();
-    }
-    if (has_game_account_id()) {
-      if (game_account_id_ != NULL) game_account_id_->::bgs::protocol::EntityId::Clear();
-    }
-    if (has_account_id()) {
-      if (account_id_ != NULL) account_id_->::bgs::protocol::EntityId::Clear();
-    }
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool BlockedPlayerAddedNotification::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.user_manager.v1.BlockedPlayerAddedNotification)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required .bgs.protocol.user_manager.v1.BlockedPlayer player = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_player()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_game_account_id;
-        break;
-      }
-
-      // optional .bgs.protocol.EntityId game_account_id = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_game_account_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_game_account_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(26)) goto parse_account_id;
-        break;
-      }
-
-      // optional .bgs.protocol.EntityId account_id = 3;
-      case 3: {
-        if (tag == 26) {
-         parse_account_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_account_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.user_manager.v1.BlockedPlayerAddedNotification)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.user_manager.v1.BlockedPlayerAddedNotification)
-  return false;
-#undef DO_
-}
-
-void BlockedPlayerAddedNotification::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.user_manager.v1.BlockedPlayerAddedNotification)
-  // required .bgs.protocol.user_manager.v1.BlockedPlayer player = 1;
-  if (has_player()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->player(), output);
-  }
-
-  // optional .bgs.protocol.EntityId game_account_id = 2;
-  if (has_game_account_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->game_account_id(), output);
-  }
-
-  // optional .bgs.protocol.EntityId account_id = 3;
-  if (has_account_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      3, this->account_id(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.user_manager.v1.BlockedPlayerAddedNotification)
-}
-
-::google::protobuf::uint8* BlockedPlayerAddedNotification::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.user_manager.v1.BlockedPlayerAddedNotification)
-  // required .bgs.protocol.user_manager.v1.BlockedPlayer player = 1;
-  if (has_player()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->player(), target);
-  }
-
-  // optional .bgs.protocol.EntityId game_account_id = 2;
-  if (has_game_account_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->game_account_id(), target);
-  }
-
-  // optional .bgs.protocol.EntityId account_id = 3;
-  if (has_account_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        3, this->account_id(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.user_manager.v1.BlockedPlayerAddedNotification)
-  return target;
-}
-
-int BlockedPlayerAddedNotification::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required .bgs.protocol.user_manager.v1.BlockedPlayer player = 1;
-    if (has_player()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->player());
-    }
-
-    // optional .bgs.protocol.EntityId game_account_id = 2;
-    if (has_game_account_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->game_account_id());
-    }
-
-    // optional .bgs.protocol.EntityId account_id = 3;
-    if (has_account_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->account_id());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void BlockedPlayerAddedNotification::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const BlockedPlayerAddedNotification* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const BlockedPlayerAddedNotification*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void BlockedPlayerAddedNotification::MergeFrom(const BlockedPlayerAddedNotification& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_player()) {
-      mutable_player()->::bgs::protocol::user_manager::v1::BlockedPlayer::MergeFrom(from.player());
-    }
-    if (from.has_game_account_id()) {
-      mutable_game_account_id()->::bgs::protocol::EntityId::MergeFrom(from.game_account_id());
-    }
-    if (from.has_account_id()) {
-      mutable_account_id()->::bgs::protocol::EntityId::MergeFrom(from.account_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void BlockedPlayerAddedNotification::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void BlockedPlayerAddedNotification::CopyFrom(const BlockedPlayerAddedNotification& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool BlockedPlayerAddedNotification::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-  if (has_player()) {
-    if (!this->player().IsInitialized()) return false;
-  }
-  if (has_game_account_id()) {
-    if (!this->game_account_id().IsInitialized()) return false;
-  }
-  if (has_account_id()) {
-    if (!this->account_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void BlockedPlayerAddedNotification::Swap(BlockedPlayerAddedNotification* other) {
   if (other != this) {
-    std::swap(player_, other->player_);
-    std::swap(game_account_id_, other->game_account_id_);
-    std::swap(account_id_, other->account_id_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata BlockedPlayerAddedNotification::GetMetadata() const {
@@ -2756,252 +1111,9 @@ BlockedPlayerRemovedNotification* BlockedPlayerRemovedNotification::New() const 
   return new BlockedPlayerRemovedNotification;
 }
 
-void BlockedPlayerRemovedNotification::Clear() {
-  if (_has_bits_[0 / 32] & 7) {
-    if (has_player()) {
-      if (player_ != NULL) player_->::bgs::protocol::user_manager::v1::BlockedPlayer::Clear();
-    }
-    if (has_game_account_id()) {
-      if (game_account_id_ != NULL) game_account_id_->::bgs::protocol::EntityId::Clear();
-    }
-    if (has_account_id()) {
-      if (account_id_ != NULL) account_id_->::bgs::protocol::EntityId::Clear();
-    }
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool BlockedPlayerRemovedNotification::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.user_manager.v1.BlockedPlayerRemovedNotification)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required .bgs.protocol.user_manager.v1.BlockedPlayer player = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_player()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_game_account_id;
-        break;
-      }
-
-      // optional .bgs.protocol.EntityId game_account_id = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_game_account_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_game_account_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(26)) goto parse_account_id;
-        break;
-      }
-
-      // optional .bgs.protocol.EntityId account_id = 3;
-      case 3: {
-        if (tag == 26) {
-         parse_account_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_account_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.user_manager.v1.BlockedPlayerRemovedNotification)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.user_manager.v1.BlockedPlayerRemovedNotification)
-  return false;
-#undef DO_
-}
-
-void BlockedPlayerRemovedNotification::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.user_manager.v1.BlockedPlayerRemovedNotification)
-  // required .bgs.protocol.user_manager.v1.BlockedPlayer player = 1;
-  if (has_player()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->player(), output);
-  }
-
-  // optional .bgs.protocol.EntityId game_account_id = 2;
-  if (has_game_account_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->game_account_id(), output);
-  }
-
-  // optional .bgs.protocol.EntityId account_id = 3;
-  if (has_account_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      3, this->account_id(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.user_manager.v1.BlockedPlayerRemovedNotification)
-}
-
-::google::protobuf::uint8* BlockedPlayerRemovedNotification::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.user_manager.v1.BlockedPlayerRemovedNotification)
-  // required .bgs.protocol.user_manager.v1.BlockedPlayer player = 1;
-  if (has_player()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->player(), target);
-  }
-
-  // optional .bgs.protocol.EntityId game_account_id = 2;
-  if (has_game_account_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->game_account_id(), target);
-  }
-
-  // optional .bgs.protocol.EntityId account_id = 3;
-  if (has_account_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        3, this->account_id(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.user_manager.v1.BlockedPlayerRemovedNotification)
-  return target;
-}
-
-int BlockedPlayerRemovedNotification::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required .bgs.protocol.user_manager.v1.BlockedPlayer player = 1;
-    if (has_player()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->player());
-    }
-
-    // optional .bgs.protocol.EntityId game_account_id = 2;
-    if (has_game_account_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->game_account_id());
-    }
-
-    // optional .bgs.protocol.EntityId account_id = 3;
-    if (has_account_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->account_id());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void BlockedPlayerRemovedNotification::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const BlockedPlayerRemovedNotification* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const BlockedPlayerRemovedNotification*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void BlockedPlayerRemovedNotification::MergeFrom(const BlockedPlayerRemovedNotification& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_player()) {
-      mutable_player()->::bgs::protocol::user_manager::v1::BlockedPlayer::MergeFrom(from.player());
-    }
-    if (from.has_game_account_id()) {
-      mutable_game_account_id()->::bgs::protocol::EntityId::MergeFrom(from.game_account_id());
-    }
-    if (from.has_account_id()) {
-      mutable_account_id()->::bgs::protocol::EntityId::MergeFrom(from.account_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void BlockedPlayerRemovedNotification::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void BlockedPlayerRemovedNotification::CopyFrom(const BlockedPlayerRemovedNotification& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool BlockedPlayerRemovedNotification::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-  if (has_player()) {
-    if (!this->player().IsInitialized()) return false;
-  }
-  if (has_game_account_id()) {
-    if (!this->game_account_id().IsInitialized()) return false;
-  }
-  if (has_account_id()) {
-    if (!this->account_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void BlockedPlayerRemovedNotification::Swap(BlockedPlayerRemovedNotification* other) {
   if (other != this) {
-    std::swap(player_, other->player_);
-    std::swap(game_account_id_, other->game_account_id_);
-    std::swap(account_id_, other->account_id_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata BlockedPlayerRemovedNotification::GetMetadata() const {
@@ -3070,156 +1182,9 @@ RecentPlayersAddedNotification* RecentPlayersAddedNotification::New() const {
   return new RecentPlayersAddedNotification;
 }
 
-void RecentPlayersAddedNotification::Clear() {
-  player_.Clear();
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool RecentPlayersAddedNotification::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.user_manager.v1.RecentPlayersAddedNotification)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // repeated .bgs.protocol.user_manager.v1.RecentPlayer player = 1;
-      case 1: {
-        if (tag == 10) {
-         parse_player:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-                input, add_player()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(10)) goto parse_player;
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.user_manager.v1.RecentPlayersAddedNotification)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.user_manager.v1.RecentPlayersAddedNotification)
-  return false;
-#undef DO_
-}
-
-void RecentPlayersAddedNotification::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.user_manager.v1.RecentPlayersAddedNotification)
-  // repeated .bgs.protocol.user_manager.v1.RecentPlayer player = 1;
-  for (int i = 0; i < this->player_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->player(i), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.user_manager.v1.RecentPlayersAddedNotification)
-}
-
-::google::protobuf::uint8* RecentPlayersAddedNotification::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.user_manager.v1.RecentPlayersAddedNotification)
-  // repeated .bgs.protocol.user_manager.v1.RecentPlayer player = 1;
-  for (int i = 0; i < this->player_size(); i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->player(i), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.user_manager.v1.RecentPlayersAddedNotification)
-  return target;
-}
-
-int RecentPlayersAddedNotification::ByteSize() const {
-  int total_size = 0;
-
-  // repeated .bgs.protocol.user_manager.v1.RecentPlayer player = 1;
-  total_size += 1 * this->player_size();
-  for (int i = 0; i < this->player_size(); i++) {
-    total_size +=
-      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-        this->player(i));
-  }
-
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void RecentPlayersAddedNotification::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const RecentPlayersAddedNotification* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const RecentPlayersAddedNotification*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void RecentPlayersAddedNotification::MergeFrom(const RecentPlayersAddedNotification& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  player_.MergeFrom(from.player_);
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void RecentPlayersAddedNotification::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void RecentPlayersAddedNotification::CopyFrom(const RecentPlayersAddedNotification& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool RecentPlayersAddedNotification::IsInitialized() const {
-  if (!::google::protobuf::internal::AllAreInitialized(this->player())) return false;
-  return true;
-}
-
 void RecentPlayersAddedNotification::Swap(RecentPlayersAddedNotification* other) {
   if (other != this) {
-    player_.Swap(&other->player_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata RecentPlayersAddedNotification::GetMetadata() const {
@@ -3288,156 +1253,9 @@ RecentPlayersRemovedNotification* RecentPlayersRemovedNotification::New() const 
   return new RecentPlayersRemovedNotification;
 }
 
-void RecentPlayersRemovedNotification::Clear() {
-  player_.Clear();
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool RecentPlayersRemovedNotification::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.user_manager.v1.RecentPlayersRemovedNotification)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // repeated .bgs.protocol.user_manager.v1.RecentPlayer player = 1;
-      case 1: {
-        if (tag == 10) {
-         parse_player:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-                input, add_player()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(10)) goto parse_player;
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.user_manager.v1.RecentPlayersRemovedNotification)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.user_manager.v1.RecentPlayersRemovedNotification)
-  return false;
-#undef DO_
-}
-
-void RecentPlayersRemovedNotification::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.user_manager.v1.RecentPlayersRemovedNotification)
-  // repeated .bgs.protocol.user_manager.v1.RecentPlayer player = 1;
-  for (int i = 0; i < this->player_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->player(i), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.user_manager.v1.RecentPlayersRemovedNotification)
-}
-
-::google::protobuf::uint8* RecentPlayersRemovedNotification::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.user_manager.v1.RecentPlayersRemovedNotification)
-  // repeated .bgs.protocol.user_manager.v1.RecentPlayer player = 1;
-  for (int i = 0; i < this->player_size(); i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->player(i), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.user_manager.v1.RecentPlayersRemovedNotification)
-  return target;
-}
-
-int RecentPlayersRemovedNotification::ByteSize() const {
-  int total_size = 0;
-
-  // repeated .bgs.protocol.user_manager.v1.RecentPlayer player = 1;
-  total_size += 1 * this->player_size();
-  for (int i = 0; i < this->player_size(); i++) {
-    total_size +=
-      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-        this->player(i));
-  }
-
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void RecentPlayersRemovedNotification::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const RecentPlayersRemovedNotification* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const RecentPlayersRemovedNotification*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void RecentPlayersRemovedNotification::MergeFrom(const RecentPlayersRemovedNotification& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  player_.MergeFrom(from.player_);
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void RecentPlayersRemovedNotification::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void RecentPlayersRemovedNotification::CopyFrom(const RecentPlayersRemovedNotification& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool RecentPlayersRemovedNotification::IsInitialized() const {
-  if (!::google::protobuf::internal::AllAreInitialized(this->player())) return false;
-  return true;
-}
-
 void RecentPlayersRemovedNotification::Swap(RecentPlayersRemovedNotification* other) {
   if (other != this) {
-    player_.Swap(&other->player_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata RecentPlayersRemovedNotification::GetMetadata() const {
@@ -3450,7 +1268,7 @@ void RecentPlayersRemovedNotification::Swap(RecentPlayersRemovedNotification* ot
 
 // ===================================================================
 
-UserManagerService::UserManagerService(bool use_original_hash) : service_hash_(use_original_hash ? OriginalHash::value : NameHash::value) {
+UserManagerService::UserManagerService(bool use_original_hash) : ServiceBase(use_original_hash ? OriginalHash::value : NameHash::value) {
 }
 
 UserManagerService::~UserManagerService() {
@@ -3463,240 +1281,177 @@ google::protobuf::ServiceDescriptor const* UserManagerService::descriptor() {
 
 void UserManagerService::CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) {
   switch(methodId & 0x3FFFFFFF) {
-    case 1: {
-      ::bgs::protocol::user_manager::v1::SubscribeRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for UserManagerService.Subscribe server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method UserManagerService.Subscribe(bgs.protocol.user_manager.v1.SubscribeRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::user_manager::v1::SubscribeResponse::descriptor());
-        UserManagerService* self = static_cast<UserManagerService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method UserManagerService.Subscribe() returned bgs.protocol.user_manager.v1.SubscribeResponse{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::user_manager::v1::SubscribeResponse response;
-      uint32 status = HandleSubscribe(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
+    case 1:
+      ParseAndHandleSubscribe(token, methodId, buffer);
       break;
-    }
-    case 10: {
-      ::bgs::protocol::user_manager::v1::AddRecentPlayersRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for UserManagerService.AddRecentPlayers server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method UserManagerService.AddRecentPlayers(bgs.protocol.user_manager.v1.AddRecentPlayersRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
-        UserManagerService* self = static_cast<UserManagerService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method UserManagerService.AddRecentPlayers() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::NoData response;
-      uint32 status = HandleAddRecentPlayers(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
+    case 10:
+      ParseAndHandleAddRecentPlayers(token, methodId, buffer);
       break;
-    }
-    case 11: {
-      ::bgs::protocol::user_manager::v1::ClearRecentPlayersRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for UserManagerService.ClearRecentPlayers server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method UserManagerService.ClearRecentPlayers(bgs.protocol.user_manager.v1.ClearRecentPlayersRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
-        UserManagerService* self = static_cast<UserManagerService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method UserManagerService.ClearRecentPlayers() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::NoData response;
-      uint32 status = HandleClearRecentPlayers(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
+    case 11:
+      ParseAndHandleClearRecentPlayers(token, methodId, buffer);
       break;
-    }
-    case 20: {
-      ::bgs::protocol::user_manager::v1::BlockPlayerRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for UserManagerService.BlockPlayer server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method UserManagerService.BlockPlayer(bgs.protocol.user_manager.v1.BlockPlayerRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
-        UserManagerService* self = static_cast<UserManagerService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method UserManagerService.BlockPlayer() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::NoData response;
-      uint32 status = HandleBlockPlayer(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
+    case 20:
+      ParseAndHandleBlockPlayer(token, methodId, buffer);
       break;
-    }
-    case 21: {
-      ::bgs::protocol::user_manager::v1::UnblockPlayerRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for UserManagerService.UnblockPlayer server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method UserManagerService.UnblockPlayer(bgs.protocol.user_manager.v1.UnblockPlayerRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
-        UserManagerService* self = static_cast<UserManagerService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method UserManagerService.UnblockPlayer() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::NoData response;
-      uint32 status = HandleUnblockPlayer(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
+    case 21:
+      ParseAndHandleUnblockPlayer(token, methodId, buffer);
       break;
-    }
-    case 40: {
-      ::bgs::protocol::user_manager::v1::BlockPlayerRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for UserManagerService.BlockPlayerForSession server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method UserManagerService.BlockPlayerForSession(bgs.protocol.user_manager.v1.BlockPlayerRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
-        UserManagerService* self = static_cast<UserManagerService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method UserManagerService.BlockPlayerForSession() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::NoData response;
-      uint32 status = HandleBlockPlayerForSession(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
+    case 40:
+      ParseAndHandleBlockPlayerForSession(token, methodId, buffer);
       break;
-    }
-    case 51: {
-      ::bgs::protocol::user_manager::v1::UnsubscribeRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for UserManagerService.Unsubscribe server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method UserManagerService.Unsubscribe(bgs.protocol.user_manager.v1.UnsubscribeRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
-        UserManagerService* self = static_cast<UserManagerService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method UserManagerService.Unsubscribe() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::NoData response;
-      uint32 status = HandleUnsubscribe(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
+    case 51:
+      ParseAndHandleUnsubscribe(token, methodId, buffer);
       break;
-    }
     default:
-      TC_LOG_ERROR("service.protobuf", "Bad method id %u.", methodId);
+      LogInvalidMethod(methodId);
       SendResponse(service_hash_, methodId, token, ERROR_RPC_INVALID_METHOD);
       break;
     }
 }
 
-uint32 UserManagerService::HandleSubscribe(::bgs::protocol::user_manager::v1::SubscribeRequest const* request, ::bgs::protocol::user_manager::v1::SubscribeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method UserManagerService.Subscribe({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+uint32 UserManagerService::HandleSubscribe(::bgs::protocol::user_manager::v1::SubscribeRequest const* request, ::bgs::protocol::user_manager::v1::SubscribeResponse* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("UserManagerService.Subscribe", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 UserManagerService::HandleAddRecentPlayers(::bgs::protocol::user_manager::v1::AddRecentPlayersRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method UserManagerService.AddRecentPlayers({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+uint32 UserManagerService::HandleAddRecentPlayers(::bgs::protocol::user_manager::v1::AddRecentPlayersRequest const* request, ::bgs::protocol::NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("UserManagerService.AddRecentPlayers", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 UserManagerService::HandleClearRecentPlayers(::bgs::protocol::user_manager::v1::ClearRecentPlayersRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method UserManagerService.ClearRecentPlayers({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+uint32 UserManagerService::HandleClearRecentPlayers(::bgs::protocol::user_manager::v1::ClearRecentPlayersRequest const* request, ::bgs::protocol::NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("UserManagerService.ClearRecentPlayers", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 UserManagerService::HandleBlockPlayer(::bgs::protocol::user_manager::v1::BlockPlayerRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method UserManagerService.BlockPlayer({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+uint32 UserManagerService::HandleBlockPlayer(::bgs::protocol::user_manager::v1::BlockPlayerRequest const* request, ::bgs::protocol::NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("UserManagerService.BlockPlayer", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 UserManagerService::HandleUnblockPlayer(::bgs::protocol::user_manager::v1::UnblockPlayerRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method UserManagerService.UnblockPlayer({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+uint32 UserManagerService::HandleUnblockPlayer(::bgs::protocol::user_manager::v1::UnblockPlayerRequest const* request, ::bgs::protocol::NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("UserManagerService.UnblockPlayer", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 UserManagerService::HandleBlockPlayerForSession(::bgs::protocol::user_manager::v1::BlockPlayerRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method UserManagerService.BlockPlayerForSession({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+uint32 UserManagerService::HandleBlockPlayerForSession(::bgs::protocol::user_manager::v1::BlockPlayerRequest const* request, ::bgs::protocol::NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("UserManagerService.BlockPlayerForSession", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 UserManagerService::HandleUnsubscribe(::bgs::protocol::user_manager::v1::UnsubscribeRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method UserManagerService.Unsubscribe({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+uint32 UserManagerService::HandleUnsubscribe(::bgs::protocol::user_manager::v1::UnsubscribeRequest const* request, ::bgs::protocol::NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("UserManagerService.Unsubscribe", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
+}
+
+void UserManagerService::ParseAndHandleSubscribe(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::user_manager::v1::SubscribeRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("UserManagerService.Subscribe");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("UserManagerService.Subscribe", "bgs.protocol.user_manager.v1.SubscribeRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "UserManagerService.Subscribe", ::bgs::protocol::user_manager::v1::SubscribeResponse::descriptor());
+  ::bgs::protocol::user_manager::v1::SubscribeResponse response;
+  uint32 status = HandleSubscribe(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
+}
+
+void UserManagerService::ParseAndHandleAddRecentPlayers(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::user_manager::v1::AddRecentPlayersRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("UserManagerService.AddRecentPlayers");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("UserManagerService.AddRecentPlayers", "bgs.protocol.user_manager.v1.AddRecentPlayersRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "UserManagerService.AddRecentPlayers", ::bgs::protocol::NoData::descriptor());
+  ::bgs::protocol::NoData response;
+  uint32 status = HandleAddRecentPlayers(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
+}
+
+void UserManagerService::ParseAndHandleClearRecentPlayers(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::user_manager::v1::ClearRecentPlayersRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("UserManagerService.ClearRecentPlayers");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("UserManagerService.ClearRecentPlayers", "bgs.protocol.user_manager.v1.ClearRecentPlayersRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "UserManagerService.ClearRecentPlayers", ::bgs::protocol::NoData::descriptor());
+  ::bgs::protocol::NoData response;
+  uint32 status = HandleClearRecentPlayers(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
+}
+
+void UserManagerService::ParseAndHandleBlockPlayer(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::user_manager::v1::BlockPlayerRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("UserManagerService.BlockPlayer");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("UserManagerService.BlockPlayer", "bgs.protocol.user_manager.v1.BlockPlayerRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "UserManagerService.BlockPlayer", ::bgs::protocol::NoData::descriptor());
+  ::bgs::protocol::NoData response;
+  uint32 status = HandleBlockPlayer(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
+}
+
+void UserManagerService::ParseAndHandleUnblockPlayer(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::user_manager::v1::UnblockPlayerRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("UserManagerService.UnblockPlayer");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("UserManagerService.UnblockPlayer", "bgs.protocol.user_manager.v1.UnblockPlayerRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "UserManagerService.UnblockPlayer", ::bgs::protocol::NoData::descriptor());
+  ::bgs::protocol::NoData response;
+  uint32 status = HandleUnblockPlayer(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
+}
+
+void UserManagerService::ParseAndHandleBlockPlayerForSession(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::user_manager::v1::BlockPlayerRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("UserManagerService.BlockPlayerForSession");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("UserManagerService.BlockPlayerForSession", "bgs.protocol.user_manager.v1.BlockPlayerRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "UserManagerService.BlockPlayerForSession", ::bgs::protocol::NoData::descriptor());
+  ::bgs::protocol::NoData response;
+  uint32 status = HandleBlockPlayerForSession(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
+}
+
+void UserManagerService::ParseAndHandleUnsubscribe(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::user_manager::v1::UnsubscribeRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("UserManagerService.Unsubscribe");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("UserManagerService.Unsubscribe", "bgs.protocol.user_manager.v1.UnsubscribeRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "UserManagerService.Unsubscribe", ::bgs::protocol::NoData::descriptor());
+  ::bgs::protocol::NoData response;
+  uint32 status = HandleUnsubscribe(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
 }
 
 // ===================================================================
 
-UserManagerListener::UserManagerListener(bool use_original_hash) : service_hash_(use_original_hash ? OriginalHash::value : NameHash::value) {
+UserManagerListener::UserManagerListener(bool use_original_hash) : ServiceBase(use_original_hash ? OriginalHash::value : NameHash::value) {
 }
 
 UserManagerListener::~UserManagerListener() {
@@ -3708,32 +1463,27 @@ google::protobuf::ServiceDescriptor const* UserManagerListener::descriptor() {
 }
 
 void UserManagerListener::OnBlockedPlayerAdded(::bgs::protocol::user_manager::v1::BlockedPlayerAddedNotification const* request, bool client /*= false*/, bool server /*= false*/) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method UserManagerListener.OnBlockedPlayerAdded(bgs.protocol.user_manager.v1.BlockedPlayerAddedNotification{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  LogCallClientMethod("UserManagerListener.OnBlockedPlayerAdded", "bgs.protocol.user_manager.v1.BlockedPlayerAddedNotification", request);
   SendRequest(service_hash_, 1 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
 void UserManagerListener::OnBlockedPlayerRemoved(::bgs::protocol::user_manager::v1::BlockedPlayerRemovedNotification const* request, bool client /*= false*/, bool server /*= false*/) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method UserManagerListener.OnBlockedPlayerRemoved(bgs.protocol.user_manager.v1.BlockedPlayerRemovedNotification{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  LogCallClientMethod("UserManagerListener.OnBlockedPlayerRemoved", "bgs.protocol.user_manager.v1.BlockedPlayerRemovedNotification", request);
   SendRequest(service_hash_, 2 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
 void UserManagerListener::OnRecentPlayersAdded(::bgs::protocol::user_manager::v1::RecentPlayersAddedNotification const* request, bool client /*= false*/, bool server /*= false*/) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method UserManagerListener.OnRecentPlayersAdded(bgs.protocol.user_manager.v1.RecentPlayersAddedNotification{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  LogCallClientMethod("UserManagerListener.OnRecentPlayersAdded", "bgs.protocol.user_manager.v1.RecentPlayersAddedNotification", request);
   SendRequest(service_hash_, 11 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
 void UserManagerListener::OnRecentPlayersRemoved(::bgs::protocol::user_manager::v1::RecentPlayersRemovedNotification const* request, bool client /*= false*/, bool server /*= false*/) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method UserManagerListener.OnRecentPlayersRemoved(bgs.protocol.user_manager.v1.RecentPlayersRemovedNotification{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  LogCallClientMethod("UserManagerListener.OnRecentPlayersRemoved", "bgs.protocol.user_manager.v1.RecentPlayersRemovedNotification", request);
   SendRequest(service_hash_, 12 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
-void UserManagerListener::CallServerMethod(uint32 token, uint32 methodId, MessageBuffer /*buffer*/) {
-  TC_LOG_ERROR("service.protobuf", "%s Server tried to call server method %u",
-    GetCallerInfo().c_str(), methodId);
+void UserManagerListener::CallServerMethod(uint32 /*token*/, uint32 methodId, MessageBuffer /*buffer*/) {
+  LogDisallowedMethod(methodId);
 }
 
 // @@protoc_insertion_point(namespace_scope)

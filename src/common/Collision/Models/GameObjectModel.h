@@ -97,6 +97,6 @@ private:
     bool isWmo;
 };
 
-TC_COMMON_API void LoadGameObjectModelList(std::string const& dataPath);
+TC_COMMON_API bool LoadGameObjectModelList(std::string const& dataPath);
 
 #endif // _GAMEOBJECT_MODEL_H

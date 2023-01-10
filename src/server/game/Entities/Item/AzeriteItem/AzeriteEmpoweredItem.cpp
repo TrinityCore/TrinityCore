@@ -149,7 +149,7 @@ void AzeriteEmpoweredItem::ClearSelectedAzeritePowers()
 int64 AzeriteEmpoweredItem::GetRespecCost() const
 {
     if (Player const* owner = GetOwner())
-        return int64(GOLD * sDB2Manager.GetCurveValueAt(CURVE_ID_AZERITE_EMPOWERED_ITEM_RESPEC_COST, float(owner->GetNumRespecs())));
+        return int64(float(GOLD) * sDB2Manager.GetCurveValueAt(CURVE_ID_AZERITE_EMPOWERED_ITEM_RESPEC_COST, float(owner->GetNumRespecs())));
 
     return MAX_MONEY_AMOUNT + 1;
 }

@@ -357,7 +357,7 @@ class instance_stratholme : public InstanceMapScript
                                 TC_LOG_DEBUG("scripts", "Instance Stratholme: Ramstein spawned.");
                             }
                             else
-                                TC_LOG_DEBUG("scripts", "Instance Stratholme: %u Abomnation left to kill.", count);
+                                TC_LOG_DEBUG("scripts", "Instance Stratholme: {} Abomnation left to kill.", count);
                         }
 
                         if (data == NOT_STARTED)
@@ -458,7 +458,7 @@ class instance_stratholme : public InstanceMapScript
                         case EVENT_BARON_RUN:
                             if (GetData(TYPE_BARON_RUN) != DONE)
                                 SetData(TYPE_BARON_RUN, FAIL);
-                            TC_LOG_DEBUG("scripts", "Instance Stratholme: Baron run event reached end. Event has state %u.", GetData(TYPE_BARON_RUN));
+                            TC_LOG_DEBUG("scripts", "Instance Stratholme: Baron run event reached end. Event has state {}.", GetData(TYPE_BARON_RUN));
                             break;
                         case EVENT_SLAUGHTER_SQUARE:
                             if (Creature* baron = instance->GetCreature(baronGUID))

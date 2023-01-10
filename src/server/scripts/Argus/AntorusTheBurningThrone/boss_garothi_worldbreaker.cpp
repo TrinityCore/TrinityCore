@@ -16,6 +16,7 @@
  */
 
 #include "AreaTriggerAI.h"
+#include "Containers.h"
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
 #include "GridNotifiers.h"

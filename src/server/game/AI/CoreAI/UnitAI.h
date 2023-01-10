@@ -18,11 +18,10 @@
 #ifndef TRINITY_UNITAI_H
 #define TRINITY_UNITAI_H
 
-#include "Containers.h"
 #include "Errors.h"
 #include "ObjectGuid.h"
+#include "SharedDefines.h"
 #include "SpellDefines.h"
-#include "ThreatManager.h"
 #include <unordered_map>
 
 #define CAST_AI(a, b)   (dynamic_cast<a*>(b))
@@ -176,30 +175,10 @@ class TC_GAME_API UnitAI
         template<class PREDICATE>
         Unit* SelectTarget(SelectTargetMethod targetType, uint32 offset, PREDICATE const& predicate)
         {
-            ThreatManager& mgr = GetThreatManager();
-            // shortcut: if we ignore the first <offset> elements, and there are at most <offset> elements, then we ignore ALL elements
-            if (mgr.GetThreatListSize() <= offset)
-                return nullptr;
-
             std::list<Unit*> targetList;
-            SelectTargetList(targetList, mgr.GetThreatListSize(), targetType, offset, predicate);
+            SelectTargetList(targetList, std::numeric_limits<uint32>::max(), targetType, offset, predicate);
 
-            // maybe nothing fulfills the predicate
-            if (targetList.empty())
-                return nullptr;
-
-            switch (targetType)
-            {
-                case SelectTargetMethod::MaxThreat:
-                case SelectTargetMethod::MinThreat:
-                case SelectTargetMethod::MaxDistance:
-                case SelectTargetMethod::MinDistance:
-                    return targetList.front();
-                case SelectTargetMethod::Random:
-                    return Trinity::Containers::SelectRandomContainerElement(targetList);
-                default:
-                    return nullptr;
-            }
+            return FinalizeTargetSelection(targetList, targetType);
         }
 
         // Select the best (up to) <num> targets (in <targetType> order) from the threat list that fulfill the following:
@@ -220,71 +199,13 @@ class TC_GAME_API UnitAI
         template <class PREDICATE>
         void SelectTargetList(std::list<Unit*>& targetList, uint32 num, SelectTargetMethod targetType, uint32 offset, PREDICATE const& predicate)
         {
-            targetList.clear();
-            ThreatManager& mgr = GetThreatManager();
-            // shortcut: we're gonna ignore the first <offset> elements, and there's at most <offset> elements, so we ignore them all - nothing to do here
-            if (mgr.GetThreatListSize() <= offset)
+            if (!PrepareTargetListSelection(targetList, targetType, offset))
                 return;
-
-            if (targetType == SelectTargetMethod::MaxDistance || targetType == SelectTargetMethod::MinDistance)
-            {
-                for (ThreatReference const* ref : mgr.GetUnsortedThreatList())
-                {
-                    if (ref->IsOffline())
-                        continue;
-
-                    targetList.push_back(ref->GetVictim());
-                }
-            }
-            else
-            {
-                Unit* currentVictim = mgr.GetCurrentVictim();
-                if (currentVictim)
-                    targetList.push_back(currentVictim);
-
-                for (ThreatReference const* ref : mgr.GetSortedThreatList())
-                {
-                    if (ref->IsOffline())
-                        continue;
-
-                    Unit* thisTarget = ref->GetVictim();
-                    if (thisTarget != currentVictim)
-                        targetList.push_back(thisTarget);
-                }
-            }
-
-            // shortcut: the list isn't gonna get any larger
-            if (targetList.size() <= offset)
-            {
-                targetList.clear();
-                return;
-            }
-
-            // right now, list is unsorted for DISTANCE types - re-sort by SelectTargetMethod::MaxDistance
-            if (targetType == SelectTargetMethod::MaxDistance || targetType == SelectTargetMethod::MinDistance)
-                SortByDistance(targetList, targetType == SelectTargetMethod::MinDistance);
-
-            // now the list is MAX sorted, reverse for MIN types
-            if (targetType == SelectTargetMethod::MinThreat)
-                targetList.reverse();
-
-            // ignore the first <offset> elements
-            while (offset)
-            {
-                targetList.pop_front();
-                --offset;
-            }
 
             // then finally filter by predicate
             targetList.remove_if([&predicate](Unit* target) { return !predicate(target); });
 
-            if (targetList.size() <= num)
-                return;
-
-            if (targetType == SelectTargetMethod::Random)
-                Trinity::Containers::RandomResize(targetList, num);
-            else
-                targetList.resize(num);
+            FinalizeTargetListSelection(targetList, num, targetType);
         }
 
         // Called when the unit enters combat
@@ -339,8 +260,9 @@ class TC_GAME_API UnitAI
         UnitAI(UnitAI const& right) = delete;
         UnitAI& operator=(UnitAI const& right) = delete;
 
-        ThreatManager& GetThreatManager();
-        void SortByDistance(std::list<Unit*>& list, bool ascending = true);
+        Unit* FinalizeTargetSelection(std::list<Unit*>& targetList, SelectTargetMethod targetType);
+        bool PrepareTargetListSelection(std::list<Unit*>& targetList, SelectTargetMethod targetType, uint32 offset);
+        void FinalizeTargetListSelection(std::list<Unit*>& targetList, uint32 num, SelectTargetMethod targetType);
 };
 
 #endif

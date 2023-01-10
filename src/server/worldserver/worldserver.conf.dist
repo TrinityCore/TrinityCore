@@ -888,9 +888,9 @@ SkipCinematics = 0
 #        Description: Maximum level that can be reached by players.
 #        Important:   Levels beyond 110 are not recommended at all.
 #        Range:       1-255
-#        Default:     60
+#        Default:     70
 
-MaxPlayerLevel = 60
+MaxPlayerLevel = 70
 
 #
 #    MinDualSpecLevel
@@ -922,6 +922,14 @@ StartDeathKnightPlayerLevel = 8
 #        Default:     8
 
 StartDemonHunterPlayerLevel = 8
+
+#
+#    StartEvokerPlayerLevel
+#        Description: Staring level for evokers after creation.
+#        Range:       1-MaxPlayerLevel
+#        Default:     58
+
+StartEvokerPlayerLevel = 58
 
 #
 #    StartAlliedRacePlayerLevel

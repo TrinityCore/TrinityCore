@@ -1448,11 +1448,11 @@ class TC_GAME_API ObjectMgr
         void SetHighestGuids();
 
         template<HighGuid type>
-        inline ObjectGuidGeneratorBase& GetGenerator()
+        ObjectGuidGenerator& GetGenerator()
         {
             static_assert(ObjectGuidTraits<type>::SequenceSource.HasFlag(ObjectGuidSequenceSource::Global | ObjectGuidSequenceSource::Realm),
                 "Only global guid can be generated in ObjectMgr context");
-            return GetGuidSequenceGenerator<type>();
+            return GetGuidSequenceGenerator(type);
         }
 
         uint32 GenerateAuctionID();
@@ -1801,17 +1801,9 @@ class TC_GAME_API ObjectMgr
         uint64 _voidItemId;
 
         // first free low guid for selected guid type
-        template<HighGuid high>
-        inline ObjectGuidGeneratorBase& GetGuidSequenceGenerator()
-        {
-            auto itr = _guidGenerators.find(high);
-            if (itr == _guidGenerators.end())
-                itr = _guidGenerators.insert(std::make_pair(high, std::make_unique<ObjectGuidGenerator<high>>())).first;
+        ObjectGuidGenerator& GetGuidSequenceGenerator(HighGuid high);
 
-            return *itr->second;
-        }
-
-        std::map<HighGuid, std::unique_ptr<ObjectGuidGeneratorBase>> _guidGenerators;
+        std::map<HighGuid, std::unique_ptr<ObjectGuidGenerator>> _guidGenerators;
         QuestContainer _questTemplates;
         std::vector<Quest const*> _questTemplatesAutoPush;
         QuestObjectivesByIdContainer _questObjectives;

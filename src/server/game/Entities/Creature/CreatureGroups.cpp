@@ -50,7 +50,7 @@ void FormationMgr::AddCreatureToGroup(ObjectGuid::LowType leaderSpawnId, Creatur
     if (itr != map->CreatureGroupHolder.end())
     {
         //Add member to an existing group
-        TC_LOG_DEBUG("entities.unit", "Group found: " UI64FMTD ", inserting creature %s, Group InstanceID %u", leaderSpawnId, creature->GetGUID().ToString().c_str(), creature->GetInstanceId());
+        TC_LOG_DEBUG("entities.unit", "Group found: {}, inserting creature {}, Group InstanceID {}", leaderSpawnId, creature->GetGUID().ToString(), creature->GetInstanceId());
 
         // With dynamic spawn the creature may have just respawned
         // we need to find previous instance of creature and delete it from the formation, as it'll be invalidated
@@ -68,7 +68,7 @@ void FormationMgr::AddCreatureToGroup(ObjectGuid::LowType leaderSpawnId, Creatur
     else
     {
         //Create new group
-        TC_LOG_DEBUG("entities.unit", "Group not found: " UI64FMTD ". Creating new group.", leaderSpawnId);
+        TC_LOG_DEBUG("entities.unit", "Group not found: {}. Creating new group.", leaderSpawnId);
         CreatureGroup* group = new CreatureGroup(leaderSpawnId);
         std::tie(itr, std::ignore) = map->CreatureGroupHolder.emplace(leaderSpawnId, group);
     }
@@ -78,14 +78,14 @@ void FormationMgr::AddCreatureToGroup(ObjectGuid::LowType leaderSpawnId, Creatur
 
 void FormationMgr::RemoveCreatureFromGroup(CreatureGroup* group, Creature* member)
 {
-    TC_LOG_DEBUG("entities.unit", "Deleting member pointer to GUID: " UI64FMTD " from group " UI64FMTD, group->GetLeaderSpawnId(), member->GetSpawnId());
+    TC_LOG_DEBUG("entities.unit", "Deleting member pointer to GUID: {} from group " UI64FMTD, group->GetLeaderSpawnId(), member->GetSpawnId());
     group->RemoveMember(member);
 
     if (group->IsEmpty())
     {
         Map* map = member->GetMap();
 
-        TC_LOG_DEBUG("entities.unit", "Deleting group with InstanceID %u", member->GetInstanceId());
+        TC_LOG_DEBUG("entities.unit", "Deleting group with InstanceID {}", member->GetInstanceId());
         auto itr = map->CreatureGroupHolder.find(group->GetLeaderSpawnId());
         ASSERT(itr != map->CreatureGroupHolder.end(), "Not registered group " UI64FMTD " in map %u", group->GetLeaderSpawnId(), map->GetId());
         map->CreatureGroupHolder.erase(itr);
@@ -133,13 +133,13 @@ void FormationMgr::LoadCreatureFormations()
         {
             if (!sObjectMgr->GetCreatureData(member.LeaderSpawnId))
             {
-                TC_LOG_ERROR("sql.sql", "creature_formations table leader guid " UI64FMTD " incorrect (not exist)", member.LeaderSpawnId);
+                TC_LOG_ERROR("sql.sql", "creature_formations table leader guid {} incorrect (not exist)", member.LeaderSpawnId);
                 continue;
             }
 
             if (!sObjectMgr->GetCreatureData(memberSpawnId))
             {
-                TC_LOG_ERROR("sql.sql", "creature_formations table member guid " UI64FMTD " incorrect (not exist)", memberSpawnId);
+                TC_LOG_ERROR("sql.sql", "creature_formations table member guid {} incorrect (not exist)", memberSpawnId);
                 continue;
             }
 
@@ -154,7 +154,7 @@ void FormationMgr::LoadCreatureFormations()
     {
         if (!_creatureGroupMap.count(leaderSpawnId))
         {
-            TC_LOG_ERROR("sql.sql", "creature_formation contains leader spawn " UI64FMTD " which is not included on its formation, removing", leaderSpawnId);
+            TC_LOG_ERROR("sql.sql", "creature_formation contains leader spawn {} which is not included on its formation, removing", leaderSpawnId);
             for (auto itr = _creatureGroupMap.begin(); itr != _creatureGroupMap.end();)
             {
                 if (itr->second.LeaderSpawnId == leaderSpawnId)
@@ -168,7 +168,7 @@ void FormationMgr::LoadCreatureFormations()
         }
     }
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u creatures in formations in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} creatures in formations in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 FormationInfo* FormationMgr::GetFormationInfo(ObjectGuid::LowType spawnId)
@@ -199,12 +199,12 @@ CreatureGroup::~CreatureGroup()
 
 void CreatureGroup::AddMember(Creature* member)
 {
-    TC_LOG_DEBUG("entities.unit", "CreatureGroup::AddMember: Adding unit %s.", member->GetGUID().ToString().c_str());
+    TC_LOG_DEBUG("entities.unit", "CreatureGroup::AddMember: Adding unit {}.", member->GetGUID().ToString());
 
     //Check if it is a leader
     if (member->GetSpawnId() == _leaderSpawnId)
     {
-        TC_LOG_DEBUG("entities.unit", "Unit %s is formation leader. Adding group.", member->GetGUID().ToString().c_str());
+        TC_LOG_DEBUG("entities.unit", "Unit {} is formation leader. Adding group.", member->GetGUID().ToString());
         _leader = member;
     }
 
@@ -266,7 +266,7 @@ void CreatureGroup::FormationReset(bool /*dismiss*/)
         if (pair.first != _leader && pair.first->IsAlive())
         {
             pair.first->GetMotionMaster()->MoveIdle();
-            // TC_LOG_DEBUG("entities.unit", "CreatureGroup::FormationReset: Set %s movement for member %s", dismiss ? "default" : "idle", pair.first->GetGUID().ToString().c_str());
+            // TC_LOG_DEBUG("entities.unit", "CreatureGroup::FormationReset: Set {} movement for member {}", dismiss ? "default" : "idle", pair.first->GetGUID().ToString());
         }
     }
 

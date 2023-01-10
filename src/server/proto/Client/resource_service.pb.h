@@ -74,19 +74,6 @@ class TC_PROTO_API ContentHandleRequest : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   ContentHandleRequest* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const ContentHandleRequest& from);
-  void MergeFrom(const ContentHandleRequest& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -150,6 +137,10 @@ class TC_PROTO_API ResourcesService : public ServiceBase
  public:
 
   explicit ResourcesService(bool use_original_hash);
+  ResourcesService(ResourcesService const&) = delete;
+  ResourcesService(ResourcesService&&) = delete;
+  ResourcesService& operator=(ResourcesService const&) = delete;
+  ResourcesService& operator=(ResourcesService&&) = delete;
   virtual ~ResourcesService();
 
   typedef std::integral_constant<uint32, 0xECBE75BAu> OriginalHash;
@@ -164,9 +155,7 @@ class TC_PROTO_API ResourcesService : public ServiceBase
   virtual uint32 HandleGetContentHandle(::bgs::protocol::resources::v1::ContentHandleRequest const* request, ::bgs::protocol::ContentHandle* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
 
  private:
-  uint32 service_hash_;
-
-  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(ResourcesService);
+  void ParseAndHandleGetContentHandle(uint32 token, uint32 methodId, MessageBuffer& buffer);
 };
 
 // ===================================================================

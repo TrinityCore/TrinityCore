@@ -55,7 +55,7 @@ void PetitionMgr::LoadPetitions()
         ++count;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u petitions in: %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} petitions in: {} ms.", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void PetitionMgr::LoadSignatures()
@@ -82,7 +82,7 @@ void PetitionMgr::LoadSignatures()
         ++count;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u Petition signs in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} Petition signs in {} ms.", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void PetitionMgr::AddPetition(ObjectGuid petitionGuid, ObjectGuid ownerGuid, std::string const& name, bool isLoading)

@@ -59,12 +59,13 @@ public:
     static void FillPartyMemberPhase(WorldPackets::Party::PartyMemberPhaseStates* partyMemberPhases, PhaseShift const& phaseShift);
 
     static PhaseShift const& GetEmptyPhaseShift();
+    static PhaseShift const& GetAlwaysVisiblePhaseShift();
     static void InitDbPhaseShift(PhaseShift& phaseShift, uint8 phaseUseFlags, uint16 phaseId, uint32 phaseGroupId);
     static void InitDbPersonalOwnership(PhaseShift& phaseShift, ObjectGuid const& personalGuid);
     static void InitDbVisibleMapId(PhaseShift& phaseShift, int32 visibleMapId);
     static bool InDbPhaseShift(WorldObject const* object, uint8 phaseUseFlags, uint16 phaseId, uint32 phaseGroupId);
 
-    static uint32 GetTerrainMapId(PhaseShift const& phaseShift, TerrainInfo const* terrain, float x, float y);
+    static uint32 GetTerrainMapId(PhaseShift const& phaseShift, uint32 mapId, TerrainInfo const* terrain, float x, float y);
 
     static void SetAlwaysVisible(WorldObject* object, bool apply, bool updateVisibility);
     static void SetInversed(WorldObject* object, bool apply, bool updateVisibility);

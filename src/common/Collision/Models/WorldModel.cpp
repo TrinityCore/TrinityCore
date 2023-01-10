@@ -548,7 +548,7 @@ namespace VMAP
         return false;
     }
 
-    bool WorldModel::GetLocationInfo(const G3D::Vector3& p, const G3D::Vector3& down, float& dist, LocationInfo& info) const
+    bool WorldModel::GetLocationInfo(const G3D::Vector3& p, const G3D::Vector3& down, float& dist, GroupLocationInfo& info) const
     {
         if (groupModels.empty())
             return false;
