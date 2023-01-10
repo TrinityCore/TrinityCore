@@ -1440,7 +1440,11 @@ void GameObject::Delete()
     if (GameObjectOverride const* goOverride = GetGameObjectOverride())
         ReplaceAllFlags(GameObjectFlags(goOverride->Flags));
 
-    AddObjectToRemoveList();
+    uint32 poolid = GetGameObjectData() ? GetGameObjectData()->poolId : 0;
+    if (poolid && m_goInfo->type != GAMEOBJECT_TYPE_TRAP)
+        sPoolMgr->UpdatePool<GameObject>(GetMap()->GetPoolData(), poolid, GetSpawnId());
+    else
+        AddObjectToRemoveList();
 }
 
 void GameObject::SendGameObjectDespawn()
