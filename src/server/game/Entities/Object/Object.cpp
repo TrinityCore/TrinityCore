@@ -1912,6 +1912,8 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
         summon->GetOrCreateSmoothPhasing()->SetSingleInfo(*smoothPhasingInfo);
     }
 
+
+
     if (!AddToMap(summon->ToCreature()))
     {
         // Returning false will cause the object to be deleted - remove from transport
@@ -1981,6 +1983,30 @@ Scenario* WorldObject::GetScenario() const
             return instanceMap->GetInstanceScenario();
 
     return nullptr;
+}
+
+//旧的模板
+TempSummon* WorldObject::SummonCreature(uint32 entry, Position const& pos, TempSummonType despawnType /*= TEMPSUMMON_MANUAL_DESPAWN*/, uint32 despawnTime /*= 0*/, uint32 vehId /*= 0*/, ObjectGuid privateObjectOwner /* = ObjectGuid::Empty */)
+{
+    if (Map* map = FindMap())
+    {
+        if (TempSummon* summon = map->SummonCreature(entry, pos, nullptr, despawnTime, ToUnit(), 0, vehId, privateObjectOwner))
+        {
+            summon->SetTempSummonType(despawnType);
+            return summon;
+        }
+    }
+
+    return nullptr;
+}
+
+TempSummon* WorldObject::SummonCreature(uint32 id, float x, float y, float z, float o /*= 0*/, TempSummonType despawnType /*= TEMPSUMMON_MANUAL_DESPAWN*/, uint32 despawnTime /*= 0*/, ObjectGuid privateObjectOwner /* = ObjectGuid::Empty */)
+{
+    if (!x && !y && !z)
+        GetClosePoint(x, y, z, GetCombatReach());
+    if (!o)
+        o = GetOrientation();
+    return SummonCreature(id, { x,y,z,o }, despawnType, despawnTime, 0, privateObjectOwner);
 }
 
 TempSummon* WorldObject::SummonCreature(uint32 entry, Position const& pos, TempSummonType despawnType /*= TEMPSUMMON_MANUAL_DESPAWN*/, Milliseconds despawnTime /*= 0s*/, uint32 vehId /*= 0*/, uint32 spellId /*= 0*/, ObjectGuid privateObjectOwner /* = ObjectGuid::Empty */)
