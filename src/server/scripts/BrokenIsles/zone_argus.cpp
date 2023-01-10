@@ -33,6 +33,7 @@
 //#include "WorldQuestMgr.h"
 #include "GameEventMgr.h"
 #include "Unit.h"
+#include <Containers.h>
 
 enum eSays
 {
@@ -140,13 +141,13 @@ struct boss_mistress_alluradel : public ScriptedAI
         DoCast(SPELL_SADIST);
     }
 
-    void EnterCombat(Unit* /*unit*/) override
+    void EnterCombat(Unit* /*unit*/) 
     {
         Talk(SAY_AGGRO);
-        events.RescheduleEvent(EVENT_HEART_BREAKER, 4000);
-        events.RescheduleEvent(EVENT_FEL_LASH, 15000);
-        events.RescheduleEvent(EVENT_BEGUILING_CHARM, 29000);
-        events.RescheduleEvent(EVENT_PHANTASM, 33000);
+       // events.RescheduleEvent(EVENT_HEART_BREAKER, 4000);
+       // events.RescheduleEvent(EVENT_FEL_LASH, 15000);
+       // events.RescheduleEvent(EVENT_BEGUILING_CHARM, 29000);
+       // events.RescheduleEvent(EVENT_PHANTASM, 33000);
     }
 
     void EnterEvadeMode(EvadeReason why) override
@@ -172,16 +173,16 @@ struct boss_mistress_alluradel : public ScriptedAI
             {
             case EVENT_HEART_BREAKER:
                 DoCast(SPELL_HEART_BREAKER);
-                events.RescheduleEvent(EVENT_HEART_BREAKER, 22000);
+             //   events.RescheduleEvent(EVENT_HEART_BREAKER, 22000);
                 break;
             case EVENT_FEL_LASH:
                 DoCast(SPELL_FEL_LASH);
-                events.RescheduleEvent(EVENT_FEL_LASH, 32000);
+               // events.RescheduleEvent(EVENT_FEL_LASH, 32000);
                 break;
             case EVENT_BEGUILING_CHARM:
-                ZoneTalk(1, 0);
+               // ZoneTalk(1, 0);
                 DoCast(SPELL_BEGUILING_CHARM);
-                events.RescheduleEvent(EVENT_BEGUILING_CHARM, 40000);
+               // events.RescheduleEvent(EVENT_BEGUILING_CHARM, 40000);
                 break;
             default:
                 break;
@@ -221,12 +222,12 @@ struct boss_pit_lor_vilemus : public ScriptedAI
         me->RemoveAllAuras();
     }
 
-    void EnterCombat(Unit* /*unit*/) override
+    void EnterCombat(Unit* /*unit*/) 
     {
         Talk(SAY_AGGRO);
-        events.RescheduleEvent(EVENT_FEL_BREATH, 20000);
-        events.RescheduleEvent(EVENT_STOMP, 13000);
-        events.RescheduleEvent(EVENT_DRAIN, 22000);
+      //  events.RescheduleEvent(EVENT_FEL_BREATH, 20000);
+      //  events.RescheduleEvent(EVENT_STOMP, 13000);
+      //  events.RescheduleEvent(EVENT_DRAIN, 22000);
     }
 
     void EnterEvadeMode(EvadeReason why) override
@@ -253,15 +254,15 @@ struct boss_pit_lor_vilemus : public ScriptedAI
             {
             case EVENT_FEL_BREATH:
                 DoCast(SPELL_FEL_BREATH);
-                events.RescheduleEvent(EVENT_FEL_BREATH, 19000);
+        //        events.RescheduleEvent(EVENT_FEL_BREATH, 19000);
                 break;
             case EVENT_STOMP:
                 DoCast(SPELL_STOMP);
-                events.RescheduleEvent(EVENT_STOMP, 19000);
+          //      events.RescheduleEvent(EVENT_STOMP, 19000);
                 break;
             case EVENT_DRAIN:
                 DoCast(SPELL_DRAIN);
-                events.RescheduleEvent(EVENT_DRAIN, 15400);
+            //    events.RescheduleEvent(EVENT_DRAIN, 15400);
                 break;
             default:
                 break;
@@ -284,14 +285,14 @@ struct boss_occularus : public ScriptedAI
         me->RemoveAllAreaTriggers();
     }
 
-    void EnterCombat(Unit* /*unit*/) override
+    void EnterCombat(Unit* /*unit*/) 
     {
         Talk(SAY_AGGRO);
-        events.RescheduleEvent(EVENT_SEARING_GAZE, 7000);
-        events.RescheduleEvent(EVENT_GUSHING_WOUND, 10000);
-        events.RescheduleEvent(EVENT_LASH, 45500);
-        events.RescheduleEvent(EVENT_EYE_SORE, 24000);
-        events.RescheduleEvent(EVENT_PHANTASM, 27000);
+     //   events.RescheduleEvent(EVENT_SEARING_GAZE, 7000);
+       // events.RescheduleEvent(EVENT_GUSHING_WOUND, 10000);
+      //  events.RescheduleEvent(EVENT_LASH, 45500);
+      //  events.RescheduleEvent(EVENT_EYE_SORE, 24000);
+      //  events.RescheduleEvent(EVENT_PHANTASM, 27000);
     }
 
     void EnterEvadeMode(EvadeReason why) override
@@ -305,7 +306,7 @@ struct boss_occularus : public ScriptedAI
         Talk(SAY_KILL);
     }
 
-    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    void SpellHitTarget(Unit* target, SpellInfo const* spell) 
     {
         if (spell->Id == SPELL_PHANTASM)
         {
@@ -316,7 +317,7 @@ struct boss_occularus : public ScriptedAI
             {
                 dist += 2.0f;
                 target->GetNearPosition(dist, 0.0f);
-                me->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_PHANTASM_TRIGGER, true);
+               // me->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_PHANTASM_TRIGGER, true);
             }
         }
     }
@@ -335,23 +336,23 @@ struct boss_occularus : public ScriptedAI
             case EVENT_SEARING_GAZE:
                 if (auto target = me->GetVictim())
                     DoCast(target, SPELL_SEARING_GAZE, false);
-                events.RescheduleEvent(EVENT_SEARING_GAZE, 10000);
+              //  events.RescheduleEvent(EVENT_SEARING_GAZE, 10000);
                 break;
             case EVENT_GUSHING_WOUND:
                 if (auto target = me->GetVictim())
                     DoCast(target, SPELL_GUSHING_WOUND, false);
-                events.RescheduleEvent(EVENT_GUSHING_WOUND, 11000);
+                //events.RescheduleEvent(EVENT_GUSHING_WOUND, 11000);
             case EVENT_LASH:
                 if (auto target = me->GetVictim())
                     DoCast(target, SPELL_LASH, false);
-                events.RescheduleEvent(EVENT_LASH, 18000);
+               // events.RescheduleEvent(EVENT_LASH, 18000);
                 break;
             case EVENT_EYE_SORE:
                 DoCast(SPELL_EYE_SORE);
                 break;
             case EVENT_PHANTASM:
                 DoCast(SPELL_PHANTASM);
-                events.RescheduleEvent(EVENT_PHANTASM, 39000);
+               // events.RescheduleEvent(EVENT_PHANTASM, 39000);
                 break;
             default:
                 break;
@@ -379,13 +380,13 @@ struct boss_inquisitor_meto : public ScriptedAI
         ScriptedAI::EnterEvadeMode();
     }
 
-    void EnterCombat(Unit* /*unit*/) override
+    void EnterCombat(Unit* /*unit*/) 
     {
         Talk(SAY_AGGRO);
-        events.RescheduleEvent(EVENT_REAP, 8000);
-        events.RescheduleEvent(EVENT_SOW, 5000);
-        events.RescheduleEvent(EVENT_DEATH_FIELD, 12000);
-        events.RescheduleEvent(EVENT_SEEDS_OF_CHAOS, 26000);
+       // events.RescheduleEvent(EVENT_REAP, 8000);
+       // events.RescheduleEvent(EVENT_SOW, 5000);
+       // events.RescheduleEvent(EVENT_DEATH_FIELD, 12000);
+       // events.RescheduleEvent(EVENT_SEEDS_OF_CHAOS, 26000);
     }
 
     void JustDied(Unit* /*who*/) override
@@ -407,25 +408,25 @@ struct boss_inquisitor_meto : public ScriptedAI
             {
             case EVENT_REAP:
                 DoCast(SPELL_REAP);
-                events.RescheduleEvent(EVENT_REAP, 20000);
+              //  events.RescheduleEvent(EVENT_REAP, 20000);
                 break;
             case EVENT_SOW:
                 DoCast(SPELL_SOW);
                 DoCast(SPELL_SOW_DMG);
-                events.RescheduleEvent(EVENT_SOW, 15000);
+               // events.RescheduleEvent(EVENT_SOW, 15000);
                 break;
             case EVENT_DEATH_FIELD:
             {
                 Position pos;
-                float angle = me->GetAngle(me);
+               // float angle = me->GetAngle(me);
                 for (uint8 i = 0; i < 9; i++)
                 {
-                    angle += 0.1f;
-                    me->GetNearPosition(35.0f, angle);
-                    me->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_DEATH_FIELD_VISUAL, true);
+                 //   angle += 0.1f;
+                   // me->GetNearPosition(35.0f, angle);
+                   // me->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_DEATH_FIELD_VISUAL, true);
                 }
                 DoCast(SPELL_DEATH_FIELD);
-                events.RescheduleEvent(EVENT_DEATH_FIELD, 15000);
+               // events.RescheduleEvent(EVENT_DEATH_FIELD, 15000);
                 break;
             }
             case EVENT_SEEDS_OF_CHAOS:
@@ -435,9 +436,9 @@ struct boss_inquisitor_meto : public ScriptedAI
                     Position pos;
                     float angle = 6.28f / 3 * i;
                     me->GetNearPosition(10.0f, angle);
-                    me->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_SEEDS_OF_CHAOS, true);
+                  //  me->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_SEEDS_OF_CHAOS, true);
                 }
-                events.RescheduleEvent(EVENT_SEEDS_OF_CHAOS, 30000);
+                //events.RescheduleEvent(EVENT_SEEDS_OF_CHAOS, 30000);
                 break;
             }
             default:
@@ -466,13 +467,13 @@ struct boss_sotanathor : public ScriptedAI
         ScriptedAI::EnterEvadeMode();
     }
 
-    void EnterCombat(Unit* /*unit*/) override
+    void EnterCombat(Unit* /*unit*/) 
     {
         Talk(SAY_AGGRO);
-        events.RescheduleEvent(EVENT_SOUL_CLEAVE, 17000);
-        events.RescheduleEvent(EVENT_SILENCE, 23000);
-        events.RescheduleEvent(EVENT_CAVITATION, 21000);
-        events.RescheduleEvent(EVENT_SEED_OF_DESTRUCTION, 16000);
+      //  events.RescheduleEvent(EVENT_SOUL_CLEAVE, 17000);
+      //  events.RescheduleEvent(EVENT_SILENCE, 23000);
+      //  events.RescheduleEvent(EVENT_CAVITATION, 21000);
+      //  events.RescheduleEvent(EVENT_SEED_OF_DESTRUCTION, 16000);
     }
 
     void JustDied(Unit* /*who*/) override
@@ -480,7 +481,7 @@ struct boss_sotanathor : public ScriptedAI
         Talk(4);
     }
 
-    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    void SpellHitTarget(Unit* target, SpellInfo const* spell) 
     {
         switch (spell->Id)
         {
@@ -492,8 +493,8 @@ struct boss_sotanathor : public ScriptedAI
                 for (uint8 i = 0; i < 4; i++)
                 {
                     target->GetNearPosition(5.0f, angle);
-                    target->CastSpell(pos, SPELL_WAKE_OF_DESTRUCTION, true, 0, 0, me->GetGUID());
-                    angle += 1.57f;
+                    target->CastSpell(pos, SPELL_WAKE_OF_DESTRUCTION) ;// true;// me->GetGUID());
+                   // angle += 1.57f;
                 }
             }
             break;
@@ -515,20 +516,20 @@ struct boss_sotanathor : public ScriptedAI
             {
             case EVENT_SOUL_CLEAVE:
                 DoCast(SPELL_SOUL_CLEAVE);
-                events.RescheduleEvent(SPELL_SOUL_CLEAVE, 28000);
+              //  events.RescheduleEvent(SPELL_SOUL_CLEAVE, 28000);
                 break;
             case EVENT_SILENCE:
                 DoCast(SPELL_SILENCE);
-                events.RescheduleEvent(EVENT_SILENCE, 28000);
+              //  events.RescheduleEvent(EVENT_SILENCE, 28000);
                 break;
             case EVENT_CAVITATION:
-                ZoneTalk(2, 0);
+              //  ZoneTalk(2, 0);
                 DoCast(SPELL_CAVITATION);
-                events.RescheduleEvent(EVENT_CAVITATION, 27000);
+              //  events.RescheduleEvent(EVENT_CAVITATION, 27000);
                 break;
             case EVENT_SEED_OF_DESTRUCTION:
                 DoCast(SPELL_SEED_OF_DESTRUCTION);
-                events.RescheduleEvent(EVENT_SEED_OF_DESTRUCTION, 36000);
+              //  events.RescheduleEvent(EVENT_SEED_OF_DESTRUCTION, 36000);
                 break;
             default:
                 break;
@@ -572,7 +573,7 @@ struct boss_matron_folnuna : public ScriptedAI
         slimbering = false;
     }
 
-    void EnterCombat(Unit* /*unit*/) override
+    void EnterCombat(Unit* /*unit*/) 
     {
         Talk(SAY_AGGRO);
         DoCast(SPELL_NAUSEA);
@@ -617,8 +618,8 @@ struct boss_matron_folnuna : public ScriptedAI
                     me->AttackStop();
                     StartEvents(PHASE_2);
 
-                    if (auto trigger = me->SummonCreature(124537, 4408.702f, 6490.092f, 40.38989f, 1.38464f, TEMPSUMMON_TIMED_DESPAWN, 15000))
-                        DoCast(trigger, SPELL_SLIMBERING_GASP, false);
+                   // if (auto trigger = me->SummonCreature(124537, 4408.702f, 6490.092f, 40.38989f, 1.38464f, TEMPSUMMON_TIMED_DESPAWN, 15000))
+                       // DoCast(trigger, SPELL_SLIMBERING_GASP, false);
 
                     //me->AddDelayedCombat(500, [=]() -> void { me->SetPower(POWER_ENERGY, 0); });
                 }
@@ -642,8 +643,8 @@ struct boss_matron_folnuna : public ScriptedAI
         case PHASE_1:
             slimbering = false;
             me->SetReactState(REACT_AGGRESSIVE);
-            events.RescheduleEvent(EVENT_FEL_BLAST, 2000);
-            events.RescheduleEvent(EVENT_GROTESQUE_SPAWN, 8000);
+          //  events.RescheduleEvent(EVENT_FEL_BLAST, 2000);
+          //  events.RescheduleEvent(EVENT_GROTESQUE_SPAWN, 8000);
             break;
         case PHASE_2:
             events.CancelEvent(EVENT_FEL_BLAST);
@@ -652,19 +653,19 @@ struct boss_matron_folnuna : public ScriptedAI
         }
     }
 
-    void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+    void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) 
     {
         switch (spell->Id)
         {
         case SPELL_GROTESQUE_SPAWN:
-            auto threatlist = me->getThreatManager().getThreatList();
-            if (!threatlist.empty())
+           // auto threatlist = me->getThreatManager().getThreatList();
+           // if (!threatlist.empty())
             {
-                auto& itr = Trinity::Containers::SelectRandomContainerElement(threatlist);
+             //   auto& itr = Trinity::Containers::SelectRandomContainerElement(threatlist);
 
-                if (Unit* target = itr->getTarget())
-                    for (uint8 i = 0; i < 4; ++i)
-                        target->CastSpell(me, RANDOM_GROTESQUE_SPAWN[urand(0, 1)], false, 0, 0, me->GetGUID());
+               // if (Unit* target = itr->getTarget())
+            for (uint8 i = 0; i < 4; ++i);
+                 //       target->CastSpell(me, RANDOM_GROTESQUE_SPAWN[urand(0, 1)], false, 0, 0, me->GetGUID());
             }
             break;
         }
@@ -685,14 +686,14 @@ struct boss_matron_folnuna : public ScriptedAI
             switch (eventId)
             {
             case EVENT_FEL_BLAST:
-                if (auto target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
-                    DoCast(target, SPELL_FEL_BLAST, false);
+              //  if (auto target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
+                 //   DoCast(target, SPELL_FEL_BLAST, false);
 
-                events.RescheduleEvent(EVENT_FEL_BLAST, 10000);
+               // events.RescheduleEvent(EVENT_FEL_BLAST, 10000);
                 break;
             case EVENT_GROTESQUE_SPAWN:
                 DoCast(SPELL_GROTESQUE_SPAWN);
-                events.RescheduleEvent(EVENT_GROTESQUE_SPAWN, 35000);
+               // events.RescheduleEvent(EVENT_GROTESQUE_SPAWN, 35000);
                 break;
             default:
                 break;
@@ -763,7 +764,7 @@ class spell_sadist : public AuraScript
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_sadist::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+       // OnEffectProc += AuraEffectProcFn(spell_sadist::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -880,7 +881,7 @@ class spell_infected_claws : public AuraScript
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_infected_claws::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+      //  OnEffectProc += AuraEffectProcFn(spell_infected_claws::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
 
@@ -897,7 +898,7 @@ struct npc_fiery_trickster : ScriptedAI
         events.Reset();
     }
 
-    void IsSummonedBy(Unit* /*summoner*/) override
+    void IsSummonedBy(Unit* /*summoner*/) 
     {
         std::list<Player*> playerList;
         GetPlayerListInGrid(playerList, me, 300.0f);
@@ -906,7 +907,7 @@ struct npc_fiery_trickster : ScriptedAI
             if (!playerList.empty())
                 me->AI()->AttackStart((*itr));
 
-        events.RescheduleEvent(1, 2000);
+       // events.RescheduleEvent(1, 2000);
     }
 
     void UpdateAI(uint32 diff) override
@@ -921,9 +922,9 @@ struct npc_fiery_trickster : ScriptedAI
             switch (eventId)
             {
             case 1:
-                if (auto target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
-                    DoCast(target, SPELL_FEL_FIREBOLT, false);
-                events.RescheduleEvent(1, 2500);
+              //  if (auto target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
+                //    DoCast(target, SPELL_FEL_FIREBOLT, false);
+              //  events.RescheduleEvent(1, 2500);
                 break;
             }
         }
@@ -944,11 +945,11 @@ struct npc_felblaze_maniacr : ScriptedAI
         events.Reset();
     }
 
-    void IsSummonedBy(Unit* /*summoner*/) override
+    void IsSummonedBy(Unit* /*summoner*/) 
     {
         DoCast(SPELL_SCORCHING_PRESENCE);
         me->GetMotionMaster()->MoveRandom(5.0f);
-        events.RescheduleEvent(1, 2500);
+       // events.RescheduleEvent(1, 2500);
     }
 
     void UpdateAI(uint32 diff) override
@@ -961,7 +962,7 @@ struct npc_felblaze_maniacr : ScriptedAI
             {
             case 1:
                 me->GetMotionMaster()->MoveRandom(5.0f);
-                events.RescheduleEvent(1, 2500);
+              //  events.RescheduleEvent(1, 2500);
                 break;
             }
         }
@@ -1220,10 +1221,10 @@ void AddSC_zone_argus()
     RegisterSpellScript(spell_eye_sore);
     RegisterSpellScript(spell_soul_cleave);
     RegisterSpellScript(spell_enter_rift);
-    RegisterAuraScript(spell_sadist);
-    RegisterAuraScript(spell_drain);
-    RegisterAuraScript(spell_argus_seed_of_destruction);
-    RegisterAuraScript(spell_infected_claws);
-    RegisterAuraScript(spell_folnuna_nausea);
+   // RegisterAuraScript(spell_sadist);
+   // RegisterAuraScript(spell_drain);
+   // RegisterAuraScript(spell_argus_seed_of_destruction);
+   // RegisterAuraScript(spell_infected_claws);
+   // RegisterAuraScript(spell_folnuna_nausea);
     RegisterAreaTriggerAI(at_seeds_of_chaos);
 }

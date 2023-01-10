@@ -103,7 +103,7 @@ public:
                 player->RemoveAurasDueToSpell(SPELL_MASQUERADE);
             if (!player->HasAura(SPELL_MASQUERADE))
                 player->CastSpell(player, SPELL_MASQUERADE, true);
-            player->GetQuestObjectiveCriteriaMgr();
+          //  player->GetQuestObjectiveCriteriaMgr();
             return;
             break;
         default:
@@ -126,7 +126,7 @@ struct npc_cyrille_107350 : public ScriptedAI
 
     void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId)
     {
-        if (player->HasQuest(MAKE_YOUR_MARK))
+       // if (player->HasQuest(MAKE_YOUR_MARK))
         {
             if (gossipListId == 0)
             {
@@ -143,8 +143,8 @@ struct npc_cyrille_107350 : public ScriptedAI
         {
             if (me->IsWithinDist(player, 15.0f, false))
             {
-                if (player->HasQuest(MAKE_YOUR_MARK))
-                    me->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
+             //   if (player->HasQuest(MAKE_YOUR_MARK))
+               //     me->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
             }
         }
     }
@@ -156,7 +156,7 @@ struct npc_lorin_107349 : public ScriptedAI
 
     void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId)
     {
-        if (player->HasQuest(MAKE_YOUR_MARK))
+      //  if (player->HasQuest(MAKE_YOUR_MARK))
         {
             if (gossipListId == 0)
             {
@@ -173,8 +173,8 @@ struct npc_lorin_107349 : public ScriptedAI
         {
             if (me->IsWithinDist(player, 15.0f, false))
             {
-                if (player->HasQuest(MAKE_YOUR_MARK))
-                    me->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
+            //    if (player->HasQuest(MAKE_YOUR_MARK))
+              //      me->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
             }
         }
     }
@@ -186,7 +186,7 @@ struct npc_sylessa_107348 : public ScriptedAI
 
     void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId)
     {
-        if (player->HasQuest(MAKE_YOUR_MARK))
+     //   if (player->HasQuest(MAKE_YOUR_MARK))
         {
             if (gossipListId == 0)
             {
@@ -203,8 +203,8 @@ struct npc_sylessa_107348 : public ScriptedAI
         {
             if (me->IsWithinDist(player, 15.0f, false))
             {
-                if (player->HasQuest(MAKE_YOUR_MARK))
-                    me->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
+              //  if (player->HasQuest(MAKE_YOUR_MARK))
+                //    me->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
             }
         }
     }
@@ -217,7 +217,7 @@ struct npc_gondolier_107225 : public ScriptedAI
 
     void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId)
     {
-        if (player->HasQuest(The_Gondolier))
+       // if (player->HasQuest(The_Gondolier))
         {
             if (gossipListId == 0)
             {
@@ -318,7 +318,7 @@ class npc_gossip_102600 : public CreatureScript
 public:
     npc_gossip_102600() : CreatureScript("npc_gossip_102600") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
+    bool OnGossipHello(Player* player, Creature* creature) 
     {
         if (player->GetQuestStatus(40010) == QUEST_STATUS_INCOMPLETE)
         {
@@ -334,7 +334,7 @@ struct npc_astoril : public ScriptedAI
 
     void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId)
     {
-        if (player->HasQuest(QUEST_A_Way_Back_In))
+       // if (player->HasQuest(QUEST_A_Way_Back_In))
         {
             if (gossipListId == 0)
             {
@@ -358,5 +358,5 @@ void AddSC_suramar()
     new npc_thallyssra_97140();
     new npc_zoneexplorer_113893();
     new npc_zoneexplorer_113894();
-    new npc_gossip_102600();
+   // new npc_gossip_102600();
 }

@@ -46,16 +46,16 @@ public:
         void Reset() override
         {
             events.Reset();
-            //me->RemoveAllAreaObjects();
+           // me->RemoveAllAreaObjects();
             summons.DespawnAll();
             DoCast(SPELL_REMOVE_CHARM);
         }
 
         void EnterCombat(Unit* unit) 
         {
-            events.RescheduleEvent(1, 4000); // SPELL_FEL_GEYZER
-            events.RescheduleEvent(3, 7000); // SPELL_GASEOUS_BREATH
-            events.RescheduleEvent(4, 31000); // SPELL_MOTHERS_EMBRACE
+           // events.RescheduleEvent(1, 4000); // SPELL_FEL_GEYZER
+           // events.RescheduleEvent(3, 7000); // SPELL_GASEOUS_BREATH
+           // events.RescheduleEvent(4, 31000); // SPELL_MOTHERS_EMBRACE
         }
 
         void JustDied(Unit* who) override
@@ -86,19 +86,19 @@ public:
                 {
                 case 1:
                     DoCast(SPELL_FEL_GEYZER);
-                    events.RescheduleEvent(1, 22000);
-                    events.RescheduleEvent(2, 3000);
+                   // events.RescheduleEvent(1, 22000);
+                    //events.RescheduleEvent(2, 3000);
                     break;
                 case 2:
                     DoCast(SPELL_IMPISH_FLAMES);
                     break;
                 case 3:
                     DoCast(SPELL_GASEOUS_BREATH);
-                    events.RescheduleEvent(3, 31000);
+                    //events.RescheduleEvent(3, 31000);
                     break;
                 case 4:
                     DoCast(SPELL_MOTHERS_EMBRACE);
-                    events.RescheduleEvent(4, 65000);
+                  //  events.RescheduleEvent(4, 65000);
                     break;
                 }
             }

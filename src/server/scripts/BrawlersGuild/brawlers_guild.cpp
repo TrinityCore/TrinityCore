@@ -20,6 +20,46 @@
 #include "ScriptedGossip.h"
 #include "Creature.h"
 
+enum ACHIEVEMENT
+{
+    ACHIEVEMENT_FIRST_RULE_A = 0,
+    ACHIEVEMENT_FIRST_RULE_H = 1,
+};
+
+enum Spells
+{
+    SPELL_ALLIANCE_SOUND,
+    SPELL_HORDE_SOUND,
+};
+
+enum Npc
+{
+     NPC_OOLISS,
+     NPC_DIPPY,
+     NPC_BILL_THE_JANITOR,
+     NPC_SANORIAK,
+     NPC_MASTER_PAKU,
+     NPC_DOOMFLIPPER,
+     NPC_SPLAT,
+     NPC_SHADOWMASTER,
+     NPC_JOHNNY,
+     NPC_BURNSTACHIO,
+     NPC_MEATBALL,
+     NPC_MAX_MEHABLAST,
+     NPC_STITCHES,
+     NPC_THWACK_U,
+     NPC_RAZORGRIN,
+     NPC_FIVE_GNOMES,
+     NPC_BLACKMANGE,
+     NPC_TOPPS,
+     NPC_MILLIE,
+     NPC_CARL,
+     NPC_OGREWATCH,
+     NPC_NIBBLEH,
+     NPC_SERPENT,
+     NPC_RAYD,
+};
+
 // 68408, 67267
 class npc_brawlers_guild_queue : public CreatureScript
 {
@@ -32,13 +72,13 @@ public:
         {
              auto ok = true;
 
-           //  if (player->GetTeamId() == TEAM_ALLIANCE && !player->HasAchieved()(ACHIEVEMENT_FIRST_RULE_A))
-             //    ok = false;
+            if (player->GetTeamId() == TEAM_ALLIANCE && !player->HasAchieved(ACHIEVEMENT_FIRST_RULE_A))
+                 ok = false;
 
-            // if (player->GetTeamId() == TEAM_HORDE && !player->HasAchieved(ACHIEVEMENT_FIRST_RULE_H))
-           //      ok = false;
+             if (player->GetTeamId() == TEAM_HORDE && !player->HasAchieved(ACHIEVEMENT_FIRST_RULE_H))
+                 ok = false;
 
-         //   if (player->HasAchieved(ACHIEVEMENT_FIRST_RULE_H) || player->HasAchieved(ACHIEVEMENT_FIRST_RULE_A))
+            if (player->HasAchieved(ACHIEVEMENT_FIRST_RULE_H) || player->HasAchieved(ACHIEVEMENT_FIRST_RULE_A))
             {
                 AddGossipItemFor(player, 15284, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 AddGossipItemFor(player, 15284, 1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
@@ -102,7 +142,7 @@ public:
 
         void Reset() override
         {
-           // (true);
+            (true);
             events.Reset();
             me->Mount(44634);
            // if (BrawlersGuild* brawlerGuild = me->GetBrawlerGuild())
@@ -114,76 +154,76 @@ public:
         {
             switch (rank)
             {
-          //  case NPC_OOLISS:
+            case NPC_OOLISS:
                 Talk(11);
                 break;
-          //  case NPC_DIPPY:
+            case NPC_DIPPY:
                 Talk(14);
                 break;
-           // case NPC_BILL_THE_JANITOR:
+            case NPC_BILL_THE_JANITOR:
                 Talk(15);
                 break;
-           // case NPC_SANORIAK:
+            case NPC_SANORIAK:
                 Talk(16);
                 break;
-           // case NPC_MASTER_PAKU:
+            case NPC_MASTER_PAKU:
                 Talk(17);
                 break;
-           // case NPC_DOOMFLIPPER:
+            case NPC_DOOMFLIPPER:
                 Talk(18);
                 break;
-           // case NPC_SPLAT:
+            case NPC_SPLAT:
                 Talk(19);
                 break;
-           // case NPC_SHADOWMASTER:
+            case NPC_SHADOWMASTER:
                 Talk(20);
                 break;
-           // case NPC_JOHNNY:
+            case NPC_JOHNNY:
                 Talk(21);
                 break;
-           // case NPC_BURNSTACHIO:
+            case NPC_BURNSTACHIO:
                 Talk(22);
                 break;
-           // case NPC_MEATBALL:
+            case NPC_MEATBALL:
                 Talk(23);
                 break;
-          //  case NPC_MAX_MEHABLAST:
+            case NPC_MAX_MEHABLAST:
                 Talk(24);
                 break;
-           // case NPC_STITCHES:
+            case NPC_STITCHES:
                 Talk(25);
                 break;
-           // case NPC_THWACK_U:
+            case NPC_THWACK_U:
                 Talk(26);
                 break;
-           // case NPC_RAZORGRIN:
+            case NPC_RAZORGRIN:
                 Talk(27);
                 break;
-           // case NPC_FIVE_GNOMES:
+            case NPC_FIVE_GNOMES:
                 Talk(28);
                 break;
-           // case NPC_BLACKMANGE:
+            case NPC_BLACKMANGE:
                 Talk(29);
                 break;
-           // case NPC_TOPPS:
+            case NPC_TOPPS:
                 Talk(30);
                 break;
-           // case NPC_MILLIE:
+            case NPC_MILLIE:
                 Talk(31);
                 break;
-           // case NPC_CARL:
+            case NPC_CARL:
                 Talk(32);
                 break;
-           // case NPC_OGREWATCH:
+            case NPC_OGREWATCH:
                 Talk(33);
                 break;
-           // case NPC_NIBBLEH:
+            case NPC_NIBBLEH:
                 Talk(34);
                 break;
-           // case NPC_SERPENT:
+            case NPC_SERPENT:
                 Talk(35);
                 break;
-           // case NPC_RAYD:
+            case NPC_RAYD:
                 Talk(36);
                 break;
             }
@@ -213,10 +253,10 @@ public:
 
         void Reset() override
         {
-          ///  (true);
+            (true);
             events.Reset();
-          //  if (BrawlersGuild* brawlerGuild = me->GetBrawlerGuild())
-            //    brawlerGuild->SetAnnouncer(me->GetGUID());
+            //if (BrawlersGuild* brawlerGuild = me->GetBrawlerGuild())
+              //  brawlerGuild->SetAnnouncer(me->GetGUID());
             me->GetMotionMaster()->MovePath(11854503, true);
         }
 
@@ -224,76 +264,76 @@ public:
         {
             switch (rank)
             {
-          //  case NPC_OOLISS:
+            case NPC_OOLISS:
                 Talk(11);
                 break;
-           // case NPC_DIPPY:
+            case NPC_DIPPY:
                 Talk(14);
                 break;
-           // case NPC_BILL_THE_JANITOR:
+            case NPC_BILL_THE_JANITOR:
                 Talk(15);
                 break;
-           // case NPC_SANORIAK:
+            case NPC_SANORIAK:
                 Talk(16);
                 break;
-           // case NPC_MASTER_PAKU:
+            case NPC_MASTER_PAKU:
                 Talk(17);
                 break;
-           // case NPC_DOOMFLIPPER:
+            case NPC_DOOMFLIPPER:
                 Talk(18);
                 break;
-           // case NPC_SPLAT:
+            case NPC_SPLAT:
                 Talk(19);
                 break;
-           // case NPC_SHADOWMASTER:
+            case NPC_SHADOWMASTER:
                 Talk(20);
                 break;
-           // case NPC_JOHNNY:
+            case NPC_JOHNNY:
                 Talk(21);
                 break;
-           // case NPC_BURNSTACHIO:
+            case NPC_BURNSTACHIO:
                 Talk(22);
                 break;
-           // case NPC_MEATBALL:
+            case NPC_MEATBALL:
                 Talk(23);
                 break;
-           // case NPC_MAX_MEHABLAST:
+            case NPC_MAX_MEHABLAST:
                 Talk(24);
                 break;
-           // case NPC_STITCHES:
+            case NPC_STITCHES:
                 Talk(25);
                 break;
-           // case NPC_THWACK_U:
+            case NPC_THWACK_U:
                 Talk(26);
                 break;
-           // case NPC_RAZORGRIN:
+            case NPC_RAZORGRIN:
                 Talk(27);
                 break;
-           // case NPC_FIVE_GNOMES:
+            case NPC_FIVE_GNOMES:
                 Talk(28);
                 break;
-           // case NPC_BLACKMANGE:
+            case NPC_BLACKMANGE:
                 Talk(29);
                 break;
-           // case NPC_TOPPS:
+            case NPC_TOPPS:
                 Talk(30);
                 break;
-           // case NPC_MILLIE:
+            case NPC_MILLIE:
                 Talk(31);
                 break;
-          //  case NPC_CARL:
+            case NPC_CARL:
                 Talk(32);
                 break;
-          //  case NPC_OGREWATCH:
+            case NPC_OGREWATCH:
                 Talk(33);
                 break;
-          //  case NPC_NIBBLEH:
+            case NPC_NIBBLEH:
                 Talk(34);
                 break;
-          //  case NPC_SERPENT:
+            case NPC_SERPENT:
                 Talk(35);
                 break;
-          //  case NPC_RAYD:
+            case NPC_RAYD:
                 Talk(36);
                 break;
             }
@@ -320,9 +360,9 @@ public:
 
         void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-           // if (BrawlersGuild* brawlerGuild = GetUnitOwner()->GetBrawlerGuild())
-             //   if (!brawlerGuild->IsPlayerInBrawl(GetOwner()->ToPlayer()))
-               //   brawlerGuild->RemovePlayer(GetOwner()->GetGUID());
+            //if (BrawlersGuild* brawlerGuild = GetUnitOwner()->GetBrawlerGuild())
+              //  if (!brawlerGuild->IsPlayerInBrawl(GetOwner()->ToPlayer()))
+                //  brawlerGuild->RemovePlayer(GetOwner()->GetGUID());
         }
 
         void Register() override
@@ -348,22 +388,22 @@ public:
         if (!player || !item)
             return false;
 
-      //  if (player->HasAchieved(ACHIEVEMENT_FIRST_RULE_A) || player->HasAchieved(ACHIEVEMENT_FIRST_RULE_H))
+        if (player->HasAchieved(ACHIEVEMENT_FIRST_RULE_A) || player->HasAchieved(ACHIEVEMENT_FIRST_RULE_H))
             return false;
 
         if (player->GetTeamId() == TEAM_ALLIANCE)
         {
-           // if (auto achievementEntry = sAchievementStore.LookupEntry(ACHIEVEMENT_FIRST_RULE_A))
-              //  player->CompletedAchievement(achievementEntry);
+            if (auto achievementEntry = sAchievementStore.LookupEntry(ACHIEVEMENT_FIRST_RULE_A))
+                player->CompletedAchievement(achievementEntry);
 
-        //    player->CastSpell(player, SPELL_ALLIANCE_SOUND, true);
+            player->CastSpell(player, SPELL_ALLIANCE_SOUND, true);
         }
         else
         {
-           // if (auto achievementEntry = sAchievementStore.LookupEntry(ACHIEVEMENT_FIRST_RULE_H))
-            //    player->CompletedAchievement(achievementEntry);
+            if (auto achievementEntry = sAchievementStore.LookupEntry(ACHIEVEMENT_FIRST_RULE_H))
+                player->CompletedAchievement(achievementEntry);
 
-           // player->CastSpell(player, SPELL_HORDE_SOUND, true);
+            player->CastSpell(player, SPELL_HORDE_SOUND, true);
 
             player->DestroyItem(player->GetEntry(), 1, true);
         }

@@ -237,7 +237,7 @@ public:
                 {
                     Position pos;
                     if (me->HasAura(SPELL_BAD_LUCKYDO))
-                  //      me->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_THROW_TOY_BAD);
+                      //  me->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_THROW_TOY_BAD);
                     //else
                     //    me->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), (urand(1, 2) == 1 ? SPELL_THROW_TOY_1 : SPELL_THROW_TOY_2));
                     //events.RescheduleEvent(1, 4000);

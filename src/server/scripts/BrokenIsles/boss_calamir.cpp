@@ -18,6 +18,10 @@
 #include "ScriptMgr.h"
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
+#include <ScriptMgr.cpp>
+#include <SmartAI.h>
+#include <SmartScriptMgr.h>
+#include <MoveSplineInitArgs.h>
 
 enum Spells
 {
@@ -151,22 +155,22 @@ public:
                     break;
                 case EVENT_PHASE_FIRE:
                     me->CastSpell(me, SPELL_AR_FIRE, true);
-                    events.ScheduleEvent(EVENT_CHANGE_PHASE, 20000);
-                    events.ScheduleEvent(EVENT_BURNING_BOMB, 200);
-                    events.ScheduleEvent(EVENT_WRATHFUL_FLAMES, urand(7000, 8000));
+                  //  events.ScheduleEvent(EVENT_CHANGE_PHASE, 20000);
+                  //  events.ScheduleEvent(EVENT_BURNING_BOMB, 200);
+                  //  events.ScheduleEvent(EVENT_WRATHFUL_FLAMES, urand(7000, 8000));
                     lastPhase = PHASE_FIRE;
                     break;
                 case EVENT_PHASE_FROST:
                     me->CastSpell(me, SPELL_AR_FROST, true);
-                    events.ScheduleEvent(EVENT_HOWLING_GALE, 200);
-                    events.ScheduleEvent(EVENT_ICY_COMET, 8000);
-                    events.ScheduleEvent(EVENT_CHANGE_PHASE, 20000);
+                   // events.ScheduleEvent(EVENT_HOWLING_GALE, 200);
+                   // events.ScheduleEvent(EVENT_ICY_COMET, 8000);
+                   // events.ScheduleEvent(EVENT_CHANGE_PHASE, 20000);
                     lastPhase = PHASE_FROST;
                     break;
                 case EVENT_PHASE_ARCANE:
                     me->CastSpell(me, SPELL_AR_ARCANE, true);
-                    events.ScheduleEvent(EVENT_CHANGE_PHASE, 20000);
-                    events.ScheduleEvent(EVENT_ARCANE_DESOLATION, 200);
+                   // events.ScheduleEvent(EVENT_CHANGE_PHASE, 20000);
+                    //events.ScheduleEvent(EVENT_ARCANE_DESOLATION, 200);
 
                     lastPhase = PHASE_ARCANE;
                     break;
@@ -177,11 +181,11 @@ public:
                     if (me->IsInCombat())
                         if (me->HasAura(SPELL_AR_FIRE))
                         {
-                            Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
-                            if (!target)
+                           // Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
+                           // if (!target)
                                 break;
-                            DoCast(target, SPELL_FI_BURNING_BOMB, false);
-                            events.ScheduleEvent(EVENT_BURNING_BOMB, 16000);
+                           // DoCast(target, SPELL_FI_BURNING_BOMB, false);
+                           // events.ScheduleEvent(EVENT_BURNING_BOMB, 16000);
                         }
                     break;
                 }
@@ -213,9 +217,9 @@ public:
                     if (me->IsInCombat())
                         if (me->HasAura(SPELL_AR_ARCANE))
                         {
-                            events.ScheduleEvent(EVENT_ARCANE_DESOLATION, 12000);
+                           // events.ScheduleEvent(EVENT_ARCANE_DESOLATION, 12000);
                             me->CastSpell(me, SPELL_A_AD_TARGET, false);
-                            events.ScheduleEvent(EVENT_ARCANOPULSE, 1000);
+                           // events.ScheduleEvent(EVENT_ARCANOPULSE, 1000);
                         }
                     break;
                 }
@@ -234,25 +238,25 @@ public:
             case PHASE_NEUTRAL:
                 if (lastPhase == 0)
                 {
-                    events.ScheduleEvent(EVENT_PHASE_FIRE, 5000);
+                   // events.ScheduleEvent(EVENT_PHASE_FIRE, 5000);
                     events.SetPhase(PHASE_FIRE);
                     lastPhase = PHASE_FIRE;
                 }
                 else if (lastPhase == PHASE_FIRE)
                 {
-                    events.ScheduleEvent(EVENT_PHASE_FROST, 5000);
+                   // events.ScheduleEvent(EVENT_PHASE_FROST, 5000);
                     events.SetPhase(PHASE_FROST);
                     lastPhase = PHASE_FROST;
                 }
                 else if (lastPhase == PHASE_FROST)
                 {
-                    events.ScheduleEvent(EVENT_PHASE_ARCANE, 5000);
+                   // events.ScheduleEvent(EVENT_PHASE_ARCANE, 5000);
                     events.SetPhase(PHASE_ARCANE);
                     lastPhase = PHASE_ARCANE;
                 }
                 else if (lastPhase == PHASE_ARCANE)
                 {
-                    events.ScheduleEvent(EVENT_PHASE_FIRE, 5000);
+                   // events.ScheduleEvent(EVENT_PHASE_FIRE, 5000);
                     events.SetPhase(PHASE_FIRE);
                     lastPhase = PHASE_FIRE;
                 }
@@ -459,7 +463,7 @@ public:
             if (!caster)
                 return;
 
-            at->SetDecalPropertiesID(13);
+           // at->SetDecalPropertiesID(13);
 
             for (auto guid : at->GetInsideUnits())
                 if (Unit* unit = ObjectAccessor::GetUnit(*caster, guid))

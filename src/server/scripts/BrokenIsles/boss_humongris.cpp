@@ -72,47 +72,47 @@ struct boss_humongris : public ScriptedAI
 
     void EnterCombat(Unit* who) 
     {
-        events.ScheduleEvent(EVENT_FIRE_BOOM, 14000s);
-        events.ScheduleEvent(EVENT_EARTHSHAKE_STOMP, 28800);
-        events.ScheduleEvent(EVENT_ICE_FIST, 29000);
-        events.ScheduleEvent(EVENT_MAKE_SNOW, 35000);
-        events.ScheduleEvent(EVENT_YOU_GO_BANG, 24400);
+       // events.ScheduleEvent(EVENT_FIRE_BOOM, 14000s);
+       // events.ScheduleEvent(EVENT_EARTHSHAKE_STOMP, 28800);
+       // events.ScheduleEvent(EVENT_ICE_FIST, 29000);
+       // events.ScheduleEvent(EVENT_MAKE_SNOW, 35000);
+       // events.ScheduleEvent(EVENT_YOU_GO_BANG, 24400);
     }
 
-    void ExecuteEvent(uint32 eventId) override
+    void ExecuteEvent(uint32 eventId) 
     {
         switch (eventId)
         {
         case EVENT_FIRE_BOOM:
             Talk(TALK_H_FIRE_BOOM);
             DoCastAOE(SPELL_FIRE_BOOM_TARGET);
-            events.Repeat(14000);
+           // events.Repeat(14000);
             break;
 
         case EVENT_EARTHSHAKE_STOMP:
             DoCastAOE(SPELL_EARTHSHAKE_STOMP, false);
-            events.Repeat(28800);
+           // events.Repeat(28800);
             break;
 
         case EVENT_ICE_FIST:
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0.0f, 10.0f, true))
+          //  if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0.0f, 10.0f, true))
             {
                 Talk(TALK_H_ICE_FIST);
-                DoCast(target, SPELL_ICE_FIST_DAMAGE);
+            //    DoCast(target, SPELL_ICE_FIST_DAMAGE);
             }
-            events.Repeat(29000);
+           // events.Repeat(29000);
             break;
 
         case EVENT_MAKE_SNOW:
             Talk(TALK_H_MAKE_THE_SNOW_1);
             DoCast(SPELL_MAKE_SNOW_CAST);
-            events.Repeat(35000);
+          //  events.Repeat(35000);
             break;
 
         case EVENT_YOU_GO_BANG:
-            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0.0, 100.0f, true))
-                DoCast(target, SPELL_YOU_GO_BANG_TARGET, false);
-            events.Repeat(24400);
+          //  if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0.0, 100.0f, true))
+            //    DoCast(target, SPELL_YOU_GO_BANG_TARGET, false);
+           // events.Repeat(24400);
             break;
         }
     }
@@ -165,7 +165,7 @@ public:
             if (!caster)
                 return;
 
-            at->SetDecalPropertiesID(13);
+           // at->SetDecalPropertiesID(13);
 
             for (auto guid : at->GetInsideUnits())
                 if (Unit* unit = ObjectAccessor::GetUnit(*caster, guid))

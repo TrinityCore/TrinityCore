@@ -104,7 +104,7 @@ struct boss_nithogg : public WorldBossAI
         Reset();
     }
 
-    void DamageTaken(Unit* /*unit*/, uint32& damage) override
+    void DamageTaken(Unit* /*unit*/, uint32& damage) 
     {
         if (me->HealthBelowPctDamaged(80, damage))
         {
@@ -154,53 +154,53 @@ struct boss_nithogg : public WorldBossAI
             {
                 case EVENT_TAIL_LASH:
                 {
-                    for (auto itr : me->getThreatManager().getThreatList())
+                  //  for (auto itr : me->getThreatManager().getThreatList())
                     {
-                        if (!itr->getTarget())
+                       // if (!itr->getTarget())
                             continue;
 
-                        if (me->isInBack(itr->getTarget(), float(M_PI) / 6))
+                      //  if (me->isInBack(itr->getTarget(), float(M_PI) / 6))
                         {
                             DoCastAOE(SPELL_TAIL_LASH);
                             break;
                         }
                     }
-                    events.ScheduleEvent(EVENT_TAIL_LASH, urand(7, 8) * IN_MILLISECONDS);
+                   // events.ScheduleEvent(EVENT_TAIL_LASH, urand(7, 8) * IN_MILLISECONDS);
                     break;
                 }
                 case EVENT_CRACKLING_JOLT:
                 {
                     //DoCast(me, SPELL_CRACKLING_JOLT_TARGET_PICKER);
                     //What I do here is make the cast happen from higher up, making the missiles travel more than they do at the moment.
-                    if (TempSummon* tempSumm = me->SummonCreature(WORLD_TRIGGER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 14, 0, TEMPSUMMON_TIMED_DESPAWN, 10000))
+                  //  if (TempSummon* tempSumm = me->SummonCreature(WORLD_TRIGGER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 14, 0, TEMPSUMMON_TIMED_DESPAWN, 10000))
                     {
-                        tempSumm->SetFaction(me->getFaction());
-                        tempSumm->SetSummonerGUID(me->GetGUID());
-                        PhasingHandler::InheritPhaseShift(tempSumm, me);
-                        tempSumm->SetLevel(me->getLevel());
-                        tempSumm->SetName(me->GetName());
-                        tempSumm->CastSpell(tempSumm, SPELL_CRACKLING_JOLT_TARGET_PICKER, true, nullptr, nullptr, me->GetGUID()); //If any of you knows how to make the game think Nithogg launched the spell, please tell me
+                    //    tempSumm->SetFaction(me->getFaction());
+                      //  tempSumm->SetSummonerGUID(me->GetGUID());
+                       // PhasingHandler::InheritPhaseShift(tempSumm, me);
+                       // tempSumm->SetLevel(me->getLevel());
+                      //  tempSumm->SetName(me->GetName());
+                      //  tempSumm->CastSpell(tempSumm, SPELL_CRACKLING_JOLT_TARGET_PICKER, true, nullptr, nullptr, me->GetGUID()); //If any of you knows how to make the game think Nithogg launched the spell, please tell me
                     }
-                    events.ScheduleEvent(EVENT_CRACKLING_JOLT, urand(10000, 15000));
+                    //events.ScheduleEvent(EVENT_CRACKLING_JOLT, urand(10000, 15000));
                     break;
                 }
                 case EVENT_ELECTRICAL_STORM:
                 {
                     DoCastAOE(SPELL_ELECTRICAL_STORM_TARGET);
-                    events.ScheduleEvent(EVENT_ELECTRICAL_STORM, 30500);
+                   // events.ScheduleEvent(EVENT_ELECTRICAL_STORM, 30500);
                     break;
                 }
                 case EVENT_STORM_BREATH:
                 {
                     DoCastVictim(SPELL_STORM_BREATH);
-                    events.ScheduleEvent(EVENT_STORM_BREATH, 23100);
+                   // events.ScheduleEvent(EVENT_STORM_BREATH, 23100);
                     break;
                 }
                 case EVENT_STATIC_CHARGE:
                 {
-                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
-                    DoCast(target, SPELL_STATIC_CHARGE);
-                    events.ScheduleEvent(EVENT_STATIC_CHARGE, 40200);
+                   // Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
+                   // DoCast(target, SPELL_STATIC_CHARGE);
+                   // events.ScheduleEvent(EVENT_STATIC_CHARGE, 40200);
                     break;
                 }
             }
@@ -217,13 +217,13 @@ class spell_nithogg_electrical_storm_target : public SpellScript
 
     bool Validate(SpellInfo const* info) override
     {
-        return ValidateSpellInfo({ (uint32)info->GetEffect(EFFECT_0)->BasePoints });
+      //  return ValidateSpellInfo({ (uint32)info->GetEffect(EFFECT_0)->BasePoints });
     }
 
     void HandleHitTarget(SpellEffIndex effIndex)
     {
-        if (Unit* target = GetHitUnit())
-            GetCaster()->CastSpell(target, GetSpellInfo()->GetEffect(effIndex)->BasePoints, true);
+        if (Unit* target = GetHitUnit());
+        //    GetCaster()->CastSpell(target, GetSpellInfo()->GetEffect(effIndex)->BasePoints, true);
     }
 
     void Register() override
@@ -345,12 +345,12 @@ class spell_nithogg_static_charge_summon : public SpellScript
         if (!caster || !target)
             return;
 
-        if (Unit* summoned = caster->SummonCreature(NPC_STATIC_ORB, *caster, TEMPSUMMON_TIMED_DESPAWN, 12 * IN_MILLISECONDS))
+      //  if (Unit* summoned = caster->SummonCreature(NPC_STATIC_ORB, *caster, TEMPSUMMON_TIMED_DESPAWN, 12 * IN_MILLISECONDS))
         {
-            summoned->SetTarget(target->GetGUID());
-            summoned->CastSpell(target, SPELL_STATIC_CHARGE_TARGETED, true);
-            summoned->AddUnitState(UNIT_STATE_FOLLOW);
-            summoned->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f);
+           // summoned->SetTarget(target->GetGUID());
+           // summoned->CastSpell(target, SPELL_STATIC_CHARGE_TARGETED, true);
+           // summoned->AddUnitState(UNIT_STATE_FOLLOW);
+           // summoned->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f);
         }
     }
 
@@ -393,15 +393,15 @@ class spell_nithogg_crackling_jolt_damage : public SpellScript
         if(!caster || !target)
             return;
 
-        if(GetTriggeringSpell() == sSpellMgr->GetSpellInfo(SPELL_CRACKLING_JOLT_MISSILE))
+       // if(GetTriggeringSpell() == sSpellMgr->GetSpellInfo(SPELL_CRACKLING_JOLT_MISSILE))
         {
             PreventHitEffect(effIndex);
             ObjectGuid targetGuid = target->GetGUID();
-            caster->GetScheduler().Schedule(2500ms, [targetGuid](TaskContext context)
+          //  caster->GetScheduler().Schedule(2500ms, [targetGuid](TaskContext context)
             {
-                if (Unit* target = ObjectAccessor::GetUnit(*GetContextUnit(), targetGuid))
-                    GetContextUnit()->CastSpell(target, SPELL_CRACKLING_JOLT_DAMAGE, false);
-            });
+              //  if (Unit* target = ObjectAccessor::GetUnit(*GetContextUnit(), targetGuid))
+                //    GetContextUnit()->CastSpell(target, SPELL_CRACKLING_JOLT_DAMAGE, false);
+            };
         }
     }
 
@@ -471,7 +471,7 @@ class spell_nithogg_tail_lash : public SpellScript
             p_Targets.clear();
 
             std::list<Unit*> targets;
-            caster->GetAttackableUnitListInRange(targets, 30.0f);
+           // caster->GetAttackableUnitListInRange(targets, 30.0f);
             for (auto itr : targets)
             {
                 if (caster->IsValidAttackTarget(itr))

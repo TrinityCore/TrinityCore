@@ -59,10 +59,10 @@ public:
 
         void EnterCombat(Unit* who) 
         {
-            _events.ScheduleEvent(1, 10000);
-            _events.ScheduleEvent(3, 15000);
-            _events.ScheduleEvent(4, 5000);
-            _events.ScheduleEvent(5, 30000);
+           // _events.ScheduleEvent(1, 10000);
+           // _events.ScheduleEvent(3, 15000);
+           // _events.ScheduleEvent(4, 5000);
+           // _events.ScheduleEvent(5, 30000);
         }
 
         void EnterEvadeMode(EvadeReason why) override
@@ -109,45 +109,45 @@ public:
                 switch (eventId)
                 {
                 case 1:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
-                        me->CastSpell(target, 219803, true);
-                    me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
-                    _events.ScheduleEvent(2, 2000);
-                    _events.ScheduleEvent(1, urand(4000, 7000));
+                 //   if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                   //     me->CastSpell(target, 219803, true);
+                    //me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+                    //_events.ScheduleEvent(2, 2000);
+                    //_events.ScheduleEvent(1, urand(4000, 7000));
                     break;
                 case 2:
                     me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
                     break;
                 case 3:
                     DoCast(219493);
-                    _events.ScheduleEvent(3, 30000);
+                   // _events.ScheduleEvent(3, 30000);
                     break;
                 case 4:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
-                        me->CastSpell(target, 219542, true);
-                    _events.ScheduleEvent(4, urand(17000, 22000));
+                   // if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                     //   me->CastSpell(target, 219542, true);
+                    //_events.ScheduleEvent(4, urand(17000, 22000));
                     break;
                 case 5:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                   // if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                     {
-                        me->CastSpell(target, 219602, true);
-                        me->GetMotionMaster()->MovePoint(1, target->GetPosition());
-                        _events.ScheduleEvent(6, 3000);
-                        _events.ScheduleEvent(6, 4000);
-                        _events.ScheduleEvent(6, 5000);
-                        _events.ScheduleEvent(6, 6000);
-                        _events.ScheduleEvent(6, 7000);
-                        _events.ScheduleEvent(6, 8000);
-                        _events.ScheduleEvent(6, 9000);
-                        _events.ScheduleEvent(6, 10000);
+                     //   me->CastSpell(target, 219602, true);
+                       // me->GetMotionMaster()->MovePoint(1, target->GetPosition());
+                       // _events.ScheduleEvent(6, 3000);
+                       // _events.ScheduleEvent(6, 4000);
+                       // _events.ScheduleEvent(6, 5000);
+                       // _events.ScheduleEvent(6, 6000);
+                       // _events.ScheduleEvent(6, 7000);
+                       // _events.ScheduleEvent(6, 8000);
+                       // _events.ScheduleEvent(6, 9000);
+                       // _events.ScheduleEvent(6, 10000);
                     }
-                    _events.ScheduleEvent(5, 60000);
+                   // _events.ScheduleEvent(5, 60000);
                     break;
                 case 6:
                 {
                     std::list<Unit*> targetList;
                     float radius = 7.f;
-                    me->GetAttackableUnitListInRange(targetList, radius);
+                   // me->GetAttackableUnitListInRange(targetList, radius);
 
                     if (!targetList.empty())
                     {
@@ -200,8 +200,8 @@ public:
             {
                 if (WorldLocation* dest = GetHitDest())
                 {
-                    caster->CastSpell(dest->GetPositionX(), dest->GetPositionY(), dest->GetPositionZ(), 219497, true);
-                    caster->CastSpell(dest->GetPositionX(), dest->GetPositionY(), dest->GetPositionZ(), 219520, true);
+                   // caster->CastSpell(dest->GetPositionX(), dest->GetPositionY(), dest->GetPositionZ(), 219497, true);
+                    //caster->CastSpell(dest->GetPositionX(), dest->GetPositionY(), dest->GetPositionZ(), 219520, true);
                 }
             }
         }

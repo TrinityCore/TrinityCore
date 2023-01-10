@@ -69,11 +69,11 @@ public:
 
         void EnterCombat(Unit* who) 
         {
-            _events.ScheduleEvent(1, 5000);
-            _events.ScheduleEvent(2, 8000);
-            _events.ScheduleEvent(4, 35000);
-            _events.ScheduleEvent(5, 15000);
-            _events.ScheduleEvent(6, 25000);
+           // _events.ScheduleEvent(1, 5000);
+           // _events.ScheduleEvent(2, 8000);
+           // _events.ScheduleEvent(4, 35000);
+           // _events.ScheduleEvent(5, 15000);
+           // _events.ScheduleEvent(6, 25000);
         }
 
         void EnterEvadeMode(EvadeReason /*why*/) override
@@ -104,41 +104,41 @@ public:
                 {
                     for (uint32 i = 1; i < 7; i++) // +1
                     {
-                        me->CastSpell(Waypointspawn[i].GetPositionX() + urand(0, 25), Waypointspawn[i].GetPositionY() + urand(0, 25), Waypointspawn[i].GetPositionZ(), 217212, true);
+                      //  me->CastSpell(Waypointspawn[i].GetPositionX() + urand(0, 25), Waypointspawn[i].GetPositionY() + urand(0, 25), Waypointspawn[i].GetPositionZ(), 217212, true);
                     }
 
-                    _events.ScheduleEvent(1, 10000);
+                   // _events.ScheduleEvent(1, 10000);
                     break;
                 }
                 case 2:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
-                        me->CastSpell(target, 217361, true);
-                    _events.ScheduleEvent(2, 5000);
+                   // if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                     //   me->CastSpell(target, 217361, true);
+                   // _events.ScheduleEvent(2, 5000);
                     break;
                 case 3:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST))
-                        me->CastSpell(target, 217229, true);
+                   // if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST))
+                     //   me->CastSpell(target, 217229, true);
                     break;
                 case 4:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST))
+                   // if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST))
                     {
-                        if (target->GetDistance(me) < 30)
-                            me->CastSpell(target, 217249, true); // todo
-                        else
-                            _events.ScheduleEvent(3, 1000);
+                     //   if (target->GetDistance(me) < 30)
+                       //     me->CastSpell(target, 217249, true); // todo
+                       // else
+                         //   _events.ScheduleEvent(3, 1000);
                     }
-                    _events.ScheduleEvent(4, 60000);
+                   // _events.ScheduleEvent(4, 60000);
                     break;
                 case 5:
                 {
                     DoCast(217344);
-                    _events.ScheduleEvent(5, 30000);
+                  //  _events.ScheduleEvent(5, 30000);
                     break;
                 }
                 case 6:
                 {
                     DoCast(217235);
-                    _events.ScheduleEvent(6, 30000);
+                   // _events.ScheduleEvent(6, 30000);
                     break;
                 }
                 default:
@@ -233,7 +233,7 @@ public:
                 std::list<Unit*> targetList;
                 float radius = 100.0f;
 
-                caster->GetAttackableUnitListInRange(targetList, radius);
+               // caster->GetAttackableUnitListInRange(targetList, radius);
 
                 if (!targetList.empty())
 
@@ -285,7 +285,7 @@ public:
                 std::list<Unit*> targetList;
                 float radius = 200.0f; // 217277
 
-                caster->GetAttackableUnitListInRange(targetList, radius);
+               // caster->GetAttackableUnitListInRange(targetList, radius);
 
                 if (!targetList.empty())
                     for (auto itr : targetList)

@@ -48,7 +48,7 @@ public:
 	allied_races() : PlayerScript("allied_races") { }
 
 
-    void OnLogin(Player* player, bool* firstLogin)
+    void OnLogin(Player* player, bool firstLogin)
     {
 		if (firstLogin)
 		{
@@ -56,7 +56,7 @@ public:
             /* Cinematic - Pandaren death knight */
 			if (player->GetRace() == RACE_PANDAREN_HORDE || RACE_PANDAREN_ALLIANCE && player->GetMapId() == MAP_ALLIED_DK_ICECROWN && CLASS_DEATH_KNIGHT);
             {
-                player->GetSceneMgr();// .PlaySceneByPackageId(2780);
+                player->GetSceneMgr(); //.PlaySceneByPackageId(2780);
 				player->SetLevel(58); // todo: get level from worldserver conf (dk start level)
             }
 
@@ -129,15 +129,15 @@ public:
         {
             me->setActive(true);
             me->SetVisible(false);
-          //  me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+           // me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             me->SetCanFly(true);
 
             me->GetPosition(x, y, z);
             z += 4.0f;
             x -= 3.5f;
             y -= 5.0f;
-           // me->GetMotionMaster()->Clear(false);
-            //me->SetPosition(x, y, z, 0.0f);
+            me->GetMotionMaster();// ->Clear(false);
+           // me->SetPosition(x, y, z, 0.0f);
         }
 
         void UpdateAI(uint32 diff) override
@@ -146,8 +146,8 @@ public:
             {
                 Player* player = NULL;
                 if (me->IsSummon())
-                  //  if (Unit* summoner = me->ToTempSummon()->GetSummoner())
-                    //    player = summoner->ToPlayer();
+                   // if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                      //  player = summoner->ToPlayer();
 
                 if (!player)
                     phase = 3;
@@ -160,7 +160,7 @@ public:
                         FlyBackTimer = 500;
                         break;
                     case 1:
-                      //  player->GetClosePoint(x, y, z, me->GetObjectSize());
+                        //player->GetClosePoint(x, y, z, me->GetObjectSize());
                         z += 2.5f;
                         x -= 2.0f;
                         y -= 1.5f;

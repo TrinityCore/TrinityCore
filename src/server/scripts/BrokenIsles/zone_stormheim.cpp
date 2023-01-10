@@ -36,13 +36,13 @@ class go_volatile_barrel_stormheim : public GameObjectScript
 public:
     go_volatile_barrel_stormheim() : GameObjectScript("go_volatile_barrel_stormheim") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    bool OnGossipHello(Player* player, GameObject* go) 
     {
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(181981);
+        //SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo();
 
-        player->SetPower(POWER_ALTERNATE_POWER, player->GetPower(POWER_ALTERNATE_POWER) + spellInfo->GetEffect(EFFECT_0)->BasePoints);
+        player->SetPower(POWER_ALTERNATE_POWER, player->GetPower(POWER_ALTERNATE_POWER));// +spellInfo->GetEffect(EFFECT_0)->BasePoints);
 
-        for (int32 i = 0; i < spellInfo->GetEffect(EFFECT_0)->BasePoints; ++i)
+      //  for (int32 i = 0; i < spellInfo->GetEffect(EFFECT_0)->BasePoints; ++i)
             player->KilledMonsterCredit(91693, ObjectGuid::Empty);
 
         if (player->GetPower(POWER_ALTERNATE_POWER) >= 100)
@@ -57,7 +57,7 @@ class npc_grapple_point : public CreatureScript
 public:
     npc_grapple_point() : CreatureScript("npc_grapple_point") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
+    bool OnGossipHello(Player* player, Creature* creature) 
     {
         if (player->GetQuestStatus(38613) == QUEST_STATUS_INCOMPLETE)
         {
@@ -83,7 +83,7 @@ public:
         {
             if (Unit* caster = GetCaster())
             {
-                caster->EnergizeBySpell(caster, GetSpellInfo()->Id, GetSpellInfo()->GetEffect(EFFECT_0)->BasePoints, POWER_ALTERNATE_POWER);
+              //  caster->EnergizeBySpell(caster, GetSpellInfo()->Id, GetSpellInfo()->GetEffect(EFFECT_0)->BasePoints, POWER_ALTERNATE_POWER);
                 if (Quest const* quest = sObjectMgr->GetQuestTemplate(38358))
                     for (QuestObjective const& obj : quest->GetObjectives())
                         if (obj.ObjectID == 91590)
@@ -116,13 +116,13 @@ struct npc_apothecary_withers_91590 : public ScriptedAI
 {
     npc_apothecary_withers_91590(Creature* creature) : ScriptedAI(creature) { }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) 
     {
         if (quest->GetQuestId() == 38358)
             player->CastSpell(player, 181970, true);
     }
 
-    void sQuestReward(Player* player, Quest const* quest, uint32 /*opt*/)  override
+    void sQuestReward(Player* player, Quest const* quest, uint32 /*opt*/)  
     {
         if (quest->GetQuestId() == 38358)
             player->RemoveAurasDueToSpell(181970);
@@ -145,8 +145,8 @@ public:
             {
                 if (caster->ToPlayer()->GetQuestStatus(38058) == QUEST_STATUS_INCOMPLETE)
                 {
-                    if (caster->GetPower(POWER_ALTERNATE_POWER) > caster->ToPlayer()->GetQuestObjectiveData(38058, 1))
-                        for (int32 i = 0; i < (std::min(caster->GetPower(POWER_ALTERNATE_POWER), 100) - caster->ToPlayer()->GetQuestObjectiveData(38058, 1)); ++i)
+                    //if (caster->GetPower(POWER_ALTERNATE_POWER) > caster->ToPlayer()->GetQuestObjectiveData(38058,))
+                      //  for (int32 i = 0; i < (std::min(caster->GetPower(POWER_ALTERNATE_POWER), 100) - caster->ToPlayer()->GetQuestObjectiveData(38058, 1)); ++i)
                             caster->ToPlayer()->KilledMonsterCredit(90903, ObjectGuid::Empty);
 
                     if (caster->GetPower(POWER_ALTERNATE_POWER) >= 100)
@@ -183,15 +183,15 @@ struct npc_titan_console_96139 : public ScriptedAI
         {
             if (me->IsWithinDist(player, 15.0f, false))
             {
-                if (!IsLock && player->HasQuest(39592) && player->GetQuestStatus(39592) == QUEST_STATUS_INCOMPLETE)
+              //  if (!IsLock && player->HasQuest(39592) && player->GetQuestStatus(39592) == QUEST_STATUS_INCOMPLETE)
                 {
-                    IsLock = true;
+                //    IsLock = true;
                     Talk(0);
-                    me->GetScheduler().Schedule(Milliseconds(5000), [this, player](TaskContext context)
+                  //  me->GetScheduler().Schedule(Milliseconds(5000), [this, player](TaskContext context)
                     {
                         Talk(1);
-                    });
-                    SetUnlock(120000);
+                    };
+                   // SetUnlock(120000);
                 }
             }
         }
@@ -203,42 +203,42 @@ class go_powered_console_stormheim_243802 : public GameObjectScript
 {
 public:
     go_powered_console_stormheim_243802() : GameObjectScript("go_powered_console_stormheim_243802") { }
-    bool OnGossipHello(Player* player, GameObject* go) override
+    bool OnGossipHello(Player* player, GameObject* go)
     {
-        if (Creature* drugen = player->SummonCreature(96067, Position(3333.486f, 2230.95f, 315.7818f, 4.712389f), TEMPSUMMON_MANUAL_DESPAWN))
+       // if (Creature* drugen = player->SummonCreature(96067, Position(3333.486f, 2230.95f, 315.7818f, 4.712389f), TEMPSUMMON_MANUAL_DESPAWN))
         {
-            if (Creature* npc = player->SummonCreature(96144, Position(3333.486f, 2230.95f, 315.7818f, 4.712389f), TEMPSUMMON_MANUAL_DESPAWN))
+         //   if (Creature* npc = player->SummonCreature(96144, Position(3333.486f, 2230.95f, 315.7818f, 4.712389f), TEMPSUMMON_MANUAL_DESPAWN))
             {
-                drugen->AddAura(190758);
-                drugen->AddAura(190549);
+              //  drugen->AddAura(190758);
+           //     drugen->AddAura(190549);
 
-                npc->CastSpell(npc, 190715, true);
-                drugen->DespawnOrUnsummon(30000);
-                npc->DespawnOrUnsummon(30000);
+             //   npc->CastSpell(npc, 190715, true);
+               // drugen->DespawnOrUnsummon(30000);
+                //npc->DespawnOrUnsummon(30000);
             }
         }
 
         player->CastSpell(player, 197658, true);
-        player->GetScheduler().Schedule(Milliseconds(5000), [player](TaskContext context)
+       // player->GetScheduler().Schedule(Milliseconds(5000), [player](TaskContext context)
         {
             player->CastSpell(player, 197659, true);
-        });
-        player->GetScheduler().Schedule(Milliseconds(10000), [player](TaskContext context)
+        };
+       // player->GetScheduler().Schedule(Milliseconds(10000), [player](TaskContext context)
         {
             player->CastSpell(player, 197660, true);
-        });
-        player->GetScheduler().Schedule(Milliseconds(15000), [player](TaskContext context)
+        };
+      //  player->GetScheduler().Schedule(Milliseconds(15000), [player](TaskContext context)
         {
             player->CastSpell(player, 197661, true);
-        });
-        player->GetScheduler().Schedule(Milliseconds(20000), [player](TaskContext context)
+        };
+       // player->GetScheduler().Schedule(Milliseconds(20000), [player](TaskContext context)
         {
             player->CastSpell(player, 197662, true);
-        });
-        player->GetScheduler().Schedule(Milliseconds(25000), [player](TaskContext context)
+        };
+      //  player->GetScheduler().Schedule(Milliseconds(25000), [player](TaskContext context)
         {
             player->CastSpell(player, 197663, true);
-        });
+        };
         return true;
     }
 };
@@ -247,31 +247,31 @@ class go_powered_console_stormheim_243817 : public GameObjectScript
 {
 public:
     go_powered_console_stormheim_243817() : GameObjectScript("go_powered_console_stormheim_243817") { }
-    bool OnGossipHello(Player* player, GameObject* go) override
+    bool OnGossipHello(Player* player, GameObject* go) 
     {
-        if (Creature* npc = player->SummonCreature(96176, Position(3546.223f, 2163.617f, 233.61f, 3.11f), TEMPSUMMON_MANUAL_DESPAWN))
+        //if (Creature* npc = player->SummonCreature(96176, Position(3546.223f, 2163.617f, 233.61f, 3.11f), TEMPSUMMON_MANUAL_DESPAWN))
         {
-            npc->AI()->Talk(0);
-            npc->DespawnOrUnsummon(30000);
+           // npc->AI()->Talk(0);
+           // npc->DespawnOrUnsummon();
         }
         if (Creature* yotnar = player->FindNearestCreature(96175, 100.0f, true))
         {
-            player->GetScheduler().Schedule(Milliseconds(5000), [yotnar](TaskContext context)
+           // player->GetScheduler().Schedule(Milliseconds(5000), [yotnar](TaskContext context)
             {
                 yotnar->AI()->Talk(0);
-            });
-            player->GetScheduler().Schedule(Milliseconds(10000), [yotnar](TaskContext context)
+            };
+           // player->GetScheduler().Schedule(Milliseconds(10000), [yotnar](TaskContext context)
             {
                 yotnar->AI()->Talk(1);
-            });
-            player->GetScheduler().Schedule(Milliseconds(15000), [yotnar, player](TaskContext context)
+            };
+           // player->GetScheduler().Schedule(Milliseconds(15000), [yotnar, player](TaskContext context)
             {
                 yotnar->AI()->Talk(2);
                 player->CastSpell(player, 190908, true);
 
                 yotnar->SetReactState(REACT_AGGRESSIVE);
                 yotnar->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC));
-            });
+            };
         }
         return true;
     }
@@ -286,14 +286,14 @@ struct npc_yotnar_96258 : public ScriptedAI
         CloseGossipMenuFor(player);
         player->TalkedToCreature(me->GetEntry(), me->GetGUID());
 
-        if (player->HasQuest(39597))
+       // if (player->HasQuest(39597))
         {
             player->KilledMonsterCredit(96285);
             Talk(2);
-            player->GetScheduler().Schedule(Milliseconds(5000), [this](TaskContext context)
+         //   player->GetScheduler().Schedule(Milliseconds(5000), [this](TaskContext context)
             {
                 Talk(3);
-            });
+            };
         }
     }
 
@@ -303,15 +303,15 @@ struct npc_yotnar_96258 : public ScriptedAI
         {
             if (me->IsWithinDist(player, 25.0f, false))
             {
-                if (!IsLock && player->HasQuest(39594) && player->GetQuestStatus(39594) == QUEST_STATUS_COMPLETE)
+             //   if (!IsLock && player->HasQuest(39594) && player->GetQuestStatus(39594) == QUEST_STATUS_COMPLETE)
                 {
-                    IsLock = true;
+               //     IsLock = true;
                     Talk(0);
-                    player->GetScheduler().Schedule(Milliseconds(5000), [this](TaskContext context)
+                 //   player->GetScheduler().Schedule(Milliseconds(5000), [this](TaskContext context)
                     {
                         Talk(1);
-                    });
-                    SetUnlock(60000);
+                    };
+                   // SetUnlock(60000);
                 }
             }
         }
@@ -331,29 +331,29 @@ struct npc_yotnar_96175 : public ScriptedAI
     void Reset() override
     {
         me->SetReactState(REACT_PASSIVE);
-        me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC));
+       // me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC));
     }
 
-    void DamageTaken(Unit* done_by, uint32 &damage) override
+    void DamageTaken(Unit* done_by, uint32 &damage) 
     {
-        if (me->HealthWillBeBelowPctDamaged(10, damage))
+        //if (me->HealthWillBeBelowPctDamaged(10, damage))
         {
             damage = 0;
             me->SetHealth(me->GetMaxHealth());
             me->AttackStop();
-            events.Reset();
+          //  events.Reset();
             me->SetReactState(REACT_PASSIVE);
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC));
+           // me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC));
             Talk(3);
             me->GetMotionMaster()->MoveTargetedHome();
-            me->GetScheduler().Schedule(Milliseconds(5000), [this](TaskContext context)
+           // me->GetScheduler().Schedule(Milliseconds(5000), [this](TaskContext context)
             {
                 Talk(4);
-            });
-            me->GetScheduler().Schedule(Milliseconds(10000), [this](TaskContext context)
+            };
+           // me->GetScheduler().Schedule(Milliseconds(10000), [this](TaskContext context)
             {
                 Talk(5);
-            });
+            };
 
             std::list<Player*> list;
             me->GetPlayerListInGrid(list, 100.0f);
@@ -363,32 +363,32 @@ struct npc_yotnar_96175 : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit* /*attacker*/) override
+    void EnterCombat(Unit* /*attacker*/) 
     {
-        events.ScheduleEvent(SPELL_ACTIVATE_GUARDIAN_ORB, 5s);
-        events.ScheduleEvent(SPELL_LIGHTFORGED_DEFENSE_MATRIX, 5s);
+       // events.ScheduleEvent(SPELL_ACTIVATE_GUARDIAN_ORB, 5s);
+       // events.ScheduleEvent(SPELL_LIGHTFORGED_DEFENSE_MATRIX, 5s);
     }
 
     void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
             return;
-        if (me->HasUnitState(UNIT_STATE_CASTING))
+        if (me->HasUnitState(UNIT_STATE_CASTING));
             return;
-        events.Update(diff);
-        switch (events.ExecuteEvent())
+       // events.Update(diff);
+       // switch (events.ExecuteEvent())
         {
-        case SPELL_ACTIVATE_GUARDIAN_ORB:
+        //case SPELL_ACTIVATE_GUARDIAN_ORB:
         {
             DoCast(SPELL_ACTIVATE_GUARDIAN_ORB);
-            events.Repeat(15s);
-            break;
+         //   events.Repeat(15s);
+           // break;
         }
-        case SPELL_LIGHTFORGED_DEFENSE_MATRIX:
+        //case SPELL_LIGHTFORGED_DEFENSE_MATRIX:
         {
             DoCast(SPELL_LIGHTFORGED_DEFENSE_MATRIX);
-            events.Repeat(15s);
-            break;
+          //  events.Repeat(15s);
+            //break;
         }
         }
         DoMeleeAttackIfReady();
@@ -403,7 +403,7 @@ struct npc_vault_guardian_96282 : public ScriptedAI
     {
         SetCombatMovement(false);
         me->SetReactState(REACT_PASSIVE);
-        me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+      //  me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
         me->AddUnitState(UNIT_STATE_CANNOT_TURN);
     }
 };
@@ -420,8 +420,8 @@ public:
 
     void OnQuestAccept(Player* player, Quest const* quest)
     {
-        if (quest->ID == 38612)
-            player->ForceCompleteQuest(38612);
+        //if (quest->ID == 38612)
+          //  player->ForceCompleteQuest(38612);
     }
 };
 
@@ -432,7 +432,7 @@ struct npc_grapple_point_92017 : public ScriptedAI
     void Reset() override
     {
         me->SetDisplayId(62719);
-        me->AddUnitFlag(UnitFlags(UNIT_NPC_FLAG_SPELLCLICK));
+      //  me->AddUnitFlag(UnitFlags(UNIT_NPC_FLAG_SPELLCLICK));
         me->setActive(true);
     }
 
@@ -441,16 +441,16 @@ struct npc_grapple_point_92017 : public ScriptedAI
         if (Player* player = clicker->ToPlayer())
         {
             player->SetFacingToObject(me);
-            if (player->HasQuest(38613))
+        //    if (player->HasQuest(38613))
                 player->KilledMonsterCredit(91484);
-            if (player->HasQuest(38618) || player->HasQuest(38412))
+          //  if (player->HasQuest(38618) || player->HasQuest(38412))
                 player->KilledMonsterCredit(91728);
             player->CastSpell(player, 182546, true);
-            me->GetScheduler().Schedule(Milliseconds(2000), [this, player](TaskContext context)
+            //me->GetScheduler().Schedule(Milliseconds(2000), [this, player](TaskContext context)
             {
                 player->CastSpell(me, 182549, true);
                 player->GetMotionMaster()->MoveJump(me->GetPosition(), 20.0f, 20.0f);
-            });
+            };
         }
     }
 };
@@ -465,11 +465,11 @@ struct npc_dread_rider_cullen_92566 : public ScriptedAI
         {
             if (me->IsWithinDist(player, 15.0f, false))
             {
-                if (!IsLock && player->HasQuest(38612))
+             //   if (!IsLock && player->HasQuest(38612))
                 {
-                    IsLock = true;
+                 //   IsLock = true;
                     Talk(0);
-                    SetUnlock(120000);
+               //     SetUnlock(120000);
                 }
             }
         }
@@ -486,7 +486,7 @@ struct npc_vethir_91249 : public ScriptedAI
         {
             if (me->IsWithinDist(player, 15.0f, false))
             {
-                if (player->HasQuest(38618) || player->HasQuest(38412))
+              //  if (player->HasQuest(38618) || player->HasQuest(38412))
                     player->KilledMonsterCredit(91729);
             }
         }
@@ -509,15 +509,15 @@ struct npc_vethir_96465 : public ScriptedAI
     {
         CloseGossipMenuFor(player);
         player->TalkedToCreature(me->GetEntry(), me->GetGUID());
-        if (player->HasQuest(39652) || player->GetQuestStatus(39652) == QUEST_STATUS_REWARDED)
+       // if (player->HasQuest(39652) || player->GetQuestStatus(39652) == QUEST_STATUS_REWARDED)
         {
             player->SummonCreature(96465, me->GetPosition());
-            player->GetScheduler().Schedule(Milliseconds(18000), [this, player](TaskContext context)
+         //   player->GetScheduler().Schedule(Milliseconds(18000), [this, player](TaskContext context)
             {
                 player->RemoveAurasDueToSpell(46598);
                 player->KilledMonsterCredit(96466);
                 player->ExitVehicle();
-            });
+            };
         }
     }
 
@@ -526,15 +526,15 @@ struct npc_vethir_96465 : public ScriptedAI
         if (apply)
         {
             me->SetCanFly(true);
-            me->SetFlying(true);
+           // me->SetFlying(true);
             me->SetWalk(false);
             me->SetSpeed(MOVE_FLIGHT, 25);
             me->GetMotionMaster()->MoveSmoothPath(1, Path01, Path01Size::value, false, true);
-            me->DespawnOrUnsummon(20000);
+            me->DespawnOrUnsummon();
         }
     }
 
-    void IsSummonedBy(Unit* summoner) override
+    void IsSummonedBy(Unit* summoner)
     {
         if (summoner)
             summoner->CastSpell(me, 46598);
@@ -549,18 +549,18 @@ struct npc_thrymjaris_97061 : public ScriptedAI
     {
         CloseGossipMenuFor(player);
         player->TalkedToCreature(me->GetEntry(), me->GetGUID());
-        if (player->HasQuest(39652))
+       // if (player->HasQuest(39652))
         {
             Talk(0);
-            me->GetScheduler().Schedule(Milliseconds(5000), [this, player](TaskContext context)
+         //   me->GetScheduler().Schedule(Milliseconds(5000), [this, player](TaskContext context)
             {
                 Talk(1);
-            });
-            me->GetScheduler().Schedule(Milliseconds(10000), [this, player](TaskContext context)
+            };
+           // me->GetScheduler().Schedule(Milliseconds(10000), [this, player](TaskContext context)
             {
                 Talk(2);
                 player->KilledMonsterCredit(96467);
-            });
+            };
         }
     }
 };
@@ -569,7 +569,7 @@ struct npc_thrymjaris_92218 : public ScriptedAI
 {
     npc_thrymjaris_92218(Creature* creature) : ScriptedAI(creature) {  }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) 
     {
         if (quest->GetQuestId() == 38624)
             Talk(0);
@@ -602,97 +602,97 @@ struct npc_vethir_92302 : public ScriptedAI
         _playerGuid = ObjectGuid::Empty;
     }
 
-    void IsSummonedBy(Unit* summoner) override
+    void IsSummonedBy(Unit* summoner)
     {
         if (summoner)
         {
             _playerGuid = summoner->ToPlayer()->GetGUID();
             me->SetCanFly(true);
-            me->SetFlying(true);
+           // me->SetFlying(true);
             me->SetWalk(false);
             //summoner->CastSpell(me, 46598);
             me->SetSpeed(MOVE_FLIGHT, 25);
             me->GetMotionMaster()->Clear();
             Talk(1);
-            if (summoner->ToPlayer()->HasQuest(38624) || summoner->ToPlayer()->HasQuest(41950) || summoner->ToPlayer()->HasQuest(41451))
+           // if (summoner->ToPlayer()->HasQuest(38624) || summoner->ToPlayer()->HasQuest(41950) || summoner->ToPlayer()->HasQuest(41451))
             {
                 me->GetMotionMaster()->MoveSmoothPath(1, Path_92302, Path_92302Size::value, false, true);
                 summoner->EnterVehicle(me, 0);
-                summoner->GetScheduler().Schedule(Milliseconds(30000), [this, summoner](TaskContext context)
+             //   summoner->GetScheduler().Schedule(Milliseconds(30000), [this, summoner](TaskContext context)
                 {
                     if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGuid))
                     {
                         if (!player->IsInWorld())
                             return;
 
-                        if (player->HasQuest(38624) && player->GetQuestObjectiveData(38624, 3) == 150)
+               //         if (player->HasQuest(38624) && player->GetQuestObjectiveData(38624, 3) == 150)
                         {
                             player->KilledMonsterCredit(91768);
                             Talk(2);
-                            events.Reset();
-                            context.CancelAll();
-                            summoner->GetScheduler().CancelAll();
+                 //           events.Reset();
+                   //         context.CancelAll();
+                     //       summoner->GetScheduler().CancelAll();
                             me->GetMotionMaster()->Clear();
                             me->GetMotionMaster()->MoveSmoothPath(99, Path02, Path02Size::value, false, true);
                             return;
                         }
-                        else if (player->HasQuest(41950) && player->GetQuestObjectiveData(41950, 3) == 50)
+                        //else if (player->HasQuest(41950) && player->GetQuestObjectiveData(41950, 3) == 50)
                         {
                             player->KilledMonsterCredit(91768);
                             Talk(2);
-                            events.Reset();
-                            context.CancelAll();
+                          //  events.Reset();
+                           // context.CancelAll();
                             me->GetMotionMaster()->Clear();
                             me->GetMotionMaster()->MoveSmoothPath(99, Path02, Path02Size::value, false, true);
                             return;
                         }
-                        else if (player->HasQuest(41451) && player->GetQuestObjectiveData(41451, 0) == 15 && player->GetQuestObjectiveData(41451, 2) == 4)
+                       // else if (player->HasQuest(41451) && player->GetQuestObjectiveData(41451, 0) == 15 && player->GetQuestObjectiveData(41451, 2) == 4)
                         {
-                            events.Reset();
-                            context.CancelAll();
+                         //   events.Reset();
+                           // context.CancelAll();
                             me->GetMotionMaster()->Clear();
                             me->GetMotionMaster()->MoveSmoothPath(99, Path02, Path02Size::value, false, true);
                             return;
                         }
 
-                        if (player->HasQuest(38624) && player->GetQuestObjectiveData(38624, 3) < 150)
+                       // if (player->HasQuest(38624) && player->GetQuestObjectiveData(38624, 3) < 150)
                         {
                             Talk(1);
                             me->SetCanFly(true);
-                            me->SetFlying(true);
+                         //   me->SetFlying(true);
                             me->SetWalk(false);
                             me->GetMotionMaster()->Clear();
                             me->GetMotionMaster()->MoveSmoothPath(1, Path_92302, Path_92302Size::value, false, true);
                         }
-                        else if (player->HasQuest(41950) && player->GetQuestObjectiveData(41950, 3) < 50)
+                        //else if (player->HasQuest(41950) && player->GetQuestObjectiveData(41950, 3) < 50)
                         {
                             Talk(1);
                             me->SetCanFly(true);
-                            me->SetFlying(true);
+                          //  me->SetFlying(true);
                             me->SetWalk(false);
                             me->GetMotionMaster()->Clear();
                             me->GetMotionMaster()->MoveSmoothPath(1, Path_92302, Path_92302Size::value, false, true);
                         }
-                        else if (player->HasQuest(41451) && player->GetQuestObjectiveData(41451, 0) != 15 && player->GetQuestObjectiveData(41451, 2) != 4)
+                        //else if (player->HasQuest(41451) && player->GetQuestObjectiveData(41451, 0) != 15 && player->GetQuestObjectiveData(41451, 2) != 4)
                         {
                             Talk(1);
                             me->SetCanFly(true);
-                            me->SetFlying(true);
+                          //  me->SetFlying(true);
                             me->SetWalk(false);
                             me->GetMotionMaster()->Clear();
                             me->GetMotionMaster()->MoveSmoothPath(1, Path_92302, Path_92302Size::value, false, true);
                         }
                     }
-                    context.Repeat(Milliseconds(25000));
-                });
+                  //  context.Repeat(Milliseconds(25000));
+                };
             }
-            else
+            //else
             {
                 me->SetSpeed(MOVE_FLIGHT, 36);
                 me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveSmoothPath(99, Path02, Path02Size::value, false, true);
                 summoner->EnterVehicle(me, 0);
-                me->DespawnOrUnsummon(40000);
+                me->DespawnOrUnsummon();
                 Talk(2);
             }
 
@@ -707,7 +707,7 @@ struct npc_vethir_92302 : public ScriptedAI
             {
                 if (me->GetDistance2d(player) > 15.0f)
                 {
-                    player->GetScheduler().CancelAll();
+                  //  player->GetScheduler().CancelAll();
                     me->DespawnOrUnsummon();
                 }
             }
@@ -739,12 +739,12 @@ class go_tideskorn_harpoon_launcher_251257 : public GameObjectScript
 public:
     go_tideskorn_harpoon_launcher_251257() : GameObjectScript("go_tideskorn_harpoon_launcher_251257") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    bool OnGossipHello(Player* player, GameObject* go) 
     {
         if (!player || !go)
             return false;
 
-        if (player->HasQuest(41451))
+       // if (player->HasQuest(41451))
             player->KilledMonsterCredit(113891);
         return false;
     }
@@ -754,39 +754,39 @@ struct npc_havi_92539 : public ScriptedAI
 {
     npc_havi_92539(Creature* creature) : ScriptedAI(creature) {  }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) 
     {
         if (quest->GetQuestId() == 39804)
         {
             Talk(0);
-            me->GetScheduler().Schedule(Milliseconds(5000), [this](TaskContext context)
+          //  me->GetScheduler().Schedule(Milliseconds(5000), [this](TaskContext context)
             {
                 Talk(1);
-            });
-            me->GetScheduler().Schedule(Milliseconds(10000), [this](TaskContext context)
+            };
+           // me->GetScheduler().Schedule(Milliseconds(10000), [this](TaskContext context)
             {
                 Talk(2);
-            });
-            me->GetScheduler().Schedule(Milliseconds(15000), [this](TaskContext context)
+            };
+           // me->GetScheduler().Schedule(Milliseconds(15000), [this](TaskContext context)
             {
                 Talk(3);
-            });
+            };
         }
         if (quest->GetQuestId() == 40078)
         {
             Talk(4);
-            me->GetScheduler().Schedule(Milliseconds(5000), [this](TaskContext context)
+          //  me->GetScheduler().Schedule(Milliseconds(5000), [this](TaskContext context)
             {
                 Talk(5);
-            });
-            me->GetScheduler().Schedule(Milliseconds(10000), [this](TaskContext context)
+            };
+           // me->GetScheduler().Schedule(Milliseconds(10000), [this](TaskContext context)
             {
                 Talk(6);
-            });
+            };
         }
     }
 
-    void sQuestReward(Player* player, Quest const* quest, uint32 /*opt*/)  override
+    void sQuestReward(Player* player, Quest const* quest, uint32 /*opt*/) 
     {
         if (quest->GetQuestId() == 40078)
             Talk(7);
@@ -798,23 +798,23 @@ struct npc_havi_92539 : public ScriptedAI
         {
             if (me->IsWithinDist(player, 15.0f, false))
             {
-                if (!IsLock && player->HasQuest(39803))
+              //  if (!IsLock && player->HasQuest(39803))
                 {
-                    IsLock = true;
+                   // IsLock = true;
                     me->Say(98439);
-                    me->GetScheduler().Schedule(Milliseconds(5000), [this](TaskContext context)
+                //    me->GetScheduler().Schedule(Milliseconds(5000), [this](TaskContext context)
                     {
                         me->Say(98440);
-                    });
-                    me->GetScheduler().Schedule(Milliseconds(10000), [this](TaskContext context)
+                    };
+                   // me->GetScheduler().Schedule(Milliseconds(10000), [this](TaskContext context)
                     {
                         me->Say(98441);
-                    });
-                    me->GetScheduler().Schedule(Milliseconds(15000), [this](TaskContext context)
+                    };
+                   // me->GetScheduler().Schedule(Milliseconds(15000), [this](TaskContext context)
                     {
                         me->Say(98442);
-                    });
-                    SetUnlock(120000);
+                    };
+                   // SetUnlock(120000);
                 }
             }
         }
@@ -827,7 +827,7 @@ struct npc_ironhorn_buck_98230 : public ScriptedAI
 
     void Reset() override
     {
-        me->AddUnitFlag(UnitFlags(UNIT_NPC_FLAG_SPELLCLICK));
+      //  me->AddUnitFlag(UnitFlags(UNIT_NPC_FLAG_SPELLCLICK));
     }
 
     void OnSpellClick(Unit* clicker, bool& /*result*/)
@@ -848,11 +848,11 @@ struct npc_vydhar_93231 : public ScriptedAI
         {
             if (me->IsWithinDist(player, 15.0f, false))
             {
-                if (!IsLock && player->HasQuest(39796))
+        //        if (!IsLock && player->HasQuest(39796))
                 {
-                    IsLock = true;
+            //        IsLock = true;
                     Talk(0);
-                    SetUnlock(120000);
+          //          SetUnlock(120000);
                 }
             }
         }
@@ -865,7 +865,7 @@ struct npc_runestone_93343 : public ScriptedAI
 
     void Reset() override
     {
-        me->AddUnitFlag(UnitFlags(UNIT_NPC_FLAG_SPELLCLICK));
+      //  me->AddUnitFlag(UnitFlags(UNIT_NPC_FLAG_SPELLCLICK));
     }
 
     void OnSpellClick(Unit* clicker, bool& /*result*/)
@@ -921,12 +921,12 @@ class go_rune_of_reformation_244450 : public GameObjectScript
 public:
     go_rune_of_reformation_244450() : GameObjectScript("go_rune_of_reformation_244450") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    bool OnGossipHello(Player* player, GameObject* go) 
     {
         if (!player || !go)
             return false;
 
-        if (player->HasQuest(38815))
+      //  if (player->HasQuest(38815))
             player->KilledMonsterCredit(97281);
         return false;
     }
@@ -942,34 +942,34 @@ struct npc_lady_sylvanas_windrunner_97695 : public ScriptedAI
         {
             if (me->IsWithinDist(player, 15.0f, false))
             {
-                if (!IsLock && player->HasQuest(39848))
+        //        if (!IsLock && player->HasQuest(39848))
                 {
-                    IsLock = true;
+          //          IsLock = true;
                     player->KilledMonsterCredit(97696);
                     Talk(0);
-                    me->GetScheduler().Schedule(Milliseconds(5000), [this, player](TaskContext context)
+            //        me->GetScheduler().Schedule(Milliseconds(5000), [this, player](TaskContext context)
                     {
                         Talk(1);
-                    });
-                    me->GetScheduler().Schedule(Milliseconds(10000), [this, player](TaskContext context)
+                    };
+                   // me->GetScheduler().Schedule(Milliseconds(10000), [this, player](TaskContext context)
                     {
                         Talk(2);
-                    });
-                    SetUnlock(120000);
+                    };
+                   // SetUnlock(120000);
                 }
 
-                if (!IsLock && player->HasQuest(38882))
+              //  if (!IsLock && player->HasQuest(38882))
                 {
-                    IsLock = true;
+                //    IsLock = true;
                     player->KilledMonsterCredit(94915);
                     player->CastSpell(player, 205552, true);
 
-                    player->AddMovieDelayedAction(495, [player]
+                  //  player->AddMovieDelayedAction(495, [player]
                     {
                         player->CastSpell(player, 205553, true);
-                    });
+                    };
                     player->CastSpell(player, 205551, true);//495
-                    SetUnlock(120000);
+                   // SetUnlock(120000);
                 }
             }
         }
@@ -981,53 +981,53 @@ class go_helyas_altar_244559 : public GameObjectScript
 public:
     go_helyas_altar_244559() : GameObjectScript("go_helyas_altar_244559") { }
 
-    bool OnGossipSelect(Player* player, GameObject* go, uint32 /*sender*/, uint32 /*action*/) override
+    bool OnGossipSelect(Player* player, GameObject* go, uint32 /*sender*/, uint32 /*action*/) 
     {
         if (!player || !go)
             return false;
 
-        if (player->HasQuest(39848))
+       // if (player->HasQuest(39848))
         {
             if (Creature* helyas = player->FindNearestCreature(91387, 200.0f, true))
                 helyas->Say(98487);
             player->KilledMonsterCredit(97479);
         }
 
-        if (player->HasQuest(39855))
+       // if (player->HasQuest(39855))
         {
             if (Creature* ashildir = player->FindNearestCreature(97664, 200.0f, true))
             {
                 ashildir->AI()->Talk(0);
-                ashildir->GetScheduler().Schedule(Milliseconds(5000), [this, player, ashildir](TaskContext context)
+         //       ashildir->GetScheduler().Schedule(Milliseconds(5000), [this, player, ashildir](TaskContext context)
                 {
                     ashildir->AI()->Talk(1);
-                });
-                ashildir->GetScheduler().Schedule(Milliseconds(10000), [this, player, ashildir](TaskContext context)
+                };
+               // ashildir->GetScheduler().Schedule(Milliseconds(10000), [this, player, ashildir](TaskContext context)
                 {
                     ashildir->AI()->Talk(2);
-                });
-                ashildir->GetScheduler().Schedule(Milliseconds(15000), [this, player](TaskContext context)
+                };
+               // ashildir->GetScheduler().Schedule(Milliseconds(15000), [this, player](TaskContext context)
                 {
                     player->CastSpell(player, 212919, true);
                     player->KilledMonsterCredit(97487);
-                });
-                ashildir->GetScheduler().Schedule(Milliseconds(17000), [this, player](TaskContext context)
+                };
+              //  ashildir->GetScheduler().Schedule(Milliseconds(17000), [this, player](TaskContext context)
                 {
                     player->CastSpell(player, 192669, true);
-                });
-                ashildir->GetScheduler().Schedule(Milliseconds(18000), [this, player](TaskContext context)
+                };
+               // ashildir->GetScheduler().Schedule(Milliseconds(18000), [this, player](TaskContext context)
                 {
                     player->CastSpell(player, 192670, true);
-                });
+                };
             }
         }
 
         return false;
     }
 
-    bool OnQuestAccept(Player* player, GameObject* /*go*/, Quest const* quest) override
+    bool OnQuestAccept(Player* player, GameObject* /*go*/, Quest const* quest) 
     {
-        if (quest->ID == 39857)
+        //if (quest->ID == 39857)
             if (Creature* helyas = player->FindNearestCreature(91387, 200.0f, true))
                 helyas->Say(98489);
         return false;
@@ -1038,7 +1038,7 @@ struct npc_ashildir_97480 : public ScriptedAI
 {
     npc_ashildir_97480(Creature* creature) : ScriptedAI(creature) {  }
 
-    void sQuestReward(Player* player, Quest const* quest, uint32 /*opt*/)  override
+    void sQuestReward(Player* player, Quest const* quest, uint32 /*opt*/)  
     {
         if (quest->GetQuestId() == 39853)
             me->Say(98494);
@@ -1050,11 +1050,11 @@ struct npc_ashildir_97480 : public ScriptedAI
         {
             if (me->IsWithinDist(player, 15.0f, false))
             {
-                if (!IsLock && player->HasQuest(39857) && me->GetEntry() == 97480)
+              //  if (!IsLock && player->HasQuest(39857) && me->GetEntry() == 97480)
                 {
-                    IsLock = true;
+                //    IsLock = true;
                     Talk(0);
-                    SetUnlock(120000);
+                  //  SetUnlock(120000);
                 }
             }
         }
@@ -1067,7 +1067,7 @@ struct npc_drowning_valkyra_97469 : public ScriptedAI
 
     void Reset() override
     {
-        me->AddUnitFlag(UnitFlags(UNIT_NPC_FLAG_SPELLCLICK));
+       // me->AddUnitFlag(UnitFlags(UNIT_NPC_FLAG_SPELLCLICK));
     }
 
     void OnSpellClick(Unit* clicker, bool& /*result*/)
@@ -1081,15 +1081,15 @@ struct npc_drowning_valkyra_97469 : public ScriptedAI
                 player->KilledMonsterCredit(97472);
 
                 Talk(0);
-                me->GetScheduler().Schedule(Milliseconds(5000), [this](TaskContext context)
+             //   me->GetScheduler().Schedule(Milliseconds(5000), [this](TaskContext context)
                 {
                     Talk(1);
-                });
-                me->GetScheduler().Schedule(Milliseconds(10000), [this](TaskContext context)
+                };
+               // me->GetScheduler().Schedule(Milliseconds(10000), [this](TaskContext context)
                 {
                     Talk(2);
-                    me->GetMotionMaster()->MoveAwayAndDespawn(20.0f, 10000);
-                });
+                 //   me->GetMotionMaster()->MoveAwayAndDespawn(20.0f, 10000);
+                };
             }
         }
     }
@@ -1101,7 +1101,7 @@ struct npc_forsaken_catapult_95212 : public ScriptedAI
 
     void Reset() override
     {
-        me->AddUnitFlag(UnitFlags(UNIT_NPC_FLAG_SPELLCLICK));
+      //  me->AddUnitFlag(UnitFlags(UNIT_NPC_FLAG_SPELLCLICK));
     }
 
     void OnSpellClick(Unit* clicker, bool& /*result*/)
@@ -1121,26 +1121,26 @@ struct npc_lady_sylvanas_windrunner_94227 : public ScriptedAI
         {
             if (me->IsWithinDist(player, 15.0f, false))
             {
-                if (!IsLock && player->HasQuest(39154))
+        //        if (!IsLock && player->HasQuest(39154))
                 {
-                    IsLock = true;
+                 //   IsLock = true;
                     if (Creature* areiel = player->FindNearestCreature(92803, 50.0f, true))
                     {
                         me->Say(97224);
-                        me->GetScheduler().Schedule(Milliseconds(5000), [this, areiel](TaskContext context)
+                   //     me->GetScheduler().Schedule(Milliseconds(5000), [this, areiel](TaskContext context)
                         {
                             areiel->Say(97225);
-                        });
-                        me->GetScheduler().Schedule(Milliseconds(10000), [this, areiel](TaskContext context)
+                        };
+                      //  me->GetScheduler().Schedule(Milliseconds(10000), [this, areiel](TaskContext context)
                         {
                             me->Say(97226);
-                        });
-                        me->GetScheduler().Schedule(Milliseconds(15000), [this, areiel](TaskContext context)
+                        };
+                       // me->GetScheduler().Schedule(Milliseconds(15000), [this, areiel](TaskContext context)
                         {
                             areiel->Say(97227);
-                        });
+                        };
                     }
-                    SetUnlock(120000);
+                   // SetUnlock(120000);
                 }
             }
         }
@@ -1153,9 +1153,9 @@ class go_engraved_shield_quest_38878 : public GameObjectScript
 public:
     go_engraved_shield_quest_38878() : GameObjectScript("go_engraved_shield_quest_38878") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    bool OnGossipHello(Player* player, GameObject* go) 
     {
-        if (player->HasQuest(38878))
+       // if (player->HasQuest(38878))
             player->KilledMonsterCredit(109346);
         return false;
     }
@@ -1169,7 +1169,7 @@ struct npc_statue_94393 : public ScriptedAI
     {
         CloseGossipMenuFor(player);
         player->TalkedToCreature(me->GetEntry(), me->GetGUID());
-        if (player->HasQuest(39155))
+       // if (player->HasQuest(39155))
         {
             player->CastSpell(player, 187829, true);
             me->CastSpell(me, 187830, true);
@@ -1177,23 +1177,23 @@ struct npc_statue_94393 : public ScriptedAI
             if (Creature* ashildir = player->FindNearestCreature(94764, 50.0f, true))
             {
                 ashildir->AI()->Talk(0, player);
-                ashildir->GetScheduler().Schedule(Milliseconds(5000), [this, player, ashildir](TaskContext context)
+               // ashildir->GetScheduler().Schedule(Milliseconds(5000), [this, player, ashildir](TaskContext context)
                 {
                     ashildir->AI()->Talk(1, player);
-                });
-                ashildir->GetScheduler().Schedule(Milliseconds(10000), [this, player, ashildir](TaskContext context)
+                };
+              //  ashildir->GetScheduler().Schedule(Milliseconds(10000), [this, player, ashildir](TaskContext context)
                 {
                     ashildir->AI()->Talk(2, player);
-                });
-                ashildir->GetScheduler().Schedule(Milliseconds(15000), [this, player, ashildir](TaskContext context)
+                };
+               // ashildir->GetScheduler().Schedule(Milliseconds(15000), [this, player, ashildir](TaskContext context)
                 {
                     ashildir->AI()->Talk(3, player);
                     player->KilledMonsterCredit(94477);
-                });
-                ashildir->GetScheduler().Schedule(Milliseconds(20000), [this, player, ashildir](TaskContext context)
+                };
+               // ashildir->GetScheduler().Schedule(Milliseconds(20000), [this, player, ashildir](TaskContext context)
                 {
                     ashildir->DespawnOrUnsummon();
-                });
+                };
             }
             //187860 94769
         }
@@ -1208,7 +1208,7 @@ struct npc_vethir_97979 : public ScriptedAI
     {
         if (Player* player = who->ToPlayer())
             if (me->IsWithinDist(player, 15.0f, false))
-                if (player->HasQuest(40002) && player->HasItemCount(129106, 1))
+            //    if (player->HasQuest(40002) && player->HasItemCount(129106, 1))
                     player->KilledMonsterCredit(97981);
     }
 };
@@ -1221,7 +1221,7 @@ struct npc_vethir_97986 : public ScriptedAI
     {
         CloseGossipMenuFor(player);
         player->TalkedToCreature(me->GetEntry(), me->GetGUID());
-        player->TeleportTo(1220, Position(2479.33f, 951.14f, 596.141f, 3.905f));
+      //  player->TeleportTo(1220, Position(2479.33f, 951.14f, 596.141f, 3.905f));
     }
 };
 
@@ -1233,22 +1233,22 @@ struct npc_vethir_98190 : public ScriptedAI
     {
         CloseGossipMenuFor(player);
         player->TalkedToCreature(me->GetEntry(), me->GetGUID());
-        player->TeleportTo(1220, Position(2518.36f, 977.15f, 233.274f, 3.97f));
+       // player->TeleportTo(1220, Position(2518.36f, 977.15f, 233.274f, 3.97f));
     }
 };
 
 void AddSC_stormheim()
 {
-    new go_volatile_barrel_stormheim();
-    new npc_grapple_point();
+    //new go_volatile_barrel_stormheim();
+    //new npc_grapple_point();
     new spell_pump();
     
     RegisterCreatureAI(npc_apothecary_withers_91590);
     new spell_transponder_pack_180645();
 
     RegisterCreatureAI(npc_titan_console_96139);
-    new go_powered_console_stormheim_243802();
-    new go_powered_console_stormheim_243817();
+   // new go_powered_console_stormheim_243802();
+    //new go_powered_console_stormheim_243817();
     RegisterCreatureAI(npc_yotnar_96258);
     RegisterCreatureAI(npc_yotnar_96175);
 
@@ -1262,20 +1262,20 @@ void AddSC_stormheim()
     RegisterCreatureAI(npc_thrymjaris_92218);
     RegisterCreatureAI(npc_vethir_92302);
     RegisterCreatureAI(npc_vethir_91767);
-    new go_tideskorn_harpoon_launcher_251257();
+    //new go_tideskorn_harpoon_launcher_251257();
     RegisterCreatureAI(npc_havi_92539);
     RegisterCreatureAI(npc_ironhorn_buck_98230);
     RegisterCreatureAI(npc_vydhar_93231);
     RegisterCreatureAI(npc_runestone_93343);
     RegisterSpellScript(spell_returning_spirit_quest_39791);
-    new go_rune_of_reformation_244450();
+   // new go_rune_of_reformation_244450();
     RegisterCreatureAI(npc_lady_sylvanas_windrunner_97695);
-    new go_helyas_altar_244559();
+   // new go_helyas_altar_244559();
     RegisterCreatureAI(npc_ashildir_97480);
     RegisterCreatureAI(npc_drowning_valkyra_97469);
     RegisterCreatureAI(npc_forsaken_catapult_95212);
     RegisterCreatureAI(npc_lady_sylvanas_windrunner_94227);
-    new go_engraved_shield_quest_38878();
+   // new go_engraved_shield_quest_38878();
     RegisterCreatureAI(npc_statue_94393);
     RegisterCreatureAI(npc_vethir_97979);
 

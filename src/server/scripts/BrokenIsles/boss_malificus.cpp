@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -100,21 +100,21 @@ public:
                 {
                 case EVENT_INCITE_PANIC:
                 {
-                    DoCastRandom(SPELL_INCITE_PANIC, false);
-                    DoCastRandom(SPELL_INCITE_PANIC, false);
-                    DoCastRandom(SPELL_INCITE_PANIC, false);
+                  //  DoCastRandom(SPELL_INCITE_PANIC, false);
+                   // DoCastRandom(SPELL_INCITE_PANIC, false);
+                   // DoCastRandom(SPELL_INCITE_PANIC, false);
                     events.Repeat(14s, 15s);
                     break;
                 }
                 case EVENT_PESTILENCE:
                 {
-                    DoCastRandom(SPELL_PESTILENCE, false);
+                   // DoCastRandom(SPELL_PESTILENCE, false);
                     events.Repeat(14s);
                     break;
                 }
                 case EVENT_SHADOW_BARRAGE:
                 {
-                    DoCastRandom(SPELL_SHADOW_BARRAGE, false);
+                   // DoCastRandom(SPELL_SHADOW_BARRAGE, false);
                     events.Repeat(16s, 17s);
                     break;
                 }

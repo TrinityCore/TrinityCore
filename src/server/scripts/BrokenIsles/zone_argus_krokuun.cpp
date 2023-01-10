@@ -26,29 +26,35 @@
 #include "Conversation.h"
 #include "CreatureTextMgr.h"
 #include "PhasingHandler.h"
+#include <WorldSocket.h>
+#include <WorldSocket.h>
+#include "../../bnetserver/REST/LoginRESTService.h"
+#include "../../bnetserver/REST/LoginRESTService.h"
+#include "../../bnetserver/Server/Session.h"
+#include "../../worldserver/RemoteAccess/RASession.h"
 
  // Zone 8574
 class zone_argus_krokuun : public ZoneScript
 {
 public:
-    zone_argus_krokuun() : ZoneScript("zone_argus_krokuun") { }
+    //zone_argus_krokuun() : ZoneScript("zone_argus_krokuun") { }
 
-    void OnPlayerEnter(Player* player) override
+    void OnPlayerEnter(Player* player) 
     {
-        player->GetScheduler().Schedule(Milliseconds(2s), ZONE_KROKUUN, [](TaskContext context)
+      //  player->GetScheduler().Schedule(Milliseconds(2s), ZONE_KROKUUN, [](TaskContext context)
         {
-            if (Player* player = GetContextPlayer())
-                if (player->GetAreaId() == AREA_KROKUUN_VINDICAAR)
+        //    if (Player* player = GetContextPlayer())
+          //      if (player->GetAreaId() == AREA_KROKUUN_VINDICAAR)
                     if (player->GetPositionZ() <= 700.0f)
                         player->NearTeleportTo(383.17f, 1413.87f, 770.0f, 0.438168f);
 
-            context.Repeat();
-        });
+          //  context.Repeat();
+        };
     }
 
-    void OnPlayerExit(Player* player) override
+    void OnPlayerExit(Player* player) 
     {
-        player->GetScheduler().CancelGroup(ZONE_KROKUUN);
+      //  player->GetScheduler().CancelGroup(ZONE_KROKUUN);
     }
 };
 
@@ -140,14 +146,14 @@ class npc_vereesa_windrunner_121754 : public CreatureScript
 public:
     npc_vereesa_windrunner_121754() : CreatureScript("npc_vereesa_windrunner_121754") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/) override
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/) 
     {
         if (!player)
             return false;
 
         CloseGossipMenuFor(player);
 
-        if (player->HasQuest(QUEST_A_TWO_IF_BY_SEA))
+       // if (player->HasQuest(QUEST_A_TWO_IF_BY_SEA))
         {
             player->KilledMonsterCredit(KILLED_MONSTER_CREDIT_TWO_IF_BY_SEA);
             player->TeleportTo(1750, -4235.34f, -11335.4f, 8.85f, 4.432787f);
@@ -181,9 +187,9 @@ public:
             if (!player)
                 return;
 
-            if (player->HasQuest(QUEST_A_THE_HAND_OF_FATE))
+           // if (player->HasQuest(QUEST_A_THE_HAND_OF_FATE))
             {
-                if (!player->GetQuestObjectiveData(QUEST_A_THE_HAND_OF_FATE, 0))
+               // if (!player->GetQuestObjectiveData(QUEST_A_THE_HAND_OF_FATE, 0))
                 {
                     if (!Intr)
                         Intr = true;
@@ -204,19 +210,19 @@ public:
                     if (Creature* arator_the_redeemer = me->FindNearestCreature(NPC_ARATOR_THE_REDEEMER, me->GetVisibilityRange()))
                     {
 
-                        arator_the_redeemer->GetScheduler().Schedule(4s, [arator_the_redeemer](TaskContext context)
+                      //  arator_the_redeemer->GetScheduler().Schedule(4s, [arator_the_redeemer](TaskContext context)
                         {
                             arator_the_redeemer->AI()->Talk(SAY_EVENT);
-                        });
+                        };
                     }
 
                     if (Creature* vindicator_boros = me->FindNearestCreature(NPC_VINDICATOR_BOROS, me->GetVisibilityRange()))
                     {
 
-                        vindicator_boros->GetScheduler().Schedule(5s, [vindicator_boros](TaskContext context)
+                       // vindicator_boros->GetScheduler().Schedule(5s, [vindicator_boros](TaskContext context)
                         {
                             vindicator_boros->AI()->Talk(SAY_EVENT);
-                        });
+                        };
                     }
 
                     Intr = false;
@@ -232,7 +238,7 @@ public:
         return new npc_vereesa_windrunner_121754AI(creature);
     }
 
-    bool OnQuestReward(Player* player, Creature* /*creature*/, Quest const* quest, uint32 /*item*/) override
+    bool OnQuestReward(Player* player, Creature* /*creature*/, Quest const* quest, uint32 /*item*/) 
     {
         if (quest->GetQuestId() == QUEST_THE_DREAMWAY)
             player->RemoveAurasDueToSpell(SPELL_ASSIGN_DRUID_SPELL_BAR);
@@ -262,7 +268,7 @@ class npc_vindicator_boros_121756 : public CreatureScript
 public:
     npc_vindicator_boros_121756() : CreatureScript("npc_vindicator_boros_121756") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) 
     {
         ObjectGuid _playerGUID = player->GetGUID();
 
@@ -272,7 +278,7 @@ public:
         return true;
     }
 
-    bool OnQuestReward(Player* player, Creature* /*creature*/, Quest const* quest, uint32 /*item*/) override
+    bool OnQuestReward(Player* player, Creature* /*creature*/, Quest const* quest, uint32 /*item*/)
     {
         if (quest->GetQuestId() == QUEST_THE_DREAMWAY)
             player->RemoveAurasDueToSpell(SPELL_ASSIGN_DRUID_SPELL_BAR);
@@ -280,11 +286,11 @@ public:
         return true;
     }
 
-    struct npc_vindicator_boros_121756AI : public npc_escortAI
+    struct npc_vindicator_boros_121756AI : public CreatureAI
     {
-        npc_vindicator_boros_121756AI(Creature* creature) : npc_escortAI(creature) { }
+        npc_vindicator_boros_121756AI(Creature* creature) : CreatureAI(creature) { }
 
-        void Reset() override
+        void Reset() 
         {
             events.Reset();
             _playerGUID = ObjectGuid::Empty;
@@ -296,7 +302,7 @@ public:
                 events.ScheduleEvent(EVENT_STEP_01, 1s);
         }
 
-        void WaypointReached(uint32 Point) override
+        void WaypointReached(uint32 Point) 
         {
             if (Point == 5)
                 events.ScheduleEvent(EVENT_STEP_04, 1s);
@@ -321,13 +327,13 @@ public:
                     break;
                 case EVENT_STEP_03:
                 {
-                    AddWaypoint(1, -4242.758301f, -11345.727539f, 8.943564f, 0);
-                    AddWaypoint(2, -4247.899902f, -11348.519742f, 10.034762f, 0);
-                    AddWaypoint(3, -4258.516602f, -11349.978516f, 4.728858f, 0);
-                    AddWaypoint(4, -4264.603027f, -11354.836914f, 4.856225f, 0);
-                    AddWaypoint(5, -4261.898926f, -11360.919922f, 5.132911f, 0);
+                   // AddWaypoint(1, -4242.758301f, -11345.727539f, 8.943564f, 0);
+                   // AddWaypoint(2, -4247.899902f, -11348.519742f, 10.034762f, 0);
+                   // AddWaypoint(3, -4258.516602f, -11349.978516f, 4.728858f, 0);
+                   // AddWaypoint(4, -4264.603027f, -11354.836914f, 4.856225f, 0);
+                   // AddWaypoint(5, -4261.898926f, -11360.919922f, 5.132911f, 0);
 
-                    Start(true, true, ObjectGuid::Empty, nullptr, false, false);
+                  //  Start(true, true, ObjectGuid::Empty, nullptr, false, false);
                     break;
                 }
                 case EVENT_STEP_04:
@@ -365,7 +371,7 @@ struct npc_lady_liadrin_122065 : public ScriptedAI
     {
         CloseGossipMenuFor(player);
 
-        if (player->HasQuest(QUEST_H_TWO_IF_BY_SEA) || player->GetQuestStatus(QUEST_H_TWO_IF_BY_SEA) == QUEST_STATUS_COMPLETE || player->GetQuestStatus(QUEST_H_TWO_IF_BY_SEA) == QUEST_STATUS_REWARDED)
+       // if (player->HasQuest(QUEST_H_TWO_IF_BY_SEA) || player->GetQuestStatus(QUEST_H_TWO_IF_BY_SEA) == QUEST_STATUS_COMPLETE || player->GetQuestStatus(QUEST_H_TWO_IF_BY_SEA) == QUEST_STATUS_REWARDED)
         {
             player->KilledMonsterCredit(KILLED_MONSTER_CREDIT_TWO_IF_BY_SEA);
             player->TeleportTo(1750, -4295.41f, -11368.2f, 10.64f, 5.764124f);///SMSG_CUSTOM_LOAD_SCREEN TeleportSpellID: 247215 LoadingScreenID: 1377
@@ -406,7 +412,7 @@ struct npc_lady_liadrin_122065 : public ScriptedAI
         Player* player = who->GetCharmerOrOwnerPlayerOrPlayerItself();
         if (!player)
             return;
-        if (!HasPlayer(player->GetGUID()) && (player->HasQuest(QUEST_H_THE_HAND_OF_FATE)) && !player->GetQuestObjectiveData(QUEST_H_THE_HAND_OF_FATE, 0))
+       // if (!HasPlayer(player->GetGUID()) && (player->HasQuest(QUEST_H_THE_HAND_OF_FATE)) && !player->GetQuestObjectiveData(QUEST_H_THE_HAND_OF_FATE, 0))
         {
             m_playerGUID = player->GetGUID();
             AddPlayer();
@@ -446,7 +452,7 @@ public:
     {
         npc_lightforged_beacon_122045AI(Creature* creature) : ScriptedAI(creature) {}
 
-        void OnSpellClick(Unit* who, bool& /*result*/) override
+        void OnSpellClick(Unit* who, bool& /*result*/) 
         {
 
             if (!who || !who->IsInWorld())
@@ -515,7 +521,7 @@ public:
         {
             //TC_LOG_ERROR("server.worldserver", "QUEST_INTO_THE_NIGHT OnGossipHello ");
             ClearGossipMenuFor(player);
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_VEREESA_READY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+          //  AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_VEREESA_READY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             SendGossipMenuFor(player, NPC_TEXT_TO_ARGUS, creature->GetGUID());
         }
         else
@@ -528,7 +534,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) 
     {
         if (!player)
             return false;
@@ -582,7 +588,7 @@ public:
             if (!player)
                 return;
 
-            if (player->HasQuest(QUEST_LIGHTS_EXODUS))
+           // if (player->HasQuest(QUEST_LIGHTS_EXODUS))
             {
                 if (!Intr)
                 {
@@ -597,7 +603,7 @@ public:
                     events.ScheduleEvent(EVENT_TALK_01, 2s);
                 }
             }
-            if (player->HasQuest(QUEST_THE_VINDICAAR))
+           // if (player->HasQuest(QUEST_THE_VINDICAAR))
             {
                 if (!NearIntr3)
                 {
@@ -607,7 +613,7 @@ public:
                 }
             }
 
-            if (player->HasQuest(QUEST_INTO_THE_NIGHT))
+           // if (player->HasQuest(QUEST_INTO_THE_NIGHT))
             {
                 if (!NearIntr2)
                 {
@@ -666,10 +672,10 @@ public:
                     if (Creature* illidan_stormrage = me->FindNearestCreature(NPC_ILLIDAN_STORMRAGE_120978, me->GetVisibilityRange()))
                     {
 
-                        illidan_stormrage->GetScheduler().Schedule(1s, 2s, [illidan_stormrage](TaskContext context)
+                      //  illidan_stormrage->GetScheduler().Schedule(1s, 2s, [illidan_stormrage](TaskContext context)
                         {
                             illidan_stormrage->AI()->Talk(TALK_01);///???????????????????????????????
-                        });
+                        };
                     }
                     events.ScheduleEvent(EVENT_TALK_02, 3s);
                     events.ScheduleEvent(EVENT_TALK_02, 3s);
@@ -700,24 +706,24 @@ public:
                     if (Creature* lothraxion = me->FindNearestCreature(NPC_LOTHRAXION_121261, me->GetVisibilityRange()))
                     {
 
-                        lothraxion->GetScheduler().Schedule(1s, 2s, [lothraxion](TaskContext context)
+                       // lothraxion->GetScheduler().Schedule(1s, 2s, [lothraxion](TaskContext context)
                         {
                             lothraxion->AI()->Talk(SAY_EVENT);///???????????????????????????
-                        });
+                        };
                     }
 
-                    velen->GetScheduler().Schedule(2s, 3s, [velen](TaskContext context)
+                   // velen->GetScheduler().Schedule(2s, 3s, [velen](TaskContext context)
                     {
                         velen->AI()->Talk(TALK_06);///??????????????,???????,???????,?????
-                    });
+                    };
                     //?????? talk
                     if (Creature* grand_artificer_romuul = me->FindNearestCreature(NPC_GRAND_ARTIFICER_ROMUUL_121263, me->GetVisibilityRange()))
                     {
 
-                        grand_artificer_romuul->GetScheduler().Schedule(3s, 4s, [grand_artificer_romuul](TaskContext context)
+                       // grand_artificer_romuul->GetScheduler().Schedule(3s, 4s, [grand_artificer_romuul](TaskContext context)
                         {
                             grand_artificer_romuul->AI()->Talk(SAY_EVENT);///??,????????
-                        });
+                        };
                     }
                     break;
                 case EVENT_TALK_08:
@@ -760,14 +766,15 @@ public:
 
     struct npc_light_crystal_122052AI : public ScriptedAI
     {
-        npc_light_crystal_122052AI(Creature* creature) : ScriptedAI(creature) { events.Reset(); }
+        npc_light_crystal_122052AI(Creature* creature) : ScriptedAI(creature)/*events.Reset()*/
 
-        void OnSpellClick(Unit* who, bool& /*result*/) override
+
+            // void OnSpellClick(Unit* who, bool& /*result*/)
         {
-            if (!who || !who->IsInWorld())
-                return;
-            if (!who->ToPlayer())
-                return;
+            // if (!who || !who->IsInWorld())
+            return;
+            // if (!who->ToPlayer())
+            return;
             //quest accept ?? ??????,  . ????????
             //3s ?? ???????????????????????.
             //11s ?? ?????????????????.????????????.
@@ -776,32 +783,32 @@ public:
             //TC_LOG_ERROR("server.worldserver", "OnSpellClick");
             if (Creature* prophet_velen = me->FindNearestCreature(NPC_PROPHET_VELEN_120977, me->GetVisibilityRange()))
             {
-                prophet_velen->GetScheduler().Schedule(1s, 2s, [prophet_velen](TaskContext context)
+                //  prophet_velen->GetScheduler().Schedule(1s, 2s, [prophet_velen](TaskContext context)
                 {
                     prophet_velen->AI()->DoAction(4);
-                });
+                };
             }
-            events.ScheduleEvent(EVENT_UPDATE_PHASES, 13000);
+            // events.ScheduleEvent(EVENT_UPDATE_PHASES, 13000);
         }
 
         void UpdateAI(uint32 diff) override
         {
-            events.Update(diff);
-            switch (events.ExecuteEvent())
+            // events.Update(diff);
+           //  switch (events.ExecuteEvent())
             {
-            case EVENT_UPDATE_PHASES:
+                // case EVENT_UPDATE_PHASES:
                 std::list<Player*> players;
                 me->GetPlayerListInGrid(players, me->GetVisibilityRange());
                 for (std::list<Player*>::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 {
-                    if ((*itr)->ToPlayer()->GetQuestStatus(QUEST_THE_VINDICAAR) == QUEST_STATUS_INCOMPLETE && (*itr)->ToPlayer()->GetQuestObjectiveData(QUEST_THE_VINDICAAR, 2))
+                    //  if ((*itr)->ToPlayer()->GetQuestStatus(QUEST_THE_VINDICAAR) == QUEST_STATUS_INCOMPLETE && (*itr)->ToPlayer()->GetQuestObjectiveData();//(QUEST_THE_VINDICAAR, 2))
                     {
                         TC_LOG_ERROR("server.worldserver", "EVENT_UPDATE_PHASES");
                         PhasingHandler::AddPhase(*itr, DB_PHASE_AFTER_THE_VINDICAAR, true);
                         PhasingHandler::RemovePhase(*itr, DB_PHASE_THE_VINDICAAR, true);
                     }
                 }
-                break;
+                //  break;
             }
 
         }
@@ -847,7 +854,7 @@ public:
                 return;
 
 
-            if (player->HasQuest(QUEST_INTO_THE_NIGHT))
+           // if (player->HasQuest(QUEST_INTO_THE_NIGHT))
             {
                 if (!Intr)
                 {
@@ -905,24 +912,24 @@ public:
                     if (Creature* illidan_stormrage = me->FindNearestCreature(NPC_ILLIDAN_STORMRAGE_126408, me->GetVisibilityRange()))
                     {
 
-                        illidan_stormrage->GetScheduler().Schedule(1s, 2s, [illidan_stormrage](TaskContext context)
+                       // illidan_stormrage->GetScheduler().Schedule(1s, 2s, [illidan_stormrage](TaskContext context)
                         {
                             illidan_stormrage->AI()->Talk(TALK_01);///????????????--???????
-                        });
+                        };
                     }
 
-                    velen->GetScheduler().Schedule(2s, 3s, [velen](TaskContext context)
+                  //  velen->GetScheduler().Schedule(2s, 3s, [velen](TaskContext context)
                     {
                         velen->AI()->Talk(TALK_01);///????????????????!???,??????!
-                    });
+                    };
                     //?????? talk
                     if (Creature* grand_artificer_romuul = me->FindNearestCreature(NPC_GRAND_ARTIFICER_ROMUUL_121263, me->GetVisibilityRange()))
                     {
 
-                        grand_artificer_romuul->GetScheduler().Schedule(3s, 4s, [grand_artificer_romuul](TaskContext context)
+                       // grand_artificer_romuul->GetScheduler().Schedule(3s, 4s, [grand_artificer_romuul](TaskContext context)
                         {
                             grand_artificer_romuul->AI()->Talk(TALK_02);///??,????????
-                        });
+                        };
                     }
                     break;
                 case EVENT_TALK_02:
@@ -952,24 +959,24 @@ public:
                     if (Creature* lothraxion = me->FindNearestCreature(NPC_LOTHRAXION_121261, me->GetVisibilityRange()))
                     {
 
-                        lothraxion->GetScheduler().Schedule(1s, 2s, [lothraxion](TaskContext context)
+                       // lothraxion->GetScheduler().Schedule(1s, 2s, [lothraxion](TaskContext context)
                         {
                             lothraxion->AI()->Talk(SAY_EVENT);///???????????????????????????
-                        });
+                        };
                     }
 
-                    velen->GetScheduler().Schedule(2s, 3s, [velen](TaskContext context)
+                  //  velen->GetScheduler().Schedule(2s, 3s, [velen](TaskContext context)
                     {
                         velen->AI()->Talk(TALK_06);///??????????????,???????,???????,?????
-                    });
+                    };
                     //?????? talk
                     if (Creature* grand_artificer_romuul = me->FindNearestCreature(NPC_GRAND_ARTIFICER_ROMUUL_121263, me->GetVisibilityRange()))
                     {
 
-                        grand_artificer_romuul->GetScheduler().Schedule(3s, 4s, [grand_artificer_romuul](TaskContext context)
+                       // grand_artificer_romuul->GetScheduler().Schedule(3s, 4s, [grand_artificer_romuul](TaskContext context)
                         {
                             grand_artificer_romuul->AI()->Talk(SAY_EVENT);///??,????????
-                        });
+                        };
                     }
                     break;
                 case EVENT_TALK_08:
@@ -981,24 +988,24 @@ public:
                     if (Creature* illidan_stormrage = me->FindNearestCreature(NPC_ILLIDAN_STORMRAGE_126408, me->GetVisibilityRange()))
                     {
 
-                        illidan_stormrage->GetScheduler().Schedule(1s, 2s, [illidan_stormrage](TaskContext context)
+                      //  illidan_stormrage->GetScheduler().Schedule(1s, 2s, [illidan_stormrage](TaskContext context)
                         {
                             illidan_stormrage->AI()->Talk(TALK_01);///????????????--???????
-                        });
+                        };
                     }
 
-                    velen->GetScheduler().Schedule(2s, 3s, [velen](TaskContext context)
+                  //  velen->GetScheduler().Schedule(2s, 3s, [velen](TaskContext context)
                     {
                         velen->AI()->Talk(TALK_08);///????????????????!???,??????!
-                    });
+                    };
                     //?????? talk
                     if (Creature* grand_artificer_romuul = me->FindNearestCreature(NPC_GRAND_ARTIFICER_ROMUUL_121263, me->GetVisibilityRange()))
                     {
 
-                        grand_artificer_romuul->GetScheduler().Schedule(3s, 4s, [grand_artificer_romuul](TaskContext context)
+                       // grand_artificer_romuul->GetScheduler().Schedule(3s, 4s, [grand_artificer_romuul](TaskContext context)
                         {
                             grand_artificer_romuul->AI()->Talk(TALK_02);///??,????????
-                        });
+                        };
                     }
                     break;
                 }
@@ -1035,30 +1042,30 @@ struct npc_imp_mother_laglath : public ScriptedAI
 
     void Reset() override
     {
-        me->GetScheduler().SetValidator([this]
+      //  me->GetScheduler().SetValidator([this]
         {
-            return !me->HasUnitState(UNIT_STATE_CASTING);
-        });
+         //   return !me->HasUnitState(UNIT_STATE_CASTING);
+        };
 
-        me->GetScheduler().Schedule(20s, [](TaskContext context)
+       // me->GetScheduler().Schedule(20s, [](TaskContext context)
         {
-            GetContextUnit()->CastSpell(nullptr, SPELL_MATRON_RAGE, false);
-            context.Repeat();
-        })
-            .Schedule(3s, [this](TaskContext context)
+         //   GetContextUnit()->CastSpell(nullptr, SPELL_MATRON_RAGE, false);
+           // context.Repeat();
+        }
+           // .Schedule(3s, [this](TaskContext context)
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                GetContextUnit()->CastSpell(target, SPELL_WRATH_BOLT, false);
-            context.Repeat();
-        })
-            .Schedule(1s, [this](TaskContext context)
+         //   if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+           //     GetContextUnit()->CastSpell(target, SPELL_WRATH_BOLT, false);
+           // context.Repeat();
+        }
+           // .Schedule(1s, [this](TaskContext context)
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0))
-                if (me->IsWithinCombatRange(target, 5.f))
-                    GetContextUnit()->CastSpell(target, SPELL_ELDER_WRATH, false);
+            //if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0))
+              //  if (me->IsWithinCombatRange(target, 5.f))
+                //    GetContextUnit()->CastSpell(target, SPELL_ELDER_WRATH, false);
 
-            context.Repeat();
-        });
+          //  context.Repeat();
+        };
     }
 };
 
@@ -1067,7 +1074,7 @@ class npc_quest_48560 : public CreatureScript
 public:
     npc_quest_48560() : CreatureScript("npc_quest_48560") { }
 
-    bool OnQuestReward(Player* player, Creature* creature, const Quest *_Quest, uint32 /*slot*/) override
+    bool OnQuestReward(Player* player, Creature* creature, const Quest *_Quest, uint32 /*slot*/) 
     {
         if (_Quest->GetQuestId() == 48560)
         {

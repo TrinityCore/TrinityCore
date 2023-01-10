@@ -137,7 +137,7 @@ public:
         DATA_DO_SOMETHING = 21,
     };
 
-    bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* quest) override
+    bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* quest) 
     {
         if (quest->GetQuestId() == QUEST_INTO_THE_FRAY)
         {
@@ -168,7 +168,7 @@ public:
             switch (id)
             {
             case DATA_DO_SOMETHING:
-                _events.ScheduleEvent(EVENT_SAY_HURRY, 300);
+               // _events.ScheduleEvent(EVENT_SAY_HURRY, 300);
                 break;
             default:
                 break;
@@ -182,7 +182,7 @@ public:
                 switch (id)
                 {
                 case 6:
-                    _events.ScheduleEvent(EVENT_DESPAWN, 1000);
+                  //  _events.ScheduleEvent(EVENT_DESPAWN, 1000);
                     break;
                 default:
                     break;
@@ -200,11 +200,11 @@ public:
                 {
                 case EVENT_SAY_HURRY:
                     me->AI()->Talk(1);
-                    _events.ScheduleEvent(EVENT_TRANSFORM, 1000);
+                 //   _events.ScheduleEvent(EVENT_TRANSFORM, 1000);
                     break;
                 case EVENT_TRANSFORM:
                     DoCast(me, SPELL_TRANSFORM_KHADGAR_RAVEN, true);
-                    _events.ScheduleEvent(EVENT_MOVE_CAMP, 300);
+                   // _events.ScheduleEvent(EVENT_MOVE_CAMP, 300);
                     break;
                 case EVENT_MOVE_CAMP:
                     me->GetMotionMaster()->MovePath(9332600, false);
@@ -246,34 +246,34 @@ struct questnpc_soul_gem : public ScriptedAI
         /*if (!me->GetOwner() || !me->GetOwner()->IsPlayer())
             return;*/
 
-        std::list<Creature*> targets = me->FindAllCreaturesInRange(100.0f);
+      //  std::list<Creature*> targets = me->FindAllCreaturesInRange(100.0f);
 
         if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
         {
-            for (auto itr : targets)
+           // for (auto itr : targets)
             {
-                if (itr->isDead())
+              //  if (itr->isDead())
                 {
-                    switch (itr->GetEntry())
+                  //  switch (itr->GetEntry())
                     {
-                    case 90230:
-                    case 90241:
-                    case 93619:
-                    case 101943:
-                        me->CastSpell(itr, 178753, true);
-                        me->CastSpell(itr, 178752, true);
-                        itr->DespawnOrUnsummon();
+                 //   case 90230:
+                   // case 90241:
+                   // case 93619:
+                   // case 101943:
+                     //   me->CastSpell(itr, 178753, true);
+                       // me->CastSpell(itr, 178752, true);
+                       // itr->DespawnOrUnsummon();
                         player->KilledMonsterCredit(90298, ObjectGuid::Empty);
-                        break;
-                    default:
-                        break;
+                       // break;
+                    //default:
+                      //  break;
                     }
                 }
             }
         }
     }
 
-    void IsSummonedBy(Unit* summoner) override
+    void IsSummonedBy(Unit* summoner) 
     {
         if (Player* player = summoner->ToPlayer()) {
             _playerGUID = player->GetGUID();
@@ -298,26 +298,26 @@ struct questnpc_mana_drained_whelpling : public ScriptedAI
 {
     questnpc_mana_drained_whelpling(Creature* creature) : ScriptedAI(creature) { }
 
-    void OnSpellClick(Unit* /*clicker*/, bool& /*result*/) override
+    void OnSpellClick(Unit* /*clicker*/, bool& /*result*/) 
     {
-        me->GetScheduler().Schedule(1s, [](TaskContext context)
+       // me->GetScheduler().Schedule(1s, [](TaskContext context)
         {
-            Creature* crea = GetContextCreature();
-            crea->UpdateEntry(NPC_AZUREWING_WHELPLING);
-            crea->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-            crea->SetStandState(UnitStandStateType::UNIT_STAND_STATE_STAND);
-        });
+         //   Creature* crea = GetContextCreature();
+           // crea->UpdateEntry(NPC_AZUREWING_WHELPLING);
+           // crea->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+           // crea->SetStandState(UnitStandStateType::UNIT_STAND_STATE_STAND);
+        };
 
-        me->GetScheduler().Schedule(3s, [](TaskContext context)
+       // me->GetScheduler().Schedule(3s, [](TaskContext context)
         {
-            GetContextCreature()->SetCanFly(true);
-            GetContextCreature()->GetMotionMaster()->MoveTakeoff(0, Position(1162.338135f, 6816.301270f, 236.106567f));
-        });
+         //   GetContextCreature()->SetCanFly(true);
+           // GetContextCreature()->GetMotionMaster()->MoveTakeoff(0, Position(1162.338135f, 6816.301270f, 236.106567f));
+        };
 
-        me->GetScheduler().Schedule(10s, [](TaskContext context)
+       // me->GetScheduler().Schedule(10s, [](TaskContext context)
         {
-            GetContextCreature()->DisappearAndDie();
-        });
+         //   GetContextCreature()->DisappearAndDie();
+        };
     }
 };
 
@@ -398,13 +398,13 @@ class npc_prince_farondis : public CreatureScript
 public:
     npc_prince_farondis() : CreatureScript("npc_prince_farondis") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
+    bool OnGossipHello(Player* player, Creature* creature) 
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
         if (player->GetQuestStatus(37467) == QUEST_STATUS_INCOMPLETE) // The Walk of Shame
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Please, show me where the Tidestone lies.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+           // AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Please, show me where the Tidestone lies.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
         SendGossipMenuFor(player, 26247, creature->GetGUID());
 
@@ -412,16 +412,16 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) 
     {
         ClearGossipMenuFor(player);
 
         switch (action)
         {
         case GOSSIP_ACTION_INFO_DEF + 1:
-            if (Creature* prince = creature->SummonCreature(NPC_PRINCE_FARONDIS, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000))
+          //  if (Creature* prince = creature->SummonCreature(NPC_PRINCE_FARONDIS, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000))
             {
-                PhasingHandler::AddPhase(prince, 174, true);
+               // PhasingHandler::AddPhase(prince, 174, true);
                 PhasingHandler::AddPhase(player, 174, true);
             }
             break;
@@ -458,13 +458,13 @@ public:
             playerGuid = ObjectGuid::Empty;
         }
 
-        void IsSummonedBy(Unit* /*me*/) override
+        void IsSummonedBy(Unit* /*me*/) 
         {
             wp_reached = false;
             me->SetWalk(false);
             me->GetMotionMaster()->MovePoint(count, PrinceFarondisWaypoints[count]);
             me->SetSpeedRate(MOVE_RUN, 1.0f);
-            events.ScheduleEvent(EVENT_WAYPOINT_REACHED, 1000);
+         //   events.ScheduleEvent(EVENT_WAYPOINT_REACHED, 1000);
             if (Player* player = me->SelectNearestPlayer(10.0f))
                 playerGuid = player->GetGUID();
         }
@@ -481,19 +481,19 @@ public:
                 break;
 
             case 10:
-                if (Creature* summon = me->SummonCreature(NPC_DROWNED_MAGISTER, -120.073f, 6400.717f, 6.92f, 5.64f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
+               // if (Creature* summon = me->SummonCreature(NPC_DROWNED_MAGISTER, -120.073f, 6400.717f, 6.92f, 5.64f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
                 {
-                    EnterCombat(summon);
-                    me->SetInCombatWith(summon);
-                    summon->SetMaxHealth(1009570);
-                    summon->SetHealth(1009570);
-                    summon->SetFaction(14);
-                    me->AI()->AttackStart(summon);
-                    summon->GetMotionMaster()->MoveChase(me, 20.0f, summon->GetOrientation());
-                    targetGuid = summon->GetGUID();
-                    summon->Say("Farondis! You traitor! You brought this upon us!", LANG_UNIVERSAL);
+       //             EnterCombat(summon);
+                 //   me->SetInCombatWith(summon);
+                   // summon->SetMaxHealth(1009570);
+                   // summon->SetHealth(1009570);
+                  //  summon->SetFaction(14);
+                  //  me->AI()->AttackStart(summon);
+                  //  summon->GetMotionMaster()->MoveChase(me, 20.0f, summon->GetOrientation());
+                  //  targetGuid = summon->GetGUID();
+                  //  summon->Say("Farondis! You traitor! You brought this upon us!", LANG_UNIVERSAL);
                     me->GetMotionMaster()->Clear();
-                    me->SetFacingToObject(summon, true);
+                   // me->SetFacingToObject(summon, true);
                 }
                 break;
 
@@ -502,19 +502,19 @@ public:
                 break;
 
             case 26:
-                if (Creature* summon = me->SummonCreature(NPC_UNBREATHING_SOUL, -63.1638f, 6379.03f, 1.200768f, 0.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
+              //  if (Creature* summon = me->SummonCreature(NPC_UNBREATHING_SOUL, -63.1638f, 6379.03f, 1.200768f, 0.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
                 {
-                    EnterCombat(summon);
-                    me->SetInCombatWith(summon);
-                    summon->SetMaxHealth(1196528);
-                    summon->SetHealth(1196528);
-                    summon->SetFaction(14);
-                    me->AI()->AttackStart(summon);
-                    summon->GetMotionMaster()->MoveChase(me, 20.0f, summon->GetOrientation());
-                    targetGuid2 = summon->GetGUID();
-                    summon->Yell("DIE... FARONDIS....", LANG_UNIVERSAL);
+                //    EnterCombat(summon);
+                  //  me->SetInCombatWith(summon);
+                  //  summon->SetMaxHealth(1196528);
+                  //  summon->SetHealth(1196528);
+                  //  summon->SetFaction(14);
+                  //  me->AI()->AttackStart(summon);
+                 //   summon->GetMotionMaster()->MoveChase(me, 20.0f, summon->GetOrientation());
+                  //  targetGuid2 = summon->GetGUID();
+                  //  summon->Yell("DIE... FARONDIS....", LANG_UNIVERSAL);
                     me->GetMotionMaster()->Clear();
-                    me->SetFacingToObject(summon, true);
+                  //  me->SetFacingToObject(summon, true);
                 }
                 break;
 
@@ -544,12 +544,12 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) 
         {
             if (!paused)
             {
-                events.ScheduleEvent(EVENT_FIREBALL, 1000);
-                events.ScheduleEvent(EVENT_METEOR_STORM, 12000);
+              //  events.ScheduleEvent(EVENT_FIREBALL, 1000);
+               // events.ScheduleEvent(EVENT_METEOR_STORM, 12000);
                 paused = true;
             }
         }
@@ -565,7 +565,7 @@ public:
                 if (Unit* target = me->GetVictim())
                     me->CastSpell(target, SPELL_FIREBALL, true);
 
-                events.ScheduleEvent(EVENT_FIREBALL, 5000);
+               // events.ScheduleEvent(EVENT_FIREBALL, 5000);
                 break;
             }
 
@@ -575,7 +575,7 @@ public:
                     me->CastSpell(target, SPELL_METEOR_STORM, true);
 
                 me->GetSpellHistory()->ResetAllCooldowns();
-                events.ScheduleEvent(EVENT_METEOR_STORM, 2000);
+               // events.ScheduleEvent(EVENT_METEOR_STORM, 2000);
                 break;
             }
 
@@ -621,7 +621,7 @@ public:
                     me->SetSpeedRate(MOVE_RUN, 1.0f);
                 }
 
-                events.ScheduleEvent(EVENT_WAYPOINT_REACHED, 1000);
+              //  events.ScheduleEvent(EVENT_WAYPOINT_REACHED, 1000);
                 break;
             }
             }
@@ -646,7 +646,7 @@ class go_sabotaged_portal_stabilizer : public GameObjectScript
 public:
     go_sabotaged_portal_stabilizer() : GameObjectScript("go_sabotaged_portal_stabilizer") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    bool OnGossipHello(Player* player, GameObject* go) 
     {
         player->CastSpell(go, 6478, true);
         player->KillCreditGO(250361, go->GetGUID());
@@ -757,7 +757,7 @@ class npc_quest_43521 : public CreatureScript
 public:
     npc_quest_43521() : CreatureScript("npc_quest_43521") { }
 
-    bool OnQuestReward(Player* player, Creature* creature, const Quest *_Quest, uint32 /*slot*/) override
+    bool OnQuestReward(Player* player, Creature* creature, const Quest *_Quest, uint32 /*slot*/) 
     {
         if (_Quest->GetQuestId() == 43521)
         {
@@ -786,7 +786,7 @@ class npc_quest_43520 : public CreatureScript
 public:
     npc_quest_43520() : CreatureScript("npc_quest_43520") { }
 
-    bool OnQuestReward(Player* player, Creature* creature, const Quest *_Quest, uint32 /*slot*/) override
+    bool OnQuestReward(Player* player, Creature* creature, const Quest *_Quest, uint32 /*slot*/) 
     {
         if (_Quest->GetQuestId() == 43520)
         {
@@ -831,7 +831,7 @@ class spell_rally_the_nightwatchers : public SpellScript
         OnEffectHitTarget += SpellEffectFn(spell_rally_the_nightwatchers::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
-/*
+
 class ps_quest_rally_the_nightwatchers : public PlayerScript
 {
 public:
@@ -843,28 +843,28 @@ public:
             player->CastSpell(player, 210554, true);
     }
 
-    void OnUpdateArea(Player* player, Area* newArea, Area* /*oldArea*///)
-   /*{
-        switch (newArea->GetId())
-        {
-        case 7357:
-        case 7355:
-            if (player->HasQuest(42108))
-                player->CastSpell(player, 210554, true);
-            break;
-        default:
-            break;
-        }
-    }
+      // void OnUpdateArea(Player* player, Area* newArea, Area* /*oldArea*///)
+      //{
+      //  switch (newArea->GetId())
+       // {
+      //  case 7357:
+       // case 7355:
+         //   if (player->HasQuest(42108))
+           //     player->CastSpell(player, 210554, true);
+           // break;
+        //default:
+          //  break;
+        //}
+   // }
 };
-*/
+
 //QQQ
 class merayl_q42159 : public CreatureScript
 {
 public:
     merayl_q42159(const std::string str) : CreatureScript(str.c_str()) { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) 
     {
         ClearGossipMenuFor(player);
         if (action == GOSSIP_ACTION_INFO_DEF)
@@ -879,7 +879,7 @@ public:
                     return true;
             }
             creature->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-            creature->RemoveUnitFlag(UNIT_FLAG_UNK_15);
+           // creature->RemoveUnitFlag(UNIT_FLAG_UNK_15);
 
             player->CastSpell(creature, SPELL_DUEL, false);
             player->CastSpell(player, SPELL_DUEL_FLAG, true);
@@ -887,7 +887,7 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
+    bool OnGossipHello(Player* player, Creature* creature) 
     {
         if ((player->GetQuestStatus(QUEST_42159) == QUEST_STATUS_INCOMPLETE ||
             player->GetQuestStatus(QUEST_42159) == QUEST_STATUS_INCOMPLETE)
@@ -899,7 +899,7 @@ public:
             if (player->IsInCombat() || creature->IsInCombat())
                 return true;
 
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ACCEPT_DUEL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+          //  AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ACCEPT_DUEL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
             SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
         }
         return true;
@@ -929,7 +929,7 @@ public:
             me->RestoreFaction();
             CombatAI::Reset();
 
-            me->AddUnitFlag(UNIT_FLAG_UNK_15);
+           // me->AddUnitFlag(UNIT_FLAG_UNK_15);
 
             m_uiDuelerGUID.Clear();
             m_uiDuelTimer = 5000;
@@ -937,7 +937,7 @@ public:
             m_bIsDuelInProgress = false;
         }
 
-        void SpellHit(Unit* pCaster, const SpellInfo* spell) override
+        void SpellHit(Unit* pCaster, const SpellInfo* spell)
         {
             if (!m_bIsDuelInProgress && spell->Id == SPELL_DUEL)
             {
@@ -946,7 +946,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage/*, DamageEffectType dmgType*/) override
+        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage/*, DamageEffectType dmgType*/) 
         {
             if (m_bIsDuelInProgress && pDoneBy->IsControlledByPlayer())
             {
@@ -1218,7 +1218,7 @@ class spell_Wand_Practice : public SpellScript
         OnEffectHitTarget += SpellEffectFn(spell_Wand_Practice::HandleDummy, EFFECT_0, SPELL_EFFECT_CREATE_AREATRIGGER);
     }
 };
-/*
+
 class ps_quest_Wandering : public PlayerScript
 {
 public:
@@ -1230,19 +1230,19 @@ public:
             player->CastSpell(player, 212782, true);
     }
 
-    void OnUpdateArea(Player* player, Area* newArea, Area* /*oldArea*///)
-   /* {
-        switch (newArea->GetId())
-        {
-        case 7358:
-            if (player->HasQuest(42370))
-                player->CastSpell(player, 212782, true);
-            break;
-        default:
-            break;
-        }
-    }
-}; */
+    //void OnUpdateArea(Player* player, Area* newArea, Area* /*oldArea*///)
+   //{
+      //  switch (newArea->GetId())
+       // {
+       // case 7358:
+         //   if (player->HasQuest(42370))
+           //     player->CastSpell(player, 212782, true);
+           // break;
+        //default:
+          //  break;
+        //}
+    //}
+}; 
 
 // 89978
 class npc_senegosa_89978 : public CreatureScript
@@ -1277,7 +1277,7 @@ class go_pylon_mana245572 : public GameObjectScript
 public:
     go_pylon_mana245572() : GameObjectScript("go_pylon_mana245572") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    bool OnGossipHello(Player* player, GameObject* go) 
     {
         go->UseDoorOrButton();
         if (player->GetQuestStatus(37860) == QUEST_STATUS_INCOMPLETE)
@@ -1295,7 +1295,7 @@ class go_pylon_mana245573 : public GameObjectScript
 public:
     go_pylon_mana245573() : GameObjectScript("go_pylon_mana245573") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    bool OnGossipHello(Player* player, GameObject* go) 
     {
         go->UseDoorOrButton();
         if (player->GetQuestStatus(37860) == QUEST_STATUS_INCOMPLETE)
@@ -1313,7 +1313,7 @@ class go_pylon_mana239959 : public GameObjectScript
 public:
     go_pylon_mana239959() : GameObjectScript("go_pylon_mana239959") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    bool OnGossipHello(Player* player, GameObject* go) 
     {
         go->UseDoorOrButton();
         if (player->GetQuestStatus(37860) == QUEST_STATUS_INCOMPLETE)
@@ -1331,7 +1331,7 @@ class go_pylon_mana245574 : public GameObjectScript
 public:
     go_pylon_mana245574() : GameObjectScript("go_pylon_mana245574") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    bool OnGossipHello(Player* player, GameObject* go) 
     {
         go->UseDoorOrButton();
         if (player->GetQuestStatus(37860) == QUEST_STATUS_INCOMPLETE)
@@ -1349,7 +1349,7 @@ class go_fel_power_run244706 : public GameObjectScript
 public:
     go_fel_power_run244706() : GameObjectScript("go_fel_power_run244706") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    bool OnGossipHello(Player* player, GameObject* go) 
     {
         go->UseDoorOrButton();
         if (player->GetQuestStatus(39940) == QUEST_STATUS_INCOMPLETE)
@@ -1409,16 +1409,16 @@ public:
             }
             if (Player* player = who->ToPlayer())
             {
-                if (player->GetQuestObjectiveData(42271, 4))
+               // if (player->GetQuestObjectiveData())
                     if (Creature* Agapant = me->FindNearestCreature(NPC_AGAPANT, 20.0f, true))
                     {
                         if (!say)
                         {
                             say = true;
-                            Agapant->GetScheduler().Schedule(2s, [Agapant](TaskContext context)
+                           // Agapant->GetScheduler().Schedule(2s, [Agapant](TaskContext context)
                             {
                                 Agapant->AI()->Talk(0);
-                            });
+                            };
                         }
                     }
             }
@@ -1470,13 +1470,13 @@ struct mana_drained_90880 : public ScriptedAI
         {
             if (player->GetQuestStatus(42271) == QUEST_STATUS_INCOMPLETE)
             {
-                if (player->GetQuestObjectiveData(42271, 3))
+                //if (player->GetQuestObjectiveData(42271))
 
                 {
                     me->SetAIAnimKitId(4061);
                     player->KilledMonsterCredit(90880);
                     me->SetStandState(UnitStandStateType::UNIT_STAND_STATE_STAND);
-                    me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                  //  me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 }
             }
         }
@@ -1489,7 +1489,7 @@ struct mana_drained_90880 : public ScriptedAI
             {
                 if (player->IsInDist(me, 15.0f))
                 {
-                    if (player->GetQuestObjectiveData(42271, 4))
+                   // if (player->GetQuestObjectiveData(42271, 4))
                     {
                         if (!me->FindNearestCreature(900880, 70.0f))
                         {
@@ -1502,9 +1502,9 @@ struct mana_drained_90880 : public ScriptedAI
             }
             if (player->GetQuestStatus(42271) == QUEST_STATUS_INCOMPLETE)
             {
-                if (player->GetQuestObjectiveData(42271, 3))
+               // if (player->GetQuestObjectiveData(42271, 3))
                 {
-                    me->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
+                 //   me->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
                 }
             }
         }
@@ -1521,13 +1521,13 @@ struct mana_drained_900880 : public ScriptedAI
         {
             if (player->GetQuestStatus(42271) == QUEST_STATUS_INCOMPLETE)
             {
-                if (player->GetQuestObjectiveData(42271, 4))
+              //  if (player->GetQuestObjectiveData(42271, 4))
 
                 {
                     me->SetAIAnimKitId(4061);
                     player->KilledMonsterCredit(122292);
                     me->SetStandState(UnitStandStateType::UNIT_STAND_STATE_STAND);
-                    me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                  //  me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 }
             }
         }
@@ -1538,10 +1538,10 @@ struct mana_drained_900880 : public ScriptedAI
         {
             if (player->GetQuestStatus(42271) == QUEST_STATUS_INCOMPLETE)
             {
-                if (player->GetQuestObjectiveData(42271, 4))
+               // if (player->GetQuestObjectiveData(42271, 4))
                 {
                     {
-                        me->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
+                 //       me->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
                     }
                 }
             }
@@ -1606,7 +1606,7 @@ class npc_demon_89398 : public CreatureScript
 public:
     npc_demon_89398() : CreatureScript("npc_demon_89398") { }
 
-    bool OnGossipHello(Player* player, Creature* Creature) override
+    bool OnGossipHello(Player* player, Creature* Creature) 
     {
         if (player->GetQuestStatus(37660) == QUEST_STATUS_INCOMPLETE)
         {
@@ -1631,7 +1631,7 @@ public:
             {
                 if (player->GetQuestStatus(37660) == QUEST_STATUS_INCOMPLETE)
                 {
-                    player->SummonGameObject(239332, -163.918f, 6917.27f, 12.6521f, 5.33958f, QuaternionData(), 0);
+                  //  player->SummonGameObject(239332, -163.918f, 6917.27f, 12.6521f, 5.33958f, QuaternionData(), 0);
                 }
             }
         }
@@ -1656,7 +1656,7 @@ public:
             {
                 if (player->GetQuestStatus(37660) == QUEST_STATUS_INCOMPLETE)
                 {
-                    player->SummonGameObject(237017, -157.634f, 6904.87f, 13.3225f, 5.30559f, QuaternionData(), 0);
+                  //  player->SummonGameObject(237017, -157.634f, 6904.87f, 13.3225f, 5.30559f, QuaternionData(), 0);
                 }
             }
         }
@@ -1687,7 +1687,7 @@ class go_soul_gem239338 : public GameObjectScript
 public:
     go_soul_gem239338() : GameObjectScript("go_soul_gem239338") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    bool OnGossipHello(Player* player, GameObject* go) 
     {
         go->UseDoorOrButton();
         if (player->GetQuestStatus(37660) == QUEST_STATUS_INCOMPLETE)
@@ -1705,7 +1705,7 @@ class go_soul_gem239332 : public GameObjectScript
 public:
     go_soul_gem239332() : GameObjectScript("go_soul_gem239332") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    bool OnGossipHello(Player* player, GameObject* go) 
     {
         go->UseDoorOrButton();
         if (player->GetQuestStatus(37660) == QUEST_STATUS_INCOMPLETE)
@@ -1724,7 +1724,7 @@ class go_soul_gem237017 : public GameObjectScript
 public:
     go_soul_gem237017() : GameObjectScript("go_soul_gem237017") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    bool OnGossipHello(Player* player, GameObject* go) 
     {
         go->UseDoorOrButton();
         if (player->GetQuestStatus(37660) == QUEST_STATUS_INCOMPLETE)
@@ -1784,7 +1784,7 @@ struct npc_quest_1970197 : public ScriptedAI
             {
                 if (player->IsInDist(me, 25.0f))
                 {
-                    if (player->GetQuestObjectiveData(37660, 8))
+                   // if (player->GetQuestObjectiveData(37660, 8))
                     {
                         {
                             player->KilledMonsterCredit(89398);
@@ -1870,15 +1870,15 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* who) 
         {
             ResummonAdds = false;
-            events.RescheduleEvent(1, 3000); // 234497
+          //  events.RescheduleEvent(1, 3000); // 234497
         }
 
         void JustDied(Unit* who) override
         {
-           // if (Player* pl = me->FindNearestPlayer(50.0f))
+           //if (Player* pl = me->FindNearestPlayer(50.0f))
             {
                // pl->UpdateAchievementCriteria(CRITERIA_TYPE_SCRIPT_EVENT_2, 56893);
               //  pl->CreateConversation(4591);
@@ -1914,7 +1914,7 @@ public:
                 {
                 case 1:
                     DoCast(234497);
-                    events.RescheduleEvent(1, 3000);
+                  //  events.RescheduleEvent(1, 3000);
                     break;
                 }
             }
@@ -1951,7 +1951,7 @@ public:
 
         bool _introDone;
 
-      /*  void IsSummonedBy(Unit* summoner) override
+       void IsSummonedBy(Unit* summoner) 
         {
            // SetFlyMode(true);
            // me->AddDelayedEvent(3000, [this]() -> void
@@ -1959,14 +1959,14 @@ public:
                 me->SetReactState(REACT_PASSIVE);
                 me->GetMotionMaster()->MovePoint(1, 1436.24f + irand(-2, 2), 6172.45f + irand(-2, 2), 1.71f);
                 me->CastSpell(me, 237720);
-           // });
-        }*/
+            };
+        }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* who) 
         {
             _introDone = true;
             DoCast(237716);
-            me->Kill(me);
+           // me->Kill(me);
         }
 
         void MoveInLineOfSight(Unit* who) override
@@ -1978,7 +1978,7 @@ public:
             {
                 _introDone = true;
                 DoCast(237716);
-                me->Kill(me);
+              //  me->Kill(me);
             }
         }
 
@@ -1991,54 +1991,54 @@ public:
             {
                 _introDone = true;
                 DoCast(237716);
-                me->Kill(me);
+              //  me->Kill(me);
             }
         }
 
     };
 };
-/*
+
 // 119454 119483
 class npc_invasion_azsuna_misc : public CreatureScript
 {
-public:
-    npc_invasion_azsuna_misc() : CreatureScript("npc_invasion_azsuna_misc") { }
+  //public:
+  //  npc_invasion_azsuna_misc() : CreatureScript("npc_invasion_azsuna_misc") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) 
     {
-        return new npc_invasion_azsuna_miscAI(creature);
+    //    return new npc_invasion_azsuna_miscAI(creature);
     }
 
-    struct npc_invasion_azsuna_miscAI : ScriptedAI
-    {
-        npc_invasion_azsuna_miscAI(Creature* creature) : ScriptedAI(creature) {}
+    //struct npc_invasion_azsuna_miscAI : ScriptedAI
+    //{
+      //  npc_invasion_azsuna_miscAI(Creature* creature) : ScriptedAI(creature) {}
 
-      /*  void OnSpellClick(Unit* clicker) //override
+        void OnSpellClick(Unit* clicker) //override
         {
             if (!clicker->IsPlayer())
                 return;
 
-            me->RemoveUnitFlag(UnitFlags(UNIT_NPC_FLAG_SPELLCLICK));
+        //    me->RemoveUnitFlag(UnitFlags(UNIT_NPC_FLAG_SPELLCLICK));
 
             uint32 criteria = 0;
 
-            switch (me->GetEntry())
+          //  switch (me->GetEntry())
             {
-            case 119483:
+            //case 119483:
                 criteria = 56889;
-                break;
-            case 119454:
+              //  break;
+            //case 119454:
                 criteria = 56895;
-                break;
+              //  break;
             }
-            if (criteria)
-               // clicker->ToPlayer()->UpdateAchievementCriteria(CRITERIA_TYPE_SCRIPT_EVENT_2, 56889);
-            me->DespawnOrUnsummon(10);
+            if (criteria);
+              //  clicker->ToPlayer()->UpdateAchievementCriteria(CRITERIA_TYPE_SCRIPT_EVENT_2, 56889);
+           // me->DespawnOrUnsummon(10);
 
-     //   }
-   // };
-};
-*/
+        }
+    };
+//};
+
 // 119456 119459
 class npc_invasion_azsuna_dragons : public CreatureScript
 {
@@ -2049,7 +2049,7 @@ public:
     {
         npc_invasion_azsuna_dragonsAI(Creature* creature) : ScriptedAI(creature)
         {
-            me->AddUnitFlag(UnitFlags(UNIT_NPC_FLAG_SPELLCLICK));
+  //          me->AddUnitFlag(UnitFlags(UNIT_NPC_FLAG_SPELLCLICK));
             _introDone = false;
         }
 
@@ -2057,17 +2057,17 @@ public:
 
         void Reset() override
         {
-            me->AddUnitFlag(UnitFlags(UNIT_NPC_FLAG_SPELLCLICK));
+    //        me->AddUnitFlag(UnitFlags(UNIT_NPC_FLAG_SPELLCLICK));
         }
 
-       /* void OnSpellClick(Unit* clicker) //override
+        void OnSpellClick(Unit* clicker) //override
         {
             if (me->GetEntry() == 119459)
            //     clicker->ToPlayer()->UpdateAchievementCriteria(CRITERIA_TYPE_SCRIPT_EVENT_2, 56885);
           //  else
                 clicker->CastSpell(me, 52391, true); //Ride Veh
         }
-        */
+        
         void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
         {
            // SetFlyMode(true);
@@ -2086,7 +2086,7 @@ public:
             if (!_introDone)
                 if (InstanceScript *script = me->GetInstanceScript())
                   //  if (script->GetScenarionStep() == 1)
-                        if (me->IsWithinDistInMap(who, 5.0f) && !who->IsOnVehicle())
+                      //  if (me->IsWithinDistInMap(who, 5.0f) && !who->IsOnVehicle())
                         {
                             _introDone = true;
                             who->ToPlayer()->CastSpell(me, 52391, true); //Ride Veh
@@ -2100,13 +2100,13 @@ public:
 
             if (me->GetVehicleKit())
             {
-               // if (Unit* passenger = me->GetVehicleKit()->GetPassenger(0))
+                if (Unit* passenger = me->GetVehicleKit()->GetPassenger(0))
                 {
-                   // passenger->CreateConversation(4590);
-                   // passenger->ToPlayer()->UpdateAchievementCriteria(CRITERIA_TYPE_SCRIPT_EVENT_2, 56892);
-                   // passenger->AddAura(55001, passenger);
-                    //me->GetVehicleKit()->RemoveAllPassengers();
-                    me->DespawnOrUnsummon(500);
+                  //  passenger->CreateConversation(4590);
+                  //  passenger->ToPlayer()->UpdateAchievementCriteria(CRITERIA_TYPE_SCRIPT_EVENT_2, 56892);
+                    passenger->AddAura(55001, passenger);
+                    me->GetVehicleKit()->RemoveAllPassengers();
+                    me->DespawnOrUnsummon();
                 }
             }
         }
@@ -2127,10 +2127,10 @@ void AddSC_azsuna()
     new scene_azsuna_runes();
     RegisterCreatureAI(questnpc_soul_gem);
     RegisterCreatureAI(questnpc_mana_drained_whelpling);
-    new npc_prince_farondis();
+   // new npc_prince_farondis();
     new npc_prince_farondis_escort();
     new spell_word_of_versatility();
-    new go_sabotaged_portal_stabilizer();
+   // new go_sabotaged_portal_stabilizer();
     new spell_gen_radiant_ley_crystal();
     new npc_quest_43521();
     new npc_quest_43520();
@@ -2147,11 +2147,11 @@ void AddSC_azsuna()
     RegisterSpellScript(spell_Wand_Practice);
   //  new ps_quest_Wandering();
     new npc_senegosa_89978();
-    new go_pylon_mana245572();
-    new go_pylon_mana245573();
-    new go_pylon_mana239959();
-    new go_pylon_mana245574();
-    new go_fel_power_run244706();
+    //new go_pylon_mana245572();
+   // new go_pylon_mana245573();
+   // new go_pylon_mana239959();
+   // new go_pylon_mana245574();
+    //new go_fel_power_run244706();
     RegisterSpellScript(spell_drop_stone);
     new npc_agapant_90543();
     new npc_lucid_strength_89939();
@@ -2161,9 +2161,9 @@ void AddSC_azsuna()
     new npc_demon_86963();
     new npc_demon_90402();
     new npc_demon_89276();
-    new go_soul_gem239338();
-    new go_soul_gem239332();
-    new go_soul_gem237017();
+   // new go_soul_gem239338();
+   // new go_soul_gem239332();
+   // new go_soul_gem237017();
     new npc_demon_89673();
     RegisterCreatureAI(npc_quest_1970197);
     RegisterCreatureAI(npc_quest_107242);

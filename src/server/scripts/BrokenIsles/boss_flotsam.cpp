@@ -103,7 +103,7 @@ public:
             me->SetFullHealth();
             events.Reset();
             events.SetPhase(PHASE_COMBAT);
-            events.ScheduleEvent(EVENT_JETSAM, 10000);
+           // events.ScheduleEvent(EVENT_JETSAM, 10000);
             //me->AI()->Talk(88247); //On aggro text
             me->SetPower(POWER_MANA, 0);
             getsamCount = 0;
@@ -125,7 +125,7 @@ public:
 
             if (events.Empty())
             {
-                events.ScheduleEvent(EVENT_JETSAM, 1000);
+               // events.ScheduleEvent(EVENT_JETSAM, 1000);
             }
 
             if (me->IsInCombat())
@@ -136,7 +136,7 @@ public:
                     if (me->GetPower(POWER_MANA) < 100)
                         me->ModifyPower(POWER_MANA, +2);
                     else
-                        events.ScheduleEvent(EVENT_GETSAM, 200);
+                      //  events.ScheduleEvent(EVENT_GETSAM, 200);
 
                     manaTimer = 0;
                 }
@@ -152,34 +152,34 @@ public:
                 {
                     if (me->IsInCombat())
                     {
-                        Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
-                        if (!target)
+                       // Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
+                        //if (!target)
                             break;
 
-                        DoCast(target, SPELL_JETSAM_TARGET, false);
+                       // DoCast(target, SPELL_JETSAM_TARGET, false);
                         getsamCount++;
-                        events.ScheduleEvent(EVENT_BREAKSAM, 5000);
+                       // events.ScheduleEvent(EVENT_BREAKSAM, 5000);
                     }
                     break;
                 }
                 case EVENT_BREAKSAM:
                 {
-                    me->CastSpell(SelectTarget(SELECT_TARGET_TOPAGGRO), SPELL_BREAKSAM_CAST, false);
+                   // me->CastSpell(SelectTarget(SELECT_TARGET_TOPAGGRO), SPELL_BREAKSAM_CAST, false);
 
                     if (getsamCount >= 4)
                     {
-                        events.ScheduleEvent(EVENT_YAKSAM, 5000);
+                     //   events.ScheduleEvent(EVENT_YAKSAM, 5000);
                         getsamCount = 0;
                     } else
-                        events.ScheduleEvent(EVENT_JETSAM, 10000);
+                      //  events.ScheduleEvent(EVENT_JETSAM, 10000);
 
                     break;
                 }
                 case EVENT_YAKSAM:
                 {
-                    me->CastSpell(SelectTarget(SELECT_TARGET_TOPAGGRO), SPELL_YAKSAM_CAST, false);
-                    events.ScheduleEvent(EVENT_JETSAM, 5000);
-                    events.ScheduleEvent(EVENT_YAKSAM_SUMMON, 200);
+                   // me->CastSpell(SelectTarget(SELECT_TARGET_TOPAGGRO), SPELL_YAKSAM_CAST, false);
+                   // events.ScheduleEvent(EVENT_JETSAM, 5000);
+                   // events.ScheduleEvent(EVENT_YAKSAM_SUMMON, 200);
                     break;
                 }
                 case EVENT_GETSAM:
@@ -226,13 +226,13 @@ public:
             if (!hit || !caster)
                 return;
 
-            if (TempSummon* tempSumm = caster->SummonCreature(NPC_JETSAM, hit->GetPositionX(), hit->GetPositionY(), hit->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 120000))
+            //if (TempSummon* tempSumm = caster->SummonCreature(NPC_JETSAM, hit->GetPositionX(), hit->GetPositionY(), hit->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 120000))
             {
-                tempSumm->SetSummonerGUID(caster->GetGUID());
-                PhasingHandler::InheritPhaseShift(tempSumm, caster);
-                tempSumm->SetName(caster->GetName());
-                caster->AddAura(SPELL_JETSAM_TARGET, tempSumm);
-                tempSumm->CastSpell(tempSumm, SPELL_JETSAM_DAMAGE, true);
+              //  tempSumm->SetSummonerGUID(caster->GetGUID());
+               // PhasingHandler::InheritPhaseShift(tempSumm, caster);
+              //  tempSumm->SetName(caster->GetName());
+                //caster->AddAura(SPELL_JETSAM_TARGET, tempSumm);
+                //tempSumm->CastSpell(tempSumm, SPELL_JETSAM_DAMAGE, true);
             }
 
             caster->CastSpell(hit, SPELL_JETSAM_DAMAGE, true);
@@ -380,12 +380,12 @@ public:
         void Reset() override
         {
             std::list<Unit*> targets;
-            me->GetAttackableUnitListInRange(targets, 30.0f);
+           // me->GetAttackableUnitListInRange(targets, 30.0f);
             targets.resize(1);
             Unit* target = targets.front();
             if (target)
             {
-                me->CombatStart(target);
+             //   me->CombatStart(target);
                 me->GetMotionMaster()->MoveFollow(target, 0.0f, 0);
             }
             ApplyBuff();

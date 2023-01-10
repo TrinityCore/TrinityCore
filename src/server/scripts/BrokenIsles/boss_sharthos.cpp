@@ -26,6 +26,7 @@
 #include "AreaTriggerAI.h"
 #include "AreaTrigger.h"
 #include "MotionMaster.h"
+#include <Containers.h>
 
 enum Spells
 {
@@ -70,11 +71,11 @@ public:
             me->setActive(true);
             me->SetFullHealth();
 
-            events.ScheduleEvent(EventTailLash, 8 * IN_MILLISECONDS);
-            events.ScheduleEvent(EventDreadFlame, 11 * IN_MILLISECONDS);
-            events.ScheduleEvent(EventNightmareBreath, 16 * IN_MILLISECONDS);
-            events.ScheduleEvent(EventBurningEarth, 28 * IN_MILLISECONDS);
-            events.ScheduleEvent(EventCryOfTheTormented, 63 * IN_MILLISECONDS);
+         //   events.ScheduleEvent(EventTailLash, 8 * IN_MILLISECONDS);
+          //  events.ScheduleEvent(EventDreadFlame, 11 * IN_MILLISECONDS);
+          //  events.ScheduleEvent(EventNightmareBreath, 16 * IN_MILLISECONDS);
+          //  events.ScheduleEvent(EventBurningEarth, 28 * IN_MILLISECONDS);
+          //  events.ScheduleEvent(EventCryOfTheTormented, 63 * IN_MILLISECONDS);
         }
 
         void EnterEvadeMode(EvadeReason /*why*/) override
@@ -99,15 +100,15 @@ public:
                 {
                 case Events::EventTailLash:
                     DoCastAOE(Spells::TailLash);
-                    events.ScheduleEvent(Events::EventTailLash, 8000);
+                  //  events.ScheduleEvent(Events::EventTailLash, 8000);
                     break;
                 case Events::EventDreadFlame:
                     me->CastSpell(me->GetVictim(), Spells::DreadFlame);
-                    events.ScheduleEvent(EventDreadFlame, urand(19, 25) * IN_MILLISECONDS);
+                  //  events.ScheduleEvent(EventDreadFlame, urand(19, 25) * IN_MILLISECONDS);
                     break;
                 case Events::EventNightmareBreath:
                     DoCastAOE(Spells::NightmareBreath);
-                    events.ScheduleEvent(Events::EventNightmareBreath, 18000);
+                   // events.ScheduleEvent(Events::EventNightmareBreath, 18000);
                     break;
                 case Events::EventBurningEarth:
                     me->GetPlayerListInGrid(nearbyPlayers, 50.0f);
@@ -118,11 +119,11 @@ public:
                     for (Player* target : nearbyPlayers)
                         me->CastSpell((Unit*)target, Spells::BurningEarthAreatrigger);
 
-                    events.ScheduleEvent(EventBurningEarth, 28 * IN_MILLISECONDS);
+                   // events.ScheduleEvent(EventBurningEarth, 28 * IN_MILLISECONDS);
                     break;
                 case Events::EventCryOfTheTormented:
                     DoCastAOE(Spells::CryOfTheTormented);
-                    events.ScheduleEvent(EventCryOfTheTormented, 63000);
+                   // events.ScheduleEvent(EventCryOfTheTormented, 63000);
                     break;
                 }
             }

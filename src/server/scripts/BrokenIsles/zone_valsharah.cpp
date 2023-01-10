@@ -40,9 +40,9 @@ class npc_malfurion_valshara : public CreatureScript
 public:
     npc_malfurion_valshara() : CreatureScript("npc_malfurion_valshara") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
+    bool OnGossipHello(Player* player, Creature* creature) 
     {
-        AddGossipItemFor(player, GOSSIP_ICON_CHAT, "I am ready to aid you, Malfurion.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+      //  AddGossipItemFor(player, GOSSIP_ICON_CHAT, "I am ready to aid you, Malfurion.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
         SendGossipMenuFor(player, 1, creature->GetGUID());
 
@@ -52,7 +52,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) 
     {
         ClearGossipMenuFor(player);
 
@@ -74,7 +74,7 @@ class npc_ysera_valshara : public CreatureScript
 public:
     npc_ysera_valshara() : CreatureScript("npc_ysera_valshara") { }
 
-    bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* quest) override
+    bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* quest) 
     {
         if (quest->GetQuestId() == 38595)
         {
@@ -85,27 +85,27 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
+    bool OnGossipHello(Player* player, Creature* creature) 
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
-        AddGossipItemFor(player, GOSSIP_ICON_CHAT, "I am ready, Ysera. Let us find Malfurion!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+      //  AddGossipItemFor(player, GOSSIP_ICON_CHAT, "I am ready, Ysera. Let us find Malfurion!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
         SendGossipMenuFor(player, 26531, creature->GetGUID());
 
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) 
     {
         ClearGossipMenuFor(player);
 
         switch (action)
         {
         case GOSSIP_ACTION_INFO_DEF + 1:
-            if (Creature* ysera = creature->SummonCreature(92748, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 300000))
-                player->CastSpell(ysera, 46598, true);
+          //  if (Creature* ysera = creature->SummonCreature(92748, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 300000))
+             //   player->CastSpell(ysera, 46598, true);
             break;
         }
 
@@ -258,10 +258,10 @@ class npc_subdued_nightwing : public CreatureScript
 public:
     npc_subdued_nightwing() : CreatureScript("npc_subdued_nightwing") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
+    bool OnGossipHello(Player* player, Creature* creature) 
     {
         if (player->GetQuestStatus(43702) == QUEST_STATUS_INCOMPLETE)
-            if (Creature* creature = player->SummonCreature(109827, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000))
+           // if (Creature* creature = player->SummonCreature(109827, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000))
                 player->CastSpell(creature, 46598, true);
 
         return true;
@@ -301,7 +301,7 @@ class npc_92850 : public CreatureScript
 public:
     npc_92850() : CreatureScript("npc_92850") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) 
     {
         switch (action)
         {
@@ -318,12 +318,12 @@ public:
 
 void AddSC_valsharah()
 {
-    new npc_malfurion_valshara();
-    new npc_ysera_valshara();
+   // new npc_malfurion_valshara();
+   // new npc_ysera_valshara();
     new movie_yseras_corruption();
     new npc_tyrande_scene();
     new spell_return_valshara();
-    new npc_subdued_nightwing();
+   // new npc_subdued_nightwing();
     new npc_tele_q39702();
-    new npc_92850();
+   // new npc_92850();
 }

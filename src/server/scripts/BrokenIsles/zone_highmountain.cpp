@@ -18,7 +18,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedGossip.h"
 #include "GameObject.h"
-#include "SceneHelper.h"
+//#include "SceneHelper.h"
 
 enum
 {
@@ -84,7 +84,7 @@ struct npc_94973 : public ScriptedAI
 
     void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId)
     {
-        if (player->HasQuest(40244))
+      //  if (player->HasQuest(40244))
         {
             if (gossipListId == 0)
             {
@@ -105,11 +105,11 @@ struct npc_archmage_khadgar_91172 : public ScriptedAI
         {
             if (me->IsWithinDist(player, 15.0f, false))
             {
-                if (!IsLock && player->HasQuest(QUEST_THE_LONE_MOUNTAIN))
+              //  if (!IsLock && player->HasQuest(QUEST_THE_LONE_MOUNTAIN))
                 {
-                    IsLock = true;
+                  //  IsLock = true;
                     me->Say(99458);
-                    SetUnlock(60000);
+                //    SetUnlock(60000);
                 }
             }
         }
@@ -120,17 +120,17 @@ struct npc_warbrave_oro_97666 : public ScriptedAI
 {
     npc_warbrave_oro_97666(Creature* creature) : ScriptedAI(creature) {  }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) 
     {
         if (quest->GetQuestId() == QUEST_KEEPERS_OF_THE_HAMMER)
         {
             me->Say(99459);
             player->KilledMonsterCredit(96813);
-            me->GetScheduler().Schedule(Milliseconds(4000), [player](TaskContext context)
+           // me->GetScheduler().Schedule(Milliseconds(4000), [player](TaskContext context)
             {
                 if (Creature* kadej = player->FindNearestCreature(91172, 50.f))
                     kadej->Say(99460, player);
-            });
+            };
         }
     }
 };
@@ -157,13 +157,13 @@ struct npc_warbrave_oro_106244 : public ScriptedAI
         {
             if (me->IsWithinDist(player, 15.0f, false))
             {
-                if (!IsLock && player->HasQuest(QUEST_KEEPERS_OF_THE_HAMMER))
+              //  if (!IsLock && player->HasQuest(QUEST_KEEPERS_OF_THE_HAMMER))
                 {
-                    IsLock = true;
+                //    IsLock = true;
                     me->Say(99596);
                     player->KilledMonsterCredit(106244);
                     me->GetMotionMaster()->MovePoint(1, Position(4121.3989f, 4333.802f, 768.346f, 2.539f), true);
-                    SetUnlock(60000);
+                  //  SetUnlock(60000);
                 }
             }
         }
@@ -180,22 +180,22 @@ struct npc_mayla_highmountain_93826 : public ScriptedAI
         {
             if (me->IsWithinDist(player, 15.0f, false))
             {
-                if (!IsLock && player->HasQuest(QUEST_KEEPERS_OF_THE_HAMMER))
+               // if (!IsLock && player->HasQuest(QUEST_KEEPERS_OF_THE_HAMMER))
                 {
-                    IsLock = true;
+                 //   IsLock = true;
                     me->Say(109202);
-                    SetUnlock(60000);
+                   // SetUnlock(60000);
                 }
-                if (!IsLock && player->HasQuest(QUEST_GET_TO_HIGH_GROUND))
+              //  if (!IsLock && player->HasQuest(QUEST_GET_TO_HIGH_GROUND))
                 {
-                    IsLock = true;
+                   // IsLock = true;
 
-                    SetUnlock(60000);
+                   // SetUnlock(60000);
                 }
             }
         }
     }
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) 
     {
         if (quest->GetQuestId() == QUEST_HIGHMOUNTAIN_STANDS)
         {
@@ -210,7 +210,7 @@ struct npc_jale_rivermane_93833 : public ScriptedAI
 {
     npc_jale_rivermane_93833(Creature* creature) : ScriptedAI(creature) {  }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) 
     {
         if (quest->GetQuestId() == QUEST_THE_FLOW_OF_THE_RIVER)
             me->Say(102688);
@@ -227,16 +227,16 @@ struct npc_mayla_highmountain_96049 : public ScriptedAI
         {
             if (me->IsWithinDist(player, 15.0f, false))
             {
-                if (!IsLock && player->HasQuest(QUEST_SECRETS_OF_HIGHMOUNTAIN))
+               // if (!IsLock && player->HasQuest(QUEST_SECRETS_OF_HIGHMOUNTAIN))
                 {
-                    IsLock = true;
+                 //   IsLock = true;
                     me->Say(98213);
-                    me->GetScheduler().Schedule(4s, [this](TaskContext /*context*/)
+                   // me->GetScheduler().Schedule(4s, [this](TaskContext /*context*/)
                     {
                         if (Creature* ebonhorn = me->FindNearestCreature(94571, 50.f))
                             ebonhorn->Say(101099);
-                    });
-                    SetUnlock(60000);
+                    };
+                  //  SetUnlock(60000);
                 }
             }
         }
@@ -252,108 +252,108 @@ struct npc_spiritwalker_ebonhorn_94571 : public ScriptedAI
         switch (id)
         {
         case 1:
-            me->GetScheduler().Schedule(250ms, [this](TaskContext /*context*/)
+           // me->GetScheduler().Schedule(250ms, [this](TaskContext /*context*/)
             {
                 me->GetMotionMaster()->MovePoint(2, Position(3825.51f, 4509.829f, 778.008f, 3.42f), true);
-            });
+            };
             break;
         case 2:
-            me->GetScheduler().Schedule(250ms, [this](TaskContext /*context*/)
+           // me->GetScheduler().Schedule(250ms, [this](TaskContext /*context*/)
             {
                 me->GetMotionMaster()->MovePoint(3, Position(3814.859f, 4510.02f, 776.197f, 3.1296f), false);
-            });
+            };
             break;
         case 3:
-            me->GetScheduler().Schedule(250ms, [this](TaskContext /*context*/)
+           // me->GetScheduler().Schedule(250ms, [this](TaskContext /*context*/)
             {
                 me->GetMotionMaster()->MovePoint(4, Position(3806.437f, 4510.21f, 777.956f, 2.2264f), false);
-            });
+            };
             break;
         case 4:
-            me->GetScheduler().Schedule(250ms, [this](TaskContext /*context*/)
+           // me->GetScheduler().Schedule(250ms, [this](TaskContext /*context*/)
             {
                 me->GetMotionMaster()->MovePoint(5, Position(3788.352f, 4533.211f, 776.817f, 2.246f), true);
-            });
+            };
             break;
         case 5:
-            me->GetScheduler().Schedule(250ms, [this](TaskContext /*context*/)
+           // me->GetScheduler().Schedule(250ms, [this](TaskContext /*context*/)
             {
                 me->GetMotionMaster()->MovePoint(6, Position(3770.7f, 4555.124f, 776.156f, 2.4f), true);
-            });
+            };
             break;
         case 6:
-            me->GetScheduler().Schedule(250ms, [this](TaskContext /*context*/)
+           // me->GetScheduler().Schedule(250ms, [this](TaskContext /*context*/)
             {
                 me->GetMotionMaster()->MovePoint(7, Position(3734.126f, 4580.137f, 779.989f, 2.89f), true);
-            });
+            };
             break;
         case 7:
-            me->GetScheduler().Schedule(250ms, [this](TaskContext /*context*/)
+          //  me->GetScheduler().Schedule(250ms, [this](TaskContext /*context*/)
             {
                 me->GetMotionMaster()->MovePoint(8, Position(3700.6f, 4589.221f, 782.8f, 2.87f), true);
-            });
+            };
             break;
         case 8:
-            me->GetScheduler().Schedule(250ms, [this](TaskContext /*context*/)
+          //  me->GetScheduler().Schedule(250ms, [this](TaskContext /*context*/)
             {
                 me->GetMotionMaster()->MovePoint(9, Position(3680.19f, 4592.656f, 786.136f, 2.929f), true);
-            });
+            };
             break;
         case 9:
-            me->GetScheduler().Schedule(250ms, [this](TaskContext /*context*/)
+           // me->GetScheduler().Schedule(250ms, [this](TaskContext /*context*/)
             {
                 me->GetMotionMaster()->MovePoint(10, Position(3640.457f, 4627.499f, 789.233f, 2.6426f), true);
-            });
+            };
             break;
         case 10:
-            me->GetScheduler().Schedule(250ms, [this](TaskContext /*context*/)
+           // me->GetScheduler().Schedule(250ms, [this](TaskContext /*context*/)
             {
                 me->GetMotionMaster()->MovePoint(11, Position(3618.997f, 4620.916f, 794.279f, 3.7343f), true);
-            });
+            };
             break;
         case 11:
-            me->GetScheduler().Schedule(250ms, [this](TaskContext /*context*/)
+           // me->GetScheduler().Schedule(250ms, [this](TaskContext /*context*/)
             {
                 me->GetMotionMaster()->MovePoint(12, Position(3582.9335f, 4596.624f, 803.419f, 3.7343f), true);
-            });
+            };
             break;
         case 12:
             me->Say(98236);
-            me->GetScheduler().Schedule(250ms, [this](TaskContext /*context*/)
+           // me->GetScheduler().Schedule(250ms, [this](TaskContext /*context*/)
             {
                 me->GetMotionMaster()->MovePoint(13, Position(3553.9f, 4554.5f, 813.86f, 4.182f), true);
-            });
+            };
             break;
         case 13:
-            me->GetScheduler().Schedule(250ms, [this](TaskContext /*context*/)
+          //  me->GetScheduler().Schedule(250ms, [this](TaskContext /*context*/)
             {
                 me->GetMotionMaster()->MovePoint(14, Position(3555.96f, 4534.238f, 812.9f, 4.7985f), true);
-            });
+            };
             break;
         case 14:
             me->Say(98534);
-            me->GetScheduler().Schedule(250ms, [this](TaskContext /*context*/)
+           // me->GetScheduler().Schedule(250ms, [this](TaskContext /*context*/)
             {
                 me->GetMotionMaster()->MovePoint(15, Position(3557.82f, 4529.5375f, 813.7837f, 5.0813f), true);
-            });
+            };
             break;
         case 15:
-            me->GetScheduler().Schedule(250ms, [this](TaskContext /*context*/)
+           // me->GetScheduler().Schedule(250ms, [this](TaskContext /*context*/)
             {
                 me->GetMotionMaster()->MovePoint(16, Position(3564.324f, 4512.516f, 811.796f, 5.454f), true);
-            });
+            };
             break;
         case 16:
-            me->GetScheduler().Schedule(250ms, [this](TaskContext /*context*/)
+           // me->GetScheduler().Schedule(250ms, [this](TaskContext /*context*/)
             {
                 me->GetMotionMaster()->MovePoint(17, Position(3582.763f, 4495.098f, 803.8f, 5.5f), true);
-            });
+            };
             break;
         case 17:
-            me->GetScheduler().Schedule(250ms, [this](TaskContext /*context*/)
+          //  me->GetScheduler().Schedule(250ms, [this](TaskContext /*context*/)
             {
                 me->GetMotionMaster()->MovePoint(18, Position(3604.161f, 4473.469f, 787.92f, 5.5f), true);
-            });
+            };
             break;
         case 18:
             me->Say(98289);
@@ -370,7 +370,7 @@ struct npc_spiritwalker_ebonhorn_94571 : public ScriptedAI
         }
     }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) 
     {
         if (quest->GetQuestId() == QUEST_THE_PATH_OF_HULN)
         {
@@ -399,12 +399,12 @@ struct npc_ebyssian_108199 : public ScriptedAI
         {
             if (me->IsWithinDist(player, 15.0f, false))
             {
-                if (!IsLock && player->HasQuest(39578))
+              //  if (!IsLock && player->HasQuest(39578))
                 {
-                    IsLock = true;
+                  //  IsLock = true;
                     player->KilledMonsterCredit(108199);
                     player->KilledMonsterCredit(96270);
-                    SetUnlock(60000);
+                //    SetUnlock(60000);
                 }
             }
         }
@@ -415,7 +415,7 @@ struct npc_spiritwalker_ebonhorn_98825 : public ScriptedAI
 {
     npc_spiritwalker_ebonhorn_98825(Creature* creature) : ScriptedAI(creature) { }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) 
     {
         if (quest->GetQuestId() == QUEST_SECRETS_OF_HIGHMOUNTAIN)
             Talk(0);
@@ -425,10 +425,10 @@ struct npc_spiritwalker_ebonhorn_98825 : public ScriptedAI
     {
         CloseGossipMenuFor(player);
 
-        if (player->HasQuest(QUEST_THE_STORY_OF_HULN))
+       // if (player->HasQuest(QUEST_THE_STORY_OF_HULN))
             player->GetSceneMgr().PlayScene(1141);
 
-        if (player->HasQuest(QUEST_HULNS_WAR_THE_ARRIVAL))
+       // if (player->HasQuest(QUEST_HULNS_WAR_THE_ARRIVAL))
             player->CastSpell(player, 193751, true);
     }
 };
@@ -438,7 +438,7 @@ struct npc_spiritwalker_ebonhorn_99153 : public ScriptedAI
 {
     npc_spiritwalker_ebonhorn_99153(Creature* creature) : ScriptedAI(creature) {  }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) 
     {
         if (quest->GetQuestId() == QUEST_IN_DEFIANCE_OF_DEATHWING)//SMSG_PHASE_SHIFT_CHANGE [1] Id: 5363 
         {
@@ -453,66 +453,66 @@ class go_quest_40219_highmountain_brazier : public GameObjectScript
 public:
     go_quest_40219_highmountain_brazier() : GameObjectScript("go_quest_40219_highmountain_brazier") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    bool OnGossipHello(Player* player, GameObject* go) 
     {
         if (go->GetEntry() == 250916)
         {
-            //VisiÃ³n de escala
-            Creature* Igrul = player->SummonCreature(96387, Position(3547.78f, 4373.75f, 663.031f, 0.977324f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
-            Creature* Huln = player->SummonCreature(96318, Position(3550.959f, 4379.73f, 663.475f, 4.30743f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
-            Creature* Warbrave01 = player->SummonCreature(98788, Position(3551.889f, 4382.259f, 663.932f, 3.94186f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
-            Creature* Warbrave02 = player->SummonCreature(98788, Position(3555.33f, 4380.189f, 663.773f, 3.5473f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
-            Igrul->Say(100465);
-            player->GetScheduler().Schedule(Milliseconds(10000), [Huln](TaskContext context)
+            //Visión de escala
+           // Creature* Igrul = player->SummonCreature(96387, Position(3547.78f, 4373.75f, 663.031f, 0.977324f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
+          //  Creature* Huln = player->SummonCreature(96318, Position(3550.959f, 4379.73f, 663.475f, 4.30743f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
+          //  Creature* Warbrave01 = player->SummonCreature(98788, Position(3551.889f, 4382.259f, 663.932f, 3.94186f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
+           // Creature* Warbrave02 = player->SummonCreature(98788, Position(3555.33f, 4380.189f, 663.773f, 3.5473f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
+           // Igrul->Say(100465);
+           // player->GetScheduler().Schedule(Milliseconds(10000), [Huln](TaskContext context)
             {
-                Huln->Say(100467);
-            });
-            player->GetScheduler().Schedule(Milliseconds(20000), [Igrul](TaskContext context)
+             //   Huln->Say(100467);
+            };
+           // player->GetScheduler().Schedule(Milliseconds(20000), [Igrul](TaskContext context)
             {
-                Igrul->Say(100468);
-            });
-            Igrul->DespawnOrUnsummon(25000);
-            Huln->DespawnOrUnsummon(25000);
-            Warbrave01->DespawnOrUnsummon(25000);
-            Warbrave02->DespawnOrUnsummon(25000);
-            player->GetScheduler().Schedule(Milliseconds(24000), [player](TaskContext context)
+             //   Igrul->Say(100468);
+            };
+           // Igrul->DespawnOrUnsummon(25000);
+           // Huln->DespawnOrUnsummon(25000);
+           // Warbrave01->DespawnOrUnsummon(25000);
+           // Warbrave02->DespawnOrUnsummon(25000);
+           // player->GetScheduler().Schedule(Milliseconds(24000), [player](TaskContext context)
             {
                 player->RemoveAurasDueToSpell(194669);
-            });
+            };
         }
         if (go->GetEntry() == 250978)
         {
-            //ID - 195111 VisiÃ³n del martillo
-            Creature* Igrul = player->SummonCreature(96387, Position(3649.409f, 4265.33f, 665.0189f, 1.53473f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
-            Creature* Huln = player->SummonCreature(96318, Position(3644.1f, 4270.6f, 665.405f, 0.4333f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
+            //ID - 195111 Visión del martillo
+           // Creature* Igrul = player->SummonCreature(96387, Position(3649.409f, 4265.33f, 665.0189f, 1.53473f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
+           // Creature* Huln = player->SummonCreature(96318, Position(3644.1f, 4270.6f, 665.405f, 0.4333f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
             player->CastSpell(player, 195111, true);
-            player->GetScheduler().Schedule(Milliseconds(20000), [player](TaskContext context)
+           // player->GetScheduler().Schedule(Milliseconds(20000), [player](TaskContext context)
             {
                 player->RemoveAurasDueToSpell(194669);
-            });
-            Igrul->DespawnOrUnsummon(25000);
-            Huln->DespawnOrUnsummon(25000);
+            };
+           // Igrul->DespawnOrUnsummon(25000);
+           // Huln->DespawnOrUnsummon(25000);
         }
         if (go->GetEntry() == 250979)
         {
-            //ID - 195117 VisiÃ³n de esperanza
-            Creature* Igrul = player->SummonCreature(96387, Position(3508.34f, 4295.92f, 682.3648f, 5.6015f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
-            Creature* Huln = player->SummonCreature(96318, Position(3514.82f, 4297.66f, 681.512f, 2.66739f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
-            Creature* Warbrave01 = player->SummonCreature(98788, Position(3507.429f, 4288.99f, 681.276f, 1.34693f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
-            Creature* Warbrave02 = player->SummonCreature(98788, Position(3519.07f, 4295.7f, 680.42f, 2.621f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
-            Igrul->Say(100831);
-            player->GetScheduler().Schedule(Milliseconds(10000), [Huln](TaskContext context)
+            //ID - 195117 Visión de esperanza
+           // Creature* Igrul = player->SummonCreature(96387, Position(3508.34f, 4295.92f, 682.3648f, 5.6015f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
+           // Creature* Huln = player->SummonCreature(96318, Position(3514.82f, 4297.66f, 681.512f, 2.66739f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
+           // Creature* Warbrave01 = player->SummonCreature(98788, Position(3507.429f, 4288.99f, 681.276f, 1.34693f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
+           // Creature* Warbrave02 = player->SummonCreature(98788, Position(3519.07f, 4295.7f, 680.42f, 2.621f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
+           // Igrul->Say(100831);
+           // player->GetScheduler().Schedule(Milliseconds(10000), [Huln](TaskContext context)
             {
-                Huln->Say(100832);
-            });
-            player->GetScheduler().Schedule(Milliseconds(20000), [player](TaskContext context)
+             //   Huln->Say(100832);
+            };
+           // player->GetScheduler().Schedule(Milliseconds(20000), [player](TaskContext context)
             {
                 player->RemoveAurasDueToSpell(194669);
-            });
-            Igrul->DespawnOrUnsummon(25000);
-            Huln->DespawnOrUnsummon(25000);
-            Warbrave01->DespawnOrUnsummon(25000);
-            Warbrave02->DespawnOrUnsummon(25000);
+            };
+           // Igrul->DespawnOrUnsummon(25000);
+           // Huln->DespawnOrUnsummon(25000);
+           // Warbrave01->DespawnOrUnsummon(25000);
+           // Warbrave02->DespawnOrUnsummon(25000);
         }
 
         return false;
@@ -524,39 +524,39 @@ class go_quest_39578_highmountain_brazier : public GameObjectScript
 public:
     go_quest_39578_highmountain_brazier() : GameObjectScript("go_quest_39578_highmountain_brazier") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    bool OnGossipHello(Player* player, GameObject* go)
     {
         if (go->GetEntry() == 250994)
         {
             player->RemoveAurasDueToSpell(191564);
-            Creature* Ebonhorn = player->SummonCreature(99190, Position(3419.129f, 4297.44f, 704.041f, 4.68f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
-            Creature* Igrul = player->SummonCreature(96387, Position(3427.0f, 4254.979f, 704.059f, 1.551f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
-            Creature* Huln = player->SummonCreature(96318, Position(3425.44f, 4296.27f, 704.379f, 4.53f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
-            Creature* Mayla = player->SummonCreature(96523, Position(3430.49f, 4295.62f, 703.898f, 4.34947f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
+          //  Creature* Ebonhorn = player->SummonCreature(99190, Position(3419.129f, 4297.44f, 704.041f, 4.68f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
+          //  Creature* Igrul = player->SummonCreature(96387, Position(3427.0f, 4254.979f, 704.059f, 1.551f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
+          //  Creature* Huln = player->SummonCreature(96318, Position(3425.44f, 4296.27f, 704.379f, 4.53f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
+          //  Creature* Mayla = player->SummonCreature(96523, Position(3430.49f, 4295.62f, 703.898f, 4.34947f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
 
-            Creature* Deathwing = player->SummonCreature(97056, Position(3427.34f, 4272.229f, 704.005f, 1.57f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
-            Deathwing->Say(98359);
+          //  Creature* Deathwing = player->SummonCreature(97056, Position(3427.34f, 4272.229f, 704.005f, 1.57f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
+           // Deathwing->Say(98359);
             //ID - 191254 Exilio de Alamuerte
-            player->GetScheduler().Schedule(Milliseconds(5000), [Deathwing, player](TaskContext context)
+           // player->GetScheduler().Schedule(Milliseconds(5000), [Deathwing, player](TaskContext context)
             {
-                Deathwing->CastSpell(Deathwing, 191254, true);
+             //   Deathwing->CastSpell(Deathwing, 191254, true);
                 player->KilledMonsterCredit(97056);
-            });
-            player->GetScheduler().Schedule(Milliseconds(10000), [Deathwing](TaskContext context)
+            };
+           // player->GetScheduler().Schedule(Milliseconds(10000), [Deathwing](TaskContext context)
             {
-                Deathwing->DespawnOrUnsummon();
-            });
+             //   Deathwing->DespawnOrUnsummon();
+            };
 
-            Creature* Drogbar01 = player->SummonCreature(99138, Position(3410.1f, 4272.1098f, 704.4719f, 0.0069f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
-            Creature* Drogbar02 = player->SummonCreature(99138, Position(3412.22f, 4263.99f, 705.056f, 0.49896f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
-            Huln->AddAura(193622);
+         //   Creature* Drogbar01 = player->SummonCreature(99138, Position(3410.1f, 4272.1098f, 704.4719f, 0.0069f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
+           // Creature* Drogbar02 = player->SummonCreature(99138, Position(3412.22f, 4263.99f, 705.056f, 0.49896f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
+           // Huln->AddAura(193622);
 
-            Drogbar02->DespawnOrUnsummon(25000);
-            Drogbar01->DespawnOrUnsummon(25000);
-            Igrul->DespawnOrUnsummon(25000);
-            Huln->DespawnOrUnsummon(65000);
-            Mayla->DespawnOrUnsummon(25000);
-            Ebonhorn->DespawnOrUnsummon(65000);
+           // Drogbar02->DespawnOrUnsummon(25000);
+           // Drogbar01->DespawnOrUnsummon(25000);
+           // Igrul->DespawnOrUnsummon(25000);
+           // Huln->DespawnOrUnsummon(65000);
+           // Mayla->DespawnOrUnsummon(25000);
+           // Ebonhorn->DespawnOrUnsummon(65000);
         }
         return false;
     }
@@ -566,16 +566,16 @@ struct npc_spiritwalker_ebonhorn_99190 : public ScriptedAI
 {
     npc_spiritwalker_ebonhorn_99190(Creature* creature) : ScriptedAI(creature) {  }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) 
     {
         if (quest->GetQuestId() == QUEST_AN_ANCIENT_SECRET)
         {
             me->GetMotionMaster()->MovePoint(1, Position(3389.22f, 4239.46f, 705.899f, 4.842f), true);
             player->CastSpell(player, 195026, true);
-            me->GetScheduler().Schedule(15s, [this](TaskContext /*context*/)
+          //  me->GetScheduler().Schedule(15s, [this](TaskContext /*context*/)
             {
                 me->GetMotionMaster()->MovePoint(2, Position(3405.01f, 4185.569f, 722.5579f, 1.3583f), true);
-            });
+            };
         }
     }
 };
@@ -585,44 +585,44 @@ class go_quest_39577_highmountain_brazier : public GameObjectScript
 public:
     go_quest_39577_highmountain_brazier() : GameObjectScript("go_quest_39577_highmountain_brazier") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    bool OnGossipHello(Player* player, GameObject* go) 
     {
         if (go->GetEntry() == 251031)
         {
             //108199,96270
-            if (Creature* Igrul = player->SummonCreature(96387, Position(3547.78f, 4373.75f, 663.031f, 0.977324f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
+           // if (Creature* Igrul = player->SummonCreature(96387, Position(3547.78f, 4373.75f, 663.031f, 0.977324f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
             {
-                Igrul->AI()->Talk(0);
-                go->GetScheduler().Schedule(10s, [Igrul, player](TaskContext /*context*/)
+               // Igrul->AI()->Talk(0);
+             //   go->GetScheduler().Schedule(10s, [Igrul, player](TaskContext /*context*/)
                 {
-                    Igrul->AI()->Talk(1);
-                    Igrul->DespawnOrUnsummon(5000);
-                });
+                 //   Igrul->AI()->Talk(1);
+                   // Igrul->DespawnOrUnsummon(5000);
+                };
             }
-            player->GetScheduler().Schedule(12s, [player](TaskContext /*context*/)
+          //  player->GetScheduler().Schedule(12s, [player](TaskContext /*context*/)
             {
                 std::list<Creature*> _list;
                 player->GetCreatureListWithEntryInGrid(_list, 96242, 50.0f);
                 if (!_list.empty())
                     for (Creature* mob : _list)
-                        mob->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NOT_SELECTABLE));
-            });
+                        mob->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC )) ;// UNIT_FLAG_NOT_SELECTABLE));
+            };
             if (Creature * Huln = player->FindNearestCreature(96318, 50.0f, true))
             {
-                Huln->GetScheduler().Schedule(5s, [Huln](TaskContext /*context*/)
+              //  Huln->GetScheduler().Schedule(5s, [Huln](TaskContext /*context*/)
                 {
                     Huln->Say(113354);
-                });
+                };
             }
 
-            //ID - 214960 Matarï¼šAbby Xian Flashbackï¼š //ID - 195135 DiÃ¡logo de Abby Sian
-            player->GetScheduler().Schedule(15s, [player](TaskContext /*context*/)
+            //ID - 214960 Matar:Abby Xian Flashback: //ID - 195135 Diálogo de Abby Sian
+           // player->GetScheduler().Schedule(15s, [player](TaskContext /*context*/)
             {
                 player->RemoveAurasDueToSpell(191564);
                 player->CastSpell(player, 214960, true);
                 player->KilledMonsterCredit(96270);
                 player->CastSpell(player, 195135, true);
-            });
+            };
             //99190 cast 81908
         }
         return false;
@@ -637,7 +637,7 @@ struct npc_quest_evacuate_snowmane_42088 : public ScriptedAI
     {
         CloseGossipMenuFor(player);
 
-        if (player->HasQuest(QUEST_EVACUATE_SNOWMANE))
+       // if (player->HasQuest(QUEST_EVACUATE_SNOWMANE))
         {
             Talk(0, player);
             player->KilledMonsterCredit(me->GetEntry());
@@ -655,11 +655,11 @@ struct npc_dargrul_107704 : public ScriptedAI
         {
             if (me->IsWithinDist(player, 15.0f, false))
             {
-                if (player->HasQuest(QUEST_HIGHMOUNTAIN_STANDS))
+               // if (player->HasQuest(QUEST_HIGHMOUNTAIN_STANDS))
                 {
                     me->GetMotionMaster()->MoveJump(Position(3846.4f, 3898.7f, 904.31f, 2.67f), 10.0f, 10.0f);
                     player->KilledMonsterCredit(me->GetEntry());
-                    me->DespawnOrUnsummon(5000);
+                    me->DespawnOrUnsummon();
                 }
             }
         }
@@ -677,7 +677,7 @@ struct npc_war_eagle_100712 : public ScriptedAI
             if (player->GetQuestStatus(QUEST_JUSTICE_RAINS_FROM_ABOVE) == QUEST_STATUS_INCOMPLETE)
             {
                 me->RemoveUnitFlag(UnitFlags(UNIT_NPC_FLAG_SPELLCLICK));
-                player->ForceCompleteQuest(QUEST_JUSTICE_RAINS_FROM_ABOVE);
+              //  player->ForceCompleteQuest(QUEST_JUSTICE_RAINS_FROM_ABOVE);
             }
         }
     }
@@ -685,9 +685,9 @@ struct npc_war_eagle_100712 : public ScriptedAI
     void MoveInLineOfSight(Unit* who) override
     {
         if (Player* player = who->ToPlayer())
-            if (me->IsWithinDist(player, 15.0f, false))
-                if (player->HasQuest(QUEST_JUSTICE_RAINS_FROM_ABOVE))
-                    me->AddUnitFlag(UnitFlags(UNIT_NPC_FLAG_SPELLCLICK));
+            if (me->IsWithinDist(player, 15.0f, false));
+              //  if (player->HasQuest(QUEST_JUSTICE_RAINS_FROM_ABOVE))
+                //    me->AddUnitFlag(UnitFlags(UNIT_NPC_FLAG_SPELLCLICK));
     }
 };
 
@@ -699,9 +699,9 @@ struct npc_mayla_highmountain_97352 : public ScriptedAI
     {
         if (Player* player = who->ToPlayer())
             if (me->IsWithinDist(player, 15.0f, false))
-                if (!IsLock && player->HasQuest(QUEST_THE_UNDERKING))
+            //    if (!IsLock && player->HasQuest(QUEST_THE_UNDERKING))
                 {
-                    IsLock = true;
+              //      IsLock = true;
                     Talk(0);
                     player->KilledMonsterCredit(me->GetEntry());
                 }
@@ -716,7 +716,7 @@ struct npc_the_hammer_of_khazgoroth_107587 : public ScriptedAI
     void MoveInLineOfSight(Unit* who) override
     {
         if (Player* player = who->ToPlayer())
-            if (me->IsWithinDist(player, 25.0f, false) && player->HasQuest(42454))
+            if (me->IsWithinDist(player, 25.0f, false))// && player->HasQuest(42454))
                 player->KilledMonsterCredit(me->GetEntry());
     }
 };
@@ -733,10 +733,10 @@ struct npc_windmaster_julan_95403 : public ScriptedAI
     void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId)
     {
         CloseGossipMenuFor(player);
-        if (player->HasQuest(QUEST_NURSING_THE_WOUNDS))
+      //  if (player->HasQuest(QUEST_NURSING_THE_WOUNDS))
         {
             player->KilledMonsterCredit(me->GetEntry());
-            //ID - 189182 TÃ³tem de viento ID - 189168 Viento opresivo
+            //ID - 189182 Tótem de viento ID - 189168 Viento opresivo
             player->RemoveAurasDueToSpell(189182);
             player->CastSpell(player, 189182, true);
         }
@@ -761,10 +761,10 @@ public:
             {
                 GetCaster()->ToPlayer()->KilledMonsterCredit(95261);
                 GetHitUnit()->RemoveAurasDueToSpell(188911);
-                GetHitUnit()->GetScheduler().Schedule(Milliseconds(15000), [](TaskContext context)
+              //  GetHitUnit()->GetScheduler().Schedule(Milliseconds(15000), [](TaskContext context)
                 {
-                    GetContextCreature()->AddAura(188911);
-                });
+                //    GetContextCreature()->AddAura(188911);
+                };
             }
         }
 
@@ -787,7 +787,7 @@ struct npc_captive_great_eagle_94991 : public ScriptedAI
 
     void Reset() override
     {
-        me->AddUnitFlag(UnitFlags(UNIT_NPC_FLAG_SPELLCLICK));
+       // me->AddUnitFlag(UnitFlags(UNIT_NPC_FLAG_SPELLCLICK));
     }
 
     void OnSpellClick(Unit* clicker, bool& /*result*/)
@@ -801,12 +801,12 @@ struct npc_captive_great_eagle_94991 : public ScriptedAI
                 me->RemoveAurasDueToSpell(188434);
                 player->KilledMonsterCredit(me->GetEntry());
                 me->SetCanFly(true);
-                me->SetFlying(true);
+             //   me->SetFlying(true);
                 me->SetDisableGravity(true);
-                Position pos = me->ToCreature()->GetPositionWithDistInFront(20.0f);
-                pos.m_positionZ = pos.GetPositionZ() + 15.0f;
-                me->GetMotionMaster()->MovePoint(1, pos, true);
-                me->DespawnOrUnsummon(5000);
+             //   Position pos = me->ToCreature()->GetPositionWithDistInFront(20.0f);
+                //pos.m_positionZ = pos.GetPositionZ() + 15.0f;
+                me->GetMotionMaster()->MovePoint(1, true);
+                me->DespawnOrUnsummon();
             }
         }
     }
@@ -836,10 +836,10 @@ struct npc_warbrave_oro_95051 : public ScriptedAI
         {
             if (me->IsWithinDist(player, 15.0f, false))
             {
-                if (!IsLock && player->HasQuest(QUEST_GRASP_OF_THE_UNDERKING))
+               // if (!IsLock && player->HasQuest(QUEST_GRASP_OF_THE_UNDERKING))
                 {
-                    IsLock = true;
-                    me->AddUnitFlag(UnitFlags(UNIT_NPC_FLAG_SPELLCLICK));
+                 //   IsLock = true;
+                   // me->AddUnitFlag(UnitFlags(UNIT_NPC_FLAG_SPELLCLICK));
                 }
             }
         }
@@ -850,7 +850,7 @@ struct npc_spiritwalker_ebonhorn_93805 : public ScriptedAI
 {
     npc_spiritwalker_ebonhorn_93805(Creature* creature) : ScriptedAI(creature) {  }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) 
     {
         if (quest->GetQuestId() == QUEST_GET_TO_HIGH_GROUND)
             player->CastSpell(player, 187298, true);
@@ -870,7 +870,7 @@ struct npc_highmountain_elder_94547 : public ScriptedAI
             {
                 player->CastSpell(player, 187324, true);
 
-                if (player->HasQuest(QUEST_GET_TO_HIGH_GROUND))
+               // if (player->HasQuest(QUEST_GET_TO_HIGH_GROUND))
                     player->CastSpell(player, 193251, true);
             }
         }
@@ -883,11 +883,11 @@ class go_quest_39455_altar : public GameObjectScript
 public:
     go_quest_39455_altar() : GameObjectScript("go_quest_39455_altar") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    bool OnGossipHello(Player* player, GameObject* go) 
     {
         if (go->GetEntry() == 244564)
         {
-            if (player->HasQuest(QUEST_CAVE_OF_THE_BLOOD_TRIAL))
+           // if (player->HasQuest(QUEST_CAVE_OF_THE_BLOOD_TRIAL))
             {
                 if (Creature* mobs = player->FindNearestCreature(97544, 25.0f, true))
                 {
@@ -911,42 +911,42 @@ struct npc_marakhan_97418 : public ScriptedAI
         SPELL_UNYIELDING_TERROR = 197681,
     };
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) 
     {
-        if (me->HealthWillBeBelowPctDamaged(40, damage))
-            events.ScheduleEvent(SPELL_UNYIELDING_TERROR, 1s);
+     //   if (me->HealthWillBeBelowPctDamaged(40, damage))
+       //     events.ScheduleEvent(SPELL_UNYIELDING_TERROR, 1s);
     }
 
-    void EnterCombat(Unit* /*attacker*/) override
+    void EnterCombat(Unit* /*attacker*/) 
     {
         if (Creature* mobs = me->FindNearestCreature(100055, 100.0f, true))
         {
             me->CastSpell(mobs, 197670, true);
             mobs->KillSelf();
         }
-        events.ScheduleEvent(SPELL_DOOM_BLADE, 5s);
+       // events.ScheduleEvent(SPELL_DOOM_BLADE, 5s);
     }
 
     void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
             return;
-        if (me->HasUnitState(UNIT_STATE_CASTING))
+        if (me->HasUnitState(UNIT_STATE_CASTING));
             return;
-        events.Update(diff);
-        switch (events.ExecuteEvent())
+      //  events.Update(diff);
+         //   switch (events.ExecuteEvent())
         {
-        case SPELL_DOOM_BLADE:
+      //  case SPELL_DOOM_BLADE:
         {
             DoCast(SPELL_DOOM_BLADE);
-            events.Repeat(12s, 15s);
-            break;
+         //   events.Repeat(12s, 15s);
+           // break;
         }
-        case SPELL_UNYIELDING_TERROR:
+        //case SPELL_UNYIELDING_TERROR:
         {
             DoCast(SPELL_UNYIELDING_TERROR);
-            events.Repeat(22s, 25s);
-            break;
+           // events.Repeat(22s, 25s);
+           // break;
         }
         }
         DoMeleeAttackIfReady();
@@ -963,13 +963,13 @@ struct npc_navarrogg_95259 : public ScriptedAI
         {
             if (me->IsWithinDist(player, 25.0f, false))
             {
-                if (!IsLock && player->HasQuest(QUEST_RITE_OF_BLOOD))
+              //  if (!IsLock && player->HasQuest(QUEST_RITE_OF_BLOOD))
                 {
-                    IsLock = true;
+                 //   IsLock = true;
                     Talk(0);
                     player->KilledMonsterCredit(me->GetEntry());
                 }
-                if (player->HasQuest(QUEST_ROCK_TROLL_IN_A_HARD_PLACE))
+               // if (player->HasQuest(QUEST_ROCK_TROLL_IN_A_HARD_PLACE))
                     player->KilledMonsterCredit(96286);
             }
         }
@@ -1000,10 +1000,10 @@ struct npc_quest_pet_rocks : public ScriptedAI
         {
             if (me->IsWithinDist(player, 15.0f, false))
             {
-                if (!IsLock && player->HasQuest(QUEST_PET_ROCKS))
+               // if (!IsLock && player->HasQuest(QUEST_PET_ROCKS))
                 {
-                    IsLock = true;
-                    me->AddUnitFlag(UnitFlags(UNIT_NPC_FLAG_SPELLCLICK));
+                 //   IsLock = true;
+                   // me->AddUnitFlag(UnitFlags(UNIT_NPC_FLAG_SPELLCLICK));
                 }
             }
         }
@@ -1016,10 +1016,10 @@ public:
     scene_the_story_of_huln() : SceneScript("scene_the_story_of_huln") { }
 
     // Called when a scene is either canceled or completed
-    void OnSceneEnd(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
+    void OnSceneEnd(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) 
     {
         player->KilledMonsterCredit(98825);
-        player->SummonCreature(98825, Position(4057.2099f, 4320.37f, 675.603f, 1.2158f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
+       // player->SummonCreature(98825, Position(4057.2099f, 4320.37f, 675.603f, 1.2158f), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
     }
 };
 
@@ -1039,10 +1039,10 @@ void AddSC_highmountain()
     RegisterCreatureAI(npc_spiritwalker_ebonhorn_98825);
 
     RegisterCreatureAI(npc_spiritwalker_ebonhorn_99153); //QUEST_IN_DEFIANCE_OF_DEATHWING
-    new go_quest_40219_highmountain_brazier();
-    new go_quest_39578_highmountain_brazier();
+   // new go_quest_40219_highmountain_brazier();
+   // new go_quest_39578_highmountain_brazier();
     RegisterCreatureAI(npc_spiritwalker_ebonhorn_99190);
-    new go_quest_39577_highmountain_brazier();
+   // new go_quest_39577_highmountain_brazier();
     RegisterCreatureAI(npc_quest_evacuate_snowmane_42088);
     RegisterCreatureAI(npc_dargrul_107704);
     RegisterCreatureAI(npc_war_eagle_100712);
@@ -1057,9 +1057,9 @@ void AddSC_highmountain()
     RegisterCreatureAI(npc_spiritwalker_ebonhorn_93805);
     RegisterCreatureAI(npc_highmountain_elder_94547);
 
-    new go_quest_39455_altar();
+   // new go_quest_39455_altar();
     RegisterCreatureAI(npc_marakhan_97418);
     RegisterCreatureAI(npc_navarrogg_95259);
     RegisterCreatureAI(npc_quest_pet_rocks);
-    RegisterSceneScript(scene_the_story_of_huln);
+  //  RegisterSceneScript(scene_the_story_of_huln);
 }

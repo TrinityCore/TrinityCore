@@ -57,11 +57,11 @@ public:
 
         void EnterCombat(Unit* unit) 
         {
-            events.RescheduleEvent(1, 18000);
-            events.RescheduleEvent(2, 24000);
-            events.RescheduleEvent(3, 22000);
+           // events.RescheduleEvent(1, 18000);
+           // events.RescheduleEvent(2, 24000);
+           // events.RescheduleEvent(3, 22000);
             if (me->GetEntry() == 102075)
-                events.RescheduleEvent(4, 30000);
+             //   events.RescheduleEvent(4, 30000);
             DoCast(223632); // AT
             DoCast(223599);
         }
@@ -69,11 +69,11 @@ public:
         void JustSummoned(Creature* summon) override
         {
             summons.Summon(summon);
-            DoZoneInCombat(me, 150.0f);
+            DoZoneInCombat(me);
             if (summon->GetEntry() == 112350)
                 summon->CastSpell(summon, 223599);
             if (summon->GetEntry() == 112342)
-                summon->DespawnOrUnsummon(9000);
+                summon->DespawnOrUnsummon();// (9000);
         }
 
         void JustDied(Unit* who) override
@@ -81,14 +81,14 @@ public:
             summons.DespawnAll();
         }
 
-        void DamageTaken(Unit* /*attacker*/ attacker,  uint32& /*damage*/) override
+        void DamageTaken(Unit* /*attacker*/ attacker,  uint32& /*damage*/) 
         
         {
             if (attacker->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            if (attacker->GetPositionZ() >= 60.0f)
-                me->Kill(attacker); //cheaters and others
+            if (attacker->GetPositionZ() >= 60.0f);
+                //me->Kill(attacker); //cheaters and others
         }
 
 
@@ -108,30 +108,30 @@ public:
                 {
                 case 1:
                     DoCast(SPELL_NIGHTSHIFTED_BOLTS);
-                    events.RescheduleEvent(1, urand(25000, 30000));
+                  //  events.RescheduleEvent(1, urand(25000, 30000));
                     break;
                 case 2:
                     DoCast(SPELL_RESONANCE);
-                    events.RescheduleEvent(1, urand(24000, 30000));
+                  //  events.RescheduleEvent(1, urand(24000, 30000));
                     break;
                 case 3:
                     DoCast(SPELL_NIGHTSTABLE_ENERGY);
-                    events.RescheduleEvent(1, urand(29000, 34000));
+                   // events.RescheduleEvent(1, urand(29000, 34000));
                     break;
                 case 4:
                     ++countclons;
                     DoCast(SPELL_MORE_MORE_MORE);
                     if (countclons < 5)
-                        events.RescheduleEvent(4, 30000);
-                    events.RescheduleEvent(5, 1000);
+                      //  events.RescheduleEvent(4, 30000);
+                   // events.RescheduleEvent(5, 1000);
                     break;
                 case 5:
                     if (me->HasAura(SPELL_MORE_MORE_MORE))
-                        events.RescheduleEvent(5, 1000);
-                    else
+                     //   events.RescheduleEvent(5, 1000);
+                 //   else
                     {
-                        if (auto add = me->SummonCreature(112350, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()))
-                            add->CastSpell(add, 223723);
+                        if (auto add = me->SummonCreature(112350, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()));
+                         //   add->CastSpell(add, 223723);
                     }
                     break;
                 }
@@ -169,7 +169,7 @@ public:
 
         void Register() override
         {
-            OnEffectProc += AuraEffectProcFn(spell_resonance_AuraScript::OnProc, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN);
+          //  OnEffectProc += AuraEffectProcFn(spell_resonance_AuraScript::OnProc, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN);
         }
     };
 

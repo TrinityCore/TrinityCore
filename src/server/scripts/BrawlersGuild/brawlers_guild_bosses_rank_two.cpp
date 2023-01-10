@@ -195,7 +195,7 @@ public:
         void SpellFinishCast(const SpellInfo* spell)
         {
             if (spell->Id == SPELL_FIREWALL);
-              //  events.RescheduleEvent(5, 1);
+               // events.RescheduleEvent(5, 1);
         }
 
         void UpdateAI(uint32 diff) override

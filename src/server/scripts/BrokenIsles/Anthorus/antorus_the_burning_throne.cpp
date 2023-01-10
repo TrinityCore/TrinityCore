@@ -118,12 +118,12 @@ struct npc_lightforged_teleport_pod_130137 : public ScriptedAI
 {
     npc_lightforged_teleport_pod_130137(Creature* creature) : ScriptedAI(creature) { }
 
-    void OnSpellClick(Unit* clicker, bool& /*result*/)
-    {
-        if (Player* player = clicker->ToPlayer())
-        {
-        }
-    }
+    //void OnSpellClick(Unit* clicker, bool& /*result*/)
+    //{
+      //  if (Player* player = clicker->ToPlayer())
+       // {
+       // }
+    //}
 };
 
 enum
@@ -303,10 +303,10 @@ struct npc_lightforged_beacon_129449 : public ScriptedAI
     };
     using Path01Size = std::extent<decltype(Path01)>;
 
-    void IsSummonedBy(Unit* summoner) 
-    {
+  //  void IsSummonedBy(Unit* summoner) 
+   // {
        // me->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
-    }
+   // }
 
     void OnSpellClick(Unit* clicker, bool& /*result*/)
     {
