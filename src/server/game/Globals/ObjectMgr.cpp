@@ -564,8 +564,8 @@ void ObjectMgr::LoadCreatureTemplateAddons()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                 0    1               2                   3      4       5       6      7          8                9             10                      11
-    QueryResult result = WorldDatabase.Query("SELECT entry, waypointPathId, cyclicSplinePathId, mount, bytes1, bytes2, emote, aiAnimKit, movementAnimKit, meleeAnimKit, visibilityDistanceType, auras FROM creature_template_addon");
+    //                                               0      1               2                   3      4           5         6         7            8         9      10         11               12            13                      14
+    QueryResult result = WorldDatabase.Query("SELECT entry, waypointPathId, cyclicSplinePathId, mount, StandState, AnimTier, VisFlags, SheathState, PvPFlags, emote, aiAnimKit, movementAnimKit, meleeAnimKit, visibilityDistanceType, auras FROM creature_template_addon");
 
     if (!result)
     {
@@ -591,15 +591,18 @@ void ObjectMgr::LoadCreatureTemplateAddons()
         creatureAddon.waypointPathId            = fields[1].GetUInt32();
         creatureAddon.cyclicSplinePathId        = fields[2].GetUInt32();
         creatureAddon.mount                     = fields[3].GetUInt32();
-        creatureAddon.bytes1                    = fields[4].GetUInt32();
-        creatureAddon.bytes2                    = fields[5].GetUInt32();
-        creatureAddon.emote                     = fields[6].GetUInt32();
-        creatureAddon.aiAnimKit                 = fields[7].GetUInt16();
-        creatureAddon.movementAnimKit           = fields[8].GetUInt16();
-        creatureAddon.meleeAnimKit              = fields[9].GetUInt16();
-        creatureAddon.visibilityDistanceType = VisibilityDistanceType(fields[10].GetUInt8());
+        creatureAddon.standState                = fields[4].GetUInt8();
+        creatureAddon.animTier                  = fields[5].GetUInt8();
+        creatureAddon.visFlags                  = fields[6].GetUInt8();
+        creatureAddon.sheathState               = fields[7].GetUInt8();
+        creatureAddon.pvpFlags                  = fields[8].GetUInt8();
+        creatureAddon.emote                     = fields[9].GetUInt32();
+        creatureAddon.aiAnimKit                 = fields[10].GetUInt16();
+        creatureAddon.movementAnimKit           = fields[11].GetUInt16();
+        creatureAddon.meleeAnimKit              = fields[12].GetUInt16();
+        creatureAddon.visibilityDistanceType = VisibilityDistanceType(fields[13].GetUInt8());
 
-        Tokenizer tokens(fields[11].GetString(), ' ');
+        Tokenizer tokens(fields[14].GetString(), ' ');
         uint8 i = 0;
         creatureAddon.auras.resize(tokens.size());
         for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
@@ -631,6 +634,26 @@ void ObjectMgr::LoadCreatureTemplateAddons()
                 creatureAddon.mount = 0;
             }
         }
+
+        if (creatureAddon.standState >= MAX_UNIT_STAND_STATE)
+        {
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has invalid unit stand state (%u) defined in `creature_template_addon`. Truncated to 0.", entry, creatureAddon.standState);
+            creatureAddon.standState = 0;
+        }
+
+        if (AnimationTier(creatureAddon.animTier) >= AnimationTier::Max)
+        {
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has invalid animation tier (%u) defined in `creature_template_addon`. Truncated to 0.", entry, creatureAddon.animTier);
+            creatureAddon.animTier = 0;
+        }
+
+        if (creatureAddon.sheathState >= MAX_SHEATH_STATE)
+        {
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has invalid sheath state (%u) defined in `creature_template_addon`. Truncated to 0.", entry, creatureAddon.sheathState);
+            creatureAddon.sheathState = 0;
+        }
+
+        // PvPFlags don't need any checking for the time being since they cover the entire range of a byte
 
         if (!sEmotesStore.LookupEntry(creatureAddon.emote))
         {
@@ -1148,8 +1171,8 @@ void ObjectMgr::LoadCreatureAddons()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0     1               2                   3      4       5       6      7          8                9             10                      11
-    QueryResult result = WorldDatabase.Query("SELECT guid, waypointPathId, cyclicSplinePathId, mount, bytes1, bytes2, emote, aiAnimKit, movementAnimKit, meleeAnimKit, visibilityDistanceType, auras FROM creature_addon");
+    //                                               0     1               2                   3      4           5         6         7            8         9      10         11               12            13                      14
+    QueryResult result = WorldDatabase.Query("SELECT guid, waypointPathId, cyclicSplinePathId, mount, StandState, AnimTier, VisFlags, SheathState, PvPFlags, emote, aiAnimKit, movementAnimKit, meleeAnimKit, visibilityDistanceType, auras FROM creature_addon");
 
     if (!result)
     {
@@ -1203,15 +1226,18 @@ void ObjectMgr::LoadCreatureAddons()
         }
 
         creatureAddon.mount                     = fields[3].GetUInt32();
-        creatureAddon.bytes1                    = fields[4].GetUInt32();
-        creatureAddon.bytes2                    = fields[5].GetUInt32();
-        creatureAddon.emote                     = fields[6].GetUInt32();
-        creatureAddon.aiAnimKit                 = fields[7].GetUInt16();
-        creatureAddon.movementAnimKit           = fields[8].GetUInt16();
-        creatureAddon.meleeAnimKit              = fields[9].GetUInt16();
-        creatureAddon.visibilityDistanceType    = VisibilityDistanceType(fields[10].GetUInt8());
+        creatureAddon.standState                = fields[4].GetUInt8();
+        creatureAddon.animTier                  = fields[5].GetUInt8();
+        creatureAddon.visFlags                  = fields[6].GetUInt8();
+        creatureAddon.sheathState               = fields[7].GetUInt8();
+        creatureAddon.pvpFlags                  = fields[8].GetUInt8();
+        creatureAddon.emote                     = fields[9].GetUInt32();
+        creatureAddon.aiAnimKit                 = fields[10].GetUInt16();
+        creatureAddon.movementAnimKit           = fields[11].GetUInt16();
+        creatureAddon.meleeAnimKit              = fields[12].GetUInt16();
+        creatureAddon.visibilityDistanceType    = VisibilityDistanceType(fields[13].GetUInt8());
 
-        Tokenizer tokens(fields[11].GetString(), ' ');
+        Tokenizer tokens(fields[14].GetString(), ' ');
         uint8 i = 0;
         creatureAddon.auras.resize(tokens.size());
         for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
@@ -1243,6 +1269,26 @@ void ObjectMgr::LoadCreatureAddons()
                 creatureAddon.mount = 0;
             }
         }
+
+        if (creatureAddon.standState >= MAX_UNIT_STAND_STATE)
+        {
+            TC_LOG_ERROR("sql.sql", "Creature (GUID: %u) has invalid unit stand state (%u) defined in `creature_addon`. Truncated to 0.", guid, creatureAddon.standState);
+            creatureAddon.standState = 0;
+        }
+
+        if (AnimationTier(creatureAddon.animTier) >= AnimationTier::Max)
+        {
+            TC_LOG_ERROR("sql.sql", "Creature (GUID: %u) has invalid animation tier (%u) defined in `creature_addon`. Truncated to 0.", guid, creatureAddon.animTier);
+            creatureAddon.animTier = 0;
+        }
+
+        if (creatureAddon.sheathState >= MAX_SHEATH_STATE)
+        {
+            TC_LOG_ERROR("sql.sql", "Creature (GUID: %u) has invalid sheath state (%u) defined in `creature_addon`. Truncated to 0.", guid, creatureAddon.sheathState);
+            creatureAddon.sheathState = 0;
+        }
+
+        // PvPFlags don't need any checking for the time being since they cover the entire range of a byte
 
         if (!sEmotesStore.LookupEntry(creatureAddon.emote))
         {

@@ -39,7 +39,9 @@ enum UnitStandStateType : uint8
     UNIT_STAND_STATE_SIT_HIGH_CHAIR    = 6,
     UNIT_STAND_STATE_DEAD              = 7,
     UNIT_STAND_STATE_KNEEL             = 8,
-    UNIT_STAND_STATE_SUBMERGED         = 9
+    UNIT_STAND_STATE_SUBMERGED         = 9,
+
+    MAX_UNIT_STAND_STATE
 };
 
 // byte flag value (UNIT_FIELD_BYTES_1, 2)
@@ -80,11 +82,13 @@ enum UnitBytes2Offsets : uint8
 // UNIT_FIELD_BYTES_1 (UNIT_BYTES_1_OFFSET_ANIM_TIER)
 enum class AnimationTier : uint8
 {
-    Ground = 0,
-    Swim = 1,
-    Hover = 2,
-    Fly = 3,
-    Submerged = 4,
+    Ground      = 0, // plays ground tier animations
+    Swim        = 1, // falls back to ground tier animations, not handled by the client, should never appear in sniffs, will prevent tier change animations from playing correctly if used
+    Hover       = 2, // plays flying tier animations or falls back to ground tier animations, automatically enables hover clientside when entering visibility with this value
+    Fly         = 3, // plays flying tier animations
+    Submerged   = 4,
+
+    Max
 };
 
 // low byte (0 from 0..3) of UNIT_FIELD_BYTES_2
@@ -92,10 +96,10 @@ enum SheathState : uint8
 {
     SHEATH_STATE_UNARMED  = 0,                              // non prepared weapon
     SHEATH_STATE_MELEE    = 1,                              // prepared melee weapon
-    SHEATH_STATE_RANGED   = 2                               // prepared ranged weapon
-};
+    SHEATH_STATE_RANGED   = 2,                              // prepared ranged weapon
 
-#define MAX_SHEATH_STATE    3
+    MAX_SHEATH_STATE
+};
 
 // byte (1 from 0..3) of UNIT_FIELD_BYTES_2
 enum UnitPVPStateFlags : uint8

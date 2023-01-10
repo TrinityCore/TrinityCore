@@ -336,8 +336,11 @@ struct CreatureAddon
     uint32 waypointPathId;
     uint32 cyclicSplinePathId;
     uint32 mount;
-    uint32 bytes1;
-    uint32 bytes2;
+    uint8 standState;
+    uint8 animTier;
+    uint8 sheathState;
+    uint8 pvpFlags;
+    uint8 visFlags;
     uint32 emote;
     uint16 aiAnimKit;
     uint16 movementAnimKit;
