@@ -400,38 +400,18 @@ bool OutdoorPvP::HandleDropFlag(Player* player, uint32 id)
     return false;
 }
 
-bool OPvPCapturePoint::HandleGossipOption(Player* /*player*/, Creature* /*creature*/, uint32 /*id*/)
-{
-    return false;
-}
-
-bool OPvPCapturePoint::CanTalkTo(Player* /*player*/, Creature* /*c*/, GossipMenuItems const& /*gso*/)
-{
-    return false;
-}
-
-bool OPvPCapturePoint::HandleDropFlag(Player* /*player*/, uint32 /*id*/)
-{
-    return false;
-}
-
 int32 OPvPCapturePoint::HandleOpenGo(Player* /*player*/, GameObject* /*go*/)
 {
     return -1;
 }
 
-bool OutdoorPvP::HandleAreaTrigger(Player* /*player*/, uint32 /*trigger*/)
-{
-    return false;
-}
-
-void OutdoorPvP::BroadcastPacket(WorldPacket &data) const
+void OutdoorPvP::BroadcastPacket(WorldPacket const* data) const
 {
     // This is faster than sWorld->SendZoneMessage
     for (uint32 team = 0; team < BG_TEAMS_COUNT; ++team)
         for (GuidSet::const_iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
             if (Player* const player = ObjectAccessor::FindPlayer(*itr))
-                player->SendDirectMessage(&data);
+                player->SendDirectMessage(data);
 }
 
 void OutdoorPvP::AddCapturePoint(OPvPCapturePoint* cp)
