@@ -22,7 +22,7 @@
 void Trinity::Banner::Show(char const* applicationName, void(*log)(char const* text), void(*logExtraInfo)())
 {
     log(Trinity::StringFormat("{} ({})", GitRevision::GetFullVersion(), applicationName).c_str());
-    log(R"(<Ctrl-C> to stop.\n)");
+    log(R"(<Ctrl-C> to stop.)");
     log(R"( ______                       __)");
     log(R"(/\__  _\       __          __/\ \__)");
     log(R"(\/_/\ \/ _ __ /\_\    ___ /\_\ \, _\  __  __)");
