@@ -793,19 +793,19 @@ void ObjectMgr::LoadCreatureTemplateAddons()
 
         if (creatureAddon.standState >= MAX_UNIT_STAND_STATE)
         {
-            TC_LOG_ERROR("sql.sql", "Creature (Entry: {}) has invalid unit stand state ({}) defined in `creature_addon`. Truncated to 0.", entry, creatureAddon.standState);
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: {}) has invalid unit stand state ({}) defined in `creature_template_addon`. Truncated to 0.", entry, creatureAddon.standState);
             creatureAddon.standState = 0;
         }
 
         if (AnimTier(creatureAddon.animTier) >= AnimTier::Max)
         {
-            TC_LOG_ERROR("sql.sql", "Creature (Entry: {}) has invalid animation tier ({}) defined in `creature_addon`. Truncated to 0.", entry, creatureAddon.animTier);
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: {}) has invalid animation tier ({}) defined in `creature_template_addon`. Truncated to 0.", entry, creatureAddon.animTier);
             creatureAddon.animTier = 0;
         }
 
         if (creatureAddon.sheathState >= MAX_SHEATH_STATE)
         {
-            TC_LOG_ERROR("sql.sql", "Creature (Entry: {}) has invalid sheath state ({}) defined in `creature_addon`. Truncated to 0.", entry, creatureAddon.sheathState);
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: {}) has invalid sheath state ({}) defined in `creature_template_addon`. Truncated to 0.", entry, creatureAddon.sheathState);
             creatureAddon.sheathState = 0;
         }
 
