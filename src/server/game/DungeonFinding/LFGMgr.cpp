@@ -709,6 +709,12 @@ WorldPackets::LFG::RideTicket const* LFGMgr::GetTicket(ObjectGuid guid) const
     return nullptr;
 }
 
+//后加-开始
+void LFGMgr::ToggleSoloLFG()
+{
+    m_isSoloLFG = !m_isSoloLFG;
+}//后加-结束
+
 /**
    Update the Role check info with the player selected role.
 

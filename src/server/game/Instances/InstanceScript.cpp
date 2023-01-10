@@ -47,6 +47,7 @@
 #ifdef TRINITY_API_USE_DYNAMIC_LINKING
 #include "ScriptMgr.h"
 #endif
+#include "../../../../../hxsd/TrinityCoreBased/src/server/game/Server/Packets/MiscPackets.h"
 
 BossBoundaryData::~BossBoundaryData()
 {
@@ -199,6 +200,27 @@ void InstanceScript::LoadObjectData(ObjectData const* creatureData, ObjectData c
         LoadObjectData(gameObjectData, _gameObjectInfo);
 
     TC_LOG_DEBUG("scripts", "InstanceScript::LoadObjectData: " SZFMTD " objects loaded.", _creatureInfo.size() + _gameObjectInfo.size());
+}
+//后加
+void InstanceScript::GiveIslandAzeriteXpGain(Player* player, ObjectGuid guid, int32 xp)
+{
+    WorldPackets::Misc::IslandAzeriteXpGain xpgain;
+    xpgain.SourceGuid = guid;
+    xpgain.SourceID = guid.GetEntry();
+    xpgain.PlayerGuid = player->GetGUID();
+    xpgain.XpGain = xp;
+    player->GetSession()->SendPacket(xpgain.Write());
+
+    if (player->IsInAlliance())
+        _islandCount[0] = _islandCount[0] + xp;
+    else
+        _islandCount[1] = _islandCount[1] + xp;
+
+
+    player->CastSpell(player, SPELL_AZERITE_ENERGY, true);
+
+    DoUpdateWorldState(WORLDSTATE_ALLIANCE_GAIN, _islandCount[0]);
+    DoUpdateWorldState(WORLDSTATE_HORDE_GAIN, _islandCount[1]);
 }
 
 void InstanceScript::LoadObjectData(ObjectData const* data, ObjectInfoMap& objectInfo)

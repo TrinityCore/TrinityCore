@@ -424,6 +424,13 @@ class TC_GAME_API LFGMgr
         /// Gets unique join queue data
         WorldPackets::LFG::RideTicket const* GetTicket(ObjectGuid guid) const;
 
+        /// Toggle LFG in debug mode    //后加
+        void ToggleSoloLFG();           //后加
+        /// Check if debug mode         //后加    
+        bool IsSoloLFG() const { return m_isSoloLFG; }  //后加
+
+
+
         // LfgQueue
         /// Get last lfg state (NONE, DUNGEON or FINISHED_DUNGEON)
         LfgState GetOldState(ObjectGuid guid);
@@ -485,6 +492,8 @@ class TC_GAME_API LFGMgr
         uint32 m_QueueTimer;                               /// used to check interval of update
         uint32 m_lfgProposalId;                            /// used as internal counter for proposals
         uint32 m_options;                                  /// Stores config options
+
+        bool m_isSoloLFG;                                  /// solo lfg //根据TrinityCoreBased后加,为了实现单人随机地下城查找器脚本的启用
 
         LfgQueueContainer QueuesStore;                     /// Queues
         LfgCachedDungeonContainer CachedDungeonMapStore;   /// Stores all dungeons by groupType

@@ -1849,6 +1849,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint8 GetActiveTalentGroup() const { return _specializationInfo.ActiveGroup; }
         void SetActiveTalentGroup(uint8 group){ _specializationInfo.ActiveGroup = group; }
         uint32 GetDefaultSpecId() const;
+        static uint32 GetRoleBySpecializationId(uint32 specializationId);
+        TalentSpecialization GetSpecializationId() const { return (TalentSpecialization)GetPrimarySpecialization(); }
 
         bool ResetTalents(bool noCost = false);
         void ResetPvpTalents();
@@ -2236,7 +2238,15 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         static TeamId TeamIdForRace(uint8 race);
         static uint8 GetFactionGroupForRace(uint8 race);
         uint32 GetTeam() const { return m_team; }
+
         TeamId GetTeamId() const { return m_team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
+
+        bool IsTeamAlliance() const { return m_team == ALLIANCE; }//后加
+        bool IsTeamHorde() const { return m_team == HORDE; }//后加
+        bool IsInAlliance() const { return m_team == ALLIANCE; }//后加
+        bool IsInHorde() const { return m_team == HORDE; }//后加
+
+
         void SetFactionForRace(uint8 race);
 
         Team GetEffectiveTeam() const { return HasPlayerFlagEx(PLAYER_FLAGS_EX_MERCENARY_MODE) ? (GetTeam() == ALLIANCE ? HORDE : ALLIANCE) : Team(GetTeam()); }

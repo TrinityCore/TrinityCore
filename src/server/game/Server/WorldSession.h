@@ -518,6 +518,7 @@ namespace WorldPackets
         class CloseInteraction;
         class ConversationLineStarted;
         class RequestLatestSplashScreen;
+        class IslandAzeriteXpGain;
     }
 
     namespace Movement

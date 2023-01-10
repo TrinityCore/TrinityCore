@@ -16,9 +16,25 @@
  */
 
 // This is where scripts' loading functions should be declared:
+void AddSC_solocraft();             //单人随机地下城查找器脚本
+void AddSC_SpellCraft();            //单人随机地下城查找器脚本
+void AddSC_LeechCraft();            //单人随机地下城查找器脚本
+void AddSC_CombatRatingCraft();     //单人随机地下城查找器脚本
+void AddSC_Hastecraft();            //单人随机地下城查找器脚本
+void AddLfgSoloScripts();           //单人随机地下城查找器脚本
+void AddSC_custom_player_script();  //单人随机地下城查找器脚本
+//void AddSC_GuardianAngel();       //暂无
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddCustomScripts()
 {
+    AddSC_solocraft();              //单人随机地下城查找器脚本
+    AddSC_SpellCraft();             //单人随机地下城查找器脚本
+    AddSC_LeechCraft();             //单人随机地下城查找器脚本
+    AddSC_CombatRatingCraft();      //单人随机地下城查找器脚本
+    AddSC_Hastecraft();             //单人随机地下城查找器脚本
+    AddLfgSoloScripts();            //单人随机地下城查找器脚本
+    AddSC_custom_player_script();   //单人随机地下城查找器脚本
+ //   AddSC_GuardianAngel();        //暂无
 }

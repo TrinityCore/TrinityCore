@@ -315,6 +315,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         bool IsRaid() const;
         bool IsHeroic() const;
         bool Is25ManRaid() const;
+        bool IsMythicRaid() const { return i_spawnMode == DIFFICULTY_MYTHIC_RAID; }//后加
+        bool IsHeroicPlusRaid() const { return i_spawnMode == DIFFICULTY_HEROIC_RAID || i_spawnMode == DIFFICULTY_MYTHIC_RAID; }//后加
         bool IsBattleground() const;
         bool IsBattleArena() const;
         bool IsBattlegroundOrArena() const;

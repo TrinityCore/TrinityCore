@@ -64,6 +64,15 @@ enum SpellEffIndex : uint8
 #define EFFECT_FIRST_FOUND 254
 #define EFFECT_ALL 255
 
+enum Roles
+{
+    ROLE_TANK = 0,
+    ROLE_HEALER = 1,
+    ROLE_DAMAGE = 2,
+    ROLES_DEFAULT = 3
+};
+
+
 // loot modes for creatures and gameobjects, bitmask!
 enum LootModes
 {
