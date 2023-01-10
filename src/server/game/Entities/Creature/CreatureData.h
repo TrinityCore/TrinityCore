@@ -474,10 +474,11 @@ struct TC_GAME_API CreatureTemplate
     int32   WidgetSetID;
     int32   WidgetSetUnitConditionID;
     bool    RegenHealth;
-    uint32  MechanicImmuneMask;
+    uint64  MechanicImmuneMask;
     uint32  SpellSchoolImmuneMask;
     uint32  flags_extra;
     uint32  ScriptID;
+    std::string StringId;
     WorldPacket QueryData[TOTAL_LOCALES];
     CreatureModel const* GetModelByIdx(uint32 idx) const;
     CreatureModel const* GetRandomValidModel() const;
@@ -667,9 +668,6 @@ struct VendorItem
     std::vector<int32> BonusListIDs;
     uint32 PlayerConditionId;
     bool IgnoreFiltering;
-
-    //helpers
-    bool IsGoldRequired(ItemTemplate const* pProto) const;
 };
 
 struct VendorItemData

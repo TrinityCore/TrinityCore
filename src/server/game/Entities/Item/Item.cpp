@@ -71,7 +71,7 @@ void AddItemsSetItem(Player* player, Item const* item)
 
     if (!set)
     {
-        TC_LOG_ERROR("sql.sql", "Item set %u for item (id %u) not found, mods not applied.", setid, proto->GetId());
+        TC_LOG_ERROR("sql.sql", "Item set {} for item (id {}) not found, mods not applied.", setid, proto->GetId());
         return;
     }
 
@@ -139,7 +139,7 @@ void AddItemsSetItem(Player* player, Item const* item)
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itemSetSpell->SpellID, DIFFICULTY_NONE);
             if (!spellInfo)
             {
-                TC_LOG_ERROR("entities.player.items", "WORLD: unknown spell id %u in items set %u effects", itemSetSpell->SpellID, setid);
+                TC_LOG_ERROR("entities.player.items", "WORLD: unknown spell id {} in items set {} effects", itemSetSpell->SpellID, setid);
                 continue;
             }
 
@@ -159,7 +159,7 @@ void RemoveItemsSetItem(Player* player, Item const* item)
 
     if (!set)
     {
-        TC_LOG_ERROR("sql.sql", "Item set #%u for item #%u not found, mods not removed.", setid, item->GetEntry());
+        TC_LOG_ERROR("sql.sql", "Item set #{} for item #{} not found, mods not removed.", setid, item->GetEntry());
         return;
     }
 
@@ -256,6 +256,8 @@ bool ItemCanGoIntoBag(ItemTemplate const* pProto, ItemTemplate const* pBagProto)
                     if (!(pProto->GetBagFamily() & BAG_FAMILY_MASK_COOKING_SUPP))
                         return false;
                     return true;
+                case ITEM_SUBCLASS_REAGENT_CONTAINER:
+                    return pProto->IsCraftingReagent();
                 default:
                     return false;
             }
@@ -522,7 +524,7 @@ std::string Item::GetNameForLocaleIdx(LocaleConstant locale) const
 {
     ItemTemplate const* itemTemplate = GetTemplate();
     if (ItemNameDescriptionEntry const* suffix = sItemNameDescriptionStore.LookupEntry(_bonusData.Suffix))
-        return Trinity::StringFormat("%s %s", itemTemplate->GetName(locale), suffix->Description[locale]);
+        return Trinity::StringFormat("{} {}", itemTemplate->GetName(locale), suffix->Description[locale]);
 
     return itemTemplate->GetName(locale);
 }
@@ -542,7 +544,7 @@ void Item::UpdateDuration(Player* owner, uint32 diff)
     if (!duration)
         return;
 
-    TC_LOG_DEBUG("entities.player.items", "Item::UpdateDuration Item (Entry: %u Duration %u Diff %u)", GetEntry(), duration, diff);
+    TC_LOG_DEBUG("entities.player.items", "Item::UpdateDuration Item (Entry: {} Duration {} Diff {})", GetEntry(), duration, diff);
 
     if (duration <= diff)
     {
@@ -610,7 +612,7 @@ void Item::SaveToDB(CharacterDatabaseTransaction trans)
             stmt->setUInt8(++index, uint8(m_itemData->Context));
 
             std::ostringstream bonusListIDs;
-            for (int32 bonusListID : *m_itemData->BonusListIDs)
+            for (int32 bonusListID : GetBonusListIDs())
                 bonusListIDs << bonusListID << ' ';
             stmt->setString(++index, bonusListIDs.str());
 
@@ -852,7 +854,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     ItemTemplate const* proto = GetTemplate();
     if (!proto)
     {
-        TC_LOG_ERROR("entities.item", "Invalid entry %u for item %s. Refusing to load.", GetEntry(), GetGUID().ToString().c_str());
+        TC_LOG_ERROR("entities.item", "Invalid entry {} for item {}. Refusing to load.", GetEntry(), GetGUID().ToString());
         return false;
     }
 
@@ -1200,8 +1202,8 @@ void AddItemToUpdateQueueOf(Item* item, Player* player)
 
     if (player->GetGUID() != item->GetOwnerGUID())
     {
-        TC_LOG_DEBUG("entities.player.items", "AddItemToUpdateQueueOf - Owner's guid (%s) and player's guid (%s) don't match!",
-            item->GetOwnerGUID().ToString().c_str(), player->GetGUID().ToString().c_str());
+        TC_LOG_DEBUG("entities.player.items", "AddItemToUpdateQueueOf - Owner's guid ({}) and player's guid ({}) don't match!",
+            item->GetOwnerGUID().ToString(), player->GetGUID().ToString());
         return;
     }
 
@@ -1221,8 +1223,8 @@ void RemoveItemFromUpdateQueueOf(Item* item, Player* player)
 
     if (player->GetGUID() != item->GetOwnerGUID())
     {
-        TC_LOG_DEBUG("entities.player.items", "RemoveItemFromUpdateQueueOf - Owner's guid (%s) and player's guid (%s) don't match!",
-            item->GetOwnerGUID().ToString().c_str(), player->GetGUID().ToString().c_str());
+        TC_LOG_DEBUG("entities.player.items", "RemoveItemFromUpdateQueueOf - Owner's guid ({}) and player's guid ({}) don't match!",
+            item->GetOwnerGUID().ToString(), player->GetGUID().ToString());
         return;
     }
 
@@ -1240,7 +1242,8 @@ uint8 Item::GetBagSlot() const
 
 bool Item::IsEquipped() const
 {
-    return !IsInBag() && m_slot < EQUIPMENT_SLOT_END;
+    return !IsInBag() && (m_slot < EQUIPMENT_SLOT_END
+        || (m_slot >= PROFESSION_SLOT_START && m_slot < PROFESSION_SLOT_END));
 }
 
 bool Item::CanBeTraded(bool mail, bool trade) const
@@ -2043,6 +2046,12 @@ int32 const ItemTransmogrificationSlots[MAX_INVTYPE] =
     EQUIPMENT_SLOT_MAINHAND,                                // INVTYPE_RANGEDRIGHT
     -1,                                                     // INVTYPE_QUIVER
     -1                                                      // INVTYPE_RELIC
+    -1,                                                     // INVTYPE_PROFESSION_TOOL
+    -1,                                                     // INVTYPE_PROFESSION_GEAR
+    -1,                                                     // INVTYPE_EQUIPABLE_SPELL_OFFENSIVE
+    -1,                                                     // INVTYPE_EQUIPABLE_SPELL_UTILITY
+    -1,                                                     // INVTYPE_EQUIPABLE_SPELL_DEFENSIVE
+    -1                                                      // INVTYPE_EQUIPABLE_SPELL_MOBILITY
 };
 
 bool Item::CanTransmogrifyItemWithItem(Item const* item, ItemModifiedAppearanceEntry const* itemModifiedAppearance)
@@ -2501,14 +2510,16 @@ uint16 Item::GetVisibleItemVisual(Player const* owner) const
 
 void Item::AddBonuses(uint32 bonusListID)
 {
-    if (std::find(m_itemData->BonusListIDs->begin(), m_itemData->BonusListIDs->end(), int32(bonusListID)) != m_itemData->BonusListIDs->end())
+    if (std::find(GetBonusListIDs().begin(), GetBonusListIDs().end(), int32(bonusListID)) != GetBonusListIDs().end())
         return;
 
     if (DB2Manager::ItemBonusList const* bonuses = sDB2Manager.GetItemBonusList(bonusListID))
     {
-        std::vector<int32> bonusListIDs = m_itemData->BonusListIDs;
-        bonusListIDs.push_back(bonusListID);
-        SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::BonusListIDs), std::move(bonusListIDs));
+        WorldPackets::Item::ItemBonusKey itemBonusKey;
+        itemBonusKey.ItemID = GetEntry();
+        itemBonusKey.BonusListIDs = GetBonusListIDs();
+        itemBonusKey.BonusListIDs.push_back(bonusListID);
+        SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ItemBonusKey), std::move(itemBonusKey));
         for (ItemBonusEntry const* bonus : *bonuses)
             _bonusData.AddBonus(bonus->Type, bonus->Value);
         SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ItemAppearanceModID), _bonusData.AppearanceModID);
@@ -2517,9 +2528,12 @@ void Item::AddBonuses(uint32 bonusListID)
 
 void Item::SetBonuses(std::vector<int32> bonusListIDs)
 {
-    SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::BonusListIDs), std::move(bonusListIDs));
+    WorldPackets::Item::ItemBonusKey itemBonusKey;
+    itemBonusKey.ItemID = GetEntry();
+    itemBonusKey.BonusListIDs = std::move(bonusListIDs);
+    SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ItemBonusKey), std::move(itemBonusKey));
 
-    for (int32 bonusListID : *m_itemData->BonusListIDs)
+    for (int32 bonusListID : GetBonusListIDs())
         _bonusData.AddBonusList(bonusListID);
 
     SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ItemAppearanceModID), _bonusData.AppearanceModID);
@@ -2527,7 +2541,9 @@ void Item::SetBonuses(std::vector<int32> bonusListIDs)
 
 void Item::ClearBonuses()
 {
-    SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::BonusListIDs), std::vector<int32>());
+    WorldPackets::Item::ItemBonusKey itemBonusKey;
+    itemBonusKey.ItemID = GetEntry();
+    SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ItemBonusKey), std::move(itemBonusKey));
     _bonusData.Initialize(GetTemplate());
     SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ItemAppearanceModID), _bonusData.AppearanceModID);
 }

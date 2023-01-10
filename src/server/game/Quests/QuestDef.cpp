@@ -138,13 +138,13 @@ void Quest::LoadRewardDisplaySpell(Field* fields)
 
     if (!sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE))
     {
-        TC_LOG_ERROR("sql.sql", "Table `quest_reward_display_spell` has non-existing Spell (%u) set for quest %u. Skipped.", spellId, fields[0].GetUInt32());
+        TC_LOG_ERROR("sql.sql", "Table `quest_reward_display_spell` has non-existing Spell ({}) set for quest {}. Skipped.", spellId, fields[0].GetUInt32());
         return;
     }
 
     if (playerConditionId && !sPlayerConditionStore.LookupEntry(playerConditionId))
     {
-        TC_LOG_ERROR("sql.sql", "Table `quest_reward_display_spell` has non-existing PlayerCondition (%u) set for quest %u and spell %u. Set to 0.", playerConditionId, fields[0].GetUInt32(), spellId);
+        TC_LOG_ERROR("sql.sql", "Table `quest_reward_display_spell` has non-existing PlayerCondition ({}) set for quest {} and spell {}. Set to 0.", playerConditionId, fields[0].GetUInt32(), spellId);
         playerConditionId = 0;
     }
 
@@ -163,7 +163,7 @@ void Quest::LoadQuestDetails(Field* fields)
     {
         if (!sEmotesStore.LookupEntry(fields[1 + i].GetUInt16()))
         {
-            TC_LOG_ERROR("sql.sql", "Table `quest_details` has non-existing Emote%i (%u) set for quest %u. Skipped.", 1+i, fields[1+i].GetUInt16(), fields[0].GetUInt32());
+            TC_LOG_ERROR("sql.sql", "Table `quest_details` has non-existing Emote{} ({}) set for quest {}. Skipped.", 1+i, fields[1+i].GetUInt16(), fields[0].GetUInt32());
             continue;
         }
 
@@ -180,10 +180,10 @@ void Quest::LoadQuestRequestItems(Field* fields)
     _emoteOnIncomplete = fields[2].GetUInt16();
 
     if (!sEmotesStore.LookupEntry(_emoteOnComplete))
-        TC_LOG_ERROR("sql.sql", "Table `quest_request_items` has non-existing EmoteOnComplete (%u) set for quest %u.", _emoteOnComplete, fields[0].GetUInt32());
+        TC_LOG_ERROR("sql.sql", "Table `quest_request_items` has non-existing EmoteOnComplete ({}) set for quest {}.", _emoteOnComplete, fields[0].GetUInt32());
 
     if (!sEmotesStore.LookupEntry(_emoteOnIncomplete))
-        TC_LOG_ERROR("sql.sql", "Table `quest_request_items` has non-existing EmoteOnIncomplete (%u) set for quest %u.", _emoteOnIncomplete, fields[0].GetUInt32());
+        TC_LOG_ERROR("sql.sql", "Table `quest_request_items` has non-existing EmoteOnIncomplete ({}) set for quest {}.", _emoteOnIncomplete, fields[0].GetUInt32());
 
     _emoteOnCompleteDelay = fields[3].GetUInt32();
     _emoteOnIncompleteDelay = fields[4].GetUInt32();
@@ -196,7 +196,7 @@ void Quest::LoadQuestOfferReward(Field* fields)
     {
         if (!sEmotesStore.LookupEntry(fields[1 + i].GetUInt16()))
         {
-            TC_LOG_ERROR("sql.sql", "Table `quest_offer_reward` has non-existing Emote%i (%u) set for quest %u. Skipped.", 1+i, fields[1+i].GetUInt16(), fields[0].GetUInt32());
+            TC_LOG_ERROR("sql.sql", "Table `quest_offer_reward` has non-existing Emote{} ({}) set for quest {}. Skipped.", 1+i, fields[1+i].GetUInt16(), fields[0].GetUInt32());
             continue;
         }
 
@@ -275,13 +275,98 @@ void Quest::LoadQuestObjectiveVisualEffect(Field* fields)
     }
 }
 
+void Quest::LoadConditionalConditionalQuestDescription(Field* fields)
+{
+    LocaleConstant locale = GetLocaleByName(fields[4].GetStringView());
+    if (locale >= TOTAL_LOCALES)
+    {
+        TC_LOG_ERROR("sql.sql", "Table `quest_description_conditional` has invalid locale {} set for quest {}. Skipped.", fields[4].GetCString(), fields[0].GetUInt32());
+        return;
+    }
+
+    auto itr = std::find_if(_conditionalQuestDescription.begin(), _conditionalQuestDescription.end(), [fields](QuestConditionalText const& text)
+    {
+        return text.PlayerConditionId == fields[1].GetInt32() && text.QuestgiverCreatureId == fields[2].GetInt32();
+    });
+
+    QuestConditionalText& text = itr != _conditionalQuestDescription.end() ? *itr : _conditionalQuestDescription.emplace_back();
+    text.PlayerConditionId = fields[1].GetInt32();
+    text.QuestgiverCreatureId = fields[2].GetInt32();
+    ObjectMgr::AddLocaleString(fields[3].GetString(), locale, text.Text);
+}
+
+void Quest::LoadConditionalConditionalRequestItemsText(Field* fields)
+{
+    LocaleConstant locale = GetLocaleByName(fields[4].GetStringView());
+    if (locale >= TOTAL_LOCALES)
+    {
+        TC_LOG_ERROR("sql.sql", "Table `quest_request_items_conditional` has invalid locale {} set for quest {}. Skipped.", fields[4].GetCString(), fields[0].GetUInt32());
+        return;
+    }
+
+    auto itr = std::find_if(_conditionalRequestItemsText.begin(), _conditionalRequestItemsText.end(), [fields](QuestConditionalText const& text)
+    {
+        return text.PlayerConditionId == fields[1].GetInt32() && text.QuestgiverCreatureId == fields[2].GetInt32();
+    });
+
+    QuestConditionalText& text = itr != _conditionalRequestItemsText.end() ? *itr : _conditionalRequestItemsText.emplace_back();
+    text.PlayerConditionId = fields[1].GetInt32();
+    text.QuestgiverCreatureId = fields[2].GetInt32();
+    ObjectMgr::AddLocaleString(fields[3].GetString(), locale, text.Text);
+}
+
+void Quest::LoadConditionalConditionalOfferRewardText(Field* fields)
+{
+    LocaleConstant locale = GetLocaleByName(fields[4].GetStringView());
+    if (locale >= TOTAL_LOCALES)
+    {
+        TC_LOG_ERROR("sql.sql", "Table `quest_offer_reward_conditional` has invalid locale {} set for quest {}. Skipped.", fields[4].GetCString(), fields[0].GetUInt32());
+        return;
+    }
+
+    auto itr = std::find_if(_conditionalOfferRewardText.begin(), _conditionalOfferRewardText.end(), [fields](QuestConditionalText const& text)
+    {
+        return text.PlayerConditionId == fields[1].GetInt32() && text.QuestgiverCreatureId == fields[2].GetInt32();
+    });
+
+    QuestConditionalText& text = itr != _conditionalOfferRewardText.end() ? *itr : _conditionalOfferRewardText.emplace_back();
+    text.PlayerConditionId = fields[1].GetInt32();
+    text.QuestgiverCreatureId = fields[2].GetInt32();
+    ObjectMgr::AddLocaleString(fields[3].GetString(), locale, text.Text);
+}
+
+void Quest::LoadConditionalConditionalQuestCompletionLog(Field* fields)
+{
+    LocaleConstant locale = GetLocaleByName(fields[4].GetStringView());
+    if (locale >= TOTAL_LOCALES)
+    {
+        TC_LOG_ERROR("sql.sql", "Table `quest_completion_log_conditional` has invalid locale {} set for quest {}. Skipped.", fields[4].GetCString(), fields[0].GetUInt32());
+        return;
+    }
+
+    auto itr = std::find_if(_conditionalQuestCompletionLog.begin(), _conditionalQuestCompletionLog.end(), [fields](QuestConditionalText const& text)
+    {
+        return text.PlayerConditionId == fields[1].GetInt32() && text.QuestgiverCreatureId == fields[2].GetInt32();
+    });
+
+    QuestConditionalText& text = itr != _conditionalQuestCompletionLog.end() ? *itr : _conditionalQuestCompletionLog.emplace_back();
+    text.PlayerConditionId = fields[1].GetInt32();
+    text.QuestgiverCreatureId = fields[2].GetInt32();
+    ObjectMgr::AddLocaleString(fields[3].GetString(), locale, text.Text);
+}
+
 uint32 Quest::XPValue(Player const* player) const
+{
+    return XPValue(player, GetContentTuningId(), _rewardXPDifficulty, _rewardXPMultiplier, _expansion);
+}
+
+uint32 Quest::XPValue(Player const* player, uint32 contentTuningId, uint32 xpDifficulty, float xpMultiplier /*= 1.0f*/, int32 expansion /*= -1*/)
 {
     if (player)
     {
-        uint32 questLevel = player->GetQuestLevel(this);
+        uint32 questLevel = player->GetQuestLevel(contentTuningId);
         QuestXPEntry const* questXp = sQuestXPStore.LookupEntry(questLevel);
-        if (!questXp || _rewardXPDifficulty >= 10)
+        if (!questXp || xpDifficulty >= 10)
             return 0;
 
         int32 diffFactor = 2 * (questLevel - player->GetLevel()) + 12;
@@ -290,15 +375,15 @@ uint32 Quest::XPValue(Player const* player) const
         else if (diffFactor > 10)
             diffFactor = 10;
 
-        uint32 xp = diffFactor * questXp->Difficulty[_rewardXPDifficulty] * _rewardXPMultiplier / 10;
-        if (player->GetLevel() >= GetMaxLevelForExpansion(CURRENT_EXPANSION - 1) && player->GetSession()->GetExpansion() == CURRENT_EXPANSION && _expansion < CURRENT_EXPANSION)
+        uint32 xp = diffFactor * questXp->Difficulty[xpDifficulty] * xpMultiplier / 10;
+        if (player->GetLevel() >= GetMaxLevelForExpansion(CURRENT_EXPANSION - 1) && player->GetSession()->GetExpansion() == CURRENT_EXPANSION && expansion >= 0 && expansion < CURRENT_EXPANSION)
             xp = uint32(xp / 9.0f);
 
         xp = RoundXPValue(xp);
 
         if (sWorld->getIntConfig(CONFIG_MIN_QUEST_SCALED_XP_RATIO))
         {
-            uint32 minScaledXP = RoundXPValue(questXp->Difficulty[_rewardXPDifficulty] * _rewardXPMultiplier) * sWorld->getIntConfig(CONFIG_MIN_QUEST_SCALED_XP_RATIO) / 100;
+            uint32 minScaledXP = RoundXPValue(questXp->Difficulty[xpDifficulty] * xpMultiplier) * sWorld->getIntConfig(CONFIG_MIN_QUEST_SCALED_XP_RATIO) / 100;
             xp = std::max(minScaledXP, xp);
         }
 
@@ -496,6 +581,19 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc, Player* player) const
     response.Info.PortraitGiverName = GetPortraitGiverName();
     response.Info.PortraitTurnInText = GetPortraitTurnInText();
     response.Info.PortraitTurnInName = GetPortraitTurnInName();
+    std::transform(GetConditionalQuestDescription().begin(), GetConditionalQuestDescription().end(), std::back_inserter(response.Info.ConditionalQuestDescription), [loc](QuestConditionalText const& text)
+    {
+        std::string_view content = text.Text[LOCALE_enUS];
+        ObjectMgr::GetLocaleString(text.Text, loc, content);
+        return WorldPackets::Quest::ConditionalQuestText { text.PlayerConditionId, text.QuestgiverCreatureId, content };
+    });
+
+    std::transform(GetConditionalQuestCompletionLog().begin(), GetConditionalQuestCompletionLog().end(), std::back_inserter(response.Info.ConditionalQuestCompletionLog), [loc](QuestConditionalText const& text)
+    {
+        std::string_view content = text.Text[LOCALE_enUS];
+        ObjectMgr::GetLocaleString(text.Text, loc, content);
+        return WorldPackets::Quest::ConditionalQuestText { text.PlayerConditionId, text.QuestgiverCreatureId, content };
+    });
 
     if (loc != LOCALE_enUS)
     {
@@ -594,6 +692,7 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc, Player* player) const
     response.Info.Expansion = GetExpansion();
     response.Info.ManagedWorldStateID = GetManagedWorldStateId();
     response.Info.QuestSessionBonus = 0; //GetQuestSessionBonus(); // this is only sent while quest session is active
+    response.Info.QuestGiverCreatureID = 0; // only sent during npc interaction
 
     for (QuestObjective const& questObjective : GetObjectives())
     {

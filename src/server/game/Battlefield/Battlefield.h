@@ -213,6 +213,10 @@ class TC_GAME_API Battlefield : public ZoneScript
     public:
         /// Constructor
         explicit Battlefield(Map* map);
+        Battlefield(Battlefield const& right) = delete;
+        Battlefield(Battlefield&& right) = delete;
+        Battlefield& operator=(Battlefield const& right) = delete;
+        Battlefield& operator=(Battlefield&& right) = delete;
         /// Destructor
         virtual ~Battlefield();
 

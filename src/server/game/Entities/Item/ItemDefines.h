@@ -136,6 +136,11 @@ enum InventoryResult : uint8
     EQUIP_ERR_NOT_IN_NPE                                   = 110,// Not available during the tutorial
     EQUIP_ERR_ITEM_COOLDOWN                                = 111,// Item is not ready yet.
     EQUIP_ERR_NOT_IN_RATED_BATTLEGROUND                    = 112,// You can't do that in a rated battleground.
+    EQUIP_ERR_EQUIPABLESPELLS_SLOTS_FULL                   = 113,
+    EQUIP_ERR_CANT_BE_RECRAFTED                            = 114,// You can't recraft that itemv
+    EQUIP_ERR_REAGENTBAG_WRONG_SLOT                        = 115,// Reagent Bags can only be placed in the reagent bag slot.
+    EQUIP_ERR_SLOT_ONLY_REAGENTBAG                         = 116,// Only Reagent Bags can be placed in the reagent bag slot.
+    EQUIP_ERR_REAGENTBAG_ITEM_TYPE                         = 117,// Only Reagents can be placed in Reagent Bags.
 };
 
 // EnumUtils: DESCRIBE THIS

@@ -56,7 +56,7 @@ void RASession::Start()
     if (username.empty())
         return;
 
-    TC_LOG_INFO("commands.ra", "Accepting RA connection from user %s (IP: %s)", username.c_str(), GetRemoteIpAddress().c_str());
+    TC_LOG_INFO("commands.ra", "Accepting RA connection from user {} (IP: {})", username, GetRemoteIpAddress());
 
     Send("Password: ");
 
@@ -71,7 +71,7 @@ void RASession::Start()
         return;
     }
 
-    TC_LOG_INFO("commands.ra", "User %s (IP: %s) authenticated correctly to RA", username.c_str(), GetRemoteIpAddress().c_str());
+    TC_LOG_INFO("commands.ra", "User {} (IP: {}) authenticated correctly to RA", username, GetRemoteIpAddress());
 
     // Authentication successful, send the motd
     for (std::string const& line : sWorld->GetMotd())
@@ -132,7 +132,7 @@ bool RASession::CheckAccessLevel(const std::string& user)
 
     if (!result)
     {
-        TC_LOG_INFO("commands.ra", "User %s does not exist in database", user.c_str());
+        TC_LOG_INFO("commands.ra", "User {} does not exist in database", user);
         return false;
     }
 
@@ -140,12 +140,12 @@ bool RASession::CheckAccessLevel(const std::string& user)
 
     if (fields[1].GetUInt8() < sConfigMgr->GetIntDefault("Ra.MinLevel", SEC_ADMINISTRATOR))
     {
-        TC_LOG_INFO("commands.ra", "User %s has no privilege to login", user.c_str());
+        TC_LOG_INFO("commands.ra", "User {} has no privilege to login", user);
         return false;
     }
     else if (fields[2].GetInt32() != -1)
     {
-        TC_LOG_INFO("commands.ra", "User %s has to be assigned on all realms (with RealmID = '-1')", user.c_str());
+        TC_LOG_INFO("commands.ra", "User {} has to be assigned on all realms (with RealmID = '-1')", user);
         return false;
     }
 
@@ -173,7 +173,7 @@ bool RASession::CheckPassword(const std::string& user, const std::string& pass)
             return true;
     }
 
-    TC_LOG_INFO("commands.ra", "Wrong password for user: %s", user.c_str());
+    TC_LOG_INFO("commands.ra", "Wrong password for user: {}", user);
     return false;
 }
 
@@ -182,7 +182,7 @@ bool RASession::ProcessCommand(std::string& command)
     if (command.length() == 0)
         return true;
 
-    TC_LOG_INFO("commands.ra", "Received command: %s", command.c_str());
+    TC_LOG_INFO("commands.ra", "Received command: {}", command);
 
     // handle quit, exit and logout commands to terminate connection
     if (command == "quit" || command == "exit" || command == "logout")

@@ -54,7 +54,7 @@ MailSender::MailSender(Object* sender, MailStationery stationery) : m_stationery
         default:
             m_messageType = MAIL_NORMAL;
             m_senderId = UI64LIT(0);                        // will show mail from non-existing player
-            TC_LOG_ERROR("misc", "MailSender::MailSender - Mail message contains unexpected sender typeid (%u).", sender->GetTypeId());
+            TC_LOG_ERROR("misc", "MailSender::MailSender - Mail message contains unexpected sender typeid ({}).", sender->GetTypeId());
             break;
     }
 }

@@ -21,6 +21,7 @@
 #include "DynamicTree.h"
 #include "GridMap.h"
 #include "Log.h"
+#include "Memory.h"
 #include "MMapFactory.h"
 #include "PhasingHandler.h"
 #include "Random.h"
@@ -48,63 +49,59 @@ char const* TerrainInfo::GetMapName() const
 
 void TerrainInfo::DiscoverGridMapFiles()
 {
-    std::string tileListName = Trinity::StringFormat("%smaps/%04u.tilelist", sWorld->GetDataPath().c_str(), GetId());
+    std::string tileListName = Trinity::StringFormat("{}maps/{:04}.tilelist", sWorld->GetDataPath(), GetId());
     // tile list is optional
-    if (FILE* tileList = fopen(tileListName.c_str(), "rb"))
+    if (auto tileList = Trinity::make_unique_ptr_with_deleter(fopen(tileListName.c_str(), "rb"), &::fclose))
     {
         u_map_magic mapMagic = { };
         uint32 versionMagic = { };
         uint32 build;
         char tilesData[MAX_NUMBER_OF_GRIDS * MAX_NUMBER_OF_GRIDS] = { };
-        if (fread(mapMagic.data(), mapMagic.size(), 1, tileList) == 1
+        if (fread(mapMagic.data(), mapMagic.size(), 1, tileList.get()) == 1
             && mapMagic == MapMagic
-            && fread(&versionMagic, sizeof(versionMagic), 1, tileList) == 1
+            && fread(&versionMagic, sizeof(versionMagic), 1, tileList.get()) == 1
             && versionMagic == MapVersionMagic
-            && fread(&build, sizeof(build), 1, tileList) == 1
-            && fread(&tilesData[0], MAX_NUMBER_OF_GRIDS * MAX_NUMBER_OF_GRIDS, 1, tileList) == 1)
+            && fread(&build, sizeof(build), 1, tileList.get()) == 1
+            && fread(&tilesData[0], MAX_NUMBER_OF_GRIDS * MAX_NUMBER_OF_GRIDS, 1, tileList.get()) == 1)
         {
             _gridFileExists = std::bitset<MAX_NUMBER_OF_GRIDS* MAX_NUMBER_OF_GRIDS>(tilesData, std::size(tilesData));
-            fclose(tileList);
             return;
         }
-
-        fclose(tileList);
     }
 
-    for (uint32 gx = 0; gx < MAX_NUMBER_OF_GRIDS; ++gx)
-        for (uint32 gy = 0; gy < MAX_NUMBER_OF_GRIDS; ++gy)
+    for (int32 gx = 0; gx < MAX_NUMBER_OF_GRIDS; ++gx)
+        for (int32 gy = 0; gy < MAX_NUMBER_OF_GRIDS; ++gy)
             _gridFileExists[GetBitsetIndex(gx, gy)] = ExistMap(GetId(), gx, gy, false);
 }
 
 bool TerrainInfo::ExistMap(uint32 mapid, int32 gx, int32 gy, bool log /*= true*/)
 {
-    std::string fileName = Trinity::StringFormat("%smaps/%04u_%02u_%02u.map", sWorld->GetDataPath().c_str(), mapid, gx, gy);
+    std::string fileName = Trinity::StringFormat("{}maps/{:04}_{:02}_{:02}.map", sWorld->GetDataPath(), mapid, gx, gy);
 
     bool ret = false;
-    FILE* file = fopen(fileName.c_str(), "rb");
+    auto file = Trinity::make_unique_ptr_with_deleter(fopen(fileName.c_str(), "rb"), &::fclose);
     if (!file)
     {
         if (log)
         {
-            TC_LOG_ERROR("maps", "Map file '%s' does not exist!", fileName.c_str());
-            TC_LOG_ERROR("maps", "Please place MAP-files (*.map) in the appropriate directory (%s), or correct the DataDir setting in your worldserver.conf file.", (sWorld->GetDataPath() + "maps/").c_str());
+            TC_LOG_ERROR("maps", "Map file '{}' does not exist!", fileName);
+            TC_LOG_ERROR("maps", "Please place MAP-files (*.map) in the appropriate directory ({}), or correct the DataDir setting in your worldserver.conf file.", (sWorld->GetDataPath() + "maps/"));
         }
     }
     else
     {
-        map_fileheader header;
-        if (fread(&header, sizeof(header), 1, file) == 1)
+        map_fileheader header{ };
+        if (fread(&header, sizeof(header), 1, file.get()) == 1)
         {
             if (header.mapMagic != MapMagic || header.versionMagic != MapVersionMagic)
             {
                 if (log)
-                    TC_LOG_ERROR("maps", "Map file '%s' is from an incompatible map version (%.*s v%u), %.*s v%u is expected. Please pull your source, recompile tools and recreate maps using the updated mapextractor, then replace your old map files with new files. If you still have problems search on forum for error TCE00018.",
-                        fileName.c_str(), 4, header.mapMagic.data(), header.versionMagic, 4, MapMagic.data(), MapVersionMagic);
+                    TC_LOG_ERROR("maps", "Map file '{}' is from an incompatible map version (%.*s v{}), %.*s v{} is expected. Please pull your source, recompile tools and recreate maps using the updated mapextractor, then replace your old map files with new files. If you still have problems search on forum for error TCE00018.",
+                        fileName, 4, header.mapMagic.data(), header.versionMagic, 4, MapMagic.data(), MapVersionMagic);
             }
             else
                 ret = true;
         }
-        fclose(file);
     }
 
     return ret;
@@ -123,19 +120,19 @@ bool TerrainInfo::ExistVMap(uint32 mapid, int32 gx, int32 gy)
                 case VMAP::LoadResult::Success:
                     break;
                 case VMAP::LoadResult::FileNotFound:
-                    TC_LOG_ERROR("maps", "VMap file '%s' does not exist", (sWorld->GetDataPath() + "vmaps/" + name).c_str());
-                    TC_LOG_ERROR("maps", "Please place VMAP files (*.vmtree and *.vmtile) in the vmap directory (%s), or correct the DataDir setting in your worldserver.conf file.", (sWorld->GetDataPath() + "vmaps/").c_str());
+                    TC_LOG_ERROR("maps", "VMap file '{}' does not exist", (sWorld->GetDataPath() + "vmaps/" + name));
+                    TC_LOG_ERROR("maps", "Please place VMAP files (*.vmtree and *.vmtile) in the vmap directory ({}), or correct the DataDir setting in your worldserver.conf file.", (sWorld->GetDataPath() + "vmaps/"));
                     return false;
                 case VMAP::LoadResult::VersionMismatch:
-                    TC_LOG_ERROR("maps", "VMap file '%s' couldn't be loaded", (sWorld->GetDataPath() + "vmaps/" + name).c_str());
+                    TC_LOG_ERROR("maps", "VMap file '{}' couldn't be loaded", (sWorld->GetDataPath() + "vmaps/" + name));
                     TC_LOG_ERROR("maps", "This is because the version of the VMap file and the version of this module are different, please re-extract the maps with the tools compiled with this module.");
                     return false;
                 case VMAP::LoadResult::ReadFromFileFailed:
-                    TC_LOG_ERROR("maps", "VMap file '%s' couldn't be loaded", (sWorld->GetDataPath() + "vmaps/" + name).c_str());
+                    TC_LOG_ERROR("maps", "VMap file '{}' couldn't be loaded", (sWorld->GetDataPath() + "vmaps/" + name));
                     TC_LOG_ERROR("maps", "This is because VMAP files are corrupted, please re-extract the maps with the tools compiled with this module.");
                     return false;
                 case VMAP::LoadResult::DisabledInConfig:
-                    TC_LOG_ERROR("maps", "VMap file '%s' couldn't be loaded", (sWorld->GetDataPath() + "vmaps/" + name).c_str());
+                    TC_LOG_ERROR("maps", "VMap file '{}' couldn't be loaded", (sWorld->GetDataPath() + "vmaps/" + name));
                     TC_LOG_ERROR("maps", "This is because VMAP is disabled in config file.");
                     return false;
             }
@@ -187,8 +184,8 @@ void TerrainInfo::LoadMap(int32 gx, int32 gy)
         return;
 
     // map file name
-    std::string fileName = Trinity::StringFormat("%smaps/%04u_%02u_%02u.map", sWorld->GetDataPath().c_str(), GetId(), gx, gy);
-    TC_LOG_DEBUG("maps", "Loading map %s", fileName.c_str());
+    std::string fileName = Trinity::StringFormat("{}maps/{:04}_{:02}_{:02}.map", sWorld->GetDataPath(), GetId(), gx, gy);
+    TC_LOG_DEBUG("maps", "Loading map {}", fileName);
     // loading data
     std::unique_ptr<GridMap> gridMap = std::make_unique<GridMap>();
     GridMap::LoadResult gridMapLoadResult = gridMap->loadData(fileName.c_str());
@@ -198,7 +195,7 @@ void TerrainInfo::LoadMap(int32 gx, int32 gy)
         _gridFileExists[GetBitsetIndex(gx, gy)] = false;
 
     if (gridMapLoadResult == GridMap::LoadResult::InvalidFile)
-        TC_LOG_ERROR("maps", "Error loading map file: %s", fileName.c_str());
+        TC_LOG_ERROR("maps", "Error loading map file: {}", fileName);
 }
 
 void TerrainInfo::LoadVMap(int32 gx, int32 gy)
@@ -210,14 +207,14 @@ void TerrainInfo::LoadVMap(int32 gx, int32 gy)
     switch (vmapLoadResult)
     {
         case VMAP::LoadResult::Success:
-            TC_LOG_DEBUG("maps", "VMAP loaded name:%s, id:%d, x:%d, y:%d (vmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+            TC_LOG_DEBUG("maps", "VMAP loaded name:{}, id:{}, x:{}, y:{} (vmap rep.: x:{}, y:{})", GetMapName(), GetId(), gx, gy, gx, gy);
             break;
         case VMAP::LoadResult::VersionMismatch:
         case VMAP::LoadResult::ReadFromFileFailed:
-            TC_LOG_ERROR("maps", "Could not load VMAP name:%s, id:%d, x:%d, y:%d (vmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+            TC_LOG_ERROR("maps", "Could not load VMAP name:{}, id:{}, x:{}, y:{} (vmap rep.: x:{}, y:{})", GetMapName(), GetId(), gx, gy, gx, gy);
             break;
         case VMAP::LoadResult::DisabledInConfig:
-            TC_LOG_DEBUG("maps", "Ignored VMAP name:%s, id:%d, x:%d, y:%d (vmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+            TC_LOG_DEBUG("maps", "Ignored VMAP name:{}, id:{}, x:{}, y:{} (vmap rep.: x:{}, y:{})", GetMapName(), GetId(), gx, gy, gx, gy);
             break;
         default:
             break;
@@ -232,9 +229,9 @@ void TerrainInfo::LoadMMap(int32 gx, int32 gy)
     bool mmapLoadResult = MMAP::MMapFactory::createOrGetMMapManager()->loadMap(sWorld->GetDataPath(), GetId(), gx, gy);
 
     if (mmapLoadResult)
-        TC_LOG_DEBUG("mmaps.tiles", "MMAP loaded name:%s, id:%d, x:%d, y:%d (mmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+        TC_LOG_DEBUG("mmaps.tiles", "MMAP loaded name:{}, id:{}, x:{}, y:{} (mmap rep.: x:{}, y:{})", GetMapName(), GetId(), gx, gy, gx, gy);
     else
-        TC_LOG_WARN("mmaps.tiles", "Could not load MMAP name:%s, id:%d, x:%d, y:%d (mmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+        TC_LOG_WARN("mmaps.tiles", "Could not load MMAP name:{}, id:{}, x:{}, y:{} (mmap rep.: x:{}, y:{})", GetMapName(), GetId(), gx, gy, gx, gy);
 }
 
 void TerrainInfo::UnloadMap(int32 gx, int32 gy)
@@ -299,13 +296,13 @@ static bool IsInWMOInterior(uint32 mogpFlags)
     return (mogpFlags & 0x2000) != 0;
 }
 
-void TerrainInfo::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, float x, float y, float z, PositionFullTerrainStatus& data, map_liquidHeaderTypeFlags reqLiquidType, float collisionHeight, DynamicMapTree const* dynamicMapTree)
+void TerrainInfo::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, uint32 mapId, float x, float y, float z, PositionFullTerrainStatus& data, map_liquidHeaderTypeFlags reqLiquidType, float collisionHeight, DynamicMapTree const* dynamicMapTree)
 {
     VMAP::IVMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager();
     VMAP::AreaAndLiquidData vmapData;
     VMAP::AreaAndLiquidData dynData;
     VMAP::AreaAndLiquidData* wmoData = nullptr;
-    uint32 terrainMapId = PhasingHandler::GetTerrainMapId(phaseShift, this, x, y);
+    uint32 terrainMapId = PhasingHandler::GetTerrainMapId(phaseShift, mapId, this, x, y);
     GridMap* gmap = GetGrid(terrainMapId, x, y);
     vmgr->getAreaAndLiquidData(terrainMapId, x, y, z, AsUnderlyingType(reqLiquidType), vmapData);
     if (dynamicMapTree)
@@ -351,6 +348,9 @@ void TerrainInfo::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, 
             data.areaInfo.emplace(wmoData->areaInfo->adtId, wmoData->areaInfo->rootId, wmoData->areaInfo->groupId, wmoData->areaInfo->mogpFlags);
             // wmo found
             WMOAreaTableEntry const* wmoEntry = sDB2Manager.GetWMOAreaTable(wmoData->areaInfo->rootId, wmoData->areaInfo->adtId, wmoData->areaInfo->groupId);
+            if (!wmoEntry)
+                wmoEntry = sDB2Manager.GetWMOAreaTable(wmoData->areaInfo->rootId, wmoData->areaInfo->adtId, -1);
+
             data.outdoors = (wmoData->areaInfo->mogpFlags & 0x8) != 0;
             if (wmoEntry)
             {
@@ -440,7 +440,7 @@ void TerrainInfo::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, 
     }
 }
 
-ZLiquidStatus TerrainInfo::GetLiquidStatus(PhaseShift const& phaseShift, float x, float y, float z, map_liquidHeaderTypeFlags ReqLiquidType, LiquidData* data, float collisionHeight)
+ZLiquidStatus TerrainInfo::GetLiquidStatus(PhaseShift const& phaseShift, uint32 mapId, float x, float y, float z, map_liquidHeaderTypeFlags ReqLiquidType, LiquidData* data, float collisionHeight)
 {
     ZLiquidStatus result = LIQUID_MAP_NO_WATER;
     VMAP::IVMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager();
@@ -449,11 +449,11 @@ ZLiquidStatus TerrainInfo::GetLiquidStatus(PhaseShift const& phaseShift, float x
     uint32 liquid_type = 0;
     uint32 mogpFlags = 0;
     bool useGridLiquid = true;
-    uint32 terrainMapId = PhasingHandler::GetTerrainMapId(phaseShift, this, x, y);
+    uint32 terrainMapId = PhasingHandler::GetTerrainMapId(phaseShift, mapId, this, x, y);
     if (vmgr->GetLiquidLevel(terrainMapId, x, y, z, AsUnderlyingType(ReqLiquidType), liquid_level, ground_level, liquid_type, mogpFlags))
     {
         useGridLiquid = !IsInWMOInterior(mogpFlags);
-        TC_LOG_DEBUG("maps", "GetLiquidStatus(): vmap liquid level: %f ground: %f type: %u", liquid_level, ground_level, liquid_type);
+        TC_LOG_DEBUG("maps", "GetLiquidStatus(): vmap liquid level: {} ground: {} type: {}", liquid_level, ground_level, liquid_type);
         // Check water level and ground level
         if (liquid_level > ground_level && G3D::fuzzyGe(z, ground_level - GROUND_HEIGHT_TOLERANCE))
         {
@@ -470,7 +470,7 @@ ZLiquidStatus TerrainInfo::GetLiquidStatus(PhaseShift const& phaseShift, float x
 
                 if (liquid_type && liquid_type < 21)
                 {
-                    if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(GetAreaId(phaseShift, x, y, z)))
+                    if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(GetAreaId(phaseShift, mapId, x, y, z)))
                     {
                         uint32 overrideLiquid = area->LiquidTypeID[liquidFlagType];
                         if (!overrideLiquid && area->ParentAreaID)
@@ -532,12 +532,12 @@ ZLiquidStatus TerrainInfo::GetLiquidStatus(PhaseShift const& phaseShift, float x
     return result;
 }
 
-bool TerrainInfo::GetAreaInfo(PhaseShift const& phaseShift, float x, float y, float z, uint32& mogpflags, int32& adtId, int32& rootId, int32& groupId, DynamicMapTree const* dynamicMapTree)
+bool TerrainInfo::GetAreaInfo(PhaseShift const& phaseShift, uint32 mapId, float x, float y, float z, uint32& mogpflags, int32& adtId, int32& rootId, int32& groupId, DynamicMapTree const* dynamicMapTree)
 {
     float vmap_z = z;
     float dynamic_z = z;
     float check_z = z;
-    uint32 terrainMapId = PhasingHandler::GetTerrainMapId(phaseShift, this, x, y);
+    uint32 terrainMapId = PhasingHandler::GetTerrainMapId(phaseShift, mapId, this, x, y);
     VMAP::IVMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager();
     uint32 vflags;
     int32 vadtId;
@@ -580,16 +580,16 @@ bool TerrainInfo::GetAreaInfo(PhaseShift const& phaseShift, float x, float y, fl
     return false;
 }
 
-uint32 TerrainInfo::GetAreaId(PhaseShift const& phaseShift, float x, float y, float z, DynamicMapTree const* dynamicMapTree)
+uint32 TerrainInfo::GetAreaId(PhaseShift const& phaseShift, uint32 mapId, float x, float y, float z, DynamicMapTree const* dynamicMapTree)
 {
     uint32 mogpFlags;
     int32 adtId, rootId, groupId;
     float vmapZ = z;
-    bool hasVmapArea = GetAreaInfo(phaseShift, x, y, vmapZ, mogpFlags, adtId, rootId, groupId, dynamicMapTree);
+    bool hasVmapArea = GetAreaInfo(phaseShift, mapId, x, y, vmapZ, mogpFlags, adtId, rootId, groupId, dynamicMapTree);
 
     uint32 gridAreaId = 0;
     float gridMapHeight = INVALID_HEIGHT;
-    if (GridMap* gmap = GetGrid(PhasingHandler::GetTerrainMapId(phaseShift, this, x, y), x, y))
+    if (GridMap* gmap = GetGrid(PhasingHandler::GetTerrainMapId(phaseShift, mapId, this, x, y), x, y))
     {
         gridAreaId = gmap->getArea(x, y);
         gridMapHeight = gmap->getHeight(x, y);
@@ -616,9 +616,9 @@ uint32 TerrainInfo::GetAreaId(PhaseShift const& phaseShift, float x, float y, fl
     return areaId;
 }
 
-uint32 TerrainInfo::GetZoneId(PhaseShift const& phaseShift, float x, float y, float z, DynamicMapTree const* dynamicMapTree)
+uint32 TerrainInfo::GetZoneId(PhaseShift const& phaseShift, uint32 mapId, float x, float y, float z, DynamicMapTree const* dynamicMapTree)
 {
-    uint32 areaId = GetAreaId(phaseShift, x, y, z, dynamicMapTree);
+    uint32 areaId = GetAreaId(phaseShift, mapId, x, y, z, dynamicMapTree);
     if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaId))
         if (area->ParentAreaID)
             return area->ParentAreaID;
@@ -626,36 +626,36 @@ uint32 TerrainInfo::GetZoneId(PhaseShift const& phaseShift, float x, float y, fl
     return areaId;
 }
 
-void TerrainInfo::GetZoneAndAreaId(PhaseShift const& phaseShift, uint32& zoneid, uint32& areaid, float x, float y, float z, DynamicMapTree const* dynamicMapTree)
+void TerrainInfo::GetZoneAndAreaId(PhaseShift const& phaseShift, uint32 mapId, uint32& zoneid, uint32& areaid, float x, float y, float z, DynamicMapTree const* dynamicMapTree)
 {
-    areaid = zoneid = GetAreaId(phaseShift, x, y, z, dynamicMapTree);
+    areaid = zoneid = GetAreaId(phaseShift, mapId, x, y, z, dynamicMapTree);
     if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaid))
         if (area->ParentAreaID)
             zoneid = area->ParentAreaID;
 }
 
-float TerrainInfo::GetMinHeight(PhaseShift const& phaseShift, float x, float y)
+float TerrainInfo::GetMinHeight(PhaseShift const& phaseShift, uint32 mapId, float x, float y)
 {
-    if (GridMap const* grid = GetGrid(PhasingHandler::GetTerrainMapId(phaseShift, this, x, y), x, y))
+    if (GridMap const* grid = GetGrid(PhasingHandler::GetTerrainMapId(phaseShift, mapId, this, x, y), x, y))
         return grid->getMinHeight(x, y);
 
     return -500.0f;
 }
 
-float TerrainInfo::GetGridHeight(PhaseShift const& phaseShift, float x, float y)
+float TerrainInfo::GetGridHeight(PhaseShift const& phaseShift, uint32 mapId, float x, float y)
 {
-    if (GridMap* gmap = GetGrid(PhasingHandler::GetTerrainMapId(phaseShift, this, x, y), x, y))
+    if (GridMap* gmap = GetGrid(PhasingHandler::GetTerrainMapId(phaseShift, mapId, this, x, y), x, y))
         return gmap->getHeight(x, y);
 
     return VMAP_INVALID_HEIGHT_VALUE;
 }
 
-float TerrainInfo::GetStaticHeight(PhaseShift const& phaseShift, float x, float y, float z, bool checkVMap /*= true*/, float maxSearchDist /*= DEFAULT_HEIGHT_SEARCH*/)
+float TerrainInfo::GetStaticHeight(PhaseShift const& phaseShift, uint32 mapId, float x, float y, float z, bool checkVMap /*= true*/, float maxSearchDist /*= DEFAULT_HEIGHT_SEARCH*/)
 {
     // find raw .map surface under Z coordinates
     float mapHeight = VMAP_INVALID_HEIGHT_VALUE;
-    uint32 terrainMapId = PhasingHandler::GetTerrainMapId(phaseShift, this, x, y);
-    float gridHeight = GetGridHeight(phaseShift, x, y);
+    uint32 terrainMapId = PhasingHandler::GetTerrainMapId(phaseShift, mapId, this, x, y);
+    float gridHeight = GetGridHeight(phaseShift, mapId, x, y);
     if (G3D::fuzzyGe(z, gridHeight - GROUND_HEIGHT_TOLERANCE))
         mapHeight = gridHeight;
 
@@ -689,32 +689,32 @@ float TerrainInfo::GetStaticHeight(PhaseShift const& phaseShift, float x, float 
     return mapHeight;                               // explicitly use map data
 }
 
-float TerrainInfo::GetWaterLevel(PhaseShift const& phaseShift, float x, float y)
+float TerrainInfo::GetWaterLevel(PhaseShift const& phaseShift, uint32 mapId, float x, float y)
 {
-    if (GridMap* gmap = GetGrid(PhasingHandler::GetTerrainMapId(phaseShift, this, x, y), x, y))
+    if (GridMap* gmap = GetGrid(PhasingHandler::GetTerrainMapId(phaseShift, mapId, this, x, y), x, y))
         return gmap->getLiquidLevel(x, y);
-    else
-        return 0;
+
+    return 0;
 }
 
-bool TerrainInfo::IsInWater(PhaseShift const& phaseShift, float x, float y, float pZ, LiquidData* data)
+bool TerrainInfo::IsInWater(PhaseShift const& phaseShift, uint32 mapId, float x, float y, float pZ, LiquidData* data)
 {
     LiquidData liquid_status;
     LiquidData* liquid_ptr = data ? data : &liquid_status;
-    return (GetLiquidStatus(phaseShift, x, y, pZ, map_liquidHeaderTypeFlags::AllLiquids, liquid_ptr) & (LIQUID_MAP_IN_WATER | LIQUID_MAP_UNDER_WATER)) != 0;
+    return (GetLiquidStatus(phaseShift, mapId, x, y, pZ, map_liquidHeaderTypeFlags::AllLiquids, liquid_ptr) & (LIQUID_MAP_IN_WATER | LIQUID_MAP_UNDER_WATER)) != 0;
 }
 
-bool TerrainInfo::IsUnderWater(PhaseShift const& phaseShift, float x, float y, float z)
+bool TerrainInfo::IsUnderWater(PhaseShift const& phaseShift, uint32 mapId, float x, float y, float z)
 {
-    return (GetLiquidStatus(phaseShift, x, y, z, map_liquidHeaderTypeFlags::Water | map_liquidHeaderTypeFlags::Ocean) & LIQUID_MAP_UNDER_WATER) != 0;
+    return (GetLiquidStatus(phaseShift, mapId, x, y, z, map_liquidHeaderTypeFlags::Water | map_liquidHeaderTypeFlags::Ocean) & LIQUID_MAP_UNDER_WATER) != 0;
 }
 
-float TerrainInfo::GetWaterOrGroundLevel(PhaseShift const& phaseShift, float x, float y, float z, float* ground /*= nullptr*/, bool /*swim = false*/, float collisionHeight /*= DEFAULT_COLLISION_HEIGHT*/, DynamicMapTree const* dynamicMapTree /*= nullptr*/)
+float TerrainInfo::GetWaterOrGroundLevel(PhaseShift const& phaseShift, uint32 mapId, float x, float y, float z, float* ground /*= nullptr*/, bool /*swim = false*/, float collisionHeight /*= DEFAULT_COLLISION_HEIGHT*/, DynamicMapTree const* dynamicMapTree /*= nullptr*/)
 {
-    if (GetGrid(PhasingHandler::GetTerrainMapId(phaseShift, this, x, y), x, y))
+    if (GetGrid(PhasingHandler::GetTerrainMapId(phaseShift, mapId, this, x, y), x, y))
     {
         // we need ground level (including grid height version) for proper return water level in point
-        float ground_z = GetStaticHeight(phaseShift, x, y, z + Z_OFFSET_FIND_HEIGHT, true, 50.0f);
+        float ground_z = GetStaticHeight(phaseShift, mapId, x, y, z + Z_OFFSET_FIND_HEIGHT, true, 50.0f);
         if (dynamicMapTree)
             ground_z = std::max(ground_z, dynamicMapTree->getHeight(x, y, z + Z_OFFSET_FIND_HEIGHT, 50.0f, phaseShift));
 
@@ -723,7 +723,7 @@ float TerrainInfo::GetWaterOrGroundLevel(PhaseShift const& phaseShift, float x, 
 
         LiquidData liquid_status;
 
-        ZLiquidStatus res = GetLiquidStatus(phaseShift, x, y, ground_z, map_liquidHeaderTypeFlags::AllLiquids, &liquid_status, collisionHeight);
+        ZLiquidStatus res = GetLiquidStatus(phaseShift, mapId, x, y, ground_z, map_liquidHeaderTypeFlags::AllLiquids, &liquid_status, collisionHeight);
         switch (res)
         {
             case LIQUID_MAP_ABOVE_WATER:
@@ -738,13 +738,9 @@ float TerrainInfo::GetWaterOrGroundLevel(PhaseShift const& phaseShift, float x, 
     return VMAP_INVALID_HEIGHT_VALUE;
 }
 
-TerrainMgr::TerrainMgr()
-{
-}
+TerrainMgr::TerrainMgr() = default;
 
-TerrainMgr::~TerrainMgr()
-{
-}
+TerrainMgr::~TerrainMgr() = default;
 
 TerrainMgr& TerrainMgr::Instance()
 {
@@ -799,21 +795,21 @@ void TerrainMgr::Update(uint32 diff)
 uint32 TerrainMgr::GetAreaId(PhaseShift const& phaseShift, uint32 mapid, float x, float y, float z)
 {
     if (std::shared_ptr<TerrainInfo> t = LoadTerrain(mapid))
-        return t->GetAreaId(phaseShift, x, y, z);
+        return t->GetAreaId(phaseShift, mapid, x, y, z);
     return 0;
 }
 
 uint32 TerrainMgr::GetZoneId(PhaseShift const& phaseShift, uint32 mapid, float x, float y, float z)
 {
     if (std::shared_ptr<TerrainInfo> t = LoadTerrain(mapid))
-        return t->GetZoneId(phaseShift, x, y, z);
+        return t->GetZoneId(phaseShift, mapid, x, y, z);
     return 0;
 }
 
 void TerrainMgr::GetZoneAndAreaId(PhaseShift const& phaseShift, uint32& zoneid, uint32& areaid, uint32 mapid, float x, float y, float z)
 {
     if (std::shared_ptr<TerrainInfo> t = LoadTerrain(mapid))
-        t->GetZoneAndAreaId(phaseShift, zoneid, areaid, x, y, z);
+        t->GetZoneAndAreaId(phaseShift, mapid, zoneid, areaid, x, y, z);
 }
 
 std::shared_ptr<TerrainInfo> TerrainMgr::LoadTerrainImpl(uint32 mapId)

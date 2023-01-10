@@ -87,7 +87,7 @@ void Battlenet::Session::AsyncHandshake()
 void Battlenet::Session::Start()
 {
     std::string ip_address = GetRemoteIpAddress().to_string();
-    TC_LOG_TRACE("session", "%s Accepted connection", GetClientInfo().c_str());
+    TC_LOG_TRACE("session", "{} Accepted connection", GetClientInfo());
 
     // Verify that this IP is not in the ip_banned table
     LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_DEL_EXPIRED_IP_BANS));
@@ -113,7 +113,7 @@ void Battlenet::Session::CheckIpCallback(PreparedQueryResult result)
 
         if (banned)
         {
-            TC_LOG_DEBUG("session", "%s tries to log in using banned IP!", GetClientInfo().c_str());
+            TC_LOG_DEBUG("session", "{} tries to log in using banned IP!", GetClientInfo());
             CloseSocket();
             return;
         }
@@ -209,19 +209,19 @@ uint32 Battlenet::Session::HandleLogon(authentication::v1::LogonRequest const* l
 {
     if (logonRequest->program() != "WoW")
     {
-        TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] %s attempted to log in with game other than WoW (using %s)!", GetClientInfo().c_str(), logonRequest->program().c_str());
+        TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] {} attempted to log in with game other than WoW (using {})!", GetClientInfo(), logonRequest->program());
         return ERROR_BAD_PROGRAM;
     }
 
     if (logonRequest->platform() != "Win" && logonRequest->platform() != "Wn64" && logonRequest->platform() != "Mc64")
     {
-        TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] %s attempted to log in from an unsupported platform (using %s)!", GetClientInfo().c_str(), logonRequest->platform().c_str());
+        TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] {} attempted to log in from an unsupported platform (using {})!", GetClientInfo(), logonRequest->platform());
         return ERROR_BAD_PLATFORM;
     }
 
     if (!IsValidLocale(GetLocaleByName(logonRequest->locale())))
     {
-        TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] %s attempted to log in with unsupported locale (using %s)!", GetClientInfo().c_str(), logonRequest->locale().c_str());
+        TC_LOG_DEBUG("session", "[Battlenet::LogonRequest] {} attempted to log in with unsupported locale (using {})!", GetClientInfo(), logonRequest->locale());
         return ERROR_BAD_LOCALE;
     }
 
@@ -236,7 +236,7 @@ uint32 Battlenet::Session::HandleLogon(authentication::v1::LogonRequest const* l
 
     challenge::v1::ChallengeExternalRequest externalChallenge;
     externalChallenge.set_payload_type("web_auth_url");
-    externalChallenge.set_payload(Trinity::StringFormat("https://%s:%u/bnetserver/login/", endpoint.address().to_string().c_str(), endpoint.port()));
+    externalChallenge.set_payload(Trinity::StringFormat("https://{}:{}/bnetserver/login/", endpoint.address().to_string(), endpoint.port()));
     Service<challenge::v1::ChallengeListener>(this).OnExternalChallenge(&externalChallenge);
     return ERROR_OK;
 }
@@ -258,8 +258,8 @@ uint32 Battlenet::Session::HandleGenerateWebCredentials(authentication::v1::Gene
     {
         auto asPrintable = [](char c) { return std::isprint(c) ? c : ' '; };
 
-        TC_LOG_DEBUG("session", "[Battlenet::HandleGenerateWebCredentials] %s attempted to generate web cretentials with game other than WoW (using %c%c%c%c)!",
-            GetClientInfo().c_str(), asPrintable((request->program() >> 24) & 0xFF), asPrintable((request->program() >> 16) & 0xFF),
+        TC_LOG_DEBUG("session", "[Battlenet::HandleGenerateWebCredentials] {} attempted to generate web cretentials with game other than WoW (using %c%c%c%c)!",
+            GetClientInfo(), asPrintable((request->program() >> 24) & 0xFF), asPrintable((request->program() >> 16) & 0xFF),
             asPrintable((request->program() >> 8) & 0xFF), asPrintable(request->program() & 0xFF));
         return ERROR_BAD_PROGRAM;
     }
@@ -356,8 +356,8 @@ uint32 Battlenet::Session::VerifyWebCredentials(std::string const& webCredential
         // If the IP is 'locked', check that the player comes indeed from the correct IP address
         if (_accountInfo->IsLockedToIP)
         {
-            TC_LOG_DEBUG("session", "[Session::HandleVerifyWebCredentials] Account '%s' is locked to IP - '%s' is logging in from '%s'",
-                _accountInfo->Login.c_str(), _accountInfo->LastIP.c_str(), ip_address.c_str());
+            TC_LOG_DEBUG("session", "[Session::HandleVerifyWebCredentials] Account '{}' is locked to IP - '{}' is logging in from '{}'",
+                _accountInfo->Login, _accountInfo->LastIP, ip_address);
 
             if (_accountInfo->LastIP != ip_address)
             {
@@ -370,13 +370,13 @@ uint32 Battlenet::Session::VerifyWebCredentials(std::string const& webCredential
             if (IpLocationRecord const* location = sIPLocation->GetLocationRecord(ip_address))
                 _ipCountry = location->CountryCode;
 
-            TC_LOG_DEBUG("session", "[Session::HandleVerifyWebCredentials] Account '%s' is not locked to ip", _accountInfo->Login.c_str());
+            TC_LOG_DEBUG("session", "[Session::HandleVerifyWebCredentials] Account '{}' is not locked to ip", _accountInfo->Login);
             if (_accountInfo->LockCountry.empty() || _accountInfo->LockCountry == "00")
-                TC_LOG_DEBUG("session", "[Session::HandleVerifyWebCredentials] Account '%s' is not locked to country", _accountInfo->Login.c_str());
+                TC_LOG_DEBUG("session", "[Session::HandleVerifyWebCredentials] Account '{}' is not locked to country", _accountInfo->Login);
             else if (!_accountInfo->LockCountry.empty() && !_ipCountry.empty())
             {
-                TC_LOG_DEBUG("session", "[Session::HandleVerifyWebCredentials] Account '%s' is locked to country: '%s' Player country is '%s'",
-                    _accountInfo->Login.c_str(), _accountInfo->LockCountry.c_str(), _ipCountry.c_str());
+                TC_LOG_DEBUG("session", "[Session::HandleVerifyWebCredentials] Account '{}' is locked to country: '{}' Player country is '{}'",
+                    _accountInfo->Login, _accountInfo->LockCountry, _ipCountry);
 
                 if (_ipCountry != _accountInfo->LockCountry)
                 {
@@ -391,13 +391,13 @@ uint32 Battlenet::Session::VerifyWebCredentials(std::string const& webCredential
         {
             if (_accountInfo->IsPermanenetlyBanned)
             {
-                TC_LOG_DEBUG("session", "%s [Session::HandleVerifyWebCredentials] Banned account %s tried to login!", GetClientInfo().c_str(), _accountInfo->Login.c_str());
+                TC_LOG_DEBUG("session", "{} [Session::HandleVerifyWebCredentials] Banned account {} tried to login!", GetClientInfo(), _accountInfo->Login);
                 asyncContinuation(&asyncContinuationService, ERROR_GAME_ACCOUNT_BANNED, &response);
                 return;
             }
             else
             {
-                TC_LOG_DEBUG("session", "%s [Session::HandleVerifyWebCredentials] Temporarily banned account %s tried to login!", GetClientInfo().c_str(), _accountInfo->Login.c_str());
+                TC_LOG_DEBUG("session", "{} [Session::HandleVerifyWebCredentials] Temporarily banned account {} tried to login!", GetClientInfo(), _accountInfo->Login);
                 asyncContinuation(&asyncContinuationService, ERROR_GAME_ACCOUNT_SUSPENDED, &response);
                 return;
             }
@@ -518,14 +518,14 @@ uint32 Battlenet::Session::HandleProcessClientRequest(game_utilities::v1::Client
 
     if (!command)
     {
-        TC_LOG_ERROR("session.rpc", "%s sent ClientRequest with no command.", GetClientInfo().c_str());
+        TC_LOG_ERROR("session.rpc", "{} sent ClientRequest with no command.", GetClientInfo());
         return ERROR_RPC_MALFORMED_REQUEST;
     }
 
     auto itr = ClientRequestHandlers.find(removeSuffix(command->name()));
     if (itr == ClientRequestHandlers.end())
     {
-        TC_LOG_ERROR("session.rpc", "%s sent ClientRequest with unknown command %s.", GetClientInfo().c_str(), removeSuffix(command->name()).c_str());
+        TC_LOG_ERROR("session.rpc", "{} sent ClientRequest with unknown command {}.", GetClientInfo(), removeSuffix(command->name()));
         return ERROR_RPC_NOT_IMPLEMENTED;
     }
 
@@ -695,7 +695,7 @@ void Battlenet::Session::HandshakeHandler(boost::system::error_code const& error
 {
     if (error)
     {
-        TC_LOG_ERROR("session", "%s SSL Handshake failed %s", GetClientInfo().c_str(), error.message().c_str());
+        TC_LOG_ERROR("session", "{} SSL Handshake failed {}", GetClientInfo(), error.message());
         CloseSocket();
         return;
     }

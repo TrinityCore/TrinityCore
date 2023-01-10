@@ -100,7 +100,7 @@ WorldPackets::Mail::MailListEntry::MailListEntry(::Mail const* mail, ::Player* p
     StationeryID = mail->stationery;
     SentMoney = mail->money;
     Flags = mail->checked;
-    DaysLeft = float(mail->expire_time - GameTime::GetGameTime()) / DAY;
+    DaysLeft = float(mail->expire_time - GameTime::GetGameTime()) / float(DAY);
     MailTemplateID = mail->mailTemplateId;
     Subject = mail->subject;
     Body = mail->body;
@@ -274,13 +274,6 @@ WorldPacket const* WorldPackets::Mail::MailQueryNextTimeResult::Write()
 WorldPacket const* WorldPackets::Mail::NotifyReceivedMail::Write()
 {
     _worldPacket << float(Delay);
-
-    return &_worldPacket;
-}
-
-WorldPacket const* WorldPackets::Mail::ShowMailbox::Write()
-{
-    _worldPacket << PostmasterGUID;
 
     return &_worldPacket;
 }

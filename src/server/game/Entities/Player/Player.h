@@ -120,6 +120,12 @@ namespace WorldPackets
     {
         enum class UpdateCollisionHeightReason : uint8;
     }
+
+    namespace Traits
+    {
+        struct TraitConfig;
+        struct TraitEntry;
+    }
 }
 
 TC_GAME_API uint32 GetBagSize(Bag const* bag);
@@ -178,10 +184,12 @@ enum PlayerSpellState : uint8
 
 struct PlayerSpell
 {
-    PlayerSpellState state : 8;
+    PlayerSpellState state;
     bool active            : 1;                             // show in spellbook
     bool dependent         : 1;                             // learned as result another spell learn, skill grow, quest reward, etc
     bool disabled          : 1;                             // first rank has been learned in result talent learn but currently talent unlearned, save max learned ranks
+    bool favorite          : 1;
+    Optional<int32> TraitDefinitionId;
 };
 
 struct StoredAuraTeleportLocation
@@ -358,7 +366,7 @@ struct ActionButton
     }
 };
 
-#define MAX_ACTION_BUTTONS 132
+#define MAX_ACTION_BUTTONS 180
 
 typedef std::map<uint8, ActionButton> ActionButtonList;
 
@@ -637,7 +645,7 @@ enum PlayerSlots
     // first slot for item stored (in any way in player m_items data)
     PLAYER_SLOT_START           = 0,
     // last+1 slot for item stored (in any way in player m_items data)
-    PLAYER_SLOT_END             = 199,
+    PLAYER_SLOT_END             = 218,
     PLAYER_SLOTS_COUNT          = (PLAYER_SLOT_END - PLAYER_SLOT_START)
 };
 
@@ -671,50 +679,82 @@ enum EquipmentSlots : uint8                                 // 19 slots
     EQUIPMENT_SLOT_END          = 19
 };
 
-#define VISIBLE_ITEM_ENTRY_OFFSET 0
-#define VISIBLE_ITEM_ENCHANTMENT_OFFSET 1
+enum ProfessionSlots : uint8
+{
+    PROFESSION_SLOT_PROFESSION1_TOOL     = 19,
+    PROFESSION_SLOT_PROFESSION1_GEAR1    = 20,
+    PROFESSION_SLOT_PROFESSION1_GEAR2    = 21,
+    PROFESSION_SLOT_PROFESSION2_TOOL     = 22,
+    PROFESSION_SLOT_PROFESSION2_GEAR1    = 23,
+    PROFESSION_SLOT_PROFESSION2_GEAR2    = 24,
+    PROFESSION_SLOT_COOKING_TOOL         = 25,
+    PROFESSION_SLOT_COOKING_GEAR1        = 26,
+    PROFESSION_SLOT_FISHING_TOOL         = 27,
+    PROFESSION_SLOT_FISHING_GEAR1        = 28,
+    PROFESSION_SLOT_FISHING_GEAR2        = 29,
+
+    PROFESSION_SLOT_END,
+    PROFESSION_SLOT_START                = PROFESSION_SLOT_PROFESSION1_TOOL
+};
 
 enum InventorySlots : uint8                                 // 4 slots
 {
-    INVENTORY_SLOT_BAG_START    = 19,
-    INVENTORY_SLOT_BAG_END      = 23
+    INVENTORY_SLOT_BAG_START    = 30,
+    INVENTORY_SLOT_BAG_END      = 34
+};
+
+enum ReagentBagSlots : uint8                                // 1 slot
+{
+    REAGENT_BAG_SLOT_START  = 34,
+    REAGENT_BAG_SLOT_END    = 35
 };
 
 enum InventoryPackSlots : uint8                             // 28 slots
 {
-    INVENTORY_SLOT_ITEM_START   = 23,
-    INVENTORY_SLOT_ITEM_END     = 51
+    INVENTORY_SLOT_ITEM_START   = 35,
+    INVENTORY_SLOT_ITEM_END     = 63
 };
 
 enum BankItemSlots                                          // 28 slots
 {
-    BANK_SLOT_ITEM_START        = 51,
-    BANK_SLOT_ITEM_END          = 79
+    BANK_SLOT_ITEM_START        = 63,
+    BANK_SLOT_ITEM_END          = 91
 };
 
 enum BankBagSlots                                           // 7 slots
 {
-    BANK_SLOT_BAG_START         = 79,
-    BANK_SLOT_BAG_END           = 86
+    BANK_SLOT_BAG_START         = 91,
+    BANK_SLOT_BAG_END           = 98
 };
 
 enum BuyBackSlots                                           // 12 slots
 {
     // stored in m_buybackitems
-    BUYBACK_SLOT_START          = 86,
-    BUYBACK_SLOT_END            = 98
+    BUYBACK_SLOT_START          = 98,
+    BUYBACK_SLOT_END            = 110
 };
 
 enum ReagentSlots                                           // 98 slots
 {
-    REAGENT_SLOT_START          = 98,
-    REAGENT_SLOT_END            = 196,
+    REAGENT_SLOT_START          = 110,
+    REAGENT_SLOT_END            = 208,
 };
 
 enum ChildEquipmentSlots
 {
-    CHILD_EQUIPMENT_SLOT_START   = 196,
-    CHILD_EQUIPMENT_SLOT_END     = 199,
+    CHILD_EQUIPMENT_SLOT_START   = 208,
+    CHILD_EQUIPMENT_SLOT_END     = 211,
+};
+
+enum EquipableSpellSlots
+{
+    EQUIPABLE_SPELL_OFFENSIVE_SLOT1 = 211,
+    EQUIPABLE_SPELL_OFFENSIVE_SLOT2 = 212,
+    EQUIPABLE_SPELL_OFFENSIVE_SLOT3 = 213,
+    EQUIPABLE_SPELL_OFFENSIVE_SLOT4 = 214,
+    EQUIPABLE_SPELL_UTILITY_SLOT1   = 215,
+    EQUIPABLE_SPELL_DEFENSIVE_SLOT1 = 216,
+    EQUIPABLE_SPELL_MOBILITY_SLOT1  = 217
 };
 
 struct ItemPosCount
@@ -815,6 +855,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_AURA_EFFECTS,
     PLAYER_LOGIN_QUERY_LOAD_AURA_STORED_LOCATIONS,
     PLAYER_LOGIN_QUERY_LOAD_SPELLS,
+    PLAYER_LOGIN_QUERY_LOAD_SPELL_FAVORITES,
     PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS,
     PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS_OBJECTIVES,
     PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS_OBJECTIVES_CRITERIA,
@@ -827,7 +868,6 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_AZERITE_MILESTONE_POWERS,
     PLAYER_LOGIN_QUERY_LOAD_AZERITE_UNLOCKED_ESSENCES,
     PLAYER_LOGIN_QUERY_LOAD_AZERITE_EMPOWERED,
-    PLAYER_LOGIN_QUERY_LOAD_ACTIONS,
     PLAYER_LOGIN_QUERY_LOAD_MAILS,
     PLAYER_LOGIN_QUERY_LOAD_MAIL_ITEMS,
     PLAYER_LOGIN_QUERY_LOAD_MAIL_ITEMS_ARTIFACT,
@@ -869,6 +909,8 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_GARRISON_BUILDINGS,
     PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWERS,
     PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWER_ABILITIES,
+    PLAYER_LOGIN_QUERY_LOAD_TRAIT_ENTRIES,
+    PLAYER_LOGIN_QUERY_LOAD_TRAIT_CONFIGS,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1027,7 +1069,7 @@ struct GroupUpdateCounter
     int32 UpdateSequenceNumber;
 };
 
-enum TalentLearnResult
+enum TalentLearnResult : int32
 {
     TALENT_LEARN_OK                                     = 0,
     TALENT_FAILED_UNKNOWN                               = 1,
@@ -1037,7 +1079,9 @@ enum TalentLearnResult
     TALENT_FAILED_AFFECTING_COMBAT                      = 5,
     TALENT_FAILED_CANT_REMOVE_TALENT                    = 6,
     TALENT_FAILED_CANT_DO_THAT_CHALLENGE_MODE_ACTIVE    = 7,
-    TALENT_FAILED_REST_AREA                             = 8
+    TALENT_FAILED_REST_AREA                             = 8,
+    TALENT_FAILED_UNSPENT_TALENT_POINTS                 = 9,
+    TALENT_FAILED_IN_PVP_MATCH                          = 10
 };
 
 struct TC_GAME_API SpecializationInfo
@@ -1236,10 +1280,17 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
             EnumFlag<ItemSearchLocation> flag = location;
 
             if (flag.HasFlag(ItemSearchLocation::Equipment))
+            {
                 for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
                     if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
                         if (callback(pItem) == ItemSearchCallbackResult::Stop)
                             return false;
+
+                for (uint8 i = PROFESSION_SLOT_START; i < PROFESSION_SLOT_END; ++i)
+                    if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+                        if (callback(pItem) == ItemSearchCallbackResult::Stop)
+                            return false;
+            }
 
             if (flag.HasFlag(ItemSearchLocation::Inventory))
             {
@@ -1278,10 +1329,19 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
             }
 
             if (flag.HasFlag(ItemSearchLocation::ReagentBank))
+            {
+                for (uint8 i = REAGENT_BAG_SLOT_START; i < REAGENT_BAG_SLOT_END; ++i)
+                    if (Bag* bag = GetBagByPos(i))
+                        for (uint32 j = 0; j < GetBagSize(bag); ++j)
+                            if (Item* pItem = GetItemInBag(bag, j))
+                                if (callback(pItem) == ItemSearchCallbackResult::Stop)
+                                    return false;
+
                 for (uint8 i = REAGENT_SLOT_START; i < REAGENT_SLOT_END; ++i)
                     if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
                         if (callback(pItem) == ItemSearchCallbackResult::Stop)
                             return false;
+            }
 
             return true;
         }
@@ -1363,7 +1423,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void AutoUnequipOffhandIfNeed(bool force = false);
         void EquipChildItem(uint8 parentBag, uint8 parentSlot, Item* parentItem);
         void AutoUnequipChildItem(Item* parentItem);
-        bool StoreNewItemInBestSlots(uint32 item_id, uint32 item_count);
+        bool StoreNewItemInBestSlots(uint32 itemId, uint32 amount, ItemContext context);
         void AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store, ItemContext context = ItemContext::NONE, bool broadcast = false, bool createdByPlayer = false);
         void AutoStoreLoot(uint32 loot_id, LootStore const& store, ItemContext context = ItemContext::NONE, bool broadcast = false, bool createdByPlayer = false) { AutoStoreLoot(NULL_BAG, NULL_SLOT, loot_id, store, context, broadcast, createdByPlayer); }
         void StoreLootItem(ObjectGuid lootWorldObjectGuid, uint8 lootSlot, Loot* loot, AELootResult* aeResult = nullptr);
@@ -1481,7 +1541,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void PrepareGossipMenu(WorldObject* source, uint32 menuId, bool showQuests = false);
         void SendPreparedGossip(WorldObject* source);
-        void OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 menuId);
+        void OnGossipSelect(WorldObject* source, int32 gossipOptionId, uint32 menuId);
 
         uint32 GetGossipTextId(uint32 menuId, WorldObject* source);
         uint32 GetGossipTextId(WorldObject* source);
@@ -1492,7 +1552,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         /*********************************************************/
 
         int32 GetQuestMinLevel(Quest const* quest) const;
+        int32 GetQuestMinLevel(uint32 contentTuningId) const;
         int32 GetQuestLevel(Quest const* quest) const;
+        int32 GetQuestLevel(uint32 contentTuningId) const;
         void PrepareQuestMenu(ObjectGuid guid);
         void SendPreparedQuest(WorldObject* source);
         bool IsActiveQuest(uint32 quest_id) const;
@@ -1743,8 +1805,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendProficiency(ItemClass itemClass, uint32 itemSubclassMask) const;
         void SendKnownSpells();
         void SendUnlearnSpells();
-        bool AddSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false, int32 fromSkill = 0);
-        void LearnSpell(uint32 spell_id, bool dependent, int32 fromSkill = 0, bool suppressMessaging = false);
+        bool AddSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false, int32 fromSkill = 0, bool favorite = false, Optional<int32> traitDefinitionId = {});
+        void LearnSpell(uint32 spell_id, bool dependent, int32 fromSkill = 0, bool suppressMessaging = false, Optional<int32> traitDefinitionId = {});
         void RemoveSpell(uint32 spell_id, bool disabled = false, bool learn_low_rank = true, bool suppressMessaging = false);
         void ResetSpells(bool myClassOnly = false);
         void LearnCustomSpells();
@@ -1760,6 +1822,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void LearnSpecializationSpells();
         void RemoveSpecializationSpells();
         void SendSpellCategoryCooldowns() const;
+        void SetSpellFavorite(uint32 spellId, bool favorite);
 
         void AddStoredAuraTeleportLocation(uint32 spellId);
         void RemoveStoredAuraTeleportLocation(uint32 spellId);
@@ -1819,7 +1882,22 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::vector<uint32> const& GetGlyphs(uint8 spec) const { return _specializationInfo.Glyphs[spec]; }
         std::vector<uint32>& GetGlyphs(uint8 spec) { return _specializationInfo.Glyphs[spec]; }
         ActionButtonList const& GetActionButtons() const { return m_actionButtons; }
+        void StartLoadingActionButtons(std::function<void()>&& callback = nullptr);
         void LoadActions(PreparedQueryResult result);
+
+        // Traits
+        void CreateTraitConfig(WorldPackets::Traits::TraitConfig& traitConfig);
+        void AddTraitConfig(WorldPackets::Traits::TraitConfig const& traitConfig);
+        UF::TraitConfig const* GetTraitConfig(int32 configId) const;
+        void UpdateTraitConfig(WorldPackets::Traits::TraitConfig&& newConfig, int32 savedConfigId, bool withCastTime);
+        void ApplyTraitEntryChanges(int32 editedConfigId, WorldPackets::Traits::TraitConfig const& newConfig, bool applyTraits, bool consumeCurrencies);
+        void RenameTraitConfig(int32 editedConfigId, std::string&& newName);
+        void DeleteTraitConfig(int32 deletedConfigId);
+        void ApplyTraitConfig(int32 configId, bool apply);
+        void ApplyTraitEntry(int32 traitNodeEntryId, int32 rank, int32 grantedRanks, bool apply);
+        void SetActiveCombatTraitConfigID(int32 traitConfigId) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ActiveCombatTraitConfigID), traitConfigId); }
+        void SetTraitConfigUseStarterBuild(int32 traitConfigId, bool useStarterBuild);
+        void SetTraitConfigUseSharedActionBars(int32 traitConfigId, bool usesSharedActionBars, bool isLastSelectedSavedConfig);
 
         uint32 GetFreePrimaryProfessionPoints() const { return m_activePlayerData->CharacterPoints; }
         void SetFreePrimaryProfessions(uint16 profs) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::CharacterPoints), profs); }
@@ -1928,10 +2006,11 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetArenaTeamInfoField(uint8 slot, ArenaTeamInfoType type, uint32 value);
         static void LeaveAllArenaTeams(ObjectGuid guid);
         uint32 GetArenaTeamId(uint8 /*slot*/) const { return 0; }
-        uint32 GetArenaPersonalRating(uint8 slot) const { return m_activePlayerData->PvpInfo[slot].Rating; }
+        uint32 GetArenaPersonalRating(uint8 slot) const;
         void SetArenaTeamIdInvited(uint32 ArenaTeamId) { m_ArenaTeamIdInvited = ArenaTeamId; }
         uint32 GetArenaTeamIdInvited() const { return m_ArenaTeamIdInvited; }
-        uint32 GetRBGPersonalRating() const { return m_activePlayerData->PvpInfo[3].Rating; }
+        uint32 GetRBGPersonalRating() const { return GetArenaPersonalRating(3); }
+        UF::PVPInfo const* GetPvpInfoForBracket(int8 bracket) const;
 
         Difficulty GetDifficultyID(MapEntry const* mapEntry) const;
         Difficulty GetDungeonDifficultyID() const { return m_dungeonDifficulty; }
@@ -2770,8 +2849,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool CanEnableWarModeInArea() const;
         void UpdateWarModeAuras();
 
-        void SendGarrisonOpenTalentNpc(ObjectGuid guid, int32 garrTalentTreeId, int32 friendshipFactionId);
-
         std::string GetDebugInfo() const override;
 
         UF::UpdateField<UF::PlayerData, 0, TYPEID_PLAYER> m_playerData;
@@ -2849,7 +2926,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _LoadRandomBGStatus(PreparedQueryResult result);
         void _LoadGroup(PreparedQueryResult result);
         void _LoadSkills(PreparedQueryResult result);
-        void _LoadSpells(PreparedQueryResult result);
+        void _LoadSpells(PreparedQueryResult result, PreparedQueryResult favoritesResult);
         void _LoadStoredAuraTeleportLocations(PreparedQueryResult result);
         bool _LoadHomeBind(PreparedQueryResult result);
         void _LoadDeclinedNames(PreparedQueryResult result);
@@ -2860,6 +2937,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _LoadGlyphs(PreparedQueryResult result);
         void _LoadTalents(PreparedQueryResult result);
         void _LoadPvpTalents(PreparedQueryResult result);
+        void _LoadTraits(PreparedQueryResult configsResult, PreparedQueryResult entriesResult);
         void _LoadInstanceTimeRestrictions(PreparedQueryResult result);
         void _LoadPetStable(uint32 summonedPetNumber, PreparedQueryResult result);
         void _LoadCurrency(PreparedQueryResult result);
@@ -2887,6 +2965,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _SaveBGData(CharacterDatabaseTransaction trans);
         void _SaveGlyphs(CharacterDatabaseTransaction trans) const;
         void _SaveTalents(CharacterDatabaseTransaction trans);
+        void _SaveTraits(CharacterDatabaseTransaction trans);
         void _SaveStats(CharacterDatabaseTransaction trans) const;
         void _SaveInstanceTimeRestrictions(CharacterDatabaseTransaction trans);
         void _SaveCurrency(CharacterDatabaseTransaction trans);
@@ -2965,6 +3044,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::unordered_map<uint32, StoredAuraTeleportLocation> m_storedAuraTeleportLocations;
 
         SpecializationInfo _specializationInfo;
+
+        std::unordered_map<int32, PlayerSpellState> m_traitConfigStates;
 
         ActionButtonList m_actionButtons;
 

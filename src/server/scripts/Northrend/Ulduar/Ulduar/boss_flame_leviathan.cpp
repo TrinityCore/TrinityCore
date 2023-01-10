@@ -26,6 +26,7 @@
 #include "GameObjectAI.h"
 #include "CellImpl.h"
 #include "CombatAI.h"
+#include "Containers.h"
 #include "GameObject.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"

@@ -309,7 +309,7 @@ struct boss_volazj : public BossAI
             if (Creature* visage = ObjectAccessor::GetCreature(*me, *iter))
             {
                 // Not all are dead
-                if (visage->IsInPhase(summon))
+                if (visage->InSamePhase(summon))
                     return;
                 else if (!visage->GetPhaseShift().GetPhases().empty())
                 {

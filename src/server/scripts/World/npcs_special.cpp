@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "CellImpl.h"
 #include "CombatAI.h"
+#include "Containers.h"
 #include "CreatureTextMgr.h"
 #include "GameEventMgr.h"
 #include "GameObject.h"
@@ -1927,7 +1928,7 @@ class npc_train_wrecker : public CreatureScript
                             {
                                 me->SetFacingTo(target->GetOrientation());
                                 me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACK1H);
-                                _timer = 1.5 * IN_MILLISECONDS;
+                                _timer = 1.5 * AsUnderlyingType(IN_MILLISECONDS);
                                 _nextAction = EVENT_DO_WRECK;
                             }
                             else

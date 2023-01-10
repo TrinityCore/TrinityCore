@@ -21,6 +21,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "CreatureAIImpl.h"
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"

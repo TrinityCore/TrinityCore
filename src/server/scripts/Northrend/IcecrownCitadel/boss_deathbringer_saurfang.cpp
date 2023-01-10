@@ -16,6 +16,7 @@
  */
 
 #include "icecrown_citadel.h"
+#include "Containers.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "MotionMaster.h"
