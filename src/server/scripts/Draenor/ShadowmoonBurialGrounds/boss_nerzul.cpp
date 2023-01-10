@@ -119,9 +119,9 @@ public:
             DespawnCreaturesInArea(eNerzulCreatures::CreatureRitualOfBonesDarknessTrigger, me);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) 
         {
-            _EnterCombat();
+           // _EnterCombat();
 
             Talk(eNerzulTalks::TalkAggro);
 
@@ -133,9 +133,9 @@ public:
                 DoZoneInCombat();
             }
 
-            events.ScheduleEvent(eNerzulEvents::EventOmenOfDeath, TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eNerzulEvents::EventRitualOfSouls, TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eNerzulEvents::EventMalevolance, TimeConstants::IN_MILLISECONDS);
+          //  events.ScheduleEvent(eNerzulEvents::EventOmenOfDeath, TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eNerzulEvents::EventRitualOfSouls, TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eNerzulEvents::EventMalevolance, TimeConstants::IN_MILLISECONDS);
         }
 
         void KilledUnit(Unit* who) override
@@ -176,20 +176,20 @@ public:
                 switch (eventId)
                 {
                     case eNerzulEvents::EventMalevolance:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                            me->CastSpell(target, eNerzulSpells::SpellMalevolance);
+                     //   if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                       //     me->CastSpell(target, eNerzulSpells::SpellMalevolance);
 
                         Talk(eNerzulTalks::TalkSpell01);
 
-                        events.ScheduleEvent(eNerzulEvents::EventMalevolance, TimeConstants::IN_MILLISECONDS);
+                      //  events.ScheduleEvent(eNerzulEvents::EventMalevolance, TimeConstants::IN_MILLISECONDS);
                         break;
                     case eNerzulEvents::EventOmenOfDeath:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                            me->CastSpell(target, eNerzulSpells::SpellOmenOfDeathSummon);
+                     //   if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                       //     me->CastSpell(target, eNerzulSpells::SpellOmenOfDeathSummon);
 
                         Talk(eNerzulTalks::TalkSpell03);
 
-                        events.ScheduleEvent(eNerzulEvents::EventOmenOfDeath, TimeConstants::IN_MILLISECONDS);
+                      //  events.ScheduleEvent(eNerzulEvents::EventOmenOfDeath, TimeConstants::IN_MILLISECONDS);
                         break;
                     case eNerzulEvents::EventRitualOfSouls:
                     {
@@ -201,9 +201,9 @@ public:
                             {
                                 for (int i = 0; i <= 6; i++)
                                 {
-                                    me->SummonCreature(eNerzulCreatures::CreatureRitualOfBones, l_InitialPositionRight.GetPositionX() + (m_X * i),
+                                  //  me->SummonCreature(eNerzulCreatures::CreatureRitualOfBones, l_InitialPositionRight.GetPositionX() + (m_X * i),
                                         l_InitialPositionRight.GetPositionY() + (m_Y * i), l_InitialPositionRight.GetPositionZ(),
-                                        l_InitialPositionRight.GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 40 * TimeConstants::IN_MILLISECONDS);
+                                        l_InitialPositionRight.GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 40 * TimeConstants::IN_MILLISECONDS;
                                 }
                                 break;
                             }
@@ -211,9 +211,9 @@ public:
                             {
                                 for (int i = 0; i <= 6; i++)
                                 {
-                                    me->SummonCreature(eNerzulCreatures::CreatureRitualOfBones, l_InitialPositionLeft.GetPositionX() + (m_X * i),
+                                 //   me->SummonCreature(eNerzulCreatures::CreatureRitualOfBones, l_InitialPositionLeft.GetPositionX() + (m_X * i),
                                         l_InitialPositionLeft.GetPositionY() + (m_Y * i), l_InitialPositionLeft.GetPositionZ(),
-                                        l_InitialPositionLeft.GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 40 * TimeConstants::IN_MILLISECONDS);
+                                        l_InitialPositionLeft.GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 40 * TimeConstants::IN_MILLISECONDS;
                                 }
                                 break;
                             }
@@ -250,9 +250,9 @@ class shadowmoon_burial_grounds_omen_of_death : public CreatureScript
 public:
     shadowmoon_burial_grounds_omen_of_death() : CreatureScript("shadowmoon_burial_grounds_omen_of_death") {}
 
-    struct shadowmoon_burial_grounds_creaturesAI : public Scripted_NoMovementAI
+    struct shadowmoon_burial_grounds_creaturesAI : public CreatureAI
     {
-        shadowmoon_burial_grounds_creaturesAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        shadowmoon_burial_grounds_creaturesAI(Creature* creature) : CreatureAI(creature)
         {
             m_Instance = creature->GetInstanceScript();
         }
@@ -264,8 +264,8 @@ public:
         void Reset() override
         {
             me->SetReactState(ReactStates::REACT_PASSIVE);
-            me->AddUnitFlag2(UNIT_FLAG2_DISABLE_TURN);
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE));
+         //   me->AddUnitFlag2(UNIT_FLAG2_DISABLE_TURN);
+           // me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE));
 
             me->CastSpell(me, eNerzulSpells::SpellOmenOfDeathVisualRune);
             me->CastSpell(me, eNerzulSpells::SpellOmenOfDeathLightningt);
@@ -274,7 +274,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new shadowmoon_burial_grounds_creaturesAI(creature);
+       // return new shadowmoon_burial_grounds_creaturesAI(creature);
     }
 };
 
@@ -284,9 +284,9 @@ class shadowmoon_burial_grounds_ritual_of_bones : public CreatureScript
 public:
     shadowmoon_burial_grounds_ritual_of_bones() : CreatureScript("shadowmoon_burial_grounds_ritual_of_bones") {}
 
-    struct shadowmoon_burial_grounds_creaturesAI : public Scripted_NoMovementAI
+    struct shadowmoon_burial_grounds_creaturesAI : public CreatureAI
     {
-        shadowmoon_burial_grounds_creaturesAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        shadowmoon_burial_grounds_creaturesAI(Creature* creature) : CreatureAI(creature)
         {
             m_Instance = creature->GetInstanceScript();
         }
@@ -295,31 +295,32 @@ public:
         uint32 m_Diff;
         uint32 l_Periodic = 0;
 
-        void Reset() override
+        void Reset() 
         {
             {
-                const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(eNerzulSpells::SpellRitualOfBonesPeriodic);
+                //const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(eNerzulSpells::SpellRitualOfBonesPeriodic,
 
-                if (!l_SpellInfo)
+                  //    if (!l_SpellInfo)
+                          return;
+
+                    //  uint32 l_Periodic = l_SpellInfo->GetEffect(0)->Amplitude;
+
+                      m_Diff = l_Periodic;
                     return;
-
-                uint32 l_Periodic = l_SpellInfo->GetEffect(0)->Amplitude;
-
-                m_Diff = l_Periodic;
-            }
+            };
 
             me->RemoveAllAuras();
             me->SetSpeed(UnitMoveType::MOVE_RUN, 0.5f);
             me->SetReactState(ReactStates::REACT_PASSIVE);
-            me->AddUnitFlag2(UNIT_FLAG2_DISABLE_TURN);
+           // me->AddUnitFlag2(UNIT_FLAG2_DISABLE_TURN);
             me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_FORWARD);
 
             me->CastSpell(me, eNerzulSpells::SpellRitualOfBonesWeirdVisualPoop);
         }
 
-        void UpdateAI(uint32 const diff) override
+        void UpdateAI(uint32 const diff) 
         {
-            events.Update(diff);
+          //  events.Update(diff);
 
             if (m_Diff <= diff)
             {
@@ -343,9 +344,9 @@ class shadowmoon_burial_grounds_ritual_of_bones_darkness_trigger : public Creatu
 public:
     shadowmoon_burial_grounds_ritual_of_bones_darkness_trigger() : CreatureScript("shadowmoon_burial_grounds_ritual_of_bones_darkness_trigger") {}
 
-    struct shadowmoon_burial_grounds_creaturesAI : public Scripted_NoMovementAI
+    struct shadowmoon_burial_grounds_creaturesAI : public CreatureAI
     {
-        shadowmoon_burial_grounds_creaturesAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        shadowmoon_burial_grounds_creaturesAI(Creature* creature) : CreatureAI(creature)
         {
             m_Instance = creature->GetInstanceScript();
         }
@@ -357,16 +358,16 @@ public:
             // Orientation check
             if (TempSummon* l_Tempo = me->ToTempSummon())
             {
-                if (Unit* summoner = l_Tempo->ToTempSummon())
+              //  if (Unit* summoner = l_Tempo->ToTempSummon())
                 {
-                    me->SetFacingTo(summoner->GetOrientation());
+                  //  me->SetFacingTo(summoner->GetOrientation());
                 }
             }
 
             me->SetDisplayId(11686);
             me->SetFaction(35);
             me->SetReactState(ReactStates::REACT_PASSIVE);
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+           // me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL));
 
             me->CastSpell(me, eNerzulSpells::SpellRitualOfBonesThirdVisual);
             me->CastSpell(me, eNerzulSpells::SpellRitualOfBonesWeirdVisualPoop);
@@ -374,7 +375,7 @@ public:
 
         void UpdateAI(uint32 const diff) override
         {
-            events.Update(diff);
+          //  events.Update(diff);
 
             std::list<Player*> l_ListPlayer;
             me->GetPlayerListInGrid(l_ListPlayer, 100.0f);
@@ -409,9 +410,9 @@ class shadowmoon_burial_grounds_initial_teleport : public CreatureScript
 public:
     shadowmoon_burial_grounds_initial_teleport() : CreatureScript("shadowmoon_burial_grounds_initial_teleport") {}
 
-    struct shadowmoon_burial_grounds_creaturesAI : public Scripted_NoMovementAI
+    struct shadowmoon_burial_grounds_creaturesAI : public CreatureAI
     {
-        shadowmoon_burial_grounds_creaturesAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        shadowmoon_burial_grounds_creaturesAI(Creature* creature) : CreatureAI(creature)
         {
             m_Instance = creature->GetInstanceScript();
             m_HasOpened = false;
@@ -427,12 +428,12 @@ public:
             me->SetDisplayId(11686);
             me->SetFaction(35);
             me->SetReactState(ReactStates::REACT_PASSIVE);
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+          //  me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL));
         }
 
         void UpdateAI(uint32 const diff) override
         {
-            events.Update(diff);
+          //  events.Update(diff);
             
             if (m_Instance == nullptr)
                 return;
@@ -500,9 +501,9 @@ class shadowmoon_burial_grounds_nerzul_prop : public CreatureScript
 public:
     shadowmoon_burial_grounds_nerzul_prop() : CreatureScript("shadowmoon_burial_grounds_nerzul_prop") {}
 
-    struct shadowmoon_burial_grounds_creaturesAI : public Scripted_NoMovementAI
+    struct shadowmoon_burial_grounds_creaturesAI : public CreatureAI
     {
-        shadowmoon_burial_grounds_creaturesAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        shadowmoon_burial_grounds_creaturesAI(Creature* creature) : CreatureAI(creature)
         {
             m_Instance = creature->GetInstanceScript();
             m_Intro = false;
@@ -516,7 +517,7 @@ public:
             me->SetDisplayId(11686);
             me->SetFaction(35);
             me->SetReactState(ReactStates::REACT_PASSIVE);
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+          //  me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL));
             me->SetDisableGravity(true);
             me->SetCanFly(true);
 
@@ -530,7 +531,7 @@ public:
                 case eNerzulActions::ActionNerzulPropIntroduction:
                     if (!m_Intro)
                     {
-                        events.ScheduleEvent(eShadowmoonBurialGroundsEvents::EventTalk01, 1 * TimeConstants::IN_MILLISECONDS);
+                       // events.ScheduleEvent(eShadowmoonBurialGroundsEvents::EventTalk01, 1 * TimeConstants::IN_MILLISECONDS);
                     }
                     break;
             }
@@ -538,20 +539,20 @@ public:
 
         void UpdateAI(uint32 const diff) override
         {
-            events.Update(diff);
+           // events.Update(diff);
 
-            if (uint32 eventId = events.ExecuteEvent())
+           // if (uint32 eventId = events.ExecuteEvent())
             {
-                switch (eventId)
+               // switch (eventId)
                 {
-                    case eShadowmoonBurialGroundsEvents::EventTalk01:
+                    eShadowmoonBurialGroundsEvents::EventTalk01;
                         Talk(eNerzulTalks::TalkIntro01);
 
-                        events.ScheduleEvent(eShadowmoonBurialGroundsEvents::EventTalk02, 10 * TimeConstants::IN_MILLISECONDS);
-                        break;
-                    case eShadowmoonBurialGroundsEvents::EventTalk02:
+                      //  events.ScheduleEvent(eShadowmoonBurialGroundsEvents::EventTalk02, 10 * TimeConstants::IN_MILLISECONDS);
+                      //  break;
+                        eShadowmoonBurialGroundsEvents::EventTalk02;
                         Talk(eNerzulTalks::TalkIntro02);
-                        break;
+                        //break;
                 }
             }
         }

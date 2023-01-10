@@ -84,7 +84,7 @@ public:
     {
         boss_brawguild_oolissAI(Creature* creature) : BossAI(creature, DATA_BOSS_RANK_ONE) {}
 
-        void Reset() override
+        void Reset() 
         {
             events.Reset();
             me->ApplySpellImmune(0, IMMUNITY_ID, 236110, true);
@@ -96,7 +96,7 @@ public:
            // events.RescheduleEvent(1, 25000);
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff) 
         {
             if (!UpdateVictim())
                 return;
@@ -147,7 +147,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const 
     {
         return new boss_brawguild_oolissAI(creature);
     }
@@ -180,7 +180,7 @@ public:
             //events.RescheduleEvent(3, 8000);
         }
 
-        void JustSummoned(Creature* summon) override
+        void JustSummoned(Creature* summon) 
         {
             summons.Summon(summon);
             switch (summon->GetEntry())
@@ -214,12 +214,12 @@ public:
             }
         }
 
-        void JustDied(Unit* /*who*/) override
+        void JustDied(Unit* /*who*/) 
         {
             _Reset();
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff) 
         {
             if (!UpdateVictim())
                 return;
@@ -277,7 +277,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const 
     {
         return new boss_brawguild_grandpaAI(creature);
     }
@@ -293,7 +293,7 @@ public:
     {
         boss_brawguild_osoAI(Creature* creature) : BossAI(creature, DATA_BOSS_RANK_ONE) {}
 
-        void Reset() override
+        void Reset() 
         {
             events.Reset();
             if (Creature* morozec = me->SummonCreature(117759, me->GetPositionX() + 3.0f, me->GetPositionY() + 3.0f, me->GetPositionZ(), me->GetOrientation()))
@@ -320,7 +320,7 @@ public:
           //  events.RescheduleEvent(3, urand(21000, 22000));
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff) 
         {
             if (!UpdateVictim())
                 return;
@@ -369,7 +369,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const 
     {
         return new boss_brawguild_osoAI(creature);
     }
@@ -387,7 +387,7 @@ public:
 
         uint32 healthPct;
 
-        void Reset() override
+        void Reset() 
         {
             events.Reset();
             switch (me->GetEntry())
@@ -423,7 +423,7 @@ public:
             }
         }
 
-        void JustDied(Unit* who) override
+        void JustDied(Unit* who) 
         {
             if (!who)
                 return;
@@ -434,7 +434,7 @@ public:
                        // owner->Kill(owner);
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff) 
         {
             if (!UpdateVictim())
                 return;
@@ -471,7 +471,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const 
     {
         return new boss_brawguild_gnomesAI(creature);
     }

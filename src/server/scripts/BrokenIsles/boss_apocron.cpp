@@ -97,7 +97,7 @@ public:
                 {
                 case EVENT_FELFIRE_MISSILES:
                 {
-                    DoCastRandom(SPELL_FELFIRE_MISSILES, true);
+                   // DoCastRandom(SPELL_FELFIRE_MISSILES, true);
                     events.Repeat(10s, 15s);
                     break;
                 }
