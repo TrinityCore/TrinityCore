@@ -327,7 +327,7 @@ std::string GetNameLink(Player* player)
 class cs_world_chat : public CommandScript
 {
 public:
-	cs_world_chat() : CommandScript("cs_world_chat"){}
+	cs_world_chat() : CommandScript("cs_world_chat"){}//经验证cs_world_chat并不是开启世界聊天的命令
     //cs_world_chat() : CommandScript(".world") {}  //猜测为世界频道聊天命令,修改后发现会与"."系列控制台命令冲突
 
     std::vector<ChatCommand> GetCommands() const override
