@@ -445,10 +445,10 @@ template <class T>
 T* DatabaseWorkerPool<T>::GetFreeConnection()
 {
 #ifdef TRINITY_DEBUG
-    if (_warnSyncQueries)
+   // if (_warnSyncQueries)
     {
         std::ostringstream ss;
-        ss << boost::stacktrace::stacktrace();
+        //ss << boost::stacktrace::stacktrace();
         TC_LOG_WARN("sql.performances", "Sync query at:\n{}", ss.str());
     }
 #endif
