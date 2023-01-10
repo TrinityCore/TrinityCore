@@ -433,7 +433,7 @@ public:
         {
             passenger->SetTransport(this);
             passenger->m_movementInfo.transport.guid = GetTransportGUID();
-            TC_LOG_DEBUG("entities.transport", "Object %s boarded transport %s.", passenger->GetName().c_str(), _owner.GetName().c_str());
+            TC_LOG_DEBUG("entities.transport", "Object {} boarded transport {}.", passenger->GetName(), _owner.GetName());
         }
     }
 
@@ -443,7 +443,7 @@ public:
         {
             passenger->SetTransport(nullptr);
             passenger->m_movementInfo.transport.Reset();
-            TC_LOG_DEBUG("entities.transport", "Object %s removed from transport %s.", passenger->GetName().c_str(), _owner.GetName().c_str());
+            TC_LOG_DEBUG("entities.transport", "Object {} removed from transport {}.", passenger->GetName(), _owner.GetName());
 
             if (Player* plr = passenger->ToPlayer())
                 plr->SetFallInformation(0, plr->GetPositionZ());
@@ -576,8 +576,8 @@ void GameObject::RemoveFromOwner()
     }
 
     // This happens when a mage portal is despawned after the caster changes map (for example using the portal)
-    TC_LOG_DEBUG("misc", "Removed GameObject (%s Entry: %u SpellId: %u LinkedGO: %u) that just lost any reference to the owner (%s) GO list",
-        GetGUID().ToString().c_str(), GetGOInfo()->entry, m_spellId, GetGOInfo()->GetLinkedGameObjectEntry(), ownerGUID.ToString().c_str());
+    TC_LOG_DEBUG("misc", "Removed GameObject ({} Entry: {} SpellId: {} LinkedGO: {}) that just lost any reference to the owner ({}) GO list",
+        GetGUID().ToString(), GetGOInfo()->entry, m_spellId, GetGOInfo()->GetLinkedGameObjectEntry(), ownerGUID.ToString());
     SetOwnerGUID(ObjectGuid::Empty);
 }
 
@@ -642,7 +642,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
     m_stationaryPosition.Relocate(pos);
     if (!IsPositionValid())
     {
-        TC_LOG_ERROR("misc", "Gameobject (Spawn id: " UI64FMTD " Entry: %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)", GetSpawnId(), entry, pos.GetPositionX(), pos.GetPositionY());
+        TC_LOG_ERROR("misc", "Gameobject (Spawn id: {} Entry: {}) not created. Suggested coordinates isn't valid (X: {} Y: {})", GetSpawnId(), entry, pos.GetPositionX(), pos.GetPositionY());
         return false;
     }
 
@@ -663,13 +663,13 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
     GameObjectTemplate const* goInfo = sObjectMgr->GetGameObjectTemplate(entry);
     if (!goInfo)
     {
-        TC_LOG_ERROR("sql.sql", "Gameobject (Spawn id: " UI64FMTD " Entry: %u) not created: non-existing entry in `gameobject_template`. Map: %u (X: %f Y: %f Z: %f)", GetSpawnId(), entry, map->GetId(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
+        TC_LOG_ERROR("sql.sql", "Gameobject (Spawn id: {} Entry: {}) not created: non-existing entry in `gameobject_template`. Map: {} (X: {} Y: {} Z: {})", GetSpawnId(), entry, map->GetId(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
         return false;
     }
 
     if (goInfo->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT)
     {
-        TC_LOG_ERROR("sql.sql", "Gameobject (Spawn id: " UI64FMTD " Entry: %u) not created: gameobject type GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT cannot be manually created.", GetSpawnId(), entry);
+        TC_LOG_ERROR("sql.sql", "Gameobject (Spawn id: {} Entry: {}) not created: gameobject type GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT cannot be manually created.", GetSpawnId(), entry);
         return false;
     }
 
@@ -689,7 +689,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
 
     if (goInfo->type >= MAX_GAMEOBJECT_TYPE)
     {
-        TC_LOG_ERROR("sql.sql", "Gameobject (%s Spawn id: " UI64FMTD " Entry: %u) not created: non-existing GO type '%u' in `gameobject_template`. It will crash client if created.", guid.ToString().c_str(), GetSpawnId(), entry, goInfo->type);
+        TC_LOG_ERROR("sql.sql", "Gameobject ({} Spawn id: {} Entry: {}) not created: non-existing GO type '{}' in `gameobject_template`. It will crash client if created.", guid.ToString(), GetSpawnId(), entry, goInfo->type);
         return false;
     }
 
@@ -1597,7 +1597,7 @@ bool GameObject::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap
     GameObjectData const* data = sObjectMgr->GetGameObjectData(spawnId);
     if (!data)
     {
-        TC_LOG_ERROR("sql.sql", "Gameobject (GUID: " UI64FMTD ") not found in table `gameobject`, can't load. ", spawnId);
+        TC_LOG_ERROR("sql.sql", "Gameobject (GUID: {}) not found in table `gameobject`, can't load. ", spawnId);
         return false;
     }
 
@@ -1643,7 +1643,7 @@ bool GameObject::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap
     {
         if (!m_respawnCompatibilityMode)
         {
-            TC_LOG_WARN("sql.sql", "GameObject %u (SpawnID " UI64FMTD ") is not spawned by default, but tries to use a non-hack spawn system. This will not work. Defaulting to compatibility mode.", entry, spawnId);
+            TC_LOG_WARN("sql.sql", "GameObject {} (SpawnID {}) is not spawned by default, but tries to use a non-hack spawn system. This will not work. Defaulting to compatibility mode.", entry, spawnId);
             m_respawnCompatibilityMode = true;
         }
 
@@ -2005,7 +2005,7 @@ void GameObject::ActivateObject(GameObjectActions action, int32 param, WorldObje
     switch (action)
     {
         case GameObjectActions::None:
-            TC_LOG_FATAL("spell", "Spell %d has action type NONE in effect %d", spellId, effectIndex);
+            TC_LOG_FATAL("spell", "Spell {} has action type NONE in effect {}", spellId, effectIndex);
             break;
         case GameObjectActions::AnimateCustom0:
         case GameObjectActions::AnimateCustom1:
@@ -2076,7 +2076,7 @@ void GameObject::ActivateObject(GameObjectActions action, int32 param, WorldObje
                 artKitValue = templateAddon->ArtKits[artKitIndex];
 
             if (artKitValue == 0)
-                TC_LOG_ERROR("sql.sql", "GameObject %d hit by spell %d needs `artkit%d` in `gameobject_template_addon`", GetEntry(), spellId, artKitIndex);
+                TC_LOG_ERROR("sql.sql", "GameObject {} hit by spell {} needs `artkit{}` in `gameobject_template_addon`", GetEntry(), spellId, artKitIndex);
             else
                 SetGoArtKit(artKitValue);
 
@@ -2096,7 +2096,7 @@ void GameObject::ActivateObject(GameObjectActions action, int32 param, WorldObje
             if (GetGoType() == GAMEOBJECT_TYPE_TRANSPORT)
                 SetGoState(GOState(action));
             else
-                TC_LOG_ERROR("spell", "Spell %d targeted non-transport gameobject for transport only action \"Go to Floor\" %d in effect %d", spellId, int32(action), effectIndex);
+                TC_LOG_ERROR("spell", "Spell {} targeted non-transport gameobject for transport only action \"Go to Floor\" {} in effect {}", spellId, int32(action), effectIndex);
             break;
         case GameObjectActions::PlayAnimKit:
             SetAnimKitId(param, false);
@@ -2132,7 +2132,7 @@ void GameObject::ActivateObject(GameObjectActions action, int32 param, WorldObje
             SetSpellVisualId(0);
             break;
         default:
-            TC_LOG_ERROR("spell", "Spell %d has unhandled action %d in effect %d", spellId, int32(action), effectIndex);
+            TC_LOG_ERROR("spell", "Spell {} has unhandled action {} in effect {}", spellId, int32(action), effectIndex);
             break;
     }
 }
@@ -2433,7 +2433,7 @@ void GameObject::Use(Unit* user)
 
                 if (info->goober.eventID)
                 {
-                    TC_LOG_DEBUG("maps.script", "Goober ScriptStart id %u for GO entry %u (GUID " UI64FMTD ").", info->goober.eventID, GetEntry(), GetSpawnId());
+                    TC_LOG_DEBUG("maps.script", "Goober ScriptStart id {} for GO entry {} (GUID {}).", info->goober.eventID, GetEntry(), GetSpawnId());
                     GameEvents::Trigger(info->goober.eventID, player, this);
                 }
 
@@ -2529,7 +2529,7 @@ void GameObject::Use(Unit* user)
 
                     //provide error, no fishable zone or area should be 0
                     if (!zone_skill)
-                        TC_LOG_ERROR("sql.sql", "Fishable areaId %u are not properly defined in `skill_fishing_base_level`.", subzone);
+                        TC_LOG_ERROR("sql.sql", "Fishable areaId {} are not properly defined in `skill_fishing_base_level`.", subzone);
 
                     int32 skill = player->GetSkillValue(SKILL_FISHING);
 
@@ -2545,7 +2545,7 @@ void GameObject::Use(Unit* user)
 
                     int32 roll = irand(1, 100);
 
-                    TC_LOG_DEBUG("misc", "Fishing check (skill: %i zone min skill: %i chance %i roll: %i", skill, zone_skill, chance, roll);
+                    TC_LOG_DEBUG("misc", "Fishing check (skill: {} zone min skill: {} chance {} roll: {}", skill, zone_skill, chance, roll);
 
                     player->UpdateFishingSkill();
 
@@ -3010,8 +3010,8 @@ void GameObject::Use(Unit* user)
         }
         default:
             if (GetGoType() >= MAX_GAMEOBJECT_TYPE)
-                TC_LOG_ERROR("misc", "GameObject::Use(): unit (%s, name: %s) tries to use object (%s, name: %s) of unknown type (%u)",
-                    user->GetGUID().ToString().c_str(), user->GetName().c_str(), GetGUID().ToString().c_str(), GetGOInfo()->name.c_str(), GetGoType());
+                TC_LOG_ERROR("misc", "GameObject::Use(): unit ({}, name: {}) tries to use object ({}, name: {}) of unknown type ({})",
+                    user->GetGUID().ToString(), user->GetName(), GetGUID().ToString(), GetGOInfo()->name, GetGoType());
             break;
     }
 
@@ -3021,9 +3021,9 @@ void GameObject::Use(Unit* user)
     if (!sSpellMgr->GetSpellInfo(spellId, GetMap()->GetDifficultyID()))
     {
         if (user->GetTypeId() != TYPEID_PLAYER || !sOutdoorPvPMgr->HandleCustomSpell(user->ToPlayer(), spellId, this))
-            TC_LOG_ERROR("misc", "WORLD: unknown spell id %u at use action for gameobject (Entry: %u GoType: %u)", spellId, GetEntry(), GetGoType());
+            TC_LOG_ERROR("misc", "WORLD: unknown spell id {} at use action for gameobject (Entry: {} GoType: {})", spellId, GetEntry(), GetGoType());
         else
-            TC_LOG_DEBUG("outdoorpvp", "WORLD: %u non-dbc spell was handled by OutdoorPvP", spellId);
+            TC_LOG_DEBUG("outdoorpvp", "WORLD: {} non-dbc spell was handled by OutdoorPvP", spellId);
         return;
     }
 

@@ -53,7 +53,7 @@ bool AuctionBotBuyer::Initialize()
 
     // load Check interval
     _checkInterval = sAuctionBotConfig->GetConfig(CONFIG_AHBOT_BUYER_RECHECK_INTERVAL) * MINUTE;
-    TC_LOG_DEBUG("ahbot", "AHBot buyer interval is %u minutes", _checkInterval / MINUTE);
+    TC_LOG_DEBUG("ahbot", "AHBot buyer interval is {} minutes", _checkInterval / MINUTE);
     return true;
 }
 
@@ -78,7 +78,7 @@ bool AuctionBotBuyer::Update(AuctionHouseType houseType)
     if (!sAuctionBotConfig->GetConfigBuyerEnabled(houseType))
         return false;
 
-    TC_LOG_DEBUG("ahbot", "AHBot: %s buying ...", AuctionBotConfig::GetHouseTypeName(houseType));
+    TC_LOG_DEBUG("ahbot", "AHBot: {} buying ...", AuctionBotConfig::GetHouseTypeName(houseType));
 
     BuyerConfiguration& config = _houseConfig[houseType];
     uint32 eligibleItems = GetItemInformation(config);
@@ -155,8 +155,8 @@ uint32 AuctionBotBuyer::GetItemInformation(BuyerConfiguration& config)
         }
     }
 
-    TC_LOG_DEBUG("ahbot", "AHBot: %u items added to buyable/biddable vector for ah type: %u", count, config.GetHouseType());
-    TC_LOG_DEBUG("ahbot", "AHBot: SameItemInfo size = %u", (uint32)config.SameItemInfo.size());
+    TC_LOG_DEBUG("ahbot", "AHBot: {} items added to buyable/biddable vector for ah type: {}", count, config.GetHouseType());
+    TC_LOG_DEBUG("ahbot", "AHBot: SameItemInfo size = {}", (uint32)config.SameItemInfo.size());
     return count;
 }
 
@@ -189,7 +189,7 @@ bool AuctionBotBuyer::RollBuyChance(BuyerItemInfo const* ahInfo, AuctionPosting 
     {
         float avgBuyPrice = ahInfo->TotalBuyPrice / float(ahInfo->BuyItemCount);
 
-        TC_LOG_DEBUG("ahbot", "AHBot: buyout average: %.1f items with buyout: %u", avgBuyPrice, ahInfo->BuyItemCount);
+        TC_LOG_DEBUG("ahbot", "AHBot: buyout average: {:.1f} items with buyout: {}", avgBuyPrice, ahInfo->BuyItemCount);
 
         // If there are more than 5 items on AH of this entry, try weigh in the average buyout price
         if (ahInfo->BuyItemCount > 5)
@@ -201,7 +201,7 @@ bool AuctionBotBuyer::RollBuyChance(BuyerItemInfo const* ahInfo, AuctionPosting 
 
     float rand = frand(0.f, 100.f);
     bool win = rand <= chance;
-    TC_LOG_DEBUG("ahbot", "AHBot: %s BUY! chance = %.2f, price = %u, buyprice = %u.", win ? "WIN" : "LOSE", chance, uint32(itemPrice), uint32(itemBuyPrice));
+    TC_LOG_DEBUG("ahbot", "AHBot: {} BUY! chance = {:.2f}, price = {}, buyprice = {}.", win ? "WIN" : "LOSE", chance, uint32(itemPrice), uint32(itemBuyPrice));
     return win;
 }
 
@@ -230,7 +230,7 @@ bool AuctionBotBuyer::RollBidChance(BuyerItemInfo const* ahInfo, AuctionPosting 
     {
         float avgBidPrice = ahInfo->TotalBidPrice / float(ahInfo->BidItemCount);
 
-        TC_LOG_DEBUG("ahbot", "AHBot: Bid average: %.1f biddable item count: %u", avgBidPrice, ahInfo->BidItemCount);
+        TC_LOG_DEBUG("ahbot", "AHBot: Bid average: {:.1f} biddable item count: {}", avgBidPrice, ahInfo->BidItemCount);
 
         // If there are more than 5 items on AH of this entry, try weigh in the average bid price
         if (ahInfo->BidItemCount >= 5)
@@ -246,7 +246,7 @@ bool AuctionBotBuyer::RollBidChance(BuyerItemInfo const* ahInfo, AuctionPosting 
 
     float rand = frand(0.f, 100.f);
     bool win = rand <= chance;
-    TC_LOG_DEBUG("ahbot", "AHBot: %s BID! chance = %.2f, price = %u, bidprice = %u.", win ? "WIN" : "LOSE", chance, uint32(itemPrice), uint32(itemBidPrice));
+    TC_LOG_DEBUG("ahbot", "AHBot: {} BID! chance = {:.2f}, price = {}, bidprice = {}.", win ? "WIN" : "LOSE", chance, uint32(itemPrice), uint32(itemBidPrice));
     return win;
 }
 
@@ -265,7 +265,7 @@ void AuctionBotBuyer::PrepareListOfEntry(BuyerConfiguration& config)
             ++itr;
     }
 
-    TC_LOG_DEBUG("ahbot", "AHBot: EligibleItems size = %u", (uint32)config.EligibleItems.size());
+    TC_LOG_DEBUG("ahbot", "AHBot: EligibleItems size = {}", (uint32)config.EligibleItems.size());
 }
 
 // Tries to bid and buy items based on their prices and chances set in configs
@@ -291,7 +291,7 @@ void AuctionBotBuyer::BuyAndBidItems(BuyerConfiguration& config)
         AuctionPosting* auction = auctionHouse->GetAuction(itr->second.AuctionId);
         if (!auction)
         {
-            TC_LOG_DEBUG("ahbot", "AHBot: Entry %u doesn't exists, perhaps bought already?", itr->second.AuctionId);
+            TC_LOG_DEBUG("ahbot", "AHBot: Entry {} doesn't exists, perhaps bought already?", itr->second.AuctionId);
             items.erase(itr++);
             continue;
         }
@@ -300,7 +300,7 @@ void AuctionBotBuyer::BuyAndBidItems(BuyerConfiguration& config)
         // If it has been checked and it was recently, skip it
         if (itr->second.LastChecked && (now - itr->second.LastChecked) <= _checkInterval)
         {
-            TC_LOG_DEBUG("ahbot", "AHBot: In time interval wait for entry %u!", auction->Id);
+            TC_LOG_DEBUG("ahbot", "AHBot: In time interval wait for entry {}!", auction->Id);
             ++itr;
             continue;
         }
@@ -323,7 +323,7 @@ void AuctionBotBuyer::BuyAndBidItems(BuyerConfiguration& config)
         if (sameItemItr != config.SameItemInfo.end())
             ahInfo = &sameItemItr->second;
 
-        TC_LOG_DEBUG("ahbot", "AHBot: Rolling for AHentry %u:", auction->Id);
+        TC_LOG_DEBUG("ahbot", "AHBot: Rolling for AHentry {}:", auction->Id);
 
         // Roll buy and bid chances
         bool successBuy = RollBuyChance(ahInfo, auction);
@@ -398,7 +398,7 @@ uint32 AuctionBotBuyer::GetChanceMultiplier(uint32 quality)
 // Buys the auction and does necessary actions to complete the buyout
 void AuctionBotBuyer::BuyEntry(AuctionPosting* auction, AuctionHouseObject* auctionHouse)
 {
-    TC_LOG_DEBUG("ahbot", "AHBot: Entry %u bought at %.2fg", auction->Id, float(auction->BuyoutOrUnitPrice) / float(GOLD));
+    TC_LOG_DEBUG("ahbot", "AHBot: Entry {} bought at {:.2f}g", auction->Id, float(auction->BuyoutOrUnitPrice) / float(GOLD));
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
@@ -426,7 +426,7 @@ void AuctionBotBuyer::BuyEntry(AuctionPosting* auction, AuctionHouseObject* auct
 // Bids on the auction and does the necessary actions for bidding
 void AuctionBotBuyer::PlaceBidToEntry(AuctionPosting* auction, AuctionHouseObject* auctionHouse, uint32 bidPrice)
 {
-    TC_LOG_DEBUG("ahbot", "AHBot: Bid placed to entry %u, %.2fg", auction->Id, float(bidPrice) / float(GOLD));
+    TC_LOG_DEBUG("ahbot", "AHBot: Bid placed to entry {}, {:.2f}g", auction->Id, float(bidPrice) / float(GOLD));
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 

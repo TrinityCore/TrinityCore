@@ -86,7 +86,7 @@ void QuestPoolMgr::LoadFromDB()
             Field* fields = result->Fetch();
             if (fields[2].IsNull())
             {
-                TC_LOG_ERROR("sql.sql", "Table `quest_pool_members` contains reference to non-existing pool %u. Skipped.", fields[1].GetUInt32());
+                TC_LOG_ERROR("sql.sql", "Table `quest_pool_members` contains reference to non-existing pool {}. Skipped.", fields[1].GetUInt32());
                 continue;
             }
 
@@ -98,12 +98,12 @@ void QuestPoolMgr::LoadFromDB()
             Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
             if (!quest)
             {
-                TC_LOG_ERROR("sql.sql", "Table `quest_pool_members` contains reference to non-existing quest %u. Skipped.", questId);
+                TC_LOG_ERROR("sql.sql", "Table `quest_pool_members` contains reference to non-existing quest {}. Skipped.", questId);
                 continue;
             }
             if (!quest->IsDailyOrWeekly() && !quest->IsMonthly())
             {
-                TC_LOG_ERROR("sql.sql", "Table `quest_pool_members` contains reference to quest %u, which is neither daily, weekly nor monthly. Skipped.", questId);
+                TC_LOG_ERROR("sql.sql", "Table `quest_pool_members` contains reference to quest {}, which is neither daily, weekly nor monthly. Skipped.", questId);
                 continue;
             }
 
@@ -141,7 +141,7 @@ void QuestPoolMgr::LoadFromDB()
                 auto it = lookup.find(poolId);
                 if (it == lookup.end() || !it->second.first)
                 {
-                    TC_LOG_ERROR("sql.sql", "Table `pool_quest_save` contains reference to non-existant quest pool %u. Deleted.", poolId);
+                    TC_LOG_ERROR("sql.sql", "Table `pool_quest_save` contains reference to non-existant quest pool {}. Deleted.", poolId);
                     unknownPoolIds.insert(poolId);
                     continue;
                 }
@@ -169,7 +169,7 @@ void QuestPoolMgr::LoadFromDB()
         QuestPool& pool = (*pair.second.first)[pair.second.second];
         if (pool.members.size() < pool.numActive)
         {
-            TC_LOG_ERROR("sql.sql", "Table `quest_pool_template` contains quest pool %u requesting %u spawns, but only has %zu members. Requested spawns reduced.", pool.poolId, pool.numActive, pool.members.size());
+            TC_LOG_ERROR("sql.sql", "Table `quest_pool_template` contains quest pool {} requesting {} spawns, but only has {} members. Requested spawns reduced.", pool.poolId, pool.numActive, pool.members.size());
             pool.numActive = pool.members.size();
         }
 
@@ -183,7 +183,7 @@ void QuestPoolMgr::LoadFromDB()
                 QuestPool::Member& member = pool.members[i];
                 if (member.empty())
                 {
-                    TC_LOG_ERROR("sql.sql", "Table `quest_pool_members` contains no entries at index %zu for quest pool %u. Index removed.", i, pool.poolId);
+                    TC_LOG_ERROR("sql.sql", "Table `quest_pool_members` contains no entries at index {} for quest pool {}. Index removed.", i, pool.poolId);
                     std::swap(pool.members[i], pool.members.back());
                     pool.members.pop_back();
                     continue;
@@ -205,7 +205,7 @@ void QuestPoolMgr::LoadFromDB()
                     auto itOther = pool.activeQuests.find(*it);
                     bool otherStatus = (itOther != pool.activeQuests.end());
                     if (status != otherStatus)
-                        TC_LOG_WARN("sql.sql", "Table `pool_quest_save` %s quest %u (in pool %u, index %zu) saved, but its index is%s active (because quest %u is%s in the table). Set quest %u to %sactive.", (status ? "does not have" : "has"), *it, pool.poolId, i, (status ? "" : " not"), member[0], (status ? "" : " not"), *it, (status ? "" : "in"));
+                        TC_LOG_WARN("sql.sql", "Table `pool_quest_save` {} quest {} (in pool {}, index {}) saved, but its index is{} active (because quest {} is{} in the table). Set quest {} to {}active.", (status ? "does not have" : "has"), *it, pool.poolId, i, (status ? "" : " not"), member[0], (status ? "" : " not"), *it, (status ? "" : "in"));
                     if (otherStatus)
                         pool.activeQuests.erase(itOther);
                     if (status)
@@ -218,7 +218,7 @@ void QuestPoolMgr::LoadFromDB()
 
             // warn for any remaining active spawns (not part of the pool)
             for (uint32 quest : pool.activeQuests)
-                TC_LOG_WARN("sql.sql", "Table `pool_quest_save` has saved quest %u for pool %u, but that quest is not part of the pool. Skipped.", quest, pool.poolId);
+                TC_LOG_WARN("sql.sql", "Table `pool_quest_save` has saved quest {} for pool {}, but that quest is not part of the pool. Skipped.", quest, pool.poolId);
 
             // only the previously-found spawns should actually be active
             std::swap(pool.activeQuests, accountedFor);
@@ -226,7 +226,7 @@ void QuestPoolMgr::LoadFromDB()
             if (activeCount != pool.numActive)
             {
                 doRegenerate = true;
-                TC_LOG_ERROR("sql.sql", "Table `pool_quest_save` has %u active members saved for pool %u, which requests %u active members. Pool spawns re-generated.", activeCount, pool.poolId, pool.numActive);
+                TC_LOG_ERROR("sql.sql", "Table `pool_quest_save` has {} active members saved for pool {}, which requests {} active members. Pool spawns re-generated.", activeCount, pool.poolId, pool.numActive);
             }
         }
 
@@ -243,7 +243,7 @@ void QuestPoolMgr::LoadFromDB()
                 QuestPool*& ref = _poolLookup[quest];
                 if (ref)
                 {
-                    TC_LOG_ERROR("sql.sql", "Table `quest_pool_members` lists quest %u as member of pool %u, but it is already a member of pool %u. Skipped.", quest, pool.poolId, ref->poolId);
+                    TC_LOG_ERROR("sql.sql", "Table `quest_pool_members` lists quest {} as member of pool {}, but it is already a member of pool {}. Skipped.", quest, pool.poolId, ref->poolId);
                     continue;
                 }
                 ref = &pool;
@@ -252,7 +252,7 @@ void QuestPoolMgr::LoadFromDB()
     }
     CharacterDatabase.CommitTransaction(trans);
 
-    TC_LOG_INFO("server.loading", ">> Loaded %zu daily, %zu weekly and %zu monthly quest pools in %u ms", _dailyPools.size(), _weeklyPools.size(), _monthlyPools.size(), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} daily, {} weekly and {} monthly quest pools in {} ms", _dailyPools.size(), _weeklyPools.size(), _monthlyPools.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void QuestPoolMgr::Regenerate(std::vector<QuestPool>& pools)

@@ -99,7 +99,7 @@ void LootItemStorage::LoadStorageFromDB()
             ++count;
         } while (result->NextRow());
 
-        TC_LOG_INFO("server.loading", ">> Loaded %u stored item loots in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        TC_LOG_INFO("server.loading", ">> Loaded {} stored item loots in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
     else
         TC_LOG_INFO("server.loading", ">> Loaded 0 stored item loots");
@@ -129,7 +129,7 @@ void LootItemStorage::LoadStorageFromDB()
             ++count;
         } while (result->NextRow());
 
-        TC_LOG_INFO("server.loading", ">> Loaded %u stored item money in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        TC_LOG_INFO("server.loading", ">> Loaded {} stored item money in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
     else
         TC_LOG_INFO("server.loading", ">> Loaded 0 stored item money");
@@ -250,7 +250,7 @@ void LootItemStorage::AddNewStoredLoot(uint64 containerId, Loot* loot, Player* p
         auto itr = _lootItemStore.find(containerId);
         if (itr != _lootItemStore.end())
         {
-            TC_LOG_ERROR("misc", "Trying to store item loot by player: %s for container id: " UI64FMTD " that is already in storage!", player->GetGUID().ToString().c_str(), containerId);
+            TC_LOG_ERROR("misc", "Trying to store item loot by player: {} for container id: {} that is already in storage!", player->GetGUID().ToString(), containerId);
             return;
         }
     }

@@ -22,6 +22,7 @@
 #include "Language.h"
 #include "Optional.h"
 #include "StringFormat.h"
+#include <fmt/printf.h>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -125,7 +126,7 @@ namespace Trinity::Impl::ChatCommands
     template <typename... Ts>
     std::string FormatTrinityString(ChatHandler const* handler, TrinityStrings which, Ts&&... args)
     {
-        return Trinity::StringFormat(GetTrinityString(handler, which), std::forward<Ts>(args)...);
+        return fmt::sprintf(GetTrinityString(handler, which), std::forward<Ts>(args)...);
     }
 }
 

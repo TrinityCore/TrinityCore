@@ -576,7 +576,7 @@ class spell_pri_holy_words : public AuraScript
                 cdReductionEffIndex = EFFECT_1;
                 break;
             default:
-                TC_LOG_WARN("spells.priest", "HolyWords aura has been proced by an unknown spell: %u", GetSpellInfo()->Id);
+                TC_LOG_WARN("spells.priest", "HolyWords aura has been proced by an unknown spell: {}", GetSpellInfo()->Id);
                 return;
         }
 

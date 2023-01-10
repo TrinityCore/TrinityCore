@@ -279,12 +279,6 @@ namespace Trinity::ChatCommands
             return operator*();
         }
 
-        template<bool C = have_operators>
-        operator std::enable_if_t<C && !std::is_same_v<first_type, size_t> && std::is_convertible_v<first_type, size_t>, size_t>() const
-        {
-            return operator*();
-        }
-
         template <bool C = have_operators>
         std::enable_if_t<C, bool> operator!() const { return !**this; }
 
@@ -315,5 +309,18 @@ namespace Trinity::ChatCommands
         }
     };
 }
+
+template <typename T1, typename... Ts>
+struct fmt::formatter<Trinity::ChatCommands::Variant<T1, Ts...>> : ostream_formatter {};
+
+template <typename T1, typename... Ts>
+struct fmt::printf_formatter<Trinity::ChatCommands::Variant<T1, Ts...>> : formatter<T1>
+{
+    template <typename T, typename OutputIt>
+    auto format(T const& value, basic_format_context<OutputIt, char>& ctx) const -> OutputIt
+    {
+        return formatter<T1>::format(*value, ctx);
+    }
+};
 
 #endif

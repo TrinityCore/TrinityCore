@@ -106,13 +106,13 @@ std::string secsToTimeString(uint64 timeInSecs, TimeFormat timeFormat, bool hour
     if (timeFormat == TimeFormat::Numeric)
     {
         if (days)
-            return Trinity::StringFormat("%u:%02u:%02u:%02u", days, hours, minutes, secs);
+            return Trinity::StringFormat("{}:{:02}:{:02}:{:02}", days, hours, minutes, secs);
         else if (hours)
-            return Trinity::StringFormat("%u:%02u:%02u", hours, minutes, secs);
+            return Trinity::StringFormat("{}:{:02}:{:02}", hours, minutes, secs);
         else if (minutes)
-            return Trinity::StringFormat("%u:%02u", minutes, secs);
+            return Trinity::StringFormat("{}:{:02}", minutes, secs);
         else
-            return Trinity::StringFormat("0:%02u", secs);
+            return Trinity::StringFormat("0:{:02}", secs);
     }
 
     std::ostringstream ss;
@@ -281,7 +281,7 @@ std::string TimeToTimestampStr(time_t t)
     //       HH     hour (2 digits 00-23)
     //       MM     minutes (2 digits 00-59)
     //       SS     seconds (2 digits 00-59)
-    return Trinity::StringFormat("%04d-%02d-%02d_%02d-%02d-%02d", aTm.tm_year + 1900, aTm.tm_mon + 1, aTm.tm_mday, aTm.tm_hour, aTm.tm_min, aTm.tm_sec);
+    return Trinity::StringFormat("{:04}-{:02}-{:02}_{:02}-{:02}-{:02}", aTm.tm_year + 1900, aTm.tm_mon + 1, aTm.tm_mday, aTm.tm_hour, aTm.tm_min, aTm.tm_sec);
 }
 
 std::string TimeToHumanReadable(time_t t)

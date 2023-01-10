@@ -1181,7 +1181,7 @@ public:
             if (!pair.second)
                 continue;
             Player const* player = ObjectAccessor::FindConnectedPlayer(pair.first);
-            handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_SUBLABEL, player ? player->GetName().c_str() : Trinity::StringFormat("Offline player (GUID %s)", pair.first.ToString().c_str()).c_str(), pair.second->size());
+            handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_SUBLABEL, player ? player->GetName() : Trinity::StringFormat("Offline player (GUID {})", pair.first.ToString()), pair.second->size());
 
             for (auto it = pair.second->cbegin(); it != pair.second->cend(); ++it)
             {
