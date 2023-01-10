@@ -69,7 +69,7 @@ void WorldSession::HandleSetSheathedOpcode(WorldPackets::Combat::SetSheathed& pa
 {
     if (packet.CurrentSheathState >= MAX_SHEATH_STATE)
     {
-        TC_LOG_ERROR("network", "Unknown sheath state %u ??", packet.CurrentSheathState);
+        TC_LOG_ERROR("network", "Unknown sheath state {} ??", packet.CurrentSheathState);
         return;
     }
 

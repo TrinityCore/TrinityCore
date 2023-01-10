@@ -63,14 +63,14 @@ uint32 Battlenet::GameUtilitiesService::HandleProcessClientRequest(game_utilitie
 
     if (!command)
     {
-        TC_LOG_ERROR("session.rpc", "%s sent ClientRequest with no command.", GetCallerInfo().c_str());
+        TC_LOG_ERROR("session.rpc", "{} sent ClientRequest with no command.", GetCallerInfo());
         return ERROR_RPC_MALFORMED_REQUEST;
     }
 
     auto itr = ClientRequestHandlers.find(removeSuffix(command->name()));
     if (itr == ClientRequestHandlers.end())
     {
-        TC_LOG_ERROR("session.rpc", "%s sent ClientRequest with unknown command %s.", GetCallerInfo().c_str(), removeSuffix(command->name()).c_str());
+        TC_LOG_ERROR("session.rpc", "{} sent ClientRequest with unknown command {}.", GetCallerInfo(), removeSuffix(command->name()));
         return ERROR_RPC_NOT_IMPLEMENTED;
     }
 

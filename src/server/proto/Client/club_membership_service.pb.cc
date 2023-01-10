@@ -4,7 +4,6 @@
 #define INTERNAL_SUPPRESS_PROTOBUF_FIELD_DEPRECATION
 #include "club_membership_service.pb.h"
 
-#include <algorithm>
 #include <utility>
 
 #include <google/protobuf/stubs/common.h>
@@ -15,8 +14,6 @@
 #include <google/protobuf/generated_message_reflection.h>
 #include <google/protobuf/reflection_ops.h>
 #include <google/protobuf/wire_format.h>
-#include "Log.h"
-#include "Errors.h"
 #include "BattlenetRpcErrorCodes.h"
 // @@protoc_insertion_point(includes)
 
@@ -351,7 +348,7 @@ void protobuf_AddDesc_club_5fmembership_5fservice_2eproto() {
     "StreamMentionViewTimeRequest\032\024.bgs.proto"
     "col.NoData\"\006\202\371+\002\010\007\032J\202\371+>\n+bnet.protocol."
     "club.v1.ClubMembershipService*\017club_memb"
-    "ership\212\371+\004\020\001\030\001B\005H\001\200\001\000", 2301);
+    "ership\212\371+\004\020\001\030\001B\005H\002\200\001\000", 2301);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "club_membership_service.proto", &protobuf_RegisterTypes);
   SubscribeRequest::default_instance_ = new SubscribeRequest();
@@ -448,208 +445,9 @@ SubscribeRequest* SubscribeRequest::New() const {
   return new SubscribeRequest;
 }
 
-void SubscribeRequest::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
-    if (has_agent_id()) {
-      if (agent_id_ != NULL) agent_id_->::bgs::protocol::account::v1::AccountId::Clear();
-    }
-    if (has_options()) {
-      if (options_ != NULL) options_->::bgs::protocol::club::v1::ClubMembershipSubscribeOptions::Clear();
-    }
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool SubscribeRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.club.v1.membership.SubscribeRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.account.v1.AccountId agent_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_options;
-        break;
-      }
-
-      // optional .bgs.protocol.club.v1.ClubMembershipSubscribeOptions options = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_options:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_options()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.club.v1.membership.SubscribeRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.club.v1.membership.SubscribeRequest)
-  return false;
-#undef DO_
-}
-
-void SubscribeRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.club.v1.membership.SubscribeRequest)
-  // optional .bgs.protocol.account.v1.AccountId agent_id = 1;
-  if (has_agent_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->agent_id(), output);
-  }
-
-  // optional .bgs.protocol.club.v1.ClubMembershipSubscribeOptions options = 2;
-  if (has_options()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->options(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.club.v1.membership.SubscribeRequest)
-}
-
-::google::protobuf::uint8* SubscribeRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.club.v1.membership.SubscribeRequest)
-  // optional .bgs.protocol.account.v1.AccountId agent_id = 1;
-  if (has_agent_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->agent_id(), target);
-  }
-
-  // optional .bgs.protocol.club.v1.ClubMembershipSubscribeOptions options = 2;
-  if (has_options()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->options(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.club.v1.membership.SubscribeRequest)
-  return target;
-}
-
-int SubscribeRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.account.v1.AccountId agent_id = 1;
-    if (has_agent_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_id());
-    }
-
-    // optional .bgs.protocol.club.v1.ClubMembershipSubscribeOptions options = 2;
-    if (has_options()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->options());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void SubscribeRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const SubscribeRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const SubscribeRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void SubscribeRequest::MergeFrom(const SubscribeRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_agent_id()) {
-      mutable_agent_id()->::bgs::protocol::account::v1::AccountId::MergeFrom(from.agent_id());
-    }
-    if (from.has_options()) {
-      mutable_options()->::bgs::protocol::club::v1::ClubMembershipSubscribeOptions::MergeFrom(from.options());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void SubscribeRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void SubscribeRequest::CopyFrom(const SubscribeRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool SubscribeRequest::IsInitialized() const {
-  if (has_agent_id()) {
-    if (!this->agent_id().IsInitialized()) return false;
-  }
-  if (has_options()) {
-    if (!this->options().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void SubscribeRequest::Swap(SubscribeRequest* other) {
   if (other != this) {
-    std::swap(agent_id_, other->agent_id_);
-    std::swap(options_, other->options_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata SubscribeRequest::GetMetadata() const {
@@ -721,163 +519,9 @@ SubscribeResponse* SubscribeResponse::New() const {
   return new SubscribeResponse;
 }
 
-void SubscribeResponse::Clear() {
-  if (has_state()) {
-    if (state_ != NULL) state_->::bgs::protocol::club::v1::ClubMembershipState::Clear();
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool SubscribeResponse::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.club.v1.membership.SubscribeResponse)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.club.v1.ClubMembershipState state = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_state()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.club.v1.membership.SubscribeResponse)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.club.v1.membership.SubscribeResponse)
-  return false;
-#undef DO_
-}
-
-void SubscribeResponse::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.club.v1.membership.SubscribeResponse)
-  // optional .bgs.protocol.club.v1.ClubMembershipState state = 1;
-  if (has_state()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->state(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.club.v1.membership.SubscribeResponse)
-}
-
-::google::protobuf::uint8* SubscribeResponse::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.club.v1.membership.SubscribeResponse)
-  // optional .bgs.protocol.club.v1.ClubMembershipState state = 1;
-  if (has_state()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->state(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.club.v1.membership.SubscribeResponse)
-  return target;
-}
-
-int SubscribeResponse::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.club.v1.ClubMembershipState state = 1;
-    if (has_state()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->state());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void SubscribeResponse::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const SubscribeResponse* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const SubscribeResponse*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void SubscribeResponse::MergeFrom(const SubscribeResponse& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_state()) {
-      mutable_state()->::bgs::protocol::club::v1::ClubMembershipState::MergeFrom(from.state());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void SubscribeResponse::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void SubscribeResponse::CopyFrom(const SubscribeResponse& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool SubscribeResponse::IsInitialized() const {
-  if (has_state()) {
-    if (!this->state().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void SubscribeResponse::Swap(SubscribeResponse* other) {
   if (other != this) {
-    std::swap(state_, other->state_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata SubscribeResponse::GetMetadata() const {
@@ -949,163 +593,9 @@ UnsubscribeRequest* UnsubscribeRequest::New() const {
   return new UnsubscribeRequest;
 }
 
-void UnsubscribeRequest::Clear() {
-  if (has_agent_id()) {
-    if (agent_id_ != NULL) agent_id_->::bgs::protocol::account::v1::AccountId::Clear();
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool UnsubscribeRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.club.v1.membership.UnsubscribeRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.account.v1.AccountId agent_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.club.v1.membership.UnsubscribeRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.club.v1.membership.UnsubscribeRequest)
-  return false;
-#undef DO_
-}
-
-void UnsubscribeRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.club.v1.membership.UnsubscribeRequest)
-  // optional .bgs.protocol.account.v1.AccountId agent_id = 1;
-  if (has_agent_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->agent_id(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.club.v1.membership.UnsubscribeRequest)
-}
-
-::google::protobuf::uint8* UnsubscribeRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.club.v1.membership.UnsubscribeRequest)
-  // optional .bgs.protocol.account.v1.AccountId agent_id = 1;
-  if (has_agent_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->agent_id(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.club.v1.membership.UnsubscribeRequest)
-  return target;
-}
-
-int UnsubscribeRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.account.v1.AccountId agent_id = 1;
-    if (has_agent_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_id());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void UnsubscribeRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const UnsubscribeRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const UnsubscribeRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void UnsubscribeRequest::MergeFrom(const UnsubscribeRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_agent_id()) {
-      mutable_agent_id()->::bgs::protocol::account::v1::AccountId::MergeFrom(from.agent_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void UnsubscribeRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void UnsubscribeRequest::CopyFrom(const UnsubscribeRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool UnsubscribeRequest::IsInitialized() const {
-  if (has_agent_id()) {
-    if (!this->agent_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void UnsubscribeRequest::Swap(UnsubscribeRequest* other) {
   if (other != this) {
-    std::swap(agent_id_, other->agent_id_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata UnsubscribeRequest::GetMetadata() const {
@@ -1181,208 +671,9 @@ GetStateRequest* GetStateRequest::New() const {
   return new GetStateRequest;
 }
 
-void GetStateRequest::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
-    if (has_agent_id()) {
-      if (agent_id_ != NULL) agent_id_->::bgs::protocol::account::v1::AccountId::Clear();
-    }
-    if (has_options()) {
-      if (options_ != NULL) options_->::bgs::protocol::club::v1::ClubMembershipGetStateOptions::Clear();
-    }
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool GetStateRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.club.v1.membership.GetStateRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.account.v1.AccountId agent_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_options;
-        break;
-      }
-
-      // optional .bgs.protocol.club.v1.ClubMembershipGetStateOptions options = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_options:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_options()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.club.v1.membership.GetStateRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.club.v1.membership.GetStateRequest)
-  return false;
-#undef DO_
-}
-
-void GetStateRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.club.v1.membership.GetStateRequest)
-  // optional .bgs.protocol.account.v1.AccountId agent_id = 1;
-  if (has_agent_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->agent_id(), output);
-  }
-
-  // optional .bgs.protocol.club.v1.ClubMembershipGetStateOptions options = 2;
-  if (has_options()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->options(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.club.v1.membership.GetStateRequest)
-}
-
-::google::protobuf::uint8* GetStateRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.club.v1.membership.GetStateRequest)
-  // optional .bgs.protocol.account.v1.AccountId agent_id = 1;
-  if (has_agent_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->agent_id(), target);
-  }
-
-  // optional .bgs.protocol.club.v1.ClubMembershipGetStateOptions options = 2;
-  if (has_options()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->options(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.club.v1.membership.GetStateRequest)
-  return target;
-}
-
-int GetStateRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.account.v1.AccountId agent_id = 1;
-    if (has_agent_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_id());
-    }
-
-    // optional .bgs.protocol.club.v1.ClubMembershipGetStateOptions options = 2;
-    if (has_options()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->options());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void GetStateRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const GetStateRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const GetStateRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void GetStateRequest::MergeFrom(const GetStateRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_agent_id()) {
-      mutable_agent_id()->::bgs::protocol::account::v1::AccountId::MergeFrom(from.agent_id());
-    }
-    if (from.has_options()) {
-      mutable_options()->::bgs::protocol::club::v1::ClubMembershipGetStateOptions::MergeFrom(from.options());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void GetStateRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void GetStateRequest::CopyFrom(const GetStateRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool GetStateRequest::IsInitialized() const {
-  if (has_agent_id()) {
-    if (!this->agent_id().IsInitialized()) return false;
-  }
-  if (has_options()) {
-    if (!this->options().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void GetStateRequest::Swap(GetStateRequest* other) {
   if (other != this) {
-    std::swap(agent_id_, other->agent_id_);
-    std::swap(options_, other->options_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata GetStateRequest::GetMetadata() const {
@@ -1454,163 +745,9 @@ GetStateResponse* GetStateResponse::New() const {
   return new GetStateResponse;
 }
 
-void GetStateResponse::Clear() {
-  if (has_state()) {
-    if (state_ != NULL) state_->::bgs::protocol::club::v1::ClubMembershipState::Clear();
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool GetStateResponse::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.club.v1.membership.GetStateResponse)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.club.v1.ClubMembershipState state = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_state()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.club.v1.membership.GetStateResponse)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.club.v1.membership.GetStateResponse)
-  return false;
-#undef DO_
-}
-
-void GetStateResponse::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.club.v1.membership.GetStateResponse)
-  // optional .bgs.protocol.club.v1.ClubMembershipState state = 1;
-  if (has_state()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->state(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.club.v1.membership.GetStateResponse)
-}
-
-::google::protobuf::uint8* GetStateResponse::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.club.v1.membership.GetStateResponse)
-  // optional .bgs.protocol.club.v1.ClubMembershipState state = 1;
-  if (has_state()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->state(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.club.v1.membership.GetStateResponse)
-  return target;
-}
-
-int GetStateResponse::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.club.v1.ClubMembershipState state = 1;
-    if (has_state()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->state());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void GetStateResponse::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const GetStateResponse* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const GetStateResponse*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void GetStateResponse::MergeFrom(const GetStateResponse& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_state()) {
-      mutable_state()->::bgs::protocol::club::v1::ClubMembershipState::MergeFrom(from.state());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void GetStateResponse::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void GetStateResponse::CopyFrom(const GetStateResponse& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool GetStateResponse::IsInitialized() const {
-  if (has_state()) {
-    if (!this->state().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void GetStateResponse::Swap(GetStateResponse* other) {
   if (other != this) {
-    std::swap(state_, other->state_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata GetStateResponse::GetMetadata() const {
@@ -1686,205 +823,9 @@ UpdateClubSharedSettingsRequest* UpdateClubSharedSettingsRequest::New() const {
   return new UpdateClubSharedSettingsRequest;
 }
 
-void UpdateClubSharedSettingsRequest::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
-    if (has_agent_id()) {
-      if (agent_id_ != NULL) agent_id_->::bgs::protocol::account::v1::AccountId::Clear();
-    }
-    if (has_options()) {
-      if (options_ != NULL) options_->::bgs::protocol::club::v1::ClubSharedSettingsOptions::Clear();
-    }
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool UpdateClubSharedSettingsRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.club.v1.membership.UpdateClubSharedSettingsRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.account.v1.AccountId agent_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_options;
-        break;
-      }
-
-      // optional .bgs.protocol.club.v1.ClubSharedSettingsOptions options = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_options:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_options()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.club.v1.membership.UpdateClubSharedSettingsRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.club.v1.membership.UpdateClubSharedSettingsRequest)
-  return false;
-#undef DO_
-}
-
-void UpdateClubSharedSettingsRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.club.v1.membership.UpdateClubSharedSettingsRequest)
-  // optional .bgs.protocol.account.v1.AccountId agent_id = 1;
-  if (has_agent_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->agent_id(), output);
-  }
-
-  // optional .bgs.protocol.club.v1.ClubSharedSettingsOptions options = 2;
-  if (has_options()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->options(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.club.v1.membership.UpdateClubSharedSettingsRequest)
-}
-
-::google::protobuf::uint8* UpdateClubSharedSettingsRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.club.v1.membership.UpdateClubSharedSettingsRequest)
-  // optional .bgs.protocol.account.v1.AccountId agent_id = 1;
-  if (has_agent_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->agent_id(), target);
-  }
-
-  // optional .bgs.protocol.club.v1.ClubSharedSettingsOptions options = 2;
-  if (has_options()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->options(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.club.v1.membership.UpdateClubSharedSettingsRequest)
-  return target;
-}
-
-int UpdateClubSharedSettingsRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.account.v1.AccountId agent_id = 1;
-    if (has_agent_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_id());
-    }
-
-    // optional .bgs.protocol.club.v1.ClubSharedSettingsOptions options = 2;
-    if (has_options()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->options());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void UpdateClubSharedSettingsRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const UpdateClubSharedSettingsRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const UpdateClubSharedSettingsRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void UpdateClubSharedSettingsRequest::MergeFrom(const UpdateClubSharedSettingsRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_agent_id()) {
-      mutable_agent_id()->::bgs::protocol::account::v1::AccountId::MergeFrom(from.agent_id());
-    }
-    if (from.has_options()) {
-      mutable_options()->::bgs::protocol::club::v1::ClubSharedSettingsOptions::MergeFrom(from.options());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void UpdateClubSharedSettingsRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void UpdateClubSharedSettingsRequest::CopyFrom(const UpdateClubSharedSettingsRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool UpdateClubSharedSettingsRequest::IsInitialized() const {
-  if (has_agent_id()) {
-    if (!this->agent_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void UpdateClubSharedSettingsRequest::Swap(UpdateClubSharedSettingsRequest* other) {
   if (other != this) {
-    std::swap(agent_id_, other->agent_id_);
-    std::swap(options_, other->options_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata UpdateClubSharedSettingsRequest::GetMetadata() const {
@@ -1962,240 +903,9 @@ GetStreamMentionsRequest* GetStreamMentionsRequest::New() const {
   return new GetStreamMentionsRequest;
 }
 
-void GetStreamMentionsRequest::Clear() {
-  if (_has_bits_[0 / 32] & 7) {
-    if (has_agent_id()) {
-      if (agent_id_ != NULL) agent_id_->::bgs::protocol::account::v1::AccountId::Clear();
-    }
-    if (has_options()) {
-      if (options_ != NULL) options_->::bgs::protocol::GetEventOptions::Clear();
-    }
-    fetch_messages_ = false;
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool GetStreamMentionsRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.club.v1.membership.GetStreamMentionsRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.account.v1.AccountId agent_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_options;
-        break;
-      }
-
-      // optional .bgs.protocol.GetEventOptions options = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_options:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_options()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(24)) goto parse_fetch_messages;
-        break;
-      }
-
-      // optional bool fetch_messages = 3;
-      case 3: {
-        if (tag == 24) {
-         parse_fetch_messages:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
-                 input, &fetch_messages_)));
-          set_has_fetch_messages();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.club.v1.membership.GetStreamMentionsRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.club.v1.membership.GetStreamMentionsRequest)
-  return false;
-#undef DO_
-}
-
-void GetStreamMentionsRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.club.v1.membership.GetStreamMentionsRequest)
-  // optional .bgs.protocol.account.v1.AccountId agent_id = 1;
-  if (has_agent_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->agent_id(), output);
-  }
-
-  // optional .bgs.protocol.GetEventOptions options = 2;
-  if (has_options()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->options(), output);
-  }
-
-  // optional bool fetch_messages = 3;
-  if (has_fetch_messages()) {
-    ::google::protobuf::internal::WireFormatLite::WriteBool(3, this->fetch_messages(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.club.v1.membership.GetStreamMentionsRequest)
-}
-
-::google::protobuf::uint8* GetStreamMentionsRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.club.v1.membership.GetStreamMentionsRequest)
-  // optional .bgs.protocol.account.v1.AccountId agent_id = 1;
-  if (has_agent_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->agent_id(), target);
-  }
-
-  // optional .bgs.protocol.GetEventOptions options = 2;
-  if (has_options()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->options(), target);
-  }
-
-  // optional bool fetch_messages = 3;
-  if (has_fetch_messages()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(3, this->fetch_messages(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.club.v1.membership.GetStreamMentionsRequest)
-  return target;
-}
-
-int GetStreamMentionsRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.account.v1.AccountId agent_id = 1;
-    if (has_agent_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_id());
-    }
-
-    // optional .bgs.protocol.GetEventOptions options = 2;
-    if (has_options()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->options());
-    }
-
-    // optional bool fetch_messages = 3;
-    if (has_fetch_messages()) {
-      total_size += 1 + 1;
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void GetStreamMentionsRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const GetStreamMentionsRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const GetStreamMentionsRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void GetStreamMentionsRequest::MergeFrom(const GetStreamMentionsRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_agent_id()) {
-      mutable_agent_id()->::bgs::protocol::account::v1::AccountId::MergeFrom(from.agent_id());
-    }
-    if (from.has_options()) {
-      mutable_options()->::bgs::protocol::GetEventOptions::MergeFrom(from.options());
-    }
-    if (from.has_fetch_messages()) {
-      set_fetch_messages(from.fetch_messages());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void GetStreamMentionsRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void GetStreamMentionsRequest::CopyFrom(const GetStreamMentionsRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool GetStreamMentionsRequest::IsInitialized() const {
-  if (has_agent_id()) {
-    if (!this->agent_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void GetStreamMentionsRequest::Swap(GetStreamMentionsRequest* other) {
   if (other != this) {
-    std::swap(agent_id_, other->agent_id_);
-    std::swap(options_, other->options_);
-    std::swap(fetch_messages_, other->fetch_messages_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata GetStreamMentionsRequest::GetMetadata() const {
@@ -2266,197 +976,9 @@ GetStreamMentionsResponse* GetStreamMentionsResponse::New() const {
   return new GetStreamMentionsResponse;
 }
 
-void GetStreamMentionsResponse::Clear() {
-  continuation_ = GOOGLE_ULONGLONG(0);
-  mention_.Clear();
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool GetStreamMentionsResponse::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.club.v1.membership.GetStreamMentionsResponse)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // repeated .bgs.protocol.club.v1.StreamMention mention = 1;
-      case 1: {
-        if (tag == 10) {
-         parse_mention:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-                input, add_mention()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(10)) goto parse_mention;
-        if (input->ExpectTag(16)) goto parse_continuation;
-        break;
-      }
-
-      // optional uint64 continuation = 2;
-      case 2: {
-        if (tag == 16) {
-         parse_continuation:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
-                 input, &continuation_)));
-          set_has_continuation();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.club.v1.membership.GetStreamMentionsResponse)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.club.v1.membership.GetStreamMentionsResponse)
-  return false;
-#undef DO_
-}
-
-void GetStreamMentionsResponse::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.club.v1.membership.GetStreamMentionsResponse)
-  // repeated .bgs.protocol.club.v1.StreamMention mention = 1;
-  for (int i = 0; i < this->mention_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->mention(i), output);
-  }
-
-  // optional uint64 continuation = 2;
-  if (has_continuation()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(2, this->continuation(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.club.v1.membership.GetStreamMentionsResponse)
-}
-
-::google::protobuf::uint8* GetStreamMentionsResponse::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.club.v1.membership.GetStreamMentionsResponse)
-  // repeated .bgs.protocol.club.v1.StreamMention mention = 1;
-  for (int i = 0; i < this->mention_size(); i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->mention(i), target);
-  }
-
-  // optional uint64 continuation = 2;
-  if (has_continuation()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(2, this->continuation(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.club.v1.membership.GetStreamMentionsResponse)
-  return target;
-}
-
-int GetStreamMentionsResponse::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[1 / 32] & (0xffu << (1 % 32))) {
-    // optional uint64 continuation = 2;
-    if (has_continuation()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt64Size(
-          this->continuation());
-    }
-
-  }
-  // repeated .bgs.protocol.club.v1.StreamMention mention = 1;
-  total_size += 1 * this->mention_size();
-  for (int i = 0; i < this->mention_size(); i++) {
-    total_size +=
-      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-        this->mention(i));
-  }
-
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void GetStreamMentionsResponse::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const GetStreamMentionsResponse* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const GetStreamMentionsResponse*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void GetStreamMentionsResponse::MergeFrom(const GetStreamMentionsResponse& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  mention_.MergeFrom(from.mention_);
-  if (from._has_bits_[1 / 32] & (0xffu << (1 % 32))) {
-    if (from.has_continuation()) {
-      set_continuation(from.continuation());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void GetStreamMentionsResponse::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void GetStreamMentionsResponse::CopyFrom(const GetStreamMentionsResponse& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool GetStreamMentionsResponse::IsInitialized() const {
-  if (!::google::protobuf::internal::AllAreInitialized(this->mention())) return false;
-  return true;
-}
-
 void GetStreamMentionsResponse::Swap(GetStreamMentionsResponse* other) {
   if (other != this) {
-    mention_.Swap(&other->mention_);
-    std::swap(continuation_, other->continuation_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata GetStreamMentionsResponse::GetMetadata() const {
@@ -2529,201 +1051,9 @@ RemoveStreamMentionsRequest* RemoveStreamMentionsRequest::New() const {
   return new RemoveStreamMentionsRequest;
 }
 
-void RemoveStreamMentionsRequest::Clear() {
-  if (has_agent_id()) {
-    if (agent_id_ != NULL) agent_id_->::bgs::protocol::account::v1::AccountId::Clear();
-  }
-  mention_id_.Clear();
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool RemoveStreamMentionsRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.club.v1.membership.RemoveStreamMentionsRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.account.v1.AccountId agent_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_mention_id;
-        break;
-      }
-
-      // repeated .bgs.protocol.TimeSeriesId mention_id = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_mention_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-                input, add_mention_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_mention_id;
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.club.v1.membership.RemoveStreamMentionsRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.club.v1.membership.RemoveStreamMentionsRequest)
-  return false;
-#undef DO_
-}
-
-void RemoveStreamMentionsRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.club.v1.membership.RemoveStreamMentionsRequest)
-  // optional .bgs.protocol.account.v1.AccountId agent_id = 1;
-  if (has_agent_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->agent_id(), output);
-  }
-
-  // repeated .bgs.protocol.TimeSeriesId mention_id = 2;
-  for (int i = 0; i < this->mention_id_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->mention_id(i), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.club.v1.membership.RemoveStreamMentionsRequest)
-}
-
-::google::protobuf::uint8* RemoveStreamMentionsRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.club.v1.membership.RemoveStreamMentionsRequest)
-  // optional .bgs.protocol.account.v1.AccountId agent_id = 1;
-  if (has_agent_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->agent_id(), target);
-  }
-
-  // repeated .bgs.protocol.TimeSeriesId mention_id = 2;
-  for (int i = 0; i < this->mention_id_size(); i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->mention_id(i), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.club.v1.membership.RemoveStreamMentionsRequest)
-  return target;
-}
-
-int RemoveStreamMentionsRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.account.v1.AccountId agent_id = 1;
-    if (has_agent_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_id());
-    }
-
-  }
-  // repeated .bgs.protocol.TimeSeriesId mention_id = 2;
-  total_size += 1 * this->mention_id_size();
-  for (int i = 0; i < this->mention_id_size(); i++) {
-    total_size +=
-      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-        this->mention_id(i));
-  }
-
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void RemoveStreamMentionsRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const RemoveStreamMentionsRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const RemoveStreamMentionsRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void RemoveStreamMentionsRequest::MergeFrom(const RemoveStreamMentionsRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  mention_id_.MergeFrom(from.mention_id_);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_agent_id()) {
-      mutable_agent_id()->::bgs::protocol::account::v1::AccountId::MergeFrom(from.agent_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void RemoveStreamMentionsRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void RemoveStreamMentionsRequest::CopyFrom(const RemoveStreamMentionsRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool RemoveStreamMentionsRequest::IsInitialized() const {
-  if (has_agent_id()) {
-    if (!this->agent_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void RemoveStreamMentionsRequest::Swap(RemoveStreamMentionsRequest* other) {
   if (other != this) {
-    std::swap(agent_id_, other->agent_id_);
-    mention_id_.Swap(&other->mention_id_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata RemoveStreamMentionsRequest::GetMetadata() const {
@@ -2795,163 +1125,9 @@ AdvanceStreamMentionViewTimeRequest* AdvanceStreamMentionViewTimeRequest::New() 
   return new AdvanceStreamMentionViewTimeRequest;
 }
 
-void AdvanceStreamMentionViewTimeRequest::Clear() {
-  if (has_agent_id()) {
-    if (agent_id_ != NULL) agent_id_->::bgs::protocol::account::v1::AccountId::Clear();
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool AdvanceStreamMentionViewTimeRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.club.v1.membership.AdvanceStreamMentionViewTimeRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.account.v1.AccountId agent_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.club.v1.membership.AdvanceStreamMentionViewTimeRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.club.v1.membership.AdvanceStreamMentionViewTimeRequest)
-  return false;
-#undef DO_
-}
-
-void AdvanceStreamMentionViewTimeRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.club.v1.membership.AdvanceStreamMentionViewTimeRequest)
-  // optional .bgs.protocol.account.v1.AccountId agent_id = 1;
-  if (has_agent_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->agent_id(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.club.v1.membership.AdvanceStreamMentionViewTimeRequest)
-}
-
-::google::protobuf::uint8* AdvanceStreamMentionViewTimeRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.club.v1.membership.AdvanceStreamMentionViewTimeRequest)
-  // optional .bgs.protocol.account.v1.AccountId agent_id = 1;
-  if (has_agent_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->agent_id(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.club.v1.membership.AdvanceStreamMentionViewTimeRequest)
-  return target;
-}
-
-int AdvanceStreamMentionViewTimeRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.account.v1.AccountId agent_id = 1;
-    if (has_agent_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_id());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void AdvanceStreamMentionViewTimeRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const AdvanceStreamMentionViewTimeRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const AdvanceStreamMentionViewTimeRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void AdvanceStreamMentionViewTimeRequest::MergeFrom(const AdvanceStreamMentionViewTimeRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_agent_id()) {
-      mutable_agent_id()->::bgs::protocol::account::v1::AccountId::MergeFrom(from.agent_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void AdvanceStreamMentionViewTimeRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void AdvanceStreamMentionViewTimeRequest::CopyFrom(const AdvanceStreamMentionViewTimeRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool AdvanceStreamMentionViewTimeRequest::IsInitialized() const {
-  if (has_agent_id()) {
-    if (!this->agent_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void AdvanceStreamMentionViewTimeRequest::Swap(AdvanceStreamMentionViewTimeRequest* other) {
   if (other != this) {
-    std::swap(agent_id_, other->agent_id_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata AdvanceStreamMentionViewTimeRequest::GetMetadata() const {
@@ -2964,7 +1140,7 @@ void AdvanceStreamMentionViewTimeRequest::Swap(AdvanceStreamMentionViewTimeReque
 
 // ===================================================================
 
-ClubMembershipService::ClubMembershipService(bool use_original_hash) : service_hash_(use_original_hash ? OriginalHash::value : NameHash::value) {
+ClubMembershipService::ClubMembershipService(bool use_original_hash) : ServiceBase(use_original_hash ? OriginalHash::value : NameHash::value) {
 }
 
 ClubMembershipService::~ClubMembershipService() {
@@ -2977,235 +1153,172 @@ google::protobuf::ServiceDescriptor const* ClubMembershipService::descriptor() {
 
 void ClubMembershipService::CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) {
   switch(methodId & 0x3FFFFFFF) {
-    case 1: {
-      ::bgs::protocol::club::v1::membership::SubscribeRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for ClubMembershipService.Subscribe server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipService.Subscribe(bgs.protocol.club.v1.membership.SubscribeRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::club::v1::membership::SubscribeResponse::descriptor());
-        ClubMembershipService* self = static_cast<ClubMembershipService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipService.Subscribe() returned bgs.protocol.club.v1.membership.SubscribeResponse{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::club::v1::membership::SubscribeResponse response;
-      uint32 status = HandleSubscribe(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
+    case 1:
+      ParseAndHandleSubscribe(token, methodId, buffer);
       break;
-    }
-    case 2: {
-      ::bgs::protocol::club::v1::membership::UnsubscribeRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for ClubMembershipService.Unsubscribe server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipService.Unsubscribe(bgs.protocol.club.v1.membership.UnsubscribeRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
-        ClubMembershipService* self = static_cast<ClubMembershipService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipService.Unsubscribe() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::NoData response;
-      uint32 status = HandleUnsubscribe(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
+    case 2:
+      ParseAndHandleUnsubscribe(token, methodId, buffer);
       break;
-    }
-    case 3: {
-      ::bgs::protocol::club::v1::membership::GetStateRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for ClubMembershipService.GetState server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipService.GetState(bgs.protocol.club.v1.membership.GetStateRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::club::v1::membership::GetStateResponse::descriptor());
-        ClubMembershipService* self = static_cast<ClubMembershipService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipService.GetState() returned bgs.protocol.club.v1.membership.GetStateResponse{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::club::v1::membership::GetStateResponse response;
-      uint32 status = HandleGetState(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
+    case 3:
+      ParseAndHandleGetState(token, methodId, buffer);
       break;
-    }
-    case 4: {
-      ::bgs::protocol::club::v1::membership::UpdateClubSharedSettingsRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for ClubMembershipService.UpdateClubSharedSettings server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipService.UpdateClubSharedSettings(bgs.protocol.club.v1.membership.UpdateClubSharedSettingsRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
-        ClubMembershipService* self = static_cast<ClubMembershipService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipService.UpdateClubSharedSettings() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::NoData response;
-      uint32 status = HandleUpdateClubSharedSettings(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
+    case 4:
+      ParseAndHandleUpdateClubSharedSettings(token, methodId, buffer);
       break;
-    }
-    case 5: {
-      ::bgs::protocol::club::v1::membership::GetStreamMentionsRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for ClubMembershipService.GetStreamMentions server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipService.GetStreamMentions(bgs.protocol.club.v1.membership.GetStreamMentionsRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::club::v1::membership::GetStreamMentionsResponse::descriptor());
-        ClubMembershipService* self = static_cast<ClubMembershipService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipService.GetStreamMentions() returned bgs.protocol.club.v1.membership.GetStreamMentionsResponse{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::club::v1::membership::GetStreamMentionsResponse response;
-      uint32 status = HandleGetStreamMentions(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
+    case 5:
+      ParseAndHandleGetStreamMentions(token, methodId, buffer);
       break;
-    }
-    case 6: {
-      ::bgs::protocol::club::v1::membership::RemoveStreamMentionsRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for ClubMembershipService.RemoveStreamMentions server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipService.RemoveStreamMentions(bgs.protocol.club.v1.membership.RemoveStreamMentionsRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
-        ClubMembershipService* self = static_cast<ClubMembershipService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipService.RemoveStreamMentions() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::NoData response;
-      uint32 status = HandleRemoveStreamMentions(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
+    case 6:
+      ParseAndHandleRemoveStreamMentions(token, methodId, buffer);
       break;
-    }
-    case 7: {
-      ::bgs::protocol::club::v1::membership::AdvanceStreamMentionViewTimeRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for ClubMembershipService.AdvanceStreamMentionViewTime server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipService.AdvanceStreamMentionViewTime(bgs.protocol.club.v1.membership.AdvanceStreamMentionViewTimeRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
-        ClubMembershipService* self = static_cast<ClubMembershipService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method ClubMembershipService.AdvanceStreamMentionViewTime() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::NoData response;
-      uint32 status = HandleAdvanceStreamMentionViewTime(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
+    case 7:
+      ParseAndHandleAdvanceStreamMentionViewTime(token, methodId, buffer);
       break;
-    }
     default:
-      TC_LOG_ERROR("service.protobuf", "Bad method id %u.", methodId);
+      LogInvalidMethod(methodId);
       SendResponse(service_hash_, methodId, token, ERROR_RPC_INVALID_METHOD);
       break;
     }
 }
 
-uint32 ClubMembershipService::HandleSubscribe(::bgs::protocol::club::v1::membership::SubscribeRequest const* request, ::bgs::protocol::club::v1::membership::SubscribeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ClubMembershipService.Subscribe({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+uint32 ClubMembershipService::HandleSubscribe(::bgs::protocol::club::v1::membership::SubscribeRequest const* request, ::bgs::protocol::club::v1::membership::SubscribeResponse* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("ClubMembershipService.Subscribe", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 ClubMembershipService::HandleUnsubscribe(::bgs::protocol::club::v1::membership::UnsubscribeRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ClubMembershipService.Unsubscribe({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+uint32 ClubMembershipService::HandleUnsubscribe(::bgs::protocol::club::v1::membership::UnsubscribeRequest const* request, ::bgs::protocol::NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("ClubMembershipService.Unsubscribe", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 ClubMembershipService::HandleGetState(::bgs::protocol::club::v1::membership::GetStateRequest const* request, ::bgs::protocol::club::v1::membership::GetStateResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ClubMembershipService.GetState({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+uint32 ClubMembershipService::HandleGetState(::bgs::protocol::club::v1::membership::GetStateRequest const* request, ::bgs::protocol::club::v1::membership::GetStateResponse* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("ClubMembershipService.GetState", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 ClubMembershipService::HandleUpdateClubSharedSettings(::bgs::protocol::club::v1::membership::UpdateClubSharedSettingsRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ClubMembershipService.UpdateClubSharedSettings({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+uint32 ClubMembershipService::HandleUpdateClubSharedSettings(::bgs::protocol::club::v1::membership::UpdateClubSharedSettingsRequest const* request, ::bgs::protocol::NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("ClubMembershipService.UpdateClubSharedSettings", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 ClubMembershipService::HandleGetStreamMentions(::bgs::protocol::club::v1::membership::GetStreamMentionsRequest const* request, ::bgs::protocol::club::v1::membership::GetStreamMentionsResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ClubMembershipService.GetStreamMentions({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+uint32 ClubMembershipService::HandleGetStreamMentions(::bgs::protocol::club::v1::membership::GetStreamMentionsRequest const* request, ::bgs::protocol::club::v1::membership::GetStreamMentionsResponse* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("ClubMembershipService.GetStreamMentions", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 ClubMembershipService::HandleRemoveStreamMentions(::bgs::protocol::club::v1::membership::RemoveStreamMentionsRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ClubMembershipService.RemoveStreamMentions({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+uint32 ClubMembershipService::HandleRemoveStreamMentions(::bgs::protocol::club::v1::membership::RemoveStreamMentionsRequest const* request, ::bgs::protocol::NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("ClubMembershipService.RemoveStreamMentions", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 ClubMembershipService::HandleAdvanceStreamMentionViewTime(::bgs::protocol::club::v1::membership::AdvanceStreamMentionViewTimeRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ClubMembershipService.AdvanceStreamMentionViewTime({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+uint32 ClubMembershipService::HandleAdvanceStreamMentionViewTime(::bgs::protocol::club::v1::membership::AdvanceStreamMentionViewTimeRequest const* request, ::bgs::protocol::NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("ClubMembershipService.AdvanceStreamMentionViewTime", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
+}
+
+void ClubMembershipService::ParseAndHandleSubscribe(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::club::v1::membership::SubscribeRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("ClubMembershipService.Subscribe");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("ClubMembershipService.Subscribe", "bgs.protocol.club.v1.membership.SubscribeRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "ClubMembershipService.Subscribe", ::bgs::protocol::club::v1::membership::SubscribeResponse::descriptor());
+  ::bgs::protocol::club::v1::membership::SubscribeResponse response;
+  uint32 status = HandleSubscribe(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
+}
+
+void ClubMembershipService::ParseAndHandleUnsubscribe(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::club::v1::membership::UnsubscribeRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("ClubMembershipService.Unsubscribe");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("ClubMembershipService.Unsubscribe", "bgs.protocol.club.v1.membership.UnsubscribeRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "ClubMembershipService.Unsubscribe", ::bgs::protocol::NoData::descriptor());
+  ::bgs::protocol::NoData response;
+  uint32 status = HandleUnsubscribe(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
+}
+
+void ClubMembershipService::ParseAndHandleGetState(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::club::v1::membership::GetStateRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("ClubMembershipService.GetState");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("ClubMembershipService.GetState", "bgs.protocol.club.v1.membership.GetStateRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "ClubMembershipService.GetState", ::bgs::protocol::club::v1::membership::GetStateResponse::descriptor());
+  ::bgs::protocol::club::v1::membership::GetStateResponse response;
+  uint32 status = HandleGetState(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
+}
+
+void ClubMembershipService::ParseAndHandleUpdateClubSharedSettings(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::club::v1::membership::UpdateClubSharedSettingsRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("ClubMembershipService.UpdateClubSharedSettings");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("ClubMembershipService.UpdateClubSharedSettings", "bgs.protocol.club.v1.membership.UpdateClubSharedSettingsRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "ClubMembershipService.UpdateClubSharedSettings", ::bgs::protocol::NoData::descriptor());
+  ::bgs::protocol::NoData response;
+  uint32 status = HandleUpdateClubSharedSettings(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
+}
+
+void ClubMembershipService::ParseAndHandleGetStreamMentions(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::club::v1::membership::GetStreamMentionsRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("ClubMembershipService.GetStreamMentions");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("ClubMembershipService.GetStreamMentions", "bgs.protocol.club.v1.membership.GetStreamMentionsRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "ClubMembershipService.GetStreamMentions", ::bgs::protocol::club::v1::membership::GetStreamMentionsResponse::descriptor());
+  ::bgs::protocol::club::v1::membership::GetStreamMentionsResponse response;
+  uint32 status = HandleGetStreamMentions(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
+}
+
+void ClubMembershipService::ParseAndHandleRemoveStreamMentions(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::club::v1::membership::RemoveStreamMentionsRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("ClubMembershipService.RemoveStreamMentions");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("ClubMembershipService.RemoveStreamMentions", "bgs.protocol.club.v1.membership.RemoveStreamMentionsRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "ClubMembershipService.RemoveStreamMentions", ::bgs::protocol::NoData::descriptor());
+  ::bgs::protocol::NoData response;
+  uint32 status = HandleRemoveStreamMentions(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
+}
+
+void ClubMembershipService::ParseAndHandleAdvanceStreamMentionViewTime(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::club::v1::membership::AdvanceStreamMentionViewTimeRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("ClubMembershipService.AdvanceStreamMentionViewTime");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("ClubMembershipService.AdvanceStreamMentionViewTime", "bgs.protocol.club.v1.membership.AdvanceStreamMentionViewTimeRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "ClubMembershipService.AdvanceStreamMentionViewTime", ::bgs::protocol::NoData::descriptor());
+  ::bgs::protocol::NoData response;
+  uint32 status = HandleAdvanceStreamMentionViewTime(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
 }
 
 // @@protoc_insertion_point(namespace_scope)

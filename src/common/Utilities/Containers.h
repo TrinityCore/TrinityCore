@@ -19,6 +19,7 @@
 #define TRINITY_CONTAINERS_H
 
 #include "Define.h"
+#include "MapUtils.h"
 #include "Random.h"
 #include <algorithm>
 #include <iterator>
@@ -29,18 +30,6 @@
 
 namespace Trinity
 {
-    template<class T>
-    constexpr inline T* AddressOrSelf(T* ptr)
-    {
-        return ptr;
-    }
-
-    template<class T>
-    constexpr inline T* AddressOrSelf(T& not_ptr)
-    {
-        return std::addressof(not_ptr);
-    }
-
     template <class T>
     class CheckedBufferOutputIterator
     {
@@ -252,55 +241,44 @@ namespace Trinity
             return false;
         }
 
-        /**
-         * Returns a pointer to mapped value (or the value itself if map stores pointers)
-         */
-        template<class M>
-        inline auto MapGetValuePtr(M& map, typename M::key_type const& key) -> decltype(AddressOrSelf(map.find(key)->second))
+        namespace Impl
         {
-            auto itr = map.find(key);
-            return itr != map.end() ? AddressOrSelf(itr->second) : nullptr;
-        }
-
-        template<class K, class V, template<class, class, class...> class M, class... Rest>
-        inline void MultimapErasePair(M<K, V, Rest...>& multimap, K const& key, V const& value)
-        {
-            auto range = multimap.equal_range(key);
-            for (auto itr = range.first; itr != range.second;)
+            template <typename Container, typename Predicate>
+            void EraseIfMoveAssignable(Container& c, Predicate p)
             {
-                if (itr->second == value)
-                    itr = multimap.erase(itr);
-                else
-                    ++itr;
-            }
-        }
-
-        template <typename Container, typename Predicate>
-        std::enable_if_t<std::is_move_assignable_v<decltype(*std::declval<Container>().begin())>, void> EraseIf(Container& c, Predicate p)
-        {
-            auto wpos = c.begin();
-            for (auto rpos = c.begin(), end = c.end(); rpos != end; ++rpos)
-            {
-                if (!p(*rpos))
+                auto wpos = c.begin();
+                for (auto rpos = c.begin(), end = c.end(); rpos != end; ++rpos)
                 {
-                    if (rpos != wpos)
-                        std::swap(*rpos, *wpos);
-                    ++wpos;
+                    if (!p(*rpos))
+                    {
+                        if (rpos != wpos)
+                            std::swap(*rpos, *wpos);
+                        ++wpos;
+                    }
+                }
+                c.erase(wpos, c.end());
+            }
+
+            template <typename Container, typename Predicate>
+            void EraseIfNotMoveAssignable(Container& c, Predicate p)
+            {
+                for (auto it = c.begin(); it != c.end();)
+                {
+                    if (p(*it))
+                        it = c.erase(it);
+                    else
+                        ++it;
                 }
             }
-            c.erase(wpos, c.end());
         }
 
         template <typename Container, typename Predicate>
-        std::enable_if_t<!std::is_move_assignable_v<decltype(*std::declval<Container>().begin())>, void> EraseIf(Container& c, Predicate p)
+        void EraseIf(Container& c, Predicate p)
         {
-            for (auto it = c.begin(); it != c.end();)
-            {
-                if (p(*it))
-                    it = c.erase(it);
-                else
-                    ++it;
-            }
+            if constexpr (std::is_move_assignable_v<decltype(*c.begin())>)
+                Impl::EraseIfMoveAssignable(c, std::ref(p));
+            else
+                Impl::EraseIfNotMoveAssignable(c, std::ref(p));
         }
 
         /**

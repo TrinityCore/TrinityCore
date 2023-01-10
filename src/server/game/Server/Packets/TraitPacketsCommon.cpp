@@ -71,7 +71,11 @@ ByteBuffer& operator>>(ByteBuffer& data, TraitConfig& traitConfig)
 {
     data >> traitConfig.ID;
     traitConfig.Type = data.read<TraitConfigType, int32>();
-    traitConfig.Entries.resize(data.read<uint32>());
+    uint32 entriesSize = data.read<uint32>();
+    if (entriesSize > 100)
+        throw PacketArrayMaxCapacityException(entriesSize, 100);
+
+    traitConfig.Entries.resize(entriesSize);
     switch (traitConfig.Type)
     {
         case TraitConfigType::Combat:

@@ -44,14 +44,14 @@ inline uint32 LoadGameTable(std::vector<std::string>& errors, GameTable<T>& stor
     std::ifstream stream(path.string());
     if (!stream)
     {
-        errors.push_back(Trinity::StringFormat("GameTable file %s cannot be opened.", path.string().c_str()));
+        errors.push_back(Trinity::StringFormat("GameTable file {} cannot be opened.", path.string()));
         return 0;
     }
 
     std::string headers;
     if (!std::getline(stream, headers))
     {
-        errors.push_back(Trinity::StringFormat("GameTable file %s is empty.", path.string().c_str()));
+        errors.push_back(Trinity::StringFormat("GameTable file {} is empty.", path.string()));
         return 0;
     }
 
@@ -136,7 +136,7 @@ void LoadGameTables(std::string const& dataPath)
         WPFatal(false, "Some required *.txt GameTable files (" SZFMTD ") not found or not compatible:\n%s", bad_gt_files.size(), str.str().c_str());
     }
 
-    TC_LOG_INFO("server.loading", ">> Initialized %d GameTables in %u ms", gameTableCount, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Initialized {} GameTables in {} ms", gameTableCount, GetMSTimeDiffToNow(oldMSTime));
 }
 
 template<class T>

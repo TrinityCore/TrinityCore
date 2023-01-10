@@ -314,7 +314,7 @@ void PlayerMenu::SendPointOfInterest(uint32 id) const
     PointOfInterest const* pointOfInterest = sObjectMgr->GetPointOfInterest(id);
     if (!pointOfInterest)
     {
-        TC_LOG_ERROR("sql.sql", "Request to send non-existing PointOfInterest (Id: %u), ignored.", id);
+        TC_LOG_ERROR("sql.sql", "Request to send non-existing PointOfInterest (Id: {}), ignored.", id);
         return;
     }
 
@@ -421,7 +421,7 @@ void PlayerMenu::SendQuestGiverQuestListMessage(Object* questgiver)
     }
 
     _session->SendPacket(questList.Write());
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE NPC=%s", guid.ToString().c_str());
+    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE NPC={}", guid.ToString());
 }
 
 void PlayerMenu::SendQuestGiverStatus(QuestGiverStatus questStatus, ObjectGuid npcGUID) const
@@ -431,7 +431,7 @@ void PlayerMenu::SendQuestGiverStatus(QuestGiverStatus questStatus, ObjectGuid n
     packet.QuestGiver.Status = questStatus;
 
     _session->SendPacket(packet.Write());
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_STATUS NPC=%s, status=%u", npcGUID.ToString().c_str(), AsUnderlyingType(questStatus));
+    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_STATUS NPC={}, status={}", npcGUID.ToString(), AsUnderlyingType(questStatus));
 }
 
 void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGUID, bool autoLaunched, bool displayPopup) const
@@ -484,6 +484,10 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
     packet.QuestFlags[2] = quest->GetFlagsEx2();
     packet.SuggestedPartyMembers = quest->GetSuggestedPlayers();
 
+    // Is there a better way? what about game objects?
+    if (Creature const* creature = ObjectAccessor::GetCreature(*_session->GetPlayer(), npcGUID))
+        packet.QuestGiverCreatureID = creature->GetCreatureTemplate()->Entry;
+
     // RewardSpell can teach multiple spells in trigger spell effects. But not all effects must be SPELL_EFFECT_LEARN_SPELL. See example spell 33950
     if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(quest->GetRewSpell(), DIFFICULTY_NONE))
         for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
@@ -511,7 +515,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
 
     _session->SendPacket(packet.Write());
 
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_GIVER_QUEST_DETAILS NPC=%s, questid=%u", npcGUID.ToString().c_str(), quest->GetQuestId());
+    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_GIVER_QUEST_DETAILS NPC={}, questid={}", npcGUID.ToString(), quest->GetQuestId());
 }
 
 void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
@@ -524,7 +528,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
         _session->SendPacket(&queryPacket);
     }
 
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_QUERY_RESPONSE questid=%u", quest->GetQuestId());
+    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_QUERY_RESPONSE questid={}", quest->GetQuestId());
 }
 
 void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUID, bool autoLaunched) const
@@ -569,7 +573,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     // Is there a better way? what about game objects?
     if (Creature const* creature = ObjectAccessor::GetCreature(*_session->GetPlayer(), npcGUID))
     {
-        packet.QuestGiverCreatureID = creature->GetEntry();
+        packet.QuestGiverCreatureID = creature->GetCreatureTemplate()->Entry;
         offer.QuestGiverCreatureID = creature->GetCreatureTemplate()->Entry;
     }
 
@@ -591,7 +595,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     packet.QuestPackageID = quest->GetQuestPackageID();
 
     _session->SendPacket(packet.Write());
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_OFFER_REWARD NPC=%s, questid=%u", npcGUID.ToString().c_str(), quest->GetQuestId());
+    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_OFFER_REWARD NPC={}, questid={}", npcGUID.ToString(), quest->GetQuestId());
 }
 
 void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGUID, bool canComplete, bool autoLaunched) const
@@ -677,5 +681,5 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
     packet.AutoLaunched = autoLaunched;
 
     _session->SendPacket(packet.Write());
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_REQUEST_ITEMS NPC=%s, questid=%u", npcGUID.ToString().c_str(), quest->GetQuestId());
+    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_REQUEST_ITEMS NPC={}, questid={}", npcGUID.ToString(), quest->GetQuestId());
 }

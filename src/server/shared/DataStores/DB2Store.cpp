@@ -110,7 +110,7 @@ void DB2StorageBase::LoadStringsFrom(std::string const& path, LocaleConstant loc
 {
     // DB2 must be already loaded using Load
     if (!_indexTable)
-        throw DB2FileLoadException(Trinity::StringFormat("%s was not loaded properly, cannot load strings", path.c_str()));
+        throw DB2FileLoadException(Trinity::StringFormat("{} was not loaded properly, cannot load strings", path));
 
     DB2FileLoader db2;
     DB2FileSystemSource source(path + _fileName);

@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "halls_of_origination.h"
 #include "InstanceScript.h"
 #include "Map.h"

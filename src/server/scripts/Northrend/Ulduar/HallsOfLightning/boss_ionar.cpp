@@ -58,9 +58,10 @@ enum Creatures
 enum Misc
 {
     DATA_MAX_SPARKS                               = 5,
-    DATA_MAX_SPARK_DISTANCE                       = 90, // Distance to boss - prevent runs through the whole instance
     DATA_POINT_CALLBACK                           = 0
 };
+
+static constexpr float DATA_MAX_SPARK_DISTANCE = 90; // Distance to boss - prevent runs through the whole instance
 
 /*######
 ## Boss Ionar

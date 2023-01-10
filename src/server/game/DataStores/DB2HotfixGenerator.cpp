@@ -21,7 +21,7 @@
 
 void DB2HotfixGeneratorBase::LogMissingRecord(std::string const& storageName, uint32 recordId)
 {
-    TC_LOG_ERROR("db2.hotfix", "Hotfix specified for %s row id %u which does not exist", storageName.c_str(), recordId);
+    TC_LOG_ERROR("db2.hotfix", "Hotfix specified for {} row id {} which does not exist", storageName, recordId);
 }
 
 void DB2HotfixGeneratorBase::AddClientHotfix(uint32 tableHash, uint32 recordId)

@@ -34,7 +34,7 @@
 #include "Optional.h"
 #include "RaceMask.h"
 #include "SharedDefines.h"
-#include <boost/circular_buffer.hpp>
+#include <boost/circular_buffer_fwd.hpp>
 #include <array>
 #include <map>
 #include <memory>
@@ -851,13 +851,15 @@ enum AccountDataType
     GLOBAL_FLAGGED_CACHE                = 10,
     PER_CHARACTER_FLAGGED_CACHE         = 11,
     PER_CHARACTER_CLICK_BINDINGS_CACHE  = 12,
+    GLOBAL_EDIT_MODE_CACHE              = 13,
+    PER_CHARACTER_EDIT_MODE_CACHE       = 14,
 };
 
-#define NUM_ACCOUNT_DATA_TYPES        13
+#define NUM_ACCOUNT_DATA_TYPES        15
 
-#define ALL_ACCOUNT_DATA_CACHE_MASK 0x1FFF
-#define GLOBAL_CACHE_MASK           0x515
-#define PER_CHARACTER_CACHE_MASK    0x1AEA
+#define ALL_ACCOUNT_DATA_CACHE_MASK 0x7FFF
+#define GLOBAL_CACHE_MASK           0x2515
+#define PER_CHARACTER_CACHE_MASK    0x5AEA
 
 struct AccountData
 {
@@ -1934,7 +1936,7 @@ class TC_GAME_API WorldSession
         uint32 expireTime;
         bool forceExit;
 
-        boost::circular_buffer<std::pair<int64, uint32>> _timeSyncClockDeltaQueue; // first member: clockDelta. Second member: latency of the packet exchange that was used to compute that clockDelta.
+        std::unique_ptr<boost::circular_buffer<std::pair<int64, uint32>>> _timeSyncClockDeltaQueue; // first member: clockDelta. Second member: latency of the packet exchange that was used to compute that clockDelta.
         int64 _timeSyncClockDelta;
         void ComputeNewClockDelta();
 

@@ -87,14 +87,14 @@ InstanceMap* MapManager::CreateInstance(uint32 mapId, uint32 instanceId, Instanc
     MapEntry const* entry = sMapStore.LookupEntry(mapId);
     if (!entry)
     {
-        TC_LOG_ERROR("maps", "CreateInstance: no entry for map %d", mapId);
+        TC_LOG_ERROR("maps", "CreateInstance: no entry for map {}", mapId);
         ABORT();
     }
 
     // some instances only have one difficulty
     sDB2Manager.GetDownscaledMapDifficultyData(mapId, difficulty);
 
-    TC_LOG_DEBUG("maps", "MapInstanced::CreateInstance: %smap instance %d for %d created with difficulty %s",
+    TC_LOG_DEBUG("maps", "MapInstanced::CreateInstance: {}map instance {} for {} created with difficulty {}",
         instanceLock && instanceLock->GetInstanceId() ? "" : "new ", instanceId, mapId, sDifficultyStore.AssertEntry(difficulty)->Name[sWorld->GetDefaultDbcLocale()]);
 
     InstanceMap* map = new InstanceMap(mapId, i_gridCleanUpDelay, instanceId, difficulty, team, instanceLock);
@@ -116,7 +116,7 @@ InstanceMap* MapManager::CreateInstance(uint32 mapId, uint32 instanceId, Instanc
 
 BattlegroundMap* MapManager::CreateBattleground(uint32 mapId, uint32 instanceId, Battleground* bg)
 {
-    TC_LOG_DEBUG("maps", "MapInstanced::CreateBattleground: map bg %d for %d created.", instanceId, mapId);
+    TC_LOG_DEBUG("maps", "MapInstanced::CreateBattleground: map bg {} for {} created.", instanceId, mapId);
 
     BattlegroundMap* map = new BattlegroundMap(mapId, i_gridCleanUpDelay, instanceId, DIFFICULTY_NONE);
     ASSERT(map->IsBattlegroundOrArena());
@@ -459,5 +459,5 @@ void MapManager::AddSC_BuiltInScripts()
 {
     for (MapEntry const* mapEntry : sMapStore)
         if (mapEntry->IsWorldMap() && mapEntry->IsSplitByFaction())
-            new SplitByFactionMapScript(Trinity::StringFormat("world_map_set_faction_worldstates_%u", mapEntry->ID).c_str(), mapEntry->ID);
+            new SplitByFactionMapScript(Trinity::StringFormat("world_map_set_faction_worldstates_{}", mapEntry->ID).c_str(), mapEntry->ID);
 }

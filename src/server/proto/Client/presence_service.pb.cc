@@ -4,7 +4,6 @@
 #define INTERNAL_SUPPRESS_PROTOBUF_FIELD_DEPRECATION
 #include "presence_service.pb.h"
 
-#include <algorithm>
 #include <utility>
 
 #include <google/protobuf/stubs/common.h>
@@ -15,8 +14,6 @@
 #include <google/protobuf/generated_message_reflection.h>
 #include <google/protobuf/reflection_ops.h>
 #include <google/protobuf/wire_format.h>
-#include "Log.h"
-#include "Errors.h"
 #include "BattlenetRpcErrorCodes.h"
 // @@protoc_insertion_point(includes)
 
@@ -337,7 +334,7 @@ void protobuf_AddDesc_presence_5fservice_2eproto() {
     "v1.BatchUnsubscribeRequest\032\024.bgs.protoco"
     "l.NoData\"\010\202\371+\004\010\t\020\003\032I\202\371+\?\n&bnet.protocol."
     "presence.PresenceService*\023presence_aggre"
-    "gator0\001\212\371+\002\020\001B\005H\001\200\001\000", 2180);
+    "gator0\001\212\371+\002\020\001B\005H\002\200\001\000", 2180);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "presence_service.proto", &protobuf_RegisterTypes);
   SubscribeRequest::default_instance_ = new SubscribeRequest();
@@ -436,326 +433,9 @@ SubscribeRequest* SubscribeRequest::New() const {
   return new SubscribeRequest;
 }
 
-void SubscribeRequest::Clear() {
-  if (_has_bits_[0 / 32] & 7) {
-    if (has_agent_id()) {
-      if (agent_id_ != NULL) agent_id_->::bgs::protocol::EntityId::Clear();
-    }
-    if (has_entity_id()) {
-      if (entity_id_ != NULL) entity_id_->::bgs::protocol::EntityId::Clear();
-    }
-    object_id_ = GOOGLE_ULONGLONG(0);
-  }
-  program_.Clear();
-  key_.Clear();
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool SubscribeRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.presence.v1.SubscribeRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.EntityId agent_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_entity_id;
-        break;
-      }
-
-      // required .bgs.protocol.EntityId entity_id = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_entity_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_entity_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(24)) goto parse_object_id;
-        break;
-      }
-
-      // required uint64 object_id = 3;
-      case 3: {
-        if (tag == 24) {
-         parse_object_id:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
-                 input, &object_id_)));
-          set_has_object_id();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(37)) goto parse_program;
-        break;
-      }
-
-      // repeated fixed32 program = 4;
-      case 4: {
-        if (tag == 37) {
-         parse_program:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_FIXED32>(
-                 1, 37, input, this->mutable_program())));
-        } else if (tag == 34) {
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitiveNoInline<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_FIXED32>(
-                 input, this->mutable_program())));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(37)) goto parse_program;
-        if (input->ExpectTag(50)) goto parse_key;
-        break;
-      }
-
-      // repeated .bgs.protocol.presence.v1.FieldKey key = 6;
-      case 6: {
-        if (tag == 50) {
-         parse_key:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-                input, add_key()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(50)) goto parse_key;
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.presence.v1.SubscribeRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.presence.v1.SubscribeRequest)
-  return false;
-#undef DO_
-}
-
-void SubscribeRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.presence.v1.SubscribeRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->agent_id(), output);
-  }
-
-  // required .bgs.protocol.EntityId entity_id = 2;
-  if (has_entity_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->entity_id(), output);
-  }
-
-  // required uint64 object_id = 3;
-  if (has_object_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(3, this->object_id(), output);
-  }
-
-  // repeated fixed32 program = 4;
-  for (int i = 0; i < this->program_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteFixed32(
-      4, this->program(i), output);
-  }
-
-  // repeated .bgs.protocol.presence.v1.FieldKey key = 6;
-  for (int i = 0; i < this->key_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      6, this->key(i), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.presence.v1.SubscribeRequest)
-}
-
-::google::protobuf::uint8* SubscribeRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.presence.v1.SubscribeRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->agent_id(), target);
-  }
-
-  // required .bgs.protocol.EntityId entity_id = 2;
-  if (has_entity_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->entity_id(), target);
-  }
-
-  // required uint64 object_id = 3;
-  if (has_object_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(3, this->object_id(), target);
-  }
-
-  // repeated fixed32 program = 4;
-  for (int i = 0; i < this->program_size(); i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteFixed32ToArray(4, this->program(i), target);
-  }
-
-  // repeated .bgs.protocol.presence.v1.FieldKey key = 6;
-  for (int i = 0; i < this->key_size(); i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        6, this->key(i), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.presence.v1.SubscribeRequest)
-  return target;
-}
-
-int SubscribeRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.EntityId agent_id = 1;
-    if (has_agent_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_id());
-    }
-
-    // required .bgs.protocol.EntityId entity_id = 2;
-    if (has_entity_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->entity_id());
-    }
-
-    // required uint64 object_id = 3;
-    if (has_object_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt64Size(
-          this->object_id());
-    }
-
-  }
-  // repeated fixed32 program = 4;
-  {
-    int data_size = 0;
-    data_size = 4 * this->program_size();
-    total_size += 1 * this->program_size() + data_size;
-  }
-
-  // repeated .bgs.protocol.presence.v1.FieldKey key = 6;
-  total_size += 1 * this->key_size();
-  for (int i = 0; i < this->key_size(); i++) {
-    total_size +=
-      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-        this->key(i));
-  }
-
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void SubscribeRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const SubscribeRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const SubscribeRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void SubscribeRequest::MergeFrom(const SubscribeRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  program_.MergeFrom(from.program_);
-  key_.MergeFrom(from.key_);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_agent_id()) {
-      mutable_agent_id()->::bgs::protocol::EntityId::MergeFrom(from.agent_id());
-    }
-    if (from.has_entity_id()) {
-      mutable_entity_id()->::bgs::protocol::EntityId::MergeFrom(from.entity_id());
-    }
-    if (from.has_object_id()) {
-      set_object_id(from.object_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void SubscribeRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void SubscribeRequest::CopyFrom(const SubscribeRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool SubscribeRequest::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000006) != 0x00000006) return false;
-  if (has_agent_id()) {
-    if (!this->agent_id().IsInitialized()) return false;
-  }
-  if (has_entity_id()) {
-    if (!this->entity_id().IsInitialized()) return false;
-  }
-  if (!::google::protobuf::internal::AllAreInitialized(this->key())) return false;
-  return true;
-}
-
 void SubscribeRequest::Swap(SubscribeRequest* other) {
   if (other != this) {
-    std::swap(agent_id_, other->agent_id_);
-    std::swap(entity_id_, other->entity_id_);
-    std::swap(object_id_, other->object_id_);
-    program_.Swap(&other->program_);
-    key_.Swap(&other->key_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata SubscribeRequest::GetMetadata() const {
@@ -833,246 +513,9 @@ UnsubscribeRequest* UnsubscribeRequest::New() const {
   return new UnsubscribeRequest;
 }
 
-void UnsubscribeRequest::Clear() {
-  if (_has_bits_[0 / 32] & 7) {
-    if (has_agent_id()) {
-      if (agent_id_ != NULL) agent_id_->::bgs::protocol::EntityId::Clear();
-    }
-    if (has_entity_id()) {
-      if (entity_id_ != NULL) entity_id_->::bgs::protocol::EntityId::Clear();
-    }
-    object_id_ = GOOGLE_ULONGLONG(0);
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool UnsubscribeRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.presence.v1.UnsubscribeRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.EntityId agent_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_entity_id;
-        break;
-      }
-
-      // required .bgs.protocol.EntityId entity_id = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_entity_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_entity_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(24)) goto parse_object_id;
-        break;
-      }
-
-      // optional uint64 object_id = 3;
-      case 3: {
-        if (tag == 24) {
-         parse_object_id:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
-                 input, &object_id_)));
-          set_has_object_id();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.presence.v1.UnsubscribeRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.presence.v1.UnsubscribeRequest)
-  return false;
-#undef DO_
-}
-
-void UnsubscribeRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.presence.v1.UnsubscribeRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->agent_id(), output);
-  }
-
-  // required .bgs.protocol.EntityId entity_id = 2;
-  if (has_entity_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->entity_id(), output);
-  }
-
-  // optional uint64 object_id = 3;
-  if (has_object_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(3, this->object_id(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.presence.v1.UnsubscribeRequest)
-}
-
-::google::protobuf::uint8* UnsubscribeRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.presence.v1.UnsubscribeRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->agent_id(), target);
-  }
-
-  // required .bgs.protocol.EntityId entity_id = 2;
-  if (has_entity_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->entity_id(), target);
-  }
-
-  // optional uint64 object_id = 3;
-  if (has_object_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(3, this->object_id(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.presence.v1.UnsubscribeRequest)
-  return target;
-}
-
-int UnsubscribeRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.EntityId agent_id = 1;
-    if (has_agent_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_id());
-    }
-
-    // required .bgs.protocol.EntityId entity_id = 2;
-    if (has_entity_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->entity_id());
-    }
-
-    // optional uint64 object_id = 3;
-    if (has_object_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt64Size(
-          this->object_id());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void UnsubscribeRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const UnsubscribeRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const UnsubscribeRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void UnsubscribeRequest::MergeFrom(const UnsubscribeRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_agent_id()) {
-      mutable_agent_id()->::bgs::protocol::EntityId::MergeFrom(from.agent_id());
-    }
-    if (from.has_entity_id()) {
-      mutable_entity_id()->::bgs::protocol::EntityId::MergeFrom(from.entity_id());
-    }
-    if (from.has_object_id()) {
-      set_object_id(from.object_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void UnsubscribeRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void UnsubscribeRequest::CopyFrom(const UnsubscribeRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool UnsubscribeRequest::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000002) != 0x00000002) return false;
-  if (has_agent_id()) {
-    if (!this->agent_id().IsInitialized()) return false;
-  }
-  if (has_entity_id()) {
-    if (!this->entity_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void UnsubscribeRequest::Swap(UnsubscribeRequest* other) {
   if (other != this) {
-    std::swap(agent_id_, other->agent_id_);
-    std::swap(entity_id_, other->entity_id_);
-    std::swap(object_id_, other->object_id_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata UnsubscribeRequest::GetMetadata() const {
@@ -1151,283 +594,9 @@ UpdateRequest* UpdateRequest::New() const {
   return new UpdateRequest;
 }
 
-void UpdateRequest::Clear() {
-  if (_has_bits_[0 / 32] & 13) {
-    if (has_entity_id()) {
-      if (entity_id_ != NULL) entity_id_->::bgs::protocol::EntityId::Clear();
-    }
-    no_create_ = false;
-    if (has_agent_id()) {
-      if (agent_id_ != NULL) agent_id_->::bgs::protocol::EntityId::Clear();
-    }
-  }
-  field_operation_.Clear();
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool UpdateRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.presence.v1.UpdateRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required .bgs.protocol.EntityId entity_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_entity_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_field_operation;
-        break;
-      }
-
-      // repeated .bgs.protocol.presence.v1.FieldOperation field_operation = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_field_operation:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-                input, add_field_operation()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_field_operation;
-        if (input->ExpectTag(24)) goto parse_no_create;
-        break;
-      }
-
-      // optional bool no_create = 3;
-      case 3: {
-        if (tag == 24) {
-         parse_no_create:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
-                 input, &no_create_)));
-          set_has_no_create();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(34)) goto parse_agent_id;
-        break;
-      }
-
-      // optional .bgs.protocol.EntityId agent_id = 4;
-      case 4: {
-        if (tag == 34) {
-         parse_agent_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.presence.v1.UpdateRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.presence.v1.UpdateRequest)
-  return false;
-#undef DO_
-}
-
-void UpdateRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.presence.v1.UpdateRequest)
-  // required .bgs.protocol.EntityId entity_id = 1;
-  if (has_entity_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->entity_id(), output);
-  }
-
-  // repeated .bgs.protocol.presence.v1.FieldOperation field_operation = 2;
-  for (int i = 0; i < this->field_operation_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->field_operation(i), output);
-  }
-
-  // optional bool no_create = 3;
-  if (has_no_create()) {
-    ::google::protobuf::internal::WireFormatLite::WriteBool(3, this->no_create(), output);
-  }
-
-  // optional .bgs.protocol.EntityId agent_id = 4;
-  if (has_agent_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      4, this->agent_id(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.presence.v1.UpdateRequest)
-}
-
-::google::protobuf::uint8* UpdateRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.presence.v1.UpdateRequest)
-  // required .bgs.protocol.EntityId entity_id = 1;
-  if (has_entity_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->entity_id(), target);
-  }
-
-  // repeated .bgs.protocol.presence.v1.FieldOperation field_operation = 2;
-  for (int i = 0; i < this->field_operation_size(); i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->field_operation(i), target);
-  }
-
-  // optional bool no_create = 3;
-  if (has_no_create()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(3, this->no_create(), target);
-  }
-
-  // optional .bgs.protocol.EntityId agent_id = 4;
-  if (has_agent_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        4, this->agent_id(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.presence.v1.UpdateRequest)
-  return target;
-}
-
-int UpdateRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required .bgs.protocol.EntityId entity_id = 1;
-    if (has_entity_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->entity_id());
-    }
-
-    // optional bool no_create = 3;
-    if (has_no_create()) {
-      total_size += 1 + 1;
-    }
-
-    // optional .bgs.protocol.EntityId agent_id = 4;
-    if (has_agent_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_id());
-    }
-
-  }
-  // repeated .bgs.protocol.presence.v1.FieldOperation field_operation = 2;
-  total_size += 1 * this->field_operation_size();
-  for (int i = 0; i < this->field_operation_size(); i++) {
-    total_size +=
-      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-        this->field_operation(i));
-  }
-
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void UpdateRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const UpdateRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const UpdateRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void UpdateRequest::MergeFrom(const UpdateRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  field_operation_.MergeFrom(from.field_operation_);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_entity_id()) {
-      mutable_entity_id()->::bgs::protocol::EntityId::MergeFrom(from.entity_id());
-    }
-    if (from.has_no_create()) {
-      set_no_create(from.no_create());
-    }
-    if (from.has_agent_id()) {
-      mutable_agent_id()->::bgs::protocol::EntityId::MergeFrom(from.agent_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void UpdateRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void UpdateRequest::CopyFrom(const UpdateRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool UpdateRequest::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-  if (has_entity_id()) {
-    if (!this->entity_id().IsInitialized()) return false;
-  }
-  if (!::google::protobuf::internal::AllAreInitialized(this->field_operation())) return false;
-  if (has_agent_id()) {
-    if (!this->agent_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void UpdateRequest::Swap(UpdateRequest* other) {
   if (other != this) {
-    std::swap(entity_id_, other->entity_id_);
-    field_operation_.Swap(&other->field_operation_);
-    std::swap(no_create_, other->no_create_);
-    std::swap(agent_id_, other->agent_id_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata UpdateRequest::GetMetadata() const {
@@ -1504,248 +673,9 @@ QueryRequest* QueryRequest::New() const {
   return new QueryRequest;
 }
 
-void QueryRequest::Clear() {
-  if (_has_bits_[0 / 32] & 5) {
-    if (has_entity_id()) {
-      if (entity_id_ != NULL) entity_id_->::bgs::protocol::EntityId::Clear();
-    }
-    if (has_agent_id()) {
-      if (agent_id_ != NULL) agent_id_->::bgs::protocol::EntityId::Clear();
-    }
-  }
-  key_.Clear();
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool QueryRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.presence.v1.QueryRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required .bgs.protocol.EntityId entity_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_entity_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_key;
-        break;
-      }
-
-      // repeated .bgs.protocol.presence.v1.FieldKey key = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_key:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-                input, add_key()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_key;
-        if (input->ExpectTag(26)) goto parse_agent_id;
-        break;
-      }
-
-      // optional .bgs.protocol.EntityId agent_id = 3;
-      case 3: {
-        if (tag == 26) {
-         parse_agent_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.presence.v1.QueryRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.presence.v1.QueryRequest)
-  return false;
-#undef DO_
-}
-
-void QueryRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.presence.v1.QueryRequest)
-  // required .bgs.protocol.EntityId entity_id = 1;
-  if (has_entity_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->entity_id(), output);
-  }
-
-  // repeated .bgs.protocol.presence.v1.FieldKey key = 2;
-  for (int i = 0; i < this->key_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->key(i), output);
-  }
-
-  // optional .bgs.protocol.EntityId agent_id = 3;
-  if (has_agent_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      3, this->agent_id(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.presence.v1.QueryRequest)
-}
-
-::google::protobuf::uint8* QueryRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.presence.v1.QueryRequest)
-  // required .bgs.protocol.EntityId entity_id = 1;
-  if (has_entity_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->entity_id(), target);
-  }
-
-  // repeated .bgs.protocol.presence.v1.FieldKey key = 2;
-  for (int i = 0; i < this->key_size(); i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->key(i), target);
-  }
-
-  // optional .bgs.protocol.EntityId agent_id = 3;
-  if (has_agent_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        3, this->agent_id(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.presence.v1.QueryRequest)
-  return target;
-}
-
-int QueryRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required .bgs.protocol.EntityId entity_id = 1;
-    if (has_entity_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->entity_id());
-    }
-
-    // optional .bgs.protocol.EntityId agent_id = 3;
-    if (has_agent_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_id());
-    }
-
-  }
-  // repeated .bgs.protocol.presence.v1.FieldKey key = 2;
-  total_size += 1 * this->key_size();
-  for (int i = 0; i < this->key_size(); i++) {
-    total_size +=
-      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-        this->key(i));
-  }
-
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void QueryRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const QueryRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const QueryRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void QueryRequest::MergeFrom(const QueryRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  key_.MergeFrom(from.key_);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_entity_id()) {
-      mutable_entity_id()->::bgs::protocol::EntityId::MergeFrom(from.entity_id());
-    }
-    if (from.has_agent_id()) {
-      mutable_agent_id()->::bgs::protocol::EntityId::MergeFrom(from.agent_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void QueryRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void QueryRequest::CopyFrom(const QueryRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool QueryRequest::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
-  if (has_entity_id()) {
-    if (!this->entity_id().IsInitialized()) return false;
-  }
-  if (!::google::protobuf::internal::AllAreInitialized(this->key())) return false;
-  if (has_agent_id()) {
-    if (!this->agent_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void QueryRequest::Swap(QueryRequest* other) {
   if (other != this) {
-    std::swap(entity_id_, other->entity_id_);
-    key_.Swap(&other->key_);
-    std::swap(agent_id_, other->agent_id_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata QueryRequest::GetMetadata() const {
@@ -1814,156 +744,9 @@ QueryResponse* QueryResponse::New() const {
   return new QueryResponse;
 }
 
-void QueryResponse::Clear() {
-  field_.Clear();
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool QueryResponse::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.presence.v1.QueryResponse)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // repeated .bgs.protocol.presence.v1.Field field = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_field:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-                input, add_field()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_field;
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.presence.v1.QueryResponse)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.presence.v1.QueryResponse)
-  return false;
-#undef DO_
-}
-
-void QueryResponse::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.presence.v1.QueryResponse)
-  // repeated .bgs.protocol.presence.v1.Field field = 2;
-  for (int i = 0; i < this->field_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->field(i), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.presence.v1.QueryResponse)
-}
-
-::google::protobuf::uint8* QueryResponse::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.presence.v1.QueryResponse)
-  // repeated .bgs.protocol.presence.v1.Field field = 2;
-  for (int i = 0; i < this->field_size(); i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->field(i), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.presence.v1.QueryResponse)
-  return target;
-}
-
-int QueryResponse::ByteSize() const {
-  int total_size = 0;
-
-  // repeated .bgs.protocol.presence.v1.Field field = 2;
-  total_size += 1 * this->field_size();
-  for (int i = 0; i < this->field_size(); i++) {
-    total_size +=
-      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-        this->field(i));
-  }
-
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void QueryResponse::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const QueryResponse* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const QueryResponse*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void QueryResponse::MergeFrom(const QueryResponse& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  field_.MergeFrom(from.field_);
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void QueryResponse::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void QueryResponse::CopyFrom(const QueryResponse& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool QueryResponse::IsInitialized() const {
-  if (!::google::protobuf::internal::AllAreInitialized(this->field())) return false;
-  return true;
-}
-
 void QueryResponse::Swap(QueryResponse* other) {
   if (other != this) {
-    field_.Swap(&other->field_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata QueryResponse::GetMetadata() const {
@@ -2040,321 +823,9 @@ BatchSubscribeRequest* BatchSubscribeRequest::New() const {
   return new BatchSubscribeRequest;
 }
 
-void BatchSubscribeRequest::Clear() {
-  if (_has_bits_[0 / 32] & 17) {
-    if (has_agent_id()) {
-      if (agent_id_ != NULL) agent_id_->::bgs::protocol::EntityId::Clear();
-    }
-    object_id_ = GOOGLE_ULONGLONG(0);
-  }
-  entity_id_.Clear();
-  program_.Clear();
-  key_.Clear();
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool BatchSubscribeRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.presence.v1.BatchSubscribeRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.EntityId agent_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_entity_id;
-        break;
-      }
-
-      // repeated .bgs.protocol.EntityId entity_id = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_entity_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-                input, add_entity_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_entity_id;
-        if (input->ExpectTag(29)) goto parse_program;
-        break;
-      }
-
-      // repeated fixed32 program = 3;
-      case 3: {
-        if (tag == 29) {
-         parse_program:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_FIXED32>(
-                 1, 29, input, this->mutable_program())));
-        } else if (tag == 26) {
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitiveNoInline<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_FIXED32>(
-                 input, this->mutable_program())));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(29)) goto parse_program;
-        if (input->ExpectTag(34)) goto parse_key;
-        break;
-      }
-
-      // repeated .bgs.protocol.presence.v1.FieldKey key = 4;
-      case 4: {
-        if (tag == 34) {
-         parse_key:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-                input, add_key()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(34)) goto parse_key;
-        if (input->ExpectTag(40)) goto parse_object_id;
-        break;
-      }
-
-      // optional uint64 object_id = 5;
-      case 5: {
-        if (tag == 40) {
-         parse_object_id:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
-                 input, &object_id_)));
-          set_has_object_id();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.presence.v1.BatchSubscribeRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.presence.v1.BatchSubscribeRequest)
-  return false;
-#undef DO_
-}
-
-void BatchSubscribeRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.presence.v1.BatchSubscribeRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->agent_id(), output);
-  }
-
-  // repeated .bgs.protocol.EntityId entity_id = 2;
-  for (int i = 0; i < this->entity_id_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->entity_id(i), output);
-  }
-
-  // repeated fixed32 program = 3;
-  for (int i = 0; i < this->program_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteFixed32(
-      3, this->program(i), output);
-  }
-
-  // repeated .bgs.protocol.presence.v1.FieldKey key = 4;
-  for (int i = 0; i < this->key_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      4, this->key(i), output);
-  }
-
-  // optional uint64 object_id = 5;
-  if (has_object_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(5, this->object_id(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.presence.v1.BatchSubscribeRequest)
-}
-
-::google::protobuf::uint8* BatchSubscribeRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.presence.v1.BatchSubscribeRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->agent_id(), target);
-  }
-
-  // repeated .bgs.protocol.EntityId entity_id = 2;
-  for (int i = 0; i < this->entity_id_size(); i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->entity_id(i), target);
-  }
-
-  // repeated fixed32 program = 3;
-  for (int i = 0; i < this->program_size(); i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteFixed32ToArray(3, this->program(i), target);
-  }
-
-  // repeated .bgs.protocol.presence.v1.FieldKey key = 4;
-  for (int i = 0; i < this->key_size(); i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        4, this->key(i), target);
-  }
-
-  // optional uint64 object_id = 5;
-  if (has_object_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(5, this->object_id(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.presence.v1.BatchSubscribeRequest)
-  return target;
-}
-
-int BatchSubscribeRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.EntityId agent_id = 1;
-    if (has_agent_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_id());
-    }
-
-    // optional uint64 object_id = 5;
-    if (has_object_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt64Size(
-          this->object_id());
-    }
-
-  }
-  // repeated .bgs.protocol.EntityId entity_id = 2;
-  total_size += 1 * this->entity_id_size();
-  for (int i = 0; i < this->entity_id_size(); i++) {
-    total_size +=
-      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-        this->entity_id(i));
-  }
-
-  // repeated fixed32 program = 3;
-  {
-    int data_size = 0;
-    data_size = 4 * this->program_size();
-    total_size += 1 * this->program_size() + data_size;
-  }
-
-  // repeated .bgs.protocol.presence.v1.FieldKey key = 4;
-  total_size += 1 * this->key_size();
-  for (int i = 0; i < this->key_size(); i++) {
-    total_size +=
-      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-        this->key(i));
-  }
-
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void BatchSubscribeRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const BatchSubscribeRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const BatchSubscribeRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void BatchSubscribeRequest::MergeFrom(const BatchSubscribeRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  entity_id_.MergeFrom(from.entity_id_);
-  program_.MergeFrom(from.program_);
-  key_.MergeFrom(from.key_);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_agent_id()) {
-      mutable_agent_id()->::bgs::protocol::EntityId::MergeFrom(from.agent_id());
-    }
-    if (from.has_object_id()) {
-      set_object_id(from.object_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void BatchSubscribeRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void BatchSubscribeRequest::CopyFrom(const BatchSubscribeRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool BatchSubscribeRequest::IsInitialized() const {
-  if (has_agent_id()) {
-    if (!this->agent_id().IsInitialized()) return false;
-  }
-  if (!::google::protobuf::internal::AllAreInitialized(this->entity_id())) return false;
-  if (!::google::protobuf::internal::AllAreInitialized(this->key())) return false;
-  return true;
-}
-
 void BatchSubscribeRequest::Swap(BatchSubscribeRequest* other) {
   if (other != this) {
-    std::swap(agent_id_, other->agent_id_);
-    entity_id_.Swap(&other->entity_id_);
-    program_.Swap(&other->program_);
-    key_.Swap(&other->key_);
-    std::swap(object_id_, other->object_id_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata BatchSubscribeRequest::GetMetadata() const {
@@ -2428,202 +899,9 @@ SubscribeResult* SubscribeResult::New() const {
   return new SubscribeResult;
 }
 
-void SubscribeResult::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
-    if (has_entity_id()) {
-      if (entity_id_ != NULL) entity_id_->::bgs::protocol::EntityId::Clear();
-    }
-    result_ = 0u;
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool SubscribeResult::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.presence.v1.SubscribeResult)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.EntityId entity_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_entity_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(16)) goto parse_result;
-        break;
-      }
-
-      // optional uint32 result = 2;
-      case 2: {
-        if (tag == 16) {
-         parse_result:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 input, &result_)));
-          set_has_result();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.presence.v1.SubscribeResult)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.presence.v1.SubscribeResult)
-  return false;
-#undef DO_
-}
-
-void SubscribeResult::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.presence.v1.SubscribeResult)
-  // optional .bgs.protocol.EntityId entity_id = 1;
-  if (has_entity_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->entity_id(), output);
-  }
-
-  // optional uint32 result = 2;
-  if (has_result()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(2, this->result(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.presence.v1.SubscribeResult)
-}
-
-::google::protobuf::uint8* SubscribeResult::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.presence.v1.SubscribeResult)
-  // optional .bgs.protocol.EntityId entity_id = 1;
-  if (has_entity_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->entity_id(), target);
-  }
-
-  // optional uint32 result = 2;
-  if (has_result()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(2, this->result(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.presence.v1.SubscribeResult)
-  return target;
-}
-
-int SubscribeResult::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.EntityId entity_id = 1;
-    if (has_entity_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->entity_id());
-    }
-
-    // optional uint32 result = 2;
-    if (has_result()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt32Size(
-          this->result());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void SubscribeResult::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const SubscribeResult* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const SubscribeResult*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void SubscribeResult::MergeFrom(const SubscribeResult& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_entity_id()) {
-      mutable_entity_id()->::bgs::protocol::EntityId::MergeFrom(from.entity_id());
-    }
-    if (from.has_result()) {
-      set_result(from.result());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void SubscribeResult::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void SubscribeResult::CopyFrom(const SubscribeResult& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool SubscribeResult::IsInitialized() const {
-  if (has_entity_id()) {
-    if (!this->entity_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void SubscribeResult::Swap(SubscribeResult* other) {
   if (other != this) {
-    std::swap(entity_id_, other->entity_id_);
-    std::swap(result_, other->result_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata SubscribeResult::GetMetadata() const {
@@ -2692,156 +970,9 @@ BatchSubscribeResponse* BatchSubscribeResponse::New() const {
   return new BatchSubscribeResponse;
 }
 
-void BatchSubscribeResponse::Clear() {
-  subscribe_failed_.Clear();
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool BatchSubscribeResponse::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.presence.v1.BatchSubscribeResponse)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // repeated .bgs.protocol.presence.v1.SubscribeResult subscribe_failed = 1;
-      case 1: {
-        if (tag == 10) {
-         parse_subscribe_failed:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-                input, add_subscribe_failed()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(10)) goto parse_subscribe_failed;
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.presence.v1.BatchSubscribeResponse)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.presence.v1.BatchSubscribeResponse)
-  return false;
-#undef DO_
-}
-
-void BatchSubscribeResponse::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.presence.v1.BatchSubscribeResponse)
-  // repeated .bgs.protocol.presence.v1.SubscribeResult subscribe_failed = 1;
-  for (int i = 0; i < this->subscribe_failed_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->subscribe_failed(i), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.presence.v1.BatchSubscribeResponse)
-}
-
-::google::protobuf::uint8* BatchSubscribeResponse::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.presence.v1.BatchSubscribeResponse)
-  // repeated .bgs.protocol.presence.v1.SubscribeResult subscribe_failed = 1;
-  for (int i = 0; i < this->subscribe_failed_size(); i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->subscribe_failed(i), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.presence.v1.BatchSubscribeResponse)
-  return target;
-}
-
-int BatchSubscribeResponse::ByteSize() const {
-  int total_size = 0;
-
-  // repeated .bgs.protocol.presence.v1.SubscribeResult subscribe_failed = 1;
-  total_size += 1 * this->subscribe_failed_size();
-  for (int i = 0; i < this->subscribe_failed_size(); i++) {
-    total_size +=
-      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-        this->subscribe_failed(i));
-  }
-
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void BatchSubscribeResponse::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const BatchSubscribeResponse* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const BatchSubscribeResponse*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void BatchSubscribeResponse::MergeFrom(const BatchSubscribeResponse& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  subscribe_failed_.MergeFrom(from.subscribe_failed_);
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void BatchSubscribeResponse::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void BatchSubscribeResponse::CopyFrom(const BatchSubscribeResponse& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool BatchSubscribeResponse::IsInitialized() const {
-  if (!::google::protobuf::internal::AllAreInitialized(this->subscribe_failed())) return false;
-  return true;
-}
-
 void BatchSubscribeResponse::Swap(BatchSubscribeResponse* other) {
   if (other != this) {
-    subscribe_failed_.Swap(&other->subscribe_failed_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata BatchSubscribeResponse::GetMetadata() const {
@@ -2916,241 +1047,9 @@ BatchUnsubscribeRequest* BatchUnsubscribeRequest::New() const {
   return new BatchUnsubscribeRequest;
 }
 
-void BatchUnsubscribeRequest::Clear() {
-  if (_has_bits_[0 / 32] & 5) {
-    if (has_agent_id()) {
-      if (agent_id_ != NULL) agent_id_->::bgs::protocol::EntityId::Clear();
-    }
-    object_id_ = GOOGLE_ULONGLONG(0);
-  }
-  entity_id_.Clear();
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool BatchUnsubscribeRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.presence.v1.BatchUnsubscribeRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.EntityId agent_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_entity_id;
-        break;
-      }
-
-      // repeated .bgs.protocol.EntityId entity_id = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_entity_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-                input, add_entity_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_entity_id;
-        if (input->ExpectTag(24)) goto parse_object_id;
-        break;
-      }
-
-      // optional uint64 object_id = 3;
-      case 3: {
-        if (tag == 24) {
-         parse_object_id:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
-                 input, &object_id_)));
-          set_has_object_id();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.presence.v1.BatchUnsubscribeRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.presence.v1.BatchUnsubscribeRequest)
-  return false;
-#undef DO_
-}
-
-void BatchUnsubscribeRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.presence.v1.BatchUnsubscribeRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->agent_id(), output);
-  }
-
-  // repeated .bgs.protocol.EntityId entity_id = 2;
-  for (int i = 0; i < this->entity_id_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->entity_id(i), output);
-  }
-
-  // optional uint64 object_id = 3;
-  if (has_object_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(3, this->object_id(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.presence.v1.BatchUnsubscribeRequest)
-}
-
-::google::protobuf::uint8* BatchUnsubscribeRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.presence.v1.BatchUnsubscribeRequest)
-  // optional .bgs.protocol.EntityId agent_id = 1;
-  if (has_agent_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->agent_id(), target);
-  }
-
-  // repeated .bgs.protocol.EntityId entity_id = 2;
-  for (int i = 0; i < this->entity_id_size(); i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->entity_id(i), target);
-  }
-
-  // optional uint64 object_id = 3;
-  if (has_object_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(3, this->object_id(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.presence.v1.BatchUnsubscribeRequest)
-  return target;
-}
-
-int BatchUnsubscribeRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.EntityId agent_id = 1;
-    if (has_agent_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->agent_id());
-    }
-
-    // optional uint64 object_id = 3;
-    if (has_object_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt64Size(
-          this->object_id());
-    }
-
-  }
-  // repeated .bgs.protocol.EntityId entity_id = 2;
-  total_size += 1 * this->entity_id_size();
-  for (int i = 0; i < this->entity_id_size(); i++) {
-    total_size +=
-      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-        this->entity_id(i));
-  }
-
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void BatchUnsubscribeRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const BatchUnsubscribeRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const BatchUnsubscribeRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void BatchUnsubscribeRequest::MergeFrom(const BatchUnsubscribeRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  entity_id_.MergeFrom(from.entity_id_);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_agent_id()) {
-      mutable_agent_id()->::bgs::protocol::EntityId::MergeFrom(from.agent_id());
-    }
-    if (from.has_object_id()) {
-      set_object_id(from.object_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void BatchUnsubscribeRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void BatchUnsubscribeRequest::CopyFrom(const BatchUnsubscribeRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool BatchUnsubscribeRequest::IsInitialized() const {
-  if (has_agent_id()) {
-    if (!this->agent_id().IsInitialized()) return false;
-  }
-  if (!::google::protobuf::internal::AllAreInitialized(this->entity_id())) return false;
-  return true;
-}
-
 void BatchUnsubscribeRequest::Swap(BatchUnsubscribeRequest* other) {
   if (other != this) {
-    std::swap(agent_id_, other->agent_id_);
-    entity_id_.Swap(&other->entity_id_);
-    std::swap(object_id_, other->object_id_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata BatchUnsubscribeRequest::GetMetadata() const {
@@ -3163,7 +1062,7 @@ void BatchUnsubscribeRequest::Swap(BatchUnsubscribeRequest* other) {
 
 // ===================================================================
 
-PresenceService::PresenceService(bool use_original_hash) : service_hash_(use_original_hash ? OriginalHash::value : NameHash::value) {
+PresenceService::PresenceService(bool use_original_hash) : ServiceBase(use_original_hash ? OriginalHash::value : NameHash::value) {
 }
 
 PresenceService::~PresenceService() {
@@ -3176,203 +1075,149 @@ google::protobuf::ServiceDescriptor const* PresenceService::descriptor() {
 
 void PresenceService::CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) {
   switch(methodId & 0x3FFFFFFF) {
-    case 1: {
-      ::bgs::protocol::presence::v1::SubscribeRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for PresenceService.Subscribe server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method PresenceService.Subscribe(bgs.protocol.presence.v1.SubscribeRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
-        PresenceService* self = static_cast<PresenceService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method PresenceService.Subscribe() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::NoData response;
-      uint32 status = HandleSubscribe(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
+    case 1:
+      ParseAndHandleSubscribe(token, methodId, buffer);
       break;
-    }
-    case 2: {
-      ::bgs::protocol::presence::v1::UnsubscribeRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for PresenceService.Unsubscribe server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method PresenceService.Unsubscribe(bgs.protocol.presence.v1.UnsubscribeRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
-        PresenceService* self = static_cast<PresenceService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method PresenceService.Unsubscribe() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::NoData response;
-      uint32 status = HandleUnsubscribe(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
+    case 2:
+      ParseAndHandleUnsubscribe(token, methodId, buffer);
       break;
-    }
-    case 3: {
-      ::bgs::protocol::presence::v1::UpdateRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for PresenceService.Update server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method PresenceService.Update(bgs.protocol.presence.v1.UpdateRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
-        PresenceService* self = static_cast<PresenceService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method PresenceService.Update() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::NoData response;
-      uint32 status = HandleUpdate(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
+    case 3:
+      ParseAndHandleUpdate(token, methodId, buffer);
       break;
-    }
-    case 4: {
-      ::bgs::protocol::presence::v1::QueryRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for PresenceService.Query server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method PresenceService.Query(bgs.protocol.presence.v1.QueryRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::presence::v1::QueryResponse::descriptor());
-        PresenceService* self = static_cast<PresenceService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method PresenceService.Query() returned bgs.protocol.presence.v1.QueryResponse{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::presence::v1::QueryResponse response;
-      uint32 status = HandleQuery(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
+    case 4:
+      ParseAndHandleQuery(token, methodId, buffer);
       break;
-    }
-    case 8: {
-      ::bgs::protocol::presence::v1::BatchSubscribeRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for PresenceService.BatchSubscribe server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method PresenceService.BatchSubscribe(bgs.protocol.presence.v1.BatchSubscribeRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::presence::v1::BatchSubscribeResponse::descriptor());
-        PresenceService* self = static_cast<PresenceService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method PresenceService.BatchSubscribe() returned bgs.protocol.presence.v1.BatchSubscribeResponse{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::presence::v1::BatchSubscribeResponse response;
-      uint32 status = HandleBatchSubscribe(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
+    case 8:
+      ParseAndHandleBatchSubscribe(token, methodId, buffer);
       break;
-    }
-    case 9: {
-      ::bgs::protocol::presence::v1::BatchUnsubscribeRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for PresenceService.BatchUnsubscribe server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method PresenceService.BatchUnsubscribe(bgs.protocol.presence.v1.BatchUnsubscribeRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
-        PresenceService* self = static_cast<PresenceService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method PresenceService.BatchUnsubscribe() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::NoData response;
-      uint32 status = HandleBatchUnsubscribe(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
+    case 9:
+      ParseAndHandleBatchUnsubscribe(token, methodId, buffer);
       break;
-    }
     default:
-      TC_LOG_ERROR("service.protobuf", "Bad method id %u.", methodId);
+      LogInvalidMethod(methodId);
       SendResponse(service_hash_, methodId, token, ERROR_RPC_INVALID_METHOD);
       break;
     }
 }
 
-uint32 PresenceService::HandleSubscribe(::bgs::protocol::presence::v1::SubscribeRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method PresenceService.Subscribe({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+uint32 PresenceService::HandleSubscribe(::bgs::protocol::presence::v1::SubscribeRequest const* request, ::bgs::protocol::NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("PresenceService.Subscribe", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 PresenceService::HandleUnsubscribe(::bgs::protocol::presence::v1::UnsubscribeRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method PresenceService.Unsubscribe({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+uint32 PresenceService::HandleUnsubscribe(::bgs::protocol::presence::v1::UnsubscribeRequest const* request, ::bgs::protocol::NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("PresenceService.Unsubscribe", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 PresenceService::HandleUpdate(::bgs::protocol::presence::v1::UpdateRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method PresenceService.Update({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+uint32 PresenceService::HandleUpdate(::bgs::protocol::presence::v1::UpdateRequest const* request, ::bgs::protocol::NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("PresenceService.Update", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 PresenceService::HandleQuery(::bgs::protocol::presence::v1::QueryRequest const* request, ::bgs::protocol::presence::v1::QueryResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method PresenceService.Query({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+uint32 PresenceService::HandleQuery(::bgs::protocol::presence::v1::QueryRequest const* request, ::bgs::protocol::presence::v1::QueryResponse* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("PresenceService.Query", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 PresenceService::HandleBatchSubscribe(::bgs::protocol::presence::v1::BatchSubscribeRequest const* request, ::bgs::protocol::presence::v1::BatchSubscribeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method PresenceService.BatchSubscribe({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+uint32 PresenceService::HandleBatchSubscribe(::bgs::protocol::presence::v1::BatchSubscribeRequest const* request, ::bgs::protocol::presence::v1::BatchSubscribeResponse* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("PresenceService.BatchSubscribe", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 PresenceService::HandleBatchUnsubscribe(::bgs::protocol::presence::v1::BatchUnsubscribeRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method PresenceService.BatchUnsubscribe({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+uint32 PresenceService::HandleBatchUnsubscribe(::bgs::protocol::presence::v1::BatchUnsubscribeRequest const* request, ::bgs::protocol::NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("PresenceService.BatchUnsubscribe", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
+}
+
+void PresenceService::ParseAndHandleSubscribe(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::presence::v1::SubscribeRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("PresenceService.Subscribe");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("PresenceService.Subscribe", "bgs.protocol.presence.v1.SubscribeRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "PresenceService.Subscribe", ::bgs::protocol::NoData::descriptor());
+  ::bgs::protocol::NoData response;
+  uint32 status = HandleSubscribe(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
+}
+
+void PresenceService::ParseAndHandleUnsubscribe(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::presence::v1::UnsubscribeRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("PresenceService.Unsubscribe");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("PresenceService.Unsubscribe", "bgs.protocol.presence.v1.UnsubscribeRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "PresenceService.Unsubscribe", ::bgs::protocol::NoData::descriptor());
+  ::bgs::protocol::NoData response;
+  uint32 status = HandleUnsubscribe(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
+}
+
+void PresenceService::ParseAndHandleUpdate(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::presence::v1::UpdateRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("PresenceService.Update");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("PresenceService.Update", "bgs.protocol.presence.v1.UpdateRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "PresenceService.Update", ::bgs::protocol::NoData::descriptor());
+  ::bgs::protocol::NoData response;
+  uint32 status = HandleUpdate(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
+}
+
+void PresenceService::ParseAndHandleQuery(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::presence::v1::QueryRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("PresenceService.Query");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("PresenceService.Query", "bgs.protocol.presence.v1.QueryRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "PresenceService.Query", ::bgs::protocol::presence::v1::QueryResponse::descriptor());
+  ::bgs::protocol::presence::v1::QueryResponse response;
+  uint32 status = HandleQuery(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
+}
+
+void PresenceService::ParseAndHandleBatchSubscribe(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::presence::v1::BatchSubscribeRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("PresenceService.BatchSubscribe");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("PresenceService.BatchSubscribe", "bgs.protocol.presence.v1.BatchSubscribeRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "PresenceService.BatchSubscribe", ::bgs::protocol::presence::v1::BatchSubscribeResponse::descriptor());
+  ::bgs::protocol::presence::v1::BatchSubscribeResponse response;
+  uint32 status = HandleBatchSubscribe(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
+}
+
+void PresenceService::ParseAndHandleBatchUnsubscribe(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::presence::v1::BatchUnsubscribeRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("PresenceService.BatchUnsubscribe");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("PresenceService.BatchUnsubscribe", "bgs.protocol.presence.v1.BatchUnsubscribeRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "PresenceService.BatchUnsubscribe", ::bgs::protocol::NoData::descriptor());
+  ::bgs::protocol::NoData response;
+  uint32 status = HandleBatchUnsubscribe(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
 }
 
 // @@protoc_insertion_point(namespace_scope)
