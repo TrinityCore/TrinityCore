@@ -42,6 +42,7 @@
 #include "World.h"
 #include "WorldSession.h"
 #include "WorldStateMgr.h"
+#include "MiscPackets.h"
 #include <cstdarg>
 
 #ifdef TRINITY_API_USE_DYNAMIC_LINKING
