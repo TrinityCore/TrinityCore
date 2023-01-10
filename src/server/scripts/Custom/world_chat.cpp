@@ -331,7 +331,7 @@ public:
 
     std::vector<ChatCommand> GetCommands() const override
     {
-        if (sConfigMgr->GetBoolDefault("WorldChat.Enable", true))
+        if (sConfigMgr->GetBoolDefault("WorldChat.Enable", true))   //预计为是否开启配置检查
         {
             static std::vector<ChatCommand> HandleWorldChatCommandTable =
             {
@@ -470,7 +470,7 @@ public:
 						sWorld->SendServerMessage(SERVER_MSG_STRING, msg.c_str(), plr);
 		}
 		else
-			sWorld->SendServerMessage(SERVER_MSG_STRING, msg.c_str(), 0);
+			sWorld->SendServerMessage(SERVER_MSG_STRING, msg.c_str(), 0);   //发送服务器信息,应该是最后一步
 
 		return true;
 	}
