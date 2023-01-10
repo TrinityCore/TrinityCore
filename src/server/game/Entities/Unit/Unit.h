@@ -19,13 +19,20 @@
 #define __UNIT_H
 
 #include "Object.h"
+#include "EventProcessor.h"
+//#include "FollowerReference.h"
+//#include "FollowerRefManager.h"
 #include "CombatManager.h"
+//#include "OptionalFwd.h"
 #include "FlatSet.h"
 #include "SpellAuraDefines.h"
+#include "SpellDefines.h"
 #include "ThreatManager.h"
+#include "TaskScheduler.h"
 #include "Timer.h"
 #include "UnitDefines.h"
 #include "Util.h"
+#include <boost/container/flat_set.hpp>
 #include <array>
 #include <map>
 #include <memory>
@@ -1562,7 +1569,25 @@ class TC_GAME_API Unit : public WorldObject
         uint32 m_baseAttackSpeed[MAX_ATTACK];
         float m_modAttackSpeedPct[MAX_ATTACK];
         uint32 m_attackTimer[MAX_ATTACK];
+        //AddDelayedEvent
+        void UpdateDelayedEventOperations(uint32 const diff);
 
+        /// Add timed delayed operation
+        /// @p_Timeout  : Delay time
+        /// @p_Function : Callback function
+        void AddDelayedEvent(uint32 timeout, std::function<void()>&& function)
+        {
+            emptyWarned = false;
+            timedDelayedOperations.push_back(std::pair<uint32, std::function<void()>>(timeout, function));
+        }
+
+        /// Called after last delayed operation was deleted
+        /// Do whatever you want
+        virtual void LastOperationCalled() { }
+
+        std::vector<std::pair<int32, std::function<void()>>>    timedDelayedOperations;   ///< Delayed operations
+        bool                                                    emptyWarned;              ///< Warning when there are no more delayed operations
+        //AddDelayedEvent
         // stat system
         void HandleStatFlatModifier(UnitMods unitMod, UnitModifierFlatType modifierType, float amount, bool apply);
         void ApplyStatPctModifier(UnitMods unitMod, UnitModifierPctType modifierType, float amount);
