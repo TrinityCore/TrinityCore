@@ -47,7 +47,7 @@
 #ifdef TRINITY_API_USE_DYNAMIC_LINKING
 #include "ScriptMgr.h"
 #endif
-#include "../../../../../hxsd/TrinityCoreBased/src/server/game/Server/Packets/MiscPackets.h"
+
 
 BossBoundaryData::~BossBoundaryData()
 {
