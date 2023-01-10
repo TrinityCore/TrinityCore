@@ -41,8 +41,8 @@ GossipMenu::GossipMenu()
 GossipMenu::~GossipMenu() = default;
 
 uint32 GossipMenu::AddMenuItem(int32 gossipOptionId, int32 orderIndex, GossipOptionNpc optionNpc, std::string optionText, uint32 language,
-    GossipOptionFlags flags, Optional<int32> gossipNpcOptionId, bool boxCoded, uint32 boxMoney, std::string boxText, Optional<int32> spellId,
-    Optional<int32> overrideIconId, uint32 sender, uint32 action)
+    GossipOptionFlags flags, Optional<int32> gossipNpcOptionId, uint32 actionMenuId, uint32 actionPoiId, bool boxCoded, uint32 boxMoney,
+    std::string boxText, Optional<int32> spellId, Optional<int32> overrideIconId, uint32 sender, uint32 action)
 {
     ASSERT(_menuItems.size() <= GOSSIP_MAX_MENU_ITEMS);
 
@@ -95,6 +95,8 @@ uint32 GossipMenu::AddMenuItem(int32 gossipOptionId, int32 orderIndex, GossipOpt
     menuItem.BoxText = std::move(boxText);
     menuItem.SpellID = spellId;
     menuItem.OverrideIconID = overrideIconId;
+    menuItem.ActionMenuID = actionMenuId;
+    menuItem.ActionPoiID = actionPoiId;
     menuItem.Sender = sender;
     menuItem.Action = action;
     return orderIndex;
@@ -159,16 +161,8 @@ void GossipMenu::AddMenuItem(GossipMenuItems const& menuItem, uint32 sender, uin
     }
 
     AddMenuItem(menuItem.GossipOptionID, menuItem.OrderIndex, menuItem.OptionNpc, std::move(strOptionText), menuItem.Language, menuItem.Flags,
-        menuItem.GossipNpcOptionID, menuItem.BoxCoded, menuItem.BoxMoney, std::move(strBoxText), menuItem.SpellID, menuItem.OverrideIconID, sender, action);
-    AddGossipMenuItemData(menuItem.OrderIndex, menuItem.ActionMenuID, menuItem.ActionPoiID);
-}
-
-void GossipMenu::AddGossipMenuItemData(uint32 menuItemId, uint32 gossipActionMenuId, uint32 gossipActionPoi)
-{
-    GossipMenuItem& menuItem = _menuItems[menuItemId];
-
-    menuItem.ActionMenuID = gossipActionMenuId;
-    menuItem.ActionPoiID  = gossipActionPoi;
+        menuItem.GossipNpcOptionID, menuItem.ActionMenuID, menuItem.ActionPoiID, menuItem.BoxCoded, menuItem.BoxMoney, std::move(strBoxText),
+        menuItem.SpellID, menuItem.OverrideIconID, sender, action);
 }
 
 GossipMenuItem const* GossipMenu::GetItem(int32 gossipOptionId) const
@@ -320,7 +314,7 @@ void PlayerMenu::SendPointOfInterest(uint32 id) const
     PointOfInterest const* pointOfInterest = sObjectMgr->GetPointOfInterest(id);
     if (!pointOfInterest)
     {
-        TC_LOG_ERROR("sql.sql", "Request to send non-existing PointOfInterest (Id: %u), ignored.", id);
+        TC_LOG_ERROR("sql.sql", "Request to send non-existing PointOfInterest (Id: {}), ignored.", id);
         return;
     }
 
@@ -427,7 +421,7 @@ void PlayerMenu::SendQuestGiverQuestListMessage(Object* questgiver)
     }
 
     _session->SendPacket(questList.Write());
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE NPC=%s", guid.ToString().c_str());
+    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE NPC={}", guid.ToString());
 }
 
 void PlayerMenu::SendQuestGiverStatus(QuestGiverStatus questStatus, ObjectGuid npcGUID) const
@@ -437,7 +431,7 @@ void PlayerMenu::SendQuestGiverStatus(QuestGiverStatus questStatus, ObjectGuid n
     packet.QuestGiver.Status = questStatus;
 
     _session->SendPacket(packet.Write());
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_STATUS NPC=%s, status=%u", npcGUID.ToString().c_str(), AsUnderlyingType(questStatus));
+    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_STATUS NPC={}, status={}", npcGUID.ToString(), AsUnderlyingType(questStatus));
 }
 
 void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGUID, bool autoLaunched, bool displayPopup) const
@@ -490,6 +484,10 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
     packet.QuestFlags[2] = quest->GetFlagsEx2();
     packet.SuggestedPartyMembers = quest->GetSuggestedPlayers();
 
+    // Is there a better way? what about game objects?
+    if (Creature const* creature = ObjectAccessor::GetCreature(*_session->GetPlayer(), npcGUID))
+        packet.QuestGiverCreatureID = creature->GetCreatureTemplate()->Entry;
+
     // RewardSpell can teach multiple spells in trigger spell effects. But not all effects must be SPELL_EFFECT_LEARN_SPELL. See example spell 33950
     if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(quest->GetRewSpell(), DIFFICULTY_NONE))
         for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
@@ -517,7 +515,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
 
     _session->SendPacket(packet.Write());
 
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_GIVER_QUEST_DETAILS NPC=%s, questid=%u", npcGUID.ToString().c_str(), quest->GetQuestId());
+    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_GIVER_QUEST_DETAILS NPC={}, questid={}", npcGUID.ToString(), quest->GetQuestId());
 }
 
 void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
@@ -530,7 +528,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
         _session->SendPacket(&queryPacket);
     }
 
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_QUERY_RESPONSE questid=%u", quest->GetQuestId());
+    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_QUERY_RESPONSE questid={}", quest->GetQuestId());
 }
 
 void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUID, bool autoLaunched) const
@@ -575,7 +573,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     // Is there a better way? what about game objects?
     if (Creature const* creature = ObjectAccessor::GetCreature(*_session->GetPlayer(), npcGUID))
     {
-        packet.QuestGiverCreatureID = creature->GetEntry();
+        packet.QuestGiverCreatureID = creature->GetCreatureTemplate()->Entry;
         offer.QuestGiverCreatureID = creature->GetCreatureTemplate()->Entry;
     }
 
@@ -597,7 +595,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     packet.QuestPackageID = quest->GetQuestPackageID();
 
     _session->SendPacket(packet.Write());
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_OFFER_REWARD NPC=%s, questid=%u", npcGUID.ToString().c_str(), quest->GetQuestId());
+    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_OFFER_REWARD NPC={}, questid={}", npcGUID.ToString(), quest->GetQuestId());
 }
 
 void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGUID, bool canComplete, bool autoLaunched) const
@@ -683,5 +681,5 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
     packet.AutoLaunched = autoLaunched;
 
     _session->SendPacket(packet.Write());
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_REQUEST_ITEMS NPC=%s, questid=%u", npcGUID.ToString().c_str(), quest->GetQuestId());
+    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_REQUEST_ITEMS NPC={}, questid={}", npcGUID.ToString(), quest->GetQuestId());
 }

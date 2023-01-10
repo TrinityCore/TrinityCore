@@ -48,6 +48,10 @@ class TC_PROTO_API ClubListener : public ServiceBase
  public:
 
   explicit ClubListener(bool use_original_hash);
+  ClubListener(ClubListener const&) = delete;
+  ClubListener(ClubListener&&) = delete;
+  ClubListener& operator=(ClubListener const&) = delete;
+  ClubListener& operator=(ClubListener&&) = delete;
   virtual ~ClubListener();
 
   typedef std::integral_constant<uint32, 0x80909D73u> OriginalHash;
@@ -79,11 +83,6 @@ class TC_PROTO_API ClubListener : public ServiceBase
   void OnStreamAdvanceViewTime(::bgs::protocol::club::v1::StreamAdvanceViewTimeNotification const* request, bool client = false, bool server = false);
 
   void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) final;
-
- private:
-  uint32 service_hash_;
-
-  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(ClubListener);
 };
 
 // ===================================================================

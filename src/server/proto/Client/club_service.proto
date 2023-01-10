@@ -3,7 +3,7 @@ syntax = "proto2";
 import "club_request.proto";
 package bgs.protocol.club.v1;
 
-option optimize_for = SPEED;
+option optimize_for = CODE_SIZE;
 option cc_generic_services = false;
 
 service ClubService {

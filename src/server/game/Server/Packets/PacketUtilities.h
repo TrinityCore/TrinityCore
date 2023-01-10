@@ -21,7 +21,7 @@
 #include "ByteBuffer.h"
 #include "Duration.h"
 #include "Tuples.h"
-#include <boost/container/static_vector.hpp>
+#include <short_alloc/short_alloc.h>
 #include <string_view>
 #include <ctime>
 
@@ -133,24 +133,49 @@ namespace WorldPackets
     /**
      * Utility class for automated prevention of loop counter spoofing in client packets
      */
-    template<typename T, std::size_t N, typename Container = boost::container::static_vector<T, N>>
+    template<typename T, std::size_t N>
     class Array
     {
     public:
-        typedef Container storage_type;
+        using allocator_type = short_alloc::short_alloc<T, (N * sizeof(T) + (alignof(std::max_align_t) - 1)) & ~(alignof(std::max_align_t) - 1)>;
+        using arena_type = typename allocator_type::arena_type;
 
-        typedef std::integral_constant<std::size_t, N> max_capacity;
+        using storage_type = std::vector<T, allocator_type>;
 
-        typedef typename storage_type::value_type value_type;
-        typedef typename storage_type::size_type size_type;
-        typedef typename storage_type::pointer pointer;
-        typedef typename storage_type::const_pointer const_pointer;
-        typedef typename storage_type::reference reference;
-        typedef typename storage_type::const_reference const_reference;
-        typedef typename storage_type::iterator iterator;
-        typedef typename storage_type::const_iterator const_iterator;
+        using max_capacity = std::integral_constant<std::size_t, N>;
 
-        Array() { }
+        using value_type = typename storage_type::value_type;
+        using size_type = typename storage_type::size_type;
+        using pointer = typename storage_type::pointer;
+        using const_pointer = typename storage_type::const_pointer;
+        using reference = typename storage_type::reference;
+        using const_reference = typename storage_type::const_reference;
+        using iterator = typename storage_type::iterator;
+        using const_iterator = typename storage_type::const_iterator;
+
+        Array() : _storage(_data) { }
+
+        Array(Array const& other) : Array()
+        {
+            for (T const& element : other)
+                _storage.push_back(element);
+        }
+
+        Array(Array&& other) noexcept = delete;
+
+        Array& operator=(Array const& other)
+        {
+            if (this == &other)
+                return *this;
+
+            _storage.clear();
+            for (T const& element : other)
+                _storage.push_back(element);
+
+            return *this;
+        }
+
+        Array& operator=(Array&& other) noexcept = delete;
 
         iterator begin() { return _storage.begin(); }
         const_iterator begin() const { return _storage.begin(); }
@@ -209,6 +234,7 @@ namespace WorldPackets
         }
 
     private:
+        arena_type _data;
         storage_type _storage;
     };
 

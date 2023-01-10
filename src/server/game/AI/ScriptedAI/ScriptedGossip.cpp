@@ -42,13 +42,13 @@ void ClearGossipMenuFor(Player* player)
 // Using provided text, not from DB
 void AddGossipItemFor(Player* player, GossipOptionNpc optionNpc, std::string text, uint32 sender, uint32 action)
 {
-    player->PlayerTalkClass->GetGossipMenu().AddMenuItem(0, -1, optionNpc, std::move(text), 0, GossipOptionFlags::None, {}, false, 0, "", {}, {}, sender, action);
+    player->PlayerTalkClass->GetGossipMenu().AddMenuItem(0, -1, optionNpc, std::move(text), 0, GossipOptionFlags::None, {}, 0, 0, false, 0, "", {}, {}, sender, action);
 }
 
 // Using provided texts, not from DB
 void AddGossipItemFor(Player* player, GossipOptionNpc optionNpc, std::string text, uint32 sender, uint32 action, std::string popupText, uint32 popupMoney, bool coded)
 {
-    player->PlayerTalkClass->GetGossipMenu().AddMenuItem(0, -1, optionNpc, std::move(text), 0, GossipOptionFlags::None, {}, coded, popupMoney, std::move(popupText), {}, {}, sender, action);
+    player->PlayerTalkClass->GetGossipMenu().AddMenuItem(0, -1, optionNpc, std::move(text), 0, GossipOptionFlags::None, {}, 0, 0, coded, popupMoney, std::move(popupText), {}, {}, sender, action);
 }
 
 // Uses gossip item info from DB

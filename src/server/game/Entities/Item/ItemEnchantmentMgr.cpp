@@ -60,13 +60,13 @@ void LoadItemRandomBonusListTemplates()
 
             if (!sDB2Manager.GetItemBonusList(bonusListId))
             {
-                TC_LOG_ERROR("sql.sql", "Bonus list %d used in `item_random_bonus_list_template` by id %u doesn't have exist in ItemBonus.db2", bonusListId, id);
+                TC_LOG_ERROR("sql.sql", "Bonus list {} used in `item_random_bonus_list_template` by id {} doesn't have exist in ItemBonus.db2", bonusListId, id);
                 continue;
             }
 
             if (chance < 0.000001f || chance > 100.0f)
             {
-                TC_LOG_ERROR("sql.sql", "Bonus list %d used in `item_random_bonus_list_template` by id %u has invalid chance %f", bonusListId, id, chance);
+                TC_LOG_ERROR("sql.sql", "Bonus list {} used in `item_random_bonus_list_template` by id {} has invalid chance {}", bonusListId, id, chance);
                 continue;
             }
 
@@ -77,7 +77,7 @@ void LoadItemRandomBonusListTemplates()
             ++count;
         } while (result->NextRow());
 
-        TC_LOG_INFO("server.loading", ">> Loaded %u Random item bonus list definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        TC_LOG_INFO("server.loading", ">> Loaded {} Random item bonus list definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
     else
         TC_LOG_INFO("server.loading", ">> Loaded 0 Random item bonus list definitions. DB table `item_random_bonus_list_template` is empty.");
@@ -96,7 +96,7 @@ ItemRandomBonusListId GenerateItemRandomBonusListId(uint32 item_id)
     auto tab = _storage.find(itemProto->RandomBonusListTemplateId);
     if (tab == _storage.end())
     {
-        TC_LOG_ERROR("sql.sql", "Item RandomBonusListTemplateId id #%u used in `item_template_addon` but it does not have records in `item_random_bonus_list_template` table.", itemProto->RandomBonusListTemplateId);
+        TC_LOG_ERROR("sql.sql", "Item RandomBonusListTemplateId id #{} used in `item_template_addon` but it does not have records in `item_random_bonus_list_template` table.", itemProto->RandomBonusListTemplateId);
         return 0;
     }
 

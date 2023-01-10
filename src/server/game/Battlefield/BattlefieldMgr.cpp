@@ -60,7 +60,7 @@ void BattlefieldMgr::InitBattlefield()
 
             if (typeId >= BATTLEFIELD_MAX)
             {
-                TC_LOG_ERROR("sql.sql", "BattlefieldMgr::InitBattlefield: Invalid TypeId value %u in battlefield_template, skipped.", typeId);
+                TC_LOG_ERROR("sql.sql", "BattlefieldMgr::InitBattlefield: Invalid TypeId value {} in battlefield_template, skipped.", typeId);
                 continue;
             }
 
@@ -70,7 +70,7 @@ void BattlefieldMgr::InitBattlefield()
         } while (result->NextRow());
     }
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u battlefields in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} battlefields in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void BattlefieldMgr::CreateBattlefieldsForMap(Map* map)
@@ -89,12 +89,12 @@ void BattlefieldMgr::CreateBattlefieldsForMap(Map* map)
 
         if (!bf->SetupBattlefield())
         {
-            TC_LOG_INFO("bg.battlefield", "Setting up battlefield with TypeId %u on map %u instance id %u failed.", i, map->GetId(), map->GetInstanceId());
+            TC_LOG_INFO("bg.battlefield", "Setting up battlefield with TypeId {} on map {} instance id {} failed.", i, map->GetId(), map->GetInstanceId());
             delete bf;
         }
 
         _battlefieldsByMap[map].emplace_back(bf);
-        TC_LOG_INFO("bg.battlefield", "Setting up battlefield with TypeId %u on map %u instance id %u succeeded.", i, map->GetId(), map->GetInstanceId());
+        TC_LOG_INFO("bg.battlefield", "Setting up battlefield with TypeId {} on map {} instance id {} succeeded.", i, map->GetId(), map->GetInstanceId());
     }
 }
 
@@ -119,7 +119,7 @@ void BattlefieldMgr::HandlePlayerEnterZone(Player* player, uint32 zoneId)
         return;
 
     bf->HandlePlayerEnterZone(player, zoneId);
-    TC_LOG_DEBUG("bg.battlefield", "Player %s entered battlefield id %u", player->GetGUID().ToString().c_str(), bf->GetTypeId());
+    TC_LOG_DEBUG("bg.battlefield", "Player {} entered battlefield id {}", player->GetGUID().ToString(), bf->GetTypeId());
 }
 
 void BattlefieldMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneId)
@@ -133,7 +133,7 @@ void BattlefieldMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneId)
         return;
 
     itr->second->HandlePlayerLeaveZone(player, zoneId);
-    TC_LOG_DEBUG("bg.battlefield", "Player %s left battlefield id %u", player->GetGUID().ToString().c_str(), itr->second->GetTypeId());
+    TC_LOG_DEBUG("bg.battlefield", "Player {} left battlefield id {}", player->GetGUID().ToString(), itr->second->GetTypeId());
 }
 
 bool BattlefieldMgr::IsWorldPvpArea(uint32 zoneId) const

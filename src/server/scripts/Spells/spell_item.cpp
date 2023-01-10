@@ -1208,7 +1208,7 @@ class spell_item_flask_of_the_north : public SpellScript
 
         if (possibleSpells.empty())
         {
-            TC_LOG_WARN("spells", "Missing spells for class %u in script spell_item_flask_of_the_north", caster->GetClass());
+            TC_LOG_WARN("spells", "Missing spells for class {} in script spell_item_flask_of_the_north", caster->GetClass());
             return;
         }
 

@@ -62,7 +62,7 @@ ByteBuffer& operator<<(ByteBuffer& data, ClientGossipOptions const& gossipOption
     if (gossipOption.SpellID)
         data << int32(*gossipOption.SpellID);
 
-    if (*gossipOption.OverrideIconID)
+    if (gossipOption.OverrideIconID)
         data << int32(*gossipOption.OverrideIconID);
 
     return data;

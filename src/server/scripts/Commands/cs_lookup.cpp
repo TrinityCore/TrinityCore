@@ -904,8 +904,7 @@ public:
                         uint32 permValue = target->GetSkillPermBonusValue(id);
                         uint32 tempValue = target->GetSkillTempBonusValue(id);
 
-                        char const* valFormat = handler->GetTrinityString(LANG_SKILL_VALUES);
-                        valStr = Trinity::StringFormat(valFormat, curValue, maxValue, permValue, tempValue);
+                        valStr = handler->PGetParseString(LANG_SKILL_VALUES, curValue, maxValue, permValue, tempValue);
                     }
 
                     // send skill in "id - [namedlink locale]" format
@@ -1289,7 +1288,7 @@ public:
                             ? handler->GetTrinityString(LANG_ACTIVE)
                             : "";
 
-                        std::string titleNameStr = Trinity::StringFormat(name.c_str(), targetName);
+                        std::string titleNameStr = fmt::sprintf(name, targetName);
 
                         // send title in "id (idx:idx) - [namedlink locale]" format
                         if (handler->GetSession())

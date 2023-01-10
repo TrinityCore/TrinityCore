@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "DB2Stores.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
@@ -301,7 +302,7 @@ class boss_halion : public CreatureScript
                 if (events.IsInPhase(PHASE_THREE))
                 {
                     // Don't consider copied damage.
-                    if (!attacker || !me->IsInPhase(attacker))
+                    if (!attacker || !me->InSamePhase(attacker))
                         return;
 
                     if (Creature* controller = instance->GetCreature(DATA_HALION_CONTROLLER))
@@ -485,7 +486,7 @@ class boss_twilight_halion : public CreatureScript
                 if (events.IsInPhase(PHASE_THREE))
                 {
                     // Don't consider copied damage.
-                    if (!attacker || !me->IsInPhase(attacker))
+                    if (!attacker || !me->InSamePhase(attacker))
                         return;
 
                     if (Creature* controller = instance->GetCreature(DATA_HALION_CONTROLLER))

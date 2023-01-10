@@ -23,7 +23,6 @@
 #include "Object.h"
 #include "SpellAuraDefines.h"
 #include "SpellDefines.h"
-#include <boost/container/flat_set.hpp>
 #include <bitset>
 
 class AuraEffect;
@@ -210,26 +209,6 @@ private:
     static std::array<StaticData, TOTAL_SPELL_TARGETS> _data;
 };
 
-struct TC_GAME_API ImmunityInfo
-{
-    ImmunityInfo();
-    ~ImmunityInfo();
-
-    ImmunityInfo(ImmunityInfo const&);
-    ImmunityInfo(ImmunityInfo&&) noexcept;
-    ImmunityInfo& operator=(ImmunityInfo const&);
-    ImmunityInfo& operator=(ImmunityInfo&&) noexcept;
-
-    uint32 SchoolImmuneMask = 0;
-    uint32 ApplyHarmfulAuraImmuneMask = 0;
-    uint64 MechanicImmuneMask = 0;
-    uint32 DispelImmune = 0;
-    uint32 DamageSchoolMask = 0;
-
-    boost::container::flat_set<AuraType> AuraTypeImmune;
-    boost::container::flat_set<SpellEffectName> SpellEffectImmune;
-};
-
 class TC_GAME_API SpellEffectInfo
 {
     friend class SpellInfo;
@@ -273,10 +252,9 @@ public:
     explicit SpellEffectInfo(SpellInfo const* spellInfo, SpellEffectEntry const& effect);
     SpellEffectInfo(SpellEffectInfo const&);
     SpellEffectInfo(SpellEffectInfo&&) noexcept;
-    ~SpellEffectInfo();
-
     SpellEffectInfo& operator=(SpellEffectInfo const&);
     SpellEffectInfo& operator=(SpellEffectInfo&&) noexcept;
+    ~SpellEffectInfo();
 
     bool IsEffect() const;
     bool IsEffect(SpellEffectName effectName) const;
@@ -302,7 +280,8 @@ public:
     SpellTargetObjectTypes GetUsedTargetObjectType() const;
     ExpectedStatType GetScalingExpectedStat() const;
 
-    ImmunityInfo const& GetImmunityInfo() const { return _immunityInfo; }
+    struct ImmunityInfo;
+    ImmunityInfo const* GetImmunityInfo() const { return _immunityInfo; }
 
 private:
     struct StaticData
@@ -315,7 +294,7 @@ private:
     };
     static std::array<StaticData, TOTAL_SPELL_EFFECTS> _data;
 
-    ImmunityInfo _immunityInfo;
+    ImmunityInfo* _immunityInfo;
 };
 
 typedef std::vector<SpellXSpellVisualEntry const*> SpellVisualVector;

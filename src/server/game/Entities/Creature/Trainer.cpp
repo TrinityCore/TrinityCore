@@ -55,7 +55,7 @@ namespace Trainer
 
             if (!sConditionMgr->IsObjectMeetingTrainerSpellConditions(_id, trainerSpell.SpellId, player))
             {
-                TC_LOG_DEBUG("condition", "SendSpells: conditions not met for trainer id %u spell %u player '%s' (%s)", _id, trainerSpell.SpellId, player->GetName().c_str(), player->GetGUID().ToString().c_str());
+                TC_LOG_DEBUG("condition", "SendSpells: conditions not met for trainer id {} spell {} player '{}' ({})", _id, trainerSpell.SpellId, player->GetName(), player->GetGUID().ToString());
                 continue;
             }
 

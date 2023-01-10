@@ -111,7 +111,7 @@ void LoadHelper(CellGuidSet const& guid_set, CellCoord& cell, GridRefManager<T>&
             continue;
 
         T* obj = new T;
-        //TC_LOG_INFO("misc", "DEBUG: LoadHelper from table: %s for (guid: " UI64FMTD ") Loading", table, guid);
+        //TC_LOG_INFO("misc", "DEBUG: LoadHelper from table: {} for (guid: {}) Loading", table, guid);
         if (!obj->LoadFromDB(guid, map, false, phaseOwner.has_value() /*allowDuplicate*/))
         {
             delete obj;
@@ -194,7 +194,7 @@ void ObjectGridLoader::LoadN(void)
             }
         }
     }
-    TC_LOG_DEBUG("maps", "%u GameObjects, %u Creatures, %u AreaTrriggers, and %u Corpses/Bones loaded for grid %u on map %u",
+    TC_LOG_DEBUG("maps", "{} GameObjects, {} Creatures, {} AreaTrriggers, and {} Corpses/Bones loaded for grid {} on map {}",
         i_gameObjects, i_creatures, i_areaTriggers, i_corpses, i_grid.GetGridId(), i_map->GetId());
 }
 

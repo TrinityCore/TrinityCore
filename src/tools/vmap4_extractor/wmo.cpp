@@ -116,7 +116,7 @@ bool WMORoot::open()
                 if (!DoodadData.FileDataIds[i])
                     continue;
 
-                std::string path = Trinity::StringFormat("FILE%08X.xxx", DoodadData.FileDataIds[i]);
+                std::string path = Trinity::StringFormat("FILE{:08X}.xxx", DoodadData.FileDataIds[i]);
                 if (ExtractSingleModel(path))
                     ValidDoodadNames.insert(i);
             }
