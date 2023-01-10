@@ -743,8 +743,8 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
 }
 
 // copy paste from ClearChangesMask
-template<typename Derived, typename T, uint32 BlockBit, uint32 Bit>
-static uint32 GetUpdateFieldHolderIndex(UF::UpdateField<T, BlockBit, Bit>(Derived::* /*field*/))
+template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
+static auto GetUpdateFieldHolderIndex(UF::UpdateField<T, BlockBit, Bit>(Derived::* /*field*/))
 {
     return Bit;
 }
