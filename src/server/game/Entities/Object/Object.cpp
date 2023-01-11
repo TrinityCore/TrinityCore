@@ -1985,31 +1985,44 @@ Scenario* WorldObject::GetScenario() const
     return nullptr;
 }
 
-//旧的模板
-TempSummon* WorldObject::SummonCreature(uint32 entry, Position const& pos, TempSummonType despawnType /*= TEMPSUMMON_MANUAL_DESPAWN*/, uint32 despawnTime /*= 0*/, uint32 vehId /*= 0*/, ObjectGuid privateObjectOwner /* = ObjectGuid::Empty */)
-{
-    if (Map* map = FindMap())
-    {
-        if (TempSummon* summon = map->SummonCreature(entry, pos, nullptr, despawnTime, ToUnit(), 0, vehId, privateObjectOwner))
-        {
-            summon->SetTempSummonType(despawnType);
-            return summon;
-        }
-    }
+////旧的模板
+//
+////测试                          参数数量   1                   2                               3                                                     4               5                                    6                   
+////6参数
+//TempSummon* WorldObject::SummonCreature(uint32 entry, Position const& pos, TempSummonType despawnType /*= TEMPSUMMON_MANUAL_DESPAWN*/, uint32 despawnTime /*= 0*/, uint32 vehId /*= 0*/, ObjectGuid privateObjectOwner /* = ObjectGuid::Empty */)   //6参数
+//{
+//    if (Map* map = FindMap())
+//    {
+//        if (TempSummon* summon = map->SummonCreature(entry, pos, nullptr, despawnTime, ToUnit(), 0, vehId, privateObjectOwner))
+//        {
+//            summon->SetTempSummonType(despawnType);
+//            return summon;
+//        }
+//    }
+//
+//    return nullptr;
+//}
+////测试                          参数数量   1           2       3       4            5                            6                                              7                             8
+////8参数                                                                                                                       TempSummonType despawnType /*= TEMPSUMMON_MANUAL_DESPAWN*/
+////Creature* npc = player->SummonCreature(8000000,player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, minutesforassist * 60000);   //7参数
+////                                          id         float x              float y                 float z           float o /*= 0*/                   uint32 despawnTime /*= 0*/
+//TempSummon* WorldObject::SummonCreature(uint32 id, float x, float y, float z, float o /*= 0*/, TempSummonType despawnType /*= TEMPSUMMON_MANUAL_DESPAWN*/, uint32 despawnTime /*= 0*/, ObjectGuid privateObjectOwner /* = ObjectGuid::Empty */)         //8参数
+//{
+//    if (!x && !y && !z)
+//        GetClosePoint(x, y, z, GetCombatReach());
+//    if (!o)
+//        o = GetOrientation();
+//    return SummonCreature(id, { x,y,z,o }, despawnType, despawnTime, 0, privateObjectOwner);
+//}
 
-    return nullptr;
-}
-
-TempSummon* WorldObject::SummonCreature(uint32 id, float x, float y, float z, float o /*= 0*/, TempSummonType despawnType /*= TEMPSUMMON_MANUAL_DESPAWN*/, uint32 despawnTime /*= 0*/, ObjectGuid privateObjectOwner /* = ObjectGuid::Empty */)
-{
-    if (!x && !y && !z)
-        GetClosePoint(x, y, z, GetCombatReach());
-    if (!o)
-        o = GetOrientation();
-    return SummonCreature(id, { x,y,z,o }, despawnType, despawnTime, 0, privateObjectOwner);
-}
-
-TempSummon* WorldObject::SummonCreature(uint32 entry, Position const& pos, TempSummonType despawnType /*= TEMPSUMMON_MANUAL_DESPAWN*/, Milliseconds despawnTime /*= 0s*/, uint32 vehId /*= 0*/, uint32 spellId /*= 0*/, ObjectGuid privateObjectOwner /* = ObjectGuid::Empty */)
+//测试                          参数数量   1              2                       3                       4               5               6                   7
+//Creature* npc = player->SummonCreature(8000000, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, minutesforassist * 60000);   //7参数
+//7参数
+//结论:预计不是这个                                           这里需要的是指针
+//Creature* npc = player->SummonCreature(8000000,     player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, minutesforassist * 60000);   //7参数
+TempSummon* WorldObject::SummonCreature(uint32 entry, Position const& pos, TempSummonType despawnType /*= TEMPSUMMON_MANUAL_DESPAWN*/, Milliseconds despawnTime /*= 0s*/, uint32 vehId /*= 0*/, uint32 spellId /*= 0*/, ObjectGuid privateObjectOwner /* = ObjectGuid::Empty */)    //7参数
+//测试                         参数数量      1                 2                            3                                                 4                                 5                            6                                          7                           //7参数
+//7参数
 {
     if (Map* map = FindMap())
     {
@@ -2023,7 +2036,9 @@ TempSummon* WorldObject::SummonCreature(uint32 entry, Position const& pos, TempS
     return nullptr;
 }
 
-TempSummon* WorldObject::SummonCreature(uint32 id, float x, float y, float z, float o /*= 0*/, TempSummonType despawnType /*= TEMPSUMMON_MANUAL_DESPAWN*/, Milliseconds despawnTime /*= 0s*/, ObjectGuid privateObjectOwner /* = ObjectGuid::Empty */)
+//测试                         参数数量      1        2         3       4       5                            6                                                        7                             8                                                   //8参数
+//8参数
+TempSummon* WorldObject::SummonCreature(uint32 id, float x, float y, float z, float o /*= 0*/, TempSummonType despawnType /*= TEMPSUMMON_MANUAL_DESPAWN*/, Milliseconds despawnTime /*= 0s*/, ObjectGuid privateObjectOwner /* = ObjectGuid::Empty */)  //8参数
 {
     if (!x && !y && !z)
         GetClosePoint(x, y, z, GetCombatReach());

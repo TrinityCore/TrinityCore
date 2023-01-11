@@ -66,8 +66,10 @@ public:
             {
                 // summon guardian angel for a while
                 uint32 minutesforassist = sConfigMgr->GetIntDefault("GuardianAngel.Minutes.For.Assist", 1);
-               // Creature* npc = player->SummonCreature(8000000, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, minutesforassist * 60000);
+                TempSummon* npc = player->SummonCreature(8000000, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, minutesforassist * 60000, ObjectGuid::Empty);//ObjectGuid privateObjectOwner /* = ObjectGuid::Empty */
+                                                                                                                                                                                            //, ObjectGuid::Empty
                 //此处临时注释
+                //此处是大问题,参数不匹配,新增旧模板,但是不起作用
             }
 
         }
@@ -112,74 +114,74 @@ struct GuardianAngel : public ScriptedAI
 {
     GuardianAngel(Creature* creature) : ScriptedAI(creature) { }
     //开始-此处为出错,解决不了,后注释的
-    //void IsSummonedBy(Unit* summoner)  override   //<--临时注释 "// override" 原本应为override
-    //{
-    //    if (Player* player = summoner->ToPlayer())
-    //    {
-    //        // npc whisper player
-    //        me->Whisper("Hold on! I'll help you!", LANG_UNIVERSAL, player);
-    //        me->CastSpell(me, 321425); // electro jump
+    void IsSummonedBy(Unit* summoner)  //override   //<--临时注释 "// override" 原本应为override
+    {
+        if (Player* player = summoner->ToPlayer())
+        {
+            // npc whisper player
+            me->Whisper("Hold on! I'll help you!", LANG_UNIVERSAL, player);
+            me->CastSpell(me, 321425); // electro jump
 
-    //        if (!player->IsAlive())  // if player is dead angel will ress and heal
-    //        {
-    //            me->AddDelayedEvent(4000, [this, player]() -> void
-    //                {
-    //                    player->ResurrectPlayer(0.3f);
-    //                    me->CastSpell(player, 345201); // guardian angel - healing for 60% and does aoe dmg
-    //                });
+            if (!player->IsAlive())  // if player is dead angel will ress and heal
+            {
+                me->AddDelayedEvent(4000, [this, player]() -> void
+                    {
+                        player->ResurrectPlayer(0.3f);
+                        me->CastSpell(player, 345201); // guardian angel - healing for 60% and does aoe dmg
+                    });
 
-    //            me->AddDelayedEvent(8000, [this, player]() -> void
-    //                {
-    //                    player->CastSpell(player, 345323, true); // 100% crit for 30sec
-    //                    me->CastSpell(player, 287419, true); // angelic reneval - healing full hp
+                me->AddDelayedEvent(8000, [this, player]() -> void
+                    {
+                        player->CastSpell(player, 345323, true); // 100% crit for 30sec
+                        me->CastSpell(player, 287419, true); // angelic reneval - healing full hp
 
-    //                    // add generic phase if player is on exile reach
-    //                    if (player->GetMapId() == 2175)
-    //                        if (!player->GetPhaseShift().HasPhase(12940))
-    //                            PhasingHandler::AddPhase(player, 12940);
-    //                });
+                        // add generic phase if player is on exile reach
+                        if (player->GetMapId() == 2175)
+                            if (!player->GetPhaseShift().HasPhase(12940))
+                                PhasingHandler::AddPhase(player, 12940);
+                    });
 
-    //            me->AddDelayedEvent(12000, [this, player]() -> void
-    //                {
-    //                    me->CastSpell(player, 325326, true); // ascended eruption - healing+aoedmg
-    //                });
-    //            me->AddDelayedEvent(13000, [this, player]() -> void
-    //                {
-    //                    me->CastSpell(player, 325326, true); // ascended eruption - healing+aoedmg
-    //                });
-    //            me->AddDelayedEvent(14000, [this, player]() -> void
-    //                {
-    //                    me->CastSpell(player, 325326, true); // ascended eruption - healing+aoedmg
-    //                });
-    //        }
-    //        else  // if player is alive angel will heal
-    //        {
-    //            me->CastSpell(player, 345201); // guardian angel - healing for 60% and does aoe dmg
+                me->AddDelayedEvent(12000, [this, player]() -> void
+                    {
+                        me->CastSpell(player, 325326, true); // ascended eruption - healing+aoedmg
+                    });
+                me->AddDelayedEvent(13000, [this, player]() -> void
+                    {
+                        me->CastSpell(player, 325326, true); // ascended eruption - healing+aoedmg
+                    });
+                me->AddDelayedEvent(14000, [this, player]() -> void
+                    {
+                        me->CastSpell(player, 325326, true); // ascended eruption - healing+aoedmg
+                    });
+            }
+            else  // if player is alive angel will heal
+            {
+                me->CastSpell(player, 345201); // guardian angel - healing for 60% and does aoe dmg
 
-    //            me->AddDelayedEvent(3000, [this, player]() -> void
-    //                {
-    //                    me->CastSpell(player, 345201, true); // guardian angel - healing for 60% and does aoe dmg
-    //                });
-    //            me->AddDelayedEvent(6000, [this, player]() -> void
-    //                {
-    //                    me->CastSpell(player, 345201, true); // guardian angel - healing for 60% and does aoe dmg
-    //                });
-    //            me->AddDelayedEvent(9000, [this, player]() -> void
-    //                {
-    //                    me->CastSpell(player, 345201, true); // guardian angel - healing for 60% and does aoe dmg
-    //                });
+                me->AddDelayedEvent(3000, [this, player]() -> void
+                    {
+                        me->CastSpell(player, 345201, true); // guardian angel - healing for 60% and does aoe dmg
+                    });
+                me->AddDelayedEvent(6000, [this, player]() -> void
+                    {
+                        me->CastSpell(player, 345201, true); // guardian angel - healing for 60% and does aoe dmg
+                    });
+                me->AddDelayedEvent(9000, [this, player]() -> void
+                    {
+                        me->CastSpell(player, 345201, true); // guardian angel - healing for 60% and does aoe dmg
+                    });
 
-    //            me->AddDelayedEvent(10000, [this, player]() -> void
-    //                {
-    //                    me->ForcedDespawn();
-    //                });
-    //        }
+                me->AddDelayedEvent(10000, [this, player]() -> void
+                    {
+                        me->ForcedDespawn();
+                    });
+            }
 
-    //    }
-    //}
+        }
+    }
     //结束-此处为出错,解决不了,后注释的
-    /*
-
+  
+        /*
         void OwnerAttacked(Unit* target)
         {
             if (Player* player = me->GetOwner()->ToPlayer())
@@ -215,52 +217,52 @@ struct GuardianAngel : public ScriptedAI
                 break;
             }
         }
-
-    */
+ */
+    
 //开始-此处为出错,解决不了,后注释的
-    //bool GossipHello(Player* player) override
-    //{
-    //    ClearGossipMenuFor(player);
-    //    AddGossipItemFor(player, GOSSIP_ICON_TALK, "Heal pls!", GOSSIP_SENDER_MAIN, 0);
-    //    AddGossipItemFor(player, GOSSIP_ICON_TALK, "Did you bring some food?", GOSSIP_SENDER_MAIN, 1);
-    //    AddGossipItemFor(player, GOSSIP_ICON_TALK, "Can you repair my armor?", GOSSIP_SENDER_MAIN, 2);
-    //    AddGossipItemFor(player, GOSSIP_ICON_TALK, "Follow me!", GOSSIP_SENDER_MAIN, 3);
-    //    SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, me->GetGUID());
-    //    return true;
-    //}
+    bool GossipHello(Player* player) // override
+    {
+        ClearGossipMenuFor(player);
+        AddGossipItemFor(player, GOSSIP_ICON_TALK, "Heal pls!", GOSSIP_SENDER_MAIN, 0);
+        AddGossipItemFor(player, GOSSIP_ICON_TALK, "Did you bring some food?", GOSSIP_SENDER_MAIN, 1);
+        AddGossipItemFor(player, GOSSIP_ICON_TALK, "Can you repair my armor?", GOSSIP_SENDER_MAIN, 2);
+        AddGossipItemFor(player, GOSSIP_ICON_TALK, "Follow me!", GOSSIP_SENDER_MAIN, 3);
+        SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, me->GetGUID());
+        return true;
+    }
 
-    //bool GossipSelect(Player* player, uint32 sender, uint32 action) override
-    //{
-    //    switch (action)
-    //    {
-    //    case 0:
+    bool GossipSelect(Player* player, uint32 sender, uint32 action) //override
+    {
+        switch (action)
+        {
+        case 0:
 
-    //        me->CastSpell(me, 325326, true); // just for the effect
-    //        player->CastSpell(player, 287419, true); // angelic reneval - healing full hp
+            me->CastSpell(me, 325326, true); // just for the effect
+            player->CastSpell(player, 287419, true); // angelic reneval - healing full hp
 
-    //        CloseGossipMenuFor(player);
-    //        break;
-    //    case 1:
-    //        player->CastSpell(player, 304971, true);
-    //        player->AddItem(80610, 5);
+            CloseGossipMenuFor(player);
+            break;
+        case 1:
+            player->CastSpell(player, 304971, true);
+            player->AddItem(80610, 5);
 
-    //        CloseGossipMenuFor(player);
-    //        break;
-    //    case 2:
-    //        me->CastSpell(me, 324427);
-    //        player->DurabilityRepairAll(false, 0, false);
-    //        CloseGossipMenuFor(player);
-    //        break;
-    //    case 3:
+            CloseGossipMenuFor(player);
+            break;
+        case 2:
+            me->CastSpell(me, 324427);
+            player->DurabilityRepairAll(false, 0, false);
+            CloseGossipMenuFor(player);
+            break;
+        case 3:
 
-    //        me->CastSpell(player, 342317);
-    //        me->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, player->GetFollowAngle());
-    //        me->SetOwnerGUID(player->GetGUID());
-    //        CloseGossipMenuFor(player);
-    //        break;
-    //    }
-    //    return true;
-    //}
+            me->CastSpell(player, 342317);
+            me->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, player->GetFollowAngle());
+            me->SetOwnerGUID(player->GetGUID());
+            CloseGossipMenuFor(player);
+            break;
+        }
+        return true;
+    }
     //出错-此处为出错,解决不了,后注释的
 
 

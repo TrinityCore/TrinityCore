@@ -40,7 +40,9 @@ void ClearGossipMenuFor(Player* player)
 }
 
 // Using provided text, not from DB
-//void AddGossipItemFor(Player* player, uint32 icon, std::string const& text, uint32 sender, uint32 action) { player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, icon, text, sender, action, "", 0); }
+void AddGossipItemFor(Player* player, uint32 icon, std::string const& text, uint32 sender, uint32 action) { player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, icon, text, sender, action, "", 0); }
+//  AddGossipItemFor(player, GOSSIP_ICON_TALK, "Heal pls!", GOSSIP_SENDER_MAIN, 0);
+//测试
 //上为旧模板
 void AddGossipItemFor(Player* player, GossipOptionNpc optionNpc, std::string text, uint32 sender, uint32 action)
 {
