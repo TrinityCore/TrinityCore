@@ -22,6 +22,7 @@
 #include "ObjectGuid.h"
 #include "Optional.h"
 
+
 class Object;
 class Quest;
 class WorldSession;
@@ -142,6 +143,7 @@ enum class GossipOptionRewardType : uint8
     Currency    = 1
 };
 
+
 enum class GossipOptionFlags : int32
 {
     None                = 0x0,
@@ -150,6 +152,12 @@ enum class GossipOptionFlags : int32
 
 struct GossipMenuItem
 {
+    uint8               MenuItemIcon;
+    bool                IsCoded;
+    std::string         Message;
+    uint32              OptionType;
+    std::string         BoxMessage;
+    uint32              BoxMoney;
     int32               GossipOptionID;
     uint32              OrderIndex;
     GossipOptionNpc     OptionNpc;
@@ -158,7 +166,6 @@ struct GossipMenuItem
     GossipOptionFlags   Flags;
     Optional<int32>     GossipNpcOptionID;
     bool                BoxCoded;
-    uint32              BoxMoney;
     std::string         BoxText;
     Optional<int32>     SpellID;
     Optional<int32>     OverrideIconID;
@@ -171,10 +178,26 @@ struct GossipMenuItem
     uint32              Sender;
     uint32              Action;
 };
+struct GossipMenuItemTCBased
+{
+    uint8       MenuItemIcon;
+    bool        IsCoded;
+    std::string Message;
+    uint32      Sender;
+    uint32      OptionType;
+    std::string BoxMessage;
+    uint32      BoxMoney;
+};
+struct GossipMenuItemData
+{
+    uint32 GossipActionMenuId;  // MenuId of the gossip triggered by this action
+    uint32 GossipActionPoi;
+};
 
 // need an ordered container
 typedef std::vector<GossipMenuItem> GossipMenuItemContainer;
-
+typedef std::map<uint32, GossipMenuItemTCBased> GossipMenuItemContainerTCBased;
+//GossipMenuItem 也得重构
 struct QuestMenuItem
 {
     uint32  QuestId;
@@ -182,6 +205,63 @@ struct QuestMenuItem
 };
 
 typedef std::vector<QuestMenuItem> QuestMenuItemList;
+
+class TC_GAME_API GossipMenuTCBased
+{
+public:
+    GossipMenuTCBased();
+    ~GossipMenuTCBased();
+
+    uint32 AddMenuItem(int32 optionIndex, uint8 icon, std::string const& message, uint32 sender, uint32 action, std::string const& boxMessage, uint32 boxMoney, bool coded = false);
+    void AddMenuItem(uint32 menuId, uint32 optionIndex, uint32 sender, uint32 action);
+
+    void SetMenuId(uint32 menu_id) { _menuId = menu_id; }
+    uint32 GetMenuId() const { return _menuId; }
+    void SetLocale(LocaleConstant locale) { _locale = locale; }
+    LocaleConstant GetLocale() const { return _locale; }
+
+    void AddGossipMenuItemData(uint32 optionIndex, uint32 gossipActionMenuId, uint32 gossipActionPoi);
+
+    uint32 GetMenuItemCount() const { return uint32(_menuItems.size()); }
+    bool Empty() const { return _menuItems.empty(); }
+
+    GossipMenuItem const* GetItem(uint32 id) const
+    {
+        GossipMenuItemContainerTCBased::const_iterator itr = _menuItems.find(id);
+        if (itr != _menuItems.end())
+            return &itr->second;
+
+        return nullptr;
+    }
+
+    GossipMenuItemData const* GetItemData(uint32 indexId) const
+    {
+        GossipMenuItemDataContainer::const_iterator itr = _menuItemData.find(indexId);
+        if (itr != _menuItemData.end())
+            return &itr->second;
+
+        return nullptr;
+    }
+
+    uint32 GetMenuItemSender(uint32 menuItemId) const;
+    uint32 GetMenuItemAction(uint32 menuItemId) const;
+    bool IsMenuItemCoded(uint32 menuItemId) const;
+    bool HasMenuItemType(uint32 optionType) const;
+
+    void ClearMenu();
+
+    GossipMenuItemContainer const& GetMenuItems() const
+    {
+        return _menuItems;
+    }
+
+private:
+    GossipMenuItemContainer _menuItems;
+    GossipMenuItemDataContainer _menuItemData;
+    uint32 _menuId;
+    LocaleConstant _locale;
+};
+
 
 class TC_GAME_API GossipMenu
 {
@@ -192,6 +272,8 @@ class TC_GAME_API GossipMenu
         GossipMenu& operator=(GossipMenu const&) = delete;
         GossipMenu& operator=(GossipMenu&&) = delete;
         ~GossipMenu();
+
+        uint32 AddMenuItem(int32 optionIndex, uint8 icon, std::string const& message, uint32 sender, uint32 action, std::string const& boxMessage, uint32 boxMoney, bool coded);
 
         uint32 AddMenuItem(int32 gossipOptionId, int32 orderIndex, GossipOptionNpc optionNpc, std::string optionText, uint32 language, GossipOptionFlags flags,
                            Optional<int32> gossipNpcOptionId, uint32 actionMenuId, uint32 actionPoiId, bool boxCoded, uint32 boxMoney,
@@ -217,6 +299,8 @@ class TC_GAME_API GossipMenu
         GossipMenuItem const* GetItem(int32 gossipOptionId) const;
         GossipMenuItem const* GetItemByIndex(uint32 orderIndex) const;
 
+        void AddGossipMenuItemData(uint32 optionIndex, uint32 gossipActionMenuId, uint32 gossipActionPoi);
+
         uint32 GetMenuItemSender(uint32 orderIndex) const;
         uint32 GetMenuItemAction(uint32 orderIndex) const;
         bool IsMenuItemCoded(uint32 orderIndex) const;
@@ -229,6 +313,7 @@ class TC_GAME_API GossipMenu
         }
 
     private:
+        
         GossipMenuItemContainer _menuItems;
         uint32 _menuId;
         LocaleConstant _locale;

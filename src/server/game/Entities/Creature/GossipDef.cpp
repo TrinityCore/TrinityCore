@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
+#include "utility"
 #include "GossipDef.h"
 #include "Containers.h"
 #include "Creature.h"
@@ -31,6 +31,7 @@
 #include "Util.h"
 #include "World.h"
 #include "WorldSession.h"
+#include <boost/concept_check.hpp>
 
 GossipMenu::GossipMenu()
 {
@@ -39,6 +40,7 @@ GossipMenu::GossipMenu()
 }
 
 GossipMenu::~GossipMenu() = default;
+
 //后加
 uint32 GossipMenu::AddMenuItem(int32 optionIndex, uint8 icon, std::string const& message, uint32 sender, uint32 action, std::string const& boxMessage, uint32 boxMoney, bool coded /*= false*/)
 {
@@ -49,8 +51,8 @@ uint32 GossipMenu::AddMenuItem(int32 optionIndex, uint8 icon, std::string const&
     {
         optionIndex = 0;
         if (!_menuItems.empty())
-        {
-            for (GossipMenuItemContainer::const_iterator itr = _menuItems.begin(); itr != _menuItems.end(); ++itr)
+        {   //此处为适配旧代码,后更新的,对应代码在GossipDef.h中 typedef std::map<uint32, GossipMenuItem> GossipMenuItemContainerTCBased;
+            for (GossipMenuItemContainerTCBased::const_iterator itr = _menuItems.begin(); itr != _menuItems.end(); ++itr)
             {
                 if (int32(itr->first) > optionIndex)
                     break;
@@ -291,6 +293,15 @@ GossipMenuItem const* GossipMenu::GetItemByIndex(uint32 orderIndex) const
     return nullptr;
 }
 
+void GossipMenu::AddGossipMenuItemData(uint32 optionIndex, uint32 gossipActionMenuId, uint32 gossipActionPoi)
+{
+    GossipMenuItemData& itemData = _menuItemData[optionIndex];
+
+    itemData.GossipActionMenuId = gossipActionMenuId;
+    itemData.GossipActionPoi = gossipActionPoi;
+}
+
+
 uint32 GossipMenu::GetMenuItemSender(uint32 orderIndex) const
 {
     GossipMenuItem const* item = GetItemByIndex(orderIndex);
@@ -299,6 +310,8 @@ uint32 GossipMenu::GetMenuItemSender(uint32 orderIndex) const
 
     return 0;
 }
+
+
 
 uint32 GossipMenu::GetMenuItemAction(uint32 orderIndex) const
 {
@@ -782,4 +795,25 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
 
     _session->SendPacket(packet.Write());
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_REQUEST_ITEMS NPC={}, questid={}", npcGUID.ToString(), quest->GetQuestId());
+}
+
+GossipMenuTCBased::GossipMenuTCBased()
+{
+}
+
+GossipMenuTCBased::~GossipMenuTCBased()
+{
+}
+
+uint32 GossipMenuTCBased::AddMenuItem(int32 optionIndex, uint8 icon, std::string const& message, uint32 sender, uint32 action, std::string const& boxMessage, uint32 boxMoney, bool coded)
+{
+    return uint32();
+}
+
+void GossipMenuTCBased::AddMenuItem(uint32 menuId, uint32 optionIndex, uint32 sender, uint32 action)
+{
+}
+
+void GossipMenuTCBased::AddGossipMenuItemData(uint32 optionIndex, uint32 gossipActionMenuId, uint32 gossipActionPoi)
+{
 }

@@ -744,8 +744,12 @@ struct PointOfInterest
 
 struct GossipMenuItems
 {
+    uint32               OptionIndex;
+    uint32               OptionType;
+    uint64               OptionNpcFlag;
     uint32              MenuID;
     int32               GossipOptionID;
+    uint8                OptionIcon;
     uint32              OrderIndex;
     GossipOptionNpc     OptionNpc;
     std::string         OptionText;
