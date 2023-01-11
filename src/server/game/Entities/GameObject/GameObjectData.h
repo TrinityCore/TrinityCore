@@ -287,6 +287,7 @@ struct GameObjectTemplate
             uint32 allowMounted;                            //3 Is usable while on mount/vehicle. (0/1)
             uint32 GiganticAOI;                             //4
             uint32 conditionID1;                            //5
+            uint32 playerCast;                              //6
         } spellcaster;
         //23 GAMEOBJECT_TYPE_MEETINGSTONE
         struct
