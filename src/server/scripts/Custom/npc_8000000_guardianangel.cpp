@@ -31,6 +31,8 @@ GuardianAngel.AllowedMapIDs = "2175, 2261, 2369"
 #include "GameTime.h"
 #include "PhasingHandler.h"
 #include "ScriptedCreature.h"
+#include "GossipDef.h"
+#include "Object.h"
 
 class GuardianAngel_Spawn : public PlayerScript
 {
@@ -67,7 +69,21 @@ public:
                 // summon guardian angel for a while
                 uint32 minutesforassist = sConfigMgr->GetIntDefault("GuardianAngel.Minutes.For.Assist", 1);
                 TempSummon* npc = player->SummonCreature(8000000, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, minutesforassist * 60000, ObjectGuid::Empty);//ObjectGuid privateObjectOwner /* = ObjectGuid::Empty */
-                                                                                                                                                                                            //, ObjectGuid::Empty
+                //这个是新的,但是启用这句后,生成的最后报错
+                //报错内容如下
+                //严重性	代码	说明	项目	文件	行	禁止显示状态
+                //错误	LNK2019	无法解析的外部符号 "public: class TempSummon * __cdecl WorldObject::SummonCreature(unsigned int,float,float,float,float,enum TempSummonType,unsigned int,class ObjectGuid)" (? SummonCreature@WorldObject@@QEAAPEAVTempSummon@@IMMMMW4TempSummonType@@IVObjectGuid@@@Z)，函数 "public: void __cdecl GuardianAngel_Spawn::SummonGuardianAngel(class Player *)" (? SummonGuardianAngel@GuardianAngel_Spawn@@QEAAXPEAVPlayer@@@Z) 中引用了该符号	D : \Program Files(x86)\WOWDIY\TrinityCore\out\build\x64 - Debug\TrinityCore	D : \Program Files(x86)\WOWDIY\TrinityCore\out\build\x64 - Debug\scripts.lib(npc_8000000_guardianangel.cpp.obj)	1
+
+
+
+
+                //player->SummonCreature(8000000, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, minutesforassist * 60000, ObjectGuid::Empty);//ObjectGuid privateObjectOwner /* = ObjectGuid::Empty */
+                //我尝试的,还是不行,一样报错
+
+
+
+                //原本的类型
+                //Creature* npc = player->SummonCreature(8000000, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, minutesforassist * 60000, ObjectGuid::Empty);//ObjectGuid privateObjectOwner /* = ObjectGuid::Empty */                                                                                                                                                                    //, ObjectGuid::Empty
                 //此处临时注释
                 //此处是大问题,参数不匹配,新增旧模板,但是不起作用
             }
@@ -114,7 +130,8 @@ struct GuardianAngel : public ScriptedAI
 {
     GuardianAngel(Creature* creature) : ScriptedAI(creature) { }
     //开始-此处为出错,解决不了,后注释的
-    void IsSummonedBy(Unit* summoner)  //override   //<--临时注释 "// override" 原本应为override
+    //          此处的WorldObject原先为Unit*
+    void IsSummonedBy(WorldObject* summoner)  override   //<--临时注释 "// override" 原本应为override
     {
         if (Player* player = summoner->ToPlayer())
         {
@@ -138,7 +155,7 @@ struct GuardianAngel : public ScriptedAI
                         // add generic phase if player is on exile reach
                         if (player->GetMapId() == 2175)
                             if (!player->GetPhaseShift().HasPhase(12940))
-                                PhasingHandler::AddPhase(player, 12940);
+                                PhasingHandler::AddPhase(player, 12940,true);
                     });
 
                 me->AddDelayedEvent(12000, [this, player]() -> void
@@ -173,7 +190,7 @@ struct GuardianAngel : public ScriptedAI
 
                 me->AddDelayedEvent(10000, [this, player]() -> void
                     {
-                        me->ForcedDespawn();
+                   //   me->ForcedDespawn();
                     });
             }
 
@@ -220,13 +237,14 @@ struct GuardianAngel : public ScriptedAI
  */
     
 //开始-此处为出错,解决不了,后注释的
-    bool GossipHello(Player* player) // override
+    bool OnGossipHello(Player* player)  override
     {
         ClearGossipMenuFor(player);
-        AddGossipItemFor(player, GOSSIP_ICON_TALK, "Heal pls!", GOSSIP_SENDER_MAIN, 0);
-        AddGossipItemFor(player, GOSSIP_ICON_TALK, "Did you bring some food?", GOSSIP_SENDER_MAIN, 1);
-        AddGossipItemFor(player, GOSSIP_ICON_TALK, "Can you repair my armor?", GOSSIP_SENDER_MAIN, 2);
-        AddGossipItemFor(player, GOSSIP_ICON_TALK, "Follow me!", GOSSIP_SENDER_MAIN, 3);
+        AddGossipItemFor(player, GossipOptionNpc::PetitionVendor,"Heal pls!", GOSSIP_SENDER_MAIN,0);
+                               //此处的GossipOptionNpc::PetitionVendor原先为:GOSSIP_ICON_TALK
+        AddGossipItemFor(player, GossipOptionNpc::PetitionVendor, "Did you bring some food?", GOSSIP_SENDER_MAIN, 1);
+        AddGossipItemFor(player, GossipOptionNpc::PetitionVendor, "Can you repair my armor?", GOSSIP_SENDER_MAIN, 2);
+        AddGossipItemFor(player, GossipOptionNpc::PetitionVendor, "Follow me!", GOSSIP_SENDER_MAIN, 3);
         SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, me->GetGUID());
         return true;
     }

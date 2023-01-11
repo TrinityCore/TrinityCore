@@ -2036,6 +2036,11 @@ TempSummon* WorldObject::SummonCreature(uint32 entry, Position const& pos, TempS
     return nullptr;
 }
 
+TempSummon* WorldObject::SummonCreature(uint32 id, float x, float y, float z, float o, TempSummonType despawnType, uint32 despawnTime, ObjectGuid privateObjectOwner)
+{
+    return nullptr;
+}
+
 //测试                         参数数量      1        2         3       4       5                            6                                                        7                             8                                                   //8参数
 //8参数
 TempSummon* WorldObject::SummonCreature(uint32 id, float x, float y, float z, float o /*= 0*/, TempSummonType despawnType /*= TEMPSUMMON_MANUAL_DESPAWN*/, Milliseconds despawnTime /*= 0s*/, ObjectGuid privateObjectOwner /* = ObjectGuid::Empty */)  //8参数

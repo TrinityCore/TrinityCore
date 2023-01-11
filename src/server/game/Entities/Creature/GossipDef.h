@@ -196,8 +196,9 @@ struct GossipMenuItemData
 
 // need an ordered container
 typedef std::vector<GossipMenuItem> GossipMenuItemContainer;
-typedef std::map<uint32, GossipMenuItemTCBased> GossipMenuItemContainerTCBased;
+//typedef std::map<uint32, GossipMenuItemTCBased> GossipMenuItemContainerTCBased;
 //GossipMenuItem 也得重构
+typedef std::map<uint32, GossipMenuItemData> GossipMenuItemDataContainer;
 struct QuestMenuItem
 {
     uint32  QuestId;
@@ -206,61 +207,61 @@ struct QuestMenuItem
 
 typedef std::vector<QuestMenuItem> QuestMenuItemList;
 
-class TC_GAME_API GossipMenuTCBased
-{
-public:
-    GossipMenuTCBased();
-    ~GossipMenuTCBased();
-
-    uint32 AddMenuItem(int32 optionIndex, uint8 icon, std::string const& message, uint32 sender, uint32 action, std::string const& boxMessage, uint32 boxMoney, bool coded = false);
-    void AddMenuItem(uint32 menuId, uint32 optionIndex, uint32 sender, uint32 action);
-
-    void SetMenuId(uint32 menu_id) { _menuId = menu_id; }
-    uint32 GetMenuId() const { return _menuId; }
-    void SetLocale(LocaleConstant locale) { _locale = locale; }
-    LocaleConstant GetLocale() const { return _locale; }
-
-    void AddGossipMenuItemData(uint32 optionIndex, uint32 gossipActionMenuId, uint32 gossipActionPoi);
-
-    uint32 GetMenuItemCount() const { return uint32(_menuItems.size()); }
-    bool Empty() const { return _menuItems.empty(); }
-
-    GossipMenuItem const* GetItem(uint32 id) const
-    {
-        GossipMenuItemContainerTCBased::const_iterator itr = _menuItems.find(id);
-        if (itr != _menuItems.end())
-            return &itr->second;
-
-        return nullptr;
-    }
-
-    GossipMenuItemData const* GetItemData(uint32 indexId) const
-    {
-        GossipMenuItemDataContainer::const_iterator itr = _menuItemData.find(indexId);
-        if (itr != _menuItemData.end())
-            return &itr->second;
-
-        return nullptr;
-    }
-
-    uint32 GetMenuItemSender(uint32 menuItemId) const;
-    uint32 GetMenuItemAction(uint32 menuItemId) const;
-    bool IsMenuItemCoded(uint32 menuItemId) const;
-    bool HasMenuItemType(uint32 optionType) const;
-
-    void ClearMenu();
-
-    GossipMenuItemContainer const& GetMenuItems() const
-    {
-        return _menuItems;
-    }
-
-private:
-    GossipMenuItemContainer _menuItems;
-    GossipMenuItemDataContainer _menuItemData;
-    uint32 _menuId;
-    LocaleConstant _locale;
-};
+//class TC_GAME_API GossipMenuTCBased
+//{
+//public:
+//    GossipMenuTCBased();
+//    ~GossipMenuTCBased();
+//
+//    uint32 AddMenuItem(int32 optionIndex, uint8 icon, std::string const& message, uint32 sender, uint32 action, std::string const& boxMessage, uint32 boxMoney, bool coded = false);
+//    void AddMenuItem(uint32 menuId, uint32 optionIndex, uint32 sender, uint32 action);
+//
+//    void SetMenuId(uint32 menu_id) { _menuId = menu_id; }
+//    uint32 GetMenuId() const { return _menuId; }
+//    void SetLocale(LocaleConstant locale) { _locale = locale; }
+//    LocaleConstant GetLocale() const { return _locale; }
+//
+//    void AddGossipMenuItemData(uint32 optionIndex, uint32 gossipActionMenuId, uint32 gossipActionPoi);
+//
+//    uint32 GetMenuItemCount() const { return uint32(_menuItems.size()); }
+//    bool Empty() const { return _menuItems.empty(); }
+//
+//    GossipMenuItem const* GetItem(uint32 id) const
+//    {
+//        GossipMenuItemContainerTCBased::const_iterator itr = _menuItems.find(id);
+//        if (itr != _menuItems.end())
+//            return &itr->second;
+//
+//        return nullptr;
+//    }
+//
+//    GossipMenuItemData const* GetItemData(uint32 indexId) const
+//    {
+//        GossipMenuItemDataContainer::const_iterator itr = _menuItemData.find(indexId);
+//        if (itr != _menuItemData.end())
+//            return &itr->second;
+//
+//        return nullptr;
+//    }
+//
+//    uint32 GetMenuItemSender(uint32 menuItemId) const;
+//    uint32 GetMenuItemAction(uint32 menuItemId) const;
+//    bool IsMenuItemCoded(uint32 menuItemId) const;
+//    bool HasMenuItemType(uint32 optionType) const;
+//
+//    void ClearMenu();
+//
+//    GossipMenuItemContainer const& GetMenuItems() const
+//    {
+//        return _menuItems;
+//    }
+//
+//private:
+//    GossipMenuItemContainer _menuItems;
+//    GossipMenuItemDataContainer _menuItemData;
+//    uint32 _menuId;
+//    LocaleConstant _locale;
+//};
 
 
 class TC_GAME_API GossipMenu
@@ -313,8 +314,8 @@ class TC_GAME_API GossipMenu
         }
 
     private:
-        
         GossipMenuItemContainer _menuItems;
+        GossipMenuItemDataContainer _menuItemData;
         uint32 _menuId;
         LocaleConstant _locale;
 };

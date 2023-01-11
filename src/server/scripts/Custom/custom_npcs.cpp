@@ -633,7 +633,7 @@
 //
 //        void UpdateAI(uint32 /*diff*/) override { }
 //
-//        bool GossipHello(Player* player) //override //原先为override
+//        bool OnGossipHello(Player* player) override //原先为override
 //        {
 //            if (me->IsQuestGiver())
 //                player->PrepareQuestMenu(me->GetGUID());
