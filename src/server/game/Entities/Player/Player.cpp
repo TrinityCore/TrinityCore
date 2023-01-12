@@ -402,15 +402,15 @@ void Player::CleanupsBeforeDelete(bool finalCleanup)
     Unit::CleanupsBeforeDelete(finalCleanup);
 }
 //后加,暂时注释
-//void Player::SetPersonnalXpRate(float personnalXPRate)
-//{
-//    _PersonnalXpRate = personnalXPRate;
-//
-//    CharacterDatabasePreparedStatement* statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_XP_RATE);
-//    statement->setFloat(0, personnalXPRate);
-//    statement->setUInt64(1, GetGUID().GetCounter());
-//    CharacterDatabase.Execute(statement);
-//}
+void Player::SetPersonnalXpRate(float personnalXPRate)
+{
+    _PersonnalXpRate = personnalXPRate;
+
+    CharacterDatabasePreparedStatement* statement = CharacterDatabase.GetPreparedStatement(CHAR_UPD_XP_RATE);
+    statement->setFloat(0, personnalXPRate);
+    statement->setUInt64(1, GetGUID().GetCounter());
+    CharacterDatabase.Execute(statement);
+}
 
 bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::CharacterCreateInfo const* createInfo)
 {

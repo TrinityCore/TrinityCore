@@ -2704,8 +2704,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool SwapVoidStorageItem(uint8 oldSlot, uint8 newSlot);
         VoidStorageItem* GetVoidStorageItem(uint8 slot) const;
         VoidStorageItem* GetVoidStorageItem(uint64 id, uint8& slot) const;
-//        float GetPersonnalXpRate() { return _PersonnalXpRate; }//后加
-//        void SetPersonnalXpRate(float PersonnalXpRate);//后加
+        float GetPersonnalXpRate() { return _PersonnalXpRate; }//后加
+        void SetPersonnalXpRate(float PersonnalXpRate);//后加
 
         // Reagent Bank
         bool IsReagentBankUnlocked() const { return HasPlayerFlagEx(PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED); }

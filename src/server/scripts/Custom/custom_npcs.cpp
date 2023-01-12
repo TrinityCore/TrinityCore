@@ -2,7 +2,8 @@
 // 取消后在player.h中取消下方两个
 ////        float GetPersonnalXpRate() { return _PersonnalXpRate; }//后加
 //        void SetPersonnalXpRate(float PersonnalXpRate);//后加
-
+//已经取消
+// 
 //还要取消player.cpp中 
 //后加,暂时注释
 //void Player::SetPersonnalXpRate(float personnalXPRate)
@@ -14,6 +15,8 @@
 //    statement->setUInt64(1, GetGUID().GetCounter());
 //    CharacterDatabase.Execute(statement);
 //}
+//已经取消
+
 
 /*
 * Copyright 2021 DekkCore
@@ -70,14 +73,14 @@ class npc_rate_xp_modifier : public CreatureScript
 
                 std::ostringstream gossipText;
                 gossipText << "Rate x" << i;
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, gossipText.str(), GOSSIP_SENDER_MAIN, i);
+                AddGossipItemFor(player,GossipOptionNpc::None, gossipText.str(), GOSSIP_SENDER_MAIN, i);
             }
 
             if (player->GetPersonnalXpRate())
             {
                 std::ostringstream gossipText;
                 gossipText << "Default Rate - x" << sWorld->getRate(RATE_XP_KILL);
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, gossipText.str(), GOSSIP_SENDER_MAIN, 0);
+                AddGossipItemFor(player, GossipOptionNpc::None, gossipText.str(), GOSSIP_SENDER_MAIN, 0);
             }
 
             SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
@@ -208,9 +211,9 @@ public:
             player->PrepareQuestMenu(creature->GetGUID());
 
         if (player->GetQuestStatus(29134) == QUEST_STATUS_INCOMPLETE)
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_A_WRINKIE_IN_TIME, GOSSIP_SENDER_MAIN, ACTION_A_WRINKIE_IN_TIME);
+            AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_A_WRINKIE_IN_TIME, GOSSIP_SENDER_MAIN, ACTION_A_WRINKIE_IN_TIME);
         else if (player->GetQuestStatus(29193) == QUEST_STATUS_INCOMPLETE)
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ON_A_WING_AND_A_PRAYER, GOSSIP_SENDER_MAIN, ACTION_ON_A_WING_AND_A_PRAYER);
+            AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_ON_A_WING_AND_A_PRAYER, GOSSIP_SENDER_MAIN, ACTION_ON_A_WING_AND_A_PRAYER);
             SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
         return ItemContext::NONE, true;
     }
@@ -297,13 +300,13 @@ public:
                     uint8 max_point = ((me->GetMapId() == 1) ? 7 : 3);
 
                     if (curPoint == max_point)
-                        events.ScheduleEvent(EVENT_HALLEGOSA_DISC_1, 500);
+                        events.ScheduleEvent(EVENT_HALLEGOSA_DISC_1, Milliseconds(500), 0, 0);
                     else
-                        events.ScheduleEvent(EVENT_HALLEGOSA_MOVE_1, 500);
+                        events.ScheduleEvent(EVENT_HALLEGOSA_MOVE_1, Milliseconds(500),0,0);
                     break;
                 }
                 case POINT_HALLEGOSA_2:
-                    events.ScheduleEvent(EVENT_HALLEGOSA_END, 5000);
+                    events.ScheduleEvent(EVENT_HALLEGOSA_END, Milliseconds(5000), 0, 0);
                     break;
                 }
             }
@@ -326,11 +329,11 @@ public:
                     else if (me->GetMapId() == 0)
                         sGameEventMgr->StopEvent(89, true);
                     DoCast(me, SPELL_HALLEGOSA_SUMMON_DISC_1);
-                    events.ScheduleEvent(EVENT_HALLEGOSA_TRANS, 5000);
+                    events.ScheduleEvent(EVENT_HALLEGOSA_TRANS, Milliseconds(5000), 0, 0);
                     break;
                 case EVENT_HALLEGOSA_TRANS:
                     DoCast(me, SPELL_HALEGOSA_TRANSFORM);
-                    events.ScheduleEvent(EVENT_HALLEGOSA_MOVE_2, 3000);
+                    events.ScheduleEvent(EVENT_HALLEGOSA_MOVE_2, Milliseconds(3000), 0, 0);
                     break;
                 case EVENT_HALLEGOSA_MOVE_2:
                     me->SetCanFly(true);
@@ -339,7 +342,7 @@ public:
                     me->GetMotionMaster()->MovePoint(POINT_HALLEGOSA_2, ((me->GetMapId() == 1) ? Pos2[curPoint] : Pos1[curPoint]));
                     break;
                 case EVENT_HALLEGOSA_END:
-                    me->SummonCreature(NPC_KALECGOS, ((me->GetMapId() == 1) ? Pos2[8] : Pos1[4]), TEMPSUMMON_TIMED_DESPAWN, 95000);
+                    me->SummonCreature(53392, ((me->GetMapId() == 1) ? Pos2[8] : Pos1[4]), TEMPSUMMON_TIMED_DESPAWN, 95000, 0, ObjectGuid::Empty);
                     break;
                 default:
                     break;
@@ -358,7 +361,7 @@ struct npc_kalecgos_for_teracgosa : ScriptedAI
 
     void IsSummonedBy(Unit* /*owner*/)
     {
-        events.ScheduleEvent(EVENT_TALK_1, 5000);
+        events.ScheduleEvent(EVENT_TALK_1, Milliseconds(5000));
     }
 
     void UpdateAI(uint32 diff)
@@ -371,62 +374,62 @@ struct npc_kalecgos_for_teracgosa : ScriptedAI
             {
             case EVENT_TALK_1:
                 Talk(SAY_1);
-                events.ScheduleEvent(EVENT_TALK_2, 6000);
+                events.ScheduleEvent(EVENT_TALK_2, Milliseconds(6000)); 
                 break;
             case EVENT_TALK_2:
                 Talk(SAY_2);
                 if (me->GetMapId() == 1)
                 {
                     for (uint8 i = 10; i < 12; ++i)
-                        me->SummonCreature(NPC_BLUE_DRAGON, Pos2[i], TEMPSUMMON_TIMED_DESPAWN, 84000);
+                        me->SummonCreature(NPC_BLUE_DRAGON, Pos2[i], TEMPSUMMON_TIMED_DESPAWN, 84000,0, ObjectGuid::Empty);
                 }
                 else
                 {
                     for (uint8 i = 6; i < 9; ++i)
-                        me->SummonCreature(NPC_BLUE_DRAGON, Pos1[i], TEMPSUMMON_TIMED_DESPAWN, 84000);
+                        me->SummonCreature(NPC_BLUE_DRAGON, Pos1[i], TEMPSUMMON_TIMED_DESPAWN, 84000, 0, ObjectGuid::Empty);
                 }
-                events.ScheduleEvent(EVENT_TALK_3, 7000);
+                events.ScheduleEvent(EVENT_TALK_3, Milliseconds(7000));
                 break;
             case EVENT_TALK_3:
                 Talk(SAY_3);
-                events.ScheduleEvent(EVENT_TALK_4, 6000);
+                events.ScheduleEvent(EVENT_TALK_4, Milliseconds(6000));
                 break;
             case EVENT_TALK_4:
                 Talk(SAY_4);
-                me->SummonCreature(NPC_TARECGOSA, ((me->GetMapId() == 1) ? Pos2[9] : Pos1[5]), TEMPSUMMON_TIMED_DESPAWN, 71000);
-                events.ScheduleEvent(EVENT_TALK_5, 7000);
+                me->SummonCreature(NPC_TARECGOSA, ((me->GetMapId() == 1) ? Pos2[9] : Pos1[5]), TEMPSUMMON_TIMED_DESPAWN, 71000,0, ObjectGuid::Empty);
+                events.ScheduleEvent(EVENT_TALK_5, Milliseconds(7000));
                 break;
             case EVENT_TALK_5:
                 Talk(SAY_5);
-                me->SummonCreature(NPC_STALKER2, ((me->GetMapId() == 1) ? Pos2[12] : Pos1[9]), TEMPSUMMON_TIMED_DESPAWN, 64000);
+                me->SummonCreature(NPC_STALKER2, ((me->GetMapId() == 1) ? Pos2[12] : Pos1[9]), TEMPSUMMON_TIMED_DESPAWN, 64000, 0, ObjectGuid::Empty);
                 if (Creature* stalker = me->FindNearestCreature(NPC_STALKER, 100.0f))
                 {
                     stalker->RemoveUnitFlag(UnitFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
                     stalker->SetDisplayId(38326);
                 }
-                events.ScheduleEvent(EVENT_ESSENCE_1, 9000);
+                events.ScheduleEvent(EVENT_ESSENCE_1, Milliseconds(9000));
                 break;
             case EVENT_ESSENCE_1:
                 if (Creature* stalker = me->FindNearestCreature(NPC_STALKER, 100.0f))
                     stalker->CastSpell(stalker, SPELL_ESSENCE_OF_TARECGOSA);
-                events.ScheduleEvent(EVENT_ESSENCE_2, 15000);
+                events.ScheduleEvent(EVENT_ESSENCE_2, Milliseconds(15000));
                 break;
             case EVENT_ESSENCE_2:
                 if (Creature* tarecgosa = me->FindNearestCreature(NPC_TARECGOSA, 100.0f))
                     tarecgosa->DespawnOrUnsummon();
                 if (Creature* stalker = me->FindNearestCreature(NPC_STALKER, 100.0f))
                     stalker->CastSpell(stalker, SPELL_PULSE_OF_TARECGOSA);
-                events.ScheduleEvent(EVENT_TALK_6, 6000);
+                events.ScheduleEvent(EVENT_TALK_6, Milliseconds(6000));
                 break;
             case EVENT_TALK_6:
                 Talk(SAY_6);
-                events.ScheduleEvent(EVENT_TALK_7, 13000);
+                events.ScheduleEvent(EVENT_TALK_7, Milliseconds(13000));
                 break;
             case EVENT_TALK_7:
                 Talk(SAY_7);
                 if (Creature* stalker = me->FindNearestCreature(NPC_STALKER, 100.0f))
                     stalker->AddUnitFlag(UnitFlags(UNIT_NPC_FLAG_QUESTGIVER));
-                events.ScheduleEvent(EVENT_TALK_8, 7000);
+                events.ScheduleEvent(EVENT_TALK_8, Milliseconds(7000));
                 break;
             case EVENT_TALK_8:
                 Talk(SAY_8);
@@ -439,7 +442,7 @@ struct npc_kalecgos_for_teracgosa : ScriptedAI
                     WorldDatabase.PExecute("UPDATE game_event SET start_time=NOW() WHERE eventEntry = 88");
                 else if (me->GetMapId() == 0)
                     WorldDatabase.PExecute("UPDATE game_event SET start_time=NOW() WHERE eventEntry = 89");
-                events.ScheduleEvent(EVENT_START_EVENT, 4000);
+                events.ScheduleEvent(EVENT_START_EVENT, Milliseconds(4000));
                 break;
             case EVENT_START_EVENT:
                 if (me->GetMapId() == 1)
@@ -468,8 +471,9 @@ public:
             player->GetSession()->SendNotification(sObjectMgr->GetTrinityStringForDBCLocale(789000));
             return false;
         } else {
-            AddGossipItemFor(player, GOSSIP_ICON_TRANSMOGRIFIER, "Random morph", GOSSIP_SENDER_MAIN, ACTION_RANDOM_MORPH);
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Demorph", GOSSIP_SENDER_MAIN, ACTION_DEMORPH);
+            
+            AddGossipItemFor(player, GossipOptionNpc::Transmogrify, "Random morph", GOSSIP_SENDER_MAIN, ACTION_RANDOM_MORPH);
+            AddGossipItemFor(player, GossipOptionNpc::None, "Demorph", GOSSIP_SENDER_MAIN, ACTION_DEMORPH);
 
             SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
             return ItemContext::NONE, true;
@@ -649,7 +653,7 @@ public:
                     }
                 if (check)
                     if (BroadcastTextEntry const* bct = sBroadcastTextStore.LookupEntry(62660))
-                        AddGossipItemFor(player, GOSSIP_ICON_CHAT, DB2Manager::GetBroadcastTextValue(bct, player->GetSession()->GetSessionDbLocaleIndex()), GOSSIP_SENDER_MAIN, PetBattleTrainerFightActionID);
+                        AddGossipItemFor(player, GossipOptionNpc::None, DB2Manager::GetBroadcastTextValue(bct, player->GetSession()->GetSessionDbLocaleIndex()), GOSSIP_SENDER_MAIN, PetBattleTrainerFightActionID);
             }
 
             player->TalkedToCreature(me->GetEntry(), me->GetGUID());
