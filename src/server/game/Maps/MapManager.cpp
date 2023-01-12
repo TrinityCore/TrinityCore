@@ -64,6 +64,54 @@ MapManager* MapManager::instance()
     return &instance;
 }
 
+Map* MapManager::CreateBaseMap(uint32 id)
+{
+    Map* map = FindBaseMap(id);
+
+    if (!map)
+    {
+        MapEntry const* entry = sMapStore.AssertEntry(id);
+        if (entry->ParentMapID != -1 || entry->CosmeticParentMapID != -1)
+        {
+            CreateBaseMap(entry->ParentMapID != -1 ? entry->ParentMapID : entry->CosmeticParentMapID);
+
+            // must have been created by parent map
+            map = FindBaseMap(id);
+            return ASSERT_NOTNULL(map);
+        }
+
+        std::lock_guard<std::mutex> lock(_mapsLock);
+        map = CreateBaseMap_i(entry);
+    }
+
+    ASSERT(map);
+    return map;
+}
+
+Map* MapManager::CreateBaseMap_i(MapEntry const* mapEntry)
+{
+    Map* map;
+    if (mapEntry->Instanceable())
+        map = new MapInstanced(mapEntry->ID, i_gridCleanUpDelay);
+    else
+        map = new Map(mapEntry->ID, i_gridCleanUpDelay, 0, DIFFICULTY_NONE);
+
+    map->DiscoverGridMapFiles();
+
+    i_maps[mapEntry->ID] = map;
+
+    for (uint32 childMapId : _parentMapData[mapEntry->ID])
+        map->AddChildTerrainMap(CreateBaseMap_i(sMapStore.AssertEntry(childMapId)));
+
+    if (!mapEntry->Instanceable())
+    {
+        map->LoadRespawnTimes();
+        map->LoadCorpseData();
+    }
+
+    return map;
+}
+
 Map* MapManager::FindMap_i(uint32 mapId, uint32 instanceId) const
 {
     return Trinity::Containers::MapGetValuePtr(i_maps, { mapId, instanceId });

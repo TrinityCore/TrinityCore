@@ -50,6 +50,10 @@ class TC_GAME_API MapManager
 
         static MapManager* instance();
 
+        Map* CreateBaseMap(uint32 id);
+
+        Map* CreateBaseMap_i(MapEntry const* mapEntry);
+
         Map* CreateMap(uint32 mapId, Player* player);
         Map* FindMap(uint32 mapId, uint32 instanceId) const;
         uint32 FindInstanceIdForPlayer(uint32 mapId, Player const* player) const;
@@ -134,6 +138,12 @@ class TC_GAME_API MapManager
         using MapKey = std::pair<uint32, uint32>;
         typedef std::map<MapKey, Map*> MapMapType;
         typedef boost::dynamic_bitset<size_t> InstanceIds;
+
+        Map* FindBaseMap(uint32 mapId) const
+        {
+            MapMapType::const_iterator iter = i_maps.find(mapId);
+            return (iter == i_maps.end() ? nullptr : iter->second);
+        }
 
         Map* FindMap_i(uint32 mapId, uint32 instanceId) const;
 
