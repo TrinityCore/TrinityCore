@@ -264,7 +264,19 @@ namespace WorldPackets
 
             ObjectGuid PetGuid;
         };
+
+        class RequestFailed final : public ServerPacket
+        {
+        public:
+            RequestFailed(uint8 reason) : ServerPacket(SMSG_PET_BATTLE_REQUEST_FAILED, 1), Reason(reason) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 Reason = 0;
+        };
     }
 }
+
+
 
 #endif // BattlePetPackets_h__

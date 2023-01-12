@@ -53,6 +53,7 @@
 #include "WorldSession.h"
 #include "Chat.h"
 #include <PetBattle.h>
+#include <BattlePetSystem.h>
 
 class npc_rate_xp_modifier : public CreatureScript
 {

@@ -132,3 +132,8 @@ void WorldSession::HandleBattlePetUpdateNotify(WorldPackets::BattlePet::BattlePe
 {
     GetBattlePetMgr()->UpdateBattlePetData(battlePetUpdateNotify.PetGuid);
 }
+
+void WorldSession::SendPetBattleRequestFailed(uint8 reason)
+{
+    SendPacket(WorldPackets::BattlePet::RequestFailed(reason).Write());
+}

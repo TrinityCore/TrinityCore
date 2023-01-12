@@ -208,3 +208,10 @@ void WorldPackets::BattlePet::BattlePetUpdateNotify::Read()
 {
     _worldPacket >> PetGuid;
 }
+
+WorldPacket const* WorldPackets::BattlePet::RequestFailed::Write()
+{
+    _worldPacket << Reason;
+
+    return &_worldPacket;
+}
