@@ -80,6 +80,14 @@ namespace WorldPackets
         };
 
 
+        struct PetBattleLocation
+        {
+            int32 LocationResult = 0;
+            TaggedPosition<Position::XYZO> BattleOrigin;
+            TaggedPosition<Position::XYZ> PlayerPositions[PARTICIPANTS_COUNT] = {};
+        };
+
+
         class PVPChallenge final : public ServerPacket
         {
         public:
@@ -281,12 +289,7 @@ namespace WorldPackets
             ObjectGuid PetGuid;
         };
 
-        struct PetBattleLocation
-        {
-            int32 LocationResult = 0;
-            TaggedPosition<Position::XYZO> BattleOrigin;
-            TaggedPosition<Position::XYZ> PlayerPositions[PARTICIPANTS_COUNT] = {};
-        };
+
 
         class FinalizeLocation final : public ServerPacket
         {

@@ -460,7 +460,7 @@ struct npc_kalecgos_for_teracgosa : ScriptedAI
 #define ACTION_RANDOM_MORPH 1003
 #define ACTION_DEMORPH 1004
 
-class npc_transmorpher_beacon : public CreatureScript
+class npc_transmorpher_beacon : public CreatureScript 
 {
 public:
     npc_transmorpher_beacon() : CreatureScript("npc_transmorpher_beacon") { }

@@ -436,7 +436,15 @@ class TC_GAME_API CreatureScript : public ScriptObject
         ~CreatureScript();
 
         // Called when a CreatureAI object is needed for the creature.
-        virtual CreatureAI* GetAI(Creature* creature) const = 0;
+        //virtual CreatureAI* GetAI(Creature* creature) const = 0;
+        //上方为新版
+        // 
+        //旧版原版
+        //virtual CreatureAI* GetAI(Creature* /*creature*/) const { return nullptr; }
+        //尝试失败1
+        //virtual CreatureAI* GetAI(Creature* creature/*creature*/) const { return nullptr; }
+        //尝试失败2
+        virtual CreatureAI* GetAI(Creature* creature/*creature*/) const { return 0; }
 };
 
 class TC_GAME_API GameObjectScript : public ScriptObject

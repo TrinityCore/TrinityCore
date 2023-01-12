@@ -1146,6 +1146,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendSummonRequestFrom(Unit* summoner);
         void SummonIfPossible(bool agree);
 
+        uint32 GetUnlockedPetBattleSlot();
+
         bool Create(ObjectGuid::LowType guidlow, WorldPackets::Character::CharacterCreateInfo const* createInfo);
 
         void Update(uint32 time) override;
@@ -2708,6 +2710,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         float GetPersonnalXpRate() { return _PersonnalXpRate; }//后加
         void SetPersonnalXpRate(float PersonnalXpRate);
         std::shared_ptr<BattlePet>* GetBattlePetCombatTeam();
+        bool HasBattlePetTraining();
         //后加
         std::shared_ptr<BattlePet> _battlePetCombatTeam[3];
         // Reagent Bank
