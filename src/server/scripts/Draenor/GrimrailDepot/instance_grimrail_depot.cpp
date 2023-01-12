@@ -1,4 +1,4 @@
-﻿#include "grimrail_depot.h"
+#include "grimrail_depot.h"
 #include "GameObject.h"
 /*
 static BossScenarios const g_BossScenarios[] =
@@ -28,7 +28,7 @@ struct instance_grimrail_depot : public InstanceScript
     ObjectGuid m_NitroggInvisibleDoorGUID;
     ObjectGuid m_SkylordTovraDoorGUID;
 
-    void Initialize() override
+    void Initialize() 
     {
         SetBossNumber(3);
         //LoadScenariosInfos(g_BossScenarios, instance->IsChallengeMode() ? eGrimrailDepotScenarios::IronDocksChallengeID : eIronDocksScenario::IronDocksScenarioID);
@@ -86,9 +86,9 @@ struct instance_grimrail_depot : public InstanceScript
         case GrimrailDepotBosses::BossSkylordTovra:
         {
             if (l_Creature->GetMap()->IsHeroic())
-                DoCompleteAchievement(GrimrailDepotAchivement::AchievementGrimrailDepotHeroic);
-            else
-                DoCompleteAchievement(GrimrailDepotAchivement::AchievementGrimrailDepotNormal);
+              //  DoCompleteAchievement(GrimrailDepotAchivement::AchievementGrimrailDepotHeroic);
+           // else
+             //   DoCompleteAchievement(GrimrailDepotAchivement::AchievementGrimrailDepotNormal);
             break;
         }
         default:
@@ -166,5 +166,5 @@ struct instance_grimrail_depot : public InstanceScript
 
 void AddSC_instance_grimrail_depot()
 {
-    RegisterInstanceScript(instance_grimrail_depot, 1208);
+   // RegisterInstanceScript(instance_grimrail_depot, 1208);
 }

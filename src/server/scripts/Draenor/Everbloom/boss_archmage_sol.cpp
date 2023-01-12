@@ -73,7 +73,7 @@ public:
             introDone = false;
 
             DoCast(me, SPELL_BARRIER);
-            me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+           // me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
         }
 
         void Reset() override
@@ -95,9 +95,9 @@ public:
             school = 0;
         }
 
-        void EnterCombat(Unit* /*attacker*/) override
+        void EnterCombat(Unit* /*attacker*/) 
         {
-            _EnterCombat();
+           // _EnterCombat();
             Talk(eArchmageTalks::KirinTorMageAggro);
             DoCast(me, SPELL_LIVING_ORGANISM);
         }
@@ -135,7 +135,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(Unit* caster, SpellInfo const* spell) 
         {
             switch (spell->Id)
             {
@@ -247,10 +247,10 @@ public:
                     if (frozenRainTimer <= diff)
                     {
                         frozenRainTimer = 11000;
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
+                      //  if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
                         {
                             frozenRainTriggerTimer = 1500;
-                            frozenRain = me->SummonCreature(NPC_FROZEN_RAIN, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 300 * IN_MILLISECONDS);
+                        //    frozenRain = me->SummonCreature(NPC_FROZEN_RAIN, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 300 * IN_MILLISECONDS);
                         }
                     }
                     else
@@ -336,11 +336,11 @@ class npc_frozen_rain : public CreatureScript
 public:
     npc_frozen_rain() : CreatureScript("npc_frozen_rain") { }
 
-    struct npc_frozen_rainAI : public Scripted_NoMovementAI
+    struct npc_frozen_rainAI : public CreatureAI
     {
-        npc_frozen_rainAI(Creature* creature) : Scripted_NoMovementAI(creature) { }
+        npc_frozen_rainAI(Creature* creature) : CreatureAI(creature) { }
 
-        void Reset() override
+        void Reset() 
         {
             DoCast(me, FrozenRainEnums::SPELL_FROZEN_RAIN_NPC);
         }
@@ -348,7 +348,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_frozen_rainAI(creature);
+       // return new npc_frozen_rainAI(creature);
     }
 };
 
@@ -401,8 +401,8 @@ public:
         void HandlePeriodic(AuraEffect const* /*aurEff*/)
         {
             PreventDefaultAction();
-            for (uint8 i = 0; i < 5; i++)
-                GetCaster()->CastSpell(ArchmagePositionBarrier[i].m_positionX, ArchmagePositionBarrier[i].m_positionY, ArchmagePositionBarrier[i].m_positionZ, 170146, true);
+            for (uint8 i = 0; i < 5; i++);
+            //    GetCaster()->CastSpell(ArchmagePositionBarrier[i].m_positionX, ArchmagePositionBarrier[i].m_positionY, ArchmagePositionBarrier[i].m_positionZ, 170146, true);
         }
 
         void Register() override

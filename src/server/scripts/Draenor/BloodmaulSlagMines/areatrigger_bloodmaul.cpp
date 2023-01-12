@@ -71,16 +71,16 @@ namespace Instances
         {
         public:
 
-            AreaTrigger_at_bloodmaul_overseer_event() : AreaTriggerScript("at_bloodmaul_overseer_event") { }
+            AreaTrigger_at_bloodmaul_overseer_event() : AreaTriggerScript("at_bloodmaul_overseer_event") { };
 
-            bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/, bool /*entered*/) override
-            {
-                if (Creature* overseer = GetClosestCreatureWithEntry(player, MobEntries::BloodmaulOverseer, 100.0f))
-                    if (overseer->AI())
-                        overseer->AI()->DoAction(0);
+           // bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/, bool /*entered*/) 
+            //{
+              //  if (Creature* overseer = GetClosestCreatureWithEntry(player, MobEntries::BloodmaulOverseer, 100.0f))
+                 //   if (overseer->AI())
+                   //     overseer->AI()->DoAction(0);
 
-                return false;
-            }
+               // return false;
+            //}
         };
 
         // 9783 - Start magmolatus begin area event
@@ -90,7 +90,7 @@ namespace Instances
 
             AreaTrigger_at_magmolatus_begin_area() : AreaTriggerScript("at_magmolatus_begin_area") { }
 
-            bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/, bool /*entered*/) override
+            bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/, bool /*entered*/) 
             {
                 if (player->GetInstanceScript())
                     if (Creature* explosionStalker = player->GetMap()->GetCreature(player->GetInstanceScript()->GetGuidData(MobEntries::LavaExplosionStalker)))
@@ -108,7 +108,7 @@ namespace Instances
 
             AreaTrigger_at_SpawnSlagna() : AreaTriggerScript("at_SpawnSlagna") { }
 
-            bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/, bool /*entered*/) override
+            bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/, bool /*entered*/) 
             {
                 if (player->GetInstanceScript())
                 {

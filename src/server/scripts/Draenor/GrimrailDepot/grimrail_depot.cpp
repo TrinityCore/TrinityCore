@@ -75,10 +75,10 @@ class grimrail_depot_mob_assault_cannon : public CreatureScript
 
         void Reset() override
         {
-            events.Reset();
+           // events.Reset();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* p_Attacker) 
         {
         }
 
@@ -87,7 +87,7 @@ class grimrail_depot_mob_assault_cannon : public CreatureScript
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);
+           // events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
@@ -138,21 +138,21 @@ class grimrail_depot_mob_grimrail_bombadier : public CreatureScript
 
         void Reset() override
         {
-            events.Reset();
+          //  events.Reset();
             SetCombatMovement(false);
-            events.ScheduleEvent(eGrimrailBombadierEvents::EventBlackrockBombs, 3 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eGrimrailBombadierEvents::EventBlackrockBombs, 3 * TimeConstants::IN_MILLISECONDS);
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* p_Attacker) 
         {         
-            events.ScheduleEvent(eGrimrailBombadierEvents::EventDoubleSlash, 6 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eGrimrailBombadierEvents::EventDoubleSlash, 6 * TimeConstants::IN_MILLISECONDS);
         }
 
         void UpdateAI(uint32 const p_Diff) override
         {
-            events.Update(p_Diff);
+          //  events.Update(p_Diff);
 
-            if (events.ExecuteEvent() == eGrimrailBombadierEvents::EventBlackrockBombs)
+           // if (events.ExecuteEvent() == eGrimrailBombadierEvents::EventBlackrockBombs)
             {
                 std::list<Creature*> l_ListBlackrockBombsTriggers;
                 me->GetCreatureListWithEntryInGrid(l_ListBlackrockBombsTriggers, GrimrailDepotCreatures::CreatureBlackrockBombsTriggers, 60.0f);
@@ -170,7 +170,7 @@ class grimrail_depot_mob_grimrail_bombadier : public CreatureScript
                     }
                 }
 
-                events.ScheduleEvent(eGrimrailBombadierEvents::EventBlackrockBombs, 10 * TimeConstants::IN_MILLISECONDS);
+             //   events.ScheduleEvent(eGrimrailBombadierEvents::EventBlackrockBombs, 10 * TimeConstants::IN_MILLISECONDS);
             }
 
             if (!UpdateVictim())
@@ -179,28 +179,28 @@ class grimrail_depot_mob_grimrail_bombadier : public CreatureScript
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
-            switch (events.ExecuteEvent())
+           // switch (events.ExecuteEvent())
             {
-            case eGrimrailBombadierEvents::EventBlackrockBombs:
-                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_FARTHEST, 0, 15.0f, true))
-                    me->CastSpell(l_Target, eGrimrailBombadierSpells::SpellBlackrockBombTriggerMissile);
-                else
+                eGrimrailBombadierEvents::EventBlackrockBombs;
+                //if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_FARTHEST, 0, 15.0f, true))
+                  //  me->CastSpell(l_Target, eGrimrailBombadierSpells::SpellBlackrockBombTriggerMissile);
+             //   else
                 {
                     Position l_Position;
                     l_Position = me->GetRandomNearPosition(30.0f);
-                    me->CastSpell(l_Position.GetPositionX(), l_Position.GetPositionY(), l_Position.GetPositionZ(), eGrimrailBombadierSpells::SpellBlackrockBombTriggerMissile, false);
+                    //me->CastSpell(l_Position.GetPositionX(), l_Position.GetPositionY(), l_Position.GetPositionZ(), eGrimrailBombadierSpells::SpellBlackrockBombTriggerMissile, false);
                 }
 
-                events.ScheduleEvent(eGrimrailBombadierEvents::EventBlackrockBombs, 5 * TimeConstants::IN_MILLISECONDS);
-                break;
-            case eGrimrailBombadierEvents::EventDoubleSlash:
+              //  events.ScheduleEvent(eGrimrailBombadierEvents::EventBlackrockBombs, 5 * TimeConstants::IN_MILLISECONDS);
+                //break;
+                eGrimrailBombadierEvents::EventDoubleSlash;
                 if (Unit* l_Victim = me->GetVictim())
                     me->CastSpell(l_Victim, eGrimrailBombadierSpells::SpellDoubleSlash);
 
-                events.ScheduleEvent(eGrimrailBombadierEvents::EventDoubleSlash, 7 * TimeConstants::IN_MILLISECONDS);
-                break;
-            default:
-                break;
+               // events.ScheduleEvent(eGrimrailBombadierEvents::EventDoubleSlash, 7 * TimeConstants::IN_MILLISECONDS);
+               // break;
+             //default:
+               // break;
             }
 
             DoMeleeAttackIfReady();
@@ -241,7 +241,7 @@ class grimrail_depot_mob_grimrail_laborer : public CreatureScript
 
         void Reset() override
         {
-            events.Reset();
+           // events.Reset();
         }
 
         void JustDied(Unit* p_Killer) override
@@ -252,16 +252,16 @@ class grimrail_depot_mob_grimrail_laborer : public CreatureScript
                 {
                     if (me->IsWithinDistInMap(l_Tovra, 80.0f))
                     {
-                        if (l_Tovra->IsAIEnabled)
+                      //  if (l_Tovra->IsAIEnabled)
                             l_Tovra->GetAI()->DoAction(GrimrailDepotActions::ActionCount);
                     }
                 }
             }
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* p_Attacker) 
         {
-            events.ScheduleEvent(eGrimrailLaborerEvents::EventHaymaker, 6 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eGrimrailLaborerEvents::EventHaymaker, 6 * TimeConstants::IN_MILLISECONDS);
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -269,19 +269,19 @@ class grimrail_depot_mob_grimrail_laborer : public CreatureScript
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);
+          //  events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
-            switch (events.ExecuteEvent())
+           // switch (events.ExecuteEvent())
             {
-            case eGrimrailLaborerEvents::EventHaymaker:
-                if (Unit* l_Target = me->GetVictim())
-                    events.ScheduleEvent(eGrimrailLaborerEvents::EventHaymaker, 8 * TimeConstants::IN_MILLISECONDS);
-                break;
-            default:
-                break;
+                eGrimrailLaborerEvents::EventHaymaker;
+                if (Unit* l_Target = me->GetVictim());
+                   // events.ScheduleEvent(eGrimrailLaborerEvents::EventHaymaker, 8 * TimeConstants::IN_MILLISECONDS);
+              //  break;
+             //default:
+              //  break;
             }
 
             DoMeleeAttackIfReady();
@@ -324,14 +324,14 @@ class grimrail_depot_mob_grimrail_overseer : public CreatureScript
 
         void Reset() override
         {
-            events.Reset();
+           // events.Reset();
             m_DashEffect = false;
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* p_Attacker) 
         {
-            events.ScheduleEvent(eGrimrailOverseerEvents::EventDash, 15 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eGrimrailOverseerEvents::EventHewingSwipe, 6 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eGrimrailOverseerEvents::EventDash, 15 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eGrimrailOverseerEvents::EventHewingSwipe, 6 * TimeConstants::IN_MILLISECONDS);
         }
 
         void MovementInform(uint32 /*p_Type*/, uint32 p_Id) override
@@ -342,7 +342,7 @@ class grimrail_depot_mob_grimrail_overseer : public CreatureScript
             {
                 Position l_Position;
                 l_Position = me->GetFirstCollisionPosition(2.0f, 0.0f);
-                me->GetMotionMaster()->MoveCharge(&l_Position, 24.0f, eMovementInformed::MovementInformedDashFinish);
+               // me->GetMotionMaster()->MoveCharge(&l_Position, 24.0f, eMovementInformed::MovementInformedDashFinish);
             }
             break;
             case eMovementInformed::MovementInformedDashFinish:
@@ -370,7 +370,7 @@ class grimrail_depot_mob_grimrail_overseer : public CreatureScript
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);
+          //  events.Update(p_Diff);
 
             if (m_DashEffect) /// Handles dash damage.
             {
@@ -388,24 +388,24 @@ class grimrail_depot_mob_grimrail_overseer : public CreatureScript
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING) || m_DashEffect)
                 return;
 
-            switch (events.ExecuteEvent())
+            //switch (events.ExecuteEvent())
             {
-            case eGrimrailOverseerEvents::EventDash:
-                if (Unit * l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
+                eGrimrailOverseerEvents::EventDash;
+               // if (Unit * l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
                 {
-                    me->CastSpell(l_Random, eGrimrailOverseerSpells::SpellDashDummy);
-                    me->CastSpell(l_Random, eGrimrailOverseerSpells::SpellMadDashAura);
+                  //  me->CastSpell(l_Random, eGrimrailOverseerSpells::SpellDashDummy);
+                   // me->CastSpell(l_Random, eGrimrailOverseerSpells::SpellMadDashAura);
                 }
 
-                events.ScheduleEvent(eGrimrailOverseerEvents::EventDash, 15 * TimeConstants::IN_MILLISECONDS);
-                break;
-            case eGrimrailOverseerEvents::EventHewingSwipe:
+                //events.ScheduleEvent(eGrimrailOverseerEvents::EventDash, 15 * TimeConstants::IN_MILLISECONDS);
+                //break;
+                eGrimrailOverseerEvents::EventHewingSwipe;
                 if (Unit* l_Target = me->GetVictim())
                     me->CastSpell(l_Target, eGrimrailOverseerSpells::SpellHewingSwipe);
-                events.ScheduleEvent(eGrimrailOverseerEvents::EventHewingSwipe, 6 * TimeConstants::IN_MILLISECONDS);
-                break;
-            default:
-                break;
+               // events.ScheduleEvent(eGrimrailOverseerEvents::EventHewingSwipe, 6 * TimeConstants::IN_MILLISECONDS);
+               // break;
+             //default:
+               // break;
             }
 
             DoMeleeAttackIfReady();
@@ -451,12 +451,12 @@ class grimrail_depot_mob_grimrail_scout : public CreatureScript
 
         void Reset() override
         {
-            events.Reset();
+            //events.Reset();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* p_Attacker) 
         {
-            events.ScheduleEvent(eGrimrailScoutEvents::EventArcaneBlitz, 0 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eGrimrailScoutEvents::EventArcaneBlitz, 0 * TimeConstants::IN_MILLISECONDS);
         }
 
         void JustDied(Unit* p_Killer) override
@@ -467,7 +467,7 @@ class grimrail_depot_mob_grimrail_scout : public CreatureScript
                 {
                     if (me->IsWithinDistInMap(l_Tovra, 80.0f))
                     {
-                        if (l_Tovra->IsAIEnabled)
+                       // if (l_Tovra->IsAIEnabled)
                             l_Tovra->GetAI()->DoAction(GrimrailDepotActions::ActionCount);
                     }
                 }
@@ -479,21 +479,21 @@ class grimrail_depot_mob_grimrail_scout : public CreatureScript
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);
+           // events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
-            switch (events.ExecuteEvent())
+           // switch (events.ExecuteEvent())
             {
-            case eGrimrailScoutEvents::EventArcaneBlitz:
-                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                eGrimrailScoutEvents::EventArcaneBlitz;
+                //if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
                      me->CastSpell(me, eGrimrailScoutSpells::SpellArcaneBlitzAura);
 
-                events.ScheduleEvent(eGrimrailScoutEvents::EventArcaneBlitz, 0 * TimeConstants::IN_MILLISECONDS);
-                break;
-            default:
-                break;
+              //  events.ScheduleEvent(eGrimrailScoutEvents::EventArcaneBlitz, 0 * TimeConstants::IN_MILLISECONDS);
+               // break;
+             //default:
+               // break;
             }
 
             DoMeleeAttackIfReady();
@@ -543,15 +543,15 @@ class grimrail_depot_mob_grimrail_technician : public CreatureScript
 
         void Reset() override
         {
-            events.Reset();
+          //  events.Reset();
             l_TargetGuid = ObjectGuid::Empty;
-            ClearDelayedOperations();
+           // ClearDelayedOperations();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* p_Attacker) 
         {
-            events.ScheduleEvent(eGrimrailTechnicianEvents::Event50kVolts, 8 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eGrimrailTechnicianEvents::EventActivating, 20 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eGrimrailTechnicianEvents::Event50kVolts, 8 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eGrimrailTechnicianEvents::EventActivating, 20 * TimeConstants::IN_MILLISECONDS);
         }
 
         void DoAction(int32 const p_Action) override
@@ -567,7 +567,7 @@ class grimrail_depot_mob_grimrail_technician : public CreatureScript
 
                     if (l_TargetGuid != ObjectGuid::Empty)
                     {
-                        if (me->IsAIEnabled)
+                      //  if (me->IsAIEnabled)
                         {
                             if (Creature* l_Target = ObjectAccessor::GetCreature(*me, l_TargetGuid))
                                 me->CastSpell(l_Target, eActivatingSpells::SpellActivating);
@@ -585,8 +585,8 @@ class grimrail_depot_mob_grimrail_technician : public CreatureScript
             if (!UpdateVictim())
                 return;
 
-            UpdateOperations(p_Diff);
-            events.Update(p_Diff);
+           // UpdateOperations(p_Diff);
+           // events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
@@ -594,14 +594,14 @@ class grimrail_depot_mob_grimrail_technician : public CreatureScript
             if (l_TargetGuid != ObjectGuid::Empty)
                 return;
 
-            switch (events.ExecuteEvent())
+            //switch (events.ExecuteEvent())
             {
-            case eGrimrailTechnicianEvents::Event50kVolts:
-                if (Unit * l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                    me->CastSpell(l_Random, eGrimrailTechnicianSpells::Spell50kVolts);
-                events.ScheduleEvent(eGrimrailTechnicianEvents::Event50kVolts, 15 * TimeConstants::IN_MILLISECONDS);
-                break;
-            case eGrimrailTechnicianEvents::EventActivating:
+                eGrimrailTechnicianEvents::Event50kVolts;
+               // if (Unit * l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                 //   me->CastSpell(l_Random, eGrimrailTechnicianSpells::Spell50kVolts);
+               // events.ScheduleEvent(eGrimrailTechnicianEvents::Event50kVolts, 15 * TimeConstants::IN_MILLISECONDS);
+               // break;
+                eGrimrailTechnicianEvents::EventActivating;
             {
                 std::list<Creature*> l_ListCreatureStar;
                 me->GetCreatureListWithEntryInGrid(l_ListCreatureStar, GrimrailDepotCreatures::CreatureStarMkIII, 15.0f);
@@ -611,26 +611,26 @@ class grimrail_depot_mob_grimrail_technician : public CreatureScript
                     std::advance(l_It, urand(0, l_ListCreatureStar.size() - 1));
                     l_TargetGuid = (*l_It)->GetGUID();
 
-                    AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                   // AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                     {
-                        if (me->IsAIEnabled)
+                       // if (me->IsAIEnabled)
                             me->GetAI()->DoAction(eGrimrailTechnicianActions::ActionActivate);
-                    });
+                    };
 
-                    AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                   // AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                     {
                         me->SetReactState(ReactStates::REACT_AGGRESSIVE);
-                    });
+                    };
 
                     me->SetReactState(ReactStates::REACT_PASSIVE);
                     me->GetMotionMaster()->MovePoint(eGrimrailTechnicianMovementInformed::MovementInformedMoveToActivate, (*l_It)->GetPositionX() - 4.2f, (*l_It)->GetPositionY() - 4.2f, (*l_It)->GetPositionZ());
                 }
               
-                events.ScheduleEvent(eGrimrailTechnicianEvents::EventActivating, 20 * TimeConstants::IN_MILLISECONDS);
-                break;
+               // events.ScheduleEvent(eGrimrailTechnicianEvents::EventActivating, 20 * TimeConstants::IN_MILLISECONDS);
+                //break;
             }
-            default:
-                break;
+             //default:
+               // break;
             }
             DoMeleeAttackIfReady();
         }
@@ -674,8 +674,8 @@ class grimrail_depot_iron_star : public CreatureScript
             me->SetFaction(FriendlyFaction);
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->SetSpeed(UnitMoveType::MOVE_RUN, 3.8f);
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
+           // me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+           // me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
         }
 
         void DoAction(const int32 p_Action) override
@@ -685,7 +685,7 @@ class grimrail_depot_iron_star : public CreatureScript
             case eAction::ActionActivateEffect:
             {
                 me->CastSpell(me, eIronStarMkIIISpells::IronStarMkIIICharge);
-                events.ScheduleEvent(eIronStarMkIIIEvents::IronStarMkIIIChargeEvent, 2 * TimeConstants::IN_MILLISECONDS);
+               // events.ScheduleEvent(eIronStarMkIIIEvents::IronStarMkIIIChargeEvent, 2 * TimeConstants::IN_MILLISECONDS);
                 break;
             }
             default:
@@ -695,16 +695,16 @@ class grimrail_depot_iron_star : public CreatureScript
 
         void UpdateAI(const uint32 p_Diff) override
         {
-            events.Update(p_Diff);
+           // events.Update(p_Diff);
 
-            switch (events.ExecuteEvent())
+           // switch (events.ExecuteEvent())
             {
-                case eIronStarMkIIIEvents::IronStarMkIIIChargeEvent:
+                eIronStarMkIIIEvents::IronStarMkIIIChargeEvent;
                     me->CastSpell(me, eIronStarMkIIISpells::IronStarMkIII);
-                    me->DespawnOrUnsummon(3 * TimeConstants::IN_MILLISECONDS);
-                    break;
-                default:
-                    break;
+                  //  me->DespawnOrUnsummon(3 * TimeConstants::IN_MILLISECONDS);
+                //    break;
+                //default:
+                  //  break;
             }
         }
     };
@@ -739,7 +739,7 @@ class grimrail_depot_mob_gromkar_capitan : public CreatureScript
 
         void Reset() override
         {
-            events.Reset();
+          //  events.Reset();
         }
 
         void JustDied(Unit* p_Killer) override
@@ -750,16 +750,16 @@ class grimrail_depot_mob_gromkar_capitan : public CreatureScript
                 {
                     if (me->IsWithinDistInMap(l_Tovra, 80.0f))
                     {
-                        if (l_Tovra->IsAIEnabled)
+                        //if (l_Tovra->IsAIEnabled)
                             l_Tovra->GetAI()->DoAction(GrimrailDepotActions::ActionCount);
                     }
                 }
             }
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* p_Attacker)
         {
-            events.ScheduleEvent(eGromkarCapitanEvents::EventRecklessSlash, 0 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eGromkarCapitanEvents::EventRecklessSlash, 0 * TimeConstants::IN_MILLISECONDS);
         }
 
         void UpdateAI(const uint32 p_Diff) override
@@ -767,18 +767,18 @@ class grimrail_depot_mob_gromkar_capitan : public CreatureScript
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);
+          //  events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
-            switch (events.ExecuteEvent())
+           // switch (events.ExecuteEvent())
             {
-                case eGromkarCapitanEvents::EventRecklessSlash:
-                    events.ScheduleEvent(eGromkarCapitanEvents::EventRecklessSlash, 0 * TimeConstants::IN_MILLISECONDS);
-                    break;
-                default:
-                    break;
+                eGromkarCapitanEvents::EventRecklessSlash;
+                //    events.ScheduleEvent(eGromkarCapitanEvents::EventRecklessSlash, 0 * TimeConstants::IN_MILLISECONDS);
+                  //  break;
+                //default:
+                  //  break;
             }
 
             DoMeleeAttackIfReady();
@@ -821,13 +821,13 @@ class grimrail_depot_mob_gromkar_cinderseer : public CreatureScript
 
         void Reset() override
         {
-            events.Reset();
+           // events.Reset();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* p_Attacker) 
         {
-            events.ScheduleEvent(eGromkarCinderseerEvents::EventFlametongue, 10 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eGromkarCinderseerEvents::EventLavaWreath, 15 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eGromkarCinderseerEvents::EventFlametongue, 10 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eGromkarCinderseerEvents::EventLavaWreath, 15 * TimeConstants::IN_MILLISECONDS);
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -835,25 +835,25 @@ class grimrail_depot_mob_gromkar_cinderseer : public CreatureScript
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);
+           // events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
-            switch (events.ExecuteEvent())
+           // switch (events.ExecuteEvent())
             {
-            case eGromkarCinderseerEvents::EventFlametongue:
+                eGromkarCinderseerEvents::EventFlametongue;
                 if (Unit* l_Victim = me->GetVictim())
                     me->CastSpell(l_Victim, eGromkarCinderseerSpells::SpellFlametongueTriggerMissile);
-                events.ScheduleEvent(eGromkarCinderseerEvents::EventFlametongue, 20 * TimeConstants::IN_MILLISECONDS);
-                break;
-            case eGromkarCinderseerEvents::EventLavaWreath:
-                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 20.0f, true))
-                    me->CastSpell(l_Target, eGromkarCinderseerSpells::SpellLavaWreathDummy);
-                events.ScheduleEvent(eGromkarCinderseerEvents::EventLavaWreath, 30 * TimeConstants::IN_MILLISECONDS);
-                break;
-            default:
-                break;
+               // events.ScheduleEvent(eGromkarCinderseerEvents::EventFlametongue, 20 * TimeConstants::IN_MILLISECONDS);
+               // break;
+                eGromkarCinderseerEvents::EventLavaWreath;
+               // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 20.0f, true))
+                 //   me->CastSpell(l_Target, eGromkarCinderseerSpells::SpellLavaWreathDummy);
+                //events.ScheduleEvent(eGromkarCinderseerEvents::EventLavaWreath, 30 * TimeConstants::IN_MILLISECONDS);
+               // break;
+             //default:
+               // break;
             }
 
             DoMeleeAttackIfReady();
@@ -903,14 +903,14 @@ class grimrail_depot_mob_gromkar_farseer : public CreatureScript
 
         void Reset() override
         {
-            events.Reset();
+          //  events.Reset();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* p_Attacker) 
         {
-            events.ScheduleEvent(eGromkarFarSeerEvents::EventStormShield, 8 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eGromkarFarSeerEvents::EventThunderZone, 15 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eGromkarFarSeerEvents::EventHealingRain, 20 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eGromkarFarSeerEvents::EventStormShield, 8 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eGromkarFarSeerEvents::EventThunderZone, 15 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eGromkarFarSeerEvents::EventHealingRain, 20 * TimeConstants::IN_MILLISECONDS);
         }
 
         void JustDied(Unit* p_Killer) override
@@ -921,7 +921,7 @@ class grimrail_depot_mob_gromkar_farseer : public CreatureScript
                 {
                     if (me->IsWithinDistInMap(l_Tovra, 80.0f))
                     {
-                        if (l_Tovra->IsAIEnabled)
+                      //  if (l_Tovra->IsAIEnabled)
                             l_Tovra->GetAI()->DoAction(GrimrailDepotActions::ActionCount);
                     }
                 }
@@ -933,28 +933,28 @@ class grimrail_depot_mob_gromkar_farseer : public CreatureScript
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);
+           // events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
-            switch (events.ExecuteEvent())
+            //switch (events.ExecuteEvent())
             {
-            case eGromkarFarSeerEvents::EventStormShield:
+                eGromkarFarSeerEvents::EventStormShield;
                 me->CastSpell(me, eGromkarFarSeerSpells::SpellStormShieldAura);
-                events.ScheduleEvent(eGromkarFarSeerEvents::EventStormShield, 16 * TimeConstants::IN_MILLISECONDS);
-                break;
-            case eGromkarFarSeerEvents::EventHealingRain:
+                //events.ScheduleEvent(eGromkarFarSeerEvents::EventStormShield, 16 * TimeConstants::IN_MILLISECONDS);
+                //break;
+                eGromkarFarSeerEvents::EventHealingRain;
             {
                 me->CastSpell(me, eGromkarFarSeerSpells::SpellHealingRainDummy);
-                events.ScheduleEvent(eGromkarFarSeerEvents::EventHealingRain, 0 * TimeConstants::IN_MILLISECONDS);
-                break;
+                //events.ScheduleEvent(eGromkarFarSeerEvents::EventHealingRain, 0 * TimeConstants::IN_MILLISECONDS);
+                //break;
             }
-            case eGromkarFarSeerEvents::EventThunderZone:
-                events.ScheduleEvent(eGromkarFarSeerEvents::EventThunderZone, 0 * TimeConstants::IN_MILLISECONDS);
-                break;
-            default:
-                break;
+            eGromkarFarSeerEvents::EventThunderZone;
+               // events.ScheduleEvent(eGromkarFarSeerEvents::EventThunderZone, 0 * TimeConstants::IN_MILLISECONDS);
+               // break;
+            //default:
+              //  break;
             }
 
             DoMeleeAttackIfReady();
@@ -995,12 +995,12 @@ public:
 
         void Reset() override
         {
-            events.Reset();
+           // events.Reset();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* p_Attacker) 
         {
-            events.ScheduleEvent(eGromkarGunnerEvents::EventShrapnelBlast, 1 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eGromkarGunnerEvents::EventShrapnelBlast, 1 * TimeConstants::IN_MILLISECONDS);
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -1008,21 +1008,21 @@ public:
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);
+           // events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
-            switch (events.ExecuteEvent())
+            //switch (events.ExecuteEvent())
             {
-            case eGromkarGunnerEvents::EventShrapnelBlast:
+                eGromkarGunnerEvents::EventShrapnelBlast;
                 if (Unit* l_Target = me->GetVictim())
                     me->CastSpell(l_Target, eGromkarGunnerSpells::SpellShrapnelBlast);
 
-                events.ScheduleEvent(eGromkarGunnerEvents::EventShrapnelBlast, 4 * TimeConstants::IN_MILLISECONDS);
-                break;
-            default:
-                break;
+                //events.ScheduleEvent(eGromkarGunnerEvents::EventShrapnelBlast, 4 * TimeConstants::IN_MILLISECONDS);
+               // break;
+           // default:
+             //   break;
             }
 
             DoMeleeAttackIfReady();
@@ -1059,7 +1059,7 @@ public:
 
         void Reset() override
         {
-            events.Reset();
+            //events.Reset();
             me->CastSpell(me, eGromkarHulkSpells::SpellGettingAngry);
         }
     };
@@ -1077,7 +1077,7 @@ public:
 
     grimrail_depot_mob_board_to_grimrail() : CreatureScript("grimrail_depot_mob_board_to_grimrail") { }
 
-    bool OnGossipHello(Player * p_Player, Creature * p_Creature) override
+    bool OnGossipHello(Player * p_Player, Creature * p_Creature) 
     {
         /// Cut scene and teleport.
         p_Player->GetSceneMgr().PlayScene(GrimrailDepotScenes::SceneBoardToGrimrail);
@@ -1096,13 +1096,13 @@ public:
 
         void Reset() override
         {
-            events.Reset();
+           // events.Reset();
             me->SetCanFly(true);
             me->SetDisableGravity(true);
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->CastSpell(me, eBoardToGrimrailSpells::SpellChainCosmetic);
             SetCombatMovement(false);
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+          //  me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
         }
     };
 
@@ -1128,9 +1128,9 @@ public:
             if (Unit* l_Caster = GetCaster())
             {
                 if (Unit* l_Target = GetExplTargetUnit())
-                    l_Caster->GetMotionMaster()->MoveCharge(l_Target, 24.0f, eMovementInformed::MovementInformedDashSecondCut);
+                  //  l_Caster->GetMotionMaster()->MoveCharge(l_Target, 24.0f, eMovementInformed::MovementInformedDashSecondCut);
 
-                if (l_Caster->IsAIEnabled)
+              //  if (l_Caster->IsAIEnabled)
                     l_Caster->GetAI()->DoAction(eAction::ActionActivateDashEffect);
             }
         }
@@ -1201,14 +1201,14 @@ public:
 
             if (GetTarget())
             {
-                if (GetTarget()->IsAIEnabled)
+               // if (GetTarget()->IsAIEnabled)
                     GetTarget()->GetAI()->DoAction(eAction::ActionActivateEffect);
             }
         }
 
         void Register() override
         {
-            OnEffectProc += AuraEffectProcFn(grimrail_depot_spell_activating_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+           // OnEffectProc += AuraEffectProcFn(grimrail_depot_spell_activating_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
         }
     };
 
@@ -1335,7 +1335,7 @@ class grimrail_depot_at_flametongue : public AreaTriggerEntityScript
             {
                 std::list<Player*> l_PlayerList;
 
-                l_PlayerList = at->SelectNearestPlayers(2.0f);
+               // l_PlayerList = at->SelectNearestPlayers(2.0f);
 
                 if (l_PlayerList.empty())
                     return;

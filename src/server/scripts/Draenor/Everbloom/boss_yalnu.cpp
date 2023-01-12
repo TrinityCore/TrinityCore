@@ -22,6 +22,7 @@
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "the_everbloom.h"
+#include <account_service.pb.h>
 
 enum eYalnuTalks
 {
@@ -106,7 +107,7 @@ public:
             if (type == POINT_MOTION_TYPE && id == 0)
             {
                 DoCast(me, SPELL_TELEPORT_OUT);
-                me->DespawnOrUnsummon(1000);
+                me->DespawnOrUnsummon();
             }
         }
 
@@ -170,7 +171,7 @@ public:
                 instance->SetBossState(DATA_YALNU, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*attacker*/) override
+        void EnterCombat(Unit* /*attacker*/) 
         {
             me->setActive(true);
             DoZoneInCombat();
@@ -185,7 +186,7 @@ public:
             if (instance)
             {
                 instance->SetBossState(DATA_YALNU, DONE);
-                instance->SaveToDB();
+               // instance->SaveToDB();
             }
         }
 
@@ -202,16 +203,16 @@ public:
 
         bool playersInThreat()
         {
-            const std::list<HostileReference*>& threatList = me->getThreatManager().getThreatList();
-            if (threatList.empty())
+          //  const std::list<HostileReference*>& threatList = me->getThreatManager().getThreatList();
+           // if (threatList.empty())
                 return false;
 
-            for (std::list<HostileReference*>::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
+           // for (std::list<HostileReference*>::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
             {
-                HostileReference* ref = (*itr);
-                if (Unit* target = ref->getTarget())
+             //   HostileReference* ref = (*itr);
+               // if (Unit* target = ref->getTarget())
                 {
-                    if (target->IsPlayer())
+                   // if (target->IsPlayer())
                         return true;
                 }
             }
@@ -253,7 +254,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* done_by, uint32 &damage) override
+        void DamageTaken(Unit* done_by, uint32 &damage) 
         {
             if (!done_by->IsPlayer())
                 me->LowerPlayerDamageReq(damage);
@@ -343,8 +344,8 @@ public:
             if (entanglementTimer <= diff)
             {
                 entanglementTimer = 60000;
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 500.0f))
-                    DoCast(target, SPELL_ENTANGLEMENT);
+               // if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 500.0f))
+                 //   DoCast(target, SPELL_ENTANGLEMENT);
             }
             else
                 entanglementTimer -= diff;
@@ -451,14 +452,14 @@ class spell_genesis_missile : public SpellScriptLoader
             void OnHit(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                uint32 triggered_spell_id = GetSpellInfo()->GetEffect(effIndex)->TriggerSpell;
+               // uint32 triggered_spell_id = GetSpellInfo()->GetEffect(effIndex)->TriggerSpell;
 
                 float angle = float(rand_norm()) * static_cast<float>(2 * M_PI);
                 float dist = 35.0f;
                 dist *= float(rand_norm());
 
                 Position pos = GetCaster()->GetNearPosition(dist, angle);
-                GetCaster()->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), triggered_spell_id, true);
+               // GetCaster()->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), triggered_spell_id, true);
             }
 
             void Register() override
@@ -512,7 +513,7 @@ public:
                 me->RemoveAurasDueToSpell(SPELL_SUBMERGED);
                 me->RemoveAurasDueToSpell(SPELL_GENESIS_LASHER);
                 me->SetObjectScale(0.1f);
-                me->DespawnOrUnsummon(2000);
+                me->DespawnOrUnsummon();
             }
 
             if (trampled || !sprouts)
@@ -623,7 +624,7 @@ public:
             tendonRipTimer = 6000;
         }
 
-        void EnterCombat(Unit* /*attacker*/) override
+        void EnterCombat(Unit* /*attacker*/) 
         {
             me->SetObjectScale(1.0f);
         }
@@ -773,7 +774,7 @@ public:
             if (!attack)
             {
                 attack = true;
-                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+             //   me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 DoCast(me, SPELL_ENTANGLEMENT_PLAYER_DAMAGE);
             }
 
@@ -815,7 +816,7 @@ public:
             if (!attack)
             {
                 attack = true;
-                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+              //  me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 DoCast(me, SPELL_ENTANGLEMENT_PLAYER_DAMAGE);
             }
 
@@ -1202,8 +1203,8 @@ public:
 
     void OnCreate() override
     {
-        if (Creature* yalnu = GetClosestCreatureWithEntry(at, NPC_YALNU, 100.0f))
-            at->SetDestination(yalnu->GetPosition(), 2000);
+        if (Creature* yalnu = GetClosestCreatureWithEntry(at, NPC_YALNU, 100.0f));
+          //  at->SetDestination(yalnu->GetPosition(), 2000);
     }
 
     void OnUnitEnter(Unit* unit) override

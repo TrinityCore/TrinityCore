@@ -146,7 +146,7 @@ class boss_kromog : public CreatureScript
 
                 m_Events.Reset();
 
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+               // me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
 
                 me->RemoveAura(eFoundrySpells::Berserker);
                 me->RemoveAura(eSpells::Frenzy);
@@ -200,9 +200,9 @@ class boss_kromog : public CreatureScript
                 Talk(eTalks::TalkSlay);
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
-                _EnterCombat();
+               // _EnterCombat();
 
                 Talk(eTalks::TalkAggro);
 
@@ -211,14 +211,14 @@ class boss_kromog : public CreatureScript
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 1);
 
-                m_Events.ScheduleEvent(eEvents::EventCheckMeleePlayers, eTimers::TimerFirstCheckMeleePlayers);
-                m_Events.ScheduleEvent(eEvents::EventBerserker, eTimers::TimerBerserker);
-                m_Events.ScheduleEvent(eEvents::EventStoneBreath, eTimers::TimerStoneBreath);
-                m_Events.ScheduleEvent(eEvents::EventWarpedArmor, eTimers::TimerWarpedArmor);
-                m_Events.ScheduleEvent(eEvents::EventSlam, eTimers::TimerSlam);
-                m_Events.ScheduleEvent(eEvents::EventRipplingSmash, eTimers::TimerRipplingSmash);
-                m_Events.ScheduleEvent(eEvents::EventGraspingEarth, eTimers::TimerGraspingEarth);
-                m_Events.ScheduleEvent(eEvents::EventCrushingEarth, eTimers::TimerCrushingEarth);
+               // m_Events.ScheduleEvent(eEvents::EventCheckMeleePlayers, eTimers::TimerFirstCheckMeleePlayers);
+               // m_Events.ScheduleEvent(eEvents::EventBerserker, eTimers::TimerBerserker);
+               // m_Events.ScheduleEvent(eEvents::EventStoneBreath, eTimers::TimerStoneBreath);
+               // m_Events.ScheduleEvent(eEvents::EventWarpedArmor, eTimers::TimerWarpedArmor);
+               // m_Events.ScheduleEvent(eEvents::EventSlam, eTimers::TimerSlam);
+               // m_Events.ScheduleEvent(eEvents::EventRipplingSmash, eTimers::TimerRipplingSmash);
+               // m_Events.ScheduleEvent(eEvents::EventGraspingEarth, eTimers::TimerGraspingEarth);
+               // m_Events.ScheduleEvent(eEvents::EventCrushingEarth, eTimers::TimerCrushingEarth);
             }
 
             void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER)
@@ -258,13 +258,13 @@ class boss_kromog : public CreatureScript
 
                     /// Allow loots and bonus loots to be enabled/disabled with a simple reload
                    // if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
-                        me->AddLootRecipient(nullptr);
+                       // me->AddLootRecipient(nullptr);
                    // else
                         CastSpellToPlayers(me->GetMap(), me, eSpells::KromogBonusLoot, true);
                 }
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) 
             {
                 if (p_Target == nullptr)
                     return;
@@ -273,7 +273,7 @@ class boss_kromog : public CreatureScript
                 {
                     case eSpells::RipplingSmashSearcher:
                     {
-                        me->SetFacingTo(me->GetAngle(p_Target));
+                       // me->SetFacingTo(me->GetAngle(p_Target));
 
                         ObjectGuid l_Guid = p_Target->GetGUID();
                        // AddTimedDelayedOperation(50, [this, l_Guid]() -> void
@@ -294,7 +294,7 @@ class boss_kromog : public CreatureScript
                     {
                         if (Creature* l_Trigger = p_Target->ToCreature())
                         {
-                            if (l_Trigger->IsAIEnabled)
+                           // if (l_Trigger->IsAIEnabled)
                                 l_Trigger->AI()->DoAction(eActions::ActionRipplingSmash);
                         }
 
@@ -305,7 +305,7 @@ class boss_kromog : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage) 
             {
                 if (me->HealthBelowPctDamaged(m_FrenzyHealthPct, p_Damage) && !me->HasAura(eSpells::Frenzy))
                 {
@@ -343,13 +343,13 @@ class boss_kromog : public CreatureScript
                             break;
                         }
 
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                       // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                         {
-                            if (!l_Target->IsWithinMeleeRange(me))
+                           // if (!l_Target->IsWithinMeleeRange(me))
                                 me->CastSpell(me, eSpells::StoneBreathChannel, false);
                         }
 
-                        m_Events.ScheduleEvent(eEvents::EventCheckMeleePlayers, eTimers::TimerCheckMeleePlayers);
+                       // m_Events.ScheduleEvent(eEvents::EventCheckMeleePlayers, eTimers::TimerCheckMeleePlayers);
                         break;
                     }
                     case eEvents::EventBerserker:
@@ -366,14 +366,14 @@ class boss_kromog : public CreatureScript
                         }
 
                         me->CastSpell(me, eSpells::StoneBreathChannel, false);
-                        m_Events.ScheduleEvent(eEvents::EventStoneBreath, eTimers::TimerStoneBreathAgain);
+                       // m_Events.ScheduleEvent(eEvents::EventStoneBreath, eTimers::TimerStoneBreathAgain);
                         break;
                     }
                     case eEvents::EventWarpedArmor:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(l_Target, eSpells::WarpedArmor, true);
-                        m_Events.ScheduleEvent(eEvents::EventWarpedArmor, m_FrenzyHealthPct == 0 ? TimerWarpedArmorFrenzied : eTimers::TimerWarpedArmor);
+                       // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                       //     me->CastSpell(l_Target, eSpells::WarpedArmor, true);
+                       // m_Events.ScheduleEvent(eEvents::EventWarpedArmor, m_FrenzyHealthPct == 0 ? TimerWarpedArmorFrenzied : eTimers::TimerWarpedArmor);
                         break;
                     }
                     case eEvents::EventSlam:
@@ -387,9 +387,9 @@ class boss_kromog : public CreatureScript
                         me->CastSpell(me, eSpells::Slam, false);
 
                         /// Reverberations and Shattered Earth will immediately follow Slam and Rippling Smash.
-                        m_Events.ScheduleEvent(eEvents::EventReverberation, 1);
-                        m_Events.ScheduleEvent(eEvents::EventShatteredEarth, 1);
-                        m_Events.ScheduleEvent(eEvents::EventSlam, eTimers::TimerSlamAgain);
+                      //  m_Events.ScheduleEvent(eEvents::EventReverberation, 1);
+                       // m_Events.ScheduleEvent(eEvents::EventShatteredEarth, 1);
+                       // m_Events.ScheduleEvent(eEvents::EventSlam, eTimers::TimerSlamAgain);
                         break;
                     }
                     case eEvents::EventRipplingSmash:
@@ -397,28 +397,28 @@ class boss_kromog : public CreatureScript
                         me->CastSpell(me, eSpells::RipplingSmashSearcher, true);
 
                         /// Reverberations and Shattered Earth will immediately follow Slam and Rippling Smash.
-                        m_Events.ScheduleEvent(eEvents::EventReverberation, 1);
-                        m_Events.ScheduleEvent(eEvents::EventShatteredEarth, 1);
-                        m_Events.ScheduleEvent(eEvents::EventRipplingSmash, m_FrenzyHealthPct == 0 ? eTimers::TimerRipplingSmashFrenzied : eTimers::TimerRipplingSmashAgain);
+                       // m_Events.ScheduleEvent(eEvents::EventReverberation, 1);
+                       // m_Events.ScheduleEvent(eEvents::EventShatteredEarth, 1);
+                       // m_Events.ScheduleEvent(eEvents::EventRipplingSmash, m_FrenzyHealthPct == 0 ? eTimers::TimerRipplingSmashFrenzied : eTimers::TimerRipplingSmashAgain);
                         break;
                     }
                     case eEvents::EventGraspingEarth:
                     {
                         /// Thundering Blows Icon Thundering Blows is an ability that Kromog always uses shortly after using Rune of Grasping Earth Icon Rune of Grasping Earth.
-                        m_Events.ScheduleEvent(eEvents::EventThunderingBlows, eTimers::TimerThunderingBlows);
+                      //  m_Events.ScheduleEvent(eEvents::EventThunderingBlows, eTimers::TimerThunderingBlows);
 
                         /// Those two events have specific timer after Grasping Earth
-                        m_Events.RescheduleEvent(eEvents::EventStoneBreath,/* IsLFR() ? eTimers::TimerStoneBreathSecLFR :*/ eTimers::TimerStoneBreathSecond);
-                        m_Events.RescheduleEvent(eEvents::EventRipplingSmash, eTimers::TimerRipplingSmashSec);
+                      //  m_Events.RescheduleEvent(eEvents::EventStoneBreath,/* IsLFR() ? eTimers::TimerStoneBreathSecLFR :*/ eTimers::TimerStoneBreathSecond);
+                      //  m_Events.RescheduleEvent(eEvents::EventRipplingSmash, eTimers::TimerRipplingSmashSec);
 
                         /// Delay those events to proc after Thundering Blows
-                        m_Events.DelayEvents(eEvents::EventCheckMeleePlayers, eTimers::TimerThunderingBlowsDelay);
-                        m_Events.DelayEvents(eEvents::EventSlam, eTimers::TimerThunderingBlowsDelay);
-                        m_Events.DelayEvents(eEvents::EventWarpedArmor, eTimers::TimerThunderingBlowsDelay);
-                        m_Events.DelayEvents(eEvents::EventCrushingEarth, eTimers::TimerThunderingBlowsDelay);
+                      //  m_Events.DelayEvents(eEvents::EventCheckMeleePlayers, eTimers::TimerThunderingBlowsDelay);
+                      //  m_Events.DelayEvents(eEvents::EventSlam, eTimers::TimerThunderingBlowsDelay);
+                      //  m_Events.DelayEvents(eEvents::EventWarpedArmor, eTimers::TimerThunderingBlowsDelay);
+                      //  m_Events.DelayEvents(eEvents::EventCrushingEarth, eTimers::TimerThunderingBlowsDelay);
 
                         me->SetFacingTo(2.92434f);
-                        me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+                      //  me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
 
                         for (Position const l_SpawnPos : g_GraspingEarthSpawnPos)
                             me->SummonCreature(eCreatures::GraspingEarthTrigger, l_SpawnPos);
@@ -430,7 +430,7 @@ class boss_kromog : public CreatureScript
                             me->CastSpell(me, eSpells::RuneOfGraspingEarthCast, false);
                        // });
 
-                        m_Events.ScheduleEvent(eEvents::EventGraspingEarth, eTimers::TimerGraspingEarthAgain);
+                       // m_Events.ScheduleEvent(eEvents::EventGraspingEarth, eTimers::TimerGraspingEarthAgain);
                         break;
                     }
                     case eEvents::EventThunderingBlows:
@@ -440,7 +440,7 @@ class boss_kromog : public CreatureScript
 
                        // AddTimedDelayedOperation(7 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                        // {
-                            me->RemoveUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+                         //   me->RemoveUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
                       //  });
 
                         break;
@@ -453,14 +453,14 @@ class boss_kromog : public CreatureScript
                             m_AbilityTalkTime = uint32(time(nullptr)) + eTimers::TimerAbilityTalk;
                         }
 
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -20.0f, true))
-                            me->SummonCreature(eCreatures::RuneOfCrushingEarth, *l_Target);
-                        else if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f, true))
-                            me->SummonCreature(eCreatures::RuneOfCrushingEarth, *l_Target);
-                        else if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -5.0f, true))
-                            me->SummonCreature(eCreatures::RuneOfCrushingEarth, *l_Target);
-                        else if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 0.0f, true))
-                            me->SummonCreature(eCreatures::RuneOfCrushingEarth, *l_Target);
+                      //  if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -20.0f, true))
+                          //  me->SummonCreature(eCreatures::RuneOfCrushingEarth);
+                        // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -10.0f, true))
+                          //  me->SummonCreature(eCreatures::RuneOfCrushingEarth, *l_Target);
+                       // else if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, -5.0f, true))
+                          //  me->SummonCreature(eCreatures::RuneOfCrushingEarth, *l_Target);
+                       // else if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 2, 0.0f, true))
+                          //  me->SummonCreature(eCreatures::RuneOfCrushingEarth, *l_Target);
 
                         /// When the second rune is summoned, it triggers both of them to crush
                         if (m_CrushingEarthBoom)
@@ -474,7 +474,7 @@ class boss_kromog : public CreatureScript
 
                                 for (Creature* l_Rune : l_CrushingEarthList)
                                 {
-                                    if (l_Rune->IsAIEnabled)
+                                  //  if (l_Rune->IsAIEnabled)
                                         l_Rune->AI()->DoAction(eActions::ActionCrushingEarth);
                                 }
                           //  });
@@ -482,7 +482,7 @@ class boss_kromog : public CreatureScript
                         else
                             m_CrushingEarthBoom = true;
 
-                        m_Events.ScheduleEvent(eEvents::EventCrushingEarth, eTimers::TimerCrushingEarthAgain);
+                       // m_Events.ScheduleEvent(eEvents::EventCrushingEarth, eTimers::TimerCrushingEarthAgain);
                         break;
                     }
                     case eEvents::EventReverberation:
@@ -529,8 +529,8 @@ class boss_kromog : public CreatureScript
                     {
                         if (Player* l_Player = l_Iter->GetSource())
                         {
-                            if (l_Player->GetDistance(me) <= g_AllowedDist && l_Player->GetPositionZ() <= g_FloorZ)
-                                l_Player->Kill(l_Player);
+                            if (l_Player->GetDistance(me) <= g_AllowedDist && l_Player->GetPositionZ() <= g_FloorZ);
+                               // l_Player->Kill(l_Player);
                         }
                     }
 
@@ -654,8 +654,8 @@ class npc_foundry_grasping_earth : public CreatureScript
 
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UnitFlags::UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE));
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));// | UnitFlags2::UNIT_FLAG2_UNK6 | UnitFlags2::UNIT_FLAG2_UNK11);
+              //  me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UnitFlags::UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE));
+              //  me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));// | UnitFlags2::UNIT_FLAG2_UNK6 | UnitFlags2::UNIT_FLAG2_UNK11);
 
                 me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_DISORIENTED, true);
                 me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_MECHANIC, Mechanics::MECHANIC_FEAR, true);
@@ -664,7 +664,7 @@ class npc_foundry_grasping_earth : public CreatureScript
                 me->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffectName::SPELL_EFFECT_KNOCK_BACK_DEST, true);
             }
 
-            void SpellHit(Unit* /*p_Attacker*/, SpellInfo const* p_SpellInfo) override
+            void SpellHit(Unit* /*p_Attacker*/, SpellInfo const* p_SpellInfo) 
             {
                 switch (p_SpellInfo->Id)
                 {
@@ -684,7 +684,7 @@ class npc_foundry_grasping_earth : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) 
             {
                 if (p_Target == nullptr)
                     return;
@@ -708,7 +708,7 @@ class npc_foundry_grasping_earth : public CreatureScript
                 {
                   //  AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                   //  {
-                        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UnitFlags::UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE));
+                      //  me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UnitFlags::UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE));
 
                       //  me->ForceValuesUpdateAtIndex(UnitFields::UNIT_FIELD_DISPLAYID);
 
@@ -717,8 +717,8 @@ class npc_foundry_grasping_earth : public CreatureScript
 
                   //  AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                   //  {
-                        if (!m_PlayerGrasped)
-                            me->Kill(me);
+                        if (!m_PlayerGrasped);
+                          //  me->Kill(me);
                   //  });
                 }
             }
@@ -731,7 +731,7 @@ class npc_foundry_grasping_earth : public CreatureScript
                         l_Instance->SetData(eFoundryDatas::GraspingEarthTime, (uint32)time(nullptr));
                 }
 
-                me->DespawnOrUnsummon(5 * TimeConstants::IN_MILLISECONDS);
+               // me->DespawnOrUnsummon(5 * TimeConstants::IN_MILLISECONDS);
             }
 
             void UpdateAI(uint32 p_Diff) override
@@ -790,8 +790,8 @@ class npc_foundry_rune_of_crushing_earth : public CreatureScript
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL | UnitFlags::UNIT_FLAG_NOT_SELECTABLE | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_IMMUNE_TO_PC));
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+              //  me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL | UnitFlags::UNIT_FLAG_NOT_SELECTABLE | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_IMMUNE_TO_PC));
+               // me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
 
                 me->CastSpell(me, eSpells::StoneWallRuneVisual, true);
 
@@ -835,7 +835,7 @@ class npc_foundry_rune_of_crushing_earth : public CreatureScript
                         break;
                 }
 
-                p_Summon->SetFacingTo(p_Summon->GetAngle(me));
+               // p_Summon->SetFacingTo(p_Summon->GetAngle(me));
             }
 
             void DoAction(int32 p_Action)
@@ -857,7 +857,7 @@ class npc_foundry_rune_of_crushing_earth : public CreatureScript
                     }
 
                     me->RemoveAllAreaTriggers();
-                    me->DespawnOrUnsummon(2 * TimeConstants::IN_MILLISECONDS);
+                   // me->DespawnOrUnsummon(2 * TimeConstants::IN_MILLISECONDS);
                 }
             }
 
@@ -867,7 +867,7 @@ class npc_foundry_rune_of_crushing_earth : public CreatureScript
                 {
                     if (Creature* l_StoneWall = p_Passenger->ToCreature())
                     {
-                        if (l_StoneWall->IsAIEnabled)
+                       // if (l_StoneWall->IsAIEnabled)
                             l_StoneWall->AI()->DoAction(eAction::ActionCrushingEarth);
                     }
                 }
@@ -913,8 +913,8 @@ class npc_foundry_stone_wall : public CreatureScript
 
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL | UnitFlags::UNIT_FLAG_NOT_SELECTABLE | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_IMMUNE_TO_PC));
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+              //  me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL | UnitFlags::UNIT_FLAG_NOT_SELECTABLE | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_IMMUNE_TO_PC));
+               // me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
 
                 me->CastSpell(me, eSpells::GraspingEarthInvisibleTransform, true);
                 me->CastSpell(me, eSpells::StoneWallRockHandVisual, true);
@@ -925,7 +925,7 @@ class npc_foundry_stone_wall : public CreatureScript
                 if (p_Action == eAction::ActionCrushingEarth)
                 {
                     me->RemoveAura(eSpells::StoneWallRockHandVisual);
-                    me->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
+                    //me->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
                 }
             }
         };
@@ -963,7 +963,7 @@ class npc_foundry_reverberation : public CreatureScript
 
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_IMMUNE_TO_PC));
+              //  me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_IMMUNE_TO_PC));
 
                // me->SetUInt32Value(UnitFields::UNIT_FIELD_SCALE_DURATION, 2 * TimeConstants::IN_MILLISECONDS);
 
@@ -1097,7 +1097,7 @@ class spell_foundry_fists_of_stone : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_foundry_fists_of_stone_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+               // OnEffectProc += AuraEffectProcFn(spell_foundry_fists_of_stone_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
             }
         };
 
@@ -1184,20 +1184,20 @@ class spell_foundry_rune_of_crushing_earth : public SpellScriptLoader
                 if (l_Caster == nullptr)
                     return;
 
-                float l_Radius = GetSpellInfo()->GetEffect(SpellEffIndex::EFFECT_0)->CalcRadius(l_Caster);
-                p_Targets.remove_if([l_Radius, l_Caster, l_Restriction](WorldObject* p_Object) -> bool
+               // float l_Radius = GetSpellInfo()->GetEffect(SpellEffIndex::EFFECT_0)->CalcRadius(l_Caster);
+               // p_Targets.remove_if([l_Radius, l_Caster, l_Restriction](WorldObject* p_Object) -> bool
                 {
-                    if (p_Object == nullptr)
-                        return true;
+                 //   if (p_Object == nullptr)
+                   //     return true;
 
-                    if (!p_Object->IsInAxe(l_Caster, l_Restriction->Width, l_Radius))
-                        return true;
+                   // if (!p_Object->IsInAxe(l_Caster, l_Restriction->Width, l_Radius))
+                     //   return true;
 
-                    if (!p_Object->isInFront(l_Caster))
-                        return true;
+                    //if (!p_Object->isInFront(l_Caster))
+                      //  return true;
 
-                    return false;
-                });
+                   // return false;
+                };
             }
 
             void Register() override
@@ -1288,7 +1288,7 @@ class areatrigger_foundry_rippling_smash : public AreaTriggerEntityScript
                         continue;
 
                     m_AffectedTargets.insert(l_Unit->GetGUID());
-                    l_Unit->CastSpell(l_Unit, eSpell::RipplingSmashDamage, true, nullptr, nullptr, l_Caster->GetGUID());
+                    l_Unit->CastSpell(l_Unit, eSpell::RipplingSmashDamage, true);
                 }
             }
         }
@@ -1340,7 +1340,7 @@ class areatrigger_foundry_reverberations : public AreaTriggerEntityScript
 
                 for (Unit* l_Unit : l_TargetList)
                 {
-                    l_Unit->CastSpell(l_Unit, eSpell::ReverberationsDamage, true, nullptr, nullptr, l_Caster->GetGUID());
+                    l_Unit->CastSpell(l_Unit, eSpell::ReverberationsDamage, true);
 
                     if (l_Caster->GetTypeId() == TypeID::TYPEID_UNIT)
                     {

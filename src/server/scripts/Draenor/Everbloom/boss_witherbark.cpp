@@ -65,7 +65,7 @@ public:
         boss_witherbarkAI(Creature* creature) : BossAI(creature, DATA_WITHERBARK)
         {
             DoCast(me, SPELL_PETRIFIED_BARK);
-            me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+          //  me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
         }
 
         void Reset() override
@@ -90,11 +90,11 @@ public:
             if (!intro)
             {
                 DoCast(me, SPELL_PETRIFIED_BARK);
-                me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+              //  me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
             }
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) 
         {
             switch (spell->Id)
             {
@@ -141,7 +141,7 @@ public:
                 DoCast(me, SPELL_BRITTLE_BARK);
 
                 for (uint8 i = 0; i < 3; i++)
-                    me->CastSpell(PositionAqueousMobs[i].m_positionX, PositionAqueousMobs[i].m_positionY, PositionAqueousMobs[i].m_positionZ, SPELsummon_AQUEOUS_GLOBULE, true);
+                //    me->CastSpell(PositionAqueousMobs[i].m_positionX, PositionAqueousMobs[i].m_positionY, PositionAqueousMobs[i].m_positionZ, SPELsummon_AQUEOUS_GLOBULE, true);
 
                 BrittleBark2WaveTimer = 15000;
             }
@@ -153,7 +153,7 @@ public:
                 if (BrittleBark2WaveTimer <= diff)
                 {
                     for (uint8 i = 3; i < 6; i++)
-                        me->CastSpell(PositionAqueousMobs[i].m_positionX, PositionAqueousMobs[i].m_positionY, PositionAqueousMobs[i].m_positionZ, SPELsummon_AQUEOUS_GLOBULE, true);
+                      //  me->CastSpell(PositionAqueousMobs[i].m_positionX, PositionAqueousMobs[i].m_positionY, PositionAqueousMobs[i].m_positionZ, SPELsummon_AQUEOUS_GLOBULE, true);
 
                     BrittleBark2WaveTimer = 0;
                 }
@@ -196,9 +196,9 @@ class mob_enchanted_water : public CreatureScript
 public:
     mob_enchanted_water() : CreatureScript("mob_enchanted_water") {}
 
-    struct mob_enchanted_waterAI : public Scripted_NoMovementAI
+    struct mob_enchanted_waterAI : public CreatureAI
     {
-        mob_enchanted_waterAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        mob_enchanted_waterAI(Creature* creature) : CreatureAI(creature)
         {
             instance = me->GetInstanceScript();
         }
@@ -269,7 +269,7 @@ public:
                 case 0:
                     DoCast(me, 164538);
                     DoCast(me, SPELL_ENERGIZE);
-                    me->DespawnOrUnsummon(2000);
+                    me->DespawnOrUnsummon();
                     break;
             }
         }
@@ -313,8 +313,8 @@ public:
                     timer = 0;
                     if (Creature* witherbark = me->FindNearestCreature(81522, 1000.0f))
                     {
-                        if (Unit* target = witherbark->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 50000.0f, true))
-                            me->GetMotionMaster()->MovePoint(0, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
+                       // if (Unit* target = witherbark->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 50000.0f, true))
+                           // me->GetMotionMaster()->MovePoint(0, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
                     }
                 }
                 else
@@ -453,7 +453,7 @@ public:
                     {
                         DoCast(me, SPELL_AQUEOUS_BURST);
                         DoCast(me, SPELL_ENERGIZE);
-                        me->DespawnOrUnsummon(2000);
+                        me->DespawnOrUnsummon();
                         checkBoss = 0;
                     }
                 }

@@ -170,7 +170,7 @@ class boss_beastlord_darmac : public CreatureScript
                 m_Events.Reset();
 
                 me->SetReactState(ReactStates::REACT_AGGRESSIVE);
-                me->RemoveUnitFlag(UnitFlags(UnitFlags2::UNIT_FLAG2_DISABLE_TURN));
+               // me->RemoveUnitFlag(UnitFlags(UnitFlags2::UNIT_FLAG2_DISABLE_TURN));
                 me->ClearUnitState(UnitState::UNIT_STATE_CANNOT_TURN);
 
                 me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
@@ -200,7 +200,7 @@ class boss_beastlord_darmac : public CreatureScript
                 l_Time += 9 * TimeConstants::IN_MILLISECONDS;
               //  AddTimedDelayedOperation(l_Time, [this]() -> void
                // {
-                    me->HandleEmoteCommand(eVisuals::EmoteYes);
+                  //  me->HandleEmoteCommand(eVisuals::EmoteYes);
                // });
 
                 l_Time += 1 * TimeConstants::IN_MILLISECONDS;
@@ -221,7 +221,7 @@ class boss_beastlord_darmac : public CreatureScript
                 Talk(eTalks::TalkSlay);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* p_Attacker) 
             {
               //  ClearDelayedOperations();
 
@@ -240,16 +240,16 @@ class boss_beastlord_darmac : public CreatureScript
 
             //    me->SetUInt32Value(UnitFields::UNIT_NPC_EMOTESTATE, 0);
 
-                _EnterCombat();
+               // _EnterCombat();
 
                 Talk(eTalks::TalkAggro);
 
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 1);
 
-                m_Events.ScheduleEvent(eEvents::EventBerserker, eTimers::TimerBerserker);
-                m_Events.ScheduleEvent(eEvents::EventCallThePack,eTimers::TimerCallThePackLFR);
-                m_Events.ScheduleEvent(eEvents::EventPinDown, eTimers::TimerPinDown);
+               // m_Events.ScheduleEvent(eEvents::EventBerserker, eTimers::TimerBerserker);
+               // m_Events.ScheduleEvent(eEvents::EventCallThePack,eTimers::TimerCallThePackLFR);
+               // m_Events.ScheduleEvent(eEvents::EventPinDown, eTimers::TimerPinDown);
             }
 
             void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER)
@@ -358,8 +358,8 @@ class boss_beastlord_darmac : public CreatureScript
 
                        // AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         //{
-                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                                me->CastSpell(l_Target, eSpells::RendAndTearJumpSecond, true);
+                           // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                             //   me->CastSpell(l_Target, eSpells::RendAndTearJumpSecond, true);
                        // });
 
                         return;
@@ -383,9 +383,9 @@ class boss_beastlord_darmac : public CreatureScript
                                 return;
 
                             if (Creature* l_Target = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(m_MountID)))
-                                me->SetFacingTo(me->GetAngle(l_Target));
+                             //   me->SetFacingTo(me->GetAngle(l_Target));
 
-                            me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+                           // me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
                       //  });
 
                        // AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
@@ -401,7 +401,7 @@ class boss_beastlord_darmac : public CreatureScript
                             if (Creature* l_Target = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(m_MountID)))
                                 me->CastSpell(l_Target, eSpells::RideVehicle, true);
 
-                            me->RemoveUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+                         //   me->RemoveUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
 
                             me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                       //  });
@@ -416,9 +416,9 @@ class boss_beastlord_darmac : public CreatureScript
                                 return;
 
                             if (Creature* l_Target = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(m_MountID)))
-                                me->SetFacingTo(me->GetAngle(l_Target));
+                              //  me->SetFacingTo(me->GetAngle(l_Target));
 
-                            me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+                           // me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
                        // });
 
                       //  AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
@@ -434,7 +434,7 @@ class boss_beastlord_darmac : public CreatureScript
                             if (Creature* l_Target = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(m_MountID)))
                                 me->CastSpell(l_Target, eSpells::RideVehicle, true);
 
-                            me->RemoveUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+                          //  me->RemoveUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
 
                             me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                        // });
@@ -449,9 +449,9 @@ class boss_beastlord_darmac : public CreatureScript
                                 return;
 
                             if (Creature* l_Target = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(m_MountID)))
-                                me->SetFacingTo(me->GetAngle(l_Target));
+                             //   me->SetFacingTo(me->GetAngle(l_Target));
 
-                            me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+                          //  me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
                        // });
 
                       //  AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
@@ -467,7 +467,7 @@ class boss_beastlord_darmac : public CreatureScript
                             if (Creature* l_Target = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(m_MountID)))
                                 me->CastSpell(l_Target, eSpells::RideVehicle, true);
 
-                            me->RemoveUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+                           // me->RemoveUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
 
                             me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                      //   });
@@ -499,7 +499,7 @@ class boss_beastlord_darmac : public CreatureScript
                 l_Time += 100;
                // AddTimedDelayedOperation(l_Time, [this]() -> void
                // {
-                    me->HandleEmoteCommand(eVisuals::EmoteYes);
+                  //  me->HandleEmoteCommand(eVisuals::EmoteYes);
               //  });
 
                 l_Time += 1 * TimeConstants::IN_MILLISECONDS;
@@ -512,7 +512,7 @@ class boss_beastlord_darmac : public CreatureScript
 
             void DoAction(int32 p_Action)
             {
-                m_Events.DelayEvents(7 * TimeConstants::IN_MILLISECONDS);
+              //  m_Events.DelayEvents(7 * TimeConstants::IN_MILLISECONDS);
 
                 uint32 l_Time = 2 * TimeConstants::IN_MILLISECONDS;
                 //AddTimedDelayedOperation(l_Time, [this]() -> void
@@ -521,9 +521,9 @@ class boss_beastlord_darmac : public CreatureScript
                         return;
 
                     if (Creature* l_Target = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(m_MountID)))
-                        me->SetFacingTo(me->GetAngle(l_Target));
+                     //   me->SetFacingTo(me->GetAngle(l_Target));
 
-                    me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+                    //me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
                // });
 
                 l_Time += 50;
@@ -544,12 +544,12 @@ class boss_beastlord_darmac : public CreatureScript
                             me->CastSpell(me, eSpells::FuryOfTheElekk, true);
 
                             if (me->HasAura(eSpells::CunningOfTheWolf))
-                                m_Events.ScheduleEvent(eEvents::EventRendAndTear, eTimers::TimerRendAndTear);
+                            //    m_Events.ScheduleEvent(eEvents::EventRendAndTear, eTimers::TimerRendAndTear);
 
                             if (me->HasAura(eSpells::SpiritOfTheRylak))
-                                m_Events.ScheduleEvent(eEvents::EventSuperheatedShrapnel, eTimers::TimerSuperheatedShrapnel);
+                              //  m_Events.ScheduleEvent(eEvents::EventSuperheatedShrapnel, eTimers::TimerSuperheatedShrapnel);
 
-                            m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrum);
+                           // m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrum);
                             break;
                         }
                         case eActions::ActionCruelfangKilled:
@@ -559,12 +559,12 @@ class boss_beastlord_darmac : public CreatureScript
                             me->CastSpell(me, eSpells::CunningOfTheWolf, true);
 
                             if (me->HasAura(eSpells::FuryOfTheElekk))
-                                m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrum);
+                             //   m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrum);
 
                             if (me->HasAura(eSpells::SpiritOfTheRylak))
-                                m_Events.ScheduleEvent(eEvents::EventSuperheatedShrapnel, eTimers::TimerSuperheatedShrapnel);
+                              //  m_Events.ScheduleEvent(eEvents::EventSuperheatedShrapnel, eTimers::TimerSuperheatedShrapnel);
 
-                            m_Events.ScheduleEvent(eEvents::EventRendAndTear, eTimers::TimerRendAndTear);
+                            //m_Events.ScheduleEvent(eEvents::EventRendAndTear, eTimers::TimerRendAndTear);
                             break;
                         }
                         case eActions::ActionDreadwingKilled:
@@ -574,12 +574,12 @@ class boss_beastlord_darmac : public CreatureScript
                             me->CastSpell(me, eSpells::SpiritOfTheRylak, true);
 
                             if (me->HasAura(eSpells::CunningOfTheWolf))
-                                m_Events.ScheduleEvent(eEvents::EventRendAndTear, eTimers::TimerRendAndTear);
+                             //   m_Events.ScheduleEvent(eEvents::EventRendAndTear, eTimers::TimerRendAndTear);
 
                             if (me->HasAura(eSpells::FuryOfTheElekk))
-                                m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrum);
+                               // m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrum);
 
-                            m_Events.ScheduleEvent(eEvents::EventSuperheatedShrapnel, eTimers::TimerSuperheatedShrapnel);
+                           // m_Events.ScheduleEvent(eEvents::EventSuperheatedShrapnel, eTimers::TimerSuperheatedShrapnel);
                             break;
                         }
                         default:
@@ -602,7 +602,7 @@ class boss_beastlord_darmac : public CreatureScript
               //  });
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) 
             {
                 if (p_Target == nullptr)
                     return;
@@ -643,13 +643,13 @@ class boss_beastlord_darmac : public CreatureScript
                         }
 
                         /// Delay events for cosmetic moves
-                        m_Events.DelayEvents(3 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.DelayEvents(3 * TimeConstants::IN_MILLISECONDS);
 
-                        float l_Orientation = me->GetAngle(p_Target);
+                       // float l_Orientation = me->GetAngle(p_Target);
                         float l_Radius      = me->GetDistance(p_Target) - 1.5f;
 
-                        float l_X           = me->m_positionX + l_Radius * cos(l_Orientation);
-                        float l_Y           = me->m_positionY + l_Radius * sin(l_Orientation);
+                       // float l_X           = me->m_positionX + l_Radius * cos(l_Orientation);
+                       // float l_Y           = me->m_positionY + l_Radius * sin(l_Orientation);
 
                         /// This prevent players to cancel moves by taunting
                         me->SetReactState(ReactStates::REACT_PASSIVE);
@@ -659,7 +659,7 @@ class boss_beastlord_darmac : public CreatureScript
                         me->StopMoving();
 
                         me->GetMotionMaster()->Clear();
-                        me->GetMotionMaster()->MovePoint(m_MountID, { l_X, l_Y, me->m_positionZ, l_Orientation });
+                      //  me->GetMotionMaster()->MovePoint(m_MountID, { l_X, l_Y, me->m_positionZ, l_Orientation });
                         break;
                     }
                     case eSpells::RendAndTearSearcher:
@@ -671,10 +671,10 @@ class boss_beastlord_darmac : public CreatureScript
                     }
                     case eSpells::FaceRandomNonTank:
                     {
-                        me->SetFacingTo(me->GetAngle(p_Target));
+                       // me->SetFacingTo(me->GetAngle(p_Target));
 
                         me->SetReactState(ReactStates::REACT_PASSIVE);
-                        me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+                       // me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
                         me->AddUnitState(UnitState::UNIT_STATE_CANNOT_TURN);
 
                        // AddTimedDelayedOperation(50, [this]() -> void
@@ -685,7 +685,7 @@ class boss_beastlord_darmac : public CreatureScript
                       //  AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                        // {
                             me->SetReactState(ReactStates::REACT_AGGRESSIVE);
-                            me->RemoveUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+                          //  me->RemoveUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
                             me->ClearUnitState(UnitState::UNIT_STATE_CANNOT_TURN);
                        // });
 
@@ -707,7 +707,7 @@ class boss_beastlord_darmac : public CreatureScript
 
                         if (Creature* l_Trigger = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eFoundryCreatures::ThunderlordPackPens)))
                         {
-                            if (l_Trigger->IsAIEnabled)
+                           // if (l_Trigger->IsAIEnabled)
                                 l_Trigger->AI()->DoAction(eActions::ActionCallThePack);
                         }
 
@@ -726,7 +726,7 @@ class boss_beastlord_darmac : public CreatureScript
                 p_ExitPos = { l_X, l_Y, me->m_positionZ};
             }
 
-            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage) 
             {
                 if (m_SwitchStatePct <= 0)
                     return;
@@ -795,13 +795,13 @@ class boss_beastlord_darmac : public CreatureScript
                         /// Call the Pack can be casted while walking
                         me->ClearUnitState(UnitState::UNIT_STATE_CASTING);
 
-                        m_Events.ScheduleEvent(eEvents::EventCallThePack, eTimers::TimerCallThePackCooldown);
+                       // m_Events.ScheduleEvent(eEvents::EventCallThePack, eTimers::TimerCallThePackCooldown);
                         break;
                     }
                     case eEvents::EventPinDown:
                     {
                         me->CastSpell(me, eSpells::PinDownSearcher, true);
-                        m_Events.ScheduleEvent(eEvents::EventPinDown, eTimers::TimerPinDownCooldown);
+                      //  m_Events.ScheduleEvent(eEvents::EventPinDown, eTimers::TimerPinDownCooldown);
                         break;
                     }
                     case eEvents::EventTantrum:
@@ -814,11 +814,11 @@ class boss_beastlord_darmac : public CreatureScript
                         m_Tantrum = true;
 
                       //  AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                       // {
+                        {
                             m_Tantrum = false;
-                      //  });
+                       };
 
-                        m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrumCooldown);
+                      //  m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrumCooldown);
                         break;
                     }
                     case eEvents::EventSuperheatedShrapnel:
@@ -828,7 +828,7 @@ class boss_beastlord_darmac : public CreatureScript
 
                         me->CastSpell(me, eSpells::FaceRandomNonTank, true);
 
-                        m_Events.ScheduleEvent(eEvents::EventSuperheatedShrapnel, eTimers::TimerSuperheatedShrapnelCooldown);
+                       // m_Events.ScheduleEvent(eEvents::EventSuperheatedShrapnel, eTimers::TimerSuperheatedShrapnelCooldown);
                         break;
                     }
                     case eEvents::EventRendAndTear:
@@ -837,7 +837,7 @@ class boss_beastlord_darmac : public CreatureScript
 
                         me->CastSpell(me, eSpells::RendAndTearSearcher, true);
 
-                        m_Events.ScheduleEvent(eEvents::EventRendAndTear, eTimers::TimerRendAndTearCooldown);
+                       // m_Events.ScheduleEvent(eEvents::EventRendAndTear, eTimers::TimerRendAndTearCooldown);
                         break;
                     }
                     default:
@@ -870,22 +870,22 @@ class boss_beastlord_darmac : public CreatureScript
                                     l_Creature->GetMotionMaster()->MoveTargetedHome();
                            // });
                         }
-                        else if (l_Beast->IsAIEnabled)
+                        //else if (l_Beast->IsAIEnabled)
                             l_Beast->AI()->EnterEvadeMode();
                     }
                 }
 
                // AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                //{
+                {
                     std::list<Creature*> l_Hitchings;
                     me->GetCreatureListWithEntryInGrid(l_Hitchings, eCreatures::HitchingPost, 100.0f);
 
                     for (Creature* l_Iter : l_Hitchings)
                     {
-                        if (l_Iter->IsAIEnabled)
+                       // if (l_Iter->IsAIEnabled)
                             l_Iter->AI()->Reset();
                     }
-               // });
+                };
             }
         };
 
@@ -954,7 +954,7 @@ class npc_foundry_cruelfang : public CreatureScript
 
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
+              //  me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
 
                 m_Events.Reset();
                 m_CosmeticEvents.Reset();
@@ -963,13 +963,13 @@ class npc_foundry_cruelfang : public CreatureScript
                 m_RendAndTear = false;
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 4);
 
-                m_Events.ScheduleEvent(eEvents::EventRendAndTear, eTimers::TimerRendAndTear);
-                m_Events.ScheduleEvent(eEvents::EventSavageHowl, eTimers::TimerSavageHowl);
+               // m_Events.ScheduleEvent(eEvents::EventRendAndTear, eTimers::TimerRendAndTear);
+               // m_Events.ScheduleEvent(eEvents::EventSavageHowl, eTimers::TimerSavageHowl);
             }
 
             void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER)
@@ -995,12 +995,12 @@ class npc_foundry_cruelfang : public CreatureScript
 
                     if (Creature* l_Darmac = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eFoundryCreatures::BossBeastlordDarmac)))
                     {
-                        if (l_Darmac->IsAIEnabled)
+                       // if (l_Darmac->IsAIEnabled)
                             l_Darmac->AI()->DoAction(eAction::ActionCruelfangKilled);
                     }
                 }
 
-                me->DespawnOrUnsummon(10 * TimeConstants::IN_MILLISECONDS);
+                //me->DespawnOrUnsummon(10 * TimeConstants::IN_MILLISECONDS);
             }
 
             void MovementInform(uint32 p_Type, uint32 p_ID) override
@@ -1014,7 +1014,7 @@ class npc_foundry_cruelfang : public CreatureScript
                     {
                         me->CastSpell(me, eSpells::RendAndTearTriggered, true);
 
-                        m_CosmeticEvents.ScheduleEvent(eEvents::EventRendAndTearSec, 1 * TimeConstants::IN_MILLISECONDS);
+                       // m_CosmeticEvents.ScheduleEvent(eEvents::EventRendAndTearSec, 1 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eSpells::RendAndTearJumpSecond:
@@ -1022,9 +1022,9 @@ class npc_foundry_cruelfang : public CreatureScript
                         me->CastSpell(me, eSpells::RendAndTearTriggered, true);
 
                        // AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                       // {
+                        {
                             m_RendAndTear = false;
-                       // });
+                        };
 
                         break;
                     }
@@ -1033,7 +1033,7 @@ class npc_foundry_cruelfang : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) 
             {
                 if (p_Target == nullptr)
                     return;
@@ -1072,9 +1072,9 @@ class npc_foundry_cruelfang : public CreatureScript
 
                     me->ToCreature()->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
-                    me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
+                    //me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
 
-                    p_Passenger->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
+                   // p_Passenger->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
 
                     if (m_Instance != nullptr)
                         m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, p_Passenger);
@@ -1084,12 +1084,12 @@ class npc_foundry_cruelfang : public CreatureScript
                 }
                 else
                 {
-                    p_Passenger->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
+                  //  p_Passenger->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
 
                     if (m_Instance != nullptr)
                         m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, p_Passenger);
 
-                    if (m_IsEvadeMode && p_Passenger->ToCreature() && p_Passenger->IsAIEnabled)
+                   // if (m_IsEvadeMode && p_Passenger->ToCreature() && p_Passenger->IsAIEnabled)
                         p_Passenger->ToCreature()->AI()->EnterEvadeMode();
                 }
             }
@@ -1102,8 +1102,8 @@ class npc_foundry_cruelfang : public CreatureScript
 
                 if (m_CosmeticEvents.ExecuteEvent() == eEvents::EventRendAndTearSec)
                 {
-                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                        me->CastSpell(l_Target, eSpells::RendAndTearJumpSecond, true);
+                   // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                      //  me->CastSpell(l_Target, eSpells::RendAndTearJumpSecond, true);
                 }
 
                 if (!UpdateVictim() || m_RendAndTear)
@@ -1120,13 +1120,13 @@ class npc_foundry_cruelfang : public CreatureScript
                     {
                         me->CastSpell(me, eSpells::RendAndTearSearcher, true);
 
-                        m_Events.ScheduleEvent(eEvents::EventRendAndTear, eTimers::TimerRendAndTearCooldown);
+                      //  m_Events.ScheduleEvent(eEvents::EventRendAndTear, eTimers::TimerRendAndTearCooldown);
                         break;
                     }
                     case eEvents::EventSavageHowl:
                     {
                         me->CastSpell(me, eSpells::SavageHowlDamage, false);
-                        m_Events.ScheduleEvent(eEvents::EventSavageHowl, eTimers::TimerSavageHowlCooldown);
+                      //  m_Events.ScheduleEvent(eEvents::EventSavageHowl, eTimers::TimerSavageHowlCooldown);
                         break;
                     }
                     default:
@@ -1206,7 +1206,7 @@ class npc_foundry_dreadwing : public CreatureScript
 
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
+               // me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
 
                 me->RemoveAllAreaTriggers();
 
@@ -1215,13 +1215,13 @@ class npc_foundry_dreadwing : public CreatureScript
                 m_IsEvadeMode = false;
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 4);
 
-                m_Events.ScheduleEvent(eEvents::EventInfernoBreath, eTimers::TimerInfernoBreath);
-                m_Events.ScheduleEvent(eEvents::EventConflagration, eTimers::TimerConflagration);
+              //  m_Events.ScheduleEvent(eEvents::EventInfernoBreath, eTimers::TimerInfernoBreath);
+                //m_Events.ScheduleEvent(eEvents::EventConflagration, eTimers::TimerConflagration);
             }
 
             void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER)
@@ -1247,12 +1247,12 @@ class npc_foundry_dreadwing : public CreatureScript
 
                     if (Creature* l_Darmac = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eFoundryCreatures::BossBeastlordDarmac)))
                     {
-                        if (l_Darmac->IsAIEnabled)
+                       // if (l_Darmac->IsAIEnabled)
                             l_Darmac->AI()->DoAction(eAction::ActionDreadwingKilled);
                     }
                 }
 
-                me->DespawnOrUnsummon(10 * TimeConstants::IN_MILLISECONDS);
+               // me->DespawnOrUnsummon(10 * TimeConstants::IN_MILLISECONDS);
             }
 
             void PassengerBoarded(Unit* p_Passenger, int8 /*p_SeatID*/, bool p_Apply) override
@@ -1263,9 +1263,9 @@ class npc_foundry_dreadwing : public CreatureScript
 
                     me->ToCreature()->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
-                    me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
+                   // me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
 
-                    p_Passenger->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
+                   // p_Passenger->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
 
                     if (m_Instance != nullptr)
                         m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, p_Passenger);
@@ -1275,17 +1275,17 @@ class npc_foundry_dreadwing : public CreatureScript
                 }
                 else
                 {
-                    p_Passenger->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
+                   // p_Passenger->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
 
                     if (m_Instance != nullptr)
                         m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, p_Passenger);
 
-                    if (m_IsEvadeMode && p_Passenger->ToCreature() && p_Passenger->IsAIEnabled)
+                   // if (m_IsEvadeMode && p_Passenger->ToCreature() && p_Passenger->IsAIEnabled)
                         p_Passenger->ToCreature()->AI()->EnterEvadeMode();
                 }
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) 
             {
                 if (p_Target == nullptr)
                     return;
@@ -1294,23 +1294,23 @@ class npc_foundry_dreadwing : public CreatureScript
                 {
                     case eSpells::FaceRandomNonTank:
                     {
-                        me->SetFacingTo(me->GetAngle(p_Target));
+                      //  me->SetFacingTo(me->GetAngle(p_Target));
 
                         me->SetReactState(ReactStates::REACT_PASSIVE);
-                        me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+                        //me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
                         me->AddUnitState(UnitState::UNIT_STATE_CANNOT_TURN);
 
                       //  AddTimedDelayedOperation(50, [this]() -> void
-                        //{
+                        {
                             me->CastSpell(me, eSpells::InfernoBreath, false);
-                       // });
+                        };
 
                        // AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                      //  {
+                        {
                             me->SetReactState(ReactStates::REACT_AGGRESSIVE);
-                            me->RemoveUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+                      //      me->RemoveUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
                             me->ClearUnitState(UnitState::UNIT_STATE_CANNOT_TURN);
-                      //  });
+                        };
 
                         break;
                     }
@@ -1341,13 +1341,13 @@ class npc_foundry_dreadwing : public CreatureScript
                     case eEvents::EventInfernoBreath:
                     {
                         me->CastSpell(me, eSpells::FaceRandomNonTank, true);
-                        m_Events.ScheduleEvent(eEvents::EventInfernoBreath, eTimers::TimerInfernoBreathCooldown);
+                       // m_Events.ScheduleEvent(eEvents::EventInfernoBreath, eTimers::TimerInfernoBreathCooldown);
                         break;
                     }
                     case eEvents::EventConflagration:
                     {
                         me->CastSpell(me, eSpells::ConflagrationSearch, true);
-                        m_Events.ScheduleEvent(eEvents::EventConflagration, eTimers::TimerConflagrationCooldown);
+                      //  m_Events.ScheduleEvent(eEvents::EventConflagration, eTimers::TimerConflagrationCooldown);
                         break;
                     }
                     default:
@@ -1429,7 +1429,7 @@ class npc_foundry_ironcrusher : public CreatureScript
 
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
+               // me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
 
                 m_Events.Reset();
 
@@ -1438,14 +1438,14 @@ class npc_foundry_ironcrusher : public CreatureScript
                 m_Tantrum       = false;
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 4);
 
-                m_Events.ScheduleEvent(eEvents::EventStampede, eTimers::TimerStampede);
-                m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrum);
-                m_Events.ScheduleEvent(eEvents::EventCrushArmor, eTimers::TimerCrushArmor);
+               // m_Events.ScheduleEvent(eEvents::EventStampede, eTimers::TimerStampede);
+               // m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrum);
+               // m_Events.ScheduleEvent(eEvents::EventCrushArmor, eTimers::TimerCrushArmor);
             }
 
             void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER)
@@ -1471,12 +1471,12 @@ class npc_foundry_ironcrusher : public CreatureScript
 
                     if (Creature* l_Darmac = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eFoundryCreatures::BossBeastlordDarmac)))
                     {
-                        if (l_Darmac->IsAIEnabled)
+                      //  if (l_Darmac->IsAIEnabled)
                             l_Darmac->AI()->DoAction(eAction::ActionIroncrusherKilled);
                     }
                 }
 
-                me->DespawnOrUnsummon(10 * TimeConstants::IN_MILLISECONDS);
+               // me->DespawnOrUnsummon(10 * TimeConstants::IN_MILLISECONDS);
             }
 
             void PassengerBoarded(Unit* p_Passenger, int8 /*p_SeatID*/, bool p_Apply) override
@@ -1487,9 +1487,9 @@ class npc_foundry_ironcrusher : public CreatureScript
 
                     me->ToCreature()->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
-                    me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
+                    me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE ));
 
-                    p_Passenger->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
+                   // p_Passenger->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
 
                     if (m_Instance != nullptr)
                         m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, p_Passenger);
@@ -1499,12 +1499,12 @@ class npc_foundry_ironcrusher : public CreatureScript
                 }
                 else
                 {
-                    p_Passenger->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
+                    p_Passenger->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE ));
 
                     if (m_Instance != nullptr)
                         m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, p_Passenger);
 
-                    if (m_IsEvadeMode && p_Passenger->ToCreature() && p_Passenger->IsAIEnabled)
+                    if (m_IsEvadeMode && p_Passenger->ToCreature())
                         p_Passenger->ToCreature()->AI()->EnterEvadeMode();
                 }
             }
@@ -1526,7 +1526,7 @@ class npc_foundry_ironcrusher : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) 
             {
                 if (p_Target == nullptr)
                     return;
@@ -1560,7 +1560,7 @@ class npc_foundry_ironcrusher : public CreatureScript
                         /// ...charges to a distant enemy,...
                         me->CastSpell(me, eSpells::StampedeSearcher, true);
 
-                        m_Events.ScheduleEvent(eEvents::EventStampede, eTimers::TimerStampedeCooldown);
+                       // m_Events.ScheduleEvent(eEvents::EventStampede, eTimers::TimerStampedeCooldown);
                         break;
                     }
                     case eEvents::EventTantrum:
@@ -1577,15 +1577,15 @@ class npc_foundry_ironcrusher : public CreatureScript
                             m_Tantrum = false;
                         //});
 
-                        m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrumCooldown);
+                       // m_Events.ScheduleEvent(eEvents::EventTantrum, eTimers::TimerTantrumCooldown);
                         break;
                     }
                     case eEvents::EventCrushArmor:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(l_Target, eSpells::CrushArmor, true);
+                       // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                         //   me->CastSpell(l_Target, eSpells::CrushArmor, true);
 
-                        m_Events.ScheduleEvent(eEvents::EventCrushArmor, eTimers::TimerCrushArmor);
+                        //m_Events.ScheduleEvent(eEvents::EventCrushArmor, eTimers::TimerCrushArmor);
                         break;
                     }
                     default:
@@ -1622,9 +1622,9 @@ class npc_foundry_hitching_post : public CreatureScript
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
                // AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-               // {
+                {
                     me->CastSpell(me, eSpell::HitchingPostChain, false);
-               // });
+                };
             }
 
             void UpdateAI(uint32 p_Diff) override
@@ -1666,8 +1666,8 @@ class npc_foundry_heavy_spear : public CreatureScript
 
                 me->AddUnitState(UnitState::UNIT_STATE_ROOT);
 
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+               // me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+               // me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
 
                 if (InstanceScript* l_Instance = me->GetInstanceScript())
                 {
@@ -1680,7 +1680,7 @@ class npc_foundry_heavy_spear : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) 
             {
                 if (p_Target == nullptr)
                     return;
@@ -1730,7 +1730,7 @@ class npc_foundry_heavy_spear : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*p_Attacker*/, SpellInfo const* p_SpellInfo) override
+            void SpellHit(Unit* /*p_Attacker*/, SpellInfo const* p_SpellInfo) 
             {
                 if (p_SpellInfo->Id == eSpells::FlameInfusion)
                     me->CastSpell(me, eSpells::SeekingEmbersSearch, true);
@@ -1810,7 +1810,7 @@ class npc_foundry_thunderlord_pack_pens : public CreatureScript
                 {
                     if (Unit* l_Target = l_Darmac->GetVictim())
                     {
-                        if (p_Summon->IsAIEnabled)
+                       // if (p_Summon->IsAIEnabled)
                             p_Summon->AI()->AttackStart(l_Target);
                     }
                 }
@@ -1849,14 +1849,14 @@ class npc_foundry_pack_beast : public CreatureScript
                 /// Pack beasts despawns after 5 seconds if Dreadwing's alive, if not, 30 seconds.
                 if (me->HasAura(eSpells::FlameInfusionTriggered))
                     me->CastSpell(me, eSpells::FlameInfusionAreaTrigger, true);
-                else
-                    me->DespawnOrUnsummon(5 * TimeConstants::IN_MILLISECONDS);
+               // else
+                  //  me->DespawnOrUnsummon(5 * TimeConstants::IN_MILLISECONDS);
             }
 
             void AreaTriggerDespawned(AreaTrigger* p_AreaTrigger)
             {
                 if (p_AreaTrigger->GetSpellId() == eSpells::FlameInfusionAreaTrigger)
-                    me->DespawnOrUnsummon(50);
+                    me->DespawnOrUnsummon();
             }
         };
 

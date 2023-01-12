@@ -16,6 +16,8 @@
  */
 
 #include "instance_bloodmaul.h"
+#include <G3D/Vector3.h>
+#include <Containers.h>
 
 namespace Instances
 {
@@ -85,8 +87,8 @@ namespace Instances
                     if (!caster)
                         return;
 
-                    if (Unit* unit = caster->SelectRandomPlayerInRange(30.0f, true))
-                        caster->CastSpell(unit, uint32(Spells::VolcanicEruption), true);
+                   // if (Unit* unit = caster->SelectRandomPlayerInRange(30.0f, true))
+                      //  caster->CastSpell(unit, uint32(Spells::VolcanicEruption), true);
                 }
 
                 void Register() override
@@ -237,8 +239,8 @@ namespace Instances
                     Unit* caster = GetCaster();
                     if (caster)
                     {
-                        if (Player* l_Plr = caster->SelectRandomPlayerInRange(40.0f, true))
-                            caster->CastSpell(l_Plr, uint32(Spells::SuppresionField), true);
+                        //if (Player* l_Plr = caster->SelectRandomPlayerInRange(40.0f, true))
+                         //   caster->CastSpell(l_Plr, uint32(Spells::SuppresionField), true);
                     }
                 }
 

@@ -37,6 +37,13 @@ enum eventTuulaniIntro
     EVENT_TUULANI_INTRO_19,
 };
 
+enum Flags
+{
+    UNIT_FLAG2_DISABLE_TURN,
+    UNIT_DYNFLAG_DEAD,
+    UNIT_FLAG_NOT_SELECTABLE,
+};
+
 /// Tuulani - 79248
 struct auchindoun_mob_tuulani : public ScriptedAI
 {
@@ -60,15 +67,15 @@ struct auchindoun_mob_tuulani : public ScriptedAI
         me->SetSpeed(UnitMoveType::MOVE_RUN, 12.0f);
         me->SetSpeed(UnitMoveType::MOVE_WALK, 1.2f);
         me->SetWalk(false);
-        me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_NPC));
+       // me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_NPC));
 
         //  AddTimedDelayedOperatio(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-        // {  //??????
+         {  //??????
         me->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani01, g_PositionTuulaniMovements[0]);
-        //  });  
+          };  
     }
 
-    void UpdateAI(uint32 p_Diff) override
+    void UpdateAI(uint32 p_Diff) 
     {
         events.Update(p_Diff);
         // UpdateOperations(p_Diff);//????
@@ -81,7 +88,7 @@ struct auchindoun_mob_tuulani : public ScriptedAI
                 l_Nyami->AddAura(eAuchindounSpells::SpellDarkFire, l_Nyami);
                 l_Nyami->CastSpell(l_Nyami, eAuchindounSpells::SpellPrisonAura);
                 l_Nyami->AddAura(eAuchindounSpells::SpellLevitateNyami, l_Nyami);
-                l_Nyami->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC));
+             //   l_Nyami->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC));
                 if (Creature* l_Trigger = l_Nyami->FindNearestCreature(eAuchindounCreatures::CreatureLeftCrystalTrigger, 40.0f, true))
                 {
                     l_Trigger->AddAura(eAuchindounSpells::SpellVoidFormTriggerBuff, l_Trigger);
@@ -94,12 +101,12 @@ struct auchindoun_mob_tuulani : public ScriptedAI
         case eventTuulaniIntro::EVENT_TUULANI_INTRO_2:
             Talk(eAuchindounTalks::TUULANITALK3);
             me->CastSpell(me, eAuchindounSpells::SpellTuulaniUnlock);
-            AddTimedDelayedOperation(2500, [this]() -> void
+           // AddTimedDelayedOperation(2500, [this]() -> void
             {
                 if (GameObject* door = me->FindNearestGameObject(GameobjectDoorBarrier, 100.0f))
                     door->Delete();
                 me->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani03, g_PositionTuulaniMovements[2]);
-            });           
+            };           
             break;
         case eventTuulaniIntro::EVENT_TUULANI_INTRO_3:
             if (Creature* l_Guard = me->FindNearestCreature(CreatureAucheniDefender, 50.0f, true))
@@ -108,18 +115,18 @@ struct auchindoun_mob_tuulani : public ScriptedAI
                 l_Guard->RemoveAura(eAuchindounSpells::SpellKneel);
                 l_Guard->AI()->Talk(eAuchindounTalks::AUCHENAIDEFENDERTALK1);
             }
-            events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_4, 7 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_4, 7 * TimeConstants::IN_MILLISECONDS);
             break;
         case eventTuulaniIntro::EVENT_TUULANI_INTRO_4:
             me->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani04, g_PositionTuulaniMovements[4]);
             break;
         case eventTuulaniIntro::EVENT_TUULANI_INTRO_5:
             Talk(eAuchindounTalks::TUULANITALK4);
-            events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_6, 4 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_6, 4 * TimeConstants::IN_MILLISECONDS);
             break;
         case eventTuulaniIntro::EVENT_TUULANI_INTRO_6:
             me->CastSpell(me, eAuchindounSpells::SpellTuulaniUnlock);
-            events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_7, 7 * TimeConstants::IN_MILLISECONDS);
+          //  events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_7, 7 * TimeConstants::IN_MILLISECONDS);
             break;
         case eventTuulaniIntro::EVENT_TUULANI_INTRO_7:
             if (GameObject* l_NearestHolyWall = me->FindNearestGameObject(eAuchindounObjects::GameobjectHolyWall, 60.0f))
@@ -138,13 +145,13 @@ struct auchindoun_mob_tuulani : public ScriptedAI
             me->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani08, g_PositionTuulaniMovements[8]);
             break;
         case eventTuulaniIntro::EVENT_TUULANI_INTRO_11:
-            if (instance)
+            //if (instance)
             {
-                instance->DoNearTeleportPlayers(me->GetPosition());
-                instance->DoPlayScenePackageIdOnPlayers(SpellAuchindounSceneTulaaniReachNyami);
+              //  instance->DoNearTeleportPlayers(me->GetPosition());
+               // instance->DoPlayScenePackageIdOnPlayers(SpellAuchindounSceneTulaaniReachNyami);
             }
             me->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani09, g_PositionTuulaniMovements[9]);
-            events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_12, 5 * TimeConstants::IN_MILLISECONDS);
+          //  events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_12, 5 * TimeConstants::IN_MILLISECONDS);
             //events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_14, 12 * TimeConstants::IN_MILLISECONDS);
             break;
         case eventTuulaniIntro::EVENT_TUULANI_INTRO_12:
@@ -154,9 +161,9 @@ struct auchindoun_mob_tuulani : public ScriptedAI
             Talk(eAuchindounTalks::TUULANITALK7);
             me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
             me->AddAura(eAuchindounSpells::SpellTuulaniCapturedVoidPrison, me);
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
-            events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_15, 7 * TimeConstants::IN_MILLISECONDS);
+          //  me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+          //  me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+          //  events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_15, 7 * TimeConstants::IN_MILLISECONDS);
             //l_Tuulina->m_Events.AddEvent(new EventTuulaniIntroduction(l_Tuulina, 15, m_InstanceScript), l_Tuulina->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));14
             break;
         case eventTuulaniIntro::EVENT_TUULANI_INTRO_14:
@@ -168,7 +175,7 @@ struct auchindoun_mob_tuulani : public ScriptedAI
                 l_Nyami->AddAura(eAuchindounSpells::SpellDarkFire, l_Nyami);
                 l_Nyami->CastSpell(l_Nyami, eAuchindounSpells::SpellPrisonAura);
                 l_Nyami->AddAura(eAuchindounSpells::SpellLevitateNyami, l_Nyami);
-                l_Nyami->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC));
+               // l_Nyami->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC));
                 if (Creature* l_Trigger = l_Nyami->FindNearestCreature(eAuchindounCreatures::CreatureSoulAegis, 40.0f, true))
                 {
                     l_Trigger->AddAura(eAuchindounSpells::SpellVoidFormTriggerBuff, l_Trigger);
@@ -176,21 +183,21 @@ struct auchindoun_mob_tuulani : public ScriptedAI
                 }
                 l_Nyami->AI()->Talk(eAuchindounTalks::NYAMITALK2);
             }               
-            events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_16, 9 * TimeConstants::IN_MILLISECONDS);
+          //  events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_16, 9 * TimeConstants::IN_MILLISECONDS);
             break;
         case eventTuulaniIntro::EVENT_TUULANI_INTRO_16:
             if (Creature* l_Nyami = me->FindNearestCreature(CreatureSoulBinderNyami, 200.0f, true))
                 l_Nyami->AI()->Talk(eAuchindounTalks::NYAMITALK3);
-            events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_17, 9 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_17, 9 * TimeConstants::IN_MILLISECONDS);
             break;
         case eventTuulaniIntro::EVENT_TUULANI_INTRO_17:
             if (Creature* l_Nyami = me->FindNearestCreature(CreatureSoulBinderNyami, 200.0f, true))
                 l_Nyami->AI()->Talk(eAuchindounTalks::NYAMITALK4);
-            events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_18, 9 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_18, 9 * TimeConstants::IN_MILLISECONDS);
             break;
         case eventTuulaniIntro::EVENT_TUULANI_INTRO_18:
             Talk(eAuchindounTalks::TUULANITALK8);
-            events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_19, 9 * TimeConstants::IN_MILLISECONDS);
+          //  events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_19, 9 * TimeConstants::IN_MILLISECONDS);
             break;
         case eventTuulaniIntro::EVENT_TUULANI_INTRO_19:
             if (Creature* l_Nyami = me->FindNearestCreature(CreatureSoulBinderNyami, 200.0f, true))
@@ -203,39 +210,39 @@ struct auchindoun_mob_tuulani : public ScriptedAI
 
     void MovementInform(uint32 /*p_Type*/, uint32 p_Id)
     {
-        if (instance)
+       // if (instance)
         {
             switch (p_Id)
             {
             case eAuchindounMovementInforms::MovementInformTuulani01:
-                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_1, 1 * TimeConstants::IN_MILLISECONDS);
+         //       events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_1, 1 * TimeConstants::IN_MILLISECONDS);
                 break;
             case eAuchindounMovementInforms::MovementInformTuulani02:
-                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_2, 1 * TimeConstants::IN_MILLISECONDS);
+           //     events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_2, 1 * TimeConstants::IN_MILLISECONDS);
                 break;
             case eAuchindounMovementInforms::MovementInformTuulani03:
-                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_3, 1 * TimeConstants::IN_MILLISECONDS);
+            //    events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_3, 1 * TimeConstants::IN_MILLISECONDS);
                 break;
             case eAuchindounMovementInforms::MovementInformTuulani04:
-                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_5, 1 * TimeConstants::IN_MILLISECONDS);
+            //    events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_5, 1 * TimeConstants::IN_MILLISECONDS);
                 break;
             case eAuchindounMovementInforms::MovementInformTuulani05:
-                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_8, 1 * TimeConstants::IN_MILLISECONDS);
+             //   events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_8, 1 * TimeConstants::IN_MILLISECONDS);
                 break;
             case eAuchindounMovementInforms::MovementInformTuulani06:
-                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_9, 1 * TimeConstants::IN_MILLISECONDS);
+               // events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_9, 1 * TimeConstants::IN_MILLISECONDS);
                 break;
             case eAuchindounMovementInforms::MovementInformTuulani07:
-                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_10, 1 * TimeConstants::IN_MILLISECONDS);
+              //  events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_10, 1 * TimeConstants::IN_MILLISECONDS);
                 break;
             case eAuchindounMovementInforms::MovementInformTuulani08:
-                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_11, 1 * TimeConstants::IN_MILLISECONDS);
+             //   events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_11, 1 * TimeConstants::IN_MILLISECONDS);
                 break;
             case eAuchindounMovementInforms::MovementInformTuulani09:
-                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_12, 1 * TimeConstants::IN_MILLISECONDS);
+              //  events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_12, 1 * TimeConstants::IN_MILLISECONDS);
                 break;
             case eAuchindounMovementInforms::MovementInformTuulani10:
-                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_13, 1 * TimeConstants::IN_MILLISECONDS);
+              //  events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_13, 1 * TimeConstants::IN_MILLISECONDS);
                 break;
             default:
                 break;
@@ -276,8 +283,8 @@ struct auchindoun_mob_sargerei_soulbinder : public ScriptedAI
 
     void EnterCombat(Unit* p_Attacker)
     {
-        events.ScheduleEvent(eSargereiSoulbinderEvents::EventMindShear, 8 * TimeConstants::IN_MILLISECONDS);
-        events.ScheduleEvent(eSargereiSoulbinderEvents::EventBendWill, 18 * TimeConstants::IN_MILLISECONDS);
+       // events.ScheduleEvent(eSargereiSoulbinderEvents::EventMindShear, 8 * TimeConstants::IN_MILLISECONDS);
+       // events.ScheduleEvent(eSargereiSoulbinderEvents::EventBendWill, 18 * TimeConstants::IN_MILLISECONDS);
     }
 
     void JustDied(Unit* /*p_Killer*/)
@@ -286,7 +293,7 @@ struct auchindoun_mob_sargerei_soulbinder : public ScriptedAI
         {
             if (Creature* l_Kaathar = m_Instance->instance->GetCreature(m_Instance->GetGuidData(eAuchindounDatas::DataBossKathaar)))
             {
-                if (l_Kaathar->IsAlive() && l_Kaathar->IsAIEnabled)
+              //  if (l_Kaathar->IsAlive() && l_Kaathar->IsAIEnabled)
                     l_Kaathar->AI()->DoAction(eAuchindounActions::ActionCountPre1StBossKill);
             }
         }
@@ -305,14 +312,14 @@ struct auchindoun_mob_sargerei_soulbinder : public ScriptedAI
         switch (events.ExecuteEvent())
         {
         case eSargereiSoulbinderEvents::EventMindShear:
-            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                me->CastSpell(l_Target, eSargereiSoulbinderSpells::SpellVoidShell);
-            events.ScheduleEvent(eSargereiSoulbinderEvents::EventBendWill, 8 * TimeConstants::IN_MILLISECONDS);
+           // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+             //   me->CastSpell(l_Target, eSargereiSoulbinderSpells::SpellVoidShell);
+           // events.ScheduleEvent(eSargereiSoulbinderEvents::EventBendWill, 8 * TimeConstants::IN_MILLISECONDS);
             break;
         case eSargereiSoulbinderEvents::EventBendWill:
-            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                me->CastSpell(l_Target, eSargereiSoulbinderSpells::SpellBendWill);
-            events.ScheduleEvent(eSargereiSoulbinderEvents::EventBendWill, 18 * TimeConstants::IN_MILLISECONDS);
+           // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+             //   me->CastSpell(l_Target, eSargereiSoulbinderSpells::SpellBendWill);
+          //  events.ScheduleEvent(eSargereiSoulbinderEvents::EventBendWill, 18 * TimeConstants::IN_MILLISECONDS);
             break;
         default:
             break;
@@ -352,7 +359,7 @@ struct auchindoun_mob_sargerei_cleric : public ScriptedAI
 
     void EnterCombat(Unit* p_Attacker)
     {
-        events.ScheduleEvent(eSargereiClericEvents::EventVoidShell, 15 * TimeConstants::IN_MILLISECONDS);
+      //  events.ScheduleEvent(eSargereiClericEvents::EventVoidShell, 15 * TimeConstants::IN_MILLISECONDS);
     }
 
     void JustDied(Unit* /*p_Killer*/)
@@ -361,7 +368,7 @@ struct auchindoun_mob_sargerei_cleric : public ScriptedAI
         {
             if (Creature* l_Kaathar = m_Instance->instance->GetCreature(m_Instance->GetGuidData(eAuchindounDatas::DataBossKathaar)))
             {
-                if (l_Kaathar->IsAlive() && l_Kaathar->IsAIEnabled)
+               // if (l_Kaathar->IsAlive() && l_Kaathar->IsAIEnabled)
                     l_Kaathar->AI()->DoAction(eAuchindounActions::ActionCountPre1StBossKill);
             }
         }
@@ -381,7 +388,7 @@ struct auchindoun_mob_sargerei_cleric : public ScriptedAI
         {
         case eSargereiClericEvents::EventVoidShell:
             me->CastSpell(me, eSargereiCleircSpells::SpellVoidShell);
-            events.ScheduleEvent(eSargereiClericEvents::EventVoidShell, urand(12 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
+           // events.ScheduleEvent(eSargereiClericEvents::EventVoidShell, urand(12 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
             break;
         default:
             break;
@@ -418,8 +425,8 @@ struct auchindoun_mob_sargerei_ritualist : public ScriptedAI
     {
         events.Reset();
 
-        if (Creature* l_Trigger = me->SummonCreature(eAuchindounCreatures::CreatureShadowBeam, g_PositionKaatharCrystalPosition, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
-            me->CastSpell(l_Trigger, eSargereiRitualistSpells::SpellShadowBeam);
+       // if (Creature* l_Trigger = me->SummonCreature(eAuchindounCreatures::CreatureShadowBeam, g_PositionKaatharCrystalPosition, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+         //   me->CastSpell(l_Trigger, eSargereiRitualistSpells::SpellShadowBeam);
 
         me->AddAura(eSargereiRitualistSpells::SpellDarkFire, me);
     }
@@ -428,7 +435,7 @@ struct auchindoun_mob_sargerei_ritualist : public ScriptedAI
     {
         me->CastStop();
         me->RemoveAllAuras();
-        events.ScheduleEvent(eSargereiRitualistEvents::EventMindSpike, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
+      //  events.ScheduleEvent(eSargereiRitualistEvents::EventMindSpike, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
     }
 
     void JustDied(Unit* /*p_Killer*/)
@@ -437,7 +444,7 @@ struct auchindoun_mob_sargerei_ritualist : public ScriptedAI
         {
             if (Creature* l_Kaathar = m_Instance->instance->GetCreature(m_Instance->GetGuidData(eAuchindounDatas::DataBossKathaar)))
             {
-                if (l_Kaathar->IsAlive() && l_Kaathar->IsAIEnabled)
+               // if (l_Kaathar->IsAlive() && l_Kaathar->IsAIEnabled)
                     l_Kaathar->AI()->DoAction(eAuchindounActions::ActionCountPre1StBossKill);
             }
         }
@@ -456,9 +463,9 @@ struct auchindoun_mob_sargerei_ritualist : public ScriptedAI
         switch (events.ExecuteEvent())
         {
         case eSargereiRitualistEvents::EventMindSpike:
-            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                me->CastSpell(l_Target, eSargereiRitualistSpells::SpellMindSpike);
-            events.ScheduleEvent(eSargereiRitualistEvents::EventMindSpike, 6 * TimeConstants::IN_MILLISECONDS);
+          //  if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+            //    me->CastSpell(l_Target, eSargereiRitualistSpells::SpellMindSpike);
+           // events.ScheduleEvent(eSargereiRitualistEvents::EventMindSpike, 6 * TimeConstants::IN_MILLISECONDS);
             break;
         default:
             break;
@@ -494,7 +501,7 @@ struct auchindoun_mob_sargerei_zealot : public ScriptedAI
 
     void EnterCombat(Unit* p_Attacker)
     {
-        events.ScheduleEvent(eAuchindounEvents::EventSeverTendom, 5 * TimeConstants::IN_MILLISECONDS);
+      //  events.ScheduleEvent(eAuchindounEvents::EventSeverTendom, 5 * TimeConstants::IN_MILLISECONDS);
     }
 
     void JustDied(Unit* /*p_Killer*/)
@@ -503,7 +510,7 @@ struct auchindoun_mob_sargerei_zealot : public ScriptedAI
         {
             if (Creature* Kaathar = m_Instance->instance->GetCreature(m_Instance->GetGuidData(eAuchindounDatas::DataBossKathaar)))
             {
-                if (Kaathar->IsAlive() && Kaathar->IsAIEnabled)
+               // if (Kaathar->IsAlive() && Kaathar->IsAIEnabled)
                     Kaathar->AI()->DoAction(eAuchindounActions::ActionCountPre1StBossKill);
             }
         }
@@ -522,9 +529,9 @@ struct auchindoun_mob_sargerei_zealot : public ScriptedAI
         switch (events.ExecuteEvent())
         {
         case eAuchindounEvents::EventSeverTendom:
-            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                me->CastSpell(l_Target, eAuchindounSpells::SpellSeverTendonAura);
-            events.ScheduleEvent(eAuchindounEvents::EventSeverTendom, urand(9 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
+           // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+             //   me->CastSpell(l_Target, eAuchindounSpells::SpellSeverTendonAura);
+           // events.ScheduleEvent(eAuchindounEvents::EventSeverTendom, urand(9 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
             break;
         default:
             break;
@@ -566,8 +573,8 @@ struct auchindoun_mob_sargerei_spirit_tender : public ScriptedAI
 
     void EnterCombat(Unit* p_Attacker)
     {
-        events.ScheduleEvent(eSpiritTenderEvents::EventVoidMending, 10 * TimeConstants::IN_MILLISECONDS);
-        events.ScheduleEvent(eSpiritTenderEvents::EventVoidShift, 16 * TimeConstants::IN_MILLISECONDS);
+      //  events.ScheduleEvent(eSpiritTenderEvents::EventVoidMending, 10 * TimeConstants::IN_MILLISECONDS);
+      //  events.ScheduleEvent(eSpiritTenderEvents::EventVoidShift, 16 * TimeConstants::IN_MILLISECONDS);
     }
 
     void JustDied(Unit* /*p_Killer*/)
@@ -576,7 +583,7 @@ struct auchindoun_mob_sargerei_spirit_tender : public ScriptedAI
         {
             if (Creature* l_Kaathar = m_Instance->instance->GetCreature(m_Instance->GetGuidData(eAuchindounDatas::DataBossKathaar)))
             {
-                if (l_Kaathar->IsAlive() && l_Kaathar->IsAIEnabled)
+              //  if (l_Kaathar->IsAlive() && l_Kaathar->IsAIEnabled)
                     l_Kaathar->AI()->DoAction(eAuchindounActions::ActionCountPre1StBossKill);
             }
         }
@@ -597,11 +604,11 @@ struct auchindoun_mob_sargerei_spirit_tender : public ScriptedAI
         case eSpiritTenderEvents::EventVoidMending:
             if (Unit* l_FriendUnit = DoSelectLowestHpFriendly(85))
                 me->CastSpell(l_FriendUnit, eSpiritTenderSpells::SpellVoidMendingDummy);
-            events.ScheduleEvent(eSpiritTenderEvents::EventVoidMending, 10 * TimeConstants::IN_MILLISECONDS);
+         //   events.ScheduleEvent(eSpiritTenderEvents::EventVoidMending, 10 * TimeConstants::IN_MILLISECONDS);
             break;
         case eSpiritTenderEvents::EventVoidShift:
             me->CastSpell(me, eSpiritTenderSpells::SpellVoidShiftDummy);
-            events.ScheduleEvent(eSpiritTenderEvents::EventVoidShift, 16 * TimeConstants::IN_MILLISECONDS);
+          //  events.ScheduleEvent(eSpiritTenderEvents::EventVoidShift, 16 * TimeConstants::IN_MILLISECONDS);
             break;
         default:
             break;
@@ -641,8 +648,8 @@ struct auchindoun_mob_sargerei_hopilite : public ScriptedAI
 
     void EnterCombat(Unit* p_Attacker)
     {
-        events.ScheduleEvent(eSargereiHopiliteEvents::EventShieldBash, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
-        events.ScheduleEvent(eSargereiHopiliteEvents::EventVoidStrikes, 18 * TimeConstants::IN_MILLISECONDS);
+      //  events.ScheduleEvent(eSargereiHopiliteEvents::EventShieldBash, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
+      //  events.ScheduleEvent(eSargereiHopiliteEvents::EventVoidStrikes, 18 * TimeConstants::IN_MILLISECONDS);
     }
 
     void JustDied(Unit* /*p_Killer*/)
@@ -651,7 +658,7 @@ struct auchindoun_mob_sargerei_hopilite : public ScriptedAI
         {
             if (Creature* l_Kaathar = m_Instance->instance->GetCreature(m_Instance->GetGuidData(eAuchindounDatas::DataBossKathaar)))
             {
-                if (l_Kaathar->IsAlive() && l_Kaathar->IsAIEnabled)
+               // if (l_Kaathar->IsAlive() && l_Kaathar->IsAIEnabled)
                     l_Kaathar->AI()->DoAction(eAuchindounActions::ActionCountPre1StBossKill);
             }
         }
@@ -672,12 +679,12 @@ struct auchindoun_mob_sargerei_hopilite : public ScriptedAI
         case eSargereiHopiliteEvents::EventShieldBash:
             if (Unit* l_Target = me->GetVictim())
                 me->CastSpell(l_Target, eSargereiHopiliteSpells::SpellShieldBash);
-            events.ScheduleEvent(eSargereiHopiliteEvents::EventShieldBash, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
+           // events.ScheduleEvent(eSargereiHopiliteEvents::EventShieldBash, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
             break;
         case eSargereiHopiliteEvents::EventVoidStrikes:
             if (Unit* l_Target = me->GetVictim())
                 me->CastSpell(l_Target, eSargereiHopiliteSpells::SpellVoidStrikes);
-            events.ScheduleEvent(eSargereiHopiliteEvents::EventVoidStrikes, 18 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eSargereiHopiliteEvents::EventVoidStrikes, 18 * TimeConstants::IN_MILLISECONDS);
             break;
         default:
             break;
@@ -722,8 +729,8 @@ struct auchindoun_mob_sargerei_defender : public ScriptedAI
 
     void EnterCombat(Unit* p_Attacker)
     {
-        events.ScheduleEvent(eSargereiDefenderEvents::EventAvengersShield, urand(10 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
-        events.ScheduleEvent(eSargereiDefenderEvents::EventCrusaderStirke, urand(5 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
+      //  events.ScheduleEvent(eSargereiDefenderEvents::EventAvengersShield, urand(10 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
+       // events.ScheduleEvent(eSargereiDefenderEvents::EventCrusaderStirke, urand(5 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
     }
 
     void UpdateAI(uint32 p_Diff) override
@@ -739,14 +746,14 @@ struct auchindoun_mob_sargerei_defender : public ScriptedAI
         switch (events.ExecuteEvent())
         {
         case eSargereiDefenderEvents::EventAvengersShield:
-            if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_FARTHEST, 0, 50.0f, true))
-                me->CastSpell(l_Random, eSargereiDefenderSpells::SpellAvengersShield);
-            events.ScheduleEvent(eSargereiDefenderEvents::EventAvengersShield, urand(10 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
+         //   if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_FARTHEST, 0, 50.0f, true))
+           //     me->CastSpell(l_Random, eSargereiDefenderSpells::SpellAvengersShield);
+           // events.ScheduleEvent(eSargereiDefenderEvents::EventAvengersShield, urand(10 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
             break;
         case eSargereiDefenderEvents::EventCrusaderStirke:
             if (Unit* l_Target = me->GetVictim())
                 me->CastSpell(l_Target, eSargereiDefenderSpells::SpellCrusaderStirke);
-            events.ScheduleEvent(eSargereiDefenderEvents::EventCrusaderStirke, urand(5 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
+           // events.ScheduleEvent(eSargereiDefenderEvents::EventCrusaderStirke, urand(5 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
             break;
         default:
             break;
@@ -808,8 +815,8 @@ struct auchindoun_mob_sargerei_magus : public ScriptedAI
                     if (Creature* l_Mob = ObjectAccessor::GetCreature(*me, l_Itr))
                     {
                         l_Mob->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
-                        l_Mob->AddUnitFlag(UnitFlags(UNIT_FLAG2_FEIGN_DEATH));
-                        l_Mob->AddUnitFlag(UnitFlags(UNIT_DYNFLAG_DEAD));
+                      //  l_Mob->AddUnitFlag(UnitFlags(UNIT_FLAG2_FEIGN_DEATH));
+                      //  l_Mob->AddUnitFlag(UnitFlags(UNIT_DYNFLAG_DEAD));
                     }
                 }
             }
@@ -822,8 +829,8 @@ struct auchindoun_mob_sargerei_magus : public ScriptedAI
     void EnterCombat(Unit* p_Attacker)
     {
         me->RemoveAura(eSargereiMagusSpells::SpellArcaneChanneling);
-        events.ScheduleEvent(eSargereiMagusEvents::EventArcaneBomb, 13 * TimeConstants::IN_MILLISECONDS);
-        events.ScheduleEvent(eSargereiMagusEvents::EventArcaneBolt, 20 * TimeConstants::IN_MILLISECONDS);
+      //  events.ScheduleEvent(eSargereiMagusEvents::EventArcaneBomb, 13 * TimeConstants::IN_MILLISECONDS);
+       // events.ScheduleEvent(eSargereiMagusEvents::EventArcaneBolt, 20 * TimeConstants::IN_MILLISECONDS);
 
         std::list<Creature*> l_mobsPrisoners;
         me->GetCreatureListWithEntryInGrid(l_mobsPrisoners, eAuchindounCreatures::CreatureAucheniSoulPriest, 20.0f);
@@ -831,10 +838,10 @@ struct auchindoun_mob_sargerei_magus : public ScriptedAI
         {
             for (Creature* l_Itr : l_mobsPrisoners)
             {
-                l_Itr->Kill(l_Itr);
+               // l_Itr->Kill(l_Itr);
                 l_Itr->RemoveAllAuras();
                 l_Itr->GetMotionMaster()->MoveFall(eAuchindounMovementInforms::MovementInformFallMagusPrisoners);
-                l_Itr->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
+               // l_Itr->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
             }
         }
     }
@@ -853,11 +860,11 @@ struct auchindoun_mob_sargerei_magus : public ScriptedAI
         {
         case eSargereiMagusEvents::EventArcaneBomb:
             me->CastSpell(me, eSargereiMagusSpells::SpellArcaneBombDummy);
-            events.ScheduleEvent(eSargereiMagusEvents::EventArcaneBomb, 13 * TimeConstants::IN_MILLISECONDS);
+         //   events.ScheduleEvent(eSargereiMagusEvents::EventArcaneBomb, 13 * TimeConstants::IN_MILLISECONDS);
             break;
         case eSargereiMagusEvents::EventArcaneBolt:
             me->CastSpell(me, eSargereiMagusSpells::SpellArcaneBoltPeriod);
-            events.ScheduleEvent(eSargereiMagusEvents::EventArcaneBolt, 20 * TimeConstants::IN_MILLISECONDS);
+          //  events.ScheduleEvent(eSargereiMagusEvents::EventArcaneBolt, 20 * TimeConstants::IN_MILLISECONDS);
             break;
         default:
             break;
@@ -905,8 +912,8 @@ struct auchindoun_mob_soul_priest : public ScriptedAI
 
     void EnterCombat(Unit* p_Attacker)
     {
-        events.ScheduleEvent(eSoulPriestEvents::EventPsychicTerrors, 15 * TimeConstants::IN_MILLISECONDS);
-        events.ScheduleEvent(eSoulPriestEvents::EventShadowWordPainSoulPriest, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
+       // events.ScheduleEvent(eSoulPriestEvents::EventPsychicTerrors, 15 * TimeConstants::IN_MILLISECONDS);
+       // events.ScheduleEvent(eSoulPriestEvents::EventShadowWordPainSoulPriest, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
     }
 
     void UpdateAI(uint32 p_Diff) override
@@ -922,14 +929,14 @@ struct auchindoun_mob_soul_priest : public ScriptedAI
         switch (events.ExecuteEvent())
         {
         case eSoulPriestEvents::EventShadowWordPainSoulPriest:
-            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true, -eAuchindounSpells::SpellShadowWordPainPriest))
-                me->CastSpell(me, eSoulPriestSpells::SpellShadowWordPainPriest);
-            events.ScheduleEvent(eSoulPriestEvents::EventShadowWordPainSoulPriest, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
+          //  if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true, -eAuchindounSpells::SpellShadowWordPainPriest))
+            //    me->CastSpell(me, eSoulPriestSpells::SpellShadowWordPainPriest);
+           // events.ScheduleEvent(eSoulPriestEvents::EventShadowWordPainSoulPriest, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
             break;
         case eSoulPriestEvents::EventPsychicTerrors:
-            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                me->CastSpell(l_Target, eSoulPriestSpells::SpellPsychicTerrorDummy);
-            events.ScheduleEvent(eSoulPriestEvents::EventPsychicTerrors, 15 * TimeConstants::IN_MILLISECONDS);
+          //  if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
+            //    me->CastSpell(l_Target, eSoulPriestSpells::SpellPsychicTerrorDummy);
+          //  events.ScheduleEvent(eSoulPriestEvents::EventPsychicTerrors, 15 * TimeConstants::IN_MILLISECONDS);
             break;
         default:
             break;
@@ -974,8 +981,8 @@ struct auchindoun_mob_sargeri_warden : public ScriptedAI
 
     void EnterCombat(Unit* p_Attacker)
     {
-        events.ScheduleEvent(eWardenEvents::EventWardenChain, 5 * TimeConstants::IN_MILLISECONDS);
-        events.ScheduleEvent(eWardenEvents::EventWardenHammer, urand(12 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
+      //  events.ScheduleEvent(eWardenEvents::EventWardenChain, 5 * TimeConstants::IN_MILLISECONDS);
+      //  events.ScheduleEvent(eWardenEvents::EventWardenHammer, urand(12 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
     }
 
     void UpdateAI(uint32 p_Diff) override
@@ -991,14 +998,14 @@ struct auchindoun_mob_sargeri_warden : public ScriptedAI
         switch (events.ExecuteEvent())
         {
         case eWardenEvents::EventWardenHammer:
-            if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                me->CastSpell(l_Random, eWardenSpells::SpellWardenThrowHammer);
-            events.ScheduleEvent(eWardenEvents::EventWardenHammer, urand(12 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
+           // if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+             //   me->CastSpell(l_Random, eWardenSpells::SpellWardenThrowHammer);
+           // events.ScheduleEvent(eWardenEvents::EventWardenHammer, urand(12 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
             break;
         case eWardenEvents::EventWardenChain:
-            if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                me->CastSpell(l_Random, eWardenSpells::SpellWardenChainDot);
-            events.ScheduleEvent(eWardenEvents::EventWardenChain, 20 * TimeConstants::IN_MILLISECONDS);
+          //  if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+            //    me->CastSpell(l_Random, eWardenSpells::SpellWardenChainDot);
+           // events.ScheduleEvent(eWardenEvents::EventWardenChain, 20 * TimeConstants::IN_MILLISECONDS);
             break;
         default:
             break;
@@ -1041,7 +1048,7 @@ struct auchindoun_mob_felborne_abyssal : public ScriptedAI
 
     void EnterCombat(Unit* p_Attacker)
     {
-        events.ScheduleEvent(eFelborneAbyssalEvents::EventFixate, urand(16 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
+       // events.ScheduleEvent(eFelborneAbyssalEvents::EventFixate, urand(16 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
     }
 
     void DoAction(int32 p_Action)
@@ -1072,8 +1079,8 @@ struct auchindoun_mob_felborne_abyssal : public ScriptedAI
         {
             if (!m_FixatedTargetGUID)//???
             {
-                if (Unit* l_Target = ObjectAccessor::GetUnit(*me, m_FixatedTargetGUID))
-                    me->AddThreat(l_Target, 500.0f);
+                if (Unit* l_Target = ObjectAccessor::GetUnit(*me, m_FixatedTargetGUID));
+                //    me->AddThreat(l_Target, 500.0f);
             }
         }
 
@@ -1085,14 +1092,14 @@ struct auchindoun_mob_felborne_abyssal : public ScriptedAI
         switch (events.ExecuteEvent())
         {
         case eAuchindounEvents::EventFixate:
-            if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
+         //   if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
             {
                 m_Fixated = true;
-                m_FixatedTargetGUID = l_Random->GetGUID();
-                me->CastSpell(l_Random, eFelborneAbyssalSpells::SpellFixate);
+             //   m_FixatedTargetGUID = l_Random->GetGUID();
+               // me->CastSpell(l_Random, eFelborneAbyssalSpells::SpellFixate);
             }
 
-            events.ScheduleEvent(eFelborneAbyssalEvents::EventFixate, urand(16 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
+           // events.ScheduleEvent(eFelborneAbyssalEvents::EventFixate, urand(16 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
             break;
         default:
             break;
@@ -1132,7 +1139,7 @@ struct auchindoun_mob_cackling_pyromaniac : public ScriptedAI
 
     void EnterCombat(Unit* p_Attacker)
     {
-        events.ScheduleEvent(eCacklingPyromaniacEvents::EventFelBlast, 6 * TimeConstants::IN_MILLISECONDS);
+      //  events.ScheduleEvent(eCacklingPyromaniacEvents::EventFelBlast, 6 * TimeConstants::IN_MILLISECONDS);
     }
 
     void JustDied(Unit* /*p_Killer*/)
@@ -1140,11 +1147,11 @@ struct auchindoun_mob_cackling_pyromaniac : public ScriptedAI
         if (m_Instance != nullptr)
         {
             if (Creature* l_Azzakel = m_Instance->instance->GetCreature(m_Instance->GetGuidData(eAuchindounDatas::DataBossAzzakael)))
-                if (l_Azzakel->IsInCombat() && l_Azzakel->IsAlive() && l_Azzakel->IsAIEnabled)
+               // if (l_Azzakel->IsInCombat() && l_Azzakel->IsAlive() && l_Azzakel->IsAIEnabled)
                     l_Azzakel->GetAI()->DoAction(eAuchindounActions::ActionDemonSoulsAchievement);
 
             if (Creature* l_Trigger = m_Instance->instance->GetCreature(m_Instance->GetGuidData(eAuchindounDatas::DataTriggerAzzakelController)))
-                if (l_Trigger->IsWithinDistInMap(me, 30.0f) && l_Trigger->IsAIEnabled)
+             //   if (l_Trigger->IsWithinDistInMap(me, 30.0f) && l_Trigger->IsAIEnabled)
                     l_Trigger->AI()->DoAction(eAuchindounActions::ActionCountPre3StBossKill);
         }
     }
@@ -1164,7 +1171,7 @@ struct auchindoun_mob_cackling_pyromaniac : public ScriptedAI
         case eCacklingPyromaniacEvents::EventFelBlast:
             if (Unit* l_Target = me->GetVictim())
                 me->CastSpell(l_Target, eCacklingPyromaniacSpells::SpellFelBlast);
-            events.ScheduleEvent(eCacklingPyromaniacEvents::EventFelBlast, 6 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eCacklingPyromaniacEvents::EventFelBlast, 6 * TimeConstants::IN_MILLISECONDS);
             break;
         default:
             break;
@@ -1200,7 +1207,7 @@ struct auchindoun_mob_blazing_trickster : public ScriptedAI
         events.Reset();
         me->SetReactState(ReactStates::REACT_AGGRESSIVE);
         me->SetDefaultMovementType(MovementGeneratorType::RANDOM_MOTION_TYPE);
-        events.ScheduleEvent(eBlazingTricksterEvents::EventConfligrate, urand(8 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
+      //  events.ScheduleEvent(eBlazingTricksterEvents::EventConfligrate, urand(8 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
     }
 
     void JustDied(Unit* /*p_Killer*/)
@@ -1208,7 +1215,7 @@ struct auchindoun_mob_blazing_trickster : public ScriptedAI
         if (m_Instance != nullptr)
         {
             if (Creature* l_Azzakel = m_Instance->instance->GetCreature(m_Instance->GetGuidData(eAuchindounDatas::DataBossAzzakael)))
-                if (l_Azzakel->IsInCombat() && l_Azzakel->IsAlive() && l_Azzakel->IsAIEnabled)
+              //  if (l_Azzakel->IsInCombat() && l_Azzakel->IsAlive() && l_Azzakel->IsAIEnabled)
                     l_Azzakel->GetAI()->DoAction(eAuchindounActions::ActionDemonSoulsAchievement);
         }
         if (me->GetEntry() == 79510)
@@ -1230,7 +1237,7 @@ struct auchindoun_mob_blazing_trickster : public ScriptedAI
         {
         case eBlazingTricksterEvents::EventConfligrate:
             me->CastSpell(me, eBlazingTricksterSpells::SpellConfligirate);
-            events.ScheduleEvent(eBlazingTricksterEvents::EventConfligrate, urand(8 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
+          //  events.ScheduleEvent(eBlazingTricksterEvents::EventConfligrate, urand(8 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
             break;
         default:
             break;
@@ -1269,7 +1276,7 @@ struct auchindoun_mob_felguard : public ScriptedAI
 
     void EnterCombat(Unit* p_Attacker)
     {
-        events.ScheduleEvent(eFelguardEvents::EventFelStomp, 10 * TimeConstants::IN_MILLISECONDS);
+       // events.ScheduleEvent(eFelguardEvents::EventFelStomp, 10 * TimeConstants::IN_MILLISECONDS);
     }
 
     void JustDied(Unit* /*p_Killer*/)
@@ -1277,11 +1284,11 @@ struct auchindoun_mob_felguard : public ScriptedAI
         if (m_Instance != nullptr)
         {
             if (Creature* l_Azzakel = m_Instance->instance->GetCreature(m_Instance->GetGuidData(eAuchindounDatas::DataBossAzzakael)))
-                if (l_Azzakel->IsInCombat() && l_Azzakel->IsAlive() && l_Azzakel->IsAIEnabled)
+              //  if (l_Azzakel->IsInCombat() && l_Azzakel->IsAlive() && l_Azzakel->IsAIEnabled)
                     l_Azzakel->GetAI()->DoAction(eAuchindounActions::ActionDemonSoulsAchievement);
 
             if (Creature* l_Trigger = m_Instance->instance->GetCreature(m_Instance->GetGuidData(eAuchindounDatas::DataTriggerAzzakelController)))
-                if (l_Trigger->IsWithinDistInMap(me, 30.0f) && l_Trigger->IsAIEnabled)
+              //  if (l_Trigger->IsWithinDistInMap(me, 30.0f) && l_Trigger->IsAIEnabled)
                     l_Trigger->AI()->DoAction(eAuchindounActions::ActionCountPre3StBossKill);
         }
     }
@@ -1300,7 +1307,7 @@ struct auchindoun_mob_felguard : public ScriptedAI
         {
         case eFelguardEvents::EventFelStomp:
             me->CastSpell(me, eFelguardSpells::SpellFelStomp);
-            events.ScheduleEvent(eFelguardEvents::EventFelStomp, urand(12 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
+          //  events.ScheduleEvent(eFelguardEvents::EventFelStomp, urand(12 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
             break;
         default:
             break;
@@ -1331,7 +1338,7 @@ struct auchindoun_mob_warden_hammer : public ScriptedAI
     {
         me->SetFaction(HostileFaction);
         m_DiffHammer = 1 * TimeConstants::IN_MILLISECONDS;
-        me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
+      //  me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
     }
 
     void UpdateAI(uint32 p_Diff) override
@@ -1477,7 +1484,7 @@ class auchindoun_spell_void_shift : public SpellScript
         int32 l_CalcDamage = 8000;
 
         std::list<Creature*> l_ListPlayers;
-        l_Caster->GetCreatureListInGrid(l_ListPlayers, 30.0f);
+       // l_Caster->GetCreatureListInGrid(l_ListPlayers, 30.0f);
         //l_Caster->GetPlayerListInGrid(l_ListPlayers, 30.0f);
         //l_Caster->VisitNearbyObject(30.0f, searcher);
         if (!l_ListPlayers.empty())
@@ -1487,10 +1494,10 @@ class auchindoun_spell_void_shift : public SpellScript
                 if (!(*l_It))
                     continue;
 
-                if ((*l_It)->GetTypeId() == TypeID::TYPEID_PLAYER)
-                    GetCaster()->CastCustomSpell((*l_It), eAuchindounSpells::SpellVoidShiftDamage, &l_CalcDamage, NULL, NULL, true, NULL);
-                else
-                    GetCaster()->CastCustomSpell((*l_It), eAuchindounSpells::SpellVoidShiftHeal, &l_CalcDamage, NULL, NULL, true, NULL);
+                if ((*l_It)->GetTypeId() == TypeID::TYPEID_PLAYER);
+                  //  GetCaster()->CastCustomSpell((*l_It), eAuchindounSpells::SpellVoidShiftDamage, &l_CalcDamage, NULL, NULL, true, NULL);
+               // else
+                 //   GetCaster()->CastCustomSpell((*l_It), eAuchindounSpells::SpellVoidShiftHeal, &l_CalcDamage, NULL, NULL, true, NULL);
             }
         }
     }
@@ -1516,7 +1523,7 @@ class auchindoun_spell_void_shell_filter : public SpellScript
         Unit* l_Caster = GetCaster();
 
         std::list<Creature*> l_TargetList;
-        l_Caster->GetCreatureListInGrid(l_TargetList, 10.0f);
+      //  l_Caster->GetCreatureListInGrid(l_TargetList, 10.0f);
         // l_Caster->VisitNearbyObject(10.0f, searcher);
         if (!l_TargetList.empty())
         {
@@ -1593,10 +1600,10 @@ class auchindoun_spell_arcane_bolt : public AuraScript
     {
         if (Unit* l_Caster = GetCaster())
         {
-            if (l_Caster->IsAIEnabled)
+           // if (l_Caster->IsAIEnabled)
             {
-                if (Unit* l_Target = l_Caster->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                    l_Caster->CastSpell(l_Target, eArcaneBoltSpells::SpellArcaneBoltProje, true);
+               // if (Unit* l_Target = l_Caster->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                 //   l_Caster->CastSpell(l_Target, eArcaneBoltSpells::SpellArcaneBoltProje, true);
             }
         }
     }
@@ -1658,7 +1665,7 @@ public:
 
     auchindoun_gob_talador_portal() : GameObjectScript("auchindoun_gob_talador_portal") { }
 
-    bool OnGossipHello(Player* p_Player, GameObject* p_Gameobject) override
+    bool OnGossipHello(Player* p_Player, GameObject* p_Gameobject) 
     {
         p_Player->TeleportTo(1116, 1488.52f, 3077.65f, 108.920f, 4.653427f);
         return true;
@@ -1669,7 +1676,7 @@ public:
 class auchindoun_spell_void_beam : public SpellScript
 {
     PrepareSpellScript(auchindoun_spell_void_beam);
-    /*
+    
     void CorrectTargets(std::list<WorldObject*>& p_Targets)
     {
         p_Targets.clear();
@@ -1684,7 +1691,7 @@ class auchindoun_spell_void_beam : public SpellScript
             }
         }
     }
-    */
+    
     void CheckTarget(WorldObject*& target)
     {
         if (target->GetEntry() != CreatureSoulAegis)
@@ -1693,7 +1700,7 @@ class auchindoun_spell_void_beam : public SpellScript
 
     void Register() override
     {
-        //OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(auchindoun_spell_void_beam::CorrectTargets, SpellEffIndex::EFFECT_0, Targets::TARGET_UNIT_NEARBY_ENTRY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(auchindoun_spell_void_beam::CorrectTargets, SpellEffIndex::EFFECT_0, Targets::TARGET_UNIT_NEARBY_ENTRY);
         OnObjectTargetSelect += SpellObjectTargetSelectFn(auchindoun_spell_void_beam::CheckTarget, EFFECT_0, TARGET_UNIT_TARGET_ANY);
     }
 };
@@ -1721,9 +1728,9 @@ void AddSC_auchindoun()
     RegisterSpellScript(auchindoun_spell_void_shell_filter);       ///< 160312
     RegisterSpellScript(auchindoun_spell_psychic_terror);          ///< 154356
     RegisterSpellScript(auchindoun_spell_tuulani_unlock);          ///< 160415
-    RegisterAuraScript(auchindoun_spell_arcane_bolt);             ///< 157505
+  //  RegisterAuraScript(auchindoun_spell_arcane_bolt);             ///< 157505
     new auchindoun_at_arcane_bomb();                ///< 157793//???
-    new auchindoun_gob_talador_portal();            ///< 236689
-    RegisterAuraScript(auchindoun_warden_chain_aura);
+  //  new auchindoun_gob_talador_portal();            ///< 236689
+   // RegisterAuraScript(auchindoun_warden_chain_aura);
     RegisterSpellScript(auchindoun_spell_void_beam);///156920
 }

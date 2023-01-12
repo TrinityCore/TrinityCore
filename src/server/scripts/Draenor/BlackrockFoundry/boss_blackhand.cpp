@@ -200,20 +200,20 @@ class boss_blackhand : public CreatureScript
                 me->SetDisableGravity(true);
 
                // AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                //{
+                {
                     me->SetDisableGravity(false);
 
                     me->GetMotionMaster()->MoveFall();
-                //});
+                };
 
                 m_MoveID = 0;
 
                // AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-               // {
+                {
                     me->SetWalk(true);
 
                     me->GetMotionMaster()->MovePoint(m_MoveID, g_BlackhandCosmeticMoves[m_MoveID]);
-               // });
+                };
 
                 m_PhaseID           = ePhases::TheBlackrockForge;
                 m_RegenCycle        = 1;
@@ -223,8 +223,8 @@ class boss_blackhand : public CreatureScript
                 m_SoldiersCount     = 0;
                 m_SmashedCount      = 0;
 
-                if (!m_IntroDone)
-                    m_CosmeticEvents.ScheduleEvent(eEvents::EventCheckPlayerForIntro, 1 * TimeConstants::IN_MILLISECONDS);
+                if (!m_IntroDone);
+                   // m_CosmeticEvents.ScheduleEvent(eEvents::EventCheckPlayerForIntro, 1 * TimeConstants::IN_MILLISECONDS);
             }
 
             void KilledUnit(Unit* p_Who) override
@@ -235,15 +235,15 @@ class boss_blackhand : public CreatureScript
                 Talk(eTalks::TalkSlay);
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/)
             {
                 me->SetWalk(false);
 
                // ClearDelayedOperations();
 
-                me->HandleEmoteCommand(0);
+               // me->HandleEmoteCommand(0);
 
-                _EnterCombat();
+               // _EnterCombat();
 
                 if (m_Instance != nullptr)
                 {
@@ -251,7 +251,7 @@ class boss_blackhand : public CreatureScript
 
                     if (Creature* l_Foundry = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eFoundryCreatures::BlackrockFoundryTrigger)))
                     {
-                        if (l_Foundry->IsAIEnabled)
+                        //if (l_Foundry->IsAIEnabled)
                             l_Foundry->AI()->DoAction(eBlackhandActions::BlackhandEngaged);
                     }
                 }
@@ -265,13 +265,13 @@ class boss_blackhand : public CreatureScript
                 m_Events.Reset();
                 m_Events.SetPhase(ePhases::TheBlackrockForge);
 
-                m_Events.ScheduleEvent(eEvents::EventThrowSlagBomb,     eTimers::TimerThrowSlagBomb,    0, ePhases::TheBlackrockForge);
-                m_Events.ScheduleEvent(eEvents::EventDemolition,        eTimers::TimerDemolition,       0, ePhases::TheBlackrockForge);
-                m_Events.ScheduleEvent(eEvents::EventMarkedForDeath,    eTimers::TimerMarkedForDeath,   0, ePhases::TheBlackrockForge);
+               // m_Events.ScheduleEvent(eEvents::EventThrowSlagBomb,     eTimers::TimerThrowSlagBomb,    0, ePhases::TheBlackrockForge);
+               // m_Events.ScheduleEvent(eEvents::EventDemolition,        eTimers::TimerDemolition,       0, ePhases::TheBlackrockForge);
+               // m_Events.ScheduleEvent(eEvents::EventMarkedForDeath,    eTimers::TimerMarkedForDeath,   0, ePhases::TheBlackrockForge);
 
                 m_CosmeticEvents.Reset();
 
-                m_CosmeticEvents.ScheduleEvent(eEvents::EventRegenerateEnergy, eTimers::TimerRegenerateEnergy);
+               // m_CosmeticEvents.ScheduleEvent(eEvents::EventRegenerateEnergy, eTimers::TimerRegenerateEnergy);
             }
 
             void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER)
@@ -291,13 +291,13 @@ class boss_blackhand : public CreatureScript
 
                     if (Creature* l_Foundry = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eFoundryCreatures::BlackrockFoundryTrigger)))
                     {
-                        if (l_Foundry->IsAIEnabled)
+                       // if (l_Foundry->IsAIEnabled)
                             l_Foundry->AI()->DoAction(eBlackhandActions::BlackhandDisengaged);
                     }
 
                     if (Creature* l_AchievStalker = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eFoundryCreatures::AchievementStalker)))
                     {
-                        if (l_AchievStalker->IsAIEnabled)
+                       // if (l_AchievStalker->IsAIEnabled)
                             l_AchievStalker->AI()->DoAction(eBlackhandActions::BlackhandDisengaged);
                     }
                 }
@@ -323,7 +323,7 @@ class boss_blackhand : public CreatureScript
 
                     if (Creature* l_Foundry = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eFoundryCreatures::BlackrockFoundryTrigger)))
                     {
-                        if (l_Foundry->IsAIEnabled)
+                        //if (l_Foundry->IsAIEnabled)
                             l_Foundry->AI()->DoAction(eBlackhandActions::BlackhandDisengaged);
                     }
 
@@ -335,7 +335,7 @@ class boss_blackhand : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) 
             {
                 if (p_Target == nullptr)
                     return;
@@ -344,7 +344,7 @@ class boss_blackhand : public CreatureScript
                 {
                     case eSpells::ShatteringSmashCast:
                     {
-                        me->getThreatManager().modifyThreatPercent(p_Target, -100);
+                       // me->getThreatManager().modifyThreatPercent(p_Target, -100);
                         break;
                     }
                     case eSpells::ImpalingThrowPlayer:
@@ -402,9 +402,9 @@ class boss_blackhand : public CreatureScript
                           //  m_Instance->instance->SetObjectVisibility(500.0f);
 
                        // AddTimedDelayedOperation(12 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                       // {
+                        {
                         //    me->SetUInt32Value(UnitFields::UNIT_NPC_EMOTESTATE, 0);
-                      //  });
+                        };
 
                         break;
                     }
@@ -427,24 +427,24 @@ class boss_blackhand : public CreatureScript
                         if (GameObject* l_Crucible = me->FindNearestGameObject(l_Entry, 50.0f))
                         {
                            // AddTimedDelayedOperation(10, [this, l_Entry]() -> void
-                           // {
-                                if (GameObject* l_Crucible = me->FindNearestGameObject(l_Entry, 50.0f))
-                                    me->SetFacingTo(me->GetAngle(l_Crucible));
-                            //});
+                            {
+                                if (GameObject* l_Crucible = me->FindNearestGameObject(l_Entry, 50.0f));
+                                   // me->SetFacingTo(me->GetAngle(l_Crucible));
+                            };
 
                            // AddTimedDelayedOperation(300, [this]() -> void
-                           // {
+                            {
                                 me->PlayOneShotAnimKitId(eVisuals::AnimTargetCrucible);
-                            //});
+                            };
 
                            // AddTimedDelayedOperation(500, [this, l_Entry]() -> void
-                           // {
+                            {
                                 if (GameObject* l_Crucible = me->FindNearestGameObject(l_Entry, 50.0f))
                                     l_Crucible->SetGoState(GOState::GO_STATE_ACTIVE);
-                            //});
+                            };
 
                             //AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this, l_Entry, p_ID]() -> void
-                          //  {
+                            {
                                 if (GameObject* l_Crucible = me->FindNearestGameObject(l_Entry, 50.0f))
                                     l_Crucible->SetGoState(GOState::GO_STATE_READY);
 
@@ -454,7 +454,7 @@ class boss_blackhand : public CreatureScript
                                     m_MoveID = 0;
 
                                 me->GetMotionMaster()->MovePoint(m_MoveID, g_BlackhandCosmeticMoves[m_MoveID]);
-                          //  });
+                            };
 
                             break;
                         }
@@ -476,7 +476,7 @@ class boss_blackhand : public CreatureScript
                             {
                                 if (Creature* l_Foundry = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eFoundryCreatures::BlackrockFoundryTrigger)))
                                 {
-                                    if (l_Foundry->IsAIEnabled)
+                                   // if (l_Foundry->IsAIEnabled)
                                         l_Foundry->AI()->DoAction(eBlackhandActions::BlackhandStartP2);
                                 }
 
@@ -487,8 +487,8 @@ class boss_blackhand : public CreatureScript
                             }
 
                            // AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                            //{
-                                me->CastSpell(565.961f, 3497.788f, 604.376f, eSpells::JumpToSecondFloor, true);
+                            {
+                               // me->CastSpell(565.961f, 3497.788f, 604.376f, eSpells::JumpToSecondFloor, true);
 
                                 m_Events.CancelEvent(eEvents::EventThrowSlagBomb);
                                 m_Events.CancelEvent(eEvents::EventDemolition);
@@ -496,45 +496,45 @@ class boss_blackhand : public CreatureScript
 
                                 m_Events.SetPhase(m_PhaseID);
 
-                                m_Events.ScheduleEvent(eEvents::EventThrowSlagBomb,     eTimers::TimerThrowSlagBombP2,  0, ePhases::StorageWarehouse);
-                                m_Events.ScheduleEvent(eEvents::EventSiegemaker,        eTimers::TimerSiegemaker,       0, ePhases::StorageWarehouse);
-                                m_Events.ScheduleEvent(eEvents::EventMarkedForDeath,    eTimers::TimerMarkedForDeathP2, 0, ePhases::StorageWarehouse);
-                                m_Events.ScheduleEvent(eEvents::EventIronSoldiers,      eTimers::TimerIronSoldiers,     0, ePhases::StorageWarehouse);
+                               // m_Events.ScheduleEvent(eEvents::EventThrowSlagBomb,     eTimers::TimerThrowSlagBombP2,  0, ePhases::StorageWarehouse);
+                               // m_Events.ScheduleEvent(eEvents::EventSiegemaker,        eTimers::TimerSiegemaker,       0, ePhases::StorageWarehouse);
+                               // m_Events.ScheduleEvent(eEvents::EventMarkedForDeath,    eTimers::TimerMarkedForDeathP2, 0, ePhases::StorageWarehouse);
+                               // m_Events.ScheduleEvent(eEvents::EventIronSoldiers,      eTimers::TimerIronSoldiers,     0, ePhases::StorageWarehouse);
 
                                 m_CosmeticEvents.CancelEvent(eEvents::EventRegenerateEnergy);
 
                                 me->SetPower(Powers::POWER_ENERGY, 66);
 
                                 m_RegenCycle = 2;
-                           // });
+                            };
 
                             break;
                         }
                         case eSpells::JumpToSecondFloor:
                         {
-                            m_CosmeticEvents.ScheduleEvent(eEvents::EventCheckPlayerZ, 1 * TimeConstants::IN_MILLISECONDS);
+                           // m_CosmeticEvents.ScheduleEvent(eEvents::EventCheckPlayerZ, 1 * TimeConstants::IN_MILLISECONDS);
 
                            // AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                           // {
+                            {
                                 m_Paused = false;
 
                                 me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
-                                m_CosmeticEvents.ScheduleEvent(eEvents::EventRegenerateEnergy, eTimers::TimerRegenerateEnergy);
+                             //   m_CosmeticEvents.ScheduleEvent(eEvents::EventRegenerateEnergy, eTimers::TimerRegenerateEnergy);
 
                                // if (Player* l_Tank = SelectMainTank())
-                               // {
+                                {
                                   //  me->GetMotionMaster()->MoveChase(l_Tank);
                                    // AttackStart(l_Tank);
-                               // }
-                           // });
+                                }
+                           };
 
                             break;
                         }
                         case eSpells::JumpToThirdFloor:
                         {
                            // AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                            //{
+                            {
                                 m_Paused = false;
 
                                 me->SetReactState(ReactStates::REACT_AGGRESSIVE);
@@ -542,14 +542,14 @@ class boss_blackhand : public CreatureScript
                                 me->SetPower(Powers::POWER_ENERGY, 33);
 
                                 m_CosmeticEvents.Reset();
-                                m_CosmeticEvents.ScheduleEvent(eEvents::EventRegenerateEnergy, eTimers::TimerRegenerateEnergy);
+                              //  m_CosmeticEvents.ScheduleEvent(eEvents::EventRegenerateEnergy, eTimers::TimerRegenerateEnergy);
 
                               //  if (Player* l_Tank = SelectMainTank())
-                               // {
+                                {
                                 //    me->GetMotionMaster()->MoveChase(l_Tank);
                                //     AttackStart(l_Tank);
-                               // }
-                           // });
+                                }
+                            };
 
                             break;
                         }
@@ -596,7 +596,7 @@ class boss_blackhand : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage) 
             {
                 /// Don't handle last phase, it lasts until death
                 if (m_PhaseID >= (eBlackhandDatas::MaxPhases - 1))
@@ -627,9 +627,9 @@ class boss_blackhand : public CreatureScript
 
                             m_Events.SetPhase(ePhases::IronCrucible);
 
-                            m_Events.ScheduleEvent(eEvents::EventAttachSlagBombs,   eTimers::TimerAttachSlagBombs,  0, ePhases::IronCrucible);
-                            m_Events.ScheduleEvent(eEvents::EventMarkedForDeath,    eTimers::TimerMarkedForDeathCD, 0, ePhases::IronCrucible);
-                            m_Events.ScheduleEvent(eEvents::EventSlagEruption,      eTimers::TimerSlagEruption,     0, ePhases::IronCrucible);
+                           // m_Events.ScheduleEvent(eEvents::EventAttachSlagBombs,   eTimers::TimerAttachSlagBombs,  0, ePhases::IronCrucible);
+                           // m_Events.ScheduleEvent(eEvents::EventMarkedForDeath,    eTimers::TimerMarkedForDeathCD, 0, ePhases::IronCrucible);
+                           // m_Events.ScheduleEvent(eEvents::EventSlagEruption,      eTimers::TimerSlagEruption,     0, ePhases::IronCrucible);
 
                             me->SetReactState(ReactStates::REACT_PASSIVE);
                             me->AttackStop();
@@ -651,11 +651,11 @@ class boss_blackhand : public CreatureScript
 
                             for (Creature* l_Trigger : l_TriggerList)
                             {
-                                if (l_Trigger->IsAIEnabled)
+                              //  if (l_Trigger->IsAIEnabled)
                                     l_Trigger->AI()->DoAction(eBlackhandActions::BlackhandStartP3);
                             }
 
-                            me->CastSpell(565.9606f, 3500.114f, 511.844f, eSpells::JumpToThirdFloor, true);
+                            //me->CastSpell(565.9606f, 3500.114f, 511.844f, eSpells::JumpToThirdFloor, true);
 
                             if (GameObject* l_Floor = ObjectAccessor::GetGameObject(*me, m_Instance->GetGuidData(eFoundryGameObjects::BlackhandAPlatform)))
                             {
@@ -665,7 +665,7 @@ class boss_blackhand : public CreatureScript
 
                             if (Creature* l_AchievStalker = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eFoundryCreatures::AchievementStalker)))
                             {
-                                if (l_AchievStalker->IsAIEnabled)
+                                //if (l_AchievStalker->IsAIEnabled)
                                     l_AchievStalker->AI()->DoAction(eBlackhandActions::BlackhandStartP3);
                             }
 
@@ -727,7 +727,7 @@ class boss_blackhand : public CreatureScript
 
                         me->ModifyPower(Powers::POWER_ENERGY, l_Power);
 
-                        m_CosmeticEvents.ScheduleEvent(eEvents::EventRegenerateEnergy, eTimers::TimerRegenerateEnergy);
+                       // m_CosmeticEvents.ScheduleEvent(eEvents::EventRegenerateEnergy, eTimers::TimerRegenerateEnergy);
                         break;
                     }
                     case eEvents::EventCheckPlayerForIntro:
@@ -736,7 +736,7 @@ class boss_blackhand : public CreatureScript
                             DoAction(eBlackhandActions::BlackhandIntro);
 
                         if (!m_IntroDone)
-                            m_CosmeticEvents.ScheduleEvent(eEvents::EventCheckPlayerForIntro, 1 * TimeConstants::IN_MILLISECONDS);
+                          //  m_CosmeticEvents.ScheduleEvent(eEvents::EventCheckPlayerForIntro, 1 * TimeConstants::IN_MILLISECONDS);
 
                         break;
                     }
@@ -745,28 +745,28 @@ class boss_blackhand : public CreatureScript
                         if (m_PhaseID != ePhases::StorageWarehouse)
                             break;
 
-                        std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
-                        if (!l_ThreatList.empty())
+                       // std::list<HostileReference*> l_ThreatList = me->getThreatManager().getThreatList();
+                       // if (!l_ThreatList.empty())
                         {
-                            l_ThreatList.remove_if([this](HostileReference* p_Ref) -> bool
+                         //   l_ThreatList.remove_if([this](HostileReference* p_Ref) -> bool
                             {
-                                if (p_Ref == nullptr || p_Ref->getTarget() == nullptr || !p_Ref->getTarget()->IsPlayer())
-                                    return true;
+                              //  if (p_Ref == nullptr || p_Ref->getTarget() == nullptr || !p_Ref->getTarget()->IsPlayer())
+                                //    return true;
 
-                                return false;
-                            });
+                               // return false;
+                            };
                         }
 
-                        for (HostileReference* l_Ref : l_ThreatList)
+                       // for (HostileReference* l_Ref : l_ThreatList)
                         {
-                            if (Unit* l_Unit = l_Ref->getTarget())
+                         //   if (Unit* l_Unit = l_Ref->getTarget())
                             {
-                                if (l_Unit->m_positionZ < (g_SecondFloorJumpPos.m_positionZ - 5.0f))
-                                    l_Unit->NearTeleportTo(g_SecondFloorJumpPos);
+                           //     if (l_Unit->m_positionZ < (g_SecondFloorJumpPos.m_positionZ - 5.0f))
+                             //       l_Unit->NearTeleportTo(g_SecondFloorJumpPos);
                             }
                         }
 
-                        m_CosmeticEvents.ScheduleEvent(eEvents::EventCheckPlayerZ, 1 * TimeConstants::IN_MILLISECONDS);
+                        //m_CosmeticEvents.ScheduleEvent(eEvents::EventCheckPlayerZ, 1 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -796,7 +796,7 @@ class boss_blackhand : public CreatureScript
                     {
                         me->CastSpell(me, eSpells::ThrowSlagBombScript, true);
                         me->CastSpell(me, eSpells::ThrowSlagBombMain, true);
-                        m_Events.ScheduleEvent(eEvents::EventThrowSlagBomb, eTimers::TimerThrowSlagBombCD, 0, m_PhaseID);
+                       // m_Events.ScheduleEvent(eEvents::EventThrowSlagBomb, eTimers::TimerThrowSlagBombCD, 0, m_PhaseID);
                         break;
                     }
                     case eEvents::EventDemolition:
@@ -804,7 +804,7 @@ class boss_blackhand : public CreatureScript
                         Talk(eTalks::TalkDemolitionWarn);
                         Talk(eTalks::TalkDemolition);
                         me->CastSpell(me, eSpells::DemolitionCast, false);
-                        m_Events.ScheduleEvent(eEvents::EventDemolition, eTimers::TimerDemolitionCD, 0, ePhases::TheBlackrockForge);
+                       // m_Events.ScheduleEvent(eEvents::EventDemolition, eTimers::TimerDemolitionCD, 0, ePhases::TheBlackrockForge);
                         break;
                     }
                     case eEvents::EventShatteringSmash:
@@ -812,17 +812,17 @@ class boss_blackhand : public CreatureScript
                         me->SetPower(Powers::POWER_ENERGY, 0);
 
                        // if (Player* l_Tank = SelectMainTank())
-                        //{
-                        //    me->CastSpell(l_Tank, eSpells::ShatteringSmashScript, true);
-                        //    me->CastSpell(l_Tank, eSpells::ShatteringSmashCast, false);
-                       // }
+                        {
+                          //  me->CastSpell(l_Tank, eSpells::ShatteringSmashScript, true);
+                          //  me->CastSpell(l_Tank, eSpells::ShatteringSmashCast, false);
+                        }
 
                         break;
                     }
                     case eEvents::EventMarkedForDeath:
                     {
                         me->CastSpell(me, eSpells::MarkedForDeathPeriodic, true);
-                        m_Events.ScheduleEvent(eEvents::EventMarkedForDeath, eTimers::TimerMarkedForDeathCD, 0, m_PhaseID);
+                      //  m_Events.ScheduleEvent(eEvents::EventMarkedForDeath, eTimers::TimerMarkedForDeathCD, 0, m_PhaseID);
                         break;
                     }
                     case eEvents::EventSiegemaker:
@@ -830,7 +830,7 @@ class boss_blackhand : public CreatureScript
                         Talk(eTalks::TalkSiegemakerWarn);
                         Talk(eTalks::TalkSiegemaker);
                         me->CastSpell(me, eSpells::SummonIronHordeTank, true);
-                        m_Events.ScheduleEvent(eEvents::EventSiegemaker, eTimers::TimerSiegemakerCD, 0, ePhases::StorageWarehouse);
+                        //m_Events.ScheduleEvent(eEvents::EventSiegemaker, eTimers::TimerSiegemakerCD, 0, ePhases::StorageWarehouse);
                         break;
                     }
                     case eEvents::EventIronSoldiers:
@@ -854,7 +854,7 @@ class boss_blackhand : public CreatureScript
 
                         uint32 l_Time = eTimers::TimerIronSoldiersCD - (eTimers::TimerIronSoldiersReduce * m_SoldiersCount);
 
-                        m_Events.ScheduleEvent(eEvents::EventIronSoldiers, eTimers::TimerIronSoldiersCD, 0, ePhases::StorageWarehouse);
+                        //m_Events.ScheduleEvent(eEvents::EventIronSoldiers, eTimers::TimerIronSoldiersCD, 0, ePhases::StorageWarehouse);
 
                         m_FirstSideSpawn = !m_FirstSideSpawn;
                         ++m_SoldiersCount;
@@ -868,7 +868,7 @@ class boss_blackhand : public CreatureScript
                         //if (Player* l_Tank = SelectMainTank())
                             me->CastSpell(me, eSpells::ThrowSlagBombsTank, true);
 
-                        m_Events.ScheduleEvent(eEvents::EventAttachSlagBombs, eTimers::TimerAttachSlagBombsCD, 0, ePhases::IronCrucible);
+                       // m_Events.ScheduleEvent(eEvents::EventAttachSlagBombs, eTimers::TimerAttachSlagBombsCD, 0, ePhases::IronCrucible);
                         break;
                     }
                     case eEvents::EventSlagEruption:
@@ -876,7 +876,7 @@ class boss_blackhand : public CreatureScript
                         Talk(eTalks::TalkSlagEruptionWarn);
                         Talk(eTalks::TalkSlagEruption);
                         me->CastSpell(me, eSpells::SlagEruptionCast, false);
-                        m_Events.ScheduleEvent(eEvents::EventSlagEruption, eTimers::TimerSlagEruptionCD, 0, ePhases::IronCrucible);
+                       // m_Events.ScheduleEvent(eEvents::EventSlagEruption, eTimers::TimerSlagEruptionCD, 0, ePhases::IronCrucible);
                         break;
                     }
                     case eEvents::EventMassiveShatteringSmash:
@@ -888,17 +888,17 @@ class boss_blackhand : public CreatureScript
                         m_SmashedCount = 0;
 
                        // if (Player* l_Tank = SelectMainTank())
-                        //{
+                        {
                             me->CastSpell(me, eSpells::ShatteringSmashScript, true);
                             me->CastSpell(me, eSpells::MassiveShatteringSmashCast, false);
 
                            // uint64 l_Guid = l_Tank->GetGUID();
                            // AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this, l_Guid]() -> void
-                          //  {
+                            {
                                 //if (Player* l_Tank = ObjectGuid::GetPlayer(*me, l_Guid))
                                     me->CastSpell(me, eSpells::MassiveShatteringSmashCrater, true);
-                          //  });
-                       // }
+                            };
+                        }
 
                         break;
                     }
@@ -923,14 +923,14 @@ class boss_blackhand : public CreatureScript
                 if (p_Apply)
                 {
                    // AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                   // {
-                        if (GameObject* l_SlagWrap = me->SummonGameObject(eBlackhandObjects::SlagWrap, g_SlagWrapSpawnPos, QuaternionData(0.0f, 0.0f, 0.0f, 0.0f), 0))
+                    {
+                       // if (GameObject* l_SlagWrap = me->SummonGameObject(eBlackhandObjects::SlagWrap, g_SlagWrapSpawnPos, QuaternionData(0.0f, 0.0f, 0.0f, 0.0f), 0))
                         {
-                            m_SlagWrapGuid = l_SlagWrap->GetGUID();
+                         //   m_SlagWrapGuid = l_SlagWrap->GetGUID();
 
-                            l_SlagWrap->SetGoState(GOState::GO_STATE_ACTIVE);
+                           // l_SlagWrap->SetGoState(GOState::GO_STATE_ACTIVE);
                         }
-                   // });
+                    };
                 }
                 else
                 {
@@ -946,10 +946,10 @@ class boss_blackhand : public CreatureScript
 
                         ObjectGuid l_Guid = m_SlagWrapGuid;
                        // AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this, l_Guid]() -> void
-                       // {
+                        {
                             if (GameObject* l_SlagWrap = ObjectAccessor::GetGameObject(*me, l_Guid))
                                 l_SlagWrap->Delete();
-                      //  });
+                        };
                     }
                 }
             }
@@ -959,17 +959,17 @@ class boss_blackhand : public CreatureScript
                 /// Siegemakers are spawned at the beginning of the fight
                 for (uint8 l_I = 0; l_I < eBlackhandDatas::MaxStoragePortcullis; ++l_I)
                 {
-                    if (Creature* l_Siegemaker = me->SummonCreature(eBlackhandCreatures::Siegemaker, g_SiegemakerSpawnPos[l_I]))
+                   // if (Creature* l_Siegemaker = me->SummonCreature(eBlackhandCreatures::Siegemaker, g_SiegemakerSpawnPos[l_I]))
                     {
-                        ObjectGuid l_Guid = l_Siegemaker->GetGUID();
+                        //ObjectGuid l_Guid = l_Siegemaker->GetGUID();
                        // AddTimedDelayedOperation(10, [this, l_I, l_Guid]() -> void
-                        //{
-                            if (Creature* l_Siegemaker = ObjectAccessor::GetCreature(*me, l_Guid))
+                        {
+                           // if (Creature* l_Siegemaker = ObjectAccessor::GetCreature(*me, l_Guid))
                             {
-                                if (Creature* l_IronGunner = me->SummonCreature(eBlackhandCreatures::IronGunner, g_SiegemakerSpawnPos[l_I]))
-                                    l_IronGunner->EnterVehicle(l_Siegemaker);
+                              //  if (Creature* l_IronGunner = me->SummonCreature(eBlackhandCreatures::IronGunner, g_SiegemakerSpawnPos[l_I]))
+                               //     l_IronGunner->EnterVehicle(l_Siegemaker);
                             }
-                        //});
+                        };
                     }
                 }
             }
@@ -1040,7 +1040,7 @@ class npc_foundry_blackrock_foundry : public CreatureScript
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+               // me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
 
                 m_ScaleTime = -1;
             }
@@ -1052,11 +1052,11 @@ class npc_foundry_blackrock_foundry : public CreatureScript
                     case eBlackhandActions::BlackhandEngaged:
                     {
                        // AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                       // {
+                        {
                             m_ScaleTime = 0;
 
                             m_AffectedPlayers.clear();
-                       // });
+                        };
 
                         break;
                     }
@@ -1089,7 +1089,7 @@ class npc_foundry_blackrock_foundry : public CreatureScript
                         }
 
                        // AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                        //{
+                        {
                             me->CastSpell(me, eSpells::StartP2Jumping, true);
                             me->CastSpell(me, eSpells::ExplodingIronStarAoE, true);
                             me->CastSpell(me, eSpells::CollapsedFloorVisual, true);
@@ -1102,7 +1102,7 @@ class npc_foundry_blackrock_foundry : public CreatureScript
                                     l_Floor->SetDisplayId(eVisuals::FloorDamaged);
                                 }
                             }
-                        //});
+                        };
 
                         break;
                     }
@@ -1111,7 +1111,7 @@ class npc_foundry_blackrock_foundry : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) 
             {
                 if (p_Target == nullptr)
                     return;
@@ -1244,13 +1244,13 @@ class npc_foundry_slag_bomb : public CreatureScript
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+                //me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
 
                 me->CastSpell(me, eSpells::SlagBombVisual, true);
                 me->CastSpell(me, eSpells::SlagBombArming, true);
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) 
             {
                 if (p_Target == nullptr)
                     return;
@@ -1262,7 +1262,7 @@ class npc_foundry_slag_bomb : public CreatureScript
             void OnSpellCasted(SpellInfo const* p_SpellInfo)
             {
                 if (p_SpellInfo->Id == eSpells::SlagBombAoE)
-                    me->DespawnOrUnsummon(200);
+                    me->DespawnOrUnsummon();
             }
 
             void UpdateAI(uint32  p_Diff) override
@@ -1296,7 +1296,7 @@ class npc_foundry_ceiling_stalker : public CreatureScript
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+               // me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
             }
 
             void JustSummoned(Creature* p_Summon) override
@@ -1306,7 +1306,7 @@ class npc_foundry_ceiling_stalker : public CreatureScript
 
                 if (Creature* l_Blackhand = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eFoundryCreatures::BossBlackhand)))
                 {
-                    if (l_Blackhand->IsAIEnabled)
+                   // if (l_Blackhand->IsAIEnabled)
                         l_Blackhand->AI()->JustSummoned(p_Summon);
                 }
             }
@@ -1318,7 +1318,7 @@ class npc_foundry_ceiling_stalker : public CreatureScript
 
                 if (Creature* l_Blackhand = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eFoundryCreatures::BossBlackhand)))
                 {
-                    if (l_Blackhand->IsAIEnabled)
+                   // if (l_Blackhand->IsAIEnabled)
                         l_Blackhand->AI()->SummonedCreatureDespawn(p_Summon);
                 }
             }
@@ -1354,7 +1354,7 @@ class npc_foundry_brf_demolition_stalker : public CreatureScript
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+               // me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
 
                 me->CastSpell(me, eSpell::DemolitionSmallAura, true);
             }
@@ -1395,7 +1395,7 @@ class npc_foundry_brf_massive_demolition_stalker : public CreatureScript
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+              //  me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
 
                 me->CastSpell(me, eSpell::MassiveDemolitionAura, true);
             }
@@ -1407,7 +1407,7 @@ class npc_foundry_brf_massive_demolition_stalker : public CreatureScript
 
                 if (Creature* l_Blackhand = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eFoundryCreatures::BossBlackhand)))
                 {
-                    if (l_Blackhand->IsAIEnabled)
+                   // if (l_Blackhand->IsAIEnabled)
                         l_Blackhand->AI()->JustSummoned(p_Summon);
                 }
             }
@@ -1419,7 +1419,7 @@ class npc_foundry_brf_massive_demolition_stalker : public CreatureScript
 
                 if (Creature* l_Blackhand = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eFoundryCreatures::BossBlackhand)))
                 {
-                    if (l_Blackhand->IsAIEnabled)
+                    //if (l_Blackhand->IsAIEnabled)
                         l_Blackhand->AI()->SummonedCreatureDespawn(p_Summon);
                 }
             }
@@ -1460,7 +1460,7 @@ class npc_foundry_rubble_pile : public CreatureScript
 
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+               // me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
 
                 me->CastSpell(me, eSpells::OreVisualAura, true);
 
@@ -1471,14 +1471,14 @@ class npc_foundry_rubble_pile : public CreatureScript
                 //});
             }
 
-            void SpellHit(Unit* p_Attacker, SpellInfo const* p_SpellInfo) override
+            void SpellHit(Unit* p_Attacker, SpellInfo const* p_SpellInfo) 
             {
                 if (p_SpellInfo->Id == eSpells::ImpalingThrowPile)
                 {
                     if (GameObject* l_OreCollision = ObjectAccessor::GetGameObject(*me, m_OreCollisionGuid))
                         l_OreCollision->Delete();
 
-                    me->DespawnOrUnsummon(50);
+                    me->DespawnOrUnsummon();
                 }
             }
 
@@ -1548,25 +1548,25 @@ class npc_foundry_siegemaker : public CreatureScript
 
                 me->RemoveUnitFlag(UnitFlags(UNIT_FLAG2_REGENERATE_POWER));
 
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+               // me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
+               // me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
 
               //  m_Target = 0;
                // m_PortCullisGuid = 0;
             }
 
-            void SpellHit(Unit* p_Caster, SpellInfo const* p_SpellInfo) override
+            void SpellHit(Unit* p_Caster, SpellInfo const* p_SpellInfo) 
             {
                 switch (p_SpellInfo->Id)
                 {
                     case eSpells::SummonIronHordeTank:
                     {
                        // if (GameObject* l_Portcullis = me->FindNearestGameObject(20.0f))
-                       // {
+                        {
                            // m_PortCullisGuid = l_Portcullis->GetGUID();
 
                            // l_Portcullis->SetGoState(GOState::GO_STATE_ACTIVE);
-                       // }
+                        }
 
                         float l_X = me->m_positionX + 30.0f/* * cos(me->m_orientation)*/;
                         float l_Y = me->m_positionY + 30.0f/* * sin(me->m_orientation)*/;
@@ -1605,24 +1605,24 @@ class npc_foundry_siegemaker : public CreatureScript
 
                     me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
-                    me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
-                    me->RemoveUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+                    me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL | UnitFlags::UNIT_FLAG_NON_ATTACKABLE));
+                   // me->RemoveUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
 
                     if (TempSummon* l_Temp = me->ToTempSummon())
                     {
-                        if (Unit* l_Owner = me->ToTempSummon()->GetSummoner())
-                            EnterCombat(l_Owner->GetVictim());
+                     //   if (Unit* l_Owner = me->ToTempSummon()->GetSummoner())
+                       //     EnterCombat(l_Owner->GetVictim());
                     }
 
                     //AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                   // {
+                    {
                         if (GameObject* l_Portcullis = ObjectAccessor::GetGameObject(*me, m_PortCullisGuid))
                             l_Portcullis->SetGoState(GOState::GO_STATE_READY);
-                   // });
+                    };
                 }
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) 
             {
                 if (p_Target == nullptr)
                     return;
@@ -1638,8 +1638,8 @@ class npc_foundry_siegemaker : public CreatureScript
                     {
                         m_Target = p_Target->GetGUID();
 
-                        DoResetThreat();
-                        me->AddThreat(p_Target, 1000000.0f);
+                       // DoResetThreat();
+                       // me->AddThreat(p_Target, 1000000.0f);
 
                         AttackStart(p_Target);
 
@@ -1670,7 +1670,7 @@ class npc_foundry_siegemaker : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
                 if (me->GetReactState() == ReactStates::REACT_PASSIVE)
                     return;
@@ -1678,7 +1678,7 @@ class npc_foundry_siegemaker : public CreatureScript
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 2);
 
-                DoZoneInCombat(me, 100.0f);
+                DoZoneInCombat();
 
                 me->CastSpell(me, eSpells::EnergizePeriodic, true);
                 me->CastSpell(me, eSpells::FixateSearcher, true);
@@ -1790,14 +1790,14 @@ class npc_foundry_blaze_controller : public CreatureScript
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+               // me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+               // me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
 
                 me->CastSpell(me, eSpells::BlazeControlAura, true);
                 me->CastSpell(me, eSpells::BlazeGrowthAura, true);
                 me->CastSpell(me, eSpells::BlazeAreaTrigger, true);
 
-                me->DespawnOrUnsummon(60 * TimeConstants::IN_MILLISECONDS);
+               // me->DespawnOrUnsummon(60 * TimeConstants::IN_MILLISECONDS);
 
                 m_Orientation = me->GetEntry() == eBlackhandCreatures::BlazeController ? frand(0,float( 2.0f * M_PI)) : float( M_PI / 2.0f);
                 m_Controller.Clear();
@@ -1829,18 +1829,18 @@ class npc_foundry_blaze_controller : public CreatureScript
                                     break;
 
                                 //if (l_Blaze->IsNearPosition(&l_Pos, 1.0f))
-                               // {
+                                {
                                     l_Okay = false;
                                     break;
-                               // }
+                                }
                             }
 
                             if (l_Okay)
                             {
-                                if (Creature* l_Blaze = me->SummonCreature(eBlackhandCreatures::Blaze, l_Pos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 60 * TimeConstants::IN_MILLISECONDS))
+                                //if (Creature* l_Blaze = me->SummonCreature(eBlackhandCreatures::Blaze, l_Pos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 60 * TimeConstants::IN_MILLISECONDS))
                                 {
-                                    if (l_Blaze->IsAIEnabled)
-                                        l_Blaze->AI()->SetGUID(!m_Controller ? m_Controller : me->GetGUID());
+                                  //  if (l_Blaze->IsAIEnabled)
+                                    //    l_Blaze->AI()->SetGUID(!m_Controller ? m_Controller : me->GetGUID());
                                 }
                             }
 
@@ -1888,13 +1888,13 @@ class npc_foundry_iron_soldier : public CreatureScript
 
             void Reset() override
             {
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+               // me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
 
                 me->CastSpell(me, eSpells::ObscuredAura, true);
                 me->CastSpell(me, eSpells::ExplosiveRoundPeriodic, true);
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) 
             {
                 if (p_Target == nullptr)
                     return;
@@ -1949,7 +1949,7 @@ class npc_foundry_blackrock_foundry_third_phase : public CreatureScript
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+               // me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
             }
 
             void DoAction(int32  p_Action) 
@@ -1973,7 +1973,7 @@ class npc_foundry_blackrock_foundry_third_phase : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) 
             {
                 if (p_Target == nullptr)
                     return;
@@ -2032,11 +2032,11 @@ class npc_foundry_iron_sentry : public CreatureScript
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+              //  me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+                //me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
             }
 
-            void SpellHit(Unit* p_Caster, SpellInfo const* p_SpellInfo) override
+            void SpellHit(Unit* p_Caster, SpellInfo const* p_SpellInfo) 
             {
                 switch (p_SpellInfo->Id)
                 {
@@ -2046,7 +2046,7 @@ class npc_foundry_iron_sentry : public CreatureScript
                             break;
 
                         if (Creature* l_Blackhand = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eFoundryCreatures::BossBlackhand)))
-                            me->CastSpell(p_Caster, eSpells::IncendiaryShot, true, nullptr, nullptr, l_Blackhand->GetGUID());
+                            me->CastSpell(p_Caster, eSpells::IncendiaryShot, true);
 
                         break;
                     }
@@ -2055,7 +2055,7 @@ class npc_foundry_iron_sentry : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) 
             {
                 if (p_Target == nullptr || p_Target->m_positionZ < m_BalconyZ)
                     return;
@@ -2111,13 +2111,13 @@ class npc_foundry_slag_hole : public CreatureScript
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+               // me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+               // me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
 
                 me->CastSpell(me, eSpells::SlagHoleVisual, true);
             }
 
-            void SpellHit(Unit* p_Caster, SpellInfo const* p_SpellInfo) override
+            void SpellHit(Unit* p_Caster, SpellInfo const* p_SpellInfo) 
             {
                 if (p_SpellInfo->Id == eSpells::SlagEruptionCast)
                     me->CastSpell(me, eSpells::SlagEruptionVisual, true);
@@ -2173,11 +2173,11 @@ class npc_foundry_slag_crater : public CreatureScript
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+               // me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+               // me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
             }
 
-            void SpellHit(Unit* p_Caster, SpellInfo const* p_SpellInfo) override
+            void SpellHit(Unit* p_Caster, SpellInfo const* p_SpellInfo) 
             {
                 if (p_SpellInfo->Id == eSpells::SlagEruptionCast)
                     me->CastSpell(me, eSpells::HugeSlagEruptionAura, true);
@@ -2232,8 +2232,8 @@ class npc_foundry_achievement_stalker : public CreatureScript
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+               // me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+               // me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
             }
 
             void DoAction(int32 p_Action)
@@ -2489,7 +2489,7 @@ class spell_foundry_blaze_growth : public SpellScriptLoader
             {
                 if (Creature* l_Blaze = GetCaster()->ToCreature())
                 {
-                    if (l_Blaze->IsAIEnabled)
+                   // if (l_Blaze->IsAIEnabled)
                         l_Blaze->AI()->DoAction(eBlackhandActions::BlackhandSpreadBlaze);
                 }
             }
@@ -2531,8 +2531,8 @@ class spell_foundry_siegemaker_energize : public SpellScriptLoader
 
                     if (l_StackAmount)
                     {
-                        if (roll_chance_i(l_StackAmount * 20))
-                            l_Caster->EnergizeBySpell(l_Caster, GetSpellInfo()->Id, 1, Powers::POWER_ENERGY);
+                        if (roll_chance_i(l_StackAmount * 20));
+                          //  l_Caster->EnergizeBySpell(l_Caster, GetSpellInfo()->Id, 1, Powers::POWER_ENERGY);
                     }
                 }
             }
@@ -2614,11 +2614,11 @@ class spell_foundry_throw_slag_bombs : public SpellScriptLoader
                     SpellInfo const* l_SpellInfo    = GetSpellInfo();
                     WorldLocation l_SummonPos       = *GetExplTargetDest();
 
-                    float l_Angle   = l_SpellInfo->GetEffect(p_EffIndex)->TargetB.CalcDirectionAngle();
-                    float l_Dist    = l_SpellInfo->GetEffect(p_EffIndex)->CalcRadius(l_Boss);
+                    //float l_Angle   = l_SpellInfo->GetEffect(p_EffIndex)->TargetB.CalcDirectionAngle();
+                   // float l_Dist    = l_SpellInfo->GetEffect(p_EffIndex)->CalcRadius(l_Boss);
 
-                    if (l_SpellInfo->GetEffect(p_EffIndex)->TargetB.GetTarget() == Targets::TARGET_DEST_DEST_RANDOM)
-                        l_Dist *= float(rand_norm());
+                   // if (l_SpellInfo->GetEffect(p_EffIndex)->TargetB.GetTarget() == Targets::TARGET_DEST_DEST_RANDOM)
+                       // l_Dist *= float(rand_norm());
 
                     Position l_Pos = { l_SummonPos.m_positionX, l_SummonPos.m_positionY, l_SummonPos.m_positionZ,0.f };
 
@@ -2737,7 +2737,7 @@ class spell_foundry_slag_eruption : public SpellScriptLoader
 
                 if (Creature* l_Slag = GetUnitOwner()->ToCreature())
                 {
-                    if (l_Slag->IsAIEnabled)
+                   // if (l_Slag->IsAIEnabled)
                         l_Slag->AI()->DoAction(eBlackhandActions::BlackhandSlagEruption);
                 }
             }
@@ -2821,12 +2821,12 @@ class spell_foundry_massive_shattering_smash : public SpellScriptLoader
                 {
                     int32 l_BasePoint = 75;
 
-                    l_Caster->CastCustomSpell(l_Caster, eSpell::Revitalize, &l_BasePoint, nullptr, nullptr, true);
+                   // l_Caster->CastCustomSpell(l_Caster, eSpell::Revitalize, &l_BasePoint, nullptr, nullptr, true);
                 }
 
                 if (Creature* l_Boss = l_Caster->ToCreature())
                 {
-                    if (!l_Boss->IsAIEnabled)
+                    //if (!l_Boss->IsAIEnabled)
                         return;
 
                     boss_blackhand::boss_blackhandAI* l_AI = CAST_AI(boss_blackhand::boss_blackhandAI, l_Boss->GetAI());
@@ -2861,7 +2861,7 @@ class spell_foundry_massive_shattering_smash : public SpellScriptLoader
                 uint32 l_Count = 0;
                 if (Creature* l_Boss = l_Caster->ToCreature())
                 {
-                    if (!l_Boss->IsAIEnabled)
+                    //if (!l_Boss->IsAIEnabled)
                         return;
 
                     boss_blackhand::boss_blackhandAI* l_AI = CAST_AI(boss_blackhand::boss_blackhandAI, l_Boss->GetAI());
@@ -2903,26 +2903,26 @@ class go_foundry_blackhand_platform : public GameObjectScript
             {
                 float const l_Radius    = 70.0f;
 
-                float l_PlatformXCenter = go->m_positionX + 353.0f;
-                float l_PlatformYCenter = go->m_positionY - 53.0f;
+               // float l_PlatformXCenter = go->m_positionX + 353.0f;
+               // float l_PlatformYCenter = go->m_positionY - 53.0f;
 
-                float l_PlatformZMin    = go->m_positionZ + 280.0f;
-                float l_PlatformZMax    = go->m_positionZ + 300.0f;
+               // float l_PlatformZMin    = go->m_positionZ + 280.0f;
+               // float l_PlatformZMax    = go->m_positionZ + 300.0f;
 
-                bool l_IsInRadius       = sqrt(std::pow(l_PlatformXCenter - p_X, 2) + std::pow(l_PlatformYCenter - p_Y, 2)) <= l_Radius;
-                bool l_IsInHeightRange  = p_Z >= l_PlatformZMin && p_Z <= l_PlatformZMax;
+               // bool l_IsInRadius       = sqrt(std::pow(l_PlatformXCenter - p_X, 2) + std::pow(l_PlatformYCenter - p_Y, 2)) <= l_Radius;
+               // bool l_IsInHeightRange  = p_Z >= l_PlatformZMin && p_Z <= l_PlatformZMax;
 
-                GameObjectDestructibleState l_State = go->GetDestructibleState();
+               // GameObjectDestructibleState l_State = go->GetDestructibleState();
 
-                if (l_IsInRadius && l_IsInHeightRange && l_State == GameObjectDestructibleState::GO_DESTRUCTIBLE_DAMAGED)
+               // if (l_IsInRadius && l_IsInHeightRange && l_State == GameObjectDestructibleState::GO_DESTRUCTIBLE_DAMAGED)
                 {
-                    float l_ThisFloorHeight     = go->m_positionZ + 283.0f;
-                    float l_ThisFloorHeightMin  = go->m_positionZ + 275.0f;
+                   // float l_ThisFloorHeight     = go->m_positionZ + 283.0f;
+                   // float l_ThisFloorHeightMin  = go->m_positionZ + 275.0f;
 
-                    if (p_Z >= l_ThisFloorHeightMin)
+                   // if (p_Z >= l_ThisFloorHeightMin)
                     {
                         if (p_OutZ)
-                            *p_OutZ = l_ThisFloorHeight;
+                     //       *p_OutZ = l_ThisFloorHeight;
 
                         return true;
                     }
@@ -2967,7 +2967,7 @@ class areatrigger_foundry_slag_bomb : public AreaTriggerEntityScript
 
                     if (Creature* l_SlagBomb = l_Caster->ToCreature())
                     {
-                        if (l_SlagBomb->IsAIEnabled)
+                        //if (l_SlagBomb->IsAIEnabled)
                             l_SlagBomb->AI()->Talk(0);
                     }
 
@@ -2975,11 +2975,11 @@ class areatrigger_foundry_slag_bomb : public AreaTriggerEntityScript
                 }
             }
         }
-        /*
+        
         AreaTriggerEntityScript* GetAI() 
         {
             return nullptr;
-        }*/
+        }
 };
 
 /// Blaze - 156605
@@ -3051,11 +3051,11 @@ class areatrigger_foundry_blaze : public AreaTriggerEntityScript
                 }
             }
         }
-        /*
+        
         AreaTriggerEntityScript* GetAI()
         {
             return nullptr;
-        }*/
+        }
 };
 
 /// Overheated - 156859
@@ -3150,11 +3150,11 @@ class areatrigger_foundry_overheated : public AreaTriggerEntityScript
                 }
             }
         }
-        /*
+        
         AreaTriggerEntityScript* GetAI() 
         {
             return nullptr;
-        }*/
+        }
 };
 
 /// Falling Ash - 163295
@@ -3219,11 +3219,11 @@ class areatrigger_foundry_falling_ash : public AreaTriggerEntityScript
                 }
             }
         }
-        /*
+        
         AreaTriggerEntityScript* GetAI()
         {
             return nullptr;
-        }*/
+        }
 };
 
 /// Blackhand's Crucible Balcony - 10101
@@ -3249,20 +3249,20 @@ class areatrigger_at_foundry_crucible_balcony : public AreaTriggerScript
             p_Player->RemoveAura(eSpells::ObscuredAura);
         }
 
-        void OnExit(Player* p_Player, AreaTriggerEntry const* /*p_AreaTrigger*/)
-        {
-            if (m_PlayerZChanges.find(p_Player->GetEntry()) == m_PlayerZChanges.end())
-                return;
+      //  void OnExit(Player* p_Player, AreaTriggerEntry const* /*p_AreaTrigger*/) override
+        //{
+          //  if (m_PlayerZChanges.find(p_Player->GetEntry()) == m_PlayerZChanges.end())
+            //    return;
 
-            float l_DiffZ = p_Player->m_positionZ - m_PlayerZChanges[p_Player->GetEntry()];
-            if (l_DiffZ > 0)
-            {
-                p_Player->CastSpell(p_Player, eSpells::ObscuredAura, true);
-                p_Player->CastSpell(p_Player, eSpells::LaserDefense, true);
-            }
+            //float l_DiffZ = p_Player->m_positionZ - m_PlayerZChanges[p_Player->GetEntry()];
+            //if (l_DiffZ > 0)
+            //{
+              //  p_Player->CastSpell(p_Player, eSpells::ObscuredAura, true);
+                //p_Player->CastSpell(p_Player, eSpells::LaserDefense, true);
+            //}
 
-            m_PlayerZChanges.erase(p_Player->GetEntry());
-        }
+           // m_PlayerZChanges.erase(p_Player->GetEntry());
+        //}
 };
 
 void AddSC_boss_blackhand()

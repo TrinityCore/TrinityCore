@@ -132,10 +132,10 @@ struct boss_nyami : public BossAI
             instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
 
         Talk(eNyamiTalks::NyamiAggro);
-        events.ScheduleEvent(eNyamiEvents::EventMindSpikeNyami, urand(8 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
-        events.ScheduleEvent(eNyamiEvents::EventShadowWordPain, urand(12 * TimeConstants::IN_MILLISECONDS, 18 * TimeConstants::IN_MILLISECONDS));
-        events.ScheduleEvent(eNyamiEvents::EventSoulVessel, 20 * TimeConstants::IN_MILLISECONDS);
-        events.ScheduleEvent(eNyamiEvents::EventTornSpirit, 35 * TimeConstants::IN_MILLISECONDS);
+      //  events.ScheduleEvent(eNyamiEvents::EventMindSpikeNyami, urand(8 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
+      //  events.ScheduleEvent(eNyamiEvents::EventShadowWordPain, urand(12 * TimeConstants::IN_MILLISECONDS, 18 * TimeConstants::IN_MILLISECONDS));
+      //  events.ScheduleEvent(eNyamiEvents::EventSoulVessel, 20 * TimeConstants::IN_MILLISECONDS);
+      //  events.ScheduleEvent(eNyamiEvents::EventTornSpirit, 35 * TimeConstants::IN_MILLISECONDS);
     }
 
     void KilledUnit(Unit* p_Who) override
@@ -161,7 +161,7 @@ struct boss_nyami : public BossAI
                 l_Warden->RemoveAura(eAuchindounSpells::SpellPrisonAura);
             }
         }
-        events.ScheduleEvent(eNyamiEvents::EventOnDeath1, 5 * TimeConstants::IN_MILLISECONDS);
+      //  events.ScheduleEvent(eNyamiEvents::EventOnDeath1, 5 * TimeConstants::IN_MILLISECONDS);
     }
 
     void HandleNonCombatVisuals(uint32 const p_Diff)
@@ -218,12 +218,12 @@ struct boss_nyami : public BossAI
         case eNyamiEvents::EventMindSpikeNyami:
             if (Unit * l_Target = me->GetVictim())
                 me->CastSpell(l_Target, eAuchindounSpells::SpellMindSpike);
-            events.ScheduleEvent(eNyamiEvents::EventMindSpikeNyami, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
+           // events.ScheduleEvent(eNyamiEvents::EventMindSpikeNyami, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
             break;
         case eNyamiEvents::EventShadowWordPain:
-            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 200.0f, true))
-                me->CastSpell(l_Target, eNyamiSpells::SpellShadowWordPain);
-            events.ScheduleEvent(eNyamiEvents::EventShadowWordPain, urand(12 * TimeConstants::IN_MILLISECONDS, 18 * TimeConstants::IN_MILLISECONDS));
+           // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 200.0f, true))
+             //   me->CastSpell(l_Target, eNyamiSpells::SpellShadowWordPain);
+           // events.ScheduleEvent(eNyamiEvents::EventShadowWordPain, urand(12 * TimeConstants::IN_MILLISECONDS, 18 * TimeConstants::IN_MILLISECONDS));
             break;
         case eNyamiEvents::EventSoulVessel:
             if (instance)
@@ -231,11 +231,11 @@ struct boss_nyami : public BossAI
                 me->CastSpell(me, eNyamiSpells::SpellSoulVesselDummy);
                 instance->DoRemoveAurasDueToSpellOnPlayers(eNyamiSpells::SpellSoulBubbleBuff);
                 //me->MonsterTextEmote("Soulbinder Nyami begins to cast|cffff0000[Soul Vessel]|cfffaeb00!", me->GetGUID(), true);
-                if (Creature* l_Bubble = me->SummonCreature(eNyamiCreatures::CreatureSoulVesselHackBubbleEffect, g_PositionBubble, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
-                    if (l_Bubble->IsAIEnabled)
-                        l_Bubble->AI()->DoAction(eNyamiActions::ActionReleaseAnimationPreSoulVessel);
+              //  if (Creature* l_Bubble = me->SummonCreature(eNyamiCreatures::CreatureSoulVesselHackBubbleEffect, g_PositionBubble, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+                //    if (l_Bubble->IsAIEnabled)
+                  //      l_Bubble->AI()->DoAction(eNyamiActions::ActionReleaseAnimationPreSoulVessel);
             }
-            events.ScheduleEvent(eNyamiEvents::EventSoulVessel, 25 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eNyamiEvents::EventSoulVessel, 25 * TimeConstants::IN_MILLISECONDS);
             break;
         case eNyamiEvents::EventTornSpirit:
         {
@@ -253,8 +253,8 @@ struct boss_nyami : public BossAI
                     me->GetMotionMaster()->MovePoint(0, (*l_Itr)->GetPositionX(), (*l_Itr)->GetPositionY(), (*l_Itr)->GetPositionZ());
                 }
             }
-            events.ScheduleEvent(eNyamiEvents::EventTornSpiritsDummy, 3 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eNyamiEvents::EventTornSpirit, 35 * TimeConstants::IN_MILLISECONDS);
+          //  events.ScheduleEvent(eNyamiEvents::EventTornSpiritsDummy, 3 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eNyamiEvents::EventTornSpirit, 35 * TimeConstants::IN_MILLISECONDS);
             break;
         }
         case eNyamiEvents::EventTornSpiritsDummy:
@@ -264,29 +264,29 @@ struct boss_nyami : public BossAI
             break;
         case EventOnDeath1:
         {
-            if (Creature* l_Warden = me->GetSummonedCreatureByEntry(CreatureWardenAzzakael))
+          //  if (Creature* l_Warden = me->GetSummonedCreatureByEntry(CreatureWardenAzzakael))
             {
-                l_Warden->SetCanFly(false);
-                l_Warden->RemoveAllAuras();
-                l_Warden->SetDisableGravity(false);
-                l_Warden->AddAura(eAuchindounSpells::SpellKneel, l_Warden);
-                events.ScheduleEvent(eNyamiEvents::EventOnDeath2, 6 * TimeConstants::IN_MILLISECONDS);
+             //   l_Warden->SetCanFly(false);
+               // l_Warden->RemoveAllAuras();
+               // l_Warden->SetDisableGravity(false);
+               // l_Warden->AddAura(eAuchindounSpells::SpellKneel, l_Warden);
+               // events.ScheduleEvent(eNyamiEvents::EventOnDeath2, 6 * TimeConstants::IN_MILLISECONDS);
             }            
             break;
         }
         case EventOnDeath2:
         {
-            if (Creature* l_Warden = me->GetSummonedCreatureByEntry(CreatureWardenAzzakael))
+          //  if (Creature* l_Warden = me->GetSummonedCreatureByEntry(CreatureWardenAzzakael))
             {
-                l_Warden->RemoveAllAuras();
-                l_Warden->AI()->Talk(eNyamiTalks::Auchenaiwarden1);
-                l_Warden->RemoveAura(eAuchindounSpells::SpellKneel);
-                l_Warden->RemoveUnitFlag(UnitFlags(UnitFlags::UNIT_FLAG_REMOVE_CLIENT_CONTROL));
-                if (GameObject* l_Door = l_Warden->FindNearestGameObject(eAuchindounObjects::GameobjectDoorBarrier2, 30.0f))
-                    l_Door->Delete();
+            //    l_Warden->RemoveAllAuras();
+              //  l_Warden->AI()->Talk(eNyamiTalks::Auchenaiwarden1);
+              //  l_Warden->RemoveAura(eAuchindounSpells::SpellKneel);
+              //  l_Warden->RemoveUnitFlag(UnitFlags(UnitFlags::UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+               // if (GameObject* l_Door = l_Warden->FindNearestGameObject(eAuchindounObjects::GameobjectDoorBarrier2, 30.0f))
+                 //   l_Door->Delete();
 
-                l_Warden->GetMotionMaster()->MovePoint(60, g_PositionWardenPosition1st);
-                events.ScheduleEvent(eNyamiEvents::EventOnDeath3, 10 * TimeConstants::IN_MILLISECONDS);
+              //  l_Warden->GetMotionMaster()->MovePoint(60, g_PositionWardenPosition1st);
+               // events.ScheduleEvent(eNyamiEvents::EventOnDeath3, 10 * TimeConstants::IN_MILLISECONDS);
             }
             break;
         }
@@ -299,17 +299,17 @@ struct boss_nyami : public BossAI
                     l_Window->SetLootState(LootState::GO_READY);
                     l_Window->UseDoorOrButton(10 * TimeConstants::IN_MILLISECONDS);
                 }
-                if (Creature* l_Warden = me->GetSummonedCreatureByEntry(CreatureWardenAzzakael))
+              //  if (Creature* l_Warden = me->GetSummonedCreatureByEntry(CreatureWardenAzzakael))
                 {
-                    l_Warden->SetReactState(ReactStates::REACT_PASSIVE);
-                    l_Warden->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
-                    l_Warden->AddUnitFlag(UnitFlags(UnitFlags::UNIT_FLAG_REMOVE_CLIENT_CONTROL));
-                    l_Warden->AddDynamicFlag(UNIT_DYNFLAG_DEAD);
-                    l_Warden->AddUnitFlag(UnitFlags(UnitFlags2::UNIT_FLAG2_DISABLE_TURN | UnitFlags2::UNIT_FLAG2_FEIGN_DEATH));
-                    l_Warden->SummonCreature(eAuchindounCreatures::CreatureFelborneAbyssal, l_Warden->GetPositionX(), l_Warden->GetPositionY(), l_Warden->GetPositionZ(), TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+                  //  l_Warden->SetReactState(ReactStates::REACT_PASSIVE);
+                  //  l_Warden->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
+                  //  l_Warden->AddUnitFlag(UnitFlags(UnitFlags::UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+                  //  l_Warden->AddDynamicFlag(UNIT_DYNFLAG_DEAD);
+                   // l_Warden->AddUnitFlag(UnitFlags(UnitFlags2::UNIT_FLAG2_DISABLE_TURN | UnitFlags2::UNIT_FLAG2_FEIGN_DEATH));
+                   // l_Warden->SummonCreature(eAuchindounCreatures::CreatureFelborneAbyssal, l_Warden->GetPositionX(), l_Warden->GetPositionY(), l_Warden->GetPositionZ(), TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
 
-                    if (l_Warden->IsAIEnabled)
-                        l_Warden->AI()->Talk(eNyamiTalks::Auchenaiwarden2);
+                   // if (l_Warden->IsAIEnabled)
+                     //   l_Warden->AI()->Talk(eNyamiTalks::Auchenaiwarden2);
                 }
             }
             break;
@@ -460,9 +460,9 @@ struct auchindoun_nyami_mob_malefic_defender : public ScriptedAI
         me->AddAura(eNyamiSpells::SpellSpiritVisual, me);
     }
 
-    void EnterCombat(Unit* p_Attacker) override
+    void EnterCombat(Unit* p_Attacker) 
     {
-        events.ScheduleEvent(eMaleficDefenderEvents::EventCrusaderStirke, 5 * TimeConstants::IN_MILLISECONDS);
+      //  events.ScheduleEvent(eMaleficDefenderEvents::EventCrusaderStirke, 5 * TimeConstants::IN_MILLISECONDS);
     }
 
     void UpdateAI(uint32 p_Diff) override
@@ -480,7 +480,7 @@ struct auchindoun_nyami_mob_malefic_defender : public ScriptedAI
         case eMaleficDefenderEvents::EventCrusaderStirke:
             if (Unit* l_Target = me->GetVictim())
                 me->CastSpell(l_Target, eMaleficDefenderSpells::SpellCrusaderStirke);
-            events.ScheduleEvent(eMaleficDefenderEvents::EventCrusaderStirke, urand(7 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
+          //  events.ScheduleEvent(eMaleficDefenderEvents::EventCrusaderStirke, urand(7 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
             break;
         default:
             break;
@@ -518,8 +518,8 @@ struct auchindoun_nyami_mob_spiteful_arbitrer : public ScriptedAI
 
     void EnterCombat(Unit* p_Attacker)
     {
-        events.ScheduleEvent(eNyamiEvents::EventRadiantFury, 8 * TimeConstants::IN_MILLISECONDS);
-        events.ScheduleEvent(eNyamiEvents::EventArbitrerHammer, 14 * TimeConstants::IN_MILLISECONDS);
+       // events.ScheduleEvent(eNyamiEvents::EventRadiantFury, 8 * TimeConstants::IN_MILLISECONDS);
+       // events.ScheduleEvent(eNyamiEvents::EventArbitrerHammer, 14 * TimeConstants::IN_MILLISECONDS);
     }
 
     void MovementInform(uint32 /*p_Type*/, uint32 p_Id)
@@ -559,9 +559,9 @@ struct auchindoun_nyami_mob_spiteful_arbitrer : public ScriptedAI
         switch (events.ExecuteEvent())
         {
         case eNyamiEvents::EventArbitrerHammer:
-            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                me->CastSpell(l_Target, eNyamiSpells::SpellArbitrerHammer);
-            events.ScheduleEvent(eNyamiEvents::EventArbitrerHammer, 14 * TimeConstants::IN_MILLISECONDS);
+          //  if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+            //    me->CastSpell(l_Target, eNyamiSpells::SpellArbitrerHammer);
+           // events.ScheduleEvent(eNyamiEvents::EventArbitrerHammer, 14 * TimeConstants::IN_MILLISECONDS);
             break;
         case eNyamiEvents::EventRadiantFury:
         {
@@ -572,14 +572,14 @@ struct auchindoun_nyami_mob_spiteful_arbitrer : public ScriptedAI
             float l_Y = me->GetPositionY() + 30/* * sin(me->m_orientation)*/;
             me->GetMotionMaster()->MoveJump(l_X, l_Y, me->GetPositionZ(), 20.0f, 7.0f, 10.0f);
 
-            events.ScheduleEvent(eNyamiEvents::EventRadiantFuryStop, 6 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eNyamiEvents::EventRadiantFuryStop, 6 * TimeConstants::IN_MILLISECONDS);
             break;
         }
         case eNyamiEvents::EventRadiantFuryStop:
         {
             m_Radiant = false;
             events.CancelEvent(eNyamiEvents::EventRadiantFurySummonTrigger);
-            events.ScheduleEvent(eNyamiEvents::EventRadiantFury, urand(15 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
+           // events.ScheduleEvent(eNyamiEvents::EventRadiantFury, urand(15 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
             break;
         }
         default:
@@ -622,8 +622,8 @@ struct auchindoun_nyami_mob_twisted_magus : public ScriptedAI
 
     void EnterCombat(Unit* p_Attacker)
     {
-        events.ScheduleEvent(eTwistedMagusEvents::EventArcaneBolt, 4 * TimeConstants::IN_MILLISECONDS);
-        events.ScheduleEvent(eTwistedMagusEvents::EventArcaneBomb, 12 * TimeConstants::IN_MILLISECONDS);
+      //  events.ScheduleEvent(eTwistedMagusEvents::EventArcaneBolt, 4 * TimeConstants::IN_MILLISECONDS);
+      //  events.ScheduleEvent(eTwistedMagusEvents::EventArcaneBomb, 12 * TimeConstants::IN_MILLISECONDS);
     }
 
     void UpdateAI(uint32 p_Diff) override
@@ -639,13 +639,13 @@ struct auchindoun_nyami_mob_twisted_magus : public ScriptedAI
         switch (events.ExecuteEvent())
         {
         case eTwistedMagusEvents::EventArcaneBolt:
-            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                me->CastSpell(l_Target, eTwistedMagusSpells::SpellArcaneBolt);
-            events.ScheduleEvent(eTwistedMagusEvents::EventArcaneBolt, 15 * TimeConstants::IN_MILLISECONDS);
+          //  if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+            //    me->CastSpell(l_Target, eTwistedMagusSpells::SpellArcaneBolt);
+            //events.ScheduleEvent(eTwistedMagusEvents::EventArcaneBolt, 15 * TimeConstants::IN_MILLISECONDS);
             break;
         case eTwistedMagusEvents::EventArcaneBomb:
             me->CastSpell(me, eTwistedMagusSpells::SpellArcaneBombDummy);
-            events.ScheduleEvent(eTwistedMagusEvents::EventArcaneBomb, 25 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eTwistedMagusEvents::EventArcaneBomb, 25 * TimeConstants::IN_MILLISECONDS);
             break;
         default:
             break;
@@ -739,7 +739,7 @@ class auchindoun_nyami_spell_soul_vessel_dummy : public AuraScript
             /// Cosmetic
             if (Creature* l_Bubble = l_Caster->FindNearestCreature(eNyamiCreatures::CreatureSoulVesselHackBubbleEffect, 150.0f))
             {
-                if (l_Bubble->IsAIEnabled)
+               // if (l_Bubble->IsAIEnabled)
                     l_Bubble->AI()->DoAction(eNyamiActions::ActionReleaseAnimationPreSoulVessel);
             }
         }
@@ -817,6 +817,6 @@ void AddSC_boss_nyami()
     RegisterCreatureAI(auchindoun_nyami_mob_twisted_magus);
     RegisterSpellScript(auchindoun_nyami_spell_torn_spirits);
     RegisterSpellScript(auchindoun_nyami_spell_soul_vessel);
-    RegisterAuraScript(auchindoun_nyami_spell_soul_vessel_dummy);
+  //  RegisterAuraScript(auchindoun_nyami_spell_soul_vessel_dummy);
     new auchindoun_nyami_at_radiant_star();             ///< 157787//???
 }

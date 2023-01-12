@@ -91,62 +91,62 @@ public:
                 {
                     if (Creature* l_Borka = m_InstanceScript->instance->GetCreature(m_InstanceScript->GetGuidData(GrimrailDepotData::DataBorka)))
                     {
-                        if (l_RocketSpark->IsAIEnabled && l_Borka->IsAIEnabled)
+                       // if (l_RocketSpark->IsAIEnabled && l_Borka->IsAIEnabled)
                         {
                             switch (m_Modifier)
                             {
                             case 0:
                             {
                                 l_Borka->AI()->Talk(eRocketsparkAndBorkaTalks::TalkBorkaIntro01);
-                                l_RocketSpark->m_Events.AddEvent(new EventRocketsparkAndBorkaConversation(l_RocketSpark, 1, m_InstanceScript), l_RocketSpark->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
+                             //   l_RocketSpark->m_Events.AddEvent(new EventRocketsparkAndBorkaConversation(l_RocketSpark, 1, m_InstanceScript), l_RocketSpark->m_Events.CalculateTime();
                                 break;
                             }
                             case 1:
                             {
                                 l_Borka->AI()->Talk(eRocketsparkAndBorkaTalks::TalkBorkaIntro02);
-                                l_RocketSpark->m_Events.AddEvent(new EventRocketsparkAndBorkaConversation(l_RocketSpark, 2, m_InstanceScript), l_RocketSpark->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
+                              //  l_RocketSpark->m_Events.AddEvent(new EventRocketsparkAndBorkaConversation(l_RocketSpark, 2, m_InstanceScript), l_RocketSpark->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
                                 break;
                             }
                             case 2:
                             {
                                 l_RocketSpark->AI()->Talk(eRocketsparkAndBorkaTalks::TalkRocketsparkEvent03);
-                                l_RocketSpark->m_Events.AddEvent(new EventRocketsparkAndBorkaConversation(l_RocketSpark, 3, m_InstanceScript), l_RocketSpark->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
+                                //l_RocketSpark->m_Events.AddEvent(new EventRocketsparkAndBorkaConversation(l_RocketSpark, 3, m_InstanceScript), l_RocketSpark->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
                                 break;
                             }
                             case 3:
                             {
                                 l_RocketSpark->AI()->Talk(eRocketsparkAndBorkaTalks::TalkRocketsparkEvent04);
-                                l_RocketSpark->m_Events.AddEvent(new EventRocketsparkAndBorkaConversation(l_RocketSpark, 4, m_InstanceScript), l_RocketSpark->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
+                               // l_RocketSpark->m_Events.AddEvent(new EventRocketsparkAndBorkaConversation(l_RocketSpark, 4, m_InstanceScript), l_RocketSpark->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
                                 break;
                             }
                             case 4:
                             {
                                 l_RocketSpark->AI()->Talk(eRocketsparkAndBorkaTalks::TalkRocketsparkEvent05);
-                                l_RocketSpark->m_Events.AddEvent(new EventRocketsparkAndBorkaConversation(l_RocketSpark, 5, m_InstanceScript), l_RocketSpark->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
+                               // l_RocketSpark->m_Events.AddEvent(new EventRocketsparkAndBorkaConversation(l_RocketSpark, 5, m_InstanceScript), l_RocketSpark->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
                                 break;
                             }
                             case 5:
                             {
                                 l_RocketSpark->AI()->Talk(eRocketsparkAndBorkaTalks::TalkRocketsparkEvent06);
-                                l_RocketSpark->m_Events.AddEvent(new EventRocketsparkAndBorkaConversation(l_RocketSpark, 6, m_InstanceScript), l_RocketSpark->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
+                               // l_RocketSpark->m_Events.AddEvent(new EventRocketsparkAndBorkaConversation(l_RocketSpark, 6, m_InstanceScript), l_RocketSpark->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
                                 break;
                             }
                             case 6:
                             {
                                 l_RocketSpark->AI()->Talk(eRocketsparkAndBorkaTalks::TalkRocketsparkEvent07);
-                                l_RocketSpark->m_Events.AddEvent(new EventRocketsparkAndBorkaConversation(l_RocketSpark, 7, m_InstanceScript), l_RocketSpark->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
+                               // l_RocketSpark->m_Events.AddEvent(new EventRocketsparkAndBorkaConversation(l_RocketSpark, 7, m_InstanceScript), l_RocketSpark->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
                                 break;
                             }
                             case 7:
                             {
                                 l_RocketSpark->AI()->Talk(eRocketsparkAndBorkaTalks::TalkRocketsparkEvent08);
-                                l_RocketSpark->m_Events.AddEvent(new EventRocketsparkAndBorkaConversation(l_RocketSpark, 8, m_InstanceScript), l_RocketSpark->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
+                               // l_RocketSpark->m_Events.AddEvent(new EventRocketsparkAndBorkaConversation(l_RocketSpark, 8, m_InstanceScript), l_RocketSpark->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
                                 break;
                             }
                             case 8:
                             {
                                 l_RocketSpark->GetMotionMaster()->MovePoint(100, g_PositionNewRocketSparkHomePoint);
-                                l_Borka->GetMotionMaster()->MovePoint(100, g_PositionNewBorkaSparkHomePoint);
+                               // l_Borka->GetMotionMaster()->MovePoint(100, g_PositionNewBorkaSparkHomePoint);
 
                                 l_RocketSpark->SetHomePosition(g_PositionNewRocketSparkHomePoint);
                                 l_Borka->SetHomePosition(g_PositionNewBorkaSparkHomePoint);
@@ -179,9 +179,9 @@ static void StartRocketSparkAndBorka(InstanceScript* p_Instance, Creature* p_Me,
     p_Instance->SetBossState(GrimrailDepotData::DataRocketspark, EncounterState::IN_PROGRESS);
 
     if (Creature* l_Borka = p_Instance->instance->GetCreature(p_Instance->GetGuidData(GrimrailDepotData::DataBorka)))
-        l_Borka->SetInCombatWithZone();
-    if (Creature* l_Rocketspark = p_Instance->instance->GetCreature(p_Instance->GetGuidData(GrimrailDepotData::DataRocketspark)))
-        l_Rocketspark->SetInCombatWithZone();
+        //  l_Borka->SetInCombatWithZone();
+        if (Creature* l_Rocketspark = p_Instance->instance->GetCreature(p_Instance->GetGuidData(GrimrailDepotData::DataRocketspark)));
+        //l_Rocketspark->SetInCombatWithZone();
 }
 
 static void WipingConditionRocketSparkAndBorka(InstanceScript* p_Instance, Creature* p_Me)
@@ -214,7 +214,7 @@ static void WiningConditionRocketsparkAndBurka(InstanceScript* p_Instance, Creat
             if (l_Borka->isDead() || l_Rocketspark->isDead())
             {
                 p_Instance->SetBossState(GrimrailDepotData::DataRocketspark, EncounterState::DONE);
-                l_Rocketspark->AddLootRecipient(l_Killer);
+               // l_Rocketspark->AddLootRecipient(l_Killer);
             }
         }
     }
@@ -289,11 +289,11 @@ public:
                 if (m_Instance != nullptr)
                 {
                     m_First = true;
-                    me->m_Events.AddEvent(new EventRocketsparkAndBorkaConversation(me, 8, m_Instance), me->m_Events.CalculateTime(4 * TimeConstants::IN_MILLISECONDS));
+                   // me->m_Events.AddEvent(new EventRocketsparkAndBorkaConversation(me, 8, m_Instance), me->m_Events.CalculateTime(4 * TimeConstants::IN_MILLISECONDS));
                 }
             }
             me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE));
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+           // me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
         }
 
         void JustReachedHome() override
@@ -330,7 +330,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* p_Who) override
+        void EnterCombat(Unit* p_Who) 
         {
             if (m_Instance != nullptr)
             {
@@ -338,10 +338,10 @@ public:
                 m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
             }
 
-            _EnterCombat();
+           // _EnterCombat();
             HandleEncounterStartDoor();
-            events.ScheduleEvent(eRocketsparkEvents::EventRandomMovement, 3 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eRocketsparkEvents::EventX2101a, 30 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eRocketsparkEvents::EventRandomMovement, 3 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eRocketsparkEvents::EventX2101a, 30 * TimeConstants::IN_MILLISECONDS);
         }
 
         void KilledUnit(Unit* p_Who) override
@@ -360,7 +360,7 @@ public:
             switch (p_Id)
             {
             case eRocksparkAndBorkaMovementInformed::MovementInformBetterPosition:
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+               // me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
                 break;
             case eRocksparkAndBorkaMovementInformed::MovementHigherPlatform:
                 m_x210IsActivated = true;
@@ -368,7 +368,7 @@ public:
                 me->CastSpell(me, eRocketsparkSpells::SpellLockingOnAura);
                 me->CastSpell(me, eRocketsparkSpells::SpellX2101aMissileBarrage);
                 me->CastSpell(me, eRocketsparkSpells::SpellBetterPositionJump, true);
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+               // me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL));
                 break;
             default:
                 break;
@@ -385,10 +385,10 @@ public:
                     Talk(eRocketsparkAndBorkaTalks::TalkRocketsparkSpell01);
 
                     Position l_Position;
-                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                        l_Position = l_Target->GetRandomNearPosition(20.0f);
+                  //  if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                    //    l_Position = l_Target->GetRandomNearPosition(20.0f);
 
-                    me->CastSpell(l_Position.GetPositionX(), l_Position.GetPositionY(), l_Position.GetPositionZ(), eRocketsparkSpells::SpellVx18BTargetEliminatorTriggerMissile, true);
+                   // me->CastSpell(l_Position.GetPositionX(), l_Position.GetPositionY(), l_Position.GetPositionZ(), eRocketsparkSpells::SpellVx18BTargetEliminatorTriggerMissile, true);
                 }
                 break;
             case eRocksparkAndBorkaActions::ActionRocketSparkNewPlan:
@@ -408,7 +408,7 @@ public:
                     if (Creature* l_Nearest = me->FindNearestCreature(eRocksparkAndBorkaCreatures::CreatureBottomTrigger, 10.0f))
                         me->GetMotionMaster()->MoveJump(*l_Nearest, 10.0f, 10.0f);
 
-                    events.ScheduleEvent(eRocketsparkEvents::EventNewPlan, 5 * TimeConstants::IN_MILLISECONDS);
+                   // events.ScheduleEvent(eRocketsparkEvents::EventNewPlan, 5 * TimeConstants::IN_MILLISECONDS);
 
                 }
                 break;
@@ -424,8 +424,8 @@ public:
                 if (Creature* l_Nearest = me->FindNearestCreature(eRocksparkAndBorkaCreatures::CreatureBottomTrigger, 10.0f))
                     me->GetMotionMaster()->MoveJump(*l_Nearest, 10.0f, 10.0f);
 
-                events.ScheduleEvent(eRocketsparkEvents::EventX2101a, 30 * TimeConstants::IN_MILLISECONDS);
-                events.ScheduleEvent(eRocketsparkEvents::EventRandomMovement, 5 * TimeConstants::IN_MILLISECONDS);
+               // events.ScheduleEvent(eRocketsparkEvents::EventX2101a, 30 * TimeConstants::IN_MILLISECONDS);
+               // events.ScheduleEvent(eRocketsparkEvents::EventRandomMovement, 5 * TimeConstants::IN_MILLISECONDS);
                 me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
                 break;
             default:
@@ -441,13 +441,13 @@ public:
 
             if (m_Instance != nullptr)
             {
-                m_Instance->DoSendScenarioEvent(40132);
+              //  m_Instance->DoSendScenarioEvent(40132);
                 WiningConditionRocketsparkAndBurka(m_Instance, me, p_Killer);
                 if (Creature* l_Borka = m_Instance->instance->GetCreature(m_Instance->GetGuidData(GrimrailDepotData::DataBorka)))
                 {
                     if (l_Borka->IsAlive())
                     {
-                        if (l_Borka->IsAIEnabled)
+                      //  if (l_Borka->IsAIEnabled)
                             l_Borka->GetAI()->DoAction(eRocksparkAndBorkaActions::ActionBorkaUnmanagedAggression);
                     }
                 }
@@ -467,7 +467,7 @@ public:
                 if (events.ExecuteEvent() == eRocketsparkEvents::Eventx2101aRenew)
                 {
                     me->CastSpell(me, eRocketsparkSpells::SpellX2101aMissileBarrage);
-                    events.ScheduleEvent(eRocketsparkEvents::Eventx2101aRenew, 10 * TimeConstants::IN_MILLISECONDS);
+                   // events.ScheduleEvent(eRocketsparkEvents::Eventx2101aRenew, 10 * TimeConstants::IN_MILLISECONDS);
                 }
             }
 
@@ -495,10 +495,10 @@ public:
                     me->CastSpell((*l_It), eRocketsparkSpells::SpellBetterPositionJump, true);
                     me->GetMotionMaster()->MoveJump(*(*l_It), 20.0f, 20.0f, eRocksparkAndBorkaMovementInformed::MovementHigherPlatform);
                 }
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
-                events.ScheduleEvent(eRocketsparkEvents::EventX2101a, 40 * TimeConstants::IN_MILLISECONDS);
-                events.ScheduleEvent(eRocketsparkEvents::Eventx2101aRenew, 10 * TimeConstants::IN_MILLISECONDS);
-                events.ScheduleEvent(eRocketsparkEvents::Eventx2101aCancelation, 20 * TimeConstants::IN_MILLISECONDS);
+               // me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+               // events.ScheduleEvent(eRocketsparkEvents::EventX2101a, 40 * TimeConstants::IN_MILLISECONDS);
+               // events.ScheduleEvent(eRocketsparkEvents::Eventx2101aRenew, 10 * TimeConstants::IN_MILLISECONDS);
+               // events.ScheduleEvent(eRocketsparkEvents::Eventx2101aCancelation, 20 * TimeConstants::IN_MILLISECONDS);
                 break;
             }
             case eRocketsparkEvents::Eventx2101aCancelation:
@@ -506,7 +506,7 @@ public:
                 me->RemoveAllAuras();
                 m_x210IsActivated = false;
                 me->SetReactState(ReactStates::REACT_AGGRESSIVE);
-                me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+              //  me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL));
                 break;
             case eRocketsparkEvents::EventVx18BTargetEliminator:
                 me->CastSpell(me, eRocketsparkSpells::SpellVx18BTargetEliminatorDummy);
@@ -559,8 +559,8 @@ public:
                     }
                 }
 
-                events.ScheduleEvent(eRocketsparkEvents::EventRandomMovement, 12 * TimeConstants::IN_MILLISECONDS);
-                events.ScheduleEvent(eRocketsparkEvents::EventVx18BTargetEliminator, 2 * TimeConstants::IN_MILLISECONDS);
+               // events.ScheduleEvent(eRocketsparkEvents::EventRandomMovement, 12 * TimeConstants::IN_MILLISECONDS);
+               // events.ScheduleEvent(eRocketsparkEvents::EventVx18BTargetEliminator, 2 * TimeConstants::IN_MILLISECONDS);
                 break;
             }
             default:
@@ -631,14 +631,14 @@ public:
                 WipingConditionRocketSparkAndBorka(m_Instance, me);
         }
 
-        void EnterCombat(Unit* p_Who) override
+        void EnterCombat(Unit* p_Who) 
         {
             if (m_Instance != nullptr)
                 StartRocketSparkAndBorka(m_Instance, me, p_Who->GetGUID());
 
             Talk(eRocketsparkAndBorkaTalks::TalkBorkaAggro);
-            events.ScheduleEvent(eBorkaEvents::EventSlam, 8 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eBorkaEvents::EventMadDash, 20 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eBorkaEvents::EventSlam, 8 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eBorkaEvents::EventMadDash, 20 * TimeConstants::IN_MILLISECONDS);
         }
 
         void KilledUnit(Unit* p_Who) override
@@ -666,7 +666,7 @@ public:
             {
                 if (Creature* l_RocketSpark = m_Instance->instance->GetCreature(m_Instance->GetGuidData(GrimrailDepotData::DataRocketspark)))
                 {
-                    if (l_RocketSpark->IsAIEnabled)
+                  //  if (l_RocketSpark->IsAIEnabled)
                         l_RocketSpark->GetAI()->DoAction(eRocksparkAndBorkaActions::ActionRocketSparkNewPlan);
                 }
             }
@@ -750,16 +750,16 @@ public:
                                     m_MadDashTargetGUID = ObjectGuid::Empty;
                                     me->StopMoving();
                                     me->CastSpell(me, eBorkaSpells::SpellMadDashHit);
-                                    if (Unit* l_Victim = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
-                                        me->Attack(l_Victim, true);
+                                   // if (Unit* l_Victim = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
+                                       // me->Attack(l_Victim, true);
 
                                     events.Reset();
-                                    events.ScheduleEvent(eBorkaEvents::EventSlam, 8 * TimeConstants::IN_MILLISECONDS);
-                                    events.ScheduleEvent(eBorkaEvents::EventMadDash, 20 * TimeConstants::IN_MILLISECONDS);
+                                   // events.ScheduleEvent(eBorkaEvents::EventSlam, 8 * TimeConstants::IN_MILLISECONDS);
+                                   // events.ScheduleEvent(eBorkaEvents::EventMadDash, 20 * TimeConstants::IN_MILLISECONDS);
 
                                     if (l_Target->IsWithinDistInMap(l_RocketSpark, 10.0f)) /// If it's Rocketspark line of sight.
                                     {
-                                        if (l_RocketSpark->IsAIEnabled)
+                                      //  if (l_RocketSpark->IsAIEnabled)
                                             l_RocketSpark->GetAI()->DoAction(eRocksparkAndBorkaActions::ActionMadDashContact);
                                     }
                                 }
@@ -775,16 +775,16 @@ public:
             switch (events.ExecuteEvent())
             {
             case eBorkaEvents::EventRemoveDisableTurn:
-                me->RemoveUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+             //   me->RemoveUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
                 break;
             case eBorkaEvents::EventMadDash: /// 01
             {
-                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
+               // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
                 {
                     me->AttackStop();
                     me->SendClearTarget();
                     me->SetReactState(ReactStates::REACT_PASSIVE);
-                    me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+                   // me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
 
                     /// Responsible for choosing a target which is between player and boss
                     std::list<Creature*> l_ListCreatures;
@@ -799,7 +799,7 @@ public:
                             if (!l_Itr)
                                 continue;
 
-                            if (!l_Target->IsInBetween(l_Itr, me))
+                           // if (!l_Target->IsInBetween(l_Itr, me))
                                 continue;
 
                             m_MadDashTargetGUID = l_Itr->GetGUID();
@@ -813,24 +813,24 @@ public:
                     }
                 }
 
-                events.ScheduleEvent(eBorkaEvents::EventMadDashActionDelayed, 3 * TimeConstants::IN_MILLISECONDS);
-                events.ScheduleEvent(eBorkaEvents::EventMadDash, 20 * TimeConstants::IN_MILLISECONDS);
+               // events.ScheduleEvent(eBorkaEvents::EventMadDashActionDelayed, 3 * TimeConstants::IN_MILLISECONDS);
+               // events.ScheduleEvent(eBorkaEvents::EventMadDash, 20 * TimeConstants::IN_MILLISECONDS);
                 break;
             }
             case eBorkaEvents::EventMadDashActionDelayed:
             {
                 if (Creature* l_Creature = ObjectAccessor::GetCreature(*me, m_MadDashTargetGUID))
-                    me->GetMotionMaster()->MoveCharge(l_Creature, eBorkaSpells::SpellMadDashCharge, eRocksparkAndBorkaMovementInformed::MovementMadDashContact);
+                 //   me->GetMotionMaster()->MoveCharge(l_Creature, eBorkaSpells::SpellMadDashCharge, eRocksparkAndBorkaMovementInformed::MovementMadDashContact);
 
                 m_Hit = true;
                 me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
-                events.ScheduleEvent(eBorkaEvents::EventRemoveDisableTurn, 4 * TimeConstants::IN_MILLISECONDS);
+               // events.ScheduleEvent(eBorkaEvents::EventRemoveDisableTurn, 4 * TimeConstants::IN_MILLISECONDS);
                 break;
             }
             case eBorkaEvents::EventSlam:
                 me->CastSpell(me, eBorkaSpells::SpellSlam);
-                events.ScheduleEvent(eBorkaEvents::EventSlam, 8 * TimeConstants::IN_MILLISECONDS);
+                //events.ScheduleEvent(eBorkaEvents::EventSlam, 8 * TimeConstants::IN_MILLISECONDS);
                 break;
             default:
                 break;
@@ -861,7 +861,7 @@ public:
         {
             if (GetCaster())
             {
-                if (GetCaster()->IsAIEnabled)
+               // if (GetCaster()->IsAIEnabled)
                     GetCaster()->GetAI()->DoAction(eRocksparkAndBorkaActions::ActionRocketSparkShootMissilesVX18);
             }
         }
@@ -915,8 +915,8 @@ public:
                         Position l_Position;
                         l_Position = l_Itr->GetRandomNearPosition(10.0f);
 
-                        if (Creature* l_Trigger = GetCaster()->SummonCreature(eRocksparkAndBorkaCreatures::CreatureX21Triggers, l_Position, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 3 * TimeConstants::IN_MILLISECONDS))
-                            GetCaster()->CastSpell(l_Trigger, eSpells::SpellX2101AMissileBarrage, true);
+                       // if (Creature* l_Trigger = GetCaster()->SummonCreature(eRocksparkAndBorkaCreatures::CreatureX21Triggers, l_Position, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 3 * TimeConstants::IN_MILLISECONDS))
+                         //   GetCaster()->CastSpell(l_Trigger, eSpells::SpellX2101AMissileBarrage, true);
                     }
                 }
             }
@@ -972,8 +972,8 @@ class grimrail_depot_rocketspark_spell_new_plan : public SpellScriptLoader
                         Position l_Position;
                         l_Position = l_Itr->GetRandomNearPosition(10.0f);
 
-                        if (Creature* l_Trigger = GetCaster()->SummonCreature(eRocksparkAndBorkaCreatures::CreatureX21Triggers, l_Position, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 3 * TimeConstants::IN_MILLISECONDS))
-                            GetCaster()->CastSpell(l_Trigger, eSpells::SpellNewPlanMissile, true);
+                      //  if (Creature* l_Trigger = GetCaster()->SummonCreature(eRocksparkAndBorkaCreatures::CreatureX21Triggers, l_Position, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 3 * TimeConstants::IN_MILLISECONDS))
+                        //    GetCaster()->CastSpell(l_Trigger, eSpells::SpellNewPlanMissile, true);
                     }
                 }
             }

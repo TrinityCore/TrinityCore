@@ -85,21 +85,21 @@ public:
             {
                 case 2:
                     DoCast(me, SPELL_EJECT_ALL_PASSENGERS);
-                    me->DespawnOrUnsummon(1000);
+                    me->DespawnOrUnsummon();
                     break;
                 default:
                     break;
             }
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) 
         {
             switch (spell->Id)
             {
                 case SPELL_DESCEND_1:
                     descend = true;
                     if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
-                        me->GetMotionMaster()->MovementExpired();
+                      //  me->GetMotionMaster()->MovementExpired();
                     break;
                 case SPELL_WEB_CRAWL_2:
                     chargeTimer = 5000;
@@ -118,11 +118,11 @@ public:
                 if (chargeTimer <= diff)
                 {
                     chargeTimer = 5000;
-                    if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0, 500.0f))
+                   // if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0, 500.0f))
                     {
-                        if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
-                            me->GetMotionMaster()->MovementExpired();
-                        me->GetMotionMaster()->MovePoint(0, target->GetPositionX(), target->GetPositionY(), me->GetPositionZ());
+                        if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE);
+                     //       me->GetMotionMaster()->MovementExpired();
+                       // me->GetMotionMaster()->MovePoint(0, target->GetPositionX(), target->GetPositionY(), me->GetPositionZ());
                     }
                 }
                 else
@@ -167,8 +167,8 @@ public:
             consumeTimer = 40000;
 
             DoCast(me, SPELL_DESPAWN_AREA_TRIGGERS);
-            if (Creature* veh_xeritac = me->SummonCreature(NPC_XERITAC_VEHICLE, 937.5052f, 1438.911f, 89.0f, 0.0f))
-                DoCast(veh_xeritac, SPELL_WEB_CRAWL_1);
+           // if (Creature* veh_xeritac = me->SummonCreature(NPC_XERITAC_VEHICLE, 937.5052f, 1438.911f, 89.0f, 0.0f))
+               // DoCast(veh_xeritac, SPELL_WEB_CRAWL_1);
         }
 
         void JustReachedHome() override
@@ -176,9 +176,9 @@ public:
             _JustReachedHome();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) 
         {
-            _EnterCombat();
+           // _EnterCombat();
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -186,7 +186,7 @@ public:
             _JustDied();
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) 
         {
             if (damage >= me->GetHealth())
                 DoCast(me, SPELL_DESPAWN_AREA_TRIGGERS);
@@ -217,7 +217,7 @@ public:
             switch (summon->GetEntry())
             {
                 case NPC_TOXIC_SPIDERLING:
-                    me->CastSpell(summon->GetPositionX(), summon->GetPositionY(), summon->GetPositionZ(), SPELL_TOXIC_GAS_XERITAC, true);
+                   // me->CastSpell(summon->GetPositionX(), summon->GetPositionY(), summon->GetPositionZ(), SPELL_TOXIC_GAS_XERITAC, true);
 
                     killCount++;
                     if (killCount >= 8)
@@ -226,7 +226,7 @@ public:
                         if (Creature* xeritac = GetClosestCreatureWithEntry(me, NPC_XERITAC_VEHICLE, 100.0f))
                             xeritac->AI()->DoAction(2);
 
-                        me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                      //  me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                     }
                     break;
             }
@@ -265,8 +265,8 @@ public:
                     if (addTimer <= diff)
                     {
                         addTimer = 15000;
-                        me->SummonCreature(NPC_TOXIC_SPIDERLING, 935.9139f, 1446.727f, 86.68246f, 2.888725f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
-                        me->SummonCreature(NPC_VENOM_SPRAYER, 929.7065f, 1437.282f, 86.69052f, 3.35384f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                       // me->SummonCreature(NPC_TOXIC_SPIDERLING, 935.9139f, 1446.727f, 86.68246f, 2.888725f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                       // me->SummonCreature(NPC_VENOM_SPRAYER, 929.7065f, 1437.282f, 86.69052f, 3.35384f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
                         // Todo : Gorged Burster
                     }
                     else
@@ -535,7 +535,7 @@ public:
             CreatureAI::AttackStart(victim);
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) 
         {
             switch (spell->Id)
             {
@@ -695,25 +695,25 @@ class toxic_eggs_go : public GameObjectScript
 public:
     toxic_eggs_go() : GameObjectScript("toxic_eggs_go") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    bool OnGossipHello(Player* player, GameObject* go) 
     {
         if (Creature* xeritac = GetClosestCreatureWithEntry(go, NPC_XERITAC, 100.0f))
         {
             xeritac->AI()->AttackStart(player);
-            xeritac->AI()->DoZoneInCombat(xeritac, 500.0f);
+           // xeritac->AI()->DoZoneInCombat(xeritac, 500.0f);
         }
 
         if (Creature* vehicle = GetClosestCreatureWithEntry(go, NPC_XERITAC_VEHICLE, 100.0f))
         {
             vehicle->AI()->AttackStart(player);
-            vehicle->AI()->DoZoneInCombat(vehicle, 500.0f);
+           // vehicle->AI()->DoZoneInCombat(vehicle, 500.0f);
         }
 
         go->UseDoorOrButton();
         return true;
     }
 
-    void OnLootStateChanged(GameObject* go, uint32 state, Unit* /*unit*/) override
+    void OnLootStateChanged(GameObject* go, uint32 state, Unit* /*unit*/) 
     {
         switch (state)
         {
@@ -737,5 +737,5 @@ void AddSC_boss_xeritac()
     new spell_gaseous_volley();
     new spell_toxic_blood();
     RegisterAreaTriggerAI(at_toxic_gas);
-    new toxic_eggs_go();
+    //new toxic_eggs_go();
 }

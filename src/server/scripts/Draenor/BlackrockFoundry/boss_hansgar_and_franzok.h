@@ -376,7 +376,7 @@ void StartBrothers(Creature* p_Source, Unit* p_Target, InstanceScript* p_Instanc
     uint32 l_Entry = (p_Source->GetEntry() == eFoundryCreatures::BossFranzok) ? eFoundryCreatures::BossHansgar : eFoundryCreatures::BossFranzok;
     if (Creature* l_Other = ObjectAccessor::GetCreature(*p_Source, p_Instance->GetGuidData(l_Entry)))
     {
-        if (l_Other->IsAIEnabled)
+        //if (l_Other->IsAIEnabled)
             l_Other->AI()->AttackStart(p_Target);
     }
 }

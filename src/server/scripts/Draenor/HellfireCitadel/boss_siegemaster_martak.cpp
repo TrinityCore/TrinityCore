@@ -1,4 +1,4 @@
-﻿/*
+/*
 * Copyright (C) 2021 BfaCore Reforged
 *
 * This program is free software; you can redistribute it and/or modify it
@@ -48,9 +48,9 @@ struct boss_siegemaster_martak : public BossAI
     {
         Talk(4);
         _JustDied();
-        GameObject* box = me->SummonGameObject(243309, Position(3965.42f, -732.45f, 33.398f), QuaternionData(0.0f, 0.0f, 0.0f, 0.0f), WEEK);
-        if(box)
-            box->SetLootState(LootState::GO_READY);
+      //  GameObject* box = me->SummonGameObject(243309, Position(3965.42f, -732.45f, 33.398f), QuaternionData(0.0f, 0.0f, 0.0f, 0.0f), WEEK);
+       // if(box)
+          //  box->SetLootState(LootState::GO_READY);
 
         me->SummonCreature(NPC_IRON_REAVER, pos1);
     }
@@ -64,13 +64,13 @@ struct boss_siegemaster_martak : public BossAI
         }
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) 
     {
-        if (me->HealthWillBeBelowPctDamaged(50, damage))
+       // if (me->HealthWillBeBelowPctDamaged(50, damage))
         {
             events.ScheduleEvent(EVENT_HP_50, 3s);
         }
-        if (me->HealthWillBeBelowPctDamaged(45, damage))
+       // if (me->HealthWillBeBelowPctDamaged(45, damage))
         {
             events.ScheduleEvent(EVENT_HP_45, 3s);
         }
@@ -79,10 +79,10 @@ struct boss_siegemaster_martak : public BossAI
     void ScheduleTasks() override
     {
         Talk(1);
-        me->SummonCreature(93931, Position(3933.29f, -561.4f, 31.0f, 4.845f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
-        me->SummonCreature(92911, Position(3960.85f, -562.89f, 31.0f, 4.62f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
-        me->SummonCreature(90114, Position(3955.5f, -560.0f, 31.0f, 4.6f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
-        me->SummonCreature(93881, Position(3940.4f, -559.6f, 31.0f, 4.95f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+      //  me->SummonCreature(93931, Position(3933.29f, -561.4f, 31.0f, 4.845f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+       // me->SummonCreature(92911, Position(3960.85f, -562.89f, 31.0f, 4.62f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+       // me->SummonCreature(90114, Position(3955.5f, -560.0f, 31.0f, 4.6f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+       // me->SummonCreature(93881, Position(3940.4f, -559.6f, 31.0f, 4.95f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
         events.ScheduleEvent(SPELL_HOWLING_AXE, 4s);
         events.ScheduleEvent(SPELL_INSPIRING_PRESENCE, 5s);
         events.ScheduleEvent(SPELL_SHOCKWAVE, 10s);
@@ -118,33 +118,33 @@ struct boss_siegemaster_martak : public BossAI
         case EVENT_HP_50:
         {
             Talk(11);
-            me->SummonCreature(90410, Position(3976.3f, -637.6f, 31.0f, 4.6f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+           // me->SummonCreature(90410, Position(3976.3f, -637.6f, 31.0f, 4.6f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
             events.Repeat(28s, 33s);
             break;
 
         case EVENT_HP_45:
         {
             Talk(6);
-            me->SummonCreature(90432, Position(3907.3f, -643.6f, 31.0f, 4.6f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+           // me->SummonCreature(90432, Position(3907.3f, -643.6f, 31.0f, 4.6f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
             events.Repeat(28s, 33s);
             break;
         }
         case EVENT_SUMMON_1:
         {
-            me->SummonCreature(93931, Position(3933.29f, -561.4f, 31.0f, 4.845f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+           // me->SummonCreature(93931, Position(3933.29f, -561.4f, 31.0f, 4.845f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
             events.Repeat(30s);
             break;
         }
         case EVENT_SUMMON_2:
         {
-            me->SummonCreature(92911, Position(3960.85f, -562.89f, 31.0f, 4.6f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+           // me->SummonCreature(92911, Position(3960.85f, -562.89f, 31.0f, 4.6f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
             events.Repeat(35s);
             break;
         }
         case EVENT_SUMMON_3:
         {
             Talk(5);
-            me->SummonCreature(90114, Position(3955.5f, -560.09f, 31.0f, 4.6f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+         //   me->SummonCreature(90114, Position(3955.5f, -560.09f, 31.0f, 4.6f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
             events.Repeat(36s);
             break;
         }

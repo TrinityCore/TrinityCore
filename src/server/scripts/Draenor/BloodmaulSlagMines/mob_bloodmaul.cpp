@@ -50,10 +50,10 @@ namespace Instances { namespace Bloodmaul
 
                 void Reset() override
                 {
-                    events.Reset();
+                  //  events.Reset();
 
                     me->AddUnitState(UNIT_STATE_ROOT);
-                    me->AddUnitFlag(UnitFlags(UNIT_FLAG_UNK_6 | UNIT_FLAG_UNK_15 | UNIT_FLAG_NOT_SELECTABLE));
+                   // me->AddUnitFlag(UnitFlags(UNIT_FLAG_UNK_6 | UNIT_FLAG_UNK_15 | UNIT_FLAG_NOT_SELECTABLE));
                 }
 
                 void SetData(uint32 type, uint32) override
@@ -61,19 +61,19 @@ namespace Instances { namespace Bloodmaul
                     if (type == uint32(Data::SpawnSlagna))
                     {
                         me->RemoveAura(uint32(Spells::SubmergeVisual));
-                        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_UNK_6 | UNIT_FLAG_UNK_15 | UNIT_FLAG_NOT_SELECTABLE));
+                        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_UNK_6));
 
                         if (Unit* target = me->SelectNearestPlayer(20.0f))
                             AttackStart(target);
                     }
                 }
 
-                void EnterCombat(Unit*) override
+                void EnterCombat(Unit*) 
                 {
                     me->RemoveAura(uint32(Spells::SubmergeVisual));
-                    me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_UNK_6 | UNIT_FLAG_UNK_15 | UNIT_FLAG_NOT_SELECTABLE));
+                    me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_UNK_6));
 
-                    events.ScheduleEvent(uint32(Events::LavaSpit), urand(2000, 2500));
+                   // events.ScheduleEvent(uint32(Events::LavaSpit), urand(2000, 2500));
                 }
 
                 void UpdateAI(const uint32 diff) override
@@ -81,20 +81,20 @@ namespace Instances { namespace Bloodmaul
                     if (!UpdateVictim())
                         return;
 
-                    events.Update(diff);
+                   // events.Update(diff);
 
                     if (me->HasUnitState(UNIT_STATE_CASTING) || me->GetCurrentSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL))
                         return;
 
-                    switch (events.ExecuteEvent())
+                    //switch (events.ExecuteEvent())
                     {
-                        case uint32(Events::LavaSpit):
-                            if (Unit* l_Plr = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                me->CastSpell(l_Plr, uint32(Spells::LavaSpit));
-                            events.ScheduleEvent(uint32(Events::LavaSpit), urand(2000, 2500));
-                            break;
-                        default:
-                            break;
+                        uint32(Events::LavaSpit);
+                           // if (Unit* l_Plr = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            //    me->CastSpell(l_Plr, uint32(Spells::LavaSpit));
+                            //events.ScheduleEvent(uint32(Events::LavaSpit), urand(2000, 2500));
+                           // break;
+                        //default:
+                          //  break;
                     }
 
                     DoMeleeAttackIfReady();
@@ -127,18 +127,18 @@ namespace Instances { namespace Bloodmaul
             {
                 mob_AI(Creature* creature) : ScriptedAI(creature)
                 {
-                    me->SetUnitFlags(UnitFlags(0));
+                  //  me->SetUnitFlags(UnitFlags(0));
                 }
 
                 EventMap m_Events;
 
-                void EnterCombat(Unit* target) override
+                void EnterCombat(Unit* target) 
                 {
-                    me->getThreatManager().addThreat(target, 1000.0f);
+                   // me->getThreatManager().addThreat(target, 1000.0f);
 
                     m_Events.Reset();
 
-                    m_Events.ScheduleEvent(eEvents::EventTraumaticStrike, 4000);
+                   // m_Events.ScheduleEvent(eEvents::EventTraumaticStrike, 4000);
                 }
 
                 void UpdateAI(const uint32 diff) override
@@ -190,7 +190,7 @@ namespace Instances { namespace Bloodmaul
 
                 void Reset() override
                 {
-                    events.Reset();
+                   // events.Reset();
                 }
 
                 void AttackStart(Unit* victim) override
@@ -198,9 +198,9 @@ namespace Instances { namespace Bloodmaul
                     AttackStartCaster(victim, 15.0f);
                 }
 
-                void EnterCombat(Unit*) override
+                void EnterCombat(Unit*) 
                 {
-                    events.ScheduleEvent(uint32(Events::BloodRage), urand(10000, 12000));
+                    //events.ScheduleEvent(uint32(Events::BloodRage), urand(10000, 12000));
                 }
 
                 void UpdateAI(const uint32 diff) override
@@ -208,19 +208,19 @@ namespace Instances { namespace Bloodmaul
                     if (!UpdateVictim())
                         return;
 
-                    events.Update(diff);
+                   // events.Update(diff);
 
                     if (me->HasUnitState(UNIT_STATE_CASTING) || me->GetCurrentSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL))
                         return;
 
-                    switch (events.ExecuteEvent())
+                    //switch(events.ExecuteEvent())
                     {
-                        case uint32(Events::BloodRage):
+                        uint32(Events::BloodRage);
                             me->CastSpell(me, uint32(Spells::BloodRage));
-                            events.ScheduleEvent(uint32(Events::BloodRage), urand(10000, 12000));
-                            break;
-                        default:
-                            break;
+                           // events.ScheduleEvent(uint32(Events::BloodRage), urand(10000, 12000));
+                         //   break;
+                        //default:
+                          //  break;
                     }
 
                     DoSpellAttackIfReady((uint32)Spells::LavaBurst);
@@ -257,13 +257,13 @@ namespace Instances { namespace Bloodmaul
 
                 void Reset() override
                 {
-                    events.Reset();
+                   // events.Reset();
                 }
 
-                void EnterCombat(Unit*) override
+                void EnterCombat(Unit*) 
                 {
-                    events.ScheduleEvent(uint32(Events::Cleave), urand(500, 1500));
-                    events.ScheduleEvent(uint32(Events::FrighteningRoar), urand(14000, 16000));
+                    //events.ScheduleEvent(uint32(Events::Cleave), urand(500, 1500));
+                   // events.ScheduleEvent(uint32(Events::FrighteningRoar), urand(14000, 16000));
                 }
 
                 void UpdateAI(const uint32 diff) override
@@ -271,23 +271,23 @@ namespace Instances { namespace Bloodmaul
                     if (!UpdateVictim())
                         return;
 
-                    events.Update(diff);
+                  //  events.Update(diff);
 
                     if (me->HasUnitState(UNIT_STATE_CASTING) || me->GetCurrentSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL))
                         return;
 
-                    switch (events.ExecuteEvent())
+                   // switch (events.ExecuteEvent())
                     {
-                        case uint32(Events::Cleave):
+                        uint32(Events::Cleave);
                             me->CastSpell(me->GetVictim(), uint32(Spells::Cleave));
-                            events.ScheduleEvent(uint32(Events::Cleave), urand(7500, 9500));
-                            break;
-                        case uint32(Events::FrighteningRoar):
+                           // events.ScheduleEvent(uint32(Events::Cleave), urand(7500, 9500));
+                           // break;
+                            uint32(Events::FrighteningRoar);
                             me->CastSpell(me, uint32(Spells::FrighteningRoar));
-                            events.ScheduleEvent(uint32(Events::FrighteningRoar), urand(26000, 29000));
-                            break;
-                        default:
-                            break;
+                           // events.ScheduleEvent(uint32(Events::FrighteningRoar), urand(26000, 29000));
+                           // break;
+                        //default:
+                          //  break;
                     }
 
                     DoMeleeAttackIfReady();
@@ -323,7 +323,7 @@ namespace Instances { namespace Bloodmaul
 
                 void Reset() override
                 {
-                    events.Reset();
+                   // events.Reset();
                 }
 
                 void AttackStart(Unit* victim) override
@@ -331,9 +331,9 @@ namespace Instances { namespace Bloodmaul
                     AttackStartCaster(victim, 15.0f);
                 }
 
-                void EnterCombat(Unit*) override
+                void EnterCombat(Unit*) 
                 {
-                    events.ScheduleEvent(uint32(Events::StoneBulwark), urand(6000, 7000));
+                   // events.ScheduleEvent(uint32(Events::StoneBulwark), urand(6000, 7000));
                 }
 
                 void UpdateAI(const uint32 diff) override
@@ -341,14 +341,14 @@ namespace Instances { namespace Bloodmaul
                     if (!UpdateVictim())
                         return;
 
-                    events.Update(diff);
+                   // events.Update(diff);
 
                     if (me->HasUnitState(UNIT_STATE_CASTING) || me->GetCurrentSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL))
                         return;
 
-                    switch (events.ExecuteEvent())
+                    //switch (events.ExecuteEvent())
                     {
-                        case uint32(Events::StoneBulwark):
+                        uint32(Events::StoneBulwark);
                         {
                             Unit* target = me;
                             /*if (Unit* unit = MS::ScriptUtils::SelectNearestFriendExcluededMe(me, 40.0f))
@@ -359,11 +359,11 @@ namespace Instances { namespace Bloodmaul
                             
                             me->CastSpell(target, uint32(Spells::StoneBulwark));
 
-                            events.ScheduleEvent(uint32(Events::StoneBulwark), urand(3000, 35000));
-                            break;
+                           // events.ScheduleEvent(uint32(Events::StoneBulwark), urand(3000, 35000));
+                           // break;
                         }
-                        default:
-                            break;
+                      //  default:
+                        //    break;
                     }
 
                     DoSpellAttackIfReady((uint32)Spells::StoneBolt);
@@ -422,7 +422,7 @@ namespace Instances { namespace Bloodmaul
 
                 void Reset() override
                 {
-                    events.Reset();
+                   // events.Reset();
 
                     if (me->GetEntry() != MobEntries::BloodmaulOverseer)
                         return;
@@ -431,9 +431,9 @@ namespace Instances { namespace Bloodmaul
                     {
                         //Position pos = me->GetPosition();
                         Position pos = { 1892.26f, -217.18f, 239.85f, 1.687212f };
-                        if (Creature* enslavedMiner = me->SummonCreature((uint32)Npcs::NPC_ENSLAVED_MINER, pos))
+                      //  if (Creature* enslavedMiner = me->SummonCreature((uint32)Npcs::NPC_ENSLAVED_MINER, pos))
                         {
-                            slaveGuid = enslavedMiner->GetGUID();
+                          //  slaveGuid = enslavedMiner->GetGUID();
                             //enslavedMiner->EnterVehicle(me, -1);
                         }
                     }
@@ -460,28 +460,28 @@ namespace Instances { namespace Bloodmaul
                     eventStarted = true;
 
                     if (Creature* enslavedMiner = me->GetMap()->GetCreature(slaveGuid))
-                        if (enslavedMiner->IsAIEnabled)
+                       // if (enslavedMiner->IsAIEnabled)
                             enslavedMiner->AI()->Talk((uint32)Texts::TEXT_SLAVE_MERCY);
 
-                    events.ScheduleEvent((uint32)Events::EVENT_OVERSEER_TEXT,   2000);
-                    events.ScheduleEvent((uint32)Events::EVENT_SLAVE_NO,        4000);
-                    events.ScheduleEvent((uint32)Events::EVENT_LAUGH,           5000);
-                    events.ScheduleEvent((uint32)Events::EVENT_MOVE,            7000);
+                   // events.ScheduleEvent((uint32)Events::EVENT_OVERSEER_TEXT,   2000);
+                   // events.ScheduleEvent((uint32)Events::EVENT_SLAVE_NO,        4000);
+                   // events.ScheduleEvent((uint32)Events::EVENT_LAUGH,           5000);
+                   // events.ScheduleEvent((uint32)Events::EVENT_MOVE,            7000);
                 }
 
-                void EnterCombat(Unit*) override
+                void EnterCombat(Unit*) 
                 {
-                    events.ScheduleEvent(uint32(Events::SuppresionField), urand(500, 1500));
-                    events.ScheduleEvent(uint32(Events::Subjugate), urand(15000, 17000));
+                  //  events.ScheduleEvent(uint32(Events::SuppresionField), urand(500, 1500));
+                   // events.ScheduleEvent(uint32(Events::Subjugate), urand(15000, 17000));
                 }
 
                 void UpdateAI(const uint32 diff) override
                 {
-                    events.Update(diff);
+                   // events.Update(diff);
 
-                    uint32 eventId = events.ExecuteEvent();
+                    //uint32 eventId = events.ExecuteEvent();
 
-                    if (DoSlaveEvent(eventId))
+                   // if (DoSlaveEvent(eventId))
                         return;
 
                     if (!UpdateVictim())
@@ -490,23 +490,23 @@ namespace Instances { namespace Bloodmaul
                     if (me->HasUnitState(UNIT_STATE_CASTING) || me->GetCurrentSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL))
                         return;
 
-                    switch (eventId)
+                    //switch (eventId)
                     {
-                        case uint32(Events::SuppresionField):
+                        uint32(Events::SuppresionField);
                         {
-                            if (Unit* l_Plr = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                me->CastSpell(l_Plr, uint32(Spells::SuppresionField));
-                            events.ScheduleEvent(uint32(Events::SuppresionField), urand(16000, 18000));
-                            break;
+                            //if (Unit* l_Plr = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                             //   me->CastSpell(l_Plr, uint32(Spells::SuppresionField));
+                           // events.ScheduleEvent(uint32(Events::SuppresionField), urand(16000, 18000));
+                           // break;
                         }
-                        case uint32(Events::Subjugate):
+                        uint32(Events::Subjugate);
                         {
                             me->CastSpell(me->GetVictim(), uint32(Spells::Subjugate));
-                            events.ScheduleEvent(uint32(Events::Subjugate), urand(21000, 24000));
-                            break;
+                           // events.ScheduleEvent(uint32(Events::Subjugate), urand(21000, 24000));
+                           // break;
                         }
-                        default:
-                            break;
+                        //default:
+                           // break;
                     }
 
                     DoMeleeAttackIfReady();
@@ -526,10 +526,10 @@ namespace Instances { namespace Bloodmaul
                             if (Creature* enslavedMiner = me->GetMap()->GetCreature(slaveGuid))
                             {
                                 //enslavedMiner->ExitVehicle();
-                                enslavedMiner->GetMotionMaster()->MoveKnockbackFrom(me->GetPositionX(), me->GetPositionY(), 10.0f, 10.0f);
-                                if (enslavedMiner->IsAIEnabled)
+                               // enslavedMiner->GetMotionMaster()->MoveKnockbackFrom(me->GetPositionX(), me->GetPositionY(), 10.0f, 10.0f);
+                               // if (enslavedMiner->IsAIEnabled)
                                     enslavedMiner->AI()->Talk((uint32)Texts::TEXT_SLAVE_NO);
-                                enslavedMiner->DespawnOrUnsummon(1000);
+                                enslavedMiner->DespawnOrUnsummon();
                             }
                             return true;
                         }
@@ -632,14 +632,14 @@ namespace Instances { namespace Bloodmaul
 
                 void Reset() override
                 {
-                    events.Reset();
+                    //events.Reset();
                 }
 
-                void EnterCombat(Unit*) override
+                void EnterCombat(Unit*) 
                 {
-                    events.ScheduleEvent(uint32(Events::ChainGrip), urand(500, 1500));
-                    events.ScheduleEvent(uint32(Events::ShockBola), urand(15000, 17000));
-                    events.ScheduleEvent(uint32(Events::SlaversRage), 6000);
+                   // events.ScheduleEvent(uint32(Events::ChainGrip), urand(500, 1500));
+                   // events.ScheduleEvent(uint32(Events::ShockBola), urand(15000, 17000));
+                   // events.ScheduleEvent(uint32(Events::SlaversRage), 6000);
                 }
 
                 void UpdateAI(const uint32 diff) override
@@ -647,29 +647,29 @@ namespace Instances { namespace Bloodmaul
                     if (!UpdateVictim())
                         return;
 
-                    events.Update(diff);
+                   // events.Update(diff);
 
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
 
-                    switch (events.ExecuteEvent())
+                    //switch (events.ExecuteEvent())
                     {
-                        case uint32(Events::ChainGrip):
-                            if (Unit* l_Plr = SelectTarget(SELECT_TARGET_FARTHEST, 0, 5.0f))
-                                me->CastSpell(l_Plr, uint32(Spells::ChainGrip));
-                            events.ScheduleEvent(uint32(Events::ChainGrip), urand(16000, 18000));
-                            break;
-                        case uint32(Events::SlaversRage):
+                        uint32(Events::ChainGrip);
+                           // if (Unit* l_Plr = SelectTarget(SELECT_TARGET_FARTHEST, 0, 5.0f))
+                             //   me->CastSpell(l_Plr, uint32(Spells::ChainGrip));
+                            //events.ScheduleEvent(uint32(Events::ChainGrip), urand(16000, 18000));
+                            //break;
+                        uint32(Events::SlaversRage);
                             me->CastSpell(me->GetVictim(), uint32(Spells::SlaversRage));
-                            events.ScheduleEvent(uint32(Events::SlaversRage), urand(21000, 24000));
-                            break;
-                        case uint32(Events::ShockBola):
-                            if (Unit* l_Plr = SelectTarget(SELECT_TARGET_RANDOM, 0, 15.0f))
-                                me->CastSpell(l_Plr, uint32(Spells::ShockBola));
-                            events.ScheduleEvent(uint32(Events::ShockBola), urand(15000, 17000));
-                            break;
-                        default:
-                            break;
+                           // events.ScheduleEvent(uint32(Events::SlaversRage), urand(21000, 24000));
+                          //  break;
+                            uint32(Events::ShockBola);
+                           // if (Unit* l_Plr = SelectTarget(SELECT_TARGET_RANDOM, 0, 15.0f))
+                             //   me->CastSpell(l_Plr, uint32(Spells::ShockBola));
+                           // events.ScheduleEvent(uint32(Events::ShockBola), urand(15000, 17000));
+                            //break;
+                        //default:
+                          //  break;
                     }
 
                     DoMeleeAttackIfReady();
@@ -709,16 +709,16 @@ namespace Instances { namespace Bloodmaul
 
                 void Reset() override
                 {
-                    events.Reset();
+                  //  events.Reset();
 
                     m_TargetGUID = ObjectGuid::Empty;
                 }
 
-                void EnterCombat(Unit*) override
+                void EnterCombat(Unit*) 
                 {
-                    events.ScheduleEvent(uint32(Events::Beatdown), urand(500, 1500));
-                    events.ScheduleEvent(uint32(Events::Crush), urand(4500, 5500));
-                    events.ScheduleEvent(uint32(Events::LumberingLeap), urand(15000, 17000));
+                   // events.ScheduleEvent(uint32(Events::Beatdown), urand(500, 1500));
+                   // events.ScheduleEvent(uint32(Events::Crush), urand(4500, 5500));
+                   // events.ScheduleEvent(uint32(Events::LumberingLeap), urand(15000, 17000));
                 }
 
                 void MovementInform(uint32 type, uint32 /*id*/) override
@@ -731,10 +731,10 @@ namespace Instances { namespace Bloodmaul
                                 me->CastSpell(l_Plr, uint32(Spells::LumberingLeapDmg));
                                 m_TargetGUID = ObjectGuid::Empty;
 
-                                std::list<Player*> players = me->SelectNearestPlayers(200.0f, true);
-                                for (Player* player : players)
-                                    if (me->GetExactDist2d(player) <= 5.0f)
-                                        player->GetMotionMaster()->MoveKnockbackFrom(me->GetPositionX(), me->GetPositionY(), 2.0f, 2.0f);
+                              //  std::list<Player*> players = me->SelectNearestPlayers(200.0f, true);
+                               // for (Player* player : players)
+                                 //   if (me->GetExactDist2d(player) <= 5.0f)
+                                   //     player->GetMotionMaster()->MoveKnockbackFrom(me->GetPositionX(), me->GetPositionY(), 2.0f, 2.0f);
                             }
                             break;
                     }
@@ -745,31 +745,31 @@ namespace Instances { namespace Bloodmaul
                     if (!UpdateVictim())
                         return;
 
-                    events.Update(diff);
+                  //  events.Update(diff);
 
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
 
-                    switch (events.ExecuteEvent())
+                   // switch (events.ExecuteEvent())
                     {
-                        case uint32(Events::Beatdown):
+                        uint32(Events::Beatdown);
                             me->CastSpell(me->GetVictim(), uint32(Spells::Beatdown));
-                            events.ScheduleEvent(uint32(Events::Beatdown), urand(22000, 26000));
-                            break;
-                        case uint32(Events::Crush):
+                           // events.ScheduleEvent(uint32(Events::Beatdown), urand(22000, 26000));
+                           // break;
+                            uint32(Events::Crush);
                             me->CastSpell(me->GetVictim(), uint32(Spells::Crush));
-                            events.ScheduleEvent(uint32(Events::Crush), urand(10000, 11000));
-                            break;
-                        case uint32(Events::LumberingLeap):
-                            if (Unit* l_Plr = SelectTarget(SELECT_TARGET_FARTHEST, 0, 8.0f))
+                           // events.ScheduleEvent(uint32(Events::Crush), urand(10000, 11000));
+                           // break;
+                            uint32(Events::LumberingLeap);
+                           // if (Unit* l_Plr = SelectTarget(SELECT_TARGET_FARTHEST, 0, 8.0f))
                             {
-                                m_TargetGUID = l_Plr->GetGUID();
-                                me->CastSpell(l_Plr, uint32(Spells::LumberingLeap));
+                             //   m_TargetGUID = l_Plr->GetGUID();
+                               // me->CastSpell(l_Plr, uint32(Spells::LumberingLeap));
                             }
-                            events.ScheduleEvent(uint32(Events::LumberingLeap), urand(15000, 17000));
-                            break;
-                        default:
-                            break;
+                           // events.ScheduleEvent(uint32(Events::LumberingLeap), urand(15000, 17000));
+                            //break;
+                        //default:
+                          //  break;
                     }
 
                     DoMeleeAttackIfReady();
@@ -808,10 +808,10 @@ namespace Instances { namespace Bloodmaul
                     m_Events.Reset();
                 }
 
-                void EnterCombat(Unit*) override
+                void EnterCombat(Unit*) 
                 {
-                    m_Events.ScheduleEvent(eEvents::EventColossalRoar, 5000);
-                    m_Events.ScheduleEvent(eEvents::EventMassiveStomp, 9000);
+                   // m_Events.ScheduleEvent(eEvents::EventColossalRoar, 5000);
+                   // m_Events.ScheduleEvent(eEvents::EventMassiveStomp, 9000);
                 }
 
                 void UpdateAI(const uint32 diff) override
@@ -828,11 +828,11 @@ namespace Instances { namespace Bloodmaul
                     {
                         case eEvents::EventColossalRoar:
                             me->CastSpell(me, eSpells::SpellColossalRoar, true);
-                            m_Events.ScheduleEvent(eEvents::EventColossalRoar, 10000);
+                          //  m_Events.ScheduleEvent(eEvents::EventColossalRoar, 10000);
                             break;
                         case eEvents::EventMassiveStomp:
                             me->CastSpell(me, eSpells::SpellMassiveStomp, true);
-                            m_Events.ScheduleEvent(eEvents::EventMassiveStomp, 15000);
+                           // m_Events.ScheduleEvent(eEvents::EventMassiveStomp, 15000);
                             break;
                         default:
                             break;
@@ -877,10 +877,10 @@ namespace Instances { namespace Bloodmaul
                     m_Events.Reset();
                 }
 
-                void EnterCombat(Unit*) override
+                void EnterCombat(Unit*) 
                 {
-                    m_Events.ScheduleEvent(eEvents::EventChannelFlames, 5000);
-                    m_Events.ScheduleEvent(eEvents::EventExplodingFlames, 10000);
+                   // m_Events.ScheduleEvent(eEvents::EventChannelFlames, 5000);
+                   // m_Events.ScheduleEvent(eEvents::EventExplodingFlames, 10000);
                 }
 
                 void UpdateAI(uint32 const diff) override
@@ -898,12 +898,12 @@ namespace Instances { namespace Bloodmaul
                         case eEvents::EventChannelFlames:
                             me->SetFacingTo(me->GetOrientation());
                             me->CastSpell(me, eSpells::SpellChannelFlames, false);
-                            m_Events.ScheduleEvent(eEvents::EventChannelFlames, 30000);
+                          //  m_Events.ScheduleEvent(eEvents::EventChannelFlames, 30000);
                             break;
                         case eEvents::EventExplodingFlames:
-                            if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
-                                me->CastSpell(target, eSpells::SpellExplodingFlames, false);
-                            m_Events.ScheduleEvent(eEvents::EventExplodingFlames, 20000);
+                           // if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                             //   me->CastSpell(target, eSpells::SpellExplodingFlames, false);
+                           // m_Events.ScheduleEvent(eEvents::EventExplodingFlames, 20000);
                             break;
                         default:
                             break;
@@ -939,7 +939,7 @@ namespace Instances { namespace Bloodmaul
                     me->CastSpell(me, eSpells::ExplodingFlamesPeriodic, true);
 
                     me->SetReactState(ReactStates::REACT_PASSIVE);
-                    me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE));
+                   // me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE));
                 }
 
                 void UpdateAI(uint32 const /*diff*/) override { }
@@ -978,9 +978,9 @@ namespace Instances { namespace Bloodmaul
                     m_Events.Reset();
                 }
 
-                void EnterCombat(Unit*) override
+                void EnterCombat(Unit*) 
                 {
-                    m_Events.ScheduleEvent(Events::EventLavaArc, 3000);
+                   // m_Events.ScheduleEvent(Events::EventLavaArc, 3000);
                 }
 
                 void UpdateAI(const uint32 diff) override
@@ -1053,9 +1053,9 @@ namespace Instances { namespace Bloodmaul
                         m_IsHC = false;
                 }
 
-                void EnterCombat(Unit*) override
+                void EnterCombat(Unit*)
                 {
-                    m_Events.ScheduleEvent(Events::EventArmorDent, 3000);
+                   // m_Events.ScheduleEvent(Events::EventArmorDent, 3000);
                 }
 
                 void UpdateAI(const uint32 diff) override
@@ -1072,11 +1072,11 @@ namespace Instances { namespace Bloodmaul
                     {
                         case Events::EventArmorDent:
                             me->CastSpell(me->GetVictim(), Spells::SpellArmorDent, false);
-                            m_Events.ScheduleEvent(m_IsHC ? urand(Events::EventArmorDent, Events::EventCinderSplash) : Events::EventArmorDent, 6000);
+                        //    m_Events.ScheduleEvent(m_IsHC ? urand(Events::EventArmorDent, Events::EventCinderSplash) : Events::EventArmorDent, 6000);
                             break;
                         case Events::EventCinderSplash:
                             me->CastSpell(me->GetVictim(), Spells::SpellCinderSplash, false);
-                            m_Events.ScheduleEvent(urand(Events::EventArmorDent, Events::EventCinderSplash), 6000);
+                          //  m_Events.ScheduleEvent(urand(Events::EventArmorDent, Events::EventCinderSplash), 6000);
                             break;
                         default:
                             break;
@@ -1114,7 +1114,7 @@ namespace Instances { namespace Bloodmaul
                 {
                 }
 
-                void EnterCombat(Unit*) override
+                void EnterCombat(Unit*) 
                 {
                     me->CastSpell(me, Spells::SpellPillarOfFlames, true);
                 }
@@ -1165,10 +1165,10 @@ namespace Instances { namespace Bloodmaul
                     m_Events.Reset();
                     m_CanDamage = false;
                     me->SetControlled(true, UNIT_STATE_ROOT);
-                    me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NON_ATTACKABLE));
-                    m_Events.ScheduleEvent(Events::EventDamage, 3000);
+                  //  me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NON_ATTACKABLE));
+                   // m_Events.ScheduleEvent(Events::EventDamage, 3000);
                     me->CastSpell(me, Spells::SpellATSummon, false);
-                    me->DespawnOrUnsummon(6000);
+                    me->DespawnOrUnsummon();
                 }
 
                 void MoveInLineOfSight(Unit* who) override
@@ -1278,8 +1278,8 @@ namespace Instances { namespace Bloodmaul
                 if (type != POINT_MOTION_TYPE)
                     return;
 
-                if (id == 1)
-                    me->Kill(me);
+                if (id == 1);
+                    //me->Kill(me);
             }
         };
 
@@ -1319,7 +1319,7 @@ namespace Instances { namespace Bloodmaul
                     if (Unit* caster = GetCaster())
                     {
                         std::list<Unit*> targetList;
-                        caster->GetAttackableUnitListInRange(targetList, 15.0f);
+                       // caster->GetAttackableUnitListInRange(targetList, 15.0f);
 
                         if (targetList.empty())
                             return;
@@ -1339,7 +1339,7 @@ namespace Instances { namespace Bloodmaul
 
                 void Register() override
                 {
-                    OnAuraUpdate += AuraUpdateFn(spell_bloodmaul_channel_flames_AuraScript::OnUpdate);
+                  //  OnAuraUpdate += AuraUpdateFn(spell_bloodmaul_channel_flames_AuraScript::OnUpdate);
                 }
             };
 

@@ -51,10 +51,10 @@ struct boss_hellfire_archimonde : public BossAI
 
     void MoveInLineOfSight(Unit* who) override
     {
-        if (who->IsPlayer() && me->IsWithinDist(who, 25.0f, false) && !IsLock)
+        if (who->IsPlayer() && me->IsWithinDist(who, 25.0f, false))
         {
-            IsLock = true;
-            me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC));
+            //IsLock = true;
+            me->RemoveUnitFlag(UnitFlags( UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC));
             events.ScheduleEvent(EVENT_INTRO, 1s, PHASE_NORMAL);
         }
     }

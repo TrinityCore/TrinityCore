@@ -29,13 +29,13 @@ static void StartAncientProtectors(InstanceScript* instance)
         return;
 
     if (Creature* l_Gola = instance->GetCreature(DATA_LIFE_WARDEN_GOLA))
-        l_Gola->SetInCombatWithZone();
+        // l_Gola->SetInCombatWithZone();
 
-    if (Creature* l_Dulhu = instance->GetCreature(DATA_DULHU))
-        l_Dulhu->SetInCombatWithZone();
+        if (Creature* l_Dulhu = instance->GetCreature(DATA_DULHU))
+            // l_Dulhu->SetInCombatWithZone();
 
-   if (Creature* l_Telu = instance->GetCreature(DATA_EARTHSHAPER_TELU))
-        l_Telu->SetInCombatWithZone();
+        if (Creature* l_Telu = instance->GetCreature(DATA_EARTHSHAPER_TELU));
+       // l_Telu->SetInCombatWithZone();
 }
 
 enum LifeWardenGolaEnums
@@ -70,10 +70,10 @@ public:
             RevitalizingWatersTimer = 18000;
         }
 
-        void EnterCombat(Unit * /*who*/) override
+        void EnterCombat(Unit * /*who*/) 
         {
             me->RemoveAurasDueToSpell(SPELL_BOTANI_WATER_COSMETIC_CHANNEL);
-            _EnterCombat();
+           // _EnterCombat();
             StartAncientProtectors(instance);
         }
 
@@ -114,8 +114,8 @@ public:
             if (WaterBoltTimer <= diff)
             {
                 WaterBoltTimer = 2000;
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_WATER_BOLT);
+               // if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                 //   DoCast(target, SPELL_WATER_BOLT);
             }
             else
                 WaterBoltTimer -= diff;
@@ -171,10 +171,10 @@ public:
             BramblePatchTimer = 12000;
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) 
         {
             me->RemoveAurasDueToSpell(SPELL_BOTANI_NATURE_COSMETIC_CHANNEL);
-            _EnterCombat();
+           // _EnterCombat();
             StartAncientProtectors(instance);
         }
 
@@ -212,8 +212,8 @@ public:
             if (NatureWrathTimer <= diff)
             {
                 NatureWrathTimer = 2000;
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_NATURE_WRATH);
+               // if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                 //   DoCast(target, SPELL_NATURE_WRATH);
             }
             else
                 NatureWrathTimer -= diff;
@@ -362,9 +362,9 @@ public:
             GraspingVineTimer = 22000;
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) 
         {
-            _EnterCombat();
+           // _EnterCombat();
             StartAncientProtectors(instance);
         }
 
@@ -410,7 +410,7 @@ public:
             if (RendingChargeTimer <= diff)
             {
                 RendingChargeTimer = urand(20000, 22000);
-                chargeVictim = SelectTarget(SELECT_TARGET_RANDOM, 0);
+              //  chargeVictim = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (chargeVictim)
                     DoCast(chargeVictim, SPELL_RENDING_CHARGE_1);
             }

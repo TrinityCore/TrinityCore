@@ -149,25 +149,25 @@ class boss_nitrogg_thundertower : public CreatureScript
             {
                 m_First = true;
                 me->SetReactState(ReactStates::REACT_PASSIVE);
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+              //  me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
             }
             else if (m_Phase > 2)
                 m_Phase = 3;
         }
 
-        void EnterCombat(Unit* p_Who) override
+        void EnterCombat(Unit* p_Who) 
         {
             if (m_Instance != nullptr)
             {
-                m_Instance->DoSendScenarioEvent(41095);
+              //  m_Instance->DoSendScenarioEvent(41095);
                 m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
             }             
 
-            _EnterCombat();
+           // _EnterCombat();
             Talk(eNitroggThundertowerTalks::TalkAggro);
-            events.ScheduleEvent(eNitroggThundertowerEvents::EventOpenAssaultFlaps, 50 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eNitroggThundertowerEvents::EventBlackrockGrenade, 8 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eNitroggThundertowerEvents::EventBlackrockMortar, 15 * TimeConstants::IN_MILLISECONDS);
+            //events.ScheduleEvent(eNitroggThundertowerEvents::EventOpenAssaultFlaps, 50 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eNitroggThundertowerEvents::EventBlackrockGrenade, 8 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eNitroggThundertowerEvents::EventBlackrockMortar, 15 * TimeConstants::IN_MILLISECONDS);
         }
 
         void KilledUnit(Unit* p_Who) override
@@ -335,12 +335,12 @@ class boss_nitrogg_thundertower : public CreatureScript
                         if (Player* l_NearestPlayer = l_NitroggTurret->SelectNearestPlayer(100.0f))
                         {
                             l_NitroggTurret->SetFaction(HostileFaction);
-                            l_NitroggTurret->SetInCombatWithZone();
+                          //  l_NitroggTurret->SetInCombatWithZone();
                         }
 
                         events.Reset();
-                        events.ScheduleEvent(eNitroggThundertowerEvents::EventReinforceBoomers, 30 * TimeConstants::IN_MILLISECONDS);
-                        events.ScheduleEvent(eNitroggThundertowerEvents::EventReinforceInfantry, 20 * TimeConstants::IN_MILLISECONDS);
+                       // events.ScheduleEvent(eNitroggThundertowerEvents::EventReinforceBoomers, 30 * TimeConstants::IN_MILLISECONDS);
+                       // events.ScheduleEvent(eNitroggThundertowerEvents::EventReinforceInfantry, 20 * TimeConstants::IN_MILLISECONDS);
                     }
                 }
 
@@ -351,7 +351,7 @@ class boss_nitrogg_thundertower : public CreatureScript
             }
             else
             {
-                events.ScheduleEvent(eNitroggThundertowerEvents::EventOpenAssaultFlaps, 10 * TimeConstants::IN_MILLISECONDS);
+              //  events.ScheduleEvent(eNitroggThundertowerEvents::EventOpenAssaultFlaps, 10 * TimeConstants::IN_MILLISECONDS);
             }
             if (m_PushbackDiff <= p_Diff)
             {
@@ -372,18 +372,18 @@ class boss_nitrogg_thundertower : public CreatureScript
                             {
                                 if (l_Itr->IsWithinDist(me, 100.0f, true))
                                 {
-                                    if (l_Itr->IsAlive() && !l_Itr->HasMovementForce(me->GetGUID()))
+                                 //   if (l_Itr->IsAlive() && !l_Itr->HasMovementForce(me->GetGUID()))
                                       //  l_Itr->ApplyMovementForce(me->GetGUID(), -3.0f, l_Position);
                                   //  else if (!l_Itr->IsAlive() && l_Itr->HasMovementForce(me->GetGUID()))
                                         l_Itr->RemoveMovementForce(me->GetGUID());
                                 }
-                                else if (l_Itr->HasMovementForce(me->GetGUID()))
+                                //else if (l_Itr->HasMovementForce(me->GetGUID()))
                                     l_Itr->RemoveMovementForce(me->GetGUID());
                             }
-                            else if (l_Itr->HasMovementForce(me->GetGUID()))
+                            //else if (l_Itr->HasMovementForce(me->GetGUID()))
                                 l_Itr->RemoveMovementForce(me->GetGUID());
                         }
-                        else if (l_Itr->HasMovementForce(me->GetGUID()))
+                       // else if (l_Itr->HasMovementForce(me->GetGUID()))
                             l_Itr->RemoveMovementForce(me->GetGUID());
                     }
                 }
@@ -401,52 +401,52 @@ class boss_nitrogg_thundertower : public CreatureScript
             switch (events.ExecuteEvent())
             {
             case eNitroggThundertowerEvents::EventBlackrockGrenade:
-                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 20.0f, true))
-                    me->CastSpell(l_Target, eNitroggThundertowerSpells::SpellBlackrockGrenadeTriggerMissileA);
+              //  if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 20.0f, true))
+                //    me->CastSpell(l_Target, eNitroggThundertowerSpells::SpellBlackrockGrenadeTriggerMissileA);
 
-                events.ScheduleEvent(eNitroggThundertowerEvents::EventBlackrockGrenade, 10 * TimeConstants::IN_MILLISECONDS);
+               // events.ScheduleEvent(eNitroggThundertowerEvents::EventBlackrockGrenade, 10 * TimeConstants::IN_MILLISECONDS);
                 break;
             case eNitroggThundertowerEvents::EventBlackrockMortar:
-                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 20.0f, true))
-                    me->CastSpell(l_Target, eNitroggThundertowerSpells::SpellBlackRockMortarPeriodic);
+               // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 20.0f, true))
+                 //   me->CastSpell(l_Target, eNitroggThundertowerSpells::SpellBlackRockMortarPeriodic);
 
-                events.ScheduleEvent(eNitroggThundertowerEvents::EventBlackrockMortar, 25 * TimeConstants::IN_MILLISECONDS);
+               // events.ScheduleEvent(eNitroggThundertowerEvents::EventBlackrockMortar, 25 * TimeConstants::IN_MILLISECONDS);
                 break;
             case eNitroggThundertowerEvents::EventReinforceBoomers:
                 for (uint8 l_I = 0; l_I < 3; l_I++)
                 {
                     uint32 l_Entries[3] = { GrimrailDepotCreatures::CreatureGromkarBoomer, GrimrailDepotCreatures::CreatureGromkarGrenadier, GrimrailDepotCreatures::CreatureGromkarGunner };
 
-                    if (Creature* l_Creature = me->SummonCreature(l_Entries[l_I], g_PositionReinforce1, TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
+                  //  if (Creature* l_Creature = me->SummonCreature(l_Entries[l_I], g_PositionReinforce1, TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
                     {
-                        float l_X = (l_Creature->m_positionX + 15) * cos(l_Creature->GetOrientation());
-                        float l_Y = (l_Creature->m_positionY + 15) * sin(l_Creature->GetOrientation());
+                      //  float l_X = (l_Creature->m_positionX + 15) * cos(l_Creature->GetOrientation());
+                      //  float l_Y = (l_Creature->m_positionY + 15) * sin(l_Creature->GetOrientation());
 
-                        l_Creature->GetMotionMaster()->MoveJump(l_X, l_Y, float(g_TrainFloorPositionZ));
+                       // l_Creature->GetMotionMaster()->MoveJump(l_X, l_Y, float(g_TrainFloorPositionZ));
                     }
                 }
 
-                events.ScheduleEvent(eNitroggThundertowerEvents::EventReinforceBoomers, 25 * TimeConstants::IN_MILLISECONDS);
+               // events.ScheduleEvent(eNitroggThundertowerEvents::EventReinforceBoomers, 25 * TimeConstants::IN_MILLISECONDS);
                 break;
             case eNitroggThundertowerEvents::EventReinforceInfantry:
                 if (roll_chance_i(50)) /// 2ND
                 {
                     for (uint8 l_I = 0; l_I < 2; l_I++)
                     {
-                        if (Creature* l_Infantry = me->SummonCreature(GrimrailDepotCreatures::CreatureIronInfantry, g_PositionReinforce2, TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
-                            l_Infantry->SetInCombatWithZone();
+                       // if (Creature* l_Infantry = me->SummonCreature(GrimrailDepotCreatures::CreatureIronInfantry, g_PositionReinforce2, TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
+                         //   l_Infantry->SetInCombatWithZone();
                     }
                 }
                 else                 /// 3RD
                 {
                     for (uint8 l_I = 0; l_I < 2; l_I++)
                     {
-                        if (Creature* l_Infantry = me->SummonCreature(GrimrailDepotCreatures::CreatureIronInfantry, g_PositionReinforce3, TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
-                            l_Infantry->SetInCombatWithZone();
+                      //  if (Creature* l_Infantry = me->SummonCreature(GrimrailDepotCreatures::CreatureIronInfantry, g_PositionReinforce3, TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
+                        //    l_Infantry->SetInCombatWithZone();
                     }
                 }
 
-                events.ScheduleEvent(eNitroggThundertowerEvents::EventReinforceInfantry, 20 * TimeConstants::IN_MILLISECONDS);
+               // events.ScheduleEvent(eNitroggThundertowerEvents::EventReinforceInfantry, 20 * TimeConstants::IN_MILLISECONDS);
                 break;
             default:
                 break;
@@ -500,15 +500,15 @@ class grimrail_depot_nitrogg_thundertower_mob_iron_turret : public CreatureScrip
 
         void Reset() override
         {
-            events.Reset();
+           // events.Reset();
             SetCombatMovement(false);
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+           // me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
         }
 
-        void EnterCombat(Unit* p_Who) override
+        void EnterCombat(Unit* p_Who) 
         {    
-            events.ScheduleEvent(eIronTowerEvents::EventSuppressiveFire, 8 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eIronTowerEvents::EventSlagBlast, 20 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eIronTowerEvents::EventSuppressiveFire, 8 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eIronTowerEvents::EventSlagBlast, 20 * TimeConstants::IN_MILLISECONDS);
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -516,32 +516,32 @@ class grimrail_depot_nitrogg_thundertower_mob_iron_turret : public CreatureScrip
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);
+           // events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
-            switch (events.ExecuteEvent())
+           // switch (events.ExecuteEvent())
             {
-            case eIronTowerEvents::EventSuppressiveFire:
-                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 200.0f, true))
-                    me->CastSpell(l_Target, eIronTowerSpells::SpellSuppressiveFirePeriodicDummy);
+                eIronTowerEvents::EventSuppressiveFire;
+               // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 200.0f, true))
+                 //   me->CastSpell(l_Target, eIronTowerSpells::SpellSuppressiveFirePeriodicDummy);
 
                 me->Say("suppressive fire", LANG_UNIVERSAL, me);
 
-                events.ScheduleEvent(eIronTowerEvents::EventSuppressiveFire, 15 * TimeConstants::IN_MILLISECONDS);
-                break;
-            case eIronTowerEvents::EventSlagBlast:
+                //events.ScheduleEvent(eIronTowerEvents::EventSuppressiveFire, 15 * TimeConstants::IN_MILLISECONDS);
+               // break;
+                eIronTowerEvents::EventSlagBlast;
                 switch (urand(0, 2))
                 {
                 case 0:
-                    me->CastSpell(g_PositionSlagBlast[0].GetPositionX(), g_PositionSlagBlast[0].GetPositionY(), g_PositionSlagBlast[0].GetPositionZ(), eIronTowerSpells::SpellSlagBlastTriggerMissile, true);
+                   // me->CastSpell(g_PositionSlagBlast[0].GetPositionX(), g_PositionSlagBlast[0].GetPositionY(), g_PositionSlagBlast[0].GetPositionZ(), eIronTowerSpells::SpellSlagBlastTriggerMissile, true);
                     break;
                 case 1:
-                    me->CastSpell(g_PositionSlagBlast[1].GetPositionX(), g_PositionSlagBlast[1].GetPositionY(), g_PositionSlagBlast[1].GetPositionZ(), eIronTowerSpells::SpellSlagBlastTriggerMissile, true);
+                   // me->CastSpell(g_PositionSlagBlast[1].GetPositionX(), g_PositionSlagBlast[1].GetPositionY(), g_PositionSlagBlast[1].GetPositionZ(), eIronTowerSpells::SpellSlagBlastTriggerMissile, true);
                     break;
                 case 2:
-                    me->CastSpell(g_PositionSlagBlast[2].GetPositionX(), g_PositionSlagBlast[2].GetPositionY(), g_PositionSlagBlast[2].GetPositionZ(), eIronTowerSpells::SpellSlagBlastTriggerMissile, true);
+                   // me->CastSpell(g_PositionSlagBlast[2].GetPositionX(), g_PositionSlagBlast[2].GetPositionY(), g_PositionSlagBlast[2].GetPositionZ(), eIronTowerSpells::SpellSlagBlastTriggerMissile, true);
                     break;
                 default:
                     break;
@@ -549,10 +549,10 @@ class grimrail_depot_nitrogg_thundertower_mob_iron_turret : public CreatureScrip
 
                 me->Say("slag blast", LANG_UNIVERSAL, me);
 
-                events.ScheduleEvent(eIronTowerEvents::EventSlagBlast, 30 * TimeConstants::IN_MILLISECONDS);
-                break;
-            default:
-                break;
+               // events.ScheduleEvent(eIronTowerEvents::EventSlagBlast, 30 * TimeConstants::IN_MILLISECONDS);
+               // break;
+             //default:
+              //  break;
             }
         }
     };
@@ -599,15 +599,15 @@ class grimrail_depot_nitrogg_thundertower_mob_gromkar_boomer : public CreatureSc
 
         void Reset() override
         {
-            events.Reset();
+           // events.Reset();
             m_Modifier = 0;
             m_TargetGUID = ObjectGuid::Empty;
             m_Activated = false;
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* p_Attacker) 
         {
-            events.ScheduleEvent(eGromkarboomerEvents::EventBlackrockMortar, 8 * TimeConstants::IN_MILLISECONDS);
+            //events.ScheduleEvent(eGromkarboomerEvents::EventBlackrockMortar, 8 * TimeConstants::IN_MILLISECONDS);
         }
 
         void JustDied(Unit* p_Killer) override
@@ -616,7 +616,7 @@ class grimrail_depot_nitrogg_thundertower_mob_gromkar_boomer : public CreatureSc
             if (p_Killer)
             {
                 p_Killer->AddAura(eGromkarboomerSpells::SpellBlackrockMortarShellsAura, p_Killer);
-                me->DespawnOrUnsummon(2 * TimeConstants::IN_MILLISECONDS);
+                //me->DespawnOrUnsummon(2 * TimeConstants::IN_MILLISECONDS);
             }
         }
 
@@ -625,32 +625,32 @@ class grimrail_depot_nitrogg_thundertower_mob_gromkar_boomer : public CreatureSc
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);
+           // events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING) || m_Activated)
                 return;
 
-            switch (events.ExecuteEvent())
+           // switch (events.ExecuteEvent())
             {
-            case eGromkarboomerEvents::EventBlackrockMortar:
-                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 20.0f, true))
+                eGromkarboomerEvents::EventBlackrockMortar;
+              //  if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 20.0f, true))
                 {
-                    me->CastSpell(l_Target, eGromkarboomerSpells::SpellBlackRockMortarPeriodic);
-                    m_TargetGUID = l_Target->GetGUID();
+                  //  me->CastSpell(l_Target, eGromkarboomerSpells::SpellBlackRockMortarPeriodic);
+                   // m_TargetGUID = l_Target->GetGUID();
                 }
 
                 m_Activated = true;
                 m_Modifier = 0;
 
-                events.ScheduleEvent(eGromkarboomerEvents::EventBlackrockMortarBombs, 2 * TimeConstants::IN_MILLISECONDS);
-                events.ScheduleEvent(eGromkarboomerEvents::EventBlackrockMortar, 25 * TimeConstants::IN_MILLISECONDS);
-                break;
-            case eGromkarboomerEvents::EventBlackrockMortarBombs:
+                //events.ScheduleEvent(eGromkarboomerEvents::EventBlackrockMortarBombs, 2 * TimeConstants::IN_MILLISECONDS);
+                //events.ScheduleEvent(eGromkarboomerEvents::EventBlackrockMortar, 25 * TimeConstants::IN_MILLISECONDS);
+               // break;
+                eGromkarboomerEvents::EventBlackrockMortarBombs;
             {
                 if (m_Modifier == 10)
                 {
                     m_Activated = false;
-                    events.CancelEvent(eGromkarboomerEvents::EventBlackrockMortarBombs);
+                  //  events.CancelEvent(eGromkarboomerEvents::EventBlackrockMortarBombs);
                 }
 
                 if (Vehicle* l_Vehicle = me->GetVehicleKit())
@@ -663,15 +663,15 @@ class grimrail_depot_nitrogg_thundertower_mob_gromkar_boomer : public CreatureSc
                             float l_X = (me->m_positionX + 2 + m_Modifier) * cos(me->GetOrientation());
                             float l_Y = (me->m_positionY + 2 + m_Modifier) * sin(me->GetOrientation());
 
-                            l_Passenger->CastSpell(l_X, l_Y, l_Target->GetPositionZ(), eGromkarboomerSpells::SpellBlackRockTriggerMissile, true);
+                          //  l_Passenger->CastSpell(l_X, l_Y, l_Target->GetPositionZ(), eGromkarboomerSpells::SpellBlackRockTriggerMissile, true);
                         }
                     }
                 }
-                events.ScheduleEvent(eGromkarboomerEvents::EventBlackrockMortarBombs, 2 * TimeConstants::IN_MILLISECONDS);
-                break;
+               // events.ScheduleEvent(eGromkarboomerEvents::EventBlackrockMortarBombs, 2 * TimeConstants::IN_MILLISECONDS);
+               // break;
             }
-            default:
-                break;
+           // default:
+               // break;
             }
 
             DoMeleeAttackIfReady();
@@ -717,10 +717,10 @@ class grimrail_depot_nitrogg_thundertower_mob_assault_turret : public CreatureSc
 
         void Reset() override
         {
-            events.Reset();
+           // events.Reset();
             me->SetReactState(ReactStates::REACT_PASSIVE);
             SetCombatMovement(false);
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_NPC));
+           // me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_NPC));
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -728,7 +728,7 @@ class grimrail_depot_nitrogg_thundertower_mob_assault_turret : public CreatureSc
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);
+           // events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
@@ -762,7 +762,7 @@ class grimrail_depot_nitrogg_thundertower_mob_iron_infantry : public CreatureScr
 
         void Reset() override
         {
-            events.Reset();
+           // events.Reset();
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -770,7 +770,7 @@ class grimrail_depot_nitrogg_thundertower_mob_iron_infantry : public CreatureScr
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);
+           // events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
@@ -853,7 +853,7 @@ public:
 
         void Reset() override
         {
-            events.Reset();
+           // events.Reset();
         }
 
         void JustDied(Unit* p_Killer) override
@@ -862,13 +862,13 @@ public:
             if (p_Killer)
             {
                 p_Killer->AddAura(eGromkarGrenadierSpells::SpellBlackrockGrenadeAura, p_Killer);
-                me->DespawnOrUnsummon(2 * TimeConstants::IN_MILLISECONDS);
+              //  me->DespawnOrUnsummon(2 * TimeConstants::IN_MILLISECONDS);
             }
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* p_Attacker) 
         {
-            events.ScheduleEvent(eGromkarGrenadierEvents::EventBlackrockGrenade, 4 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eGromkarGrenadierEvents::EventBlackrockGrenade, 4 * TimeConstants::IN_MILLISECONDS);
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -876,20 +876,20 @@ public:
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);
+           // events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
-            switch (events.ExecuteEvent())
+           // switch (events.ExecuteEvent())
             {
-            case eGromkarGrenadierEvents::EventBlackrockGrenade:
-                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 10.0f, true))
-                    me->CastSpell(l_Target, eGromkarGrenadierSpells::SpellBlackRockGrenade);
-                events.ScheduleEvent(eGromkarGrenadierEvents::EventBlackrockGrenade, 10 * TimeConstants::IN_MILLISECONDS);
-                break;
-            default:
-                break;
+                eGromkarGrenadierEvents::EventBlackrockGrenade;
+               // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 10.0f, true))
+                 //   me->CastSpell(l_Target, eGromkarGrenadierSpells::SpellBlackRockGrenade);
+               // events.ScheduleEvent(eGromkarGrenadierEvents::EventBlackrockGrenade, 10 * TimeConstants::IN_MILLISECONDS);
+               // break;
+             //default:
+               // break;
             }
 
             DoMeleeAttackIfReady();
@@ -941,17 +941,17 @@ class grimrail_depot_nitrogg_thundertower_spell_suppressive_fire : public SpellS
 
                         l_Pos = l_Caster->GetFirstCollisionPosition(l_Dist, l_Angle);
 
-                        if (Creature* l_NearestTrigger = l_Caster->SummonCreature(eSuppressiveFireCreatures::CreatureIronTurretNitroggSuppressiveFire, l_Position, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 1 * TimeConstants::IN_MILLISECONDS))
+                       // if (Creature* l_NearestTrigger = l_Caster->SummonCreature(eSuppressiveFireCreatures::CreatureIronTurretNitroggSuppressiveFire, l_Position, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 1 * TimeConstants::IN_MILLISECONDS))
                         {
-                            l_NearestTrigger->SetReactState(ReactStates::REACT_PASSIVE);
-                            l_NearestTrigger->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
-                            l_Caster->SendPlaySpellVisual(l_NearestTrigger->GetGUID(), eNitroggThundertowerSpellVisuals::SpellFireSuppressionVisualId, 0, 0, 50.0f, false);
-                            l_Caster->CastSpell(l_NearestTrigger, eSuppressiveFireSpells::SpellSuppressiveFireTriggerMissile, true);
+                           // l_NearestTrigger->SetReactState(ReactStates::REACT_PASSIVE);
+                         //   l_NearestTrigger->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+                           // l_Caster->SendPlaySpellVisual(l_NearestTrigger->GetGUID(), eNitroggThundertowerSpellVisuals::SpellFireSuppressionVisualId, 0, 0, 50.0f, false);
+                           // l_Caster->CastSpell(l_NearestTrigger, eSuppressiveFireSpells::SpellSuppressiveFireTriggerMissile, true);
                         }
                     }
                     else
                     {
-                        l_Caster->SendPlaySpellVisual(l_Target->GetGUID(), eNitroggThundertowerSpellVisuals::SpellFireSuppressionVisualId, 0, 0, 50.0f, false);
+                       // l_Caster->SendPlaySpellVisual(l_Target->GetGUID(), eNitroggThundertowerSpellVisuals::SpellFireSuppressionVisualId, 0, 0, 50.0f, false);
                         l_Caster->CastSpell(l_Target, eSuppressiveFireSpells::SpellSuppressiveFireTriggerMissile, true);
                     }
                 }
@@ -1079,7 +1079,7 @@ class grimrail_depot_nitrogg_thundertower_at_slagblast : public AreaTriggerEntit
             {
                 std::list<Player*> l_PlayerList;
 
-                l_PlayerList = at->SelectNearestPlayers(2.0f, true);
+               // l_PlayerList = at->SelectNearestPlayers(2.0f, true);
 
                 if (l_PlayerList.empty())
                     return;

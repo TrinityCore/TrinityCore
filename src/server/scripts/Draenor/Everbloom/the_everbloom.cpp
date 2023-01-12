@@ -93,7 +93,7 @@ public:
             DoCast(me, SPELL_MOD_SCALE);
         }
 
-        void EnterCombat(Unit* /*attacker*/) override
+        void EnterCombat(Unit* /*attacker*/) 
         {
             me->RemoveAurasDueToSpell(SPELL_REVITALIZING_GROWTH);
         }
@@ -187,7 +187,7 @@ public:
             DoCast(me, SPELL_MOD_SCALE);
         }
 
-        void EnterCombat(Unit* /*attacker*/) override
+        void EnterCombat(Unit* /*attacker*/) 
         {
             me->RemoveAurasDueToSpell(SPELL_REVITALIZING_GROWTH);
         }
@@ -274,10 +274,10 @@ public:
             me->SetEmoteState(EMOTE_STATE_SUBMERGED);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) 
         {
             me->SetEmoteState(EMOTE_ONESHOT_NONE);
-            me->HandleEmoteCommand(449);
+           // me->HandleEmoteCommand();
         }
 
         void UpdateAI(uint32 /*uiDiff*/) override
@@ -415,14 +415,14 @@ public:
 
         void HandleEffect(SpellEffIndex /*effIndex*/)
         {
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_GROWTH_2);
-            if (!spellInfo)
+          //  SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_GROWTH_2);
+           // if (!spellInfo)
                 return;
 
             WorldLocation* dest = GetHitDest();
             SpellCastTargets targets;
             targets.SetDst(dest->GetPositionX(), dest->GetPositionY(), dest->GetPositionZ(), GetCaster()->GetOrientation());
-            GetCaster()->CastSpell(targets, spellInfo, NULL);
+           // GetCaster()->CastSpell();
         }
 
         void Register() override
@@ -767,8 +767,8 @@ public:
 
     void OnUnitEnter(Unit* unit) override
     {
-        if (Player* player = unit->ToPlayer())
-            player->ApplyMovementForce(at->GetGUID(), directionForce, 3.0f, 0);
+        if (Player* player = unit->ToPlayer());
+          //  player->ApplyMovementForce(at->GetGUID(), directionForce);
     }
 
     void OnUnitExit(Unit* unit) override
@@ -855,8 +855,8 @@ public:
         void HandlePeriodic(AuraEffect const* /*aurEff*/)
         {
             PreventDefaultAction();
-            for (uint8 i = 0; i < 4; i++)
-                GetCaster()->CastSpell(PositionBarrier[i].m_positionX, PositionBarrier[i].m_positionY, PositionBarrier[i].m_positionZ, 170663, true);
+            for (uint8 i = 0; i < 4; i++);
+              //  GetCaster()->CastSpell(PositionBarrier[i].m_positionX, PositionBarrier[i].m_positionY, PositionBarrier[i].m_positionZ, 170663, true);
         }
 
         void Register() override
@@ -925,7 +925,7 @@ public:
 
     uint32 checkTimer;
 
-    void OnUpdate(GameObject* p_Object, uint32 diff) override
+    void OnUpdate(GameObject* p_Object, uint32 diff) 
     {
         if (checkTimer < diff)
         {
@@ -954,7 +954,7 @@ public:
 
     uint32 checkTimer;
 
-    void OnUpdate(GameObject* p_Object, uint32 diff) override
+    void OnUpdate(GameObject* p_Object, uint32 diff) 
     {
         if (checkTimer < diff)
         {
@@ -1006,6 +1006,6 @@ void AddSC_the_everbloom()
     new aura_barrier();
     //new spell_vine_pull();
     //new areatrigger_spore_cloud();
-    new go_everbloom_entrance_portal();
-    new go_everbloom_stormwind_portal();
+   // new go_everbloom_entrance_portal();
+   // new go_everbloom_stormwind_portal();
 }

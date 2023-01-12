@@ -54,7 +54,7 @@ void ResetEncounter(Creature* p_Source, InstanceScript* p_Instance)
             l_Other->Respawn();
             l_Other->GetMotionMaster()->MoveTargetedHome();
         }
-        else if (!l_Other->HasUnitState(UnitState::UNIT_STATE_EVADE) && l_Other->IsAIEnabled)
+        else if (!l_Other->HasUnitState(UnitState::UNIT_STATE_EVADE))
             l_Other->AI()->EnterEvadeMode();
     }
 }
@@ -67,7 +67,7 @@ void StartEncounter(Creature* p_Source, Unit* p_Target, InstanceScript* p_Instan
     uint32 l_Entry = (p_Source->GetEntry() == eFoundryCreatures::HeartOfTheMountain) ? eFoundryCreatures::ForemanFeldspar : eFoundryCreatures::HeartOfTheMountain;
     if (Creature* l_Other = ObjectAccessor::GetCreature(*p_Source, p_Instance->GetGuidData(l_Entry)))
     {
-        if (l_Other->IsAIEnabled && !l_Other->IsInCombat())
+       // if (l_Other->IsAIEnabled && !l_Other->IsInCombat())
             l_Other->SetInCombatWith(p_Target);
     }
 }

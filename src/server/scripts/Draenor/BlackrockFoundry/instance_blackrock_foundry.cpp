@@ -201,7 +201,7 @@ struct instance_blackrock_foundry : public InstanceScript
     uint32 m_CollectedAshes;
     std::map<uint32, ObjectGuid> m_BlackhandsCrucibles;
 
-    void Initialize() override
+    void Initialize() 
     {
         SetBossNumber(eFoundryDatas::MaxBossData);
         SetHeaders(DataHeader);
@@ -347,7 +347,7 @@ struct instance_blackrock_foundry : public InstanceScript
             //   break;
             //  }
 
-            if (p_Creature->ToTempSummon() && p_Creature->ToTempSummon()->GetSummoner())
+          //  if (p_Creature->ToTempSummon() && p_Creature->ToTempSummon()->GetSummoner())
                 break;
 
             // p_Creature->DespawnOrUnsummon();
@@ -372,7 +372,7 @@ struct instance_blackrock_foundry : public InstanceScript
             //   break;
             //  }
 
-            if (p_Creature->ToTempSummon() && p_Creature->ToTempSummon()->GetSummoner())
+           // if (p_Creature->ToTempSummon() && p_Creature->ToTempSummon()->GetSummoner())
                 break;
 
             // p_Creature->DespawnOrUnsummon();
@@ -397,7 +397,7 @@ struct instance_blackrock_foundry : public InstanceScript
             //    break;
             //  }
 
-            if (p_Creature->ToTempSummon() && p_Creature->ToTempSummon()->GetSummoner())
+           // if (p_Creature->ToTempSummon() && p_Creature->ToTempSummon()->GetSummoner())
                 break;
 
             // p_Creature->DespawnOrUnsummon();
@@ -639,7 +639,7 @@ struct instance_blackrock_foundry : public InstanceScript
         {
             if (Creature* l_Garan = instance->GetCreature(m_AdmiralGaranGuid))
             {
-                if (l_Garan->IsAIEnabled)
+               // if (l_Garan->IsAIEnabled)
                     l_Garan->AI()->SetGUID(l_unit->GetGUID());
             }
 
@@ -786,7 +786,7 @@ struct instance_blackrock_foundry : public InstanceScript
                 // {
                 if (Creature* l_Hansgar = instance->GetCreature(m_HansgarGuid))
                 {
-                    if (l_Hansgar->IsAIEnabled)
+                   // if (l_Hansgar->IsAIEnabled)
                         l_Hansgar->AI()->Talk(8);   ///< Death
                 }
                 // });
@@ -848,7 +848,7 @@ struct instance_blackrock_foundry : public InstanceScript
                 // {
                 if (Creature* l_Blackhand = instance->GetCreature(m_CosmeticBlackhand))
                 {
-                    if (l_Blackhand->IsAIEnabled)
+                   // if (l_Blackhand->IsAIEnabled)
                         l_Blackhand->AI()->Talk(12, 0);   ///< KromogKilled
                 }
                 // });
@@ -1045,7 +1045,7 @@ struct instance_blackrock_foundry : public InstanceScript
                 // {
                 if (Creature* l_Blackhand = instance->GetCreature(m_CosmeticBlackhand))
                 {
-                    if (l_Blackhand->IsAIEnabled)
+                   // if (l_Blackhand->IsAIEnabled)
                         l_Blackhand->AI()->Talk(13, 0);   ///< KromogKilled
                 }
                 // });
@@ -1058,7 +1058,7 @@ struct instance_blackrock_foundry : public InstanceScript
                 m_BeQuickOrBeDeadAchiev = false;
 
                 if (GameObject* l_AmmoLoader = instance->GetGameObject(m_AmmoLoaderGuid))
-                    l_AmmoLoader->AddFlag(GameObjectFlags::GO_FLAG_NOT_SELECTABLE);
+                   // l_AmmoLoader->AddFlag(GameObjectFlags::GO_FLAG_NOT_SELECTABLE);
 
                 DoRemoveAurasDueToSpellOnPlayers(eIronMaidensSpells::OnABoatPeriodic);
                 break;
@@ -1535,5 +1535,5 @@ struct instance_blackrock_foundry : public InstanceScript
 
 void AddSC_instance_blackrock_foundry()
 {
-    RegisterInstanceScript(instance_blackrock_foundry, 1205);
+  //  RegisterInstanceScript(instance_blackrock_foundry, 1205);
 }

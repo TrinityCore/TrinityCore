@@ -16,7 +16,7 @@
  */
 
 #include "Garrison.h"
-#include "GarrisonAI.h"
+//#include "GarrisonAI.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 
@@ -31,37 +31,37 @@ enum Quests
 /*
  * Common scripts for garrison level 2 Alliance & Horde
  */
-struct garrison_level_2 : public GarrisonAI
-{
-    garrison_level_2(Garrison* gar) : GarrisonAI(gar) { }
+//struct garrison_level_2 : public GarrisonAI
+//{
+  //  garrison_level_2(Garrison* gar) : GarrisonAI(gar) { }
 
-    bool OnCheckUpgradeable() override
+    bool OnCheckUpgradeable() 
     {
-        return garrison->GetOwner()->HasQuest(QUEST_MY_VERY_OWN_FORTRESS) ||
-               garrison->GetOwner()->HasQuest(QUEST_MY_VERY_OWN_CASTLE);
+       // return garrison->GetOwner()->HasQuest(QUEST_MY_VERY_OWN_FORTRESS) ||
+         //      garrison->GetOwner()->HasQuest(QUEST_MY_VERY_OWN_CASTLE);
     }
 
-    void OnUpgrade(Player* player) override
+    void OnUpgrade(Player* player) 
     {
-        if (garrison->GetOwner()->HasQuest(QUEST_BIGGER_IS_BETTER_H))
-            garrison->GetOwner()->ForceCompleteQuest(QUEST_BIGGER_IS_BETTER_H);
-        if (garrison->GetOwner()->HasQuest(QUEST_BIGGER_IS_BETTER_A))
-            garrison->GetOwner()->ForceCompleteQuest(QUEST_BIGGER_IS_BETTER_A);
+      //  if (garrison->GetOwner()->HasQuest(QUEST_BIGGER_IS_BETTER_H))
+          //  garrison->GetOwner()->ForceCompleteQuest(QUEST_BIGGER_IS_BETTER_H);
+       // if (garrison->GetOwner()->HasQuest(QUEST_BIGGER_IS_BETTER_A))
+         //   garrison->GetOwner()->ForceCompleteQuest(QUEST_BIGGER_IS_BETTER_A);
     }
-};
+//};
 
-struct garrison_level_2_alliance : public garrison_level_2
-{
-    garrison_level_2_alliance(Garrison* gar) : garrison_level_2(gar) { }
-};
+//struct garrison_level_2_alliance : public garrison_level_2
+//{
+  //  garrison_level_2_alliance(Garrison* gar) : garrison_level_2(gar) { }
+//};
 
-struct garrison_level_2_horde : public garrison_level_2
-{
-    garrison_level_2_horde(Garrison* gar) : garrison_level_2(gar) { }
-};
+//struct garrison_level_2_horde : public garrison_level_2
+//{
+  //  garrison_level_2_horde(Garrison* gar) : garrison_level_2(gar) { }
+//};
 
 void AddSC_garrison_level_2()
 {
-    RegisterGarrisonAI(garrison_level_2_alliance);
-    RegisterGarrisonAI(garrison_level_2_horde);
+   // RegisterGarrisonAI(garrison_level_2_alliance);
+   // RegisterGarrisonAI(garrison_level_2_horde);
 };

@@ -118,21 +118,20 @@ namespace Instances { namespace Bloodmaul
                     Talk(eTalks::TalkDeath);
                 }
 
-                void EnterCombat(Unit*) override
-                {
-                    _EnterCombat();
+                void EnterCombat(Unit*)            {
+                    //_EnterCombat();
 
                     if (m_Instance != nullptr)
                         m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
 
                     Talk(eTalks::TalkAggro);
 
-                    if (IsHeroic())
-                        m_Events.ScheduleEvent(eEvents::EventFlameBuffet, 6 * TimeConstants::IN_MILLISECONDS);
+                    if (IsHeroic());
+                      //  m_Events.ScheduleEvent(eEvents::EventFlameBuffet, 6 * TimeConstants::IN_MILLISECONDS);
 
-                    m_Events.ScheduleEvent(eEvents::EventMagmaEruption, 7 * TimeConstants::IN_MILLISECONDS);
-                    m_Events.ScheduleEvent(eEvents::EventMoltenBlast, 1 * TimeConstants::IN_MILLISECONDS);
-                    m_Events.ScheduleEvent(eEvents::EventSummonUnstableSlag, 20 * TimeConstants::IN_MILLISECONDS);
+                  //  m_Events.ScheduleEvent(eEvents::EventMagmaEruption, 7 * TimeConstants::IN_MILLISECONDS);
+                   // m_Events.ScheduleEvent(eEvents::EventMoltenBlast, 1 * TimeConstants::IN_MILLISECONDS);
+                   // m_Events.ScheduleEvent(eEvents::EventSummonUnstableSlag, 20 * TimeConstants::IN_MILLISECONDS);
                 }
 
                 void KilledUnit(Unit* killed) override
@@ -141,7 +140,7 @@ namespace Instances { namespace Bloodmaul
                         Talk(eTalks::TalkSlay);
                 }
 
-                void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override
+                void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) 
                 {
                     if (target == nullptr)
                         return;
@@ -201,7 +200,7 @@ namespace Instances { namespace Bloodmaul
                         {
                             Talk(eTalks::TalkMagmaEruption);
                             me->CastSpell(me, eSpells::SpellMagmaEruptionDummy, false);
-                            m_Events.ScheduleEvent(eEvents::EventMagmaEruption, 28 * TimeConstants::IN_MILLISECONDS);
+                          //  m_Events.ScheduleEvent(eEvents::EventMagmaEruption, 28 * TimeConstants::IN_MILLISECONDS);
 
                             std::list<Player*> playerList;
                             me->GetPlayerListInGrid(playerList, 100.0f);
@@ -210,25 +209,25 @@ namespace Instances { namespace Bloodmaul
                             {
                                 Position pos = player->GetPosition();
 
-                                if (Creature* l_MagmaEruption = me->SummonCreature(eCreatures::NpcMagmaEruption, pos))
-                                    l_MagmaEruption->CastSpell(l_MagmaEruption, eSpells::SpellMagmaEruptionVisual, true);
+                               // if (Creature* l_MagmaEruption = me->SummonCreature(eCreatures::NpcMagmaEruption, pos))
+                                 //   l_MagmaEruption->CastSpell(l_MagmaEruption, eSpells::SpellMagmaEruptionVisual, true);
                             }
 
                             break;
                         }
                         case eEvents::EventFlameBuffet:
                             me->CastSpell(me, eSpells::SpellFlameBuffet, false);
-                            m_Events.ScheduleEvent(eEvents::EventFlameBuffet, 12 * TimeConstants::IN_MILLISECONDS);
+                           // m_Events.ScheduleEvent(eEvents::EventFlameBuffet, 12 * TimeConstants::IN_MILLISECONDS);
                             break;
                         case eEvents::EventMoltenBlast:
-                            if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
-                                me->CastSpell(target, eSpells::SpellMoltenBlast, false);
-                            m_Events.ScheduleEvent(eEvents::EventMoltenBlast, 16 * TimeConstants::IN_MILLISECONDS);
+                          //  if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                             //   me->CastSpell(target, eSpells::SpellMoltenBlast, false);
+                           // m_Events.ScheduleEvent(eEvents::EventMoltenBlast, 16 * TimeConstants::IN_MILLISECONDS);
                             break;
                         case eEvents::EventSummonUnstableSlag:
                             me->CastSpell(me, eSpells::SpellSummonUnstableSlag, false);
                             Talk(eTalks::TalkUnstableSlag);
-                            m_Events.ScheduleEvent(eEvents::EventSummonUnstableSlag, 25 * TimeConstants::IN_MILLISECONDS);
+                           // m_Events.ScheduleEvent(eEvents::EventSummonUnstableSlag, 25 * TimeConstants::IN_MILLISECONDS);
                             break;
                         default:
                             break;
@@ -271,11 +270,11 @@ namespace Instances { namespace Bloodmaul
 
                 void Reset() override
                 {
-                    m_Events.ScheduleEvent(eEvents::EventActivate, 3 * TimeConstants::IN_MILLISECONDS);
-                    m_Events.ScheduleEvent(eEvents::EventDespawn, 2 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
+                   // m_Events.ScheduleEvent(eEvents::EventActivate, 3 * TimeConstants::IN_MILLISECONDS);
+                   // m_Events.ScheduleEvent(eEvents::EventDespawn, 2 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
 
                     me->SetReactState(ReactStates::REACT_PASSIVE);
-                    me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE));
+                   // me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE));
                 }
 
                 void UpdateAI(uint32 const diff) override
@@ -292,7 +291,7 @@ namespace Instances { namespace Bloodmaul
                             for (Player* player : playerList)
                                 me->CastSpell(player, eSpells::SpellPeriodicDamage, true);
 
-                            m_Events.ScheduleEvent(eEvents::EventCheckPlayers, 1 * TimeConstants::IN_MILLISECONDS);
+                           // m_Events.ScheduleEvent(eEvents::EventCheckPlayers, 1 * TimeConstants::IN_MILLISECONDS);
                             break;
                         }
                         case eEvents::EventDespawn:
@@ -300,7 +299,7 @@ namespace Instances { namespace Bloodmaul
                             break;
                         case eEvents::EventActivate:
                             me->CastSpell(me, eSpells::SpellMagmaEruptionAura, true);
-                            m_Events.ScheduleEvent(eEvents::EventCheckPlayers, 100);
+                           // m_Events.ScheduleEvent(eEvents::EventCheckPlayers, 100);
                             break;
                         default:
                             break;
@@ -344,13 +343,13 @@ namespace Instances { namespace Bloodmaul
                 {
                     me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                    m_Events.ScheduleEvent(eEvents::EventCheckSLG, 1 * TimeConstants::IN_MILLISECONDS);
+                   // m_Events.ScheduleEvent(eEvents::EventCheckSLG, 1 * TimeConstants::IN_MILLISECONDS);
 
                     me->SetSpeed(UnitMoveType::MOVE_WALK, 0.7f);
                     me->SetSpeed(UnitMoveType::MOVE_RUN, 0.7f);
                 }
 
-                void SetGUID(ObjectGuid guid, int32 /*id*/) override
+                void SetGUID(ObjectGuid guid, int32 /*id*/) 
                 {
                     m_FollowingSLG = guid;
 
@@ -375,7 +374,7 @@ namespace Instances { namespace Bloodmaul
                                 {
                                     me->CastSpell(l_SLG, eSpells::SpellSiphonFlames, false);
                                     me->GetMotionMaster()->MoveChase(l_SLG, 2.5f);
-                                    m_Events.ScheduleEvent(eEvents::EventCheckSLG, 1 * TimeConstants::IN_MILLISECONDS);
+                                    //m_Events.ScheduleEvent(eEvents::EventCheckSLG, 1 * TimeConstants::IN_MILLISECONDS);
                                     break;
                                 }
                             }

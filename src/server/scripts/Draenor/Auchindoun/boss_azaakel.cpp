@@ -1,4 +1,4 @@
-﻿#include "ScriptMgr.h"
+#include "ScriptMgr.h"
 #include "GameObject.h"
 #include "AreaTrigger.h"
 #include "auchindoun.h"
@@ -78,6 +78,11 @@ enum eAzzakelActions
 enum eAzzakelMovements
 {
     MovementAzzakelMalevolentCrash = 2
+};
+
+enum eFlags
+{
+    UNIT_FLAG_NOT_SELECTABLE,
 };
 
 Position const g_PositionAzzakel_Blackgate = { 1929.65f, 2699.27f, 30.799f, 4.428220f };
@@ -162,23 +167,23 @@ struct boss_azaakel : public BossAI
             m_Argus = true;
             break;
         case eAzzakelActions::ActionFelSpark:
-            events.ScheduleEvent(eAzzakelEvents::EventFelSpark, 1 * TimeConstants::IN_MILLISECONDS);
+          //  events.ScheduleEvent(eAzzakelEvents::EventFelSpark, 1 * TimeConstants::IN_MILLISECONDS);
             break;
         case eAzzakelActions::ActionRenewEvents:
         {
             events.Reset();
             me->GetMotionMaster()->Clear();
             me->UpdatePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), false);
-            events.ScheduleEvent(eAzzakelEvents::EventFelLash, 8 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eAzzakelEvents::EventClawsOfArgus, 45 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eAzzakelEvents::EventCurtainOfFlame, 14 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eAzzakelEvents::EventMalevolentCrush01, 20 * TimeConstants::IN_MILLISECONDS);
-            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
-                AttackStart(l_Target);
+          //  events.ScheduleEvent(eAzzakelEvents::EventFelLash, 8 * TimeConstants::IN_MILLISECONDS);
+          //  events.ScheduleEvent(eAzzakelEvents::EventClawsOfArgus, 45 * TimeConstants::IN_MILLISECONDS);
+          //  events.ScheduleEvent(eAzzakelEvents::EventCurtainOfFlame, 14 * TimeConstants::IN_MILLISECONDS);
+          //  events.ScheduleEvent(eAzzakelEvents::EventMalevolentCrush01, 20 * TimeConstants::IN_MILLISECONDS);
+          //  if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
+            //    AttackStart(l_Target);
             break;
         }
         case eAzzakelActions::ActionMalevolentCrash:
-            events.ScheduleEvent(eAzzakelEvents::EventMalevolentCrush01, 1 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eAzzakelEvents::EventMalevolentCrush01, 1 * TimeConstants::IN_MILLISECONDS);
             break;
         default:
             break;
@@ -206,7 +211,7 @@ struct boss_azaakel : public BossAI
             case eAzzakelCreatures::CreatureCacklingPyromaniac:
             case eAzzakelCreatures::CreatureFelguard:
                 summon->SetReactState(ReactStates::REACT_AGGRESSIVE);
-                summon->SetInCombatWithZone();
+              //  summon->SetInCombatWithZone();
                 break;
             default:
                 break;
@@ -219,11 +224,11 @@ struct boss_azaakel : public BossAI
         m_Achievement = true;
         Talk(eAzzakelTalks::AzzakelAggro);
 
-        me->SummonGameObject(eAuchindounObjects::GameobjectFelBarrier, 1911.01f, 2722.89f, 30.799f, g_PositionAzzakel_Blackgate.GetOrientation(), QuaternionData(0, 0, 0, 0), 0);
-        events.ScheduleEvent(eAzzakelEvents::EventFelLash, 8 * TimeConstants::IN_MILLISECONDS);
-        events.ScheduleEvent(eAzzakelEvents::EventClawsOfArgus, 45 * TimeConstants::IN_MILLISECONDS);
-        events.ScheduleEvent(eAzzakelEvents::EventCurtainOfFlame, 14 * TimeConstants::IN_MILLISECONDS);
-        events.ScheduleEvent(eAzzakelEvents::EventMalevolentCrush01, 20 * TimeConstants::IN_MILLISECONDS);
+      //  me->SummonGameObject(eAuchindounObjects::GameobjectFelBarrier, 1911.01f, 2722.89f, 30.799f, g_PositionAzzakel_Blackgate.GetOrientation(), QuaternionData(0, 0, 0, 0), 0);
+      //  events.ScheduleEvent(eAzzakelEvents::EventFelLash, 8 * TimeConstants::IN_MILLISECONDS);
+      //  events.ScheduleEvent(eAzzakelEvents::EventClawsOfArgus, 45 * TimeConstants::IN_MILLISECONDS);
+      //  events.ScheduleEvent(eAzzakelEvents::EventCurtainOfFlame, 14 * TimeConstants::IN_MILLISECONDS);
+      //  events.ScheduleEvent(eAzzakelEvents::EventMalevolentCrush01, 20 * TimeConstants::IN_MILLISECONDS);
 
         if (instance)
             instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
@@ -241,10 +246,10 @@ struct boss_azaakel : public BossAI
             Talk(eAzzakelTalks::AzzakelSpell02);
             me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
-            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
+          //  if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
             {
-                me->GetMotionMaster()->MoveChase(l_Target, 0.0f, 0.0f);
-                me->Attack(l_Target, true);
+               // me->GetMotionMaster()->MoveChase(l_Target, 0.0f, 0.0f);
+               // me->Attack(l_Target, true);
             }
         }
     }
@@ -268,7 +273,7 @@ struct boss_azaakel : public BossAI
                 l_Transport->SetLootState(LootState::GO_READY);
                 l_Transport->UseDoorOrButton(10 * TimeConstants::IN_MILLISECONDS, false, me);
             }
-            //成就
+            //??
             /*  if (m_Achievement)
             {
             if (me->GetMap() && me->GetMap()->IsHeroic())
@@ -320,7 +325,7 @@ struct boss_azaakel : public BossAI
         case eAzzakelEvents::EventFelLash:
             if (Unit* l_Target = me->GetVictim())
                 me->CastSpell(l_Target, eAzzakelSpells::SpellFelLashVisual);
-            events.Repeat(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS);
+          //  events.Repeat(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS);
             break;
         case eAzzakelEvents::EventClawsOfArgus:
         {
@@ -333,18 +338,18 @@ struct boss_azaakel : public BossAI
             me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_FLYING);
             me->CastSpell(me, eAzzakelSpells::SpellClawsOfArgusVisual);
             // me->MonsterTextEmote("Azzakel casts |cffff0000[Azzakael casts [Claws of Agrus]|cfffaeb00!", me->GetGUID(), true);
-            events.Repeat(45 * TimeConstants::IN_MILLISECONDS);
+          //  events.Repeat(45 * TimeConstants::IN_MILLISECONDS);
             break;
         }
         case eAzzakelEvents::EventCurtainOfFlame:
         {
-            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+          //  if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
             {
                 Talk(eAzzakelTalks::AzzakelSpell03);
-                me->AddAura(eAzzakelSpells::SpellCurtainOfFlameAura, l_Target);
+              //  me->AddAura(eAzzakelSpells::SpellCurtainOfFlameAura, l_Target);
             }
 
-            events.Repeat(8 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS);
+           // events.Repeat(8 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS);
             break;
         }
         case eAzzakelEvents::EventMalevolentCrush01:
@@ -357,10 +362,10 @@ struct boss_azaakel : public BossAI
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 2.5f);
 
-            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                me->GetMotionMaster()->MoveJump(l_Target->GetPositionX(), l_Target->GetPositionY(), l_Target->GetPositionZ(), 15.0f, 20.0f, 10.0f, eAzzakelMovements::MovementAzzakelMalevolentCrash);
+           // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+             //   me->GetMotionMaster()->MoveJump(l_Target->GetPositionX(), l_Target->GetPositionY(), l_Target->GetPositionZ(), 15.0f, 20.0f, 10.0f, eAzzakelMovements::MovementAzzakelMalevolentCrash);
 
-            events.Repeat(20 * TimeConstants::IN_MILLISECONDS);
+           // events.Repeat(20 * TimeConstants::IN_MILLISECONDS);
             break;
         }
         default:
@@ -400,8 +405,8 @@ struct auchindoun_azzakel_mob_controller : public ScriptedAI
             me->SetFaction(FriendlyFaction);
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+           // me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+           // me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
         }
     }
 
@@ -415,7 +420,7 @@ struct auchindoun_azzakel_mob_controller : public ScriptedAI
             case eAzzakelCreatures::CreatureCacklingPyromaniac:
             case eAzzakelCreatures::CreatureFelguard:
                 p_Summon->SetReactState(ReactStates::REACT_AGGRESSIVE);
-                p_Summon->SetInCombatWithZone();
+              //  p_Summon->SetInCombatWithZone();
                 break;
             default:
                 break;
@@ -436,7 +441,7 @@ struct auchindoun_azzakel_mob_controller : public ScriptedAI
                 m_Summoned = true;
                 me->CastSpell(me, eAzzakelSpells::SpellVisualFelBurst);
                 me->NearTeleportTo(1911.50f, 2722.52f, 30.799f, g_PositionAzzakel_Blackgate.GetOrientation());
-                events.ScheduleEvent(EventSummonAzzakel01, 2 * TimeConstants::IN_MILLISECONDS);
+             //   events.ScheduleEvent(EventSummonAzzakel01, 2 * TimeConstants::IN_MILLISECONDS);
             }
             break;
         }
@@ -453,17 +458,17 @@ struct auchindoun_azzakel_mob_controller : public ScriptedAI
         {
         case eAzzakelEvents::EventSummonAzzakel01:
         {
-            if (Creature* TempAzzakael = me->SummonCreature(NPC_AZAAKEL, *me, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
+           // if (Creature* TempAzzakael = me->SummonCreature(NPC_AZAAKEL, *me, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
             {
-                if (GameObject* l_Portal = me->SummonGameObject(eAuchindounObjects::GameobjectDemonicPortal, *me, QuaternionData(0, 0, 0, 0), 0))
+             //   if (GameObject* l_Portal = me->SummonGameObject(eAuchindounObjects::GameobjectDemonicPortal, *me, QuaternionData(0, 0, 0, 0), 0))
                 {
-                    m_Azzakel = TempAzzakael->GetGUID();
-                    l_Portal->AddFlag(GameObjectFlags(GO_FLAG_NOT_SELECTABLE | GameObjectFlags::GO_FLAG_NODESPAWN | GO_FLAG_INTERACT_COND));
+              //      m_Azzakel = TempAzzakael->GetGUID();
+                //    l_Portal->AddFlag(GameObjectFlags(GO_FLAG_NOT_SELECTABLE | GameObjectFlags::GO_FLAG_NODESPAWN | GO_FLAG_INTERACT_COND));
                     Position const pos = { g_PositionSpawningFlyCoords[1].GetPositionX(), g_PositionSpawningFlyCoords[1].GetPositionY(), g_PositionSpawningFlyCoords[1].GetPositionZ() };
-                    TempAzzakael->GetMotionMaster()->MoveJump(pos, 30.0f, 25.0f);
+                  //  TempAzzakael->GetMotionMaster()->MoveJump(pos, 30.0f, 25.0f);
                 }
             }
-            events.ScheduleEvent(eAzzakelEvents::EventSummonAzzakel02, 1 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eAzzakelEvents::EventSummonAzzakel02, 1 * TimeConstants::IN_MILLISECONDS);
             break;
         }
         case eAzzakelEvents::EventSummonAzzakel02:
@@ -518,7 +523,7 @@ public:
             me->SetFaction(HostileFaction);
             me->SetDisplayId(InvisibleDisplay);
             me->SetReactState(ReactStates::REACT_PASSIVE);
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE | UnitFlags::UNIT_FLAG_IMMUNE_TO_PC));
+         //   me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE | UnitFlags::UNIT_FLAG_IMMUNE_TO_PC));
 
             for (uint8 l_I = 0; l_I < 20; ++l_I)
             {
@@ -526,18 +531,18 @@ public:
                 float l_Y = me->m_positionY + (l_I + 1)/* * sin(me->m_orientation)*/;
 
                 /// 326528
-                if (Creature* l_FelSparkNullAITrigger = me->SummonCreature(eFelSparkCreatures::CreatureFelSparkNullAITrigger, l_X, l_Y, me->GetPositionZ(), me->GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 7 * TimeConstants::IN_MILLISECONDS))
+              //  if (Creature* l_FelSparkNullAITrigger = me->SummonCreature(eFelSparkCreatures::CreatureFelSparkNullAITrigger, l_X, l_Y, me->GetPositionZ(), me->GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 7 * TimeConstants::IN_MILLISECONDS))
                 {
-                    l_FelSparkNullAITrigger->SetFaction(HostileFaction);
-                    l_FelSparkNullAITrigger->SetDisplayId(InvisibleDisplay);
-                    l_FelSparkNullAITrigger->SetReactState(ReactStates::REACT_PASSIVE);
-                    l_FelSparkNullAITrigger->AddUnitFlag(UnitFlags(UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE | UnitFlags::UNIT_FLAG_REMOVE_CLIENT_CONTROL | UnitFlags::UNIT_FLAG_IMMUNE_TO_PC));
+                  //  l_FelSparkNullAITrigger->SetFaction(HostileFaction);
+                  //  l_FelSparkNullAITrigger->SetDisplayId(InvisibleDisplay);
+                  //  l_FelSparkNullAITrigger->SetReactState(ReactStates::REACT_PASSIVE);
+                  //  l_FelSparkNullAITrigger->AddUnitFlag(UnitFlags(UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE | UnitFlags::UNIT_FLAG_REMOVE_CLIENT_CONTROL | UnitFlags::UNIT_FLAG_IMMUNE_TO_PC));
 
-                    l_FelSparkNullAITrigger->CastSpell(l_FelSparkNullAITrigger, eFelSparkSpells::SpellFelSparkAreaTrigger, true);
+                  //  l_FelSparkNullAITrigger->CastSpell(l_FelSparkNullAITrigger, eFelSparkSpells::SpellFelSparkAreaTrigger, true);
                 }
             }
 
-            me->DespawnOrUnsummon(7 * TimeConstants::IN_MILLISECONDS);
+           // me->DespawnOrUnsummon(7 * TimeConstants::IN_MILLISECONDS);
         }
     };
 
@@ -578,7 +583,7 @@ public:
                 me->SetFaction(HostileFaction);
                 me->SetDisplayId(InvisibleDisplay);
                 me->SetReactState(ReactStates::REACT_PASSIVE);
-                me->AddUnitFlag(UnitFlags(UnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | UnitFlags::UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
+               // me->AddUnitFlag(UnitFlags(UnitFlags::UNIT_FLAG_IMMUNE_TO_NPC | UnitFlags::UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
             }
 
             if (m_Instance != nullptr)
@@ -705,16 +710,16 @@ public:
             {
                 if (Creature* l_Azzakel = l_Instance->instance->GetCreature(l_Instance->GetGuidData(eAuchindounDatas::DataBossAzzakael)))
                 {
-                    if (l_Azzakel->IsAIEnabled)
+                   // if (l_Azzakel->IsAIEnabled)
                     {
                         l_Azzakel->SetCanFly(true);
                         l_Azzakel->SetDisableGravity(true);
                         l_Azzakel->GetAI()->DoAction(eAzzakelActions::ActionBoolActivate);
-                        l_Azzakel->AddUnitFlag(UnitFlags(UnitFlags::UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
+                      //  l_Azzakel->AddUnitFlag(UnitFlags(UnitFlags::UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
                         Position pos;
                         pos.Relocate(l_Azzakel);
                         pos.m_positionZ += 45.0f;
-                        l_Azzakel->GetMotionMaster()->MoveTakeoff(1000, pos);  //修改过定位位置。。
+                        l_Azzakel->GetMotionMaster()->MoveTakeoff(1000, pos);  //?????????
                     }
                 }
             }
@@ -729,11 +734,11 @@ public:
             {
                 if (Creature* l_Azzakel = l_Instance->instance->GetCreature(l_Instance->GetGuidData(eAuchindounDatas::DataBossAzzakael)))
                 {
-                    if (l_Azzakel->IsAIEnabled)
+                   // if (l_Azzakel->IsAIEnabled)
                     {
                         l_Azzakel->RemoveAllAuras();
                         l_Azzakel->SetReactState(ReactStates::REACT_DEFENSIVE);
-                        l_Azzakel->RemoveUnitFlag(UnitFlags(UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE | UnitFlags::UNIT_FLAG_IMMUNE_TO_PC));
+                        l_Azzakel->RemoveUnitFlag(UnitFlags(UnitFlags::UNIT_FLAG_NON_ATTACKABLE /* | UnitFlags::UNIT_FLAG_NOT_SELECTABLE */ | UnitFlags::UNIT_FLAG_IMMUNE_TO_PC));
                         l_Azzakel->GetAI()->DoAction(eAzzakelActions::ActionBoolDeactivate);
                         l_Azzakel->GetAI()->DoAction(eAzzakelActions::ActionRenewEvents);
 
@@ -747,10 +752,10 @@ public:
                             l_Azzakel->GetAI()->DoAction(eAzzakelActions::ActionMalevolentCrash);
                         else
                         {
-                            if (Unit* l_Target = GetCaster()->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
+                           // if (Unit* l_Target = GetCaster()->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
                             {
-                                GetCaster()->GetMotionMaster()->MoveChase(l_Target, 0.0f, 0.0f);
-                                GetCaster()->Attack(l_Target, true);
+                              //  GetCaster()->GetMotionMaster()->MoveChase(l_Target, 0.0f, 0.0f);
+                              //  GetCaster()->Attack(l_Target, true);
                             }
                         }
                     }

@@ -120,5 +120,5 @@ struct instance_hellfire_citadel : public InstanceScript
 
 void AddSC_instance_hellfire_citadel()
 {
-    RegisterInstanceScript(instance_hellfire_citadel, 1448);
+   // RegisterInstanceScript(instance_hellfire_citadel, 1448);
 }

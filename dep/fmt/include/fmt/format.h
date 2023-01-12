@@ -4160,7 +4160,7 @@ inline namespace literals {
   \endrst
  */
 #  if FMT_USE_NONTYPE_TEMPLATE_ARGS
-template <detail_exported::fixed_string Str> constexpr auto operator""_a() {
+template <detail_exported::fixed_string Str> constexpr auto * Data()  {
   using char_t = remove_cvref_t<decltype(Str.data[0])>;
   return detail::udl_arg<char_t, sizeof(Str.data) / sizeof(char_t), Str>();
 }

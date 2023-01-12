@@ -125,10 +125,10 @@ class boss_hansgar : public CreatureScript
                 {
                     m_StampingPresses.clear();
 
-                    m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventCosmeticStampingPresses, 1 * TimeConstants::IN_MILLISECONDS);
+                   // m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventCosmeticStampingPresses, 1 * TimeConstants::IN_MILLISECONDS);
 
                    // AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                   // {
+                    {
                         std::list<Creature*> l_TrashList;
 
                         me->GetCreatureListWithEntryInGrid(l_TrashList, eCreatures::BlackrockEnforcer, 50.0f);
@@ -139,15 +139,15 @@ class boss_hansgar : public CreatureScript
                             l_Trash->Respawn();
                             m_IntroTrashs.insert(l_Trash->GetGUID());
                         }
-                   // });
+                    };
                 }
 
                 me->CastSpell(me, eSpells::PumpedUp, true);
 
                 me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
-                me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE));
-                me->RemoveUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+                me->RemoveUnitFlag(UnitFlags());
+               // me->RemoveUnitFlag(UnitFlags());
 
                 m_State = 0;
 
@@ -162,7 +162,7 @@ class boss_hansgar : public CreatureScript
                 me->SetMaxPower(Powers::POWER_ENERGY, 100);
                 me->SetPower(Powers::POWER_ENERGY, 0);
 
-                ResetArea();
+               // ResetArea();
             }
 
             void KilledUnit(Unit* p_Who) override
@@ -173,9 +173,9 @@ class boss_hansgar : public CreatureScript
                 Talk(eTalks::Slay);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* p_Attacker) 
             {
-                _EnterCombat();
+               // _EnterCombat();
 
                 StartBrothers(me, p_Attacker, m_Instance);
                 Talk(eTalks::Aggro);
@@ -183,7 +183,7 @@ class boss_hansgar : public CreatureScript
                 if (Creature* l_Other = me->FindNearestCreature(eFoundryCreatures::BossFranzok, 150.0f))
                     me->AddAura(eSpells::BoundByBlood, l_Other);
 
-                m_Events.ScheduleEvent(eEvents::EventBodySlam, 20 * TimeConstants::IN_MILLISECONDS + 500);
+               // m_Events.ScheduleEvent(eEvents::EventBodySlam, 20 * TimeConstants::IN_MILLISECONDS + 500);
             }
 
             void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER)
@@ -211,18 +211,18 @@ class boss_hansgar : public CreatureScript
 
                 summons.DespawnAll();
 
-                EndSearingPlatesEvent();
+               // EndSearingPlatesEvent();
 
                 _JustDied();
 
-                me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE));
+                me->RemoveUnitFlag(UnitFlags());
 
                 if (m_Instance != nullptr)
                 {
                     if (Creature* l_Brother = GetBrother(me, m_Instance))
                     {
-                        if (l_Brother->IsAlive())
-                            p_Killer->Kill(l_Brother);
+                        if (l_Brother->IsAlive());
+                           // p_Killer->Kill(l_Brother);
                     }
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::ShatteredVertebrae);
                     m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::AftershockDoT);
@@ -231,7 +231,7 @@ class boss_hansgar : public CreatureScript
 
                     /// Allow loots and bonus loots to be enabled/disabled with a simple reload
                    // if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
-                        me->AddLootRecipient(nullptr);
+                      //  me->AddLootRecipient(nullptr);
                    // else
                         CastSpellToPlayers(me->GetMap(), me, eSpells::HansgarAndFranzokBonus, true);
                 }
@@ -254,7 +254,7 @@ class boss_hansgar : public CreatureScript
                     }
                     case eSpells::TacticalRetreat:
                     {
-                        m_Events.ScheduleEvent(eEvents::EventBodySlam, 3 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventBodySlam, 3 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eSpells::CripplingSuplexThrow:
@@ -272,7 +272,7 @@ class boss_hansgar : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) 
             {
                 if (p_Target == nullptr)
                     return;
@@ -285,7 +285,7 @@ class boss_hansgar : public CreatureScript
                         me->SendPlaySpellVisual(Position(),0.0f,uint32 (eVisuals::BodySlamVisual),0.f,0.f ,20.0f);
                         me->CastSpell(p_Target, eSpells::JumpSlamCast, false);
 
-                        me->SetFacingTo(me->GetAngle(p_Target));
+                       // me->SetFacingTo(me->GetAngle(p_Target));
 
                         m_BodySlamTarget = p_Target->GetGUID();
                         break;
@@ -300,7 +300,7 @@ class boss_hansgar : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage) 
             {
                 if (me->HasAura(eSpells::NotReady))
                     return;
@@ -323,50 +323,50 @@ class boss_hansgar : public CreatureScript
                             if (m_Instance != nullptr)
                                 m_Instance->DoRemoveAurasDueToSpellOnPlayers(eSpells::BodySlamRedArrowAura);
 
-                            me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+                           // me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
 
                             me->AttackStop();
 
                             me->GetMotionMaster()->Clear();
                             me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                                me->CastSpell(l_Target, eSpells::CripplingSuplexScript, true);
+                            //if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                              //  me->CastSpell(l_Target, eSpells::CripplingSuplexScript, true);
 
                             m_Events.CancelEvent(eEvents::EventBodySlam);
 
                             uint32 l_Time = 4 * TimeConstants::IN_MILLISECONDS;
                           //  AddTimedDelayedOperation(l_Time, [this]() -> void
-                          //  {
+                            {
                                 /// Force player to cast 156611 and enter other boss
                                 me->CastSpell(me, eSpells::CripplingSuplexSwitch, true);
-                          //  });
+                            };
 
                             l_Time += 3 * TimeConstants::IN_MILLISECONDS;
                             //AddTimedDelayedOperation(l_Time, [this]() -> void
-                           // {
-                                me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE));
+                            {
+                              //  me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE));
 
                                 me->CastSpell(me, eSpells::NotReady, true);
 
                                 me->GetMotionMaster()->Clear();
-                                me->CastSpell(88.03299f, 3467.769f, 138.4438f, eSpells::TacticalRetreat, true);
+                                //me->CastSpell(88.03299f, 3467.769f, 138.4438f, eSpells::TacticalRetreat, true);
 
                                 Talk(eTalks::ActivateAssemblyLine);
-                           // });
+                            };
 
-                            StartSearingPlatesEvent();
+                           // StartSearingPlatesEvent();
                             break;
                         }
                         case eStates::BothInArena2:
                         {
-                            EndOutPhaseEvent();
+                           // EndOutPhaseEvent();
                             break;
                         }
                         case eStates::BothInArenaFinal:
                         {
-                            EndOutPhaseEvent();
-                            StartSearingPlatesEvent();
+                           // EndOutPhaseEvent();
+                           // StartSearingPlatesEvent();
                             break;
                         }
                         default:
@@ -384,50 +384,50 @@ class boss_hansgar : public CreatureScript
 
                     m_TankHealths[eDatas::DataMainTankHealth] = p_Passenger->GetMaxHealth();
 
-                   // AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                   // {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 0.0f, true, -VEHICLE_SPELL_RIDE_HARDCODED))
+                    // AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                    {
+                        // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 0.0f, true, -VEHICLE_SPELL_RIDE_HARDCODED))
                         {
-                            m_ExitTankGuid = l_Target->GetGUID();
-                            m_TankHealths[eDatas::DataOffTankHealth] = l_Target->GetMaxHealth();
+                            // m_ExitTankGuid = l_Target->GetGUID();
+                            // m_TankHealths[eDatas::DataOffTankHealth] = l_Target->GetMaxHealth();
 
-                            //me->CastSpell(l_Target, eSpells::CripplingSuplexThrow, false);
+                             //me->CastSpell(l_Target, eSpells::CripplingSuplexThrow, false);
                         }
-                   // });
-                }
-                //else if (!p_Apply)
-                p_Passenger->RemoveAura(VEHICLE_SPELL_RIDE_HARDCODED);
-            }
+                        // });
+                    }
+                    //else if (!p_Apply)
+                    p_Passenger->RemoveAura(VEHICLE_SPELL_RIDE_HARDCODED);
+                };
 
-            void DoAction(int32 p_Action)
+             void DoAction(int32 p_Action);
             {
-                switch (p_Action)
+               // switch (p_Action)
                 {
-                    case eActions::ActionIntro:
+                    eActions::ActionIntro;
                     {
                         if (m_IntroDone)
-                            break;
+                           // break;
 
                         m_IntroDone = true;
 
                         m_CosmeticEvents.CancelEvent(eCosmeticEvents::EventCosmeticStampingPresses);
 
-                        DeactivatePress();
+                       // DeactivatePress();
 
                         uint32 l_Time = 5 * TimeConstants::IN_MILLISECONDS;
                       //  AddTimedDelayedOperation(l_Time, [this]() -> void
-                      //  {
-                            ActivatePress(eFoundryGameObjects::StampingPress09, true);
-                            ActivatePress(eFoundryGameObjects::StampingPress11, true);
+                        {
+                         //   ActivatePress(eFoundryGameObjects::StampingPress09, true);
+                           // ActivatePress(eFoundryGameObjects::StampingPress11, true);
 
                             m_SmartStampCollisions.clear();
 
                             for (uint8 l_I = 0; l_I < 4; ++l_I)
                             {
-                                if (GameObject* l_Collision = me->SummonGameObject(eGameObject::SmartStampCollision, g_SmartStampCollisionPos[l_I], QuaternionData ( 0.0f, 0.0f, 0.0f, 0.0f), 0))
-                                    m_SmartStampCollisions.push_back(l_Collision->GetGUID());
+                                //if (GameObject* l_Collision = me->SummonGameObject(eGameObject::SmartStampCollision, g_SmartStampCollisionPos[l_I], QuaternionData ( 0.0f, 0.0f, 0.0f, 0.0f), 0))
+                                  //  m_SmartStampCollisions.push_back(l_Collision->GetGUID());
                             }
-                       // });
+                        };
 
                         l_Time += 4 * TimeConstants::IN_MILLISECONDS;
                        // AddTimedDelayedOperation(l_Time, [this]() -> void
@@ -465,12 +465,12 @@ class boss_hansgar : public CreatureScript
                                     l_Trash->SetHomePosition(l_Pos);
                                 }
                             }
-                       // });
+                        };
 
-                        break;
+                      //  break;
                     }
-                    default:
-                        break;
+                    //default:
+                      //  break;
                 }
             }
 
@@ -501,7 +501,7 @@ class boss_hansgar : public CreatureScript
                            // AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                             //{
                                 me->GetMotionMaster()->Clear();
-                                me->CastSpell(85.60069f, 3517.861f, 138.235f, eSpells::TacticalRetreatOther, true);
+                               // me->CastSpell(85.60069f, 3517.861f, 138.235f, eSpells::TacticalRetreatOther, true);
                            // });
                         }
                         else
@@ -562,7 +562,7 @@ class boss_hansgar : public CreatureScript
                     {
                         if (Creature* l_Franzok = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eFoundryCreatures::BossFranzok)))
                         {
-                            if (l_Franzok->IsAIEnabled)
+                           // if (l_Franzok->IsAIEnabled)
                                 l_Franzok->AI()->DoAction(eActions::ActionIntroFinished);
                         }
                     }
@@ -629,7 +629,7 @@ class boss_hansgar : public CreatureScript
                         for (uint32 l_Entry : l_Entries)
                             ActivatePress(l_Entry);
 
-                        m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventCosmeticStampingPresses, 10 * TimeConstants::IN_MILLISECONDS);
+                      //  m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventCosmeticStampingPresses, 10 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -664,12 +664,12 @@ class boss_hansgar : public CreatureScript
                         {
                             m_BodySlamJumps = 1;
 
-                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                           // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
                             {
-                                m_BodySlamTarget = l_Target->GetGUID();
+                               // m_BodySlamTarget = l_Target->GetGUID();
 
-                                me->SetFacingTo(me->GetAngle(l_Target));
-                                me->CastSpell(l_Target, eSpells::BodySlamRedArrowAura, true);
+                             //   me->SetFacingTo(me->GetAngle(l_Target));
+                               // me->CastSpell(l_Target, eSpells::BodySlamRedArrowAura, true);
                             }
                         }
                         else
@@ -677,7 +677,7 @@ class boss_hansgar : public CreatureScript
 
                         me->CastSpell(me, eSpells::NotReady, true);
 
-                        m_Events.ScheduleEvent(eEvents::EventBodySlam, 25 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventBodySlam, 25 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -794,7 +794,7 @@ class boss_hansgar : public CreatureScript
 
                                     if (Creature* l_Burns = l_TempList.front())
                                     {
-                                        if (l_Burns->IsAIEnabled)
+                                      //  if (l_Burns->IsAIEnabled)
                                         {
                                             l_Burns->AI()->SetData(eDatas::DataBeltEntry, l_BeltEntry);
                                             l_Burns->AI()->SetData(eDatas::DataSpawnTimer, l_Time * l_Index);
@@ -893,7 +893,7 @@ class boss_hansgar : public CreatureScript
 
                             if (Creature* l_Burns = l_TempList.front())
                             {
-                                if (l_Burns->IsAIEnabled)
+                               // if (l_Burns->IsAIEnabled)
                                     l_Burns->AI()->Reset();
                             }
                         }
@@ -909,20 +909,20 @@ class boss_hansgar : public CreatureScript
 
                 me->CastSpell(me, eSpells::NotReady, true);
 
-                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+               // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                 {
-                    me->CastSpell(l_Target, eSpells::BodySlamRedArrowAura, true);
-                    m_BodySlamTarget = l_Target->GetGUID();
+                   // me->CastSpell(l_Target, eSpells::BodySlamRedArrowAura, true);
+                    //m_BodySlamTarget = l_Target->GetGUID();
 
-                    float l_O = me->GetAngle(l_Target);
+                   // float l_O = me->GetAngle(l_Target);
                    // AddTimedDelayedOperation(50, [this, l_O]() -> void
                   //  {
-                        me->SetFacingTo(l_O);
+                       // me->SetFacingTo(l_O);
                   //  });
                 }
 
-                me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE));
-                me->RemoveUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+               // me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE));
+               // me->RemoveUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
 
                 EndSearingPlatesEvent();
             }
@@ -977,7 +977,7 @@ class boss_hansgar : public CreatureScript
 
                             if (Creature* l_Burns = l_TempList.front())
                             {
-                                if (l_Burns->IsAIEnabled)
+                               // if (l_Burns->IsAIEnabled)
                                     l_Burns->AI()->Reset();
                             }
                         }
@@ -1110,8 +1110,8 @@ class boss_franzok : public CreatureScript
 
                 me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
-                me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE));
-                me->RemoveUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+                me->RemoveUnitFlag(UnitFlags());
+                //me->RemoveUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
 
                 m_ExitTankGuid = ObjectGuid::Empty;
 
@@ -1145,9 +1145,9 @@ class boss_franzok : public CreatureScript
                 Talk(eTalks::Slay);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* p_Attacker) 
             {
-                _EnterCombat();
+               // _EnterCombat();
 
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 1);
@@ -1156,8 +1156,8 @@ class boss_franzok : public CreatureScript
 
                 Talk(eTalks::Aggro);
 
-                m_Events.ScheduleEvent(eEvents::EventDisruptingRoar, 45 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventSkullcracker, 20 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventDisruptingRoar, 45 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventSkullcracker, 20 * TimeConstants::IN_MILLISECONDS);
 
                 if (Creature* l_Other = me->FindNearestCreature(eFoundryCreatures::BossHansgar, 150.0f))
                     me->AddAura(eSpells::BoundByBlood, l_Other);
@@ -1190,14 +1190,14 @@ class boss_franzok : public CreatureScript
 
                 _JustDied();
 
-                me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE));
+                me->RemoveUnitFlag(UnitFlags());
 
                 if (m_Instance != nullptr)
                 {
                     if (Creature* l_Brother = GetBrother(me, m_Instance))
                     {
-                        if (l_Brother->IsAlive())
-                            p_Killer->Kill(l_Brother);
+                        if (l_Brother->IsAlive());
+                           // p_Killer->Kill(l_Brother);
                     }
 
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
@@ -1230,7 +1230,7 @@ class boss_franzok : public CreatureScript
                     }
                     case eSpells::TacticalRetreat:
                     {
-                        m_Events.ScheduleEvent(eEvents::EventBodySlam, 3 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventBodySlam, 3 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -1238,7 +1238,7 @@ class boss_franzok : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) 
             {
                 if (p_Target == nullptr)
                     return;
@@ -1255,7 +1255,7 @@ class boss_franzok : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage) 
             {
                 if (me->HasAura(eSpells::NotReady))
                     return;
@@ -1270,15 +1270,15 @@ class boss_franzok : public CreatureScript
                         {
                             me->InterruptNonMeleeSpells(true);
 
-                            me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+                           // me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
   
                             me->AttackStop();
 
                             me->GetMotionMaster()->Clear();
                             me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                                me->CastSpell(l_Target, eSpells::CripplingSuplexScript, true);
+                            //if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                              //  me->CastSpell(l_Target, eSpells::CripplingSuplexScript, true);
 
                             m_Events.CancelEvent(eEvents::EventDisruptingRoar);
                             m_Events.CancelEvent(eEvents::EventSkullcracker);
@@ -1293,12 +1293,12 @@ class boss_franzok : public CreatureScript
                             l_Time += 3 * TimeConstants::IN_MILLISECONDS;
                           //  AddTimedDelayedOperation(l_Time, [this]() -> void
                           //  {
-                                me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE));
+                               // me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE));
 
                                 me->CastSpell(me, eSpells::NotReady, true);
 
                                 me->GetMotionMaster()->Clear();
-                                me->CastSpell(88.03299f, 3467.769f, 138.4438f, eSpells::TacticalRetreat, true);
+                               // me->CastSpell(88.03299f, 3467.769f, 138.4438f, eSpells::TacticalRetreat, true);
 
                                 Talk(eTalks::ActivateAssemblyLine);
                           //  });
@@ -1312,25 +1312,25 @@ class boss_franzok : public CreatureScript
 
                             m_Events.CancelEvent(eEvents::EventBodySlam);
 
-                            m_Events.ScheduleEvent(eEvents::EventDisruptingRoar, 45 * TimeConstants::IN_MILLISECONDS);
-                            m_Events.ScheduleEvent(eEvents::EventSkullcracker, 20 * TimeConstants::IN_MILLISECONDS);
+                           // m_Events.ScheduleEvent(eEvents::EventDisruptingRoar, 45 * TimeConstants::IN_MILLISECONDS);
+                           // m_Events.ScheduleEvent(eEvents::EventSkullcracker, 20 * TimeConstants::IN_MILLISECONDS);
 
                             me->CastSpell(me, eSpells::NotReady, true);
 
-                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                           // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                             {
-                                me->CastSpell(l_Target, eSpells::BodySlamRedArrowAura, true);
-                                m_BodySlamTarget = l_Target->GetGUID();
+                              //  me->CastSpell(l_Target, eSpells::BodySlamRedArrowAura, true);
+                               // m_BodySlamTarget = l_Target->GetGUID();
 
-                                float l_O = me->GetAngle(l_Target);
+                               // float l_O = me->GetAngle(l_Target);
                                 //AddTimedDelayedOperation(50, [this, l_O]() -> void
                                // {
-                                    me->SetFacingTo(l_O);
+                                 //   me->SetFacingTo(l_O);
                                // });
                             }
 
-                            me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE));
-                            me->RemoveUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+                            me->RemoveUnitFlag(UnitFlags());
+                          //  me->RemoveUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
 
                             EndStampingPressesEvent();
                             break;
@@ -1357,10 +1357,10 @@ class boss_franzok : public CreatureScript
 
                    // AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                    // {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 0.0f, true, -VEHICLE_SPELL_RIDE_HARDCODED))
+                       // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 0.0f, true, -VEHICLE_SPELL_RIDE_HARDCODED))
                         {
-                            m_ExitTankGuid = l_Target->GetGUID();
-                            m_TankHealths[eDatas::DataOffTankHealth] = l_Target->GetMaxHealth();
+                         //   m_ExitTankGuid = l_Target->GetGUID();
+                          //  m_TankHealths[eDatas::DataOffTankHealth] = l_Target->GetMaxHealth();
 
                             //me->CastSpell(l_Target, eSpells::CripplingSuplexThrow, false);
                         }
@@ -1437,18 +1437,18 @@ class boss_franzok : public CreatureScript
                             me->CastSpell(me, eSpells::NotReady, true);
 
                           //  AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                          //  {
+                            {
                                 me->GetMotionMaster()->Clear();
-                                me->CastSpell(85.60069f, 3517.861f, 138.235f, eSpells::TacticalRetreatOther, true);
-                           // });
+                              //  me->CastSpell(85.60069f, 3517.861f, 138.235f, eSpells::TacticalRetreatOther, true);
+                            };
                         }
                         else
                         {
                            // AddTimedDelayedOperation(50, [this]() -> void
-                           // {
+                            {
                                 if (Unit* l_Target = me->GetVictim())
                                     me->GetMotionMaster()->MoveChase(l_Target);
-                           // });
+                            };
                         }
 
                         break;
@@ -1520,12 +1520,12 @@ class boss_franzok : public CreatureScript
                     {
                         Talk(eTalks::DisruptingRoar);
                         me->CastSpell(me, eSpells::SpellDisruptingRoar, false);
-                        m_Events.ScheduleEvent(eEvents::EventDisruptingRoar, 46 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventDisruptingRoar, 46 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventSkullcracker:
                     {
-                        CustomSpellValues l_Values;
+                       // CustomSpellValues l_Values;
 
                         int32 l_Count = 0;
                         int32 l_Rage = me->GetPower(Powers::POWER_RAGE);
@@ -1539,27 +1539,27 @@ class boss_franzok : public CreatureScript
                         else
                             l_Count = 2;
 
-                        l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_MAX_TARGETS, l_Count);
+                       // l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_MAX_TARGETS, l_Count);
 
                        // if (Unit* l_Target = SelectRangedTarget())
 //                            me->CastCustomSpell(eSpells::Skullcracker, l_Values, false);
 
-                        m_Events.ScheduleEvent(eEvents::EventSkullcracker, 21 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventSkullcracker, 21 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventBodySlam:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                       // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
                         {
-                            m_BodySlamTarget = l_Target->GetGUID();
+                         //   m_BodySlamTarget = l_Target->GetGUID();
 
-                            me->SetFacingTo(me->GetAngle(l_Target));
-                            me->CastSpell(l_Target, eSpells::BodySlamRedArrowAura, true);
+                           // me->SetFacingTo(me->GetAngle(l_Target));
+                           // me->CastSpell(l_Target, eSpells::BodySlamRedArrowAura, true);
                         }
 
                         me->CastSpell(me, eSpells::NotReady, true);
 
-                        m_Events.ScheduleEvent(eEvents::EventBodySlam, 25 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventBodySlam, 25 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -1631,7 +1631,7 @@ class boss_franzok : public CreatureScript
 
                             if (Creature* l_Burns = l_TempList.front())
                             {
-                                if (l_Burns->IsAIEnabled)
+                               // if (l_Burns->IsAIEnabled)
                                     l_Burns->AI()->SetData(eDatas::DataBeltEntry, l_BeltEntry);
                             }
                         }
@@ -1689,7 +1689,7 @@ class boss_franzok : public CreatureScript
 
                             if (Creature* l_Burns = l_TempList.front())
                             {
-                                if (l_Burns->IsAIEnabled)
+                               // if (l_Burns->IsAIEnabled)
                                     l_Burns->AI()->Reset();
                             }
                         }
@@ -1713,7 +1713,7 @@ class boss_franzok : public CreatureScript
                         /// Handle Pulverized damages
                         if (Creature* l_StampingPresses = ObjectAccessor::GetCreature(*me, l_StampingPress.StampingPresses))
                         {
-                            if (l_StampingPresses->IsAIEnabled)
+                           // if (l_StampingPresses->IsAIEnabled)
                             {
                                 l_StampingPresses->AI()->SetData(eDatas::DataStampTimer, p_BaseTime + 2 * TimeConstants::IN_MILLISECONDS + 200);
                                 l_StampingPresses->AI()->DoAction(eActions::ActionStamp);
@@ -1742,7 +1742,7 @@ class boss_franzok : public CreatureScript
 
                         if (Creature* l_StampingPresses = ObjectAccessor::GetCreature(*me, l_StampingPress.StampingPresses))
                         {
-                            if (l_StampingPresses->IsAIEnabled)
+                           // if (l_StampingPresses->IsAIEnabled)
                                 l_StampingPresses->AI()->DoAction(eActions::ActionCancelStamp);
                         }
 
@@ -1813,7 +1813,7 @@ class npc_foundry_forge_overdrive : public CreatureScript
                 m_AffectedPlayers.clear();
             }
             
-            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage) 
             {
                 p_Damage = 0;
             }
@@ -1962,7 +1962,7 @@ class npc_foundry_scorching_burns : public CreatureScript
               //  ClearDelayedOperations();
             }
 
-            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage) 
             {
                 p_Damage = 0;
             }
@@ -2002,13 +2002,13 @@ class npc_foundry_scorching_burns : public CreatureScript
                         {
                             Position const l_SpawnPos = g_ForgeOverdriveSpawnPos[m_BeltEntry];
 
-                            if (Creature* l_ForgeOverdrive = me->SummonCreature(eCreature::ForgeOverdrive, l_SpawnPos))
+                           // if (Creature* l_ForgeOverdrive = me->SummonCreature(eCreature::ForgeOverdrive, l_SpawnPos))
                             {
                                 using ForgeOverdriveAIPtr   = npc_foundry_forge_overdrive::npc_foundry_forge_overdriveAI*;
                                 using ForgeOverdriveAI      = npc_foundry_forge_overdrive::npc_foundry_forge_overdriveAI;
 
-                                if (ForgeOverdriveAIPtr l_AI = CAST_AI(ForgeOverdriveAI, l_ForgeOverdrive->GetAI()))
-                                    l_AI->m_BeltEntry = m_BeltEntry;
+                                //if (ForgeOverdriveAIPtr l_AI = CAST_AI(ForgeOverdriveAI, l_ForgeOverdrive->GetAI()))
+                                   // l_AI->m_BeltEntry = m_BeltEntry;
                             }
                         }
 
@@ -2136,7 +2136,7 @@ class npc_foundry_stamping_presses : public CreatureScript
                 me->SetReactState(ReactStates::REACT_PASSIVE);
             }
 
-            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage) 
             {
                 p_Damage = 0;
             }
@@ -2277,9 +2277,9 @@ class spell_foundry_crippling_suplex : public SpellScriptLoader
                             int32 l_Damage = 0;
 
                             if (l_MainTarget != l_Target)
-                                l_Damage = l_Boss->IsAIEnabled ? l_Boss->AI()->GetData(eDatas::DataMainTankHealth) : 0;
-                            else
-                                l_Damage = l_Boss->IsAIEnabled ? l_Boss->AI()->GetData(eDatas::DataOffTankHealth) : 0;
+                               // l_Damage = l_Boss->IsAIEnabled ? l_Boss->AI()->GetData(eDatas::DataMainTankHealth) : 0;
+                            //else
+                               // l_Damage = l_Boss->IsAIEnabled ? l_Boss->AI()->GetData(eDatas::DataOffTankHealth) : 0;
 
                             if (l_Damage)
                                 SetHitDamage(l_Damage);

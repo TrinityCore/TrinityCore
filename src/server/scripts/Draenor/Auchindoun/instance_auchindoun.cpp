@@ -199,7 +199,7 @@ struct instance_auchindoun : public InstanceScript
             {
                 if (Creature* l_Teronogor = instance->GetCreature(GetGuidData(eAuchindounDatas::DataBossTeronogor)))
                 {
-                    if (l_Teronogor->IsAIEnabled)
+                   // if (l_Teronogor->IsAIEnabled)
                         l_Teronogor->GetAI()->DoAction(eAuchindounActions::ActionSoulMove1);
                 }
             }
@@ -211,7 +211,7 @@ struct instance_auchindoun : public InstanceScript
             {
                 if (Creature* l_Teronogor = instance->GetCreature(GetGuidData(eAuchindounDatas::DataBossTeronogor)))
                 {
-                    if (l_Teronogor->IsAIEnabled)
+                  //  if (l_Teronogor->IsAIEnabled)
                         l_Teronogor->GetAI()->DoAction(eAuchindounActions::ActionSoulMove4);
                 }
             }
@@ -221,7 +221,7 @@ struct instance_auchindoun : public InstanceScript
             {
                 if (Creature* l_Teronogor = instance->GetCreature(GetGuidData(eAuchindounDatas::DataBossTeronogor)))
                 {
-                    if (l_Teronogor->IsAIEnabled)
+                   // if (l_Teronogor->IsAIEnabled)
                         l_Teronogor->GetAI()->DoAction(eAuchindounActions::ActionSoulMove3);
                 }
             }
@@ -234,7 +234,7 @@ struct instance_auchindoun : public InstanceScript
                 {
                     if (Creature* l_Teronogor = instance->GetCreature(GetGuidData(eAuchindounDatas::DataBossTeronogor)))
                     {
-                        if (l_Teronogor->IsAIEnabled)
+                      //  if (l_Teronogor->IsAIEnabled)
                             l_Teronogor->GetAI()->DoAction(eAuchindounActions::ActionSoulMove2);
                     }
                 }
@@ -403,5 +403,5 @@ struct instance_auchindoun : public InstanceScript
 
 void AddSC_instance_auchindoun()
 {
-    RegisterInstanceScript(instance_auchindoun, 1182);
+   // RegisterInstanceScript(instance_auchindoun, 1182);
 }

@@ -113,7 +113,7 @@ namespace Instances
                             case uint32(MobEntries::MinesBat):
                                 creature->SetDisableGravity(true);
                                 creature->SetCanFly(true);
-                                creature->SetAnimTier(UnitBytes1_Flags(UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER), true);
+                               // creature->SetAnimTier(UnitBytes1_Flags(UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER), true);
                                 break;
                             case uint32(MobEntries::AllianceMinerSpawn):
                                 m_MinerSpawnGuids[TEAM_ALLIANCE] = creature->GetGUID();
@@ -296,7 +296,7 @@ namespace Instances
                                 if (state == EncounterState::NOT_STARTED)
                                     m_UnstableSlagKilled = 0;
                                 else if (state == EncounterState::DONE && m_UnstableSlagKilled == 0 && instance->IsHeroic())
-                                    DoCompleteAchievement(eAchievements::IsDraenorOnFire);
+                                   // DoCompleteAchievement(eAchievements::IsDraenorOnFire);
                                 break;
                             }
                             default:
@@ -312,7 +312,7 @@ namespace Instances
                             GetBossState(BossIds::BossForgemasterGogduh) != EncounterState::DONE)
                             return;
 
-                        DoPlayScenePackageIdOnPlayers(lastKilled == BossIds::BossSlaveWatcherCrushto ? eSceneDatas::SCENE_CRUSHTO_BRAWBRIDGE : eSceneDatas::SCENE_MAGMOLATUS_BRAWBRIDGE);
+                      //  DoPlayScenePackageIdOnPlayers(lastKilled == BossIds::BossSlaveWatcherCrushto ? eSceneDatas::SCENE_CRUSHTO_BRAWBRIDGE : eSceneDatas::SCENE_MAGMOLATUS_BRAWBRIDGE);
                         m_openRoltallTimer = 10000;
                     }
 
@@ -366,11 +366,11 @@ namespace Instances
                                     break;
 
                                 static const Position k_SpawnSlagna = { 2191.21f, -191.67f, 213.72f };
-                                if (Creature* l_Slagna = instance->SummonCreature(uint32(MobEntries::Slagna), k_SpawnSlagna))
+                               // if (Creature* l_Slagna = instance->SummonCreature(uint32(MobEntries::Slagna), k_SpawnSlagna))
                                 {
                                     m_SlagnaSpawned = true;
-                                    if (l_Slagna->GetAI())
-                                        l_Slagna->GetAI()->SetData(uint32(Data::SpawnSlagna), 0);
+                                   // if (l_Slagna->GetAI())
+                                     //   l_Slagna->GetAI()->SetData(uint32(Data::SpawnSlagna), 0);
                                 }
 
                                 break;
@@ -462,8 +462,8 @@ namespace Instances
                             {
                                 if (Player* player = itr->GetSource())
                                 {
-                                    if (player->GetPositionZ() <= 150.0f)
-                                        player->Kill(player);
+                                    if (player->GetPositionZ() <= 150.0f);
+                                    //    player->Kill(player);
                                 }
                             }
 

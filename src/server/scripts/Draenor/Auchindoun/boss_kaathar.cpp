@@ -103,7 +103,7 @@ struct auchindoun_kaathar_mob_nyami : public ScriptedAI
         me->SetFaction(FriendlyFaction);
         me->SetReactState(ReactStates::REACT_PASSIVE);
         me->CastSpell(me, eAuchindounSpells::SpellLevitateNyami);
-        me->AddUnitFlag(UnitFlags(UnitFlags::UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE));
+       // me->AddUnitFlag(UnitFlags(UnitFlags::UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE));
     }
 };
     
@@ -156,7 +156,7 @@ struct boss_kaathar : public BossAI
             m_IntroDone = false;
             me->SetFaction(FriendlyFaction);
             me->CastSpell(me, eAuchindounSpells::SpellGuard);
-            me->AddUnitFlag(UnitFlags(UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
+          //  me->AddUnitFlag(UnitFlags(UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
         }
 
         if (instance)
@@ -189,7 +189,7 @@ struct boss_kaathar : public BossAI
         //??????
         if (instance)
         {
-            instance->DoPlayScenePackageIdOnPlayers(SpellAuchindounSceneTeronogorSpawn);
+          //  instance->DoPlayScenePackageIdOnPlayers(SpellAuchindounSceneTeronogorSpawn);
             instance->DoRemoveAurasDueToSpellOnPlayers(eKaatharSpells::SpellSanctifiedGroundAura);
         }
         
@@ -200,9 +200,9 @@ struct boss_kaathar : public BossAI
             l_Nearest->DespawnOrUnsummon();
 
         Talk(eKaatharTalks::VigilantKaatherDeath);
-        events.ScheduleEvent(Events::EVENT_POST_KAATHAR_1, 2 * TimeConstants::IN_MILLISECONDS);
+      //  events.ScheduleEvent(Events::EVENT_POST_KAATHAR_1, 2 * TimeConstants::IN_MILLISECONDS);
 
-        me->SummonCreature(NPC_NYAMI, Position(1649.33f, 2964.08f, 35.3197f, 2.65524f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
+      //  me->SummonCreature(NPC_NYAMI, Position(1649.33f, 2964.08f, 35.3197f, 2.65524f), TEMPSUMMON_MANUAL_DESPAWN, WEEK);
     }
 
     void DoAction(int32 p_Action)
@@ -216,7 +216,7 @@ struct boss_kaathar : public BossAI
             {
                 me->RemoveAura(eAuchindounSpells::SpellGuard);
                 m_IntroDone = true;
-                events.ScheduleEvent(Events::EVENT_NYAMI_ESCAPE_1, 5 * TimeConstants::IN_MILLISECONDS);
+               // events.ScheduleEvent(Events::EVENT_NYAMI_ESCAPE_1, 5 * TimeConstants::IN_MILLISECONDS);
             }
             break;
         case eKaatharActions::ActionDespawnCreatures:
@@ -238,7 +238,7 @@ struct boss_kaathar : public BossAI
                 {
                     l_AssinatingGuard->GetMotionMaster()->MovePoint(0, *l_AssinatedGuard);
                     l_AssinatingGuard->Attack(l_AssinatedGuard, true);
-                    l_AssinatedGuard->Kill(l_AssinatedGuard);
+                   // l_AssinatedGuard->Kill(l_AssinatedGuard);
                 }
         }
 
@@ -256,11 +256,11 @@ struct boss_kaathar : public BossAI
 
         ///< Heroics
         if (me->GetMap() && me->GetMap()->IsHeroic())
-            events.ScheduleEvent(eKaatharEvents::EventFate, 25 * TimeConstants::IN_MILLISECONDS);
+          //  events.ScheduleEvent(eKaatharEvents::EventFate, 25 * TimeConstants::IN_MILLISECONDS);
 
-        events.ScheduleEvent(eKaatharEvents::EventHallowedGround, urand(12 * TimeConstants::IN_MILLISECONDS, 17 * TimeConstants::IN_MILLISECONDS));
-        events.ScheduleEvent(eKaatharEvents::EventSanctifiedStrike, 8 * TimeConstants::IN_MILLISECONDS);
-        events.ScheduleEvent(eKaatharEvents::EventHolyShield, 30 * TimeConstants::IN_MILLISECONDS);
+       // events.ScheduleEvent(eKaatharEvents::EventHallowedGround, urand(12 * TimeConstants::IN_MILLISECONDS, 17 * TimeConstants::IN_MILLISECONDS));
+       // events.ScheduleEvent(eKaatharEvents::EventSanctifiedStrike, 8 * TimeConstants::IN_MILLISECONDS);
+       // events.ScheduleEvent(eKaatharEvents::EventHolyShield, 30 * TimeConstants::IN_MILLISECONDS);
 
         if (instance)
             instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
@@ -281,22 +281,22 @@ struct boss_kaathar : public BossAI
 
             for (int8 l_I = 0; l_I < 4; l_I++)
             {
-                if (Creature* l_Defender = me->SummonCreature(eAuchindounCreatures::CreatureAucheniDefender, g_PositionFourMagesThatSpawnAfterKaatharIsKaaput[l_I], TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
+               // if (Creature* l_Defender = me->SummonCreature(eAuchindounCreatures::CreatureAucheniDefender, g_PositionFourMagesThatSpawnAfterKaatharIsKaaput[l_I], TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
                 {
                     //l_Defender->SetUInt32Value(UnitFields::UNIT_NPC_EMOTESTATE, 505);
-                    l_Defender->GetMotionMaster()->MovePoint(0, g_PositionFourMagesThatSpawnAfterKaatharIsKaaput[l_I]);
+                 //   l_Defender->GetMotionMaster()->MovePoint(0, g_PositionFourMagesThatSpawnAfterKaatharIsKaaput[l_I]);
                 }
             }
 
             //if (Creature* l_Nyami = l_Instance->instance->GetCreature(l_Instance->GetGuidData(eAuchindounDatas::DataBossNyami)))
             //	l_Nyami->SetPhaseMask(1, true);
 
-            if (Creature* l_Magus = me->SummonCreature(eAuchindounCreatures::CreatureAucheniMagus, g_PositionMageSpawning, TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
+ //           if (Creature* l_Magus = me->SummonCreature(eAuchindounCreatures::CreatureAucheniMagus, g_PositionMageSpawning, TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
             {
-                l_Magus->GetMotionMaster()->MovePoint(0, g_PositionMageMoveTo);
+   //             l_Magus->GetMotionMaster()->MovePoint(0, g_PositionMageMoveTo);
             }
-            events.ScheduleEvent(Events::EVENT_POST_KAATHAR_2, 7 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(Events::EVENT_POST_KAATHAR_3, 55 * TimeConstants::IN_MILLISECONDS);
+     //       events.ScheduleEvent(Events::EVENT_POST_KAATHAR_2, 7 * TimeConstants::IN_MILLISECONDS);
+       //     events.ScheduleEvent(Events::EVENT_POST_KAATHAR_3, 55 * TimeConstants::IN_MILLISECONDS);
             break;
         }
         case Events::EVENT_POST_KAATHAR_2:
@@ -306,63 +306,63 @@ struct boss_kaathar : public BossAI
                 l_Tuulani->AI()->Talk(eAuchindounTalks::TUULANITALK15);
 
                 /// Holy Wall, Object In MIddle
-                l_Tuulani->SummonGameObject(eAuchindounObjects::GameobjectHolyWall, g_PositionWallInMiddleFromNyami.GetPositionX(), g_PositionWallInMiddleFromNyami.GetPositionY(), g_PositionWallInMiddleFromNyami.GetPositionZ(), g_PositionWallInMiddleFromNyami.GetOrientation(), QuaternionData(0, 0, 0, 0), 0);
+              //  l_Tuulani->SummonGameObject(eAuchindounObjects::GameobjectHolyWall, g_PositionWallInMiddleFromNyami.GetPositionX(), g_PositionWallInMiddleFromNyami.GetPositionY(), g_PositionWallInMiddleFromNyami.GetPositionZ(), g_PositionWallInMiddleFromNyami.GetOrientation(), QuaternionData(0, 0, 0, 0), 0);
                 /// Holy Wall, Object Behind
-                l_Tuulani->SummonGameObject(eAuchindounObjects::GameobjectHolyWall, g_PositionWallInBackFromNyami.GetPositionX(), g_PositionWallInBackFromNyami.GetPositionY(), g_PositionWallInBackFromNyami.GetPositionZ(), g_PositionWallInBackFromNyami.GetOrientation(), QuaternionData(0, 0, 0, 0), 0);
+              //  l_Tuulani->SummonGameObject(eAuchindounObjects::GameobjectHolyWall, g_PositionWallInBackFromNyami.GetPositionX(), g_PositionWallInBackFromNyami.GetPositionY(), g_PositionWallInBackFromNyami.GetPositionZ(), g_PositionWallInBackFromNyami.GetOrientation(), QuaternionData(0, 0, 0, 0), 0);
 
                 /// Three prisonners
                 for (int8 l_I = 0; l_I < 3; l_I++)
                 {
-                    if (Creature* l_Prisoners = l_Tuulani->SummonCreature(eAuchindounCreatures::CreatureAucheniSoulPriest, g_PositionThreePrisoners[l_I], TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
+                //    if (Creature* l_Prisoners = l_Tuulani->SummonCreature(eAuchindounCreatures::CreatureAucheniSoulPriest, g_PositionThreePrisoners[l_I], TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
                     {
-                        l_Prisoners->SetCanFly(true);
-                        l_Prisoners->SetDisableGravity(true);
-                        l_Prisoners->SetReactState(ReactStates::REACT_PASSIVE);
-                        l_Prisoners->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
-                        l_Prisoners->CastSpell(l_Prisoners, eAuchindounSpells::SpellPrisonAura, true);
-                        l_Prisoners->CastSpell(l_Prisoners, eAuchindounSpells::SpellStrangulate, true);
+                      //  l_Prisoners->SetCanFly(true);
+                      //  l_Prisoners->SetDisableGravity(true);
+                       // l_Prisoners->SetReactState(ReactStates::REACT_PASSIVE);
+                      //  l_Prisoners->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
+                      //  l_Prisoners->CastSpell(l_Prisoners, eAuchindounSpells::SpellPrisonAura, true);
+                      //  l_Prisoners->CastSpell(l_Prisoners, eAuchindounSpells::SpellStrangulate, true);
                        // l_Prisoners->UNIT_NPC_EMOTESTATEUnitFlags::UNIT_FLAG_REMOVE_CLIENT_CONTROL);
-                        l_Prisoners->AddUnitFlag(UnitFlags(UnitFlags2::UNIT_FLAG2_DISABLE_TURN));
-                        l_Prisoners->AddDynamicFlag(UnitDynFlags::UNIT_DYNFLAG_DEAD);
+                      //  l_Prisoners->AddUnitFlag(UnitFlags(UnitFlags2::UNIT_FLAG2_DISABLE_TURN));
+                       // l_Prisoners->AddDynamicFlag(UnitDynFlags::UNIT_DYNFLAG_DEAD);
                     }
                 }
 
                 /// Twelve prisoners (cosmetic)
                 for (int8 l_I = 0; l_I < 11; l_I++)
                 {
-                    if (Creature* l_Prisoners = l_Tuulani->SummonCreature(eAuchindounCreatures::CreatureAucheniDefender, g_PositionCorpsesNearNyomi[l_I], TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
+                 //   if (Creature* l_Prisoners = l_Tuulani->SummonCreature(eAuchindounCreatures::CreatureAucheniDefender, g_PositionCorpsesNearNyomi[l_I], TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
                     {
-                        l_Prisoners->SetReactState(ReactStates::REACT_PASSIVE);
-                        l_Prisoners->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
-                        l_Prisoners->AddDynamicFlag(UnitDynFlags::UNIT_DYNFLAG_DEAD);
-                        l_Prisoners->AddUnitFlag(UnitFlags(UnitFlags::UNIT_FLAG_REMOVE_CLIENT_CONTROL));
-                        l_Prisoners->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN | UnitFlags2::UNIT_FLAG2_FEIGN_DEATH));
+                   //     l_Prisoners->SetReactState(ReactStates::REACT_PASSIVE);
+                     //   l_Prisoners->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
+                      //  l_Prisoners->AddDynamicFlag(UnitDynFlags::UNIT_DYNFLAG_DEAD);
+                      //  l_Prisoners->AddUnitFlag(UnitFlags(UnitFlags::UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+                      //  l_Prisoners->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN | UnitFlags2::UNIT_FLAG2_FEIGN_DEATH));
                     }
                 }
 
                 /// Defenders
                 for (int8 l_I = 0; l_I < 4; l_I++)
                 {
-                    if (Creature* l_Defenders = l_Tuulani->SummonCreature(eAuchindounCreatures::CreatureAucheniWarden, g_PositionDefenderBehindMiddleWallOfNyami[l_I], TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
+                  //  if (Creature* l_Defenders = l_Tuulani->SummonCreature(eAuchindounCreatures::CreatureAucheniWarden, g_PositionDefenderBehindMiddleWallOfNyami[l_I], TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
                     {
-                        l_Defenders->SetReactState(ReactStates::REACT_PASSIVE);
-                        l_Defenders->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+                    //    l_Defenders->SetReactState(ReactStates::REACT_PASSIVE);
+                      //  l_Defenders->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_REMOVE_CLIENT_CONTROL));
 
-                        if (Creature* l_Stalker = l_Defenders->FindNearestCreature(eAuchindounCreatures::CreatureLightWallTargets, 8.0f))
-                            l_Defenders->CastSpell(l_Stalker, eAuchindounSpells::SpellHolyBeam);
+                      //  if (Creature* l_Stalker = l_Defenders->FindNearestCreature(eAuchindounCreatures::CreatureLightWallTargets, 8.0f))
+                        //    l_Defenders->CastSpell(l_Stalker, eAuchindounSpells::SpellHolyBeam);
                     }
                 }
 
                 /// Cosmetic Wardens
                 for (int8 l_I = 0; l_I < 2; l_I++)
                 {
-                    if (Creature* l_Defenders = l_Tuulani->SummonCreature(eAuchindounCreatures::CreatureAucheniWarden, g_PositionDefenderBehindBackWallOfNyami[l_I], TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
+                  //  if (Creature* l_Defenders = l_Tuulani->SummonCreature(eAuchindounCreatures::CreatureAucheniWarden, g_PositionDefenderBehindBackWallOfNyami[l_I], TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
                     {
-                        l_Defenders->SetReactState(ReactStates::REACT_PASSIVE);
-                        l_Defenders->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+                    //    l_Defenders->SetReactState(ReactStates::REACT_PASSIVE);
+                      //  l_Defenders->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_REMOVE_CLIENT_CONTROL));
 
-                        if (Creature* l_Stalker = l_Defenders->FindNearestCreature(eAuchindounCreatures::CreatureLightWallTargets, 15.0f))
-                            l_Defenders->CastSpell(l_Stalker, eAuchindounSpells::SpellHolyBeam);
+                      //  if (Creature* l_Stalker = l_Defenders->FindNearestCreature(eAuchindounCreatures::CreatureLightWallTargets, 15.0f))
+                        //    l_Defenders->CastSpell(l_Stalker, eAuchindounSpells::SpellHolyBeam);
                     }
                 }
 
@@ -370,7 +370,7 @@ struct boss_kaathar : public BossAI
 
                 // Corpses		                          
                 for (int8 l_I = 0; l_I < 2; l_I++)                              /// Holy Wall, Object In MIddle
-                    l_Tuulani->SummonGameObject(eAuchindounObjects::GameobjectHolyWall, g_PositionWallInMiddleFromNyami.GetPositionX(), g_PositionWallInMiddleFromNyami.GetPositionY(), g_PositionWallInMiddleFromNyami.GetPositionZ(), g_PositionWallInMiddleFromNyami.GetOrientation(), QuaternionData(0, 0, 0, 0), 0);
+                 //   l_Tuulani->SummonGameObject(eAuchindounObjects::GameobjectHolyWall, g_PositionWallInMiddleFromNyami.GetPositionX(), g_PositionWallInMiddleFromNyami.GetPositionY(), g_PositionWallInMiddleFromNyami.GetPositionZ(), g_PositionWallInMiddleFromNyami.GetOrientation(), QuaternionData(0, 0, 0, 0), 0);
 
                 l_Tuulani->SummonCreature(eAuchindounCreatures::CreatureSargereiDefender, g_PositionMagusAndDefenderHostile[1], TempSummonType::TEMPSUMMON_DEAD_DESPAWN);
 
@@ -387,11 +387,11 @@ struct boss_kaathar : public BossAI
                 // Twelve prisoners (cosmetic)		
                 for (int8 l_I = 0; l_I < 11; l_I++)
                 {
-                    if (Creature* l_Prisoner = l_Tuulani->SummonCreature(eAuchindounCreatures::CreatureAucheniDefender, g_PositionCorpsesNearNyomi[l_I], TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
+                  //  if (Creature* l_Prisoner = l_Tuulani->SummonCreature(eAuchindounCreatures::CreatureAucheniDefender, g_PositionCorpsesNearNyomi[l_I], TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
                     {
-                        l_Prisoner->SetReactState(ReactStates::REACT_PASSIVE);
-                        l_Prisoner->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
-                        l_Prisoner->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN | UnitFlags2::UNIT_FLAG2_FEIGN_DEATH));
+                    //    l_Prisoner->SetReactState(ReactStates::REACT_PASSIVE);
+                     //   l_Prisoner->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
+                      //  l_Prisoner->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN | UnitFlags2::UNIT_FLAG2_FEIGN_DEATH));
                     }
                 }
 
@@ -410,10 +410,10 @@ struct boss_kaathar : public BossAI
                     l_Tuulani->SummonCreature(eAuchindounCreatures::CreatureSargereiDefender, g_PositionGuardsAndWardens[l_I], TempSummonType::TEMPSUMMON_DEAD_DESPAWN);
                 }
 
-                /*
+                
                 uint32 l_EntriesOfSargereiDraeneis[8] = { eAuchindounCreatures::CreatureSargeriMagus, eAuchindounCreatures::CreatureAucheniArbiter,
                 eAuchindounCreatures::CreatureSargeriSoulPriest, eAuchindounCreatures::CreatureSargeriWarden,
-                eAuchindounCreatures::CreatureAuchenaiAssainated, eAuchindounCreatures::CreatureSargereiAssasinating, eAuchindounCreatures::CreatureWardenAzzakael, eAuchindounBosses::BossNyami };
+                eAuchindounCreatures::CreatureAuchenaiAssainated, eAuchindounCreatures::CreatureSargereiAssasinating, eAuchindounCreatures::CreatureWardenAzzakael,/* eAuchindounBosses::BossNyami */};
 
                 std::list<Creature*> l_ListSargereiDraeneis;
                 for (uint8 l_I = 0; l_I < 8; l_I)
@@ -425,21 +425,21 @@ struct boss_kaathar : public BossAI
                 {
                 for (Creature* l_Itr : l_ListSargereiDraeneis)
                 {
-                l_Itr->SetPhaseMask(1, true);
+               // l_Itr->SetPhaseMask(1, true);
                 l_Itr->SetFaction(HostileFaction);
                 l_Itr->SetReactState(ReactStates::REACT_AGGRESSIVE);
-                l_Itr->RemoveFlag(UnitFields::UNIT_FIELD_FLAGS, UnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
+               // l_Itr->RemoveFlag(UnitFields::UNIT_FIELD_FLAGS, UnitFlags::UNIT_FLAG_IMMUNE_TO_PC);
                 }
                 }
 
-                */
+               
             }
                        
             /// Magus
-            if (Creature* l_Magus = me->GetSummonedCreatureByEntry(eAuchindounCreatures::CreatureAucheniMagus))
+           // if (Creature* l_Magus = me->GetSummonedCreatureByEntry(eAuchindounCreatures::CreatureAucheniMagus))
             {
-                l_Magus->CastSpell(l_Magus, eAuchindounSpells::SpellArcaneChanneling);
-                l_Magus->SummonGameObject(eAuchindounObjects::GameobjectTaladorPortal, g_PositionTuulaniGobjectPortalSpawn.GetPositionX(), g_PositionTuulaniGobjectPortalSpawn.GetPositionY(), g_PositionTuulaniGobjectPortalSpawn.GetPositionZ(), g_PositionTuulaniGobjectPortalSpawn.GetOrientation(), QuaternionData(0, 0, 0, 0), 0);
+             //   l_Magus->CastSpell(l_Magus, eAuchindounSpells::SpellArcaneChanneling);
+               // l_Magus->SummonGameObject(eAuchindounObjects::GameobjectTaladorPortal, g_PositionTuulaniGobjectPortalSpawn.GetPositionX(), g_PositionTuulaniGobjectPortalSpawn.GetPositionY(), g_PositionTuulaniGobjectPortalSpawn.GetPositionZ(), g_PositionTuulaniGobjectPortalSpawn.GetOrientation(), QuaternionData(0, 0, 0, 0), 0);
             }             
             break;
         }
@@ -481,7 +481,7 @@ struct boss_kaathar : public BossAI
                     l_Crystal->Delete();
 
                 //if (Unit* l_Caster = l_Nyami->FindNearestCreature(eAuchindounCreatures::CreatureLeftCrystalTrigger, 1000.0f))
-                events.ScheduleEvent(Events::EVENT_NYAMI_ESCAPE_2, 3 * TimeConstants::IN_MILLISECONDS);
+              //  events.ScheduleEvent(Events::EVENT_NYAMI_ESCAPE_2, 3 * TimeConstants::IN_MILLISECONDS);
             }           
             break;
         }
@@ -505,7 +505,7 @@ struct boss_kaathar : public BossAI
                         l_Caster->SendPlaySpellVisual(Position(1911.741f, 3183.639f, 56.50413f, 0.0f), 0.f, eAuchindounSpellVisualKit::SpellVisualKitBlackOrbFallingDownInSpiral, 0, 0, 8.0f, true);
                     }                 
                 }
-                events.ScheduleEvent(Events::EVENT_NYAMI_ESCAPE_3, 6 * TimeConstants::IN_MILLISECONDS);
+              //  events.ScheduleEvent(Events::EVENT_NYAMI_ESCAPE_3, 6 * TimeConstants::IN_MILLISECONDS);
             }
            
             break;
@@ -529,7 +529,7 @@ struct boss_kaathar : public BossAI
                         l_Caster->SendPlaySpellVisual(Position(l_Caster->GetPositionX(), l_Caster->GetPositionY(), l_Caster->GetPositionZ(), 0.f), 0.0f, eAuchindounSpellVisualKit::SpellVisualKitBlackOrbFallingDownInSpiral, 0, 0, 8.0f, true);
                     }
                 }
-                events.ScheduleEvent(Events::EVENT_NYAMI_ESCAPE_4, 4 * TimeConstants::IN_MILLISECONDS);              
+               // events.ScheduleEvent(Events::EVENT_NYAMI_ESCAPE_4, 4 * TimeConstants::IN_MILLISECONDS);              
             }  
             break;
         }
@@ -539,7 +539,7 @@ struct boss_kaathar : public BossAI
             {
                 //??! ???????!
                 l_Nyami->AI()->Talk(eAuchindounTalks::NYAMITALK8);
-                events.ScheduleEvent(Events::EVENT_NYAMI_ESCAPE_5, 5 * TimeConstants::IN_MILLISECONDS);
+              //  events.ScheduleEvent(Events::EVENT_NYAMI_ESCAPE_5, 5 * TimeConstants::IN_MILLISECONDS);
             }
 
             break;
@@ -548,7 +548,7 @@ struct boss_kaathar : public BossAI
         {
             if (Creature* l_Nyami = me->FindNearestCreature(CreatureSoulBinderNyami, 1000.0f))
                 l_Nyami->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformNyamiEscape06, g_PositionNyamiEscapeMovement[1]);
-            events.ScheduleEvent(Events::EVENT_NYAMI_ESCAPE_6, 5 * TimeConstants::IN_MILLISECONDS);
+          //  events.ScheduleEvent(Events::EVENT_NYAMI_ESCAPE_6, 5 * TimeConstants::IN_MILLISECONDS);
             break;
         }
         case Events::EVENT_NYAMI_ESCAPE_6:
@@ -561,19 +561,19 @@ struct boss_kaathar : public BossAI
                 l_Nyami->AddAura(eAuchindounSpells::SpellDispersionVisualNyami, l_Nyami);
                 l_Nyami->CastSpell(l_Nyami, eAuchindounSpells::SpellCrystalEarthquake);
                 l_Nyami->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformNyamiEscape07, 1765.926f, 3178.208f, 57.904f, true);
-                me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
+              //  me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
                 me->GetMotionMaster()->MoveJump(g_PositionKaatharCombatJump.GetPositionX(), g_PositionKaatharCombatJump.GetPositionY(), g_PositionKaatharCombatJump.GetPositionZ(), 10.0f, 10.0f, 10.0f, 0);
-                events.ScheduleEvent(Events::EVENT_NYAMI_ESCAPE_7, 4 * TimeConstants::IN_MILLISECONDS);
+               // events.ScheduleEvent(Events::EVENT_NYAMI_ESCAPE_7, 4 * TimeConstants::IN_MILLISECONDS);
             }           
             break;
         }
         case Events::EVENT_NYAMI_ESCAPE_7:
         {
             if (Creature* l_Nyami = me->FindNearestCreature(CreatureSoulBinderNyami, 1000.0f))
-                l_Nyami->DespawnOrUnsummon(5 * TimeConstants::IN_MILLISECONDS);
+              //  l_Nyami->DespawnOrUnsummon(5 * TimeConstants::IN_MILLISECONDS);
             if (Creature* l_Tuulani = me->FindNearestCreature(CreatureSoulBinderTuulani, 1000.0f))
                 l_Tuulani->AI()->Talk(eAuchindounTalks::TUULANITALK10);
-            events.ScheduleEvent(Events::EVENT_NYAMI_ESCAPE_8, 5 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(Events::EVENT_NYAMI_ESCAPE_8, 5 * TimeConstants::IN_MILLISECONDS);
             break;
         }
         case Events::EVENT_NYAMI_ESCAPE_8:
@@ -581,7 +581,7 @@ struct boss_kaathar : public BossAI
             //????..??!
             if (Creature* l_Tuulani = me->FindNearestCreature(CreatureSoulBinderTuulani, 1000.0f))
                 l_Tuulani->AI()->Talk(eAuchindounTalks::TUULANITALK11);
-            events.ScheduleEvent(Events::EVENT_NYAMI_ESCAPE_9, 5 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(Events::EVENT_NYAMI_ESCAPE_9, 5 * TimeConstants::IN_MILLISECONDS);
             break;
         }
         case Events::EVENT_NYAMI_ESCAPE_9:
@@ -598,26 +598,26 @@ struct boss_kaathar : public BossAI
         {
             me->CastSpell(me, eKaatharSpells::SpellFate);
             //  me->MonsterTextEmote("|cffff0000[Fate]|cfffaeb00!", me->GetGUID(), true);
-            events.ScheduleEvent(eKaatharEvents::EventFate, 37 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eKaatharEvents::EventFate, 37 * TimeConstants::IN_MILLISECONDS);
             break;
         }
         case eKaatharEvents::EventHallowedGround:
         {
             Position l_Position;
             me->GetRandomNearPosition(20.0f);
-            me->SummonCreature(eKaatharCreatures::TriggerHallowedGround, l_Position, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 30 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eKaatharEvents::EventHallowedGround, 8 * TimeConstants::IN_MILLISECONDS);
+           // me->SummonCreature(eKaatharCreatures::TriggerHallowedGround, l_Position, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 30 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eKaatharEvents::EventHallowedGround, 8 * TimeConstants::IN_MILLISECONDS);
             break;
         }
         case eKaatharEvents::EventHolyShield:
         {
-            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+           // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
             {
-                float l_X = l_Target->m_positionX + 10 /** cos(l_Target->m_orientation)*/;
-                float l_Y = l_Target->m_positionY + 10/* * sin(l_Target->m_orientation)*/;
+              //  float l_X = l_Target->m_positionX + 10 /** cos(l_Target->m_orientation)*/;
+              //  float l_Y = l_Target->m_positionY + 10/* * sin(l_Target->m_orientation)*/;
 
                 Talk(eKaatharTalks::VigilantKaatherSpell2);
-                me->CastSpell(l_Target, eKaatharSpells::SpellHolyShieldThrow);
+              //  me->CastSpell(l_Target, eKaatharSpells::SpellHolyShieldThrow);
                 if (me->HasAura(eKaatharSpells::SpellHolyShieldOffHandDisarm))
                     me->AddAura(eKaatharSpells::SpellHolyShieldTwoHandDisarm, me);
                 else
@@ -625,12 +625,12 @@ struct boss_kaathar : public BossAI
 
                 std::string l_Str;
                 l_Str += "Vigilant kaathar hurls his |cffff0000[Holy Shield]|cfffaeb00! at ";
-                l_Str += l_Target->GetName();
+              //  l_Str += l_Target->GetName();
                 //  me->MonsterTextEmote(l_Str.c_str(), me->GetGUID(), true);                
-                events.ScheduleEvent(eKaatharEvents::EventConsecratedLight, 4 * TimeConstants::IN_MILLISECONDS);
-                events.ScheduleEvent(eKaatharEvents::EventHolyShieldReturn, 14 * TimeConstants::IN_MILLISECONDS);
+              //  events.ScheduleEvent(eKaatharEvents::EventConsecratedLight, 4 * TimeConstants::IN_MILLISECONDS);
+              //  events.ScheduleEvent(eKaatharEvents::EventHolyShieldReturn, 14 * TimeConstants::IN_MILLISECONDS);
             }
-            events.ScheduleEvent(eKaatharEvents::EventHolyShield, 47 * TimeConstants::IN_MILLISECONDS);
+          //  events.ScheduleEvent(eKaatharEvents::EventHolyShield, 47 * TimeConstants::IN_MILLISECONDS);
             break;
         }
         case eKaatharEvents::EventHolyShieldReturn:
@@ -638,7 +638,7 @@ struct boss_kaathar : public BossAI
             if (Creature* l_Shield = me->FindNearestCreature(eKaatharCreatures::TriggerHolyShield, 50.0f, true))
             {
                 me->SetCurrentEquipmentId(1); /// Equipment Id
-                l_Shield->DespawnOrUnsummon(3 * TimeConstants::IN_MILLISECONDS);
+              //  l_Shield->DespawnOrUnsummon(3 * TimeConstants::IN_MILLISECONDS);
                 l_Shield->GetMotionMaster()->MoveJump(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 20.0f, 10.0f, 10.0f);
                 DespawnCreaturesInArea(eKaatharCreatures::TriggerHolyShield, me);
 
@@ -677,9 +677,9 @@ struct boss_kaathar : public BossAI
                 l_PosX += frand(0.5f, 1.8f);
                 l_PosY += frand(0.7f, 1.9f);
 
-                me->SummonCreature(eKaatharCreatures::TriggerFissureSummoner, l_PosX, l_PosY, me->GetPositionZ(), me->GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 15 * TimeConstants::IN_MILLISECONDS);
+              //  me->SummonCreature(eKaatharCreatures::TriggerFissureSummoner, l_PosX, l_PosY, me->GetPositionZ(), me->GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 15 * TimeConstants::IN_MILLISECONDS);
             }
-            events.ScheduleEvent(eKaatharEvents::EventSanctifiedStrike, 8 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eKaatharEvents::EventSanctifiedStrike, 8 * TimeConstants::IN_MILLISECONDS);
             break;
         }
         default:
@@ -718,12 +718,12 @@ struct auchindoun_kaathar_mob_hallowed_ground : public ScriptedAI
         m_HasExploded = false;
         me->SetFaction(HostileFaction);
         m_VisualDiff = 1 * TimeConstants::IN_MILLISECONDS;
-        events.ScheduleEvent(eKaatharEvents::EventCheckPlayer, 4 * TimeConstants::IN_MILLISECONDS); // Takes 4 seconds to charge
+       // events.ScheduleEvent(eKaatharEvents::EventCheckPlayer, 4 * TimeConstants::IN_MILLISECONDS); // Takes 4 seconds to charge
 
         if (!m_First)
         {
             me->SetObjectScale(1.0f);
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
+          //  me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
             me->SetReactState(ReactStates::REACT_PASSIVE);
         }
     }
@@ -734,7 +734,7 @@ struct auchindoun_kaathar_mob_hallowed_ground : public ScriptedAI
         {
         case eKaatharActions::ActionFateHallowedGround:
             DoCast(me, eKaatharSpells::SpellHallowedGround);
-            me->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
+           // me->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
             break;
         default:
             break;
@@ -767,11 +767,11 @@ struct auchindoun_kaathar_mob_hallowed_ground : public ScriptedAI
                     m_HasExploded = true;
 
                     DoCast(me, eKaatharSpells::SpellHallowedGround);
-                    me->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
+            //        me->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
                 }
             }
 
-            events.ScheduleEvent(eKaatharEvents::EventCheckPlayer, 1 * TimeConstants::IN_MILLISECONDS);
+          //  events.ScheduleEvent(eKaatharEvents::EventCheckPlayer, 1 * TimeConstants::IN_MILLISECONDS);
             break;
         default:
             break;
@@ -789,7 +789,7 @@ struct auchindoun_kaathar_mob_spawn_fissures : public ScriptedAI
         me->SetFaction(HostileFaction);
         me->SetDisplayId(InvisibleDisplay);
         me->CastSpell(me, eKaatharSpells::SpellSanctifiedStrikeAreaTrigger4);
-        me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE | UnitFlags::UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_IMMUNE_TO_NPC));
+       // me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE | UnitFlags::UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_IMMUNE_TO_NPC));
     }
 };
 
@@ -801,15 +801,15 @@ struct auchindoun_kaathar_mob_teleport_players : public ScriptedAI
     void Reset()
     {
         me->SetReactState(ReactStates::REACT_PASSIVE);
-        me->AddUnitFlag(UnitFlags(UnitFlags2::UNIT_FLAG2_DISABLE_TURN));
-        me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE | UnitFlags::UNIT_FLAG_REMOVE_CLIENT_CONTROL | UnitFlags::UNIT_FLAG_IMMUNE_TO_NPC));
+      //  me->AddUnitFlag(UnitFlags(UnitFlags2::UNIT_FLAG2_DISABLE_TURN));
+      //  me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE | UnitFlags::UNIT_FLAG_REMOVE_CLIENT_CONTROL | UnitFlags::UNIT_FLAG_IMMUNE_TO_NPC));
     }
 
     void UpdateAI(uint32 p_Diff) override
     {
-        if (instance)
-            if (Creature* l_Kaathar = instance->GetCreature(eAuchindounDatas::DataBossKathaar))
-                if (l_Kaathar->isDead())
+      //  if (instance)
+           // if (Creature* l_Kaathar = instance->GetCreature(eAuchindounDatas::DataBossKathaar))
+             //   if (l_Kaathar->isDead())
                     if (Player * l_Player = me->SelectNearestPlayer(10.0f))
                         l_Player->TeleportTo(1182, 1904.29f, 3185.111f, 30.799f, 3.34086f);
     }
@@ -826,9 +826,9 @@ struct auchindoun_kaathar_mob_holy_shield : public ScriptedAI
         me->SetDisplayId(InvisibleDisplay);
         me->CastSpell(me, eKaatharSpells::SpellHolyShieldLos);
         me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
-        me->AddUnitFlag(UnitFlags(UnitFlags2::UNIT_FLAG2_DISABLE_TURN));
-        me->AddDynamicFlag(UnitDynFlags::UNIT_DYNFLAG_DEAD);
-        me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE | UnitFlags::UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+       // me->AddUnitFlag(UnitFlags(UnitFlags2::UNIT_FLAG2_DISABLE_TURN));
+       // me->AddDynamicFlag(UnitDynFlags::UNIT_DYNFLAG_DEAD);
+       // me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE | UnitFlags::UNIT_FLAG_REMOVE_CLIENT_CONTROL));
         /// Knockback
         std::list<Player*> l_ListPlayers;
         me->GetPlayerListInGrid(l_ListPlayers, 5.0f);
@@ -985,7 +985,7 @@ public:
                 {
                     for (Creature* l_Itr : l_HallowedGroundCreatures)
                     {
-                        if (l_Itr->IsAIEnabled)
+                      //  if (l_Itr->IsAIEnabled)
                             l_Itr->GetAI()->DoAction(eKaatharActions::ActionFateHallowedGround);
                     }
                 }

@@ -1055,7 +1055,7 @@ static void ApplyPassengerFlags(Creature* p_Passenger, bool p_IsTrain = true)
 {
     p_Passenger->SetFaction(eThogarMiscDatas::HostileFaction);
     p_Passenger->SetReactState(ReactStates::REACT_PASSIVE);
-    p_Passenger->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE | UnitFlags::UNIT_FLAG_IMMUNE_TO_NPC));
+   // p_Passenger->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE | UnitFlags::UNIT_FLAG_IMMUNE_TO_NPC));
 
     p_Passenger->RemoveUnitFlag(UnitFlags(UNIT_FLAG_DISARMED));
 
@@ -1085,11 +1085,11 @@ static ObjectGuid SummonTrain(Creature* p_Summoner, uint8 p_TrainID, eThogarActi
     Position const l_Pos = l_TrainDatas.RightToLeft ? g_TrainTrackSpawnPos[l_TrainDatas.TrackID] : g_TrainTrackEndPos[l_TrainDatas.TrackID];
 
     ObjectGuid l_TrainGuid;// = 0;
-    if (Creature* l_Wheels = p_Summoner->SummonCreature(eThogarCreatures::TrainWheels, l_Pos))
+    //if (Creature* l_Wheels = p_Summoner->SummonCreature(eThogarCreatures::TrainWheels, l_Pos))
     {
-        ApplyPassengerFlags(l_Wheels, false);
+       // ApplyPassengerFlags(l_Wheels, false);
 
-        l_TrainGuid             = l_Wheels->GetGUID();
+       // l_TrainGuid             = l_Wheels->GetGUID();
         ObjectGuid l_SummonerGuid   = p_Summoner->GetGUID();
         /*l_InstanceScript->AddTimedDelayedOperation(10, [l_InstanceScript, l_TrainDatas, l_Pos, l_SummonerGuid, l_TrainGuid]() -> void
         {

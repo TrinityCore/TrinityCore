@@ -108,17 +108,17 @@ namespace Instances
                             Talk(eTalks::TalkSlay);
                     }
 
-                    void EnterCombat(Unit*) override
+                    void EnterCombat(Unit*) 
                     {
-                        _EnterCombat();
+                        //_EnterCombat();
 
                         Talk(eTalks::TalkAggro);
 
-                        events.ScheduleEvent(uint32(Events::EarthCrush), 5000);
-                        events.ScheduleEvent(uint32(Events::FerociousYell), 10000);
-                        events.ScheduleEvent(uint32(Events::RaiseTheMiners), 16000);
-                        events.ScheduleEvent(uint32(Events::CrushingLeap), 23000);
-                        events.ScheduleEvent(uint32(Events::WildSlam), 27000);
+                       //events.ScheduleEvent(uint32(Events::EarthCrush), 5000);
+                       // events.ScheduleEvent(uint32(Events::FerociousYell), 10000);
+                       // events.ScheduleEvent(uint32(Events::RaiseTheMiners), 16000);
+                       // events.ScheduleEvent(uint32(Events::CrushingLeap), 23000);
+                       // events.ScheduleEvent(uint32(Events::WildSlam), 27000);
 
                         if (instance)
                             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
@@ -140,7 +140,7 @@ namespace Instances
                         }
                     }
 
-                    void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override
+                    void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) 
                     {
                         if (target == nullptr)
                             return;
@@ -166,8 +166,8 @@ namespace Instances
                             }
                             else
                             {
-                                if (Unit* target = me->GetVictim())
-                                    target->AddThreat(target, 10000.0f);
+                                if (Unit* target = me->GetVictim());
+                                   // target->AddThreat(target, 10000.0f);
                             }
                         }
                     }
@@ -186,47 +186,47 @@ namespace Instances
                         {
                             case uint32(Events::EarthCrush):
                             {
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f))
+                                //if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f))
                                 {
                                     Position summonPos;
-                                    GetPositionWithDistInOrientation(me, 4.0f, me->GetAngle(target), summonPos);
+                                  //  GetPositionWithDistInOrientation(me, 4.0f, me->GetAngle(target), summonPos);
                                     m_LastEarthCrushStalkerPosition = summonPos;
 
                                     /// We summon the rock.
-                                    TempSummon* summon = me->SummonCreature(uint32(MobEntries::EarthCrushStalker), summonPos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 4000);
-                                    if (summon != nullptr)
+                                    //TempSummon* summon = me->SummonCreature(uint32(MobEntries::EarthCrushStalker), summonPos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 4000);
+                                   // if (summon != nullptr)
                                     {
-                                        summon->SetFacingToObject(target);
-                                        summon->CastSpell(summon, uint32(Spells::EarthCrush4), true);
+                                     //   summon->SetFacingToObject(target);
+                                       // summon->CastSpell(summon, uint32(Spells::EarthCrush4), true);
 
                                         /// We launch foot kick.
-                                        me->SetFacingToObject(target);
-                                        me->CastSpell(summon, uint32(Spells::EarthCrush3), false);
+                                       // me->SetFacingToObject(target);
+                                       // me->CastSpell(summon, uint32(Spells::EarthCrush3), false);
 
-                                        summon->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE));
+                                       // summon->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE));
                                     }
                                 }
-                                events.ScheduleEvent(uint32(Events::EarthCrush), urand(20000, 25000));
+                                //events.ScheduleEvent(uint32(Events::EarthCrush), urand(20000, 25000));
                                 break;
                             }
                             case uint32(Events::FerociousYell):
                             {
                                 Talk(eTalks::TalkFerociousYell);
                                 me->CastSpell(me, uint32(Spells::FerociousYell));
-                                events.ScheduleEvent(uint32(Events::FerociousYell), urand(10000, 12000));
+                               // events.ScheduleEvent(uint32(Events::FerociousYell), urand(10000, 12000));
                                 break;
                             }
                             case uint32(Events::RaiseTheMiners):
                             {
                                 Talk(eTalks::TalkMiner);
                                 me->CastSpell(me, uint32(Spells::RaiseTheMiners));
-                                events.ScheduleEvent(uint32(Events::RaiseTheMiners), urand(25000, 29000));
+                              //  events.ScheduleEvent(uint32(Events::RaiseTheMiners), urand(25000, 29000));
                                 break;
                             }
                             case uint32(Events::WildSlam):
                             {
                                 me->CastSpell(me->GetVictim(), uint32(Spells::WildSlam));
-                                events.ScheduleEvent(uint32(Events::WildSlam), urand(20000, 27000));
+                               // events.ScheduleEvent(uint32(Events::WildSlam), urand(20000, 27000));
                                 break;
                             }
                             case uint32(Events::CrushingLeap):
@@ -236,7 +236,7 @@ namespace Instances
                                     m_TargetGUID = l_Plr->GetGUID();
                                     me->CastSpell(l_Plr, uint32(Spells::CrushingLeap));
                                 }*/
-                                events.ScheduleEvent(uint32(Events::CrushingLeap), urand(20000, 23000));
+                               // events.ScheduleEvent(uint32(Events::CrushingLeap), urand(20000, 23000));
                                 break;
                             }
                             default:

@@ -48,7 +48,7 @@ public:
 
         std::vector<ObjectGuid> m_portalVisualCreatureGuid;
 
-        void Initialize() override
+        void Initialize() 
         {
             m_CountGUID = 0;
         }

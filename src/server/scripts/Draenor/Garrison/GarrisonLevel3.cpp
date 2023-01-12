@@ -16,7 +16,7 @@
  */
 
 #include "Garrison.h"
-#include "GarrisonAI.h"
+//#include "GarrisonAI.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 
@@ -29,36 +29,36 @@ enum Quests
 /*
  * Common scripts for garrison level 3 Alliance & Horde
  */
-struct garrison_level_3 : public GarrisonAI
-{
-    garrison_level_3(Garrison* gar) : GarrisonAI(gar) { }
+//struct garrison_level_3 : public GarrisonAI
+//{
+  //  garrison_level_3(Garrison* gar) : GarrisonAI(gar) { }
 
-    bool OnCheckUpgradeable() override
+    bool OnCheckUpgradeable() 
     {
         return false;
     }
 
-    void OnUpgrade(Player* player) override
+    void OnUpgrade(Player* player) 
     {
-        if (garrison->GetOwner()->HasQuest(QUEST_MY_VERY_OWN_FORTRESS))
-            garrison->GetOwner()->ForceCompleteQuest(QUEST_MY_VERY_OWN_FORTRESS);
-        if (garrison->GetOwner()->HasQuest(QUEST_MY_VERY_OWN_CASTLE))
-            garrison->GetOwner()->ForceCompleteQuest(QUEST_MY_VERY_OWN_CASTLE);
+      //  if (garrison->GetOwner()->HasQuest(QUEST_MY_VERY_OWN_FORTRESS))
+        //    garrison->GetOwner()->ForceCompleteQuest(QUEST_MY_VERY_OWN_FORTRESS);
+        //if (garrison->GetOwner()->HasQuest(QUEST_MY_VERY_OWN_CASTLE))
+          //  garrison->GetOwner()->ForceCompleteQuest(QUEST_MY_VERY_OWN_CASTLE);
     }
-};
+//};
 
-struct garrison_level_3_alliance : public garrison_level_3
-{
-    garrison_level_3_alliance(Garrison* gar) : garrison_level_3(gar) { }
-};
+//struct garrison_level_3_alliance : public garrison_level_3
+//{
+  //  garrison_level_3_alliance(Garrison* gar) : garrison_level_3(gar) { }
+//};
 
-struct garrison_level_3_horde : public garrison_level_3
-{
-    garrison_level_3_horde(Garrison* gar) : garrison_level_3(gar) { }
-};
+//struct garrison_level_3_horde : public garrison_level_3
+//{
+  //  garrison_level_3_horde(Garrison* gar) : garrison_level_3(gar) { }
+//};
 
 void AddSC_garrison_level_3()
 {
-    RegisterGarrisonAI(garrison_level_3_alliance);
-    RegisterGarrisonAI(garrison_level_3_horde);
+  //  RegisterGarrisonAI(garrison_level_3_alliance);
+   // RegisterGarrisonAI(garrison_level_3_horde);
 };

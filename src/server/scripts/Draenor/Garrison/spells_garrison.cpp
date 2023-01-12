@@ -18,7 +18,7 @@
 #include "ScriptMgr.h"
 #include "Spell.h"
 #include "SpellScript.h"
-#include "WodGarrison.h"
+//#include "WodGarrison.h"
 
 // 171253 - Garrison hearthstone
 class spell_garrison_hearthstone : public SpellScript
@@ -28,8 +28,8 @@ class spell_garrison_hearthstone : public SpellScript
     SpellCastResult CheckCast()
     {
         if (Player* caster = GetCaster()->ToPlayer())
-            if (Garrison* garr = caster->GetGarrison(GARRISON_TYPE_GARRISON))
-                if (garr->GetSiteLevel())
+           // if (Garrison* garr = caster->GetGarrison(GARRISON_TYPE_GARRISON))
+             //   if (garr->GetSiteLevel())
                     return SPELL_CAST_OK;
 
         return SPELL_FAILED_GARRISON_NOT_OWNED;
@@ -39,13 +39,13 @@ class spell_garrison_hearthstone : public SpellScript
     {
         if (Player* caster = GetCaster()->ToPlayer())
         {
-            if (Garrison* garr = caster->GetGarrison(GARRISON_TYPE_GARRISON))
+           // if (Garrison* garr = caster->GetGarrison(GARRISON_TYPE_GARRISON))
             {
-                if (GarrSiteLevelEntry const* siteLevel = garr->GetSiteLevel())
+             //   if (GarrSiteLevelEntry const* siteLevel = garr->GetSiteLevel())
                 {
                     // Adjust effect summon position
-                    Position const garrPos = GarrisonHearthstoneCoordinates[caster->GetTeamId()][siteLevel->GarrLevel - 1];
-                    dest.Relocate(WorldLocation(siteLevel->MapID, garrPos));
+               //     Position const garrPos = GarrisonHearthstoneCoordinates[caster->GetTeamId()][siteLevel->GarrLevel - 1];
+                 //   dest.Relocate(WorldLocation(siteLevel->MapID, garrPos));
                 }
             }
         }

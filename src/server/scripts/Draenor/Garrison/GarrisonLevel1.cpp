@@ -16,7 +16,7 @@
  */
 
 #include "Garrison.h"
-#include "GarrisonAI.h"
+//#include "GarrisonAI.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 
@@ -29,34 +29,34 @@ enum Quests
 /*
  * Common scripts for garrison level 1 Alliance & Horde
  */
-struct garrison_level_1 : public GarrisonAI
-{
-    garrison_level_1(Garrison* gar) : GarrisonAI(gar) { }
+//struct garrison_level_1 : public GarrisonAI
+//{
+   // garrison_level_1(Garrison* gar) : GarrisonAI(gar) { }
 
-    bool OnCheckUpgradeable() override
+    bool OnCheckUpgradeable() 
     {
-        return garrison->GetOwner()->HasQuest(QUEST_BIGGER_IS_BETTER_H) ||
-               garrison->GetOwner()->HasQuest(QUEST_BIGGER_IS_BETTER_A);
+       // return garrison->GetOwner()->HasQuest(QUEST_BIGGER_IS_BETTER_H) ||
+         //      garrison->GetOwner()->HasQuest(QUEST_BIGGER_IS_BETTER_A);
     }
 
-    void OnUpgrade(Player* player) override
+    void OnUpgrade(Player* player) 
     {
 
     }
-};
+//};
 
-struct garrison_level_1_alliance : public garrison_level_1
-{
-    garrison_level_1_alliance(Garrison* gar) : garrison_level_1(gar) { }
-};
+//struct garrison_level_1_alliance : public garrison_level_1
+//{
+  //  garrison_level_1_alliance(Garrison* gar) : garrison_level_1(gar) { }
+//};
 
-struct garrison_level_1_horde : public garrison_level_1
-{
-    garrison_level_1_horde(Garrison* gar) : garrison_level_1(gar) { }
-};
+//struct garrison_level_1_horde : public garrison_level_1
+//{
+  //  garrison_level_1_horde(Garrison* gar) : garrison_level_1(gar) { }
+//};
 
 void AddSC_garrison_level_1()
 {
-    RegisterGarrisonAI(garrison_level_1_alliance);
-    RegisterGarrisonAI(garrison_level_1_horde);
+   // RegisterGarrisonAI(garrison_level_1_alliance);
+   // RegisterGarrisonAI(garrison_level_1_horde);
 };

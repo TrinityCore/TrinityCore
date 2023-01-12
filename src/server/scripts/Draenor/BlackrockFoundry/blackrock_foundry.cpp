@@ -56,11 +56,11 @@ class npc_foundry_iron_flame_binder : public CreatureScript
                // });
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvents::EventCauterize, 6 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventLavaburst, 2 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventUnbindFlame, 10 * TimeConstants::IN_MILLISECONDS);
+              //  m_Events.ScheduleEvent(eEvents::EventCauterize, 6 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventLavaburst, 2 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventUnbindFlame, 10 * TimeConstants::IN_MILLISECONDS);
             }
 
             void UpdateAI(uint32 p_Diff) override
@@ -82,15 +82,15 @@ class npc_foundry_iron_flame_binder : public CreatureScript
                         if (Unit* l_Ally = me->SelectVictim())//??????????
                             me->CastSpell(l_Ally, eSpells::Cauterize, false);
 
-                        m_Events.ScheduleEvent(eEvents::EventCauterize, 8 * TimeConstants::IN_MILLISECONDS);
+                      //  m_Events.ScheduleEvent(eEvents::EventCauterize, 8 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventLavaburst:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(l_Target, eSpells::Lavaburst, false);
+                        //if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                          //  me->CastSpell(l_Target, eSpells::Lavaburst, false);
 
-                        m_Events.ScheduleEvent(eEvents::EventLavaburst, 4 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventLavaburst, 4 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventUnbindFlame:
@@ -178,10 +178,10 @@ class npc_foundry_workshop_guardian : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvents::EventGrievousMortalWounds, 5 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventSpinningBlade, 8 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventGrievousMortalWounds, 5 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventSpinningBlade, 8 * TimeConstants::IN_MILLISECONDS);
             }
 
             void UpdateAI(uint32 p_Diff) override
@@ -198,18 +198,18 @@ class npc_foundry_workshop_guardian : public CreatureScript
                 {
                     case eEvents::EventGrievousMortalWounds:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(l_Target, eSpells::GrievousMortalWounds, false);
+                      //  if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        //    me->CastSpell(l_Target, eSpells::GrievousMortalWounds, false);
 
-                        m_Events.ScheduleEvent(eEvents::EventGrievousMortalWounds, 10 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventGrievousMortalWounds, 10 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventSpinningBlade:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
-                            me->CastSpell(l_Target, eSpells::SpinningBladeMissile, false);
+                       // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                         //   me->CastSpell(l_Target, eSpells::SpinningBladeMissile, false);
 
-                        m_Events.ScheduleEvent(eEvents::EventSpinningBlade, 15 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventSpinningBlade, 15 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -245,9 +245,9 @@ class npc_foundry_spinning_blade : public CreatureScript
             {
                 me->CastSpell(me, eSpell::SpinningBladeAura, false);
 
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
+               // me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
 
-                me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
+               // me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
             }
         };
 
@@ -293,15 +293,15 @@ class npc_foundry_ogron_hauler : public CreatureScript
                 me->CastSpell(me ,eSpells::CarryingSlagContainmentCrate, true);
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* p_Attacker) 
             {
                 me->RemoveAura(eSpells::CarryingSlagContainmentCrate);
 
                 me->CastSpell(p_Attacker, eSpells::ThrowSlagContainmentCrate, true);
 
-                m_Events.ScheduleEvent(eEvents::EventGroundStomp, 5 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventOverheadSmash, 8 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventSlagBreath, 10 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventGroundStomp, 5 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventOverheadSmash, 8 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventSlagBreath, 10 * TimeConstants::IN_MILLISECONDS);
             }
 
             void UpdateAI(uint32 p_Diff) override
@@ -319,21 +319,21 @@ class npc_foundry_ogron_hauler : public CreatureScript
                     case eEvents::EventGroundStomp:
                     {
                         me->CastSpell(me, eSpells::GroundStomp, false);
-                        m_Events.ScheduleEvent(eEvents::EventGroundStomp, 12 * TimeConstants::IN_MILLISECONDS);
+                      //  m_Events.ScheduleEvent(eEvents::EventGroundStomp, 12 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventOverheadSmash:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(l_Target, eSpells::OverheadSmash, false);
+                       // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                         //   me->CastSpell(l_Target, eSpells::OverheadSmash, false);
 
-                        m_Events.ScheduleEvent(eEvents::EventOverheadSmash, 15 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventOverheadSmash, 15 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventSlagBreath:
                     {
                         me->CastSpell(me, eSpells::SlagBreath, false);
-                        m_Events.ScheduleEvent(eEvents::EventSlagBreath, 12 * TimeConstants::IN_MILLISECONDS);
+                      //  m_Events.ScheduleEvent(eEvents::EventSlagBreath, 12 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -384,14 +384,14 @@ class npc_foundry_ironworker : public CreatureScript
                     me->CastSpell(me, eSpells::EmptySack, true);
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
               //  me->SetUInt32Value(UnitFields::UNIT_FIELD_BYTES_1, 0);
 
-                if (me->HasAura(eSpells::PackingExplosiveOre))
-                    m_Events.ScheduleEvent(eEvents::EventThrowExplosiveOre, 4 * TimeConstants::IN_MILLISECONDS);
-                else
-                    m_Events.ScheduleEvent(eEvents::EventHammerThrow, 4 * TimeConstants::IN_MILLISECONDS);
+                if (me->HasAura(eSpells::PackingExplosiveOre));
+                 //   m_Events.ScheduleEvent(eEvents::EventThrowExplosiveOre, 4 * TimeConstants::IN_MILLISECONDS);
+               // else
+                 //   m_Events.ScheduleEvent(eEvents::EventHammerThrow, 4 * TimeConstants::IN_MILLISECONDS);
             }
 
             void UpdateAI(uint32 p_Diff) override
@@ -408,18 +408,18 @@ class npc_foundry_ironworker : public CreatureScript
                 {
                     case eEvents::EventThrowExplosiveOre:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
-                            me->CastSpell(l_Target, eSpells::ThrowExplosiveOre, true);
+                      //  if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                        //    me->CastSpell(l_Target, eSpells::ThrowExplosiveOre, true);
 
-                        m_Events.ScheduleEvent(eEvents::EventThrowExplosiveOre, 8 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventThrowExplosiveOre, 8 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventHammerThrow:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
-                            me->CastSpell(l_Target, eSpells::HammerThrow, false);
+                       // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                         //   me->CastSpell(l_Target, eSpells::HammerThrow, false);
 
-                        m_Events.ScheduleEvent(eEvents::EventHammerThrow, 8 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventHammerThrow, 8 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -518,10 +518,10 @@ class npc_foundry_iron_slag_shaper : public CreatureScript
                // });
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvents::EventGrippingSlag, 5 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventRainOfSlag, 10 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventGrippingSlag, 5 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventRainOfSlag, 10 * TimeConstants::IN_MILLISECONDS);
             }
 
             void DoAction(int32 p_Action)
@@ -552,14 +552,14 @@ class npc_foundry_iron_slag_shaper : public CreatureScript
                     case eEvents::EventGrippingSlag:
                     {
                         me->CastSpell(me, eSpells::GrippingSlag, false);
-                        m_Events.ScheduleEvent(eEvents::EventGrippingSlag, 10 * TimeConstants::IN_MILLISECONDS);
+                      //  m_Events.ScheduleEvent(eEvents::EventGrippingSlag, 10 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventRainOfSlag:
                     {
                         me->CastSpell(me, eSpells::RainOfSlag, false);
                         me->CastSpell(me, eSpells::RainOfSlagVisual, true);
-                        m_Events.ScheduleEvent(eEvents::EventRainOfSlag, 10 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventRainOfSlag, 10 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -624,13 +624,13 @@ class npc_foundry_slagshop_worker : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
                // ClearDelayedOperations();
 
              //   me->SetUInt32Value(UnitFields::UNIT_FIELD_BYTES_1, 0);
 
-                m_Events.ScheduleEvent(eEvent::EventPunctureWound, 5 * TimeConstants::IN_MILLISECONDS);
+              //  m_Events.ScheduleEvent(eEvent::EventPunctureWound, 5 * TimeConstants::IN_MILLISECONDS);
             }
 
             void UpdateAI(uint32 p_Diff) override
@@ -649,10 +649,10 @@ class npc_foundry_slagshop_worker : public CreatureScript
                 {
                     case eEvent::EventPunctureWound:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(l_Target, eSpells::PunctureWound, true);
+                      //  if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        //    me->CastSpell(l_Target, eSpells::PunctureWound, true);
 
-                        m_Events.ScheduleEvent(eEvent::EventPunctureWound, 5 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvent::EventPunctureWound, 5 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -708,12 +708,12 @@ class npc_foundry_slagshop_brute : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
                 me->SetAIAnimKitId(0);
 
-                m_Events.ScheduleEvent(eEvents::EventDeathHowl, 8 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventLumberingStrength, 15 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventDeathHowl, 8 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventLumberingStrength, 15 * TimeConstants::IN_MILLISECONDS);
             }
 
             void UpdateAI(uint32 p_Diff) override
@@ -731,13 +731,13 @@ class npc_foundry_slagshop_brute : public CreatureScript
                     case eEvents::EventDeathHowl:
                     {
                         me->CastSpell(me, eSpells::DeathHowl, false);
-                        m_Events.ScheduleEvent(eEvents::EventDeathHowl, 15 * TimeConstants::IN_MILLISECONDS);
+                      //  m_Events.ScheduleEvent(eEvents::EventDeathHowl, 15 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventLumberingStrength:
                     {
                         me->CastSpell(me, eSpells::LumberingStrength, false);
-                        m_Events.ScheduleEvent(eEvents::EventLumberingStrength, 15 * TimeConstants::IN_MILLISECONDS);
+                      //  m_Events.ScheduleEvent(eEvents::EventLumberingStrength, 15 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -781,11 +781,11 @@ class npc_foundry_iron_journeyman : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
                // me->SetUInt32Value(UnitFields::UNIT_FIELD_BYTES_1, 0);
 
-                m_Events.ScheduleEvent(eEvent::EventHeymaker, 5 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvent::EventHeymaker, 5 * TimeConstants::IN_MILLISECONDS);
             }
 
             void UpdateAI(uint32 p_Diff) override
@@ -802,10 +802,10 @@ class npc_foundry_iron_journeyman : public CreatureScript
                 {
                     case eEvent::EventHeymaker:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(l_Target, eSpell::Heymaker, false);
+                       // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                         //   me->CastSpell(l_Target, eSpell::Heymaker, false);
 
-                        m_Events.ScheduleEvent(eEvent::EventHeymaker, 10 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvent::EventHeymaker, 10 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -854,17 +854,17 @@ class npc_foundry_gronnling_laborer : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
              //   me->SetUInt32Value(UnitFields::UNIT_FIELD_BYTES_1, 0);
 
                 me->RemoveAura(eSpells::EarthAttack);
 
-                m_Events.ScheduleEvent(eEvents::EventGronnlingSmash, 10 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventHeadSmash, 5 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventGronnlingSmash, 10 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventHeadSmash, 5 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage) 
             {
                 if (me->HasAura(eSpells::Enrage))
                     return;
@@ -888,18 +888,18 @@ class npc_foundry_gronnling_laborer : public CreatureScript
                     case eEvents::EventGronnlingSmash:
                     {
                         me->CastSpell(me, eSpells::GronnlingSmash, false);
-                        m_Events.ScheduleEvent(eEvents::EventGronnlingSmash, 20 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventGronnlingSmash, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventHeadSmash:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                      //  if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                         {
-                            me->CastSpell(l_Target, eSpells::HeadSmashDmg, true);
+                         //   me->CastSpell(l_Target, eSpells::HeadSmashDmg, true);
                             me->CastSpell(me, eSpells::HeadSmashDust, true);
                         }
 
-                        m_Events.ScheduleEvent(eEvents::EventHeadSmash, 10 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventHeadSmash, 10 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -953,13 +953,13 @@ class npc_foundry_karnor_the_cruel : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvents::EventChainVolley, 5 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventKillingSpree, 15 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventChainVolley, 5 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventKillingSpree, 15 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) 
             {
                 if (p_Target == nullptr)
                     return;
@@ -1008,13 +1008,13 @@ class npc_foundry_karnor_the_cruel : public CreatureScript
                     case eEvents::EventChainVolley:
                     {
                         me->CastSpell(me, eSpells::ChainVolley, true);
-                        m_Events.ScheduleEvent(eEvents::EventChainVolley, 10 * TimeConstants::IN_MILLISECONDS);
+                      //  m_Events.ScheduleEvent(eEvents::EventChainVolley, 10 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventKillingSpree:
                     {
                         me->CastSpell(me, eSpells::KillingSpree, true);
-                        m_Events.ScheduleEvent(eEvents::EventKillingSpree, 20 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventKillingSpree, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -1080,7 +1080,7 @@ class npc_foundry_iron_laborer_cosmetic : public CreatureScript
 
                 for (Creature* l_Me : l_Creatures)
                 {
-                    if (l_Me->IsAIEnabled)
+                   // if (l_Me->IsAIEnabled)
                         l_Me->AI()->DoAction(eActions::ActionDisable);
                 }
 
@@ -1094,7 +1094,7 @@ class npc_foundry_iron_laborer_cosmetic : public CreatureScript
 
                 for (Creature* l_Laborer : l_Creatures)
                 {
-                    if (l_Laborer->IsAIEnabled)
+                   // if (l_Laborer->IsAIEnabled)
                         l_Laborer->AI()->DoAction(eActions::ActionEvent);
                 }
             }
@@ -1160,7 +1160,7 @@ class npc_foundry_iron_laborer : public CreatureScript
 
                     for (Creature* l_Darkshard : l_Darkshards)
                     {
-                        if (l_Darkshard->IsAIEnabled)
+                       // if (l_Darkshard->IsAIEnabled)
                             l_Darkshard->AI()->DoAction(eAction::ActionEvent);
                     }
 
@@ -1209,7 +1209,7 @@ class npc_foundry_iron_laborer : public CreatureScript
                     case eMoves::MoveSecond:
                     {
                         m_Vehicle->RemoveAllPassengers();
-                        me->Kill(me);
+                       // me->Kill(me);
                         break;
                     }
                     default:
@@ -1247,7 +1247,7 @@ class npc_foundry_darkshard_acidback : public CreatureScript
                     AttackStart(l_Target);
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
                // me->SetUInt32Value(UnitFields::UNIT_NPC_EMOTESTATE, 0);
             }
@@ -1312,10 +1312,10 @@ class npc_foundry_darkshard_gnasher : public CreatureScript
                // m_FixateTarget = 0;
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvents::EventShatteringCharge, 5 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventInsatiableHunger, 10 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventShatteringCharge, 5 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventInsatiableHunger, 10 * TimeConstants::IN_MILLISECONDS);
             }
 
             void DoAction(int32 p_Action) override
@@ -1325,7 +1325,7 @@ class npc_foundry_darkshard_gnasher : public CreatureScript
                     m_Moved = true;
 
                   //  AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                   // {
+                    {
                         me->CastSpell(me, eSpells::RollingMovement, true);
 
                         float l_X, l_Y, l_Z, l_O;
@@ -1339,7 +1339,7 @@ class npc_foundry_darkshard_gnasher : public CreatureScript
 
                         me->GetMotionMaster()->Clear();
                         me->GetMotionMaster()->MovePoint(eMoves::MoveFirst, l_X, l_Y, l_Z);
-                   // });
+                    };
                 }
             }
 
@@ -1387,7 +1387,7 @@ class npc_foundry_darkshard_gnasher : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo)
             {
                 if (p_Target == nullptr)
                     return;
@@ -1448,13 +1448,13 @@ class npc_foundry_darkshard_gnasher : public CreatureScript
                     case eEvents::EventShatteringCharge:
                     {
                         me->CastSpell(me, eSpells::ShatteringChargeSeacher, true);
-                        m_Events.ScheduleEvent(eEvents::EventShatteringCharge, 20 * TimeConstants::IN_MILLISECONDS);
+                      //  m_Events.ScheduleEvent(eEvents::EventShatteringCharge, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventInsatiableHunger:
                     {
                         me->CastSpell(me, eSpells::InsatiableHungerSearch, true);
-                        m_Events.ScheduleEvent(eEvents::EventInsatiableHunger, 20 * TimeConstants::IN_MILLISECONDS);
+                      //  m_Events.ScheduleEvent(eEvents::EventInsatiableHunger, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -1501,13 +1501,13 @@ class npc_foundry_darkshard_crystalback : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvents::EventAcidMaw, 5 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventShardVolley, 9 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventAcidMaw, 5 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventShardVolley, 9 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) 
             {
                 if (p_Target == nullptr)
                     return;
@@ -1534,16 +1534,16 @@ class npc_foundry_darkshard_crystalback : public CreatureScript
                 {
                     case eEvents::EventAcidMaw:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(l_Target, eSpells::Acidmaw, true);
+                      //  if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        //    me->CastSpell(l_Target, eSpells::Acidmaw, true);
 
-                        m_Events.ScheduleEvent(eEvents::EventAcidMaw, 10 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventAcidMaw, 10 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventShardVolley:
                     {
                         me->CastSpell(me, eSpells::ShardVolleySearcher, false);
-                        m_Events.ScheduleEvent(eEvents::EventShardVolley, 15 * TimeConstants::IN_MILLISECONDS);
+                      //  m_Events.ScheduleEvent(eEvents::EventShardVolley, 15 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -1614,13 +1614,13 @@ class npc_foundry_slag_behemoth : public CreatureScript
                 m_Events.Reset();
 
                // AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-               // {
+                {
                     if (GameObject* l_FurnaceDoor = me->FindNearestGameObject(eFoundryGameObjects::BlastFurnaceEncounterDoor, 30.0f))
                     {
                         m_EncounterDoor = l_FurnaceDoor->GetGUID();
                         l_FurnaceDoor->SetGoState(GOState::GO_STATE_READY);
                     }
-               // });
+                };
 
                 std::list<GameObject*> l_Gobs;
                 me->GetGameObjectListWithEntryInGrid(l_Gobs, eGameObjects::IceBlock, 100.0f);
@@ -1636,11 +1636,11 @@ class npc_foundry_slag_behemoth : public CreatureScript
                     l_GameObject->Delete();
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvents::EventIgnite, 5 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventVolcanicBomb, 11 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventBlastWave, 30 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventIgnite, 5 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventVolcanicBomb, 11 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventBlastWave, 30 * TimeConstants::IN_MILLISECONDS);
             }
 
             void JustDied(Unit* /*p_Killer*/) override
@@ -1665,13 +1665,13 @@ class npc_foundry_slag_behemoth : public CreatureScript
                 {
                     if (Creature* l_Creature = ObjectAccessor::GetCreature(*me, l_InstanceScript->GetGuidData(eFoundryCreatures::BlackhandCosmetic)))
                     {
-                        if (l_Creature->IsAIEnabled)
+                       // if (l_Creature->IsAIEnabled)
                             l_Creature->AI()->DoAction(eAction::ActionIntro);
                     }
                 }
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) 
             {
                 if (p_Target == nullptr)
                     return;
@@ -1705,13 +1705,13 @@ class npc_foundry_slag_behemoth : public CreatureScript
                     case eEvents::EventIgnite:
                     {
                         me->CastSpell(me, eSpells::IgniteSearcher, false);
-                        m_Events.ScheduleEvent(eEvents::EventIgnite, 13 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventIgnite, 13 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventVolcanicBomb:
                     {
                         me->CastSpell(me, eSpells::VolcanicBombSearch, true);
-                        m_Events.ScheduleEvent(eEvents::EventVolcanicBomb, 11 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventVolcanicBomb, 11 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventBlastWave:
@@ -1719,7 +1719,7 @@ class npc_foundry_slag_behemoth : public CreatureScript
                         Talk(eTalk::TalkBlastWave);
 
                         me->CastSpell(me, eSpells::BlastWave, false);
-                        m_Events.ScheduleEvent(eEvents::EventBlastWave, 35 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventBlastWave, 35 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -1767,11 +1767,11 @@ class npc_foundry_blackrock_enforcer : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvents::EventClobberingStrike, 5 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventFireBomb, 7 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventIntimidation, 10 * TimeConstants::IN_MILLISECONDS);
+              //  m_Events.ScheduleEvent(eEvents::EventClobberingStrike, 5 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventFireBomb, 7 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventIntimidation, 10 * TimeConstants::IN_MILLISECONDS);
             }
 
             void JustDied(Unit* /*p_Killer*/) override
@@ -1780,7 +1780,7 @@ class npc_foundry_blackrock_enforcer : public CreatureScript
                 {
                     if (Creature* l_Hansgar = ObjectAccessor::GetCreature(*me, l_Instance->GetGuidData(eFoundryCreatures::BossHansgar)))
                     {
-                        if (l_Hansgar->IsAIEnabled)
+                       // if (l_Hansgar->IsAIEnabled)
                             l_Hansgar->AI()->SetGUID(me->GetGUID(), 0);
                     }
                 }
@@ -1800,23 +1800,23 @@ class npc_foundry_blackrock_enforcer : public CreatureScript
                 {
                     case eEvents::EventClobberingStrike:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(l_Target, eSpells::ClobberingStrike, false);
-                        m_Events.ScheduleEvent(eEvents::EventClobberingStrike, 15 * TimeConstants::IN_MILLISECONDS);
+                      //  if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        //    me->CastSpell(l_Target, eSpells::ClobberingStrike, false);
+                       // m_Events.ScheduleEvent(eEvents::EventClobberingStrike, 15 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventFireBomb:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
-                            me->CastSpell(l_Target, eSpells::FireBombMissile, false);
-                        m_Events.ScheduleEvent(eEvents::EventFireBomb, 10 * TimeConstants::IN_MILLISECONDS);
+                       // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                         //   me->CastSpell(l_Target, eSpells::FireBombMissile, false);
+                       // m_Events.ScheduleEvent(eEvents::EventFireBomb, 10 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventIntimidation:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
-                            me->CastSpell(l_Target, eSpells::Intimidation, false);
-                        m_Events.ScheduleEvent(eEvents::EventIntimidation, 10 * TimeConstants::IN_MILLISECONDS);
+                        //if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                          //  me->CastSpell(l_Target, eSpells::Intimidation, false);
+                       // m_Events.ScheduleEvent(eEvents::EventIntimidation, 10 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -1862,10 +1862,10 @@ class npc_foundry_blackrock_forge_specialist : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvents::EventRendingSlash, 5 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventShreddingSpear, 8 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventRendingSlash, 5 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventShreddingSpear, 8 * TimeConstants::IN_MILLISECONDS);
             }
 
             void JustDied(Unit* /*p_Killer*/) override
@@ -1874,7 +1874,7 @@ class npc_foundry_blackrock_forge_specialist : public CreatureScript
                 {
                     if (Creature* l_Hansgar = ObjectAccessor::GetCreature(*me, l_Instance->GetGuidData(eFoundryCreatures::BossHansgar)))
                     {
-                        if (l_Hansgar->IsAIEnabled)
+                      //  if (l_Hansgar->IsAIEnabled)
                             l_Hansgar->AI()->SetGUID(me->GetGUID(), 0);
                     }
                 }
@@ -1895,14 +1895,14 @@ class npc_foundry_blackrock_forge_specialist : public CreatureScript
                     case eEvents::EventRendingSlash:
                     {
                         me->CastSpell(me, eSpells::RendingSlash, false);
-                        m_Events.ScheduleEvent(eEvents::EventRendingSlash, 15 * TimeConstants::IN_MILLISECONDS);
+                     //   m_Events.ScheduleEvent(eEvents::EventRendingSlash, 15 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventShreddingSpear:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 5.0f))
-                            me->CastSpell(l_Target, eSpells::ShreddingSpear, false);
-                        m_Events.ScheduleEvent(eEvents::EventShreddingSpear, 15 * TimeConstants::IN_MILLISECONDS);
+                       // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 5.0f))
+                         //   me->CastSpell(l_Target, eSpells::ShreddingSpear, false);
+                       // m_Events.ScheduleEvent(eEvents::EventShreddingSpear, 15 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -1960,7 +1960,7 @@ class npc_foundry_iron_taskmaster : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
                 if (InstanceScript* l_Instance = me->GetInstanceScript())
                 {
@@ -1972,8 +1972,8 @@ class npc_foundry_iron_taskmaster : public CreatureScript
                     }
                 }
 
-                m_Events.ScheduleEvent(eEvents::EventBonk, 5 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventHeldToTask, 10 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventBonk, 5 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventHeldToTask, 10 * TimeConstants::IN_MILLISECONDS);
             }
 
             void DoAction(int32 p_Action) override
@@ -1990,7 +1990,7 @@ class npc_foundry_iron_taskmaster : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) 
             {
                 if (p_Target == nullptr)
                     return;
@@ -2013,16 +2013,16 @@ class npc_foundry_iron_taskmaster : public CreatureScript
                 {
                     case eEvents::EventBonk:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(l_Target, eSpells::Bonk, false);
+                      //  if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        //    me->CastSpell(l_Target, eSpells::Bonk, false);
 
-                        m_Events.ScheduleEvent(eEvents::EventBonk, 15 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventBonk, 15 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventHeldToTask:
                     {
                         me->CastSpell(me, eSpells::HeldToTaskSearcher, true);
-                        m_Events.ScheduleEvent(eEvents::EventHeldToTask, 20 * TimeConstants::IN_MILLISECONDS);
+                      //  m_Events.ScheduleEvent(eEvents::EventHeldToTask, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -2095,14 +2095,14 @@ class npc_foundry_iron_flametwister : public CreatureScript
                // });
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
                // ClearDelayedOperations();
 
-                m_Events.ScheduleEvent(eEvent::EventLavaBlast, 10 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvent::EventLavaBlast, 10 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage)
             {
                 if (me->HealthBelowPctDamaged(20, p_Damage) && !m_Exploded)
                 {
@@ -2128,10 +2128,10 @@ class npc_foundry_iron_flametwister : public CreatureScript
                 {
                     case eEvent::EventLavaBlast:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
-                            me->CastSpell(l_Target, eSpells::LavaBlast, false);
+                       // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                         //   me->CastSpell(l_Target, eSpells::LavaBlast, false);
 
-                        m_Events.ScheduleEvent(eEvent::EventLavaBlast, 15 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvent::EventLavaBlast, 15 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -2194,9 +2194,9 @@ class npc_foundry_iron_smith : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvent::EventCrushingSlam, 10 * TimeConstants::IN_MILLISECONDS);
+              //  m_Events.ScheduleEvent(eEvent::EventCrushingSlam, 10 * TimeConstants::IN_MILLISECONDS);
             }
 
             void UpdateAI(uint32 p_Diff) override
@@ -2214,7 +2214,7 @@ class npc_foundry_iron_smith : public CreatureScript
                     case eEvent::EventCrushingSlam:
                     {
                         me->CastSpell(me, eSpell::CrushingSlam, false);
-                        m_Events.ScheduleEvent(eEvent::EventCrushingSlam, 20 * TimeConstants::IN_MILLISECONDS);
+                      //  m_Events.ScheduleEvent(eEvent::EventCrushingSlam, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -2267,7 +2267,7 @@ class npc_foundry_enchanted_armament : public CreatureScript
 
                 me->SetReactState(ReactStates::REACT_PASSIVE);
 
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UnitFlags::UNIT_FLAG_IMMUNE_TO_PC));
+              //  me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UnitFlags::UNIT_FLAG_IMMUNE_TO_PC));
 
               //  AddTimedDelayedOperation(200, [this]() -> void
                // {
@@ -2287,15 +2287,15 @@ class npc_foundry_enchanted_armament : public CreatureScript
               //  });
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* p_Attacker) 
             {
                 me->GetMotionMaster()->Clear();
 
                 AttackStart(p_Attacker);
 
-                m_Event.ScheduleEvent(eEvent::EventEmpoweredArmament, 4 * TimeConstants::IN_MILLISECONDS);
+              //  m_Event.ScheduleEvent(eEvent::EventEmpoweredArmament, 4 * TimeConstants::IN_MILLISECONDS);
 
-                me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
+                //me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
             }
 
             void MovementInform(uint32 p_Type, uint32 p_ID) override
@@ -2307,7 +2307,7 @@ class npc_foundry_enchanted_armament : public CreatureScript
                     me->DespawnOrUnsummon();
             }
 
-            void SpellHit(Unit* /*p_Attacker*/, SpellInfo const* p_SpellInfo) override
+            void SpellHit(Unit* /*p_Attacker*/, SpellInfo const* p_SpellInfo) 
             {
                 if (p_SpellInfo->Id == eSpells::ImbueWeapon)
                 {
@@ -2319,7 +2319,7 @@ class npc_foundry_enchanted_armament : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage) 
             {
                 p_Damage = 0;
             }
@@ -2337,7 +2337,7 @@ class npc_foundry_enchanted_armament : public CreatureScript
                 {
                     me->CastSpell(me, eSpells::EmpoweredArmamentAoE, true);
 
-                    m_Event.ScheduleEvent(eEvent::EventEmpoweredArmament, 4 * TimeConstants::IN_MILLISECONDS);
+                   // m_Event.ScheduleEvent(eEvent::EventEmpoweredArmament, 4 * TimeConstants::IN_MILLISECONDS);
                 }
             }
         };
@@ -2401,7 +2401,7 @@ class npc_foundry_flame_vents : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage) 
             {
                 p_Damage = 0;
             }
@@ -2553,15 +2553,15 @@ class npc_foundry_moldana_two_blade : public CreatureScript
                 me->CastSpell(me, eSpells::AkathaCosmetics, true);
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
                // me->SetUInt32Value(UnitFields::UNIT_NPC_EMOTESTATE, 0);
 
-                m_Events.ScheduleEvent(eEvents::EventRisingFlameKick, 5 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventEmberInTheWind, 15 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventRisingFlameKick, 5 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventEmberInTheWind, 15 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) 
             {
                 if (p_Target == nullptr)
                     return;
@@ -2580,7 +2580,7 @@ class npc_foundry_moldana_two_blade : public CreatureScript
 
                         me->AddUnitState(UnitState::UNIT_STATE_ROOT);
 
-                        m_Events.ScheduleEvent(eEvents::EventNextEmberInTheWind, 1 * TimeConstants::IN_MILLISECONDS);
+                      //  m_Events.ScheduleEvent(eEvents::EventNextEmberInTheWind, 1 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -2604,24 +2604,24 @@ class npc_foundry_moldana_two_blade : public CreatureScript
                 {
                     case eEvents::EventRisingFlameKick:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(l_Target, eSpells::RisingFlameKick, true);
+                       // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                         //   me->CastSpell(l_Target, eSpells::RisingFlameKick, true);
 
-                        m_Events.ScheduleEvent(eEvents::EventRisingFlameKick, 25 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventRisingFlameKick, 25 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventEmberInTheWind:
                     {
                         me->CastSpell(me, eSpells::EmberInTheWindSearcher, true);
                         me->CastSpell(me, eSpells::EmberInTheWindCast, false);
-                        m_Events.ScheduleEvent(eEvents::EventEmberInTheWind, 30 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventEmberInTheWind, 30 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventNextEmberInTheWind:
                     {
                         me->ClearUnitState(UnitState::UNIT_STATE_ROOT);
                         me->CastSpell(me, eSpells::EmberInTheWindNext, true);
-                        m_Events.ScheduleEvent(eEvents::EventNextEmberInTheWind, 1 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventNextEmberInTheWind, 1 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -2677,13 +2677,13 @@ class npc_foundry_iron_assembly_warden : public CreatureScript
                 me->SetCanDualWield(false);
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
                 Talk(eTalk::TalkAggro);
 
-                m_Events.ScheduleEvent(eEvents::EventWhirlingSteel, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
-                m_Events.ScheduleEvent(eEvents::EventShieldSlam, urand(4 * TimeConstants::IN_MILLISECONDS, 6 * TimeConstants::IN_MILLISECONDS));
-                m_Events.ScheduleEvent(eEvents::EventIronBulwark, urand(15 * TimeConstants::IN_MILLISECONDS, 17 * TimeConstants::IN_MILLISECONDS));
+              //  m_Events.ScheduleEvent(eEvents::EventWhirlingSteel, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
+               // m_Events.ScheduleEvent(eEvents::EventShieldSlam, urand(4 * TimeConstants::IN_MILLISECONDS, 6 * TimeConstants::IN_MILLISECONDS));
+               // m_Events.ScheduleEvent(eEvents::EventIronBulwark, urand(15 * TimeConstants::IN_MILLISECONDS, 17 * TimeConstants::IN_MILLISECONDS));
             }
 
             void UpdateAI(uint32 p_Diff) override
@@ -2701,21 +2701,21 @@ class npc_foundry_iron_assembly_warden : public CreatureScript
                     case eEvents::EventWhirlingSteel:
                     {
                         me->CastSpell(me, eSpells::WhirlingSteelAoE, true);
-                        m_Events.ScheduleEvent(eEvents::EventWhirlingSteel, urand(18 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
+                       // m_Events.ScheduleEvent(eEvents::EventWhirlingSteel, urand(18 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
                         break;
                     }
                     case eEvents::EventShieldSlam:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(l_Target, eSpells::ShieldSlamDamage, true);
+                       // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                         //   me->CastSpell(l_Target, eSpells::ShieldSlamDamage, true);
 
-                        m_Events.ScheduleEvent(eEvents::EventShieldSlam, urand(18 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
+                       // m_Events.ScheduleEvent(eEvents::EventShieldSlam, urand(18 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
                         break;
                     }
                     case eEvents::EventIronBulwark:
                     {
                         me->CastSpell(me, eSpells::IronBulwark, true);
-                        m_Events.ScheduleEvent(eEvents::EventIronBulwark, urand(30 * TimeConstants::IN_MILLISECONDS, 35 * TimeConstants::IN_MILLISECONDS));
+                       // m_Events.ScheduleEvent(eEvents::EventIronBulwark, urand(30 * TimeConstants::IN_MILLISECONDS, 35 * TimeConstants::IN_MILLISECONDS));
                         break;
                     }
                     default:
@@ -2774,26 +2774,26 @@ class npc_foundry_thunderlord_beast_tender : public CreatureScript
                 if (m_IronhoofGuards.empty())
                 {
                     //AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                   // {
+                    {
                         if (Creature* l_Stubborn = me->FindNearestCreature(eCreatures::StubbornIronhoof, 30.0f))
                             m_IronhoofGuards.push_back(l_Stubborn->GetGUID());
 
                         if (Creature* l_Ornery = me->FindNearestCreature(eCreatures::OrneryIronhoof, 30.0f))
                             m_IronhoofGuards.push_back(l_Ornery->GetGUID());
-                   // });
+                    };
                 }
 
                 me->RemoveAllAreaTriggers();
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvents::EventBestialWrath, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
-                m_Events.ScheduleEvent(eEvents::EventCallLightning, urand(4 * TimeConstants::IN_MILLISECONDS, 6 * TimeConstants::IN_MILLISECONDS));
-                m_Events.ScheduleEvent(eEvents::EventElectricalStorm, urand(12 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
+               // m_Events.ScheduleEvent(eEvents::EventBestialWrath, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
+               // m_Events.ScheduleEvent(eEvents::EventCallLightning, urand(4 * TimeConstants::IN_MILLISECONDS, 6 * TimeConstants::IN_MILLISECONDS));
+               // m_Events.ScheduleEvent(eEvents::EventElectricalStorm, urand(12 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) 
             {
                 if (p_Target == nullptr)
                     return;
@@ -2829,21 +2829,21 @@ class npc_foundry_thunderlord_beast_tender : public CreatureScript
                                 me->CastSpell(l_Ironhoof, eSpells::BestialWrath, false);
                         }
 
-                        m_Events.ScheduleEvent(eEvents::EventBestialWrath, urand(18 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
+                       // m_Events.ScheduleEvent(eEvents::EventBestialWrath, urand(18 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
                         break;
                     }
                     case eEvents::EventCallLightning:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(l_Target, eSpells::CallLightning, false);
+                       // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                         //   me->CastSpell(l_Target, eSpells::CallLightning, false);
 
-                        m_Events.ScheduleEvent(eEvents::EventCallLightning, 3 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventCallLightning, 3 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventElectricalStorm:
                     {
                         me->CastSpell(me, eSpells::ElectricalStormSearcher, false);
-                        m_Events.ScheduleEvent(eEvents::EventElectricalStorm, urand(14 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
+                       // m_Events.ScheduleEvent(eEvents::EventElectricalStorm, urand(14 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
                         break;
                     }
                     default:
@@ -2892,10 +2892,10 @@ class npc_foundry_stubborn_ironhoof : public CreatureScript
                 me->CastSpell(me, eSpells::SpiritBond, true);
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvents::EventGoringSwipe, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
-                m_Events.ScheduleEvent(eEvents::EventGroundSlam, urand(4 * TimeConstants::IN_MILLISECONDS, 6 * TimeConstants::IN_MILLISECONDS));
+               // m_Events.ScheduleEvent(eEvents::EventGoringSwipe, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
+               // m_Events.ScheduleEvent(eEvents::EventGroundSlam, urand(4 * TimeConstants::IN_MILLISECONDS, 6 * TimeConstants::IN_MILLISECONDS));
             }
 
             void UpdateAI(uint32 p_Diff) override
@@ -2914,21 +2914,21 @@ class npc_foundry_stubborn_ironhoof : public CreatureScript
                 {
                     case eEvents::EventGoringSwipe:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->SetFacingTo(me->GetAngle(l_Target));
+                      //  if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        //    me->SetFacingTo(me->GetAngle(l_Target));
 
                       //  AddTimedDelayedOperation(50, [this]() -> void
-                      //  {
+                        {
                             me->CastSpell(me, eSpells::GoringSwipeAoE, false);
-                      //  });
+                        };
 
-                        m_Events.ScheduleEvent(eEvents::EventGoringSwipe, urand(15 * TimeConstants::IN_MILLISECONDS, 17 * TimeConstants::IN_MILLISECONDS));
+                       // m_Events.ScheduleEvent(eEvents::EventGoringSwipe, urand(15 * TimeConstants::IN_MILLISECONDS, 17 * TimeConstants::IN_MILLISECONDS));
                         break;
                     }
                     case eEvents::EventGroundSlam:
                     {
                         me->CastSpell(me, eSpells::GroundSlamAoE, true);
-                        m_Events.ScheduleEvent(eEvents::EventGroundSlam, urand(12 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
+                       // m_Events.ScheduleEvent(eEvents::EventGroundSlam, urand(12 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
                         break;
                     }
                     default:
@@ -2977,10 +2977,10 @@ class npc_foundry_ornery_ironhoof : public CreatureScript
                 me->CastSpell(me, eSpells::SpiritBond, true);
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvents::EventGoringSwipe, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
-                m_Events.ScheduleEvent(eEvents::EventGroundSlam, urand(4 * TimeConstants::IN_MILLISECONDS, 6 * TimeConstants::IN_MILLISECONDS));
+               // m_Events.ScheduleEvent(eEvents::EventGoringSwipe, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
+               // m_Events.ScheduleEvent(eEvents::EventGroundSlam, urand(4 * TimeConstants::IN_MILLISECONDS, 6 * TimeConstants::IN_MILLISECONDS));
             }
 
             void UpdateAI(uint32 p_Diff) override
@@ -2999,21 +2999,21 @@ class npc_foundry_ornery_ironhoof : public CreatureScript
                 {
                     case eEvents::EventGoringSwipe:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->SetFacingTo(me->GetAngle(l_Target));
+                       // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                         //   me->SetFacingTo(me->GetAngle(l_Target));
 
                       //  AddTimedDelayedOperation(50, [this]() -> void
-                      //  {
+                        {
                             me->CastSpell(me, eSpells::GoringSwipeAoE, false);
-                       // });
+                        };
 
-                        m_Events.ScheduleEvent(eEvents::EventGoringSwipe, urand(15 * TimeConstants::IN_MILLISECONDS, 17 * TimeConstants::IN_MILLISECONDS));
+                       // m_Events.ScheduleEvent(eEvents::EventGoringSwipe, urand(15 * TimeConstants::IN_MILLISECONDS, 17 * TimeConstants::IN_MILLISECONDS));
                         break;
                     }
                     case eEvents::EventGroundSlam:
                     {
                         me->CastSpell(me, eSpells::GroundSlamAoE, true);
-                        m_Events.ScheduleEvent(eEvents::EventGroundSlam, urand(12 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
+                      //  m_Events.ScheduleEvent(eEvents::EventGroundSlam, urand(12 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
                         break;
                     }
                     default:
@@ -3063,14 +3063,14 @@ class npc_foundry_iron_marksman : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvents::EventIceTrap, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
-                m_Events.ScheduleEvent(eEvents::EventScatterShot, urand(10 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
-                m_Events.ScheduleEvent(eEvents::EventBattleMorale, urand(12 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
+              //  m_Events.ScheduleEvent(eEvents::EventIceTrap, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
+              //  m_Events.ScheduleEvent(eEvents::EventScatterShot, urand(10 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
+              //  m_Events.ScheduleEvent(eEvents::EventBattleMorale, urand(12 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) 
             {
                 if (p_Target == nullptr)
                     return;
@@ -3096,19 +3096,19 @@ class npc_foundry_iron_marksman : public CreatureScript
                        // if (Player* l_Target =SelectAggroTarget())
                             me->CastSpell(me, eSpells::IceTrap, true);
 
-                        m_Events.ScheduleEvent(eEvents::EventIceTrap, urand(14 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
+                       // m_Events.ScheduleEvent(eEvents::EventIceTrap, urand(14 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
                         break;
                     }
                     case eEvents::EventScatterShot:
                     {
                         me->CastSpell(me, eSpells::ScatterShotSearcher, true);
-                        m_Events.ScheduleEvent(eEvents::EventScatterShot, urand(10 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
+                       // m_Events.ScheduleEvent(eEvents::EventScatterShot, urand(10 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
                         break;
                     }
                     case eEvents::EventBattleMorale:
                     {
                         me->CastSpell(me, eSpells::BattleMorale, true);
-                        m_Events.ScheduleEvent(eEvents::EventBattleMorale, urand(18 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
+                       // m_Events.ScheduleEvent(eEvents::EventBattleMorale, urand(18 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
                         break;
                     }
                     default:
@@ -3164,13 +3164,13 @@ class npc_foundry_markog_abadir : public CreatureScript
                 m_StacksResetPct = 70;
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvents::EventColossalRoar, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
-                m_Events.ScheduleEvent(eEvents::EventSlam, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
+               // m_Events.ScheduleEvent(eEvents::EventColossalRoar, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
+               // m_Events.ScheduleEvent(eEvents::EventSlam, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
             }
 
-            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage) override
+            void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage) 
             {
                 if (m_StacksResetPct <= 0)
                     return;
@@ -3205,15 +3205,15 @@ class npc_foundry_markog_abadir : public CreatureScript
                     case eEvents::EventColossalRoar:
                     {
                         me->CastSpell(me, eSpells::ColossalRoar, true);
-                        m_Events.ScheduleEvent(eEvents::EventColossalRoar, 5 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventColossalRoar, 5 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventSlam:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(l_Target, eSpells::Slam, false);
+                       // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                          //  me->CastSpell(l_Target, eSpells::Slam, false);
 
-                        m_Events.ScheduleEvent(eEvents::EventSlam, urand(14 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
+                       // m_Events.ScheduleEvent(eEvents::EventSlam, urand(14 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS));
                         break;
                     }
                     default:
@@ -3284,12 +3284,12 @@ class npc_foundry_gromkar_man_at_arms : public CreatureScript
                 me->SetCanDualWield(false);
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
-                me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_IMMUNE_TO_NPC));
+              //  me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_IMMUNE_TO_NPC));
 
-                m_Events.ScheduleEvent(eEvents::EventIronBellow, 1);
-                m_Events.ScheduleEvent(eEvents::EventRecklessSlash, 3 * TimeConstants::IN_MILLISECONDS);
+                //m_Events.ScheduleEvent(eEvents::EventIronBellow, 1);
+               // m_Events.ScheduleEvent(eEvents::EventRecklessSlash, 3 * TimeConstants::IN_MILLISECONDS);
 
                 if (m_IsThogarIntro && m_Instance != nullptr)
                 {
@@ -3304,17 +3304,17 @@ class npc_foundry_gromkar_man_at_arms : public CreatureScript
 
                         if (Creature* l_Thogar = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eFoundryCreatures::BossOperatorThogar)))
                         {
-                            if (l_Thogar->IsAIEnabled)
+                           // if (l_Thogar->IsAIEnabled)
                                 l_Thogar->AI()->SetGUID(l_Guid, 2);
                         }
                     }
                     else if (Creature* l_Thogar = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eFoundryCreatures::BossOperatorThogar)))
                     {
-                        if (l_Thogar->IsAIEnabled)
+                       // if (l_Thogar->IsAIEnabled)
                         {
                             if (Creature* l_Wheels = ObjectAccessor::GetCreature(*me, l_Thogar->AI()->GetGUID(2)))
                             {
-                                if (l_Wheels->IsAIEnabled)
+                               // if (l_Wheels->IsAIEnabled)
                                 {
                                     l_Wheels->AI()->SetGUID(me->GetGUID(), 1);
                                     l_Wheels->AI()->DoAction(eThogarActions::IntroEnd);
@@ -3338,7 +3338,7 @@ class npc_foundry_gromkar_man_at_arms : public CreatureScript
                     {
                         if (Creature* l_Thogar = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eFoundryCreatures::BossOperatorThogar)))
                         {
-                            if (l_Thogar->IsAIEnabled)
+                           // if (l_Thogar->IsAIEnabled)
                                 l_Thogar->AI()->SetGUID(p_Summon->GetGUID(), 0);
                         }
 
@@ -3355,16 +3355,16 @@ class npc_foundry_gromkar_man_at_arms : public CreatureScript
                 {
                     if (Creature* l_Thogar = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eFoundryCreatures::BossOperatorThogar)))
                     {
-                        if (l_Thogar->IsAIEnabled)
+                       //if (l_Thogar->IsAIEnabled)
                             l_Thogar->AI()->SetGUID(me->GetGUID(), 1);
                     }
                 }
 
-                if (me->GetEntry() == eThogarCreatures::ThogarManAtArms)
-                    me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
+                if (me->GetEntry() == eThogarCreatures::ThogarManAtArms);
+                   // me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) 
             {
                 if (p_Target == nullptr)
                     return;
@@ -3402,14 +3402,14 @@ class npc_foundry_gromkar_man_at_arms : public CreatureScript
                     case eEvents::EventIronBellow:
                     {
                         me->CastSpell(me, eSpells::SpellIronBellow, false);
-                        m_Events.ScheduleEvent(eEvents::EventIronBellow, 10 * TimeConstants::IN_MILLISECONDS);
+                      //  m_Events.ScheduleEvent(eEvents::EventIronBellow, 10 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventRecklessSlash:
                     {
                        // if (Player* l_Target = SelectMeleeTarget(true))
                             me->CastSpell(me, eSpells::SpellRecklessSlashCharge, true);
-                        m_Events.ScheduleEvent(eEvents::EventRecklessSlash, 10 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventRecklessSlash, 10 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -3456,22 +3456,22 @@ class npc_foundry_iron_raider : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
                // AddTimedDelayedOperation(100, [this]() -> void
-              //  {
-                    me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_IMMUNE_TO_NPC));
-             //   });
+                {
+                  //  me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_IMMUNE_TO_NPC));
+                };
 
-                m_Events.ScheduleEvent(eEvents::EventThrowGrenade, urand(2 * TimeConstants::IN_MILLISECONDS, 5 * TimeConstants::IN_MILLISECONDS));
-                m_Events.ScheduleEvent(eEvents::EventSerratedSlash, 6 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventThrowGrenade, urand(2 * TimeConstants::IN_MILLISECONDS, 5 * TimeConstants::IN_MILLISECONDS));
+               // m_Events.ScheduleEvent(eEvents::EventSerratedSlash, 6 * TimeConstants::IN_MILLISECONDS);
             }
 
             void JustDied(Unit* /*p_Killer*/) override
             {
                 if (me->GetEntry() == eThogarCreatures::ThogarIronRaider)
                 {
-                    me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
+                    //me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
                     return;
                 }
 
@@ -3479,7 +3479,7 @@ class npc_foundry_iron_raider : public CreatureScript
                 {
                     if (Creature* l_Thogar = ObjectAccessor::GetCreature(*me, l_InstanceScript->GetGuidData(eFoundryCreatures::BossOperatorThogar)))
                     {
-                        if (l_Thogar->IsAIEnabled)
+                      //  if (l_Thogar->IsAIEnabled)
                             l_Thogar->AI()->SetGUID(me->GetGUID(), 1);
                     }
                 }
@@ -3499,16 +3499,16 @@ class npc_foundry_iron_raider : public CreatureScript
                 {
                     case eEvents::EventThrowGrenade:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
-                            me->CastSpell(l_Target, eSpells::SpellThrowGrenade, false);
-                        m_Events.ScheduleEvent(eEvents::EventThrowGrenade, urand(12 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
+                      //  if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                        //    me->CastSpell(l_Target, eSpells::SpellThrowGrenade, false);
+                       // m_Events.ScheduleEvent(eEvents::EventThrowGrenade, urand(12 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
                         break;
                     }
                     case eEvents::EventSerratedSlash:
                     {
                         if (Unit* l_Target = me->GetVictim())
                             me->CastSpell(l_Target, eSpells::SpellSerratedSlash, true);
-                        m_Events.ScheduleEvent(eEvents::EventSerratedSlash, 12 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventSerratedSlash, 12 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -3555,18 +3555,18 @@ class npc_foundry_iron_crack_shot : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
-                me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_IMMUNE_TO_NPC));
+               // me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_IMMUNE_TO_NPC));
 
-                m_Events.ScheduleEvent(eEvent::EventThrowGrenade, urand(2 * TimeConstants::IN_MILLISECONDS, 5 * TimeConstants::IN_MILLISECONDS));
+               // m_Events.ScheduleEvent(eEvent::EventThrowGrenade, urand(2 * TimeConstants::IN_MILLISECONDS, 5 * TimeConstants::IN_MILLISECONDS));
             }
 
             void JustDied(Unit* /*p_Killer*/) override
             {
                 if (me->GetEntry() == eThogarCreatures::ThogarIronCrackShot)
                 {
-                    me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
+                  //  me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
                     return;
                 }
             }
@@ -3585,9 +3585,9 @@ class npc_foundry_iron_crack_shot : public CreatureScript
                 {
                     case eEvent::EventThrowGrenade:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
-                            me->CastSpell(l_Target, eSpells::SpellThrowGrenade, false);
-                        m_Events.ScheduleEvent(eEvent::EventThrowGrenade, urand(12 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
+                       // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                         //   me->CastSpell(l_Target, eSpells::SpellThrowGrenade, false);
+                       // m_Events.ScheduleEvent(eEvent::EventThrowGrenade, urand(12 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
                         break;
                     }
                     default:
@@ -3636,23 +3636,23 @@ class npc_foundry_gromkar_firemender : public CreatureScript
                 me->SetCanDualWield(false);
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
-                me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_IMMUNE_TO_NPC));
+               // me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UnitFlags::UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_IMMUNE_TO_NPC));
 
-                m_Events.ScheduleEvent(eEvent::EventCauterizingBolt, 5 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvent::EventCauterizingBolt, 5 * TimeConstants::IN_MILLISECONDS);
             }
 
             void JustDied(Unit* /*p_Killer*/) override
             {
                 if (me->GetEntry() == eThogarCreatures::ThogarFiremender)
                 {
-                    me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
+                  //  me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
                     return;
                 }
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) 
             {
                 if (p_Target == nullptr)
                     return;
@@ -3676,7 +3676,7 @@ class npc_foundry_gromkar_firemender : public CreatureScript
                     case eEvent::EventCauterizingBolt:
                     {
                         me->CastSpell(me, eSpells::SpellCauterizingBoltSearcher, true);
-                        m_Events.ScheduleEvent(eEvent::EventCauterizingBolt, 20 * TimeConstants::IN_MILLISECONDS);
+                      //  m_Events.ScheduleEvent(eEvent::EventCauterizingBolt, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -3696,65 +3696,68 @@ class npc_foundry_gromkar_firemender : public CreatureScript
 /// Iron Dockworker - 84841
 class npc_foundry_iron_dockworker : public CreatureScript
 {
-    public:
-        npc_foundry_iron_dockworker() : CreatureScript("npc_foundry_iron_dockworker") { }
+public:
+    npc_foundry_iron_dockworker() : CreatureScript("npc_foundry_iron_dockworker") { }
 
-        enum eSpells
-        {
-            WorkersSolidarity       = 171545,
-            WorkersSolidarityStacks = 171543,
-            ThrowCrate              = 171570,
-            CarryingCrate           = 171205,
-            LoadCrate               = 171209
-        };
+    enum eSpells
+    {
+        WorkersSolidarity = 171545,
+        WorkersSolidarityStacks = 171543,
+        ThrowCrate = 171570,
+        CarryingCrate = 171205,
+        LoadCrate = 171209
+    };
 
-        enum eMoves
-        {
-            MoveCarryCrate = 1,
-            MoveThrowCrate
-        };
+    enum eMoves
+    {
+        MoveCarryCrate = 1,
+        MoveThrowCrate
+    };
 
-        struct npc_foundry_iron_dockworkerAI : public ScriptedAI
+    struct npc_foundry_iron_dockworkerAI : public ScriptedAI
+    {
+        npc_foundry_iron_dockworkerAI(Creature* p_Creature) : ScriptedAI(p_Creature)
         {
-            npc_foundry_iron_dockworkerAI(Creature* p_Creature) : ScriptedAI(p_Creature)
+            // m_IsCosmetic = !p_Creature->IsNearPosition(&g_CosmeticCleaverPos, 10.0f);
+        }
+
+        bool m_IsCosmetic;
+
+        std::array<ObjectGuid, eIronMaidensDatas::MaxLoadingChains> m_LoadingChains;
+
+        uint8 m_CurrentChainID;
+
+        void Reset() override
+        {
+            m_CurrentChainID = eIronMaidensDatas::MaxLoadingChains;
+
+            if (m_IsCosmetic)
             {
-               // m_IsCosmetic = !p_Creature->IsNearPosition(&g_CosmeticCleaverPos, 10.0f);
-            }
+                // AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                // {
+                std::list<Creature*> l_LoadingChains;
+                me->GetCreatureListWithEntryInGrid(l_LoadingChains, eIronMaidensCreatures::LoadingChain, 150.0f);
 
-            bool m_IsCosmetic;
-
-            std::array<ObjectGuid, eIronMaidensDatas::MaxLoadingChains> m_LoadingChains;
-
-            uint8 m_CurrentChainID;
-
-            void Reset() override
-            {
-                m_CurrentChainID = eIronMaidensDatas::MaxLoadingChains;
-
-                if (m_IsCosmetic)
+                for (Creature* l_Chain : l_LoadingChains)
                 {
-                   // AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                   // {
-                        std::list<Creature*> l_LoadingChains;
-                        me->GetCreatureListWithEntryInGrid(l_LoadingChains, eIronMaidensCreatures::LoadingChain, 150.0f);
-
-                        for (Creature* l_Chain : l_LoadingChains)
-                        {
-                            if (l_Chain->IsAIEnabled)
-                                m_LoadingChains[l_Chain->AI()->GetData(eIronMaidensDatas::LoadingChainID)] = l_Chain->GetGUID();
-                        }
-
-                        me->SetWalk(true);
-
-                        me->GetMotionMaster()->MovePoint(eMoves::MoveCarryCrate, GetNearestCratePos());
-                   // });
+                    // if (l_Chain->IsAIEnabled)
+                    m_LoadingChains[l_Chain->AI()->GetData(eIronMaidensDatas::LoadingChainID)] = l_Chain->GetGUID();
                 }
 
-                if (!me->HasAura(eSpells::WorkersSolidarity))
-                    me->CastSpell(me, eSpells::WorkersSolidarity, true);
-            }
+                me->SetWalk(true);
 
-            void MovementInform(uint32 p_Type, uint32 p_ID) override
+                me->GetMotionMaster();//->MovePoint(eMoves::MoveCarryCrate())//, GetNearestCratePos());
+            }
+        
+
+          //if (!me->HasAura(eSpells::WorkersSolidarity))
+         //   me->CastSpell(me, eSpells::WorkersSolidarity, true);
+    }
+
+    
+
+    
+        void MovementInform(uint32 p_Type, uint32 p_ID) 
             {
                 if (p_Type != MovementGeneratorType::POINT_MOTION_TYPE)
                     return;
@@ -3766,14 +3769,14 @@ class npc_foundry_iron_dockworker : public CreatureScript
                         me->CastSpell(me, eSpells::CarryingCrate, true);
 
                      //   AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                       // {
+                        {
                             if (m_CurrentChainID >= eIronMaidensDatas::MaxLoadingChains)
                             {
-                                uint8 l_ChainID = GetFreeLoadingChain();
-                                if (l_ChainID >= eIronMaidensDatas::MaxLoadingChains)
+                               // uint8 l_ChainID = GetFreeLoadingChain();
+                               // if (l_ChainID >= eIronMaidensDatas::MaxLoadingChains)
                                     return;
 
-                                m_CurrentChainID = l_ChainID;
+                              //  m_CurrentChainID = l_ChainID;
                             }
 
                             Position l_Pos      = g_LoadingChainsSpawnPos[m_CurrentChainID];
@@ -3782,14 +3785,14 @@ class npc_foundry_iron_dockworker : public CreatureScript
                             /// Set chain to unavailable state
                             if (Creature* l_Chain = ObjectAccessor::GetCreature(*me, m_LoadingChains[m_CurrentChainID]))
                             {
-                                if (l_Chain->IsAIEnabled)
+                               // if (l_Chain->IsAIEnabled)
                                     l_Chain->AI()->SetData(eIronMaidensDatas::LoadingChainAvailable, 0);
                             }
 
                             me->SetWalk(true);
 
                             me->GetMotionMaster()->MovePoint(eMoves::MoveThrowCrate, l_Pos);
-                    //    });
+                        };
 
                         break;
                     }
@@ -3799,11 +3802,11 @@ class npc_foundry_iron_dockworker : public CreatureScript
                             me->CastSpell(l_Chain, eSpells::LoadCrate, true);
 
                       //  AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                      //  {
+                        {
                             me->SetWalk(true);
 
                             me->GetMotionMaster()->MovePoint(eMoves::MoveCarryCrate, GetNearestCratePos());
-                     //   });
+                        };
 
                         break;
                     }
@@ -3812,7 +3815,7 @@ class npc_foundry_iron_dockworker : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* p_Attacker) 
             {
                 m_CurrentChainID = eIronMaidensDatas::MaxLoadingChains;
 
@@ -3858,7 +3861,7 @@ class npc_foundry_iron_dockworker : public CreatureScript
                 {
                     if (Creature* l_Chain = ObjectAccessor::GetCreature(*me, l_Guid))
                     {
-                        if (l_Chain->IsAIEnabled)
+                       // if (l_Chain->IsAIEnabled)
                         {
                             if (l_Chain->AI()->GetData(eIronMaidensDatas::LoadingChainAvailable))
                                 return l_Chain->AI()->GetData(eIronMaidensDatas::LoadingChainID);
@@ -3870,7 +3873,7 @@ class npc_foundry_iron_dockworker : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* p_Creature) const override
+        CreatureAI* GetAI(Creature* p_Creature) const 
         {
             return new npc_foundry_iron_dockworkerAI(p_Creature);
         }
@@ -3905,21 +3908,21 @@ class npc_foundry_iron_earthbinder : public CreatureScript
                 m_Events.Reset();
 
                 //AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-              //  {
+                {
                     if (Creature* l_Cleaver = me->FindNearestCreature(eIronMaidensCreatures::IronCleaver, 5.0f))
                         me->GetMotionMaster()->MoveFollow(l_Cleaver, 2.0f, 0.0f);
-              //  });
+                };
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* p_Attacker) 
             {
                 me->StopMoving();
                 me->GetMotionMaster()->Clear();
 
                 AttackStart(p_Attacker);
 
-                m_Events.ScheduleEvent(eEvents::EventInfernoTotem, 12 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventEarthenBarrier, 10 * TimeConstants::IN_MILLISECONDS);
+              //  m_Events.ScheduleEvent(eEvents::EventInfernoTotem, 12 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventEarthenBarrier, 10 * TimeConstants::IN_MILLISECONDS);
             }
 
             void UpdateAI(uint32 p_Diff) override
@@ -3939,13 +3942,13 @@ class npc_foundry_iron_earthbinder : public CreatureScript
                     case eEvents::EventInfernoTotem:
                     {
                         me->CastSpell(me, eSpells::InfernoTotemSummon, true);
-                        m_Events.ScheduleEvent(eEvents::EventInfernoTotem, 12 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventInfernoTotem, 12 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventEarthenBarrier:
                     {
                         me->CastSpell(me, eSpells::EarthenBarrier, false);
-                        m_Events.ScheduleEvent(eEvents::EventEarthenBarrier, 10 * TimeConstants::IN_MILLISECONDS);
+                      //  m_Events.ScheduleEvent(eEvents::EventEarthenBarrier, 10 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -4025,11 +4028,11 @@ class npc_foundry_iron_mauler : public CreatureScript
             void Reset() override
             {
                // AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-              //  {
+               {
                     me->SetWalk(true);
 
                     me->GetMotionMaster()->MovePoint(eMoves::MoveCarryCrate, m_IronMaulerCarryCratePos);
-                //});
+                };
             }
 
             void MovementInform(uint32 p_Type, uint32 p_ID) override
@@ -4042,28 +4045,28 @@ class npc_foundry_iron_mauler : public CreatureScript
                     case eMoves::MoveCarryCrate:
                     {
                         //AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                        //{
+                        {
                             me->CastSpell(me, eSpells::CarryingCrate, true);
 
                             me->GetMotionMaster()->MovePoint(eMoves::MoveThrowCrate, m_IronMaulerThrowCratePos);
-                       // });
+                        };
 
                         break;
                     }
                     case eMoves::MoveThrowCrate:
                     {
-                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                       // AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
                             me->RemoveAura(eSpells::CarryingCrate);
 
                             if (Creature* l_Ukurogg = me->FindNearestCreature(eIronMaidensCreatures::Ukurogg, 100.0f))
                                 me->CastSpell(l_Ukurogg, eSpells::ThrowCrate, true);
-                        });
+                        };
 
-                        AddTimedDelayedOperation(8 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                       // AddTimedDelayedOperation(8 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
                             me->GetMotionMaster()->MovePoint(eMoves::MoveCarryCrate, m_IronMaulerCarryCratePos);
-                        });
+                        };
 
                         break;
                     }
@@ -4072,11 +4075,11 @@ class npc_foundry_iron_mauler : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* p_Attacker) 
             {
                 me->SetWalk(false);
 
-                ClearDelayedOperations();
+             //   ClearDelayedOperations();
 
                 if (me->HasAura(eSpells::CarryingCrate))
                     me->CastSpell(p_Attacker, eSpells::ThrowMassiveAmmoCache, false);
@@ -4090,7 +4093,7 @@ class npc_foundry_iron_mauler : public CreatureScript
 
             void UpdateAI(uint32  p_Diff) override
             {
-                UpdateOperations(p_Diff);
+               // UpdateOperations(p_Diff);
 
                 if (!UpdateVictim())
                     return;
@@ -4143,7 +4146,7 @@ class npc_foundry_iron_cleaver : public CreatureScript
                 if (m_IsCosmetic)
                 {
                   //  AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                  //  {
+                    {
                         std::list<Creature*> l_WorkerList;
 
                         me->GetCreatureListWithEntryInGrid(l_WorkerList, eIronMaidensCreatures::IronDockworker, 5.0f);
@@ -4155,27 +4158,27 @@ class npc_foundry_iron_cleaver : public CreatureScript
                             LaunchCosmeticEmotes();
                         else
                             m_IsCosmetic = false;
-                  //  });
+                    };
                 }
                 else
                 {
                    // AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                   // {
+                    {
                         me->SetWalk(true);
 
                         me->GetMotionMaster()->MovePoint(m_MoveID, g_IronCleaverMovesPos[m_MoveID]);
                         ++m_MoveID;
-                  //  });
+                    };
                 }
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
                 me->SetWalk(false);
 
                /// ClearDelayedOperations();
 
-                m_Events.ScheduleEvent(eEvent::EventReapingWhirl, 7 * TimeConstants::IN_MILLISECONDS);
+              //  m_Events.ScheduleEvent(eEvent::EventReapingWhirl, 7 * TimeConstants::IN_MILLISECONDS);
             }
 
             void MovementInform(uint32 p_Type, uint32 p_ID) override
@@ -4187,10 +4190,10 @@ class npc_foundry_iron_cleaver : public CreatureScript
                     m_MoveID = 0;
 
                // AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-              //  {
+                {
                     me->GetMotionMaster()->MovePoint(m_MoveID, g_IronCleaverMovesPos[m_MoveID]);
                     ++m_MoveID;
-              //  });
+                };
             }
 
             void UpdateAI(uint32 p_Diff) override
@@ -4210,7 +4213,7 @@ class npc_foundry_iron_cleaver : public CreatureScript
                     case eEvent::EventReapingWhirl:
                     {
                         me->CastSpell(me, eSpell::ReapingWhirl, false);
-                        m_Events.ScheduleEvent(eEvent::EventReapingWhirl, 10 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvent::EventReapingWhirl, 10 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -4223,18 +4226,18 @@ class npc_foundry_iron_cleaver : public CreatureScript
             void LaunchCosmeticEmotes()
             {
               //  AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                //{
+                {
                     me->HandleEmoteCommand(g_DockworkerEmotes[urand(0, (eIronMaidensDatas::MaxRandomEmotes - 1))]);
 
                  //   AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-                 //   {
+                    {
                         for (ObjectGuid l_Guid : m_WorkerList)
                         {
                             if (Creature* l_Creature = ObjectAccessor::GetCreature(*me, l_Guid))
                                 l_Creature->HandleEmoteCommand(g_DockworkerEmotes[urand(0, (eIronMaidensDatas::MaxRandomEmotes - 1))]);
                         }
-                   // });
-              //  });
+                    };
+                };
             }
 
             void LastOperationCalled()
@@ -4285,13 +4288,13 @@ class npc_foundry_forgemistress_flamehand : public CreatureScript
                 me->CastSpell(me, eSpells::DisableFlameJets, true);
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvents::EventActivateFlameJets, 5 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventLivingBlaze, 12 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventActivateFlameJets, 5 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventLivingBlaze, 12 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) 
             {
                 if (p_Target == nullptr)
                     return;
@@ -4347,13 +4350,13 @@ class npc_foundry_forgemistress_flamehand : public CreatureScript
                     case eEvents::EventActivateFlameJets:
                     {
                         me->CastSpell(me, eSpells::FlameJetsAoETarget, true);
-                        m_Events.ScheduleEvent(eEvents::EventActivateFlameJets, 21 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventActivateFlameJets, 21 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventLivingBlaze:
                     {
                         me->CastSpell(me, eSpells::LivingBlazeCasting, false);
-                        m_Events.ScheduleEvent(eEvents::EventLivingBlaze, 23 * TimeConstants::IN_MILLISECONDS);
+                        //m_Events.ScheduleEvent(eEvents::EventLivingBlaze, 23 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -4446,8 +4449,8 @@ class spell_foundry_spinning_blade : public SpellScriptLoader
                             {
                                 if (l_Iter->GetDistance(l_Caster) <= 1.0f)
                                 {
-                                    if (!l_Iter->HasAura(eSpell::SpinningBladeDoT))
-                                        l_Iter->CastSpell(l_Iter, eSpell::SpinningBladeDoT, true, nullptr, nullptr, l_Caster->GetGUID());
+                                    if (!l_Iter->HasAura(eSpell::SpinningBladeDoT));
+                                       // l_Iter->CastSpell(l_Iter, eSpell::SpinningBladeDoT, true, nullptr, nullptr, l_Caster->GetGUID());
                                 }
                                 else
                                 {
@@ -4519,7 +4522,7 @@ class spell_foundry_slag_breath : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_slag_breath_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
+                //OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_slag_breath_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
             }
         };
 
@@ -4566,7 +4569,7 @@ class spell_foundry_animate_slag : public SpellScriptLoader
 
                 if (Creature* l_Creature = GetCaster()->ToCreature())
                 {
-                    if (!l_Creature->IsAIEnabled)
+                   // if (!l_Creature->IsAIEnabled)
                         return;
 
                     l_Creature->AI()->DoAction(eAction::ActionRescheduleSlag);
@@ -4745,10 +4748,10 @@ class spell_foundry_blast_wave : public SpellScriptLoader
                 {
                     for (uint8 l_I = 0; l_I < (uint8)EFFECT_2; ++l_I)
                     {
-                        float l_Radius = GetSpellInfo()->GetEffect(l_I)->CalcRadius(l_Caster);
+                       // float l_Radius = GetSpellInfo()->GetEffect(l_I)->CalcRadius(l_Caster);
 
                         std::list<GameObject*> l_GoBList;
-                        l_Caster->GetGameObjectListWithEntryInGrid(l_GoBList, l_I == 0 ? eGameObjects::IceBlock : eGameObjects::VolcanicBomb, l_Radius);
+                       // l_Caster->GetGameObjectListWithEntryInGrid(l_GoBList, l_I == 0 ? eGameObjects::IceBlock : eGameObjects::VolcanicBomb, l_Radius);
 
                         for (GameObject* l_Gob : l_GoBList)
                             p_Targets.push_back(l_Gob);
@@ -4818,7 +4821,7 @@ class spell_foundry_rending_slash : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_rending_slash_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
+               // OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_rending_slash_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
             }
         };
 
@@ -4871,7 +4874,7 @@ class spell_foundry_crushing_slam : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_crushing_slam_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
+               // OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_crushing_slam_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
             }
         };
 
@@ -5031,7 +5034,7 @@ class spell_foundry_cauterizing_bolt : public SpellScriptLoader
                    // l_Damage /= 10;
 
                     l_Target->SendPlaySpellVisualKit(eVisual::VisualKitID, 0,0);
-                    l_Target->CastCustomSpell(l_Target, eSpell::CauterizingBoltHeal, nullptr, nullptr, nullptr, true);
+                   // l_Target->CastCustomSpell(l_Target, eSpell::CauterizingBoltHeal, nullptr, nullptr, nullptr, true);
                 }
             }
 
@@ -5441,7 +5444,7 @@ class areatrigger_foundry_flame_jet : public AreaTriggerEntityScript
                         if (p_Unit == nullptr)
                             return true;
 
-                        if (!l_Caster->HasInLine(p_Unit, p_Unit->GetObjectSize(), l_Width))
+                      //  if (!l_Caster->HasInLine(p_Unit, p_Unit->GetObjectSize(), l_Width))
                             return true;
 
                         return false;
@@ -5604,13 +5607,13 @@ class areatrigger_at_foundry_hansgar_and_franzok_entrance : public AreaTriggerSc
             {
                 if (Creature* l_Hansgar = ObjectAccessor::GetCreature(*p_Player, l_Instance->GetGuidData(eFoundryCreatures::BossHansgar)))
                 {
-                    if (l_Hansgar->IsAIEnabled)
+                  //  if (l_Hansgar->IsAIEnabled)
                         l_Hansgar->AI()->DoAction(eAction::ActionIntro);
                 }
 
                 if (Creature* l_Franzok = ObjectAccessor::GetCreature(*p_Player, l_Instance->GetGuidData(eFoundryCreatures::BossFranzok)))
                 {
-                    if (l_Franzok->IsAIEnabled)
+                  //  if (l_Franzok->IsAIEnabled)
                         l_Franzok->AI()->DoAction(eAction::ActionIntro);
                 }
             }
@@ -5645,7 +5648,7 @@ class areatrigger_at_foundry_hansgar_and_franzok_exit : public AreaTriggerScript
 
             if (Creature* l_Taskmaster = p_Player->FindNearestCreature(eCreature::IronTaskmaster, 80.0f))
             {
-                if (l_Taskmaster->IsAIEnabled)
+               // if (l_Taskmaster->IsAIEnabled)
                     l_Taskmaster->AI()->DoAction(eAction::ActionIntro);
             }
 
@@ -5673,7 +5676,7 @@ class areatrigger_at_foundry_iron_maidens_entrance : public AreaTriggerScript
             {
                 if (Creature* l_Garan = ObjectAccessor::GetCreature(*p_Player, l_InstanceScript->GetGuidData(eFoundryCreatures::BossAdmiralGaran)))
                 {
-                    if (l_Garan->IsAIEnabled)
+                   // if (l_Garan->IsAIEnabled)
                         l_Garan->AI()->DoAction(0);
                 }
             }
@@ -5704,7 +5707,7 @@ class areatrigger_at_foundry_blackhand_entrance : public AreaTriggerScript
 
                 if (Creature* l_Blackhand = ObjectAccessor::GetCreature(*p_Player, l_Instance->GetGuidData(eFoundryCreatures::BossBlackhand)))
                 {
-                    if (l_Blackhand->IsAIEnabled)
+                  //  if (l_Blackhand->IsAIEnabled)
                         l_Blackhand->AI()->DoAction(eBlackhandActions::BlackhandIntro);
                 }
             }

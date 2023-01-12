@@ -117,10 +117,10 @@ class boss_skylord_torva : public CreatureScript
             {
                 m_Count = 0;
                 m_First = true;
-                ClearDelayedOperations();
+               // ClearDelayedOperations();
                 me->SetDisplayId(InvisibleDisplay);
                 me->SetReactState(ReactStates::REACT_PASSIVE);
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC));
+              //  me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC));
             }
 
             HandleDoorCombatActivation();
@@ -131,8 +131,8 @@ class boss_skylord_torva : public CreatureScript
                 {
                     /// Removes all diffused lightning and Traps
                     std::list<AreaTrigger*> l_AreatriggersList;
-                    me->GetAreaTriggerListWithSpellIDInRange(l_AreatriggersList, eSkylordTorvaSpells::SpellDiffusedEnergyAreaTrigger, 200.0f);
-                    me->GetAreaTriggerListWithSpellIDInRange(l_AreatriggersList, eSkylordTorvaSpells::SpellFreezingSnareAreaTrigger, 200.0f);
+                  //  me->GetAreaTriggerListWithSpellIDInRange(l_AreatriggersList, eSkylordTorvaSpells::SpellDiffusedEnergyAreaTrigger, 200.0f);
+                  //  me->GetAreaTriggerListWithSpellIDInRange(l_AreatriggersList, eSkylordTorvaSpells::SpellFreezingSnareAreaTrigger, 200.0f);
                     if (!l_AreatriggersList.empty())
                     {
                         for (AreaTrigger* l_Itr : l_AreatriggersList)
@@ -146,7 +146,7 @@ class boss_skylord_torva : public CreatureScript
 
                     if (Creature* l_Dragon = m_Instance->instance->GetCreature(m_Instance->GetGuidData(GrimrailDepotData::DataSkyLordTovraDragon)))
                     {
-                        if (l_Dragon->IsAIEnabled)
+                        //if (l_Dragon->IsAIEnabled)
                             l_Dragon->GetAI()->DoAction(eSkylordTorvaActions::ActionCombatStopDragonFlight);
 
                         if (Vehicle* l_Vehicle = l_Dragon->GetVehicle())
@@ -169,7 +169,7 @@ class boss_skylord_torva : public CreatureScript
             }
         }
 
-        void EnterCombat(Unit* p_Who) override
+        void EnterCombat(Unit* p_Who) 
         {
             if (m_Instance != nullptr)
                 m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me);
@@ -180,7 +180,7 @@ class boss_skylord_torva : public CreatureScript
             {
                 if (Creature* l_Dragon = m_Instance->instance->GetCreature(m_Instance->GetGuidData(GrimrailDepotData::DataSkyLordTovraDragon)))
                 {
-                    if (l_Dragon->IsAIEnabled)
+                   // if (l_Dragon->IsAIEnabled)
                         l_Dragon->GetAI()->DoAction(eSkylordTorvaActions::ActionCombatStartDragonFlight);
 
                     if (Vehicle* l_Vehicle = l_Dragon->GetVehicle())
@@ -188,11 +188,11 @@ class boss_skylord_torva : public CreatureScript
                 }
             }
 
-            _EnterCombat();
+           // _EnterCombat();
             Talk(eSkylordTorvaTalks::TalkAggro);
 
-            events.ScheduleEvent(eSkylordTorvaEvents::EventFreezingSnare, 8 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eSkylordTorvaEvents::EventSpinningSpear, 12* TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eSkylordTorvaEvents::EventFreezingSnare, 8 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eSkylordTorvaEvents::EventSpinningSpear, 12* TimeConstants::IN_MILLISECONDS);
         }
 
         void DoAction(int32 const p_Action) override
@@ -245,7 +245,7 @@ class boss_skylord_torva : public CreatureScript
             _JustDied();
             Talk(eSkylordTorvaTalks::TalkDeath);
 
-            AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+            //AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
             {
                 enum GrimrailDepotScenes
                 {
@@ -254,12 +254,12 @@ class boss_skylord_torva : public CreatureScript
 
                 if (InstanceScript* m_Instance = me->GetInstanceScript())
                 {
-                  //  m_Instance->CompleteScenario(); toca añadir la funcion
-                    m_Instance->DoPlaySceneOnPlayers(GrimrailDepotScenes::SceneEscapeTheTrain);
+                  //  m_Instance->CompleteScenario(); toca anadir la funcion
+                   // m_Instance->DoPlaySceneOnPlayers(GrimrailDepotScenes::SceneEscapeTheTrain);
                     if (Creature* l_Dragon = m_Instance->instance->GetCreature(m_Instance->GetGuidData(GrimrailDepotData::DataSkyLordTovraDragon)))
                         l_Dragon->DespawnOrUnsummon();
                 }
-            });
+            };
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -268,7 +268,7 @@ class boss_skylord_torva : public CreatureScript
                 return;
 
             events.Update(p_Diff);
-            UpdateOperations(p_Diff);
+           // UpdateOperations(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
@@ -276,17 +276,17 @@ class boss_skylord_torva : public CreatureScript
             switch (events.ExecuteEvent())
             {
             case eSkylordTorvaEvents::EventSpinningSpear:
-                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 150.0f, true))
-                    me->CastSpell(l_Target->GetPositionX(), l_Target->GetPositionY(), me->GetPositionZ(), eSkylordTorvaSpells::SpellSpinningSpearAreaTrigger, true); 
+               // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 150.0f, true))
+                 //   me->CastSpell(l_Target->GetPositionX(), l_Target->GetPositionY(), me->GetPositionZ(), eSkylordTorvaSpells::SpellSpinningSpearAreaTrigger, true); 
 
-                events.ScheduleEvent(eSkylordTorvaEvents::EventSpinningSpear, 12 * TimeConstants::IN_MILLISECONDS);
+                //events.ScheduleEvent(eSkylordTorvaEvents::EventSpinningSpear, 12 * TimeConstants::IN_MILLISECONDS);
                 break;
             case eSkylordTorvaEvents::EventFreezingSnare:
   
                 l_Position = me->GetRandomNearPosition(4.0f);
-                me->CastSpell(l_Position.GetPositionX(), l_Position.GetPositionY(), l_Position.GetPositionZ(), eSkylordTorvaSpells::SpellFreezingSnareTriggerMissile, false);
+              //  me->CastSpell(l_Position.GetPositionX(), l_Position.GetPositionY(), l_Position.GetPositionZ(), eSkylordTorvaSpells::SpellFreezingSnareTriggerMissile, false);
 
-                events.ScheduleEvent(eSkylordTorvaEvents::EventFreezingSnare, 8 * TimeConstants::IN_MILLISECONDS);
+                //events.ScheduleEvent(eSkylordTorvaEvents::EventFreezingSnare, 8 * TimeConstants::IN_MILLISECONDS);
                 break;
             default:
                 break;
@@ -368,7 +368,7 @@ class grimrail_depot_skylord_tovra_creature_rkuna : public CreatureScript
 
         void Reset() override
         {
-            events.Reset();
+           // events.Reset();
             me->SetCanFly(true);
             me->SetDisableGravity(true);
             if (!m_First)
@@ -377,12 +377,12 @@ class grimrail_depot_skylord_tovra_creature_rkuna : public CreatureScript
                 me->SetFaction(HostileFaction);
                 me->SetDisplayId(InvisibleDisplay);
                 me->SetReactState(ReactStates::REACT_PASSIVE);
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC));
+              //  me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC));
             }
 
             m_Flight = true;
             m_Cosmetic = false;
-            ClearDelayedOperations();
+          //  ClearDelayedOperations();
             me->CastSpell(me, eSkylordTorvaSpells::SpellFly);
             me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 2.5f);
             me->SetAIAnimKitId(eSkylordTorvaOneShotAnimKit::AnimKitFly);
@@ -409,11 +409,11 @@ class grimrail_depot_skylord_tovra_creature_rkuna : public CreatureScript
 
                 break;
             case eSkylordTorvaActions::ActionCombatStopDragonFlight:
-                events.Reset();
+              //  events.Reset();
                 me->CastStop();
                 m_Flight = true;
                 me->SetDisplayId(g_DrakeDisplay);        
-                me->GetMotionMaster()->Clear(true);
+                //me->GetMotionMaster()->Clear(true);
                 me->GetMotionMaster()->MoveTakeoff(0, me->GetHomePosition());
                 break;
             default:
@@ -426,19 +426,19 @@ class grimrail_depot_skylord_tovra_creature_rkuna : public CreatureScript
             switch (p_Id)
             {
             case eSkylordTorvaMovements::MovementFlyPoint:
-                events.Reset();
+              //  events.Reset();
                 me->SetAIAnimKitId(eSkylordTorvaOneShotAnimKit::AnimKitFly);
-                events.ScheduleEvent(eSkylordTorvaEvents::EventDiffusedEnergy, 3 * TimeConstants::IN_MILLISECONDS);
+                //events.ScheduleEvent(eSkylordTorvaEvents::EventDiffusedEnergy, 3 * TimeConstants::IN_MILLISECONDS);
                 break;
             case eSkylordTorvaMovements::MovementTorvaStartShootingLightning:
                 me->CastSpell(me, eSkylordTorvaSpells::SpellDiffusedEnergyDummy);
                 me->SetFacingTo(g_DrakeOrientationWhileFlightIntro);
              
-                AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                //AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                 {
                     me->SetHomePosition(1647.00f, 2000.29f, 107.789f, 1.54f);
                     me->GetMotionMaster()->MovePoint(eSkylordTorvaMovements::MovementTorvaHomePosition, 1647.00f, 2000.29f, 107.789f);
-                });
+                };
                 break;
             case eSkylordTorvaMovements::MovementTorvaHomePosition:
                 if (m_Instance != nullptr)
@@ -481,13 +481,13 @@ class grimrail_depot_skylord_tovra_creature_rkuna : public CreatureScript
 
         void UpdateAI(uint32 const p_Diff) override
         {
-            UpdateOperations(p_Diff);
-            events.Update(p_Diff);
+          //  UpdateOperations(p_Diff);
+           // events.Update(p_Diff);
 
-            switch (events.ExecuteEvent())
+            //switch (events.ExecuteEvent())
             {
-            case eSkylordTorvaEvents::EventDiffusedEnergy:
-                events.Reset();
+                eSkylordTorvaEvents::EventDiffusedEnergy;
+               // events.Reset();
 
                 if (m_Flight)
                 {
@@ -500,7 +500,7 @@ class grimrail_depot_skylord_tovra_creature_rkuna : public CreatureScript
                     me->GetMotionMaster()->MoveTakeoff(eSkylordTorvaMovements::MovementFlyPoint, g_DrakePointB);
                 }
 
-                AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+               // AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                 {
                     enum eDiffusedEnergy
                     {
@@ -525,10 +525,10 @@ class grimrail_depot_skylord_tovra_creature_rkuna : public CreatureScript
                             me->CastSpell((*l_Itr), eDiffusedEnergy::SpellDiffusedEnergyAreaTrigger);
                         }
                     }
-                });
-                break;
-            default:
-                break;
+                };
+                //break;
+             //default:
+               // break;
             }
         }
 
@@ -616,8 +616,8 @@ class grimrail_depot_skylord_tovra_spell_thunder_zone : public SpellScriptLoader
         {
             if (Unit* l_Caster = GetCaster())
             {
-                if (InstanceScript* l_Instance = l_Caster->GetInstanceScript())
-                    l_Instance->DoAddAuraOnPlayers(eThunderZoneSpells::SpellThunderZoneAura);
+                if (InstanceScript* l_Instance = l_Caster->GetInstanceScript());
+                  //  l_Instance->DoAddAuraOnPlayers(eThunderZoneSpells::SpellThunderZoneAura);
             }
         }
 
@@ -658,7 +658,7 @@ class grimrail_depot_skylord_tovra_at_diffused_energy : public AreaTriggerEntity
                 std::list<Creature*> l_TargetList;
                 float l_Radius = 2.0f;
 
-                l_TargetList = caster->FindAllUnfriendlyCreaturesInRange(l_Radius);
+               // l_TargetList = caster->FindAllUnfriendlyCreaturesInRange(l_Radius);
 
                 if (l_TargetList.empty())
                     return;
@@ -709,7 +709,7 @@ class grimrail_depot_skylord_tovra_at_spinning_spear : public AreaTriggerEntityS
 
                 if (l_Diff <= diff)
                 {
-                    l_TargetList = caster->FindAllUnfriendlyCreaturesInRange(l_Radius);
+                  //  l_TargetList = caster->FindAllUnfriendlyCreaturesInRange(l_Radius);
 
                     if (l_TargetList.empty())
                         return;
@@ -771,11 +771,11 @@ class grimrail_depot_skylord_torva_at_freezing_snare : public AreaTriggerEntityS
                     if (Player* l_Player = at->SelectNearestPlayer(l_Radius))
                     {
                         caster->CastSpell(l_Player, eSpell::SpellFreezingSnareDamage);
-                        caster->GetScheduler().Schedule(Milliseconds(5000), [this](TaskContext context)
+                       // caster->GetScheduler().Schedule(Milliseconds(5000), [this](TaskContext context)
                         {
                             if (at->IsInWorld())
                                 at->Remove();
-                        });                      
+                        };                      
                     }
 
                     l_Diff = 1 * TimeConstants::IN_MILLISECONDS;

@@ -1,4 +1,5 @@
 #include "boss_oregorger.h"
+#include <Containers.h>
 
 /// Oregorger <The Devourer> - 77182
 class boss_oregorger : public CreatureScript
@@ -156,9 +157,9 @@ class boss_oregorger : public CreatureScript
                 _Reset();
 
                 if (!m_Init)
-                    m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventCheckTrashs, 1 * TimeConstants::IN_MILLISECONDS);
-                else
-                    me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE));
+                  //  m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventCheckTrashs, 1 * TimeConstants::IN_MILLISECONDS);
+                //else
+                   // me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE));
 
                 m_Crates.clear();
 
@@ -183,7 +184,7 @@ class boss_oregorger : public CreatureScript
                 if (GameObject* l_Ore = ObjectAccessor::GetGameObject(*me, m_Instance->GetGuidData(eFoundryGameObjects::VolatileBlackrockOre)))
                 {
                     l_Ore->Respawn();
-                    l_Ore->AddFlag(GameObjectFlags::GO_FLAG_NOT_SELECTABLE);
+                   // l_Ore->AddFlag(GameObjectFlags::GO_FLAG_NOT_SELECTABLE);
                 }
 
                 m_VolatileOre = false;
@@ -216,7 +217,7 @@ class boss_oregorger : public CreatureScript
                 {
                     case eCreatures::OreCrate:
                     {
-                        p_Summon->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+                       // p_Summon->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
                         break;
                     }
                     case eCreatures::BlackrockOre:
@@ -224,8 +225,8 @@ class boss_oregorger : public CreatureScript
                         m_BlackrockOres.insert(p_Summon->GetGUID());
                         p_Summon->SetReactState(ReactStates::REACT_PASSIVE);
                         p_Summon->AddUnitState(UnitState::UNIT_STATE_STUNNED);
-                        p_Summon->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL | UnitFlags::UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
-                        p_Summon->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+                      //  p_Summon->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL | UnitFlags::UNIT_FLAG_IMMUNE_TO_PC | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
+                      //  p_Summon->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
                         break;
                     }
                     case eCreatures::UnstableSlag:
@@ -280,9 +281,9 @@ class boss_oregorger : public CreatureScript
                 return 0.0f;
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
-                _EnterCombat();
+                //_EnterCombat();
 
                 if (m_Instance != nullptr)
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_ENGAGE, me, 1);
@@ -383,7 +384,7 @@ class boss_oregorger : public CreatureScript
                             m_Crates.erase(l_NearestCrate->GetGUID());
 
                             //l_NearestCrate->CastSpell(g_OreCrateSpawnPos[l_I], eSpells::RollingBox, true);
-                            l_NearestCrate->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
+                           // l_NearestCrate->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
 
                             --l_Count;
                             m_ActivatedCrates.insert(l_I);
@@ -398,13 +399,13 @@ class boss_oregorger : public CreatureScript
                   //  {
                         for (uint8 l_I : m_CratesToActivate)
                         {
-                            if (Creature* l_Crate = me->SummonCreature(eCreatures::OreCrate, g_OreCrateSpawnPos[l_I]))
+                           // if (Creature* l_Crate = me->SummonCreature(eCreatures::OreCrate, g_OreCrateSpawnPos[l_I]))
                             {
-                                l_Crate->SetReactState(ReactStates::REACT_PASSIVE);
-                                l_Crate->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
-                                l_Crate->AddUnitState(UnitState::UNIT_STATE_STUNNED | UnitState::UNIT_STATE_ROOT);
-                                l_Crate->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
-                                l_Crate->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffectName::SPELL_EFFECT_KNOCK_BACK, true);
+                             //   l_Crate->SetReactState(ReactStates::REACT_PASSIVE);
+                               // l_Crate->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UnitFlags::UNIT_FLAG_NOT_SELECTABLE));
+                               // l_Crate->AddUnitState(UnitState::UNIT_STATE_STUNNED | UnitState::UNIT_STATE_ROOT);
+                               // l_Crate->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+                               // l_Crate->ApplySpellImmune(0, SpellImmunity::IMMUNITY_EFFECT, SpellEffectName::SPELL_EFFECT_KNOCK_BACK, true);
                             }
                         }
                    // });
@@ -419,7 +420,7 @@ class boss_oregorger : public CreatureScript
                         me->CastSpell(me, eSpells::RollingFuryAura, true);
                         me->CastSpell(me, eSpells::HungerDrivePeriodic, true);
 
-                        m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventCollectOre, 200);
+                       // m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventCollectOre, 200);
 
                         if (m_NextPos.m_positionX == 0.0f)
                         {
@@ -453,11 +454,11 @@ class boss_oregorger : public CreatureScript
 
                         me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                      //  if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                         {
                             me->GetMotionMaster()->Clear();
 
-                            AttackStart(l_Target);
+                           // AttackStart(l_Target);
                         }
                  //   });
                 }
@@ -492,7 +493,7 @@ class boss_oregorger : public CreatureScript
 
                     /// Allow loots and bonus loots to be enabled/disabled with a simple reload
                   //  if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
-                        me->AddLootRecipient(nullptr);
+                      //  me->AddLootRecipient(nullptr);
                   //  else
                         CastSpellToPlayers(me->GetMap(), me, eSpells::OregorgerBonusLoot, true);
                 }
@@ -608,7 +609,7 @@ class boss_oregorger : public CreatureScript
                         case MovementGeneratorType::EFFECT_MOTION_TYPE:
                         {
                             me->SetHomePosition(*me);
-                            me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE));
+                           // me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE));
 
                             me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
@@ -635,7 +636,7 @@ class boss_oregorger : public CreatureScript
                     case eSpells::ExplosiveShardMissile:
                     case eSpells::BlackrockBarrageAoE:
                     {
-                        me->EnergizeBySpell(me, eSpells::RetchedBlackrockMissile, -5, Powers::POWER_MANA);
+                       // me->EnergizeBySpell(me, eSpells::RetchedBlackrockMissile, -5, Powers::POWER_MANA);
                         break;
                     }
                     default:
@@ -643,7 +644,7 @@ class boss_oregorger : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) override
+            void SpellHitTarget(Unit* p_Target, SpellInfo const* p_SpellInfo) 
             {
                 if (p_Target == nullptr)
                     return;
@@ -655,7 +656,7 @@ class boss_oregorger : public CreatureScript
                        // m_AcidTorrentTarget = 0;
                         m_AcidTorrentTarget.Clear();
 
-                        me->SetFacingTo(me->GetAngle(p_Target));
+                       // me->SetFacingTo(me->GetAngle(p_Target));
 
                         /// Sprays a cone of acid at a random ranged foe, inflicting 475000 to 525000 Physical damage to the closest player
                         /// and increasing that player's damage taken from Acid Torrent by 475000 to 525000 for 20 sec.
@@ -676,12 +677,12 @@ class boss_oregorger : public CreatureScript
 
                         me->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                       // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                         {
-                            AttackStart(l_Target);
+                         //   AttackStart(l_Target);
 
                             me->GetMotionMaster()->Clear();
-                            me->GetMotionMaster()->MoveChase(l_Target);
+                           // me->GetMotionMaster()->MoveChase(l_Target);
                         }
 
                         break;
@@ -752,7 +753,7 @@ class boss_oregorger : public CreatureScript
                         }
 
                         if (!m_Init)
-                            m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventCheckTrashs, 1 * TimeConstants::IN_MILLISECONDS);
+                           // m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventCheckTrashs, 1 * TimeConstants::IN_MILLISECONDS);
 
                         break;
                     }
@@ -767,7 +768,7 @@ class boss_oregorger : public CreatureScript
                         if (!me->HasAura(eSpells::HungerDrivePeriodic))
                             break;
 
-                        m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventCollectOre, 200);
+                       // m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventCollectOre, 200);
                         break;
                     }
                     case eCosmeticEvents::EventSoftEnrage:
@@ -781,7 +782,7 @@ class boss_oregorger : public CreatureScript
                         m_CosmeticEvents.Reset();
 
                         me->CastSpell(me, eSpells::EarthshakingStomp, false);
-                        m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventSoftEnrage, 1 * TimeConstants::IN_MILLISECONDS + 500);
+                      //  m_CosmeticEvents.ScheduleEvent(eCosmeticEvents::EventSoftEnrage, 1 * TimeConstants::IN_MILLISECONDS + 500);
                         break;
                     }
                     default:
@@ -800,10 +801,10 @@ class boss_oregorger : public CreatureScript
                 {
                     case eEvents::EventAcidMaw:
                     {
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(l_Target, eSpells::AcidMawDoT, true);
+                       // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                          //  me->CastSpell(l_Target, eSpells::AcidMawDoT, true);
 
-                        m_Events.ScheduleEvent(eEvents::EventAcidMaw, 6 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventAcidMaw, 6 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventRetchedBlackrock:
@@ -811,7 +812,7 @@ class boss_oregorger : public CreatureScript
                         //if (Unit* l_Target = SelectRangedTarget())
                             me->CastSpell(me, eSpells::RetchedBlackrockMissile, false);
 
-                        m_Events.ScheduleEvent(eEvents::EventRetchedBlackrock, 15 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventRetchedBlackrock, 15 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventExplosiveShard:
@@ -819,14 +820,14 @@ class boss_oregorger : public CreatureScript
                        // if (Unit* l_Target = SelectMeleeTarget())
                             me->CastSpell(me, eSpells::ExplosiveShardMissile, true);
 
-                        m_Events.ScheduleEvent(eEvents::EventExplosiveShard, 15 * TimeConstants::IN_MILLISECONDS);
+                        //m_Events.ScheduleEvent(eEvents::EventExplosiveShard, 15 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventAcidTorrent:
                     {
                         me->SetReactState(ReactStates::REACT_PASSIVE);
                         me->CastSpell(me, eSpells::AcidTorrentSearcher, false);
-                        m_Events.ScheduleEvent(eEvents::EventAcidTorrent, 13 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventAcidTorrent, 13 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventBlackrockSpines:
@@ -835,8 +836,8 @@ class boss_oregorger : public CreatureScript
                             l_Aura->ModStackAmount(5);// IsMythic() ? 5 : 3);
 
                         Talk(eTalks::BlackrockBarrage);
-                        m_Events.ScheduleEvent(eEvents::EventBlackrockSpines, 19 * TimeConstants::IN_MILLISECONDS);
-                        m_Events.ScheduleEvent(eEvents::EventBlackrockBarrage, 1 * TimeConstants::IN_MILLISECONDS);
+                      //  m_Events.ScheduleEvent(eEvents::EventBlackrockSpines, 19 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventBlackrockBarrage, 1 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventBlackrockBarrage:
@@ -847,7 +848,7 @@ class boss_oregorger : public CreatureScript
                          //   break;
 
                         me->CastSpell(me, eSpells::BlackrockBarrageAoE, false);
-                        m_Events.ScheduleEvent(eEvents::EventBlackrockBarrage, 2 * TimeConstants::IN_MILLISECONDS);
+                      //  m_Events.ScheduleEvent(eEvents::EventBlackrockBarrage, 2 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -859,16 +860,16 @@ class boss_oregorger : public CreatureScript
 
             void HandleFirstPhase()
             {
-                m_Events.ScheduleEvent(eEvents::EventAcidMaw, 3 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventRetchedBlackrock, 6 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventExplosiveShard, 9 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventAcidTorrent, 12 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventBlackrockSpines, 14 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventAcidMaw, 3 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventRetchedBlackrock, 6 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventExplosiveShard, 9 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventAcidTorrent, 12 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventBlackrockSpines, 14 * TimeConstants::IN_MILLISECONDS);
 
-                if (me->HasAura(eSpells::BlackrockSpines))
-                    m_Events.ScheduleEvent(eEvents::EventBlackrockBarrage, 100);
+                if (me->HasAura(eSpells::BlackrockSpines));
+                  //  m_Events.ScheduleEvent(eEvents::EventBlackrockBarrage, 100);
 
-                m_CosmeticEvents.RescheduleEvent(eCosmeticEvents::EventSoftEnrage, 7 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
+               // m_CosmeticEvents.RescheduleEvent(eCosmeticEvents::EventSoftEnrage, 7 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
             }
 
             uint8 GetCollisionOrIntersectionPoint(uint8 p_I, uint8 p_J) const
@@ -1056,7 +1057,7 @@ class boss_oregorger : public CreatureScript
                 {
                     m_NextPos = Position();
 
-                    me->SetFacingTo(me->GetAngle(&m_Destination));
+                   // me->SetFacingTo(me->GetAngle(&m_Destination));
                 }
                 else
                 {
@@ -1066,7 +1067,7 @@ class boss_oregorger : public CreatureScript
                     m_NextPos.m_positionY = l_Path[m_PathCount].y;
                     m_NextPos.m_positionZ = me->GetPositionZ();
 
-                    l_O += me->GetAngle(&m_NextPos);
+                   // l_O += me->GetAngle(&m_NextPos);
 
                     me->SetFacingTo(l_O);
                 }
@@ -1163,8 +1164,8 @@ class npc_foundry_crate_ore : public CreatureScript
                 {
                     if (Creature* l_Oregorger = ObjectAccessor::GetCreature(*me, l_Instance->GetGuidData(eFoundryCreatures::BossOregorger)))
                     {
-                        if (Creature* l_Ore = l_Oregorger->SummonCreature(eCreature::BlackrockOre, *me))
-                            l_Ore->SendPlaySpellVisual(Position(), 0.0f, eVisual::BlackrockOreVisual,0.0f,0.F,0.F);
+                      //  if (Creature* l_Ore = l_Oregorger->SummonCreature(eCreature::BlackrockOre, *me))
+                        //    l_Ore->SendPlaySpellVisual(Position(), 0.0f, eVisual::BlackrockOreVisual,0.0f,0.F,0.F);
                     }
                 }
             }
@@ -1216,7 +1217,7 @@ class spell_foundry_acid_torrent : public SpellScriptLoader
 
                     if (Creature* l_Oregorger = GetCaster()->ToCreature())
                     {
-                        if (!l_Oregorger->IsAIEnabled)
+                      //  if (!l_Oregorger->IsAIEnabled)
                             return;
 
                         l_Oregorger->AI()->SetData(eData::DamageMitigationPct, l_Pct);
@@ -1256,7 +1257,7 @@ class spell_foundry_acid_torrent_aoe : public SpellScriptLoader
             {
                 if (Creature* l_Oregorger = GetCaster()->ToCreature())
                 {
-                    if (!l_Oregorger->IsAIEnabled)
+                   // if (!l_Oregorger->IsAIEnabled)
                         return;
 
                     float l_Pct = l_Oregorger->AI()->GetData(eData::DamageMitigationPct);
@@ -1344,7 +1345,7 @@ class spell_foundry_rolling_fury_aura : public SpellScriptLoader
                 {
                     if (Creature* l_Boss = l_Caster->ToCreature())
                     {
-                        if (!l_Boss->IsAIEnabled)
+                       // if (!l_Boss->IsAIEnabled)
                             return false;
 
                         if (boss_oregorger::boss_oregorgerAI* l_AI = CAST_AI(boss_oregorger::boss_oregorgerAI, l_Boss->GetAI()))
@@ -1381,7 +1382,7 @@ class spell_foundry_rolling_fury_aura : public SpellScriptLoader
                            // l_Caster->VisitNearbyObject(l_Radius, l_Searcher);
 
                             for (Unit* l_Iter : l_TargetList)
-                                l_Iter->CastSpell(l_Iter, eSpell::RollingFuryDamage, true, nullptr, nullptr, l_Caster->GetGUID());
+                                l_Iter->CastSpell(l_Iter, eSpell::RollingFuryDamage, true);
                         }
 
                         m_DamageTimer = 1 * TimeConstants::IN_MILLISECONDS;
@@ -1590,7 +1591,7 @@ class go_foundry_volatile_blackrock_ore : public GameObjectScript
                 if (!m_Activated)
                 {
                     m_Activated = true;
-                    p_Player->CastSpell(go, eSpell::HarvestVolatileBlackrock, false);
+                   // p_Player->CastSpell(go, eSpell::HarvestVolatileBlackrock, false);
                 }
 
                 return false;
@@ -1602,7 +1603,7 @@ class go_foundry_volatile_blackrock_ore : public GameObjectScript
                 {
                   //  AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                   //  {
-                        go->AddFlag(GameObjectFlags::GO_FLAG_NOT_SELECTABLE);
+                      //  go->AddFlag(GameObjectFlags::GO_FLAG_NOT_SELECTABLE);
                   //  });
                 }
             }
