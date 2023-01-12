@@ -133,6 +133,7 @@
 #include "WorldStatePackets.h"
 #include <G3D/g3dmath.h>
 #include <sstream>
+#include <BattlePet.h>
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -410,6 +411,11 @@ void Player::SetPersonnalXpRate(float personnalXPRate)
     statement->setFloat(0, personnalXPRate);
     statement->setUInt64(1, GetGUID().GetCounter());
     CharacterDatabase.Execute(statement);
+}
+
+std::shared_ptr<BattlePet>* Player::GetBattlePetCombatTeam()
+{
+    return _battlePetCombatTeam;
 }
 
 bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::CharacterCreateInfo const* createInfo)

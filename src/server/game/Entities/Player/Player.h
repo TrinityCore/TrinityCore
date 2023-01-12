@@ -33,6 +33,7 @@
 #include "PlayerTaxi.h"
 #include "QuestDef.h"
 #include "SceneMgr.h"
+#include <BattlePet.h>
 
 struct AccessRequirement;
 struct AchievementEntry;
@@ -2705,8 +2706,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         VoidStorageItem* GetVoidStorageItem(uint8 slot) const;
         VoidStorageItem* GetVoidStorageItem(uint64 id, uint8& slot) const;
         float GetPersonnalXpRate() { return _PersonnalXpRate; }//后加
-        void SetPersonnalXpRate(float PersonnalXpRate);//后加
-
+        void SetPersonnalXpRate(float PersonnalXpRate);
+        std::shared_ptr<BattlePet>* GetBattlePetCombatTeam();
+        //后加
+        std::shared_ptr<BattlePet> _battlePetCombatTeam[3];
         // Reagent Bank
         bool IsReagentBankUnlocked() const { return HasPlayerFlagEx(PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED); }
         void UnlockReagentBank() { SetPlayerFlagEx(PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED); }
@@ -3216,6 +3219,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 _activeCheats;
 
         std::unique_ptr<Garrison> _garrison;
+
+        float _PersonnalXpRate;
 
         bool _advancedCombatLoggingEnabled;
 

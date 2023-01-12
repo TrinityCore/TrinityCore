@@ -25,6 +25,9 @@
 #include "UnitDefines.h"
 #include <memory>
 
+
+static uint8 const PARTICIPANTS_COUNT = 2;
+
 namespace WorldPackets
 {
     namespace BattlePet
@@ -75,6 +78,19 @@ namespace WorldPackets
             std::vector<std::reference_wrapper<BattlePetSlot>> Slots;
             std::vector<std::reference_wrapper<BattlePet>> Pets;
         };
+
+
+        class PVPChallenge final : public ServerPacket
+        {
+        public:
+            PVPChallenge() : ServerPacket(SMSG_PET_BATTLE_PVP_CHALLENGE, 16 + 4 + 12 + 4 + 12 * 2) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ChallengerGUID;
+            PetBattleLocation Location;
+        };
+
 
         class BattlePetJournalLockAcquired final : public ServerPacket
         {
@@ -263,6 +279,23 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid PetGuid;
+        };
+
+        struct PetBattleLocation
+        {
+            int32 LocationResult = 0;
+            TaggedPosition<Position::XYZO> BattleOrigin;
+            TaggedPosition<Position::XYZ> PlayerPositions[PARTICIPANTS_COUNT] = {};
+        };
+
+        class FinalizeLocation final : public ServerPacket
+        {
+        public:
+            FinalizeLocation() : ServerPacket(SMSG_PET_BATTLE_FINALIZE_LOCATION, 4 + 12 + 4 + 12 * 2) { }
+
+            WorldPacket const* Write() override;
+
+            PetBattleLocation Location;
         };
 
         class RequestFailed final : public ServerPacket

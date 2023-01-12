@@ -17,6 +17,7 @@
 
 #include "BattlePetPackets.h"
 
+
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::BattlePetSlot const& slot)
 {
     data << (slot.Pet.Guid.IsEmpty() ? ObjectGuid::Create<HighGuid::BattlePet>(0) : slot.Pet.Guid);
@@ -212,6 +213,33 @@ void WorldPackets::BattlePet::BattlePetUpdateNotify::Read()
 WorldPacket const* WorldPackets::BattlePet::RequestFailed::Write()
 {
     _worldPacket << Reason;
+
+    return &_worldPacket;
+}
+
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::PetBattleLocation& locations)
+{
+    data << locations.LocationResult;
+    data << locations.BattleOrigin;
+    for (auto const& playerPosition : locations.PlayerPositions)
+        data << playerPosition;
+
+    return data;
+}
+
+WorldPacket const* WorldPackets::BattlePet::FinalizeLocation::Write()
+{
+
+    _worldPacket << Location;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::BattlePet::PVPChallenge::Write()
+{
+    _worldPacket << ChallengerGUID;
+    _worldPacket << Location;
 
     return &_worldPacket;
 }

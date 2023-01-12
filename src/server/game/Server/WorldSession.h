@@ -39,6 +39,7 @@
 #include <map>
 #include <memory>
 #include <unordered_map>
+#include <PetBattle.h>
 
 class BlackMarketEntry;
 class CollectionMgr;
@@ -1780,6 +1781,7 @@ class TC_GAME_API WorldSession
         void HandleBattlePetSummon(WorldPackets::BattlePet::BattlePetSummon& battlePetSummon);
         void HandleBattlePetUpdateNotify(WorldPackets::BattlePet::BattlePetUpdateNotify& battlePetUpdateNotify);
         void SendPetBattleRequestFailed(uint8 reason);
+        void SendPetBattleFinalizeLocation(PetBattleRequest* petBattleRequest);
         void HandleCageBattlePet(WorldPackets::BattlePet::CageBattlePet& cageBattlePet);
 
         // Warden
