@@ -12337,8 +12337,6 @@ bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool tel
     else if (turn)
         UpdateOrientation(orientation);
 
-    UpdatePositionData();
-
     _positionUpdateInfo.Relocated = relocated;
     _positionUpdateInfo.Turned = turn;
 
