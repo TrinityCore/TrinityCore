@@ -52,18 +52,18 @@ static void GrimailEnforcersStart(InstanceScript* p_Instance, Creature* p_Me)
 
     if (Creature* l_Makogg = p_Instance->instance->GetCreature(p_Instance->GetGuidData(eIronDocksDatas::DataGrimrailMakogg)))
     {
-        if (!l_Makogg->IsInCombat())
-            l_Makogg->SetInCombatWithZone();
+        if (!l_Makogg->IsInCombat());
+           // l_Makogg->SetInCombatWithZone();
     }
     if (Creature* l_Duguru = p_Instance->instance->GetCreature(p_Instance->GetGuidData(eIronDocksDatas::DataGrimrailDuguru)))
     {
-        if (!l_Duguru->IsInCombat())
-            l_Duguru->SetInCombatWithZone();
+        if (!l_Duguru->IsInCombat());
+           // l_Duguru->SetInCombatWithZone();
     }
     if (Creature* l_Noxx = p_Instance->instance->GetCreature(p_Instance->GetGuidData(eIronDocksDatas::DataGrimrailNoxx)))
     {
-        if (!l_Noxx->IsInCombat())
-            l_Noxx->SetInCombatWithZone();
+        if (!l_Noxx->IsInCombat());
+          //  l_Noxx->SetInCombatWithZone();
     }
 }
 
@@ -115,12 +115,12 @@ static void GrimailEnforcersWiningCondition(InstanceScript* p_Instance, Creature
                 {
                     if (Player* l_Player = ObjectAccessor::GetPlayer(*p_Me, p_KillerGuid))
                     {
-                        l_Player->Kill(l_Makogg);
+                       // l_Player->Kill(l_Makogg);
                         l_Duguru->RemoveAllAuras();
-                        l_Duguru->AddLootRecipient(l_Player);
+                      //  l_Duguru->AddLootRecipient(l_Player);
                         DespawnCreaturesInArea(eCreatures::CreatureOgreTrap, p_Me);
                         DespawnCreaturesInArea(eCreatures::CreatureBombsquad, p_Me);
-                        l_Duguru->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_NOT_SELECTABLE));
+                        l_Duguru->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL ));
                         p_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, p_Me);
                         p_Instance->SetBossState(eIronDocksDatas::DataGrimrail, EncounterState::DONE);
                     }
@@ -144,13 +144,13 @@ class basicevent_aftergrimrail : public BasicEvent
                 {
                     if (Creature* l_Koramar = l_Instance->instance->GetCreature(l_Instance->GetGuidData(eIronDocksDatas::DataKoramar)))
                     {
-                        if (l_Koramar->IsAIEnabled && l_Zoggosh->IsAIEnabled)
+                       // if (l_Koramar->IsAIEnabled && l_Zoggosh->IsAIEnabled)
                         {
                             switch (m_Modifier)
                             {
                             case 0:
                                 l_Zoggosh->AI()->Talk(eTalks::TalkZoggosh06);
-                                l_Koramar->m_Events.AddEvent(new basicevent_aftergrimrail(l_Koramar, 1), l_Koramar->m_Events.CalculateTime(8 * TimeConstants::IN_MILLISECONDS));
+                               // l_Koramar->m_Events.AddEvent(new basicevent_aftergrimrail(l_Koramar, 1), l_Koramar->m_Events.CalculateTime(8 * TimeConstants::IN_MILLISECONDS));
                                 break;
                             case 1:
                                 l_Koramar->AI()->Talk(eTalks::TalkKoramar07);
@@ -215,7 +215,7 @@ class iron_docks_grimrail_mob_train : public CreatureScript
 
         void Reset() override
         {
-            events.Reset();
+           // events.Reset();
 
             if (me->GetMap())
                // me->GetMap()->SetObjectVisibility(1000.0f);
@@ -226,7 +226,7 @@ class iron_docks_grimrail_mob_train : public CreatureScript
             me->SetReactState(ReactStates::REACT_PASSIVE);
             me->SetSpeed(UnitMoveType::MOVE_RUN, 1.2f);
             me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 1.2f);
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC  | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
+          //  me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC  | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
         }
 
         void DoAction(const int32 p_Action)
@@ -238,8 +238,8 @@ class iron_docks_grimrail_mob_train : public CreatureScript
                 if (Creature* l_NearestEngine = me->FindNearestCreature(eTrainCreatures::CreatureTrainEngine, 500.0f, true))
                 {
                     l_NearestEngine->CastSpell(l_NearestEngine, eTrainSpells::SpellTrainGoBackwards);
-                    events.ScheduleEvent(eTrainEvents::EventTrainStartTrainJump, 7 * TimeConstants::IN_MILLISECONDS);
-                    events.ScheduleEvent(eTrainEvents::EventTrainStartMoving, 10 * TimeConstants::IN_MILLISECONDS);
+                   // events.ScheduleEvent(eTrainEvents::EventTrainStartTrainJump, 7 * TimeConstants::IN_MILLISECONDS);
+                   // events.ScheduleEvent(eTrainEvents::EventTrainStartMoving, 10 * TimeConstants::IN_MILLISECONDS);
                 }
                 break;
             default:
@@ -249,14 +249,14 @@ class iron_docks_grimrail_mob_train : public CreatureScript
 
         void UpdateAI(uint32 const p_Diff) override
         {
-            events.Update(p_Diff);
+           // events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
-            switch (events.ExecuteEvent())
+           // switch (events.ExecuteEvent())
             {
-                case eTrainEvents::EventTrainStartTrainJump:
+                eTrainEvents::EventTrainStartTrainJump;
                 {
                     if (m_Instance != nullptr)
                     {
@@ -273,17 +273,17 @@ class iron_docks_grimrail_mob_train : public CreatureScript
                         {
                             if (Creature* l_NearestTriggerJumpTrain = me->FindNearestCreature(eTrainCreatures::CreatureTrainTriggerJump, 300.0f))
                             {
-                                if (Creature* l_Creature = l_NearestTriggerJumpTrain->SummonCreature(g_Entries[l_I], *l_NearestTriggerJumpTrain))
+                               // if (Creature* l_Creature = l_NearestTriggerJumpTrain->SummonCreature(g_Entries[l_I], *l_NearestTriggerJumpTrain))
                                 {
-                                    l_Creature->GetMotionMaster()->MoveJump(g_Position[l_I], 20.0f, 15.0f);
-                                    l_Creature->SetHomePosition(g_Position[l_I]);
+                                   // l_Creature->GetMotionMaster()->MoveJump(g_Position[l_I], 20.0f, 15.0f);
+                                    //l_Creature->SetHomePosition(g_Position[l_I]);
                                 }
                             }
                         }
                     }
-                    break;
+                   // break;
                 }
-                case eTrainEvents::EventTrainStartMoving:
+                eTrainEvents::EventTrainStartMoving;
                 {
                     if (Creature* l_Trigger = me->FindNearestCreature(eTrainCreatures::CreatureTrainTrigger, 3000.0f))
                     {
@@ -304,9 +304,9 @@ class iron_docks_grimrail_mob_train : public CreatureScript
                                 l_Itr->SetSpeed(UnitMoveType::MOVE_WALK, 8.0f);
                                 l_Itr->SetSpeed(UnitMoveType::MOVE_RUN, 8.0f);
                                 l_Itr->SetSpeed(UnitMoveType::MOVE_FLIGHT, 8.0f);
-                                l_Itr->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
+                               // l_Itr->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
 
-                                l_Itr->GetMotionMaster()->MoveCharge(l_Trigger, l_Itr->GetPositionZ(), l_Itr->GetOrientation());
+                               // l_Itr->GetMotionMaster()->MoveCharge(l_Trigger, l_Itr->GetPositionZ(), l_Itr->GetOrientation());
                             }
 
                             float l_X = me->m_positionX + 600 * cos(3.142922f);
@@ -315,15 +315,15 @@ class iron_docks_grimrail_mob_train : public CreatureScript
                             me->SetSpeed(UnitMoveType::MOVE_WALK, 8.0f);
                             me->SetSpeed(UnitMoveType::MOVE_RUN, 8.0f);
                             me->SetSpeed(UnitMoveType::MOVE_FLIGHT, 8.0f);
-                            me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
+                           // me->DespawnOrUnsummon(20 * TimeConstants::IN_MILLISECONDS);
 
-                            me->GetMotionMaster()->MoveCharge(l_Trigger, me->GetPositionZ(), me->GetOrientation());
+                           // me->GetMotionMaster()->MoveCharge(l_Trigger, me->GetPositionZ(), me->GetOrientation());
                         }
                     }
-                    break;
+                   // break;
                 }
-                default:
-                    break;
+                //default:
+                  //  break;
             }
 
             DoMeleeAttackIfReady();
@@ -370,18 +370,18 @@ class boss_grimrail_duguru : public CreatureScript
         void Reset() override
         {
             events.Reset();
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+           // me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
         }
 
-        void EnterCombat(Unit* /*p_Attacker*/) override
+        void EnterCombat(Unit* /*p_Attacker*/) 
         {
-            _EnterCombat();
+           // _EnterCombat();
             if (m_Instance != nullptr)
                 GrimailEnforcersStart(m_Instance, me);
 
-            events.ScheduleEvent(eDuguruEvents::EventBloodBolt, 6 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eDuguruEvents::EventSanguineSphere, 4 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eDuguruEvents::EventTaintedBlood, 14 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eDuguruEvents::EventBloodBolt, 6 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eDuguruEvents::EventSanguineSphere, 4 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eDuguruEvents::EventTaintedBlood, 14 * TimeConstants::IN_MILLISECONDS);
         }
 
         void JustDied(Unit* p_Killer) override
@@ -390,7 +390,7 @@ class boss_grimrail_duguru : public CreatureScript
             //me->SetLootRecipient(NULL);
             if (m_Instance != nullptr)
             {
-                m_Instance->DoSendScenarioEvent(41213);
+               // m_Instance->DoSendScenarioEvent(41213);
                 GrimailEnforcersWiningCondition(m_Instance, me, p_Killer->GetGUID());
             }
               
@@ -417,7 +417,7 @@ class boss_grimrail_duguru : public CreatureScript
                 case eDuguruEvents::EventBloodBolt:
                     if (Unit* l_Target = me->GetVictim())
                         me->CastSpell(l_Target, eDuguruSpells::SpellBloodBolt);
-                    events.ScheduleEvent(eDuguruEvents::EventBloodBolt, 6 * TimeConstants::IN_MILLISECONDS);
+                  //  events.ScheduleEvent(eDuguruEvents::EventBloodBolt, 6 * TimeConstants::IN_MILLISECONDS);
                     break;
                 case eDuguruEvents::EventSanguineSphere:
                 {
@@ -434,13 +434,13 @@ class boss_grimrail_duguru : public CreatureScript
                         me->CastSpell(l_Target, eDuguruSpells::SpellSanguineSphere, true);
 
                     //me->TextEmote("Ahir'ok Dugru begins to cast |cFFFF0404|Hspell:164275|h[Sanguine Sphere]!|h|r!", me->GetGUID(), true);
-                    events.ScheduleEvent(eDuguruEvents::EventSanguineSphere, 26 * TimeConstants::IN_MILLISECONDS);
+                   // events.ScheduleEvent(eDuguruEvents::EventSanguineSphere, 26 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }
                 case eDuguruEvents::EventTaintedBlood:
-                    if (Unit * l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                        me->CastSpell(l_Target, eDuguruSpells::SpellTaintedBlood);
-                    events.ScheduleEvent(eDuguruEvents::EventTaintedBlood, 14 * TimeConstants::IN_MILLISECONDS);
+                   // if (Unit * l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                   //     me->CastSpell(l_Target, eDuguruSpells::SpellTaintedBlood);
+                   // events.ScheduleEvent(eDuguruEvents::EventTaintedBlood, 14 * TimeConstants::IN_MILLISECONDS);
                     break;
                 default:
                     break;
@@ -501,7 +501,7 @@ class boss_grimrail_makogg : public CreatureScript
             void Reset() override
             {  
                 events.Reset();
-                ClearDelayedOperations();
+               // ClearDelayedOperations();
                 m_Dead = false;
                 m_LavaSweeping = false;
                 if (!m_First)
@@ -521,8 +521,8 @@ class boss_grimrail_makogg : public CreatureScript
                         {
                             p_Summon->AddAura(eMakoggSpells::SpellLavaWaveCosmetic, p_Summon);
                             p_Summon->AddAura(eMakoggSpells::SpellLavaSweepDamage, p_Summon);
-                            if (Unit* l_Target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 100.0F, true))
-                                p_Summon->GetMotionMaster()->MovePoint(0, l_Target->GetPositionX(), l_Target->GetPositionY(), l_Target->GetPositionZ());
+                           // if (Unit* l_Target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 100.0F, true))
+                             //   p_Summon->GetMotionMaster()->MovePoint(0, l_Target->GetPositionX(), l_Target->GetPositionY(), l_Target->GetPositionZ());
                             break;
                         }
                         default:
@@ -531,13 +531,13 @@ class boss_grimrail_makogg : public CreatureScript
                 }
             }
 
-            void OnSpellCasted(SpellInfo const* p_SpellInfo) override
+            void OnSpellCasted(SpellInfo const* p_SpellInfo) 
             {
-                AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+               // AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                 {
-                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 200.0f, true))
-                        me->GetMotionMaster()->MoveChase(l_Target, 0, 0);
-                });
+                    //if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 200.0f, true))
+                      //  me->GetMotionMaster()->MoveChase(l_Target, 0, 0);
+                };
             }
 
             void MovementInform(uint32 /*p_Type*/, uint32 p_Id) override
@@ -548,10 +548,10 @@ class boss_grimrail_makogg : public CreatureScript
                     me->RemoveAura(eMakoggSpells::SpellFlamingSlashUnkAura);
                     me->RemoveAura(eMakoggSpells::SpellFlamingSlashDummy);
 
-                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 40.0f, true))
+                   // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 40.0f, true))
                     {
-                        me->Attack(l_Target, true);
-                        me->GetMotionMaster()->MoveChase(l_Target);
+                       // me->Attack(l_Target, true);
+                        //me->GetMotionMaster()->MoveChase(l_Target);
                     }
  
                     break;
@@ -560,26 +560,26 @@ class boss_grimrail_makogg : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
-                _EnterCombat();
+               // _EnterCombat();
                 if (m_Instance != nullptr)
                     GrimailEnforcersStart(m_Instance, me);
              
-                events.ScheduleEvent(eMakoggEvents::EventLavaSweep, 20 * TimeConstants::IN_MILLISECONDS);
-                events.ScheduleEvent(eMakoggEvents::EventFlamingSlash, 13 * TimeConstants::IN_MILLISECONDS);
+               // events.ScheduleEvent(eMakoggEvents::EventLavaSweep, 20 * TimeConstants::IN_MILLISECONDS);
+               // events.ScheduleEvent(eMakoggEvents::EventFlamingSlash, 13 * TimeConstants::IN_MILLISECONDS);
             }
 
             void JustDied(Unit* p_Killer) override
             {
                 _JustDied();
                 Talk(eTalks::TalkMakoggDeath);
-                me->AddLootRecipient(NULL);
+               // me->AddLootRecipient(NULL);
                 if (m_Instance != nullptr)
                     GrimailEnforcersWiningCondition(m_Instance, me, p_Killer->GetGUID());
             }
-            /*
-            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) override
+            
+            void DamageTaken(Unit* p_Attacker, uint32& p_Damage, SpellInfo const* p_SpellInfo) 
             {
                 if (m_Instance == nullptr)
                     return;
@@ -598,9 +598,9 @@ class boss_grimrail_makogg : public CreatureScript
                                 me->SetFullHealth();
                                 me->CastSpell(me, eMakoggSpells::SpellFeignDeath);
                                 me->CastSpell(me, eMakoggSpells::SpellCosmeticFeignDeath);
-                                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_NOT_SELECTABLE);
-                                me->SetFlag(UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH | eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
-                                me->SetFlag(EObjectFields::OBJECT_FIELD_DYNAMIC_FLAGS, UnitDynFlags::UNIT_DYNFLAG_DEAD);
+                              //  me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_NOT_SELECTABLE);
+                               // me->SetFlag(UNIT_FIELD_FLAGS_2, eUnitFlags2::UNIT_FLAG2_FEIGN_DEATH | eUnitFlags2::UNIT_FLAG2_DISABLE_TURN);
+                               // me->SetFlag(EObjectFields::OBJECT_FIELD_DYNAMIC_FLAGS, UnitDynFlags::UNIT_DYNFLAG_DEAD);
                                 me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
                                 GrimailEnforcersWiningCondition(m_Instance, me, p_Attacker->GetGUID());
                             }
@@ -608,7 +608,7 @@ class boss_grimrail_makogg : public CreatureScript
                     }
                 }
             }
-            */
+            
             void DoAction(const int32 p_Action)
             {
                 if (p_Action == eActions::ActionMakoggWinCheck)
@@ -629,7 +629,7 @@ class boss_grimrail_makogg : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                UpdateOperations(p_Diff);
+               // UpdateOperations(p_Diff);
                 events.Update(p_Diff);
 
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
@@ -640,10 +640,10 @@ class boss_grimrail_makogg : public CreatureScript
                     case eMakoggEvents::EventFlamingSlash:
                         {
                             Talk(eTalks::TalkMakoggSpell01);
-                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                                me->CastSpell(l_Target, eMakoggSpells::SpellFlamingSlashDummy);
+                            //if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                              //  me->CastSpell(l_Target, eMakoggSpells::SpellFlamingSlashDummy);
 
-                            events.ScheduleEvent(eMakoggEvents::EventFlamingSlash, 25 * TimeConstants::IN_MILLISECONDS);
+                            //events.ScheduleEvent(eMakoggEvents::EventFlamingSlash, 25 * TimeConstants::IN_MILLISECONDS);
                             break;
                         }
                     case eMakoggEvents::EventLavaSweep:
@@ -651,15 +651,15 @@ class boss_grimrail_makogg : public CreatureScript
                             m_LavaSweepers = 0;
                             m_LavaSweeping = true;
                             me->SetReactState(ReactStates::REACT_PASSIVE);
-                            me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
-                            events.ScheduleEvent(eMakoggEvents::EventLavaSweepSpawn, 2 * TimeConstants::IN_MILLISECONDS);
+                           // me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+                           // events.ScheduleEvent(eMakoggEvents::EventLavaSweepSpawn, 2 * TimeConstants::IN_MILLISECONDS);
                             break;
                         }
                     case eMakoggEvents::EventLavaSweepSpawn:
                         {
                             m_LavaSweepers++;
                             me->CastSpell(me, eMakoggSpells::SpellLavaWaveSwing);
-                            me->SummonCreature(eCreatures::CreatureLavaSweep, *me, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 8 * TimeConstants::IN_MILLISECONDS);                       
+                           // me->SummonCreature(eCreatures::CreatureLavaSweep, *me, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 8 * TimeConstants::IN_MILLISECONDS);                       
                             if (m_LavaSweepers >= 2)
                             {
                                 m_LavaSweepers = 0;     
@@ -668,11 +668,11 @@ class boss_grimrail_makogg : public CreatureScript
                                 me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
                                 events.CancelEvent(eMakoggEvents::EventLavaSweep);
                                 events.CancelEvent(eMakoggEvents::EventLavaSweepSpawn);
-                                events.ScheduleEvent(eMakoggEvents::EventLavaSweep, 50 * TimeConstants::IN_MILLISECONDS);
-                                events.ScheduleEvent(eMakoggEvents::EventMakoggClear, 7 * TimeConstants::IN_MILLISECONDS);
+                               // events.ScheduleEvent(eMakoggEvents::EventLavaSweep, 50 * TimeConstants::IN_MILLISECONDS);
+                               // events.ScheduleEvent(eMakoggEvents::EventMakoggClear, 7 * TimeConstants::IN_MILLISECONDS);
                             }
                             else
-                            events.ScheduleEvent(eMakoggEvents::EventLavaSweepSpawn, 3 * TimeConstants::IN_MILLISECONDS);
+                            //events.ScheduleEvent(eMakoggEvents::EventLavaSweepSpawn, 3 * TimeConstants::IN_MILLISECONDS);
                             break;
                         }
                         default:
@@ -737,19 +737,19 @@ class boss_grimrail_noxx : public CreatureScript
                     m_First = true;
                     Talk(eTalks::TalkNoxxIntro);
                 }
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+              //  me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
             }
 
-            void EnterCombat(Unit* /*p_Attacker*/) override
+            void EnterCombat(Unit* /*p_Attacker*/) 
             {
-                _EnterCombat();
+               // _EnterCombat();
                 if (m_Instance != nullptr)
                     GrimailEnforcersStart(m_Instance, me);
 
-                events.ScheduleEvent(eNoxxEvents::EventOgreTrap, urand(18 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
-                events.ScheduleEvent(eNoxxEvents::EventJumperCables, 15 * TimeConstants::IN_MILLISECONDS);
-                events.ScheduleEvent(eNoxxEvents::EventGutShot, 4 * TimeConstants::IN_MILLISECONDS);
-                events.ScheduleEvent(eNoxxEvents::EventBombSquad, 30 * TimeConstants::IN_MILLISECONDS);
+              //  events.ScheduleEvent(eNoxxEvents::EventOgreTrap, urand(18 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
+               // events.ScheduleEvent(eNoxxEvents::EventJumperCables, 15 * TimeConstants::IN_MILLISECONDS);
+               // events.ScheduleEvent(eNoxxEvents::EventGutShot, 4 * TimeConstants::IN_MILLISECONDS);
+               // events.ScheduleEvent(eNoxxEvents::EventBombSquad, 30 * TimeConstants::IN_MILLISECONDS);
             }
 
             void KilledUnit(Unit* p_Who) override
@@ -766,10 +766,10 @@ class boss_grimrail_noxx : public CreatureScript
                     switch (p_Summon->GetEntry())
                     {
                         case eCreatures::CreatureBombsquad:           
-                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                                p_Summon->GetMotionMaster()->MoveJump(*l_Target, 40.0f, 20.0f);
+                           // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                                p_Summon->GetMotionMaster();
                             p_Summon->CastSpell(p_Summon, eNoxxSpells::SpellBigBoom);
-                            p_Summon->DespawnOrUnsummon(7 * TimeConstants::IN_MILLISECONDS);
+                           // p_Summon->DespawnOrUnsummon(7 * TimeConstants::IN_MILLISECONDS);
                             p_Summon->SetReactState(ReactStates::REACT_PASSIVE);
                             break;
                     }
@@ -780,7 +780,7 @@ class boss_grimrail_noxx : public CreatureScript
             {
                 _JustDied();
                 Talk(eTalks::TalkNoxxDeath);
-                me->AddLootRecipient(NULL);
+               // me->AddLootRecipient(NULL);
                 if (m_Instance != nullptr)
                     GrimailEnforcersWiningCondition(m_Instance, me, p_Killer->GetGUID());
             }
@@ -807,40 +807,40 @@ class boss_grimrail_noxx : public CreatureScript
                         {
                             if (Unit* l_Target = me->GetVictim())
                                 me->CastSpell(l_Target, eNoxxSpells::SpellGutShot);
-                            events.ScheduleEvent(eNoxxEvents::EventGutShot, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
+                           // events.ScheduleEvent(eNoxxEvents::EventGutShot, urand(6 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
                             break;
                         }
                     case eNoxxEvents::EventOgreTrap:
                         {                  
-                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                           // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
                             {
                                 float l_Range = 5.0f;
                                 float l_Angle = 0.0f;
                                 float l_Step = (2 * float(M_PI)) / 8;
                                 for (uint8 l_I = 0; l_I < 8; ++l_I)
                                 {
-                                    float l_X = l_Target->GetPositionX() + (l_Range * cos(l_Angle));
-                                    float l_Y = l_Target->GetPositionY() + (l_Range * sin(l_Angle));
-                                    me->SummonCreature(eCreatures::CreatureOgreTrap, l_X, l_Y, l_Target->GetPositionZ(), l_Target->GetOrientation(), TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
+                                   // float l_X = l_Target->GetPositionX() + (l_Range * cos(l_Angle));
+                                   // float l_Y = l_Target->GetPositionY() + (l_Range * sin(l_Angle));
+                                  //  me->SummonCreature(eCreatures::CreatureOgreTrap->GetPositionZ(), l_Target->GetOrientation(), TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
                                     l_Angle += l_Step;
                                 }
                             }
                             Talk(eTalks::TalkNoxxSpell03);
-                            events.ScheduleEvent(eNoxxEvents::EventOgreTrap, urand(40 * TimeConstants::IN_MILLISECONDS, 60 * TimeConstants::IN_MILLISECONDS));
+                           // events.ScheduleEvent(eNoxxEvents::EventOgreTrap, urand(40 * TimeConstants::IN_MILLISECONDS, 60 * TimeConstants::IN_MILLISECONDS));
                             break;
                         }
                     case eNoxxEvents::EventJumperCables:
                         {                
-                            if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0F, true))
-                                me->CastSpell(l_Target, eNoxxSpells::SpellJumperCables);
+                          //  if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0F, true))
+                            //    me->CastSpell(l_Target, eNoxxSpells::SpellJumperCables);
                             Talk(eTalks::TalkNoxxSpell01);
-                            events.ScheduleEvent(eNoxxEvents::EventJumperCables, 27 * TimeConstants::IN_MILLISECONDS);
+                            //events.ScheduleEvent(eNoxxEvents::EventJumperCables, 27 * TimeConstants::IN_MILLISECONDS);
                             break;
                         }
                     case eNoxxEvents::EventBombSquad:
                         {
                             me->CastSpell(me, eNoxxSpells::SpellBombSquad);
-                            events.ScheduleEvent(eNoxxEvents::EventBombSquad, 50 * TimeConstants::IN_MILLISECONDS);
+                           // events.ScheduleEvent(eNoxxEvents::EventBombSquad, 50 * TimeConstants::IN_MILLISECONDS);
                             break;
                         }
                         default:
@@ -862,9 +862,9 @@ class iron_docks_grimrail_mob_ogre_trap : public CreatureScript
 
         iron_docks_grimrail_mob_ogre_trap() : CreatureScript("iron_docks_grimrail_mob_ogre_trap") { }
 
-        struct iron_docks_grimrail_mob_ogre_trapAI : public Scripted_NoMovementAI
+        struct iron_docks_grimrail_mob_ogre_trapAI : public CreatureAI
         {
-            iron_docks_grimrail_mob_ogre_trapAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature)
+            iron_docks_grimrail_mob_ogre_trapAI(Creature* p_Creature) : CreatureAI(p_Creature)
             {           
                 m_Instance = me->GetInstanceScript();
             }
@@ -882,13 +882,13 @@ class iron_docks_grimrail_mob_ogre_trap : public CreatureScript
 
             void Reset() override
             {
-                events.Reset();
+               // events.Reset();
                 m_Activated = false;
                 me->SetFaction(HostileFaction);
                 me->SetReactState(ReactStates::REACT_PASSIVE);
                 me->CastSpell(me, eOgreTrapSpells::SpellOgreTrapOpenTeeth);
-                me->DespawnOrUnsummon(58 * TimeConstants::IN_MILLISECONDS);
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+               // me->DespawnOrUnsummon(58 * TimeConstants::IN_MILLISECONDS);
+               // me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
             }
 
             void UpdateAI(uint32 const p_Diff) override
@@ -901,7 +901,7 @@ class iron_docks_grimrail_mob_ogre_trap : public CreatureScript
                         me->RemoveAllAuras();
                         me->AddAura(eOgreTrapSpells::SpellOgreTrapClosedTeeth, me);
                         me->AddAura(eOgreTrapSpells::SpellShreddingTendons, l_Nearest);
-                        me->DespawnOrUnsummon(6 * TimeConstants::IN_MILLISECONDS);
+                      //  me->DespawnOrUnsummon(6 * TimeConstants::IN_MILLISECONDS);
                     }
                 }
             }
@@ -937,14 +937,14 @@ class iron_docks_grimrail_mob_lava_wave : public CreatureScript
 
         void Reset() override
         {
-            events.Reset();
+            //events.Reset();
             me->SetFaction(HostileFaction);         
             me->SetReactState(ReactStates::REACT_PASSIVE);
             m_EffectDiff = 1 * TimeConstants::IN_MILLISECONDS;
             me->SetSpeed(UnitMoveType::MOVE_RUN, 0.6f);
             me->SetSpeed(UnitMoveType::MOVE_WALK, 0.6f);
             me->AddUnitState(UnitState::UNIT_STATE_CANNOT_AUTOATTACK);
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+           // me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -1108,7 +1108,7 @@ class iron_docks_grimrail_spell_flaming_slash : public SpellScriptLoader
             if (!GetHitUnit())
                 return;
 
-            GetCaster()->GetMotionMaster()->MoveCharge(GetHitUnit(), 42.0f, eMovementInformeds::MovementInformFlamingSlash);
+           // GetCaster()->GetMotionMaster()->MoveCharge(GetHitUnit(), 42.0f, eMovementInformeds::MovementInformFlamingSlash);
         }
 
         void Register()
@@ -1138,7 +1138,7 @@ class iron_docks_grimrail_at_event : public AreaTriggerScript
             {
                 if (Creature* l_Skulloc = l_Instance->instance->GetCreature(l_Instance->GetGuidData(eIronDocksDatas::DataSkulloc)))
                 {
-                    if (l_Skulloc->IsAIEnabled)
+                   // if (l_Skulloc->IsAIEnabled)
                         l_Skulloc->GetAI()->DoAction(eIronDocksActions::ActionActivateGrimrailEvent);
                 }
             }
