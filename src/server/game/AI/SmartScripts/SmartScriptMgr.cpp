@@ -557,13 +557,25 @@ bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
         }
         case SMART_TARGET_CREATURE_GUID:
         {
-            if (e.target.unitGUID.entry && !IsCreatureValid(e, e.target.unitGUID.entry))
+            ObjectGuid::LowType guid = ObjectGuid::LowType(e.target.unitGUID.dbGuid);
+            if (!sObjectMgr->GetCreatureData(guid))
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} using invalid creature guid {} as target_param1, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), guid);
+                return false;
+            }
+            else if (e.target.unitGUID.entry && !IsCreatureValid(e, e.target.unitGUID.entry))
                 return false;
             break;
         }
         case SMART_TARGET_GAMEOBJECT_GUID:
         {
-            if (e.target.goGUID.entry && !IsGameObjectValid(e, e.target.goGUID.entry))
+            ObjectGuid::LowType guid = ObjectGuid::LowType(e.target.goGUID.dbGuid);
+            if (!sObjectMgr->GetGameObjectData(guid))
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} using invalid gameobject guid {} as target_param1, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), guid);
+                return false;
+            }
+            else if (e.target.goGUID.entry && !IsGameObjectValid(e, e.target.goGUID.entry))
                 return false;
             break;
         }
@@ -1662,6 +1674,20 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         {
             if (!IsSpellValid(e, e.action.crossCast.spell))
                 return false;
+
+            uint32 targetType = e.action.crossCast.targetType;
+            if (targetType == SMART_TARGET_CREATURE_GUID || targetType == SMART_TARGET_GAMEOBJECT_GUID)
+            {
+                ObjectGuid::LowType guid = ObjectGuid::LowType(e.action.crossCast.targetParam1);
+                SpawnObjectType spawnType = targetType == SMART_TARGET_CREATURE_GUID ? SPAWN_TYPE_CREATURE : SPAWN_TYPE_GAMEOBJECT;
+
+                if (!sObjectMgr->GetSpawnData(spawnType, guid))
+                {
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} specifies invalid CasterTargetType guid ({},{})", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), AsUnderlyingType(spawnType), guid);
+                    return false;
+                }
+            }
+
             break;
         }
         case SMART_ACTION_INVOKER_CAST:
