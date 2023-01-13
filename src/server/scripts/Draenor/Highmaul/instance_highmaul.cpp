@@ -130,7 +130,7 @@ class instance_highmaul : public InstanceMapScript
             /// Phasing
             std::map<uint32, uint32> m_PlayerPhases;
 
-            void Initialize() override
+            void Initialize() 
             {
                 SetBossNumber(eHighmaulDatas::MaxHighmaulBosses);
                 LoadDoorData(g_DoorData);
@@ -163,7 +163,7 @@ class instance_highmaul : public InstanceMapScript
                         break;
                     case eHighmaulCreatures::IronBomberSpawner:
                         creature->SetReactState(ReactStates::REACT_PASSIVE);
-                        creature->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE));
+                       // creature->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE));
                         break;
                     case eHighmaulCreatures::IronBomber:
                         if (!m_IronBombersCount)
@@ -208,8 +208,8 @@ class instance_highmaul : public InstanceMapScript
                     case eHighmaulCreatures::GorianCivilian:
                     case eHighmaulCreatures::RuneOfNullification:
                         creature->SetReactState(ReactStates::REACT_PASSIVE);
-                        creature->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
-                        creature->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
+                       // creature->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+                       // creature->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
                         break;
                     case eHighmaulCreatures::ImperatorMargok:
                         m_ImperatorMargokGuid = creature->GetGUID();
@@ -268,7 +268,7 @@ class instance_highmaul : public InstanceMapScript
                 switch (gameObject->GetEntry())
                 {
                     case eHighmaulGameobjects::GateArenaExit:
-                        if (!instance->IsLFR())
+                       // if (!instance->IsLFR())
                             AddDoor(gameObject, true);
                         break;
                     case eHighmaulGameobjects::FungalGiantDoor:
@@ -289,7 +289,7 @@ class instance_highmaul : public InstanceMapScript
                         break;
                     case eHighmaulGameobjects::ArenaElevator:
                         m_ArenaElevatorGuid = gameObject->GetGUID();
-                        gameObject->SetTransportState(GOState::GO_STATE_TRANSPORT_ACTIVE);
+                      //  gameObject->SetTransportState(GOState::GO_STATE_TRANSPORT_ACTIVE);
                         break;
                     case eHighmaulGameobjects::CollisionWall:
                         m_CollisionWallGuid = gameObject->GetGUID();
@@ -323,7 +323,7 @@ class instance_highmaul : public InstanceMapScript
                 switch (gameObject->GetEntry())
                 {
                     case eHighmaulGameobjects::GateArenaExit:
-                        if (!instance->IsLFR())
+                      //  if (!instance->IsLFR())
                             AddDoor(gameObject, false);
                         break;
                     case eHighmaulGameobjects::FungalGiantDoor:
@@ -372,8 +372,8 @@ class instance_highmaul : public InstanceMapScript
                                 PlaySceneForPlayers(g_PlayScenePos, 1338);
                                 DoCastSpellOnPlayers(eHighmaulSpells::ChogallNight);
 
-                                if (!instance->IsLFR() && m_KargathAchievement)
-                                    DoCompleteAchievement(eHighmaulAchievements::FlameOn);
+                               // if (!instance->IsLFR() && m_KargathAchievement)
+                                 //   DoCompleteAchievement(eHighmaulAchievements::FlameOn);
 
                                 break;
                             }
@@ -395,8 +395,8 @@ class instance_highmaul : public InstanceMapScript
                             }
                             case EncounterState::DONE:
                             {
-                                if (!instance->IsLFR() && m_MaggotKilled >= eHighmaulDatas::MaxMaggotToKill)
-                                    DoCompleteAchievement(eHighmaulAchievements::HurryUpMaggot);
+                               // if (!instance->IsLFR() && m_MaggotKilled >= eHighmaulDatas::MaxMaggotToKill)
+                                 //   DoCompleteAchievement(eHighmaulAchievements::HurryUpMaggot);
 
                                 break;
                             }
@@ -419,8 +419,8 @@ class instance_highmaul : public InstanceMapScript
                             }
                             case EncounterState::DONE:
                             {
-                                if (!instance->IsLFR() && m_TectusAchievement)
-                                    DoCompleteAchievement(eHighmaulAchievements::MoreLikeWreckedUs);
+                               // if (!instance->IsLFR() && m_TectusAchievement)
+                                 //   DoCompleteAchievement(eHighmaulAchievements::MoreLikeWreckedUs);
 
                                 break;
                             }
@@ -442,8 +442,8 @@ class instance_highmaul : public InstanceMapScript
                             }
                             case EncounterState::DONE:
                             {
-                                if (!instance->IsLFR() && m_BrackensporeAchievement)
-                                    DoCompleteAchievement(eHighmaulAchievements::AFungusAmongUs);
+                              //  if (!instance->IsLFR() && m_BrackensporeAchievement)
+                                //    DoCompleteAchievement(eHighmaulAchievements::AFungusAmongUs);
 
                                 break;
                             }
@@ -465,8 +465,8 @@ class instance_highmaul : public InstanceMapScript
                             }
                             case EncounterState::DONE:
                             {
-                                if (!instance->IsLFR() && m_TwinOgronAchievement)
-                                    DoCompleteAchievement(eHighmaulAchievements::BrothersInArms);
+                                //if (!instance->IsLFR() && m_TwinOgronAchievement)
+                                  //  DoCompleteAchievement(eHighmaulAchievements::BrothersInArms);
 
                                 break;
                             }
@@ -489,8 +489,8 @@ class instance_highmaul : public InstanceMapScript
                             }
                             case EncounterState::DONE:
                             {
-                                if (!instance->IsLFR() && m_NullificationBarrier && m_OverflowingEnergies < eHighmaulDatas::MaxOverflowingEnergy)
-                                    DoCompleteAchievement(eHighmaulAchievements::PairAnnihilation);
+                               // if (!instance->IsLFR() && m_NullificationBarrier && m_OverflowingEnergies < eHighmaulDatas::MaxOverflowingEnergy)
+                                 //   DoCompleteAchievement(eHighmaulAchievements::PairAnnihilation);
 
                                 break;
                             }
@@ -512,16 +512,16 @@ class instance_highmaul : public InstanceMapScript
                             }
                             case EncounterState::DONE:
                             {
-                                if (!instance->IsLFR() && m_ImperatorAchievement)
-                                    DoCompleteAchievement(eHighmaulAchievements::LineageOfPower);
+                               // if (!instance->IsLFR() && m_ImperatorAchievement)
+                                 //   DoCompleteAchievement(eHighmaulAchievements::LineageOfPower);
 
-                                if (instance->IsMythic())
+                                //if (instance->IsMythic())
                                 {
-                                    DoCompleteAchievement(eHighmaulAchievements::AheadOfTheCurve);
-                                    DoCompleteAchievement(eHighmaulAchievements::CuttingEdge);
+                                  //  DoCompleteAchievement(eHighmaulAchievements::AheadOfTheCurve);
+                                  //  DoCompleteAchievement(eHighmaulAchievements::CuttingEdge);
                                 }
-                                else if (instance->IsHeroic())
-                                    DoCompleteAchievement(eHighmaulAchievements::AheadOfTheCurve);
+                                 if (instance->IsHeroic())
+                                   // DoCompleteAchievement(eHighmaulAchievements::AheadOfTheCurve);
 
                                 break;
                             }
@@ -616,7 +616,7 @@ class instance_highmaul : public InstanceMapScript
                     case eHighmaulDatas::TestsActivated:
                         return m_ForTests;
                     case eHighmaulDatas::KoraghAchievement:
-                        return !instance->IsLFR() && m_NullificationBarrier && m_OverflowingEnergies < eHighmaulDatas::MaxOverflowingEnergy;
+                      //  return !instance->IsLFR() && m_NullificationBarrier && m_OverflowingEnergies < eHighmaulDatas::MaxOverflowingEnergy;
                     default:
                         return 0;
                 }
@@ -713,7 +713,7 @@ class instance_highmaul : public InstanceMapScript
                 return true;
             }
 
-            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override
+            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) 
             {
                 packet.Worldstates.emplace_back(uint32(eHighmaulWorldStates::IronBomberEnable), 0);
                 packet.Worldstates.emplace_back(uint32(eHighmaulWorldStates::IronBomberRemaining), 0);
@@ -734,7 +734,7 @@ class instance_highmaul : public InstanceMapScript
                     if (!player->IsSummon())
                     {
                         ObjectGuid guid = player->GetGUID();
-                        AddTimedDelayedOperation(200, [this, guid]() -> void
+                       // AddTimedDelayedOperation(200, [this, guid]() -> void
                         {
                             if (Player* player = ObjectAccessor::FindPlayer(guid))
                             {
@@ -747,18 +747,18 @@ class instance_highmaul : public InstanceMapScript
                                 else
                                     player->NearTeleportTo(eHighmaulLocs::KargathDefeated);
                             }
-                        });
+                        };
                     }
                 }
 
                 /// Disable non available bosses for LFR
-                /*if (!m_Initialized)
+                if (!m_Initialized)
                 {
                     m_Initialized = true;
 
-                    m_DungeonID = player->GetGroup() ? sLFGMgr->GetDungeon(player->GetGroup()->GetGUID()) : 0;
+                  //  m_DungeonID = player->GetGroup()(player->GetGroup()->GetGUID()) : 0;
 
-                    if (!instance->IsLFR())
+                   // if (!instance->IsLFR())
                         m_DungeonID = 0;
 
                     switch (m_DungeonID)
@@ -772,7 +772,7 @@ class instance_highmaul : public InstanceMapScript
                             l_DisabledMask |= (1 << eHighmaulDatas::BossKoragh);
                             l_DisabledMask |= (1 << eHighmaulDatas::BossImperatorMargok);
 
-                            SetDisabledBosses(l_DisabledMask);
+                           // SetDisabledBosses(l_DisabledMask);
                             break;
                         }
                         case eHighmaulDungeons::ArcaneSanctum:
@@ -784,10 +784,10 @@ class instance_highmaul : public InstanceMapScript
                             l_DisabledMask |= (1 << eHighmaulDatas::BossBrackenspore);
                             l_DisabledMask |= (1 << eHighmaulDatas::BossImperatorMargok);
 
-                            SetDisabledBosses(l_DisabledMask);
+                           // SetDisabledBosses(l_DisabledMask);
 
-                            if (GameObject* l_Door = ObjectAccessor::GetGameObject(*mem_ColiseumLFRDoor))
-                                l_Door->SetGoState(GOState::GO_STATE_ACTIVE);
+                           // if (GameObject* l_Door = ObjectAccessor::GetGameObject())
+                             //   l_Door->SetGoState(GOState::GO_STATE_ACTIVE);
 
                             break;
                         }
@@ -802,13 +802,13 @@ class instance_highmaul : public InstanceMapScript
                             l_DisabledMask |= (1 << eHighmaulDatas::BossTwinOgron);
                             l_DisabledMask |= (1 << eHighmaulDatas::BossKoragh);
 
-                            SetDisabledBosses(l_DisabledMask);
+                           // SetDisabledBosses(l_DisabledMask);
                             break;
                         }
                         default:
                             break;
                     }
-                }*/
+                }
 
                 switch (m_DungeonID)
                 {
@@ -833,9 +833,9 @@ class instance_highmaul : public InstanceMapScript
                 }
             }
 
-            void OnPlayerExit(Player* player) override
+            void OnPlayerExit(Player* player) 
             {
-                InstanceScript::OnPlayerExit(player);
+               // InstanceScript::OnExit(player);
 
                 player->RemoveAura(eHighmaulSpells::PlayChogallScene);
                 player->RemoveAura(eHighmaulSpells::ChogallNight);
@@ -859,7 +859,7 @@ class instance_highmaul : public InstanceMapScript
                 {
                     if (Player* player = itr->GetSource())
                     {
-                        player->GetSceneMgr().PlaySceneByPackageId(scenePackageID);
+                       // player->GetSceneMgr().PlaySceneByPackageId(scenePackageID);
                         player->GetPhaseShift().AddPhase(eHighmaulDatas::PhaseKargathDefeated, PhaseFlags::None, nullptr);
                     }
                 }
@@ -867,7 +867,7 @@ class instance_highmaul : public InstanceMapScript
 
             void Update(uint32 diff) override
             {
-                UpdateOperations(diff);
+               // UpdateOperations(diff);
                 UpdateCombatResurrection(diff);
             }
         };

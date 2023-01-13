@@ -72,11 +72,11 @@ class npc_highmaul_gharg_arena_master : public CreatureScript
             {
                 me->SetWalk(true);
                 me->SetReactState(ReactStates::REACT_PASSIVE);
-                me->SummonGameObject(eHighmaulGameobjects::ArenaElevator, 3466.438f, 7577.974f, 14.94214f, 0.8901166f, QuaternionData(0.0f, 0.0f, 0.4305113f, 0.9025852f), 1000);
+              //  me->SummonGameObject(eHighmaulGameobjects::ArenaElevator, 3466.438f, 7577.974f, 14.94214f, 0.8901166f, QuaternionData(0.0f, 0.0f, 0.4305113f, 0.9025852f), 1000);
                 me->GetMotionMaster()->MovePoint(eMove::MoveFirstPos, g_GhargFirstPos);
             }
 
-            bool CanRespawn() override
+            bool CanRespawn() 
             {
                 return false;
             }
@@ -93,19 +93,19 @@ class npc_highmaul_gharg_arena_master : public CreatureScript
                 }
             }
 
-            void sGossipSelect(Player* player, uint32 /*p_Sender*/, uint32 /*action*/) override
+            void sGossipSelect(Player* player, uint32 /*p_Sender*/, uint32 /*action*/) 
             {
                 if (m_Instance == nullptr)
                     return;
 
                 /// Teleport player
-                //if (m_Instance->GetData(eHighmaulDatas::ElevatorActivated))
+                if (m_Instance->GetData(eHighmaulDatas::ElevatorActivated))
                     player->NearTeleportTo(g_GhargTeleportPos);
-                //else
-                //{
+                else
+                {
                     me->GetMotionMaster()->MovePoint(eMove::MoveSecondPos, g_GhargSecondPos);
                     m_Instance->SetData(eHighmaulDatas::ElevatorActivated, true);
-                //}
+                }
 
                 CloseGossipMenuFor(player);
             }
@@ -129,7 +129,7 @@ class npc_highmaul_gharg_arena_master : public CreatureScript
 
                         /// Start elevator
                         if (GameObject* l_Elevator = ObjectAccessor::GetGameObject(*me, m_Instance->GetGuidData(eHighmaulGameobjects::ArenaElevator)))
-                            l_Elevator->SetTransportState(GOState::GO_STATE_TRANSPORT_STOPPED);
+                           // l_Elevator->SetTransportState(GOState::GO_STATE_TRANSPORT_STOPPED);
 
                         /// Active Collision Wall
                         if (GameObject* l_Wall = ObjectAccessor::GetGameObject(*me, m_Instance->GetGuidData(eHighmaulGameobjects::CollisionWall)))
@@ -189,11 +189,11 @@ class npc_highmaul_jhorn_the_mad : public CreatureScript
                 {
                     case eActions::StartIntro:
                     {
-                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Intro1); });
-                        AddTimedDelayedOperation(16 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Intro2); });
-                        AddTimedDelayedOperation(38 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Intro3); });
+                       // AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Intro1); });
+                       // AddTimedDelayedOperation(16 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Intro2); });
+                       // AddTimedDelayedOperation(38 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Intro3); });
 
-                        AddTimedDelayedOperation(55 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        //AddTimedDelayedOperation(55 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
                             Talk(eTalks::Intro4);
 
@@ -202,41 +202,41 @@ class npc_highmaul_jhorn_the_mad : public CreatureScript
                                 if (Creature* l_Vulgor = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eHighmaulCreatures::Vulgor)))
                                     l_Vulgor->AI()->DoAction(eActions::StartIntro);
                             }
-                        });
+                        };
 
-                        AddTimedDelayedOperation(56 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                       // AddTimedDelayedOperation(56 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
                             if (m_Instance != nullptr)
                             {
                                 if (GameObject* l_InnerGate = ObjectAccessor::GetGameObject(*me, m_Instance->GetGuidData(eHighmaulGameobjects::GateArenaInner)))
                                     l_InnerGate->Use(me);
                             }
-                        });
+                        };
 
-                        AddTimedDelayedOperation(70 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Intro5); });
+                       // AddTimedDelayedOperation(70 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Intro5); });
                         break;
                     }
                     case eActions::ContinueIntro:
-                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Trash1); });
-                        AddTimedDelayedOperation(11 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Trash2); });
+                       // AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Trash1); });
+                       // AddTimedDelayedOperation(11 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Trash2); });
                         break;
                     case eActions::VulgorDied:
                     {
-                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Kargath1); });
+                       // AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Kargath1); });
 
-                        AddTimedDelayedOperation(11 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                       // AddTimedDelayedOperation(11 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
                             if (Creature* l_Kargath = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eHighmaulCreatures::KargathBladefist)))
                                 l_Kargath->AI()->DoAction(eActions::VulgorDied);
-                        });
+                        };
 
-                        AddTimedDelayedOperation(20 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Kargath2); });
+                       // AddTimedDelayedOperation(20 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Kargath2); });
 
-                        AddTimedDelayedOperation(21 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                       // AddTimedDelayedOperation(21 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
                             if (Creature* l_Kargath = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eHighmaulCreatures::KargathBladefist)))
                                 l_Kargath->SetFacingTo(4.02f);
-                        });
+                        };
 
                         break;
                     }
@@ -284,16 +284,16 @@ class npc_highmaul_thoktar_ironskull : public CreatureScript
                 switch (action)
                 {
                     case eActions::StartIntro:
-                        AddTimedDelayedOperation(11 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Intro1); });
-                        AddTimedDelayedOperation(31 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Intro2); });
-                        AddTimedDelayedOperation(50 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Intro3); });
+                       // AddTimedDelayedOperation(11 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Intro1); });
+                       // AddTimedDelayedOperation(31 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Intro2); });
+                       // AddTimedDelayedOperation(50 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Intro3); });
                         break;
                     case eActions::ContinueIntro:
-                        AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Trash1); });
-                        AddTimedDelayedOperation(17 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Trash2); });
+                       // AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Trash1); });
+                       // AddTimedDelayedOperation(17 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Trash2); });
                         break;
                     case eActions::VulgorDied:
-                        AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Kargath1); });
+                       // AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Kargath1); });
                         break;
                     default:
                         break;
@@ -349,7 +349,7 @@ class npc_highmaul_imperator_margok : public CreatureScript
             void Reset() override
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE));
+               // me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE));
             }
 
             void DoAction(int32 const action) override
@@ -359,22 +359,22 @@ class npc_highmaul_imperator_margok : public CreatureScript
                     case eActions::VulgorDied:
                     {
                         /// Teleport in Coliseum
-                        AddTimedDelayedOperation(19 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                       // AddTimedDelayedOperation(19 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
                             me->CastSpell(me, eSpells::TeleportIntoArena, true);
                             me->NearTeleportTo(g_MargokTeleport);
                             me->CastSpell(me, eSpells::TeleportVisual, true);
-                        });
+                        };
 
-                        AddTimedDelayedOperation(20 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                      //  AddTimedDelayedOperation(20 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
                             me->SetFacingTo(g_MargokTeleport.GetOrientation());
                             me->RemoveAura(eSpells::TeleportIntoArena);
-                        });
+                        };
 
-                        AddTimedDelayedOperation(28 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::SorckingEvent12); });
+                      //  AddTimedDelayedOperation(28 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::SorckingEvent12); });
 
-                        AddTimedDelayedOperation(49 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                       // AddTimedDelayedOperation(49 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
                             if (m_Instance == nullptr)
                                 return;
@@ -384,19 +384,19 @@ class npc_highmaul_imperator_margok : public CreatureScript
                                 l_Kargath->SetWalk(true);
                                 l_Kargath->GetMotionMaster()->MovePoint(eMove::MoveFrontGate, g_KargathPos);
                             }
-                        });
+                        };
 
-                        AddTimedDelayedOperation(39 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                       // AddTimedDelayedOperation(39 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
                             if (m_Instance == nullptr)
                                 return;
 
                             if (Creature* l_Kargath = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eHighmaulCreatures::KargathBladefist)))
                                 l_Kargath->AI()->DoAction(eActions::KargathLastTalk);
-                        });
+                        };
 
-                        AddTimedDelayedOperation(51 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::SorckingEvent13); });
-                        AddTimedDelayedOperation(52 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->CastSpell(me, eSpells::SitThrone, true); });
+                       // AddTimedDelayedOperation(51 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::SorckingEvent13); });
+                       // AddTimedDelayedOperation(52 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->CastSpell(me, eSpells::SitThrone, true); });
                         break;
                     }
                     default:
@@ -446,14 +446,14 @@ class npc_highmaul_gorian_guardsman : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* /*attacker*/) override
+            void EnterCombat(Unit* /*attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvents::EventBloodyCleave, urand(4000, 7000));
-                m_Events.ScheduleEvent(eEvents::EventChainGrip, urand(3000, 8000));
-                m_Events.ScheduleEvent(eEvents::EventStaggeringBlow, urand(6000, 10000));
+               // m_Events.ScheduleEvent(eEvents::EventBloodyCleave, urand(4000, 7000));
+               // m_Events.ScheduleEvent(eEvents::EventChainGrip, urand(3000, 8000));
+               // m_Events.ScheduleEvent(eEvents::EventStaggeringBlow, urand(6000, 10000));
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override
+            void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) 
             {
                 if (target == nullptr)
                     return;
@@ -465,11 +465,11 @@ class npc_highmaul_gorian_guardsman : public CreatureScript
                         ObjectGuid guid = target->GetGUID();
                         me->CastSpell(target, eSpells::ChainGripAura, true);
 
-                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this, guid]() -> void
+                       // AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this, guid]() -> void
                         {
                             if (Unit* target = ObjectAccessor::GetUnit(*me, guid))
                                 me->CastSpell(target, eSpells::ViciousSlash, true);
-                        });
+                        };
 
                         break;
                     }
@@ -493,18 +493,18 @@ class npc_highmaul_gorian_guardsman : public CreatureScript
                 switch (m_Events.ExecuteEvent())
                 {
                     case eEvents::EventBloodyCleave:
-                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(target, eSpells::SpellBloodyCleave, true);
-                        m_Events.ScheduleEvent(eEvents::EventBloodyCleave, urand(10000, 15000));
+                      //  if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        //    me->CastSpell(target, eSpells::SpellBloodyCleave, true);
+                       // m_Events.ScheduleEvent(eEvents::EventBloodyCleave, urand(10000, 15000));
                         break;
                     case eEvents::EventChainGrip:
                         me->CastSpell(me, eSpells::ChainGripSearcher, true);
-                        m_Events.ScheduleEvent(eEvents::EventChainGrip, urand(8000, 12000));
+                      //  m_Events.ScheduleEvent(eEvents::EventChainGrip, urand(8000, 12000));
                         break;
                     case eEvents::EventStaggeringBlow:
-                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(target, eSpells::SpellStaggeringBlow, true);
-                        m_Events.ScheduleEvent(eEvents::EventStaggeringBlow, urand(15000, 20000));
+                       // if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                         //   me->CastSpell(target, eSpells::SpellStaggeringBlow, true);
+                       // m_Events.ScheduleEvent(eEvents::EventStaggeringBlow, urand(15000, 20000));
                         break;
                     default:
                         break;
@@ -550,12 +550,12 @@ class npc_highmaul_night_twisted_devout : public CreatureScript
             {
                 m_Events.Reset();
 
-                if (me->HasUnitFlag(UNIT_FLAG_IMMUNE_TO_PC) ||
-                    me->HasUnitFlag(UNIT_FLAG_NOT_SELECTABLE))
-                    me->SetReactState(ReactStates::REACT_PASSIVE);
+                //if (me->HasUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                    //me->HasUnitFlag)
+                   // me->SetReactState(ReactStates::REACT_PASSIVE);
             }
 
-            void EnterCombat(Unit* /*attacker*/) override
+            void EnterCombat(Unit* /*attacker*/) 
             {
                 if (me->HasReactState(ReactStates::REACT_PASSIVE))
                 {
@@ -563,13 +563,13 @@ class npc_highmaul_night_twisted_devout : public CreatureScript
                     return;
                 }
 
-                m_Events.ScheduleEvent(eEvents::EventTaintedClaws, urand(6000, 9000));
-                m_Events.ScheduleEvent(eEvents::EventDevour, urand(8000, 10000));
+              //  m_Events.ScheduleEvent(eEvents::EventTaintedClaws, urand(6000, 9000));
+                //m_Events.ScheduleEvent(eEvents::EventDevour, urand(8000, 10000));
 
                 if (Creature* l_IronGrunt = me->FindNearestCreature(eHighmaulCreatures::IronGrunt, 3.0f))
                 {
-                    me->Kill(l_IronGrunt);
-                    DoZoneInCombat(me, 40.0f);
+                  //  me->Kill(l_IronGrunt);
+                    DoZoneInCombat(me);
                 }
 
                 me->SetAIAnimKitId(0);
@@ -591,26 +591,26 @@ class npc_highmaul_night_twisted_devout : public CreatureScript
                 {
                     case eEvents::EventTaintedClaws:
                     {
-                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(target, eSpells::SpellTaintedClaws, true);
-                        m_Events.ScheduleEvent(eEvents::EventTaintedClaws, urand(8000, 11000));
+                       // if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                         //   me->CastSpell(target, eSpells::SpellTaintedClaws, true);
+                        //m_Events.ScheduleEvent(eEvents::EventTaintedClaws, urand(8000, 11000));
                         break;
                     }
                     case eEvents::EventDevour:
                     {
-                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                       // if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
                         {
-                            me->CastSpell(target, eSpells::SpellDevouringLeap, true);
+                            //me->CastSpell(target, eSpells::SpellDevouringLeap, true);
 
-                            ObjectGuid guid = target->GetGUID();
-                            AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this, guid]() -> void
+                           // ObjectGuid guid = target->GetGUID();
+                           // AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this, guid]() -> void
                             {
-                                if (Unit* target = ObjectAccessor::GetUnit(*me, guid))
-                                    me->CastSpell(target, eSpells::SpellDevour, false);
-                            });
+                               // if (Unit* target = ObjectAccessor::GetUnit(*me, guid))
+                                 //   me->CastSpell(target, eSpells::SpellDevour, false);
+                            };
                         }
 
-                        m_Events.ScheduleEvent(eEvents::EventDevour, urand(8000, 11000));
+                       // m_Events.ScheduleEvent(eEvents::EventDevour, urand(8000, 11000));
                         break;
                     }
                     default:
@@ -662,11 +662,11 @@ class npc_highmaul_gorian_runemaster : public CreatureScript
                 me->RemoveAllAreaTriggers();
             }
 
-            void EnterCombat(Unit* /*attacker*/) override
+            void EnterCombat(Unit* /*attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvents::EventRuneOfDestruction, urand(6000, 9000));
-                m_Events.ScheduleEvent(eEvents::EventRuneOfDisintegration, urand(9000, 12000));
-                m_Events.ScheduleEvent(eEvents::EventRuneOfUnmaking, urand(4000, 6000));
+               // m_Events.ScheduleEvent(eEvents::EventRuneOfDestruction, urand(6000, 9000));
+               // m_Events.ScheduleEvent(eEvents::EventRuneOfDisintegration, urand(9000, 12000));
+               // m_Events.ScheduleEvent(eEvents::EventRuneOfUnmaking, urand(4000, 6000));
             }
 
             void UpdateAI(uint32 const diff) override
@@ -683,17 +683,17 @@ class npc_highmaul_gorian_runemaster : public CreatureScript
                 {
                     case eEvents::EventRuneOfDestruction:
                         me->CastSpell(me, eSpells::SpellRuneOfDestruction, false);
-                        m_Events.ScheduleEvent(eEvents::EventRuneOfDestruction, urand(9000, 12000));
+                      //  m_Events.ScheduleEvent(eEvents::EventRuneOfDestruction, urand(9000, 12000));
                         break;
                     case eEvents::EventRuneOfDisintegration:
-                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
-                            me->CastSpell(target, eSpells::SpellRuneOfDisintegration, false);
-                        m_Events.ScheduleEvent(eEvents::EventRuneOfDisintegration, urand(12000, 15000));
+                       // if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                         //   me->CastSpell(target, eSpells::SpellRuneOfDisintegration, false);
+                        //m_Events.ScheduleEvent(eEvents::EventRuneOfDisintegration, urand(12000, 15000));
                         break;
                     case eEvents::EventRuneOfUnmaking:
-                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(target, eSpells::SpellRuneOfUnmaking, false);
-                        m_Events.ScheduleEvent(eEvents::EventRuneOfUnmaking, urand(6000, 9000));
+                      //  if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        //    me->CastSpell(target, eSpells::SpellRuneOfUnmaking, false);
+                       // m_Events.ScheduleEvent(eEvents::EventRuneOfUnmaking, urand(6000, 9000));
                         break;
                     default:
                         break;
@@ -737,9 +737,9 @@ class npc_highmaul_gorian_enforcer : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* /*attacker*/) override
+            void EnterCombat(Unit* /*attacker*/)
             {
-                m_Events.ScheduleEvent(eEvent::EventMeatGrinder, urand(6000, 8000));
+               // m_Events.ScheduleEvent(eEvent::EventMeatGrinder, urand(6000, 8000));
             }
 
             void UpdateAI(uint32 const diff) override
@@ -756,7 +756,7 @@ class npc_highmaul_gorian_enforcer : public CreatureScript
                 {
                     case eEvent::EventMeatGrinder:
                         me->CastSpell(me, eSpell::SpellMeatGrinder, false);
-                        m_Events.ScheduleEvent(eEvent::EventMeatGrinder, urand(12000, 15000));
+                       // m_Events.ScheduleEvent(eEvent::EventMeatGrinder, urand(12000, 15000));
                         break;
                     default:
                         break;
@@ -799,19 +799,19 @@ class npc_highmaul_underbelly_vagrant : public CreatureScript
             {
                 m_Events.Reset();
 
-                AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->CastSpell(me, eSpells::SpellLooting, false); });
+               // AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->CastSpell(me, eSpells::SpellLooting, false); });
             }
 
-            void LastOperationCalled() override
+            void LastOperationCalled() 
             {
-                AddTimedDelayedOperation(16 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->CastSpell(me, eSpells::SpellLooting, false); });
+               // AddTimedDelayedOperation(16 * TimeConstants::IN_MILLISECONDS, [this]() -> void { me->CastSpell(me, eSpells::SpellLooting, false); });
             }
 
-            void EnterCombat(Unit* /*attacker*/) override
+            void EnterCombat(Unit* /*attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvent::EventPilfer, urand(2000, 4000));
+              //  m_Events.ScheduleEvent(eEvent::EventPilfer, urand(2000, 4000));
 
-                m_TimedDelayedOperations.clear();
+                //m_TimedDelayedOperations.clear();
             }
 
             void UpdateAI(uint32 const diff) override
@@ -829,9 +829,9 @@ class npc_highmaul_underbelly_vagrant : public CreatureScript
                 switch (m_Events.ExecuteEvent())
                 {
                     case eEvent::EventPilfer:
-                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
-                            me->CastSpell(target, eSpells::SpellPilfer, false);
-                        m_Events.ScheduleEvent(eEvent::EventPilfer, urand(2000, 4000));
+                      //  if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                        //    me->CastSpell(target, eSpells::SpellPilfer, false);
+                       // m_Events.ScheduleEvent(eEvent::EventPilfer, urand(2000, 4000));
                         break;
                     default:
                         break;
@@ -877,10 +877,10 @@ class npc_highmaul_gorian_sorcerer : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* /*attacker*/) override
+            void EnterCombat(Unit* /*attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvents::EventArcaneForce, urand(6000, 8000));
-                m_Events.ScheduleEvent(eEvents::EventArcaneBolt, urand(7000, 10000));
+               // m_Events.ScheduleEvent(eEvents::EventArcaneForce, urand(6000, 8000));
+               // m_Events.ScheduleEvent(eEvents::EventArcaneBolt, urand(7000, 10000));
             }
 
             void UpdateAI(uint32 const diff) override
@@ -897,12 +897,12 @@ class npc_highmaul_gorian_sorcerer : public CreatureScript
                 {
                     case eEvents::EventArcaneForce:
                         me->CastSpell(me, eSpells::SpellArcaneForce, false);
-                        m_Events.ScheduleEvent(eEvents::EventArcaneForce, urand(20000, 25000));
+                      //  m_Events.ScheduleEvent(eEvents::EventArcaneForce, urand(20000, 25000));
                         break;
                     case eEvents::EventArcaneBolt:
-                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(target, eSpells::SpellArcaneBolt, false);
-                        m_Events.ScheduleEvent(eEvents::EventArcaneBolt, urand(7000, 10000));
+                      //  if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                        //    me->CastSpell(target, eSpells::SpellArcaneBolt, false);
+                       // m_Events.ScheduleEvent(eEvents::EventArcaneBolt, urand(7000, 10000));
                         break;
                     default:
                         break;
@@ -945,9 +945,9 @@ class npc_highmaul_night_twisted_brute : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* attacker) override
+            void EnterCombat(Unit* attacker) 
             {
-                m_Events.ScheduleEvent(eEvent::EventSurgeOfDarkness, urand(8000, 12000));
+               // m_Events.ScheduleEvent(eEvent::EventSurgeOfDarkness, urand(8000, 12000));
 
                 std::list<Creature*> l_IronGrunts;
                 me->GetCreatureListWithEntryInGrid(l_IronGrunts, eHighmaulCreatures::IronGrunt, 35.0f);
@@ -956,8 +956,8 @@ class npc_highmaul_night_twisted_brute : public CreatureScript
                 {
                     std::list<Unit*> l_Allies;
 
-                    Trinity::AnyFriendlyUnitInObjectRangeCheck l_Check(me, me, 50.0f);
-                    Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> l_Searcher(me, l_Allies, l_Check);
+                  //  Trinity::AnyFriendlyUnitInObjectRangeCheck l_Check(me, me, 50.0f);
+                    Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> l_Searcher();
                     Cell::VisitAllObjects(me, l_Searcher, 50.f);
 
                     for (Unit* l_Unit : l_Allies)
@@ -968,7 +968,7 @@ class npc_highmaul_night_twisted_brute : public CreatureScript
                 }
 
                 for (Creature* l_Creature : l_IronGrunts)
-                    me->Kill(l_Creature);
+                   // me->Kill(l_Creature);
 
                 me->SetAIAnimKitId(0);
             }
@@ -987,7 +987,7 @@ class npc_highmaul_night_twisted_brute : public CreatureScript
                 {
                     case eEvent::EventSurgeOfDarkness:
                         me->CastSpell(me, eSpell::SpellSurgeOfDarkness, false);
-                        m_Events.ScheduleEvent(eEvent::EventSurgeOfDarkness, urand(8000, 11000));
+                      //  m_Events.ScheduleEvent(eEvent::EventSurgeOfDarkness, urand(8000, 11000));
                         break;
                     default:
                         break;
@@ -1033,10 +1033,10 @@ class npc_highmaul_night_twisted_soothsayer : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* /*attacker*/) override
+            void EnterCombat(Unit* /*attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvents::EventVoidStorm, urand(6000, 9000));
-                m_Events.ScheduleEvent(eEvents::EventVoidBolt, urand(4000, 7000));
+              //  m_Events.ScheduleEvent(eEvents::EventVoidStorm, urand(6000, 9000));
+               // m_Events.ScheduleEvent(eEvents::EventVoidBolt, urand(4000, 7000));
             }
 
             void UpdateAI(uint32 const diff) override
@@ -1052,14 +1052,14 @@ class npc_highmaul_night_twisted_soothsayer : public CreatureScript
                 switch (m_Events.ExecuteEvent())
                 {
                     case eEvents::EventVoidStorm:
-                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
-                            me->CastSpell(target, eSpells::SpellVoidStorm, false);
-                        m_Events.ScheduleEvent(eEvents::EventVoidStorm, urand(9000, 12000));
+                       // if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                         //   me->CastSpell(target, eSpells::SpellVoidStorm, false);
+                       // m_Events.ScheduleEvent(eEvents::EventVoidStorm, urand(9000, 12000));
                         break;
                     case eEvents::EventVoidBolt:
-                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(target, eSpells::SpellVoidBolt, false);
-                        m_Events.ScheduleEvent(eEvents::EventVoidBolt, urand(8000, 11000));
+                        //if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                          //  me->CastSpell(target, eSpells::SpellVoidBolt, false);
+                        //m_Events.ScheduleEvent(eEvents::EventVoidBolt, urand(8000, 11000));
                         break;
                     default:
                         break;
@@ -1102,9 +1102,9 @@ class npc_highmaul_void_aberration : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* /*attacker*/) override
+            void EnterCombat(Unit* /*attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvent::EventVoidSoul, urand(8000, 12000));
+               // m_Events.ScheduleEvent(eEvent::EventVoidSoul, urand(8000, 12000));
             }
 
             void UpdateAI(uint32 const diff) override
@@ -1120,9 +1120,9 @@ class npc_highmaul_void_aberration : public CreatureScript
                 switch (m_Events.ExecuteEvent())
                 {
                     case eEvent::EventVoidSoul:
-                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
-                            me->CastSpell(target, eSpell::SpellVoidSoul, true);
-                        m_Events.ScheduleEvent(eEvent::EventVoidSoul, urand(8000, 11000));
+                      //  if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                        //    me->CastSpell(target, eSpell::SpellVoidSoul, true);
+                       // m_Events.ScheduleEvent(eEvent::EventVoidSoul, urand(8000, 11000));
                         break;
                     default:
                         break;
@@ -1174,12 +1174,12 @@ class npc_highmaul_krush : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* /*attacker*/) override
+            void EnterCombat(Unit* /*attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvent::EventBoarsRush, 5000);
+               // m_Events.ScheduleEvent(eEvent::EventBoarsRush, 5000);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override
+            void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) 
             {
                 if (target == nullptr)
                     return;
@@ -1215,7 +1215,7 @@ class npc_highmaul_krush : public CreatureScript
                     case eEvent::EventBoarsRush:
                         me->CastSpell(me, eSpells::SpellBoarsRushSearcher, true);
                         me->AddUnitState(UnitState::UNIT_STATE_ROOT);
-                        m_Events.ScheduleEvent(eEvent::EventBoarsRush, 25000);
+                       // m_Events.ScheduleEvent(eEvent::EventBoarsRush, 25000);
                         break;
                     default:
                         break;
@@ -1285,24 +1285,24 @@ class npc_highmaul_iron_flame_technician : public CreatureScript
 
                 m_ChargeTarget = ObjectGuid::Empty;
 
-                AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+               // AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                 {
                     if (me->FindNearestCreature(eHighmaulCreatures::Brackenspore, 50.0f) != nullptr)
                     {
                         m_IsCosmetic = true;
-                        m_CosmeticEvent.ScheduleEvent(eEvents::EventFlamethrower, urand(4000, 7000));
+                      //  m_CosmeticEvent.ScheduleEvent(eEvents::EventFlamethrower, urand(4000, 7000));
                     }
-                });
+                };
             }
 
-            void EnterCombat(Unit* /*attacker*/) override
+            void EnterCombat(Unit* /*attacker*/) 
             {
                 if (m_IsCosmetic)
                     return;
 
-                m_Events.ScheduleEvent(eEvents::EventCorruptedBlood, urand(6000, 9000));
-                m_Events.ScheduleEvent(eEvents::EventFlamethrower, urand(4000, 7000));
-                m_Events.ScheduleEvent(eEvents::EventUnstoppableCharge, urand(9000, 12000));
+               // m_Events.ScheduleEvent(eEvents::EventCorruptedBlood, urand(6000, 9000));
+               // m_Events.ScheduleEvent(eEvents::EventFlamethrower, urand(4000, 7000));
+               // m_Events.ScheduleEvent(eEvents::EventUnstoppableCharge, urand(9000, 12000));
             }
 
             void DoAction(int32 const action) override
@@ -1314,28 +1314,28 @@ class npc_highmaul_iron_flame_technician : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override
+            void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) 
             {
-                if (target == nullptr)
-                    return;
+              //  if (target == nullptr)
+                //    return;
 
-                switch (spellInfo->Id)
+               // switch (spellInfo->Id)
                 {
-                    case eSpells::SpellUnstoppableChargeSearcher:
+                   // case eSpells::SpellUnstoppableChargeSearcher:
                     {
-                        if (Creature* l_Charge = me->SummonCreature(eCreature::UnstoppableCharge, *target, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 2000))
+                       // if (Creature* l_Charge = me->SummonCreature(eCreature::UnstoppableCharge, *target, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 2000))
                         {
-                            l_Charge->SetReactState(ReactStates::REACT_PASSIVE);
-                            l_Charge->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE));
+                           // l_Charge->SetReactState(ReactStates::REACT_PASSIVE);
+                         //   l_Charge->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE));
 
-                            m_ChargeTarget = l_Charge->GetGUID();
-                            me->CastSpell(l_Charge, eSpells::UnstoppableChargeCharge, true);
-                            me->CastSpell(l_Charge, eSpells::UnstoppableChargeDmg, true);
+                           // m_ChargeTarget = l_Charge->GetGUID();
+                           // me->CastSpell(l_Charge, eSpells::UnstoppableChargeCharge, true);
+                           // me->CastSpell(l_Charge, eSpells::UnstoppableChargeDmg, true);
                         }
-                        break;
+                        //break;
                     }
-                    default:
-                        break;
+                  //  default:
+                    //    break;
                 }
             }
 
@@ -1364,7 +1364,7 @@ class npc_highmaul_iron_flame_technician : public CreatureScript
                     if (m_CosmeticEvent.ExecuteEvent() == eEvents::EventFlamethrower)
                     {
                         me->CastSpell(me, eSpells::SpellFlamethrower, false);
-                        m_CosmeticEvent.ScheduleEvent(eEvents::EventFlamethrower, urand(4000, 7000));
+                      //  m_CosmeticEvent.ScheduleEvent(eEvents::EventFlamethrower, urand(4000, 7000));
                     }
                 }
 
@@ -1380,15 +1380,15 @@ class npc_highmaul_iron_flame_technician : public CreatureScript
                 {
                     case eEvents::EventCorruptedBlood:
                         me->CastSpell(me, eSpells::SpellCorruptedBlood, false);
-                        m_Events.ScheduleEvent(eEvents::EventCorruptedBlood, urand(13000, 16000));
+                       // m_Events.ScheduleEvent(eEvents::EventCorruptedBlood, urand(13000, 16000));
                         break;
                     case eEvents::EventFlamethrower:
                         me->CastSpell(me, eSpells::SpellFlamethrower, false);
-                        m_Events.ScheduleEvent(eEvents::EventFlamethrower, urand(14000, 17000));
+                       // m_Events.ScheduleEvent(eEvents::EventFlamethrower, urand(14000, 17000));
                         break;
                     case eEvents::EventUnstoppableCharge:
                         me->CastSpell(me, eSpells::SpellUnstoppableChargeSearcher, false);
-                        m_Events.ScheduleEvent(eEvents::EventUnstoppableCharge, urand(19000, 22000));
+                      //  m_Events.ScheduleEvent(eEvents::EventUnstoppableCharge, urand(19000, 22000));
                         break;
                     default:
                         break;
@@ -1451,20 +1451,20 @@ class npc_highmaul_iron_warmaster : public CreatureScript
             {
                 m_Events.Reset();
 
-                AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+               // AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                 {
                     if (me->FindNearestCreature(eHighmaulCreatures::Brackenspore, 50.0f) != nullptr)
                         m_IsCosmetic = true;
-                });
+                };
             }
 
-            void EnterCombat(Unit* /*attacker*/) override
+            void EnterCombat(Unit* /*attacker*/) 
             {
                 if (m_IsCosmetic)
                     return;
 
-                m_Events.ScheduleEvent(eEvents::EventIronBattleRage, urand(6000, 9000));
-                m_Events.ScheduleEvent(eEvents::EventCorruptedBlood, urand(6000, 9000));
+              //  m_Events.ScheduleEvent(eEvents::EventIronBattleRage, urand(6000, 9000));
+               // m_Events.ScheduleEvent(eEvents::EventCorruptedBlood, urand(6000, 9000));
             }
 
             void DoAction(int32 const action) override
@@ -1472,15 +1472,15 @@ class npc_highmaul_iron_warmaster : public CreatureScript
                 if (action == eAction::DoIntro && !m_IntroDone)
                 {
                     m_IntroDone = true;
-                    AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Intro1); });
+                   // AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void { Talk(eTalks::Intro1); });
 
-                    AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                   // AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                     {
                         Talk(eTalks::Intro2);
 
                         me->SetEmoteState(EMOTE_ONESHOT_NONE);
                         me->GetMotionMaster()->MovePoint(0, g_IronWarmasterPos);
-                    });
+                    };
                 }
             }
 
@@ -1511,11 +1511,11 @@ class npc_highmaul_iron_warmaster : public CreatureScript
                 {
                     case eEvents::EventIronBattleRage:
                         me->CastSpell(me, eSpells::SpellIronBattleRage, true);
-                        m_Events.ScheduleEvent(eEvents::EventIronBattleRage, urand(12000, 15000));
+                       // m_Events.ScheduleEvent(eEvents::EventIronBattleRage, urand(12000, 15000));
                         break;
                     case eEvents::EventCorruptedBlood:
                         me->CastSpell(me, eSpells::SpellCorruptedBlood, false);
-                        m_Events.ScheduleEvent(eEvents::EventCorruptedBlood, urand(13000, 16000));
+                       // m_Events.ScheduleEvent(eEvents::EventCorruptedBlood, urand(13000, 16000));
                         break;
                     default:
                         break;
@@ -1577,10 +1577,10 @@ class npc_highmaul_iron_blood_mage : public CreatureScript
             {
                 m_Events.Reset();
 
-                AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+               // AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                 {
                     std::list<Creature*> l_CreatureList;
-                    me->GetCreatureListInGrid(l_CreatureList, 30.0f);
+                   // me->GetCreatureListInGrid(l_CreatureList, 30.0f);
 
                     if (l_CreatureList.empty())
                         return;
@@ -1607,14 +1607,14 @@ class npc_highmaul_iron_blood_mage : public CreatureScript
                                 l_Boss->AI()->SetGUID(l_Creature->GetGUID(), l_Count);
                         }
                     }
-                });
+                };
             }
 
-            void EnterCombat(Unit* /*attacker*/) override
+            void EnterCombat(Unit* /*attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvents::EventCorruptedBlood, urand(6000, 9000));
-                m_Events.ScheduleEvent(eEvents::EventBloodBolt, urand(4000, 7000));
-                m_Events.ScheduleEvent(eEvents::EventCorruptedBloodShield, urand(8000, 11000));
+              //  m_Events.ScheduleEvent(eEvents::EventCorruptedBlood, urand(6000, 9000));
+              //  m_Events.ScheduleEvent(eEvents::EventBloodBolt, urand(4000, 7000));
+              //  m_Events.ScheduleEvent(eEvents::EventCorruptedBloodShield, urand(8000, 11000));
             }
 
             void UpdateAI(uint32 const diff) override
@@ -1633,16 +1633,16 @@ class npc_highmaul_iron_blood_mage : public CreatureScript
                 {
                     case eEvents::EventCorruptedBlood:
                         me->CastSpell(me, eSpells::SpellCorruptedBlood, false);
-                        m_Events.ScheduleEvent(eEvents::EventCorruptedBlood, urand(13000, 16000));
+                      //  m_Events.ScheduleEvent(eEvents::EventCorruptedBlood, urand(13000, 16000));
                         break;
                     case eEvents::EventBloodBolt:
                         me->CastSpell(me, eSpells::SpellBloodBolt, false);
-                        m_Events.ScheduleEvent(eEvents::EventBloodBolt, urand(8000, 11000));
+                      //  m_Events.ScheduleEvent(eEvents::EventBloodBolt, urand(8000, 11000));
                         break;
                     case eEvents::EventCorruptedBloodShield:
                         if (Unit* target = me->SelectNearbyTarget(me, 15.0f))
                             me->CastSpell(target, eSpells::SpellCorruptedBloodShield, false);
-                        m_Events.ScheduleEvent(eEvents::EventCorruptedBloodShield, urand(15000, 18000));
+                      //  m_Events.ScheduleEvent(eEvents::EventCorruptedBloodShield, urand(15000, 18000));
                         break;
                     default:
                         break;
@@ -1701,20 +1701,20 @@ class npc_highmaul_night_twisted_ritualist : public CreatureScript
             {
                 m_Events.Reset();
 
-                AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+               // AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                 {
                     if (Creature* l_Aberration = me->FindNearestCreature(eCreature::GreaterAberration, 20.0f))
                         m_Aberration = l_Aberration->GetGUID();
-                });
+                };
 
                 me->CastSpell(me, eSpells::VoidChannel, true);
             }
 
-            void EnterCombat(Unit* /*attacker*/) override
+            void EnterCombat(Unit* /*attacker*/) 
             {
                 me->RemoveAura(eSpells::VoidChannel);
 
-                m_Events.ScheduleEvent(eEvent::EventVoidTouch, urand(3000, 6000));
+              //  m_Events.ScheduleEvent(eEvent::EventVoidTouch, urand(3000, 6000));
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -1739,7 +1739,7 @@ class npc_highmaul_night_twisted_ritualist : public CreatureScript
                 {
                     case eEvent::EventVoidTouch:
                         me->CastSpell(me, eSpells::VoidTouch, false);
-                        m_Events.ScheduleEvent(eEvent::EventVoidTouch, urand(6000, 9000));
+                      //  m_Events.ScheduleEvent(eEvent::EventVoidTouch, urand(6000, 9000));
                         break;
                     default:
                         break;
@@ -1799,7 +1799,7 @@ class npc_highmaul_greater_void_aberration : public CreatureScript
             {
                 m_Events.Reset();
 
-                AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+               // AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                 {
                     std::list<Creature*> l_RitualistList;
                     me->GetCreatureListWithEntryInGrid(l_RitualistList, eCreature::NightTwistedRitualist, 20.0f);
@@ -1807,12 +1807,12 @@ class npc_highmaul_greater_void_aberration : public CreatureScript
 
                     if (m_Ritualists)
                         me->CastSpell(me, eSpells::VoidCommunion, true);
-                });
+                };
             }
 
-            void EnterCombat(Unit* /*attacker*/) override
+            void EnterCombat(Unit* /*attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvent::EventCallOfTheVoid, urand(6000, 9000));
+               // m_Events.ScheduleEvent(eEvent::EventCallOfTheVoid, urand(6000, 9000));
             }
 
             void DoAction(int32 const action) override
@@ -1842,7 +1842,7 @@ class npc_highmaul_greater_void_aberration : public CreatureScript
                 {
                     case eEvent::EventCallOfTheVoid:
                         me->CastSpell(me, eSpells::CallOfTheVoid, false);
-                        m_Events.ScheduleEvent(eEvent::EventCallOfTheVoid, urand(9000, 12000));
+                       // m_Events.ScheduleEvent(eEvent::EventCallOfTheVoid, urand(9000, 12000));
                         break;
                     default:
                         break;
@@ -1901,10 +1901,10 @@ class npc_highmaul_highmaul_conscript : public CreatureScript
                 me->CastSpell(me, eSpells::AtArms, true);
             }
 
-            void EnterCombat(Unit* /*attacker*/) override
+            void EnterCombat(Unit* /*attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvents::EventRendingSlash, 5 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventShieldBlocking, 13 * TimeConstants::IN_MILLISECONDS);
+              //  m_Events.ScheduleEvent(eEvents::EventRendingSlash, 5 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventShieldBlocking, 13 * TimeConstants::IN_MILLISECONDS);
 
                 me->RemoveAura(eSpells::AtArms);
             }
@@ -1916,7 +1916,7 @@ class npc_highmaul_highmaul_conscript : public CreatureScript
 
                 me->RemoveAura(eSpells::AtArms);
                 me->RemoveAura(eSpells::ShieldCharge);
-                me->RemoveUnitFlag2(UNIT_FLAG2_DISABLE_TURN);
+               // me->RemoveUnitFlag2(UNIT_FLAG2_DISABLE_TURN);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -1926,7 +1926,7 @@ class npc_highmaul_highmaul_conscript : public CreatureScript
 
                 if (Creature* l_Phemos = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eHighmaulCreatures::Phemos)))
                 {
-                    if (l_Phemos->IsAIEnabled)
+                   // if (l_Phemos->IsAIEnabled)
                     {
                         l_Phemos->AI()->SetGUID(me->GetGUID(), 0);
                         l_Phemos->AI()->DoAction(1);
@@ -1951,27 +1951,27 @@ class npc_highmaul_highmaul_conscript : public CreatureScript
                     case eEvents::EventRendingSlash:
                     {
                         me->CastSpell(me, eSpells::RendingSlash, false);
-                        m_Events.ScheduleEvent(eEvents::EventRendingSlash, 20 * TimeConstants::IN_MILLISECONDS);
+                      //  m_Events.ScheduleEvent(eEvents::EventRendingSlash, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventShieldBlocking:
                     {
-                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                       // if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
                         {
-                            m_ChargeTarget = target->GetGUID();
-                            me->SetFacingTo(me->GetAngle(target));
-                            me->CastSpell(target, eSpells::ShieldBlocking, false);
-                            me->AddUnitFlag2(UNIT_FLAG2_DISABLE_TURN);
+                           // m_ChargeTarget = target->GetGUID();
+                           // me->SetFacingTo(me->GetAngle(target));
+                           // me->CastSpell(target, eSpells::ShieldBlocking, false);
+                           // me->AddUnitFlag2(UNIT_FLAG2_DISABLE_TURN);
                             me->AddUnitState(UnitState::UNIT_STATE_ROOT);
                         }
 
-                        AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                        //AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
                             me->CastSpell(me, eSpells::AtArms, true);
-                        });
+                        };
 
-                        m_Events.ScheduleEvent(eEvents::EventShieldCharge, 6 * TimeConstants::IN_MILLISECONDS);
-                        m_Events.ScheduleEvent(eEvents::EventShieldBlocking, 60 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventShieldCharge, 6 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventShieldBlocking, 60 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventShieldCharge:
@@ -1982,9 +1982,9 @@ class npc_highmaul_highmaul_conscript : public CreatureScript
                             Position pos;
 
                             me->GetContactPoint(target, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
-                            pos = target->GetFirstCollisionPosition(target->GetObjectSize(), l_O);
+                          //  pos = target->GetFirstCollisionPosition(target->GetObjectSize(), l_O);
                             me->ClearUnitState(UnitState::UNIT_STATE_ROOT);
-                            me->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ + target->GetObjectSize());
+                            me->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ );
 
                             me->CastSpell(me, eSpells::ShieldCharge, true);
                         }
@@ -2051,10 +2051,10 @@ class npc_highmaul_ogron_earthshaker : public CreatureScript
                 m_SlamCount = 0;
             }
 
-            void EnterCombat(Unit* /*attacker*/) override
+            void EnterCombat(Unit* /*attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvents::EventIntimidatingRoar, 6 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventEarthdevastatingSlam, 17 * TimeConstants::IN_MILLISECONDS);
+              //  m_Events.ScheduleEvent(eEvents::EventIntimidatingRoar, 6 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventEarthdevastatingSlam, 17 * TimeConstants::IN_MILLISECONDS);
             }
 
             void DoAction(int32 const action) override
@@ -2069,10 +2069,10 @@ class npc_highmaul_ogron_earthshaker : public CreatureScript
 
                     if (m_SlamCount >= 6)
                     {
-                        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                       // AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
-                            me->RemoveUnitFlag2(UNIT_FLAG2_DISABLE_TURN);
-                        });
+                           // me->RemoveUnitFlag2(UNIT_FLAG2_DISABLE_TURN);
+                        };
                     }
                 }
             }
@@ -2084,7 +2084,7 @@ class npc_highmaul_ogron_earthshaker : public CreatureScript
 
                 if (Creature* l_Phemos = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eHighmaulCreatures::Phemos)))
                 {
-                    if (l_Phemos->IsAIEnabled)
+                   // if (l_Phemos->IsAIEnabled)
                     {
                         l_Phemos->AI()->SetGUID(me->GetGUID(), 0);
                         l_Phemos->AI()->DoAction(1);
@@ -2109,21 +2109,21 @@ class npc_highmaul_ogron_earthshaker : public CreatureScript
                     case eEvents::EventIntimidatingRoar:
                     {
                         me->CastSpell(me, eSpells::IntimidatingRoarJump, true);
-                        m_Events.ScheduleEvent(eEvents::EventIntimidatingRoar, 25 * TimeConstants::IN_MILLISECONDS);
+                      //  m_Events.ScheduleEvent(eEvents::EventIntimidatingRoar, 25 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eEvents::EventEarthdevastatingSlam:
                     {
-                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 15.0f))
+                        //if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 15.0f))
                         {
-                            m_orientation = me->GetAngle(target);
+                          //  m_orientation = me->GetAngle(target);
                             m_SlamCount = 0;
                             me->SetFacingTo(m_orientation);
-                            me->CastSpell(target, eSpells::EarthdevastatingSlam, true);
-                            me->AddUnitFlag2(UNIT_FLAG2_DISABLE_TURN);
+                           // me->CastSpell(target, eSpells::EarthdevastatingSlam, true);
+                           // me->AddUnitFlag2(UNIT_FLAG2_DISABLE_TURN);
                         }
 
-                        m_Events.ScheduleEvent(eEvents::EventEarthdevastatingSlam, 60 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventEarthdevastatingSlam, 60 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -2191,14 +2191,14 @@ class npc_highmaul_gorian_arcanist : public CreatureScript
                 me->RemoveUnitFlag(UNIT_FLAG_DISARMED);
             }
 
-            void EnterCombat(Unit* /*attacker*/) override
+            void EnterCombat(Unit* /*attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvents::EventArcaneBolt, 6 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventArcaneVolatility, 10 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventArcaneBarrage, 8 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventArcaneBolt, 6 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventArcaneVolatility, 10 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventArcaneBarrage, 8 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override
+            void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) 
             {
                 if (target == nullptr)
                     return;
@@ -2223,7 +2223,7 @@ class npc_highmaul_gorian_arcanist : public CreatureScript
 
                 if (Creature* l_Phemos = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eHighmaulCreatures::Phemos)))
                 {
-                    if (l_Phemos->IsAIEnabled)
+                   // if (l_Phemos->IsAIEnabled)
                     {
                         l_Phemos->AI()->SetGUID(me->GetGUID(), 0);
                         l_Phemos->AI()->DoAction(1);
@@ -2236,7 +2236,7 @@ class npc_highmaul_gorian_arcanist : public CreatureScript
                 if (!UpdateVictim())
                 {
                     Position pos = me->GetHomePosition();
-                    if (!me->HasUnitState(UnitState::UNIT_STATE_CASTING) && me->IsNearPosition(&pos, 1.0f))
+                   // if (!me->HasUnitState(UnitState::UNIT_STATE_CASTING) && me->IsNearPosition(&pos, 1.0f))
                         if (Creature* l_Stalker = me->FindNearestCreature(eCreature::InvisibleStalker, 20.0f))
                             me->CastSpell(l_Stalker, eSpells::ArcaneForceCosmetic, true);
 
@@ -2252,16 +2252,16 @@ class npc_highmaul_gorian_arcanist : public CreatureScript
                 {
                     case eEvents::EventArcaneBolt:
                         me->CastSpell(me, eSpells::ArcaneBolt, false);
-                        m_Events.ScheduleEvent(eEvents::EventArcaneBolt, 28 * TimeConstants::IN_MILLISECONDS);
+                      //  m_Events.ScheduleEvent(eEvents::EventArcaneBolt, 28 * TimeConstants::IN_MILLISECONDS);
                         break;
                     case eEvents::EventArcaneVolatility:
-                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
-                            me->CastSpell(target, eSpells::ArcaneVolatility, false);
-                        m_Events.ScheduleEvent(eEvents::EventArcaneVolatility, 35 * TimeConstants::IN_MILLISECONDS);
+                       // if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                         //   me->CastSpell(target, eSpells::ArcaneVolatility, false);
+                        //m_Events.ScheduleEvent(eEvents::EventArcaneVolatility, 35 * TimeConstants::IN_MILLISECONDS);
                         break;
                     case eEvents::EventArcaneBarrage:
                         me->CastSpell(me, eSpells::ArcaneBarrage, false);
-                        m_Events.ScheduleEvent(eEvents::EventArcaneBarrage, 30 * TimeConstants::IN_MILLISECONDS);
+                      //  m_Events.ScheduleEvent(eEvents::EventArcaneBarrage, 30 * TimeConstants::IN_MILLISECONDS);
                         break;
                     default:
                         break;
@@ -2308,9 +2308,9 @@ class npc_highmaul_ogron_brute : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* /*attacker*/) override
+            void EnterCombat(Unit* /*attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvent::EventDecimate, 6 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvent::EventDecimate, 6 * TimeConstants::IN_MILLISECONDS);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -2320,7 +2320,7 @@ class npc_highmaul_ogron_brute : public CreatureScript
 
                 if (Creature* l_Phemos = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eHighmaulCreatures::Phemos)))
                 {
-                    if (l_Phemos->IsAIEnabled)
+                   // if (l_Phemos->IsAIEnabled)
                     {
                         l_Phemos->AI()->SetGUID(me->GetGUID(), 0);
                         l_Phemos->AI()->DoAction(1);
@@ -2341,9 +2341,9 @@ class npc_highmaul_ogron_brute : public CreatureScript
                 switch (m_Events.ExecuteEvent())
                 {
                     case eEvent::EventDecimate:
-                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
-                            me->CastSpell(target, eSpell::Decimate, false);
-                        m_Events.ScheduleEvent(eEvent::EventDecimate, 15 * TimeConstants::IN_MILLISECONDS);
+                      //  if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                        //    me->CastSpell(target, eSpell::Decimate, false);
+                       // m_Events.ScheduleEvent(eEvent::EventDecimate, 15 * TimeConstants::IN_MILLISECONDS);
                         break;
                     default:
                         break;
@@ -2383,14 +2383,14 @@ class npc_highmaul_gorian_rune_mender : public CreatureScript
                 ScheduleNextOperation();
             }
 
-            void LastOperationCalled() override
+            void LastOperationCalled() 
             {
                 ScheduleNextOperation();
             }
 
             void ScheduleNextOperation()
             {
-                AddTimedDelayedOperation(urand(2 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS), [this]() -> void
+               // AddTimedDelayedOperation(urand(2 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS), [this]() -> void
                 {
                     if (urand(0, 1))
                     {
@@ -2402,7 +2402,7 @@ class npc_highmaul_gorian_rune_mender : public CreatureScript
                         me->RemoveAura(eSpells::AttackPale);
                         me->CastSpell(me, eSpells::Ready2HL, true);
                     }
-                });
+                };
             }
         };
 
@@ -2447,7 +2447,7 @@ class npc_highmaul_night_twisted_fanatic : public CreatureScript
                 ScheduleNextOperation();
             }
 
-            void LastOperationCalled() override
+            void LastOperationCalled() 
             {
                 ScheduleNextOperation();
             }
@@ -2467,7 +2467,7 @@ class npc_highmaul_night_twisted_fanatic : public CreatureScript
                         break;
                 }
 
-                AddTimedDelayedOperation(l_Time, [this]() -> void
+               // AddTimedDelayedOperation(l_Time, [this]() -> void
                 {
                     switch (m_CosmeticStep)
                     {
@@ -2494,7 +2494,7 @@ class npc_highmaul_night_twisted_fanatic : public CreatureScript
                             break;
                         }
                     }
-                });
+                };
             }
         };
 
@@ -2528,14 +2528,14 @@ class npc_highmaul_gorian_warden : public CreatureScript
                 ScheduleNextOperation();
             }
 
-            void LastOperationCalled() override
+            void LastOperationCalled() 
             {
                 ScheduleNextOperation();
             }
 
             void ScheduleNextOperation()
             {
-                AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+               // AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                 {
                     if (urand(0, 1))
                     {
@@ -2547,7 +2547,7 @@ class npc_highmaul_gorian_warden : public CreatureScript
                         me->RemoveAura(eSpells::AttackPale);
                         me->CastSpell(me, eSpells::Ready1H, true);
                     }
-                });
+                };
             }
         };
 
@@ -2581,14 +2581,14 @@ class npc_highmaul_ogron_warbringer : public CreatureScript
                 ScheduleNextOperation();
             }
 
-            void LastOperationCalled() override
+            void LastOperationCalled() 
             {
                 ScheduleNextOperation();
             }
 
             void ScheduleNextOperation()
             {
-                AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                //AddTimedDelayedOperation(5 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                 {
                     if (urand(0, 1))
                     {
@@ -2600,7 +2600,7 @@ class npc_highmaul_ogron_warbringer : public CreatureScript
                         me->RemoveAura(eSpells::AttackPale);
                         me->CastSpell(me, eSpells::ReadyUnarmed, true);
                     }
-                });
+                };
             }
         };
 
@@ -2633,8 +2633,8 @@ class npc_highmaul_warden_thultok : public CreatureScript
             npc_highmaul_warden_thultokAI(Creature* creature) : ScriptedAI(creature)
             {
                 /// Summon portal in case of this mob is dead at the instance creation
-                if (!creature->IsAlive())
-                    me->SummonGameObject(eHighmaulGameobjects::Teleporter, g_TeleporterSpawnPos, QuaternionData(), 0);
+                if (!creature->IsAlive());
+                  //  me->SummonGameObject(eHighmaulGameobjects::Teleporter, g_TeleporterSpawnPos, QuaternionData(), 0);
             }
 
             EventMap m_Events;
@@ -2650,13 +2650,13 @@ class npc_highmaul_warden_thultok : public CreatureScript
             {
                 me->RemoveAllAreaTriggers();
 
-                me->SummonGameObject(eHighmaulGameobjects::Teleporter, g_TeleporterSpawnPos, QuaternionData(), 0);
+               // me->SummonGameObject(eHighmaulGameobjects::Teleporter, g_TeleporterSpawnPos, QuaternionData(), 0);
             }
 
-            void EnterCombat(Unit* /*attacker*/) override
+            void EnterCombat(Unit* /*attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvents::EventDestructiveForce, 5 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventArcaneResidue, 10 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventDestructiveForce, 5 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventArcaneResidue, 10 * TimeConstants::IN_MILLISECONDS);
             }
 
             void UpdateAI(uint32 const diff) override
@@ -2673,12 +2673,12 @@ class npc_highmaul_warden_thultok : public CreatureScript
                 {
                     case eEvents::EventDestructiveForce:
                         me->CastSpell(me, eSpells::DestructiveForce, false);
-                        m_Events.ScheduleEvent(eEvents::EventDestructiveForce, 10 * TimeConstants::IN_MILLISECONDS);
+                      //  m_Events.ScheduleEvent(eEvents::EventDestructiveForce, 10 * TimeConstants::IN_MILLISECONDS);
                         break;
                     case eEvents::EventArcaneResidue:
-                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
-                            me->CastSpell(target, eSpells::ArcaneResidue, true);
-                        m_Events.ScheduleEvent(eEvents::EventArcaneResidue, 10 * TimeConstants::IN_MILLISECONDS);
+                       // if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                         //   me->CastSpell(target, eSpells::ArcaneResidue, true);
+                       // m_Events.ScheduleEvent(eEvents::EventArcaneResidue, 10 * TimeConstants::IN_MILLISECONDS);
                         break;
                     default:
                         break;
@@ -2729,12 +2729,12 @@ class npc_highmaul_gorian_royal_guardsman : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* /*attacker*/) override
+            void EnterCombat(Unit* /*attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvent::EventRampage, 10 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvent::EventRampage, 10 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override
+            void SpellHitTarget(Unit* target, SpellInfo const* spellInfo)
             {
                 if (target == nullptr)
                     return;
@@ -2776,8 +2776,8 @@ class npc_highmaul_gorian_royal_guardsman : public CreatureScript
                     me->SetSpeed(UnitMoveType::MOVE_WALK, 1.0f);
                     me->SetSpeed(UnitMoveType::MOVE_RUN, 1.0f);
 
-                    if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                        me->GetMotionMaster()->MoveChase(target);
+                    //if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                      //  me->GetMotionMaster()->MoveChase(target);
                 }
             }
 
@@ -2795,7 +2795,7 @@ class npc_highmaul_gorian_royal_guardsman : public CreatureScript
                 {
                     case eEvent::EventRampage:
                         me->CastSpell(me, eSpells::RampageSearcher, false);
-                        m_Events.ScheduleEvent(eEvent::EventRampage, 20 * TimeConstants::IN_MILLISECONDS);
+                      //  m_Events.ScheduleEvent(eEvent::EventRampage, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
                     default:
                         break;
@@ -2846,14 +2846,14 @@ class npc_highmaul_gorian_high_sorcerer : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* /*attacker*/) override
+            void EnterCombat(Unit* /*attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvents::EventArcaneBlast, 5 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventNetherFont, 10 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventCelerity, 15 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventArcaneBlast, 5 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventNetherFont, 10 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventCelerity, 15 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override
+            void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) 
             {
                 if (target == nullptr)
                     return;
@@ -2881,18 +2881,18 @@ class npc_highmaul_gorian_high_sorcerer : public CreatureScript
                 switch (m_Events.ExecuteEvent())
                 {
                     case eEvents::EventArcaneBlast:
-                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
-                            me->CastSpell(target, eSpells::ArcaneBlast, false);
-                        m_Events.ScheduleEvent(eEvents::EventArcaneBlast, 15 * TimeConstants::IN_MILLISECONDS);
+                      //  if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM))
+                        //    me->CastSpell(target, eSpells::ArcaneBlast, false);
+                        //m_Events.ScheduleEvent(eEvents::EventArcaneBlast, 15 * TimeConstants::IN_MILLISECONDS);
                         break;
                     case eEvents::EventNetherFont:
                         me->CastSpell(me, eSpells::NetherFontSearcher, false);
-                        m_Events.ScheduleEvent(eEvents::EventNetherFont, 15 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventNetherFont, 15 * TimeConstants::IN_MILLISECONDS);
                         break;
                     case eEvents::EventCelerity:
                         if (Unit* target = me->SelectNearbyTarget(me, 50.0f))
                             me->CastSpell(target, eSpells::Celerity, false);
-                        m_Events.ScheduleEvent(eEvents::EventCelerity, 20 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventCelerity, 20 * TimeConstants::IN_MILLISECONDS);
                         break;
                     default:
                         break;
@@ -2935,9 +2935,9 @@ class npc_highmaul_ogron_mauler : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* /*attacker*/) override
+            void EnterCombat(Unit* /*attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvent::EventDeafeningRoar, 5 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvent::EventDeafeningRoar, 5 * TimeConstants::IN_MILLISECONDS);
             }
 
             void UpdateAI(uint32 const diff) override
@@ -2954,7 +2954,7 @@ class npc_highmaul_ogron_mauler : public CreatureScript
                 {
                     case eEvent::EventDeafeningRoar:
                         me->CastSpell(me, eSpell::DeafeningRoar, false);
-                        m_Events.ScheduleEvent(eEvent::EventDeafeningRoar, 15 * TimeConstants::IN_MILLISECONDS);
+                      //  m_Events.ScheduleEvent(eEvent::EventDeafeningRoar, 15 * TimeConstants::IN_MILLISECONDS);
                         break;
                     default:
                         break;
@@ -3014,24 +3014,24 @@ class npc_highmaul_guard_captain_thag : public CreatureScript
             {
                 m_Events.Reset();
 
-                AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+               // AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                 {
                     if (GameObject* l_Door = me->FindNearestGameObject(eHighmaulGameobjects::ThroneRoomDoor, 50.0f))
                     {
                         l_Door->SetGoState(GOState::GO_STATE_READY);
                         m_DoorGuid = l_Door->GetGUID();
                     }
-                });
+                };
 
                 /// Second equip is a shield
                 me->SetCanDualWield(false);
             }
 
-            void EnterCombat(Unit* /*attacker*/) override
+            void EnterCombat(Unit* /*attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvents::EventBrutalCleave, 5 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventGroundStomp, 7 * TimeConstants::IN_MILLISECONDS);
-                m_Events.ScheduleEvent(eEvents::EventRendingThrow, 10 * TimeConstants::IN_MILLISECONDS);
+               //m_Events.ScheduleEvent(eEvents::EventBrutalCleave, 5 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventGroundStomp, 7 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvents::EventRendingThrow, 10 * TimeConstants::IN_MILLISECONDS);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -3044,7 +3044,7 @@ class npc_highmaul_guard_captain_thag : public CreatureScript
                     Creature* l_CouncilorMalgris = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eHighmaulCreatures::HighCouncilorMalgris));
                     Creature* l_ImperatorMargok = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eHighmaulCreatures::ImperatorMargok));
 
-                    if (l_CouncilorMalgris && l_ImperatorMargok && l_CouncilorMalgris->IsAIEnabled && l_ImperatorMargok->IsAIEnabled)
+                   // if (l_CouncilorMalgris && l_ImperatorMargok && l_CouncilorMalgris->IsAIEnabled && l_ImperatorMargok->IsAIEnabled)
                     {
                         l_CouncilorMalgris->AI()->DoAction(eAction::ActionIntro);
                         l_ImperatorMargok->AI()->DoAction(eAction::ActionIntro);
@@ -3067,17 +3067,17 @@ class npc_highmaul_guard_captain_thag : public CreatureScript
                 switch (m_Events.ExecuteEvent())
                 {
                     case eEvents::EventBrutalCleave:
-                        if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
-                            me->CastSpell(target, eSpells::BrutalCleave, false);
-                        m_Events.ScheduleEvent(eEvents::EventBrutalCleave, 7 * TimeConstants::IN_MILLISECONDS);
+                    //    if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                      //      me->CastSpell(target, eSpells::BrutalCleave, false);
+                       // m_Events.ScheduleEvent(eEvents::EventBrutalCleave, 7 * TimeConstants::IN_MILLISECONDS);
                         break;
                     case eEvents::EventGroundStomp:
                         me->CastSpell(me, eSpells::GroundStomp, true);
-                        m_Events.ScheduleEvent(eEvents::EventGroundStomp, 6 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventGroundStomp, 6 * TimeConstants::IN_MILLISECONDS);
                         break;
                     case eEvents::EventRendingThrow:
                         me->CastSpell(me, eSpells::RendingThrow, true);
-                        m_Events.ScheduleEvent(eEvents::EventRendingThrow, 6 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvents::EventRendingThrow, 6 * TimeConstants::IN_MILLISECONDS);
                         break;
                     default:
                         break;
@@ -3126,12 +3126,12 @@ class npc_highmaul_councilor_daglat : public CreatureScript
                 me->CastSpell(me, eSpells::KneelCosmeticForced, true);
             }
 
-            void EnterCombat(Unit* /*attacker*/) override
+            void EnterCombat(Unit* /*attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvent::EventArcaneDestruction, 1 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvent::EventArcaneDestruction, 1 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override
+            void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) 
             {
                 if (target == nullptr)
                     return;
@@ -3142,10 +3142,10 @@ class npc_highmaul_councilor_daglat : public CreatureScript
                     {
                         me->CastSpell(*target, eSpells::TeleportMove, true);
 
-                        AddTimedDelayedOperation(200, [this]() -> void
+                       // AddTimedDelayedOperation(200, [this]() -> void
                         {
                             me->CastSpell(me, eSpells::ArcaneDestruction, false);
-                        });
+                        };
 
                         break;
                     }
@@ -3170,7 +3170,7 @@ class npc_highmaul_councilor_daglat : public CreatureScript
                 {
                     case eEvent::EventArcaneDestruction:
                         me->CastSpell(me, eSpells::TeleportSearcher, true);
-                        m_Events.ScheduleEvent(eEvent::EventArcaneDestruction, 6 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvent::EventArcaneDestruction, 6 * TimeConstants::IN_MILLISECONDS);
                         break;
                     default:
                         break;
@@ -3221,11 +3221,11 @@ class npc_highmaul_councilor_magknor : public CreatureScript
                 m_Summons.DespawnAll();
             }
 
-            void EnterCombat(Unit* /*attacker*/) override
+            void EnterCombat(Unit* /*attacker*/) 
             {
                 me->CastSpell(me, eSpells::ArcaneTorrentSummon, true);
 
-                m_Events.ScheduleEvent(eEvent::EventArcaneTorrent, 1 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvent::EventArcaneTorrent, 1 * TimeConstants::IN_MILLISECONDS);
             }
 
             void JustSummoned(Creature* p_Summon) override
@@ -3254,7 +3254,7 @@ class npc_highmaul_councilor_magknor : public CreatureScript
                 {
                     case eEvent::EventArcaneTorrent:
                         me->CastSpell(me, eSpells::ArcaneTorrentAura, false);
-                        m_Events.ScheduleEvent(eEvent::EventArcaneTorrent, 60 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvent::EventArcaneTorrent, 60 * TimeConstants::IN_MILLISECONDS);
                         break;
                     default:
                         break;
@@ -3287,12 +3287,12 @@ class npc_highmaul_arcane_torrent : public CreatureScript
 
             void Reset() override
             {
-                SetCanSeeEvenInPassiveMode(true);
+               // SetCanSeeEvenInPassiveMode(true);
 
                 me->CastSpell(me, eSpell::ArcaneTorrentMoveSearcher, true);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override
+            void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) 
             {
                 if (target == nullptr)
                     return;
@@ -3351,9 +3351,9 @@ class npc_highmaul_councilor_gorluk : public CreatureScript
                 me->CastSpell(me, eSpells::KneelCosmeticForced, true);
             }
 
-            void EnterCombat(Unit* /*attacker*/) override
+            void EnterCombat(Unit* /*attacker*/)
             {
-                m_Events.ScheduleEvent(eEvent::EventPhantasmalWeapon, 7 * TimeConstants::IN_MILLISECONDS);
+               // m_Events.ScheduleEvent(eEvent::EventPhantasmalWeapon, 7 * TimeConstants::IN_MILLISECONDS);
             }
 
             void UpdateAI(uint32 const diff) override
@@ -3372,7 +3372,7 @@ class npc_highmaul_councilor_gorluk : public CreatureScript
                 {
                     case eEvent::EventPhantasmalWeapon:
                         me->CastSpell(me, eSpells::ConjurePhantasmalWeapon, false);
-                        m_Events.ScheduleEvent(eEvent::EventPhantasmalWeapon, 7 * TimeConstants::IN_MILLISECONDS);
+                       // m_Events.ScheduleEvent(eEvent::EventPhantasmalWeapon, 7 * TimeConstants::IN_MILLISECONDS);
                         break;
                     default:
                         break;
@@ -3412,7 +3412,7 @@ class npc_highmaul_phantasmal_weapon : public CreatureScript
                 me->CastSpell(me, eSpells::Fixated, true);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override
+            void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) 
             {
                 if (target == nullptr)
                     return;
@@ -3465,11 +3465,11 @@ class npc_highmaul_councilor_nouk : public CreatureScript
                 me->CastSpell(me, eSpells::KneelCosmeticForced, true);
             }
 
-            void EnterCombat(Unit* /*attacker*/) override
+            void EnterCombat(Unit* /*attacker*/) 
             {
                 me->CastSpell(me, eSpells::TimeStop, false);
 
-                m_Events.ScheduleEvent(eEvent::EventTimeStop, 4 * TimeConstants::IN_MILLISECONDS);
+                //m_Events.ScheduleEvent(eEvent::EventTimeStop, 4 * TimeConstants::IN_MILLISECONDS);
             }
 
             void UpdateAI(uint32 const diff) override
@@ -3488,7 +3488,7 @@ class npc_highmaul_councilor_nouk : public CreatureScript
                 {
                     case eEvent::EventTimeStop:
                         me->CastSpell(me, eSpells::TimeStop, false);
-                        m_Events.ScheduleEvent(eEvent::EventTimeStop, 4 * TimeConstants::IN_MILLISECONDS);
+                      //  m_Events.ScheduleEvent(eEvent::EventTimeStop, 4 * TimeConstants::IN_MILLISECONDS);
                         break;
                     default:
                         break;
@@ -3549,9 +3549,9 @@ class npc_highmaul_high_councilor_malgris : public CreatureScript
                 m_Events.Reset();
             }
 
-            void EnterCombat(Unit* /*attacker*/) override
+            void EnterCombat(Unit* /*attacker*/) 
             {
-                m_Events.ScheduleEvent(eEvent::EventUnstableTempest, 50);
+               // m_Events.ScheduleEvent(eEvent::EventUnstableTempest, 50);
             }
 
             void DoAction(int32 const action) override
@@ -3562,10 +3562,10 @@ class npc_highmaul_high_councilor_malgris : public CreatureScript
                     {
                         Talk(eTalks::Intro1);
 
-                        AddTimedDelayedOperation(15 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                       // AddTimedDelayedOperation(15 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
                             Talk(eTalks::Intro2);
-                        });
+                        };
 
                         break;
                     }
@@ -3581,7 +3581,7 @@ class npc_highmaul_high_councilor_malgris : public CreatureScript
 
                 if (Creature* l_Margok = ObjectAccessor::GetCreature(*me, m_Instance->GetGuidData(eHighmaulCreatures::ImperatorMargok)))
                 {
-                    if (l_Margok->IsAIEnabled)
+                   // if (l_Margok->IsAIEnabled)
                         l_Margok->AI()->DoAction(eActions::ActionFinishIntro);
                 }
             }
@@ -3602,14 +3602,14 @@ class npc_highmaul_high_councilor_malgris : public CreatureScript
                 {
                     case eEvent::EventUnstableTempest:
                     {
-                        CustomSpellValues l_Values;
+                       // CustomSpellValues l_Values;
                         if (Aura* l_Aura = me->GetAura(eSpells::UnstableTempestAura))
-                            l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_MAX_TARGETS, l_Aura->GetStackAmount());
-                        else
-                            l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_MAX_TARGETS, 1);
+                         //   l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_MAX_TARGETS, l_Aura->GetStackAmount());
+                       // else
+                         //   l_Values.AddSpellMod(SpellValueMod::SPELLVALUE_MAX_TARGETS, 1);
 
-                        me->CastCustomSpell(eSpells::UnstableTempest, l_Values, me, TRIGGERED_NONE);
-                        m_Events.ScheduleEvent(eEvent::EventUnstableTempest, 50);
+                       // me->CastCustomSpell(eSpells::UnstableTempest, l_Values, me, TRIGGERED_NONE);
+                       // m_Events.ScheduleEvent(eEvent::EventUnstableTempest, 50);
                         break;
                     }
                     default:
@@ -3662,13 +3662,13 @@ class go_highmaul_instance_portal : public GameObjectScript
                         m_CheckTimer = 1000;
 
                         std::list<Player*> playerList;
-                        go->GetPlayerListInGrid(playerList, 5.0f);
+                       // go->GetPlayerListInGrid(playerList, 5.0f);
 
                         auto entry = sObjectMgr->GetWorldSafeLoc(ExitTarget);
                         Position pos = { entry->Loc.GetPositionX(), entry->Loc.GetPositionY(), entry->Loc.GetPositionZ() };
 
-                        for (Player* player : playerList)
-                            player->TeleportTo(MAP_DRAENOR, pos);
+                        for (Player* player : playerList);
+                         //   player->TeleportTo(MAP_DRAENOR, pos);
                     }
                     else
                         m_CheckTimer -= diff;
@@ -3715,7 +3715,7 @@ class go_highmaul_portal : public GameObjectScript
                         m_CheckTimer = 500;
 
                         std::list<Player*> playerList;
-                        go->GetPlayerListInGrid(playerList, 5.0f);
+                      //  go->GetPlayerListInGrid(playerList, 5.0f);
 
                         for (Player* player : playerList)
                         {
@@ -3842,23 +3842,23 @@ class spell_highmaul_boars_rush : public SpellScriptLoader
                 if (caster == nullptr)
                     return;
 
-                float radius = GetSpellInfo()->GetEffect(0)->CalcRadius(caster);
-                targets.remove_if([radius, caster, l_Restriction](WorldObject* p_Object) -> bool
+              //  float radius = GetSpellInfo()->GetEffect(0)->CalcRadius(caster);
+               // targets.remove_if([radius, caster, l_Restriction](WorldObject* p_Object) -> bool
                 {
-                    if (p_Object == nullptr)
-                        return true;
+                   // if (p_Object == nullptr)
+                     //   return true;
 
-                    if (!p_Object->IsInAxe(caster, l_Restriction->Width, radius))
-                        return true;
+                   // if (!p_Object->IsInAxe(caster, l_Restriction->Width, radius))
+                     //   return true;
 
-                    return false;
-                });
+                   // return false;
+                };
             }
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_highmaul_boars_rush_SpellScript::CorrectTargets, EFFECT_1, TARGET_UNIT_CONE_ENTRY_129);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_highmaul_boars_rush_SpellScript::CorrectTargets, EFFECT_3, TARGET_UNIT_CONE_ENTRY_129);
+               // OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_highmaul_boars_rush_SpellScript::CorrectTargets, EFFECT_1, TARGET_UNIT_CONE_ENTRY_129);
+               // OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_highmaul_boars_rush_SpellScript::CorrectTargets, EFFECT_3, TARGET_UNIT_CONE_ENTRY_129);
             }
         };
 
@@ -3892,7 +3892,7 @@ class spell_highmaul_corrupted_blood_shield : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     if (Unit* target = GetTarget())
-                        target->CastSpell(caster, eSpell::CorruptedBlood, true, nullptr, nullptr, caster->GetGUID());
+                        target->CastSpell(caster, eSpell::CorruptedBlood, true);
                 }
             }
 
@@ -3951,7 +3951,7 @@ class spell_highmaul_rending_slash : public SpellScriptLoader
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_highmaul_rending_slash_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_54);
+               // OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_highmaul_rending_slash_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_54);
             }
         };
 
@@ -3996,8 +3996,8 @@ class spell_highmaul_shield_charge : public SpellScriptLoader
                             std::list<Unit*> targetList;
                             float radius = 1.0f;
 
-                            Trinity::AnyUnfriendlyUnitInObjectRangeCheck l_Check(caster, caster, radius);
-                            Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(caster, targetList, l_Check);
+                          //  Trinity::AnyUnfriendlyUnitInObjectRangeCheck l_Check(caster, caster, radius);
+                            Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher();
                             Cell::VisitAllObjects(caster, l_Searcher, radius);
 
                             for (Unit* itr : targetList)
@@ -4016,7 +4016,7 @@ class spell_highmaul_shield_charge : public SpellScriptLoader
 
             void Register() override
             {
-                OnAuraUpdate += AuraUpdateFn(spell_highmaul_shield_charge_AuraScript::OnUpdate);
+               // OnAuraUpdate += AuraUpdateFn(spell_highmaul_shield_charge_AuraScript::OnUpdate);
             }
         };
 
@@ -4048,7 +4048,7 @@ class spell_highmaul_earthdevastating_slam : public SpellScriptLoader
 
                 if (Creature* l_Trash = GetTarget()->ToCreature())
                 {
-                    if (l_Trash->IsAIEnabled)
+                   // if (l_Trash->IsAIEnabled)
                         l_Trash->AI()->DoAction(eAction::ActionSlam);
                 }
             }
@@ -4093,26 +4093,26 @@ class spell_highmaul_earthdevastating_slam_dmg : public SpellScriptLoader
                 if (caster == nullptr)
                     return;
 
-                float radius = GetSpellInfo()->GetEffect(0)->CalcRadius(caster);
-                targets.remove_if([radius, caster, l_Restriction](WorldObject* p_Object) -> bool
+               // float radius = GetSpellInfo()->GetEffect(0)->CalcRadius(caster);
+               // targets.remove_if([radius, caster, l_Restriction](WorldObject* p_Object) -> bool
                 {
-                    if (p_Object == nullptr)
-                        return true;
+                  //  if (p_Object == nullptr)
+                   //     return true;
 
-                    if (!p_Object->IsInAxe(caster, l_Restriction->Width, radius))
-                        return true;
+                   // if (!p_Object->IsInAxe(caster, l_Restriction->Width, radius))
+                     //   return true;
 
-                    if (!p_Object->isInFront(caster))
-                        return true;
+                    //if (!p_Object->isInFront(caster))
+                      //  return true;
 
-                    return false;
-                });
+                   // return false;
+                };
             }
 
             void Register() override
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_highmaul_earthdevastating_slam_dmg_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_CONE_ENTRY_129);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_highmaul_earthdevastating_slam_dmg_SpellScript::CorrectTargets, EFFECT_1, TARGET_UNIT_CONE_ENTRY_129);
+               // OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_highmaul_earthdevastating_slam_dmg_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_CONE_ENTRY_129);
+               // OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_highmaul_earthdevastating_slam_dmg_SpellScript::CorrectTargets, EFFECT_1, TARGET_UNIT_CONE_ENTRY_129);
             }
         };
 
@@ -4324,8 +4324,8 @@ class areatrigger_highmaul_rune_of_disintegration : public AreaTriggerAI
                 std::list<Unit*> targetList;
                 float radius = 4.0f;
 
-                Trinity::AnyUnfriendlyUnitInObjectRangeCheck l_Check(at, caster, radius);
-                Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(at, targetList, l_Check);
+               // Trinity::AnyUnfriendlyUnitInObjectRangeCheck l_Check(at, caster, radius);
+                Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher();
                 Cell::VisitAllObjects(at, l_Searcher, radius);
 
                 for (Unit* l_Unit : targetList)
@@ -4352,8 +4352,8 @@ class areatrigger_highmaul_arcane_residue : public AreaTriggerAI
                 std::list<Unit*> targetList;
                 float radius = 8.0f;
 
-                Trinity::AnyUnfriendlyUnitInObjectRangeCheck l_Check(at, caster, radius);
-                Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(at, targetList, l_Check);
+               // Trinity::AnyUnfriendlyUnitInObjectRangeCheck l_Check(at, caster, radius);
+                Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher();
                 Cell::VisitAllObjects(at, l_Searcher, radius);
 
                 for (Unit* l_Unit : targetList)
@@ -4379,8 +4379,8 @@ class areatrigger_highmaul_arcane_residue : public AreaTriggerAI
                 std::list<Unit*> targetList;
                 float radius = 4.0f;
 
-                Trinity::AnyUnfriendlyUnitInObjectRangeCheck l_Check(at, caster, radius);
-                Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher(at, targetList, l_Check);
+               // Trinity::AnyUnfriendlyUnitInObjectRangeCheck l_Check(at, caster, radius);
+                Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> l_Searcher();
                 Cell::VisitAllObjects(at, l_Searcher, radius);
 
                 for (Unit* l_Unit : targetList)
@@ -4401,7 +4401,7 @@ public:
     {
         if (player->GetMap()->GetEntry()->ID == 1228 && timer <= diff)
         {
-            if (player->GetAreaId() != AREA_HIGHMAUL_COLLISEUM)
+            if (player->GetAreaId())
             {
                 if (InstanceScript *instance = player->GetInstanceScript())
                 {
@@ -4475,7 +4475,7 @@ void AddSC_highmaul()
     new npc_highmaul_high_councilor_malgris();
 
     /// GameObjects
-    new go_highmaul_arena_elevator();
+   // new go_highmaul_arena_elevator();
     new go_highmaul_instance_portal();
     new go_highmaul_portal();
 
