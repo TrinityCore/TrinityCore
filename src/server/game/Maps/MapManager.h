@@ -18,6 +18,13 @@
 #ifndef TRINITY_MAPMANAGER_H
 #define TRINITY_MAPMANAGER_H
 
+#include "Object.h"
+#include "Map.h"
+#include "MapInstanced.h"
+#include "GridStates.h"
+#include "MapUpdater.h"
+#include <boost/dynamic_bitset.hpp>
+
 #include "GridDefines.h"
 #include "IteratorPair.h"
 #include "MapUpdater.h"
@@ -142,6 +149,7 @@ class TC_GAME_API MapManager
         Map* FindBaseMap(uint32 mapId) const
         {
             MapMapType::const_iterator iter = i_maps.find(mapId);
+            //MapMapType::const_iterator iter = i_maps.find(mapId);
             return (iter == i_maps.end() ? nullptr : iter->second);
         }
 
