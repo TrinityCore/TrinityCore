@@ -663,6 +663,8 @@ void Spell::EffectTriggerSpell()
     m_caster->m_Events.AddEventAtOffset([caster = m_caster, targets, originalCaster = m_originalCasterGUID, castItemGuid = m_castItemGUID, originalCastId = m_castId,
         spellEffectInfo = effectInfo, value = damage, itemLevel = m_castItemLevel]() mutable
     {
+        targets.Update(caster); // refresh pointers stored in targets
+
         // original caster guid only for GO cast
         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
         args.SetOriginalCaster(originalCaster);
