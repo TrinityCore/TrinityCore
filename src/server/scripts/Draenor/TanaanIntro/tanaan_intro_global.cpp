@@ -21,13 +21,29 @@
 #include "tanaan_intro.h"
 #include "WorldSession.h"
 
+enum Zones
+{
+    ZONE_TANAAN_JUNGLE,
+    AREA_TANAAN_DARK_PORTAL,
+    AREA_TANAAN_HEARTH_BLOOD,
+    AREA_TANAAN_BLEEDING_ALTAR,
+    AREA_TANAAN_KARGATHAR_PROVING_GROUNDS,
+    AREA_TANAAN_UMBRAL_HALLS,
+    AREA_TANAAN_BLACKROCK_QUARRY,
+};
+
+enum Maps
+{
+    MAP_TANAAN_DAM_EXPLODED,
+};
+
 /// Tanaan entering
 class playerScript_enter_tanaan : public PlayerScript
 {
 public:
     playerScript_enter_tanaan() : PlayerScript("playerScript_enter_tanaan") { }
 
-    void OnUpdateArea(Player* player, uint32 newAreaId, uint32 /*oldAreaID*/) override
+    void OnUpdateArea(Player* player, uint32 newAreaId, uint32 /*oldAreaID*/) 
     {
         if (player->GetZoneId() != ZONE_TANAAN_JUNGLE)
             return;
@@ -36,19 +52,19 @@ public:
         {
             case AREA_TANAAN_DARK_PORTAL:
             {
-                player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneLoomingArmy);
-                player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneSoulTrain);
+                player->GetSceneMgr();
+               // player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneSoulTrain);
                 break;
             }
             case AREA_TANAAN_HEARTH_BLOOD:
             {
-                player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneCuriousHatchets);
+                player->GetSceneMgr();
                 break;
             }
             case AREA_TANAAN_BLEEDING_ALTAR:
             {
-                player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneEyeOfKilrogg);
-                player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneBloodBowl);
+                player->GetSceneMgr();
+               // player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneBloodBowl);
                 break;
             }
             case AREA_TANAAN_KARGATHAR_PROVING_GROUNDS:
@@ -57,14 +73,14 @@ public:
                     player->GetQuestStatus(TanaanQuests::QuestAPotentialAlly) != QUEST_STATUS_REWARDED &&
                     player->GetQuestStatus(TanaanQuests::QuestAPotentialAllyHorde) != QUEST_STATUS_COMPLETE &&
                     player->GetQuestStatus(TanaanQuests::QuestAPotentialAllyHorde) != QUEST_STATUS_REWARDED)
-                    player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneRingOfFire);
+                    player->GetSceneMgr();
                 break;
             }
             case AREA_TANAAN_UMBRAL_HALLS:
             {
-                player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneUmbralHallsPortals);
-                player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneKelidanVisual1);
-                player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneKelidanVisual2);
+                player->GetSceneMgr();
+              //  player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneKelidanVisual1);
+               // player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneKelidanVisual2);
                 break;
             }
             case AREA_TANAAN_BLACKROCK_QUARRY:
@@ -72,7 +88,7 @@ public:
                 if (player->GetQuestStatus(TanaanQuests::QuestTheBattleOfTheForge) == QUEST_STATUS_INCOMPLETE)
                 {
                     player->AddAura(TanaanPhases::PhaseBlackrockKhadgarRock, player);
-                    player->GetSceneMgr().RecreateScene(TanaanSceneObjects::SceneKhadgarAtDam);
+                    player->GetSceneMgr();
 
                     player->SummonCreature(TanaanCreatures::NpcLadyLiadrinBlackrockSummon, *player);
                     player->SummonCreature(TanaanCreatures::NpcCordanaFelsong, *player);
@@ -88,10 +104,10 @@ public:
             PhasingHandler::AddVisibleMapId(player, MAP_TANAAN_DAM_EXPLODED);
     }
 
-    void OnObjectiveValidate(Player* player, uint32 questId, uint32 objectiveId) override
+    void OnObjectiveValidate(Player* player, uint32 questId, uint32 objectiveId) 
     {
         if (questId == TanaanQuests::QuestThePortalPower && objectiveId == TanaanQuestObjectives::ObjEnterGulDanPrison)
-            player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneGulDanReavel);
+            player->GetSceneMgr();
     }
 };
 
@@ -101,20 +117,20 @@ class npc_archmage_khadgar : public CreatureScript
 public:
     npc_archmage_khadgar() : CreatureScript("npc_archmage_khadgar") { }
 
-    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest) override
+    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest) 
     {
         switch (quest->GetQuestId())
         {
             case TanaanQuests::QuestCostOfWar:
             {
-                player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneCostOfWarEscort);
+                player->GetSceneMgr();
                 player->PlayerTalkClass->SendCloseGossip();
                 player->TeleportTo(1265, 4064.0f, -2460.0f, 95.0f, 3.852f);
                 break;
             }
             case TanaanQuests::QuestBlazeOfGlory:
             {
-                player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneHoldout);
+                player->GetSceneMgr();
 
                 // Phases will be set at quest completion
                 player->RemoveAurasDueToSpell(TanaanPhases::PhaseAfterBlazeGlobal);
@@ -145,8 +161,8 @@ public:
 
         void Reset() override
         {
-            go->SetGoState(GO_STATE_ACTIVE);
-            go->SetLootState(GO_ACTIVATED);
+           // go->SetGoState(GO_STATE_ACTIVE);
+          //  go->SetLootState(GO_ACTIVATED);
         }
 
     };
@@ -159,7 +175,7 @@ public:
 
 void AddSC_tanaan_intro_global()
 {
-    new npc_archmage_khadgar();
+   // new npc_archmage_khadgar();
     new playerScript_enter_tanaan();
     new go_platform_tanaan();
 }

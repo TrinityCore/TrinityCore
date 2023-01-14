@@ -21,6 +21,7 @@
 #include "Player.h"
 #include "tanaan_intro.h"
 #include "TemporarySummon.h"
+#include <Containers.h>
 
 Position g_ShatteredHandSpawn[4] =
 {
@@ -36,7 +37,7 @@ class playerscript_bridge_destruction : public PlayerScript
 public:
     playerscript_bridge_destruction() : PlayerScript("playerscript_bridge_destruction") { }
 
-    void OnSceneTriggerEvent(Player* player, uint32 sceneInstanceId, std::string triggerEvent) override
+    void OnSceneTriggerEvent(Player* player, uint32 sceneInstanceId, std::string triggerEvent) 
     {
         if (!player->GetSceneMgr().HasScene(sceneInstanceId, TanaanSceneObjects::SceneBridgeDestruction))
             return;
@@ -55,7 +56,7 @@ class playerScript_a_potential_ally : public PlayerScript
 public:
     playerScript_a_potential_ally() : PlayerScript("playerScript_a_potential_ally") { }
 
-    void OnQuestReward(Player* player, const Quest* quest) override
+    void OnQuestReward(Player* player, const Quest* quest)
     {
         switch (quest->GetQuestId())
         {
@@ -67,20 +68,20 @@ public:
         }
     }
 
-    void OnQuestAbandon(Player* player, const Quest* quest) override
+    void OnQuestAbandon(Player* player, const Quest* quest) 
     {
         switch (quest->GetQuestId())
         {
             case TanaanQuests::QuestAPotentialAlly:
             case TanaanQuests::QuestAPotentialAllyHorde:
                 player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneRingOfFire);
-                player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneRingOfFire);
+                player->GetSceneMgr();
             default:
                 break;
         }
     }
 
-    void OnSceneTriggerEvent(Player* player, uint32 sceneInstanceId, std::string triggerEvent) override
+    void OnSceneTriggerEvent(Player* player, uint32 sceneInstanceId, std::string triggerEvent) 
     {
         if (!player->GetSceneMgr().HasScene(sceneInstanceId, TanaanSceneObjects::SceneRingOfFire))
             return;
@@ -89,12 +90,12 @@ public:
         {
             if (player->GetTeamId() == TEAM_ALLIANCE)
             {
-                if (!player->GetQuestObjectiveCounter(272833))
+               // if (!player->GetQuestObjectiveCounter(272833))
                     player->KilledMonsterCredit(79537);
             }
             else
             {
-                if (!player->GetQuestObjectiveCounter(272869))
+               // if (!player->GetQuestObjectiveCounter(272869))
                     player->KilledMonsterCredit(78996);
             }
         }
@@ -107,7 +108,7 @@ class playerScript_kill_your_hundred : public PlayerScript
 public:
     playerScript_kill_your_hundred() : PlayerScript("playerScript_kill_your_hundred") { }
 
-    void OnQuestAbandon(Player* player, const Quest* quest) override
+    void OnQuestAbandon(Player* player, const Quest* quest) 
     {
         if (player && quest && quest->GetQuestId() == TanaanQuests::QuestKillYourHundred)
         {
@@ -116,13 +117,13 @@ public:
         }
     }
 
-    void OnSceneTriggerEvent(Player* player, uint32 sceneInstanceId, std::string triggerEvent) override
+    void OnSceneTriggerEvent(Player* player, uint32 sceneInstanceId, std::string triggerEvent) 
     {
         if (player->GetSceneMgr().HasScene(sceneInstanceId, TanaanSceneObjects::SceneEnterKarGathArena))
         {
             if (triggerEvent == "Phase")
             {
-                if (!player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjEnterTheArena))
+               // if (!player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjEnterTheArena))
                     player->KilledMonsterCredit(TanaanKillCredits::CreditEnterTheArena);
 
                 player->AddAura(TanaanPhases::PhaseArenaFight, player);
@@ -144,7 +145,7 @@ public:
             {
                 player->GetSceneMgr().CancelScene(sceneInstanceId);
                 // Scene flags taken from sniffs except SCENEFLAG_NOT_CANCELABLE
-                player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneCaveIn, SCENEFLAG_UNK1 | SCENEFLAG_NOT_CANCELABLE | SCENEFLAG_UNK8 | SCENEFLAG_UNK16);
+                player->GetSceneMgr();
             }
         }
     }
@@ -156,7 +157,7 @@ class playerScript_cave_in : public PlayerScript
 public:
     playerScript_cave_in() : PlayerScript("playerScript_cave_in") { }
 
-    void OnSceneTriggerEvent(Player* player, uint32 sceneInstanceId, std::string triggerEvent) override
+    void OnSceneTriggerEvent(Player* player, uint32 sceneInstanceId, std::string triggerEvent) 
     {
         if (!player->GetSceneMgr().HasScene(sceneInstanceId, TanaanSceneObjects::SceneCaveIn))
             return;
@@ -172,23 +173,23 @@ class npc_archmage_khadgar_bridge : public CreatureScript
 public:
     npc_archmage_khadgar_bridge() : CreatureScript("npc_archmage_khadgar_bridge") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) 
     {
         switch (quest->GetQuestId())
         {
             case TanaanQuests::QuestKargatharProvingGrounds:
             {
-                if (TempSummon* summon = player->SummonCreature(TanaanCreatures::NpcArchmageKhadgarSum, creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
+               // if (TempSummon* summon = player->SummonCreature(TanaanCreatures::NpcArchmageKhadgarSum, creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
                 {
-                    summon->AI()->SetGUID(player->GetGUID());
-                    player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneBridgeDestruction);
+                   // summon->AI()->SetGUID(player->GetGUID());
+                    player->GetSceneMgr();
                 }
 
                 break;
             }
             case TanaanQuests::QuestKillYourHundred:
             {
-                player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneEnterKarGathArena, SCENEFLAG_NOT_CANCELABLE | SCENEFLAG_UNK16);
+                player->GetSceneMgr();
                 break;
             }
             default:
@@ -214,7 +215,7 @@ public:
             {
                 if (player->GetQuestStatus(TanaanQuests::QuestAltarAltercation) == QUEST_STATUS_INCOMPLETE)
                 {
-                    if (player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjBloodRitualOrbDestroyed) >= 3)
+                   // if (player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjBloodRitualOrbDestroyed) >= 3)
                         player->KilledMonsterCredit(TanaanKillCredits::CreditFindKhadgarAtBridge);
                 }
             }
@@ -246,7 +247,7 @@ public:
             m_SummonerGuid = ObjectGuid::Empty;
         }
 
-        void SetGUID(ObjectGuid guid, int32 /*id*/) override
+        void SetGUID(ObjectGuid guid, int32 /*id*/) 
         {
             m_SummonerGuid = guid;
             DoCastAOE(TanaanSpells::SpellMeteorShower);
@@ -282,7 +283,7 @@ public:
                 me->SetFacingTo(6.242590f);
 
                 if (Player* pSummoner = ObjectAccessor::FindPlayer(m_SummonerGuid))
-                    if (pSummoner && !pSummoner->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjFollowKhadgar))
+                  //  if (pSummoner && !pSummoner->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjFollowKhadgar))
                         pSummoner->KilledMonsterCredit(TanaanKillCredits::CreditFollowKhadgar);
 
                 me->DespawnOrUnsummon();
@@ -323,10 +324,10 @@ public:
             m_Events.Reset();
         }
 
-        void EnterCombat(Unit* /*target*/) override
+        void EnterCombat(Unit* /*target*/) 
         {
-            m_Events.ScheduleEvent(eDatas::EventChomp, 3000);
-            m_Events.ScheduleEvent(eDatas::EventImpactSplit, 10000);
+           // m_Events.ScheduleEvent(eDatas::EventChomp, 3000);
+           // m_Events.ScheduleEvent(eDatas::EventImpactSplit, 10000);
         }
 
         void UpdateAI(uint32 diff) override
@@ -335,15 +336,15 @@ public:
 
             if (m_Events.ExecuteEvent() == EventChomp)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
-                    me->CastSpell(target, SpellChomp, false);
-                m_Events.ScheduleEvent(EventChomp, 20000);
+              //  if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                //    me->CastSpell(target, SpellChomp, false);
+              //  m_Events.ScheduleEvent(EventChomp, 20000);
             }
             else if (m_Events.ExecuteEvent() == eDatas::EventImpactSplit)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
-                    me->CastSpell(target, SpellImpactSplit, false);
-                m_Events.ScheduleEvent(EventImpactSplit, 20000);
+                //if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                  //  me->CastSpell(target, SpellImpactSplit, false);
+               // m_Events.ScheduleEvent(EventImpactSplit, 20000);
             }
         }
     };
@@ -394,7 +395,7 @@ public:
             m_Events.Reset();
             m_Events.ScheduleEvent(EventCleararenaFighterCountByNpc, Seconds(10));
 
-            me->AddUnitFlag(UNIT_FLAG_REMOVE_CLIENT_CONTROL);
+           // me->AddUnitFlag(UNIT_FLAG_REMOVE_CLIENT_CONTROL);
 
             for (uint8 i = 0; i < MAX_INITIAL_SPAWN; ++i)
                 me->SummonCreature(TanaanCreatures::NpcShatteredHandBrawler, handBrawlerSpawnPositions[urand(0, 6)], TEMPSUMMON_CORPSE_DESPAWN);
@@ -403,7 +404,7 @@ public:
         void UpdateAI(uint32 diff) override
         {
             m_Events.Update(diff);
-            UpdateOperations(diff);
+          //  UpdateOperations(diff);
 
             std::list<ObjectGuid> guidsToRemove;
 
@@ -439,10 +440,10 @@ public:
             // Spawn next brawler
             if (action == 1)
             {
-                me->GetScheduler().Schedule(Milliseconds(500), [](TaskContext context) -> void
+              //  me->GetScheduler().Schedule(Milliseconds(500), [](TaskContext context) -> void
                 {
-                    GetContextUnit()->SummonCreature(TanaanCreatures::NpcShatteredHandBrawler, handBrawlerSpawnPositions[urand(0, 6)], TEMPSUMMON_CORPSE_DESPAWN);
-                });
+                  //  GetContextUnit()->SummonCreature(TanaanCreatures::NpcShatteredHandBrawler, handBrawlerSpawnPositions[urand(0, 6)], TEMPSUMMON_CORPSE_DESPAWN);
+                };
             }
         }
     };
@@ -466,11 +467,11 @@ public:
         Creature* GetNpcToAttack()
         {
             std::list<Creature*> creatureList;
-            me->GetCreatureListInGrid(creatureList, 100.0f);
+          //  me->GetCreatureListInGrid(creatureList, 100.0f);
 
             creatureList.remove_if([](Creature* creature) -> bool
             {
-                if (creature->getFaction() != 2580)
+              //  if (creature->getFaction() != 2580)
                     return true;
 
                 if (creature->GetPositionX() > 4450.0f ||
@@ -509,14 +510,14 @@ public:
 
         void Reset() override
         {
-            PhasingHandler::AddPhase(me, 180);
-            PhasingHandler::AddPhase(me, 183);
-            PhasingHandler::AddPhase(me, 184);
+           // PhasingHandler::AddPhase(me, 180);
+           // PhasingHandler::AddPhase(me, 183);
+           // PhasingHandler::AddPhase(me, 184);
         }
 
         void JustReachedHome() override
         {
-            me->Kill(me);
+           // me->Kill(me);
         }
 
         void DamageDealt(Unit* victim, uint32& damage, DamageEffectType /*damageType*/) override
@@ -534,7 +535,7 @@ public:
                 if (kargath->AI())
                     kargath->AI()->DoAction(1);
 
-            // Si il s'est tuÃ© lui-mÃªme car il ne trouvait pas de pnjs, on ne donne pas de crÃ©dit au joueur
+            // Si il s'est tué lui-même car il ne trouvait pas de pnjs, on ne donne pas de crédit au joueur
             if (killer == me)
                 return;
 
@@ -543,19 +544,19 @@ public:
 
             for (Player* player : playerList)
             {
-                if (!player->HasQuest(TanaanQuests::QuestKillYourHundred) || !player->IsInPhase(me))
+               // if (!player->HasQuest(TanaanQuests::QuestKillYourHundred) || !player->IsInPhase(me))
+                  //  continue;
+
+               // if (player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjCombattantSlainAddHidden) == 99)
                     continue;
 
-                if (player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjCombattantSlainAddHidden) == 99)
-                    continue;
-
-                if (player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjCombattantSlainAddHidden) == 98)
+              //  if (player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjCombattantSlainAddHidden) == 98)
                 {
                     player->RemoveAurasDueToSpell(TanaanPhases::PhaseArenaFight);
                     player->RemoveAurasDueToSpell(TanaanPhases::PhaseArenaFightAlliance);
                     player->RemoveAurasDueToSpell(TanaanPhases::PhaseArenaFightHorde);
                     player->RemoveAurasDueToSpell(TanaanPhases::PhaseArenaExitGateClose);
-                    player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneEscapingTheArena, SCENEFLAG_NOT_CANCELABLE | SCENEFLAG_UNK16);
+                    player->GetSceneMgr();
                 }
 
                 player->KilledMonsterCredit(TanaanKillCredits::CreditCombattantSlainInArena);
@@ -563,11 +564,11 @@ public:
             }
         }
 
-        void IsSummonedBy(Unit* summoner) override
+        void IsSummonedBy(Unit* summoner) 
         {
             kargathGuid = summoner->GetGUID();
 
-            // Si il est dÃ©jÃ  au sol, on ne le fait pas sauter, il passe directement Ã  l'attaque sur un PNJ
+            // Si il est déjà au sol, on ne le fait pas sauter, il passe directement à l'attaque sur un PNJ
             if (me->GetPositionZ() < 10.0f)
             {
                 //MovementInform(EFFECT_MOTION_TYPE, 1);
@@ -576,7 +577,7 @@ public:
 
             Position jumpPosition;
             Position creaturePosition = me->GetPosition();
-            GetPositionWithDistInFront(&creaturePosition, 5.0f, jumpPosition);
+           // GetPositionWithDistInFront(&creaturePosition, 5.0f, jumpPosition);
             jumpPosition.m_positionZ = 4.75f;
             me->GetMotionMaster()->MoveJump(jumpPosition, 10.0f, 10.0f, 1);
         }
@@ -595,7 +596,7 @@ public:
                 }
                 else
                 {
-                    // Pas de mob Ã  attaquer, on le fait bouger un peu
+                    // Pas de mob à attaquer, on le fait bouger un peu
                     // pour un visuel plus joli avant de le supprimer
                     me->GetMotionMaster()->MovePoint(2, frand(4376.39f, 4428.70f), frand(-2846.56f, -2804.52f), 5.0f);
                 }
@@ -610,7 +611,7 @@ public:
     };
 };
 
-// Est aussi utilisÃ© par les PNJS aprÃ¨s l'arÃ¨ne
+// Est aussi utilisé par les PNJS après l'arène
 class npc_tanaan_arena_helper : public CreatureScript
 {
 public:
@@ -627,7 +628,7 @@ public:
     {
         npc_tanaan_arena_helperAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) 
         {
             if (me->GetHealthPct() <= 80)
                 damage = 0;
@@ -665,7 +666,7 @@ public:
             m_Events.Reset();
         }
 
-        void EnterCombat(Unit* /*target*/) override
+        void EnterCombat(Unit* /*target*/) 
         {
             m_Events.ScheduleEvent(eDatas::EventWhipSplash, Seconds(3));
         }
@@ -676,8 +677,8 @@ public:
 
             if (m_Events.ExecuteEvent() == eDatas::EventWhipSplash)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
-                    me->CastSpell(target, eDatas::SpellWhipSplash, false);
+                //if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                  //  me->CastSpell(target, eDatas::SpellWhipSplash, false);
 
                 m_Events.Repeat(Seconds(12));
             }

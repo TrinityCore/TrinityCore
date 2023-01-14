@@ -21,6 +21,7 @@
 #include "Player.h"
 #include "tanaan_intro.h"
 #include "TemporarySummon.h"
+#include "tanaan_intro_global.cpp"
 
 enum eCreatures
 {
@@ -139,11 +140,11 @@ public:
             ennemyNumber = urand(1, 3);
             randomSpellIndex = 0;
 
-            events.ScheduleEvent(EVENT_CHECK_ENNEMY,    1000);
-            events.ScheduleEvent(EVENT_RESTORE_HEALTH,  10000);
-            events.ScheduleEvent(EVENT_RANDOM_SPELL,    urand(5000, 10000));
+           // events.ScheduleEvent(EVENT_CHECK_ENNEMY,    1000);
+           // events.ScheduleEvent(EVENT_RESTORE_HEALTH,  10000);
+           // events.ScheduleEvent(EVENT_RANDOM_SPELL,    urand(5000, 10000));
 
-            me->AddUnitFlag(UNIT_FLAG_REMOVE_CLIENT_CONTROL);
+           // me->AddUnitFlag(UNIT_FLAG_REMOVE_CLIENT_CONTROL);
         }
 
         bool IsEscalierVangard()
@@ -162,17 +163,17 @@ public:
             }
 
             if (ennemyId == NPC_SHADOWMOON_RITUALIST)
-                GetRandPosFromCenterInDist(me, frand(3.0f, 7.0f), ennemySpawnPos);
-            else
-                GetPositionWithDistInOrientation(me, 2.0f, me->GetOrientation() + frand(-3.0f, 3.0f), ennemySpawnPos);
+             //   GetRandPosFromCenterInDist(me, frand(3.0f, 7.0f), ennemySpawnPos);
+            //else
+               // GetPositionWithDistInOrientation(me, 2.0f, me->GetOrientation() + frand(-3.0f, 3.0f), ennemySpawnPos);
 
-            if (TempSummon* ennemy = me->SummonCreature(ennemyId, ennemySpawnPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
+           // if (TempSummon* ennemy = me->SummonCreature(ennemyId, ennemySpawnPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
             {
-                if (ennemyId == NPC_SHADOWMOON_RITUALIST)
-                    ennemy->CastSpell(ennemy, SPELL_RITUALIST_SPAWN, true);
+                if (ennemyId == NPC_SHADOWMOON_RITUALIST);
+                  //  ennemy->CastSpell(ennemy, SPELL_RITUALIST_SPAWN, true);
 
                 //ennemy->SetPlayerDamageReq(ennemy->GetHealth() / 10);
-                ennemy->Attack(me, ennemyId != NPC_SHADOWMOON_RITUALIST);
+                //ennemy->Attack(me, ennemyId != NPC_SHADOWMOON_RITUALIST);
             }
         }
 
@@ -184,10 +185,10 @@ public:
         void SummonedCreatureDespawn(Creature* summon) override
         {
             summons.Despawn(summon);
-            events.ScheduleEvent(EVENT_CHECK_ENNEMY, urand(2000, 10000));
+           // events.ScheduleEvent(EVENT_CHECK_ENNEMY, urand(2000, 10000));
         }
 
-        void DamageTaken(Unit* p_DoneBy, uint32& damage) override
+        void DamageTaken(Unit* p_DoneBy, uint32& damage) 
         {
             if (p_DoneBy->ToCreature())
             {
@@ -215,7 +216,7 @@ public:
                     case EVENT_RESTORE_HEALTH:
                     {
                         me->SetFullHealth();
-                        events.ScheduleEvent(EVENT_RESTORE_HEALTH, 10000);
+                      //  events.ScheduleEvent(EVENT_RESTORE_HEALTH, 10000);
                         break;
                     }
                     case EVENT_RANDOM_SPELL:
@@ -235,7 +236,7 @@ public:
                             randomSpellIndex = 0;
 
                         DoCastVictim(spellId);
-                        events.ScheduleEvent(EVENT_RANDOM_SPELL, urand(5000, 10000));
+                       // events.ScheduleEvent(EVENT_RANDOM_SPELL, urand(5000, 10000));
                         break;
                     }
                 }
@@ -269,8 +270,8 @@ public:
             if (!me->HasUnitFlag(UNIT_FLAG_REMOVE_CLIENT_CONTROL) ||
                 !me->HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE))
             {
-                me->AddUnitFlag(UNIT_FLAG_REMOVE_CLIENT_CONTROL);
-                me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+               // me->AddUnitFlag(UNIT_FLAG_REMOVE_CLIENT_CONTROL);
+               // me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             }
         }
     };
@@ -288,7 +289,7 @@ public:
 
         void Reset() override
         {
-            go->setShouldIntersectWithAllPhases(true);
+          //  go->setShouldIntersectWithAllPhases(true);
         }
     };
 
@@ -304,7 +305,7 @@ class gob_mark_of_tanaan : public GameObjectScript
 public:
     gob_mark_of_tanaan() : GameObjectScript("gob_mark_of_tanaan") { }
 
-    bool OnGossipHello(Player* player, GameObject* gameObject) override
+    bool OnGossipHello(Player* player, GameObject* gameObject) 
     {
         if (player->GetQuestStatus(TanaanQuests::QuestOnslaughtEnd) == QUEST_STATUS_INCOMPLETE)
         {
@@ -313,22 +314,22 @@ public:
             {
                 player->RemoveAurasDueToSpell(TanaanPhases::PhaseChoGallSpell);
 
-                if (player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjNorthernSpireDisabled) >= 1)
+              //  if (player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjNorthernSpireDisabled) >= 1)
                     return true;
 
                 player->KilledMonsterCredit(TanaanKillCredits::CreditNorthernSpireDisabled);
-                player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneChoGallsFreedom);
+                player->GetSceneMgr();
             }
             /// Bleeding Hollow Gob (Teron'Gor)
             else if (gameObject->GetEntry() == TanaanGameObjects::GobMarkOfBleedingHollow)
             {
                 player->RemoveAurasDueToSpell(TanaanPhases::PhaseTeronGorSpell);
 
-                if (player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjSouthernSpireDisabled) >= 1)
+               // if (player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjSouthernSpireDisabled) >= 1)
                     return true;
 
                 player->KilledMonsterCredit(TanaanKillCredits::CreditSouthernSpireDisabled);
-                player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneTeronGorsFreedom);
+                player->GetSceneMgr();
             }
         }
         return true;
@@ -356,17 +357,17 @@ class gob_static_rune : public GameObjectScript
 public:
     gob_static_rune() : GameObjectScript("gob_static_rune") { }
 
-    bool OnGossipHello(Player* player, GameObject* /*gameObject*/) override
+    bool OnGossipHello(Player* player, GameObject* /*gameObject*/) 
     {
-        if (player->GetQuestStatus(TanaanQuests::QuestThePortalPower) == QUEST_STATUS_INCOMPLETE && player->GetQuestObjectiveCounter(273936) < 1)
+        if (player->GetQuestStatus(TanaanQuests::QuestThePortalPower) == QUEST_STATUS_COMPLETE)
         {
-            if (player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjBurningBladeDestroyed) == 0 ||
-                player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjShatteredHandDestroyed) == 0 ||
-                player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjBlackrockMarkDestroyed) == 0)
+           // if (player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjBurningBladeDestroyed) == 0 ||
+             //   player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjShatteredHandDestroyed) == 0 ||
+              //  player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjBlackrockMarkDestroyed) == 0)
                 return true;
 
             player->KilledMonsterCredit(TanaanKillCredits::CreditStatisRuneDestroyed);
-            player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneGulDanFreedom);
+            player->GetSceneMgr();
         }
         return true;
     }
@@ -380,6 +381,6 @@ void AddSC_tanaan_intro_portal()
     RegisterAreaTriggerAI(at_tanaan_guldan_trigger);
 
     new gob_intact_portal();
-    new gob_static_rune();
-    new gob_mark_of_tanaan();
+   // new gob_static_rune();
+   // new gob_mark_of_tanaan();
 }

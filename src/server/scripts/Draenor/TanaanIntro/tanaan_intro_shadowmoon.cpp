@@ -21,6 +21,7 @@
 #include "Player.h"
 #include "ScriptedFollowerAI.h"
 #include "tanaan_intro.h"
+#include "tanaan_intro_finale.cpp"
 
 /// Passive Scene Object
 class playerScript_cavern_teleport : public PlayerScript
@@ -28,7 +29,7 @@ class playerScript_cavern_teleport : public PlayerScript
 public:
     playerScript_cavern_teleport() : PlayerScript("playerScript_cavern_teleport") { }
 
-    void OnSceneTriggerEvent(Player* player, uint32 sceneInstanceID, std::string triggerEvent) override
+    void OnSceneTriggerEvent(Player* player, uint32 sceneInstanceID, std::string triggerEvent) 
     {
         if (!player->GetSceneMgr().HasScene(sceneInstanceID, TanaanSceneObjects::SceneNerZhulReveal))
             return;
@@ -37,11 +38,11 @@ public:
         {
             player->TeleportTo(MAP_TANAAN_JUNGLE_INTRO, 4537.817f, -2291.243f, 32.451f, 0.728175f);
 
-            // Ces phases seront ajoutées après la fin de la scene
+            // Ces phases seront ajoutées aprcs la fin de la scene
             player->RemoveAurasDueToSpell(TanaanPhases::PhaseBlackrockSlaves);
             player->RemoveAurasDueToSpell(TanaanPhases::PhaseBlackrockMainNpcs);
 
-            player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneFromCaveToRidge);
+            player->GetSceneMgr();
         }
     }
 };
@@ -54,7 +55,7 @@ public:
     {
     }
 
-    bool OnQuestReward(Player* player, Creature* creature, const Quest* quest, uint32 /*option*/) override
+    bool OnQuestReward(Player* player, Creature* creature, const Quest* quest, uint32 /*option*/) 
     {
         switch (quest->GetQuestId())
         {
@@ -97,7 +98,7 @@ public:
             m_SceneTimer = (uint16)value;
         }
 
-        void SetGUID(ObjectGuid guid, int32 /*id*/) override
+        void SetGUID(ObjectGuid guid, int32 /*id*/) 
         {
             playerGuid = guid;
         }
@@ -115,7 +116,7 @@ public:
                             player->RemoveAurasDueToSpell(TanaanPhases::PhaseShadowmoonQuianaMaladaar);
                             player->RemoveAurasDueToSpell(TanaanPhases::PhaseShadowmoonLiadrinOlin);
 
-                            player->GetSceneMgr().PlaySceneByPackageId(player->GetTeamId() == TEAM_ALLIANCE ? TanaanSceneObjects::SceneQuianaAndMaladaarEnter : TanaanSceneObjects::SceneLiadrinAndOlinEnter);
+                            player->GetSceneMgr();
                         }
                     }
                     m_SceneTimer = 0;
@@ -205,14 +206,14 @@ public:
 
         void Reset() override
         {
-            SetCanSeeEvenInPassiveMode(true);
+           // SetCanSeeEvenInPassiveMode(true);
         }
 
         void MoveInLineOfSight(Unit* who) override
         {
             if (me->GetDistance(who) < 10.0f)
                 if (Player* player = who->ToPlayer())
-                    if (player->HasQuest(TanaanQuests::QuestMastersOfShadowAlly) || player->HasQuest(TanaanQuests::QuestMastersOfShadowHorde))
+                 //   if (player->HasQuest(TanaanQuests::QuestMastersOfShadowAlly) || player->HasQuest(TanaanQuests::QuestMastersOfShadowHorde))
                         who->CastSpell(who, SPELL_ANKOVA_CREDIT, true);
         }
     };
@@ -224,10 +225,10 @@ class npc_tanaan_yrel : public CreatureScript
 public:
     npc_tanaan_yrel() : CreatureScript("npc_tanaan_yrel") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) 
     {
         if (quest->GetQuestId() == TanaanQuests::QuestYrelTanaan || quest->GetQuestId() == TanaanQuests::QuestYrelHorde)
-            player->SummonCreature(TanaanCreatures::NpcYrelSummon, creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
+          //  player->SummonCreature(TanaanCreatures::NpcYrelSummon, creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true);
 
         return false;
     }
@@ -248,7 +249,7 @@ struct npc_tanaan_yrel_summon : public FollowerAI
     EventMap m_Events;
     ObjectGuid m_PlayerGuid;
 
-    void IsSummonedBy(Unit* summoner) override
+    void IsSummonedBy(Unit* summoner) 
     {
         if (!summoner->ToPlayer())
             return;
@@ -257,7 +258,7 @@ struct npc_tanaan_yrel_summon : public FollowerAI
 
         StartFollow(summoner->ToPlayer(), 35);
 
-        m_Events.ScheduleEvent(eEvents::EventCheckStopFollow, 6000);
+       // m_Events.ScheduleEvent(eEvents::EventCheckStopFollow, 6000);
     }
 
     void MovementInform(uint32 type, uint32 id) override
@@ -286,7 +287,7 @@ struct npc_tanaan_yrel_summon : public FollowerAI
                 {
                     if (Player* player = ObjectAccessor::GetPlayer(*me, m_PlayerGuid))
                     {
-                        if (player->HasQuest(TanaanQuests::QuestYrelTanaan) || player->HasQuest(TanaanQuests::QuestYrelHorde))
+                       // if (player->HasQuest(TanaanQuests::QuestYrelTanaan) || player->HasQuest(TanaanQuests::QuestYrelHorde))
                             player->KilledMonsterCredit(TanaanKillCredits::CreditEscortYrel);
 
                         me->DespawnOrUnsummon();
@@ -312,14 +313,14 @@ struct npc_tanaan_yrel_summon : public FollowerAI
                     GetClosestCreatureWithEntry(me, TanaanCreatures::NpcLadyLiadrin, 50.0f)
                     || me->GetPositionX() < 4560.0f)
                 {
-                    me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+                   // me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
                     SetFollowPaused(true);
 
                     m_Events.CancelEvent(eEvents::EventCheckStopFollow);
-                    m_Events.ScheduleEvent(eEvents::EventContinueRun, 1000);
+                   // m_Events.ScheduleEvent(eEvents::EventContinueRun, 1000);
                 }
-                else
-                    m_Events.ScheduleEvent(eEvents::EventCheckStopFollow, 800);
+                //else
+                  //  m_Events.ScheduleEvent(eEvents::EventCheckStopFollow, 800);
 
                 break;
             }
@@ -335,7 +336,7 @@ struct npc_tanaan_yrel_summon : public FollowerAI
                 if (!player || !player->IsAlive())
                     me->DespawnOrUnsummon();
 
-                if (!player->HasQuest(TanaanQuests::QuestYrelTanaan) && !player->HasQuest(TanaanQuests::QuestYrelHorde))
+               // if (!player->HasQuest(TanaanQuests::QuestYrelTanaan) && !player->HasQuest(TanaanQuests::QuestYrelHorde))
                     me->DespawnOrUnsummon();
 
                 break;
@@ -353,10 +354,10 @@ class npc_maladaar_liadrin_tanaan_cave : public CreatureScript
 public:
     npc_maladaar_liadrin_tanaan_cave() : CreatureScript("npc_maladaar_liadrin_tanaan_cave") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) 
     {
         if (quest->GetQuestId() == TanaanQuests::QuestKeliDanTheBreakerAlly || quest->GetQuestId() == TanaanQuests::QuestKeliDanTheBreakerHorde)
-            player->GetSceneMgr().PlaySceneByPackageId(creature->GetEntry() == TanaanCreatures::NpcExarchMaladaar ? TanaanSceneObjects::SceneYrelLeaveAlliance : TanaanSceneObjects::SceneYrelLeaveHorde);
+            player->GetSceneMgr();
 
         return false;
     }
@@ -372,7 +373,7 @@ public:
 
     uint32 checkTimer;
 
-    void OnUpdate(GameObject* p_Object, uint32 diff) override
+    void OnUpdate(GameObject* p_Object, uint32 diff) 
     {
         if (checkTimer < diff)
         {
@@ -386,7 +387,7 @@ public:
 
         for (Player* player : playerList)
         {
-            if (player->HasQuest(TanaanQuests::QuestKeliDanTheBreakerAlly) || player->HasQuest(TanaanQuests::QuestKeliDanTheBreakerHorde))
+          //  if (player->HasQuest(TanaanQuests::QuestKeliDanTheBreakerAlly) || player->HasQuest(TanaanQuests::QuestKeliDanTheBreakerHorde))
             {
                 playerWithQuestInSight = true;
                 break;
@@ -431,8 +432,8 @@ public:
 
         void Reset() override
         {
-            m_events.ScheduleEvent(EVENT_VOID_BOLT_VOLLEY,  urand(8000, 15000));
-            m_events.ScheduleEvent(EVENT_VOID_SHELL,        urand(10000, 20000));
+           // m_events.ScheduleEvent(EVENT_VOID_BOLT_VOLLEY,  urand(8000, 15000));
+           // m_events.ScheduleEvent(EVENT_VOID_SHELL,        urand(10000, 20000));
         }
 
         void UpdateAI(uint32 diff) override
@@ -450,13 +451,13 @@ public:
                 case EVENT_VOID_BOLT_VOLLEY:
                 {
                     DoCastAOE(SPELL_VOID_BOLT_VOLLEY);
-                    m_events.ScheduleEvent(EVENT_VOID_BOLT_VOLLEY, urand(10000, 20000));
+                   // m_events.ScheduleEvent(EVENT_VOID_BOLT_VOLLEY, urand(10000, 20000));
                     break;
                 }
                 case EVENT_VOID_SHELL:
                 {
                     DoCastAOE(SPELL_VOID_SHELL);
-                    m_events.ScheduleEvent(EVENT_VOID_SHELL, urand(15000, 210000));
+                   // m_events.ScheduleEvent(EVENT_VOID_SHELL, urand(15000, 210000));
                     break;
                 }
             }
@@ -471,10 +472,10 @@ public:
 
             for (Player* player : playerList)
             {
-                if (player->HasQuest(TanaanQuests::QuestKeliDanTheBreakerAlly) || player->HasQuest(TanaanQuests::QuestKeliDanTheBreakerHorde))
+               // if (player->HasQuest(TanaanQuests::QuestKeliDanTheBreakerAlly) || player->HasQuest(TanaanQuests::QuestKeliDanTheBreakerHorde))
                 {
                     player->KilledMonsterCredit(me->GetEntry());
-                    player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneNerZhulReveal, SCENEFLAG_NOT_CANCELABLE | SCENEFLAG_UNK16);
+                    player->GetSceneMgr();
                 }
             }
         }
@@ -488,9 +489,9 @@ void AddSC_tanaan_intro_shadowmoon()
     new npc_taskmaster_gurran();
     new npc_ankova_the_fallen();
     RegisterCreatureAI(npc_tanaan_yrel_summon);
-    new npc_tanaan_yrel();
-    new npc_maladaar_liadrin_tanaan_cave();
-    new go_iron_cage_door();
+   // new npc_tanaan_yrel();
+   // new npc_maladaar_liadrin_tanaan_cave();
+   // new go_iron_cage_door();
     new npc_keli_dan_the_breaker();
 
     new playerScript_cavern_teleport();
