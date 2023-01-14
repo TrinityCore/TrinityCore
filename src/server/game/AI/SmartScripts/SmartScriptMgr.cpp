@@ -569,7 +569,7 @@ bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
             }
             else if (e.target.unitGUID.entry && e.target.unitGUID.entry != data->id)
             {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} using invalid creature entry {} for guid {} as target_param1, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.target.unitGUID.entry, guid);
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} using invalid creature entry {} (expected {}) for guid {} as target_param1, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.target.unitGUID.entry, data->id, guid);
                 return false;
             }
             break;
@@ -588,7 +588,7 @@ bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
             }
             else if (e.target.goGUID.entry && e.target.goGUID.entry != data->id)
             {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} using invalid gameobject entry {} for guid {} as target_param1, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.target.goGUID.entry, guid);
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} using invalid gameobject entry {} (expected {}) for guid {} as target_param1, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.target.goGUID.entry, data->id, guid);
                 return false;
             }
             break;
@@ -1710,7 +1710,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 }
                 else if (e.action.crossCast.targetParam2 && e.action.crossCast.targetParam2 != data->id)
                 {
-                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} specifies invalid entry {} for CasterTargetType guid ({},{})", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.crossCast.targetParam2, AsUnderlyingType(spawnType), guid);
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} specifies invalid entry {} (expected {}) for CasterTargetType guid ({},{})", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.crossCast.targetParam2, data->id, AsUnderlyingType(spawnType), guid);
                     return false;
                 }
             }
