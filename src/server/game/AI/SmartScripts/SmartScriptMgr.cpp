@@ -559,12 +559,38 @@ bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
         {
             if (e.target.unitGUID.entry && !IsCreatureValid(e, e.target.unitGUID.entry))
                 return false;
+
+            ObjectGuid::LowType guid = ObjectGuid::LowType(e.target.unitGUID.dbGuid);
+            CreatureData const* data = sObjectMgr->GetCreatureData(guid);
+            if (!data)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} using invalid creature guid {} as target_param1, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), guid);
+                return false;
+            }
+            else if (e.target.unitGUID.entry && e.target.unitGUID.entry != data->id)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} using invalid creature entry {} (expected {}) for guid {} as target_param1, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.target.unitGUID.entry, data->id, guid);
+                return false;
+            }
             break;
         }
         case SMART_TARGET_GAMEOBJECT_GUID:
         {
             if (e.target.goGUID.entry && !IsGameObjectValid(e, e.target.goGUID.entry))
                 return false;
+
+            ObjectGuid::LowType guid = ObjectGuid::LowType(e.target.goGUID.dbGuid);
+            GameObjectData const* data = sObjectMgr->GetGameObjectData(guid);
+            if (!data)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} using invalid gameobject guid {} as target_param1, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), guid);
+                return false;
+            }
+            else if (e.target.goGUID.entry && e.target.goGUID.entry != data->id)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} using invalid gameobject entry {} (expected {}) for guid {} as target_param1, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.target.goGUID.entry, data->id, guid);
+                return false;
+            }
             break;
         }
         case SMART_TARGET_PLAYER_DISTANCE:
@@ -1662,6 +1688,32 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         {
             if (!IsSpellValid(e, e.action.crossCast.spell))
                 return false;
+
+            uint32 targetType = e.action.crossCast.targetType;
+            if (targetType == SMART_TARGET_CREATURE_GUID || targetType == SMART_TARGET_GAMEOBJECT_GUID)
+            {
+                if (e.action.crossCast.targetParam2)
+                {
+                    if (targetType == SMART_TARGET_CREATURE_GUID && !IsCreatureValid(e, e.action.crossCast.targetParam2))
+                        return false;
+                    else if (targetType == SMART_TARGET_GAMEOBJECT_GUID && !IsGameObjectValid(e, e.action.crossCast.targetParam2))
+                        return false;
+                }
+
+                ObjectGuid::LowType guid = ObjectGuid::LowType(e.action.crossCast.targetParam1);
+                SpawnObjectType spawnType = targetType == SMART_TARGET_CREATURE_GUID ? SPAWN_TYPE_CREATURE : SPAWN_TYPE_GAMEOBJECT;
+                SpawnData const* data = sObjectMgr->GetSpawnData(spawnType, guid);
+                if (!data)
+                {
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} specifies invalid CasterTargetType guid ({},{})", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), AsUnderlyingType(spawnType), guid);
+                    return false;
+                }
+                else if (e.action.crossCast.targetParam2 && e.action.crossCast.targetParam2 != data->id)
+                {
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} specifies invalid entry {} (expected {}) for CasterTargetType guid ({},{})", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.crossCast.targetParam2, data->id, AsUnderlyingType(spawnType), guid);
+                    return false;
+                }
+            }
             break;
         }
         case SMART_ACTION_INVOKER_CAST:
