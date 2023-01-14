@@ -4,6 +4,12 @@
 #include "ObjectAccessor.h"
 #include "ScriptedGossip.h"
 #include "InstanceScript.h"
+#include <ScriptMgr.cpp>
+#include <SmartAI.h>
+#include <LFGMgr.h>
+#include <boost/asio/ssl/detail/openssl_init.hpp>
+#include <PetitionMgr.h>
+#include <Map.cpp>
 
 
 /*
@@ -78,8 +84,8 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            m_events.ScheduleEvent(uint32(Events::Smash), urand(5000, 7000));
-            m_events.ScheduleEvent(uint32(Events::Burn), urand(10000, 12000));
+           // m_events.ScheduleEvent(uint32(Events::Smash), urand(5000, 7000));
+           // m_events.ScheduleEvent(uint32(Events::Burn), urand(10000, 12000));
         }
 
         void JustDied(Unit*)
@@ -102,11 +108,11 @@ public:
             switch (m_events.ExecuteEvent())
             {
             case uint32(Events::Smash):
-                m_events.ScheduleEvent(uint32(Events::Smash), 16000);
+              //  m_events.ScheduleEvent(uint32(Events::Smash), 16000);
                 me->CastSpell(me->GetVictim(), uint32(Spells::Smash));
                 break;
             case uint32(Events::Burn):
-                m_events.ScheduleEvent(uint32(Events::Burn), 18000);
+              //  m_events.ScheduleEvent(uint32(Events::Burn), 18000);
                 me->CastSpell(me->GetVictim(), uint32(Spells::Burn));
                 break;
             default:
@@ -161,7 +167,7 @@ public:
         void Reset()
         {
             m_events.Reset();
-            m_events.ScheduleEvent(uint32(Events::Pierce), 500);
+           // m_events.ScheduleEvent(uint32(Events::Pierce), 500);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -174,7 +180,7 @@ public:
             {
             case 0:
                 me->SetSpeed(MOVE_FLIGHT, 1.0f);
-                me->GetMotionMaster()->MoveBackward(1, m_Home.GetPositionX(), m_Home.GetPositionY(), m_Home.GetPositionZ(), 0.5f);
+               // me->GetMotionMaster()->MoveBackward(1, m_Home.GetPositionX(), m_Home.GetPositionY(), m_Home.GetPositionZ(), 0.5f);
                 if (Player* player = ObjectAccessor::GetPlayer(*me, m_TargetGuid))
                     me->CastSpell(player, uint32(Spells::Pierce));
                 m_TargetGuid = ObjectGuid::Empty;
@@ -182,7 +188,7 @@ public:
             case 1:
                 me->SetSpeed(MOVE_FLIGHT, 5.0f);
                 me->SetOrientation(m_Home.GetOrientation());
-                m_events.ScheduleEvent(uint32(Events::Pierce), 500);
+              //  m_events.ScheduleEvent(uint32(Events::Pierce), 500);
                 break;
             }
         }
@@ -201,11 +207,11 @@ public:
                         m_TargetGuid = player->GetGUID();
                         me->GetMotionMaster()->MovePoint(0, m_Pos);
                     }
-                    else
-                        m_events.ScheduleEvent(uint32(Events::Pierce), 500);
+                   // else
+                      //  m_events.ScheduleEvent(uint32(Events::Pierce), 500);
                 }
-                else
-                    m_events.ScheduleEvent(uint32(Events::Pierce), 500);
+               // else
+                   // m_events.ScheduleEvent(uint32(Events::Pierce), 500);
                 break;
             default:
                 break;
@@ -258,8 +264,8 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            m_events.ScheduleEvent(uint32(Events::SolarWrath), urand(1000, 2000));
-            m_events.ScheduleEvent(uint32(Events::SolarDetonation), urand(5000, 7000));
+          //  m_events.ScheduleEvent(uint32(Events::SolarWrath), urand(1000, 2000));
+           // m_events.ScheduleEvent(uint32(Events::SolarDetonation), urand(5000, 7000));
         }
 
         void UpdateAI(const uint32 diff)
@@ -275,19 +281,19 @@ public:
             switch (m_events.ExecuteEvent())
             {
             case uint32(Events::SolarWrath):
-                m_events.ScheduleEvent(uint32(Events::SolarWrath), urand(1500, 2500));
+               // m_events.ScheduleEvent(uint32(Events::SolarWrath), urand(1500, 2500));
                 me->CastSpell(me->GetVictim(), uint32(Spells::SolarWrath));
                 break;
             case uint32(Events::SolarDetonation):
-                m_events.ScheduleEvent(uint32(Events::SolarDetonation), urand(5000, 7000));
+               // m_events.ScheduleEvent(uint32(Events::SolarDetonation), urand(5000, 7000));
 
                 if (m_Instance)
                 {
-                    Map::PlayerList const& playerList = instance->instance->GetPlayers();
-                    for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
+                   // Map::PlayerList const& playerList = instance->instance->GetPlayers();
+                   // for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
                     {
-                        if (Player* player = itr->GetSource())
-                            player->CastSpell(player, uint32(Spells::SolarDetonation));
+                      //  if (Player* player = itr->GetSource())
+                        //    player->CastSpell(player, uint32(Spells::SolarDetonation));
                     }
                 }
                 break;
@@ -344,7 +350,7 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             me->RemoveAura(uint32(Spells::Submerge));
-            m_events.ScheduleEvent(uint32(Events::ProtectiveBarrier), urand(5000, 7000));
+          //  m_events.ScheduleEvent(uint32(Events::ProtectiveBarrier), urand(5000, 7000));
         }
 
         void JustDied(Unit*)
@@ -429,8 +435,8 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             me->RemoveAura(uint32(Spells::Submerge));
-            m_events.ScheduleEvent(uint32(Events::Empower), urand(4000, 5000));
-            m_events.ScheduleEvent(uint32(Events::SolarPulse), urand(1500, 2000));
+          //  m_events.ScheduleEvent(uint32(Events::Empower), urand(4000, 5000));
+            //m_events.ScheduleEvent(uint32(Events::SolarPulse), urand(1500, 2000));
         }
 
         void UpdateAI(const uint32 diff)
@@ -452,7 +458,7 @@ public:
             switch (m_events.ExecuteEvent())
             {
             case uint32(Events::Empower):
-                m_events.ScheduleEvent(uint32(Events::Empower), urand(6000, 8000));
+              //  m_events.ScheduleEvent(uint32(Events::Empower), urand(6000, 8000));
 
                 if (Unit* l_Friend = me->SelectNearestPlayer(10.0f))
                 {
@@ -461,10 +467,10 @@ public:
                 }
                 break;
             case uint32(Events::SolarPulse):
-                m_events.ScheduleEvent(uint32(Events::SolarPulse), urand(2000, 3000));
+              //  m_events.ScheduleEvent(uint32(Events::SolarPulse), urand(2000, 3000));
 
-                if (Player* player = me->SelectRandomPlayerInRange(20.0f,true))
-                    me->CastSpell(player, uint32(Spells::SolarPulse));
+               // if (Player* player = me->SelectRandomPlayerInRange(20.0f,true))
+                   // me->CastSpell(player, uint32(Spells::SolarPulse));
                 break;
             default:
                 break;
@@ -515,10 +521,10 @@ public:
         {
             if (p_Spell->Id == uint32(Spells::EXCITED))
             {
-                if (Player* player = me->SelectRandomPlayerInRange(50.0f, true))
+             //   if (Player* player = me->SelectRandomPlayerInRange(50.0f, true))
                 {
-                    me->AddThreat(player, 10000.0f);
-                    me->Attack(player, true);
+                 //   me->AddThreat(player, 10000.0f);
+                  //  me->Attack(player, true);
                 }
             }
         }
@@ -580,8 +586,8 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            m_events.ScheduleEvent(uint32(Events::CHANGE_TARGET), 6000);
-            m_events.ScheduleEvent(uint32(Events::EXPOSE_WEAKNESS), 10000);
+           // m_events.ScheduleEvent(uint32(Events::CHANGE_TARGET), 6000);
+           // m_events.ScheduleEvent(uint32(Events::EXPOSE_WEAKNESS), 10000);
         }
 
         void UpdateAI(const uint32 diff)
@@ -597,19 +603,19 @@ public:
             switch (m_events.ExecuteEvent())
             {
             case uint32(Events::CHANGE_TARGET):
-                m_events.ScheduleEvent(uint32(Events::CHANGE_TARGET), 6000);
+              //  m_events.ScheduleEvent(uint32(Events::CHANGE_TARGET), 6000);
                 me->CastSpell(me, uint32(Spells::INVISIBILITY_DETECTION), true);
                 me->CastSpell(me->GetVictim(), uint32(Spells::FIXATED), true);
-                me->getThreatManager().resetAllAggro();
+              //  me->getThreatManager().resetAllAggro();
 
-                if (Player* player = me->SelectRandomPlayerInRange(30.0f, true))
+             //   if (Player* player = me->SelectRandomPlayerInRange(30.0f, true))
                 {
-                    me->getThreatManager().addThreat(player, 1000.0f);
-                    me->Attack(player, true);
+                  //  me->getThreatManager().addThreat(player, 1000.0f);
+                 //   me->Attack(player, true);
                 }
                 break;
             case uint32(Events::EXPOSE_WEAKNESS):
-                m_events.ScheduleEvent(uint32(Events::EXPOSE_WEAKNESS), 10000);
+              //  m_events.ScheduleEvent(uint32(Events::EXPOSE_WEAKNESS), 10000);
                 me->CastSpell(me->GetVictim(), uint32(Spells::EXPOSE_WEAKNESS));
                 break;
             default:
@@ -663,8 +669,8 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            m_events.ScheduleEvent(uint32(Events::SLASH), urand(0, 4000));
-            m_events.ScheduleEvent(uint32(Events::PIERCING_RUSH), urand(5000, 7000));
+           // m_events.ScheduleEvent(uint32(Events::SLASH), urand(0, 4000));
+           // m_events.ScheduleEvent(uint32(Events::PIERCING_RUSH), urand(5000, 7000));
         }
 
         void UpdateAI(const uint32 diff)
@@ -680,14 +686,14 @@ public:
             switch (m_events.ExecuteEvent())
             {
             case uint32(Events::SLASH):
-                m_events.ScheduleEvent(uint32(Events::SLASH), urand(2500, 5000));
+              //  m_events.ScheduleEvent(uint32(Events::SLASH), urand(2500, 5000));
                 me->CastSpell(me->GetVictim(), uint32(Spells::SLASH));
                 break;
             case uint32(Events::PIERCING_RUSH):
-                m_events.ScheduleEvent(uint32(Events::PIERCING_RUSH), urand(2500, 5000));
+               // m_events.ScheduleEvent(uint32(Events::PIERCING_RUSH), urand(2500, 5000));
 
-                if (Player* player = me->SelectRandomPlayerInRange(20.0f, true))
-                    me->CastSpell(player, uint32(Spells::PIERCING_RUSH));
+               // if (Player* player = me->SelectRandomPlayerInRange(20.0f, true))
+                  //  me->CastSpell(player, uint32(Spells::PIERCING_RUSH));
                 break;
             default:
                 break;
@@ -738,7 +744,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            m_events.ScheduleEvent(uint32(Events::DERVISH), urand(5000, 7000));
+           // m_events.ScheduleEvent(uint32(Events::DERVISH), urand(5000, 7000));
         }
 
         void UpdateAI(const uint32 diff)
@@ -754,7 +760,7 @@ public:
             switch (m_events.ExecuteEvent())
             {
             case uint32(Events::DERVISH):
-                m_events.ScheduleEvent(uint32(Events::DERVISH), urand(5000, 7000));
+              //  m_events.ScheduleEvent(uint32(Events::DERVISH), urand(5000, 7000));
                 me->CastSpell(me->GetVictim(), uint32(Spells::DERVISH));
                 break;
             default:
@@ -809,7 +815,7 @@ public:
         {
             // FIXME: Script Sun trinket.
             //m_events.ScheduleEvent(uint32(Events::CRAFT_SUN_TRINCKET), urand(3000, 5000));
-            m_events.ScheduleEvent(uint32(Events::FLASH_HEAL), urand(5000, 8000));
+          //  m_events.ScheduleEvent(uint32(Events::FLASH_HEAL), urand(5000, 8000));
         }
 
         void UpdateAI(const uint32 diff)
@@ -825,11 +831,11 @@ public:
             switch (m_events.ExecuteEvent())
             {
             case uint32(Events::CRAFT_SUN_TRINCKET):
-                m_events.ScheduleEvent(uint32(Events::CRAFT_SUN_TRINCKET), urand(20000, 25000));
+              ///  m_events.ScheduleEvent(uint32(Events::CRAFT_SUN_TRINCKET), urand(20000, 25000));
                 me->CastSpell(me, uint32(Spells::CRAFT_SUN_TRINCKET));
                 break;
             case uint32(Events::FLASH_HEAL):
-                m_events.ScheduleEvent(uint32(Events::FLASH_HEAL), urand(5000, 8000));
+               // m_events.ScheduleEvent(uint32(Events::FLASH_HEAL), urand(5000, 8000));
                 me->CastSpell(me, uint32(Spells::FLASH_HEAL));
                 break;
             default:
@@ -882,7 +888,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            m_events.ScheduleEvent(uint32(Events::TORN_FEATHERS), urand(1000, 3000));
+           // m_events.ScheduleEvent(uint32(Events::TORN_FEATHERS), urand(1000, 3000));
         }
 
         void UpdateAI(const uint32 diff)
@@ -898,7 +904,7 @@ public:
             switch (m_events.ExecuteEvent())
             {
             case uint32(Events::TORN_FEATHERS):
-                m_events.ScheduleEvent(uint32(Events::TORN_FEATHERS), 125000);
+             //   m_events.ScheduleEvent(uint32(Events::TORN_FEATHERS), 125000);
                 me->CastSpell(me, uint32(Spells::TORN_FEATHERS));
                 break;
             default:
@@ -954,7 +960,7 @@ public:
             std::list<Unit*> l_TargetList;
             float l_Radius = 10.0f;
 
-            me->GetFriendlyUnitListInRange(l_TargetList, l_Radius, true);
+           // me->GetFriendlyUnitListInRange(l_TargetList, l_Radius, true);
             for (Unit* l_Unit : l_TargetList)
             {
                 if (l_Unit)
@@ -964,7 +970,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            m_events.ScheduleEvent(uint32(Events::WIND_BURST), urand(4000, 6000));
+           // m_events.ScheduleEvent(uint32(Events::WIND_BURST), urand(4000, 6000));
         }
 
         void UpdateAI(const uint32 diff)
@@ -980,7 +986,7 @@ public:
             switch (m_events.ExecuteEvent())
             {
             case uint32(Events::WIND_BURST):
-                m_events.ScheduleEvent(uint32(Events::WIND_BURST), urand(4000, 6000));
+              //  m_events.ScheduleEvent(uint32(Events::WIND_BURST), urand(4000, 6000));
                 me->CastSpell(me->GetVictim(), uint32(Spells::WIND_BURST));
                 break;
             default:
@@ -1037,8 +1043,8 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            m_events.ScheduleEvent(uint32(Events::EMPOWER), urand(5000, 7000));
-            m_events.ScheduleEvent(uint32(Events::FLASH_BANG), urand(5000, 8000));
+           // m_events.ScheduleEvent(uint32(Events::EMPOWER), urand(5000, 7000));
+           // m_events.ScheduleEvent(uint32(Events::FLASH_BANG), urand(5000, 8000));
         }
 
         void UpdateAI(const uint32 diff)
@@ -1054,11 +1060,11 @@ public:
             switch (m_events.ExecuteEvent())
             {
             case uint32(Events::FLASH_BANG):
-                m_events.ScheduleEvent(uint32(Events::FLASH_BANG), urand(5000, 8000));
+              //  m_events.ScheduleEvent(uint32(Events::FLASH_BANG), urand(5000, 8000));
                 me->CastSpell(me, uint32(Spells::FLASH_BANG));
                 break;
             case uint32(Events::EMPOWER):
-                m_events.ScheduleEvent(uint32(Events::EMPOWER), urand(5000, 7000));               
+               // m_events.ScheduleEvent(uint32(Events::EMPOWER), urand(5000, 7000));               
                 if (Unit* l_Unit = me->SelectNearestPlayer(30.0f))
                     me->CastSpell(l_Unit, uint32(Spells::EMPOWER));
                 break;
@@ -1115,9 +1121,9 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            m_events.ScheduleEvent(uint32(Events::THROW_CHAKRAM), urand(2000, 3000));
-            m_events.ScheduleEvent(uint32(Events::SPINNING_BLADE), urand(8000, 10000));
-            m_events.ScheduleEvent(uint32(Events::BLADE_DANCE), urand(17000, 25000));
+           // m_events.ScheduleEvent(uint32(Events::THROW_CHAKRAM), urand(2000, 3000));
+           // m_events.ScheduleEvent(uint32(Events::SPINNING_BLADE), urand(8000, 10000));
+           // m_events.ScheduleEvent(uint32(Events::BLADE_DANCE), urand(17000, 25000));
         }
 
         void UpdateAI(const uint32 diff)
@@ -1133,28 +1139,28 @@ public:
             switch (m_events.ExecuteEvent())
             {
             case uint32(Events::THROW_CHAKRAM):
-                m_events.ScheduleEvent(uint32(Events::THROW_CHAKRAM), urand(2000, 3000));
+               // m_events.ScheduleEvent(uint32(Events::THROW_CHAKRAM), urand(2000, 3000));
 
                 if (urand(0, 1) == 0)
                 {
                     
-                    if (Player* player = me->SelectRandomPlayerInRange(5.0f, true))
-                        me->CastSpell(player, uint32(Spells::THROW_CHAKRAM_YELLOW));
+                 //   if (Player* player = me->SelectRandomPlayerInRange(5.0f, true))
+                   //     me->CastSpell(player, uint32(Spells::THROW_CHAKRAM_YELLOW));
                 }
                 else
                 {
-                    if (Player* player = me->SelectRandomPlayerInRange(5.0f, true))
-                        me->CastSpell(player, uint32(Spells::THROW_CHAKRAM_WHITE));
+                  //  if (Player* player = me->SelectRandomPlayerInRange(5.0f, true))
+                    //    me->CastSpell(player, uint32(Spells::THROW_CHAKRAM_WHITE));
                 }
                 me->CastSpell(me->GetVictim(), uint32(Spells::THROW_CHAKRAM_2)); // Always launched with the two others.
                 break;
             case uint32(Events::SPINNING_BLADE):
-                m_events.ScheduleEvent(uint32(Events::SPINNING_BLADE), urand(8000, 10000));
-                if (Player* player = me->SelectRandomPlayerInRange(45.0f, true))
-                    me->CastSpell(player, uint32(Spells::SPINNING_BLADE));
+               // m_events.ScheduleEvent(uint32(Events::SPINNING_BLADE), urand(8000, 10000));
+                //if (Player* player = me->SelectRandomPlayerInRange(45.0f, true))
+                  //  me->CastSpell(player, uint32(Spells::SPINNING_BLADE));
                 break;
             case uint32(Events::BLADE_DANCE):
-                m_events.ScheduleEvent(uint32(Events::BLADE_DANCE), urand(17000, 25000));
+               // m_events.ScheduleEvent(uint32(Events::BLADE_DANCE), urand(17000, 25000));
                 me->CastSpell(me->GetVictim(), uint32(Spells::BLADE_DANCE));
                 break;
             default:
@@ -1210,9 +1216,9 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            m_events.ScheduleEvent(uint32(Events::SOLAR_ZONE), urand(14500, 17000));
-            m_events.ScheduleEvent(uint32(Events::SOLAR_HEAL), urand(5500, 7000));
-            m_events.ScheduleEvent(uint32(Events::FLASH_HEAL), urand(5500, 7000));
+          //  m_events.ScheduleEvent(uint32(Events::SOLAR_ZONE), urand(14500, 17000));
+           // m_events.ScheduleEvent(uint32(Events::SOLAR_HEAL), urand(5500, 7000));
+           // m_events.ScheduleEvent(uint32(Events::FLASH_HEAL), urand(5500, 7000));
         }
 
         void UpdateAI(const uint32 diff)
@@ -1228,17 +1234,17 @@ public:
             switch (m_events.ExecuteEvent())
             {
             case uint32(Events::SOLAR_ZONE):
-                m_events.ScheduleEvent(uint32(Events::SOLAR_ZONE), urand(14500, 17000));
+              //  m_events.ScheduleEvent(uint32(Events::SOLAR_ZONE), urand(14500, 17000));
                 if (Unit* l_Unit = me->SelectNearestPlayer(30.0f))
                     me->CastSpell(l_Unit, uint32(Spells::SOLAR_ZONE));
                 break;
             case uint32(Events::SOLAR_HEAL):
-                m_events.ScheduleEvent(uint32(Events::SOLAR_HEAL), urand(5500, 7000));
+              //  m_events.ScheduleEvent(uint32(Events::SOLAR_HEAL), urand(5500, 7000));
                 if (Unit* l_Unit = me->SelectNearestPlayer(30.0f))
                     me->CastSpell(l_Unit, uint32(Spells::SOLAR_HEAL));
                 break;
             case uint32(Events::FLASH_HEAL):
-                m_events.ScheduleEvent(uint32(Events::FLASH_HEAL), urand(5500, 7000));
+              //  m_events.ScheduleEvent(uint32(Events::FLASH_HEAL), urand(5500, 7000));
                 me->CastSpell(me, uint32(Spells::FLASH_HEAL));
                 break;
             default:
@@ -1291,8 +1297,8 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            m_events.ScheduleEvent(uint32(Events::STORM), urand(8000, 13000));
-            m_events.ScheduleEvent(uint32(Events::DERVISH), urand(5500, 7000));
+          //  m_events.ScheduleEvent(uint32(Events::STORM), urand(8000, 13000));
+          //  m_events.ScheduleEvent(uint32(Events::DERVISH), urand(5500, 7000));
         }
 
         void UpdateAI(const uint32 diff)
@@ -1308,11 +1314,11 @@ public:
             switch (m_events.ExecuteEvent())
             {
             case uint32(Events::STORM):
-                m_events.ScheduleEvent(uint32(Events::STORM), urand(8000, 13000));
+                //m_events.ScheduleEvent(uint32(Events::STORM), urand(8000, 13000));
                 me->CastSpell(me, uint32(Spells::STORM));
                 break;
             case uint32(Events::DERVISH):
-                m_events.ScheduleEvent(uint32(Events::DERVISH), urand(5500, 7000));
+               // m_events.ScheduleEvent(uint32(Events::DERVISH), urand(5500, 7000));
                 me->CastSpell(me, uint32(Spells::DERVISH));
                 break;
             default:
@@ -1364,7 +1370,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            m_events.ScheduleEvent(uint32(Events::PIERCING_RUSH), urand(5000, 13000));
+           // m_events.ScheduleEvent(uint32(Events::PIERCING_RUSH), urand(5000, 13000));
         }
 
         void UpdateAI(const uint32 diff)
@@ -1380,7 +1386,7 @@ public:
             switch (m_events.ExecuteEvent())
             {
             case uint32(Events::PIERCING_RUSH):
-                m_events.ScheduleEvent(uint32(Events::PIERCING_RUSH), urand(5000, 13000));
+              //  m_events.ScheduleEvent(uint32(Events::PIERCING_RUSH), urand(5000, 13000));
                 me->CastSpell(me->GetVictim(), uint32(Spells::PIERCING_RUSH));
                 break;
             default:
@@ -1435,8 +1441,8 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            m_events.ScheduleEvent(uint32(Events::SOLAR_SHOWER), urand(8000, 13000));
-            m_events.ScheduleEvent(uint32(Events::FLASH_HEAL), urand(5500, 7000));
+          //  m_events.ScheduleEvent(uint32(Events::SOLAR_SHOWER), urand(8000, 13000));
+           // m_events.ScheduleEvent(uint32(Events::FLASH_HEAL), urand(5500, 7000));
         }
 
         void UpdateAI(const uint32 diff)
@@ -1452,11 +1458,11 @@ public:
             switch (m_events.ExecuteEvent())
             {
             case uint32(Events::SOLAR_SHOWER):
-                m_events.ScheduleEvent(uint32(Events::SOLAR_SHOWER), urand(8000, 13000));
+              //  m_events.ScheduleEvent(uint32(Events::SOLAR_SHOWER), urand(8000, 13000));
                 me->CastSpell(me, uint32(Spells::SOLAR_SHOWER));
                 break;
             case uint32(Events::FLASH_HEAL):
-                m_events.ScheduleEvent(uint32(Events::FLASH_HEAL), urand(5500, 7000));
+              //  m_events.ScheduleEvent(uint32(Events::FLASH_HEAL), urand(5500, 7000));
                 me->CastSpell(me, uint32(Spells::FLASH_HEAL));
                 break;
             default:
@@ -1512,8 +1518,8 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            m_events.ScheduleEvent(uint32(Events::THROW_CHAKRAM), urand(2000, 3000));
-            m_events.ScheduleEvent(uint32(Events::SPINNING_BLADE), urand(8000, 10000));
+           // m_events.ScheduleEvent(uint32(Events::THROW_CHAKRAM), urand(2000, 3000));
+           // m_events.ScheduleEvent(uint32(Events::SPINNING_BLADE), urand(8000, 10000));
         }
 
         void UpdateAI(const uint32 diff)
@@ -1529,24 +1535,24 @@ public:
             switch (m_events.ExecuteEvent())
             {
             case uint32(Events::THROW_CHAKRAM):
-                m_events.ScheduleEvent(uint32(Events::THROW_CHAKRAM), urand(2000, 3000));
+              //  m_events.ScheduleEvent(uint32(Events::THROW_CHAKRAM), urand(2000, 3000));
 
                 if (urand(0, 1) == 0)
                 {
-                    if (Player* player = me->SelectRandomPlayerInRange(5.0f, true))
-                        me->CastSpell(player, uint32(Spells::THROW_CHAKRAM_YELLOW));
+                  //  if (Player* player = me->SelectRandomPlayerInRange(5.0f, true))
+                    //    me->CastSpell(player, uint32(Spells::THROW_CHAKRAM_YELLOW));
                 }
                 else
                 {
-                    if (Player* player = me->SelectRandomPlayerInRange(5.0f, true))
-                        me->CastSpell(player, uint32(Spells::THROW_CHAKRAM_WHITE));
+                  //  if (Player* player = me->SelectRandomPlayerInRange(5.0f, true))
+                       // me->CastSpell(player, uint32(Spells::THROW_CHAKRAM_WHITE));
                 }
                 me->CastSpell(me->GetVictim(), uint32(Spells::THROW_CHAKRAM_2)); // Always launched with the two others.
                 break;
             case uint32(Events::SPINNING_BLADE):
-                m_events.ScheduleEvent(uint32(Events::SPINNING_BLADE), urand(8000, 10000));
-                if (Player* player = me->SelectRandomPlayerInRange(45.0f, true))
-                    me->CastSpell(player, uint32(Spells::SPINNING_BLADE));
+               // m_events.ScheduleEvent(uint32(Events::SPINNING_BLADE), urand(8000, 10000));
+               // if (Player* player = me->SelectRandomPlayerInRange(45.0f, true))
+                 //   me->CastSpell(player, uint32(Spells::SPINNING_BLADE));
                 break;
             default:
                 break;
@@ -1604,8 +1610,8 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            m_events.ScheduleEvent(uint32(Events::SOLAR_WRATH), urand(3000, 5000));
-            m_events.ScheduleEvent(uint32(Events::SOLAR_DETONATION), urand(10000, 14000));
+          //  m_events.ScheduleEvent(uint32(Events::SOLAR_WRATH), urand(3000, 5000));
+          //  m_events.ScheduleEvent(uint32(Events::SOLAR_DETONATION), urand(10000, 14000));
         }
 
         void UpdateAI(const uint32 diff)
@@ -1621,15 +1627,15 @@ public:
             switch (m_events.ExecuteEvent())
             {
             case uint32(Events::SOLAR_WRATH):
-                m_events.ScheduleEvent(uint32(Events::SOLAR_WRATH), urand(3000, 5000));
+              //  m_events.ScheduleEvent(uint32(Events::SOLAR_WRATH), urand(3000, 5000));
                 me->CastSpell(me->GetVictim(), uint32(Spells::SOLAR_WRATH));
                 break;
             case uint32(Events::SOLAR_DETONATION):
-                m_events.ScheduleEvent(uint32(Events::SOLAR_DETONATION), urand(10000, 14000));
-                if (Player* player = me->SelectRandomPlayerInRange(45.0f, true))
+               // m_events.ScheduleEvent(uint32(Events::SOLAR_DETONATION), urand(10000, 14000));
+               // if (Player* player = me->SelectRandomPlayerInRange(45.0f, true))
                 {
-                    me->CastSpell(player, uint32(Spells::SOLAR_DETONATION));
-                    player->Whisper(int32(Texts::SOLAR_DETONATION), player, true);
+                   // me->CastSpell(player, uint32(Spells::SOLAR_DETONATION));
+                   // player->Whisper(int32(Texts::SOLAR_DETONATION), player, true);
                 }
                 break;
             default:
@@ -1667,5 +1673,5 @@ void AddSC_mob_instance_skyreach()
     new mob_radiant_supernova();
     new mob_young_kaliri();
     new mob_grand_defense_construct();
-    new npc_gossip_intro_outro_84782();
+   // new npc_gossip_intro_outro_84782();
 }

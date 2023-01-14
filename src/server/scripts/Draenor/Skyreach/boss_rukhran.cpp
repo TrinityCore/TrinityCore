@@ -91,12 +91,12 @@ public:
             m_events.Reset();
             m_IsKilledByPlayers = true;
 
-            if (Player* player = me->SelectRandomPlayerInRange(100.0f, true))
+           // if (Player* player = me->SelectRandomPlayerInRange(100.0f, true))
             {
-                m_PlayerTargetGuid = player->GetGUID();
-                me->AddThreat(player, 1000000.0f);
-                me->CastSpell(player, uint32(Spells::FIXATE));
-                events.ScheduleEvent(uint32(Events::UPDATE_POSITION), 500);
+             //   m_PlayerTargetGuid = player->GetGUID();
+               // me->AddThreat(player, 1000000.0f);
+                //me->CastSpell(player, uint32(Spells::FIXATE));
+               // events.ScheduleEvent(uint32(Events::UPDATE_POSITION), 500);
             }
         }
 
@@ -110,7 +110,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            events.Update(diff);
+           // events.Update(diff);
 
             // If creature reaches the target, it spawns a new pile of ashes and explodes violently.
             if (Player* player = ObjectAccessor::GetPlayer(*me, m_PlayerTargetGuid))
@@ -124,19 +124,19 @@ public:
                 }
             }
 
-            while (uint32 l_EventId = events.ExecuteEvent())
+          //  while (uint32 l_EventId = events.ExecuteEvent())
             {
-                switch (l_EventId)
+            //    switch (l_EventId)
                 {
-                case uint32(Events::UPDATE_POSITION):
+                    uint32(Events::UPDATE_POSITION);
                     if (Player* player = ObjectAccessor::GetPlayer(*me, m_PlayerTargetGuid))
                     {
                         Position l_Pos;
                         l_Pos = player->GetPosition();
                         me->GetMotionMaster()->MovePoint(0, l_Pos);
-                        events.ScheduleEvent(uint32(Events::UPDATE_POSITION), 200);
+                      //  events.ScheduleEvent(uint32(Events::UPDATE_POSITION), 200);
                     }
-                    break;
+                   // break;
                 }
             }
         }
@@ -178,12 +178,12 @@ public:
 
         void Reset()
         {
-            events.Reset();
+           // events.Reset();
         }
 
         void EnterCombat(Unit*)
         {
-            events.ScheduleEvent(uint32(Events::BLAZE_OF_GLORY), 2000);
+           // events.ScheduleEvent(uint32(Events::BLAZE_OF_GLORY), 2000);
         }
 
         void JustDied(Unit*)
@@ -197,17 +197,17 @@ public:
             if (!UpdateVictim())
                 return;
 
-            events.Update(diff);
+           // events.Update(diff);
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
-            switch (events.ExecuteEvent())
+           // switch (events.ExecuteEvent())
             {
-            case uint32(Events::BLAZE_OF_GLORY):
+                uint32(Events::BLAZE_OF_GLORY);
                 me->CastSpell(me, uint32(Spells::BLAZE_OF_GLORY));
-                events.ScheduleEvent(uint32(Events::BLAZE_OF_GLORY), 10000);
-                break;
+                //events.ScheduleEvent(uint32(Events::BLAZE_OF_GLORY), 10000);
+                //break;
             }
 
             DoMeleeAttackIfReady();
@@ -324,7 +324,7 @@ public:
                 {
                     me->SetControlled(true, UNIT_STATE_ROOT);
                     me->SetReactState(REACT_AGGRESSIVE);
-                    me->Attack(me->SelectRandomPlayerInRange(40.0f, true), true);
+                  //  me->Attack(me->SelectRandomPlayerInRange(40.0f, true), true);
                     m_CombatStarted = true;
                     me->SetOrientation(5.4f);
                 }
@@ -384,13 +384,13 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            _EnterCombat();
+          //  _EnterCombat();
 
-            events.ScheduleEvent(uint32(Events::PIERCE_ARMOR), 6000);
-            events.ScheduleEvent(uint32(Events::SUMMON_SOLAR_FLARE), 10000);
+          //  events.ScheduleEvent(uint32(Events::PIERCE_ARMOR), 6000);
+          //  events.ScheduleEvent(uint32(Events::SUMMON_SOLAR_FLARE), 10000);
 
             if (instance && IsHeroic())
-                events.ScheduleEvent(uint32(Events::QUILLS), 60000);
+              //  events.ScheduleEvent(uint32(Events::QUILLS), 60000);
 
             if (instance)
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
@@ -449,17 +449,17 @@ public:
             switch (events.ExecuteEvent())
             {
             case uint32(Events::SUMMON_SOLAR_FLARE):
-                events.ScheduleEvent(uint32(Events::SUMMON_SOLAR_FLARE), urand(14000, 16000));
+             //   events.ScheduleEvent(uint32(Events::SUMMON_SOLAR_FLARE), urand(14000, 16000));
 
-                if (me->SelectRandomPlayerInRange(30.0f,true))
+               // if (me->SelectRandomPlayerInRange(30.0f,true))
                 {
                     m_LastTarget = urand(0, 10) + 1;
                     Position l_Pos = k_RandomSummonSolarFlare[m_LastTarget - 1];
-                    me->CastSpell(l_Pos.m_positionX, l_Pos.m_positionY, l_Pos.m_positionZ, uint32(Spells::SUMMON_SOLAR_FLARE), false);
+                  //  me->CastSpell(l_Pos.m_positionX, l_Pos.m_positionY, l_Pos.m_positionZ, uint32(Spells::SUMMON_SOLAR_FLARE), false);
                 }
                 break;
             case uint32(Events::PIERCE_ARMOR):
-                events.ScheduleEvent(uint32(Events::PIERCE_ARMOR), urand(10500, 13000));
+              //  events.ScheduleEvent(uint32(Events::PIERCE_ARMOR), urand(10500, 13000));
                 // We want to cast PierceArmor on the closest ennemy.
                 if (me->GetVictim() && me->GetVictim()->IsWithinMeleeRange(me))
                     me->CastSpell(me->GetVictim(), uint32(Spells::PIERCE_ARMOR));
@@ -467,7 +467,7 @@ public:
                     me->CastSpell(me->GetVictim(), uint32(Spells::PIERCE_ARMOR));
                 break;
             case uint32(Events::QUILLS):
-                events.ScheduleEvent(uint32(Events::QUILLS), 60000);
+                //events.ScheduleEvent(uint32(Events::QUILLS), 60000);
                 me->CastSpell(me, uint32(Spells::QUILLS));
                 break;
             default:

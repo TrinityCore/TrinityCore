@@ -3,6 +3,7 @@
 #include "ScriptMgr.h"
 #include "Vehicle.h"
 #include "InstanceScript.h"
+#include <user_manager_service.pb.h>
 
 class mob_skyreach_shield_construct : public CreatureScript
 {
@@ -42,7 +43,7 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             me->RemoveAura(uint32(Spells::Submerged));
-            m_events.ScheduleEvent(uint32(Events::Shielding), 5000);
+           // m_events.ScheduleEvent(uint32(Events::Shielding), 5000);
         }
 
         void UpdateAI(const uint32 diff)
@@ -58,7 +59,7 @@ public:
             switch (m_events.ExecuteEvent())
             {
             case uint32(Events::Shielding):
-                m_events.ScheduleEvent(uint32(Events::Shielding), 5000);
+              //  m_events.ScheduleEvent(uint32(Events::Shielding), 5000);
                 me->CastSpell(me, uint32(Spells::Shielding));
                 break;
             default:
@@ -125,7 +126,7 @@ public:
 
         void Reset()
         {
-            events.Reset();
+           // events.Reset();
             m_Reset = true;
         }
 
@@ -145,14 +146,14 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            events.Update(diff);
+           // events.Update(diff);
 
             if (m_Reset)
             {
                 m_Reset = false;
                 me->CastSpell(me->GetCharmerOrOwner(), uint32(Spells::JumpChargeDemonCreatorRideMe), true);
-                if (me->ToTempSummon() && me->ToTempSummon()->GetSummoner())
-                    me->ToTempSummon()->GetSummoner()->EnterVehicle(me, 0);
+               // if (me->ToTempSummon() && me->ToTempSummon()->GetSummoner())
+                 //   me->ToTempSummon()->GetSummoner()->EnterVehicle(me, 0);
 
                 int l_ClosestPoint = 0;
                 float l_ClosestDistance = k_FallPoints[0].GetExactDist2d(me);
@@ -205,8 +206,8 @@ public:
 
         void Reset()
         {
-            events.Reset();
-            events.ScheduleEvent(uint32(Events::LensFlare), 100);
+          //  events.Reset();
+           // events.ScheduleEvent(uint32(Events::LensFlare), 100);
 
             if (me->GetInstanceScript())
                 me->GetInstanceScript()->SetData(Data::StartingLensFlare, 0);
@@ -214,21 +215,21 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            events.Update(diff);
+          //  events.Update(diff);
 
-            if (events.ExecuteEvent() == uint32(Events::LensFlare))
+           // if (events.ExecuteEvent() == uint32(Events::LensFlare))
             {
                 if (me->ToTempSummon())
                 {
-                    if (me->ToTempSummon()->GetSummoner())
+                  //  if (me->ToTempSummon()->GetSummoner())
                     {
                         Position l_Pos;
-                        l_Pos = me->ToTempSummon()->GetSummoner()->GetPosition();
+                    //    l_Pos = me->ToTempSummon()->GetSummoner()->GetPosition();
                         l_Pos.m_positionZ -= 1.5f;
                         me->GetMotionMaster()->MovePoint(0, l_Pos);
                     }
                 }
-                events.ScheduleEvent(uint32(Events::LensFlare), 500);
+               // events.ScheduleEvent(uint32(Events::LensFlare), 500);
             }
         }
 
@@ -347,13 +348,13 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            _EnterCombat();
+           // _EnterCombat();
 
             Talk(int8(Texts::CombatStart));
-            events.ScheduleEvent(uint32(Events::SolarBurst), 5000);
-            events.ScheduleEvent(uint32(Events::CastDown), 11000);
-            events.ScheduleEvent(uint32(Events::LensFlare), 27000);
-            events.ScheduleEvent(uint32(Events::CallAdds), 29000);
+           // events.ScheduleEvent(uint32(Events::SolarBurst), 5000);
+           // events.ScheduleEvent(uint32(Events::CastDown), 11000);
+           // events.ScheduleEvent(uint32(Events::LensFlare), 27000);
+           // events.ScheduleEvent(uint32(Events::CallAdds), 29000);
 
             if (instance)
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
@@ -372,35 +373,35 @@ public:
             switch (events.ExecuteEvent())
             {
             case uint32(Events::CastDown):
-                events.ScheduleEvent(uint32(Events::CastDown), 35000);
-                if (Player* player = me->SelectRandomPlayerInRange(80.0f,true))
+             //   events.ScheduleEvent(uint32(Events::CastDown), 35000);
+               // if (Player* player = me->SelectRandomPlayerInRange(80.0f,true))
                 {
                     Talk(int8(Texts::SpellCastDown), me);
-                    me->CastSpell(player, uint32(Spells::CastDown));
+                 //   me->CastSpell(player, uint32(Spells::CastDown));
                 }
                 break;
             case uint32(Events::LensFlare):
-                if (Player* player = me->SelectRandomPlayerInRange(80.0f, true))
+                //if (Player* player = me->SelectRandomPlayerInRange(80.0f, true))
                 {
-                    player->CastSpell(player, uint32(Spells::LensFlare), true);
+                  //  player->CastSpell(player, uint32(Spells::LensFlare), true);
                     Talk(int8(Texts::SpellLensFlare), me);
                 }
-                events.ScheduleEvent(uint32(Events::LensFlare), 27000);
+               // events.ScheduleEvent(uint32(Events::LensFlare), 27000);
                 break;
             case uint32(Events::SolarBurst):
                 me->CastSpell(me->GetVictim(), uint32(Spells::SolarBurst));
-                events.ScheduleEvent(uint32(Events::SolarBurst), 21000);
+               // events.ScheduleEvent(uint32(Events::SolarBurst), 21000);
                 break;
             case uint32(Events::CallAdds):
                 Talk(int8(Texts::SpellCallAdds), me);
                 me->CastSpell(me, uint32(Spells::CallAdds), false);
-                if (Creature* mobs = me->SummonCreature(76292, Position(1077.0f, 1790.5f, 262.173f, 5.7237f), TEMPSUMMON_MANUAL_DESPAWN))
-                    if (Player* player = me->SelectRandomPlayerInRange(80.0f, true))
-                        mobs->CombatStart(player, true);
-                if (Creature* mobs = me->SummonCreature(76267, Position(1077.0f, 1790.5f, 262.173f, 5.7237f), TEMPSUMMON_MANUAL_DESPAWN))
-                    if (Player* player = me->SelectRandomPlayerInRange(80.0f, true))
-                        mobs->CombatStart(player, true);                
-                events.ScheduleEvent(uint32(Events::CallAdds), 60000);
+               // if (Creature* mobs = me->SummonCreature(76292, Position(1077.0f, 1790.5f, 262.173f, 5.7237f), TEMPSUMMON_MANUAL_DESPAWN))
+               //   if (Player* player = me->SelectRandomPlayerInRange(80.0f, true))
+               //     mobs->CombatStart(player, true);
+               // if (Creature* mobs = me->SummonCreature(76267, Position(1077.0f, 1790.5f, 262.173f, 5.7237f), TEMPSUMMON_MANUAL_DESPAWN))
+               //   if (Player* player = me->SelectRandomPlayerInRange(80.0f, true))
+               //     mobs->CombatStart(player, true);                
+               //events.ScheduleEvent(uint32(Events::CallAdds), 60000);
                 break;
             default:
                 break;

@@ -1,6 +1,7 @@
 #include "instance_skyreach.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include <user_manager_service.pb.h>
 
 class mob_skyreach_arcanologist : public CreatureScript
 {
@@ -50,14 +51,14 @@ public:
             if (m_instance)
                 m_instance->SetData(Data::SkyreachArcanologistIsDead, 0);
 
-            if (IsHeroic())
-                m_instance->DoCompleteAchievement(uint32(Achievements::MagnifyEnhance));
+            if (IsHeroic());
+              //  m_instance->DoCompleteAchievement(uint32(Achievements::MagnifyEnhance));
         }
 
-        void EnterCombat(Unit* /*attacker*/) override
+        void EnterCombat(Unit* /*attacker*/) 
         {
-            m_events.ScheduleEvent(uint32(Events::SOLAR_DETONATION), urand(2500, 7500));
-            m_events.ScheduleEvent(uint32(Events::SOLAR_STORM), urand(5000, 10000));
+          //  m_events.ScheduleEvent(uint32(Events::SOLAR_DETONATION), urand(2500, 7500));
+           // m_events.ScheduleEvent(uint32(Events::SOLAR_STORM), urand(5000, 10000));
         }
 
         void UpdateAI(uint32 diff) override
@@ -73,12 +74,12 @@ public:
             switch (m_events.ExecuteEvent())
             {
             case uint32(Events::SOLAR_DETONATION):
-                m_events.ScheduleEvent(uint32(Events::SOLAR_DETONATION), urand(6500, 7500));
-                if (Player* player = me->SelectRandomPlayerInRange(15.0f,true))
-                    me->CastSpell(player, uint32(Spells::SOLAR_DETONATION));
+              //  m_events.ScheduleEvent(uint32(Events::SOLAR_DETONATION), urand(6500, 7500));
+              //  if (Player* player = me->SelectRandomPlayerInRange(15.0f,true))
+                   // me->CastSpell(player, uint32(Spells::SOLAR_DETONATION));
                 break;
             case uint32(Events::SOLAR_STORM):
-                m_events.ScheduleEvent(uint32(Events::SOLAR_STORM), urand(12000, 15000));
+                //m_events.ScheduleEvent(uint32(Events::SOLAR_STORM), urand(12000, 15000));
                 me->CastSpell(me->GetVictim(), uint32(Spells::SOLAR_STORM));
                 break;
             default:
@@ -160,7 +161,7 @@ public:
             me->AddAura(uint32(Spells::SUBMERGED), me);
             me->SetReactState(REACT_PASSIVE);
 
-            events.ScheduleEvent(uint32(Events::Reset), 100);
+            //events.ScheduleEvent(uint32(Events::Reset), 100);
 
             // We need time so that all the mobs are spawned.
             m_InitializationTimer = 500;
@@ -189,13 +190,13 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*attacker*/) override
+        void EnterCombat(Unit* /*attacker*/) 
         {
-            _EnterCombat();
-            events.ScheduleEvent(uint32(Events::MELEE), 2000);
-            events.ScheduleEvent(uint32(Events::SMASH), urand(5500, 7000));
-            events.ScheduleEvent(uint32(Events::BURST), urand(21500, 23000));
-            events.ScheduleEvent(uint32(Events::ENERGIZE_START), 12000);
+           // _EnterCombat();
+           // events.ScheduleEvent(uint32(Events::MELEE), 2000);
+           // events.ScheduleEvent(uint32(Events::SMASH), urand(5500, 7000));
+           // events.ScheduleEvent(uint32(Events::BURST), urand(21500, 23000));
+           // events.ScheduleEvent(uint32(Events::ENERGIZE_START), 12000);
         }
 
         void UpdateAI(uint32 diff) override
@@ -224,28 +225,28 @@ public:
             switch (events.ExecuteEvent())
             {
             case uint32(Events::MELEE):
-                events.ScheduleEvent(uint32(Events::MELEE), 2000);
+              //  events.ScheduleEvent(uint32(Events::MELEE), 2000);
                 me->CastSpell(me->GetVictim(), uint32(Spells::MELEE));
                 break;
             case uint32(Events::SMASH):
-                events.ScheduleEvent(uint32(Events::SMASH), urand(5500, 7000));
+               // events.ScheduleEvent(uint32(Events::SMASH), urand(5500, 7000));
                 me->CastSpell(me, uint32(Spells::SMASH));
 
                 events.CancelEvent(uint32(Events::MELEE));
-                events.ScheduleEvent(uint32(Events::MELEE), 2000);
+              //  events.ScheduleEvent(uint32(Events::MELEE), 2000);
                 break;
             case uint32(Events::BURST):
-                events.ScheduleEvent(uint32(Events::BURST), urand(21500, 23000));
+              //  events.ScheduleEvent(uint32(Events::BURST), urand(21500, 23000));
                 me->CastSpell(me->GetVictim(), uint32(Spells::BURST));
                 break;
             case uint32(Events::ENERGIZE_START):
-                events.ScheduleEvent(uint32(Events::ENERGIZE_STOP), 12000);
+               // events.ScheduleEvent(uint32(Events::ENERGIZE_STOP), 12000);
 
                 if (instance)
                     instance->SetData(Data::AraknathSolarConstructorActivation, true);
                 break;
             case uint32(Events::ENERGIZE_STOP):
-                events.ScheduleEvent(uint32(Events::ENERGIZE_START), 3000);
+               // events.ScheduleEvent(uint32(Events::ENERGIZE_START), 3000);
 
                 if (instance)
                     instance->SetData(Data::AraknathSolarConstructorActivation, false);

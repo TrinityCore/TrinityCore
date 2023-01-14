@@ -89,11 +89,11 @@ public:
             summons.DespawnAll();
             if (m_TriggerFourWinds[0] == ObjectGuid::Empty)
             {
-                m_TriggerFourWinds[0] = me->SummonCreature(MobEntries::ArakkoaPincerBirdsController, 1165.871f, 1727.601f, 186.f)->GetGUID();
+               // m_TriggerFourWinds[0] = me->SummonCreature(MobEntries::ArakkoaPincerBirdsController, 1165.871f, 1727.601f, 186.f)->GetGUID();
             }
             if (m_TriggerFourWinds[1] == ObjectGuid::Empty)
             {
-                m_TriggerFourWinds[1] = me->SummonCreature(MobEntries::ArakkoaPincerBirdsController, 1165.871f, 1727.601f, 189.4522f)->GetGUID();
+               // m_TriggerFourWinds[1] = me->SummonCreature(MobEntries::ArakkoaPincerBirdsController, 1165.871f, 1727.601f, 189.4522f)->GetGUID();
             }
         }
 
@@ -131,11 +131,11 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            _EnterCombat();
+           // _EnterCombat();
 
-            events.ScheduleEvent(uint32(Events::WINDWALL), 8000);
-            events.ScheduleEvent(uint32(Events::FAN_OF_BLADES), 5000);
-            events.ScheduleEvent(uint32(Events::PIERCING_RUSH), 1000);
+           // events.ScheduleEvent(uint32(Events::WINDWALL), 8000);
+           // events.ScheduleEvent(uint32(Events::FAN_OF_BLADES), 5000);
+           // events.ScheduleEvent(uint32(Events::PIERCING_RUSH), 1000);
 
             Talk(int8(Texts::COMBAT_START), me);
 
@@ -165,32 +165,32 @@ public:
                     Talk(int8(Texts::FOUR_WINDS_2), me);
 
                 if (IsHeroic())
-                    events.ScheduleEvent(uint32(Events::LENS_FLARE), 14000);
+                 //   events.ScheduleEvent(uint32(Events::LENS_FLARE), 14000);
                 break;
             case uint32(Events::WINDWALL):
-                events.ScheduleEvent(uint32(Events::WINDWALL), urand(19000, 26000));
+               // events.ScheduleEvent(uint32(Events::WINDWALL), urand(19000, 26000));
 
-                if (Player* player = me->SelectRandomPlayerInRange(40.0f, true))
-                    me->CastSpell(player, uint32(Spells::WINDWALL));
+              //  if (Player* player = me->SelectRandomPlayerInRange(40.0f, true))
+                //    me->CastSpell(player, uint32(Spells::WINDWALL));
 
                 if (m_countWindwalls++ == 2)
-                    events.ScheduleEvent(uint32(Events::FOUR_WINDS), urand(2000, 3000));
+                  //  events.ScheduleEvent(uint32(Events::FOUR_WINDS), urand(2000, 3000));
                 break;
             case uint32(Events::FAN_OF_BLADES):
-                events.ScheduleEvent(uint32(Events::FAN_OF_BLADES), urand(15000, 17000));
+               // events.ScheduleEvent(uint32(Events::FAN_OF_BLADES), urand(15000, 17000));
                 me->CastSpell(me, uint32(Spells::FAN_OF_BLADES));
                 break;
             case uint32(Events::PIERCING_RUSH):
-                events.ScheduleEvent(uint32(Events::PIERCING_RUSH), urand(13000, 16000));
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
-                    if (target->IsPlayer())
-                        me->CastSpell(target, uint32(Spells::PIERCING_RUSH));
-                    else if (Player* player = me->SelectRandomPlayerInRange(40.0f, true))
-                        me->CastSpell(player, uint32(Spells::PIERCING_RUSH));
+               // events.ScheduleEvent(uint32(Events::PIERCING_RUSH), urand(13000, 16000));
+               // if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
+                 //   if (target->IsPlayer())
+                   //     me->CastSpell(target, uint32(Spells::PIERCING_RUSH));
+                   // else if (Player* player = me->SelectRandomPlayerInRange(40.0f, true))
+                     //   me->CastSpell(player, uint32(Spells::PIERCING_RUSH));
                 break;
             case uint32(Events::LENS_FLARE):
-                if (Player* player = me->SelectRandomPlayerInRange(80.0f, true))
-                    player->CastSpell(player, uint32(Spells::LensFlare), true);
+               // if (Player* player = me->SelectRandomPlayerInRange(80.0f, true))
+                 //   player->CastSpell(player, uint32(Spells::LensFlare), true);
                 break;
             default:
                 break;

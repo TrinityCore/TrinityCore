@@ -109,7 +109,7 @@ public:
             case MobEntries::SKYREACH_SOLAR_CONSTRUCTOR:
                 m_SolarConstructorsGuid.emplace_front(p_Creature->GetGUID());
                // p_Creature->DisableEvadeMode();
-                p_Creature->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_SERVER_CONTROLLED | UNIT_FLAG_IMMUNE_TO_PC));
+               // p_Creature->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_SERVER_CONTROLLED | UNIT_FLAG_IMMUNE_TO_PC));
                 if (GetBossState(Data::Araknath) == EncounterState::NOT_STARTED || GetBossState(Data::Araknath) == EncounterState::TO_BE_DECIDED)
                 {
                     p_Creature->CastSpell(p_Creature, uint32(RandomSpells::ENERGIZE_VISUAL_1));
@@ -119,8 +119,8 @@ public:
                 {
                     p_Creature->AddAura(RandomSpells::SUBMERGED, p_Creature);
                     p_Creature->SetReactState(ReactStates::REACT_PASSIVE);
-                    p_Creature->getThreatManager().clearReferences();
-                    p_Creature->getThreatManager().resetAllAggro();
+                 //   p_Creature->getThreatManager().clearReferences();
+                   // p_Creature->getThreatManager().resetAllAggro();
                 }
                 break;
             case MobEntries::SKYREACH_RAVEN_WHISPERER:
@@ -133,7 +133,7 @@ public:
                 p_Creature->SetReactState(REACT_PASSIVE);
                 p_Creature->SetFaction(16);
                 //p_Creature->DisableEvadeMode();
-                p_Creature->AddUnitFlag(UnitFlags(UNIT_FLAG_SERVER_CONTROLLED | UNIT_FLAG_NON_ATTACKABLE));
+               // p_Creature->AddUnitFlag(UnitFlags(UNIT_FLAG_SERVER_CONTROLLED | UNIT_FLAG_NON_ATTACKABLE));
                 break;
             case MobEntries::Arakkoa:
             case MobEntries::Kaliri:
@@ -146,8 +146,8 @@ public:
                 break;
             case MobEntries::PILE_OF_ASHES:
                 p_Creature->AddUnitState(UNIT_STATE_UNATTACKABLE);
-                p_Creature->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC));
-                p_Creature->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_NPC));
+               // p_Creature->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC));
+               // p_Creature->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_NPC));
                 m_PileOfAshesGuid.insert(p_Creature->GetGUID());
                 break;
             case MobEntries::SOLAR_FLARE:
@@ -162,7 +162,7 @@ public:
                 p_Creature->AddAura(16245, p_Creature); // Freeze anim spell.
                 p_Creature->SetFaction(16);
                 p_Creature->SetReactState(REACT_PASSIVE);
-                p_Creature->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_SERVER_CONTROLLED | UNIT_FLAG_IMMUNE_TO_PC));
+               // p_Creature->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_SERVER_CONTROLLED | UNIT_FLAG_IMMUNE_TO_PC));
                 break;
             case MobEntries::SolarZealot:
                 p_Creature->SetFaction(16);
@@ -274,7 +274,7 @@ public:
                 // Achievement handling.
                 if (p_State == EncounterState::DONE && instance->IsHeroic())
                 {
-                    DoCompleteAchievement(uint32(Achievements::ReadyForRaidingIV));
+                  //  DoCompleteAchievement(uint32(Achievements::ReadyForRaidingIV));
                 }
 
                 break;
@@ -292,7 +292,7 @@ public:
                 case EncounterState::DONE:
                 {
                     if (instance->IsHeroic())
-                        DoCompleteAchievement(uint32(Achievements::MagnifyEnhance));
+                      //  DoCompleteAchievement(uint32(Achievements::MagnifyEnhance));
 
                     for (ObjectGuid l_Guid : m_SolarConstructorsGuid)
                     {
@@ -300,8 +300,8 @@ public:
                         {
                             l_Constructor->CombatStop();
                             l_Constructor->SetReactState(ReactStates::REACT_PASSIVE);
-                            l_Constructor->getThreatManager().clearReferences();
-                            l_Constructor->getThreatManager().resetAllAggro();
+                          //  l_Constructor->getThreatManager().clearReferences();
+                            //l_Constructor->getThreatManager().resetAllAggro();
                         }
                     }
 
@@ -321,7 +321,7 @@ public:
                 {
                     if (Creature* l_Rukhran = instance->GetCreature(m_RukhranGuid))
                     {
-                        l_Rukhran->GetMotionMaster()->Clear(true);
+                        l_Rukhran->GetMotionMaster();
                         SetBossState(Data::Rukhran, EncounterState::SPECIAL);
                         l_Rukhran->GetMotionMaster()->MovePoint(12, 918.92f, 1913.46f, 215.87f);
                     }
@@ -346,14 +346,14 @@ public:
                     }
 
                     if (instance->IsHeroic())
-                        DoCompleteAchievement(uint32(Achievements::HeroicSkyreach));
-                    else
-                        DoCompleteAchievement(uint32(Achievements::Skyreach));
+                       // DoCompleteAchievement(uint32(Achievements::HeroicSkyreach));
+                   // else
+                     //   DoCompleteAchievement(uint32(Achievements::Skyreach));
 
                     if (instance->IsHeroic() && !m_HasFailedMonomaniaAchievement)
-                        DoCompleteAchievement(uint32(Achievements::Monomania));
+                       // DoCompleteAchievement(uint32(Achievements::Monomania));
 
-                    DoKilledMonsterCredit(ScenarioDatas::ScenarioDatas::DailyChallengeQuestID, ScenarioDatas::ScenarioDatas::DailyChallengeKillCredit);
+                   // DoKilledMonsterCredit(ScenarioDatas::ScenarioDatas::DailyChallengeQuestID, ScenarioDatas::ScenarioDatas::DailyChallengeKillCredit);
                     break;
                 }
                 default:
@@ -379,7 +379,7 @@ public:
                     if (GetBossState(Data::Rukhran) == EncounterState::NOT_STARTED)
                     {
                         l_Rukhran->RemoveAura(157259);
-                        l_Rukhran->GetMotionMaster()->Clear(true);
+                        l_Rukhran->GetMotionMaster();
                         l_Rukhran->GetMotionMaster()->MovePoint(12, 918.92f, 1913.46f, 215.87f);
                        // l_Rukhran->DisableEvadeMode();
                         SetBossState(Data::Rukhran, EncounterState::SPECIAL);
@@ -417,7 +417,7 @@ public:
 
                 if (Creature* l_Araknath = instance->GetCreature(m_AraknathGuid))
                 {
-                    l_Araknath->getThreatManager().resetAllAggro();
+                   // l_Araknath->getThreatManager().resetAllAggro();
 
                     if (l_Araknath->GetAI())
                         l_Araknath->GetAI()->Reset();
@@ -530,16 +530,16 @@ public:
                         l_Pos = l_Pile->GetPosition();
                         if (l_Pile->ToCreature())
                         {
-                            l_Pile->CastSpell(l_Pos.m_positionX, l_Pos.m_positionY, l_Pos.m_positionZ, uint32(Spells::SUMMON_SOLAR_FLARE), true);
+                          //  l_Pile->CastSpell(l_Pos.m_positionX, l_Pos.m_positionY, l_Pos.m_positionZ, uint32(Spells::SUMMON_SOLAR_FLARE), true);
                             if (TempSummon* l_Summon = l_Pile->SummonCreature(MobEntries::SOLAR_FLARE, l_Pos))
-                                m_SolarFlaresGuid.insert(l_Summon->GetGUID());
-                            l_Pile->ToCreature()->DespawnOrUnsummon(500);
+                            //    m_SolarFlaresGuid.insert(l_Summon->GetGUID());
+                            l_Pile->ToCreature()->DespawnOrUnsummon();
                             ++l_SolarFlaresFormed;
                         }
                     }
 
                     if (l_SolarFlaresFormed >= 3)
-                        DoCompleteAchievement(uint32(Achievements::ISawSolis));
+                       // DoCompleteAchievement(uint32(Achievements::ISawSolis));
 
                     // We summon a new pile of ashes.
                     l_SolarFlareDying->CastSpell(l_SolarFlareDying, uint32(Spells::DORMANT), true);
@@ -547,13 +547,13 @@ public:
                     Position l_Pos;
                     l_Pos = l_SolarFlareDying->GetPosition();
                     TempSummon* l_Sum = l_SolarFlareDying->SummonCreature(MobEntries::PILE_OF_ASHES, l_Pos);
-                    l_Sum->SetFaction(16);
-                    l_Sum->SetReactState(REACT_PASSIVE);
-                    l_Sum->CastSpell(l_Sum, uint32(Spells::DORMANT), true);
-                    l_SolarFlareDying->Kill(l_SolarFlareDying);
+                   // l_Sum->SetFaction(16);
+                   // l_Sum->SetReactState(REACT_PASSIVE);
+                   // l_Sum->CastSpell(l_Sum, uint32(Spells::DORMANT), true);
+                   // l_SolarFlareDying->Kill(l_SolarFlareDying);
 
                     if (l_SolarFlareDying->ToCreature())
-                        l_SolarFlareDying->ToCreature()->DespawnOrUnsummon(500);
+                        l_SolarFlareDying->ToCreature()->DespawnOrUnsummon();
                 }
                 break;
             case Data::PlayerIsHittedByRanjitSpells:
@@ -577,19 +577,19 @@ public:
 
         void Update(uint32 p_Diff)
         {
-            UpdateOperations(p_Diff);
-            /*
+           // UpdateOperations(p_Diff);
+            
             // We check here if a player is in the WindMaze zone.
-            DoOnPlayers([this](Player* player)
+           // DoOnPlayers([this](Player* player)
             {
                 // Is he in WindMaze zone ?
-                if (IsPointInBlock(Blocks::ConvexHull, *player))
+             //   if (IsPointInBlock(Blocks::ConvexHull, *player))
                 {
                     bool l_IsInBlock = false;
                     uint32 i = Blocks::FirstStair;
                     for (; i <= Blocks::SecondStair; i++)
                     {
-                        if (IsPointInBlock(i, *player))
+                      //  if (IsPointInBlock(i, *player))
                         {
                             l_IsInBlock = true;
                             break;
@@ -600,40 +600,40 @@ public:
                     if (l_IsInBlock)
                     {
                         float l_Magnitude = 1;
-                        Position l_ForceDir = CalculateForceVectorFromBlockId(i, l_Magnitude);
-                        if (!player->HasAura(RandomSpells::Wind))
+                      //  Position l_ForceDir = CalculateForceVectorFromBlockId(i, l_Magnitude);
+                       // if (!player->HasAura(RandomSpells::Wind))
                         {
-                            player->AddAura(RandomSpells::Wind, player);
+                           // player->AddAura(RandomSpells::Wind, player);
                             // Apply force.
-                            player->ApplyMovementForce(m_WindMazeBlockGuids[i], l_Magnitude, l_ForceDir);
+                           // player->ApplyMovementForce(m_WindMazeBlockGuids[i], l_Magnitude, l_ForceDir);
                         }
-                        else if (i != m_PlayerGuidToBlockId[player->GetGUID()])
+                        //else if (i != m_PlayerGuidToBlockId[player->GetGUID()])
                         {
                             // Remove old force.
                             // Add new force.
-                            if (player->HasMovementForce(m_WindMazeBlockGuids[m_PlayerGuidToBlockId[player->GetGUID()]]))
-                                player->RemoveMovementForce(m_WindMazeBlockGuids[m_PlayerGuidToBlockId[player->GetGUID()]]);
-                            player->ApplyMovementForce(m_WindMazeBlockGuids[i], l_Magnitude, l_ForceDir);
+                           // if (player->HasMovementForce(m_WindMazeBlockGuids[m_PlayerGuidToBlockId[player->GetGUID()]]))
+                             //   player->RemoveMovementForce(m_WindMazeBlockGuids[m_PlayerGuidToBlockId[player->GetGUID()]]);
+                            //player->ApplyMovementForce(m_WindMazeBlockGuids[i], l_Magnitude, l_ForceDir);
                         }
 
-                        m_PlayerGuidToBlockId[player->GetGUID()] = i;
+                      //  m_PlayerGuidToBlockId[player->GetGUID()] = i;
                     }
                     // Otherwise remove it if it has the Wind aura.
-                    else if (player->HasAura(RandomSpells::Wind))
+                    //else if (player->HasAura(RandomSpells::Wind))
                     {
-                        if (player->HasMovementForce(m_WindMazeBlockGuids[m_PlayerGuidToBlockId[player->GetGUID()]]))
-                            player->RemoveMovementForce(m_WindMazeBlockGuids[m_PlayerGuidToBlockId[player->GetGUID()]]);
-                        player->RemoveAura(RandomSpells::Wind);
+                      //  if (player->HasMovementForce(m_WindMazeBlockGuids[m_PlayerGuidToBlockId[player->GetGUID()]]))
+                        //    player->RemoveMovementForce(m_WindMazeBlockGuids[m_PlayerGuidToBlockId[player->GetGUID()]]);
+                        //player->RemoveAura(RandomSpells::Wind);
                     }
                 }
                 // If player is out of the WindMaze zone and has the aura, remove it.
-                else if (player->HasAura(RandomSpells::Wind))
+               // else if (player->HasAura(RandomSpells::Wind))
                 {
-                    if (player->HasMovementForce(m_WindMazeBlockGuids[m_PlayerGuidToBlockId[player->GetGUID()]]))
-                        player->RemoveMovementForce(m_WindMazeBlockGuids[m_PlayerGuidToBlockId[player->GetGUID()]]);
-                    player->RemoveAura(RandomSpells::Wind);
+                   // if (player->HasMovementForce(m_WindMazeBlockGuids[m_PlayerGuidToBlockId[player->GetGUID()]]))
+                     //   player->RemoveMovementForce(m_WindMazeBlockGuids[m_PlayerGuidToBlockId[player->GetGUID()]]);
+                   // player->RemoveAura(RandomSpells::Wind);
                 }
-            });
+            };
 
 
 
@@ -656,31 +656,31 @@ public:
                     Player* l_ClosestPlayerInBeam = nullptr;
                     float l_ClosestDistance = std::numeric_limits<float>::max();
 
-                    DoOnPlayers([this, l_Araknath, l_SelectedSolarConstructor, &l_ClosestDistance, &l_ClosestPlayerInBeam](Player* player)
+                  //  DoOnPlayers([this, l_Araknath, l_SelectedSolarConstructor, &l_ClosestDistance, &l_ClosestPlayerInBeam](Player* player)
                     {
-                        if (DistanceFromLine(*l_Araknath, *l_SelectedSolarConstructor, *player) < 0.5f // If is in beam.
-                            && dotProductXY(*l_Araknath - *l_SelectedSolarConstructor, *l_Araknath - *player) > 0 // If player is between solar constructor and araknath.
-                            && l_ClosestDistance > l_SelectedSolarConstructor->GetDistance(player))
+                      //  if (DistanceFromLine(*l_Araknath, *l_SelectedSolarConstructor, *player) < 0.5f // If is in beam.
+                        //    && dotProductXY(*l_Araknath - *l_SelectedSolarConstructor, *l_Araknath - *player) > 0 // If player is between solar constructor and araknath.
+                          //  && l_ClosestDistance > l_SelectedSolarConstructor->GetDistance(player))
                         {
-                            l_ClosestDistance = l_SelectedSolarConstructor->GetDistance(player);
-                            l_ClosestPlayerInBeam = player;
+                           // l_ClosestDistance = l_SelectedSolarConstructor->GetDistance(player);
+                           // l_ClosestPlayerInBeam = player;
                         }
-                    });
+                    };
 
                     Spell* l_CurrentSpell = l_SelectedSolarConstructor->GetCurrentSpell(CURRENT_CHANNELED_SPELL);
-                    if (l_ClosestPlayerInBeam
-                        && l_CurrentSpell
-                        && l_CurrentSpell->GetUnitTarget()
-                        && l_CurrentSpell->GetUnitTarget()->ToPlayer() != l_ClosestPlayerInBeam)
-                        l_SelectedSolarConstructor->CastSpell(l_ClosestPlayerInBeam, uint32(RandomSpells::ENERGIZE_DMG), false, nullptr, nullptr, m_AraknathGuid);
-                    else if (!l_ClosestPlayerInBeam
-                        && l_CurrentSpell
-                        && l_CurrentSpell->GetUnitTarget()
-                        && l_CurrentSpell->GetUnitTarget()->ToPlayer())
-                        l_SelectedSolarConstructor->CastSpell(l_SelectedSolarConstructor, uint32(RandomSpells::ENERGIZE_HEAL));
+                    if (l_ClosestPlayerInBeam);
+                        //&& l_CurrentSpell
+                      //  && l_CurrentSpell->GetUnitTarget()
+                        //&& l_CurrentSpell->GetUnitTarget()->ToPlayer() != l_ClosestPlayerInBeam)
+                      //  l_SelectedSolarConstructor->CastSpell(l_ClosestPlayerInBeam, uint32(RandomSpells::ENERGIZE_DMG), false, nullptr, nullptr, m_AraknathGuid);
+                   // else if (!l_ClosestPlayerInBeam
+                      //  && l_CurrentSpell;
+                     //   && l_CurrentSpell->GetUnitTarget()
+                       // && l_CurrentSpell->GetUnitTarget()->ToPlayer())
+                       // l_SelectedSolarConstructor->CastSpell(l_SelectedSolarConstructor, uint32(RandomSpells::ENERGIZE_HEAL));
                 }
             }
-            */
+            
         }
     };
 

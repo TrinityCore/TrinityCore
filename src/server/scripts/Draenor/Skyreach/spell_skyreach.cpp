@@ -159,7 +159,7 @@ public:
             std::list<Creature*> l_TargetList;
             float l_Radius = 3.5f;
 
-            l_TargetList = at->FindAllUnfriendlyCreaturesInRange(l_Radius);
+           // l_TargetList = at->FindAllUnfriendlyCreaturesInRange(l_Radius);
 
             std::list<ObjectGuid> l_ToRemove; // We need to do it in two phase, otherwise it will break iterators.
             for (auto l_Guid : m_Targets)
@@ -244,7 +244,7 @@ public:
             float l_Radius = 30.0f;
 
             if (Unit* unit = at->GetCaster()->ToUnit())
-                unit->GetFriendlyUnitListInRange(l_TargetList, l_Radius, true);
+              //  unit->GetFriendlyUnitListInRange(l_TargetList, l_Radius, true);
 
             std::list<ObjectGuid> l_ToRemove; // We need to do it in two phase, otherwise it will break iterators.
             for (auto l_Guid : m_Targets)
@@ -254,15 +254,15 @@ public:
                 {
                     if (l_Target->HasAura(uint32(Spells::ProtectiveBarrier)))
                     {
-                        l_ToRemove.emplace_front(l_Guid);
+                      //  l_ToRemove.emplace_front(l_Guid);
                         l_Target->RemoveAura(uint32(Spells::ProtectiveBarrier));
                     }
                 }
             }
 
-            for (auto l_Guid : l_ToRemove)
+            //for (auto l_Guid : l_ToRemove)
             {
-                m_Targets.remove(l_Guid);
+              //  m_Targets.remove(l_Guid);
             }
 
             for (Unit* l_Unit : l_TargetList)
@@ -308,7 +308,7 @@ public:
             static const float k_Radius = 10.0f;
             static const float k_RadiusFromLine = 3.0f;
 
-            l_TargetList = at->FindAllUnfriendlyCreaturesInRange(k_Radius);
+          //  l_TargetList = at->FindAllUnfriendlyCreaturesInRange(k_Radius);
 
             Position l_Pos;
             l_Pos = at->GetPosition();
@@ -578,7 +578,7 @@ public:
             std::list<Creature*> l_TargetList;
             float l_Radius = 4.0f;
 
-            l_TargetList = at->FindAllUnfriendlyCreaturesInRange(l_Radius);
+           // l_TargetList = at->FindAllUnfriendlyCreaturesInRange(l_Radius);
 
 
             std::list<ObjectGuid> l_ToRemove; // We need to do it in two phase, otherwise it will break iterators.
@@ -741,7 +741,7 @@ public:
 
             // Update targets.
             std::list<Creature*> l_TargetList;
-            at->FindAllUnfriendlyCreaturesInRange(k_dist);
+           // at->FindAllUnfriendlyCreaturesInRange(k_dist);
 
             std::list<ObjectGuid> l_ToRemove; // We need to do it in two phase, otherwise it will break iterators.
             for (auto l_Guid : m_targets)
@@ -944,7 +944,7 @@ public:
 
             // Update targets.
             std::list<Creature*> l_TargetList;
-            l_TargetList = at->FindAllUnfriendlyCreaturesInRange(k_dist);
+          //  l_TargetList = at->FindAllUnfriendlyCreaturesInRange(k_dist);
 
             std::list<ObjectGuid> l_ToRemove; // We need to do it in two phase, otherwise it will break iterators.
             for (auto l_Guid : m_targets)
@@ -1038,7 +1038,7 @@ public:
             if (GetCaster())
             {
                 Unit* l_Target = nullptr;
-                if ((l_Target = GetCaster()->SelectRandomPlayerInRange(30.0f, true)))
+               // if ((l_Target = GetCaster()->SelectRandomPlayerInRange(30.0f, true)))
                 {
                     uint32 l_Random = urand(0, 1);
                     if (l_Random == 0)
@@ -1098,7 +1098,7 @@ public:
             std::list<Creature*> l_TargetList;
             float l_Radius = 4.0f;
 
-            l_TargetList = at->FindAllUnfriendlyCreaturesInRange(l_Radius);
+           // l_TargetList = at->FindAllUnfriendlyCreaturesInRange(l_Radius);
 
             std::list<ObjectGuid> l_ToRemove; // We need to do it in two phase, otherwise it will break iterators.
             for (auto l_Guid : m_targets)
@@ -1184,7 +1184,7 @@ public:
             std::list<Creature*> l_TargetList;
             float l_Radius = 6.0f;
 
-            at->GetCreatureListInGrid(l_TargetList, l_Radius);
+           // at->GetCreatureListInGrid(l_TargetList, l_Radius);
 
             std::list<ObjectGuid> l_ToRemove; // We need to do it in two phase, otherwise it will break iterators.
             for (auto l_Unit : l_TargetList)
@@ -1275,7 +1275,7 @@ public:
             float l_Radius = 4.0f;
             Unit* l_Caster = at->GetCaster();
 
-            l_TargetList = at->FindAllUnfriendlyCreaturesInRange(l_Radius);
+          //  l_TargetList = at->FindAllUnfriendlyCreaturesInRange(l_Radius);
 
             std::list<ObjectGuid> l_ToRemove; // We need to do it in two phase, otherwise it will break iterators.
             for (auto l_Unit : l_TargetList)
@@ -1354,7 +1354,7 @@ public:
             float l_Radius = 4.0f;
             Unit* l_Caster = at->GetCaster();
 
-            l_TargetList = at->FindAllUnfriendlyCreaturesInRange(l_Radius);
+           // l_TargetList = at->FindAllUnfriendlyCreaturesInRange(l_Radius);
 
             std::list<ObjectGuid> l_ToRemove; // We need to do it in two phase, otherwise it will break iterators.
             for (auto l_Unit : l_TargetList)
