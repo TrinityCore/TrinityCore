@@ -1710,7 +1710,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 }
                 else if (e.action.crossCast.targetParam2 && e.action.crossCast.targetParam2 != data->id)
                 {
-                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} specifies invalid entry {} for CasterTargetType guid ({},{})", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.target.goGUID.entry, AsUnderlyingType(spawnType), guid);
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} specifies invalid entry {} for CasterTargetType guid ({},{})", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.crossCast.targetParam2, AsUnderlyingType(spawnType), guid);
                     return false;
                 }
             }
