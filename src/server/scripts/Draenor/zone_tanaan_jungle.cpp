@@ -28,6 +28,7 @@
 #include "Player.h"
 #include "Unit.h"
 #include "Vehicle.h"
+#include "TanaanIntro/tanaan_intro_finale.cpp"
 
 /// Fel Sludge - 188520
 class spell_tanaan_fel_sludge : public AuraScript
@@ -38,7 +39,7 @@ class spell_tanaan_fel_sludge : public AuraScript
     {
         if (Unit* target = GetTarget())
             if (aurEff->GetBase()->GetStackAmount() >= 10)
-                target->Kill(target, true);
+                target->Kill(target, false);
     }
 
     void Register() override
@@ -56,20 +57,20 @@ enum eMaps
 class zone_tanaan_jungle_100 : public ZoneScript
 {
 public:
-    zone_tanaan_jungle_100() : ZoneScript("zone_tanaan_jungle_100") { }
+   // zone_tanaan_jungle_100() : ZoneScript("zone_tanaan_jungle_100") { }
 
-    void OnPlayerEnter(Player* player) override
+    void OnPlayerEnter(Player* player) 
     {
-        if (!player->IsInFlight() && player->GetMapId() == MAP_DRAENOR)
-            player->SeamlessTeleportToMap(TANAAN_JUNGLE_100_PHASE_MAP);
+        if (!player->IsInFlight() && player->GetMapId() == MAP_DRAENOR);
+         //   player->SeamlessTeleportToMap(TANAAN_JUNGLE_100_PHASE_MAP);
     }
 
-    void OnPlayerExit(Player* player) override
+    void OnPlayerExit(Player* player) 
     {
         if (!player->IsBeingTeleportedFar())
         {
-            if (player->GetMapId() == TANAAN_JUNGLE_100_PHASE_MAP)
-                player->SeamlessTeleportToMap(MAP_DRAENOR);
+            if (player->GetMapId() == TANAAN_JUNGLE_100_PHASE_MAP);
+              //  player->SeamlessTeleportToMap(MAP_DRAENOR);
         }
     }
 };
@@ -94,19 +95,19 @@ public:
             SpellEnrage            = 32714
         };
 
-        void EnterCombat(Unit* /*victim*/) override
+        void EnterCombat(Unit* /*victim*/) 
         {
-            me->GetScheduler().Schedule(Seconds(13), [this](TaskContext context)
+           // me->GetScheduler().Schedule(Seconds(13), [this](TaskContext context)
             {
                 me->CastSpell(me, SpellSmash, false);
-                context.Repeat(Seconds(13));
-            });
+             //   context.Repeat(Seconds(13));
+            };
 
-            me->GetScheduler().Schedule(Seconds(30), [this](TaskContext context)
+           // me->GetScheduler().Schedule(Seconds(30), [this](TaskContext context)
             {
                 me->AddAura(SpellEnrage, me);
-                context.Repeat(Seconds(30));
-            });
+              //  context.Repeat(Seconds(30));
+            };
         }
     };
 };
@@ -131,19 +132,19 @@ public:
             SpellShadowInfusion    = 170180
         };
 
-        void EnterCombat(Unit* /*victim*/) override
+        void EnterCombat(Unit* /*victim*/) 
         {
-            me->GetScheduler().Schedule(Seconds(17), [this](TaskContext context)
+          //  me->GetScheduler().Schedule(Seconds(17), [this](TaskContext context)
             {
                 me->CastSpell(me, SpellEnvelopingShadows, false);
-                context.Repeat(Seconds(17));
-            });
+               // context.Repeat(Seconds(17));
+            };
 
-            me->GetScheduler().Schedule(Seconds(14), [this](TaskContext context)
+          //  me->GetScheduler().Schedule(Seconds(14), [this](TaskContext context)
             {
                 me->CastSpell(me, SpellShadowInfusion, false);
-                context.Repeat(Seconds(14));
-            });
+               // context.Repeat(Seconds(14));
+            };
         }
     };
 };
@@ -170,31 +171,31 @@ public:
             SpellScreech           = 167367
         };
 
-        void EnterCombat(Unit* /*victim*/) override
+        void EnterCombat(Unit* /*victim*/) 
         {
-            me->GetScheduler().Schedule(Seconds(40), [this](TaskContext context)
+           // me->GetScheduler().Schedule(Seconds(40), [this](TaskContext context)
             {
                 me->CastSpell(me, SpellHeadbutt, false);
-                context.Repeat(Seconds(40));
-            });
+               // context.Repeat(Seconds(40));
+            };
 
-            me->GetScheduler().Schedule(Seconds(20), [this](TaskContext context)
+           // me->GetScheduler().Schedule(Seconds(20), [this](TaskContext context)
             {
                 me->CastSpell(me, SpellQuills, false);
-                context.Repeat(Seconds(60));
-            });
+               // context.Repeat(Seconds(60));
+            };
 
-            me->GetScheduler().Schedule(Seconds(15), [this](TaskContext context)
+           // me->GetScheduler().Schedule(Seconds(15), [this](TaskContext context)
             {
                 me->CastSpell(me, SpellPierce, false);
-                context.Repeat(Seconds(30));
-            });
+              //  context.Repeat(Seconds(30));
+            };
 
-            me->GetScheduler().Schedule(Seconds(5), [this](TaskContext context)
+           // me->GetScheduler().Schedule(Seconds(5), [this](TaskContext context)
             {
                 me->CastSpell(me, SpellScreech, false);
-                context.Repeat(Seconds(90), Seconds(100));
-            });
+               // context.Repeat(Seconds(90), Seconds(100));
+            };
         }
     };
 };
@@ -267,16 +268,16 @@ public:
         {
             me->SetFaction(14);
 
-            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+           // me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             me->GetMotionMaster()->MovePoint(1, 4092.80f, -760.21f, 2.89f, false);
 
             if (Vehicle* meVehicle = me->GetVehicleKit())
             {
-                meVehicle->AddPassenger(NPC_PASSENGER, 0);
-                meVehicle->AddPassenger(NPC_PASSENGER, 2);
-                meVehicle->AddPassenger(NPC_PASSENGER, 3);
-                meVehicle->AddPassenger(NPC_PASSENGER, 5);
-                meVehicle->AddPassenger(NPC_DRIVER, 7);
+             //   meVehicle->AddPassenger(NPC_PASSENGER, 0);
+               // meVehicle->AddPassenger(NPC_PASSENGER, 2);
+               // meVehicle->AddPassenger(NPC_PASSENGER, 3);
+               // meVehicle->AddPassenger(NPC_PASSENGER, 5);
+               // meVehicle->AddPassenger(NPC_DRIVER, 7);
             }
         }
 
@@ -289,20 +290,20 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*victim*/) override
+        void EnterCombat(Unit* /*victim*/) 
         {
-            me->GetScheduler().Schedule(Seconds(40), [this](TaskContext context)
+           // me->GetScheduler().Schedule(Seconds(40), [this](TaskContext context)
             {
                 me->CastSpell(me, SpellSiegeNova, false);
-                context.Repeat(Seconds(40));
-            });
+               // context.Repeat(Seconds(40));
+            };
         }
     };
 };
 
 void AddSC_tanaan_jungle()
 {
-    RegisterAuraScript(spell_tanaan_fel_sludge);
+   // RegisterAuraScript(spell_tanaan_fel_sludge);
 
     new zone_tanaan_jungle_100();
 
@@ -312,5 +313,5 @@ void AddSC_tanaan_jungle()
 
     new npc_deathtalon();
     RegisterAreaTriggerAI(at_deathtalon_screech);
-    RegisterAuraScript(spell_deathtalon_quills);
+   // RegisterAuraScript(spell_deathtalon_quills);
 }

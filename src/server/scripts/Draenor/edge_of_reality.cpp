@@ -74,5 +74,5 @@ class spell_voidtalon_backup : public AuraScript
 void AddSC_edge_of_reality()
 {
     RegisterSpellScript(spell_launch_voidtalon_scenario);
-    RegisterAuraScript(spell_voidtalon_backup);
+    //RegisterAuraScript(spell_voidtalon_backup);
 }

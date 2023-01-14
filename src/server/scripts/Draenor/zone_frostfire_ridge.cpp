@@ -25,7 +25,7 @@
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
-#include "WodGarrison.h"
+//#include "WodGarrison.h"
 
 enum
 {
@@ -71,7 +71,7 @@ class playerScript_frostridge_landing_to_hill : public PlayerScript
 public:
     playerScript_frostridge_landing_to_hill() : PlayerScript("playerScript_frostridge_landing_to_hill") { }
 
-    void OnSceneTriggerEvent(Player* player, uint32 p_SceneInstanceID, std::string p_Event) override
+    void OnSceneTriggerEvent(Player* player, uint32 p_SceneInstanceID, std::string p_Event) 
     {
         if (!player->GetSceneMgr().HasScene(p_SceneInstanceID, SCENE_LANDING_TO_TOP_OF_HILL))
             return;
@@ -92,7 +92,7 @@ class playerScript_frostridge_hill_to_garrison : public PlayerScript
 public:
     playerScript_frostridge_hill_to_garrison() : PlayerScript("playerScript_frostridge_hill_to_garrison") { }
 
-    void OnSceneComplete(Player* player, uint32 p_SceneInstanceId) override
+    void OnSceneComplete(Player* player, uint32 p_SceneInstanceId) 
     {
         if (!player->GetSceneMgr().HasScene(p_SceneInstanceId, SCENE_TOP_OF_HILL_TO_GARRISON))
             return;
@@ -107,11 +107,11 @@ class npc_drekthar_frostridge_begin : public CreatureScript
 public:
     npc_drekthar_frostridge_begin() : CreatureScript("npc_drekthar_frostridge_begin") { }
 
-    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest) override
+    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest) 
     {
         if (quest->GetQuestId() == QUEST_A_SONG_OF_FROST_AND_FIRE)
         {
-            player->GetSceneMgr().PlaySceneByPackageId(SCENE_LANDING_TO_TOP_OF_HILL);
+            player->GetSceneMgr();
         }
 
         return true;
@@ -164,11 +164,11 @@ class npc_durotan_frostridge_begin : public CreatureScript
 public:
     npc_durotan_frostridge_begin() : CreatureScript("npc_durotan_frostridge_begin") { }
 
-    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest) override
+    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest)
     {
         if (quest->GetQuestId() == QUEST_OF_WOLFES_AND_WARRIORS)
         {
-            player->GetSceneMgr().PlaySceneByPackageId(SCENE_TOP_OF_HILL_TO_GARRISON);
+            player->GetSceneMgr();
         }
 
         return true;
@@ -195,7 +195,7 @@ public:
             if (!player)
                 return;
 
-            player->GetSceneMgr().PlaySceneByPackageId(SCENE_PORTAL_OPENING);
+            player->GetSceneMgr();
         }
 
         void Register() override
@@ -210,7 +210,7 @@ public:
     }
 };
 
-// 233664 - Niveau de Geomètre
+// 233664 - Niveau de Geomctre
 class go_frostridge_master_surveyor : public GameObjectScript
 {
 public:
@@ -241,7 +241,7 @@ public:
             waitTimer = 1000;
 
             std::list<Player*> playerList;
-            go->GetPlayerListInGrid(playerList, 10.0f);
+          //  go->GetPlayerListInGrid(playerList, 10.0f);
 
             for (Player* player : playerList)
             {
@@ -249,13 +249,13 @@ public:
                     player->GetQuestStatus(QUEST_ESTABLISH_YOUR_GARRISON) != QUEST_STATUS_COMPLETE)
                     continue;
 
-                if (!player->GetGarrison(GARRISON_TYPE_GARRISON))
+               // if (!player->GetGarrison(GARRISON_TYPE_GARRISON))
                 {
                     player->CastSpell(player, SPELL_CREATE_GARRISON_HORDE, true);
 
-                    if (Garrison* garr = player->GetGarrison(GARRISON_TYPE_GARRISON))
+                    //if (Garrison* garr = player->GetGarrison(GARRISON_TYPE_GARRISON))
                     {
-                        garr->ToWodGarrison()->TeleportOwnerAndPlayMovie();
+                      //  garr->ToWodGarrison()->TeleportOwnerAndPlayMovie();
                         player->KilledMonsterCredit(NPC_ESTABLISH_YOUR_GARRISON_KILL_CREDIT);
                     }
                 }
@@ -292,12 +292,12 @@ class npc_groog : public CreatureScript
                 me->SetFaction(14);
             }
 
-            void EnterCombat(Unit* /*p_Victim*/) override
+            void EnterCombat(Unit* /*p_Victim*/) 
             {
                 m_Events.Reset();
 
-                m_Events.ScheduleEvent(EventEarthrendingSlam, 3000);
-                m_Events.ScheduleEvent(EventRampage, 7000);
+               // m_Events.ScheduleEvent(EventEarthrendingSlam, 3000);
+               // m_Events.ScheduleEvent(EventRampage, 7000);
             }
 
             void UpdateAI(uint32 diff) override
@@ -311,11 +311,11 @@ class npc_groog : public CreatureScript
                 {
                     case EventEarthrendingSlam:
                         me->CastSpell(me, SpellEarthrendingSlam, false);
-                        m_Events.ScheduleEvent(EventEarthrendingSlam, 15000);
+                       // m_Events.ScheduleEvent(EventEarthrendingSlam, 15000);
                         break;
                     case EventRampage:
                         me->AddAura(SpellRampage, me);
-                        m_Events.ScheduleEvent(EventRampage, 15000);
+                      //  m_Events.ScheduleEvent(EventRampage, 15000);
                         break;
                 }
 
@@ -353,7 +353,7 @@ class spell_groog_rampage : public SpellScriptLoader
                     if (player->HasUnitState(UNIT_STATE_ROOT))
                         continue;
 
-                    player->KnockbackFrom(player->m_positionX, player->m_positionY, 10.0f, 10.0f);
+                   // player->KnockbackFrom(player->m_positionX, player->m_positionY, 10.0f, 10.0f);
                 }
             }
 
@@ -395,10 +395,10 @@ public:
         void InitializeAI()
         {
             Reset();
-            events.RescheduleEvent(TEXT_GENERIC_2, 1000);
+           // events.RescheduleEvent(TEXT_GENERIC_2, 1000);
 
-            go->m_invisibility.AddFlag(INVISIBILITY_UNK7);
-            go->m_invisibility.AddValue(INVISIBILITY_UNK7, 1000);
+           // go->m_invisibility.AddFlag(INVISIBILITY_UNK7);
+          //  go->m_invisibility.AddValue(INVISIBILITY_UNK7, 1000);
         }
 
         bool GossipUse(Player* player) 
@@ -406,16 +406,16 @@ public:
             if (player->GetQuestStatus(__QUEST) != QUEST_STATUS_INCOMPLETE)
                 return true;
 
-            Creature * tree = go->GetMap()->GetCreature(treeGUID);
+          //  Creature * tree = go->GetMap()->GetCreature(treeGUID);
 
-            if (!tree
-                || !tree->IsAlive())
+           // if (!tree
+             //   || !tree->IsAlive())
                 return true;
-            player->KillCreditGO(go->GetEntry(), go->GetGUID());
+           // player->KillCreditGO(go->GetEntry(), go->GetGUID());
 
-            events.RescheduleEvent(TEXT_GENERIC_1, 15000);
+           // events.RescheduleEvent(TEXT_GENERIC_1, 15000);
 
-            go->UseDoorOrButton(30, false, player);           
+           // go->UseDoorOrButton(30, false, player);           
             return true;
         }
 
@@ -426,27 +426,27 @@ public:
             {
                 if (eventId == TEXT_GENERIC_1)
                 {
-                    if (Creature * tree = go->GetMap()->GetCreature(treeGUID))
+                   // if (Creature * tree = go->GetMap()->GetCreature(treeGUID))
                     {
-                        tree->SetCorpseDelay(0);
-                        tree->SetRespawnDelay(30);
-                        tree->ForcedDespawn();
+                      //  tree->SetCorpseDelay(0);
+                      //  tree->SetRespawnDelay(30);
+                      //  tree->ForcedDespawn();
                     }
                 }
-                else
+                //else
                 {
-                    if (Creature *tree = go->FindNearestCreature(NPC_TREE, 5.0f))
+                   // if (Creature *tree = go->FindNearestCreature(NPC_TREE, 5.0f))
                     {
-                        treeGUID = tree->GetGUID();
-                        if (!tree->IsAlive())
-                            tree->Respawn();
+                      //  treeGUID = tree->GetGUID();
+                       // if (!tree->IsAlive())
+                         //   tree->Respawn();
                     }
-                    else
+                    //else
                     {
                         Position pos;
-                        go->GetRandomNearPosition(5.0f);
-                        if (TempSummon* summon = go->SummonCreature(NPC_TREE, pos))
-                            treeGUID = summon->GetGUID();
+                      //  go->GetRandomNearPosition(5.0f);
+                        //if (TempSummon* summon = go->SummonCreature(NPC_TREE, pos))
+                          //  treeGUID = summon->GetGUID();
                     }
                 }
             }
@@ -520,7 +520,7 @@ void AddSC_frostfire_ridge()
     new playerScript_frostridge_hill_to_garrison();
 
     new npc_drekthar_frostridge_begin();
-    new npc_durotan_frostridge_begin();
+  //  new npc_durotan_frostridge_begin();
     new mob_wod_q34375();
 
     new go_frostridge_master_surveyor();

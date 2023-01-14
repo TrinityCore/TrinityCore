@@ -31,7 +31,11 @@
 #include "ScriptedEscortAI.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
-#include "WodGarrison.h"
+#include "TanaanIntro/tanaan_intro_finale.cpp"
+#include <ScriptMgr.cpp>
+#include <SmartAI.h>
+#include <SmartScript.h>
+//#include "WodGarrison.h"
 
 enum
 {
@@ -57,32 +61,32 @@ class npc_velen_shadowmoon_begin : public CreatureScript
 public:
     npc_velen_shadowmoon_begin() : CreatureScript("npc_velen_shadowmoon_begin") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) 
     {
         if (quest->GetQuestId() == QUEST_FINDING_A_FOOTHOLD)
         {
-            player->GetScheduler().Schedule(68s, [this, player](TaskContext context)
+           // player->GetScheduler().Schedule(68s, [this, player](TaskContext context)
             {
-                player->ForceCompleteQuest(QUEST_FINDING_A_FOOTHOLD);
-            });
-            if (TempSummon* waypointVelen = player->SummonCreature(creature->GetEntry(), creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
+               // player->ForceCompleteQuest(QUEST_FINDING_A_FOOTHOLD);
+            };
+            //if (TempSummon* waypointVelen = player->SummonCreature(creature->GetEntry(), creature->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
             {
-                waypointVelen->AI()->SetGUID(player->GetGUID());
+               // waypointVelen->AI()->SetGUID(player->GetGUID());
             }
 
             if (Creature* normalMaraad = creature->FindNearestCreature(NPC_VELEN_FOLLOWER_MARAAD, 50.0f))
             {
-                if (TempSummon* waypointMaraad = player->SummonCreature(NPC_VELEN_FOLLOWER_MARAAD, normalMaraad->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
+              //  if (TempSummon* waypointMaraad = player->SummonCreature(NPC_VELEN_FOLLOWER_MARAAD, normalMaraad->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
                 {
-                    waypointMaraad->AI()->SetGUID(player->GetGUID());
+                  //  waypointMaraad->AI()->SetGUID(player->GetGUID());
                 }
             }
 
             if (Creature* normalYrel = creature->FindNearestCreature(NPC_VELEN_FOLLOWER_YREL, 50.0f))
             {
-                if (TempSummon* waypointYrel = player->SummonCreature(NPC_VELEN_FOLLOWER_YREL, normalYrel->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
+              //  if (TempSummon* waypointYrel = player->SummonCreature(NPC_VELEN_FOLLOWER_YREL, normalYrel->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0, 0, true))
                 {
-                    waypointYrel->AI()->SetGUID(player->GetGUID());
+                   // waypointYrel->AI()->SetGUID(player->GetGUID());
                 }
             }
         }
@@ -92,12 +96,12 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_velen_shadowmoon_beginAI(creature);
+        return;// new npc_velen_shadowmoon_beginAI(creature);
     }
 
-    struct npc_velen_shadowmoon_beginAI : public npc_escortAI
+    struct npc_velen_shadowmoon_beginAI : public CreatureAI
     {
-        npc_velen_shadowmoon_beginAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_velen_shadowmoon_beginAI(Creature* creature) : CreatureAI(creature) { }
 
         ObjectGuid playerGuid;
 
@@ -106,17 +110,17 @@ public:
             playerGuid = ObjectGuid::Empty;
         }
 
-        void SetGUID(ObjectGuid guid, int32 /*id*/) override
+        void SetGUID(ObjectGuid guid, int32 /*id*/) 
         {
             playerGuid = guid;
-            Start(false, true, guid);
-            SetDespawnAtFar(false);
-            me->GetScheduler().Schedule(68s, [this](TaskContext context)
+            //Start(false, true, guid);
+           // SetDespawnAtFar(false);
+           // me->GetScheduler().Schedule(68s, [this](TaskContext context)
             {
                 Talk(0);
                 me->SetFacingTo(5.631830f);
                 me->DespawnOrUnsummon(3s);
-            });
+            };
         }
     };
 };
@@ -129,19 +133,19 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_velen_shadowmoon_followerAI(creature);
+        return;// new npc_velen_shadowmoon_followerAI(creature);
     }
 
-    struct npc_velen_shadowmoon_followerAI : public npc_escortAI
+    struct npc_velen_shadowmoon_followerAI : public CreatureAI
     {
-        npc_velen_shadowmoon_followerAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_velen_shadowmoon_followerAI(Creature* creature) : CreatureAI(creature) { }
 
-        void SetGUID(ObjectGuid guid, int32 /*id*/) override
+        void SetGUID(ObjectGuid guid, int32 /*id*/) 
         {
-            Start(true, true, guid);
+           // Start(true, true, guid);
         }
 
-        void WaypointReached(uint32 pointId) override
+        void WaypointReached(uint32 pointId) 
         {
             switch (pointId)
             {
@@ -173,10 +177,10 @@ struct npc_vindicator_maraad_79470 : public ScriptedAI
 {
     npc_vindicator_maraad_79470(Creature* c) : ScriptedAI(c) { }
 
-    void sQuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) 
     {
-        if (quest->ID == QUEST_FOR_THE_ALLIANCE)
-            player->ForceCompleteQuest(QUEST_FOR_THE_ALLIANCE);
+       // if (quest->ID == QUEST_FOR_THE_ALLIANCE)
+         //   player->ForceCompleteQuest(QUEST_FOR_THE_ALLIANCE);
     }
 };
 
@@ -185,7 +189,7 @@ class npc_baros_pre_garrison : public CreatureScript
 public:
     npc_baros_pre_garrison() : CreatureScript("npc_baros_pre_garrison") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
+    bool OnGossipHello(Player* player, Creature* creature) 
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
@@ -197,14 +201,14 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 /*action*/) override
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 /*action*/)
     {
-        Garrison* garrison = player->GetGarrison(GARRISON_TYPE_GARRISON);
-        if (!garrison)
+      //  Garrison* garrison = player->GetGarrison(GARRISON_TYPE_GARRISON);
+       // if (!garrison)
         {
             CloseGossipMenuFor(player);
-            player->CreateGarrison(player->IsInAlliance() ? GARRISON_SITE_WOD_ALLIANCE : GARRISON_SITE_WOD_HORDE);
-            player->GetGarrison(GARRISON_TYPE_GARRISON)->ToWodGarrison()->TeleportOwnerAndPlayMovie();
+          //  player->CreateGarrison(player->IsInAlliance() ? GARRISON_SITE_WOD_ALLIANCE : GARRISON_SITE_WOD_HORDE);
+          //  player->GetGarrison(GARRISON_TYPE_GARRISON)->ToWodGarrison()->TeleportOwnerAndPlayMovie();
             player->KilledMonsterCredit(NPC_ESTABLISH_YOUR_GARRISON_KILL_CREDIT);
         }
 
@@ -300,15 +304,15 @@ public:
             me->CastSpell(me, SPELL_AQUATIC_BALL, true);
             me->SetDisplayId(DISPLAYID_AQUATIC_BALL);
 
-            me->SummonCreature(81542, -870.97f, -1109.27f, 83.38f, 4.824920f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
-            me->SummonCreature(81542, -861.96f, -1108.41f, 83.72f, 4.475420f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
-            me->SummonCreature(81542, -880.42f, -1110.95f, 83.63f, 5.366850f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
+          //  me->SummonCreature(81542, -870.97f, -1109.27f, 83.38f, 4.824920f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
+           // me->SummonCreature(81542, -861.96f, -1108.41f, 83.72f, 4.475420f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
+           // me->SummonCreature(81542, -880.42f, -1110.95f, 83.63f, 5.366850f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2000);
 
-            events.ScheduleEvent(EVENT_WATER_BLAST, 5000);
-            events.ScheduleEvent(EVENT_SUBMERGE, urand(13000, 30000));
-            events.ScheduleEvent(EVENT_JETTISON, urand(8000, 18000));
+           // events.ScheduleEvent(EVENT_WATER_BLAST, 5000);
+           // events.ScheduleEvent(EVENT_SUBMERGE, urand(13000, 30000));
+           // events.ScheduleEvent(EVENT_JETTISON, urand(8000, 18000));
 
-            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+          //  me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
         }
 
         void JustSummoned(Creature* summon) override
@@ -348,7 +352,7 @@ public:
                 {
                     if (Unit* victim = me->GetVictim())
                         me->CastSpell(victim, SPELL_JETTISON, false);
-                    events.ScheduleEvent(EVENT_JETTISON, urand(8000, 18000));
+                  //  events.ScheduleEvent(EVENT_JETTISON, urand(8000, 18000));
                     break;
                 }
 
@@ -356,7 +360,7 @@ public:
                 {
 
                     me->CastSpell(me, SPELL_SUBMERGE, false);
-                    events.ScheduleEvent(EVENT_SUBMERGE, urand(13000, 30000));
+                  //  events.ScheduleEvent(EVENT_SUBMERGE, urand(13000, 30000));
                     break;
                 }
 
@@ -364,7 +368,7 @@ public:
                 {
                     if (Unit* victim = me->GetVictim())
                         me->CastSpell(victim, SPELL_WATER_BLAST, false);
-                    events.ScheduleEvent(EVENT_WATER_BLAST, 5000);
+                   // events.ScheduleEvent(EVENT_WATER_BLAST, 5000);
                     break;
                 }
                 }
@@ -385,8 +389,8 @@ struct areatrigger_aqualir_submerge : AreaTriggerAI
 
     void OnUnitEnter(Unit* unit) override
     {
-        if (unit->IsPlayer())
-            unit->ApplyMovementForce(at->GetGUID(), bottom, 7.0f, 0);
+        if (unit->IsPlayer());
+           // unit->ApplyMovementForce(at->GetGUID(), bottom, 7.0f, 0);
     }
 
     void OnUnitExit(Unit* unit) override
@@ -482,22 +486,22 @@ class npc_gara : public CreatureScript
 public:
     npc_gara() : CreatureScript("npc_gara") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
+    bool OnGossipHello(Player* player, Creature* creature) 
     {
         if(player->GetQuestStatus(37423) != QUEST_STATUS_INCOMPLETE && player->GetQuestStatus(37423) != QUEST_STATUS_COMPLETE && player->GetQuestStatus(37423) != QUEST_STATUS_REWARDED)
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, "(Beast Mastery) Lean down and scratch the wolf behind its ears.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+           // AddGossipItemFor(player, GOSSIP_ICON_CHAT, "(Beast Mastery) Lean down and scratch the wolf behind its ears.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
         if (player->GetQuestStatus(37423) == QUEST_STATUS_REWARDED && player->GetQuestStatus(37424) != QUEST_STATUS_REWARDED && player->HasItemCount(ITEM_SHADOWBERRY, 1))
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, "(Beast Mastery) Show Gara the Shadowberries.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+          //  AddGossipItemFor(player, GOSSIP_ICON_CHAT, "(Beast Mastery) Show Gara the Shadowberries.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
 
         player->PlayerTalkClass->SendGossipMenu(85645, creature->GetGUID());
 
         return true;
     }
 
-    bool OnGossipSelect(Player * player, Creature * creature, uint32 /*p_Sender*/, uint32 action) override
+    bool OnGossipSelect(Player * player, Creature * creature, uint32 /*p_Sender*/, uint32 action) 
     {
-        if (player->getClass() != CLASS_HUNTER || player->GetSpecializationId() != TALENT_SPEC_HUNTER_BEASTMASTER)
+     //   if (player->getClass() != CLASS_HUNTER || player->GetSpecializationId() != TALENT_SPEC_HUNTER_BEASTMASTER)
             return false;
 
         player->PlayerTalkClass->ClearMenus();
@@ -575,7 +579,7 @@ public:
     {
         go_spirit_effigyAI(GameObject* go) : GameObjectAI(go)
         {
-            events.ScheduleEvent(EVENT_SOUL_EFFIGY_01, 0);
+           // events.ScheduleEvent(EVENT_SOUL_EFFIGY_01, 0);
         }
 
         ObjectGuid omraGuid;
@@ -583,16 +587,16 @@ public:
 
         TempSummon* GetOmra()
         {
-            if (Creature* omra = ObjectAccessor::GetCreature(*go, omraGuid))
-                return omra->ToTempSummon();
+          //  if (Creature* omra = ObjectAccessor::GetCreature(*go, omraGuid))
+             //   return omra->ToTempSummon();
 
             return nullptr;
         }
 
         TempSummon* GetXan()
         {
-            if (Creature* xan = ObjectAccessor::GetCreature(*go, xanGuid))
-                return xan->ToTempSummon();
+           // if (Creature* xan = ObjectAccessor::GetCreature(*go, xanGuid))
+             //   return xan->ToTempSummon();
 
             return nullptr;
         }
@@ -607,18 +611,18 @@ public:
                 {
                     case EVENT_SOUL_EFFIGY_01:
                     {
-                        if (Creature* gara = go->FindNearestCreature(NPC_GARA_BURIAL, 15, false))
-                            gara->Respawn();
+                       // if (Creature* gara = go->FindNearestCreature(NPC_GARA_BURIAL, 15, false))
+                          //  gara->Respawn();
 
-                        if (TempSummon* Omra = go->SummonCreature(NPC_MOTHER_OMRA_BURIAL, BurialEventPos[0], TEMPSUMMON_MANUAL_DESPAWN))
+                       // if (TempSummon* Omra = go->SummonCreature(NPC_MOTHER_OMRA_BURIAL, BurialEventPos[0], TEMPSUMMON_MANUAL_DESPAWN))
                         {
-                            omraGuid = Omra->GetGUID();
-                            Omra->CastSpell(Omra, SPELL_SOULSTONE_VISUAL);
-                            Omra->SetSpeed(MOVE_WALK, 0.4f);
-                            Omra->SetSpeed(MOVE_RUN, 0.4f);
-                            Omra->GetMotionMaster()->MovePoint(1, BurialEventPos[1], true);
+                           // omraGuid = Omra->GetGUID();
+                           // Omra->CastSpell(Omra, SPELL_SOULSTONE_VISUAL);
+                           // Omra->SetSpeed(MOVE_WALK, 0.4f);
+                           // Omra->SetSpeed(MOVE_RUN, 0.4f);
+                           // Omra->GetMotionMaster()->MovePoint(1, BurialEventPos[1], true);
                         }
-                        events.ScheduleEvent(EVENT_SOUL_EFFIGY_02, 4.5 * IN_MILLISECONDS);
+                        //events.ScheduleEvent(EVENT_SOUL_EFFIGY_02, 4.5 * IN_MILLISECONDS);
 
                         break;
                     }
@@ -629,7 +633,7 @@ public:
                             Omra->Say(SAY_OMRA_01, LANG_UNIVERSAL, Omra);
                             Omra->GetMotionMaster()->MovePoint(1, BurialEventPos[2], true);
                         }
-                        events.ScheduleEvent(EVENT_SOUL_EFFIGY_03, 4 * IN_MILLISECONDS);
+                        //events.ScheduleEvent(EVENT_SOUL_EFFIGY_03, 4 * IN_MILLISECONDS);
 
                         break;
                     }
@@ -638,10 +642,10 @@ public:
                         if (TempSummon* Omra = GetOmra())
                         {
                             Omra->Say(SAY_OMRA_02, LANG_UNIVERSAL, Omra);
-                            Omra->HandleEmoteCommand(16 /*EMOTE_ONESHOT_KNEEL*/);
+                           // Omra->HandleEmoteCommand(16 /*EMOTE_ONESHOT_KNEEL*/);
                         }
 
-                        events.ScheduleEvent(EVENT_SOUL_EFFIGY_04, 8 * IN_MILLISECONDS);
+                       // events.ScheduleEvent(EVENT_SOUL_EFFIGY_04, 8 * IN_MILLISECONDS);
 
                         break;
                     }
@@ -650,7 +654,7 @@ public:
                         if (TempSummon* Omra = GetOmra())
                             Omra->Say(SAY_OMRA_03, LANG_UNIVERSAL, Omra);
 
-                        events.ScheduleEvent(EVENT_SOUL_EFFIGY_05, 11 * IN_MILLISECONDS);
+                       // events.ScheduleEvent(EVENT_SOUL_EFFIGY_05, 11 * IN_MILLISECONDS);
 
                         break;
                     }
@@ -659,7 +663,7 @@ public:
                         if (TempSummon* Omra = GetOmra())
                             Omra->Say(SAY_OMRA_04, LANG_UNIVERSAL, Omra);
 
-                        events.ScheduleEvent(EVENT_SOUL_EFFIGY_06, 7.5 * IN_MILLISECONDS);
+                       // events.ScheduleEvent(EVENT_SOUL_EFFIGY_06, 7.5 * IN_MILLISECONDS);
 
                         break;
                     }
@@ -670,12 +674,12 @@ public:
                             Omra->Say(SAY_OMRA_05, LANG_UNIVERSAL, Omra);
                             Omra->CastSpell(Omra, SPELL_SOULSTONE_VISUAL);
                         }
-                        events.ScheduleEvent(EVENT_SOUL_EFFIGY_07, 2 * IN_MILLISECONDS);
-                        if (TempSummon* Xan = go->SummonCreature(NPC_XAN, BurialEventPos[3], TEMPSUMMON_MANUAL_DESPAWN))
+                       // events.ScheduleEvent(EVENT_SOUL_EFFIGY_07, 2 * IN_MILLISECONDS);
+                        //if (TempSummon* Xan = go->SummonCreature(NPC_XAN, BurialEventPos[3], TEMPSUMMON_MANUAL_DESPAWN))
                         {
-                            xanGuid = Xan->GetGUID();
-                            Xan->SetReactState(REACT_PASSIVE);
-                            Xan->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC));
+                          //  xanGuid = Xan->GetGUID();
+                           // Xan->SetReactState(REACT_PASSIVE);
+                           // Xan->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC));
                         }
 
                         break;
@@ -688,7 +692,7 @@ public:
                         if (TempSummon* Xan = GetXan())
                             Xan->Say(SAY_XAN_01, LANG_UNIVERSAL, Xan);
 
-                        events.ScheduleEvent(EVENT_SOUL_EFFIGY_08, 6 * IN_MILLISECONDS);
+                       // events.ScheduleEvent(EVENT_SOUL_EFFIGY_08, 6 * IN_MILLISECONDS);
 
                         break;
                     }
@@ -697,19 +701,19 @@ public:
                         if (TempSummon* Xan = GetXan())
                             Xan->Say(SAY_XAN_02, LANG_UNIVERSAL, Xan);
 
-                        if (Creature* gara = go->FindNearestCreature(NPC_GARA_BURIAL, 15, true))
-                            gara->CastSpell(gara, SPELL_VOID_EFFECT);
-                        events.ScheduleEvent(EVENT_SOUL_EFFIGY_END, 4 * IN_MILLISECONDS);
+                       // if (Creature* gara = go->FindNearestCreature(NPC_GARA_BURIAL, 15, true))
+                        //    gara->CastSpell(gara, SPELL_VOID_EFFECT);
+                       // events.ScheduleEvent(EVENT_SOUL_EFFIGY_END, 4 * IN_MILLISECONDS);
 
                         break;
                     }
                     case EVENT_SOUL_EFFIGY_END:
                     {
-                        if (Creature* gara = go->FindNearestCreature(NPC_GARA_BURIAL, 15))
+                       // if (Creature* gara = go->FindNearestCreature(NPC_GARA_BURIAL, 15))
                         {
-                            gara->TextEmote("Gara slowly disappear into the void.", gara);
-                            gara->RemoveAllAuras();
-                            gara->DisappearAndDie();
+                           // gara->TextEmote("Gara slowly disappear into the void.", gara);
+                           // gara->RemoveAllAuras();
+                           // gara->DisappearAndDie();
                         }
 
                         if (TempSummon* Xan = GetXan())
@@ -735,10 +739,10 @@ class go_shadowmoon_voidblade : public GameObjectScript
 public:
     go_shadowmoon_voidblade() : GameObjectScript("go_shadowmoon_voidblade") { }
 
-    bool OnGossipHello(Player* player, GameObject* /*go*/) override
+    bool OnGossipHello(Player* player, GameObject* /*go*/) 
     {
         if ((player->HasAura(SPELL_VOID_LANTERN) && player->GetQuestStatus(37426) == QUEST_STATUS_REWARDED) || player->GetQuestStatus(37427) == QUEST_STATUS_REWARDED)
-            if(player->getClass() == CLASS_HUNTER && player->GetSpecializationId() == TALENT_SPEC_HUNTER_BEASTMASTER)
+         //   if(player->getClass() == CLASS_HUNTER && player->GetSpecializationId() == TALENT_SPEC_HUNTER_BEASTMASTER)
             player->CastSpell(player, SPELL_TRACKING_QUEST_3);
 
         CloseGossipMenuFor(player);
@@ -761,7 +765,7 @@ public:
             if (!GetCaster()->IsPlayer())
                 return;
 
-            PhasingHandler::AddPhase(GetCaster(), 8);
+           // PhasingHandler::AddPhase(GetCaster(), 8);
             GetCaster()->SummonCreature(NPC_GARA_VOID_PET, GetCaster()->GetPosition());
         }
 
@@ -769,7 +773,7 @@ public:
         {
             if (!GetCaster()->IsPlayer())
                 return;
-            PhasingHandler::RemovePhase(GetCaster(), 8);
+           // PhasingHandler::RemovePhase(GetCaster(), 8);
         }
 
         void Register() override
@@ -811,8 +815,8 @@ public:
             gara_teamable   = nullptr;
 
             if (owner != nullptr)
-                events.ScheduleEvent(EVENT_CHECK_PLAYER, 0);
-            else
+              //  events.ScheduleEvent(EVENT_CHECK_PLAYER, 0);
+           // else
                 creature->DisappearAndDie();
         }
 
@@ -831,9 +835,10 @@ public:
         void DoAction(int32 action) override
         {
             if (action == ACTION_SUMMON_XAN)
-                events.ScheduleEvent(EVENT_GARA_01, 0);
-            else if (action == ACTION_XAN_DEATH)
-                events.ScheduleEvent(EVENT_GARA_02, 0);
+                //  events.ScheduleEvent(EVENT_GARA_01, 0);
+              //else
+            if (action == ACTION_XAN_DEATH);
+              //  events.ScheduleEvent(EVENT_GARA_02, 0);
         }
 
         void UpdateAI(uint32 diff) override
@@ -854,15 +859,15 @@ public:
                         }
                         else me->DisappearAndDie();
 
-                        events.ScheduleEvent(EVENT_CHECK_PLAYER, 1000);
+                       // events.ScheduleEvent(EVENT_CHECK_PLAYER, 1000);
                     }
                     break;
                     case EVENT_GARA_01:
                     {
-                        if (TempSummon* Xan = me->SummonCreature(NPC_XAN, VoidRealmEventPos[0], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60 * 60 * IN_MILLISECONDS))
+                       // if (TempSummon* Xan = me->SummonCreature(NPC_XAN, VoidRealmEventPos[0], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60 * 60 * IN_MILLISECONDS))
                         {
-                            Xan->SetFaction(14);
-                            Xan->SetReactState(REACT_AGGRESSIVE);
+                           // Xan->SetFaction(14);
+                           // Xan->SetReactState(REACT_AGGRESSIVE);
                         }
                     }
                         break;
@@ -871,7 +876,7 @@ public:
                         events.CancelEvent(EVENT_CHECK_PLAYER);
                         me->GetMotionMaster()->MovePoint(2, VoidRealmEventPos[1], true);
                         me->CastSpell(me, SPELL_VOID_EFFECT);
-                        events.ScheduleEvent(EVENT_GARA_03, 10 * IN_MILLISECONDS);
+                      //  events.ScheduleEvent(EVENT_GARA_03, 10 * IN_MILLISECONDS);
                     }
                         break;
                     case EVENT_GARA_03:
@@ -887,12 +892,12 @@ public:
                         }
                         me->RemoveAllAuras();
                         me->SetVisible(false);
-                        gara_teamable = me->SummonCreature(NPC_GARA_TAMABLE_PET, me->GetPosition(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000);
+                       // gara_teamable = me->SummonCreature(NPC_GARA_TAMABLE_PET, me->GetPosition(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000);
 
                         if(gara_teamable)
                             gara_teamable->SetHealth(gara_teamable->GetHealth() * 60000);
 
-                        events.ScheduleEvent(EVENT_GARA_04, 0);
+                       // events.ScheduleEvent(EVENT_GARA_04, 0);
                     }
                         break;
                     case EVENT_GARA_04:
@@ -900,9 +905,9 @@ public:
                         if (!gara_teamable)
                             return;
 
-                        if (gara_teamable->IsInCombat())
-                            events.ScheduleEvent(EVENT_GARA_05, 2 * IN_MILLISECONDS);
-                        else events.ScheduleEvent(EVENT_GARA_04, 300);
+                        if (gara_teamable->IsInCombat());
+                        //    events.ScheduleEvent(EVENT_GARA_05, 2 * IN_MILLISECONDS);
+                        //else events.ScheduleEvent(EVENT_GARA_04, 300);
                     }
                         break;
                     case EVENT_GARA_05:
@@ -910,7 +915,7 @@ public:
                         if (Omra)
                             Omra->Say(SAY_OMRA_12, LANG_UNIVERSAL, Omra);
 
-                        events.ScheduleEvent(EVENT_GARA_06, 11 * IN_MILLISECONDS);
+                       // events.ScheduleEvent(EVENT_GARA_06, 11 * IN_MILLISECONDS);
                     }
                         break;
                     case EVENT_GARA_06:
@@ -918,7 +923,7 @@ public:
                         if (Omra)
                             Omra->CastSpell(Omra, SPELL_SOULSTONE_VISUAL);
 
-                        events.ScheduleEvent(EVENT_GARA_END, 1 * IN_MILLISECONDS);
+                       // events.ScheduleEvent(EVENT_GARA_END, 1 * IN_MILLISECONDS);
                     }
                         break;
                     case EVENT_GARA_END:
@@ -960,21 +965,21 @@ public:
                     gara->GetAI()->DoAction(ACTION_SUMMON_XAN);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) 
         {
             events.Reset();
 
             if (me->GetEntry() == NPC_ELDER_VOIDCALLER)
             {
-                events.ScheduleEvent(EVENT_NEGATE, urand(30, 40) * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_TWIST_REALITY, urand(2, 10) * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_VOID_BOLT, urand(2, 5) * IN_MILLISECONDS);
+              //  events.ScheduleEvent(EVENT_NEGATE, urand(30, 40) * IN_MILLISECONDS);
+               // events.ScheduleEvent(EVENT_TWIST_REALITY, urand(2, 10) * IN_MILLISECONDS);
+               // events.ScheduleEvent(EVENT_VOID_BOLT, urand(2, 5) * IN_MILLISECONDS);
             }
-            else
+            //else
             {
-                events.ScheduleEvent(EVENT_CONSUMING_VOID, urand(40, 60) * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_GRIP_OF_THE_VOID, urand(10, 20) * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_SINGULARITY, urand(5, 15) * IN_MILLISECONDS);
+               // events.ScheduleEvent(EVENT_CONSUMING_VOID, urand(40, 60) * IN_MILLISECONDS);
+               // events.ScheduleEvent(EVENT_GRIP_OF_THE_VOID, urand(10, 20) * IN_MILLISECONDS);
+               // events.ScheduleEvent(EVENT_SINGULARITY, urand(5, 15) * IN_MILLISECONDS);
             }
         }
 
@@ -994,26 +999,26 @@ public:
                 {
                     case EVENT_CONSUMING_VOID:
                     {
-                        if (Unit* victim = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
-                            me->CastSpell(victim, SPELL_CONSUMING_VOID);
+                       // if (Unit* victim = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
+                         //   me->CastSpell(victim, SPELL_CONSUMING_VOID);
 
-                        events.ScheduleEvent(EVENT_CONSUMING_VOID, urand(40, 60) * IN_MILLISECONDS);
+                       // events.ScheduleEvent(EVENT_CONSUMING_VOID, urand(40, 60) * IN_MILLISECONDS);
                         break;
                     }
                     case EVENT_GRIP_OF_THE_VOID:
                     {
-                        if (Unit* victim = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 50.0f, true))
-                            me->CastSpell(victim, SPELL_GRIP_OF_THE_VOID);
+                        //if (Unit* victim = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 50.0f, true))
+                          //  me->CastSpell(victim, SPELL_GRIP_OF_THE_VOID);
 
-                        events.ScheduleEvent(EVENT_GRIP_OF_THE_VOID, urand(20, 30) * IN_MILLISECONDS);
+                       // events.ScheduleEvent(EVENT_GRIP_OF_THE_VOID, urand(20, 30) * IN_MILLISECONDS);
                         break;
                     }
                     case EVENT_NEGATE:
                     {
-                        if (Unit* victim = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 10.0f, true))
-                            me->CastSpell(victim, SPELL_NEGATE);
+                       // if (Unit* victim = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 10.0f, true))
+                         //   me->CastSpell(victim, SPELL_NEGATE);
 
-                        events.ScheduleEvent(EVENT_NEGATE, urand(10, 25) * IN_MILLISECONDS);
+                      //  events.ScheduleEvent(EVENT_NEGATE, urand(10, 25) * IN_MILLISECONDS);
                         break;
                     }
                     case EVENT_SINGULARITY:
@@ -1025,21 +1030,21 @@ public:
                         for (auto player : players)
                             player->CastSpell(me, SPELL_SINGULARITY_PULL);
 
-                        events.ScheduleEvent(EVENT_SINGULARITY, urand(5, 15) * IN_MILLISECONDS);
+                       // events.ScheduleEvent(EVENT_SINGULARITY, urand(5, 15) * IN_MILLISECONDS);
                         break;
                     }
                     case EVENT_TWIST_REALITY:
                     {
                         DoCast(SPELL_TWIST_REALITY);
-                        events.ScheduleEvent(EVENT_TWIST_REALITY, urand(2, 6) * IN_MILLISECONDS);
+                       // events.ScheduleEvent(EVENT_TWIST_REALITY, urand(2, 6) * IN_MILLISECONDS);
                         break;
                     }
                     case EVENT_VOID_BOLT:
                     {
-                        if (Unit* victim = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 40.0f))
-                            me->CastSpell(victim, SPELL_VOID_BOLT);
+                       // if (Unit* victim = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 40.0f))
+                         //   me->CastSpell(victim, SPELL_VOID_BOLT);
 
-                        events.ScheduleEvent(EVENT_VOID_BOLT, urand(2, 6) * IN_MILLISECONDS);
+                       // events.ScheduleEvent(EVENT_VOID_BOLT, urand(2, 6) * IN_MILLISECONDS);
                         break;
                     }
                 }
@@ -1073,14 +1078,14 @@ public:
                 gara->GetAI()->DoAction(ACTION_XAN_DEATH);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) 
         {
-            events.ScheduleEvent(EVENT_CONSUMING_VOID, urand(40, 60) * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_GRIP_OF_THE_VOID, urand(10, 20) * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_NEGATE, urand(5, 10) * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_SINGULARITY, urand(15, 30) * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_TWIST_REALITY, urand(5, 10) * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_VOID_BOLT, urand(2, 5) * IN_MILLISECONDS);
+          //  events.ScheduleEvent(EVENT_CONSUMING_VOID, urand(40, 60) * IN_MILLISECONDS);
+           // events.ScheduleEvent(EVENT_GRIP_OF_THE_VOID, urand(10, 20) * IN_MILLISECONDS);
+           // events.ScheduleEvent(EVENT_NEGATE, urand(5, 10) * IN_MILLISECONDS);
+           // events.ScheduleEvent(EVENT_SINGULARITY, urand(15, 30) * IN_MILLISECONDS);
+           // events.ScheduleEvent(EVENT_TWIST_REALITY, urand(5, 10) * IN_MILLISECONDS);
+           // events.ScheduleEvent(EVENT_VOID_BOLT, urand(2, 5) * IN_MILLISECONDS);
         }
 
         void UpdateAI(uint32 diff) override
@@ -1099,26 +1104,26 @@ public:
                 {
                     case EVENT_CONSUMING_VOID:
                     {
-                        if (Unit* victim = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
-                            me->CastSpell(victim, SPELL_CONSUMING_VOID);
+                       // if (Unit* victim = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
+                         //   me->CastSpell(victim, SPELL_CONSUMING_VOID);
 
-                        events.ScheduleEvent(EVENT_CONSUMING_VOID, urand(40, 60) * IN_MILLISECONDS);
+                       // events.ScheduleEvent(EVENT_CONSUMING_VOID, urand(40, 60) * IN_MILLISECONDS);
                         break;
                     }
                     case EVENT_GRIP_OF_THE_VOID:
                     {
-                        if (Unit* victim = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 50.0f, true))
-                            me->CastSpell(victim, SPELL_GRIP_OF_THE_VOID);
+                       // if (Unit* victim = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 50.0f, true))
+                         //   me->CastSpell(victim, SPELL_GRIP_OF_THE_VOID);
 
-                        events.ScheduleEvent(EVENT_GRIP_OF_THE_VOID, urand(30, 35) * IN_MILLISECONDS);
+                       // events.ScheduleEvent(EVENT_GRIP_OF_THE_VOID, urand(30, 35) * IN_MILLISECONDS);
                         break;
                     }
                     case EVENT_NEGATE:
                     {
-                        if (Unit* victim = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 10.0f, true))
-                            me->CastSpell(victim, SPELL_NEGATE);
+                       // if (Unit* victim = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 10.0f, true))
+                         //   me->CastSpell(victim, SPELL_NEGATE);
 
-                        events.ScheduleEvent(EVENT_NEGATE, urand(20, 25) * IN_MILLISECONDS);
+                       // events.ScheduleEvent(EVENT_NEGATE, urand(20, 25) * IN_MILLISECONDS);
                         break;
                     }
                     case EVENT_SINGULARITY:
@@ -1130,21 +1135,21 @@ public:
                         for (auto player : players)
                             player->CastSpell(me, SPELL_SINGULARITY_PULL);
 
-                        events.ScheduleEvent(EVENT_SINGULARITY, urand(15, 40) * IN_MILLISECONDS);
+                       // events.ScheduleEvent(EVENT_SINGULARITY, urand(15, 40) * IN_MILLISECONDS);
                         break;
                     }
                     case EVENT_TWIST_REALITY:
                     {
                         DoCast(SPELL_TWIST_REALITY);
-                        events.ScheduleEvent(EVENT_TWIST_REALITY, urand(2, 9) * IN_MILLISECONDS);
+                       // events.ScheduleEvent(EVENT_TWIST_REALITY, urand(2, 9) * IN_MILLISECONDS);
                         break;
                     }
                     case EVENT_VOID_BOLT:
                     {
-                        if (Unit* victim = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 40.0f))
-                            me->CastSpell(victim, SPELL_VOID_BOLT);
+                       // if (Unit* victim = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 40.0f))
+                         //   me->CastSpell(victim, SPELL_VOID_BOLT);
 
-                        events.ScheduleEvent(EVENT_VOID_BOLT, urand(2, 5) * IN_MILLISECONDS);
+                        //events.ScheduleEvent(EVENT_VOID_BOLT, urand(2, 5) * IN_MILLISECONDS);
                         break;
                     }
                 }
@@ -1164,14 +1169,14 @@ void AddSC_shadowmoon_draenor()
 {
     new npc_velen_shadowmoon_begin();
     new npc_velen_shadowmoon_follower();
-    new npc_baros_pre_garrison();
+   // new npc_baros_pre_garrison();
     new npc_aqualir();
     new spell_shadowmoon_claiming();
     RegisterAreaTriggerAI(areatrigger_aqualir_submerge);
-    new npc_gara();
+   // new npc_gara();
     new spell_use_effigy();
     new go_spirit_effigy();
-    new go_shadowmoon_voidblade();
+   // new go_shadowmoon_voidblade();
     new spell_aura_void_realm();
     new npc_void_gara();
     new npc_gara_void_creature();
