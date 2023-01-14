@@ -133,7 +133,7 @@ class defiled_burial_site : public CreatureScript
                     if (!list.empty())
                     {
                         DoCast(me, SPELL_BOUND_REVENANT);
-                        me->DespawnOrUnsummon(4000);
+                        me->DespawnOrUnsummon();
                         spellTrig = true;
                     }
                     checkTimer = 100;
@@ -229,9 +229,9 @@ class npc_carrion_worm : public CreatureScript
 public:
     npc_carrion_worm() : CreatureScript("npc_carrion_worm") { }
 
-    struct npc_carrion_wormAI : public Scripted_NoMovementAI
+    struct npc_carrion_wormAI : public CreatureAI
     {
-        npc_carrion_wormAI(Creature* creature) : Scripted_NoMovementAI(creature){ }
+        npc_carrion_wormAI(Creature* creature) : CreatureAI(creature){ }
 
         void Reset() override
         {
@@ -256,7 +256,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) 
         {
             if (damage >= me->GetHealth())
             {
@@ -265,10 +265,10 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) 
         {
             if (spell->Id == SPELL_ROCKWORM_SUBMERGE)
-                me->DespawnOrUnsummon(3000);
+                me->DespawnOrUnsummon();
         }
 
         void UpdateAI(uint32 uiDiff) override
@@ -351,7 +351,7 @@ public:
                             continue;
 
                         player->SetControlled(true, UNIT_STATE_ROOT);
-                        player->GetSceneMgr().PlaySceneByPackageId(SCENE_NERZHUL);
+                        player->GetSceneMgr();
                         player->CastSpell(player, SPELL_FLOATING_DEAD, true);
                     }
 
@@ -462,7 +462,7 @@ class playerScript_nerzhul_scene : public PlayerScript
 public:
     playerScript_nerzhul_scene() : PlayerScript("playerScript_nerzhul_scene") { }
 
-    void OnSceneCancel(Player* player, uint32 p_SceneInstanceID) override
+    void OnSceneCancel(Player* player, uint32 p_SceneInstanceID) 
     {
         if (!player->GetSceneMgr().HasScene(p_SceneInstanceID, SCENE_NERZHUL))
             return;

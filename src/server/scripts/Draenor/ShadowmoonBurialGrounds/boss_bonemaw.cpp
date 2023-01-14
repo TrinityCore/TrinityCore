@@ -117,8 +117,8 @@ public:
             me->SetCanFly(true);
 
             me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
-            me->AddUnitFlag(UNIT_FLAG_REMOVE_CLIENT_CONTROL);
-            me->AddUnitFlag2(UNIT_FLAG2_DISABLE_TURN);
+           // me->AddUnitFlag(UNIT_FLAG_REMOVE_CLIENT_CONTROL);
+           // me->AddUnitFlag2(UNIT_FLAG2_DISABLE_TURN);
 
             me->RemoveAllAuras();
         }
@@ -176,9 +176,9 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) 
         {
-            _EnterCombat();
+           // _EnterCombat();
 
             if (m_Instance != nullptr)
             {
@@ -190,15 +190,15 @@ public:
 
             HandleEntranceDoorActivation();
 
-            events.ScheduleEvent(eBoneMawEvents::EventNecroticPitch, 50 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eBoneMawEvents::EventBodySlam, 30 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eBoneMawEvents::EventCorpseBreath, 20 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eBoneMawEvents::EventInhale, 60 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eBoneMawEvents::EventFetidSpit, 10 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eBoneMawEvents::EventSubmerge, urand(70 * TimeConstants::IN_MILLISECONDS, 100 * TimeConstants::IN_MILLISECONDS));
+          //  events.ScheduleEvent(eBoneMawEvents::EventNecroticPitch, 50 * TimeConstants::IN_MILLISECONDS);
+          //  events.ScheduleEvent(eBoneMawEvents::EventBodySlam, 30 * TimeConstants::IN_MILLISECONDS);
+          //  events.ScheduleEvent(eBoneMawEvents::EventCorpseBreath, 20 * TimeConstants::IN_MILLISECONDS);
+          //  events.ScheduleEvent(eBoneMawEvents::EventInhale, 60 * TimeConstants::IN_MILLISECONDS);
+          //  events.ScheduleEvent(eBoneMawEvents::EventFetidSpit, 10 * TimeConstants::IN_MILLISECONDS);
+          //  events.ScheduleEvent(eBoneMawEvents::EventSubmerge, urand(70 * TimeConstants::IN_MILLISECONDS, 100 * TimeConstants::IN_MILLISECONDS));
 
-            if (me->GetMap()->IsHeroic())
-                events.ScheduleEvent(eBoneMawEvents::EventCarrionWorm, 70 * TimeConstants::IN_MILLISECONDS);
+            if (me->GetMap()->IsHeroic());
+              //  events.ScheduleEvent(eBoneMawEvents::EventCarrionWorm, 70 * TimeConstants::IN_MILLISECONDS);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -246,12 +246,12 @@ public:
 
                             if (itr->IsWithinDist(l_BonemawMouth, 100.0f, true))
                             {
-                                if (itr->IsAlive() && !itr->HasMovementForce(l_BonemawMouth->GetGUID()))
-                                    itr->ApplyMovementForce(l_BonemawMouth->GetGUID(), position, 3.0f, 0);
-                                else if (!itr->IsAlive() && itr->HasMovementForce(l_BonemawMouth->GetGUID()))
+                              //  if (itr->IsAlive() && !itr->HasMovementForce(l_BonemawMouth->GetGUID()))
+                                    
+                               // else if (!itr->IsAlive() && itr->HasMovementForce(l_BonemawMouth->GetGUID()))
                                     itr->RemoveMovementForce(l_BonemawMouth->GetGUID());
                             }
-                            else if (itr->HasMovementForce(l_BonemawMouth->GetGUID()))
+                          //  else if (itr->HasMovementForce(l_BonemawMouth->GetGUID()))
                                 itr->RemoveMovementForce(l_BonemawMouth->GetGUID());
                         }
                     }
@@ -270,7 +270,7 @@ public:
                     if (m_HasVictimOut)
                     {
                         m_HasVictimOut = false;
-                        events.ScheduleEvent(eBoneMawEvents::EventFetidSpit, 10 * TimeConstants::IN_MILLISECONDS);
+                       // events.ScheduleEvent(eBoneMawEvents::EventFetidSpit, 10 * TimeConstants::IN_MILLISECONDS);
                     }
                 }
                 else
@@ -297,22 +297,22 @@ public:
             switch (events.ExecuteEvent())
             {
                 case eBoneMawEvents::EventFetidSpit:
-                    if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                        me->CastSpell(target, eBoneMawSpells::SpellFetidSpitDamage);
+                  //  if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                    //    me->CastSpell(target, eBoneMawSpells::SpellFetidSpitDamage);
 
-                    events.ScheduleEvent(eBoneMawEvents::EventFetidSpit, 10 * TimeConstants::IN_MILLISECONDS);
+                   // events.ScheduleEvent(eBoneMawEvents::EventFetidSpit, 10 * TimeConstants::IN_MILLISECONDS);
                     break;
                 case eBoneMawEvents::EventSubmerge:
                     me->CastSpell(me, eBoneMawSpells::SpellVisualSubmerge);
                     events.Reset();
 
-                    events.ScheduleEvent(eBoneMawEvents::EventCancelSubmerge, 8 * TimeConstants::IN_MILLISECONDS);
+                   // events.ScheduleEvent(eBoneMawEvents::EventCancelSubmerge, 8 * TimeConstants::IN_MILLISECONDS);
                     break;
                 case eBoneMawEvents::EventBodySlam:
-                    if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                        me->CastSpell(target, eBoneMawSpells::SpellBodySlam);
+                   // if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                       // me->CastSpell(target, eBoneMawSpells::SpellBodySlam);
 
-                    events.ScheduleEvent(eBoneMawEvents::EventBodySlam, 20 * TimeConstants::IN_MILLISECONDS);
+                   // events.ScheduleEvent(eBoneMawEvents::EventBodySlam, 20 * TimeConstants::IN_MILLISECONDS);
                     break;
                 case eBoneMawEvents::EventCarrionWorm:
                 {
@@ -323,7 +323,7 @@ public:
                         me->SummonCreature(eBoneMawCreatures::CreatureCarrionWorm, positionAdds[i], TEMPSUMMON_MANUAL_DESPAWN);
                     }
 
-                    events.ScheduleEvent(eBoneMawEvents::EventCancelSubmerge, 3 * TimeConstants::IN_MILLISECONDS);
+                   // events.ScheduleEvent(eBoneMawEvents::EventCancelSubmerge, 3 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }
                 case eBoneMawEvents::EventCancelSubmerge:
@@ -345,28 +345,28 @@ public:
                     /// Resets all events and then rescheduel them to prevent the events from running while submerged.
                     events.Reset();
 
-                    events.ScheduleEvent(eBoneMawEvents::EventNecroticPitch, 50 * TimeConstants::IN_MILLISECONDS);
-                    events.ScheduleEvent(eBoneMawEvents::EventBodySlam, 30 * TimeConstants::IN_MILLISECONDS);
-                    events.ScheduleEvent(eBoneMawEvents::EventCorpseBreath, 20 * TimeConstants::IN_MILLISECONDS);
-                    events.ScheduleEvent(eBoneMawEvents::EventInhale, 60 * TimeConstants::IN_MILLISECONDS);
-                    events.ScheduleEvent(eBoneMawEvents::EventFetidSpit, 10 * TimeConstants::IN_MILLISECONDS);
-                    events.ScheduleEvent(eBoneMawEvents::EventSubmerge, urand(30 * TimeConstants::IN_MILLISECONDS, 70 * TimeConstants::IN_MILLISECONDS));
+                  //  events.ScheduleEvent(eBoneMawEvents::EventNecroticPitch, 50 * TimeConstants::IN_MILLISECONDS);
+                   // events.ScheduleEvent(eBoneMawEvents::EventBodySlam, 30 * TimeConstants::IN_MILLISECONDS);
+                   // events.ScheduleEvent(eBoneMawEvents::EventCorpseBreath, 20 * TimeConstants::IN_MILLISECONDS);
+                   // events.ScheduleEvent(eBoneMawEvents::EventInhale, 60 * TimeConstants::IN_MILLISECONDS);
+                   // events.ScheduleEvent(eBoneMawEvents::EventFetidSpit, 10 * TimeConstants::IN_MILLISECONDS);
+                   // events.ScheduleEvent(eBoneMawEvents::EventSubmerge, urand(30 * TimeConstants::IN_MILLISECONDS, 70 * TimeConstants::IN_MILLISECONDS));
 
                     if (me->GetMap()->IsHeroic())
-                        events.ScheduleEvent(eBoneMawEvents::EventCarrionWorm, 70 * TimeConstants::IN_MILLISECONDS);
+                     //   events.ScheduleEvent(eBoneMawEvents::EventCarrionWorm, 70 * TimeConstants::IN_MILLISECONDS);
 
-                    events.ScheduleEvent(eBoneMawEvents::EventSubmerge, urand(70 * TimeConstants::IN_MILLISECONDS, 100 * TimeConstants::IN_MILLISECONDS));
+                   // events.ScheduleEvent(eBoneMawEvents::EventSubmerge, urand(70 * TimeConstants::IN_MILLISECONDS, 100 * TimeConstants::IN_MILLISECONDS));
 
                     me->RemoveAura(eBoneMawSpells::SpellVisualSubmerge);
-                    me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+                    me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE |  UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
                     break;
                 }
                 case eBoneMawEvents::EventCorpseBreath:
                 {
-                    if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                        me->CastSpell(target, eBoneMawSpells::SpellCorpseBreathPeriodic);
+                   // if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                     //   me->CastSpell(target, eBoneMawSpells::SpellCorpseBreathPeriodic);
 
-                    events.ScheduleEvent(eBoneMawEvents::EventCorpseBreath, 15 * TimeConstants::IN_MILLISECONDS);
+                   // events.ScheduleEvent(eBoneMawEvents::EventCorpseBreath, 15 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }
                 case eBoneMawEvents::EventInhale:
@@ -375,15 +375,15 @@ public:
                     m_InhaleDiff = 2 * TimeConstants::IN_MILLISECONDS;
 
                     me->CastSpell(me, eBoneMawSpells::SpellInhalePeriodicChannel);
-                    events.ScheduleEvent(eBoneMawEvents::EventInhale, 55 * TimeConstants::IN_MILLISECONDS);
+                   // events.ScheduleEvent(eBoneMawEvents::EventInhale, 55 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }
                 case eBoneMawEvents::EventNecroticPitch:
                 {
-                    if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                        me->CastSpell(target, eBoneMawSpells::SpellNecroticPitchTriggerMissile);
+                  //  if (Unit* target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                    //    me->CastSpell(target, eBoneMawSpells::SpellNecroticPitchTriggerMissile);
 
-                    events.ScheduleEvent(eBoneMawEvents::EventNecroticPitch, 25 * TimeConstants::IN_MILLISECONDS);
+                   // events.ScheduleEvent(eBoneMawEvents::EventNecroticPitch, 25 * TimeConstants::IN_MILLISECONDS);
                     break;
                 }
             }
@@ -417,7 +417,7 @@ public:
 
         void Reset() override
         {
-            events.Reset();
+          //  events.Reset();
 
             DoZoneInCombat();
 
@@ -428,25 +428,25 @@ public:
             m_PoolDiff = 2 * TimeConstants::IN_MILLISECONDS;
 
             me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
-            me->AddUnitFlag( UNIT_FLAG_REMOVE_CLIENT_CONTROL);
-            me->AddUnitFlag2(UNIT_FLAG2_DISABLE_TURN);
+          //  me->AddUnitFlag( UNIT_FLAG_REMOVE_CLIENT_CONTROL);
+            //me->AddUnitFlag2(UNIT_FLAG2_DISABLE_TURN);
 
             me->AddAura(eBoneMawSpells::SpellVisualSubmerge, me);
         }
 
-        void EnterCombat(Unit* /*attacker*/) override
+        void EnterCombat(Unit* /*attacker*/) 
         {
-            events.ScheduleEvent(eBoneMawEvents::EventFetidSpit, 10 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eBoneMawEvents::EventFetidSpit, 10 * TimeConstants::IN_MILLISECONDS);
         }
 
         void JustDied(Unit* /*killer*/) override
         {
-            me->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
+           // me->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
         }
 
         void UpdateAI(const uint32 diff) override
         {
-            events.Update(diff);
+           // events.Update(diff);
 
             if (!UpdateVictim())
                 return;
@@ -459,7 +459,7 @@ public:
                     if (m_HasVictimOut)
                     {
                         m_HasVictimOut = false;
-                        events.ScheduleEvent(eBoneMawEvents::EventFetidSpit, 10 * TimeConstants::IN_MILLISECONDS);
+                      //  events.ScheduleEvent(eBoneMawEvents::EventFetidSpit, 10 * TimeConstants::IN_MILLISECONDS);
                     }
                 }
                 else
@@ -468,7 +468,7 @@ public:
                     {
                         m_HasVictimOut = true;
 
-                        events.CancelEvent(eBoneMawEvents::EventFetidSpit);
+                       // events.CancelEvent(eBoneMawEvents::EventFetidSpit);
 
                         if (me->GetVictim() != nullptr)
                             DoCastAOE(eBoneMawSpells::SpellFetidSpitDamage, true);
@@ -483,14 +483,14 @@ public:
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
-            switch (events.ExecuteEvent())
+            //switch (events.ExecuteEvent())
             {
-                case eBoneMawEvents::EventFetidSpit:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                        me->CastSpell(target, eBoneMawSpells::SpellFetidSpitDamage);
+                eBoneMawEvents::EventFetidSpit;
+                  //  if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                    //    me->CastSpell(target, eBoneMawSpells::SpellFetidSpitDamage);
 
-                    events.ScheduleEvent(eBoneMawEvents::EventFetidSpit, 10 * TimeConstants::IN_MILLISECONDS);
-                    break;
+                   // events.ScheduleEvent(eBoneMawEvents::EventFetidSpit, 10 * TimeConstants::IN_MILLISECONDS);
+                   // break;
             }
 
             DoMeleeAttackIfReady();
@@ -509,9 +509,9 @@ class npc_shadowmoon_burial_grounds_necrotic_pitch : public CreatureScript
 public:
     npc_shadowmoon_burial_grounds_necrotic_pitch() : CreatureScript("npc_shadowmoon_burial_grounds_necrotic_pitch") { }
 
-    struct npc_shadowmoon_burial_grounds_necrotic_pitchAI : public Scripted_NoMovementAI
+    struct npc_shadowmoon_burial_grounds_necrotic_pitchAI : public CreatureAI
     {
-        npc_shadowmoon_burial_grounds_necrotic_pitchAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        npc_shadowmoon_burial_grounds_necrotic_pitchAI(Creature* creature) : CreatureAI(creature)
         {
             m_Instance = creature->GetInstanceScript();
         }
@@ -521,11 +521,11 @@ public:
        
         void Reset() override
         {
-            events.Reset();
+           // events.Reset();
 
             me->SetReactState(ReactStates::REACT_PASSIVE);
-            me->AddUnitFlag2(UNIT_FLAG2_DISABLE_TURN);
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+          //  me->AddUnitFlag2(UNIT_FLAG2_DISABLE_TURN);
+          //  me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
 
             me->SetFaction(FriendlyFaction);
             me->SetDisplayId(InvisibleDisplay);
@@ -535,7 +535,7 @@ public:
 
         void UpdateAI(uint32 const diff) override
         {
-            events.Update(diff);
+          //  events.Update(diff);
 
             if (m_Timer <= diff)
             {
@@ -584,7 +584,7 @@ public:
                 {
                     if (Creature* l_Bonemaw = l_Instance->instance->GetCreature(l_Instance->GetGuidData(eShadowmoonBurialGroundsDatas::DataBossBonemaw)))
                     {
-                        if (l_Bonemaw->IsAIEnabled)
+                       // if (l_Bonemaw->IsAIEnabled)
                         {
                             l_Bonemaw->GetAI()->DoAction(eBoneMawActions::ActionInhaleDeactivate);
                         }
@@ -652,8 +652,8 @@ public:
 
         void Register() override
         {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_shadowmoon_burial_grounds_body_slam_SpellScript::CorrectTargets, SpellEffIndex::EFFECT_0, Targets::TARGET_UNIT_CONE_ENTRY_129);
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_shadowmoon_burial_grounds_body_slam_SpellScript::CorrectTargets, SpellEffIndex::EFFECT_1, Targets::TARGET_UNIT_CONE_ENTRY_129);
+           // OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_shadowmoon_burial_grounds_body_slam_SpellScript::CorrectTargets, SpellEffIndex::EFFECT_0, Targets::TARGET_UNIT_CONE_ENTRY_129);
+          //  OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_shadowmoon_burial_grounds_body_slam_SpellScript::CorrectTargets, SpellEffIndex::EFFECT_1, Targets::TARGET_UNIT_CONE_ENTRY_129);
         }
     };
 
@@ -677,11 +677,11 @@ public:
         {
             if (Unit* caster = GetCaster())
             {
-                if (caster->IsAIEnabled)
+               // if (caster->IsAIEnabled)
                 {
-                    if (Unit* target = caster->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                   // if (Unit* target = caster->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                     {
-                        caster->CastSpell(target, eBoneMawSpells::SpellCorpseBreathDamage);
+                     //   caster->CastSpell(target, eBoneMawSpells::SpellCorpseBreathDamage);
                     }
                 }
             }
@@ -730,8 +730,8 @@ public:
 
             const WorldLocation* l_WorldLocation = GetExplTargetDest();
 
-            if (l_WorldLocation != nullptr)
-            GetCaster()->SummonCreature(eBoneMawCreatures::CreatureNecroticPitchTrigger, l_WorldLocation->GetPositionX(), l_WorldLocation->GetPositionY(), l_WorldLocation->GetPositionZ(), l_WorldLocation->GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 60 * TimeConstants::IN_MILLISECONDS);
+            if (l_WorldLocation != nullptr);
+          //  GetCaster()->SummonCreature(eBoneMawCreatures::CreatureNecroticPitchTrigger, l_WorldLocation->GetPositionX(), l_WorldLocation->GetPositionY(), l_WorldLocation->GetPositionZ(), l_WorldLocation->GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 60 * TimeConstants::IN_MILLISECONDS);
         }
 
         void Register() override

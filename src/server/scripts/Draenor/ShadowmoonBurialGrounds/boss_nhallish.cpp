@@ -121,7 +121,7 @@ public:
             
             me->CastSpell(me, eNhalishSpells::SpellShadowChannel);
 
-            me->AddUnitFlag(UNIT_FLAG_REMOVE_CLIENT_CONTROL);
+          //  me->AddUnitFlag(UNIT_FLAG_REMOVE_CLIENT_CONTROL);
         }
 
         void HandleDoorActivation() // Only upon boss Defeat
@@ -186,7 +186,7 @@ public:
 
             for (auto itr : l_ListVisibility)
             {
-                PhasingHandler::RemovePhase(itr, 50);
+               // PhasingHandler::RemovePhase(itr, 50);
             }
         }
 
@@ -202,17 +202,17 @@ public:
                     m_Vortex = false;
 
                     if (m_Instance != nullptr)
-                        m_Instance->DoRemoveForcedMovementsOnPlayers(me->GetGUID());
+                     //   m_Instance->DoRemoveForcedMovementsOnPlayers(me->GetGUID());
                     break;
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) 
         {
-            _EnterCombat();
+           // _EnterCombat();
 
             Talk(eNhallishTalks::TalkAggro);
-            me->SetInCombatWithZone();
+          //  me->SetInCombatWithZone();
 
             if (m_Instance != nullptr)
             {
@@ -225,10 +225,10 @@ public:
             HandleDoorEntranceActivation();
             HandleDoorActivation();
 
-            events.ScheduleEvent(eNhalishEvents::EventPlanarShift, 15 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eNhalishEvents::EventSoulSteal, 70 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eNhalishEvents::EventVoidBlast, 6 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eNhalishEvents::EventExhumeCrypt, 10 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eNhalishEvents::EventPlanarShift, 15 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eNhalishEvents::EventSoulSteal, 70 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eNhalishEvents::EventVoidBlast, 6 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eNhalishEvents::EventExhumeCrypt, 10 * TimeConstants::IN_MILLISECONDS);
         }
 
         void KilledUnit(Unit* who) override
@@ -240,7 +240,7 @@ public:
                 else
                     Talk(eNhallishTalks::TalkKill02);
 
-                PhasingHandler::RemovePhase(who, 50); // Sets dead target back to normal phase.
+              //  PhasingHandler::RemovePhase(who, 50); // Sets dead target back to normal phase.
             }
         }
 
@@ -267,19 +267,19 @@ public:
 
             for (auto itr : l_ListVisibility)
             {
-                PhasingHandler::RemovePhase(itr, 50);
+              //  PhasingHandler::RemovePhase(itr, 50);
             }
 
             // Distrubed Spirits RP moment.
             for (int i = 0; i < 10; i++)
             {
-               Creature* creature = me->SummonCreature(eNhalishCreatures::CreatureDistrubedSouls, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 10 * TimeConstants::IN_MILLISECONDS);
+              // Creature* creature = me->SummonCreature(eNhalishCreatures::CreatureDistrubedSouls, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 10 * TimeConstants::IN_MILLISECONDS);
 
-               if (creature)
+              // if (creature)
                {
-                   creature->SetFaction(35);
-                   creature->SetReactState(ReactStates::REACT_PASSIVE);
-                   creature->GetMotionMaster()->MoveRandom(15.0f);
+                 //  creature->SetFaction(35);
+                 //  creature->SetReactState(ReactStates::REACT_PASSIVE);
+                  // creature->GetMotionMaster()->MoveRandom(15.0f);
 
                    if (roll_chance_i(25))
                    {
@@ -328,12 +328,12 @@ public:
                     {
                         if (itr->IsWithinDist(me, 25.0f, true))
                         {
-                            if (itr->IsAlive() && !itr->HasMovementForce(me->GetGUID()))
-                                itr->ApplyMovementForce(me->GetGUID(), position, 3.0f, 0);
-                            else if (!itr->IsAlive() && itr->HasMovementForce(me->GetGUID()))
+                          //  if (itr->IsAlive() && !itr->HasMovementForce(me->GetGUID()))
+                              //  itr->ApplyMovementForce(me->GetGUID(), position, 3.0f, 0);
+                            //else if (!itr->IsAlive() && itr->HasMovementForce(me->GetGUID()))
                                 itr->RemoveMovementForce(me->GetGUID());
                         }
-                        else if (itr->HasMovementForce(me->GetGUID()))
+                      //  else if (itr->HasMovementForce(me->GetGUID()))
                             itr->RemoveMovementForce(me->GetGUID());
                     }
 
@@ -351,7 +351,7 @@ public:
                 case eNhalishEvents::EventExhumeCrypt:
                     me->CastSpell(me, eShadowmoonBurialGroundsSpells::SpellExhumeTheCryptsScriptEffect, true);
 
-                    events.ScheduleEvent(eNhalishEvents::EventExhumeCrypt, urand(8 * TimeConstants::IN_MILLISECONDS, 40 * TimeConstants::IN_MILLISECONDS));
+                  //  events.ScheduleEvent(eNhalishEvents::EventExhumeCrypt, urand(8 * TimeConstants::IN_MILLISECONDS, 40 * TimeConstants::IN_MILLISECONDS));
                     break;
                 case eNhalishEvents::EventPlanarShift:
                     events.CancelEvent(eNhalishEvents::EventVoidDevastation);
@@ -364,42 +364,42 @@ public:
                     switch (urand(0, 1))
                     {
                         case 0:
-                            events.ScheduleEvent(eNhalishEvents::EventVoidDevastation, 5 * TimeConstants::IN_MILLISECONDS);
+                        //    events.ScheduleEvent(eNhalishEvents::EventVoidDevastation, 5 * TimeConstants::IN_MILLISECONDS);
                             break;
                         case 1:
-                            events.ScheduleEvent(eNhalishEvents::EventVoidVortex, 5 * TimeConstants::IN_MILLISECONDS);
+                          //  events.ScheduleEvent(eNhalishEvents::EventVoidVortex, 5 * TimeConstants::IN_MILLISECONDS);
                             break;                                           
                     }
 
-                    events.ScheduleEvent(eNhalishEvents::EventPlanarShift, 30 * TimeConstants::IN_MILLISECONDS);
+                   // events.ScheduleEvent(eNhalishEvents::EventPlanarShift, 30 * TimeConstants::IN_MILLISECONDS);
                     break;
                 case eNhalishEvents::EventVoidDevastation:
                     me->CastSpell(me, eNhalishSpells::SpellVoidDevastationPeriodicTriggerSpell);
 
                     Talk(eNhallishTalks::TalkSpell02);
 
-                    events.ScheduleEvent(eNhalishEvents::EventVoidDevastation, 22 * TimeConstants::IN_MILLISECONDS);
+                   // events.ScheduleEvent(eNhalishEvents::EventVoidDevastation, 22 * TimeConstants::IN_MILLISECONDS);
                     break;
                 case eNhalishEvents::EventSoulSteal:
                     Talk(eNhallishTalks::TalkSpell04);
 
-                    if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                        me->CastSpell(l_Random, eNhalishSpells::SpellSoulStealForceCast);
+                   // if (Unit* l_Random = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                     //   me->CastSpell(l_Random, eNhalishSpells::SpellSoulStealForceCast);
 
-                    events.ScheduleEvent(eNhalishEvents::EventSoulSteal, 65 * TimeConstants::IN_MILLISECONDS);
+                   // events.ScheduleEvent(eNhalishEvents::EventSoulSteal, 65 * TimeConstants::IN_MILLISECONDS);
                     break;
                 case eNhalishEvents::EventVoidBlast:
                     if (Unit* target = me->GetVictim())
                         me->CastSpell(target, eNhalishSpells::SpellVoidBlastSpellAuraDummy);
 
-                    events.ScheduleEvent(eNhalishEvents::EventVoidBlast, 12 * TimeConstants::IN_MILLISECONDS);
+                 //   events.ScheduleEvent(eNhalishEvents::EventVoidBlast, 12 * TimeConstants::IN_MILLISECONDS);
                     break;
                 case eNhalishEvents::EventVoidVortex:
                     me->CastSpell(me, eNhalishSpells::SpellVoidVortexAreaTrigger);
 
                     Talk(eNhallishTalks::TalkSpell01);
 
-                    events.ScheduleEvent(eNhalishEvents::EventVoidVortex, 35 * TimeConstants::IN_MILLISECONDS);
+                  //  events.ScheduleEvent(eNhalishEvents::EventVoidVortex, 35 * TimeConstants::IN_MILLISECONDS);
                     break;
             }
 
@@ -420,7 +420,7 @@ public:
 
     shadowmoon_burial_grounds_soul() : CreatureScript("shadowmoon_burial_grounds_soul") { }
 
-    bool OnGossipHello(Player* /*player*/, Creature* creature) override
+    bool OnGossipHello(Player* /*player*/, Creature* creature) 
     {   
         if (shadowmoon_burial_grounds_soul::shadowmoon_burial_grounds_creaturesAI* linkAI = CAST_AI(shadowmoon_burial_grounds_soul::shadowmoon_burial_grounds_creaturesAI, creature->GetAI()))
         {
@@ -439,9 +439,9 @@ public:
                             victim->RemoveAura(eNhalishSpells::SpellSoulShred);
                         }
 
-                        PhasingHandler::AddPhase(victim, 50);
+                       // PhasingHandler::AddPhase(victim, 50);
 
-                        creature->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
+                       // creature->DespawnOrUnsummon(1 * TimeConstants::IN_MILLISECONDS);
                     }
                 }
             }
@@ -462,7 +462,7 @@ public:
 
         void Reset() override
         {         
-            events.Reset();
+          //  events.Reset();
 
             if (!m_victimGUID.IsEmpty())
             {
@@ -476,7 +476,7 @@ public:
             me->SetReactState(ReactStates::REACT_PASSIVE);
         }
 
-        void SetGUID(ObjectGuid guid, int32 /*p_Param*/) override
+        void SetGUID(ObjectGuid guid, int32 /*p_Param*/) 
         {
             m_victimGUID = guid;
 
@@ -489,7 +489,7 @@ public:
                 }
             }
 
-            events.ScheduleEvent(eNhalishEvents::EventRandomMovement, 1 * TimeConstants::IN_MILLISECONDS);
+          //  events.ScheduleEvent(eNhalishEvents::EventRandomMovement, 1 * TimeConstants::IN_MILLISECONDS);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -502,25 +502,25 @@ public:
             me->SetFaction(35);
             me->SetReactState(ReactStates::REACT_PASSIVE);
 
-            me->AddUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
+           // me->AddUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
             me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
-            me->AddDynamicFlag(UnitDynFlags::UNIT_DYNFLAG_DEAD);
-            me->AddUnitFlag(UNIT_FLAG_REMOVE_CLIENT_CONTROL);
-            me->AddUnitFlag2(UNIT_FLAG2_DISABLE_TURN);
-            me->AddNpcFlag(NPCFlags::UNIT_NPC_FLAG_GOSSIP);
+           // me->AddDynamicFlag(UnitDynFlags::UNIT_DYNFLAG_DEAD);
+           // me->AddUnitFlag(UNIT_FLAG_REMOVE_CLIENT_CONTROL);
+           // me->AddUnitFlag2(UNIT_FLAG2_DISABLE_TURN);
+           // me->AddNpcFlag(NPCFlags::UNIT_NPC_FLAG_GOSSIP);
 
             me->CastSpell(me, eNhalishSpells::SpellLootSparkles);
         }
 
         void UpdateAI(uint32 const diff) override
         {
-            events.Update(diff);
+           // events.Update(diff);
 
-            switch (events.ExecuteEvent())
+           // switch (events.ExecuteEvent())
             {
-               case eNhalishEvents::EventRandomMovement:
+                eNhalishEvents::EventRandomMovement;
                    me->GetMotionMaster()->MoveRandom(4.0f);
-                break;
+               // break;
             }
         }
     };
@@ -538,9 +538,9 @@ public:
 
     shadowmoon_burial_grounds_nhalish_prop() : CreatureScript("shadowmoon_burial_grounds_nhalish_prop") { }
 
-    struct shadowmoon_burial_grounds_creaturesAI : public Scripted_NoMovementAI
+    struct shadowmoon_burial_grounds_creaturesAI : public CreatureAI
     {
-        shadowmoon_burial_grounds_creaturesAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        shadowmoon_burial_grounds_creaturesAI(Creature* creature) : CreatureAI(creature)
         {
             m_Instance = me->GetInstanceScript();
         }
@@ -549,10 +549,10 @@ public:
 
         void Reset() override
         {
-            events.Reset();
+           // events.Reset();
 
             me->SetReactState(ReactStates::REACT_PASSIVE);
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+           // me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
             me->SetFaction(16);
 
             me->CastSpell(me, eNhalishSpells::SpellShadowChannel);
@@ -560,7 +560,7 @@ public:
 
         void UpdateAI(uint32 const diff) override
         {
-            events.Update(diff);
+          //  events.Update(diff);
 
             if (m_Instance != nullptr)
             {
@@ -586,17 +586,17 @@ public:
 
     shadowmoon_burial_grounds_void_devestation_trigger() : CreatureScript("shadowmoon_burial_grounds_void_devestation_trigger") { }
 
-    struct shadowmoon_burial_grounds_creaturesAI : public Scripted_NoMovementAI
+    struct shadowmoon_burial_grounds_creaturesAI : public CreatureAI
     {
-        shadowmoon_burial_grounds_creaturesAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
+        shadowmoon_burial_grounds_creaturesAI(Creature* creature) : CreatureAI(creature) {}
 
         uint32 m_Timer;
 
-        void Reset() override
+        void Reset() 
         {
             me->SetReactState(ReactStates::REACT_PASSIVE);
-            me->AddUnitFlag2(UNIT_FLAG2_DISABLE_TURN);
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
+           // me->AddUnitFlag2(UNIT_FLAG2_DISABLE_TURN);
+           // me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
             me->SetFaction(35);
             me->SetDisplayId(11686);
 
@@ -605,14 +605,14 @@ public:
 
         void UpdateAI(uint32 const diff) override
         {
-            events.Update(diff);
+           // events.Update(diff);
 
             std::list<ObjectGuid> m_Targets;
 
             if (m_Timer <= diff)
             {
                 std::list<Player*> PL_list;
-                PL_list = me->SelectNearestPlayers(2.0f);
+             //   PL_list = me->SelectNearestPlayers(2.0f);
 
                 if (PL_list.empty())
                     return;
@@ -667,8 +667,8 @@ public:
             if (!GetSpellInfo())
                 return false;
 
-            //SpellInfo* spell = const_cast<SpellInfo*>(GetSpellInfo());
-            //spell->GetEffect(0)->TargetA = Targets::TARGET_DEST_CASTER;
+            SpellInfo* spell = const_cast<SpellInfo*>(GetSpellInfo());
+           // spell->GetEffect(0)->TargetA = Targets::TARGET_DEST_CASTER;
             //spell->GetEffect(0)->TargetB = Targets::TARGET_DEST_DEST_RADIUS;
             //spell->GetEffect(0)->RadiusEntry = sSpellRadiusStore.LookupEntry(10); // 30y
             return true;
@@ -682,12 +682,12 @@ public:
                 return;
 
            const WorldLocation* l_WorldLocation = GetExplTargetDest();
-           const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(eNhalishSpells::SpellVoidDevstationAreaTrigger);
+           //const SpellInfo* l_SpellInfo = sSpellMgr->GetSpellInfo(eNhalishSpells::SpellVoidDevstationAreaTrigger);
 
-           if (!l_SpellInfo)
+          // if (!l_SpellInfo)
                return;
 
-           GetCaster()->SummonCreature(eNhalishCreatures::CreatureDevestationTrigger, l_WorldLocation->GetPositionX(), l_WorldLocation->GetPositionY(), l_WorldLocation->GetPositionZ(), l_WorldLocation->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, l_SpellInfo->GetDuration());
+          // GetCaster()->SummonCreature(eNhalishCreatures::CreatureDevestationTrigger, l_WorldLocation->GetPositionX(), l_WorldLocation->GetPositionY(), l_WorldLocation->GetPositionZ(), l_WorldLocation->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, l_SpellInfo->GetDuration());
         }
 
         void Register() override
@@ -717,11 +717,11 @@ public:
         {
             if (Unit* caster = GetCaster())
             {
-                if (caster->IsAIEnabled)
+               // if (caster->IsAIEnabled)
                 {
-                    if (Unit* target = caster->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
+                   // if (Unit* target = caster->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO))
                     {
-                        caster->CastSpell(target, eNhalishSpells::SpellVoidBlastDot);
+                       // caster->CastSpell(target, eNhalishSpells::SpellVoidBlastDot);
                     }
                 }
             }
@@ -766,7 +766,7 @@ public:
         {
             if (Unit* caster = GetCaster())
             {
-                if (caster->IsAIEnabled)
+              //  if (caster->IsAIEnabled)
                 {
                     if (caster->GetTypeId() != TypeID::TYPEID_PLAYER)
                     {
@@ -832,19 +832,19 @@ public:
             {
                 if (Creature* l_Nhalish = m_Instance->instance->GetCreature(m_Instance->GetGuidData(eShadowmoonBurialGroundsDatas::DataBossNhallish)))
                 {
-                    if (Creature* Soul = GetCaster()->SummonCreature(eNhalishCreatures::CreatureSoul, GetHitUnit()->GetPosition(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 20 * TimeConstants::IN_MILLISECONDS, 0, true))
+                   // if (Creature* Soul = GetCaster()->SummonCreature(eNhalishCreatures::CreatureSoul, GetHitUnit()->GetPosition(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 20 * TimeConstants::IN_MILLISECONDS, 0, true))
                     {
                         if (boss_nhalish::boss_nhalishAI* linkAI = CAST_AI(boss_nhalish::boss_nhalishAI, l_Nhalish->GetAI()))
                         {
                             uint32 m_phaseId = 50 + linkAI->m_PhaseCounter;
 
                             /// Sets new phase value
-                            PhasingHandler::AddPhase(GetHitUnit(), m_phaseId);
-                            PhasingHandler::AddPhase(Soul, m_phaseId);
+                           // PhasingHandler::AddPhase(GetHitUnit(), m_phaseId);
+                           // PhasingHandler::AddPhase(Soul, m_phaseId);
 
-                            if (Soul->IsAIEnabled)
+                           // if (Soul->IsAIEnabled)
                             {
-                                Soul->AI()->SetGUID(GetHitUnit()->GetGUID(), 0);
+                             //   Soul->AI()->SetGUID(GetHitUnit()->GetGUID(), 0);
                             }
 
                             linkAI->m_PhaseCounter++;
@@ -882,11 +882,11 @@ public:
             if (!GetCaster())
                 return;
 
-            if (!GetCaster()->IsAIEnabled)
+           // if (!GetCaster()->IsAIEnabled)
                 return;
 
-            if (Unit* target = GetCaster()->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                GetCaster()->CastSpell(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), eNhalishSpells::SpellTeleportSelf, true);
+           // if (Unit* target = GetCaster()->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+             //   GetCaster()->CastSpell(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), eNhalishSpells::SpellTeleportSelf, true);
         }
 
         void Register() override
