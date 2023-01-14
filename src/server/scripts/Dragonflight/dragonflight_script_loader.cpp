@@ -18,6 +18,7 @@
 //Zones
 //DragonIsles
 void AddSC_dragon_isles_script_loader();
+void AddDragonIslesScripts()
 void AddSC_Zone_the_forbidden_reach();
 //RubyLifePools
 void AddSC_instance_ruby_life_pools();
