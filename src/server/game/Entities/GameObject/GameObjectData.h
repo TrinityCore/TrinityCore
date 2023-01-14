@@ -1192,6 +1192,18 @@ struct GameObjectTemplate
         }
     }
 
+    uint32 GetServerOnly() const
+    {
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_GENERIC: return generic.serverOnly;
+            case GAMEOBJECT_TYPE_TRAP: return trap.serverOnly;
+            case GAMEOBJECT_TYPE_SPELL_FOCUS: return spellFocus.serverOnly;
+            case GAMEOBJECT_TYPE_AURA_GENERATOR: return auraGenerator.serverOnly;
+            default: return 0;
+        }
+    }
+
     uint32 GetSpellFocusType() const
     {
         switch (type)

@@ -25,6 +25,7 @@
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "SpellAuras.h"
+#include "SpellAuraEffects.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
@@ -951,6 +952,38 @@ class spell_dragonblight_fill_blood_unholy_frost_gem : public SpellScript
     }
 };
 
+// 47447 - Corrosive Spit
+class spell_dragonblight_corrosive_spit : public AuraScript
+{
+    PrepareAuraScript(spell_dragonblight_corrosive_spit);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTarget()->HasAura(GetEffectInfo(EFFECT_0).CalcValue()))
+            GetAura()->Remove();
+    }
+
+    void PeriodicTick(AuraEffect const* /*aurEff*/)
+    {
+        if (GetTarget()->HasAura(GetEffectInfo(EFFECT_0).CalcValue()))
+        {
+            PreventDefaultAction();
+            GetAura()->Remove();
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_dragonblight_corrosive_spit::AfterApply, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dragonblight_corrosive_spit::PeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
+    }
+};
+
 void AddSC_dragonblight()
 {
     RegisterCreatureAI(npc_commander_eligor_dawnbringer);
@@ -968,4 +1001,5 @@ void AddSC_dragonblight()
     RegisterSpellScript(spell_dragonblight_bombard_the_ballistae_fx_master);
     RegisterSpellScript(spell_dragonblight_surge_needle_teleporter);
     RegisterSpellScript(spell_dragonblight_fill_blood_unholy_frost_gem);
+    RegisterSpellScript(spell_dragonblight_corrosive_spit);
 }
