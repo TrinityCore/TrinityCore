@@ -45,8 +45,8 @@ public:
         {
             if (Creature* l_Killer = m_Instance->instance->GetCreature(m_KillerGuid))
             {
-                if (Creature* l_Victim = m_Instance->instance->GetCreature(m_VictimGuid))
-                    l_Killer->Kill(l_Victim);
+                if (Creature* l_Victim = m_Instance->instance->GetCreature(m_VictimGuid));
+                   // l_Killer->Kill(l_Victim);
             }
         }
 
@@ -90,15 +90,15 @@ public:
 
         void Reset() override
         {
-            events.Reset();
+           // events.Reset();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* p_Attacker) 
         {
             me->RemoveAllAuras();
-            events.ScheduleEvent(eGromkarEvents::EventBladestorm, urand(20 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
-            events.ScheduleEvent(eGromkarEvents::EventChainDrag, urand(20 * TimeConstants::IN_MILLISECONDS, 30 * TimeConstants::IN_MILLISECONDS));
-            events.ScheduleEvent(eGromkarEvents::EventChargingSlash, 10 * TimeConstants::IN_MILLISECONDS);
+          //  events.ScheduleEvent(eGromkarEvents::EventBladestorm, urand(20 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
+           // events.ScheduleEvent(eGromkarEvents::EventChainDrag, urand(20 * TimeConstants::IN_MILLISECONDS, 30 * TimeConstants::IN_MILLISECONDS));
+           // events.ScheduleEvent(eGromkarEvents::EventChargingSlash, 10 * TimeConstants::IN_MILLISECONDS);
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -106,29 +106,29 @@ public:
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);
+           // events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
-            switch (events.ExecuteEvent())
+           // switch (events.ExecuteEvent())
             {
-            case eGromkarEvents::EventBladestorm:
+                eGromkarEvents::EventBladestorm;
                 me->CastSpell(me, eGromkarSpells::SpellBladestorm);
-                break;
-            case eGromkarEvents::EventChainDrag:
-                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                    me->CastSpell(l_Target, eGromkarSpells::SpellChainDrag);
-                events.ScheduleEvent(eGromkarEvents::EventChainDrag, 30 * TimeConstants::IN_MILLISECONDS);
-                events.ScheduleEvent(eGromkarEvents::EventBladestorm, 2 * TimeConstants::IN_MILLISECONDS);
-                break;
-            case eGromkarEvents::EventChargingSlash:
-                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                    me->CastSpell(l_Target, eGromkarSpells::SpellChargingSlashJump);
-                events.ScheduleEvent(eGromkarEvents::EventChargingSlash, 15 * TimeConstants::IN_MILLISECONDS);
-                break;
-            default:
-                break;
+                //break;
+                eGromkarEvents::EventChainDrag;
+                //if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                  //  me->CastSpell(l_Target, eGromkarSpells::SpellChainDrag);
+                //events.ScheduleEvent(eGromkarEvents::EventChainDrag, 30 * TimeConstants::IN_MILLISECONDS);
+                //events.ScheduleEvent(eGromkarEvents::EventBladestorm, 2 * TimeConstants::IN_MILLISECONDS);
+                //break;
+                eGromkarEvents::EventChargingSlash;
+                //if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                  //  me->CastSpell(l_Target, eGromkarSpells::SpellChargingSlashJump);
+                //events.ScheduleEvent(eGromkarEvents::EventChargingSlash, 15 * TimeConstants::IN_MILLISECONDS);
+               // break;
+             //default:
+               // break;
             }
 
             DoMeleeAttackIfReady();
@@ -149,9 +149,9 @@ public:
 
     iron_docks_mob_gromkar_deadeye() : CreatureScript("iron_docks_mob_gromkar_deadeye") { }
 
-    struct mob_iron_docksAI : public Scripted_NoMovementAI
+    struct mob_iron_docksAI : public CreatureAI
     {
-        mob_iron_docksAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature) { }
+        mob_iron_docksAI(Creature* p_Creature) : CreatureAI(p_Creature) { }
 
         enum eDeadeyeEvents
         {
@@ -171,22 +171,22 @@ public:
 
         void Reset() override
         {
-            events.Reset();
+           // events.Reset();
             m_VisualTimer = 5 * TimeConstants::IN_MILLISECONDS;
             me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+           // me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* p_Attacker) 
         {
-            events.ScheduleEvent(eDeadeyeEvents::EventIronShot, urand(5 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
-            events.ScheduleEvent(eDeadeyeEvents::EventLegShot, urand(20 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
+           // events.ScheduleEvent(eDeadeyeEvents::EventIronShot, urand(5 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
+           // events.ScheduleEvent(eDeadeyeEvents::EventLegShot, urand(20 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
         }
 
         void MoveInLineOfSight(Unit* p_Who) override
         {
-            if (p_Who && p_Who->IsInWorld() && p_Who->GetTypeId() != TypeID::TYPEID_PLAYER && p_Who->GetEntry() == eIronDocksCreatures::CreatureIronStar && me->IsWithinDistInMap(p_Who, 1.2f))
-                p_Who->Kill(me);
+            if (p_Who && p_Who->IsInWorld() && p_Who->GetTypeId() != TypeID::TYPEID_PLAYER && p_Who->GetEntry() == eIronDocksCreatures::CreatureIronStar && me->IsWithinDistInMap(p_Who, 1.2f));
+               // p_Who->Kill(me);
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -208,25 +208,25 @@ public:
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);
+           // events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
-            switch (events.ExecuteEvent())
+           // switch (events.ExecuteEvent())
             {
-            case eDeadeyeEvents::EventLegShot:
-                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                    me->CastSpell(l_Target, eDeadeyeSpells::SpellLegShot);
-                events.ScheduleEvent(eDeadeyeEvents::EventLegShot, urand(20 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
-                break;
-            case eDeadeyeEvents::EventIronShot:
+                eDeadeyeEvents::EventLegShot;
+               // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                 //   me->CastSpell(l_Target, eDeadeyeSpells::SpellLegShot);
+                //events.ScheduleEvent(eDeadeyeEvents::EventLegShot, urand(20 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
+                //break;
+                eDeadeyeEvents::EventIronShot;
                 if (Unit* l_Target = me->GetVictim())
                     me->CastSpell(l_Target, eDeadeyeSpells::SpellIronShot);
-                events.ScheduleEvent(eDeadeyeEvents::EventIronShot, urand(5 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
-                break;
-            default:
-                break;
+               // events.ScheduleEvent(eDeadeyeEvents::EventIronShot, urand(5 * TimeConstants::IN_MILLISECONDS, 8 * TimeConstants::IN_MILLISECONDS));
+                //break;
+             //default:
+               // break;
             }
         }
     };
@@ -270,23 +270,23 @@ public:
 
         void Reset() override
         {
-            events.Reset();
+          //  events.Reset();
             me->SetFaction(HostileFaction);
             me->SetReactState(ReactStates::REACT_AGGRESSIVE);
         }
 
-        void EnterCombat(Unit* p_Who) override
+        void EnterCombat(Unit* p_Who) 
         {
             me->RemoveAllAuras();
-            events.ScheduleEvent(eFootSoldierEvents::EventTacticalKick, urand(10 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
-            events.ScheduleEvent(eFootSoldierEvents::EventDemoralizingShout, 8 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eFootSoldierEvents::EventChargingSlash, 25 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eFootSoldierEvents::EventTacticalKick, urand(10 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
+           // events.ScheduleEvent(eFootSoldierEvents::EventDemoralizingShout, 8 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eFootSoldierEvents::EventChargingSlash, 25 * TimeConstants::IN_MILLISECONDS);
         }
 
         void MoveInLineOfSight(Unit* p_Who) override
         {
             if (p_Who && p_Who->IsInWorld() && p_Who->GetTypeId() != TypeID::TYPEID_PLAYER && p_Who->GetEntry() == eIronDocksCreatures::CreatureIronStar && me->IsWithinDistInMap(p_Who, 1.2f))
-                p_Who->Kill(me);
+              //  p_Who->Kill(me);
 
             ScriptedAI::MoveInLineOfSight(p_Who);
         }
@@ -296,29 +296,29 @@ public:
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);
+          //  events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
-            switch (events.ExecuteEvent())
+           // switch (events.ExecuteEvent())
             {
-            case eFootSoldierEvents::EventDemoralizingShout:
+                eFootSoldierEvents::EventDemoralizingShout;
                 me->CastSpell(me, eFootSoldierSpells::SpellDemoralizingShout);
-                events.ScheduleEvent(eFootSoldierEvents::EventDemoralizingShout, 25 * TimeConstants::IN_MILLISECONDS);
-                break;
-            case eFootSoldierEvents::EventTacticalKick:
+              //  events.ScheduleEvent(eFootSoldierEvents::EventDemoralizingShout, 25 * TimeConstants::IN_MILLISECONDS);
+               // break;
+                eFootSoldierEvents::EventTacticalKick;
                 if (Unit* l_Target = me->GetVictim())
                     me->CastSpell(l_Target, eFootSoldierSpells::SpellTacticalKick);
-                events.ScheduleEvent(eFootSoldierEvents::EventTacticalKick, urand(10 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
-                break;
-            case eFootSoldierEvents::EventChargingSlash:
-                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                    me->CastSpell(l_Target, eFootSoldierSpells::SpellChargingSlashJump);
-                events.ScheduleEvent(eFootSoldierEvents::EventChargingSlash, 25 * TimeConstants::IN_MILLISECONDS);
-                break;
-            default:
-                break;
+               // events.ScheduleEvent(eFootSoldierEvents::EventTacticalKick, urand(10 * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::IN_MILLISECONDS));
+                //break;
+                eFootSoldierEvents::EventChargingSlash;
+                //if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                  //  me->CastSpell(l_Target, eFootSoldierSpells::SpellChargingSlashJump);
+               // events.ScheduleEvent(eFootSoldierEvents::EventChargingSlash, 25 * TimeConstants::IN_MILLISECONDS);
+                //break;
+             //default:
+               // break;
             }
 
             DoMeleeAttackIfReady();
@@ -361,15 +361,15 @@ public:
 
         void Reset() override
         {
-            events.Reset();
+           // events.Reset();
             m_VisualTimer = 6 * TimeConstants::IN_MILLISECONDS;
             me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+           // me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
         }
 
-        void EnterCombat(Unit* p_Who) override
+        void EnterCombat(Unit* p_Who) 
         {
-            events.ScheduleEvent(eIncineratorEvents::EventIncendinarySlug, urand(15 * TimeConstants::IN_MILLISECONDS, 18 * TimeConstants::IN_MILLISECONDS));
+           // events.ScheduleEvent(eIncineratorEvents::EventIncendinarySlug, urand(15 * TimeConstants::IN_MILLISECONDS, 18 * TimeConstants::IN_MILLISECONDS));
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -391,20 +391,20 @@ public:
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);
+           // events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
-            switch (events.ExecuteEvent())
+          //  switch (events.ExecuteEvent())
             {
-            case eIncineratorEvents::EventIncendinarySlug:
+                eIncineratorEvents::EventIncendinarySlug;
                 if (Unit* l_Target = me->GetVictim())
                     me->CastSpell(l_Target, eIncienratorSpells::SpellIncenarySlugs);
-                events.ScheduleEvent(eIncineratorEvents::EventIncendinarySlug, urand(15 * TimeConstants::IN_MILLISECONDS, 18 * TimeConstants::IN_MILLISECONDS));
-                break;
-            default:
-                break;
+               // events.ScheduleEvent(eIncineratorEvents::EventIncendinarySlug, urand(15 * TimeConstants::IN_MILLISECONDS, 18 * TimeConstants::IN_MILLISECONDS));
+                //break;
+             //default:
+               // break;
             }
 
             DoSpellAttackIfReady(eIncienratorSpells::SpellSharpnelBlast);
@@ -450,25 +450,25 @@ public:
 
         void Reset() override
         {
-            events.Reset();
+          //  events.Reset();
             me->SetReactState(ReactStates::REACT_AGGRESSIVE);
             m_VisualTimer = 6 * TimeConstants::IN_MILLISECONDS;
             me->CastSpell(me, eTechnicianSpells::SpellArmedWithExplosives);
         }
 
-        void EnterCombat(Unit* p_Who) override
+        void EnterCombat(Unit* p_Who) 
         {
             me->RemoveAura(eSpells::SpellEmoteWork);
           //  me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
-            events.ScheduleEvent(eTechnicianEvents::EventGreaseVial, urand(10 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
-            events.ScheduleEvent(eTechnicianEvents::EventFlyingHammer, urand(6 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
-            events.ScheduleEvent(eTechnicianEvents::EventExplosiveGrenade, urand(10 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
+           // events.ScheduleEvent(eTechnicianEvents::EventGreaseVial, urand(10 * TimeConstants::IN_MILLISECONDS, 25 * TimeConstants::IN_MILLISECONDS));
+           // events.ScheduleEvent(eTechnicianEvents::EventFlyingHammer, urand(6 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
+           // events.ScheduleEvent(eTechnicianEvents::EventExplosiveGrenade, urand(10 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
         }
 
         void MoveInLineOfSight(Unit* p_Who) override
         {
             if (p_Who && p_Who->IsInWorld() && p_Who->GetTypeId() != TypeID::TYPEID_PLAYER && p_Who->GetEntry() == eIronDocksCreatures::CreatureIronStar && me->IsWithinDistInMap(p_Who, 1.2f))
-                p_Who->Kill(me);
+              //  p_Who->Kill(me);
 
             ScriptedAI::MoveInLineOfSight(p_Who);
         }
@@ -504,30 +504,30 @@ public:
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);
+           // events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
-            switch (events.ExecuteEvent())
+            //switch (events.ExecuteEvent())
             {
-            case eTechnicianEvents::EventGreaseVial:
-                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                    me->CastSpell(l_Target, eTechnicianSpells::SpellGreaseVial);
-                events.ScheduleEvent(eTechnicianEvents::EventGreaseVial, urand(40 * TimeConstants::IN_MILLISECONDS, 70 * TimeConstants::IN_MILLISECONDS));
-                break;
-            case eTechnicianEvents::EventFlyingHammer:
+                eTechnicianEvents::EventGreaseVial;
+               // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                 //   me->CastSpell(l_Target, eTechnicianSpells::SpellGreaseVial);
+               // events.ScheduleEvent(eTechnicianEvents::EventGreaseVial, urand(40 * TimeConstants::IN_MILLISECONDS, 70 * TimeConstants::IN_MILLISECONDS));
+               // break;
+                eTechnicianEvents::EventFlyingHammer;
                 if (Unit* l_Victim = me->GetVictim())
                     me->CastSpell(l_Victim, eTechnicianSpells::SpellFlyingHammer);
-                events.ScheduleEvent(eTechnicianEvents::EventFlyingHammer, urand(8 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
-                break;
-            case eTechnicianEvents::EventExplosiveGrenade:
-                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                    me->CastSpell(l_Target, eTechnicianSpells::SpellHighExplosiveGrenade);
+               // events.ScheduleEvent(eTechnicianEvents::EventFlyingHammer, urand(8 * TimeConstants::IN_MILLISECONDS, 14 * TimeConstants::IN_MILLISECONDS));
+               // break;
+                eTechnicianEvents::EventExplosiveGrenade;
+               // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                 //   me->CastSpell(l_Target, eTechnicianSpells::SpellHighExplosiveGrenade);
                 me->RemoveAura(eTechnicianSpells::SpellArmedWithExplosives);
-                break;
-            default:
-                break;
+              //  break;
+             //default:
+               // break;
             }
 
             DoMeleeAttackIfReady();
@@ -571,17 +571,17 @@ public:
 
         void Reset() override
         {
-            events.Reset();
+           // events.Reset();
             me->SetFaction(HostileFaction);
             me->SetReactState(ReactStates::REACT_AGGRESSIVE);
             m_VisualTimer = 16 * TimeConstants::IN_MILLISECONDS;
         }
 
-        void EnterCombat(Unit* p_Who) override
+        void EnterCombat(Unit* p_Who) 
         {
             /// I don't think Darona actually shot barber arrows, wowhead is stupid. Icy veins says it aswell.
-            events.ScheduleEvent(eOlugarEvents::EventShatteringStrike, urand(6 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
-            events.ScheduleEvent(eOlugarEvents::EventGatecrasher, 20 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eOlugarEvents::EventShatteringStrike, urand(6 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
+           // events.ScheduleEvent(eOlugarEvents::EventGatecrasher, 20 * TimeConstants::IN_MILLISECONDS);
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -600,7 +600,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);
+           // events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
@@ -617,24 +617,24 @@ public:
                     me->RemoveAura(eOlugarSpells::SpellPitFighter);
             }
 
-            switch (events.ExecuteEvent())
+           // switch (events.ExecuteEvent())
             {
-            case eOlugarEvents::EventShatteringStrike:
+                eOlugarEvents::EventShatteringStrike;
             {
                 if (Unit* l_Target = me->GetVictim())
                     me->CastSpell(l_Target, eOlugarSpells::SpellShatteringStrike);
-                events.ScheduleEvent(eOlugarEvents::EventShatteringStrike, urand(6 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
-                break;
+               // events.ScheduleEvent(eOlugarEvents::EventShatteringStrike, urand(6 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
+               // break;
             }
-            case eOlugarEvents::EventGatecrasher:
+            eOlugarEvents::EventGatecrasher;
             {
-                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0F, true))
-                    me->CastSpell(l_Target, eOlugarSpells::SpellThrowGatecrasher);
-                events.ScheduleEvent(eOlugarEvents::EventGatecrasher, 20 * TimeConstants::IN_MILLISECONDS);
-                break;
+               // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0F, true))
+                 //   me->CastSpell(l_Target, eOlugarSpells::SpellThrowGatecrasher);
+                //events.ScheduleEvent(eOlugarEvents::EventGatecrasher, 20 * TimeConstants::IN_MILLISECONDS);
+               // break;
             }
-            default:
-                break;
+             //default:
+               // break;
             }
 
             DoMeleeAttackIfReady();
@@ -670,8 +670,8 @@ public:
         {
             me->SetFaction(HostileFaction);
             m_DamageDiff = 1 * TimeConstants::IN_MILLISECONDS;
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
+           // me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+           // me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -735,14 +735,14 @@ public:
 
         void Reset() override
         {
-            events.Reset();
+           // events.Reset();
             me->CastSpell(me, eDorunaSpells::SpellChampionsPresence);
         }
 
-        void EnterCombat(Unit* p_Who) override
+        void EnterCombat(Unit* p_Who) 
         {
-            events.ScheduleEvent(eDorunaEvents::EventBurningArrow, 8 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eDorunaEvents::EventBarbedArrow, 11 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eDorunaEvents::EventBurningArrow, 8 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eDorunaEvents::EventBarbedArrow, 11 * TimeConstants::IN_MILLISECONDS);
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -750,14 +750,14 @@ public:
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);
+           // events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
-            switch (events.ExecuteEvent())
+           // switch (events.ExecuteEvent())
             {
-            case eDorunaEvents::EventBurningArrow:
+                eDorunaEvents::EventBurningArrow;
             {
                 me->Yell("Light them up!", Language::LANG_UNIVERSAL, me);
                 ///< Commands the Flameslinger to shoot         
@@ -767,23 +767,23 @@ public:
                 {
                     for (auto l_Itr : l_ListFlameSlingers)
                     {
-                        if (l_Itr->IsAIEnabled)
+                      //  if (l_Itr->IsAIEnabled)
                             l_Itr->GetAI()->DoAction(eIronDocksActions::ActionBurningArrowSingle);
                     }
                 }
 
-                events.ScheduleEvent(eDorunaEvents::EventBurningArrow, 30 * TimeConstants::IN_MILLISECONDS);
-                break;
+               // events.ScheduleEvent(eDorunaEvents::EventBurningArrow, 30 * TimeConstants::IN_MILLISECONDS);
+               // break;
             }
-            case eDorunaEvents::EventBarbedArrow:
+            eDorunaEvents::EventBarbedArrow;
             {
                 me->CastSpell(me, eDorunaSpells::SpellBarbedArrowBarrageDummy);
                 me->AddAura(eDorunaSpells::SpellBarbedArrowAura, me);
-                events.ScheduleEvent(eDorunaEvents::EventBarbedArrow, 50 * TimeConstants::IN_MILLISECONDS);
-                break;
+               // events.ScheduleEvent(eDorunaEvents::EventBarbedArrow, 50 * TimeConstants::IN_MILLISECONDS);
+               // break;
             }
-            default:
-                break;
+             //default:
+               // break;
             }
 
             DoMeleeAttackIfReady();
@@ -827,14 +827,14 @@ public:
 
         void Reset() override
         {
-            events.Reset();
+           // events.Reset();
             me->SetReactState(ReactStates::REACT_DEFENSIVE);
         }
 
-        void EnterCombat(Unit* p_Who) override
+        void EnterCombat(Unit* p_Who) 
         {
-            events.ScheduleEvent(eGwarnokEvents::EventChargingSlash, 8 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eGwarnokEvents::EventChainDrag, 15 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eGwarnokEvents::EventChargingSlash, 8 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eGwarnokEvents::EventChainDrag, 15 * TimeConstants::IN_MILLISECONDS);
             me->CastSpell(me, eGwarnokSpells::SpellBrutalInspiration);
         }
 
@@ -843,38 +843,38 @@ public:
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);
+           // events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
-            switch (events.ExecuteEvent())
+           // switch (events.ExecuteEvent())
             {
-            case eGwarnokEvents::EventBladestorm:
+                eGwarnokEvents::EventBladestorm;
             {
                 me->CastSpell(me, eGwarnokSpells::SpellBladestorm);
-                break;
+               // break;
             }
-            case eGwarnokEvents::EventChargingSlash:
+            eGwarnokEvents::EventChargingSlash;
             {
-                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0F, true))
-                    me->CastSpell(l_Target, eGwarnokSpells::SpellChargingSlashJump);
-                events.ScheduleEvent(eGwarnokEvents::EventChargingSlash, 15 * TimeConstants::IN_MILLISECONDS);
-                break;
+               // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0F, true))
+                 //   me->CastSpell(l_Target, eGwarnokSpells::SpellChargingSlashJump);
+               // events.ScheduleEvent(eGwarnokEvents::EventChargingSlash, 15 * TimeConstants::IN_MILLISECONDS);
+               // break;
             }
-            case eGwarnokEvents::EventChainDrag:
+            eGwarnokEvents::EventChainDrag;
             {
-                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0F, true))
+              //  if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0F, true))
                 {
-                    me->CastSpell(l_Target, eGwarnokSpells::SpellChainDrag);
-                    l_Target->GetMotionMaster()->MoveJump(*me, 8.0f, 5.0f, 10.0f);
+                   // me->CastSpell(l_Target, eGwarnokSpells::SpellChainDrag);
+                   // l_Target->GetMotionMaster()->MoveJump(*me, 8.0f, 5.0f, 10.0f);
                 }
-                events.ScheduleEvent(eGwarnokEvents::EventBladestorm, 2 * TimeConstants::IN_MILLISECONDS);
-                events.ScheduleEvent(eGwarnokEvents::EventChainDrag, 25 * TimeConstants::IN_MILLISECONDS);
-                break;
+               // events.ScheduleEvent(eGwarnokEvents::EventBladestorm, 2 * TimeConstants::IN_MILLISECONDS);
+               // events.ScheduleEvent(eGwarnokEvents::EventChainDrag, 25 * TimeConstants::IN_MILLISECONDS);
+               // break;
             }
-            default:
-                break;
+             //default:
+               // break;
             }
 
             DoMeleeAttackIfReady();
@@ -953,49 +953,49 @@ public:
 
         void Reset() override
         {
-            events.Reset();
+           // events.Reset();
             m_Activated = true;
-            ClearDelayedOperations();
+           // ClearDelayedOperations();
             me->SetFaction(FriendlyFaction);
             me->SetReactState(ReactStates::REACT_PASSIVE);
 
-            AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+           // AddTimedDelayedOperation(6 * TimeConstants::IN_MILLISECONDS, [this]() -> void
             {
                 m_Activated = false;
                 me->CastSpell(me, eIronStarSpells::SpellQuietSuicide, true);
 
-                AddTimedDelayedOperation(8 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+               // AddTimedDelayedOperation(8 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                 {
-                    me->DespawnOrUnsummon(2 * TimeConstants::IN_MILLISECONDS);
-                });
-            });
+                  //  me->DespawnOrUnsummon(2 * TimeConstants::IN_MILLISECONDS);
+                };
+            };
 
             /// Takes iron star orientation
             if (TempSummon* l_TempSummon = me->ToTempSummon())
             {
-                if (Unit* l_Summoner = l_TempSummon->GetSummoner())
+               // if (Unit* l_Summoner = l_TempSummon->GetSummoner())
                 {
-                    float l_X = l_Summoner->m_positionX + 220 * cos(l_Summoner->GetOrientation());
-                    float l_Y = l_Summoner->m_positionY + 220 * sin(l_Summoner->GetOrientation());
+                  //  float l_X = l_Summoner->m_positionX + 220 * cos(l_Summoner->GetOrientation());
+                   // float l_Y = l_Summoner->m_positionY + 220 * sin(l_Summoner->GetOrientation());
 
-                    me->GetMotionMaster()->MoveCharge(l_X, l_Y, me->GetPositionZ(), 42.0f, eMovementInformed::MovementInformedIronStarWallContact);
+                    me->GetMotionMaster()->MoveCharge( me->GetPositionZ(), 42.0f, eMovementInformed::MovementInformedIronStarWallContact);
                 }
             }
 
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NOT_SELECTABLE));
+          //  me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NOT_SELECTABLE));
         }
 
         void UpdateAI(uint32 const p_Diff) override
         {
-            UpdateOperations(p_Diff);
+           // UpdateOperations(p_Diff);
 
             if (m_Instance != nullptr)
             {
                 if (m_Activated)
                 {
                     std::list<Unit*> unfriendlyList;
-                    Trinity::AnyUnfriendlyUnitInObjectRangeCheck checker(me, me, 4.0f);
-                    Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, unfriendlyList, checker);
+                   // Trinity::AnyUnfriendlyUnitInObjectRangeCheck();
+                    Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher();
                     Cell::VisitAllObjects(me, searcher, 3.4f);
 
                     for (Unit* unit : unfriendlyList)
@@ -1012,7 +1012,7 @@ public:
                         unit->SetFacingToObject(me);
                         unit->SendPlaySpellVisualKit(eIronStarSpellVisualKit::SpellVisualKitAlert, 0, 0);
                         unit->CastSpell(unit, eIronStarSpells::SpellCrushed);
-                        unit->Kill(unit);
+                       // unit->Kill(unit);
                     }
                 }
 
@@ -1022,7 +1022,7 @@ public:
                     {
                         if (Creature* l_Skulloc = m_Instance->instance->GetCreature(m_Instance->GetGuidData(eIronDocksDatas::DataSkulloc)))
                         {
-                            if (l_Skulloc->IsAIEnabled)
+                           // if (l_Skulloc->IsAIEnabled)
                             {
                                 m_Event = true;
                                 l_Skulloc->GetAI()->DoAction(eIronDocksActions::ActionActivateBridgeBombardmement);
@@ -1077,24 +1077,24 @@ public:
 
         void Reset() override
         {
-            events.Reset();
+           // events.Reset();
             m_HasShouted = false;
             me->SetFaction(HostileFaction);
             me->SetReactState(ReactStates::REACT_AGGRESSIVE);
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* p_Attacker) 
         {
             me->SetStandState(UnitStandStateType::UNIT_STAND_STATE_STAND);
             me->SetAIAnimKitId(0);
-            events.ScheduleEvent(eOrgonEvents::EventThunderingStomp, 20 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eOrgonEvents::EventFlurry, urand(8 * TimeConstants::IN_MILLISECONDS, 13 * TimeConstants::IN_MILLISECONDS));
+           // events.ScheduleEvent(eOrgonEvents::EventThunderingStomp, 20 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eOrgonEvents::EventFlurry, urand(8 * TimeConstants::IN_MILLISECONDS, 13 * TimeConstants::IN_MILLISECONDS));
         }
 
         void MoveInLineOfSight(Unit* p_Who) override
         {
             if (p_Who && p_Who->IsInWorld() && p_Who->GetTypeId() != TypeID::TYPEID_PLAYER && p_Who->GetEntry() == eIronDocksCreatures::CreatureIronStar && me->IsWithinDistInMap(p_Who, 1.2f))
-                p_Who->Kill(me);
+              //  p_Who->Kill(me);
 
             if (p_Who && p_Who->IsInWorld() && p_Who->GetTypeId() == TypeID::TYPEID_PLAYER && me->IsWithinDistInMap(p_Who, 10.0f) && !m_HasShouted && me->FindNearestCreature(eOrgonCreatures::CreatureTriggerCannon, 5.0f))
             {
@@ -1110,24 +1110,24 @@ public:
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);
+          //  events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
-            switch (events.ExecuteEvent())
+           // switch (events.ExecuteEvent())
             {
-            case eOrgonEvents::EventThunderingStomp:
+                eOrgonEvents::EventThunderingStomp;
                 me->CastSpell(me, eOrgonSpells::SpellThunderingStomp);
-                events.ScheduleEvent(eOrgonEvents::EventThunderingStomp, 20 * TimeConstants::IN_MILLISECONDS);
-                break;
-            case eOrgonEvents::EventFlurry:
+                //events.ScheduleEvent(eOrgonEvents::EventThunderingStomp, 20 * TimeConstants::IN_MILLISECONDS);
+               // break;
+                eOrgonEvents::EventFlurry;
                 if (Unit* l_Target = me->GetVictim())
                     me->CastSpell(l_Target, eOrgonSpells::SpellFlurry);
-                events.ScheduleEvent(eOrgonEvents::EventFlurry, urand(8 * TimeConstants::IN_MILLISECONDS, 13 * TimeConstants::IN_MILLISECONDS));
-                break;
-            default:
-                break;
+              //  events.ScheduleEvent(eOrgonEvents::EventFlurry, urand(8 * TimeConstants::IN_MILLISECONDS, 13 * TimeConstants::IN_MILLISECONDS));
+               // break;
+             //default:
+               // break;
             }
 
             DoMeleeAttackIfReady();
@@ -1165,7 +1165,7 @@ public:
 
         void Reset() override
         {
-            events.Reset();
+          //  events.Reset();
 
             switch (urand(0, 1)) ///< Handles visual for Deck hands.
             {
@@ -1180,18 +1180,18 @@ public:
             }
         }
 
-        void EnterCombat(Unit* p_Who) override
+        void EnterCombat(Unit* p_Who) 
         {
             // Removes to non following units.
             me->RemoveAura(eSpells::SpellEmoteWork);
            // me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
-            events.ScheduleEvent(eDeckHandEvents::EventHatchetToss, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
+           // events.ScheduleEvent(eDeckHandEvents::EventHatchetToss, urand(8 * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::IN_MILLISECONDS));
         }
 
         void MoveInLineOfSight(Unit* p_Who) override
         {
             if (p_Who && p_Who->IsInWorld() && p_Who->GetTypeId() != TypeID::TYPEID_PLAYER && p_Who->GetEntry() == eIronDocksCreatures::CreatureIronStar && me->IsWithinDistInMap(p_Who, 1.2f))
-                p_Who->Kill(me);
+              //  p_Who->Kill(me);
 
             ScriptedAI::MoveInLineOfSight(p_Who);
         }
@@ -1201,20 +1201,20 @@ public:
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);
+          //  events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
-            switch (events.ExecuteEvent())
+           // switch (events.ExecuteEvent())
             {
-            case eDeckHandEvents::EventHatchetToss:
-                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                    me->CastSpell(l_Target, eDeckHandSpells::SpellHatchetToss);
-                events.ScheduleEvent(eDeckHandEvents::EventHatchetToss, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
-                break;
-            default:
-                break;
+                eDeckHandEvents::EventHatchetToss;
+              //  if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                //    me->CastSpell(l_Target, eDeckHandSpells::SpellHatchetToss);
+                //events.ScheduleEvent(eDeckHandEvents::EventHatchetToss, urand(8 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
+                //break;
+             //default:
+               // break;
             }
 
             DoMeleeAttackIfReady();
@@ -1250,12 +1250,12 @@ public:
 
         void Reset() override
         {
-            events.Reset();
+           // events.Reset();
         }
 
-        void EnterCombat(Unit* p_Who) override
+        void EnterCombat(Unit* p_Who) 
         {
-            events.ScheduleEvent(eChainMasterEvents::EventIronWarCry, 10 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eChainMasterEvents::EventIronWarCry, 10 * TimeConstants::IN_MILLISECONDS);
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -1263,19 +1263,19 @@ public:
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);
+           // events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
-            switch (events.ExecuteEvent())
+           // switch (events.ExecuteEvent())
             {
-            case eChainMasterEvents::EventIronWarCry:
+                eChainMasterEvents::EventIronWarCry;
                 DoCast(eChainMasterSpells::SpellIronWarCry);
-                events.ScheduleEvent(eChainMasterEvents::EventIronWarCry, 25 * TimeConstants::IN_MILLISECONDS);
-                break;
-            default:
-                break;
+                //events.ScheduleEvent(eChainMasterEvents::EventIronWarCry, 25 * TimeConstants::IN_MILLISECONDS);
+               // break;
+             //default:
+               // break;
             }
 
             DoMeleeAttackIfReady();
@@ -1322,16 +1322,16 @@ public:
 
         void Reset() override
         {
-            events.Reset();
+          //  events.Reset();
             me->SetSpeed(UnitMoveType::MOVE_RUN, 0.5f);
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* p_Attacker) 
         {
             me->RemoveAura(eSpells::SpellEmoteWork);
-            events.ScheduleEvent(eTechnicianEvents::EventGreaseVial, urand(5 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
-            events.ScheduleEvent(eTechnicianEvents::EventFlyingHammer, urand(6 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
-            events.ScheduleEvent(eTechnicianEvents::EventExplosiveGrenade, 20 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eTechnicianEvents::EventGreaseVial, urand(5 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
+           // events.ScheduleEvent(eTechnicianEvents::EventFlyingHammer, urand(6 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
+           // events.ScheduleEvent(eTechnicianEvents::EventExplosiveGrenade, 20 * TimeConstants::IN_MILLISECONDS);
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -1339,30 +1339,30 @@ public:
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);
+           // events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
-            switch (events.ExecuteEvent())
+           // switch (events.ExecuteEvent())
             {
-            case eTechnicianEvents::EventGreaseVial:
-                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                    me->CastSpell(l_Target, eTechnicianSpells::SpellGreaseVial);
-                events.ScheduleEvent(eTechnicianEvents::EventGreaseVial, urand(5 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
-                break;
-            case eTechnicianEvents::EventFlyingHammer:
-                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                    me->CastSpell(l_Target, eTechnicianSpells::SpellFlyingHammer);
-                events.ScheduleEvent(eTechnicianEvents::EventFlyingHammer, urand(6 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
-                break;
-            case eTechnicianEvents::EventExplosiveGrenade:
-                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                    me->CastSpell(l_Target, eTechnicianSpells::SpellHighExplosiveGrenade);
-                events.ScheduleEvent(eTechnicianEvents::EventExplosiveGrenade, 20 * TimeConstants::IN_MILLISECONDS);
-                break;
-            default:
-                break;
+                eTechnicianEvents::EventGreaseVial;
+               // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                 //   me->CastSpell(l_Target, eTechnicianSpells::SpellGreaseVial);
+               // events.ScheduleEvent(eTechnicianEvents::EventGreaseVial, urand(5 * TimeConstants::IN_MILLISECONDS, 9 * TimeConstants::IN_MILLISECONDS));
+               // break;
+                eTechnicianEvents::EventFlyingHammer;
+                //if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                  //  me->CastSpell(l_Target, eTechnicianSpells::SpellFlyingHammer);
+                //events.ScheduleEvent(eTechnicianEvents::EventFlyingHammer, urand(6 * TimeConstants::IN_MILLISECONDS, 12 * TimeConstants::IN_MILLISECONDS));
+               // break;
+                eTechnicianEvents::EventExplosiveGrenade;
+               // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                 //   me->CastSpell(l_Target, eTechnicianSpells::SpellHighExplosiveGrenade);
+               // events.ScheduleEvent(eTechnicianEvents::EventExplosiveGrenade, 20 * TimeConstants::IN_MILLISECONDS);
+                //break;
+             //default:
+               // break;
             }
 
             DoMeleeAttackIfReady();
@@ -1421,23 +1421,23 @@ class iron_docks_trigger_cannon : public CreatureScript
 public:
     iron_docks_trigger_cannon() : CreatureScript("iron_docks_trigger_cannon") { }
 
-    struct mob_iron_docksAI : public Scripted_NoMovementAI
+    struct mob_iron_docksAI : public CreatureAI
     {
-        mob_iron_docksAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature) { }
+        mob_iron_docksAI(Creature* p_Creature) : CreatureAI(p_Creature) { }
 
         void Reset() override
         {
             me->SetFaction(HostileFaction);
             me->SetDisplayId(InvisibleDisplay);
            // me->GetMap()->SetObjectVisibility(1000.0f);
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
+           // me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
             me->SetReactState(ReactStates::REACT_PASSIVE);
         }
     };
 
     CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new mob_iron_docksAI(p_Creature);
+        return;// new mob_iron_docksAI(p_Creature);
     }
 };
 
@@ -1449,17 +1449,17 @@ public:
 
     iron_docks_mob_archery_target() : CreatureScript("iron_docks_mob_archery_target") { }
 
-    struct iron_docks_mob_archery_targetAI : public Scripted_NoMovementAI
+    struct iron_docks_mob_archery_targetAI : public CreatureAI
     {
-        iron_docks_mob_archery_targetAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature) { }
+        iron_docks_mob_archery_targetAI(Creature* p_Creature) : CreatureAI(p_Creature) { }
 
         void Reset() override
         {
             me->SetReactState(ReactStates::REACT_PASSIVE);
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC));
+           // me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC));
         }
 
-        void DamageTaken(Unit* p_Attacker, uint32& p_Damage) override
+        void DamageTaken(Unit* p_Attacker, uint32& p_Damage) 
         {
             p_Damage = 0;
         }
@@ -1467,7 +1467,7 @@ public:
 
     CreatureAI* GetAI(Creature* p_Creature) const override
     {
-        return new iron_docks_mob_archery_targetAI(p_Creature);
+        return;// new iron_docks_mob_archery_targetAI(p_Creature);
     }
 };
 
@@ -1513,7 +1513,7 @@ public:
 
         void Reset() override
         {
-            events.Reset();
+          //  events.Reset();
             m_Frenzied = false;
             m_Stampede = false;
             m_StampedeGuid = ObjectGuid::Empty;
@@ -1521,12 +1521,12 @@ public:
             me->AddAura(eClefthoofSpells::SpellClefthoofSpinyHorns, me);
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* p_Attacker) 
         {
-            events.ScheduleEvent(eClefthoofEvents::EventClefthoofStampede, 12 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eClefthoofEvents::EventClefthoofStampede, 12 * TimeConstants::IN_MILLISECONDS);
         }
 
-        void DamageTaken(Unit* p_Attacker, uint32& p_Damage) override
+        void DamageTaken(Unit* p_Attacker, uint32& p_Damage) 
         {
             if (!m_Frenzied && me->GetHealthPct() <= 30)
             {
@@ -1545,10 +1545,10 @@ public:
                 me->RemoveAura(eClefthoofSpells::SpellClefthoofStampedeVisualMovement);
                 me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC));
 
-                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
+               // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
                 {
-                    me->Attack(l_Target, true);
-                    me->GetMotionMaster()->MoveChase(l_Target);
+                  //  me->Attack(l_Target, true);
+                   // me->GetMotionMaster()->MoveChase(l_Target);
                 }
                 break;
             default:
@@ -1561,7 +1561,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);
+           // events.Update(p_Diff);
 
             if (m_Stampede)
             {
@@ -1583,7 +1583,7 @@ public:
                 {
                     std::list<Player*> l_PlayerList;
 
-                    l_PlayerList = me->SelectNearestPlayers(2.0f);
+                   // l_PlayerList = me->SelectNearestPlayers(2.0f);
 
                     if (l_PlayerList.empty())
                         return;
@@ -1604,25 +1604,25 @@ public:
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
-            switch (events.ExecuteEvent())
+           // switch (events.ExecuteEvent())
             {
-            case eClefthoofEvents::EventClefthoofStampede:
+                eClefthoofEvents::EventClefthoofStampede;
             {
-                if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_FARTHEST, 0, 45.0f, true))
+               // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_FARTHEST, 0, 45.0f, true))
                 {
                     m_Stampede = true;
                     me->AttackStop();
-                    m_StampedeGuid = l_Target->GetGUID();
+                    m_StampedeGuid = GetGUID();
                     me->SetReactState(ReactStates::REACT_PASSIVE);
                     m_StampedeDiff = 1 * TimeConstants::IN_MILLISECONDS;
-                    me->CastSpell(l_Target, eClefthoofSpells::SpellClefthoofStampedeDummyCast);
+                   // me->CastSpell(l_Target eClefthoofSpells::SpellClefthoofStampedeDummyCast);
                 }
 
-                events.ScheduleEvent(eClefthoofEvents::EventClefthoofStampede, 25 * TimeConstants::IN_MILLISECONDS);
-                break;
+                //events.ScheduleEvent(eClefthoofEvents::EventClefthoofStampede, 25 * TimeConstants::IN_MILLISECONDS);
+                //break;
             }
-            default:
-                break;
+             //default:
+               // break;
             }
 
             DoMeleeAttackIfReady();
@@ -1667,13 +1667,13 @@ public:
 
         void Reset() override
         {
-            events.Reset();
+          //  events.Reset();
         }
 
-        void EnterCombat(Unit* p_Attacker) override
+        void EnterCombat(Unit* p_Attacker) 
         {
-            events.ScheduleEvent(eIronwingFlamespitterEvents::EventLavaBlast, 10 * TimeConstants::IN_MILLISECONDS);
-            events.ScheduleEvent(eIronwingFlamespitterEvents::EventLavaBarrage, urand(15 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
+           // events.ScheduleEvent(eIronwingFlamespitterEvents::EventLavaBlast, 10 * TimeConstants::IN_MILLISECONDS);
+           // events.ScheduleEvent(eIronwingFlamespitterEvents::EventLavaBarrage, urand(15 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
         }
 
         void UpdateAI(uint32 const p_Diff) override
@@ -1681,23 +1681,23 @@ public:
             if (!UpdateVictim())
                 return;
 
-            events.Update(p_Diff);
+           // events.Update(p_Diff);
 
             if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                 return;
 
-            switch (events.ExecuteEvent())
+           // switch (events.ExecuteEvent())
             {
-            case eIronwingFlamespitterEvents::EventLavaBarrage:
+                eIronwingFlamespitterEvents::EventLavaBarrage;
                 me->CastSpell(me, eIronwingFlamespitterSpells::SpellLavaBarrageDummy); // dummy
-                events.ScheduleEvent(eIronwingFlamespitterEvents::EventLavaBarrage, urand(15 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
-                break;
-            case eIronwingFlamespitterEvents::EventLavaBlast:
+               // events.ScheduleEvent(eIronwingFlamespitterEvents::EventLavaBarrage, urand(15 * TimeConstants::IN_MILLISECONDS, 20 * TimeConstants::IN_MILLISECONDS));
+               // break;
+                eIronwingFlamespitterEvents::EventLavaBlast;
                 me->CastSpell(me, eIronwingFlamespitterSpells::SpellLavaBlastDummyAura); // dummy
-                events.ScheduleEvent(eIronwingFlamespitterEvents::EventLavaBlast, 35 * TimeConstants::IN_MILLISECONDS);
-                break;
-            default:
-                break;
+               // events.ScheduleEvent(eIronwingFlamespitterEvents::EventLavaBlast, 35 * TimeConstants::IN_MILLISECONDS);
+               // break;
+             //default:
+               // break;
             }
 
             DoMeleeAttackIfReady();
@@ -1820,10 +1820,10 @@ public:
 
             if (Unit* l_Caster = GetCaster())
             {
-                if (l_Caster->IsAIEnabled)
+              //  if (l_Caster->IsAIEnabled)
                 {
-                    if (Unit* l_Target = l_Caster->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 300.0f, true))
-                        l_Caster->CastSpell(l_Target, eLavaBlastSpells::SpellLavaBlastTriggerMissile, true);
+                   // if (Unit* l_Target = l_Caster->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 300.0f, true))
+                     //   l_Caster->CastSpell(l_Target, eLavaBlastSpells::SpellLavaBlastTriggerMissile, true);
                 }
             }
         }
@@ -1862,10 +1862,10 @@ public:
 
             if (Unit* l_Caster = GetCaster())
             {
-                if (l_Caster->IsAIEnabled)
+              //  if (l_Caster->IsAIEnabled)
                 {
-                    if (Unit* l_Target = l_Caster->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 300.0f, true))
-                        l_Caster->CastSpell(l_Target, eBarbedarrowSpells::SpellBarbedArrowAreaTrigger);
+                  //  if (Unit* l_Target = l_Caster->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 300.0f, true))
+                    //    l_Caster->CastSpell(l_Target, eBarbedarrowSpells::SpellBarbedArrowAreaTrigger);
                 }
             }
         }
@@ -1993,10 +1993,10 @@ public:
 
             if (Unit* l_Caster = GetCaster())
             {
-                if (l_Caster->IsAIEnabled)
+              //  if (l_Caster->IsAIEnabled)
                 {
-                    if (Unit* l_Target = l_Caster->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 300.0f, true))
-                        l_Caster->CastSpell(l_Target, eBurningArrowSpells::SpellBurningArrowAreaTrigger);
+                   // if (Unit* l_Target = l_Caster->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 300.0f, true))
+                     //   l_Caster->CastSpell(l_Target, eBurningArrowSpells::SpellBurningArrowAreaTrigger);
                 }
             }
         }
@@ -2073,12 +2073,12 @@ public:
         {
             if (Unit* l_Caster = GetCaster())
             {
-                if (l_Caster->IsAIEnabled)
+              //  if (l_Caster->IsAIEnabled)
                 {
                     for (uint8 l_I = 0; l_I < 2; l_I++)
                     {
-                        if (Unit* l_Target = l_Caster->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                            l_Caster->CastSpell(l_Target, eLavaBarrageSpells::SpellLavaBarrageAreaTrigger, true);
+                        //if (Unit* l_Target = l_Caster->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                          //  l_Caster->CastSpell(l_Target, eLavaBarrageSpells::SpellLavaBarrageAreaTrigger, true);
                     }
                 }
             }

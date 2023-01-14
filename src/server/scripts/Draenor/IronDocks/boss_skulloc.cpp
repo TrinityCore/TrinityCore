@@ -69,17 +69,17 @@ public:
             {
                 if (Creature* l_Koramar = l_Instance->instance->GetCreature(l_Instance->GetGuidData(eIronDocksDatas::DataKoramar)))
                 {
-                    if (l_Koramar->IsAIEnabled)
+                   // if (l_Koramar->IsAIEnabled)
                     {
                         switch (m_Modifier)
                         {
                         case 0:
                             l_Koramar->AI()->Talk(eTalks::TalkKoramar12);
-                            l_Koramar->m_Events.AddEvent(new basicevent_pre_boss(l_Koramar, 1), l_Koramar->m_Events.CalculateTime(8 * TimeConstants::IN_MILLISECONDS));
+                           // l_Koramar->m_Events.AddEvent(new basicevent_pre_boss(l_Koramar, 1), l_Koramar->m_Events.CalculateTime(8 * TimeConstants::IN_MILLISECONDS));
                             break;
                         case 1:
                             l_Koramar->AI()->Talk(eTalks::TalkKoramar13);
-                            l_Koramar->m_Events.AddEvent(new basicevent_pre_boss(l_Koramar, 2), l_Koramar->m_Events.CalculateTime(8 * TimeConstants::IN_MILLISECONDS));
+                           // l_Koramar->m_Events.AddEvent(new basicevent_pre_boss(l_Koramar, 2), l_Koramar->m_Events.CalculateTime(8 * TimeConstants::IN_MILLISECONDS));
                             break;
                         case 2:
                             l_Koramar->AI()->Talk(eTalks::TalkZoggosh03);
@@ -117,32 +117,32 @@ public:
                 {
                     if (Creature* l_Skulloc = l_Instance->instance->GetCreature(l_Instance->GetGuidData(eIronDocksDatas::DataSkulloc)))
                     {
-                        if (l_Koramar->IsAIEnabled && l_Skulloc->IsAIEnabled && l_Zoggosh->IsAIEnabled)
+                       // if (l_Koramar->IsAIEnabled && l_Skulloc->IsAIEnabled && l_Zoggosh->IsAIEnabled)
                         {
                             switch (m_Modifier)
                             {
                                 case 0:
                                 {
                                     l_Zoggosh->AI()->Talk(eTalks::TalkZoggoshBombardmenet01);
-                                    l_Zoggosh->m_Events.AddEvent(new basicevent_bombardment_bridge(l_Zoggosh, 1), l_Zoggosh->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
+                                  //  l_Zoggosh->m_Events.AddEvent(new basicevent_bombardment_bridge(l_Zoggosh, 1), l_Zoggosh->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));
                                     break;
                                 }
                                 case 1:
                                 {
                                     l_Koramar->AI()->Talk(eTalks::TalkKoramarBombardmenet01);
-                                    l_Koramar->m_Events.AddEvent(new basicevent_bombardment_bridge(l_Koramar, 2), l_Koramar->m_Events.CalculateTime(8 * TimeConstants::IN_MILLISECONDS));
+                                    //l_Koramar->m_Events.AddEvent(new basicevent_bombardment_bridge(l_Koramar, 2), l_Koramar->m_Events.CalculateTime(8 * TimeConstants::IN_MILLISECONDS));
                                     break;
                                 }
                                 case 2:
                                 {
                                     l_Zoggosh->AI()->Talk(eTalks::TalkZoggoshBombardmenet02);
-                                    l_Skulloc->m_Events.AddEvent(new basicevent_bombardment_bridge(l_Skulloc, 3), l_Skulloc->m_Events.CalculateTime(4 * TimeConstants::IN_MILLISECONDS));
+                                   // l_Skulloc->m_Events.AddEvent(new basicevent_bombardment_bridge(l_Skulloc, 3), l_Skulloc->m_Events.CalculateTime(4 * TimeConstants::IN_MILLISECONDS));
                                     break;
                                 }
                                 case 3:
                                 {
                                     l_Skulloc->AI()->DoAction(eIronDocksActions::ActionBombardBridge);
-                                    l_Skulloc->m_Events.AddEvent(new basicevent_bombardment_bridge(l_Skulloc, 3), l_Skulloc->m_Events.CalculateTime(8 * TimeConstants::IN_MILLISECONDS));
+                                   // l_Skulloc->m_Events.AddEvent(new basicevent_bombardment_bridge(l_Skulloc, 3), l_Skulloc->m_Events.CalculateTime(8 * TimeConstants::IN_MILLISECONDS));
                                     break;
                                 }
                                 default:
@@ -179,20 +179,20 @@ public:
                     {
                         if (Creature* l_Skulloc = l_Instance->instance->GetCreature(l_Instance->GetGuidData(eIronDocksDatas::DataSkulloc)))
                         {
-                            if (l_Koramar->IsAIEnabled && l_Skulloc->IsAIEnabled && l_Zoggosh->IsAIEnabled)
+                          //  if (l_Koramar->IsAIEnabled && l_Skulloc->IsAIEnabled && l_Zoggosh->IsAIEnabled)
                             {
                                 switch (m_Modifier)
                                 {
                                 case 0:
                                 {
                                     l_Koramar->AI()->Talk(eTalks::TalkKoramarBombardmenet01);
-                                    l_Zoggosh->m_Events.AddEvent(new basicevent_past_bombardment_bridge(l_Zoggosh, 1), l_Zoggosh->m_Events.CalculateTime(9 * TimeConstants::IN_MILLISECONDS));
+                                   // l_Zoggosh->m_Events.AddEvent(new basicevent_past_bombardment_bridge(l_Zoggosh, 1), l_Zoggosh->m_Events.CalculateTime(9 * TimeConstants::IN_MILLISECONDS));
                                     break;
                                 }
                                 case 1:
                                 {
                                     l_Zoggosh->AI()->Talk(eTalks::TalkZoggoshPastBombardment01);
-                                    l_Koramar->m_Events.AddEvent(new basicevent_past_bombardment_bridge(l_Koramar, 2), l_Koramar->m_Events.CalculateTime(8 * TimeConstants::IN_MILLISECONDS));
+                                   // l_Koramar->m_Events.AddEvent(new basicevent_past_bombardment_bridge(l_Koramar, 2), l_Koramar->m_Events.CalculateTime(8 * TimeConstants::IN_MILLISECONDS));
                                     break;
                                 }
                                 case 2:
@@ -225,18 +225,18 @@ static void SkullocEnforcersStart(InstanceScript* p_Instance, Creature* p_Me)
 
     if (Creature* l_Skulloc = p_Instance->instance->GetCreature(p_Instance->GetGuidData(eIronDocksDatas::DataSkulloc)))
     {
-        if (!l_Skulloc->IsInCombat())
-        l_Skulloc->SetInCombatWithZone();
+        if (!l_Skulloc->IsInCombat());
+       // l_Skulloc->SetInCombatWithZone();
     }
     if (Creature* l_Koramar = p_Instance->instance->GetCreature(p_Instance->GetGuidData(eIronDocksDatas::DataKoramar)))
     {
-        if (!l_Koramar->IsInCombat())
-            l_Koramar->SetInCombatWithZone();
+        if (!l_Koramar->IsInCombat());
+          //  l_Koramar->SetInCombatWithZone();
     }
     if (Creature* l_Zoggosh = p_Instance->instance->GetCreature(p_Instance->GetGuidData(eIronDocksDatas::DataZuggosh)))
     {
-        if (!l_Zoggosh->IsInCombat())
-            l_Zoggosh->SetInCombatWithZone();
+        if (!l_Zoggosh->IsInCombat());
+          //  l_Zoggosh->SetInCombatWithZone();
     }
 }
 
@@ -284,7 +284,7 @@ static void SkullocEnforcersWiningCondition(InstanceScript* p_Instance, Creature
                 {
                     if (Player* l_Player = ObjectAccessor::GetPlayer(*p_Me, p_KillerGuid))
                     {
-                        l_Skulloc->AddLootRecipient(l_Player);
+                      //  l_Skulloc->AddLootRecipient(l_Player);
                         p_Instance->SetBossState(eIronDocksDatas::DataSkulloc, EncounterState::DONE);
                     }
                 }
@@ -352,7 +352,7 @@ class boss_skulloc : public CreatureScript
             {
                 _Reset();
                 events.Reset();       
-                ClearDelayedOperations();
+              //  ClearDelayedOperations();
 
                 if (me->GetMap())
                  //  me->GetMap()->SetObjectVisibility(5000.0f);
@@ -361,7 +361,7 @@ class boss_skulloc : public CreatureScript
                 m_BombardmentReady = false;
                 m_Vehicle->InstallAllAccessories(false);
                 me->SetReactState(ReactStates::REACT_AGGRESSIVE);
-                me->RemoveUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+               // me->RemoveUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
                 me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_REMOVE_CLIENT_CONTROL));
             }
 
@@ -371,15 +371,15 @@ class boss_skulloc : public CreatureScript
                     m_BombardmentReady = true;
             }
 
-            void EnterCombat(Unit* /*p_Who*/) override
+            void EnterCombat(Unit* /*p_Who*/)
             {            
                 events.Reset();
 
                 me->m_Events.KillAllEvents(true);
                 me->RemoveAura(eSkullocSpells::SpellCannonBarrageAura);
 
-                events.ScheduleEvent(eSkullocEvents::EventCannonBarrage, 50 * TimeConstants::IN_MILLISECONDS);
-                events.ScheduleEvent(eSkullocEvents::EventBackdraft, 20 * TimeConstants::IN_MILLISECONDS);
+               // events.ScheduleEvent(eSkullocEvents::EventCannonBarrage, 50 * TimeConstants::IN_MILLISECONDS);
+               // events.ScheduleEvent(eSkullocEvents::EventBackdraft, 20 * TimeConstants::IN_MILLISECONDS);
 
                 if (m_Instance != nullptr)
                     SkullocEnforcersStart(m_Instance, me);
@@ -395,11 +395,11 @@ class boss_skulloc : public CreatureScript
                         {
                             m_GrimrailEvent = true;
                             me->m_Events.KillAllEvents(true); ///< Stops bombardment event (Bridge)
-                            me->m_Events.AddEvent(new basicevent_past_bombardment_bridge(me, 0), me->m_Events.CalculateTime(1 * TimeConstants::IN_MILLISECONDS));
+                          //  me->m_Events.AddEvent(new basicevent_past_bombardment_bridge(me, 0), me->m_Events.CalculateTime(1 * TimeConstants::IN_MILLISECONDS));
 
                             if (Creature* l_Train = me->FindNearestCreature(eSkullocCreatures::CreatureTrainEngine, 600.0f, true))
                             {
-                                if (l_Train->IsAIEnabled)
+                               // if (l_Train->IsAIEnabled)
                                     l_Train->GetAI()->DoAction(eIronDocksActions::ActionTrainMoveWheels);
                             }
                         }
@@ -411,11 +411,11 @@ class boss_skulloc : public CreatureScript
                         {
                             m_BridgeBombardmenet = true;
 
-                            if (Unit* l_Nearest = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
-                                me->SetFacingToObject(l_Nearest);
+                          //  if (Unit* l_Nearest = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
+                            //    me->SetFacingToObject(l_Nearest);
 
-                            me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
-                            me->m_Events.AddEvent(new basicevent_bombardment_bridge(me, 0), me->m_Events.CalculateTime(3 * TimeConstants::IN_MILLISECONDS));
+                           // me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+                           // me->m_Events.AddEvent(new basicevent_bombardment_bridge(me, 0), me->m_Events.CalculateTime(3 * TimeConstants::IN_MILLISECONDS));
                         }
                         break;
                     }
@@ -439,7 +439,7 @@ class boss_skulloc : public CreatureScript
                     m_BombardmentReady = true;
                     me->UpdatePosition(g_HomeSkullcHomePos);
                     me->CastSpell(me, eSkullocSpells::SpellGronnSmash);                    
-                    events.ScheduleEvent(eSkullocEvents::EventCannonBarrageCancel, 1 * TimeConstants::IN_MILLISECONDS);
+                  //  events.ScheduleEvent(eSkullocEvents::EventCannonBarrageCancel, 1 * TimeConstants::IN_MILLISECONDS);
                 }
             }
 
@@ -464,7 +464,7 @@ class boss_skulloc : public CreatureScript
                     if (m_Instance != nullptr)
                     {
                         m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
-                        m_Instance->DoSendScenarioEvent(41681);
+                       // m_Instance->DoSendScenarioEvent(41681);
                         SkullocEnforcersWiningCondition(m_Instance, me, p_Killer->GetGUID());
                     }
                 }
@@ -476,7 +476,7 @@ class boss_skulloc : public CreatureScript
                     return;
 
                 events.Update(p_Diff);
-                UpdateOperations(p_Diff);
+               // UpdateOperations(p_Diff);
 
                 if (m_BombardmentReady)
                 {
@@ -487,7 +487,7 @@ class boss_skulloc : public CreatureScript
                             if (l_Nearest->IsWithinMeleeRange(me))
                             {
                                 m_BombardmentReady = false;
-                                events.ScheduleEvent(eSkullocEvents::EventCannonBarrageStopAble, 1 * TimeConstants::IN_MILLISECONDS);
+                              //  events.ScheduleEvent(eSkullocEvents::EventCannonBarrageStopAble, 1 * TimeConstants::IN_MILLISECONDS);
                             }
                         }
                     }
@@ -497,15 +497,15 @@ class boss_skulloc : public CreatureScript
                 {
                     case eSkullocEvents::EventCannonBarrage:
                     {
-                        AddTimedDelayedOperation(20 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+                       // AddTimedDelayedOperation(20 * TimeConstants::IN_MILLISECONDS, [this]() -> void
                         {
                             m_CanBeginStoppingaBombardment = true;
-                        });
+                        };
 
                         me->AttackStop();  
                         m_CanBeginStoppingaBombardment = false;
                         me->SetReactState(ReactStates::REACT_PASSIVE);
-                        me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+                       // me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
                         //me->MonsterTextEmote("Skulloc prepares a |cFFFF0404|Hspell:164275|h[Cannon Barrage]!|h|r! Get behind cover to survive!", me->GetGUID(), true);
                         me->GetMotionMaster()->MovePoint(eSkullocMovementInformed::MovementInformedBeginBarrage, g_HomeSkullcHomePos.GetPositionX(), g_HomeSkullcHomePos.GetPositionY(), g_HomeSkullcHomePos.GetPositionZ());
                         break;
@@ -516,21 +516,21 @@ class boss_skulloc : public CreatureScript
                         me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                         me->RemoveAura(eSkullocSpells::SpellCannonBarrageAura);      
                         events.CancelEvent(eSkullocEvents::EventCannonBarrageCancel);
-                        events.ScheduleEvent(eSkullocEvents::EventCannonBarrage, 50 * TimeConstants::IN_MILLISECONDS);
-                        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
+                       // events.ScheduleEvent(eSkullocEvents::EventCannonBarrage, 50 * TimeConstants::IN_MILLISECONDS);
+                      //  me->RemoveUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
                         me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_REMOVE_CLIENT_CONTROL));
 
-                        if (Unit* l_Victim = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 150.0f, true))
+                      //  if (Unit* l_Victim = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 150.0f, true))
                         {
-                            me->Attack(l_Victim, true);
-                            me->GetMotionMaster()->MoveChase(l_Victim);
+                           // me->Attack(l_Victim, true);
+                           // me->GetMotionMaster()->MoveChase(l_Victim);
                         }
 
                         if (m_Instance != nullptr)
                         {
                             if (Creature* l_Koramar = m_Instance->instance->GetCreature(m_Instance->GetGuidData(eIronDocksDatas::DataKoramar)))
                             {
-                                if (l_Koramar->IsAIEnabled)
+                              //  if (l_Koramar->IsAIEnabled)
                                     l_Koramar->GetAI()->DoAction(eActions::ActionKoramarStopBladestorming);
                             }
                         }
@@ -541,14 +541,14 @@ class boss_skulloc : public CreatureScript
                     {
                         me->SetReactState(ReactStates::REACT_PASSIVE);
                         me->CastSpell(me, eSkullocSpells::SpellCannonBarrageAura);
-                        events.ScheduleEvent(eSkullocEvents::EventCannonBarrageCancel, 13 * TimeConstants::IN_MILLISECONDS);
+                      //  events.ScheduleEvent(eSkullocEvents::EventCannonBarrageCancel, 13 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     case eSkullocEvents::EventBackdraft:
                     {
                         if (Creature* l_BackdraftCreature = me->FindNearestCreature(eCreatures::CreatureBackdraft, 300.0f, true))
                         {
-                            if (l_BackdraftCreature->IsAIEnabled)
+                           // if (l_BackdraftCreature->IsAIEnabled)
                             {
                                 l_BackdraftCreature->SetFaction(HostileFaction);
                                 l_BackdraftCreature->SetReactState(ReactStates::REACT_PASSIVE);
@@ -556,7 +556,7 @@ class boss_skulloc : public CreatureScript
                             }
                         }
 
-                        events.ScheduleEvent(eSkullocEvents::EventBackdraft, 30 * TimeConstants::IN_MILLISECONDS);
+                       // events.ScheduleEvent(eSkullocEvents::EventBackdraft, 30 * TimeConstants::IN_MILLISECONDS);
                         break;
                     }
                     default:
@@ -611,7 +611,7 @@ class iron_docks_skulloc_mob_koramar : public CreatureScript
 
             void Reset() override
             {
-                events.Reset();
+               // events.Reset();
                 me->RemoveAllAuras();
                 me->GetMotionMaster()->Clear();
 
@@ -625,16 +625,16 @@ class iron_docks_skulloc_mob_koramar : public CreatureScript
                    // me->GetMap()->SetObjectVisibility(5000.0f);       
             }
 
-            void EnterCombat(Unit* p_Attacker) override
+            void EnterCombat(Unit* p_Attacker) 
             {             
-                events.Reset();
+               // events.Reset();
 
                 me->GetMotionMaster()->MoveChase(p_Attacker);
 
-                me->m_Events.AddEvent(new basicevent_pre_boss(me, 0), me->m_Events.CalculateTime(4 * TimeConstants::IN_MILLISECONDS));
-                events.ScheduleEvent(eKoramarEvents::EventBladestorm, 40 * TimeConstants::IN_MILLISECONDS);
-                events.ScheduleEvent(eKoramarEvents::EventShatteringBlades, 15 * TimeConstants::IN_MILLISECONDS);
-                events.ScheduleEvent(eKoramarEvents::EventBerserkerLeap, 20 * TimeConstants::IN_MILLISECONDS);
+               // me->m_Events.AddEvent(new basicevent_pre_boss(me, 0), me->m_Events.CalculateTime(4 * TimeConstants::IN_MILLISECONDS));
+               // events.ScheduleEvent(eKoramarEvents::EventBladestorm, 40 * TimeConstants::IN_MILLISECONDS);
+               // events.ScheduleEvent(eKoramarEvents::EventShatteringBlades, 15 * TimeConstants::IN_MILLISECONDS);
+               // events.ScheduleEvent(eKoramarEvents::EventBerserkerLeap, 20 * TimeConstants::IN_MILLISECONDS);
             }
 
             void JustDied(Unit* p_Killer) override
@@ -643,7 +643,7 @@ class iron_docks_skulloc_mob_koramar : public CreatureScript
                 {
                     if (Creature* l_Turret = m_Instance->instance->GetCreature(m_Instance->GetGuidData(eIronDocksDatas::DataTurret)))
                     {
-                        if (l_Turret->IsAIEnabled)
+                       // if (l_Turret->IsAIEnabled)
                             l_Turret->GetAI()->DoAction(eIronDocksActions::ActionLeaveTurret);
                     }
                 }
@@ -656,20 +656,20 @@ class iron_docks_skulloc_mob_koramar : public CreatureScript
                 switch (p_Action)
                 {
                 case eActions::ActionKoramarStopBladestorming:
-                    events.Reset();
+                  //  events.Reset();
                     me->SetReactState(ReactStates::REACT_AGGRESSIVE);
                     me->RemoveAura(eKoramarSpells::SpellBladestorm);
                     me->GetMotionMaster()->Clear();
 
-                    if (Unit* l_Victim = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 150.0f, true))
+                  //  if (Unit* l_Victim = SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 150.0f, true))
                     {
-                        me->Attack(l_Victim, true);
-                        me->GetMotionMaster()->MoveChase(l_Victim);
+                       // me->Attack(l_Victim, true);
+                       // me->GetMotionMaster()->MoveChase(l_Victim);
                     }
 
-                    events.ScheduleEvent(eKoramarEvents::EventBladestorm, 40 * TimeConstants::IN_MILLISECONDS);
-                    events.ScheduleEvent(eKoramarEvents::EventShatteringBlades, 15 * TimeConstants::IN_MILLISECONDS);
-                    events.ScheduleEvent(eKoramarEvents::EventBerserkerLeap, 20 * TimeConstants::IN_MILLISECONDS);
+                   // events.ScheduleEvent(eKoramarEvents::EventBladestorm, 40 * TimeConstants::IN_MILLISECONDS);
+                   // events.ScheduleEvent(eKoramarEvents::EventShatteringBlades, 15 * TimeConstants::IN_MILLISECONDS);
+                   // events.ScheduleEvent(eKoramarEvents::EventBerserkerLeap, 20 * TimeConstants::IN_MILLISECONDS);
                     break;
                 default:
                     break;
@@ -683,7 +683,7 @@ class iron_docks_skulloc_mob_koramar : public CreatureScript
                     m_Instance->SendEncounterUnit(EncounterFrameType::ENCOUNTER_FRAME_DISENGAGE, me);
                     SkullocEnforcersWipingCondition(m_Instance, me);
                 }
-                summons.DespawnAll();
+              //  summons.DespawnAll();
             }
 
             void MovementInform(uint32 /*p_Type*/, uint32 p_Id) override
@@ -717,14 +717,14 @@ class iron_docks_skulloc_mob_koramar : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                events.Update(p_Diff);
+               // events.Update(p_Diff);
 
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
 
-                switch (events.ExecuteEvent())
+               // switch (events.ExecuteEvent())
                 {
-                case eKoramarEvents::EventBladestorm:
+                    eKoramarEvents::EventBladestorm;
                     m_BladestormMoveCount = 0;
                     me->SetReactState(ReactStates::REACT_PASSIVE);
                     me->CastSpell(me, eKoramarSpells::SpellBladestorm);
@@ -732,20 +732,20 @@ class iron_docks_skulloc_mob_koramar : public CreatureScript
 
                     me->GetMotionMaster()->MovePoint(eMovementInformed::MovementInformedKoramarBladestorm, g_BladestormPositions[m_BladestormMoveCount].GetPositionX(), g_BladestormPositions[m_BladestormMoveCount].GetPositionY(), g_BladestormPositions[m_BladestormMoveCount].GetPositionZ());
                     m_BladestormMoveCount++;
-                    break;
-                case eKoramarEvents::EventShatteringBlades:
+                   // break;
+                    eKoramarEvents::EventShatteringBlades;
                     me->SetSpeed(UnitMoveType::MOVE_RUN, 1.12f);
 
-                    if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_FARTHEST, 0, 100.0f, true))
-                        me->CastSpell(l_Target, eKoramarSpells::SpellShatteringBlades);
-                    events.ScheduleEvent(eKoramarEvents::EventShatteringBlades, 12 * TimeConstants::IN_MILLISECONDS);
-                    break;
-                case eKoramarEvents::EventBerserkerLeap:
+                   // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_FARTHEST, 0, 100.0f, true))
+                      //  me->CastSpell(l_Target, eKoramarSpells::SpellShatteringBlades);
+                    //events.ScheduleEvent(eKoramarEvents::EventShatteringBlades, 12 * TimeConstants::IN_MILLISECONDS);
+                   // break;
+                    eKoramarEvents::EventBerserkerLeap;
                     me->CastSpell(me, eKoramarSpells::SpellBerserkerLeapDummy);
-                    events.ScheduleEvent(eKoramarEvents::EventBerserkerLeap, 8 * TimeConstants::IN_MILLISECONDS);
-                    break;
-                default:
-                    break;
+                   // events.ScheduleEvent(eKoramarEvents::EventBerserkerLeap, 8 * TimeConstants::IN_MILLISECONDS);
+                   // break;
+                 //default:
+                   // break;
                 }
 
                 DoMeleeAttackIfReady();
@@ -765,9 +765,9 @@ class iron_docks_skulloc_mob_turret : public CreatureScript
 
         iron_docks_skulloc_mob_turret() : CreatureScript("iron_docks_skulloc_mob_turret") { }
 
-        struct iron_docks_skulloc_mob_turretAI : public Scripted_NoMovementAI
+        struct iron_docks_skulloc_mob_turretAI : public CreatureAI
         {
-            iron_docks_skulloc_mob_turretAI(Creature* p_Creature) : Scripted_NoMovementAI(p_Creature), m_Vehicle(p_Creature->GetVehicleKit())
+            iron_docks_skulloc_mob_turretAI(Creature* p_Creature) : CreatureAI(p_Creature), m_Vehicle(p_Creature->GetVehicleKit())
             {
                 m_Instance = me->GetInstanceScript();
             }
@@ -791,9 +791,9 @@ class iron_docks_skulloc_mob_turret : public CreatureScript
 
             void Reset() override
             {
-                events.Reset();
+               // events.Reset();
 
-                //if (me->GetMap())
+                if (me->GetMap())
                   //  me->GetMap()->SetObjectVisibility(5000.0f);
 
                 m_TargetGuid = ObjectGuid::Empty;
@@ -801,18 +801,18 @@ class iron_docks_skulloc_mob_turret : public CreatureScript
                 me->SetFaction(HostileFaction);       
                 me->SetUnitMovementFlags(MovementFlags::MOVEMENTFLAG_ROOT);
                 //DespawnCreaturesInArea(eIronDocksCreatures::CreatureZoggosh, me);
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE));
+               // me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+               // me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE));
                 //events.ScheduleEvent(eTurretEvents::EventInstallAccessories, 5 * TimeConstants::IN_MILLISECONDS);
             }
 
-            void EnterCombat(Unit* /*p_Who*/) override
+            void EnterCombat(Unit* /*p_Who*/) 
             {
                 if (m_Instance != nullptr)
                     SkullocEnforcersStart(m_Instance, me);
 
-                events.Reset();
-                events.ScheduleEvent(eTurretEvents::EventRapidFireChangeTarget, 2 * TimeConstants::IN_MILLISECONDS);
+              //  events.Reset();
+               // events.ScheduleEvent(eTurretEvents::EventRapidFireChangeTarget, 2 * TimeConstants::IN_MILLISECONDS);
             }
 
             void DoAction(int32 const p_Action) override
@@ -825,29 +825,29 @@ class iron_docks_skulloc_mob_turret : public CreatureScript
                         {
                             if (Creature* l_Zoggosh = m_Instance->instance->GetCreature(m_Instance->GetGuidData(eIronDocksDatas::DataZuggosh)))
                             {
-                                if (l_Zoggosh->IsAIEnabled)
+                              //  if (l_Zoggosh->IsAIEnabled)
                                     l_Zoggosh->AI()->Talk(eTalks::TalkKoramarVengence);
 
                                 l_Zoggosh->SetReactState(ReactStates::REACT_AGGRESSIVE);
 
-                                l_Zoggosh->RemoveUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
+                                
 
-                                if (l_Zoggosh->IsAIEnabled)
+                               // if (l_Zoggosh->IsAIEnabled)
                                 {
-                                    if (Unit* l_Target = l_Zoggosh->AI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
+                                   // if (Unit* l_Target = l_Zoggosh->AI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
                                     {
-                                        l_Zoggosh->Attack(l_Target, true);
-                                        l_Zoggosh->GetMotionMaster()->MoveChase(l_Target);
+                                       // l_Zoggosh->Attack(l_Target, true);
+                                        l_Zoggosh->GetMotionMaster();
                                     }
                                 }
                             }
                         }
 
-                        me->Kill(me);
+                      //  me->Kill(me);
                         me->CombatStop();
                         me->SetFaction(FriendlyFaction);
-                        me->getHostileRefManager().clearReferences();
-                        events.CancelEvent(eTurretEvents::EventRapidFire);
+                       // me->getHostileRefManager().clearReferences();
+                       // events.CancelEvent(eTurretEvents::EventRapidFire);
 
                         if (m_Vehicle != nullptr)
                             m_Vehicle->RemoveAllPassengers();
@@ -860,33 +860,33 @@ class iron_docks_skulloc_mob_turret : public CreatureScript
 
             void UpdateAI(uint32 const p_Diff) override
             {       
-                events.Update(p_Diff);
+               // events.Update(p_Diff);
 
                 if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
                     return;
 
-                switch (events.ExecuteEvent())
+              //  switch (events.ExecuteEvent())
                 {
-                    case eTurretEvents::EventRapidFireChangeTarget:
+                    eTurretEvents::EventRapidFireChangeTarget;
                     {
                         if (!UpdateVictim())
                             return;
 
                         m_TargetGuid = ObjectGuid::Empty;
 
-                        events.CancelEvent(eTurretEvents::EventRapidFire);
+                       // events.CancelEvent(eTurretEvents::EventRapidFire);
 
-                        if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 60.0f, true))
+                       // if (Unit* l_Target = SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 60.0f, true))
                         {
-                            m_TargetGuid = l_Target->GetGUID();
-                            l_Target->AddAura(eTurretSpells::SpellRapidFireTarget, l_Target);
+                          //  m_TargetGuid = l_Target->GetGUID();
+                           // l_Target->AddAura(eTurretSpells::SpellRapidFireTarget, l_Target);
                         }
 
-                        events.ScheduleEvent(eTurretEvents::EventRapidFireChangeTarget, 8 * TimeConstants::IN_MILLISECONDS);
-                        events.ScheduleEvent(eTurretEvents::EventRapidFire, 0.5 * TimeConstants::IN_MILLISECONDS);
-                        break;
+                       // events.ScheduleEvent(eTurretEvents::EventRapidFireChangeTarget, 8 * TimeConstants::IN_MILLISECONDS);
+                       // events.ScheduleEvent(eTurretEvents::EventRapidFire, 0.5 * TimeConstants::IN_MILLISECONDS);
+                       // break;
                     }
-                    case eTurretEvents::EventRapidFire:
+                    eTurretEvents::EventRapidFire;
                     {
                         if (!UpdateVictim())
                             return;
@@ -903,16 +903,16 @@ class iron_docks_skulloc_mob_turret : public CreatureScript
                             }
                         }
 
-                        events.ScheduleEvent(eTurretEvents::EventRapidFire, 1 * TimeConstants::IN_MILLISECONDS);
-                        break;
+                       // events.ScheduleEvent(eTurretEvents::EventRapidFire, 1 * TimeConstants::IN_MILLISECONDS);
+                       // break;
                     }
-                    case eTurretEvents::EventInstallAccessories:
+                    eTurretEvents::EventInstallAccessories;
                     {
                         m_Vehicle->InstallAllAccessories(false);
-                        break;
+                       // break;
                     }
-                    default:
-                        break;
+                     //default:
+                       // break;
                     }
             }
         };
@@ -1080,7 +1080,7 @@ class iron_docks_skulloc_spell_cannon_barrage : public SpellScriptLoader
                         /// Position is changing incrementally, instead of randomally
                         if (Creature * l_Skulloc = l_Instance->instance->GetCreature(l_Instance->GetGuidData(eIronDocksDatas::DataSkulloc)))
                         {
-                            if (l_Skulloc->IsAIEnabled)
+                          //  if (l_Skulloc->IsAIEnabled)
                             {
                                 if (boss_skulloc::boss_skullocAI* l_LinkAI = CAST_AI(boss_skulloc::boss_skullocAI, l_Skulloc->GetAI()))
                                 {
@@ -1188,10 +1188,10 @@ class iron_docks_skulloc_spell_berserker_jump : public SpellScriptLoader
 
                 if (Unit* l_Caster = GetCaster())
                 {
-                    if (l_Caster->IsAIEnabled)
+                   // if (l_Caster->IsAIEnabled)
                     {
-                        if (Unit* l_Random = l_Caster->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                            l_Caster->GetMotionMaster()->MoveJump(l_Random->GetPositionX(), l_Random->GetPositionY(), l_Random->GetPositionZ(), 15.0f, 8.0f, eMovementInformed::MovementInformedKoramarJump);
+                       // if (Unit* l_Random = l_Caster->GetAI()->SelectTarget(SelectAggroTarget::SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                         //   l_Caster->GetMotionMaster()->MoveJump(l_Random->GetPositionX(), l_Random->GetPositionY(), l_Random->GetPositionZ(), 15.0f, 8.0f, eMovementInformed::MovementInformedKoramarJump);
                     }
                 }
             }

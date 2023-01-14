@@ -31,7 +31,7 @@ class instance_iron_docks : public InstanceMapScript
             /// Encounter Gates
             ObjectGuid m_EncounterGateOshirGuid;
 
-            void Initialize() override
+            void Initialize() 
             {
                 SetBossNumber(4);
 
@@ -139,8 +139,8 @@ class instance_iron_docks : public InstanceMapScript
                             {
                                 if (Creature* l_Gwarnok = instance->GetCreature(GetGuidData(eIronDocksDatas::DataGwarnok)))
                                 {
-                                    if (l_Gwarnok->IsAlive() && l_Olugar->IsAlive() && l_Daruna->IsAlive())
-                                        DoCompleteAchievement(eIronDocksAchievements::AchievementMilitaristicExpansionist);
+                                    if (l_Gwarnok->IsAlive() && l_Olugar->IsAlive() && l_Daruna->IsAlive());
+                                      //  DoCompleteAchievement(eIronDocksAchievements::AchievementMilitaristicExpansionist);
                                 }
                             }
                         }
@@ -150,9 +150,9 @@ class instance_iron_docks : public InstanceMapScript
                     case eIronDocksCreatures::CreatureSkulloc:
                     {
                         if (l_Creature->GetMap()->IsHeroic())
-                            DoCompleteAchievement(eIronDocksAchievements::AchievementHeroicIronDocks);
-                        else
-                            DoCompleteAchievement(eIronDocksAchievements::AchievementNormalIronDocks);
+                         //   DoCompleteAchievement(eIronDocksAchievements::AchievementHeroicIronDocks);
+                        //else
+                          //  DoCompleteAchievement(eIronDocksAchievements::AchievementNormalIronDocks);
                         break;
                     }
                     default:
@@ -245,7 +245,7 @@ class instance_iron_docks : public InstanceMapScript
                     case eIronDocksDatas::DataSkulloc:
                     {
                         if (state == EncounterState::DONE)                            
-                            DoKilledMonsterCredit(eIronDocksScenario::DailyChallengeQuestID, eIronDocksScenario::DailyChallengeKillCredit);
+                         //   DoKilledMonsterCredit(eIronDocksScenario::DailyChallengeQuestID, eIronDocksScenario::DailyChallengeKillCredit);
 
                         break;
                     }
