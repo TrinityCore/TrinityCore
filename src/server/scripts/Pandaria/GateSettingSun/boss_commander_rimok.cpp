@@ -31,6 +31,7 @@
 #include <Instances/InstanceScript.h>
 #include "TemporarySummon.h"
 #include "PhaseShift.h"
+#include <CinematicMgr.h>
 
 enum eSpells
 {
@@ -72,13 +73,13 @@ class boss_commander_rimok : public CreatureScript
             {
                 _Reset();
 
-                events.ScheduleEvent(EVENT_FRENZIED_ASSAULT, urand(5000, 10000));
-                events.ScheduleEvent(EVENT_VISCOUS_FLUID,    urand(10000, 15000));
+               // events.ScheduleEvent(EVENT_FRENZIED_ASSAULT, urand(5000, 10000));
+               // events.ScheduleEvent(EVENT_VISCOUS_FLUID,    urand(10000, 15000));
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void EnterCombat(Unit* /*who*/) 
             {
-                _EnterCombat();
+               // _EnterCombat();
             }
 
             void JustReachedHome() override
@@ -87,7 +88,7 @@ class boss_commander_rimok : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override {}
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)  {}
 
             void JustSummoned(Creature* summoned) override
             {
@@ -110,11 +111,11 @@ class boss_commander_rimok : public CreatureScript
                         if (me->GetVictim())
                             me->CastSpell(me->GetVictim(), SPELL_FRENZIED_ASSAULT, false);
 
-                        events.ScheduleEvent(EVENT_FRENZIED_ASSAULT, urand(10000, 15000));
+                     //   events.ScheduleEvent(EVENT_FRENZIED_ASSAULT, urand(10000, 15000));
                         break;
                     case EVENT_VISCOUS_FLUID:
                         me->CastSpell(me, 107077, true);
-                        events.ScheduleEvent(EVENT_VISCOUS_FLUID, urand(5000, 10000));
+                       // events.ScheduleEvent(EVENT_VISCOUS_FLUID, urand(5000, 10000));
                         break;
                 }
 
@@ -156,8 +157,8 @@ class npc_krikthik_swarmer : public CreatureScript
                     if (attackTimer <= diff)
                     {
                         DoZoneInCombat();
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
-                            AttackStart(target);
+                      //  if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                        //    AttackStart(target);
 
                         attackTimer = 0;
                     }
@@ -199,8 +200,8 @@ class npc_krikthik_saboteur : public CreatureScript
                     if (attackTimer <= diff)
                     {
                         DoZoneInCombat();
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
-                            AttackStart(target);
+                       // if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                         //   AttackStart(target);
 
                         attackTimer = 0;
                     }
@@ -275,8 +276,8 @@ class npc_add_generator : public CreatureScript
 
                 float x = me->GetPositionX();
                 float y = me->GetPositionY() - 10;
-                float z = me->GetMap()->GetHeight(x, y, 400.0f);
-                summoned->GetMotionMaster()->MoveJump(x, y, z, 0.0f, 10, 20);
+              //  float z = me->GetMap()->GetHeight(x, y, 400.0f);
+              //  summoned->GetMotionMaster()->MoveJump(x, y, z, 0.0f, 10, 20);
             }
         };
 
@@ -311,14 +312,14 @@ class npc_viscous_fluid : public CreatureScript
             {
                 if (checkTimer <= diff)
                 {
-                    if (Player* player = me->SelectNearestPlayer())
+                   // if (Player* player = me->SelectNearestPlayer())
                     {
-                        if (me->GetDistance(player) < 5.0f)
+                       // if (me->GetDistance(player) < 5.0f)
                         {
                             if (Creature* rimok = pInstance->instance->GetCreature(pInstance->GetGuidData(NPC_RIMOK)))
                             {
                                 me->AddAura(SPELL_VISCOUS_FLUID_DMG_UP, rimok);
-                                me->AddAura(SPELL_VISCOUS_FLUID_DMG_DOWN, player);
+                               // me->AddAura(SPELL_VISCOUS_FLUID_DMG_DOWN, player);
                             }
                         }
                     }
@@ -363,8 +364,8 @@ class spell_rimok_saboteur_bombard: public SpellScriptLoader
                         if (it == PlayerList.end())
                             return;
 
-                        if (Player* player = it->GetSource())
-                            caster->CastSpell(player, GetSpellInfo()->GetEffect(0)->TriggerSpell, true);
+                        if (Player* player = it->GetSource());
+                         //   caster->CastSpell(player, GetSpellInfo()->GetEffect(0)->TriggerSpell, true);
                     }
                 }
             }
