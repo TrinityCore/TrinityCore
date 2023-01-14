@@ -47,6 +47,7 @@ enum DruidSpells
     SPELL_DRUID_BRAMBLES_REFLECT               = 203958,
     SPELL_DRUID_BRISTLING_FUR_GAIN_RAGE        = 204031,
     SPELL_DRUID_CAT_FORM                       = 768,
+    SPELL_DRUID_CURIOUS_BRAMBLEPATCH           = 330670,
     SPELL_DRUID_EARTHWARDEN_AURA               = 203975,
     SPELL_DRUID_ECLIPSE_DUMMY                  = 79577,
     SPELL_DRUID_ECLIPSE_LUNAR_AURA             = 48518,
@@ -54,6 +55,7 @@ enum DruidSpells
     SPELL_DRUID_ECLIPSE_OOC                    = 329910,
     SPELL_DRUID_ECLIPSE_SOLAR_AURA             = 48517,
     SPELL_DRUID_ECLIPSE_SOLAR_SPELL_CNT        = 326053,
+    SPELL_DRUID_ENTANGLING_ROOTS               = 339,
     SPELL_DRUID_EXHILARATE                     = 28742,
     SPELL_DRUID_FORM_AQUATIC_PASSIVE           = 276012,
     SPELL_DRUID_FORM_AQUATIC                   = 1066,
@@ -80,6 +82,7 @@ enum DruidSpells
     SPELL_DRUID_LIFEBLOOM_FINAL_HEAL           = 33778,
     SPELL_DRUID_LUNAR_INSPIRATION_OVERRIDE     = 155627,
     SPELL_DRUID_MANGLE                         = 33917,
+    SPELL_DRUID_MASS_ENTANGLEMENT              = 102359,
     SPELL_DRUID_MOONFIRE_DAMAGE                = 164812,
     SPELL_DRUID_PROWL                          = 5215,
     SPELL_DRUID_REJUVENATION_T10_PROC          = 70691,
@@ -471,6 +474,44 @@ class spell_dru_earthwarden : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_dru_earthwarden::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 339 - Entangling Roots
+// 102359 - Mass Entanglement
+class spell_dru_entangling_roots : public AuraScript
+{
+    PrepareAuraScript(spell_dru_entangling_roots);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_CURIOUS_BRAMBLEPATCH, SPELL_DRUID_ENTANGLING_ROOTS, SPELL_DRUID_MASS_ENTANGLEMENT });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        if (SpellInfo const* spellInfo = eventInfo.GetSpellInfo())
+        {
+            // dont subtract dmg caused by roots from dmg required to break root
+            if (spellInfo->Id == SPELL_DRUID_ENTANGLING_ROOTS || spellInfo->Id == SPELL_DRUID_MASS_ENTANGLEMENT)
+                return false;
+        }
+        return true;
+    }
+
+    void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+    {
+        if (Unit* caster = GetCaster())
+        {
+            if (!caster->HasAura(SPELL_DRUID_CURIOUS_BRAMBLEPATCH))
+                PreventDefaultAction();
+        }
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_dru_entangling_roots::CheckProc);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_entangling_roots::HandleEffectPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
     }
 };
 
@@ -1623,6 +1664,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_eclipse_aura);
     RegisterSpellScript(spell_dru_eclipse_dummy);
     RegisterSpellScript(spell_dru_eclipse_ooc);
+    RegisterSpellScript(spell_dru_entangling_roots);
     RegisterSpellScript(spell_dru_ferocious_bite);
     RegisterSpellScript(spell_dru_forms_trinket);
     RegisterSpellScript(spell_dru_galactic_guardian);
