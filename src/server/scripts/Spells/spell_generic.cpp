@@ -5415,14 +5415,37 @@ private:
     uint32 _exhaustionSpellId;
 };
 
+// Aoe resurrections by spirit guides
+// 22012 - Spirit Heal
+class spell_gen_spirit_heal_aoe : public SpellScript
+{
+    PrepareSpellScript(spell_gen_spirit_heal_aoe);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        ObjectGuid const& casterGuid = GetCaster()->GetGUID();
+        targets.remove_if([casterGuid](WorldObject* target) -> bool
+        {
+            if (Player* playerTarget = target->ToPlayer())
+                return !playerTarget->CanAcceptSpiritHealFrom(casterGuid);
+
+            return true;
+        });
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gen_spirit_heal_aoe::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+    }
+};
 
 // Personal resurrections in battlegrounds
 // 156758 - Spirit Heal
-class spell_gen_spirit_heal : public AuraScript
+class spell_gen_spirit_heal_personal : public AuraScript
 {
     static constexpr uint32 SPELL_SPIRIT_HEAL_EFFECT = 156763;
 
-    PrepareAuraScript(spell_gen_spirit_heal);
+    PrepareAuraScript(spell_gen_spirit_heal_personal);
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
@@ -5438,7 +5461,7 @@ class spell_gen_spirit_heal : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_gen_spirit_heal::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_gen_spirit_heal_personal::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -5611,5 +5634,6 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_hun_primal_rage", SPELL_HUNTER_FATIGUED);
     RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_evo_fury_of_the_aspects", SPELL_EVOKER_EXHAUSTION);
     RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_item_bloodlust_drums", SPELL_SHAMAN_EXHAUSTION);
-    RegisterSpellScript(spell_gen_spirit_heal);
+    RegisterSpellScript(spell_gen_spirit_heal_aoe);
+    RegisterSpellScript(spell_gen_spirit_heal_personal);
 }
