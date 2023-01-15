@@ -452,6 +452,8 @@ void Unit::Update(uint32 p_time)
 
     _UpdateSpells(p_time);
 
+    WorldObject::Update(p_time);
+
     // If this is set during update SetCantProc(false) call is missing somewhere in the code
     // Having this would prevent spells from being proced, so let's crash
     ASSERT(!m_procDeep);
