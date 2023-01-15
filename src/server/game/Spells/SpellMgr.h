@@ -25,6 +25,7 @@
 #include "Duration.h"
 #include "Errors.h"
 #include "FlagsArray.h"
+#include "Hash.h"
 #include "IteratorPair.h"
 #include "RaceMask.h"
 #include "SharedDefines.h"
