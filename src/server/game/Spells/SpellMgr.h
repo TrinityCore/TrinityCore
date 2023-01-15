@@ -118,14 +118,12 @@ enum SpellFamilyFlag
     SPELLFAMILYFLAG_SHAMAN_TOTEM_EFFECTS        = 0x04000000  // Seems to be linked to most totems and some totem effects
 };
 
-#define SPELL_LINKED_MAX_SPELLS  200000
-
 enum SpellLinkedType
 {
     SPELL_LINK_CAST     = 0,            // +: cast; -: remove
-    SPELL_LINK_HIT      = 1 * 200000,
-    SPELL_LINK_AURA     = 2 * 200000,   // +: aura; -: immune
-    SPELL_LINK_REMOVE   = 0
+    SPELL_LINK_HIT      = 1,
+    SPELL_LINK_AURA     = 2,            // +: aura; -: immune
+    SPELL_LINK_REMOVE   = 3
 };
 
 // Spell proc event related declarations (accessed using SpellMgr functions)
@@ -617,7 +615,7 @@ struct PetDefaultSpellsEntry
 // < 0 for petspelldata id, > 0 for creature_id
 typedef std::map<int32, PetDefaultSpellsEntry> PetDefaultSpellsMap;
 
-typedef std::unordered_map<int32, std::vector<int32>> SpellLinkedMap;
+typedef std::unordered_map<std::pair<SpellLinkedType, uint32>, std::vector<int32>> SpellLinkedMap;
 
 bool IsPrimaryProfessionSkill(uint32 skill);
 
@@ -733,7 +731,7 @@ class TC_GAME_API SpellMgr
         SpellEnchantProcEntry const* GetSpellEnchantProcEvent(uint32 enchId) const;
         bool IsArenaAllowedEnchancment(uint32 ench_id) const;
 
-        std::vector<int32> const* GetSpellLinked(int32 spell_id) const;
+        std::vector<int32> const* GetSpellLinked(SpellLinkedType type, uint32 spell_id) const;
 
         PetLevelupSpellSet const* GetPetLevelupSpellList(uint32 petFamily) const;
         PetDefaultSpellsEntry const* GetPetDefaultSpellsEntry(int32 id) const;
