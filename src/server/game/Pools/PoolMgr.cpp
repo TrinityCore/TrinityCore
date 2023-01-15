@@ -445,7 +445,7 @@ void PoolMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        QueryResult result = WorldDatabase.Query("SELECT entry, max_limit FROM pool_template");
+        QueryResult result = WorldDatabase.Query("SELECT entry, max_limit, flags FROM pool_template");
         if (!result)
         {
             mPoolTemplate.clear();
@@ -463,6 +463,7 @@ void PoolMgr::LoadFromDB()
             PoolTemplateData& pPoolTemplate = mPoolTemplate[pool_id];
             pPoolTemplate.MaxLimit  = fields[1].GetUInt32();
             pPoolTemplate.MapId = -1;
+            pPoolTemplate.Flags = PoolFlags(fields[2].GetUInt32());
 
             ++count;
         }
@@ -573,7 +574,8 @@ void PoolMgr::LoadFromDB()
                 if (goinfo->type != GAMEOBJECT_TYPE_CHEST &&
                     goinfo->type != GAMEOBJECT_TYPE_FISHINGHOLE &&
                     goinfo->type != GAMEOBJECT_TYPE_GATHERING_NODE &&
-                    goinfo->type != GAMEOBJECT_TYPE_GOOBER)
+                    goinfo->type != GAMEOBJECT_TYPE_GOOBER &&
+                    goinfo->type != GAMEOBJECT_TYPE_TRAP)
                 {
                     TC_LOG_ERROR("sql.sql", "`pool_gameobject` has a not lootable gameobject spawn (GUID: {}, type: {}) defined for pool id ({}), skipped.", guid, goinfo->type, pool_id);
                     continue;
