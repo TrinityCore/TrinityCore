@@ -5432,7 +5432,8 @@ class spell_gen_spirit_heal : public AuraScript
         if (Unit* owner = GetUnitOwner())
             if (Player* playerOwner = owner->ToPlayer())
                 if (Unit* caster = GetCaster())
-                    caster->CastSpell(playerOwner, SPELL_SPIRIT_HEAL_EFFECT);
+                    if (playerOwner->CanAcceptSpiritHealFrom(caster->GetGUID()))
+                        caster->CastSpell(playerOwner, SPELL_SPIRIT_HEAL_EFFECT);
     }
 
     void Register() override

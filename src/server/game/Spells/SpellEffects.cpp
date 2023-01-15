@@ -4497,7 +4497,7 @@ void Spell::EffectSpiritHeal()
             return;
 
         // skip if player does not want to live
-        if (spiritGuide && playerTarget->GetSpiritHealer() != spiritGuide->GetGUID())
+        if (spiritGuide && !playerTarget->CanAcceptSpiritHealFrom(spiritGuide->GetGUID()))
             return;
 
         playerTarget->ResurrectPlayer(1.0f);

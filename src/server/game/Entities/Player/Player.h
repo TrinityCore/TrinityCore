@@ -2856,6 +2856,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void SetSpiritHealer(Creature* creature);
         ObjectGuid const& GetSpiritHealer() const { return _spiritHealerGuid; }
+        bool CanAcceptSpiritHealFrom(ObjectGuid const& spiritHealerGuid) const { return _spiritHealerGuid == spiritHealerGuid; }
         void SendAreaSpiritHealerQueryOpcode(ObjectGuid const& spiritHealerGuid) const;
         void SendAreaSpiritHealerQueryOpcode(ObjectGuid const& spiritHealerGuid, int32 timeLeft) const;
 
