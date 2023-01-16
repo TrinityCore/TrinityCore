@@ -92,12 +92,7 @@ enum DruidSpells
     SPELL_DRUID_TRAVEL_FORM                    = 783,
     SPELL_DRUID_THRASH_BEAR                    = 77758,
     SPELL_DRUID_THRASH_BEAR_AURA               = 192090,
-    SPELL_DRUID_THRASH_CAT                     = 106830,
-    SPELL_DRUID_SUDDEN_AMBUSH                  = 384667,
-    SPELL_DRUID_MAIM                           = 22570,
-    SPELL_DRUID_FEROCIOUS_BITE                 = 22568,
-    SPELL_DRUID_RIP                            = 1079,
- 
+    SPELL_DRUID_THRASH_CAT                     = 106830
 };
 
 class RaidCheck
@@ -1615,37 +1610,6 @@ class spell_dru_wild_growth_aura : public AuraScript
         OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_dru_wild_growth_aura::HandleTickUpdate, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
     }
 };
-// 384667: Sudden Ambush Talent (Feral)
-class spell_dru_sudden_ambush : public AuraScript
-{
-    PrepareAuraScript(spell_dru_sudden_ambush);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_DRUID_SUDDEN_AMBUSH });
-    }
-
-    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
-    {
-        switch (eventInfo.GetSpellInfo()->Id)
-        {
-        case SPELL_DRUID_FEROCIOUS_BITE:
-            return true;
-        case SPELL_DRUID_RIP:
-            return true;
-        case SPELL_DRUID_MAIM:
-            return true;
-        }
-        return false;
-    }
-
-    void Register() override
-    {
-        DoCheckEffectProc += AuraCheckEffectProcFn(spell_dru_sudden_ambush::CheckProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
-    }
-};
-
-
 
 void AddSC_druid_spell_scripts()
 {
@@ -1688,10 +1652,8 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_t10_restoration_4p_bonus_dummy);
     RegisterSpellScript(spell_dru_thrash);
     RegisterSpellScript(spell_dru_thrash_aura);
-    RegisterSpellScript(spell_dru_travel_form); 
+    RegisterSpellScript(spell_dru_travel_form);
     RegisterSpellAndAuraScriptPair(spell_dru_travel_form_dummy, spell_dru_travel_form_dummy_aura);
     RegisterSpellAndAuraScriptPair(spell_dru_tiger_dash, spell_dru_tiger_dash_aura);
     RegisterSpellAndAuraScriptPair(spell_dru_wild_growth, spell_dru_wild_growth_aura);
-    RegisterSpellScript(spell_dru_sudden_ambush);
-
 }
