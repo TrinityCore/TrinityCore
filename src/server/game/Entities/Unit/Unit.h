@@ -1163,6 +1163,7 @@ class TC_GAME_API Unit : public WorldObject
         bool HasStealthAura()      const { return HasAuraType(SPELL_AURA_MOD_STEALTH); }
         bool HasInvisibilityAura() const { return HasAuraType(SPELL_AURA_MOD_INVISIBILITY); }
         bool IsFeared()  const { return HasAuraType(SPELL_AURA_MOD_FEAR); }
+        bool IsConfused()  const { return HasAuraType(SPELL_AURA_MOD_CONFUSE); }
         bool IsRooted() const { return HasAuraType(SPELL_AURA_MOD_ROOT); }
         bool IsPolymorphed() const;
         bool IsFrozen() const { return HasAuraState(AURA_STATE_FROZEN); }
