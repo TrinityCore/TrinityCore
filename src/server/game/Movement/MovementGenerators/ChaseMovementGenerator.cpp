@@ -25,6 +25,7 @@
 #include "PathGenerator.h"
 #include "Unit.h"
 #include "Util.h"
+#include "TSCreature.h"
 
 static bool HasLostTarget(Unit* owner, Unit* target)
 {
@@ -63,6 +64,12 @@ static void DoMovementInform(Unit* owner, Unit* target)
 
     if (CreatureAI* AI = owner->ToCreature()->AI())
         AI->MovementInform(CHASE_MOTION_TYPE, target->GetGUID().GetCounter());
+
+    // @tswow-begin
+    if (owner->IsCreature()) {
+        FIRE_ID(owner->ToCreature()->GetCreatureTemplate()->events.id,Creature,OnMovementInform,TSCreature(owner->ToCreature()),CHASE_MOTION_TYPE,target->GetGUID().GetCounter());
+    }
+    // @tswow-end
 }
 
 ChaseMovementGenerator::ChaseMovementGenerator(Unit *target, Optional<ChaseRange> range, Optional<ChaseAngle> angle) : AbstractFollower(ASSERT_NOTNULL(target)), _range(range),

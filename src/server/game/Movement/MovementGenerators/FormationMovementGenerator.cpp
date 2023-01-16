@@ -23,6 +23,7 @@
 #include "MovementDefines.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
+#include "TSCreature.h"
 
 FormationMovementGenerator::FormationMovementGenerator(Unit* leader, float range, float angle, uint32 point1, uint32 point2) : AbstractFollower(ASSERT_NOTNULL(leader)),
     _range(range), _angle(angle), _point1(point1), _point2(point2), _lastLeaderSplineID(0), _hasPredictedDestination(false)
@@ -219,4 +220,8 @@ void FormationMovementGenerator::MovementInform(Creature* owner)
 {
     if (owner->AI())
         owner->AI()->MovementInform(FORMATION_MOTION_TYPE, 0);
+
+    // @tswow-begin
+    FIRE_ID(owner->GetCreatureTemplate()->events.id,Creature,OnMovementInform,TSCreature(owner),FORMATION_MOTION_TYPE,0);
+    // @tswow-end
 }

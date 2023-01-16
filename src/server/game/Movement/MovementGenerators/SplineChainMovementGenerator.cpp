@@ -25,6 +25,7 @@
 #include "MoveSplineInit.h"
 #include "Log.h"
 #include "Unit.h"
+#include "TSCreature.h"
 
 SplineChainMovementGenerator::SplineChainMovementGenerator(uint32 id, std::vector<SplineChainLink> const& chain, bool walk) : _id(id), _chain(chain), _chainSize(chain.size()), _walk(walk), _nextIndex(0), _nextFirstWP(0), _msToNext(0)
 {
@@ -197,6 +198,10 @@ void SplineChainMovementGenerator::Finalize(Unit* owner, bool active, bool movem
         Creature* ownerCreature = owner->ToCreature();
         if (CreatureAI* AI = ownerCreature ? ownerCreature->AI() : nullptr)
             AI->MovementInform(SPLINE_CHAIN_MOTION_TYPE, _id);
+
+        // @tswow-begin
+        FIRE_ID(ownerCreature->GetCreatureTemplate()->events.id,Creature,OnMovementInform,TSCreature(ownerCreature),SPLINE_CHAIN_MOTION_TYPE,_id);
+        // @tswow-end
     }
 }
 

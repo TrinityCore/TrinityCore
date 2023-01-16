@@ -24,6 +24,7 @@
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "World.h"
+#include "TSCreature.h"
 
 //----- Point Movement Generator
 
@@ -161,6 +162,10 @@ void PointMovementGenerator<Creature>::MovementInform(Creature* owner)
 {
     if (owner->AI())
         owner->AI()->MovementInform(POINT_MOTION_TYPE, _movementId);
+
+    // @tswow-begin
+    FIRE_ID(owner->GetCreatureTemplate()->events.id,Creature,OnMovementInform,TSCreature(owner),POINT_MOTION_TYPE,_movementId);
+    // @tswow-end
 }
 
 template PointMovementGenerator<Player>::PointMovementGenerator(uint32, float, float, float, bool, float, Optional<float>);

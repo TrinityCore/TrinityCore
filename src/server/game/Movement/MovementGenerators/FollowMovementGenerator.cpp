@@ -25,6 +25,7 @@
 #include "Pet.h"
 #include "Unit.h"
 #include "Util.h"
+#include "TSCreature.h"
 
 static void DoMovementInform(Unit* owner, Unit* target)
 {
@@ -33,6 +34,12 @@ static void DoMovementInform(Unit* owner, Unit* target)
 
     if (CreatureAI* AI = owner->ToCreature()->AI())
         AI->MovementInform(FOLLOW_MOTION_TYPE, target->GetGUID().GetCounter());
+
+    // @tswow-begin
+    if (owner->IsCreature()) {
+        FIRE_ID(owner->ToCreature()->GetCreatureTemplate()->events.id,Creature,OnMovementInform,TSCreature(owner->ToCreature()),FOLLOW_MOTION_TYPE, target->GetGUID().GetCounter());
+    }
+    // @tswow-end
 }
 
 FollowMovementGenerator::FollowMovementGenerator(Unit* target, float range, ChaseAngle angle) : AbstractFollower(ASSERT_NOTNULL(target)), _range(range), _angle(angle), _checkTimer(CHECK_INTERVAL)

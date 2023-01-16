@@ -21,6 +21,7 @@
 #include "MovementDefines.h"
 #include "MoveSpline.h"
 #include "Unit.h"
+#include "TSCreature.h"
 
 GenericMovementGenerator::GenericMovementGenerator(std::function<void(Movement::MoveSplineInit& init)>&& initializer, MovementGeneratorType type, uint32 id) : _splineInit(std::move(initializer)), _type(type), _pointId(id), _duration(0)
 {
@@ -88,5 +89,9 @@ void GenericMovementGenerator::MovementInform(Unit* owner)
     {
         if (creature->AI())
             creature->AI()->MovementInform(_type, _pointId);
+
+        // @tswow-begin
+        FIRE_ID(creature->GetCreatureTemplate()->events.id,Creature,OnMovementInform,TSCreature(creature),_type,_pointId);
+        // @tswow-end
     }
 }

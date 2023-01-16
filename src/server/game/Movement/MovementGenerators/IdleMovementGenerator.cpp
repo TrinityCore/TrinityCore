@@ -23,6 +23,7 @@
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "Unit.h"
+#include "TSCreature.h"
 
 IdleMovementGenerator::IdleMovementGenerator()
 {
@@ -140,8 +141,13 @@ void RotateMovementGenerator::Finalize(Unit* owner, bool/* active*/, bool moveme
 {
     AddFlag(MOVEMENTGENERATOR_FLAG_FINALIZED);
 
-    if (movementInform && owner->GetTypeId() == TYPEID_UNIT)
+    if (movementInform && owner->GetTypeId() == TYPEID_UNIT) {
         owner->ToCreature()->AI()->MovementInform(ROTATE_MOTION_TYPE, _id);
+
+        // @tswow-begin
+        FIRE_ID(owner->ToCreature()->GetCreatureTemplate()->events.id,Creature,OnMovementInform,TSCreature(owner->ToCreature()),ROTATE_MOTION_TYPE,_id);
+        // @tswow-end
+    }
 }
 
 MovementGeneratorType RotateMovementGenerator::GetMovementGeneratorType() const

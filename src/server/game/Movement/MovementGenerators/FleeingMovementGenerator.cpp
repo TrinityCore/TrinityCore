@@ -25,6 +25,7 @@
 #include "PathGenerator.h"
 #include "Player.h"
 #include "Unit.h"
+#include "TSCreature.h"
 
 #define MIN_QUIET_DISTANCE 28.0f
 #define MAX_QUIET_DISTANCE 43.0f
@@ -272,6 +273,10 @@ void TimedFleeingMovementGenerator::Finalize(Unit* owner, bool active, bool move
         Creature* ownerCreature = owner->ToCreature();
         if (CreatureAI* AI = ownerCreature ? ownerCreature->AI() : nullptr)
             AI->MovementInform(TIMED_FLEEING_MOTION_TYPE, 0);
+
+        // @tswow-begin
+        FIRE_ID(ownerCreature->GetCreatureTemplate()->events.id,Creature,OnMovementInform,TSCreature(ownerCreature),TIMED_FLEEING_MOTION_TYPE,0);
+        // @tswow-end
     }
 }
 
