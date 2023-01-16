@@ -38,7 +38,8 @@ class TC_GAME_API MapInstanced : public Map
         void DelayedUpdate(uint32 diff) override;
         //void RelocationNotify();
         void UnloadAll() override;
-        EnterState CannotEnter(Player* /*player*/) override;
+//        EnterState CannotEnter(Player* /*player*/) override;  //后加
+        TransferAbortParams CannotEnter(Player* /*player*/) override;
 
         Map* CreateInstanceForPlayer(uint32 mapId, Player* player, uint32 loginInstanceId = 0);
         Map* FindInstanceMap(uint32 instanceId) const

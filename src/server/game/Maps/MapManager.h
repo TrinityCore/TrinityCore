@@ -148,8 +148,7 @@ class TC_GAME_API MapManager
 
         Map* FindBaseMap(uint32 mapId) const
         {
-            MapMapType::const_iterator iter = i_maps.find(mapId);
-            //MapMapType::const_iterator iter = i_maps.find(mapId);
+            MapMapType::const_iterator iter = i_maps.find(MapKey(mapId, mapId));//此处补的不知道是否正确
             return (iter == i_maps.end() ? nullptr : iter->second);
         }
 

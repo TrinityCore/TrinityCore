@@ -18,7 +18,8 @@
 #include "MapDefines.h"
 
 u_map_magic const MapMagic          = { { 'M','A','P','S' } };
-uint32 const MapVersionMagic        = 10;
+uint32 const MapVersionMagic        = 10; //原版
+//u_map_magic MapVersionMagic = { {'v','1','.','9'} };
 u_map_magic const MapAreaMagic      = { { 'A','R','E','A' } };
 u_map_magic const MapHeightMagic    = { { 'M','H','G','T' } };
 u_map_magic const MapLiquidMagic    = { { 'M','L','I','Q' } };
