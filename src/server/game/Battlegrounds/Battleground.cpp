@@ -134,7 +134,9 @@ Battleground::~Battleground()
     // unload map
     if (m_Map)
     {
-        m_Map->SetUnload();
+        m_Map->UnloadAll(); // unload all objects (they may hold a reference to bg in their ZoneScript pointer)
+        m_Map->SetUnload(); // mark for deletion by MapManager
+
         //unlink to prevent crash, always unlink all pointer reference before destruction
         m_Map->SetBG(nullptr);
         m_Map = nullptr;
