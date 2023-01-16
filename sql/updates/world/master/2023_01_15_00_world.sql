@@ -42,3 +42,7 @@ UPDATE `pool_members` SET `spawnId`=`spawnId`+@OINCREMENT WHERE `type`=1 AND `sp
 UPDATE `spawn_group` SET `spawnId`=`spawnId`+@OINCREMENT WHERE `spawnType`=1 AND `spawnId` BETWEEN @OGUIDSTART AND @OGUIDEND;
 UPDATE `smart_scripts` SET `entryorguid`=`entryorguid`-@OINCREMENT WHERE `source_type`=1 AND `entryorguid` BETWEEN -@OGUIDEND AND -@OGUIDSTART;
 UPDATE `conditions` SET `SourceEntry`=`SourceEntry`-@OINCREMENT WHERE `SourceTypeOrReferenceId`=22 AND `SourceId`=1 AND `SourceEntry` BETWEEN -@OGUIDEND AND -@OGUIDSTART;
+
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_dru_sudden_ambush');
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES('384667','spell_dru_sudden_ambush');
+
