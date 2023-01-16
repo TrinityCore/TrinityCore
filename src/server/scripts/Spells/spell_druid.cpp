@@ -30,7 +30,6 @@
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
-#include <string> 
 
 enum DruidSpells
 {
