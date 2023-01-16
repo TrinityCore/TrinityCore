@@ -883,6 +883,8 @@ void GameObject::Update(uint32 diff)
 {
     m_Events.Update(diff);
 
+    WorldObject::Update(diff);
+
     if (AI())
         AI()->UpdateAI(diff);
     else if (!AIM_Initialize())
