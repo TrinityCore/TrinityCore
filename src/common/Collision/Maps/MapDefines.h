@@ -28,7 +28,7 @@ using u_map_magic = std::array<char, 4>;
 
 TC_COMMON_API extern u_map_magic const MapMagic;
 TC_COMMON_API extern uint32 const MapVersionMagic;
-TC_COMMON_API extern uint32 const asUInt;//后加
+//TC_COMMON_API extern uint32 const asUInt;//后加
 TC_COMMON_API extern u_map_magic const MapAreaMagic;
 TC_COMMON_API extern u_map_magic const MapHeightMagic;
 TC_COMMON_API extern u_map_magic const MapLiquidMagic;
