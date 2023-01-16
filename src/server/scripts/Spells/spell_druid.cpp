@@ -1624,7 +1624,7 @@ class spell_dru_sudden_ambush : public AuraScript
 
     bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
     {
-        // Get the Combo Points 
+        // Get the Combo Points
         Spell const* procSpell = eventInfo.GetProcSpell();
         std::optional<int32_t> comboPointsAmount = procSpell->GetPowerTypeCostAmount(POWER_COMBO_POINTS);
 
