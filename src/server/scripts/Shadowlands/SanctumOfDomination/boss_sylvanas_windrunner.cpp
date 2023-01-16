@@ -19,6 +19,7 @@
 #include "AreaTriggerAI.h"
 #include "DB2Stores.h"
 #include "CellImpl.h"
+#include "Containers.h"
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
 #include "GridNotifiers.h"
