@@ -1626,15 +1626,15 @@ class spell_dru_sudden_ambush : public AuraScript
     {
         // Get the Combo Points
         Spell const* procSpell = eventInfo.GetProcSpell();
+        if (!procSpell)
+            return false;
+
         std::optional<int32_t> comboPointsAmount = procSpell->GetPowerTypeCostAmount(POWER_COMBO_POINTS);
 
-        if (!*comboPointsAmount) {
+        if (!*comboPointsAmount)
             return false;
-        }
 
-        uint8 chances = roll_chance_f(*comboPointsAmount * 5);
-      
-        return chances;
+        return roll_chance_f(*comboPointsAmount * 5);;
     }
 
     void Register() override
