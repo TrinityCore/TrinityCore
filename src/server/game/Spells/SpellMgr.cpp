@@ -625,9 +625,9 @@ bool SpellMgr::IsArenaAllowedEnchancment(uint32 ench_id) const
     return false;
 }
 
-std::vector<int32> const* SpellMgr::GetSpellLinked(int32 spell_id) const
+std::vector<int32> const* SpellMgr::GetSpellLinked(SpellLinkedType type, uint32 spell_id) const
 {
-    return Trinity::Containers::MapGetValuePtr(mSpellLinkedMap, spell_id);
+    return Trinity::Containers::MapGetValuePtr(mSpellLinkedMap, { type, spell_id });
 }
 
 PetLevelupSpellSet const* SpellMgr::GetPetLevelupSpellList(uint32 petFamily) const
@@ -2047,7 +2047,7 @@ void SpellMgr::LoadSpellLinked()
 
         int32 trigger = fields[0].GetInt32();
         int32 effect = fields[1].GetInt32();
-        int32 type = fields[2].GetUInt8();
+        SpellLinkedType type = SpellLinkedType(fields[2].GetUInt8());
 
         SpellInfo const* spellInfo = GetSpellInfo(abs(trigger), DIFFICULTY_NONE);
         if (!spellInfo)
@@ -2057,11 +2057,13 @@ void SpellMgr::LoadSpellLinked()
         }
 
         if (effect >= 0)
+        {
             for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
             {
                 if (spellEffectInfo.CalcValue() == abs(effect))
                     TC_LOG_ERROR("sql.sql", "The spell {} Effect: {} listed in `spell_linked_spell` has same bp{} like effect (possible hack).", abs(trigger), abs(effect), uint32(spellEffectInfo.EffectIndex));
             }
+        }
 
         spellInfo = GetSpellInfo(abs(effect), DIFFICULTY_NONE);
         if (!spellInfo)
@@ -2070,14 +2072,31 @@ void SpellMgr::LoadSpellLinked()
             continue;
         }
 
-        if (type) //we will find a better way when more types are needed
+        if (type < SPELL_LINK_CAST || type > SPELL_LINK_REMOVE)
         {
-            if (trigger > 0)
-                trigger += SPELL_LINKED_MAX_SPELLS * type;
-            else
-                trigger -= SPELL_LINKED_MAX_SPELLS * type;
+            TC_LOG_ERROR("sql.sql", "The spell trigger {}, effect {} listed in `spell_linked_spell` has invalid link type {}, skipped.", trigger, effect, type);
+            continue;
         }
-        mSpellLinkedMap[trigger].push_back(effect);
+
+        if (trigger < 0)
+        {
+            if (type != SPELL_LINK_CAST)
+                TC_LOG_ERROR("sql.sql", "The spell trigger {} listed in `spell_linked_spell` has invalid link type {}, changed to 0.", trigger, type);
+
+            trigger = -trigger;
+            type = SPELL_LINK_REMOVE;
+        }
+
+        if (type != SPELL_LINK_AURA)
+        {
+            if (trigger == effect)
+            {
+                TC_LOG_ERROR("sql.sql", "The spell trigger {}, effect {} listed in `spell_linked_spell` triggers itself (infinite loop), skipped.", trigger, effect);
+                continue;
+            }
+        }
+
+        mSpellLinkedMap[{ type, trigger }].push_back(effect);
 
         ++count;
     } while (result->NextRow());

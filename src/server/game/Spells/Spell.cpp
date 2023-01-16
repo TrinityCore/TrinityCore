@@ -3205,7 +3205,7 @@ void Spell::DoTriggersOnSpellHit(Unit* unit)
 
     // trigger linked auras remove/apply
     /// @todo remove/cleanup this, as this table is not documented and people are doing stupid things with it
-    if (std::vector<int32> const* spellTriggered = sSpellMgr->GetSpellLinked(m_spellInfo->Id + SPELL_LINK_HIT))
+    if (std::vector<int32> const* spellTriggered = sSpellMgr->GetSpellLinked(SPELL_LINK_HIT, m_spellInfo->Id))
     {
         for (std::vector<int32>::const_iterator i = spellTriggered->begin(); i != spellTriggered->end(); ++i)
         {
@@ -3746,7 +3746,7 @@ void Spell::_cast(bool skipCheck)
 
     CallScriptAfterCastHandlers();
 
-    if (std::vector<int32> const* spell_triggered = sSpellMgr->GetSpellLinked(m_spellInfo->Id))
+    if (std::vector<int32> const* spell_triggered = sSpellMgr->GetSpellLinked(SPELL_LINK_CAST, m_spellInfo->Id))
     {
         for (int32 id : *spell_triggered)
         {
