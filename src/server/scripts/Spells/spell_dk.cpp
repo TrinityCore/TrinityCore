@@ -663,16 +663,15 @@ class spell_dk_howling_blast : public SpellScript
         });
     }
 
-    void HandleAreaDamage(SpellEffIndex /*effIndex*/)
-    {
-        if (GetSpellInfo()->Id != SPELL_DK_HOWLING_BLAST_AREA_DAMAGE)
-            GetCaster()->CastSpell(GetExplTargetUnit(), SPELL_DK_HOWLING_BLAST_AREA_DAMAGE, CastSpellExtraArgs().SetCustomArg(std::any(GetExplTargetUnit()->GetGUID())));
-    }
-
     void HandleFrostFever(SpellEffIndex /*effIndex*/)
     {
         if (Unit* caster = GetCaster())
             caster->CastSpell(GetHitUnit(), SPELL_DK_FROST_FEVER);
+    }
+
+    void HandleAreaDamage(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetExplTargetUnit(), SPELL_DK_HOWLING_BLAST_AREA_DAMAGE, CastSpellExtraArgs().SetCustomArg(std::any(GetExplTargetUnit()->GetGUID())));
     }
 
     void HandleSpellVisual(SpellEffIndex /*effIndex*/)
@@ -685,10 +684,11 @@ class spell_dk_howling_blast : public SpellScript
     void Register() override
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dk_howling_blast::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
-        OnEffectLaunchTarget += SpellEffectFn(spell_dk_howling_blast::HandleAreaDamage, EFFECT_1, SPELL_EFFECT_DUMMY);
         OnEffectHitTarget += SpellEffectFn(spell_dk_howling_blast::HandleFrostFever, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
         if (m_scriptSpellId == SPELL_DK_HOWLING_BLAST_AREA_DAMAGE)
             OnEffectHitTarget += SpellEffectFn(spell_dk_howling_blast::HandleSpellVisual, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        else
+            OnEffectLaunchTarget += SpellEffectFn(spell_dk_howling_blast::HandleAreaDamage, EFFECT_1, SPELL_EFFECT_DUMMY);
     }
 };
 
