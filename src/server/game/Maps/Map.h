@@ -222,7 +222,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         bool UnloadGrid(NGridType& ngrid, bool pForce);
         void GridMarkNoUnload(uint32 x, uint32 y);
         void GridUnmarkNoUnload(uint32 x, uint32 y);
-        void UnloadAll();
+        virtual void UnloadAll();
 
         void ResetGridExpiry(NGridType &grid, float factor = 1) const
         {
