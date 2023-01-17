@@ -129,12 +129,12 @@ static int CreateChildProcess(T waiter, std::string const& executable,
 
     auto outInfo = MakeTCLogSink([&](std::string_view msg)
     {
-        TC_LOG_INFO(logger, STRING_VIEW_FMT, STRING_VIEW_FMT_ARG(msg));
+        TC_LOG_INFO(logger, "{}", msg);
     });
 
     auto outError = MakeTCLogSink([&](std::string_view msg)
     {
-        TC_LOG_ERROR(logger, STRING_VIEW_FMT, STRING_VIEW_FMT_ARG(msg));
+        TC_LOG_ERROR(logger, "{}", msg);
     });
 
     copy(outStream, outInfo);
