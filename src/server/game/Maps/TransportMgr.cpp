@@ -215,9 +215,9 @@ void TransportMgr::LoadTransportTemplates()
             continue;
         }
 
-        if (goInfo->moTransport.taxiPathId >= sTaxiPathNodesByPath.size())
+        if (goInfo->moTransport.taxiPathID >= sTaxiPathNodesByPath.size())
         {
-            TC_LOG_ERROR("sql.sql", "Transport %u (name: %s) has an invalid path specified in `gameobject_template`.`data0` (%u) field, skipped.", entry, goInfo->name.c_str(), goInfo->moTransport.taxiPathId);
+            TC_LOG_ERROR("sql.sql", "Transport %u (name: %s) has an invalid path specified in `gameobject_template`.`data0` (%u) field, skipped.", entry, goInfo->name.c_str(), goInfo->moTransport.taxiPathID);
             continue;
         }
 
@@ -486,7 +486,7 @@ static void InitializeLeg(TransportPathLeg* leg, std::vector<TransportPathEvent>
 
 void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTemplate* transport)
 {
-    uint32 pathId = goInfo->moTransport.taxiPathId;
+    uint32 pathId = goInfo->moTransport.taxiPathID;
     TaxiPathNodeList const& path = sTaxiPathNodesByPath[pathId];
 
     transport->Speed = double(goInfo->moTransport.moveSpeed);

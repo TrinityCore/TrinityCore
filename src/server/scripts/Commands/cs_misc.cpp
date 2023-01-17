@@ -286,7 +286,7 @@ public:
         if (Transport* transport = dynamic_cast<Transport*>(object->GetTransport()))
         {
             handler->PSendSysMessage(LANG_TRANSPORT_POSITION,
-                transport->GetGOInfo()->moTransport.mapID, object->GetTransOffsetX(), object->GetTransOffsetY(), object->GetTransOffsetZ(), object->GetTransOffsetO(),
+                transport->GetGOInfo()->moTransport.SpawnMap, object->GetTransOffsetX(), object->GetTransOffsetY(), object->GetTransOffsetZ(), object->GetTransOffsetO(),
                 transport->GetEntry(), transport->GetName().c_str());
         }
         handler->PSendSysMessage(LANG_GRID_POSITION,

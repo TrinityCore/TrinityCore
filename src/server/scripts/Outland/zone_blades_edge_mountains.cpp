@@ -896,7 +896,7 @@ class go_simon_cluster : public GameObjectScript
                 if (Creature* bunny = me->FindNearestCreature(NPC_SIMON_BUNNY, 12.0f, true))
                     bunny->AI()->SetData(me->GetEntry(), 0);
 
-                player->CastSpell(player, me->GetGOInfo()->goober.spellId, true);
+                player->CastSpell(player, me->GetGOInfo()->goober.spell, true);
                 me->AddUse();
                 return true;
             }

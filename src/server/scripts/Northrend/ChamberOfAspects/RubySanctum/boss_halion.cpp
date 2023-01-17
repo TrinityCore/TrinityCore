@@ -1354,7 +1354,7 @@ class go_twilight_portal : public GameObjectScript
                 {
                     case GO_HALION_PORTAL_EXIT:
                         PhasingHandler::AddPhase(gameobject, 174, true);
-                        _spellId = gameobject->GetGOInfo()->goober.spellId;
+                        _spellId = gameobject->GetGOInfo()->goober.spell;
                         break;
                     case GO_HALION_PORTAL_1:
                     case GO_HALION_PORTAL_2:

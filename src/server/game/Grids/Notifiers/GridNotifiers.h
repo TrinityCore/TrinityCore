@@ -681,13 +681,13 @@ namespace Trinity
                 if (go->GetGOInfo()->type != GAMEOBJECT_TYPE_SPELL_FOCUS)
                     return false;
 
-                if (go->GetGOInfo()->spellFocus.focusId != _focusId)
+                if (go->GetGOInfo()->spellFocus.spellFocusType != _focusId)
                     return false;
 
                 if (!go->isSpawned())
                     return false;
 
-                float const dist = go->GetGOInfo()->spellFocus.dist / 2.f;
+                float const dist = go->GetGOInfo()->spellFocus.radius / 2.f;
                 return go->IsWithinDistInMap(_caster, dist);
             }
         private:

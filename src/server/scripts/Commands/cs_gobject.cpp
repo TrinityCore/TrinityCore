@@ -621,9 +621,9 @@ public:
         displayId = gameObjectInfo->displayId;
         name = gameObjectInfo->name;
         if (type == GAMEOBJECT_TYPE_CHEST)
-            lootId = gameObjectInfo->chest.lootId;
+            lootId = gameObjectInfo->chest.chestLoot;
         else if (type == GAMEOBJECT_TYPE_FISHINGHOLE)
-            lootId = gameObjectInfo->fishinghole.lootId;
+            lootId = gameObjectInfo->fishinghole.chestLoot;
 
         // If we have a real object, send some info about it
         if (thisGO)

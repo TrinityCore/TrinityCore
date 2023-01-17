@@ -997,7 +997,7 @@ class go_celestial_planetarium_access : public GameObjectScript
                     return true;
 
                 bool hasKey = true;
-                if (LockEntry const* lock = sLockStore.LookupEntry(me->GetGOInfo()->goober.lockId))
+                if (LockEntry const* lock = sLockStore.LookupEntry(me->GetGOInfo()->goober.open))
                 {
                     hasKey = false;
                     for (uint32 i = 0; i < MAX_LOCK_CASE; ++i)

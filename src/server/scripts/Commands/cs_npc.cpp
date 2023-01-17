@@ -361,7 +361,7 @@ public:
 
             if (Creature* creature = trans->CreateNPCPassenger(guid, &data))
             {
-                creature->SaveToDB(trans->GetGOInfo()->moTransport.mapID, 1 << map->GetSpawnMode());
+                creature->SaveToDB(trans->GetGOInfo()->moTransport.SpawnMap, 1 << map->GetSpawnMode());
                 sObjectMgr->AddCreatureToGrid(guid, &data);
             }
             return true;

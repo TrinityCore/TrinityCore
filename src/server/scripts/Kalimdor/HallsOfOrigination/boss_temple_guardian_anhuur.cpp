@@ -316,7 +316,7 @@ struct go_anhuur_beacon_of_light : public GameObjectAI
         me->SendCustomAnim(0);
         me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
         me->DespawnOrUnsummon(1s + 200ms, 5s);
-        me->CastSpell(nullptr, me->GetGOInfo()->goober.spellId);
+        me->CastSpell(nullptr, me->GetGOInfo()->goober.spell);
         return true;
     }
 };

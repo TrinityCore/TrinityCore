@@ -132,13 +132,13 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, float x, float
         SetUInt32Value(GAMEOBJECT_FLAGS, m_goTemplateAddon->flags);
     }
 
-    _pathProgress = !goinfo->moTransport.canBeStopped ? getMSTime() /*might be called before world update loop begins, don't use GameTime*/ % tInfo->TotalPathTime : 0;
+    _pathProgress = !goinfo->moTransport.allowstopping ? getMSTime() /*might be called before world update loop begins, don't use GameTime*/ % tInfo->TotalPathTime : 0;
     SetPathProgressForClient(float(_pathProgress) / float(tInfo->TotalPathTime));
     SetObjectScale(goinfo->size);
     SetPeriod(tInfo->TotalPathTime);
     SetEntry(goinfo->entry);
     SetDisplayId(goinfo->displayId);
-    SetGoState(!goinfo->moTransport.canBeStopped ? GO_STATE_READY : GO_STATE_ACTIVE);
+    SetGoState(!goinfo->moTransport.allowstopping ? GO_STATE_READY : GO_STATE_ACTIVE);
     SetGoType(GAMEOBJECT_TYPE_MO_TRANSPORT);
     SetGoAnimProgress(255);
     SetName(goinfo->name);
@@ -182,7 +182,7 @@ void Transport::Update(uint32 diff)
     _positionChangeTimer.Update(diff);
 
     uint32 cycleId = _pathProgress / GetTransportPeriod();
-    if (!GetGOInfo()->moTransport.canBeStopped)
+    if (!GetGOInfo()->moTransport.allowstopping)
         _pathProgress = GameTime::GetGameTimeMS();
     else if (!_requestStopTimestamp || _requestStopTimestamp > _pathProgress + diff)
         _pathProgress += diff;
@@ -516,7 +516,7 @@ TempSummon* Transport::SummonPassenger(uint32 entry, Position const& pos, TempSu
 
 int32 Transport::GetMapIdForSpawning() const
 {
-    return GetGOInfo()->moTransport.mapID;
+    return GetGOInfo()->moTransport.SpawnMap;
 }
 
 void Transport::UpdatePosition(float x, float y, float z, float o)
@@ -549,7 +549,7 @@ void Transport::UpdatePosition(float x, float y, float z, float o)
 
 void Transport::LoadStaticPassengers()
 {
-    if (uint32 mapId = GetGOInfo()->moTransport.mapID)
+    if (uint32 mapId = GetGOInfo()->moTransport.SpawnMap)
     {
         CellObjectGuidsMap const& cells = sObjectMgr->GetMapObjectGuids(mapId, GetMap()->GetSpawnMode());
         CellGuidSet::const_iterator guidEnd;
@@ -579,7 +579,7 @@ void Transport::UnloadStaticPassengers()
 
 void Transport::EnableMovement(bool enabled)
 {
-    if (!GetGOInfo()->moTransport.canBeStopped)
+    if (!GetGOInfo()->moTransport.allowstopping)
         return;
 
     if (!enabled)

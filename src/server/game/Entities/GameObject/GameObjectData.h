@@ -48,166 +48,176 @@ struct GameObjectTemplate
         //0 GAMEOBJECT_TYPE_DOOR
         struct
         {
-            uint32 startOpen;                               //0 used client side to determine GO_ACTIVATED means open/closed
-            uint32 lockId;                                  //1 -> Lock.dbc
-            uint32 autoCloseTime;                           //2 secs till autoclose = autoCloseTime / 0x10000
-            uint32 noDamageImmune;                          //3 break opening whenever you recieve damage?
-            uint32 openTextID;                              //4 can be used to replace castBarCaption?
-            uint32 closeTextID;                             //5
-            uint32 ignoredByPathing;                        //6
-            uint32 conditionID1;                            //7
-            uint32 DoorisOpaque;                            //8 Door is Opaque (Disable portal on close), enum { false, true, }; Default: true
-            uint32 GiganticAOI;                             //9 Gigantic AOI, enum { false, true, }; Default: false
-            uint32 InfiniteAOI;                             //10 Infinite AOI, enum { false, true, }; Default: false
+            uint32 startOpen;                               // 0 startOpen, enum { false, true, }; Default: false
+            uint32 open;                                    // 1 open, References: Lock_, NoValue = 0
+            uint32 autoClose;                               // 2 autoClose (ms), int, Min value: 0, Max value: 2147483647, Default value: 3000
+            uint32 noDamageImmune;                          // 3 noDamageImmune, enum { false, true, }; Default: false
+            uint32 openTextID;                              // 4 openTextID, References: BroadcastText, NoValue = 0
+            uint32 closeTextID;                             // 5 closeTextID, References: BroadcastText, NoValue = 0
+            uint32 IgnoredByPathing;                        // 6 Ignored By Pathing, enum { false, true, }; Default: false
+            uint32 conditionID1;                            // 7 conditionID1, References: PlayerCondition, NoValue = 0
+            uint32 DoorisOpaque;                            // 8 Door is Opaque (Disable portal on close), enum { false, true, }; Default: true
+            uint32 GiganticAOI;                             // 9 Gigantic AOI, enum { false, true, }; Default: false
+            uint32 InfiniteAOI;                             // 10 Infinite AOI, enum { false, true, }; Default: false
         } door;
         //1 GAMEOBJECT_TYPE_BUTTON
         struct
         {
-            uint32 startOpen;                               //0
-            uint32 lockId;                                  //1 -> Lock.dbc
-            uint32 autoCloseTime;                           //2 secs till autoclose = autoCloseTime / 0x10000
-            uint32 linkedTrap;                              //3
-            uint32 noDamageImmune;                          //4 isBattlegroundObject
-            uint32 GiganticAOI;                             //5
-            uint32 openTextID;                              //6 can be used to replace castBarCaption?
-            uint32 closeTextID;                             //7
-            uint32 losOK;                                   //8
-            uint32 conditionID1;                            //9
+            uint32 startOpen;                               // 0 startOpen, enum { false, true, }; Default: false
+            uint32 open;                                    // 1 open, References: Lock_, NoValue = 0
+            uint32 autoClose;                               // 2 autoClose (ms), int, Min value: 0, Max value: 2147483647, Default value: 3000
+            uint32 linkedTrap;                              // 3 linkedTrap, References: GameObjects, NoValue = 0
+            uint32 noDamageImmune;                          // 4 noDamageImmune, enum { false, true, }; Default: false
+            uint32 GiganticAOI;                             // 5 Gigantic AOI, enum { false, true, }; Default: false
+            uint32 openTextID;                              // 6 openTextID, References: BroadcastText, NoValue = 0
+            uint32 closeTextID;                             // 7 closeTextID, References: BroadcastText, NoValue = 0
+            uint32 requireLOS;                              // 8 require LOS, enum { false, true, }; Default: false
+            uint32 conditionID1;                            // 9 conditionID1, References: PlayerCondition, NoValue = 0
         } button;
         //2 GAMEOBJECT_TYPE_QUESTGIVER
         struct
         {
-            uint32 lockId;                                  //0 -> Lock.dbc
-            uint32 questList;                               //1
-            uint32 pageMaterial;                            //2
-            uint32 gossipID;                                //3
-            uint32 customAnim;                              //4
-            uint32 noDamageImmune;                          //5
-            uint32 openTextID;                              //6 can be used to replace castBarCaption?
-            uint32 losOK;                                   //7
-            uint32 allowMounted;                            //8 Is usable while on mount/vehicle. (0/1)
-            uint32 GiganticAOI;                             //9
-            uint32 conditionID1;                            //10
+            uint32 open;                                    // 0 open, References: Lock_, NoValue = 0
+            uint32 questGiver;                              // 1 questGiver, References: QuestGiver, NoValue = 0
+            uint32 pageMaterial;                            // 2 pageMaterial, References: PageTextMaterial, NoValue = 0
+            uint32 gossipID;                                // 3 gossipID, References: Gossip, NoValue = 0
+            uint32 customAnim;                              // 4 customAnim, int, Min value: 0, Max value: 4, Default value: 0
+            uint32 noDamageImmune;                          // 5 noDamageImmune, enum { false, true, }; Default: false
+            uint32 openTextID;                              // 6 openTextID, References: BroadcastText, NoValue = 0
+            uint32 requireLOS;                              // 7 require LOS, enum { false, true, }; Default: false
+            uint32 allowMounted;                            // 8 allowMounted, enum { false, true, }; Default: false
+            uint32 GiganticAOI;                             // 9 Gigantic AOI, enum { false, true, }; Default: false
+            uint32 conditionID1;                            // 10 conditionID1, References: PlayerCondition, NoValue = 0
         } questgiver;
         //3 GAMEOBJECT_TYPE_CHEST
         struct
         {
-            uint32 lockId;                                  //0 -> Lock.dbc
-            uint32 lootId;                                  //1
-            uint32 chestRestockTime;                        //2
-            uint32 consumable;                              //3
-            uint32 minSuccessOpens;                         //4 Deprecated, pre 3.0 was used for mining nodes but since WotLK all mining nodes are usable once and grant all loot with a single use
-            uint32 maxSuccessOpens;                         //5 Deprecated, pre 3.0 was used for mining nodes but since WotLK all mining nodes are usable once and grant all loot with a single use
-            uint32 eventId;                                 //6 lootedEvent
-            uint32 linkedTrapId;                            //7
-            uint32 questId;                                 //8 not used currently but store quest required for GO activation for player
-            uint32 level;                                   //9
-            uint32 losOK;                                   //10
-            uint32 leaveLoot;                               //11
-            uint32 notInCombat;                             //12
-            uint32 logLoot;                                 //13
-            uint32 openTextID;                              //14 can be used to replace castBarCaption?
-            uint32 groupLootRules;                          //15
-            uint32 floatingTooltip;                         //16
-            uint32 conditionID1;                            //17
+            uint32 open;                                    // 0 open, References: Lock_, NoValue = 0
+            uint32 chestLoot;                               // 1 chestLoot (legacy/classic), References: Treasure, NoValue = 0
+            uint32 chestRestockTime;                        // 2 chestRestockTime, int, Min value: 0, Max value: 1800000, Default value: 0
+            uint32 consumable;                              // 3 consumable, enum { false, true, }; Default: false
+            uint32 minRestock;                              // 4 minRestock, int, Min value: 0, Max value: 65535, Default value: 0
+            uint32 maxRestock;                              // 5 maxRestock, int, Min value: 0, Max value: 65535, Default value: 0
+            uint32 triggeredEvent;                          // 6 triggeredEvent, References: GameEvents, NoValue = 0
+            uint32 linkedTrap;                              // 7 linkedTrap, References: GameObjects, NoValue = 0
+            uint32 questID;                                 // 8 questID, References: QuestV2, NoValue = 0
+            uint32 InteractRadiusOverride;                  // 9 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 requireLOS;                              // 10 require LOS, enum { false, true, }; Default: false
+            uint32 leaveLoot;                               // 11 leaveLoot, enum { false, true, }; Default: false
+            uint32 notInCombat;                             // 12 notInCombat, enum { false, true, }; Default: false
+            uint32 logloot;                                 // 13 log loot, enum { false, true, }; Default: false
+            uint32 openTextID;                              // 14 openTextID, References: BroadcastText, NoValue = 0
+            uint32 usegrouplootrules;                       // 15 use group loot rules, enum { false, true, }; Default: false
+            uint32 floatingTooltip;                         // 16 floatingTooltip, enum { false, true, }; Default: false
+            uint32 conditionID1;                            // 17 conditionID1, References: PlayerCondition, NoValue = 0
+            int32 xpMinLevel;                               // 18 xpMinLevel, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
+            uint32 xpDifficulty;                            // 19 xpDifficulty, enum { No Exp, Trivial, Very Small, Small, Substandard, Standard, High, Epic, Dungeon, 5, }; Default: No Exp
+            uint32 Unk;                                     // 20 unk, int, Min value: 0, Max value: 123, Default value: 0 // related to needed level for loot?
+            uint32 GroupXP;                                 // 21 Group XP, enum { false, true, }; Default: false
+            uint32 DamageImmuneOK;                          // 22 Damage Immune OK, enum { false, true, }; Default: false
+            uint32 trivialSkillLow;                         // 23 trivialSkillLow, int, Min value: 0, Max value: 65535, Default value: 0
+            uint32 trivialSkillHigh;                        // 24 trivialSkillHigh, int, Min value: 0, Max value: 65535, Default value: 0
+            uint32 DungeonEncounter;                        // 25 Dungeon Encounter, References: DungeonEncounter, NoValue = 0
         } chest;
         //4 GAMEOBJECT_TYPE_BINDER - empty
         //5 GAMEOBJECT_TYPE_GENERIC
         struct
         {
-            uint32 floatingTooltip;                         //0
-            uint32 highlight;                               //1
-            uint32 serverOnly;                              //2
-            uint32 GiganticAOI;                             //3
-            uint32 floatOnWater;                            //4
-            int32 questID;                                  //5
-            uint32 conditionID1;                            //6
+            uint32 floatingTooltip;                         // 0 floatingTooltip, enum { false, true, }; Default: false
+            uint32 highlight;                               // 1 highlight, enum { false, true, }; Default: true
+            uint32 serverOnly;                              // 2 serverOnly, enum { false, true, }; Default: false
+            uint32 GiganticAOI;                             // 3 Gigantic AOI, enum { false, true, }; Default: false
+            uint32 floatOnWater;                            // 4 floatOnWater, enum { false, true, }; Default: false
+            uint32 questID;                                 // 5 questID, References: QuestV2, NoValue = 0
+            uint32 conditionID1;                            // 6 conditionID1, References: PlayerCondition, NoValue = 0
         } _generic;
         //6 GAMEOBJECT_TYPE_TRAP
         struct
         {
-            uint32 lockId;                                  //0 -> Lock.dbc
-            uint32 level;                                   //1
-            uint32 diameter;                                //2 diameter for trap activation
-            uint32 spellId;                                 //3
-            uint32 type;                                    //4 0 trap with no despawn after cast. 1 trap despawns after cast. 2 bomb casts on spawn.
-            uint32 cooldown;                                //5 time in secs
-            int32 autoCloseTime;                            //6
-            uint32 startDelay;                              //7
-            uint32 serverOnly;                              //8
-            uint32 stealthed;                               //9
-            uint32 GiganticAOI;                             //10
-            uint32 invisible;                               //11
-            uint32 openTextID;                              //12 can be used to replace castBarCaption?
-            uint32 closeTextID;                             //13
-            uint32 ignoreTotems;                            //14
-            uint32 conditionID1;                            //15
+            uint32 open;                                    // 0 open, References: Lock_, NoValue = 0
+            uint32 Unused;                                  // 1 Unused, int, Min value: 0, Max value: 65535, Default value: 0
+            uint32 radius;                                  // 2 radius, int, Min value: 0, Max value: 100, Default value: 0
+            uint32 spell;                                   // 3 spell, References: Spell, NoValue = 0
+            uint32 charges;                                 // 4 charges, int, Min value: 0, Max value: 65535, Default value: 1
+            uint32 cooldown;                                // 5 cooldown, int, Min value: 0, Max value: 65535, Default value: 0
+            uint32 autoClose;                               // 6 autoClose (ms), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 startDelay;                              // 7 startDelay, int, Min value: 0, Max value: 65535, Default value: 0
+            uint32 serverOnly;                              // 8 serverOnly, enum { false, true, }; Default: false
+            uint32 stealthed;                               // 9 stealthed, enum { false, true, }; Default: false
+            uint32 GiganticAOI;                             // 10 Gigantic AOI, enum { false, true, }; Default: false
+            uint32 stealthAffected;                         // 11 stealthAffected, enum { false, true, }; Default: false
+            uint32 openTextID;                              // 12 openTextID, References: BroadcastText, NoValue = 0
+            uint32 closeTextID;                             // 13 closeTextID, References: BroadcastText, NoValue = 0
+            uint32 IgnoreTotems;                            // 14 Ignore Totems, enum { false, true, }; Default: false
+            uint32 conditionID1;                            // 15 conditionID1, References: PlayerCondition, NoValue = 0
+            uint32 playerCast;                              // 16 playerCast, enum { false, true, }; Default: false
         } trap;
         //7 GAMEOBJECT_TYPE_CHAIR
         struct
         {
-            uint32 slots;                                   //0
-            uint32 height;                                  //1
-            uint32 onlyCreatorUse;                          //2
-            uint32 triggeredEvent;                          //3
-            uint32 conditionID1;                            //4
+            uint32 chairslots;                              // 0 chairslots, int, Min value: 1, Max value: 5, Default value: 1
+            uint32 chairheight;                             // 1 chairheight, int, Min value: 0, Max value: 2, Default value: 1
+            uint32 onlyCreatorUse;                          // 2 onlyCreatorUse, enum { false, true, }; Default: false
+            uint32 triggeredEvent;                          // 3 triggeredEvent, References: GameEvents, NoValue = 0
+            uint32 conditionID1;                            // 4 conditionID1, References: PlayerCondition, NoValue = 0
+            uint32 InteractRadiusOverride;                  // 5 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
         } chair;
         //8 GAMEOBJECT_TYPE_SPELL_FOCUS
         struct
         {
-            uint32 focusId;                                 //0
-            uint32 dist;                                    //1
-            uint32 linkedTrapId;                            //2
-            uint32 serverOnly;                              //3
-            uint32 questID;                                 //4
-            uint32 GiganticAOI;                             //5
-            uint32 floatingTooltip;                         //6
-            uint32 floatOnWater;                            //7
-            uint32 conditionID1;                            //8
+            uint32 spellFocusType;                          // 0 spellFocusType, References: SpellFocusObject, NoValue = 0
+            uint32 radius;                                  // 1 radius, int, Min value: 0, Max value: 50, Default value: 10
+            uint32 linkedTrap;                              // 2 linkedTrap, References: GameObjects, NoValue = 0
+            uint32 serverOnly;                              // 3 serverOnly, enum { false, true, }; Default: false
+            uint32 questID;                                 // 4 questID, References: QuestV2, NoValue = 0
+            uint32 GiganticAOI;                             // 5 Gigantic AOI, enum { false, true, }; Default: false
+            uint32 floatingTooltip;                         // 6 floatingTooltip, enum { false, true, }; Default: false
         } spellFocus;
         //9 GAMEOBJECT_TYPE_TEXT
         struct
         {
-            uint32 pageID;                                  //0
-            uint32 language;                                //1
-            uint32 pageMaterial;                            //2
-            uint32 allowMounted;                            //3 Is usable while on mount/vehicle. (0/1)
-            uint32 conditionID1;                            //4
+            uint32 pageID;                                  // 0 pageID, References: PageText, NoValue = 0
+            uint32 language;                                // 1 language, References: Languages, NoValue = 0
+            uint32 pageMaterial;                            // 2 pageMaterial, References: PageTextMaterial, NoValue = 0
+            uint32 allowMounted;                            // 3 allowMounted, enum { false, true, }; Default: false
+            uint32 conditionID1;                            // 4 conditionID1, References: PlayerCondition, NoValue = 0
+            uint32 NeverUsableWhileMounted;                 // 5 Never Usable While Mounted, enum { false, true, }; Default: false
+            uint32 InteractRadiusOverride;                  // 6 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
         } text;
         //10 GAMEOBJECT_TYPE_GOOBER
         struct
         {
-            uint32 lockId;                                  //0 -> Lock.dbc
-            int32 questId;                                  //1
-            uint32 eventId;                                 //2
-            uint32 autoCloseTime;                           //3
-            uint32 customAnim;                              //4
-            uint32 consumable;                              //5
-            uint32 cooldown;                                //6
-            uint32 pageId;                                  //7
-            uint32 language;                                //8
-            uint32 pageMaterial;                            //9
-            uint32 spellId;                                 //10
-            uint32 noDamageImmune;                          //11
-            uint32 linkedTrapId;                            //12
-            uint32 GiganticAOI;                             //13
-            uint32 openTextID;                              //14 can be used to replace castBarCaption?
-            uint32 closeTextID;                             //15
-            uint32 losOK;                                   //16 isBattlegroundObject
-            uint32 allowMounted;                            //17 Is usable while on mount/vehicle. (0/1)
-            uint32 floatingTooltip;                         //18
-            uint32 gossipID;                                //19
-            uint32 WorldStateSetsState;                     //20
-            uint32 floatOnWater;                            //21
-            uint32 conditionID1;                            //22
-            uint32 playerCast;                              //23
+            uint32 open;                                    // 0 open, References: Lock_, NoValue = 0
+            uint32 questID;                                 // 1 questID, References: QuestV2, NoValue = 0
+            uint32 eventID;                                 // 2 eventID, References: GameEvents, NoValue = 0
+            uint32 autoClose;                               // 3 autoClose (ms), int, Min value: 0, Max value: 2147483647, Default value: 3000
+            uint32 customAnim;                              // 4 customAnim, int, Min value: 0, Max value: 4, Default value: 0
+            uint32 consumable;                              // 5 consumable, enum { false, true, }; Default: false
+            uint32 cooldown;                                // 6 cooldown, int, Min value: 0, Max value: 65535, Default value: 0
+            uint32 pageID;                                  // 7 pageID, References: PageText, NoValue = 0
+            uint32 language;                                // 8 language, References: Languages, NoValue = 0
+            uint32 pageMaterial;                            // 9 pageMaterial, References: PageTextMaterial, NoValue = 0
+            uint32 spell;                                   // 10 spell, References: Spell, NoValue = 0
+            uint32 noDamageImmune;                          // 11 noDamageImmune, enum { false, true, }; Default: false
+            uint32 linkedTrap;                              // 12 linkedTrap, References: GameObjects, NoValue = 0
+            uint32 GiganticAOI;                             // 13 Gigantic AOI, enum { false, true, }; Default: false
+            uint32 openTextID;                              // 14 openTextID, References: BroadcastText, NoValue = 0
+            uint32 closeTextID;                             // 15 closeTextID, References: BroadcastText, NoValue = 0
+            uint32 requireLOS;                              // 16 require LOS, enum { false, true, }; Default: false
+            uint32 allowMounted;                            // 17 allowMounted, enum { false, true, }; Default: false
+            uint32 floatingTooltip;                         // 18 floatingTooltip, enum { false, true, }; Default: false
+            uint32 gossipID;                                // 19 gossipID, References: Gossip, NoValue = 0
+            uint32 AllowMultiInteract;                      // 20 Allow Multi-Interact, enum { false, true, }; Default: false
+            uint32 floatOnWater;                            // 21 floatOnWater, enum { false, true, }; Default: false
+            uint32 conditionID1;                            // 22 conditionID1, References: PlayerCondition, NoValue = 0
+            uint32 playerCast;                              // 23 playerCast, enum { false, true, }; Default: false
         } goober;
         //11 GAMEOBJECT_TYPE_TRANSPORT
         struct
         {
             uint32 Timeto2ndfloor;                          // 0 Time to 2nd floor (ms), int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 startOpen;                               // 1 startOpen, enum { false, true, }; Default: false
-            uint32 autoCloseTime;                           // 2 autoClose (ms), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 autoClose;                               // 2 autoClose (ms), int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 Reached1stfloor;                         // 3 Reached 1st floor, References: GameEvents, NoValue = 0
             uint32 Reached2ndfloor;                         // 4 Reached 2nd floor, References: GameEvents, NoValue = 0
             int32 SpawnMap;                                 // 5 Spawn Map, References: Map, NoValue = -1
@@ -220,154 +230,173 @@ struct GameObjectTemplate
         //12 GAMEOBJECT_TYPE_AREADAMAGE
         struct
         {
-            uint32 lockId;                                  //0
-            uint32 radius;                                  //1
-            uint32 damageMin;                               //2
-            uint32 damageMax;                               //3
-            uint32 damageSchool;                            //4
-            uint32 autoCloseTime;                           //5 secs till autoclose = autoCloseTime / 0x10000
-            uint32 openTextID;                              //6
-            uint32 closeTextID;                             //7
+            uint32 open;                                    // 0 open, References: Lock_, NoValue = 0
+            uint32 radius;                                  // 1 radius, int, Min value: 0, Max value: 50, Default value: 3
+            uint32 damageMin;                               // 2 damageMin, int, Min value: 0, Max value: 65535, Default value: 0
+            uint32 damageMax;                               // 3 damageMax, int, Min value: 0, Max value: 65535, Default value: 0
+            uint32 damageSchool;                            // 4 damageSchool, int, Min value: 0, Max value: 65535, Default value: 0
+            uint32 autoClose;                               // 5 autoClose (ms), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 openTextID;                              // 6 openTextID, References: BroadcastText, NoValue = 0
+            uint32 closeTextID;                             // 7 closeTextID, References: BroadcastText, NoValue = 0
         } areadamage;
         //13 GAMEOBJECT_TYPE_CAMERA
         struct
         {
-            uint32 lockId;                                  //0 -> Lock.dbc
-            uint32 cinematicId;                             //1
-            uint32 eventID;                                 //2
-            uint32 openTextID;                              //3 can be used to replace castBarCaption?
-            uint32 conditionID1;                            //4
+            uint32 open;                                    // 0 open, References: Lock_, NoValue = 0
+            uint32 camera;                                  // 1 camera, References: CinematicSequences, NoValue = 0
+            uint32 eventID;                                 // 2 eventID, References: GameEvents, NoValue = 0
+            uint32 openTextID;                              // 3 openTextID, References: BroadcastText, NoValue = 0
+            uint32 conditionID1;                            // 4 conditionID1, References: PlayerCondition, NoValue = 0
+            uint32 InteractRadiusOverride;                  // 5 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
         } camera;
-        //14 GAMEOBJECT_TYPE_MAPOBJECT - empty
+        // 14 GAMEOBJECT_TYPE_MAP_OBJECT
+        struct
+        {
+        } mapobject;
         //15 GAMEOBJECT_TYPE_MO_TRANSPORT
         struct
         {
-            uint32 taxiPathId;                              //0
-            uint32 moveSpeed;                               //1
-            uint32 accelRate;                               //2
-            uint32 startEventID;                            //3
-            uint32 stopEventID;                             //4
-            uint32 transportPhysics;                        //5
-            uint32 mapID;                                   //6
-            uint32 worldState1;                             //7
-            uint32 canBeStopped;                            //8
+            uint32 taxiPathID;                              // 0 taxiPathID, References: TaxiPath, NoValue = 0
+            uint32 moveSpeed;                               // 1 moveSpeed, int, Min value: 1, Max value: 60, Default value: 1
+            uint32 accelRate;                               // 2 accelRate, int, Min value: 1, Max value: 20, Default value: 1
+            uint32 startEventID;                            // 3 startEventID, References: GameEvents, NoValue = 0
+            uint32 stopEventID;                             // 4 stopEventID, References: GameEvents, NoValue = 0
+            uint32 transportPhysics;                        // 5 transportPhysics, References: TransportPhysics, NoValue = 0
+            int32 SpawnMap;                                 // 6 Spawn Map, References: Map, NoValue = -1
+            uint32 worldState1;                             // 7 worldState1, References: WorldState, NoValue = 0
+            uint32 allowstopping;                           // 8 allow stopping, enum { false, true, }; Default: false
         } moTransport;
-        //16 GAMEOBJECT_TYPE_DUELFLAG - empty
-        //17 GAMEOBJECT_TYPE_FISHINGNODE - empty
+        // 16 GAMEOBJECT_TYPE_DUEL_ARBITER
+        struct
+        {
+        } duelFlag;
+        // 17 GAMEOBJECT_TYPE_FISHINGNODE
+        struct
+        {
+        } fishingNode;
         //18 GAMEOBJECT_TYPE_SUMMONING_RITUAL
         struct
         {
-            uint32 reqParticipants;                         //0
-            uint32 spellId;                                 //1
-            uint32 animSpell;                               //2
-            uint32 ritualPersistent;                        //3
-            uint32 casterTargetSpell;                       //4
-            uint32 casterTargetSpellTargets;                //5
-            uint32 castersGrouped;                          //6
-            uint32 ritualNoTargetCheck;                     //7
+            uint32 casters;                                 // 0 casters, int, Min value: 1, Max value: 10, Default value: 1
+            uint32 spell;                                   // 1 spell, References: Spell, NoValue = 0
+            uint32 animSpell;                               // 2 animSpell, References: Spell, NoValue = 0
+            uint32 ritualPersistent;                        // 3 ritualPersistent, enum { false, true, }; Default: false
+            uint32 casterTargetSpell;                       // 4 casterTargetSpell, References: Spell, NoValue = 0
+            uint32 casterTargetSpellTargets;                // 5 casterTargetSpellTargets, int, Min value: 1, Max value: 10, Default value: 1
+            uint32 castersGrouped;                          // 6 castersGrouped, enum { false, true, }; Default: true
+            uint32 ritualNoTargetCheck;                     // 7 ritualNoTargetCheck, enum { false, true, }; Default: true
         } summoningRitual;
         //19 GAMEOBJECT_TYPE_MAILBOX
         struct
         {
-            uint32 conditionID1;                            //0
+            uint32 conditionID1;                            // 0 conditionID1, References: PlayerCondition, NoValue = 0
         } mailbox;
-        //20 GAMEOBJECT_TYPE_DO_NOT_USE - empty
+        // 20 GAMEOBJECT_TYPE_DO_NOT_USE
+        struct
+        {
+        } DONOTUSE;
         //21 GAMEOBJECT_TYPE_GUARDPOST
         struct
         {
-            uint32 creatureID;                              //0
-            uint32 charges;                                 //1
+            uint32 creatureID;                              // 0 creatureID, References: Creature, NoValue = 0
+            uint32 charges;                                 // 1 charges, int, Min value: 0, Max value: 65535, Default value: 1
         } guardpost;
         //22 GAMEOBJECT_TYPE_SPELLCASTER
         struct
         {
-            uint32 spellId;                                 //0
-            uint32 charges;                                 //1
-            uint32 partyOnly;                               //2
-            uint32 allowMounted;                            //3 Is usable while on mount/vehicle. (0/1)
-            uint32 GiganticAOI;                             //4
-            uint32 conditionID1;                            //5
-            uint32 playerCast;                              //6
+            uint32 spell;                                   // 0 spell, References: Spell, NoValue = 0
+            int32 charges;                                  // 1 charges, int, Min value: -1, Max value: 65535, Default value: 1
+            uint32 partyOnly;                               // 2 partyOnly, enum { false, true, }; Default: false
+            uint32 allowMounted;                            // 3 allowMounted, enum { false, true, }; Default: false
+            uint32 GiganticAOI;                             // 4 Gigantic AOI, enum { false, true, }; Default: false
+            uint32 conditionID1;                            // 5 conditionID1, References: PlayerCondition, NoValue = 0
+            uint32 playerCast;                              // 6 playerCast, enum { false, true, }; Default: false
         } spellcaster;
         //23 GAMEOBJECT_TYPE_MEETINGSTONE
         struct
         {
-            uint32 minLevel;                                //0
-            uint32 maxLevel;                                //1
-            uint32 areaID;                                  //2
+            uint32 minLevel;                                // 0 minLevel, int, Min value: 0, Max value: 65535, Default value: 1
+            uint32 maxLevel;                                // 1 macLevel, int, Min value: 1, Max value: 65535, Default value: 85
+            uint32 areaID;                                  // 2 areaID, References: AreaTable, NoValue = 0
         } meetingstone;
         //24 GAMEOBJECT_TYPE_FLAGSTAND
         struct
         {
-            uint32 lockId;                                  //0
-            uint32 pickupSpell;                             //1
-            uint32 radius;                                  //2
-            uint32 returnAura;                              //3
-            uint32 returnSpell;                             //4
-            uint32 noDamageImmune;                          //5
-            uint32 openTextID;                              //6
-            uint32 losOK;                                   //7
+            uint32 open;                                    // 0 open, References: Lock_, NoValue = 0
+            uint32 pickupSpell;                             // 1 pickupSpell, References: Spell, NoValue = 0
+            uint32 radius;                                  // 2 radius, int, Min value: 0, Max value: 50, Default value: 0
+            uint32 returnAura;                              // 3 returnAura, References: Spell, NoValue = 0
+            uint32 returnSpell;                             // 4 returnSpell, References: Spell, NoValue = 0
+            uint32 noDamageImmune;                          // 5 noDamageImmune, enum { false, true, }; Default: false
+            uint32 openTextID;                              // 6 openTextID, References: BroadcastText, NoValue = 0
+            uint32 requireLOS;                              // 7 require LOS, enum { false, true, }; Default: true
         } flagstand;
         //25 GAMEOBJECT_TYPE_FISHINGHOLE
         struct
         {
-            uint32 radius;                                  //0 how close bobber must land for sending loot
-            uint32 lootId;                                  //1
-            uint32 minSuccessOpens;                         //2
-            uint32 maxSuccessOpens;                         //3
-            uint32 lockId;                                  //4 -> Lock.dbc; possibly 1628 for all?
+            uint32 radius;                                  // 0 radius, int, Min value: 0, Max value: 50, Default value: 0
+            uint32 chestLoot;                               // 1 chestLoot (legacy/classic), References: Treasure, NoValue = 0
+            uint32 minRestock;                              // 2 minRestock, int, Min value: 0, Max value: 65535, Default value: 0
+            uint32 maxRestock;                              // 3 maxRestock, int, Min value: 0, Max value: 65535, Default value: 0
+            uint32 open;                                    // 4 open, References: Lock_, NoValue = 0
         } fishinghole;
         //26 GAMEOBJECT_TYPE_FLAGDROP
         struct
         {
-            uint32 lockId;                                  //0
-            uint32 eventID;                                 //1
-            uint32 pickupSpell;                             //2
-            uint32 noDamageImmune;                          //3
-            uint32 openTextID;                              //4
+            uint32 open;                                    // 0 open, References: Lock_, NoValue = 0
+            uint32 eventID;                                 // 1 eventID, References: GameEvents, NoValue = 0
+            uint32 pickupSpell;                             // 2 pickupSpell, References: Spell, NoValue = 0
+            uint32 noDamageImmune;                          // 3 noDamageImmune, enum { false, true, }; Default: false
+            uint32 openTextID;                              // 4 openTextID, References: BroadcastText, NoValue = 0
         } flagdrop;
         //27 GAMEOBJECT_TYPE_MINI_GAME
         struct
         {
             uint32 gameType;                                //0
         } miniGame;
-        //28 GAMEOBJECT_TYPE_DO_NOT_USE_2 - empty
+        // 28 GAMEOBJECT_TYPE_DO_NOT_USE_2
+        struct
+        {
+        } DONOTUSE2;
         //29 GAMEOBJECT_TYPE_CAPTURE_POINT
         struct
         {
-            uint32 radius;                                  //0
-            uint32 spell;                                   //1
-            uint32 worldState1;                             //2
-            uint32 worldstate2;                             //3
-            uint32 winEventID1;                             //4
-            uint32 winEventID2;                             //5
-            uint32 contestedEventID1;                       //6
-            uint32 contestedEventID2;                       //7
-            uint32 progressEventID1;                        //8
-            uint32 progressEventID2;                        //9
-            uint32 neutralEventID1;                         //10
-            uint32 neutralEventID2;                         //11
-            uint32 neutralPercent;                          //12
-            uint32 worldstate3;                             //13
-            uint32 minSuperiority;                          //14
-            uint32 maxSuperiority;                          //15
-            uint32 minTime;                                 //16
-            uint32 maxTime;                                 //17
-            uint32 GiganticAOI;                             //18
-            uint32 highlight;                               //19
-            uint32 startingValue;                           //20
-            uint32 unidirectional;                          //21
+            uint32 radius;                                  // 0 radius, int, Min value: 0, Max value: 100, Default value: 10
+            uint32 spell;                                   // 1 spell, References: Spell, NoValue = 0
+            uint32 worldState1;                             // 2 worldState1, References: WorldState, NoValue = 0
+            uint32 worldstate2;                             // 3 worldstate2, References: WorldState, NoValue = 0
+            uint32 CaptureEventHorde;                       // 4 Capture Event (Horde), References: GameEvents, NoValue = 0
+            uint32 CaptureEventAlliance;                    // 5 Capture Event (Alliance), References: GameEvents, NoValue = 0
+            uint32 ContestedEventHorde;                     // 6 Contested Event (Horde), References: GameEvents, NoValue = 0
+            uint32 ContestedEventAlliance;                  // 7 Contested Event (Alliance), References: GameEvents, NoValue = 0
+            uint32 ProgressEventHorde;                      // 8 Progress Event (Horde), References: GameEvents, NoValue = 0
+            uint32 ProgressEventAlliance;                   // 9 Progress Event (Alliance), References: GameEvents, NoValue = 0
+            uint32 NeutralEventHorde;                       // 10 Neutral Event (Horde), References: GameEvents, NoValue = 0
+            uint32 NeutralEventAlliance;                    // 11 Neutral Event (Alliance), References: GameEvents, NoValue = 0
+            uint32 neutralPercent;                          // 12 neutralPercent, int, Min value: 0, Max value: 100, Default value: 0
+            uint32 worldstate3;                             // 13 worldstate3, References: WorldState, NoValue = 0
+            uint32 minSuperiority;                          // 14 minSuperiority, int, Min value: 1, Max value: 65535, Default value: 1
+            uint32 maxSuperiority;                          // 15 maxSuperiority, int, Min value: 1, Max value: 65535, Default value: 1
+            uint32 minTime;                                 // 16 minTime, int, Min value: 1, Max value: 65535, Default value: 1
+            uint32 maxTime;                                 // 17 maxTime, int, Min value: 1, Max value: 65535, Default value: 1
+            uint32 GiganticAOI;                             // 18 Gigantic AOI, enum { false, true, }; Default: false
+            uint32 highlight;                               // 19 highlight, enum { false, true, }; Default: true
+            uint32 startingValue;                           // 20 startingValue, int, Min value: 0, Max value: 100, Default value: 50
+            uint32 unidirectional;                          // 21 unidirectional, enum { false, true, }; Default: false
+            uint32 killbonustime;                           // 22 kill bonus time %, int, Min value: 0, Max value: 100, Default value: 0
+            uint32 speedWorldState1;                        // 23 speedWorldState1, References: WorldState, NoValue = 0
+            uint32 speedWorldState2;                        // 24 speedWorldState2, References: WorldState, NoValue = 0
         } capturePoint;
         //30 GAMEOBJECT_TYPE_AURA_GENERATOR
         struct
         {
-            uint32 startOpen;                               //0
-            uint32 radius;                                  //1
-            uint32 auraID1;                                 //2
-            uint32 conditionID1;                            //3
-            uint32 auraID2;                                 //4
-            uint32 conditionID2;                            //5
-            uint32 serverOnly;                              //6
+            uint32 startOpen;                               // 0 startOpen, enum { false, true, }; Default: true
+            uint32 radius;                                  // 1 radius, int, Min value: 0, Max value: 100, Default value: 10
+            uint32 auraID1;                                 // 2 auraID1, References: Spell, NoValue = 0
+            uint32 conditionID1;                            // 3 conditionID1, References: PlayerCondition, NoValue = 0
+            uint32 auraID2;                                 // 4 auraID2, References: Spell, NoValue = 0
+            uint32 conditionID2;                            // 5 conditionID2, References: PlayerCondition, NoValue = 0
+            uint32 serverOnly;                              // 6 serverOnly, enum { false, true, }; Default: false
         } auraGenerator;
         //31 GAMEOBJECT_TYPE_DUNGEON_DIFFICULTY
         struct
@@ -378,8 +407,8 @@ struct GameObjectTemplate
         //32 GAMEOBJECT_TYPE_BARBER_CHAIR
         struct
         {
-            uint32 chairheight;                             //0
-            uint32 heightOffset;                            //1
+            uint32 chairheight;                             // 0 chairheight, int, Min value: 0, Max value: 2, Default value: 1
+            int32 HeightOffset;                             // 1 Height Offset (inches), int, Min value: -100, Max value: 100, Default value: 0
         } barberChair;
         //33 GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING
         struct
@@ -462,11 +491,11 @@ struct GameObjectTemplate
     {
         switch (type)
         {
-            case GAMEOBJECT_TYPE_BUTTON: return button.losOK == 0;
-            case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.losOK == 0;
-            case GAMEOBJECT_TYPE_CHEST: return chest.losOK == 0;
-            case GAMEOBJECT_TYPE_GOOBER: return goober.losOK == 0;
-            case GAMEOBJECT_TYPE_FLAGSTAND: return flagstand.losOK == 0;
+            case GAMEOBJECT_TYPE_BUTTON: return button.requireLOS == 0;
+            case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.requireLOS == 0;
+            case GAMEOBJECT_TYPE_CHEST: return chest.requireLOS == 0;
+            case GAMEOBJECT_TYPE_GOOBER: return goober.requireLOS == 0;
+            case GAMEOBJECT_TYPE_FLAGSTAND: return flagstand.requireLOS == 0;
             case GAMEOBJECT_TYPE_TRAP: return true;
             default: return false;
         }
@@ -476,17 +505,17 @@ struct GameObjectTemplate
     {
         switch (type)
         {
-            case GAMEOBJECT_TYPE_DOOR:       return door.lockId;
-            case GAMEOBJECT_TYPE_BUTTON:     return button.lockId;
-            case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.lockId;
-            case GAMEOBJECT_TYPE_CHEST:      return chest.lockId;
-            case GAMEOBJECT_TYPE_TRAP:       return trap.lockId;
-            case GAMEOBJECT_TYPE_GOOBER:     return goober.lockId;
-            case GAMEOBJECT_TYPE_AREADAMAGE: return areadamage.lockId;
-            case GAMEOBJECT_TYPE_CAMERA:     return camera.lockId;
-            case GAMEOBJECT_TYPE_FLAGSTAND:  return flagstand.lockId;
-            case GAMEOBJECT_TYPE_FISHINGHOLE:return fishinghole.lockId;
-            case GAMEOBJECT_TYPE_FLAGDROP:   return flagdrop.lockId;
+            case GAMEOBJECT_TYPE_DOOR:       return door.open;
+            case GAMEOBJECT_TYPE_BUTTON:     return button.open;
+            case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.open;
+            case GAMEOBJECT_TYPE_CHEST:      return chest.open;
+            case GAMEOBJECT_TYPE_TRAP:       return trap.open;
+            case GAMEOBJECT_TYPE_GOOBER:     return goober.open;
+            case GAMEOBJECT_TYPE_AREADAMAGE: return areadamage.open;
+            case GAMEOBJECT_TYPE_CAMERA:     return camera.open;
+            case GAMEOBJECT_TYPE_FLAGSTAND:  return flagstand.open;
+            case GAMEOBJECT_TYPE_FISHINGHOLE:return fishinghole.open;
+            case GAMEOBJECT_TYPE_FLAGDROP:   return flagdrop.open;
             default: return 0;
         }
     }
@@ -536,9 +565,9 @@ struct GameObjectTemplate
         switch (type)
         {
             case GAMEOBJECT_TYPE_BUTTON:      return button.linkedTrap;
-            case GAMEOBJECT_TYPE_CHEST:       return chest.linkedTrapId;
-            case GAMEOBJECT_TYPE_SPELL_FOCUS: return spellFocus.linkedTrapId;
-            case GAMEOBJECT_TYPE_GOOBER:      return goober.linkedTrapId;
+            case GAMEOBJECT_TYPE_CHEST:       return chest.linkedTrap;
+            case GAMEOBJECT_TYPE_SPELL_FOCUS: return spellFocus.linkedTrap;
+            case GAMEOBJECT_TYPE_GOOBER:      return goober.linkedTrap;
             default: return 0;
         }
     }
@@ -548,12 +577,12 @@ struct GameObjectTemplate
         uint32 autoCloseTime = 0;
         switch (type)
         {
-            case GAMEOBJECT_TYPE_DOOR:          autoCloseTime = door.autoCloseTime; break;
-            case GAMEOBJECT_TYPE_BUTTON:        autoCloseTime = button.autoCloseTime; break;
-            case GAMEOBJECT_TYPE_TRAP:          autoCloseTime = trap.autoCloseTime; break;
-            case GAMEOBJECT_TYPE_GOOBER:        autoCloseTime = goober.autoCloseTime; break;
-            case GAMEOBJECT_TYPE_TRANSPORT:     autoCloseTime = transport.autoCloseTime; break;
-            case GAMEOBJECT_TYPE_AREADAMAGE:    autoCloseTime = areadamage.autoCloseTime; break;
+            case GAMEOBJECT_TYPE_DOOR:          autoCloseTime = door.autoClose; break;
+            case GAMEOBJECT_TYPE_BUTTON:        autoCloseTime = button.autoClose; break;
+            case GAMEOBJECT_TYPE_TRAP:          autoCloseTime = trap.autoClose; break;
+            case GAMEOBJECT_TYPE_GOOBER:        autoCloseTime = goober.autoClose; break;
+            case GAMEOBJECT_TYPE_TRANSPORT:     autoCloseTime = transport.autoClose; break;
+            case GAMEOBJECT_TYPE_AREADAMAGE:    autoCloseTime = areadamage.autoClose; break;
             default: break;
         }
         return autoCloseTime;              // prior to 3.0.3, conversion was / 0x10000;
@@ -563,8 +592,8 @@ struct GameObjectTemplate
     {
         switch (type)
         {
-            case GAMEOBJECT_TYPE_CHEST:       return chest.lootId;
-            case GAMEOBJECT_TYPE_FISHINGHOLE: return fishinghole.lootId;
+            case GAMEOBJECT_TYPE_CHEST:       return chest.chestLoot;
+            case GAMEOBJECT_TYPE_FISHINGHOLE: return fishinghole.chestLoot;
             default: return 0;
         }
     }
@@ -583,8 +612,8 @@ struct GameObjectTemplate
     {
         switch (type)
         {
-            case GAMEOBJECT_TYPE_GOOBER:        return goober.eventId;
-            case GAMEOBJECT_TYPE_CHEST:         return chest.eventId;
+            case GAMEOBJECT_TYPE_GOOBER:        return goober.eventID;
+            case GAMEOBJECT_TYPE_CHEST:         return chest.triggeredEvent;
             case GAMEOBJECT_TYPE_CHAIR:         return chair.triggeredEvent;
             case GAMEOBJECT_TYPE_CAMERA:        return camera.eventID;
             default: return 0;
