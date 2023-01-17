@@ -1123,46 +1123,40 @@ enum CreateLanceSpells
     SPELL_CREATE_LANCE_HORDE    = 63919
 };
 
-class spell_gen_create_lance : public SpellScriptLoader
+class spell_gen_create_lance : public SpellScript
 {
-    public:
-        spell_gen_create_lance() : SpellScriptLoader("spell_gen_create_lance") { }
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_CREATE_LANCE_ALLIANCE,
+                SPELL_CREATE_LANCE_HORDE
+            });
+    }
 
-        class spell_gen_create_lance_SpellScript : public SpellScript
+    void HandleScript(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+
+        GameObject* caster = GetGObjCaster();
+        if (!caster)
+            return;
+
+        if (Player* target = GetHitPlayer())
         {
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo(
-                {
-                    SPELL_CREATE_LANCE_ALLIANCE,
-                    SPELL_CREATE_LANCE_HORDE
-                });
-            }
-
-            void HandleScript(SpellEffIndex effIndex)
-            {
-                PreventHitDefaultEffect(effIndex);
-
-                if (Player* target = GetHitPlayer())
-                {
-                    if (target->GetTeam() == ALLIANCE)
-                        GetCaster()->CastSpell(target, SPELL_CREATE_LANCE_ALLIANCE, true);
-                    else
-                        GetCaster()->CastSpell(target, SPELL_CREATE_LANCE_HORDE, true);
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget.Register(&spell_gen_create_lance_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_gen_create_lance_SpellScript();
+            if (target->GetTeam() == ALLIANCE)
+                caster->CastSpell(target, SPELL_CREATE_LANCE_ALLIANCE, true);
+            else
+                caster->CastSpell(target, SPELL_CREATE_LANCE_HORDE, true);
         }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget.Register(&spell_gen_create_lance::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
+
 
 class spell_gen_creature_permanent_feign_death : public SpellScriptLoader
 {
@@ -5514,7 +5508,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_clone_weapon_aura();
     new spell_gen_count_pct_from_max_hp("spell_gen_default_count_pct_from_max_hp");
     new spell_gen_count_pct_from_max_hp("spell_gen_50pct_count_pct_from_max_hp", 50);
-    new spell_gen_create_lance();
+    RegisterSpellScript(spell_gen_create_lance);
     new spell_gen_creature_permanent_feign_death();
     new spell_gen_dalaran_disguise("spell_gen_sunreaver_disguise");
     new spell_gen_dalaran_disguise("spell_gen_silver_covenant_disguise");
