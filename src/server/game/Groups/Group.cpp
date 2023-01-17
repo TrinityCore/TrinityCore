@@ -117,6 +117,10 @@ void Group::SelectNewPartyOrRaidLeader()
         SendUpdate();
     }
 }
+InstanceGroupBind* Group::GetBoundInstance(Map* aMap)
+{
+    return GetBoundInstance(aMap->GetEntry());
+}
 
 bool Group::Create(Player* leader)
 {

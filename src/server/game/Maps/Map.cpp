@@ -118,14 +118,23 @@ Map::~Map()
     MMAP::MMapFactory::createOrGetMMapManager()->unloadMapInstance(GetId(), i_InstanceId);
 }
 
+u_map_magic_TCB MapMagic = { {'M','A','P','S'} };
+u_map_magic_TCB MapVersionMagic = { {'v','1','.','9'} };
+u_map_magic_TCB MapAreaMagic = { {'A','R','E','A'} };
+u_map_magic_TCB MapHeightMagic = { {'M','H','G','T'} };
+u_map_magic_TCB MapLiquidMagic = { {'M','L','I','Q'} };
+
 void Map::DiscoverGridMapFiles()
 {
     std::string tileListName = Trinity::StringFormat("%smaps/%04u.tilelist", sWorld->GetDataPath().c_str(), GetId());
     // tile list is optional
     if (FILE* tileList = fopen(tileListName.c_str(), "rb"))
     {
-        u_map_magic mapMagic;
-        u_map_magic versionMagic;
+        u_map_magic_TCB mapMagic;
+        u_map_magic_TCB MapMagic;//后加
+        //u_map_magic_TCB versionMagic;//后加
+        //u_map_magic_TCB MapVersionMagic;//后加
+        u_map_magic_TCB versionMagic;
         uint32 build;
         char tilesData[MAX_NUMBER_OF_GRIDS * MAX_NUMBER_OF_GRIDS];
         if (fread(&mapMagic.asUInt, sizeof(u_map_magic), 1, tileList) == 1
@@ -3259,6 +3268,61 @@ bool Map::IsBattlegroundOrArena() const
 bool Map::IsScenario() const
 {
     return i_mapEntry && i_mapEntry->IsScenario();
+}
+
+void BattlegroundMap::InsureCommander(BattlegroundTypeId bgType)
+{
+    if (!m_pAllianceCommander)
+    {
+        switch (bgType)
+        {
+        case BATTLEGROUND_AB:
+            //    m_pAllianceCommander = new CommandAB(m_bg, TeamId::TEAM_ALLIANCE);
+            break;
+        case BATTLEGROUND_WS:
+            //  m_pAllianceCommander = new CommandWS(m_bg, TeamId::TEAM_ALLIANCE);
+            break;
+        case BATTLEGROUND_EY:
+            //  m_pAllianceCommander = new CommandEY(m_bg, TeamId::TEAM_ALLIANCE);
+            break;
+        case BATTLEGROUND_AV:
+            // m_pAllianceCommander = new CommandAV(m_bg, TeamId::TEAM_ALLIANCE);
+            break;
+        case BATTLEGROUND_IC:
+            //  m_pAllianceCommander = new CommandIC(m_bg, TeamId::TEAM_ALLIANCE);
+            break;
+        }
+    }
+    if (!m_pHordeCommander)
+    {
+        switch (bgType)
+        {
+        case BATTLEGROUND_AB:
+            //  m_pHordeCommander = new CommandAB(m_bg, TeamId::TEAM_HORDE);
+            break;
+        case BATTLEGROUND_WS:
+            //  m_pHordeCommander = new CommandWS(m_bg, TeamId::TEAM_HORDE);
+            break;
+        case BATTLEGROUND_EY:
+            //   m_pHordeCommander = new CommandEY(m_bg, TeamId::TEAM_HORDE);
+            break;
+        case BATTLEGROUND_AV:
+            // m_pHordeCommander = new CommandAV(m_bg, TeamId::TEAM_HORDE);
+            break;
+        case BATTLEGROUND_IC:
+            // m_pHordeCommander = new CommandIC(m_bg, TeamId::TEAM_HORDE);
+            break;
+        }
+    }
+}
+
+void BattlegroundMap::InitCommander()
+{
+    return;
+    // if (m_pAllianceCommander)
+     //    m_pAllianceCommander->Initialize();
+   //  if (m_pHordeCommander)
+        // m_pHordeCommander->Initialize();
 }
 
 bool Map::IsGarrison() const

@@ -34,6 +34,7 @@
 #include "QuestDef.h"
 #include "SceneMgr.h"
 #include <BattlePet.h>
+#include <InstanceSaveMgr.h>
 
 struct AccessRequirement;
 struct AchievementEntry;
@@ -930,6 +931,30 @@ enum PlayerDelayedOperations
 #define MAX_PLAYER_SUMMON_DELAY                   (2*MINUTE)
 // Maximum money amount : 2^31 - 1
 TC_GAME_API extern uint64 const MAX_MONEY_AMOUNT;
+
+enum BindExtensionState
+{
+    EXTEND_STATE_EXPIRED = 0,
+    EXTEND_STATE_NORMAL = 1,
+    EXTEND_STATE_EXTENDED = 2,
+    EXTEND_STATE_KEEP = 255   // special state: keep current save type
+};
+
+struct InstancePlayerBind
+{
+    InstanceSave* save;
+    /* permanent PlayerInstanceBinds are created in Raid/Heroic instances for players
+    that aren't already permanently bound when they are inside when a boss is killed
+    or when they enter an instance that the group leader is permanently bound to. */
+    bool perm;
+    /* extend state listing:
+    EXPIRED  - doesn't affect anything unless manually re-extended by player
+    NORMAL   - standard state
+    EXTENDED - won't be promoted to EXPIRED at next reset period, will instead be promoted to NORMAL */
+    BindExtensionState extendState;
+
+    InstancePlayerBind() : save(nullptr), perm(false), extendState(EXTEND_STATE_NORMAL) { }
+};
 
 enum CharDeleteMethod
 {
@@ -2937,6 +2962,12 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _LoadQuestStatus(PreparedQueryResult result);
         void _LoadQuestStatusObjectives(PreparedQueryResult result);
         void _LoadQuestStatusRewarded(PreparedQueryResult result);
+        //void UnbindInstance(uint32 mapid, Difficulty difficulty, bool unload);
+        typedef std::unordered_map<Difficulty, std::unordered_map<uint32 /*mapId*/, InstancePlayerBind>> BoundInstancesMap;
+        BoundInstancesMap m_boundInstances;
+        //InstancePlayerBind* GetBoundInstance(uint32 mapid, Difficulty difficulty, bool withExpired);//系统自动定义
+        InstancePlayerBind* GetBoundInstance(uint32 mapid, Difficulty difficulty, bool withExpired = false);
+
         void _LoadDailyQuestStatus(PreparedQueryResult result);
         void _LoadWeeklyQuestStatus(PreparedQueryResult result);
         void _LoadMonthlyQuestStatus(PreparedQueryResult result);

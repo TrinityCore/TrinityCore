@@ -53,6 +53,16 @@ enum LootMethod : uint8;
 #define RAID_MARKERS_COUNT  8
 
 #define READYCHECK_DURATION 35000
+struct InstanceGroupBind
+{
+    InstanceSave* save;
+    bool perm;
+    /* permanent InstanceGroupBinds exist if the leader has a permanent
+       PlayerInstanceBind for the same instance. */
+    InstanceGroupBind() : save(nullptr), perm(false) { }
+};
+
+InstanceGroupBind* GetBoundInstance(Map* aMap);
 
 enum GroupMemberOnlineStatus
 {
@@ -359,6 +369,20 @@ class TC_GAME_API Group
         void StartLeaderOfflineTimer();
         void StopLeaderOfflineTimer();
         void SelectNewPartyOrRaidLeader();
+
+        InstanceGroupBind* Group::GetBoundInstance(Map* aMap)
+        {
+            return GetBoundInstance(aMap->GetEntry());
+        }
+
+        InstanceGroupBind* Group::GetBoundInstance(MapEntry const* mapEntry)
+        {
+            if (!mapEntry || !mapEntry->IsDungeon())
+                return nullptr;
+
+            Difficulty difficulty = GetDifficultyID(mapEntry);
+            return GetBoundInstance(difficulty, mapEntry->ID);
+        }
 
         // FG: evil hacks
         void BroadcastGroupUpdate(void);

@@ -308,8 +308,13 @@ bool MapInstanced::DestroyInstance(InstancedMaps::iterator &itr)
     return true;
 }
 
-Map::EnterState MapInstanced::CannotEnter(Player* /*player*/)
+Map::EnterState MapInstanced::CannotEnter_TCB(Player* /*player*/)
 {
     //ABORT();
     return CAN_ENTER;
 }
+
+//TransferAbortParams MapInstanced::CannotEnter(Player*)
+//{
+//    return TransferAbortParams();
+//}

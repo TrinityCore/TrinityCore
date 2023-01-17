@@ -73,6 +73,7 @@ struct SummonPropertiesEntry;
 struct UpdateAdditionalSaveDataEvent;
 struct UpdateBossStateSaveDataEvent;
 class Transport;
+class CommandBG;
 enum Difficulty : uint8;
 enum WeatherState : uint32;
 enum class ItemContext : uint8;
@@ -118,6 +119,7 @@ struct TransferAbortParams
     int32 MapDifficultyXConditionId;
 
     operator bool() const { return Reason != TRANSFER_ABORT_NONE; }
+    //Map::EnterState CannotEnter(Player*);//自己瞎改的
 };
 
 struct ScriptAction
@@ -134,6 +136,12 @@ struct ScriptAction
 //    char asChar[4]; ///> Non-null terminated string
 //    uint32 asUInt;  ///> uint32 representation
 //};
+
+union u_map_magic_TCB   //后改
+{
+    char asChar[4]; ///> Non-null terminated string
+    uint32 asUInt;  ///> uint32 representation
+};
 
 struct ZoneDynamicInfo
 {
@@ -610,6 +618,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
     protected:
         virtual void LoadGridObjects(NGridType* grid, Cell const& cell);
 
+        std::mutex _mapLock;
         MapEntry const* i_mapEntry;
         Difficulty i_spawnMode;
         uint32 i_InstanceId;
@@ -650,6 +659,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         Map* m_parentTerrainMap;                                    // points to m_parentMap of MapEntry::ParentMapID
         std::vector<Map*>* m_childTerrainMaps;                      // contains m_parentMap of maps that have MapEntry::ParentMapID == GetId()
         NGridType* i_grids[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];
+        std::bitset<MAX_NUMBER_OF_GRIDS* MAX_NUMBER_OF_GRIDS> i_gridFileExists; // cache what grids are available for this map (not including parent/child maps)
+
         std::bitset<TOTAL_NUMBER_OF_CELLS_PER_MAP*TOTAL_NUMBER_OF_CELLS_PER_MAP> marked_cells;
 
         //these functions used to process player/mob aggro reactions and
@@ -893,6 +904,10 @@ class TC_GAME_API InstanceMap : public Map
 class TC_GAME_API BattlegroundMap : public Map
 {
     public:
+        void InsureCommander(BattlegroundTypeId bgType);
+        // void InitCommander() override;
+        void InitCommander();
+        //void InsureCommander(BattlegroundTypeId bgType) override;
         BattlegroundMap(uint32 id, time_t, uint32 InstanceId, Difficulty spawnMode);
         ~BattlegroundMap();
 
@@ -908,6 +923,8 @@ class TC_GAME_API BattlegroundMap : public Map
         void SetBG(Battleground* bg) { m_bg = bg; }
     private:
         Battleground* m_bg;
+        CommandBG* m_pAllianceCommander;
+        CommandBG* m_pHordeCommander;
 };
 
 template<class T, class CONTAINER>
