@@ -24,6 +24,7 @@
 #include "ScriptMgr.h"
 #include "Containers.h"
 #include "ObjectMgr.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
@@ -52,10 +53,12 @@ enum DeathKnightSpells
     SPELL_DK_DEATH_STRIKE_OFFHAND               = 66188,
     SPELL_DK_FESTERING_WOUND                    = 194310,
     SPELL_DK_FROST                              = 137006,
+    SPELL_DK_FROST_FEVER                        = 55095,
     SPELL_DK_FROST_SCYTHE                       = 207230,
     SPELL_DK_GLYPH_OF_FOUL_MENAGERIE            = 58642,
     SPELL_DK_GLYPH_OF_THE_GEIST                 = 58640,
     SPELL_DK_GLYPH_OF_THE_SKELETON              = 146652,
+    SPELL_DK_HOWLING_BLAST_AREA_DAMAGE          = 237680,
     SPELL_DK_MARK_OF_BLOOD_HEAL                 = 206945,
     SPELL_DK_NECROSIS_EFFECT                    = 216974,
     SPELL_DK_RAISE_DEAD_SUMMON                  = 52150,
@@ -636,6 +639,59 @@ class spell_dk_glyph_of_scourge_strike_script : public SpellScript
     }
 };
 
+static constexpr uint32 SPELL_VISUAL_ID_HOWLING_BLAST = 66812;
+
+// 49184 - Howling Blast
+// 237680 - Howling Blast
+class spell_dk_howling_blast : public SpellScript
+{
+    PrepareSpellScript(spell_dk_howling_blast);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_HOWLING_BLAST_AREA_DAMAGE, SPELL_DK_FROST_FEVER });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        targets.remove_if([&](WorldObject const* target)
+        {
+            if (GetSpellInfo()->Id == SPELL_DK_HOWLING_BLAST_AREA_DAMAGE)
+                return target->GetGUID() == std::any_cast<ObjectGuid>(GetSpell()->m_customArg);
+            else
+                return GetExplTargetUnit() != target;
+        });
+    }
+
+    void HandleAreaDamage(SpellEffIndex /*effIndex*/)
+    {
+        if (GetSpellInfo()->Id != SPELL_DK_HOWLING_BLAST_AREA_DAMAGE)
+            GetCaster()->CastSpell(GetExplTargetUnit(), SPELL_DK_HOWLING_BLAST_AREA_DAMAGE, CastSpellExtraArgs().SetCustomArg(std::any(GetExplTargetUnit()->GetGUID())));
+    }
+
+    void HandleFrostFever(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetHitUnit(), SPELL_DK_FROST_FEVER);
+    }
+
+    void HandleSpellVisual(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            if (Unit* primaryTarget = ObjectAccessor::GetUnit(*caster, std::any_cast<ObjectGuid>(GetSpell()->m_customArg)))
+                primaryTarget->SendPlaySpellVisual(GetHitUnit(), SPELL_VISUAL_ID_HOWLING_BLAST, 0, 0, 0.f, 0.f);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dk_howling_blast::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+        OnEffectLaunchTarget += SpellEffectFn(spell_dk_howling_blast::HandleAreaDamage, EFFECT_1, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_dk_howling_blast::HandleFrostFever, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        if (m_scriptSpellId == SPELL_DK_HOWLING_BLAST_AREA_DAMAGE)
+            OnEffectHitTarget += SpellEffectFn(spell_dk_howling_blast::HandleSpellVisual, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 // 206940 - Mark of Blood
 class spell_dk_mark_of_blood : public AuraScript
 {
@@ -854,6 +910,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_festering_strike);
     RegisterSpellScript(spell_dk_ghoul_explode);
     RegisterSpellScript(spell_dk_glyph_of_scourge_strike_script);
+    RegisterSpellScript(spell_dk_howling_blast);
     RegisterSpellScript(spell_dk_mark_of_blood);
     RegisterSpellScript(spell_dk_necrosis);
     RegisterSpellScript(spell_dk_pet_geist_transform);
