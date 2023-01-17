@@ -128,7 +128,7 @@ struct GameObjectTemplate
             uint32 serverOnly;                              // 2 serverOnly, enum { false, true, }; Default: false
             uint32 GiganticAOI;                             // 3 Gigantic AOI, enum { false, true, }; Default: false
             uint32 floatOnWater;                            // 4 floatOnWater, enum { false, true, }; Default: false
-            uint32 questID;                                 // 5 questID, References: QuestV2, NoValue = 0
+            int32 questID;                                  // 5 questID, References: QuestV2, NoValue = 0
             uint32 conditionID1;                            // 6 conditionID1, References: PlayerCondition, NoValue = 0
         } _generic;
         //6 GAMEOBJECT_TYPE_TRAP
@@ -188,7 +188,7 @@ struct GameObjectTemplate
         struct
         {
             uint32 open;                                    // 0 open, References: Lock_, NoValue = 0
-            uint32 questID;                                 // 1 questID, References: QuestV2, NoValue = 0
+            int32 questID;                                  // 1 questID, References: QuestV2, NoValue = 0
             uint32 eventID;                                 // 2 eventID, References: GameEvents, NoValue = 0
             uint32 autoClose;                               // 3 autoClose (ms), int, Min value: 0, Max value: 2147483647, Default value: 3000
             uint32 customAnim;                              // 4 customAnim, int, Min value: 0, Max value: 4, Default value: 0
