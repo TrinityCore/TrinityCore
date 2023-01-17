@@ -895,7 +895,7 @@ void GameObject::Update(uint32 diff)
                         }
 
                         m_respawnTime = 0;
-                        m_SkillupList.clear();
+                        _tappingPlayers.clear();
                         m_usetimes = 0;
 
                         switch (GetGoType())

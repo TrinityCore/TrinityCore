@@ -237,6 +237,7 @@ class TC_GAME_API Quest
         void LoadQuestMailSender(Field* fields);
 
         uint32 GetXPReward(Player const* player) const;
+        static uint32 CalcXPReward(uint8 playerLevel, int32 targetLevel, uint8 xpDifficulty);
 
         bool HasFlag(uint32 flag) const { return (_flags & flag) != 0; }
         void SetFlag(uint32 flag) { _flags |= flag; }
@@ -372,6 +373,8 @@ class TC_GAME_API Quest
 
         void BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player) const;
 
+        static uint32 RoundXPValue(uint32 xp);
+
         static void AddQuestLevelToTitle(std::string& title, int32 level);
         void InitializeQueryData();
         WorldPacket BuildQueryData(LocaleConstant loc) const;
@@ -468,9 +471,6 @@ class TC_GAME_API Quest
         uint32 _specialFlags            = 0; // custom flags, not sniffed/WDB
         uint32 _allowableRaces          = 0;
         uint32 _timeAllowed             = 0;
-
-        // Helpers
-        static uint32 RoundXPValue(uint32 xp);
 };
 
 struct QuestStatusData

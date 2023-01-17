@@ -242,30 +242,33 @@ void Quest::LoadQuestMailSender(Field* fields)
 
 uint32 Quest::GetXPReward(Player const* player) const
 {
-    if (player)
+    if (!player)
+        return 0;
+
+    return Quest::CalcXPReward(player->getLevel(), _level, _rewardXPDifficulty);
+}
+
+/*static*/ uint32 Quest::CalcXPReward(uint8 playerLevel, int32 targetLevel, uint8 xpDifficulty)
+{
+    int32 effectiveLevel = (targetLevel == -1 ? playerLevel : targetLevel);
+    const QuestXPEntry* xpentry = sQuestXPStore.LookupEntry(effectiveLevel);
+    if (!xpentry)
+        return 0;
+
+    int32 diffFactor = 2 * (effectiveLevel - playerLevel) + 20;
+    if (diffFactor < 1)
+        diffFactor = 1;
+    else if (diffFactor > 10)
+        diffFactor = 10;
+
+    uint32 xp = RoundXPValue(diffFactor * xpentry->Difficulty[xpDifficulty] / 10);
+    if (sWorld->getIntConfig(CONFIG_MIN_QUEST_SCALED_XP_RATIO))
     {
-        int32 quest_level = (_level == -1 ? player->getLevel() : _level);
-        const QuestXPEntry* xpentry = sQuestXPStore.LookupEntry(quest_level);
-        if (!xpentry)
-            return 0;
-
-        int32 diffFactor = 2 * (quest_level - player->getLevel()) + 20;
-        if (diffFactor < 1)
-            diffFactor = 1;
-        else if (diffFactor > 10)
-            diffFactor = 10;
-
-        uint32 xp = RoundXPValue(diffFactor * xpentry->Difficulty[_rewardXPDifficulty] / 10);
-        if (sWorld->getIntConfig(CONFIG_MIN_QUEST_SCALED_XP_RATIO))
-        {
-            uint32 minScaledXP = RoundXPValue(xpentry->Difficulty[_rewardXPDifficulty]) * sWorld->getIntConfig(CONFIG_MIN_QUEST_SCALED_XP_RATIO) / 100;
-            xp = std::max(minScaledXP, xp);
-        }
-
-        return xp;
+        uint32 minScaledXP = RoundXPValue(xpentry->Difficulty[xpDifficulty]) * sWorld->getIntConfig(CONFIG_MIN_QUEST_SCALED_XP_RATIO) / 100;
+        xp = std::max(minScaledXP, xp);
     }
 
-    return 0;
+    return xp;
 }
 
 /*static*/ bool Quest::IsTakingQuestEnabled(uint32 questId)
@@ -409,7 +412,7 @@ bool Quest::CanIncreaseRewardedQuestCounters() const
     return (!IsDFQuest() && !IsDaily() && (!IsRepeatable() || IsWeekly() || IsMonthly() || IsSeasonal()));
 }
 
-uint32 Quest::RoundXPValue(uint32 xp)
+/*static*/ uint32 Quest::RoundXPValue(uint32 xp)
 {
     if (xp <= 100)
         return 5 * ((xp + 2) / 5);

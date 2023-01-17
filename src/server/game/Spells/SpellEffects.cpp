@@ -53,6 +53,7 @@
 #include "Pet.h"
 #include "PhasingHandler.h"
 #include "Player.h"
+#include "QuestDef.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "SharedDefines.h"
@@ -1655,10 +1656,10 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
     ObjectGuid guid;
 
     // Get lockId
+    GameObjectTemplate const* goInfo;
     if (gameObjTarget)
     {
-        GameObjectTemplate const* goInfo = gameObjTarget->GetGOInfo();
-
+        goInfo = gameObjTarget->GetGOInfo();
         if (goInfo->CannotBeUsedUnderImmunity() && m_caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE))
             return;
 
@@ -1711,7 +1712,7 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
 
     SkillType skillId = SKILL_NONE;
     int32 reqSkillValue = 0;
-    int32 skillValue;
+    int32 skillValue = 0;
 
     SpellCastResult res = CanOpenLock(effIndex, lockId, skillId, reqSkillValue, skillValue);
     if (res != SPELL_CAST_OK)
@@ -1741,9 +1742,22 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
         {
             if (gameObjTarget)
             {
-                // Allow one skill-up until respawned
-                if (!gameObjTarget->IsInSkillupList(player->GetGUID().GetCounter()) && player->UpdateGatherSkill(skillId, pureSkillValue, reqSkillValue))
-                    gameObjTarget->AddToSkillupList(player->GetGUID().GetCounter());
+                // Only allow unique uses for gathering and experience rewards
+                if (!gameObjTarget->IsTappedByPlayer(player->GetGUID()))
+                {
+                    gameObjTarget->AddPlayerToTapperList(player->GetGUID());
+                    player->UpdateGatherSkill(skillId, pureSkillValue, reqSkillValue);
+
+                    if (goInfo->type == GAMEOBJECT_TYPE_CHEST)
+                    {
+                        // Chests, such as gathering nodes and treasure chests calculate their XP rewards just like quests
+                        if (uint8 xpDifficulty = goInfo->chest.xpDifficulty)
+                        {
+                            int32 xpLevel = goInfo->chest.xpMinLevel;
+                            player->GiveXP(Quest::CalcXPReward(player->getLevel(), xpLevel, xpDifficulty), nullptr);
+                        }
+                    }
+                }
             }
             else if (itemTarget)
             {

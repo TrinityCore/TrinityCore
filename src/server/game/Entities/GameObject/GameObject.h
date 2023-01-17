@@ -221,8 +221,8 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void SetLootGenerationTime();
         uint32 GetLootGenerationTime() const { return m_lootGenerationTime; }
 
-        void AddToSkillupList(ObjectGuid::LowType playerLowGUID) { m_SkillupList.push_back(playerLowGUID); }
-        bool IsInSkillupList(ObjectGuid::LowType playerLowGUID) const {  return std::find(m_SkillupList.begin(), m_SkillupList.end(), playerLowGUID) != m_SkillupList.end(); }
+        bool IsTappedByPlayer(ObjectGuid playerGuid) const { return std::find(_tappingPlayers.begin(), _tappingPlayers.end(), playerGuid) != _tappingPlayers.end(); }
+        void AddPlayerToTapperList(ObjectGuid playerGuid) { _tappingPlayers.emplace_back(playerGuid); }
 
         void AddUniqueUse(Player* player);
         void AddUse() { ++m_usetimes; }
@@ -345,7 +345,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
                                                             // For traps this: spell casting cooldown, for doors/buttons: reset time.
         GOState     m_prevGoState;                          // What state to set whenever resetting
 
-        std::list<ObjectGuid::LowType> m_SkillupList;
+        std::vector<ObjectGuid> _tappingPlayers;
 
         ObjectGuid m_ritualOwnerGUID;                       // used for GAMEOBJECT_TYPE_SUMMONING_RITUAL where GO is not summoned (no owner)
         GuidSet m_unique_users;
