@@ -1734,38 +1734,33 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
         itemTarget->SetState(ITEM_CHANGED, itemTarget->GetOwner());
     }
 
-    // not allow use skill grow at item base open
-    if (!m_CastItem && skillId != SKILL_NONE)
+    if (!m_CastItem)
     {
-        // update skill if really known
-        if (uint32 pureSkillValue = player->GetPureSkillValue(skillId))
+        bool tapped = gameObjTarget ? gameObjTarget->IsTappedByPlayer(player->GetGUID()) : false;
+        if (!tapped)
         {
-            if (gameObjTarget)
-            {
-                // Only allow unique uses for gathering and experience rewards
-                if (!gameObjTarget->IsTappedByPlayer(player->GetGUID()))
-                {
-                    gameObjTarget->AddPlayerToTapperList(player->GetGUID());
-                    player->UpdateGatherSkill(skillId, pureSkillValue, reqSkillValue);
+            // Update skill when involved
+            if (skillId != SKILL_NONE)
+                if (uint32 pureSkillValue = player->GetPureSkillValue(skillId))
+                    if (gameObjTarget || itemTarget)
+                        player->UpdateGatherSkill(skillId, pureSkillValue, reqSkillValue);
 
-                    if (goInfo->type == GAMEOBJECT_TYPE_CHEST)
-                    {
-                        // Chests, such as gathering nodes and treasure chests calculate their XP rewards just like quests
-                        if (uint8 xpDifficulty = goInfo->chest.xpDifficulty)
-                        {
-                            int32 xpLevel = goInfo->chest.xpMinLevel;
-                            player->GiveXP(Quest::CalcXPReward(player->getLevel(), xpLevel, xpDifficulty), nullptr);
-                        }
-                    }
+            // Some chests do grant experience when opened
+            if (goInfo->type == GAMEOBJECT_TYPE_CHEST)
+            {
+                // Chests, such as gathering nodes and treasure chests calculate their XP rewards just like quests
+                if (uint8 xpDifficulty = goInfo->chest.xpDifficulty)
+                {
+                    int32 xpLevel = goInfo->chest.xpMinLevel;
+                    player->GiveXP(Quest::CalcXPReward(player->getLevel(), xpLevel, xpDifficulty), nullptr);
                 }
             }
-            else if (itemTarget)
-            {
-                // Do one skill-up
-                player->UpdateGatherSkill(skillId, pureSkillValue, reqSkillValue);
-            }
         }
+
+        if (!tapped && gameObjTarget)
+            gameObjTarget->AddPlayerToTapperList(player->GetGUID());
     }
+
     ExecuteLogEffectOpenLock(effIndex, gameObjTarget ? (Object*)gameObjTarget : (Object*)itemTarget);
 }
 
