@@ -1,3 +1,10 @@
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_dru_sudden_ambush'; 
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_dru_shred'; 
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_dru_rake'; 
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES('384667','spell_dru_sudden_ambush');
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES('5221','spell_dru_shred');
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES('1822','spell_dru_rake');
+
 DELETE FROM `spell_proc` WHERE `SpellId` IN (384667);
 INSERT INTO `spell_proc` (`SpellId`,`SchoolMask`,`SpellFamilyName`,`SpellFamilyMask0`,`SpellFamilyMask1`,`SpellFamilyMask2`,`SpellFamilyMask3`,`ProcFlags`,`ProcFlags2`,`SpellTypeMask`,`SpellPhaseMask`,`HitMask`,`AttributesMask`,`DisableEffectsMask`,`ProcsPerMinute`,`Chance`,`Cooldown`,`Charges`) VALUES
-(384667,0x01,7,0x00000000,0x00000080,0x00200000,0x00001000,0x10,0x0,0x5,0x2,0x3,0x0,0x0,0,0,0,0); -- Sudden Ambush
+(384667,0x01,7,0x00000000,0x00000080,0x00200000,0x00001000,0x10,0x0,0x5,0x2,0x3,0x0,0x0,0,0,0,0);
