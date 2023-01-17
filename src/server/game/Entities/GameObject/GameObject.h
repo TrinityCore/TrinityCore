@@ -221,16 +221,8 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void SetLootGenerationTime();
         uint32 GetLootGenerationTime() const { return m_lootGenerationTime; }
 
-        void AddToSkillupList(ObjectGuid::LowType PlayerGuidLow) { m_SkillupList.push_back(PlayerGuidLow); }
-        bool IsInSkillupList(ObjectGuid::LowType PlayerGuidLow) const
-        {
-            for (std::list<ObjectGuid::LowType>::const_iterator i = m_SkillupList.begin(); i != m_SkillupList.end(); ++i)
-                if (*i == PlayerGuidLow)
-                    return true;
-
-            return false;
-        }
-        void ClearSkillupList() { m_SkillupList.clear(); }
+        void AddToSkillupList(ObjectGuid::LowType playerLowGUID) { m_SkillupList.push_back(playerLowGUID); }
+        bool IsInSkillupList(ObjectGuid::LowType playerLowGUID) const {  return std::find(m_SkillupList.begin(), m_SkillupList.end(), playerLowGUID) != m_SkillupList.end(); }
 
         void AddUniqueUse(Player* player);
         void AddUse() { ++m_usetimes; }

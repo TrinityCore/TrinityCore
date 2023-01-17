@@ -5343,39 +5343,6 @@ bool Player::UpdateFishingSkill()
     return false;
 }
 
-void Player::GiveXpForGather(uint32 const& skillId)
-{
-    // Skip if the profession is no gather profession
-    if (skillId != SKILL_HERBALISM && skillId != SKILL_MINING && skillId != SKILL_ARCHAEOLOGY)
-        return;
-
-    uint32 zoneId = GetZoneId();
-    WorldMapAreaEntry const* areaEntry = sWorldMapAreaStore.LookupEntry(zoneId);
-    if (!areaEntry)
-        return;
-
-    uint8 levelDiff = std::abs(int32(areaEntry->LevelRangeMax - getLevel()));
-    uint8 level = 0;
-
-    if (levelDiff >= 10 && levelDiff < 20)
-        level = Trinity::XP::GetGrayLevel(getLevel()) + 1;
-    else if (levelDiff >= 20)
-        level = Trinity::XP::GetGrayLevel(getLevel());
-    else
-        level = getLevel() + 3;
-
-    uint32 xp = Trinity::XP::BaseGain(level, areaEntry->LevelRangeMax, sDBCManager.GetContentLevelsForMapAndZone(GetMapId(), zoneId)) * 2;
-
-    if (!xp || levelDiff >= 20)
-        return;
-    else if (levelDiff >= 15)
-        xp = uint32(xp * (1 - (levelDiff / 24)));
-
-    xp *= sWorld->getRate(RATE_XP_KILL);
-
-    GiveXP(xp, nullptr);
-}
-
 void Player::SurveyDigSite()
 {
     _archaeology->UseSite();
