@@ -18856,12 +18856,37 @@ void Player::_LoadQuestStatusRewarded(PreparedQueryResult result)
     }
 }
 
+void Player::UnbindInstance(BoundInstancesMap::mapped_type::iterator& itr, BoundInstancesMap::iterator& difficultyItr, bool unload)
+{
+    if (itr != difficultyItr->second.end())
+    {
+        if (!unload)
+        {
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INSTANCE_BY_INSTANCE_GUID);
+
+            stmt->setUInt64(0, GetGUID().GetCounter());
+            stmt->setUInt32(1, itr->second.save->GetInstanceId());
+
+            CharacterDatabase.Execute(stmt);
+        }
+
+        if (itr->second.perm)
+            GetSession()->SendCalendarRaidLockout(itr->second.save, false);
+
+        itr->second.save->RemovePlayer(this);               // save can become invalid
+        difficultyItr->second.erase(itr++);
+    }
+}
+
+
 void Player::UnbindInstance(uint32 mapid, Difficulty difficulty, bool unload)
 {
+    //uint32 difficultyItr = (uint32)m_boundInstances.find(difficulty);
     auto difficultyItr = m_boundInstances.find(difficulty);
     if (difficultyItr != m_boundInstances.end())
     {
         auto itr = difficultyItr->second.find(mapid);
+        //uint32 itr = difficultyItr->second.find(mapid);
         if (itr != difficultyItr->second.end())
             UnbindInstance(itr, difficultyItr, unload);
     }

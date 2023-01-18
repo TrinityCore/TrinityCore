@@ -197,7 +197,7 @@ class TC_GAME_API Group
         };
         typedef std::list<MemberSlot> MemberSlotList;
         typedef MemberSlotList::const_iterator member_citerator;
-
+        typedef std::unordered_map<Difficulty, std::unordered_map<uint32 /*mapId*/, InstanceGroupBind>> BoundInstancesMap;
     protected:
         typedef MemberSlotList::iterator member_witerator;
         typedef std::set<Player*> InvitesList;
@@ -370,19 +370,11 @@ class TC_GAME_API Group
         void StopLeaderOfflineTimer();
         void SelectNewPartyOrRaidLeader();
 
-        InstanceGroupBind* Group::GetBoundInstance(Map* aMap)
-        {
-            return GetBoundInstance(aMap->GetEntry());
-        }
+        InstanceGroupBind* GetBoundInstance(Map* aMap);
+        InstanceGroupBind* GetBoundInstance(MapEntry const* mapEntry);
+        InstanceGroupBind* GetBoundInstance(Difficulty difficulty, uint32 mapId);
+        //InstanceGroupBind* GetBoundInstance(Player* player);
 
-        InstanceGroupBind* Group::GetBoundInstance(MapEntry const* mapEntry)
-        {
-            if (!mapEntry || !mapEntry->IsDungeon())
-                return nullptr;
-
-            Difficulty difficulty = GetDifficultyID(mapEntry);
-            return GetBoundInstance(difficulty, mapEntry->ID);
-        }
 
         // FG: evil hacks
         void BroadcastGroupUpdate(void);
@@ -420,6 +412,7 @@ class TC_GAME_API Group
         GroupInstanceRefManager m_ownedInstancesMgr;
         uint8*              m_subGroupsCounts;
         ObjectGuid          m_guid;
+        BoundInstancesMap   m_boundInstances;
         uint32              m_dbStoreId;                    // Represents the ID used in database (Can be reused by other groups if group was disbanded)
         bool                m_isLeaderOffline;
         TimeTracker         m_leaderOfflineTimer;

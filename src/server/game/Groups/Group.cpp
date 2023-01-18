@@ -122,6 +122,31 @@ InstanceGroupBind* Group::GetBoundInstance(Map* aMap)
     return GetBoundInstance(aMap->GetEntry());
 }
 
+InstanceGroupBind* Group::GetBoundInstance(MapEntry const* mapEntry)
+{
+    if (!mapEntry || !mapEntry->IsDungeon())
+        return nullptr;
+
+    Difficulty difficulty = GetDifficultyID(mapEntry);
+    return GetBoundInstance(difficulty, mapEntry->ID);
+}
+
+InstanceGroupBind* Group::GetBoundInstance(Difficulty difficulty, uint32 mapId)
+{
+    // some instances only have one difficulty
+    sDB2Manager.GetDownscaledMapDifficultyData(mapId, difficulty);
+
+    auto difficultyItr = m_boundInstances.find(difficulty);
+    if (difficultyItr == m_boundInstances.end())
+        return nullptr;
+
+    auto itr = difficultyItr->second.find(mapId);
+    if (itr != difficultyItr->second.end())
+        return &itr->second;
+    else
+        return nullptr;
+}
+
 bool Group::Create(Player* leader)
 {
     ObjectGuid leaderGuid = leader->GetGUID();

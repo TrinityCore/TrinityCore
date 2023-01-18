@@ -117,12 +117,50 @@ Map::~Map()
 
     MMAP::MMapFactory::createOrGetMMapManager()->unloadMapInstance(GetId(), i_InstanceId);
 }
+//u_map_magic MapMagic = { {'M','A','P','S'} };
+//u_map_magic_TCB mapMagic_TCB;
+//u_map_magic_TCB versionMagic_TCB;
+u_map_magic_TCB MapMagic_TCB = { {'M','A','P','S'} };
+//u_map_magic_TCB MapMagic;
+u_map_magic_TCB MapVersionMagic_TCB = { {'v','1','.','9'} };
+u_map_magic_TCB MapAreaMagic_TCB = { {'A','R','E','A'} };
+u_map_magic_TCB MapHeightMagic_TCB = { {'M','H','G','T'} };
+u_map_magic_TCB MapLiquidMagic_TCB = { {'M','L','I','Q'} };
 
-u_map_magic_TCB MapMagic = { {'M','A','P','S'} };
-u_map_magic_TCB MapVersionMagic = { {'v','1','.','9'} };
-u_map_magic_TCB MapAreaMagic = { {'A','R','E','A'} };
-u_map_magic_TCB MapHeightMagic = { {'M','H','G','T'} };
-u_map_magic_TCB MapLiquidMagic = { {'M','L','I','Q'} };
+bool Map::ExistMap(uint32 mapid, int gx, int gy, bool log /*= true*/)
+{
+    //u_map_magic_TCB mapMagic;
+    std::string fileName = Trinity::StringFormat("%smaps/%04u_%02u_%02u.map", sWorld->GetDataPath().c_str(), mapid, gx, gy);
+
+    bool ret = false;
+    FILE* file = fopen(fileName.c_str(), "rb");
+    if (!file)
+    {
+        if (log)
+        {
+            TC_LOG_ERROR("maps", "Map file '%s' does not exist!", fileName.c_str());
+            TC_LOG_ERROR("maps", "Please place MAP-files (*.map) in the appropriate directory (%s), or correct the DataDir setting in your worldserver.conf file.", (sWorld->GetDataPath() + "maps/").c_str());
+        }
+    }
+    else
+    {
+        map_fileheader header;
+        if (fread(&header, sizeof(header), 1, file) == 1)
+        {
+            if (header.mapMagic_TCB.asUInt != MapMagic_TCB.asUInt || header.versionMagic_TCB.asUInt != MapVersionMagic_TCB.asUInt)
+            {
+                if (log)
+                    TC_LOG_ERROR("maps", "Map file '%s' is from an incompatible map version (%.*s %.*s), %.*s %.*s is expected. Please pull your source, recompile tools and recreate maps using the updated mapextractor, then replace your old map files with new files. If you still have problems search on forum for error TCE00018.",
+                        fileName.c_str(), 4, header.mapMagic_TCB.asChar, 4, header.versionMagic_TCB.asChar, 4, MapMagic.asChar, 4, MapVersionMagic_TCB.asChar);
+            }
+            else
+                ret = true;
+        }
+        fclose(file);
+    }
+
+    return ret;
+}
 
 void Map::DiscoverGridMapFiles()
 {

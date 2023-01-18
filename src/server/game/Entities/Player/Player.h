@@ -2599,6 +2599,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         /*********************************************************/
         /***                 INSTANCE SYSTEM                   ***/
         /*********************************************************/
+        typedef std::unordered_map<Difficulty, std::unordered_map<uint32 /*mapId*/, InstancePlayerBind>> BoundInstancesMap;
 
         void UpdateHomebindTime(uint32 time);
 
@@ -2962,6 +2963,11 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _LoadQuestStatus(PreparedQueryResult result);
         void _LoadQuestStatusObjectives(PreparedQueryResult result);
         void _LoadQuestStatusRewarded(PreparedQueryResult result);
+       // void UnbindInstance(BoundInstancesMap::mapped_type::iterator& itr, BoundInstancesMap::iterator& difficultyItr, bool unload);
+        void UnbindInstance(BoundInstancesMap::mapped_type::iterator& itr, BoundInstancesMap::iterator& difficultyItr, bool unload = false);
+
+        //void UnbindInstance(uint32 mapid, Difficulty difficulty, bool unload);//系统自动生成
+        void UnbindInstance(uint32 mapid, Difficulty difficulty, bool unload = false);
         //void UnbindInstance(uint32 mapid, Difficulty difficulty, bool unload);
         typedef std::unordered_map<Difficulty, std::unordered_map<uint32 /*mapId*/, InstancePlayerBind>> BoundInstancesMap;
         BoundInstancesMap m_boundInstances;

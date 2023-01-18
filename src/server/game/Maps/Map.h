@@ -143,6 +143,21 @@ union u_map_magic_TCB   //后改
     uint32 asUInt;  ///> uint32 representation
 };
 
+struct map_fileheader_TCB
+{
+    u_map_magic_TCB mapMagic;
+    u_map_magic_TCB versionMagic;
+    uint32 buildMagic;
+    uint32 areaMapOffset;
+    uint32 areaMapSize;
+    uint32 heightMapOffset;
+    uint32 heightMapSize;
+    uint32 liquidMapOffset;
+    uint32 liquidMapSize;
+    uint32 holesOffset;
+    uint32 holesSize;
+};
+
 struct ZoneDynamicInfo
 {
     ZoneDynamicInfo();
@@ -202,10 +217,10 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
     public:
         Map(uint32 id, time_t, uint32 InstanceId, Difficulty SpawnMode);
         virtual ~Map();
-
-        void DiscoverGridMapFiles();
-
         MapEntry const* GetEntry() const { return i_mapEntry; }
+        //bool ExistMap(uint32 mapid, int gx, int gy, bool log);//系统自动生成
+        static bool ExistMap(uint32 mapid, int gx, int gy, bool log = true);
+        void DiscoverGridMapFiles();
 
         // currently unused for normal maps
         bool CanUnload(uint32 diff)
@@ -919,6 +934,7 @@ class TC_GAME_API BattlegroundMap : public Map
         void RemoveAllPlayers() override;
 
         virtual void InitVisibilityDistance() override;
+        TransferAbortParams CannotEnter(Player* player);
         Battleground* GetBG() { return m_bg; }
         void SetBG(Battleground* bg) { m_bg = bg; }
     private:
