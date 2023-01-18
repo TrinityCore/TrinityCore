@@ -149,7 +149,14 @@ class spell_dk_anti_magic_zone : public AuraScript
 {
     bool Load() override
     {
-        absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
+        _absorbAmount = 0;
+        if (!GetCaster()->IsSummon())
+            return true;
+
+        TempSummon* summon = GetCaster()->ToTempSummon();
+        if (Unit* summoner = summon->GetSummoner())
+            _absorbAmount = sSpellMgr->AssertSpellInfo(SPELL_DK_ANTI_MAGIC_SHELL_TALENT)->Effects[0].CalcValue(summoner) + 2 * summoner->GetTotalAttackPowerValue(BASE_ATTACK);
+
         return true;
     }
 
@@ -158,26 +165,29 @@ class spell_dk_anti_magic_zone : public AuraScript
         return ValidateSpellInfo({ SPELL_DK_ANTI_MAGIC_SHELL_TALENT });
     }
 
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+    void Absorb(AuraEffect* aurEff, DamageInfo& damageInfo, uint32& /*absorbAmount*/)
     {
-        SpellInfo const* talentSpell = sSpellMgr->AssertSpellInfo(SPELL_DK_ANTI_MAGIC_SHELL_TALENT);
-        amount = talentSpell->Effects[EFFECT_0].CalcValue(GetCaster());
-        if (Player* player = GetCaster()->ToPlayer())
-            amount += int32(2 * player->GetTotalAttackPowerValue(BASE_ATTACK));
-    }
+        PreventDefaultAction();
 
-    void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
-    {
-        absorbAmount = CalculatePct(dmgInfo.GetDamage(), absorbPct);
+        int32 currentAbsorb = _absorbAmount;
+        currentAbsorb = RoundToInterval(currentAbsorb, 0, CalculatePct<int32>(damageInfo.GetDamage(), aurEff->GetAmount()));
+        damageInfo.AbsorbDamage(currentAbsorb);
+
+        if (_absorbAmount >= 0)
+        {
+            _absorbAmount -= currentAbsorb;
+            if (_absorbAmount <= 0)
+                if (Unit* caster = GetCaster())
+                    caster->InterruptNonMeleeSpells(true);
+        }
     }
 
     void Register() override
     {
-        DoEffectCalcAmount.Register(&spell_dk_anti_magic_zone::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
         OnEffectAbsorb.Register(&spell_dk_anti_magic_zone::Absorb, EFFECT_0);
     }
 private:
-    uint32 absorbPct = 0;
+    int32 _absorbAmount = 0;
 };
 
 // 48721 - Blood Boil
