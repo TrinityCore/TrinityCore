@@ -24,6 +24,7 @@
 #include "Optional.h"
 #include "Position.h"
 #include "SharedDefines.h"
+#include <any>
 #include <memory>
 
 namespace WorldPackets
