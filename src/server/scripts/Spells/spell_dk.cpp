@@ -26,6 +26,7 @@
 #include "ObjectMgr.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "SpellScript.h"
