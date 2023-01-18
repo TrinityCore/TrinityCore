@@ -110,34 +110,38 @@ enum DKSpellIcons
     DK_ICON_ID_BLOOD_SHIELD_MASTERY             = 2624
 };
 
-// 48707 - Anti-Magic Shell (on self)
+// 48707 - Anti-Magic Shell
 class spell_dk_anti_magic_shell : public AuraScript
 {
     bool Load() override
     {
-        absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
-        healthPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster());
+        _healthAmount = CalculatePct(GetCaster()->GetMaxHealth(), GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster()));
         return true;
     }
 
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+    // We do have to do a manual absorb handling because the tooltip of anti-magic shell only absorbs a part of the damage, not all of it
+    void Absorb(AuraEffect* aurEff, DamageInfo& damageInfo, uint32& /*absorbAmount*/)
     {
-        amount = GetCaster()->CountPctFromMaxHealth(healthPct);
-    }
+        PreventDefaultAction();
 
-    void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
-    {
-        absorbAmount = std::min(CalculatePct(dmgInfo.GetDamage(), absorbPct), GetTarget()->CountPctFromMaxHealth(healthPct));
+        int32 currentAbsorb = _healthAmount;
+        currentAbsorb = RoundToInterval(currentAbsorb, 0, CalculatePct<int32>(damageInfo.GetDamage(), aurEff->GetAmount()));
+        damageInfo.AbsorbDamage(currentAbsorb);
+
+        if (_healthAmount >= 0)
+        {
+            _healthAmount -= currentAbsorb;
+            if (_healthAmount <= 0)
+                aurEff->GetBase()->Remove(AuraRemoveFlags::ByEnemySpell);
+        }
     }
 
     void Register() override
     {
-        DoEffectCalcAmount.Register(&spell_dk_anti_magic_shell::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
         OnEffectAbsorb.Register(&spell_dk_anti_magic_shell::Absorb, EFFECT_0);
     }
 private:
-    int32 absorbPct;
-    int32 healthPct;
+    int32 _healthAmount = 0;
 };
 
 // 50461 - Anti-Magic Zone
