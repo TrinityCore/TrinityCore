@@ -3870,7 +3870,8 @@ void Unit::RemoveMovementImpairingAuras(bool withRoot)
 
 void Unit::RemoveAurasWithMechanic(uint32 mechanicMaskToRemove, AuraRemoveFlags removeMode, uint32 exceptSpellId, bool withEffectMechanics)
 {
-    RemoveAppliedAuras([=](AuraApplication const* aurApp)
+    std::vector<Aura*> aurasToUpdateTargets;
+    RemoveAppliedAuras([=, &aurasToUpdateTargets](AuraApplication const* aurApp)
     {
         Aura* aura = aurApp->GetBase();
         if (exceptSpellId && aura->GetId() == exceptSpellId)
@@ -3885,9 +3886,12 @@ void Unit::RemoveAurasWithMechanic(uint32 mechanicMaskToRemove, AuraRemoveFlags 
             return true;
 
         // effect mechanic matches required mask for removal - don't remove, only update targets
-        aura->UpdateTargetMap(aura->GetCaster());
+        aurasToUpdateTargets.push_back(aura);
         return false;
     }, removeMode);
+
+    for (Aura* aura : aurasToUpdateTargets)
+        aura->UpdateTargetMap(aura->GetCaster());
 }
 
 void Unit::RemoveAurasByShapeShift()

@@ -3106,15 +3106,19 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, uint8 effIndex, bool app
                 target->RemoveAurasWithMechanic(mechanicImmunity, AuraRemoveFlags::ByDefault, Id);
             else
             {
-                target->RemoveAppliedAuras([mechanicImmunity](AuraApplication const* aurApp)
+                std::vector<Aura*> aurasToUpdateTargets;
+                target->RemoveAppliedAuras([mechanicImmunity, &aurasToUpdateTargets](AuraApplication const* aurApp)
                 {
                     Aura* aura = aurApp->GetBase();
                     if (aura->GetSpellInfo()->GetAllEffectsMechanicMask() & mechanicImmunity)
-                        aura->UpdateTargetMap(aura->GetCaster());
+                        aurasToUpdateTargets.push_back(aura);
 
                     // only update targets, don't remove anything
                     return false;
                 });
+
+                for (Aura* aura : aurasToUpdateTargets)
+                    aura->UpdateTargetMap(aura->GetCaster());
             }
         }
     }
