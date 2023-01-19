@@ -1187,28 +1187,28 @@ public:
     void OnSceneStart(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* sceneTemplate) override
     {
         SmartScript smartScript;
-        smartScript.OnInitialize(nullptr, nullptr, sceneTemplate);
+        smartScript.OnInitialize(player, nullptr, sceneTemplate);
         smartScript.ProcessEventsFor(SMART_EVENT_SCENE_START, player);
     }
 
     void OnSceneTriggerEvent(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* sceneTemplate, std::string const& triggerName) override
     {
         SmartScript smartScript;
-        smartScript.OnInitialize(nullptr, nullptr, sceneTemplate);
+        smartScript.OnInitialize(player, nullptr, sceneTemplate);
         smartScript.ProcessEventsFor(SMART_EVENT_SCENE_TRIGGER, player, 0, 0, false, nullptr, nullptr, triggerName);
     }
 
     void OnSceneCancel(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* sceneTemplate) override
     {
         SmartScript smartScript;
-        smartScript.OnInitialize(nullptr, nullptr, sceneTemplate);
+        smartScript.OnInitialize(player, nullptr, sceneTemplate);
         smartScript.ProcessEventsFor(SMART_EVENT_SCENE_CANCEL, player);
     }
 
     void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* sceneTemplate) override
     {
         SmartScript smartScript;
-        smartScript.OnInitialize(nullptr, nullptr, sceneTemplate);
+        smartScript.OnInitialize(player, nullptr, sceneTemplate);
         smartScript.ProcessEventsFor(SMART_EVENT_SCENE_COMPLETE, player);
     }
 };
@@ -1222,7 +1222,7 @@ public:
     void OnQuestStatusChange(Player* player, Quest const* quest, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
     {
         SmartScript smartScript;
-        smartScript.OnInitialize(nullptr, nullptr, nullptr, quest);
+        smartScript.OnInitialize(player, nullptr, nullptr, quest);
         switch (newStatus)
         {
             case QUEST_STATUS_INCOMPLETE:
@@ -1250,7 +1250,7 @@ public:
         if (slot < MAX_QUEST_LOG_SIZE && player->IsQuestObjectiveComplete(slot, quest, objective))
         {
             SmartScript smartScript;
-            smartScript.OnInitialize(nullptr, nullptr, nullptr, quest);
+            smartScript.OnInitialize(player, nullptr, nullptr, quest);
             smartScript.ProcessEventsFor(SMART_EVENT_QUEST_OBJ_COMPLETION, player, objective.ID);
         }
     }
