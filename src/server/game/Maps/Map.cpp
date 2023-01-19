@@ -144,7 +144,7 @@ bool Map::ExistMap(uint32 mapid, int gx, int gy, bool log /*= true*/)
     }
     else
     {
-        map_fileheader header;
+        map_fileheader_TCB header;
         if (fread(&header, sizeof(header), 1, file) == 1)
         {
             if (header.mapMagic_TCB.asUInt != MapMagic_TCB.asUInt || header.versionMagic_TCB.asUInt != MapVersionMagic_TCB.asUInt)
@@ -171,7 +171,7 @@ void Map::DiscoverGridMapFiles()
         u_map_magic_TCB mapMagic;
         u_map_magic_TCB MapMagic;//后加
         //u_map_magic_TCB versionMagic;//后加
-        //u_map_magic_TCB MapVersionMagic;//后加
+        u_map_magic_TCB MapVersionMagic;//后加
         u_map_magic_TCB versionMagic;
         uint32 build;
         char tilesData[MAX_NUMBER_OF_GRIDS * MAX_NUMBER_OF_GRIDS];

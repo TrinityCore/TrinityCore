@@ -37,7 +37,8 @@ class TC_GAME_API MapInstanced : public Map
         void Update(uint32 diff) override;
         void DelayedUpdate(uint32 diff) override;
         //void RelocationNotify();
-        void UnloadAll() override;
+        void UnloadAll();
+        //void UnloadAll() override;
         //EnterState CannotEnter_TCB(Player* /*player*/) override;  //后加
         EnterState CannotEnter_TCB(Player* /*player*/);  //后加
         //TransferAbortParams CannotEnter(Player* /*player*/) override;

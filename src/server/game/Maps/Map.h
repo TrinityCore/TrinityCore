@@ -145,8 +145,12 @@ union u_map_magic_TCB   //后改
 
 struct map_fileheader_TCB
 {
+    char asChar[4]; ///> Non-null terminated string
+    uint32 asUInt;  ///> uint32 representation
     u_map_magic_TCB mapMagic;
     u_map_magic_TCB versionMagic;
+    u_map_magic_TCB  mapMagic_TCB;//后加
+    u_map_magic_TCB  versionMagic_TCB;//后加
     uint32 buildMagic;
     uint32 areaMapOffset;
     uint32 areaMapSize;
