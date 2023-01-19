@@ -3891,7 +3891,13 @@ void Unit::RemoveAurasWithMechanic(uint32 mechanicMaskToRemove, AuraRemoveFlags 
     }, removeMode);
 
     for (Aura* aura : aurasToUpdateTargets)
+    {
         aura->UpdateTargetMap(aura->GetCaster());
+
+        // Fully remove the aura if all effects were removed
+        if (!aura->IsPassive() && aura->GetOwner() == this && !aura->GetApplicationOfTarget(GetGUID()))
+            aura->Remove(removeMode);
+    }
 }
 
 void Unit::RemoveAurasByShapeShift()
