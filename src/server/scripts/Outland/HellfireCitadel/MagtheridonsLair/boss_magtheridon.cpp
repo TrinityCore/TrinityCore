@@ -347,7 +347,7 @@ struct npc_hellfire_channeler : public ScriptedAI
     {
         if (_instance->GetBossState(DATA_MAGTHERIDON) == IN_PROGRESS)
             if (Creature* magtheridon = _instance->GetCreature(DATA_MAGTHERIDON))
-                magtheridon->AI()->EnterEvadeMode(EVADE_REASON_OTHER);
+                magtheridon->AI()->EnterEvadeMode(EvadeReason::Other);
     }
 
     void UpdateAI(uint32 diff) override
