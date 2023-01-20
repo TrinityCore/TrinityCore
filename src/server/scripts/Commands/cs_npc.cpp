@@ -87,6 +87,7 @@ public:
             { "wanderdistance", HandleNpcSetWanderDistanceCommand, rbac::RBAC_PERM_COMMAND_NPC_SET_SPAWNDIST,  Console::No },
             { "spawntime",      HandleNpcSetSpawnTimeCommand,      rbac::RBAC_PERM_COMMAND_NPC_SET_SPAWNTIME,  Console::No },
             { "data",           HandleNpcSetDataCommand,           rbac::RBAC_PERM_COMMAND_NPC_SET_DATA,       Console::No },
+            { "scale",          HandleNpcSetScaleCommand,          rbac::RBAC_PERM_COMMAND_NPC_SET_SCALE,      Console::No },
         };
         static ChatCommandTable npcCommandTable =
         {
@@ -861,6 +862,32 @@ public:
 
         creature->SaveToDB();
 
+        return true;
+    }
+
+    static bool HandleNpcSetScaleCommand(ChatHandler* handler, float scale)
+    {
+        Creature* creature = handler->getSelectedCreature();
+        if (!creature)
+        {
+            handler->SendSysMessage(LANG_SELECT_CREATURE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (scale <= 0.0f)
+        {
+            scale = creature->GetCreatureTemplate()->scale;
+            const_cast<CreatureData*>(creature->GetCreatureData())->size = -1.0f;
+        }
+        else
+        {
+            const_cast<CreatureData*>(creature->GetCreatureData())->size = scale;
+        }
+
+        creature->SetObjectScale(scale);
+        if (!creature->IsPet())
+            creature->SaveToDB();
         return true;
     }
 
