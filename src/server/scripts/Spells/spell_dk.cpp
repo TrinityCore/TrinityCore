@@ -658,9 +658,14 @@ class spell_dk_howling_blast : public SpellScript
         targets.remove_if([&](WorldObject const* target)
         {
             if (GetSpellInfo()->Id == SPELL_DK_HOWLING_BLAST_AREA_DAMAGE)
-                return target->GetGUID() == std::any_cast<ObjectGuid>(GetSpell()->m_customArg);
+            {
+                if (GetSpell()->m_customArg.has_value())
+                    return target->GetGUID() == std::any_cast<ObjectGuid>(GetSpell()->m_customArg);
+            }
             else
                 return GetExplTargetUnit() != target;
+
+            return false;
         });
     }
 
@@ -672,11 +677,14 @@ class spell_dk_howling_blast : public SpellScript
 
     void HandleAreaDamage(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetExplTargetUnit(), SPELL_DK_HOWLING_BLAST_AREA_DAMAGE, CastSpellExtraArgs().SetCustomArg(std::any(GetExplTargetUnit()->GetGUID())));
+        GetCaster()->CastSpell(GetExplTargetUnit(), SPELL_DK_HOWLING_BLAST_AREA_DAMAGE, CastSpellExtraArgs().SetCustomArg(GetExplTargetUnit()->GetGUID()));
     }
 
     void HandleSpellVisual(SpellEffIndex /*effIndex*/)
     {
+        if (!GetSpell()->m_customArg.has_value())
+            return;
+
         if (Unit* caster = GetCaster())
             if (Unit* primaryTarget = ObjectAccessor::GetUnit(*caster, std::any_cast<ObjectGuid>(GetSpell()->m_customArg)))
                 primaryTarget->SendPlaySpellVisual(GetHitUnit(), SPELL_VISUAL_ID_HOWLING_BLAST, 0, 0, 0.f, 0.f);
