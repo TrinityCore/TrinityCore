@@ -236,7 +236,8 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
     map->LoadCorpseData();
 
     bool load_data = save != nullptr;
-    map->CreateInstanceData(load_data);
+    map->CreateInstanceData();
+    //map->CreateInstanceData(load_data);
     if (InstanceScenario* instanceScenario = sScenarioMgr->CreateInstanceScenario(map, team))
         map->SetInstanceScenario(instanceScenario);
 
@@ -254,7 +255,8 @@ BattlegroundMap* MapInstanced::CreateBattleground(uint32 InstanceId, Battlegroun
 
     TC_LOG_DEBUG("maps", "MapInstanced::CreateBattleground: map bg %d for %d created.", InstanceId, GetId());
 
-    BattlegroundMap* map = new BattlegroundMap(GetId(), GetGridExpiry(), InstanceId, this, DIFFICULTY_NONE);
+    //BattlegroundMap* map = new BattlegroundMap(GetId(), GetGridExpiry(), InstanceId, this, DIFFICULTY_NONE);  //原先
+    BattlegroundMap* map = new BattlegroundMap(GetId(),GetGridExpiry(),InstanceId, DIFFICULTY_NONE);
     ASSERT(map->IsBattlegroundOrArena());
     map->SetBG(bg);
     bg->SetBgMap(map);
@@ -269,7 +271,8 @@ GarrisonMap* MapInstanced::CreateGarrison(uint32 instanceId, Player* owner)
 {
     std::lock_guard<std::mutex> lock(_mapLock);
 
-    GarrisonMap* map = new GarrisonMap(GetId(), GetGridExpiry(), instanceId, this, owner->GetGUID());
+    //GarrisonMap* map = new GarrisonMap(GetId(), GetGridExpiry(), instanceId, this, owner->GetGUID());
+    GarrisonMap* map = new GarrisonMap(GetId(), GetGridExpiry(), instanceId, owner->GetGUID());
     ASSERT(map->IsGarrison());
 
     m_InstancedMaps[instanceId] = map;
