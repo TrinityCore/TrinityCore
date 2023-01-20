@@ -46,6 +46,7 @@ EndScriptData */
 #include "Transport.h"
 #include "World.h"
 #include "WorldSession.h"
+#include "GossipDef.h"
 
 using namespace Trinity::ChatCommands;
 
@@ -164,7 +165,7 @@ public:
     }
 
     //add item in vendorlist
-    static bool HandleNpcAddVendorItemCommand(ChatHandler* handler, ItemTemplate const* item, Optional<uint32> mc, Optional<uint32> it, Optional<uint32> ec, Optional<std::string_view> bonusListIDs)
+    static bool HandleNpcAddVendorItemCommand(ChatHandler* handler, ItemTemplate const* item, Optional<uint32> mc, Optional<uint32> it, Optional<uint32> ec, Optional<std::string_view> bonusListIDs, Optional<int32> addMulti)
     {
         if (!item)
         {
@@ -185,7 +186,7 @@ public:
         uint32 maxcount = mc.value_or(0);
         uint32 incrtime = it.value_or(0);
         uint32 extendedcost = ec.value_or(0);
-        uint32 vendor_entry = vendor->GetEntry();
+        uint32 vendor_entry = addMulti ? handler->GetSession()->GetPlayer()->PlayerTalkClass->GetInteractionData().VendorId : vendor ? vendor->GetEntry() : 0;
 
         VendorItem vItem;
         vItem.item = itemId;
@@ -334,7 +335,7 @@ public:
     }
 
     //del item from vendor list
-    static bool HandleNpcDeleteVendorItemCommand(ChatHandler* handler, ItemTemplate const* item)
+    static bool HandleNpcDeleteVendorItemCommand(ChatHandler* handler, ItemTemplate const* item, Optional<int32> addMulti)
     {
         Creature* vendor = handler->getSelectedCreature();
         if (!vendor || !vendor->IsVendor())
@@ -352,7 +353,7 @@ public:
         }
 
         uint32 itemId = item->GetId();
-        if (!sObjectMgr->RemoveVendorItem(vendor->GetEntry(), ITEM_VENDOR_TYPE_ITEM, itemId))
+        if (!sObjectMgr->RemoveVendorItem(addMulti ? handler->GetSession()->GetPlayer()->PlayerTalkClass->GetInteractionData().TrainerId : vendor->GetEntry(), ITEM_VENDOR_TYPE_ITEM, itemId))
         {
             handler->PSendSysMessage(LANG_ITEM_NOT_IN_LIST, itemId);
             handler->SetSentErrorMessage(true);
