@@ -16,6 +16,7 @@
  */
 
 // This is where scripts' loading functions should be declared:
+void AddSC_GOMove_commandscript();  //Rocher2-gomove_master
 void AddSC_XpWeekend();             //周末双倍经验
 void AddSC_solocraft();             //单人随机地下城查找器脚本
 void AddSC_SpellCraft();            //单人随机地下城查找器脚本
@@ -31,6 +32,7 @@ void AddSC_GuardianAngel();         //守护神
 // void Add${NameOfDirectory}Scripts()
 void AddCustomScripts()
 {
+    AddSC_GOMove_commandscript();
     AddSC_XpWeekend();              //周末双倍经验
     AddSC_solocraft();              //单人随机地下城查找器脚本
     AddSC_SpellCraft();             //单人随机地下城查找器脚本
@@ -39,6 +41,6 @@ void AddCustomScripts()
     AddSC_Hastecraft();             //单人随机地下城查找器脚本
     AddLfgSoloScripts();            //单人随机地下城查找器脚本
 //    AddSC_custom_npcs();            //自定义NPC-守护神
-    AddSC_custom_player_script();   //单人随机地下城查找器脚本
+   AddSC_custom_player_script(),   //单人随机地下城查找器脚本
    AddSC_GuardianAngel();          //守护神
 }
