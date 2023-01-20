@@ -3732,6 +3732,20 @@ struct NamesReservedLocaleLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 3, &NamesReservedLocaleMeta::Instance, HOTFIX_SEL_NAMES_RESERVED };
 };
 
+struct NPCSoundsLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[5] =
+    {
+        { false, FT_INT, "ID" },
+        { false, FT_INT, "hello" },
+        { false, FT_INT, "goodbye" },
+        { false, FT_INT, "pissed" },
+        { false, FT_INT, "ack" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 5, &NPCSoundsMeta::Instance, HOTFIX_SEL_NPC_SOUNDS };
+};
+
 struct NumTalentsAtLevelLoadInfo
 {
     static constexpr DB2FieldMeta Fields[4] =
