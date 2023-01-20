@@ -499,7 +499,7 @@ struct npc_green_dragon_combat_trigger : public BossAI
 
         if (!instance->CheckRequiredBosses(DATA_VALITHRIA_DREAMWALKER, target->ToPlayer()))
         {
-            EnterEvadeMode(EVADE_REASON_SEQUENCE_BREAK);
+            EnterEvadeMode(EvadeReason::SequenceBreak);
             instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
             return;
         }

@@ -716,7 +716,7 @@ void SmartAI::OnCharmed(bool isNew)
             me->LastCharmerGUID.Clear();
 
             if (!me->IsInCombat())
-                EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+                EnterEvadeMode(EvadeReason::NoHostiles);
         }
     }
 

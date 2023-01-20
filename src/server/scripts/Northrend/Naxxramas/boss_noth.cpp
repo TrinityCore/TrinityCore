@@ -120,7 +120,7 @@ struct boss_noth : public BossAI
         DoZoneInCombat();
 
         if (!me->IsThreatened())
-            EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+            EnterEvadeMode(EvadeReason::NoHostiles);
         else
         {
             uint8 timeGround;
