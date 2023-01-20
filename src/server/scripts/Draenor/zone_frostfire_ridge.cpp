@@ -458,7 +458,7 @@ public:
         return new go_wod_q34375AI(go);
     }
 };
-
+/*
 // 79526
 class mob_wod_q34375 : public CreatureScript
 {
@@ -484,14 +484,14 @@ public:
         };
 
         ObjectGuid treeGUID;
-        void MovementInform(uint32 type, uint32 /*id*/)
+        void MovementInform(uint32 type, uint32 id)
         {
             if (type != POINT_MOTION_TYPE)
                 return;
-            if (Creature * tree = me->GetMap()->GetCreature(treeGUID))
+            if (Creature* tree = me->GetMap()->GetCreature(treeGUID))
                 me->SetFacingToObject(tree);
-                me->HandleEmoteCommand(EMOTE_STATE_WORK_CHOPWOOD_2);
-        }
+            me->HandleEmoteCommand(EMOTE_STATE_WORK_CHOPWOOD_2);
+        };
 
         void IsSummonedBy(Unit* summoner)
         {
@@ -508,11 +508,11 @@ public:
                 tree->GetRandomNearPosition(5.0f);
                 me->GetMotionMaster()->MovePoint(1, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
                 treeGUID = tree->GetGUID();
-            }
+            } 
         }
     };
 };
-
+*/
 void AddSC_frostfire_ridge()
 {
     /* BEGIN */
@@ -521,10 +521,10 @@ void AddSC_frostfire_ridge()
 
     new npc_drekthar_frostridge_begin();
   //  new npc_durotan_frostridge_begin();
-    new mob_wod_q34375();
+   // new mob_wod_q34375();
 
     new go_frostridge_master_surveyor();
-    new go_wod_q34375();
+ //   new go_wod_q34375();
 
     new spell_frostridge_claiming();
 
