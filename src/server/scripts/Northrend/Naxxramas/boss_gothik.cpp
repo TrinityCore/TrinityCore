@@ -384,7 +384,7 @@ struct boss_gothik : public BossAI
         {
             case ACTION_MINION_EVADE:
                 if (_gateIsOpen || me->GetThreatManager().IsThreatListEmpty())
-                    return EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+                    return EnterEvadeMode(EvadeReason::NoHostiles);
                 if (_gateCanOpen)
                     OpenGate();
                 break;
@@ -581,7 +581,7 @@ struct npc_gothik_minion_baseAI : public ScriptedAI
                         AttackStart(target);
                     }
                     else
-                        EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+                        EnterEvadeMode(EvadeReason::NoHostiles);
                     break;
             }
         }
@@ -610,7 +610,7 @@ struct npc_gothik_minion_baseAI : public ScriptedAI
                     AttackStart(newTarget);
                 }
                 else
-                    EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+                    EnterEvadeMode(EvadeReason::NoHostiles);
             }
 
             _UpdateAI(diff);

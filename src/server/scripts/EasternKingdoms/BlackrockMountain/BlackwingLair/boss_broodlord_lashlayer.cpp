@@ -113,7 +113,7 @@ struct boss_broodlord : public BossAI
                     if (me->GetDistance(me->GetHomePosition()) > 150.0f)
                     {
                         Talk(SAY_LEASH);
-                        EnterEvadeMode(EVADE_REASON_BOUNDARY);
+                        EnterEvadeMode(EvadeReason::Boundary);
                     }
                     events.ScheduleEvent(EVENT_CHECK, 1s);
                     break;
