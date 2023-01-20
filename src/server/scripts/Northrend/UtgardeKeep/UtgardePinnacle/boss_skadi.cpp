@@ -673,7 +673,7 @@ class spell_skadi_reset_check : public SpellScript
 
         if (InstanceScript* instance = target->GetInstanceScript())
             if (instance->GetBossState(DATA_SKADI_THE_RUTHLESS) == IN_PROGRESS)
-                target->AI()->EnterEvadeMode(CreatureAI::EVADE_REASON_NO_HOSTILES);
+                target->AI()->EnterEvadeMode(EvadeReason::NoHostiles);
     }
 
     void Register() override

@@ -43,7 +43,7 @@ struct TC_GAME_API EscortAI : public ScriptedAI
         void MoveInLineOfSight(Unit* who) override;
         void JustDied(Unit*) override;
         void ReturnToLastPoint();
-        void EnterEvadeMode(EvadeReason /*why*/ = EVADE_REASON_OTHER) override;
+        void EnterEvadeMode(EvadeReason why) override;
         void MovementInform(uint32, uint32) override;
         void UpdateAI(uint32 diff) override; // the "internal" update, calls UpdateEscortAI()
 
