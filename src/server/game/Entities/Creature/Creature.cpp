@@ -890,7 +890,7 @@ void Creature::Update(uint32 diff)
                 m_cannotReachTimer += diff;
                 if (m_cannotReachTimer >= CREATURE_NOPATH_EVADE_TIME)
                     if (CreatureAI* ai = AI())
-                        ai->EnterEvadeMode(CreatureAI::EVADE_REASON_NO_PATH);
+                        ai->EnterEvadeMode(EvadeReason::NoPath);
             }
             break;
         }
@@ -1235,7 +1235,7 @@ Unit* Creature::SelectVictim()
         {
             if ((*itr)->GetBase()->IsPermanent())
             {
-                AI()->EnterEvadeMode(CreatureAI::EVADE_REASON_OTHER);
+                AI()->EnterEvadeMode(EvadeReason::Other);
                 break;
             }
         }
@@ -1243,7 +1243,7 @@ Unit* Creature::SelectVictim()
     }
 
     // enter in evade mode in other case
-    AI()->EnterEvadeMode(CreatureAI::EVADE_REASON_NO_HOSTILES);
+    AI()->EnterEvadeMode(EvadeReason::NoHostiles);
 
     return nullptr;
 }

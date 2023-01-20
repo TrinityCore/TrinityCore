@@ -81,21 +81,6 @@ Object::Object() : m_values(this)
     m_objectUpdated     = false;
 }
 
-WorldObject::~WorldObject()
-{
-    // this may happen because there are many !create/delete
-    if (IsWorldObject() && m_currMap)
-    {
-        if (GetTypeId() == TYPEID_CORPSE)
-        {
-            TC_LOG_FATAL("misc", "WorldObject::~WorldObject Corpse Type: {} ({}) deleted but still in map!!",
-                ToCorpse()->GetType(), GetGUID().ToString());
-            ABORT();
-        }
-        ResetMap();
-    }
-}
-
 Object::~Object()
 {
     if (IsInWorld())
@@ -866,6 +851,21 @@ m_currMap(nullptr), m_InstanceId(0), _dbPhase(0), m_notifyflags(0)
 {
     m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE | GHOST_VISIBILITY_GHOST);
     m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE);
+}
+
+WorldObject::~WorldObject()
+{
+    // this may happen because there are many !create/delete
+    if (IsWorldObject() && m_currMap)
+    {
+        if (GetTypeId() == TYPEID_CORPSE)
+        {
+            TC_LOG_FATAL("misc", "WorldObject::~WorldObject Corpse Type: {} ({}) deleted but still in map!!",
+                ToCorpse()->GetType(), GetGUID().ToString());
+            ABORT();
+        }
+        ResetMap();
+    }
 }
 
 void WorldObject::SetWorldObject(bool on)

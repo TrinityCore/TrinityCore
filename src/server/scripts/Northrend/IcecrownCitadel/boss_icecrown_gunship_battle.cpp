@@ -633,7 +633,7 @@ protected:
     {
         if (Instance->GetBossState(DATA_ICECROWN_GUNSHIP_BATTLE) != IN_PROGRESS)
         {
-            EnterEvadeMode(EVADE_REASON_OTHER);
+            EnterEvadeMode(EvadeReason::Other);
             return false;
         }
 
@@ -647,7 +647,7 @@ protected:
         }
         else if (me->GetThreatManager().IsThreatListEmpty())
         {
-            EnterEvadeMode(EVADE_REASON_OTHER);
+            EnterEvadeMode(EvadeReason::Other);
             return false;
         }
 
