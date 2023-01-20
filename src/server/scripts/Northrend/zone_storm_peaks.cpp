@@ -700,7 +700,7 @@ struct npc_wild_wyrm : public VehicleAI
         if (_playerCheckTimer <= diff)
         {
             if (!EvadeCheck())
-                EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+                EnterEvadeMode(EvadeReason::NoHostiles);
 
             _playerCheckTimer = 1 * IN_MILLISECONDS;
         }
