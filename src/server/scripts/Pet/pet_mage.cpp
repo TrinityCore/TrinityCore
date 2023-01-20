@@ -124,7 +124,7 @@ struct npc_pet_mage_mirror_image : ScriptedAI
 
         if (!selectedTarget)
         {
-            EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+            EnterEvadeMode(EvadeReason::NoHostiles);
             return false;
         }
 
