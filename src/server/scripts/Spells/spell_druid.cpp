@@ -92,7 +92,11 @@ enum DruidSpells
     SPELL_DRUID_TRAVEL_FORM                    = 783,
     SPELL_DRUID_THRASH_BEAR                    = 77758,
     SPELL_DRUID_THRASH_BEAR_AURA               = 192090,
-    SPELL_DRUID_THRASH_CAT                     = 106830
+    SPELL_DRUID_THRASH_CAT                     = 106830,
+    SPELL_DRUID_SUDDEN_AMBUSH                  = 384667,
+    SPELL_DRUID_SUDDEN_AMBUSH_AURA             = 391974,
+    SPELL_DRUID_RAKE                           = 1822,
+    SPELL_DRUID_SHRED                          = 5221,
 };
 
 class RaidCheck
@@ -1611,6 +1615,77 @@ class spell_dru_wild_growth_aura : public AuraScript
     }
 };
 
+// 384667 - Sudden Ambush Talent
+class spell_dru_sudden_ambush : public AuraScript
+{
+    PrepareAuraScript(spell_dru_sudden_ambush);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_SUDDEN_AMBUSH });
+    }
+
+    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        // Get the Combo Points
+        Spell const* procSpell = eventInfo.GetProcSpell();
+        if (!procSpell)
+            return false;
+
+        std::optional<int32_t> comboPointsAmount = procSpell->GetPowerTypeCostAmount(POWER_COMBO_POINTS);
+
+        if (!*comboPointsAmount)
+            return false;
+
+        return roll_chance_f(*comboPointsAmount * 5);
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_dru_sudden_ambush::CheckProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
+class spell_dru_rake : public SpellScript
+{
+    PrepareSpellScript(spell_dru_rake);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({SPELL_DRUID_SUDDEN_AMBUSH});
+    }
+
+    void AfterHitHandle() {
+        if (GetCaster()->HasAura(SPELL_DRUID_SUDDEN_AMBUSH_AURA))
+            GetCaster()->RemoveAura(SPELL_DRUID_SUDDEN_AMBUSH_AURA);
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_dru_rake::AfterHitHandle);
+    }
+};
+
+class spell_dru_shred : public SpellScript
+{
+    PrepareSpellScript(spell_dru_shred);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_SUDDEN_AMBUSH });
+    }
+
+    void AfterHitHandle() {
+        if (GetCaster()->HasAura(SPELL_DRUID_SUDDEN_AMBUSH_AURA))
+            GetCaster()->RemoveAura(SPELL_DRUID_SUDDEN_AMBUSH_AURA);
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_dru_shred::AfterHitHandle);
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     RegisterSpellScript(spell_dru_barkskin);
@@ -1656,4 +1731,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellAndAuraScriptPair(spell_dru_travel_form_dummy, spell_dru_travel_form_dummy_aura);
     RegisterSpellAndAuraScriptPair(spell_dru_tiger_dash, spell_dru_tiger_dash_aura);
     RegisterSpellAndAuraScriptPair(spell_dru_wild_growth, spell_dru_wild_growth_aura);
+    RegisterSpellScript(spell_dru_sudden_ambush);
+    RegisterSpellScript(spell_dru_rake);
+    RegisterSpellScript(spell_dru_shred);
 }
