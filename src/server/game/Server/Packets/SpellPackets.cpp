@@ -324,7 +324,7 @@ WorldPacket const* WorldPackets::Spells::PlaySpellVisual::Write()
     _worldPacket << float(TargetPosition.GetPositionZ());
     _worldPacket << int32(SpellVisualID);
     _worldPacket << uint16(MissReason);
-    _worldPacket << float(TargetPosition.GetOrientation());
+    _worldPacket << float(TravelSpeed);
     _worldPacket << float(TargetPosition.GetPositionX());
     _worldPacket << uint16(ReflectStatus);
     _worldPacket << float(TargetPosition.GetPositionY());
