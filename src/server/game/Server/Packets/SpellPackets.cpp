@@ -337,6 +337,7 @@ WorldPacket const* WorldPackets::Spells::PlaySpellVisual::Write()
     _worldPacket.WriteBit(Source[2]);
     _worldPacket.WriteBit(Source[4]);
     _worldPacket.WriteBit(Target[6]);
+    _worldPacket.WriteBit(Target[0]);
 
     _worldPacket.WriteBit(SpeedAsTime);
 
