@@ -535,7 +535,7 @@ struct boss_four_horsemen_lady : public boss_four_horsemen_baseAI
             return;
         if (me->GetThreatManager().IsThreatListEmpty())
         {
-            EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+            EnterEvadeMode(EvadeReason::NoHostiles);
             return;
         }
 
@@ -594,7 +594,7 @@ struct boss_four_horsemen_sir : public boss_four_horsemen_baseAI
             return;
         if (me->GetThreatManager().IsThreatListEmpty())
         {
-            EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+            EnterEvadeMode(EvadeReason::NoHostiles);
             return;
         }
 

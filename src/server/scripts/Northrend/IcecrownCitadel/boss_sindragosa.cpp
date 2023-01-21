@@ -271,7 +271,7 @@ struct boss_sindragosa : public BossAI
     {
         if (!instance->CheckRequiredBosses(DATA_SINDRAGOSA, victim->ToPlayer()))
         {
-            EnterEvadeMode(EVADE_REASON_SEQUENCE_BREAK);
+            EnterEvadeMode(EvadeReason::SequenceBreak);
             instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
             return;
         }
@@ -288,7 +288,7 @@ struct boss_sindragosa : public BossAI
 
     void EnterEvadeMode(EvadeReason why) override
     {
-        if (_isInAirPhase && why == EVADE_REASON_BOUNDARY)
+        if (_isInAirPhase && why == EvadeReason::Boundary)
             return;
         BossAI::EnterEvadeMode(why);
     }

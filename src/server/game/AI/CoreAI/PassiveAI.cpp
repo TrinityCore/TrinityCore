@@ -48,7 +48,7 @@ int32 NullCreatureAI::Permissible(Creature const* creature)
 void PassiveAI::UpdateAI(uint32)
 {
     if (me->IsEngaged() && !me->IsInCombat())
-        EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+        EnterEvadeMode(EvadeReason::NoHostiles);
 }
 
 void PossessedAI::AttackStart(Unit* target)
@@ -82,7 +82,7 @@ void CritterAI::JustEngagedWith(Unit* /*who*/)
 void CritterAI::MovementInform(uint32 type, uint32 /*id*/)
 {
     if (type == TIMED_FLEEING_MOTION_TYPE)
-        EnterEvadeMode(EVADE_REASON_OTHER);
+        EnterEvadeMode(EvadeReason::Other);
 }
 
 void CritterAI::EnterEvadeMode(EvadeReason why)

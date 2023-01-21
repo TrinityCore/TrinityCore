@@ -272,7 +272,7 @@ struct npc_tournament_training_dummy : ScriptedAI
             case EVENT_DUMMY_RESET:
                 if (UpdateVictim())
                 {
-                    EnterEvadeMode(EVADE_REASON_OTHER);
+                    EnterEvadeMode(EvadeReason::Other);
                     events.ScheduleEvent(EVENT_DUMMY_RESET, 10s);
                 }
                 break;
