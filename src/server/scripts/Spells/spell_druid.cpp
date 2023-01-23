@@ -108,6 +108,7 @@ enum DruidSpells
     SPELL_DRUID_SOLAR_BEAM_SILENCE          = 81261,
     SPELL_DRUID_STRENGTH_OF_THE_PANTHER     = 90166,
     SPELL_DRUID_SUNFIRE                     = 93402,
+    SPELL_DRUID_REGROWTH_REFRESH            = 93036,
     SPELL_DRUID_REJUVENATION                = 774,
     SPELL_DRUID_REJUVENATION_DIRECT_HEAL    = 64801,
     SPELL_DRUID_TIGER_S_FURY_ENERGIZE       = 51178,
@@ -125,7 +126,7 @@ enum DruidSpells
 
 enum DruidSpellIconIds
 {
-    SPELL_ICON_ID_NATURES_BOUNTY                    = 197,
+    SPELL_ICON_ID_GLYPH_OF_REGROWTH                 = 197,
     SPELL_ICON_ID_DREAMSTATE                        = 2255,
     SPELL_ICON_ID_GLYPH_OF_INNERVATE                = 62,
     SPELL_ICON_ID_EUPHORIA                          = 4431,
@@ -2122,6 +2123,51 @@ private:
     uint8 _allowedProcs = 0;
 };
 
+// 8936 - Regrowth
+class spell_dru_regrowth : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_REGROWTH_REFRESH });
+    }
+
+    void HandleGlyphEffect(AuraEffect const* aurEff)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (aurEff->GetTickNumber() < aurEff->GetTotalTicks() - 1)
+            return;
+
+        if (AuraEffect const* glyphEffect = caster->GetDummyAuraEffect(SPELLFAMILY_DRUID, SPELL_ICON_ID_GLYPH_OF_REGROWTH, EFFECT_0))
+            if (GetTarget()->GetHealthPct() <= glyphEffect->GetAmount())
+                caster->CastSpell(GetTarget(), SPELL_DRUID_REGROWTH_REFRESH, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic.Register(&spell_dru_regrowth::HandleGlyphEffect, EFFECT_1, SPELL_AURA_PERIODIC_HEAL);
+    }
+};
+
+// 93036 - Regrowth Refresh
+class spell_dru_regrowth_refresh : public SpellScript
+{
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        // Though the script effect implies that the duration is refreshed by 6 seconds, sniffs show that it's a plain refresh with rolling ticks
+        if (Unit* caster = GetCaster())
+            if (AuraEffect* aurEff = GetHitUnit()->GetAuraEffect(SPELL_AURA_PERIODIC_HEAL, SPELLFAMILY_DRUID, 0x40, 0, 0, caster->GetGUID()))
+                aurEff->GetBase()->RefreshTimers(false);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget.Register(&spell_dru_regrowth_refresh::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     RegisterSpellScript(spell_dru_astral_alignment);
@@ -2157,6 +2203,8 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_natures_bounty);
     RegisterSpellScript(spell_dru_nourish);
     RegisterSpellScript(spell_dru_pulverize);
+    RegisterSpellScript(spell_dru_regrowth);
+    RegisterSpellScript(spell_dru_regrowth_refresh);
     RegisterSpellScript(spell_dru_rejuvenation);
     RegisterSpellScript(spell_dru_rip);
     RegisterSpellScript(spell_dru_savage_defense);
