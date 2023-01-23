@@ -7120,14 +7120,13 @@ float Unit::SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const
             case 8477: // Nourish Heal Boost
             {
                 int32 modPercent = 0;
-                for (auto& aurAppPair : victim->GetAppliedAuras())
+                for (AuraEffect const* periodicHeal : victim->GetAuraEffectsByType(SPELL_AURA_PERIODIC_HEAL))
                 {
-                    Aura const* aura = aurAppPair.second->GetBase();
-                    if (aura->GetCasterGUID() != GetGUID())
+                    if (periodicHeal->GetCasterGUID() != GetGUID() || periodicHeal->GetSpellInfo()->SpellFamilyName == SPELLFAMILY_DRUID)
                         continue;
 
-                    if (aura->GetSpellInfo()->SpellFamilyName == SPELLFAMILY_DRUID && aura->GetSpellInfo()->SpellFamilyFlags.HasFlag(0x10 | 0x40, 0x10 | 0x4000000, 0))
-                        modPercent += overrideClassScripts->GetAmount() * aura->GetStackAmount();
+                    if (periodicHeal->GetSpellInfo()->SpellFamilyFlags.HasFlag(0x10 | 0x40, 0x10 | 0x4000000, 0))
+                        modPercent += overrideClassScripts->GetAmount() * periodicHeal->GetBase()->GetStackAmount();
                 }
                 AddPct(DoneTotalMod, modPercent);
                 break;
@@ -7186,14 +7185,6 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
     if (AuraEffect const* Tenacity = GetAuraEffect(58549, 0))
         AddPct(TakenTotalMod, Tenacity->GetAmount());
 
-    // Nourish cast
-    if (spellProto->SpellFamilyName == SPELLFAMILY_DRUID && spellProto->SpellFamilyFlags[1] & 0x2000000)
-    {
-        // Rejuvenation, Regrowth, Lifebloom, or Wild Growth
-        if (GetAuraEffect(SPELL_AURA_PERIODIC_HEAL, SPELLFAMILY_DRUID, 0x50, 0x4000010, 0))
-            // increase healing by 20%
-            TakenTotalMod *= 1.2f;
-    }
     // Unused in Cataclysm (15595)
     if (damagetype == DOT)
     {

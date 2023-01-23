@@ -1915,19 +1915,22 @@ class spell_dru_nourish : public SpellScript
         if (!caster)
             return;
 
-        auto periodicHealEffects = GetHitUnit()->GetAuraEffectsByType(SPELL_AURA_PERIODIC_HEAL);
-        if (std::any_of(periodicHealEffects.begin(), periodicHealEffects.end(), [caster](AuraEffect const* aurEff)
+        auto const& periodicHealEffects = GetHitUnit()->GetAuraEffectsByType(SPELL_AURA_PERIODIC_HEAL);
+        bool applyBonus = std::any_of(periodicHealEffects.begin(), periodicHealEffects.end(), [guid = caster->GetGUID()](AuraEffect const* aurEff)
         {
-            return (aurEff->GetCasterGUID() == caster->GetGUID()
-                && aurEff->GetSpellInfo()->SpellFamilyName == SPELLFAMILY_DRUID
-                && !aurEff->GetSpellInfo()->SpellFamilyFlags.HasFlag(0x10 | 0x40, 0x10 | 0x4000000, 0));
-        }))
-            SetHitHeal(GetHitHeal() * 1.2f);
+            if (aurEff->GetCasterGUID() != guid || aurEff->GetSpellInfo()->SpellFamilyName != SPELLFAMILY_DRUID)
+                return false;
+
+            return aurEff->GetSpellInfo()->SpellFamilyFlags.HasFlag(0x10 | 0x40, 0x10 | 0x4000000, 0);
+        });
+
+        if (applyBonus)
+            SetEffectValue(GetEffectValue() * 1.2f);
     }
 
     void Register() override
     {
-        OnEffectHitTarget.Register(&spell_dru_nourish::HandleHealBonus, EFFECT_0, SPELL_EFFECT_HEAL);
+        OnEffectLaunchTarget.Register(&spell_dru_nourish::HandleHealBonus, EFFECT_0, SPELL_EFFECT_HEAL);
     }
 };
 
