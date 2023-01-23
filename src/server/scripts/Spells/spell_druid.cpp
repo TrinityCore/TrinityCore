@@ -2080,6 +2080,45 @@ private:
     bool _bountyActive = false;
 };
 
+// 339 - Entangling Roots
+class spell_dru_entangling_roots : public AuraScript
+{
+    static constexpr uint8 DEFAULT_PROCS = 4; // The number of allowed procs for a target of the same level as the caster
+    static constexpr uint8 MINIMUM_PROCS = 2; // The minimum amount of procs
+
+    void CalculateProcAmount(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        // Every two level difference increase or reduce the chance of breaking. Tree of Life enhances this effect
+        int16 offset = (caster->getLevel() - GetTarget()->getLevel()) / 2;
+        _allowedProcs = std::max<int16>(MINIMUM_PROCS, DEFAULT_PROCS + offset);
+        if (caster->GetShapeshiftForm() == FORM_TREE)
+            ++_allowedProcs;
+    }
+
+    bool CheckProc(ProcEventInfo& /*eventInfo*/)
+    {
+        if (_allowedProcs != 0)
+            --_allowedProcs;
+
+        if (_allowedProcs == 0)
+            return true;
+
+        return false;
+    }
+
+    void Register() override
+    {
+        AfterEffectApply.Register(&spell_dru_entangling_roots::CalculateProcAmount, EFFECT_0, SPELL_AURA_MOD_ROOT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        DoCheckProc.Register(&spell_dru_entangling_roots::CheckProc);
+    }
+private:
+    uint8 _allowedProcs = 0;
+};
+
 void AddSC_druid_spell_scripts()
 {
     RegisterSpellScript(spell_dru_astral_alignment);
@@ -2095,6 +2134,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_empowered_touch);
     RegisterSpellScript(spell_dru_empowered_touch_script);
     RegisterSpellScript(spell_dru_enrage);
+    RegisterSpellScript(spell_dru_entangling_roots);
     RegisterSpellScript(spell_dru_ferocious_bite);
     RegisterSpellScript(spell_dru_firebloom);
     RegisterSpellScript(spell_dru_frenzied_regeneration);
