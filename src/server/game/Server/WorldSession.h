@@ -1049,7 +1049,7 @@ class TC_GAME_API WorldSession
         void BuildNameQueryData(ObjectGuid guid, WorldPackets::Query::NameCacheLookupResult& lookupData);
 
         void SendTrainerList(Creature* npc, uint32 trainerId);
-        void SendListInventory(ObjectGuid guid);
+        void SendListInventory(ObjectGuid guid, uint32 vendorEntry = 0);
         void SendShowBank(ObjectGuid guid);
         bool CanOpenMailBox(ObjectGuid guid);
         void SendShowMailBox(ObjectGuid guid);

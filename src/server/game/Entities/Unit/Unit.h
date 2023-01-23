@@ -340,16 +340,6 @@ enum CombatRating
 
 #define MAX_COMBAT_RATING         32
 
-enum DamageEffectType : uint8
-{
-    DIRECT_DAMAGE           = 0,                            // used for normal weapon damage (not for class abilities or spells)
-    SPELL_DIRECT_DAMAGE     = 1,                            // spell/class abilities damage
-    DOT                     = 2,
-    HEAL                    = 3,
-    NODAMAGE                = 4,                            // used also in case when damage applied to health but not applied to spell channelInterruptFlags/etc
-    SELF_DAMAGE             = 5
-};
-
 enum UnitTypeMask
 {
     UNIT_MASK_NONE                  = 0x00000000,
@@ -1677,7 +1667,7 @@ class TC_GAME_API Unit : public WorldObject
 
         virtual float GetNativeObjectScale() const { return 1.0f; }
         virtual void RecalculateObjectScale();
-        uint32 GetDisplayId() const { return m_unitData->DisplayID; }
+        virtual uint32 GetDisplayId() const { return m_unitData->DisplayID; }
         virtual void SetDisplayId(uint32 modelId, float displayScale = 1.f);
         uint32 GetNativeDisplayId() const { return m_unitData->NativeDisplayID; }
         float GetNativeDisplayScale() const { return m_unitData->NativeXDisplayScale; }

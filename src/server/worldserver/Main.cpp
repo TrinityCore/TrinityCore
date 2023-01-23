@@ -75,7 +75,7 @@ namespace fs = boost::filesystem;
 
 #ifdef _WIN32
 #include "ServiceWin32.h"
-char serviceName[] = "worldserver";
+char serviceName[] = "worldserver"; //服务器名称设置
 char serviceLongName[] = "TrinityCore world service";
 char serviceDescription[] = "TrinityCore World of Warcraft emulator world service";
 /*

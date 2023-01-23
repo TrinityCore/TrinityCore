@@ -607,7 +607,7 @@ struct boss_algalon_the_observer : public BossAI
                     events.ScheduleEvent(EVENT_EVADE, 2s + 500ms);
                     break;
                 case EVENT_EVADE:
-                    EnterEvadeMode(EVADE_REASON_OTHER);
+                    EnterEvadeMode(EvadeReason::Other);
                     break;
                 case EVENT_COSMIC_SMASH:
                     Talk(EMOTE_ALGALON_COSMIC_SMASH);
