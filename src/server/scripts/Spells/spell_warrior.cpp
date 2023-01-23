@@ -323,7 +323,7 @@ class spell_warr_lambs_to_the_slaughter : public AuraScript
     void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         if (Aura* aur = eventInfo.GetProcTarget()->GetAura(SPELL_WARRIOR_REND, GetTarget()->GetGUID()))
-            aur->SetDuration(aur->GetSpellInfo()->GetMaxDuration(), true);
+            aur->RefreshTimers(false);
 
     }
 
