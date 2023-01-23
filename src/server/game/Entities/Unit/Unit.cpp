@@ -7111,12 +7111,6 @@ float Unit::SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const
                 if (victim->HealthBelowPct(50))
                     AddPct(DoneTotalMod, overrideClassScripts->GetAmount());
                 break;
-            case 7798: // Glyph of Regrowth
-            {
-                if (victim->GetAuraEffect(SPELL_AURA_PERIODIC_HEAL, SPELLFAMILY_DRUID, 0x40, 0, 0))
-                    AddPct(DoneTotalMod, overrideClassScripts->GetAmount());
-                break;
-            }
             case 8477: // Nourish Heal Boost
             {
                 int32 modPercent = 0;
