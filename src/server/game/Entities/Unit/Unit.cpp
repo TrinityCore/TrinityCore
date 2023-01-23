@@ -7116,7 +7116,7 @@ float Unit::SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const
                 int32 modPercent = 0;
                 for (AuraEffect const* periodicHeal : victim->GetAuraEffectsByType(SPELL_AURA_PERIODIC_HEAL))
                 {
-                    if (periodicHeal->GetCasterGUID() != GetGUID() || periodicHeal->GetSpellInfo()->SpellFamilyName == SPELLFAMILY_DRUID)
+                    if (periodicHeal->GetCasterGUID() != GetGUID() || periodicHeal->GetSpellInfo()->SpellFamilyName != SPELLFAMILY_DRUID)
                         continue;
 
                     if (periodicHeal->GetSpellInfo()->SpellFamilyFlags.HasFlag(0x10 | 0x40, 0x10 | 0x4000000, 0))
