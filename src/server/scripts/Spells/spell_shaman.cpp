@@ -75,6 +75,7 @@ enum ShamanSpells
     SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD          = 23552,
     SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD_DAMAGE   = 27635,
     SPELL_SHAMAN_ITEM_MANA_SURGE                = 23571,
+    SPELL_SHAMAN_ITEM_SHAMAN_T12_ELEMENTAL_4P   = 99206,
     SPELL_SHAMAN_LIGHTNING_SHIELD               = 324,
     SPELL_SHAMAN_LIGHTNING_SHIELD_DAMAGE        = 26364,
     SPELL_SHAMAN_MAELSTROM_DUMMY                = 60349,
@@ -97,6 +98,7 @@ enum ShamanSpells
     SPELL_SHAMAN_UNLEASH_FROST                  = 73682,
     SPELL_SHAMAN_UNLEASH_FLAME                  = 73683,
     SPELL_SHAMAN_UNLEASH_EARTH                  = 73684,
+    SPELL_SHAMAN_VOLCANO                        = 99207,
     SPELL_SHAMAN_WATER_SHIELD                   = 52127,
     SPELL_SHAMAN_WINDFURY_ATTACK_MAINHAND       = 25504,
     SPELL_SHAMAN_WINDFURY_ATTACK_OFFHAND        = 33750,
@@ -808,17 +810,21 @@ class spell_sha_lava_surge_proc : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_SHAMAN_LAVA_BURST });
-    }
-
-    bool Load() override
-    {
-        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+        return ValidateSpellInfo(
+            {
+                SPELL_SHAMAN_LAVA_BURST,
+                SPELL_SHAMAN_VOLCANO,
+                SPELL_SHAMAN_ITEM_SHAMAN_T12_ELEMENTAL_4P
+            });
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->ToPlayer()->GetSpellHistory()->ResetCooldown(SPELL_SHAMAN_LAVA_BURST, true);
+        GetHitUnit()->GetSpellHistory()->ResetCooldown(SPELL_SHAMAN_LAVA_BURST, true);
+        // For some reason the aura is some weird mixture of being a proc while also not being one.
+        // Perhaps the aura got scrapped last minute and incorporated into Lava Surge.
+        if (GetHitUnit()->HasAura(SPELL_SHAMAN_ITEM_SHAMAN_T12_ELEMENTAL_4P))
+            GetHitUnit()->CastSpell(nullptr, SPELL_SHAMAN_VOLCANO, true);
     }
 
     void Register() override
