@@ -506,6 +506,7 @@ namespace
     std::unordered_set<uint8> _spellFamilyNames;
     SpellProcsPerMinuteModContainer _spellProcsPerMinuteMods;
     std::unordered_map<int32, std::vector<SpellVisualMissileEntry const*>> _spellVisualMissilesBySet;
+    std::unordered_map<int32, std::vector<SpellLabelEntry const*>> _spellLabelsByLabelId;
     TalentsByPosition _talentsByPosition;
     std::unordered_map<std::pair<uint32, uint32>, TaxiPathEntry const*> _taxiPaths;
     ToyItemIdsContainer _toys;
@@ -1444,6 +1445,9 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
 
     for (SpellVisualMissileEntry const* spellVisualMissile : sSpellVisualMissileStore)
         _spellVisualMissilesBySet[spellVisualMissile->SpellVisualMissileSetID].push_back(spellVisualMissile);
+
+    for (SpellLabelEntry const* spellLabel : sSpellLabelStore)
+        _spellLabelsByLabelId[spellLabel->LabelID].push_back(spellLabel);
 
     for (TalentEntry const* talentInfo : sTalentStore)
     {
@@ -3062,6 +3066,11 @@ std::vector<SpellProcsPerMinuteModEntry const*> DB2Manager::GetSpellProcsPerMinu
 std::vector<SpellVisualMissileEntry const*> const* DB2Manager::GetSpellVisualMissiles(int32 spellVisualMissileSetId) const
 {
     return Trinity::Containers::MapGetValuePtr(_spellVisualMissilesBySet, spellVisualMissileSetId);
+}
+
+std::vector<SpellLabelEntry const*> const* DB2Manager::GetSpellLabels(uint32 labelId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_spellLabelsByLabelId, labelId);
 }
 
 std::vector<TalentEntry const*> const& DB2Manager::GetTalentsByPosition(uint32 class_, uint32 tier, uint32 column) const

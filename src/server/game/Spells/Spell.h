@@ -412,6 +412,7 @@ class TC_GAME_API Spell
         void EffectModifySpellCharges();
         void EffectCreateTraitTreeConfig();
         void EffectChangeActiveCombatTraitConfig();
+        void RemoveAurasBySpellLabel();
 
         typedef std::unordered_set<Aura*> UsedSpellMods;
 
