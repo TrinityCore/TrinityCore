@@ -141,8 +141,9 @@ Map* MapInstanced::CreateInstanceForPlayer(uint32 mapId, Player* player, uint32 
     }
     else if (!IsGarrison())
     {
-        InstancePlayerBind* pBind = player->GetBoundInstance(GetId(), player->GetDifficultyID(GetEntry()));
-        InstanceSave* pSave = pBind ? pBind->save : nullptr;
+        //InstancePlayerBind* pBind = player->GetBoundInstance(GetId(), player->GetDifficultyID(GetEntry()));//后注释,暂时解决不了
+        InstancePlayerBind* pBind = nullptr;//基于上句，后加
+        InstanceSave* pSave = pBind ? pBind->save : nullptr;//后注释
 
         // priority:
         // 1. player's permanent bind
@@ -166,7 +167,7 @@ Map* MapInstanced::CreateInstanceForPlayer(uint32 mapId, Player* player, uint32 
                 if (groupBind)
                 {
                     // solo saves should be reset when entering a group's instance
-                    player->UnbindInstance(GetId(), player->GetDifficultyID(GetEntry()));
+                    //player->UnbindInstance(GetId(), player->GetDifficultyID(GetEntry()));//后注释掉
                     pSave = groupBind->save;
                 }
             }
@@ -228,8 +229,8 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
     sDB2Manager.GetDownscaledMapDifficultyData(GetId(), difficulty);
 
     TC_LOG_DEBUG("maps", "MapInstanced::CreateInstance: %s map instance %d for %d created with difficulty %s", save ? "" : "new ", InstanceId, GetId(), difficulty ? "heroic" : "normal");
-
-    InstanceMap* map = new InstanceMap(GetId(), GetGridExpiry(), InstanceId, difficulty,team,_mapLock);
+    InstanceLock* instanceLock = nullptr;
+    InstanceMap* map = new InstanceMap(GetId(), GetGridExpiry(), InstanceId, difficulty,team, instanceLock);
     //InstanceMap* map = new InstanceMap(GetId(), GetGridExpiry(), InstanceId, difficulty, this);
     ASSERT(map->IsDungeon());
 
@@ -294,7 +295,7 @@ bool MapInstanced::DestroyInstance(InstancedMaps::iterator &itr)
     // should only unload VMaps if this is the last instance and grid unloading is enabled
     if (m_InstancedMaps.size() <= 1 && sWorld->getBoolConfig(CONFIG_GRID_UNLOAD))
     {
-        VMAP::VMapFactory::createOrGetVMapManager()->unloadMap(itr->second->GetId());
+        //VMAP::VMapFactory::createOrGetVMapManager()->unloadMap(itr->second->GetId());//暂时注释
         MMAP::MMapFactory::createOrGetMMapManager()->unloadMap(itr->second->GetId());
         // in that case, unload grids of the base map, too
         // so in the next map creation, (EnsureGridCreated actually) VMaps will be reloaded

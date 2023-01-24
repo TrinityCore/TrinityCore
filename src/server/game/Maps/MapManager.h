@@ -144,6 +144,7 @@ class TC_GAME_API MapManager
     private:
         using MapKey = std::pair<uint32, uint32>;
         typedef std::map<MapKey, Map*> MapMapType;
+        typedef std::unordered_map<uint32, Map*> MapMapType_TCB;
         typedef boost::dynamic_bitset<size_t> InstanceIds;
 
         Map* FindBaseMap(uint32 mapId) const
@@ -164,6 +165,7 @@ class TC_GAME_API MapManager
         mutable std::shared_mutex _mapsLock;
         uint32 i_gridCleanUpDelay;
         MapMapType i_maps;
+        MapMapType_TCB i_maps_TCB;
         IntervalTimer i_timer;
 
         std::unique_ptr<InstanceIds> _freeInstanceIds;
@@ -172,6 +174,8 @@ class TC_GAME_API MapManager
 
         // atomic op counter for active scripts amount
         std::atomic<std::size_t> _scheduledScripts;
+        // parent map links
+        std::unordered_map<uint32, std::vector<uint32>> _parentMapData;
 };
 
 template<typename Worker>

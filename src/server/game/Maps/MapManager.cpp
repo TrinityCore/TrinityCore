@@ -80,7 +80,8 @@ Map* MapManager::CreateBaseMap(uint32 id)
             return ASSERT_NOTNULL(map);
         }
 
-        std::lock_guard<std::mutex> lock(_mapsLock);
+        //std::lock_guard<std::mutex> lock(_mapsLock);  //原先
+        std::lock_guard<std::mutex> lock();
         map = CreateBaseMap_i(entry);
     }
 
@@ -98,7 +99,7 @@ Map* MapManager::CreateBaseMap_i(MapEntry const* mapEntry)
 
     map->DiscoverGridMapFiles();
 
-    i_maps[mapEntry->ID] = map;
+    i_maps_TCB[mapEntry->ID] = map;
 
     for (uint32 childMapId : _parentMapData[mapEntry->ID])
         map->AddChildTerrainMap(CreateBaseMap_i(sMapStore.AssertEntry(childMapId)));
