@@ -29,8 +29,80 @@
 #include "SpellHistory.h"
 #include "SpellScript.h"
 
-enum HunterSpells
+enum HunterSpells   //列举猎人技能
 {
+    SPELL_HUNTER_HARPOON = 190925,
+    SPELL_HUNTER_HARPOON_ROOT = 190927,
+    SPELL_HUNTER_ANIMAL_INSTINCTS = 204315,
+    SPELL_HUNTER_ANIMAL_INSTINCTS_CHEETAH = 204324,
+    SPELL_HUNTER_ANIMAL_INSTINCTS_MONGOOSE = 204333,
+    SPELL_HUNTER_ANIMAL_INSTINCTS_RAPTOR = 204321,
+    SPELL_HUNTER_BLINK_STRIKES = 130392,
+    SPELL_HUNTER_BLINK_STRIKES_TELEPORT = 130393,
+    SPELL_HUNTER_BASIC_ATTACK_COST_MODIFIER = 62762,
+    SPELL_HUNTER_BARRAGE = 120360,
+    SPELL_HUNTER_SPIKED_COLLAR = 53184,
+    SPELL_HUNTER_DISENGAGE = 781,
+    SPELL_HUNTER_DIRE_BEAST_GENERIC = 120679,
+    SPELL_HUNTER_ARCANE_SHOT = 185358,
+    SPELL_HUNTER_AUTO_SHOT = 75,
+    SPELL_HUNTER_CAMOUFLAGE = 199483,
+    SPELL_HUNTER_POSTHAST = 109215,
+    SPELL_HUNTER_POSTHAST_SPEED = 118922,
+    SPELL_HUNTER_COBRA_SHOT = 193455,
+    SPELL_HUNTER_THOWING_AXES_DAMAGE = 200167,
+    SPELL_HUNTER_AIMED_SHOT = 19434,
+    SPELL_HUNTER_EXPLOSIVE_SHOT = 212431,
+    SPELL_HUNTER_EXPLOSIVE_SHOT_DAMAGE = 212680,
+    SPELL_HUNTER_EXPLOSIVE_SHOT_DETONATE = 212679,
+    SPELL_HUNTER_GLAIVE_TOSS_AURA = 117050,
+    SPELL_HUNTER_SERPENT_STING = 87935,
+    SPELL_HUNTER_SERPENT_STING_DAMAGE = 118253,
+    SPELL_HUNTER_LACERATE = 185855,
+    SPELL_HUNTER_HUNTERS_MARK_AURA = 185365, //This one is the graphics (The arrow effect)
+    SPELL_HUNTER_HUNTERS_MARK_AURA_2 = 185743, //This one is enabling "Marked Shot"
+    SPELL_HUNTER_STICKY_BOMB_PROC = 191244,
+    SPELL_HUNTER_BLACK_ARROW = 194599,
+    SPELL_HUNTER_BESTIAL_WRATH = 19574,
+    SPELL_HUNTER_FLANKING_STRIKE = 269751,
+    SPELL_HUNTER_INTIMIDATION_STUN = 24394,
+    SPELL_HUNTER_ASPECT_OF_THE_CHEETAH_EFFECT_2 = 186258,
+    SPELL_HUNTER_MARKED_SHOT = 205441,
+    SPELL_HUNTER_MARKED_SHOT_DAMAGE = 250121,
+    SPELL_HUNTER_VULNERABLE = 187131,
+    SPELL_HUNTER_SENTINEL = 206817,
+    SPELL_HUNTER_FLANKING_STRIKE_PROC = 269752,
+    SPELL_HUNTER_MONGOOSE_FURY = 190931,
+    SPELL_HUNTER_FLANKING_STRIKE_PROC_UP = 269754,
+    SPELL_HUNTER_DIRE_FRENZY = 217200,
+    SPELL_HUNTER_DIRE_FRENZY_DAMAGE = 217207,
+    SPELL_HUNTER_WILD_CALL_AURA = 185791,
+    SPELL_HUNTER_ASPECT_OF_THE_EAGLE = 186289,
+    SPELL_HUNTER_MONGOOSE_BITE = 190928,
+    SPELL_HUNTER_FLARE_EFFECT = 28822,
+    SPELL_HUNTER_GLAIVE_TOSS_DAMAGE_AND_SNARE_LEFT = 120761,
+    SPELL_HUNTER_GLAIVE_TOSS_DAMAGE_AND_SNARE_RIGHT = 121414,
+    SPELL_HUNTER_GLAIVE_TOSS_RIGHT = 120755,
+    SPELL_HUNTER_GLAIVE_TOSS_LEFT = 120756,
+    SPELL_HUNTER_RANGERS_NET_INCREASE_SPEED = 206755,
+    SPELL_HUNTER_AURA_SHOOTING = 224729,
+    SPELL_HUNTER_TRAILBLAZER = 199921,
+    SPELL_HUNTER_TRAILBLAZER_BUFF = 231390,
+    SPELL_HUNTER_MARKING_TARGETS = 223138,
+    SPELL_HUNTER_BEAST_CLEAVE_AURA = 115939,
+    SPELL_HUNTER_BEAST_CLEAVE_DAMAGE = 118459,
+    SPELL_HUNTER_RAPTOR_STRIKE = 186270,
+    SPELL_HUNTER_BEAST_CLEAVE_PROC = 118455,
+
+    //8.0
+    SPELL_HUNTER_SCORCHING_WILDFIRE                 = 259496,
+    SPELL_HUNTER_RAPID_FIRE                         = 257044,
+    SPELL_HUNTER_RAPID_FIRE_MISSILE                 = 257045,
+    SPELL_HUNTER_LETHAL_SHOTS                       = 260393,
+    SPELL_HUNTER_CALLING_THE_SHOTS                  = 260404,
+    SPELL_HUNTER_TRUESHOT                           = 288613,
+    //上方为Kyrian版
+
     SPELL_HUNTER_A_MURDER_OF_CROWS_DAMAGE           = 131900,
     SPELL_HUNTER_A_MURDER_OF_CROWS_VISUAL_1         = 131637,
     SPELL_HUNTER_A_MURDER_OF_CROWS_VISUAL_2         = 131951,
@@ -45,6 +117,9 @@ enum HunterSpells
     SPELL_HUNTER_MISDIRECTION_PROC                  = 35079,
     SPELL_HUNTER_MULTI_SHOT_FOCUS                   = 213363,
     SPELL_HUNTER_PET_LAST_STAND_TRIGGERED           = 53479,
+    SPELL_HUNTER_KILL_COMMAND                       = 34026,        //杀戮命令,后加
+    SPELL_HUNTER_KILL_COMMAND_CHARGE                = 118171,       //杀戮命令,后加
+    SPELL_HUNTER_KILL_COMMAND_TRIGGER               = 83381,        //杀戮命令,后加
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED = 54114,
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF    = 55711,
     SPELL_HUNTER_POSTHASTE_INCREASE_SPEED           = 118922,
@@ -54,12 +129,170 @@ enum HunterSpells
     SPELL_ROAR_OF_SACRIFICE_TRIGGERED               = 67481
 };
 
+enum DireBeastSpells    //后加
+{
+    DIRE_BEAST_DREAD_WASTES                         = 126216,
+    DIRE_BEAST_DUNGEONS                             = 132764,
+    DIRE_BEAST_EASTERN_KINGDOMS                     = 122804,
+    DIRE_BEAST_JADE_FOREST                          = 121118,
+    DIRE_BEAST_KALIMDOR                             = 122802,
+    DIRE_BEAST_KRASARANG_WILDS                      = 122809,
+    DIRE_BEAST_KUN_LAI_SUMMIT                       = 126214,
+    DIRE_BEAST_NORTHREND                            = 122807,
+    DIRE_BEAST_OUTLAND                              = 122806,
+    DIRE_BEAST_TOWNLONG_STEPPES                     = 126215,
+    DIRE_BEAST_VALE_OF_THE_ETERNAL_BLOSSOM          = 126213,
+    SPELL_HUNTER_A_MURDER_OF_CROWS_1                = 131894,
+    SPELL_HUNTER_A_MURDER_OF_CROWS_2                = 206505,
+    DIRE_BEAST_VALLEY_OF_THE_FOUR_WINDS             = 122811,
+};
+
 enum MiscSpells
 {
     SPELL_DRAENEI_GIFT_OF_THE_NAARU                 = 59543,
     SPELL_MAGE_TEMPORAL_DISPLACEMENT                = 80354,
     SPELL_SHAMAN_EXHAUSTION                         = 57723,
+    SPELL_HUNTER_INSANITY                           = 95809,
     SPELL_SHAMAN_SATED                              = 57724
+};
+
+// Kill Command (Damage) - 83381
+class spell_hun_kill_command_proc : public SpellScriptLoader
+{
+public:
+    spell_hun_kill_command_proc() : SpellScriptLoader("spell_hun_kill_command_proc") { }
+
+    class spell_hun_kill_command_proc_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hun_kill_command_proc_SpellScript);
+
+        void HandleDamage(SpellEffIndex /*effIndex*/)
+        {
+            Unit* caster = GetCaster();
+            Unit* owner = caster->GetOwner();
+            Unit* target = GetExplTargetUnit();
+
+            // (1.5 * (rap * 3) * bmMastery * lowNerf * (1 + versability))
+            int32 dmg = 4.5f * owner->m_unitData->RangedAttackPower;
+            int32 lowNerf = std::min(int32(owner->GetLevel()), 20) * 0.05f;
+
+            if (Player const* ownerPlayer = owner->ToPlayer())
+                dmg = AddPct(dmg, ownerPlayer->m_activePlayerData->Mastery);
+
+            dmg *= lowNerf;
+
+            dmg = caster->SpellDamageBonusDone(target, GetSpellInfo(), dmg, SPELL_DIRECT_DAMAGE, GetEffectInfo(EFFECT_0));
+            dmg = target->SpellDamageBonusTaken(caster, GetSpellInfo(), dmg, SPELL_DIRECT_DAMAGE);
+
+            SetHitDamage(dmg);
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_hun_kill_command_proc_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_hun_kill_command_proc_SpellScript();
+    }
+};
+// Kill Command - 34026
+class spell_hun_kill_command : public SpellScriptLoader
+{
+public:
+    spell_hun_kill_command() : SpellScriptLoader("spell_hun_kill_command") { }
+
+    class spell_hun_kill_command_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hun_kill_command_SpellScript);
+        enum sspell {
+            AnimalInstinctsReduction = 232646,
+            AspectoftheBeast = 191384,
+            BestialFerocity = 191413,
+            BestialTenacity = 191414,
+            BestialCunning = 191397,
+            SpikedCollar = 53184,
+            GreatStamina = 61688,
+            Cornered = 53497
+        };
+        bool Validate(SpellInfo const* /*SpellEntry*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_KILL_COMMAND, DIFFICULTY_NONE))
+                return false;
+            return true;
+        }
+
+        SpellCastResult CheckCastMeet()
+        {
+            Unit* pet = GetCaster()->GetGuardianPet();
+            Unit* petTarget = GetExplTargetUnit();
+
+            if (!pet || pet->isDead())
+                return SPELL_FAILED_NO_PET;
+
+            // pet has a target and target is within 5 yards and target is in line of sight
+            if (!petTarget || !pet->IsWithinDist(petTarget, 40.0f, true) || !petTarget->IsWithinLOSInMap(pet))
+                return SPELL_FAILED_DONT_REPORT;
+
+            if (pet->HasAuraType(SPELL_AURA_MOD_STUN) || pet->HasAuraType(SPELL_AURA_MOD_CONFUSE) || pet->HasAuraType(SPELL_AURA_MOD_SILENCE) ||
+                pet->HasAuraType(SPELL_AURA_MOD_FEAR) || pet->HasAuraType(SPELL_AURA_MOD_FEAR_2))
+                return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+            return SPELL_CAST_OK;
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            if (GetCaster()->IsPlayer())
+            {
+                if (Unit* pet = GetCaster()->GetGuardianPet())
+                {
+                    if (!pet)
+                        return;
+
+                    if (!GetExplTargetUnit())
+                        return;
+                    Unit* target = GetExplTargetUnit();
+                    Player* player = GetCaster()->ToPlayer();
+
+                    pet->CastSpell(GetExplTargetUnit(), SPELL_HUNTER_KILL_COMMAND_TRIGGER, true);
+
+                    if (pet->GetVictim())
+                    {
+                        pet->AttackStop();
+                        pet->ToCreature()->AI()->AttackStart(GetExplTargetUnit());
+                    }
+                    else
+                        pet->ToCreature()->AI()->AttackStart(GetExplTargetUnit());
+                    //pet->CastSpell(GetExplTargetUnit(), SPELL_HUNTER_KILL_COMMAND_CHARGE, true);
+
+                   //191384 Aspect of the Beast 
+                    if (GetCaster()->HasAura(AspectoftheBeast))
+                    {
+                        if (pet->HasAura(SpikedCollar))
+                            player->CastSpell(target, BestialFerocity, true);
+                        if (pet->HasAura(GreatStamina))
+                            pet->CastSpell(pet, BestialTenacity, true);
+                        if (pet->HasAura(Cornered))
+                            player->CastSpell(target, BestialCunning, true);
+                    }
+                }
+            }
+        }
+
+        void Register() override
+        {
+            OnCheckCast += SpellCheckCastFn(spell_hun_kill_command_SpellScript::CheckCastMeet);
+            OnEffectHit += SpellEffectFn(spell_hun_kill_command_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_hun_kill_command_SpellScript();
+    }
 };
 
 // 131894 - A Murder of Crows
@@ -499,8 +732,8 @@ class spell_hun_steady_shot : public SpellScript
     }
 };
 
-// 1515 - Tame Beast
-class spell_hun_tame_beast : public SpellScript
+// 1515 - Tame Beast    //原版    //猎人驯服宠物,抓宠物
+class spell_hun_tame_beast : public SpellScript 
 {
     PrepareSpellScript(spell_hun_tame_beast);
 
@@ -524,8 +757,9 @@ class spell_hun_tame_beast : public SpellScript
 
         if (Creature* target = GetExplTargetUnit()->ToCreature())
         {
-            if (target->GetLevel() > caster->GetLevel())
-                return SPELL_FAILED_HIGHLEVEL;
+            //此处注释,尝试取消猎人抓宠物,提示等级过高.但也可能让猎人随意抓高等级宠物.
+            //if (target->GetLevel() > caster->GetLevel())
+            //    return SPELL_FAILED_HIGHLEVEL;//返回驯服失败,等级过高
 
             // use SMSG_PET_TAME_FAILURE?
             if (!target->GetCreatureTemplate()->IsTameable(caster->CanTameExoticPets()))
@@ -577,6 +811,58 @@ class spell_hun_tame_beast : public SpellScript
     }
 };
 
+// 1515 - Tame Beast    //Kyrian版
+//class spell_hun_tame_beast : public SpellScriptLoader
+//{
+//public:
+//    spell_hun_tame_beast() : SpellScriptLoader("spell_hun_tame_beast") { }
+//
+//    class spell_hun_tame_beast_SpellScript : public SpellScript
+//    {
+//        PrepareSpellScript(spell_hun_tame_beast_SpellScript);
+//
+//        SpellCastResult CheckCast()
+//        {
+//            Unit* caster = GetCaster();
+//            if (caster->GetTypeId() != TYPEID_PLAYER)
+//                return SPELL_FAILED_DONT_REPORT;
+//
+//            if (!GetExplTargetUnit())
+//                return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
+//
+//            if (Creature* target = GetExplTargetUnit()->ToCreature())
+//            {
+//                if (target->getLevel() > caster->getLevel())
+//                    return SPELL_FAILED_HIGHLEVEL;
+//
+//                // use SMSG_PET_TAME_FAILURE?
+//                if (!target->GetCreatureTemplate()->IsTameable(caster->ToPlayer()->CanTameExoticPets()))
+//                    return SPELL_FAILED_BAD_TARGETS;
+//
+//                if (!caster->GetPetGUID().IsEmpty())
+//                    return SPELL_FAILED_ALREADY_HAVE_SUMMON;
+//
+//                if (!caster->GetCharmGUID().IsEmpty())
+//                    return SPELL_FAILED_ALREADY_HAVE_CHARM;
+//            }
+//            else
+//                return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
+//
+//            return SPELL_CAST_OK;
+//        }
+//
+//        void Register() override
+//        {
+//            OnCheckCast += SpellCheckCastFn(spell_hun_tame_beast_SpellScript::CheckCast);
+//        }
+//    };
+//
+//    SpellScript* GetSpellScript() const override
+//    {
+//        return new spell_hun_tame_beast_SpellScript();
+//    }
+//};
+
 // 67151 - Item - Hunter T9 4P Bonus (Steady Shot)
 class spell_hun_t9_4p_bonus : public AuraScript
 {
@@ -611,6 +897,8 @@ class spell_hun_t9_4p_bonus : public AuraScript
 
 void AddSC_hunter_spell_scripts()
 {
+    RegisterSpellScript(spell_hun_kill_command_proc);
+    RegisterSpellScript(spell_hun_kill_command);
     RegisterSpellScript(spell_hun_a_murder_of_crows);
     RegisterSpellScript(spell_hun_aspect_cheetah);
     RegisterSpellScript(spell_hun_exhilaration);
