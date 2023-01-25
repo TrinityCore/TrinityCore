@@ -70,7 +70,7 @@ using namespace boost::program_options;
 namespace fs = boost::filesystem;
 
 #ifndef _TRINITY_CORE_CONFIG
-    #define _TRINITY_CORE_CONFIG  "worldserver.conf"
+    #define _TRINITY_CORE_CONFIG  "worldserver.conf"    //此处可以修改配置文件名,计划直接用dist
 #endif
 
 #ifdef _WIN32
