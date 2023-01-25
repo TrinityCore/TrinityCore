@@ -206,7 +206,7 @@ ConfigureScriptLoader("static" SCRIPT_MODULE_PRIVATE_SCRIPTLOADER OFF ${STATIC_S
 add_library(scripts STATIC
   ScriptLoader.h
   ${SCRIPT_MODULE_PRIVATE_SCRIPTLOADER}
-  ${PRIVATE_SOURCES} "Custom/hastecraftv2.cpp" "Custom/healthcraft.cpp" "Custom/mod_solocraft.cpp" "Custom/CRcraft.cpp" "Custom/Spellcraft.cpp" "Custom/custom_player_script.cpp" "Custom/world_chat.cpp")
+  ${PRIVATE_SOURCES} "Custom/hastecraftv2.cpp" "Custom/healthcraft.cpp" "Custom/mod_solocraft.cpp" "Custom/CRcraft.cpp" "Custom/Spellcraft.cpp" "Custom/custom_player_script.cpp" "Custom/world_chat.cpp" "AlliedRaces/allied_races.cpp" "AlliedRaces/allied_races_script_loader.cpp")
 
 target_link_libraries(scripts
   PRIVATE
