@@ -391,11 +391,26 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
 
     // Check if more than one LFG group and number of players joining
     // 检查是否有超过一个的随机地下城小队正在加入和加入的玩家数量
-    if (sConfigMgr->GetBoolDefault("SoloLFG.Enable", true)) //每次改这里,都得重新生成,太麻烦.尝试从配置中读取.
-        {                       //是否开启单人随机地下城查找器,本来此处尝试用中文变量,发现不行
-            uint8 numPlayers = 4;   
-        }
+    //第一种写法
+    //if (sConfigMgr->GetBoolDefault("SoloLFG.Enable", true)) //每次改这里,都得重新生成,太麻烦.尝试从配置中读取.
+    //    {                       //是否开启单人随机地下城查找器,本来此处尝试用中文变量,发现不行
+    //        uint8 numPlayers = 4;   
+    //    }
     uint8 numPlayers = 0;
+    bool bool_numPlayers = sConfigMgr->GetBoolDefault("SoloLFG.Enable", true);
+    if (bool_numPlayers)    //成功!
+        {
+            numPlayers = 4;
+        }
+    //else  //尴尬,弄了半天,估计是没加else的原因.
+    //    {
+    //        uint8 numPlayers = 0;
+    //    }
+    //个人另一种尝试
+    //if (World::m_bool_configs[CONFIG_LFG_SOLOOPTIONSMASK])
+    //{
+    //}
+
     // 原来为0,为了单人进随机地下城,改成了4,经测试有效.
     // 为了测试单人随机地下城脚本(scripts\custom\LfgSoloScripts),又改回了0.
     // 因脚本无效,现在又改为4.
