@@ -27,7 +27,7 @@ void AddLfgSoloScripts();           //单人随机地下城查找器脚本
 //void AddSC_custom_npcs();           //自定义NPC-守护神
 void AddSC_custom_player_script();  //单人随机地下城查找器脚本
 void AddSC_GuardianAngel();         //守护神
-
+//void AddSC_gossiptp();              //闲聊
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddCustomScripts()
@@ -43,4 +43,5 @@ void AddCustomScripts()
 //    AddSC_custom_npcs();            //自定义NPC-守护神
    AddSC_custom_player_script(),   //单人随机地下城查找器脚本
    AddSC_GuardianAngel();          //守护神
+//   AddSC_gossiptp();               //闲聊
 }
