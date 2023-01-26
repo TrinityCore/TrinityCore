@@ -671,8 +671,7 @@ class spell_dk_howling_blast : public SpellScript
 
     void HandleFrostFever(SpellEffIndex /*effIndex*/)
     {
-        if (Unit* caster = GetCaster())
-            caster->CastSpell(GetHitUnit(), SPELL_DK_FROST_FEVER);
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_DK_FROST_FEVER);
     }
 
     void HandleAreaDamage(SpellEffIndex /*effIndex*/)
@@ -685,9 +684,8 @@ class spell_dk_howling_blast : public SpellScript
         if (!GetSpell()->m_customArg.has_value())
             return;
 
-        if (Unit* caster = GetCaster())
-            if (Unit* primaryTarget = ObjectAccessor::GetUnit(*caster, std::any_cast<ObjectGuid>(GetSpell()->m_customArg)))
-                primaryTarget->SendPlaySpellVisual(GetHitUnit(), SPELL_VISUAL_ID_HOWLING_BLAST, 0, 0, 0.f, 0.f);
+        if (Unit* primaryTarget = ObjectAccessor::GetUnit(*GetCaster(), std::any_cast<ObjectGuid>(GetSpell()->m_customArg)))
+            primaryTarget->SendPlaySpellVisual(GetHitUnit(), SPELL_VISUAL_ID_HOWLING_BLAST, 0, 0, 0.f, 0.f);
     }
 
     void Register() override
