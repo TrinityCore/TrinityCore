@@ -133,7 +133,7 @@ struct boss_ambassador_hellmaw : public EscortAI
 
         if (me->HasAura(SPELL_BANISH))
         {
-            EnterEvadeMode(EVADE_REASON_OTHER);
+            EnterEvadeMode(EvadeReason::Other);
             return;
         }
 

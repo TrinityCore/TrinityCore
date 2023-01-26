@@ -31,6 +31,7 @@
 #include "ScriptedGossip.h"
 #include "ScriptMgr.h"
 #include "ScriptSystem.h"
+#include "SmartEnum.h"
 #include "SpellScript.h"
 #include "SplineChainMovementGenerator.h"
 #include "TemporarySummon.h"
@@ -1551,7 +1552,7 @@ public:
 
         void EnterEvadeMode(EvadeReason why) override
         {
-            TC_LOG_TRACE("scripts.cos", "npc_arthas_stratholmeAI::EnterEvadeMode: why = {} ", why);
+            TC_LOG_TRACE("scripts.cos", "npc_arthas_stratholmeAI::EnterEvadeMode: why = {} ", EnumUtils::ToConstant(why));
             ScriptedAI::EnterEvadeMode(why);
         }
 

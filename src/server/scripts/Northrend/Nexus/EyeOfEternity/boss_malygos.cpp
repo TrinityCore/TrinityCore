@@ -560,7 +560,7 @@ struct boss_malygos : public BossAI
         me->setActive(true);
         if (!instance->CheckRequiredBosses(DATA_MALYGOS_EVENT))
         {
-            EnterEvadeMode(EVADE_REASON_OTHER);
+            EnterEvadeMode(EvadeReason::Other);
             return;
         }
 

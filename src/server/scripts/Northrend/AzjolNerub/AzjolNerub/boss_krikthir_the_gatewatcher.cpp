@@ -218,7 +218,7 @@ struct boss_krik_thir : public BossAI
             case ACTION_SILTHIK_DIED:
                 if (!_watchersActive) // something is wrong
                 {
-                    EnterEvadeMode(EVADE_REASON_OTHER);
+                    EnterEvadeMode(EvadeReason::Other);
                     return;
                 }
                 if (!--_watchersActive) // if there are no watchers currently in combat...
@@ -235,7 +235,7 @@ struct boss_krik_thir : public BossAI
                 events.ScheduleEvent(EVENT_SEND_GROUP, 70s);
                 break;
             case ACTION_PET_EVADE:
-                EnterEvadeMode(EVADE_REASON_OTHER);
+                EnterEvadeMode(EvadeReason::Other);
                 break;
         }
     }
