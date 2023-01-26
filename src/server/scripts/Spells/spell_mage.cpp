@@ -72,8 +72,6 @@ enum MageSpells
     SPELL_MAGE_FROSTFIRE_BOLT_CHILL_EFFECT       = 44614,
     SPELL_MAGE_HOT_STREAK                        = 44445,
     SPELL_MAGE_HOT_STREAK_TRIGGERED              = 48108,
-    SPELL_MAGE_IMPROVED_HOT_STREAK_R1            = 44446,
-    SPELL_MAGE_IMPROVED_HOT_STREAK_R2            = 44448,
     SPELL_MAGE_IMPROVED_POLYMORPH_RANK_1         = 11210,
     SPELL_MAGE_IMPROVED_POLYMORPH_STUN_RANK_1    = 83046,
     SPELL_MAGE_IMPROVED_POLYMORPH_MARKER         = 87515,
@@ -93,6 +91,7 @@ enum MageSpells
     SPELL_MAGE_SCORCH                            = 2948,
     SPELL_MAGE_SLOW                              = 31589,
     SPELL_MAGE_SQUIRREL_FORM                     = 32813,
+    SPELL_MAGE_T12_4P_BONUS                      = 99064,
     SPELL_MAGE_GIRAFFE_FORM                      = 32816,
     SPELL_MAGE_SERPENT_FORM                      = 32817,
     SPELL_MAGE_DRAGONHAWK_FORM                   = 32818,
@@ -1703,142 +1702,91 @@ class spell_mage_flame_orb_aoe_dummy: public SpellScriptLoader
 };
 
 // 44445 - Hot Streak
-class spell_mage_hot_streak : public SpellScriptLoader
+class spell_mage_hot_streak : public AuraScript
 {
-    public:
-        spell_mage_hot_streak() : SpellScriptLoader("spell_mage_hot_streak") { }
+    bool Load() override
+    {
+        return GetCaster()->IsPlayer();
+    }
 
-        class spell_mage_hot_streak_AuraScript : public AuraScript
-        {
-            bool Load() override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
+                SPELL_MAGE_HOT_STREAK_TRIGGERED,
+                SPELL_MAGE_T12_4P_BONUS
+            });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo(
-                    {
-                        SPELL_MAGE_HOT_STREAK_TRIGGERED,
-                        SPELL_MAGE_IMPROVED_HOT_STREAK_R1,
-                        SPELL_MAGE_IMPROVED_HOT_STREAK_R2,
-                        SPELL_MAGE_FIREBALL,
-                        SPELL_MAGE_PYROBLAST,
-                        SPELL_MAGE_FIRE_BLAST,
-                        SPELL_MAGE_FROSTFIRE_BOLT,
-                        SPELL_MAGE_SCORCH
-                    });
-            }
+    bool CheckProc(ProcEventInfo& /*eventInfo*/)
+    {
+        int32 procChance = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
+        // T12 4P bonus
+        if (AuraEffect const* aurEff = GetTarget()->GetAuraEffect(SPELL_MAGE_T12_4P_BONUS, EFFECT_1))
+            procChance += aurEff->GetAmount();
 
-            bool CheckProc(ProcEventInfo& eventInfo)
-            {
-                if (Unit* caster = GetCaster())
-                    if (roll_chance_i(GetSpellInfo()->Effects[EFFECT_0].BasePoints)
-                        && !caster->HasAura(SPELL_MAGE_IMPROVED_HOT_STREAK_R1)
-                        && !caster->HasAura(SPELL_MAGE_IMPROVED_HOT_STREAK_R2))
-                        switch (eventInfo.GetSpellInfo()->Id)
-                        {
-                            case SPELL_MAGE_FIREBALL:
-                            case SPELL_MAGE_PYROBLAST:
-                            case SPELL_MAGE_FIRE_BLAST:
-                            case SPELL_MAGE_FROSTFIRE_BOLT:
-                            case SPELL_MAGE_SCORCH:
-                                return true;
-                            default:
-                                return false;
-                        }
+        return roll_chance_i(procChance);
+    }
 
-                return false;
-            }
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+        GetCaster()->CastSpell(GetCaster(), SPELL_MAGE_HOT_STREAK_TRIGGERED, aurEff);
+    }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
-            {
-                PreventDefaultAction();
-                GetCaster()->CastSpell(GetCaster(), SPELL_MAGE_HOT_STREAK_TRIGGERED, aurEff);
-            }
-
-            void Register() override
-            {
-                DoCheckProc.Register(&spell_mage_hot_streak_AuraScript::CheckProc);
-                OnEffectProc.Register(&spell_mage_hot_streak_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_mage_hot_streak_AuraScript();
-        }
+    void Register() override
+    {
+        DoCheckProc.Register(&spell_mage_hot_streak::CheckProc);
+        OnEffectProc.Register(&spell_mage_hot_streak::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
 };
-
 // -44446 - Improved Hot Streak
-class spell_mage_improved_hot_streak : public SpellScriptLoader
+class spell_mage_improved_hot_streak : public AuraScript
 {
-    public:
-        spell_mage_improved_hot_streak() : SpellScriptLoader("spell_mage_improved_hot_streak") { }
+    bool Load() override
+    {
+        _critCount = 0;
+        return GetCaster()->IsPlayer();
+    }
 
-        class spell_mage_improved_hot_streak_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_HOT_STREAK_TRIGGERED });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        if (eventInfo.GetDamageInfo()->GetDamageType() != SPELL_DIRECT_DAMAGE)
+            return false;
+
+        if (eventInfo.GetDamageInfo()->GetHitMask() & PROC_HIT_CRITICAL)
+            _critCount++;
+        else
+            _critCount = 0;
+
+        if (_critCount == 2)
         {
-            uint8 criticalStrikesCounter;
-
-            bool Load() override
-            {
-                criticalStrikesCounter = 0;
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo(
-                    {
-                        SPELL_MAGE_HOT_STREAK_TRIGGERED,
-                        SPELL_MAGE_FIREBALL,
-                        SPELL_MAGE_PYROBLAST,
-                        SPELL_MAGE_FIRE_BLAST,
-                        SPELL_MAGE_FROSTFIRE_BOLT,
-                        SPELL_MAGE_SCORCH
-                    });
-            }
-
-            bool CheckProc(ProcEventInfo& eventInfo)
-            {
-                switch (eventInfo.GetSpellInfo()->Id)
-                {
-                    case SPELL_MAGE_FIREBALL:
-                    case SPELL_MAGE_PYROBLAST:
-                    case SPELL_MAGE_FIRE_BLAST:
-                    case SPELL_MAGE_FROSTFIRE_BOLT:
-                    case SPELL_MAGE_SCORCH:
-                        if (eventInfo.GetDamageInfo()->GetHitMask() & PROC_HIT_CRITICAL)
-                            criticalStrikesCounter++;
-                        else
-                            criticalStrikesCounter = 0;
-
-                        if (criticalStrikesCounter == 2)
-                        {
-                            criticalStrikesCounter = 0;
-                            return roll_chance_i(GetSpellInfo()->Effects[EFFECT_0].BasePoints);
-                        }
-                }
-                return false;
-            }
-
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
-            {
-                PreventDefaultAction();
-                GetCaster()->CastSpell(GetCaster(), SPELL_MAGE_HOT_STREAK_TRIGGERED, aurEff);
-            }
-
-            void Register() override
-            {
-                DoCheckProc.Register(&spell_mage_improved_hot_streak_AuraScript::CheckProc);
-                OnEffectProc.Register(&spell_mage_improved_hot_streak_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_mage_improved_hot_streak_AuraScript();
+            _critCount = 0;
+            return roll_chance_i(GetSpellInfo()->Effects[EFFECT_0].CalcValue());
         }
+
+        return false;
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+        GetCaster()->CastSpell(GetCaster(), SPELL_MAGE_HOT_STREAK_TRIGGERED, aurEff);
+    }
+
+    void Register() override
+    {
+        DoCheckProc.Register(&spell_mage_improved_hot_streak::CheckProc);
+        OnEffectProc.Register(&spell_mage_improved_hot_streak::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+
+private:
+    uint8 _critCount = 0;
 };
 
 // 55342 - Mirror Image
@@ -2213,13 +2161,13 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_focus_magic);
     RegisterSpellScript(spell_mage_frostbolt);
     RegisterSpellScript(spell_mage_frostfire_bolt);
-    new spell_mage_hot_streak();
+    RegisterSpellScript(spell_mage_hot_streak);
     new spell_mage_ice_barrier();
     RegisterSpellScript(spell_mage_ignite);
     RegisterSpellScript(spell_mage_ignite_periodic);
     RegisterSpellScript(spell_mage_impact);
     RegisterSpellScript(spell_mage_impact_triggered);
-    new spell_mage_improved_hot_streak();
+    RegisterSpellScript(spell_mage_improved_hot_streak);
     RegisterSpellScript(spell_mage_initialize_images);
     new spell_mage_glyph_of_ice_block();
     new spell_mage_glyph_of_icy_veins();
