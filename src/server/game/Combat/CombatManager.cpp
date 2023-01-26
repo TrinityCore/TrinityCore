@@ -16,6 +16,7 @@
  */
 
 #include "CombatManager.h"
+#include "Containers.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "Player.h"

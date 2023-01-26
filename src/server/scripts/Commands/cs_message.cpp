@@ -155,7 +155,7 @@ public:
         if (message.empty())
             return false;
 
-        sWorld->SendServerMessage(SERVER_MSG_STRING, Trinity::StringFormat(handler->GetTrinityString(LANG_SYSTEMMESSAGE), message.data()).c_str());
+        sWorld->SendServerMessage(SERVER_MSG_STRING, handler->PGetParseString(LANG_SYSTEMMESSAGE, message.data()));
         return true;
     }
 

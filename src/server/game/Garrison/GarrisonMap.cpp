@@ -68,7 +68,7 @@ void GarrisonGridLoader::LoadN()
         }
     }
 
-    TC_LOG_DEBUG("maps", "%u GameObjects and %u Creatures loaded for grid %u on map %u", i_gameObjects, i_creatures, i_grid->GetGridId(), i_map->GetId());
+    TC_LOG_DEBUG("maps", "{} GameObjects and {} Creatures loaded for grid {} on map {}", i_gameObjects, i_creatures, i_grid->GetGridId(), i_map->GetId());
 }
 
 void GarrisonGridLoader::Visit(GameObjectMapType& m)

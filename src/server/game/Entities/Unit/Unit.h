@@ -20,14 +20,15 @@
 
 #include "Object.h"
 #include "CombatManager.h"
+#include "FlatSet.h"
 #include "SpellAuraDefines.h"
 #include "ThreatManager.h"
 #include "Timer.h"
 #include "UnitDefines.h"
 #include "Util.h"
-#include <boost/container/flat_set.hpp>
 #include <array>
 #include <map>
+#include <memory>
 #include <stack>
 
 #define VISUAL_WAYPOINT 1 // Creature Entry ID used for waypoints show, visible only for GMs
@@ -331,16 +332,6 @@ enum CombatRating
 };
 
 #define MAX_COMBAT_RATING         32
-
-enum DamageEffectType : uint8
-{
-    DIRECT_DAMAGE           = 0,                            // used for normal weapon damage (not for class abilities or spells)
-    SPELL_DIRECT_DAMAGE     = 1,                            // spell/class abilities damage
-    DOT                     = 2,
-    HEAL                    = 3,
-    NODAMAGE                = 4,                            // used also in case when damage applied to health but not applied to spell channelInterruptFlags/etc
-    SELF_DAMAGE             = 5
-};
 
 enum UnitTypeMask
 {
@@ -1964,7 +1955,7 @@ class TC_GAME_API Unit : public WorldObject
         bool m_canModifyStats;
 
         VisibleAuraContainer m_visibleAuras;
-        boost::container::flat_set<AuraApplication*, VisibleAuraSlotCompare> m_visibleAurasToUpdate;
+        Trinity::Containers::FlatSet<AuraApplication*, VisibleAuraSlotCompare> m_visibleAurasToUpdate;
 
         float m_speed_rate[MAX_MOVE_TYPE];
 

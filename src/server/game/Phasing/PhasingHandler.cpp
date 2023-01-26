@@ -31,7 +31,6 @@
 #include "SpellAuraEffects.h"
 #include "TerrainMgr.h"
 #include "Vehicle.h"
-#include <boost/container/flat_set.hpp>
 #include <boost/container/small_vector.hpp>
 #include <sstream>
 
@@ -91,7 +90,7 @@ public:
     }
 
 private:
-    boost::container::flat_set<WorldObject*, std::less<WorldObject*>, boost::container::small_vector<WorldObject*, 8>> _visited;
+    Trinity::Containers::FlatSet<WorldObject*, std::less<WorldObject*>, boost::container::small_vector<WorldObject*, 8>> _visited;
 };
 
 void PhasingHandler::AddPhase(WorldObject* object, uint32 phaseId, bool updateVisibility)

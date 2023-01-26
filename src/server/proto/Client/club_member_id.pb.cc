@@ -4,7 +4,6 @@
 #define INTERNAL_SUPPRESS_PROTOBUF_FIELD_DEPRECATION
 #include "club_member_id.pb.h"
 
-#include <algorithm>
 #include <utility>
 
 #include <google/protobuf/stubs/common.h>
@@ -15,7 +14,6 @@
 #include <google/protobuf/generated_message_reflection.h>
 #include <google/protobuf/reflection_ops.h>
 #include <google/protobuf/wire_format.h>
-#include "Log.h"
 // @@protoc_insertion_point(includes)
 
 namespace bgs {
@@ -91,7 +89,7 @@ void protobuf_AddDesc_club_5fmember_5fid_2eproto() {
     "proto\032\023account_types.proto\032\017rpc_types.pr"
     "oto\"]\n\010MemberId\0226\n\naccount_id\030\001 \001(\0132\".bg"
     "s.protocol.account.v1.AccountId\022\021\n\tuniqu"
-    "e_id\030\002 \001(\004:\006\202\371+\002\010\001B\002H\001", 222);
+    "e_id\030\002 \001(\004:\006\202\371+\002\010\001B\002H\002", 222);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "club_member_id.proto", &protobuf_RegisterTypes);
   MemberId::default_instance_ = new MemberId();
@@ -168,202 +166,9 @@ MemberId* MemberId::New() const {
   return new MemberId;
 }
 
-void MemberId::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
-    if (has_account_id()) {
-      if (account_id_ != NULL) account_id_->::bgs::protocol::account::v1::AccountId::Clear();
-    }
-    unique_id_ = GOOGLE_ULONGLONG(0);
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool MemberId::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.club.v1.MemberId)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.account.v1.AccountId account_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_account_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(16)) goto parse_unique_id;
-        break;
-      }
-
-      // optional uint64 unique_id = 2;
-      case 2: {
-        if (tag == 16) {
-         parse_unique_id:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
-                 input, &unique_id_)));
-          set_has_unique_id();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.club.v1.MemberId)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.club.v1.MemberId)
-  return false;
-#undef DO_
-}
-
-void MemberId::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.club.v1.MemberId)
-  // optional .bgs.protocol.account.v1.AccountId account_id = 1;
-  if (has_account_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->account_id(), output);
-  }
-
-  // optional uint64 unique_id = 2;
-  if (has_unique_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(2, this->unique_id(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.club.v1.MemberId)
-}
-
-::google::protobuf::uint8* MemberId::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.club.v1.MemberId)
-  // optional .bgs.protocol.account.v1.AccountId account_id = 1;
-  if (has_account_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->account_id(), target);
-  }
-
-  // optional uint64 unique_id = 2;
-  if (has_unique_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(2, this->unique_id(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.club.v1.MemberId)
-  return target;
-}
-
-int MemberId::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.account.v1.AccountId account_id = 1;
-    if (has_account_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->account_id());
-    }
-
-    // optional uint64 unique_id = 2;
-    if (has_unique_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt64Size(
-          this->unique_id());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void MemberId::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const MemberId* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const MemberId*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void MemberId::MergeFrom(const MemberId& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_account_id()) {
-      mutable_account_id()->::bgs::protocol::account::v1::AccountId::MergeFrom(from.account_id());
-    }
-    if (from.has_unique_id()) {
-      set_unique_id(from.unique_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void MemberId::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void MemberId::CopyFrom(const MemberId& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool MemberId::IsInitialized() const {
-  if (has_account_id()) {
-    if (!this->account_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
 void MemberId::Swap(MemberId* other) {
   if (other != this) {
-    std::swap(account_id_, other->account_id_);
-    std::swap(unique_id_, other->unique_id_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata MemberId::GetMetadata() const {

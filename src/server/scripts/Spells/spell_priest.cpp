@@ -23,6 +23,7 @@
 
 #include "ScriptMgr.h"
 #include "AreaTriggerAI.h"
+#include "Containers.h"
 #include "G3DPosition.hpp"
 #include "GridNotifiers.h"
 #include "Log.h"
@@ -575,7 +576,7 @@ class spell_pri_holy_words : public AuraScript
                 cdReductionEffIndex = EFFECT_1;
                 break;
             default:
-                TC_LOG_WARN("spells.priest", "HolyWords aura has been proced by an unknown spell: %u", GetSpellInfo()->Id);
+                TC_LOG_WARN("spells.priest", "HolyWords aura has been proced by an unknown spell: {}", GetSpellInfo()->Id);
                 return;
         }
 

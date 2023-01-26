@@ -97,7 +97,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         void JustEngagedWith(Unit* enemy) override;
 
         // Called for reaction at stopping attack at no attackers or targets
-        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override;
+        void EnterEvadeMode(EvadeReason why) override;
 
         // Called when the creature is killed
         void JustDied(Unit* killer) override;

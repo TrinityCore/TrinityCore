@@ -17,6 +17,7 @@
 
 #include "icecrown_citadel.h"
 #include "CellImpl.h"
+#include "Containers.h"
 #include "CreatureTextMgr.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
@@ -543,7 +544,7 @@ struct boss_the_lich_king : public BossAI
     {
         if (!instance->CheckRequiredBosses(DATA_THE_LICH_KING, target->ToPlayer()))
         {
-            EnterEvadeMode(EVADE_REASON_OTHER);
+            EnterEvadeMode(EvadeReason::Other);
             instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
             return;
         }

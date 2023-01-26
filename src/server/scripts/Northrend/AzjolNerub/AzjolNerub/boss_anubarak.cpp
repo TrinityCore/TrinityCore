@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "AreaBoundary.h"
 #include "azjol_nerub.h"
+#include "Containers.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
@@ -147,7 +148,7 @@ struct boss_anub_arak : public BossAI
         me->SummonCreatureGroup(SUMMON_GROUP_WORLD_TRIGGER_GUARDIAN, &summoned);
         if (summoned.empty()) // something went wrong
         {
-            EnterEvadeMode(EVADE_REASON_OTHER);
+            EnterEvadeMode(EvadeReason::Other);
             return;
         }
         _guardianTrigger = (*summoned.begin())->GetGUID();
@@ -156,7 +157,7 @@ struct boss_anub_arak : public BossAI
             _assassinTrigger = trigger->GetGUID();
         else
         {
-            EnterEvadeMode(EVADE_REASON_OTHER);
+            EnterEvadeMode(EvadeReason::Other);
             return;
         }
     }
@@ -220,7 +221,7 @@ struct boss_anub_arak : public BossAI
                         events.Repeat(11s);
                     }
                     else
-                        EnterEvadeMode(EVADE_REASON_OTHER);
+                        EnterEvadeMode(EvadeReason::Other);
                     break;
                 }
                 case EVENT_ASSASSIN:
@@ -237,7 +238,7 @@ struct boss_anub_arak : public BossAI
                             _assassinCount = 0;
                     }
                     else // something went wrong
-                        EnterEvadeMode(EVADE_REASON_OTHER);
+                        EnterEvadeMode(EvadeReason::Other);
                     break;
                 case EVENT_GUARDIAN:
                     if (Creature* trigger = ObjectAccessor::GetCreature(*me, _guardianTrigger))
@@ -253,7 +254,7 @@ struct boss_anub_arak : public BossAI
                             _guardianCount = 0;
                     }
                     else
-                        EnterEvadeMode(EVADE_REASON_OTHER);
+                        EnterEvadeMode(EvadeReason::Other);
                     break;
                 case EVENT_VENOMANCER:
                     if (Creature* trigger = ObjectAccessor::GetCreature(*me, _guardianTrigger))
@@ -269,7 +270,7 @@ struct boss_anub_arak : public BossAI
                             _venomancerCount = 0;
                     }
                     else
-                        EnterEvadeMode(EVADE_REASON_OTHER);
+                        EnterEvadeMode(EvadeReason::Other);
                     break;
                 default:
                     break;
@@ -303,7 +304,7 @@ struct boss_anub_arak : public BossAI
                 if (Creature* creature = ObjectAccessor::GetCreature(*me, guid))
                     JustSummoned(creature);
                 else // something has gone horribly wrong
-                    EnterEvadeMode(EVADE_REASON_OTHER);
+                    EnterEvadeMode(EvadeReason::Other);
                 break;
             }
             case GUID_TYPE_IMPALE:
@@ -320,7 +321,7 @@ struct boss_anub_arak : public BossAI
             case ACTION_PET_DIED:
                 if (!_petCount) // underflow check - something has gone horribly wrong
                 {
-                    EnterEvadeMode(EVADE_REASON_OTHER);
+                    EnterEvadeMode(EvadeReason::Other);
                     return;
                 }
                 if (!--_petCount) // last pet died, emerge
@@ -336,7 +337,7 @@ struct boss_anub_arak : public BossAI
                 }
                 break;
             case ACTION_PET_EVADE:
-                EnterEvadeMode(EVADE_REASON_OTHER);
+                EnterEvadeMode(EvadeReason::Other);
                 break;
         }
     }

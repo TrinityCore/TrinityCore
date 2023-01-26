@@ -21,6 +21,7 @@ Script Data End */
 
 #include "ScriptMgr.h"
 #include "CombatAI.h"
+#include "Containers.h"
 #include "eye_of_eternity.h"
 #include "GameObject.h"
 #include "GridNotifiers.h"
@@ -559,7 +560,7 @@ struct boss_malygos : public BossAI
         me->setActive(true);
         if (!instance->CheckRequiredBosses(DATA_MALYGOS_EVENT))
         {
-            EnterEvadeMode(EVADE_REASON_OTHER);
+            EnterEvadeMode(EvadeReason::Other);
             return;
         }
 

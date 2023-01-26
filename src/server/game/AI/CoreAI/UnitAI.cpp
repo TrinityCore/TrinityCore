@@ -16,6 +16,7 @@
  */
 
 #include "UnitAI.h"
+#include "Containers.h"
 #include "Creature.h"
 #include "CreatureAIImpl.h"
 #include "Map.h"
@@ -322,14 +323,97 @@ void UnitAI::FillAISpellInfo()
     });
 }
 
-ThreatManager& UnitAI::GetThreatManager()
+Unit* UnitAI::FinalizeTargetSelection(std::list<Unit*>& targetList, SelectTargetMethod targetType)
 {
-    return me->GetThreatManager();
+    // maybe nothing fulfills the predicate
+    if (targetList.empty())
+        return nullptr;
+
+    switch (targetType)
+    {
+        case SelectTargetMethod::MaxThreat:
+        case SelectTargetMethod::MinThreat:
+        case SelectTargetMethod::MaxDistance:
+        case SelectTargetMethod::MinDistance:
+            return targetList.front();
+        case SelectTargetMethod::Random:
+            return Trinity::Containers::SelectRandomContainerElement(targetList);
+        default:
+            break;
+    }
+
+    return nullptr;
 }
 
-void UnitAI::SortByDistance(std::list<Unit*>& list, bool ascending)
+bool UnitAI::PrepareTargetListSelection(std::list<Unit*>& targetList, SelectTargetMethod targetType, uint32 offset)
 {
-    list.sort(Trinity::ObjectDistanceOrderPred(me, ascending));
+    targetList.clear();
+    ThreatManager& mgr = me->GetThreatManager();
+    // shortcut: we're gonna ignore the first <offset> elements, and there's at most <offset> elements, so we ignore them all - nothing to do here
+    if (mgr.GetThreatListSize() <= offset)
+        return false;
+
+    if (targetType == SelectTargetMethod::MaxDistance || targetType == SelectTargetMethod::MinDistance)
+    {
+        for (ThreatReference const* ref : mgr.GetUnsortedThreatList())
+        {
+            if (ref->IsOffline())
+                continue;
+
+            targetList.push_back(ref->GetVictim());
+        }
+    }
+    else
+    {
+        Unit* currentVictim = mgr.GetCurrentVictim();
+        if (currentVictim)
+            targetList.push_back(currentVictim);
+
+        for (ThreatReference const* ref : mgr.GetSortedThreatList())
+        {
+            if (ref->IsOffline())
+                continue;
+
+            Unit* thisTarget = ref->GetVictim();
+            if (thisTarget != currentVictim)
+                targetList.push_back(thisTarget);
+        }
+    }
+
+    // shortcut: the list isn't gonna get any larger
+    if (targetList.size() <= offset)
+    {
+        targetList.clear();
+        return false;
+    }
+
+    // right now, list is unsorted for DISTANCE types - re-sort by SelectTargetMethod::MaxDistance
+    if (targetType == SelectTargetMethod::MaxDistance || targetType == SelectTargetMethod::MinDistance)
+        targetList.sort(Trinity::ObjectDistanceOrderPred(me, targetType == SelectTargetMethod::MinDistance));
+
+    // now the list is MAX sorted, reverse for MIN types
+    if (targetType == SelectTargetMethod::MinThreat)
+        targetList.reverse();
+
+    // ignore the first <offset> elements
+    while (offset)
+    {
+        targetList.pop_front();
+        --offset;
+    }
+
+    return true;
+}
+
+void UnitAI::FinalizeTargetListSelection(std::list<Unit*>& targetList, uint32 num, SelectTargetMethod targetType)
+{
+    if (targetList.size() <= num)
+        return;
+
+    if (targetType == SelectTargetMethod::Random)
+        Trinity::Containers::RandomResize(targetList, num);
+    else
+        targetList.resize(num);
 }
 
 std::string UnitAI::GetDebugInfo() const
@@ -338,167 +422,4 @@ std::string UnitAI::GetDebugInfo() const
     sstr << std::boolalpha
          << "Me: " << (me ? me->GetDebugInfo() : "NULL");
     return sstr.str();
-}
-
-DefaultTargetSelector::DefaultTargetSelector(Unit const* unit, float dist, bool playerOnly, bool withTank, int32 aura)
-    : _me(unit), _dist(dist), _playerOnly(playerOnly), _exception(!withTank ? unit->GetThreatManager().GetLastVictim() : nullptr), _aura(aura)
-{
-}
-
-bool DefaultTargetSelector::operator()(Unit const* target) const
-{
-    if (!_me)
-        return false;
-
-    if (!target)
-        return false;
-
-    if (_exception && target == _exception)
-        return false;
-
-    if (_playerOnly && (target->GetTypeId() != TYPEID_PLAYER))
-        return false;
-
-    if (_dist > 0.0f && !_me->IsWithinCombatRange(target, _dist))
-        return false;
-
-    if (_dist < 0.0f && _me->IsWithinCombatRange(target, -_dist))
-        return false;
-
-    if (_aura)
-    {
-        if (_aura > 0)
-        {
-            if (!target->HasAura(_aura))
-                return false;
-        }
-        else
-        {
-            if (target->HasAura(-_aura))
-                return false;
-        }
-    }
-
-    return true;
-}
-
-SpellTargetSelector::SpellTargetSelector(Unit* caster, uint32 spellId) :
-    _caster(caster), _spellInfo(sSpellMgr->GetSpellInfo(spellId, caster->GetMap()->GetDifficultyID()))
-{
-    ASSERT(_spellInfo);
-}
-
-bool SpellTargetSelector::operator()(Unit const* target) const
-{
-    if (!target)
-        return false;
-
-    if (_spellInfo->CheckTarget(_caster, target) != SPELL_CAST_OK)
-        return false;
-
-    // copypasta from Spell::CheckRange
-    float minRange = 0.0f;
-    float maxRange = 0.0f;
-    float rangeMod = 0.0f;
-    if (_spellInfo->RangeEntry)
-    {
-        if (_spellInfo->RangeEntry->Flags & SPELL_RANGE_MELEE)
-        {
-            rangeMod = _caster->GetCombatReach() + 4.0f / 3.0f;
-            rangeMod += target->GetCombatReach();
-
-            rangeMod = std::max(rangeMod, NOMINAL_MELEE_RANGE);
-        }
-        else
-        {
-            float meleeRange = 0.0f;
-            if (_spellInfo->RangeEntry->Flags & SPELL_RANGE_RANGED)
-            {
-                meleeRange = _caster->GetCombatReach() + 4.0f / 3.0f;
-                meleeRange += target->GetCombatReach();
-
-                meleeRange = std::max(meleeRange, NOMINAL_MELEE_RANGE);
-            }
-
-            minRange = _caster->GetSpellMinRangeForTarget(target, _spellInfo) + meleeRange;
-            maxRange = _caster->GetSpellMaxRangeForTarget(target, _spellInfo);
-
-            rangeMod = _caster->GetCombatReach();
-            rangeMod += target->GetCombatReach();
-
-            if (minRange > 0.0f && !(_spellInfo->RangeEntry->Flags & SPELL_RANGE_RANGED))
-                minRange += rangeMod;
-        }
-
-        if (_caster->isMoving() && target->isMoving() && !_caster->IsWalking() && !target->IsWalking() &&
-            (_spellInfo->RangeEntry->Flags & SPELL_RANGE_MELEE || target->GetTypeId() == TYPEID_PLAYER))
-            rangeMod += 8.0f / 3.0f;
-    }
-
-    maxRange += rangeMod;
-
-    minRange *= minRange;
-    maxRange *= maxRange;
-
-    if (target != _caster)
-    {
-        if (_caster->GetExactDistSq(target) > maxRange)
-            return false;
-
-        if (minRange > 0.0f && _caster->GetExactDistSq(target) < minRange)
-            return false;
-    }
-
-    return true;
-}
-
-bool NonTankTargetSelector::operator()(Unit const* target) const
-{
-    if (!target)
-        return false;
-
-    if (_playerOnly && target->GetTypeId() != TYPEID_PLAYER)
-        return false;
-
-    if (Unit* currentVictim = _source->GetThreatManager().GetCurrentVictim())
-        return target != currentVictim;
-
-    return target != _source->GetVictim();
-}
-
-bool PowerUsersSelector::operator()(Unit const* target) const
-{
-    if (!_me || !target)
-        return false;
-
-    if (target->GetPowerType() != _power)
-        return false;
-
-    if (_playerOnly && target->GetTypeId() != TYPEID_PLAYER)
-        return false;
-
-    if (_dist > 0.0f && !_me->IsWithinCombatRange(target, _dist))
-        return false;
-
-    if (_dist < 0.0f && _me->IsWithinCombatRange(target, -_dist))
-        return false;
-
-    return true;
-}
-
-bool FarthestTargetSelector::operator()(Unit const* target) const
-{
-    if (!_me || !target)
-        return false;
-
-    if (_playerOnly && target->GetTypeId() != TYPEID_PLAYER)
-        return false;
-
-    if (_dist > 0.0f && !_me->IsWithinCombatRange(target, _dist))
-        return false;
-
-    if (_inLos && !_me->IsWithinLOSInMap(target))
-        return false;
-
-    return true;
 }

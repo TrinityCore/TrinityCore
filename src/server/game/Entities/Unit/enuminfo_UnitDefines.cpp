@@ -313,7 +313,7 @@ TC_API_EXPORT EnumText EnumUtils<UnitFlags3>::ToString(UnitFlags3 value)
         case UNIT_FLAG3_UNK21: return { "UNIT_FLAG3_UNK21", "UNIT_FLAG3_UNK21", "" };
         case UNIT_FLAG3_DONT_FADE_OUT: return { "UNIT_FLAG3_DONT_FADE_OUT", "UNIT_FLAG3_DONT_FADE_OUT", "" };
         case UNIT_FLAG3_UNK23: return { "UNIT_FLAG3_UNK23", "UNIT_FLAG3_UNK23", "" };
-        case UNIT_FLAG3_UNK24: return { "UNIT_FLAG3_UNK24", "UNIT_FLAG3_UNK24", "" };
+        case UNIT_FLAG3_FORCE_HIDE_NAMEPLATE: return { "UNIT_FLAG3_FORCE_HIDE_NAMEPLATE", "UNIT_FLAG3_FORCE_HIDE_NAMEPLATE", "" };
         case UNIT_FLAG3_UNK25: return { "UNIT_FLAG3_UNK25", "UNIT_FLAG3_UNK25", "" };
         case UNIT_FLAG3_UNK26: return { "UNIT_FLAG3_UNK26", "UNIT_FLAG3_UNK26", "" };
         case UNIT_FLAG3_UNK27: return { "UNIT_FLAG3_UNK27", "UNIT_FLAG3_UNK27", "" };
@@ -357,7 +357,7 @@ TC_API_EXPORT UnitFlags3 EnumUtils<UnitFlags3>::FromIndex(size_t index)
         case 21: return UNIT_FLAG3_UNK21;
         case 22: return UNIT_FLAG3_DONT_FADE_OUT;
         case 23: return UNIT_FLAG3_UNK23;
-        case 24: return UNIT_FLAG3_UNK24;
+        case 24: return UNIT_FLAG3_FORCE_HIDE_NAMEPLATE;
         case 25: return UNIT_FLAG3_UNK25;
         case 26: return UNIT_FLAG3_UNK26;
         case 27: return UNIT_FLAG3_UNK27;
@@ -398,7 +398,7 @@ TC_API_EXPORT size_t EnumUtils<UnitFlags3>::ToIndex(UnitFlags3 value)
         case UNIT_FLAG3_UNK21: return 21;
         case UNIT_FLAG3_DONT_FADE_OUT: return 22;
         case UNIT_FLAG3_UNK23: return 23;
-        case UNIT_FLAG3_UNK24: return 24;
+        case UNIT_FLAG3_FORCE_HIDE_NAMEPLATE: return 24;
         case UNIT_FLAG3_UNK25: return 25;
         case UNIT_FLAG3_UNK26: return 26;
         case UNIT_FLAG3_UNK27: return 27;

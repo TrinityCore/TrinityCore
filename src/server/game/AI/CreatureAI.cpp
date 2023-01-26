@@ -30,9 +30,11 @@
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "SmartEnum.h"
 #include "SpellHistory.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"
+#include <queue>
 
 std::unordered_map<std::pair<uint32, Difficulty>, AISpellInfoType> UnitAI::AISpellInfo;
 AISpellInfoType* GetAISpellInfo(uint32 spellId, Difficulty difficulty)
@@ -70,7 +72,7 @@ void CreatureAI::OnCharmed(bool isNew)
         me->LastCharmerGUID.Clear();
 
         if (!me->IsInCombat())
-            EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+            EnterEvadeMode(EvadeReason::NoHostiles);
     }
 
     UnitAI::OnCharmed(isNew);
@@ -84,7 +86,7 @@ void CreatureAI::DoZoneInCombat(Creature* creature /*= nullptr*/)
     Map* map = creature->GetMap();
     if (!map->IsDungeon()) // use IsDungeon instead of Instanceable, in case battlegrounds will be instantiated
     {
-        TC_LOG_ERROR("scripts.ai", "CreatureAI::DoZoneInCombat: call for map that isn't an instance (%s)", creature->GetGUID().ToString().c_str());
+        TC_LOG_ERROR("scripts.ai", "CreatureAI::DoZoneInCombat: call for map that isn't an instance ({})", creature->GetGUID().ToString());
         return;
     }
 
@@ -222,7 +224,7 @@ void CreatureAI::EnterEvadeMode(EvadeReason why)
     if (!_EnterEvadeMode(why))
         return;
 
-    TC_LOG_DEBUG("scripts.ai", "CreatureAI::EnterEvadeMode: entering evade mode (why: %u) (%s)", why, me->GetGUID().ToString().c_str());
+    TC_LOG_DEBUG("scripts.ai", "CreatureAI::EnterEvadeMode: entering evade mode (why: {}) ({})", EnumUtils::ToConstant(why), me->GetGUID().ToString());
 
     if (!me->GetVehicle()) // otherwise me will be in evade mode forever
     {
@@ -264,7 +266,7 @@ bool CreatureAI::UpdateVictim()
     }
     else if (!me->IsInCombat())
     {
-        EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+        EnterEvadeMode(EvadeReason::NoHostiles);
         return false;
     }
     else if (me->GetVictim())
@@ -277,7 +279,7 @@ void CreatureAI::EngagementStart(Unit* who)
 {
     if (_isEngaged)
     {
-        TC_LOG_ERROR("scripts.ai", "CreatureAI::EngagementStart called even though creature is already engaged. Creature debug info:\n%s", me->GetDebugInfo().c_str());
+        TC_LOG_ERROR("scripts.ai", "CreatureAI::EngagementStart called even though creature is already engaged. Creature debug info:\n{}", me->GetDebugInfo());
         return;
     }
     _isEngaged = true;
@@ -289,7 +291,7 @@ void CreatureAI::EngagementOver()
 {
     if (!_isEngaged)
     {
-        TC_LOG_DEBUG("scripts.ai", "CreatureAI::EngagementOver called even though creature is not currently engaged. Creature debug info:\n%s", me->GetDebugInfo().c_str());
+        TC_LOG_DEBUG("scripts.ai", "CreatureAI::EngagementOver called even though creature is not currently engaged. Creature debug info:\n{}", me->GetDebugInfo());
         return;
     }
     _isEngaged = false;
@@ -439,7 +441,7 @@ bool CreatureAI::CheckInRoom()
         return true;
     else
     {
-        EnterEvadeMode(EVADE_REASON_BOUNDARY);
+        EnterEvadeMode(EvadeReason::Boundary);
         return false;
     }
 }

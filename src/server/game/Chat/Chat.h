@@ -20,6 +20,7 @@
 
 #include "ObjectGuid.h"
 #include "StringFormat.h"
+#include <fmt/printf.h>
 
 class ChatHandler;
 class Creature;
@@ -55,7 +56,7 @@ class TC_GAME_API ChatHandler
         template<typename... Args>
         void PSendSysMessage(const char* fmt, Args&&... args)
         {
-            SendSysMessage(Trinity::StringFormat(fmt, std::forward<Args>(args)...).c_str());
+            SendSysMessage(fmt::sprintf(fmt, std::forward<Args>(args)...));
         }
 
         template<typename... Args>
@@ -67,7 +68,7 @@ class TC_GAME_API ChatHandler
         template<typename... Args>
         std::string PGetParseString(uint32 entry, Args&&... args) const
         {
-            return Trinity::StringFormat(GetTrinityString(entry), std::forward<Args>(args)...);
+            return fmt::sprintf(GetTrinityString(entry), std::forward<Args>(args)...);
         }
 
         bool _ParseCommands(std::string_view text);

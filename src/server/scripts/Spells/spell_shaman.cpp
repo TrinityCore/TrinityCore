@@ -24,6 +24,7 @@
 #include "ScriptMgr.h"
 #include "AreaTriggerAI.h"
 #include "CellImpl.h"
+#include "Containers.h"
 #include "CreatureAIImpl.h" // for RAND()
 #include "GridNotifiersImpl.h"
 #include "Item.h"
@@ -1248,8 +1249,13 @@ class spell_sha_mastery_elemental_overload : public AuraScript
         caster->m_Events.AddEventAtOffset([caster,
             targets = CastSpellTargetArg(procInfo.GetProcTarget()),
             overloadSpellId = GetTriggeredSpellId(procInfo.GetSpellInfo()->Id),
-            originalCastId = procInfo.GetProcSpell()->m_castId]()
+            originalCastId = procInfo.GetProcSpell()->m_castId]() mutable
         {
+            if (!targets.Targets)
+                return;
+
+            targets.Targets->Update(caster);
+
             CastSpellExtraArgs args;
             args.OriginalCastId = originalCastId;
             caster->CastSpell(targets, overloadSpellId, args);

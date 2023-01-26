@@ -1835,7 +1835,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr12>::ToString(SpellAttr12 value)
         case SPELL_ATTR12_UNK28: return { "SPELL_ATTR12_UNK28", "Unknown attribute 28@Attr12", "" };
         case SPELL_ATTR12_UNK29: return { "SPELL_ATTR12_UNK29", "Unknown attribute 29@Attr12", "" };
         case SPELL_ATTR12_UNK30: return { "SPELL_ATTR12_UNK30", "Unknown attribute 30@Attr12", "" };
-        case SPELL_ATTR12_UNK31: return { "SPELL_ATTR12_UNK31", "Unknown attribute 31@Attr12", "" };
+        case SPELL_ATTR12_ONLY_PROC_FROM_CLASS_ABILITIES: return { "SPELL_ATTR12_ONLY_PROC_FROM_CLASS_ABILITIES", "Only Proc From Class Abilities", "" };
         default: throw std::out_of_range("value");
     }
 }
@@ -1879,7 +1879,7 @@ TC_API_EXPORT SpellAttr12 EnumUtils<SpellAttr12>::FromIndex(size_t index)
         case 28: return SPELL_ATTR12_UNK28;
         case 29: return SPELL_ATTR12_UNK29;
         case 30: return SPELL_ATTR12_UNK30;
-        case 31: return SPELL_ATTR12_UNK31;
+        case 31: return SPELL_ATTR12_ONLY_PROC_FROM_CLASS_ABILITIES;
         default: throw std::out_of_range("index");
     }
 }
@@ -1920,7 +1920,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr12>::ToIndex(SpellAttr12 value)
         case SPELL_ATTR12_UNK28: return 28;
         case SPELL_ATTR12_UNK29: return 29;
         case SPELL_ATTR12_UNK30: return 30;
-        case SPELL_ATTR12_UNK31: return 31;
+        case SPELL_ATTR12_ONLY_PROC_FROM_CLASS_ABILITIES: return 31;
         default: throw std::out_of_range("value");
     }
 }
@@ -1933,7 +1933,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr13>::ToString(SpellAttr13 value)
 {
     switch (value)
     {
-        case SPELL_ATTR13_UNK0: return { "SPELL_ATTR13_UNK0", "Unknown attribute 0@Attr13", "" };
+        case SPELL_ATTR13_ALLOW_CLASS_ABILITY_PROCS: return { "SPELL_ATTR13_ALLOW_CLASS_ABILITY_PROCS", "Allow Class Ability Procs", "" };
         case SPELL_ATTR13_UNK1: return { "SPELL_ATTR13_UNK1", "Unknown attribute 0@Attr13", "" };
         case SPELL_ATTR13_PASSIVE_IS_UPGRADE: return { "SPELL_ATTR13_PASSIVE_IS_UPGRADE", "Is Upgrade", "Displays \042Upgrade\042 in spell tooltip instead of \042Passive\042" };
         case SPELL_ATTR13_UNK3: return { "SPELL_ATTR13_UNK3", "Unknown attribute 3@Attr13", "" };
@@ -1977,7 +1977,7 @@ TC_API_EXPORT SpellAttr13 EnumUtils<SpellAttr13>::FromIndex(size_t index)
 {
     switch (index)
     {
-        case 0: return SPELL_ATTR13_UNK0;
+        case 0: return SPELL_ATTR13_ALLOW_CLASS_ABILITY_PROCS;
         case 1: return SPELL_ATTR13_UNK1;
         case 2: return SPELL_ATTR13_PASSIVE_IS_UPGRADE;
         case 3: return SPELL_ATTR13_UNK3;
@@ -2018,7 +2018,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr13>::ToIndex(SpellAttr13 value)
 {
     switch (value)
     {
-        case SPELL_ATTR13_UNK0: return 0;
+        case SPELL_ATTR13_ALLOW_CLASS_ABILITY_PROCS: return 0;
         case SPELL_ATTR13_UNK1: return 1;
         case SPELL_ATTR13_PASSIVE_IS_UPGRADE: return 2;
         case SPELL_ATTR13_UNK3: return 3;

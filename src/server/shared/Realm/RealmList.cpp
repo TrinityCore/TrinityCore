@@ -149,21 +149,21 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
                 Optional<boost::asio::ip::tcp::endpoint> externalAddress = _resolver->Resolve(boost::asio::ip::tcp::v4(), externalAddressString, "");
                 if (!externalAddress)
                 {
-                    TC_LOG_ERROR("realmlist", "Could not resolve address %s for realm \"%s\" id %u", externalAddressString.c_str(), name.c_str(), realmId);
+                    TC_LOG_ERROR("realmlist", "Could not resolve address {} for realm \"{}\" id {}", externalAddressString, name, realmId);
                     continue;
                 }
 
                 Optional<boost::asio::ip::tcp::endpoint> localAddress = _resolver->Resolve(boost::asio::ip::tcp::v4(), localAddressString, "");
                 if (!localAddress)
                 {
-                    TC_LOG_ERROR("realmlist", "Could not resolve localAddress %s for realm \"%s\" id %u", localAddressString.c_str(), name.c_str(), realmId);
+                    TC_LOG_ERROR("realmlist", "Could not resolve localAddress {} for realm \"{}\" id {}", localAddressString, name, realmId);
                     continue;
                 }
 
                 Optional<boost::asio::ip::tcp::endpoint> localSubmask = _resolver->Resolve(boost::asio::ip::tcp::v4(), localSubmaskString, "");
                 if (!localSubmask)
                 {
-                    TC_LOG_ERROR("realmlist", "Could not resolve localSubnetMask %s for realm \"%s\" id %u", localSubmaskString.c_str(), name.c_str(), realmId);
+                    TC_LOG_ERROR("realmlist", "Could not resolve localSubnetMask {} for realm \"{}\" id {}", localSubmaskString, name, realmId);
                     continue;
                 }
 
@@ -189,15 +189,15 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
                 newSubRegions.insert(Battlenet::RealmHandle{ region, battlegroup, 0 }.GetAddressString());
 
                 if (!existingRealms.count(id))
-                    TC_LOG_INFO("realmlist", "Added realm \"%s\" at %s:%u.", name.c_str(), externalAddressString.c_str(), port);
+                    TC_LOG_INFO("realmlist", "Added realm \"{}\" at {}:{}.", name, externalAddressString, port);
                 else
-                    TC_LOG_DEBUG("realmlist", "Updating realm \"%s\" at %s:%u.", name.c_str(), externalAddressString.c_str(), port);
+                    TC_LOG_DEBUG("realmlist", "Updating realm \"{}\" at {}:{}.", name, externalAddressString, port);
 
                 existingRealms.erase(id);
             }
             catch (std::exception& ex)
             {
-                TC_LOG_ERROR("realmlist", "Realmlist::UpdateRealms has thrown an exception: %s", ex.what());
+                TC_LOG_ERROR("realmlist", "Realmlist::UpdateRealms has thrown an exception: {}", ex.what());
                 ABORT();
             }
         }
@@ -205,7 +205,7 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
     }
 
     for (auto itr = existingRealms.begin(); itr != existingRealms.end(); ++itr)
-        TC_LOG_INFO("realmlist", "Removed realm \"%s\".", itr->second.c_str());
+        TC_LOG_INFO("realmlist", "Removed realm \"{}\".", itr->second);
 
     {
         std::unique_lock<std::shared_mutex> lock(_realmsMutex);

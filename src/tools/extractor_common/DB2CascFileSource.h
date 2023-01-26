@@ -20,6 +20,7 @@
 
 #include "DB2FileLoader.h"
 #include "CascHandles.h"
+#include <memory>
 #include <string>
 
 struct DB2CascFileSource : public DB2FileSource

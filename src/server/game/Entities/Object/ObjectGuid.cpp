@@ -106,7 +106,7 @@ namespace
             if (id >= std::size(uniqNames))
                 id = 3;
 
-            return Trinity::StringFormat("%s-%s", typeName, uniqNames[id]);
+            return Trinity::StringFormat("{}-{}", typeName, uniqNames[id]);
         }
 
         ObjectGuid ParseUniq(HighGuid /*type*/, char const* guidString)
@@ -147,7 +147,7 @@ namespace
 
         std::string FormatPlayer(char const* typeName, ObjectGuid guid)
         {
-            return Trinity::StringFormat("%s-%u-%08llX", typeName, guid.GetRealmId(), guid.GetRawValue(0));
+            return Trinity::StringFormat("{}-{}-{:08X}", typeName, guid.GetRealmId(), guid.GetRawValue(0));
         }
 
         ObjectGuid ParsePlayer(HighGuid /*type*/, char const* guidString)
@@ -163,7 +163,7 @@ namespace
 
         std::string FormatItem(char const* typeName, ObjectGuid guid)
         {
-            return Trinity::StringFormat("%s-%u-%u-%016llX", typeName, guid.GetRealmId(), uint32(guid.GetRawValue(1) >> 18) & 0xFFFFFF, guid.GetRawValue(0));
+            return Trinity::StringFormat("{}-{}-{}-{:016X}", typeName, guid.GetRealmId(), uint32(guid.GetRawValue(1) >> 18) & 0xFFFFFF, guid.GetRawValue(0));
         }
 
         ObjectGuid ParseItem(HighGuid /*type*/, char const* guidString)
@@ -180,7 +180,7 @@ namespace
 
         std::string FormatWorldObject(char const* typeName, ObjectGuid guid)
         {
-            return Trinity::StringFormat("%s-%u-%u-%u-%u-%u-%010llX", typeName, guid.GetSubType(), guid.GetRealmId(), guid.GetMapId(),
+            return Trinity::StringFormat("{}-{}-{}-{}-{}-{}-{:010X}", typeName, guid.GetSubType(), guid.GetRealmId(), guid.GetMapId(),
                 uint32(guid.GetRawValue(0) >> 40) & 0xFFFFFF, guid.GetEntry(), guid.GetCounter());
         }
 
@@ -200,7 +200,7 @@ namespace
 
         std::string FormatTransport(char const* typeName, ObjectGuid guid)
         {
-            return Trinity::StringFormat("%s-%u-%016llX", typeName, uint32(guid.GetRawValue(1) >> 38) & 0xFFFFF, guid.GetRawValue(0));
+            return Trinity::StringFormat("{}-{}-{:016X}", typeName, uint32(guid.GetRawValue(1) >> 38) & 0xFFFFF, guid.GetRawValue(0));
         }
 
         ObjectGuid ParseTransport(HighGuid type, char const* guidString)
@@ -216,7 +216,7 @@ namespace
 
         std::string FormatClientActor(char const* typeName, ObjectGuid guid)
         {
-            return Trinity::StringFormat("%s-%u-%u-%u", typeName, guid.GetRealmId(), uint32(guid.GetRawValue(1) >> 26) & 0xFFFFFF, uint32(guid.GetRawValue(0)));
+            return Trinity::StringFormat("{}-{}-{}-{}", typeName, guid.GetRealmId(), uint32(guid.GetRawValue(1) >> 26) & 0xFFFFFF, uint32(guid.GetRawValue(0)));
         }
 
         ObjectGuid ParseClientActor(HighGuid /*type*/, char const* guidString)
@@ -237,7 +237,7 @@ namespace
             uint32 trade = (guid.GetRawValue(1) >> 24) & 0x1;
             uint32 zoneId = (guid.GetRawValue(1) >> 10) & 0x3FFF;
             uint32 factionGroupMask = (guid.GetRawValue(1) >> 4) & 0x3F;
-            return Trinity::StringFormat("%s-%u-%u-%u-%u-%u-%08llX", typeName, guid.GetRealmId(), builtIn, trade, zoneId, factionGroupMask, guid.GetRawValue(0));
+            return Trinity::StringFormat("{}-{}-{}-{}-{}-{}-{:08X}", typeName, guid.GetRealmId(), builtIn, trade, zoneId, factionGroupMask, guid.GetRawValue(0));
         }
 
         ObjectGuid ParseChatChannel(HighGuid /*type*/, char const* guidString)
@@ -257,7 +257,7 @@ namespace
 
         std::string FormatGlobal(char const* typeName, ObjectGuid guid)
         {
-            return Trinity::StringFormat("%s-%llu-%012llX", typeName, guid.GetRawValue(1) & 0x3FFFFFFFFFFFFFF, guid.GetRawValue(0));
+            return Trinity::StringFormat("{}-{}-{:012X}", typeName, guid.GetRawValue(1) & 0x3FFFFFFFFFFFFFF, guid.GetRawValue(0));
         }
 
         ObjectGuid ParseGlobal(HighGuid type, char const* guidString)
@@ -273,7 +273,7 @@ namespace
 
         std::string FormatGuild(char const* typeName, ObjectGuid guid)
         {
-            return Trinity::StringFormat("%s-%u-%012llX", typeName, guid.GetRealmId(), guid.GetRawValue(0));
+            return Trinity::StringFormat("{}-{}-{:012X}", typeName, guid.GetRealmId(), guid.GetRawValue(0));
         }
 
         ObjectGuid ParseGuild(HighGuid type, char const* guidString)
@@ -289,7 +289,7 @@ namespace
 
         std::string FormatMobileSession(char const* typeName, ObjectGuid guid)
         {
-            return Trinity::StringFormat("%s-%u-%u-%08llX", typeName, guid.GetRealmId(), uint32(guid.GetRawValue(1) >> 33) & 0x1FF, guid.GetRawValue(0));
+            return Trinity::StringFormat("{}-{}-{}-{:08X}", typeName, guid.GetRealmId(), uint32(guid.GetRawValue(1) >> 33) & 0x1FF, guid.GetRawValue(0));
         }
 
         ObjectGuid ParseMobileSession(HighGuid /*type*/, char const* guidString)
@@ -306,7 +306,7 @@ namespace
 
         std::string FormatWebObj(char const* typeName, ObjectGuid guid)
         {
-            return Trinity::StringFormat("%s-%u-%u-%u-%012llX", typeName, guid.GetRealmId(), uint32(guid.GetRawValue(1) >> 37) & 0x1F,
+            return Trinity::StringFormat("{}-{}-{}-{}-{:012X}", typeName, guid.GetRealmId(), uint32(guid.GetRawValue(1) >> 37) & 0x1F,
                 uint32(guid.GetRawValue(1) >> 35) & 0x3, guid.GetRawValue(0));
         }
 
@@ -325,7 +325,7 @@ namespace
 
         std::string FormatLFGObject(char const* typeName, ObjectGuid guid)
         {
-            return Trinity::StringFormat("%s-%u-%u-%u-%u-%u-%u-%06llX", typeName, uint32(guid.GetRawValue(1) >> 54) & 0xF, uint32(guid.GetRawValue(1) >> 50) & 0xF,
+            return Trinity::StringFormat("{}-{}-{}-{}-{}-{}-{}-{:06X}", typeName, uint32(guid.GetRawValue(1) >> 54) & 0xF, uint32(guid.GetRawValue(1) >> 50) & 0xF,
                 uint32(guid.GetRawValue(1) >> 46) & 0xF, uint32(guid.GetRawValue(1) >> 38) & 0xFF, uint32(guid.GetRawValue(1) >> 37) & 0x1,
                 uint32(guid.GetRawValue(1) >> 35) & 0x3, guid.GetRawValue(0));
         }
@@ -348,7 +348,7 @@ namespace
 
         std::string FormatLFGList(char const* typeName, ObjectGuid guid)
         {
-            return Trinity::StringFormat("%s-%u-%06llX", typeName, uint32(guid.GetRawValue(1) >> 54) & 0xF, guid.GetRawValue(0));
+            return Trinity::StringFormat("{}-{}-{:06X}", typeName, uint32(guid.GetRawValue(1) >> 54) & 0xF, guid.GetRawValue(0));
         }
 
         ObjectGuid ParseLFGList(HighGuid /*type*/, char const* guidString)
@@ -364,7 +364,7 @@ namespace
 
         std::string FormatClient(char const* typeName, ObjectGuid guid)
         {
-            return Trinity::StringFormat("%s-%u-%u-%012llX", typeName, guid.GetRealmId(), uint32(guid.GetRawValue(1) >> 10) & 0xFFFFFFFF, guid.GetRawValue(0));
+            return Trinity::StringFormat("{}-{}-{}-{:012X}", typeName, guid.GetRealmId(), uint32(guid.GetRawValue(1) >> 10) & 0xFFFFFFFF, guid.GetRawValue(0));
         }
 
         ObjectGuid ParseClient(HighGuid type, char const* guidString)
@@ -384,9 +384,9 @@ namespace
             uint32 type = uint32(guid.GetRawValue(1) >> 33) & 0xFF;
             uint32 clubFinderId = uint32(guid.GetRawValue(1)) & 0xFFFFFFFF;
             if (type == 1) // guild
-                return Trinity::StringFormat("%s-%u-%u-%u-%llu", typeName, type, clubFinderId, guid.GetRealmId(), guid.GetRawValue(0) /*guildId*/);
+                return Trinity::StringFormat("{}-{}-{}-{}-{}", typeName, type, clubFinderId, guid.GetRealmId(), guid.GetRawValue(0) /*guildId*/);
 
-            return Trinity::StringFormat("%s-%u-%u-%016llX", typeName, type, clubFinderId, guid.GetRawValue(0) /*clubId*/);
+            return Trinity::StringFormat("{}-{}-{}-{:016X}", typeName, type, clubFinderId, guid.GetRawValue(0) /*clubId*/);
         }
 
         ObjectGuid ParseClubFinder(HighGuid /*type*/, char const* guidString)
@@ -420,7 +420,7 @@ namespace
 
         std::string FormatToolsClient(char const* typeName, ObjectGuid guid)
         {
-            return Trinity::StringFormat("%s-%u-%u-%u-%010llX", typeName, guid.GetMapId(), uint32(guid.GetRawValue(0) >> 40) & 0xFFFFFF, guid.GetCounter());
+            return Trinity::StringFormat("{}-{}-{}-{:010X}", typeName, guid.GetMapId(), uint32(guid.GetRawValue(0) >> 40) & 0xFFFFFF, guid.GetCounter());
         }
 
         ObjectGuid ParseToolsClient(HighGuid /*type*/, char const* guidString)
@@ -436,7 +436,7 @@ namespace
 
         std::string FormatWorldLayer(char const* typeName, ObjectGuid guid)
         {
-            return Trinity::StringFormat("%s-%X-%u-%u-%u", typeName, uint32((guid.GetRawValue(1) >> 10) & 0xFFFFFFFF), uint32(guid.GetRawValue(1) & 0x1FF),
+            return Trinity::StringFormat("{}-{:X}-{}-{}-{}", typeName, uint32((guid.GetRawValue(1) >> 10) & 0xFFFFFFFF), uint32(guid.GetRawValue(1) & 0x1FF),
                 uint32((guid.GetRawValue(0) >> 24) & 0xFF), uint32(guid.GetRawValue(0) & 0x7FFFFF));
         }
 
@@ -752,70 +752,27 @@ ByteBuffer& operator>>(ByteBuffer& buf, ObjectGuid& guid)
     return buf;
 }
 
-void ObjectGuidGeneratorBase::HandleCounterOverflow(HighGuid high)
+ObjectGuid::LowType ObjectGuidGenerator::Generate()
 {
-    TC_LOG_ERROR("misc", "%s guid overflow!! Can't continue, shutting down server. ", ObjectGuid::GetTypeName(high));
+    if (_nextGuid >= ObjectGuid::GetMaxCounter(_high) - 1)
+        HandleCounterOverflow();
+
+    if (_high == HighGuid::Creature || _high == HighGuid::Vehicle || _high == HighGuid::GameObject || _high == HighGuid::Transport)
+        CheckGuidTrigger();
+
+    return _nextGuid++;
+}
+
+void ObjectGuidGenerator::HandleCounterOverflow()
+{
+    TC_LOG_ERROR("misc", "{} guid overflow!! Can't continue, shutting down server. ", ObjectGuid::GetTypeName(_high));
     World::StopNow(ERROR_EXIT_CODE);
 }
 
-void ObjectGuidGeneratorBase::CheckGuidTrigger(ObjectGuid::LowType guidlow)
+void ObjectGuidGenerator::CheckGuidTrigger()
 {
-    if (!sWorld->IsGuidAlert() && guidlow > sWorld->getIntConfig(CONFIG_RESPAWN_GUIDALERTLEVEL))
+    if (!sWorld->IsGuidAlert() && _nextGuid > sWorld->getIntConfig(CONFIG_RESPAWN_GUIDALERTLEVEL))
         sWorld->TriggerGuidAlert();
-    else if (!sWorld->IsGuidWarning() && guidlow > sWorld->getIntConfig(CONFIG_RESPAWN_GUIDWARNLEVEL))
+    else if (!sWorld->IsGuidWarning() && _nextGuid > sWorld->getIntConfig(CONFIG_RESPAWN_GUIDWARNLEVEL))
         sWorld->TriggerGuidWarning();
 }
-
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Null>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Uniq>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Player>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Item>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::WorldTransaction>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::StaticDoor>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Transport>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Conversation>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Creature>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Vehicle>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Pet>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::GameObject>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::DynamicObject>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::AreaTrigger>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Corpse>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::LootObject>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::SceneObject>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Scenario>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::AIGroup>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::DynamicDoor>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::ClientActor>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Vignette>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::CallForHelp>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::AIResource>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::AILock>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::AILockTicket>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::ChatChannel>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Party>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Guild>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::WowAccount>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::BNetAccount>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::GMTask>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::MobileSession>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::RaidGroup>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Spell>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Mail>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::WebObj>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::LFGObject>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::LFGList>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::UserRouter>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::PVPQueueGroup>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::UserClient>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::PetBattle>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::UniqUserClient>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::BattlePet>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::CommerceObj>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::ClientSession>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Cast>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::ClientConnection>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::ClubFinder>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::ToolsClient>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::WorldLayer>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::ArenaTeam>;

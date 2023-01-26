@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "CellImpl.h"
 #include "CombatAI.h"
+#include "Containers.h"
 #include "CreatureTextMgr.h"
 #include "GameEventMgr.h"
 #include "GameObject.h"
@@ -1068,7 +1069,7 @@ public:
                         Start(false, true);
                     }
                     else
-                        EnterEvadeMode();                       //something went wrong
+                        EnterEvadeMode(EvadeReason::Other);                       //something went wrong
 
                     RunAwayTimer = 30000;
                 }
