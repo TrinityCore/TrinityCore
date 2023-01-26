@@ -105,51 +105,37 @@ class spell_evo_living_flame : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo ({ SPELL_EVOKER_LIVING_FLAME_DAMAGE, SPELL_EVOKER_LIVING_FLAME_HEAL });
+        return ValidateSpellInfo ({ SPELL_EVOKER_LIVING_FLAME_DAMAGE, SPELL_EVOKER_LIVING_FLAME_HEAL, SPELL_EVOKER_ENERGIZING_FLAME });
     }
 
-    void HandleTarget(SpellEffIndex /*effIndex*/)
+    void HandleHitTarget(SpellEffIndex /*effIndex*/)
     {
-        if (GetCaster()->IsFriendlyTo(GetHitUnit()))
-            GetCaster()->CastSpell(GetHitUnit(), SPELL_EVOKER_LIVING_FLAME_HEAL, true);
+        Unit* caster = GetCaster();
+        Unit* hitUnit = GetHitUnit();
+        if (caster->IsFriendlyTo(hitUnit))
+            caster->CastSpell(hitUnit, SPELL_EVOKER_LIVING_FLAME_HEAL, true);
         else
-            GetCaster()->CastSpell(GetHitUnit(), SPELL_EVOKER_LIVING_FLAME_DAMAGE, true);
+            caster->CastSpell(hitUnit, SPELL_EVOKER_LIVING_FLAME_DAMAGE, true);
     }
 
-    void Register() override
+    void HandleLaunchTarget(SpellEffIndex /*effIndex*/)
     {
-        OnEffectHitTarget += SpellEffectFn(spell_evo_living_flame::HandleTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
+        Unit* caster = GetCaster();
+        if (caster->IsFriendlyTo(GetHitUnit()))
+            return;
 
-// 361500 - Living Flame (damage)
-class spell_evo_living_flame_damage : public SpellScript
-{
-    PrepareSpellScript(spell_evo_living_flame_damage);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo ({ SPELL_EVOKER_ENERGIZING_FLAME, SPELL_EVOKER_LIVING_FLAME });
-    }
-
-    void HandleManaRestored(SpellEffIndex /*effIndex*/)
-    {
-        if (AuraEffect* auraEffect = GetCaster()->GetAuraEffect(SPELL_EVOKER_ENERGIZING_FLAME, EFFECT_0))
+        if (AuraEffect* auraEffect = caster->GetAuraEffect(SPELL_EVOKER_ENERGIZING_FLAME, EFFECT_0))
         {
-            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_EVOKER_LIVING_FLAME, GetCastDifficulty());
-
-            Optional<SpellPowerCost> cost = spellInfo->CalcPowerCost(POWER_MANA, false, GetCaster(), GetSpellInfo()->GetSchoolMask(), nullptr);
-            if (!cost)
-                return;
-
-            int32 manaRestored = CalculatePct(cost->Amount, auraEffect->GetAmount());
-            GetCaster()->ModifyPower(POWER_MANA, manaRestored);
+            int32 manaCost = GetSpell()->GetPowerTypeCostAmount(POWER_MANA).value_or(0);
+            if (manaCost != 0)
+                GetCaster()->ModifyPower(POWER_MANA, CalculatePct(manaCost, auraEffect->GetAmount()));
         }
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_evo_living_flame_damage::HandleManaRestored, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectHitTarget += SpellEffectFn(spell_evo_living_flame::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectLaunchTarget += SpellEffectFn(spell_evo_living_flame::HandleLaunchTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -158,5 +144,4 @@ void AddSC_evoker_spell_scripts()
     RegisterSpellScript(spell_evo_azure_strike);
     RegisterSpellScript(spell_evo_glide);
     RegisterSpellScript(spell_evo_living_flame);
-    RegisterSpellScript(spell_evo_living_flame_damage);
 }
