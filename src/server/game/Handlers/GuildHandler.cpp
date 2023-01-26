@@ -69,8 +69,10 @@ void WorldSession::HandleGuildAcceptInvite(WorldPackets::Guild::AcceptGuildInvit
 
 void WorldSession::HandleGuildDeclineInvitation(WorldPackets::Guild::GuildDeclineInvitation& /*decline*/)
 {
+    if (GetPlayer()->GetGuildId())
+        return;
+
     GetPlayer()->SetGuildIdInvited(UI64LIT(0));
-    GetPlayer()->SetInGuild(UI64LIT(0));
 }
 
 void WorldSession::HandleGuildGetRoster(WorldPackets::Guild::GuildGetRoster& /*packet*/)

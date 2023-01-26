@@ -452,6 +452,8 @@ void Unit::Update(uint32 p_time)
 
     _UpdateSpells(p_time);
 
+    WorldObject::Update(p_time);
+
     // If this is set during update SetCantProc(false) call is missing somewhere in the code
     // Having this would prevent spells from being proced, so let's crash
     ASSERT(!m_procDeep);
@@ -3644,6 +3646,7 @@ void Unit::RemoveAppliedAuras(uint32 spellId, std::function<bool(AuraApplication
         if (check(iter->second))
         {
             RemoveAura(iter, removeMode);
+            iter = m_appliedAuras.lower_bound(spellId);
             continue;
         }
         ++iter;
@@ -3657,6 +3660,7 @@ void Unit::RemoveOwnedAuras(uint32 spellId, std::function<bool(Aura const*)> con
         if (check(iter->second))
         {
             RemoveOwnedAura(iter, removeMode);
+            iter = m_ownedAuras.lower_bound(spellId);
             continue;
         }
         ++iter;
@@ -4015,7 +4019,8 @@ void Unit::RemoveMovementImpairingAuras(bool withRoot)
 
 void Unit::RemoveAurasWithMechanic(uint64 mechanicMaskToRemove, AuraRemoveMode removeMode, uint32 exceptSpellId, bool withEffectMechanics)
 {
-    RemoveAppliedAuras([=](AuraApplication const* aurApp)
+    std::vector<Aura*> aurasToUpdateTargets;
+    RemoveAppliedAuras([=, &aurasToUpdateTargets](AuraApplication const* aurApp)
     {
         Aura* aura = aurApp->GetBase();
         if (exceptSpellId && aura->GetId() == exceptSpellId)
@@ -4030,9 +4035,18 @@ void Unit::RemoveAurasWithMechanic(uint64 mechanicMaskToRemove, AuraRemoveMode r
             return true;
 
         // effect mechanic matches required mask for removal - don't remove, only update targets
-        aura->UpdateTargetMap(aura->GetCaster());
+        aurasToUpdateTargets.push_back(aura);
         return false;
     }, removeMode);
+
+    for (Aura* aura : aurasToUpdateTargets)
+    {
+        aura->UpdateTargetMap(aura->GetCaster());
+
+        // Fully remove the aura if all effects were removed
+        if (!aura->IsPassive() && aura->GetOwner() == this && !aura->GetApplicationOfTarget(GetGUID()))
+            aura->Remove(removeMode);
+    }
 }
 
 void Unit::RemoveAurasByShapeShift()
@@ -10644,17 +10658,17 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
 
             if (creature->GetMap()->IsDungeon())
             {
-                Group* group = !groups.empty() ? *groups.begin() : nullptr;
-                Player* looter = group ? ASSERT_NOTNULL(ObjectAccessor::GetPlayer(*creature, group->GetLooterGuid())) : tappers[0];
-
                 if (dungeonEncounter)
                 {
                     creature->m_personalLoot = GenerateDungeonEncounterPersonalLoot(dungeonEncounter->ID, creature->GetCreatureTemplate()->lootid,
                         LootTemplates_Creature, LOOT_CORPSE, creature, creature->GetCreatureTemplate()->mingold, creature->GetCreatureTemplate()->maxgold,
                         creature->GetLootMode(), creature->GetMap()->GetDifficultyLootItemContext(), tappers);
                 }
-                else
+                else if (!tappers.empty())
                 {
+                    Group* group = !groups.empty() ? *groups.begin() : nullptr;
+                    Player* looter = group ? ASSERT_NOTNULL(ObjectAccessor::GetPlayer(*creature, group->GetLooterGuid())) : tappers[0];
+
                     Loot* loot = new Loot(creature->GetMap(), creature->GetGUID(), LOOT_CORPSE, dungeonEncounter ? group : nullptr);
 
                     if (uint32 lootid = creature->GetCreatureTemplate()->lootid)

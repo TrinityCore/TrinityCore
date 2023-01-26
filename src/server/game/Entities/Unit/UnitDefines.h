@@ -43,7 +43,9 @@ enum UnitStandStateType : uint8
     UNIT_STAND_STATE_SIT_HIGH_CHAIR    = 6,
     UNIT_STAND_STATE_DEAD              = 7,
     UNIT_STAND_STATE_KNEEL             = 8,
-    UNIT_STAND_STATE_SUBMERGED         = 9
+    UNIT_STAND_STATE_SUBMERGED         = 9,
+
+    MAX_UNIT_STAND_STATE
 };
 
 // byte flag value (UNIT_FIELD_BYTES_1, 2)
@@ -64,7 +66,9 @@ enum class AnimTier : uint8
     Swim        = 1, // falls back to ground tier animations, not handled by the client, should never appear in sniffs, will prevent tier change animations from playing correctly if used
     Hover       = 2, // plays flying tier animations or falls back to ground tier animations, automatically enables hover clientside when entering visibility with this value
     Fly         = 3, // plays flying tier animations
-    Submerged   = 4
+    Submerged   = 4,
+
+    Max
 };
 
 // low byte (0 from 0..3) of UNIT_FIELD_BYTES_2
@@ -72,10 +76,10 @@ enum SheathState : uint8
 {
     SHEATH_STATE_UNARMED  = 0,                              // non prepared weapon
     SHEATH_STATE_MELEE    = 1,                              // prepared melee weapon
-    SHEATH_STATE_RANGED   = 2                               // prepared ranged weapon
-};
+    SHEATH_STATE_RANGED   = 2,                              // prepared ranged weapon
 
-#define MAX_SHEATH_STATE    3
+    MAX_SHEATH_STATE
+};
 
 // byte (1 from 0..3) of UNIT_FIELD_BYTES_2
 enum UnitPVPStateFlags : uint8
@@ -117,6 +121,16 @@ enum UnitMoveType
 };
 
 #define MAX_MOVE_TYPE     9
+
+enum DamageEffectType : uint8
+{
+    DIRECT_DAMAGE           = 0,                            // used for normal weapon damage (not for class abilities or spells)
+    SPELL_DIRECT_DAMAGE     = 1,                            // spell/class abilities damage
+    DOT                     = 2,
+    HEAL                    = 3,
+    NODAMAGE                = 4,                            // used also in case when damage applied to health but not applied to spell channelInterruptFlags/etc
+    SELF_DAMAGE             = 5
+};
 
 // Value masks for UNIT_FIELD_FLAGS
 // EnumUtils: DESCRIBE THIS
@@ -248,7 +262,7 @@ enum UnitFlags3 : uint32
     UNIT_FLAG3_UNK21                                        = 0x00200000,
     UNIT_FLAG3_DONT_FADE_OUT                                = 0x00400000,
     UNIT_FLAG3_UNK23                                        = 0x00800000,
-    UNIT_FLAG3_UNK24                                        = 0x01000000,
+    UNIT_FLAG3_FORCE_HIDE_NAMEPLATE                         = 0x01000000,
     UNIT_FLAG3_UNK25                                        = 0x02000000,
     UNIT_FLAG3_UNK26                                        = 0x04000000,
     UNIT_FLAG3_UNK27                                        = 0x08000000,
@@ -263,7 +277,7 @@ enum UnitFlags3 : uint32
                                                                UNIT_FLAG3_UNK12 | /* UNIT_FLAG3_FAKE_DEAD | */ /* UNIT_FLAG3_NO_FACING_ON_INTERACT_AND_FAST_FACING_CHASE | */ /* UNIT_FLAG3_UNTARGETABLE_FROM_UI | */
                                                                /* UNIT_FLAG3_NO_FACING_ON_INTERACT_WHILE_FAKE_DEAD | */ UNIT_FLAG3_ALREADY_SKINNED | /* UNIT_FLAG3_SUPPRESS_ALL_NPC_SOUNDS | */ /* UNIT_FLAG3_SUPPRESS_NPC_SOUNDS | */
                                                                UNIT_FLAG3_UNK20 | UNIT_FLAG3_UNK21 | /* UNIT_FLAG3_DONT_FADE_OUT | */ UNIT_FLAG3_UNK23 |
-                                                               UNIT_FLAG3_UNK24 | UNIT_FLAG3_UNK25 | UNIT_FLAG3_UNK26 | UNIT_FLAG3_UNK27 |
+                                                               /* UNIT_FLAG3_FORCE_HIDE_NAMEPLATE | */ UNIT_FLAG3_UNK25 | UNIT_FLAG3_UNK26 | UNIT_FLAG3_UNK27 |
                                                                UNIT_FLAG3_UNK28 | UNIT_FLAG3_UNK29 | UNIT_FLAG3_UNK30 | UNIT_FLAG3_UNK31), // SKIP
     UNIT_FLAG3_ALLOWED                                      = (0xFFFFFFFF & ~UNIT_FLAG3_DISALLOWED) // SKIP
 };

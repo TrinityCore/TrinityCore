@@ -961,7 +961,8 @@ struct npc_captain_arnath : public npc_argent_captainAI
                 case EVENT_ARNATH_PW_SHIELD:
                 {
                     std::list<Creature*> targets = DoFindFriendlyMissingBuff(40.0f, SPELL_POWER_WORD_SHIELD);
-                    DoCast(Trinity::Containers::SelectRandomContainerElement(targets), SPELL_POWER_WORD_SHIELD);
+                    if (!targets.empty())
+                        DoCast(Trinity::Containers::SelectRandomContainerElement(targets), SPELL_POWER_WORD_SHIELD);
                     Events.ScheduleEvent(EVENT_ARNATH_PW_SHIELD, 15s, 20s);
                     break;
                 }

@@ -540,7 +540,7 @@ void BossAI::_JustEngagedWith(Unit* who)
         // bosses do not respawn, check only on enter combat
         if (!instance->CheckRequiredBosses(_bossId, who->ToPlayer()))
         {
-            EnterEvadeMode(EVADE_REASON_SEQUENCE_BREAK);
+            EnterEvadeMode(EvadeReason::SequenceBreak);
             return;
         }
         instance->SetBossState(_bossId, IN_PROGRESS);

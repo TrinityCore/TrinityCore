@@ -883,6 +883,8 @@ void GameObject::Update(uint32 diff)
 {
     m_Events.Update(diff);
 
+    WorldObject::Update(diff);
+
     if (AI())
         AI()->UpdateAI(diff);
     else if (!AIM_Initialize())
@@ -1798,7 +1800,7 @@ bool GameObject::IsNeverVisibleFor(WorldObject const* seer) const
     if (WorldObject::IsNeverVisibleFor(seer))
         return true;
 
-    if (GetGoType() == GAMEOBJECT_TYPE_SPELL_FOCUS && GetGOInfo()->spellFocus.serverOnly == 1)
+    if (GetGOInfo()->GetServerOnly())
         return true;
 
     if (!GetDisplayId())
