@@ -262,7 +262,7 @@ enum UnitFlags3 : uint32
     UNIT_FLAG3_UNK21                                        = 0x00200000,
     UNIT_FLAG3_DONT_FADE_OUT                                = 0x00400000,
     UNIT_FLAG3_UNK23                                        = 0x00800000,
-    UNIT_FLAG3_UNK24                                        = 0x01000000,
+    UNIT_FLAG3_FORCE_HIDE_NAMEPLATE                         = 0x01000000,
     UNIT_FLAG3_UNK25                                        = 0x02000000,
     UNIT_FLAG3_UNK26                                        = 0x04000000,
     UNIT_FLAG3_UNK27                                        = 0x08000000,
@@ -277,7 +277,7 @@ enum UnitFlags3 : uint32
                                                                UNIT_FLAG3_UNK12 | /* UNIT_FLAG3_FAKE_DEAD | */ /* UNIT_FLAG3_NO_FACING_ON_INTERACT_AND_FAST_FACING_CHASE | */ /* UNIT_FLAG3_UNTARGETABLE_FROM_UI | */
                                                                /* UNIT_FLAG3_NO_FACING_ON_INTERACT_WHILE_FAKE_DEAD | */ UNIT_FLAG3_ALREADY_SKINNED | /* UNIT_FLAG3_SUPPRESS_ALL_NPC_SOUNDS | */ /* UNIT_FLAG3_SUPPRESS_NPC_SOUNDS | */
                                                                UNIT_FLAG3_UNK20 | UNIT_FLAG3_UNK21 | /* UNIT_FLAG3_DONT_FADE_OUT | */ UNIT_FLAG3_UNK23 |
-                                                               UNIT_FLAG3_UNK24 | UNIT_FLAG3_UNK25 | UNIT_FLAG3_UNK26 | UNIT_FLAG3_UNK27 |
+                                                               /* UNIT_FLAG3_FORCE_HIDE_NAMEPLATE | */ UNIT_FLAG3_UNK25 | UNIT_FLAG3_UNK26 | UNIT_FLAG3_UNK27 |
                                                                UNIT_FLAG3_UNK28 | UNIT_FLAG3_UNK29 | UNIT_FLAG3_UNK30 | UNIT_FLAG3_UNK31), // SKIP
     UNIT_FLAG3_ALLOWED                                      = (0xFFFFFFFF & ~UNIT_FLAG3_DISALLOWED) // SKIP
 };

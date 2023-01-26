@@ -20,9 +20,12 @@
  * Ordered alphabetically using scriptname.
  * Scriptnames of files in this file should be prefixed with "spell_evo_".
  */
+
+#include "Containers.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "Spell.h"
+#include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
@@ -32,6 +35,24 @@ enum EvokerSpells
     SPELL_EVOKER_GLIDE_KNOCKBACK           = 358736,
     SPELL_EVOKER_HOVER                     = 358267,
     SPELL_EVOKER_SOAR_RACIAL               = 369536
+};
+
+// 362969 - Azure Strike (blue)
+class spell_evo_azure_strike : public SpellScript
+{
+    PrepareSpellScript(spell_evo_azure_strike);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        targets.remove(GetExplTargetUnit());
+        Trinity::Containers::RandomResize(targets, GetEffectInfo(EFFECT_0).CalcValue(GetCaster()) - 1);
+        targets.push_back(GetExplTargetUnit());
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_evo_azure_strike::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
+    }
 };
 
 // 358733 - Glide (Racial)
@@ -75,5 +96,6 @@ class spell_evo_glide : public SpellScript
 
 void AddSC_evoker_spell_scripts()
 {
+    RegisterSpellScript(spell_evo_azure_strike);
     RegisterSpellScript(spell_evo_glide);
 }
