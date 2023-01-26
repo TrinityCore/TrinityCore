@@ -102,10 +102,10 @@ enum DruidSpells
     SPELL_DRUID_SKULL_BASH_INTERRUPT        = 93985,
     SPELL_DRUID_SKULL_BASH_COST_INCREASE_R1 = 82364,
     SPELL_DRUID_SKULL_BASH_COST_INCREASE_R2 = 82365,
-    SPELL_DRUID_STAMPEDE_BAER_RANK_1        = 81016,
-    SPELL_DRUID_STAMPEDE_CAT_RANK_1         = 81021,
-    SPELL_DRUID_STAMPEDE_CAT_STATE          = 109881,
     SPELL_DRUID_SOLAR_BEAM_SILENCE          = 81261,
+    SPELL_DRUID_STAMPEDE_RAVAGE_MARKER      = 109881,
+    SPELL_DRUID_STAMPEDE_TRIGGERED_BEAR     = 81016,
+    SPELL_DRUID_STAMPEDE_TRIGGERED_CAT      = 81021,
     SPELL_DRUID_STRENGTH_OF_THE_PANTHER     = 90166,
     SPELL_DRUID_SUNFIRE                     = 93402,
     SPELL_DRUID_REGROWTH_REFRESH            = 93036,
@@ -134,7 +134,8 @@ enum DruidSpellIconIds
     SPELL_ICON_ID_SUNFIRE                           = 3262,
     SPELL_ICON_ID_GLYPH_OF_FEROCIOUS_BITE           = 1680,
     SPELL_ICON_ID_GLYPH_OF_FRENZIED_REGENERATION    = 50,
-    SPELL_ICON_ID_GIFT_OF_THE_EARTHMOTHER           = 3186
+    SPELL_ICON_ID_GIFT_OF_THE_EARTHMOTHER           = 3186,
+    SPELL_ICON_ID_STAMPEDE                          = 3930
 };
 
 enum MiscSpells
@@ -865,47 +866,6 @@ class spell_dru_starfall_dummy : public SpellScript
     {
         OnObjectAreaTargetSelect.Register(&spell_dru_starfall_dummy::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
         OnEffectHitTarget.Register(&spell_dru_starfall_dummy::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-// -78892 - Stampede
-class spell_dru_stampede : public AuraScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo(
-            {
-                SPELL_DRUID_STAMPEDE_BAER_RANK_1,
-                SPELL_DRUID_STAMPEDE_CAT_RANK_1,
-                SPELL_DRUID_STAMPEDE_CAT_STATE,
-                SPELL_DRUID_FERAL_CHARGE_CAT,
-                SPELL_DRUID_FERAL_CHARGE_BEAR
-            });
-    }
-
-    void HandleEffectCatProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-    {
-        PreventDefaultAction();
-        if (GetTarget()->GetShapeshiftForm() != FORM_CAT || eventInfo.GetSpellInfo()->Id != SPELL_DRUID_FERAL_CHARGE_CAT)
-            return;
-
-        GetTarget()->CastSpell(GetTarget(), sSpellMgr->GetSpellWithRank(SPELL_DRUID_STAMPEDE_CAT_RANK_1, GetSpellInfo()->GetRank()), aurEff);
-        GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_STAMPEDE_CAT_STATE, aurEff);
-    }
-
-    void HandleEffectBearProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-    {
-        PreventDefaultAction();
-        if (GetTarget()->GetShapeshiftForm() != FORM_BEAR || eventInfo.GetSpellInfo()->Id != SPELL_DRUID_FERAL_CHARGE_BEAR)
-            return;
-
-        GetTarget()->CastSpell(GetTarget(), sSpellMgr->GetSpellWithRank(SPELL_DRUID_STAMPEDE_BAER_RANK_1, GetSpellInfo()->GetRank()), aurEff);
-    }
-
-    void Register() override
-    {
-        OnEffectProc.Register(&spell_dru_stampede::HandleEffectCatProc, EFFECT_0, SPELL_AURA_DUMMY);
-        OnEffectProc.Register(&spell_dru_stampede::HandleEffectBearProc, EFFECT_1, SPELL_AURA_DUMMY);
     }
 };
 
@@ -2168,6 +2128,68 @@ class spell_dru_regrowth_refresh : public SpellScript
     }
 };
 
+// 16979 - Feral Charge (Bear Form)
+// 49376 - Feral Charge (Cat Form)
+class spell_dru_feral_charge : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_DRUID_FERAL_CHARGE_BEAR,
+                SPELL_DRUID_FERAL_CHARGE_CAT,
+                SPELL_DRUID_STAMPEDE_TRIGGERED_BEAR,
+                SPELL_DRUID_STAMPEDE_TRIGGERED_CAT
+            });
+    }
+
+    void HandleBearFormEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (AuraEffect const* stampedeEffect = GetCaster()->GetDummyAuraEffect(SPELLFAMILY_DRUID, SPELL_ICON_ID_STAMPEDE, EFFECT_0))
+            GetCaster()->CastSpell(nullptr, sSpellMgr->GetSpellWithRank(SPELL_DRUID_STAMPEDE_TRIGGERED_BEAR, stampedeEffect->GetSpellInfo()->GetRank()));
+    }
+
+    void HandleCatFormEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (AuraEffect const* stampedeEffect = GetCaster()->GetDummyAuraEffect(SPELLFAMILY_DRUID, SPELL_ICON_ID_STAMPEDE, EFFECT_0))
+            GetCaster()->CastSpell(nullptr, sSpellMgr->GetSpellWithRank(SPELL_DRUID_STAMPEDE_TRIGGERED_CAT, stampedeEffect->GetSpellInfo()->GetRank()));
+    }
+
+    void Register() override
+    {
+        if (m_scriptSpellId == SPELL_DRUID_FERAL_CHARGE_BEAR)
+            OnEffectLaunchTarget.Register(&spell_dru_feral_charge::HandleBearFormEffect, EFFECT_0, SPELL_EFFECT_CHARGE);
+        else if (m_scriptSpellId == SPELL_DRUID_FERAL_CHARGE_CAT)
+            OnEffectLaunchTarget.Register(&spell_dru_feral_charge::HandleCatFormEffect, EFFECT_0, SPELL_EFFECT_TRIGGER_SPELL);
+    }
+};
+
+// -81021 - Stampede
+class spell_dru_stampede_triggered : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_STAMPEDE_RAVAGE_MARKER });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(nullptr, SPELL_DRUID_STAMPEDE_RAVAGE_MARKER);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_DRUID_STAMPEDE_RAVAGE_MARKER, GetTarget()->GetGUID());
+    }
+
+    void Register() override
+    {
+        // Going with SPELL_AURA_ANY because both ranks have different aura effects for some reason
+        AfterEffectApply.Register(&spell_dru_stampede_triggered::AfterApply, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        AfterEffectRemove.Register(&spell_dru_stampede_triggered::AfterRemove, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     RegisterSpellScript(spell_dru_astral_alignment);
@@ -2184,6 +2206,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_empowered_touch_script);
     RegisterSpellScript(spell_dru_enrage);
     RegisterSpellScript(spell_dru_entangling_roots);
+    RegisterSpellScript(spell_dru_feral_charge);
     RegisterSpellScript(spell_dru_ferocious_bite);
     RegisterSpellScript(spell_dru_firebloom);
     RegisterSpellScript(spell_dru_frenzied_regeneration);
@@ -2211,8 +2234,8 @@ void AddSC_druid_spell_scripts()
     RegisterSpellAndAuraScriptPair(spell_dru_savage_roar, spell_dru_savage_roar_AuraScript);
     RegisterSpellScript(spell_dru_shooting_stars);
     RegisterSpellScript(spell_dru_skull_bash);
+    RegisterSpellScript(spell_dru_stampede_triggered);
     RegisterSpellScript(spell_dru_starfall_dummy);
-    RegisterSpellScript(spell_dru_stampede);
     RegisterSpellScript(spell_dru_solar_beam);
     RegisterSpellAndAuraScriptPair(spell_dru_survival_instincts, spell_dru_survival_instincts_AuraScript);
     RegisterSpellScript(spell_dru_swift_flight_passive);
