@@ -322,7 +322,7 @@ public:
 
                         if (RaidWiped)
                         {
-                            EnterEvadeMode();
+                            EnterEvadeMode(EvadeReason::Other);
                             return;
                         }
 
