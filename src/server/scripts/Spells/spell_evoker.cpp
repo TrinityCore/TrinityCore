@@ -32,8 +32,12 @@
 
 enum EvokerSpells
 {
+    SPELL_EVOKER_ENERGIZING_FLAME          = 400006,
     SPELL_EVOKER_GLIDE_KNOCKBACK           = 358736,
     SPELL_EVOKER_HOVER                     = 358267,
+    SPELL_EVOKER_LIVING_FLAME              = 361469,
+    SPELL_EVOKER_LIVING_FLAME_DAMAGE       = 361500,
+    SPELL_EVOKER_LIVING_FLAME_HEAL         = 361509,
     SPELL_EVOKER_SOAR_RACIAL               = 369536
 };
 
@@ -94,8 +98,50 @@ class spell_evo_glide : public SpellScript
     }
 };
 
+// 361469 - Living Flame (Red)
+class spell_evo_living_flame : public SpellScript
+{
+    PrepareSpellScript(spell_evo_living_flame);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo ({ SPELL_EVOKER_LIVING_FLAME_DAMAGE, SPELL_EVOKER_LIVING_FLAME_HEAL, SPELL_EVOKER_ENERGIZING_FLAME });
+    }
+
+    void HandleHitTarget(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* hitUnit = GetHitUnit();
+        if (caster->IsFriendlyTo(hitUnit))
+            caster->CastSpell(hitUnit, SPELL_EVOKER_LIVING_FLAME_HEAL, true);
+        else
+            caster->CastSpell(hitUnit, SPELL_EVOKER_LIVING_FLAME_DAMAGE, true);
+    }
+
+    void HandleLaunchTarget(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (caster->IsFriendlyTo(GetHitUnit()))
+            return;
+
+        if (AuraEffect* auraEffect = caster->GetAuraEffect(SPELL_EVOKER_ENERGIZING_FLAME, EFFECT_0))
+        {
+            int32 manaCost = GetSpell()->GetPowerTypeCostAmount(POWER_MANA).value_or(0);
+            if (manaCost != 0)
+                GetCaster()->ModifyPower(POWER_MANA, CalculatePct(manaCost, auraEffect->GetAmount()));
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_evo_living_flame::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectLaunchTarget += SpellEffectFn(spell_evo_living_flame::HandleLaunchTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_evoker_spell_scripts()
 {
     RegisterSpellScript(spell_evo_azure_strike);
     RegisterSpellScript(spell_evo_glide);
+    RegisterSpellScript(spell_evo_living_flame);
 }
