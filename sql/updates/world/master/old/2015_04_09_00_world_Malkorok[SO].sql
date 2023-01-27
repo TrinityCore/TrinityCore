@@ -1,0 +1,15 @@
+﻿DELETE FROM `creature` WHERE `id` = '71454';
+DELETE FROM `creature` WHERE `id` = '71470';
+DELETE FROM `creature` WHERE `id` = '71513';
+DELETE FROM `creature` WHERE `id` = '71455';
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `dynamicflags`, `isActive`) values(NULL ,'71454','1136','6738','6738','16536','1','0','0','1914.63','-4950.63','-198.977','0.576047','604800','0','0','376822368','1000','0','16777216','0','0','0','0');
+UPDATE `creature_template` SET `mechanic_immune_mask`='650854399',`flags_extra`='1',`ScriptName`='boss_malkorok' WHERE `entry`='71454';
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ( '142862','spell_ancient_barrier'); 
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ( '142861','spell_ancient_miasma'); 
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ( '142913','spell_displased_energy'); 
+INSERT INTO `spell_target_filter` (`spellId`, `targetId`, `option`, `param1`, `param2`, `param3`, `aura`, `chance`, `effectMask`, `resizeType`, `count`, `maxcount`, `addcount`, `addcaster`, `comments`) values('142913','15','9','0','0','0','0','0','7','2','1','1','0','0','OO: Displased Energy');
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ( '142842','spell_breath_of_yshaarj_dummy'); 
+UPDATE `creature_template` SET `ScriptName`='npc_implosion' WHERE `entry`='71470'; 
+UPDATE `creature_template` SET `ScriptName`='npc_ancient_miasma' WHERE `entry`='71513'; 
+INSERT INTO `spell_target_position`(`id`,`target_map`,`target_position_x`,`target_position_y`,`target_position_z`,`target_orientation`) VALUES ( '142898','1136','1914.63','-4950.63','-198.977','0.576047'); 
+UPDATE `creature_template` SET `ScriptName`='npc_arcing_smash' WHERE `entry`='71455'; 

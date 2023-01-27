@@ -1,0 +1,2 @@
+﻿INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ( '147207','spell_weakened_resolve');
+INSERT INTO `areatrigger_actions` (`entry`, `id`, `moment`, `actionType`, `targetFlags`, `spellId`, `maxCharges`, `aura`, `hasspell`, `chargeRecoveryTime`, `scale`, `hitMaxCount`, `amount`, `comment`) values('1344','0','1','0','8','147207','0','-147207','0','0','0','1','0','OO:Rift of Corruption');

@@ -1,0 +1,1 @@
+ALTER TABLE characters ADD COLUMN lfgBonusFaction int(10) unsigned NOT NULL DEFAULT '0' AFTER watchedFaction;

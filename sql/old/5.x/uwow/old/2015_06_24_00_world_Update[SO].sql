@@ -1,0 +1,1 @@
+UPDATE `creature_template` SET `unit_flags`='0',`unit_flags2`='0',`type_flags`='2097260' WHERE `entry`='72550'; 

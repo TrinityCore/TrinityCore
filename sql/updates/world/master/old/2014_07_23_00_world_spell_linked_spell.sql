@@ -1,0 +1,1 @@
+delete from spell_linked_spell where spell_trigger = 97462;

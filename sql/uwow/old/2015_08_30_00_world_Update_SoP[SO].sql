@@ -1,0 +1,4 @@
+UPDATE `areatrigger_data` SET `Radius`='30',`RadiusTarget`='30' WHERE `entry`='1295'; 
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ( '145685','spell_unstable_defense_system_dummy'); 
+INSERT INTO `areatrigger_actions`(`entry`,`id`,`moment`,`actionType`,`targetFlags`,`spellId`,`maxCharges`,`aura`,`hasspell`,`chargeRecoveryTime`,`scale`,`hitMaxCount`,`comment`) VALUES ( '1295','0','1','0','8','145685','0','-145685','0','0','0','0','OO:Unstable Defense System'); 
+INSERT INTO `areatrigger_actions`(`entry`,`id`,`moment`,`actionType`,`targetFlags`,`spellId`,`maxCharges`,`aura`,`hasspell`,`chargeRecoveryTime`,`scale`,`hitMaxCount`,`comment`) VALUES ( '1295','1','2','1','8','145685','0','145685','0','0','0','0','OO:Unstable Defense System Remove'); 

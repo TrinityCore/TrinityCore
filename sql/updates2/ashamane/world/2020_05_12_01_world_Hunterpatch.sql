@@ -1,0 +1,4 @@
+UPDATE `playercreateinfo_cast_spell` SET `raceMask` = '2048' WHERE `playercreateinfo_cast_spell`.`raceMask` = 8589934592 AND `playercreateinfo_cast_spell`.`classMask` = 4 AND `playercreateinfo_cast_spell`.`spell` = 27409;
+UPDATE `playercreateinfo_cast_spell` SET `raceMask` = '4096' WHERE `playercreateinfo_cast_spell`.`raceMask` = 17179869184 AND `playercreateinfo_cast_spell`.`classMask` = 4 AND `playercreateinfo_cast_spell`.`spell` = 312338;
+UPDATE `playercreateinfo_cast_spell` SET `raceMask` = '8192' WHERE `playercreateinfo_cast_spell`.`raceMask` = 34359738368 AND `playercreateinfo_cast_spell`.`classMask` = 4 AND `playercreateinfo_cast_spell`.`spell` = 82308;
+UPDATE `playercreateinfo_cast_spell` SET `raceMask` = '16384' WHERE `playercreateinfo_cast_spell`.`raceMask` = 68719476736 AND `playercreateinfo_cast_spell`.`classMask` = 4 AND `playercreateinfo_cast_spell`.`spell` = 312339;

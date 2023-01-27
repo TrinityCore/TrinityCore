@@ -1,0 +1,6 @@
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger`='5217' AND `spell_effect`='146874' AND `type`='0' AND `caster`='0' AND `target`='0' AND `hastype`='0' AND `hastalent`='144841' AND `hastype2`='0' AND `hastalent2`='0' AND `chance`='0' AND `cooldown`='0' AND `duration`='0' AND `hitmask`='0' AND `removeMask`='0' AND `targetCountType`='0' AND `targetCount`='-1' AND `actiontype`='0' AND `group`='0'; 
+DELETE FROM `spell_proc_check` WHERE `entry`='144841' AND `entry2`='0' AND `entry3`='0' AND `checkspell`='5217' AND `hastalent`='0' AND `powertype`='-1' AND `dmgclass`='-1' AND `specId`='0'; 
+DELETE FROM `spell_trigger` WHERE `spell_id`='144841' AND `spell_trigger`='146874' AND `option`='0' AND `effectmask`='7' AND `aura`='0' AND `check_spell_id`='0'; 
+DELETE FROM `spell_trigger` WHERE `spell_id`='146874' AND `spell_trigger`='144859' AND `option`='20' AND `effectmask`='7' AND `aura`='144841' AND `check_spell_id`='0';
+DELETE FROM `spell_proc_check` WHERE `entry`='146874' AND `entry2`='0' AND `entry3`='0' AND `checkspell`='127538' AND `hastalent`='0' AND `powertype`='-1' AND `dmgclass`='-1' AND `specId`='0';
+UPDATE `spell_proc_event` SET `procEx`='1' WHERE `entry`='146874' AND `effectmask`='7'; 

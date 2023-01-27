@@ -1,0 +1,4 @@
+DELETE FROM `spell_script_names` WHERE (`spell_id`='130392') AND (`ScriptName`='spell_hun_blink_strike');
+INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `hastalent`, `type2`, `comment`) VALUES ('17253', '130393', '130392', '3', 'Hunter - Blink Strikes(Bite)');
+INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `hastalent`, `type2`, `comment`) VALUES ('16827', '130393', '130392', '3', 'Hunter - Blink Strikes(Claw)');
+INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `hastalent`, `type2`, `comment`) VALUES ('49966', '130393', '130392', '3', 'Hunter - Blink Strikes(Smack)');

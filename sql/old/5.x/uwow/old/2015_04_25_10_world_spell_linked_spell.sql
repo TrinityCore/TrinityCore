@@ -1,0 +1,1 @@
+UPDATE `spell_linked_spell` SET `hitmask`='1' WHERE (`spell_trigger`='122470') AND (`spell_effect`='125174') AND (`type`='0') AND (`hastalent`='0');

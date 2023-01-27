@@ -1,0 +1,1 @@
+DELETE FROM `spell_script_names` WHERE (`spell_id`='109466') AND (`ScriptName`='spell_warr_curse_of_enfeeblement');

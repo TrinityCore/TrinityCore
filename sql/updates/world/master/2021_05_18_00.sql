@@ -1,0 +1,1 @@
+UPDATE `creature_template` SET subname = replace(subname,'Â','');

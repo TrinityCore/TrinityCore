@@ -1,0 +1,1 @@
+﻿INSERT INTO `banned_addons` VALUES (NULL, 'ppc', '', CURRENT_TIMESTAMP);

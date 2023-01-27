@@ -1,0 +1,2 @@
+﻿DELETE FROM `trinity_string` WHERE `entry`='810';
+INSERT INTO `trinity_string` (`entry`,`content_default`,`content_loc1`,`content_loc2`,`content_loc3`,`content_loc4`,`content_loc5`,`content_loc6`,`content_loc7`,`content_loc8`,`content_loc9`,`content_loc10`) VALUES (810,'|Hplayer:$n|h[$n]|h has earned the achievement $a!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'|Hplayer:$n|h[$n]|h $gзаслужил:заслужила; достижение $a!',NULL,NULL);

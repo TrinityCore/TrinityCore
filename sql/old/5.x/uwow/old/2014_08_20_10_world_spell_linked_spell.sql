@@ -1,0 +1,1 @@
+INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `hastalent`, `hastalent2`, `comment`) VALUES ('18562', '114108', '114107', '33886', 'Soul of the Forest');

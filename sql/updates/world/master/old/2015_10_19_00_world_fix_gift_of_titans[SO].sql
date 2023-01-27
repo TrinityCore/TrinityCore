@@ -1,0 +1,2 @@
+﻿DELETE FROM `spell_script_names` WHERE `spell_id`='144359' AND `ScriptName`='spell_sha_of_pride_gift_of_titans'; 
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ( '144363','spell_sha_of_pride_gift_of_titans_dummy'); 

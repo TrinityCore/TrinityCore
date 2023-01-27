@@ -1,0 +1,1 @@
+DELETE FROM `spell_script_name` WHERE `ScriptName` = 'spell_mage_evocation';

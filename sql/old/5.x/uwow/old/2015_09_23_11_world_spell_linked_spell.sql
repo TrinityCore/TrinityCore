@@ -1,0 +1,2 @@
+INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `hastalent`, `hastalent2`, `type2`, `comment`) VALUES ('118', '-1', '56375', '3', '5', 'Glyph of Polymorph');
+UPDATE `spell_linked_spell` SET `hitmask`='1' WHERE (`spell_trigger`='118') AND (`spell_effect`='-1') AND (`type`='0') AND (`hastalent`='56375');

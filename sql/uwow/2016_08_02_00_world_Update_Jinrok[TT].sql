@@ -1,0 +1,1 @@
+﻿INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ( '138389','spell_static_wound'); 

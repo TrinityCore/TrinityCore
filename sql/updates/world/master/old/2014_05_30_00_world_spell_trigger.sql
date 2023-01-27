@@ -1,0 +1,1 @@
+DELETE FROM `spell_trigger` WHERE (`spell_id`='146176') AND (`spell_trigger`='146177') AND (`option`='9') AND (`aura`='0');

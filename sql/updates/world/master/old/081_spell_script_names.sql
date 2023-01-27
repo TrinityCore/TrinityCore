@@ -1,0 +1,1 @@
+DELETE FROM `spell_script_names` WHERE (`spell_id`='73651') AND (`ScriptName`='spell_rog_recuperate');

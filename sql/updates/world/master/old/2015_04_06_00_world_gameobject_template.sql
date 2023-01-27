@@ -1,0 +1,3 @@
+ALTER TABLE gameobject_template 
+ADD `WorldEffectID` INT(11) UNSIGNED DEFAULT '0' NOT NULL AFTER ScriptName,
+ADD `SpellVisualID` INT(11) UNSIGNED DEFAULT '0' NOT NULL AFTER WorldEffectID;

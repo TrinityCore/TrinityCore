@@ -1,0 +1,1 @@
+INSERT INTO `spell_trigger_dummy` (`spell_id`, `spell_trigger`, `option`, `comment`) VALUES ('51640', '51657', '20', 'Taunt Flag Targeting');

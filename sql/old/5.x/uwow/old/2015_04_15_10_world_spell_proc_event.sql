@@ -1,0 +1,1 @@
+UPDATE `spell_proc_event` SET `SpellFamilyMask1`='262144' WHERE (`entry`='16196') AND (`effectmask`='7');

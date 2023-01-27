@@ -1,0 +1,1 @@
+UPDATE `spell_script_names` SET `spell_id`='845' WHERE (`spell_id`='1464') AND (`ScriptName`='spell_warr_taste_for_blood_aura');

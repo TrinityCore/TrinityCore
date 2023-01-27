@@ -1,0 +1,1 @@
+INSERT INTO `scene_template`(`SceneId`, `Flags`, `ScriptPackageID`, `ScriptName`) VALUES (3096, 16+8, 2708, 'scene_ali_horde_crashed_on_island');

@@ -1,0 +1,1 @@
+INSERT INTO `disables` (`sourceType`, `entry`, `flags`, `comment`) VALUES ('0', '49410', '3', 'Forceful Deflection');

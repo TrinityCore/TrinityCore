@@ -1,0 +1,1 @@
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ( '113762','spell_swirl_searcher_base'); 

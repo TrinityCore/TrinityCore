@@ -1,0 +1,14 @@
+## Interface: 50400
+## Title: Lib: CooldownTracker-1.0
+## Notes: Library for tracking cooldowns of other players
+## Author: Slaren
+## X-Category: Library
+## X-Curse-Packaged-Version: r20130911140938
+## X-Curse-Project-Name: LibCooldownTracker-1.0
+## X-Curse-Project-ID: libcooldowntracker-1-0
+## X-Curse-Repository-ID: wow/libcooldowntracker-1-0/mainline
+
+libs\LibStub\LibStub.lua
+libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+
+lib.xml

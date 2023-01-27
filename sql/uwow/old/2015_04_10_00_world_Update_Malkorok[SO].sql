@@ -1,0 +1,7 @@
+UPDATE `creature_template` SET `minlevel`='95',`maxlevel`='95' WHERE `entry`='71513';
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) values('71454','0','0','Я не подведу вождя!','14','0','100','0','0','38172','Малкорок');
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) values('71454','1','0','Гаррош дает мне силу!','14','0','100','0','0','38176','Малкорок');
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) values('71454','2','0','Слабаки...','14','0','100','0','0','38177','Малкорок');
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) values('71454','3','0','Это сила Истинной Орды!','14','0','100','0','0','38179','Малкорок');
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) values('71454','4','0','Вы падете перед мощью нашего вождя!','14','0','100','0','0','38180','Малкорок');
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) values('71454','5','0','Умереть за вождя... это... честь...','14','0','100','0','0','38173','Малкорок'); 

@@ -1,0 +1,1 @@
+INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `hastalent`, `hastalent2`, `chance`, `cooldown`, `type2`, `hitmask`, `learnspell`, `comment`) VALUES (35395, 115798, 0, 0, 0, 0, 0, 0, 0, 0, 'Paladin - Crusader Strike - Weakened Blows');

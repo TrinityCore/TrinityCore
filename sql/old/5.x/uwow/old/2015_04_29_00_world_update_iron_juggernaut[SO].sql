@@ -1,0 +1,9 @@
+﻿DELETE FROM `spell_script_names` WHERE `spell_id` = '144918';
+DELETE FROM `spell_script_names` WHERE `spell_id` = '144498';
+DELETE FROM `spell_script_names` WHERE `spell_id` = '144218';
+INSERT INTO `areatrigger_actions` (`entry`, `id`, `moment`, `actionType`, `targetFlags`, `spellId`, `maxCharges`, `aura`, `hasspell`, `chargeRecoveryTime`, `scale`, `hitMaxCount`, `comment`) values('1097','0','1','0','8','144918','0','-144918','0','0','0','0','OO: Cutter Laser');
+INSERT INTO `areatrigger_actions` (`entry`, `id`, `moment`, `actionType`, `targetFlags`, `spellId`, `maxCharges`, `aura`, `hasspell`, `chargeRecoveryTime`, `scale`, `hitMaxCount`, `comment`) values('1097','1','2','1','8','144918','0','0','0','0','0','0','OO: Cutter Laser Remove');
+INSERT INTO `areatrigger_actions` (`entry`, `id`, `moment`, `actionType`, `targetFlags`, `spellId`, `maxCharges`, `aura`, `hasspell`, `chargeRecoveryTime`, `scale`, `hitMaxCount`, `comment`) values('1083','0','1','0','8','144498','0','-144498','0','0','0','0','OO: Explosive Tar');
+INSERT INTO `areatrigger_actions` (`entry`, `id`, `moment`, `actionType`, `targetFlags`, `spellId`, `maxCharges`, `aura`, `hasspell`, `chargeRecoveryTime`, `scale`, `hitMaxCount`, `comment`) values('1083','1','2','1','8','144498','0','0','0','0','0','0','OO: Explosive Tar Remove');
+INSERT INTO `areatrigger_actions` (`entry`, `id`, `moment`, `actionType`, `targetFlags`, `spellId`, `maxCharges`, `aura`, `hasspell`, `chargeRecoveryTime`, `scale`, `hitMaxCount`, `comment`) values('1110','0','1','0','8','144218','0','-144218','0','0','0','0','OO: Borer Drill');
+INSERT INTO `areatrigger_actions` (`entry`, `id`, `moment`, `actionType`, `targetFlags`, `spellId`, `maxCharges`, `aura`, `hasspell`, `chargeRecoveryTime`, `scale`, `hitMaxCount`, `comment`) values('1110','1','2','1','8','144218','0','0','0','0','0','0','OO: Borer Drill Remove');

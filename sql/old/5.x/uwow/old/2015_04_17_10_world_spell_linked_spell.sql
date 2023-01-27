@@ -1,0 +1,2 @@
+INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `comment`) VALUES ('49020', '-51124', 'DK -Remove Killing Machine');
+INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `comment`) VALUES ('49143', '-51124', 'DK -Remove Killing Machine');

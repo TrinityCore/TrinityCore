@@ -1,0 +1,2 @@
+DELETE FROM `spell_script_names` WHERE (`spell_id`='116740') AND (`ScriptName`='spell_monk_tigereye_brew');
+DELETE FROM `spell_script_names` WHERE (`spell_id`='123980') AND (`ScriptName`='spell_monk_tigereye_brew_stacks');

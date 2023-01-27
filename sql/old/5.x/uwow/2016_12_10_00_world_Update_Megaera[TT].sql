@@ -1,0 +1,7 @@
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ( '139889','spell_torrent_of_ice'); 
+UPDATE `creature_template` SET `ScriptName`='npc_torrent_of_ice' WHERE `entry`='70439'; 
+UPDATE `creature_template` SET `ScriptName`='npc_icy_ground' WHERE `entry`='70446'; 
+INSERT INTO `areatrigger_data`(`entry`,`spellId`,`customEntry`,`customVisualId`,`Radius`,`RadiusTarget`,`Height`,`HeightTarget`,`Float4`,`Float5`,`isMoving`,`moveType`,`waitTime`,`speed`,`activationDelay`,`updateDelay`,`maxCount`,`hitType`,`MoveCurveID`,`ElapsedTime`,`MorphCurveID`,`FacingCurveID`,`ScaleCurveID`,`HasFollowsTerrain`,`HasAttached`,`HasAbsoluteOrientation`,`HasDynamicShape`,`HasFaceMovementDir`,`windX`,`windY`,`windZ`,`windSpeed`,`windType`,`polygon`,`comment`) VALUES ( '853','139875','4154','0','9','9','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','1','0','0','0','0','0','0','0','0','TT:Icy Ground');
+insert into `areatrigger_actions` (`entry`, `id`, `moment`, `actionType`, `targetFlags`, `spellId`, `maxCharges`, `aura`, `hasspell`, `chargeRecoveryTime`, `scale`, `hitMaxCount`, `amount`, `comment`) values('853','0','1','0','8','139909','0','-139909','0','0','0','0','0','TT:Icy Ground');
+insert into `areatrigger_actions` (`entry`, `id`, `moment`, `actionType`, `targetFlags`, `spellId`, `maxCharges`, `aura`, `hasspell`, `chargeRecoveryTime`, `scale`, `hitMaxCount`, `amount`, `comment`) values('853','1','42','1','8','139909','0','0','0','0','0','0','0','TT:Icy Ground Remove');
+  

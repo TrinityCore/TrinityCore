@@ -1,0 +1,3 @@
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ( '145489','spell_stone_statue_summon'); 
+INSERT INTO `areatrigger_actions` (`entry`, `id`, `moment`, `actionType`, `targetFlags`, `spellId`, `maxCharges`, `aura`, `hasspell`, `chargeRecoveryTime`, `scale`, `hitMaxCount`, `amount`, `comment`) values('1201','0','5','0','8','145716','0','0','0','0','0','0','0','OO:Gusting Bomb');
+UPDATE `creature_template` SET `mechanic_immune_mask`='650854399',`ScriptName`='npc_stone_statue' WHERE `entry`='72535'; 

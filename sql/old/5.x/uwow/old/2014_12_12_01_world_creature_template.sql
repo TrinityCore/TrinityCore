@@ -1,0 +1,1 @@
+update creature_template set unit_flags = 516, ScriptName = 'npc_guild_battle_standard', flags_extra = 2 where entry in (48115, 48636);

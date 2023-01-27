@@ -1,0 +1,3 @@
+DELETE FROM `conditions` WHERE `SourceEntry` = 127250 AND SourceTypeOrReferenceId = 17;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(17, 0, 127250, 0, 0, 27, 0, 84, 2, 0, 0, 86, '', 'Item Ancient Knowledge');

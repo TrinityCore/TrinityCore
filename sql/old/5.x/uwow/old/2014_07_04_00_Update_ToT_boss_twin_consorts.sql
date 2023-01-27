@@ -1,0 +1,10 @@
+UPDATE `gameobject` SET `state`='0' WHERE `id`='218589'; 
+UPDATE `gameobject` SET `state`='0' WHERE `id`='218781';
+DELETE FROM `creature` WHERE `id`='69365';
+DELETE FROM `creature` WHERE `id`='64188';
+DELETE FROM `creature` WHERE `id`='69340';
+DELETE FROM `creature` WHERE `id`='69460';
+DELETE FROM `creature` WHERE `id`='69479';
+UPDATE `creature_template` SET `faction_A`='14',`faction_H`='14',`unit_flags`='0',`unit_flags2`='2048',`mechanic_immune_mask`='650854399',`flags_extra`='256',`ScriptName`='npc_beast_of_nightmare' WHERE `entry`='69479';
+UPDATE `creature_template` SET `unit_flags`='0',`unit_flags2`='2048',`mechanic_immune_mask`='650854399',`flags_extra`='1',`ScriptName`='boss_twin_consorts' WHERE `entry`='68904';
+UPDATE `creature_template` SET `unit_flags`='0',`unit_flags2`='2048',`mechanic_immune_mask`='650854399',`flags_extra`='1',`ScriptName`='boss_twin_consorts' WHERE `entry`='68905';

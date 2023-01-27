@@ -1,0 +1,15 @@
+DELETE FROM `creature` WHERE `id` = '68065';
+DELETE FROM `creature` WHERE `id` = '70212';
+DELETE FROM `creature` WHERE `id` = '70229';
+DELETE FROM `creature` WHERE `id` = '70247';
+DELETE FROM `creature` WHERE `id` = '70251';
+DELETE FROM `creature` WHERE `id` = '70235';
+DELETE FROM `creature` WHERE `id` = '70250';
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `dynamicflags`, `isActive`) values(NULL ,'68065','1098','6622','6706','248','1','0','0','6385.91','4544.27','-209.177','5.91511','604800','0','0','315981248','0','0','0','0','0','0','0');
+UPDATE `creature_template` SET `modelid1`='11686',`unit_flags2`='4194304',`ScriptName`='npc_megaera' WHERE `entry`='68065'; 
+UPDATE `creature_template` SET `InhabitType`='7',`mechanic_immune_mask`='650854399',`ScriptName`='npc_megaera_head' WHERE `entry`='70229'; 
+UPDATE `creature_template` SET `InhabitType`='7',`mechanic_immune_mask`='650854399',`ScriptName`='npc_megaera_head' WHERE `entry`='70251'; 
+UPDATE `creature_template` SET `InhabitType`='7',`mechanic_immune_mask`='650854399',`ScriptName`='npc_megaera_head' WHERE `entry`='70250'; 
+UPDATE `creature_template` SET `InhabitType`='7',`mechanic_immune_mask`='650854399',`ScriptName`='npc_megaera_head' WHERE `entry`='70212'; 
+UPDATE `creature_template` SET `InhabitType`='7',`mechanic_immune_mask`='650854399',`ScriptName`='npc_megaera_head' WHERE `entry`='70247'; 
+UPDATE `creature_template` SET `InhabitType`='7',`mechanic_immune_mask`='650854399',`ScriptName`='npc_megaera_head' WHERE `entry`='70235'; 

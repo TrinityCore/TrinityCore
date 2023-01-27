@@ -1,0 +1,1 @@
+INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `comment`) VALUES ('-108503', '-119904', 'Grimoire of Sacrifice');

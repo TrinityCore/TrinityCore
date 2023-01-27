@@ -1,0 +1,1 @@
+﻿UPDATE characters SET playerFlags = playerFlags & ~0x01000000;

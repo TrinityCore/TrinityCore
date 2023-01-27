@@ -1,0 +1,263 @@
+long,str,long,long,long,bool,str,long,str,str,long,float,long,float,float,long,long,flags,flags,long,
+0,"Azeroth",0,15965,1,0,"Royaumes de l'est",0,"","",4,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+1,"Kalimdor",0,15965,1,0,"Kalimdor",0,"","",3,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+13,"test",0,1555,2,0,"Test",3817,"","",0,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+25,"ScottTest",0,1555,2,0,"Test de Scott",0,"","",0,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+30,"PVPZone01",3,1553,1,1,"Vallée d'Alterac",0,"Cachée dans les montagnes d’Alterac, la vallée d’Alterac est le domaine des Loups-de-givre. Les nains Foudrepiques, à la recherche de richesses et d’indices sur leur passé, y ont établi une tête de pont.
+
+Sur ce champ de bataille à grande échelle, chaque camp tente de détruire les tours fortifiées et de tuer le général ennemis (Vanndar Foudrepique ou Drek'Thar).","Cachée dans les montagnes d’Alterac, la vallée d’Alterac est le domaine des Loups-de-givre. Les nains Foudrepiques, à la recherche de richesses et d’indices sur leur passé, y ont établi une tête de pont.
+
+Sur ce champ de bataille à grande échelle, chaque camp tente de détruire les tours fortifiées et de tuer le général ennemis (Vanndar Foudrepique ou Drek'Thar).",104,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+33,"Shadowfang",1,1565,1,0,"Donjon d'Ombrecroc",0,"","",204,1.0,0,-230.988998413,1571.56994629,-1,0,0x0,0xA,-1,
+34,"StormwindJail",1,1553,2,0,"Prison de Hurlevent",717,"","",194,1.0,0,-8762.37890625,848.010314941,-1,0,0x0,0xA,-1,
+35,"StormwindPrison",0,1555,2,0,"<inutilisé>Prison de Hurlevent",717,"","",23,1.0,0,-8762.4765625,848.049133301,-1,0,0x0,0x0,-1,
+36,"DeadminesInstance",1,1553,1,0,"Mortemines",0,"","",142,1.0,0,-11207.7998047,1681.15002441,-1,0,0x0,0xA,-1,
+37,"PVPZone02",0,1553,1,1,"Cratère d'Azshara",0,"Ecrasez l'Alliance !","Défendez-vous contre l'assaut de la Horde !",25,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+42,"Collin",0,1555,2,0,"Test de Collin",0,"","",0,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+43,"WailingCaverns",1,1553,2,0,"Cavernes des Lamentations",718,"","",143,1.0,1,-751.131225586,-2209.24047852,-1,0,0x0,0xA,-1,
+44,"Monastery",1,1555,2,0,"<inutilisé> Monastère",0,"","",42,1.0,0,2892.41333008,-811.241333008,-1,0,0x0,0xA,-1,
+47,"RazorfenKraulInstance",1,1553,1,0,"Kraal de Tranchebauge",0,"","",188,1.0,1,-4459.44921875,-1660.21179199,-1,0,0x0,0xA,-1,
+48,"Blackfathom",1,1553,2,0,"Profondeurs de Brassenoire",719,"","",196,1.0,1,4249.12060547,748.387084961,-1,0,0x0,0xA,-1,
+70,"Uldaman",1,1553,2,0,"Uldaman",1337,"","",144,1.0,0,-6060.18164063,-2954.99731445,-1,0,0x0,0xA,-1,
+90,"GnomeragonInstance",1,1553,2,0,"Gnomeregan",721,"","",193,1.0,0,-5162.66162109,931.598754883,-1,0,0x0,0xA,-1,
+109,"SunkenTemple",1,1553,2,0,"Temple englouti",1477,"","",191,1.0,0,-10291.7001953,-3987.62988281,-1,0,0x0,0xA,-1,
+129,"RazorfenDowns",1,1553,1,0,"Souilles de Tranchebauge",0,"","",145,1.0,1,-4662.8828125,-2535.87158203,-1,0,0x0,0xA,-1,
+169,"EmeraldDream",2,1553,1,0,"Rêve d'émeraude",0,"","",0,1.0,-1,0.0,0.0,-1,0,0x0,0x28,-1,
+189,"MonasteryInstances",1,1553,1,0,"Monastère écarlate",0,"","",190,1.0,0,2892.23535156,-811.263671875,-1,0,0x0,0xA,-1,
+209,"TanarisInstance",1,1553,1,0,"Zul'Farrak",0,"","",146,1.0,1,-6790.57666016,-2891.27807617,-1,0,0x0,0xA,-1,
+229,"BlackRockSpire",1,1537,2,0,"Pic Rochenoire",1583,"","",189,1.0,0,-7522.52685547,-1233.04150391,-1,0,0x0,0xA,-1,
+230,"BlackrockDepths",1,1553,2,0,"Profondeurs de Rochenoire",1584,"","",103,1.0,0,-7178.09472656,-928.639465332,-1,0,0x0,0x5,-1,
+249,"OnyxiaLairInstance",2,34305,2,0,"Repaire d'Onyxia",2159,"","",61,1.0,1,-4753.3125,-3752.42114258,-1,0,0x0,0x28,-1,
+269,"CavernsOfTime",1,1553,1,0,"Ouverture de la Porte des ténèbres",0,"","",212,1.0,1,-8750.82714844,-4193.51318359,-1,1,0x0,0x5,-1,
+289,"SchoolofNecromancy",1,1553,1,0,"Scholomance",0,"","",102,1.0,0,1274.78125,-2552.56396484,-1,0,0x0,0x5,-1,
+309,"Zul'gurub",1,525841,1,0,"L’antique Zul'Gurub",1977,"","",161,1.0,0,-11916.0595703,-1224.57714844,-1,0,0x0,0x14,-1,
+329,"Stratholme",1,1553,1,0,"Stratholme",0,"","",101,1.0,0,3392.31689453,-3378.4831543,-1,0,0x0,0x5,-1,
+349,"Mauradon",1,1553,2,0,"Maraudon",2100,"","",81,1.0,1,-1432.69714355,2924.97753906,-1,0,0x0,0xA,-1,
+369,"DeeprunTram",0,1553,2,0,"Tram des profondeurs",2257,"","",205,1.0,0,-8349.22363281,517.347961426,-1,0,0x0,0x0,-1,
+389,"OrgrimmarInstance",1,1553,2,0,"Gouffre de Ragefeu",2437,"","",195,1.0,1,1816.75585938,-4423.37158203,-1,0,0x0,0xA,-1,
+409,"MoltenCore",2,1553,2,0,"Cœur du Magma",2717,"","",192,1.0,0,-7510.56494141,-1036.69812012,-1,0,0x0,0x28,-1,
+429,"DireMaul",1,1537,2,0,"Hache-Tripes",2557,"","",82,1.0,1,-3908.0300293,1130.0,-1,0,0x0,0x5,-1,
+449,"AlliancePVPBarracks",0,1553,2,0,"Baraquements Alliance JcJ",2918,"","",181,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+450,"HordePVPBarracks",0,1553,2,0,"Baraquements Horde JcJ",2917,"","",182,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+451,"development",0,1631,1,0,"Terre en développement",0,"","",21,1.0,-1,0.0,0.0,-1,3,0x0,0x0,-1,
+469,"BlackwingLair",2,1553,1,0,"Repaire de l'Aile noire",2677,"","",141,1.0,0,-7663.41259766,-1218.66650391,-1,0,0x0,0x28,-1,
+489,"PVPZone03",3,1553,1,1,"Goulet des Chanteguerres",3277,"Aux confins de la forêt d’Orneval et des Tarides, le goulet des Chanteguerres est le théâtre d’affrontements perpétuels entre l'Alliance et la Horde.
+
+Sur ce champ de bataille à dix contre dix de type Capture du drapeau, la première faction à capturer trois fois le drapeau obtient la victoire.
+
+Les représentants de toutes les races d'Azeroth se ruent dans le goulet et mettent à disposition épées et sorts pour aider leurs alliés dans ce conflit.","Aux confins de la forêt d’Orneval et des Tarides, le goulet des Chanteguerres est le théâtre d’affrontements perpétuels entre l'Alliance et la Horde.
+
+Sur ce champ de bataille à dix contre dix de type Capture du drapeau, la première faction à capturer trois fois le drapeau obtient la victoire.
+
+Les représentants de toutes les races d'Azeroth se ruent dans le goulet et mettent à disposition épées et sorts pour aider leurs alliés dans ce conflit.",122,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+509,"AhnQiraj",2,1553,1,0,"Ruines d'Ahn'Qiraj",3429,"","",184,1.0,1,-8114.46435547,1526.36572266,-1,0,0x10B30,0x14,-1,
+529,"PVPZone04",3,1553,1,1,"Bassin Arathi",3358,"Le bassin Arathi est l’un des principaux théâtres de la guerre entre humains et Réprouvés en Azeroth.
+
+Les soldats d'élite des Profanateurs s’efforcent de couper les communications entre les humains et leurs alliés nains au sud.
+
+Quant à la Ligue d’Arathor, elle tente de récupérer les territoires perdus pour le compte de ses bienfaiteurs de Hurlevent.","Le bassin Arathi est l’un des principaux théâtres de la guerre entre humains et Réprouvés en Azeroth.
+
+La Ligue d’Arathor tente de récupérer les territoires perdus pour le compte de ses bienfaiteurs de Hurlevent.
+
+Quant aux Profanateurs, ces soldats d’élites s’efforcent de couper les communications entre les humains et leurs alliés nains au sud.",183,1.25,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+530,"Expansion01",0,1553,1,0,"Outreterre",0,"","",198,1.0,-1,0.0,0.0,-1,1,0x0,0x0,-1,
+531,"AhnQirajTemple",2,1553,1,0,"Temple d'Ahn'Qiraj",3428,"","",185,1.0,1,-8111.72412109,1526.7857666,-1,0,0x0,0x28,-1,
+532,"Karazahn",2,1553,1,0,"Karazhan",3457,"","",200,1.0,0,-11110.4072266,-2004.06530762,-1,1,0x0,0xA,-1,
+533,"Stratholme Raid",2,34321,1,0,"Naxxramas",3456,"","",197,1.0,-1,0.0,0.0,-1,2,0x0,0x19,-1,
+534,"HyjalPast",2,1553,1,0,"La bataille du mont Hyjal",616,"","",212,1.0,1,-8178.5078125,-4182.05029297,-1,1,0x0,0x19,-1,
+540,"HellfireMilitary",1,1553,2,0,"Citadelle des Flammes infernales : les Salles brisées",3714,"","",199,1.0,530,-306.758178711,3064.43554688,-1,1,0x0,0x5,-1,
+542,"HellfireDemon",1,1553,2,0,"Citadelle des Flammes infernales : la Fournaise du sang",3713,"","",199,1.0,530,-295.419342041,3151.99267578,-1,1,0x0,0x5,-1,
+543,"HellfireRampart",1,67089,1,0,"Citadelle des Flammes infernales : les Remparts",3562,"","",199,1.0,530,-360.049865723,3067.89550781,-1,1,0x0,0x5,-1,
+544,"HellfireRaid",2,1553,2,0,"Repaire de Magtheridon",3836,"","",208,1.0,530,-330.233856201,3106.63598633,-1,1,0x0,0x19,-1,
+545,"CoilfangPumping",1,1553,2,0,"Glissecroc : le Caveau de la vapeur",3715,"","",207,1.0,530,764.219055176,6915.07958984,-1,1,0x0,0x5,-1,
+546,"CoilfangMarsh",1,1553,2,0,"Glissecroc : la Basse-tourbière",3716,"","",207,1.0,530,764.628234863,6768.07275391,-1,1,0x0,0x5,-1,
+547,"CoilfangDraenei",1,1553,2,0,"Glissecroc : les Enclos aux esclaves",3717,"","",207,1.0,530,742.158203125,7011.32666016,-1,1,0x0,0x5,-1,
+548,"CoilfangRaid",2,1553,2,0,"Glissecroc : caverne du sanctuaire du Serpent",3607,"","",207,1.0,530,775.786376953,6865.24267578,-1,1,0x0,0x19,-1,
+550,"TempestKeepRaid",2,1553,2,0,"Donjon de la Tempête",3845,"","",206,1.0,-1,0.0,0.0,-1,1,0x0,0x19,-1,
+552,"TempestKeepArcane",1,1553,2,0,"Donjon de la Tempête : l'Arcatraz",3848,"","",206,1.0,-1,0.0,0.0,-1,1,0x0,0x5,-1,
+553,"TempestKeepAtrium",1,1553,2,0,"Donjon de la Tempête : la Botanica",3847,"","",206,1.0,-1,0.0,0.0,-1,1,0x0,0x5,-1,
+554,"TempestKeepFactory",1,1553,2,0,"Donjon de la Tempête : le Méchanar",3849,"","",206,1.0,-1,0.0,0.0,-1,1,0x0,0x5,-1,
+555,"AuchindounShadow",1,1553,2,0,"Auchindoun : Labyrinthe des ombres",3789,"","",201,1.0,530,-3640.68774414,4943.16259766,-1,1,0x0,0x5,-1,
+556,"AuchindounDemon",1,1553,2,0,"Auchindoun : Salles des Sethekk",3791,"","",201,1.0,530,-3361.86254883,4665.59228516,-1,1,0x0,0x5,-1,
+557,"AuchindounEthereal",1,1553,2,0,"Auchindoun : Tombes-mana",3792,"","",201,1.0,530,-3089.51635742,4942.75634766,-1,1,0x0,0x5,-1,
+558,"AuchindounDraenei",1,1553,2,0,"Auchindoun : Cryptes Auchenaï",3790,"","",201,1.0,530,-3363.43994141,5156.45507813,-1,1,0x0,0x5,-1,
+559,"PVPZone05",4,1553,1,0,"Arène de Nagrand",0,"","",219,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+560,"HillsbradPast",1,9745,1,0,"L'évasion de Fort-de-Durn",267,"","",212,1.0,1,-8309.80957031,-4061.50878906,-1,1,0x0,0x5,-1,
+562,"bladesedgearena",4,1553,1,0,"Arène des Tranchantes",3702,"","",218,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+564,"BlackTemple",2,1553,1,0,"Temple noir",0,"","",215,1.0,530,-3644.52734375,317.293670654,-1,1,0x0,0x19,-1,
+565,"GruulsLair",2,1553,2,0,"Le repaire de Gruul",3923,"","",213,1.0,530,3525.45288086,5144.15087891,-1,1,0x0,0x19,-1,
+566,"NetherstormBG",3,1553,1,1,"L'Œil du cyclone",0,"Flottant en altitude au-dessus des terres dévastées du Raz-de-Néant se trouve l’île appelée l’Œil du cyclone.
+
+Les elfes de sang convoitent ce champ de bataille pour ses abondants gisements d’énergie, alors que les draeneï le revendiquent au nom de sa proximité avec le mystérieux vaisseau naaru : le donjon de la Tempête.","Flottant en altitude au-dessus des terres dévastées du Raz-de-Néant se trouve l’île appelée l’Œil du cyclone.
+
+Les draeneï revendiquent ce champ de bataille au nom de sa proximité avec le mystérieux vaisseau naaru : le donjon de la Tempête, tandis que les elfes de sang le convoitent pour ses abondants gisements d’énergie.",210,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+568,"ZulAman",1,1553,1,0,"Zul'Aman",0,"","",276,1.0,530,6851.02099609,-7989.71337891,-1,3,0x0,0xA,-1,
+571,"Northrend",0,1565,1,0,"Norfendre",0,"","",216,1.0,-1,0.0,0.0,-1,2,0x0,0x0,-1,
+572,"PVPLordaeron",4,1553,1,0,"Ruines de Lordaeron",0,"","",217,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+573,"ExteriorTest",0,1567,1,0,"Test d'extérieur",0,"","",0,1.0,-1,0.0,0.0,-1,2,0x0,0x0,-1,
+574,"Valgarde70",1,9757,1,0,"Donjon d'Utgarde",0,"","",220,1.0,571,1211.75939941,-4868.421875,-1,2,0x0,0x5,-1,
+575,"UtgardePinnacle",1,67101,1,0,"Cime d'Utgarde",0,"","",221,1.0,571,1232.40979004,-4860.95361328,-1,2,0x0,0x5,-1,
+576,"Nexus70",1,1553,2,0,"Le Nexus",4265,"","",226,1.0,571,3899.92578125,6985.43554687,-1,2,0x0,0x5,-1,
+578,"Nexus80",1,1565,1,0,"L'Oculus",0,"","",227,1.0,571,3865.9230957,6983.93994141,-1,2,0x0,0x5,-1,
+580,"SunwellPlateau",2,1553,1,0,"Le Puits de soleil",0,"","",225,1.0,530,12551.7626953,-6774.56542969,-1,1,0x0,0x19,-1,
+582,"Transport176244",0,1553,3,0,"Transport : de Rut'theran à Auberdine",0,"","",0,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+584,"Transport176231",0,1553,3,0,"Transport : de Menethil à Theramore",0,"","",0,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+585,"Sunwell5ManFix",1,1565,1,0,"Terrasse des magistères",0,"","",224,1.0,530,12881.9023438,-7343.09472656,-1,1,0x0,0x5,-1,
+586,"Transport181645",0,1553,3,0,"Transport : de l'Exodar à Auberdine",0,"","",0,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+587,"Transport177233",0,1553,3,0,"Transport : bac de Pennelune",0,"","",0,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+588,"Transport176310",0,1553,3,0,"Transport : de Menethil à Auberdine",0,"","",0,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+589,"Transport175080",0,1553,3,0,"Transport : d'Orgrimmar à Grom'Gol",0,"","",0,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+590,"Transport176495",0,1553,3,0,"Transport : de Grom'Gol à Fossoyeuse",0,"","",0,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+591,"Transport164871",0,1553,3,0,"Transport : de Fossoyeuse à Orgrimmar",0,"","",0,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+592,"Transport186238",0,1553,3,0,"Transport : test de la toundra Boréenne",0,"","",0,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+593,"Transport20808",0,1553,3,0,"Transport : Baie-du-Butin à Cabestan",0,"","",0,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+594,"Transport187038",0,1553,3,0,"Transport : Fjord hurlant Sœur Miséricorde (quête)",0,"","",0,1.0,-1,0.0,0.0,-1,2,0x0,0x0,-1,
+595,"StratholmeCOT",1,1553,1,0,"L'Épuration de Stratholme",0,"","",222,1.0,1,-8756.08691406,-4457.41796875,-1,2,0x0,0x5,-1,
+596,"Transport187263",0,1553,3,0,"Transport: Naglfar",0,"","",0,1.0,-1,0.0,0.0,-1,2,0x0,0x0,-1,
+597,"CraigTest",0,1759,1,0,"Test de Craig",0,"","",0,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+598,"Sunwell5Man",1,1555,2,0,"Correction du puits de soleil (inutilisé)",0,"","",4,1.0,-1,0.0,0.0,-1,1,0x0,0x5,-1,
+599,"Ulduar70",1,1565,1,0,"Les salles de Pierre",0,"","",230,1.0,571,8921.79296875,-966.80645752,-1,2,0x0,0x5,-1,
+600,"DrakTheronKeep",1,1565,1,0,"Donjon de Drak'Tharon",0,"","",228,1.0,571,4774.58300781,-2023.04907227,-1,2,0x0,0x5,-1,
+601,"Azjol_Uppercity",1,1565,1,0,"Azjol -Nérub",0,"","",229,1.0,571,3672.21533203,2171.27514648,-1,2,0x0,0x5,-1,
+602,"Ulduar80",1,1565,1,0,"Les salles de Foudre",0,"","",231,1.0,571,9185.08789063,-1386.79064941,-1,2,0x0,0x5,-1,
+603,"UlduarRaid",2,34333,1,0,"Ulduar",0,"","",244,1.0,571,9359.37109375,-1115.17541504,0,2,0x0,0x5,-1,
+604,"GunDrak",1,1565,1,0,"Gundrak",0,"","",237,1.0,571,6708.73095703,-4654.90380859,-1,2,0x0,0x5,-1,
+605,"development_nonweighted",0,1555,1,0,"Terre en développement (textures sans pesanteur)",0,"","",21,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+606,"QA_DVD",0,1567,1,0,"AQ et DVD",0,"","",21,1.0,-1,0.0,0.0,-1,2,0x0,0x0,-1,
+607,"NorthrendBG",3,1565,1,1,"Rivage des Anciens",0,"Un artéfact légendaire des titans repose au sud de la Désolation des dragons. La Horde et l’Alliance estiment qu’il renferme des informations capitales sur les titans et leur culture.
+
+Le rivage des Anciens est un champ de bataille à quinze contre quinze, où les deux camps attaquent et défendent chacun leur tour l'artéfact situé sur la pointe sud de l'île.
+
+Préparez-vous à l'affrontement, car sur le rivage des Anciens, le destin ne compte pas.","Un artéfact légendaire des titans repose au sud de la Désolation des dragons. La Horde et l’Alliance estiment qu’il renferme des informations capitales sur les titans et leur culture.
+
+Le rivage des Anciens est un champ de bataille à quinze contre quinze, où les deux camps attaquent et défendent chacun leur tour l'artéfact situé sur la pointe sud de l'île.
+
+Préparez-vous à l'affrontement, car sur le rivage des Anciens, le destin ne compte pas.",238,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+608,"DalaranPrison",1,1565,1,0,"Le fort Pourpre",0,"","",235,1.0,571,5689.48974609,498.046936035,-1,2,0x0,0x5,-1,
+609,"DeathKnightStart",0,1565,1,0,"Le fort d'Ébène",0,"","",233,1.0,-1,0.0,0.0,-1,2,0x0,0x0,-1,
+610,"Transport_Tirisfal _Vengeance_Landing",0,1553,3,0,"Transport : de Tirisfal à l'accostage de la Vengeance",0,"","",0,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+612,"Transport_Menethil_Valgarde",0,1553,3,0,"Transport : de Menethil à Valgarde",0,"","",0,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+613,"Transport_Orgrimmar_Warsong_Hold",0,1553,3,0,"Transport : d'Orgrimmar au bastion Chanteguerre",0,"","",0,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+614,"Transport_Stormwind_Valiance_Keep",0,1553,3,0,"Transport : de Hurlevent au donjon de la Bravoure",0,"","",0,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+615,"ChamberOfAspectsBlack",2,34333,1,0,"Le sanctum Obsidien",0,"","",239,1.0,571,3438.15332031,260.401306152,-1,2,0x0,0x0,-1,
+616,"NexusRaid",2,34333,1,0,"L'Œil de l'éternité",0,"","",236,1.0,571,3869.98144531,6984.33007813,-1,2,0x0,0x5,-1,
+617,"DalaranArena",4,1565,1,0,"Égouts de Dalaran",0,"","",242,1.0,-1,0.0,0.0,0,0,0x0,0x0,-1,
+618,"OrgrimmarArena",4,4195869,1,0,"L'arène des Valeureux",0,"","",240,1.0,-1,0.0,0.0,720,0,0x0,0x0,-1,
+619,"Azjol_LowerCity",1,1565,1,0,"Ahn'kahet : l'Ancien royaume",0,"","",234,1.0,571,3641.45800781,2032.06384277,-1,2,0x0,0x0,-1,
+620,"Transport_Moa'ki_Unu'pe",0,1553,3,0,"Transport : Moa'ki à Unu'pe",0,"","",0,1.0,-1,0.0,0.0,-1,2,0x0,0x0,-1,
+621,"Transport_Moa'ki_Kamagua",0,1553,3,0,"Transport : Moa'ki à Kamagua",0,"","",0,1.0,-1,0.0,0.0,-1,2,0x0,0x0,-1,
+622,"Transport192241",0,1553,3,0,"Transport : le Marteau d'Orgrim",0,"","",0,1.0,-1,0.0,0.0,-1,2,0x0,0x0,-1,
+623,"Transport192242",0,1553,3,0,"Transport : le Brise-ciel",0,"","",0,1.0,-1,0.0,0.0,-1,2,0x0,0x0,-1,
+624,"WintergraspRaid",2,34365,1,0,"Caveau d'Archavon",0,"","",243,1.0,571,5488.12451172,2840.33374023,-1,2,0x0,0x0,-1,
+627,"unused",1,1567,1,0,"Inutilisé",0,"","",0,1.0,-1,0.0,0.0,-1,2,0x0,0x0,-1,
+628,"IsleofConquest",3,1565,1,1,"Île des Conquérants",0,"L'île des Conquérants est un point stratégique très important pour la Horde et l'Alliance en Norfendre. Chaque camp est déterminé à en prendre le contrôle.
+
+Sur ce champ de bataille à grande échelle, chaque camp tente d'arracher le contrôle de l'usine de siège, des docks ou du hangar afin de sécuriser l'accès au bastion ennemi et d'en vaincre le général (Halford Verroctone ou le suzerain Agmar).","L'île des Conquérants est un point stratégique très important pour la Horde et l'Alliance en Norfendre. Chaque camp est déterminé à en prendre le contrôle.
+
+Sur ce champ de bataille à grande échelle, chaque camp tente d'arracher le contrôle de l'usine de siège, des docks ou du hangar afin de sécuriser l'accès au bastion ennemi et d'en vaincre le général (Halford Verroctone ou le suzerain Agmar).",245,1.0,-1,0.0,0.0,-1,2,0x0,0x0,-1,
+631,"IcecrownCitadel",2,34589,1,0,"Citadelle de la Couronne de glace",0,"","",250,1.0,571,5776.921875,2065.93237305,-1,2,0x0,0x0,-1,
+632,"IcecrownCitadel5Man",1,1565,1,0,"La Forge des âmes",0,"","",249,1.0,571,5670.79150391,2003.62854004,-1,2,0x0,0x0,-1,
+637,"AbyssalMaw",1,1565,1,0,"Extérieur de la Gueule des abysses",0,"","",23,1.0,-1,0.0,0.0,-1,3,0x0,0x0,-1,
+638,"Gilneas",0,1629,1,0,"Gilnéas",0,"","",4,1.0,-1,0.0,0.0,-1,3,0x0,0x0,654,
+641,"Transport_AllianceAirshipBG",0,1553,3,0,"Transport : CB Vaisseau de l'Alliance",0,"","",0,1.0,-1,0.0,0.0,-1,2,0x0,0x0,-1,
+642,"Transport_HordeAirshipBG",0,1553,3,0,"Transport : CB Vaisseau de la Horde",0,"","",0,1.0,-1,0.0,0.0,-1,2,0x0,0x0,-1,
+643,"AbyssalMaw_Interior",1,17949,1,0,"Trône des marées",0,"","",255,1.0,0,-5585.87158203,5401.64941406,-1,3,0x0,0x0,-1,
+644,"Uldum",1,1565,1,0,"Salles de l'Origine",0,"","",256,1.0,1,-10225.9951172,-1837.47912598,1080,3,0x0,0x0,-1,
+645,"BlackRockSpire_4_0",1,1565,1,0,"Cavernes de Rochenoire",0,"","",267,1.0,0,-7570.24462891,-1330.68408203,-1,3,0x0,0x0,-1,
+646,"Deephome",0,1629,1,0,"Le Tréfonds",0,"","",268,1.0,-1,0.0,0.0,-1,3,0x0,0x0,-1,
+647,"Transport_Orgrimmar_to_Thunderbluff",0,1553,3,0,"Transport : d'Orgrimmar aux Pitons-du-Tonnerre",0,"","",0,1.0,-1,0.0,0.0,-1,2,0x0,0x0,-1,
+648,"LostIsles",0,263773,1,0,"Îles perdues",0,"","",3,1.0,-1,0.0,0.0,-1,3,0x0,0x0,-1,
+649,"ArgentTournamentRaid",2,34589,1,0,"L'épreuve du croisé",0,"","",246,1.0,571,8515.28613281,736.137145996,-1,2,0x0,0x0,-1,
+650,"ArgentTournamentDungeon",1,1565,1,0,"L'épreuve du champion",0,"","",247,1.0,571,8571.43457031,792.22052002,-1,2,0x0,0x0,-1,
+651,"ElevatorSpawnTest",0,1555,3,0,"Test de création d'ascenseur",0,"","",0,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+654,"Gilneas2",0,263709,1,0,"Gilnéas 2",0,"","",4,1.0,-1,0.0,0.0,-1,3,0x0,0x0,-1,
+655,"GilneasPhase1",0,1629,1,0,"Gilnéas phase 1",0,"","",0,1.0,-1,0.0,0.0,-1,3,0x0,0x0,654,
+656,"GilneasPhase2",0,1629,1,0,"Gilnéas phase 2",0,"","",0,1.0,-1,0.0,0.0,-1,3,0x0,0x0,654,
+657,"SkywallDungeon",1,1565,1,0,"Cime du Vortex",0,"","",259,1.0,1,-11522.4931641,-2317.93408203,-1,3,0x0,0x0,-1,
+658,"QuarryofTears",1,1565,1,0,"Fosse de Saron",0,"","",252,1.0,571,5592.05712891,2010.27087402,-1,2,0x0,0x0,-1,
+659,"LostIslesPhase1",0,1565,1,0,"Éruption volcanique des îles Perdues",0,"","",3,1.0,-1,0.0,0.0,-1,3,0x0,0x0,648,
+660,"Deephomeceiling",0,1695,1,0,"Toit du Tréfonds",0,"","",0,1.0,-1,0.0,0.0,-1,3,0x0,0x0,-1,
+661,"LostIslesPhase2",0,1565,1,0,"Îles perdues Ville-en-Boîte",0,"","",0,1.0,-1,0.0,0.0,-1,3,0x0,0x0,648,
+662,"Transport197195",0,1553,3,0,"Transport : vaisseau de l'Alliance vers Vashj'ir",0,"","",0,1.0,-1,0.0,0.0,-1,3,0x0,0x0,-1,
+668,"HallsOfReflection",1,1565,1,0,"Salles des Reflets",0,"","",253,1.0,571,5628.875,1973.28649902,-1,2,0x0,0x0,-1,
+669,"BlackwingDescent",2,34589,1,0,"Descente de l’Aile noire",0,"","",260,1.0,0,-7541.76757813,-1188.83166504,-1,3,0x0,0x0,-1,
+670,"GrimBatolDungeon",1,1565,1,0,"Grim Batol",0,"","",257,1.0,0,-4047.73999023,-3446.35009766,-1,3,0x0,0x0,-1,
+671,"GrimBatolRaid",2,34589,1,0,"Le bastion du Crépuscule",0,"","",266,1.0,0,-4903.01025391,-4221.20996094,-1,3,0x0,0x0,-1,
+672,"Transport197347",0,1553,3,0,"Transport : le Brise-ciel (raid de la citadelle de la Couronne de glace)",0,"","",0,1.0,-1,0.0,0.0,-1,2,0x0,0x0,-1,
+673,"Transport197348",0,1553,3,0,"Transport : le Marteau d'Orgrim (raid de la citadelle de la Couronne de glace)",0,"","",0,1.0,-1,0.0,0.0,-1,2,0x0,0x0,-1,
+674,"Transport197349-2",0,1553,3,0,"Transport : bateau pour Vashj'ir",0,"","",0,1.0,-1,0.0,0.0,-1,3,0x0,0x0,-1,
+712,"Transport197349",0,1553,3,0,"Transport : le Brise-ciel (donjon de la Couronne de glace)",0,"","",0,1.0,-1,0.0,0.0,-1,2,0x0,0x0,-1,
+713,"Transport197350",0,1553,3,0,"Transport : le Marteau d'Orgrim (donjon de la Couronne de glace)",0,"","",0,1.0,-1,0.0,0.0,-1,2,0x0,0x0,-1,
+718,"Transport201834",0,1537,3,0,"Transport : le Grand vent (raid de la Couronne de glace)",0,"","",0,1.0,-1,0.0,0.0,-1,2,0x0,0x0,-1,
+719,"MountHyjalPhase1",0,132701,1,0,"Mont Hyjal Phase 1",0,"","",3,1.0,-1,0.0,0.0,-1,0,0x0,0x0,1,
+720,"Firelands1",2,2131741,1,0,"Terres de Feu",0,"","",275,1.0,1,3987.19970703,-2943.31958008,720,3,0x0,0x0,-1,
+721,"Firelands2",1,1693,1,0,"Terrain 2 de Terres de Feu",0,"","",0,1.0,-1,0.0,0.0,720,3,0x0,0x0,-1,
+723,"Stormwind",0,1565,1,0,"Hurlevent",0,"","",0,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+724,"ChamberofAspectsRed",2,34589,1,0,"Le sanctum Rubis",0,"","",254,1.0,571,3608.12939453,186.802078247,-1,2,0x0,0x0,-1,
+725,"DeepholmeDungeon",1,1565,1,0,"Le Cœur-de-Pierre",0,"","",258,1.0,646,1031.90795898,610.296875,-1,3,0x0,0x0,-1,
+726,"CataclysmCTF",3,1629,1,1,"Pics-Jumeaux",0,"Nichés dans les hautes-terres du Crépuscules, les Pics-Jumeaux sont le point phare du conflit qui oppose la Horde à l'Alliance.
+
+Sur ce champ de bataille à dix contre dix de type Capture du drapeau, la première faction à capturer trois fois le drapeau obtient la victoire.
+
+Joignez vos forces tandis que les deux factions s'affrontent pour prendre le contrôle de ces hauteurs stratégiques !","Nichés dans les hautes-terres du Crépuscules, les Pics-Jumeaux sont le point phare du conflit qui oppose la Horde à l'Alliance.
+
+Sur ce champ de bataille à dix contre dix de type Capture du drapeau, la première faction à capturer trois fois le drapeau obtient la victoire.
+
+Joignez vos forces tandis que les deux factions s'affrontent pour prendre le contrôle de ces hauteurs stratégiques !",262,1.0,-1,0.0,0.0,-1,3,0x0,0x0,-1,
+727,"STV_Mine_BG",1,1567,1,0,"CdB Mine de diamants",0,"","",182,1.0,-1,0.0,0.0,-1,3,0x0,0x0,-1,
+728,"TheBattleforGilneas",1,1567,1,1,"La bataille de Gilnéas",0,"Située au cœur du royaume de Gilnéas, la capitale est d'une importance stratégique pour les opérations de la Horde dans les Royaumes de l'est.
+
+Les armées de Sylvanas Coursevent sont prête à se battre coûte que coûte pour cette nouvelle conquête, depuis longtemps considérée comme une extension naturelle de leur territoire.","Chassés de leur foyer par les Réprouvés, les Gilnéens voient toujours leur cité comme la capitale légitime de leur nation.
+
+Après s'être regroupé dans les territoires de l'Alliance, le peuple de Gilnéas s'est rallié à l'appel aux armes du roi Grisetête et est désormais prêt à reprendre Gilnéas, avec l'aide de ses nouveaux alliés.",261,1.0,-1,0.0,0.0,-1,3,0x0,0x0,-1,
+730,"MaelstromZone",0,1629,1,0,"Région du maelström",0,"","",272,1.0,-1,0.0,0.0,-1,3,0x0,0x0,-1,
+731,"DesolaceBomb",0,1629,1,0,"Bombe des Serres-rocheuses",0,"","",3,1.0,-1,0.0,0.0,-1,0,0x0,0x0,1,
+732,"TolBarad",0,9821,1,0,"Tol Barad",0,"","",265,1.0,-1,0.0,0.0,-1,3,0x0,0x0,-1,
+734,"AhnQirajTerrace",1,1565,1,0,"Terrasse d'Ahn'Qiraj",0,"","",184,1.0,-1,0.0,0.0,-1,2,0x0,0x0,-1,
+736,"TwilightHighlandsDragonmawPhase",0,1565,1,0,"Phase Gueule-de-dragons des hautes-terres du Crépuscule",0,"","",0,1.0,-1,0.0,0.0,-1,0,0x0,0x0,0,
+738,"Transport200100",0,1553,3,0,"Vaisseau vers Vashj'ir (Orgrimmar -> Vashj'ir)",0,"","",0,1.0,-1,0.0,0.0,-1,3,0x0,0x0,-1,
+739,"Transport200101",0,1553,3,0,"Sous-marin de Vashj'ir - Horde",0,"","",0,1.0,-1,0.0,0.0,-1,3,0x0,0x0,-1,
+740,"Transport200102",0,1553,3,0,"Sous-marin de Vashj'ir - Alliance",0,"","",0,1.0,-1,0.0,0.0,-1,3,0x0,0x0,-1,
+741,"Transport200103",0,1553,3,0,"Transport Horde des hautes-terres du Crépuscule",0,"","",0,1.0,-1,0.0,0.0,-1,3,0x0,0x0,-1,
+742,"Transport203729",0,1553,3,0,"Sous-marin de Vashj'ir - Horde autour de la Gueule des abysses",0,"","",0,1.0,-1,0.0,0.0,-1,3,0x0,0x0,-1,
+743,"Transport203730",0,1553,3,0,"Sous-marin de Vashj'ir - Alliance autour de la Gueule des abysses",0,"","",0,1.0,-1,0.0,0.0,-1,3,0x0,0x0,-1,
+746,"UldumPhaseOasis",0,1629,1,0,"Oasis phasée d'Uldum",0,"","",0,1.0,-1,0.0,0.0,-1,0,0x0,0x0,1,
+747,"Transport 203732",0,1553,3,0,"Transport : canonnière du Tréfonds",0,"","",0,1.0,-1,0.0,0.0,-1,3,0x0,0x0,-1,
+748,"Transport203858",0,1537,3,0,"Transport : ascenseur Onyxia/Nefarian",0,"","",0,1.0,-1,0.0,0.0,-1,3,0x0,0x0,-1,
+749,"Transport203859",0,1553,3,0,"Transport : canonnière mobile de Gilnéas",0,"","",0,1.0,-1,0.0,0.0,-1,3,0x0,0x0,-1,
+750,"Transport203860",0,1553,3,0,"Transport : canonnière fixe de Gilnéas",0,"","",0,1.0,-1,0.0,0.0,-1,3,0x0,0x0,-1,
+751,"RedgridgeOrcBomb",0,1629,1,0,"Carmines - bombe orc",0,"","",0,1.0,-1,0.0,0.0,-1,0,0x0,0x0,0,
+752,"RedridgeBridgePhaseOne",0,1629,1,0,"Carmines - pont phase 1",0,"","",0,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+753,"RedridgeBridgePhaseTwo",0,1629,1,0,"Carmines - pont phase 2",0,"","",0,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+754,"SkywallRaid",2,34589,1,0,"Trône des quatre vents",0,"","",271,1.0,1,-11360.6025391,72.0833358765,-1,3,0x0,0x0,-1,
+755,"UldumDungeon",1,1565,1,0,"Cité perdue des Tol'vir",0,"","",264,1.0,1,-10686.1494141,-1308.62329102,-1,3,0x0,0x0,-1,
+757,"BaradinHold",2,36413,1,0,"Bastion de Baradin",0,"","",269,1.0,-1,0.0,0.0,-1,3,0x0,0x0,-1,
+759,"UldumPhasedEntrance",0,3677,1,0,"Entrée phasée d'Uldum",0,"","",0,1.0,-1,0.0,0.0,-1,0,0x0,0x0,1,
+760,"TwilightHighlandsPhasedEntrance",0,3677,1,0,"Entrée phasée des Hautes-terres du Crépuscule",0,"","",0,1.0,-1,0.0,0.0,-1,0,0x0,0x0,0,
+761,"Gilneas_BG_2",3,3677,1,1,"La bataille de Gilnéas",0,"Tandis que le mur de Grisetête s'effondre, le conflit inévitable entre les Réprouvés et les worgens atteint de nouveaux sommets.
+
+La bataille de Gilnéas est un champ de bataille à dix contre dix de type Domination, dans lequel chaque camp tente de prendre le contrôle de la mine, du phare et du moulin à eau aussi longtemps que possible.","Tandis que le mur de Grisetête s'effondre, le conflit inévitable entre les Réprouvés et les worgens atteint de nouveaux sommets.
+
+La bataille de Gilnéas est un champ de bataille à dix contre dix de type Domination, dans lequel chaque camp tente de prendre le contrôle de la mine, du phare et du moulin à eau aussi longtemps que possible.",270,1.0,-1,0.0,0.0,1110,0,0x0,0x0,-1,
+762,"Transport 203861",0,3585,3,0,"Zeppelin des Hautes-terres du Crépuscule 1",0,"","",0,1.0,-1,0.0,0.0,-1,3,0x0,0x0,-1,
+763,"Transport 203862",0,3585,3,0,"Zeppelin des Hautes-terres du Crépuscule 2",0,"","",0,1.0,-1,0.0,0.0,-1,3,0x0,0x0,-1,
+764,"UldumPhaseWreckedCamp",0,7773,1,0,"Uldum - Phase du camp démoli",0,"","",0,1.0,-1,0.0,0.0,-1,0,0x0,0x0,1,
+765,"Transport203863",0,7681,3,0,"Zeppelin d'attaque du Kraazar",0,"","",0,1.0,-1,0.0,0.0,-1,3,0x0,0x0,-1,
+766,"Transport 2033864",0,7681,3,0,"Transport : canonnière qui se déplace en Gilnéas 02",0,"","",0,1.0,-1,0.0,0.0,-1,3,0x0,0x0,-1,
+767,"Transport 2033865",0,7681,3,0,"Transport : canonnière qui se déplace en Gilnéas 03",0,"","",0,1.0,-1,0.0,0.0,-1,3,0x0,0x0,-1,
+859,"Zul_Gurub5Man",1,7701,1,0,"Zul'Gurub",0,"","",161,1.0,0,-11916.2285156,-1219.83850098,720,3,0x0,0x0,-1,
+861,"FirelandsDailies",0,2104861,1,0,"Front du Magma",0,"","",274,1.0,-1,0.0,0.0,720,3,0x0,0x0,-1,
+930,"ScenarioAlcazIsland",1,7703,1,0,"Scénario : île d’Alcaz",0,"","",3,1.0,-1,0.0,0.0,-1,3,0x0,0x0,-1,
+938,"COTDragonblight",1,15957,1,0,"La Fin des temps",0,"","",286,1.0,1,-8288.60449219,-4454.09228516,0,3,0x0,0x0,-1,
+939,"COTWarOfTheAncients",1,7773,1,0,"Puits d’éternité",0,"","",287,1.0,1,-8595.83691406,-3994.93579102,-1,3,0x0,0x0,-1,
+940,"TheHourOfTwilight",1,15957,1,0,"L’Heure du Crépuscule",0,"","",288,1.0,1,-8291.13183594,-4590.4375,-1,3,0x0,0x0,-1,
+951,"NexusLegendary",1,7701,1,0,"Nexus (légendaire)",0,"","",227,1.0,571,3899.92993164,6985.43994141,-1,3,0x0,0x0,-1,
+967,"DeathwingBack",2,48989,1,0,"Âme des dragons",0,"","",279,1.0,1,-8263.27636719,-4512.6875,1080,3,0x0,0x0,-1,
+968,"EyeoftheStorm2.0",3,7701,1,1,"L'Œil du cyclone coté",0,"Flottant en altitude au-dessus des terres dévastées du Raz-de-Néant se trouve l’île appelée l’Œil du cyclone.
+
+Les elfes de sang convoitent ce champ de bataille pour ses abondants gisements d’énergie, alors que les draeneï le revendiquent au nom de sa proximité avec le mystérieux vaisseau naaru : le donjon de la Tempête.","Flottant en altitude au-dessus des terres dévastées du Raz-de-Néant se trouve l’île appelée l’Œil du cyclone.
+
+Les draeneï revendiquent ce champ de bataille au nom de sa proximité avec le mystérieux vaisseau naaru : le donjon de la Tempête, tandis que les elfes de sang le convoitent pour ses abondants gisements d’énergie.",210,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+974,"DarkmoonFaire",0,15893,1,0,"Foire de Sombrelune",0,"","",278,1.0,-1,0.0,0.0,-1,0,0x0,0x0,-1,
+977,"MaelstromDeathwingFight",1,7709,1,0,"Combat contre Aile de mort dans le Maelström",0,"","",-1,1.0,-1,0.0,0.0,-1,3,0x0,0x0,-1,
+980,"TolVirArena",0,15967,1,0,"Arène des tol’vir",0,"","",0,1.0,-1,0.0,0.0,-1,3,0x0,0x0,-1,

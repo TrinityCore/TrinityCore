@@ -1,0 +1,1 @@
+﻿INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ( '143709','spell_store_kinetic_energy'); 

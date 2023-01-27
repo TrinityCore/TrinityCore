@@ -1,0 +1,1 @@
+DELETE FROM `package_antispamm` WHERE (`id`='2941');

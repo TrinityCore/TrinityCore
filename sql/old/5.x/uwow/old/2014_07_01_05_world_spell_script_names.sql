@@ -1,0 +1,21 @@
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_gen_bandage';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(746, 'spell_gen_bandage'),
+(1159, 'spell_gen_bandage'),
+(3267, 'spell_gen_bandage'),
+(3268, 'spell_gen_bandage'),
+(7926, 'spell_gen_bandage'),
+(7927, 'spell_gen_bandage'),
+(10838, 'spell_gen_bandage'),
+(10839, 'spell_gen_bandage'),
+(18608, 'spell_gen_bandage'),
+(18610, 'spell_gen_bandage'),
+(27030, 'spell_gen_bandage'),
+(27031, 'spell_gen_bandage'),
+(45543, 'spell_gen_bandage'),
+(45544, 'spell_gen_bandage'),
+(74553, 'spell_gen_bandage'),
+(74554, 'spell_gen_bandage'),
+(102694, 'spell_gen_bandage'),
+(74555, 'spell_gen_bandage'),
+(102695, 'spell_gen_bandage');

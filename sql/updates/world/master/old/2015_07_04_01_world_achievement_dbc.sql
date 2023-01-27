@@ -1,0 +1,1 @@
+delete from achievement_dbc where id;

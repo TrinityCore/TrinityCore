@@ -1,0 +1,2 @@
+DELETE FROM spell_script_names WHERE spell_id IN (124682, 116694, 115151);
+INSERT INTO spell_script_names (spell_id, ScriptName) VALUES (124682, 'spell_monk_enveloping_mist'), (116694, 'spell_monk_surging_mist'), (115151, 'spell_monk_renewing_mist');

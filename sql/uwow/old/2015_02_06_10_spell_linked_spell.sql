@@ -1,0 +1,1 @@
+INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `hastalent`, `comment`) VALUES ('109151', '103958', '-114168', 'Демонический прыжок');

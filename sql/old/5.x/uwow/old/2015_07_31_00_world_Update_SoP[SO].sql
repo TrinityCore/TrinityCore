@@ -1,0 +1,3 @@
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `dynamicflags`, `isActive`) values(NULL ,'71889','1136','6738','6738','16536','1','0','0','1631.8','-5125.97','-271.122','5.31506','604800','0','0','1','1000','0','0','0','0','0','0');
+UPDATE `creature_template` SET `ScriptName`='npc_ssop_spoils' WHERE `entry`='71889'; 
+UPDATE `gameobject_template` SET `ScriptName`='go_ssop_spoils' WHERE `entry`='220823'; 

@@ -1,0 +1,10 @@
+﻿UPDATE `gameobject_template` SET `data10`='0',`ScriptName`='go_orb_of_control' WHERE `entry`='218374' AND `data23`='1'; 
+UPDATE `creature_template` SET `ScriptName`='npc_sand_trap' WHERE `entry`='69346';
+UPDATE `creature_template` SET `ScriptName`='npc_living_poison' WHERE `entry`='69313';
+UPDATE `creature_template` SET `ScriptName`='npc_lightning_nova_totem' WHERE `entry`='69215';
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ( '136719','spell_blazing_sunlight');
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ( '136708','spell_stone_gaze');
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ( '136653','spell_rending_charge');
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ( '137442','spell_control_horridon');
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ( '137294','spell_headache');
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ( '136723','spell_sand_trap');

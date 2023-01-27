@@ -1,0 +1,2 @@
+INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `comment`) VALUES ('-108209', '-112942', 'Rogue - Remove Shadow Focus');
+INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `comment`) VALUES ('-31223', '-31665', 'Rogue - Remove Master of subtlety');
