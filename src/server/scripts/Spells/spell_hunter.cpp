@@ -111,7 +111,7 @@ enum HunterSpells   //列举猎人技能
     SPELL_HUNTER_EXHILARATION                       = 109304,
     SPELL_HUNTER_EXHILARATION_PET                   = 128594,
     SPELL_HUNTER_EXHILARATION_R2                    = 231546,
-    SPELL_HUNTER_EXPLOSIVE_SHOT_DAMAGE              = 212680,
+//    SPELL_HUNTER_EXPLOSIVE_SHOT_DAMAGE              = 212680,
     SPELL_HUNTER_LONE_WOLF                          = 155228,
     SPELL_HUNTER_MASTERS_CALL_TRIGGERED             = 62305,
     SPELL_HUNTER_MISDIRECTION                       = 34477,

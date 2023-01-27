@@ -32,13 +32,13 @@
 #include "CellImpl.h"
 #include "GridNotifiers.h"
 #include "Group.h"
-#include "InstanceSaveMgr.h"
+//#include "InstanceSaveMgr.h"//临时注释,下同
 #include "Language.h"
 #include "MovementGenerator.h"
 #include "ObjectAccessor.h"
 #include "Opcodes.h"
 #include "SpellAuras.h"
-#include "TargetedMovementGenerator.h"
+//#include "TargetedMovementGenerator.h"
 #include "WeatherMgr.h"
 #include "Player.h"
 #include "Pet.h"
@@ -173,7 +173,7 @@ public:
             return;
         //Check account ip - end
 
-        if (player->getLevel() <= 15)
+        if (player->GetLevel() <= 15)
             return;
 
         result = LoginDatabase.PQuery("SELECT COUNT(*) FROM account WHERE recruiter = %u AND recruiter_rewarded = 1", recruiter);
