@@ -3850,6 +3850,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->_GetEffect(EFFECT_0).ApplyAuraName = SPELL_AURA_ADD_PCT_MODIFIER;
     });
 
+    // Utgarde Pinnacle - Paralyze(48278) Removal on change of map
+    ApplySpellFix({ 48278 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AuraInterruptFlags |= AURA_INTERRUPT_FLAG_CHANGE_MAP;
+    });
+
     ApplySpellFix({
         6789,  // Warlock - Death Coil (Rank 1)
         17925, // Warlock - Death Coil (Rank 2)
