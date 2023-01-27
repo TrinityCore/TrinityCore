@@ -1,1 +1,0 @@
-https://www.wowhead.com/zone=13404/the-soulforges
