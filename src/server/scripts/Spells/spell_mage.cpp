@@ -72,6 +72,7 @@ enum MageSpells
     SPELL_MAGE_FROSTFIRE_BOLT_CHILL_EFFECT       = 44614,
     SPELL_MAGE_HOT_STREAK                        = 44445,
     SPELL_MAGE_HOT_STREAK_TRIGGERED              = 48108,
+    SPELL_MAGE_IMPROVED_HOT_STREAK               = 44446,
     SPELL_MAGE_IMPROVED_POLYMORPH_RANK_1         = 11210,
     SPELL_MAGE_IMPROVED_POLYMORPH_STUN_RANK_1    = 83046,
     SPELL_MAGE_IMPROVED_POLYMORPH_MARKER         = 87515,
@@ -139,7 +140,8 @@ enum MageIcons
     ICON_MAGE_EARLY_FROST                        = 2114,
     ICON_MAGE_GLYPH_OF_MIRROR_IMAGE              = 331,
     ICON_MAGE_LIVING_BOMB                        = 3000,
-    ICON_MAGE_GLYPH_OF_FROSTFIRE                 = 2946
+    ICON_MAGE_GLYPH_OF_FROSTFIRE                 = 2946,
+    ICON_MAGE_HOT_STREAK                         = 2999
 
 };
 
@@ -1714,12 +1716,17 @@ class spell_mage_hot_streak : public AuraScript
         return ValidateSpellInfo(
             {
                 SPELL_MAGE_HOT_STREAK_TRIGGERED,
-                SPELL_MAGE_T12_4P_BONUS
+                SPELL_MAGE_T12_4P_BONUS,
+                SPELL_MAGE_IMPROVED_HOT_STREAK
             });
     }
 
     bool CheckProc(ProcEventInfo& /*eventInfo*/)
     {
+        if (AuraEffect const* aurEff = GetTarget()->GetDummyAuraEffect(SPELLFAMILY_MAGE, ICON_MAGE_HOT_STREAK, EFFECT_0))
+            if (aurEff->GetSpellInfo()->Id == SPELL_MAGE_IMPROVED_HOT_STREAK || aurEff->GetSpellInfo()->GetRank() > 1)
+                return false;
+
         int32 procChance = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
         // T12 4P bonus
         if (AuraEffect const* aurEff = GetTarget()->GetAuraEffect(SPELL_MAGE_T12_4P_BONUS, EFFECT_1))
