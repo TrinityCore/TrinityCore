@@ -1,0 +1,137 @@
+################################################
+# MANGOS Auction House Bot Configuration file  #
+################################################
+
+[AhbotConf]
+ConfVersion=2010102201
+
+###################################################################################################################
+# AUCTION HOUSE BOT SETTINGS
+#
+###################################################################################################################
+
+# Disable original AuctionHouseBot
+AuctionHouseBot.Seller.Enabled = 0
+AuctionHouseBot.Buyer.Enabled = 0
+
+# Replace with the new AhBot
+AhBot.Enabled = 1
+
+# AhBot.MaxItemLevel = 60
+# AhBot.MaxRequiredLevel = 60
+
+AhBot.PriceMultiplier = 0.35
+AhBot.DefaultMinPrice = 20
+AhBot.PriceQualityMultiplier = 1.0
+AhBot.AlwaysAvailableMoney = 2000000
+
+#
+# Misc
+#
+
+# AhBot.MaxAuctionCount.<category>.white = <int>
+# AhBot.MaxAuctionCount.<category>.green = <int>
+# AhBot.MaxAuctionCount.<category>.blue = <int>
+# AhBot.MaxAuctionCount.<category>.epic = <int>
+# AhBot.PriceMultiplier.Sell.<category> = <float>
+# AhBot.PriceMultiplier.Buy.<category> = <float>
+# AhBot.PricingStrategy.<category> = <strategy>
+
+AhBot.MaxAuctionCount.equip.green = 40
+AhBot.MaxAuctionCount.equip.blue = 20
+AhBot.MaxAuctionCount.equip.epic = 10
+AhBot.PriceMultiplier.Sell.equip = 2.5
+AhBot.PriceMultiplier.Buy.equip = 2.5
+AhBot.PricingStrategy.equip = buyOnlyRare
+
+AhBot.MaxAuctionCount.reagent.white = 6
+AhBot.MaxAuctionCount.reagent.green = 2
+
+AhBot.MaxAuctionCount.quiver.white = 2
+AhBot.MaxAuctionCount.quiver.green = 1
+AhBot.MaxAuctionCount.quiver.blue = 1
+AhBot.MaxAuctionCount.quiver.epic = 1
+
+AhBot.MaxAuctionCount.container.white = 6
+AhBot.MaxAuctionCount.container.green = 2
+AhBot.MaxAuctionCount.container.blue = 2
+AhBot.MaxAuctionCount.container.epic = 1
+
+AhBot.MaxAuctionCount.recipe.white = 8
+AhBot.MaxAuctionCount.recipe.green = 4
+AhBot.MaxAuctionCount.recipe.blue = 2
+AhBot.MaxAuctionCount.recipe.epic = 2
+AhBot.PriceMultiplier.Sell.recipe = 5.0
+AhBot.PriceMultiplier.Buy.recipe = 5.0
+
+AhBot.MaxAuctionCount.quest.white = 14
+AhBot.MaxAuctionCount.quest.green = 2
+AhBot.MaxAuctionCount.quest.blue = 2
+
+AhBot.MaxAuctionCount.devices.white = 20
+AhBot.MaxAuctionCount.devices.green = 10
+AhBot.MaxAuctionCount.devices.blue = 4
+
+#
+# Consumables
+#
+
+AhBot.MaxAuctionCount.consumables.alchemy.white = 20
+AhBot.MaxAuctionCount.consumables.alchemy.green = 10
+AhBot.MaxAuctionCount.consumables.alchemy.blue = 5
+AhBot.PriceMultiplier.Sell.consumables.alchemy = 2.0
+AhBot.PriceMultiplier.Buy.consumables.alchemy = 2.0
+
+AhBot.MaxAuctionCount.consumables.scroll.white = 10
+AhBot.MaxAuctionCount.consumables.scroll.green = 5
+AhBot.MaxAuctionCount.consumables.scroll.blue = 2
+
+AhBot.MaxAuctionCount.consumables.food.white = 40
+
+AhBot.MaxAuctionCount.consumables.bandage.white = 10
+
+AhBot.MaxAuctionCount.consumables.enchant.white = 10
+AhBot.MaxAuctionCount.consumables.enchant.green = 5
+
+
+
+#
+# Trade
+#
+
+AhBot.MaxAuctionCount.trade.jewelcrafting.white = 30
+AhBot.MaxAuctionCount.trade.jewelcrafting.green = 20
+AhBot.MaxAuctionCount.trade.jewelcrafting.blue = 6
+AhBot.MaxAuctionCount.trade.jewelcrafting.epic = 1
+
+AhBot.MaxAuctionCount.trade.firstaid.white = 50
+AhBot.MaxAuctionCount.trade.tailoring.white = 50
+AhBot.MaxAuctionCount.trade.tailoring.green = 14
+AhBot.MaxAuctionCount.trade.tailoring.blue = 6
+
+AhBot.MaxAuctionCount.trade.skinning.white = 50
+AhBot.MaxAuctionCount.trade.leatherworking.white = 50
+AhBot.MaxAuctionCount.trade.leatherworking.green = 14
+AhBot.MaxAuctionCount.trade.leatherworking.blue = 6
+
+AhBot.MaxAuctionCount.trade.alchemy.white = 50
+AhBot.MaxAuctionCount.trade.alchemy.green = 14
+AhBot.MaxAuctionCount.trade.herbalism.white = 50
+AhBot.MaxAuctionCount.trade.herbalism.green = 14
+
+AhBot.MaxAuctionCount.trade.cooking.white = 40
+AhBot.MaxAuctionCount.trade.fishing.white = 40
+
+AhBot.MaxAuctionCount.trade.mining.white = 50
+AhBot.MaxAuctionCount.trade.blacksmithing.white = 50
+AhBot.MaxAuctionCount.trade.blacksmithing.green = 14
+AhBot.MaxAuctionCount.trade.blacksmithing.blue = 6
+
+AhBot.MaxAuctionCount.trade.engineering.white = 20
+AhBot.MaxAuctionCount.trade.engineering.green = 10
+AhBot.MaxAuctionCount.trade.engineering.blue = 4
+
+AhBot.MaxAuctionCount.trade.enchanting.white = 40
+AhBot.MaxAuctionCount.trade.enchanting.green = 20
+AhBot.MaxAuctionCount.trade.enchanting.blue = 20
+
