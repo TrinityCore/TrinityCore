@@ -88,7 +88,7 @@ Windows, Linux and macOS.
 ## Reporting issues
 如果想要上报一个问题(BUG等),可以使用下方链接:
 https://github.com/xuehyc/XCore/https://github.com/xuehyc/XCore/issues
-也可以直接点击标签页"https://github.com/xuehyc/XCore/issues"
+也可以直接点击标签页"issues",当然也可以使用讨论模块.
 <!--
 Issues can be reported via the [Github issue tracker](https://github.com/TrinityCore/TrinityCore/labels/Branch-master).
 
@@ -101,11 +101,12 @@ reports are wasteful and are subject to deletion.
 -->
 
 ## Submitting fixes
-
+可以使用Pulls,Issues,或者discussesions.均在标签页.
+<!--
 C++ fixes are submitted as pull requests via Github. For more information on how to
 properly submit a pull request, read the [how-to: maintain a remote fork](https://community.trinitycore.org/topic/9002-howto-maintain-a-remote-fork-for-pull-requests-tortoisegit/).
 For SQL only fixes, open a ticket; if a bug report exists for the bug, post on an existing ticket.
-
+-->
 
 ## Copyright
 
@@ -120,8 +121,9 @@ Read file [AUTHORS](AUTHORS).
 
 
 ## Links
-
+<!--
 * [Website](https://www.trinitycore.org)
+-->
 * [Wiki](https://www.trinitycore.info)
 * [Forums](https://community.trinitycore.org)
 * [Discord](https://discord.trinitycore.org/)
