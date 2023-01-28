@@ -4,8 +4,10 @@
 <!--
 # ![logo](https://github.com/xuehyc/TrinityCore/blob/master/ico/readme/%E5%A4%B4%E5%83%8F-%E5%8E%BB%E8%BE%B9%E7%BC%98%E7%B2%BE%E4%BF%AE%E7%89%88.png) XCore (master)
 -->
+<!--
 # ![logo](https://kdocs.cn/l/cfbJRxNaha4M) XCore (master)
-
+-->
+# ![logo](http://m.qpic.cn/psc?/V52nY6a20lzs8U1Wv03f33HFbw43TrKC/bqQfVz5yrrGYSXMvKr.cqad44szbS8X0Ps9P2rb6ioZ.IEkHmy93jWFHC1wIznHyNosj8F9Zh8uGBSXiOwarjryde0sIuzb6NL3T3uLjVrQ!/b&bo=2QDRAAAAAAADByo!&rf=viewer_4) XCore (master)
 
 <!--解决问题平均时间-->
 <!--
@@ -14,7 +16,12 @@
 --------------
 -->
 
+
+
+<!--
 * [Build Status](#build-status)
+
+-->
 * [Introduction](#introduction)
 * [Requirements](#requirements)
 * [Install](#install)
@@ -26,7 +33,7 @@
 * [Bugs](#bugs)
 
 
-
+<!--
 ## Build Status
 
 master | 3.3.5
@@ -35,6 +42,10 @@ master | 3.3.5
 [![master Build status](https://ci.appveyor.com/api/projects/status/54d0u1fxe50ad80o/branch/master?svg=true)](https://ci.appveyor.com/project/DDuarte/trinitycore/branch/master) | [![Build status](https://ci.appveyor.com/api/projects/status/54d0u1fxe50ad80o/branch/3.3.5?svg=true)](https://ci.appveyor.com/project/DDuarte/trinitycore/branch/3.3.5)
 [![master GCC Build status](https://github.com/TrinityCore/TrinityCore/actions/workflows/gcc-build.yml/badge.svg?branch=master&event=push)](https://github.com/TrinityCore/TrinityCore/actions?query=workflow%3AGCC+branch%3Amaster+event%3Apush) | [![3.3.5 GCC Build status](https://github.com/TrinityCore/TrinityCore/actions/workflows/gcc-build.yml/badge.svg?branch=3.3.5&event=push)](https://github.com/TrinityCore/TrinityCore/actions?query=workflow%3AGCC+branch%3A3.3.5+event%3Apush)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/435/badge.svg)](https://scan.coverity.com/projects/435) | [![Coverity Scan Build Status](https://scan.coverity.com/projects/4656/badge.svg)](https://scan.coverity.com/projects/4656)
+
+
+-->
+
 
 ## Introduction
 
