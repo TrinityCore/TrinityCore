@@ -105,11 +105,11 @@ master | 3.3.5
 -->
 ## 介绍
 
-基于TrintyCore的master分支再开发
-(https://github.com/TrinityCore/TrinityCore)
-目标有二：
-一是容纳众家之长,实现完全开源、支持最新版、不断修复的服务端.
-二是让国人更容易参与编译、修复、阅读、理解代码。
+基于TrintyCore的master分支再开发<br>
+(https://github.com/TrinityCore/TrinityCore)<br>
+目标有二：<br>
+一是容纳众家之长,实现完全开源、支持最新版、不断修复的服务端.<br>
+二是让国人更容易参与编译、修复、阅读、理解代码。<br>
 
 <!--
 TrinityCore is a *MMORPG* Framework based mostly in C++.
