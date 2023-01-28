@@ -10,7 +10,15 @@
 <!--
 <center>
 -->
+<!--
 # ![logo](http://m.qpic.cn/psc?/V52nY6a20lzs8U1Wv03f33HFbw43TrKC/bqQfVz5yrrGYSXMvKr.cqad44szbS8X0Ps9P2rb6ioZ.IEkHmy93jWFHC1wIznHyNosj8F9Zh8uGBSXiOwarjryde0sIuzb6NL3T3uLjVrQ!/b&bo=2QDRAAAAAAADByo!&rf=viewer_4) XCore (master)
+-->
+
+
+# ![logo](http://m.qpic.cn/psc?/V52nY6a20lzs8U1Wv03f33HFbw43TrKC/bqQfVz5yrrGYSXMvKr.cqad44szbS8X0Ps9P2rb6ioZ.IEkHmy93jWFHC1wIznHyNosj8F9Zh8uGBSXiOwarjryde0sIuzb6NL3T3uLjVrQ!/b&bo=2QDRAAAAAAADByo!&rf=viewer_4) XCore
+
+
+
 <!--
 </center>
 -->
@@ -88,7 +96,7 @@ Windows, Linux and macOS.
 ## Reporting issues
 如果想要上报一个问题(BUG等),可以使用下方链接:
 https://github.com/xuehyc/XCore/https://github.com/xuehyc/XCore/issues
-也可以直接点击标签页"issues",当然也可以使用讨论模块.
+<br>也可以直接点击标签页"issues",当然也可以使用讨论模块.
 <!--
 Issues can be reported via the [Github issue tracker](https://github.com/TrinityCore/TrinityCore/labels/Branch-master).
 
