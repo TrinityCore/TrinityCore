@@ -55,7 +55,8 @@ master | 3.3.5
 ## Introduction
 
 基于TrintyCore的master分支进行再开发
-
+(https://github.com/TrinityCore/TrinityCore)
+<!--
 TrinityCore is a *MMORPG* Framework based mostly in C++.
 
 It is derived from *MaNGOS*, the *Massive Network Game Object Server*, and is
@@ -70,7 +71,7 @@ make pull requests to our [Github repository](https://github.com/TrinityCore/Tri
 
 For further information on the TrinityCore project, please visit our project
 website at [TrinityCore.org](https://www.trinitycore.org).
-
+-->
 ## Requirements
 
 
