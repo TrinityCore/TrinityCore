@@ -52,7 +52,7 @@ public:
 
     static void OnMapChange(WorldObject* object);
     static void OnAreaChange(WorldObject* object);
-    static void OnConditionChange(WorldObject* object);
+    static bool OnConditionChange(WorldObject* object, bool updateVisibility = true);
 
     static void SendToPlayer(Player const* player, PhaseShift const& phaseShift);
     static void SendToPlayer(Player const* player);

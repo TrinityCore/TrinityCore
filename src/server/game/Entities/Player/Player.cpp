@@ -15051,15 +15051,70 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
         UpdatePvPState();
     }
 
-    SendQuestUpdate(quest_id);
-
     SendQuestGiverStatusMultiple();
+
+    bool conditionChanged = SendQuestUpdate(quest_id, false);
 
     //lets remove flag for delayed teleports
     SetCanDelayTeleport(false);
 
+    bool canHaveNextQuest = !quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE) ? !questGiver->IsPlayer() : true;
+    if (canHaveNextQuest)
+    {
+        switch (questGiver->GetTypeId())
+        {
+            case TYPEID_UNIT:
+            case TYPEID_PLAYER:
+            {
+                //For AutoSubmition was added plr case there as it almost same exclute AI script cases.
+                // Send next quest
+                if (Quest const* nextQuest = GetNextQuest(questGiver->GetGUID(), quest))
+                {
+                    // Only send the quest to the player if the conditions are met
+                    if (CanTakeQuest(nextQuest, false))
+                    {
+                        if (nextQuest->IsAutoAccept() && CanAddQuest(nextQuest, true))
+                            AddQuestAndCheckCompletion(nextQuest, questGiver);
+
+                        PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, questGiver->GetGUID(), true, false);
+                    }
+                }
+
+                PlayerTalkClass->ClearMenus();
+                if (Creature* creatureQGiver = questGiver->ToCreature())
+                    creatureQGiver->AI()->OnQuestReward(this, quest, rewardType, rewardId);
+                break;
+            }
+            case TYPEID_GAMEOBJECT:
+            {
+                GameObject* questGiverGob = questGiver->ToGameObject();
+                // Send next quest
+                if (Quest const* nextQuest = GetNextQuest(questGiverGob->GetGUID(), quest))
+                {
+                    // Only send the quest to the player if the conditions are met
+                    if (CanTakeQuest(nextQuest, false))
+                    {
+                        if (nextQuest->IsAutoAccept() && CanAddQuest(nextQuest, true))
+                            AddQuestAndCheckCompletion(nextQuest, questGiver);
+
+                        PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, questGiverGob->GetGUID(), true, false);
+                    }
+                }
+
+                PlayerTalkClass->ClearMenus();
+                questGiverGob->AI()->OnQuestReward(this, quest, rewardType, rewardId);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
     sScriptMgr->OnQuestStatusChange(this, quest_id);
     sScriptMgr->OnQuestStatusChange(this, quest, oldStatus, QUEST_STATUS_REWARDED);
+
+    if (conditionChanged)
+        UpdateObjectVisibility();
 }
 
 void Player::SetRewardedQuest(uint32 quest_id)
@@ -15750,7 +15805,7 @@ void Player::RemoveRewardedQuest(uint32 questId, bool update /*= true*/)
         SendQuestUpdate(questId);
 }
 
-void Player::SendQuestUpdate(uint32 questId)
+bool Player::SendQuestUpdate(uint32 questId, bool updateVisiblity /*= true*/)
 {
     SpellAreaForQuestMapBounds saBounds = sSpellMgr->GetSpellAreaForQuestMapBounds(questId);
 
@@ -15799,7 +15854,7 @@ void Player::SendQuestUpdate(uint32 questId)
     }
 
     UpdateVisibleGameobjectsOrSpellClicks();
-    PhasingHandler::OnConditionChange(this);
+    return PhasingHandler::OnConditionChange(this, updateVisiblity);
 }
 
 QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)
