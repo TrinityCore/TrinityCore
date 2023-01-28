@@ -114,10 +114,7 @@ namespace WorldPackets
             bool BpayStoreAvailable                  = false;
             bool BpayStoreEnabled                    = false;
             Optional<SessionAlertConfig> SessionAlert;
-            uint32 ScrollOfResurrectionMaxRequestsPerDay = 0;
-            bool ScrollOfResurrectionEnabled         = false;
             Optional<EuropaTicketConfig> EuropaTicketSystemStatus;
-            uint32 ScrollOfResurrectionRequestsRemaining = 0;
             uint32 CfgRealmID                            = 0;
             uint8 ComplaintStatus                        = 0;
             int32 CfgRealmRecID                          = 0;

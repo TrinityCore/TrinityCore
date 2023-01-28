@@ -907,7 +907,6 @@ void SelfRes::Read()
 void GetMirrorImageData::Read()
 {
     _worldPacket >> UnitGUID;
-    _worldPacket >> DisplayID;
 }
 
 MirrorImageComponentedData::MirrorImageComponentedData()

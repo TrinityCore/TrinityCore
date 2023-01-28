@@ -616,6 +616,8 @@ enum class CriteriaType : uint8
 
     FulfillAnyCraftingOrder                        = 245, /*NYI*/
     FulfillCraftingOrderType                       = 246, /*NYI*/ // {CraftingOrderType}
+
+    PerksProgramMonthComplete                      = 249, /*NYI*/
     Count
 };
 
@@ -1466,7 +1468,11 @@ enum class ModifierTreeType : int32
     CraftingOrderSkillLineAbility                                       = 347, /*NYI*/
     CraftingOrderProfession                                             = 348, /*NYI*/ // ProfessionEnum
 
+    PlayerHasPerksProgramPendingReward                                  = 350,
     PlayerCanUseItem                                                    = 351, // Player can use item {#Item}
+
+    PlayerHasAtLeastProfPathRanks                                       = 355, // Player has purchased or granted at least {#Count} ranks in {SkillLine} config
+    PlayerHasAtLeastMissingProfPathRanks                                = 356, /*NYI*/ // Player is missing least {#Count} ranks in {SkillLine} config
 };
 
 enum class ModifierTreeOperator : int8

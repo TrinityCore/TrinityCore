@@ -3966,6 +3966,8 @@ struct TraitNodeEntryEntry
     int32 TraitDefinitionID;
     int32 MaxRanks;
     uint8 NodeEntryType;
+
+    TraitNodeEntryType GetNodeEntryType() const { return static_cast<TraitNodeEntryType>(NodeEntryType); }
 };
 
 struct TraitNodeEntryXTraitCondEntry

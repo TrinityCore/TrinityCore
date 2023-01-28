@@ -40,7 +40,7 @@ struct GameObjectTemplate
     int32   ContentTuningId;
     union
     {
-    // 0 GAMEOBJECT_TYPE_DOOR
+        // 0 GAMEOBJECT_TYPE_DOOR
         struct
         {
             uint32 startOpen;                               // 0 startOpen, enum { false, true, }; Default: false
@@ -512,6 +512,7 @@ struct GameObjectTemplate
             uint32 SitAnimKit;                              // 2 Sit Anim Kit, References: AnimKit, NoValue = 0
             uint32 InteractRadiusOverride;                  // 3 Interact Radius Override (in hundredths), int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 CustomizationScope;                      // 4 Customization Scope, int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 Preventteleportingtheplayeroutofthebarbershopchair;// 5 Prevent teleporting the player out of the barbershop chair, enum { false, true, }; Default: false
         } barberChair;
         // 33 GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING
         struct
@@ -818,6 +819,12 @@ struct GameObjectTemplate
         {
             uint32 Profession;                              // 0 Profession, enum { First Aid, Blacksmithing, Leatherworking, Alchemy, Herbalism, Cooking, Mining, Tailoring, Engineering, Enchanting, Fishing, Skinning, Jewelcrafting, Inscription, Archaeology, }; Default: Blacksmithing
         } craftingTable;
+        // 62 GAMEOBJECT_TYPE_PERKS_PROGRAM_CHEST
+        struct
+        {
+            uint32 Script;                                  // 0 Script, References: SpellScript, NoValue = 0
+            uint32 autoClose;                               // 1 autoClose (ms), int, Min value: 0, Max value: 2147483647, Default value: 3000
+        } PerksProgramChest;
         struct
         {
             uint32 data[MAX_GAMEOBJECT_DATA];
@@ -1052,13 +1059,14 @@ struct GameObjectTemplate
     {
         switch (type)
         {
-            case GAMEOBJECT_TYPE_DOOR:          return door.autoClose;
-            case GAMEOBJECT_TYPE_BUTTON:        return button.autoClose;
-            case GAMEOBJECT_TYPE_TRAP:          return trap.autoClose;
-            case GAMEOBJECT_TYPE_GOOBER:        return goober.autoClose;
-            case GAMEOBJECT_TYPE_TRANSPORT:     return transport.autoClose;
-            case GAMEOBJECT_TYPE_AREADAMAGE:    return areaDamage.autoClose;
-            case GAMEOBJECT_TYPE_TRAPDOOR:      return trapdoor.autoClose;
+            case GAMEOBJECT_TYPE_DOOR:                  return door.autoClose;
+            case GAMEOBJECT_TYPE_BUTTON:                return button.autoClose;
+            case GAMEOBJECT_TYPE_TRAP:                  return trap.autoClose;
+            case GAMEOBJECT_TYPE_GOOBER:                return goober.autoClose;
+            case GAMEOBJECT_TYPE_TRANSPORT:             return transport.autoClose;
+            case GAMEOBJECT_TYPE_AREADAMAGE:            return areaDamage.autoClose;
+            case GAMEOBJECT_TYPE_TRAPDOOR:              return trapdoor.autoClose;
+            case GAMEOBJECT_TYPE_PERKS_PROGRAM_CHEST:   return PerksProgramChest.autoClose;
             default: return 0;
         }
     }
