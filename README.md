@@ -7,7 +7,10 @@
 <!--
 # ![logo](https://kdocs.cn/l/cfbJRxNaha4M) XCore (master)
 -->
+
+<center>
 # ![logo](http://m.qpic.cn/psc?/V52nY6a20lzs8U1Wv03f33HFbw43TrKC/bqQfVz5yrrGYSXMvKr.cqad44szbS8X0Ps9P2rb6ioZ.IEkHmy93jWFHC1wIznHyNosj8F9Zh8uGBSXiOwarjryde0sIuzb6NL3T3uLjVrQ!/b&bo=2QDRAAAAAAADByo!&rf=viewer_4) XCore (master)
+</center>
 
 <!--解决问题平均时间-->
 <!--
