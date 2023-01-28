@@ -35,7 +35,10 @@
 * [Build Status](#build-status)
 
 -->
+<!--
 * [Introduction](#introduction)
+-->
+* [介绍](#introduction)
 * [Requirements](#requirements)
 * [Install](#install)
 * [Reporting issues](#reporting-issues)
