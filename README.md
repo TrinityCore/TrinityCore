@@ -149,7 +149,7 @@ Windows, Linux and macOS.
 -->
 ## 报告问题
 
-如果想要上报一个问题(BUG等),可以使用下方链接:
+如果想要上报一个问题(或BUG等),可以使用下方链接:
 https://github.com/xuehyc/XCore/https://github.com/xuehyc/XCore/issues
 <br>也可以直接点击标签页"issues",当然也可以使用讨论模块.
 <!--
