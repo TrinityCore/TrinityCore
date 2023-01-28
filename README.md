@@ -86,7 +86,10 @@ Windows, Linux and macOS.
 
 
 ## Reporting issues
-
+如果想要上报一个问题(BUG等),可以使用下方链接:
+https://github.com/xuehyc/XCore/https://github.com/xuehyc/XCore/issues
+也可以直接点击标签页"https://github.com/xuehyc/XCore/issues"
+<!--
 Issues can be reported via the [Github issue tracker](https://github.com/TrinityCore/TrinityCore/labels/Branch-master).
 
 Please take the time to review existing issues before submitting your own to
@@ -95,7 +98,7 @@ prevent duplicates.
 In addition, thoroughly read through the [issue tracker guide](https://community.trinitycore.org/topic/37-the-trinitycore-issuetracker-and-you/) to ensure
 your report contains the required information. Incorrect or poorly formed
 reports are wasteful and are subject to deletion.
-
+-->
 
 ## Submitting fixes
 
