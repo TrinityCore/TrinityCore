@@ -1,9 +1,10 @@
 <!--
 # ![logo](https://community.trinitycore.org/public/style_images/1_trinitycore.png) TrinityCore (master)
 -->
+<!--
 # ![logo](https://github.com/xuehyc/TrinityCore/blob/master/ico/readme/%E5%A4%B4%E5%83%8F-%E5%8E%BB%E8%BE%B9%E7%BC%98%E7%B2%BE%E4%BF%AE%E7%89%88.png) XCore (master)
-
-
+-->
+# ![logo](https://kdocs.cn/l/cfbJRxNaha4M) XCore (master)
 
 [![Average time to resolve an issue](https://isitmaintained.com/badge/resolution/TrinityCore/TrinityCore.svg)](https://isitmaintained.com/project/TrinityCore/TrinityCore "Average time to resolve an issue") [![Percentage of issues still open](https://isitmaintained.com/badge/open/TrinityCore/TrinityCore.svg)](https://isitmaintained.com/project/TrinityCore/TrinityCore "Percentage of issues still open")
 
