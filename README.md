@@ -70,7 +70,7 @@
 * [Authors &amp; Contributors](#authors--contributors)
 -->
 
-* [作者 &amp; 贡献者](#作者 &amp; 贡献者)
+* [作者 &amp; 贡献者](#作者与贡献者)
 
 <!--
 * [Links](#links)
@@ -191,7 +191,7 @@ Read file [COPYING](COPYING).
 <!--
 ## Authors &amp; Contributors
 -->
-## 作者 &amp; 贡献者
+## 作者与贡献者
 
 Read file [AUTHORS](AUTHORS).
 <!--
