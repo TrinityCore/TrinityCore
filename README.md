@@ -38,16 +38,54 @@
 <!--
 * [Introduction](#introduction)
 -->
-* [介绍](#introduction)
+* [介绍](#介绍)
+<!--
 * [Requirements](#requirements)
+-->
+* [安装需求](#安装需求)
+<!--
 * [Install](#install)
-* [Reporting issues](#reporting-issues)
-* [Submitting fixes](#submitting-fixes)
-* [Copyright](#copyright)
-* [Authors &amp; Contributors](#authors--contributors)
-* [Links](#links)
-* [Bugs](#bugs)
+-->
+* [安装](#安装)
 
+<!--
+* [Reporting issues](#reporting-issues)
+-->
+* [报告问题](#报告问题)
+
+<!--
+* [Submitting fixes](#submitting-fixes)
+-->
+
+
+* [提交修复](#提交修复)
+
+<!--
+* [Copyright](#copyright)
+-->
+
+* [版权](#版权)
+
+<!--
+* [Authors &amp; Contributors](#authors--contributors)
+-->
+
+* [作者 &amp; 贡献者](#作者与贡献者)
+
+<!--
+* [Links](#links)
+-->
+
+* [链接](#链接)
+
+<!--
+* [Bugs](#bugs)
+-->
+
+* [Bugs](#bugs)
+<!--
+
+-->
 
 <!--
 ## Build Status
@@ -62,8 +100,10 @@ master | 3.3.5
 
 -->
 
-
+<!--
 ## Introduction
+-->
+## 介绍
 
 基于TrintyCore的master分支进行再开发
 (https://github.com/TrinityCore/TrinityCore)
@@ -83,20 +123,32 @@ make pull requests to our [Github repository](https://github.com/TrinityCore/Tri
 For further information on the TrinityCore project, please visit our project
 website at [TrinityCore.org](https://www.trinitycore.org).
 -->
-## Requirements
 
+<!--
+## Requirements
+-->
+## 安装需求
 
 Software requirements are available in the [wiki](https://trinitycore.info/en/install/requirements) for
 Windows, Linux and macOS.
 
-
+<!--
 ## Install
-
+-->
+## 安装
 Detailed installation guides are available in the [wiki](https://trinitycore.info/en/home) for
 Windows, Linux and macOS.
 
 
 ## Reporting issues
+
+* [报告问题](#报告问题)
+
+<!--
+## Reporting issues
+-->
+## 报告问题
+
 如果想要上报一个问题(BUG等),可以使用下方链接:
 https://github.com/xuehyc/XCore/https://github.com/xuehyc/XCore/issues
 <br>也可以直接点击标签页"issues",当然也可以使用讨论模块.
@@ -111,7 +163,11 @@ your report contains the required information. Incorrect or poorly formed
 reports are wasteful and are subject to deletion.
 -->
 
+<!--
 ## Submitting fixes
+-->
+
+## 提交修复
 可以使用Pulls,Issues,或者discussesions.均在标签页.
 <!--
 C++ fixes are submitted as pull requests via Github. For more information on how to
@@ -119,19 +175,26 @@ properly submit a pull request, read the [how-to: maintain a remote fork](https:
 For SQL only fixes, open a ticket; if a bug report exists for the bug, post on an existing ticket.
 -->
 
+<!--
 ## Copyright
+-->
+## 版权
 
 License: GPL 2.0
 
 Read file [COPYING](COPYING).
 
-
+<!--
 ## Authors &amp; Contributors
+-->
+## 作者与贡献者
 
 Read file [AUTHORS](AUTHORS).
-
-
+<!--
 ## Links
+-->
+
+## 链接
 <!--
 * [Website](https://www.trinitycore.org)
 -->
