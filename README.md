@@ -144,13 +144,13 @@ Detailed installation guides are available in the [wiki](https://trinitycore.inf
 Windows, Linux and macOS.
 
 
-## Reporting issues
-
-* [报告问题](#报告问题)
-
 <!--
 ## Reporting issues
 -->
+
+* [报告问题](#报告问题)
+
+
 ## 报告问题
 
 如果想要上报一个问题(或BUG等),可以使用下方链接:
