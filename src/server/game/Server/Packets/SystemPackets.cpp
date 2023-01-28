@@ -52,9 +52,6 @@ WorldPacket const* FeatureSystemStatus::Write()
 {
     _worldPacket << uint8(ComplaintStatus);
 
-    _worldPacket << uint32(ScrollOfResurrectionRequestsRemaining);
-    _worldPacket << uint32(ScrollOfResurrectionMaxRequestsPerDay);
-
     _worldPacket << uint32(CfgRealmID);
     _worldPacket << int32(CfgRealmRecID);
 
@@ -87,14 +84,13 @@ WorldPacket const* FeatureSystemStatus::Write()
 
     _worldPacket.WriteBit(VoiceEnabled);
     _worldPacket.WriteBit(EuropaTicketSystemStatus.has_value());
-    _worldPacket.WriteBit(ScrollOfResurrectionEnabled);
     _worldPacket.WriteBit(BpayStoreEnabled);
     _worldPacket.WriteBit(BpayStoreAvailable);
     _worldPacket.WriteBit(BpayStoreDisabledByParentalControls);
     _worldPacket.WriteBit(ItemRestorationButtonEnabled);
     _worldPacket.WriteBit(BrowserEnabled);
-
     _worldPacket.WriteBit(SessionAlert.has_value());
+
     _worldPacket.WriteBit(RAFSystem.Enabled);
     _worldPacket.WriteBit(RAFSystem.RecruitingEnabled);
     _worldPacket.WriteBit(CharUndeleteEnabled);
@@ -102,8 +98,8 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket.WriteBit(CommerceSystemEnabled);
     _worldPacket.WriteBit(TutorialsEnabled);
     _worldPacket.WriteBit(TwitterEnabled);
-
     _worldPacket.WriteBit(Unk67);
+
     _worldPacket.WriteBit(WillKickFromWorld);
     _worldPacket.WriteBit(KioskModeEnabled);
     _worldPacket.WriteBit(CompetitiveModeEnabled);
@@ -111,8 +107,8 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket.WriteBit(WarModeFeatureEnabled);
     _worldPacket.WriteBit(ClubsEnabled);
     _worldPacket.WriteBit(ClubsBattleNetClubTypeAllowed);
-
     _worldPacket.WriteBit(ClubsCharacterClubTypeAllowed);
+
     _worldPacket.WriteBit(ClubsPresenceUpdateEnabled);
     _worldPacket.WriteBit(VoiceChatDisabledByParentalControl);
     _worldPacket.WriteBit(VoiceChatMutedByParentalControl);
@@ -120,8 +116,8 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket.WriteBit(IsMuted);
     _worldPacket.WriteBit(ClubFinderEnabled);
     _worldPacket.WriteBit(Unknown901CheckoutRelated);
-
     _worldPacket.WriteBit(TextToSpeechFeatureEnabled);
+
     _worldPacket.WriteBit(ChatDisabledByDefault);
     _worldPacket.WriteBit(ChatDisabledByPlayer);
     _worldPacket.WriteBit(LFGListCustomRequiresAuthenticator);

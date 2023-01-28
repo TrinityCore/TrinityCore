@@ -3114,7 +3114,7 @@ DROP TABLE IF EXISTS `mail`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `mail` (
-  `id` int unsigned NOT NULL DEFAULT '0' COMMENT 'Identifier',
+  `id` bigint unsigned NOT NULL DEFAULT '0' COMMENT 'Identifier',
   `messageType` tinyint unsigned NOT NULL DEFAULT '0',
   `stationery` tinyint NOT NULL DEFAULT '41',
   `mailTemplateId` smallint unsigned NOT NULL DEFAULT '0',
@@ -3150,7 +3150,7 @@ DROP TABLE IF EXISTS `mail_items`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `mail_items` (
-  `mail_id` int unsigned NOT NULL DEFAULT '0',
+  `mail_id` bigint unsigned NOT NULL DEFAULT '0',
   `item_guid` bigint unsigned NOT NULL DEFAULT '0',
   `receiver` bigint unsigned NOT NULL DEFAULT '0' COMMENT 'Character Global Unique Identifier',
   PRIMARY KEY (`item_guid`),
@@ -3691,7 +3691,8 @@ INSERT INTO `updates` VALUES
 ('2022_12_16_00_characters.sql','36D6220143109ECD37219CC4A84773B31EAE9E50','ARCHIVED','2022-12-16 22:52:19',0),
 ('2022_12_17_00_characters.sql','3E005BD6B9C60653749B0B3C19CBC497092B9CCB','ARCHIVED','2022-12-17 18:26:43',0),
 ('2022_12_20_00_characters.sql','75A37A085AF1B953926E4352E439C7916B290924','ARCHIVED','2022-12-20 03:10:07',0),
-('2022_12_30_00_characters.sql','5F90C2BFFBB8F6CE0A3327A2CAABCD5CA3C2BA60','RELEASED','2022-12-30 22:50:16',0);
+('2022_12_30_00_characters.sql','5F90C2BFFBB8F6CE0A3327A2CAABCD5CA3C2BA60','RELEASED','2022-12-30 22:50:16',0),
+('2023_01_28_00_characters.sql','0280F79FD6EC93FFB3CC67B6499CEDA49D582BFC','RELEASED','2023-01-28 00:11:03',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

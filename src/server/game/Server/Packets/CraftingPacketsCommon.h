@@ -32,11 +32,12 @@ struct SpellReducedReagent
 struct CraftingData
 {
     int32 CraftingQualityID = 0;
-    int32 field_4 = 0;
-    int32 field_8 = 0;
+    float QualityProgress = 0.0f;
+    int32 SkillLineAbilityID = 0;
+    int32 CraftingDataID = 0;
     int32 Multicraft = 0;
-    int32 field_10 = 0;
-    int32 field_14 = 0;
+    int32 SkillFromReagents = 0;
+    int32 Skill = 0;
     int32 CritBonusSkill = 0;
     float field_1C = 0.0f;
     uint64 field_20 = 0;

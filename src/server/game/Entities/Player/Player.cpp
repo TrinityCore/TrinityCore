@@ -2660,7 +2660,7 @@ void Player::SendUnlearnSpells()
     SendDirectMessage(sendUnlearnSpells.Write());
 }
 
-void Player::RemoveMail(uint32 id)
+void Player::RemoveMail(uint64 id)
 {
     for (PlayerMails::iterator itr = m_mail.begin(); itr != m_mail.end(); ++itr)
     {
@@ -2673,7 +2673,7 @@ void Player::RemoveMail(uint32 id)
     }
 }
 
-void Player::SendMailResult(uint32 mailId, MailResponseType mailAction, MailResponseResult mailError, uint32 equipError, ObjectGuid::LowType item_guid, uint32 item_count) const
+void Player::SendMailResult(uint64 mailId, MailResponseType mailAction, MailResponseResult mailError, uint32 equipError, ObjectGuid::LowType itemGuid, uint32 itemCount) const
 {
     WorldPackets::Mail::MailCommandResult result;
 
@@ -2685,8 +2685,8 @@ void Player::SendMailResult(uint32 mailId, MailResponseType mailAction, MailResp
         result.BagResult = equipError;
     else if (mailAction == MAIL_ITEM_TAKEN)
     {
-        result.AttachID = item_guid;
-        result.QtyInInventory = item_count;
+        result.AttachID = itemGuid;
+        result.QtyInInventory = itemCount;
     }
     SendDirectMessage(result.Write());
 }
@@ -3588,7 +3588,7 @@ void Player::ResetPvpTalents()
                 RemovePvpTalent(talentInfo, spec);
 }
 
-Mail* Player::GetMail(uint32 id)
+Mail* Player::GetMail(uint64 id)
 {
     for (PlayerMails::iterator itr = m_mail.begin(); itr != m_mail.end(); ++itr)
         if ((*itr)->messageID == id)
@@ -3875,7 +3875,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
 
             if (resultMail)
             {
-                std::unordered_map<uint32, std::vector<Item*>> itemsByMail;
+                std::unordered_map<uint64, std::vector<Item*>> itemsByMail;
 
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAILITEMS);
                 stmt->setUInt64(0, guid);
@@ -3910,7 +3910,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
                     do
                     {
                         Field* fields = resultItems->Fetch();
-                        uint32 mailId = fields[44].GetUInt32();
+                        uint64 mailId = fields[44].GetUInt64();
                         if (Item* mailItem = _LoadMailedItem(playerguid, nullptr, mailId, nullptr, fields, Trinity::Containers::MapGetValuePtr(additionalData, fields[0].GetUInt64())))
                             itemsByMail[mailId].push_back(mailItem);
 
@@ -3921,7 +3921,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
                 {
                     Field* mailFields = resultMail->Fetch();
 
-                    uint32 mail_id       = mailFields[0].GetUInt32();
+                    uint64 mail_id       = mailFields[0].GetUInt64();
                     uint8 mailType       = mailFields[1].GetUInt8();
                     uint16 mailTemplateId= mailFields[2].GetUInt16();
                     ObjectGuid::LowType sender = mailFields[3].GetUInt64();
@@ -3933,7 +3933,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
                     // We can return mail now
                     // So firstly delete the old one
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_BY_ID);
-                    stmt->setUInt32(0, mail_id);
+                    stmt->setUInt64(0, mail_id);
                     trans->Append(stmt);
 
                     // Mail is not from player
@@ -3942,7 +3942,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
                         if (has_items)
                         {
                             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM_BY_ID);
-                            stmt->setUInt32(0, mail_id);
+                            stmt->setUInt64(0, mail_id);
                             trans->Append(stmt);
                         }
                         continue;
@@ -3963,7 +3963,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
                     }
 
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM_BY_ID);
-                    stmt->setUInt32(0, mail_id);
+                    stmt->setUInt64(0, mail_id);
                     trans->Append(stmt);
 
                     uint32 pl_account = sCharacterCache->GetCharacterAccountIdByGuid(playerguid);
@@ -16759,9 +16759,14 @@ void Player::SendQuestUpdateAddPlayer(Quest const* quest, uint16 newCount) const
 
 void Player::SendQuestGiverStatusMultiple()
 {
+    SendQuestGiverStatusMultiple(m_clientGUIDs);
+}
+
+void Player::SendQuestGiverStatusMultiple(GuidUnorderedSet const& guids)
+{
     WorldPackets::Quest::QuestGiverStatusMultiple response;
 
-    for (auto itr = m_clientGUIDs.begin(); itr != m_clientGUIDs.end(); ++itr)
+    for (auto itr = guids.begin(); itr != guids.end(); ++itr)
     {
         if (itr->IsAnyTypeCreature())
         {
@@ -18538,7 +18543,7 @@ Item* Player::_LoadItem(CharacterDatabaseTransaction trans, uint32 zoneId, uint3
 }
 
 // load mailed item which should receive current player
-Item* Player::_LoadMailedItem(ObjectGuid const& playerGuid, Player* player, uint32 mailId, Mail* mail, Field* fields, ItemAdditionalLoadInfo* addionalData)
+Item* Player::_LoadMailedItem(ObjectGuid const& playerGuid, Player* player, uint64 mailId, Mail* mail, Field* fields, ItemAdditionalLoadInfo* addionalData)
 {
     ObjectGuid::LowType itemGuid = fields[0].GetUInt64();
     uint32 itemEntry = fields[1].GetUInt32();
@@ -18610,7 +18615,7 @@ void Player::_LoadMail(PreparedQueryResult mailsResult, PreparedQueryResult mail
 {
     m_mail.clear();
 
-    std::unordered_map<uint32, Mail*> mailById;
+    std::unordered_map<uint64, Mail*> mailById;
 
     if (mailsResult)
     {
@@ -18619,7 +18624,7 @@ void Player::_LoadMail(PreparedQueryResult mailsResult, PreparedQueryResult mail
             Field* fields = mailsResult->Fetch();
             Mail* m = new Mail();
 
-            m->messageID      = fields[0].GetUInt32();
+            m->messageID      = fields[0].GetUInt64();
             m->messageType    = fields[1].GetUInt8();
             m->sender         = fields[2].GetUInt64();
             m->receiver       = fields[3].GetUInt64();
@@ -18656,7 +18661,7 @@ void Player::_LoadMail(PreparedQueryResult mailsResult, PreparedQueryResult mail
         do
         {
             Field* fields = mailItemsResult->Fetch();
-            uint32 mailId = fields[52].GetUInt32();
+            uint64 mailId = fields[52].GetUInt64();
             _LoadMailedItem(GetGUID(), this, mailId, mailById[mailId], fields, Trinity::Containers::MapGetValuePtr(additionalData, fields[0].GetUInt64()));
         } while (mailItemsResult->NextRow());
     }
@@ -20123,7 +20128,7 @@ void Player::_SaveMail(CharacterDatabaseTransaction trans)
             stmt->setUInt64(3, m->money);
             stmt->setUInt64(4, m->COD);
             stmt->setUInt8(5, uint8(m->checked));
-            stmt->setUInt32(6, m->messageID);
+            stmt->setUInt64(6, m->messageID);
 
             trans->Append(stmt);
 
@@ -20151,11 +20156,11 @@ void Player::_SaveMail(CharacterDatabaseTransaction trans)
                 }
             }
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_BY_ID);
-            stmt->setUInt32(0, m->messageID);
+            stmt->setUInt64(0, m->messageID);
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM_BY_ID);
-            stmt->setUInt32(0, m->messageID);
+            stmt->setUInt64(0, m->messageID);
             trans->Append(stmt);
         }
     }

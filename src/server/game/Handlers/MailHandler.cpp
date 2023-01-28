@@ -158,7 +158,7 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& sendMail)
 
         // test the receiver's Faction... or all items are account bound
         bool accountBound = !mailInfo.Attachments.empty();
-        for (auto const& att : mailInfo.Attachments)
+        for (WorldPackets::Mail::SendMail::StructSendMail::MailAttachment const& att : mailInfo.Attachments)
         {
             if (Item* item = player->GetItemByGuid(att.ItemGUID))
             {
@@ -185,7 +185,7 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& sendMail)
 
         std::vector<Item*> items;
 
-        for (auto const& att : mailInfo.Attachments)
+        for (WorldPackets::Mail::SendMail::StructSendMail::MailAttachment const& att : mailInfo.Attachments)
         {
             if (att.ItemGUID.IsEmpty())
             {
@@ -384,11 +384,11 @@ void WorldSession::HandleMailReturnToSender(WorldPackets::Mail::MailReturnToSend
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_BY_ID);
-    stmt->setUInt32(0, returnToSender.MailID);
+    stmt->setUInt64(0, returnToSender.MailID);
     trans->Append(stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM_BY_ID);
-    stmt->setUInt32(0, returnToSender.MailID);
+    stmt->setUInt64(0, returnToSender.MailID);
     trans->Append(stmt);
 
     player->RemoveMail(returnToSender.MailID);
@@ -421,7 +421,7 @@ void WorldSession::HandleMailReturnToSender(WorldPackets::Mail::MailReturnToSend
 //called when player takes item attached in mail
 void WorldSession::HandleMailTakeItem(WorldPackets::Mail::MailTakeItem& takeItem)
 {
-    uint32 AttachID = takeItem.AttachID;
+    uint64 AttachID = takeItem.AttachID;
 
     if (!CanOpenMailBox(takeItem.Mailbox))
         return;

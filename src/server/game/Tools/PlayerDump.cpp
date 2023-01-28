@@ -905,8 +905,8 @@ DumpReturn PlayerDumpReader::LoadDump(std::istream& input, uint32 account, std::
     std::map<ObjectGuid::LowType, ObjectGuid::LowType> items;
     ObjectGuid::LowType itemLowGuidOffset = sObjectMgr->GetGenerator<HighGuid::Item>().GetNextAfterMaxUsed();
 
-    std::map<uint32, uint32> mails;
-    uint32 mailLowGuidOffset = sObjectMgr->_mailId;
+    std::map<uint64, uint64> mails;
+    uint64 mailLowGuidOffset = sObjectMgr->_mailId;
 
     std::map<uint32, uint32> petIds;
     uint32 petLowGuidOffset = sObjectMgr->_hiPetNumber;
