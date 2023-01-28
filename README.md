@@ -21,7 +21,7 @@
 --------------
 -->
 
-基于TrintyCore的master分支进行再开发
+
 
 <!--
 * [Build Status](#build-status)
@@ -53,6 +53,8 @@ master | 3.3.5
 
 
 ## Introduction
+
+基于TrintyCore的master分支进行再开发
 
 TrinityCore is a *MMORPG* Framework based mostly in C++.
 
