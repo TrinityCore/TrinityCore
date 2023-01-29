@@ -7574,7 +7574,7 @@ uint64 ObjectMgr::GenerateEquipmentSetGuid()
 
 uint64 ObjectMgr::GenerateMailID()
 {
-    if (_mailId >= 0xFFFFFFFE)
+    if (_mailId >= UI64LIT(0xFFFFFFFFFFFFFFFE))
     {
         TC_LOG_ERROR("misc", "Mail ids overflow!! Can't continue, shutting down server. Search on forum for TCE00007 for more info. ");
         World::StopNow(ERROR_EXIT_CODE);
