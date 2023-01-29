@@ -51,7 +51,7 @@
 <!--
 * [Reporting issues](#reporting-issues)
 -->
-* [报告问题,提交修复,讨论交流](#报告问题,提交修复,讨论交流)
+* [报告问题,提交修复,讨论交流](#报告问题&提交修复&讨论交流)
 
 <!--
 * [Submitting fixes](#submitting-fixes)
@@ -153,7 +153,7 @@ Windows, Linux and macOS.
 
 -->
 
-## 报告问题,提交修复,讨论交流
+## 报告问题&提交修复&讨论交流
 * [提交修复](https://github.com/xuehyc/XCore/pulls)
 * [上报BUG](https://github.com/xuehyc/XCore/discussions/30)
 * [维基](https://github.com/xuehyc/XCore/wiki)
