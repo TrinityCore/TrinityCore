@@ -2459,11 +2459,19 @@ void Map::UpdateSpawnGroupConditions()
     for (uint32 spawnGroupId : *spawnGroups)
     {
         SpawnGroupTemplateData const* spawnGroupTemplate = ASSERT_NOTNULL(GetSpawnGroupData(spawnGroupId));
-        if (spawnGroupTemplate->flags & SPAWNGROUP_FLAG_MANUAL_SPAWN)
-            continue;
 
         bool isActive = IsSpawnGroupActive(spawnGroupId);
         bool shouldBeActive = sConditionMgr->IsMapMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_SPAWN_GROUP, spawnGroupId, this);
+
+        if (spawnGroupTemplate->flags & SPAWNGROUP_FLAG_MANUAL_SPAWN)
+        {
+            // Only despawn the group if it isn't meeting conditions
+            if (isActive && !shouldBeActive && spawnGroupTemplate->flags & SPAWNGROUP_FLAG_DESPAWN_ON_CONDITION_FAILURE)
+                SpawnGroupDespawn(spawnGroupId, true);
+
+            continue;
+        }
+
         if (isActive == shouldBeActive)
             continue;
 
