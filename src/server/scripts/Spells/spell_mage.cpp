@@ -195,52 +195,33 @@ enum MageSpellIcons
 };
 
 // 11113 - Blast Wave
-class spell_mage_blast_wave : public SpellScriptLoader
+class spell_mage_blast_wave : public SpellScript
 {
-    public:
-        spell_mage_blast_wave() : SpellScriptLoader("spell_mage_blast_wave") { }
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_FLAMESTRIKE });
+    }
 
-        class spell_mage_blast_wave_SpellScript : public SpellScript
-        {
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_MAGE_FLAMESTRIKE });
-            }
+    void HandleImprovedFlamestrike(SpellEffIndex /*effIndex*/)
+    {
+        ++_hitTargetsCount;
+        if (_hitTargetsCount != 2)
+            return;
 
-            void CountTargets(std::list<WorldObject*>& targetList)
-            {
-                _targetCount = targetList.size();
-            }
+        if (AuraEffect const* aurEff = GetCaster()->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_MAGE, ICON_MAGE_IMPROVED_FLAMESTRIKE, EFFECT_0))
+            if (!roll_chance_i(aurEff->GetAmount()))
+                return;
 
-            void HandleImprovedFlamestrike()
-            {
-                if (_targetCount >= 2)
-                    if (AuraEffect* aurEff = GetCaster()->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_MAGE, ICON_MAGE_IMPROVED_FLAMESTRIKE, EFFECT_0))
-                        if (roll_chance_i(aurEff->GetAmount()))
-                        {
-                            float x, y, z;
-                            WorldLocation const* loc = GetExplTargetDest();
-                            if (!loc)
-                                return;
+        if (WorldLocation const* targetDest = GetExplTargetDest())
+            GetCaster()->CastSpell(targetDest->GetPosition(), SPELL_MAGE_FLAMESTRIKE, true);
+    }
 
-                            loc->GetPosition(x, y, z);
-                            GetCaster()->CastSpell({ x, y, z }, SPELL_MAGE_FLAMESTRIKE, true);
-                        }
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect.Register(&spell_mage_blast_wave_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
-                AfterCast.Register(&spell_mage_blast_wave_SpellScript::HandleImprovedFlamestrike);
-            }
-
-            uint32 _targetCount = 0;
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_mage_blast_wave_SpellScript();
-        }
+    void Register() override
+    {
+        OnEffectHitTarget.Register(&spell_mage_blast_wave::HandleImprovedFlamestrike, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+    }
+private:
+    uint8 _hitTargetsCount = 0;
 };
 
 // -31641 - Blazing Speed
@@ -2152,7 +2133,7 @@ void AddSC_mage_spell_scripts()
 {
     RegisterSpellScript(spell_mage_arcane_missiles_trigger);
     RegisterSpellScript(spell_mage_arcane_potency);
-    new spell_mage_blast_wave();
+    RegisterSpellScript(spell_mage_blast_wave);
     new spell_mage_blazing_speed();
     new spell_mage_blizzard();
     new spell_mage_cold_snap();
