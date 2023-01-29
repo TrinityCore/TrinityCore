@@ -159,7 +159,7 @@ Windows, Linux and macOS.
 * [维基](https://github.com/xuehyc/XCore/wiki)
 * [论坛](https://github.com/xuehyc/XCore/discussions)
 
-(本页上方的标签即是,找不到就点此处链接)
+(本页最上方的标签即是(Code右边一排,排排站的就是),找不到就点此处链接)
 <!--
 如果想要上报一个问题(或BUG等),可以使用下方链接:
 https://github.com/xuehyc/XCore/issues
