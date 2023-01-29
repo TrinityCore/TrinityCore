@@ -51,7 +51,7 @@
 <!--
 * [Reporting issues](#reporting-issues)
 -->
-* [报告问题](#报告问题,提交修复,讨论交流)
+* [报告问题,提交修复,讨论交流](#报告问题,提交修复,讨论交流)
 
 <!--
 * [Submitting fixes](#submitting-fixes)
