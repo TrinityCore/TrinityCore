@@ -75,9 +75,9 @@
 <!--
 * [Links](#links)
 -->
-
+<!--
 * [链接](#链接)
-
+-->
 <!--
 * [Bugs](#bugs)
 -->
@@ -159,7 +159,7 @@ Windows, Linux and macOS.
 * [维基](https://github.com/xuehyc/XCore/wiki)
 * [论坛](https://github.com/xuehyc/XCore/discussions)
 
-(本页上方的标签即是,找不到就点上方连接)
+(本页上方的标签即是,找不到就点上方链接)
 <!--
 如果想要上报一个问题(或BUG等),可以使用下方链接:
 https://github.com/xuehyc/XCore/issues
@@ -219,9 +219,10 @@ Read file [AUTHORS](AUTHORS).
 * [Forums](https://community.trinitycore.org)
 * [Discord](https://discord.trinitycore.org/)
 -->
-
+<!--
 * [维基](https://github.com/xuehyc/XCore/wiki)
 * [论坛](https://github.com/xuehyc/XCore/discussions)
+-->
 <!--
 * [Discord](https://discord.trinitycore.org/)
 -->
