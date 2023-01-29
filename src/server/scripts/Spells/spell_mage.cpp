@@ -132,6 +132,7 @@ enum MageSpells
 enum MageIcons
 {
     ICON_MAGE_SHATTER                            = 976,
+    ICON_MAGE_IMPROVED_CONE_OF_COLD              = 35,
     ICON_MAGE_IMPROVED_FLAMESTRIKE               = 37,
     ICON_MAGE_IMPROVED_FREEZE                    = 94,
     ICON_MAGE_INCANTER_S_ABSORPTION              = 2941,
@@ -225,144 +226,102 @@ private:
 };
 
 // -31641 - Blazing Speed
-class spell_mage_blazing_speed : public SpellScriptLoader
+class spell_mage_blazing_speed : public AuraScript
 {
-    public:
-        spell_mage_blazing_speed() : SpellScriptLoader("spell_mage_blazing_speed") { }
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_BLAZING_SPEED });
+    }
 
-        class spell_mage_blazing_speed_AuraScript : public AuraScript
-        {
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_MAGE_BLAZING_SPEED });
-            }
+    void OnProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+        GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_BLAZING_SPEED, aurEff);
+    }
 
-            void OnProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
-            {
-                PreventDefaultAction();
-                GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_BLAZING_SPEED, aurEff);
-            }
-
-            void Register() override
-            {
-                OnEffectProc.Register(&spell_mage_blazing_speed_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_mage_blazing_speed_AuraScript();
-        }
+    void Register() override
+    {
+        OnEffectProc.Register(&spell_mage_blazing_speed::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
 };
 
 // 42208 - Blizzard
 /// Updated 4.3.4
-class spell_mage_blizzard : public SpellScriptLoader
+class spell_mage_blizzard : public SpellScript
 {
-   public:
-       spell_mage_blizzard() : SpellScriptLoader("spell_mage_blizzard") { }
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_MAGE_CHILLED_R1,
+                SPELL_MAGE_CHILLED_R2
+            });
+    }
 
-       class spell_mage_blizzard_SpellScript : public SpellScript
-       {
-           bool Validate(SpellInfo const* /*spellInfo*/) override
-           {
-               return ValidateSpellInfo(
-                {
-                    SPELL_MAGE_CHILLED_R1,
-                    SPELL_MAGE_CHILLED_R2
-                });
-           }
+    void AddChillEffect(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (Unit* unitTarget = GetHitUnit())
+        {
+            if (caster->IsScriptOverriden(GetSpellInfo(), 836))
+                caster->CastSpell(unitTarget, SPELL_MAGE_CHILLED_R1, true);
+            else if (caster->IsScriptOverriden(GetSpellInfo(), 988))
+                caster->CastSpell(unitTarget, SPELL_MAGE_CHILLED_R2, true);
+        }
+    }
 
-           void AddChillEffect(SpellEffIndex /*effIndex*/)
-           {
-               Unit* caster = GetCaster();
-               if (Unit* unitTarget = GetHitUnit())
-               {
-                   if (caster->IsScriptOverriden(GetSpellInfo(), 836))
-                       caster->CastSpell(unitTarget, SPELL_MAGE_CHILLED_R1, true);
-                   else if (caster->IsScriptOverriden(GetSpellInfo(), 988))
-                       caster->CastSpell(unitTarget, SPELL_MAGE_CHILLED_R2, true);
-               }
-           }
-
-           void Register() override
-           {
-               OnEffectHitTarget.Register(&spell_mage_blizzard_SpellScript::AddChillEffect, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-           }
-       };
-
-       SpellScript* GetSpellScript() const override
-       {
-           return new spell_mage_blizzard_SpellScript();
-       }
+    void Register() override
+    {
+        OnEffectHitTarget.Register(&spell_mage_blizzard::AddChillEffect, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
 };
 
 // 11958 - Cold Snap
-class spell_mage_cold_snap : public SpellScriptLoader
+class spell_mage_cold_snap : public SpellScript
 {
-    public:
-        spell_mage_cold_snap() : SpellScriptLoader("spell_mage_cold_snap") { }
+    bool Load() override
+    {
+        return GetCaster()->IsPlayer();
+    }
 
-        class spell_mage_cold_snap_SpellScript : public SpellScript
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr) -> bool
         {
-            bool Load() override
-            {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
+            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first);
+        return spellInfo->SpellFamilyName == SPELLFAMILY_MAGE && (spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_FROST) &&
+            spellInfo->Id != SPELL_MAGE_COLD_SNAP && spellInfo->GetRecoveryTime() > 0;
+        }, true);
+    }
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                GetCaster()->GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr) -> bool
-                {
-                    SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first);
-                    return spellInfo->SpellFamilyName == SPELLFAMILY_MAGE && (spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_FROST) &&
-                        spellInfo->Id != SPELL_MAGE_COLD_SNAP && spellInfo->GetRecoveryTime() > 0;
-                }, true);
-            }
-
-            void Register() override
-            {
-                OnEffectHit.Register(&spell_mage_cold_snap_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_mage_cold_snap_SpellScript();
-        }
+    void Register() override
+    {
+        OnEffectHit.Register(&spell_mage_cold_snap::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
 };
 
 // 120 - Cone of Cold
 /// Updated 4.3.4
-class spell_mage_cone_of_cold : public SpellScriptLoader
+static std::array<uint32, 2> const ImprovedConeOfColdSpellIds = { SPELL_MAGE_CONE_OF_COLD_TRIGGER_R1, SPELL_MAGE_CONE_OF_COLD_TRIGGER_R2 };
+
+class spell_mage_cone_of_cold : public SpellScript
 {
-    public:
-        spell_mage_cone_of_cold() : SpellScriptLoader("spell_mage_cone_of_cold") { }
+    bool Validate(SpellInfo const* /*spellInfo*/)
+    {
+        return ValidateSpellInfo(ImprovedConeOfColdSpellIds);
+    }
 
-        class spell_mage_cone_of_cold_SpellScript : public SpellScript
-        {
-            void HandleConeOfColdScript(SpellEffIndex /*effIndex*/)
-            {
-                Unit* caster = GetCaster();
-                if (Unit* unitTarget = GetHitUnit())
-                {
-                    if (caster->HasAura(SPELL_MAGE_CONE_OF_COLD_AURA_R1)) // Improved Cone of Cold Rank 1
-                        unitTarget->CastSpell(unitTarget, SPELL_MAGE_CONE_OF_COLD_TRIGGER_R1, true);
-                    else if (caster->HasAura(SPELL_MAGE_CONE_OF_COLD_AURA_R2)) // Improved Cone of Cold Rank 2
-                        unitTarget->CastSpell(unitTarget, SPELL_MAGE_CONE_OF_COLD_TRIGGER_R2, true);
-                }
-            }
+    void HandleConeOfColdScript(SpellEffIndex /*effIndex*/)
+    {
+        if (AuraEffect const* aurEff = GetCaster()->GetDummyAuraEffect(SPELLFAMILY_MAGE, ICON_MAGE_IMPROVED_CONE_OF_COLD, EFFECT_0))
+            if (aurEff->IsAffectingSpell(GetSpellInfo()))
+                GetHitUnit()->CastSpell(GetHitUnit(), ImprovedConeOfColdSpellIds[uint8(aurEff->GetSpellInfo()->GetRank() - 1)], true);
+    }
 
-            void Register() override
-            {
-                OnEffectHitTarget.Register(&spell_mage_cone_of_cold_SpellScript::HandleConeOfColdScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_mage_cone_of_cold_SpellScript();
-        }
+    void Register() override
+    {
+        OnEffectHitTarget.Register(&spell_mage_cone_of_cold::HandleConeOfColdScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
 };
 
 // 42955 Conjure Refreshment
@@ -2134,11 +2093,11 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_arcane_missiles_trigger);
     RegisterSpellScript(spell_mage_arcane_potency);
     RegisterSpellScript(spell_mage_blast_wave);
-    new spell_mage_blazing_speed();
-    new spell_mage_blizzard();
-    new spell_mage_cold_snap();
+    RegisterSpellScript(spell_mage_blazing_speed);
+    RegisterSpellScript(spell_mage_blizzard);
+    RegisterSpellScript(spell_mage_cold_snap);
     RegisterSpellScript(spell_mage_combustion);
-    new spell_mage_cone_of_cold();
+    RegisterSpellScript(spell_mage_cone_of_cold);
     new spell_mage_conjure_refreshment();
     RegisterSpellScript(spell_mage_deep_freeze);
     RegisterSpellScript(spell_mage_dragon_breath);
