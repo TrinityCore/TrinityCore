@@ -1289,46 +1289,46 @@ struct CurrencyTypesEntry
     EnumFlag<CurrencyTypesFlagsB> GetFlagsB() const { return static_cast<CurrencyTypesFlagsB>(Flags[1]); }
 
     // Helpers
-    uint8 GetPrecision() const
+    int32 GetScaler() const
     {
-        return GetFlags().HasFlag(CurrencyTypesFlags::Currency_100_Scaler) ? 100 : 1;
+        return GetFlags().HasFlag(CurrencyTypesFlags::_100_Scaler) ? 100 : 1;
     }
 
     bool HasMaxEarnablePerWeek() const
     {
-        return MaxEarnablePerWeek || GetFlags().HasFlag(CurrencyTypesFlags::CurrencyComputedWeeklyMaximum);
+        return MaxEarnablePerWeek || GetFlags().HasFlag(CurrencyTypesFlags::ComputedWeeklyMaximum);
     }
 
     bool HasMaxQuantity(bool onLoad = false, bool onUpdateVersion = false) const
     {
-        if (onLoad && GetFlags().HasFlag(CurrencyTypesFlags::CurrencyIgnoreMaxQtyOnLoad))
+        if (onLoad && GetFlags().HasFlag(CurrencyTypesFlags::IgnoreMaxQtyOnLoad))
            return false;
 
-        if (onUpdateVersion && GetFlags().HasFlag(CurrencyTypesFlags::CurrencyUpdateVersionIgnoreMax))
+        if (onUpdateVersion && GetFlags().HasFlag(CurrencyTypesFlags::UpdateVersionIgnoreMax))
            return false;
 
-        return MaxQty || MaxQtyWorldStateID || GetFlags().HasFlag(CurrencyTypesFlags::CurrencyDynamicMaximum);
+        return MaxQty || MaxQtyWorldStateID || GetFlags().HasFlag(CurrencyTypesFlags::DynamicMaximum);
     }
 
     bool HasTotalEarned() const
     {
-        return GetFlagsB().HasFlag(CurrencyTypesFlagsB::CurrencyBUseTotalEarnedForEarned);
+        return GetFlagsB().HasFlag(CurrencyTypesFlagsB::UseTotalEarnedForEarned);
     }
 
     bool IsAlliance() const
     {
-        return GetFlags().HasFlag(CurrencyTypesFlags::CurrencyIsAllianceOnly);
+        return GetFlags().HasFlag(CurrencyTypesFlags::IsAllianceOnly);
     }
 
     bool IsHorde() const
     {
-        return GetFlags().HasFlag(CurrencyTypesFlags::CurrencyIsHordeOnly);
+        return GetFlags().HasFlag(CurrencyTypesFlags::IsHordeOnly);
     }
 
     bool IsSuppressingChatLog(bool onUpdateVersion = false) const
     {
-        if ((onUpdateVersion && GetFlags().HasFlag(CurrencyTypesFlags::CurrencySuppressChatMessageOnVersionChange)) ||
-            GetFlags().HasFlag(CurrencyTypesFlags::CurrencySuppressChatMessages))
+        if ((onUpdateVersion && GetFlags().HasFlag(CurrencyTypesFlags::SuppressChatMessageOnVersionChange)) ||
+            GetFlags().HasFlag(CurrencyTypesFlags::SuppressChatMessages))
             return true;
 
         return false;
@@ -1336,7 +1336,7 @@ struct CurrencyTypesEntry
 
     bool IsTrackingQuantity() const
     {
-        return GetFlags().HasFlag(CurrencyTypesFlags::CurrencyTrackQuantity);
+        return GetFlags().HasFlag(CurrencyTypesFlags::TrackQuantity);
     }
 };
 

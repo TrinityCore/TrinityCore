@@ -6957,7 +6957,7 @@ void Player::SendCurrencies() const
         record.Type = currency->ID;
         record.Quantity = itr->second.Quantity;
 
-        if ((itr->second.WeeklyQuantity / currency->GetPrecision()) > 0)
+        if ((itr->second.WeeklyQuantity / currency->GetScaler()) > 0)
             record.WeeklyQuantity = itr->second.WeeklyQuantity;
 
         if (currency->HasMaxEarnablePerWeek())
@@ -6992,15 +6992,14 @@ void Player::SetCreateCurrency(uint32 id, uint32 amount)
     PlayerCurrenciesMap::iterator itr = _currencyStorage.find(id);
     if (itr == _currencyStorage.end())
     {
-        PlayerCurrency cur;
-        cur.state = PLAYERCURRENCY_NEW;
-        cur.Quantity = amount;
-        cur.WeeklyQuantity = 0;
-        cur.TrackedQuantity = 0;
-        cur.IncreasedCapQuantity = 0;
-        cur.EarnedQuantity = 0;
-        cur.Flags = CurrencyDbFlags(0);
-        _currencyStorage[id] = cur;
+        itr = _currencyStorage.emplace(id, PlayerCurrency{}).first;
+        itr->second.state = PLAYERCURRENCY_NEW;
+        itr->second.Quantity = amount;
+        itr->second.WeeklyQuantity = 0;
+        itr->second.TrackedQuantity = 0;
+        itr->second.IncreasedCapQuantity = 0;
+        itr->second.EarnedQuantity = 0;
+        itr->second.Flags = CurrencyDbFlags(0);
     }
 }
 
@@ -7039,12 +7038,12 @@ void Player::ModifyCurrency(uint32 id, int32 amount, CurrencyGainSource gainSour
         amount *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_CURRENCY_CATEGORY_GAIN_PCT, currency->CategoryID);
     }
 
-    uint8 precision = currency->GetPrecision();
+    int32 scaler = currency->GetScaler();
 
     // Currency that is immediately converted into reputation with that faction instead
     if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(currency->FactionID))
     {
-        amount /= precision;
+        amount /= scaler;
         GetReputationMgr().ModifyReputation(factionEntry, amount, false, true);
         return;
     }
@@ -7061,16 +7060,14 @@ void Player::ModifyCurrency(uint32 id, int32 amount, CurrencyGainSource gainSour
     PlayerCurrenciesMap::iterator itr = _currencyStorage.find(id);
     if (itr == _currencyStorage.end())
     {
-        PlayerCurrency cur;
-        cur.state = PLAYERCURRENCY_NEW;
-        cur.Quantity = 0;
-        cur.WeeklyQuantity = 0;
-        cur.TrackedQuantity = 0;
-        cur.IncreasedCapQuantity = 0;
-        cur.EarnedQuantity = 0;
-        cur.Flags = CurrencyDbFlags(0);
-        _currencyStorage[id] = cur;
-        itr = _currencyStorage.find(id);
+        itr = _currencyStorage.emplace(id, PlayerCurrency{}).first;
+        itr->second.state = PLAYERCURRENCY_NEW;
+        itr->second.Quantity = 0;
+        itr->second.WeeklyQuantity = 0;
+        itr->second.TrackedQuantity = 0;
+        itr->second.IncreasedCapQuantity = 0;
+        itr->second.EarnedQuantity = 0;
+        itr->second.Flags = CurrencyDbFlags(0);
     }
 
     // Weekly cap
@@ -7117,11 +7114,8 @@ void Player::ModifyCurrency(uint32 id, int32 amount, CurrencyGainSource gainSour
     packet.Quantity = itr->second.Quantity;
     packet.Flags = CurrencyGainFlags::None; // TODO: Check when flags are applied
 
-    if ((itr->second.WeeklyQuantity / currency->GetPrecision()) > 0)
+    if ((itr->second.WeeklyQuantity / currency->GetScaler()) > 0)
         packet.WeeklyQuantity = itr->second.WeeklyQuantity;
-
-    if (currency->HasMaxQuantity(false, gainSource == CurrencyGainSource::UpdatingVersion))
-        packet.MaxQuantity = GetCurrencyMaxQuantity(currency);
 
     if (currency->HasMaxQuantity(false, gainSource == CurrencyGainSource::UpdatingVersion))
         packet.MaxQuantity = GetCurrencyMaxQuantity(currency);
@@ -7166,7 +7160,7 @@ void Player::IncreaseCurrencyCap(uint32 id, uint32 amount)
         return;
 
     // Check dynamic maximum flag
-    if (!currency->GetFlags().HasFlag(CurrencyTypesFlags::CurrencyDynamicMaximum))
+    if (!currency->GetFlags().HasFlag(CurrencyTypesFlags::DynamicMaximum))
         return;
 
     // Ancient mana maximum cap
@@ -7205,7 +7199,7 @@ void Player::IncreaseCurrencyCap(uint32 id, uint32 amount)
     packet.Quantity = itr->second.Quantity;
     packet.Flags = CurrencyGainFlags::None;
 
-    if ((itr->second.WeeklyQuantity / currency->GetPrecision()) > 0)
+    if ((itr->second.WeeklyQuantity / currency->GetScaler()) > 0)
         packet.WeeklyQuantity = itr->second.WeeklyQuantity;
 
     if (currency->IsTrackingQuantity())
@@ -7286,7 +7280,7 @@ uint32 Player::GetCurrencyMaxQuantity(CurrencyTypesEntry const* currency, bool o
         maxQuantity = sWorldStateMgr->GetValue(currency->MaxQtyWorldStateID, GetMap());
 
     uint32 increasedCap = 0;
-    if (currency->GetFlags().HasFlag(CurrencyTypesFlags::CurrencyDynamicMaximum))
+    if (currency->GetFlags().HasFlag(CurrencyTypesFlags::DynamicMaximum))
         increasedCap = GetCurrencyIncreasedCapQuantity(currency->ID);
 
     return maxQuantity + increasedCap;

@@ -676,48 +676,48 @@ enum CurrencyConsts
 
 enum class CurrencyTypesFlags : uint32
 {
-    CurrencyTradable                           = 0x00000001, // NYI
-    CurrencyAppearsInLootWindow                = 0x00000002, // NYI
-    CurrencyComputedWeeklyMaximum              = 0x00000004, // NYI
-    Currency_100_Scaler                        = 0x00000008,
-    CurrencyNoLowLevelDrop                     = 0x00000010, // NYI
-    CurrencyIgnoreMaxQtyOnLoad                 = 0x00000020,
-    CurrencyLogOnWorldChange                   = 0x00000040, // NYI
-    CurrencyTrackQuantity                      = 0x00000080,
-    CurrencyResetTrackedQuantity               = 0x00000100, // NYI
-    CurrencyUpdateVersionIgnoreMax             = 0x00000200,
-    CurrencySuppressChatMessageOnVersionChange = 0x00000400,
-    CurrencySingleDropInLoot                   = 0x00000800, // NYI
-    CurrencyHasWeeklyCatchup                   = 0x00001000, // NYI
-    CurrencyDoNotCompressChat                  = 0x00002000, // NYI
-    CurrencyDoNotLogAcquisitionToBi            = 0x00004000, // NYI
-    CurrencyNoRaidDrop                         = 0x00008000, // NYI
-    CurrencyNotPersistent                      = 0x00010000, // NYI
-    CurrencyDeprecated                         = 0x00020000, // NYI
-    CurrencyDynamicMaximum                     = 0x00040000,
-    CurrencySuppressChatMessages               = 0x00080000,
-    CurrencyDoNotToast                         = 0x00100000, // NYI
-    CurrencyDestroyExtraOnLoot                 = 0x00200000, // NYI
-    CurrencyDontShowTotalInTooltip             = 0x00400000, // NYI
-    CurrencyDontCoalesceInLootWindow           = 0x00800000, // NYI
-    CurrencyAccountWide                        = 0x01000000, // NYI
-    CurrencyAllowOverflowMailer                = 0x02000000, // NYI
-    CurrencyHideAsReward                       = 0x04000000, // NYI
-    CurrencyHasWarmodeBonus                    = 0x08000000, // NYI
-    CurrencyIsAllianceOnly                     = 0x10000000,
-    CurrencyIsHordeOnly                        = 0x20000000,
-    CurrencyLimitWarmodeBonusOncePerTooltip    = 0x40000000, // NYI
-    DeprecatedCurrencyFlag                     = 0x80000000
+    Tradable                            = 0x00000001, // NYI
+    AppearsInLootWindow                 = 0x00000002, // NYI
+    ComputedWeeklyMaximum               = 0x00000004, // NYI
+    _100_Scaler                         = 0x00000008,
+    NoLowLevelDrop                      = 0x00000010, // NYI
+    IgnoreMaxQtyOnLoad                  = 0x00000020,
+    LogOnWorldChange                    = 0x00000040, // NYI
+    TrackQuantity                       = 0x00000080,
+    ResetTrackedQuantity                = 0x00000100, // NYI
+    UpdateVersionIgnoreMax              = 0x00000200,
+    SuppressChatMessageOnVersionChange  = 0x00000400,
+    SingleDropInLoot                    = 0x00000800, // NYI
+    HasWeeklyCatchup                    = 0x00001000, // NYI
+    DoNotCompressChat                   = 0x00002000, // NYI
+    DoNotLogAcquisitionToBi             = 0x00004000, // NYI
+    NoRaidDrop                          = 0x00008000, // NYI
+    NotPersistent                       = 0x00010000, // NYI
+    Deprecated                          = 0x00020000, // NYI
+    DynamicMaximum                      = 0x00040000,
+    SuppressChatMessages                = 0x00080000,
+    DoNotToast                          = 0x00100000, // NYI
+    DestroyExtraOnLoot                  = 0x00200000, // NYI
+    DontShowTotalInTooltip              = 0x00400000, // NYI
+    DontCoalesceInLootWindow            = 0x00800000, // NYI
+    AccountWide                         = 0x01000000, // NYI
+    AllowOverflowMailer                 = 0x02000000, // NYI
+    HideAsReward                        = 0x04000000, // NYI
+    HasWarmodeBonus                     = 0x08000000, // NYI
+    IsAllianceOnly                      = 0x10000000,
+    IsHordeOnly                         = 0x20000000,
+    LimitWarmodeBonusOncePerTooltip     = 0x40000000, // NYI
+    DeprecatedCurrencyFlag              = 0x80000000  // this flag itself is deprecated, not currency that has it
 };
 
 DEFINE_ENUM_FLAG(CurrencyTypesFlags);
 
 enum class CurrencyTypesFlagsB : uint32
 {
-    CurrencyBUseTotalEarnedForEarned             = 0x01,
-    CurrencyBShowQuestXPGainInTooltip            = 0x02, // NYI
-    CurrencyBNoNotificationMailOnOfflineProgress = 0x04, // NYI
-    CurrencyBBattlenetVirtualCurrency            = 0x08  // NYI
+    UseTotalEarnedForEarned             = 0x01,
+    ShowQuestXPGainInTooltip            = 0x02, // NYI
+    NoNotificationMailOnOfflineProgress = 0x04, // NYI
+    BattlenetVirtualCurrency            = 0x08  // NYI
 };
 
 DEFINE_ENUM_FLAG(CurrencyTypesFlagsB);
