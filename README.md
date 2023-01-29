@@ -202,9 +202,17 @@ Read file [AUTHORS](AUTHORS).
 <!--
 * [Website](https://www.trinitycore.org)
 -->
+<!--
 * [Wiki](https://www.trinitycore.info)
 * [Forums](https://community.trinitycore.org)
 * [Discord](https://discord.trinitycore.org/)
+-->
+
+* [维基](https://github.com/xuehyc/XCore/wiki)
+* [论坛](https://github.com/xuehyc/XCore/discussions)
+<!--
+* [Discord](https://discord.trinitycore.org/)
+-->
 
 ## Bugs
 可使用下方链接查看:<br>
