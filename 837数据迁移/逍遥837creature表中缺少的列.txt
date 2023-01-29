@@ -1,0 +1,3 @@
+多一列:spawndist
+少三列:wander_distance(前面),size,和StringId(这两个靠后)
+顺序还要调整
