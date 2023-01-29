@@ -100,7 +100,7 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectBind,                                     // 11 SPELL_EFFECT_BIND
     &Spell::EffectNULL,                                     // 12 SPELL_EFFECT_PORTAL
     &Spell::EffectTeleportToReturnPoint,                    // 13 SPELL_EFFECT_TELEPORT_TO_RETURN_POINT
-    &Spell::EffectNULL,                                     // 14 SPELL_EFFECT_INCREASE_CURRENCY_CAP
+    &Spell::EffectIncreaseCurrencyCap,                      // 14 SPELL_EFFECT_INCREASE_CURRENCY_CAP
     &Spell::EffectTeleportUnitsWithVisualLoadingScreen,     // 15 SPELL_EFFECT_TELEPORT_WITH_SPELL_VISUAL_KIT_LOADING_SCREEN
     &Spell::EffectQuestComplete,                            // 16 SPELL_EFFECT_QUEST_COMPLETE
     &Spell::EffectWeaponDmg,                                // 17 SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL
@@ -4973,7 +4973,7 @@ void Spell::EffectGiveCurrency()
     if (!sCurrencyTypesStore.LookupEntry(effectInfo->MiscValue))
         return;
 
-    unitTarget->ToPlayer()->ModifyCurrency(effectInfo->MiscValue, damage);
+    unitTarget->ToPlayer()->ModifyCurrency(effectInfo->MiscValue, damage, CurrencyGainSource::Spell, CurrencyDestroyReason::Spell);
 }
 
 void Spell::EffectCastButtons()
@@ -5079,6 +5079,18 @@ void Spell::EffectTeleportToReturnPoint()
     if (Player* player = unitTarget->ToPlayer())
         if (WorldLocation const* dest = player->GetStoredAuraTeleportLocation(effectInfo->MiscValue))
             player->TeleportTo(*dest, unitTarget == m_caster ? TELE_TO_SPELL | TELE_TO_NOT_LEAVE_COMBAT : 0);
+}
+
+void Spell::EffectIncreaseCurrencyCap()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (damage <= 0)
+        return;
+
+    if (Player* player = unitTarget->ToPlayer())
+        player->IncreaseCurrencyCap(effectInfo->MiscValue, damage);
 }
 
 void Spell::EffectSummonRaFFriend()

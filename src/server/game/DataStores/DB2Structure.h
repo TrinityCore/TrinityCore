@@ -1284,6 +1284,60 @@ struct CurrencyTypesEntry
     uint32 RechargingAmountPerCycle;
     uint32 RechargingCycleDurationMS;
     std::array<int32, 2> Flags;
+
+    EnumFlag<CurrencyTypesFlags> GetFlags() const { return static_cast<CurrencyTypesFlags>(Flags[0]); }
+    EnumFlag<CurrencyTypesFlagsB> GetFlagsB() const { return static_cast<CurrencyTypesFlagsB>(Flags[1]); }
+
+    // Helpers
+    int32 GetScaler() const
+    {
+        return GetFlags().HasFlag(CurrencyTypesFlags::_100_Scaler) ? 100 : 1;
+    }
+
+    bool HasMaxEarnablePerWeek() const
+    {
+        return MaxEarnablePerWeek || GetFlags().HasFlag(CurrencyTypesFlags::ComputedWeeklyMaximum);
+    }
+
+    bool HasMaxQuantity(bool onLoad = false, bool onUpdateVersion = false) const
+    {
+        if (onLoad && GetFlags().HasFlag(CurrencyTypesFlags::IgnoreMaxQtyOnLoad))
+           return false;
+
+        if (onUpdateVersion && GetFlags().HasFlag(CurrencyTypesFlags::UpdateVersionIgnoreMax))
+           return false;
+
+        return MaxQty || MaxQtyWorldStateID || GetFlags().HasFlag(CurrencyTypesFlags::DynamicMaximum);
+    }
+
+    bool HasTotalEarned() const
+    {
+        return GetFlagsB().HasFlag(CurrencyTypesFlagsB::UseTotalEarnedForEarned);
+    }
+
+    bool IsAlliance() const
+    {
+        return GetFlags().HasFlag(CurrencyTypesFlags::IsAllianceOnly);
+    }
+
+    bool IsHorde() const
+    {
+        return GetFlags().HasFlag(CurrencyTypesFlags::IsHordeOnly);
+    }
+
+    bool IsSuppressingChatLog(bool onUpdateVersion = false) const
+    {
+        if ((onUpdateVersion && GetFlags().HasFlag(CurrencyTypesFlags::SuppressChatMessageOnVersionChange)) ||
+            GetFlags().HasFlag(CurrencyTypesFlags::SuppressChatMessages))
+            return true;
+
+        return false;
+    }
+
+    bool IsTrackingQuantity() const
+    {
+        return GetFlags().HasFlag(CurrencyTypesFlags::TrackQuantity);
+    }
 };
 
 struct CurveEntry

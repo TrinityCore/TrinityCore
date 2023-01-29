@@ -407,7 +407,7 @@ void Garrison::PlaceBuilding(uint32 garrPlotInstanceId, uint32 garrBuildingId)
             if (GameObject* go = plot->CreateGameObject(map, GetFaction()))
                 map->AddToMap(go);
 
-        _owner->ModifyCurrency(building->CurrencyTypeID, -building->CurrencyQty, false, true);
+        _owner->RemoveCurrency(building->CurrencyTypeID, building->CurrencyQty, CurrencyDestroyReason::Garrison);
         _owner->ModifyMoney(-building->GoldCost * GOLD, false);
 
         if (oldBuildingId)
@@ -447,7 +447,7 @@ void Garrison::CancelBuildingConstruction(uint32 garrPlotInstanceId)
 
         GarrBuildingEntry const* constructing = sGarrBuildingStore.AssertEntry(buildingRemoved.GarrBuildingID);
         // Refund construction/upgrade cost
-        _owner->ModifyCurrency(constructing->CurrencyTypeID, constructing->CurrencyQty, false, true);
+        _owner->AddCurrency(constructing->CurrencyTypeID, constructing->CurrencyQty, CurrencyGainSource::GarrisonBuildingRefund);
         _owner->ModifyMoney(constructing->GoldCost * GOLD, false);
 
         if (constructing->UpgradeLevel > 1)

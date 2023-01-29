@@ -268,7 +268,7 @@ int32 ReputationMgr::GetRenownLevel(FactionEntry const* renownFactionEntry) cons
         return 0;
 
     if (CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(renownFactionEntry->RenownCurrencyID))
-        return _player->GetCurrency(currency->ID);
+        return _player->GetCurrencyQuantity(currency->ID);
 
     return 0;
 }
@@ -291,7 +291,7 @@ int32 ReputationMgr::GetRenownMaxLevel(FactionEntry const* renownFactionEntry) c
         return 0;
 
     if (CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(renownFactionEntry->RenownCurrencyID))
-        return currency->MaxQty;
+        return _player->GetCurrencyMaxQuantity(currency);
 
     return 0;
 }
@@ -518,7 +518,7 @@ bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, in
     if (itr != _factions.end())
     {
         // Ignore renown reputation already raised to the maximum level
-        if (HasMaximumRenownReputation(factionEntry))
+        if (HasMaximumRenownReputation(factionEntry) && standing > 0)
         {
             itr->second.needSend = false;
             itr->second.needSave = false;
@@ -583,8 +583,9 @@ bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, in
 
                 itr->second.VisualStandingIncrease = reputationChange;
 
+                // If the reputation is decreased by command, we will send CurrencyDestroyReason::Cheat
                 if (oldRenownLevel != newRenownLevel)
-                    _player->ModifyCurrency(currency->ID, newRenownLevel - oldRenownLevel, false);
+                    _player->ModifyCurrency(currency->ID, newRenownLevel - oldRenownLevel, CurrencyGainSource::RenownRepGain, CurrencyDestroyReason::Cheat);
             }
         }
 

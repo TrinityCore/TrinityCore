@@ -6561,7 +6561,113 @@ enum VoidTransferError
     VOID_TRANSFER_ERROR_TRANSFER_UNKNOWN  = 9
 };
 
-#define CURRENCY_PRECISION 100
+enum class CurrencyDbFlags : uint8
+{
+    None                        = 0x00,
+    IgnoreMaxQtyOnload          = 0x01,
+    Reuse1                      = 0x02,
+    InBackpack                  = 0x04,
+    UnusedInUI                  = 0x08,
+    Reuse2                      = 0x10,
+
+    UnusedFlags                 = (IgnoreMaxQtyOnload | Reuse1 | Reuse2),
+    ClientFlags                 = (0x1F & ~UnusedFlags)
+};
+
+DEFINE_ENUM_FLAG(CurrencyDbFlags);
+
+enum class CurrencyDestroyReason : uint32
+{
+    Cheat                       = 0,
+    Spell                       = 1,
+    VersionUpdate               = 2,
+    QuestTurnin                 = 3,
+    Vendor                      = 4,
+    Trade                       = 5,
+    Capped                      = 6,
+    Garrison                    = 7,
+    DroppedToCorpse             = 8,
+    BonusRoll                   = 9,
+    FactionConversion           = 10,
+    FulfillCraftingOrder        = 11,
+    Last                        = 12
+};
+
+enum class CurrencyGainSource : uint32
+{
+    ConvertOldItem              = 0,
+    ConvertOldPvPCurrency       = 1,
+    ItemRefund                  = 2,
+    QuestReward                 = 3,
+    Cheat                       = 4,
+    Vendor                      = 5,
+    PvPKillCredit               = 6,
+    PvPMetaCredit               = 7,
+    PvPScriptedAward            = 8,
+    Loot                        = 9,
+    UpdatingVersion             = 10,
+    LFGReward                   = 11,
+    Trade                       = 12,
+    Spell                       = 13,
+    ItemDeletion                = 14,
+    RatedBattleground           = 15,
+    RandomBattleground          = 16,
+    Arena                       = 17,
+    ExceededMaxQty              = 18,
+    PvPCompletionBonus          = 19,
+    Script                      = 20,
+    GuildBankWithdrawal         = 21,
+    Pushloot                    = 22,
+    GarrisonBuilding            = 23,
+    PvPDrop                     = 24,
+    GarrisonFollowerActivation  = 25,
+    GarrisonBuildingRefund      = 26,
+    GarrisonMissionReward       = 27,
+    GarrisonResourceOverTime    = 28,
+    QuestRewardIgnoreCaps       = 29,
+    GarrisonTalent              = 30,
+    GarrisonWorldQuestBonus     = 31,
+    PvPHonorReward              = 32,
+    BonusRoll                   = 33,
+    AzeriteRespec               = 34,
+    WorldQuestReward            = 35,
+    WorldQuestRewardIgnoreCaps  = 36,
+    FactionConversion           = 37,
+    DailyQuestReward            = 38,
+    DailyQuestWarModeReward     = 39,
+    WeeklyQuestReward           = 40,
+    WeeklyQuestWarModeReward    = 41,
+    AccountCopy                 = 42,
+    WeeklyRewardChest           = 43,
+    GarrisonTalentTreeReset     = 44,
+    DailyReset                  = 45,
+    AddConduitToCollection      = 46,
+    Barbershop                  = 47,
+    ConvertItemsToCurrencyValue = 48,
+    PvPTeamContribution         = 49,
+    Transmogrify                = 50,
+    AuctionDeposit              = 51,
+    PlayerTrait                 = 52,
+    PhBuffer_53                 = 53,
+    PhBuffer_54                 = 54,
+    RenownRepGain               = 55,
+    CraftingOrder               = 56,
+    CatalystBalancing           = 57,
+    CatalystCraft               = 58,
+    ProfessionInitialAward      = 59,
+    PlayerTraitRefund           = 60,
+    Last                        = 61
+};
+
+enum class CurrencyGainFlags : uint32
+{
+    None                        = 0x00,
+    BonusAward                  = 0x01,
+    DroppedFromDeath            = 0x02,
+    FromAccountServer           = 0x04
+};
+
+DEFINE_ENUM_FLAG(CurrencyGainFlags);
 
 enum PartyResult
 {

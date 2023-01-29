@@ -503,8 +503,6 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     InitRunes();
 
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Coinage), sWorld->getIntConfig(CONFIG_START_PLAYER_MONEY));
-    SetCreateCurrency(CURRENCY_TYPE_APEXIS_CRYSTALS, sWorld->getIntConfig(CONFIG_CURRENCY_START_APEXIS_CRYSTALS));
-    SetCreateCurrency(CURRENCY_TYPE_JUSTICE_POINTS, sWorld->getIntConfig(CONFIG_CURRENCY_START_JUSTICE_POINTS));
 
     // Played time
     m_Last_tick = GameTime::GetGameTime();
@@ -6809,7 +6807,7 @@ void Player::RewardPlayerWithRewardPack(RewardPackEntry const* rewardPackEntry)
 
     if (std::vector<RewardPackXCurrencyTypeEntry const*> const* rewardCurrencyTypes = sDB2Manager.GetRewardPackCurrencyTypesByRewardID(rewardPackEntry->ID))
         for (RewardPackXCurrencyTypeEntry const* currency : *rewardCurrencyTypes)
-            ModifyCurrency(currency->CurrencyTypeID, currency->Quantity);
+            AddCurrency(currency->CurrencyTypeID, currency->Quantity /* TODO: CurrencyGainSource */);
 
     if (std::vector<RewardPackXItemEntry const*> const* rewardPackXItems = sDB2Manager.GetRewardPackItemsByRewardID(rewardPackEntry->ID))
         for (RewardPackXItemEntry const* rewardPackXItem : *rewardPackXItems)
@@ -6880,7 +6878,9 @@ void Player::_LoadCurrency(PreparedQueryResult result)
         cur.Quantity = fields[1].GetUInt32();
         cur.WeeklyQuantity = fields[2].GetUInt32();
         cur.TrackedQuantity = fields[3].GetUInt32();
-        cur.Flags = fields[4].GetUInt8();
+        cur.IncreasedCapQuantity = fields[4].GetUInt32();
+        cur.EarnedQuantity = fields[5].GetUInt32();
+        cur.Flags = CurrencyDbFlags(fields[6].GetUInt8());
 
         _currencyStorage.insert(PlayerCurrenciesMap::value_type(currencyID, cur));
 
@@ -6905,7 +6905,9 @@ void Player::_SaveCurrency(CharacterDatabaseTransaction trans)
                 stmt->setUInt32(2, itr->second.Quantity);
                 stmt->setUInt32(3, itr->second.WeeklyQuantity);
                 stmt->setUInt32(4, itr->second.TrackedQuantity);
-                stmt->setUInt8(5, itr->second.Flags);
+                stmt->setUInt32(5, itr->second.IncreasedCapQuantity);
+                stmt->setUInt32(6, itr->second.EarnedQuantity);
+                stmt->setUInt8(7, AsUnderlyingType(itr->second.Flags));
                 trans->Append(stmt);
                 break;
             case PLAYERCURRENCY_CHANGED:
@@ -6913,9 +6915,11 @@ void Player::_SaveCurrency(CharacterDatabaseTransaction trans)
                 stmt->setUInt32(0, itr->second.Quantity);
                 stmt->setUInt32(1, itr->second.WeeklyQuantity);
                 stmt->setUInt32(2, itr->second.TrackedQuantity);
-                stmt->setUInt8(3, itr->second.Flags);
-                stmt->setUInt64(4, GetGUID().GetCounter());
-                stmt->setUInt16(5, itr->first);
+                stmt->setUInt32(3, itr->second.IncreasedCapQuantity);
+                stmt->setUInt32(4, itr->second.EarnedQuantity);
+                stmt->setUInt8(5, AsUnderlyingType(itr->second.Flags));
+                stmt->setUInt64(6, GetGUID().GetCounter());
+                stmt->setUInt16(7, itr->first);
                 trans->Append(stmt);
                 break;
             default:
@@ -6926,30 +6930,6 @@ void Player::_SaveCurrency(CharacterDatabaseTransaction trans)
     }
 }
 
-void Player::SendNewCurrency(uint32 id) const
-{
-    PlayerCurrenciesMap::const_iterator itr = _currencyStorage.find(id);
-    if (itr == _currencyStorage.end())
-        return;
-
-    CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(id);
-    if (!entry) // should never happen
-        return;
-
-    WorldPackets::Misc::SetupCurrency packet;
-    WorldPackets::Misc::SetupCurrency::Record record;
-    record.Type = entry->ID;
-    record.Quantity = itr->second.Quantity;
-    record.WeeklyQuantity = itr->second.WeeklyQuantity;
-    record.MaxWeeklyQuantity = GetCurrencyWeekCap(entry);
-    record.TrackedQuantity = itr->second.TrackedQuantity;
-    record.Flags = itr->second.Flags;
-
-    packet.Data.push_back(record);
-
-    SendDirectMessage(packet.Write());
-}
-
 void Player::SendCurrencies() const
 {
     WorldPackets::Misc::SetupCurrency packet;
@@ -6957,19 +6937,43 @@ void Player::SendCurrencies() const
 
     for (PlayerCurrenciesMap::const_iterator itr = _currencyStorage.begin(); itr != _currencyStorage.end(); ++itr)
     {
-        CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(itr->first);
+        CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(itr->first);
 
-        // not send init meta currencies.
-        if (!entry || entry->CategoryID == CURRENCY_CATEGORY_META_CONQUEST)
+        if (!currency)
             continue;
 
+        // Check faction
+        if ((currency->IsAlliance() && GetTeam() != ALLIANCE) ||
+            (currency->IsHorde() && GetTeam() != HORDE))
+            continue;
+
+        // Check award condition
+        if (currency->AwardConditionID)
+            if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(currency->AwardConditionID))
+                if (!ConditionMgr::IsPlayerMeetingCondition(this, playerCondition))
+                    continue;
+
         WorldPackets::Misc::SetupCurrency::Record record;
-        record.Type = entry->ID;
+        record.Type = currency->ID;
         record.Quantity = itr->second.Quantity;
-        record.WeeklyQuantity = itr->second.WeeklyQuantity;
-        record.MaxWeeklyQuantity = GetCurrencyWeekCap(entry);
-        record.TrackedQuantity = itr->second.TrackedQuantity;
-        record.Flags = itr->second.Flags;
+
+        if ((itr->second.WeeklyQuantity / currency->GetScaler()) > 0)
+            record.WeeklyQuantity = itr->second.WeeklyQuantity;
+
+        if (currency->HasMaxEarnablePerWeek())
+            record.MaxWeeklyQuantity = GetCurrencyWeeklyCap(currency);
+
+        if (currency->IsTrackingQuantity())
+            record.TrackedQuantity = itr->second.TrackedQuantity;
+
+        if (currency->HasTotalEarned())
+            record.TotalEarned = itr->second.EarnedQuantity;
+
+        if (currency->HasMaxQuantity(true))
+            record.MaxQuantity = GetCurrencyMaxQuantity(currency, true);
+
+        record.Flags = AsUnderlyingType(itr->second.Flags);
+        record.Flags &= ~AsUnderlyingType(CurrencyDbFlags::UnusedFlags);
 
         packet.Data.push_back(record);
     }
@@ -6983,70 +6987,190 @@ void Player::SendPvpRewards() const
     //GetSession()->SendPacket(&packet);
 }
 
-uint32 Player::GetCurrency(uint32 id) const
+void Player::SetCreateCurrency(uint32 id, uint32 amount)
 {
-    PlayerCurrenciesMap::const_iterator itr = _currencyStorage.find(id);
+    PlayerCurrenciesMap::iterator itr = _currencyStorage.find(id);
     if (itr == _currencyStorage.end())
-        return 0;
-
-    return itr->second.Quantity;
+    {
+        itr = _currencyStorage.emplace(id, PlayerCurrency{}).first;
+        itr->second.state = PLAYERCURRENCY_NEW;
+        itr->second.Quantity = amount;
+        itr->second.WeeklyQuantity = 0;
+        itr->second.TrackedQuantity = 0;
+        itr->second.IncreasedCapQuantity = 0;
+        itr->second.EarnedQuantity = 0;
+        itr->second.Flags = CurrencyDbFlags(0);
+    }
 }
 
-uint32 Player::GetCurrencyOnWeek(uint32 id) const
+void Player::ModifyCurrency(uint32 id, int32 amount, CurrencyGainSource gainSource/* = CurrencyGainSource::Cheat*/, CurrencyDestroyReason destroyReason/* = CurrencyDestroyReason::Cheat*/)
 {
-    PlayerCurrenciesMap::const_iterator itr = _currencyStorage.find(id);
-    if (itr == _currencyStorage.end())
-        return 0;
-
-    return itr->second.WeeklyQuantity;
-}
-
-uint32 Player::GetTrackedCurrencyCount(uint32 id) const
-{
-    PlayerCurrenciesMap::const_iterator itr = _currencyStorage.find(id);
-    if (itr == _currencyStorage.end())
-        return 0;
-
-    return itr->second.TrackedQuantity;
-}
-
-bool Player::HasCurrency(uint32 id, uint32 count) const
-{
-    PlayerCurrenciesMap::const_iterator itr = _currencyStorage.find(id);
-    return itr != _currencyStorage.end() && itr->second.Quantity >= count;
-}
-
-void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bool ignoreMultipliers/* = false*/)
-{
-    if (!count)
+    if (!amount)
         return;
 
     CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(id);
     ASSERT(currency);
 
-    if (!ignoreMultipliers)
-        count *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_CURRENCY_GAIN, id);
+    // Check faction
+    if ((currency->IsAlliance() && GetTeam() != ALLIANCE) ||
+        (currency->IsHorde() && GetTeam() != HORDE))
+        return;
+
+    // Check award condition
+    if (currency->AwardConditionID)
+        if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(currency->AwardConditionID))
+            if (!ConditionMgr::IsPlayerMeetingCondition(this, playerCondition))
+                return;
+
+    bool isGainOnRefund = [&]() -> bool
+    {
+        if (gainSource == CurrencyGainSource::ItemRefund ||
+            gainSource == CurrencyGainSource::GarrisonBuildingRefund ||
+            gainSource == CurrencyGainSource::PlayerTraitRefund)
+            return true;
+
+        return false;
+    }();
+
+    if (amount > 0 && !isGainOnRefund && gainSource != CurrencyGainSource::Vendor)
+    {
+        amount *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_CURRENCY_GAIN, id);
+        amount *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_CURRENCY_CATEGORY_GAIN_PCT, currency->CategoryID);
+    }
+
+    int32 scaler = currency->GetScaler();
 
     // Currency that is immediately converted into reputation with that faction instead
     if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(currency->FactionID))
     {
-        if (currency->Flags[0] & CURRENCY_FLAG_HIGH_PRECISION)
-            count /= 100;
-        GetReputationMgr().ModifyReputation(factionEntry, count, false, true);
+        amount /= scaler;
+        GetReputationMgr().ModifyReputation(factionEntry, amount, false, true);
         return;
     }
 
+    // Azerite
     if (id == CURRENCY_TYPE_AZERITE)
     {
-        if (count > 0)
+        if (amount > 0)
             if (Item* heartOfAzeroth = GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH, ItemSearchLocation::Everywhere))
-                heartOfAzeroth->ToAzeriteItem()->GiveXP(uint64(count));
+                heartOfAzeroth->ToAzeriteItem()->GiveXP(uint64(amount));
         return;
     }
 
-    uint32 oldTotalCount = 0;
-    uint32 oldWeekCount = 0;
-    uint32 oldTrackedCount = 0;
+    PlayerCurrenciesMap::iterator itr = _currencyStorage.find(id);
+    if (itr == _currencyStorage.end())
+    {
+        itr = _currencyStorage.emplace(id, PlayerCurrency{}).first;
+        itr->second.state = PLAYERCURRENCY_NEW;
+        itr->second.Quantity = 0;
+        itr->second.WeeklyQuantity = 0;
+        itr->second.TrackedQuantity = 0;
+        itr->second.IncreasedCapQuantity = 0;
+        itr->second.EarnedQuantity = 0;
+        itr->second.Flags = CurrencyDbFlags(0);
+    }
+
+    // Weekly cap
+    uint32 weeklyCap = GetCurrencyWeeklyCap(currency);
+    if (weeklyCap && amount > 0 && (itr->second.WeeklyQuantity + amount) > weeklyCap)
+        if (!isGainOnRefund) // Ignore weekly cap for refund
+            amount = weeklyCap - itr->second.WeeklyQuantity;
+
+    // Max cap
+    uint32 maxCap = GetCurrencyMaxQuantity(currency, false, gainSource == CurrencyGainSource::UpdatingVersion);
+    if (maxCap && amount > 0 && (itr->second.Quantity + amount) > maxCap)
+        amount = maxCap - itr->second.Quantity;
+
+    // Underflow protection
+    if (amount < 0 && uint32(std::abs(amount)) > itr->second.Quantity)
+        amount = itr->second.Quantity * -1;
+
+    if (!amount)
+        return;
+
+    if (itr->second.state != PLAYERCURRENCY_NEW)
+        itr->second.state = PLAYERCURRENCY_CHANGED;
+
+    itr->second.Quantity += amount;
+
+    if (amount > 0 && !isGainOnRefund) // Ignore total values update for refund
+    {
+        if (weeklyCap)
+            itr->second.WeeklyQuantity += amount;
+
+        if (currency->IsTrackingQuantity())
+            itr->second.TrackedQuantity += amount;
+
+        if (currency->HasTotalEarned())
+            itr->second.EarnedQuantity += amount;
+
+        UpdateCriteria(CriteriaType::CurrencyGained, id, amount);
+    }
+
+    CurrencyChanged(id, amount);
+
+    WorldPackets::Misc::SetCurrency packet;
+    packet.Type = currency->ID;
+    packet.Quantity = itr->second.Quantity;
+    packet.Flags = CurrencyGainFlags::None; // TODO: Check when flags are applied
+
+    if ((itr->second.WeeklyQuantity / currency->GetScaler()) > 0)
+        packet.WeeklyQuantity = itr->second.WeeklyQuantity;
+
+    if (currency->HasMaxQuantity(false, gainSource == CurrencyGainSource::UpdatingVersion))
+        packet.MaxQuantity = GetCurrencyMaxQuantity(currency);
+
+    if (currency->HasTotalEarned())
+        packet.TotalEarned = itr->second.EarnedQuantity;
+
+    packet.SuppressChatLog = currency->IsSuppressingChatLog(gainSource == CurrencyGainSource::UpdatingVersion);
+    packet.QuantityChange = amount;
+
+    if (amount > 0)
+        packet.QuantityGainSource = gainSource;
+    else
+        packet.QuantityLostSource = destroyReason;
+
+    // TODO: FirstCraftOperationID, LastSpendTime & Toasts
+
+    SendDirectMessage(packet.Write());
+}
+
+void Player::AddCurrency(uint32 id, uint32 amount, CurrencyGainSource gainSource/* = CurrencyGainSource::Cheat*/)
+{
+    ModifyCurrency(id, amount, gainSource);
+}
+
+void Player::RemoveCurrency(uint32 id, int32 amount, CurrencyDestroyReason destroyReason/* = CurrencyDestroyReason::Cheat*/)
+{
+    ModifyCurrency(id, -amount, {}, destroyReason);
+}
+
+void Player::IncreaseCurrencyCap(uint32 id, uint32 amount)
+{
+    if (!amount)
+        return;
+
+    CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(id);
+    ASSERT(currency);
+
+    // Check faction
+    if ((currency->IsAlliance() && GetTeam() != ALLIANCE) ||
+        (currency->IsHorde() && GetTeam() != HORDE))
+        return;
+
+    // Check dynamic maximum flag
+    if (!currency->GetFlags().HasFlag(CurrencyTypesFlags::DynamicMaximum))
+        return;
+
+    // Ancient mana maximum cap
+    if (id == CURRENCY_TYPE_ANCIENT_MANA)
+    {
+        uint32 maxQuantity = GetCurrencyMaxQuantity(currency);
+
+        if ((maxQuantity + amount) > CURRENCY_MAX_CAP_ANCIENT_MANA)
+            amount = CURRENCY_MAX_CAP_ANCIENT_MANA - maxQuantity;
+    }
 
     PlayerCurrenciesMap::iterator itr = _currencyStorage.find(id);
     if (itr == _currencyStorage.end())
@@ -7056,103 +7180,35 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
         cur.Quantity = 0;
         cur.WeeklyQuantity = 0;
         cur.TrackedQuantity = 0;
-        cur.Flags = 0;
+        cur.IncreasedCapQuantity = amount;
+        cur.EarnedQuantity = 0;
+        cur.Flags = CurrencyDbFlags(0);
         _currencyStorage[id] = cur;
         itr = _currencyStorage.find(id);
     }
     else
     {
-        oldTotalCount = itr->second.Quantity;
-        oldWeekCount = itr->second.WeeklyQuantity;
-        oldTrackedCount = itr->second.TrackedQuantity;
+        itr->second.IncreasedCapQuantity += amount;
     }
 
-    // count can't be more then weekCap if used (weekCap > 0)
-    uint32 weekCap = GetCurrencyWeekCap(currency);
-    if (weekCap && count > int32(weekCap))
-        count = weekCap;
+    if (itr->second.state != PLAYERCURRENCY_NEW)
+        itr->second.state = PLAYERCURRENCY_CHANGED;
 
-    // count can't be more then totalCap if used (totalCap > 0)
-    uint32 totalCap = GetCurrencyTotalCap(currency);
-    if (totalCap && count > int32(totalCap))
-        count = totalCap;
+    WorldPackets::Misc::SetCurrency packet;
+    packet.Type = currency->ID;
+    packet.Quantity = itr->second.Quantity;
+    packet.Flags = CurrencyGainFlags::None;
 
-    int32 newTrackedCount = int32(oldTrackedCount) + (count > 0 ? count : 0);
-    if (newTrackedCount < 0)
-        newTrackedCount = 0;
+    if ((itr->second.WeeklyQuantity / currency->GetScaler()) > 0)
+        packet.WeeklyQuantity = itr->second.WeeklyQuantity;
 
-    int32 newTotalCount = int32(oldTotalCount) + count;
-    if (newTotalCount < 0)
-        newTotalCount = 0;
+    if (currency->IsTrackingQuantity())
+        packet.TrackedQuantity = itr->second.TrackedQuantity;
 
-    int32 newWeekCount = int32(oldWeekCount) + (count > 0 ? count : 0);
-    if (newWeekCount < 0)
-        newWeekCount = 0;
+    packet.MaxQuantity = GetCurrencyMaxQuantity(currency);
+    packet.SuppressChatLog = currency->IsSuppressingChatLog();
 
-    // if we get more then weekCap just set to limit
-    if (weekCap && int32(weekCap) < newWeekCount)
-    {
-        newWeekCount = int32(weekCap);
-        // weekCap - oldWeekCount always >= 0 as we set limit before!
-        newTotalCount = oldTotalCount + (weekCap - oldWeekCount);
-    }
-
-    // if we get more then totalCap set to maximum;
-    if (totalCap && int32(totalCap) < newTotalCount)
-    {
-        newTotalCount = int32(totalCap);
-        newWeekCount = weekCap;
-    }
-
-    if (uint32(newTotalCount) != oldTotalCount)
-    {
-        if (itr->second.state != PLAYERCURRENCY_NEW)
-            itr->second.state = PLAYERCURRENCY_CHANGED;
-
-        CurrencyChanged(id, newTotalCount - itr->second.Quantity);
-
-        itr->second.Quantity = newTotalCount;
-        itr->second.WeeklyQuantity = newWeekCount;
-        itr->second.TrackedQuantity = newTrackedCount;
-
-        if (count > 0)
-            UpdateCriteria(CriteriaType::CurrencyGained, id, count);
-
-        WorldPackets::Misc::SetCurrency packet;
-        packet.Type = id;
-        packet.Quantity = newTotalCount;
-        packet.SuppressChatLog = !printLog;
-        packet.WeeklyQuantity = newWeekCount;
-        packet.TrackedQuantity = newTrackedCount;
-        packet.Flags = itr->second.Flags;
-        packet.QuantityChange = count;
-
-        SendDirectMessage(packet.Write());
-    }
-}
-
-void Player::SetCreateCurrency(uint32 id, uint32 count, bool /*printLog*/ /*= true*/)
-{
-    PlayerCurrenciesMap::iterator itr = _currencyStorage.find(id);
-    if (itr == _currencyStorage.end())
-    {
-        PlayerCurrency cur;
-        cur.state = PLAYERCURRENCY_NEW;
-        cur.Quantity = count;
-        cur.WeeklyQuantity = 0;
-        cur.TrackedQuantity = 0;
-        cur.Flags = 0;
-        _currencyStorage[id] = cur;
-    }
-}
-
-uint32 Player::GetCurrencyWeekCap(uint32 id) const
-{
-    CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(id);
-    if (!entry)
-        return 0;
-
-    return GetCurrencyWeekCap(entry);
+    SendDirectMessage(packet.Write());
 }
 
 void Player::ResetCurrencyWeekCap()
@@ -7178,34 +7234,77 @@ void Player::ResetCurrencyWeekCap()
     SendDirectMessage(WorldPackets::Misc::ResetWeeklyCurrency().Write());
 }
 
-uint32 Player::GetCurrencyWeekCap(CurrencyTypesEntry const* currency) const
+uint32 Player::GetCurrencyQuantity(uint32 id) const
 {
+    PlayerCurrenciesMap::const_iterator itr = _currencyStorage.find(id);
+    if (itr == _currencyStorage.end())
+        return 0;
+
+    return itr->second.Quantity;
+}
+
+uint32 Player::GetCurrencyWeeklyQuantity(uint32 id) const
+{
+    PlayerCurrenciesMap::const_iterator itr = _currencyStorage.find(id);
+    if (itr == _currencyStorage.end())
+        return 0;
+
+    return itr->second.WeeklyQuantity;
+}
+
+uint32 Player::GetCurrencyTrackedQuantity(uint32 id) const
+{
+    PlayerCurrenciesMap::const_iterator itr = _currencyStorage.find(id);
+    if (itr == _currencyStorage.end())
+        return 0;
+
+    return itr->second.TrackedQuantity;
+}
+
+uint32 Player::GetCurrencyIncreasedCapQuantity(uint32 id) const
+{
+    PlayerCurrenciesMap::const_iterator itr = _currencyStorage.find(id);
+    if (itr == _currencyStorage.end())
+        return 0;
+
+    return itr->second.IncreasedCapQuantity;
+}
+
+uint32 Player::GetCurrencyMaxQuantity(CurrencyTypesEntry const* currency, bool onLoad/* = false*/, bool onUpdateVersion/* = false*/) const
+{
+    if (!currency->HasMaxQuantity(onLoad, onUpdateVersion))
+        return 0;
+
+    uint32 maxQuantity = currency->MaxQty;
+    if (currency->MaxQtyWorldStateID)
+        maxQuantity = sWorldStateMgr->GetValue(currency->MaxQtyWorldStateID, GetMap());
+
+    uint32 increasedCap = 0;
+    if (currency->GetFlags().HasFlag(CurrencyTypesFlags::DynamicMaximum))
+        increasedCap = GetCurrencyIncreasedCapQuantity(currency->ID);
+
+    return maxQuantity + increasedCap;
+}
+
+uint32 Player::GetCurrencyWeeklyCap(uint32 id) const
+{
+    CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(id);
+    if (!currency)
+        return 0;
+
+    return GetCurrencyWeeklyCap(currency);
+}
+
+uint32 Player::GetCurrencyWeeklyCap(CurrencyTypesEntry const* currency) const
+{
+    // TODO: CurrencyTypeFlags::ComputedWeeklyMaximum
     return currency->MaxEarnablePerWeek;
 }
 
-uint32 Player::GetCurrencyTotalCap(CurrencyTypesEntry const* currency) const
+bool Player::HasCurrency(uint32 id, uint32 amount) const
 {
-    uint32 cap = currency->MaxQty;
-
-    switch (currency->ID)
-    {
-        case CURRENCY_TYPE_APEXIS_CRYSTALS:
-        {
-            uint32 apexiscap = sWorld->getIntConfig(CONFIG_CURRENCY_MAX_APEXIS_CRYSTALS);
-            if (apexiscap > 0)
-                cap = apexiscap;
-            break;
-        }
-        case CURRENCY_TYPE_JUSTICE_POINTS:
-        {
-            uint32 justicecap = sWorld->getIntConfig(CONFIG_CURRENCY_MAX_JUSTICE_POINTS);
-            if (justicecap > 0)
-                cap = justicecap;
-            break;
-        }
-    }
-
-    return cap;
+    PlayerCurrenciesMap::const_iterator itr = _currencyStorage.find(id);
+    return itr != _currencyStorage.end() && itr->second.Quantity >= amount;
 }
 
 void Player::SetInGuild(ObjectGuid::LowType guildId)
@@ -14850,7 +14949,7 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
                     DestroyItemCount(obj.ObjectID, obj.Amount, true);
                 break;
             case QUEST_OBJECTIVE_CURRENCY:
-                ModifyCurrency(obj.ObjectID, -int32(obj.Amount), false, true);
+                RemoveCurrency(obj.ObjectID, obj.Amount, CurrencyDestroyReason::QuestTurnin);
                 break;
         }
     }
@@ -14887,6 +14986,20 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
         }
     }
 
+    CurrencyGainSource currencyGainSource = [&]() -> CurrencyGainSource
+    {
+        CurrencyGainSource gainSource = CurrencyGainSource::QuestReward;
+
+        if (quest->IsDaily())
+            gainSource = CurrencyGainSource::DailyQuestReward;
+        else if (quest->IsWeekly())
+            gainSource = CurrencyGainSource::WeeklyQuestReward;
+        else if (quest->IsWorldQuest())
+            gainSource = CurrencyGainSource::WorldQuestReward;
+
+        return gainSource;
+    }();
+
     switch (rewardType)
     {
         case LootItemType::Item:
@@ -14918,7 +15031,7 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
             if (sCurrencyTypesStore.HasRecord(rewardId) && quest->GetRewChoiceItemsCount())
                 for (uint32 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
                     if (quest->RewardChoiceItemId[i] && quest->RewardChoiceItemType[i] == LootItemType::Currency && quest->RewardChoiceItemId[i] == rewardId)
-                        ModifyCurrency(quest->RewardChoiceItemId[i], quest->RewardChoiceItemCount[i]);
+                        AddCurrency(quest->RewardChoiceItemId[i], quest->RewardChoiceItemCount[i], currencyGainSource);
 
             break;
         }
@@ -14928,7 +15041,7 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
 
     for (uint8 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
         if (quest->RewardCurrencyId[i])
-            ModifyCurrency(quest->RewardCurrencyId[i], quest->RewardCurrencyCount[i]);
+            AddCurrency(quest->RewardCurrencyId[i], quest->RewardCurrencyCount[i], currencyGainSource);
 
     if (uint32 skill = quest->GetRewardSkillId())
         UpdateSkillPro(skill, 1000, quest->GetRewardSkillPoints());
@@ -15999,7 +16112,7 @@ void Player::AdjustQuestObjectiveProgress(Quest const* quest)
             else if (obj.Type == QUEST_OBJECTIVE_HAVE_CURRENCY)
             {
                 uint32 reqCurrencyCount = obj.Amount;
-                uint32 curCurrencyCount = GetCurrency(obj.ObjectID);
+                uint32 curCurrencyCount = GetCurrencyQuantity(obj.ObjectID);
                 SetQuestObjectiveData(obj, std::min(reqCurrencyCount, curCurrencyCount));
             }
         }
@@ -16352,7 +16465,7 @@ void Player::UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int3
                 switch (objectiveType)
                 {
                     case QUEST_OBJECTIVE_CURRENCY:
-                        objectiveIsNowComplete = GetCurrency(objectId) + addCount >= objective.Amount;
+                        objectiveIsNowComplete = GetCurrencyQuantity(objectId) + addCount >= objective.Amount;
                         break;
                     case QUEST_OBJECTIVE_LEARNSPELL:
                         objectiveIsNowComplete = addCount != 0;
@@ -22225,7 +22338,7 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
                 continue;
 
             if (iece->CurrencyID[i])
-                ModifyCurrency(iece->CurrencyID[i], -int32(iece->CurrencyCount[i] * stacks), true, true);
+                RemoveCurrency(iece->CurrencyID[i], iece->CurrencyCount[i] * stacks, CurrencyDestroyReason::Vendor);
         }
     }
 
@@ -22391,7 +22504,7 @@ bool Player::BuyCurrencyFromVendorSlot(ObjectGuid vendorGuid, uint32 vendorSlot,
         return false;
     }
 
-    ModifyCurrency(currency, count, true, true);
+    AddCurrency(currency, count, CurrencyGainSource::Vendor);
     if (iece)
     {
         for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)
@@ -22410,7 +22523,7 @@ bool Player::BuyCurrencyFromVendorSlot(ObjectGuid vendorGuid, uint32 vendorSlot,
             if (iece->Flags & (ITEM_EXT_COST_CURRENCY_REQ_IS_SEASON_EARNED_1 << i))
                 continue;
 
-            ModifyCurrency(iece->CurrencyID[i], -int32(iece->CurrencyCount[i]) * stacks, false, true);
+            RemoveCurrency(iece->CurrencyID[i], iece->CurrencyCount[i] * stacks, CurrencyDestroyReason::Vendor);
         }
     }
 
@@ -27483,7 +27596,7 @@ void Player::ApplyTraitEntryChanges(int32 editedConfigId, WorldPackets::Traits::
                     ModifyMoney(-amount);
                     break;
                 case TraitCurrencyType::CurrencyTypesBased:
-                    ModifyCurrency(traitCurrency->CurrencyTypesID, -amount);
+                    RemoveCurrency(traitCurrency->CurrencyTypesID, amount /* TODO: CurrencyDestroyReason */);
                     break;
                 default:
                     break;
@@ -27855,7 +27968,7 @@ void Player::RefundItem(Item* item)
         uint32 count = iece->CurrencyCount[i];
         uint32 currencyid = iece->CurrencyID[i];
         if (count && currencyid)
-            ModifyCurrency(currencyid, count, true, true);
+            AddCurrency(currencyid, count, CurrencyGainSource::ItemRefund);
     }
 
     // Grant back money
@@ -29003,9 +29116,9 @@ uint64 TraitMgr::PlayerDataAccessor::GetMoney() const
     return _player->GetMoney();
 }
 
-int32 TraitMgr::PlayerDataAccessor::GetCurrency(int32 currencyId) const
+int32 TraitMgr::PlayerDataAccessor::GetCurrencyQuantity(int32 currencyId) const
 {
-    return _player->GetCurrency(currencyId);
+    return _player->GetCurrencyQuantity(currencyId);
 }
 
 int32 TraitMgr::PlayerDataAccessor::GetLevel() const

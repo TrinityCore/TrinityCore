@@ -3186,7 +3186,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
         results.fill(true);
         for (std::size_t i = 0; i < condition->CurrencyID.size(); ++i)
             if (condition->CurrencyID[i])
-                results[i] = player->GetCurrency(condition->CurrencyID[i]) >= condition->CurrencyCount[i];
+                results[i] = player->GetCurrencyQuantity(condition->CurrencyID[i]) >= condition->CurrencyCount[i];
 
         if (!PlayerConditionLogic(condition->CurrencyLogic, results))
             return false;
