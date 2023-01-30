@@ -98,6 +98,13 @@ uint32 ItemTemplate::GetSkill() const
         0, SKILL_CLOTH, SKILL_LEATHER, SKILL_MAIL, SKILL_PLATE_MAIL, 0, SKILL_SHIELD, 0, 0, 0, 0
     };
 
+    static uint32 const itemProfessionSkills[MAX_ITEM_SUBCLASS_PROFESSION] =
+    {
+        SKILL_BLACKSMITHING, SKILL_LEATHERWORKING, SKILL_ALCHEMY,     SKILL_HERBALISM,  SKILL_COOKING,
+        SKILL_MINING,        SKILL_TAILORING,      SKILL_ENGINEERING, SKILL_ENCHANTING, SKILL_FISHING,
+        SKILL_SKINNING,      SKILL_JEWELCRAFTING,  SKILL_INSCRIPTION, SKILL_ARCHAEOLOGY
+    };
+
     switch (GetClass())
     {
         case ITEM_CLASS_WEAPON:
@@ -105,13 +112,16 @@ uint32 ItemTemplate::GetSkill() const
                 return 0;
             else
                 return itemWeaponSkills[GetSubClass()];
-
         case ITEM_CLASS_ARMOR:
             if (GetSubClass() >= MAX_ITEM_SUBCLASS_ARMOR)
                 return 0;
             else
                 return itemArmorSkills[GetSubClass()];
-
+        case ITEM_CLASS_PROFESSION:
+            if (GetSubClass() >= MAX_ITEM_SUBCLASS_PROFESSION)
+                return 0;
+            else
+                return itemProfessionSkills[GetSubClass()];
         default:
             return 0;
     }

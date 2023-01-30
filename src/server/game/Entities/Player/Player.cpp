@@ -5573,7 +5573,7 @@ bool Player::UpdateGatherSkill(uint32 SkillId, uint32 SkillValue, uint32 RedLeve
     switch (SkillId)
     {
         case SKILL_HERBALISM:
-        case SKILL_HERBALISM_2:
+        case SKILL_CLASSIC_HERBALISM:
         case SKILL_OUTLAND_HERBALISM:
         case SKILL_NORTHREND_HERBALISM:
         case SKILL_CATACLYSM_HERBALISM:
@@ -5585,7 +5585,7 @@ bool Player::UpdateGatherSkill(uint32 SkillId, uint32 SkillValue, uint32 RedLeve
         case SKILL_INSCRIPTION:
             return UpdateSkillPro(SkillId, SkillGainChance(SkillValue, grayLevel, greenLevel, yellowLevel) * Multiplicator, gathering_skill_gain);
         case SKILL_SKINNING:
-        case SKILL_SKINNING_2:
+        case SKILL_CLASSIC_SKINNING:
         case SKILL_OUTLAND_SKINNING:
         case SKILL_NORTHREND_SKINNING:
         case SKILL_CATACLYSM_SKINNING:
@@ -5598,7 +5598,7 @@ bool Player::UpdateGatherSkill(uint32 SkillId, uint32 SkillValue, uint32 RedLeve
             else
                 return UpdateSkillPro(SkillId, (SkillGainChance(SkillValue, grayLevel, greenLevel, yellowLevel) * Multiplicator) >> (SkillValue / sWorld->getIntConfig(CONFIG_SKILL_CHANCE_SKINNING_STEPS)), gathering_skill_gain);
         case SKILL_MINING:
-        case SKILL_MINING_2:
+        case SKILL_CLASSIC_MINING:
         case SKILL_OUTLAND_MINING:
         case SKILL_NORTHREND_MINING:
         case SKILL_CATACLYSM_MINING:
@@ -5719,6 +5719,11 @@ void Player::ModifySkillBonus(uint32 skillid, int32 val, bool talent)
         SetSkillPermBonus(itr->second.pos, m_activePlayerData->Skill->SkillPermBonus[itr->second.pos] + val);
     else
         SetSkillTempBonus(itr->second.pos, m_activePlayerData->Skill->SkillTempBonus[itr->second.pos] + val);
+
+    // Apply/Remove bonus to child skill lines
+    if (std::vector<SkillLineEntry const*> const* childSkillLines = sDB2Manager.GetSkillLinesForParentSkill(skillid))
+        for (SkillLineEntry const* childSkillLine : *childSkillLines)
+            ModifySkillBonus(childSkillLine->ID, val, talent);
 }
 
 void Player::UpdateSkillsForLevel()
@@ -5771,8 +5776,13 @@ void Player::InitializeSkillFields()
 // To "remove" a skill line, set it's values to zero
 void Player::SetSkill(uint32 id, uint16 step, uint16 newVal, uint16 maxVal)
 {
-    if (!id)
+    SkillLineEntry const* skillEntry = sSkillLineStore.LookupEntry(id);
+    if (!skillEntry)
+    {
+        TC_LOG_ERROR("misc", "Player::SetSkill: Skill (SkillID: {}) not found in SkillLineStore for player '{}' ({})",
+            id, GetName(), GetGUID().ToString());
         return;
+    }
 
     uint16 currVal;
     SkillStatusMap::iterator itr = mSkillStatus.find(id);
@@ -5808,16 +5818,78 @@ void Player::SetSkill(uint32 id, uint16 step, uint16 newVal, uint16 maxVal)
             UpdateCriteria(CriteriaType::AchieveSkillStep, id);
 
             // update skill state
-            if (itr->second.uState == SKILL_UNCHANGED)
+            if (itr->second.uState == SKILL_UNCHANGED || itr->second.uState == SKILL_DELETED)
             {
                 if (currVal == 0)   // activated skill, mark as new to save into database
+                {
                     itr->second.uState = SKILL_NEW;
+
+                    // Set profession line
+                    if (!skillEntry->ParentSkillLineID && skillEntry->CategoryID == SKILL_CATEGORY_PROFESSION)
+                    {
+                        int32 freeProfessionSlot = FindProfessionSlotFor(id);
+                        if (freeProfessionSlot != -1)
+                            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ProfessionSkillLine, freeProfessionSlot), id);
+                    }
+
+                    // Temporary bonuses
+                    for (AuraEffect* effect : GetAuraEffectsByType(SPELL_AURA_MOD_SKILL))
+                        if (effect->GetMiscValue() == int32(id))
+                            effect->HandleEffect(this, AURA_EFFECT_HANDLE_SKILL, true);
+
+                    for (AuraEffect* effect : GetAuraEffectsByType(SPELL_AURA_MOD_SKILL_2))
+                        if (effect->GetMiscValue() == int32(id))
+                            effect->HandleEffect(this, AURA_EFFECT_HANDLE_SKILL, true);
+
+                    // Permanent bonuses
+                    for (AuraEffect* effect : GetAuraEffectsByType(SPELL_AURA_MOD_SKILL_TALENT))
+                        if (effect->GetMiscValue() == int32(id))
+                            effect->HandleEffect(this, AURA_EFFECT_HANDLE_SKILL, true);
+                }
                 else                // updated skill, mark as changed to save into database
                     itr->second.uState = SKILL_CHANGED;
             }
         }
         else if (currVal && !newVal) // Deactivate skill line
         {
+            // Try to store profession tools and accessories into the bag
+            // If we can't, we can't unlearn the profession
+            if (!skillEntry->ParentSkillLineID && skillEntry->CategoryID == SKILL_CATEGORY_PROFESSION)
+            {
+                auto storeProfessionItem = [this](uint8 slot) -> bool
+                {
+                    Item* professionItem = GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
+                    ItemPosCountVec professionItemDest;
+
+                    if (!professionItem)
+                        return true;
+
+                    if (CanStoreItem(NULL_BAG, NULL_SLOT, professionItemDest, professionItem, false) == EQUIP_ERR_OK)
+                    {
+                        RemoveItem(INVENTORY_SLOT_BAG_0, slot, true);
+                        StoreItem(professionItemDest, professionItem, true);
+                        return true;
+                    }
+
+                    return false;
+                };
+
+                int32 professionSlot = GetProfessionSlotFor(id);
+
+                if (professionSlot != -1)
+                {
+                    bool isFirstProfession = (professionSlot == 0);
+
+                    if (!storeProfessionItem(isFirstProfession ? PROFESSION_SLOT_PROFESSION1_TOOL : PROFESSION_SLOT_PROFESSION2_TOOL) ||
+                        !storeProfessionItem(isFirstProfession ? PROFESSION_SLOT_PROFESSION1_GEAR1 : PROFESSION_SLOT_PROFESSION2_GEAR1) ||
+                        !storeProfessionItem(isFirstProfession ? PROFESSION_SLOT_PROFESSION1_GEAR2 : PROFESSION_SLOT_PROFESSION2_GEAR2))
+                    {
+                        SendDirectMessage(WorldPackets::Misc::DisplayGameError(GameError::ERR_INV_FULL).Write());
+                        return;
+                    }
+                }
+            }
+
             //remove enchantments needing this skill
             UpdateSkillEnchantments(id, currVal, 0);
             // clear skill fields
@@ -5829,10 +5901,7 @@ void Player::SetSkill(uint32 id, uint16 step, uint16 newVal, uint16 maxVal)
             SetSkillPermBonus(itr->second.pos, 0);
 
             // mark as deleted so the next save will delete the data from the database
-            if (itr->second.uState != SKILL_NEW)
-                itr->second.uState = SKILL_DELETED;
-            else
-                itr->second.uState = SKILL_UNCHANGED;
+            itr->second.uState = SKILL_DELETED;
 
             // remove all spells that related to this skill
             if (std::vector<SkillLineAbilityEntry const*> const* skillLineAbilities = sDB2Manager.GetSkillLineAbilitiesBySkill(id))
@@ -5868,14 +5937,6 @@ void Player::SetSkill(uint32 id, uint16 step, uint16 newVal, uint16 maxVal)
         if (!skillSlot)
         {
             TC_LOG_ERROR("misc", "Tried to add skill {} but player {} ({}) cannot have additional skills", id, GetName(), GetGUID().ToString());
-            return;
-        }
-
-        SkillLineEntry const* skillEntry = sSkillLineStore.LookupEntry(id);
-        if (!skillEntry)
-        {
-            TC_LOG_ERROR("misc", "Player::SetSkill: Skill (SkillID: {}) not found in SkillLineStore for player '{}' ({})",
-                id, GetName(), GetGUID().ToString());
             return;
         }
 
@@ -9154,6 +9215,70 @@ uint8 Player::FindEquipSlot(Item const* item, uint32 slot, bool swap) const
             slots[2] = INVENTORY_SLOT_BAG_START + 2;
             slots[3] = INVENTORY_SLOT_BAG_START + 3;
             break;
+        case INVTYPE_PROFESSION_TOOL:
+        case INVTYPE_PROFESSION_GEAR:
+        {
+            bool isProfessionTool = item->GetTemplate()->GetInventoryType() == INVTYPE_PROFESSION_TOOL;
+
+            // Validate item class
+            if (!(item->GetTemplate()->GetClass() == ITEM_CLASS_PROFESSION))
+                return NULL_SLOT;
+
+            // Check if player has profession skill
+            uint32 itemSkill = item->GetTemplate()->GetSkill();
+            if (!HasSkill(itemSkill))
+                return NULL_SLOT;
+
+            switch (item->GetTemplate()->GetSubClass())
+            {
+                case ITEM_SUBCLASS_PROFESSION_COOKING:
+                    slots[0] = isProfessionTool ? PROFESSION_SLOT_COOKING_TOOL : PROFESSION_SLOT_COOKING_GEAR1;
+                    break;
+                case ITEM_SUBCLASS_PROFESSION_FISHING:
+                {
+                    // Fishing doesn't make use of gear slots (clientside)
+                    if (!isProfessionTool)
+                        return NULL_SLOT;
+
+                    slots[0] = PROFESSION_SLOT_FISHING_TOOL;
+                    break;
+                }
+                case ITEM_SUBCLASS_PROFESSION_BLACKSMITHING:
+                case ITEM_SUBCLASS_PROFESSION_LEATHERWORKING:
+                case ITEM_SUBCLASS_PROFESSION_ALCHEMY:
+                case ITEM_SUBCLASS_PROFESSION_HERBALISM:
+                case ITEM_SUBCLASS_PROFESSION_MINING:
+                case ITEM_SUBCLASS_PROFESSION_TAILORING:
+                case ITEM_SUBCLASS_PROFESSION_ENGINEERING:
+                case ITEM_SUBCLASS_PROFESSION_ENCHANTING:
+                case ITEM_SUBCLASS_PROFESSION_SKINNING:
+                case ITEM_SUBCLASS_PROFESSION_JEWELCRAFTING:
+                case ITEM_SUBCLASS_PROFESSION_INSCRIPTION:
+                {
+                    int32 professionSlot = GetProfessionSlotFor(itemSkill);
+
+                    if (professionSlot != -1)
+                    {
+                        bool isFirstProfession = (professionSlot == 0);
+
+                        if (isProfessionTool)
+                            slots[0] = isFirstProfession ? PROFESSION_SLOT_PROFESSION1_TOOL : PROFESSION_SLOT_PROFESSION2_TOOL;
+                        else
+                        {
+                            slots[0] = isFirstProfession ? PROFESSION_SLOT_PROFESSION1_GEAR1 : PROFESSION_SLOT_PROFESSION2_GEAR1;
+                            slots[1] = isFirstProfession ? PROFESSION_SLOT_PROFESSION1_GEAR2 : PROFESSION_SLOT_PROFESSION2_GEAR2;
+                        }
+                    }
+                    else
+                        return NULL_SLOT;
+
+                    break;
+                }
+                default:
+                    return NULL_SLOT;
+            }
+            break;
+        }
         default:
             return NULL_SLOT;
     }
@@ -10774,6 +10899,18 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
                     break;
                 case EQUIPMENT_SLOT_TRINKET2:
                     ignore = EQUIPMENT_SLOT_TRINKET1;
+                    break;
+                case PROFESSION_SLOT_PROFESSION1_GEAR1:
+                    ignore = PROFESSION_SLOT_PROFESSION1_GEAR2;
+                    break;
+                case PROFESSION_SLOT_PROFESSION1_GEAR2:
+                    ignore = PROFESSION_SLOT_PROFESSION1_GEAR1;
+                    break;
+                case PROFESSION_SLOT_PROFESSION2_GEAR1:
+                    ignore = PROFESSION_SLOT_PROFESSION2_GEAR2;
+                    break;
+                case PROFESSION_SLOT_PROFESSION2_GEAR2:
+                    ignore = PROFESSION_SLOT_PROFESSION2_GEAR1;
                     break;
             }
 
@@ -20564,6 +20701,7 @@ void Player::_SaveSkills(CharacterDatabaseTransaction trans)
 
         uint16 value = m_activePlayerData->Skill->SkillRank[itr->second.pos];
         uint16 max = m_activePlayerData->Skill->SkillMaxRank[itr->second.pos];
+        int8 professionSlot = int8(GetProfessionSlotFor(itr->first));
 
         switch (itr->second.uState)
         {
@@ -20573,14 +20711,16 @@ void Player::_SaveSkills(CharacterDatabaseTransaction trans)
                 stmt->setUInt16(1, uint16(itr->first));
                 stmt->setUInt16(2, value);
                 stmt->setUInt16(3, max);
+                stmt->setInt8(4, professionSlot);
                 trans->Append(stmt);
                 break;
             case SKILL_CHANGED:
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_SKILLS);
                 stmt->setUInt16(0, value);
                 stmt->setUInt16(1, max);
-                stmt->setUInt64(2, GetGUID().GetCounter());
-                stmt->setUInt16(3, uint16(itr->first));
+                stmt->setInt8(2, professionSlot);
+                stmt->setUInt64(3, GetGUID().GetCounter());
+                stmt->setUInt16(4, uint16(itr->first));
                 trans->Append(stmt);
                 break;
             case SKILL_DELETED:
@@ -24162,10 +24302,33 @@ void Player::LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue, Races r
     }
 }
 
+int32 Player::GetProfessionSlotFor(uint32 skillId) const
+{
+    SkillLineEntry const* skillEntry = sSkillLineStore.LookupEntry(skillId);
+    if (!skillEntry)
+        return -1;
+
+    if (skillEntry->ParentSkillLineID || skillEntry->CategoryID != SKILL_CATEGORY_PROFESSION)
+        return -1;
+
+    int32 const* professionsBegin = m_activePlayerData->ProfessionSkillLine.begin();
+    int32 const* professionsEnd = m_activePlayerData->ProfessionSkillLine.end();
+
+    // Find profession slot
+    auto professionSlot = std::find(professionsBegin, professionsEnd, int32(skillId));
+    if (professionSlot == professionsEnd)
+        return -1;
+
+    return std::distance(professionsBegin, professionSlot);
+}
+
 int32 Player::FindProfessionSlotFor(uint32 skillId) const
 {
     SkillLineEntry const* skillEntry = sSkillLineStore.LookupEntry(skillId);
     if (!skillEntry)
+        return -1;
+
+    if (skillEntry->ParentSkillLineID || skillEntry->CategoryID != SKILL_CATEGORY_PROFESSION)
         return -1;
 
     int32 const* professionsBegin = m_activePlayerData->ProfessionSkillLine.begin();
@@ -25794,8 +25957,8 @@ void Player::StoreLootItem(ObjectGuid lootWorldObjectGuid, uint8 lootSlot, Loot*
 
 void Player::_LoadSkills(PreparedQueryResult result)
 {
-    //                                                           0      1      2
-    // SetPQuery(PLAYER_LOGIN_QUERY_LOADSKILLS,          "SELECT skill, value, max FROM character_skills WHERE guid = '{}'", GUID_LOPART(m_guid));
+    //                                                           0      1      2    3
+    // SetPQuery(PLAYER_LOGIN_QUERY_LOADSKILLS,          "SELECT skill, value, max, ProfessionSlot FROM character_skills WHERE guid = '{}'", GUID_LOPART(m_guid));
 
     Races race = Races(GetRace());
     uint32 count = 0;
@@ -25815,6 +25978,7 @@ void Player::_LoadSkills(PreparedQueryResult result)
             uint16 skill    = fields[0].GetUInt16();
             uint16 value    = fields[1].GetUInt16();
             uint16 max      = fields[2].GetUInt16();
+            int8 professionSlot = fields[3].GetInt8();
 
             SkillRaceClassInfoEntry const* rcEntry = sDB2Manager.GetSkillRaceClassInfo(skill, race, GetClass());
             if (!rcEntry)
@@ -25858,11 +26022,8 @@ void Player::_LoadSkills(PreparedQueryResult result)
                     step = max / 75;
 
                     if (!skillLine->ParentSkillLineID)
-                    {
-                        int32 professionSlot = FindProfessionSlotFor(skill);
                         if (professionSlot != -1)
                             SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ProfessionSkillLine, professionSlot), skill);
-                    }
                 }
             }
 
