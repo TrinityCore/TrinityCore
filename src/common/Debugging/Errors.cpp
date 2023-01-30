@@ -73,7 +73,8 @@ namespace Trinity
 void Assert(char const* file, int line, char const* function, std::string debugInfo, char const* message)
 {
     std::string formattedMessage = StringFormat("\n{}:{} in {} ASSERTION FAILED:\n  {}\n", file, line, function, message) + debugInfo + '\n';
-    fprintf(stderr, "%s", formattedMessage.c_str());
+    //fprintf(stderr, "%s", formattedMessage.c_str());
+    //尝试去掉刷屏的提示
     fflush(stderr);
     Crash(formattedMessage.c_str());
 }
@@ -86,7 +87,8 @@ void Assert(char const* file, int line, char const* function, std::string debugI
     std::string formattedMessage = StringFormat("\n{}:{} in {} ASSERTION FAILED:\n  {}\n", file, line, function, message) + FormatAssertionMessage(format, args) + '\n' + debugInfo + '\n';
     va_end(args);
 
-    fprintf(stderr, "%s", formattedMessage.c_str());
+    //fprintf(stderr, "%s", formattedMessage.c_str());
+    //尝试去掉刷屏的提示
     fflush(stderr);
 
     Crash(formattedMessage.c_str());
