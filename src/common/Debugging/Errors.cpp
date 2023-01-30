@@ -72,11 +72,12 @@ namespace Trinity
 
 void Assert(char const* file, int line, char const* function, std::string debugInfo, char const* message)
 {
-    std::string formattedMessage = StringFormat("\n{}:{} in {} ASSERTION FAILED:\n  {}\n", file, line, function, message) + debugInfo + '\n';
+    //std::string formattedMessage = StringFormat("\n{}:{} in {} ASSERTION FAILED:\n  {}\n", file, line, function, message) + debugInfo + '\n';
     //fprintf(stderr, "%s", formattedMessage.c_str());
-    //尝试去掉刷屏的提示
-    fflush(stderr);
-    Crash(formattedMessage.c_str());
+    
+    //fflush(stderr);
+   // Crash(formattedMessage.c_str());
+    //尝试去掉刷屏的提示,本段全是我后注释掉的
 }
 
 void Assert(char const* file, int line, char const* function, std::string debugInfo, char const* message, char const* format, ...)
@@ -84,14 +85,16 @@ void Assert(char const* file, int line, char const* function, std::string debugI
     va_list args;
     va_start(args, format);
 
-    std::string formattedMessage = StringFormat("\n{}:{} in {} ASSERTION FAILED:\n  {}\n", file, line, function, message) + FormatAssertionMessage(format, args) + '\n' + debugInfo + '\n';
+    //std::string formattedMessage = StringFormat("\n{}:{} in {} ASSERTION FAILED:\n  {}\n", file, line, function, message) + FormatAssertionMessage(format, args) + '\n' + debugInfo + '\n';
     va_end(args);
 
     //fprintf(stderr, "%s", formattedMessage.c_str());
-    //尝试去掉刷屏的提示
+    
     fflush(stderr);
 
-    Crash(formattedMessage.c_str());
+    //Crash(formattedMessage.c_str());
+
+    //尝试去掉刷屏的提示,本段全是我后注释掉的
 }
 
 void Fatal(char const* file, int line, char const* function, char const* message, ...)
