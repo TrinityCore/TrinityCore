@@ -5482,6 +5482,56 @@ class spell_gen_vehicle_control_link : public AuraScript
     }
 };
 
+enum PolymorphCastVisual
+{
+    // Spells
+    SPELL_MAGE_SQUIRREL_FORM    = 32813,
+    SPELL_MAGE_GIRAFFE_FORM     = 32816,
+    SPELL_MAGE_SERPENT_FORM     = 32817,
+    SPELL_MAGE_DRAGONHAWK_FORM  = 32818,
+    SPELL_MAGE_WORGEN_FORM      = 32819,
+    SPELL_MAGE_SHEEP_FORM       = 32820,
+
+    NPC_AUROSALIA               = 18744
+
+};
+
+/// @todo move out of here and rename - not a mage spell
+// 32826 - Polymorph (Visual)
+class spell_gen_polymorph_cast_visual : public SpellScript
+{
+    static const uint32 PolymorhForms[6];
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        // check if spell ids exist in dbc
+        return ValidateSpellInfo(PolymorhForms);
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* target = GetCaster()->FindNearestCreature(NPC_AUROSALIA, 30.0f))
+            if (target->GetTypeId() == TYPEID_UNIT)
+                target->CastSpell(target, PolymorhForms[urand(0, 5)], true);
+    }
+
+    void Register() override
+    {
+        // add dummy effect spell handler to Polymorph visual
+        OnEffectHitTarget.Register(&spell_gen_polymorph_cast_visual::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+uint32 const spell_gen_polymorph_cast_visual::PolymorhForms[6] =
+{
+    SPELL_MAGE_SQUIRREL_FORM,
+    SPELL_MAGE_GIRAFFE_FORM,
+    SPELL_MAGE_SERPENT_FORM,
+    SPELL_MAGE_DRAGONHAWK_FORM,
+    SPELL_MAGE_WORGEN_FORM,
+    SPELL_MAGE_SHEEP_FORM
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -5620,4 +5670,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_face_rage);
     RegisterSpellScript(spell_gen_shadowmeld);
     RegisterSpellScript(spell_gen_vehicle_control_link);
+    RegisterSpellScript(spell_gen_polymorph_cast_visual);
 }
