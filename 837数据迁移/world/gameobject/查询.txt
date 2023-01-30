@@ -1,0 +1,1 @@
+SELECT * FROM gameobject_xy837 WHERE NOT EXISTS (SELECT 1 FROM gameobject_org WHERE gameobject_xy837.guid= gameobject_org.guid);
