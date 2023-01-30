@@ -39,7 +39,7 @@ FMT_FUNC void assert_fail(const char* file, int line, const char* message) {
   // (根据"老师"大佬的说法,可能是因为服务器区名用的中文)
   // Chosen instead of std::abort to satisfy Clang in CUDA mode during device
   // code pass.
-  std::terminate();
+  //std::terminate();
 }
 
 FMT_FUNC void throw_format_error(const char* message) {

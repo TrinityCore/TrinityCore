@@ -82,15 +82,15 @@ void Assert(char const* file, int line, char const* function, std::string debugI
 
 void Assert(char const* file, int line, char const* function, std::string debugInfo, char const* message, char const* format, ...)
 {
-    va_list args;
-    va_start(args, format);
+    //va_list args;
+    //va_start(args, format);
 
     //std::string formattedMessage = StringFormat("\n{}:{} in {} ASSERTION FAILED:\n  {}\n", file, line, function, message) + FormatAssertionMessage(format, args) + '\n' + debugInfo + '\n';
-    va_end(args);
+    //va_end(args);
 
     //fprintf(stderr, "%s", formattedMessage.c_str());
     
-    fflush(stderr);
+    //fflush(stderr);
 
     //Crash(formattedMessage.c_str());
 
