@@ -302,7 +302,7 @@ static std::array<uint32, 2> const ImprovedConeOfColdSpellIds = { SPELL_MAGE_CON
 
 class spell_mage_cone_of_cold : public SpellScript
 {
-    bool Validate(SpellInfo const* /*spellInfo*/)
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(ImprovedConeOfColdSpellIds);
     }
