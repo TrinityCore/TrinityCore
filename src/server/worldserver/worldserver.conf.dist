@@ -4257,38 +4257,6 @@ Currency.ResetDay = 3
 Currency.ResetHour = 6
 
 #
-#    Currency.StartApexisCrystals
-#        Amount of Apexis Crystals that new players will start with
-#        Default: 0 (with precision)
-#
-
-Currency.StartApexisCrystals = 0
-
-#
-#    Currency.MaxApexisCrystals
-#        Amount Apexis Crystals a player can have
-#        Default: 20000
-#
-
-Currency.MaxApexisCrystals = 20000
-
-#
-#    Currency.StartJusticePoints
-#        Amount of justice points that new players will start with
-#        Default: 0 (with precision)
-#
-
-Currency.StartJusticePoints = 0
-
-#
-#    Currency.MaxJusticePoints
-#        Amount justice points a player can have
-#        Default: 4000
-#
-
-Currency.MaxJusticePoints = 4000
-
-#
 ###################################################################################################
 
 ###################################################################################################
