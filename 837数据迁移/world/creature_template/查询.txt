@@ -1,0 +1,1 @@
+SELECT * FROM creature_template_xy837 WHERE NOT EXISTS (SELECT 1 FROM creature_template_org WHERE creature_template_xy837.Entry= creature_template_org.Entry);
