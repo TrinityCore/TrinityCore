@@ -56,8 +56,7 @@ class TC_GAME_API SmartScript
         void SetPathId(uint32 id) { mPathId = id; }
         uint32 GetPathId() const { return mPathId; }
         WorldObject* GetBaseObject() const;
-        WorldObject* GetBaseObjectOrUnit(Unit* unit);
-        WorldObject* GetBaseObjectOrPlayerTrigger() const;
+        WorldObject* GetBaseObjectOrUnitInvoker(Unit* invoker);
         bool HasAnyEventWithFlag(uint32 flag) const { return mAllEventFlags & flag; }
         static bool IsUnit(WorldObject* obj);
         static bool IsPlayer(WorldObject* obj);
@@ -118,7 +117,7 @@ class TC_GAME_API SmartScript
         ObjectGuid meOrigGUID;
         GameObject* go;
         ObjectGuid goOrigGUID;
-        Player* atPlayer;
+        Player* player;
         AreaTriggerEntry const* trigger;
         AreaTrigger* areaTrigger;
         SceneTemplate const* sceneTemplate;
