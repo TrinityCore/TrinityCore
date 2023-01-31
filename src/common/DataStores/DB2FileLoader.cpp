@@ -1075,7 +1075,6 @@ char* DB2FileLoaderSparseImpl::AutoProduceData(uint32& indexTableSize, char**& i
     memset(dataTable, 0, (records + _copyTable.size()) * recordsize);
 
     uint32 offset = 0;
-    uint32 recordNum = 0;
     uint32 y = 0;
 
     for (uint32 section = 0; section < _header->SectionCount; ++section)
@@ -1176,8 +1175,6 @@ char* DB2FileLoaderSparseImpl::AutoProduceData(uint32& indexTableSize, char**& i
                     ++fieldIndex;
                 }
             }
-
-            ++recordNum;
         }
     }
 
