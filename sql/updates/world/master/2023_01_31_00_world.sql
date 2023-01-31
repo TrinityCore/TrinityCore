@@ -1,5 +1,5 @@
-SET @OGUID := 1051927;
-SET @CGUID := 600244;
+SET @CGUID := 1051927;
+SET @OGUID := 600244;
 
 UPDATE `gameobject_template_addon` SET `flags`=33554432, `AIAnimKitID`=3503 WHERE `entry`=323853; -- Portal to Shattrath
 
