@@ -696,7 +696,9 @@ enum ProfessionSlots : uint8
     PROFESSION_SLOT_FISHING_GEAR2        = 29,
 
     PROFESSION_SLOT_END,
-    PROFESSION_SLOT_START                = PROFESSION_SLOT_PROFESSION1_TOOL
+    PROFESSION_SLOT_START                = PROFESSION_SLOT_PROFESSION1_TOOL,
+
+    PROFESSION_SLOT_MAX_COUNT            = PROFESSION_SLOT_PROFESSION2_TOOL - PROFESSION_SLOT_PROFESSION1_TOOL
 };
 
 enum InventorySlots : uint8                                 // 4 slots

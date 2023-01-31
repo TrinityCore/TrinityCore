@@ -5856,17 +5856,16 @@ void Player::SetSkill(uint32 id, uint16 step, uint16 newVal, uint16 maxVal)
             // If we can't, we can't unlearn the profession
             if (!skillEntry->ParentSkillLineID && skillEntry->CategoryID == SKILL_CATEGORY_PROFESSION)
             {
-                auto storeProfessionItem = [this](uint8 slot) -> bool
+                auto storeProfessionItem = [this](Item* professionItem) -> bool
                 {
-                    Item* professionItem = GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
-                    ItemPosCountVec professionItemDest;
-
                     if (!professionItem)
                         return true;
 
+                    ItemPosCountVec professionItemDest;
+
                     if (CanStoreItem(NULL_BAG, NULL_SLOT, professionItemDest, professionItem, false) == EQUIP_ERR_OK)
                     {
-                        RemoveItem(INVENTORY_SLOT_BAG_0, slot, true);
+                        RemoveItem(INVENTORY_SLOT_BAG_0, professionItem->GetSlot(), true);
                         StoreItem(professionItemDest, professionItem, true);
                         return true;
                     }
@@ -5879,10 +5878,28 @@ void Player::SetSkill(uint32 id, uint16 step, uint16 newVal, uint16 maxVal)
                 if (professionSlot != -1)
                 {
                     bool isFirstProfession = (professionSlot == 0);
+                    uint8 professionSlotStart = isFirstProfession ? PROFESSION_SLOT_PROFESSION1_TOOL : PROFESSION_SLOT_PROFESSION2_TOOL;
 
-                    if (!storeProfessionItem(isFirstProfession ? PROFESSION_SLOT_PROFESSION1_TOOL : PROFESSION_SLOT_PROFESSION2_TOOL) ||
-                        !storeProfessionItem(isFirstProfession ? PROFESSION_SLOT_PROFESSION1_GEAR1 : PROFESSION_SLOT_PROFESSION2_GEAR1) ||
-                        !storeProfessionItem(isFirstProfession ? PROFESSION_SLOT_PROFESSION1_GEAR2 : PROFESSION_SLOT_PROFESSION2_GEAR2))
+                    // Get all profession items equipped
+                    std::vector<Item*> professionItems;
+                    for (uint8 slotOffset = 0; slotOffset < PROFESSION_SLOT_MAX_COUNT; slotOffset++)
+                        if (Item* professionItem = GetItemByPos(INVENTORY_SLOT_BAG_0, professionSlotStart + slotOffset))
+                            professionItems.push_back(professionItem);
+
+                    // Check if there is space for all items
+                    if (CanStoreItems(professionItems.data(), professionItems.size(), nullptr) == EQUIP_ERR_OK)
+                    {
+                        for (Item* professionItem : professionItems)
+                        {
+                            // Store item in bag
+                            if (!storeProfessionItem(professionItem))
+                            {
+                                SendDirectMessage(WorldPackets::Misc::DisplayGameError(GameError::ERR_INV_FULL).Write());
+                                return;
+                            }
+                        }
+                    }
+                    else
                     {
                         SendDirectMessage(WorldPackets::Misc::DisplayGameError(GameError::ERR_INV_FULL).Write());
                         return;
