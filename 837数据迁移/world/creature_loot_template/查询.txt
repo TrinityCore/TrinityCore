@@ -1,0 +1,1 @@
+SELECT * FROM creature_loot_template_xy837 WHERE NOT EXISTS (SELECT 1 FROM creature_loot_template_org WHERE creature_loot_template_xy837.Entry= creature_loot_template_org.Entry);
