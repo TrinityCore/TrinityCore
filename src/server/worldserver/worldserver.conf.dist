@@ -827,9 +827,9 @@ CharacterCreating.Disabled.ClassMask = 0
 #    CharactersPerAccount
 #        Description: Limit number of characters per account on all realms on this realmlist.
 #        Important:   Number must be >= CharactersPerRealm
-#        Default:     50
+#        Default:     60
 
-CharactersPerAccount = 50
+CharactersPerAccount = 60
 
 #
 #    CharactersPerRealm
