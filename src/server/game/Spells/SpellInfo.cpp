@@ -463,7 +463,7 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster, int32 const* bp, Uni
         }
 
         value *= Scaling.Coefficient;
-        if (value != 0.0f && value < 1.0f)
+        if (value >= 0.0f && value < 1.0f)
             value = 1.0f;
 
         if (Scaling.Variance)
