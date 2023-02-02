@@ -11,7 +11,7 @@ UPDATE creature_template inner join creature_template_xy837 ON (creature_templat
 简化版(A是creature_template,B是creature_template_xy837)
 UPDATE A inner join B ON (A.entry = B.entry and A.lootid=0 and B.lootid!=0) SET A.lootid = B.lootid;
 
-
+注意:此语句要求存在creature_template_xy837表,更新TDB后不再需要
 
 UPDATE A inner join B ON (A.entry = B.entry and A.lootid=0 and B.lootid!=0) SET A.lootid = B.lootid;
 select entry FROM creature_template_xy837 WHERE EXISTS(SELECT 1 FROM creature_template WHERE creature_template_xy837.Entry= creature_template.Entry and creature_template.lootid!=creature_template_xy837.lootid);
