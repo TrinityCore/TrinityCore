@@ -5457,7 +5457,7 @@ enum SkillType
     SKILL_CATACLYSM_BLACKSMITHING                   = 2474,
     SKILL_NORTHREND_BLACKSMITHING                   = 2475,
     SKILL_OUTLAND_BLACKSMITHING                     = 2476,
-    SKILL_BLACKSMITHING_2                           = 2477,
+    SKILL_CLASSIC_BLACKSMITHING                     = 2477,
     SKILL_KUL_TIRAN_ALCHEMY                         = 2478,
     SKILL_LEGION_ALCHEMY                            = 2479,
     SKILL_DRAENOR_ALCHEMY                           = 2480,
@@ -5465,7 +5465,7 @@ enum SkillType
     SKILL_CATACLYSM_ALCHEMY                         = 2482,
     SKILL_NORTHREND_ALCHEMY                         = 2483,
     SKILL_OUTLAND_ALCHEMY                           = 2484,
-    SKILL_ALCHEMY_2                                 = 2485,
+    SKILL_CLASSIC_ALCHEMY                           = 2485,
     SKILL_KUL_TIRAN_ENCHANTING                      = 2486,
     SKILL_LEGION_ENCHANTING                         = 2487,
     SKILL_DRAENOR_ENCHANTING                        = 2488,
@@ -5473,7 +5473,7 @@ enum SkillType
     SKILL_CATACLYSM_ENCHANTING                      = 2491,
     SKILL_NORTHREND_ENCHANTING                      = 2492,
     SKILL_OUTLAND_ENCHANTING                        = 2493,
-    SKILL_ENCHANTING_2                              = 2494,
+    SKILL_CLASSIC_ENCHANTING                        = 2494,
     SKILL_KUL_TIRAN_ENGINEERING                     = 2499,
     SKILL_LEGION_ENGINEERING                        = 2500,
     SKILL_DRAENOR_ENGINEERING                       = 2501,
@@ -5481,7 +5481,7 @@ enum SkillType
     SKILL_CATACLYSM_ENGINEERING                     = 2503,
     SKILL_NORTHREND_ENGINEERING                     = 2504,
     SKILL_OUTLAND_ENGINEERING                       = 2505,
-    SKILL_ENGINEERING_2                             = 2506,
+    SKILL_CLASSIC_ENGINEERING                       = 2506,
     SKILL_KUL_TIRAN_INSCRIPTION                     = 2507,
     SKILL_LEGION_INSCRIPTION                        = 2508,
     SKILL_DRAENOR_INSCRIPTION                       = 2509,
@@ -5489,7 +5489,7 @@ enum SkillType
     SKILL_CATACLYSM_INSCRIPTION                     = 2511,
     SKILL_NORTHREND_INSCRIPTION                     = 2512,
     SKILL_OUTLAND_INSCRIPTION                       = 2513,
-    SKILL_INSCRIPTION_2                             = 2514,
+    SKILL_CLASSIC_INSCRIPTION                       = 2514,
     SKILL_KUL_TIRAN_JEWELCRAFTING                   = 2517,
     SKILL_LEGION_JEWELCRAFTING                      = 2518,
     SKILL_DRAENOR_JEWELCRAFTING                     = 2519,
@@ -5497,7 +5497,7 @@ enum SkillType
     SKILL_CATACLYSM_JEWELCRAFTING                   = 2521,
     SKILL_NORTHREND_JEWELCRAFTING                   = 2522,
     SKILL_OUTLAND_JEWELCRAFTING                     = 2523,
-    SKILL_JEWELCRAFTING_2                           = 2524,
+    SKILL_CLASSIC_JEWELCRAFTING                     = 2524,
     SKILL_KUL_TIRAN_LEATHERWORKING                  = 2525,
     SKILL_LEGION_LEATHERWORKING                     = 2526,
     SKILL_DRAENOR_LEATHERWORKING                    = 2527,
@@ -5505,7 +5505,7 @@ enum SkillType
     SKILL_CATACLYSM_LEATHERWORKING                  = 2529,
     SKILL_NORTHREND_LEATHERWORKING                  = 2530,
     SKILL_OUTLAND_LEATHERWORKING                    = 2531,
-    SKILL_LEATHERWORKING_2                          = 2532,
+    SKILL_CLASSIC_LEATHERWORKING                    = 2532,
     SKILL_KUL_TIRAN_TAILORING                       = 2533,
     SKILL_LEGION_TAILORING                          = 2534,
     SKILL_DRAENOR_TAILORING                         = 2535,
@@ -5513,7 +5513,7 @@ enum SkillType
     SKILL_CATACLYSM_TAILORING                       = 2537,
     SKILL_NORTHREND_TAILORING                       = 2538,
     SKILL_OUTLAND_TAILORING                         = 2539,
-    SKILL_TAILORING_2                               = 2540,
+    SKILL_CLASSIC_TAILORING                         = 2540,
     SKILL_KUL_TIRAN_COOKING                         = 2541,
     SKILL_LEGION_COOKING                            = 2542,
     SKILL_DRAENOR_COOKING                           = 2543,
@@ -5521,7 +5521,7 @@ enum SkillType
     SKILL_CATACLYSM_COOKING                         = 2545,
     SKILL_NORTHREND_COOKING                         = 2546,
     SKILL_OUTLAND_COOKING                           = 2547,
-    SKILL_COOKING_2                                 = 2548,
+    SKILL_CLASSIC_COOKING                           = 2548,
     SKILL_KUL_TIRAN_HERBALISM                       = 2549,
     SKILL_LEGION_HERBALISM                          = 2550,
     SKILL_DRAENOR_HERBALISM                         = 2551,
@@ -5529,7 +5529,7 @@ enum SkillType
     SKILL_CATACLYSM_HERBALISM                       = 2553,
     SKILL_NORTHREND_HERBALISM                       = 2554,
     SKILL_OUTLAND_HERBALISM                         = 2555,
-    SKILL_HERBALISM_2                               = 2556,
+    SKILL_CLASSIC_HERBALISM                         = 2556,
     SKILL_KUL_TIRAN_SKINNING                        = 2557,
     SKILL_LEGION_SKINNING                           = 2558,
     SKILL_DRAENOR_SKINNING                          = 2559,
@@ -5537,7 +5537,7 @@ enum SkillType
     SKILL_CATACLYSM_SKINNING                        = 2561,
     SKILL_NORTHREND_SKINNING                        = 2562,
     SKILL_OUTLAND_SKINNING                          = 2563,
-    SKILL_SKINNING_2                                = 2564,
+    SKILL_CLASSIC_SKINNING                          = 2564,
     SKILL_KUL_TIRAN_MINING                          = 2565,
     SKILL_LEGION_MINING                             = 2566,
     SKILL_DRAENOR_MINING                            = 2567,
@@ -5545,7 +5545,7 @@ enum SkillType
     SKILL_CATACLYSM_MINING                          = 2569,
     SKILL_NORTHREND_MINING                          = 2570,
     SKILL_OUTLAND_MINING                            = 2571,
-    SKILL_MINING_2                                  = 2572,
+    SKILL_CLASSIC_MINING                            = 2572,
     SKILL_KUL_TIRAN_FISHING                         = 2585,
     SKILL_LEGION_FISHING                            = 2586,
     SKILL_DRAENOR_FISHING                           = 2587,
@@ -5606,7 +5606,7 @@ constexpr SkillType SkillByLockType(LockType locktype)
         case LOCKTYPE_INSCRIPTION: return SKILL_INSCRIPTION;
         case LOCKTYPE_ARCHAEOLOGY: return SKILL_ARCHAEOLOGY;
         case LOCKTYPE_LUMBER_MILL: return SKILL_LOGGING;
-        case LOCKTYPE_CLASSIC_HERBALISM: return SKILL_HERBALISM_2;
+        case LOCKTYPE_CLASSIC_HERBALISM: return SKILL_CLASSIC_HERBALISM;
         case LOCKTYPE_OUTLAND_HERBALISM: return SKILL_OUTLAND_HERBALISM;
         case LOCKTYPE_NORTHREND_HERBALISM: return SKILL_NORTHREND_HERBALISM;
         case LOCKTYPE_CATACLYSM_HERBALISM: return SKILL_CATACLYSM_HERBALISM;
@@ -5614,7 +5614,7 @@ constexpr SkillType SkillByLockType(LockType locktype)
         case LOCKTYPE_DRAENOR_HERBALISM: return SKILL_DRAENOR_HERBALISM;
         case LOCKTYPE_LEGION_HERBALISM: return SKILL_LEGION_HERBALISM;
         case LOCKTYPE_KUL_TIRAN_HERBALISM: return SKILL_KUL_TIRAN_HERBALISM;
-        case LOCKTYPE_CLASSIC_MINING: return SKILL_MINING_2;
+        case LOCKTYPE_CLASSIC_MINING: return SKILL_CLASSIC_MINING;
         case LOCKTYPE_OUTLAND_MINING: return SKILL_OUTLAND_MINING;
         case LOCKTYPE_NORTHREND_MINING: return SKILL_NORTHREND_MINING;
         case LOCKTYPE_CATACLYSM_MINING: return SKILL_CATACLYSM_MINING;

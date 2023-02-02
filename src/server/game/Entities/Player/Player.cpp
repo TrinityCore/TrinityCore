@@ -5573,7 +5573,7 @@ bool Player::UpdateGatherSkill(uint32 SkillId, uint32 SkillValue, uint32 RedLeve
     switch (SkillId)
     {
         case SKILL_HERBALISM:
-        case SKILL_HERBALISM_2:
+        case SKILL_CLASSIC_HERBALISM:
         case SKILL_OUTLAND_HERBALISM:
         case SKILL_NORTHREND_HERBALISM:
         case SKILL_CATACLYSM_HERBALISM:
@@ -5585,7 +5585,7 @@ bool Player::UpdateGatherSkill(uint32 SkillId, uint32 SkillValue, uint32 RedLeve
         case SKILL_INSCRIPTION:
             return UpdateSkillPro(SkillId, SkillGainChance(SkillValue, grayLevel, greenLevel, yellowLevel) * Multiplicator, gathering_skill_gain);
         case SKILL_SKINNING:
-        case SKILL_SKINNING_2:
+        case SKILL_CLASSIC_SKINNING:
         case SKILL_OUTLAND_SKINNING:
         case SKILL_NORTHREND_SKINNING:
         case SKILL_CATACLYSM_SKINNING:
@@ -5598,7 +5598,7 @@ bool Player::UpdateGatherSkill(uint32 SkillId, uint32 SkillValue, uint32 RedLeve
             else
                 return UpdateSkillPro(SkillId, (SkillGainChance(SkillValue, grayLevel, greenLevel, yellowLevel) * Multiplicator) >> (SkillValue / sWorld->getIntConfig(CONFIG_SKILL_CHANCE_SKINNING_STEPS)), gathering_skill_gain);
         case SKILL_MINING:
-        case SKILL_MINING_2:
+        case SKILL_CLASSIC_MINING:
         case SKILL_OUTLAND_MINING:
         case SKILL_NORTHREND_MINING:
         case SKILL_CATACLYSM_MINING:
