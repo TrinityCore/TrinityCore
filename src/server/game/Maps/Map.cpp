@@ -3122,6 +3122,12 @@ std::string const& InstanceMap::GetScriptName() const
     return sObjectMgr->GetScriptName(i_script_id);
 }
 
+void InstanceMap::SendResetWarnings(uint32 timeLeft) const
+{
+    for (MapRefManager::const_iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
+        itr->GetSource()->SendInstanceResetWarning(GetId(), itr->GetSource()->GetDifficultyID(GetEntry()), timeLeft, true);
+}
+
 void InstanceMap::UpdateInstanceLock(UpdateBossStateSaveDataEvent const& updateSaveDataEvent)
 {
     if (i_instanceLock)
@@ -3657,6 +3663,21 @@ void Map::DeleteRespawnTimesInDB()
     stmt->setUInt32(1, GetInstanceId());
     CharacterDatabase.Execute(stmt);
 }
+
+void Map::DeleteRespawnTimesInDB(uint16 mapId, uint32 instanceId)   //兼容TCB后加的
+{
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CREATURE_RESPAWN_BY_INSTANCE);
+    stmt->setUInt16(0, mapId);
+    stmt->setUInt32(1, instanceId);
+    CharacterDatabase.Execute(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GO_RESPAWN_BY_INSTANCE);
+    stmt->setUInt16(0, mapId);
+    stmt->setUInt32(1, instanceId);
+    CharacterDatabase.Execute(stmt);
+}
+
+
 
 time_t Map::GetLinkedRespawnTime(ObjectGuid guid) const
 {

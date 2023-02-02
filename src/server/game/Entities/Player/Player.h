@@ -952,7 +952,8 @@ struct InstancePlayerBind
     /* extend state listing:
     EXPIRED  - doesn't affect anything unless manually re-extended by player
     NORMAL   - standard state
-    EXTENDED - won't be promoted to EXPIRED at next reset period, will instead be promoted to NORMAL */
+    EXTENDED - won't be promoted to EXPIRED at next reset period, will instead be promoted to NORMAL
+    */
     BindExtensionState extendState;
 
     InstancePlayerBind() : save(nullptr), perm(false), extendState(EXTEND_STATE_NORMAL) { }
@@ -1187,6 +1188,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendInitialPacketsAfterAddToMap();
         void SendSupercededSpell(uint32 oldSpell, uint32 newSpell) const;
         void SendTransferAborted(uint32 mapid, TransferAbortReason reason, uint8 arg = 0, int32 mapDifficultyXConditionID = 0) const;
+        void SendInstanceResetWarning(uint32 mapid, Difficulty difficulty, uint32 time, bool welcome) const;
 
         bool CanInteractWithQuestGiver(Object* questGiver) const;
         Creature* GetNPCIfCanInteractWith(ObjectGuid const& guid, NPCFlags npcFlags, NPCFlags2 npcFlags2) const;
@@ -2969,6 +2971,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         BoundInstancesMap m_boundInstances;
         //InstancePlayerBind* GetBoundInstance(uint32 mapid, Difficulty difficulty, bool withExpired);//系统自动定义
         InstancePlayerBind* GetBoundInstance(uint32 mapid, Difficulty difficulty, bool withExpired = false);//后注释,发现不行
+        InstancePlayerBind const* GetBoundInstance(uint32 mapid, Difficulty difficulty) const;
 
         void _LoadDailyQuestStatus(PreparedQueryResult result);
         void _LoadWeeklyQuestStatus(PreparedQueryResult result);

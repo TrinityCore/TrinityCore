@@ -32,7 +32,7 @@
 #include "CellImpl.h"
 #include "GridNotifiers.h"
 #include "Group.h"
-//#include "InstanceSaveMgr.h"//临时注释,下同
+#include "InstanceSaveMgr.h"//临时注释,下同
 #include "Language.h"
 #include "MovementGenerator.h"
 #include "ObjectAccessor.h"

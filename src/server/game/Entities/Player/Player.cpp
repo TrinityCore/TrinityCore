@@ -19084,6 +19084,25 @@ InstancePlayerBind* Player::GetBoundInstance(uint32 mapid, Difficulty difficulty
     return nullptr;
 }
 
+InstancePlayerBind const* Player::GetBoundInstance(uint32 mapid, Difficulty difficulty) const
+{
+    // some instances only have one difficulty
+    MapDifficultyEntry const* mapDiff = sDB2Manager.GetDownscaledMapDifficultyData(mapid, difficulty);
+    if (!mapDiff)
+        return nullptr;
+
+    auto difficultyItr = m_boundInstances.find(difficulty);
+    if (difficultyItr == m_boundInstances.end())
+        return nullptr;
+
+    auto itr = difficultyItr->second.find(mapid);
+    if (itr != difficultyItr->second.end())
+        return &itr->second;
+
+    return nullptr;
+}
+
+
 void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
 {
     m_DFQuests.clear();
@@ -23956,6 +23975,34 @@ void Player::SendTransferAborted(uint32 mapid, TransferAbortReason reason, uint8
     transferAborted.MapDifficultyXConditionID = mapDifficultyXConditionID;
     SendDirectMessage(transferAborted.Write());
 }
+
+void Player::SendInstanceResetWarning(uint32 mapid, Difficulty difficulty, uint32 time, bool welcome) const
+{
+    // type of warning, based on the time remaining until reset
+    uint32 type;
+    if (welcome)
+        type = RAID_INSTANCE_WELCOME;
+    else if (time > 21600)
+        type = RAID_INSTANCE_WELCOME;
+    else if (time > 3600)
+        type = RAID_INSTANCE_WARNING_HOURS;
+    else if (time > 300)
+        type = RAID_INSTANCE_WARNING_MIN;
+    else
+        type = RAID_INSTANCE_WARNING_MIN_SOON;
+
+    WorldPackets::Instance::RaidInstanceMessage raidInstanceMessage;
+    raidInstanceMessage.Type = type;
+    raidInstanceMessage.MapID = mapid;
+    raidInstanceMessage.DifficultyID = difficulty;
+    if (InstancePlayerBind const* bind = GetBoundInstance(mapid, difficulty))
+        raidInstanceMessage.Locked = bind->perm;
+    else
+        raidInstanceMessage.Locked = false;
+    raidInstanceMessage.Extended = false;
+    SendDirectMessage(raidInstanceMessage.Write());
+}
+
 
 void Player::ApplyEquipCooldown(Item* pItem)
 {

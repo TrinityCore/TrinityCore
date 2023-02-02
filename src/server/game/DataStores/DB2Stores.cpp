@@ -2715,6 +2715,12 @@ uint32 DB2Manager::GetLiquidFlags(uint32 liquidType)
     return 0;
 }
 
+DB2Manager::MapDifficultyContainer const& DB2Manager::GetMapDifficulties() const
+{
+    return _mapDifficulties;
+}
+
+
 MapDifficultyEntry const* DB2Manager::GetDefaultMapDifficulty(uint32 mapId, Difficulty* difficulty /*= nullptr*/) const
 {
     auto itr = _mapDifficulties.find(mapId);

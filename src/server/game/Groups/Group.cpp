@@ -1403,6 +1403,31 @@ void Group::LinkOwnedInstance(GroupInstanceReference* ref)
     m_ownedInstancesMgr.insertLast(ref);
 }
 
+void Group::UnbindInstance(uint32 mapid, uint8 difficulty, bool unload)
+{
+    auto difficultyItr = m_boundInstances.find(Difficulty(difficulty));
+    if (difficultyItr == m_boundInstances.end())
+        return;
+
+    auto itr = difficultyItr->second.find(mapid);
+    if (itr != difficultyItr->second.end())
+    {
+        if (!unload)
+        {
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_INSTANCE_BY_GUID);
+
+            stmt->setUInt32(0, m_dbStoreId);
+            stmt->setUInt32(1, itr->second.save->GetInstanceId());
+
+            CharacterDatabase.Execute(stmt);
+        }
+
+        itr->second.save->RemoveGroup(this);                // save can become invalid
+        difficultyItr->second.erase(itr);
+    }
+}
+
+
 void Group::_homebindIfInstance(Player* player)
 {
     if (player && !player->IsGameMaster() && sMapStore.LookupEntry(player->GetMapId())->IsDungeon())

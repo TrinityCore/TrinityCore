@@ -37,6 +37,60 @@ InstanceScenario::InstanceScenario(InstanceMap const* map, ScenarioData const* s
             SendScenarioState(player);
 }
 
+void InstanceScenario::SaveToDB()
+{
+    if (_criteriaProgress.empty())
+        return;
+
+    DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(_map->GetDifficultyID());
+    if (!difficultyEntry || difficultyEntry->Flags & DIFFICULTY_FLAG_CHALLENGE_MODE) // Map should have some sort of "CanSave" boolean that returns whether or not the map is savable. (Challenge modes cannot be saved for example)
+        return;
+
+    uint32 id = _map->GetInstanceId();
+    if (!id)
+    {
+        TC_LOG_DEBUG("scenario", "Scenario::SaveToDB: Can not save scenario progress without an instance save. Map::GetInstanceId() did not return an instance save.");
+        return;
+    }
+
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+    for (auto iter = _criteriaProgress.begin(); iter != _criteriaProgress.end(); ++iter)
+    {
+        if (!iter->second.Changed)
+            continue;
+
+        Criteria const* criteria = sCriteriaMgr->GetCriteria(iter->first);
+        switch (CriteriaTypes(criteria->Entry->Type))
+        {
+            // Blizzard only appears to store creature kills
+        case CRITERIA_TYPE_KILL_CREATURE:
+            break;
+        default:
+            continue;
+        }
+
+        if (iter->second.Counter)
+        {
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_SCENARIO_INSTANCE_CRITERIA);
+            stmt->setUInt32(0, id);
+            stmt->setUInt32(1, iter->first);
+            trans->Append(stmt);
+
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_SCENARIO_INSTANCE_CRITERIA);
+            stmt->setUInt32(0, id);
+            stmt->setUInt32(1, iter->first);
+            stmt->setUInt64(2, iter->second.Counter);
+            stmt->setInt64(3, iter->second.Date);
+            trans->Append(stmt);
+        }
+
+        iter->second.Changed = false;
+    }
+
+    CharacterDatabase.CommitTransaction(trans);
+}
+
+
 void InstanceScenario::LoadInstanceData()
 {
     InstanceScript const* instanceScript = _map->GetInstanceScript();

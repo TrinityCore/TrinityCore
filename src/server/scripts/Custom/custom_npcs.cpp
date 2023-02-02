@@ -1070,7 +1070,7 @@ public:
         npc_hallegosaAI(Creature* creature) : ScriptedAI(creature) {}
 
         EventMap events;
-        uint8 curPoint;
+        uint8 curPoint=0;//原先没有定义初值
 
         void OnQuestAccept(Player* player, Quest const* quest) 
         {
@@ -1142,8 +1142,13 @@ public:
                     break;
                 case EVENT_HALLEGOSA_END:
                     me->SummonCreature(53392, ((me->GetMapId() == 1) ? Pos2[8] : Pos1[4]), TEMPSUMMON_TIMED_DESPAWN, 95000, 0, ObjectGuid::Empty);
+
+                    //TempSummon* npc = player->SummonCreature(8000000, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, minutesforassist * 60000, ObjectGuid::Empty);//ObjectGuid privateObjectOwner /* = ObjectGuid::Empty */
+                    //TempSummon* npc = me->SummonCreature(53392, ((me->GetMapId() == 1) ? Pos2[8] : Pos1[4]), TEMPSUMMON_TIMED_DESPAWN, 95000, 0, ObjectGuid::Empty);
+
+                    //TempSummon* npc= 是我后加的
                     break;
-                default:
+                //default:
                     break;
                 }
             }

@@ -42,7 +42,7 @@ target_link_libraries(game-interface
     Detour)
 
 add_library(game
-  ${PRIVATE_SOURCES} "Globals/BattlePetDataStore.cpp" )
+  ${PRIVATE_SOURCES} "Globals/BattlePetDataStore.cpp"  "Instances/InstanceSaveMgr.cpp")
 
 target_include_directories(game
   PRIVATE

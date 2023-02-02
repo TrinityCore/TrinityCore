@@ -366,6 +366,8 @@ class TC_GAME_API Group
 
         void LinkOwnedInstance(GroupInstanceReference* ref);
 
+        
+		void UnbindInstance(uint32 mapid, uint8 difficulty, bool unload = false);
         void StartLeaderOfflineTimer();
         void StopLeaderOfflineTimer();
         void SelectNewPartyOrRaidLeader();

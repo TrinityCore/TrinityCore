@@ -524,6 +524,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void DeleteRespawnTimes() { UnloadAllRespawnInfos(); DeleteRespawnTimesInDB(); }
         void DeleteRespawnTimesInDB();
 
+        void DeleteRespawnTimesInDB(uint16 mapId, uint32 instanceId);
+
         void LoadCorpseData();
         void DeleteCorpseData();
         void AddCorpse(Corpse* corpse);
@@ -866,8 +868,23 @@ enum class InstanceResetMethod : uint8
 {
     Manual,
     OnChangeDifficulty,
+
+    INSTANCE_RESET_GLOBAL,
+
+    INSTANCE_RESET_RESPAWN_DELAY,
     Expire
 };
+
+//enum class InstanceResetMethod  //后加,如果报错,删除
+//{
+//    Manual,
+//    OnChangeDifficulty,
+//
+//    INSTANCE_RESET_GLOBAL,
+//
+//    INSTANCE_RESET_RESPAWN_DELAY,
+//    Expire
+//};
 
 enum class InstanceResetResult : uint8
 {
@@ -888,6 +905,7 @@ class TC_GAME_API InstanceMap : public Map
         InstanceResetResult Reset(InstanceResetMethod method);
         uint32 GetScriptId() const { return i_script_id; }
         std::string const& GetScriptName() const;
+		void SendResetWarnings(uint32 timeLeft) const;
         InstanceScript* GetInstanceScript() { return i_data; }
         InstanceScript const* GetInstanceScript() const { return i_data; }
         InstanceScenario* GetInstanceScenario() { return i_scenario; }

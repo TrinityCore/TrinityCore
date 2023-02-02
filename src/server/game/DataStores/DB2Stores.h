@@ -442,7 +442,9 @@ public:
     static LFGDungeonsEntry const* GetLfgDungeon(uint32 mapId, Difficulty difficulty);
     static uint32 GetDefaultMapLight(uint32 mapId);
     static uint32 GetLiquidFlags(uint32 liquidType);
-    MapDifficultyEntry const* GetDefaultMapDifficulty(uint32 mapId, Difficulty* difficulty = nullptr) const;
+	using MapDifficultyContainer = std::unordered_map<uint32, std::unordered_map<uint32, MapDifficultyEntry const*>>;
+    MapDifficultyContainer const& GetMapDifficulties() const;
+	MapDifficultyEntry const* GetDefaultMapDifficulty(uint32 mapId, Difficulty* difficulty = nullptr) const;
     MapDifficultyEntry const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty) const;
     MapDifficultyEntry const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &difficulty) const;
     MapDifficultyConditionsContainer const* GetMapDifficultyConditions(uint32 mapDifficultyId) const;
