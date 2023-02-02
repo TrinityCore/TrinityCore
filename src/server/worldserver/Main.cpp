@@ -70,7 +70,7 @@ using namespace boost::program_options;
 namespace fs = boost::filesystem;
 
 #ifndef _TRINITY_CORE_CONFIG
-    #define _TRINITY_CORE_CONFIG  "worldserver.conf"
+    #define _TRINITY_CORE_CONFIG  "worldserver.conf"    //此处可以修改配置文件名,计划直接用dist
 #endif
 
 #ifdef _WIN32
@@ -558,15 +558,18 @@ void FreezeDetector::Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, bo
                 freezeDetector->_lastChangeMsTime = curtime;
                 freezeDetector->_worldLoopCounter = worldLoopCounter;
             }
-            // possible freeze
+            // possible freeze  //可能的冻结
             else
             {
                 uint32 msTimeDiff = getMSTimeDiff(freezeDetector->_lastChangeMsTime, curtime);
-                if (msTimeDiff > freezeDetector->_maxCoreStuckTimeInMs)
+
+              /*  if (msTimeDiff > freezeDetector->_maxCoreStuckTimeInMs)
                 {
                     TC_LOG_ERROR("server.worldserver", "World Thread hangs for {} ms, forcing a crash!", msTimeDiff);
                     ABORT_MSG("World Thread hangs for %u ms, forcing a crash!", msTimeDiff);
-                }
+                }*/
+                //增加了逍遥837的creature数据后,经常宕机,尝试把此处注释,看能不能缓解
+
             }
 
             freezeDetector->_timer.expires_from_now(boost::posix_time::seconds(1));

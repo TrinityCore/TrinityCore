@@ -49,6 +49,16 @@ namespace WorldPackets
             void Read() override { }
         };
 
+        class QuestGiverStatusTrackedQuery final : public ClientPacket
+        {
+        public:
+            QuestGiverStatusTrackedQuery(WorldPacket&& packet) : ClientPacket(CMSG_QUEST_GIVER_STATUS_TRACKED_QUERY, std::move(packet)) { }
+
+            void Read() override;
+
+            GuidUnorderedSet QuestGiverGUIDs;
+        };
+
         struct QuestGiverInfo
         {
             QuestGiverInfo() { }

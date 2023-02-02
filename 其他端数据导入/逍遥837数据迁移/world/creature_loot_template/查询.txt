@@ -1,0 +1,10 @@
+SELECT * FROM creature_loot_template_xy837 WHERE NOT EXISTS (SELECT 1 FROM creature_loot_template_org WHERE creature_loot_template_xy837.Entry= creature_loot_template_org.Entry);
+2023_01_31_04_world.sql
+
+补充数据
+SELECT * FROM creature_loot_template_xy837 WHERE NOT EXISTS (SELECT 1 FROM creature_loot_template_org WHERE creature_loot_template_xy837.Entry= creature_loot_template_org.Entry and creature_loot_template_xy837.Item= creature_loot_template_org.Item);
+2023_02_01_02_world
+
+
+
+

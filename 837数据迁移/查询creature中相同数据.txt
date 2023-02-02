@@ -1,7 +1,0 @@
-SELECT * FROM (
-   SELECT 'table1' tname, col1, col2, col3 FROM creature@world(TrinityCore-master)
-   UNION ALL
-   SELECT 'table2' tname, col1, col2, col3 FROM creature@world(逍遥837)
-) t
-GROUP BY col1, col2, col3
-HAVING count(*) = 1;

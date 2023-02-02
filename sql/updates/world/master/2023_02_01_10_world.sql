@@ -1,0 +1,1 @@
+UPDATE creature_template inner join creature_template_xy837 ON (creature_template.entry = creature_template_xy837.entry and creature_template.lootid=0 and creature_template_xy837.lootid!=0) SET creature_template.lootid = creature_template_xy837.lootid;

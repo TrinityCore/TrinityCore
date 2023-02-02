@@ -56,7 +56,7 @@ using namespace boost::program_options;
 namespace fs = boost::filesystem;
 
 #ifndef _TRINITY_BNET_CONFIG
-# define _TRINITY_BNET_CONFIG  "bnetserver.conf"
+# define _TRINITY_BNET_CONFIG  "bnetserver.conf"    //此处可以修改配置文件名,计划直接用dist
 #endif
 
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS

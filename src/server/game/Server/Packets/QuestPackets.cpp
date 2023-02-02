@@ -45,6 +45,22 @@ void QuestGiverStatusQuery::Read()
     _worldPacket >> QuestGiverGUID;
 }
 
+void QuestGiverStatusTrackedQuery::Read()
+{
+    uint32 guidCount = 0;
+    _worldPacket >> guidCount;
+    if (guidCount > 1000)
+        throw PacketArrayMaxCapacityException(guidCount, 1000);
+
+    QuestGiverGUIDs.reserve(guidCount);
+    for (uint32 i = 0; i < guidCount; ++i)
+    {
+        ObjectGuid guid;
+        _worldPacket >> guid;
+        QuestGiverGUIDs.insert(guid);
+    }
+}
+
 WorldPacket const* QuestGiverStatus::Write()
 {
     _worldPacket << QuestGiver.Guid;

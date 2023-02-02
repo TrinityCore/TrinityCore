@@ -1,0 +1,32 @@
+show variables like '';
+
+SET GLOBAL var_name = value;
+
+读缓冲
+
+SET read_buffer_size = 81920;
+
+//这个有效,已使用
+
+show variables like 'innodb_buffer_pool_size';
+show variables like '%nodb_buffe%';//有,很多
+SET GLOBAL innodb_buffer_pool_size = value;
+
+超时
+show variables like '%maxWait%';//无
+
+
+set global wait_timeout=28800;
+set global delayed_insert_timeout=3000;
+
+set global connect_timeout=100;
+
+show variables like 'max_allowed_packet';
+
+set global max_allowed_packet=41943040;
+//原来的值为:4194304
+set global max_allowed_packet=91943040;
+
+
+最终解决方法,去my.ini,搜索max_allowed_packet,把值设为64M即可.
+

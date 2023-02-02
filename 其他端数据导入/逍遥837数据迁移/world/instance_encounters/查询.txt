@@ -1,0 +1,1 @@
+SELECT * FROM instance_encounters_xy837 WHERE NOT EXISTS (SELECT 1 FROM instance_encounters_org WHERE instance_encounters_xy837.entry= instance_encounters_org.entry);

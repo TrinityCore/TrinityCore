@@ -1,0 +1,2 @@
+SELECT * FROM instance_template_kyrian_ui WHERE NOT EXISTS (SELECT 1 FROM instance_template_org WHERE instance_template_kyrian_ui.map= instance_template_org.map);
+2023_02_01_01_world
