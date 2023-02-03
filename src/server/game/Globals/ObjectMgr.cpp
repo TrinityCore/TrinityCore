@@ -3349,7 +3349,6 @@ struct ItemSpecStats
 void ObjectMgr::LoadItemTemplates()
 {
     uint32 oldMSTime = getMSTime();
-    uint32 sparseCount = 0;
 
     for (ItemSparseEntry const* sparse : sItemSparseStore)
     {
@@ -3427,8 +3426,6 @@ void ObjectMgr::LoadItemTemplates()
         for (auto& specs : itemTemplate.Specializations)
             if (specs.count() == 0)
                 specs.set();
-
-        ++sparseCount;
     }
 
     // Load item effects (spells)
@@ -6532,7 +6529,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
         return;                                             // any mails need to be returned or deleted
     }
 
-    std::map<uint32 /*messageId*/, MailItemInfoVec> itemsCache;
+    std::map<uint64 /*messageId*/, MailItemInfoVec> itemsCache;
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_EXPIRED_MAIL_ITEMS);
     stmt->setUInt32(0, curTime);
     if (PreparedQueryResult items = CharacterDatabase.Query(stmt))
@@ -6543,7 +6540,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
             Field* fields = items->Fetch();
             item.item_guid = fields[0].GetUInt64();
             item.item_template = fields[1].GetUInt32();
-            uint32 mailId = fields[2].GetUInt32();
+            uint64 mailId = fields[2].GetUInt64();
             itemsCache[mailId].push_back(item);
         } while (items->NextRow());
     }
@@ -6558,7 +6555,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
             continue;
 
         Mail* m = new Mail;
-        m->messageID      = fields[0].GetUInt32();
+        m->messageID      = fields[0].GetUInt64();
         m->messageType    = fields[1].GetUInt8();
         m->sender         = fields[2].GetUInt64();
         m->receiver       = receiver;
@@ -6588,7 +6585,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
                 }
 
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM_BY_ID);
-                stmt->setUInt32(0, m->messageID);
+                stmt->setUInt64(0, m->messageID);
                 CharacterDatabase.Execute(stmt);
             }
             else
@@ -6600,7 +6597,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
                 stmt->setInt64 (2, curTime + 30 * DAY);
                 stmt->setInt64 (3, curTime);
                 stmt->setUInt8 (4, uint8(MAIL_CHECK_MASK_RETURNED));
-                stmt->setUInt32(5, m->messageID);
+                stmt->setUInt64(5, m->messageID);
                 CharacterDatabase.Execute(stmt);
                 for (MailItemInfoVec::iterator itr2 = m->items.begin(); itr2 != m->items.end(); ++itr2)
                 {
@@ -6622,7 +6619,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
         }
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_BY_ID);
-        stmt->setUInt32(0, m->messageID);
+        stmt->setUInt64(0, m->messageID);
         CharacterDatabase.Execute(stmt);
         delete m;
         ++deletedCount;
@@ -7518,7 +7515,7 @@ void ObjectMgr::SetHighestGuids()
 
     result = CharacterDatabase.Query("SELECT MAX(id) FROM mail");
     if (result)
-        _mailId = (*result)[0].GetUInt32()+1;
+        _mailId = (*result)[0].GetUInt64()+1;
 
     result = CharacterDatabase.Query("SELECT MAX(arenateamid) FROM arena_team");
     if (result)
@@ -7578,9 +7575,9 @@ uint64 ObjectMgr::GenerateEquipmentSetGuid()
     return _equipmentSetGuid++;
 }
 
-uint32 ObjectMgr::GenerateMailID()
+uint64 ObjectMgr::GenerateMailID()
 {
-    if (_mailId >= 0xFFFFFFFE)
+    if (_mailId >= UI64LIT(0xFFFFFFFFFFFFFFFE))
     {
         TC_LOG_ERROR("misc", "Mail ids overflow!! Can't continue, shutting down server. Search on forum for TCE00007 for more info. ");
         World::StopNow(ERROR_EXIT_CODE);
@@ -10953,7 +10950,6 @@ void ObjectMgr::LoadRaceAndClassExpansionRequirements()
 
     if (result)
     {
-        uint32 count = 0;
         do
         {
             Field* fields = result->Fetch();
@@ -10984,8 +10980,6 @@ void ObjectMgr::LoadRaceAndClassExpansionRequirements()
             RaceUnlockRequirement& raceUnlockRequirement = _raceUnlockRequirementStore[raceID];
             raceUnlockRequirement.Expansion = expansion;
             raceUnlockRequirement.AchievementId = achievementId;
-
-            ++count;
         }
         while (result->NextRow());
         TC_LOG_INFO("server.loading", ">> Loaded {} race expansion requirements in {} ms.", _raceUnlockRequirementStore.size(), GetMSTimeDiffToNow(oldMSTime));

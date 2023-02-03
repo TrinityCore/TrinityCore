@@ -1,0 +1,23 @@
+来源:https://blog.csdn.net/u014643282/article/details/113367002
+
+假设要将A分支的某次提交挪至B分支
+
+1、首先切换至A分支
+执行命令
+git log
+找到我们要移动的更新记录id并复制ta
+
+附加:git log -n4 (查看最近的4个提交)
+ 
+2、切换至B分支，将B分支代码更新至最新
+执行命令
+git cherry-pick commitId(刚才复制的commitId)
+ 
+3、如果有冲突，将冲突处理完进行提交，若无冲突直接
+git push orgin B 
+ 
+即可
+ 
+————————————————
+版权声明：本文为CSDN博主「BIGfamer」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/u014643282/article/details/113367002

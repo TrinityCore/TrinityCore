@@ -30,11 +30,12 @@ ByteBuffer& operator<<(ByteBuffer& data, SpellReducedReagent const& spellReduced
 ByteBuffer& operator<<(ByteBuffer& data, CraftingData const& craftingData)
 {
     data << int32(craftingData.CraftingQualityID);
-    data << int32(craftingData.field_4);
-    data << int32(craftingData.field_8);
+    data << float(craftingData.QualityProgress);
+    data << int32(craftingData.SkillLineAbilityID);
+    data << int32(craftingData.CraftingDataID);
     data << int32(craftingData.Multicraft);
-    data << int32(craftingData.field_10);
-    data << int32(craftingData.field_14);
+    data << int32(craftingData.SkillFromReagents);
+    data << int32(craftingData.Skill);
     data << int32(craftingData.CritBonusSkill);
     data << float(craftingData.field_1C);
     data << uint64(craftingData.field_20);

@@ -33,6 +33,8 @@
 #include "PlayerTaxi.h"
 #include "QuestDef.h"
 #include "SceneMgr.h"
+#include <BattlePet.h>
+#include <InstanceSaveMgr.h>
 
 struct AccessRequirement;
 struct AchievementEntry;
@@ -297,7 +299,9 @@ struct PlayerCurrency
     uint32 Quantity;
     uint32 WeeklyQuantity;
     uint32 TrackedQuantity;
-    uint8 Flags;
+    uint32 IncreasedCapQuantity;
+    uint32 EarnedQuantity;
+    CurrencyDbFlags Flags;
 };
 
 typedef std::unordered_map<uint32, PlayerSpellState> PlayerTalentMap;
@@ -930,6 +934,31 @@ enum PlayerDelayedOperations
 // Maximum money amount : 2^31 - 1
 TC_GAME_API extern uint64 const MAX_MONEY_AMOUNT;
 
+enum BindExtensionState
+{
+    EXTEND_STATE_EXPIRED = 0,
+    EXTEND_STATE_NORMAL = 1,
+    EXTEND_STATE_EXTENDED = 2,
+    EXTEND_STATE_KEEP = 255   // special state: keep current save type
+};
+
+struct InstancePlayerBind
+{
+    InstanceSave* save;
+    /* permanent PlayerInstanceBinds are created in Raid/Heroic instances for players
+    that aren't already permanently bound when they are inside when a boss is killed
+    or when they enter an instance that the group leader is permanently bound to. */
+    bool perm;
+    /* extend state listing:
+    EXPIRED  - doesn't affect anything unless manually re-extended by player
+    NORMAL   - standard state
+    EXTENDED - won't be promoted to EXPIRED at next reset period, will instead be promoted to NORMAL
+    */
+    BindExtensionState extendState;
+
+    InstancePlayerBind() : save(nullptr), perm(false), extendState(EXTEND_STATE_NORMAL) { }
+};
+
 enum CharDeleteMethod
 {
     CHAR_DELETE_REMOVE = 0,                      // Completely remove from the database
@@ -1145,6 +1174,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendSummonRequestFrom(Unit* summoner);
         void SummonIfPossible(bool agree);
 
+        uint32 GetUnlockedPetBattleSlot();
+
         bool Create(ObjectGuid::LowType guidlow, WorldPackets::Character::CharacterCreateInfo const* createInfo);
 
         void Update(uint32 time) override;
@@ -1157,6 +1188,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendInitialPacketsAfterAddToMap();
         void SendSupercededSpell(uint32 oldSpell, uint32 newSpell) const;
         void SendTransferAborted(uint32 mapid, TransferAbortReason reason, uint8 arg = 0, int32 mapDifficultyXConditionID = 0) const;
+        void SendInstanceResetWarning(uint32 mapid, Difficulty difficulty, uint32 time, bool welcome) const;
 
         bool CanInteractWithQuestGiver(Object* questGiver) const;
         Creature* GetNPCIfCanInteractWith(ObjectGuid const& guid, NPCFlags npcFlags, NPCFlags2 npcFlags2) const;
@@ -1434,36 +1466,29 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void AddRefundReference(ObjectGuid it);
         void DeleteRefundReference(ObjectGuid it);
 
-        /// send initialization of new currency for client
-        void SendNewCurrency(uint32 id) const;
-        /// send full data about all currencies to client
+        /// Send full data about all currencies to client
         void SendCurrencies() const;
-        /// send conquest currency points and their cap week/arena
+        /// Send conquest currency points and their cap week/arena
         void SendPvpRewards() const;
-        /// return count of currency witch has plr
-        uint32 GetCurrency(uint32 id) const;
-        /// return count of currency gaind on current week
-        uint32 GetCurrencyOnWeek(uint32 id) const;
-        /// return week cap by currency id
-        uint32 GetCurrencyWeekCap(uint32 id) const;
-        /// return tracked currency count by currency id
-        uint32 GetTrackedCurrencyCount(uint32 id) const;
-        /// return presence related currency
-        bool HasCurrency(uint32 id, uint32 count) const;
-        /// initialize currency count for custom initialization at create character
-        void SetCreateCurrency(uint32 id, uint32 count, bool printLog = true);
+        /// Initialize currency amount for custom initialization at create character
+        void SetCreateCurrency(uint32 id, uint32 amount);
+        /// Modify currency amount
+        void ModifyCurrency(uint32 id, int32 amount, CurrencyGainSource gainSource = CurrencyGainSource::Cheat, CurrencyDestroyReason destroyReason = CurrencyDestroyReason::Cheat);
+        void AddCurrency(uint32 id, uint32 amount, CurrencyGainSource gainSource = CurrencyGainSource::Cheat);
+        void RemoveCurrency(uint32 id, int32 amount, CurrencyDestroyReason destroyReason = CurrencyDestroyReason::Cheat);
+        /// Increase currency cap
+        void IncreaseCurrencyCap(uint32 id, uint32 amount);
+        /// Reset weekly quantity
         void ResetCurrencyWeekCap();
 
-        /**
-          * @name   ModifyCurrency
-          * @brief  Change specific currency and send result to client
-
-          * @param  id currency entry from CurrencyTypes.dbc
-          * @param  count integer value for adding/removing curent currency
-          * @param  printLog used on SMSG_SET_CURRENCY
-          * @param  ignore gain multipliers
-        */
-        void ModifyCurrency(uint32 id, int32 count, bool printLog = true, bool ignoreMultipliers = false);
+        uint32 GetCurrencyQuantity(uint32 id) const;
+        uint32 GetCurrencyWeeklyQuantity(uint32 id) const;
+        uint32 GetCurrencyTrackedQuantity(uint32 id) const;
+        uint32 GetCurrencyIncreasedCapQuantity(uint32 id) const;
+        uint32 GetCurrencyMaxQuantity(CurrencyTypesEntry const* currency, bool onLoad = false, bool onUpdateVersion = false) const;
+        uint32 GetCurrencyWeeklyCap(uint32 id) const;
+        uint32 GetCurrencyWeeklyCap(CurrencyTypesEntry const* currency) const;
+        bool HasCurrency(uint32 id, uint32 amount) const;
 
         void SetInvSlot(uint32 slot, ObjectGuid guid) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::InvSlots, slot), guid); }
 
@@ -1607,7 +1632,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetQuestStatus(uint32 questId, QuestStatus status, bool update = true);
         void RemoveActiveQuest(uint32 questId, bool update = true);
         void RemoveRewardedQuest(uint32 questId, bool update = true);
-        void SendQuestUpdate(uint32 questId);
+        bool SendQuestUpdate(uint32 questId, bool updateVisiblity = true);
         QuestGiverStatus GetQuestDialogStatus(Object* questGiver);
 
         void SetDailyQuestStatus(uint32 quest_id);
@@ -1674,6 +1699,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendQuestUpdateAddCreditSimple(QuestObjective const& obj) const;
         void SendQuestUpdateAddPlayer(Quest const* quest, uint16 newCount) const;
         void SendQuestGiverStatusMultiple();
+        void SendQuestGiverStatusMultiple(GuidUnorderedSet const& guids);
         void SendDisplayToast(uint32 entry, DisplayToastType type, bool isBonusRoll, uint32 quantity, DisplayToastMethod method, uint32 questId = 0, Item* item = nullptr) const;
 
         uint32 GetSharedQuestID() const { return m_sharedQuestId; }
@@ -1760,16 +1786,16 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetTarget(ObjectGuid const& /*guid*/) override { } /// Used for serverside target changes, does not apply to players
         void SetSelection(ObjectGuid const& guid) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Target), guid); }
 
-        void SendMailResult(uint32 mailId, MailResponseType mailAction, MailResponseResult mailError, uint32 equipError = 0, ObjectGuid::LowType item_guid = UI64LIT(0), uint32 item_count = 0) const;
+        void SendMailResult(uint64 mailId, MailResponseType mailAction, MailResponseResult mailError, uint32 equipError = 0, ObjectGuid::LowType itemGuid = UI64LIT(0), uint32 itemCount = 0) const;
         void SendNewMail() const;
         void UpdateNextMailTimeAndUnreads();
         void AddNewMailDeliverTime(time_t deliver_time);
 
-        void RemoveMail(uint32 id);
+        void RemoveMail(uint64 id);
 
         void AddMail(Mail* mail) { m_mail.push_front(mail);}// for call from WorldSession::SendMailTo
         uint32 GetMailSize() const { return uint32(m_mail.size()); }
-        Mail* GetMail(uint32 id);
+        Mail* GetMail(uint64 id);
 
         PlayerMails const& GetMails() const { return m_mail; }
 
@@ -2571,6 +2597,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         /*********************************************************/
         /***                 INSTANCE SYSTEM                   ***/
         /*********************************************************/
+        typedef std::unordered_map<Difficulty, std::unordered_map<uint32 /*mapId*/, InstancePlayerBind>> BoundInstancesMap;
 
         void UpdateHomebindTime(uint32 time);
 
@@ -2704,9 +2731,12 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool SwapVoidStorageItem(uint8 oldSlot, uint8 newSlot);
         VoidStorageItem* GetVoidStorageItem(uint8 slot) const;
         VoidStorageItem* GetVoidStorageItem(uint64 id, uint8& slot) const;
-//        float GetPersonnalXpRate() { return _PersonnalXpRate; }//后加
-//        void SetPersonnalXpRate(float PersonnalXpRate);//后加
-
+        float GetPersonnalXpRate() { return _PersonnalXpRate; }//后加
+        void SetPersonnalXpRate(float PersonnalXpRate);
+        std::shared_ptr<BattlePet>* GetBattlePetCombatTeam();
+        bool HasBattlePetTraining();
+        //后加
+        std::shared_ptr<BattlePet> _battlePetCombatTeam[3];
         // Reagent Bank
         bool IsReagentBankUnlocked() const { return HasPlayerFlagEx(PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED); }
         void UnlockReagentBank() { SetPlayerFlagEx(PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED); }
@@ -2927,10 +2957,22 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _LoadVoidStorage(PreparedQueryResult result);
         void _LoadMail(PreparedQueryResult mailsResult, PreparedQueryResult mailItemsResult, PreparedQueryResult artifactResult, PreparedQueryResult azeriteItemResult,
             PreparedQueryResult azeriteItemMilestonePowersResult, PreparedQueryResult azeriteItemUnlockedEssencesResult, PreparedQueryResult azeriteEmpoweredItemResult);
-        static Item* _LoadMailedItem(ObjectGuid const& playerGuid, Player* player, uint32 mailId, Mail* mail, Field* fields, ItemAdditionalLoadInfo* addionalData);
+        static Item* _LoadMailedItem(ObjectGuid const& playerGuid, Player* player, uint64 mailId, Mail* mail, Field* fields, ItemAdditionalLoadInfo* addionalData);
         void _LoadQuestStatus(PreparedQueryResult result);
         void _LoadQuestStatusObjectives(PreparedQueryResult result);
         void _LoadQuestStatusRewarded(PreparedQueryResult result);
+       // void UnbindInstance(BoundInstancesMap::mapped_type::iterator& itr, BoundInstancesMap::iterator& difficultyItr, bool unload);
+        void UnbindInstance(BoundInstancesMap::mapped_type::iterator& itr, BoundInstancesMap::iterator& difficultyItr, bool unload = false);
+
+        //void UnbindInstance(uint32 mapid, Difficulty difficulty, bool unload);//系统自动生成
+        void UnbindInstance(uint32 mapid, Difficulty difficulty, bool unload = false);
+        //void UnbindInstance(uint32 mapid, Difficulty difficulty, bool unload);
+        typedef std::unordered_map<Difficulty, std::unordered_map<uint32 /*mapId*/, InstancePlayerBind>> BoundInstancesMap;
+        BoundInstancesMap m_boundInstances;
+        //InstancePlayerBind* GetBoundInstance(uint32 mapid, Difficulty difficulty, bool withExpired);//系统自动定义
+        InstancePlayerBind* GetBoundInstance(uint32 mapid, Difficulty difficulty, bool withExpired = false);//后注释,发现不行
+        InstancePlayerBind const* GetBoundInstance(uint32 mapid, Difficulty difficulty) const;
+
         void _LoadDailyQuestStatus(PreparedQueryResult result);
         void _LoadWeeklyQuestStatus(PreparedQueryResult result);
         void _LoadMonthlyQuestStatus(PreparedQueryResult result);
@@ -3013,22 +3055,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 m_currentBuybackSlot;
 
         PlayerCurrenciesMap _currencyStorage;
-
-        /**
-          * @name   GetCurrencyWeekCap
-          * @brief  return week cap for selected currency
-
-          * @param  CurrencyTypesEntry for which to retrieve weekly cap
-        */
-        uint32 GetCurrencyWeekCap(CurrencyTypesEntry const* currency) const;
-
-        /*
-         * @name   GetCurrencyTotalCap
-         * @brief  return total cap for selected currency
-
-         * @param  CurrencyTypesEntry for which to retrieve total cap
-         */
-        uint32 GetCurrencyTotalCap(CurrencyTypesEntry const* currency) const;
 
         VoidStorageItem* _voidStorageItems[VOID_STORAGE_MAX_SLOT];
 
@@ -3216,6 +3242,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 _activeCheats;
 
         std::unique_ptr<Garrison> _garrison;
+
+        float _PersonnalXpRate;
 
         bool _advancedCombatLoggingEnabled;
 

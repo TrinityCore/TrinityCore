@@ -108,15 +108,15 @@ namespace WorldPackets
 
             int32 Type = 0;
             int32 Quantity = 0;
-            uint32 Flags = 0;
+            CurrencyGainFlags Flags = CurrencyGainFlags(0);
             std::vector<Item::UiEventToast> Toasts;
             Optional<int32> WeeklyQuantity;
             Optional<int32> TrackedQuantity;
             Optional<int32> MaxQuantity;
             Optional<int32> TotalEarned;
             Optional<int32> QuantityChange;
-            Optional<int32> QuantityGainSource;
-            Optional<int32> QuantityLostSource;
+            Optional<CurrencyGainSource> QuantityGainSource;
+            Optional<CurrencyDestroyReason> QuantityLostSource;
             Optional<uint32> FirstCraftOperationID;
             Optional<Timestamp<>> LastSpendTime;
             bool SuppressChatLog = false;
@@ -145,7 +145,7 @@ namespace WorldPackets
                 Optional<int32> MaxQuantity;
                 Optional<int32> TotalEarned;
                 Optional<Timestamp<>> LastSpendTime;
-                uint8 Flags = 0;                      // 0 = none,
+                uint8 Flags = 0;
             };
 
             SetupCurrency() : ServerPacket(SMSG_SETUP_CURRENCY, 22) { }
@@ -937,7 +937,7 @@ namespace WorldPackets
 
             StartTimer() : ServerPacket(SMSG_START_TIMER, 12) { }
 
-            class IslandAzeriteXpGain final : public ServerPacket //后加
+            class IslandAzeriteXpGain final : public ServerPacket //���
             {
             public:
                 IslandAzeriteXpGain() : ServerPacket(SMSG_ISLAND_AZERITE_GAIN, 4 + 36 + 36 + 4) { }

@@ -1,0 +1,4 @@
+SELECT * FROM lfg_dungeon_template_kyrian_ui WHERE NOT EXISTS (SELECT 1 FROM lfg_dungeon_template_org WHERE lfg_dungeon_template_kyrian_ui.dungeonId= lfg_dungeon_template_org.dungeonId);
+
+
+2023_01_31_13_world

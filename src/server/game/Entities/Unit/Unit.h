@@ -1278,6 +1278,8 @@ class TC_GAME_API Unit : public WorldObject
         ObjectGuid GetCharmedGUID() const { return m_unitData->Charm; }
         Unit* GetCharmed() const { return m_charmed; }
 
+        ObjectGuid _petBattleId;
+
         bool IsControlledByPlayer() const { return m_ControlledByPlayer; }
         Player* GetControllingPlayer() const;
         ObjectGuid GetCharmerOrOwnerGUID() const override { return IsCharmed() ? GetCharmerGUID() : GetOwnerGUID(); }

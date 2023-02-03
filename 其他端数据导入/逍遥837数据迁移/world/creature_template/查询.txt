@@ -1,0 +1,23 @@
+第一次更新
+SELECT * FROM creature_template_xy837 WHERE NOT EXISTS (SELECT 1 FROM creature_template_org WHERE creature_template_xy837.Entry= creature_template_org.Entry);
+此处为本页更新过的语句
+2023_01_31_05_world
+
+第二次更新
+UPDATE creature_template inner join creature_template_xy837 ON (creature_template.entry = creature_template_xy837.entry and creature_template.lootid=0 and creature_template_xy837.lootid!=0) SET creature_template.lootid = creature_template_xy837.lootid;
+为防止出现不可逆转错误,将原表备份(注意此处的表是更新过1次的,更新语句1为本页开头的),名称为:creature_template_updated_1_copy
+
+2023_02_01_10_world
+简化版(A是creature_template,B是creature_template_xy837)
+UPDATE A inner join B ON (A.entry = B.entry and A.lootid=0 and B.lootid!=0) SET A.lootid = B.lootid;
+
+注意:此语句要求存在creature_template_xy837表,更新TDB后不再需要
+
+UPDATE A inner join B ON (A.entry = B.entry and A.lootid=0 and B.lootid!=0) SET A.lootid = B.lootid;
+select entry FROM creature_template_xy837 WHERE EXISTS(SELECT 1 FROM creature_template WHERE creature_template_xy837.Entry= creature_template.Entry and creature_template.lootid!=creature_template_xy837.lootid);
+16633条
+select entry FROM creature_template WHERE EXISTS(SELECT 1 FROM creature_template_xy837 WHERE creature_template_xy837.entry= creature_template.entry and creature_template.lootid!=creature_template_xy837.lootid);
+16633条
+
+
+

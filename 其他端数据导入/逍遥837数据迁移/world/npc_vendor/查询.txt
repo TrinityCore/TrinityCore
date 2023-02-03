@@ -1,0 +1,1 @@
+SELECT * FROM npc_vendor_xy837 WHERE NOT EXISTS (SELECT 1 FROM npc_vendor_org WHERE npc_vendor_xy837.entry= npc_vendor_org.entry);

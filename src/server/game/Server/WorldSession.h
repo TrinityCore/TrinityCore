@@ -39,6 +39,7 @@
 #include <map>
 #include <memory>
 #include <unordered_map>
+#include <PetBattle.h>
 
 class BlackMarketEntry;
 class CollectionMgr;
@@ -641,6 +642,7 @@ namespace WorldPackets
         class QuestConfirmAccept;
         class QuestGiverStatusQuery;
         class QuestGiverStatusMultipleQuery;
+        class QuestGiverStatusTrackedQuery;
         class QuestGiverHello;
         class QueryQuestInfo;
         class QuestGiverChooseReward;
@@ -1517,6 +1519,7 @@ class TC_GAME_API WorldSession
 
         void HandleQuestgiverStatusQueryOpcode(WorldPackets::Quest::QuestGiverStatusQuery& packet);
         void HandleQuestgiverStatusMultipleQuery(WorldPackets::Quest::QuestGiverStatusMultipleQuery& packet);
+        void HandleQuestgiverStatusTrackedQueryOpcode(WorldPackets::Quest::QuestGiverStatusTrackedQuery& questGiverStatusTrackedQuery);
         void HandleQuestgiverHelloOpcode(WorldPackets::Quest::QuestGiverHello& packet);
         void HandleQuestgiverAcceptQuestOpcode(WorldPackets::Quest::QuestGiverAcceptQuest& packet);
         void HandleQuestgiverQueryQuestOpcode(WorldPackets::Quest::QuestGiverQueryQuest& packet);
@@ -1683,6 +1686,8 @@ class TC_GAME_API WorldSession
         void HandleGuildBankTextQuery(WorldPackets::Guild::GuildBankTextQuery& packet);
         void HandleGuildBankSetTabText(WorldPackets::Guild::GuildBankSetTabText& packet);
 
+        void SendCalendarRaidLockout(InstanceSave const* save, bool add);
+
         // Calendar
         void HandleCalendarGetCalendar(WorldPackets::Calendar::CalendarGetCalendar& calendarGetCalendar);
         void HandleCalendarGetEvent(WorldPackets::Calendar::CalendarGetEvent& calendarGetEvent);
@@ -1779,6 +1784,8 @@ class TC_GAME_API WorldSession
         void HandleBattlePetClearFanfare(WorldPackets::BattlePet::BattlePetClearFanfare& battlePetClearFanfare);
         void HandleBattlePetSummon(WorldPackets::BattlePet::BattlePetSummon& battlePetSummon);
         void HandleBattlePetUpdateNotify(WorldPackets::BattlePet::BattlePetUpdateNotify& battlePetUpdateNotify);
+        void SendPetBattleRequestFailed(uint8 reason);
+        void SendPetBattleFinalizeLocation(PetBattleRequest* petBattleRequest);
         void HandleCageBattlePet(WorldPackets::BattlePet::CageBattlePet& cageBattlePet);
 
         // Warden

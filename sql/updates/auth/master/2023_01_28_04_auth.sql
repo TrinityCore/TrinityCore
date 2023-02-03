@@ -1,0 +1,1 @@
+UPDATE `realmlist` SET `name`='小女孩的魔兽世界' WHERE `name`='Trinity';

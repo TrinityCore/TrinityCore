@@ -24,6 +24,7 @@
 #include <array>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <openssl/evp.h>
 
 class BigNumber;

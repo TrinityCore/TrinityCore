@@ -1,0 +1,4 @@
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `StringId`, `VerifiedBuild`, `size`) VALUES 
+ (94601, 18910, 530, 3521, 3718, '0', 0, 0, 0, -1, 0, 0, 123.1, 5210.3, 22.5, 3.4, 900, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', NULL, 0, -1),
+ (79361, 30453, 615, 4493, 4493, '3,4', 0, 0, 0, -1, 0, 0, 3248.25, 697.469, 92.0921, 5.94524, 3600, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', NULL, 0, -1);
+ 

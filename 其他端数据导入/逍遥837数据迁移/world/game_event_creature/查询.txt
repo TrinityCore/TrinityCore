@@ -1,0 +1,2 @@
+SELECT * FROM game_event_creature_xy837 WHERE NOT EXISTS (SELECT 1 FROM game_event_creature_org WHERE game_event_creature_xy837.guid= game_event_creature_org.guid);
+2023_01_31_16_world.sql

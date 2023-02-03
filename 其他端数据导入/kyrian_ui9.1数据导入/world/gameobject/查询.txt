@@ -1,0 +1,3 @@
+SELECT * FROM gameobject_kyrian_ui WHERE NOT EXISTS (SELECT 1 FROM gameobject_org WHERE gameobject_kyrian_ui.guid= gameobject_org.guid);
+
+2023_01_31_15_world.sql

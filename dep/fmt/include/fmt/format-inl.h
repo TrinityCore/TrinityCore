@@ -34,10 +34,12 @@ namespace detail {
 FMT_FUNC void assert_fail(const char* file, int line, const char* message) {
   // Use unchecked std::fprintf to avoid triggering another assertion when
   // writing to stderr fails
-  std::fprintf(stderr, "%s:%d: assertion failed: %s", file, line, message);
+  //std::fprintf(stderr, "%s:%d: assertion failed: %s", file, line, message);
+  // 此处(上方这句)在debug模式下经常刷屏,腻了,试试能不能去掉
+  // (根据"老师"大佬的说法,可能是因为服务器区名用的中文)
   // Chosen instead of std::abort to satisfy Clang in CUDA mode during device
   // code pass.
-  std::terminate();
+  //std::terminate();
 }
 
 FMT_FUNC void throw_format_error(const char* message) {

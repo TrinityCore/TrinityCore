@@ -66,11 +66,6 @@ void WorldSession::HandleVoidStorageQuery(WorldPackets::VoidStorage::QueryVoidSt
         return;
     }
 
-    uint8 count = 0;
-    for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
-        if (_player->GetVoidStorageItem(i))
-            ++count;
-
     WorldPackets::VoidStorage::VoidStorageContents voidStorageContents;
     voidStorageContents.Items.reserve(VOID_STORAGE_MAX_SLOT);
 

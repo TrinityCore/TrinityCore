@@ -1,0 +1,14 @@
+SELECT * FROM creature_loot_template_kyrian_ui WHERE NOT EXISTS (SELECT 1 FROM creature_loot_template_org WHERE creature_loot_template_kyrian_ui.Entry= creature_loot_template_org.Entry and creature_loot_template_kyrian_ui.Item= creature_loot_template_org.Item);
+155W数据(75M,分两部分)
+2023_02_01_03_world
+2023_02_01_04_world
+
+补充数据
+SELECT * FROM creature_loot_template_kyrian_ui WHERE NOT EXISTS (SELECT 1 FROM creature_loot_template WHERE creature_loot_template_kyrian_ui.Entry= creature_loot_template.Entry and creature_loot_template_kyrian_ui.Item= creature_loot_template.Item);
+注意:此处使用creature_loot_template,非_org后缀的
+最终发现无忽略数据
+
+
+
+
+

@@ -63,7 +63,7 @@ struct PlayerDataAccessor
     /*implicit*/ PlayerDataAccessor(Player const* player) : _player(player) { }
 
     uint64 GetMoney() const;
-    int32 GetCurrency(int32 currencyId) const;
+    int32 GetCurrencyQuantity(int32 currencyId) const;
     int32 GetLevel() const;
     bool IsQuestRewarded(int32 questId) const;
     bool HasAchieved(int32 achievementId) const;

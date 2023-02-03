@@ -348,6 +348,14 @@ WorldPacket const* WorldPackets::Battleground::RatedPvpInfo::Write()
     return &_worldPacket;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::RatedMatchDeserterPenalty const& ratedMatchDeserterPenalty)
+{
+    data << int32(ratedMatchDeserterPenalty.PersonalRatingChange);
+    data << int32(ratedMatchDeserterPenalty.QueuePenaltySpellID);
+    data << ratedMatchDeserterPenalty.QueuePenaltyDuration;
+    return data;
+}
+
 WorldPacket const* WorldPackets::Battleground::PVPMatchInitialize::Write()
 {
     _worldPacket << uint32(MapID);
@@ -358,7 +366,11 @@ WorldPacket const* WorldPackets::Battleground::PVPMatchInitialize::Write()
     _worldPacket << uint32(BattlemasterListID);
     _worldPacket.WriteBit(Registered);
     _worldPacket.WriteBit(AffectsRating);
+    _worldPacket.WriteBit(DeserterPenalty.has_value());
     _worldPacket.FlushBits();
+
+    if (DeserterPenalty)
+        _worldPacket << *DeserterPenalty;
 
     return &_worldPacket;
 }
