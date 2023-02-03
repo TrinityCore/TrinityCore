@@ -24,7 +24,7 @@ void AddSC_LeechCraft();            //单人随机地下城查找器脚本
 void AddSC_CombatRatingCraft();     //单人随机地下城查找器脚本
 void AddSC_Hastecraft();            //单人随机地下城查找器脚本
 void AddLfgSoloScripts();           //单人随机地下城查找器脚本
-void AddSC_custom_npcs();           //自定义NPC-守护神
+void AddSC_custom_npcs();           //自定义NPC-好像是暴风城的龙王加冕事件
 void AddSC_custom_player_script();  //单人随机地下城查找器脚本
 void AddSC_GuardianAngel();         //守护神
 
@@ -41,7 +41,7 @@ void AddCustomScripts()
     AddSC_Hastecraft();             //单人随机地下城查找器脚本
     AddLfgSoloScripts();            //单人随机地下城查找器脚本
    AddSC_custom_player_script(),   //单人随机地下城查找器脚本
-    AddSC_custom_npcs();            //自定义NPC-守护神
+    AddSC_custom_npcs();            //自定义NPC-好像是暴风城的龙王加冕事件
     AddSC_custom_player_script();   //单人随机地下城查找器脚本
    AddSC_GuardianAngel();          //守护神
 }
