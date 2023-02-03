@@ -8467,7 +8467,8 @@ bool Unit::IsAlliedRace()
     if (Player* player = ToPlayer())
     {
         /* pandaren death knight (basically same thing as allied death knight) */
-        if ((player->GetRace() == RACE_PANDAREN_ALLIANCE) || (player->GetRace() == RACE_PANDAREN_HORDE) || (player->GetRace() == RACE_PANDAREN_NEUTRAL) && (player->getClass() == CLASS_DEATH_KNIGHT))
+        /* 熊猫人死亡骑士(基本上和同盟种族死亡骑士相同)*/
+        if ((player->GetRace() == RACE_PANDAREN_ALLIANCE) || (player->GetRace() == RACE_PANDAREN_HORDE) || (player->GetRace() == RACE_PANDAREN_NEUTRAL) && (player->GetClass() == CLASS_DEATH_KNIGHT))
         {
             return true;
         }

@@ -859,7 +859,7 @@ class TC_GAME_API Unit : public WorldObject
         bool IsTotem() const    { return (m_unitTypeMask & UNIT_MASK_TOTEM) != 0; }
         bool IsVehicle() const  { return (m_unitTypeMask & UNIT_MASK_VEHICLE) != 0; }
 
- //       uint8 getLevel() const { return uint8(m_unitData->Level); }//后加 发现是大小写修改了,使用下面的,本条放弃
+      //uint8 getLevel() const { return uint8(m_unitData->Level); }//后加 发现是大小写修改了,使用下面的,本条放弃.与此类似的还有下面的SetLevel等.
         uint8 GetLevel() const { return uint8(m_unitData->Level); }
         uint8 GetLevelForTarget(WorldObject const* /*target*/) const override { return GetLevel(); }
         void SetLevel(uint8 lvl, bool sendUpdate = true);
@@ -867,6 +867,8 @@ class TC_GAME_API Unit : public WorldObject
         void SetRace(uint8 race) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Race), race); }
         uint64 GetRaceMask() const { return UI64LIT(1) << (GetRace() - 1); }
         uint8 GetClass() const { return m_unitData->ClassId; }
+
+        bool IsAlliedRace();
         void SetClass(uint8 classId) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ClassId), classId); }
         uint32 GetClassMask() const { return 1 << (GetClass()-1); }
         Gender GetGender() const { return Gender(*m_unitData->Sex); }

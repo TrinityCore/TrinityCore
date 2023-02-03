@@ -76,7 +76,7 @@ public:
 		}
     }
 
-    void OnUpdateArea(Player* player, uint32 newArea, uint32 /*oldArea*/) override
+    void OnUpdateArea(Player* player, uint32 newArea, uint32 /*oldArea*/) //override    //原先是重写
     {
         /* Fix allied race deathknight missing aura */
         /* Dominion Over Acherus */
