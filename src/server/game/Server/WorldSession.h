@@ -1845,6 +1845,11 @@ class TC_GAME_API WorldSession
         TransactionCallback& AddTransactionCallback(TransactionCallback&& callback);
         SQLQueryHolderCallback& AddQueryHolderCallback(SQLQueryHolderCallback&& callback);
 
+        virtual bool IsBotSession() { return false; }
+        virtual bool HasSchedules() { return false; }
+        virtual bool HasBGSchedule() { return false; }
+        virtual bool IsAccountBotSession() { return false; }
+
     private:
         void ProcessQueryCallbacks();
 

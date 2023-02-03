@@ -859,13 +859,14 @@ class TC_GAME_API Unit : public WorldObject
         bool IsTotem() const    { return (m_unitTypeMask & UNIT_MASK_TOTEM) != 0; }
         bool IsVehicle() const  { return (m_unitTypeMask & UNIT_MASK_VEHICLE) != 0; }
 
- //       uint8 getLevel() const { return uint8(m_unitData->Level); }//后加 发现是大小写修改了,使用下面的,本条放弃
+        uint8 getLevel() const { return uint8(m_unitData->Level); }//后加 发现是大小写修改了,使用下面的,本条放弃    //后发现许多脚本调用,为了兼容,增加本条,下同
         uint8 GetLevel() const { return uint8(m_unitData->Level); }
         uint8 GetLevelForTarget(WorldObject const* /*target*/) const override { return GetLevel(); }
         void SetLevel(uint8 lvl, bool sendUpdate = true);
         uint8 GetRace() const { return m_unitData->Race; }
         void SetRace(uint8 race) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Race), race); }
         uint64 GetRaceMask() const { return UI64LIT(1) << (GetRace() - 1); }
+        uint8 getClass() const { return m_unitData->ClassId; }//尝试兼容旧版本,如TCB
         uint8 GetClass() const { return m_unitData->ClassId; }
         void SetClass(uint8 classId) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ClassId), classId); }
         uint32 GetClassMask() const { return 1 << (GetClass()-1); }
@@ -2055,6 +2056,7 @@ class TC_GAME_API Unit : public WorldObject
         ThreatManager m_threatManager;
 
         void UpdateCharmAI();
+        bool IsPlayerBot();
         void RestoreDisabledAI();
         typedef std::stack<std::shared_ptr<UnitAI>> UnitAIStack;
         UnitAIStack i_AIs;

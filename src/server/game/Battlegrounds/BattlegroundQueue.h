@@ -29,6 +29,7 @@ typedef std::list<Battleground*> BGFreeSlotQueueContainer;
 #define COUNT_OF_PLAYERS_TO_AVERAGE_WAIT_TIME 10
 
 struct GroupQueueInfo;                                      // type predefinition
+
 struct PlayerQueueInfo                                      // stores information for players in queue
 {
     uint32 LastOnlineTime;                                  // for tracking and removing offline players from queue after 5 minutes
@@ -39,6 +40,7 @@ struct GroupQueueInfo                                       // stores informatio
 {
     std::map<ObjectGuid, PlayerQueueInfo*> Players;         // player queue info map
     uint32  Team;                                           // Player team (ALLIANCE/HORDE)
+    bool    IsRated;                                        // rated
     uint32  ArenaTeamId;                                    // team id if rated match
     uint32  JoinTime;                                       // time when group was added
     uint32  RemoveInviteTime;                               // time when we will remove invite for players in group
@@ -48,6 +50,7 @@ struct GroupQueueInfo                                       // stores informatio
     uint32  OpponentsTeamRating;                            // for rated arena matches
     uint32  OpponentsMatchmakerRating;                      // for rated arena matches
 };
+
 
 enum BattlegroundQueueGroupTypes
 {
@@ -73,6 +76,7 @@ class TC_GAME_API BattlegroundQueue
         ~BattlegroundQueue();
 
         void BattlegroundQueueUpdate(uint32 diff, BattlegroundBracketId bracket_id, uint32 minRating = 0);
+		bool ExistRealPlayer(PVPDifficultyEntry const* bracketEntry, bool isRated = false);
         void UpdateEvents(uint32 diff);
 
         void FillPlayersToBG(Battleground* bg, BattlegroundBracketId bracket_id);

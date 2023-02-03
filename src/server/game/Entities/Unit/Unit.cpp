@@ -11750,6 +11750,18 @@ float Unit::MeleeSpellMissChance(Unit const* victim, WeaponAttackType attType, S
 
 void Unit::OnPhaseChange()
 {
+
+    if (!IsInWorld())
+        return;
+
+    if (GetTypeId() == TYPEID_UNIT || !ToPlayer()->GetSession()->PlayerLogout())
+        m_threatManager.UpdateOnlineStates(true, true);
+
+    if (IsPlayer() && !IsPlayerBot())
+    {
+        if (Group* pGroup = ToPlayer()->GetGroup())
+            pGroup->OnLeaderChangePhase(ToPlayer());
+    }
 }
 
 void Unit::UpdateObjectVisibility(bool forced)
@@ -13613,4 +13625,18 @@ std::string Unit::GetDebugInfo() const
     }
 
     return sstr.str();
+}
+
+
+bool Unit::IsPlayerBot()
+{
+    //if (GetTypeId() != TYPEID_PLAYER)
+    //	return false;
+    Player* player = ToPlayer();//dynamic_cast<Player*> (this);
+    if (!player)
+        return false;
+    WorldSession* pSession = player->GetSession();
+    if (!pSession)
+        return false;
+    return pSession->IsBotSession();
 }

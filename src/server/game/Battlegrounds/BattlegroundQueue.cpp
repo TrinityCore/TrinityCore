@@ -1047,6 +1047,48 @@ void BGQueueInviteEvent::Abort(uint64 /*e_time*/)
     5. player is invited to bg and he didn't choose what to do and timer expired - only in this condition we should call queue::RemovePlayer
     we must remove player in the 5. case even if battleground object doesn't exist!
 */
+
+
+
+bool BattlegroundQueue::ExistRealPlayer(PVPDifficultyEntry const* bracketEntry, bool isRated)
+{
+    if (!bracketEntry)
+        return false;
+    for (QueuedPlayersMap::iterator itPlayer = m_QueuedPlayers.begin();
+        itPlayer != m_QueuedPlayers.end();
+        itPlayer++)
+    {
+        GroupQueueInfo* gInfo = itPlayer->second.GroupInfo;
+        if (gInfo)
+        {
+            if (gInfo->IsRated != isRated)
+                continue;
+        }
+        Player* player = ObjectAccessor::FindConnectedPlayer(itPlayer->first);
+        if (player && !player->IsPlayerBot())
+        {
+            uint32 level = player->getLevel();
+            if (level < bracketEntry->MinLevel || level > bracketEntry->MaxLevel)
+                continue;
+            for (uint8 i = 0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
+            {
+                BattlegroundQueueTypeId bgQueueTypeId = player->GetBattlegroundQueueTypeId(i);
+                //  if (!bgQueueTypeId)
+                 //     continue;
+                if (!isRated)
+                {
+                    if (player->IsInvitedForBattlegroundQueueType(bgQueueTypeId))
+                        continue;
+                }
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+
+
 bool BGQueueRemoveEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 {
     Player* player = ObjectAccessor::FindConnectedPlayer(m_PlayerGuid);
