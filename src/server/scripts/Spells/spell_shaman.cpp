@@ -841,9 +841,14 @@ class spell_sha_mana_tide_totem : public AuraScript
     void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
     {
         // @TODO: Exclude the "short term" buffs from the stat value
-        if (Unit* caster = GetUnitOwner())
-            if (Unit* owner = caster->GetCharmerOrOwner())
-                amount = CalculatePct(owner->GetStat(STAT_SPIRIT), amount);
+        Unit* caster = GetUnitOwner();
+        if (!caster || !caster->IsSummon())
+            return;
+
+        if (Unit* summoner = caster->ToTempSummon()->GetSummoner())
+            amount = CalculatePct(summoner->GetStat(STAT_SPIRIT), amount);
+        else
+            amount = 0;
     }
 
     void Register() override
