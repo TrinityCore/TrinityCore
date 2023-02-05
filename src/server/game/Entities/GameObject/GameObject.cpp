@@ -2515,11 +2515,7 @@ void GameObject::Use(Unit* user)
                     SetGoState(GO_STATE_ACTIVE);
                     ReplaceAllFlags(GO_FLAG_IN_MULTI_USE);
 
-                    UpdateData udata(player->GetMapId());
-                    WorldPacket packet;
-                    BuildValuesUpdateBlockForPlayer(&udata, player);
-                    udata.BuildPacket(&packet);
-                    player->SendDirectMessage(&packet);
+                    SendUpdateToPlayer(player);
 
                     uint32 zone, subzone;
                     GetZoneAndAreaId(zone, subzone);
