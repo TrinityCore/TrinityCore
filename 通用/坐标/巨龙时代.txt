@@ -1,0 +1,19 @@
+巨龙时代副本
+.tele HallsOfInfusion 
+.tele RubyLifePools
+.tele NokhudOffensive
+.tele BrackenhideHollow
+.tele Neltharus
+.tele AlgetharAcademy
+.tele AzureVault
+.tele Uldaman
+ 
+巨龙时代地图
+.tele WakingShores
+.tele OhnahranPlains
+.tele azurespan
+.tele Thaldraszus
+巨龙时代团本
+.tele VaultoftheIncarnates  //不存在
+去暴风城： .tele stormwind
+奥格依次类推
