@@ -217,10 +217,15 @@ public:
             G3D::Vector3 prev(oldAnimation->Pos.X, oldAnimation->Pos.Y, oldAnimation->Pos.Z);
             G3D::Vector3 next(newAnimation->Pos.X, newAnimation->Pos.Y, newAnimation->Pos.Z);
 
-            float animProgress = float(newProgress - oldAnimation->TimeIndex) / float(newAnimation->TimeIndex - oldAnimation->TimeIndex);
+            G3D::Vector3 dst = next;
+            if (prev != next)
+            {
+                float animProgress = float(newProgress - oldAnimation->TimeIndex) / float(newAnimation->TimeIndex - oldAnimation->TimeIndex);
 
-            G3D::Vector3 dst = prev.lerp(next, animProgress) * pathRotation;
+                dst = prev.lerp(next, animProgress);
+            }
 
+            dst = dst * pathRotation;
             dst += PositionToVector3(&_owner.GetStationaryPosition());
 
             _owner.GetMap()->GameObjectRelocation(&_owner, dst.x, dst.y, dst.z, _owner.GetOrientation());
@@ -233,9 +238,14 @@ public:
             G3D::Quat prev(oldRotation->X, oldRotation->Y, oldRotation->Z, oldRotation->W);
             G3D::Quat next(newRotation->X, newRotation->Y, newRotation->Z, newRotation->W);
 
-            float animProgress = float(newProgress - oldRotation->TimeIndex) / float(newRotation->TimeIndex - oldRotation->TimeIndex);
+            G3D::Quat rotation = next;
 
-            G3D::Quat rotation = prev.slerp(next, animProgress);
+            if (prev != next)
+            {
+                float animProgress = float(newProgress - oldRotation->TimeIndex) / float(newRotation->TimeIndex - oldRotation->TimeIndex);
+
+                rotation = prev.slerp(next, animProgress);
+            }
 
             _owner.SetLocalRotation(rotation.x, rotation.y, rotation.z, rotation.w);
             _owner.UpdateModelPosition();
