@@ -149,9 +149,9 @@ LogsDir = ""
 #    The SSL option will enable TLS when connecting to the specified database. If not provided or
 #    any value other than 'ssl' is set, TLS will not be used.
 
-LoginDatabaseInfo     =127.0.0.1;3306;trinity;trinity;auth_No1Server
+LoginDatabaseInfo     =127.0.0.1;3306;trinity;trinity;auth
 WorldDatabaseInfo     =127.0.0.1;3306;trinity;trinity;tc-world
-CharacterDatabaseInfo =127.0.0.1;3306;trinity;trinity;characters_No1Server
+CharacterDatabaseInfo =127.0.0.1;3306;trinity;trinity;characters
 HotfixDatabaseInfo    = "127.0.0.1;3306;trinity;trinity;hotfixes"
 
 #
