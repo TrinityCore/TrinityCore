@@ -31,21 +31,10 @@ class GameObject;
 class Map;
 class Quest;
 
-enum class PoolFlags : uint32
-{
-    None            = 0x0,
-    DelayedRespawn  = 0x1 // Only supported for GameObjects for now. Do not instantly respawn but wait for the respawn timer of the GameObject.
-};
-
-DEFINE_ENUM_FLAG(PoolFlags);
-
 struct PoolTemplateData
 {
     uint32 MaxLimit;
     int32 MapId;
-    PoolFlags Flags;
-
-    EnumFlag<PoolFlags> GetFlags() const { return static_cast<PoolFlags>(Flags); }
 };
 
 struct PoolObject

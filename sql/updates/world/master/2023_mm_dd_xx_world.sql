@@ -1,1 +1,0 @@
-ALTER TABLE `pool_template` ADD COLUMN `flags` INT UNSIGNED NOT NULL DEFAULT 0 AFTER `max_limit`;
