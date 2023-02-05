@@ -447,6 +447,10 @@ class CreatureGameObjectAreaTriggerScriptRegistrySwapHooks
     // Hook which is called before a gameobject is swapped
     static void UnloadResetScript(GameObject* gameobject)
     {
+        // Remove deletable events only,
+        // otherwise it causes crashes with non-deletable spell events.
+        gameobject->m_Events.KillAllEvents(false);
+
         gameobject->AI()->Reset();
     }
 
@@ -461,6 +465,10 @@ class CreatureGameObjectAreaTriggerScriptRegistrySwapHooks
     // Hook which is called before a areatrigger is swapped
     static void UnloadResetScript(AreaTrigger* at)
     {
+        // Remove deletable events only,
+        // otherwise it causes crashes with non-deletable spell events.
+        at->m_Events.KillAllEvents(false);
+
         at->AI()->OnRemove();
     }
 
