@@ -1119,8 +1119,7 @@ void GameObject::Update(uint32 diff)
                     // Pointer to appropriate target if found any
                     Unit* target = nullptr;
 
-                    /// @todo this hack with search required until GO casting not implemented
-                    if (GetOwner())
+                    if (GetOwner() || goInfo->trap.Checkallunits)
                     {
                         // Hunter trap: Search units which are unfriendly to the trap's owner
                         Trinity::NearestAttackableNoTotemUnitInObjectRangeCheck checker(this, radius);
@@ -1446,7 +1445,7 @@ void GameObject::Delete()
         ReplaceAllFlags(GameObjectFlags(goOverride->Flags));
 
     uint32 poolid = GetGameObjectData() ? GetGameObjectData()->poolId : 0;
-    if (poolid)
+    if (m_respawnCompatibilityMode && poolid)
         sPoolMgr->UpdatePool<GameObject>(GetMap()->GetPoolData(), poolid, GetSpawnId());
     else
         AddObjectToRemoveList();
