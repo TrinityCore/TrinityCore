@@ -568,6 +568,7 @@ void AccountMgr::UpdateAccountAccess(rbac::RBACData* rbac, uint32 accountId, uin
     LoginDatabase.CommitTransaction(trans);
 }
 
+// 获得RBAC权限
 rbac::RBACPermission const* AccountMgr::GetRBACPermission(uint32 permissionId) const
 {
     TC_LOG_TRACE("rbac", "AccountMgr::GetRBACPermission: {}", permissionId);
@@ -583,6 +584,7 @@ bool AccountMgr::HasPermission(uint32 accountId, uint32 permissionId, uint32 rea
     if (!accountId)
     {
         TC_LOG_ERROR("rbac", "AccountMgr::HasPermission: Wrong accountId 0");
+        //输出日志:rbac,错误的账号ID.
         return false;
     }
 

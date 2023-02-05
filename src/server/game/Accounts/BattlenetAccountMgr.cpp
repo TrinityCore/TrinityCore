@@ -1,3 +1,4 @@
+//小女孩注释 2022年3月17日07:14:20 本文件是战网管理器 和本目录下的AccountMgr.cpp中的构造函数相呼应.
 /*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
@@ -22,14 +23,17 @@
 #include "Util.h"
 
 using GameAccountMgr = AccountMgr;
+//使用AccountMgr来生成GameAccountMgr,AccountMgr即本目录下的AccountMgr.cpp中的构造函数.
 
 AccountOpResult Battlenet::AccountMgr::CreateBattlenetAccount(std::string email, std::string password, bool withGameAccount, std::string* gameAccountName)
 {
     if (utf8length(email) > MAX_BNET_EMAIL_STR)
         return AccountOpResult::AOR_NAME_TOO_LONG;
+    //邮箱长度大于限制
 
     if (utf8length(password) > MAX_PASS_STR)
         return AccountOpResult::AOR_PASS_TOO_LONG;
+    //密码过长
 
     Utf8ToUpperOnlyLatin(email);
     Utf8ToUpperOnlyLatin(password);
