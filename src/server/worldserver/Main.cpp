@@ -66,6 +66,8 @@
 
 #include "Hacks/boost_program_options_with_filesystem_path.h"
 
+// #define _CRT_SECURE_NO_DEPRECATE    //尝试去除assert报错,无用
+
 using namespace boost::program_options;
 namespace fs = boost::filesystem;
 
@@ -394,8 +396,8 @@ extern int main(int argc, char** argv)
 
     sScriptMgr->OnStartup();
 
-    TC_LOG_INFO("server.worldserver", "小女孩自研版");
-    // 我自行添加的版权信息
+    //TC_LOG_INFO("server.worldserver", "小女孩自研版");
+    // 我自行添加的版权信息,发现放上去太丑了,暂时注释
 
     TC_LOG_INFO("server.worldserver", "{} (worldserver-daemon) ready...", GitRevision::GetFullVersion());
     //服务器启动完成提示信息
@@ -677,7 +679,7 @@ bool StartDB()
     ///- Insert version info into DB
     //插入版本信息
 
-    WorldDatabase.PExecute("UPDATE version SET core_version = '{}', core_revision = '{}'", GitRevision::GetFullVersion(), GitRevision::GetHash());        // One-time query
+    WorldDatabase.PExecute("UPDATE version SET core_version = '{}', core_revision = '{}'", GitRevision::GetFullVersion(), GitRevision::GetHash());  // One-time query   //一次性查询
     //在数据库中更新版本信息
     sWorld->LoadDBVersion();
 
