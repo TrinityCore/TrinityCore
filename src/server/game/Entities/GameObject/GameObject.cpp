@@ -304,10 +304,15 @@ public:
             G3D::Vector3 prev(oldAnimation->Pos.X, oldAnimation->Pos.Y, oldAnimation->Pos.Z);
             G3D::Vector3 next(newAnimation->Pos.X, newAnimation->Pos.Y, newAnimation->Pos.Z);
 
-            float animProgress = float(newProgress - oldAnimation->TimeIndex) / float(newAnimation->TimeIndex - oldAnimation->TimeIndex);
+            G3D::Vector3 dst = next;
+            if (prev != next)
+            {
+                float animProgress = float(newProgress - oldAnimation->TimeIndex) / float(newAnimation->TimeIndex - oldAnimation->TimeIndex);
 
-            G3D::Vector3 dst = prev.lerp(next, animProgress) * pathRotation;
+                dst = prev.lerp(next, animProgress);
+            }
 
+            dst = dst * pathRotation;
             dst += PositionToVector3(&_owner.GetStationaryPosition());
 
             _owner.GetMap()->GameObjectRelocation(&_owner, dst.x, dst.y, dst.z, _owner.GetOrientation());
@@ -320,9 +325,14 @@ public:
             G3D::Quat prev(oldRotation->Rot[0], oldRotation->Rot[1], oldRotation->Rot[2], oldRotation->Rot[3]);
             G3D::Quat next(newRotation->Rot[0], newRotation->Rot[1], newRotation->Rot[2], newRotation->Rot[3]);
 
-            float animProgress = float(newProgress - oldRotation->TimeIndex) / float(newRotation->TimeIndex - oldRotation->TimeIndex);
+            G3D::Quat rotation = next;
 
-            G3D::Quat rotation = prev.slerp(next, animProgress);
+            if (prev != next)
+            {
+                float animProgress = float(newProgress - oldRotation->TimeIndex) / float(newRotation->TimeIndex - oldRotation->TimeIndex);
+
+                rotation = prev.slerp(next, animProgress);
+            }
 
             _owner.SetLocalRotation(rotation.x, rotation.y, rotation.z, rotation.w);
             _owner.UpdateModelPosition();
@@ -770,7 +780,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
             break;
         }
         case GAMEOBJECT_TYPE_FISHINGNODE:
-            SetLevel(1);
+            SetLevel(0);
             SetGoAnimProgress(255);
             break;
         case GAMEOBJECT_TYPE_TRAP:
@@ -881,8 +891,6 @@ GameObject* GameObject::CreateGameObjectFromDB(ObjectGuid::LowType spawnId, Map*
 
 void GameObject::Update(uint32 diff)
 {
-    m_Events.Update(diff);
-
     WorldObject::Update(diff);
 
     if (AI())
@@ -971,18 +979,7 @@ void GameObject::Update(uint32 diff)
                         // splash bobber (bobber ready now)
                         Unit* caster = GetOwner();
                         if (caster && caster->GetTypeId() == TYPEID_PLAYER)
-                        {
-                            SetGoState(GO_STATE_ACTIVE);
-                            ReplaceAllFlags(GO_FLAG_NODESPAWN);
-
-                            UpdateData udata(caster->GetMapId());
-                            WorldPacket packet;
-                            BuildValuesUpdateBlockForPlayer(&udata, caster->ToPlayer());
-                            udata.BuildPacket(&packet);
-                            caster->ToPlayer()->SendDirectMessage(&packet);
-
-                            SendCustomAnim(GetGoAnimProgress());
-                        }
+                            SendCustomAnim(0);
 
                         m_lootState = GO_READY;                 // can be successfully open with some chance
                     }
@@ -1116,8 +1113,7 @@ void GameObject::Update(uint32 diff)
                     // Pointer to appropriate target if found any
                     Unit* target = nullptr;
 
-                    /// @todo this hack with search required until GO casting not implemented
-                    if (GetOwner())
+                    if (GetOwner() || goInfo->trap.Checkallunits)
                     {
                         // Hunter trap: Search units which are unfriendly to the trap's owner
                         Trinity::NearestAttackableNoTotemUnitInObjectRangeCheck checker(this, radius);
@@ -1443,7 +1439,7 @@ void GameObject::Delete()
         ReplaceAllFlags(GameObjectFlags(goOverride->Flags));
 
     uint32 poolid = GetGameObjectData() ? GetGameObjectData()->poolId : 0;
-    if (poolid)
+    if (m_respawnCompatibilityMode && poolid)
         sPoolMgr->UpdatePool<GameObject>(GetMap()->GetPoolData(), poolid, GetSpawnId());
     else
         AddObjectToRemoveList();
@@ -2522,6 +2518,13 @@ void GameObject::Use(Unit* user)
             {
                 case GO_READY:                              // ready for loot
                 {
+                    SetLootState(GO_ACTIVATED, player);
+
+                    SetGoState(GO_STATE_ACTIVE);
+                    ReplaceAllFlags(GO_FLAG_IN_MULTI_USE);
+
+                    SendUpdateToPlayer(player);
+
                     uint32 zone, subzone;
                     GetZoneAndAreaId(zone, subzone);
 

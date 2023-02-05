@@ -1686,7 +1686,7 @@ void DB2Manager::LoadHotfixData()
             if (DB2StorageBase* store = Trinity::Containers::MapGetValuePtr(_stores, itr->first.first))
                 store->EraseRecord(itr->first.second);
 
-    TC_LOG_INFO("server.loading", ">> Loaded {} hotfix records in {} ms", _hotfixData.size(), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} hotfix records in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void DB2Manager::LoadHotfixBlob(uint32 localeMask)

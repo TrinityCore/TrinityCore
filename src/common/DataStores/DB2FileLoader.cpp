@@ -575,13 +575,19 @@ char* DB2FileLoaderRegularImpl::AutoProduceStrings(char** indexTable, uint32 ind
                             break;
                         case FT_STRING:
                         {
-                            ((LocalizedString*)(&recordData[offset]))->Str[locale] = stringPool + (RecordGetString(rawRecord, x, z) - (char const*)_stringTable);
+                            char const* string = RecordGetString(rawRecord, x, z);
+                            if (string >= reinterpret_cast<char const*>(_stringTable)) // ensure string is inside _stringTable
+                                reinterpret_cast<LocalizedString*>(&recordData[offset])->Str[locale] = stringPool + (string - reinterpret_cast<char const*>(_stringTable));
+
                             offset += sizeof(LocalizedString);
                             break;
                         }
                         case FT_STRING_NOT_LOCALIZED:
                         {
-                            *((char**)(&recordData[offset])) = stringPool + (RecordGetString(rawRecord, x, z) - (char const*)_stringTable);
+                            char const* string = RecordGetString(rawRecord, x, z);
+                            if (string >= reinterpret_cast<char const*>(_stringTable)) // ensure string is inside _stringTable
+                                *reinterpret_cast<char**>(&recordData[offset]) = stringPool + (string - reinterpret_cast<char const*>(_stringTable));
+
                             offset += sizeof(char*);
                             break;
                         }
@@ -1075,7 +1081,6 @@ char* DB2FileLoaderSparseImpl::AutoProduceData(uint32& indexTableSize, char**& i
     memset(dataTable, 0, (records + _copyTable.size()) * recordsize);
 
     uint32 offset = 0;
-    uint32 recordNum = 0;
     uint32 y = 0;
 
     for (uint32 section = 0; section < _header->SectionCount; ++section)
@@ -1176,8 +1181,6 @@ char* DB2FileLoaderSparseImpl::AutoProduceData(uint32& indexTableSize, char**& i
                     ++fieldIndex;
                 }
             }
-
-            ++recordNum;
         }
     }
 
