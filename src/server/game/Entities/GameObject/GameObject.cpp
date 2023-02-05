@@ -770,7 +770,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
             break;
         }
         case GAMEOBJECT_TYPE_FISHINGNODE:
-            SetLevel(1);
+            SetLevel(0);
             SetGoAnimProgress(255);
             break;
         case GAMEOBJECT_TYPE_TRAP:
@@ -971,18 +971,7 @@ void GameObject::Update(uint32 diff)
                         // splash bobber (bobber ready now)
                         Unit* caster = GetOwner();
                         if (caster && caster->GetTypeId() == TYPEID_PLAYER)
-                        {
-                            SetGoState(GO_STATE_ACTIVE);
-                            ReplaceAllFlags(GO_FLAG_NODESPAWN);
-
-                            UpdateData udata(caster->GetMapId());
-                            WorldPacket packet;
-                            BuildValuesUpdateBlockForPlayer(&udata, caster->ToPlayer());
-                            udata.BuildPacket(&packet);
-                            caster->ToPlayer()->SendDirectMessage(&packet);
-
-                            SendCustomAnim(GetGoAnimProgress());
-                        }
+                            SendCustomAnim(0);
 
                         m_lootState = GO_READY;                 // can be successfully open with some chance
                     }
@@ -2521,6 +2510,13 @@ void GameObject::Use(Unit* user)
             {
                 case GO_READY:                              // ready for loot
                 {
+                    SetLootState(GO_ACTIVATED, player);
+
+                    SetGoState(GO_STATE_ACTIVE);
+                    ReplaceAllFlags(GO_FLAG_IN_MULTI_USE);
+
+                    SendUpdateToPlayer(player);
+
                     uint32 zone, subzone;
                     GetZoneAndAreaId(zone, subzone);
 
