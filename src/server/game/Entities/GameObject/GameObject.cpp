@@ -240,7 +240,7 @@ public:
 
             G3D::Quat rotation = next;
 
-            if (prev != next)
+            if (!(prev == next)) // @todo: use != operator when C++20 has been enabled
             {
                 float animProgress = float(newProgress - oldRotation->TimeIndex) / float(newRotation->TimeIndex - oldRotation->TimeIndex);
 
