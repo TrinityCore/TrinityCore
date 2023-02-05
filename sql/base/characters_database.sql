@@ -2590,7 +2590,7 @@ CREATE TABLE `updates` (
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'timestamp when the query was applied.',
   `speed` int unsigned NOT NULL DEFAULT '0' COMMENT 'time the query takes to apply in ms.',
   PRIMARY KEY (`name`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='List of all applied updates in this database.';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='List of all applied updates in this database.';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2678,7 +2678,8 @@ INSERT INTO `updates` VALUES
 ('2022_08_15_00_characters.sql','B2468D3323AB51872385A0B36EF66688C4F661EA','ARCHIVED','2022-08-15 11:21:17',0),
 ('2022_10_17_00_characters.sql','3E50C54495FE2653EB2F5F9120B17D124D70CEDE','ARCHIVED','2022-10-17 09:02:28',0),
 ('2023_01_16_00_characters.sql','2667390C8E0EC1E5CDE16784BFCD8F8749C7D73E','ARCHIVED','2023-01-16 11:06:30',0),
-('2023_02_05_00_characters.sql','DD3F2181CC472A040EC4AE49EBB057C1FAA5BE10','RELEASED','2023-01-16 14:51:30',0);
+('2023_02_05_00_characters.sql','DD3F2181CC472A040EC4AE49EBB057C1FAA5BE10','RELEASED','2023-01-16 14:51:30',0),
+('2023_02_05_01_characters.sql','336E62A8850A3E78A1D0BD3E81FFD5769184BDF8','RELEASED','2023-02-05 15:58:32',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2693,7 +2694,7 @@ CREATE TABLE `updates_include` (
   `path` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'directory to include. $ means relative to the source directory.',
   `state` enum('RELEASED','ARCHIVED') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'RELEASED' COMMENT 'defines if the directory contains released or archived updates.',
   PRIMARY KEY (`path`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='List of directories where we want to include sql updates.';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='List of directories where we want to include sql updates.';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
