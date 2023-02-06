@@ -1054,7 +1054,7 @@ void TradeSkillSetFavorite::Read()
     IsFavorite = _worldPacket.ReadBit();
 }
 
-void WorldPackets::Movement::KeyboundOverride::Read()
+void KeyboundOverride::Read()
 {
     _worldPacket >> OverrideID;
 }
