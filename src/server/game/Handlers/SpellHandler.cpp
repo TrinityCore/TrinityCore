@@ -684,7 +684,7 @@ void WorldSession::HandleRequestCategoryCooldowns(WorldPackets::Spells::RequestC
     _player->SendSpellCategoryCooldowns();
 }
 
-void WorldSession::HandleKeyboundOverride(WorldPackets::Movement::KeyboundOverride& keyboundOverride)
+void WorldSession::HandleKeyboundOverride(WorldPackets::Spells::KeyboundOverride& keyboundOverride)
 {
     uint16 OverrideID = keyboundOverride.OverrideID;
     if (!OverrideID)
