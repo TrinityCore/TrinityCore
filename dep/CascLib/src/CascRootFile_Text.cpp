@@ -25,7 +25,7 @@ struct TRootHandler_SC1 : public TFileTreeRoot
         dwFeatures |= (CASC_FEATURE_FILE_NAMES | CASC_FEATURE_ROOT_CKEY);
     }
 
-    static bool IsRootFile(LPBYTE pbRootFile, DWORD cbRootFile)
+    static bool IsRootFile(LPBYTE pbRootFile, size_t cbRootFile)
     {
         CASC_CSV Csv(1, false);
         size_t nColumns;
@@ -36,7 +36,7 @@ struct TRootHandler_SC1 : public TFileTreeRoot
         {
             // There must be 2 or 3 elements
             nColumns = Csv[CSV_ZERO].GetColumnCount();
-            if (nColumns == 2 || nColumns == 3)
+            if(nColumns == 2 || nColumns == 3)
             {
                 const CASC_CSV_COLUMN & FileName = Csv[CSV_ZERO][CSV_ZERO];
                 const CASC_CSV_COLUMN & CKeyStr = Csv[CSV_ZERO][1];
@@ -49,7 +49,7 @@ struct TRootHandler_SC1 : public TFileTreeRoot
         return bResult;
     }
 
-    DWORD Load(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFile)
+    DWORD Load(TCascStorage * hs, LPBYTE pbRootFile, size_t cbRootFile)
     {
         PCASC_CKEY_ENTRY pCKeyEntry;
         CASC_CSV Csv(0, false);
@@ -93,20 +93,20 @@ struct TRootHandler_SC1 : public TFileTreeRoot
 // locales/zhCN/Assets/sound/terran/ghost/tghdth01.wav|6637ed776bd22089e083b8b0b2c0374c
 //
 
-DWORD RootHandler_CreateStarcraft1(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFile)
+DWORD RootHandler_CreateStarcraft1(TCascStorage * hs, CASC_BLOB & RootFile)
 {
     TRootHandler_SC1 * pRootHandler = NULL;
     DWORD dwErrCode = ERROR_BAD_FORMAT;
 
     // Verify whether this looks like a Starcraft I root file
-    if(TRootHandler_SC1::IsRootFile(pbRootFile, cbRootFile))
+    if(TRootHandler_SC1::IsRootFile(RootFile.pbData, RootFile.cbData))
     {
         // Allocate the root handler object
         pRootHandler = new TRootHandler_SC1();
         if(pRootHandler != NULL)
         {
             // Load the root directory. If load failed, we free the object
-            dwErrCode = pRootHandler->Load(hs, pbRootFile, cbRootFile);
+            dwErrCode = pRootHandler->Load(hs, RootFile.pbData, RootFile.cbData);
             if(dwErrCode != ERROR_SUCCESS)
             {
                 delete pRootHandler;

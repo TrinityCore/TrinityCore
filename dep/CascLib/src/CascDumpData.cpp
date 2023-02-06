@@ -456,7 +456,18 @@ void DumpDownloadManifest(TCascStorage * hs, FILE * fp)
 //-----------------------------------------------------------------------------
 // Public dumping functions
 
-void CascDumpFile(const char * szDumpFile, HANDLE hFile)
+void CascDumpData(LPCSTR szFileName, const void * pvData, size_t cbData)
+{
+    FILE * fp;
+
+    if((fp = fopen(szFileName, "wb")) != NULL)
+    {
+        fwrite(pvData, 1, cbData, fp);
+        fclose(fp);
+    }
+}
+
+void CascDumpFile(HANDLE hFile, const char * szDumpFile)
 {
     FILE * fp;
     DWORD dwBytesRead = 1;
@@ -506,9 +517,8 @@ void CascDumpStorage(HANDLE hStorage, const char * szDumpFile)
         fprintf(fp, "=== Basic Storage Info ======================================================\n");
         fprintf(fp, "DataPath:  %s\n", StringFromLPTSTR(hs->szDataPath, szStringBuff, sizeof(szStringBuff)));
         fprintf(fp, "IndexPath: %s\n", StringFromLPTSTR(hs->szIndexPath, szStringBuff, sizeof(szStringBuff)));
-        fprintf(fp, "BuildFile: %s\n", StringFromLPTSTR(hs->szBuildFile, szStringBuff, sizeof(szStringBuff)));
+        fprintf(fp, "Main File: %s\n", StringFromLPTSTR(hs->szMainFile, szStringBuff, sizeof(szStringBuff)));
         fprintf(fp, "CDN Server: %s\n", StringFromLPTSTR(hs->szCdnServers, szStringBuff, sizeof(szStringBuff)));
-        fprintf(fp, "CDN Host Url: %s\n", StringFromLPTSTR(hs->szCdnHostUrl, szStringBuff, sizeof(szStringBuff)));
         fprintf(fp, "CDN Path: %s\n", StringFromLPTSTR(hs->szCdnPath, szStringBuff, sizeof(szStringBuff)));
         DumpKey(fp, "CDN Config Key: %s\n", hs->CdnConfigKey.pbData, hs->CdnConfigKey.cbData);
         DumpKey(fp, "CDN Build Key:  %s\n", hs->CdnBuildKey.pbData, hs->CdnBuildKey.cbData);

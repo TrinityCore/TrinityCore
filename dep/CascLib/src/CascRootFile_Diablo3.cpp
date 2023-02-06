@@ -64,20 +64,6 @@ typedef struct _DIABLO3_CORE_TOC_ENTRY
 
 } DIABLO3_CORE_TOC_ENTRY, *PDIABLO3_CORE_TOC_ENTRY;
 
-// In-memory structure of parsed directory data
-typedef struct _DIABLO3_DIRECTORY
-{
-    LPBYTE pbDirectoryData;                         // The begin of the directory data block
-    LPBYTE pbDirectoryEnd;                          // The end of the directory data block
-    LPBYTE pbAssetEntries;                          // Pointer to asset entries without subitem number. Example: "SoundBank\SoundFile.smp"
-    LPBYTE pbAssetIdxEntries;                       // Pointer to asset entries with subitem number
-    LPBYTE pbNamedEntries;                          // Pointer to named entries. These are for files with arbitrary names, and they do not belong to an asset
-    DWORD dwAssetEntries;                           // Number of asset entries without subitem number
-    DWORD dwAssetIdxEntries;
-    DWORD dwNamedEntries;
-    DWORD dwNodeIndex;                              // Index of file node for this folder
-} DIABLO3_DIRECTORY, *PDIABLO3_DIRECTORY;
-
 // Structure for conversion DirectoryID -> Directory name
 typedef struct _DIABLO3_ASSET_INFO
 {
@@ -86,6 +72,26 @@ typedef struct _DIABLO3_ASSET_INFO
 
 } DIABLO3_ASSET_INFO;
 typedef const DIABLO3_ASSET_INFO * PDIABLO3_ASSET_INFO;
+
+// In-memory structure of parsed directory data
+struct DIABLO3_DIRECTORY
+{
+    DIABLO3_DIRECTORY()
+    {
+        pbAssetEntries = pbAssetIdxEntries = pbNamedEntries = NULL;
+        dwAssetEntries = dwAssetIdxEntries = dwNamedEntries = 0;
+        dwNodeIndex = 0;
+    }
+
+    CASC_BLOB Data;                                 // The complete copy of the directory data
+    LPBYTE pbAssetEntries;                          // Pointer to asset entries without subitem number. Example: "SoundBank\SoundFile.smp"
+    LPBYTE pbAssetIdxEntries;                       // Pointer to asset entries with subitem number
+    LPBYTE pbNamedEntries;                          // Pointer to named entries. These are for files with arbitrary names, and they do not belong to an asset
+    DWORD dwAssetEntries;                           // Number of asset entries without subitem number
+    DWORD dwAssetIdxEntries;
+    DWORD dwNamedEntries;
+    DWORD dwNodeIndex;                              // Index of file node for this folder
+};
 
 //-----------------------------------------------------------------------------
 // Local variables
@@ -175,16 +181,12 @@ struct TDiabloRoot : public TFileTreeRoot
     TDiabloRoot() : TFileTreeRoot(0)
     {
         memset(RootFolders, 0, sizeof(RootFolders));
-        pFileIndices = NULL;
-        pbCoreTocFile = NULL;
         pbCoreTocData = NULL;
+        pFileIndices = NULL;
         nFileIndices = 0;
-        cbCoreTocFile = 0;
 
         // Map for searching a real file extension
         memset(&PackagesMap, 0, sizeof(CASC_MAP));
-        pbPackagesDat = NULL;
-        cbPackagesDat = 0;
 
         // We have file names and return CKey as result of search
         dwFeatures |= (CASC_FEATURE_FILE_NAMES | CASC_FEATURE_ROOT_CKEY);
@@ -212,26 +214,24 @@ struct TDiabloRoot : public TFileTreeRoot
         return (char *)PackagesMap.FindString(szFileName, szFileName + nLength);
     }
 
-    LPBYTE LoadFileToMemory(TCascStorage * hs, const char * szFileName, DWORD * pcbFileData)
+    DWORD LoadFileToMemory(TCascStorage * hs, const char * szFileName, CASC_BLOB & FileData)
     {
         PCASC_CKEY_ENTRY pCKeyEntry;
-        LPBYTE pbFileData = NULL;
+        DWORD dwErrCode = ERROR_FILE_NOT_FOUND;
 
         // Try to find CKey for the file
         pCKeyEntry = GetFile(hs, szFileName);
         if(pCKeyEntry != NULL)
-            pbFileData = LoadInternalFileToMemory(hs, pCKeyEntry, pcbFileData);
-
-        return pbFileData;
+            dwErrCode = LoadInternalFileToMemory(hs, pCKeyEntry, FileData);
+        return dwErrCode;
     }
 
-    static LPBYTE CaptureDirectoryData(
+    static DWORD CaptureDirectoryData(
         DIABLO3_DIRECTORY & DirHeader,
-        LPBYTE pbDirectory,
-        DWORD cbDirectory)
+        CASC_BLOB & Directory)
     {
-        LPBYTE pbDirectoryData = pbDirectory;
-        LPBYTE pbDataEnd = pbDirectory + cbDirectory;
+        LPBYTE pbDirectory;
+        LPBYTE pbDataEnd;
         DWORD Signature = 0;
 
         //
@@ -245,13 +245,15 @@ struct TDiabloRoot : public TFileTreeRoot
         // 7) Array of DIABLO3_NAMED_ENTRY entries
         //
 
-        // Prepare the header signature
-        memset(&DirHeader, 0, sizeof(DIABLO3_DIRECTORY));
+        // Clone the input data
+        DirHeader.Data.MoveFrom(Directory);
+        pbDirectory = DirHeader.Data.pbData;
+        pbDataEnd = DirHeader.Data.End();
 
         // Get the header signature
         pbDirectory = CaptureInteger32(pbDirectory, pbDataEnd, &Signature);
         if((pbDirectory == NULL) || (Signature != CASC_DIABLO3_ROOT_SIGNATURE && Signature != DIABLO3_SUBDIR_SIGNATURE))
-            return NULL;
+            return ERROR_BAD_FORMAT;
 
         // Subdirectories have extra two arrays
         if(Signature == DIABLO3_SUBDIR_SIGNATURE)
@@ -259,37 +261,33 @@ struct TDiabloRoot : public TFileTreeRoot
             // Capture the number of DIABLO3_ASSET_ENTRY items
             pbDirectory = CaptureInteger32(pbDirectory, pbDataEnd, &DirHeader.dwAssetEntries);
             if(pbDirectory == NULL)
-                return NULL;
+                return ERROR_BAD_FORMAT;
 
             // Capture the array of DIABLO3_ASSET_ENTRY
             pbDirectory = CaptureArray(pbDirectory, pbDataEnd, &DirHeader.pbAssetEntries, DIABLO3_ASSET_ENTRY, DirHeader.dwAssetEntries);
             if(pbDirectory == NULL)
-                return NULL;
+                return ERROR_BAD_FORMAT;
 
             // Capture the number of DIABLO3_ASSETIDX_ENTRY items
             pbDirectory = CaptureInteger32(pbDirectory, pbDataEnd, &DirHeader.dwAssetIdxEntries);
             if(pbDirectory == NULL)
-                return NULL;
+                return ERROR_BAD_FORMAT;
 
             // Capture the array of DIABLO3_ASSETIDX_ENTRY
             pbDirectory = CaptureArray(pbDirectory, pbDataEnd, &DirHeader.pbAssetIdxEntries, DIABLO3_ASSETIDX_ENTRY, DirHeader.dwAssetIdxEntries);
             if(pbDirectory == NULL)
-                return NULL;
+                return ERROR_BAD_FORMAT;
         }
 
         // Capture the number of DIABLO3_NAMED_ENTRY array
         pbDirectory = CaptureInteger32(pbDirectory, pbDataEnd, &DirHeader.dwNamedEntries);
         if(pbDirectory == NULL)
-            return NULL;
+            return ERROR_BAD_FORMAT;
 
         // Note: Do not capture the array here. We will do that later,
         // when we will be parsing the directory
         DirHeader.pbNamedEntries = pbDirectory;
-
-        // Put the directory range
-        DirHeader.pbDirectoryData = pbDirectoryData;
-        DirHeader.pbDirectoryEnd = pbDirectoryData + cbDirectory;
-        return pbDirectory;
+        return ERROR_SUCCESS;
     }
 
     LPBYTE CaptureCoreTocHeader(
@@ -357,22 +355,17 @@ struct TDiabloRoot : public TFileTreeRoot
         return NULL;
     }
 
-    int LoadDirectoryFile(TCascStorage * hs, DIABLO3_DIRECTORY & DirHeader, PCASC_CKEY_ENTRY pCKeyEntry)
+    DWORD LoadDirectoryFile(TCascStorage * hs, DIABLO3_DIRECTORY & DirHeader, PCASC_CKEY_ENTRY pCKeyEntry)
     {
-        LPBYTE pbData;
-        DWORD cbData = 0;
+        CASC_BLOB Data;
+        DWORD dwErrCode;
 
-        // Load the n-th folder
-        pbData = LoadInternalFileToMemory(hs, pCKeyEntry, &cbData);
-        if(pbData && cbData)
-        {
-            if(CaptureDirectoryData(DirHeader, pbData, cbData) == NULL)
-            {
-                // Clear the directory
-                CASC_FREE(pbData);
-                return ERROR_BAD_FORMAT;
-            }
-        }
+        // Load the n-th folder, if exists
+        dwErrCode = LoadInternalFileToMemory(hs, pCKeyEntry, Data);
+        if(dwErrCode == ERROR_SUCCESS && Data.cbData)
+            return CaptureDirectoryData(DirHeader, Data);
+
+        // If the folder is not there, ignore the error
         return ERROR_SUCCESS;
     }
 
@@ -546,7 +539,7 @@ struct TDiabloRoot : public TFileTreeRoot
             PCASC_CKEY_ENTRY pCKeyEntry;
             PCASC_FILE_NODE pFileNode;
             LPBYTE pbDataPtr = Directory.pbNamedEntries;
-            LPBYTE pbDataEnd = Directory.pbDirectoryEnd;
+            LPBYTE pbDataEnd = Directory.Data.End();
             DWORD dwNodeIndex;
 
             // Parse all entries
@@ -609,7 +602,7 @@ struct TDiabloRoot : public TFileTreeRoot
         for(size_t i = 0; i < DIABLO3_MAX_ROOT_FOLDERS; i++)
         {
             // Is this root folder loaded?
-            if(RootFolders[i].pbDirectoryData != NULL)
+            if(RootFolders[i].Data.pbData != NULL)
             {
                 // Retrieve the parent name
                 if(RootFolders[i].dwNodeIndex != 0)
@@ -638,15 +631,15 @@ struct TDiabloRoot : public TFileTreeRoot
     DWORD CreateMapOfFileIndices(TCascStorage * hs, const char * szFileName)
     {
         PDIABLO3_CORE_TOC_HEADER pTocHeader = NULL;
-        LPBYTE pbCoreTocPtr = pbCoreTocFile;
         DWORD dwMaxFileIndex = 0;
-        DWORD dwErrCode = ERROR_CAN_NOT_COMPLETE;
+        DWORD dwErrCode;
 
         // Load the entire file to memory
-        pbCoreTocFile = pbCoreTocPtr = LoadFileToMemory(hs, szFileName, &cbCoreTocFile);
-        if(pbCoreTocFile && cbCoreTocFile)
+        dwErrCode = LoadFileToMemory(hs, szFileName, CoreTocFile);
+        if(dwErrCode == ERROR_SUCCESS && CoreTocFile.cbData)
         {
-            LPBYTE pbCoreTocEnd = pbCoreTocFile + cbCoreTocFile;
+            LPBYTE pbCoreTocPtr = CoreTocFile.pbData;
+            LPBYTE pbCoreTocEnd = CoreTocFile.End();
 
             // Capture the header
             if((pbCoreTocPtr = CaptureCoreTocHeader(&pTocHeader, &dwMaxFileIndex, pbCoreTocPtr, pbCoreTocEnd)) == NULL)
@@ -693,17 +686,18 @@ struct TDiabloRoot : public TFileTreeRoot
     // Packages.dat contains a list of full file names (without locale prefix).
     // They are not sorted, nor they correspond to file IDs.
     // Does the sort order mean something? Perhaps we could use them as listfile?
-    int CreateMapOfRealNames(TCascStorage * hs, const char * szFileName)
+    DWORD CreateMapOfRealNames(TCascStorage * hs, const char * szFileName)
     {
         DWORD Signature = 0;
         DWORD NumberOfNames = 0;
+        DWORD dwErrCode;
 
         // Load the entire file to memory
-        pbPackagesDat = LoadFileToMemory(hs, szFileName, &cbPackagesDat);
-        if(pbPackagesDat && cbPackagesDat)
+        dwErrCode = LoadFileToMemory(hs, szFileName, PackagesDat);
+        if(dwErrCode == ERROR_SUCCESS && PackagesDat.cbData)
         {
-            LPBYTE pbPackagesPtr = pbPackagesDat;
-            LPBYTE pbPackagesEnd = pbPackagesDat + cbPackagesDat;
+            LPBYTE pbPackagesPtr = PackagesDat.pbData;
+            LPBYTE pbPackagesEnd = PackagesDat.End();
 
             // Get the header. There is just Signature + NumberOfNames
             if((pbPackagesPtr = CaptureInteger32(pbPackagesPtr, pbPackagesEnd, &Signature)) == NULL)
@@ -768,21 +762,11 @@ struct TDiabloRoot : public TFileTreeRoot
 
     void FreeLoadingStuff()
     {
-        // Free the captured root sub-directories
-        for(size_t i = 0; i < DIABLO3_MAX_SUBDIRS; i++)
-            CASC_FREE(RootFolders[i].pbDirectoryData);
-
         // Free the package map
         PackagesMap.Free();
 
         // Free the array of file indices
         CASC_FREE(pFileIndices);
-
-        // Free the loaded CoreTOC.dat file
-        CASC_FREE(pbCoreTocFile);
-
-        // Free the loaded Packages.dat file
-        CASC_FREE(pbPackagesDat);
     }
 
     // Array of root directory subdirectories
@@ -791,32 +775,29 @@ struct TDiabloRoot : public TFileTreeRoot
     // Array of DIABLO3_TOC_ENTRY structures, sorted by the file index
     // Used for converting FileIndex -> Asset+PlainName during loading
     PDIABLO3_CORE_TOC_ENTRY pFileIndices;
-    LPBYTE pbCoreTocFile;
+    CASC_BLOB CoreTocFile;
     LPBYTE pbCoreTocData;
     size_t nFileIndices;
-    DWORD cbCoreTocFile;
 
     // Map for searching a real file extension
+    CASC_BLOB PackagesDat;
     CASC_MAP PackagesMap;
-    LPBYTE pbPackagesDat;
-    DWORD cbPackagesDat;
 };
 
 //-----------------------------------------------------------------------------
 // Public functions
 
-DWORD RootHandler_CreateDiablo3(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFile)
+DWORD RootHandler_CreateDiablo3(TCascStorage * hs, CASC_BLOB & RootFile)
 {
     TDiabloRoot * pRootHandler = NULL;
     DIABLO3_DIRECTORY RootDirectory;
     DWORD dwErrCode = ERROR_BAD_FORMAT;
 
     // Verify the header of the ROOT file
-    if(TDiabloRoot::CaptureDirectoryData(RootDirectory, pbRootFile, cbRootFile) != NULL)
+    if((dwErrCode = TDiabloRoot::CaptureDirectoryData(RootDirectory, RootFile)) == ERROR_SUCCESS)
     {
         // Allocate the root handler object
-        pRootHandler = new TDiabloRoot();
-        if(pRootHandler != NULL)
+        if((pRootHandler = new TDiabloRoot()) != NULL)
         {
             // Load the root directory. If load failed, we free the object
             dwErrCode = pRootHandler->Load(hs, RootDirectory);
