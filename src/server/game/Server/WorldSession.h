@@ -721,6 +721,7 @@ namespace WorldPackets
         class MissileTrajectoryCollision;
         class UpdateMissileTrajectory;
         class TradeSkillSetFavorite;
+        class KeyboundOverride;
     }
 
     namespace Talent

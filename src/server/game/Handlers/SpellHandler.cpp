@@ -683,3 +683,21 @@ void WorldSession::HandleRequestCategoryCooldowns(WorldPackets::Spells::RequestC
 {
     _player->SendSpellCategoryCooldowns();
 }
+
+void WorldSession::HandleKeyboundOverride(WorldPackets::Movement::KeyboundOverride& keyboundOverride)
+{
+    uint16 OverrideID = keyboundOverride.OverrideID;
+    if (!OverrideID)
+        return;
+
+    Player* player = GetPlayer();
+
+    uint32 SpellID = player->m_KeyboundOverrides[OverrideID];
+    if (!SpellID)
+    {
+        TC_LOG_ERROR("spells", "Player has no SpellID assigned to KeyboundOverride {}", OverrideID);
+        return;
+    }
+
+    player->CastSpell(player, SpellID);
+}

@@ -473,7 +473,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //403 SPELL_AURA_OVERRIDE_SPELL_VISUAL implemented in Unit::GetCastSpellXSpellVisualId
     &AuraEffect::HandleOverrideAttackPowerBySpellPower,           //404 SPELL_AURA_OVERRIDE_ATTACK_POWER_BY_SP_PCT
     &AuraEffect::HandleModRatingPct,                              //405 SPELL_AURA_MOD_RATING_PCT
-    &AuraEffect::HandleNULL,                                      //406 SPELL_AURA_KEYBOUND_OVERRIDE
+    &AuraEffect::HandleKeyboundOverride,                          //406 SPELL_AURA_KEYBOUND_OVERRIDE
     &AuraEffect::HandleNULL,                                      //407 SPELL_AURA_MOD_FEAR_2
     &AuraEffect::HandleUnused,                                    //408 SPELL_AURA_SET_ACTION_BUTTON_SPELL_COUNT clientside
     &AuraEffect::HandleAuraCanTurnWhileFalling,                   //409 SPELL_AURA_CAN_TURN_WHILE_FALLING
@@ -6245,6 +6245,27 @@ void AuraEffect::HandleForceBreathBar(AuraApplication const* aurApp, uint8 mode,
         return;
 
     playerTarget->UpdatePositionData();
+}
+
+void AuraEffect::HandleKeyboundOverride(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Player* player = aurApp->GetTarget()->ToPlayer();
+    if (!player)
+        return;
+
+    int32 OverrideID = GetMiscValue();
+    SpellKeyboundOverrideEntry const* KeyboundOverride = sSpellKeyboundOverrideStore.LookupEntry(OverrideID);
+    if (!KeyboundOverride)
+    {
+        TC_LOG_ERROR("spells.aura.effect", "Can't find KeyboundOverride by id {}", OverrideID);
+        return;
+    }
+
+    player->m_KeyboundOverrides[OverrideID] = apply ? KeyboundOverride->SpellID : 0;
+    TC_LOG_DEBUG("spells.aura.effect", "Aura {} with KeyboundOverride {} assigns spell {} to {}", GetId(), OverrideID, KeyboundOverride->SpellID, KeyboundOverride->Function);
 }
 
 template TC_GAME_API void AuraEffect::GetTargetList(std::list<Unit*>&) const;
