@@ -298,7 +298,7 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectUnused,                                   //209 SPELL_EFFECT_209
     &Spell::EffectLearnGarrisonBuilding,                    //210 SPELL_EFFECT_LEARN_GARRISON_BUILDING
     &Spell::EffectNULL,                                     //211 SPELL_EFFECT_LEARN_GARRISON_SPECIALIZATION
-    &Spell::EffectNULL,                                     //212 SPELL_EFFECT_REMOVE_AURA_BY_SPELL_LABEL
+    &Spell::EffectRemoveAuraBySpellLabel,                   //212 SPELL_EFFECT_REMOVE_AURA_BY_SPELL_LABEL
     &Spell::EffectJumpDest,                                 //213 SPELL_EFFECT_JUMP_DEST_2
     &Spell::EffectCreateGarrison,                           //214 SPELL_EFFECT_CREATE_GARRISON
     &Spell::EffectNULL,                                     //215 SPELL_EFFECT_UPGRADE_CHARACTER_SPELLS
@@ -5249,6 +5249,20 @@ void Spell::EffectLearnGarrisonBuilding()
 
     if (Garrison* garrison = unitTarget->ToPlayer()->GetGarrison())
         garrison->LearnBlueprint(effectInfo->MiscValue);
+}
+
+void Spell::EffectRemoveAuraBySpellLabel()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!unitTarget)
+        return;
+
+    unitTarget->RemoveAppliedAuras([&](AuraApplication const* aurApp)
+    {
+        return aurApp->GetBase()->GetSpellInfo()->HasLabel(effectInfo->MiscValue);
+    });
 }
 
 void Spell::EffectCreateGarrison()
