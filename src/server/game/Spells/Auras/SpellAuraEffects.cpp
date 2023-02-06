@@ -6257,6 +6257,9 @@ void AuraEffect::HandleKeyboundOverride(AuraApplication const* aurApp, uint8 mod
         return;
 
     int32 OverrideID = GetMiscValue();
+    if (!OverrideID)
+        return;
+        
     SpellKeyboundOverrideEntry const* KeyboundOverride = sSpellKeyboundOverrideStore.LookupEntry(OverrideID);
     if (!KeyboundOverride)
     {
