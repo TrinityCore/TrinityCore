@@ -16,7 +16,7 @@
 
 #define MAX_LENGTH_BOUNDARY 128
 
-// Flags returned by CASC_MIME_HTTP::IsDataComplete()
+// Flags returned by CASC_MIME_HTTP::GetHttpReplyFlags()
 #define HTTP_HEADER_COMPLETE    0x01            // HTML header is complete
 #define HTTP_DATA_COMPLETE      0x02            // HTML data is complete
 
@@ -28,22 +28,37 @@ enum CASC_MIME_ENCODING
     MimeEncodingMax
 };
 
+enum CASC_PRESENCE
+{
+    FieldPresenceUnknown,
+    FieldPresencePresent,
+    FieldPresenceNotPresent
+};
+
 //-----------------------------------------------------------------------------
 // Structure for caching parsed HTTP response information
 
-struct CASC_MIME_HTTP
+struct CASC_MIME_RESPONSE
 {
-    CASC_MIME_HTTP()
+    CASC_MIME_RESPONSE()
     {
-        total_length = content_offset = content_length = http_flags = 0;
+        header_offset = header_length = CASC_INVALID_SIZE_T;
+        content_offset = content_length = CASC_INVALID_SIZE_T;
+        http_code = CASC_INVALID_SIZE_T;
+        clength_presence = http_presence = FieldPresenceUnknown;
+        response_length = 0;
     }
 
-    size_t IsDataComplete(const char * response, size_t response_length, size_t * ptr_content_length = NULL);
+    bool ParseResponse(const char * response, size_t length, bool final = false);
 
-    size_t content_length;              // Parsed value of "Content-Length"
-    size_t content_offset;              // Offset of the HTTP data, relative to the begin of the response
-    size_t total_length;                // Expected total length of the HTTP response (content_offset + content_size)
-    size_t http_flags;                  // Nonzero if this is an already parsed HTTP response
+    size_t response_length;             // Previous length of the response
+    size_t header_offset;               // Offset of the response header, usually 0
+    size_t header_length;               // Length of the header, if known
+    size_t content_offset;              // Offset of the content
+    size_t content_length;              // Length of the content, if known
+    size_t http_code;                   // HTTP code, if present
+    CASC_PRESENCE clength_presence;     // State of the "content length" field
+    CASC_PRESENCE http_presence;        // Presence of the "HTTP" field
 };
 
 //-----------------------------------------------------------------------------
@@ -70,8 +85,9 @@ class CASC_MIME_ELEMENT
     CASC_MIME_ELEMENT();
     ~CASC_MIME_ELEMENT();
 
-    unsigned char * GiveAway(size_t * ptr_data_length);
+    DWORD GiveAway(CASC_BLOB & target);
 
+    DWORD LoadSingle(char * data, size_t data_length);
     DWORD Load(char * mime_data_begin, char * mime_data_end, const char * boundary_ptr = NULL);
 
     CASC_MIME_ELEMENT * GetChild()  { return folder.pChild; }
@@ -86,9 +102,9 @@ class CASC_MIME_ELEMENT
     bool   ExtractEncoding(const char * line, CASC_MIME_ENCODING & Encoding);
     bool   ExtractBoundary(const char * line);
 
-    DWORD DecodeTextPlain(char * content_begin, char * content_end, unsigned char * data_ptr, size_t * ptr_length);
-    DWORD DecodeQuotedPrintable(char * content_begin, char * content_end, unsigned char * data_ptr, size_t * ptr_length);
-    DWORD DecodeBase64(char * content_begin, char * content_end, unsigned char * data_ptr, size_t * ptr_length);
+    DWORD DecodeTextPlain(char * content_begin, char * content_end, CASC_BLOB & output);
+    DWORD DecodeQuotedPrintable(char * content_begin, char * content_end, CASC_BLOB & output);
+    DWORD DecodeBase64(char * content_begin, char * content_end, CASC_BLOB & output);
 
     struct
     {
@@ -96,12 +112,7 @@ class CASC_MIME_ELEMENT
         CASC_MIME_ELEMENT * pNext;      // Pointer to the next-in-folder element
     } folder;
 
-    struct
-    {
-        unsigned char * begin;
-        size_t length;
-    } data;
-
+    CASC_BLOB data;
     char boundary[MAX_LENGTH_BOUNDARY];
 };
 
@@ -112,10 +123,9 @@ class CASC_MIME
     CASC_MIME();
     ~CASC_MIME();
 
-    unsigned char * GiveAway(size_t * ptr_data_length);
+    DWORD GiveAway(CASC_BLOB & target);
 
-    DWORD Load(char * data, size_t length);
-    DWORD Load(LPCTSTR fileName);
+    DWORD Load(char * data, CASC_MIME_RESPONSE & MimeResponse);
 
 #ifdef _DEBUG
     void Print();

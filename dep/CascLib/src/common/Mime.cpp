@@ -37,45 +37,90 @@ static size_t DecodeValueInt32(const char * string, const char * string_end)
     return result;
 }
 
-size_t CASC_MIME_HTTP::IsDataComplete(const char * response, size_t response_length, size_t * ptr_content_length)
+static const char * GetContentLengthValue(const char * response, const char * end)
 {
-    const char * content_length_ptr;
-    const char * content_begin_ptr;
+    const char * ptr;
 
-    // Do not parse the HTTP response multiple times
-    if((http_flags & HTTP_HEADER_COMPLETE) == 0 && response_length > 8)
+    if((ptr = strstr(response, "Content-Length: ")) != NULL && ptr < end)
+        return ptr;
+    if((ptr = strstr(response, "content-length: ")) != NULL && ptr < end)
+        return ptr;
+    return NULL;
+}
+
+bool CASC_MIME_RESPONSE::ParseResponse(const char * response, size_t length, bool final)
+{
+    const char * ptr;
+
+    // Only parse the data if there was an increment
+    if(length > response_length)
     {
-        // Check the begin of the response
-        if(!strncmp(response, "HTTP/1.1", 8))
+        // Set the header offset
+        header_offset = 0;
+
+        // Check for the complete header
+        if(header_length == CASC_INVALID_SIZE_T)
         {
-            // Check if there's begin of the content
-            if((content_begin_ptr = strstr(response, "\r\n\r\n")) != NULL)
+            if((ptr = strstr(response, "\r\n\r\n")) != NULL)
             {
-                // HTTP responses contain "Content-Length: %u\n\r"
-                if((content_length_ptr = strstr(response, "Content-Length: ")) == NULL)
-                    content_length_ptr = strstr(response, "content-length: ");
-                if(content_length_ptr != NULL)
-                {
-                    // The content length info must be before the actual content
-                    if(content_length_ptr < content_begin_ptr)
-                    {
-                        // Fill the HTTP info cache
-                        content_offset = (content_begin_ptr + 4) - response;
-                        content_length = DecodeValueInt32(content_length_ptr + 16, content_begin_ptr);
-                        total_length = content_offset + content_length;
-                        http_flags = HTTP_HEADER_COMPLETE;
-                    }
-                }
+                header_length = (ptr - response) - header_offset;
+                content_offset = header_length + 4;
             }
+        }
+
+        // Determine the presence of the HTTP field
+        if(http_presence == FieldPresenceUnknown && header_length != CASC_INVALID_SIZE_T)
+        {
+            const char * http_ptr = (response + header_offset);
+
+            if(!_strnicmp(http_ptr, "HTTP/1.1 ", 9))
+            {
+                http_presence = FieldPresencePresent;
+                http_code = DecodeValueInt32(response + 9, response + 13);
+            }
+            else
+            {
+                http_presence = FieldPresenceNotPresent;
+            }
+        }
+
+        // Determine the presence of content length
+        if(clength_presence == FieldPresenceUnknown && header_length != CASC_INVALID_SIZE_T)
+        {
+            const char * clength_ptr = GetContentLengthValue(response + header_offset, response + header_length);
+
+            if(clength_ptr != NULL)
+            {
+                content_length = DecodeValueInt32(clength_ptr + 16, response + header_length);
+                clength_presence = FieldPresencePresent;
+            }
+            else
+            {
+                clength_presence = FieldPresenceNotPresent;
+            }
+        }
+
+        // Update the length
+        response_length = length;
+    }
+
+    // If this is a final response parsing we calculate the content length
+    if(content_length == CASC_INVALID_SIZE_T && final == true && (content_offset + 2) < length)
+    {
+        // The field must end with \r\n (0D 0A)
+        const char * end_ptr = (response + length - 2);
+
+        // Is the MIME data terminated with "\r\n"?
+        if(end_ptr[0] == 0x0D && end_ptr[1] == 0x0A)
+        {
+            content_length = (response + length - 2) - (response + content_offset);
         }
     }
 
-    // Update flags
-    if((http_flags & HTTP_HEADER_COMPLETE) && (ptr_content_length != NULL))
-        ptr_content_length[0] = content_length;
-    if(total_length == response_length)
-        http_flags |= HTTP_DATA_COMPLETE;
-    return http_flags;
+    // Determine if we are finished or not
+    if(header_length != CASC_INVALID_SIZE_T && content_length != CASC_INVALID_SIZE_T)
+        return (length >= content_offset + content_length);
+    return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -141,33 +186,27 @@ CASC_MIME_ELEMENT::~CASC_MIME_ELEMENT()
     if(folder.pNext != NULL)
         delete folder.pNext;
     folder.pNext = NULL;
-
-    // Free the data
-    if(data.begin != NULL)
-        CASC_FREE(data.begin);
-    data.begin = NULL;
 }
 
-unsigned char * CASC_MIME_ELEMENT::GiveAway(size_t * ptr_data_length)
+DWORD CASC_MIME_ELEMENT::GiveAway(CASC_BLOB & target)
 {
-    unsigned char * give_away_data = data.begin;
-    size_t give_away_length = data.length;
+    if(data.pbData && data.cbData)
+    {
+        target.MoveFrom(data);
+        return ERROR_SUCCESS;
+    }
+    return ERROR_HANDLE_EOF;
+}
 
-    // Clear the data (DO NOT FREE)
-    data.begin = NULL;
-    data.length = 0;
-
-    // Copy the data to local buffer
-    if(ptr_data_length != NULL)
-        ptr_data_length[0] = give_away_length;
-    return give_away_data;
+DWORD CASC_MIME_ELEMENT::LoadSingle(char * data_ptr, size_t data_length)
+{
+    return data.SetData(data_ptr, data_length);
 }
 
 DWORD CASC_MIME_ELEMENT::Load(char * mime_data_begin, char * mime_data_end, const char * boundary_ptr)
 {
     CASC_MIME_ENCODING Encoding = MimeEncodingTextPlain;
     CASC_MIME_BLOB mime_data(mime_data_begin, mime_data_end);
-    CASC_MIME_HTTP HttpInfo;
     size_t length_begin;
     size_t length_end;
     char * mime_line;
@@ -175,18 +214,6 @@ DWORD CASC_MIME_ELEMENT::Load(char * mime_data_begin, char * mime_data_end, cons
     char boundary_end[MAX_LENGTH_BOUNDARY + 4];
     DWORD dwErrCode = ERROR_SUCCESS;
     bool mime_version = false;
-
-    // Diversion for HTTP: No need to parse the entire headers and stuff.
-    // Just give the data right away
-    if(HttpInfo.IsDataComplete(mime_data_begin, (mime_data_end - mime_data_begin)))
-    {
-        if((data.begin = CASC_ALLOC<BYTE>(HttpInfo.content_length)) == NULL)
-            return ERROR_NOT_ENOUGH_MEMORY;
-        
-        memcpy(data.begin, mime_data_begin + HttpInfo.content_offset, HttpInfo.content_length);
-        data.length = HttpInfo.content_length;
-        return ERROR_SUCCESS;
-    }
 
     // Reset the boundary
     boundary[0] = 0;
@@ -298,9 +325,7 @@ DWORD CASC_MIME_ELEMENT::Load(char * mime_data_begin, char * mime_data_end, cons
         else
         {
             CASC_MIME_BLOB content(mime_data.ptr, NULL);
-            unsigned char * data_buffer;
-            size_t data_length = 0;
-            size_t raw_length;
+            CASC_BLOB data_buffer;
 
             // If we have boundary pointer, we need to cut the data up to the boundary end.
             // Otherwise, we decode the data to the end of the document
@@ -323,47 +348,26 @@ DWORD CASC_MIME_ELEMENT::Load(char * mime_data_begin, char * mime_data_end, cons
                     return ERROR_BAD_FORMAT;
             }
 
-            // Allocate buffer for decoded data.
-            // Make it the same size like source data plus zero at the end
-            raw_length = (content.end - content.ptr);
-            data_buffer = CASC_ALLOC<unsigned char>(raw_length);
-            if(data_buffer != NULL)
+            // Decode the data
+            switch(Encoding)
             {
-                // Decode the data
-                switch(Encoding)
-                {
-                    case MimeEncodingTextPlain:
-                        dwErrCode = DecodeTextPlain(content.ptr, content.end, data_buffer, &data_length);
-                        break;
+                case MimeEncodingTextPlain:
+                    dwErrCode = DecodeTextPlain(content.ptr, content.end, data);
+                    break;
 
-                    case MimeEncodingQuotedPrintable:
-                        dwErrCode = DecodeQuotedPrintable(content.ptr, content.end, data_buffer, &data_length);
-                        break;
+                case MimeEncodingQuotedPrintable:
+                    dwErrCode = DecodeQuotedPrintable(content.ptr, content.end, data);
+                    break;
 
-                    case MimeEncodingBase64:
-                        dwErrCode = DecodeBase64(content.ptr, content.end, data_buffer, &data_length);
-                        break;
+                case MimeEncodingBase64:
+                    dwErrCode = DecodeBase64(content.ptr, content.end, data);
+                    break;
                     
-                    default:;
-                        // to remove warning
-                }
-
-                // If failed, free the buffer back
-                if(dwErrCode != ERROR_SUCCESS)
-                {
-                    CASC_FREE(data_buffer);
-                    data_buffer = NULL;
-                    data_length = 0;
-                }
+                default:
+                    dwErrCode = ERROR_NOT_SUPPORTED;
+                    assert(false);
+                    break;
             }
-            else
-            {
-                dwErrCode = ERROR_NOT_ENOUGH_MEMORY;
-            }
-
-            // Put the data there, even if they are invalid
-            data.begin = data_buffer;
-            data.length = data_length;
         }
     }
     else
@@ -400,15 +404,15 @@ void CASC_MIME_ELEMENT::Print(size_t nLevel, size_t nIndex)
     {
         char data_printable[0x20] = {0};
 
-        for(size_t i = 0; (i < data.length && i < _countof(data_printable) - 1); i++)
+        for(size_t i = 0; (i < data.cbData && i < _countof(data_printable) - 1); i++)
         {
-            if(0x20 <= data.begin[i] && data.begin[i] <= 0x7F)
-                data_printable[i] = data.begin[i];
+            if(0x20 <= data.pbData[i] && data.pbData[i] <= 0x7F)
+                data_printable[i] = data.pbData[i];
             else
                 data_printable[i] = '.';
         }
 
-        printf("Data item (%u bytes): \"%s\"\n", (int)data.length, data_printable);
+        printf("Data item (%u bytes): \"%s\"\n", (int)data.cbData, data_printable);
     }
 
     // Do we have a next element?
@@ -481,127 +485,124 @@ bool CASC_MIME_ELEMENT::ExtractBoundary(const char * line)
     return false;
 }
 
-DWORD CASC_MIME_ELEMENT::DecodeTextPlain(char * content_begin, char * content_end, unsigned char * data_buffer, size_t * ptr_length)
+DWORD CASC_MIME_ELEMENT::DecodeTextPlain(char * content_begin, char * content_end, CASC_BLOB & output)
 {
-    size_t data_length = (size_t)(content_end - content_begin);
-
-    // Sanity checks
-    assert(content_begin && content_end);
-    assert(content_end > content_begin);
-
-    // Plain copy
-    memcpy(data_buffer, content_begin, data_length);
-
-    // Give the result
-    if(ptr_length != NULL)
-        ptr_length[0] = data_length;
-    return ERROR_SUCCESS;
+    return output.SetData(content_begin, (content_end - content_begin));
 }
 
 
-DWORD CASC_MIME_ELEMENT::DecodeQuotedPrintable(char * content_begin, char * content_end, unsigned char * data_buffer, size_t * ptr_length)
+DWORD CASC_MIME_ELEMENT::DecodeQuotedPrintable(char * content_begin, char * content_end, CASC_BLOB & output)
 {
-    unsigned char * save_data_buffer = data_buffer;
-    char * content_ptr;
     DWORD dwErrCode;
 
     // Sanity checks
     assert(content_begin && content_end);
     assert(content_end > content_begin);
 
-    // Decode the data
-    for(content_ptr = content_begin; content_ptr < content_end; )
+    // Allocate space for the output
+    if((dwErrCode = output.SetSize(content_end - content_begin)) == ERROR_SUCCESS)
     {
-        // If the data begins with '=', there is either newline or 2-char hexa number
-        if(content_ptr[0] == '=')
+        unsigned char * output_ptr = output.pbData;
+        char * content_ptr;
+
+        // Decode the data
+        for(content_ptr = content_begin; content_ptr < content_end; )
         {
-            // Is there a newline after the equal sign?
-            if(content_ptr[1] == 0x0D && content_ptr[2] == 0x0A)
+            // If the data begins with '=', there is either newline or 2-char hexa number
+            if(content_ptr[0] == '=')
             {
+                // Is there a newline after the equal sign?
+                if(content_ptr[1] == 0x0D && content_ptr[2] == 0x0A)
+                {
+                    content_ptr += 3;
+                    continue;
+                }
+
+                // Is there hexa number after the equal sign?
+                dwErrCode = BinaryFromString(content_ptr + 1, 2, output_ptr);
+                if(dwErrCode != ERROR_SUCCESS)
+                    return dwErrCode;
+
                 content_ptr += 3;
+                output_ptr++;
                 continue;
             }
-
-            // Is there hexa number after the equal sign?
-            dwErrCode = BinaryFromString(content_ptr + 1, 2, data_buffer);
-            if(dwErrCode != ERROR_SUCCESS)
-                return dwErrCode;
-
-            content_ptr += 3;
-            data_buffer++;
-            continue;
+            else
+            {
+                *output_ptr++ = (unsigned char)(*content_ptr++);
+            }
         }
-        else
-        {
-            *data_buffer++ = (unsigned char)(*content_ptr++);
-        }
+
+        // Set the real length
+        output.cbData = (size_t)(output_ptr - output.pbData);
     }
-
-    if(ptr_length != NULL)
-        ptr_length[0] = (size_t)(data_buffer - save_data_buffer);
-    return ERROR_SUCCESS;
+    return dwErrCode;
 }
 
-DWORD CASC_MIME_ELEMENT::DecodeBase64(char * content_begin, char * content_end, unsigned char * data_buffer, size_t * ptr_length)
+DWORD CASC_MIME_ELEMENT::DecodeBase64(char * content_begin, char * content_end, CASC_BLOB & output)
 {
-    unsigned char * save_data_buffer = data_buffer;
+    DWORD dwErrCode;
     DWORD BitBuffer = 0;
     DWORD BitCount = 0;
     BYTE OneByte;
 
-    // One time preparation of the conversion table
-    if(CascBase64ToBits[0] == 0)
+    if((dwErrCode = output.SetSize(content_end - content_begin)) == ERROR_SUCCESS)
     {
-        // Fill the entire table with 0xFF to mark invalid characters
-        memset(CascBase64ToBits, BASE64_INVALID_CHAR, sizeof(CascBase64ToBits));
+        unsigned char * output_ptr = output.pbData;
 
-        // Set all whitespace characters
-        for(BYTE i = 1; i <= 0x20; i++)
-            CascBase64ToBits[i] = BASE64_WHITESPACE_CHAR;
-
-        // Set all valid characters
-        for(BYTE i = 0; CascBase64Table[i] != 0; i++)
+        // One time preparation of the conversion table
+        if(CascBase64ToBits[0] == 0)
         {
-            OneByte = CascBase64Table[i];
-            CascBase64ToBits[OneByte] = i;
+            // Fill the entire table with 0xFF to mark invalid characters
+            memset(CascBase64ToBits, BASE64_INVALID_CHAR, sizeof(CascBase64ToBits));
+
+            // Set all whitespace characters
+            for(BYTE i = 1; i <= 0x20; i++)
+                CascBase64ToBits[i] = BASE64_WHITESPACE_CHAR;
+
+            // Set all valid characters
+            for(BYTE i = 0; CascBase64Table[i] != 0; i++)
+            {
+                OneByte = CascBase64Table[i];
+                CascBase64ToBits[OneByte] = i;
+            }
         }
-    }
 
-    // Do the decoding
-    while(content_begin < content_end && content_begin[0] != '=')
-    {
-        // Check for end of string
-        if(content_begin[0] > sizeof(CascBase64ToBits))
-            return ERROR_BAD_FORMAT;
-        if((OneByte = CascBase64ToBits[*content_begin++]) == BASE64_INVALID_CHAR)
-            return ERROR_BAD_FORMAT;
-        if(OneByte == BASE64_WHITESPACE_CHAR)
-            continue;
-
-        // Put the 6 bits into the bit buffer
-        BitBuffer = (BitBuffer << 6) | OneByte;
-        BitCount += 6;
-
-        // Flush all values
-        while(BitCount >= 8)
+        // Do the decoding
+        while(content_begin < content_end && content_begin[0] != '=')
         {
-            // Decrement the bit count in the bit buffer
-            BitCount -= 8;
+            // Check for end of string
+            if(content_begin[0] > sizeof(CascBase64ToBits))
+                return ERROR_BAD_FORMAT;
+            if((OneByte = CascBase64ToBits[*content_begin++]) == BASE64_INVALID_CHAR)
+                return ERROR_BAD_FORMAT;
+            if(OneByte == BASE64_WHITESPACE_CHAR)
+                continue;
 
-            // The byte is the upper 8 bits of the bit buffer
-            OneByte = (BYTE)(BitBuffer >> BitCount);
-            BitBuffer = BitBuffer % (1 << BitCount);
+            // Put the 6 bits into the bit buffer
+            BitBuffer = (BitBuffer << 6) | OneByte;
+            BitCount += 6;
 
-            // Put the byte value. The buffer can not overflow,
-            // because it is guaranteed to be equal to the length of the base64 string
-            *data_buffer++ = OneByte;
+            // Flush all values
+            while(BitCount >= 8)
+            {
+                // Decrement the bit count in the bit buffer
+                BitCount -= 8;
+
+                // The byte is the upper 8 bits of the bit buffer
+                OneByte = (BYTE)(BitBuffer >> BitCount);
+                BitBuffer = BitBuffer % (1 << BitCount);
+
+                // Put the byte value. The buffer can not overflow,
+                // because it is guaranteed to be equal to the length of the base64 string
+                *output_ptr++ = OneByte;
+            }
         }
-    }
 
-    // Return the decoded length
-    if(ptr_length != NULL)
-        ptr_length[0] = (data_buffer - save_data_buffer);
-    return ERROR_SUCCESS;
+        // Set the decoded length
+        output.cbData = (output_ptr - output.pbData);
+    }
+    return dwErrCode;
 }
 
 //-----------------------------------------------------------------------------
@@ -613,62 +614,57 @@ CASC_MIME::CASC_MIME()
 CASC_MIME::~CASC_MIME()
 {}
 
-unsigned char * CASC_MIME::GiveAway(size_t * ptr_data_length)
+DWORD CASC_MIME::GiveAway(CASC_BLOB & target)
 {
-    CASC_MIME_ELEMENT * pElement = &root;
-    unsigned char * data;
+    CASC_MIME_ELEMENT * pElement;
 
     // 1) Give the data from the root
-    if((data = root.GiveAway(ptr_data_length)) != NULL)
-        return data;
+    if(root.GiveAway(target) == ERROR_SUCCESS)
+        return ERROR_SUCCESS;
 
     // 2) If we have children, then give away from the first child
-    pElement = root.GetChild();
-    if(pElement && (data = pElement->GiveAway(ptr_data_length)) != NULL)
-        return data;
+    if((pElement = root.GetChild()) != NULL)
+        return pElement->GiveAway(target);
 
-    // Return NULL
-    if(ptr_data_length != NULL)
-        ptr_data_length[0] = 0;
-    return NULL;
+    return ERROR_CAN_NOT_COMPLETE;
 }
 
-DWORD CASC_MIME::Load(char * data, size_t length)
+DWORD CASC_MIME::Load(char * data, CASC_MIME_RESPONSE & MimeResponse)
 {
-    // Clear the root element
-    memset(&root, 0, sizeof(CASC_MIME_ELEMENT));
+    // Avoid parsing empty responses
+    if(MimeResponse.response_length == 0)
+        return ERROR_BAD_FORMAT;
+    if(MimeResponse.header_offset == CASC_INVALID_SIZE_T || MimeResponse.header_length == CASC_INVALID_SIZE_T)
+        return ERROR_BAD_FORMAT;
+    if(MimeResponse.content_offset == CASC_INVALID_SIZE_T || MimeResponse.content_offset == 0)
+        return ERROR_BAD_FORMAT;
+    if(MimeResponse.content_length == CASC_INVALID_SIZE_T || MimeResponse.content_length == 0)
+        return ERROR_BAD_FORMAT;
 
-    //FILE * fp = fopen("E:\\html_response.txt", "wb");
-    //if(fp != NULL)
-    //{
-    //    fwrite(data, 1, length, fp);
-    //    fclose(fp);
-    //}
+    // Avoid parsing responses where the data are incomplete
+    // Example: http://level3.blizzard.com/tpr/wow/data/c6/50/c650c203d52b9e5bdcf1d4b2b8b5bd16.index
+    if(MimeResponse.response_length < (MimeResponse.content_offset + MimeResponse.content_length))
+        return ERROR_BAD_FORMAT;
+
+    // Debug: dump the MIME data to file
+#ifdef _DEBUG
+    //CascDumpData("E:\\mime_raw_data.txt", data, MimeResponse.response_length);
+#endif
+
+    // Special handling of HTTP responses
+    if(MimeResponse.http_presence == FieldPresencePresent)
+    {
+        // Avoid parsing of failed HTTP requests
+        if(MimeResponse.http_code != 200)
+            return ERROR_FILE_NOT_FOUND;
+
+        // Directly setup the root item
+        return root.LoadSingle(data + MimeResponse.content_offset, MimeResponse.content_length);
+    }
 
     // Load the root element
-    return root.Load(data, data + length);
-}
-
-DWORD CASC_MIME::Load(LPCTSTR szFileName)
-{
-    char * szFileData;
-    DWORD cbFileData = 0;
-    DWORD dwErrCode = ERROR_SUCCESS;
-
-    // Note that LoadFileToMemory allocated one byte more and puts zero at the end
-    // Thus, we can treat it as zero-terminated string
-    szFileData = (char *)LoadFileToMemory(szFileName, &cbFileData);
-    if(szFileData != NULL)
-    {
-        dwErrCode = Load(szFileData, cbFileData);
-        CASC_FREE(szFileData);
-    }
-    else
-    {
-        dwErrCode = GetCascError();
-    }
-
-    return dwErrCode;
+    memset(&root, 0, sizeof(CASC_MIME_ELEMENT));
+    return root.Load(data, data + MimeResponse.response_length);
 }
 
 #ifdef _DEBUG

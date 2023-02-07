@@ -175,7 +175,7 @@ struct TCmfFile
         {
             PCMF_HEADER_V3 pHeader3 = (PCMF_HEADER_V3)pbCmfData;
             
-            if ((LPBYTE)(pHeader3 + 1) > pbCmfEnd)
+            if((LPBYTE)(pHeader3 + 1) > pbCmfEnd)
                 return NULL;
 
             BuildVersion = pHeader3->BuildVersion;
@@ -559,7 +559,7 @@ struct TRootHandler_OW : public TFileTreeRoot
 // Public functions
 
 // TODO: There is way more files in the Overwatch CASC storage than present in the ROOT file.
-DWORD RootHandler_CreateOverwatch(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFile)
+DWORD RootHandler_CreateOverwatch(TCascStorage * hs, CASC_BLOB & RootFile)
 {
     TRootHandler_OW * pRootHandler = NULL;
     CASC_CSV Csv(0, true);
@@ -567,7 +567,7 @@ DWORD RootHandler_CreateOverwatch(TCascStorage * hs, LPBYTE pbRootFile, DWORD cb
     DWORD dwErrCode;
 
     // Load the ROOT file
-    dwErrCode = Csv.Load(pbRootFile, cbRootFile);
+    dwErrCode = Csv.Load(RootFile.pbData, RootFile.cbData);
     if(dwErrCode == ERROR_SUCCESS)
     {
         // Retrieve the indices of the file name and MD5 columns
@@ -578,11 +578,11 @@ DWORD RootHandler_CreateOverwatch(TCascStorage * hs, LPBYTE pbRootFile, DWORD cb
         if(Indices[0] != CSV_INVALID_INDEX && Indices[1] != CSV_INVALID_INDEX)
         {
             pRootHandler = new TRootHandler_OW();
-            if (pRootHandler != NULL)
+            if(pRootHandler != NULL)
             {
                 // Load the root directory. If load failed, we free the object
                 dwErrCode = pRootHandler->Load(hs, Csv, Indices[0], Indices[1]);
-                if (dwErrCode != ERROR_SUCCESS)
+                if(dwErrCode != ERROR_SUCCESS)
                 {
                     delete pRootHandler;
                     pRootHandler = NULL;

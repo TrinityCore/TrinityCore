@@ -767,7 +767,7 @@ bool WINAPI CascAddEncryptionKey(HANDLE hStorage, ULONGLONG KeyName, LPBYTE Key)
 
     // Validate the storage handle
     hs = TCascStorage::IsValid(hStorage);
-    if (hs == NULL)
+    if(hs == NULL)
     {
         SetCascError(ERROR_INVALID_HANDLE);
         return false;
@@ -804,7 +804,7 @@ LPBYTE WINAPI CascFindEncryptionKey(HANDLE hStorage, ULONGLONG KeyName)
 
     // Validate the storage handle
     hs = TCascStorage::IsValid(hStorage);
-    if (hs == NULL)
+    if(hs == NULL)
     {
         SetCascError(ERROR_INVALID_HANDLE);
         return NULL;
@@ -819,7 +819,7 @@ bool WINAPI CascGetNotFoundEncryptionKey(HANDLE hStorage, ULONGLONG * KeyName)
     TCascStorage * hs;
 
     // Validate the storage handle
-    if ((hs = TCascStorage::IsValid(hStorage)) == NULL)
+    if((hs = TCascStorage::IsValid(hStorage)) == NULL)
     {
         SetCascError(ERROR_INVALID_HANDLE);
         return false;

@@ -69,7 +69,7 @@ unsigned char AsciiToHexTable[128] =
     0xFF, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
     0xFF, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
 };
 
 unsigned char IntToHexChar[] = "0123456789abcdef";
@@ -229,10 +229,10 @@ void CascStrCopy(char * szTarget, size_t cchTarget, const char * szSource, size_
 {
     size_t cchToCopy;
 
-    if (cchTarget > 0)
+    if(cchTarget > 0)
     {
         // Make sure we know the length
-        if (cchSource == -1)
+        if(cchSource == -1)
             cchSource = strlen(szSource);
         cchToCopy = CASCLIB_MIN((cchTarget - 1), cchSource);
 
@@ -246,10 +246,10 @@ void CascStrCopy(char * szTarget, size_t cchTarget, const wchar_t * szSource, si
 {
     size_t cchToCopy;
 
-    if (cchTarget > 0)
+    if(cchTarget > 0)
     {
         // Make sure we know the length
-        if (cchSource == -1)
+        if(cchSource == -1)
             cchSource = wcslen(szSource);
         cchToCopy = CASCLIB_MIN((cchTarget - 1), cchSource);
 
@@ -262,10 +262,10 @@ void CascStrCopy(wchar_t * szTarget, size_t cchTarget, const char * szSource, si
 {
     size_t cchToCopy;
 
-    if (cchTarget > 0)
+    if(cchTarget > 0)
     {
         // Make sure we know the length
-        if (cchSource == -1)
+        if(cchSource == -1)
             cchSource = strlen(szSource);
         cchToCopy = CASCLIB_MIN((cchTarget - 1), cchSource);
 
@@ -278,10 +278,10 @@ void CascStrCopy(wchar_t * szTarget, size_t cchTarget, const wchar_t * szSource,
 {
     size_t cchToCopy;
 
-    if (cchTarget > 0)
+    if(cchTarget > 0)
     {
         // Make sure we know the length
-        if (cchSource == -1)
+        if(cchSource == -1)
             cchSource = wcslen(szSource);
         cchToCopy = CASCLIB_MIN((cchTarget - 1), cchSource);
 
@@ -293,44 +293,56 @@ void CascStrCopy(wchar_t * szTarget, size_t cchTarget, const wchar_t * szSource,
 //-----------------------------------------------------------------------------
 // Safe version of s(w)printf
 
-size_t CascStrPrintf(char * buffer, size_t nCount, const char * format, ...)
+size_t CascStrPrintfV(char * buffer, size_t nCount, const char * format, va_list argList)
 {
     char * buffend;
-    va_list argList;
 
-    // Start the argument list
-    va_start(argList, format);
-    
 #ifdef CASCLIB_PLATFORM_WINDOWS
     StringCchVPrintfExA(buffer, nCount, &buffend, NULL, 0, format, argList);
-//  buffend = buffer + vsnprintf(buffer, nCount, format, argList);
 #else
     buffend = buffer + vsnprintf(buffer, nCount, format, argList);
 #endif
-    
-    // End the argument list
+
+    return (buffend - buffer);
+}
+
+size_t CascStrPrintf(char * buffer, size_t nCount, const char * format, ...)
+{
+    va_list argList;
+    size_t length;
+
+    // Start the argument list
+    va_start(argList, format);
+    length = CascStrPrintfV(buffer, nCount, format, argList);
     va_end(argList);
+
+    return length;
+}
+
+size_t CascStrPrintfV(wchar_t * buffer, size_t nCount, const wchar_t * format, va_list argList)
+{
+    wchar_t * buffend;
+
+#ifdef CASCLIB_PLATFORM_WINDOWS
+    StringCchVPrintfExW(buffer, nCount, &buffend, NULL, 0, format, argList);
+#else
+    buffend = buffer + vswprintf(buffer, nCount, format, argList);
+#endif
+
     return (buffend - buffer);
 }
 
 size_t CascStrPrintf(wchar_t * buffer, size_t nCount, const wchar_t * format, ...)
 {
-    wchar_t * buffend;
     va_list argList;
+    size_t length;
 
     // Start the argument list
     va_start(argList, format);
-
-#ifdef CASCLIB_PLATFORM_WINDOWS
-    StringCchVPrintfExW(buffer, nCount, &buffend, NULL, 0, format, argList);
-//  buffend = buffer + vswprintf(buffer, nCount, format, argList);
-#else
-    buffend = buffer + vswprintf(buffer, nCount, format, argList);
-#endif
-
-    // End the argument list
+    length = CascStrPrintfV(buffer, nCount, format, argList);
     va_end(argList);
-    return (buffend - buffer);
+
+    return length;
 }
 
 //-----------------------------------------------------------------------------
@@ -413,74 +425,7 @@ LPTSTR CascNewStrA2T(LPCSTR szString, size_t nCharsToReserve)
 }
 
 //-----------------------------------------------------------------------------
-// String merging
-
-LPTSTR GetLastPathPart(LPTSTR szWorkPath)
-{
-    size_t nLength = _tcslen(szWorkPath);
-
-    // Go one character back
-    if(nLength > 0)
-        nLength--;
-
-    // Cut ending (back)slashes, if any
-    while(nLength > 0 && (szWorkPath[nLength] == _T('\\') || szWorkPath[nLength] == _T('/')))
-        nLength--;
-
-    // Cut the last path part
-    while(nLength > 0)
-    {
-        // End of path?
-        if(szWorkPath[nLength] == _T('\\') || szWorkPath[nLength] == _T('/'))
-        {
-            return szWorkPath + nLength;
-        }
-
-        // Go one character back
-        nLength--;
-    }
-
-    return NULL;
-}
-
-bool CutLastPathPart(LPTSTR szWorkPath)
-{
-    // Get the last part of the path
-    szWorkPath = GetLastPathPart(szWorkPath);
-    if(szWorkPath == NULL)
-        return false;
-
-    szWorkPath[0] = 0;
-    return true;
-}
-
-size_t CombinePath(LPTSTR szBuffer, size_t nMaxChars, va_list argList)
-{
-    CASC_PATH<TCHAR> Path(PATH_SEP_CHAR);
-    LPCTSTR szFragment;
-    bool bWithSeparator = false;
-
-    // Combine all parts of the path here
-    while((szFragment = va_arg(argList, LPTSTR)) != NULL)
-    {
-        Path.AppendString(szFragment, bWithSeparator);
-        bWithSeparator = true;
-    }
-
-    return Path.Copy(szBuffer, nMaxChars);
-}
-
-size_t CombinePath(LPTSTR szBuffer, size_t nMaxChars, ...)
-{
-    va_list argList;
-    size_t nLength;
-
-    va_start(argList, nMaxChars);
-    nLength = CombinePath(szBuffer, nMaxChars, argList);
-    va_end(argList);
-
-    return nLength;
-}
+// String normalization
 
 size_t NormalizeFileName(const unsigned char * NormTable, char * szNormName, const char * szFileName, size_t cchMaxChars)
 {
