@@ -282,6 +282,10 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
     Unit* mover = client->GetActivelyMovedUnit();
     Player* plrMover = mover->ToPlayer();
 
+    if (plrMover && plrMover->GetEmoteState() != EMOTE_ONESHOT_NONE) {
+        plrMover->SetEmoteState(EMOTE_ONESHOT_NONE);
+    }
+
     // ignore, waiting processing in WorldSession::HandleMoveWorldportAckOpcode and WorldSession::HandleMoveTeleportAck
     if (plrMover && plrMover->IsBeingTeleported())
     {
