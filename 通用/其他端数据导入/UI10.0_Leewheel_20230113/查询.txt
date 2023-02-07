@@ -22,3 +22,5 @@ INSERT INTO creature_loot_template SELECT * FROM creature_loot_template_10 WHERE
 
 INSERT INTO gameobject_template SELECT * FROM gameobject_template_10 WHERE NOT EXISTS (SELECT 1 FROM gameobject_template WHERE gameobject_template_10.entry= gameobject_template.entry);
 //890
+
+

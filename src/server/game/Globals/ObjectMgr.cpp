@@ -11267,21 +11267,25 @@ void ObjectMgr::InitializeQueriesData(QueryDataGroup mask)
     Trinity::ThreadPool pool;
 
     // Initialize Query data for creatures
+    // 初始化生物数据
     if (mask & QUERY_DATA_CREATURES)
         for (auto& creatureTemplatePair : _creatureTemplateStore)
             pool.PostWork([creature = &creatureTemplatePair.second]() { creature->InitializeQueryData(); });
 
     // Initialize Query Data for gameobjects
+    // 初始化游戏物品数据
     if (mask & QUERY_DATA_GAMEOBJECTS)
         for (auto& gameObjectTemplatePair : _gameObjectTemplateStore)
             pool.PostWork([gobj = &gameObjectTemplatePair.second]() { gobj->InitializeQueryData(); });
 
     // Initialize Query Data for quests
+    // 初始化任务数据
     if (mask & QUERY_DATA_QUESTS)
         for (auto& questTemplatePair : _questTemplates)
             pool.PostWork([quest = &questTemplatePair.second]() { quest->InitializeQueryData(); });
 
     // Initialize Quest POI data
+    // 初始化任务POI数据(POI是什么?)
     if (mask & QUERY_DATA_POIS)
         for (auto& poiWrapperPair : _questPOIStore)
             pool.PostWork([poi = &poiWrapperPair.second]() { poi->InitializeQueryData(); });
@@ -11289,6 +11293,7 @@ void ObjectMgr::InitializeQueriesData(QueryDataGroup mask)
     pool.Join();
 
     TC_LOG_INFO("server.loading", ">> Initialized query cache data in {} ms", GetMSTimeDiffToNow(oldMSTime));
+    //输出日志:在*豪秒内初始化了查询缓存数据
 }
 
 void QuestPOIData::InitializeQueryData()
