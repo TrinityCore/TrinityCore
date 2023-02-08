@@ -1,4 +1,4 @@
-删除重复id,站在同一个地方的生物
+--删除重复id,站在同一个地方的生物
 最容易理解的方法:
 
 --原来一共770884条数据
@@ -59,4 +59,4 @@ unit_flags3,dynamicflags,ScriptName,StringId,VerifiedBuild,size)as x);
 
 
 
-来源:https://blog.csdn.net/weixin_39820226/article/details/113553561,其中的方法二
+--来源:https://blog.csdn.net/weixin_39820226/article/details/113553561,其中的方法二
