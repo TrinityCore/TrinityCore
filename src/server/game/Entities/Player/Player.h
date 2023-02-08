@@ -696,7 +696,9 @@ enum ProfessionSlots : uint8
     PROFESSION_SLOT_FISHING_GEAR2        = 29,
 
     PROFESSION_SLOT_END,
-    PROFESSION_SLOT_START                = PROFESSION_SLOT_PROFESSION1_TOOL
+    PROFESSION_SLOT_START                = PROFESSION_SLOT_PROFESSION1_TOOL,
+
+    PROFESSION_SLOT_MAX_COUNT            = PROFESSION_SLOT_PROFESSION2_TOOL - PROFESSION_SLOT_PROFESSION1_TOOL
 };
 
 enum InventorySlots : uint8                                 // 4 slots
@@ -2204,7 +2206,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint16 GetSkillStep(uint32 skill) const;            // 0...6
         bool HasSkill(uint32 skill) const;
         void LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue, Races race);
-        int32 FindProfessionSlotFor(uint32 skillId) const;
+        int32 GetProfessionSlotFor(uint32 skillId) const;
+        int32 FindEmptyProfessionSlotFor(uint32 skillId) const;
         void SetSkillLineId(uint32 pos, uint16 skillLineId) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillLineID, pos), skillLineId); }
         void SetSkillStep(uint32 pos, uint16 step) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillStep, pos), step); };
         void SetSkillRank(uint32 pos, uint16 rank) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillRank, pos), rank); }
