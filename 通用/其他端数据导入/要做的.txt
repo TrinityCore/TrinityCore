@@ -1,1 +1,0 @@
-用不同id来插入creature
