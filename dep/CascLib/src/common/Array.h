@@ -42,8 +42,11 @@ class CASC_ARRAY
     // Creates an array with a custom element size
     int Create(size_t ItemSize, size_t ItemCountMax)
     {
+        // Sanity check
+        assert(ItemCountMax != 0);
+
         // Create the array
-        if ((m_pItemArray = CASC_ALLOC<BYTE>(ItemSize * ItemCountMax)) == NULL)
+        if((m_pItemArray = CASC_ALLOC<BYTE>(ItemSize * ItemCountMax)) == NULL)
             return ERROR_NOT_ENOUGH_MEMORY;
 
         m_ItemCountMax = ItemCountMax;
@@ -58,7 +61,7 @@ class CASC_ARRAY
         void * pNewItems;
 
         // Try to enlarge the buffer, if needed
-        if (!EnlargeArray(m_ItemCount + NewItemCount, bEnlargeAllowed))
+        if(!EnlargeArray(m_ItemCount + NewItemCount, bEnlargeAllowed))
             return NULL;
         pNewItems = m_pItemArray + (m_ItemCount * m_ItemSize);
 
@@ -75,7 +78,7 @@ class CASC_ARRAY
         void * pNewItem = Insert(NewItemCount, bEnlargeAllowed);
 
         // Copy the item(s) to the array, if any
-        if (pNewItem && NewItems)
+        if(pNewItem && NewItems)
             memcpy(pNewItem, NewItems, (NewItemCount * m_ItemSize));
         return pNewItem;
     }
@@ -108,7 +111,7 @@ class CASC_ARRAY
         m_ItemCount = CASCLIB_MAX(m_ItemCount, ItemIndex+1);
 
         // If we inserted an item past the current end, we need to clear the items in-between
-        if (pbNewItem > pbLastItem)
+        if(pbNewItem > pbLastItem)
         {
             memset(pbLastItem, 0, (pbNewItem - pbLastItem));
             m_ItemCount = ItemIndex + 1;
@@ -167,6 +170,24 @@ class CASC_ARRAY
         m_ItemCountMax = m_ItemCount = m_ItemSize = 0;
     }
 
+#ifdef _DEBUG
+    size_t BytesAllocated()
+    {
+        return m_ItemCountMax * m_ItemSize;
+    }
+
+    void Dump(const char * szFileName)
+    {
+        FILE * fp;
+
+        if((fp = fopen(szFileName, "wb")) != NULL)
+        {
+            fwrite(m_pItemArray, m_ItemSize, m_ItemCount, fp);
+            fclose(fp);
+        }
+    }
+#endif
+
     protected:
 
     bool EnlargeArray(size_t NewItemCount, bool bEnlargeAllowed)
@@ -179,7 +200,7 @@ class CASC_ARRAY
         assert(m_ItemCountMax != 0);
 
         // Shall we enlarge the table?
-        if (NewItemCount > m_ItemCountMax)
+        if(NewItemCount > m_ItemCountMax)
         {
             // Deny enlarge if not allowed
             if(bEnlargeAllowed == false)
@@ -192,7 +213,7 @@ class CASC_ARRAY
 
             // Allocate new table
             NewItemArray = CASC_REALLOC(m_pItemArray, (ItemCountMax * m_ItemSize));
-            if (NewItemArray == NULL)
+            if(NewItemArray == NULL)
                 return false;
 
             // Set the new table size

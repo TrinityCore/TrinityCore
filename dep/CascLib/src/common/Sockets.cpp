@@ -24,21 +24,16 @@ CASC_SOCKET_CACHE SocketCache;
 // CASC_SOCKET functions
 
 // Guarantees that there is zero terminator after the response
-char * CASC_SOCKET::ReadResponse(const char * request, size_t request_length, size_t * PtrLength)
+char * CASC_SOCKET::ReadResponse(const char * request, size_t request_length, CASC_MIME_RESPONSE & MimeResponse)
 {
-    CASC_MIME_HTTP HttpInfo;
     char * server_response = NULL;
-    size_t content_length = 0;
     size_t total_received = 0;
     size_t buffer_length = BUFFER_INITIAL_SIZE;
     size_t buffer_delta = BUFFER_INITIAL_SIZE;
-    size_t http_flags = 0;
     DWORD dwErrCode = ERROR_SUCCESS;
     int bytes_received = 0;
 
     // Pre-set the result length
-    if(PtrLength != NULL)
-        PtrLength[0] = 0;
     if(request_length == 0)
         request_length = strlen(request);
 
@@ -59,9 +54,10 @@ char * CASC_SOCKET::ReadResponse(const char * request, size_t request_length, si
     }
 
     // Allocate buffer for server response. Allocate one extra byte for zero terminator
-    if((server_response = CASC_ALLOC<char>(buffer_length + 1)) != NULL)
+    if((server_response = CASC_ALLOC_ZERO<char>(buffer_length + 1)) != NULL)
     {
-        while((http_flags & HTTP_DATA_COMPLETE) == 0)
+        // Keep working until the response parser says it's finished
+        for(;;)
         {
             // Reallocate the buffer size, if needed
             if(total_received == buffer_length)
@@ -80,7 +76,10 @@ char * CASC_SOCKET::ReadResponse(const char * request, size_t request_length, si
             // Return value 0 means "connection closed", -1 means an error
             bytes_received = recv(sock, server_response + total_received, (int)(buffer_length - total_received), 0);
             if(bytes_received <= 0)
+            {
+                MimeResponse.ParseResponse(server_response, total_received, true);
                 break;
+            }
 
             // Verify buffer overflow
             if((total_received + bytes_received) < total_received)
@@ -93,23 +92,29 @@ char * CASC_SOCKET::ReadResponse(const char * request, size_t request_length, si
             total_received += bytes_received;
             server_response[total_received] = 0;
 
-            // On a HTTP protocol, we need to check whether we received all data
-            http_flags = HttpInfo.IsDataComplete(server_response, total_received, &content_length);
-            if(http_flags & HTTP_HEADER_COMPLETE)
+            // Parse the MIME response
+            if(MimeResponse.ParseResponse(server_response, total_received, false))
+                break;
+
+            // If we know the content length (HTTP only), we temporarily increment
+            // the buffer delta. This will make next reallocation to make buffer
+            // large enough to prevent abundant reallocations and memory memcpy's
+            if(MimeResponse.clength_presence == FieldPresencePresent && MimeResponse.content_length != CASC_INVALID_SIZE_T)
             {
+                // Calculate the final length of the buffer, including the terminating EOLs
+                size_t content_end = MimeResponse.content_offset + MimeResponse.content_length + 2;
+
                 // Check for maximum file size
-                if(content_length > CASC_MAX_ONLINE_FILE_SIZE)
+                if(content_end > CASC_MAX_ONLINE_FILE_SIZE)
                 {
                     dwErrCode = ERROR_NOT_ENOUGH_MEMORY;
                     break;
                 }
 
-                // If we just retrieved the content length, we temporarily increment
-                // the buffer delta. This will make next reallocation to make buffer
-                // large enough to prevent abundant reallocations and memory memcpy's
-                if(content_length > buffer_length)
+                // Estimate the total buffer size
+                if(content_end > buffer_length)
                 {
-                    buffer_delta = (HttpInfo.content_offset + content_length) - buffer_length;
+                    buffer_delta = content_end - buffer_length;
                 }
             }
         }
@@ -127,8 +132,6 @@ char * CASC_SOCKET::ReadResponse(const char * request, size_t request_length, si
     }
 
     // Give the result to the caller
-    if(PtrLength != NULL)
-        PtrLength[0] = total_received;
     return server_response;
 }
 

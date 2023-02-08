@@ -1,7 +1,7 @@
 /*****************************************************************************/
-/* CascLib.h                              Copyright (c) Ladislav Zezula 2014 */
+/* CascLib.h                              Copyright (c) Ladislav Zezula 2022 */
 /*---------------------------------------------------------------------------*/
-/* CascLib library v 1.00                                                    */
+/* CascLib library v 3.0                                                     */
 /*                                                                           */
 /* Author : Ladislav Zezula                                                  */
 /* E-mail : ladik@zezula.net                                                 */
@@ -10,13 +10,14 @@
 /*   Date    Ver   Who  Comment                                              */
 /* --------  ----  ---  -------                                              */
 /* 29.04.14  1.00  Lad  Created                                              */
+/* 19.12.22  1.00  Lad  Version 3.0                                          */
 /*****************************************************************************/
 
 #ifndef __CASCLIB_H__
 #define __CASCLIB_H__
 
 #ifdef _MSC_VER
-#pragma warning(disable:4668)                   // 'XXX' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'
+#pragma warning(disable:4668)       // 'XXX' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'
 #pragma warning(disable:4820)       // 'XXX' : '2' bytes padding added after data member 'XXX::yyy'
 #endif
 
@@ -74,8 +75,8 @@ extern "C" {
 //-----------------------------------------------------------------------------
 // Defines
 
-#define CASCLIB_VERSION                 0x0210  // CascLib version - integral (2.1)
-#define CASCLIB_VERSION_STRING           "2.1"  // CascLib version - string
+#define CASCLIB_VERSION                 0x0300  // CascLib version - integral (3.0)
+#define CASCLIB_VERSION_STRING           "3.0"  // CascLib version - string
 
 // Values for CascOpenFile
 #define CASC_OPEN_BY_NAME           0x00000000  // Open the file by name. This is the default value
@@ -122,13 +123,14 @@ extern "C" {
 #define MD5_STRING_SIZE                   0x20
 #endif
 
-// Return value for CascGetFileSize and CascSetFilePointer
+// Invalid values of all kind
 #define CASC_INVALID_INDEX          0xFFFFFFFF
 #define CASC_INVALID_SIZE           0xFFFFFFFF
 #define CASC_INVALID_POS            0xFFFFFFFF
 #define CASC_INVALID_ID             0xFFFFFFFF
 #define CASC_INVALID_OFFS64         0xFFFFFFFFFFFFFFFF
 #define CASC_INVALID_SIZE64         0xFFFFFFFFFFFFFFFF
+#define CASC_INVALID_SIZE_T         ((size_t)(-1))
 
 // Flags for CASC_STORAGE_FEATURES::dwFeatures
 #define CASC_FEATURE_FILE_NAMES     0x00000001  // File names are supported by the storage
@@ -139,9 +141,10 @@ extern "C" {
 #define CASC_FEATURE_FILE_DATA_IDS  0x00000020  // The storage indexes files by FileDataId
 #define CASC_FEATURE_LOCALE_FLAGS   0x00000040  // Locale flags are supported
 #define CASC_FEATURE_CONTENT_FLAGS  0x00000080  // Content flags are supported
-#define CASC_FEATURE_ONLINE         0x00000100  // The storage is an online storage
-#define CASC_FEATURE_LOCAL_CDNS     0x00000200  // (Online) use cached "cdns" file, if available
-#define CASC_FEATURE_LOCAL_VERSIONS 0x00000400  // (Online) use cached "versions" file, if available
+#define CASC_FEATURE_DATA_ARCHIVES  0x00000100  // The storage supports files stored in data.### archives
+#define CASC_FEATURE_DATA_FILES     0x00000200  // The storage supports raw files stored in %CascRoot%\xx\yy\xxyy## (CKey-based)
+#define CASC_FEATURE_ONLINE         0x00000400  // Load the missing files from online CDNs
+#define CASC_FEATURE_FORCE_DOWNLOAD 0x00001000  // (Online) always download "versions" and "cdns" even if it exists locally
 
 // Macro to convert FileDataId to the argument of CascOpenFile
 #define CASC_FILE_DATA_ID(FileDataId) ((LPCSTR)(size_t)FileDataId)

@@ -52,37 +52,47 @@ bool MakeDirectory(LPCTSTR szDirectory)
 #endif
 }
 
-int ScanIndexDirectory(
-    LPCTSTR szIndexPath,
-    INDEX_FILE_FOUND pfnOnFileFound,
+DWORD ScanDirectory(
+    LPCTSTR szDirectory,
+    DIRECTORY_CALLBACK PfnFolderCallback,
+    DIRECTORY_CALLBACK PfnFileCallback,
     void * pvContext)
 {
 #ifdef CASCLIB_PLATFORM_WINDOWS
 
+    CASC_PATH<TCHAR> SearchMask(szDirectory, _T("*"), NULL);
     WIN32_FIND_DATA wf;
     HANDLE hFind;
-    TCHAR szSearchMask[MAX_PATH];
-
-    // Prepare the search mask
-    CombinePath(szSearchMask, _countof(szSearchMask), szIndexPath, _T("*"), NULL);
 
     // Prepare directory search
-    hFind = FindFirstFile(szSearchMask, &wf);
+    hFind = FindFirstFile(SearchMask, &wf);
     if(hFind != INVALID_HANDLE_VALUE)
     {
         // Skip the first file as it's always just "." or ".."
         while(FindNextFile(hFind, &wf))
         {
-            // If the found object is a file, pass it to the handler
-            if(!(wf.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+            // If we found a folder, we call the directory callback
+            if(wf.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
             {
-                // Let the callback scan the file name
-                pfnOnFileFound(wf.cFileName, pvContext);
+                if(PfnFolderCallback != NULL)
+                {
+                    if(!PfnFolderCallback(wf.cFileName, pvContext))
+                        break;
+                }
+            }
+            else
+            {
+                if(PfnFileCallback != NULL)
+                {
+                    if(!PfnFileCallback(wf.cFileName, pvContext))
+                        break;
+                }
             }
         }
 
         // Close the search handle
         FindClose(hFind);
+        return ERROR_SUCCESS;
     }
 
 #else // CASCLIB_PLATFORM_WINDOWS
@@ -90,21 +100,39 @@ int ScanIndexDirectory(
     struct dirent * dir_entry;
     DIR * dir;
 
-    dir = opendir(szIndexPath);
-    if(dir != NULL)
+    // Prepare directory search
+    if((dir = opendir(szDirectory)) != NULL)
     {
+        // Read (the next) directory entry
         while((dir_entry = readdir(dir)) != NULL)
         {
-            if(dir_entry->d_type != DT_DIR)
+            if(dir_entry->d_type == DT_DIR)
             {
-                pfnOnFileFound(dir_entry->d_name, pvContext);
+                if(PfnFolderCallback != NULL)
+                {
+                    if(!PfnFolderCallback(dir_entry->d_name, pvContext))
+                    {
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                if(PfnFileCallback != NULL)
+                {
+                    if(!PfnFileCallback(dir_entry->d_name, pvContext))
+                    {
+                        break;
+                    }
+                }
             }
         }
 
         closedir(dir);
+        return ERROR_SUCCESS;
     }
 
 #endif
 
-    return ERROR_SUCCESS;
+    return ERROR_PATH_NOT_FOUND;
 }

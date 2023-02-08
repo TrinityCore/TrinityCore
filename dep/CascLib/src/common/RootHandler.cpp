@@ -87,7 +87,7 @@ PCASC_CKEY_ENTRY TFileTreeRoot::Search(TCascSearch * pSearch, PCASC_FIND_DATA pF
             if(!(pFileNode->Flags & CFN_FLAG_FOLDER))
             {
                 // Check the wildcard
-                if (CascCheckWildCard(pFindData->szFileName, pSearch->szMask))
+                if(CascCheckWildCard(pFindData->szFileName, pSearch->szMask))
                 {
                     // Retrieve the extra values (FileDataId, file size and locale flags)
                     FileTree.GetExtras(pFileNode, &pFindData->dwFileDataId, &pFindData->dwLocaleFlags, &pFindData->dwContentFlags);
