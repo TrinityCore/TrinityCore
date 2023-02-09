@@ -177,7 +177,7 @@ bool CASC_FILE_TREE::RebuildNameMaps()
     if(NameMap.Create(nMaxItems, sizeof(ULONGLONG), FIELD_OFFSET(CASC_FILE_NODE, FileNameHash)) != ERROR_SUCCESS)
         return false;
 
-    // Reset the entire array, but keep the buffer allocated
+    // Reset the entire array, but buffers allocated
     FileDataIds.Reset();
 
     // Parse all items and insert them to the map
@@ -393,13 +393,22 @@ PCASC_FILE_NODE CASC_FILE_TREE::ItemAt(size_t nItemIndex)
 
 PCASC_FILE_NODE CASC_FILE_TREE::PathAt(char * szBuffer, size_t cchBuffer, size_t nItemIndex)
 {
+    PCASC_FILE_NODE * RefFileNode;
     PCASC_FILE_NODE pFileNode = NULL;
 
     // If we have FileDataId, then we need to enumerate the files by FileDataId
     if(FileDataIds.IsInitialized())
-        pFileNode = *(PCASC_FILE_NODE *)FileDataIds.ItemAt(nItemIndex);
+    {
+        RefFileNode = (PCASC_FILE_NODE *)FileDataIds.ItemAt(nItemIndex);
+        if(RefFileNode != NULL)
+        {
+            pFileNode = *(PCASC_FILE_NODE *)FileDataIds.ItemAt(nItemIndex);
+        }
+    }
     else
+    {
         pFileNode = (PCASC_FILE_NODE)NodeTable.ItemAt(nItemIndex);
+    }
 
     // Construct the entire path
     PathAt(szBuffer, cchBuffer, pFileNode);

@@ -141,7 +141,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_SEL_CHARACTER_GLYPHS, "SELECT talentGroup, glyphId FROM character_glyphs WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_SEL_CHARACTER_TALENTS, "SELECT talentId, talentGroup FROM character_talent WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_SEL_CHARACTER_PVP_TALENTS, "SELECT talentId0, talentId1, talentId2, talentId3, talentGroup FROM character_pvp_talent WHERE guid = ?", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_SEL_CHARACTER_SKILLS, "SELECT skill, value, max FROM character_skills WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_SEL_CHARACTER_SKILLS, "SELECT skill, value, max, professionSlot FROM character_skills WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_SEL_CHARACTER_RANDOMBG, "SELECT guid FROM character_battleground_random WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_SEL_CHARACTER_BANNED, "SELECT guid FROM character_banned WHERE guid = ? AND active = 1", CONNECTION_ASYNC);
     PrepareStatement(CHAR_SEL_CHARACTER_QUESTSTATUSREW, "SELECT quest FROM character_queststatus_rewarded WHERE guid = ? AND active = 1", CONNECTION_ASYNC);
@@ -636,8 +636,8 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_UPD_CHAR_QUESTSTATUS_REWARDED_ACTIVE_BY_QUEST, "UPDATE character_queststatus_rewarded SET active = 0 WHERE quest = ? AND guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_INVALID_QUEST_PROGRESS_CRITERIA, "DELETE FROM character_queststatus_objectives_criteria WHERE questObjectiveId = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_CHAR_SKILL_BY_SKILL, "DELETE FROM character_skills WHERE guid = ? AND skill = ?", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_INS_CHAR_SKILLS, "INSERT INTO character_skills (guid, skill, value, max) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
-    PrepareStatement(CHAR_UPD_CHAR_SKILLS, "UPDATE character_skills SET value = ?, max = ? WHERE guid = ? AND skill = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_INS_CHAR_SKILLS, "INSERT INTO character_skills (guid, skill, value, max, professionSlot) VALUES (?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_CHAR_SKILLS, "UPDATE character_skills SET value = ?, max = ?, professionSlot = ? WHERE guid = ? AND skill = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_INS_CHAR_SPELL, "INSERT INTO character_spell (guid, spell, active, disabled) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_CHAR_SPELL_FAVORITE, "DELETE FROM character_spell_favorite WHERE guid = ? AND spell = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_CHAR_SPELL_FAVORITE_BY_CHAR, "DELETE FROM character_spell_favorite WHERE guid = ?", CONNECTION_ASYNC);

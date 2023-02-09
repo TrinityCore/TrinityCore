@@ -93,7 +93,7 @@
   #include <netdb.h>
 
   // Support for PowerPC on Max OS X
-  #if (__ppc__ == 1) || (__POWERPC__ == 1) || (_ARCH_PPC == 1)
+  #if(__ppc__ == 1) || (__POWERPC__ == 1) || (_ARCH_PPC == 1)
     #include <stdint.h>
     #include <CoreFoundation/CFByteOrder.h>
   #endif
