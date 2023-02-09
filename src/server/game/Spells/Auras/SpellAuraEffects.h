@@ -356,8 +356,6 @@ class TC_GAME_API AuraEffect
 
         // pvp talents
         void HandleAuraPvpTalents(AuraApplication const* auraApp, uint8 mode, bool apply) const;
-
-        void HandleKeyboundOverride(AuraApplication const* aurApp, uint8 mode, bool apply) const;
 };
 
 namespace Trinity

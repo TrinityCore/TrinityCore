@@ -3537,11 +3537,11 @@ struct SpellItemEnchantmentConditionEntry
 
 struct SpellKeyboundOverrideEntry
 {
-	uint32 ID;
-	char const* Function;
-	int8 Type;
-	int32 SpellID;
-	int32 Flags;
+    uint32 ID;
+    char const* Function;
+    int8 Type;
+    int32 Data;
+    int32 Flags;
 };
 
 struct SpellLabelEntry

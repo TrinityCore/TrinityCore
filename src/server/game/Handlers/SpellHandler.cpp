@@ -686,18 +686,13 @@ void WorldSession::HandleRequestCategoryCooldowns(WorldPackets::Spells::RequestC
 
 void WorldSession::HandleKeyboundOverride(WorldPackets::Spells::KeyboundOverride& keyboundOverride)
 {
-    uint16 overrideId = keyboundOverride.OverrideID;
-    if (!overrideId)
-        return;
-
     Player* player = GetPlayer();
-
-    uint32 spellId = player->m_KeyboundOverrides[overrideId];
-    if (!spellId)
-    {
-        TC_LOG_ERROR("spells", "Player has no SpellID assigned to SpellKeyboundOverride {}", overrideId);
+    if (!player->HasAuraTypeWithMiscvalue(SPELL_AURA_KEYBOUND_OVERRIDE, keyboundOverride.OverrideID))
         return;
-    }
 
-    player->CastSpell(player, spellId);
+    SpellKeyboundOverrideEntry const* spellKeyboundOverride = sSpellKeyboundOverrideStore.LookupEntry(keyboundOverride.OverrideID);
+    if (!spellKeyboundOverride)
+        return;
+
+    player->CastSpell(player, spellKeyboundOverride->Data);
 }

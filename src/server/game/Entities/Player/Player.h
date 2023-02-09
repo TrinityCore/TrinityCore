@@ -2557,8 +2557,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void ActivatePvpItemLevels(bool activate) { _usePvpItemLevels = activate; }
         bool IsUsingPvpItemLevels() const { return _usePvpItemLevels; }
 
-        std::unordered_map<uint16, uint32> m_KeyboundOverrides;
-
         /*********************************************************/
         /***                 INSTANCE SYSTEM                   ***/
         /*********************************************************/
