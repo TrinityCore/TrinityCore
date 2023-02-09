@@ -59,128 +59,110 @@ enum Events
     EVENT_GROUND_SLAM,
     EVENT_ELEMENTIUM_SPIKE_SHIELD,
     EVENT_SHATTER,
-    EVENT_ENRAGE,
-    EVENT_START_ATTACK
+    EVENT_ENRAGE
 };
 
-class boss_ozruk : public CreatureScript
+struct boss_ozruk : public BossAI
 {
-    public:
-        boss_ozruk() : CreatureScript("boss_ozruk") { }
+    boss_ozruk(Creature* creature) : BossAI(creature, DATA_OZRUK), _enraged(false) { }
 
-        struct boss_ozrukAI : public BossAI
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        Talk(SAY_AGGRO, who);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
+
+        events.ScheduleEvent(EVENT_ELEMENTIUM_BULWARK, 5s);
+        events.ScheduleEvent(EVENT_GROUND_SLAM, 10s);
+        events.ScheduleEvent(EVENT_ELEMENTIUM_SPIKE_SHIELD, 13s);
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        _EnterEvadeMode();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        summons.DespawnAll();
+        _DespawnAtEvade();
+    }
+
+    void JustDied(Unit* killer) override
+    {
+        _JustDied();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+
+        Talk(SAY_DEATH, killer);
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        if (summon->GetEntry() == NPC_RUPTURE_CONTROLLER)
         {
-            boss_ozrukAI(Creature* creature) : BossAI(creature, DATA_OZRUK), _enraged(false) { }
-
-            void JustEngagedWith(Unit* who) override
-            {
-                BossAI::JustEngagedWith(who);
-                Talk(SAY_AGGRO);
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-
-                events.ScheduleEvent(EVENT_ELEMENTIUM_BULWARK, Seconds(5));
-                events.ScheduleEvent(EVENT_GROUND_SLAM, Seconds(10));
-                events.ScheduleEvent(EVENT_ELEMENTIUM_SPIKE_SHIELD, Seconds(13));
-            }
-
-            void EnterEvadeMode(EvadeReason /*why*/) override
-            {
-                _EnterEvadeMode();
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                summons.DespawnAll();
-                _DespawnAtEvade();
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-
-                Talk(SAY_DEATH);
-            }
-
-            void JustSummoned(Creature* summon) override
-            {
-                if (summon->GetEntry() == NPC_RUPTURE_CONTROLLER)
-                {
-                    summon->CastSpell(summon, SPELL_RUPTURE, true);
-                    summon->DespawnOrUnsummon(Seconds(11));
-                }
-
-                summons.Summon(summon);
-            }
-
-            void DamageTaken(Unit* /*attacker*/, uint32 &damage) override
-            {
-                if (me->HealthBelowPctDamaged(25, damage) && !_enraged)
-                {
-                    DoCast(me, SPELL_ENRAGE);
-                    Talk(SAY_ENRAGE);
-                    _enraged = true;
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_ELEMENTIUM_BULWARK:
-                            DoCast(me, SPELL_ELEMENTIUM_BULWARK);
-                            Talk(SAY_ELEMENTIUM_BULWARK);
-                            break;
-                        case EVENT_GROUND_SLAM:
-                            me->SetReactState(REACT_PASSIVE);
-                            me->AttackStop();
-                            DoCast(me, SPELL_GROUND_SLAM);
-                            events.ScheduleEvent(EVENT_START_ATTACK, Seconds(4) + Milliseconds(600));
-                            break;
-                        case EVENT_ELEMENTIUM_SPIKE_SHIELD:
-                            if (IsHeroic())
-                                DoCastSelf(SPELL_PARALYZE, true);
-
-                            DoCastSelf(SPELL_ELEMENTIUM_SPIKE_SHIELD);
-                            Talk(SAY_ELEMENTIUM_SPIKE_SHIELD);
-                            events.ScheduleEvent(EVENT_SHATTER, Seconds(10));
-                            break;
-                        case EVENT_SHATTER:
-                            summons.DespawnEntry(NPC_BOUNCER_SPIKE);
-                            me->SetReactState(REACT_PASSIVE);
-                            me->AttackStop();
-                            DoCastSelf(SPELL_SHATTER);
-                            events.ScheduleEvent(EVENT_START_ATTACK, Seconds(4) + Milliseconds(600));
-                            events.ScheduleEvent(EVENT_ELEMENTIUM_BULWARK, Seconds(3), Seconds(4));
-                            events.ScheduleEvent(EVENT_GROUND_SLAM, Seconds(7), Seconds(9));
-                            events.ScheduleEvent(EVENT_ELEMENTIUM_SPIKE_SHIELD, Seconds(10), Seconds(12));
-                            break;
-                        case EVENT_START_ATTACK:
-                            me->SetReactState(REACT_AGGRESSIVE);
-                            DoStartMovement(me->GetVictim());
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                DoMeleeAttackIfReady();
-            }
-        private:
-            bool _enraged;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetStonecoreAI<boss_ozrukAI>(creature);
+            summon->CastSpell(summon, SPELL_RUPTURE, true);
+            summon->DespawnOrUnsummon(11s);
         }
+
+        summons.Summon(summon);
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        if (me->HealthBelowPctDamaged(25, damage) && !_enraged)
+        {
+            events.ScheduleEvent(EVENT_ENRAGE, 1ms);
+            _enraged = true;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_ELEMENTIUM_BULWARK:
+                    DoCastSelf(SPELL_ELEMENTIUM_BULWARK);
+                    Talk(SAY_ELEMENTIUM_BULWARK);
+                    break;
+                case EVENT_GROUND_SLAM:
+                    DoCastSelf(SPELL_GROUND_SLAM);
+                    break;
+                case EVENT_ELEMENTIUM_SPIKE_SHIELD:
+                    DoCastSelf(SPELL_ELEMENTIUM_SPIKE_SHIELD);
+                    Talk(SAY_ELEMENTIUM_SPIKE_SHIELD);
+                    events.ScheduleEvent(EVENT_SHATTER, 10s);
+                    break;
+                case EVENT_SHATTER:
+                    summons.DespawnEntry(NPC_BOUNCER_SPIKE);
+                    me->SetReactState(REACT_AGGRESSIVE); // reset the passive state triggered by Paralyze
+                    DoCastSelf(SPELL_SHATTER);
+                    events.ScheduleEvent(EVENT_ELEMENTIUM_BULWARK, 4s, 6s);
+                    events.ScheduleEvent(EVENT_GROUND_SLAM, 7s, 9s);
+                    events.ScheduleEvent(EVENT_ELEMENTIUM_SPIKE_SHIELD, 10s, 12s);
+                    break;
+                case EVENT_ENRAGE:
+                    DoCastSelf(SPELL_ENRAGE);
+                    Talk(SAY_ENRAGE);
+                    break;
+                default:
+                    break;
+            }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+
+        DoMeleeAttackIfReady();
+    }
+private:
+    bool _enraged;
 };
 
 class spell_ozruk_rupture : public AuraScript
@@ -192,8 +174,8 @@ class spell_ozruk_rupture : public AuraScript
 
     void HandleEffectPeriodic(AuraEffect const* aurEff)
     {
+        PreventDefaultAction();
         Unit* caster = GetTarget();
-
         float dist = aurEff->GetTickNumber() * 8.0f;
         float angle = caster->GetOrientation() -0.2f;
 
@@ -260,20 +242,29 @@ class spell_ozruk_elementium_spike_shield : public SpellScript
 
 class spell_ozruk_paralyze : public SpellScript
 {
+    bool Load() override
+    {
+        return GetCaster()->IsCreature();
+    }
+
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PARALYZE_STUN });
     }
 
-    void HandleDummy()
+    void HandleStunEffect(SpellEffIndex /*effIndex*/)
     {
-        if (Unit* caster = GetCaster())
-            caster->CastSpell(caster, SPELL_PARALYZE_STUN);
+        GetCaster()->CastSpell(GetCaster(), SPELL_PARALYZE_STUN);
+        if (Creature* creature = GetCaster()->ToCreature())
+        {
+            creature->AttackStop();
+            creature->SetReactState(REACT_PASSIVE);
+        }
     }
 
     void Register() override
     {
-        OnHit.Register(&spell_ozruk_paralyze::HandleDummy);
+        OnEffectHitTarget.Register(&spell_ozruk_paralyze::HandleStunEffect, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
 
@@ -300,7 +291,7 @@ class spell_ozruk_paralyze_stun : public AuraScript
 
 void AddSC_boss_ozruk()
 {
-    new boss_ozruk();
+    RegisterStonecoreCreatureAI(boss_ozruk);
     RegisterSpellScript(spell_ozruk_rupture);
     RegisterSpellScript(spell_ozuruk_rupture_summon);
     RegisterSpellScript(spell_ozruk_elementium_spike_shield);
