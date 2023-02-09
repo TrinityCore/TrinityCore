@@ -6256,19 +6256,19 @@ void AuraEffect::HandleKeyboundOverride(AuraApplication const* aurApp, uint8 mod
     if (!player)
         return;
 
-    int32 OverrideID = GetMiscValue();
-    if (!OverrideID)
+    int32 overrideId = GetMiscValue();
+    if (!overrideId)
         return;
-        
-    SpellKeyboundOverrideEntry const* KeyboundOverride = sSpellKeyboundOverrideStore.LookupEntry(OverrideID);
-    if (!KeyboundOverride)
+
+    SpellKeyboundOverrideEntry const* keyboundOverride = sSpellKeyboundOverrideStore.LookupEntry(overrideId);
+    if (!keyboundOverride)
     {
-        TC_LOG_ERROR("spells.aura.effect", "Can't find KeyboundOverride by id {}", OverrideID);
+        TC_LOG_ERROR("spells.aura.effect", "Can't find SpellKeyboundOverride by id {}", overrideId);
         return;
     }
 
-    player->m_KeyboundOverrides[OverrideID] = apply ? KeyboundOverride->SpellID : 0;
-    TC_LOG_DEBUG("spells.aura.effect", "Aura {} with KeyboundOverride {} assigns spell {} to {}", GetId(), OverrideID, KeyboundOverride->SpellID, KeyboundOverride->Function);
+    player->m_KeyboundOverrides[overrideId] = apply ? keyboundOverride->SpellID : 0;
+    TC_LOG_DEBUG("spells.aura.effect", "Aura {} with SpellKeyboundOverride {} assigns spell {} to {}", GetId(), overrideId, keyboundOverride->SpellID, keyboundOverride->Function);
 }
 
 template TC_GAME_API void AuraEffect::GetTargetList(std::list<Unit*>&) const;
