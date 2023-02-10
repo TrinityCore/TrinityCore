@@ -205,6 +205,21 @@ void Object::BuildValuesUpdateBlockForPlayerWithFlag(UpdateData* data, UF::Updat
     data->AddUpdateBlock();
 }
 
+
+void Object::SetInt32Value(uint16 index, int32 value) //AZ
+{
+    ASSERT(index < m_valuesCount || PrintIndexError(index, true));
+
+    if (m_int32Values[index] != value)
+    {
+        m_int32Values[index] = value;
+        _changesMask.SetBit(index);
+
+        AddToObjectUpdateIfNeeded();
+    }
+}
+
+
 void Object::BuildDestroyUpdateBlock(UpdateData* data) const
 {
     data->AddDestroyObject(GetGUID());
@@ -233,6 +248,22 @@ void Object::DestroyForPlayer(Player* target) const
     updateData.BuildPacket(&packet);
     target->SendDirectMessage(&packet);
 }
+
+bool Object::PrintIndexError(uint32 index, bool set) const
+{
+    TC_LOG_INFO("misc", "Attempt {} non-existed value field: {} (count: {}) for object typeid: {} type mask: {}",
+        (set ? "set value to" : "get value from"), index, m_valuesCount, GetTypeId(), m_objectType);
+
+    // ASSERT must fail after function call
+    return false;
+}
+
+[[nodiscard]] int32 Object::GetInt32Value(uint16 index) const   //AZ
+{
+    ASSERT(index < m_valuesCount || PrintIndexError(index, false));
+    return m_int32Values[index];
+}
+
 
 void Object::SendOutOfRangeForPlayer(Player* target) const
 {

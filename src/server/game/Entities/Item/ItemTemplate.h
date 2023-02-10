@@ -752,6 +752,10 @@ struct ChrSpecializationEntry;
 
 struct TC_GAME_API ItemTemplate
 {
+    uint32 ItemId;                                                                                  //AZ
+    int32  RandomProperty;                                  // id from ItemRandomProperties.dbc     //AZ
+    int32  RandomSuffix;                                    // id from ItemRandomSuffix.dbc         //AZ
+    int32  MaxCount;                                        // <= 0: no limit //AZ
     ItemEntry const* BasicData;
     ItemSparseEntry const* ExtendedData;
 

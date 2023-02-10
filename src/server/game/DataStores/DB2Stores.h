@@ -30,7 +30,7 @@
 #ifdef GetClassName
 #undef GetClassName
 #endif
-
+using Binary = std::vector<uint8>;//AZ
 class DB2HotfixGeneratorBase;
 
 TC_GAME_API extern DB2Storage<AchievementEntry>                     sAchievementStore;
@@ -278,7 +278,8 @@ TC_GAME_API extern DB2Storage<VehicleSeatEntry>                     sVehicleSeat
 TC_GAME_API extern DB2Storage<WorldEffectEntry>                     sWorldEffectStore;
 TC_GAME_API extern DB2Storage<WorldMapOverlayEntry>                 sWorldMapOverlayStore;
 TC_GAME_API extern DB2Storage<WorldStateExpressionEntry>            sWorldStateExpressionStore;
-
+extern DB2Storage <ItemRandomPropertiesEntry>    sItemRandomPropertiesStore;    //AZ
+extern DB2Storage <ItemRandomSuffixEntry>        sItemRandomSuffixStore;        //AZ
 struct ContentTuningLevels
 {
     int16 MinLevel = 0;

@@ -303,7 +303,44 @@ void Field::LogWrongType(char const* getter) const
         getter, meta->TypeName, meta->TableAlias, meta->Alias, meta->TableName, meta->Name, meta->Index);
 }
 
+
+std::string Field::GetDataString() const
+{
+    if (!data.value)
+        return "";
+
+#ifdef ACORE_STRICT_DATABASE_TYPE_CHECKS
+    if (IsNumeric() && data.raw)
+    {
+        LogWrongType(__FUNCTION__, "std::string");
+        return "";
+    }
+#endif
+
+    return { data.value, data.length };
+}
+
 void Field::SetMetadata(QueryResultFieldMetadata const* fieldMeta)
 {
     meta = fieldMeta;
+}
+
+
+Binary Field::GetDataBinary() const
+{
+    Binary result = {};
+    if (!data.value || !data.length)
+        return result;
+
+#ifdef ACORE_STRICT_DATABASE_TYPE_CHECKS
+    if (!IsCorrectFieldType<Binary>(meta->Type))
+    {
+        LogWrongType(__FUNCTION__, "Binary");
+        return {};
+    }
+#endif
+
+    result.resize(data.length);
+    memcpy(result.data(), data.value, data.length);
+    return result;
 }

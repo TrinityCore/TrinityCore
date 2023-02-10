@@ -168,11 +168,16 @@ Item* NewItemOrBag(ItemTemplate const* proto);
 
 class TC_GAME_API Item : public Object
 {
-    friend void AddItemToUpdateQueueOf(Item* item, Player* player);
-    friend void RemoveItemFromUpdateQueueOf(Item* item, Player* player);
+    friend void AddItemToUpdateQueueOf(Item* item, Player* player);         //这两个报错,暂时不用管,本来就是这样,没动过
+    friend void RemoveItemFromUpdateQueueOf(Item* item, Player* player);    //这两个报错,暂时不用管,本来就是这样,没动过
 
     public:
+        void SetItemRandomProperties(int32 randomPropId);
+        static Item* CreateItem(uint32 item, uint32 count, Player const* player = nullptr, bool clone = false, uint32 randomPropertyId = 0);//AZ
         static Item* CreateItem(uint32 itemEntry, uint32 count, ItemContext context, Player const* player = nullptr);
+
+        
+        static int32 GenerateItemRandomPropertyId(uint32 item_id);
         Item* CloneItem(uint32 count, Player const* player = nullptr) const;
 
         Item();
