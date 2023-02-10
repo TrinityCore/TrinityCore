@@ -683,3 +683,16 @@ void WorldSession::HandleRequestCategoryCooldowns(WorldPackets::Spells::RequestC
 {
     _player->SendSpellCategoryCooldowns();
 }
+
+void WorldSession::HandleKeyboundOverride(WorldPackets::Spells::KeyboundOverride& keyboundOverride)
+{
+    Player* player = GetPlayer();
+    if (!player->HasAuraTypeWithMiscvalue(SPELL_AURA_KEYBOUND_OVERRIDE, keyboundOverride.OverrideID))
+        return;
+
+    SpellKeyboundOverrideEntry const* spellKeyboundOverride = sSpellKeyboundOverrideStore.LookupEntry(keyboundOverride.OverrideID);
+    if (!spellKeyboundOverride)
+        return;
+
+    player->CastSpell(player, spellKeyboundOverride->Data);
+}

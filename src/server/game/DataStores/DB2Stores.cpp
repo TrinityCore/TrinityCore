@@ -286,6 +286,7 @@ DB2Storage<SpellFocusObjectEntry>               sSpellFocusObjectStore("SpellFoc
 DB2Storage<SpellInterruptsEntry>                sSpellInterruptsStore("SpellInterrupts.db2", &SpellInterruptsLoadInfo::Instance);
 DB2Storage<SpellItemEnchantmentEntry>           sSpellItemEnchantmentStore("SpellItemEnchantment.db2", &SpellItemEnchantmentLoadInfo::Instance);
 DB2Storage<SpellItemEnchantmentConditionEntry>  sSpellItemEnchantmentConditionStore("SpellItemEnchantmentCondition.db2", &SpellItemEnchantmentConditionLoadInfo::Instance);
+DB2Storage<SpellKeyboundOverrideEntry>          sSpellKeyboundOverrideStore("SpellKeyboundOverride.db2", &SpellKeyboundOverrideLoadInfo::Instance);
 DB2Storage<SpellLabelEntry>                     sSpellLabelStore("SpellLabel.db2", &SpellLabelLoadInfo::Instance);
 DB2Storage<SpellLearnSpellEntry>                sSpellLearnSpellStore("SpellLearnSpell.db2", &SpellLearnSpellLoadInfo::Instance);
 DB2Storage<SpellLevelsEntry>                    sSpellLevelsStore("SpellLevels.db2", &SpellLevelsLoadInfo::Instance);
@@ -887,6 +888,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sSpellInterruptsStore);
     LOAD_DB2(sSpellItemEnchantmentStore);
     LOAD_DB2(sSpellItemEnchantmentConditionStore);
+    LOAD_DB2(sSpellKeyboundOverrideStore);
     LOAD_DB2(sSpellLabelStore);
     LOAD_DB2(sSpellLearnSpellStore);
     LOAD_DB2(sSpellLevelsStore);

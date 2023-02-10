@@ -4876,6 +4876,20 @@ struct SpellItemEnchantmentConditionLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 31, &SpellItemEnchantmentConditionMeta::Instance, HOTFIX_SEL_SPELL_ITEM_ENCHANTMENT_CONDITION };
 };
 
+struct SpellKeyboundOverrideLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[5] =
+    {
+        { false, FT_INT, "ID" },
+        { false, FT_STRING_NOT_LOCALIZED, "Function" },
+        { true, FT_BYTE, "Type" },
+        { true, FT_INT, "Data" },
+        { true, FT_INT, "Flags" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 5, &SpellKeyboundOverrideMeta::Instance, HOTFIX_SEL_SPELL_KEYBOUND_OVERRIDE };
+};
+
 struct SpellLabelLoadInfo
 {
     static constexpr DB2FieldMeta Fields[3] =
