@@ -211,7 +211,8 @@ class spell_love_is_in_the_air_recently_analyzed : public AuraScript
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->CastSpell(GetTarget(), SPELL_HEAVILY_PERFUMED);
+        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
+            GetTarget()->CastSpell(GetTarget(), SPELL_HEAVILY_PERFUMED);
     }
 
     void Register() override
