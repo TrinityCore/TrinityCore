@@ -241,7 +241,7 @@ struct npc_volatile_sapling : public ScriptedAI
             }
         }
     }
-    
+
 private:
     bool _castedSappyBurst;
 };
