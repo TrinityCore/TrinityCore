@@ -37,9 +37,9 @@ enum LeymorSpells
     SPELL_CONSUMING_STOMP_DAMAGE            = 374731,
     SPELL_ERUPTING_FISSURE                  = 386660,
     SPELL_ERUPTING_FISSURE_SPROUT_SELECTOR  = 394154,
-    SPELL_EXPLOSIVE_BRAND                   = 374567, 
+    SPELL_EXPLOSIVE_BRAND                   = 374567,
     SPELL_EXPLOSIVE_BRAND_DAMAGE            = 374570,
-    SPELL_EXPLOSIVE_BRAND_KNOCKBACK         = 374582, 
+    SPELL_EXPLOSIVE_BRAND_KNOCKBACK         = 374582,
     SPELL_INFUSED_STRIKE                    = 374789,
 
     // Ley-Line Sprout
@@ -51,10 +51,10 @@ enum LeymorSpells
     SPELL_SAPPY_BURST                       = 375591,
 
     // Arcane Tender
-    SPELL_STASIS_RITUAL                     = 375732, 
-    SPELL_STASIS_RITUAL_MISSILE             = 375738, 
+    SPELL_STASIS_RITUAL                     = 375732,
+    SPELL_STASIS_RITUAL_MISSILE             = 375738,
     SPELL_ERRATIC_GROWTH_CHANNEL            = 375596,
-    SPELL_WILD_ERUPTION                     = 375652, 
+    SPELL_WILD_ERUPTION                     = 375652,
     SPELL_WILD_ERUPTION_MISSILE             = 375650
 };
 

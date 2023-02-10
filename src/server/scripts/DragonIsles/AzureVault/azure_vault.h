@@ -29,11 +29,11 @@ enum AVDataTypes
 {
     // Encounters
     DATA_LEYMOR             = 0,
-    DATA_AZUREBLADE,         
-    DATA_TELASH_GREYWING,    
-    DATA_UMBRELSKUL,         
+    DATA_AZUREBLADE,
+    DATA_TELASH_GREYWING,
+    DATA_UMBRELSKUL,
 
-    DATA_LEYMOR_INTRO_DONE 
+    DATA_LEYMOR_INTRO_DONE
 };
 
 enum AVCreatureIds
