@@ -127,7 +127,7 @@ struct npc_arcane_tender : public ScriptedAI
         if (!leymor)
             return;
 
-        DoCast(leymor, SPELL_STASIS_RITUAL, false);
+        DoCast(leymor, SPELL_STASIS_RITUAL);
     }
 
     void JustReachedHome() override
@@ -146,10 +146,10 @@ struct npc_arcane_tender : public ScriptedAI
         if (!UpdateVictim())
             return;
 
+        _events.Update(diff);
+
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
-
-        _events.Update(diff);
 
         while (uint32 eventId = _events.ExecuteEvent())
         {
@@ -228,7 +228,7 @@ struct npc_ley_line_sprouts : public ScriptedAI
 
 struct npc_volatile_sapling : public ScriptedAI
 {
-    npc_volatile_sapling(Creature* creature) : ScriptedAI(creature), _castedSappyBurst(false) { }
+    npc_volatile_sapling(Creature* creature) : ScriptedAI(creature), _isSappyBurstCast(false) { }
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/)
     {
@@ -236,16 +236,16 @@ struct npc_volatile_sapling : public ScriptedAI
         {
             damage = 0;
             me->SetHealth(1);
-            if (!_castedSappyBurst)
+            if (!_isSappyBurstCast)
             {
                 me->CastSpell(nullptr, SPELL_SAPPY_BURST, false);
-                _castedSappyBurst = true;
+                _isSappyBurstCast = true;
             }
         }
     }
 
 private:
-    bool _castedSappyBurst;
+    bool _isSappyBurstCast;
 };
 
 struct boss_leymor : public BossAI
@@ -262,7 +262,7 @@ struct boss_leymor : public BossAI
             return;
 
         me->SetUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
-        me->CastSpell(me, SPELL_STASIS);
+        DoCastSelf(SPELL_STASIS);
     }
 
     void DoAction(int32 action) override
@@ -408,7 +408,7 @@ class spell_stasis_ritual : public AuraScript
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
         if (Unit* caster = GetCaster())
-            caster->CastSpell(GetTarget(), SPELL_STASIS_RITUAL_MISSILE, true);
+            caster->CastSpell(nullptr, SPELL_STASIS_RITUAL_MISSILE, true);
     }
 
     void Register() override
