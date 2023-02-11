@@ -259,12 +259,14 @@ bool MoveSplineInitArgs::Validate(Unit* unit) const
 }
 
 // check path lengths - why are we even starting such short movement?
-bool MoveSplineInitArgs::_checkPathLengths() const
+// 检测路径高度-为什么我们甚至开始如此短的移动?
+bool MoveSplineInitArgs::_checkPathLengths() const  //临时注释
 {
-    if (path.size() > 2 || facing.type == MONSTER_MOVE_NORMAL)
-        for (uint32 i = 0; i < path.size() - 1; ++i)
-            if ((path[i + 1] - path[i]).length() < 0.1f)
-                return false;
+    //if (path.size() > 2 || facing.type == MONSTER_MOVE_NORMAL)
+    ////如果path的尺寸>2 或者..
+    //    for (uint32 i = 0; i < path.size() - 1; ++i)
+    //        if ((path[i + 1] - path[i]).length() < 0.1f)
+    //            return false;
     return true;
 }
 
