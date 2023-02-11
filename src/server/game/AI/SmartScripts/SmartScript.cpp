@@ -43,6 +43,7 @@
 #include "TemporarySummon.h"
 #include "Vehicle.h"
 #include "WaypointDefines.h"
+#include "WaypointManager.h"
 
 SmartScript::SmartScript()
 {
@@ -2062,7 +2063,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     {
                         for (uint32 pathId : waypoints)
                         {
-                            WaypointPath const* path = sSmartWaypointMgr->GetPath(pathId);
+                            WaypointPath const* path = sWaypointMgr->GetPath(pathId);
                             if (!path || path->nodes.empty())
                                 continue;
 

@@ -30,6 +30,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "Vehicle.h"
+#include "WaypointManager.h"
 
 SmartAI::SmartAI(Creature* creature, uint32 scriptId) : CreatureAI(creature, scriptId), _charmed(false), _followCreditType(0), _followArrivedTimer(0), _followCredit(0), _followArrivedEntry(0), _followDistance(0.f), _followAngle(0.f),
     _escortState(SMART_ESCORT_NONE), _escortNPCFlags(0), _escortInvokerCheckTimer(1000), _currentWaypointNode(0), _waypointReached(false), _waypointPauseTimer(0), _waypointPauseForced(false), _repeatWaypointPath(false),
@@ -82,7 +83,7 @@ bool SmartAI::LoadPath(uint32 entry)
     if (HasEscortState(SMART_ESCORT_ESCORTING))
         return false;
 
-    WaypointPath const* path = sSmartWaypointMgr->GetPath(entry);
+    WaypointPath const* path = sWaypointMgr->GetPath(entry);
     if (!path || path->nodes.empty())
     {
         GetScript()->SetPathId(0);
