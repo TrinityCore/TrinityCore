@@ -66,6 +66,8 @@
 
 #include "Hacks/boost_program_options_with_filesystem_path.h"
 
+// #define _CRT_SECURE_NO_DEPRECATE    //尝试去除assert报错,无用
+
 using namespace boost::program_options;
 namespace fs = boost::filesystem;
 
@@ -90,7 +92,7 @@ int m_ServiceStatus = -1;
 #include <timeapi.h>
 #endif
 
-class FreezeDetector
+class FreezeDetector    //冻结检测器
 {
 public:
     FreezeDetector(Trinity::Asio::IoContext& ioContext, uint32 maxCoreStuckTime)
@@ -121,7 +123,7 @@ void ShutdownCLIThread(std::thread* cliThread);
 bool LoadRealmInfo();
 variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, std::string& cfg_service);
 
-/// Launch the Trinity server
+/// Launch the Trinity server   //启动Trinity服务器
 extern int main(int argc, char** argv)
 {
     signal(SIGABRT, &Trinity::AbortHandler);
@@ -210,8 +212,11 @@ extern int main(int argc, char** argv)
         []()
         {
             TC_LOG_INFO("server.worldserver", "Using configuration file {}.", sConfigMgr->GetFilename());
+            //输出 使用的配置
             TC_LOG_INFO("server.worldserver", "Using SSL version: {} (library: {})", OPENSSL_VERSION_TEXT, OpenSSL_version(OPENSSL_VERSION));
+            //输出 使用的SSL版本
             TC_LOG_INFO("server.worldserver", "Using Boost version: {}.{}.{}", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
+            //输出 使用的Boost版本
         }
     );
 
@@ -219,7 +224,7 @@ extern int main(int argc, char** argv)
         TC_LOG_INFO("server.worldserver", "Configuration field '{}' was overridden with environment variable.", key);
 
     OpenSSLCrypto::threadsSetup(boost::dll::program_location().remove_filename());
-
+    //打开Openssl加密
     std::shared_ptr<void> opensslHandle(nullptr, [](void*) { OpenSSLCrypto::threadsCleanup(); });
 
     // Seed the OpenSSL's PRNG here.
@@ -228,6 +233,7 @@ extern int main(int argc, char** argv)
     seed.SetRand(16 * 8);
 
     /// worldserver PID file creation
+    //Worldserver PID文件创建
     std::string pidFile = sConfigMgr->GetStringDefault("PidFile", "");
     if (!pidFile.empty())
     {
@@ -241,6 +247,7 @@ extern int main(int argc, char** argv)
     }
 
     // Set signal handlers (this must be done before starting IoContext threads, because otherwise they would unblock and exit)
+    //设置信号控制器(这个必须在开始输入输出线程完成,否则他们将会清理并且退出)
     boost::asio::signal_set signals(*ioContext, SIGINT, SIGTERM);
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     signals.add(SIGBREAK);
@@ -260,9 +267,11 @@ extern int main(int argc, char** argv)
     std::shared_ptr<void> ioContextStopHandle(nullptr, [ioContext](void*) { ioContext->stop(); });
 
     // Set process priority according to configuration settings
+    // 通过配置属性设置进程
     SetProcessPriority("server.worldserver", sConfigMgr->GetIntDefault(CONFIG_PROCESSOR_AFFINITY, 0), sConfigMgr->GetBoolDefault(CONFIG_HIGH_PRIORITY, false));
 
     // Start the databases
+    //启动数据库
     if (!StartDB())
         return 1;
 
@@ -272,8 +281,9 @@ extern int main(int argc, char** argv)
         return 0;
 
     // Set server offline (not connectable)
+    // 设置服务器离线(无法连接)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, realm.Id.Realm);
-
+    //登录数据库中直接运行SQL
     sRealmList->Initialize(*ioContext, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 10));
 
     std::shared_ptr<void> sRealmListHandle(nullptr, [](void*) { sRealmList->Close(); });
@@ -283,6 +293,7 @@ extern int main(int argc, char** argv)
     sMetric->Initialize(realm.Name, *ioContext, []()
     {
         TC_METRIC_VALUE("online_players", sWorld->GetPlayerCount());
+        //在线玩家总数
         TC_METRIC_VALUE("db_queue_login", uint64(LoginDatabase.QueueSize()));
         TC_METRIC_VALUE("db_queue_character", uint64(CharacterDatabase.QueueSize()));
         TC_METRIC_VALUE("db_queue_world", uint64(WorldDatabase.QueueSize()));
@@ -293,6 +304,7 @@ extern int main(int argc, char** argv)
     std::shared_ptr<void> sMetricHandle(nullptr, [](void*)
     {
         TC_METRIC_EVENT("events", "Worldserver shutdown", "");
+        //事件,世界服务器关闭
         sMetric->Unload();
     });
 
@@ -311,9 +323,9 @@ extern int main(int argc, char** argv)
     {
         // unload battleground templates before different singletons destroyed
         sBattlegroundMgr->DeleteAllBattlegrounds();
-
-        sOutdoorPvPMgr->Die();                    // unload it before MapManager
-        sMapMgr->UnloadAll();                     // unload all grids (including locked in memory)
+        //删除所有战场
+        sOutdoorPvPMgr->Die();                    // unload it before MapManager    //在地图管理器前卸载
+        sMapMgr->UnloadAll();                     // unload all grids (including locked in memory)  //卸载所有的grid(包括锁定在内存中的)
         sTerrainMgr.UnloadAll();
         sInstanceLockMgr.Unload();
     });
@@ -328,14 +340,14 @@ extern int main(int argc, char** argv)
     if (sConfigMgr->GetBoolDefault("SOAP.Enabled", false))
     {
         soapThread.reset(new std::thread(TCSoapThread, sConfigMgr->GetStringDefault("SOAP.IP", "127.0.0.1"), uint16(sConfigMgr->GetIntDefault("SOAP.Port", 7878))),
-            [](std::thread* thr)
+            [](std::thread* thr)    //soap重置进程
         {
             thr->join();
             delete thr;
         });
     }
 
-    // Launch the worldserver listener socket
+    // Launch the worldserver listener socket   // 启动服务器监听套接字
     uint16 worldPort = uint16(sWorld->getIntConfig(CONFIG_PORT_WORLD));
     uint16 instancePort = uint16(sWorld->getIntConfig(CONFIG_PORT_INSTANCE));
     std::string worldListener = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
@@ -344,26 +356,26 @@ extern int main(int argc, char** argv)
 
     if (networkThreads <= 0)
     {
-        TC_LOG_ERROR("server.worldserver", "Network.Threads must be greater than 0");
+        TC_LOG_ERROR("server.worldserver", "Network.Threads must be greater than 0");   //错误提示,服务器的网络进程必须大于0;
         World::StopNow(ERROR_EXIT_CODE);
         return 1;
     }
 
     if (!sWorldSocketMgr.StartWorldNetwork(*ioContext, worldListener, worldPort, instancePort, networkThreads))
     {
-        TC_LOG_ERROR("server.worldserver", "Failed to initialize network");
+        TC_LOG_ERROR("server.worldserver", "Failed to initialize network"); //初始化网络失败;
         World::StopNow(ERROR_EXIT_CODE);
         return 1;
     }
 
     std::shared_ptr<void> sWorldSocketMgrHandle(nullptr, [](void*)
     {
-        sWorld->KickAll();                                       // save and kick all players
-        sWorld->UpdateSessions(1);                             // real players unload required UpdateSessions call
+        sWorld->KickAll();                                       // save and kick all players   //保存并踢出所有玩家
+        sWorld->UpdateSessions(1);                             // real players unload required UpdateSessions call  // 踢出真实玩家需要更新Session调用
 
         sWorldSocketMgr.StopNetwork();
 
-        ///- Clean database before leaving
+        ///- Clean database before leaving  //- 在离开前要清除数据库
         ClearOnlineAccounts();
     });
 
@@ -372,19 +384,24 @@ extern int main(int argc, char** argv)
     realm.PopulationLevel = 0.0f;
     realm.Flags = RealmFlags(realm.Flags & ~uint32(REALM_FLAG_OFFLINE));
 
-    // Start the freeze check callback cycle in 5 seconds (cycle itself is 1 sec)
+    // Start the freeze check callback cycle in 5 seconds (cycle itself is 1 sec)    // 在5秒内启动冻结检测调用循环(循环自身是1秒)
     std::shared_ptr<FreezeDetector> freezeDetector;
     if (int coreStuckTime = sConfigMgr->GetIntDefault("MaxCoreStuckTime", 60))
     {
         freezeDetector = std::make_shared<FreezeDetector>(*ioContext, coreStuckTime * 1000);
         FreezeDetector::Start(freezeDetector);
         TC_LOG_INFO("server.worldserver", "Starting up anti-freeze thread ({} seconds max stuck time)...", coreStuckTime);
+        //启动防止冻结进程
     }
 
     sScriptMgr->OnStartup();
 
-    TC_LOG_INFO("server.worldserver", "{} (worldserver-daemon) ready...", GitRevision::GetFullVersion());
+    //TC_LOG_INFO("server.worldserver", "小女孩自研版");
+    // 我自行添加的版权信息,发现放上去太丑了,暂时注释
 
+    TC_LOG_INFO("server.worldserver", "{} (worldserver-daemon) ready...", GitRevision::GetFullVersion());
+    //服务器启动完成提示信息
+    
     // Launch CliRunnable thread
     std::shared_ptr<std::thread> cliThread;
 #ifdef _WIN32
@@ -412,14 +429,17 @@ extern int main(int argc, char** argv)
 
     // set server offline
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, realm.Id.Realm);
-
+    //更新数据库中对应标记
     TC_LOG_INFO("server.worldserver", "Halting process...");
-
-    // 0 - normal shutdown
-    // 1 - shutdown at error
+    //worldserver正在停止进程.
+    
+    // 0 - normal shutdown   // 0 - 正常关闭
+    // 1 - shutdown at error // 1 - 错误退出
     // 2 - restart command used, this code can be used by restarter for restart Trinityd
+    // 2 - 使用了重启命令,这个编码可以被重启器用来重启Trinity模拟器
 
     return World::GetExitCode();
+    //返回退出代码
 }
 
 void ShutdownCLIThread(std::thread* cliThread)
@@ -428,11 +448,13 @@ void ShutdownCLIThread(std::thread* cliThread)
     {
 #ifdef _WIN32
         // First try to cancel any I/O in the CLI thread
+        // 首先尝试在CLT进程中取消任何的输入输出.
         if (!CancelSynchronousIo(cliThread->native_handle()))
         {
             // if CancelSynchronousIo() fails, print the error and try with old way
             DWORD errorCode = GetLastError();
-
+            //未知错误
+            
             // if CancelSynchronousIo fails with ERROR_NOT_FOUND then there was nothing to cancel, proceed with shutdown
             if (errorCode != ERROR_NOT_FOUND)
             {
@@ -443,6 +465,7 @@ void ShutdownCLIThread(std::thread* cliThread)
                     errorBuffer = "Unknown error";
 
                 TC_LOG_DEBUG("server.worldserver", "Error cancelling I/O of CliThread, error code {}, detail: {}", uint32(errorCode), errorBuffer);
+                //输出错误代码
 
                 if (numCharsWritten)
                     LocalFree((LPSTR)errorBuffer);
@@ -526,9 +549,10 @@ void WorldUpdateLoop()
 #ifdef _WIN32
         if (m_ServiceStatus == 0)
             World::StopNow(SHUTDOWN_EXIT_CODE);
-
+            //worldserver关闭
         while (m_ServiceStatus == 2)
             Sleep(1000);
+          //休眠1000毫秒
 #endif
     }
 
@@ -587,6 +611,7 @@ AsyncAcceptor* StartRaSocketAcceptor(Trinity::Asio::IoContext& ioContext)
     if (!acceptor->Bind())
     {
         TC_LOG_ERROR("server.worldserver", "Failed to bind RA socket acceptor");
+        //绑定RA套接字接收器失败
         delete acceptor;
         return nullptr;
     }
@@ -619,6 +644,7 @@ bool LoadRealmInfo()
 }
 
 /// Initialize connection to the databases
+//  初始化数据库连接
 bool StartDB()
 {
     MySQL::Library_Init();
@@ -627,11 +653,12 @@ bool StartDB()
     DatabaseLoader loader("server.worldserver", DatabaseLoader::DATABASE_NONE);
     loader
         .AddDatabase(LoginDatabase, "Login")
+        //增加数Login据库,下面依次类推
         .AddDatabase(CharacterDatabase, "Character")
         .AddDatabase(WorldDatabase, "World")
         .AddDatabase(HotfixDatabase, "Hotfix");
 
-    if (!loader.Load())
+    if (!loader.Load()) //如果加载失败
         return false;
 
     ///- Get the realm Id from the configuration file
@@ -639,24 +666,28 @@ bool StartDB()
     if (!realm.Id.Realm)
     {
         TC_LOG_ERROR("server.worldserver", "Realm ID not defined in configuration file");
+        //服务器ID未在配置中定义
         return false;
     }
 
     TC_LOG_INFO("server.worldserver", "Realm running as realm ID {}", realm.Id.Realm);
 
     ///- Clean the database before starting
+    // 在开始前清理数据库
     ClearOnlineAccounts();
 
     ///- Insert version info into DB
-    WorldDatabase.PExecute("UPDATE version SET core_version = '{}', core_revision = '{}'", GitRevision::GetFullVersion(), GitRevision::GetHash());        // One-time query
+    //插入版本信息
 
+    WorldDatabase.PExecute("UPDATE version SET core_version = '{}', core_revision = '{}'", GitRevision::GetFullVersion(), GitRevision::GetHash());  // One-time query   //一次性查询
+    //在数据库中更新版本信息
     sWorld->LoadDBVersion();
 
     TC_LOG_INFO("server.worldserver", "Using World DB: {}", sWorld->GetDBVersion());
     return true;
 }
 
-void StopDB()
+void StopDB()   //停止数据库
 {
     CharacterDatabase.Close();
     WorldDatabase.Close();
@@ -666,16 +697,22 @@ void StopDB()
 }
 
 /// Clear 'online' status for all accounts with characters in this realm
+//清除本服务器上的所有在线状态
 void ClearOnlineAccounts()
 {
     // Reset online status for all accounts with characters on the current realm
+    //为当前服务器上所有账号的角色重置在线状态
     LoginDatabase.DirectPExecute("UPDATE account SET online = 0 WHERE online > 0 AND id IN (SELECT acctid FROM realmcharacters WHERE realmid = {})", realm.Id.Realm);
-
+    //在数据库中设置在线状态为0
     // Reset online status for all characters
+    // 为所有角色重置在线状态
     CharacterDatabase.DirectExecute("UPDATE characters SET online = 0 WHERE online <> 0");
+    //角色数据库中设置不在线
 
     // Battleground instance ids reset at server restart
+    //在服务器重启时重置战场副本的ID.
     CharacterDatabase.DirectExecute("UPDATE character_battleground_data SET instanceId = 0");
+    //角色数据库运行SQL设置角色战场数据的副本ID为0.
 }
 
 /// @}
@@ -723,3 +760,4 @@ variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, s
 
     return vm;
 }
+//小女孩中文注释,2022年3月15日13:56:05

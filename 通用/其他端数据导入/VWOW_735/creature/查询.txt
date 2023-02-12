@@ -1,0 +1,6 @@
+INSERT INTO creature 待补充
+
+
+ SELECT * FROM creature_735 WHERE NOT EXISTS (SELECT 1 FROM creature WHERE creature_735.entry= creature.entry);
+
+ 发现没有大意义,暂时放弃

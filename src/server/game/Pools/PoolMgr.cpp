@@ -568,17 +568,6 @@ void PoolMgr::LoadFromDB()
                     continue;
                 }
 
-                GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(data->id);
-                ASSERT(goinfo);
-                if (goinfo->type != GAMEOBJECT_TYPE_CHEST &&
-                    goinfo->type != GAMEOBJECT_TYPE_FISHINGHOLE &&
-                    goinfo->type != GAMEOBJECT_TYPE_GATHERING_NODE &&
-                    goinfo->type != GAMEOBJECT_TYPE_GOOBER)
-                {
-                    TC_LOG_ERROR("sql.sql", "`pool_gameobject` has a not lootable gameobject spawn (GUID: {}, type: {}) defined for pool id ({}), skipped.", guid, goinfo->type, pool_id);
-                    continue;
-                }
-
                 auto it = mPoolTemplate.find(pool_id);
                 if (it == mPoolTemplate.end())
                 {

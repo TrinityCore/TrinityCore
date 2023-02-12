@@ -1,0 +1,3 @@
+INSERT INTO game_event_creature SELECT * FROM game_event_creature_10 WHERE NOT EXISTS (SELECT 1 FROM game_event_creature WHERE game_event_creature_10.eventEntry= game_event_creature.eventEntry and game_event_creature_10.guid= game_event_creature.guid);
+//1446
+

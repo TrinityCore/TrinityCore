@@ -1,2 +1,0 @@
-SELECT * FROM npc_vendor_kyrian_ui WHERE NOT EXISTS (SELECT 1 FROM npc_vendor_org WHERE npc_vendor_kyrian_ui.entry= npc_vendor_org.entry);
-2023_02_01_00_world.sql

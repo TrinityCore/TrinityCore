@@ -695,7 +695,7 @@ enum ItemSubclassWowToken
 
 #define MAX_ITEM_SUBCLASS_WOW_TOKEN               1
 
-enum ItemSubclassPorfession
+enum ItemSubclassProfession
 {
     ITEM_SUBCLASS_PROFESSION_BLACKSMITHING      = 0,
     ITEM_SUBCLASS_PROFESSION_LEATHERWORKING     = 1,

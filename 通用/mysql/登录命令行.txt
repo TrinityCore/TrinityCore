@@ -1,0 +1,2 @@
+//10.0
+mysql -h localhost -P 3309 -u root -padmin

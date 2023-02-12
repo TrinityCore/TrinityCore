@@ -1,3 +1,4 @@
+//小女孩注释 2022年3月17日07:40:43 权限管理 rbac全称:Role Based Access Control 基于角色的访问控制 (来源:AC-Web群 【小兵(群等级)】恶来 。(6956329)  上午 08:09:00解答)
 /*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
@@ -43,6 +44,7 @@ std::string GetDebugPermissionString(RBACPermissionContainer const& perms)
 RBACCommandResult RBACData::GrantPermission(uint32 permissionId, int32 realmId /* = 0*/)
 {
     // Check if permission Id exists
+    //检查权限ID是否存在
     RBACPermission const* perm = sAccountMgr->GetRBACPermission(permissionId);
     if (!perm)
     {
@@ -52,6 +54,7 @@ RBACCommandResult RBACData::GrantPermission(uint32 permissionId, int32 realmId /
     }
 
     // Check if already added in denied list
+    // 检查是否已在禁止列表
     if (HasDeniedPermission(permissionId))
     {
         TC_LOG_TRACE("rbac", "RBACData::GrantPermission [Id: {} Name: {}] (Permission {}, RealmId {}). Permission in deny list",
@@ -60,6 +63,7 @@ RBACCommandResult RBACData::GrantPermission(uint32 permissionId, int32 realmId /
     }
 
     // Already added?
+    // 已添加?
     if (HasGrantedPermission(permissionId))
     {
         TC_LOG_TRACE("rbac", "RBACData::GrantPermission [Id: {} Name: {}] (Permission {}, RealmId {}). Permission already granted",
@@ -70,6 +74,7 @@ RBACCommandResult RBACData::GrantPermission(uint32 permissionId, int32 realmId /
     AddGrantedPermission(permissionId);
 
     // Do not save to db when loading data from DB (realmId = 0)
+    // 当从数据库中加载时,不要保存到数据库(realmId = 0).
     if (realmId)
     {
         TC_LOG_TRACE("rbac", "RBACData::GrantPermission [Id: {} Name: {}] (Permission {}, RealmId {}). Ok and DB updated",
@@ -84,9 +89,11 @@ RBACCommandResult RBACData::GrantPermission(uint32 permissionId, int32 realmId /
     return RBAC_OK;
 }
 
+// RBAC命令结果
 RBACCommandResult RBACData::DenyPermission(uint32 permissionId, int32 realmId /* = 0*/)
 {
     // Check if permission Id exists
+    // 检查权限ID是否存在
     RBACPermission const* perm = sAccountMgr->GetRBACPermission(permissionId);
     if (!perm)
     {
@@ -96,6 +103,7 @@ RBACCommandResult RBACData::DenyPermission(uint32 permissionId, int32 realmId /*
     }
 
     // Check if already added in granted list
+    // 检查是否已添加到准许列表
     if (HasGrantedPermission(permissionId))
     {
         TC_LOG_TRACE("rbac", "RBACData::DenyPermission [Id: {} Name: {}] (Permission {}, RealmId {}). Permission in grant list",
@@ -104,6 +112,7 @@ RBACCommandResult RBACData::DenyPermission(uint32 permissionId, int32 realmId /*
     }
 
     // Already added?
+    // 已添加?
     if (HasDeniedPermission(permissionId))
     {
         TC_LOG_TRACE("rbac", "RBACData::DenyPermission [Id: {} Name: {}] (Permission {}, RealmId {}). Permission already denied",
@@ -114,6 +123,7 @@ RBACCommandResult RBACData::DenyPermission(uint32 permissionId, int32 realmId /*
     AddDeniedPermission(permissionId);
 
     // Do not save to db when loading data from DB (realmId = 0)
+    // 当从数据库中加载时,不要保存到数据库(realmId = 0).
     if (realmId)
     {
         TC_LOG_TRACE("rbac", "RBACData::DenyPermission [Id: {} Name: {}] (Permission {}, RealmId {}). Ok and DB updated",
@@ -131,6 +141,7 @@ RBACCommandResult RBACData::DenyPermission(uint32 permissionId, int32 realmId /*
 void RBACData::SavePermission(uint32 permission, bool granted, int32 realmId)
 {
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_RBAC_ACCOUNT_PERMISSION);
+    //获取已准备的语句(登录_插入_RBAC_账号_权限)
     stmt->setUInt32(0, GetId());
     stmt->setUInt32(1, permission);
     stmt->setBool(2, granted);
@@ -141,6 +152,7 @@ void RBACData::SavePermission(uint32 permission, bool granted, int32 realmId)
 RBACCommandResult RBACData::RevokePermission(uint32 permissionId, int32 realmId /* = 0*/)
 {
     // Check if it's present in any list
+    // 检查是否已在任何列表中
     if (!HasGrantedPermission(permissionId) && !HasDeniedPermission(permissionId))
     {
         TC_LOG_TRACE("rbac", "RBACData::RevokePermission [Id: {} Name: {}] (Permission {}, RealmId {}). Not granted or revoked",
@@ -152,6 +164,7 @@ RBACCommandResult RBACData::RevokePermission(uint32 permissionId, int32 realmId 
     RemoveDeniedPermission(permissionId);
 
     // Do not save to db when loading data from DB (realmId = 0)
+    // 当从数据库中加载时,不要保存到数据库(realmId = 0).
     if (realmId)
     {
         TC_LOG_TRACE("rbac", "RBACData::RevokePermission [Id: {} Name: {}] (Permission {}, RealmId {}). Ok and DB updated",
@@ -212,11 +225,13 @@ void RBACData::LoadFromDBCallback(PreparedQueryResult result)
     }
 
     // Add default permissions
+    // 增加默认权限
     RBACPermissionContainer const& permissions = sAccountMgr->GetRBACDefaultPermissions(_secLevel);
     for (uint32 permission : permissions)
         GrantPermission(permission);
 
     // Force calculation of permissions
+    // 强制计算权限
     CalculateNewPermissions();
 }
 
@@ -225,6 +240,7 @@ void RBACData::CalculateNewPermissions()
     TC_LOG_TRACE("rbac", "RBACData::CalculateNewPermissions [Id: {} Name: {}]", GetId(), GetName());
 
     // Get the list of granted permissions
+    // 获取准许权限列表
     _globalPerms = GetGrantedPermissions();
     ExpandPermissions(_globalPerms);
     RBACPermissionContainer revoked = GetDeniedPermissions();
@@ -270,6 +286,7 @@ void RBACData::ExpandPermissions(RBACPermissionContainer& permissions)
     }
 
     TC_LOG_DEBUG("rbac", "RBACData::ExpandPermissions: Expanded: {}", GetDebugPermissionString(permissions));
+    //日志输出:扩展权限
 }
 
 void RBACData::ClearData()

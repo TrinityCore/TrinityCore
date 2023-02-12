@@ -497,7 +497,7 @@ enum AuraType : uint32
     SPELL_AURA_OVERRIDE_SPELL_VISUAL                        = 403,
     SPELL_AURA_OVERRIDE_ATTACK_POWER_BY_SP_PCT              = 404,
     SPELL_AURA_MOD_RATING_PCT                               = 405,
-    SPELL_AURA_KEYBOUND_OVERRIDE                            = 406,  // NYI
+    SPELL_AURA_KEYBOUND_OVERRIDE                            = 406,
     SPELL_AURA_MOD_FEAR_2                                   = 407,  // NYI
     SPELL_AURA_SET_ACTION_BUTTON_SPELL_COUNT                = 408,
     SPELL_AURA_CAN_TURN_WHILE_FALLING                       = 409,

@@ -1,0 +1,2 @@
+INSERT INTO gameobject_template SELECT * FROM kyriancore_world.gameobject_template WHERE NOT EXISTS (SELECT 1 FROM gameobject_template WHERE kyriancore_world.gameobject_template.entry= gameobject_template.entry);
+//96列

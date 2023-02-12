@@ -367,7 +367,7 @@ struct TRootHandler_WoW : public TFileTreeRoot
 
         // Load the locale as-is
         dwErrCode = ParseWowRootFile_Level2(hs, pbRootPtr, pbRootEnd, dwLocaleMask, false, bAudioLocale);
-        if (dwErrCode != ERROR_SUCCESS)
+        if(dwErrCode != ERROR_SUCCESS)
             return dwErrCode;
 
         // If we wanted enGB, we also load enUS for the missing files
@@ -386,9 +386,13 @@ struct TRootHandler_WoW : public TFileTreeRoot
         DWORD dwErrCode;
 
         dwErrCode = ParseWowRootFile_Level1(hs, pbRootPtr, pbRootEnd, dwLocaleMask, 0);
-        if (dwErrCode == ERROR_SUCCESS)
+        if(dwErrCode == ERROR_SUCCESS)
             dwErrCode = ParseWowRootFile_Level1(hs, pbRootPtr, pbRootEnd, dwLocaleMask, 1);
 
+#ifdef _DEBUG
+        // Dump the array of the file data IDs
+        //FileTree.DumpFileDataIds("e:\\file-data-ids.bin");
+#endif
         return dwErrCode;
     }
 
@@ -466,12 +470,13 @@ struct TRootHandler_WoW : public TFileTreeRoot
 //-----------------------------------------------------------------------------
 // Public functions
 
-DWORD RootHandler_CreateWoW(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFile, DWORD dwLocaleMask)
+DWORD RootHandler_CreateWoW(TCascStorage * hs, CASC_BLOB & RootFile, DWORD dwLocaleMask)
 {
     TRootHandler_WoW * pRootHandler = NULL;
     FILE_ROOT_HEADER_82 RootHeader;
     ROOT_FORMAT RootFormat = RootFormatWoW6x;
-    LPBYTE pbRootEnd = pbRootFile + cbRootFile;
+    LPBYTE pbRootFile = RootFile.pbData;
+    LPBYTE pbRootEnd = RootFile.End();
     LPBYTE pbRootPtr;
     DWORD FileCounterHashless = 0;
     DWORD dwErrCode = ERROR_BAD_FORMAT;

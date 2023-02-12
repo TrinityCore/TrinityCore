@@ -1,3 +1,4 @@
+//小女孩 注释 此文件包含控制台启动时候的提示信息
 /*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
@@ -139,36 +140,38 @@ PersistentWorldVariable const World::NextOldCalendarEventDeletionTimeVarId{ "Nex
 PersistentWorldVariable const World::NextGuildWeeklyResetTimeVarId{ "NextGuildWeeklyResetTime" };
 
 /// World constructor
+/// World 构造器
 World::World()
 {
-    m_playerLimit = 0;
-    m_allowedSecurityLevel = SEC_PLAYER;
-    m_allowMovement = true;
-    m_ShutdownMask = 0;
-    m_ShutdownTimer = 0;
+    m_playerLimit = 0;                          //玩家限制,此处改为5,预计就限制了最高在线只能5人(估计论坛上的人数限制版就是这么来的)
+                                                //(错,预计是是否限制玩家登录,如GM可以登录,玩家登录不了,可以设置为1,此处预计为是否启用的布尔标志)
+    m_allowedSecurityLevel = SEC_PLAYER;        //允许的安全等级
+    m_allowMovement = true;                     //允许移动
+    m_ShutdownMask = 0;                         //关闭标志
+    m_ShutdownTimer = 0;                        //关闭定时器
 
-    m_maxActiveSessionCount = 0;
-    m_maxQueuedSessionCount = 0;
-    m_PlayerCount = 0;
-    m_MaxPlayerCount = 0;
-    m_NextDailyQuestReset = 0;
-    m_NextWeeklyQuestReset = 0;
-    m_NextMonthlyQuestReset = 0;
-    m_NextRandomBGReset = 0;
-    m_NextCalendarOldEventsDeletionTime = 0;
-    m_NextGuildReset = 0;
-    m_NextCurrencyReset = 0;
+    m_maxActiveSessionCount = 0;            //最大的活动会话计数
+    m_maxQueuedSessionCount = 0;            //最大的队列会话计数
+    m_PlayerCount = 0;                      //玩家计数
+    m_MaxPlayerCount = 0;                   //最大玩家计数
+    m_NextDailyQuestReset = 0;              //下一个日常重置
+    m_NextWeeklyQuestReset = 0;             //下一个周常重置
+    m_NextMonthlyQuestReset = 0;            //下一个月常重置
+    m_NextRandomBGReset = 0;                //下一个随机战场重置
+    m_NextCalendarOldEventsDeletionTime = 0;//下一个日历旧事件删除时间
+    m_NextGuildReset = 0;                   //下一个工会重置
+    m_NextCurrencyReset = 0;                //下一个货币重置
 
-    m_defaultDbcLocale = LOCALE_enUS;
-    m_availableDbcLocaleMask = 0;
+    m_defaultDbcLocale = LOCALE_enUS;       //默认的Dbc地区=地区_美国(此处难不成就是地图解压工具总是出现乱码的根源所在?)
+    m_availableDbcLocaleMask = 0;           //可用的dbc区域编号
 
-    mail_timer = 0;
-    mail_timer_expires = 0;
+    mail_timer = 0;                         //邮件定时器
+    mail_timer_expires = 0;                 //邮件定时器过期
     blackmarket_timer = 0;
 
-    m_isClosed = false;
+    m_isClosed = false;                     //是否关闭
 
-    m_CleaningFlags = 0;
+    m_CleaningFlags = 0;                    //正在清除标志
 
     memset(rate_values, 0, sizeof(rate_values));
     memset(m_int_configs, 0, sizeof(m_int_configs));
@@ -183,9 +186,11 @@ World::World()
 }
 
 /// World destructor
+/// World析构器
 World::~World()
 {
     ///- Empty the kicked session set
+    ///- 清空被踢出会话设置
     while (!m_sessions.empty())
     {
         // not remove from queue, prevent loading new sessions
@@ -201,6 +206,7 @@ World::~World()
     MMAP::MMapFactory::clear();
 
     /// @todo free addSessQueue
+    /// @要做的免费增加会话队列
 }
 
 World* World::instance()
@@ -210,9 +216,11 @@ World* World::instance()
 }
 
 /// Find a player in a specified zone
+/// 在一个特定区域找到一个玩家
 Player* World::FindPlayerInZone(uint32 zone)
 {
     ///- circle through active sessions and return the first player found in the zone
+    ///- 在活动会话中循环并且返回在此区域中第一个找到的玩家
     SessionMap::const_iterator itr;
     for (itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
     {
@@ -329,6 +337,7 @@ void World::SendGuidWarning()
 }
 
 /// Find a session by its id
+/// 根据ID找到会话
 WorldSession* World::FindSession(uint32 id) const
 {
     SessionMap::const_iterator itr = m_sessions.find(id);

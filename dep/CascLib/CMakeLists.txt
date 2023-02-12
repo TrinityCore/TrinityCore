@@ -4,6 +4,7 @@ set(HEADER_FILES
     src/CascPort.h
     src/CascStructs.h
     src/common/Array.h
+    src/common/ArraySparse.h
     src/common/Common.h
     src/common/Csv.h
     src/common/Directory.h

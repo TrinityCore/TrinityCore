@@ -1083,6 +1083,16 @@ namespace WorldPackets
             bool IsFavorite = false;
         };
 
+        class KeyboundOverride final : public ClientPacket
+        {
+        public:
+            KeyboundOverride(WorldPacket&& packet) : ClientPacket(CMSG_KEYBOUND_OVERRIDE,  std::move(packet)) { }
+
+            void Read() override;
+
+            uint16 OverrideID = 0;
+        };
+
         ByteBuffer& operator>>(ByteBuffer& buffer, SpellCastRequest& request);
     }
 }

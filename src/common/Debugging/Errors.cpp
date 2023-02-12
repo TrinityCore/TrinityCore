@@ -151,10 +151,11 @@ void Abort(char const* file, int line, char const* function, char const* message
 void AbortHandler(int sigval)
 {
     // nothing useful to log here, no way to pass args
+    //此处没有什么有用的需要记录
     std::string formattedMessage = StringFormat("Caught signal {}\n", sigval);
     fprintf(stderr, "%s", formattedMessage.c_str());
     fflush(stderr);
-    Crash(formattedMessage.c_str());
+    Crash(formattedMessage.c_str());//尝试去除错误,后担心影响主体功能,取消
 }
 
 } // namespace Trinity

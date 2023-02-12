@@ -1,0 +1,1 @@
+INSERT INTO gameobject_template SELECT * FROM gameobject_template_xy837 WHERE NOT EXISTS (SELECT 1 FROM gameobject_template WHERE gameobject_template_xy837.entry= gameobject_template.entry);

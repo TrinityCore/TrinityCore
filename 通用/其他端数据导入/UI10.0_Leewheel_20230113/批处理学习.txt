@@ -1,0 +1,9 @@
+@echo off
+COLOR 0A
+SET NAME=Dragonflight Bnetserver BY Leewheel
+TITLE %NAME%
+set mainfolder=%CD%
+
+cd "%mainfolder%\Core"
+bnetserver.exe
+exit
