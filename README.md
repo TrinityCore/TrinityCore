@@ -233,3 +233,8 @@ Read file [AUTHORS](AUTHORS).
 https://github.com/xuehyc/XCore/discussions/30<br>
 也可进入讨论区公告中,查看关于BUG的讨论.<br>
 -->
+
+
+##赞助
+支付宝 https://kdocs.cn/l/cspwUBM7pkBg
+微信 https://kdocs.cn/l/cspwUBM7pkBg
