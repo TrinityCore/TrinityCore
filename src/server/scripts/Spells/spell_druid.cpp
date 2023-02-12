@@ -95,6 +95,7 @@ enum DruidSpells
     SPELL_DRUID_NATURES_BOUNTY              = 96206,
     SPELL_DRUID_NATURES_GRACE               = 16880,
     SPELL_DRUID_PULVERIZE_TRIGGERED         = 80951,
+    SPELL_DRUID_REVITALIZE_R1               = 48539,
     SPELL_DRUID_RIP                         = 1079,
     SPELL_DRUID_SURVIVAL_INSTINCTS          = 50322,
     SPELL_DRUID_SAVAGE_ROAR                 = 62071,
@@ -141,7 +142,8 @@ enum DruidSpellIconIds
 enum MiscSpells
 {
     SPELL_CATEGORY_MANGLE_BEAR              = 971,
-    SPELL_RACIAL_SHADOWMELD                 = 58984
+    SPELL_RACIAL_SHADOWMELD                 = 58984,
+    SPELL_REPLENISHMENT                     = 57669
 };
 
 // 50334 - Berserk
@@ -635,58 +637,41 @@ class spell_dru_lifebloom : public AuraScript
     {
         return ValidateSpellInfo(
             {
+                SPELL_DRUID_REVITALIZE_R1,
                 SPELL_DRUID_LIFEBLOOM_FINAL_HEAL,
-                SPELL_DRUID_LIFEBLOOM_ENERGIZE
+                SPELL_DRUID_LIFEBLOOM_ENERGIZE,
+                SPELL_REPLENISHMENT
             });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        // Refreshing Lifebloom while having Revitalize active causes Replenishment to be cast
+        if (Unit* caster = GetCaster())
+            if (caster->GetAuraOfRankedSpell(SPELL_DRUID_REVITALIZE_R1, caster->GetGUID()))
+                caster->CastSpell(nullptr, SPELL_REPLENISHMENT, true);
     }
 
     void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
-        // Final heal only on duration end
-        if (!GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::Expired))
+        // When Lifelboom expires or is dispelled, it instantly heals the target
+        if (!GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::Expired | AuraRemoveFlags::ByEnemySpell))
             return;
 
-        // final heal
-        int32 stack = GetStackAmount();
-        if (Unit* caster = GetCaster())
-        {
-            // restore mana
-            int32 returnMana = CalculatePct(caster->GetCreateMana(), GetSpellInfo()->ManaCostPercentage) * stack / 2;
-            caster->CastSpell(caster, SPELL_DRUID_LIFEBLOOM_ENERGIZE, CastSpellExtraArgs(aurEff).AddSpellBP0(returnMana).SetOriginalCaster(GetCasterGUID()));
-        }
-
-        GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, { aurEff, GetCasterGUID() });
+        GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, CastSpellExtraArgs(aurEff).SetOriginalCaster(GetCasterGUID()).AddSpellBP0(aurEff->GetAmount()));
     }
 
-    void HandleDispel(DispelInfo* dispelInfo)
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
     {
-        if (Unit* target = GetUnitOwner())
-        {
-            if (AuraEffect const* aurEff = GetEffect(EFFECT_1))
-            {
-                // final heal
-                int32 healAmount = aurEff->GetAmount();
-                if (Unit* caster = GetCaster())
-                {
-                    healAmount = caster->SpellHealingBonusDone(target, GetSpellInfo(), healAmount, HEAL, dispelInfo->GetRemovedCharges());
-                    healAmount = target->SpellHealingBonusTaken(caster, GetSpellInfo(), healAmount, HEAL);
-                    target->CastSpell(target, SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, CastSpellExtraArgs(GetCasterGUID()).AddSpellBP0(healAmount));
-
-                    // restore mana
-                    int32 returnMana = CalculatePct(caster->GetCreateMana(), GetSpellInfo()->ManaCostPercentage) * dispelInfo->GetRemovedCharges() / 2;
-                    caster->CastSpell(caster, SPELL_DRUID_LIFEBLOOM_ENERGIZE, CastSpellExtraArgs(GetCasterGUID()).AddSpellBP0(returnMana));
-                    return;
-                }
-
-                target->CastSpell(target, SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, CastSpellExtraArgs(GetCasterGUID()).AddSpellBP0(healAmount));
-            }
-        }
+        if (Unit* caster = GetCaster())
+            amount = caster->SpellHealingBonusDone(GetUnitOwner(), GetSpellInfo(), amount, HEAL, EFFECT_1) / GetStackAmount();
     }
 
     void Register() override
     {
+        AfterEffectApply.Register(&spell_dru_lifebloom::AfterApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
         AfterEffectRemove.Register(&spell_dru_lifebloom::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        AfterDispel.Register(&spell_dru_lifebloom::HandleDispel);
+        DoEffectCalcAmount.Register(&spell_dru_lifebloom::CalculateAmount, EFFECT_1, SPELL_AURA_DUMMY);
     }
 };
 
@@ -1559,8 +1544,15 @@ class spell_dru_empowered_touch_script : public SpellScript
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
         if (Unit* caster = GetCaster())
+        {
             if (Aura* aura = GetHitUnit()->GetAura(SPELL_DRUID_LIFEBLOOM, caster->GetGUID()))
+            {
                 aura->RefreshDuration();
+                // Refreshing Lifebloom while having Revitalize active causes Replenishment to be cast
+                if (caster->GetAuraOfRankedSpell(SPELL_DRUID_REVITALIZE_R1, caster->GetGUID()))
+                    caster->CastSpell(nullptr, SPELL_REPLENISHMENT, true);
+            }
+        }
     }
 
     void Register() override
