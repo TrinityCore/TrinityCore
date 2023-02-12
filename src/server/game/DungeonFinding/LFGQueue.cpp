@@ -398,6 +398,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
     //    }
     uint8 numPlayers = 0;
     bool bool_numPlayers = sConfigMgr->GetBoolDefault("SoloLFG.Enable", true);
+    //哈哈,原来我已经自己实现了,不用再套别人的脚本了.今天又套了OpenL的,浪费时间.(2023年2月12日11:51:48)
     if (bool_numPlayers)    //成功!
         {
             numPlayers = 4;
