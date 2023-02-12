@@ -106,39 +106,44 @@ inline void ForAllControlled(Unit* unit, Func&& func)
                 func(summon);
 }
 
-////AddPhase旧的模板1
-//void PhasingHandler::AddPhase(WorldObject* object, uint32 phaseId, bool updateVisibility)
-//{
-//    ControlledUnitVisitor visitor(object);//复制新模板,后加
-//    AddPhase(object, phaseId, object->GetGUID(), updateVisibility);
-//}
-////AddPhase旧的模板2
-//void PhasingHandler::AddPhase(WorldObject* object, uint32 phaseId, ObjectGuid const& personalGuid, bool updateVisibility)
-//{
-//    bool changed = object->GetPhaseShift().AddPhase(phaseId, GetPhaseFlags(phaseId), nullptr);
-//
-//    if (object->GetPhaseShift().PersonalReferences)
-//        object->GetPhaseShift().PersonalGuid = personalGuid;
-//
-//    if (Unit* unit = object->ToUnit())
-//    {
-//        unit->OnPhaseChange();
-//        ForAllControlled(unit, [&](Unit* controlled)
-//            {
-//                AddPhase(controlled, phaseId, personalGuid, updateVisibility);
-//            });
-//        unit->RemoveNotOwnSingleTargetAuras(true);
-//    }
-//
-//    UpdateVisibilityIfNeeded(object, updateVisibility, changed);
-//}
-//上面一段,可用CTRL+K,CTRL+U取消注释
-
+//AddPhaseTC旧的模板1
 void PhasingHandler::AddPhase(WorldObject* object, uint32 phaseId, bool updateVisibility)
 {
-    ControlledUnitVisitor visitor(object);
-    AddPhase(object, phaseId, object->GetGUID(), updateVisibility, visitor);
+    ControlledUnitVisitor visitor(object);//复制新模板,后加
+    AddPhase(object, phaseId, object->GetGUID(), updateVisibility);
 }
+
+//AddPhaseTC旧的模板2
+void PhasingHandler::AddPhase(WorldObject* object, uint32 phaseId, ObjectGuid const& personalGuid, bool updateVisibility)
+{
+    bool changed = object->GetPhaseShift().AddPhase(phaseId, GetPhaseFlags(phaseId), nullptr);
+
+    if (object->GetPhaseShift().PersonalReferences)
+        object->GetPhaseShift().PersonalGuid = personalGuid;
+
+    if (Unit* unit = object->ToUnit())
+    {
+        unit->OnPhaseChange();
+        ForAllControlled(unit, [&](Unit* controlled)
+            {
+                AddPhase(controlled, phaseId, personalGuid, updateVisibility);
+            });
+        unit->RemoveNotOwnSingleTargetAuras(true);
+    }
+
+    UpdateVisibilityIfNeeded(object, updateVisibility, changed);
+}
+//上面一段,可用CTRL+K,CTRL+U取消注释
+
+//void PhasingHandler::AddPhase(WorldObject* object, uint32 phaseId, bool updateVisibility)
+//{
+//    ControlledUnitVisitor visitor(object);
+//    AddPhase(object, phaseId, object->GetGUID(), updateVisibility, visitor);
+//}
+//
+//void PhasingHandler::AddPhase(WorldObject* object, uint32 phaseId, ObjectGuid const& personalGuid, bool updateVisibility)
+//{
+//}
 
 
 void PhasingHandler::AddPhase(WorldObject* object, uint32 phaseId, ObjectGuid const& personalGuid, bool updateVisibility, ControlledUnitVisitor& visitor)

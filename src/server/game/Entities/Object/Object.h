@@ -514,10 +514,12 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         PhaseShift const& GetPhaseShift() const { return _phaseShift; }
         PhaseShift& GetSuppressedPhaseShift() { return _suppressedPhaseShift; }
         PhaseShift const& GetSuppressedPhaseShift() const { return _suppressedPhaseShift; }
+
         bool InSamePhase(PhaseShift const& phaseShift) const
         {
             return GetPhaseShift().CanSee(phaseShift);
         }
+        
         bool InSamePhase(WorldObject const* obj) const
         {
             return GetPhaseShift().CanSee(obj->GetPhaseShift());
@@ -527,6 +529,10 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
             return a && b && a->InSamePhase(b);
         }
 
+        bool IsInPhase(WorldObject const* obj) const
+        {
+            return GetPhaseShift().CanSee(obj->GetPhaseShift());
+        }
         int32 GetDBPhase() const { return _dbPhase; }
 
         // if negative it is used as PhaseGroupId

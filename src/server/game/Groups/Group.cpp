@@ -222,6 +222,24 @@ bool Group::Create(Player* leader)
     return true;
 }
 
+
+void Group::OnLeaderChangePhase(Player* changeTarget)
+{
+    if (isBGGroup() || isBFGroup())
+        return;
+    if (!changeTarget || !changeTarget->IsInWorld() || changeTarget->GetGUID() != GetLeaderGUID() || changeTarget->IsPlayerBot())
+        return;
+    for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
+    {
+        Player* player = ObjectAccessor::FindPlayer(citr->guid);
+        if (player == changeTarget || !player->IsPlayerBot() || player->IsInPhase(changeTarget))
+            continue;
+
+        PhasingHandler::InheritPhaseShift(player, changeTarget);
+    }
+}
+
+
 void Group::LoadGroupFromDB(Field* fields)
 {
     m_dbStoreId = fields[17].GetUInt32();

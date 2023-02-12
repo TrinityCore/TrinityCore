@@ -210,6 +210,8 @@ class TC_GAME_API Group
 
         // group manipulation methods
         bool Create(Player* leader);
+        void OnLeaderChangePhase(Player* changeTarget);//TCB
+
         void LoadGroupFromDB(Field* field);
         void LoadMemberFromDB(ObjectGuid::LowType guidLow, uint8 memberFlags, uint8 subgroup, uint8 roles);
         bool AddInvite(Player* player);

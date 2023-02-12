@@ -132,6 +132,10 @@ class TC_GAME_API ThreatManager
         bool IsThreateningTo(ObjectGuid const& who, bool includeOffline = false) const;
         // is there a threat list entry on who's threat list for this.owner?
         bool IsThreateningTo(Unit const* who, bool includeOffline = false) const;
+
+        // Notify the ThreatManager that a condition changed that may impact refs' online state so it can re-evaluate   //TCB
+		void UpdateOnlineStates(bool meThreateningOthers = true, bool othersThreateningMe = true);  //TCB
+
         auto const& GetThreatenedByMeList() const { return _threatenedByMe; }
 
         // Notify the ThreatManager that its owner may now be suppressed on others' threat lists (immunity or damage-breakable CC being applied)
@@ -261,7 +265,7 @@ class TC_GAME_API ThreatReference
     public:
         enum TauntState : uint32 { TAUNT_STATE_DETAUNT = 0, TAUNT_STATE_NONE = 1, TAUNT_STATE_TAUNT = 2 };
         enum OnlineState { ONLINE_STATE_ONLINE = 2, ONLINE_STATE_SUPPRESSED = 1, ONLINE_STATE_OFFLINE = 0 };
-
+        
         Creature* GetOwner() const { return _owner; }
         Unit* GetVictim() const { return _victim; }
         float GetThreat() const { return std::max<float>(_baseAmount + (float)_tempModifier, 0.0f); }
@@ -276,6 +280,7 @@ class TC_GAME_API ThreatReference
 
         void AddThreat(float amount);
         void ScaleThreat(float factor);
+        void UpdateOnlineState();
         void ModifyThreatByPercent(int32 percent) { if (percent) ScaleThreat(0.01f*float(100 + percent)); }
         void UpdateOffline();
 
@@ -297,6 +302,7 @@ class TC_GAME_API ThreatReference
 
         bool ShouldBeOffline() const;
         bool ShouldBeSuppressed() const;
+        ThreatReference::OnlineState SelectOnlineState();
         void UpdateTauntState(TauntState state = TAUNT_STATE_NONE);
         Creature* const _owner;
         ThreatManager& _mgr;
@@ -314,6 +320,10 @@ class TC_GAME_API ThreatReference
 
     friend class ThreatManager;
     friend struct CompareThreatLessThan;
+
+
+    //private:
+        //OnlineState SelectOnlineState();
 };
 
 inline bool CompareThreatLessThan::operator()(ThreatReference const* a, ThreatReference const* b) const { return ThreatManager::CompareReferencesLT(a, b, 1.0f); }

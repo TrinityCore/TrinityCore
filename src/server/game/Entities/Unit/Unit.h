@@ -1907,8 +1907,10 @@ class TC_GAME_API Unit : public WorldObject
         std::string GetDebugInfo() const override;
 
         UF::UpdateField<UF::UnitData, 0, TYPEID_UNIT> m_unitData;
-
+        bool IsPlayerBot();
     protected:
+
+        
         explicit Unit (bool isWorldObject);
 
         UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const override;
@@ -2056,7 +2058,6 @@ class TC_GAME_API Unit : public WorldObject
         ThreatManager m_threatManager;
 
         void UpdateCharmAI();
-        bool IsPlayerBot();
         void RestoreDisabledAI();
         typedef std::stack<std::shared_ptr<UnitAI>> UnitAIStack;
         UnitAIStack i_AIs;
