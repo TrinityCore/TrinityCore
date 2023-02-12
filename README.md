@@ -237,6 +237,6 @@ https://github.com/xuehyc/XCore/discussions/30<br>
 
 
 ## 赞助
-[微信](https://kdocs.cn/l/cspwUBM7pkBg)
+[微信](https://www.kdocs.cn/l/chBq7Z1jTdU8)
 [支付宝](https://kdocs.cn/l/cspwUBM7pkBg)
 
