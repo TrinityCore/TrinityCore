@@ -71,7 +71,7 @@
 -->
 
 * [作者 &amp; 贡献者](#作者与贡献者)
-
+* [赞助](#赞助)
 <!--
 * [Links](#links)
 -->
@@ -236,5 +236,5 @@ https://github.com/xuehyc/XCore/discussions/30<br>
 
 
 ##赞助
-支付宝 https://kdocs.cn/l/cspwUBM7pkBg
-微信 https://kdocs.cn/l/cspwUBM7pkBg
+[支付宝](https://kdocs.cn/l/cspwUBM7pkBg)
+[微信](https://kdocs.cn/l/cspwUBM7pkBg)
