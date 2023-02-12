@@ -1547,7 +1547,7 @@ class spell_dru_empowered_touch_script : public SpellScript
         {
             if (Aura* aura = GetHitUnit()->GetAura(SPELL_DRUID_LIFEBLOOM, caster->GetGUID()))
             {
-                aura->RefreshDuration();
+                aura->RefreshTimers(false);
                 // Refreshing Lifebloom while having Revitalize active causes Replenishment to be cast
                 if (caster->GetAuraOfRankedSpell(SPELL_DRUID_REVITALIZE_R1, caster->GetGUID()))
                     caster->CastSpell(nullptr, SPELL_REPLENISHMENT, true);
@@ -1760,7 +1760,7 @@ class spell_dru_blood_in_the_water_script : public SpellScript
     {
         if (Unit* caster = GetCaster())
             if (Aura* aura = GetHitUnit()->GetAura(SPELL_DRUID_RIP, caster->GetGUID()))
-                aura->RefreshDuration();
+                aura->RefreshTimers(false);
     }
 
     void Register() override
