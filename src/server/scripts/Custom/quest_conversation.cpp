@@ -9,6 +9,7 @@
 
 // Structure Quest Conversation
 //还不清楚这个脚本是干嘛的,字面意思是任务对话
+//这货启用,会使服务端启动不了,千万别启用,谨记!
 struct QuestConversation
 {
     QuestConversation(uint32 questId, uint32 questAcceptConversation, uint32 questCompleteConversation) :
