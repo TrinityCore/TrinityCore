@@ -1,8 +1,8 @@
 github: [octocat, surftocat]
 patreon: octocat
 tidelift: npm/octo-package
-custom: ["https://www.paypal.me/octocat", octocat.com]
-
+#custom: ["https://www.paypal.me/octocat", octocat.com]
+custom:["https://kdocs.cn/l/cspwUBM7pkBg",测试]
 
 
 
