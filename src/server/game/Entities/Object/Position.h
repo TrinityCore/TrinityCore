@@ -79,6 +79,12 @@ public:
     float GetPositionZ() const { return m_positionZ; }
     float GetOrientation() const { return m_orientation; }
 
+    G3D::Vector3 GetVector3() const
+    {
+        return G3D::Vector3(m_positionX, m_positionY, m_positionZ);
+    }
+
+
     void GetPosition(float &x, float &y) const { x = m_positionX; y = m_positionY; }
     void GetPosition(float &x, float &y, float &z) const { GetPosition(x, y); z = m_positionZ; }
     void GetPosition(float &x, float &y, float &z, float &o) const { GetPosition(x, y, z); o = m_orientation; }
