@@ -36,6 +36,7 @@
 #include "Player.h"
 #include "UpdateData.h"
 #include "WorldSession.h"
+#include <BotGroupAI.h>
 
 Group::Group() : m_leaderGuid(), m_leaderFactionGroup(0), m_leaderName(""), m_groupFlags(GROUP_FLAG_NONE), m_groupCategory(GROUP_CATEGORY_HOME),
 m_dungeonDifficulty(DIFFICULTY_NORMAL), m_raidDifficulty(DIFFICULTY_NORMAL_RAID), m_legacyRaidDifficulty(DIFFICULTY_10_N),
@@ -235,8 +236,25 @@ void Group::OnLeaderChangePhase(Player* changeTarget)
         if (player == changeTarget || !player->IsPlayerBot() || player->IsInPhase(changeTarget))
             continue;
 
-        PhasingHandler::InheritPhaseShift(player, changeTarget);
+        //PhasingHandler::InheritPhaseShift(player, changeTarget);//暂时解决不了,临时注释
     }
+}
+
+
+bool Group::AllGroupIsIDLE()
+{
+    for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
+    {
+        Player* player = ObjectAccessor::FindConnectedPlayer(citr->guid);
+        if (!player)
+            continue;
+        BotGroupAI* pAI = dynamic_cast<BotGroupAI*>(player->GetAI());
+        if (!pAI)
+            continue;
+        if (!pAI->IsIDLEBot())
+            return false;
+    }
+    return true;
 }
 
 

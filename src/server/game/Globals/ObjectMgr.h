@@ -1430,6 +1430,9 @@ class TC_GAME_API ObjectMgr
         void LoadPlayerChoices();
         void LoadPlayerChoicesLocale();
 
+        
+        static uint32 GetPlayerTeamByGUID(ObjectGuid const& guid);
+
         void LoadJumpChargeParams();
         void LoadPhaseNames();
 

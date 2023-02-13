@@ -109,8 +109,8 @@ inline void ForAllControlled(Unit* unit, Func&& func)
 //AddPhaseTC旧的模板1
 void PhasingHandler::AddPhase(WorldObject* object, uint32 phaseId, bool updateVisibility)
 {
-    ControlledUnitVisitor visitor(object);//复制新模板,后加
-    AddPhase(object, phaseId, object->GetGUID(), updateVisibility);
+    ControlledUnitVisitor visitor(object);
+    AddPhase(object, phaseId, object->GetGUID(), updateVisibility);//复制新模板,后加
 }
 
 //AddPhaseTC旧的模板2
@@ -134,6 +134,13 @@ void PhasingHandler::AddPhase(WorldObject* object, uint32 phaseId, ObjectGuid co
     UpdateVisibilityIfNeeded(object, updateVisibility, changed);
 }
 //上面一段,可用CTRL+K,CTRL+U取消注释
+
+//void PhasingHandler::AddPhase(WorldObject* object, uint32 phaseId, ObjectGuid const& personalGuid, bool updateVisibility)
+//{
+//}
+//系统自动生成,重复
+
+
 
 //void PhasingHandler::AddPhase(WorldObject* object, uint32 phaseId, bool updateVisibility)
 //{

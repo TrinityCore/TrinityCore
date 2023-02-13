@@ -11799,6 +11799,16 @@ void ObjectMgr::LoadPlayerChoicesLocale()
     }
 }
 
+uint32 ObjectMgr::GetPlayerTeamByGUID(ObjectGuid const& guid)//TCB
+{
+
+    //  if (CharacterCacheEntry const* characterInfo = sCharacterCache->GetCharacterCacheByGuid(guid));
+      //return Player::TeamForRace(characterInfo->Race);
+
+    return 0;
+}
+
+
 void ObjectMgr::LoadJumpChargeParams()
 {
     uint32 oldMSTime = getMSTime();

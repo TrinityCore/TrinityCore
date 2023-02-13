@@ -134,6 +134,7 @@
 #include <G3D/g3dmath.h>
 #include <sstream>
 #include <BattlePet.h>
+#include <BotGroupAI.cpp>
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -417,11 +418,31 @@ bool Player::ResetPlayerToLevel(uint32 level, uint32 talent)
     return m_PlayerBotSetting->ResetPlayerToLevel(level, talent);
 }
 
-bool Player::IsSettingFinish()
+bool Player::IsSettingFinish()  //后加
 {
     return m_PlayerBotSetting->IsFinish();
 }
 
+
+bool Player::IsTankPlayer()//TCB
+{
+    return GetRoleForGroup() == ROLE_TANK;
+}
+
+
+void Player::OnLevelupToBotAI()
+{
+    if (UnitAI* pUnitAI = GetAI())
+    {
+        BotGroupAI* pAI = dynamic_cast<BotGroupAI*>(pUnitAI);
+        if (pAI)
+        {
+            if (IsPlayerBot())
+                m_PlayerBotSetting->LearnTalents();
+            pAI->OnLevelUp(0);
+        }
+    }
+}
 
 
 void Player::CleanupsBeforeDelete(bool finalCleanup)

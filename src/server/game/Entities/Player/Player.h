@@ -1171,9 +1171,12 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void SetObjectScale(float scale) override;
         bool IsSettingFinish();
+
+
+
         bool ResetPlayerToLevel(uint32 level, uint32 talent = 3);
-        //void OnLevelupToBotAI();
-        //bool IsTankPlayer();
+        void OnLevelupToBotAI();
+        bool IsTankPlayer();
 
 
 

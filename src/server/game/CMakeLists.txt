@@ -42,7 +42,7 @@ target_link_libraries(game-interface
     Detour)
 
 add_library(game
-  ${PRIVATE_SOURCES} "Globals/BattlePetDataStore.cpp"  "Instances/InstanceSaveMgr.cpp" "AI/PlayerAI/BotAI.cpp" "AI/PlayerAI/BotAI.h" "AI/PlayerAI/BotAITool.h" "AI/PlayerAI/BotArenaAI/BotArenaAI.cpp" "AI/PlayerAI/BotArenaAI/BotArenaAI.h" "PlayerBot/PlayerBotTalkMgr.h" "AI/PlayerAI/BotBGAIMovement.h" "PlayerBot/AIWaypointsMgr.h" "PlayerBot/PlayerBotSetting.h" "PlayerBot/PlayerBotMgr.h" "AI/PlayerAI/BotAISpells.h" "AI/PlayerAI/BotFieldAI/BotFieldAI.h" "AI/PlayerAI/BotGroupAI/BotGroupAI.h" "AI/PlayerAI/BotDuelAI/BotDuelAI.h" "Server/PlayerBotSession.cpp")
+  ${PRIVATE_SOURCES} "Globals/BattlePetDataStore.cpp"  "Instances/InstanceSaveMgr.cpp" "AI/PlayerAI/BotAI.cpp" "AI/PlayerAI/BotAI.h" "AI/PlayerAI/BotAITool.h" "AI/PlayerAI/BotArenaAI/BotArenaAI.cpp" "AI/PlayerAI/BotArenaAI/BotArenaAI.h" "PlayerBot/PlayerBotTalkMgr.h" "AI/PlayerAI/BotBGAIMovement.h" "PlayerBot/AIWaypointsMgr.h" "PlayerBot/PlayerBotSetting.h" "PlayerBot/PlayerBotMgr.h" "AI/PlayerAI/BotAISpells.h" "AI/PlayerAI/BotFieldAI/BotFieldAI.h" "AI/PlayerAI/BotGroupAI/BotGroupAI.h" "AI/PlayerAI/BotDuelAI/BotDuelAI.h" "Server/PlayerBotSession.cpp" "AI/PlayerAI/BotGroupAI/BotGroupAI.cpp" "AI/PlayerAI/BotGroupAI/BotGroupClassAI.h" "AI/PlayerAI/BotAITool.cpp")
 
 target_include_directories(game
   PRIVATE
