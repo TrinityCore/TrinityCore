@@ -29,7 +29,7 @@
 #include "SpellHistory.h"
 #include "SpellScript.h"
 
-enum HunterSpells   //列举猎人技能
+enum HunterSpells   //枚举猎人技能
 {
     SPELL_HUNTER_HARPOON = 190925,
     SPELL_HUNTER_HARPOON_ROOT = 190927,
