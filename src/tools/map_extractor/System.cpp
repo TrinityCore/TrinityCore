@@ -43,6 +43,7 @@
 #include <unistd.h>                                 //包含unistd.h //unistd.h是 C 和 C++ 程序设计语言中提供对 POSIX 操作系统 API 的访问功能的头文件的名称。
 #endif                                              //结束如果语句
 
+
 std::shared_ptr<CASC::Storage> CascStorage;
 
 struct MapEntry //地图条目

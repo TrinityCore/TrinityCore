@@ -1,0 +1,4 @@
+INSERT INTO game_event_gameobject SELECT * FROM game_event_gameobject_kyrian_ui WHERE NOT EXISTS (SELECT 1 FROM game_event_gameobject WHERE game_event_gameobject_kyrian_ui.eventEntry= game_event_gameobject.eventEntry and game_event_gameobject_kyrian_ui.guid= game_event_gameobject.guid);
+//1735
+
+

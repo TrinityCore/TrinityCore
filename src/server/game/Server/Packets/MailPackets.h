@@ -34,7 +34,7 @@ namespace WorldPackets
             MailAttachedItem(::Item const* item, uint8 pos);
 
             uint8 Position = 0;
-            int32 AttachID = 0;
+            uint64 AttachID = 0;
             Item::ItemInstance Item;
             int32 Count = 0;
             int32 Charges = 0;
@@ -49,7 +49,7 @@ namespace WorldPackets
         {
             MailListEntry(::Mail const* mail, ::Player* player);
 
-            int32 MailID = 0;
+            uint64 MailID = 0;
             uint8 SenderType = 0;
             Optional<ObjectGuid> SenderCharacter;
             Optional<uint32> AltSenderID;
@@ -93,7 +93,7 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid Mailbox;
-            uint32 MailID = 0;
+            uint64 MailID = 0;
         };
 
         class SendMail final : public ClientPacket
@@ -131,12 +131,12 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 MailID = 0;
-            uint32 Command = 0;
-            uint32 ErrorCode = 0;
-            uint32 BagResult = 0;
-            uint32 AttachID = 0;
-            uint32 QtyInInventory = 0;
+            uint64 MailID = 0;
+            int32 Command = 0;
+            int32 ErrorCode = 0;
+            int32 BagResult = 0;
+            uint64 AttachID = 0;
+            int32 QtyInInventory = 0;
         };
 
         class MailReturnToSender final : public ClientPacket
@@ -146,7 +146,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            int32 MailID = 0;
+            uint64 MailID = 0;
             ObjectGuid SenderGUID;
         };
 
@@ -158,7 +158,7 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid Mailbox;
-            int32 MailID = 0;
+            uint64 MailID = 0;
         };
 
         class MailDelete final : public ClientPacket
@@ -168,7 +168,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            int32 MailID = 0;
+            uint64 MailID = 0;
             int32 DeleteReason = 0;
         };
 
@@ -180,8 +180,8 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid Mailbox;
-            int32 MailID = 0;
-            int32 AttachID = 0;
+            uint64 MailID = 0;
+            uint64 AttachID = 0;
         };
 
         class MailTakeMoney final : public ClientPacket
@@ -192,8 +192,8 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid Mailbox;
-            int32 MailID = 0;
-            int64 Money = 0;
+            uint64 MailID = 0;
+            uint64 Money = 0;
         };
 
         class MailQueryNextMailTime final : public ClientPacket

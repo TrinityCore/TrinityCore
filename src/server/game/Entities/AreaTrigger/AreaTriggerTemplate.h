@@ -263,7 +263,7 @@ struct AreaTriggerSpawn : SpawnData
     AreaTriggerSpawn() : SpawnData(SPAWN_TYPE_AREATRIGGER) { }
 
     AreaTriggerId Id;
-
+    WorldLocation Location;
     AreaTriggerShapeInfo Shape;
 };
 

@@ -1,0 +1,3 @@
+导入creature_queststarter
+
+reload 的表太少

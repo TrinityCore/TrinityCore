@@ -1,0 +1,1 @@
+把config.wtf中的portal改为127.0.0.1

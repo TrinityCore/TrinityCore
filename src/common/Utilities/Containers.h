@@ -60,6 +60,12 @@ namespace Trinity
 
     namespace Containers
     {
+        template<class T, std::size_t size>
+        constexpr inline std::size_t Size(T const(&)[size]) noexcept
+        {
+            return size;
+        }
+        
         // resizes <container> to have at most <requestedSize> elements
         // if it has more than <requestedSize> elements, the elements to keep are selected randomly
         template<class C>

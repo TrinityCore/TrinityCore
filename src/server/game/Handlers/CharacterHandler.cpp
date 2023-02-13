@@ -1467,8 +1467,6 @@ void WorldSession::SendFeatureSystemStatus()
 
     /// START OF DUMMY VALUES
     features.ComplaintStatus = COMPLAINT_ENABLED_WITH_AUTO_IGNORE;
-    features.ScrollOfResurrectionRequestsRemaining = 1;
-    features.ScrollOfResurrectionMaxRequestsPerDay = 1;
     features.TwitterPostThrottleLimit = 60;
     features.TwitterPostThrottleCooldown = 20;
     features.CfgRealmID = 2;

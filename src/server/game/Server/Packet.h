@@ -42,6 +42,20 @@ namespace WorldPackets
     protected:
         WorldPacket _worldPacket;
     };
+    //后加重复
+    //
+    //class TC_GAME_API ServerPacket : public Packet
+    //{
+    //public:
+    //    ServerPacket(OpcodeServer opcode, size_t initialSize = 200, ConnectionType connection = CONNECTION_TYPE_DEFAULT);
+
+    //    void Read() override final;
+
+    //    void Clear() { _worldPacket.clear(); }
+    //    WorldPacket&& Move() { return std::move(_worldPacket); }
+
+    //    OpcodeServer GetOpcode() const { return OpcodeServer(_worldPacket.GetOpcode()); }
+    //};
 
     class TC_GAME_API ServerPacket : public Packet
     {

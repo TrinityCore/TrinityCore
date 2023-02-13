@@ -513,7 +513,7 @@ struct boss_razorscale : public BossAI
 
     void EnterEvadeMode(EvadeReason why) override
     {
-        if (why == EVADE_REASON_BOUNDARY && !events.IsInPhase(PHASE_PERMA_GROUND))
+        if (why == EvadeReason::Boundary && !events.IsInPhase(PHASE_PERMA_GROUND))
             return;
 
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);

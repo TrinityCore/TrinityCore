@@ -1,0 +1,120 @@
+#
+# NOTE! Don't add files that are generated in specific
+# subdirectories here. Add them in the ".gitignore" file
+# in that subdirectory instead.
+#
+# NOTE! Please use 'git-ls-files -i --exclude-standard'
+# command after changing this file, to see if there are
+# any tracked files which get ignored after the change.
+
+# Placeholder files for directories needed to be inside git but empty
+!.gitignore
+!.gitattributes
+!.travis.yml
+
+# JetBrains - project settings
+/.idea/
+
+# Eclipse - project settings
+/.project
+/.settings
+/.buildpath
+/.externalToolBuilders
+
+# Sublime Text 2 - project files
+/*.sublime-build
+/*.sublime-project
+/*.sublime-workspace
+
+# Numerous always-ignore extensions
+*.a
+*.bak
+*.bin
+*.diff
+*.err
+*.gz
+*.lo
+*.log
+*.o
+*.o.*
+*.orig
+*.patch
+*.rej
+*.so
+*.so.dbg
+*.swo
+*.swp
+*.vi
+*~
+callgrind.out.*
+
+# OS or Editor folders
+.DS_Store
+.cache
+.project
+.settings
+.tmproj
+nbproject
+Thumbs.db
+
+# Configuration files to be customized
+
+# Build directories
+/bin/
+_build
+build
+/dep/libmpq/autom4te.cache/
+
+# Generated files
+*.ncb
+*.opensdf
+*.sdf
+*.sln.cache
+*.suo
+*.user
+*.vsp
+cmake_install.cmake
+CMakeCache.txt
+CMakeFiles
+ipch
+
+# cmake generated files in sources
+/dep/ACE_wrappers/ace/ACE_vc8.vcxproj*
+/dep/ACE_wrappers/ace/Backup*
+/dep/ACE_wrappers/ace/Debug*
+/dep/ACE_wrappers/ace/ETCL/ACE_ETCL_Parser_vc8.vcxproj*
+/dep/ACE_wrappers/ace/ETCL/ACE_ETCL_vc8.vcxproj*
+/dep/ACE_wrappers/ace/ETCL/Debug*
+/dep/ACE_wrappers/ace/ETCL/Release*
+/dep/ACE_wrappers/ace/Monitor_Control/Debug*
+/dep/ACE_wrappers/ace/Monitor_Control/Monitor_Control_vc8.vcxproj*
+/dep/ACE_wrappers/ace/Monitor_Control/Release*
+/dep/ACE_wrappers/ace/QoS/Debug*
+/dep/ACE_wrappers/ace/QoS/QoS_vc8.vcxproj*
+/dep/ACE_wrappers/ace/QoS/Release*
+/dep/ACE_wrappers/ace/UpgradeLog*
+/dep/ACE_wrappers/ace/Release*
+/dep/ACE_wrappers/ace/_UpgradeReport_Files*
+/dep/ACE_wrappers/lib/*
+/dep/ACE_wrappers/ace/config.h
+
+# ned files from excluded dirs
+!/dep/ACE_wrappers/ace/ace_message_table.bin
+!/dep/ACE_wrappers/bin/GNUmakefile.bin
+!/dep/ACE_wrappers/configure.ac~
+!/dep/ACE_wrappers/lib/.empty
+!/dep/tbb/src/Makefile
+
+# recastnavigation directory needs exception
+!/dep/recastnavigation/RecastDemo/Build/
+
+# Scripts library directory also needs exceptions
+/src/scripts/ScriptDev2__Win32_Debug/
+/src/scripts/ScriptDev2__Win32_Release/
+/src/scripts/ScriptDev2__x64_Debug/
+/src/scripts/ScriptDev2__x64_Release/
+
+/src/tools/Extractor_Binaries/*.exe
+
+# File generated during compile
+/dep/libmpq/compile

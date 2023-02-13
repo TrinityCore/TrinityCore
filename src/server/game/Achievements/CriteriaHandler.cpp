@@ -2330,7 +2330,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             break;
         }
         case ModifierTreeType::PlayerHasTrackedCurrencyEqualOrGreaterThan: // 121
-            if (referencePlayer->GetTrackedCurrencyCount(reqValue) < secondaryAsset)
+            if (referencePlayer->GetCurrencyTrackedQuantity(reqValue) < secondaryAsset)
                 return false;
             break;
         case ModifierTreeType::PlayerMapInstanceType: // 122
@@ -3023,7 +3023,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             return false;
         }
         case ModifierTreeType::PlayerHasCurrencyEqual: // 209
-            if (referencePlayer->GetCurrency(reqValue) != secondaryAsset)
+            if (referencePlayer->GetCurrencyQuantity(reqValue) != secondaryAsset)
                 return false;
             break;
         case ModifierTreeType::MinimumAverageItemHighWaterMarkForSpec: // 210 NYI
@@ -3858,10 +3858,37 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             if (GameTime::GetGameTime() - referencePlayer->m_playerData->LogoutTime < int64(reqValue) * DAY)
                 return false;
             break;
+        case ModifierTreeType::PlayerHasPerksProgramPendingReward: // 350
+            if (!referencePlayer->m_activePlayerData->HasPerksProgramPendingReward)
+                return false;
+            break;
         case ModifierTreeType::PlayerCanUseItem: // 351
         {
             ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(reqValue);
             if (!itemTemplate || !referencePlayer->CanUseItem(itemTemplate))
+                return false;
+            break;
+        }
+        case ModifierTreeType::PlayerHasAtLeastProfPathRanks: // 355
+        {
+            auto traitNodeEntryRankCount = [referencePlayer, secondaryAsset]()
+            {
+                uint32 ranks = 0;
+                for (UF::TraitConfig const& traitConfig : referencePlayer->m_activePlayerData->TraitConfigs)
+                {
+                    if (TraitConfigType(*traitConfig.Type) != TraitConfigType::Profession)
+                        continue;
+
+                    if (*traitConfig.SkillLineID != int32(secondaryAsset))
+                        continue;
+
+                    for (UF::TraitEntry const& traitEntry : traitConfig.Entries)
+                        if (sTraitNodeEntryStore.AssertEntry(traitEntry.TraitNodeEntryID)->GetNodeEntryType() == TraitNodeEntryType::ProfPath)
+                            ranks += traitEntry.Rank + traitEntry.GrantedRanks;
+                }
+                return ranks;
+            }();
+            if (traitNodeEntryRankCount < reqValue)
                 return false;
             break;
         }

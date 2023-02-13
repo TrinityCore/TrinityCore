@@ -29,8 +29,6 @@ static DWORD OpenDataStream(TCascFile * hf, PCASC_FILE_SPAN pFileSpan, PCASC_CKE
 {
     TCascStorage * hs = hf->hs;
     TFileStream * pStream = NULL;
-    TCHAR szCachePath[MAX_PATH];
-    TCHAR szDataFile[MAX_PATH];
     TCHAR szPlainName[0x80];
     DWORD dwErrCode;
 
@@ -48,11 +46,13 @@ static DWORD OpenDataStream(TCascFile * hf, PCASC_FILE_SPAN pFileSpan, PCASC_CKE
         {
             // Prepare the name of the data file
             CascStrPrintf(szPlainName, _countof(szPlainName), _T("data.%03u"), dwArchiveIndex);
-            CombinePath(szDataFile, _countof(szDataFile), hs->szIndexPath, szPlainName, NULL);
+
+            // Create the full path of the data file
+            CASC_PATH<TCHAR> DataFile(hs->szIndexPath, szPlainName, NULL);
 
             // Open the data stream with read+write sharing to prevent Battle.net agent
             // detecting a corruption and redownloading the entire package
-            pStream = FileStream_OpenFile(szDataFile, STREAM_FLAG_READ_ONLY | STREAM_FLAG_WRITE_SHARE | STREAM_PROVIDER_FLAT | STREAM_FLAG_FILL_MISSING | BASE_PROVIDER_FILE);
+            pStream = FileStream_OpenFile(DataFile, STREAM_FLAG_READ_ONLY | STREAM_FLAG_WRITE_SHARE | STREAM_PROVIDER_FLAT | STREAM_FLAG_FILL_MISSING | BASE_PROVIDER_FILE);
             hs->DataFiles[dwArchiveIndex] = pStream;
         }
 
@@ -67,35 +67,29 @@ static DWORD OpenDataStream(TCascFile * hf, PCASC_FILE_SPAN pFileSpan, PCASC_CKE
     {
         if(bDownloadFileIf)
         {
-            CASC_CDN_DOWNLOAD CdnsInfo = {0};
-            LPCTSTR szPathType = (pCKeyEntry->Flags & CASC_CE_FILE_PATCH) ? _T("patch") : _T("data");
+            CASC_ARCHIVE_INFO ArchiveInfo = {0};
+            CASC_PATH<TCHAR> LocalPath;
+            CPATH_TYPE PathType = (pCKeyEntry->Flags & CASC_CE_FILE_PATCH) ? PathTypePatch : PathTypeData;
 
-            // Prepare the download structure for "%CDNS_HOST%/%CDNS_PATH%/##/##/EKey" file
-            CdnsInfo.szCdnsPath = hs->szCdnPath;
-            CdnsInfo.szPathType = szPathType;
-            CdnsInfo.pbEKey = pCKeyEntry->EKey;
-            CdnsInfo.szLocalPath = szCachePath;
-            CdnsInfo.ccLocalPath = _countof(szCachePath);
-
-            // Download the file from CDN
-            dwErrCode = DownloadFileFromCDN(hs, CdnsInfo);
+            // Fetch the file
+            dwErrCode = FetchCascFile(hs, PathType, pCKeyEntry->EKey, NULL, LocalPath, &ArchiveInfo);
             if(dwErrCode == ERROR_SUCCESS)
             {
-                pStream = FileStream_OpenFile(szCachePath, BASE_PROVIDER_FILE | STREAM_PROVIDER_FLAT);
+                pStream = FileStream_OpenFile(LocalPath, BASE_PROVIDER_FILE | STREAM_PROVIDER_FLAT);
                 if(pStream != NULL)
                 {
                     // Initialize information about the position and size of the file in archive
                     // On loose files, their position is zero and encoded size is length of the file
-                    if(CdnsInfo.pbArchiveKey != NULL)
+                    if(CascIsValidMD5(ArchiveInfo.ArchiveKey))
                     {
                         // Archive position
-                        pFileSpan->ArchiveIndex = CdnsInfo.ArchiveIndex;
-                        pFileSpan->ArchiveOffs = (DWORD)CdnsInfo.ArchiveOffs;
+                        pFileSpan->ArchiveIndex = ArchiveInfo.ArchiveIndex;
+                        pFileSpan->ArchiveOffs = ArchiveInfo.ArchiveOffs;
 
                         // Encoded size
                         if(pCKeyEntry->EncodedSize == CASC_INVALID_SIZE)
-                            pCKeyEntry->EncodedSize = CdnsInfo.EncodedSize;
-                        assert(pCKeyEntry->EncodedSize == CdnsInfo.EncodedSize);
+                            pCKeyEntry->EncodedSize = ArchiveInfo.EncodedSize;
+                        assert(pCKeyEntry->EncodedSize == ArchiveInfo.EncodedSize);
                     }
                     else
                     {
@@ -157,11 +151,11 @@ static void VerifyHeaderSpan(PBLTE_ENCODED_HEADER pBlteHeader, ULONGLONG HeaderO
     ConvertIntegerToBytes_4_LE(dwInt32, EncodedOffset);
 
     // Calculate checksum of the so-far filled structure
-    for (i = 0; i < FIELD_OFFSET(BLTE_ENCODED_HEADER, Checksum); i++)
+    for(i = 0; i < FIELD_OFFSET(BLTE_ENCODED_HEADER, Checksum); i++)
         HashedHeader[i & 3] ^= pbBlteHeader[i];
 
     // XOR the two values together to get the final checksum.
-    for (j = 0; j < 4; j++, i++)
+    for(j = 0; j < 4; j++, i++)
         Checksum[j] = HashedHeader[i & 3] ^ EncodedOffset[i & 3];
 //  assert(memcmp(pBlteHeader->Checksum, Checksum, sizeof(Checksum)) == 0);
 }
@@ -284,7 +278,7 @@ static DWORD LoadSpanFrames(PCASC_FILE_SPAN pFileSpan, PCASC_CKEY_ENTRY pCKeyEnt
         if(pFrames != NULL)
         {
             // Copy the frames to the file structure
-            for (DWORD i = 0; i < pFileSpan->FrameCount; i++)
+            for(DWORD i = 0; i < pFileSpan->FrameCount; i++)
             {
                 CASC_FILE_FRAME & Frame = pFrames[i];
 

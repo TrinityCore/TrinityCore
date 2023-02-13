@@ -1,0 +1,6 @@
+SELECT * FROM item_loot_template_xy837 WHERE NOT EXISTS (SELECT 1 FROM item_loot_template_org WHERE item_loot_template_xy837.Entry= item_loot_template_org.Entry);
+2023_01_31_07_world
+
+二次补充:
+SELECT * FROM item_loot_template_xy837 WHERE NOT EXISTS (SELECT 1 FROM item_loot_template WHERE item_loot_template_xy837.Entry= item_loot_template.Entry and item_loot_template_xy837.Item= item_loot_template.Item);
+2023_02_01_09_world

@@ -465,6 +465,13 @@ namespace WorldPackets
             } Bracket[6];
         };
 
+        struct RatedMatchDeserterPenalty
+        {
+            int32 PersonalRatingChange = 0;
+            int32 QueuePenaltySpellID = 0;
+            WorldPackets::Duration<Milliseconds, int32> QueuePenaltyDuration;
+        };
+
         class PVPMatchInitialize final : public ServerPacket
         {
         public:
@@ -483,6 +490,7 @@ namespace WorldPackets
             MatchState State = Inactive;
             Timestamp<> StartTime;
             WorldPackets::Duration<Seconds> Duration;
+            Optional<RatedMatchDeserterPenalty> DeserterPenalty;
             uint8 ArenaFaction = 0;
             uint32 BattlemasterListID = 0;
             bool Registered = false;

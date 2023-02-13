@@ -499,7 +499,7 @@ struct boss_sathrovarr : public BossAI
         else if (Creature* kalecgosHuman = instance->GetCreature(DATA_KALECGOS_HUMAN))
         {
             if (kalecgosHuman->GetGUID() == target->GetGUID())
-                EnterEvadeMode(EVADE_REASON_OTHER);
+                EnterEvadeMode(EvadeReason::Other);
         }
     }
 

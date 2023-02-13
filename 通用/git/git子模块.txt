@@ -1,0 +1,3 @@
+来源:https://www.tsingfun.com/html/2020/opensource_0919/git-submodule.html
+先在VS中选择要放的地方,然后右键文件夹,在终端中打开(会进入powershell),输入命令就会clone新的项目
+git submodule add https://github.com/** 

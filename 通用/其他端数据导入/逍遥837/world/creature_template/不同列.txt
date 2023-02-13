@@ -1,0 +1,25 @@
+xy837 81列,tc 66列
+
+xy837修改过程:
+删除18:
+trainertype
+trainer_race
+resistance1(中间)
+resistance2
+...
+resistance6
+spell1
+spell2
+...
+spell8
+InhabitType
+FadeRegionRadius
+
+增加3:(靠近末尾)
+CreatureDifficultyID
+spell_school_immune_mask
+StringId
+
+
+额外
+name 允许空值

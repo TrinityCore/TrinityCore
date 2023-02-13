@@ -21,6 +21,7 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "TemporarySummon.h"
+#include <PetBattle.h>
 
 void WorldSession::HandleBattlePetRequestJournal(WorldPackets::BattlePet::BattlePetRequestJournal& /*battlePetRequestJournal*/)
 {
@@ -131,4 +132,19 @@ void WorldSession::HandleBattlePetSummon(WorldPackets::BattlePet::BattlePetSummo
 void WorldSession::HandleBattlePetUpdateNotify(WorldPackets::BattlePet::BattlePetUpdateNotify& battlePetUpdateNotify)
 {
     GetBattlePetMgr()->UpdateBattlePetData(battlePetUpdateNotify.PetGuid);
+}
+
+void WorldSession::SendPetBattleRequestFailed(uint8 reason)
+{
+    SendPacket(WorldPackets::BattlePet::RequestFailed(reason).Write());
+}
+
+void WorldSession::SendPetBattleFinalizeLocation(PetBattleRequest* petBattleRequest)
+{
+    WorldPackets::BattlePet::FinalizeLocation locationUpdate;
+    locationUpdate.Location.BattleOrigin = petBattleRequest->PetBattleCenterPosition;
+    locationUpdate.Location.LocationResult = petBattleRequest->LocationResult;
+    for (uint8 i = 0; i < MAX_PET_BATTLE_TEAM; i++)
+        locationUpdate.Location.PlayerPositions[i] = petBattleRequest->TeamPosition[i];
+    SendPacket(locationUpdate.Write());
 }

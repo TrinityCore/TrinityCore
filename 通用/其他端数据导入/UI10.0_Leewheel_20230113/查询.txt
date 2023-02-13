@@ -1,0 +1,26 @@
+更新过的表
+
+creature_template,creature,gameobject,npc_vendor
+
+INSERT INTO creature_template SELECT * FROM creature_template_10 WHERE NOT EXISTS (SELECT 1 FROM creature_template WHERE creature_template_10.Entry= creature_template.Entry);
+
+
+INSERT INTO creature SELECT * FROM creature_10 WHERE NOT EXISTS (SELECT 1 FROM creature WHERE creature_10.guid= creature.guid);
+
+INSERT INTO gameobject SELECT * FROM gameobject_10 WHERE NOT EXISTS (SELECT 1 FROM gameobject WHERE gameobject_10.guid= gameobject.guid);
+
+INSERT INTO npc_vendor SELECT * FROM npc_vendor_10 WHERE NOT EXISTS (SELECT 1 FROM npc_vendor WHERE npc_vendor_10.entry= npc_vendor.entry and npc_vendor_10.item= npc_vendor.item  and npc_vendor_10.ExtendedCost= npc_vendor.ExtendedCost  and npc_vendor_10.type= npc_vendor.type);
+(是后补充的,先执行的,应该837先来)
+
+INSERT INTO lfg_dungeon_template SELECT * FROM lfg_dungeon_template_10 WHERE NOT EXISTS (SELECT 1 FROM lfg_dungeon_template WHERE lfg_dungeon_template_10.dungeonId= lfg_dungeon_template.dungeonId);
+//0
+
+INSERT INTO item_loot_template SELECT * FROM item_loot_template_10 WHERE NOT EXISTS (SELECT 1 FROM item_loot_template WHERE item_loot_template_10.Entry= item_loot_template.Entry and item_loot_template_10.Item= item_loot_template.Item);
+//0
+  
+INSERT INTO creature_loot_template SELECT * FROM creature_loot_template_10 WHERE NOT EXISTS (SELECT 1 FROM creature_loot_template WHERE creature_loot_template_10.Entry= creature_loot_template.Entry and creature_loot_template_10.Item= creature_loot_template.Item);
+
+INSERT INTO gameobject_template SELECT * FROM gameobject_template_10 WHERE NOT EXISTS (SELECT 1 FROM gameobject_template WHERE gameobject_template_10.entry= gameobject_template.entry);
+//890
+
+

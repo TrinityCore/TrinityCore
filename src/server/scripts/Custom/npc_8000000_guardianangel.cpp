@@ -71,18 +71,14 @@ public:
                 // summon guardian angel for a while
                 uint32 minutesforassist = sConfigMgr->GetIntDefault("GuardianAngel.Minutes.For.Assist", 1);
                 TempSummon* npc = player->SummonCreature(8000000, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, minutesforassist * 60000, ObjectGuid::Empty);//ObjectGuid privateObjectOwner /* = ObjectGuid::Empty */
+                //暂时注释看看
                 //这个是新的,但是启用这句后,生成的最后报错
                 //报错内容如下
                 //严重性	代码	说明	项目	文件	行	禁止显示状态
                 //错误	LNK2019	无法解析的外部符号 "public: class TempSummon * __cdecl WorldObject::SummonCreature(unsigned int,float,float,float,float,enum TempSummonType,unsigned int,class ObjectGuid)" (? SummonCreature@WorldObject@@QEAAPEAVTempSummon@@IMMMMW4TempSummonType@@IVObjectGuid@@@Z)，函数 "public: void __cdecl GuardianAngel_Spawn::SummonGuardianAngel(class Player *)" (? SummonGuardianAngel@GuardianAngel_Spawn@@QEAAXPEAVPlayer@@@Z) 中引用了该符号	D : \Program Files(x86)\WOWDIY\TrinityCore\out\build\x64 - Debug\TrinityCore	D : \Program Files(x86)\WOWDIY\TrinityCore\out\build\x64 - Debug\scripts.lib(npc_8000000_guardianangel.cpp.obj)	1
 
-
-
-
                 //player->SummonCreature(8000000, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, minutesforassist * 60000, ObjectGuid::Empty);//ObjectGuid privateObjectOwner /* = ObjectGuid::Empty */
                 //我尝试的,还是不行,一样报错
-
-
 
                 //原本的类型
                 //Creature* npc = player->SummonCreature(8000000, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, minutesforassist * 60000, ObjectGuid::Empty);//ObjectGuid privateObjectOwner /* = ObjectGuid::Empty */                                                                                                                                                                    //, ObjectGuid::Empty

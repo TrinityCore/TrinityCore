@@ -1,3 +1,4 @@
+//小女孩注释 2022年3月17日07:09:19 本文件为账号管理器  涉及权限定义与链接权限
 /*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
@@ -29,36 +30,40 @@
 #include "World.h"
 #include "WorldSession.h"
 
+ //账号管理
 AccountMgr::AccountMgr() { }
 
+//账号管理析构函数
 AccountMgr::~AccountMgr()
 {
     ClearRBAC();
 }
 
+//账号管理-副本
 AccountMgr* AccountMgr::instance()
 {
     static AccountMgr instance;
     return &instance;
 }
 
+//账号创建消息
 AccountOpResult AccountMgr::CreateAccount(std::string username, std::string password, std::string email /*= ""*/, uint32 bnetAccountId /*= 0*/, uint8 bnetIndex /*= 0*/)
 {
     if (utf8length(username) > MAX_ACCOUNT_STR)
-        return AccountOpResult::AOR_NAME_TOO_LONG;                           // username's too long
+        return AccountOpResult::AOR_NAME_TOO_LONG;                           // username's too long //用户名过长
 
     if (utf8length(password) > MAX_PASS_STR)
-        return AccountOpResult::AOR_PASS_TOO_LONG;                           // password's too long
+        return AccountOpResult::AOR_PASS_TOO_LONG;                           // password's too long //密码过长
 
     Utf8ToUpperOnlyLatin(username);
     Utf8ToUpperOnlyLatin(password);
     Utf8ToUpperOnlyLatin(email);
 
     if (GetId(username))
-        return AccountOpResult::AOR_NAME_ALREADY_EXIST;                       // username does already exist
+        return AccountOpResult::AOR_NAME_ALREADY_EXIST;                       // username does already exist //用户名已经存在
 
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT);
-
+    //登录数据库已存储语句
     stmt->setString(0, username);
     std::pair<Trinity::Crypto::SRP6::Salt, Trinity::Crypto::SRP6::Verifier> registrationData = Trinity::Crypto::SRP6::MakeRegistrationData(username, password);
     stmt->setBinary(1, registrationData.first);
@@ -88,6 +93,7 @@ AccountOpResult AccountMgr::CreateAccount(std::string username, std::string pass
 AccountOpResult AccountMgr::DeleteAccount(uint32 accountId)
 {
     // Check if accounts exists
+    // 检查账号是否存在
     LoginDatabasePreparedStatement* loginStmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BY_ID);
     loginStmt->setUInt32(0, accountId);
     PreparedQueryResult result = LoginDatabase.Query(loginStmt);
@@ -109,6 +115,7 @@ AccountOpResult AccountMgr::DeleteAccount(uint32 accountId)
             ObjectGuid guid = ObjectGuid::Create<HighGuid::Player>((*result)[0].GetUInt64());
 
             // Kick if player is online
+            // 如果玩家在线,踢出
             if (Player* p = ObjectAccessor::FindConnectedPlayer(guid))
             {
                 WorldSession* s = p->GetSession();
@@ -121,6 +128,7 @@ AccountOpResult AccountMgr::DeleteAccount(uint32 accountId)
     }
 
     // table realm specific but common for all characters of account for realm
+    // 特定的服务器表,但是对服务器账号中所有角色通用
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_TUTORIALS);
     stmt->setUInt32(0, accountId);
     CharacterDatabase.Execute(stmt);
@@ -160,6 +168,7 @@ AccountOpResult AccountMgr::DeleteAccount(uint32 accountId)
     return AccountOpResult::AOR_OK;
 }
 
+//更改用户名
 AccountOpResult AccountMgr::ChangeUsername(uint32 accountId, std::string newUsername, std::string newPassword)
 {
     // Check if accounts exists
@@ -176,10 +185,10 @@ AccountOpResult AccountMgr::ChangeUsername(uint32 accountId, std::string newUser
     if (utf8length(newPassword) > MAX_PASS_STR)
         return AccountOpResult::AOR_PASS_TOO_LONG;
 
-    Utf8ToUpperOnlyLatin(newUsername);
-    Utf8ToUpperOnlyLatin(newPassword);
+    Utf8ToUpperOnlyLatin(newUsername);  //定义新用户名
+    Utf8ToUpperOnlyLatin(newPassword);  //定义新密码
 
-    stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_USERNAME);
+    stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_USERNAME);  //登录更新用户名
     stmt->setString(0, newUsername);
     stmt->setUInt32(1, accountId);
     LoginDatabase.Execute(stmt);
@@ -224,6 +233,7 @@ AccountOpResult AccountMgr::ChangePassword(uint32 accountId, std::string newPass
     return AccountOpResult::AOR_OK;
 }
 
+//用户更换电子邮件
 AccountOpResult AccountMgr::ChangeEmail(uint32 accountId, std::string newEmail)
 {
     std::string username;
@@ -231,7 +241,7 @@ AccountOpResult AccountMgr::ChangeEmail(uint32 accountId, std::string newEmail)
     if (!GetName(accountId, username))
     {
         sScriptMgr->OnFailedEmailChange(accountId);
-        return AccountOpResult::AOR_NAME_NOT_EXIST;                          // account doesn't exist
+        return AccountOpResult::AOR_NAME_NOT_EXIST;                          // account doesn't exist //用户不存在
     }
 
     if (utf8length(newEmail) > MAX_EMAIL_STR)
@@ -261,7 +271,7 @@ AccountOpResult AccountMgr::ChangeRegEmail(uint32 accountId, std::string newEmai
     if (!GetName(accountId, username))
     {
         sScriptMgr->OnFailedEmailChange(accountId);
-        return AccountOpResult::AOR_NAME_NOT_EXIST;                          // account doesn't exist
+        return AccountOpResult::AOR_NAME_NOT_EXIST;                          // account doesn't exist //用户不存在
     }
 
     if (utf8length(newEmail) > MAX_EMAIL_STR)
@@ -284,6 +294,7 @@ AccountOpResult AccountMgr::ChangeRegEmail(uint32 accountId, std::string newEmai
     return AccountOpResult::AOR_OK;
 }
 
+//登录_通过用户名获得用户ID
 uint32 AccountMgr::GetId(std::string_view username)
 {
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_ACCOUNT_ID_BY_USERNAME);
@@ -293,6 +304,7 @@ uint32 AccountMgr::GetId(std::string_view username)
     return (result) ? (*result)[0].GetUInt32() : 0;
 }
 
+//登录_通过服务器ID获得GM权限等级
 uint32 AccountMgr::GetSecurity(uint32 accountId, int32 realmId)
 {
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_GMLEVEL_BY_REALMID);
@@ -314,6 +326,7 @@ QueryCallback AccountMgr::GetSecurityAsync(uint32 accountId, int32 realmId, std:
     });
 }
 
+//登录_通过ID获得用户名
 bool AccountMgr::GetName(uint32 accountId, std::string& name)
 {
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_USERNAME_BY_ID);
@@ -329,6 +342,7 @@ bool AccountMgr::GetName(uint32 accountId, std::string& name)
     return false;
 }
 
+//登录_通过ID获得邮箱
 bool AccountMgr::GetEmail(uint32 accountId, std::string& email)
 {
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_EMAIL_BY_ID);
@@ -353,6 +367,7 @@ bool AccountMgr::CheckPassword(uint32 accountId, std::string password)
 
     Utf8ToUpperOnlyLatin(username);
     Utf8ToUpperOnlyLatin(password);
+    //登录_检查密码
 
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_CHECK_PASSWORD);
     stmt->setUInt32(0, accountId);
@@ -373,6 +388,7 @@ bool AccountMgr::CheckEmail(uint32 accountId, std::string newEmail)
     std::string oldEmail;
 
     // We simply return false for a non-existing email
+    // 对于不存在的邮箱仅返回false
     if (!GetEmail(accountId, oldEmail))
         return false;
 
@@ -385,9 +401,11 @@ bool AccountMgr::CheckEmail(uint32 accountId, std::string newEmail)
     return false;
 }
 
+//总角色数
 uint32 AccountMgr::GetCharactersCount(uint32 accountId)
 {
     // check character count
+    // 检查角色总数
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_SUM_CHARS);
     stmt->setUInt32(0, accountId);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
@@ -395,6 +413,7 @@ uint32 AccountMgr::GetCharactersCount(uint32 accountId)
     return (result) ? (*result)[0].GetUInt64() : 0;
 }
 
+//通过用户名查找账号封禁
 bool AccountMgr::IsBannedAccount(std::string const& name)
 {
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BANNED_BY_USERNAME);
@@ -432,11 +451,13 @@ void AccountMgr::LoadRBAC()
     uint32 count2 = 0;
     uint32 count3 = 0;
 
+    //加载权限中...
     TC_LOG_DEBUG("rbac", "AccountMgr::LoadRBAC: Loading permissions");
     QueryResult result = LoginDatabase.Query("SELECT id, name FROM rbac_permissions");
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 account permission definitions. DB table `rbac_permissions` is empty.");
+        //输出日志:加载了0个权限定义.数据库中的表rbac_permissions是空的.
         return;
     }
 
@@ -454,6 +475,7 @@ void AccountMgr::LoadRBAC()
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 linked permissions. DB table `rbac_linked_permissions` is empty.");
+        //输出日志:加载了0个连接的权限定义.数据库中的表rbac_linked_permissions是空的.
         return;
     }
 
@@ -474,6 +496,7 @@ void AccountMgr::LoadRBAC()
         if (linkedPermissionId == permissionId)
         {
             TC_LOG_ERROR("sql.sql", "RBAC Permission {} has itself as linked permission. Ignored", permissionId);
+            //输出日志:权限定义(权限名)自身作为链接权限.已忽略.此处可以自定义输出样式.
             continue;
         }
         permission->AddLinkedPermission(linkedPermissionId);
@@ -485,7 +508,9 @@ void AccountMgr::LoadRBAC()
     result = LoginDatabase.PQuery("SELECT secId, permissionId FROM rbac_default_permissions WHERE (realmId = {} OR realmId = -1) ORDER BY secId ASC", realm.Id.Realm);
     if (!result)
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 default permission definitions. DB table `rbac_default_permissions` is empty.");
+        //TC_LOG_INFO("server.loading", ">> Loaded 0 default permission definitions. DB table `rbac_default_permissions` is empty.");
+        TC_LOG_INFO("server.loading", ">> 加载了0个默认的权限定义.数据库中的表rbac_default_permissions是空的.");
+        //输出日志:加载了0个默认的权限定义.数据库中的表rbac_default_permissions是空的.
         return;
     }
 
@@ -543,6 +568,7 @@ void AccountMgr::UpdateAccountAccess(rbac::RBACData* rbac, uint32 accountId, uin
     LoginDatabase.CommitTransaction(trans);
 }
 
+// 获得RBAC权限
 rbac::RBACPermission const* AccountMgr::GetRBACPermission(uint32 permissionId) const
 {
     TC_LOG_TRACE("rbac", "AccountMgr::GetRBACPermission: {}", permissionId);
@@ -558,6 +584,7 @@ bool AccountMgr::HasPermission(uint32 accountId, uint32 permissionId, uint32 rea
     if (!accountId)
     {
         TC_LOG_ERROR("rbac", "AccountMgr::HasPermission: Wrong accountId 0");
+        //输出日志:rbac,错误的账号ID.
         return false;
     }
 

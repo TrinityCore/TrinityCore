@@ -1,0 +1,14 @@
+sql查询模型:
+SELECT * FROM A WHERE NOT EXISTS (SELECT 1 FROM B WHERE A.id= B.id);
+
+
+A creature_xy837
+B creature_org
+
+SELECT * FROM creature_xy837 WHERE NOT EXISTS (SELECT 1 FROM creature_org WHERE creature_xy837.id= creature_org.id);
+
+
+最终成功的:
+SELECT * FROM creature_xy837 WHERE NOT EXISTS (SELECT 1 FROM creature_org WHERE creature_xy837.guid= creature_org.guid);
+
+然后使用navicat的新建查询功能,导出数据,完美

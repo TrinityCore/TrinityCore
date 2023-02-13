@@ -25,10 +25,12 @@
 #include "Item.h"
 #include "ItemPackets.h"
 #include "Log.h"
+#include "Map.h"
 #include "NPCPackets.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "World.h"
+#include "GossipDef.h"
 
 void WorldSession::HandleSplitItemOpcode(WorldPackets::Item::SplitItem& splitItem)
 {
@@ -588,10 +590,15 @@ void WorldSession::HandleListInventoryOpcode(WorldPackets::NPC::Hello& packet)
     if (!GetPlayer()->IsAlive())
         return;
 
+#ifndef DISABLE_DRESSNPCS_CORESOUNDS
+    if (packet.Unit.IsAnyTypeCreature())
+        if (Creature* creature = _player->GetMap()->GetCreature(packet.Unit))
+            creature->SendMirrorSound(_player, 0);
+#endif
     SendListInventory(packet.Unit);
 }
 
-void WorldSession::SendListInventory(ObjectGuid vendorGuid)
+void WorldSession::SendListInventory(ObjectGuid vendorGuid, uint32 vendorEntry)
 {
     Creature* vendor = GetPlayer()->GetNPCIfCanInteractWith(vendorGuid, UNIT_NPC_FLAG_VENDOR, UNIT_NPC_FLAG_2_NONE);
     if (!vendor)
@@ -610,7 +617,11 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
         vendor->PauseMovement(pause);
     vendor->SetHomePosition(vendor->GetPosition());
 
-    VendorItemData const* vendorItems = vendor->GetVendorItems();
+    GetPlayer()->PlayerTalkClass->GetInteractionData().Reset();
+    GetPlayer()->PlayerTalkClass->GetInteractionData().SourceGuid = vendorGuid;
+    GetPlayer()->PlayerTalkClass->GetInteractionData().VendorId = vendorEntry;
+
+    VendorItemData const* vendorItems = vendorEntry ? sObjectMgr->GetNpcVendorItemList(vendorEntry) : vendor->GetVendorItems();
     uint32 rawItemCount = vendorItems ? vendorItems->GetItemCount() : 0;
 
     WorldPackets::NPC::VendorInventory packet;

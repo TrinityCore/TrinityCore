@@ -27,6 +27,7 @@ class TC_GAME_API InstanceScenario : public Scenario
     public:
         InstanceScenario(InstanceMap const* map, ScenarioData const* scenarioData);
 
+        void SaveToDB();
         void LoadInstanceData();
 
     protected:

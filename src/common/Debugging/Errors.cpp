@@ -72,24 +72,29 @@ namespace Trinity
 
 void Assert(char const* file, int line, char const* function, std::string debugInfo, char const* message)
 {
-    std::string formattedMessage = StringFormat("\n{}:{} in {} ASSERTION FAILED:\n  {}\n", file, line, function, message) + debugInfo + '\n';
-    fprintf(stderr, "%s", formattedMessage.c_str());
-    fflush(stderr);
-    Crash(formattedMessage.c_str());
+    //std::string formattedMessage = StringFormat("\n{}:{} in {} ASSERTION FAILED:\n  {}\n", file, line, function, message) + debugInfo + '\n';
+    //fprintf(stderr, "%s", formattedMessage.c_str());
+    
+    //fflush(stderr);
+   // Crash(formattedMessage.c_str());
+    //尝试去掉刷屏的提示,本段全是我后注释掉的
 }
 
 void Assert(char const* file, int line, char const* function, std::string debugInfo, char const* message, char const* format, ...)
 {
-    va_list args;
-    va_start(args, format);
+    //va_list args;
+    //va_start(args, format);
 
-    std::string formattedMessage = StringFormat("\n{}:{} in {} ASSERTION FAILED:\n  {}\n", file, line, function, message) + FormatAssertionMessage(format, args) + '\n' + debugInfo + '\n';
-    va_end(args);
+    //std::string formattedMessage = StringFormat("\n{}:{} in {} ASSERTION FAILED:\n  {}\n", file, line, function, message) + FormatAssertionMessage(format, args) + '\n' + debugInfo + '\n';
+    //va_end(args);
 
-    fprintf(stderr, "%s", formattedMessage.c_str());
-    fflush(stderr);
+    //fprintf(stderr, "%s", formattedMessage.c_str());
+    
+    //fflush(stderr);
 
-    Crash(formattedMessage.c_str());
+    //Crash(formattedMessage.c_str());
+
+    //尝试去掉刷屏的提示,本段全是我后注释掉的
 }
 
 void Fatal(char const* file, int line, char const* function, char const* message, ...)
@@ -146,10 +151,11 @@ void Abort(char const* file, int line, char const* function, char const* message
 void AbortHandler(int sigval)
 {
     // nothing useful to log here, no way to pass args
+    //此处没有什么有用的需要记录
     std::string formattedMessage = StringFormat("Caught signal {}\n", sigval);
     fprintf(stderr, "%s", formattedMessage.c_str());
     fflush(stderr);
-    Crash(formattedMessage.c_str());
+    Crash(formattedMessage.c_str());//尝试去除错误,后担心影响主体功能,取消
 }
 
 } // namespace Trinity

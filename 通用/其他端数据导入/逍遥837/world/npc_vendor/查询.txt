@@ -1,0 +1,8 @@
+SELECT * FROM npc_vendor_xy837 WHERE NOT EXISTS (SELECT 1 FROM npc_vendor_org WHERE npc_vendor_xy837.entry= npc_vendor_org.entry);
+2023_01_31_06_world
+
+
+再次更新;
+
+INSERT INTO npc_vendor SELECT * FROM npc_vendor_xy837 WHERE NOT EXISTS (SELECT 1 FROM npc_vendor WHERE npc_vendor_xy837.entry= npc_vendor.entry and npc_vendor_xy837.item= npc_vendor.item  and npc_vendor_xy837.ExtendedCost= npc_vendor.ExtendedCost  and npc_vendor_xy837.type= npc_vendor.type);
+应该这个先来

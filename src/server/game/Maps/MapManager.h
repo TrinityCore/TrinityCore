@@ -18,6 +18,13 @@
 #ifndef TRINITY_MAPMANAGER_H
 #define TRINITY_MAPMANAGER_H
 
+#include "Object.h"
+#include "Map.h"
+#include "MapInstanced.h"
+#include "GridStates.h"
+#include "MapUpdater.h"
+#include <boost/dynamic_bitset.hpp>
+
 #include "GridDefines.h"
 #include "IteratorPair.h"
 #include "MapUpdater.h"
@@ -49,6 +56,10 @@ class TC_GAME_API MapManager
         MapManager& operator=(MapManager&&) = delete;
 
         static MapManager* instance();
+
+        Map* CreateBaseMap(uint32 id);
+
+        Map* CreateBaseMap_i(MapEntry const* mapEntry);
 
         Map* CreateMap(uint32 mapId, Player* player);
         Map* FindMap(uint32 mapId, uint32 instanceId) const;
@@ -133,7 +144,14 @@ class TC_GAME_API MapManager
     private:
         using MapKey = std::pair<uint32, uint32>;
         typedef std::map<MapKey, Map*> MapMapType;
+        typedef std::unordered_map<uint32, Map*> MapMapType_TCB;
         typedef boost::dynamic_bitset<size_t> InstanceIds;
+
+        Map* FindBaseMap(uint32 mapId) const
+        {
+            MapMapType::const_iterator iter = i_maps.find(MapKey(mapId, mapId));//此处补的不知道是否正确
+            return (iter == i_maps.end() ? nullptr : iter->second);
+        }
 
         Map* FindMap_i(uint32 mapId, uint32 instanceId) const;
 
@@ -147,6 +165,7 @@ class TC_GAME_API MapManager
         mutable std::shared_mutex _mapsLock;
         uint32 i_gridCleanUpDelay;
         MapMapType i_maps;
+        MapMapType_TCB i_maps_TCB;
         IntervalTimer i_timer;
 
         std::unique_ptr<InstanceIds> _freeInstanceIds;
@@ -155,6 +174,8 @@ class TC_GAME_API MapManager
 
         // atomic op counter for active scripts amount
         std::atomic<std::size_t> _scheduledScripts;
+        // parent map links
+        std::unordered_map<uint32, std::vector<uint32>> _parentMapData;
 };
 
 template<typename Worker>

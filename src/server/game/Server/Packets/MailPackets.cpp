@@ -58,7 +58,7 @@ WorldPackets::Mail::MailAttachedItem::MailAttachedItem(::Item const* item, uint8
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Mail::MailAttachedItem const& att)
 {
     data << uint8(att.Position);
-    data << int32(att.AttachID);
+    data << uint64(att.AttachID);
     data << int32(att.Count);
     data << int32(att.Charges);
     data << uint32(att.MaxDurability);
@@ -114,7 +114,7 @@ WorldPackets::Mail::MailListEntry::MailListEntry(::Mail const* mail, ::Player* p
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Mail::MailListEntry const& entry)
 {
-    data << int32(entry.MailID);
+    data << uint64(entry.MailID);
     data << uint8(entry.SenderType);
     data << uint64(entry.Cod);
     data << int32(entry.StationeryID);
@@ -198,12 +198,12 @@ void WorldPackets::Mail::MailReturnToSender::Read()
 
 WorldPacket const* WorldPackets::Mail::MailCommandResult::Write()
 {
-    _worldPacket << uint32(MailID);
-    _worldPacket << uint32(Command);
-    _worldPacket << uint32(ErrorCode);
-    _worldPacket << uint32(BagResult);
-    _worldPacket << uint32(AttachID);
-    _worldPacket << uint32(QtyInInventory);
+    _worldPacket << uint64(MailID);
+    _worldPacket << int32(Command);
+    _worldPacket << int32(ErrorCode);
+    _worldPacket << int32(BagResult);
+    _worldPacket << uint64(AttachID);
+    _worldPacket << int32(QtyInInventory);
 
     return &_worldPacket;
 }

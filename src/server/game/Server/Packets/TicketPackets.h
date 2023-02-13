@@ -147,7 +147,7 @@ namespace WorldPackets
 
         struct SupportTicketMailInfo
         {
-            int32 MailID = 0;
+            int64 MailID = 0;
             std::string MailSubject;
             std::string MailBody;
         };
@@ -259,7 +259,7 @@ namespace WorldPackets
 
             uint8 ComplaintType = 0;
             ComplaintOffender Offender;
-            uint32 MailID = 0;
+            uint64 MailID = 0;
             ComplaintChat Chat;
             uint64 EventGuid = 0;
             uint64 InviteGuid = 0;

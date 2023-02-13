@@ -69,6 +69,12 @@ on 1 byte), but shoehorning those bytes into integers efficiently is messy.
 #define hashmask(n) (hashsize(n)-1)
 #define rot(x,k) (((x)<<(k)) | ((x)>>(32-(k))))
 
+/* Fixup some warnings in MS Visual C++ */
+#ifdef _MSC_VER
+#pragma warning(disable: 4127)              // warning C4127: conditional expression is constant
+#pragma warning(disable: 4101)              // warning C4101: 'k8': unreferenced local variable
+#endif
+
 /*
 -------------------------------------------------------------------------------
 mix -- mix 3 32-bit values reversibly.

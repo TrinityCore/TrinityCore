@@ -59,6 +59,11 @@ LFGMgr::LFGMgr() : m_QueueTimer(0), m_lfgProposalId(1),
     m_options(sWorld->getIntConfig(CONFIG_LFG_OPTIONSMASK))
 {
 }
+//我后加的
+//LFGMgr::LFGMgr() : m_QueueTimer(0), m_lfgProposalId(1),
+//m_options(sWorld->getIntConfig(CONFIG_LFG_SOLOOPTIONSMASK))
+//{
+//}
 
 LFGMgr::~LFGMgr()
 {
@@ -713,7 +718,12 @@ WorldPackets::LFG::RideTicket const* LFGMgr::GetTicket(ObjectGuid guid) const
 void LFGMgr::ToggleSoloLFG()
 {
     m_isSoloLFG = !m_isSoloLFG;
-}//后加-结束
+}
+void LFGMgr::ToggleTesting()
+{
+    m_isTesting = !m_isTesting;
+}
+//后加-结束
 
 /**
    Update the Role check info with the player selected role.

@@ -256,6 +256,7 @@ class TC_GAME_API Spell
         void EffectHeal();
         void EffectBind();
         void EffectTeleportToReturnPoint();
+        void EffectIncreaseCurrencyCap();
         void EffectHealthLeech();
         void EffectQuestComplete();
         void EffectCreateItem();
@@ -372,6 +373,7 @@ class TC_GAME_API Spell
         void EffectRemoveTalent();
         void EffectDestroyItem();
         void EffectLearnGarrisonBuilding();
+        void EffectRemoveAuraBySpellLabel();
         void EffectCreateGarrison();
         void EffectCreateConversation();
         void EffectCancelConversation();

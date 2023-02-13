@@ -3,7 +3,7 @@ SPP Praevius Core Combat.Rating.Craft V2
 Original Script Provided by Conanhun
 Re-Written by MDic
 */
-#include <map>
+#include <map>  //系统库 D:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.31933\include\map
 
 #include "Config.h"
 #include "ScriptMgr.h"
@@ -16,7 +16,7 @@ Re-Written by MDic
 #include "Chat.h"
 #include "Log.h"
 
-namespace {
+namespace { //命名空间
 
 	class CombatRatingCraft_player_instance_handler : public PlayerScript
 	{
