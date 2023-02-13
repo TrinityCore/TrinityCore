@@ -25,6 +25,7 @@ public:
         if (sConfigMgr->GetBoolDefault("SoloLFG.Announce", true))
         {
             ChatHandler(player->GetSession()).SendSysMessage("This server is running |cff4CFF00Solo Dungeon Finder|r.");
+            //输出:服务器正在使用地下城查找器
         }
     }
 };

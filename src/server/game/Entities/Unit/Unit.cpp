@@ -743,14 +743,35 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
 
 /*static*/ uint32 Unit::DealDamage(Unit* attacker, Unit* victim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellInfo const* spellProto, bool durabilityLoss)
 {
-    if (UnitAI* victimAI = victim->GetAI())
-        victimAI->DamageTaken(attacker, damage, damagetype, spellProto);
+    uint32 damageDone = damage;
+    uint32 damageTaken = damage;
+    if (attacker)
+        damageTaken = damage / victim->GetHealthMultiplierForTarget(attacker);
 
-    if (UnitAI* attackerAI = attacker ? attacker->GetAI() : nullptr)
-        attackerAI->DamageDealt(victim, damage, damagetype);
+    // call script hooks
+    {
+        uint32 tmpDamage = damageTaken;
 
-    // Hook for OnDamage Event
-    sScriptMgr->OnDamage(attacker, victim, damage);
+        if (UnitAI* victimAI = victim->GetAI())
+            victimAI->DamageTaken(attacker, tmpDamage, damagetype, spellProto);
+
+        if (UnitAI* attackerAI = attacker ? attacker->GetAI() : nullptr)
+            attackerAI->DamageDealt(victim, tmpDamage, damagetype);
+
+        // Hook for OnDamage Event
+        sScriptMgr->OnDamage(attacker, victim, tmpDamage);
+
+        // if any script modified damage, we need to also apply the same modification to unscaled damage value
+        if (tmpDamage != damageTaken)
+        {
+            if (attacker)
+                damageDone = tmpDamage * victim->GetHealthMultiplierForTarget(attacker);
+            else
+                damageDone = tmpDamage;
+
+            damageTaken = tmpDamage;
+        }
+    }
 
     // Signal to pets that their owner was attacked - except when DOT.
     if (attacker != victim && damagetype != DOT)
@@ -776,7 +797,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
         else
             victim->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Damage);
 
-        if (!damage && damagetype != DOT && cleanDamage && cleanDamage->absorbed_damage)
+        if (!damageTaken && damagetype != DOT && cleanDamage && cleanDamage->absorbed_damage)
             if (victim != attacker && victim->GetTypeId() == TYPEID_PLAYER)
                 if (Spell* spell = victim->m_currentSpells[CURRENT_GENERIC_SPELL])
                     if (spell->getState() == SPELL_STATE_PREPARING && spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::DamageAbsorb))
@@ -800,7 +821,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
                 continue;
             SpellInfo const* spell = (*i)->GetSpellInfo();
 
-            uint32 share = CalculatePct(damage, (*i)->GetAmount());
+            uint32 share = CalculatePct(damageDone, (*i)->GetAmount());
 
             /// @todo check packets if damage is done by victim, or by attacker of victim
             Unit::DealDamageMods(attacker, shareDamageTarget, share, nullptr);
@@ -817,7 +838,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
         attacker->RewardRage(rage);
     }
 
-    if (!damage)
+    if (!damageDone)
         return 0;
 
     uint32 health = victim->GetHealth();
@@ -825,18 +846,18 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
     // duel ends when player has 1 or less hp
     bool duel_hasEnded = false;
     bool duel_wasMounted = false;
-    if (victim->GetTypeId() == TYPEID_PLAYER && victim->ToPlayer()->duel && damage >= (health-1))
+    if (victim->GetTypeId() == TYPEID_PLAYER && victim->ToPlayer()->duel && damageTaken >= (health-1))
     {
         if (!attacker)
             return 0;
 
         // prevent kill only if killed in duel and killed by opponent or opponent controlled creature
         if (victim->ToPlayer()->duel->Opponent == attacker->GetControllingPlayer())
-            damage = health - 1;
+            damageTaken = health - 1;
 
         duel_hasEnded = true;
     }
-    else if (victim->IsVehicle() && damage >= (health-1) && victim->GetCharmer() && victim->GetCharmer()->GetTypeId() == TYPEID_PLAYER)
+    else if (victim->IsVehicle() && damageTaken >= (health-1) && victim->GetCharmer() && victim->GetCharmer()->GetTypeId() == TYPEID_PLAYER)
     {
         Player* victimRider = victim->GetCharmer()->ToPlayer();
 
@@ -847,7 +868,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
 
             // prevent kill only if killed in duel and killed by opponent or opponent controlled creature
             if (victimRider->duel->Opponent == attacker->GetControllingPlayer())
-                damage = health - 1;
+                damageTaken = health - 1;
 
             duel_wasMounted = true;
             duel_hasEnded = true;
@@ -861,31 +882,28 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
             // in bg, count dmg if victim is also a player
             if (victim->GetTypeId() == TYPEID_PLAYER)
                 if (Battleground* bg = killer->GetBattleground())
-                    bg->UpdatePlayerScore(killer, SCORE_DAMAGE_DONE, damage);
+                    bg->UpdatePlayerScore(killer, SCORE_DAMAGE_DONE, damageDone);
 
-            killer->UpdateCriteria(CriteriaType::DamageDealt, health > damage ? damage : health, 0, 0, victim);
-            killer->UpdateCriteria(CriteriaType::HighestDamageDone, damage);
+            killer->UpdateCriteria(CriteriaType::DamageDealt, health > damageDone ? damageDone : health, 0, 0, victim);
+            killer->UpdateCriteria(CriteriaType::HighestDamageDone, damageDone);
         }
     }
 
     if (victim->GetTypeId() == TYPEID_PLAYER)
-        victim->ToPlayer()->UpdateCriteria(CriteriaType::HighestDamageTaken, damage);
-
-    if (attacker)
-        damage /= victim->GetHealthMultiplierForTarget(attacker);
+        victim->ToPlayer()->UpdateCriteria(CriteriaType::HighestDamageTaken, damageTaken);
 
     if (victim->GetTypeId() != TYPEID_PLAYER && (!victim->IsControlledByPlayer() || victim->IsVehicle()))
     {
         victim->ToCreature()->SetTappedBy(attacker);
 
         if (!attacker || attacker->IsControlledByPlayer())
-            victim->ToCreature()->LowerPlayerDamageReq(health < damage ?  health : damage);
+            victim->ToCreature()->LowerPlayerDamageReq(health < damageTaken ?  health : damageTaken);
     }
 
     bool killed = false;
     bool skipSettingDeathState = false;
 
-    if (health <= damage)
+    if (health <= damageTaken)
     {
         killed = true;
 
@@ -895,7 +913,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
         if (damagetype != NODAMAGE && damagetype != SELF_DAMAGE && victim->HasAuraType(SPELL_AURA_SCHOOL_ABSORB_OVERKILL))
         {
             AuraEffectList vAbsorbOverkill = victim->GetAuraEffectsByType(SPELL_AURA_SCHOOL_ABSORB_OVERKILL);
-            DamageInfo damageInfo = DamageInfo(attacker, victim, damage, spellProto, damageSchoolMask, damagetype,
+            DamageInfo damageInfo = DamageInfo(attacker, victim, damageTaken, spellProto, damageSchoolMask, damagetype,
                 cleanDamage ? cleanDamage->attackType : BASE_ATTACK);
             for (AuraEffect* absorbAurEff : vAbsorbOverkill)
             {
@@ -908,7 +926,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
                     continue;
 
                 // cannot absorb over limit
-                if (damage >= victim->CountPctFromMaxHealth(100 + absorbAurEff->GetMiscValueB()))
+                if (damageTaken >= victim->CountPctFromMaxHealth(100 + absorbAurEff->GetMiscValueB()))
                     continue;
 
                 // get amount which can be still absorbed by the aura
@@ -950,7 +968,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
                 }
             }
 
-            damage = damageInfo.GetDamage();
+            damageTaken = damageInfo.GetDamage();
         }
     }
 
@@ -962,9 +980,9 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
     else
     {
         if (victim->GetTypeId() == TYPEID_PLAYER)
-            victim->ToPlayer()->UpdateCriteria(CriteriaType::TotalDamageTaken, damage);
+            victim->ToPlayer()->UpdateCriteria(CriteriaType::TotalDamageTaken, damageTaken);
 
-        victim->ModifyHealth(-(int32)damage);
+        victim->ModifyHealth(-(int32)damageTaken);
 
         if (damagetype == DIRECT_DAMAGE || damagetype == SPELL_DIRECT_DAMAGE)
             victim->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::NonPeriodicDamage, spellProto);
@@ -972,11 +990,11 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
         if (victim->GetTypeId() != TYPEID_PLAYER)
         {
             // Part of Evade mechanics. DoT's and Thorns / Retribution Aura do not contribute to this
-            if (damagetype != DOT && damage > 0 && !victim->GetOwnerGUID().IsPlayer() && (!spellProto || !spellProto->HasAura(SPELL_AURA_DAMAGE_SHIELD)))
+            if (damagetype != DOT && damageTaken > 0 && !victim->GetOwnerGUID().IsPlayer() && (!spellProto || !spellProto->HasAura(SPELL_AURA_DAMAGE_SHIELD)))
                 victim->ToCreature()->SetLastDamagedTime(GameTime::GetGameTime() + MAX_AGGRO_RESET_TIME);
 
             if (attacker && (!spellProto || !spellProto->HasAttribute(SPELL_ATTR4_NO_HARMFUL_THREAT)))
-                victim->GetThreatManager().AddThreat(attacker, float(damage), spellProto);
+                victim->GetThreatManager().AddThreat(attacker, float(damageTaken), spellProto);
         }
         else                                                // victim is a player
         {
@@ -1008,7 +1026,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
                     {
                         auto isCastInterrupted = [&]()
                         {
-                            if (!damage)
+                            if (!damageTaken)
                                 return spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::ZeroDamageCancels);
 
                             if ((victim->IsPlayer() && spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::DamageCancelsPlayerOnly)))
@@ -1022,7 +1040,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
 
                         auto isCastDelayed = [&]()
                         {
-                            if (!damage)
+                            if (!damageTaken)
                                 return false;
 
                             if ((victim->IsPlayer() && spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::DamagePushbackPlayerOnly)))
@@ -1041,7 +1059,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
                     }
                 }
 
-                if (damage && victim->IsPlayer())
+                if (damageTaken && victim->IsPlayer())
                     if (Spell* spell = victim->m_currentSpells[CURRENT_CHANNELED_SPELL])
                         if (spell->getState() == SPELL_STATE_CASTING && spell->m_spellInfo->HasChannelInterruptFlag(SpellAuraInterruptFlags::DamageChannelDuration))
                             spell->DelayedChannel();
@@ -1072,7 +1090,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
     if (victim->GetStandState() && victim->IsPlayer())
         victim->SetStandState(UNIT_STAND_STATE_STAND);
 
-    return damage;
+    return damageTaken;
 }
 
 void Unit::CastStop(uint32 except_spellid)
