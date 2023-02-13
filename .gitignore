@@ -78,3 +78,4 @@ cmake-build-*/*
 /vcpkg
 /通用/服务器/1号服务器以往的文件备份
 /通用/中文注释/已经合并
+/out/build/x64-Release
