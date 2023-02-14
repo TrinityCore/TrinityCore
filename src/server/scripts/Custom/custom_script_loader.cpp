@@ -29,6 +29,10 @@ void AddLfgSoloScripts();           //单人随机地下城查找器脚本
 void AddSC_custom_npcs();           //自定义NPC-好像是暴风城的龙王加冕事件
 void AddSC_custom_player_script();  //单人随机地下城查找器脚本
 void AddSC_GuardianAngel();         //守护神
+void AddSC_onlogin_announcer();      //玩家欢迎信息
+
+
+
 //void AddSC_debug_lfg();             //单人进地下城尝试, OpenLCore,已经自己通过配置实现,停用
 //void AddSC_double_xp();             //周六、周天双倍经验, OpenLCore,和现有XpWeekend重复,故而停用
 //void AddSC_start_equipment();       //OpenLCore,出生送装备
@@ -55,7 +59,7 @@ void AddCustomScripts()
     AddSC_custom_npcs();            //自定义NPC-好像是暴风城的龙王加冕事件
     AddSC_custom_player_script();   //单人随机地下城查找器脚本
     AddSC_GuardianAngel();           //守护神
-
+    AddSC_onlogin_announcer();      //玩家欢迎信息
 
    //AddSC_debug_lfg();              //单人进地下城尝试, OpenLCore,已经自己通过配置实现,停用
    //AddSC_double_xp();             //周六、周天双倍经验, OpenLCore,和现有XpWeekend重复,故而停用
