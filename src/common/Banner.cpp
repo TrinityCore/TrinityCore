@@ -62,7 +62,7 @@ void Trinity::Banner::Show(char const* applicationName, void(*log)(char const* t
     log(R"(                    .   ...,/.        ]/OOOOOOOOOOOOOO/.*..       );
     log(R"(                        .ooO.     ]OoooooOOOOOOOOO`..^. *..       );
     log(R"(XGirl Self Development and improvement Edition.)");
-    log(R"(小女孩自研版.)"); 
+    log(R"(XCore,小女孩自研版.)"); 
 
 
 
