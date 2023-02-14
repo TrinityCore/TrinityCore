@@ -266,7 +266,7 @@ void BattlepayManager::SendProductList()
         auto data = WriteDisplayInfo(itr.DisplayInfoID, localeIndex);
         if (std::get<0>(data))
         {
-            sEntry.DisplayInfo = boost::in_place();
+            //sEntry.DisplayInfo = boost::in_place();//暂时解决不了,注释掉
             sEntry.DisplayInfo = std::get<1>(data);
         }
 
@@ -293,7 +293,7 @@ void BattlepayManager::SendProductList()
         auto dataPI = WriteDisplayInfo(product.DisplayInfoID, localeIndex);
         if (std::get<0>(dataPI))
         {
-            pInfo.DisplayInfo = boost::in_place();
+            //pInfo.DisplayInfo = boost::in_place();//暂时解决不了,注释掉
             pInfo.DisplayInfo = std::get<1>(dataPI);
         }
 

@@ -3189,6 +3189,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         TimeTracker m_groupUpdateTimer;
 
+        bool AddBattlePetByCreatureId(uint32 creatureId, bool sendUpdate = true, bool sendDiliveryUpdate = false);
+
+
     private:
         // internal common parts for CanStore/StoreItem functions
         InventoryResult CanStoreItem_InSpecificSlot(uint8 bag, uint8 slot, ItemPosCountVec& dest, ItemTemplate const* pProto, uint32& count, bool swap, Item* pSrcItem) const;
@@ -3210,7 +3213,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetCanDelayTeleport(bool setting) { m_bCanDelayTeleport = setting; }
         bool IsHasDelayedTeleport() const { return m_bHasDelayedTeleport; }
         void SetDelayedTeleportFlag(bool setting) { m_bHasDelayedTeleport = setting; }
-        bool AddBattlePetByCreatureId(uint32 creatureId, bool sendUpdate = true, bool sendDiliveryUpdate = false);
         bool AddBattlePetWithSpeciesId(BattlePetSpeciesEntry const* entry, uint16 flags = 0, bool sendUpdate = true, bool sendDiliveryUpdate = false);
 
 
