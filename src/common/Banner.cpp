@@ -85,9 +85,9 @@ void Trinity::Banner::Show(char const* applicationName, void(*log)(char const* t
 
 
     //下面的太大了
-   
+    log(R"( 
  
-    log(R"(                                            ..]]]]]]]]].                                              
+                                                      ..]]]]]]]]].                                              
                                         .,]/OOOOOOOOOOOOOOOOOOOOOO]`                                        
                                  ]/OOOOOOOOOOOOOOOOOOOOOOO@OOOOOOOOOOOO]                                    
                            ,]OO@@@@@@@@@OOOO@OOOOOOOOOOOOOOOOOOOOOOOOOOOOO\]]]]]]`.                         
