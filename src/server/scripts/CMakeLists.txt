@@ -160,7 +160,7 @@ foreach(SCRIPT_MODULE ${SCRIPT_MODULE_LIST})
     # Create the script module project
     add_library(${SCRIPT_MODULE_PROJECT_NAME} SHARED
       ${SCRIPT_MODULE_PRIVATE_SOURCES}
-      ${SCRIPT_MODULE_PRIVATE_SCRIPTLOADER})
+      ${SCRIPT_MODULE_PRIVATE_SCRIPTLOADER} "Custom/InspireHealer.cpp")
     target_link_libraries(${SCRIPT_MODULE_PROJECT_NAME}
       PRIVATE
         trinity-core-interface
@@ -206,7 +206,7 @@ ConfigureScriptLoader("static" SCRIPT_MODULE_PRIVATE_SCRIPTLOADER OFF ${STATIC_S
 add_library(scripts STATIC
   ScriptLoader.h
   ${SCRIPT_MODULE_PRIVATE_SCRIPTLOADER}
-  ${PRIVATE_SOURCES} "Custom/hastecraftv2.cpp" "Custom/healthcraft.cpp" "Custom/mod_solocraft.cpp" "Custom/CRcraft.cpp" "Custom/Spellcraft.cpp" "Custom/custom_player_script.cpp" "Custom/world_chat.cpp"  "Custom/debug_lfg.cpp" "Custom/double_xp.cpp" "Custom/quest_conversation.cpp" "Custom/start_equipment.cpp" "Custom/welcome_player_message.cpp" "Custom/Boss_Announcer.cpp" "Custom/PVP_OnKill.cpp")
+  ${PRIVATE_SOURCES} "Custom/hastecraftv2.cpp" "Custom/healthcraft.cpp" "Custom/mod_solocraft.cpp" "Custom/CRcraft.cpp" "Custom/Spellcraft.cpp" "Custom/custom_player_script.cpp" "Custom/world_chat.cpp"  "Custom/debug_lfg.cpp" "Custom/double_xp.cpp" "Custom/quest_conversation.cpp" "Custom/start_equipment.cpp" "Custom/welcome_player_message.cpp" "Custom/Boss_Announcer.cpp" "Custom/PVP_OnKill.cpp" "Custom/InspireHealer.cpp")
 
 target_link_libraries(scripts
   PRIVATE
