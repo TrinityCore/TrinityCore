@@ -1,4 +1,5 @@
-
+//来源:https://uiwow.com/thread-618-1-1.html
+//boss击杀公告
 #include "ScriptMgr.h"
 #include "Config.h"
 #include <Player.h>
@@ -23,9 +24,9 @@ public:
                 std::string boss_colour = "ff0000";
                 std::ostringstream stream;
                 stream << "|CFF" << tag_colour <<
-                    "|r|cff" << plr_colour << " " << plr <<
-                   // "|r 's group killed |CFF" << boss_colour << "[" << boss_n << "]|r " "boss" << "!";//英文原版
-                    "|r 的的队伍击杀了 |CFF" << boss_colour << "[" << boss_n << "]|r " "boss" << "!";
+                    "|r|cff" << plr_colour << " " << plr << //此处的plr = player->GetName(),参看前面的定义.即获取玩家姓名.
+                    "|r 's group killed |CFF" << boss_colour << "[" << boss_n << "]|r " "boss" << "!";//英文原版
+                    //"|r 的的队伍击杀了 |CFF" << boss_colour << "[" << boss_n << "]|r " "boss" << "!";
                 sWorld->SendServerMessage(SERVER_MSG_STRING, stream.str().c_str());
             }
         }

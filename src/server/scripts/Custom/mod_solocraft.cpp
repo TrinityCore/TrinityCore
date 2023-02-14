@@ -92,7 +92,7 @@ namespace {
             return numInGroup;
         }
 
-        void ApplyBuffs(Player* player, Map* map, int difficulty, int numInGroup)
+        void ApplyBuffs(Player* player, Map* map, int difficulty, int numInGroup)   //进副本公告在此处修改
         {
             ClearBuffs(player, map);
             if (difficulty > 1)
@@ -101,8 +101,10 @@ namespace {
                 //InstanceScript *instanceScript = instanceMap->GetInstanceScript();
 
                 // Announce to player
+                // 给玩家发送公告
                 std::ostringstream ss;
                 ss << "|cffFF0000[SoloCraft V2] |cffFF8000" << player->GetName() << " entered %s - # of Players: %d - Difficulty Offset: %0.2f.";
+                //ss << "|cffFF0000[单人战斗 版本2] |cffFF8000" << player->GetName() << " 进入了副本 %s - # 玩家人数: %d - Difficulty Offset: %0.2f.";
                 ChatHandler(player->GetSession()).PSendSysMessage(ss.str().c_str(), map->GetMapName(), numInGroup, difficulty + 0.0);
 
                 _unitDifficulty[player->GetGUID()] = difficulty;
@@ -183,8 +185,10 @@ namespace {
                 _unitDifficulty.erase(unitDifficultyIterator);
 
                 // Inform the player
+                //通知玩家
                 std::ostringstream ss;
                 ss << "|cffFF0000[SoloCraft V2] |cffFF8000" << player->GetName() << " exited to %s - Reverting Difficulty Offset: %0.2f.";
+                //ss << "|cffFF0000[单人战斗 版本2] |cffFF8000" << player->GetName() << " 退出了 %s - 恢复难度设置: %0.2f.";
                 ChatHandler(player->GetSession()).PSendSysMessage(ss.str().c_str(), map->GetMapName(), difficulty + 0.0);
 
                 bool m_Solocraft = sConfigMgr->GetBoolDefault("Solocraft.Enable", false);

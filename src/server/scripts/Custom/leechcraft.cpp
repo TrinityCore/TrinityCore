@@ -15,7 +15,9 @@ Re-Written by MDic
 #include "InstanceScript.h"
 #include "Chat.h"
 #include "Log.h"
-//预计本文件为死亡骑士的单人随机地下城查找器增强脚本
+
+//本脚本为副本急速增强脚本
+
 namespace {
 
     class LeechCraft_player_instance_handler : public PlayerScript
@@ -29,9 +31,11 @@ namespace {
         void OnLogin(Player* player, bool /*firstLogin*/) override
         {
             // Announce Module
+            //公告模块
             if (sConfigMgr->GetBoolDefault("Leech.Craft.Announce", true))
             {
                 ChatHandler(player->GetSession()).SendSysMessage("This server is running the |cff4CFF00Leech Craft V2 |rmodule.");
+                //ChatHandler(player->GetSession()).SendSysMessage("服务器正在运行 |cff4CFF00急速战斗 版本2 |r模块.");
             }
         }
         void OnMapChanged(Player* player) override
@@ -101,8 +105,10 @@ namespace {
                 //InstanceScript *instanceScript = instanceMap->GetInstanceScript();
 
                 // Announce to player
+                // 发送公告给玩家
                 std::ostringstream ss;
                 ss << "|cffFF0000[Leech Craft V2] |cffFF8000" << player->GetName() << " entered %s - # of Players: %d - Difficulty Offset: %0.2f.";
+                //ss << "|cffFF0000[急速战斗 版本2] |cffFF8000" << player->GetName() << " 进入了副本 %s - # 队伍人数: %d - 难度设置为: %0.2f.";
                 ChatHandler(player->GetSession()).PSendSysMessage(ss.str().c_str(), map->GetMapName(), numInGroup, difficulty + 0.0);
 
                 _unitDifficulty[player->GetGUID()] = difficulty;
