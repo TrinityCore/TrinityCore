@@ -23,7 +23,7 @@ void Trinity::Banner::Show(char const* applicationName, void(*log)(char const* t
 {
     log(Trinity::StringFormat("{} ({})", GitRevision::GetFullVersion(), applicationName).c_str());  //新的更新会让此处显示生产版本,而不是以前固定的值
     log(R"(<Ctrl-C> to stop.)");
-    /*
+    
     //log(R"( ______                       __)");
     //log(R"(/\__  _\       __          __/\ \__)");
     //log(R"(\/_/\ \/ _ __ /\_\    ___ /\_\ \, _\  __  __)");
@@ -39,55 +39,55 @@ void Trinity::Banner::Show(char const* applicationName, void(*log)(char const* t
     //log(R"(                  ...=..^..,OOOOOOOOOOOOOOOOOOO\`.^o*.....=.......);
     //log(R"(                  ...=.]O@@@OOOOOOOO@@@@@@OOOOOOO@@@@@O\`.=.......);
     //log(R"(                  ..,O@@OOOOOOO@@@@@@@OOO@@@@`/OOOOOO@@@@@O.......);
-    /*log(R"(                  ,@@@@@@@@O@@@@OOOOOOOOO@OOOOOOOO@@OOOOO@@@\.....);
-    log(R"(            .....O@@@O@O@OOOOO@O@@OOOOO@OOOOOOOOOO@OO@@OOOOOOO\...);
-    log(R"(               ,@@@@OO@O@OOOOO@@OOO@@@OOOOOOOOOOOO@@O@@@OOOOOOOO..);
-    log(R"(            ..,@@@@@OOO@@@OOOOOO@OOOO@@OOOOOOOOOO@@@O@@@@@OO@OOOO.);
-    log(R"(            .,@OO@OOOOOO@OOOOOOOOOOOOOOOOOOOOOOOO@@@@@@@\/OO/=OOO.);
-    log(R"(            .O[O@^OOOOOOOO@OOOOOOOOOOOOOOOOOOOOOOOOOO@@@O....\OO@^);
-    log(R"(            =@OO^ \@OOOOOOOOOOOOOOOOOOOOOOOOOOO@@@@@@@@@@^].,\OO@^);
-    log(R"(            \@OO  ,O@OOOO]OOOOOOOOOOOOOOOOOOOOOOOO/,O[]@O^.. .\OO^);
-    log(R"(            O@@O    OO@OOOOOOOOOOOOOOOOOOOOOOOOOOO@@@@^. ..`,/O@/.);
-    log(R"(            ,@@O./[[ ,\O\,O@OOOOOOOO@OOOOOOOOOOOOOOOO@@O^.... ,[..);
-    log(R"(            ..O@^ ..].   \\`[OO@OOOOOOOOOOOO@OOOOOOO@@OO^..` .,...);
-    log(R"(            ..,@O=/OOOOO    ,[. ,[\O]]OOOOOO[[[OOOOOO@O@`[^.`\O\..);
-    log(R"(            .../O^ \OOOOO          OOOOOOOO OO. =[ ,O@@@O^`.]^..[O);
-    log(R"(            ..,.=^ .\OOO/           =OOOOOOOOO  .    @@@\OOOOO  ..);
-    log(R"(            **. .^                   =OOOOOO`       /@OOOOOOOO   .);
-    log(R"(                ..                                ,OO@@OOOOOO^....);
-    log(R"(                                             ,OO@@@@@OOOOOOOO     );
-    log(R"(                                           .OOO@@@@@@@@@OOO/......);
-    log(R"(                    ....                ....=OOO@@@@@O@O\O@Ooooooo);
-    log(R"(                    ......,`.   ....       .]OOOOO@@@@@OOO/       );
-    log(R"(                    .   ...,/.        ]/OOOOOOOOOOOOOO/.*..       );
-    log(R"(                        .ooO.     ]OoooooOOOOOOOOO`..^. *..       );
-    log(R"(XGirl Self Development and improvement Edition.)");
-    log(R"(XCore,小女孩自研版.)"); */
+    //log(R"(                  ,@@@@@@@@O@@@@OOOOOOOOO@OOOOOOOO@@OOOOO@@@\.....);
+    //log(R"(            .....O@@@O@O@OOOOO@O@@OOOOO@OOOOOOOOOO@OO@@OOOOOOO\...);
+    //log(R"(               ,@@@@OO@O@OOOOO@@OOO@@@OOOOOOOOOOOO@@O@@@OOOOOOOO..);
+    //log(R"(            ..,@@@@@OOO@@@OOOOOO@OOOO@@OOOOOOOOOO@@@O@@@@@OO@OOOO.);
+    //log(R"(            .,@OO@OOOOOO@OOOOOOOOOOOOOOOOOOOOOOOO@@@@@@@\/OO/=OOO.);
+    //log(R"(            .O[O@^OOOOOOOO@OOOOOOOOOOOOOOOOOOOOOOOOOO@@@O....\OO@^);
+    //log(R"(            =@OO^ \@OOOOOOOOOOOOOOOOOOOOOOOOOOO@@@@@@@@@@^].,\OO@^);
+    //log(R"(            \@OO  ,O@OOOO]OOOOOOOOOOOOOOOOOOOOOOOO/,O[]@O^.. .\OO^);
+    //log(R"(            O@@O    OO@OOOOOOOOOOOOOOOOOOOOOOOOOOO@@@@^. ..`,/O@/.);
+    //log(R"(            ,@@O./[[ ,\O\,O@OOOOOOOO@OOOOOOOOOOOOOOOO@@O^.... ,[..);
+    //log(R"(            ..O@^ ..].   \\`[OO@OOOOOOOOOOOO@OOOOOOO@@OO^..` .,...);
+    //log(R"(            ..,@O=/OOOOO    ,[. ,[\O]]OOOOOO[[[OOOOOO@O@`[^.`\O\..);
+    //log(R"(            .../O^ \OOOOO          OOOOOOOO OO. =[ ,O@@@O^`.]^..[O);
+    //log(R"(            ..,.=^ .\OOO/           =OOOOOOOOO  .    @@@\OOOOO  ..);
+    //log(R"(            **. .^                   =OOOOOO`       /@OOOOOOOO   .);
+    //log(R"(                ..                                ,OO@@OOOOOO^....);
+    //log(R"(                                             ,OO@@@@@OOOOOOOO     );
+    //log(R"(                                           .OOO@@@@@@@@@OOO/......);
+    //log(R"(                    ....                ....=OOO@@@@@O@O\O@Ooooooo);
+    //log(R"(                    ......,`.   ....       .]OOOOO@@@@@OOO/       );
+    //log(R"(                    .   ...,/.        ]/OOOOOOOOOOOOOO/.*..       );
+    //log(R"(                        .ooO.     ]OoooooOOOOOOOOO`..^. *..       );
+    //log(R"(XGirl Self Development and improvement Edition.)");
+    //log(R"(XCore,小女孩自研版.)"); 
 
 
 
 
-    /*            ......     .....              .....
-           /@@@@@@@@@@@O=@@@@@@@@@`      .]@@@@@@@@@@@@@@`    ./@@@@@@`                    .]/@@@@@O.
-           \@@@@@@@@@@@`.\@@@@@/[[.    ,@@@@@@@@@@@@@@@@@@^  .@@@@@@@@`                  .O@@@@@@@@O
-              \@@@@@@@@\/@@@@`       ./@@@@@@/.    .\@@@@@^   .,[[[. .          .     .   .,@@@@@@@^
-               .@@@@@@@@@@@/         /@@@@@@@.       .\@@/.   .]O@@@@@O  .,/@@@@@@.=@@@@@`  =@@@@@@^
-                 ,@@@@@@@@@`        =@@@@@@@\                =@@@@@@@@O  \@@@@@@@@@@@@@@@O  =@@@@@@^
-                  .@@@@@@@@@\.      =@@@@@@@@.   ,O@@@@@@@@@`  =@@@@@@O   .@@@@@@@/@@@@@@`  =@@@@@@^
-                 ,@@@@@@@@@@@@`     .@@@@@@@@^  ,@@@@@@@@@@@@. =@@@@@@O    O@@@@@@. .[[.    =@@@@@@^
-               ./@@@@`\@@@@@@@@\.    ,@@@@@@@@\.   .@@@@@@/    =@@@@@@O   .@@@@@@@.         =@@@@@@^
-             ./@@@@/.  =@@@@@@@@@\`   ,@@@@@@@@@@\]@@@@@@O.    =@@@@@@@.  ,@@@@@@@^         /@@@@@@^
-          =@@@@@@@@@^ ,@@@@@@@@@@@@@.   ,@@@@@@@@@@@@@@@`    ,@@@@@@@@@@^/@@@@@@@@@@\     ,@@@@@@@@@@`
-          .[O@@@@@O[.  ,\@@@@@@@O/[.       .[\O@@@@/[`        ,\@@@@@@/[..[O@@@@@@O[.     .[\@@@@@@O[.
-                                                                                                        */
+    //            ......     .....              .....
+    //       /@@@@@@@@@@@O=@@@@@@@@@`      .]@@@@@@@@@@@@@@`    ./@@@@@@`                    .]/@@@@@O.
+    //       \@@@@@@@@@@@`.\@@@@@/[[.    ,@@@@@@@@@@@@@@@@@@^  .@@@@@@@@`                  .O@@@@@@@@O
+    //          \@@@@@@@@\/@@@@`       ./@@@@@@/.    .\@@@@@^   .,[[[. .          .     .   .,@@@@@@@^
+    //           .@@@@@@@@@@@/         /@@@@@@@.       .\@@/.   .]O@@@@@O  .,/@@@@@@.=@@@@@`  =@@@@@@^
+    //             ,@@@@@@@@@`        =@@@@@@@\                =@@@@@@@@O  \@@@@@@@@@@@@@@@O  =@@@@@@^
+    //              .@@@@@@@@@\.      =@@@@@@@@.   ,O@@@@@@@@@`  =@@@@@@O   .@@@@@@@/@@@@@@`  =@@@@@@^
+    //             ,@@@@@@@@@@@@`     .@@@@@@@@^  ,@@@@@@@@@@@@. =@@@@@@O    O@@@@@@. .[[.    =@@@@@@^
+    //           ./@@@@`\@@@@@@@@\.    ,@@@@@@@@\.   .@@@@@@/    =@@@@@@O   .@@@@@@@.         =@@@@@@^
+    //         ./@@@@/.  =@@@@@@@@@\`   ,@@@@@@@@@@\]@@@@@@O.    =@@@@@@@.  ,@@@@@@@^         /@@@@@@^
+    //      =@@@@@@@@@^ ,@@@@@@@@@@@@@.   ,@@@@@@@@@@@@@@@`    ,@@@@@@@@@@^/@@@@@@@@@@\     ,@@@@@@@@@@`
+    //      .[O@@@@@O[.  ,\@@@@@@@O/[.       .[\O@@@@/[`        ,\@@@@@@/[..[O@@@@@@O[.     .[\@@@@@@O[.
+                                                                                                        
 
 
 
 
     //下面的太大了
-    log(R"(
-
-                                                      ..]]]]]]]]].                                              
+   
+ 
+    log(R"(                                            ..]]]]]]]]].                                              
                                         .,]/OOOOOOOOOOOOOOOOOOOOOO]`                                        
                                  ]/OOOOOOOOOOOOOOOOOOOOOOO@OOOOOOOOOOOO]                                    
                            ,]OO@@@@@@@@@OOOO@OOOOOOOOOOOOOOOOOOOOOOOOOOOOO\]]]]]]`.                         
@@ -106,7 +106,7 @@ void Trinity::Banner::Show(char const* applicationName, void(*log)(char const* t
    =@@OOO@@@@OOO@OOOOO@O@OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO@@@@@@@@O@@@@@\,OO@OOOO[\OOOO@OO. 
   ,OOOOOOOOOOOOOOOO@OOO@OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO@@@@@@@@@@@@@@@OO^. =OOOOOOOO@O` 
  .OO/\OOO@O`OOOOO@OO@OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO@@@@@@O/..`..,[,OOOOOO@@^ 
- =@OOOOOOO`*O@@OOOOOOOOOOOOOOOO@OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO@@@@@@OO`**...*,OOOOOO@@^ 
+ =@OOOOOOO`*O@@OOOOOOOOOOOOOOOO@OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO@@@@@@OO`**...*,OOOOOO@@^   
 .OOOOOOOO^..=O@@OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO@@@@@@@@@@@@@@@@@@@@@O^*,***,/OOOOOO@@O 
 =O@OOOOO^...,O@@@OOOOOOOO/.\/\OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO...*,^.,OOOO@O@^ 
 =@@@OOOO.....=OOO@@OOOOOO\`/OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO/[OOO[O`/@OOO^........*OOOOOO^ 
@@ -116,7 +116,7 @@ void Trinity::Banner::Show(char const* applicationName, void(*log)(char const* t
  \O@@@OO^./OO/[`...[OOOOO.,OOOOOOOOOOOOOOOOOOO@@@@OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO@OOOOOO\`*..........=/     
   =@@OOOO...        ..[OOO\`,\OOO@OOOOOOOOOOOOOOOOO@OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO.=.**...`.OO[       
    ,O@@OO.. ,...\....   .,OOO\.,\OOOO@@@OOOOOOOOOOOOOOOOOO@OOOOOOOOOOOOOOOOOOOOOO@@@OOOO`..*]=[`..          
-    ,@OOO^...OOOOOOOO`.    .,OOO\..,\OOOOOOO[[[[OOOOOOOOOOOOOOOOOOOOOOOOOOOOOO@@@@@@OOOOO=^.,.[*`.]`        
+    ,@OOO^...OOOOOOOO`.    .,OOO\..,\OOOOOOO[[[[OOOOOOOOOOOOOOOOOOOOOOOOOOOOOO@@@@@@OOOOO=^.,.[*`.]`      
      =OO@O\OOOOOOOOOOOO\.     ...[\O]...,[OOOOO\]]*]OOOOOOOOOOOOO[[OOOOOOOOOOOOO@@@@OOO@^=\OO.,,O,OOOO\     
      .OO@O^=^.OOOOOOOO.\O`        .............]OOOOOOOOOOOOOOOOO`......*OOOOOOOOO@@@@@OO`o.O.^..\^,\OOOO\` 
      .O/O@\.. OOOOOOOOO\OO.                 .,OOOOOOOOOOOOOOO^ =OOO/`...=O/`..[OO@@@@@@@@OO.O.=.\/O    ,\OOO
