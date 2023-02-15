@@ -207,6 +207,15 @@ void SmartAIMgr::LoadSmartAIFromDB()
                     }
                     break;
                 }
+                case SMART_SCRIPT_TYPE_EVENT:
+                {
+                    if (!sObjectMgr->IsValidEvent((uint32)temp.entryOrGuid))
+                    {
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Event id ({}) does not exist, skipped loading.", uint32(temp.entryOrGuid));
+                        continue;
+                    }
+                    break;
+                }
                 case SMART_SCRIPT_TYPE_QUEST:
                 {
                     if (!sObjectMgr->GetQuestTemplate((uint32)temp.entryOrGuid))
@@ -521,6 +530,7 @@ SmartScriptHolder& SmartAIMgr::FindLinkedEvent(SmartAIEventList& list, uint32 li
         case SMART_EVENT_SCENE_TRIGGER:
         case SMART_EVENT_SCENE_CANCEL:
         case SMART_EVENT_SCENE_COMPLETE:
+        case SMART_EVENT_SEND_EVENT_TRIGGER:
             return true;
         default:
             return false;
@@ -874,6 +884,7 @@ bool SmartAIMgr::CheckUnusedEventParams(SmartScriptHolder const& e)
             case SMART_EVENT_ON_SPELL_FAILED: return sizeof(SmartEvent::spellCast);
             case SMART_EVENT_ON_SPELL_START: return sizeof(SmartEvent::spellCast);
             case SMART_EVENT_ON_DESPAWN: return NO_PARAMS;
+            case SMART_EVENT_SEND_EVENT_TRIGGER: return NO_PARAMS;
             default:
                 TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} is using an event with no unused params specified in SmartAIMgr::CheckUnusedEventParams(), please report this.",
                     e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
@@ -1512,6 +1523,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             case SMART_EVENT_SCENE_CANCEL:
             case SMART_EVENT_SCENE_COMPLETE:
             case SMART_EVENT_SCENE_TRIGGER:
+            case SMART_EVENT_SEND_EVENT_TRIGGER:
                 break;
             // Unused
             case SMART_EVENT_TARGET_HEALTH_PCT:
