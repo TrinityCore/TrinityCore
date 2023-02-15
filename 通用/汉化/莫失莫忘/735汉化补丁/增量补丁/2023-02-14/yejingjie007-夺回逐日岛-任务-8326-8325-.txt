@@ -1,0 +1,7 @@
+UPDATE `legion_world`.`quest_template_locale` SET `LogTitle` = '夺回逐日岛', `LogDescription` = '杀死6只法力浮龙。它们位于法师塔和阳台附近的燃烧水晶周围。', `QuestDescription` = '你越快开始接受训练，$n，就对我们大家越有好处。我们已经没有任何容忍犯错的余地了，所以你可要听仔细。$B$B那些太阳之塔西边的悬浮着的绿色物体，就是燃烧水晶，它们长期以来给岛内供应着能源，而法力浮龙则负责守护着这些水晶。天灾军团对奎尔萨拉斯的入侵大大干扰了我们对这些法力浮龙的魔法控制，导致它们变得不听调遣。$B$B除了削减它们的数量以外，已经没有其他的办法了。去吧，完成之后再回来向我复命。', `AreaDescription` = '', `PortraitGiverText` = '', `PortraitGiverName` = '', `PortraitTurnInText` = '', `PortraitTurnInName` = '', `QuestCompletionLog` = '去永歌森林找逐日岛的魔导师艾洛娜。', `VerifiedBuild` = 26124 WHERE `ID` = 8325 AND `locale` = 'zhCN';
+
+----------------------------------------
+UPDATE `legion_world`.`quest_template_locale` SET `LogTitle` = '令人遗憾的措施', `LogDescription` = '杀死一些魔泉山猫和魔泉山猫幼崽，并从它们身上收集8个山猫的项圈。完成之后向逐日岛的魔导师艾洛娜复命。', `QuestDescription` = '你所做出的努力产生了一些后果，坦率地说，是我不希望看到的后果。燃烧水晶中紊乱的力量给这个岛屿上的生态平衡带来的破坏远比我的预料严重许多。我想，我们现在必须采取一些令人遗憾的措施来稳定局势了。$B$B附近的山猫已经受到了水晶魔力的影响，成为了牺牲品，我们不得不清除它们。带回它们的项圈，$n，这样我就可以看看是否能给这些项圈附上一定的魔法抗性，帮助它们从疯狂中恢复过来。', `AreaDescription` = '', `PortraitGiverText` = '', `PortraitGiverName` = '', `PortraitTurnInText` = '', `PortraitTurnInName` = '', `QuestCompletionLog` = '去永歌森林找逐日岛的魔导师艾洛娜。', `VerifiedBuild` = 26124 WHERE `ID` = 8326 AND `locale` = 'zhCN';
+
+
+19865
