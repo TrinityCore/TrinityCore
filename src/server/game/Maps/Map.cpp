@@ -117,6 +117,83 @@ Map::~Map()
 
     MMAP::MMapFactory::createOrGetMMapManager()->unloadMapInstance(GetId(), i_InstanceId);
 }
+//u_map_magic MapMagic = { {'M','A','P','S'} };
+//u_map_magic_TCB mapMagic_TCB;
+//u_map_magic_TCB versionMagic_TCB;
+u_map_magic_TCB MapMagic_TCB = { {'M','A','P','S'} };
+//u_map_magic_TCB MapMagic;
+u_map_magic_TCB MapVersionMagic_TCB = { {'v','1','.','9'} };
+u_map_magic_TCB MapAreaMagic_TCB = { {'A','R','E','A'} };
+u_map_magic_TCB MapHeightMagic_TCB = { {'M','H','G','T'} };
+u_map_magic_TCB MapLiquidMagic_TCB = { {'M','L','I','Q'} };
+
+bool Map::ExistMap(uint32 mapid, int gx, int gy, bool log /*= true*/)
+{
+    //u_map_magic_TCB mapMagic;
+    std::string fileName = Trinity::StringFormat("%smaps/%04u_%02u_%02u.map", sWorld->GetDataPath().c_str(), mapid, gx, gy);
+
+    bool ret = false;
+    FILE* file = fopen(fileName.c_str(), "rb");
+    if (!file)
+    {
+        if (log)
+        {
+            TC_LOG_ERROR("maps", "Map file '%s' does not exist!", fileName.c_str());
+            TC_LOG_ERROR("maps", "Please place MAP-files (*.map) in the appropriate directory (%s), or correct the DataDir setting in your worldserver.conf file.", (sWorld->GetDataPath() + "maps/").c_str());
+        }
+    }
+    else
+    {
+        map_fileheader_TCB header;
+        if (fread(&header, sizeof(header), 1, file) == 1)
+        {
+            if (header.mapMagic_TCB.asUInt != MapMagic_TCB.asUInt || header.versionMagic_TCB.asUInt != MapVersionMagic_TCB.asUInt)
+            {
+                /*if (log)
+                    TC_LOG_ERROR("maps", "Map file '%s' is from an incompatible map version (%.*s %.*s), %.*s %.*s is expected. Please pull your source, recompile tools and recreate maps using the updated mapextractor, then replace your old map files with new files. If you still have problems search on forum for error TCE00018.",
+                        fileName.c_str(), 4, header.mapMagic_TCB.asChar, 4, header.versionMagic_TCB.asChar, 4, MapMagic.asChar, 4, MapVersionMagic_TCB.asChar);*/
+            }
+            else
+                ret = true;
+        }
+        fclose(file);
+    }
+
+    return ret;
+}
+
+void Map::DiscoverGridMapFiles()
+{
+    std::string tileListName = Trinity::StringFormat("%smaps/%04u.tilelist", sWorld->GetDataPath().c_str(), GetId());
+    // tile list is optional
+    if (FILE* tileList = fopen(tileListName.c_str(), "rb"))
+    {
+        u_map_magic_TCB mapMagic;
+        u_map_magic_TCB MapMagic;//后加
+        //u_map_magic_TCB versionMagic;//后加
+        u_map_magic_TCB MapVersionMagic;//后加
+        u_map_magic_TCB versionMagic;
+        uint32 build;
+        char tilesData[MAX_NUMBER_OF_GRIDS * MAX_NUMBER_OF_GRIDS];
+        if (fread(&mapMagic.asUInt, sizeof(u_map_magic), 1, tileList) == 1
+            && mapMagic.asUInt == MapMagic.asUInt
+            && fread(&versionMagic.asUInt, sizeof(u_map_magic), 1, tileList) == 1
+            && versionMagic.asUInt == MapVersionMagic.asUInt
+            && fread(&build, sizeof(build), 1, tileList) == 1
+            && fread(&tilesData[0], MAX_NUMBER_OF_GRIDS * MAX_NUMBER_OF_GRIDS, 1, tileList) == 1)
+        {
+            i_gridFileExists = std::bitset<MAX_NUMBER_OF_GRIDS* MAX_NUMBER_OF_GRIDS>(tilesData, Trinity::Containers::Size(tilesData));
+            fclose(tileList);
+            return;
+        }
+
+        fclose(tileList);
+    }
+
+    for (uint32 gx = 0; gx < MAX_NUMBER_OF_GRIDS; ++gx)
+        for (uint32 gy = 0; gy < MAX_NUMBER_OF_GRIDS; ++gy)
+            i_gridFileExists[gx * MAX_NUMBER_OF_GRIDS + gy] = ExistMap(GetId(), gx, gy, false);
+}
 
 void Map::LoadAllCells()
 {
@@ -3045,6 +3122,12 @@ std::string const& InstanceMap::GetScriptName() const
     return sObjectMgr->GetScriptName(i_script_id);
 }
 
+void InstanceMap::SendResetWarnings(uint32 timeLeft) const
+{
+    for (MapRefManager::const_iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
+        itr->GetSource()->SendInstanceResetWarning(GetId(), itr->GetSource()->GetDifficultyID(GetEntry()), timeLeft, true);
+}
+
 void InstanceMap::UpdateInstanceLock(UpdateBossStateSaveDataEvent const& updateSaveDataEvent)
 {
     if (i_instanceLock)
@@ -3237,6 +3320,61 @@ bool Map::IsBattlegroundOrArena() const
 bool Map::IsScenario() const
 {
     return i_mapEntry && i_mapEntry->IsScenario();
+}
+
+void BattlegroundMap::InsureCommander(BattlegroundTypeId bgType)
+{
+    if (!m_pAllianceCommander)
+    {
+        switch (bgType)
+        {
+        case BATTLEGROUND_AB:
+            //    m_pAllianceCommander = new CommandAB(m_bg, TeamId::TEAM_ALLIANCE);
+            break;
+        case BATTLEGROUND_WS:
+            //  m_pAllianceCommander = new CommandWS(m_bg, TeamId::TEAM_ALLIANCE);
+            break;
+        case BATTLEGROUND_EY:
+            //  m_pAllianceCommander = new CommandEY(m_bg, TeamId::TEAM_ALLIANCE);
+            break;
+        case BATTLEGROUND_AV:
+            // m_pAllianceCommander = new CommandAV(m_bg, TeamId::TEAM_ALLIANCE);
+            break;
+        case BATTLEGROUND_IC:
+            //  m_pAllianceCommander = new CommandIC(m_bg, TeamId::TEAM_ALLIANCE);
+            break;
+        }
+    }
+    if (!m_pHordeCommander)
+    {
+        switch (bgType)
+        {
+        case BATTLEGROUND_AB:
+            //  m_pHordeCommander = new CommandAB(m_bg, TeamId::TEAM_HORDE);
+            break;
+        case BATTLEGROUND_WS:
+            //  m_pHordeCommander = new CommandWS(m_bg, TeamId::TEAM_HORDE);
+            break;
+        case BATTLEGROUND_EY:
+            //   m_pHordeCommander = new CommandEY(m_bg, TeamId::TEAM_HORDE);
+            break;
+        case BATTLEGROUND_AV:
+            // m_pHordeCommander = new CommandAV(m_bg, TeamId::TEAM_HORDE);
+            break;
+        case BATTLEGROUND_IC:
+            // m_pHordeCommander = new CommandIC(m_bg, TeamId::TEAM_HORDE);
+            break;
+        }
+    }
+}
+
+void BattlegroundMap::InitCommander()
+{
+    return;
+    // if (m_pAllianceCommander)
+     //    m_pAllianceCommander->Initialize();
+   //  if (m_pHordeCommander)
+        // m_pHordeCommander->Initialize();
 }
 
 bool Map::IsGarrison() const
@@ -3525,6 +3663,21 @@ void Map::DeleteRespawnTimesInDB()
     stmt->setUInt32(1, GetInstanceId());
     CharacterDatabase.Execute(stmt);
 }
+
+void Map::DeleteRespawnTimesInDB(uint16 mapId, uint32 instanceId)   //兼容TCB后加的
+{
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CREATURE_RESPAWN_BY_INSTANCE);
+    stmt->setUInt16(0, mapId);
+    stmt->setUInt32(1, instanceId);
+    CharacterDatabase.Execute(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GO_RESPAWN_BY_INSTANCE);
+    stmt->setUInt16(0, mapId);
+    stmt->setUInt32(1, instanceId);
+    CharacterDatabase.Execute(stmt);
+}
+
+
 
 time_t Map::GetLinkedRespawnTime(ObjectGuid guid) const
 {

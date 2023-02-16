@@ -1,0 +1,258 @@
+SET @CGUID := 9002530;
+SET @OGUID := 9000173;
+
+SET @NPCTEXTID := 590033;
+
+-- Creature
+DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+20;
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
+(@CGUID+0, 186431, 2444, 13646, 13837, '0', 0, 0, 0, 1, -4363.927734375, 3988.50439453125, 1.054336786270141601, 2.22922062873840332, 120, 0, 0, 112919, 0, 0, 0, 0, 0, 47871), -- Iskaara Defender (Area: Iskaara - Difficulty: 0) (possible waypoints or random movement)
+(@CGUID+1, 186431, 2444, 13646, 13837, '0', 0, 0, 0, 1, -4373.267578125, 3992.98779296875, 1.026535987854003906, 6.154365062713623046, 120, 0, 0, 112919, 0, 0, 0, 0, 0, 47871), -- Iskaara Defender (Area: Iskaara - Difficulty: 0)
+(@CGUID+2, 186431, 2444, 13646, 13837, '0', 0, 0, 0, 1, -4370.50341796875, 4001.0390625, 0.684226572513580322, 5.822919845581054687, 120, 0, 0, 112919, 0, 0, 0, 0, 0, 47871), -- Iskaara Defender (Area: Iskaara - Difficulty: 0)
+(@CGUID+3, 186431, 2444, 13646, 13837, '0', 0, 0, 0, 0, -4425.93408203125, 4058.78125, 3.808896303176879882, 0.716297626495361328, 120, 0, 0, 112919, 0, 0, 0, 0, 0, 47871), -- Iskaara Defender (Area: Iskaara - Difficulty: 0)
+(@CGUID+4, 186431, 2444, 13646, 13837, '0', 0, 0, 0, 1, -4419.0244140625, 4059.455810546875, 2.649678468704223632, 0.716297626495361328, 120, 0, 0, 112919, 0, 0, 0, 0, 0, 47871), -- Iskaara Defender (Area: Iskaara - Difficulty: 0)
+(@CGUID+5, 186431, 2444, 13646, 13837, '0', 0, 0, 0, 1, -4433.4052734375, 4084.3955078125, 7.660853385925292968, 0.681896805763244628, 120, 0, 0, 112919, 0, 0, 0, 0, 0, 47871), -- Iskaara Defender (Area: Iskaara - Difficulty: 0) (possible waypoints or random movement)
+(@CGUID+6, 186468, 2444, 13646, 13837, '0', 0, 0, 0, 1, -4488.13818359375, 4029.245849609375, 4.12155008316040039, 1.111082315444946289, 120, 0, 0, 83980, 0, 0, 0, 0, 0, 47871), -- Vigilant Ottuk (Area: Iskaara - Difficulty: 0) (possible waypoints or random movement)
+(@CGUID+7, 186431, 2444, 13646, 13837, '0', 0, 0, 0, 1, -4415.01220703125, 4101.40380859375, 7.706929683685302734, 1.249616980552673339, 120, 0, 0, 112919, 0, 0, 0, 0, 0, 47871), -- Iskaara Defender (Area: Iskaara - Difficulty: 0)
+(@CGUID+8, 186431, 2444, 13646, 13837, '0', 0, 0, 0, 1, -4420.205078125, 4105.2880859375, 6.980493545532226562, 0.255066901445388793, 120, 0, 0, 112919, 0, 0, 0, 0, 0, 47871), -- Iskaara Defender (Area: Iskaara - Difficulty: 0)
+(@CGUID+9, 186431, 2444, 13646, 13837, '0', 0, 0, 0, 1, -4487.58154296875, 4036.7890625, 4.927927970886230468, 1.279012441635131835, 120, 0, 0, 112919, 0, 0, 0, 0, 0, 47871), -- Iskaara Defender (Area: Iskaara - Difficulty: 0) (possible waypoints or random movement)
+(@CGUID+10, 186468, 2444, 13646, 13837, '0', 0, 0, 0, 1, -4565.078125, 4055.863037109375, 2.172501564025878906, 1.441622614860534667, 120, 0, 0, 83980, 0, 0, 0, 0, 0, 47871), -- Vigilant Ottuk (Area: Iskaara - Difficulty: 0) (possible waypoints or random movement)
+(@CGUID+11, 186431, 2444, 13646, 13837, '0', 0, 0, 0, 1, -4561.2255859375, 3999.888916015625, 0.338737934827804565, 0.200536027550697326, 120, 0, 0, 112919, 0, 0, 0, 0, 0, 47871), -- Iskaara Defender (Area: Iskaara - Difficulty: 0)
+(@CGUID+12, 186431, 2444, 13646, 13837, '0', 0, 0, 0, 1, -4562.76416015625, 4058.1484375, 2.061923027038574218, 1.448974609375, 120, 0, 0, 112919, 0, 0, 0, 0, 0, 47871), -- Iskaara Defender (Area: Iskaara - Difficulty: 0) (possible waypoints or random movement)
+(@CGUID+13, 186431, 2444, 13646, 13837, '0', 0, 0, 0, 1, -4558.56103515625, 3993.53466796875, 0.753823280334472656, 0.597151577472686767, 120, 0, 0, 112919, 0, 0, 0, 0, 0, 47871), -- Iskaara Defender (Area: Iskaara - Difficulty: 0)
+(@CGUID+14, 186431, 2444, 13646, 13837, '0', 0, 0, 0, 1, -4586.5380859375, 4126.46875, 0.829867899417877197, 6.05601358413696289, 120, 0, 0, 112919, 0, 0, 0, 0, 0, 47871), -- Iskaara Defender (Area: Iskaara - Difficulty: 0)
+(@CGUID+15, 193563, 2444, 13646, 13837, '0', 0, 0, 0, 0, -4412.2119140625, 4061.44189453125, 1.612068891525268554, 4.036284923553466796, 120, 0, 0, 8398000, 0, 0, 0, 0, 0, 47871), -- Training Dummy (Area: Iskaara - Difficulty: 0) (Auras: 98892 - Training Dummy Marker, 349892 - [DNT] No Parry)
+(@CGUID+16, 193563, 2444, 13646, 13837, '0', 0, 0, 0, 0, -4416.6787109375, 4062.2666015625, 2.175459861755371093, 4.001419544219970703, 120, 0, 0, 8398000, 0, 0, 0, 0, 0, 47871), -- Training Dummy (Area: Iskaara - Difficulty: 0) (Auras: 98892 - Training Dummy Marker, 349892 - [DNT] No Parry)
+(@CGUID+17, 193563, 2444, 13646, 13837, '0', 0, 0, 0, 0, -4418.15283203125, 4066.322021484375, 2.736249685287475585, 3.922370672225952148, 120, 0, 0, 8398000, 0, 0, 0, 0, 0, 47871), -- Training Dummy (Area: Iskaara - Difficulty: 0) (Auras: 98892 - Training Dummy Marker, 349892 - [DNT] No Parry)
+(@CGUID+18, 193563, 2444, 13646, 13837, '0', 0, 0, 0, 0, -4490.14404296875, 3986.936767578125, 1.015663981437683105, 2.104843616485595703, 120, 0, 0, 8398000, 0, 0, 0, 0, 0, 47871), -- Training Dummy (Area: Iskaara - Difficulty: 0) (Auras: 98892 - Training Dummy Marker, 349892 - [DNT] No Parry)
+(@CGUID+19, 193563, 2444, 13646, 13837, '0', 0, 0, 0, 0, -4459.9443359375, 4091.093017578125, 5.955579280853271484, 3.882252693176269531, 120, 0, 0, 8398000, 0, 0, 0, 0, 0, 47871), -- Training Dummy (Area: Iskaara - Difficulty: 0) (Auras: 98892 - Training Dummy Marker; 349892 - [DNT] No Parry)
+(@CGUID+20, 186443, 2444, 13646, 13837, '0', 0, 0, 0, 0, -4466.7724609375, 4047.349853515625, 6.858674526214599609, 2.236424207687377929, 120, 0, 0, 83980, 0, 0, 0, 0, 0, 47871); -- Skygazer Paatu (Area: Iskaara - Difficulty: 0)
+DELETE FROM `creature_addon` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+20;
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
+(@CGUID+0, 0, 106258, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, ''), -- Iskaara Defender
+(@CGUID+1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ''), -- Iskaara Defender
+(@CGUID+4, 0, 0, 0, 0, 0, 1, 0, 425, 0, 0, 0, 0, ''), -- Iskaara Defender
+(@CGUID+3, 0, 0, 0, 0, 0, 1, 0, 333, 0, 0, 0, 0, ''), -- Iskaara Defender
+(@CGUID+5, 0, 106258, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, ''); -- Iskaara Defender
+
+DELETE FROM `creature_template_addon` WHERE `entry` IN (186431, 193563);
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
+(186431, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, ''), -- 186431 (Iskaara Defender)
+(193563, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '98892 349892'); -- 193563 (Training Dummy) - Training Dummy Marker; [DNT] No Parry
+
+UPDATE `creature_template` SET `gossip_menu_id`=29318, `minlevel`=70, `maxlevel`=70, `faction`=3274, `npcflag`=1, `BaseAttackTime`=2000, `unit_flags`=33024, `unit_flags2`=2048 WHERE `entry`=186431; -- Iskaara Defender
+UPDATE `creature_template` SET `minlevel`=68, `maxlevel`=68, `faction`=3273, `BaseAttackTime`=2000, `unit_flags`=33536, `unit_flags2`=2048 WHERE `entry`=186468; -- Vigilant Ottuk
+UPDATE `creature_template` SET `minlevel`=68, `maxlevel`=68, `faction`=7, `speed_run`=1, `BaseAttackTime`=2000, `unit_flags`=131072, `unit_flags2`=2048, `unit_flags3`=8388609 WHERE `entry`=193563; -- Training Dummy
+UPDATE `creature_template` SET `gossip_menu_id`=6944, `minlevel`=68, `maxlevel`=68, `faction`=3273, `npcflag`=8193, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=2048 WHERE `entry`=186443; -- Skygazer Paatu
+
+DELETE FROM `creature_equip_template` WHERE (`CreatureID` IN (186431, 191939) AND `ID`=1);
+INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `AppearanceModID1`, `ItemVisual1`, `ItemID2`, `AppearanceModID2`, `ItemVisual2`, `ItemID3`, `AppearanceModID3`, `ItemVisual3`, `VerifiedBuild`) VALUES
+(186431, 1, 192157, 0, 0, 0, 0, 0, 0, 0, 0, 47871), -- Iskaara Defender
+(191939, 1, 189529, 0, 0, 0, 0, 0, 0, 0, 0, 47871); -- Iskaara Defender
+
+-- GameObject
+DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+46;
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
+(@OGUID+0, 380952, 2444, 13646, 13837, '0', 0, 0, -4472.9599609375, 4084.268310546875, 6.217195987701416015, 1.79195559024810791, 0.03668069839477539, 0.156618118286132812, 0.764249801635742187, 0.624537825584411621, 120, 255, 1, 47871), -- Ancheevy (Area: Iskaara - Difficulty: 0)
+(@OGUID+1, 380952, 2444, 13646, 13837, '0', 0, 0, -4473.25537109375, 4084.677001953125, 6.26710367202758789, 1.424820780754089355, 0, 0, 0.653659820556640625, 0.756788551807403564, 120, 255, 1, 47871), -- Ancheevy (Area: Iskaara - Difficulty: 0)
+(@OGUID+2, 380952, 2444, 13646, 13837, '0', 0, 0, -4472.65283203125, 4084.260498046875, 6.14665079116821289, 5.220438957214355468, 0.002736568450927734, 0.1010589599609375, -0.50037002563476562, 0.859889209270477294, 120, 255, 1, 47871), -- Ancheevy (Area: Iskaara - Difficulty: 0)
+(@OGUID+3, 377376, 2444, 13646, 13837, '0', 0, 0, -4470.109375, 4086.018310546875, 5.96875, 5.925393581390380859, 0, 0, -0.17794322967529296, 0.984040737152099609, 120, 255, 1, 47871), -- Forge (Area: Iskaara - Difficulty: 0)
+(@OGUID+4, 380952, 2444, 13646, 13837, '0', 0, 0, -4472.7412109375, 4084.546875, 6.224146842956542968, 5.562520980834960937, -0.29982757568359375, -0.16976737976074218, -0.38860416412353515, 0.854557931423187255, 120, 255, 1, 47871), -- Ancheevy (Area: Iskaara - Difficulty: 0)
+(@OGUID+5, 380952, 2444, 13646, 13837, '0', 0, 0, -4473.080078125, 4084.4697265625, 6.315838813781738281, 5.423839092254638671, 0.904227256774902343, -0.40603923797607421, -0.13185501098632812, 0.010929213836789131, 120, 255, 1, 47871), -- Ancheevy (Area: Iskaara - Difficulty: 0)
+(@OGUID+6, 377164, 2444, 13646, 13837, '0', 0, 0, -4455.41845703125, 4085.8447265625, 5.87224578857421875, 0.077379457652568817, 0, 0, 0.038680076599121093, 0.99925166368484497, 120, 255, 1, 47871), -- Cushion (Area: Iskaara - Difficulty: 0)
+(@OGUID+7, 380952, 2444, 13646, 13837, '0', 0, 0, -4473.033203125, 4085.021728515625, 6.221859931945800781, 5.589383125305175781, 0.129253387451171875, 0.332072257995605468, -0.32076835632324218, 0.877570033073425292, 120, 255, 1, 47871), -- Ancheevy (Area: Iskaara - Difficulty: 0)
+(@OGUID+8, 380952, 2444, 13646, 13837, '0', 0, 0, -4472.88720703125, 4084.7744140625, 6.222202777862548828, 5.087742805480957031, 0, 0, -0.5627603530883789, 0.826620101928710937, 120, 255, 1, 47871), -- Ancheevy (Area: Iskaara - Difficulty: 0)
+(@OGUID+9, 376149, 2444, 13646, 13837, '0', 0, 0, -4455.31787109375, 4025.935791015625, 0.103804007172584533, 5.154443740844726562, 0, 0, -0.53488445281982421, 0.844925224781036376, 120, 255, 1, 47871), -- Stool (Area: Iskaara - Difficulty: 0)
+(@OGUID+10, 377377, 2444, 13646, 13837, '0', 0, 0, -4468.4462890625, 4088.803955078125, 5.91493082046508789, 6.099926471710205078, 0, 0, -0.09150123596191406, 0.995804965496063232, 120, 255, 1, 47871), -- Anvil (Area: Iskaara - Difficulty: 0)
+(@OGUID+11, 377379, 2444, 13646, 13837, '0', 0, 0, -4463.328125, 4027.520751953125, 0.1076388880610466, 6.152286052703857421, 0, 0, -0.06540298461914062, 0.997858941555023193, 120, 255, 1, 47871), -- Cooking Fire (Area: Iskaara - Difficulty: 0)
+(@OGUID+12, 385085, 2444, 13646, 13837, '0', 0, 0, -4460.87158203125, 4028.203125, 0.100694447755813598, 3.892081975936889648, 0.005411148071289062, -0.02158451080322265, -0.93016433715820312, 0.366468429565429687, 120, 255, 1, 47871), -- Chair (Area: Iskaara - Difficulty: 0)
+(@OGUID+13, 377372, 2444, 13646, 13837, '0', 0, 0, -4456.6806640625, 4088.421875, 5.871527671813964843, 0.724309444427490234, 0, 0, 0.354290008544921875, 0.935135602951049804, 120, 255, 1, 47871), -- Cooking Fire (Area: Iskaara - Difficulty: 0)
+(@OGUID+14, 377370, 2444, 13646, 13837, '0', 0, 0, -4512.6181640625, 4098.671875, 9.671527862548828125, 5.550147056579589843, 0, 0, -0.358367919921875, 0.933580458164215087, 120, 255, 1, 47871), -- Mailbox (Area: Iskaara - Difficulty: 0)
+(@OGUID+15, 377164, 2444, 13646, 13837, '0', 0, 0, -4522.07275390625, 4049.700439453125, 9.057484626770019531, 1.494288206100463867, 0, 0, 0.679546356201171875, 0.733632564544677734, 120, 255, 1, 47871), -- Cushion (Area: Iskaara - Difficulty: 0)
+(@OGUID+16, 377164, 2444, 13646, 13837, '0', 0, 0, -4523.9619140625, 4051.756103515625, 9.041935920715332031, 0.197730645537376403, 0, 0, 0.098704338073730468, 0.995116770267486572, 120, 255, 1, 47871), -- Cushion (Area: Iskaara - Difficulty: 0)
+(@OGUID+17, 376785, 2444, 13646, 13837, '0', 0, 0, -4516.17529296875, 4049.907958984375, 9.04314422607421875, 2.53081822395324707, 0, 0, 0.953730583190917968, 0.300662517547607421, 120, 255, 1, 47871), -- Cushion (Area: Iskaara - Difficulty: 0)
+(@OGUID+18, 376785, 2444, 13646, 13837, '0', 0, 0, -4518.908203125, 4050.1494140625, 9.05345916748046875, 2.27341318130493164, 0, 0, 0.907253265380859375, 0.420584708452224731, 120, 255, 1, 47871), -- Cushion (Area: Iskaara - Difficulty: 0)
+(@OGUID+19, 379247, 2444, 13646, 13837, '0', 0, 0, -4499.98974609375, 4097.4619140625, 9.88970947265625, 3.22270059585571289, 0.002037525177001953, 0.040117263793945312, -0.99836540222167968, 0.040656562894582748, 120, 255, 1, 47871), -- Fishing Net (Area: Iskaara - Difficulty: 0)
+(@OGUID+20, 377164, 2444, 13646, 13837, '0', 0, 0, -4525.11279296875, 4054.39404296875, 9.0482330322265625, 0.284135043621063232, 0, 0, 0.141590118408203125, 0.989925384521484375, 120, 255, 1, 47871), -- Cushion (Area: Iskaara - Difficulty: 0)
+(@OGUID+21, 376785, 2444, 13646, 13837, '0', 0, 0, -4504.91162109375, 4134.87158203125, -1.01963913440704345, 2.083182811737060546, 0, 0, 0.863208770751953125, 0.504847109317779541, 120, 255, 1, 47871), -- Cushion (Area: Iskaara - Difficulty: 0)
+(@OGUID+22, 385077, 2444, 13646, 13837, '0', 0, 0, -4469.42529296875, 4140.369140625, 27.89930534362792968, 5.349435329437255859, 0, 0, -0.45009803771972656, 0.892979145050048828, 120, 255, 1, 47871), -- Chair (Area: Iskaara - Difficulty: 0)
+(@OGUID+23, 385078, 2444, 13646, 13837, '0', 0, 0, -4461.29150390625, 4139.86279296875, 27.89409828186035156, 3.822272777557373046, 0, 0, -0.94264125823974609, 0.333807557821273803, 120, 255, 1, 47871), -- Chair (Area: Iskaara - Difficulty: 0)
+(@OGUID+24, 376156, 2444, 13646, 13837, '0', 0, 0, -4393.8525390625, 4049.401123046875, 0, 0.380895614624023437, 0, 0, 0.189298629760742187, 0.981919586658477783, 120, 255, 1, 47871), -- Tuskarr Boat (Area: Iskaara - Difficulty: 0)
+(@OGUID+25, 377164, 2444, 13646, 13837, '0', 0, 0, -4484.56103515625, 3991.142333984375, 1.205512166023254394, 3.70564126968383789, 0, 0, -0.96049404144287109, 0.278300493955612182, 120, 255, 1, 47871), -- Cushion (Area: Iskaara - Difficulty: 0)
+(@OGUID+26, 379028, 2444, 13646, 13837, '0', 0, 0, -4512.45654296875, 3961.02001953125, 0.724092662334442138, 0, 0, 0, 0, 1, 120, 255, 1, 47871), -- Fish Basket (Area: Iskaara - Difficulty: 0)
+(@OGUID+27, 377380, 2444, 13646, 13837, '0', 0, 0, -4577.68408203125, 4111.4140625, 1.814236164093017578, 0.575957298278808593, 0, 0, 0.284014701843261718, 0.958819925785064697, 120, 255, 1, 47871), -- Cooking Fire (Area: Iskaara - Difficulty: 0)
+(@OGUID+28, 378926, 2444, 13646, 13837, '0', 0, 0, -4464.61474609375, 4157.44287109375, 26.09653663635253906, 2.421854019165039062, -0.289703369140625, -0.88908004760742187, -0.00815486907958984, 0.354319214820861816, 120, 255, 1, 47871), -- Kite (Area: Iskaara - Difficulty: 0)
+(@OGUID+29, 377211, 2444, 13646, 13837, '0', 0, 0, -4577.3974609375, 4101.9931640625, 2.92417454719543457, 5.648925304412841796, 0, 0, -0.31184101104736328, 0.95013427734375, 120, 255, 1, 47871), -- Fish Basket (Area: Iskaara - Difficulty: 0)
+(@OGUID+30, 381206, 2444, 13646, 13837, '0', 0, 0, -4501.892578125, 3969.455810546875, 1.342447876930236816, 1.359847307205200195, 0, 0, 0.628733634948730468, 0.77762073278427124, 120, 255, 1, 47871), -- Hides (Area: Iskaara - Difficulty: 0)
+(@OGUID+31, 376785, 2444, 13646, 13837, '0', 0, 0, -4512.25341796875, 4137.13037109375, -0.85643279552459716, 1.057082891464233398, 0, 0, 0.504274368286132812, 0.863543510437011718, 120, 255, 1, 47871), -- Cushion (Area: Iskaara - Difficulty: 0)
+(@OGUID+32, 380573, 2444, 13646, 13837, '0', 0, 0, -4513.30712890625, 4131.6640625, -0.80586856603622436, 0.864608943462371826, 0, 0, 0.418964385986328125, 0.908002674579620361, 120, 255, 1, 47871), -- Broken Drum (Area: Iskaara - Difficulty: 0)
+(@OGUID+33, 377378, 2444, 13646, 13837, '0', 0, 0, -4522.3681640625, 3967.80126953125, 0.322639673948287963, 3.420850038528442382, 0, 0, -0.99026775360107421, 0.139175355434417724, 120, 255, 1, 47871), -- Cooking Fire (Area: Iskaara - Difficulty: 0)
+(@OGUID+34, 378903, 2444, 13646, 13837, '0', 0, 0, -4466.6962890625, 4160.1962890625, 27.67895317077636718, 0, 0, 0, 0, 1, 120, 255, 1, 47871), -- Kite (Area: Iskaara - Difficulty: 0)
+(@OGUID+35, 376785, 2444, 13646, 13837, '0', 0, 0, -4506.32275390625, 3969.107666015625, 0.320778697729110717, 3.126463651657104492, 0, 0, 0.999971389770507812, 0.007564420811831951, 120, 255, 1, 47871), -- Cushion (Area: Iskaara - Difficulty: 0)
+(@OGUID+36, 377211, 2444, 13646, 13837, '0', 0, 0, -4512.7724609375, 3959.017333984375, 1.323306202888488769, 3.815186023712158203, 0, 0, -0.9438180923461914, 0.3304654061794281, 120, 255, 1, 47871), -- Fish Basket (Area: Iskaara - Difficulty: 0)
+(@OGUID+37, 377164, 2444, 13646, 13837, '0', 0, 0, -4508.595703125, 3968.458251953125, 0.281402260065078735, 0.904169857501983642, 0, 0, 0.436841964721679687, 0.899538278579711914, 120, 255, 1, 47871), -- Cushion (Area: Iskaara - Difficulty: 0)
+(@OGUID+38, 376785, 2444, 13646, 13837, '0', 0, 0, -4515.25341796875, 4137.79248046875, -0.86460614204406738, 0.633621752262115478, 0, 0, 0.311537742614746093, 0.950233757495880126, 120, 255, 1, 47871), -- Cushion (Area: Iskaara - Difficulty: 0)
+(@OGUID+39, 377211, 2444, 13646, 13837, '0', 0, 0, -4573.939453125, 4101.29248046875, 1.836888432502746582, 3.254517555236816406, 0, 0, -0.99840641021728515, 0.056432407349348068, 120, 255, 1, 47871), -- Fish Basket (Area: Iskaara - Difficulty: 0)
+(@OGUID+40, 385084, 2444, 13646, 13837, '0', 0, 0, -4523.6650390625, 3982.299560546875, 0.213541671633720397, 1.937309861183166503, 0.01486825942993164, 0.0165557861328125, 0.823956489562988281, 0.566215991973876953, 120, 255, 1, 47871), -- Chair (Area: Iskaara - Difficulty: 0)
+(@OGUID+41, 378904, 2444, 13646, 13837, '0', 0, 0, -4479.01904296875, 4149.6884765625, 33.87511062622070312, 0.400452911853790283, -0.66472053527832031, -0.39909553527832031, -0.42859554290771484, 0.463869810104370117, 120, 255, 1, 47871), -- Kite (Area: Iskaara - Difficulty: 0)
+(@OGUID+42, 377164, 2444, 13646, 13837, '0', 0, 0, -4564.69970703125, 3980.5400390625, 1.828364968299865722, 5.848158836364746093, 0, 0, -0.21580219268798828, 0.976437091827392578, 120, 255, 1, 47871), -- Cushion (Area: Iskaara - Difficulty: 0)
+(@OGUID+43, 377211, 2444, 13646, 13837, '0', 0, 0, -4512.5244140625, 3961.0859375, 1.402934670448303222, 2.713456153869628906, 0, 0, 0.977174758911132812, 0.212437003850936889, 120, 255, 1, 47871), -- Fish Basket (Area: Iskaara - Difficulty: 0)
+(@OGUID+44, 377371, 2444, 13646, 13837, '0', 0, 0, -4429.38720703125, 4211.75, 6.328623294830322265, 1.614428043365478515, 0, 0, 0.722363471984863281, 0.691513597965240478, 120, 255, 1, 47871), -- Summoning Stone (Area: Iskaara - Difficulty: 0)
+(@OGUID+45, 377381, 2444, 13646, 13837, '0', 0, 0, -4485.23974609375, 4205.84033203125, 1.642298340797424316, 3.647744417190551757, 0.035333633422851562, 0.008603096008300781, -0.96751117706298828, 0.250199109315872192, 120, 255, 1, 47871), -- Anvil (Area: Iskaara - Difficulty: 0)
+(@OGUID+46, 385076, 2444, 13646, 13837, '0', 0, 0, -4472.015625, 4243.806640625, 2.723704814910888671, 4.415686607360839843, 0, 0, -0.80385589599609375, 0.594824075698852539, 120, 255, 1, 47871); -- Chair (Area: Iskaara - Difficulty: 0)
+DELETE FROM `gameobject_addon` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+46;
+INSERT INTO `gameobject_addon` (`guid`, `parent_rotation0`, `parent_rotation1`, `parent_rotation2`, `parent_rotation3`, `WorldEffectID`, `AIAnimKitID`) VALUES
+(@OGUID+28, 0, 0, 0, 1, 0, 19755), -- Kite
+(@OGUID+32, 0, 0, 0, 1, 19977, 0), -- Broken Drum
+(@OGUID+41, 0, 0, 0, 1, 0, 19755); -- Kite
+
+-- Gossip
+DELETE FROM `npc_text` WHERE `ID` BETWEEN @NPCTEXTID+0 AND @NPCTEXTID+0;
+INSERT INTO `npc_text` (`ID`, `Probability0`, `Probability1`, `Probability2`, `Probability3`, `Probability4`, `Probability5`, `Probability6`, `Probability7`, `BroadcastTextId0`, `BroadcastTextId1`, `BroadcastTextId2`, `BroadcastTextId3`, `BroadcastTextId4`, `BroadcastTextId5`, `BroadcastTextId6`, `BroadcastTextId7`, `VerifiedBuild`) VALUES
+(@NPCTEXTID+0, 1, 0, 0, 0, 0, 0, 0, 0, 228589, 0, 0, 0, 0, 0, 0, 0, 47871); -- 186431 (Iskaara Defender)
+
+DELETE FROM `gossip_menu` WHERE (`MenuID`=29318 AND `TextID`=@NPCTEXTID+0);
+INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
+(29318, @NPCTEXTID+0, 47871); -- 186431 (Iskaara Defender)
+
+-- Waypoints for CGUID+0
+SET @PATH := (@CGUID+0) * 10;
+DELETE FROM `waypoint_data` WHERE `id`= @PATH;
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`) VALUES
+(@PATH, 0, -4394.588, 4003.583, 0.4858398, NULL, 0),
+(@PATH, 1, -4389.588, 4002.121, 0.4858398, NULL, 0),
+(@PATH, 2, -4384.655, 4000.911, 0.4858398, NULL, 0),
+(@PATH, 3, -4378.274, 3999.136, 0.5463877, NULL, 0),
+(@PATH, 4, -4371.611, 3996.396, 0.8418436, NULL, 0),
+(@PATH, 5, -4368.738, 3994.722, 1.068406, NULL, 0),
+(@PATH, 6, -4360.833, 3984.504, 1.045286, NULL, 0),
+(@PATH, 7, -4352.018, 3971.222, 1.337523, NULL, 0),
+(@PATH, 8, -4344.647, 3961.773, 1.150319, NULL, 0),
+(@PATH, 9, -4334.63, 3952.403, 2.070485, NULL, 0),
+(@PATH, 10, -4320.012, 3949.033, 2.708572, NULL, 0),
+(@PATH, 11, -4312.186, 3949.984, 3.248123, NULL, 14122),
+(@PATH, 12, -4319.958, 3949.025, 2.555496, NULL, 0),
+(@PATH, 13, -4334.63, 3952.403, 2.070485, NULL, 0),
+(@PATH, 14, -4344.647, 3961.773, 1.150319, NULL, 0),
+(@PATH, 15, -4352.018, 3971.222, 1.337523, NULL, 0),
+(@PATH, 16, -4360.833, 3984.504, 1.045286, NULL, 0),
+(@PATH, 17, -4368.738, 3994.722, 1.068406, NULL, 0),
+(@PATH, 18, -4371.611, 3996.396, 0.8418436, NULL, 0),
+(@PATH, 19, -4378.274, 3999.136, 0.5463877, NULL, 0),
+(@PATH, 20, -4382.785, 4000.403, 0.4858398, NULL, 0),
+(@PATH, 21, -4384.655, 4000.911, 0.4858398, NULL, 0),
+(@PATH, 22, -4389.588, 4002.121, 0.4858398, NULL, 0),
+(@PATH, 23, -4394.588, 4003.583, 0.4858398, NULL, 0),
+(@PATH, 24, -4398.325, 4004.464, 0.4858398, NULL, 0),
+(@PATH, 25, -4425.338, 4015.041, 0.04816437, NULL, 0),
+(@PATH, 26, -4447.976, 4045.858, 3.287683, NULL, 13317),
+(@PATH, 27, -4425.338, 4015.041, 0.04816437, NULL, 0),
+(@PATH, 28, -4398.325, 4004.464, 0.4858398, NULL, 0);
+
+UPDATE `creature` SET `position_x`= -4394.588, `position_y`= 4003.583, `position_z`= 0.4858398, `orientation`= 0, `wander_distance`= 0, `MovementType`= 2 WHERE `guid`= @CGUID+0;
+DELETE FROM `creature_addon` WHERE `guid`= @CGUID+0;
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `SheathState`) VALUES
+(@CGUID+0, @PATH, 106258, 1);
+
+-- Waypoints for CGUID+5
+SET @PATH := (@CGUID+5) * 10;
+DELETE FROM `waypoint_data` WHERE `id`= @PATH;
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`) VALUES
+(@PATH, 0, -4451.694, 4072.165, 6.234004, NULL, 0),
+(@PATH, 1, -4446.205, 4074.535, 6.506343, NULL, 0),
+(@PATH, 2, -4439.125, 4079.273, 6.824824, NULL, 0),
+(@PATH, 3, -4434.453, 4083.019, 7.249629, NULL, 0),
+(@PATH, 4, -4431.377, 4086.042, 7.48584, NULL, 0),
+(@PATH, 5, -4427.531, 4090.253, 7.48584, NULL, 0),
+(@PATH, 6, -4426.556, 4091.845, 7.48584, NULL, 0),
+(@PATH, 7, -4424.821, 4094.449, 7.48584, NULL, 0),
+(@PATH, 8, -4422.024, 4099.281, 7.537972, NULL, 0),
+(@PATH, 9, -4420.76, 4100.488, 7.110631, NULL, 0),
+(@PATH, 10, -4418.46, 4103.064, 7.055333, NULL, 0),
+(@PATH, 11, -4416.259, 4106.723, 6.846959, NULL, 0),
+(@PATH, 12, -4413.842, 4109.778, 6.499791, NULL, 0),
+(@PATH, 13, -4411.054, 4113.458, 6.227574, NULL, 0),
+(@PATH, 14, -4408.224, 4116.767, 5.737584, NULL, 0),
+(@PATH, 15, -4405.524, 4121.241, 5.735631, NULL, 0),
+(@PATH, 16, -4401.009, 4134.21, 6.046676, NULL, 12732),
+(@PATH, 17, -4405.524, 4121.241, 5.735631, NULL, 0),
+(@PATH, 18, -4408.224, 4116.767, 5.737584, NULL, 0),
+(@PATH, 19, -4411.054, 4113.458, 6.227574, NULL, 0),
+(@PATH, 20, -4413.842, 4109.778, 6.499791, NULL, 0),
+(@PATH, 21, -4416.259, 4106.723, 6.846959, NULL, 0),
+(@PATH, 22, -4418.46, 4103.064, 7.055333, NULL, 0),
+(@PATH, 23, -4420.76, 4100.488, 7.110631, NULL, 0),
+(@PATH, 24, -4422.024, 4099.281, 7.537972, NULL, 0),
+(@PATH, 25, -4424.821, 4094.449, 7.48584, NULL, 0),
+(@PATH, 26, -4426.556, 4091.845, 7.48584, NULL, 0),
+(@PATH, 27, -4430.186, 4087.42, 7.48584, NULL, 0),
+(@PATH, 28, -4434.453, 4083.019, 7.249629, NULL, 0),
+(@PATH, 29, -4439.125, 4079.273, 6.824824, NULL, 0),
+(@PATH, 30, -4446.205, 4074.535, 6.506343, NULL, 0),
+(@PATH, 31, -4451.694, 4072.165, 6.234004, NULL, 0),
+(@PATH, 32, -4457.821, 4070.498, 5.703731, NULL, 14522);
+
+UPDATE `creature` SET `position_x`= -4451.694, `position_y`= 4072.165, `position_z`= 6.234004, `orientation`= 0, `wander_distance`= 0, `MovementType`= 2 WHERE `guid`= @CGUID+5;
+DELETE FROM `creature_addon` WHERE `guid`= @CGUID+5;
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `SheathState`) VALUES
+(@CGUID+5, @PATH, 106258, 1);
+
+-- Waypoints for CGUID+9
+DELETE FROM `creature_formations` WHERE `leaderGUID` = @CGUID+9;
+INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
+(@CGUID+9, @CGUID+9, 0, 0, 515, 0, 0),
+(@CGUID+9, @CGUID+6, 2, 90, 515, 0, 0);
+
+SET @PATH := (@CGUID+9) * 10;
+DELETE FROM `waypoint_data` WHERE `id`= @PATH;
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`) VALUES
+(@PATH, 0, -4519.226, 4008.471, 1.770794, NULL, 0),
+(@PATH, 1, -4509.768, 4018.417, 2.38847, NULL, 0),
+(@PATH, 2, -4499.856, 4023.07, 3.222452, NULL, 0),
+(@PATH, 3, -4490.313, 4027.619, 3.572305, NULL, 0),
+(@PATH, 4, -4487.582, 4036.789, 4.927928, NULL, 9566),
+(@PATH, 5, -4490.313, 4027.619, 3.572305, NULL, 0),
+(@PATH, 6, -4499.856, 4023.07, 3.222452, NULL, 0),
+(@PATH, 7, -4509.768, 4018.417, 2.38847, NULL, 0),
+(@PATH, 8, -4519.226, 4008.471, 1.770794, NULL, 0),
+(@PATH, 9, -4524.338, 3995.981, 0.3613989, NULL, 14226);
+
+UPDATE `creature` SET `position_x`= -4519.226, `position_y`= 4008.471, `position_z`= 1.770794, `orientation`= 0, `wander_distance`= 0, `MovementType`= 2 WHERE `guid`= @CGUID+9;
+DELETE FROM `creature_addon` WHERE `guid`= @CGUID+9;
+INSERT INTO `creature_addon` (`guid`, `path_id`, `SheathState`) VALUES
+(@CGUID+9, @PATH, 1);
+
+-- Waypoints for CGUID+12
+DELETE FROM `creature_formations` WHERE `leaderGUID` = @CGUID+12;
+INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
+(@CGUID+12, @CGUID+12, 0, 0, 515, 0, 0),
+(@CGUID+12, @CGUID+10, 2, 90, 515, 0, 0);
+
+SET @PATH := (@CGUID+12) * 10;
+DELETE FROM `waypoint_data` WHERE `id`= @PATH;
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`) VALUES
+(@PATH, 0, -4564.415, 4045.78, 1.477206, NULL, 0),
+(@PATH, 1, -4560.698, 4025.085, 0.9551315, NULL, 0),
+(@PATH, 2, -4558.927, 4012.767, 0.6339645, NULL, 0),
+(@PATH, 3, -4555.205, 4004.431, 0.7593307, NULL, 15605),
+(@PATH, 4, -4558.927, 4012.767, 0.6339645, NULL, 0),
+(@PATH, 5, -4560.698, 4025.085, 0.9551315, NULL, 0),
+(@PATH, 6, -4564.415, 4045.78, 1.477206, NULL, 0),
+(@PATH, 7, -4562.764, 4058.148, 2.061923, NULL, 14677);
+
+UPDATE `creature` SET `position_x`= -4564.415, `position_y`= 4045.78, `position_z`= 1.477206, `orientation`= 0, `wander_distance`= 0, `MovementType`= 2 WHERE `guid`= @CGUID+12;
+DELETE FROM `creature_addon` WHERE `guid`= @CGUID+12;
+INSERT INTO `creature_addon` (`guid`, `path_id`, `SheathState`) VALUES
+(@CGUID+12, @PATH, 1);
+
+-- SAI for Tuskaar Defender training
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = 186431;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` IN (-(@CGUID+4), -(@CGUID+3));
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(-(@CGUID+4), 0, 0, 0, 60, 0, 100, 0, 1000, 1000, 2000, 2000, 11, 342542, 0, 0, 0, 0, 0, 10, (@CGUID+16), 193563, 0, 0, 0, 0, 0, 'Every 1 seconds - Cast spell 342542 - to Training Dummy'),
+(-(@CGUID+3), 0, 0, 0, 60, 0, 100, 0, 1000, 1000, 4000, 4000, 11, 382105, 0, 0, 0, 0, 0, 10, (@CGUID+17), 193563, 0, 0, 0, 0, 0, 'Every 4 seconds - Cast spell 382105 - to Training Dummy');
+
+DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId` = 13 AND `SourceGroup` = 1 AND `SourceEntry` IN (342542, 382105));
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(13, 1, 342542, 0, 0, 31, 0, 3, 193563, 0, 0, 0, 0, '', 'Spell 342542 can only hit Training Dummy'),
+(13, 1, 382105, 0, 0, 31, 0, 3, 193563, 0, 0, 0, 0, '', 'Spell 382105 can only hit Training Dummy');

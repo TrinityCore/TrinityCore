@@ -18,11 +18,13 @@
 #include "WorldSession.h"
 #include "AchievementPackets.h"
 #include "Common.h"
+#include "Creature.h"
 #include "GameTime.h"
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "GuildPackets.h"
 #include "Log.h"
+#include "Map.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 
@@ -238,6 +240,11 @@ void WorldSession::HandleGuildBankActivate(WorldPackets::Guild::GuildBankActivat
     TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_ACTIVATE [{}]: [{}] AllSlots: {}"
         , GetPlayerInfo(), packet.Banker.ToString(), packet.FullUpdate);
 
+#ifndef DISABLE_DRESSNPCS_CORESOUNDS
+    if (packet.Banker.IsAnyTypeCreature())
+        if (Creature* creature = _player->GetMap()->GetCreature(packet.Banker))
+            creature->SendMirrorSound(_player, 0);
+#endif
     GameObject const* const go = GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK);
     if (!go)
         return;

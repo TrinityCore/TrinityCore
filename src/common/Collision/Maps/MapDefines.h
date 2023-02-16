@@ -26,11 +26,12 @@
 /// Represents a map magic value of 4 bytes (used in versions)
 using u_map_magic = std::array<char, 4>;
 
-TC_COMMON_API extern u_map_magic const MapMagic;
+TC_COMMON_API extern u_map_magic const MapMagic;//1
 TC_COMMON_API extern uint32 const MapVersionMagic;
-TC_COMMON_API extern u_map_magic const MapAreaMagic;
-TC_COMMON_API extern u_map_magic const MapHeightMagic;
-TC_COMMON_API extern u_map_magic const MapLiquidMagic;
+//TC_COMMON_API extern uint32 const asUInt;//后加
+TC_COMMON_API extern u_map_magic const MapAreaMagic;//2
+TC_COMMON_API extern u_map_magic const MapHeightMagic;//3
+TC_COMMON_API extern u_map_magic const MapLiquidMagic;//4
 
 // ******************************************
 // Map file format defines

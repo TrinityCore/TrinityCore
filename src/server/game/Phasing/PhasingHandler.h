@@ -40,6 +40,7 @@ class TC_GAME_API PhasingHandler
 {
 public:
     static void AddPhase(WorldObject* object, uint32 phaseId, bool updateVisibility);
+    void AddPhase(WorldObject* object, uint32 phaseId, ObjectGuid const& personalGuid, bool updateVisibility);
     static void RemovePhase(WorldObject* object, uint32 phaseId, bool updateVisibility);
     static void AddPhaseGroup(WorldObject* object, uint32 phaseGroupId, bool updateVisibility);
     static void RemovePhaseGroup(WorldObject* object, uint32 phaseGroupId, bool updateVisibility);
@@ -78,6 +79,9 @@ public:
 private:
     class ControlledUnitVisitor;
     friend ControlledUnitVisitor;
+    //旧的2个模板
+    /*static void AddPhase(WorldObject* object, uint32 phaseId, bool updateVisibility = true);
+    static void AddPhaseGroup(WorldObject* object, uint32 phaseGroupId, bool updateVisibility = true);*/
 
     static void AddPhase(WorldObject* object, uint32 phaseId, ObjectGuid const& personalGuid, bool updateVisibility, ControlledUnitVisitor& visitor);
     static void RemovePhase(WorldObject* object, uint32 phaseId, bool updateVisibility, ControlledUnitVisitor& visitor);

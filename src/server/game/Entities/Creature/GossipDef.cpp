@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
+#include "utility"
 #include "GossipDef.h"
 #include "Containers.h"
 #include "Creature.h"
@@ -31,6 +31,7 @@
 #include "Util.h"
 #include "World.h"
 #include "WorldSession.h"
+#include <boost/concept_check.hpp>
 
 GossipMenu::GossipMenu()
 {
@@ -39,6 +40,106 @@ GossipMenu::GossipMenu()
 }
 
 GossipMenu::~GossipMenu() = default;
+
+//后加
+//uint32 GossipMenu::AddMenuItem(int32 optionIndex, uint8 icon, std::string const& message, uint32 sender, uint32 action, std::string const& boxMessage, uint32 boxMoney, bool coded /*= false*/)
+//{
+//    ASSERT(_menuItems.size() <= GOSSIP_MAX_MENU_ITEMS);
+//
+//    // Find a free new id - script case
+//    if (optionIndex == -1)
+//    {
+//        optionIndex = 0;
+//        if (!_menuItems.empty())
+//        {   //此处为适配旧代码,后更新的,对应代码在GossipDef.h中 typedef std::map<uint32, GossipMenuItem> GossipMenuItemContainerTCBased;
+//            for (GossipMenuItemContainerTCBased::const_iterator itr = _menuItems.begin(); itr != _menuItems.end(); ++itr)
+//   // 当时为了测试,如果后续需要修改,可修改为:GossipMenuItemContainer
+//            {
+//                if (int32(itr->first) > optionIndex)
+//                    break;
+//
+//                optionIndex = itr->first + 1;
+//            }
+//        }
+//    }
+//
+//    GossipMenuItem& menuItem = _menuItems[optionIndex];
+//
+//    menuItem.MenuItemIcon = icon;
+//    menuItem.Message = message;
+//    menuItem.IsCoded = coded;
+//    menuItem.Sender = sender;
+//    menuItem.OptionType = action;
+//    menuItem.BoxMessage = boxMessage;
+//    menuItem.BoxMoney = boxMoney;
+//    return optionIndex;
+//}
+
+/**
+ * @name AddMenuItem
+ * @brief Adds a localized gossip menu item from db by menu id and menu item id.
+ * @param menuId Gossip menu id.
+ * @param optionIndex Gossip menu item index.
+ * @param sender Identifier of the current menu.
+ * @param action Custom action given to OnGossipHello.
+ */
+//void GossipMenu::AddMenuItem(uint32 menuId, uint32 optionIndex, uint32 sender, uint32 action)
+//{
+//    /// Find items for given menu id.
+//    GossipMenuItemsMapBounds bounds = sObjectMgr->GetGossipMenuItemsMapBounds(menuId);
+//    /// Return if there are none.
+//    if (bounds.first == bounds.second)
+//        return;
+//
+//    /// Iterate over each of them.
+//    for (GossipMenuItemsContainer::const_iterator itr = bounds.first; itr != bounds.second; ++itr)
+//    {
+//        /// Find the one with the given menu item id.
+//        if (itr->second.OptionIndex != optionIndex)
+//            continue;
+//
+//        /// Store texts for localization.
+//        std::string strOptionText, strBoxText;
+//        BroadcastTextEntry const* optionBroadcastText = sBroadcastTextStore.LookupEntry(itr->second.OptionBroadcastTextId);
+//        BroadcastTextEntry const* boxBroadcastText = sBroadcastTextStore.LookupEntry(itr->second.BoxBroadcastTextId);
+//
+//        /// OptionText
+//        if (optionBroadcastText)
+//            strOptionText = DB2Manager::GetBroadcastTextValue(optionBroadcastText, GetLocale());
+//        else
+//            strOptionText = itr->second.OptionText;
+//
+//        /// BoxText
+//        if (boxBroadcastText)
+//            strBoxText = DB2Manager::GetBroadcastTextValue(boxBroadcastText, GetLocale());
+//        else
+//            strBoxText = itr->second.BoxText;
+//
+//        /// Check need of localization.
+//        if (GetLocale() != DEFAULT_LOCALE)
+//        {
+//            if (!optionBroadcastText)
+//            {
+//                /// Find localizations from database.
+//                if (GossipMenuItemsLocale const* gossipMenuLocale = sObjectMgr->GetGossipMenuItemsLocale(menuId, optionIndex))
+//                    ObjectMgr::GetLocaleString(gossipMenuLocale->OptionText, GetLocale(), strOptionText);
+//            }
+//
+//            if (!boxBroadcastText)
+//            {
+//                /// Find localizations from database.
+//                if (GossipMenuItemsLocale const* gossipMenuLocale = sObjectMgr->GetGossipMenuItemsLocale(menuId, optionIndex))
+//                    ObjectMgr::GetLocaleString(gossipMenuLocale->BoxText, GetLocale(), strBoxText);
+//            }
+//        }
+//
+//        /// Add menu item with existing method. Menu item id -1 is also used in ADD_GOSSIP_ITEM macro.
+//        uint32 newOptionIndex = AddMenuItem(-1, itr->second.OptionIcon, strOptionText, sender, action, strBoxText, itr->second.BoxMoney, itr->second.BoxCoded);
+//        AddGossipMenuItemData(newOptionIndex, itr->second.ActionMenuId, itr->second.ActionPoiId);
+//    }
+//}
+//
+////后加
 
 uint32 GossipMenu::AddMenuItem(int32 gossipOptionId, int32 orderIndex, GossipOptionNpc optionNpc, std::string optionText, uint32 language,
     GossipOptionFlags flags, Optional<int32> gossipNpcOptionId, uint32 actionMenuId, uint32 actionPoiId, bool boxCoded, uint32 boxMoney,
@@ -110,6 +211,8 @@ uint32 GossipMenu::AddMenuItem(int32 gossipOptionId, int32 orderIndex, GossipOpt
  * @param sender Identifier of the current menu.
  * @param action Custom action given to OnGossipHello.
  */
+
+
 void GossipMenu::AddMenuItem(uint32 menuId, uint32 menuItemId, uint32 sender, uint32 action)
 {
     /// Find items for given menu id.
@@ -191,6 +294,15 @@ GossipMenuItem const* GossipMenu::GetItemByIndex(uint32 orderIndex) const
     return nullptr;
 }
 
+void GossipMenu::AddGossipMenuItemData(uint32 optionIndex, uint32 gossipActionMenuId, uint32 gossipActionPoi)
+{
+    GossipMenuItemData& itemData = _menuItemData[optionIndex];
+
+    itemData.GossipActionMenuId = gossipActionMenuId;
+    itemData.GossipActionPoi = gossipActionPoi;
+}
+
+
 uint32 GossipMenu::GetMenuItemSender(uint32 orderIndex) const
 {
     GossipMenuItem const* item = GetItemByIndex(orderIndex);
@@ -199,6 +311,8 @@ uint32 GossipMenu::GetMenuItemSender(uint32 orderIndex) const
 
     return 0;
 }
+
+
 
 uint32 GossipMenu::GetMenuItemAction(uint32 orderIndex) const
 {
@@ -346,7 +460,7 @@ QuestMenu::QuestMenu()
 }
 
 QuestMenu::~QuestMenu() = default;
-
+//
 void QuestMenu::AddMenuItem(uint32 QuestId, uint8 Icon)
 {
     if (!sObjectMgr->GetQuestTemplate(QuestId))
@@ -683,3 +797,26 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
     _session->SendPacket(packet.Write());
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_REQUEST_ITEMS NPC={}, questid={}", npcGUID.ToString(), quest->GetQuestId());
 }
+
+//下方为当时测试,新建的类,现在无用了
+//
+//GossipMenuTCBased::GossipMenuTCBased()
+//{
+//}
+//
+//GossipMenuTCBased::~GossipMenuTCBased()
+//{
+//}
+//
+//uint32 GossipMenuTCBased::AddMenuItem(int32 optionIndex, uint8 icon, std::string const& message, uint32 sender, uint32 action, std::string const& boxMessage, uint32 boxMoney, bool coded)
+//{
+//    return uint32();
+//}
+//
+//void GossipMenuTCBased::AddMenuItem(uint32 menuId, uint32 optionIndex, uint32 sender, uint32 action)
+//{
+//}
+//
+//void GossipMenuTCBased::AddGossipMenuItemData(uint32 optionIndex, uint32 gossipActionMenuId, uint32 gossipActionPoi)
+//{
+//}

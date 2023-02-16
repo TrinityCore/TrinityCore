@@ -1,0 +1,2 @@
+git filter-branch -f --index-filter 'git rm --cached --ignore-unmatch temp.txt'  
+待尝试

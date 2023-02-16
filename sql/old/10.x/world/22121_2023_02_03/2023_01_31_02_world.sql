@@ -1,22 +1,68 @@
-SET @CGUID := 1051929;
-SET @OGUID := 600245;
-
--- Creature
-DELETE FROM `creature` WHERE `guid` = @CGUID+0;
-INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
-(@CGUID+0, 141900, 1, 141, 702, '0', '0', 0, 0, 0, 8177.9443359375, 998.91668701171875, 7.11283111572265625, 0, 120, 0, 0, 17621, 0, 0, 0, 0, 0, 47871); -- Niana Moontear (Area: Rut'theran Village - Difficulty: 0)
-
-DELETE FROM `creature_template_addon` WHERE `entry` IN (141900 /*141900 (Niana Moontear)*/);
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
-(141900, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, ''); -- 141900 (Niana Moontear)
-
-UPDATE `creature_template` SET `minlevel`=60, `maxlevel`=60 WHERE `entry`=141900; -- Niana Moontear
-
--- GameObject
-DELETE FROM `gameobject` WHERE `guid` = @OGUID+0;
-INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
-(@OGUID+0, 293886, 1, 141, 702, '0', '0', 0, 8177.5380859375, 1002.578125, 6.670926570892333984, 0, 0, 0, 0, 1, 120, 255, 0, 47871); -- Portal to Stormwind (Area: Rut'theran Village - Difficulty: 0)
-
-DELETE FROM `gameobject_template_addon` WHERE `entry`=293886;
-INSERT INTO `gameobject_template_addon` (`entry`, `faction`, `flags`, `WorldEffectID`, `AIAnimKitID`) VALUES
-(293886, 1732, 0, 0, 0); -- Portal to Stormwind
+INSERT INTO `instance_encounters` VALUES
+ (1833, 0, 98696, 0, 'Ilysanna Ravencrest'),
+ (1828, 0, 98206, 0, 'Général Xakal'),
+ (1825, 0, 98205, 0, 'Corstilax'),
+ (1832, 0, 98542, 0, 'Amalgam of Souls'),
+ (1829, 0, 98208, 1189, 'Conseiller Vandros'),
+ (1826, 0, 98207, 0, 'Nal’tira'),
+ (1827, 0, 98203, 0, 'Ivanyr'),
+ (1839, 0, 99192, 1201, 'Shade of Xavius'),
+ (1838, 0, 99200, 0, 'Dresaron'),
+ (1837, 0, 103344, 0, 'Oakheart'),
+ (1836, 0, 96512, 0, 'Archidruid Glaidalis'),
+ (1835, 0, 99611, 1204, 'Lord Kur\'talos Ravencrest'),
+ (1809, 0, 95676, 1193, 'Odyn'),
+ (1808, 0, 95675, 0, 'God-King Skovald'),
+ (1807, 0, 99868, 0, 'Fenryr'),
+ (1834, 0, 98949, 0, 'Smashspite the Hateful'),
+ (1806, 0, 95833, 0, 'Hyrja'),
+ (1805, 0, 94960, 0, 'Hymdall'),
+ (1810, 0, 91784, 0, 'Warlord Parjesh'),
+ (1811, 0, 91789, 0, 'Lady Hatecoil'),
+ (1812, 0, 91797, 0, 'King Deepbeard'),
+ (1813, 0, 91808, 0, 'Serpentrix'),
+ (1814, 0, 96028, 1492, 'Wrath of Azshara'),
+ (2112, 0, 131383, 0, 'Sporecaller Zancha'),
+ (2118, 0, 131817, 0, 'Cragmaw the Infested'),
+ (2111, 0, 131318, 0, 'Elder Leaxa'),
+ (2123, 0, 133007, 1711, 'Unbound Abomination'),
+ (2084, 0, 122967, 0, 'Priestess Alun\'za'),
+ (2085, 0, 122965, 0, 'Vol\'kaal'),
+ (2086, 0, 122963, 0, 'Rezan'),
+ (2087, 0, 122968, 1772, 'Yazma'),
+ (2132, 0, 134060, 0, 'Lord Stormsong'),
+ (2133, 0, 134069, 1709, 'Vol\'zith the Whisperer'),
+ (2130, 0, 134056, 0, 'Aqu\'sirr'),
+ (2131, 0, 134063, 0, 'Tidesage Council'),
+ (2106, 0, 129227, 0, 'Azerokk'),
+ (2124, 0, 133379, 0, 'Adderis and Aspix'),
+ (2125, 0, 133384, 0, 'Merektha'),
+ (2126, 0, 133389, 0, 'Galvazzt'),
+ (2127, 0, 133392, 0, 'Avatar of Sethraliss'),
+ (2105, 0, 129214, 0, 'Coin-Operated Crowd Pummeler'),
+ (2093, 0, 126832, 0, 'Skycap\'n Kragg'),
+ (2094, 0, 126848, 0, 'Council o Captains'),
+ (2095, 0, 126969, 0, 'Ring of Booty'),
+ (2290, 0, 150159, 0, 'King Gobbamak'),
+ (2257, 0, 144244, 0, 'Tussle Tonks'),
+ (2258, 0, 144246, 0, 'K.U.-J.0.'),
+ (2259, 0, 144248, 0, 'Machinists Garden'),
+ (2291, 0, 150190, 0, 'HK-8 Aerial Oppression Unit'),
+ (2292, 0, 150222, 0, 'Gunker'),
+ (2312, 0, 150712, 0, 'Trixie & Naeno'),
+ (2107, 0, 129231, 0, 'Rixxa Fluxfume'),
+ (2108, 0, 129232, 1707, 'Mogul Razdunk'),
+ (2329, 0, 156818, 0, 'Wrathion'),
+ (2327, 0, 156523, 0, 'Maut'),
+ (2334, 0, 157620, 0, 'Prophet Skitra'),
+ (2335, 0, 157231, 0, 'Shad\'har the Insatiable'),
+ (2333, 0, 157253, 0, 'The Hivemind'),
+ (2328, 0, 156575, 0, 'Dark Inquisitor Xanesh'),
+ (2331, 0, 156866, 0, 'Ra-den the Despoiled'),
+ (2336, 0, 157354, 0, 'Vexiona'),
+ (2337, 0, 157439, 0, 'Carapace of N\'Zoth'),
+ (2343, 0, 157602, 0, 'Drest\'agath'),
+ (2344, 0, 158041, 0, 'N\'Zoth the Corruptor'),
+ (2345, 0, 158328, 0, 'Il\'gynoth, Corruption Reborn'),
+ (2096, 0, 126983, 0, 'Harlan Sweete'),
+ (2299, 0, 152910, 2016, 'Queen Azshara');

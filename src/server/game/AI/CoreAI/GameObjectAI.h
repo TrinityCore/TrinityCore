@@ -72,6 +72,7 @@ class TC_GAME_API GameObjectAI
         // Called when the dialog status between a player and the gameobject is requested.
         virtual Optional<QuestGiverStatus> GetDialogStatus(Player* player);
 
+
         // Called when a player opens a gossip dialog with the gameobject.
         virtual bool OnGossipHello(Player* /*player*/) { return false; }
 
@@ -112,7 +113,7 @@ class TC_GAME_API GameObjectAI
 
         // Called when the gameobject summon successfully other creature
         virtual void JustSummoned(Creature* /*summon*/) { }
-
+        void IsSummonedBy(Unit* summoner){}
         virtual void SummonedCreatureDespawn(Creature* /*summon*/) { }
         virtual void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) { }
 

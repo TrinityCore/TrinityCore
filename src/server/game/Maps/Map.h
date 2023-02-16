@@ -73,6 +73,7 @@ struct SummonPropertiesEntry;
 struct UpdateAdditionalSaveDataEvent;
 struct UpdateBossStateSaveDataEvent;
 class Transport;
+class CommandBG;
 enum Difficulty : uint8;
 enum WeatherState : uint32;
 enum class ItemContext : uint8;
@@ -118,6 +119,7 @@ struct TransferAbortParams
     int32 MapDifficultyXConditionId;
 
     operator bool() const { return Reason != TRANSFER_ABORT_NONE; }
+    //Map::EnterState CannotEnter(Player*);//自己瞎改的
 };
 
 struct ScriptAction
@@ -126,6 +128,38 @@ struct ScriptAction
     ObjectGuid targetGUID;
     ObjectGuid ownerGUID;                                   ///> owner of source if source is item
     ScriptInfo const* script;                               ///> pointer to static script data
+};
+
+/// Represents a map magic value of 4 bytes (used in versions)
+//union u_map_magic
+//{
+//    char asChar[4]; ///> Non-null terminated string
+//    uint32 asUInt;  ///> uint32 representation
+//};
+
+union u_map_magic_TCB   //后改
+{
+    char asChar[4]; ///> Non-null terminated string
+    uint32 asUInt;  ///> uint32 representation
+};
+
+struct map_fileheader_TCB
+{
+    char asChar[4]; ///> Non-null terminated string
+    uint32 asUInt;  ///> uint32 representation
+    u_map_magic_TCB mapMagic;
+    u_map_magic_TCB versionMagic;
+    u_map_magic_TCB  mapMagic_TCB;//后加
+    u_map_magic_TCB  versionMagic_TCB;//后加
+    uint32 buildMagic;
+    uint32 areaMapOffset;
+    uint32 areaMapSize;
+    uint32 heightMapOffset;
+    uint32 heightMapSize;
+    uint32 liquidMapOffset;
+    uint32 liquidMapSize;
+    uint32 holesOffset;
+    uint32 holesSize;
 };
 
 struct ZoneDynamicInfo
@@ -187,8 +221,10 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
     public:
         Map(uint32 id, time_t, uint32 InstanceId, Difficulty SpawnMode);
         virtual ~Map();
-
         MapEntry const* GetEntry() const { return i_mapEntry; }
+        //bool ExistMap(uint32 mapid, int gx, int gy, bool log);//系统自动生成
+        static bool ExistMap(uint32 mapid, int gx, int gy, bool log = true);
+        void DiscoverGridMapFiles();
 
         // currently unused for normal maps
         bool CanUnload(uint32 diff)
@@ -256,6 +292,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         static void InitStateMachine();
         static void DeleteStateMachine();
 
+        void AddChildTerrainMap(Map* map) { m_childTerrainMaps->push_back(map); map->m_parentTerrainMap = this; }   //后加
+
         TerrainInfo* GetTerrain() const { return m_terrain.get(); }
 
         void GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, float x, float y, float z, PositionFullTerrainStatus& data, map_liquidHeaderTypeFlags reqLiquidType = map_liquidHeaderTypeFlags::AllLiquids, float collisionHeight = 2.03128f); // DEFAULT_COLLISION_HEIGHT in Object.h
@@ -298,7 +336,22 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         static bool CheckGridIntegrity(T* object, bool moved, char const* objType);
 
         uint32 GetInstanceId() const { return i_InstanceId; }
-
+        enum EnterState
+        {
+            CAN_ENTER = 0,
+            CANNOT_ENTER_ALREADY_IN_MAP = 1, // Player is already in the map
+            CANNOT_ENTER_NO_ENTRY, // No map entry was found for the target map ID
+            CANNOT_ENTER_UNINSTANCED_DUNGEON, // No instance template was found for dungeon map
+            CANNOT_ENTER_DIFFICULTY_UNAVAILABLE, // Requested instance difficulty is not available for target map
+            CANNOT_ENTER_NOT_IN_RAID, // Target instance is a raid instance and the player is not in a raid group
+            CANNOT_ENTER_CORPSE_IN_DIFFERENT_INSTANCE, // Player is dead and their corpse is not in target instance
+            CANNOT_ENTER_INSTANCE_BIND_MISMATCH, // Player's permanent instance save is not compatible with their group's current instance bind
+            CANNOT_ENTER_TOO_MANY_INSTANCES, // Player has entered too many instances recently
+            CANNOT_ENTER_MAX_PLAYERS, // Target map already has the maximum number of players allowed
+            CANNOT_ENTER_ZONE_IN_COMBAT, // A boss encounter is currently in progress on the target map
+            CANNOT_ENTER_UNSPECIFIED_REASON
+        };
+        //virtual EnterState CannotEnter(Player* /*player*/) { return CAN_ENTER; }//TCBased
         static TransferAbortParams PlayerCannotEnter(uint32 mapid, Player* player);
         virtual TransferAbortParams CannotEnter(Player* /*player*/) { return { TRANSFER_ABORT_NONE }; }
         char const* GetMapName() const;
@@ -315,6 +368,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         bool IsRaid() const;
         bool IsHeroic() const;
         bool Is25ManRaid() const;
+        bool IsMythicRaid() const { return i_spawnMode == DIFFICULTY_MYTHIC_RAID; }//后加
+        bool IsHeroicPlusRaid() const { return i_spawnMode == DIFFICULTY_HEROIC_RAID || i_spawnMode == DIFFICULTY_MYTHIC_RAID; }//后加
         bool IsBattleground() const;
         bool IsBattleArena() const;
         bool IsBattlegroundOrArena() const;
@@ -469,6 +524,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void DeleteRespawnTimes() { UnloadAllRespawnInfos(); DeleteRespawnTimesInDB(); }
         void DeleteRespawnTimesInDB();
 
+        void DeleteRespawnTimesInDB(uint16 mapId, uint32 instanceId);
+
         void LoadCorpseData();
         void DeleteCorpseData();
         void AddCorpse(Corpse* corpse);
@@ -582,6 +639,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
     protected:
         virtual void LoadGridObjects(NGridType* grid, Cell const& cell);
 
+        std::mutex _mapLock;
         MapEntry const* i_mapEntry;
         Difficulty i_spawnMode;
         uint32 i_InstanceId;
@@ -617,8 +675,13 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         time_t i_gridExpiry;
 
         std::shared_ptr<TerrainInfo> m_terrain;
-
+        //used for fast base_map (e.g. MapInstanced class object) search for
+        //InstanceMaps and BattlegroundMaps...
+        Map* m_parentTerrainMap;                                    // points to m_parentMap of MapEntry::ParentMapID
+        std::vector<Map*>* m_childTerrainMaps;                      // contains m_parentMap of maps that have MapEntry::ParentMapID == GetId()
         NGridType* i_grids[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];
+        std::bitset<MAX_NUMBER_OF_GRIDS* MAX_NUMBER_OF_GRIDS> i_gridFileExists; // cache what grids are available for this map (not including parent/child maps)
+
         std::bitset<TOTAL_NUMBER_OF_CELLS_PER_MAP*TOTAL_NUMBER_OF_CELLS_PER_MAP> marked_cells;
 
         //these functions used to process player/mob aggro reactions and
@@ -805,8 +868,23 @@ enum class InstanceResetMethod : uint8
 {
     Manual,
     OnChangeDifficulty,
+
+    INSTANCE_RESET_GLOBAL,
+
+    INSTANCE_RESET_RESPAWN_DELAY,
     Expire
 };
+
+//enum class InstanceResetMethod  //后加,如果报错,删除
+//{
+//    Manual,
+//    OnChangeDifficulty,
+//
+//    INSTANCE_RESET_GLOBAL,
+//
+//    INSTANCE_RESET_RESPAWN_DELAY,
+//    Expire
+//};
 
 enum class InstanceResetResult : uint8
 {
@@ -827,6 +905,7 @@ class TC_GAME_API InstanceMap : public Map
         InstanceResetResult Reset(InstanceResetMethod method);
         uint32 GetScriptId() const { return i_script_id; }
         std::string const& GetScriptName() const;
+		void SendResetWarnings(uint32 timeLeft) const;
         InstanceScript* GetInstanceScript() { return i_data; }
         InstanceScript const* GetInstanceScript() const { return i_data; }
         InstanceScenario* GetInstanceScenario() { return i_scenario; }
@@ -836,13 +915,15 @@ class TC_GAME_API InstanceMap : public Map
         void UpdateInstanceLock(UpdateBossStateSaveDataEvent const& updateSaveDataEvent);
         void UpdateInstanceLock(UpdateAdditionalSaveDataEvent const& updateSaveDataEvent);
         void CreateInstanceLockForPlayer(Player* player);
-        TransferAbortParams CannotEnter(Player* player) override;
+        //TransferAbortParams CannotEnter(Player* player) override;
 
         uint32 GetMaxPlayers() const;
         TeamId GetTeamIdInInstance() const;
         Team GetTeamInInstance() const { return GetTeamIdInInstance() == TEAM_ALLIANCE ? ALLIANCE : HORDE; }
 
         virtual void InitVisibilityDistance() override;
+
+        TransferAbortParams CannotEnter(Player* player);
 
         Group* GetOwningGroup() const { return i_owningGroupRef.getTarget(); }
         void TrySetOwningGroup(Group* group);
@@ -860,21 +941,28 @@ class TC_GAME_API InstanceMap : public Map
 class TC_GAME_API BattlegroundMap : public Map
 {
     public:
+        void InsureCommander(BattlegroundTypeId bgType);
+        // void InitCommander() override;
+        void InitCommander();
+        //void InsureCommander(BattlegroundTypeId bgType) override;
         BattlegroundMap(uint32 id, time_t, uint32 InstanceId, Difficulty spawnMode);
         ~BattlegroundMap();
 
         bool AddPlayerToMap(Player* player, bool initPlayer = true) override;
         void RemovePlayerFromMap(Player*, bool) override;
-        TransferAbortParams CannotEnter(Player* player) override;
+       // TransferAbortParams CannotEnter(Player* player) override;
         void SetUnload();
         //void UnloadAll(bool pForce);
         void RemoveAllPlayers() override;
 
         virtual void InitVisibilityDistance() override;
+        TransferAbortParams CannotEnter(Player* player);
         Battleground* GetBG() { return m_bg; }
         void SetBG(Battleground* bg) { m_bg = bg; }
     private:
         Battleground* m_bg;
+        CommandBG* m_pAllianceCommander;
+        CommandBG* m_pHordeCommander;
 };
 
 template<class T, class CONTAINER>

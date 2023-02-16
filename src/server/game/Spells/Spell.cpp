@@ -6006,24 +6006,24 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
             case SPELL_EFFECT_SKINNING:
             {
                 if (m_caster->GetTypeId() != TYPEID_PLAYER || !m_targets.GetUnitTarget() || m_targets.GetUnitTarget()->GetTypeId() != TYPEID_UNIT)
-                    return SPELL_FAILED_BAD_TARGETS;
+                    return SPELL_FAILED_BAD_TARGETS;    //技能失败:错误的目标
 
                 if (!m_targets.GetUnitTarget()->HasUnitFlag(UNIT_FLAG_SKINNABLE))
-                    return SPELL_FAILED_TARGET_UNSKINNABLE;
+                    return SPELL_FAILED_TARGET_UNSKINNABLE; //技能失败:目标无法剥皮
 
                 Creature* creature = m_targets.GetUnitTarget()->ToCreature();
                 Loot* loot = creature->GetLootForPlayer(m_caster->ToPlayer());
                 if (loot && (!loot->isLooted() || loot->loot_type == LOOT_SKINNING))
-                    return SPELL_FAILED_TARGET_NOT_LOOTED;
+                    return SPELL_FAILED_TARGET_NOT_LOOTED;  //技能失败:目标未掉落
 
                 uint32 skill = creature->GetCreatureTemplate()->GetRequiredLootSkill();
 
                 int32 skillValue = m_caster->ToPlayer()->GetSkillValue(skill);
                 int32 TargetLevel = m_targets.GetUnitTarget()->GetLevelForTarget(m_caster);
                 int32 ReqValue = (skillValue < 100 ? (TargetLevel-10) * 10 : TargetLevel * 5);
-                if (ReqValue > skillValue)
-                    return SPELL_FAILED_LOW_CASTLEVEL;
-
+                /*if (ReqValue > skillValue)
+                    return SPELL_FAILED_LOW_CASTLEVEL;*/  //技能失败:技能等级低
+                //此处注释,希望能让剥皮不提示等级过高(现在剥皮不需要等级了<10.0,更早版本都已开启>)
                 break;
             }
             case SPELL_EFFECT_OPEN_LOCK:

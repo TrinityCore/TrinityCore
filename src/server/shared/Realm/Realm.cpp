@@ -26,7 +26,10 @@ void Realm::SetName(std::string name)
 {
     Name = name;
     NormalizedName = std::move(name);
-    NormalizedName.erase(std::remove_if(NormalizedName.begin(), NormalizedName.end(), ::isspace), NormalizedName.end());
+    //NormalizedName.erase(std::remove_if(NormalizedName.begin(), NormalizedName.end(), ::isspace), NormalizedName.end());
+    //中文服务器名,导致报错.
+    //可能是这个地方出错,注释掉发现就不报Assertion(单词可能有误)错误了
+    //不知道是否会有其它影响
 }
 
 boost::asio::ip::address Realm::GetAddressForClient(boost::asio::ip::address const& clientAddr) const

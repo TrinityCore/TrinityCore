@@ -22,6 +22,7 @@
 #include "ObjectGuid.h"
 #include "Optional.h"
 
+
 class Object;
 class Quest;
 class WorldSession;
@@ -90,7 +91,44 @@ enum class GossipOptionNpc : uint8
 
     Count
 };
-
+enum GossipOptionIcon
+{
+    GOSSIP_ICON_CHAT = 0,                    // white chat bubble
+    GOSSIP_ICON_VENDOR = 1,                    // brown bag
+    GOSSIP_ICON_TAXI = 2,                    // flightmarker (paperplane)
+    GOSSIP_ICON_TRAINER = 3,                    // brown book (trainer)
+    GOSSIP_ICON_INTERACT_1 = 4,                    // golden interaction wheel
+    GOSSIP_ICON_INTERACT_2 = 5,                    // golden interaction wheel
+    GOSSIP_ICON_MONEY_BAG = 6,                    // brown bag (with gold coin in lower corner)
+    GOSSIP_ICON_TALK = 7,                    // white chat bubble (with "..." inside)
+    GOSSIP_ICON_TABARD = 8,                    // white tabard
+    GOSSIP_ICON_BATTLE = 9,                    // two crossed swords
+    GOSSIP_ICON_DOT = 10,                   // yellow dot/point
+    GOSSIP_ICON_CHAT_11 = 11,                   // white chat bubble
+    GOSSIP_ICON_CHAT_12 = 12,                   // white chat bubble
+    GOSSIP_ICON_CHAT_13 = 13,                   // white chat bubble
+    GOSSIP_ICON_UNK_14 = 14,                   // INVALID - DO NOT USE
+    GOSSIP_ICON_UNK_15 = 15,                   // INVALID - DO NOT USE
+    GOSSIP_ICON_CHAT_16 = 16,                   // white chat bubble
+    GOSSIP_ICON_CHAT_17 = 17,                   // white chat bubble
+    GOSSIP_ICON_CHAT_18 = 18,                   // white chat bubble
+    GOSSIP_ICON_CHAT_19 = 19,                   // white chat bubble
+    GOSSIP_ICON_CHAT_20 = 20,                   // white chat bubble
+    GOSSIP_ICON_CHAT_21 = 21,                   // transmogrifier?
+    GOSSIP_ICON_CHAT_22 = 22,
+    GOSSIP_ICON_CHAT_23 = 23,
+    GOSSIP_ICON_CHAT_24 = 24,
+    GOSSIP_ICON_CHAT_25 = 25,
+    GOSSIP_ICON_CHAT_26 = 26,
+    GOSSIP_ICON_GARR_MISSIONS = 27,
+    GOSSIP_ICON_SHIPMENT = 28,
+    GOSSIP_ICON_TRADESKILL = 29,
+    GOSSIP_ICON_ADVENTURE_MAP = 31,
+    GOSSIP_ICON_CLASS_HALL_UPGRADE = 32,                   //UNIT_NPC_FLAG2_CLASS_HALL_UPGRADE
+    GOSSIP_ICON_TRANSMOGRIFIER = 34,                   // transmogrifier
+    GOSSIP_ICON_CHAT_40 = 40,                   // chromie icon
+    GOSSIP_ICON_MAX
+};
 enum class GossipOptionStatus : uint8
 {
     Available       = 0,
@@ -105,6 +143,7 @@ enum class GossipOptionRewardType : uint8
     Currency    = 1
 };
 
+
 enum class GossipOptionFlags : int32
 {
     None                = 0x0,
@@ -113,6 +152,12 @@ enum class GossipOptionFlags : int32
 
 struct GossipMenuItem
 {
+    uint8               MenuItemIcon;
+    bool                IsCoded;
+    std::string         Message;
+    uint32              OptionType;
+    std::string         BoxMessage;
+    uint32              BoxMoney;
     int32               GossipOptionID;
     uint32              OrderIndex;
     GossipOptionNpc     OptionNpc;
@@ -121,7 +166,6 @@ struct GossipMenuItem
     GossipOptionFlags   Flags;
     Optional<int32>     GossipNpcOptionID;
     bool                BoxCoded;
-    uint32              BoxMoney;
     std::string         BoxText;
     Optional<int32>     SpellID;
     Optional<int32>     OverrideIconID;
@@ -134,10 +178,27 @@ struct GossipMenuItem
     uint32              Sender;
     uint32              Action;
 };
+struct GossipMenuItemTCBased
+{
+    uint8       MenuItemIcon;
+    bool        IsCoded;
+    std::string Message;
+    uint32      Sender;
+    uint32      OptionType;
+    std::string BoxMessage;
+    uint32      BoxMoney;
+};
+struct GossipMenuItemData
+{
+    uint32 GossipActionMenuId;  // MenuId of the gossip triggered by this action
+    uint32 GossipActionPoi;
+};
 
 // need an ordered container
 typedef std::vector<GossipMenuItem> GossipMenuItemContainer;
-
+//typedef std::map<uint32, GossipMenuItemTCBased> GossipMenuItemContainerTCBased;
+//GossipMenuItem 也得重构
+typedef std::map<uint32, GossipMenuItemData> GossipMenuItemDataContainer;
 struct QuestMenuItem
 {
     uint32  QuestId;
@@ -145,6 +206,63 @@ struct QuestMenuItem
 };
 
 typedef std::vector<QuestMenuItem> QuestMenuItemList;
+
+//class TC_GAME_API GossipMenuTCBased
+//{
+//public:
+//    GossipMenuTCBased();
+//    ~GossipMenuTCBased();
+//
+//    uint32 AddMenuItem(int32 optionIndex, uint8 icon, std::string const& message, uint32 sender, uint32 action, std::string const& boxMessage, uint32 boxMoney, bool coded = false);
+//    void AddMenuItem(uint32 menuId, uint32 optionIndex, uint32 sender, uint32 action);
+//
+//    void SetMenuId(uint32 menu_id) { _menuId = menu_id; }
+//    uint32 GetMenuId() const { return _menuId; }
+//    void SetLocale(LocaleConstant locale) { _locale = locale; }
+//    LocaleConstant GetLocale() const { return _locale; }
+//
+//    void AddGossipMenuItemData(uint32 optionIndex, uint32 gossipActionMenuId, uint32 gossipActionPoi);
+//
+//    uint32 GetMenuItemCount() const { return uint32(_menuItems.size()); }
+//    bool Empty() const { return _menuItems.empty(); }
+//
+//    GossipMenuItem const* GetItem(uint32 id) const
+//    {
+//        GossipMenuItemContainerTCBased::const_iterator itr = _menuItems.find(id);
+//        if (itr != _menuItems.end())
+//            return &itr->second;
+//
+//        return nullptr;
+//    }
+//
+//    GossipMenuItemData const* GetItemData(uint32 indexId) const
+//    {
+//        GossipMenuItemDataContainer::const_iterator itr = _menuItemData.find(indexId);
+//        if (itr != _menuItemData.end())
+//            return &itr->second;
+//
+//        return nullptr;
+//    }
+//
+//    uint32 GetMenuItemSender(uint32 menuItemId) const;
+//    uint32 GetMenuItemAction(uint32 menuItemId) const;
+//    bool IsMenuItemCoded(uint32 menuItemId) const;
+//    bool HasMenuItemType(uint32 optionType) const;
+//
+//    void ClearMenu();
+//
+//    GossipMenuItemContainer const& GetMenuItems() const
+//    {
+//        return _menuItems;
+//    }
+//
+//private:
+//    GossipMenuItemContainer _menuItems;
+//    GossipMenuItemDataContainer _menuItemData;
+//    uint32 _menuId;
+//    LocaleConstant _locale;
+//};
+
 
 class TC_GAME_API GossipMenu
 {
@@ -155,6 +273,8 @@ class TC_GAME_API GossipMenu
         GossipMenu& operator=(GossipMenu const&) = delete;
         GossipMenu& operator=(GossipMenu&&) = delete;
         ~GossipMenu();
+
+        uint32 AddMenuItem(int32 optionIndex, uint8 icon, std::string const& message, uint32 sender, uint32 action, std::string const& boxMessage, uint32 boxMoney, bool coded);
 
         uint32 AddMenuItem(int32 gossipOptionId, int32 orderIndex, GossipOptionNpc optionNpc, std::string optionText, uint32 language, GossipOptionFlags flags,
                            Optional<int32> gossipNpcOptionId, uint32 actionMenuId, uint32 actionPoiId, bool boxCoded, uint32 boxMoney,
@@ -180,6 +300,8 @@ class TC_GAME_API GossipMenu
         GossipMenuItem const* GetItem(int32 gossipOptionId) const;
         GossipMenuItem const* GetItemByIndex(uint32 orderIndex) const;
 
+        void AddGossipMenuItemData(uint32 optionIndex, uint32 gossipActionMenuId, uint32 gossipActionPoi);
+
         uint32 GetMenuItemSender(uint32 orderIndex) const;
         uint32 GetMenuItemAction(uint32 orderIndex) const;
         bool IsMenuItemCoded(uint32 orderIndex) const;
@@ -193,6 +315,7 @@ class TC_GAME_API GossipMenu
 
     private:
         GossipMenuItemContainer _menuItems;
+        GossipMenuItemDataContainer _menuItemData;
         uint32 _menuId;
         LocaleConstant _locale;
 };
@@ -225,12 +348,14 @@ class InteractionData
         {
             SourceGuid.Clear();
             TrainerId = 0;
+            VendorId = 0;
             PlayerChoiceId = 0;
         }
 
         ObjectGuid SourceGuid;
         uint32 TrainerId = 0;
         uint32 PlayerChoiceId = 0;
+        uint32 VendorId = 0;
 };
 
 class TC_GAME_API PlayerMenu

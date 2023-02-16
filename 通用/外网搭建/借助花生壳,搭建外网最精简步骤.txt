@@ -1,0 +1,9 @@
+1.花生壳映射1119端口
+
+2.relamlist设置address为域名,localaddress为局域网ip
+
+3.bnetserver.conf设置
+  LoginREST.ExternalAddress设置为域名
+  LoginREST.LocalAddress设置为局域网ip(此处是大坑,不设就废了)
+
+4.wtf设置portal为域名:映射端口(外网的,通常为5位)

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,7 +20,7 @@
 #include "loadlib.h"
 
 //**************************************************************************************
-// WDT file class and structures
+// WDT file class and structures    WDT文件类别和结构
 //**************************************************************************************
 #define WDT_MAP_SIZE 64
 
@@ -75,7 +75,7 @@ public:
 
     struct
     {
-        uint32 rootADT;         // FileDataID of mapname_xx_yy.adt
+        uint32 rootADT;         // FileDataID of mapname_xx_yy.adt              //类似 地图名称_xx_yy.adt 文件数据编号
         uint32 obj0ADT;         // FileDataID of mapname_xx_yy_obj0.adt
         uint32 obj1ADT;         // FileDataID of mapname_xx_yy_obj1.adt
         uint32 tex0ADT;         // FileDataID of mapname_xx_yy_tex0.adt

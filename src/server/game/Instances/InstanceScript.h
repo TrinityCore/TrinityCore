@@ -86,6 +86,19 @@ enum DoorType
     MAX_DOOR_TYPES
 };
 
+enum IslandWorldStates
+{
+    WORLDSTATE_HORDE_GAIN = 13627,
+    WORLDSTATE_ALLIANCE_GAIN = 12930,
+};
+
+enum IslandSpells
+{
+    SPELL_AZERITE_RESIDUE = 260738,
+    SPELL_AZERITE_ENERGY = 265703,
+    SPELL_ISLAND_COMPLETE = 245618, // island - complete
+};
+
 static constexpr uint32 MAX_DUNGEON_ENCOUNTERS_PER_BOSS = 4;
 
 struct DungeonEncounterData
@@ -332,7 +345,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void RegisterPersistentScriptValue(PersistentInstanceScriptValueBase* value) { _persistentScriptValues.push_back(value); }
         std::string const& GetHeader() const { return headers; }
         std::vector<PersistentInstanceScriptValueBase*>& GetPersistentScriptValues() { return _persistentScriptValues; }
-
+        void GiveIslandAzeriteXpGain(Player* player, ObjectGuid guid, int32 xp);//后加
     protected:
         void SetHeaders(std::string const& dataHeaders);
         void SetBossNumber(uint32 number) { bosses.resize(number); }
@@ -389,6 +402,8 @@ class TC_GAME_API InstanceScript : public ZoneScript
         uint32 _combatResurrectionTimer;
         uint8 _combatResurrectionCharges; // the counter for available battle resurrections
         bool _combatResurrectionTimerStarted;
+
+        std::array<uint32, 2> _islandCount;
 
     #ifdef TRINITY_API_USE_DYNAMIC_LINKING
         // Strong reference to the associated script module

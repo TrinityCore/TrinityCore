@@ -1,3 +1,4 @@
+//СŮ�� ע�� ���ļ���������̨���ʱ�����ʾ��Ϣ
 /*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
@@ -139,36 +140,38 @@ PersistentWorldVariable const World::NextOldCalendarEventDeletionTimeVarId{ "Nex
 PersistentWorldVariable const World::NextGuildWeeklyResetTimeVarId{ "NextGuildWeeklyResetTime" };
 
 /// World constructor
+/// World ������
 World::World()
 {
-    m_playerLimit = 0;
-    m_allowedSecurityLevel = SEC_PLAYER;
-    m_allowMovement = true;
-    m_ShutdownMask = 0;
-    m_ShutdownTimer = 0;
+    m_playerLimit = 0;                          //�������,�˴���Ϊ5,Ԥ�ƾ��������������ֻ��5��(������̳�ϵ��������ư������ô����)
+                                                //(��,Ԥ�����Ƿ�������ҵ�¼,��GM���Ե�¼,��ҵ�¼����,��������Ϊ1,�˴�Ԥ��Ϊ�Ƿ����õĲ�����־)
+    m_allowedSecurityLevel = SEC_PLAYER;        //����İ�ȫ�ȼ�
+    m_allowMovement = true;                     //�����ƶ�
+    m_ShutdownMask = 0;                         //�رձ�־
+    m_ShutdownTimer = 0;                        //�رն�ʱ��
 
-    m_maxActiveSessionCount = 0;
-    m_maxQueuedSessionCount = 0;
-    m_PlayerCount = 0;
-    m_MaxPlayerCount = 0;
-    m_NextDailyQuestReset = 0;
-    m_NextWeeklyQuestReset = 0;
-    m_NextMonthlyQuestReset = 0;
-    m_NextRandomBGReset = 0;
-    m_NextCalendarOldEventsDeletionTime = 0;
-    m_NextGuildReset = 0;
-    m_NextCurrencyReset = 0;
+    m_maxActiveSessionCount = 0;            //���Ļ�Ự����
+    m_maxQueuedSessionCount = 0;            //���Ķ��лỰ����
+    m_PlayerCount = 0;                      //��Ҽ���
+    m_MaxPlayerCount = 0;                   //�����Ҽ���
+    m_NextDailyQuestReset = 0;              //��һ���ճ�����
+    m_NextWeeklyQuestReset = 0;             //��һ���ܳ�����
+    m_NextMonthlyQuestReset = 0;            //��һ���³�����
+    m_NextRandomBGReset = 0;                //��һ�����ս������
+    m_NextCalendarOldEventsDeletionTime = 0;//��һ���������¼�ɾ��ʱ��
+    m_NextGuildReset = 0;                   //��һ����������
+    m_NextCurrencyReset = 0;                //��һ����������
 
-    m_defaultDbcLocale = LOCALE_enUS;
-    m_availableDbcLocaleMask = 0;
+    m_defaultDbcLocale = LOCALE_enUS;       //Ĭ�ϵ�Dbc����=����_����(�˴��Ѳ��ɾ��ǵ�ͼ��ѹ�������ǳ�������ĸ�Դ����?)
+    m_availableDbcLocaleMask = 0;           //���õ�dbc������
 
-    mail_timer = 0;
-    mail_timer_expires = 0;
+    mail_timer = 0;                         //�ʼ���ʱ��
+    mail_timer_expires = 0;                 //�ʼ���ʱ������
     blackmarket_timer = 0;
 
-    m_isClosed = false;
+    m_isClosed = false;                     //�Ƿ�ر�
 
-    m_CleaningFlags = 0;
+    m_CleaningFlags = 0;                    //���������־
 
     memset(rate_values, 0, sizeof(rate_values));
     memset(m_int_configs, 0, sizeof(m_int_configs));
@@ -183,9 +186,11 @@ World::World()
 }
 
 /// World destructor
+/// World������
 World::~World()
 {
     ///- Empty the kicked session set
+    ///- ��ձ��߳��Ự����
     while (!m_sessions.empty())
     {
         // not remove from queue, prevent loading new sessions
@@ -201,6 +206,7 @@ World::~World()
     MMAP::MMapFactory::clear();
 
     /// @todo free addSessQueue
+    /// @Ҫ����������ӻỰ����
 }
 
 World* World::instance()
@@ -210,9 +216,11 @@ World* World::instance()
 }
 
 /// Find a player in a specified zone
+/// ��һ���ض������ҵ�һ�����
 Player* World::FindPlayerInZone(uint32 zone)
 {
     ///- circle through active sessions and return the first player found in the zone
+    ///- �ڻ�Ự��ѭ�����ҷ����ڴ������е�һ���ҵ������
     SessionMap::const_iterator itr;
     for (itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
     {
@@ -329,6 +337,7 @@ void World::SendGuidWarning()
 }
 
 /// Find a session by its id
+/// ����ID�ҵ��Ự
 WorldSession* World::FindSession(uint32 id) const
 {
     SessionMap::const_iterator itr = m_sessions.find(id);
@@ -1586,7 +1595,8 @@ void World::LoadConfigSettings(bool reload)
 
     // Dungeon finder
     m_int_configs[CONFIG_LFG_OPTIONSMASK] = sConfigMgr->GetIntDefault("DungeonFinder.OptionsMask", 1);
-
+    m_bool_configs[CONFIG_LFG_SOLOOPTIONSMASK] = sConfigMgr->GetBoolDefault("SoloLFG.Enable", true);
+    
     // DBC_ItemAttributes
     m_bool_configs[CONFIG_DBC_ENFORCE_ITEM_ATTRIBUTES] = sConfigMgr->GetBoolDefault("DBC.EnforceItemAttributes", true);
 
@@ -1876,6 +1886,16 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading languages words...");
     sLanguageMgr->LoadLanguagesWords();
 
+    TC_LOG_INFO("server.loading", "Loading GameObject models...");
+    //It always crash, so I try to disable this to make it start!
+   
+    if (!LoadGameObjectModelList(m_dataPath))
+    {
+        //TC_LOG_FATAL("server.loading", "Unable to load gameobject models, objects using WMO models will crash the client - server shutting down!");
+        TC_LOG_FATAL("server.loading", "Unable to load gameobject models, objects using WMO models may crash the client");
+        //exit(1);
+    }
+   
     TC_LOG_INFO("server.loading", "Loading Instance Template...");
     sObjectMgr->LoadInstanceTemplate();
 
@@ -1970,6 +1990,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading Creature Model Based Info Data...");
     sObjectMgr->LoadCreatureModelInfo();
+
+    TC_LOG_INFO("server.loading", "Loading Creature template outfits...");     // must be before LoadCreatureTemplates
+    sObjectMgr->LoadCreatureOutfits();
 
     TC_LOG_INFO("server.loading", "Loading Creature templates...");
     sObjectMgr->LoadCreatureTemplates();

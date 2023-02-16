@@ -1,0 +1,4 @@
+1.dbc gt buildings maps vmaps等文件夹迁移
+2.汉化conf
+3.az编译测试是否正常
+4.

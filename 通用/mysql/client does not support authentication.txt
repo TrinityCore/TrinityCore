@@ -1,0 +1,7 @@
+来源:https://blog.csdn.net/weixin_40851250/article/details/85209310
+//10.0
+mysql -h localhost -P 3309 -u root -proot
+
+alter user 'root'@'localhost' identified with mysql_native_password by '123456';
+flush privileges;
+上面两句都是在命令行下

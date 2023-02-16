@@ -18,6 +18,7 @@
 #include "WorldSession.h"
 #include "CollectionMgr.h"
 #include "Common.h"
+#include "CreatureOutfit.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "GameObjectAI.h"
@@ -576,6 +577,36 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorI
     Unit* unit = ObjectAccessor::GetUnit(*_player, guid);
     if (!unit)
         return;
+
+    if (Creature* creature = unit->ToCreature())
+    {
+        if (std::shared_ptr<CreatureOutfit> const & outfit_ptr = creature->GetOutfit())
+        {
+            CreatureOutfit const& outfit = *outfit_ptr;
+            WorldPackets::Spells::MirrorImageComponentedData mirrorImageComponentedData;
+            mirrorImageComponentedData.UnitGUID = guid;
+            mirrorImageComponentedData.DisplayID = outfit.GetDisplayId();
+            mirrorImageComponentedData.RaceID = outfit.GetRace();
+            mirrorImageComponentedData.Gender = outfit.GetGender();
+            mirrorImageComponentedData.ClassID = outfit.GetClass();
+            mirrorImageComponentedData.SpellVisualKitID = outfit.SpellVisualKitID;
+            mirrorImageComponentedData.Customizations = outfit.GetCustomizations();
+
+            mirrorImageComponentedData.GuildGUID = ObjectGuid::Empty;
+            if (outfit.guild)
+            {
+                if (Guild* guild = sGuildMgr->GetGuildById(outfit.guild))
+                    mirrorImageComponentedData.GuildGUID = guild->GetGUID();
+            }
+
+            mirrorImageComponentedData.ItemDisplayID.reserve(11);
+            for (auto const& slot : CreatureOutfit::item_slots)
+                mirrorImageComponentedData.ItemDisplayID.push_back(outfit.outfitdisplays[slot]);
+
+            SendPacket(mirrorImageComponentedData.Write());
+            return;
+        }
+    }
 
     if (!unit->HasAuraType(SPELL_AURA_CLONE_CASTER))
         return;

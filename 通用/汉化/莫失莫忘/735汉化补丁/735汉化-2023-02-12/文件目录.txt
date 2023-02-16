@@ -1,0 +1,23 @@
+--更新补丁--
+├─匹配更新
+│  └─world
+│          creature_text.sql
+│          gossip_menu_option.sql
+│          points_of_interest.sql
+│
+└─导入更新
+    ├─hotfixes
+    │      broadcast_text_locale.sql
+    │
+    └─world
+            achievement_reward_locale.sql
+            creature_template_wdb_locale.sql
+            creature_text_locale.sql
+            gameobject_template_locale.sql
+            page_text_locale.sql
+            playerchoice_locale.sql
+            playerchoice_response_locale.sql
+            quest_objectives_locale.sql
+            quest_offer_reward_locale.sql
+            quest_request_items_locale.sql
+            quest_template_locale.sql

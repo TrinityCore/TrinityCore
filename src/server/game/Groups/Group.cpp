@@ -117,6 +117,35 @@ void Group::SelectNewPartyOrRaidLeader()
         SendUpdate();
     }
 }
+InstanceGroupBind* Group::GetBoundInstance(Map* aMap)
+{
+    return GetBoundInstance(aMap->GetEntry());
+}
+
+InstanceGroupBind* Group::GetBoundInstance(MapEntry const* mapEntry)
+{
+    if (!mapEntry || !mapEntry->IsDungeon())
+        return nullptr;
+
+    Difficulty difficulty = GetDifficultyID(mapEntry);
+    return GetBoundInstance(difficulty, mapEntry->ID);
+}
+
+InstanceGroupBind* Group::GetBoundInstance(Difficulty difficulty, uint32 mapId)
+{
+    // some instances only have one difficulty
+    sDB2Manager.GetDownscaledMapDifficultyData(mapId, difficulty);
+
+    auto difficultyItr = m_boundInstances.find(difficulty);
+    if (difficultyItr == m_boundInstances.end())
+        return nullptr;
+
+    auto itr = difficultyItr->second.find(mapId);
+    if (itr != difficultyItr->second.end())
+        return &itr->second;
+    else
+        return nullptr;
+}
 
 bool Group::Create(Player* leader)
 {
@@ -1373,6 +1402,31 @@ void Group::LinkOwnedInstance(GroupInstanceReference* ref)
 {
     m_ownedInstancesMgr.insertLast(ref);
 }
+
+void Group::UnbindInstance(uint32 mapid, uint8 difficulty, bool unload)
+{
+    auto difficultyItr = m_boundInstances.find(Difficulty(difficulty));
+    if (difficultyItr == m_boundInstances.end())
+        return;
+
+    auto itr = difficultyItr->second.find(mapid);
+    if (itr != difficultyItr->second.end())
+    {
+        if (!unload)
+        {
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_INSTANCE_BY_GUID);
+
+            stmt->setUInt32(0, m_dbStoreId);
+            stmt->setUInt32(1, itr->second.save->GetInstanceId());
+
+            CharacterDatabase.Execute(stmt);
+        }
+
+        itr->second.save->RemoveGroup(this);                // save can become invalid
+        difficultyItr->second.erase(itr);
+    }
+}
+
 
 void Group::_homebindIfInstance(Player* player)
 {

@@ -1,3 +1,4 @@
+// 小女孩注释 2022年3月16日15:42:20 预计是个功能模块 尚未明白具体功能
 /*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
@@ -26,7 +27,7 @@ BasicStatementTask::BasicStatementTask(char const* sql, bool async) :
 m_result(nullptr)
 {
     m_sql = strdup(sql);
-    m_has_result = async; // If the operation is async, then there's a result
+    m_has_result = async; // If the operation is async, then there's a result   //如果这个操作是异步的,那么会有一个结果
     if (async)
         m_result = new QueryResultPromise();
 }

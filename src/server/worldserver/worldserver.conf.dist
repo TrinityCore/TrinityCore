@@ -4113,7 +4113,7 @@ BlackMarket.UpdatePeriod = 24
 #                         Example:  536870912 (512 MB)
 #
 
-Appender.Console=1,3,0
+Appender.Console=1,3,0,"1 9 3 6 5 8"
 Appender.Server=2,2,0,Server.log,w
 Appender.GM=2,2,1,GM.log
 Appender.DBErrors=2,2,0,DBErrors.log

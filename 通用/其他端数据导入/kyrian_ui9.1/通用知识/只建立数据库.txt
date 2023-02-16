@@ -1,0 +1,8 @@
+cmd下(不要用powershell):
+dir /b /s > main.sql
+导入全部文件名,形成main.sql文件
+
+批量导入sql
+
+地址:https://github.com/xuehyc/Shadowlands
+因没有TDB,放弃

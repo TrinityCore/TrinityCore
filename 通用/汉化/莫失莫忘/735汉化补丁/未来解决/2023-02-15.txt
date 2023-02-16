@@ -1,0 +1,60 @@
+NPC 对话
+
+gossip_menu_option 
+
+MenuID	OptionIndex	OptionNPC	OptionText
+15768	17	0	The zeppelin master
+1951	17	0	The zeppelin master
+
+奥格瑞玛卫兵  orgrimmar grunt
+creature_template_wdb
+
+3296	Orgrimmar Grunt
+18950	Orgrimmar Grunt
+31416	Orgrimmar Grunt
+37869	Orgrimmar Grunt
+38050	Orgrimmar Grunt
+46795	Orgrimmar Grunt
+46961	Orgrimmar Grunt
+51429	Orgrimmar Grunt
+51439	Orgrimmar Grunt
+73602	Orgrimmar Grunt
+329601	Orgrimmar Grunt
+73099	Orgrimmar Grunt
+95448	Orgrimmar Grunt
+99149	Orgrimmar Grunt
+99174	Orgrimmar Grunt
+99694	Orgrimmar Grunt
+100766	Orgrimmar Grunt
+104617	Orgrimmar Grunt
+104616	Orgrimmar Grunt
+101146	Orgrimmar Grunt
+101019	Orgrimmar Grunt
+100852	Orgrimmar Grunt
+100832	Orgrimmar Grunt
+111462	Orgrimmar Grunt
+111935	Orgrimmar Grunt
+112730	Orgrimmar Grunt
+120785	Orgrimmar Grunt
+230019	Orgrimmar Grunt
+
+keg of armor polish
+gameobject_template 
+
+entry	type	displayId	name
+251195	10	14894	Keg of Armor Polish
+
+
+you look quite prepared
+
+ID	Emote1	Emote2	Emote3	Emote4	EmoteDelay1	EmoteDelay2	EmoteDelay3	EmoteDelay4	RewardText
+44281	1	1	0	0	0	0	0	0	You look quite prepared for battle. Do not let the bloodlust overtake you out there.$b$bThe Warchief wishes to present you with this ring before you head to war. May you return with the heads of many demons.
+
+
+
+it would seem the demon
+
+quest_offer_reward
+ID	Emote1	Emote2	Emote3	Emote4	EmoteDelay1	EmoteDelay2	EmoteDelay3	EmoteDelay4	RewardText
+40607	1	1	0	0	0	0	0	0	It would seem the demon hunters' concerns were well-founded. To think the demons would dare worm their way into our city during this period of mourning!$b$bThis does not bode well for the rest of my kingdom.
+

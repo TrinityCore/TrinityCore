@@ -1,0 +1,1 @@
+SELECT * FROM instance_template_xy837 WHERE NOT EXISTS (SELECT 1 FROM instance_template_org WHERE instance_template_xy837.map= instance_template_org.map);

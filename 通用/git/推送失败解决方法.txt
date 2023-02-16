@@ -1,0 +1,42 @@
+新建本地分支提交到远程分支失败:
+错误提示:
+send-pack: unexpected disconnect while reading sideband packet
+
+核心解决方法:
+git config --global http.postBuffer 524288000
+
+目前使用了
+git config --global http.postBuffer 524288000
+加到了5G
+
+error: failed to push some refs to
+
+作者：meryin
+链接：https://www.jianshu.com/p/5b1898f6c4d4
+来源：简书
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+
+git checkout -b dev
+
+git push --set-upstream origin dev
+
+发生错误如下:
+
+Enumerating objects: 833, done.
+Counting objects: 100% (833/833), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (523/523), done.
+fatal: protocol error: bad line length 8192 | 4.67 MiB/s
+send-pack: unexpected disconnect while reading sideband packet
+error: failed to push some refs to 'https://xxxxx.git'
+
+解决办法：有可能是git文件限制了大小
+加大git文件到500M：
+git config --global http.postBuffer 524288000
+
+然后再：git push --set-upstream origin dev 就成功了
+
+提交代码到远程分支
+git add .
+git commit -m "备注"
+git push origin dev

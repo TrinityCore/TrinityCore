@@ -173,6 +173,7 @@ public:
         return true;
     }
 
+    //.tele name 小女孩 $home,传送到家命令可以使用的源代码出处
     // teleport player to given game_tele.entry
     static bool HandleTeleNameCommand(ChatHandler* handler, Optional<PlayerIdentifier> player, Variant<GameTele const*, EXACT_SEQUENCE("$home")> where)
     {
@@ -181,7 +182,7 @@ public:
         if (!player)
             return false;
 
-        if (where.index() == 1)    // References target's homebind
+        if (where.index() == 1)    // References target's homebind  //绑定家的参考
         {
             if (Player* target = player->GetConnectedPlayer())
                 target->TeleportTo(target->m_homebind);

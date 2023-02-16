@@ -1,7 +1,2 @@
-DELETE FROM `world_state` WHERE `ID` IN (19735, 20084, 20838, 22869, 22980);
-INSERT INTO `world_state` (`ID`, `DefaultValue`, `MapIDs`, `AreaIDs`, `ScriptName`, `Comment`) VALUES
-(19735, 79, -1, NULL, '', 'Covenant Renown (Currency) - Max quantity'),
-(20084, 0, -1, NULL, '', 'Shadowlands PvP Weekly Reward Progress (Currency) - Max quantity'),
-(20838, 3510, -1, NULL, '', 'Tower Knowledge (Currency) - Max quantity'),
-(22869, 245000, -1, NULL, '', 'Conquest (Currency) - Max quantity'),
-(22980, 3000, -1, NULL, '', 'Valor (Currency) - Max quantity');
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `phaseUseFlags`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `dynamicflags`, `ScriptName`, `StringId`, `VerifiedBuild`, `size`) VALUES 
+ (94602, 18910, 530, 3521, 3718, '0', 0, 0, 0, -1, 0, 0, 133, 5190.9, 21.6, 3.3, 900, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', NULL, 0, -1);

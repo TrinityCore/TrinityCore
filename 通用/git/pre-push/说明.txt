@@ -1,0 +1,2 @@
+位于D:\Program Files (x86)\WOWDIY\TrinityCore\.git\hooks
+是用于git lfs，删除才能取消lfs
