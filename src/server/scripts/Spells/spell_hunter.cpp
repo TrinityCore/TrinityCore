@@ -22,7 +22,7 @@
  */
 
 #include "ScriptMgr.h"
-#include "CellImpl.h"
+#include "CellImpl.h" //这是个啥
 #include "GridNotifiersImpl.h"
 #include "Pet.h"
 #include "SpellAuraEffects.h"
@@ -31,8 +31,8 @@
 
 enum HunterSpells   //枚举猎人技能
 {
-    SPELL_HUNTER_HARPOON = 190925,
-    SPELL_HUNTER_HARPOON_ROOT = 190927,
+    SPELL_HUNTER_HARPOON = 190925,//鱼叉?
+    SPELL_HUNTER_HARPOON_ROOT = 190927,//鱼叉**?
     SPELL_HUNTER_ANIMAL_INSTINCTS = 204315,
     SPELL_HUNTER_ANIMAL_INSTINCTS_CHEETAH = 204324,
     SPELL_HUNTER_ANIMAL_INSTINCTS_MONGOOSE = 204333,
@@ -234,6 +234,8 @@ public:
                 return SPELL_FAILED_NO_PET;
 
             // pet has a target and target is within 5 yards and target is in line of sight
+            // 宠物内有个目标，并且目标在5码范围内且在直线视线内
+           
             if (!petTarget || !pet->IsWithinDist(petTarget, 40.0f, true) || !petTarget->IsWithinLOSInMap(pet))
                 return SPELL_FAILED_DONT_REPORT;
 
