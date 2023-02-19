@@ -3689,6 +3689,7 @@ void World::InitGuildResetTime()
         m_NextGuildReset = GameTime::GetGameTime();         // game time not yet init
 
     // generate time by config
+    // 由配置生成时间
     time_t curTime = GameTime::GetGameTime();
     tm localTm;
     localtime_r(&curTime, &localTm);
@@ -3697,13 +3698,16 @@ void World::InitGuildResetTime()
     localTm.tm_sec = 0;
 
     // current day reset time
+    // 当前天重置时间
     time_t nextDayResetTime = mktime(&localTm);
 
     // next reset time before current moment
+    // 在此刻前的下次重置时间
     if (curTime >= nextDayResetTime)
         nextDayResetTime += DAY;
 
     // normalize reset time
+    // 普通重置时间
     m_NextGuildReset = gtime < curTime ? nextDayResetTime - DAY : nextDayResetTime;
 
     if (!gtime)
@@ -3717,6 +3721,7 @@ void World::InitCurrencyResetTime()
         m_NextCurrencyReset = GameTime::GetGameTime();         // game time not yet init
 
     // generate time by config
+    // 由配置生成时间
     time_t curTime = GameTime::GetGameTime();
     tm localTm;
     localtime_r(&curTime, &localTm);
@@ -3727,13 +3732,16 @@ void World::InitCurrencyResetTime()
     localTm.tm_sec = 0;
 
     // current week reset time
+    // 当前周重置时间
     time_t nextWeekResetTime = mktime(&localTm);
 
     // next reset time before current moment
+    // 在此刻前的下次重置时间
     if (curTime >= nextWeekResetTime)
         nextWeekResetTime += getIntConfig(CONFIG_CURRENCY_RESET_INTERVAL) * DAY;
 
     // normalize reset time
+    // 普通重置时间
     m_NextCurrencyReset = currencytime < curTime ? nextWeekResetTime - getIntConfig(CONFIG_CURRENCY_RESET_INTERVAL) * DAY : nextWeekResetTime;
 
     if (!currencytime)
@@ -3816,6 +3824,7 @@ void World::LoadDBVersion()
 
         m_DBVersion = fields[0].GetString();
         // will be overwrite by config values if different and non-0
+        // 如果配置的值不同且非0,则重写值
         m_int_configs[CONFIG_CLIENTCACHE_VERSION] = fields[1].GetUInt32();
     }
 
@@ -3895,6 +3904,7 @@ void World::ProcessQueryCallbacks()
 void World::ReloadRBAC()
 {
     // Passive reload, we mark the data as invalidated and next time a permission is checked it will be reloaded
+    // 被动加载,我们标记数据为无效,并且下次检测一次权限,重新加载
     TC_LOG_INFO("rbac", "World::ReloadRBAC()");
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
         if (WorldSession* session = itr->second)
@@ -3911,6 +3921,7 @@ void World::UpdateWarModeRewardValues()
     std::array<int64, 2> warModeEnabledFaction = { };
 
     // Search for characters that have war mode enabled and played during the last week
+    // 查找上周开启了战争模式且玩了的玩家
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_WAR_MODE_TUNING);
     stmt->setUInt32(0, PLAYER_FLAGS_WAR_MODE_DESIRED);
     stmt->setUInt32(1, PLAYER_FLAGS_WAR_MODE_DESIRED);
