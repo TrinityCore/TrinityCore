@@ -15,12 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
-This placeholder for the instance is needed for dungeon finding to be able
-to give credit after the boss defined in lastEncounterDungeon is killed.
-Without it, the party doing random dungeon won't get satchel of spoils and
-gets instead the deserter debuff.
-*/
+ /*
+ This placeholder for the instance is needed for dungeon finding to be able
+ to give credit after the boss defined in lastEncounterDungeon is killed.
+ Without it, the party doing random dungeon won't get satchel of spoils and
+ gets instead the deserter debuff.
+ */
 
 #include "GameObject.h"
 #include "InstanceScript.h"
@@ -30,34 +30,34 @@ gets instead the deserter debuff.
 #include "ScriptMgr.h"
 #include "diremaul.h"
 
-// Bosses (East)
-// 0 - Pusillin
-// 1 - Lethtendris
-// 2 - Hydrospawn
-// 3 - Zevrim Thornhoof
-// 4 - Alzzin the Wildshaper
+ // Bosses (East)
+ // 0 - Pusillin
+ // 1 - Lethtendris
+ // 2 - Hydrospawn
+ // 3 - Zevrim Thornhoof
+ // 4 - Alzzin the Wildshaper
 
-// West
-// 5 - Tendris Warpwood
-// 6 - Magister Kalendris
-// 7 - Tsu'zee
-// 8 - Illyanna Ravenoak
-// 9 - Immol'thar
-// 10 - Prince Tortheldrin
-// 17 - CRYSTAL_01
-// 18 - CRYSTAL_02
-// 19 - CRYSTAL_03
-// 20 - CRYSTAL_04
-// 21 - CRYSTAL_05
-// 22 - FORCEFIELD
+ // West
+ // 5 - Tendris Warpwood
+ // 6 - Magister Kalendris
+ // 7 - Tsu'zee
+ // 8 - Illyanna Ravenoak
+ // 9 - Immol'thar
+ // 10 - Prince Tortheldrin
+ // 17 - CRYSTAL_01
+ // 18 - CRYSTAL_02
+ // 19 - CRYSTAL_03
+ // 20 - CRYSTAL_04
+ // 21 - CRYSTAL_05
+ // 22 - FORCEFIELD
 
-// North
-// 11 - Guard Mol'dar
-// 12 - Stomper Kreeg
-// 13 - Guard Fengus
-// 14 - Guard Slip'kik
-// 15 - Captain Kromcrush
-// 16 - King Gordok
+ // North
+ // 11 - Guard Mol'dar
+ // 12 - Stomper Kreeg
+ // 13 - Guard Fengus
+ // 14 - Guard Slip'kik
+ // 15 - Captain Kromcrush
+ // 16 - King Gordok
 
 uint8 const EncounterCount = 23;
 
@@ -65,8 +65,9 @@ uint32 const CrystalMobs[2] = { NPC_ARCANE_ABERRATION, NPC_MANA_REMNANT };
 
 enum Events
 {
-    EVENT_CRYSTAL_CREATURE_STORE                = 1,
-    EVENT_CRYSTAL_CREATURE_CHECK                = 2
+    EVENT_CRYSTAL_CREATURE_STORE = 1,
+    EVENT_CRYSTAL_CREATURE_CHECK = 2,
+    EVENT_IMMO_DEAD_CHECK = 3
 };
 
 class instance_dire_maul : public InstanceMapScript
@@ -86,15 +87,18 @@ public:
         {
             switch (creature->GetEntry())
             {
-                case NPC_IMMOLTHAR:
-                    _immoGUID = creature->GetGUID();
-                    // we make Immolthar non attackable, otherwise players with pets can pull him out of the forcefield
-                    // TODO: this change isnt correct but since of today (13.09.2020) mmaps dont support doors
-                    if (GetBossState(DATA_FORCEFIELD) != DONE)
-                        creature->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-                    break;
-                default:
-                    break;
+            case NPC_IMMOLTHAR:
+                _immoGUID = creature->GetGUID();
+                // we make Immolthar non attackable, otherwise players with pets can pull him out of the forcefield
+                // TODO: this change isnt correct but since of today (13.09.2020) mmaps dont support doors
+                if (GetBossState(DATA_FORCEFIELD) != DONE)
+                    creature->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                break;
+            case NPC_TORTHELDRIN:
+                _tortheldrinGUID = creature->GetGUID();
+                break;
+            default:
+                break;
             }
         }
 
@@ -104,28 +108,31 @@ public:
 
             switch (go->GetEntry())
             {
-                case GO_CRYSTAL_01:
-                    _crystalGUIDs[0] = go->GetGUID();
-                    break;
-                case GO_CRYSTAL_02:
-                    _crystalGUIDs[1] = go->GetGUID();
-                    break;
-                case GO_CRYSTAL_03:
-                    _crystalGUIDs[2] = go->GetGUID();
-                    break;
-                case GO_CRYSTAL_04:
-                    _crystalGUIDs[3] = go->GetGUID();
-                    break;
-                case GO_CRYSTAL_05:
-                    _crystalGUIDs[4] = go->GetGUID();
-                    break;
-                case GO_FORCEFIELD:
-                    _forcefieldGUID = go->GetGUID();
-                    if (GetBossState(DATA_FORCEFIELD) != DONE)
-                        _events.ScheduleEvent(EVENT_CRYSTAL_CREATURE_STORE, 1s);
-                    break;
-                default:
-                    break;
+            case GO_CRYSTAL_01:
+                _crystalGUIDs[0] = go->GetGUID();
+                break;
+            case GO_CRYSTAL_02:
+                _crystalGUIDs[1] = go->GetGUID();
+                break;
+            case GO_CRYSTAL_03:
+                _crystalGUIDs[2] = go->GetGUID();
+                break;
+            case GO_CRYSTAL_04:
+                _crystalGUIDs[3] = go->GetGUID();
+                break;
+            case GO_CRYSTAL_05:
+                _crystalGUIDs[4] = go->GetGUID();
+                break;
+            case GO_FORCEFIELD:
+                _forcefieldGUID = go->GetGUID();
+                if (GetBossState(DATA_FORCEFIELD) != DONE)
+                {
+                    _events.ScheduleEvent(EVENT_CRYSTAL_CREATURE_STORE, 1s);
+                    _events.ScheduleEvent(EVENT_IMMO_DEAD_CHECK, 1s);
+                }
+                break;
+            default:
+                break;
             }
         }
 
@@ -133,22 +140,24 @@ public:
         {
             switch (type)
             {
-                case GO_CRYSTAL_01:
-                    return _crystalGUIDs[0];
-                case GO_CRYSTAL_02:
-                    return _crystalGUIDs[1];
-                case GO_CRYSTAL_03:
-                    return _crystalGUIDs[2];
-                case GO_CRYSTAL_04:
-                    return _crystalGUIDs[3];
-                case GO_CRYSTAL_05:
-                    return _crystalGUIDs[4];
-                case GO_FORCEFIELD:
-                    return _forcefieldGUID;
-                case NPC_IMMOLTHAR:
-                    return _immoGUID;
-                default:
-                    break;
+            case GO_CRYSTAL_01:
+                return _crystalGUIDs[0];
+            case GO_CRYSTAL_02:
+                return _crystalGUIDs[1];
+            case GO_CRYSTAL_03:
+                return _crystalGUIDs[2];
+            case GO_CRYSTAL_04:
+                return _crystalGUIDs[3];
+            case GO_CRYSTAL_05:
+                return _crystalGUIDs[4];
+            case GO_FORCEFIELD:
+                return _forcefieldGUID;
+            case NPC_IMMOLTHAR:
+                return _immoGUID;
+            case NPC_TORTHELDRIN:
+                return _tortheldrinGUID;
+            default:
+                break;
             }
             return ObjectGuid::Empty;
         }
@@ -161,17 +170,21 @@ public:
             {
                 switch (eventId)
                 {
-                    case EVENT_CRYSTAL_CREATURE_STORE:
-                        CrystalCreatureStore();
-                        _events.ScheduleEvent(EVENT_CRYSTAL_CREATURE_CHECK, 3s);
-                        break;
-                    case EVENT_CRYSTAL_CREATURE_CHECK:
-                        CrystalCreatureCheck();
-                        if ((GetBossState(DATA_FORCEFIELD) != DONE))
-                            _events.ScheduleEvent(EVENT_CRYSTAL_CREATURE_CHECK, 1s);
-                        break;
-                    default:
-                         break;
+                case EVENT_CRYSTAL_CREATURE_STORE:
+                    CrystalCreatureStore();
+                    _events.ScheduleEvent(EVENT_CRYSTAL_CREATURE_CHECK, 3s);
+                    break;
+                case EVENT_CRYSTAL_CREATURE_CHECK:
+                    CrystalCreatureCheck();
+                    if ((GetBossState(DATA_FORCEFIELD) != DONE))
+                        _events.ScheduleEvent(EVENT_CRYSTAL_CREATURE_CHECK, 1s);
+                    break;
+                case EVENT_IMMO_DEAD_CHECK:
+                    if (!IsImmoDead())
+                        _events.ScheduleEvent(EVENT_IMMO_DEAD_CHECK, 1s);
+                    break;
+                default:
+                    break;
                 }
             }
         }
@@ -226,28 +239,28 @@ public:
 
                     switch (go->GetEntry())
                     {
-                        case GO_CRYSTAL_01:
-                            SetBossState(DATA_CRYSTAL_01, DONE);
-                            go->SetGoState(GO_STATE_ACTIVE);
-                            break;
-                        case GO_CRYSTAL_02:
-                            SetBossState(DATA_CRYSTAL_02, DONE);
-                            go->SetGoState(GO_STATE_ACTIVE);
-                            break;
-                        case GO_CRYSTAL_03:
-                            SetBossState(DATA_CRYSTAL_03, DONE);
-                            go->SetGoState(GO_STATE_ACTIVE);
-                            break;
-                        case GO_CRYSTAL_04:
-                            SetBossState(DATA_CRYSTAL_04, DONE);
-                            go->SetGoState(GO_STATE_ACTIVE);
-                            break;
-                        case GO_CRYSTAL_05:
-                            SetBossState(DATA_CRYSTAL_05, DONE);
-                            go->SetGoState(GO_STATE_ACTIVE);
-                            break;
-                        default:
-                            break;
+                    case GO_CRYSTAL_01:
+                        SetBossState(DATA_CRYSTAL_01, DONE);
+                        go->SetGoState(GO_STATE_ACTIVE);
+                        break;
+                    case GO_CRYSTAL_02:
+                        SetBossState(DATA_CRYSTAL_02, DONE);
+                        go->SetGoState(GO_STATE_ACTIVE);
+                        break;
+                    case GO_CRYSTAL_03:
+                        SetBossState(DATA_CRYSTAL_03, DONE);
+                        go->SetGoState(GO_STATE_ACTIVE);
+                        break;
+                    case GO_CRYSTAL_04:
+                        SetBossState(DATA_CRYSTAL_04, DONE);
+                        go->SetGoState(GO_STATE_ACTIVE);
+                        break;
+                    case GO_CRYSTAL_05:
+                        SetBossState(DATA_CRYSTAL_05, DONE);
+                        go->SetGoState(GO_STATE_ACTIVE);
+                        break;
+                    default:
+                        break;
                     }
                 }
             }
@@ -266,12 +279,28 @@ public:
             }
         }
 
-protected:
+        bool IsImmoDead()
+        {
+            Creature* immo = instance->GetCreature(_immoGUID);
+            if (immo != nullptr && !immo->IsAlive())
+            {
+                Creature* tortheldrin = instance->GetCreature(_tortheldrinGUID);
+                if (tortheldrin != nullptr)
+                    tortheldrin->SetFaction(FACTION_ENEMY);
+                return true;
+            }
+            else if (immo == nullptr)
+                return true;
+            return false;
+        }
+
+    protected:
         EventMap _events;
         std::array<ObjectGuid, 5> _crystalGUIDs;
         std::array<std::array<ObjectGuid, 4>, 5> _crystalCreatureGUIDs; // 5 different Crystals, maximum of 4 Creatures
         ObjectGuid _forcefieldGUID;
         ObjectGuid _immoGUID;
+        ObjectGuid _tortheldrinGUID;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
