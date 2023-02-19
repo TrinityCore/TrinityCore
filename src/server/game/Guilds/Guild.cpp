@@ -2897,6 +2897,8 @@ void Guild::_SendBankList(WorldSession* session /* = nullptr*/, uint8 tabId /*= 
 
                     itemInfo.Slot = *itr;
                     itemInfo.ItemID = tabItem->GetEntry();
+                    itemInfo.RandomPropertiesID = tabItem->GetItemRandomPropertyId();
+                    itemInfo.RandomPropertiesSeed = tabItem->GetItemSuffixFactor();
                     itemInfo.Count = int32(tabItem->GetCount());
                     itemInfo.Charges = int32(abs(tabItem->GetSpellCharges()));
                     itemInfo.EnchantmentID = int32(tabItem->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
