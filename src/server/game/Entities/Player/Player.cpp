@@ -18876,8 +18876,6 @@ Item* Player::_LoadMailedItem(ObjectGuid const& playerGuid, Player* player, uint
 void Player::_LoadMail(PreparedQueryResult mailsResult, PreparedQueryResult mailItemsResult, PreparedQueryResult artifactResult, PreparedQueryResult azeriteItemResult,
     PreparedQueryResult azeriteItemMilestonePowersResult, PreparedQueryResult azeriteItemUnlockedEssencesResult, PreparedQueryResult azeriteEmpoweredItemResult)
 {
-    m_mail.clear();
-
     std::unordered_map<uint64, Mail*> mailById;
 
     if (mailsResult)
