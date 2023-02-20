@@ -322,9 +322,8 @@ class spell_warr_lambs_to_the_slaughter : public AuraScript
 
     void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
     {
-        if (Aura* aur = eventInfo.GetProcTarget()->GetAura(SPELL_WARRIOR_REND, GetTarget()->GetGUID()))
-            aur->RefreshTimers(false);
-
+        if (Aura* rend = eventInfo.GetProcTarget()->GetAura(SPELL_WARRIOR_REND, GetTarget()->GetGUID()))
+            rend->RefreshDuration(false);
     }
 
     void Register() override
