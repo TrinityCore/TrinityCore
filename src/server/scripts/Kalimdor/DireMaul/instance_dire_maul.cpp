@@ -288,7 +288,7 @@ public:
                     tortheldrin->SetFaction(FACTION_ENEMY);
                 return true;
             }
-            else if (immo)
+            else if (!immo)
                 return true;
             return false;
         }
