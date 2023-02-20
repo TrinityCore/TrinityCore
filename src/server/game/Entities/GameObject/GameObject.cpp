@@ -1791,12 +1791,12 @@ void GameObject::SaveRespawnTime(uint32 forceDelay)
     }
 }
 
-bool GameObject::IsNeverVisibleFor(WorldObject const* seer) const
+bool GameObject::IsNeverVisibleFor(WorldObject const* seer, bool implicitDetect) const
 {
     if (WorldObject::IsNeverVisibleFor(seer))
         return true;
 
-    if (GetGOInfo()->GetServerOnly())
+    if (GetGOInfo()->GetServerOnly() && !implicitDetect)
         return true;
 
     if (!GetDisplayId())
