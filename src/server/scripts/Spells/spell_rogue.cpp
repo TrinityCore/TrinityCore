@@ -74,6 +74,8 @@ enum RogueSpells
     SPELL_ROGUE_TRICKS_OF_THE_TRADE_DMG_BOOST       = 57933,
     SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC            = 59628,
     SPELL_ROGUE_SERRATED_BLADES_R1                  = 14171,
+    SPELL_ROGUE_VENOMOUS_VIM                        = 51637,
+    SPELL_ROGUE_VENOMOUS_WOUND                      = 79136,
     SPELL_ROGUE_RUPTURE                             = 1943,
     SPELL_ROGUE_HONOR_AMONG_THIEVES_TRIGGERED       = 51699,
     SPELL_ROGUE_BLACKJACK_R1                        = 79123,
@@ -85,7 +87,8 @@ enum RogueSpellIcons
 {
     ICON_ROGUE_IMPROVED_RECUPERATE                  = 4819,
     ROGUE_ICON_ID_SERRATED_BLADES                   = 2004,
-    ROGUE_ICON_ID_SANGUINARY_VEIN                   = 4821
+    ROGUE_ICON_ID_SANGUINARY_VEIN                   = 4821,
+    ROGUE_ICON_ID_VENOMOUS_WOUNDS                   = 4888
 };
 
 // 13877, 33735, (check 51211, 65956) - Blade Flurry
@@ -721,78 +724,20 @@ class spell_rog_rupture : public AuraScript
         }
     }
 
-    void ResetDuration(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void HandleVenomousWounds(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        BonusDuration = 0;
-    }
+        if (!GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::ByDeath))
+            return;
 
-    void StoreOriginalDuration(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
-    {
-        OriginalDuration = aurEff->GetBase()->GetDuration();
+        if (GetTarget()->GetDummyAuraEffect(SPELLFAMILY_ROGUE, ROGUE_ICON_ID_VENOMOUS_WOUNDS, EFFECT_0))
+            GetTarget()->CastSpell(nullptr, SPELL_ROGUE_VENOMOUS_VIM, CastSpellExtraArgs(true).AddSpellBP0(std::ceil(GetDuration() / IN_MILLISECONDS) * 5));
     }
 
     void Register() override
     {
         DoEffectCalcAmount.Register(&spell_rog_rupture::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-        AfterEffectApply.Register(&spell_rog_rupture::ResetDuration, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAPPLY);
-        AfterEffectApply.Register(&spell_rog_rupture::StoreOriginalDuration, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        AfterEffectRemove.Register(&spell_rog_rupture::HandleVenomousWounds, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAPPLY);
     }
-public:
-    // For Glyph of Backstab use
-    uint32 BonusDuration = 0;
-    int32 OriginalDuration = 0;
-};
-
-// 63975 - Glyph of Backstab (triggered - serverside)
-class spell_rog_glyph_of_backstab_triggered : public SpellScriptLoader
-{
-    public:
-        spell_rog_glyph_of_backstab_triggered() : SpellScriptLoader("spell_rog_glyph_of_backstab_triggered") { }
-
-        class spell_rog_glyph_of_backstab_triggered_SpellScript : public SpellScript
-        {
-            void HandleScript(SpellEffIndex effIndex)
-            {
-                PreventHitDefaultEffect(effIndex);
-
-                Unit* caster = GetCaster();
-                // search our Rupture aura on target
-                if (AuraEffect* aurEff = GetHitUnit()->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, 0x00100000, 0, 0, caster->GetGUID()))
-                {
-                    spell_rog_rupture* ruptureAuraScript = aurEff->GetBase()->GetScript<spell_rog_rupture>("spell_rog_rupture");
-                    if (!ruptureAuraScript)
-                        return;
-
-                    uint32& bonusDuration = ruptureAuraScript->BonusDuration;
-
-                    // already includes duration mod from Glyph of Rupture
-                    uint32 countMin = aurEff->GetBase()->GetMaxDuration();
-                    uint32 countMax = countMin - bonusDuration;
-
-                    // this glyph
-                    countMax += 6000;
-
-                    if (countMin < countMax)
-                    {
-                        bonusDuration += 2000;
-
-                        aurEff->GetBase()->SetDuration(aurEff->GetBase()->GetDuration() + 2000);
-                        aurEff->GetBase()->SetMaxDuration(countMin + 2000);
-                    }
-
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget.Register(&spell_rog_glyph_of_backstab_triggered_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_rog_glyph_of_backstab_triggered_SpellScript();
-        }
 };
 
 // 5938 - Shiv
@@ -1130,18 +1075,15 @@ class spell_rog_eviscerate : public SpellScript
 
     void HandleSerratedBlades(SpellEffIndex /*effIndex*/)
     {
-        Unit* caster = GetCaster();
-        Unit* target = GetHitUnit();
-        if (!caster)
+        AuraEffect const* blades = GetCaster()->GetDummyAuraEffect(SPELLFAMILY_ROGUE, ROGUE_ICON_ID_SERRATED_BLADES, EFFECT_0);
+        if (!blades)
             return;
 
-        Player* player = caster->ToPlayer();
+        if (!roll_chance_i(blades->GetAmount() * GetCaster()->GetComboPoints()))
+            return;
 
-        if (AuraEffect const* blades = caster->GetDummyAuraEffect(SPELLFAMILY_ROGUE, ROGUE_ICON_ID_SERRATED_BLADES, EFFECT_0))
-            if (roll_chance_i(blades->GetAmount() * player->GetComboPoints()))
-                if (AuraEffect const* rupture = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, 0x00100000, 0, 0, caster->GetGUID()))
-                    if (spell_rog_rupture* script = rupture->GetBase()->GetScript<spell_rog_rupture>("spell_rog_rupture"))
-                        rupture->GetBase()->SetDuration(script->OriginalDuration);
+        if (AuraEffect const* rupture = GetHitUnit()->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, 0x00100000, 0, 0, GetCaster()->GetGUID()))
+            rupture->GetBase()->RefreshDuration(false);
     }
 
     void Register() override
@@ -1570,6 +1512,45 @@ class spell_rog_pickpocket : public SpellScript
     }
 };
 
+// -79133 - Venomous Wounds
+class spell_rogue_venomous_wounds : public AuraScript
+{
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        // Deadly Poison
+        if (eventInfo.GetProcTarget()->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, 0x0, 0x80000, 0x0, GetTarget()->GetGUID()))
+            return true;
+
+        // Wound Poison
+        if (eventInfo.GetProcTarget()->GetAuraEffect(SPELL_AURA_MOD_HEALING_PCT, SPELLFAMILY_ROGUE, 0x0, 0x80000, 0x0, GetTarget()->GetGUID()))
+            return true;
+
+        // Crippling Poison
+        if (eventInfo.GetProcTarget()->GetAuraEffect(SPELL_AURA_MOD_DECREASE_SPEED, SPELLFAMILY_ROGUE, 0x0, 0x80000, 0x0, GetTarget()->GetGUID()))
+            return true;
+
+        // Mind-Numbing Poison
+        if (eventInfo.GetProcTarget()->GetAuraEffect(SPELL_AURA_HASTE_SPELLS, SPELLFAMILY_ROGUE, 0x0, 0x80000, 0x0, GetTarget()->GetGUID()))
+            return true;
+
+        return false;
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_ROGUE_VENOMOUS_WOUND, aurEff);
+        if (AuraEffect const* energizeEffect = GetEffect(EFFECT_1))
+            GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_ROGUE_VENOMOUS_VIM, CastSpellExtraArgs(aurEff).AddSpellBP0(energizeEffect->GetAmount()));
+    }
+
+    void Register() override
+    {
+        DoCheckProc.Register(&spell_rogue_venomous_wounds::CheckProc);
+        AfterEffectProc.Register(&spell_rogue_venomous_wounds::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     RegisterSpellScript(spell_rog_bandits_guile);
@@ -1598,7 +1579,6 @@ void AddSC_rogue_spell_scripts()
     RegisterSpellScript(spell_rog_relentless_strikes);
     RegisterSpellScript(spell_rog_restless_blades);
     RegisterSpellScript(spell_rog_rupture);
-    new spell_rog_glyph_of_backstab_triggered();
     RegisterSpellScript(spell_rog_sap);
     new spell_rog_shiv();
     RegisterSpellScript(spell_rog_slice_and_dice);
@@ -1607,4 +1587,5 @@ void AddSC_rogue_spell_scripts()
     RegisterSpellScript(spell_rog_tricks_of_the_trade_proc);
     RegisterSpellScript(spell_rog_honor_among_thieves);
     RegisterSpellScript(spell_rog_vanish);
+    RegisterSpellScript(spell_rogue_venomous_wounds);
 }
