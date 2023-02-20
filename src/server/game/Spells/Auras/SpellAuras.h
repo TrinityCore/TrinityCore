@@ -153,11 +153,14 @@ class TC_GAME_API Aura
         static int32 CalcMaxDuration(SpellInfo const* spellInfo, WorldObject* caster);
         int32 GetDuration() const { return m_duration; }
         void SetDuration(int32 duration, bool withMods = false);
-        void RefreshDuration();
+        // Resets the duration and tick number of the aura and rolls over a remaining tick if specified. Use this method if a talent or spell is suposed to refresh an aura.
+        void RefreshDuration(bool resetPeriodicTimer = true);
+        // Used to refresh the entire aura duration and timers. Do NOT use this for refreshing durations via spells and talents. Use Aura::RefreshDuration instead.
         void RefreshTimers(bool resetPeriodicTimer);
         bool IsExpired() const { return !GetDuration() && !m_dropEvent; }
         bool IsPermanent() const { return GetMaxDuration() == -1; }
         int32 GetRolledOverDuration() const { return m_rolledOverDuration; }
+        int32 CalcRolledOverDuration() const;
 
         uint8 GetCharges() const { return m_procCharges; }
         void SetCharges(uint8 charges);

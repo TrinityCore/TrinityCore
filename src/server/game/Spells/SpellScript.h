@@ -1059,7 +1059,7 @@ class TC_GAME_API AuraScript : public _SpellScript
         int32 GetDuration() const;
         void SetDuration(int32 duration, bool withMods = false);
         // sets duration to maxduration
-        void RefreshDuration();
+        void RefreshDuration(bool resetPeriodicTimer = true);
         time_t GetApplyTime() const;
         int32 GetMaxDuration() const;
         void SetMaxDuration(int32 duration);

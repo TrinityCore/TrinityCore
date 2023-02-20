@@ -901,11 +901,11 @@ void Aura::SetDuration(int32 duration, bool withMods)
     SetNeedClientUpdateForTargets();
 }
 
-void Aura::RefreshDuration()
+void Aura::RefreshDuration(bool resetPeriodicTimer /*= true*/)
 {
-    SetDuration(GetMaxDuration());
+    SetDuration(GetMaxDuration() + (resetPeriodicTimer ? 0 : CalcRolledOverDuration()));
 
-    if (m_spellInfo->ManaPerSecond)
+    if (resetPeriodicTimer && m_spellInfo->ManaPerSecond)
         m_timeCla = 1 * IN_MILLISECONDS;
 
     // also reset periodic counters
@@ -916,30 +916,31 @@ void Aura::RefreshDuration()
 
 void Aura::RefreshTimers(bool resetPeriodicTimer)
 {
+    // Recalculate the maximum duration
     m_maxDuration = CalcMaxDuration();
 
+    // Roll over remaining time until the next tick from previous aura timers
     if (!resetPeriodicTimer)
-    {
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        {
-            if (AuraEffect const* aurEff = GetEffect(i))
-            {
-                if (int32 period = aurEff->GetPeriod())
-                {
-                    m_rolledOverDuration = period - aurEff->GetPeriodicTimer();
-                    // For now we only check for a single periodic effect since we don't have enough data regarding multiple periodic effects
-                    break;
-                }
-            }
-        }
-    }
+        m_rolledOverDuration = CalcRolledOverDuration();
+    else
+        m_rolledOverDuration = 0;
 
-    RefreshDuration();
+    RefreshDuration(resetPeriodicTimer);
 
     Unit* caster = GetCaster();
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if (AuraEffect* aurEff = m_effects[i])
             aurEff->CalculatePeriodic(caster, resetPeriodicTimer, false);
+}
+
+int32 Aura::CalcRolledOverDuration() const
+{
+    // For now we only check for a single periodic effect since we don't have enough data regarding multiple periodic effects
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        if (AuraEffect const* aurEff = GetEffect(i))
+            if (int32 period = aurEff->GetPeriod())
+                return (period - aurEff->GetPeriodicTimer());
+    return 0;
 }
 
 void Aura::SetCharges(uint8 charges)

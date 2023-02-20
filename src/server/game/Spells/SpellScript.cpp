@@ -699,9 +699,9 @@ void AuraScript::SetDuration(int32 duration, bool withMods)
     m_aura->SetDuration(duration, withMods);
 }
 
-void AuraScript::RefreshDuration()
+void AuraScript::RefreshDuration(bool resetPeriodicTimer /*= true*/)
 {
-    m_aura->RefreshDuration();
+    m_aura->RefreshDuration(resetPeriodicTimer);
 }
 
 time_t AuraScript::GetApplyTime() const
