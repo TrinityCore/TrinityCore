@@ -23207,9 +23207,9 @@ void Player::LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue)
     }
 }
 
-void Player::SendAurasForTarget(Unit* target) const
+void Player::SendAurasForTarget(Unit* target, bool force /*= false*/) const
 {
-    if (!target || target->GetVisibleAuras().empty())                  // speedup things
+    if (!target || (!force && target->GetVisibleAuras().empty()))                  // speedup things
         return;
 
     WorldPacket data(SMSG_AURA_UPDATE_ALL);

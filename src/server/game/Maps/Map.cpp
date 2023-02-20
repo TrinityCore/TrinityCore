@@ -2956,7 +2956,7 @@ void Map::SendInitSelf(Player* player)
     player->SendDirectMessage(&packet);
 
     // send to player his own auras (this is needed here for timely initialization of some fields on client)
-    player->SendAurasForTarget(player);
+    player->SendAurasForTarget(player, true);
 
     // clean buffers for further work
     packet.clear();
