@@ -1,6 +1,6 @@
 [*]
-#charset = utf-8
-charset = unicode
+#charset = unicode
+charset = utf-8
 indent_size = 4
 tab_width = 4
 indent_style = space

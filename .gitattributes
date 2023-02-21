@@ -1,5 +1,8 @@
 # Auto detect text files and perform LF normalization
-* text=auto
+* text=utf-8
+#//尝试解决合并后乱码,未成功
+#* text=auto
+#//原先的
 
 
 # Whitespace rules
