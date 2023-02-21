@@ -12,7 +12,7 @@
 .tele WakingShores  //觉醒海岸 协调观察站
 .tele OhnahranPlains    //欧恩哈啦平原 
 .tele azurespan //碧蓝林海
-.tele Thaldraszus
+.tele Thaldraszus   //索德拉苏斯
 巨龙时代团本
 .tele VaultoftheIncarnates  //不存在
 去暴风城： .tele stormwind
