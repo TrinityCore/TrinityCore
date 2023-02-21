@@ -243,3 +243,10 @@ WorldPacket const* WorldPackets::BattlePet::PVPChallenge::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::BattlePet::BattlePetCageDateError::Write()
+{
+    _worldPacket << SecondsUntilCanCage;
+
+    return &_worldPacket;
+}

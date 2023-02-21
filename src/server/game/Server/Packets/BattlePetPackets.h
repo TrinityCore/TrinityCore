@@ -20,18 +20,65 @@
 
 #include "Packet.h"
 #include "PacketUtilities.h"
+#include "LFGPacketsCommon.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "UnitDefines.h"
 #include <memory>
 
-
+static uint16 const BATTLE_PET_MAX_JOURNAL_PETS = 1000;
 static uint8 const PARTICIPANTS_COUNT = 2;
+
+enum PetBattleEffectTargetType
+{
+    PET_BATTLE_EFFECT_TARGET_EX_FRONT_PET = 0,
+    PET_BATTLE_EFFECT_TARGET_EX_AURA = 1,
+    PET_BATTLE_EFFECT_TARGET_EX_STATE = 2,
+    PET_BATTLE_EFFECT_TARGET_EX_PET = 3,
+    PET_BATTLE_EFFECT_TARGET_EX_STAT_CHANGE = 4,
+    PET_BATTLE_EFFECT_TARGET_EX_TRIGGER_ABILITY = 5,
+    PET_BATTLE_EFFECT_TARGET_EX_ABILITY_CHANGE = 6,
+    PET_BATTLE_EFFECT_TARGET_EX_NPC_EMOTE = 7,
+    PET_BATTLE_EFFECT_TARGET_EX_UNK_0 = 8,
+    PET_BATTLE_EFFECT_TARGET_EX_UNK_1 = 9
+};
+
+
+//static uint8 const PARTICIPANTS_COUNT = 2;
+//重复定义
 
 namespace WorldPackets
 {
     namespace BattlePet
     {
+      //< SMSG_BATTLE_PET_JOURNAL_LOCK_ACQUIRED
+      //< SMSG_PET_BATTLE_FINISHED
+      //< SMSG_PET_BATTLE_QUEUE_PROPOSE_MATCH
+      //< SMSG_BATTLE_PET_JOURNAL_LOCK_DENIED
+      //< SMSG_PET_BATTLE_CHAT_RESTRICTED
+      //< SMSG_BATTLE_PET_LICENSE_CHANGED
+      //< SMSG_BATTLE_PETS_HEALED
+        class NullSMsg final : public ServerPacket
+        {
+        public:
+            NullSMsg(OpcodeServer opcode) : ServerPacket(opcode, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
+        //< CMSG_BATTLE_PET_REQUEST_JOURNAL
+        //< CMSG_BATTLE_PET_REQUEST_JOURNAL_LOCK
+        //< CMSG_PET_BATTLE_FINAL_NOTIFY
+        //< CMSG_JOIN_PET_BATTLE_QUEUE
+        //< CMSG_PET_BATTLE_SCRIPT_ERROR_NOTIFY
+        class NullCmsg final : public ClientPacket
+        {
+        public:
+            NullCmsg(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+
+            void Read() override { }
+        };
+
         struct BattlePetOwnerInfo
         {
             ObjectGuid Guid;
@@ -63,7 +110,7 @@ namespace WorldPackets
             BattlePet Pet;
             uint32 CollarID = 0;
             uint8 Index = 0;
-            bool Locked = true;
+            bool Locked = false;
         };
 
         class BattlePetJournal final : public ServerPacket
@@ -309,6 +356,16 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint8 Reason = 0;
+        };
+
+        class BattlePetCageDateError final : public ServerPacket
+        {
+        public:
+            BattlePetCageDateError(int32 secondsUntilCanCage) : ServerPacket(SMSG_BATTLE_PET_CAGE_DATE_ERROR, 4), SecondsUntilCanCage(secondsUntilCanCage) { }
+
+            WorldPacket const* Write() override;
+
+            int32 SecondsUntilCanCage = 0;
         };
     }
 }
