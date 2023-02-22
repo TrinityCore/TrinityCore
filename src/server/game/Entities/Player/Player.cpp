@@ -7058,7 +7058,8 @@ void Player::ModifyCurrencyFlag(uint32 id, uint8 flag)
     if (_currencyStorage.find(id) == _currencyStorage.end())
         return;
 
-    _currencyStorage[id].Flags = flag;
+    _currencyStorage[id].Flags = (CurrencyDbFlags)flag;
+ // _currencyStorage[id].Flags = (CurrencyDbFlags)flag;//org
     if (_currencyStorage[id].state != PLAYERCURRENCY_NEW)
         _currencyStorage[id].state = PLAYERCURRENCY_CHANGED;
 }

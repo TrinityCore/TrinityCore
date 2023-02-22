@@ -1504,7 +1504,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetCurrencyMaxQuantity(CurrencyTypesEntry const* currency, bool onLoad = false, bool onUpdateVersion = false) const;
         uint32 GetCurrencyWeeklyCap(uint32 id) const;
         uint32 GetCurrencyWeeklyCap(CurrencyTypesEntry const* currency) const;
-        bool HasCurrency(uint32 id, uint32 amount) const;
+//        bool HasCurrency(uint32 id, uint32 amount) const;//Duplicate definition
 
         void SetInvSlot(uint32 slot, ObjectGuid guid) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::InvSlots, slot), guid); }
 
@@ -1893,7 +1893,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         TalentSpecialization GetSpecializationId() const { return (TalentSpecialization)GetPrimarySpecialization(); }
         uint32 GetDefaultSpecId() const;
         static uint32 GetRoleBySpecializationId(uint32 specializationId);
-        TalentSpecialization GetSpecializationId() const { return (TalentSpecialization)GetPrimarySpecialization(); }
+        //TalentSpecialization GetSpecializationId() const { return (TalentSpecialization)GetPrimarySpecialization(); }//Duplicate definition
 
         bool ResetTalents(bool noCost = false);
         void ResetPvpTalents();
