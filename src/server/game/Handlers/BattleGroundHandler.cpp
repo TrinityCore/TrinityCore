@@ -659,6 +659,9 @@ void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPackets::Battleground:
     if (!unit->IsSpiritService())                            // it's not spirit service
         return;
 
+    if (_player->GetExactDist(unit) > MAX_AREA_SPIRIT_HEALER_RANGE)
+        return;
+
     if (unit->AI()->OnSpiritHealerQuery(_player))
         return;
 
@@ -675,6 +678,9 @@ void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPackets::Battleground:
         return;
 
     if (!unit->IsSpiritService())                            // it's not spirit service
+        return;
+
+    if (_player->GetExactDist(unit) > MAX_AREA_SPIRIT_HEALER_RANGE)
         return;
 
     unit->AI()->OnSpiritHealerQueue(_player);
