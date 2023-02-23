@@ -2066,13 +2066,13 @@ void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinit
     }
 }
 
-BrawlersGuild* Unit::GetBrawlerGuild()
-{
-    if (Map* map = GetMap())
-        return map->m_brawlerGuild;
-
-    return nullptr;
-}
+//BrawlersGuild* Unit::GetBrawlerGuild()
+//{
+//    if (Map* map = GetMap())
+//        return map->m_brawlerGuild;
+//
+//    return nullptr;
+//}
 
 void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extra)
 {
