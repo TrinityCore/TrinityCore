@@ -528,7 +528,7 @@ public:
                 player->CompleteQuest(quest->GetQuestId());
             }
             // send faction selection screen
-            player->ShowNeutralPlayerFactionSelectUI();
+//            player->ShowNeutralPlayerFactionSelectUI();//tmp
         }
 
         if (player->getClass() == CLASS_DEATH_KNIGHT)
@@ -833,7 +833,7 @@ public:
                 player->CompleteQuest(quest->GetQuestId());
             }
             // send faction selection screen
-            player->ShowNeutralPlayerFactionSelectUI();
+            //player->ShowNeutralPlayerFactionSelectUI();//tmp
         }
 
         if (player->getClass() == CLASS_PALADIN)
@@ -1126,7 +1126,7 @@ public:
         }
 
         player->LearnSpell(278833, true); // Abrecaminos de Battle for Azeroth
-        player->SendCustomMessage(sObjectMgr->GetTrinityStringForDBCLocale(789004));
+//        player->SendCustomMessage(sObjectMgr->GetTrinityStringForDBCLocale(789004));//tmp
         player->SaveToDB();
         player->DestroyItemCount(item_id, 1, true);
         return true;
@@ -1153,7 +1153,7 @@ public:
         }
 
         player->LearnSpell(233368, true); // Abrecaminos de las Islas Abruptas
-        player->SendCustomMessage(sObjectMgr->GetTrinityStringForDBCLocale(789003));
+        //player->SendCustomMessage(sObjectMgr->GetTrinityStringForDBCLocale(789003));//tmp
         player->SaveToDB();
         player->DestroyItemCount(item_id, 1, true);
         return true;
@@ -1161,10 +1161,6 @@ public:
 
 };
 
-
-
-    }
-};
 
 
 class token_honor : public ItemScript
@@ -1186,7 +1182,7 @@ public:
         }
 
         player->RewardHonor(NULL, 0, 45000, false);
-        player->SendCustomMessage(sObjectMgr->GetTrinityStringForDBCLocale(789005));
+//        player->SendCustomMessage(sObjectMgr->GetTrinityStringForDBCLocale(789005));//tmp
         player->SaveToDB();
         player->DestroyItemCount(item_id, 1, true);
         return true;
@@ -1252,9 +1248,9 @@ public:
             player->GetSession()->SendNotification(sObjectMgr->GetTrinityStringForDBCLocale(789000));
             return false;
         } else {
-            AddGossipItemFor(player, GOSSIP_ICON_TRANSMOGRIFIER, "Random morph", GOSSIP_SENDER_MAIN, ACTION_RANDOM_MORPH);
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Demorph", GOSSIP_SENDER_MAIN, ACTION_DEMORPH);
-
+           /* AddGossipItemFor(player, GOSSIP_ICON_TRANSMOGRIFIER, "Random morph", GOSSIP_SENDER_MAIN, ACTION_RANDOM_MORPH);
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Demorph", GOSSIP_SENDER_MAIN, ACTION_DEMORPH);*/
+            //tmp
             
             AddGossipItemFor(player, GossipOptionNpc::Transmogrify, "Random morph", GOSSIP_SENDER_MAIN, ACTION_RANDOM_MORPH);
             AddGossipItemFor(player, GossipOptionNpc::None, "Demorph", GOSSIP_SENDER_MAIN, ACTION_DEMORPH);
