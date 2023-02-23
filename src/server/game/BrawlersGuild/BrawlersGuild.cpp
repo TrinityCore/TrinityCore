@@ -1,5 +1,6 @@
 /*
  * Copyright 2023 AzgathCore
+ * Copyright 2021 HellgarveCore
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -81,7 +82,7 @@ BrawlersGuild::BrawlersGuild(uint32 id, Map* map)
 
 BrawlersGuild::~BrawlersGuild() = default;
 
-void BrawlersGuild::Update(uint32 /*diff*/)
+void BrawlersGuild::Update(uint32 /*diff*/)     //void BrawlersGuild::Update(uint32 diff)   //有的版本写成前面这样
 {
     /*for (auto& it : _waitList)
         if (!ObjectAccessor::FindPlayer(it))
@@ -102,7 +103,7 @@ void BrawlersGuild::Update(uint32 /*diff*/)
     UpdateBrawl(diff);*/
 }
 
-void BrawlersGuild::AddPlayer(Player* /*player*/)
+void BrawlersGuild::AddPlayer(Player* /*player*/)   //void BrawlersGuild::AddPlayer(Player* player)    //有的版本写成前面这样
 {
     /*if (!player)
         return;
@@ -349,7 +350,7 @@ void BrawlersGuild::EndCombat(bool win, bool time)
             player->CastSpell(player, SPELL_EXPLOSION_1, true);
             player->CastSpell(player, SPELL_EXPLOSION_2, true);
             player->CastSpell(player, SPELL_EXPLOSION_3, true);
-            // player->Kill(player);
+            // player->Kill(player);    //player->Kill(player,player);//有的版本写成前面这样
         }
         player->SaveToDB();
     }

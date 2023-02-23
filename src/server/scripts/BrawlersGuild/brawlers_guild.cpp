@@ -9,7 +9,7 @@ class npc_brawlers_guild_queue : public CreatureScript
 public:
     npc_brawlers_guild_queue() : CreatureScript("npc_brawlers_guild_queue") { }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature)  //有的加override,估计是旧的
     {
         if (player)
         {
@@ -33,7 +33,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) //有的有override
     {
         if (player)
         {
