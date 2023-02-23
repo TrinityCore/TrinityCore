@@ -1,6 +1,8 @@
 /*
-* * Copyright (C) 2017-2018 AshamaneProject <https://github.com/AshamaneProject>
+* Copyright (C) 2017-2018 AshamaneProject <https://github.com/AshamaneProject>
 * Copyright 2021 DekkCore
+* * Copyright (C) 2021 BfaCore Reforged / / 来源:https://github.com/Titans-Project/BfaCore-Reforged/blob/main/src/server/scripts/Custom/custom_npcs.cpp
+
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -439,9 +441,800 @@ struct npc_kalecgos_for_teracgosa : ScriptedAI
                     sGameEventMgr->StartEvent(89, true);
                 break;
             }
+
         }
     }
 };
+
+class item_level_boost : public ItemScript
+{
+public:
+    item_level_boost() : ItemScript("item_level_boost") { }
+
+    enum
+    {
+        item_id = 789001, //Item Entry
+        max_lvl = 110, //Server Max Level
+        lvlup = 110, //Sets level
+    };
+
+    bool OnUse(Player* player, Item* item, SpellCastTargets const& targets, ObjectGuid /*castId*/) override
+    {
+        if (player->IsInCombat() || player->InArena() || player->InBattleground()) //Item is not usable in combat, arenas and battlegrounds. This can be modified to your taste.
+        {
+            player->GetSession()->SendNotification(sObjectMgr->GetTrinityStringForDBCLocale(789000));
+            return false;
+        }
+        else if (player->GetLevel() == max_lvl)
+
+        {
+            player->GetSession()->SendNotification(sObjectMgr->GetTrinityStringForDBCLocale(789001)); //Item is not usable if character is server maxlevel
+            return false;
+        }
+        // Bags
+        for (int slot = INVENTORY_SLOT_BAG_START; slot < INVENTORY_SLOT_BAG_END; slot++)
+            if (Item* bag = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+                player->DestroyItem(INVENTORY_SLOT_BAG_0, slot, true);
+
+        for (int slot = INVENTORY_SLOT_BAG_START; slot < INVENTORY_SLOT_BAG_END; slot++)
+            player->EquipNewItem(slot, 142075, ItemContext::NONE, true);
+
+        player->GiveLevel(sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
+        player->InitTalentForLevel();
+        player->ModifyMoney(200000000);
+        player->LearnSpell(71810, true); // Montura vermis
+        player->EquipNewItem(EQUIPMENT_SLOT_NECK, 131736, ItemContext::NONE, true); // Cuello
+        player->EquipNewItem(EQUIPMENT_SLOT_BACK, 139248, ItemContext::NONE, true); // Capa
+        player->EquipNewItem(EQUIPMENT_SLOT_FINGER1, 139237, ItemContext::NONE, true);
+        player->EquipNewItem(EQUIPMENT_SLOT_FINGER2, 139236, ItemContext::NONE, true); // Anillo
+        player->LearnSpell(33388, true); // Equitacion
+        player->LearnSpell(33391, true);
+        player->LearnSpell(34090, true);
+        player->LearnSpell(34091, true);
+        player->LearnSpell(90265, true);
+        player->LearnSpell(54197, true);
+        player->LearnSpell(90267, true);
+        player->LearnSpell(115913, true);
+        player->LearnSpell(110406, true);
+        player->LearnSpell(104381, true);
+
+        //   add end - level quests
+        bool IsPandarenNeutral = player->GetRace() == RACE_PANDAREN_NEUTRAL;
+        std::vector<uint32> questsToAdd;
+        if (player->GetTeam() == HORDE || IsPandarenNeutral)
+        {
+            // quests for Pandaria map
+            questsToAdd.push_back(29611);   // The Art of War
+            questsToAdd.push_back(31853);   // All Aboard!
+            questsToAdd.push_back(29690);   // Into the Mists
+            if (player->getClass() == CLASS_DEATH_KNIGHT)
+                questsToAdd.push_back(13189);
+        }
+        if (player->GetTeam() == ALLIANCE || IsPandarenNeutral)
+        {
+            // quests for Pandaria map
+            questsToAdd.push_back(29547);   // The King's Command
+            questsToAdd.push_back(29548);   // The Mission
+            if (player->getClass() == CLASS_DEATH_KNIGHT)
+                questsToAdd.push_back(13188);
+        }
+        // pandarens
+        if (IsPandarenNeutral)
+        {
+            // add "A New Fate" quest
+            if (Quest const* quest = sObjectMgr->GetQuestTemplate(31450))
+            {
+                player->AddQuest(quest, NULL);
+                player->CompleteQuest(quest->GetQuestId());
+            }
+            // send faction selection screen
+            player->ShowNeutralPlayerFactionSelectUI();
+        }
+
+        if (player->getClass() == CLASS_DEATH_KNIGHT)
+        {
+            player->LearnSpell(53428, true); // Spell runas de forjas
+            player->LearnSpell(48778, true); // Bayo
+            player->LearnSpell(50977, true); // porton
+            player->EquipNewItem(EQUIPMENT_SLOT_HEAD, 139231, ItemContext::NONE, true);//Head - Cabeza
+            player->EquipNewItem(EQUIPMENT_SLOT_WRISTS, 138218, ItemContext::NONE, true); //Wrists - Muecas
+            player->EquipNewItem(EQUIPMENT_SLOT_WAIST, 139228, ItemContext::NONE, true); //Wrais - Cintura
+            player->EquipNewItem(EQUIPMENT_SLOT_HANDS, 139225, ItemContext::NONE, true); // Hands - Manos
+            player->EquipNewItem(EQUIPMENT_SLOT_CHEST, 139224, ItemContext::NONE, true); // Pecho
+            player->EquipNewItem(EQUIPMENT_SLOT_LEGS, 139230, ItemContext::NONE, true); // Legs - Pantalones
+            player->EquipNewItem(EQUIPMENT_SLOT_SHOULDERS, 139233, ItemContext::NONE, true); // Shoulder - Hombros
+            player->EquipNewItem(EQUIPMENT_SLOT_FEET, 139234, ItemContext::NONE, true); // feet - pies
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET1, 139325, ItemContext::NONE, true); // abalorio1
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET2, 139328, ItemContext::NONE, true); // Trinket - Abalario Dps Fuerza
+            player->EquipNewItem(EQUIPMENT_SLOT_MAINHAND, 124386, ItemContext::NONE, true); //  espada de una mano 
+            player->EquipNewItem(EQUIPMENT_SLOT_OFFHAND, 124385, ItemContext::NONE, true);  // espada de una mano
+            player->AddItem(124388, 1); // arma tanque y dps
+
+        }
+        if (player->getClass() == CLASS_MAGE)
+        {
+            player->EquipNewItem(EQUIPMENT_SLOT_HEAD, 139189, ItemContext::NONE, true); //Head - Cabeza
+            player->EquipNewItem(EQUIPMENT_SLOT_WRISTS, 139196, ItemContext::NONE, true); //Wrists - Muecas
+            player->EquipNewItem(EQUIPMENT_SLOT_WAIST, 138217, ItemContext::NONE, true); //Wrais - Cintura
+            player->EquipNewItem(EQUIPMENT_SLOT_HANDS, 138212, ItemContext::NONE, true); // Hands - Manos
+            player->EquipNewItem(EQUIPMENT_SLOT_CHEST, 139193, ItemContext::NONE, true); // Pecho
+            player->EquipNewItem(EQUIPMENT_SLOT_LEGS, 139190, ItemContext::NONE, true); // Legs - Pantalones
+            player->EquipNewItem(EQUIPMENT_SLOT_SHOULDERS, 139191, ItemContext::NONE, true); // Shoulder - Hombros
+            player->EquipNewItem(EQUIPMENT_SLOT_FEET, 139195, ItemContext::NONE, true); // feet - pies
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET1, 139321, ItemContext::NONE, true);
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET2, 139326, ItemContext::NONE, true); // Trinket - Abalario Dps intelecto
+            player->EquipNewItem(EQUIPMENT_SLOT_MAINHAND, 124382, ItemContext::NONE, true); // disciplina // sagrado // sombra
+
+        }
+        if (player->getClass() == CLASS_DRUID)
+        {
+            player->EquipNewItem(EQUIPMENT_SLOT_HEAD, 139205, ItemContext::NONE, true); //Head - Cabeza
+            player->EquipNewItem(EQUIPMENT_SLOT_WRISTS, 139209, ItemContext::NONE, true); //Wrists - Muecas
+            player->EquipNewItem(EQUIPMENT_SLOT_WAIST, 139197, ItemContext::NONE, true); //Wrais - Cintura
+            player->EquipNewItem(EQUIPMENT_SLOT_HANDS, 140996, ItemContext::NONE, true); // Hands - Manos
+            player->EquipNewItem(EQUIPMENT_SLOT_CHEST, 139208, ItemContext::NONE, true); // Pecho
+            player->EquipNewItem(EQUIPMENT_SLOT_LEGS, 139201, ItemContext::NONE, true); // Legs - Pantalones
+            player->EquipNewItem(EQUIPMENT_SLOT_SHOULDERS, 139206, ItemContext::NONE, true); // Shoulder - Hombros
+            player->EquipNewItem(EQUIPMENT_SLOT_FEET, 139199, ItemContext::NONE, true); // feet - pies
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET1, 139329, ItemContext::NONE, true);
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET2, 139334, ItemContext::NONE, true); // Trinket - Abalario Dps Agilidad
+            player->AddItem(139326, 1);// Trinket - Abalario Dps intelecto
+            player->EquipNewItem(EQUIPMENT_SLOT_MAINHAND, 124382, ItemContext::NONE, true); // heler
+            player->AddItem(124378, 1); // feral
+
+        }
+        if (player->getClass() == CLASS_HUNTER)
+        {
+            player->EquipNewItem(EQUIPMENT_SLOT_HEAD, 139214, ItemContext::NONE, true); //Head - Cabeza
+            player->EquipNewItem(EQUIPMENT_SLOT_WRISTS, 139222, ItemContext::NONE, true); //Wrists - Muecas
+            player->EquipNewItem(EQUIPMENT_SLOT_WAIST, 139212, ItemContext::NONE, true); //Wrais - Cintura
+            player->EquipNewItem(EQUIPMENT_SLOT_HANDS, 141694, ItemContext::NONE, true); // Hands - Manos
+            player->EquipNewItem(EQUIPMENT_SLOT_CHEST, 139221, ItemContext::NONE, true); // Pecho
+            player->EquipNewItem(EQUIPMENT_SLOT_LEGS, 139215, ItemContext::NONE, true); // Legs - Pantalones
+            player->EquipNewItem(EQUIPMENT_SLOT_SHOULDERS, 139218, ItemContext::NONE, true); // Shoulder - Hombros
+            player->EquipNewItem(EQUIPMENT_SLOT_FEET, 139219, ItemContext::NONE, true); // feet - pies
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET1, 139329, ItemContext::NONE, true);
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET2, 139334, ItemContext::NONE, true); // Trinket - Abalario Dps Agilidad
+            player->EquipNewItem(EQUIPMENT_SLOT_MAINHAND, 124361, ItemContext::NONE, true); // punteria // bestias 
+            player->AddItem(124368, 1); //supervivencia
+
+        }
+        if (player->getClass() == CLASS_MONK)
+        {
+            player->EquipNewItem(EQUIPMENT_SLOT_HEAD, 139205, ItemContext::NONE, true); //Head - Cabeza
+            player->EquipNewItem(EQUIPMENT_SLOT_WRISTS, 139209, ItemContext::NONE, true); //Wrists - Muecas
+            player->EquipNewItem(EQUIPMENT_SLOT_WAIST, 139197, ItemContext::NONE, true); //Wrais - Cintura
+            player->EquipNewItem(EQUIPMENT_SLOT_HANDS, 140996, ItemContext::NONE, true); // Hands - Manos
+            player->EquipNewItem(EQUIPMENT_SLOT_CHEST, 139208, ItemContext::NONE, true); // Pecho
+            player->EquipNewItem(EQUIPMENT_SLOT_LEGS, 139201, ItemContext::NONE, true); // Legs - Pantalones
+            player->EquipNewItem(EQUIPMENT_SLOT_SHOULDERS, 139206, ItemContext::NONE, true); // Shoulder - Hombros
+            player->EquipNewItem(EQUIPMENT_SLOT_FEET, 139199, ItemContext::NONE, true); // feet - pies
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET1, 139329, ItemContext::NONE, true);
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET2, 139334, ItemContext::NONE, true); // Trinket - Abalario Dps Agilidad
+            player->EquipNewItem(EQUIPMENT_SLOT_MAINHAND, 124368, ItemContext::NONE, true); //  dps 
+            player->EquipNewItem(EQUIPMENT_SLOT_OFFHAND, 124368, ItemContext::NONE, true);  // dps
+            player->AddItem(124378, 1); // tanke
+            player->AddItem(124382, 1); // heler
+        }
+        if (player->getClass() == CLASS_PALADIN)
+        {
+            player->EquipNewItem(EQUIPMENT_SLOT_HEAD, 139231, ItemContext::NONE, true);//Head - Cabeza
+            player->EquipNewItem(EQUIPMENT_SLOT_WRISTS, 138218, ItemContext::NONE, true); //Wrists - Muecas
+            player->EquipNewItem(EQUIPMENT_SLOT_WAIST, 139228, ItemContext::NONE, true); //Wrais - Cintura
+            player->EquipNewItem(EQUIPMENT_SLOT_HANDS, 139225, ItemContext::NONE, true); // Hands - Manos
+            player->EquipNewItem(EQUIPMENT_SLOT_CHEST, 139224, ItemContext::NONE, true); // Pecho
+            player->EquipNewItem(EQUIPMENT_SLOT_LEGS, 139230, ItemContext::NONE, true); // Legs - Pantalones
+            player->EquipNewItem(EQUIPMENT_SLOT_SHOULDERS, 139233, ItemContext::NONE, true); // Shoulder - Hombros
+            player->EquipNewItem(EQUIPMENT_SLOT_FEET, 139234, ItemContext::NONE, true); // feet - pies
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET1, 139325, ItemContext::NONE, true);
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET2, 139328, ItemContext::NONE, true); // Trinket - Abalario Dps Fuerza
+            player->EquipNewItem(EQUIPMENT_SLOT_MAINHAND, 124374, ItemContext::NONE, true); //  tanke 
+            player->EquipNewItem(EQUIPMENT_SLOT_OFFHAND, 124355, ItemContext::NONE, true);  // escudo
+            player->AddItem(124388, 1); // dps
+            player->AddItem(124376, 1); // heler
+
+        }
+        if (player->getClass() == CLASS_PRIEST)
+        {
+            player->EquipNewItem(EQUIPMENT_SLOT_HEAD, 139189, ItemContext::NONE, true); //Head - Cabeza
+            player->EquipNewItem(EQUIPMENT_SLOT_WRISTS, 139196, ItemContext::NONE, true); //Wrists - Muecas
+            player->EquipNewItem(EQUIPMENT_SLOT_WAIST, 138217, ItemContext::NONE, true); //Wrais - Cintura
+            player->EquipNewItem(EQUIPMENT_SLOT_HANDS, 138212, ItemContext::NONE, true); // Hands - Manos
+            player->EquipNewItem(EQUIPMENT_SLOT_CHEST, 139193, ItemContext::NONE, true); // Pecho
+            player->EquipNewItem(EQUIPMENT_SLOT_LEGS, 139190, ItemContext::NONE, true); // Legs - Pantalones
+            player->EquipNewItem(EQUIPMENT_SLOT_SHOULDERS, 139191, ItemContext::NONE, true); // Shoulder - Hombros
+            player->EquipNewItem(EQUIPMENT_SLOT_FEET, 139195, ItemContext::NONE, true); // feet - pies
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET1, 139321, ItemContext::NONE, true);
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET2, 139326, ItemContext::NONE, true); // Trinket - Abalario Dps intelecto
+            player->EquipNewItem(EQUIPMENT_SLOT_MAINHAND, 124382, ItemContext::NONE, true); // disciplina // sagrado // sombra 
+
+        }
+        if (player->getClass() == CLASS_ROGUE)
+        {
+            player->EquipNewItem(EQUIPMENT_SLOT_HEAD, 139205, ItemContext::NONE, true); //Head - Cabeza
+            player->EquipNewItem(EQUIPMENT_SLOT_WRISTS, 139209, ItemContext::NONE, true); //Wrists - Muecas
+            player->EquipNewItem(EQUIPMENT_SLOT_WAIST, 139197, ItemContext::NONE, true); //Wrais - Cintura
+            player->EquipNewItem(EQUIPMENT_SLOT_HANDS, 140996, ItemContext::NONE, true); // Hands - Manos
+            player->EquipNewItem(EQUIPMENT_SLOT_CHEST, 139208, ItemContext::NONE, true); // Pecho
+            player->EquipNewItem(EQUIPMENT_SLOT_LEGS, 139201, ItemContext::NONE, true); // Legs - Pantalones
+            player->EquipNewItem(EQUIPMENT_SLOT_SHOULDERS, 139206, ItemContext::NONE, true); // Shoulder - Hombros
+            player->EquipNewItem(EQUIPMENT_SLOT_FEET, 139199, ItemContext::NONE, true); // feet - pies
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET1, 139329, ItemContext::NONE, true);
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET2, 139334, ItemContext::NONE, true); // Trinket - Abalario Dps Agilidad
+            player->EquipNewItem(EQUIPMENT_SLOT_MAINHAND, 124367, ItemContext::NONE, true); //  asesinato //sutileza 
+            player->EquipNewItem(EQUIPMENT_SLOT_OFFHAND, 124367, ItemContext::NONE, true);  //  asesinato //sutileza 
+            player->AddItem(124387, 1); // foragido
+            player->AddItem(124387, 1); // foragido
+
+        }
+        if (player->getClass() == CLASS_SHAMAN)
+        {
+            player->EquipNewItem(EQUIPMENT_SLOT_HEAD, 139214, ItemContext::NONE, true); //Head - Cabeza
+            player->EquipNewItem(EQUIPMENT_SLOT_WRISTS, 139222, ItemContext::NONE, true); //Wrists - Muecas
+            player->EquipNewItem(EQUIPMENT_SLOT_WAIST, 139212, ItemContext::NONE, true); //Wrais - Cintura
+            player->EquipNewItem(EQUIPMENT_SLOT_HANDS, 141694, ItemContext::NONE, true); // Hands - Manos
+            player->EquipNewItem(EQUIPMENT_SLOT_CHEST, 139221, ItemContext::NONE, true); // Pecho
+            player->EquipNewItem(EQUIPMENT_SLOT_LEGS, 139215, ItemContext::NONE, true); // Legs - Pantalones
+            player->EquipNewItem(EQUIPMENT_SLOT_SHOULDERS, 139218, ItemContext::NONE, true); // Shoulder - Hombros
+            player->EquipNewItem(EQUIPMENT_SLOT_FEET, 139219, ItemContext::NONE, true); // feet - pies
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET1, 139329, ItemContext::NONE, true);
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET2, 139334, ItemContext::NONE, true); // Trinket - Abalario Dps Agilidad
+            player->AddItem(139326, 1); // Trinket - Abalario Dps intelecto
+            player->EquipNewItem(EQUIPMENT_SLOT_MAINHAND, 124372, ItemContext::NONE, true); //  elemental // heler
+            player->EquipNewItem(EQUIPMENT_SLOT_OFFHAND, 124355, ItemContext::NONE, true);  //  elemental // heler 
+            player->AddItem(124359, 1); // mejora
+            player->AddItem(124359, 1); // mejora
+
+        }
+        if (player->getClass() == CLASS_WARLOCK)
+        {
+            player->EquipNewItem(EQUIPMENT_SLOT_HEAD, 139189, ItemContext::NONE, true); //Head - Cabeza
+            player->EquipNewItem(EQUIPMENT_SLOT_WRISTS, 139196, ItemContext::NONE, true); //Wrists - Muecas
+            player->EquipNewItem(EQUIPMENT_SLOT_WAIST, 138217, ItemContext::NONE, true); //Wrais - Cintura
+            player->EquipNewItem(EQUIPMENT_SLOT_HANDS, 138212, ItemContext::NONE, true); // Hands - Manos
+            player->EquipNewItem(EQUIPMENT_SLOT_CHEST, 139193, ItemContext::NONE, true); // Pecho
+            player->EquipNewItem(EQUIPMENT_SLOT_LEGS, 139190, ItemContext::NONE, true); // Legs - Pantalones
+            player->EquipNewItem(EQUIPMENT_SLOT_SHOULDERS, 139191, ItemContext::NONE, true); // Shoulder - Hombros
+            player->EquipNewItem(EQUIPMENT_SLOT_FEET, 139195, ItemContext::NONE, true); // feet - pies
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET1, 139321, ItemContext::NONE, true);
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET2, 139326, ItemContext::NONE, true); // Trinket - Abalario Dps intelecto
+            player->EquipNewItem(EQUIPMENT_SLOT_MAINHAND, 124382, ItemContext::NONE, true); // las 3 ramas
+
+        }
+        if (player->getClass() == CLASS_WARRIOR)
+        {
+            player->EquipNewItem(EQUIPMENT_SLOT_HEAD, 139231, ItemContext::NONE, true); //Head - Cabeza
+            player->EquipNewItem(EQUIPMENT_SLOT_WRISTS, 138218, ItemContext::NONE, true); //Wrists - Muecas
+            player->EquipNewItem(EQUIPMENT_SLOT_WAIST, 139228, ItemContext::NONE, true); //Wrais - Cintura
+            player->EquipNewItem(EQUIPMENT_SLOT_HANDS, 139225, ItemContext::NONE, true); // Hands - Manos
+            player->EquipNewItem(EQUIPMENT_SLOT_CHEST, 139224, ItemContext::NONE, true); // Pecho
+            player->EquipNewItem(EQUIPMENT_SLOT_LEGS, 139230, ItemContext::NONE, true); // Legs - Pantalones
+            player->EquipNewItem(EQUIPMENT_SLOT_SHOULDERS, 139233, ItemContext::NONE, true); // Shoulder - Hombros
+            player->EquipNewItem(EQUIPMENT_SLOT_FEET, 139234, ItemContext::NONE, true); // feet - pies
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET1, 139325, ItemContext::NONE, true);
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET2, 139328, ItemContext::NONE, true); // Trinket - Abalario Dps Fuerza
+            player->EquipNewItem(EQUIPMENT_SLOT_MAINHAND, 124374, ItemContext::NONE, true); //  tanke 
+            player->EquipNewItem(EQUIPMENT_SLOT_OFFHAND, 124355, ItemContext::NONE, true);  // escudo
+            player->AddItem(124388, 1); // dps
+            player->AddItem(124388, 1); // dps
+
+        }
+        if (player->getClass() == CLASS_DEMON_HUNTER)
+        {
+            player->EquipNewItem(EQUIPMENT_SLOT_HEAD, 139205, ItemContext::NONE, true); //Head - Cabeza
+            player->EquipNewItem(EQUIPMENT_SLOT_WRISTS, 139209, ItemContext::NONE, true); //Wrists - Muecas
+            player->EquipNewItem(EQUIPMENT_SLOT_WAIST, 139197, ItemContext::NONE, true); //Wrais - Cintura
+            player->EquipNewItem(EQUIPMENT_SLOT_HANDS, 140996, ItemContext::NONE, true); // Hands - Manos
+            player->EquipNewItem(EQUIPMENT_SLOT_CHEST, 139208, ItemContext::NONE, true); // Pecho
+            player->EquipNewItem(EQUIPMENT_SLOT_LEGS, 139201, ItemContext::NONE, true); // Legs - Pantalones
+            player->EquipNewItem(EQUIPMENT_SLOT_SHOULDERS, 139206, ItemContext::NONE, true); // Shoulder - Hombros
+            player->EquipNewItem(EQUIPMENT_SLOT_FEET, 139199, ItemContext::NONE, true); // feet - pies
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET1, 139329, ItemContext::NONE, true);
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET2, 139334, ItemContext::NONE, true); // Trinket - Abalario Dps Agilidad
+
+        }
+        if (player->GetRace() == RACE_GOBLIN || RACE_ORC || RACE_UNDEAD_PLAYER || RACE_TAUREN || RACE_TROLL || RACE_BLOODELF || RACE_NIGHTBORNE || RACE_HIGHMOUNTAIN_TAUREN || RACE_ZANDALARI_TROLL || RACE_VULPERA || RACE_MAGHAR_ORC)
+        {
+            player->TeleportTo(1, 1569.97f, -4397.41f, 16.0472f, 0.503f);
+        }
+
+        else
+            if (player->GetRace() == RACE_DRAENEI || RACE_DWARF || RACE_HUMAN || RACE_NIGHTELF || RACE_GNOME || RACE_WORGEN || RACE_VOID_ELF || RACE_LIGHTFORGED_DRAENEI || RACE_DARK_IRON_DWARF || RACE_MECHAGNOME || RACE_KUL_TIRAN)
+            {
+                player->TeleportTo(0, -8833.68f, 621.302f, 93.8017f, 0.733f);
+            }
+            else
+
+                if (player->GetRace() == RACE_PANDAREN_NEUTRAL || RACE_PANDAREN_ALLIANCE || RACE_PANDAREN_HORDE)
+                {
+                    player->TeleportTo(860, 1466.09f, 3465.98f, 181.86f, 2.733f);
+                }
+
+        player->SaveToDB();
+        player->SetLevel(lvlup);
+        player->InitTalentForLevel();
+        player->DestroyItemCount(item_id, 1, true);
+
+        return true;
+
+    }
+};
+
+class item_level_boost120 : public ItemScript
+{
+public:
+    item_level_boost120() : ItemScript("item_level_boost120") { }
+
+    enum
+    {
+        item_id = 789002, //Item Entry
+        max_lvl = 120, //Server Max Level
+        lvlup = 120, //Sets level
+    };
+
+    bool OnUse(Player* player, Item* item, SpellCastTargets const& targets, ObjectGuid /*castId*/) override
+    {
+        if (player->IsInCombat() || player->InArena() || player->InBattleground()) //Item is not usable in combat, arenas and battlegrounds. This can be modified to your taste.
+        {
+            player->GetSession()->SendNotification(sObjectMgr->GetTrinityStringForDBCLocale(789000));
+            return false;
+        }
+
+        // Bags
+        for (int slot = INVENTORY_SLOT_BAG_START; slot < INVENTORY_SLOT_BAG_END; slot++)
+            if (Item* bag = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+                player->DestroyItem(INVENTORY_SLOT_BAG_0, slot, true);
+
+        for (int slot = INVENTORY_SLOT_BAG_START; slot < INVENTORY_SLOT_BAG_END; slot++)
+            player->EquipNewItem(slot, 142075, ItemContext::NONE, true);
+
+        player->GiveLevel(sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
+        player->InitTalentForLevel();
+        player->ModifyMoney(200000000);
+        player->LearnSpell(88331, true); // Montura Riendas del draco de piedra volcnico
+        player->LearnSpell(33388, true); // Equitacion
+        player->LearnSpell(33391, true);
+        player->LearnSpell(34090, true);
+        player->LearnSpell(34091, true);
+        player->LearnSpell(90265, true);
+        player->LearnSpell(54197, true);
+        player->LearnSpell(90267, true);
+        player->LearnSpell(115913, true);
+        player->LearnSpell(110406, true);
+        player->LearnSpell(104381, true);
+
+        //   add end - level quests
+        bool IsPandarenNeutral = player->GetRace() == RACE_PANDAREN_NEUTRAL;
+        std::vector<uint32> questsToAdd;
+        if (player->GetTeam() == HORDE || IsPandarenNeutral)
+        {
+            // quests for Pandaria map
+            questsToAdd.push_back(29611);   // The Art of War
+            questsToAdd.push_back(31853);   // All Aboard!
+            questsToAdd.push_back(29690);   // Into the Mists
+            if (player->getClass() == CLASS_DEATH_KNIGHT)
+                questsToAdd.push_back(13189);
+        }
+        if (player->GetTeam() == ALLIANCE || IsPandarenNeutral)
+        {
+            // quests for Pandaria map
+            questsToAdd.push_back(29547);   // The King's Command
+            questsToAdd.push_back(29548);   // The Mission
+            if (player->getClass() == CLASS_DEATH_KNIGHT)
+                questsToAdd.push_back(13188);
+        }
+        // pandarens
+        if (IsPandarenNeutral)
+        {
+            // add "A New Fate" quest
+            if (Quest const* quest = sObjectMgr->GetQuestTemplate(31450))
+            {
+                player->AddQuest(quest, NULL);
+                player->CompleteQuest(quest->GetQuestId());
+            }
+            // send faction selection screen
+            player->ShowNeutralPlayerFactionSelectUI();
+        }
+
+        if (player->getClass() == CLASS_PALADIN)
+        {
+            player->EquipNewItem(EQUIPMENT_SLOT_HEAD, 155866, ItemContext::NONE, true); //casco
+            player->EquipNewItem(EQUIPMENT_SLOT_WRISTS, 158359, ItemContext::NONE, true); //muecas
+            player->EquipNewItem(EQUIPMENT_SLOT_WAIST, 159442, ItemContext::NONE, true); //cintura
+            player->EquipNewItem(EQUIPMENT_SLOT_HANDS, 159437, ItemContext::NONE, true); //manos
+            player->EquipNewItem(EQUIPMENT_SLOT_CHEST, 159408, ItemContext::NONE, true); //pecho
+            player->EquipNewItem(EQUIPMENT_SLOT_LEGS, 159451, ItemContext::NONE, true); //piernas
+            player->EquipNewItem(EQUIPMENT_SLOT_SHOULDERS, 159415, ItemContext::NONE, true); //hombros
+            player->EquipNewItem(EQUIPMENT_SLOT_FEET, 155861, ItemContext::NONE, true); //pies
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET1, 159620, ItemContext::NONE, true); //abalorio healer
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET2, 159615, ItemContext::NONE, true); //abalorio healer 
+            player->EquipNewItem(EQUIPMENT_SLOT_MAINHAND, 159641, ItemContext::NONE, true); //maza healer
+            player->EquipNewItem(EQUIPMENT_SLOT_OFFHAND, 159663, ItemContext::NONE, true); //escudo healer
+            player->EquipNewItem(EQUIPMENT_SLOT_BACK, 159287, ItemContext::NONE, true); //capa
+            player->EquipNewItem(EQUIPMENT_SLOT_FINGER1, 159462, ItemContext::NONE, true); //dedo
+            player->EquipNewItem(EQUIPMENT_SLOT_FINGER2, 158314, ItemContext::NONE, true); //dedo
+            player->AddItem(159632, 1);  // maza tanke
+            player->AddItem(159666, 1);  // escudo tanke
+            player->AddItem(159618, 1);  // abalorio tanke
+            player->AddItem(159626, 1);  // abalorio tanke 1
+            player->AddItem(159638, 1);  // arma 2 manos dps
+            player->AddItem(159625, 1);  // abalorio dps
+            player->AddItem(159616, 1);  // abalorio dps 1
+        }
+        if (player->getClass() == CLASS_PRIEST)
+        {
+            player->EquipNewItem(EQUIPMENT_SLOT_HEAD, 159244, ItemContext::NONE, true); //casco
+            player->EquipNewItem(EQUIPMENT_SLOT_WRISTS, 159263, ItemContext::NONE, true); //muecas
+            player->EquipNewItem(EQUIPMENT_SLOT_WAIST, 159239, ItemContext::NONE, true); //cintura
+            player->EquipNewItem(EQUIPMENT_SLOT_HANDS, 159247, ItemContext::NONE, true); //manos
+            player->EquipNewItem(EQUIPMENT_SLOT_CHEST, 159257, ItemContext::NONE, true); //pecho 
+            player->EquipNewItem(EQUIPMENT_SLOT_LEGS, 159285, ItemContext::NONE, true); //piernas
+            player->EquipNewItem(EQUIPMENT_SLOT_SHOULDERS, 159238, ItemContext::NONE, true); //hombros 
+            player->EquipNewItem(EQUIPMENT_SLOT_FEET, 159259, ItemContext::NONE, true); //pies
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET1, 159620, ItemContext::NONE, true); //abalorio healer 
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET2, 159630, ItemContext::NONE, true); //abalorio healer 
+            player->EquipNewItem(EQUIPMENT_SLOT_MAINHAND, 159641, ItemContext::NONE, true); //maza healer 
+            player->EquipNewItem(EQUIPMENT_SLOT_OFFHAND, 158322, ItemContext::NONE, true); //tomo healer 
+            player->EquipNewItem(EQUIPMENT_SLOT_BACK, 158375, ItemContext::NONE, true);// capa
+            player->EquipNewItem(EQUIPMENT_SLOT_FINGER1, 158314, ItemContext::NONE, true); //dedo
+            player->EquipNewItem(EQUIPMENT_SLOT_FINGER2, 158318, ItemContext::NONE, true); //dedo 
+            player->AddItem(159631, 1);  // abalorio healer
+            player->AddItem(159636, 1);  // baston dps 
+            player->AddItem(159615, 1); // abalorio dps
+        }
+        if (player->getClass() == CLASS_ROGUE)
+        {
+            player->EquipNewItem(EQUIPMENT_SLOT_HEAD, 159334, ItemContext::NONE, true); //casco
+            player->EquipNewItem(EQUIPMENT_SLOT_WRISTS, 159324, ItemContext::NONE, true); //muecas
+            player->EquipNewItem(EQUIPMENT_SLOT_WAIST, 159309, ItemContext::NONE, true); //cintura
+            player->EquipNewItem(EQUIPMENT_SLOT_HANDS, 159968, ItemContext::NONE, true); //manos
+            player->EquipNewItem(EQUIPMENT_SLOT_CHEST, 159303, ItemContext::NONE, true); //pecho 
+            player->EquipNewItem(EQUIPMENT_SLOT_LEGS, 159338, ItemContext::NONE, true); //piernas
+            player->EquipNewItem(EQUIPMENT_SLOT_SHOULDERS, 159331, ItemContext::NONE, true); //hombros
+            player->EquipNewItem(EQUIPMENT_SLOT_FEET, 155862, ItemContext::NONE, true); //pies 
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET1, 155881, ItemContext::NONE, true); //abalorio dps
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET2, 159623, ItemContext::NONE, true); //abalorio dps 
+            player->EquipNewItem(EQUIPMENT_SLOT_MAINHAND, 159131, ItemContext::NONE, true); //arma una mano
+            player->EquipNewItem(EQUIPMENT_SLOT_OFFHAND, 159131, ItemContext::NONE, true); //second adage
+            player->EquipNewItem(EQUIPMENT_SLOT_BACK, 155884, ItemContext::NONE, true); //capa
+            player->EquipNewItem(EQUIPMENT_SLOT_FINGER1, 159461, ItemContext::NONE, true); //dedo
+            player->EquipNewItem(EQUIPMENT_SLOT_FINGER2, 158314, ItemContext::NONE, true); //dedo
+            player->AddItem(159661, 1);  // maza una mano dps
+            player->AddItem(159661, 1);  // maza una mano dps 1
+
+        }
+        if (player->getClass() == CLASS_SHAMAN)
+        {
+            player->EquipNewItem(EQUIPMENT_SLOT_HEAD, 159358, ItemContext::NONE, true); //casco
+            player->EquipNewItem(EQUIPMENT_SLOT_WRISTS, 159372, ItemContext::NONE, true); //muecas
+            player->EquipNewItem(EQUIPMENT_SLOT_WAIST, 159402, ItemContext::NONE, true); //cintura
+            player->EquipNewItem(EQUIPMENT_SLOT_HANDS, 158317, ItemContext::NONE, true);// manos
+            player->EquipNewItem(EQUIPMENT_SLOT_CHEST, 159362, ItemContext::NONE, true); //pecho 
+            player->EquipNewItem(EQUIPMENT_SLOT_LEGS, 155868, ItemContext::NONE, true); //piernas
+            player->EquipNewItem(EQUIPMENT_SLOT_SHOULDERS, 159376, ItemContext::NONE, true); //hombros
+            player->EquipNewItem(EQUIPMENT_SLOT_FEET, 158308, ItemContext::NONE, true); //pies
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET1, 159620, ItemContext::NONE, true); //abalorio healer 
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET2, 159630, ItemContext::NONE, true); //abalorio healer 
+            player->EquipNewItem(EQUIPMENT_SLOT_MAINHAND, 158369, ItemContext::NONE, true); //maza healer
+            player->EquipNewItem(EQUIPMENT_SLOT_OFFHAND, 159664, ItemContext::NONE, true); //escudo healer
+            player->EquipNewItem(EQUIPMENT_SLOT_BACK, 158375, ItemContext::NONE, true); //capa 
+            player->EquipNewItem(EQUIPMENT_SLOT_FINGER1, 159461, ItemContext::NONE, true); //dedo
+            player->EquipNewItem(EQUIPMENT_SLOT_FINGER2, 158362, ItemContext::NONE, true); //dedo 
+            player->AddItem(159652, 1);  // maza dps 
+            player->AddItem(158713, 1);  // escudo dps
+            player->AddItem(160269, 1);  // arma 1 mano dps
+            player->AddItem(160269, 1);  // arma 1 mano dps 1
+            player->AddItem(155881, 1);  // abalorio dps
+            player->AddItem(159623, 1);  // abalorio dps 1 
+        }
+        if (player->getClass() == CLASS_WARLOCK)
+        {
+            player->EquipNewItem(EQUIPMENT_SLOT_HEAD, 159279, ItemContext::NONE, true); //casco
+            player->EquipNewItem(EQUIPMENT_SLOT_WRISTS, 159282, ItemContext::NONE, true); //muecas
+            player->EquipNewItem(EQUIPMENT_SLOT_WAIST, 158346, ItemContext::NONE, true); //cintura
+            player->EquipNewItem(EQUIPMENT_SLOT_HANDS, 159237, ItemContext::NONE, true); //manos 
+            player->EquipNewItem(EQUIPMENT_SLOT_CHEST, 159233, ItemContext::NONE, true); //pecho
+            player->EquipNewItem(EQUIPMENT_SLOT_LEGS, 159285, ItemContext::NONE, true); //piernas
+            player->EquipNewItem(EQUIPMENT_SLOT_SHOULDERS, 159273, ItemContext::NONE, true); //hombros
+            player->EquipNewItem(EQUIPMENT_SLOT_FEET, 158303, ItemContext::NONE, true); //pies
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET1, 159620, ItemContext::NONE, true); //abalorio dps
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET2, 159615, ItemContext::NONE, true); //abalorio 	dps 
+            player->EquipNewItem(EQUIPMENT_SLOT_MAINHAND, 159636, ItemContext::NONE, true); //baston dps
+            player->EquipNewItem(EQUIPMENT_SLOT_BACK, 159294, ItemContext::NONE, true); //capa
+            player->EquipNewItem(EQUIPMENT_SLOT_FINGER1, 159462, ItemContext::NONE, true); //dedo
+            player->EquipNewItem(EQUIPMENT_SLOT_FINGER2, 159463, ItemContext::NONE, true); //dedo  
+            player->AddItem(158321, 1); // varita dps
+            player->AddItem(158322, 1); // tomo dps
+            player->AddItem(159630, 1); // abalorio dps 
+
+        }
+        if (player->getClass() == CLASS_WARRIOR)
+        {
+            player->EquipNewItem(EQUIPMENT_SLOT_HEAD, 155866, ItemContext::NONE, true); //casco
+            player->EquipNewItem(EQUIPMENT_SLOT_WRISTS, 159229, ItemContext::NONE, true); //muecas 
+            player->EquipNewItem(EQUIPMENT_SLOT_WAIST, 160215, ItemContext::NONE, true); //cintura
+            player->EquipNewItem(EQUIPMENT_SLOT_HANDS, 159445, ItemContext::NONE, true); //manos
+            player->EquipNewItem(EQUIPMENT_SLOT_CHEST, 159448, ItemContext::NONE, true); //pecho
+            player->EquipNewItem(EQUIPMENT_SLOT_LEGS, 159456, ItemContext::NONE, true); //piernas
+            player->EquipNewItem(EQUIPMENT_SLOT_SHOULDERS, 159455, ItemContext::NONE, true); //hombros
+            player->EquipNewItem(EQUIPMENT_SLOT_FEET, 159428, ItemContext::NONE, true); //pies
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET1, 159625, ItemContext::NONE, true); //abalorio dps
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET2, 159616, ItemContext::NONE, true); //abalorio dps
+            player->EquipNewItem(EQUIPMENT_SLOT_MAINHAND, 159972, ItemContext::NONE, true); //arma 1 mano 
+            player->EquipNewItem(EQUIPMENT_SLOT_OFFHAND, 159638, ItemContext::NONE, true); //arma 1 mano
+            player->EquipNewItem(EQUIPMENT_SLOT_BACK, 159294, ItemContext::NONE, true); //capa
+            player->EquipNewItem(EQUIPMENT_SLOT_FINGER1, 158314, ItemContext::NONE, true); //dedo
+            player->EquipNewItem(EQUIPMENT_SLOT_FINGER2, 159461, ItemContext::NONE, true); //dedo
+            player->AddItem(159632, 1);  // maza tanke
+            player->AddItem(159666, 1);  // escudo tanke
+            player->AddItem(159618, 1);  // abalorio tanke
+            player->AddItem(159626, 1);  // abalorio tanke 1
+            player->AddItem(159644, 1);  // arma 2 manos dps
+
+        }
+        if (player->getClass() == CLASS_DEMON_HUNTER)
+        {
+            player->EquipNewItem(EQUIPMENT_SLOT_HEAD, 159364, ItemContext::NONE, true); //casco
+            player->EquipNewItem(EQUIPMENT_SLOT_WRISTS, 160214, ItemContext::NONE, true); //muecas
+            player->EquipNewItem(EQUIPMENT_SLOT_WAIST, 158306, ItemContext::NONE, true); //cintura
+            player->EquipNewItem(EQUIPMENT_SLOT_HANDS, 159321, ItemContext::NONE, true); //manos 
+            player->EquipNewItem(EQUIPMENT_SLOT_CHEST, 159298, ItemContext::NONE, true); //pecho
+            player->EquipNewItem(EQUIPMENT_SLOT_LEGS, 159313, ItemContext::NONE, true); //piernas
+            player->EquipNewItem(EQUIPMENT_SLOT_SHOULDERS, 159323, ItemContext::NONE, true); //hombros
+            player->EquipNewItem(EQUIPMENT_SLOT_FEET, 159320, ItemContext::NONE, true); //pies 
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET1, 155881, ItemContext::NONE, true); //abalorio dps
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET2, 158374, ItemContext::NONE, true); //abalorio dps
+            player->EquipNewItem(EQUIPMENT_SLOT_MAINHAND, 160110, ItemContext::NONE, true); //guja dps
+            player->EquipNewItem(EQUIPMENT_SLOT_OFFHAND, 160110, ItemContext::NONE, true); //guja dps
+            player->EquipNewItem(EQUIPMENT_SLOT_BACK, 159292, ItemContext::NONE, true); //capa 
+            player->EquipNewItem(EQUIPMENT_SLOT_FINGER1, 158362, ItemContext::NONE, true); //dedo
+            player->EquipNewItem(EQUIPMENT_SLOT_FINGER2, 159297, ItemContext::NONE, true); //dedo
+            player->AddItem(158714, 1);  // guja tanke
+            player->AddItem(158714, 1);  // guja tanke
+            player->AddItem(159618, 1);  // abalorio tanke
+            player->AddItem(159626, 1);  // abalorio tanke 1
+        }
+        if (player->getClass() == CLASS_MONK)
+        {
+            player->EquipNewItem(EQUIPMENT_SLOT_HEAD, 155888, ItemContext::NONE, true); //casco
+            player->EquipNewItem(EQUIPMENT_SLOT_WRISTS, 160214, ItemContext::NONE, true); //muecas
+            player->EquipNewItem(EQUIPMENT_SLOT_WAIST, 159309, ItemContext::NONE, true); //cintura 
+            player->EquipNewItem(EQUIPMENT_SLOT_HANDS, 155889, ItemContext::NONE, true); //manos
+            player->EquipNewItem(EQUIPMENT_SLOT_CHEST, 155860, ItemContext::NONE, true); //pecho
+            player->EquipNewItem(EQUIPMENT_SLOT_LEGS, 159322, ItemContext::NONE, true); //piernas
+            player->EquipNewItem(EQUIPMENT_SLOT_SHOULDERS, 159323, ItemContext::NONE, true); //hombros
+            player->EquipNewItem(EQUIPMENT_SLOT_FEET, 159295, ItemContext::NONE, true); //pies 
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET1, 155881, ItemContext::NONE, true); //abalorio dps
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET2, 159623, ItemContext::NONE, true); //abalorio dps
+            player->EquipNewItem(EQUIPMENT_SLOT_MAINHAND, 159661, ItemContext::NONE, true); //maza dps
+            player->EquipNewItem(EQUIPMENT_SLOT_OFFHAND, 159661, ItemContext::NONE, true); //maza dps
+            player->EquipNewItem(EQUIPMENT_SLOT_BACK, 159292, ItemContext::NONE, true); //capa
+            player->EquipNewItem(EQUIPMENT_SLOT_FINGER1, 158318, ItemContext::NONE, true); //dedos
+            player->EquipNewItem(EQUIPMENT_SLOT_FINGER2, 159314, ItemContext::NONE, true); //dedos
+            player->AddItem(159656, 1);  // arma 2 manos tanke
+            player->AddItem(159617, 1);  // abalorio tanke
+            player->AddItem(159626, 1);  // abalorio tanke 1
+            player->AddItem(159636, 1);  // baston manos healer
+            player->AddItem(159630, 1);  // abalorio healer
+            player->AddItem(159620, 1);  // abalorio healer 1
+        }
+        if (player->getClass() == CLASS_HUNTER)
+        {
+            player->EquipNewItem(EQUIPMENT_SLOT_HEAD, 159381, ItemContext::NONE, true); //casco
+            player->EquipNewItem(EQUIPMENT_SLOT_WRISTS, 159380, ItemContext::NONE, true); //muecas
+            player->EquipNewItem(EQUIPMENT_SLOT_WAIST, 159386, ItemContext::NONE, true); //cintura
+            player->EquipNewItem(EQUIPMENT_SLOT_HANDS, 159366, ItemContext::NONE, true); //manos
+            player->EquipNewItem(EQUIPMENT_SLOT_CHEST, 159362, ItemContext::NONE, true); //pecho
+            player->EquipNewItem(EQUIPMENT_SLOT_LEGS, 159384, ItemContext::NONE, true); //piernas
+            player->EquipNewItem(EQUIPMENT_SLOT_SHOULDERS, 159385, ItemContext::NONE, true); //hombros
+            player->EquipNewItem(EQUIPMENT_SLOT_FEET, 158308, ItemContext::NONE, true); //pies
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET1, 159623, ItemContext::NONE, true); //abalorio dps
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET2, 155881, ItemContext::NONE, true); //abalorio dps 
+            player->EquipNewItem(EQUIPMENT_SLOT_MAINHAND, 159643, ItemContext::NONE, true); //arco
+            player->EquipNewItem(EQUIPMENT_SLOT_BACK, 159294, ItemContext::NONE, true); //capa
+            player->EquipNewItem(EQUIPMENT_SLOT_FINGER1, 158314, ItemContext::NONE, true); //dedo 
+            player->EquipNewItem(EQUIPMENT_SLOT_FINGER2, 159461, ItemContext::NONE, true); //dedo 
+            player->AddItem(158370, 1);  // arma 2 manos dps
+
+        }
+        if (player->getClass() == CLASS_DRUID)
+        {
+            player->EquipNewItem(EQUIPMENT_SLOT_HEAD, 159310, ItemContext::NONE, true); //casco
+            player->EquipNewItem(EQUIPMENT_SLOT_WRISTS, 160214, ItemContext::NONE, true); //muecas
+            player->EquipNewItem(EQUIPMENT_SLOT_WAIST, 159309, ItemContext::NONE, true); //cintura
+            player->EquipNewItem(EQUIPMENT_SLOT_HANDS, 159968, ItemContext::NONE, true); //manos
+            player->EquipNewItem(EQUIPMENT_SLOT_CHEST, 159314, ItemContext::NONE, true); //pecho
+            player->EquipNewItem(EQUIPMENT_SLOT_LEGS, 155869, ItemContext::NONE, true); //piernas
+            player->EquipNewItem(EQUIPMENT_SLOT_SHOULDERS, 159299, ItemContext::NONE, true); //hombros
+            player->EquipNewItem(EQUIPMENT_SLOT_FEET, 159295, ItemContext::NONE, true); //pies
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET1, 159620, ItemContext::NONE, true); //abalorio heal
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET2, 159615, ItemContext::NONE, true); //abalorio heal 
+            player->EquipNewItem(EQUIPMENT_SLOT_MAINHAND, 159636, ItemContext::NONE, true); //baston heal
+            player->EquipNewItem(EQUIPMENT_SLOT_BACK, 159294, ItemContext::NONE, true); //capa 
+            player->EquipNewItem(EQUIPMENT_SLOT_FINGER1, 158366, ItemContext::NONE, true); //dedo
+            player->EquipNewItem(EQUIPMENT_SLOT_FINGER2, 159462, ItemContext::NONE, true); //dedo
+            player->AddItem(159642, 1);  // arma 2 manos tanke 
+            player->AddItem(159626, 1);  // abalorio tanke
+            player->AddItem(159618, 1);  // abalorio tanke 1
+            player->AddItem(155881, 1);  // abalorio dps
+            player->AddItem(159623, 1);  // abalorio dps 1
+        }
+        if (player->getClass() == CLASS_MAGE)
+        {
+            player->EquipNewItem(EQUIPMENT_SLOT_HEAD, 159252, ItemContext::NONE, true); //casco
+            player->EquipNewItem(EQUIPMENT_SLOT_WRISTS, 159256, ItemContext::NONE, true); //muecas
+            player->EquipNewItem(EQUIPMENT_SLOT_WAIST, 159266, ItemContext::NONE, true); //cintura
+            player->EquipNewItem(EQUIPMENT_SLOT_HANDS, 159237, ItemContext::NONE, true); //manos 
+            player->EquipNewItem(EQUIPMENT_SLOT_CHEST, 159233, ItemContext::NONE, true); //pecho
+            player->EquipNewItem(EQUIPMENT_SLOT_LEGS, 159242, ItemContext::NONE, true); //piernas
+            player->EquipNewItem(EQUIPMENT_SLOT_SHOULDERS, 159238, ItemContext::NONE, true); //hombros
+            player->EquipNewItem(EQUIPMENT_SLOT_FEET, 158303, ItemContext::NONE, true); //pies 
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET1, 159620, ItemContext::NONE, true); //abalorio dps
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET2, 159615, ItemContext::NONE, true); //abalorio dps
+            player->EquipNewItem(EQUIPMENT_SLOT_MAINHAND, 158321, ItemContext::NONE, true); //varita dps
+            player->EquipNewItem(EQUIPMENT_SLOT_OFFHAND, 158322, ItemContext::NONE, true); //tomo dps
+            player->EquipNewItem(EQUIPMENT_SLOT_BACK, 159294, ItemContext::NONE, true); //capa
+            player->EquipNewItem(EQUIPMENT_SLOT_FINGER1, 159458, ItemContext::NONE, true); //dedo
+            player->EquipNewItem(EQUIPMENT_SLOT_FINGER2, 159463, ItemContext::NONE, true); //dedo
+        }
+        if (player->getClass() == CLASS_DEATH_KNIGHT)
+        {
+            player->EquipNewItem(EQUIPMENT_SLOT_HEAD, 159430, ItemContext::NONE, true); //casco 
+            player->EquipNewItem(EQUIPMENT_SLOT_WRISTS, 160212, ItemContext::NONE, true); //muecas
+            player->EquipNewItem(EQUIPMENT_SLOT_WAIST, 159418, ItemContext::NONE, true); //cintura
+            player->EquipNewItem(EQUIPMENT_SLOT_HANDS, 159445, ItemContext::NONE, true); //manos
+            player->EquipNewItem(EQUIPMENT_SLOT_CHEST, 159448, ItemContext::NONE, true); //pecho
+            player->EquipNewItem(EQUIPMENT_SLOT_LEGS, 159456, ItemContext::NONE, true); //piernas
+            player->EquipNewItem(EQUIPMENT_SLOT_SHOULDERS, 159455, ItemContext::NONE, true); //hombros
+            player->EquipNewItem(EQUIPMENT_SLOT_FEET, 159420, ItemContext::NONE, true); //pies
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET1, 159626, ItemContext::NONE, true); //abalorio tank                           
+            player->EquipNewItem(EQUIPMENT_SLOT_TRINKET2, 159618, ItemContext::NONE, true); //abalorio tank
+            player->EquipNewItem(EQUIPMENT_SLOT_MAINHAND, 159368, ItemContext::NONE, true); //arma 2 manos tank
+            player->EquipNewItem(EQUIPMENT_SLOT_BACK, 159287, ItemContext::NONE, true); //capa
+            player->EquipNewItem(EQUIPMENT_SLOT_FINGER1, 159459, ItemContext::NONE, true); //dedo
+            player->EquipNewItem(EQUIPMENT_SLOT_FINGER2, 159462, ItemContext::NONE, true); //dedo
+            player->AddItem(158373, 1);  // arma 1 mano dps
+            player->AddItem(158373, 1);  // arma 1 mano dps
+            player->AddItem(159625, 1);  // abalorio dps
+            player->AddItem(159616, 1);  // abalorio dps 1
+        }
+        player->SaveToDB();
+        player->SetLevel(lvlup);
+        player->InitTalentForLevel();
+        player->DestroyItemCount(item_id, 1, true);
+        return true;
+
+    }
+};
+
+class Battle_for_Azeroth_Pathfinder : public ItemScript
+{
+public:
+    Battle_for_Azeroth_Pathfinder() : ItemScript("Battle_for_Azeroth_Pathfinder") { }
+
+    enum
+    {
+        item_id = 789003, //Item Entry
+    };
+
+    bool OnUse(Player* player, Item* item, SpellCastTargets const& targets, ObjectGuid /*castId*/) override
+    {
+        if (player->IsInCombat() || player->InArena() || player->InBattleground()) //Item is not usable in combat, arenas and battlegrounds. This can be modified to your taste.
+        {
+            player->GetSession()->SendNotification(sObjectMgr->GetTrinityStringForDBCLocale(789000));
+            return false;
+        }
+
+        player->LearnSpell(278833, true); // Abrecaminos de Battle for Azeroth
+        player->SendCustomMessage(sObjectMgr->GetTrinityStringForDBCLocale(789004));
+        player->SaveToDB();
+        player->DestroyItemCount(item_id, 1, true);
+        return true;
+
+    }
+};
+
+class Broken_Isles_Pathfinder : public ItemScript
+{
+public:
+    Broken_Isles_Pathfinder() : ItemScript("Broken_Isles_Pathfinder") { }
+
+    enum
+    {
+        item_id = 789004, //Item Entry
+    };
+
+    bool OnUse(Player* player, Item* item, SpellCastTargets const& targets, ObjectGuid /*castId*/) override
+    {
+        if (player->IsInCombat() || player->InArena() || player->InBattleground()) //Item is not usable in combat, arenas and battlegrounds. This can be modified to your taste.
+        {
+            player->GetSession()->SendNotification(sObjectMgr->GetTrinityStringForDBCLocale(789000));
+            return false;
+        }
+
+        player->LearnSpell(233368, true); // Abrecaminos de las Islas Abruptas
+        player->SendCustomMessage(sObjectMgr->GetTrinityStringForDBCLocale(789003));
+        player->SaveToDB();
+        player->DestroyItemCount(item_id, 1, true);
+        return true;
+    }
+
+};
+
+
+
+    }
+};
+
+
+class token_honor : public ItemScript
+{
+public:
+    token_honor() : ItemScript("token_honor") { }
+
+    enum
+    {
+        item_id = 789005, //Item Entry
+    };
+
+    bool OnUse(Player* player, Item* item, SpellCastTargets const& targets, ObjectGuid /*castId*/) override
+    {
+        if (player->IsInCombat() || player->InArena() || player->InBattleground()) //Item is not usable in combat, arenas and battlegrounds. This can be modified to your taste.
+        {
+            player->GetSession()->SendNotification(sObjectMgr->GetTrinityStringForDBCLocale(789000));
+            return false;
+        }
+
+        player->RewardHonor(NULL, 0, 45000, false);
+        player->SendCustomMessage(sObjectMgr->GetTrinityStringForDBCLocale(789005));
+        player->SaveToDB();
+        player->DestroyItemCount(item_id, 1, true);
+        return true;
+
+    }
+};
+
+/*
+class arwent_gift_mount : public PlayerScript
+{
+private:
+    bool isEnabled = false;
+    uint32 flySpell = 90265;
+    uint32 mountSpell = 307932;
+public:
+    arwent_gift_mount() : PlayerScript("arwent_gift_mount") {}
+    void OnLogin(Player* player, bool) {
+        if (isEnabled) {
+            if (!player->HasSpell(flySpell)) {
+                player->LearnSpell(flySpell, false);
+            }
+            if (!player->HasSpell(mountSpell)) {
+                player->LearnSpell(mountSpell, false);
+            }
+        }
+    }
+};
+*/
+
+/*
+class heirloom_mount_tempfix : public PlayerScript {
+private:
+    const uint32 heirloomSpell = 179244;
+    const int16 heirloomRequiredSize = 35;
+    const uint32 heirloomAchievement = 9909;
+public:
+    heirloom_mount_tempfix() : PlayerScript("heirloom_mount_tempfix") {}
+    void OnUpdate(Player* player, uint32) {
+        if (!player->HasSpell(heirloomSpell)) {
+            const CollectionMgr* sCollectionMgr = player->GetSession()->GetCollectionMgr();
+            if (sCollectionMgr->GetAccountHeirlooms().size() == heirloomRequiredSize) {
+                player->CompletedAchievement(heirloomAchievement);
+                player->LearnSpell(heirloomSpell, false);
+            }
+        }
+    }
+};
+*/
 
 #define ACTION_RANDOM_MORPH 1003
 #define ACTION_DEMORPH 1004
@@ -459,6 +1252,9 @@ public:
             player->GetSession()->SendNotification(sObjectMgr->GetTrinityStringForDBCLocale(789000));
             return false;
         } else {
+            AddGossipItemFor(player, GOSSIP_ICON_TRANSMOGRIFIER, "Random morph", GOSSIP_SENDER_MAIN, ACTION_RANDOM_MORPH);
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Demorph", GOSSIP_SENDER_MAIN, ACTION_DEMORPH);
+
             
             AddGossipItemFor(player, GossipOptionNpc::Transmogrify, "Random morph", GOSSIP_SENDER_MAIN, ACTION_RANDOM_MORPH);
             AddGossipItemFor(player, GossipOptionNpc::None, "Demorph", GOSSIP_SENDER_MAIN, ACTION_DEMORPH);
@@ -842,9 +1638,17 @@ void AddSC_custom_npcs()
 {
     new npc_rate_xp_modifier();
     new npc_anachronos();
+    new item_level_boost();
+    new Broken_Isles_Pathfinder();
+    new Battle_for_Azeroth_Pathfinder();
+    new item_level_boost120();
+    new token_honor();
     new npc_hallegosa();
     RegisterCreatureAI(npc_kalecgos_for_teracgosa);
+    new npc_rate_xp_modifier();
     new npc_transmorpher_beacon();
     new npc_PetBattleTrainer;
     new arwent_gift_mount();
+    //new arwent_gift_mount();
+//new heirloom_mount_tempfix();
 }
