@@ -8482,40 +8482,6 @@ void Unit::AtTargetAttacked(Unit* target, bool canInitialAggro)
     }
 }
 
-bool Unit::IsAlliedRace()
-{
-    if (Player* player = ToPlayer())
-    {
-        /* pandaren death knight (basically same thing as allied death knight) */
-        /* 熊猫人死亡骑士(基本上和同盟种族死亡骑士相同)*/
-        if ((player->GetRace() == RACE_PANDAREN_ALLIANCE) || (player->GetRace() == RACE_PANDAREN_HORDE) || (player->GetRace() == RACE_PANDAREN_NEUTRAL) && (player->GetClass() == CLASS_DEATH_KNIGHT))
-        {
-            return true;
-        }
-
-        /* other allied races */
-        switch (player->GetRace())
-        {
-        case RACE_NIGHTBORNE:
-        case RACE_HIGHMOUNTAIN_TAUREN:
-        case RACE_VOID_ELF:
-        case RACE_LIGHTFORGED_DRAENEI:
-        case RACE_ZANDALARI_TROLL:
-        case RACE_KUL_TIRAN:
-        case RACE_DARK_IRON_DWARF:
-        case RACE_VULPERA:
-        case RACE_MAGHAR_ORC:
-        case RACE_MECHAGNOME:
-            return true;
-            break;
-        default:
-            return false;
-            break;
-        }
-    }
-
-    return false;
-}
 
 void Unit::UpdatePetCombatState()
 {
@@ -9121,18 +9087,53 @@ void Unit::SetLevel(uint8 lvl, bool sendUpdate/* = true*/)
     }
 }
 
+//bool Unit::IsAlliedRace()//重复
+//{
+//    if (Player* player = ToPlayer())
+//    {
+//        /* pandaren death knight (basically same thing as allied death knight) */
+//        if ((player->getRace() == RACE_PANDAREN_ALLIANCE) || (player->getRace() == RACE_PANDAREN_HORDE) || (player->getRace() == RACE_PANDAREN_NEUTRAL) && (player->getClass() == CLASS_DEATH_KNIGHT))
+//        {
+//            return true;
+//        }
+//
+//        /* other allied races */
+//        switch (player->getRace())
+//        {
+//        case RACE_NIGHTBORNE:
+//        case RACE_HIGHMOUNTAIN_TAUREN:
+//        case RACE_VOID_ELF:
+//        case RACE_LIGHTFORGED_DRAENEI:
+//        case RACE_ZANDALARI_TROLL:
+//        case RACE_KUL_TIRAN:
+//        case RACE_DARK_IRON_DWARF:
+//        case RACE_VULPERA:
+//        case RACE_MAGHAR_ORC:
+//        case RACE_MECHAGNOME:
+//            return true;
+//            break;
+//        default:
+//            return false;
+//            break;
+//        }
+//    }
+//
+//    return false;
+//}
+
 bool Unit::IsAlliedRace()
 {
     if (Player* player = ToPlayer())
     {
         /* pandaren death knight (basically same thing as allied death knight) */
-        if ((player->getRace() == RACE_PANDAREN_ALLIANCE) || (player->getRace() == RACE_PANDAREN_HORDE) || (player->getRace() == RACE_PANDAREN_NEUTRAL) && (player->getClass() == CLASS_DEATH_KNIGHT))
+        /* 熊猫人死亡骑士(基本上和同盟种族死亡骑士相同)*/
+        if ((player->GetRace() == RACE_PANDAREN_ALLIANCE) || (player->GetRace() == RACE_PANDAREN_HORDE) || (player->GetRace() == RACE_PANDAREN_NEUTRAL) && (player->GetClass() == CLASS_DEATH_KNIGHT))
         {
             return true;
         }
 
         /* other allied races */
-        switch (player->getRace())
+        switch (player->GetRace())
         {
         case RACE_NIGHTBORNE:
         case RACE_HIGHMOUNTAIN_TAUREN:
@@ -9154,7 +9155,6 @@ bool Unit::IsAlliedRace()
 
     return false;
 }
-
 
 void Unit::SetHealth(uint64 val)
 {

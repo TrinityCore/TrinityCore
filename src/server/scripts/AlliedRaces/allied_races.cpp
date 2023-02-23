@@ -56,9 +56,10 @@ public:
 		{
             /* Cinematic - Pandaren death knight */
             //Store all future Allied races cinematics on first login here, not in CharacterHandler, it will create camera bugs and some other issues
+            //看这意思是熊猫人DK要播放特地动画
 			if (player->GetRace() == RACE_PANDAREN_HORDE || RACE_PANDAREN_ALLIANCE && player->GetMapId() == MAP_ALLIED_DK_ICECROWN && player->GetClass() == CLASS_DEATH_KNIGHT)
             {
-                player->GetSceneMgr().PlaySceneByPackageId(2780);
+               // player->GetSceneMgr().PlaySceneByPackageId(2780,  "待补充", nullptr);//此处"待补充"缺个参数,但是暂时不会写
             }
 
 
@@ -147,8 +148,8 @@ public:
             {
                 Player* player = NULL;
                 if (me->IsSummon())
-                    if (Unit* summoner = me->ToTempSummon()->GetSummoner())
-                        player = summoner->ToPlayer();
+                    /*if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                        player = summoner->ToPlayer();*///tmp
 
                 if (!player)
                     phase = 3;
@@ -199,7 +200,7 @@ public:
 class zone_allied_dk : public ZoneScript
 {
 public:
-    zone_allied_dk() : ZoneScript("zone_allied_dk") { }
+    /*zone_allied_dk() : ZoneScript("zone_allied_dk") { }*///tmp
 
     void OnPlayerDeath(Player* player)
     {
