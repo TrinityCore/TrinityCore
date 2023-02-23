@@ -99,7 +99,7 @@ public:
     {
         // We need to use a copy of SummonList here, otherwise original SummonList would be modified
         StorageType listCopy;
-        std::copy_if(std::begin(_storage), std::end(_storage), std::inserter(listCopy, std::end(listCopy)), predicate);
+        //std::copy_if(std::begin(_storage), std::end(_storage), std::inserter(listCopy, std::end(listCopy)), predicate);//暂时注释
         DoActionImpl(info, listCopy, max);
     }
 

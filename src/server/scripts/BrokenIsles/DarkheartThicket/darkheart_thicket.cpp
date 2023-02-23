@@ -152,8 +152,8 @@ public:
 
             if (pointId == 0)
             {
-                me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-                me->SetFacingTo(0.922050f);
+                //me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                //me->SetFacingTo(0.922050f);//tmp
             }
         }
 

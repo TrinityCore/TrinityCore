@@ -35,7 +35,7 @@ struct npc_malfunctioning_goliath : public ScriptedAI
     void Reset() override
     {
         ScriptedAI::Reset();
-        me->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
+//        me->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
     }
 };
 

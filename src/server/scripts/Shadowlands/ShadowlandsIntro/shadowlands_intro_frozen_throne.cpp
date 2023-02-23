@@ -45,8 +45,8 @@ struct npc_chilling_summons_commander : public ScriptedAI
             player->KilledMonsterCredit(173229);
             player->KilledMonsterCredit(171789);
             player->KilledMonsterCredit(170749);
-            player->ForceCompleteQuest(QUEST_CHILLING_SUMMONS_A);
-            player->ForceCompleteQuest(QUEST_CHILLING_SUMMONS_H);
+            //player->ForceCompleteQuest(QUEST_CHILLING_SUMMONS_A);//tmp
+            //player->ForceCompleteQuest(QUEST_CHILLING_SUMMONS_H);//tmp
             player->TeleportTo(2147, -633.468f, 2210.952f, 550.705f, 0.09f);
         }
 

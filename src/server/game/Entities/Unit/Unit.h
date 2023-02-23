@@ -864,11 +864,14 @@ class TC_GAME_API Unit : public WorldObject
         uint8 GetLevel() const { return uint8(m_unitData->Level); }
         uint8 GetLevelForTarget(WorldObject const* /*target*/) const override { return GetLevel(); }
         void SetLevel(uint8 lvl, bool sendUpdate = true);
+        uint8 getRace() const { return m_unitData->Race; }
         uint8 GetRace() const { return m_unitData->Race; }
         void SetRace(uint8 race) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Race), race); }
         uint64 GetRaceMask() const { return UI64LIT(1) << (GetRace() - 1); }
         uint8 getClass() const { return m_unitData->ClassId; }
         uint8 GetClass() const { return m_unitData->ClassId; }
+        bool IsAlliedRace();
+
         void SetClass(uint8 classId) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ClassId), classId); }
         uint32 GetClassMask() const { return 1 << (GetClass()-1); }
         Gender GetGender() const { return Gender(*m_unitData->Sex); }
@@ -1276,7 +1279,8 @@ class TC_GAME_API Unit : public WorldObject
 
         ObjectGuid GetCharmerGUID() const { return m_unitData->CharmedBy; }
         Unit* GetCharmer() const { return m_charmer; }
-        BrawlersGuild* GetBrawlerGuild();
+        //BrawlersGuild* GetBrawlerGuild();//暂时注释
+        
 
         ObjectGuid GetCharmedGUID() const { return m_unitData->Charm; }
         Unit* GetCharmed() const { return m_charmed; }

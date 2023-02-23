@@ -286,17 +286,17 @@ Unit* SelectRandomTargetWithGuidOnRange(Unit* FromWho, uint32 entry, float range
     else
         GetCreatureListWithEntryInGrid(CreatureList, FromWho, entry, range);
 
-    if (player && !PlayerList.empty())
+   /* if (player && !PlayerList.empty())//tmp
     {
         if (Player* target = Trinity::Containers::SelectRandomContainerElement(PlayerList))
             return target->ToUnit();
     }
-    else if (!CreatureList.empty())
+    else if (!CreatureList.empty())//tmp
     {
         if (Creature* target = Trinity::Containers::SelectRandomContainerElement(CreatureList))
             return target->ToUnit();
-    }
-
+    }*/
+    //tmp
     return NULL;
 }
 

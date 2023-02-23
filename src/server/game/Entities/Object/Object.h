@@ -196,6 +196,9 @@ class TC_GAME_API Object
         void BuildFieldsUpdate(Player*, UpdateDataMapType &) const;
 
         inline bool IsPlayer() const { return GetTypeId() == TYPEID_PLAYER; }
+       /* Player* ToPlayer() { if (IsPlayer()) return reinterpret_cast<Player*>(this); else return nullptr; }
+        Player const* ToPlayer() const { if (IsPlayer()) return reinterpret_cast<Player const*>(this); else return nullptr; }*/
+        //重复定义
         static Player* ToPlayer(Object* o) { return o ? o->ToPlayer() : nullptr; }
         static Player const* ToPlayer(Object const* o) { return o ? o->ToPlayer() : nullptr; }
         Player* ToPlayer() { if (IsPlayer()) return reinterpret_cast<Player*>(this); else return nullptr; }

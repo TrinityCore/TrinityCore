@@ -80,14 +80,14 @@ public:
 
     void OnLogin(Player* player, bool /*firstLogin*/) override
     {
-        if (player->GetMapId() == MAP_NPE)
-            player->AddPvpFlag(UNIT_BYTE2_FLAG_SANCTUARY);
+       /* if (player->GetMapId() == MAP_NPE)
+            player->AddPvpFlag(UNIT_BYTE2_FLAG_SANCTUARY);*///tmp
     }
 
     void OnUpdateArea(Player* player, uint32 /*newArea*/, uint32 /*oldArea*/)
     {
-        if (player->GetMapId() == MAP_NPE)
-            player->AddPvpFlag(UNIT_BYTE2_FLAG_SANCTUARY);
+       /* if (player->GetMapId() == MAP_NPE)
+            player->AddPvpFlag(UNIT_BYTE2_FLAG_SANCTUARY);*///tmp
     }
 };
 
@@ -130,13 +130,13 @@ struct npc_private_cole : public ScriptedAI
 
     void JustDied(Unit* killer) override
     {
-        if (Player* player = killer->ToPlayer())
-            if (player->HasQuest(QUEST_STAND_YOUR_GROUND))
+        //if (Player* player = killer->ToPlayer())//tmp
+          /*  if (player->HasQuest(QUEST_STAND_YOUR_GROUND))
             {
                 player->KilledMonsterCredit(155607);
                 me->DespawnOrUnsummon(10ms);
                 (me->GetEntry(), Position(-52.6575f, 0.689299f, 43.4511f, 4.12704f), TEMPSUMMON_MANUAL_DESPAWN, 0U, 0U);
-            }
+            }*///tmp
     }
 };
 
@@ -167,21 +167,21 @@ private:
         Player* player = summoner->ToPlayer();
         me->GetMotionMaster()->MovePoint(1, 206.0f, -2289.0f, 117.0f, true);
 
-        AddTimedDelayedOperation(25000, [this, player]() -> void
-        {
-            player->KilledMonsterCredit(156518);
-        });
+        //AddTimedDelayedOperation(25000, [this, player]() -> void
+        //{
+        //    player->KilledMonsterCredit(156518);
+        //});//tmp
 
-        AddTimedDelayedOperation(50000, [this]() -> void
+        /*AddTimedDelayedOperation(50000, [this]() -> void
         {
             me->GetMotionMaster()->MovePoint(2, 108.609f, -2413.905f, 90.530f, true);
-        });
+        });*///tmp
 
-        AddTimedDelayedOperation(75000, [this, player]() -> void
+       /* AddTimedDelayedOperation(75000, [this, player]() -> void
         {
             player->ExitVehicle();
             me->DespawnOrUnsummon(1s);
-        });
+        });*///tmp
     }
 };
 
@@ -210,7 +210,7 @@ struct npc_giant_boar : public ScriptedAI
 
     void Reset() override
     {
-        me->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
+//        me->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);//tmp
     }
 
     void IsSummonedBy(WorldObject* summoner)
@@ -264,7 +264,7 @@ struct npc_captain_garrick_156651 : public ScriptedAI
     void JustDied(Unit* killer)
     {
         if (Player* player = killer->ToPlayer())
-            if (player->HasQuest(QUEST_ENHANCED_COMBAT_TACTICS))
+//            if (player->HasQuest(QUEST_ENHANCED_COMBAT_TACTICS))//tmp
             {
                 player->KilledMonsterCredit(156651);
                 (me->GetEntry(), me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0U, 0U);
@@ -301,7 +301,7 @@ struct npc_ralia_dreamchacer_156929 : public ScriptedAI
 
     void Reset() override
     {
-        me->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
+       // me->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);//tmp
     }
 
     void IsSummonedBy(WorldObject* summoner)
@@ -312,7 +312,7 @@ struct npc_ralia_dreamchacer_156929 : public ScriptedAI
         if (Player* player = summoner->ToPlayer())
         {
             player->EnterVehicle(me);
-            player->ForceCompleteQuest(QUEST_WHO_LURKS_IN_THE_PIT);
+//            player->ForceCompleteQuest(QUEST_WHO_LURKS_IN_THE_PIT);//tmp
         }
     }
 };
@@ -326,7 +326,7 @@ struct npc_alliance_gryphon_154155 : public ScriptedAI
 
     void Reset() override
     {
-        me->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
+//        me->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);//tmp
     }
 
     void OnSpellClick(Unit*, bool)
@@ -433,7 +433,7 @@ public:
 
     void OnUpdate(Player* player, uint32 diff)
     {
-        if (PHASE_UPDATE_DELAY_DIFF <= diff)
+        /*if (PHASE_UPDATE_DELAY_DIFF <= diff)
         {
             if ((player->GetMapId() == MAP_NPE) && (player->GetAreaId() != AREA_NORTH_SEA))
             {
@@ -909,19 +909,19 @@ public:
             PHASE_UPDATE_DELAY_DIFF = PHASE_UPDATE_DELAY;
         }
         else
-            PHASE_UPDATE_DELAY_DIFF -= diff;
+            PHASE_UPDATE_DELAY_DIFF -= diff;*///tmp
     }
 };
 
 void AddSC_zone_exiles_reach()
 {
     RegisterPlayerScript(exiles_reach);
-    RegisterZoneScript(zone_exiles_reach);
+    //RegisterZoneScript(zone_exiles_reach);
     RegisterCreatureAI(npc_combat_dummy);
     RegisterCreatureAI(npc_private_cole);
     RegisterCreatureAI(npc_lindie_springstock_149899);
     RegisterCreatureAI(npc_scout_o_matic_5000);
-    RegisterItemScript(item_resizer_v901);
+    //RegisterItemScript(item_resizer_v901);
     RegisterCreatureAI(npc_giant_boar);
     RegisterCreatureAI(npc_meredy_huntswell_156943);
     RegisterCreatureAI(npc_henry_garrick_156799);

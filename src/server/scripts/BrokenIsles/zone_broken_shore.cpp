@@ -34,11 +34,11 @@ struct npc_bone_crawler_grub_116951 : public ScriptedAI
         Player* player = who->GetCharmerOrOwnerPlayerOrPlayerItself();
         if (!player)
             return;
-        if (player->HasQuest(46821))
-        {
-            player->KilledMonsterCredit(me->GetEntry());
-            me->CastSpell(me, 37989, true);
-        }
+        //if (player->HasQuest(46821))
+        //{
+        //    player->KilledMonsterCredit(me->GetEntry());
+        //    me->CastSpell(me, 37989, true);
+        //}//tmp
     }
 };
 //121302 121305 121312 121313 , ,120076
@@ -55,13 +55,14 @@ struct npc_treasure_master_iksreeged_121302 : public ScriptedAI
         if (!player)
             return;
         ///HAVE MORE QUEST IN THE SAME CODE
-        if ( player->HasQuest(46499)|| player->HasQuest(46501)|| player->HasQuest(46509) || player->HasQuest(46510))
-        {
-            //talk and runaway
-            me->AI()->Talk(0);
-            player->KilledMonsterCredit(me->GetEntry());
-            /*me->GetMotionMaster()->MoveAwayAndDespawn(-15.0f, 3000);*/
-        }
+        //if ( player->HasQuest(46499)|| player->HasQuest(46501)|| player->HasQuest(46509) || player->HasQuest(46510))
+        //{
+        //    //talk and runaway
+        //    me->AI()->Talk(0);
+        //    player->KilledMonsterCredit(me->GetEntry());
+        //    /*me->GetMotionMaster()->MoveAwayAndDespawn(-15.0f, 3000);*/
+        //}
+        //tmp
     }
 };
 //QUEST 46245 Begin Construction
@@ -78,8 +79,9 @@ struct npc_legionfall_construction_table_119305 : public ScriptedAI
         Player* player = who->GetCharmerOrOwnerPlayerOrPlayerItself();
         if (!player)
             return;
-        if (player->HasQuest(46245) )
-            player->ForceCompleteQuest(46245);
+        //if (player->HasQuest(46245) )
+        //    player->ForceCompleteQuest(46245);
+        //tmp
     }
 
 };

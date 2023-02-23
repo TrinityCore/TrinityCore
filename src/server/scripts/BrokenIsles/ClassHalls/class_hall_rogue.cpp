@@ -152,8 +152,8 @@ struct npc_enter_the_hall_of_shadows_102086 : public ScriptedAI
         if (!player)
             return;
 
-        if (player->HasQuest(QUEST_CALL_OF_THE_UNCROWNED))
-            player->KilledMonsterCredit(me->GetEntry());
+        //if (player->HasQuest(QUEST_CALL_OF_THE_UNCROWNED))
+        //    player->KilledMonsterCredit(me->GetEntry());//tmp
 
         if (player->GetClass() != CLASS_ROGUE)
         {
@@ -177,15 +177,15 @@ struct npc_red_jack_findle_97004 : public ScriptedAI
 
     bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId)
     {
-        if (player->HasQuest(QUEST_CALL_OF_THE_UNCROWNED))
-        {
-            if (gossipListId == 0)
-            {
-                Talk(RED_JACK_FINDLE_TEXT_00, player);
-                player->KilledMonsterCredit(NPC_KILL_CREDIT_PASSWORD_SPOKEN);
-                CloseGossipMenuFor(player);
-            }
-        }
+        //if (player->HasQuest(QUEST_CALL_OF_THE_UNCROWNED))
+        //{
+        //    if (gossipListId == 0)
+        //    {
+        //        Talk(RED_JACK_FINDLE_TEXT_00, player);
+        //        player->KilledMonsterCredit(NPC_KILL_CREDIT_PASSWORD_SPOKEN);
+        //        CloseGossipMenuFor(player);
+        //    }
+        //}//tmp
 
         return true;
     }
@@ -200,8 +200,8 @@ public:
 
     void OnUpdate(Player* player, uint32 /*diff*/)
     {
-        if (player->HasAura(SPELL_SEALED_LETTER) && player->HasQuest(QUEST_CALL_OF_THE_UNCROWNED))
-            player->KilledMonsterCredit(NPC_KILL_CREDIT_LETTER_READ);
+        //if (player->HasAura(SPELL_SEALED_LETTER) && player->HasQuest(QUEST_CALL_OF_THE_UNCROWNED))
+        //    player->KilledMonsterCredit(NPC_KILL_CREDIT_LETTER_READ);//tmp
     }
 };
 
@@ -301,10 +301,10 @@ public:
 
         TC_LOG_ERROR("server.worldserver", "roge_playerchoice %u, %u", choiceId, responseId);
 
-        if (player->HasQuest(QUEST_A_WORTHY_BLADE))
-        {
-            player->KilledMonsterCredit(NPC_KILL_CREDIT_ARTIFACT_WEAPON_CHOSEN);
-        }
+        //if (player->HasQuest(QUEST_A_WORTHY_BLADE))
+        //{
+        //    player->KilledMonsterCredit(NPC_KILL_CREDIT_ARTIFACT_WEAPON_CHOSEN);
+        //}//tmp
     }
 };
 
@@ -328,14 +328,14 @@ struct npc_valeera_sanguinar_98102 : public ScriptedAI
 
     bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId)
     {
-        if (player->HasQuest(QUEST_A_WORTHY_BLADE))
-        {
-            if (gossipListId == 0)
-            {
-                player->KilledMonsterCredit(NPC_VALEERA_SANGUINAR_98102);
-                CloseGossipMenuFor(player);
-            }
-        }
+        //if (player->HasQuest(QUEST_A_WORTHY_BLADE))
+        //{
+        //    if (gossipListId == 0)
+        //    {
+        //        player->KilledMonsterCredit(NPC_VALEERA_SANGUINAR_98102);
+        //        CloseGossipMenuFor(player);
+        //    }
+        //}//tmp
 
         return true;
     }
@@ -394,14 +394,14 @@ struct npc_fleet_admiral_tethys_94159 : public ScriptedAI
 
     bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId)
     {
-        if (player->HasQuest(QUEST_A_WORTHY_BLADE))
-        {
-            if (gossipListId == 0)
-            {
-                player->KilledMonsterCredit(NPC_FLEET_ADMIRAL_TETHYS_94159);
-                CloseGossipMenuFor(player);
-            }
-        }
+        //if (player->HasQuest(QUEST_A_WORTHY_BLADE))
+        //{
+        //    if (gossipListId == 0)
+        //    {
+        //        player->KilledMonsterCredit(NPC_FLEET_ADMIRAL_TETHYS_94159);
+        //        CloseGossipMenuFor(player);
+        //    }
+        //}//tmp
 
         return true;
     }
@@ -441,14 +441,14 @@ struct npc_princess_tess_greymane_94138 : public ScriptedAI
     {
         TC_LOG_ERROR("server.worldserver", "sGossipSelect %u, %u", menuId, gossipListId);
 
-        if (player->HasQuest(QUEST_A_WORTHY_BLADE))
-        {
-            if (gossipListId == 0)
-            {
-                player->KilledMonsterCredit(NPC_PRINCESS_TESS_GREYMANE_94138);
-                CloseGossipMenuFor(player);
-            }
-        }
+        //if (player->HasQuest(QUEST_A_WORTHY_BLADE))
+        //{
+        //    if (gossipListId == 0)
+        //    {
+        //        player->KilledMonsterCredit(NPC_PRINCESS_TESS_GREYMANE_94138);
+        //        CloseGossipMenuFor(player);
+        //    }
+        //}//tmp
 
         return true;
     }

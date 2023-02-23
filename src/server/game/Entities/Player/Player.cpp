@@ -24894,6 +24894,19 @@ void Player::UpdateVisibleGameobjectsOrSpellClicks()
     SendDirectMessage(&packet);
 }
 
+//bool Player::HasQuest(uint32 questID) const
+//{
+//    if (questID == 0)
+//        return false;
+//
+//    for (uint8 itr = 0; itr < MAX_QUEST_LOG_SIZE; ++itr)
+//        if (GetQuestSlotQuestId(itr) == questID)
+//            return true;
+//
+//    return false;
+//}
+//tmp
+
 bool Player::HasSummonPending() const
 {
     return m_summon_expire >= GameTime::GetGameTime();

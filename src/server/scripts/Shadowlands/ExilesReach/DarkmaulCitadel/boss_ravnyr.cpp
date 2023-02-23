@@ -48,7 +48,7 @@ struct boss_ravnyr : public BossAI
         events.ScheduleEvent(SPELL_WING_BUFFET, 8s);
     }
 
-    void DoAction(int32 action) override
+    /*void DoAction(int32 action) override
     {
         switch (action)
         {
@@ -60,7 +60,7 @@ struct boss_ravnyr : public BossAI
             });
             break;
         }
-    }
+    }*///tmp
 
     void ExecuteEvent(uint32 eventId) override
     {
@@ -88,7 +88,7 @@ struct boss_ravnyr : public BossAI
         me->GetPlayerListInGrid(playerList, 100.0f);
         for (auto& players : playerList)
         {
-            players->ForceCompleteQuest(55992);
+//            players->ForceCompleteQuest(55992);//tmp
         }
     }
 };

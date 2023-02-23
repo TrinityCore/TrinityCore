@@ -42,6 +42,7 @@
 #include <memory>
 #include <set>
 #include <unordered_set>
+#include <BrawlersGuild.h>
 
 class Battleground;
 class BattlegroundMap;

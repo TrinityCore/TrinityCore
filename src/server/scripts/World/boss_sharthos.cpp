@@ -103,8 +103,8 @@ public:
                 case Events::EventBurningEarth:
                     me->GetPlayerListInGrid(nearbyPlayers, 50.0f);
 
-                    if (!nearbyPlayers.empty())
-                        Trinity::Containers::RandomResize(nearbyPlayers, 1);
+                    /*if (!nearbyPlayers.empty())
+                        Trinity::Containers::RandomResize(nearbyPlayers, 1);*///tmp
 
                     for (Player* target : nearbyPlayers)
                         me->CastSpell((Unit*)target, Spells::BurningEarthAreatrigger);

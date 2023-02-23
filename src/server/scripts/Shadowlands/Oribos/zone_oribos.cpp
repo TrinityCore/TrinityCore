@@ -32,8 +32,9 @@ private:
 
     void OnUpdate(Player* player, uint32 /*diff*/)
     {
-        if (!player->HasQuest(QUEST_INTO_THE_MAW) || player->GetLevel() != 60)
-            return;
+        //if (!player->HasQuest(QUEST_INTO_THE_MAW) || player->GetLevel() != 60)
+        //    return;
+        //tmp
 
         IntoMaw = false;
 
@@ -50,7 +51,7 @@ private:
         if (player->GetAreaId() == 13437) //Ve'nari's Refuge
             if (player->GetQuestStatus(QUEST_INTO_THE_MAW) == QUEST_STATUS_INCOMPLETE)
             {
-                player->ForceCompleteQuest(QUEST_INTO_THE_MAW);
+                //player->ForceCompleteQuest(QUEST_INTO_THE_MAW);//tmp
             }
     }
 };

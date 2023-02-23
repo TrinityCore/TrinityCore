@@ -41,8 +41,8 @@ public:
 
             if (action == GOSSIP_ACTION_INFO_DEF + 1)
             {
-               if (BrawlersGuild* brawlerGuild = player->GetBrawlerGuild())
-                   brawlerGuild->AddPlayer(player);
+//               if (BrawlersGuild* brawlerGuild = player->GetBrawlerGuild())//tmp
+ //                  brawlerGuild->AddPlayer(player);//tmp
                 CloseGossipMenuFor(player);
             }
         }
@@ -88,8 +88,8 @@ public:
             (true);
             events.Reset();
             me->Mount(44634);
-            if (BrawlersGuild* brawlerGuild = me->GetBrawlerGuild())
-                brawlerGuild->SetAnnouncer(me->GetGUID());
+//            if (BrawlersGuild* brawlerGuild = me->GetBrawlerGuild())
+ //               brawlerGuild->SetAnnouncer(me->GetGUID());
             me->GetMotionMaster()->MovePath(11854502, true);
         }
 
@@ -198,8 +198,8 @@ public:
         {
             (true);
             events.Reset();
-            if (BrawlersGuild* brawlerGuild = me->GetBrawlerGuild())
-                brawlerGuild->SetAnnouncer(me->GetGUID());
+//            if (BrawlersGuild* brawlerGuild = me->GetBrawlerGuild())//tmp
+//                brawlerGuild->SetAnnouncer(me->GetGUID());//tmp
             me->GetMotionMaster()->MovePath(11854503, true);
         }
 
@@ -303,9 +303,9 @@ public:
 
         void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            if (BrawlersGuild* brawlerGuild = GetUnitOwner()->GetBrawlerGuild())
-                if (!brawlerGuild->IsPlayerInBrawl(GetOwner()->ToPlayer()))
-                  brawlerGuild->RemovePlayer(GetOwner()->GetGUID());
+//            if (BrawlersGuild* brawlerGuild = GetUnitOwner()->GetBrawlerGuild())//tmp
+ //               if (!brawlerGuild->IsPlayerInBrawl(GetOwner()->ToPlayer()))//tmp
+  //                brawlerGuild->RemovePlayer(GetOwner()->GetGUID());//tmp
         }
 
         void Register() override
