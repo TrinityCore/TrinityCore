@@ -213,7 +213,7 @@ public:
 
         void FilterTargets(std::list<WorldObject*>& targets)
         {
-            Trinity::Containers::RandomResize(targets, 4);
+            //Trinity::Containers::RandomResize(targets, 4);//暂时注释
         }
 
         void Register()
@@ -240,7 +240,7 @@ public:
 
         void FilterTargets(std::list<WorldObject*>& targets)
         {
-            Trinity::Containers::RandomResize(targets, 1);
+            //Trinity::Containers::RandomResize(targets, 1);//暂时注释
         }
 
         void Register()
@@ -267,7 +267,7 @@ public:
 
         void FilterTargets(std::list<WorldObject*>& targets)
         {
-            Trinity::Containers::RandomResize(targets, 6);
+            //Trinity::Containers::RandomResize(targets, 6);//暂时注释
         }
 
         void Register()

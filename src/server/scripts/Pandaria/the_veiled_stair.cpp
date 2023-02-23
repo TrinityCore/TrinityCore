@@ -147,7 +147,7 @@ class npc_wrathion_mason : public CreatureScript
                                 break;
                             case EVENT_FINAL:
                                 player->KilledMonsterCredit(64664);
-                                me->AddNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+                                //me->AddNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);//暂时注释
                                 break;
                             default:
                                 break;
