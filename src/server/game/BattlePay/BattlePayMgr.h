@@ -1,5 +1,6 @@
 /*
 * Copyright 2023 AzgathCore
+* Copyright 2021 Thordekk
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -18,6 +19,7 @@
 #ifndef __TRINITY_BATTLEPAYMGR_H
 #define __TRINITY_BATTLEPAYMGR_H
 
+#include "BattlePayPackets.h"
 #include "WorldSession.h"
 
 class LoginQueryHolder;
@@ -58,7 +60,7 @@ namespace Battlepay
 
     namespace DistributionStatus
     {
-        enum 
+        enum
         {
             BATTLE_PAY_DIST_STATUS_NONE             = 0,
             BATTLE_PAY_DIST_STATUS_AVAILABLE        = 1,
@@ -272,11 +274,23 @@ public:
     explicit BattlepayManager(WorldSession* session);
     ~BattlepayManager();
 
+    uint32 GetShopCurrency() const;
+    bool IsAvailable() const;
+    bool AlreadyOwnProduct(uint32 itemId) const;
+    void SavePurchase(Battlepay::Purchase* purchase);
+    void ProcessDelivery(Battlepay::Purchase* purchase);
     void RegisterStartPurchase(Battlepay::Purchase purchase);
     uint64 GenerateNewPurchaseID();
     uint64 GenerateNewDistributionId();
     Battlepay::Purchase* GetPurchase();
     std::string const& GetDefaultWalletName() const;
+    std::tuple<bool, WorldPackets::BattlePay::ProductDisplayInfo> WriteDisplayInfo(uint32 displayInfoID, LocaleConstant localeIndex, uint32 productId = 0);
+    auto ProductFilter(Battlepay::Product product) -> bool;
+    void SendProductList();
+    void SendAccountCredits();
+    void SendBattlePayDistribution(uint32 productId, uint8 status, uint64 distributionId, ObjectGuid targetGuid = ObjectGuid::Empty);
+    void AssignDistributionToCharacter(ObjectGuid const& targetCharGuid, uint64 distributionId, uint32 productId, uint16 specialization_id, uint16 choice_id);
+    void Update(uint32 diff);
 };
 
 #endif

@@ -109,6 +109,7 @@ enum ItemSpelltriggerType
     ITEM_SPELLTRIGGER_ON_PICKUP         = 5,
     ITEM_SPELLTRIGGER_ON_LEARN          = 6,                  // used in ItemEffect in second slot with spell_id with SPELL_GENERIC_LEARN in spell_1
     ITEM_SPELLTRIGGER_ON_LOOTED         = 7,
+
 };
 
 enum ItemBondingType

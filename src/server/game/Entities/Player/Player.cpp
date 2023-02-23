@@ -11781,6 +11781,98 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
     return pItem;
 }
 
+uint32 Player::GetBattlePayCredits() const
+{
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BATTLE_PAY_ACCOUNT_CREDITS);
+
+    stmt->setUInt32(0, GetSession()->GetBattlenetAccountId());
+
+    PreparedQueryResult result_don = LoginDatabase.Query(stmt);
+
+    if (!result_don)
+        return 0;
+
+    Field* fields = result_don->Fetch();
+    uint32 credits = fields[0].GetUInt32();
+
+    return credits;
+}
+
+bool Player::AddBattlePetByCreatureId(uint32 creatureId, bool sendUpdate /*= true*/, bool sendDiliveryUpdate /*= false*/)
+{
+    return AddBattlePetWithSpeciesId(sDB2Manager.GetSpeciesByCreatureID(creatureId), 0, sendUpdate, sendDiliveryUpdate);
+}
+
+bool Player::AddBattlePetWithSpeciesId(BattlePetSpeciesEntry const* entry, uint16 flags /*= 0*/, bool sendUpdate /*= true*/, bool sendDiliveryUpdate /*= false*/)
+{
+    if (!entry)
+        return false;
+
+    auto pet = std::make_shared<BattlePet>();
+    pet->Slot = PET_BATTLE_NULL_SLOT;
+    pet->NameTimeStamp = 0;
+    pet->Species = entry->ID;
+    pet->DisplayModelID = 0;
+    pet->Flags = flags;
+    pet->Level = 1;
+    pet->XP = 0;
+
+    if (auto temp = sBattlePetDataStore->GetBattlePetTemplate(entry->ID))
+    {
+        pet->Breed = sBattlePetDataStore->GetRandomBreedID(temp->BreedIDs);
+        pet->Quality = temp->MinQuality;
+    }
+    else
+    {
+        pet->Breed = 3;
+        pet->Quality = BATTLE_PET_QUALITY_COMMON;
+    }
+
+
+    pet->UpdateStats();
+    pet->Health = pet->InfoMaxHealth;
+    auto guidlow = pet->AddToPlayer(this);
+    _battlePets.emplace(pet->JournalID, pet);
+
+    if (sendUpdate)
+    {
+        GetSession()->SendBattlePetUpdates();
+        UpdateCriteria(CRITERIA_TYPE_OWN_PET, entry->CreatureID);
+    }
+
+    if (sendDiliveryUpdate)
+        SendBattlePayBattlePetDelivered(ObjectGuid::Create<HighGuid::BattlePet>(guidlow), entry->CreatureID);
+
+    return true;
+}
+
+void Player::SendBattlePayMessage(uint32 bpaymessageID, std::string name, uint32 value) const
+{
+    std::ostringstream msg;
+    if (bpaymessageID == 1)
+        msg << "The purchase '" << name << "' was successful!";
+    if (bpaymessageID == 2)
+        msg << "Remaining credits: " << GetBattlePayCredits() << " .";
+
+    if (bpaymessageID == 10)
+        msg << "You cannot purchase '" << name << "' . Contact a game master to find out more.";
+    if (bpaymessageID == 11)
+        msg << "Your bags are too full to add : " << name << " .";
+    if (bpaymessageID == 12)
+        msg << "You have already purchased : " << name << " .";
+
+    if (bpaymessageID == 20)
+        msg << "The battle pay credits have been updated for the character '" << name << "' ! Available credits:" << value << " .";
+    if (bpaymessageID == 21)
+        msg << "You must enter an amount !";
+    if (bpaymessageID == 3)
+        msg << "You have now '" << value << "' credits.";
+
+    ChatHandler(GetSession()).SendSysMessage(msg.str().c_str());
+}
+
+
+
 void Player::EquipChildItem(uint8 parentBag, uint8 parentSlot, Item* parentItem)
 {
     if (ItemChildEquipmentEntry const* itemChildEquipment = sDB2Manager.GetItemChildEquipment(parentItem->GetEntry()))

@@ -2874,6 +2874,14 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         ObjectGuid GetSummonedBattlePetGUID() const { return m_activePlayerData->SummonedBattlePetGUID; }
         void SetSummonedBattlePetGUID(ObjectGuid guid) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::SummonedBattlePetGUID), guid); }
 
+        //BPAY THORDEKK
+        uint32 GetBattlePayCredits() const;
+        //bool HasBattlePayCredits(uint32 count) const;
+        //bool UpdateBattlePayCredits(uint64 price) const;
+        //bool ModifyBattlePayCredits(uint64 credits) const;
+        void SendBattlePayMessage(uint32 bpaymessageID, std::string name, uint32 value = 0) const;
+        //void SendBattlePayBattlePetDelivered(ObjectGuid petguid, uint32 creatureID) const;
+
         void SetTrackCreatureFlag(uint32 flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::TrackCreatureMask), flags); }
         void RemoveTrackCreatureFlag(uint32 flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::TrackCreatureMask), flags); }
 
@@ -3196,6 +3204,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         TimeTracker m_groupUpdateTimer;
 
+        bool AddBattlePetByCreatureId(uint32 creatureId, bool sendUpdate = true, bool sendDiliveryUpdate = false);
+
+
     private:
         // internal common parts for CanStore/StoreItem functions
         InventoryResult CanStoreItem_InSpecificSlot(uint8 bag, uint8 slot, ItemPosCountVec& dest, ItemTemplate const* pProto, uint32& count, bool swap, Item* pSrcItem) const;
@@ -3217,6 +3228,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetCanDelayTeleport(bool setting) { m_bCanDelayTeleport = setting; }
         bool IsHasDelayedTeleport() const { return m_bHasDelayedTeleport; }
         void SetDelayedTeleportFlag(bool setting) { m_bHasDelayedTeleport = setting; }
+        bool AddBattlePetWithSpeciesId(BattlePetSpeciesEntry const* entry, uint16 flags = 0, bool sendUpdate = true, bool sendDiliveryUpdate = false);
+
+
         void ScheduleDelayedOperation(uint32 operation) { if (operation < DELAYED_END) m_DelayedOperations |= operation; }
 
         bool IsInstanceLoginGameMasterException() const;
