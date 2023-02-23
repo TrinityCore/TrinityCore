@@ -319,7 +319,7 @@ void BattlepayManager::SendProductList()
             auto dataP = WriteDisplayInfo(item.DisplayInfoID, localeIndex);
             if (std::get<0>(dataP))
             {
-                pItem.DisplayInfo = boost::in_place();
+//                pItem.DisplayInfo = boost::in_place();//tmp
                 pItem.DisplayInfo = std::get<1>(dataP);
             }
 
@@ -329,7 +329,7 @@ void BattlepayManager::SendProductList()
         auto dataP = WriteDisplayInfo(product.DisplayInfoID, localeIndex);
         if (std::get<0>(dataP))
         {
-            pProduct.DisplayInfo = boost::in_place();
+//            pProduct.DisplayInfo = boost::in_place();//tmp
             pProduct.DisplayInfo = std::get<1>(dataP);
         }
 
@@ -490,7 +490,7 @@ void BattlepayManager::SendBattlePayDistribution(uint32 productId, uint8 status,
         auto dataP = WriteDisplayInfo(item.DisplayInfoID, localeIndex);
         if (std::get<0>(dataP))
         {
-            productItem.DisplayInfo = boost::in_place();
+//            productItem.DisplayInfo = boost::in_place();//tmp
             productItem.DisplayInfo = std::get<1>(dataP);
         }
 
@@ -508,7 +508,7 @@ void BattlepayManager::SendBattlePayDistribution(uint32 productId, uint8 status,
     auto dataP = WriteDisplayInfo(product.DisplayInfoID, localeIndex);
     if (std::get<0>(dataP))
     {
-        productData.DisplayInfo = boost::in_place();
+//        productData.DisplayInfo = boost::in_place();//tmp
         productData.DisplayInfo = std::get<1>(dataP);
     }
 

@@ -1549,7 +1549,7 @@ public:
                     break;
 
                 playerPets[playerPetCount] = std::make_shared<BattlePetInstance>();
-                playerPets[playerPetCount]->CloneFrom(petSlots[i]);
+//                playerPets[playerPetCount]->CloneFrom(petSlots[i]);//tmp
                 playerPets[playerPetCount]->Slot = playerPetCount;
                 playerPets[playerPetCount]->OriginalBattlePet = petSlots[i];
 

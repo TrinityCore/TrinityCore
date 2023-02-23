@@ -2921,6 +2921,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         UF::UpdateField<UF::PlayerData, 0, TYPEID_PLAYER> m_playerData;
         UF::UpdateField<UF::ActivePlayerData, 0, TYPEID_ACTIVE_PLAYER> m_activePlayerData;
+        bool AddBattlePetByCreatureId(uint32 creatureId, bool sendUpdate = true, bool sendDiliveryUpdate = false);
 
     protected:
         // Gamemaster whisper whitelist
@@ -3204,7 +3205,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         TimeTracker m_groupUpdateTimer;
 
-        bool AddBattlePetByCreatureId(uint32 creatureId, bool sendUpdate = true, bool sendDiliveryUpdate = false);
 
 
     private:

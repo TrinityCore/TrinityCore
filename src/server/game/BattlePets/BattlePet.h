@@ -218,7 +218,7 @@ class BattlePet
     public:
         virtual ~BattlePet() = default;
 
-        void Load(Field* fields);
+        /*void Load(Field* fields);
         void CloneFrom(std::shared_ptr<BattlePet> & p_BattlePet);
         void Save(CharacterDatabaseTransaction& trans);
 
@@ -226,7 +226,8 @@ class BattlePet
         void AddToPlayer(Player* player, CharacterDatabaseTransaction& trans);
         void Remove(Player* player);
         void UpdateAbilities();
-        void UpdateStats();
+        void UpdateStats();*/
+        //tmp
 
         uint32 AccountID;                              ///< Owner account ID
         ObjectGuid JournalID;                              ///< As companion (db/journal id)

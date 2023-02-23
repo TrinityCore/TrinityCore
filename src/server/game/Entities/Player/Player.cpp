@@ -11800,7 +11800,8 @@ uint32 Player::GetBattlePayCredits() const
 
 bool Player::AddBattlePetByCreatureId(uint32 creatureId, bool sendUpdate /*= true*/, bool sendDiliveryUpdate /*= false*/)
 {
-    return AddBattlePetWithSpeciesId(sDB2Manager.GetSpeciesByCreatureID(creatureId), 0, sendUpdate, sendDiliveryUpdate);
+//    return AddBattlePetWithSpeciesId(sDB2Manager.GetSpeciesByCreatureID(creatureId), 0, sendUpdate, sendDiliveryUpdate);//tmp
+    return false;//这句是为了给返回值,我瞎写的,原来没有.修复时,要删除这句.
 }
 
 bool Player::AddBattlePetWithSpeciesId(BattlePetSpeciesEntry const* entry, uint16 flags /*= 0*/, bool sendUpdate /*= true*/, bool sendDiliveryUpdate /*= false*/)
@@ -11817,31 +11818,31 @@ bool Player::AddBattlePetWithSpeciesId(BattlePetSpeciesEntry const* entry, uint1
     pet->Level = 1;
     pet->XP = 0;
 
-    if (auto temp = sBattlePetDataStore->GetBattlePetTemplate(entry->ID))
-    {
-        pet->Breed = sBattlePetDataStore->GetRandomBreedID(temp->BreedIDs);
-        pet->Quality = temp->MinQuality;
-    }
-    else
+    //if (auto temp = sBattlePetDataStore->GetBattlePetTemplate(entry->ID))
+    //{
+    //    pet->Breed = sBattlePetDataStore->GetRandomBreedID(temp->BreedIDs);
+    //    pet->Quality = temp->MinQuality;
+    //}
+    //else//tmp
     {
         pet->Breed = 3;
         pet->Quality = BATTLE_PET_QUALITY_COMMON;
     }
 
 
-    pet->UpdateStats();
+//    pet->UpdateStats();//tmp
     pet->Health = pet->InfoMaxHealth;
-    auto guidlow = pet->AddToPlayer(this);
-    _battlePets.emplace(pet->JournalID, pet);
+//    auto guidlow = pet->AddToPlayer(this);//tmp
+//    _battlePets.emplace(pet->JournalID, pet);//tmp
 
-    if (sendUpdate)
+   /* if (sendUpdate)
     {
         GetSession()->SendBattlePetUpdates();
         UpdateCriteria(CRITERIA_TYPE_OWN_PET, entry->CreatureID);
     }
 
     if (sendDiliveryUpdate)
-        SendBattlePayBattlePetDelivered(ObjectGuid::Create<HighGuid::BattlePet>(guidlow), entry->CreatureID);
+        SendBattlePayBattlePetDelivered(ObjectGuid::Create<HighGuid::BattlePet>(guidlow), entry->CreatureID);*///tmp
 
     return true;
 }
