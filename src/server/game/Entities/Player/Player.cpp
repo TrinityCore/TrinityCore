@@ -415,7 +415,8 @@ uint32 Player::FindTalentType()
 
 bool Player::ResetPlayerToLevel(uint32 level, uint32 talent)
 {
-    return m_PlayerBotSetting->ResetPlayerToLevel(level, talent);
+ //tmp   return m_PlayerBotSetting->ResetPlayerToLevel(level, talent);
+    return false;//此处是为避免错误,瞎写的
 }
 
 bool Player::IsSettingFinish()  //后加
@@ -424,25 +425,25 @@ bool Player::IsSettingFinish()  //后加
 }
 
 
-bool Player::IsTankPlayer()//TCB
-{
-    return GetRoleForGroup() == ROLE_TANK;
-}
+//bool Player::IsTankPlayer()//TCB
+//{
+//    return GetRoleForGroup() == ROLE_TANK;
+//}
 
 
-void Player::OnLevelupToBotAI()
-{
-    if (UnitAI* pUnitAI = GetAI())
-    {
-        BotGroupAI* pAI = dynamic_cast<BotGroupAI*>(pUnitAI);
-        if (pAI)
-        {
-            if (IsPlayerBot())
-                m_PlayerBotSetting->LearnTalents();
-            pAI->OnLevelUp(0);
-        }
-    }
-}
+//void Player::OnLevelupToBotAI()
+//{
+//    if (UnitAI* pUnitAI = GetAI())
+//    {
+//        BotGroupAI* pAI = dynamic_cast<BotGroupAI*>(pUnitAI);
+//        if (pAI)
+//        {
+//            if (IsPlayerBot())
+//                m_PlayerBotSetting->LearnTalents();
+//            pAI->OnLevelUp(0);
+//        }
+//    }
+//}
 
 
 void Player::CleanupsBeforeDelete(bool finalCleanup)

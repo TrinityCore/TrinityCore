@@ -1,4 +1,4 @@
-﻿#include "BotArenaAI.h"
+#include "BotArenaAI.h"
 #include "MoveSplineInit.h"
 #include "BotBGAIMovement.h"
 #include "PlayerBotMgr.h"
@@ -48,8 +48,8 @@ void BotArenaAI::UpdateAI(uint32 diff)
 		return;
 	m_UpdateTick = BOTAI_UPDATE_TICK;
 
-	if (!me->IsSettingFinish())
-		return;
+	//if (!me->IsSettingFinish())
+	//	return; ////tmp
 	UpdateTeleport(BOTAI_UPDATE_TICK);
 	if (!m_Teleporting.CanMovement())
 		return;

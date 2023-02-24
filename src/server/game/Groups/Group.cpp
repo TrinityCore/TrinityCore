@@ -236,7 +236,7 @@ void Group::OnLeaderChangePhase(Player* changeTarget)
         if (player == changeTarget || !player->IsPlayerBot() || player->IsInPhase(changeTarget))
             continue;
 
-        //PhasingHandler::InheritPhaseShift(player, changeTarget);//暂时解决不了,临时注释
+        //PhasingHandler::InheritPhaseShift(player, changeTarget);//鏆傛椂瑙ｅ喅涓嶄簡,涓存椂娉ㄩ噴
     }
 }
 
@@ -251,8 +251,8 @@ bool Group::AllGroupIsIDLE()
         BotGroupAI* pAI = dynamic_cast<BotGroupAI*>(player->GetAI());
         if (!pAI)
             continue;
-        if (!pAI->IsIDLEBot())
-            return false;
+        //if (!pAI->IsIDLEBot())
+        //    return false; //tmp
     }
     return true;
 }
