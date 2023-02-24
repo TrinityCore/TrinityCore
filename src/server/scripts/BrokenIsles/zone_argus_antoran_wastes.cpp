@@ -24,12 +24,12 @@
 // Zone 8899
 class zone_argus_antoran_wastes : public ZoneScript
 {
-public:
-    zone_argus_antoran_wastes() : ZoneScript("zone_argus_antoran_wastes") { }
+public://tmp
+   // zone_argus_antoran_wastes() : ZoneScript("zone_argus_antoran_wastes") { }
 
-    void OnPlayerEnter(Player* player) override
+    void OnPlayerEnter(Player* player) //override
     {
-        player->GetScheduler().Schedule(Milliseconds(2s), ZONE_ANTORAN_WASTES, [](TaskContext context)
+       /* player->GetScheduler().Schedule(Milliseconds(2s), ZONE_ANTORAN_WASTES, [](TaskContext context)
         {
             if (Player* player = GetContextPlayer())
                 if (player->GetAreaId() == AREA_ANTORAN_WASTES_VINDICAAR)
@@ -37,12 +37,12 @@ public:
                         player->NearTeleportTo(-2602.05f, 8573.32f, -66.0f, 1.816547f);
 
             context.Repeat();
-        });
+        });*/   //tmp
     }
 
-    void OnPlayerExit(Player* player) override
+    void OnPlayerExit(Player* player) //override
     {
-        player->GetScheduler().CancelGroup(ZONE_ANTORAN_WASTES);
+        //player->GetScheduler().CancelGroup(ZONE_ANTORAN_WASTES);//tmp
     }
 };
 

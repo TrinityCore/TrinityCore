@@ -42,7 +42,7 @@ target_link_libraries(game-interface
     Detour)
 
 add_library(game
-  ${PRIVATE_SOURCES} "Globals/BattlePetDataStore.cpp"  "Instances/InstanceSaveMgr.cpp" "BattlePay/BattlePayMgr.h" "BattlePay/BattlePayMgr.cpp" "Globals/BattlePayData.h" "Server/Packets/BattlePayPackets.h")
+  ${PRIVATE_SOURCES} "Globals/BattlePetDataStore.cpp"  "Instances/InstanceSaveMgr.cpp" "BattlePay/BattlePayMgr.h" "BattlePay/BattlePayMgr.cpp" "Globals/BattlePayData.h" "Server/Packets/BattlePayPackets.h" "Quests/WorldQuestMgr.h")
 
 target_include_directories(game
   PRIVATE

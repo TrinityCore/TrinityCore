@@ -34,24 +34,24 @@
 class zone_argus_macaree : public ZoneScript
 {
 public:
-    zone_argus_macaree() : ZoneScript("zone_argus_macaree") { }
+    //tmp    zone_argus_macaree() : ZoneScript("zone_argus_macaree") { }
 
-    void OnPlayerEnter(Player* player) override
+    void OnPlayerEnter(Player* player) 
     {
-        player->GetScheduler().Schedule(Milliseconds(2s), ZONE_MACARE, [](TaskContext context)
-        {
-            if (Player* player = GetContextPlayer())
-                if (player->GetAreaId() == AREA_MACAREE_VINDICAAR)
-                    if (player->GetPositionZ() <= 0.0f)
-                        player->NearTeleportTo(4600.83f, 9831.83f, 70.0f, 0.213662f);
+        //player->GetScheduler().Schedule(Milliseconds(2s), ZONE_MACARE, [](TaskContext context)
+        //{
+        //    if (Player* player = GetContextPlayer())
+        //        if (player->GetAreaId() == AREA_MACAREE_VINDICAAR)
+        //            if (player->GetPositionZ() <= 0.0f)
+        //                player->NearTeleportTo(4600.83f, 9831.83f, 70.0f, 0.213662f);
 
-            context.Repeat();
-        });
+        //    context.Repeat();
+        //});
     }
 
-    void OnPlayerExit(Player* player) override
+    void OnPlayerExit(Player* player) 
     {
-        player->GetScheduler().CancelGroup(ZONE_MACARE);
+        //tmp player->GetScheduler().CancelGroup(ZONE_MACARE);
     }
 };
 

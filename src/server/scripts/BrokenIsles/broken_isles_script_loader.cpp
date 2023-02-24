@@ -1,475 +1,475 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * this file is part of the trinitycore project. see authors file for copyright information
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
+ * this program is free software; you can redistribute it and/or modify it
+ * under the terms of the gnu general public license as published by the
+ * free software foundation; either version 2 of the license, or (at your
  * option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * this program is distributed in the hope that it will be useful, but without
+ * any warranty; without even the implied warranty of merchantability or
+ * fitness for a particular purpose. see the gnu general public license for
  * more details.
  *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * you should have received a copy of the gnu general public license along
+ * with this program. if not, see <http://www.gnu.org/licenses/>.
  */
 
- // This is where scripts' loading functions should be declared:
+ // this is where scripts' loading functions should be declared:
 
  //invasion argus
-void AddSC_invasion_point_argus();
-void AddSC_zone_argus();
+void addsc_invasion_point_argus();
+void addsc_zone_argus();
 
-// Antorus Raid
-void AddSC_antorus();
-void AddSC_instance_antorus();
-void AddSC_boss_worldbreaker();
-void AddSC_boss_aggramar();
-void AddSC_boss_antoran();
-void AddSC_boss_argus();
-void AddSC_boss_coven_shivarres();
-void AddSC_boss_eonar();
-void AddSC_boss_felhounds();
-void AddSC_boss_hasabel();
-void AddSC_boss_imonar();
-void AddSC_boss_kingaroth();
-void AddSC_boss_varimathras();
+// antorus raid
+void addsc_antorus();
+void addsc_instance_antorus();
+void addsc_boss_worldbreaker();
+void addsc_boss_aggramar();
+void addsc_boss_antoran();
+void addsc_boss_argus();
+void addsc_boss_coven_shivarres();
+void addsc_boss_eonar();
+void addsc_boss_felhounds();
+void addsc_boss_hasabel();
+void addsc_boss_imonar();
+void addsc_boss_kingaroth();
+void addsc_boss_varimathras();
 
-// Portals
-void AddSC_legion_portal_at_scripts();
+// portals
+void addsc_legion_portal_at_scripts();
 
-// Zones
-void AddSC_dalaran_legion();
-void AddSC_azsuna();
-void AddSC_broken_shore();
-void AddSC_highmountain();
-void AddSC_stormheim();
-void AddSC_suramar();
-void AddSC_valsharah();
-void AddSC_zone_argus_krokuun();
-void AddSC_zone_argus_antoran_wastes();
-void AddSC_zone_argus_macaree();
+// zones
+void addsc_dalaran_legion();
+void addsc_azsuna();
+void addsc_broken_shore();
+void addsc_highmountain();
+void addsc_stormheim();
+void addsc_suramar();
+void addsc_valsharah();
+void addsc_zone_argus_krokuun();
+void addsc_zone_argus_antoran_wastes();
+void addsc_zone_argus_macaree();
 
-// Demon Hunter start zone
-void AddSC_zone_mardum();
-void AddSC_zone_vault_of_wardens();
+// demon hunter start zone
+void addsc_zone_mardum();
+void addsc_zone_vault_of_wardens();
 
-// Class Halls
-void AddSC_class_hall_dh();
-void AddSC_class_hall_dk();
-void AddSC_class_hall_druid();
-void AddSC_class_hall_hunter();
-void AddSC_class_hall_mage();
-void AddSC_class_hall_monk();
-void AddSC_class_hall_paladin();
-void AddSC_class_hall_priest();
-void AddSC_class_hall_rogue();
-void AddSC_class_hall_shaman();
-void AddSC_class_hall_warlock();
-void AddSC_class_hall_warrior();
+// class halls
+void addsc_class_hall_dh();
+void addsc_class_hall_dk();
+void addsc_class_hall_druid();
+void addsc_class_hall_hunter();
+void addsc_class_hall_mage();
+void addsc_class_hall_monk();
+void addsc_class_hall_paladin();
+void addsc_class_hall_priest();
+void addsc_class_hall_rogue();
+void addsc_class_hall_shaman();
+void addsc_class_hall_warlock();
+void addsc_class_hall_warrior();
 
-// Professions
-void AddSC_legion_profession_blacksmithing();
+// professions
+void addsc_legion_profession_blacksmithing();
 
-// Black Rook Hold
-void AddSC_instance_black_rook_hold();
-void AddSC_black_rook_hold();
-void AddSC_boss_amalgam_of_souls();
-void AddSC_boss_illysanna_ravencrest();
-void AddSC_boss_smashspite_the_hateful();
-void AddSC_boss_lord_kurtalos_ravencrest();
+// black rook hold
+void addsc_instance_black_rook_hold();
+void addsc_black_rook_hold();
+void addsc_boss_amalgam_of_souls();
+void addsc_boss_illysanna_ravencrest();
+void addsc_boss_smashspite_the_hateful();
+void addsc_boss_lord_kurtalos_ravencrest();
 
-// Darkheart Thicket
-void AddSC_instance_darkheart_thicket();
-void AddSC_darkheart_thicket();
-void AddSC_boss_archdruid_glaidalis();
-void AddSC_boss_oakheart();
-void AddSC_boss_dresaron();
-void AddSC_boss_shade_of_xavius();
+// darkheart thicket
+void addsc_instance_darkheart_thicket();
+void addsc_darkheart_thicket();
+void addsc_boss_archdruid_glaidalis();
+void addsc_boss_oakheart();
+void addsc_boss_dresaron();
+void addsc_boss_shade_of_xavius();
 
-// Eye of Azshara
-void AddSC_instance_eye_of_azshara();
-void AddSC_eye_of_azshara();
-void AddSC_boss_warlord_parjesh();
-void AddSC_boss_lady_hatecoil();
-void AddSC_boss_serpentrix();
-void AddSC_boss_king_deepbeard();
-void AddSC_boss_wrath_of_azshara();
+// eye of azshara
+void addsc_instance_eye_of_azshara();
+void addsc_eye_of_azshara();
+void addsc_boss_warlord_parjesh();
+void addsc_boss_lady_hatecoil();
+void addsc_boss_serpentrix();
+void addsc_boss_king_deepbeard();
+void addsc_boss_wrath_of_azshara();
 
-// Halls of Valor
-void AddSC_instance_halls_of_valor();
-void AddSC_halls_of_valor();
-void AddSC_boss_odyn_hov();
-void AddSC_boss_hyrja();
-void AddSC_boss_hymdall();
-void AddSC_boss_godking_skovald();
-void AddSC_boss_fenryr();
+// halls of valor
+void addsc_instance_halls_of_valor();
+void addsc_halls_of_valor();
+void addsc_boss_odyn_hov();
+void addsc_boss_hyrja();
+void addsc_boss_hymdall();
+void addsc_boss_godking_skovald();
+void addsc_boss_fenryr();
 
-// Maw of Souls
-void AddSC_instance_maw_of_souls();
-void AddSC_maw_of_souls();
-void AddSC_boss_ymiron_maw();
-void AddSC_boss_harbaron_maw();
-void AddSC_boss_helya_maw();
+// maw of souls
+void addsc_instance_maw_of_souls();
+void addsc_maw_of_souls();
+void addsc_boss_ymiron_maw();
+void addsc_boss_harbaron_maw();
+void addsc_boss_helya_maw();
 
-//Neltharion's Lair
-void AddSC_instance_neltharions_lair();
-void AddSC_neltharions_lair();
-void AddSC_boss_rokmora();
-void AddSC_boss_ularogg_cragshaper();
-void AddSC_boss_naraxas();
-void AddSC_boss_dargrul_the_underking();
+//neltharion's lair
+void addsc_instance_neltharions_lair();
+void addsc_neltharions_lair();
+void addsc_boss_rokmora();
+void addsc_boss_ularogg_cragshaper();
+void addsc_boss_naraxas();
+void addsc_boss_dargrul_the_underking();
 
-//The Nighthold
-void AddSC_boss_aluriel();
-void AddSC_boss_chronomatic_anomaly();
-void AddSC_boss_skorpyron();
-void AddSC_boss_trilliax();
-void AddSC_instance_the_nighthold();
-void AddSC_the_nighthold();
-void AddSC_boss_elisande();
-void AddSC_boss_guldan();
-void AddSC_boss_high_botanist_telarn();
-void AddSC_boss_krosus();
-void AddSC_boss_star_augur_etraeus();
-void AddSC_boss_tichondrius();
+//the nighthold
+void addsc_boss_aluriel();
+void addsc_boss_chronomatic_anomaly();
+void addsc_boss_skorpyron();
+void addsc_boss_trilliax();
+void addsc_instance_the_nighthold();
+void addsc_the_nighthold();
+void addsc_boss_elisande();
+void addsc_boss_guldan();
+void addsc_boss_high_botanist_telarn();
+void addsc_boss_krosus();
+void addsc_boss_star_augur_etraeus();
+void addsc_boss_tichondrius();
 
-// Vault of the Wardens
-void AddSC_instance_vault_of_the_wardens();
-void AddSC_vault_of_the_wardens();
-void AddSC_boss_tirathon_saltheril();
-void AddSC_boss_inquisitor_tormentorum();
-void AddSC_boss_glazer();
-void AddSC_boss_ashgolm();
-void AddSC_boss_cordana_felsong();
+// vault of the wardens
+void addsc_instance_vault_of_the_wardens();
+void addsc_vault_of_the_wardens();
+void addsc_boss_tirathon_saltheril();
+void addsc_boss_inquisitor_tormentorum();
+void addsc_boss_glazer();
+void addsc_boss_ashgolm();
+void addsc_boss_cordana_felsong();
 
-// Violet Hold
-void AddSC_boss_anubesset();
-void AddSC_boss_blood_princess_thalena();
-void AddSC_boss_fel_lord_betrug();
-void AddSC_boss_festerface();
-void AddSC_boss_millificient_manastorm();
-void AddSC_boss_mind_flayer_kaarhj();
-void AddSC_boss_saelorn();
-void AddSC_boss_shivermaw();
-void AddSC_instance_violet_hold_assault();
-void AddSC_violet_hold_assault();
+// violet hold
+void addsc_boss_anubesset();
+void addsc_boss_blood_princess_thalena();
+void addsc_boss_fel_lord_betrug();
+void addsc_boss_festerface();
+void addsc_boss_millificient_manastorm();
+void addsc_boss_mind_flayer_kaarhj();
+void addsc_boss_saelorn();
+void addsc_boss_shivermaw();
+void addsc_instance_violet_hold_assault();
+void addsc_violet_hold_assault();
 
-//Karazhan
-void AddSC_boss_attumen_new();
-void AddSC_boss_curator_new();
-void AddSC_boss_maiden_of_virtue_new();
-void AddSC_boss_mana_devourer();
-void AddSC_boss_moroes_new();
-void AddSC_boss_nightbane_new();
-void AddSC_npc_kara_barnes_new();
-void AddSC_boss_shade_of_medivh();
-void AddSC_boss_vizaduum();
-void AddSC_instance_new_karazhan();
-void AddSC_new_karazhan();
+//karazhan
+void addsc_boss_attumen_new();
+void addsc_boss_curator_new();
+void addsc_boss_maiden_of_virtue_new();
+void addsc_boss_mana_devourer();
+void addsc_boss_moroes_new();
+void addsc_boss_nightbane_new();
+void addsc_npc_kara_barnes_new();
+void addsc_boss_shade_of_medivh();
+void addsc_boss_vizaduum();
+void addsc_instance_new_karazhan();
+void addsc_new_karazhan();
 
-//The Arcway
-void AddSC_instance_the_arcway();
-void AddSC_boss_advisor_vandros();
-void AddSC_boss_general_xakal();
-void AddSC_boss_ivanyr();
-void AddSC_boss_naltira();
-void AddSC_boss_corstilax();
+//the arcway
+void addsc_instance_the_arcway();
+void addsc_boss_advisor_vandros();
+void addsc_boss_general_xakal();
+void addsc_boss_ivanyr();
+void addsc_boss_naltira();
+void addsc_boss_corstilax();
 
-// Court of Stars
-void AddSC_boss_patrol_captain_gerdo();
-void AddSC_boss_talixae_flamewreath();
-void AddSC_boss_advisor_melandrus();
-void AddSC_court_of_stars();
-void AddSC_instance_court_of_stars();
+// court of stars
+void addsc_boss_patrol_captain_gerdo();
+void addsc_boss_talixae_flamewreath();
+void addsc_boss_advisor_melandrus();
+void addsc_court_of_stars();
+void addsc_instance_court_of_stars();
 
-void AddSC_instance_cathedral_of_eternal_night(); //Cathedral of Eternal Night
-void AddSC_boss_agronox();
-void AddSC_boss_thrashbite_the_scornful();
-void AddSC_boss_domatrax();
-void AddSC_boss_mephistroth();
-void AddSC_cathedral_of_eternal_night();
+void addsc_instance_cathedral_of_eternal_night(); //cathedral of eternal night
+void addsc_boss_agronox();
+void addsc_boss_thrashbite_the_scornful();
+void addsc_boss_domatrax();
+void addsc_boss_mephistroth();
+void addsc_cathedral_of_eternal_night();
 
-// Seat of Triumvirate
-void AddSC_boss_zuraal_the_ascended();
-void AddSC_boss_saprish();
-void AddSC_boss_viceroy_nezhar();
-void AddSC_boss_lura();
-void AddSC_seat_of_triumvirate();
-void AddSC_instance_seat_of_triumvirate();
+// seat of triumvirate
+void addsc_boss_zuraal_the_ascended();
+void addsc_boss_saprish();
+void addsc_boss_viceroy_nezhar();
+void addsc_boss_lura();
+void addsc_seat_of_triumvirate();
+void addsc_instance_seat_of_triumvirate();
 
-// Emerald Nightmare
-void AddSC_nythendra();
-void AddSC_ilgynoth();
-void AddSC_elerethe_renferal();
-void AddSC_ursoc();
-void AddSC_boss_dragons_of_nightmare();
-void AddSC_boss_cenarius();
-void AddSC_xavius();
-void AddSC_emerald_nightmare();
-void AddSC_instance_emerald_nightmare();
+// emerald nightmare
+void addsc_nythendra();
+void addsc_ilgynoth();
+void addsc_elerethe_renferal();
+void addsc_ursoc();
+void addsc_boss_dragons_of_nightmare();
+void addsc_boss_cenarius();
+void addsc_xavius();
+void addsc_emerald_nightmare();
+void addsc_instance_emerald_nightmare();
 
-// Tomb of Sargeras
-void AddSC_boss_demonic_inquisition();
-void AddSC_boss_desolate_host();
-void AddSC_boss_fallen_avatar();
-void AddSC_boss_goroth();
-void AddSC_boss_harjatan();
-void AddSC_boss_tos_kiljaeden();
-void AddSC_boss_maiden_of_vigilance();
-void AddSC_boss_sasszine();
-void AddSC_boss_sisters_of_moon();
-void AddSC_tomb_of_sargeras();
-void AddSC_instance_tomb_of_sargeras();
+// tomb of sargeras
+void addsc_boss_demonic_inquisition();
+void addsc_boss_desolate_host();
+void addsc_boss_fallen_avatar();
+void addsc_boss_goroth();
+void addsc_boss_harjatan();
+void addsc_boss_tos_kiljaeden();
+void addsc_boss_maiden_of_vigilance();
+void addsc_boss_sasszine();
+void addsc_boss_sisters_of_moon();
+void addsc_tomb_of_sargeras();
+void addsc_instance_tomb_of_sargeras();
 
-void AddSC_trial_of_valor();                      //Trial of Valor
-void AddSC_instance_trial_of_valor();
-void AddSC_boss_odyn_tov();
-void AddSC_boss_garm();
-void AddSC_boss_helya_tov();
+void addsc_trial_of_valor();                      //trial of valor
+void addsc_instance_trial_of_valor();
+void addsc_boss_odyn_tov();
+void addsc_boss_garm();
+void addsc_boss_helya_tov();
 
-// Scenario
-void AddSC_scenario_the_violet_hold();
-void AddSC_scenario_artifact_ursocslair();
-void AddSC_scenario_artifact_restoacqusition();
-void AddSC_scenario_artifact_ruins_of_falanaar();
-void AddSC_scenario_artifact_karazhan_catacombs();
-void AddSC_scenario_artifact_brokenshore();
-void AddSC_scenario_artifact_tirisfal_glades();
-void AddSC_scenario_the_violet_hold_dh();
-void AddSC_scenario_mage_art();
+// scenario
+void addsc_scenario_the_violet_hold();
+void addsc_scenario_artifact_ursocslair();
+void addsc_scenario_artifact_restoacqusition();
+void addsc_scenario_artifact_ruins_of_falanaar();
+void addsc_scenario_artifact_karazhan_catacombs();
+void addsc_scenario_artifact_brokenshore();
+void addsc_scenario_artifact_tirisfal_glades();
+void addsc_scenario_the_violet_hold_dh();
+void addsc_scenario_mage_art();
 
 // micro hollidays
-void AddSC_AuctionHouseDanceParty();
+void addsc_auctionhousedanceparty();
 
-// The name of this function should match:
-// void Add${NameOfDirectory}Scripts()
-void AddBrokenIslesScripts()
+// the name of this function should match:
+// void add${nameofdirectory}scripts()
+void addbrokenislesscripts()
 {
-    // Antorus Raid
-    AddSC_antorus();
-    AddSC_instance_antorus();
-    AddSC_boss_worldbreaker();
-    AddSC_boss_aggramar();
-    AddSC_boss_antoran();
-    AddSC_boss_argus();
-    AddSC_boss_coven_shivarres();
-    AddSC_boss_eonar();
-    AddSC_boss_felhounds();
-    AddSC_boss_hasabel();
-    AddSC_boss_imonar();
-    AddSC_boss_kingaroth();
-    AddSC_boss_varimathras();
+    // antorus raid
+    addsc_antorus();
+    addsc_instance_antorus();
+    addsc_boss_worldbreaker();
+    addsc_boss_aggramar();
+    addsc_boss_antoran();
+    addsc_boss_argus();
+    addsc_boss_coven_shivarres();
+    addsc_boss_eonar();
+    addsc_boss_felhounds();
+    addsc_boss_hasabel();
+    addsc_boss_imonar();
+    addsc_boss_kingaroth();
+    addsc_boss_varimathras();
 
-    // Portals
-    AddSC_legion_portal_at_scripts();
+    // portals
+    addsc_legion_portal_at_scripts();
 
-    // Zones
-    AddSC_dalaran_legion();
-    AddSC_azsuna();
-    AddSC_broken_shore();
-    AddSC_highmountain();
-    AddSC_stormheim();
-    AddSC_suramar();
-    AddSC_valsharah();
-    AddSC_zone_argus_krokuun();
-    AddSC_zone_argus_antoran_wastes();
-    AddSC_zone_argus_macaree();
+    // zones
+    addsc_dalaran_legion();
+    addsc_azsuna();
+    addsc_broken_shore();
+    addsc_highmountain();
+    addsc_stormheim();
+    addsc_suramar();
+    addsc_valsharah();
+    addsc_zone_argus_krokuun();
+    addsc_zone_argus_antoran_wastes();
+    addsc_zone_argus_macaree();
 
-    // Demon Hunter start zone
-    AddSC_zone_mardum();
-    AddSC_zone_vault_of_wardens();
+    // demon hunter start zone
+    addsc_zone_mardum();
+    addsc_zone_vault_of_wardens();
 
-    // Class Halls
-    AddSC_class_hall_dh();
-    AddSC_class_hall_dk();
-    AddSC_class_hall_druid();
-    AddSC_class_hall_hunter();
-    AddSC_class_hall_mage();
-    AddSC_class_hall_monk();
-    AddSC_class_hall_paladin();
-    AddSC_class_hall_priest();
-    AddSC_class_hall_rogue();
-    AddSC_class_hall_shaman();
-    AddSC_class_hall_warlock();
-    AddSC_class_hall_warrior();
+    // class halls
+    addsc_class_hall_dh();
+    addsc_class_hall_dk();
+    addsc_class_hall_druid();
+    addsc_class_hall_hunter();
+    addsc_class_hall_mage();
+    addsc_class_hall_monk();
+    addsc_class_hall_paladin();
+    addsc_class_hall_priest();
+    addsc_class_hall_rogue();
+    addsc_class_hall_shaman();
+    addsc_class_hall_warlock();
+    addsc_class_hall_warrior();
 
-    // Professions
-    AddSC_legion_profession_blacksmithing();
+    // professions
+    addsc_legion_profession_blacksmithing();
 
-    // Black Rook Hold
-    AddSC_instance_black_rook_hold();
-    AddSC_black_rook_hold();
-    AddSC_boss_amalgam_of_souls();
-    AddSC_boss_illysanna_ravencrest();
-    AddSC_boss_smashspite_the_hateful();
-    AddSC_boss_lord_kurtalos_ravencrest();
+    // black rook hold
+    addsc_instance_black_rook_hold();
+    addsc_black_rook_hold();
+    addsc_boss_amalgam_of_souls();
+    addsc_boss_illysanna_ravencrest();
+    addsc_boss_smashspite_the_hateful();
+    addsc_boss_lord_kurtalos_ravencrest();
 
-    // Darkheart Thicket
-    AddSC_instance_darkheart_thicket();
-    AddSC_darkheart_thicket();
-    AddSC_boss_archdruid_glaidalis();
-    AddSC_boss_oakheart();
-    AddSC_boss_dresaron();
-    AddSC_boss_shade_of_xavius();
+    // darkheart thicket
+    addsc_instance_darkheart_thicket();
+    addsc_darkheart_thicket();
+    addsc_boss_archdruid_glaidalis();
+    addsc_boss_oakheart();
+    addsc_boss_dresaron();
+    addsc_boss_shade_of_xavius();
 
-    // Eye of Azshara
-    AddSC_instance_eye_of_azshara();
-    AddSC_eye_of_azshara();
-    AddSC_boss_warlord_parjesh();
-    AddSC_boss_lady_hatecoil();
-    AddSC_boss_serpentrix();
-    AddSC_boss_king_deepbeard();
-    AddSC_boss_wrath_of_azshara();
+    // eye of azshara
+    addsc_instance_eye_of_azshara();
+    addsc_eye_of_azshara();
+    addsc_boss_warlord_parjesh();
+    addsc_boss_lady_hatecoil();
+    addsc_boss_serpentrix();
+    addsc_boss_king_deepbeard();
+    addsc_boss_wrath_of_azshara();
 
-    // Halls of Valor
-    AddSC_instance_halls_of_valor();
-    AddSC_halls_of_valor();
-    AddSC_boss_odyn_hov();
-    AddSC_boss_hyrja();
-    AddSC_boss_hymdall();
-    AddSC_boss_godking_skovald();
-    AddSC_boss_fenryr();
+    // halls of valor
+    addsc_instance_halls_of_valor();
+    addsc_halls_of_valor();
+    addsc_boss_odyn_hov();
+    addsc_boss_hyrja();
+    addsc_boss_hymdall();
+    addsc_boss_godking_skovald();
+    addsc_boss_fenryr();
 
-    // Maw of Souls
-    AddSC_instance_maw_of_souls();
-    AddSC_maw_of_souls();
-    AddSC_boss_ymiron_maw();
-    AddSC_boss_harbaron_maw();
-    AddSC_boss_helya_maw();
+    // maw of souls
+    addsc_instance_maw_of_souls();
+    addsc_maw_of_souls();
+    addsc_boss_ymiron_maw();
+    addsc_boss_harbaron_maw();
+    addsc_boss_helya_maw();
 
-    // Neltharion's Lair
-    AddSC_instance_neltharions_lair();
-    AddSC_neltharions_lair();
-    AddSC_boss_rokmora();
-    AddSC_boss_ularogg_cragshaper();
-    AddSC_boss_naraxas();
-    AddSC_boss_dargrul_the_underking();
+    // neltharion's lair
+    addsc_instance_neltharions_lair();
+    addsc_neltharions_lair();
+    addsc_boss_rokmora();
+    addsc_boss_ularogg_cragshaper();
+    addsc_boss_naraxas();
+    addsc_boss_dargrul_the_underking();
 
-    // Vault of the Wardens
-    AddSC_instance_vault_of_the_wardens();
-    AddSC_vault_of_the_wardens();
-    AddSC_boss_tirathon_saltheril();
-    AddSC_boss_inquisitor_tormentorum();
-    AddSC_boss_glazer();
-    AddSC_boss_ashgolm();
-    AddSC_boss_cordana_felsong();
+    // vault of the wardens
+    addsc_instance_vault_of_the_wardens();
+    addsc_vault_of_the_wardens();
+    addsc_boss_tirathon_saltheril();
+    addsc_boss_inquisitor_tormentorum();
+    addsc_boss_glazer();
+    addsc_boss_ashgolm();
+    addsc_boss_cordana_felsong();
 
-    // Violet Hold
-    AddSC_boss_anubesset();
-    AddSC_boss_blood_princess_thalena();
-    AddSC_boss_fel_lord_betrug();
-    AddSC_boss_festerface();
-    AddSC_boss_millificient_manastorm();
-    AddSC_boss_mind_flayer_kaarhj();
-    AddSC_boss_saelorn();
-    AddSC_boss_shivermaw();
-    AddSC_instance_violet_hold_assault();
-    AddSC_violet_hold_assault();
+    // violet hold
+    addsc_boss_anubesset();
+    addsc_boss_blood_princess_thalena();
+    addsc_boss_fel_lord_betrug();
+    addsc_boss_festerface();
+    addsc_boss_millificient_manastorm();
+    addsc_boss_mind_flayer_kaarhj();
+    addsc_boss_saelorn();
+    addsc_boss_shivermaw();
+    addsc_instance_violet_hold_assault();
+    addsc_violet_hold_assault();
 
-    //The Nighthold
-    AddSC_boss_aluriel();
-    AddSC_boss_chronomatic_anomaly();
-    AddSC_boss_skorpyron();
-    AddSC_boss_trilliax();
-    AddSC_instance_the_nighthold();
-    AddSC_the_nighthold();
-    AddSC_boss_elisande();
-    AddSC_boss_guldan();
-    AddSC_boss_high_botanist_telarn();
-    AddSC_boss_krosus();
-    AddSC_boss_star_augur_etraeus();
-    AddSC_boss_tichondrius();
+    //the nighthold
+    addsc_boss_aluriel();
+    addsc_boss_chronomatic_anomaly();
+    addsc_boss_skorpyron();
+    addsc_boss_trilliax();
+    addsc_instance_the_nighthold();
+    addsc_the_nighthold();
+    addsc_boss_elisande();
+    addsc_boss_guldan();
+    addsc_boss_high_botanist_telarn();
+    addsc_boss_krosus();
+    addsc_boss_star_augur_etraeus();
+    addsc_boss_tichondrius();
 
-    //Karazhan
-    AddSC_boss_attumen_new();
-    AddSC_boss_curator_new();
-    AddSC_boss_maiden_of_virtue_new();
-    AddSC_boss_mana_devourer();
-    AddSC_boss_moroes_new();
-    AddSC_boss_nightbane_new();
-    AddSC_npc_kara_barnes_new();
-    AddSC_boss_shade_of_medivh();
-    AddSC_boss_vizaduum();
-    AddSC_instance_new_karazhan();
-    AddSC_new_karazhan();
+    //karazhan
+    addsc_boss_attumen_new();
+    addsc_boss_curator_new();
+    addsc_boss_maiden_of_virtue_new();
+    addsc_boss_mana_devourer();
+    addsc_boss_moroes_new();
+    addsc_boss_nightbane_new();
+    addsc_npc_kara_barnes_new();
+    addsc_boss_shade_of_medivh();
+    addsc_boss_vizaduum();
+    addsc_instance_new_karazhan();
+    addsc_new_karazhan();
 
-    //The Arcway
-    AddSC_instance_the_arcway();
-    AddSC_boss_advisor_vandros();
-    AddSC_boss_general_xakal();
-    AddSC_boss_ivanyr();
-    AddSC_boss_naltira();
-    AddSC_boss_corstilax();
+    //the arcway
+    addsc_instance_the_arcway();
+    addsc_boss_advisor_vandros();
+    addsc_boss_general_xakal();
+    addsc_boss_ivanyr();
+    addsc_boss_naltira();
+    addsc_boss_corstilax();
 
-    // Court of Stars
-    AddSC_boss_patrol_captain_gerdo();
-    AddSC_boss_talixae_flamewreath();
-    AddSC_boss_advisor_melandrus();
-    AddSC_court_of_stars();
-    AddSC_instance_court_of_stars();
+    // court of stars
+    addsc_boss_patrol_captain_gerdo();
+    addsc_boss_talixae_flamewreath();
+    addsc_boss_advisor_melandrus();
+    addsc_court_of_stars();
+    addsc_instance_court_of_stars();
 
-    AddSC_instance_cathedral_of_eternal_night(); //Cathedral of Eternal Night
-    AddSC_boss_agronox();
-    AddSC_boss_thrashbite_the_scornful();
-    AddSC_boss_domatrax();
-    AddSC_boss_mephistroth();
-    AddSC_cathedral_of_eternal_night();
+    addsc_instance_cathedral_of_eternal_night(); //cathedral of eternal night
+    addsc_boss_agronox();
+    addsc_boss_thrashbite_the_scornful();
+    addsc_boss_domatrax();
+    addsc_boss_mephistroth();
+    addsc_cathedral_of_eternal_night();
 
-    // Seat of Triumvirate
-    AddSC_boss_zuraal_the_ascended();
-    AddSC_boss_saprish();
-    AddSC_boss_viceroy_nezhar();
-    AddSC_boss_lura();
-    AddSC_seat_of_triumvirate();
-    AddSC_instance_seat_of_triumvirate();
+    // seat of triumvirate
+    addsc_boss_zuraal_the_ascended();
+    addsc_boss_saprish();
+    addsc_boss_viceroy_nezhar();
+    addsc_boss_lura();
+    addsc_seat_of_triumvirate();
+    addsc_instance_seat_of_triumvirate();
 
-    // Emerald Nightmare
-    AddSC_nythendra();
-    AddSC_ilgynoth();
-    AddSC_elerethe_renferal();
-    AddSC_ursoc();
-    AddSC_boss_dragons_of_nightmare();
-    AddSC_boss_cenarius();
-    AddSC_xavius();
-    AddSC_emerald_nightmare();
-    AddSC_instance_emerald_nightmare();
+    // emerald nightmare
+    addsc_nythendra();
+    addsc_ilgynoth();
+    addsc_elerethe_renferal();
+    addsc_ursoc();
+    addsc_boss_dragons_of_nightmare();
+    addsc_boss_cenarius();
+    addsc_xavius();
+    addsc_emerald_nightmare();
+    addsc_instance_emerald_nightmare();
 
-    // Tomb of Sargeras
-    AddSC_boss_demonic_inquisition();
-    AddSC_boss_desolate_host();
-    AddSC_boss_fallen_avatar();
-    AddSC_boss_goroth();
-    AddSC_boss_harjatan();
-    AddSC_boss_tos_kiljaeden();
-    AddSC_boss_maiden_of_vigilance();
-    AddSC_boss_sasszine();
-    AddSC_boss_sisters_of_moon();
-    AddSC_tomb_of_sargeras();
-    AddSC_instance_tomb_of_sargeras();
+    // tomb of sargeras
+    addsc_boss_demonic_inquisition();
+    addsc_boss_desolate_host();
+    addsc_boss_fallen_avatar();
+    addsc_boss_goroth();
+    addsc_boss_harjatan();
+    addsc_boss_tos_kiljaeden();
+    addsc_boss_maiden_of_vigilance();
+    addsc_boss_sasszine();
+    addsc_boss_sisters_of_moon();
+    addsc_tomb_of_sargeras();
+    addsc_instance_tomb_of_sargeras();
 
-    AddSC_trial_of_valor();                     //Trial of Valor
-    AddSC_instance_trial_of_valor();
-    AddSC_boss_odyn_tov();
-    AddSC_boss_garm();
-    AddSC_boss_helya_tov();
+    addsc_trial_of_valor();                     //trial of valor
+    addsc_instance_trial_of_valor();
+    addsc_boss_odyn_tov();
+    addsc_boss_garm();
+    addsc_boss_helya_tov();
 
-    // Scenario
-    AddSC_scenario_the_violet_hold();
-    AddSC_scenario_artifact_ursocslair();
-    AddSC_scenario_artifact_restoacqusition();
-    AddSC_scenario_artifact_ruins_of_falanaar();
-    AddSC_scenario_artifact_karazhan_catacombs();
-    AddSC_scenario_artifact_brokenshore();
-    AddSC_scenario_artifact_tirisfal_glades();
-    AddSC_scenario_the_violet_hold_dh();
-    AddSC_scenario_mage_art();
+    // scenario
+    addsc_scenario_the_violet_hold();
+    addsc_scenario_artifact_ursocslair();
+    addsc_scenario_artifact_restoacqusition();
+    addsc_scenario_artifact_ruins_of_falanaar();
+    addsc_scenario_artifact_karazhan_catacombs();
+    addsc_scenario_artifact_brokenshore();
+    addsc_scenario_artifact_tirisfal_glades();
+    addsc_scenario_the_violet_hold_dh();
+    addsc_scenario_mage_art();
 
     //invasion argus
-    AddSC_invasion_point_argus();
-    AddSC_zone_argus();
+    addsc_invasion_point_argus();
+    addsc_zone_argus();
 
     // micro hollidays
-    AddSC_AuctionHouseDanceParty();
+    addsc_auctionhousedanceparty();
 }

@@ -53,10 +53,25 @@ void SummonList::DoZoneInCombat(uint32 entry)
         if (summon && summon->IsAIEnabled()
                 && (!entry || summon->GetEntry() == entry))
         {
-            summon->AI()->DoZoneInCombat(nullptr);
+            //tmp         summon->AI()->DoZoneInCombat(nullptr);
         }
     }
 }
+
+//void SummonList::DoZoneInCombat(uint32 entry, float maxRangeToNearestTarget)
+//{
+//    //for (StorageType::iterator i = storage_.begin(); i != storage_.end();)//tmp
+//    //{
+//    //    Creature* summon = ObjectAccessor::GetCreature(*me, *i);
+//    //    ++i;
+//    //    if (summon && summon->IsAIEnabled
+//    //        && (!entry || summon->GetEntry() == entry))
+//    //    {
+//    //        summon->AI()->DoZoneInCombat(nullptr, maxRangeToNearestTarget);
+//    //    }
+//    //}
+//}
+
 
 void SummonList::DespawnEntry(uint32 entry)
 {
@@ -117,8 +132,8 @@ void SummonList::DoActionImpl(int32 action, StorageType& summons, uint16 max)
     for (ObjectGuid const& guid : summons)
     {
         Creature* summon = ObjectAccessor::GetCreature(*_me, guid);
-        if (summon && summon->IsAIEnabled())
-            summon->AI()->DoAction(action);
+        //if (summon && summon->IsAIEnabled())
+        //    summon->AI()->DoAction(action);//tmp
     }
 }
 
@@ -548,7 +563,7 @@ void BossAI::_JustEngagedWith(Unit* who)
 
     me->SetCombatPulseDelay(5);
     me->setActive(true);
-    DoZoneInCombat();
+//tmp    DoZoneInCombat();
     ScheduleTasks();
 }
 
@@ -568,8 +583,9 @@ void BossAI::TeleportCheaters()
 void BossAI::JustSummoned(Creature* summon)
 {
     summons.Summon(summon);
-    if (me->IsEngaged())
-        DoZoneInCombat(summon);
+    //if (me->IsEngaged())
+    //    //DoZoneInCombat(summon,250.0f);//后面250.f是我瞎写的
+    //DoZoneInCombat(summon);//tmp
 }
 
 void BossAI::SummonedCreatureDespawn(Creature* summon)

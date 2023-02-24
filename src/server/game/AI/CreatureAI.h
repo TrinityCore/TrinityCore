@@ -78,6 +78,8 @@ class TC_GAME_API CreatureAI : public UnitAI
 
         void Talk(uint8 id, WorldObject const* whisperTarget = nullptr);
 
+        //void DoZoneInCombat(Creature* creature, float maxRangeToNearestTarget);//系统自动生成
+        //void DoZoneInCombat(Creature* creature = nullptr, float maxRangeToNearestTarget = 250.0f);//后加
         /// == Reactions At =================================
 
         // Called if IsVisible(Unit* who) is true at each who move, reaction at visibility zone enter

@@ -954,6 +954,9 @@ class TC_GAME_API Unit : public WorldObject
         void AddUnitFlag(UnitFlags flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags), flags); }
         void SetUnitFlag(UnitFlags flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags), flags); }
         void RemoveUnitFlag(UnitFlags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags), flags); }
+        void SetUnitFlags(UnitFlags flags) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags), flags); }
+
+
         void ReplaceAllUnitFlags(UnitFlags flags) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Flags), flags); }
 
         bool HasUnitFlag2(UnitFlags2 flags) const { return (*m_unitData->Flags2 & flags) != 0; }
@@ -1823,6 +1826,7 @@ class TC_GAME_API Unit : public WorldObject
         uint32 GetModelForForm(ShapeshiftForm form, uint32 spellId) const;
 
         friend class VehicleJoinEvent;
+        //tmp        bool IsAIEnabled, NeedChangeAI;
         ObjectGuid LastCharmerGUID;
         bool CreateVehicleKit(uint32 id, uint32 creatureEntry, bool loading = false);
         void RemoveVehicleKit(bool onRemoveFromWorld = false);

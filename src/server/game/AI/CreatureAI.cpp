@@ -58,6 +58,56 @@ void CreatureAI::Talk(uint8 id, WorldObject const* whisperTarget /*= nullptr*/)
     sCreatureTextMgr->SendChat(me, id, whisperTarget);
 }
 
+//void CreatureAI::DoZoneInCombat(Creature* creature /*= nullptr*/, float maxRangeToNearestTarget /* = 250.0f*/)
+//{
+//    if (!creature)
+//        creature = me;
+//
+//    Map* map = creature->GetMap();
+//    if (creature->CanHaveThreatList())                      //use IsDungeon instead of Instanceable, in case battlegrounds will be instantiated
+//    {
+//        if (!map->IsDungeon())                                  //use IsDungeon instead of Instanceable, in case battlegrounds will be instantiated
+//        {
+//            TC_LOG_ERROR("misc", "DoZoneInCombat call for map that isn't an instance (creature entry = %d)", creature->GetTypeId() == TYPEID_UNIT ? creature->ToCreature()->GetEntry() : 0);
+//            return;
+//        }
+//
+//        if (!creature->HasReactState(REACT_PASSIVE) && !creature->GetVictim())
+//        {
+//            if (Unit* nearTarget = creature->SelectNearestTarget(maxRangeToNearestTarget))
+//                creature->AI()->AttackStart(nearTarget);
+//            else if (creature->IsSummon())
+//            {
+//                //if (Unit* summoner = creature->ToTempSummon()->GetSummoner())
+//                //{
+//                //    Unit* target = summoner->getAttackerForHelper();
+//                //    if (!target && !summoner->GetThreatManager().IsThreatListEmpty())
+//                //        target = summoner->GetThreatManager().GetAnyTarget();
+//                //    if (target && (creature->IsFriendlyTo(summoner) || creature->IsHostileTo(target)))
+//                //        creature->AI()->AttackStart(target);
+//                //}//tmp
+//            }
+//        }
+//        // Intended duplicated check, the code above this should select a victim
+//            // If it can't find a suitable attack target then we should error out.
+//        if (!creature->HasReactState(REACT_PASSIVE) && !creature->GetVictim())
+//        {
+//            TC_LOG_ERROR("misc.dozoneincombat", "DoZoneInCombat called for creature that has empty threat list (creature entry = %u)", creature->GetEntry());
+//            return;
+//        }
+//    }
+//
+//    Map::PlayerList const& playerList = map->GetPlayers();
+//    if (playerList.isEmpty())
+//        return;
+//
+//    for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
+//        if (Player* player = itr->GetSource())
+//            if (player->IsAlive())
+//                creature->SetInCombatWith(player);
+//}
+
+
 // Disable CreatureAI when charmed
 void CreatureAI::OnCharmed(bool isNew)
 {

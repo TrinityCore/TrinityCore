@@ -104,6 +104,9 @@ public:
     }
 
     void DoZoneInCombat(uint32 entry = 0);
+    //void DoZoneInCombat(uint32 entry = 0, float maxRangeToNearestTarget = 250.0f);
+    //void DoZoneInCombat(uint32 entry, float maxRangeToNearestTarget);//系统自动生成
+    //上面这两货修改时要慎重,很容易导致脚本成批失效
     void RemoveNotExisting();
     bool HasEntry(uint32 entry) const;
 
@@ -112,6 +115,8 @@ private:
 
     Creature* _me;
     StorageType _storage;
+    Creature* me;           //kyriancore
+    StorageType storage_;   //kyriancore
 };
 
 class TC_GAME_API EntryCheckPredicate
