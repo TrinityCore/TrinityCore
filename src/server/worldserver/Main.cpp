@@ -77,18 +77,19 @@ namespace fs = boost::filesystem;
 
 #ifdef _WIN32
 #include "ServiceWin32.h"
-char serviceName[] = "worldserver"; //服务器名称设置
-char serviceLongName[] = "TrinityCore world service";
-char serviceDescription[] = "TrinityCore World of Warcraft emulator world service";
+//服务器名称设置
+char serviceName[] = "worldserver"; 
+char serviceLongName[] = "XCore world service";//TrinityCore
+char serviceDescription[] = "XCore World of Warcraft emulator world service";//TrinityCore
 /*
- * -1 - not in service mode
- *  0 - stopped
- *  1 - running
- *  2 - paused
+ * -1 - not in service mode     -1,不在服务模式
+ *  0 - stopped                  0,已停止
+ *  1 - running                  1,正在运行
+ *  2 - paused                   2,已暂停  
  */
-int m_ServiceStatus = -1;
+int m_ServiceStatus = -1;   //服务器状态,参照上方数值
 
-#include <boost/dll/shared_library.hpp>
+#include <boost/dll/shared_library.hpp> //包含boost的相关hpp文件
 #include <timeapi.h>
 #endif
 
@@ -442,7 +443,7 @@ extern int main(int argc, char** argv)
     //返回退出代码
 }
 
-void ShutdownCLIThread(std::thread* cliThread)
+void ShutdownCLIThread(std::thread* cliThread)//关闭命令行线程
 {
     if (cliThread != nullptr)
     {
@@ -510,7 +511,7 @@ void ShutdownCLIThread(std::thread* cliThread)
     }
 }
 
-void WorldUpdateLoop()
+void WorldUpdateLoop()//世界更新循环
 {
     uint32 minUpdateDiff = uint32(sConfigMgr->GetIntDefault("MinWorldUpdateTime", 1));
     uint32 realCurrTime = 0;
@@ -562,13 +563,13 @@ void WorldUpdateLoop()
     HotfixDatabase.WarnAboutSyncQueries(false);
 }
 
-void SignalHandler(boost::system::error_code const& error, int /*signalNumber*/)
+void SignalHandler(boost::system::error_code const& error, int /*signalNumber*/)//信号控制器
 {
     if (!error)
         World::StopNow(SHUTDOWN_EXIT_CODE);
 }
 
-void FreezeDetector::Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, boost::system::error_code const& error)
+void FreezeDetector::Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, boost::system::error_code const& error)   //冻结检测控制器
 {
     if (!error)
     {
@@ -620,7 +621,7 @@ AsyncAcceptor* StartRaSocketAcceptor(Trinity::Asio::IoContext& ioContext)
     return acceptor;
 }
 
-bool LoadRealmInfo()
+bool LoadRealmInfo()    //加载服务器信息
 {
     if (Realm const* realmListRealm = sRealmList->GetRealm(realm.Id))
     {
