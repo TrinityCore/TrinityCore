@@ -62,6 +62,23 @@ void ThreatReference::ScaleThreat(float factor)
     _mgr._needClientUpdate = true;
 }
 
+void ThreatReference::UpdateOnlineState()   //TCB
+{
+    OnlineState onlineState = SelectOnlineState();
+    if (onlineState == _online)
+        return;
+    bool increase = (onlineState > _online);
+    _online = onlineState;
+    if (increase)
+        HeapNotifyIncreased();
+    else
+        HeapNotifyDecreased();
+
+    if (!IsAvailable())
+        _owner->GetThreatManager().SendRemoveToClients(_victim);
+}
+
+
 void ThreatReference::UpdateOffline()
 {
     bool const shouldBeOffline = ShouldBeOffline();
@@ -123,6 +140,26 @@ bool ThreatReference::ShouldBeSuppressed() const
     return false;
 }
 
+ThreatReference::OnlineState ThreatReference::SelectOnlineState()
+{
+    // first, check all offline conditions
+    if (!_owner->CanSeeOrDetect(_victim)) // not in map/phase, or stealth/invis
+        return ONLINE_STATE_OFFLINE;
+    if (_victim->HasUnitState(UNIT_STATE_DIED)) // feign death
+        return ONLINE_STATE_OFFLINE;
+    if (!FlagsAllowFighting(_owner, _victim) || !FlagsAllowFighting(_victim, _owner))
+        return ONLINE_STATE_OFFLINE;
+    // next, check suppression (immunity to chosen melee attack school)
+    if (_victim->IsImmunedToDamage(_owner->GetMeleeDamageSchoolMask()))
+        return ONLINE_STATE_SUPPRESSED;
+    // or any form of CC that will break on damage - disorient, polymorph, blind etc
+    if (_victim->HasBreakableByDamageCrowdControlAura())
+        return ONLINE_STATE_SUPPRESSED;
+    // no suppression - we're online
+    return ONLINE_STATE_ONLINE;
+}
+
+
 void ThreatReference::UpdateTauntState(TauntState state)
 {
     // Check for SPELL_AURA_MOD_DETAUNT (applied from owner to victim)
@@ -141,6 +178,8 @@ void ThreatReference::UpdateTauntState(TauntState state)
 
     _mgr._needClientUpdate = true;
 }
+
+
 
 void ThreatReference::ClearThreat()
 {
@@ -334,6 +373,16 @@ bool ThreatManager::IsThreateningTo(ObjectGuid const& who, bool includeOffline) 
     return (includeOffline || it->second->IsAvailable());
 }
 bool ThreatManager::IsThreateningTo(Unit const* who, bool includeOffline) const { return IsThreateningTo(who->GetGUID(), includeOffline); }
+
+void ThreatManager::UpdateOnlineStates(bool meThreateningOthers, bool othersThreateningMe)
+{
+    if (othersThreateningMe)
+        for (auto const& pair : _myThreatListEntries)
+            pair.second->UpdateOnlineState();
+    if (meThreateningOthers)
+        for (auto const& pair : _threatenedByMe)
+            pair.second->UpdateOnlineState();
+}
 
 void ThreatManager::EvaluateSuppressed(bool canExpire)
 {
@@ -588,6 +637,7 @@ void ThreatManager::UpdateVictim()
 
 ThreatReference const* ThreatManager::ReselectVictim()
 {
+    //ThreatReference const* oldVictimRef = _currentVictimRef;//TCB,重复,下面有
     if (_sortedThreatList->empty())
         return nullptr;
 

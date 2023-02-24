@@ -78,4 +78,16 @@ cmake-build-*/*
 /vcpkg
 /通用/服务器/1号服务器以往的文件备份
 /通用/中文注释/已经合并
+/out/build/x64-Release/.cmake/api/v1
+/out/build/x64-Release/bin
+/out/build/x64-Release/CMakeFiles
+/out/build/x64-Release/Testing/Temporary
+/out/build/x64-Release/VSInheritEnvironments.txt
+/out/build/x64-Release/revision_data.h
+/out/build/x64-Release/Directory.Build.props
+/out/build/x64-Release/cmake_install.cmake
+/out/build/x64-Release/CMakeCache.txt
+/out/build/x64-Release/build.ninja
+/out/build/x64-Release/.ninja_log
+/out/build/x64-Release/.ninja_deps
 /out/build/x64-Release

@@ -35,6 +35,7 @@
 #include "SceneMgr.h"
 #include <BattlePet.h>
 #include <InstanceSaveMgr.h>
+#include <PlayerBotSetting.h>
 
 struct AccessRequirement;
 struct AchievementEntry;
@@ -1160,6 +1161,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         ~Player();
 
         PlayerAI* AI() const { return reinterpret_cast<PlayerAI*>(GetAI()); }
+        uint32 FindTalentType();
+
 
         void CleanupsBeforeDelete(bool finalCleanup = true) override;
 
@@ -1167,6 +1170,16 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void RemoveFromWorld() override;
 
         void SetObjectScale(float scale) override;
+        bool IsSettingFinish();
+
+
+
+        bool ResetPlayerToLevel(uint32 level, uint32 talent = 3);
+        void OnLevelupToBotAI();
+        bool IsTankPlayer();
+
+
+
 
         bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options = 0, Optional<uint32> instanceId = {});
         bool TeleportTo(WorldLocation const& loc, uint32 options = 0, Optional<uint32> instanceId = {});
@@ -2293,6 +2306,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
 
         void SetFactionForRace(uint8 race);
+        static TeamId BotTeamIdForRace(uint8 race);
 
         Team GetEffectiveTeam() const { return HasPlayerFlagEx(PLAYER_FLAGS_EX_MERCENARY_MODE) ? (GetTeam() == ALLIANCE ? HORDE : ALLIANCE) : Team(GetTeam()); }
         TeamId GetEffectiveTeamId() const { return GetEffectiveTeam() == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
@@ -3295,6 +3309,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::unique_ptr<RestMgr> _restMgr;
 
         bool _usePvpItemLevels;
+        PlayerBotSetting* m_PlayerBotSetting;
 };
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item const* item);

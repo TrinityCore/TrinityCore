@@ -134,6 +134,7 @@
 #include <G3D/g3dmath.h>
 #include <sstream>
 #include <BattlePet.h>
+#include <BotGroupAI.cpp>
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -394,6 +395,55 @@ Player::~Player()
 
     sWorld->DecreasePlayerCount();
 }
+
+uint32 Player::FindTalentType()
+{
+    if (GetClass() == CLASS_MAGE)
+    {
+        switch (GetSpecializationId())
+        {
+        case TALENT_SPEC_MAGE_ARCANE:
+            return 0;
+        case TALENT_SPEC_MAGE_FIRE:
+            return 1;
+        case TALENT_SPEC_MAGE_FROST:
+            return 2;
+        }
+    }
+    return 0;
+}
+
+bool Player::ResetPlayerToLevel(uint32 level, uint32 talent)
+{
+    return m_PlayerBotSetting->ResetPlayerToLevel(level, talent);
+}
+
+bool Player::IsSettingFinish()  //后加
+{
+    return m_PlayerBotSetting->IsFinish();
+}
+
+
+bool Player::IsTankPlayer()//TCB
+{
+    return GetRoleForGroup() == ROLE_TANK;
+}
+
+
+void Player::OnLevelupToBotAI()
+{
+    if (UnitAI* pUnitAI = GetAI())
+    {
+        BotGroupAI* pAI = dynamic_cast<BotGroupAI*>(pUnitAI);
+        if (pAI)
+        {
+            if (IsPlayerBot())
+                m_PlayerBotSetting->LearnTalents();
+            pAI->OnLevelUp(0);
+        }
+    }
+}
+
 
 void Player::CleanupsBeforeDelete(bool finalCleanup)
 {
@@ -6439,6 +6489,19 @@ TeamId Player::TeamIdForRace(uint8 race)
         return TeamId(rEntry->Alliance);
 
     TC_LOG_ERROR("entities.player", "Race ({}) not found in DBC: wrong DBC files?", race);
+    return TEAM_NEUTRAL;
+}
+
+TeamId Player::BotTeamIdForRace(uint8 race)
+{
+    if (ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(race))
+    {
+        switch (rEntry->Alliance)
+        {
+        case 0: return TEAM_HORDE;
+        case 1: return TEAM_ALLIANCE;
+        }
+    }
     return TEAM_NEUTRAL;
 }
 

@@ -9096,7 +9096,7 @@ void Unit::SetLevel(uint8 lvl, bool sendUpdate/* = true*/)
     }
 }
 
-//bool Unit::IsAlliedRace()//重复
+//bool Unit::IsAlliedRace()//�ظ�
 //{
 //    if (Player* player = ToPlayer())
 //    {
@@ -9135,7 +9135,7 @@ bool Unit::IsAlliedRace()
     if (Player* player = ToPlayer())
     {
         /* pandaren death knight (basically same thing as allied death knight) */
-        /* 熊猫人死亡骑士(基本上和同盟种族死亡骑士相同)*/
+        /* ��è��������ʿ(�����Ϻ�ͬ������������ʿ��ͬ)*/
         if ((player->GetRace() == RACE_PANDAREN_ALLIANCE) || (player->GetRace() == RACE_PANDAREN_HORDE) || (player->GetRace() == RACE_PANDAREN_NEUTRAL) && (player->GetClass() == CLASS_DEATH_KNIGHT))
         {
             return true;
@@ -11848,6 +11848,18 @@ float Unit::MeleeSpellMissChance(Unit const* victim, WeaponAttackType attType, S
 
 void Unit::OnPhaseChange()
 {
+
+    if (!IsInWorld())
+        return;
+
+    if (GetTypeId() == TYPEID_UNIT || !ToPlayer()->GetSession()->PlayerLogout())
+        m_threatManager.UpdateOnlineStates(true, true);
+
+    if (IsPlayer() && !IsPlayerBot())
+    {
+        if (Group* pGroup = ToPlayer()->GetGroup())
+            pGroup->OnLeaderChangePhase(ToPlayer());
+    }
 }
 
 void Unit::UpdateObjectVisibility(bool forced)
@@ -13722,3 +13734,17 @@ std::string Unit::GetDebugInfo() const
 //    return nullptr;
 //}
 
+
+
+bool Unit::IsPlayerBot()
+{
+    //if (GetTypeId() != TYPEID_PLAYER)
+    //	return false;
+    Player* player = ToPlayer();//dynamic_cast<Player*> (this);
+    if (!player)
+        return false;
+    WorldSession* pSession = player->GetSession();
+    if (!pSession)
+        return false;
+    return pSession->IsBotSession();
+}
