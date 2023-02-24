@@ -1,5 +1,6 @@
 /*
  * Copyright 2023 AzgathCore
+ * Copyright 2021 HellgarveCore
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -46,6 +47,7 @@ class npc_kara_image_of_medivh : public CreatureScript
                 return false;
 
             player->PrepareGossipMenu(creature, creature->GetCreatureTemplate()->GossipMenuId, false);
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Summon Nightbane", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
             return true;
         }
@@ -86,7 +88,7 @@ class npc_kara_image_of_medivh : public CreatureScript
                     Creature* nightbane = me->FindNearestCreature(NPC_NIGHTBANE, 250.f, true);
 
                     if (nightbane)
-                        nightbane->GetAI()->DoAction(1);
+                        nightbane->GetAI()->DoAction(1); // Action NightBane Ready
 
                     me->GetInstanceScript()->SetData(DATA_NIGHTBANE_EVENT, DONE);
 
@@ -136,7 +138,49 @@ class go_door_entrance : public GameObjectScript
         }
 };
 
+class npc_kara_soul_fragment : public CreatureScript
+{
+    public:
+        npc_kara_soul_fragment() : CreatureScript("npc_kara_soul_fragment")
+        {}
+
+        struct npc_kara_soul_fragment_AI : public ScriptedAI
+        {
+            explicit npc_kara_soul_fragment_AI(Creature* me) : ScriptedAI(me)
+            {}
+
+            void OnSpellClick(Unit* /*clicker*/, bool& /*result*/)
+            {
+                for (auto & it : me->GetMap()->GetPlayers())
+                {
+                    if (Player* player = it.GetSource())
+                    {
+                        if (Aura* echo = player->GetAura(SPELL_MEDIVH_ECHO))
+                        {
+                            if (echo->GetStackAmount() == 4)
+                                player->CastSpell(player, SPELL_MEDIVH_PRESSENCE, true);
+                            else
+                            {
+                                echo->ModStackAmount(1);
+                                echo->SetDuration(echo->GetDuration() + echo->GetMaxDuration());
+                            }
+                        }
+                        else
+                            DoCast(player, SPELL_MEDIVH_ECHO, true);
+                    }
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* me) const override
+        {
+            return new npc_kara_soul_fragment_AI(me);
+        }
+};
+
 void AddSC_new_karazhan()
 {
     new npc_kara_image_of_medivh();
+    new npc_kara_soul_fragment();
+    new go_door_entrance();
 };

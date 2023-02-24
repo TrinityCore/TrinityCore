@@ -20,9 +20,9 @@
 
 DoorData const doorData[] =
 {
-    {GO_GLAIDALIS_FIRE_DOOR,     DATA_GLAIDALIS,     DOOR_TYPE_ROOM},
-    {GO_DRESARON_FIRE_DOOR,      DATA_DRESARON,      DOOR_TYPE_ROOM},
-    {GO_OAKHEART_DOOR,           DATA_OAKHEART,      DOOR_TYPE_ROOM},
+    {GO_GLAIDALIS_FIRE_DOOR,     DATA_GLAIDALIS,     DOOR_TYPE_ROOM,     BOUNDARY_NONE},
+    {GO_DRESARON_FIRE_DOOR,      DATA_DRESARON,      DOOR_TYPE_ROOM,     BOUNDARY_NONE},
+    {GO_OAKHEART_DOOR,           DATA_OAKHEART,      DOOR_TYPE_ROOM,     BOUNDARY_NONE},
 };
 
 class instance_darkheart_thicket : public InstanceMapScript

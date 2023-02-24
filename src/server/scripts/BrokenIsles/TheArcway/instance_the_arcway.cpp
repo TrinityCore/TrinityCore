@@ -20,7 +20,16 @@
 
 DoorData const doorData[] =
 {
-    {GO_DOOR_9,                 DATA_IVANYR,          DOOR_TYPE_PASSAGE},
+    {GO_DOOR_9,                 DATA_IVANYR,          DOOR_TYPE_PASSAGE,    BOUNDARY_NONE},
+    {GO_DOOR_D,                 DATA_IVANYR,          DOOR_TYPE_PASSAGE,    BOUNDARY_NONE},
+    {GO_DOOR_G,                 DATA_IVANYR,          DOOR_TYPE_PASSAGE,    BOUNDARY_NONE},
+    {GO_CORSTILAX_DOOR_2,       DATA_CORSTILAX,       DOOR_TYPE_ROOM,       BOUNDARY_NONE},
+    {GO_DOOR_3,                 DATA_CORSTILAX,       DOOR_TYPE_PASSAGE,    BOUNDARY_NONE},
+    {GO_DOOR_4,                 DATA_CORSTILAX,       DOOR_TYPE_PASSAGE,    BOUNDARY_NONE},
+    {GO_DOOR_B,                 DATA_NALTIRA,         DOOR_TYPE_PASSAGE,    BOUNDARY_NONE},
+    {GO_DOOR_K,                 DATA_NALTIRA,         DOOR_TYPE_PASSAGE,    BOUNDARY_NONE},
+    {GO_DOOR_A,                 DATA_NALTIRA,         DOOR_TYPE_PASSAGE,    BOUNDARY_NONE},
+    /*{GO_DOOR_9,                 DATA_IVANYR,          DOOR_TYPE_PASSAGE},
     {GO_DOOR_D,                 DATA_IVANYR,          DOOR_TYPE_PASSAGE},
     {GO_DOOR_G,                 DATA_IVANYR,          DOOR_TYPE_PASSAGE},
     {GO_CORSTILAX_DOOR_2,       DATA_CORSTILAX,       DOOR_TYPE_ROOM},
@@ -28,7 +37,7 @@ DoorData const doorData[] =
     {GO_DOOR_4,                 DATA_CORSTILAX,       DOOR_TYPE_PASSAGE},
     {GO_DOOR_B,                 DATA_NALTIRA,         DOOR_TYPE_PASSAGE},
     {GO_DOOR_K,                 DATA_NALTIRA,         DOOR_TYPE_PASSAGE},
-    {GO_DOOR_A,                 DATA_NALTIRA,         DOOR_TYPE_PASSAGE},
+    {GO_DOOR_A,                 DATA_NALTIRA,         DOOR_TYPE_PASSAGE},*/
 };
 
 class instance_the_arcway : public InstanceMapScript
@@ -164,6 +173,7 @@ public:
             if (Creature* vandros = instance->GetCreature(VandrosGUID))
             {
                 vandros->AI()->Talk(0, NULL);
+                //vandros->AI()->ZoneTalk(0, NULL);
                 vandros->SetReactState(REACT_AGGRESSIVE);
                 vandros->SetVisible(true);
                 TwoSay = true;
@@ -183,6 +193,7 @@ public:
             {
                 if (Creature* vandros = instance->GetCreature(VandrosGUID))
                     vandros->AI()->Talk(1, NULL);
+                    //vandros->AI()->ZoneTalk(1, NULL);
                 TwoSay = false;
             }
             else

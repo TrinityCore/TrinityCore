@@ -1,5 +1,6 @@
 /*
  * Copyright 2023 AzgathCore
+ * Copyright 2021 HellgarveCore
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -279,7 +280,7 @@ struct npc_lord_jorach_ravenholdt_101513 : public ScriptedAI
         }
     }
 
-    void QuestReward(Player* /*player*/, Quest const* quest, uint32 /*opt*/)
+    void QuestReward(Player* /*player*/, Quest const* quest, uint32 /*opt*/)    //void QuestReward(Player* player, Quest const* quest, LootItemType /*type*/, uint32 /*opt*/) override  //前面为另一种写法
     {
         if (quest->GetQuestId() == QUEST_THE_FINAL_SHADOW) {}
     }
@@ -305,6 +306,7 @@ public:
         //{
         //    player->KilledMonsterCredit(NPC_KILL_CREDIT_ARTIFACT_WEAPON_CHOSEN);
         //}//tmp
+        }
     }
 };
 
@@ -342,7 +344,7 @@ struct npc_valeera_sanguinar_98102 : public ScriptedAI
 
     void QuestAccept(Player* /*player*/, Quest const* /*quest*/) { }
 
-    void QuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) { }
+    void QuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) { }    //void QuestReward(Player* player, Quest const* quest, LootItemType /*type*/, uint32 /*opt*/) override { }
 
 private:
 
@@ -358,6 +360,7 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
+        if (player->HasQuest(QUEST_THE_FINAL_SHADOW) && (!player->GetQuestObjectiveData(QUEST_THE_FINAL_SHADOW, 0)))
         {
             player->KilledMonsterCredit(NPC_KILL_CREDIT_TAKE_YOUR_SEAT_01);
 
@@ -366,6 +369,7 @@ public:
                 lord_jorach->AI()->DoAction(ACTION_QUEST_THE_FINAL_SHADOW_TALK_1);
             }
         }
+        else if (player->HasQuest(QUEST_THE_FINAL_SHADOW) && (player->GetQuestObjectiveData(QUEST_THE_FINAL_SHADOW, 0)))
         {
             player->KilledMonsterCredit(NPC_KILL_CREDIT_TAKE_YOUR_SEAT_02);
         }
@@ -393,7 +397,7 @@ struct npc_fleet_admiral_tethys_94159 : public ScriptedAI
     }
 
     bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId)
-    {
+            {
         //if (player->HasQuest(QUEST_A_WORTHY_BLADE))
         //{
         //    if (gossipListId == 0)
@@ -408,7 +412,7 @@ struct npc_fleet_admiral_tethys_94159 : public ScriptedAI
 
     void QuestAccept(Player* /*player*/, Quest const* /*quest*/) { }
 
-    void QuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) { }
+    void QuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) { }    //void QuestReward(Player* player, Quest const* quest, LootItemType /*type*/, uint32 /*opt*/) override { }
 
 private:
 
@@ -435,7 +439,7 @@ struct npc_princess_tess_greymane_94138 : public ScriptedAI
 
     void QuestAccept(Player* /*player*/, Quest const* /*quest*/) { }
 
-    void QuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) { }
+    void QuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) { }    //void QuestReward(Player* player, Quest const* quest, LootItemType /*type*/, uint32 /*opt*/) override { }
 
     bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId)
     {
@@ -461,11 +465,14 @@ private:
 void AddSC_class_hall_rogue()
 {
     RegisterCreatureAI(npc_ravenholdt_courier_102018);
+    new go_facade_251033();
     RegisterCreatureAI(npc_enter_the_hall_of_shadows_102086);
     RegisterCreatureAI(npc_red_jack_findle_97004);
     new spell_provided_for_201253();
+    new go_torch_246387();
     RegisterCreatureAI(npc_lord_jorach_ravenholdt_101513);
     RegisterCreatureAI(npc_valeera_sanguinar_98102);
+    new go_chair_246670();
     RegisterCreatureAI(npc_fleet_admiral_tethys_94159);
     RegisterCreatureAI(npc_princess_tess_greymane_94138);
     new roge_playerchoice();

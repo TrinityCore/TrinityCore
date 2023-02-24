@@ -18,6 +18,7 @@
 #ifndef ThiNightholdH_
 #define ThiNightholdH_
 
+// DON'T DELETE THIS ONES WITHOUT LETTING ME KNOW! blank functions atm, further implementation 
 void AddDelayedEvent(uint64 timeOffset, std::function<void()>&& function);
 void KillAllDelayedEvents();
 void AddDelayedCombat(uint64 timeOffset, std::function<void()>&& function);

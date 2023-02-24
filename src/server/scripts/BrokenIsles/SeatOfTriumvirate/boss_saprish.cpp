@@ -1,5 +1,6 @@
 /*
  * Copyright 2023 AzgathCore
+ * Copyright 2021 HellgarveCore
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,17 +21,22 @@
 
 enum Spells
 {
-    SPELL_BOC_TARGET = 191325,
-    SPELL_BOC_DAMAGE = 191326,
+    //Breath of Corruption
+    SPELL_BOC_TARGET = 191325, //Targets a tank
+    SPELL_BOC_DAMAGE = 191326, //Ticks every second for 3 seconds
 
+    //Down Draft
     SPELL_DD_TARGET = 199345,
     SPELL_DD_AT = 199348,
     SPELL_DD_DOT = 220855,
     SPELL_DD_CHARGE = 199351,
 
+    //Earthshaking Roar
+    //                        199385 ?
     SPELL_ER_TARGET = 199389,
     SPELL_ER_DAMAGE = 218587,
 
+    //Falling Rocks
     SPELL_FR_TRIGGERMISSILE = 141461,
     SPELL_FR_MISSILE = 141463,
     SPELL_FR_AT = 163897,

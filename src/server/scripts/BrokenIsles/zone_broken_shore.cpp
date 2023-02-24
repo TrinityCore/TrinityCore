@@ -1,5 +1,6 @@
 /*
  * Copyright 2023 AzgathCore
+ * Copyright 2021 
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,6 +21,25 @@
 #include "Player.h"
 #include "ObjectMgr.h"
 
+//world quest 46236/[stonebound-soldiers]
+struct npc_legionfall_soldier_119141 : public ScriptedAI
+{
+    npc_legionfall_soldier_119141(Creature* creature) : ScriptedAI(creature) { }
+
+    void OnSpellClick(Unit* clicker, bool& /*result*/)
+    {
+        if (Player* player = clicker->ToPlayer())
+        {
+            if (player->GetQuestStatus(46236) == QUEST_STATUS_INCOMPLETE)
+            {
+                me->RemoveAurasDueToSpell(236514);
+                me->AI()->Talk(urand(0, 2));
+                player->KilledMonsterCredit(me->GetEntry());
+             //   me->GetMotionMaster()->MoveAwayAndDespawn(15.0f, 3000);
+            }
+        }
+    }
+};
 //world quest 46821/[creepy-crawlies]
 struct npc_bone_crawler_grub_116951 : public ScriptedAI
 {
@@ -60,7 +80,7 @@ struct npc_treasure_master_iksreeged_121302 : public ScriptedAI
         //    //talk and runaway
         //    me->AI()->Talk(0);
         //    player->KilledMonsterCredit(me->GetEntry());
-        //    /*me->GetMotionMaster()->MoveAwayAndDespawn(-15.0f, 3000);*/
+        //    /*me->GetMotionMaster()->MoveAwayAndDespawn(-15.0f, 3000);*/  //// me->GetMotionMaster()->MoveAwayAndDespawn(-15.0f, 3000); //另一种写法
         //}
         //tmp
     }
@@ -91,6 +111,7 @@ struct npc_legionfall_construction_table_119305 : public ScriptedAI
 
 void AddSC_broken_shore()
 {
+    RegisterCreatureAI(npc_legionfall_soldier_119141);
     RegisterCreatureAI(npc_bone_crawler_grub_116951);
     RegisterCreatureAI(npc_treasure_master_iksreeged_121302);
 

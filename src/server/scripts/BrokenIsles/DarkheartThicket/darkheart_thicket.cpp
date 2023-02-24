@@ -1,5 +1,6 @@
 /*
  * Copyright 2023 AzgathCore
+ * Copyright 2021 HellgarveCore
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -142,6 +143,7 @@ public:
             {
                 phase = PHASE_OUTRO;
                 events.Reset();
+                events.ScheduleEvent(EVENT_OUTRO_1, 1000);
             }
         }
 
@@ -167,10 +169,12 @@ public:
                 {
                     case EVENT_OUTRO_1:
                         me->RemoveAurasDueToSpell(SPELL_MALFURION_ROOT);
+                        events.Repeat(1s);
                         break;
 
                     case EVENT_OUTRO_2:
                         Talk(SAY_MALFURION_OUTRO);
+                        events.Repeat(2s);
                         break;
 
                     case EVENT_OUTRO_3:
@@ -186,6 +190,8 @@ public:
     {
         if (player)
         {
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_MALFURION_OUTRO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
         }
         return true;
     }
@@ -207,6 +213,46 @@ public:
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_dt_malfurion_stormrage_AI(creature);
+    }
+};
+
+// Star Shower - 200658
+class spell_dt_trash_star_shower : public SpellScriptLoader
+{
+public:
+    spell_dt_trash_star_shower() : SpellScriptLoader("spell_dt_trash_star_shower") { }
+
+    class spell_dt_trash_star_shower_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_dt_trash_star_shower_SpellScript);
+
+        void HandleOnCast()
+        {
+            if (Unit* caster = GetCaster())
+            {
+                float radius = 40.0f;
+                std::list<Unit*> targetList;
+                caster->GetAttackableUnitListInRange(targetList, radius);
+
+                if (!targetList.empty())
+                {
+                    for (auto itr : targetList)
+                    {
+                        caster->CastSpell(itr, SPELL_STAR_SHOWER_TRIGGER, true);
+                    }
+                }
+            }
+        }
+
+        void Register() override
+        {
+            OnCast += SpellCastFn(spell_dt_trash_star_shower_SpellScript::HandleOnCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_dt_trash_star_shower_SpellScript();
     }
 };
 
@@ -369,6 +415,7 @@ void AddSC_darkheart_thicket()
     new npc_dt_malfurion_stormrage();
 
     // Spell Scripts
+    new spell_dt_trash_star_shower();
     new spell_dt_trash_tormenting_eye();
     new spell_dt_trash_hatch_whelpling();
 

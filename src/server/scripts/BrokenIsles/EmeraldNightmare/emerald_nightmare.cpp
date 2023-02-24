@@ -1,5 +1,6 @@
 /*
  * Copyright 2023 AzgathCore
+ * Copyright 2021 HellgarveCore
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,17 +20,23 @@
 
 enum Says
 {
-
+    //SAY_1           = ,
 };
 
 enum Spells
 {
- 
+    //SPELL_    = ,
+    //SPELL_    = ,
+    //SPELL_    = ,
+    //SPELL_    = ,
 };
 
 enum eEvents
 {
- 
+    //EVENT_    = 1,
+    //EVENT_    = 2,
+    //EVENT_    = 3,
+    //EVENT_    = 4,
 };
 
 class spell_vantus_rune_the_emerald_nightmare : public SpellScriptLoader
@@ -176,6 +183,7 @@ public:
 
         void Register() override
         {
+         //   OnEffectUpdate += AuraEffectUpdateFn(spell_vantus_rune_the_emerald_nightmare_AuraScript::OnUpdate, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
         }
     };
 
@@ -201,6 +209,8 @@ public:
         void HandleOnHit()
         {
             if (auto player = GetCaster()->ToPlayer())
+              //  if (Quest const* quest = sQuestDataStore->GetQuestTemplate(39695))
+                   // if (player->CanTakeQuest(quest, false))
                         player->CompleteQuest(39695);
         }
 
@@ -216,8 +226,46 @@ public:
         return new spell_vantus_rune_the_emerald_nightmare_SpellScript();
     }
 };
+/*
+//1000
+class eventobject_en_into : public EventObjectScript
+{
+public:
+    eventobject_en_into() : EventObjectScript("eventobject_en_into") {}
 
+    bool event_elerethe_Done = false;
+
+    bool OnTrigger(Player* plr, EventObject* eo, bool enter) override
+    {
+        if (!enter)
+            return true;
+
+        InstanceScript* instance = plr->GetInstanceScript();
+        if (!instance)
+            return false;
+
+        switch (eo->GetEntry())
+        {
+        case 1000:
+        {
+            if (!event_elerethe_Done)
+            {
+                event_elerethe_Done = true;
+                plr->CreateConversation(3626);
+                plr->AddDelayedEvent(6000, [plr]() -> void
+                {
+                    plr->CreateConversation(3635);
+                });
+            }
+            break;
+        }
+        }
+        return true;
+    }
+};
+*/
 void AddSC_emerald_nightmare()
 {
     new spell_vantus_rune_the_emerald_nightmare();
+   // new (eventobject_en_into);
 }

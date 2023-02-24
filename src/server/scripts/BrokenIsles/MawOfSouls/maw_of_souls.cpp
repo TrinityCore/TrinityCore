@@ -1,5 +1,6 @@
 /*
  * Copyright 2023 AzgathCore
+ * Copyright 2021 HellgarveCore
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -102,6 +103,11 @@ public:
 
             if (shroudTimer <= diff)
             {
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                {
+                    DoCast(target, SPELL_SHROUD_STRIKE);
+                }
+
                 shroudTimer = _shroudTimer;
             }
             else

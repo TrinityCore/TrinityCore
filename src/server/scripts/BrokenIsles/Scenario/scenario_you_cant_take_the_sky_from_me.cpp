@@ -1,5 +1,6 @@
 /*
  * Copyright 2023 AzgathCore
+ * Copyright 2021 HellgarveCore
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,5 +25,5 @@ struct scenario_you_cant_take_the_sky_from_me : public InstanceScript
 
 void AddSC_scenario_you_cant_take_the_sky_from_me()
 {
-    
+    RegisterInstanceScript(scenario_you_cant_take_the_sky_from_me, 1731);
 }

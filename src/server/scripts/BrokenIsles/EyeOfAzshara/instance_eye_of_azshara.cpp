@@ -1,5 +1,6 @@
 /*
  * Copyright 2023 AzgathCore
+ * Copyright 2021 HellgarveCore
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -215,6 +216,7 @@ public:
 
 			if (data == DONE)
 				GetSaveData();
+				//SaveToDB();//传入,需要添加?
 		}
 
 		ObjectGuid GetGuidData(uint32 data) const override

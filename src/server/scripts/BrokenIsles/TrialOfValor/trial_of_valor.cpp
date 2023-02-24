@@ -1,5 +1,6 @@
 /*
  * Copyright 2023 AzgathCore
+ * Copyright 2021 HellgarveCore
  * Copyright (C) 2016-2019 MagicStorm
  *
  * This program is free software; you can redistribute it and/or modify it
