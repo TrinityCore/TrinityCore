@@ -1,0 +1,110 @@
+CascView History
+================
+
+Version 2.1.0.147
+
+ - Minor UI improvements
+
+Version 2.1.0.144
+
+ - Bugs fixed.
+ - UI glitches fixed
+ - Changed download user agent
+
+Version 2.1.0.140
+
+- Storage loading optimized and it's also cancellable
+- Open Online Storage dialog reworked - faster and easier to uses
+- Few graphical glitches were fixed (toolbars, menu icons)
+
+Version 2.1.0.138 (Online Edition)
+
+- Added possibility to open online CDN storages
+
+Version 1.0.2.78
+
+- Switched to VFS in Warcraft III storages
+
+Version 1.0.2.75
+
+- Added support for Warcraft III PTR 1.30
+
+Version 1.0.1.71
+
+- Open Game Storage works again
+
+Version 1.0.1.59
+
+- Rebuilt with latest encryption keys
+
+Version 1.0.1.58
+
+- Rebuilt with latest CascLib changes
+
+Version 1.0.1.57
+
+- Support for Starcraft 1
+
+Version 1.0.0.49
+
+- Casc storage open in read-only mode
+
+Version 1.0.0.48
+
+- DPI awareness
+
+Version 1.0.0.47
+
+- Update for Diablo III PTR
+
+Version 1.0.0.43
+
+- Update for Overwatch build 27759
+
+Version 1.0.0.30
+
+- Preliminary support for Overwatch (in progress)
+- Possible to extract ROOT, ENCODING, INSTALL and DOWNLOAD files
+
+Version 1.0.0.24
+
+- Fixed Game Storage Search for Battle.net client version 6119
+
+Version 1.0.0.23
+
+- Fixed buffer overflow when loading Diablo 3 zhCN client
+
+Version 1.0.0.22
+
+- Complete support for Diablo3 name resolving
+
+Version 1.0.0.21
+
+- Added (almost) complete support for Diablo III
+- Added partial support for Diablo III PTR storage
+- Improved search
+
+Version 1.0.0.18
+
+- CascLib now determines default storage locale and uses it when 0 is passed as dwLocaleMask
+- Fixed bug in CascOpenFile that prevented files from Heroes of the Storm to be open
+
+Version 1.0.0.16
+
+- Fixed case-sensitivity problem with searching WoW storage
+- Fixed case when ROOT file is cut by EndOfFile
+
+Version 1.0.0.15
+
+- Fixed extracting files with very long paths
+
+Version 1.0.0.14
+
+- Fixed wrong size handling in CascLib
+- Added opening a game from the list of installed games
+- Recompiled to fix bug in search and open files with multiple root entries
+- Added fast key search in the virtual list view
+
+Version 1.0.0.0
+
+- Created
