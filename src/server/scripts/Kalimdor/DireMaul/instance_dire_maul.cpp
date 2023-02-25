@@ -67,7 +67,6 @@ enum Events
 {
     EVENT_CRYSTAL_CREATURE_STORE                = 1,
     EVENT_CRYSTAL_CREATURE_CHECK                = 2,
-    EVENT_IMMO_DEAD_CHECK                       = 3
 };
 
 class instance_dire_maul : public InstanceMapScript
