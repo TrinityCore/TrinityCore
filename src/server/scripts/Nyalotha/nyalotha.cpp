@@ -79,7 +79,6 @@ private:
 	{
 		ScriptedAI::Reset();
 		Talk = false;
-		me->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
 		//me->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);//暂时注释
 	}
 
