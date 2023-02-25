@@ -66,7 +66,7 @@ uint32 const CrystalMobs[2] = { NPC_ARCANE_ABERRATION, NPC_MANA_REMNANT };
 enum Events
 {
     EVENT_CRYSTAL_CREATURE_STORE                = 1,
-    EVENT_CRYSTAL_CREATURE_CHECK                = 2,
+    EVENT_CRYSTAL_CREATURE_CHECK                = 2
 };
 
 class instance_dire_maul : public InstanceMapScript
