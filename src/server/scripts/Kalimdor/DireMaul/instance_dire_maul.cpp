@@ -126,10 +126,7 @@ public:
                 case GO_FORCEFIELD:
                     _forcefieldGUID = go->GetGUID();
                     if (GetBossState(DATA_FORCEFIELD) != DONE)
-                    {
                         _events.ScheduleEvent(EVENT_CRYSTAL_CREATURE_STORE, 1s);
-                        _events.ScheduleEvent(EVENT_IMMO_DEAD_CHECK, 1s);
-                    }
                     break;
                 default:
                     break;
@@ -178,10 +175,6 @@ public:
                         CrystalCreatureCheck();
                         if ((GetBossState(DATA_FORCEFIELD) != DONE))
                             _events.ScheduleEvent(EVENT_CRYSTAL_CREATURE_CHECK, 1s);
-                        break;
-                    case EVENT_IMMO_DEAD_CHECK:
-                        if (!IsImmoDead())
-                            _events.ScheduleEvent(EVENT_IMMO_DEAD_CHECK, 1s);
                         break;
                     default:
                          break;
@@ -279,18 +272,13 @@ public:
             }
         }
 
-        bool IsImmoDead()
+        void OnUnitDeath(Unit* unit) override
         {
-            Creature* immo = instance->GetCreature(_immoGUID);
-            if (immo && !immo->IsAlive())
+            if (unit->GetGUID() == _immoGUID)
             {
                 if (Creature* tortheldrin = instance->GetCreature(_tortheldrinGUID))
                     tortheldrin->SetFaction(FACTION_ENEMY);
-                return true;
             }
-            else if (!immo)
-                return true;
-            return false;
         }
 
 protected:
