@@ -160,7 +160,7 @@ void Usage(char const* prg) //参数帮助说明
         "%s -[var] [value]\n"\
         "-i set input path\n"\
         "-o set output path\n"\
-        "-e extract only MAP(0)/MMAP(1)/VMAP(2)/DBC(3)/Camera(4)/gt(8) - standard: all(15)\n"\
+        "-e extract only MAP(1)/DBC(2)/Camera(4)/gt(8) - standard: all(15)\n"\
         "-f height stored as int (less map size but lost some accuracy) 1 by default\n"\
         "-l dbc locale\n"\
         "-p which installed product to open (wow/wowt/wow_beta)\n"\
@@ -176,7 +176,7 @@ void HandleArgs(int argc, char* arg[])
     {
         // i - input path
         // o - output path
-        // e extract only MAP(0)/MMAP(1)/VMAP(2)/DBC(3)/Camera(4)/gt(8) - standard: all(11)
+        // e - extract only MAP(1)/DBC(2)/Camera(4)/gt(8) - standard: all(11)
         // f - use float to int conversion
         // h - limit minimum height
         // l - dbc locale
@@ -275,8 +275,7 @@ void ReadMapDBC()   //阅读地图DBC
     TryLoadDB2("Map.db2", &source, &db2, MapLoadInfo::Instance());
 
     map_ids.reserve(db2.GetRecordCount());
-    
-    std::unordered_map<uint64, std::size_t> idToIndex;
+    std::unordered_map<uint32, std::size_t> idToIndex;
     for (uint32 x = 0; x < db2.GetRecordCount(); ++x)
     {
         DB2Record record = db2.GetRecord(x);
@@ -286,7 +285,6 @@ void ReadMapDBC()   //阅读地图DBC
         MapEntry map;
         map.Id = record.GetId();
         map.WdtFileDataId = record.GetInt32("WdtFileDataID");
-        map.tdbFileDataId = record.GetInt32("tdbFileDataID");
         map.Name = record.GetString("MapName");
         map.Directory = record.GetString("Directory");
         idToIndex[map.Id] = map_ids.size();
@@ -302,29 +300,13 @@ void ReadMapDBC()   //阅读地图DBC
             MapEntry map;
             map.Id = copy.NewRowId;
             map.WdtFileDataId = map_ids[itr->second].WdtFileDataId;
-            map.tdbFileDataId = map_ids[itr->second].tdbFileDataId;
             map.Name = map_ids[itr->second].Name;
             map.Directory = map_ids[itr->second].Directory;
             map_ids.push_back(map);
         }
-
-    for (uint64 x = 0; x < db2.GetRecordCopyCount(); ++x)
-    {
-        DB2RecordCopy copy = db2.GetRecordCopy(x);
-        auto itr = idToIndex.find(copy.SourceRowId);
-        if (itr != idToIndex.end())
-        {
-            MapEntry map;
-            map.Id = copy.NewRowId;
-            map.WdtFileDataId = map_ids[itr->second].WdtFileDataId;
-            map.tdbFileDataId = map_ids[itr->second].tdbFileDataId;
-            map.Name = map_ids[itr->second].Name;
-            map.Directory = map_ids[itr->second].Directory;
-            map_ids.push_back(map);
-        }    
     }
 
-    map_ids.erase(std::remove_if(map_ids.begin(), map_ids.end(), [](MapEntry const& map) { return !map.WdtFileDataId; }),{ return !map.tdbFileDataId; }),{ return !map.adtFileDataId; }), map_ids.end());
+    map_ids.erase(std::remove_if(map_ids.begin(), map_ids.end(), [](MapEntry const& map) { return !map.WdtFileDataId; }), map_ids.end());
 
     printf("Done! (" SZFMTD " maps loaded)\n", map_ids.size());     //显示输出:完成!**地图加载完成
 }
@@ -350,7 +332,7 @@ void ReadLiquidMaterialTable()
     for (uint32 x = 0; x < db2.GetRecordCopyCount(); ++x)
         LiquidMaterials[db2.GetRecordCopy(x).NewRowId] = LiquidMaterials[db2.GetRecordCopy(x).SourceRowId];
 
-    printf("Done! (" SZFMTD " LiquidMaterials loaded)\n", LiquidMaterials.size());     //显示输出:完成!液体材料加载完成
+    printf("Done! (" SZFMTD " LiquidMaterials loaded)\n", LiquidMaterials.size());     //��ʾ���:���!Һ����ϼ������
 }
 
 void ReadLiquidObjectTable()
@@ -374,7 +356,7 @@ void ReadLiquidObjectTable()
     for (uint32 x = 0; x < db2.GetRecordCopyCount(); ++x)
         LiquidObjects[db2.GetRecordCopy(x).NewRowId] = LiquidObjects[db2.GetRecordCopy(x).SourceRowId];
 
-    printf("Done! (" SZFMTD " LiquidObjects loaded)\n", LiquidObjects.size());     //显示输出:完成!液体对象加载完成
+    printf("Done! (" SZFMTD " LiquidObjects loaded)\n", LiquidObjects.size());     //��ʾ���:���!Һ�����������
 }
 
 void ReadLiquidTypeTable()
@@ -397,22 +379,6 @@ void ReadLiquidTypeTable()
     }
 
     for (uint32 x = 0; x < db2.GetRecordCopyCount(); ++x)
-        LiquidTypes[db2.GetRecordCopy(x).NewRowId] = LiquidTypes[db2.GetRecordCopy(x).SourceRowId];
-
-    printf("Done! (" SZFMTD " LiquidTypes loaded)\n", LiquidTypes.size());
-
-    for (uint64 x = 0; x < db2.GetRecordCount(); ++x)
-    {
-        DB2Record record = db2.GetRecord(x);
-        if (!record)
-            continue;
-
-        LiquidTypeEntry& liquidType = LiquidTypes[record.GetId()];
-        liquidType.SoundBank = record.GetUInt8("SoundBank");
-        liquidType.MaterialID = record.GetUInt8("MaterialID");
-    }
-
-    for (uint64 x = 0; x < db2.GetRecordCopyCount(); ++x)
         LiquidTypes[db2.GetRecordCopy(x).NewRowId] = LiquidTypes[db2.GetRecordCopy(x).SourceRowId];
 
     printf("Done! (" SZFMTD " LiquidTypes loaded)\n", LiquidTypes.size());
@@ -1564,56 +1530,6 @@ int main(int argc, char * arg[])
         }
     }
 
-    for (int i = 0; i < LOCALES_COUNT; ++i)
-    {
-        //Open MPQs
-        if (!LoadLocaleMPQFile(i))
-        {
-            if (GetLastError() != ERROR_PATH_NOT_FOUND)
-                printf("Unable to load %s locale archives!\n", Locales[i]);
-            continue;
-        }
-
-        printf("Detected locale: %s\n", Locales[i]);
-        if ((CONF_extract & EXTRACT_DBC) == 0)
-        {
-            FirstLocale = i;
-            build = ReadBuild(i);
-            if (build > CONF_TargetBuild)
-            {
-                printf("Base locale-%s.MPQ has build higher than target build (%u > %u), nothing extracted!\n", Locales[i], build, CONF_TargetBuild);
-                return 0;
-            }
-
-            printf("Detected client build: %u\n", build);
-            printf("\n");
-            break;
-        }
-
-        //Extract DBC files
-        uint32 tempBuild = ReadBuild(i);
-        printf("Detected client build %u for locale %s\n", tempBuild, Locales[i]);
-        if (tempBuild > CONF_TargetBuild)
-        {
-            SFileCloseArchive(LocaleMpq);
-            printf("Base locale-%s.MPQ has build higher than target build (%u > %u), nothing extracted!\n", Locales[i], tempBuild, CONF_TargetBuild);
-            continue;
-        }
-
-        printf("\n");
-        ExtractDBCFiles(i, FirstLocale < 0);
-        ExtractDB2Files(i, FirstLocale < 0);
-
-        if (FirstLocale < 0)
-        {
-            FirstLocale = i;
-            build = tempBuild;
-        }
-
-        //Close MPQs
-        SFileCloseArchive(LocaleMpq);
-    }
-
     if (firstInstalledLocale < 0)
     {
         printf("No locales detected\n");
@@ -1640,21 +1556,6 @@ int main(int argc, char * arg[])
         ExtractMaps(build);
         CascStorage.reset();
     }
-    
-    {
-     printf("Using locale: %s\n", Locales[FirstLocale]);
 
-        // Open MPQs
-        LoadLocaleMPQFile(FirstLocale);
-        LoadCommonMPQFiles(build);
-
-        // Extract maps
-        ExtractMapsFromMpq(build);
-
-        // Close MPQs
-        SFileCloseArchive(WorldMpq);
-        SFileCloseArchive(LocaleMpq);
-    }
-        
     return 0;
 }
