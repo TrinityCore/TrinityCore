@@ -9140,23 +9140,3 @@ SpellCastVisual::operator WorldPackets::Spells::SpellCastVisual() const
 {
     return { int32(SpellXSpellVisualID), int32(ScriptVisualID) };
 }
-    {
-        CreateItem(184501),     //-- 184501
-    }
-
-CreateDestination(
-    "Shadowlands Dungeons",                 -- No localization
-    {
-        CreateChallengeSpell(354462),   //-- Hero's Path: Necrotic Wake
-        CreateChallengeSpell(354363),  // -- Hero's Path: Plaguefall
-        CreateChallengeSpell(354464),  // -- Hero's Path: Mists of Tirna Scithe
-        CreateChallengeSpell(354465),  // -- Hero's Path: Halls of Atonement
-        CreateChallengeSpell(354466),  // -- Hero's Path: Spires  of Ascension
-        CreateChallengeSpell(354467),   //-- Hero's Path: Theater of Pain
-        CreateChallengeSpell(354468),   //-- Hero's Path: De Other Side
-        CreateChallengeSpell(354469),   //-- Hero's Path: Sanguine Depths
-    })
-
-CreateDestination(
-    LocZone("Stormwind City","Orgrimmar", 111),
-    {
