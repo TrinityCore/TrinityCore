@@ -81,6 +81,15 @@ private:
 
 union GameObjectValue
 {
+    //11 GAMEOBJECT_TYPE_TRANSPORT
+    struct
+    {
+        uint32 PathProgress;
+        TransportAnimation const* AnimationInfo;
+        uint32 CurrentSeg;
+        std::vector<uint32>* StopFrames;
+        uint32 StateUpdateTimer;
+    } Transport;
     //25 GAMEOBJECT_TYPE_FISHINGHOLE
     struct
     {
@@ -238,6 +247,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void SetGoType(GameobjectTypes type) { SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::TypeID), type); }
         GOState GetGoState() const { return GOState(*m_gameObjectData->State); }
         void SetGoState(GOState state);
+        virtual uint32 GetTransportPeriod() const;
         GOState GetGoStateFor(ObjectGuid const& viewer) const;
         void SetGoStateFor(GOState state, Player const* viewer);
         uint32 GetGoArtKit() const { return m_gameObjectData->ArtKit; }

@@ -118,6 +118,8 @@ struct TC_GAME_API TransportAnimation
 
     TransportAnimationEntry const* GetNextAnimNode(uint32 time) const;
     TransportRotationEntry const* GetNextAnimRotation(uint32 time) const;
+    TransportAnimationEntry const* GetAnimNode(uint32 time) const;
+    TransportRotationEntry const* GetAnimRotation(uint32 time) const;
 };
 
 struct TransportSpawn

@@ -4204,6 +4204,11 @@ struct TransmogSetItemEntry
 
 struct TransportAnimationEntry
 {
+    
+    
+    
+    
+    
     uint32 ID;
     DBCPosition3D Pos;
     uint8 SequenceID;

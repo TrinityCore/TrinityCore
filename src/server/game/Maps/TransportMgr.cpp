@@ -689,3 +689,22 @@ TransportRotationEntry const* TransportAnimation::GetNextAnimRotation(uint32 tim
 
     return Rotations.begin()->second;
 }
+
+
+TransportAnimationEntry const* TransportAnimation::GetAnimNode(uint32 time) const
+{
+    auto itr = Path.lower_bound(time);
+    if (itr != Path.end())
+        return itr->second;
+
+    return nullptr;
+}
+
+TransportRotationEntry const* TransportAnimation::GetAnimRotation(uint32 time) const
+{
+    auto itr = Rotations.lower_bound(time);
+    if (itr != Rotations.end())
+        return itr->second;
+
+    return nullptr;
+}

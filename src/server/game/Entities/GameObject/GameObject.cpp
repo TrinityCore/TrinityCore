@@ -892,9 +892,9 @@ GameObject* GameObject::CreateGameObjectFromDB(ObjectGuid::LowType spawnId, Map*
     return go;
 }
 
-void GameObject::TimeSeg(uint32 p_timeSeg)
-{
-}
+//void GameObject::TimeSeg(uint32 p_timeSeg)
+//{
+//}
 
 void GameObject::Update(uint32 diff)
 {
