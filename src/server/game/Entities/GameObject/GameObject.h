@@ -263,6 +263,9 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         void Use(Unit* user);
 
+		void CastSpell(Unit* target, uint32 spell, bool triggered = true);
+		void CastSpell(Unit* target, uint32 spell, TriggerCastFlags triggered);
+
         LootState getLootState() const { return m_lootState; }
         // Note: unit is only used when s = GO_ACTIVATED
         void SetLootState(LootState s, Unit* unit = nullptr);
