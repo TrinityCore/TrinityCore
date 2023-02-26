@@ -21,9 +21,6 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "heart_of_fear.h"
-#include <Player/Player.h>
-#include <DungeonFinding/LFGMgr.h>
-#include <Client/user_manager_service.pb.h>
 
 enum IsLFR
 enum eShekzeerSays
@@ -560,7 +557,7 @@ class boss_shekzeer : public CreatureScript
                 return false;
             }
 
-            void EnterCombat(Unit* attacker)
+            void EnterCombat(Unit* attacker) override
             {
                 if (fightInProgress || !pInstance)
                     return;
@@ -659,14 +656,14 @@ class boss_shekzeer : public CreatureScript
 
                 _JustDied();
 
-                Map::PlayerList const& PlrList = me->GetMap()->GetPlayers();
-                for (Map::PlayerList::const_iterator l_Itr = PlrList.begin(); l_Itr != PlrList.end(); ++l_Itr)
+                Map::PlayerList const& l_PlrList = me->GetMap()->GetPlayers();
+                for (Map::PlayerList::const_iterator l_Itr = l_PlrList.begin(); l_Itr != l_PlrList.end(); ++l_Itr)
                 {
-                    if (Player* Player = Itr->GetSource())
-                        me->CastSpell(Player, SPELL_SHEKZEER_BONUS, true);
+                    if (Player* l_Player = l_Itr->GetSource())
+                        me->CastSpell(l_Player, SPELL_SHEKZEER_BONUS, true);
                 }
 
-                if (me->GetMap()->LFR())
+                /*if (me->GetMap()->IsLFR())
                 {
                     me->ResetLootRecipients();
                     Player* Player = me->GetMap()->GetPlayers().begin()->GetSource();
@@ -1924,7 +1921,7 @@ class mob_add_setthik_windblade : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 diff) override
             {
                 if (me->HasAura(SPELL_TRAP_DAMAGES))
                     return;

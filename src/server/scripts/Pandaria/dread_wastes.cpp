@@ -1900,7 +1900,7 @@ class mob_klaxxi_traitor : public CreatureScript
                 playerGUID = guid;
             }
 
-            void DoAction(int32 action)
+            void DoAction(int32 action) override
             {
                 if (action == ACTION_START_COMBAT)
                 {

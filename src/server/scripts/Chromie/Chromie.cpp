@@ -1,9 +1,9 @@
 
-//#include "Chromie.h"
-//#include "Quests"
-//#include "Spells"
-//#include "NPC"
-//#include "Data"
+#include "Chromie.h"
+#include "Quests"
+#include "Spells"
+#include "NPC"
+#include "Data"
 
 enum Quests 
 {
