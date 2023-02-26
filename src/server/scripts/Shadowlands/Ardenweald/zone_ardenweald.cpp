@@ -63,6 +63,8 @@
 #include "zone_Ardenweald.h" 
 #include "Objects_Ardenweald.h"
 
+//#include "zone_ardenweald.cpp"
+//#include 
 void AddSC_zone_ardenweald()
 {
   void AddSC_zone_ardenwenweald();
