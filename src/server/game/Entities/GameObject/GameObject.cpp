@@ -3117,6 +3117,69 @@ void GameObject::Use(Unit* user)
         CastSpell(user, spellId);
 }
 
+void GameObject::CastSpell(Unit* target, uint32 spellId, bool triggered /* = true*/)
+{
+    CastSpell(target, spellId, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE);
+}
+
+//void GameObject::CastSpell(Unit* target, uint32 spellId, TriggerCastFlags triggered)//暂时未用到,以后可以启用
+//{
+//    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, GetMap()->GetDifficultyID());
+//    if (!spellInfo)
+//        return;
+//
+//    bool self = false;
+//    for (SpellEffectInfo const* effect : spellInfo->GetEffects())
+//    {
+//        if (effect && effect->TargetA.GetTarget() == TARGET_UNIT_CASTER)
+//        {
+//            self = true;
+//            break;
+//        }
+//    }
+//
+//    if (self)
+//    {
+//        if (target)
+//            target->CastSpell(target, spellInfo->Id, triggered);
+//        return;
+//    }
+//
+//    //summon world trigger
+//    Creature* trigger = SummonTrigger(GetPositionX(), GetPositionY(), GetPositionZ(), 0, spellInfo->CalcCastTime() + 100);
+//    if (!trigger)
+//        return;
+//
+//    // remove immunity flags, to allow spell to target anything
+//    trigger->SetImmuneToAll(false);
+//    PhasingHandler::InheritPhaseShift(trigger, this);
+//
+//    CastSpellExtraArgs args;
+//    args.TriggerFlags = triggered;
+//    if (Unit* owner = GetOwner())
+//    {
+//        trigger->SetFaction(owner->GetFaction());
+//        if (owner->HasUnitFlag(UNIT_FLAG_PVP_ATTACKABLE))
+//            trigger->AddUnitFlag(UNIT_FLAG_PVP_ATTACKABLE);
+//        // copy pvp state flags from owner
+//        trigger->SetPvpFlags(owner->GetPvpFlags());
+//        // needed for GO casts for proper target validation checks
+//        trigger->SetOwnerGUID(owner->GetGUID());
+//
+//        args.OriginalCaster = owner->GetGUID();
+//        trigger->CastSpell(target ? target : trigger, spellInfo->Id, args);
+//    }
+//    else
+//    {
+//        trigger->SetFaction(spellInfo->IsPositive() ? FACTION_FRIENDLY : FACTION_MONSTER);
+//        // Set owner guid for target if no owner available - needed by trigger auras
+//        // - trigger gets despawned and there's no caster avalible (see AuraEffect::TriggerSpell())
+//        args.OriginalCaster = target ? target->GetGUID() : ObjectGuid::Empty;
+//        trigger->CastSpell(target ? target : trigger, spellInfo->Id, args);
+//    }
+//}
+
+
 void GameObject::SendCustomAnim(uint32 anim)
 {
     WorldPackets::GameObject::GameObjectCustomAnim customAnim;
