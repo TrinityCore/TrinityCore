@@ -178,7 +178,7 @@ void ArenaTeamMgr::DistributeArenaPoints()
     for (auto [teamId, team] : ArenaTeamStore)
     {
         if (team->FinishWeek())
-            team->SaveToDB();
+            team->SaveToDB(true);
 
         team->NotifyStatsChanged();
     }
