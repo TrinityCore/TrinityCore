@@ -69,7 +69,7 @@ public:
             {
                 if (Player* _player = GetCaster()->ToPlayer())
                 {
-                    if (GameObject* transport = _player->GetTransport())
+                    if (GameObject* transport = _player->getTransport())//注意此处是开头小写的getTransport,是为兼容旧模板自制的函数.正常的是大写,但是类型就变成了TransportBase *,此处是Transport *.
                     {
                         if (transport->GetEntry() == GOB_DARKMOON_CAROUSEL)
                         {
