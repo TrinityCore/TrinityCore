@@ -81,7 +81,7 @@ public:
                 //我尝试的,还是不行,一样报错
 
                 //原本的类型
-                //Creature* npc = player->SummonCreature(8000000, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, minutesforassist * 60000, ObjectGuid::Empty);//ObjectGuid privateObjectOwner /* = ObjectGuid::Empty */                                                                                                                                                                    //, ObjectGuid::Empty
+                //Creature* npc = player->SummonCreature(8000000, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, minutesforassist * 60000, ObjectGuid::Empty);//ObjectGuid privateObjectOwner /* = ObjectGuid::Empty */   //, ObjectGuid::Empty
                 //此处临时注释
                 //此处是大问题,参数不匹配,新增旧模板,但是不起作用
             }
