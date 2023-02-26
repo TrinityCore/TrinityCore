@@ -39,12 +39,25 @@ enum CASC_PRESENCE
 // Structure for caching parsed HTTP response information
 
 struct CASC_MIME_HTTP
-struct CASC_MIME_RESPONSE
 {
     CASC_MIME_HTTP()
-    CASC_MIME_RESPONSE()
     {
         response_valid = content_length = content_offset = total_length = 0;
+    }
+
+    bool IsDataComplete(const char* response, size_t response_length);
+
+    size_t response_valid;              // Nonzero if this is an already parsed HTTP response
+    size_t content_length;              // Parsed value of "Content-Length"
+    size_t content_offset;              // Offset of the HTTP data, relative to the begin of the response
+    size_t total_length;                // Expected total length of the HTTP response (content_offset + content_size)
+};
+
+struct CASC_MIME_RESPONSE
+{
+    
+    CASC_MIME_RESPONSE()
+    {
         header_offset = header_length = CASC_INVALID_SIZE_T;
         content_offset = content_length = CASC_INVALID_SIZE_T;
         http_code = CASC_INVALID_SIZE_T;
@@ -52,13 +65,13 @@ struct CASC_MIME_RESPONSE
         response_length = 0;
     }
 
-    bool IsDataComplete(const char * response, size_t response_length);
+
     bool ParseResponse(const char * response, size_t length, bool final = false);
 
-    size_t response_valid;              // Nonzero if this is an already parsed HTTP response
-    size_t content_length;              // Parsed value of "Content-Length"
-    size_t content_offset;              // Offset of the HTTP data, relative to the begin of the response
-    size_t total_length;                // Expected total length of the HTTP response (content_offset + content_size)
+    
+    
+    
+
     size_t response_length;             // Previous length of the response
     size_t header_offset;               // Offset of the response header, usually 0
     size_t header_length;               // Length of the header, if known
