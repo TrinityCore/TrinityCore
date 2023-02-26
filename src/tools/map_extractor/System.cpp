@@ -15,10 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Banner.h"                            
-#include "CascHandles.h"                        
-#include "Common.h"                             
-#include "DB2CascFileSource.h"                  
+#include "Banner.h"                             //包含 横幅(库)
+#include "CascHandles.h"                        //Casc句柄 //关于Casc,可参照TrinityCore\通用\个人学习\CASC文件格式.txt
+#include "Common.h"                             //通用库
+#include "DB2CascFileSource.h"                  //DB2Casc文件源
 #include "DB2Meta.h"
 #include "DBFilesClientList.h"
 #include "ExtractorDB2LoadInfo.h"
@@ -26,7 +26,6 @@
 #include "StringFormat.h"
 #include "adt.h"
 #include "wdt.h"
-//#include "tdb.h"
 #include <CascLib.h>
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
@@ -38,30 +37,24 @@
 #include <unordered_map>
 #include <cstdlib>
 #include <cstring>
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS    //ֵ(TC_ƽ̨TC_ƽ̨_Ӵ<ֵΪ0>)
-#include <io.h>                                     // 
-#else                                               //
-#include <unistd.h>                                 //unistd.h //unistd.h C  C++ ṩ POSIX ϵͳ API ķʹܵͷļơ
-#endif                                              //
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS    //如果两个值(TC_平台和TC_平台_视窗<值为0>)相等
+#include <io.h>                                     //包含 输入输出库
+#else                                               //否则
+#include <unistd.h>                                 //包含unistd.h //unistd.h是 C 和 C++ 程序设计语言中提供对 POSIX 操作系统 API 的访问功能的头文件的名称。
+#endif                                              //结束如果语句
 
 
 std::shared_ptr<CASC::Storage> CascStorage;
 
-struct MapEntry //ͼĿ
+struct MapEntry //地图条目
 {
-    
-    uint64 Id = 0;
-    
-    int64 WdtFileDataId = 0;
-    
-    int64 tdbFileDataId = 0;
-    
-    int64 WmoFileDataId = 0;
+    uint32 Id = 0;
+    int32 WdtFileDataId = 0;
     std::string Name;
     std::string Directory;
 };
 
-struct LiquidMaterialEntry  //ҺĿ
+struct LiquidMaterialEntry  //液体材料条目
 {
     int8 LVF = 0;
 };
@@ -81,16 +74,13 @@ std::vector<MapEntry> map_ids;
 std::unordered_map<uint32, LiquidMaterialEntry> LiquidMaterials;
 std::unordered_map<uint32, LiquidObjectEntry> LiquidObjects;
 std::unordered_map<uint32, LiquidTypeEntry> LiquidTypes;
-std::unordered_map<uint64, LiquidMaterialEntry> LiquidMaterials;
-std::unordered_map<uint64, LiquidObjectEntry> LiquidObjects;
-std::unordered_map<uint64, LiquidTypeEntry> LiquidTypes;
 std::set<uint32> CameraFileDataIds;
 bool PrintProgress = true;
 boost::filesystem::path input_path;
 boost::filesystem::path output_path;
 
 // **************************************************
-// Extractor options    ȡѡ
+// Extractor options    提取器选项
 // **************************************************
 enum Extract : uint8
 {
@@ -102,14 +92,14 @@ enum Extract : uint8
     EXTRACT_ALL = EXTRACT_MAP | EXTRACT_DBC | EXTRACT_CAMERA | EXTRACT_GT   //提取全部=提取地图 | 提取DBC | 提取镜头 | 提取GT
 };
 
-// Select data for extract          //ѡȡ
-int   CONF_extract = EXTRACT_ALL;   //ȡΪȡ
+// Select data for extract          //选择提取数据
+int   CONF_extract = EXTRACT_ALL;   //定义提取配置为提取所有
 
-// This option allow limit minimum height to some value (Allow save some memory)    //ѡһЩֵС߶(ʡһЩڴ)
-bool  CONF_allow_height_limit = true;   // _Ƹ߶ = ;
-float CONF_use_minHeight = -2000.0f;    // _ʹС߶ = -2000.0;
+// This option allow limit minimum height to some value (Allow save some memory)    //本选项允许限制一些值的最小高度(允许节省一些内存)
+bool  CONF_allow_height_limit = true;   //布尔型 配置_允许限制高度 = 是;
+float CONF_use_minHeight = -2000.0f;    //浮点型 配置_使用最小高度 = -2000.0;
 
-// This option allow use float to int conversion    //ѡʹøʼת
+// This option allow use float to int conversion    //本选项允许使用浮点型来初始化转换
 bool  CONF_allow_float_to_int   = true;
 float CONF_float_to_int8_limit  = 2.0f;      // Max accuracy = val/256
 float CONF_float_to_int16_limit = 2048.0f;   // Max accuracy = val/65536
@@ -118,9 +108,9 @@ float CONF_flat_liquid_delta_limit = 0.001f; // If max - min less this value - l
 
 uint32 CONF_Locale = 0;
 
-char const* CONF_Product = "wow";   //_Ʒ
-char const* CONF_Region = "eu";     //_,Ԥƴ˴޸Ϊ"cn",ȥȡʱ
-bool CONF_UseRemoteCasc = false;    //_ʹԶCasc
+char const* CONF_Product = "wow";   //配置_产品
+char const* CONF_Region = "eu";     //配置_区域,预计此处修改为"cn",可去提取时的中文乱码
+bool CONF_UseRemoteCasc = false;    //配置_使用远程Casc
 
 #define CASC_LOCALES_COUNT 17
 
@@ -163,7 +153,7 @@ void CreateDir(boost::filesystem::path const& path)
         throw std::runtime_error("Unable to create directory" + path.string());
 }
 
-void Usage(char const* prg) //˵
+void Usage(char const* prg) //参数帮助说明
 {
     printf(
         "Usage:\n"\
@@ -263,7 +253,7 @@ void HandleArgs(int argc, char* arg[])
     }
 }
 
-void TryLoadDB2(char const* name, DB2CascFileSource* source, DB2FileLoader* db2, DB2FileLoadInfo const* loadInfo)   //ԼDB2
+void TryLoadDB2(char const* name, DB2CascFileSource* source, DB2FileLoader* db2, DB2FileLoadInfo const* loadInfo)   //尝试加载DB2
 {
     try
     {
@@ -276,9 +266,9 @@ void TryLoadDB2(char const* name, DB2CascFileSource* source, DB2FileLoader* db2,
     }
 }
 
-void ReadMapDBC()   //ĶͼDBC
+void ReadMapDBC()   //阅读地图DBC
 {
-    printf("Read Map.db2 file...\n");   //ʾ:ڶȡͼdb2ļ...
+    printf("Read Map.db2 file...\n");   //显示输出:正在读取地图db2文件...
 
     DB2CascFileSource source(CascStorage, MapLoadInfo::Instance()->Meta->FileDataId);
     DB2FileLoader db2;
@@ -336,7 +326,7 @@ void ReadMapDBC()   //ĶͼDBC
 
     map_ids.erase(std::remove_if(map_ids.begin(), map_ids.end(), [](MapEntry const& map) { return !map.WdtFileDataId; }),{ return !map.tdbFileDataId; }),{ return !map.adtFileDataId; }), map_ids.end());
 
-    printf("Done! (" SZFMTD " maps loaded)\n", map_ids.size());     //ʾ:!**ͼ
+    printf("Done! (" SZFMTD " maps loaded)\n", map_ids.size());     //显示输出:完成!**地图加载完成
 }
 
 void ReadLiquidMaterialTable()
@@ -360,22 +350,7 @@ void ReadLiquidMaterialTable()
     for (uint32 x = 0; x < db2.GetRecordCopyCount(); ++x)
         LiquidMaterials[db2.GetRecordCopy(x).NewRowId] = LiquidMaterials[db2.GetRecordCopy(x).SourceRowId];
 
-    printf("Done! (" SZFMTD " LiquidMaterials loaded)\n", LiquidMaterials.size());
-
-    for (uint64 x = 0; x < db2.GetRecordCount(); ++x)
-    {
-        DB2Record record = db2.GetRecord(x);
-        if (!record)
-            continue;
-
-        LiquidMaterialEntry& liquidType = LiquidMaterials[record.GetId()];
-        liquidType.LVF = record.GetUInt8("LVF");
-    }
-
-    for (uint64 x = 0; x < db2.GetRecordCopyCount(); ++x)
-        LiquidMaterials[db2.GetRecordCopy(x).NewRowId] = LiquidMaterials[db2.GetRecordCopy(x).SourceRowId];
-
-    printf("Done! (" SZFMTD " LiquidMaterials loaded)\n", LiquidMaterials.size());
+    printf("Done! (" SZFMTD " LiquidMaterials loaded)\n", LiquidMaterials.size());     //显示输出:完成!液体材料加载完成
 }
 
 void ReadLiquidObjectTable()
@@ -399,22 +374,7 @@ void ReadLiquidObjectTable()
     for (uint32 x = 0; x < db2.GetRecordCopyCount(); ++x)
         LiquidObjects[db2.GetRecordCopy(x).NewRowId] = LiquidObjects[db2.GetRecordCopy(x).SourceRowId];
 
-    printf("Done! (" SZFMTD " LiquidObjects loaded)\n", LiquidObjects.size());
-
-    for (uint64 x = 0; x < db2.GetRecordCount(); ++x)
-    {
-        DB2Record record = db2.GetRecord(x);
-        if (!record)
-            continue;
-
-        LiquidObjectEntry& liquidType = LiquidObjects[record.GetId()];
-        liquidType.LiquidTypeID = record.GetUInt16("LiquidTypeID");
-    }
-
-    for (uint64 x = 0; x < db2.GetRecordCopyCount(); ++x)
-        LiquidObjects[db2.GetRecordCopy(x).NewRowId] = LiquidObjects[db2.GetRecordCopy(x).SourceRowId];
-
-    printf("Done! (" SZFMTD " LiquidObjects loaded)\n", LiquidObjects.size());
+    printf("Done! (" SZFMTD " LiquidObjects loaded)\n", LiquidObjects.size());     //显示输出:完成!液体对象加载完成
 }
 
 void ReadLiquidTypeTable()
