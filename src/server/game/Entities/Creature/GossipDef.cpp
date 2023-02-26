@@ -42,38 +42,38 @@ GossipMenu::GossipMenu()
 GossipMenu::~GossipMenu() = default;
 
 //后加
-//uint32 GossipMenu::AddMenuItem(int32 optionIndex, uint8 icon, std::string const& message, uint32 sender, uint32 action, std::string const& boxMessage, uint32 boxMoney, bool coded /*= false*/)
-//{
-//    ASSERT(_menuItems.size() <= GOSSIP_MAX_MENU_ITEMS);
-//
-//    // Find a free new id - script case
-//    if (optionIndex == -1)
-//    {
-//        optionIndex = 0;
-//        if (!_menuItems.empty())
-//        {   //此处为适配旧代码,后更新的,对应代码在GossipDef.h中 typedef std::map<uint32, GossipMenuItem> GossipMenuItemContainerTCBased;
-//            for (GossipMenuItemContainerTCBased::const_iterator itr = _menuItems.begin(); itr != _menuItems.end(); ++itr)
-//   // 当时为了测试,如果后续需要修改,可修改为:GossipMenuItemContainer
-//            {
-//                if (int32(itr->first) > optionIndex)
-//                    break;
-//
-//                optionIndex = itr->first + 1;
-//            }
-//        }
-//    }
-//
-//    GossipMenuItem& menuItem = _menuItems[optionIndex];
-//
-//    menuItem.MenuItemIcon = icon;
-//    menuItem.Message = message;
-//    menuItem.IsCoded = coded;
-//    menuItem.Sender = sender;
-//    menuItem.OptionType = action;
-//    menuItem.BoxMessage = boxMessage;
-//    menuItem.BoxMoney = boxMoney;
-//    return optionIndex;
-//}
+uint32 GossipMenu::AddMenuItem(int32 optionIndex, uint8 icon, std::string const& message, uint32 sender, uint32 action, std::string const& boxMessage, uint32 boxMoney, bool coded /*= false*/)
+{
+    ASSERT(_menuItems.size() <= GOSSIP_MAX_MENU_ITEMS);
+
+    // Find a free new id - script case
+    if (optionIndex == -1)
+    {
+        optionIndex = 0;
+        if (!_menuItems.empty())
+        {   //此处为适配旧代码,后更新的,对应代码在GossipDef.h中 typedef std::map<uint32, GossipMenuItem> GossipMenuItemContainerTCBased;
+            for (GossipMenuItemContainer::const_iterator itr = _menuItems.begin(); itr != _menuItems.end(); ++itr)
+                 // ↑为了测试,修改为了GossipMenuItemContainerTCBased,如果后续需要修改,原本为:GossipMenuItemContainer
+            {
+                if (int32(itr->first) > optionIndex)//此处瞎编以避免错误,后续要注意,这里究竟是不是对的
+                    break;
+
+                optionIndex = itr->first + 1;
+            }
+        }
+    }
+
+    GossipMenuItem& menuItem = _menuItems[optionIndex];
+
+    menuItem.MenuItemIcon = icon;
+    menuItem.Message = message;
+    menuItem.IsCoded = coded;
+    menuItem.Sender = sender;
+    menuItem.OptionType = action;
+    menuItem.BoxMessage = boxMessage;
+    menuItem.BoxMoney = boxMoney;
+    return optionIndex;
+}
 
 /**
  * @name AddMenuItem

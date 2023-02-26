@@ -51,9 +51,12 @@ class npc_canon_maxima : public CreatureScript
                 player->PrepareQuestMenu(creature->GetGUID());
 
             if (player->GetQuestStatus(QUEST_HUMANOID_CANNONBALL) == QUEST_STATUS_INCOMPLETE)
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Je souhaite devenir un homme canon !", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-            SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
+                /*AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Je souhaite devenir un homme canon !", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);     */       
+                //↑为原版,法语版
+                AddGossipItemFor(player, GossipOptionNpc::None, "我想成为一个正派的人！", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                                        //此处旧版本通常写为GOSSIP_ICON_CHAT,值为0.变成新的GossipOptionNpc::None,其实一样,也是chat图标
+                //现在添加了库(.h)定义,旧版本也可以使用了
+            SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());            
             return true;
         }
 
@@ -61,7 +64,11 @@ class npc_canon_maxima : public CreatureScript
         {
             if (!player->HasItemCount(ITEM_DARKMOON_TOKEN))
             {
-                creature->Whisper("Vous devez posseder un Jeton de Sombrelune pour utiliser le canon !", LANG_UNIVERSAL, player);
+                //creature->Whisper("Vous devez posseder un Jeton de Sombrelune pour utiliser le canon !", LANG_UNIVERSAL, player);
+                //↑法文原版
+                creature->Whisper("你必须拥有一个暗月马戏团代币才能使用大炮！", LANG_UNIVERSAL, player);
+                //↑我改完的中文版
+                    
                 CloseGossipMenuFor(player);
                 return true;
             }

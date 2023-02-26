@@ -34,7 +34,7 @@ enum class QuestGiverStatus : uint32;
 
 enum class GossipOptionNpc : uint8
 {
-    None                       = 0,    // White chat bubble. Default
+    None                       = 0,    // White chat bubble. Default    //白色聊天泡泡图标,默认
     Vendor                     = 1,    // Brown bag
     Taxinode                   = 2,    // White wing
     Trainer                    = 3,    // Brown book
@@ -152,6 +152,7 @@ enum class GossipOptionFlags : int32
 
 struct GossipMenuItem
 {
+    uint8               first;//瞎扯的,等会删了
     uint8               MenuItemIcon;
     bool                IsCoded;
     std::string         Message;

@@ -40,26 +40,36 @@ void ClearGossipMenuFor(Player* player)
 }
 
 
-//void AddGossipItemFor(Player* player, uint32 icon, std::string const& text, uint32 sender, uint32 action) { player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, icon, text, sender, action, "", 0); }
-//上面为原版
-//void AddGossipItemFor(Player* player, uint32 icon, std::string const& text, uint32 sender, uint32 action) { player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1,icon,text,sender,action,"",0,true); }
-//  AddGossipItemFor(player, GOSSIP_ICON_TALK, "Heal pls!", GOSSIP_SENDER_MAIN, 0);
-//测试
-//上为旧模板
+
+//  1
+void AddGossipItemFor(Player* player, uint32 icon, std::string const& text, uint32 sender, uint32 action) { player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1,icon,text,sender,action,"",0,true); }//最后的true应该是我自己加的,表示coded,不知道啥意思
+//  上为旧模板
+
+//  AddGossipItemFor(player, GOSSIP_ICON_TALK, "Heal pls!", GOSSIP_SENDER_MAIN, 0);     //本条为测试案例,无用
 
 
+//  2
 // Using provided text, not from DB
 void AddGossipItemFor(Player* player, GossipOptionNpc optionNpc, std::string text, uint32 sender, uint32 action)
 {
     player->PlayerTalkClass->GetGossipMenu().AddMenuItem(0, -1, optionNpc, std::move(text), 0, GossipOptionFlags::None, {}, 0, 0, false, 0, "", {}, {}, sender, action);
 }
 
+
+
+//  3
 // Using provided texts, not from DB
 void AddGossipItemFor(Player* player, GossipOptionNpc optionNpc, std::string text, uint32 sender, uint32 action, std::string popupText, uint32 popupMoney, bool coded)
 {
     player->PlayerTalkClass->GetGossipMenu().AddMenuItem(0, -1, optionNpc, std::move(text), 0, GossipOptionFlags::None, {}, 0, 0, coded, popupMoney, std::move(popupText), {}, {}, sender, action);
 }
 
+
+//  4
+void AddGossipItemFor(Player* player, uint32 icon, std::string const& text, uint32 sender, uint32 action, std::string const& popupText, uint32 popupMoney, bool coded) { player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, icon, text, sender, action, popupText, popupMoney, coded); }
+
+
+//  5
 // Uses gossip item info from DB
 void AddGossipItemFor(Player* player, uint32 gossipMenuID, uint32 gossipMenuItemID, uint32 sender, uint32 action)
 {
