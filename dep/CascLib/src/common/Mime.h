@@ -55,7 +55,6 @@ struct CASC_MIME_HTTP
 
 struct CASC_MIME_RESPONSE
 {
-    
     CASC_MIME_RESPONSE()
     {
         header_offset = header_length = CASC_INVALID_SIZE_T;
@@ -65,12 +64,7 @@ struct CASC_MIME_RESPONSE
         response_length = 0;
     }
 
-
     bool ParseResponse(const char * response, size_t length, bool final = false);
-
-    
-    
-    
 
     size_t response_length;             // Previous length of the response
     size_t header_offset;               // Offset of the response header, usually 0
@@ -106,7 +100,6 @@ class CASC_MIME_ELEMENT
     CASC_MIME_ELEMENT();
     ~CASC_MIME_ELEMENT();
 
-    unsigned char * GiveAway(size_t * ptr_data_length);
     DWORD GiveAway(CASC_BLOB & target);
 
     DWORD LoadSingle(char * data, size_t data_length);
@@ -124,9 +117,6 @@ class CASC_MIME_ELEMENT
     bool   ExtractEncoding(const char * line, CASC_MIME_ENCODING & Encoding);
     bool   ExtractBoundary(const char * line);
 
-    DWORD DecodeTextPlain(char * content_begin, char * content_end, unsigned char * data_ptr, size_t * ptr_length);
-    DWORD DecodeQuotedPrintable(char * content_begin, char * content_end, unsigned char * data_ptr, size_t * ptr_length);
-    DWORD DecodeBase64(char * content_begin, char * content_end, unsigned char * data_ptr, size_t * ptr_length);
     DWORD DecodeTextPlain(char * content_begin, char * content_end, CASC_BLOB & output);
     DWORD DecodeQuotedPrintable(char * content_begin, char * content_end, CASC_BLOB & output);
     DWORD DecodeBase64(char * content_begin, char * content_end, CASC_BLOB & output);
@@ -136,12 +126,6 @@ class CASC_MIME_ELEMENT
         CASC_MIME_ELEMENT * pChild;     // Pointer to the first child
         CASC_MIME_ELEMENT * pNext;      // Pointer to the next-in-folder element
     } folder;
-
-    struct
-    {
-        unsigned char * begin;
-        size_t length;
-    } data;
 
     CASC_BLOB data;
     char boundary[MAX_LENGTH_BOUNDARY];
@@ -154,11 +138,8 @@ class CASC_MIME
     CASC_MIME();
     ~CASC_MIME();
 
-    unsigned char * GiveAway(size_t * ptr_data_length);
     DWORD GiveAway(CASC_BLOB & target);
 
-    DWORD Load(char * data, size_t length);
-    DWORD Load(LPCTSTR fileName);
     DWORD Load(char * data, CASC_MIME_RESPONSE & MimeResponse);
 
 #ifdef _DEBUG
@@ -169,10 +150,5 @@ class CASC_MIME
 
     CASC_MIME_ELEMENT root;
 };
-
-//-----------------------------------------------------------------------------
-// HTTP helpers
-
-bool IsHttpResponseComplete(CASC_MIME_HTTP & HttpInfo, const char * response, size_t response_length);
 
 #endif // __MIME_H__
