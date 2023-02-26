@@ -15,10 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Banner.h"                             //���� ���(��)
-#include "CascHandles.h"                        //Casc��� //����Casc,�ɲ���TrinityCore\ͨ��\����ѧϰ\CASC�ļ���ʽ.txt
-#include "Common.h"                             //ͨ�ÿ�
-#include "DB2CascFileSource.h"                  //DB2Casc�ļ�Դ
+#include "Banner.h"                            
+#include "CascHandles.h"                        
+#include "Common.h"                             
+#include "DB2CascFileSource.h"                  
 #include "DB2Meta.h"
 #include "DBFilesClientList.h"
 #include "ExtractorDB2LoadInfo.h"
@@ -26,7 +26,7 @@
 #include "StringFormat.h"
 #include "adt.h"
 #include "wdt.h"
-#include "tdb.h"
+//#include "tdb.h"
 #include <CascLib.h>
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
@@ -38,16 +38,16 @@
 #include <unordered_map>
 #include <cstdlib>
 #include <cstring>
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS    //�������ֵ(TC_ƽ̨��TC_ƽ̨_�Ӵ�<ֵΪ0>)���
-#include <io.h>                                     //���� ���������
-#else                                               //����
-#include <unistd.h>                                 //����unistd.h //unistd.h�� C �� C++ ��������������ṩ�� POSIX ����ϵͳ API �ķ��ʹ��ܵ�ͷ�ļ������ơ�
-#endif                                              //����������
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS    //ֵ(TC_ƽ̨TC_ƽ̨_Ӵ<ֵΪ0>)
+#include <io.h>                                     // 
+#else                                               //
+#include <unistd.h>                                 //unistd.h //unistd.h C  C++ ṩ POSIX ϵͳ API ķʹܵͷļơ
+#endif                                              //
 
 
 std::shared_ptr<CASC::Storage> CascStorage;
 
-struct MapEntry //��ͼ��Ŀ
+struct MapEntry //ͼĿ
 {
     uint32 Id = 0;
     uint64 Id = 0;
@@ -61,7 +61,7 @@ struct MapEntry //��ͼ��Ŀ
     std::string Directory;
 };
 
-struct LiquidMaterialEntry  //Һ�������Ŀ
+struct LiquidMaterialEntry  //ҺĿ
 {
     int8 LVF = 0;
 };
@@ -90,7 +90,7 @@ boost::filesystem::path input_path;
 boost::filesystem::path output_path;
 
 // **************************************************
-// Extractor options    ��ȡ��ѡ��
+// Extractor options    ȡѡ
 // **************************************************
 enum Extract : uint8
 {
@@ -102,14 +102,14 @@ enum Extract : uint8
     EXTRACT_ALL = EXTRACT_MAP | EXTRACT_DBC | EXTRACT_CAMERA | EXTRACT_GT   //提取全部=提取地图 | 提取DBC | 提取镜头 | 提取GT
 };
 
-// Select data for extract          //ѡ����ȡ����
-int   CONF_extract = EXTRACT_ALL;   //������ȡ����Ϊ��ȡ����
+// Select data for extract          //ѡȡ
+int   CONF_extract = EXTRACT_ALL;   //ȡΪȡ
 
-// This option allow limit minimum height to some value (Allow save some memory)    //��ѡ����������һЩֵ����С�߶�(�����ʡһЩ�ڴ�)
-bool  CONF_allow_height_limit = true;   //������ ����_�������Ƹ߶� = ��;
-float CONF_use_minHeight = -2000.0f;    //������ ����_ʹ����С�߶� = -2000.0;
+// This option allow limit minimum height to some value (Allow save some memory)    //ѡһЩֵС߶(ʡһЩڴ)
+bool  CONF_allow_height_limit = true;   // _Ƹ߶ = ;
+float CONF_use_minHeight = -2000.0f;    // _ʹС߶ = -2000.0;
 
-// This option allow use float to int conversion    //��ѡ������ʹ�ø���������ʼ��ת��
+// This option allow use float to int conversion    //ѡʹøʼת
 bool  CONF_allow_float_to_int   = true;
 float CONF_float_to_int8_limit  = 2.0f;      // Max accuracy = val/256
 float CONF_float_to_int16_limit = 2048.0f;   // Max accuracy = val/65536
@@ -118,9 +118,9 @@ float CONF_flat_liquid_delta_limit = 0.001f; // If max - min less this value - l
 
 uint32 CONF_Locale = 0;
 
-char const* CONF_Product = "wow";   //����_��Ʒ
-char const* CONF_Region = "eu";     //����_����,Ԥ�ƴ˴��޸�Ϊ"cn",��ȥ��ȡʱ����������
-bool CONF_UseRemoteCasc = false;    //����_ʹ��Զ��Casc
+char const* CONF_Product = "wow";   //_Ʒ
+char const* CONF_Region = "eu";     //_,Ԥƴ˴޸Ϊ"cn",ȥȡʱ
+bool CONF_UseRemoteCasc = false;    //_ʹԶCasc
 
 #define CASC_LOCALES_COUNT 17
 
@@ -163,7 +163,7 @@ void CreateDir(boost::filesystem::path const& path)
         throw std::runtime_error("Unable to create directory" + path.string());
 }
 
-void Usage(char const* prg) //��������˵��
+void Usage(char const* prg) //˵
 {
     printf(
         "Usage:\n"\
@@ -263,7 +263,7 @@ void HandleArgs(int argc, char* arg[])
     }
 }
 
-void TryLoadDB2(char const* name, DB2CascFileSource* source, DB2FileLoader* db2, DB2FileLoadInfo const* loadInfo)   //���Լ���DB2
+void TryLoadDB2(char const* name, DB2CascFileSource* source, DB2FileLoader* db2, DB2FileLoadInfo const* loadInfo)   //ԼDB2
 {
     try
     {
@@ -276,9 +276,9 @@ void TryLoadDB2(char const* name, DB2CascFileSource* source, DB2FileLoader* db2,
     }
 }
 
-void ReadMapDBC()   //�Ķ���ͼDBC
+void ReadMapDBC()   //ĶͼDBC
 {
-    printf("Read Map.db2 file...\n");   //��ʾ���:���ڶ�ȡ��ͼdb2�ļ�...
+    printf("Read Map.db2 file...\n");   //ʾ:ڶȡͼdb2ļ...
 
     DB2CascFileSource source(CascStorage, MapLoadInfo::Instance()->Meta->FileDataId);
     DB2FileLoader db2;
@@ -339,7 +339,7 @@ void ReadMapDBC()   //�Ķ���ͼDBC
 
     map_ids.erase(std::remove_if(map_ids.begin(), map_ids.end(), [](MapEntry const& map) { return !map.WdtFileDataId; }),{ return !map.tdbFileDataId; }),{ return !map.adtFileDataId; }), map_ids.end());
 
-    printf("Done! (" SZFMTD " maps loaded)\n", map_ids.size());     //��ʾ���:���!**��ͼ�������
+    printf("Done! (" SZFMTD " maps loaded)\n", map_ids.size());     //ʾ:!**ͼ
 }
 
 void ReadLiquidMaterialTable()
