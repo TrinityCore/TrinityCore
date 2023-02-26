@@ -30,6 +30,7 @@
 #include "Transport.h"
 #include "DarkmoonIsland.h"
 
+
 class playerscript_darkmoon_carousel : public PlayerScript
 {
     public:
@@ -331,15 +332,12 @@ public:
     {
         return new npc_selina_dourmanAI(creature);
     }
-
     struct npc_selina_dourmanAI : public ScriptedAI
     {
         npc_selina_dourmanAI(Creature* creature) : ScriptedAI(creature) { }
-
+                
         EventMap events;
-
         bool Talked;
-
         void Reset()
         {
             Talked = false;
@@ -354,7 +352,8 @@ public:
             {
                 Talked = true;
                 Talk(SAY_SELINA_WELCOME);
-                events.ScheduleEvent(EVENT_RENEW_SELINA_TEXT, 60000);
+                //events.ScheduleEvent(EVENT_RENEW_SELINA_TEXT, 60000);//原来的,报错
+                events.ScheduleEvent(EVENT_RENEW_SELINA_TEXT,Milliseconds(60000), 0, 0);//估计这货没用
             }
         }
 
@@ -559,8 +558,11 @@ public:
         {
             if (!Active)
             {
-                events.ScheduleEvent(EVENT_SHOOTGALLERY_START_GAME, 0);
-                events.ScheduleEvent(EVENT_SHOOTGALLERY_FINISH_GAME, 60000);
+                //events.ScheduleEvent(EVENT_SHOOTGALLERY_START_GAME, 0);
+                //events.ScheduleEvent(EVENT_SHOOTGALLERY_FINISH_GAME, 60000);
+                //↑原版
+                events.ScheduleEvent(EVENT_SHOOTGALLERY_START_GAME, Milliseconds(0), 0, 0);
+                events.ScheduleEvent(EVENT_SHOOTGALLERY_FINISH_GAME, Milliseconds(60000), 0, 0);
             }
         }
 
@@ -570,45 +572,46 @@ public:
 
             Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
 
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                case EVENT_SHOOTGALLERY_START_GAME:
-                    switch (urand(0, 2))
-                    {
-                    case 0:
-                        if (Creature* summon = me->SummonCreature(54231, -4072.19f, 6356.46f, 13.35f, 4.21f, TEMPSUMMON_TIMED_DESPAWN, 5000))
-                            summon->CastSpell(summon, 102341, false);
+            //while (uint32 eventId = events.ExecuteEvent())
+            //{
+            //    switch (eventId)
+            //    {
+            //    case EVENT_SHOOTGALLERY_START_GAME:
+            //        switch (urand(0, 2))
+            //        {
+            //        case 0:
+            //            if (TempSummon* summon = me->SummonCreature(54231, -4072.19f, 6356.46f, 13.35f, 4.21f, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(5000),ObjectGuid::Empty))
+            //                summon->CastSpell(summon, 102341, false);//不允许指针指向不完整的类类型,暂时解决不了
+            //            
+            //            me->SummonCreature(54225, -4070.09f, 6354.87f, 12.57f, 4.21f, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(5000), ObjectGuid::Empty));
+            //            me->SummonCreature(54225, -4068.41f, 6353.09f, 13.24f, 4.21f, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(5000), ObjectGuid::Empty));
+            //            break;
+            //        case 1:
+            //            me->SummonCreature(54225, -4072.19f, 6356.46f, 13.35f, 4.21f, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(5000), ObjectGuid::Empty));
 
-                        me->SummonCreature(54225, -4070.09f, 6354.87f, 12.57f, 4.21f, TEMPSUMMON_TIMED_DESPAWN, 5000);
-                        me->SummonCreature(54225, -4068.41f, 6353.09f, 13.24f, 4.21f, TEMPSUMMON_TIMED_DESPAWN, 5000);
-                        break;
-                    case 1:
-                        me->SummonCreature(54225, -4072.19f, 6356.46f, 13.35f, 4.21f, TEMPSUMMON_TIMED_DESPAWN, 5000);
+            //            if (Creature* summon = me->SummonCreature(54231, -4070.09f, 6354.87f, 12.57f, 4.21f, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(5000), ObjectGuid::Empty)))
+            //                summon->CastSpell(summon, 102341, false);
 
-                        if (Creature* summon = me->SummonCreature(54231, -4070.09f, 6354.87f, 12.57f, 4.21f, TEMPSUMMON_TIMED_DESPAWN, 5000))
-                            summon->CastSpell(summon, 102341, false);
+            //            me->SummonCreature(54225, -4068.41f, 6353.09f, 12.24f, 4.21f, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(5000), ObjectGuid::Empty));
+            //            break;
+            //        case 2:
+            //            me->SummonCreature(54225, -4072.19f, 6356.46f, 13.35f, 4.21f, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(5000), ObjectGuid::Empty));
+            //            me->SummonCreature(54225, -4070.09f, 6354.87f, 12.57f, 4.21f, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(5000), ObjectGuid::Empty));
 
-                        me->SummonCreature(54225, -4068.41f, 6353.09f, 12.24f, 4.21f, TEMPSUMMON_TIMED_DESPAWN, 5000);
-                        break;
-                    case 2:
-                        me->SummonCreature(54225, -4072.19f, 6356.46f, 13.35f, 4.21f, TEMPSUMMON_TIMED_DESPAWN, 5000);
-                        me->SummonCreature(54225, -4070.09f, 6354.87f, 12.57f, 4.21f, TEMPSUMMON_TIMED_DESPAWN, 5000);
+            //            if (Creature* summon = me->SummonCreature(54231, -4068.41f, 6353.09f, 13.24f, 4.21f, TEMPSUMMON_TIMED_DESPAWN, Milliseconds(5000), ObjectGuid::Empty)))
+            //                summon->CastSpell(summon, 102341, false);
 
-                        if (Creature* summon = me->SummonCreature(54231, -4068.41f, 6353.09f, 13.24f, 4.21f, TEMPSUMMON_TIMED_DESPAWN, 5000))
-                            summon->CastSpell(summon, 102341, false);
-
-                        break;
-                    }
-                    events.ScheduleEvent(EVENT_SHOOTGALLERY_START_GAME, 5000);
-                    break;
-                case EVENT_SHOOTGALLERY_FINISH_GAME:
-                    Active = false;
-                    events.CancelEvent(EVENT_SHOOTGALLERY_START_GAME);
-                    break;
-                }
-            }
+            //            break;
+            //        }
+            //        //events.ScheduleEvent(EVENT_SHOOTGALLERY_START_GAME, 5000);//原版
+            //        events.ScheduleEvent(EVENT_SHOOTGALLERY_START_GAME, Milliseconds(5000), 0, 0);
+            //        break;
+            //    case EVENT_SHOOTGALLERY_FINISH_GAME:
+            //        Active = false;
+            //        events.CancelEvent(EVENT_SHOOTGALLERY_START_GAME);
+            //        break;
+            //    }
+            //}
         }
     };
 

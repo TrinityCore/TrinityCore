@@ -752,7 +752,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         // Transports
         TransportBase* GetTransport() const { return m_transport; }
-        Transport* getTransport() const { return m_Transport; } //兼容旧版本,自制
+        //Transport* getTransport() const { return m_Transport; } //兼容旧版本,自制
         float GetTransOffsetX() const { return m_movementInfo.transport.pos.GetPositionX(); }
         float GetTransOffsetY() const { return m_movementInfo.transport.pos.GetPositionY(); }
         float GetTransOffsetZ() const { return m_movementInfo.transport.pos.GetPositionZ(); }
@@ -806,7 +806,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         // transports (gameobjects only)
         TransportBase* m_transport;
-        Transport* m_Transport;//兼容旧版本
+        //Transport* m_Transport;//兼容旧版本
 
         virtual void ProcessPositionDataChanged(PositionFullTerrainStatus const& data);
         uint32 m_zoneId;
