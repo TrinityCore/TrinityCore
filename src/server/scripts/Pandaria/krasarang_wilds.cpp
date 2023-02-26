@@ -311,7 +311,7 @@ class mob_go_kan : public CreatureScript
                 events.ScheduleEvent(EVENT_YAUNGOL_STOMP, 25000);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) override
             {
                 me->SetStandState(UNIT_STAND_STATE_STAND);
             }
@@ -840,7 +840,7 @@ class mob_ellia_ravenmane : public CreatureScript
                 }
             }
 
-            void SetGUID(ObjectGuid guid, int32 index)
+            void SetGUID(ObjectGuid guid, int32 index) override
             {
                 if (index == 0)
                     playerGUID = guid;
@@ -1088,7 +1088,7 @@ class mob_fat_long_fat : public CreatureScript
                 }
             }
 
-            void SetGUID(ObjectGuid guid, int32 index)
+            void SetGUID(ObjectGuid guid, int32 index) override
             {
                 if (index == 0)
                     playerGUID = guid;
@@ -1270,7 +1270,7 @@ class mob_huck_wheelbarrow : public CreatureScript
                 }
             }
 
-            void SetGUID(ObjectGuid guid, int32 index)
+            void SetGUID(ObjectGuid guid, int32 index) override
             {
                 if (index == 0)
                     playerGUID = guid;
@@ -1429,7 +1429,7 @@ class mob_dextrous_izissha : public CreatureScript
                 }
             }
 
-            void SetGUID(ObjectGuid guid, int32 index)
+            void SetGUID(ObjectGuid guid, int32 index) override
             {
                 if (index == 0)
                     playerGUID = guid;
@@ -1587,7 +1587,7 @@ class mob_julia_bates : public CreatureScript
                 }
             }
 
-            void SetGUID(ObjectGuid guid, int32 index)
+            void SetGUID(ObjectGuid guid, int32 index) override
             {
                 if (index == 0)
                     playerGUID = guid;
@@ -1740,7 +1740,7 @@ class mob_kuo_na : public CreatureScript
                 }
             }
 
-            void SetGUID(ObjectGuid guid, int32 index)
+            void SetGUID(ObjectGuid guid, int32 index) override
             {
                 if (index == 0)
                     playerGUID = guid;
@@ -1898,7 +1898,7 @@ class mob_mindel_sunspeaker : public CreatureScript
                 }
             }
 
-            void SetGUID(ObjectGuid guid, int32 index)
+            void SetGUID(ObjectGuid guid, int32 index) override
             {
                 if (index == 0)
                     playerGUID = guid;
@@ -2051,7 +2051,7 @@ class mob_minh_do_tan : public CreatureScript
                 }
             }
 
-            void SetGUID(ObjectGuid guid, int32 index)
+            void SetGUID(ObjectGuid guid, int32 index) override
             {
                 if (index == 0)
                     playerGUID = guid;
@@ -2206,7 +2206,7 @@ class mob_thelonius : public CreatureScript
                 }
             }
 
-            void SetGUID(ObjectGuid guid, int32 index)
+            void SetGUID(ObjectGuid guid, int32 index) override
             {
                 if (index == 0)
                     playerGUID = guid;
@@ -2370,7 +2370,7 @@ class mob_tukka_tuk : public CreatureScript
                 }
             }
 
-            void SetGUID(ObjectGuid guid, int32 index)
+            void SetGUID(ObjectGuid guid, int32 index) override
             {
                 if (index == 0)
                     playerGUID = guid;
@@ -2529,7 +2529,7 @@ class mob_yan_quillpaw : public CreatureScript
                 }
             }
 
-            void SetGUID(ObjectGuid guid, int32 index)
+            void SetGUID(ObjectGuid guid, int32 index) override
             {
                 if (index == 0)
                     playerGUID = guid;

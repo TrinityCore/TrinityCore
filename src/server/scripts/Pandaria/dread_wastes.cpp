@@ -241,7 +241,7 @@ class mob_dread_kunchong : public CreatureScript
                 events.ScheduleEvent(EVENT_DREAD_SLASH, 25000);
             }
 
-            void EnterCombat(Unit* who) 
+            void EnterCombat(Unit* who) override
             {
                 Player* player = who->ToPlayer();
 
@@ -700,7 +700,7 @@ class mob_ik_thik_terrorclaw : public CreatureScript
                 events.ScheduleEvent(EVENT_CLAW, 17000);
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* who) override
             {
                 Player* player = who->ToPlayer();
 
@@ -1106,7 +1106,7 @@ class mob_wake_of_horror : public CreatureScript
                 events.ScheduleEvent(EVENT_UNSTABLE_SERUM, 20000);
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* who) override
             {
                 Player* player = who->ToPlayer();
 
@@ -1895,7 +1895,7 @@ class mob_klaxxi_traitor : public CreatureScript
                     player->KilledMonsterCredit(MOB_KLAXXI_TRAITOR);
             }
 
-            void SetGUID(ObjectGuid guid, int32 /*data*/ = 1)
+            void SetGUID(ObjectGuid guid, int32 /*data*/ = 1) override
             {
                 playerGUID = guid;
             }
@@ -2075,7 +2075,7 @@ class mob_second_kaz_tik_the_manipulator : public CreatureScript
                 SetDespawnAtEnd(false);
             }
 
-            void SetGUID(ObjectGuid guid, int32 /*p_Data*/ = 2)
+            void SetGUID(ObjectGuid guid, int32 /*p_Data*/ = 2) override
             {
                 playerGUID = guid;
             }
@@ -2216,7 +2216,7 @@ class mob_muckscale_ripper : public CreatureScript
                 events.ScheduleEvent(EVENT_UNSTABLE_SERUM, 18000);
             }
 
-            void SetGUID(ObjectGuid guid, int32 /*p_Data*/ = 2)
+            void SetGUID(ObjectGuid guid, int32 /*p_Data*/ = 2) override
             {
                 playerGUID = guid;
             }
@@ -2316,7 +2316,7 @@ class mob_skeer_the_bloodseeker : public CreatureScript
             uint32 secondPhaseTimer;
             uint32 thirdPhaseTimer;
 
-            void SetGUID(ObjectGuid guid, int32 /*data*/ = 3)
+            void SetGUID(ObjectGuid guid, int32 /*data*/ = 3) override
             {
                 playerGUID = guid;
             }
@@ -2466,7 +2466,7 @@ class mob_muckscale_flesheater : public CreatureScript
                 events.ScheduleEvent(EVENT_UNSTABLE_SERUM, 12000);
             }
 
-            void SetGUID(ObjectGuid guid, int32 /*p_Data*/ = 3)
+            void SetGUID(ObjectGuid guid, int32 /*p_Data*/ = 3) override
             {
                 playerGUID = guid;
             }
@@ -2546,7 +2546,7 @@ class mob_muckscale_serpentus : public CreatureScript
                 events.ScheduleEvent(EVENT_UNSTABLE_SERUM, 18000);
             }
 
-            void SetGUID(ObjectGuid guid, int32 /*p_Data*/ = 3)
+            void SetGUID(ObjectGuid guid, int32 /*p_Data*/ = 3) override
             {
                 playerGUID = guid;
             }

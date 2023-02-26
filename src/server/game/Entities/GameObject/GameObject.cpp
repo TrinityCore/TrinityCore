@@ -989,9 +989,9 @@ void GameObject::Update(uint32 diff)
                         /* TODO: Fix movement in unloaded grid - currently GO will just disappear*/
                         uint32 timer = m_goValue.Transport.PathProgress % GetTransportPeriod();
                         TransportAnimationEntry const* node = m_goValue.Transport.AnimationInfo->GetAnimNode(timer);
-                        if (node && m_goValue.Transport.CurrentSeg != node->Time_t)
+                        if (node && m_goValue.Transport.CurrentSeg != node->TimeSeg)
                         {
-                            m_goValue.Transport.CurrentSeg = node->Time_t;
+                            m_goValue.Transport.CurrentSeg = node->TimeSeg;
 
                             G3D::Quat rotation;
                             if (TransportRotationEntry const* rot = m_goValue.Transport.AnimationInfo->GetAnimRotation(timer))
