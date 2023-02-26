@@ -526,18 +526,6 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
                 {
                     for (QuestObjective const& obj : qInfo->Objectives)
                     {
-                        if (obj.Type == QUEST_OBJECTIVE_AREATRIGGER && !player->IsQuestObjectiveComplete(slot, qInfo, obj))
-                        {
-                            player->SetQuestObjectiveData(obj, 1);
-                            player->SendQuestUpdateAddCreditSimple(obj);
-                            if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_SEQUENCED_OBJECTIVES))
-                                completedObjectiveInSequencedQuest = true;
-                            break;
-                            if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT))
-                                player->AreaExploredOrEventHappens(questId);
-                            break;
-                        }
-                    }
                         if (obj.Type != QUEST_OBJECTIVE_AREATRIGGER)
                             continue;
 
@@ -547,13 +535,13 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
                         if (player->IsQuestObjectiveComplete(slot, qInfo, obj))
                             continue;
 
-                        /*if (obj.ObjectID != -1 && obj.ObjectID != packet.AreaTriggerID)
+                        if (obj.ObjectID != -1 && obj.ObjectID != packet.AreaTriggerID)
                             continue;
 
                         player->SetQuestObjectiveData(obj, 1);
                         player->SendQuestUpdateAddCreditSimple(obj);
                         anyObjectiveChangedCompletionState = true;
-                        break;*/
+                        break;
                     }
 
                     if (player->CanCompleteQuest(questId))
