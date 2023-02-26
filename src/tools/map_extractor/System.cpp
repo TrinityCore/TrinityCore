@@ -49,13 +49,13 @@ std::shared_ptr<CASC::Storage> CascStorage;
 
 struct MapEntry //ͼĿ
 {
-    uint32 Id = 0;
+    
     uint64 Id = 0;
-    int32 WdtFileDataId = 0;
+    
     int64 WdtFileDataId = 0;
-    int32 tdbFileDataId = 0;
+    
     int64 tdbFileDataId = 0;
-    int32 WmoFileDataId = 0;
+    
     int64 WmoFileDataId = 0;
     std::string Name;
     std::string Directory;
@@ -285,7 +285,7 @@ void ReadMapDBC()   //ĶͼDBC
     TryLoadDB2("Map.db2", &source, &db2, MapLoadInfo::Instance());
 
     map_ids.reserve(db2.GetRecordCount());
-    std::unordered_map<uint32, std::size_t> idToIndex;
+    
     std::unordered_map<uint64, std::size_t> idToIndex;
     for (uint32 x = 0; x < db2.GetRecordCount(); ++x)
     {
@@ -297,7 +297,6 @@ void ReadMapDBC()   //ĶͼDBC
         map.Id = record.GetId();
         map.WdtFileDataId = record.GetInt32("WdtFileDataID");
         map.tdbFileDataId = record.GetInt32("tdbFileDataID");
-        map.adtFileDataId = record.GetInt32("adtFileDataID");
         map.Name = record.GetString("MapName");
         map.Directory = record.GetString("Directory");
         idToIndex[map.Id] = map_ids.size();
@@ -314,7 +313,6 @@ void ReadMapDBC()   //ĶͼDBC
             map.Id = copy.NewRowId;
             map.WdtFileDataId = map_ids[itr->second].WdtFileDataId;
             map.tdbFileDataId = map_ids[itr->second].tdbFileDataId;
-            map.adtFileDataId = map_ids[itr->second].adtFileDataId;
             map.Name = map_ids[itr->second].Name;
             map.Directory = map_ids[itr->second].Directory;
             map_ids.push_back(map);
@@ -330,7 +328,6 @@ void ReadMapDBC()   //ĶͼDBC
             map.Id = copy.NewRowId;
             map.WdtFileDataId = map_ids[itr->second].WdtFileDataId;
             map.tdbFileDataId = map_ids[itr->second].tdbFileDataId;
-            map.adtFileDataId = map_ids[itr->second].adtFileDataId;
             map.Name = map_ids[itr->second].Name;
             map.Directory = map_ids[itr->second].Directory;
             map_ids.push_back(map);
