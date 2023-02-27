@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright 2021 ShadowCore
  * Copyright 2023 AzgathCore
  *

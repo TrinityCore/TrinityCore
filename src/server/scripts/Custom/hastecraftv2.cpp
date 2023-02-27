@@ -1,4 +1,4 @@
-/*
+﻿/*
 SPP Praevius Core Hastecraft V3
 Written by MDic
 */

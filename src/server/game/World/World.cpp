@@ -1,4 +1,4 @@
-//小女孩 注释 此文件包含控制台启动时候的提示信息
+﻿//小女孩 注释 此文件包含控制台启动时候的提示信息
 /*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
