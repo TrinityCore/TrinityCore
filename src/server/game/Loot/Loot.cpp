@@ -54,8 +54,18 @@ LootItem::LootItem(LootStoreItem const& li)
     rollWinnerGUID = ObjectGuid::Empty;
 }
 
-// Basic checks for player/item compatibility - if false no chance to see the item in the loot
+bool LootItem::AllowedForPlayer(Player const* player, ObjectGuid ownerGuid) const
+{
+    return AllowedForPlayer(player, false, ownerGuid);
+}
+
 bool LootItem::AllowedForPlayer(Player const* player, bool isGivenByMasterLooter) const
+{
+    return AllowedForPlayer(player, isGivenByMasterLooter, ObjectGuid::Empty);
+}
+
+// Basic checks for player/item compatibility - if false no chance to see the item in the loot
+bool LootItem::AllowedForPlayer(Player const* player, bool isGivenByMasterLooter, ObjectGuid ownerGuid) const
 {
     // DB conditions check
     if (!sConditionMgr->IsObjectMeetToConditions(const_cast<Player*>(player), conditions))
@@ -84,6 +94,9 @@ bool LootItem::AllowedForPlayer(Player const* player, bool isGivenByMasterLooter
 
     // Don't allow to loot soulbound recipes that the player has already learned
     if (pProto->Class == ITEM_CLASS_RECIPE && pProto->Bonding == BIND_WHEN_PICKED_UP && pProto->Spells[1].SpellId != 0 && player->HasSpell(pProto->Spells[1].SpellId))
+        return false;
+
+    if (needs_quest && !freeforall && player->GetGroup() && (player->GetGroup()->GetLootMethod() == GROUP_LOOT || player->GetGroup()->GetLootMethod() == ROUND_ROBIN) && ownerGuid.IsEmpty() == false && ownerGuid != player->GetGUID())
         return false;
 
     // check quest requirements
@@ -164,10 +177,10 @@ void Loot::AddItem(LootStoreItem const& item)
             {
                 for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
                     if (Player* member = itr->GetSource())
-                        if (generatedLoot.AllowedForPlayer(member))
+                        if (generatedLoot.AllowedForPlayer(member, lootOwnerGUID))
                             canSeeItemInLootWindow = true;
             }
-            else if (generatedLoot.AllowedForPlayer(player))
+            else if (generatedLoot.AllowedForPlayer(player, lootOwnerGUID))
                 canSeeItemInLootWindow = true;
         }
 
@@ -261,7 +274,7 @@ void Loot::FillNotNormalLootFor(Player* player, bool presentAtLooting)
         else
             item = &quest_items[i - itemsSize];
 
-        if (!item->is_looted && item->freeforall && item->AllowedForPlayer(player))
+        if (!item->is_looted && item->freeforall && item->AllowedForPlayer(player, lootOwnerGUID))
             if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item->itemid))
                 if (proto->IsCurrencyToken())
                     player->StoreLootItem(i, this);
@@ -275,7 +288,7 @@ NotNormalLootItemList* Loot::FillFFALoot(Player* player)
     for (uint8 i = 0; i < items.size(); ++i)
     {
         LootItem &item = items[i];
-        if (!item.is_looted && item.freeforall && item.AllowedForPlayer(player))
+        if (!item.is_looted && item.freeforall && item.AllowedForPlayer(player, lootOwnerGUID))
         {
             ql->push_back(NotNormalLootItem(i));
             ++unlootedCount;
@@ -302,7 +315,7 @@ NotNormalLootItemList* Loot::FillQuestLoot(Player* player)
     {
         LootItem &item = quest_items[i];
 
-        if (!item.is_looted && (item.AllowedForPlayer(player) || (item.follow_loot_rules && player->GetGroup() && ((player->GetGroup()->GetLootMethod() == MASTER_LOOT && player->GetGroup()->GetMasterLooterGuid() == player->GetGUID()) || player->GetGroup()->GetLootMethod() != MASTER_LOOT))))
+        if (!item.is_looted && (item.AllowedForPlayer(player, lootOwnerGUID) || (item.follow_loot_rules && player->GetGroup() && ((player->GetGroup()->GetLootMethod() == MASTER_LOOT && player->GetGroup()->GetMasterLooterGuid() == player->GetGUID()) || player->GetGroup()->GetLootMethod() != MASTER_LOOT))))
         {
             ql->push_back(NotNormalLootItem(i));
 
@@ -336,7 +349,7 @@ NotNormalLootItemList* Loot::FillNonQuestNonFFAConditionalLoot(Player* player, b
     for (uint8 i = 0; i < items.size(); ++i)
     {
         LootItem &item = items[i];
-        if (!item.is_looted && !item.freeforall && (item.AllowedForPlayer(player)))
+        if (!item.is_looted && !item.freeforall && (item.AllowedForPlayer(player, lootOwnerGUID)))
         {
             if (presentAtLooting)
                 item.AddAllowedLooter(player);
@@ -619,7 +632,7 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
             // blocked rolled items and quest items, and !ffa items
             for (uint8 i = 0; i < l.items.size(); ++i)
             {
-                if (!l.items[i].is_looted && !l.items[i].freeforall && l.items[i].conditions.empty() && l.items[i].AllowedForPlayer(lv.viewer))
+                if (!l.items[i].is_looted && !l.items[i].freeforall && l.items[i].conditions.empty() && l.items[i].AllowedForPlayer(lv.viewer, l.roundRobinPlayer))
                 {
                     uint8 slot_type;
 
@@ -674,7 +687,7 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
         {
             for (uint8 i = 0; i < l.items.size(); ++i)
             {
-                if (!l.items[i].is_looted && !l.items[i].freeforall && l.items[i].conditions.empty() && l.items[i].AllowedForPlayer(lv.viewer))
+                if (!l.items[i].is_looted && !l.items[i].freeforall && l.items[i].conditions.empty() && l.items[i].AllowedForPlayer(lv.viewer, l.roundRobinPlayer))
                 {
                     if (!l.roundRobinPlayer.IsEmpty() && lv.viewer->GetGUID() != l.roundRobinPlayer)
                         // item shall not be displayed.
@@ -693,7 +706,7 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
             uint8 slot_type = lv.permission == OWNER_PERMISSION ? LOOT_SLOT_TYPE_OWNER : LOOT_SLOT_TYPE_ALLOW_LOOT;
             for (uint8 i = 0; i < l.items.size(); ++i)
             {
-                if (!l.items[i].is_looted && !l.items[i].freeforall && l.items[i].conditions.empty() && l.items[i].AllowedForPlayer(lv.viewer))
+                if (!l.items[i].is_looted && !l.items[i].freeforall && l.items[i].conditions.empty() && l.items[i].AllowedForPlayer(lv.viewer, l.roundRobinPlayer))
                 {
                     b << uint8(i) << l.items[i];
                     b << uint8(slot_type);
