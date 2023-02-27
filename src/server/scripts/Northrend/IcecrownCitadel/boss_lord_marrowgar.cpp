@@ -214,7 +214,7 @@ struct boss_lord_marrowgar : public BossAI
                 case EVENT_WARN_BONE_STORM:
                     _boneSlice = false;
                     Talk(EMOTE_BONE_STORM);
-                    me->FinishSpell(CURRENT_MELEE_SPELL, false);
+                    me->FinishSpell(CURRENT_MELEE_SPELL, SPELL_FAILED_INTERRUPTED);
                     DoCast(me, SPELL_BONE_STORM);
                     events.DelayEvents(3s, EVENT_GROUP_SPECIAL);
                     events.ScheduleEvent(EVENT_BONE_STORM_BEGIN, 3050ms);

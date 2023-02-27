@@ -2187,7 +2187,7 @@ void AuraEffect::HandleFeignDeath(AuraApplication const* aurApp, uint8 mode, boo
 
         // prevent interrupt message
         if (GetCasterGUID() == target->GetGUID() && target->GetCurrentSpell(CURRENT_GENERIC_SPELL))
-            target->FinishSpell(CURRENT_GENERIC_SPELL, false);
+            target->FinishSpell(CURRENT_GENERIC_SPELL, SPELL_FAILED_INTERRUPTED);
         target->InterruptNonMeleeSpells(true);
 
         // stop handling the effect if it was removed by linked event

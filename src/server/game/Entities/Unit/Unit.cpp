@@ -2946,7 +2946,7 @@ void Unit::InterruptSpell(CurrentSpellTypes spellType, bool withDelayed, bool wi
     }
 }
 
-void Unit::FinishSpell(CurrentSpellTypes spellType, bool ok /*= true*/)
+void Unit::FinishSpell(CurrentSpellTypes spellType, SpellCastResult result /*= SPELL_CAST_OK*/)
 {
     Spell* spell = m_currentSpells[spellType];
     if (!spell)
@@ -2955,7 +2955,7 @@ void Unit::FinishSpell(CurrentSpellTypes spellType, bool ok /*= true*/)
     if (spellType == CURRENT_CHANNELED_SPELL)
         spell->SendChannelUpdate(0);
 
-    spell->finish(ok);
+    spell->finish(result);
 }
 
 bool Unit::IsNonMeleeSpellCast(bool withDelayed, bool skipChanneled, bool skipAutorepeat, bool isAutoshoot, bool skipInstant) const
