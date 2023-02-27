@@ -1,4 +1,4 @@
-#include "AchievementMgr.h"
+﻿#include "AchievementMgr.h"
 #include "BrawlersGuild.h"
 #include "ScriptedGossip.h"
 #include "Creature.h"

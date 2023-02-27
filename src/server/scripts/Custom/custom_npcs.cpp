@@ -1,4 +1,4 @@
-/*
+﻿/*
 * Copyright (C) 2017-2018 AshamaneProject <https://github.com/AshamaneProject>
 * Copyright 2021 DekkCore
 * * Copyright (C) 2021 BfaCore Reforged / / 来源:https://github.com/Titans-Project/BfaCore-Reforged/blob/main/src/server/scripts/Custom/custom_npcs.cpp

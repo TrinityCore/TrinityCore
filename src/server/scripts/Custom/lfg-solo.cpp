@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** Made by Traesh https://github.com/Traesh
 ** Conan513 https://github.com/conan513
 ** Made into a module by Micrah https://github.com/milestorme/
