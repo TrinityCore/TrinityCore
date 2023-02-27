@@ -22,17 +22,17 @@
  */
 
 #include "ScriptMgr.h"
-#include "CellImpl.h" //���Ǹ�ɶ
+#include "CellImpl.h" //这是个啥
 #include "GridNotifiersImpl.h"
 #include "Pet.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "SpellScript.h"
 
-enum HunterSpells   //ö�����˼���
+enum HunterSpells   //枚举猎人技能
 {
-    SPELL_HUNTER_HARPOON = 190925,//���?
-    SPELL_HUNTER_HARPOON_ROOT = 190927,//���**?
+    SPELL_HUNTER_HARPOON = 190925,//鱼叉?
+    SPELL_HUNTER_HARPOON_ROOT = 190927,//鱼叉**?
     SPELL_HUNTER_ANIMAL_INSTINCTS = 204315,
     SPELL_HUNTER_ANIMAL_INSTINCTS_CHEETAH = 204324,
     SPELL_HUNTER_ANIMAL_INSTINCTS_MONGOOSE = 204333,
@@ -101,7 +101,7 @@ enum HunterSpells   //ö�����˼���
     SPELL_HUNTER_LETHAL_SHOTS                       = 260393,
     SPELL_HUNTER_CALLING_THE_SHOTS                  = 260404,
     SPELL_HUNTER_TRUESHOT                           = 288613,
-    //�Ϸ�ΪKyrian��
+    //上方为Kyrian版
 
     SPELL_HUNTER_A_MURDER_OF_CROWS_DAMAGE           = 131900,
     SPELL_HUNTER_A_MURDER_OF_CROWS_VISUAL_1         = 131637,
@@ -118,20 +118,19 @@ enum HunterSpells   //ö�����˼���
     SPELL_HUNTER_MISDIRECTION_PROC                  = 35079,
     SPELL_HUNTER_MULTI_SHOT_FOCUS                   = 213363,
     SPELL_HUNTER_PET_LAST_STAND_TRIGGERED           = 53479,
-    SPELL_HUNTER_KILL_COMMAND                       = 34026,        //ɱ¾����,���
-    SPELL_HUNTER_KILL_COMMAND_CHARGE                = 118171,       //ɱ¾����,���
-    SPELL_HUNTER_KILL_COMMAND_TRIGGER               = 83381,        //ɱ¾����,���
+    SPELL_HUNTER_KILL_COMMAND                       = 34026,        //杀戮命令,后加
+    SPELL_HUNTER_KILL_COMMAND_CHARGE                = 118171,       //杀戮命令,后加
+    SPELL_HUNTER_KILL_COMMAND_TRIGGER               = 83381,        //杀戮命令,后加
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED = 54114,
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF    = 55711,
     SPELL_HUNTER_POSTHASTE_INCREASE_SPEED           = 118922,
     SPELL_HUNTER_POSTHASTE_TALENT                   = 109215,
     SPELL_HUNTER_STEADY_SHOT_FOCUS                  = 77443,
     SPELL_HUNTER_T9_4P_GREATNESS                    = 68130,
-    SPELL_ROAR_OF_SACRIFICE_TRIGGERED               = 67481,
-    SPELL_HUNTER_TRICK_SHOTS                        = 257621,
+    SPELL_ROAR_OF_SACRIFICE_TRIGGERED               = 67481
 };
 
-enum DireBeastSpells    //���
+enum DireBeastSpells    //后加
 {
     DIRE_BEAST_DREAD_WASTES                         = 126216,
     DIRE_BEAST_DUNGEONS                             = 132764,
@@ -235,7 +234,7 @@ public:
                 return SPELL_FAILED_NO_PET;
 
             // pet has a target and target is within 5 yards and target is in line of sight
-            // �������и�Ŀ�꣬����Ŀ����5�뷶Χ������ֱ��������
+            // 宠物内有个目标，并且目标在5码范围内且在直线视线内
            
             if (!petTarget || !pet->IsWithinDist(petTarget, 40.0f, true) || !petTarget->IsWithinLOSInMap(pet))
                 return SPELL_FAILED_DONT_REPORT;
@@ -758,7 +757,7 @@ class spell_hun_steady_shot : public SpellScript
     }
 };
 
-// 1515 - Tame Beast    //ԭ��    //����ѱ������,ץ����
+// 1515 - Tame Beast    //原版    //猎人驯服宠物,抓宠物
 class spell_hun_tame_beast : public SpellScript 
 {
     PrepareSpellScript(spell_hun_tame_beast);
@@ -783,9 +782,9 @@ class spell_hun_tame_beast : public SpellScript
 
         if (Creature* target = GetExplTargetUnit()->ToCreature())
         {
-            //�˴�ע��,����ȡ������ץ����,��ʾ�ȼ�����.��Ҳ��������������ץ�ߵȼ�����.
+            //此处注释,尝试取消猎人抓宠物,提示等级过高.但也可能让猎人随意抓高等级宠物.
             //if (target->GetLevel() > caster->GetLevel())
-            //    return SPELL_FAILED_HIGHLEVEL;//����ѱ��ʧ��,�ȼ�����
+            //    return SPELL_FAILED_HIGHLEVEL;//返回驯服失败,等级过高
 
             // use SMSG_PET_TAME_FAILURE?
             if (!target->GetCreatureTemplate()->IsTameable(caster->CanTameExoticPets()))
@@ -837,7 +836,7 @@ class spell_hun_tame_beast : public SpellScript
     }
 };
 
-// 1515 - Tame Beast    //Kyrian��
+// 1515 - Tame Beast    //Kyrian版
 //class spell_hun_tame_beast : public SpellScriptLoader
 //{
 //public:
@@ -921,42 +920,6 @@ class spell_hun_t9_4p_bonus : public AuraScript
     }
 };
 
-// 257621 - Trick Shots
-class spell_hun_Trick_Shots : public SpellScriptLoader
-{
-    public:
-        spell_hun_Trick_Shots() : SpellScriptLoader("spell_hun_Trick_Shots") { }
-
-        class spell_hun_Trick_Shots_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_hun_Trick_Shots_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo
-                ({
-                    SPELL_HUNTER_TRICK_SHOTS
-                });
-            }
-
-            void HandleOnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
-                    GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_TRICK_SHOTS, true);
-            }
-
-            void Register() override
-            {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_hun_Trick_Shots_AuraScript::HandleOnRemove, EFFECT_0, EFFECT_2, EFFECT_3, EFFECT_4, EFFECT_5, SPELL_AURA_MOD_INCREASE_SPEED, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-             return new spell_hun_Trick_Shots_AuraScript();
-        }
-};
-
 void AddSC_hunter_spell_scripts()
 {
     RegisterSpellScript(spell_hun_kill_command_proc);
@@ -978,19 +941,4 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_steady_shot);
     RegisterSpellScript(spell_hun_tame_beast);
     RegisterSpellScript(spell_hun_t9_4p_bonus);
-    new spell_hun_aspect_cheetah();
-    new spell_hun_exhilaration();
-    new spell_hun_hunting_party();
-    new spell_hun_last_stand_pet();
-    new spell_hun_masters_call();
-    new spell_hun_misdirection();
-    new spell_hun_misdirection_proc();
-    new spell_hun_multi_shot();
-    new spell_hun_pet_heart_of_the_phoenix();
-    new spell_hun_roar_of_sacrifice();
-    new spell_hun_scatter_shot();
-    new spell_hun_steady_shot();
-    new spell_hun_Trick_Shots();
-    new spell_hun_tame_beast();
-    new spell_hun_t9_4p_bonus();
 }
