@@ -64,7 +64,7 @@ void AddSC_boss_ptheradras();
 void AddSC_instance_maraudon();
 // Onyxia's Lair
 void AddSC_boss_onyxia();
-void AddSC_instance_onyxias_lair();
+//void AddSC_instance_onyxias_lair();
 // Razorfen Downs
 void AddSC_boss_tuten_kash();
 void AddSC_boss_mordresh_fire_eye();
@@ -111,8 +111,8 @@ void AddSC_firelands();
 void AddSC_boss_alysrazor();
 void AddSC_boss_baleroc();
 
-void AddSC_ashenvale();
-void AddSC_azshara();
+//void AddSC_ashenvale();
+//void AddSC_azshara();
 void AddSC_azuremyst_isle();
 void AddSC_bloodmyst_isle();
 void AddSC_darkshore();
@@ -126,13 +126,13 @@ void AddSC_mulgore();
 void AddSC_orgrimmar();
 void AddSC_silithus();
 // void AddSC_stonetalon_mountains();
-void AddSC_tanaris();
+//void AddSC_tanaris();
 void AddSC_the_barrens();
 // void AddSC_thousand_needles();
 void AddSC_thunder_bluff();
 // void AddSC_ungoro_crater();
 void AddSC_winterspring();
-void AddSC_uldum();
+//void AddSC_uldum();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -186,7 +186,7 @@ void AddKalimdorScripts()
     AddSC_instance_maraudon();
     // Onyxia's Lair
     AddSC_boss_onyxia();
-    AddSC_instance_onyxias_lair();
+    //AddSC_instance_onyxias_lair();
     // Razorfen Downs
     AddSC_boss_tuten_kash();
     AddSC_boss_mordresh_fire_eye();
@@ -225,8 +225,8 @@ void AddKalimdorScripts()
     AddSC_zulfarrak();
     AddSC_instance_zulfarrak();
 
-    AddSC_ashenvale();
-    AddSC_azshara();
+    //AddSC_ashenvale();
+    //AddSC_azshara();
     AddSC_azuremyst_isle();
     AddSC_bloodmyst_isle();
     AddSC_darkshore();
@@ -240,13 +240,13 @@ void AddKalimdorScripts()
     AddSC_orgrimmar();
     AddSC_silithus();
     // AddSC_stonetalon_mountains();
-    AddSC_tanaris();
+    //AddSC_tanaris();
     AddSC_the_barrens();
     // AddSC_thousand_needles();
     AddSC_thunder_bluff();
     // AddSC_ungoro_crater();
     AddSC_winterspring();
-    AddSC_azshara();
+    //AddSC_azshara();
     AddSC_instance_halls_of_origination();
     AddSC_boss_temple_guardian_anhuur();
     AddSC_boss_earthrager_ptah();
@@ -257,5 +257,5 @@ void AddKalimdorScripts()
     AddSC_boss_alysrazor();
     AddSC_boss_baleroc();
 
-    AddSC_uldum();
+    //AddSC_uldum();
 }

@@ -17,141 +17,141 @@
 
 // This is where scripts' loading functions should be declared:
 
-void AddSC_draenor_shadowmoon_valley();
-void AddSC_frostfire_ridge();
-void AddSC_shadowmoon_draenor();
-void AddSC_tanaan_jungle();
-
-void AddSC_tanaan_intro_global();
-void AddSC_tanaan_intro_portal();
-void AddSC_tanaan_intro_bleeding_hollow();
-void AddSC_tanaan_intro_shattered_hand();
-void AddSC_tanaan_intro_shadowmoon();
-void AddSC_tanaan_intro_blackrock();
-void AddSC_tanaan_intro_finale();
-
-void AddSC_garrison_level_1();
-void AddSC_garrison_level_2();
-void AddSC_garrison_level_3();
-void AddSC_spells_garrison();
-
-// Bloodmaul Slag Mines
-void AddSC_areatrigger_Bloodmaul();
-void AddSC_boss_forgemaster_gogduh();
-void AddSC_boss_gugrokk();
-void AddSC_boss_roltall();
-void AddSC_boss_SlaveWatcherCrushto();
-void AddSC_mob_Bloodmaul();
-void AddSC_spell_Bloodmaul();
-void AddSC_instance_Bloodmaul();
-
-// Everbloom
-void AddSC_boss_ancient_protectors();
-void AddSC_boss_sol();
-void AddSC_boss_witherbark();
-void AddSC_boss_xeritac();
-void AddSC_boss_yalnu();
-void AddSC_the_everbloom();
-void AddSC_instance_everbloom();
-
-// FateOfKaraborScenario
-void AddSC_instance_scenario_fate_of_karabor();
-
-// Shadowmoon Burial Grounds
-void AddSC_bonemaw();
-void AddSC_nerzul();
-void AddSC_nhalish();
-void AddSC_sadana();
-void AddSC_shadowmoon_burial_grounds();
-void AddSC_instance_shadowmoon_burial_grounds();
-
-// Highmaul
-void AddSC_boss_twin_ogron();
-void AddSC_boss_the_butcher();
-void AddSC_boss_koragh();
-void AddSC_boss_kargath_bladefist();
-void AddSC_boss_imperator_margok();
-void AddSC_boss_brackenspore();
-void AddSC_boss_tectus();
-void AddSC_highmaul();
-void AddSC_instance_highmaul();
-
-// UpperBlackrockSpire
-void AddSC_boss_commander_tharbek();
-void AddSC_boss_kyrak();
-void AddSC_boss_orebender_gorashan();
-void AddSC_boss_ragewing_untamed();
-void AddSC_boss_warlord_zaela();
-void AddSC_instance_upper_blackrock_spire();
+//void AddSC_draenor_shadowmoon_valley();
+//void AddSC_frostfire_ridge();
+//void AddSC_shadowmoon_draenor();
+//void AddSC_tanaan_jungle();
+//
+//void AddSC_tanaan_intro_global();
+//void AddSC_tanaan_intro_portal();
+//void AddSC_tanaan_intro_bleeding_hollow();
+//void AddSC_tanaan_intro_shattered_hand();
+//void AddSC_tanaan_intro_shadowmoon();
+//void AddSC_tanaan_intro_blackrock();
+//void AddSC_tanaan_intro_finale();
+//
+//void AddSC_garrison_level_1();
+//void AddSC_garrison_level_2();
+//void AddSC_garrison_level_3();
+//void AddSC_spells_garrison();
+//
+//// Bloodmaul Slag Mines
+//void AddSC_areatrigger_Bloodmaul();
+//void AddSC_boss_forgemaster_gogduh();
+//void AddSC_boss_gugrokk();
+//void AddSC_boss_roltall();
+//void AddSC_boss_SlaveWatcherCrushto();
+//void AddSC_mob_Bloodmaul();
+//void AddSC_spell_Bloodmaul();
+//void AddSC_instance_Bloodmaul();
+//
+//// Everbloom
+//void AddSC_boss_ancient_protectors();
+//void AddSC_boss_sol();
+//void AddSC_boss_witherbark();
+//void AddSC_boss_xeritac();
+//void AddSC_boss_yalnu();
+//void AddSC_the_everbloom();
+//void AddSC_instance_everbloom();
+//
+//// FateOfKaraborScenario
+//void AddSC_instance_scenario_fate_of_karabor();
+//
+//// Shadowmoon Burial Grounds
+//void AddSC_bonemaw();
+//void AddSC_nerzul();
+//void AddSC_nhalish();
+//void AddSC_sadana();
+//void AddSC_shadowmoon_burial_grounds();
+//void AddSC_instance_shadowmoon_burial_grounds();
+//
+//// Highmaul
+//void AddSC_boss_twin_ogron();
+//void AddSC_boss_the_butcher();
+//void AddSC_boss_koragh();
+//void AddSC_boss_kargath_bladefist();
+//void AddSC_boss_imperator_margok();
+//void AddSC_boss_brackenspore();
+//void AddSC_boss_tectus();
+//void AddSC_highmaul();
+//void AddSC_instance_highmaul();
+//
+//// UpperBlackrockSpire
+//void AddSC_boss_commander_tharbek();
+//void AddSC_boss_kyrak();
+//void AddSC_boss_orebender_gorashan();
+//void AddSC_boss_ragewing_untamed();
+//void AddSC_boss_warlord_zaela();
+//void AddSC_instance_upper_blackrock_spire();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddDraenorScripts()
 {
-	AddSC_draenor_shadowmoon_valley();
-    AddSC_frostfire_ridge();
-    AddSC_shadowmoon_draenor();
-    AddSC_tanaan_jungle();
+	//AddSC_draenor_shadowmoon_valley();
+ //   AddSC_frostfire_ridge();
+ //   AddSC_shadowmoon_draenor();
+ //   AddSC_tanaan_jungle();
 
-    AddSC_tanaan_intro_global();
-    AddSC_tanaan_intro_portal();
-    AddSC_tanaan_intro_bleeding_hollow();
-    AddSC_tanaan_intro_shattered_hand();
-    AddSC_tanaan_intro_shadowmoon();
-    AddSC_tanaan_intro_blackrock();
-    AddSC_tanaan_intro_finale();
+ //   AddSC_tanaan_intro_global();
+ //   AddSC_tanaan_intro_portal();
+ //   AddSC_tanaan_intro_bleeding_hollow();
+ //   AddSC_tanaan_intro_shattered_hand();
+ //   AddSC_tanaan_intro_shadowmoon();
+ //   AddSC_tanaan_intro_blackrock();
+ //   AddSC_tanaan_intro_finale();
 
-    AddSC_garrison_level_1();
-    AddSC_garrison_level_2();
-    AddSC_garrison_level_3();
-    AddSC_spells_garrison();
+ //   AddSC_garrison_level_1();
+ //   AddSC_garrison_level_2();
+ //   AddSC_garrison_level_3();
+ //   AddSC_spells_garrison();
 
-    // Bloodmaul Slag Mines
-    AddSC_areatrigger_Bloodmaul();
-    AddSC_boss_forgemaster_gogduh();
-    AddSC_boss_gugrokk();
-    AddSC_boss_roltall();
-    AddSC_boss_SlaveWatcherCrushto();
-    AddSC_mob_Bloodmaul();
-    AddSC_spell_Bloodmaul();
-    AddSC_instance_Bloodmaul();
+ //   // Bloodmaul Slag Mines
+ //   AddSC_areatrigger_Bloodmaul();
+ //   AddSC_boss_forgemaster_gogduh();
+ //   AddSC_boss_gugrokk();
+ //   AddSC_boss_roltall();
+ //   AddSC_boss_SlaveWatcherCrushto();
+ //   AddSC_mob_Bloodmaul();
+ //   AddSC_spell_Bloodmaul();
+ //   AddSC_instance_Bloodmaul();
 
-    // UpperBlackrockSpire
-    AddSC_boss_commander_tharbek();
-    AddSC_boss_kyrak();
-    AddSC_boss_orebender_gorashan();
-    AddSC_boss_ragewing_untamed();
-    AddSC_boss_warlord_zaela();
-    AddSC_instance_upper_blackrock_spire();
-    
-    // Everbloom
-    AddSC_boss_ancient_protectors();
-    AddSC_boss_sol();
-    AddSC_boss_witherbark();
-    AddSC_boss_xeritac();
-    AddSC_boss_yalnu();
-    AddSC_the_everbloom();
-    AddSC_instance_everbloom();
-	
-	// FateOfKaraborScenario
-	AddSC_instance_scenario_fate_of_karabor();
+ //   // UpperBlackrockSpire
+ //   AddSC_boss_commander_tharbek();
+ //   AddSC_boss_kyrak();
+ //   AddSC_boss_orebender_gorashan();
+ //   AddSC_boss_ragewing_untamed();
+ //   AddSC_boss_warlord_zaela();
+ //   AddSC_instance_upper_blackrock_spire();
+ //   
+ //   // Everbloom
+ //   AddSC_boss_ancient_protectors();
+ //   AddSC_boss_sol();
+ //   AddSC_boss_witherbark();
+ //   AddSC_boss_xeritac();
+ //   AddSC_boss_yalnu();
+ //   AddSC_the_everbloom();
+ //   AddSC_instance_everbloom();
+	//
+	//// FateOfKaraborScenario
+	//AddSC_instance_scenario_fate_of_karabor();
 
-    // Shadowmoon Burial Grounds
-    AddSC_bonemaw();
-    AddSC_nerzul();
-    AddSC_nhalish();
-    AddSC_sadana();
-    AddSC_shadowmoon_burial_grounds();
-    AddSC_instance_shadowmoon_burial_grounds();
+ //   // Shadowmoon Burial Grounds
+ //   AddSC_bonemaw();
+ //   AddSC_nerzul();
+ //   AddSC_nhalish();
+ //   AddSC_sadana();
+ //   AddSC_shadowmoon_burial_grounds();
+ //   AddSC_instance_shadowmoon_burial_grounds();
 
-    // Highmaul
-    AddSC_boss_twin_ogron();
-    AddSC_boss_the_butcher();
-    AddSC_boss_koragh();
-    AddSC_boss_kargath_bladefist();
-    AddSC_boss_imperator_margok();
-    AddSC_boss_brackenspore();
-    AddSC_boss_tectus();
-    AddSC_highmaul();
-    AddSC_instance_highmaul();
+ //   // Highmaul
+ //   AddSC_boss_twin_ogron();
+ //   AddSC_boss_the_butcher();
+ //   AddSC_boss_koragh();
+ //   AddSC_boss_kargath_bladefist();
+ //   AddSC_boss_imperator_margok();
+ //   AddSC_boss_brackenspore();
+ //   AddSC_boss_tectus();
+ //   AddSC_highmaul();
+ //   AddSC_instance_highmaul();
 }

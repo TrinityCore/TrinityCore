@@ -17,20 +17,20 @@
  */
 
 // This is where scripts' loading functions should be declared:
-void AddSC_darkmoon_canon();
-void AddSC_darkmoon_island();
-void AddSC_darkmoon_rabbit();
-void AddSC_darkmoon_tonk();
-void AddSC_darkmoon_whack_gnoll();
+//void AddSC_darkmoon_canon();
+//void AddSC_darkmoon_island();
+//void AddSC_darkmoon_rabbit();
+//void AddSC_darkmoon_tonk();
+//void AddSC_darkmoon_whack_gnoll();
 
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddDarkmoonIslandScripts()
 {
-    AddSC_darkmoon_canon();
-    AddSC_darkmoon_island();
-    AddSC_darkmoon_rabbit();
-    AddSC_darkmoon_tonk();
-    AddSC_darkmoon_whack_gnoll();
+    //AddSC_darkmoon_canon();
+    //AddSC_darkmoon_island();
+    //AddSC_darkmoon_rabbit();
+    //AddSC_darkmoon_tonk();
+    //AddSC_darkmoon_whack_gnoll();
 }

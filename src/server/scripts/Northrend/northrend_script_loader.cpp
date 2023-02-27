@@ -70,7 +70,7 @@ void AddSC_boss_gluth();
 void AddSC_boss_sapphiron();
 void AddSC_boss_four_horsemen();
 void AddSC_boss_faerlina();
-void AddSC_boss_heigan();
+//void AddSC_boss_heigan();
 void AddSC_boss_gothik();
 void AddSC_boss_thaddius();
 void AddSC_naxxramas();
@@ -208,7 +208,7 @@ void AddSC_sholazar_basin();
 void AddSC_storm_peaks();
 void AddSC_wintergrasp();
 void AddSC_zuldrak();
-void AddSC_crystalsong_forest();
+//void AddSC_crystalsong_forest();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -268,7 +268,7 @@ void AddNorthrendScripts()
     AddSC_boss_sapphiron();
     AddSC_boss_four_horsemen();
     AddSC_boss_faerlina();
-    AddSC_boss_heigan();
+    //AddSC_boss_heigan();
     AddSC_boss_gothik();
     AddSC_boss_thaddius();
     AddSC_naxxramas();
