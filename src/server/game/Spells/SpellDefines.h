@@ -435,7 +435,7 @@ struct TC_GAME_API CastSpellTargetArg
 
 struct TC_GAME_API CastSpellExtraArgs
 {
-    CastSpellExtraArgs() = default;
+    CastSpellExtraArgs();
     CastSpellExtraArgs(bool triggered) : TriggerFlags(triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE) {}
     CastSpellExtraArgs(TriggerCastFlags trigger) : TriggerFlags(trigger) {}
     CastSpellExtraArgs(Item* item) : TriggerFlags(TRIGGERED_FULL_MASK), CastItem(item) {}
@@ -443,6 +443,14 @@ struct TC_GAME_API CastSpellExtraArgs
     CastSpellExtraArgs(AuraEffect const* eff) : TriggerFlags(TRIGGERED_FULL_MASK) { SetTriggeringAura(eff); }
     CastSpellExtraArgs(Difficulty castDifficulty) : CastDifficulty(castDifficulty) {}
     CastSpellExtraArgs(SpellValueMod mod, int32 val) { SpellValueOverrides.AddMod(mod, val); }
+
+    CastSpellExtraArgs(CastSpellExtraArgs const& other);
+    CastSpellExtraArgs(CastSpellExtraArgs&& other) noexcept;
+
+    CastSpellExtraArgs& operator=(CastSpellExtraArgs const& other);
+    CastSpellExtraArgs& operator=(CastSpellExtraArgs&& other) noexcept;
+
+    ~CastSpellExtraArgs();
 
     CastSpellExtraArgs& SetTriggerFlags(TriggerCastFlags flag) { TriggerFlags = flag; return *this; }
     CastSpellExtraArgs& SetCastItem(Item* item) { CastItem = item; return *this; }
@@ -477,12 +485,6 @@ struct TC_GAME_API CastSpellExtraArgs
         std::vector<std::pair<SpellValueMod, int32>> data;
     } SpellValueOverrides;
     std::any CustomArg;
-
-    CastSpellExtraArgs(CastSpellExtraArgs const&) = delete;
-    CastSpellExtraArgs(CastSpellExtraArgs&&) = delete;
-
-    CastSpellExtraArgs& operator=(CastSpellExtraArgs const&) = delete;
-    CastSpellExtraArgs& operator=(CastSpellExtraArgs&&) = delete;
 };
 
 struct SpellCastVisual
