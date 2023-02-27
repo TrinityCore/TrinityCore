@@ -1,4 +1,4 @@
-//小女孩注释 2022年3月17日07:09:19 本文件为账号管理器  涉及权限定义与链接权限
+﻿//小女孩注释 2022年3月17日07:09:19 本文件为账号管理器  涉及权限定义与链接权限
 /*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *

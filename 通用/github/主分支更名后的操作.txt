@@ -1,0 +1,9 @@
+The default branch has been renamed!
+master is now named dev
+
+If you have a local clone, you can update it by running the following commands.
+
+git branch -m master dev
+git fetch origin
+git branch -u origin/dev dev
+git remote set-head origin -a
