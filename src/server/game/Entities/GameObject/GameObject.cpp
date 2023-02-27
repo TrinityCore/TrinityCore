@@ -1293,8 +1293,8 @@ void GameObject::Update(uint32 diff)
                         // Some traps do not have a spell but should be triggered
                         CastSpellExtraArgs args;
                         args.SetOriginalCaster(GetOwnerGUID());
-                        if (goInfo->trap.spell)
-                            CastSpell(target, goInfo->trap.spell, args);
+                        /*if (goInfo->trap.spell)
+                            CastSpell(target, goInfo->trap.spell, args);*/  //暂时不想弄
 
                         // Template value or 4 seconds
                         m_cooldownTime = GameTime::GetGameTimeMS() + (goInfo->trap.cooldown ? goInfo->trap.cooldown : uint32(4)) * IN_MILLISECONDS;
@@ -3122,14 +3122,13 @@ void GameObject::CastSpell(Unit* target, uint32 spellId, bool triggered /* = tru
     CastSpell(target, spellId, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE);
 }
 
-//void GameObject::CastSpell(Unit* target, uint32 spellId, TriggerCastFlags triggered)//暂时未用到,以后可以启用
+//void GameObject::CastSpell(Unit* target, uint32 spellId, TriggerCastFlags triggered)
 //{
 //    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, GetMap()->GetDifficultyID());
 //    if (!spellInfo)
 //        return;
-//
 //    bool self = false;
-//    for (SpellEffectInfo const* effect : spellInfo->GetEffects())
+//    for (SpellEffectInfo const* effect : &spellInfo->GetEffects())
 //    {
 //        if (effect && effect->TargetA.GetTarget() == TARGET_UNIT_CASTER)
 //        {
