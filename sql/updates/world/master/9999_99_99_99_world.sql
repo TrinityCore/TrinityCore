@@ -7,7 +7,7 @@ DELETE FROM `waypoint_data` WHERE `id` & 1;
 INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`) SELECT ((w.`entry` << 3) | 1), w.`pointid`, w.`position_x`, w.`position_y`, w.`position_z`, w.`orientation`, w.`delay` FROM `waypoints` w;
 
 UPDATE `smart_scripts` SET `action_param2`=((`action_param2` << 3) | 1) WHERE `action_type`=53 AND `action_param2` > 0;
-UPDATE `smart_scripts` SET `action_param1`=((`action_param1` << 3) | 1) WHERE `action_type`=113 AND `action_param1` > 0
+UPDATE `smart_scripts` SET `action_param1`=((`action_param1` << 3) | 1) WHERE `action_type`=113 AND `action_param1` > 0;
 UPDATE `smart_scripts` SET `action_param2`=((`action_param2` << 3) | 1) WHERE `action_type`=113 AND `action_param2` > 0;
 UPDATE `smart_scripts` SET `action_param3`=((`action_param3` << 3) | 1) WHERE `action_type`=113 AND `action_param3` > 0;
 UPDATE `smart_scripts` SET `action_param4`=((`action_param4` << 3) | 1) WHERE `action_type`=113 AND `action_param4` > 0;
