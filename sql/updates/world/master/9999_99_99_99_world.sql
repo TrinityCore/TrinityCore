@@ -10,3 +10,5 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 UPDATE `smart_scripts` SET `action_param2`=((`action_param2` << 3) | 1) WHERE `action_type`=53;
 UPDATE `smart_scripts` SET `action_param1`=((`action_param1` << 3) | 1), `action_param2`=((`action_param2` << 3) | 1), `action_param3`=((`action_param3` << 3) | 1), `action_param4`=((`action_param4` << 3) | 1), `action_param5`=((`action_param5` << 3) | 1), `action_param6`=((`action_param6` << 3) | 1), `action_param7`=((`action_param7` << 3) | 1) WHERE `action_type`=113;
 UPDATE `smart_scripts` SET `event_param2`=((`event_param2` << 3) | 1)  WHERE `event_type` IN(40, 55, 56, 57, 58);
+
+DROP TABLE IF EXISTS `waypoints`;
