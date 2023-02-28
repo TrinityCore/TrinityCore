@@ -152,7 +152,7 @@ struct npc_freed_protodrake : public VehicleAI
                         if (Unit* passenger = vehicle->GetPassenger(0))
                         {
                             Talk(TEXT_EMOTE, passenger);
-                            me->GetMotionMaster()->MovePath(NPC_DRAKE, false);
+                            me->GetMotionMaster()->MovePath(NPC_DRAKE << 3, false);
                         }
                 }
                 else
@@ -430,7 +430,7 @@ private:
 
 enum WildWyrm
 {
-    PATH_WILD_WYRM                      = 30275 * 10,
+    PATH_WILD_WYRM                      = (30275 * 10) << 3,
 
     // Phase 1
     SPELL_PLAYER_MOUNT_WYRM             = 56672,
@@ -725,8 +725,8 @@ enum JokkumScriptcast
 {
     NPC_KINGJOKKUM                   = 30331,
     NPC_THORIM                       = 30390,
-    PATH_JOKKUM                      = 2072200,
-    PATH_JOKKUM_END                  = 2072201,
+    PATH_JOKKUM                      = 16577600,
+    PATH_JOKKUM_END                  = 16577608,
     SAY_HOLD_ON                      = 0,
     SAY_JOKKUM_1                     = 1,
     SAY_JOKKUM_2                     = 2,

@@ -1,6 +1,12 @@
 -- Shift existing rows by 3 bits to reserve space for 3 other tables
 UPDATE `waypoint_data` SET `id`=(`id` << 3) ORDER BY `id` DESC;
 UPDATE `creature_addon` SET `path_id`=(`path_id` << 3);
+UPDATE `event_scripts` SET `datalong`=(`datalong` << 3) WHERE `command`=20 AND `datalong` > 0;
+UPDATE `event_scripts` SET `dataint`=(`dataint` << 3) WHERE `command`=35 AND `datalong`=2 AND `dataint` > 0;
+UPDATE `spell_scripts` SET `datalong`=(`datalong` << 3) WHERE `command`=20 AND `datalong` > 0;
+UPDATE `spell_scripts` SET `dataint`=(`dataint` << 3) WHERE `command`=35 AND `datalong`=2 AND `dataint` > 0;
+UPDATE `waypoint_scripts` SET `datalong`=(`datalong` << 3) WHERE `command`=20 AND `datalong` > 0;
+UPDATE `waypoint_scripts` SET `dataint`=(`dataint` << 3) WHERE `command`=35 AND `datalong`=2 AND `dataint` > 0;
 
 -- use bit 0 for waypoints
 DELETE FROM `waypoint_data` WHERE `id` & 1;
