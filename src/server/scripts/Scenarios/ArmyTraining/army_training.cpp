@@ -1,5 +1,6 @@
 ///*
 //    http://uwow.biz
+//    不知道哪来的广告,哈哈
 //*/
 //
 //#include "ScriptMgr.h"
@@ -20,18 +21,18 @@
 //
 //std::map<uint32, uint32> spellSummonMinion
 //{
-//    { ARMY_UNIT_COMMON, SPELL_SUMMON_COMMON },
-//    { ARMY_UNIT_BERSERK, SPELL_SUMMON_BERSERK },
-//    { ARMY_UNIT_MANA, SPELL_SUMMON_WANTED_MANA },
-//    { ARMY_UNIT_MAGE, SPELL_SUMMON_MAGE },
+//    //{ ARMY_UNIT_COMMON, SPELL_SUMMON_COMMON },
+//    //{ ARMY_UNIT_BERSERK, SPELL_SUMMON_BERSERK },
+//    //{ ARMY_UNIT_MANA, SPELL_SUMMON_WANTED_MANA },
+//    //{ ARMY_UNIT_MAGE, SPELL_SUMMON_MAGE },
 //};
 //
 //std::map<uint32, uint32> typeMinionByEntry
 //{
-//    { NPC_COMMON_MINION , ARMY_UNIT_COMMON },
-//    { NPC_BERSERK , ARMY_UNIT_BERSERK },
-//    { NPC_WANTED_MANA , ARMY_UNIT_MANA },
-//    { NPC_MAGE , ARMY_UNIT_MAGE },
+//    //{ NPC_COMMON_MINION , ARMY_UNIT_COMMON },
+//    //{ NPC_BERSERK , ARMY_UNIT_BERSERK },
+//    //{ NPC_WANTED_MANA , ARMY_UNIT_MANA },
+//    //{ NPC_MAGE , ARMY_UNIT_MAGE },
 //};
 //
 //
@@ -41,7 +42,7 @@
 //public:
 //    npc_army_training_talysra() : CreatureScript("npc_army_training_talysra") { }
 //
-//    bool OnGossipHello(Player* player, Creature* creature) override
+//    bool OnGossipHello(Player* player, Creature* creature) 
 //    {
 //        InstanceScript *script = player->GetInstanceScript();
 //
@@ -62,7 +63,7 @@
 //        return true;
 //    }
 //
-//    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+//    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) 
 //    {
 //        switch (action)
 //        {
@@ -475,13 +476,13 @@
 //        OnEffectHitTarget += SpellEffectFn(spell_army_training_open::HandleDummy, SpellEffIndex::EFFECT_0, SpellEffects::SPELL_EFFECT_DUMMY);
 //    }
 //};
-//
-//
-//void AddSC_army_training()
-//{
-//    new npc_army_training_talysra();
-//    RegisterCreatureAI(npc_army_training_minions);
-//    RegisterGameObjectAI(go_army_training_chests);
-//    RegisterAuraScript(spell_army_training_tick);
-//    RegisterSpellScript(spell_army_training_open);
-//};
+
+
+void AddSC_army_training()
+{
+    /*new npc_army_training_talysra();
+    RegisterCreatureAI(npc_army_training_minions);
+    RegisterGameObjectAI(go_army_training_chests);
+    RegisterAuraScript(spell_army_training_tick);
+    RegisterSpellScript(spell_army_training_open);*/
+};

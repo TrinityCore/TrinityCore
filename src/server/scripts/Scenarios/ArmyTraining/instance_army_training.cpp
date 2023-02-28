@@ -3,14 +3,14 @@
 //    army_training
 //*/
 //
-//#include "ScriptMgr.h"
-//#include "ScriptedCreature.h"
+//#include "scriptmgr.h"
+//#include "scriptedcreature.h"
 //#include "army_training.h"
-//#include "Packets/WorldStatePackets.h"
+//#include "packets/worldstatepackets.h"
 //
 //
 //// main loot 252452 (win) + 251953 (fail)
-//std::map<uint32, uint32> gosChestToLootChest
+//std::map<uint32, uint32> goschesttolootchest
 //{
 //    { 252452 , 252452 },
 //    { 251953 , 251953 },
@@ -36,65 +36,65 @@
 //    // 5 bloods ?????
 //};
 //
-//class instance_army_training : public InstanceMapScript
+//class instance_army_training : public instancemapscript
 //{
 //public:
-//    instance_army_training() : InstanceMapScript("instance_army_training", 1626) { }
+//    instance_army_training() : instancemapscript("instance_army_training", 1626) { }
 //
-//    InstanceScript* GetInstanceScript(InstanceMap* map) const override
+//    instancescript* getinstancescript(instancemap* map) const override
 //    {
-//        return new instance_army_training_InstanceMapScript(map);
+//        return new instance_army_training_instancemapscript(map);
 //    }
 //
-//    struct instance_army_training_InstanceMapScript : public InstanceScript
+//    struct instance_army_training_instancemapscript : public instancescript
 //    {
-//        //instance_army_training_InstanceMapScript(Map* map) : InstanceScript(map) {}
+//        //instance_army_training_instancemapscript(map* map) : instancescript(map) {}
 //
-//        std::map<uint32, ObjectGuid> chestsGuids{};
-//        std::vector<ObjectGuid> spectralChests{};
-//        std::map<uint32, ObjectGuid> lootChests{};
+//        std::map<uint32, objectguid> chestsguids{};
+//        std::vector<objectguid> spectralchests{};
+//        std::map<uint32, objectguid> lootchests{};
 //
-//        std::vector<uint32> findChests{};
+//        std::vector<uint32> findchests{};
 //        uint32 points{};
-//        ObjectGuid gateGuid{};
+//        objectguid gateguid{};
 //
-//        void OnCreatureCreate(Creature* creature) override
+//        void oncreaturecreate(creature* creature) override
 //        {
-//            InstanceScript::OnCreatureCreate(creature);
+//            instancescript::oncreaturecreate(creature);
 //
-//            switch (creature->GetEntry())
+//            switch (creature->getentry())
 //            {
-//            case NPC_WITHERED_SPELL_CLICK:
+//            case npc_withered_spell_click:
 //                if (urand(1, 4) == 4)
-//                    creature->SetVisible(false);
+//                    creature->setvisible(false);
 //                break;
 //            case 110375:
-//                creature->SetReactState(REACT_PASSIVE);
+//                creature->setreactstate(react_passive);
 //                break;
 //            }
 //        }
 //
-//        void OnPlayerLeave(Player* player)
+//        void onplayerleave(player* player)
 //        {
-//            player->RemoveAurasDueToSpell(SPELL_STARTED_OVERRIDE);
-//            player->RemoveAurasDueToSpell(SPELL_COUNT_MINIONS);
-//            player->RemoveAurasDueToSpell(SPELL_TELE_END);
+//            player->removeaurasduetospell(spell_started_override);
+//            player->removeaurasduetospell(spell_count_minions);
+//            player->removeaurasduetospell(spell_tele_end);
 //        }
 //
-//        void CreatureDies(Creature* creature, Unit* killer)
+//        void creaturedies(creature* creature, unit* killer)
 //        {
-//            switch (creature->GetEntry())
+//            switch (creature->getentry())
 //            {
 //            case 110380:
 //            {
-//                if (GameObject* gate = instance->GetGameObject(gateGuid))
-//                    HandleGameObject(gate->GetGUID(), true, gate);
+//                if (gameobject* gate = instance->getgameobject(gateguid))
+//                    handlegameobject(gate->getguid(), true, gate);
 //                // no break
 //            }
 //            case 110771:
 //            case 110954:
 //            case 110381:
-//                DoUpdateWorldState(static_cast<WorldStates>(12174), 10);
+//                doupdateworldstate(static_cast<worldstates>(12174), 10);
 //                points += 10;
 //                break;
 //            case 110028:
@@ -107,68 +107,68 @@
 //            case 110373: //
 //            case 110383:
 //            case 110386:
-//                DoUpdateWorldState(static_cast<WorldStates>(12174), 3);
+//                doupdateworldstate(static_cast<worldstates>(12174), 3);
 //                points += 3;
 //                break;
 //            case 110375:
 //            {
-//                Map::PlayerList const& players = instance->GetPlayers();
-//                if (players.isEmpty())
+//                map::playerlist const& players = instance->getplayers();
+//                if (players.isempty())
 //                    return;
 //
-//                Player* pplayer = players.begin()->getSource();
+//                player* pplayer = players.begin()->getsource();
 //                if (!pplayer)
 //                    return;
 //
-//                creature->CastSpell(creature, (urand(1, 2) == 1 ? 223091 : 223744), true, nullptr, nullptr, pplayer->GetGUID());
+//                creature->castspell(creature, (urand(1, 2) == 1 ? 223091 : 223744), true, nullptr, nullptr, pplayer->getguid());
 //                // no break
 //            }
 //            case 110371:
 //            case 110376:
 //            case 114267:
 //            case 112412:
-//                DoUpdateWorldState(static_cast<WorldStates>(12174), 1);
+//                doupdateworldstate(static_cast<worldstates>(12174), 1);
 //                points += 1;
 //                break;
-//            case NPC_MAGE:
+//            case npc_mage:
 //            {
-//                Map::PlayerList const& players = instance->GetPlayers();
-//                if (players.isEmpty())
+//                map::playerlist const& players = instance->getplayers();
+//                if (players.isempty())
 //                    return;
 //
-//                Player* pplayer = players.begin()->getSource();
+//                player* pplayer = players.begin()->getsource();
 //                if (!pplayer)
 //                    return;
 //
-//                if (!pplayer->armyTrainingInfo.currentUnits[ARMY_UNIT_MAGE].empty())
+//                if (!pplayer->armytraininginfo.currentunits[army_unit_mage].empty())
 //                    return;
 //
-//                for (auto guid : spectralChests)
-//                    if (GameObject* go = instance->GetGameObject(guid))
+//                for (auto guid : spectralchests)
+//                    if (gameobject* go = instance->getgameobject(guid))
 //                    {
-//                        go->SetRespawnTime(0);
-//                        go->Delete();
+//                        go->setrespawntime(0);
+//                        go->delete();
 //                    }
 //                break;
 //            }
 //            }
 //        }
 //
-//        void OnGameObjectCreate(GameObject* go) override
+//        void ongameobjectcreate(gameobject* go) override
 //        {
-//            InstanceScript::OnGameObjectCreate(go);
+//            instancescript::ongameobjectcreate(go);
 //
-//            switch (go->GetEntry())
+//            switch (go->getentry())
 //            {
 //                case 251785:
-//                    gateGuid = go->GetGUID();
+//                    gateguid = go->getguid();
 //                    break;
 //                case 251729:
 //                case 251731:
 //                case 251724:
 //                case 251744: // ???
 //                case 251730: // ???
-//                    spectralChests.push_back( go->GetGUID());
+//                    spectralchests.push_back( go->getguid());
 //                    // no break
 //                case 251728:
 //                case 251665:
@@ -182,7 +182,7 @@
 //                case 251741:
 //                case 251726:
 //                case 251727:
-//                    chestsGuids[go->GetEntry()] = go->GetGUID();
+//                    chestsguids[go->getentry()] = go->getguid();
 //                    break;
 //                case 251748:
 //                case 251752:
@@ -203,123 +203,123 @@
 //                case 251668:
 //                case 251758:
 //                case 251757:
-//                    lootChests[go->GetEntry()] = go->GetGUID();
+//                    lootchests[go->getentry()] = go->getguid();
 //                    break;
 //                case 251954:
 //                    if (urand(1, 3) == 3)
-//                        go->SetPhaseMask(2, true);
+//                        go->setphasemask(2, true);
 //                    break;
 //            }
 //        }
 //
-//        void OnPlayerEnter(Player* player) override
+//        void onplayerenter(player* player) override
 //        {
-//            AddDelayedEvent(5000, [&]() -> void
+//            adddelayedevent(5000, [&]() -> void
 //            {
-//                Map::PlayerList const& players = instance->GetPlayers();
-//                if (players.isEmpty())
+//                map::playerlist const& players = instance->getplayers();
+//                if (players.isempty())
 //                    return;
 //
-//                Player* pplayer = players.begin()->getSource();
+//                player* pplayer = players.begin()->getsource();
 //                if (!pplayer)
 //                    return;
 //
-//                for (auto entry : pplayer->armyTrainingInfo.justFindedChest)
-//                    if (chestsGuids.find(entry) != chestsGuids.end())
-//                        if (GameObject* go = instance->GetGameObject(chestsGuids[entry]))
-//                            go->SetPhaseMask(2, true);
+//                for (auto entry : pplayer->armytraininginfo.justfindedchest)
+//                    if (chestsguids.find(entry) != chestsguids.end())
+//                        if (gameobject* go = instance->getgameobject(chestsguids[entry]))
+//                            go->setphasemask(2, true);
 //
-//                if (!pplayer->armyTrainingInfo.justOpenedUnits[ARMY_UNIT_MAGE - 1])
-//                    for (auto guid : spectralChests)
-//                        if (GameObject* go = instance->GetGameObject(guid))
-//                            go->SetRespawnTime(-1);
+//                if (!pplayer->armytraininginfo.justopenedunits[army_unit_mage - 1])
+//                    for (auto guid : spectralchests)
+//                        if (gameobject* go = instance->getgameobject(guid))
+//                            go->setrespawntime(-1);
 //            });
 //        }
 //
-//        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override
+//        void fillinitialworldstates(worldpackets::worldstate::initworldstates& packet) override
 //        {
-//            packet.Worldstates.emplace_back(static_cast<WorldStates>(12103), 0);
-//            packet.Worldstates.emplace_back(static_cast<WorldStates>(12104), 0);
-//            packet.Worldstates.emplace_back(static_cast<WorldStates>(12155), 0);
-//            packet.Worldstates.emplace_back(static_cast<WorldStates>(12174), 1);
-//            packet.Worldstates.emplace_back(static_cast<WorldStates>(12882), 1);
-//            packet.Worldstates.emplace_back(static_cast<WorldStates>(12884), 1);
+//            packet.worldstates.emplace_back(static_cast<worldstates>(12103), 0);
+//            packet.worldstates.emplace_back(static_cast<worldstates>(12104), 0);
+//            packet.worldstates.emplace_back(static_cast<worldstates>(12155), 0);
+//            packet.worldstates.emplace_back(static_cast<worldstates>(12174), 1);
+//            packet.worldstates.emplace_back(static_cast<worldstates>(12882), 1);
+//            packet.worldstates.emplace_back(static_cast<worldstates>(12884), 1);
 //        }
 //
-//        void SetData(uint32 type, uint32 val) override
+//        void setdata(uint32 type, uint32 val) override
 //        {
-//            findChests.push_back(type);
+//            findchests.push_back(type);
 //        }
 //
-//        void OnLootChestOpen(Player* player, Loot* loot, const GameObject* go) override
+//        void onlootchestopen(player* player, loot* loot, const gameobject* go) override
 //        {
 //            if (!go)
 //                return;
 //
-//            if (go->GetEntry() == 251953 || go->GetEntry() == 252452)
+//            if (go->getentry() == 251953 || go->getentry() == 252452)
 //            {
 //                if (points > 425)
 //                    points = 425;
 //
 //                for (; points >= 100; points -= 100)
-//                    loot->AddItem(LootStoreItem((urand(1, 2) == 1 ? 141870 : 147416), LOOT_ITEM_TYPE_ITEM, 100, 1, 0, 1, 1));
+//                    loot->additem(lootstoreitem((urand(1, 2) == 1 ? 141870 : 147416), loot_item_type_item, 100, 1, 0, 1, 1));
 //                for (; points >= 25; points -= 25)
-//                    loot->AddItem(LootStoreItem((urand(1, 2) == 1 ? 147418 : 140260), LOOT_ITEM_TYPE_ITEM, 100, 1, 0, 1, 1));
+//                    loot->additem(lootstoreitem((urand(1, 2) == 1 ? 147418 : 140260), loot_item_type_item, 100, 1, 0, 1, 1));
 //            }
 //        }
 //        
-//        void onScenarionNextStep(uint32 newStep) override
+//        void onscenarionnextstep(uint32 newstep) override
 //        {
-//            if (newStep != 2)
+//            if (newstep != 2)
 //                return;
 //
-//            Map::PlayerList const& players = instance->GetPlayers();
-//            if (players.isEmpty())
+//            map::playerlist const& players = instance->getplayers();
+//            if (players.isempty())
 //                return;
 //
-//            Player* pplayer = players.begin()->getSource();
+//            player* pplayer = players.begin()->getsource();
 //            if (!pplayer)
 //                return;
 //
-//            for (uint8 i = ARMY_UNIT_COMMON; i < ARMY_UNITS_MAX; ++i)
+//            for (uint8 i = army_unit_common; i < army_units_max; ++i)
 //            {
-//                for (auto guid : pplayer->armyTrainingInfo.currentUnits[i])
-//                    if (Creature* summon = Unit::GetCreature(*pplayer, guid))
-//                        summon->DespawnOrUnsummon();
+//                for (auto guid : pplayer->armytraininginfo.currentunits[i])
+//                    if (creature* summon = unit::getcreature(*pplayer, guid))
+//                        summon->despawnorunsummon();
 //
-//                pplayer->armyTrainingInfo.currentUnits[i].clear();
+//                pplayer->armytraininginfo.currentunits[i].clear();
 //            }
 //
-//            //pplayer->CastSpell(pplayer, SPELL_TELE_END, true);
+//            //pplayer->castspell(pplayer, spell_tele_end, true);
 //
-//            pplayer->CreateConversation(CONV_TELE);
-//            pplayer->AddDelayedEvent(4000, [pplayer]() -> void
+//            pplayer->createconversation(conv_tele);
+//            pplayer->adddelayedevent(4000, [pplayer]() -> void
 //            {
-//                pplayer->TeleportTo(1626, 2085.09f, 5399.86f, 47.33f, 6.04f, TELE_TO_SEAMLESS);
+//                pplayer->teleportto(1626, 2085.09f, 5399.86f, 47.33f, 6.04f, tele_to_seamless);
 //            });
 //
 //            // 252452 (win) + 251953 (fail)
 //            if (points >= 425)
-//                findChests.push_back(252452);
+//                findchests.push_back(252452);
 //            else
-//                findChests.push_back(251953);
+//                findchests.push_back(251953);
 //
-//            for (auto id : findChests)
+//            for (auto id : findchests)
 //            {
 //                if (id != 251953 && id != 252452)
-//                    pplayer->armyTrainingInfo.justFindedChest.insert(id);
+//                    pplayer->armytraininginfo.justfindedchest.insert(id);
 //
-//                if (GameObject* go = instance->GetGameObject(lootChests[gosChestToLootChest[id]]))
-//                    go->SetRespawnTime(86400);
+//                if (gameobject* go = instance->getgameobject(lootchests[goschesttolootchest[id]]))
+//                    go->setrespawntime(86400);
 //            }
-//            pplayer->armyTrainingInfo.needSave = true;
+//            pplayer->armytraininginfo.needsave = true;
 //        }
 //
-//        void Update(uint32 diff) override {}
+//        void update(uint32 diff) override {}
 //    };
 //};
 //
-//void AddSC_instance_army_training()
+//void addsc_instance_army_training()
 //{
 //    new instance_army_training();
 //}
