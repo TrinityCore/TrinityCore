@@ -1510,31 +1510,31 @@ public:
             {
                 handler->PSendSysMessage(" |-- '%s' (%u)", groupData->name.c_str(), pair.first);
                 bool isBlocked = false, isSpawned = false;
-                for (auto const& tuple : pair.second)
-                {
-                    bool const isSpawn = std::get<0>(tuple);
-                    uint8 const bossStateId = std::get<1>(tuple);
-                    EncounterState const actualState = instance->GetBossState(bossStateId);
-                    if (std::get<2>(tuple) & (1 << actualState))
-                    {
-                        if (isSpawn)
-                        {
-                            isSpawned = true;
-                            if (isBlocked)
-                                handler->PSendSysMessage(" | |-- '%s' would be allowed to spawn by boss state %u being %s, but this is overruled", groupData->name.c_str(), bossStateId, InstanceScript::GetBossStateName(actualState));
-                            else
-                                handler->PSendSysMessage(" | |-- '%s' is allowed to spawn because boss state %u is %s.", groupData->name.c_str(), bossStateId, InstanceScript::GetBossStateName(bossStateId));
-                        }
-                        else
-                        {
-                            isBlocked = true;
-                            handler->PSendSysMessage(" | |-- '%s' is blocked from spawning because boss state %u is %s.", groupData->name.c_str(), bossStateId, InstanceScript::GetBossStateName(bossStateId));
-                        }
-                    }
-                    else
-                        handler->PSendSysMessage(" | |-- '%s' could've been %s if boss state %u matched mask 0x%02x; but it is %s -> 0x%02x, which does not match.",
-                            groupData->name.c_str(), isSpawn ? "allowed to spawn" : "blocked from spawning", bossStateId, std::get<2>(tuple), InstanceScript::GetBossStateName(actualState), (1 << actualState));
-                }
+                //for (auto const& tuple : pair.second)
+                //{
+                //    bool const isSpawn = std::get<0>(tuple);
+                //    uint8 const bossStateId = std::get<1>(tuple);
+                //    EncounterState const actualState = instance->GetBossState(bossStateId);
+                //    if (std::get<2>(tuple) & (1 << actualState))
+                //    {
+                //        if (isSpawn)
+                //        {
+                //            isSpawned = true;
+                //            if (isBlocked)
+                //                handler->PSendSysMessage(" | |-- '%s' would be allowed to spawn by boss state %u being %s, but this is overruled", groupData->name.c_str(), bossStateId, InstanceScript::GetBossStateName(actualState));
+                //            else
+                //                handler->PSendSysMessage(" | |-- '%s' is allowed to spawn because boss state %u is %s.", groupData->name.c_str(), bossStateId, InstanceScript::GetBossStateName(bossStateId));
+                //        }
+                //        else
+                //        {
+                //            isBlocked = true;
+                //            handler->PSendSysMessage(" | |-- '%s' is blocked from spawning because boss state %u is %s.", groupData->name.c_str(), bossStateId, InstanceScript::GetBossStateName(bossStateId));
+                //        }
+                //    }
+                //    else
+                //        handler->PSendSysMessage(" | |-- '%s' could've been %s if boss state %u matched mask 0x%02x; but it is %s -> 0x%02x, which does not match.",
+                //            groupData->name.c_str(), isSpawn ? "allowed to spawn" : "blocked from spawning", bossStateId, std::get<2>(tuple), InstanceScript::GetBossStateName(actualState), (1 << actualState));
+                //}
                 if (isBlocked)
                     handler->PSendSysMessage(" | |=> '%s' is not active due to a blocking rule being matched", groupData->name.c_str());
                 else if (isSpawned)

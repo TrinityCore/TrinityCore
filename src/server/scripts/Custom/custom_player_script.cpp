@@ -442,7 +442,7 @@ enum GenericMissingPlayerSpells
     SPELL_GEN_HUNTER_DISMISS_PET = 2641,
     SPELL_GEN_HUNTER_FEED_PET = 6991,
     SPELL_GEN_HUNTER_MEND_PET = 136,
-    SPELL_GEN_HUNTER_REVIVE_PET = 982,//ÁÔÈË¸´»î³èÎï¼¼ÄÜ
+    SPELL_GEN_HUNTER_REVIVE_PET = 982,//çŒŽäººå¤æ´»å® ç‰©æŠ€èƒ½
     SPELL_GEN_HUNTER_TAME_BEAST = 1515,
     SPELL_GEN_HUNTER_FREEZING_TRAP = 187650,
 
@@ -749,8 +749,8 @@ public:
             {
                 uint8 count = aura->GetStackAmount();
                 aura->SetStackAmount(1);
-                if (InstanceScript* instance = killer->GetInstanceScript())
-                    instance->GiveIslandAzeriteXpGain(killer, killed->GetGUID(), count);
+                /*if (InstanceScript* instance = killer->GetInstanceScript())
+                    instance->GiveIslandAzeriteXpGain(killer, killed->GetGUID(), count);*/
             }
         }
     }
@@ -764,8 +764,8 @@ public:
             {
                 uint8 count = aura->GetStackAmount();
                 aura->SetStackAmount(1);
-                if (InstanceScript* instance = killer->GetInstanceScript())
-                    instance->GiveIslandAzeriteXpGain(killer, killed->GetGUID(), count);
+               /* if (InstanceScript* instance = killer->GetInstanceScript())
+                    instance->GiveIslandAzeriteXpGain(killer, killed->GetGUID(), count);*/
             }
         }
     }

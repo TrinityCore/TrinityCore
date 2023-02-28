@@ -200,8 +200,8 @@
 ////The Reckoning
 //void AddSC_Boss_Sylvanas_Windrunner();
 ////Shadowland
-//void AddShadowlandsScripts()
-//{
+void AddShadowlandsScripts()
+{
 //	//Zones
 //	AddSC_zone_exiles_reach();
 //	AddSC_zone_bastion();
@@ -304,4 +304,4 @@
 //        AddSC_Boss_Sylvanas_Windrunner();
 //        //Shadowland
 //    AddShadowlandsScripts()
-//}
+}
