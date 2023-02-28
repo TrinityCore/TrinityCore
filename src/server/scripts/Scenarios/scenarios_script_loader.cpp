@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+void AddSC_instance_a_brewing_storm();//风暴烈酒场景战役?
 //void AddSC_stormwind_extraction();
 //void AddSC_scenario_stormwind_extraction();
 //void AddSC_uncharted_island_tutorial();
@@ -25,6 +26,7 @@ void AddSC_scenario_pursuing_the_black_harvest();
 
 void AddScenariosScripts()
 {
+    AddSC_instance_a_brewing_storm();//风暴烈酒场景战役?
     //AddSC_stormwind_extraction();
     //AddSC_scenario_stormwind_extraction();
     //AddSC_uncharted_island_tutorial();

@@ -29,7 +29,7 @@
 //class instance_a_little_patience : public InstanceMapScript
 //{
 //public:
-//  //  void instance_a_little_patience(); InstanceMapScript("instance_a_little_patience", 1104); { }
+//     instance_a_little_patience(): InstanceMapScript(RLPScriptName, 1104) { }
 //
 //    InstanceScript* GetInstanceScript(InstanceMap* map) const
 //    {
@@ -39,8 +39,7 @@
 //    struct instance_a_little_patience_InstanceMapScript : public InstanceScript
 //    {
 //
-//        void instance_a_little_patience(Map* map); InstanceScript(map);
-//
+//        instance_a_little_patience_InstanceMapScript(InstanceMap* map) : InstanceScript(map) {}
 //
 //        void Initialize()
 //        {
@@ -82,3 +81,9 @@
 //    };
 // 
 //};
+
+void AddSC_instance_a_little_patience()
+{
+    //new instance_a_little_patience();
+}
+

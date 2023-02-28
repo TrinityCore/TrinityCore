@@ -16,24 +16,31 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEF_A_LITTLE_PATIENCE
-#define DEF_A_LITTLE_PATIENCE
-
-enum Spells
-{
-};
-
-enum Data
-{
-    DATA_NONE,
-};
-
-enum eCreatures
-{
-};
-
-enum eGameObects
-{
-};
-
-#endif
+//#ifndef DEF_A_LITTLE_PATIENCE
+//#define DEF_A_LITTLE_PATIENCE
+//
+//
+//#include "CreatureAIImpl.h"
+//
+//#define DataHeader "RLP"
+//#define RLPScriptName "a_little_patience"
+//
+////
+////enum Spells
+////{
+////};
+////
+////enum Data
+////{
+////    DATA_NONE,
+////};
+////
+////enum eCreatures
+////{
+////};
+////
+////enum eGameObects
+////{
+////};
+//
+//#endif
