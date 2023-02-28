@@ -2187,7 +2187,7 @@ void AuraEffect::HandleFeignDeath(AuraApplication const* aurApp, uint8 mode, boo
 
         // prevent interrupt message
         if (GetCasterGUID() == target->GetGUID() && target->GetCurrentSpell(CURRENT_GENERIC_SPELL))
-            target->FinishSpell(CURRENT_GENERIC_SPELL, false);
+            target->FinishSpell(CURRENT_GENERIC_SPELL, SPELL_FAILED_INTERRUPTED);
         target->InterruptNonMeleeSpells(true);
 
         // stop handling the effect if it was removed by linked event
@@ -2325,7 +2325,7 @@ void AuraEffect::HandleAuraModSilence(AuraApplication const* aurApp, uint8 mode,
 
     if (apply)
     {
-        target->SetUnitFlag(UNIT_FLAG_SILENCED);
+        target->SetSilencedSchoolMask(SpellSchoolMask(GetMiscValue()));
 
         // call functions which may have additional effects after changing state of unit
         // Stop cast only spells vs PreventionType & SPELL_PREVENTION_TYPE_SILENCE
@@ -2337,11 +2337,14 @@ void AuraEffect::HandleAuraModSilence(AuraApplication const* aurApp, uint8 mode,
     }
     else
     {
-        // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
-        if (target->HasAuraType(SPELL_AURA_MOD_SILENCE) || target->HasAuraType(SPELL_AURA_MOD_PACIFY_SILENCE))
-            return;
+        int32 silencedSchoolMask = 0;
+        for (AuraEffect const* auraEffect : target->GetAuraEffectsByType(SPELL_AURA_MOD_SILENCE))
+            silencedSchoolMask |= auraEffect->GetMiscValue();
 
-        target->RemoveUnitFlag(UNIT_FLAG_SILENCED);
+        for (AuraEffect const* auraEffect : target->GetAuraEffectsByType(SPELL_AURA_MOD_PACIFY_SILENCE))
+            silencedSchoolMask |= auraEffect->GetMiscValue();
+
+        target->ReplaceAllSilencedSchoolMask(SpellSchoolMask(silencedSchoolMask));
     }
 }
 
