@@ -275,7 +275,8 @@ void LootStore::ReportNonExistingId(uint32 lootId) const
 
 void LootStore::ReportNonExistingId(uint32 lootId, char const* ownerType, uint32 ownerId) const
 {
-    TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} does not exist but it is used by {} {}", GetName(), lootId, ownerType, ownerId);
+    //TC_LOG_ERROR("sql.sql", "Table '{}' Entry {} does not exist but it is used by {} {}", GetName(), lootId, ownerType, ownerId);
+    //预计此处是控制台输出**表中**不存在,但是被**使用,临时注释,减少启动报错条目
 }
 
 //
