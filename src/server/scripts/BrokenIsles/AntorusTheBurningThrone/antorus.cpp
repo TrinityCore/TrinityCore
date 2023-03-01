@@ -674,7 +674,7 @@ void AddSC_antorus()
     new npt_atbt_tele_gates;
     new npc_atbt_muradin();
     new spell_atbt_bound_by_fel();
-    RegisterAuraScript(spell_atbt_bound_by_fel);
+    //RegisterAuraScript(spell_atbt_bound_by_fel);
     new spell_atbt_soulburn();
     //RegisterAuraScript(spell_atbt_soulburn);
     RegisterSpellScript(spell_atbt_anihilation);
