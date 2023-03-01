@@ -596,12 +596,12 @@ void MotionMaster::MoveTargetedHome()
     }
 }
 
-void MotionMaster::MoveRandom(float wanderDistance)
+void MotionMaster::MoveRandom(float wanderDistance, Optional<Milliseconds> duration)
 {
     if (_owner->GetTypeId() == TYPEID_UNIT)
     {
         TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveRandom: '{}', started random movement (spawnDist: {})", _owner->GetGUID().ToString(), wanderDistance);
-        Add(new RandomMovementGenerator<Creature>(wanderDistance), MOTION_SLOT_DEFAULT);
+        Add(new RandomMovementGenerator<Creature>(wanderDistance, duration), MOTION_SLOT_DEFAULT);
     }
 }
 
