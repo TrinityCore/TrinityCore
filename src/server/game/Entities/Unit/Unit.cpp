@@ -2946,7 +2946,7 @@ void Unit::InterruptSpell(CurrentSpellTypes spellType, bool withDelayed, bool wi
     }
 }
 
-void Unit::FinishSpell(CurrentSpellTypes spellType, bool ok /*= true*/)
+void Unit::FinishSpell(CurrentSpellTypes spellType, SpellCastResult result /*= SPELL_CAST_OK*/)
 {
     Spell* spell = m_currentSpells[spellType];
     if (!spell)
@@ -2955,7 +2955,7 @@ void Unit::FinishSpell(CurrentSpellTypes spellType, bool ok /*= true*/)
     if (spellType == CURRENT_CHANNELED_SPELL)
         spell->SendChannelUpdate(0);
 
-    spell->finish(ok);
+    spell->finish(result);
 }
 
 bool Unit::IsNonMeleeSpellCast(bool withDelayed, bool skipChanneled, bool skipAutorepeat, bool isAutoshoot, bool skipInstant) const
@@ -11667,7 +11667,7 @@ void Unit::SetAuraStack(uint32 spellId, Unit* target, uint32 stack)
         aura->SetStackAmount(stack);
 }
 
-void Unit::SendPlaySpellVisual(Unit* target, uint32 spellVisualId, uint16 missReason, uint16 reflectStatus, float travelSpeed, bool speedAsTime /*= false*/)
+void Unit::SendPlaySpellVisual(Unit* target, uint32 spellVisualId, uint16 missReason, uint16 reflectStatus, float travelSpeed, bool speedAsTime /*= false*/, float launchDelay /*= 0.0f*/)
 {
     WorldPackets::Spells::PlaySpellVisual playSpellVisual;
     playSpellVisual.Source = GetGUID();
@@ -11678,6 +11678,21 @@ void Unit::SendPlaySpellVisual(Unit* target, uint32 spellVisualId, uint16 missRe
     playSpellVisual.MissReason = missReason;
     playSpellVisual.ReflectStatus = reflectStatus;
     playSpellVisual.SpeedAsTime = speedAsTime;
+    playSpellVisual.LaunchDelay = launchDelay;
+    SendMessageToSet(playSpellVisual.Write(), true);
+}
+
+void Unit::SendPlaySpellVisual(Position const& targetPosition, uint32 spellVisualId, uint16 missReason, uint16 reflectStatus, float travelSpeed, bool speedAsTime /*= false*/, float launchDelay /*= 0.0f*/)
+{
+    WorldPackets::Spells::PlaySpellVisual playSpellVisual;
+    playSpellVisual.Source = GetGUID();
+    playSpellVisual.TargetPosition = targetPosition;
+    playSpellVisual.SpellVisualID = spellVisualId;
+    playSpellVisual.TravelSpeed = travelSpeed;
+    playSpellVisual.MissReason = missReason;
+    playSpellVisual.ReflectStatus = reflectStatus;
+    playSpellVisual.SpeedAsTime = speedAsTime;
+    playSpellVisual.LaunchDelay = launchDelay;
     SendMessageToSet(playSpellVisual.Write(), true);
 }
 
@@ -11687,20 +11702,6 @@ void Unit::SendCancelSpellVisual(uint32 id)
     cancelSpellVisual.Source = GetGUID();
     cancelSpellVisual.SpellVisualID = id;
     SendMessageToSet(cancelSpellVisual.Write(), true);
-}
-
-void Unit::SendPlaySpellVisual(Position const& targetPosition, float launchDelay, uint32 spellVisualId, uint16 missReason, uint16 reflectStatus, float travelSpeed, bool speedAsTime /*= false*/)
-{
-    WorldPackets::Spells::PlaySpellVisual playSpellVisual;
-    playSpellVisual.Source = GetGUID();
-    playSpellVisual.TargetPosition = targetPosition;
-    playSpellVisual.LaunchDelay = launchDelay;
-    playSpellVisual.SpellVisualID = spellVisualId;
-    playSpellVisual.TravelSpeed = travelSpeed;
-    playSpellVisual.MissReason = missReason;
-    playSpellVisual.ReflectStatus = reflectStatus;
-    playSpellVisual.SpeedAsTime = speedAsTime;
-    SendMessageToSet(playSpellVisual.Write(), true);
 }
 
 void Unit::SendPlaySpellVisualKit(uint32 id, uint32 type, uint32 duration) const
