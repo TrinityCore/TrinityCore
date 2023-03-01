@@ -1,4 +1,4 @@
-// 小女孩注释 2022年3月16日15:34:43 本文件是对hotfixes数据库的多种数据库操作进行预存储,涉及各种db2
+﻿// 小女孩注释 2022年3月16日15:34:43 本文件是对hotfixes数据库的多种数据库操作进行预存储,涉及各种db2
 /*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *

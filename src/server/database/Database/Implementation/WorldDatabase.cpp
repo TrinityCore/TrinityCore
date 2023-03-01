@@ -1,4 +1,4 @@
-//小女孩注释 2022年3月16日15:39:16 本文件是对世界数据库的各种操作进行SQL预存储
+﻿//小女孩注释 2022年3月16日15:39:16 本文件是对世界数据库的各种操作进行SQL预存储
 /*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *

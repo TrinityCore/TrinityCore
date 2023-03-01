@@ -1,4 +1,4 @@
-//小女孩注释 2022年3月16日15:17:37 此文件主要存储对角色数据库操作的各种SQL语句
+﻿//小女孩注释 2022年3月16日15:17:37 此文件主要存储对角色数据库操作的各种SQL语句
 /*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *

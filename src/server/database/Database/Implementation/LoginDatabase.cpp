@@ -1,4 +1,4 @@
-//小女孩注释 2022年3月16日15:37:17 本文件是对账号玩具、账号坐骑、幻化收藏、角色战网点相关操作进行SQL预存储
+﻿//小女孩注释 2022年3月16日15:37:17 本文件是对账号玩具、账号坐骑、幻化收藏、角色战网点相关操作进行SQL预存储
 /*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *

@@ -1,4 +1,4 @@
-// 小女孩注释 2022年3月16日15:42:20 预计是个功能模块 尚未明白具体功能
+﻿// 小女孩注释 2022年3月16日15:42:20 预计是个功能模块 尚未明白具体功能
 /*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
