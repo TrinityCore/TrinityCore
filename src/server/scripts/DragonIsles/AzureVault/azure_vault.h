@@ -44,14 +44,14 @@ enum AVCreatureIds
     BOSS_TELASH_GREYWING    = 199614,
     BOSS_UMBRELSKUL         = 186738,
 
-    //Leymor
+    // Leymor
     NPC_ARCANE_TENDER       = 191164,
 };
 
 enum AVGameObjectIds
 {
-    GO_ARCANE_VAULTS_DOOR_LEYMOR_EXIT           = 377951,
-    GO_ARCANE_VAULTS_DOOR_LEYMOR_ENTRANCE       = 380536
+    GO_ARCANE_VAULTS_DOOR_LEYMOR_ENTRANCE       = 380536.
+    GO_ARCANE_VAULTS_DOOR_LEYMOR_EXIT           = 377951
 };
 
 template <class AI, class T>

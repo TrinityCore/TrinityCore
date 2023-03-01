@@ -36,8 +36,8 @@ ObjectData const creatureData[] =
 
 DoorData const doorData[] =
 {
-    { GO_ARCANE_VAULTS_DOOR_LEYMOR_EXIT,        DATA_LEYMOR,  DOOR_TYPE_PASSAGE },
     { GO_ARCANE_VAULTS_DOOR_LEYMOR_ENTRANCE,    DATA_LEYMOR,  DOOR_TYPE_ROOM    },
+    { GO_ARCANE_VAULTS_DOOR_LEYMOR_EXIT,        DATA_LEYMOR,  DOOR_TYPE_PASSAGE },
     { 0,                                        0,            DOOR_TYPE_ROOM    }  // END
 };
 
@@ -56,7 +56,7 @@ class instance_azure_vault : public InstanceMapScript
 
         struct instance_azure_vault_InstanceMapScript: public InstanceScript
         {
-            instance_azure_vault_InstanceMapScript(InstanceMap* map) : InstanceScript(map), _leymorIntroDone(false)
+            instance_azure_vault_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
@@ -64,7 +64,10 @@ class instance_azure_vault : public InstanceMapScript
                 LoadDoorData(doorData);
                 LoadBossBoundaries(boundaries);
                 LoadDungeonEncounterData(encounters);
+
+                _leymorIntroDone = false;
             }
+
             uint32 GetData(uint32 dataId) const override
             {
                 switch (dataId)
@@ -82,7 +85,7 @@ class instance_azure_vault : public InstanceMapScript
                 switch (dataId)
                 {
                     case DATA_LEYMOR_INTRO_DONE:
-                        _leymorIntroDone = true;
+                        _leymorIntroDone = true; // no need to pass value, it will never reset to false
                         break;
                     default:
                         break;

@@ -96,22 +96,14 @@ enum LeymorActions
     ACTION_ARCANE_TENDER_DEATH          = 1
 };
 
+// 191164 - Arcane Tender
 struct npc_arcane_tender : public ScriptedAI
 {
     npc_arcane_tender(Creature* creature) : ScriptedAI(creature) { }
 
-    Creature* GetLeymor()
-    {
-        InstanceScript* instance = me->GetInstanceScript();
-        if (!instance)
-            return nullptr;
-
-        return instance->GetCreature(DATA_LEYMOR);
-    }
-
     void JustDied(Unit* /*killer*/) override
     {
-        Creature* leymor = GetLeymor();
+        Creature* leymor = me->GetInstanceScript()->GetCreature(DATA_LEYMOR);
         if (!leymor)
             return;
 
@@ -123,7 +115,7 @@ struct npc_arcane_tender : public ScriptedAI
 
     void JustAppeared() override
     {
-        Creature* leymor = GetLeymor();
+        Creature* leymor = me->GetInstanceScript()->GetCreature(DATA_LEYMOR);
         if (!leymor)
             return;
 
@@ -174,6 +166,7 @@ private:
     EventMap _events;
 };
 
+// 190509 - Ley-Line Sprout
 struct npc_ley_line_sprouts : public ScriptedAI
 {
     npc_ley_line_sprouts(Creature* creature) : ScriptedAI(creature) { }
@@ -188,7 +181,7 @@ struct npc_ley_line_sprouts : public ScriptedAI
     void JustDied(Unit* /*killer*/) override
     {
         if (GetDifficulty() == DIFFICULTY_MYTHIC || GetDifficulty() == DIFFICULTY_MYTHIC_KEYSTONE)
-            me->CastSpell(me->GetPosition(), SPELL_VOLATILE_SAPLING, true);
+            DoCastAOE(SPELL_VOLATILE_SAPLING, true);
 
         if (TempSummon* tempSummon = me->ToTempSummon())
         {
@@ -198,22 +191,6 @@ struct npc_ley_line_sprouts : public ScriptedAI
                     aura->ModStackAmount(-1);
             }
         }
-    }
-
-    void JustSummoned(Creature* summon) override
-    {
-        InstanceScript* instance = me->GetInstanceScript();
-        if (!instance)
-            return;
-
-        Creature* leymor = instance->GetCreature(DATA_LEYMOR);
-        if (!leymor)
-            return;
-
-        if (!leymor->IsAIEnabled())
-            return;
-
-        leymor->AI()->JustSummoned(summon);
     }
 
     void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
@@ -226,6 +203,7 @@ struct npc_ley_line_sprouts : public ScriptedAI
     }
 };
 
+// 196559 - Volatile Sapling
 struct npc_volatile_sapling : public ScriptedAI
 {
     npc_volatile_sapling(Creature* creature) : ScriptedAI(creature), _isSappyBurstCast(false) { }
@@ -248,16 +226,13 @@ private:
     bool _isSappyBurstCast;
 };
 
+// 186644 - Leymor
 struct boss_leymor : public BossAI
 {
     boss_leymor(Creature* creature) : BossAI(creature, DATA_LEYMOR), _killedArcaneTender(0) { }
 
     void JustAppeared() override
     {
-        InstanceScript* instance = me->GetInstanceScript();
-        if (!instance)
-            return;
-
         if (instance->GetData(DATA_LEYMOR_INTRO_DONE))
             return;
 
@@ -272,8 +247,7 @@ struct boss_leymor : public BossAI
             _killedArcaneTender++;
             if (_killedArcaneTender >= 3)
             {
-                if (InstanceScript* instance = me->GetInstanceScript())
-                    instance->SetData(DATA_LEYMOR_INTRO_DONE, 1);
+                instance->SetData(DATA_LEYMOR_INTRO_DONE, 1);
 
                 scheduler.Schedule(1s, [this](TaskContext /*context*/)
                 {
@@ -286,16 +260,16 @@ struct boss_leymor : public BossAI
         }
     }
 
-    void EnterEvadeMode(EvadeReason /*why*/) override
+    void EnterEvadeMode(EvadeReason why) override
     {
-        Reset();
+        BossAI::EnterEvadeMode(why);
         me->DespawnOrUnsummon(5s, 30s);
     }
 
     void OnChannelFinished(SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_CONSUMING_STOMP)
-            me->CastSpell(nullptr, SPELL_CONSUMING_STOMP_DAMAGE, true);
+            DoCastAOE(SPELL_CONSUMING_STOMP_DAMAGE, true);
     };
 
     void JustEngagedWith(Unit* who) override
