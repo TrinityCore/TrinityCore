@@ -1641,7 +1641,6 @@ void AddSC_custom_npcs()
     new token_honor();
     new npc_hallegosa();
     RegisterCreatureAI(npc_kalecgos_for_teracgosa);
-    new npc_rate_xp_modifier();
     new npc_transmorpher_beacon();
     new npc_PetBattleTrainer;
     new arwent_gift_mount();
