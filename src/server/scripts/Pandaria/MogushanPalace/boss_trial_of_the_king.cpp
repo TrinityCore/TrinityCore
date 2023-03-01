@@ -908,8 +908,8 @@
 //    }
 //};
 //
-//void AddSC_boss_trial_of_the_king()
-//{
+void AddSC_boss_trial_of_the_king()
+{
 //    new mob_xian_the_weaponmaster_trigger();
 //    new boss_ming_the_cunning();
 //    new mob_whirling_dervish();
@@ -917,4 +917,4 @@
 //    new boss_kuai_the_brute();
 //    new mob_mu_shiba();
 //    new boss_haiyan_the_unstoppable();
-//}
+}
