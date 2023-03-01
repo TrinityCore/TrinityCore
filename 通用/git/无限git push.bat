@@ -1,6 +1,6 @@
 @echo off
-echo Œﬁœﬁpush
-cd /d D:\Program Files (x86)\WOWDIY\TrinityCore
+echo Êó†Èôêpush
+cd /d D:\Program Files (x86)\WOWDIY\XCore
 :push
 git push
 goto push

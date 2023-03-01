@@ -1,9 +1,9 @@
 @echo off
 set num=10
-echo ±¾³ÌĞò¹²Ö´ĞĞ%num%´Îpull...
-echo ÈçĞèĞŞ¸ÄÖ´ĞĞ´ÎÊı,¿É±à¼­±¾ÎÄ¼ş,ĞŞ¸ÄnumµÄ¸³Öµ.
-cd /d D:\Program Files (x86)\WOWDIY\TrinityCore
+echo æœ¬ç¨‹åºå…±æ‰§è¡Œ%num%æ¬¡pull...
+echo å¦‚éœ€ä¿®æ”¹æ‰§è¡Œæ¬¡æ•°,å¯ç¼–è¾‘æœ¬æ–‡ä»¶,ä¿®æ”¹numçš„èµ‹å€¼.
+cd /d D:\Program Files (x86)\WOWDIY\XCore
 for /l %%i in (1,1,%num%) do (
-echo µÚ%%i´Îpull
+echo ç¬¬%%iæ¬¡pull
  git pull https://github.com/xuehyc/TrinityCore master --rebase
 )
