@@ -4425,63 +4425,82 @@ enum LockKeyType
     LOCK_KEY_SPELL = 3,
 };
 
-// LockType.dbc (9.0.2.37176)
+// LockType.dbc (10.0.5.48069)
 enum LockType
 {
-    LOCKTYPE_LOCKPICKING                = 1,
-    LOCKTYPE_HERBALISM                  = 2,
-    LOCKTYPE_MINING                     = 3,
-    LOCKTYPE_DISARM_TRAP                = 4,
-    LOCKTYPE_OPEN                       = 5,
-    LOCKTYPE_TREASURE                   = 6,
-    LOCKTYPE_CALCIFIED_ELVEN_GEMS       = 7,
-    LOCKTYPE_CLOSE                      = 8,
-    LOCKTYPE_ARM_TRAP                   = 9,
-    LOCKTYPE_QUICK_OPEN                 = 10,
-    LOCKTYPE_QUICK_CLOSE                = 11,
-    LOCKTYPE_OPEN_TINKERING             = 12,
-    LOCKTYPE_OPEN_KNEELING              = 13,
-    LOCKTYPE_OPEN_ATTACKING             = 14,
-    LOCKTYPE_GAHZRIDIAN                 = 15,
-    LOCKTYPE_BLASTING                   = 16,
-    LOCKTYPE_PVP_OPEN                   = 17,
-    LOCKTYPE_PVP_CLOSE                  = 18,
-    LOCKTYPE_FISHING                    = 19,
-    LOCKTYPE_INSCRIPTION                = 20,
-    LOCKTYPE_OPEN_FROM_VEHICLE          = 21,
-    LOCKTYPE_ARCHAEOLOGY                = 22,
-    LOCKTYPE_PVP_OPEN_FAST              = 23,
-    LOCKTYPE_LUMBER_MILL                = 28,
-    LOCKTYPE_SKINNING                   = 29,
-    LOCKTYPE_ANCIENT_MANA               = 30,
-    LOCKTYPE_WARBOARD                   = 31,
-    LOCKTYPE_CLASSIC_HERBALISM          = 32,
-    LOCKTYPE_OUTLAND_HERBALISM          = 33,
-    LOCKTYPE_NORTHREND_HERBALISM        = 34,
-    LOCKTYPE_CATACLYSM_HERBALISM        = 35,
-    LOCKTYPE_PANDARIA_HERBALISM         = 36,
-    LOCKTYPE_DRAENOR_HERBALISM          = 37,
-    LOCKTYPE_LEGION_HERBALISM           = 38,
-    LOCKTYPE_KUL_TIRAN_HERBALISM        = 39,
-    LOCKTYPE_CLASSIC_MINING             = 40,
-    LOCKTYPE_OUTLAND_MINING             = 41,
-    LOCKTYPE_NORTHREND_MINING           = 42,
-    LOCKTYPE_CATACLYSM_MINING           = 43,
-    LOCKTYPE_PANDARIA_MINING            = 44,
-    LOCKTYPE_DRAENOR_MINING             = 45,
-    LOCKTYPE_LEGION_MINING              = 46,
-    LOCKTYPE_KUL_TIRAN_MINING           = 47,
-    LOCKTYPE_SKINNING_2                 = 48,
-    LOCKTYPE_OPEN_2                     = 149,
-    LOCKTYPE_FORAGING                   = 150,
-    LOCKTYPE_JELLY_DEPOSIT              = 152,
-    LOCKTYPE_SHADOWLAND_HERBALISM       = 153,
-    LOCKTYPE_SHADOWLAND_MINING          = 155,
-    LOCKTYPE_COVENANT_NIGHT_FAE         = 157,
-    LOCKTYPE_COVENANT_VENTHYR           = 158,
-    LOCKTYPE_COVENANT_KYRIAN            = 159,
-    LOCKTYPE_COVENANT_NECROLORD         = 160,
-    LOCKTYPE_PROFESSION_ENGINEERING     = 161
+    LOCKTYPE_LOCKPICKING                    = 1,
+    LOCKTYPE_HERBALISM                      = 2,
+    LOCKTYPE_MINING                         = 3,
+    LOCKTYPE_DISARM_TRAP                    = 4,
+    LOCKTYPE_OPEN                           = 5,
+    LOCKTYPE_TREASURE                       = 6,
+    LOCKTYPE_CALCIFIED_ELVEN_GEMS           = 7,
+    LOCKTYPE_CLOSE                          = 8,
+    LOCKTYPE_ARM_TRAP                       = 9,
+    LOCKTYPE_QUICK_OPEN                     = 10,
+    LOCKTYPE_QUICK_CLOSE                    = 11,
+    LOCKTYPE_OPEN_TINKERING                 = 12,
+    LOCKTYPE_OPEN_KNEELING                  = 13,
+    LOCKTYPE_OPEN_ATTACKING                 = 14,
+    LOCKTYPE_GAHZRIDIAN                     = 15,
+    LOCKTYPE_BLASTING                       = 16,
+    LOCKTYPE_PVP_OPEN                       = 17,
+    LOCKTYPE_PVP_CLOSE                      = 18,
+    LOCKTYPE_FISHING                        = 19,
+    LOCKTYPE_INSCRIPTION                    = 20,
+    LOCKTYPE_OPEN_FROM_VEHICLE              = 21,
+    LOCKTYPE_ARCHAEOLOGY                    = 22,
+    LOCKTYPE_PVP_OPEN_FAST                  = 23,
+    LOCKTYPE_LUMBER_MILL                    = 28,
+    LOCKTYPE_SKINNING                       = 29,
+    LOCKTYPE_ANCIENT_MANA                   = 30,
+    LOCKTYPE_WARBOARD                       = 31,
+    LOCKTYPE_CLASSIC_HERBALISM              = 32,
+    LOCKTYPE_OUTLAND_HERBALISM              = 33,
+    LOCKTYPE_NORTHREND_HERBALISM            = 34,
+    LOCKTYPE_CATACLYSM_HERBALISM            = 35,
+    LOCKTYPE_PANDARIA_HERBALISM             = 36,
+    LOCKTYPE_DRAENOR_HERBALISM              = 37,
+    LOCKTYPE_LEGION_HERBALISM               = 38,
+    LOCKTYPE_KUL_TIRAN_HERBALISM            = 39,
+    LOCKTYPE_CLASSIC_MINING                 = 40,
+    LOCKTYPE_OUTLAND_MINING                 = 41,
+    LOCKTYPE_NORTHREND_MINING               = 42,
+    LOCKTYPE_CATACLYSM_MINING               = 43,
+    LOCKTYPE_PANDARIA_MINING                = 44,
+    LOCKTYPE_DRAENOR_MINING                 = 45,
+    LOCKTYPE_LEGION_MINING                  = 46,
+    LOCKTYPE_KUL_TIRAN_MINING               = 47,
+    LOCKTYPE_LEGION_SKINNING                = 48,
+    LOCKTYPE_OPEN_ITEM                      = 149,
+    LOCKTYPE_FORAGING                       = 150,
+    LOCKTYPE_JELLY_DEPOSIT                  = 152,
+    LOCKTYPE_SHADOWLANDS_HERBALISM          = 153,
+    LOCKTYPE_SHADOWLANDS_MINING             = 155,
+    LOCKTYPE_COVENANT_NIGHT_FAE             = 157,
+    LOCKTYPE_COVENANT_VENTHYR               = 158,
+    LOCKTYPE_COVENANT_KYRIAN                = 159,
+    LOCKTYPE_COVENANT_NECROLORD             = 160,
+    LOCKTYPE_ENGINEERING                    = 161,
+    LOCKTYPE_DRAGON_ISLES_HERBALISM         = 162,
+    LOCKTYPE_MINING_2                       = 163,
+    LOCKTYPE_ELUSIVE_HERBALISM              = 166,
+    LOCKTYPE_ELUSIVE_MINING                 = 167,
+    LOCKTYPE_ENCHANTING                     = 169,
+    LOCKTYPE_DRAGON_ISLES_TREASURE          = 170,
+    LOCKTYPE_DRAGON_ISLES_ALCHEMY_25        = 172,
+    LOCKTYPE_DRAGON_ISLES_BLACKSMITHING_25  = 173,
+    LOCKTYPE_DRAGON_ISLES_ENCHANTING_25     = 174,
+    LOCKTYPE_DRAGON_ISLES_ENGINEERING_25    = 175,
+    LOCKTYPE_DRAGON_ISLES_HERBALISM_25      = 176,
+    LOCKTYPE_DRAGON_ISLES_INSCRIPTION_25    = 177,
+    LOCKTYPE_DRAGON_ISLES_JEWELCRAFTING_25  = 178,
+    LOCKTYPE_DRAGON_ISLES_LEATHERWORKING_25 = 179,
+    LOCKTYPE_DRAGON_ISLES_MINING_25         = 180,
+    LOCKTYPE_DRAGON_ISLES_SKINNING_25       = 181,
+    LOCKTYPE_DRAGON_ISLES_TAILORING_25      = 182,
+    LOCKTYPE_OPEN_KNEELING_PLANT            = 186,
+    LOCKTYPE_DRAGON_ISLES_MINING            = 188
 };
 
 // this is important type for npcs!
@@ -5255,7 +5274,7 @@ constexpr uint8 ClassByQuestSort(int32 QuestSort)
     return 0;
 }
 
-// SkillLine.db2 (9.0.2.37176)
+// SkillLine.db2 (10.0.5.48069)
 enum SkillType
 {
     SKILL_NONE                                      = 0,
@@ -5553,7 +5572,7 @@ enum SkillType
     SKILL_CATACLYSM_FISHING                         = 2589,
     SKILL_NORTHREND_FISHING                         = 2590,
     SKILL_OUTLAND_FISHING                           = 2591,
-    SKILL_FISHING_2                                 = 2592,
+    SKILL_CLASSIC_FISHING                           = 2592,
     SKILL_RACIAL_DARK_IRON_DWARF                    = 2597,
     SKILL_RACIAL_MAG_HAR_ORC                        = 2598,
     SKILL_PET_LIZARD                                = 2703,
@@ -5567,6 +5586,10 @@ enum SkillType
     SKILL_RACIAL_ZANDALARI_TROLL                    = 2721,
     SKILL_RACIAL_KUL_TIRAN                          = 2723,
     SKILL_AZERITE_POWER                             = 2727,
+    SKILL_COVENANT_KYRIAN                           = 2730,
+    SKILL_COVENANT_VENTHYR                          = 2731,
+    SKILL_COVENANT_NIGHT_FAE                        = 2732,
+    SKILL_COVENANT_NECROLORD                        = 2733,
     SKILL_MOUNT_EQUIPEMENT                          = 2734,
     SKILL_SHADOWLANDS_ALCHEMY                       = 2750,
     SKILL_SHADOWLANDS_BLACKSMITHING                 = 2751,
@@ -5591,37 +5614,82 @@ enum SkillType
     SKILL_PET_MAMMOTH                               = 2805,
     SKILL_PET_COURSER                               = 2806,
     SKILL_PET_CAMEL                                 = 2807,
+    SKILL_RACIAL_DRACTHYR                           = 2808,
+    SKILL_EVOKER                                    = 2810,
     SKILL_STYGIA_CRAFTING                           = 2811,
     SKILL_LANGUAGE_CYPHER                           = 2817,
     SKILL_PROTOFORM_SYNTHESIS                       = 2819,
+    SKILL_ARCANA_MANIPULATION                       = 2821,
+    SKILL_DRAGON_ISLES_BLACKSMITHING                = 2822,
+    SKILL_DRAGON_ISLES_ALCHEMY                      = 2823,
+    SKILL_DRAGON_ISLES_COOKING                      = 2824,
+    SKILL_DRAGON_ISLES_ENCHANTING                   = 2825,
+    SKILL_DRAGON_ISLES_FISHING                      = 2826,
+    SKILL_DRAGON_ISLES_ENGINEERING                  = 2827,
+    SKILL_DRAGON_ISLES_INSCRIPTION                  = 2828,
+    SKILL_DRAGON_ISLES_JEWELCRAFTING                = 2829,
+    SKILL_DRAGON_ISLES_LEATHERWORKING               = 2830,
+    SKILL_DRAGON_ISLES_TAILORING                    = 2831,
+    SKILL_DRAGON_ISLES_HERBALISM                    = 2832,
+    SKILL_DRAGON_ISLES_MINING                       = 2833,
+    SKILL_DRAGON_ISLES_SKINNING                     = 2834,
+    SKILL_CRAFTING                                  = 2846,
+    SKILL_TUSKARR_FISHING_GEAR                      = 2847,
+    SKILL_PET_LESSER_DRAGONKIN                      = 2850
 };
 
 constexpr SkillType SkillByLockType(LockType locktype)
 {
     switch (locktype)
     {
-        case LOCKTYPE_HERBALISM:   return SKILL_HERBALISM;
-        case LOCKTYPE_MINING:      return SKILL_MINING;
-        case LOCKTYPE_FISHING:     return SKILL_FISHING;
-        case LOCKTYPE_INSCRIPTION: return SKILL_INSCRIPTION;
-        case LOCKTYPE_ARCHAEOLOGY: return SKILL_ARCHAEOLOGY;
-        case LOCKTYPE_LUMBER_MILL: return SKILL_LOGGING;
-        case LOCKTYPE_CLASSIC_HERBALISM: return SKILL_CLASSIC_HERBALISM;
-        case LOCKTYPE_OUTLAND_HERBALISM: return SKILL_OUTLAND_HERBALISM;
-        case LOCKTYPE_NORTHREND_HERBALISM: return SKILL_NORTHREND_HERBALISM;
-        case LOCKTYPE_CATACLYSM_HERBALISM: return SKILL_CATACLYSM_HERBALISM;
-        case LOCKTYPE_PANDARIA_HERBALISM: return SKILL_PANDARIA_HERBALISM;
-        case LOCKTYPE_DRAENOR_HERBALISM: return SKILL_DRAENOR_HERBALISM;
-        case LOCKTYPE_LEGION_HERBALISM: return SKILL_LEGION_HERBALISM;
-        case LOCKTYPE_KUL_TIRAN_HERBALISM: return SKILL_KUL_TIRAN_HERBALISM;
-        case LOCKTYPE_CLASSIC_MINING: return SKILL_CLASSIC_MINING;
-        case LOCKTYPE_OUTLAND_MINING: return SKILL_OUTLAND_MINING;
-        case LOCKTYPE_NORTHREND_MINING: return SKILL_NORTHREND_MINING;
-        case LOCKTYPE_CATACLYSM_MINING: return SKILL_CATACLYSM_MINING;
-        case LOCKTYPE_PANDARIA_MINING: return SKILL_PANDARIA_MINING;
-        case LOCKTYPE_DRAENOR_MINING: return SKILL_DRAENOR_MINING;
-        case LOCKTYPE_LEGION_MINING: return SKILL_LEGION_MINING;
-        case LOCKTYPE_KUL_TIRAN_MINING: return SKILL_KUL_TIRAN_MINING;
+        case LOCKTYPE_HERBALISM:
+        case LOCKTYPE_ELUSIVE_HERBALISM:              return SKILL_HERBALISM;
+        case LOCKTYPE_MINING:
+        case LOCKTYPE_MINING_2:
+        case LOCKTYPE_ELUSIVE_MINING:                 return SKILL_MINING;
+        case LOCKTYPE_FISHING:                        return SKILL_FISHING;
+        case LOCKTYPE_INSCRIPTION:                    return SKILL_INSCRIPTION;
+        case LOCKTYPE_ARCHAEOLOGY:                    return SKILL_ARCHAEOLOGY;
+        case LOCKTYPE_LUMBER_MILL:                    return SKILL_LOGGING;
+        case LOCKTYPE_SKINNING:                       return SKILL_SKINNING;
+        case LOCKTYPE_CLASSIC_HERBALISM:              return SKILL_CLASSIC_HERBALISM;
+        case LOCKTYPE_OUTLAND_HERBALISM:              return SKILL_OUTLAND_HERBALISM;
+        case LOCKTYPE_NORTHREND_HERBALISM:            return SKILL_NORTHREND_HERBALISM;
+        case LOCKTYPE_CATACLYSM_HERBALISM:            return SKILL_CATACLYSM_HERBALISM;
+        case LOCKTYPE_PANDARIA_HERBALISM:             return SKILL_PANDARIA_HERBALISM;
+        case LOCKTYPE_DRAENOR_HERBALISM:              return SKILL_DRAENOR_HERBALISM;
+        case LOCKTYPE_LEGION_HERBALISM:               return SKILL_LEGION_HERBALISM;
+        case LOCKTYPE_KUL_TIRAN_HERBALISM:            return SKILL_KUL_TIRAN_HERBALISM;
+        case LOCKTYPE_CLASSIC_MINING:                 return SKILL_CLASSIC_MINING;
+        case LOCKTYPE_OUTLAND_MINING:                 return SKILL_OUTLAND_MINING;
+        case LOCKTYPE_NORTHREND_MINING:               return SKILL_NORTHREND_MINING;
+        case LOCKTYPE_CATACLYSM_MINING:               return SKILL_CATACLYSM_MINING;
+        case LOCKTYPE_PANDARIA_MINING:                return SKILL_PANDARIA_MINING;
+        case LOCKTYPE_DRAENOR_MINING:                 return SKILL_DRAENOR_MINING;
+        case LOCKTYPE_LEGION_MINING:                  return SKILL_LEGION_MINING;
+        case LOCKTYPE_KUL_TIRAN_MINING:               return SKILL_KUL_TIRAN_MINING;
+        case LOCKTYPE_LEGION_SKINNING:                return SKILL_LEGION_SKINNING;
+        case LOCKTYPE_SHADOWLANDS_HERBALISM:          return SKILL_SHADOWLANDS_HERBALISM;
+        case LOCKTYPE_SHADOWLANDS_MINING:             return SKILL_SHADOWLANDS_MINING;
+        case LOCKTYPE_COVENANT_NIGHT_FAE:             return SKILL_COVENANT_NIGHT_FAE;
+        case LOCKTYPE_COVENANT_VENTHYR:               return SKILL_COVENANT_VENTHYR;
+        case LOCKTYPE_COVENANT_KYRIAN:                return SKILL_COVENANT_KYRIAN;
+        case LOCKTYPE_COVENANT_NECROLORD:             return SKILL_COVENANT_NECROLORD;
+        case LOCKTYPE_ENGINEERING:                    return SKILL_ENGINEERING;
+        case LOCKTYPE_DRAGON_ISLES_HERBALISM:
+        case LOCKTYPE_DRAGON_ISLES_HERBALISM_25:      return SKILL_DRAGON_ISLES_HERBALISM;
+        case LOCKTYPE_ENCHANTING:                     return SKILL_ENCHANTING;
+        case LOCKTYPE_DRAGON_ISLES_ALCHEMY_25:        return SKILL_DRAGON_ISLES_ALCHEMY;
+        case LOCKTYPE_DRAGON_ISLES_BLACKSMITHING_25:  return SKILL_DRAGON_ISLES_BLACKSMITHING;
+        case LOCKTYPE_DRAGON_ISLES_ENCHANTING_25:     return SKILL_DRAGON_ISLES_ENCHANTING;
+        case LOCKTYPE_DRAGON_ISLES_ENGINEERING_25:    return SKILL_DRAGON_ISLES_ENGINEERING;
+        case LOCKTYPE_DRAGON_ISLES_INSCRIPTION_25:    return SKILL_DRAGON_ISLES_INSCRIPTION;
+        case LOCKTYPE_DRAGON_ISLES_JEWELCRAFTING_25:  return SKILL_DRAGON_ISLES_JEWELCRAFTING;
+        case LOCKTYPE_DRAGON_ISLES_LEATHERWORKING_25: return SKILL_DRAGON_ISLES_LEATHERWORKING;
+        case LOCKTYPE_DRAGON_ISLES_SKINNING_25:       return SKILL_DRAGON_ISLES_SKINNING;
+        case LOCKTYPE_DRAGON_ISLES_TAILORING_25:      return SKILL_DRAGON_ISLES_TAILORING;
+        case LOCKTYPE_DRAGON_ISLES_MINING:
+        case LOCKTYPE_DRAGON_ISLES_MINING_25:         return SKILL_DRAGON_ISLES_MINING;
         default: break;
     }
     return SKILL_NONE;
