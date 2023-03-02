@@ -631,7 +631,7 @@ void InstanceSaveManager::_ResetInstance(uint32 mapid, uint32 instanceId)
 
     if (iMap)
     {
-        ((InstanceMap*)iMap)->Reset(INSTANCE_RESET_RESPAWN_DELAY);
+        //((InstanceMap*)iMap)->Reset(INSTANCE_RESET_RESPAWN_DELAY);
         iMap->DeleteRespawnTimes();
         iMap->DeleteCorpseData();
     }

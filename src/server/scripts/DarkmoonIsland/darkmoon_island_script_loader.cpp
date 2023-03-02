@@ -20,7 +20,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-<<<<<<<< HEAD:src/server/scripts/DarkmoonIsland/darkmoon_island_script_loader.cpp
 // This is where scripts' loading functions should be declared:
 //void AddSC_darkmoon_canon();
 //void AddSC_darkmoon_island();
@@ -38,10 +37,10 @@ void AddDarkmoonIslandScripts()
     //AddSC_darkmoon_rabbit();
     //AddSC_darkmoon_tonk();
     //AddSC_darkmoon_whack_gnoll();
-========
+}
  //Missing scripts
 
-void AddSC_ungoro_crater()
-{
->>>>>>>> 00c8b4918beff3f29ba8b4eb8d50c9fd67076687:src/server/scripts/Kalimdor/zone_ungoro_crater.cpp
-}
+//void AddSC_ungoro_crater()
+//{
+//
+//}
