@@ -96,6 +96,123 @@ enum LeymorActions
     ACTION_ARCANE_TENDER_DEATH          = 1
 };
 
+// 186644 - Leymor
+struct boss_leymor : public BossAI
+{
+    boss_leymor(Creature* creature) : BossAI(creature, DATA_LEYMOR), _killedArcaneTender(0) { }
+
+    void JustAppeared() override
+    {
+        if (instance->GetData(DATA_LEYMOR_INTRO_DONE))
+            return;
+
+        me->SetUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+        DoCastSelf(SPELL_STASIS);
+    }
+
+    void DoAction(int32 action) override
+    {
+        if (action == ACTION_ARCANE_TENDER_DEATH)
+        {
+            _killedArcaneTender++;
+            if (_killedArcaneTender >= 3)
+            {
+                instance->SetData(DATA_LEYMOR_INTRO_DONE, 1);
+
+                scheduler.Schedule(1s, [this](TaskContext /*context*/)
+                {
+                    me->RemoveAurasDueToSpell(SPELL_STASIS);
+                    me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+                    DoCastSelf(SPELL_ARCANE_ERUPTION);
+                    Talk(SAY_ANNOUNCE_AWAKEN);
+                });
+            }
+        }
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+
+        summons.DespawnAll();
+        _EnterEvadeMode();
+        _DespawnAtEvade();
+    }
+
+    void OnChannelFinished(SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_CONSUMING_STOMP)
+            DoCastAOE(SPELL_CONSUMING_STOMP_DAMAGE, true);
+    };
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_LEY_LINE_SPROUTS, 3s);
+        events.ScheduleEvent(EVENT_CONSUMING_STOMP, 45s);
+        events.ScheduleEvent(EVENT_ERUPTING_FISSURE, 20s);
+        events.ScheduleEvent(EVENT_EXPLOSIVE_BRAND, 31s);
+        events.ScheduleEvent(EVENT_INFUSED_STRIKE, 10s);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        scheduler.Update(diff);
+
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_LEY_LINE_SPROUTS:
+                    DoCastSelf(SPELL_LEY_LINE_SPROUTS);
+                    events.ScheduleEvent(EVENT_LEY_LINE_SPROUTS, 48s);
+                    break;
+                case EVENT_CONSUMING_STOMP:
+                    DoCastSelf(SPELL_CONSUMING_STOMP);
+                    events.ScheduleEvent(EVENT_CONSUMING_STOMP, 48s);
+                    break;
+                case EVENT_ERUPTING_FISSURE:
+                    DoCastVictim(SPELL_ERUPTING_FISSURE);
+                    events.ScheduleEvent(EVENT_ERUPTING_FISSURE, 48s);
+                    break;
+                case EVENT_EXPLOSIVE_BRAND:
+                    DoCastSelf(SPELL_EXPLOSIVE_BRAND);
+                    events.ScheduleEvent(EVENT_EXPLOSIVE_BRAND, 48s);
+                    break;
+                case EVENT_INFUSED_STRIKE:
+                    DoCastVictim(SPELL_INFUSED_STRIKE);
+                    events.ScheduleEvent(EVENT_INFUSED_STRIKE, 48s);
+                    break;
+                default:
+                    break;
+            }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    int32 _killedArcaneTender;
+};
+
 // 191164 - Arcane Tender
 struct npc_arcane_tender : public ScriptedAI
 {
@@ -220,8 +337,8 @@ struct npc_volatile_sapling : public ScriptedAI
     {
         if (me->GetHealth() <= damage)
         {
-            damage = 0;
-            me->SetHealth(1);
+            damage = me->GetHealth() - 1;
+
             if (!_isSappyBurstCast)
             {
                 me->CastSpell(nullptr, SPELL_SAPPY_BURST, false);
@@ -234,137 +351,15 @@ private:
     bool _isSappyBurstCast;
 };
 
-// 186644 - Leymor
-struct boss_leymor : public BossAI
+static Position const LeyLineSproutGroupOrigin[] =
 {
-    boss_leymor(Creature* creature) : BossAI(creature, DATA_LEYMOR), _killedArcaneTender(0) { }
-
-    void JustAppeared() override
-    {
-        if (instance->GetData(DATA_LEYMOR_INTRO_DONE))
-            return;
-
-        me->SetUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
-        DoCastSelf(SPELL_STASIS);
-    }
-
-    void DoAction(int32 action) override
-    {
-        if (action == ACTION_ARCANE_TENDER_DEATH)
-        {
-            _killedArcaneTender++;
-            if (_killedArcaneTender >= 3)
-            {
-                instance->SetData(DATA_LEYMOR_INTRO_DONE, 1);
-
-                scheduler.Schedule(1s, [this](TaskContext /*context*/)
-                {
-                    me->RemoveAurasDueToSpell(SPELL_STASIS);
-                    me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
-                    DoCastSelf(SPELL_ARCANE_ERUPTION);
-                    Talk(SAY_ANNOUNCE_AWAKEN);
-                });
-            }
-        }
-    }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        _JustDied();
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-    }
-
-    void EnterEvadeMode(EvadeReason /*why*/) override
-    {
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-
-        events.Reset();
-        summons.DespawnAll();
-        scheduler.CancelAll();
-        _EnterEvadeMode();
-        _DespawnAtEvade();
-    }
-
-    void OnChannelFinished(SpellInfo const* spell) override
-    {
-        if (spell->Id == SPELL_CONSUMING_STOMP)
-            DoCastAOE(SPELL_CONSUMING_STOMP_DAMAGE, true);
-    };
-
-    void JustEngagedWith(Unit* who) override
-    {
-        BossAI::JustEngagedWith(who);
-        events.ScheduleEvent(EVENT_LEY_LINE_SPROUTS, 3s);
-        events.ScheduleEvent(EVENT_CONSUMING_STOMP, 45s);
-        events.ScheduleEvent(EVENT_ERUPTING_FISSURE, 20s);
-        events.ScheduleEvent(EVENT_EXPLOSIVE_BRAND, 31s);
-        events.ScheduleEvent(EVENT_INFUSED_STRIKE, 10s);
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        if (!instance->GetData(DATA_LEYMOR_INTRO_DONE))
-            scheduler.Update(diff);
-
-        if (!UpdateVictim())
-            return;
-
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
-
-        events.Update(diff);
-
-        while (uint32 eventId = events.ExecuteEvent())
-        {
-            switch (eventId)
-            {
-                case EVENT_LEY_LINE_SPROUTS:
-                    DoCastSelf(SPELL_LEY_LINE_SPROUTS);
-                    events.ScheduleEvent(EVENT_LEY_LINE_SPROUTS, 48s);
-                    break;
-                case EVENT_CONSUMING_STOMP:
-                    DoCastSelf(SPELL_CONSUMING_STOMP);
-                    events.ScheduleEvent(EVENT_CONSUMING_STOMP, 48s);
-                    break;
-                case EVENT_ERUPTING_FISSURE:
-                    DoCastVictim(SPELL_ERUPTING_FISSURE);
-                    events.ScheduleEvent(EVENT_ERUPTING_FISSURE, 48s);
-                    break;
-                case EVENT_EXPLOSIVE_BRAND:
-                    DoCastSelf(SPELL_EXPLOSIVE_BRAND);
-                    events.ScheduleEvent(EVENT_EXPLOSIVE_BRAND, 48s);
-                    break;
-                case EVENT_INFUSED_STRIKE:
-                    DoCastVictim(SPELL_INFUSED_STRIKE);
-                    events.ScheduleEvent(EVENT_INFUSED_STRIKE, 48s);
-                    break;
-                default:
-                    break;
-            }
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-        }
-
-        DoMeleeAttackIfReady();
-    }
-
-private:
-    int32 _killedArcaneTender;
-};
-
-static std::array<Position, 7> const LeyLineSproutGroupOrigin =
-{
-    {
-        { -5129.39f, 1253.30f, 555.58f },
-        { -5101.68f, 1253.71f, 555.90f },
-        { -5114.70f, 1230.28f, 555.89f },
-        { -5141.62f, 1230.33f, 555.83f },
-        { -5155.62f, 1253.60f, 555.87f },
-        { -5141.42f, 1276.70f, 555.89f },
-        { -5114.78f, 1277.42f, 555.87f }
-    }
+    { -5129.39f, 1253.30f, 555.58f },
+    { -5101.68f, 1253.71f, 555.90f },
+    { -5114.70f, 1230.28f, 555.89f },
+    { -5141.62f, 1230.33f, 555.83f },
+    { -5155.62f, 1253.60f, 555.87f },
+    { -5141.42f, 1276.70f, 555.89f },
+    { -5114.78f, 1277.42f, 555.87f }
 };
 
 // 374364 - Ley-Line Sprouts
@@ -374,17 +369,14 @@ class spell_ley_line_sprouts : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo(
-        {
-            SPELL_LEY_LINE_SPROUTS_MISSILE
-        });
+        return ValidateSpellInfo({ SPELL_LEY_LINE_SPROUTS_MISSILE });
     }
 
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
         for (Position const& pos : LeyLineSproutGroupOrigin)
         {
-            for (int i = 0; i < 2; i++)
+            for (int8 i = 0; i < 2; i++)
                 GetCaster()->CastSpell(pos, SPELL_LEY_LINE_SPROUTS_MISSILE, true);
         }
     }
@@ -424,7 +416,7 @@ class spell_wild_eruption : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo( { SPELL_WILD_ERUPTION_MISSILE } );
+        return ValidateSpellInfo({ SPELL_WILD_ERUPTION_MISSILE });
     }
 
     void HandleHitTarget(SpellEffIndex /*effIndex*/)
