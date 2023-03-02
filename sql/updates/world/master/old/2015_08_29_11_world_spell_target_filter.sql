@@ -1,0 +1,2 @@
+INSERT INTO `spell_target_filter` (`spellId`, `targetId`, `resizeType`, `count`, `maxcount`, `comments`) VALUES ('114911', '31', '1', '3', '3', 'Ancestral Guidance');
+INSERT INTO `spell_target_filter` (`spellId`, `targetId`, `option`, `resizeType`, `count`, `maxcount`, `comments`) VALUES ('114911', '31', '6', '1', '3', '3', 'Ancestral Guidance');

@@ -1,0 +1,1 @@
+delete from spell_script_names where ScriptName = 'spell_gen_tp_storm_orgri';

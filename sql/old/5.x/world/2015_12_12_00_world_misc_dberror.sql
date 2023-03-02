@@ -1,0 +1,58 @@
+DELETE FROM creature_loot_template WHERE entry=71859;
+INSERT INTO `creature_loot_template` VALUES (71859, 89112, 1, 1, 0, 3, 19);
+INSERT INTO `creature_loot_template` VALUES (71859, 44970, 1, 1, 0, 1, 1);
+INSERT INTO `creature_loot_template` VALUES (71859, 94593, 1, 1, 0, 1, 1);
+INSERT INTO `creature_loot_template` VALUES (71859, 87208, 1, 1, 0, 1, 1);
+INSERT INTO `creature_loot_template` VALUES (71859, 87209, 1, 1, 0, 1, 1);
+INSERT INTO `creature_loot_template` VALUES (71859, 94594, 1, 1, 0, 1, 1);
+INSERT INTO `creature_loot_template` VALUES (71859, 105714, 1, 1, 0, 1, 1);
+INSERT INTO `creature_loot_template` VALUES (71859, 105751, 1, 1, 0, 1, 1);
+UPDATE creature_template SET lootid=71859 WHERE entry=71859;
+UPDATE `gameobject_template` SET `type`='2' WHERE entry IN (161521,161526,213973);
+DELETE FROM `creature_questrelation` WHERE (`id`='34830') AND (`quest`='14069');
+DELETE FROM gameobject WHERE guid IN (219917,219915,231606,231607);
+DELETE FROM `linked_respawn` WHERE (`guid`='56791') AND (`linkType`='0');
+DELETE FROM `linked_respawn` WHERE (`guid`='56792') AND (`linkType`='0');
+DELETE FROM `linked_respawn` WHERE (`guid`='56793') AND (`linkType`='0');
+UPDATE `quest_template` SET `RequiredItemId1`='0', `RequiredItemCount1`='0' WHERE (`Id`='32375');
+UPDATE `quest_template` SET `RequiredSkillId`='356' WHERE (`Id`='32436');
+UPDATE `quest_template` SET `RequiredItemId1`='0', `RequiredItemCount1`='0' WHERE (`Id`='32367');
+UPDATE `quest_template` SET `RequiredSkillId`='356' WHERE (`Id`='32435');
+UPDATE `quest_template` SET `RequiredNpcOrGo1`='68560', `RequiredNpcOrGo2`='68561', `RequiredNpcOrGo3`='68566' WHERE (`Id`='32868');
+UPDATE `quest_template` SET `RequiredNpcOrGo1`='68558', `RequiredNpcOrGo2`='68559', `RequiredNpcOrGo3`='68562' WHERE (`Id`='32869');
+DELETE FROM `reference_loot_template` WHERE `entry` IN (11901,11902,11903,11904,11905,11906,11907,11908,11909,11910,11911,11912,11913,11914,11915,11916,11917,
+11918,11919,11920,11921) AND `item`=27498;
+UPDATE `quest_template` SET `RequiredNpcOrGo1`='2031', `RequiredNpcOrGoCount1`='3' WHERE (`Id`='26940');
+UPDATE `quest_template` SET `RequiredNpcOrGo1`='44175', `RequiredNpcOrGoCount1`='3' WHERE (`Id`='10071');
+UPDATE `quest_template` SET `RequiredNpcOrGo1`='44175', `RequiredNpcOrGoCount1`='2' WHERE (`Id`='26198');
+UPDATE `quest_template` SET `SpecialFlags`='3'  WHERE id IN (32259, 32924, 32923, 32112, 32306, 32357, 32339, 32518, 32477, 32609, 32610, 32611, 32260, 32261, 32258, 32626, 32629, 32919, 32922, 32744, 32745, 32746, 32747, 32748, 32749, 32750, 32751, 32752, 32754, 32755, 32756, 32640, 32641, 32753, 32727, 32519, 32832, 32860, 32864, 32866, 32865, 32961, 32956, 32957, 32972, 33109, 33225, 33117, 33226, 32962, 33348, 33385, 33118,26258,27006,27007);
+UPDATE `quest_template` SET `Flags`='0' WHERE id IN (31280,31467,31469,31471,31474,31476,31477);
+DELETE FROM `npc_spellclick_spells` WHERE (`npc_entry`='6588') AND (`spell_id`='46598');
+DELETE FROM `vehicle_template_accessory` WHERE (`entry`='6588') AND (`seat_id`='0');
+UPDATE `vehicle_template_accessory` SET `description`='Pygmy Pygmy Scout on Dadais' WHERE (`entry`='48040') AND (`seat_id`='0');
+DELETE FROM `npc_spellclick_spells` WHERE (`npc_entry`='48040') AND (`spell_id`='47020');
+INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES ('48040', '47020', '1', '0');
+DELETE FROM `spell_area` WHERE (`spell`='40200') AND (`area`='3522') AND (`quest_start`='0') AND (`aura_spell`='40195') AND (`racemask`='0') AND (`gender`='2');
+UPDATE `pool_pool` SET `chance`='100' WHERE pool_id IN (20676,5217,20678);
+UPDATE `creature_template` SET `lootid`='71865' WHERE (`entry`='71865');
+UPDATE `quest_template` SET `RequiredSpell`='0', `RequiredSpellCast1`='0', `RequiredSpellCast2`='0', `RequiredSpellCast3`='0', `RequiredSpellCast4`='0', `RequiredSpellCast5`='0', `RequiredSpellCast6`='0' WHERE id IN (31480,31280,31467,31469,31471,31474,31476,31477);
+UPDATE `pool_gameobject` SET `chance`='100' WHERE guid IN (64922,188273,188274);
+UPDATE `creature_template` SET `lootid`='72249' WHERE (`entry`='72249');
+UPDATE `creature_template` SET `lootid`='72276' WHERE (`entry`='72276');
+DELETE FROM `areatrigger_tavern` WHERE (`id`='4342');
+DELETE FROM `areatrigger_tavern` WHERE (`id`='4961');
+UPDATE `player_factionchange_items` SET `alliance_id`='100444' WHERE (`alliance_id`='1') AND (`horde_id`='100706');
+UPDATE `gameobject_template` SET `name`='Displacement Pad' WHERE entry IN (218417,218418);
+UPDATE `gameobject_template` SET `name`='Age of a Hundred Kings' WHERE (`entry`='218438');
+UPDATE `gameobject_template` SET `name`='Quill Target' WHERE (`entry`='218625');
+UPDATE `gameobject_template` SET `data1`='0' WHERE entry IN (161526,161521);
+DELETE FROM `gameobject_loot_template` WHERE entry IN (161526,161521);
+UPDATE `creature_template` SET `minlevel`='91', `maxlevel`='91', `faction_A`='12', `faction_H`='12', `dmg_multiplier`='1.5', `InhabitType`='1' WHERE (`entry`='69741');
+ALTER TABLE `spell_ranks` CHANGE COLUMN `first_spell_id` `first_spellId` INT(10) NOT NULL;
+ALTER TABLE `spell_ranks` CHANGE COLUMN `spell_id` `spellId` INT(10) NOT NULL;
+ALTER TABLE `spell_required` CHANGE COLUMN `spell_id` `spellId` MEDIUMINT(8) NOT NULL;
+ALTER TABLE `spell_group` CHANGE COLUMN `spell_id` `spellId` INT(11) NOT NULL;
+ALTER TABLE `spell_forbidden`
+CHANGE COLUMN `spell_id` `spellId`  int(11) UNSIGNED NOT NULL FIRST ,
+DROP PRIMARY KEY,
+ADD PRIMARY KEY (`spellId`);

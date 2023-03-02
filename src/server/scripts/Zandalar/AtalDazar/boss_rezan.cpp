@@ -1,5 +1,6 @@
 /*
  * Copyright 2023 AzgathCore
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -121,7 +122,196 @@ enum
   CONVERSATION_REZAN_DEATH = 6322,
 };
 
+///122963
+struct boss_ataldazar_rezan : public BossAI
+{
+    boss_ataldazar_rezan(Creature* creature) : BossAI(creature, DATA_REZAN) {
+
+        for (Position point : AreatriggerPositions)
+            me->CastSpell(point, SPELL_PILE_OF_BONES_AREATRIGGER);
+    }
+
+    void InitializeAI() override
+    {
+        BossAI::InitializeAI();
+    }
+
+    void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spell*/) override
+    {
+    }
+
+    void Reset() override
+    {
+        events.Reset();
+        summons.DespawnAll();
+        for (Position point : AreatriggerPositions)
+            me->CastSpell(point, SPELL_PILE_OF_BONES_AREATRIGGER);
+    }
+
+    void EnterCombat(Unit* who) override
+    {
+        // Events
+        events.ScheduleEvent(EVENT_TAIL, urand(15000, 20000)); //timed event like onyxia
+        events.ScheduleEvent(EVENT_TERRIFYING_VISAGE, 12400);
+        events.ScheduleEvent(EVENT_SERRATHED_TEETH, 6000);
+        events.ScheduleEvent(EVENT_PURSUIT, 21800);
+
+        BossAI::EnterCombat(who);
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_AREATRIGGER_ACTIVATED:
+            {
+                Talk(TALK_BONE_PILE);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            if (me->GetChannelSpellId() != SPELL_PURSUIT && me->GetChannelSpellId() != SPELL_DEVOUR)
+                return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+            case EVENT_TAIL:
+            {
+
+                me->CastSpell(me, SPELL_TAIL, true);
+                events.ScheduleEvent(EVENT_TAIL, urand(15000, 20000));
+                break;
+            }
+            case EVENT_TERRIFYING_VISAGE:
+            {
+                me->CastSpell(me, SPELL_TERRIFYING_VISAGE);
+                events.ScheduleEvent(EVENT_TERRIFYING_VISAGE, 40900);
+                break;
+            }
+            case EVENT_SERRATHED_TEETH:
+            {
+                DoCastVictim(SPELL_SERRATHED_TEETH);
+                events.ScheduleEvent(EVENT_SERRATHED_TEETH, 38000);
+                break;
+            }
+            case EVENT_PURSUIT:
+            {
+                events.DelayEvents(18000);
+                Talk(TALK_PURSUIT);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                {
+                    me->CastSpell(target, SPELL_PURSUIT);
+                    storedtarget = target;
+                }
+                events.ScheduleEvent(EVENT_PURSUIT, urand(38000, 44000));
+                events.ScheduleEvent(EVENT_PURSUIT_TARGET, 1);
+                events.ScheduleEvent(EVENT_PURSUIT_STOP, 18000);
+                break;
+            }
+            case EVENT_PURSUIT_TARGET:
+            {
+                if(storedtarget)
+                {
+                    if (me->GetDistance(storedtarget->GetPosition()) > 7)
+                    {
+                        me->ClearUnitState(UNIT_STATE_CASTING);
+                        me->GetMotionMaster()->MoveFollow(storedtarget, 0, 0.0f);
+                    }
+                    else
+                    {
+                        storedtarget->CastSpell(me, SPELL_RIDE_VEHICLE);
+                        Talk(TALK_DEVOUR);
+                        me->CastSpell(storedtarget, SPELL_DEVOUR);
+
+                        events.ScheduleEvent(EVENT_PURSUIT_STOP, 0);
+                        events.ScheduleEvent(EVENT_DISMOUNT, 8000);
+                    }
+                }
+                events.ScheduleEvent(EVENT_PURSUIT_TARGET, 500);
+                break;
+            }
+            case EVENT_PURSUIT_STOP:
+            {
+                events.CancelEvent(EVENT_PURSUIT_TARGET);
+                break;
+            }
+            case EVENT_DISMOUNT:
+            {
+                if (me->HasAura(SPELL_RIDE_VEHICLE))
+                    me->RemoveAura(SPELL_RIDE_VEHICLE);
+            }
+            default:
+                break;
+            }
+
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+    void JustDied(Unit* killer) override
+    {
+        _JustDied();
+        instance->SetBossState(DATA_REZAN, DONE);
+        std::list<Player*> playerList;
+        me->GetPlayerListInGrid(playerList, 100.0f);
+        for (auto player : playerList)
+        {
+			Conversation::CreateConversation(CONVERSATION_REZAN_DEATH, player, player->GetPosition(), { player->GetGUID() });
+            if (player->HasAura(SPELL_UNSTABLE_HEX))
+            {
+                int cont = instance->GetData(DATA_ACHIEVEMENT_COUNT);
+                instance->SetData(DATA_ACHIEVEMENT_COUNT, cont++);
+                break;
+            }
+        }
+    }
+
+private:
+    Unit* storedtarget;
+};
+
+struct areatrigger_ancient_bones : AreaTriggerAI
+{
+    areatrigger_ancient_bones(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit)
+    {
+        if (unit)
+        {
+            if (Creature* rezan = unit->FindNearestCreature(NPC_REZAN, 100, true))
+                if(rezan->IsInCombat() == true)
+                {
+                    if (!rezan->GetMap()->IsHeroic() && !rezan->GetMap()->IsMythic())
+                        if (unit == rezan)
+                            return;
+                    if (unit != rezan && unit->IsPlayer())
+                        unit->AddAura(SPELL_PILE_OF_BONES_SLOW);
+                    rezan->GetAI()->DoAction(ACTION_AREATRIGGER_ACTIVATED);
+                    if (rezan->GetMap()->IsMythic())
+                        rezan->CastSpell(at->GetPosition(), SPELL_PILE_OF_BONES_SPAWN_HEROIC, TRIGGERED_CAN_CAST_WHILE_CASTING_MASK);
+                    else
+                        rezan->CastSpell(at->GetPosition(), SPELL_PILE_OF_BONES_SPAWN_NORMAL, TRIGGERED_CAN_CAST_WHILE_CASTING_MASK);
+                    at->Remove();
+                }
+        }
+    }
+};
+
 void AddSC_boss_rezan()
 {
-    
+    RegisterCreatureAI(boss_ataldazar_rezan);
+    RegisterAreaTriggerAI(areatrigger_ancient_bones);
 }

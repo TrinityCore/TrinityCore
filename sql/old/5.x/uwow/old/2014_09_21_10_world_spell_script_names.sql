@@ -1,0 +1,1 @@
+DELETE FROM `spell_script_names` WHERE (`spell_id`='148187') AND (`ScriptName`='spell_monk_rushing_jade_windc');

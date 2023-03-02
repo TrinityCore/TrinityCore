@@ -1,0 +1,3 @@
+UPDATE `spell_trigger` SET `bp0`='137596', `aura`='77442' WHERE (`spell_id`='137595') AND (`spell_trigger`='141004') AND (`option`='37') AND (`effectmask`='7') AND (`aura`='137596') AND (`check_spell_id`='0');
+UPDATE `spell_trigger` SET `bp0`='137596', `aura`='-77442' WHERE (`spell_id`='137595') AND (`spell_trigger`='137597') AND (`option`='37') AND (`effectmask`='7') AND (`aura`='137596') AND (`check_spell_id`='0');
+UPDATE `spell_trigger` SET `bp0`='138958', `aura`='0' WHERE (`spell_id`='138957') AND (`spell_trigger`='138960') AND (`option`='37') AND (`effectmask`='7') AND (`aura`='138958') AND (`check_spell_id`='0');

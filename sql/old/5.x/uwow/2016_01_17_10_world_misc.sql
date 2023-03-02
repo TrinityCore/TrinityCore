@@ -1,0 +1,1 @@
+UPDATE `spell_proc_event` SET `procFlags`='4096' WHERE (`entry`='56375') AND (`effectmask`='7');

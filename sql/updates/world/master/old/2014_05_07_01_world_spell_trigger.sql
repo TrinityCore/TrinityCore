@@ -1,0 +1,1 @@
+UPDATE `spell_trigger` SET `bp1`='100' WHERE (`spell_id`='146346') AND (`spell_trigger`='146347') AND (`option`='9') AND (`aura`='0');

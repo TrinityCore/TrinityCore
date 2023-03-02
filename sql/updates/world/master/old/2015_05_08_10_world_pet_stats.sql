@@ -1,0 +1,1 @@
+UPDATE `pet_stats` SET `ap`='0.33', `spd`='0' WHERE (`entry`='63508');

@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2022 BfaCore Reforged
  * Copyright 2023 AzgathCore
  *
  * This program is free software; you can redistribute it and/or modify it

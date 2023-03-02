@@ -1,0 +1,1 @@
+update `item_instance` set `reforgeId`=0 WHERE `reforgeId` < 113;

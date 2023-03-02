@@ -1,0 +1,1 @@
+delete from spell_scrip_names where spell_id = 20167;

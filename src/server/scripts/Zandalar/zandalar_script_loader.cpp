@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2022 BfaCore Reforged
  * Copyright 2023 AzgathCore
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -40,6 +41,10 @@ void AddSC_boss_yazma();
 void AddSC_atal_dazar();
 void AddSC_instance_atal_dazar();
 
+void AddSC_boss_dunegorger_kraulok();
+void AddSC_boss_jiarak();
+void AddSC_boss_tzane();
+
 void AddSC_boss_Coin_operated_crowd_pummeler();
 void AddSC_boss_azerokk();
 void AddSC_boss_rixxafluxflame();
@@ -71,12 +76,15 @@ void AddSC_instance_battle_of_dazaralor();
 void AddSC_instance_battle_of_dazaralor();
 void AddSC_battle_of_dazaralor();
 void AddSC_boss_frida_ironbellows();
+void AddSC_boss_rawani_kanae();
 void AddSC_boss_grong();
 void AddSC_boss_high_tinker_mekkatorque();
 void AddSC_boss_conclave_of_the_chosen();
 void AddSC_boss_jadefire_masters();
 void AddSC_boss_jadefire_masters_horde();
 void AddSC_boss_opulence();
+void AddSC_boss_conclave_of_the_chosen();
+void AddSC_boss_high_tinker_mekkatorque();
 void AddSC_boss_king_rastakhan();
 void AddSC_boss_rawani_kanae();
 
@@ -92,6 +100,8 @@ void AddSC_boss_queens_court();
 
 
 void AddSC_nazjatar();
+//void AddSC_boss_stormwall_blockade();
+//void AddSC_boss_lady_jaina_proudmoore();
 
 void AddZandalarScripts()
 {
@@ -119,6 +129,10 @@ void AddZandalarScripts()
     AddSC_boss_yazma();
     AddSC_atal_dazar();
     AddSC_instance_atal_dazar();
+
+    AddSC_boss_dunegorger_kraulok();
+    AddSC_boss_jiarak();
+    AddSC_boss_tzane();
 	
 	AddSC_boss_Coin_operated_crowd_pummeler();
 	AddSC_boss_azerokk();
@@ -150,12 +164,15 @@ void AddZandalarScripts()
     AddSC_instance_battle_of_dazaralor();
     AddSC_battle_of_dazaralor();
     AddSC_boss_frida_ironbellows();
+    AddSC_boss_rawani_kanae();
     AddSC_boss_grong();
     AddSC_boss_high_tinker_mekkatorque();
     AddSC_boss_conclave_of_the_chosen();
     AddSC_boss_jadefire_masters();
     AddSC_boss_jadefire_masters_horde();
     AddSC_boss_opulence();
+    AddSC_boss_conclave_of_the_chosen();
+    AddSC_boss_high_tinker_mekkatorque();
     AddSC_boss_king_rastakhan();
     AddSC_boss_rawani_kanae();
     
@@ -170,4 +187,6 @@ void AddZandalarScripts()
     AddSC_boss_queens_court();
 
     AddSC_nazjatar();
+    //AddSC_boss_stormwall_blockade();
+    //AddSC_boss_lady_jaina_proudmoore();
 }

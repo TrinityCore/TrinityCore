@@ -1,0 +1,2 @@
+DELETE FROM `pet_stats` WHERE (`entry`='63508');
+INSERT INTO `pet_stats` (`entry`, `hp`, `ap`, `spd`, `maxspdorap`, `state`, `energy`, `comment`) VALUES ('63508', '1', '-0.33', '0.33', '1', '2', '1', 'Призыв Сюеня');

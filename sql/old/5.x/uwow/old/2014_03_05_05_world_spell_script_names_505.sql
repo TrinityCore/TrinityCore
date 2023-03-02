@@ -1,0 +1,1 @@
+DELETE FROM `spell_script_names` WHERE (`spell_id`='115080') AND (`ScriptName`='spell_monk_touch_of_death');

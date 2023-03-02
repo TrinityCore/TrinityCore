@@ -1,0 +1,1 @@
+update creature_template set unit_flags = 770, flags_extra = 2 where entry in (66410,66411);

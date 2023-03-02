@@ -1,0 +1,14 @@
+DELETE FROM `creature` WHERE `id` = '70060';
+DELETE FROM `creature` WHERE `id` = '69944';
+DELETE FROM `creature` WHERE `id` = '70056';
+DELETE FROM `creature` WHERE `id` = '70047';
+DELETE FROM `creature` WHERE `id` = '69548';
+DELETE FROM `creature` WHERE `id` = '69153';
+DELETE FROM `creature` WHERE `id` = '69480';
+DELETE FROM `creature` WHERE `id` = '69453';
+DELETE FROM `creature` WHERE `id` = '510';
+UPDATE `creature` SET `unit_flags`='526336',`dynamicflags`='24' WHERE `map`='1098';
+UPDATE `creature_template` SET `mechanic_immune_mask`='650854399',`flags_extra`='1',`ScriptName`='boss_council_of_elders' WHERE `entry`='69131';
+UPDATE `creature_template` SET `mechanic_immune_mask`='650854399',`flags_extra`='1',`ScriptName`='boss_council_of_elders' WHERE `entry`='69132';
+UPDATE `creature_template` SET `mechanic_immune_mask`='650854399',`flags_extra`='1',`ScriptName`='boss_council_of_elders' WHERE `entry`='69134';
+UPDATE `creature_template` SET `mechanic_immune_mask`='650854399',`flags_extra`='1',`ScriptName`='boss_council_of_elders' WHERE `entry`='69078'; 

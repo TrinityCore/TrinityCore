@@ -1,0 +1,3 @@
+INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ( '142524','spell_encapsulated_pheromones'); 
+INSERT INTO `areatrigger_actions`(`entry`,`id`,`moment`,`actionType`,`targetFlags`,`spellId`,`maxCharges`,`aura`,`hasspell`,`chargeRecoveryTime`,`scale`,`hitMaxCount`,`comment`) VALUES ( '1314','0','1','0','8','145747','0','-145747','0','0','0','0','OO:Encapsulated Pheromones'); 
+INSERT INTO `areatrigger_actions`(`entry`,`id`,`moment`,`actionType`,`targetFlags`,`spellId`,`maxCharges`,`aura`,`hasspell`,`chargeRecoveryTime`,`scale`,`hitMaxCount`,`comment`) VALUES ( '1314','1','2','1','8','145747','0','145747','0','0','0','0','OO:Encapsulated Pheromones Remove'); 

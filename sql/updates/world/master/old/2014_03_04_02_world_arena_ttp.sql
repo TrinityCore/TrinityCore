@@ -1,0 +1,1 @@
+INSERT INTO `instance_template` (`map`, `parent`, `script`, `allowMount`) VALUES ('1134', '0', '', '0');

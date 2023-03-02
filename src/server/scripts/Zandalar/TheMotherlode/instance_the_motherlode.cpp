@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2022 BfaCore Reforged
  * Copyright 2023 AzgathCore
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -86,7 +87,7 @@ protected:
 	ObjectGuid RixxafluxflameGUID;
 	ObjectGuid MogulrazdunkGUID;
 };
-void AddSC_instance_the_motherlode()
+void AddSC_instance_the_motherlode();
 {
-    
+    RegisterInstanceScript(instance_the_motherlode, 1594);
 }

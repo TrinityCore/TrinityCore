@@ -1,0 +1,1 @@
+﻿INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ( '144359','spell_sha_of_pride_gift_of_titans'); 

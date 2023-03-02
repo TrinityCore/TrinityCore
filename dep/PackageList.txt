@@ -59,7 +59,7 @@ argon2
 
 catch2
   https://github.com/catchorg/Catch2
-  Version: v2.13.0
+  Version: v3.3.0
 
 CascLib (An open-source implementation of library for reading CASC storage from Blizzard games since 2014)
   https://github.com/ladislav-zezula/CascLib

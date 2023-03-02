@@ -1,0 +1,8 @@
+## Title: ArenaSp
+## Interface: 50400
+## Author: Dark Legacy
+## Notes: Arena Spectator Addon
+## Version: 1.2
+## SavedVariables: ArenaSpDB
+ArenaSp.xml
+ArenaSp.lua

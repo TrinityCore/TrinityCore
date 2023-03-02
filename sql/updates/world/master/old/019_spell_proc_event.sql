@@ -1,0 +1,2 @@
+DELETE FROM `spell_proc_event` WHERE `entry` IN (124487);
+INSERT INTO `spell_proc_event` VALUES (124487, 0x00, 53, 2147483648, 0, 0, 0x00000000, 16384, 0x0000000, 0, 100, 0, 7);

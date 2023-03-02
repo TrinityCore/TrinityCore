@@ -1,0 +1,9 @@
+CREATE TABLE `character_reward` (
+  `guid` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `owner_guid` INT(11) UNSIGNED NOT NULL DEFAULT '0',
+  `type` INT(5) UNSIGNED NOT NULL DEFAULT '0',
+  `id` INT(11) UNSIGNED NOT NULL DEFAULT '0',
+  `count` INT(11) UNSIGNED NOT NULL DEFAULT '0',
+  PRIMARY KEY (`guid`),
+  KEY `owner_guid` (`owner_guid`)
+) ENGINE=INNODB DEFAULT CHARSET=utf8;

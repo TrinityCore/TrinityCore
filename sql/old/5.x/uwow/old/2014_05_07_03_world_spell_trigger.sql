@@ -1,0 +1,1 @@
+INSERT INTO `spell_trigger` (`spell_id`, `spell_trigger`, `option`, `bp0`, `chance`, `comment`) VALUES ('146176', '146177', '9', '33', '101', 'Item - Multistrike');

@@ -1,0 +1,2 @@
+﻿INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES ( '135101','spell_drain_the_weak'); 
+INSERT INTO `areatrigger_actions` (`entry`, `id`, `moment`, `actionType`, `targetFlags`, `spellId`, `maxCharges`, `aura`, `hasspell`, `chargeRecoveryTime`, `scale`, `hitMaxCount`, `amount`, `comment`) values('575','0','1','0','8','134011','0','0','0','0','0','0','0','TT:Spinning Shell');

@@ -631,6 +631,7 @@ void InstanceSaveManager::_ResetInstance(uint32 mapid, uint32 instanceId)
 
     if (iMap)
     {
+        ((InstanceMap*)iMap)->Reset(INSTANCE_RESET_RESPAWN_DELAY);
         iMap->DeleteRespawnTimes();
         iMap->DeleteCorpseData();
     }
@@ -712,21 +713,22 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
     uint32 timeLeft;
 
     for (mitr = instMaps.begin(); mitr != instMaps.end(); ++mitr)
-    {
+        {
         Map* map2 = mitr->second;
         if (!map2->IsDungeon())
             continue;
 
-        if (warn)
-        {
-            if (now >= resetTime)
-                timeLeft = 0;
-            else
-                timeLeft = uint32(resetTime - now);
+            if (warn)
+            {
+                uint32 timeLeft;
+                if (now >= resetTime)
+                    timeLeft = 0;
+                else
+                    timeLeft = uint32(resetTime - now);
 
             ((InstanceMap*)map2)->SendResetWarnings(timeLeft);
-        }
-        else
+            }
+            else
             ((InstanceMap*)map2)->Reset(InstanceResetMethod::INSTANCE_RESET_GLOBAL);
     }
 

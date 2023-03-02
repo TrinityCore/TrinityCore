@@ -1,0 +1,1 @@
+UPDATE `creature_template` SET `spell8`='8050' WHERE (`entry`='2523');

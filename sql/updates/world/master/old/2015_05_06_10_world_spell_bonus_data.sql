@@ -1,0 +1,1 @@
+INSERT INTO `spell_bonus_data` (`entry`, `dot_bonus`, `comments`) VALUES ('980', '0.0306', 'Agony');

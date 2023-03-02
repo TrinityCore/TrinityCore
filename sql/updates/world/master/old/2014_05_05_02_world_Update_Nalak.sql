@@ -1,0 +1,2 @@
+DELETE FROM `creature_template_addon` WHERE `entry`='69099';
+UPDATE `creature_template` SET `unit_flags`='0',`unit_flags2`='2048',`InhabitType`='7',`mechanic_immune_mask`='650854399',`ScriptName`='boss_nalak' WHERE `entry`='69099';

@@ -1,0 +1,1 @@
+delete from spell_trigger where spell_id = 76838;

@@ -1,0 +1,1 @@
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('118475', 'spell_sha_unleashed_fury_rockbiter');

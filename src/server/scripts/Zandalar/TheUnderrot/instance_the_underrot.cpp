@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2022 BfaCore Reforged
  * Copyright 2023 AzgathCore
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -98,5 +99,5 @@ struct instance_the_underrot : public InstanceScript
 
 void AddSC_instance_underrot()
 {
-    
+    //RegisterInstanceScript(instance_the_underrot, 1841);
 }

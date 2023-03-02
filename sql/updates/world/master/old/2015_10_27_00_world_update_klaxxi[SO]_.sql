@@ -1,0 +1,4 @@
+﻿UPDATE `areatrigger_data` SET `activationDelay`='3000' WHERE `entry`='1039'; 
+DELETE FROM `areatrigger_actions` WHERE `entry` = '1039';
+INSERT INTO `areatrigger_actions`(`entry`,`id`,`moment`,`actionType`,`targetFlags`,`spellId`,`maxCharges`,`aura`,`hasspell`,`chargeRecoveryTime`,`scale`,`hitMaxCount`,`amount`, `comment`) VALUES ( '1039','0','1','0','8','143735','0','-143735','0','0','0','0','0','OO:Caustic Amber'); 
+INSERT INTO `areatrigger_actions`(`entry`,`id`,`moment`,`actionType`,`targetFlags`,`spellId`,`maxCharges`,`aura`,`hasspell`,`chargeRecoveryTime`,`scale`,`hitMaxCount`,`amount`, `comment`) VALUES ( '1039','1','2','1','8','143735','0','143735','0','0','0','0','0','OO:Caustic Amber Remove'); 

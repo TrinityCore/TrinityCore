@@ -22,6 +22,7 @@ if(SERVERS OR TOOLS)
   add_subdirectory(openssl)
   add_subdirectory(jemalloc)
   add_subdirectory(argon2)
+  add_subdirectory(Catch2)
   add_subdirectory(openssl_ed25519)
   add_subdirectory(short_alloc)
 endif()
@@ -43,7 +44,7 @@ if(BUILD_TESTING)
   include(FetchContent)
   FetchContent_Declare(Catch2
     GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-    GIT_TAG        v2.13.9
+    GIT_TAG        v3.3.0
     GIT_SHALLOW    1)
   FetchContent_MakeAvailable(Catch2)
  endif()

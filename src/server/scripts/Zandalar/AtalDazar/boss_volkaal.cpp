@@ -1,5 +1,6 @@
 /*
  * Copyright 2023 AzgathCore
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -128,7 +129,259 @@ void CloseBossGate(InstanceScript* instance)
         go->SetGoState(GO_STATE_READY);
 };
 
+struct boss_ataldazar_volkaal : public BossAI
+{
+    boss_ataldazar_volkaal(Creature* creature) : BossAI(creature, DATA_VOLKAAL) { }
+
+    void InitializeAI() override
+    {
+        totemsDead = 0;
+        BossAI::InitializeAI();
+    }
+
+    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_TOXIC_LEAP_DUMMY)
+            me->CastSpell(target, SPELL_TOXIC_LEAP);
+        if (spell->Id == SPELL_NOXIOUS_STENCH_DMG)
+            me->CastSpell(target, SPELL_LINGERING_NAUSEA, TRIGGERED_CAN_CAST_WHILE_CASTING_MASK);
+    }
+
+    void Reset() override
+    {
+        phase = 1;
+
+        events.Reset();
+        summons.DespawnAll();
+        OpenBossGate(instance);
+        totemsDead = 0;
+
+        if (me->HasAura(SPELL_BAD_VODOO))
+            me->RemoveAura(SPELL_BAD_VODOO);
+
+        for (Position point : totemSpawns)
+            me->SummonCreature(NPC_REANIMATION_TOTEM, point, TEMPSUMMON_MANUAL_DESPAWN);
+
+        AreaTriggerList triggers;
+        me->GetAreatriggerListInRange(triggers, 50.0f);
+        for (AreaTrigger* trigger : triggers)
+        {
+            if (trigger->GetEntry() == AREATRIGGER_TOXIC_POOL)
+            {
+                trigger->Remove();
+            }
+        }
+    }
+
+    void EnterCombat(Unit* who) override
+    {
+        Talk(TALK_AGGRO);
+        // Events
+        events.ScheduleEvent(EVENT_CLOSE_DOOR, 1800);
+        events.ScheduleEvent(EVENT_TOXIC_LEAP, 2000);
+        events.ScheduleEvent(EVENT_NOXIOUS_STENCH, 6000);
+
+        BossAI::EnterCombat(who);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+            case EVENT_JUMP_DAMAGE:
+            {
+                me->CastSpell(me, SPELL_TOXIC_LEAP_LANDING, true);
+                break;
+            }
+            case EVENT_NOXIOUS_STENCH:
+            {
+                me->CastSpell(me->GetVictim(), SPELL_NOXIOUS_STENCH);
+                //Noxious Stench adds a delay on toxic leap
+                if (phase == 1)
+                {
+                    events.DelayEvent(EVENT_TOXIC_LEAP, 2000);
+                    events.ScheduleEvent(EVENT_NOXIOUS_STENCH, 18200);
+                }
+                if (phase == 2)
+                {
+                    events.ScheduleEvent(EVENT_NOXIOUS_STENCH, 20600);
+                }
+                break;
+            }
+            case EVENT_TOXIC_LEAP:
+            {
+                me->CastSpell(me, SPELL_TOXIC_LEAP_DUMMY);
+                events.ScheduleEvent(EVENT_JUMP_DAMAGE, 3500);
+                events.ScheduleEvent(EVENT_TOXIC_LEAP, 6000);
+                break;
+            }
+            case EVENT_TOXIC_POOL:
+            {
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                    me->CastSpell(target, SPELL_RAPID_DECAY_AREATRIGGER_MISSLE2, TRIGGERED_CAN_CAST_WHILE_CASTING_MASK);
+                me->CastSpell(me, SPELL_RAPID_DECAY_AREATRIGGER_MISSLE, TRIGGERED_CAN_CAST_WHILE_CASTING_MASK);
+                events.ScheduleEvent(EVENT_TOXIC_POOL, 1000);
+                break;
+            }
+            case EVENT_CLOSE_DOOR:
+                CloseBossGate(instance);
+            default:
+                break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+        case ACTION_TOTEM_DIED:
+        {
+            if (totemsDead < 3)
+            {
+                totemsDead++;
+
+                if (me->HasAura(SPELL_BAD_VODOO))
+                    me->RemoveAuraFromStack(SPELL_BAD_VODOO);
+            }
+            if (totemsDead == 3)
+            {
+                Talk(TALK_PHASE_TWO);
+
+                phase = 2;
+
+                me->AddAura(SPELL_RAPID_DECAY_BOSS_AURA);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    me->InterruptNonMeleeSpells(0);
+
+                summons.DespawnAll();
+
+                events.CancelEvent(EVENT_TOXIC_LEAP);
+                events.CancelEvent(EVENT_TOXIC_POOL);
+                events.ScheduleEvent(EVENT_TOXIC_POOL, 800);
+            }
+            break;
+        }
+        case ACTION_TOTEM_HEALED:
+        {
+            totemsDead--;
+            break;
+        }
+        default:
+            break;
+        }
+    }
+
+    void JustDied(Unit* killer) override
+    {
+        Talk(TALK_DEATH);
+        _JustDied();
+        instance->SetBossState(DATA_VOLKAAL, DONE);
+        OpenBossGate(instance);
+        std::list<Player*> playerList;
+        me->GetPlayerListInGrid(playerList, 100.0f);
+        for (auto player : playerList)
+        {
+            if (player->HasAura(SPELL_UNSTABLE_HEX))
+            {
+                int cont = instance->GetData(DATA_ACHIEVEMENT_COUNT);
+                instance->SetData(DATA_ACHIEVEMENT_COUNT, cont++);
+                break;
+            }
+        }
+        //DoPlayConversation();
+    }
+
+private:
+    uint8 totemsDead;
+    uint8 phase;
+};
+
+struct npc_ataldazar_reanimation_totem : public ScriptedAI
+{
+    npc_ataldazar_reanimation_totem(Creature* pCreature) : ScriptedAI(pCreature) { }
+
+    void Reset() override
+    {
+        events.Reset();
+        me->setActive(false);
+
+        if (Creature* volkaal = me->FindNearestCreature(NPC_VOLKAAL, 100))
+            volkaal->AddAura(SPELL_BAD_VODOO);
+    }
+
+    void InitializeAI() override
+    {
+        me->SetReactState(REACT_PASSIVE);
+        SetCombatMovement(false);
+        ScriptedAI::InitializeAI();
+    }
+
+    void DamageTaken(Unit* /*who*/, uint32& damage) override
+    {
+        if (damage >= me->GetHealth())
+        {
+            if (IsHeroic() || IsMythic())
+            {
+                damage = me->GetHealth() - 1;
+                if (!me->HasUnitState(UNIT_STATE_CASTING))
+                {
+                    me->CastSpell(me, SPELL_REANIMATION_TOTEM_HEAL);
+                    if (Creature* boss = me->FindNearestCreature(NPC_VOLKAAL, 100.f))
+                        boss->AI()->DoAction(ACTION_TOTEM_DIED);
+                }
+            }
+            if (!IsHeroic() && !IsMythic())
+            {
+                if (Creature* boss = me->FindNearestCreature(NPC_VOLKAAL, 100.f))
+                    boss->AI()->DoAction(ACTION_TOTEM_DIED);
+                me->DespawnOrUnsummon();
+            }
+        }
+    }
+
+    void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spell*/) override
+    {
+        if (Creature* boss = me->FindNearestCreature(NPC_VOLKAAL, 100.f))
+            boss->AI()->DoAction(ACTION_TOTEM_HEALED);
+    }
+
+    void EnterCombat(Unit* attacker) override
+    {
+        if (Unit* boss = me->FindNearestCreature(NPC_VOLKAAL, 50, true))
+        {
+            if (!boss->IsInCombat())
+            {
+                me->CallAssistance();
+                boss->SetInCombatWith(attacker);
+                attacker->SetInCombatWith(boss);
+                boss->AddThreat(attacker, 0.1f);
+                boss->Attack(attacker, true);
+            }
+        }
+    }
+
+    void UpdateAI(uint32 /*diff*/) override
+    {
+    }
+};
+
+
 void AddSC_boss_volkaal()
 {
-    
+    RegisterCreatureAI(boss_ataldazar_volkaal);
+    RegisterCreatureAI(npc_ataldazar_reanimation_totem);
 }

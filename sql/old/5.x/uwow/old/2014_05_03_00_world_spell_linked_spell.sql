@@ -1,0 +1,1 @@
+DELETE FROM `spell_linked_spell` WHERE (`spell_trigger`='47897') AND (`spell_effect`='47960') AND (`type`='1') AND (`hastalent`='0');

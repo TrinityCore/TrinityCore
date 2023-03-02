@@ -1,0 +1,5 @@
+INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `hastalent`, `hitmask`, `comment`) VALUES ('73685', '118473', '117012', '1', 'Unleashed Fury');
+INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `hastalent`, `hitmask`, `comment`) VALUES ('73683', '118470', '117012', '1', 'Unleashed Fury');
+INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `hastalent`, `hitmask`, `comment`) VALUES ('73682', '118474', '117012', '1', 'Unleashed Fury');
+INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `hastalent`, `hitmask`, `comment`) VALUES ('73684', '118475', '117012', '1', 'Unleashed Fury');
+INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `hastalent`, `hitmask`, `comment`) VALUES ('73681', '118472', '117012', '1', 'Unleashed Fury');
