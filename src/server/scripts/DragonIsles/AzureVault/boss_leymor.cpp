@@ -127,6 +127,11 @@ struct npc_arcane_tender : public ScriptedAI
         JustAppeared();
     }
 
+    void Reset() override
+    {
+        _events.Reset();
+    }
+
     void JustEngagedWith(Unit* /*who*/) override
     {
         _events.ScheduleEvent(EVENT_ERRATIC_GROWTH, 22s);
@@ -158,6 +163,9 @@ struct npc_arcane_tender : public ScriptedAI
                 default:
                     break;
             }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
 
         DoMeleeAttackIfReady();
@@ -260,10 +268,21 @@ struct boss_leymor : public BossAI
         }
     }
 
-    void EnterEvadeMode(EvadeReason why) override
+    void JustDied(Unit* /*killer*/) override
     {
-        BossAI::EnterEvadeMode(why);
-        me->DespawnOrUnsummon(5s, 30s);
+        _JustDied();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+
+        events.Reset();
+        summons.DespawnAll();
+        scheduler.CancelAll();
+        _EnterEvadeMode();
+        _DespawnAtEvade();
     }
 
     void OnChannelFinished(SpellInfo const* spell) override
@@ -280,11 +299,13 @@ struct boss_leymor : public BossAI
         events.ScheduleEvent(EVENT_ERUPTING_FISSURE, 20s);
         events.ScheduleEvent(EVENT_EXPLOSIVE_BRAND, 31s);
         events.ScheduleEvent(EVENT_INFUSED_STRIKE, 10s);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
     }
 
     void UpdateAI(uint32 diff) override
     {
-        scheduler.Update(diff);
+        if (!instance->GetData(DATA_LEYMOR_INTRO_DONE))
+            scheduler.Update(diff);
 
         if (!UpdateVictim())
             return;
@@ -321,6 +342,9 @@ struct boss_leymor : public BossAI
                 default:
                     break;
             }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
 
         DoMeleeAttackIfReady();
@@ -330,15 +354,17 @@ private:
     int32 _killedArcaneTender;
 };
 
-const Position LeyLineSproutGroupOrigin[] =
+static std::array<Position, 7> const LeyLineSproutGroupOrigin =
 {
-    { -5129.39f, 1253.30f, 555.58f },
-    { -5101.68f, 1253.71f, 555.90f },
-    { -5114.70f, 1230.28f, 555.89f },
-    { -5141.62f, 1230.33f, 555.83f },
-    { -5155.62f, 1253.60f, 555.87f },
-    { -5141.42f, 1276.70f, 555.89f },
-    { -5114.78f, 1277.42f, 555.87f }
+    {
+        { -5129.39f, 1253.30f, 555.58f },
+        { -5101.68f, 1253.71f, 555.90f },
+        { -5114.70f, 1230.28f, 555.89f },
+        { -5141.62f, 1230.33f, 555.83f },
+        { -5155.62f, 1253.60f, 555.87f },
+        { -5141.42f, 1276.70f, 555.89f },
+        { -5114.78f, 1277.42f, 555.87f }
+    }
 };
 
 // 374364 - Ley-Line Sprouts
@@ -476,7 +502,7 @@ class spell_explosive_brand_AuraScript : public AuraScript
 
     void Register() override
     {
-        OnEffectRemove += AuraEffectRemoveFn(spell_explosive_brand_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_explosive_brand_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -492,7 +518,7 @@ class spell_consuming_stomp : public AuraScript
 
     void Register() override
     {
-        OnEffectRemove += AuraEffectRemoveFn(spell_consuming_stomp::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_consuming_stomp::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
