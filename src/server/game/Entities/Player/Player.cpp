@@ -5626,13 +5626,17 @@ uint8 GetFishingStepsNeededToLevelUp(uint32 SkillValue)
     return SkillValue / 31;
 }
 
-bool Player::UpdateFishingSkill()
+bool Player::UpdateFishingSkill(int32 expansion)
 {
-    TC_LOG_DEBUG("entities.player.skills", "Player::UpdateFishingSkill: Player '{}' ({})", GetName(), GetGUID().ToString());
+    TC_LOG_DEBUG("entities.player.skills", "Player::UpdateFishingSkill: Player '{}' ({}) Expansion: {}", GetName(), GetGUID().ToString(), expansion);
 
-    uint32 SkillValue = GetPureSkillValue(SKILL_FISHING);
+    uint32 fishingSkill = GetProfessionSkillForExp(SKILL_FISHING, expansion);
+    if (!fishingSkill || !HasSkill(fishingSkill))
+        return false;
 
-    if (SkillValue >= GetMaxSkillValue(SKILL_FISHING))
+    uint32 SkillValue = GetPureSkillValue(fishingSkill);
+
+    if (SkillValue >= GetMaxSkillValue(fishingSkill))
         return false;
 
     uint8 stepsNeededToLevelUp = GetFishingStepsNeededToLevelUp(SkillValue);
@@ -5643,7 +5647,7 @@ bool Player::UpdateFishingSkill()
         m_fishingSteps = 0;
 
         uint32 gathering_skill_gain = sWorld->getIntConfig(CONFIG_SKILL_GAIN_GATHERING);
-        return UpdateSkillPro(SKILL_FISHING, 100*10, gathering_skill_gain);
+        return UpdateSkillPro(fishingSkill, 100*10, gathering_skill_gain);
     }
 
     return false;
@@ -5981,6 +5985,27 @@ void Player::SetSkill(uint32 id, uint16 step, uint16 newVal, uint16 maxVal)
             UpdateCriteria(CriteriaType::AchieveSkillStep, id);
         }
     }
+}
+
+uint32 Player::GetProfessionSkillForExp(uint32 skill, int32 expansion) const
+{
+    SkillLineEntry const* skillEntry = sSkillLineStore.LookupEntry(skill);
+    if (!skillEntry)
+        return 0;
+
+    if (skillEntry->ParentSkillLineID || (skillEntry->CategoryID != SKILL_CATEGORY_PROFESSION && skillEntry->CategoryID != SKILL_CATEGORY_SECONDARY))
+        return 0;
+
+    // The value -3 from ContentTuning refers to the current expansion
+    if (expansion < 0)
+        expansion = CURRENT_EXPANSION;
+
+    if (std::vector<SkillLineEntry const*> const* childSkillLines = sDB2Manager.GetSkillLinesForParentSkill(skillEntry->ID))
+        for (SkillLineEntry const* childSkillLine : *childSkillLines)
+            if (expansion == (childSkillLine->ParentTierIndex - BASE_PARENT_TIER_INDEX))
+                return childSkillLine->ID;
+
+    return 0;
 }
 
 bool Player::HasSkill(uint32 skill) const
