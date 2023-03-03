@@ -539,8 +539,8 @@
 //    // The name of this function should match:
 //    // void Add${NameOfDirectory}Scripts()
 //}
-    void AddBrokenIslesScripts()
-    {
+    //void AddBrokenIslesScripts()
+    //{
     //    AddSC_orderhall_warrior();
     //    AddSC_zone_mardum();
     //    AddSC_zone_vault_of_wardens();
@@ -620,4 +620,4 @@
     //// micro hollidays
     //addsc_auctionhousedanceparty();
     //AddSC_AuctionHouseDanceParty();
-}
+//}
