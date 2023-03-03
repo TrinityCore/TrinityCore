@@ -242,7 +242,7 @@ struct boss_lord_marrowgar : public BossAI
                     {
                         if (a->GetMovementGeneratorType() == POINT_MOTION_TYPE)
                         {
-                            PointMovementGenerator<Creature> const* pointMovement = dynamic_cast<PointMovementGenerator<Creature> const*>(a);
+                            PointMovementGenerator const* pointMovement = dynamic_cast<PointMovementGenerator const*>(a);
                             return pointMovement && pointMovement->GetId() == POINT_TARGET_BONESTORM_PLAYER;
                         }
                         return false;
