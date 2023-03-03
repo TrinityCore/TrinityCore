@@ -15,6 +15,7 @@
 // * with this program. If not, see <http://www.gnu.org/licenses/>.
 // */
 //
+// //这个脚本应该和broken_isles_script_loader.cpp内容重复
 // // This is where scripts' loading functions should be declared:
 //void AddSC_orderhall_warrior();
 //void AddSC_zone_mardum();
