@@ -92,7 +92,7 @@ namespace {
             return numInGroup;
         }
 
-        void ApplyBuffs(Player* player, Map* map, int difficulty, int numInGroup)   //½ø¸±±¾¹«¸æÔÚ´Ë´¦ĞŞ¸Ä
+        void ApplyBuffs(Player* player, Map* map, int difficulty, int numInGroup)   //è¿›å‰¯æœ¬å…¬å‘Šåœ¨æ­¤å¤„ä¿®æ”¹
         {
             ClearBuffs(player, map);
             if (difficulty > 1)
@@ -101,10 +101,10 @@ namespace {
                 //InstanceScript *instanceScript = instanceMap->GetInstanceScript();
 
                 // Announce to player
-                // ¸øÍæ¼Ò·¢ËÍ¹«¸æ
+                // ç»™ç©å®¶å‘é€å…¬å‘Š
                 std::ostringstream ss;
                 ss << "|cffFF0000[SoloCraft V2] |cffFF8000" << player->GetName() << " entered %s - # of Players: %d - Difficulty Offset: %0.2f.";
-                //ss << "|cffFF0000[µ¥ÈËÕ½¶· °æ±¾2] |cffFF8000" << player->GetName() << " ½øÈëÁË¸±±¾ %s - # Íæ¼ÒÈËÊı: %d - Difficulty Offset: %0.2f.";
+                //ss << "|cffFF0000[å•äººæˆ˜æ–— ç‰ˆæœ¬2] |cffFF8000" << player->GetName() << " è¿›å…¥äº†å‰¯æœ¬ %s - # ç©å®¶äººæ•°: %d - Difficulty Offset: %0.2f.";
                 ChatHandler(player->GetSession()).PSendSysMessage(ss.str().c_str(), map->GetMapName(), numInGroup, difficulty + 0.0);
 
                 _unitDifficulty[player->GetGUID()] = difficulty;
@@ -185,10 +185,10 @@ namespace {
                 _unitDifficulty.erase(unitDifficultyIterator);
 
                 // Inform the player
-                //Í¨ÖªÍæ¼Ò
+                //é€šçŸ¥ç©å®¶
                 std::ostringstream ss;
                 ss << "|cffFF0000[SoloCraft V2] |cffFF8000" << player->GetName() << " exited to %s - Reverting Difficulty Offset: %0.2f.";
-                //ss << "|cffFF0000[µ¥ÈËÕ½¶· °æ±¾2] |cffFF8000" << player->GetName() << " ÍË³öÁË %s - »Ö¸´ÄÑ¶ÈÉèÖÃ: %0.2f.";
+                //ss << "|cffFF0000[å•äººæˆ˜æ–— ç‰ˆæœ¬2] |cffFF8000" << player->GetName() << " é€€å‡ºäº† %s - æ¢å¤éš¾åº¦è®¾ç½®: %0.2f.";
                 ChatHandler(player->GetSession()).PSendSysMessage(ss.str().c_str(), map->GetMapName(), difficulty + 0.0);
 
                 bool m_Solocraft = sConfigMgr->GetBoolDefault("Solocraft.Enable", false);
