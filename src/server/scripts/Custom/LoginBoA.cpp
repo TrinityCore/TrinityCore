@@ -1,6 +1,7 @@
 #include "Player.h"
 #include "Config.h"
 #include "Chat.h"
+#include <World.h>
 #define Welcome_Name "Blood Lust"
 
 class Player_Boa : public PlayerScript
@@ -11,7 +12,7 @@ public:
 
     void OnLogin(Player* player, bool firstLogin) override
     {
-		if (sConfigMgr->GetBoolDefault("Login.BoA", true))
+		if (sConfigMgr->GetBoolDefault("Login.BoA", false))//原先为true,防止自动生效,我改成了假
 		{
         if (!firstLogin) // Run script only on first login
             return;
