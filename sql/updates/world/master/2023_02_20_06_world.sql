@@ -368,5 +368,4 @@ INSERT INTO `game_event_gameobject` (`eventEntry`, `guid`) VALUES
 (@EVENT, @OGUID+137),
 (@EVENT, @OGUID+138),
 (@EVENT, @OGUID+139),
-(@EVENT, @OGUID+140),
-(@EVENT, @OGUID+141);
+(@EVENT, @OGUID+140);
