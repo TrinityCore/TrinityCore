@@ -4407,3 +4407,12 @@ FireWorksOnLevelUp = 1
 
 #
 ###################################################################################################
+
+
+#
+#     XGirlWhispersOnLevelUp    小女孩的低语(升级发送一句清心咒)
+#        Description: Players get a Whisper from XGirl(The developer of this core) when reach a new level.
+#        Default:     0
+
+XGirlWhispersOnLevelUp = 1
+
