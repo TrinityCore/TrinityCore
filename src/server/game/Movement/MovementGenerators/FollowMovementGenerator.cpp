@@ -35,12 +35,15 @@ static void DoMovementInform(Unit* owner, Unit* target)
         AI->MovementInform(FOLLOW_MOTION_TYPE, target->GetGUID().GetCounter());
 }
 
-FollowMovementGenerator::FollowMovementGenerator(Unit* target, float range, ChaseAngle angle) : AbstractFollower(ASSERT_NOTNULL(target)), _range(range), _angle(angle), _checkTimer(CHECK_INTERVAL)
+FollowMovementGenerator::FollowMovementGenerator(Unit* target, float range, ChaseAngle angle, Optional<Milliseconds> duration)
+    : AbstractFollower(ASSERT_NOTNULL(target)), _range(range), _angle(angle), _checkTimer(CHECK_INTERVAL)
 {
     Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     BaseUnitState = UNIT_STATE_FOLLOW;
+    if (duration)
+        _duration.emplace(*duration);
 }
 FollowMovementGenerator::~FollowMovementGenerator() = default;
 
@@ -80,6 +83,17 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
     Unit* const target = GetTarget();
     if (!target || !target->IsInWorld())
         return false;
+
+    if (_duration)
+    {
+        _duration->Update(diff);
+        if (_duration->Passed())
+        {
+            owner->StopMoving();
+            DoMovementInform(owner, target);
+            return false;
+        }
+    }
 
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
     {
