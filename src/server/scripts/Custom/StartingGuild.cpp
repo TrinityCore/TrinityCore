@@ -12,7 +12,7 @@ class gon_playerscripts : public PlayerScript
 
     void OnLogin(Player* player, bool firstLogin)
     {
-        if (sConfigMgr->GetBoolDefault("NewPlayers.Guild.enable", false))//添加个配置设置,控制下,默认不启用
+        if (sConfigMgr->GetBoolDefault("StartGuild.enable", false))//添加配置设置,默认不启用
         {
             if (firstLogin)
             {

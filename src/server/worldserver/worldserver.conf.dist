@@ -4429,8 +4429,9 @@ Login.BoA = 1
 #					  StartGuild.Horde = 46
 #        Default:     0 (disabled)
 
-StartGuild.Alliance = 0
-StartGuild.Horde = 0
+StartGuild.enable   = 0
+StartGuild.Alliance       = 0
+StartGuild.Horde          = 0
 
 #     Reset.on.login
 #        Description: Restore players health, mana and cooldowns when log into the game.
