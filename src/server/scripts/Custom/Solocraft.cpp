@@ -108,6 +108,6 @@ private:
 }
 
 
-void AddSC_solocraft() {
+void AddSC_solocraft_AshamaneCore() {
 	new solocraft_player_instance_handler();
 }
