@@ -3,6 +3,7 @@
 #include "GuildMgr.h"
 #include "Guild.h"
 #include "Config.h"
+#include "Config.h"
 
 class gon_playerscripts : public PlayerScript
 {
@@ -11,20 +12,23 @@ class gon_playerscripts : public PlayerScript
 
     void OnLogin(Player* player, bool firstLogin)
     {
-        if (firstLogin)
+        if (sConfigMgr->GetBoolDefault("NewPlayers.Guild.enable", false))//添加个配置设置,控制下,默认不启用
         {
-            uint32 GUILD_ID_ALLIANCE = sConfigMgr->GetIntDefault("StartGuild.Alliance", 0);
-            uint32 GUILD_ID_HORDE = sConfigMgr->GetIntDefault("StartGuild.Horde", 0);
-            Guild* guild = sGuildMgr->GetGuildById(player->GetTeam() == ALLIANCE ? GUILD_ID_ALLIANCE : GUILD_ID_HORDE);
-            if (guild)
+            if (firstLogin)
             {
-                CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-                guild->AddMember(trans,player->GetGUID());//工会加个玩家,要这么费事?
-                //guild->AddMember(player->GetGUID());
-                //原来的语句这么简单...
+                uint32 GUILD_ID_ALLIANCE = sConfigMgr->GetIntDefault("StartGuild.Alliance", 0);
+                uint32 GUILD_ID_HORDE = sConfigMgr->GetIntDefault("StartGuild.Horde", 0);
+                Guild* guild = sGuildMgr->GetGuildById(player->GetTeam() == ALLIANCE ? GUILD_ID_ALLIANCE : GUILD_ID_HORDE);
+                if (guild)
+                {
+                    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+                    guild->AddMember(trans, player->GetGUID());//工会加个玩家,要这么费事?
+                    //guild->AddMember(player->GetGUID());
+                    //原来的语句这么简单...
+                }
+
+
             }
-           
-            
         }
     }
 };
