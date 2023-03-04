@@ -1,0 +1,1 @@
+工具.查找文件差异 "D:\Program Files (x86)\WOWDIY\XCore\src\server\worldserver\worldserver.conf.dist" "D:\Program Files (x86)\WOWDIY\XCore\配置文件\worldserver.conf"

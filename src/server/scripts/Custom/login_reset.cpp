@@ -1,5 +1,7 @@
-//script made by SymbolixDEV
+//script made by SymbolixDEV,XGirl fixed 2023.3.5(XCore)
 #include "Config.h"
+#include "world.h"              //后加的库,必须
+#include "SpellHistory.cpp"     //后加的库,必须
 
 class login_script : public PlayerScript
 {
@@ -8,7 +10,7 @@ public:
 
     void OnLogin(Player* player, bool)
     {
-		if (sConfigMgr->GetBoolDefault("Reset.on.login", true))
+		if (sConfigMgr->GetBoolDefault("Reset.on.login", false))//暂不启用
 		{
 			std::string msg;
 			if (player->GetSession()->GetSecurity() != SEC_PLAYER)
@@ -22,7 +24,7 @@ public:
 			player->SetPower(POWER_RAGE, player->GetMaxPower(POWER_RAGE)); //set max warrior rage on login!
 			player->SetPower(POWER_RUNIC_POWER, player->GetMaxPower(POWER_RUNIC_POWER));  //set max runic power on Death Knight on login!
 			player->SetFullHealth(); // set max health on login on game !
-			player->GetSpellHistory()->ResetAllCooldowns(); //reset cooldowns on login!
+			player->GetSpellHistory()->ResetAllCooldowns(); //reset cooldowns on login!            
 		}
     }
 };

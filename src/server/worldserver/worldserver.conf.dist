@@ -4423,7 +4423,7 @@ XGirlWhispersOnLevelUp = 1
 Login.BoA = 1
 
 #
-#     StartGuild
+#     StartGuild    新玩家自动加工会
 #        Description: New players automatically added for the configurated guild IDs.
 #		 Example: 	  StartGuild.Alliance = 45
 #					  StartGuild.Horde = 46
