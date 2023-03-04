@@ -539,8 +539,28 @@ uint32 DatabaseWorkerPool<T>::PrepareCustomStatement(std::string const& sql)
     {
         return res->second;
     }
-    m_customIds[sql] = m_curId;
+
+    m_customIds.insert({ sql,m_curId });
+    for (auto& connections : _connections)
+    {
+        for (auto& connection : connections)
+        {
+            connection->LockIfReady();
+            connection->PrepareCustomStatement(m_curId, sql);
+            connection->Unlock();
+        }
+    }
+
     return m_curId++;
+}
+
+template <class T>
+void DatabaseWorkerPool<T>::QueryCustomStatementAsync(uint32 id, PreparedStatementBase* values)
+{
+    PreparedStatementTask* task = new PreparedStatementTask(values, true);
+    // Store future result before enqueueing - task might get already processed and deleted before returning from this method
+    PreparedQueryResultFuture result = task->GetFuture();
+    Enqueue(task);
 }
 
 template <class T>
@@ -551,17 +571,6 @@ PreparedQueryResult DatabaseWorkerPool<T>::QueryCustomStatement(uint32 id, Prepa
     {
         shouldFree = true;
         connection = GetFreeConnection();
-    }
-    if (!connection->HasCustomStatement(id))
-    {
-        // make reverse lookup if this is somehow too slow
-        for (auto& pair: m_customIds)
-        {
-            if (pair.second == id)
-            {
-                connection->PrepareCustomStatement(id, pair.first);
-            }
-        }
     }
 
     PreparedResultSet* ret = connection->QueryCustomStatement(id, values);

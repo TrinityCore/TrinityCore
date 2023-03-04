@@ -217,6 +217,7 @@ class DatabaseWorkerPool
         }
         // @tswow-begin
         PreparedQueryResult QueryCustomStatement(uint32 id, PreparedStatementBase * values, T* connection = nullptr);
+        void QueryCustomStatementAsync(uint32 id, PreparedStatementBase* values);
         uint32 PrepareCustomStatement(std::string const& sql);
         // @tswow-end
 
