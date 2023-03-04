@@ -1,7 +1,7 @@
 ﻿#include "ScriptMgr.h"
 #include "Player.h"
 #include "GuildMgr.h"
-#include "Guild.h"
+#include "Guild.h"//这个库必须,不然会报不完整类型错误
 #include "Config.h"
 #include "Config.h"
 
