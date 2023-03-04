@@ -1,4 +1,4 @@
-/*
+﻿/*
 SPP Praevius Core Solocraft V2
 Original Script Provided by Conanhun
 Re-Written by MDic
