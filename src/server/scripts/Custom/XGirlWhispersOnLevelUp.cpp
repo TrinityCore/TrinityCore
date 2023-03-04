@@ -17,9 +17,9 @@ public:
 		{
             
 			if (oldLevel == start_level)//升2级
-                ChatHandler(player->GetSession()).SendSysMessage("Long long ago,the world is a mass...");
+                ChatHandler(player->GetSession()).SendSysMessage("Long long ago,the world is a mass...");//很久以前,世界一片混乱
             if (oldLevel == start_level+5)//升7级
-                ChatHandler(player->GetSession()).SendSysMessage("A little girl appeared...");
+                ChatHandler(player->GetSession()).SendSysMessage("A little girl appeared...");//一个小女孩出现了
             if (oldLevel == start_level + 6 && player->GetName()=="大女孩")//无尽沉沦的"大女孩"角色升8级,guid值为190
                 ChatHandler(player->GetSession()).SendSysMessage("I heard ur big,where?");//听说你很大,哪大?
             if (oldLevel == start_level + 7 && player->GetGUID().GetCounter() == 190)//无尽沉沦的"大女孩"角色升9级
