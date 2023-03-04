@@ -4410,7 +4410,7 @@ FireWorksOnLevelUp = 1
 
 
 #
-#     XGirlWhispersOnLevelUp    小女孩的低语(升级发送一句清心咒)
+#     XGirlWhispersOnLevelUp    
 #        Description: Players get a Whisper from XGirl(The developer of this core) when reach a new level.
 #        Default:     0
 
@@ -4423,7 +4423,7 @@ XGirlWhispersOnLevelUp = 1
 Login.BoA = 1
 
 #
-#     StartGuild    新玩家自动加工会
+#     StartGuild    
 #        Description: New players automatically added for the configurated guild IDs.
 #		 Example: 	  StartGuild.Alliance = 45
 #					  StartGuild.Horde = 46
