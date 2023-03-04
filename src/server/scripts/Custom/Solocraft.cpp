@@ -8,6 +8,7 @@
 #include "Map.h"
 #include "Group.h"
 #include "InstanceScript.h"
+#include "Chat.h"
 
 /*
  * TODO:
@@ -78,10 +79,11 @@ private:
 
 			_unitDifficulty[player->GetGUID()] = difficulty;
 			for (int32 i = STAT_STRENGTH; i < MAX_STATS; ++i) {
-				player->HandleStatModifier(UnitMods(UNIT_MOD_STAT_START + i), TOTAL_PCT, float(difficulty * 100), true);
-			}
+				//player->HandleStatModifier(UnitMods(UNIT_MOD_STAT_START + i), TOTAL_PCT, float(difficulty * 100), true);
+                player->HandleStatFlatModifier(UnitMods(UNIT_MOD_STAT_START + i), BASE_PCT_EXCLUDE_CREATE, float(difficulty * 100), true);
+                			}
 			player->SetFullHealth();
-			if (player->getPowerType() == POWER_MANA) {
+			if (player->GetPowerType() == POWER_MANA) {
 				player->SetPower(POWER_MANA, player->GetMaxPower(POWER_MANA));
 			}
 		}
@@ -97,7 +99,7 @@ private:
 					map->GetMapName(), difficulty);
 
 			for (int32 i = STAT_STRENGTH; i < MAX_STATS; ++i) {
-				player->HandleStatModifier(UnitMods(UNIT_MOD_STAT_START + i), TOTAL_PCT, float(difficulty * 100), false);
+				player->HandleStatFlatModifier(UnitMods(UNIT_MOD_STAT_START + i), BASE_PCT_EXCLUDE_CREATE, float(difficulty * 100), false);
 			}
 		}
 	}
