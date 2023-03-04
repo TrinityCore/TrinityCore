@@ -1,4 +1,4 @@
-#include "ScriptMgr.h"
+﻿#include "ScriptMgr.h"
 #include "Player.h"
 #include "GuildMgr.h"
 #include "Guild.h"
