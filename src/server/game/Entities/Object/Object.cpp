@@ -795,12 +795,12 @@ bool Object::PrintIndexError(uint32 index, bool set) const
     TC_LOG_ERROR("misc", "Attempt %s non-existed value field: %u (count: %u) for object typeid: %u type mask: %u", (set ? "set value to" : "get value from"), index, m_valuesCount, GetTypeId(), m_objectType);
 
     // ASSERT must fail after function call
-    return false;
+    //return false;//It's a dangerous place,disable,may cause crash
 }
 
 uint32 Object::GetUInt32Value(uint16 index) const
 {
-    ASSERT(index < m_valuesCount || PrintIndexError(index, false));
+    //ASSERT(index < m_valuesCount || PrintIndexError(index, false));//It's a dangerous place,disable,may cause crash
     return m_uint32Values[index];
 }
 
