@@ -75,12 +75,12 @@ BEGIN
         BLOCK "080004b0"
         BEGIN
             VALUE "CompanyName",        VER_COMPANYNAME_STR
-            VALUE "FileDescription",    "TrinityCore Battle.net Server Daemon"
+            VALUE "FileDescription",    "XGirl's WOW-Battle.net Server"//XGirl's WOW-World Server//原版:"TrinityCore Battle.net Server Daemon //XCore Battle.net Server Daemon
             VALUE "FileVersion",        VER_FILEVERSION_STR
             VALUE "InternalName",       "bnetserver"
             VALUE "LegalCopyright",     VER_LEGALCOPYRIGHT_STR
             VALUE "OriginalFilename",   "bnetserver.exe"
-            VALUE "ProductName",        "TrinityCore Battle.net Server"
+            VALUE "ProductName",        "XCore Battle.net Server"//XCore World Server  //org   //TrinityCore Battle.net Server
             VALUE "ProductVersion",     VER_PRODUCTVERSION_STR
         END
     END
