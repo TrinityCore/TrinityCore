@@ -1,5 +1,5 @@
-//À´Ô´:https://uiwow.com/thread-1102-1-1.html
-//½ÇÉ«»¶Ó­¹«¸æ
+//æ¥æº:https://uiwow.com/thread-1102-1-1.html
+//è§’è‰²æ¬¢è¿å…¬å‘Š
 #include "ScriptMgr.h"
 #include "Player.h"
 #include "Chat.h"
@@ -15,14 +15,15 @@ public:
         std::ostringstream message;
         if (firstLogin)
         {
-            //message << "|cff3ADF00Please welcome " << player->GetName() << " to our server!|r";//Ó¢ÎÄÔ­°æ
-            message << "|cff3ADF00" << player->GetName() << ",ÕâÊÇÄãÊ×´ÎÀ´µ½Ğ¡Å®º¢µÄÄ§ÊŞÊÀ½ç,»¶Ó­Äã!Õ¸ĞÂµÄÊÀ½çµÈÄãµÄÌ½Ë÷...|r";
+            message << "|cff3ADF00Please welcome " << player->GetName() << " to our server,a brand new world is waiting for you to explorer!|r";//è‹±æ–‡åŸç‰ˆ
+            //message << "|cff3ADF00" << player->GetName() << ",è¿™æ˜¯ä½ é¦–æ¬¡æ¥åˆ°å°å¥³å­©çš„é­”å…½ä¸–ç•Œ,æ¬¢è¿ä½ !å´­æ–°çš„ä¸–ç•Œç­‰ä½ çš„æ¢ç´¢...|r";
+            //ä¸­æ–‡å¥½åƒä¸èƒ½æ˜¾ç¤º,å…ˆä½¿ç”¨è‹±æ–‡
             sWorld->SendGlobalText(message.str().c_str(), nullptr);
         }
         else
         {
-            //message << "|cff3ADF00Glade to see you back " << player->GetName() << "!|r";//Ó¢ÎÄÔ­°æ
-            message << "|cff3ADF00" << player->GetName() << ",»¶Ó­»ØÀ´!Ò»ÇĞ¹ıµÃÈçºÎ?|r";
+            message << "|cff3ADF00Glade to see you back,how is everything going? " << player->GetName() << "!|r";//è‹±æ–‡åŸç‰ˆ
+                       // message << "|cff3ADF00" << player->GetName() << ",æ¬¢è¿å›æ¥!ä¸€åˆ‡è¿‡å¾—å¦‚ä½•?|r";
             ChatHandler(player->GetSession()).PSendSysMessage(message.str().c_str());
         }
     }
