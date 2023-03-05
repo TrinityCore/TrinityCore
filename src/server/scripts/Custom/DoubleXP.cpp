@@ -10,7 +10,7 @@ public:
     XpWeekend() : PlayerScript("XpWeekend") { }
     void OnGiveXP(Player* player, uint32& amount, Unit* victim)override
     {
-        if (sConfigMgr->GetBoolDefault("DoubleXP.Enable", true))
+        if (sConfigMgr->GetBoolDefault("DoubleXP.Enable", false))//默认禁用
         {
             boost::gregorian::date date(boost::gregorian::day_clock::local_day());
             auto day = date.day_of_week();
