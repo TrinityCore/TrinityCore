@@ -1,4 +1,4 @@
-#include "Player.h"
+﻿#include "Player.h"
 #include "Config.h"
 #include "Chat.h"
 #include <World.h>

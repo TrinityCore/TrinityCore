@@ -1,4 +1,4 @@
-
+﻿
 #ifndef _BOT_GROUP_AI_H
 #define _BOT_GROUP_AI_H
 

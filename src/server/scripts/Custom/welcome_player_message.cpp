@@ -1,4 +1,4 @@
-//来源:https://uiwow.com/thread-1102-1-1.html
+﻿//来源:https://uiwow.com/thread-1102-1-1.html
 //角色欢迎公告
 #include "ScriptMgr.h"
 #include "Player.h"

@@ -1,4 +1,4 @@
-///*
+﻿///*
 // * Copyright (C) 2022 BfaCore Reforged
 // * Copyright (C) 2014-2018 RoG_WoW Source <http://wow.rog.snet>
 // *

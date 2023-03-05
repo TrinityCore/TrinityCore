@@ -1,4 +1,4 @@
-#include "Config.h"
+﻿#include "Config.h"
 #include "World.h"
 
 class announce_login : public PlayerScript
