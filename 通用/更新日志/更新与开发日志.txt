@@ -23,4 +23,4 @@
 开发记录:
 2023.3.5
 AshamaneCore
-Add scripts from old Legion repo 无法完成挑拣合并
+Add scripts from old Legion repo 无法完成挑拣合并(应该是因为该分支是分支合并后的,不用添加)
