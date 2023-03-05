@@ -23,7 +23,8 @@ public:
 
             if (oldLevel == start_level + 6)//玩家升8级
             {
-                ChatHandler(player->GetSession()).SendSysMessage("愿小女神指引你的方向~");
+                //ChatHandler(player->GetSession()).SendSysMessage("愿小女神指引你的方向~");//中文没成功
+                ChatHandler(player->GetSession()).SendSysMessage("Wish the god of XGirl show you the path~");
                 if(player->GetName() == "大女孩")//无尽沉沦的"大女孩"角色升8级,guid值为190
                     ChatHandler(player->GetSession()).SendSysMessage("I heard ur big,where?");//听说你很大,哪大?
             }
