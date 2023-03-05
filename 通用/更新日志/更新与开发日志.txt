@@ -18,3 +18,9 @@
 
 2023.2.27夜
 删除了暴风城情人节相关的几个不随游戏事件更新的NPC(正常的游戏事件相关NPC不受影响)
+
+
+开发记录:
+2023.3.5
+AshamaneCore
+Add scripts from old Legion repo 无法完成挑拣合并
