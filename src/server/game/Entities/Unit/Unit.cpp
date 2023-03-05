@@ -12679,6 +12679,23 @@ void Unit::SetFacingToObject(WorldObject const* object, bool force)
     init.Launch();
 }
 
+void Unit::SetFacingToPoint(Position const& point, bool force)
+{
+    // do not face when already moving
+    if (!force && (!IsStopped() || !movespline->Finalized()))
+        return;
+
+    /// @todo figure out under what conditions creature will move towards object instead of facing it where it currently is.
+    Movement::MoveSplineInit init(this);
+    init.MoveTo(GetPositionX(), GetPositionY(), GetPositionZ(), false);
+    if (GetTransport())
+        init.DisableTransportPathTransformations(); // It makes no sense to target global orientation
+    init.SetFacing(point.GetPositionX(), point.GetPositionY(), point.GetPositionZ());
+
+    //GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_FACE, MOTION_PRIORITY_HIGHEST);
+    init.Launch();
+}
+
 bool Unit::SetWalk(bool enable)
 {
     if (enable == IsWalking())

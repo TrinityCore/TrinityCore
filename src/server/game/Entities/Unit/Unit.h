@@ -1248,6 +1248,7 @@ class TC_GAME_API Unit : public WorldObject
         void SetInFront(WorldObject const* target);
         void SetFacingTo(float const ori, bool force = true);
         void SetFacingToObject(WorldObject const* object, bool force = true);
+        void SetFacingToPoint(Position const& point, bool force = true);
 
         bool IsAlive() const { return (m_deathState == ALIVE); }
         bool isDying() const { return (m_deathState == JUST_DIED); }
