@@ -75,6 +75,8 @@ Object::Object() : m_values(this)
     m_objectType        = TYPEMASK_OBJECT;
     m_updateFlag.Clear();
 
+    m_uint32Values = nullptr;
+
     m_inWorld           = false;
     m_isNewObject       = false;
     m_isDestroyedObject = false;
@@ -785,6 +787,42 @@ void Object::ClearUpdateMask(bool remove)
         if (remove)
             RemoveFromObjectUpdate();
         m_objectUpdated = false;
+    }
+}
+
+bool Object::PrintIndexError(uint32 index, bool set) const
+{
+    TC_LOG_ERROR("misc", "Attempt %s non-existed value field: %u (count: %u) for object typeid: %u type mask: %u", (set ? "set value to" : "get value from"), index, m_valuesCount, GetTypeId(), m_objectType);
+
+    // ASSERT must fail after function call
+    return false;
+}
+
+uint32 Object::GetUInt32Value(uint16 index) const
+{
+    ASSERT(index < m_valuesCount || PrintIndexError(index, false));
+    return m_uint32Values[index];
+}
+
+void Object::ApplyModUInt32Value(uint16 index, int32 val, bool apply)
+{
+    int32 cur = GetUInt32Value(index);
+    cur += (apply ? val : -val);
+    if (cur < 0)
+        cur = 0;
+    SetUInt32Value(index, cur);
+}
+
+void Object::SetUInt32Value(uint16 index, uint32 value)
+{
+    ASSERT(index < m_valuesCount || PrintIndexError(index, true));
+
+    if (m_uint32Values[index] != value)
+    {
+        m_uint32Values[index] = value;
+        _changesMask[index] = 1;
+
+        AddToObjectUpdateIfNeeded();
     }
 }
 

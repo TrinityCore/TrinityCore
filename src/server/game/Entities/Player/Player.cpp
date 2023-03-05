@@ -123,6 +123,7 @@
 #include "TraitPacketsCommon.h"
 #include "Transport.h"
 #include "UpdateData.h"
+#include "UpdateFields.h"
 #include "Util.h"
 #include "Vehicle.h"
 #include "VehiclePackets.h"
@@ -6749,6 +6750,8 @@ void Player::UpdateHonorFields()
     m_lastHonorUpdateTime = now;
 }
 
+
+
 ///Calculate the amount of honor gained based on the victim
 ///and the size of the group for which the honor is divided
 ///An exact honor value can also be given (overriding the calcs)
@@ -6855,11 +6858,18 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
 			ApplyModUInt32Value(PLAYER_FIELD_KILLS, 1, true);
 			// and those in a lifetime
 			ApplyModUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, 1, true);
-			UpdateCriteria(CRITERIA_TYPE_EARN_HONORABLE_KILL);
-			UpdateCriteria(CRITERIA_TYPE_HK_CLASS, victim->getClass());
-			UpdateCriteria(CRITERIA_TYPE_HK_RACE, victim->getRace());
-			UpdateCriteria(CRITERIA_TYPE_HONORABLE_KILL_AT_AREA, GetAreaId());
-			UpdateCriteria(CRITERIA_TYPE_HONORABLE_KILL, 1, 0, 0, victim);
+			//UpdateCriteria(CRITERIA_TYPE_EARN_HONORABLE_KILL);                  //1
+			//UpdateCriteria(CRITERIA_TYPE_HK_CLASS, victim->getClass());         //2
+			//UpdateCriteria(CRITERIA_TYPE_HK_RACE, victim->getRace());           //3
+			//UpdateCriteria(CRITERIA_TYPE_HONORABLE_KILL_AT_AREA, GetAreaId());  //4
+			//UpdateCriteria(CRITERIA_TYPE_HONORABLE_KILL, 1, 0, 0, victim);      //5
+            //上面是旧代码,留作备查,当然下面的都是看名字瞎猜,至于会发生什么,那鬼知道
+
+            UpdateCriteria(CriteriaType::EarnHonorableKill);
+            UpdateCriteria(CriteriaType::DeliverKillingBlowToClass, victim->getClass());
+            UpdateCriteria(CriteriaType::DeliverKillingBlowToRace, victim->getRace());
+            UpdateCriteria(CriteriaType::PVPKillInArea, GetAreaId());
+            UpdateCriteria(CriteriaType::HonorableKills, 1, 0, 0, victim);
 		}
 		else if (sWorld->getBoolConfig(CONFIG_GAIN_HONOR_ELITE) && victim->ToCreature()->isElite())
 		{
@@ -6878,11 +6888,17 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
 
 			// and those in a lifetime
 			ApplyModUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, 1, true);
-			UpdateCriteria(CRITERIA_TYPE_EARN_HONORABLE_KILL);
+			/*UpdateCriteria(CRITERIA_TYPE_EARN_HONORABLE_KILL);
 			UpdateCriteria(CRITERIA_TYPE_HK_CLASS, victim->getClass());
 			UpdateCriteria(CRITERIA_TYPE_HK_RACE, victim->getRace());
 			UpdateCriteria(CRITERIA_TYPE_HONORABLE_KILL_AT_AREA, GetAreaId());
-			UpdateCriteria(CRITERIA_TYPE_HONORABLE_KILL, 1, 0, 0, victim);
+			UpdateCriteria(CRITERIA_TYPE_HONORABLE_KILL, 1, 0, 0, victim);*/
+
+            UpdateCriteria(CriteriaType::EarnHonorableKill);
+            UpdateCriteria(CriteriaType::DeliverKillingBlowToClass, victim->getClass());
+            UpdateCriteria(CriteriaType::DeliverKillingBlowToRace, victim->getRace());
+            UpdateCriteria(CriteriaType::PVPKillInArea, GetAreaId());
+            UpdateCriteria(CriteriaType::HonorableKills, 1, 0, 0, victim);
 		}
         else
         {

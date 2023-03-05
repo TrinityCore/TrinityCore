@@ -183,6 +183,27 @@ class TC_GAME_API Object
         virtual void DestroyForPlayer(Player* target) const;
         void SendOutOfRangeForPlayer(Player* target) const;
 
+        int32 GetInt32Value(uint16 index) const;
+        uint32 GetUInt32Value(uint16 index) const;
+        uint64 GetUInt64Value(uint16 index) const;
+        float GetFloatValue(uint16 index) const;
+        uint8 GetByteValue(uint16 index, uint8 offset) const;
+        uint16 GetUInt16Value(uint16 index, uint8 offset) const;
+        ObjectGuid const& GetGuidValue(uint16 index) const;
+
+        void SetInt32Value(uint16 index, int32 value);
+        void SetUInt32Value(uint16 index, uint32 value);
+        void UpdateUInt32Value(uint16 index, uint32 value);
+        void SetUInt64Value(uint16 index, uint64 value);
+        void SetFloatValue(uint16 index, float value);
+        void SetByteValue(uint16 index, uint8 offset, uint8 value);
+        void SetUInt16Value(uint16 index, uint8 offset, uint16 value);
+        void SetGuidValue(uint16 index, ObjectGuid const& value);
+        void SetStatFloatValue(uint16 index, float value);
+        void SetStatInt32Value(uint16 index, int32 value);
+
+        void ApplyModUInt32Value(uint16 index, int32 val, bool apply);
+
         virtual void ClearUpdateMask(bool remove);
 
         virtual std::string GetNameForLocaleIdx(LocaleConstant locale) const = 0;
@@ -383,6 +404,14 @@ class TC_GAME_API Object
         virtual void BuildValuesCreate(ByteBuffer* data, Player const* target) const = 0;
         virtual void BuildValuesUpdate(ByteBuffer* data, Player const* target) const = 0;
 
+        union
+        {
+            int32* m_int32Values;
+            uint32* m_uint32Values;
+            float* m_floatValues;
+        };
+        uint16 m_valuesCount;
+        std::vector<uint8> _changesMask;
     public:
         virtual void BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const;
 
@@ -403,6 +432,9 @@ class TC_GAME_API Object
         bool m_inWorld;
         bool m_isNewObject;
         bool m_isDestroyedObject;
+
+        // for output helpfull error messages from asserts
+        bool PrintIndexError(uint32 index, bool set) const;
 
         Object(Object const& right) = delete;
         Object(Object&& right) = delete;
