@@ -1,5 +1,10 @@
-//À´Ô´:https://uiwow.com/thread-618-1-1.html
-//boss»÷É±¹«¸æ
+//æ¥æº:https://uiwow.com/thread-618-1-1.html
+//bosså‡»æ€å…¬å‘Š
+
+//by SymbolixDEV
+//Fixed Error SymbolixDEV
+//release SymbolixDEV
+
 #include "ScriptMgr.h"
 #include "Config.h"
 #include <Player.h>
@@ -24,9 +29,9 @@ public:
                 std::string boss_colour = "ff0000";
                 std::ostringstream stream;
                 stream << "|CFF" << tag_colour <<
-                    "|r|cff" << plr_colour << " " << plr << //´Ë´¦µÄplr = player->GetName(),²Î¿´Ç°ÃæµÄ¶¨Òå.¼´»ñÈ¡Íæ¼ÒĞÕÃû.
-                    "|r 's group killed |CFF" << boss_colour << "[" << boss_n << "]|r " "boss" << "!";//Ó¢ÎÄÔ­°æ
-                    //"|r µÄµÄ¶ÓÎé»÷É±ÁË |CFF" << boss_colour << "[" << boss_n << "]|r " "boss" << "!";
+                    "|r|cff" << plr_colour << " " << plr << //æ­¤å¤„çš„plr = player->GetName(),å‚çœ‹å‰é¢çš„å®šä¹‰.å³è·å–ç©å®¶å§“å.
+                    "|r 's group killed |CFF" << boss_colour << "[" << boss_n << "]|r " "boss" << "!";//è‹±æ–‡åŸç‰ˆ
+                    //"|r çš„çš„é˜Ÿä¼å‡»æ€äº† |CFF" << boss_colour << "[" << boss_n << "]|r " "boss" << "!";
                 sWorld->SendServerMessage(SERVER_MSG_STRING, stream.str().c_str());
             }
         }
