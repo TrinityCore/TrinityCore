@@ -1,4 +1,4 @@
-//À´Ô´:https://github.com/openlcoreteam/OpenLCore/blob/master/src/server/scripts/Custom/double_xp.cpp
+ï»¿//æ¥æº:https://github.com/openlcoreteam/OpenLCore/blob/master/src/server/scripts/Custom/double_xp.cpp
 #include "ScriptMgr.h"
 #include "Player.h"
 #include "Chat.h"
@@ -13,12 +13,12 @@ public:
 
     void OnGiveXP(Player* player, uint32& amount, Unit* victim) override
     {
-        if (sConfigMgr->GetBoolDefault("Double.XP", true)) //ÅäÖÃÀïÒªÔö¼ÓDouble.XPÑ¡Ïî  //·¢ÏÖºÍXpWeekendÖØ¸´ÁË
+        if (sConfigMgr->GetBoolDefault("Double.XP", false)) //é…ç½®é‡Œè¦å¢åŠ Double.XPé€‰é¡¹  //å‘ç°å’ŒXpWeekendé‡å¤äº†,æ”¹ä¸ºé»˜è®¤ç¦ç”¨
         {
             boost::gregorian::date date(boost::gregorian::day_clock::local_day());
             auto day = date.day_of_week();
 
-            if (day == boost::date_time::Friday || day == boost::date_time::Saturday || day == boost::date_time::Sunday)//¼ì²âÊÇ·ñÊÇĞÇÆÚÁù»òĞËÈ¤Ìì,ÊÇÔò¼Ó±¶¾­Ñé
+            if (day == boost::date_time::Friday || day == boost::date_time::Saturday || day == boost::date_time::Sunday)//æ£€æµ‹æ˜¯å¦æ˜¯æ˜ŸæœŸå…­æˆ–å…´è¶£å¤©,æ˜¯åˆ™åŠ å€ç»éªŒ
             {
                 amount = amount * 2;
             }

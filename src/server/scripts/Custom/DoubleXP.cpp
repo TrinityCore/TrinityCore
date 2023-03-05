@@ -6,38 +6,38 @@
 
 class XpWeekend : public PlayerScript
 {
-    public:
+public:
     XpWeekend() : PlayerScript("XpWeekend") { }
     void OnGiveXP(Player* player, uint32& amount, Unit* victim)override
-{
-if(sConfigMgr->GetBoolDefault("DoubleXP.Enable", true))
-{
-    boost::gregorian::date date(boost::gregorian::day_clock::local_day());
-    auto day = date.day_of_week();
-    if (day == boost::date_time::Friday ||
-        day == boost::date_time::Saturday ||
-        day == boost::date_time::Sunday) {
+    {
+        if (sConfigMgr->GetBoolDefault("DoubleXP.Enable", true))
+        {
+            boost::gregorian::date date(boost::gregorian::day_clock::local_day());
+            auto day = date.day_of_week();
+            if (day == boost::date_time::Friday ||
+                day == boost::date_time::Saturday ||
+                day == boost::date_time::Sunday) {
 
-        amount = amount*2; }
-}
-}
+                amount = amount * 2;
+            }
+        }
+    }
     void OnLogin(Player* player, bool firstLogin)
     {
-if(sConfigMgr->GetBoolDefault("DoubleXP.Enable", true))
-{
-        boost::gregorian::date date(boost::gregorian::day_clock::local_day());
-    auto day = date.day_of_week();
-    if (day == boost::date_time::Friday ||
-        day == boost::date_time::Saturday ||
-        day == boost::date_time::Sunday) {
-
-        ChatHandler(player->GetSession()).PSendSysMessage("Double XP is going on now!");
+        if (sConfigMgr->GetBoolDefault("DoubleXP.Enable", true))
+        {
+            boost::gregorian::date date(boost::gregorian::day_clock::local_day());
+            auto day = date.day_of_week();
+            if (day == boost::date_time::Friday ||
+                day == boost::date_time::Saturday ||
+                day == boost::date_time::Sunday) {
+                ChatHandler(player->GetSession()).PSendSysMessage("Double XP is going on now!");
+            }
         }
-}
     }
 };
 
-void AddSC_XpWeekend()
+void AddSC_XpWeekend_AshamaneCore()
 {
     new XpWeekend();
 }
