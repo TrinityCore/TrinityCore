@@ -107,7 +107,7 @@ enum UnitPetFlag : uint8
 
 DEFINE_ENUM_FLAG(UnitPetFlag);
 
-enum UnitMoveType
+enum UnitMoveType : uint8
 {
     MOVE_WALK           = 0,
     MOVE_RUN            = 1,
