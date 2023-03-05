@@ -6840,8 +6840,11 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
             UpdateCriteria(CriteriaType::EarnHonorableKill, 1, 0, 0, victim);
             UpdateCriteria(CriteriaType::KillPlayer, 1, 0, 0, victim);
         }
-		else if (sWorld->getBoolConfig(CONFIG_GAIN_HONOR_GUARD) && victim->ToCreature()->IsGuard())
-		{
+		//else if (sWorld->getBoolConfig(CONFIG_GAIN_HONOR_GUARD) && victim->ToCreature()->IsGuard())   //原句
+        else if (sWorld->getBoolConfig(CONFIG_GAIN_HONOR_GUARD) && victim->ToCreature()->IsGuard()) //判断是否开启击杀精英与守卫获得荣誉
+		{//if (sConfigMgr->GetBoolDefault("Duel_Reset.enable", false))
+         //上句是用来参照写配置的,后来发现已有配置文件参数,忽略        
+
 			uint8 k_level = getLevel();
 			uint8 k_grey = Trinity::XP::GetGrayLevel(k_level);
 			uint8 v_level = victim->getLevel();
