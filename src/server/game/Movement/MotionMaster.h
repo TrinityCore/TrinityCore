@@ -156,7 +156,7 @@ class TC_GAME_API MotionMaster
         void MoveIdle();
         void MoveTargetedHome();
         void MoveRandom(float wanderDistance = 0.0f, Optional<Milliseconds> duration = {});
-        void MoveFollow(Unit* target, float dist, ChaseAngle angle, MovementSlot slot = MOTION_SLOT_ACTIVE);
+        void MoveFollow(Unit* target, float dist, ChaseAngle angle, Optional<Milliseconds> duration = {}, MovementSlot slot = MOTION_SLOT_ACTIVE);
         void MoveChase(Unit* target, Optional<ChaseRange> dist = {}, Optional<ChaseAngle> angle = {});
         void MoveChase(Unit* target, float dist, float angle) { MoveChase(target, ChaseRange(dist), ChaseAngle(angle)); }
         void MoveChase(Unit* target, float dist) { MoveChase(target, ChaseRange(dist)); }

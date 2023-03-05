@@ -33,7 +33,7 @@ class Unit;
 class FollowMovementGenerator : public MovementGenerator, public AbstractFollower
 {
     public:
-        explicit FollowMovementGenerator(Unit* target, float range, ChaseAngle angle);
+        explicit FollowMovementGenerator(Unit* target, float range, ChaseAngle angle, Optional<Milliseconds> duration);
         ~FollowMovementGenerator();
 
         void Initialize(Unit*) override;
@@ -54,6 +54,7 @@ class FollowMovementGenerator : public MovementGenerator, public AbstractFollowe
         ChaseAngle const _angle;
 
         TimeTracker _checkTimer;
+        Optional<TimeTracker> _duration;
         std::unique_ptr<PathGenerator> _path;
         Optional<Position> _lastTargetPosition;
 };
