@@ -4584,6 +4584,37 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
 
     // ENDOF ANTORUS THE BURNING THRONE SPELLS
+	
+	
+	// SEPULCHER OF THE FIRST ONES
+
+    // Wicked Star (Marker)
+    ApplySpellFix({ 365021 }, [](SpellInfo* spellInfo)
+        {
+            spellInfo->Attributes |= SPELL_ATTR0_AURA_IS_DEBUFF;
+        });
+
+     // Wicked Star Areatrigger
+    ApplySpellFix({ 365017 }, [](SpellInfo* spellInfo)
+        {
+
+		ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+			{
+				spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+			});
+        });
+
+    // Fragment of Hope Areatrigger
+    ApplySpellFix({ 365816 }, [](SpellInfo* spellInfo)
+        {
+
+        ApplySpellEffectFix(spellInfo, EFFECT_1, [](SpellEffectInfo* spellEffectInfo)
+            {
+                spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
+            });
+        });
+
+    // END OF SEPULCHER OF THE FIRST ONES
 
     // Summon Master Li Fei
     ApplySpellFix({ 102445 }, [](SpellInfo* spellInfo)
