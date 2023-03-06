@@ -1123,6 +1123,27 @@ void MotionMaster::LaunchMoveSpline(std::function<void(Movement::MoveSplineInit&
     Add(movement);
 }
 
+void MotionMaster::CalculateJumpSpeeds(float dist, UnitMoveType moveType, float speedMultiplier, float minHeight, float maxHeight, float& speedXY, float& speedZ) const
+{
+    float baseSpeed = _owner->IsControlledByPlayer() ? playerBaseMoveSpeed[moveType] : baseMoveSpeed[moveType];
+    if (Creature* creature = _owner->ToCreature())
+        baseSpeed *= creature->GetCreatureTemplate()->speed_run;
+
+    speedXY = std::min(baseSpeed * 3.0f * speedMultiplier, std::max(28.0f, _owner->GetSpeed(moveType) * 4.0f));
+
+    float duration = dist / speedXY;
+    float durationSqr = duration * duration;
+    float height;
+    if (durationSqr < minHeight * 8 / Movement::gravity)
+        height = minHeight;
+    else if (durationSqr > maxHeight * 8 / Movement::gravity)
+        height = maxHeight;
+    else
+        height = Movement::gravity * durationSqr / 8;
+
+    speedZ = std::sqrt(2 * Movement::gravity * height);
+}
+
 /******************** Private methods ********************/
 
 void MotionMaster::ResolveDelayedActions()

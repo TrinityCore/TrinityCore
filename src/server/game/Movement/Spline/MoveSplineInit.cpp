@@ -220,6 +220,11 @@ namespace Movement
         args.facing.type = MONSTER_MOVE_FACING_SPOT;
     }
 
+    void MoveSplineInit::SetFacing(float x, float y, float z)
+    {
+        SetFacing({ x, y, z });
+    }
+
     void MoveSplineInit::SetFacing(Unit const* target)
     {
         args.facing.angle = unit->GetAbsoluteAngle(target);
