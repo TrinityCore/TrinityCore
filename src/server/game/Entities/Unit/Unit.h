@@ -55,6 +55,40 @@
 #define MAX_AGGRO_RESET_TIME 10 // in seconds
 #define MAX_AGGRO_RADIUS 45.0f  // yards
 
+class CustomSpellValues
+{
+    typedef std::pair<SpellValueMod, int32> CustomSpellValueMod;
+    typedef std::vector<CustomSpellValueMod> StorageType;
+public:
+    typedef StorageType::const_iterator const_iterator;
+public:
+    void AddSpellMod(SpellValueMod mod, int32 value)
+    {
+        storage_.push_back(CustomSpellValueMod(mod, value));
+    }
+    const_iterator begin() const
+    {
+        return storage_.begin();
+    }
+    const_iterator end() const
+    {
+        return storage_.end();
+    }
+
+    void Reserve(uint32 amount)
+    {
+        storage_.reserve(amount);
+    }
+
+    void Clear()
+    {
+        storage_.clear();
+    }
+
+private:
+    StorageType storage_;
+};
+
 enum VictimState
 {
     VICTIMSTATE_INTACT         = 0, // set when attacker misses
@@ -1196,6 +1230,20 @@ class TC_GAME_API Unit : public WorldObject
         void SendEnergizeSpellLog(Unit* victim, uint32 spellId, int32 damage, int32 overEnergize, Powers powerType);
         void EnergizeBySpell(Unit* victim, SpellInfo const* spellInfo, int32 damage, Powers powerType);
 
+        //bool CastSpell(float x, float y, float z, uint32 spellId, TriggerCastFlags triggerFlags = TRIGGERED_NONE, Item* castItem = nullptr, AuraEffect const* triggeredByAura = nullptr, ObjectGuid originalCaster = ObjectGuid::Empty);
+        //bool CastSpell(SpellCastTargets const& targets, SpellInfo const* spellInfo, CustomSpellValues const* value, TriggerCastFlags triggerFlags = TRIGGERED_NONE, Item* castItem = nullptr, AuraEffect const* triggeredByAura = nullptr, ObjectGuid originalCaster = ObjectGuid::Empty);
+
+        //bool CastSpell(float x, float y, float z, uint32 spellId, bool triggered, Item* castItem = nullptr, AuraEffect const* triggeredByAura = nullptr, ObjectGuid originalCaster = ObjectGuid::Empty);
+        //void CastSpell(Unit* victim, uint32 spellId, bool triggered, Item* castItem, AuraEffect const* triggeredByAura, ObjectGuid originalCaster);
+        //void CastSpell(Unit* victim, uint32 spellId, TriggerCastFlags triggerFlags, Item* castItem, AuraEffect const* triggeredByAura, ObjectGuid originalCaster);
+        //void CastSpell(Unit* victim, SpellInfo const* spellInfo, TriggerCastFlags triggerFlags, Item* castItem, AuraEffect const* triggeredByAura, ObjectGuid originalCaster);
+        //// CastSpell's third arg can be a variety of things - check out CastSpellExtraArgs' constructors!
+        //void CastSpell(SpellCastTargets const& targets, uint32 spellId, CastSpellExtraArgs const& args = {});
+        ////The front may have problem,and two below,the define made by system
+        //void CastSpell(WorldObject* target, uint32 spellId, CastSpellExtraArgs const& args = {});
+        //void CastSpell(Position const& dest, uint32 spellId, CastSpellExtraArgs const& args = {});
+
+
         Aura* AddAura(uint32 spellId, Unit* target);
         Aura* AddAura(SpellInfo const* spellInfo, uint32 effMask, Unit* target);
         void SetAuraStack(uint32 spellId, Unit* target, uint32 stack);
@@ -1920,6 +1968,8 @@ class TC_GAME_API Unit : public WorldObject
         uint32 GetVirtualItemId(uint32 slot) const;
         uint16 GetVirtualItemAppearanceMod(uint32 slot) const;
         void SetVirtualItem(uint32 slot, uint32 itemId, uint16 appearanceModId = 0, uint16 itemVisual = 0);
+
+        void GetAttackableUnitListInRange(std::list<Unit*>& list, float fMaxSearchRange) const;//Later add
 
         // returns if the unit can't enter combat
         bool IsCombatDisallowed() const { return _isCombatDisallowed; }

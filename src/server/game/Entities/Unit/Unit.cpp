@@ -1450,6 +1450,106 @@ void Unit::CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, Weapon
         damageInfo->Damage = 0;
 }
 
+////1
+//void Unit::CastSpell(SpellCastTargets const& targets, uint32 spellId, CastSpellExtraArgs const& args)
+//{
+//    SpellInfo const* info = sSpellMgr->GetSpellInfo(spellId, args.CastDifficulty != DIFFICULTY_NONE ? args.CastDifficulty : GetMap()->GetDifficultyID());
+//    if (!info)
+//    {
+//        TC_LOG_ERROR("entities.unit", "CastSpell: unknown spell %u by caster %s", spellId, GetGUID().ToString().c_str());
+//        return;
+//    }
+//
+//    Spell* spell = new Spell(this, info, args.TriggerFlags, args.OriginalCaster);
+//    for (auto const& pair : args.SpellValueOverrides)
+//        spell->SetSpellValue(pair.first, pair.second);
+//
+//    spell->m_CastItem = args.CastItem;
+//    spell->prepare(targets, args.TriggeringAura);
+//}
+////2
+//void Unit::CastSpell(WorldObject* target, uint32 spellId, CastSpellExtraArgs const& args)
+//{
+//    SpellCastTargets targets;
+//    if (target)
+//    {
+//        if (Unit* unitTarget = target->ToUnit())
+//            targets.SetUnitTarget(unitTarget);
+//        else if (GameObject* goTarget = target->ToGameObject())
+//            targets.SetGOTarget(goTarget);
+//        else
+//        {
+//            TC_LOG_ERROR("entities.unit", "CastSpell: Invalid target %s passed to spell cast by %s", target->GetGUID().ToString().c_str(), GetGUID().ToString().c_str());
+//            return;
+//        }
+//    }
+//    CastSpell(targets, spellId, args);
+//}
+////3
+//void Unit::CastSpell(Position const& dest, uint32 spellId, CastSpellExtraArgs const& args)
+//{
+//    SpellCastTargets targets;
+//    targets.SetDst(dest);
+//    CastSpell(targets, spellId, args);
+//}
+////4
+//void Unit::CastSpell(Unit* victim, uint32 spellId, bool triggered, Item* castItem, AuraEffect const* triggeredByAura, ObjectGuid originalCaster)
+//{
+//    return CastSpell(victim, spellId, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE, castItem, triggeredByAura, originalCaster);
+//}
+////5
+//void Unit::CastSpell(Unit* victim, uint32 spellId, TriggerCastFlags triggerFlags /*= TRIGGER_NONE*/, Item* castItem /*= nullptr*/, AuraEffect const* triggeredByAura /*= nullptr*/, ObjectGuid originalCaster /*= ObjectGuid::Empty*/)
+//{
+//    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, GetMap()->GetDifficultyID());
+//    if (!spellInfo)
+//    {
+//        TC_LOG_ERROR("entities.unit", "CastSpell: unknown spell id %u by caster: %s", spellId, GetGUID().ToString().c_str());
+//        return;
+//    }
+//
+//    return CastSpell(victim, spellInfo, triggerFlags, castItem, triggeredByAura, originalCaster);
+//}
+////6
+//bool Unit::CastSpell(float x, float y, float z, uint32 spellId, bool triggered, Item* castItem, AuraEffect const* triggeredByAura, ObjectGuid originalCaster)
+//{
+//    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, GetMap()->GetDifficultyID());
+//    if (!spellInfo)
+//    {
+//        TC_LOG_ERROR("entities.unit", "CastSpell: unknown spell id %u by caster: %s", spellId, GetGUID().ToString().c_str());
+//        return false;
+//    }
+//    SpellCastTargets targets;
+//    targets.SetDst(x, y, z, GetOrientation());
+//
+//    return CastSpell(targets, spellInfo, nullptr, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE, castItem, triggeredByAura, originalCaster);
+//}
+////7
+//void Unit::CastSpell(Unit* victim, SpellInfo const* spellInfo, TriggerCastFlags triggerFlags, Item* castItem, AuraEffect const* triggeredByAura, ObjectGuid originalCaster)
+//{
+//    SpellCastTargets targets;
+//    targets.SetUnitTarget(victim);
+//    CastSpell(targets, spellInfo, nullptr, triggerFlags, castItem, triggeredByAura, originalCaster);
+//}
+////8
+//bool Unit::CastSpell(SpellCastTargets const& targets, SpellInfo const* spellInfo, CustomSpellValues const* value, TriggerCastFlags triggerFlags, Item* castItem, AuraEffect const* triggeredByAura, ObjectGuid originalCaster)
+//{
+//    if (!spellInfo)
+//    {
+//        TC_LOG_ERROR("entities.unit", "CastSpell: unknown spell by caster: %s", GetGUID().ToString().c_str());
+//        return false;
+//    }
+//
+//    Spell* spell = new Spell(this, spellInfo, triggerFlags, originalCaster);
+//
+//    if (value)
+//        for (CustomSpellValues::const_iterator itr = value->begin(); itr != value->end(); ++itr)
+//            spell->SetSpellValue(itr->first, itr->second);
+//
+//    spell->m_CastItem = castItem;
+//    return spell->prepare(&targets, triggeredByAura);
+//}
+
+
 void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
 {
     Unit* victim = damageInfo->Target;
@@ -13761,6 +13861,24 @@ uint32 Unit::GetCastSpellXSpellVisualId(SpellInfo const* spellInfo) const
 
     return WorldObject::GetCastSpellXSpellVisualId(spellInfo);
 }
+
+void Unit::GetAttackableUnitListInRange(std::list<Unit*>& list, float fMaxSearchRange) const
+{
+    CellCoord p(Trinity::ComputeCellCoord(GetPositionX(), GetPositionY()));
+    Cell cell(p);
+    cell.SetNoCreate();
+
+    Trinity::AttackableUnitInObjectRangeCheck u_check(this, fMaxSearchRange);
+    Trinity::UnitListSearcher<Trinity::AttackableUnitInObjectRangeCheck> searcher(this, list, u_check);
+
+    TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AttackableUnitInObjectRangeCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
+    TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AttackableUnitInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
+
+    cell.Visit(p, world_unit_searcher, *GetMap(), *this, fMaxSearchRange);
+    cell.Visit(p, grid_unit_searcher, *GetMap(), *this, fMaxSearchRange);
+
+}
+
 
 bool Unit::VisibleAuraSlotCompare::operator()(AuraApplication* left, AuraApplication* right) const
 {
