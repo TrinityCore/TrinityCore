@@ -138,6 +138,7 @@
 #include <BattlePet.h>
 #include <BotGroupAI.cpp>
 #include "..\Custom\DynamicResurrection\DynamicResurrection.h"
+#include <G3D/Vector3.h>//Later I add
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -4952,6 +4953,30 @@ void Player::RepopAtGraveyard()
         {
             if (sDynRes->IsInDungeonOrRaid(this) && sDynRes->CheckForSpawnPoint(this))  //On revive,teleport to the last kiied boss in dungeon or raid
                 sDynRes->DynamicResurrection(this);
+
+            //else  //Later add org
+            //{
+            //    TeleportTo(ClosestGrave->MapID, ClosestGrave->Loc.X, ClosestGrave->Loc.Y, ClosestGrave->Loc.Z, (ClosestGrave->Facing * M_PI) / 180); // Orientation is initially in degrees
+            //    if (isDead())                                        // not send if alive, because it used in TeleportTo()
+            //    {
+            //        WorldPackets::Misc::DeathReleaseLoc packet;
+            //        packet.MapID = ClosestGrave->MapID;
+            //        packet.Loc = G3D::Vector3(ClosestGrave->Loc.X, ClosestGrave->Loc.Y, ClosestGrave->Loc.Z);
+            //        GetSession()->SendPacket(packet.Write());
+            //    }//Because the writing methods changed,I cant slove this,maybe after a time,I can have a another try
+
+            else
+            {
+                TeleportTo(ClosestGrave->Loc.GetMapId(), ClosestGrave->Loc.m_positionX, ClosestGrave->Loc.m_positionY, ClosestGrave->Loc.m_positionZ, (ClosestGrave->Facing * M_PI) / 180); // Orientation is initially in degrees
+
+                if (isDead())                                        // not send if alive, because it used in TeleportTo()
+                {
+                    WorldPackets::Misc::DeathReleaseLoc packet;
+                    packet.MapID = ClosestGrave->Loc.GetMapId();
+                    packet.Loc = G3D::Vector3(ClosestGrave->Loc.m_positionX, ClosestGrave->Loc.m_positionY, ClosestGrave->Loc.m_positionZ);
+                    GetSession()->SendPacket(packet.Write());
+                }//This is my try
+            }
         }
         else
         {
