@@ -4965,18 +4965,18 @@ void Player::RepopAtGraveyard()
             //        GetSession()->SendPacket(packet.Write());
             //    }//Because the writing methods changed,I cant slove this,maybe after a time,I can have a another try
 
-            else
-            {
-                TeleportTo(ClosestGrave->Loc.GetMapId(), ClosestGrave->Loc.m_positionX, ClosestGrave->Loc.m_positionY, ClosestGrave->Loc.m_positionZ, (ClosestGrave->Facing * M_PI) / 180); // Orientation is initially in degrees
-
-                if (isDead())                                        // not send if alive, because it used in TeleportTo()
-                {
-                    WorldPackets::Misc::DeathReleaseLoc packet;
-                    packet.MapID = ClosestGrave->Loc.GetMapId();
-                    packet.Loc = G3D::Vector3(ClosestGrave->Loc.m_positionX, ClosestGrave->Loc.m_positionY, ClosestGrave->Loc.m_positionZ);
-                    GetSession()->SendPacket(packet.Write());
-                }//This is my try
-            }
+            //else
+            //{
+            //    //TeleportTo(ClosestGrave->Loc.GetMapId(), ClosestGrave->Loc.m_positionX, ClosestGrave->Loc.m_positionY, ClosestGrave->Loc.m_positionZ/*, (ClosestGrave->Facing * M_PI) / 180*/); // Orientation is initially in degrees
+            //    TeleportTo(ClosestGrave->Loc.GetMapId(), ClosestGrave->Loc.m_positionX, ClosestGrave->Loc.m_positionY, ClosestGrave->Loc.m_positionZ, GetOrientation, m_teleport_options,GetInstanceId);
+            //    if (isDead())                                        // not send if alive, because it used in TeleportTo()  
+            //    {
+            //        WorldPackets::Misc::DeathReleaseLoc packet;
+            //        packet.MapID = ClosestGrave->Loc.GetMapId();
+            //        packet.Loc = G3D::Vector3(ClosestGrave->Loc.m_positionX, ClosestGrave->Loc.m_positionY, ClosestGrave->Loc.m_positionZ);
+            //        GetSession()->SendPacket(packet.Write());
+            //    }//This is my try,failed,but I found it maybe duplicated with below
+            //}
         }
         else
         {
