@@ -15,12 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//// This is where scripts' loading functions should be declared:
-//
-////invasion argus
+// This is where scripts' loading functions should be declared:
+
+//invasion argus
+
 //void AddSC_invasion_point_argus();
 //void AddSC_zone_argus();
-//
+
 //// Antorus Raid
 //void AddSC_antorus();
 //void AddSC_instance_antorus();
@@ -81,7 +82,7 @@
 void AddSC_boss_drugon_the_frostblood();
 //void AddSC_boss_flotsam();
 //void AddSC_boss_humongris();
-//void AddSC_boss_levantus();
+void AddSC_boss_levantus();
 //void AddSC_boss_nazak_the_fiend();
 //void AddSC_boss_sharthos();
 //void AddSC_boss_the_soultakers();
@@ -326,7 +327,7 @@ void AddBrokenIslesScripts()
     AddSC_boss_drugon_the_frostblood();
 //    AddSC_boss_flotsam();
 //    AddSC_boss_humongris();
-//    AddSC_boss_levantus();
+    AddSC_boss_levantus();
 //    AddSC_boss_nazak_the_fiend();
 //    AddSC_boss_nithogg();
 //    AddSC_boss_sharthos();
