@@ -190,7 +190,7 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& sendMail)
                 player->SendMailResult(0, MAIL_SEND, MAIL_ERR_MAIL_ATTACHMENT_INVALID);
                 return;
             }
-            
+
             // handle empty bag before CanBeTraded, since that func already has that check
             if (item->IsNotEmptyBag())
             {
