@@ -330,6 +330,7 @@ class cs_world_chat : public CommandScript
 public:
 	cs_world_chat() : CommandScript("cs_world_chat"){}//经验证cs_world_chat并不是开启世界聊天的命令
     //cs_world_chat() : CommandScript(".world") {}  //猜测为世界频道聊天命令,修改后发现会与"."系列控制台命令冲突
+                                                    //此处其实为声明,只能像上面那样写,命令并不在这,命令在下面↓
 
     std::vector<ChatCommand> GetCommands() const override
     {
@@ -337,7 +338,8 @@ public:
         {
             static std::vector<ChatCommand> HandleWorldChatCommandTable =
             {
-             //   { "world",  rbac::RBAC_PERM_COMMAND_WORLD_CHAT, true, &HandleWorldChatCommand, "" },
+                { "world",  rbac::RBAC_PERM_COMMAND_WORLD_CHAT, true, &HandleWorldChatCommand, "" },//命令在这里
+                //RBAC_PERM_COMMAND_WORLD_CHAT 是权限设置,对应的ID就是命令,目前是1015
             };
             return HandleWorldChatCommandTable;
         }
