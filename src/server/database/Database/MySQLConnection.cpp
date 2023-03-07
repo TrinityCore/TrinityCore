@@ -314,6 +314,65 @@ bool MySQLConnection::_Query(PreparedStatementBase* stmt, MySQLPreparedStatement
     return true;
 }
 
+
+ResultSet* MySQLConnection::Query(std::string_view sql) //AZ
+{
+    if (sql.empty())
+        return nullptr;
+
+    MySQLResult* result = nullptr;
+    MySQLField* fields = nullptr;
+    uint64 rowCount = 0;
+    uint32 fieldCount = 0;
+
+    if (!_Query(sql, &result, &fields, &rowCount, &fieldCount))
+        return nullptr;
+
+    return new ResultSet(result, fields, rowCount, fieldCount);
+}
+
+bool MySQLConnection::_Query(std::string_view sql, MySQLResult** pResult, MySQLField** pFields, uint64* pRowCount, uint32* pFieldCount) //AZ
+{
+    if (!m_Mysql)
+        return false;
+
+    {
+        uint32 _s = getMSTime();
+
+        if (mysql_query(m_Mysql, std::string(sql).c_str()))
+        {
+            uint32 lErrno = mysql_errno(m_Mysql);
+            TC_LOG_INFO("sql.sql", "SQL: {}", sql);
+            TC_LOG_ERROR("sql.sql", "[{}] {}", lErrno, mysql_error(m_Mysql));
+
+            if (_HandleMySQLErrno(lErrno)) // If it returns true, an error was handled successfully (i.e. reconnection)
+                return _Query(sql, pResult, pFields, pRowCount, pFieldCount);    // We try again
+
+            return false;
+        }
+        else
+            TC_LOG_DEBUG("sql.sql", "[{} ms] SQL: {}", getMSTimeDiff(_s, getMSTime()), sql);
+
+        *pResult = reinterpret_cast<MySQLResult*>(mysql_store_result(m_Mysql));
+        *pRowCount = mysql_affected_rows(m_Mysql);
+        *pFieldCount = mysql_field_count(m_Mysql);
+    }
+
+    if (!*pResult)
+        return false;
+
+    if (!*pRowCount)
+    {
+        mysql_free_result(*pResult);
+        return false;
+    }
+
+    *pFields = reinterpret_cast<MySQLField*>(mysql_fetch_fields(*pResult));
+
+    return true;
+}
+
+
 ResultSet* MySQLConnection::Query(char const* sql)
 {
     if (!sql)

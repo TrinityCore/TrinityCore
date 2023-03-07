@@ -1,0 +1,3 @@
+[submodule "src/server/scripts/Custom/azmod/reward-played-time/mod-reward-played-time"]
+	path = src/server/scripts/Custom/azmod/reward-played-time/mod-reward-played-time
+	url = https://github.com/azerothcore/mod-reward-played-time

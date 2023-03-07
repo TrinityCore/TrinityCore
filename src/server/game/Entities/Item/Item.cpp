@@ -47,6 +47,8 @@
 #include "World.h"
 #include "WorldSession.h"
 #include <sstream>
+#include <ItemEnchantmentMgr.cpp>
+#include <Object.cpp>
 
 Item* NewItemOrBag(ItemTemplate const* proto)
 {
@@ -1637,6 +1639,154 @@ Item* Item::CreateItem(uint32 itemEntry, uint32 count, ItemContext context, Play
         }
         else
             delete item;
+    }
+    else
+        ABORT();
+    return nullptr;
+}
+
+
+//Item* Item::CreateItem(uint32 item, uint32 count, Player const* player, bool clone, uint32 randomPropertyId)//AZ
+//{
+//    if (count < 1)
+//        return nullptr;                                        //don't create item at zero count
+//
+//    ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(item);
+//    if (pProto)
+//    {
+//        if (count > pProto->GetMaxStackSize())
+//            count = pProto->GetMaxStackSize();
+//
+//        ASSERT_NODEBUGINFO(count != 0 && "pProto->Stackable == 0 but checked at loading already");
+//
+//        Item* pItem = NewItemOrBag(pProto);
+//        if (pItem->Create(sObjectMgr->GetGenerator<HighGuid::Item>().Generate(), item, player))
+//        {
+//            pItem->SetCount(count);
+//            if (!clone)
+//                pItem->SetItemRandomProperties(randomPropertyId ? randomPropertyId : Item::GenerateItemRandomPropertyId(item));
+//            else if (randomPropertyId)
+//                pItem->SetItemRandomProperties(randomPropertyId);
+//            return pItem;
+//        }
+//        else
+//            delete pItem;
+//    }
+//    else
+//        ABORT();
+//    return nullptr;
+//}
+
+int32 Item::GenerateItemRandomPropertyId(uint32 item_id)
+{
+    ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(item_id);
+
+    if (!itemProto)
+        return 0;
+
+    // item must have one from this field values not null if it can have random enchantments
+    if ((!itemProto->RandomProperty) && (!itemProto->RandomSuffix))
+        return 0;
+
+    // item can have not null only one from field values
+    if ((itemProto->RandomProperty) && (itemProto->RandomSuffix))
+    {
+        TC_LOG_ERROR("sql.sql", "Item template {} have RandomProperty == {} and RandomSuffix == {}, but must have one from field =0", itemProto->ItemId, itemProto->RandomProperty, itemProto->RandomSuffix);
+        return 0;
+    }
+
+    // RandomProperty case
+    if (itemProto->RandomProperty)
+    {
+        uint32 randomPropId = GetItemEnchantMod(itemProto->RandomProperty);
+        ItemRandomPropertiesEntry const* random_id = sItemRandomPropertiesStore.LookupEntry(randomPropId);
+        if (!random_id)
+        {
+            TC_LOG_ERROR("sql.sql", "Enchantment id #{} used but it doesn't have records in 'ItemRandomProperties.dbc'", randomPropId);
+            return 0;
+        }
+
+        return random_id->ID;
+    }
+    // RandomSuffix case
+    else
+    {
+        uint32 randomPropId = GetItemEnchantMod(itemProto->RandomSuffix);
+        ItemRandomSuffixEntry const* random_id = sItemRandomSuffixStore.LookupEntry(randomPropId);
+        if (!random_id)
+        {
+            TC_LOG_ERROR("sql.sql", "Enchantment id #{} used but it doesn't have records in sItemRandomSuffixStore.", randomPropId);
+            return 0;
+        }
+
+        return -int32(random_id->ID);
+    }
+}
+
+void Item::SetItemRandomProperties(int32 randomPropId)//AZ
+{
+    if (!randomPropId)
+        return;
+
+    if (randomPropId > 0)
+    {
+        ItemRandomPropertiesEntry const* item_rand = sItemRandomPropertiesStore.LookupEntry(randomPropId);
+        if (item_rand)
+        {
+            if (GetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID) != int32(item_rand->ID))
+            {
+                SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, item_rand->ID);
+                SetState(ITEM_CHANGED, GetOwner());
+            }
+            for (uint32 i = PROP_ENCHANTMENT_SLOT_0; i < MAX_ENCHANTMENT_SLOT; ++i)
+                SetEnchantment(EnchantmentSlot(i), item_rand->Enchantment[i - PROP_ENCHANTMENT_SLOT_0], 0, 0);
+        }
+    }
+    else
+    {
+        ItemRandomSuffixEntry const* item_rand = sItemRandomSuffixStore.LookupEntry(-randomPropId);
+        if (item_rand)
+        {
+            if (GetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID) != -int32(item_rand->ID) ||
+                !GetItemSuffixFactor())
+            {
+                SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, -int32(item_rand->ID));
+                UpdateItemSuffixFactor();
+                SetState(ITEM_CHANGED, GetOwner());
+            }
+
+            for (uint32 i = PROP_ENCHANTMENT_SLOT_0; i < MAX_ENCHANTMENT_SLOT; ++i)
+                SetEnchantment(EnchantmentSlot(i), item_rand->Enchantment[i - PROP_ENCHANTMENT_SLOT_0], 0, 0);
+        }
+    }
+}
+
+
+Item* Item::CreateItem(uint32 item, uint32 count, Player const* player, bool clone, uint32 randomPropertyId)//AZ
+{
+    if (count < 1)
+        return nullptr;                                        //don't create item at zero count
+
+    ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(item);
+    if (pProto)
+    {
+        if (count > pProto->GetMaxStackSize())
+            count = pProto->GetMaxStackSize();
+
+        ASSERT_NODEBUGINFO(count != 0 && "pProto->Stackable == 0 but checked at loading already");
+
+        Item* pItem = NewItemOrBag(pProto);
+        if (pItem->Create(sObjectMgr->GetGenerator<HighGuid::Item>().Generate(), item, player))//这个忘了修,跳过了,修完下面再回来
+        {
+            pItem->SetCount(count);
+            if (!clone)
+                pItem->SetItemRandomProperties(randomPropertyId ? randomPropertyId : Item::GenerateItemRandomPropertyId(item));//修到这里了
+            else if (randomPropertyId)
+                pItem->SetItemRandomProperties(randomPropertyId);
+            return pItem;
+        }
+        else
+            delete pItem;
     }
     else
         ABORT();
