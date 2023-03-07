@@ -140,13 +140,13 @@
 //        DoCast(SPELL_SADIST);
 //    }
 //
-//    void EnterCombat(Unit* /*unit*/) override
+//    void EnterCombat(Unit* /*unit*/) 
 //    {
 //        Talk(SAY_AGGRO);
-//        events.RescheduleEvent(EVENT_HEART_BREAKER, 4000);
-//        events.RescheduleEvent(EVENT_FEL_LASH, 15000);
-//        events.RescheduleEvent(EVENT_BEGUILING_CHARM, 29000);
-//        events.RescheduleEvent(EVENT_PHANTASM, 33000);
+//        events.RescheduleEvent(EVENT_HEART_BREAKER, Milliseconds(4000));
+//        events.RescheduleEvent(EVENT_FEL_LASH, Milliseconds(15000));
+//        events.RescheduleEvent(EVENT_BEGUILING_CHARM, Milliseconds(29000));
+//        events.RescheduleEvent(EVENT_PHANTASM, Milliseconds(33000));
 //    }
 //
 //    void EnterEvadeMode(EvadeReason why) override
@@ -172,16 +172,16 @@
 //            {
 //            case EVENT_HEART_BREAKER:
 //                DoCast(SPELL_HEART_BREAKER);
-//                events.RescheduleEvent(EVENT_HEART_BREAKER, 22000);
+//                events.RescheduleEvent(EVENT_HEART_BREAKER, Milliseconds(22000));
 //                break;
 //            case EVENT_FEL_LASH:
 //                DoCast(SPELL_FEL_LASH);
-//                events.RescheduleEvent(EVENT_FEL_LASH, 32000);
+//                events.RescheduleEvent(EVENT_FEL_LASH, Milliseconds(32000));
 //                break;
 //            case EVENT_BEGUILING_CHARM:
 //                ZoneTalk(1, 0);
 //                DoCast(SPELL_BEGUILING_CHARM);
-//                events.RescheduleEvent(EVENT_BEGUILING_CHARM, 40000);
+//                events.RescheduleEvent(EVENT_BEGUILING_CHARM, Milliseconds(40000));
 //                break;
 //            default:
 //                break;
@@ -221,12 +221,12 @@
 //        me->RemoveAllAuras();
 //    }
 //
-//    void EnterCombat(Unit* /*unit*/) override
+//    void EnterCombat(Unit* /*unit*/) 
 //    {
 //        Talk(SAY_AGGRO);
-//        events.RescheduleEvent(EVENT_FEL_BREATH, 20000);
-//        events.RescheduleEvent(EVENT_STOMP, 13000);
-//        events.RescheduleEvent(EVENT_DRAIN, 22000);
+//        events.RescheduleEvent(EVENT_FEL_BREATH, Milliseconds(20000));
+//        events.RescheduleEvent(EVENT_STOMP, Milliseconds(13000));
+//        events.RescheduleEvent(EVENT_DRAIN, Milliseconds(22000));
 //    }
 //
 //    void EnterEvadeMode(EvadeReason why) override
@@ -253,15 +253,15 @@
 //            {
 //            case EVENT_FEL_BREATH:
 //                DoCast(SPELL_FEL_BREATH);
-//                events.RescheduleEvent(EVENT_FEL_BREATH, 19000);
+//                events.RescheduleEvent(EVENT_FEL_BREATH, Milliseconds(19000));
 //                break;
 //            case EVENT_STOMP:
 //                DoCast(SPELL_STOMP);
-//                events.RescheduleEvent(EVENT_STOMP, 19000);
+//                events.RescheduleEvent(EVENT_STOMP, Milliseconds(19000));
 //                break;
 //            case EVENT_DRAIN:
 //                DoCast(SPELL_DRAIN);
-//                events.RescheduleEvent(EVENT_DRAIN, 15400);
+//                events.RescheduleEvent(EVENT_DRAIN, Milliseconds(15400));
 //                break;
 //            default:
 //                break;
@@ -284,14 +284,14 @@
 //        me->RemoveAllAreaTriggers();
 //    }
 //
-//    void EnterCombat(Unit* /*unit*/) override
+//    void EnterCombat(Unit* /*unit*/) 
 //    {
 //        Talk(SAY_AGGRO);
-//        events.RescheduleEvent(EVENT_SEARING_GAZE, 7000);
-//        events.RescheduleEvent(EVENT_GUSHING_WOUND, 10000);
-//        events.RescheduleEvent(EVENT_LASH, 45500);
-//        events.RescheduleEvent(EVENT_EYE_SORE, 24000);
-//        events.RescheduleEvent(EVENT_PHANTASM, 27000);
+//        events.RescheduleEvent(EVENT_SEARING_GAZE, Milliseconds(7000));
+//        events.RescheduleEvent(EVENT_GUSHING_WOUND, Milliseconds(10000));
+//        events.RescheduleEvent(EVENT_LASH, Milliseconds(45500));
+//        events.RescheduleEvent(EVENT_EYE_SORE, Milliseconds(24000));
+//        events.RescheduleEvent(EVENT_PHANTASM, Milliseconds(27000));
 //    }
 //
 //    void EnterEvadeMode(EvadeReason why) override
@@ -305,7 +305,7 @@
 //        Talk(SAY_KILL);
 //    }
 //
-//    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+//    void SpellHitTarget(Unit* target, SpellInfo const* spell) 
 //    {
 //        if (spell->Id == SPELL_PHANTASM)
 //        {
@@ -335,23 +335,23 @@
 //            case EVENT_SEARING_GAZE:
 //                if (auto target = me->GetVictim())
 //                    DoCast(target, SPELL_SEARING_GAZE, false);
-//                events.RescheduleEvent(EVENT_SEARING_GAZE, 10000);
+//                events.RescheduleEvent(EVENT_SEARING_GAZE, Milliseconds(10000));
 //                break;
 //            case EVENT_GUSHING_WOUND:
 //                if (auto target = me->GetVictim())
 //                    DoCast(target, SPELL_GUSHING_WOUND, false);
-//                events.RescheduleEvent(EVENT_GUSHING_WOUND, 11000);
+//                events.RescheduleEvent(EVENT_GUSHING_WOUND, Milliseconds(11000));
 //            case EVENT_LASH:
 //                if (auto target = me->GetVictim())
 //                    DoCast(target, SPELL_LASH, false);
-//                events.RescheduleEvent(EVENT_LASH, 18000);
+//                events.RescheduleEvent(EVENT_LASH, Milliseconds(18000));
 //                break;
 //            case EVENT_EYE_SORE:
 //                DoCast(SPELL_EYE_SORE);
 //                break;
 //            case EVENT_PHANTASM:
 //                DoCast(SPELL_PHANTASM);
-//                events.RescheduleEvent(EVENT_PHANTASM, 39000);
+//                events.RescheduleEvent(EVENT_PHANTASM, Milliseconds(39000));
 //                break;
 //            default:
 //                break;
@@ -379,13 +379,13 @@
 //        ScriptedAI::EnterEvadeMode();
 //    }
 //
-//    void EnterCombat(Unit* /*unit*/) override
+//    void EnterCombat(Unit* /*unit*/) 
 //    {
 //        Talk(SAY_AGGRO);
-//        events.RescheduleEvent(EVENT_REAP, 8000);
-//        events.RescheduleEvent(EVENT_SOW, 5000);
-//        events.RescheduleEvent(EVENT_DEATH_FIELD, 12000);
-//        events.RescheduleEvent(EVENT_SEEDS_OF_CHAOS, 26000);
+//        events.RescheduleEvent(EVENT_REAP, Milliseconds(8000));
+//        events.RescheduleEvent(EVENT_SOW, Milliseconds(5000));
+//        events.RescheduleEvent(EVENT_DEATH_FIELD, Milliseconds(12000));
+//        events.RescheduleEvent(EVENT_SEEDS_OF_CHAOS, Milliseconds(26000));
 //    }
 //
 //    void JustDied(Unit* /*who*/) override
@@ -407,12 +407,12 @@
 //            {
 //            case EVENT_REAP:
 //                DoCast(SPELL_REAP);
-//                events.RescheduleEvent(EVENT_REAP, 20000);
+//                events.RescheduleEvent(EVENT_REAP, Milliseconds(20000));
 //                break;
 //            case EVENT_SOW:
 //                DoCast(SPELL_SOW);
 //                DoCast(SPELL_SOW_DMG);
-//                events.RescheduleEvent(EVENT_SOW, 15000);
+//                events.RescheduleEvent(EVENT_SOW, Milliseconds(15000));
 //                break;
 //            case EVENT_DEATH_FIELD:
 //            {
@@ -425,7 +425,7 @@
 //                    me->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_DEATH_FIELD_VISUAL, true);
 //                }
 //                DoCast(SPELL_DEATH_FIELD);
-//                events.RescheduleEvent(EVENT_DEATH_FIELD, 15000);
+//                events.RescheduleEvent(EVENT_DEATH_FIELD, Milliseconds(15000));
 //                break;
 //            }
 //            case EVENT_SEEDS_OF_CHAOS:
@@ -437,7 +437,7 @@
 //                    me->GetNearPosition(10.0f, angle);
 //                    me->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_SEEDS_OF_CHAOS, true);
 //                }
-//                events.RescheduleEvent(EVENT_SEEDS_OF_CHAOS, 30000);
+//                events.RescheduleEvent(EVENT_SEEDS_OF_CHAOS, Milliseconds(30000));
 //                break;
 //            }
 //            default:
@@ -469,10 +469,10 @@
 //    void EnterCombat(Unit* /*unit*/) override
 //    {
 //        Talk(SAY_AGGRO);
-//        events.RescheduleEvent(EVENT_SOUL_CLEAVE, 17000);
-//        events.RescheduleEvent(EVENT_SILENCE, 23000);
-//        events.RescheduleEvent(EVENT_CAVITATION, 21000);
-//        events.RescheduleEvent(EVENT_SEED_OF_DESTRUCTION, 16000);
+//        events.RescheduleEvent(EVENT_SOUL_CLEAVE, Milliseconds(17000));
+//        events.RescheduleEvent(EVENT_SILENCE, Milliseconds(23000));
+//        events.RescheduleEvent(EVENT_CAVITATION, Milliseconds(21000));
+//        events.RescheduleEvent(EVENT_SEED_OF_DESTRUCTION, Milliseconds(16000));
 //    }
 //
 //    void JustDied(Unit* /*who*/) override
@@ -515,20 +515,20 @@
 //            {
 //            case EVENT_SOUL_CLEAVE:
 //                DoCast(SPELL_SOUL_CLEAVE);
-//                events.RescheduleEvent(SPELL_SOUL_CLEAVE, 28000);
+//                events.RescheduleEvent(SPELL_SOUL_CLEAVE, Milliseconds(28000));
 //                break;
 //            case EVENT_SILENCE:
 //                DoCast(SPELL_SILENCE);
-//                events.RescheduleEvent(EVENT_SILENCE, 28000);
+//                events.RescheduleEvent(EVENT_SILENCE, Milliseconds(28000));
 //                break;
 //            case EVENT_CAVITATION:
 //                ZoneTalk(2, 0);
 //                DoCast(SPELL_CAVITATION);
-//                events.RescheduleEvent(EVENT_CAVITATION, 27000);
+//                events.RescheduleEvent(EVENT_CAVITATION, Milliseconds(27000));
 //                break;
 //            case EVENT_SEED_OF_DESTRUCTION:
 //                DoCast(SPELL_SEED_OF_DESTRUCTION);
-//                events.RescheduleEvent(EVENT_SEED_OF_DESTRUCTION, 36000);
+//                events.RescheduleEvent(EVENT_SEED_OF_DESTRUCTION, Milliseconds(36000));
 //                break;
 //            default:
 //                break;
@@ -642,8 +642,8 @@
 //        case PHASE_1:
 //            slimbering = false;
 //            me->SetReactState(REACT_AGGRESSIVE);
-//            events.RescheduleEvent(EVENT_FEL_BLAST, 2000);
-//            events.RescheduleEvent(EVENT_GROTESQUE_SPAWN, 8000);
+//            events.RescheduleEvent(EVENT_FEL_BLAST, Milliseconds(2000));
+//            events.RescheduleEvent(EVENT_GROTESQUE_SPAWN, Milliseconds(8000));
 //            break;
 //        case PHASE_2:
 //            events.CancelEvent(EVENT_FEL_BLAST);
@@ -688,11 +688,11 @@
 //                if (auto target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
 //                    DoCast(target, SPELL_FEL_BLAST, false);
 //
-//                events.RescheduleEvent(EVENT_FEL_BLAST, 10000);
+//                events.RescheduleEvent(EVENT_FEL_BLAST, Milliseconds(10000));
 //                break;
 //            case EVENT_GROTESQUE_SPAWN:
 //                DoCast(SPELL_GROTESQUE_SPAWN);
-//                events.RescheduleEvent(EVENT_GROTESQUE_SPAWN, 35000);
+//                events.RescheduleEvent(EVENT_GROTESQUE_SPAWN, Milliseconds(35000));
 //                break;
 //            default:
 //                break;
@@ -906,7 +906,7 @@
 //            if (!playerList.empty())
 //                me->AI()->AttackStart((*itr));
 //
-//        events.RescheduleEvent(1, 2000);
+//        events.RescheduleEvent(1, Milliseconds(2000));
 //    }
 //
 //    void UpdateAI(uint32 diff) override
@@ -923,7 +923,7 @@
 //            case 1:
 //                if (auto target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
 //                    DoCast(target, SPELL_FEL_FIREBOLT, false);
-//                events.RescheduleEvent(1, 2500);
+//                events.RescheduleEvent(1, Milliseconds(2500));
 //                break;
 //            }
 //        }
@@ -948,7 +948,7 @@
 //    {
 //        DoCast(SPELL_SCORCHING_PRESENCE);
 //        me->GetMotionMaster()->MoveRandom(5.0f);
-//        events.RescheduleEvent(1, 2500);
+//        events.RescheduleEvent(1, Milliseconds(2500));
 //    }
 //
 //    void UpdateAI(uint32 diff) override
@@ -961,7 +961,7 @@
 //            {
 //            case 1:
 //                me->GetMotionMaster()->MoveRandom(5.0f);
-//                events.RescheduleEvent(1, 2500);
+//                events.RescheduleEvent(1, Milliseconds(2500));
 //                break;
 //            }
 //        }

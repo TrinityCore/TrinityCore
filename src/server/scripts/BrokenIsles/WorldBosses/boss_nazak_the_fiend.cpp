@@ -55,9 +55,9 @@
 //
 //        void JustEngagedWith(Unit* unit) override
 //        {
-//            events.RescheduleEvent(1, 23000);
-//            events.RescheduleEvent(2, 42000);
-//            events.RescheduleEvent(3, 57000);
+//            events.RescheduleEvent(1, Milliseconds(23000));
+//            events.RescheduleEvent(2, Milliseconds(42000));
+//            events.RescheduleEvent(3, Milliseconds(57000));
 //        }
 //
 //        void JustDied(Unit* who) override
@@ -70,7 +70,7 @@
 //            summons.Summon(summon);
 //        }
 //
-//        void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+//        void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) 
 //        {
 //            if (spell->Id == SPELL_ABSORB_LEYSTONES)
 //            {
@@ -81,7 +81,7 @@
 //                    {
 //                        if ((*itr)->IsAlive())
 //                        {
-//                            (*itr)->DespawnOrUnsummon(1000);
+//                            (*itr)->DespawnOrUnsummon(Milliseconds(1000));
 //                            DoCast(me, SPELL_LEY_INFUSION, true);
 //                        }
 //                    }
@@ -105,16 +105,16 @@
 //                {
 //                case 1:
 //                    DoCast(SPELL_CORRODING_SPRAY);
-//                    events.RescheduleEvent(1, 23000);
+//                    events.RescheduleEvent(1, Milliseconds(23000));
 //                    break;
 //                case 2:
 //                    DoCast(SPELL_WEB_WRAP);
-//                    events.RescheduleEvent(2, 42000);
+//                    events.RescheduleEvent(2, Milliseconds(42000));
 //                    break;
 //                case 3:
 //                    DoCast(SPELL_FOUNDATIONAL_COLLAPSE);
-//                    events.RescheduleEvent(3, 57000);
-//                    events.RescheduleEvent(4, 2000);
+//                    events.RescheduleEvent(3, Milliseconds(57000));
+//                    events.RescheduleEvent(4, Milliseconds(2000));
 //                    break;
 //                case 4:
 //                    DoCast(SPELL_ABSORB_LEYSTONES);

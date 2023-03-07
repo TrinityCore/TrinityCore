@@ -1969,6 +1969,9 @@ class TC_GAME_API Unit : public WorldObject
         uint16 GetVirtualItemAppearanceMod(uint32 slot) const;
         void SetVirtualItem(uint32 slot, uint32 itemId, uint16 appearanceModId = 0, uint16 itemVisual = 0);
 
+        TaskScheduler& GetScheduler() { return _scheduler; }
+
+
         void GetAttackableUnitListInRange(std::list<Unit*>& list, float fMaxSearchRange) const;//Later add
 
         // returns if the unit can't enter combat
@@ -2156,6 +2159,8 @@ class TC_GAME_API Unit : public WorldObject
         uint16 _meleeAnimKitId;
 
         SpellHistory* _spellHistory;
+
+        TaskScheduler _scheduler;
 
         std::unique_ptr<MovementForces> _movementForces;
         PositionUpdateInfo _positionUpdateInfo;

@@ -30,6 +30,13 @@
 #include <set>
 
 class TaskContext;
+class Unit;
+class GameObject;
+#define GetContextUnit()        context.GetUnit()
+#define GetContextCreature()    context.GetUnit()->ToCreature()
+#define GetContextPlayer()      context.GetUnit()->ToPlayer()
+#define GetContextGameObject()  context.GetGameObject()
+class TaskContext;
 
 /// The TaskScheduler class provides the ability to schedule std::function's in the near future.
 /// Use TaskScheduler::Update to update the scheduler.
@@ -367,6 +374,8 @@ public:
         return RescheduleGroup(group, randtime(min, max));
     }
 
+   
+
 private:
     /// Insert a new task to the enqueued tasks.
     TaskScheduler& InsertTask(TaskContainer task);
@@ -623,13 +632,16 @@ public:
     {
         return RescheduleGroup(group, randtime(min, max));
     }
-
+    /// Allow to retrieve Unit currently updating TaskScheduler
+    Unit* GetUnit() const { return _contextUnit; }
+    
 private:
     /// Asserts if the task was consumed already.
     void AssertOnConsumed() const;
 
     /// Invokes the associated hook of the task.
     void Invoke();
+    Unit* _contextUnit;
 };
 
 #endif /// _TASK_SCHEDULER_H_

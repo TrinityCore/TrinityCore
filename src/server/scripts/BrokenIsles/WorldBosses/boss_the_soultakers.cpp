@@ -91,11 +91,11 @@
 //        void JustEngagedWith(Unit* unit) override
 //        {
 //            if (me->GetEntry() == NPC_CAPITAN || me->GetEntry() == NPC_YDORN)
-//                events.RescheduleEvent(1, urand(13000, 16000));
+//                events.RescheduleEvent(1, Milliseconds(urand(13000, 16000)));
 //            if (me->GetEntry() == NPC_MEVRA)
-//                events.RescheduleEvent(3, 1000); // 9000
+//                events.RescheduleEvent(3, Milliseconds(1000)); // 9000
 //
-//            events.RescheduleEvent(10, 1000); // check for energy
+//            events.RescheduleEvent(10, Milliseconds(1000)); // check for energy
 //
 //            for (int32 n = 0; n < 3; n++)
 //                if (me->GetEntry() != _Bosses[n])
@@ -108,7 +108,7 @@
 //                    }
 //        }
 //
-//        void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+//        void SpellHitTarget(Unit* target, SpellInfo const* spell) 
 //        {
 //            if (me->GetEntry() == NPC_CAPITAN)
 //            {
@@ -121,7 +121,7 @@
 //                            if (target->IsAlive())
 //                            {
 //                                target->CastSpell(target, SPELL_SHATTER_CREWMEN_ADD);
-//                                target->ToCreature()->DespawnOrUnsummon(500);
+//                                target->ToCreature()->DespawnOrUnsummon(Milliseconds(500));
 //                            }
 //                        }
 //                    }
@@ -137,7 +137,7 @@
 //            }
 //        }
 //
-//        void DamageTaken(Unit* /*atacker*/ attacker, uint32 &damage) override
+//        void DamageTaken(Unit* /*atacker*/ attacker, uint32 &damage) 
 //        {
 //            if (attacker != me)
 //                for (int32 n = 0; n < 3; n++)
@@ -180,7 +180,7 @@
 //                        DoCast(SPELL_TENTACLE_BASH);
 //                    else
 //                        DoCast(SPELL_MARAUDING_MISTS);
-//                    events.RescheduleEvent(1, urand(15000, 17000));
+//                    events.RescheduleEvent(1, Milliseconds(urand(15000, 17000)));
 //                    break;
 //                case 2:
 //                    DoCast(SPELL_SHATTER_CREWMEN);
@@ -188,10 +188,12 @@
 //                case 3:
 //                {
 //                    uint32 rand = urand(0, 5);
-//                    me->CastSpell(tpPos[rand].GetPositionY(), tpPos[rand].GetPositionZ(), SPELL_TELEPORT);
-//                    if (auto target = SelectTarget(SELECT_TARGET_RANDOM, 0, 70.0f, true))
+//                    //me->CastSpell(tpPos[rand].GetPositionY(), tpPos[rand].GetPositionZ(), SPELL_TELEPORT);//org
+//                    tpPos[rand].GetPositionY(), tpPos[rand].GetPositionZ();
+//                    me->CastSpell(CastSpellTargetArg(tpPos[rand]), SPELL_TELEPORT);
+//                    if (auto target = SelectTarget(SelectTargetMethod::Random, 0, 70.0f, true))
 //                        me->CastSpell(target, SPELL_EXPEL_SOUL);
-//                    events.RescheduleEvent(3, 8500);
+//                    events.RescheduleEvent(3, Milliseconds(8500));
 //                }
 //                break;
 //                case 10:
@@ -203,14 +205,14 @@
 //                        {
 //                        case NPC_CAPITAN:
 //                            DoCast(SPELL_CURSED_CREW);
-//                            events.RescheduleEvent(2, 4000);
+//                            events.RescheduleEvent(2, Milliseconds(4000));
 //                            break;
 //                        case NPC_YDORN:
 //                            // repeat this 3 time
 //                            me->SetReactState(REACT_PASSIVE);
 //                            me->SetReactState(REACT_PASSIVE);
 //                            DoCast(SPELL_SEADOG_SCUTTLE_COST);
-//                            if (auto target = SelectTarget(SELECT_TARGET_RANDOM, 0, 70.0f, true))
+//                            if (auto target = SelectTarget(SelectTargetMethod::Random, 0, 70.0f, true))
 //                            {
 //                                me->CastSpell(target, SPELL_SEADOG_SCUTTLE);
 //                                me->CastSpell(target, SPELL_SEADOG_SCUTTLE_TRIG);
@@ -218,7 +220,7 @@
 //
 //                          //  me->AddDelayedEvent(5000, [this]() -> void
 //                            {
-//                                if (auto target = SelectTarget(SELECT_TARGET_RANDOM, 0, 70.0f, true))
+//                                if (auto target = SelectTarget(SelectTargetMethod::Random, 0, 70.0f, true))
 //                                {
 //                                    me->CastSpell(target, SPELL_SEADOG_SCUTTLE);
 //                                    me->CastSpell(target, SPELL_SEADOG_SCUTTLE_TRIG);
@@ -227,7 +229,7 @@
 //
 //                         //   me->AddDelayedEvent(10000, [this]() -> void
 //                            {
-//                                if (auto target = SelectTarget(SELECT_TARGET_RANDOM, 0, 70.0f, true))
+//                                if (auto target = SelectTarget(SelectTargetMethod::Random, 0, 70.0f, true))
 //                                {
 //                                    me->CastSpell(target, SPELL_SEADOG_SCUTTLE);
 //                                    me->CastSpell(target, SPELL_SEADOG_SCUTTLE_TRIG);
@@ -247,7 +249,7 @@
 //                    }
 //                    // else
 //                         me->SetPower(POWER_ENERGY, ++power);
-//                    events.RescheduleEvent(10, urand(1000, 1100));
+//                    events.RescheduleEvent(10, Milliseconds(urand(1000, 1100)));
 //                }
 //                break;
 //                }

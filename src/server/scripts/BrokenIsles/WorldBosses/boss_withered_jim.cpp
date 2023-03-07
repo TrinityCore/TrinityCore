@@ -22,6 +22,7 @@
 //#include "ObjectAccessor.h"
 //#include "SpellInfo.h"
 //#include "AreaTriggerAI.h"
+//#include "TemporarySummon.h"
 //
 //enum eSpells
 //{
@@ -57,11 +58,11 @@
 //
 //        void JustEngagedWith(Unit* unit) override
 //        {
-//            events.RescheduleEvent(1, 18000);
-//            events.RescheduleEvent(2, 24000);
-//            events.RescheduleEvent(3, 22000);
+//            events.RescheduleEvent(1, Milliseconds(18000));
+//            events.RescheduleEvent(2, Milliseconds(24000));
+//            events.RescheduleEvent(3, Milliseconds(22000));
 //            if (me->GetEntry() == 102075)
-//                events.RescheduleEvent(4, 30000);
+//                events.RescheduleEvent(4, Milliseconds(30000));
 //            DoCast(223632); // AT
 //            DoCast(223599);
 //        }
@@ -69,11 +70,12 @@
 //        void JustSummoned(Creature* summon) override
 //        {
 //            summons.Summon(summon);
-//            DoZoneInCombat(me, 150.0f);
+//            //DoZoneInCombat(me, 150.0f);//org
+//            DoZoneInCombat(me);
 //            if (summon->GetEntry() == 112350)
 //                summon->CastSpell(summon, 223599);
 //            if (summon->GetEntry() == 112342)
-//                summon->DespawnOrUnsummon(9000);
+//                summon->DespawnOrUnsummon(Milliseconds(9000));
 //        }
 //
 //        void JustDied(Unit* who) override
@@ -81,7 +83,7 @@
 //            summons.DespawnAll();
 //        }
 //
-//        void DamageTaken(Unit* /*attacker*/ attacker,  uint32& /*damage*/) override
+//        void DamageTaken(Unit* /*attacker*/ attacker,  uint32& /*damage*/) 
 //        
 //        {
 //            if (attacker->GetTypeId() != TYPEID_PLAYER)
@@ -108,26 +110,26 @@
 //                {
 //                case 1:
 //                    DoCast(SPELL_NIGHTSHIFTED_BOLTS);
-//                    events.RescheduleEvent(1, urand(25000, 30000));
+//                    events.RescheduleEvent(1, Milliseconds(urand(25000, 30000)));
 //                    break;
 //                case 2:
 //                    DoCast(SPELL_RESONANCE);
-//                    events.RescheduleEvent(1, urand(24000, 30000));
+//                    events.RescheduleEvent(1, Milliseconds(urand(24000, 30000)));
 //                    break;
 //                case 3:
 //                    DoCast(SPELL_NIGHTSTABLE_ENERGY);
-//                    events.RescheduleEvent(1, urand(29000, 34000));
+//                    events.RescheduleEvent(1, Milliseconds(urand(29000, 34000)));
 //                    break;
 //                case 4:
 //                    ++countclons;
 //                    DoCast(SPELL_MORE_MORE_MORE);
 //                    if (countclons < 5)
-//                        events.RescheduleEvent(4, 30000);
-//                    events.RescheduleEvent(5, 1000);
+//                        events.RescheduleEvent(4, Milliseconds(30000));
+//                    events.RescheduleEvent(5, Milliseconds(1000));
 //                    break;
 //                case 5:
 //                    if (me->HasAura(SPELL_MORE_MORE_MORE))
-//                        events.RescheduleEvent(5, 1000);
+//                        events.RescheduleEvent(5, Milliseconds(1000));
 //                    else
 //                    {
 //                        if (auto add = me->SummonCreature(112350, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()))
