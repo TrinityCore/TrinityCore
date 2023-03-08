@@ -21,6 +21,7 @@
 #include "Errors.h"
 #include "Log.h"
 #include "Map.h"
+#include "MotionMaster.h"
 #include "MovementDefines.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
@@ -29,15 +30,29 @@
 #include "WaypointManager.h"
 #include <sstream>
 
-WaypointMovementGenerator<Creature>::WaypointMovementGenerator(uint32 pathId, bool repeating) : _nextMoveTime(0), _pathId(pathId), _repeating(repeating), _loadedFromDB(true)
+WaypointMovementGenerator<Creature>::WaypointMovementGenerator(uint32 pathId, bool repeating, Optional<Milliseconds> duration, Optional<float> speed,
+    MovementWalkRunSpeedSelectionMode speedSelectionMode, Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd,
+    Optional<float> wanderDistanceAtPathEnds, bool followPathBackwardsFromEndToStart, bool generatePath)
+    : _nextMoveTime(0), _pathId(pathId), _repeating(repeating), _loadedFromDB(true),
+    _speed(speed), _speedSelectionMode(speedSelectionMode), _waitTimeRangeAtPathEnd(std::move(waitTimeRangeAtPathEnd)),
+    _wanderDistanceAtPathEnds(wanderDistanceAtPathEnds), _followPathBackwardsFromEndToStart(followPathBackwardsFromEndToStart), _isReturningToStart(false),
+    _generatePath(generatePath)
 {
     Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     BaseUnitState = UNIT_STATE_ROAMING;
+    if (duration)
+        _duration.emplace(*duration);
 }
 
-WaypointMovementGenerator<Creature>::WaypointMovementGenerator(WaypointPath& path, bool repeating) : _nextMoveTime(0), _pathId(0), _repeating(repeating), _loadedFromDB(false)
+WaypointMovementGenerator<Creature>::WaypointMovementGenerator(WaypointPath const& path, bool repeating, Optional<Milliseconds> duration, Optional<float> speed,
+    MovementWalkRunSpeedSelectionMode speedSelectionMode, Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd,
+    Optional<float> wanderDistanceAtPathEnds, bool followPathBackwardsFromEndToStart, bool generatePath)
+    : _nextMoveTime(0), _pathId(0), _repeating(repeating), _loadedFromDB(false),
+    _speed(speed), _speedSelectionMode(speedSelectionMode), _waitTimeRangeAtPathEnd(std::move(waitTimeRangeAtPathEnd)),
+    _wanderDistanceAtPathEnds(wanderDistanceAtPathEnds), _followPathBackwardsFromEndToStart(followPathBackwardsFromEndToStart), _isReturningToStart(false),
+    _generatePath(generatePath)
 {
     _path = &path;
 
@@ -45,7 +60,11 @@ WaypointMovementGenerator<Creature>::WaypointMovementGenerator(WaypointPath& pat
     Priority = MOTION_PRIORITY_NORMAL;
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     BaseUnitState = UNIT_STATE_ROAMING;
+    if (duration)
+        _duration.emplace(*duration);
 }
+
+WaypointMovementGenerator<Creature>::~WaypointMovementGenerator() = default;
 
 MovementGeneratorType WaypointMovementGenerator<Creature>::GetMovementGeneratorType() const
 {
@@ -138,6 +157,17 @@ bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* owner, uint32 diff)
 
     if (HasFlag(MOVEMENTGENERATOR_FLAG_FINALIZED | MOVEMENTGENERATOR_FLAG_PAUSED) || !_path || _path->nodes.empty())
         return true;
+
+    if (_duration)
+    {
+        _duration->Update(diff);
+        if (_duration->Passed())
+        {
+            RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY);
+            AddFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
+            return false;
+        }
+    }
 
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE | UNIT_STATE_LOST_CONTROL) || owner->IsMovementPreventedByCasting())
     {
@@ -248,6 +278,20 @@ void WaypointMovementGenerator<Creature>::OnArrived(Creature* owner)
         _nextMoveTime.Reset(waypoint.delay);
     }
 
+    if (_waitTimeRangeAtPathEnd && _followPathBackwardsFromEndToStart
+        && ((_isReturningToStart && _currentNode == 0) || (!_isReturningToStart && _currentNode == _path->nodes.size() - 1)))
+    {
+        owner->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
+        Milliseconds waitTime = randtime(_waitTimeRangeAtPathEnd->first, _waitTimeRangeAtPathEnd->second);
+        if (_duration)
+            _duration->Update(waitTime); // count the random movement time as part of waypoing movement action
+
+        if (_wanderDistanceAtPathEnds)
+            owner->GetMotionMaster()->MoveRandom(*_wanderDistanceAtPathEnds, waitTime, MOTION_SLOT_ACTIVE);
+        else
+            _nextMoveTime.Reset(waitTime);
+    }
+
     if (waypoint.eventId && urand(0, 99) < waypoint.eventChance)
     {
         TC_LOG_DEBUG("maps.script", "Creature movement start script {} at point {} for {}.", waypoint.eventId, _currentNode, owner->GetGUID().ToString());
@@ -343,7 +387,7 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
 
     //! Do not use formationDest here, MoveTo requires transport offsets due to DisableTransportPathTransformations() call
     //! but formationDest contains global coordinates
-    init.MoveTo(waypoint.x, waypoint.y, waypoint.z);
+    init.MoveTo(waypoint.x, waypoint.y, waypoint.z, _generatePath);
 
     if (waypoint.orientation.has_value() && waypoint.delay > 0)
         init.SetFacing(*waypoint.orientation);
@@ -365,6 +409,22 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
         default:
             break;
     }
+    switch (_speedSelectionMode) // overrides move type from each waypoint if set
+    {
+        case MovementWalkRunSpeedSelectionMode::Default:
+            break;
+        case MovementWalkRunSpeedSelectionMode::ForceRun:
+            init.SetWalk(false);
+            break;
+        case MovementWalkRunSpeedSelectionMode::ForceWalk:
+            init.SetWalk(true);
+            break;
+        default:
+            break;
+    }
+
+    if (_speed)
+        init.SetVelocity(*_speed);
 
     init.Launch();
 
@@ -377,7 +437,28 @@ bool WaypointMovementGenerator<Creature>::ComputeNextNode()
     if ((_currentNode == _path->nodes.size() - 1) && !_repeating)
         return false;
 
-    _currentNode = (_currentNode + 1) % _path->nodes.size();
+    if (!_followPathBackwardsFromEndToStart || _path->nodes.size() < 2)
+        _currentNode = (_currentNode + 1) % _path->nodes.size();
+    else
+    {
+        if (!_isReturningToStart)
+        {
+            if (++_currentNode >= _path->nodes.size())
+            {
+                _currentNode -= 2;
+                _isReturningToStart = true;
+            }
+        }
+        else
+        {
+            if (_currentNode-- == 0)
+            {
+                _currentNode = 1;
+                _isReturningToStart = false;
+            }
+        }
+    }
+
     return true;
 }
 

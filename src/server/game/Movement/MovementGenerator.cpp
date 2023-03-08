@@ -57,5 +57,5 @@ WaypointMovementFactory::WaypointMovementFactory() : MovementGeneratorCreator(WA
 
 MovementGenerator* WaypointMovementFactory::Create(Unit* /*object*/) const
 {
-    return new WaypointMovementGenerator<Creature>();
+    return new WaypointMovementGenerator<Creature>(0, true);
 }
