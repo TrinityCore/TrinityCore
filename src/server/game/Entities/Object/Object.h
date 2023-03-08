@@ -185,7 +185,7 @@ class TC_GAME_API Object
         [[nodiscard]] int32 GetInt32Value(uint16 index) const;
         void SendOutOfRangeForPlayer(Player* target) const;
 
-        int32 GetInt32Value(uint16 index) const;
+//        int32 GetInt32Value(uint16 index) const;  //AZ
         uint32 GetUInt32Value(uint16 index) const;
         uint64 GetUInt64Value(uint16 index) const;
         float GetFloatValue(uint16 index) const;
@@ -193,7 +193,7 @@ class TC_GAME_API Object
         uint16 GetUInt16Value(uint16 index, uint8 offset) const;
         ObjectGuid const& GetGuidValue(uint16 index) const;
 
-        void SetInt32Value(uint16 index, int32 value);
+//        void SetInt32Value(uint16 index, int32 value);    //AZ
         void SetUInt32Value(uint16 index, uint32 value);
         void UpdateUInt32Value(uint16 index, uint32 value);
         void SetUInt64Value(uint16 index, uint64 value);
@@ -430,8 +430,8 @@ class TC_GAME_API Object
             float* m_floatValues;
         };
 
-        UpdateMask_AZ _changesMask;//AZ
-        uint16 m_valuesCount;//AZ
+//        UpdateMask_AZ _changesMask;   //AZ
+//        uint16 m_valuesCount; //AZ
 
 
         virtual bool AddToObjectUpdate() = 0;
@@ -449,7 +449,7 @@ class TC_GAME_API Object
         bool m_isDestroyedObject;
 
         // for output helpfull error messages from asserts
-        bool PrintIndexError(uint32 index, bool set) const;
+//        bool PrintIndexError(uint32 index, bool set) const;
 
         Object(Object const& right) = delete;
         Object(Object&& right) = delete;

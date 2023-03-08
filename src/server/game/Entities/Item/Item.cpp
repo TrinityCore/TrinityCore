@@ -1723,7 +1723,7 @@ int32 Item::GenerateItemRandomPropertyId(uint32 item_id)
     }
 }
 
-void Item::SetItemRandomProperties(int32 randomPropId)//AZ
+void Item::SetItemRandomProperties(int32 randomPropId)  //AZ
 {
     if (!randomPropId)
         return;
@@ -1733,11 +1733,11 @@ void Item::SetItemRandomProperties(int32 randomPropId)//AZ
         ItemRandomPropertiesEntry const* item_rand = sItemRandomPropertiesStore.LookupEntry(randomPropId);
         if (item_rand)
         {
-            if (GetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID) != int32(item_rand->ID))
-            {
-                SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, item_rand->ID);
-                SetState(ITEM_CHANGED, GetOwner());
-            }
+            //if (GetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID) != int32(item_rand->ID))
+            //{
+            //    SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, item_rand->ID);
+            //    SetState(ITEM_CHANGED, GetOwner());
+            //}
             for (uint32 i = PROP_ENCHANTMENT_SLOT_0; i < MAX_ENCHANTMENT_SLOT; ++i)
                 SetEnchantment(EnchantmentSlot(i), item_rand->Enchantment[i - PROP_ENCHANTMENT_SLOT_0], 0, 0);
         }
@@ -1747,13 +1747,13 @@ void Item::SetItemRandomProperties(int32 randomPropId)//AZ
         ItemRandomSuffixEntry const* item_rand = sItemRandomSuffixStore.LookupEntry(-randomPropId);
         if (item_rand)
         {
-            if (GetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID) != -int32(item_rand->ID) ||
-                !GetItemSuffixFactor())
-            {
-                SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, -int32(item_rand->ID));
-                UpdateItemSuffixFactor();
-                SetState(ITEM_CHANGED, GetOwner());
-            }
+            //if (GetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID) != -int32(item_rand->ID) ||
+            //    !GetItemSuffixFactor())
+            //{
+            //    SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, -int32(item_rand->ID));
+            //    UpdateItemSuffixFactor();
+            //    SetState(ITEM_CHANGED, GetOwner());
+            //}
 
             for (uint32 i = PROP_ENCHANTMENT_SLOT_0; i < MAX_ENCHANTMENT_SLOT; ++i)
                 SetEnchantment(EnchantmentSlot(i), item_rand->Enchantment[i - PROP_ENCHANTMENT_SLOT_0], 0, 0);
@@ -1776,17 +1776,17 @@ Item* Item::CreateItem(uint32 item, uint32 count, Player const* player, bool clo
         ASSERT_NODEBUGINFO(count != 0 && "pProto->Stackable == 0 but checked at loading already");
 
         Item* pItem = NewItemOrBag(pProto);
-        if (pItem->Create(sObjectMgr->GetGenerator<HighGuid::Item>().Generate(), item, player))//这个忘了修,跳过了,修完下面再回来
-        {
-            pItem->SetCount(count);
-            if (!clone)
-                pItem->SetItemRandomProperties(randomPropertyId ? randomPropertyId : Item::GenerateItemRandomPropertyId(item));//修到这里了
-            else if (randomPropertyId)
-                pItem->SetItemRandomProperties(randomPropertyId);
-            return pItem;
-        }
-        else
-            delete pItem;
+        //if (pItem->Create(sObjectMgr->GetGenerator<HighGuid::Item>().Generate(), item, player))//这个忘了修,跳过了,修完下面再回来
+        //{
+        //    pItem->SetCount(count);
+        //    if (!clone)
+        //        pItem->SetItemRandomProperties(randomPropertyId ? randomPropertyId : Item::GenerateItemRandomPropertyId(item));//修到这里了
+        //    else if (randomPropertyId)
+        //        pItem->SetItemRandomProperties(randomPropertyId);
+        //    return pItem;
+        //}
+        //else
+        //    delete pItem;
     }
     else
         ABORT();

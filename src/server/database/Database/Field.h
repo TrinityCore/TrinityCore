@@ -25,6 +25,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+//#include "SmartAI.h"
 
 namespace Trinity::Types
 {
@@ -175,7 +176,7 @@ class TC_DATABASE_API Field
         template<typename T>
         inline Trinity::Types::is_chrono_v<T> Get(bool convertToUin32 = true) const
         {
-            return convertToUin32 ? T(GetData<uint32>()) : T(GetData<uint64>());
+            //return convertToUin32 ? T(GetData<uint32>()) : T(GetData<uint64>());
         }
 
         DatabaseFieldTypes GetType() { return meta->Type; }

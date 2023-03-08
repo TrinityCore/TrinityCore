@@ -66,14 +66,14 @@ namespace Trinity
     template<typename... Args>              //AZ
     inline std::string StringFormatFmt(std::string_view fmt, Args&&... args)    //AZ
     {
-        try
+        /*try
         {
             return fmt::format(fmt, std::forward<Args>(args)...);
-        }
-        catch (const fmt::format_error& formatError)
-        {
-            return fmt::format("An error occurred formatting string \"{}\": {}", fmt, formatError.what());
-        }
+        }*/
+//        catch (const fmt::format_error& formatError)
+        //{
+        //    return fmt::format("An error occurred formatting string \"{}\": {}", fmt, formatError.what());
+        //}
     }
 }
 
