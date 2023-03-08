@@ -25,6 +25,31 @@
 
 #pragma pack(push, 1)
 
+#define MAX_ITEM_ENCHANTMENT_EFFECTS 5
+
+struct ItemRandomSuffixEntry
+{
+    uint32 ID;                                                          // 0
+    std::array<char const*, 16> Name;                                   // 1-16
+    //uint32 Name_lang_mask;                                            // 17
+    //char const* InternalName;                                         // 18
+    std::array<uint32, MAX_ITEM_ENCHANTMENT_EFFECTS> Enchantment;       // 19-21
+    //std::array<uint32, 2> UnusedEnchantment;                          // 22-23
+    std::array<uint32, MAX_ITEM_ENCHANTMENT_EFFECTS> AllocationPct;     // 24-26
+    //std::array<uint32, 2> UnusedAllocationPct;                        // 27-28
+};
+
+struct ItemRandomPropertiesEntry    //AZ
+{
+    uint32 ID;                                                          // 0
+    //char const* InternalName;                                         // 1
+    std::array<uint32, MAX_ITEM_ENCHANTMENT_EFFECTS> Enchantment;       // 2-4
+    //std::array<uint32, 2> UnusedEnchantment;                          // 5-6
+    std::array<char const*, 16> Name;                                   // 7-22
+    //uint32 Name_lang_mask;                                            // 23
+};
+
+
 struct AchievementEntry
 {
     LocalizedString Description;

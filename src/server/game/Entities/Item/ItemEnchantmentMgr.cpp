@@ -83,6 +83,66 @@ void LoadItemRandomBonusListTemplates()
         TC_LOG_INFO("server.loading", ">> Loaded 0 Random item bonus list definitions. DB table `item_random_bonus_list_template` is empty.");
 }
 
+struct EnchStoreItem
+{
+    uint32  ench;
+    float   chance;
+
+    EnchStoreItem()
+        : ench(0), chance(0) {}
+
+    EnchStoreItem(uint32 _ench, float _chance)
+        : ench(_ench), chance(_chance) {}
+};
+
+
+typedef std::vector<EnchStoreItem> EnchStoreList;
+typedef std::unordered_map<uint32, EnchStoreList> EnchantmentStore;
+
+
+static EnchantmentStore RandomItemEnch;
+
+uint32 GetItemEnchantMod(int32 entry)//AZ
+{
+    if (!entry)
+        return 0;
+
+    if (entry == -1)
+        return 0;
+
+    EnchantmentStore::const_iterator tab = RandomItemEnch.find(entry);
+    if (tab == RandomItemEnch.end())
+    {
+        TC_LOG_ERROR("sql.sql", "Item RandomProperty / RandomSuffix id #{} used in `item_template` but it does not have records in `item_enchantment_template` table.", entry);
+        return 0;
+    }
+
+    double dRoll = rand_chance();
+    float fCount = 0;
+
+    for (EnchStoreList::const_iterator ench_iter = tab->second.begin(); ench_iter != tab->second.end(); ++ench_iter)
+    {
+        fCount += ench_iter->chance;
+
+        if (fCount > dRoll)
+            return ench_iter->ench;
+    }
+
+    //we could get here only if sum of all enchantment chances is lower than 100%
+    dRoll = (irand(0, (int)floor(fCount * 100) + 1)) / 100;
+    fCount = 0;
+
+    for (EnchStoreList::const_iterator ench_iter = tab->second.begin(); ench_iter != tab->second.end(); ++ench_iter)
+    {
+        fCount += ench_iter->chance;
+
+        if (fCount > dRoll)
+            return ench_iter->ench;
+    }
+
+    return 0;
+}
+
 ItemRandomBonusListId GenerateItemRandomBonusListId(uint32 item_id)
 {
     ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(item_id);

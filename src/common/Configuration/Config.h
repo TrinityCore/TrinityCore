@@ -51,6 +51,9 @@ public:
     std::vector<std::string> const& GetArguments() const;
     std::vector<std::string> GetKeysByString(std::string const& name);
 
+    //template<class T>
+    //T GetOption(std::string const& name, T const& def, bool showLogs = true) const;
+
 private:
     template<class T>
     T GetValueDefault(std::string const& name, T def, bool quiet) const;

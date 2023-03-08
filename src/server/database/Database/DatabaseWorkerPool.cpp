@@ -199,6 +199,7 @@ QueryResult DatabaseWorkerPool<T>::Query(char const* sql, T* connection /*= null
     return QueryResult(result);
 }
 
+
 template <class T>
 PreparedQueryResult DatabaseWorkerPool<T>::Query(PreparedStatement<T>* stmt)
 {
@@ -217,6 +218,43 @@ PreparedQueryResult DatabaseWorkerPool<T>::Query(PreparedStatement<T>* stmt)
 
     return PreparedQueryResult(ret);
 }
+
+//template <class T>
+//PreparedQueryResult DatabaseWorkerPool<T>::Query(PreparedStatement<T>* stmt)//AZ ÖØ¸´¶¨Òå
+//{
+//    auto connection = GetFreeConnection();
+//    PreparedResultSet* ret = connection->Query(stmt);
+//    connection->Unlock();
+//
+//    //! Delete proxy-class. Not needed anymore
+//    delete stmt;
+//
+//    if (!ret || !ret->GetRowCount())
+//    {
+//        delete ret;
+//        return PreparedQueryResult(nullptr);
+//    }
+//
+//    return PreparedQueryResult(ret);
+//}
+
+template <class T>
+QueryResult DatabaseWorkerPool<T>::Query(std::string_view sql)//AZ
+{
+    auto connection = GetFreeConnection();
+
+    ResultSet* result = connection->Query(sql);
+    connection->Unlock();
+
+    if (!result || !result->GetRowCount() || !result->NextRow())
+    {
+        delete result;
+        return QueryResult(nullptr);
+    }
+
+    return QueryResult(result);
+}
+
 
 template <class T>
 QueryCallback DatabaseWorkerPool<T>::AsyncQuery(char const* sql)

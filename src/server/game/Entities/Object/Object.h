@@ -176,14 +176,16 @@ class TC_GAME_API Object
 
         void BuildValuesUpdateBlockForPlayer(UpdateData* data, Player const* target) const;
         void BuildValuesUpdateBlockForPlayerWithFlag(UpdateData* data, UF::UpdateFieldFlag flags, Player const* target) const;
+        void SetInt32Value(uint16 index, int32 value);
         void BuildDestroyUpdateBlock(UpdateData* data) const;
         void BuildOutOfRangeUpdateBlock(UpdateData* data) const;
         ByteBuffer& PrepareValuesUpdateBuffer(UpdateData* data) const;
 
         virtual void DestroyForPlayer(Player* target) const;
+        [[nodiscard]] int32 GetInt32Value(uint16 index) const;
         void SendOutOfRangeForPlayer(Player* target) const;
 
-        int32 GetInt32Value(uint16 index) const;
+//        int32 GetInt32Value(uint16 index) const;  //AZ
         uint32 GetUInt32Value(uint16 index) const;
         uint64 GetUInt64Value(uint16 index) const;
         float GetFloatValue(uint16 index) const;
@@ -191,7 +193,7 @@ class TC_GAME_API Object
         uint16 GetUInt16Value(uint16 index, uint8 offset) const;
         ObjectGuid const& GetGuidValue(uint16 index) const;
 
-        void SetInt32Value(uint16 index, int32 value);
+//        void SetInt32Value(uint16 index, int32 value);    //AZ
         void SetUInt32Value(uint16 index, uint32 value);
         void UpdateUInt32Value(uint16 index, uint32 value);
         void SetUInt64Value(uint16 index, uint64 value);
@@ -421,6 +423,17 @@ class TC_GAME_API Object
         TypeID m_objectTypeId;
         CreateObjectBits m_updateFlag;
 
+        union//AZ
+        {
+            int32* m_int32Values;
+            uint32* m_uint32Values;
+            float* m_floatValues;
+        };
+
+//        UpdateMask_AZ _changesMask;   //AZ
+//        uint16 m_valuesCount; //AZ
+
+
         virtual bool AddToObjectUpdate() = 0;
         virtual void RemoveFromObjectUpdate() = 0;
         void AddToObjectUpdateIfNeeded();
@@ -428,13 +441,15 @@ class TC_GAME_API Object
         bool m_objectUpdated;
 
     private:
+        // for output helpfull error messages from asserts
+        [[nodiscard]] bool PrintIndexError(uint32 index, bool set) const;
         ObjectGuid m_guid;
         bool m_inWorld;
         bool m_isNewObject;
         bool m_isDestroyedObject;
 
         // for output helpfull error messages from asserts
-        bool PrintIndexError(uint32 index, bool set) const;
+//        bool PrintIndexError(uint32 index, bool set) const;
 
         Object(Object const& right) = delete;
         Object(Object&& right) = delete;
