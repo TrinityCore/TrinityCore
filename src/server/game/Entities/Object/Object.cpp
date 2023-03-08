@@ -251,36 +251,36 @@ void Object::DestroyForPlayer(Player* target) const
     target->SendDirectMessage(&packet);
 }
 
-bool Object::PrintIndexError(uint32 index, bool set) const
-{
-    TC_LOG_INFO("misc", "Attempt {} non-existed value field: {} (count: {}) for object typeid: {} type mask: {}",
-        (set ? "set value to" : "get value from"), index, m_valuesCount, GetTypeId(), m_objectType);
-
-    // ASSERT must fail after function call
-    return false;
-}
-
-[[nodiscard]] int32 Object::GetInt32Value(uint16 index) const   //AZ
-{
-    ASSERT(index < m_valuesCount || PrintIndexError(index, false));
-    return m_int32Values[index];
-}
-//
-//
-//void Object::SendOutOfRangeForPlayer(Player* target) const
+//bool Object::PrintIndexError(uint32 index, bool set) const
 //{
-//    ASSERT(target);
+//    TC_LOG_INFO("misc", "Attempt {} non-existed value field: {} (count: {}) for object typeid: {} type mask: {}",
+//        (set ? "set value to" : "get value from"), index, m_valuesCount, GetTypeId(), m_objectType);
 //
-//    UpdateData updateData(target->GetMapId());
-//    BuildOutOfRangeUpdateBlock(&updateData);
-//    WorldPacket packet;
-//    updateData.BuildPacket(&packet);
-//    target->SendDirectMessage(&packet);
+//    // ASSERT must fail after function call
+//    return false;
+//}
+
+//[[nodiscard]] int32 Object::GetInt32Value(uint16 index) const   //AZ
+//{
+//    ASSERT(index < m_valuesCount || PrintIndexError(index, false));
+//    return m_int32Values[index];
 //}
 //
-//void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Player* target) const
-//{
-//    std::vector<uint32> const* PauseTimes = nullptr;
+
+void Object::SendOutOfRangeForPlayer(Player* target) const
+{
+    ASSERT(target);
+
+    UpdateData updateData(target->GetMapId());
+    BuildOutOfRangeUpdateBlock(&updateData);
+    WorldPacket packet;
+    updateData.BuildPacket(&packet);
+    target->SendDirectMessage(&packet);
+}
+
+void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Player* target) const
+{
+    std::vector<uint32> const* PauseTimes = nullptr;
     if (GameObject const* go = ToGameObject())
         PauseTimes = go->GetPauseTimes();
 
@@ -821,14 +821,14 @@ void Object::ClearUpdateMask(bool remove)
     }
 }
 
-bool Object::PrintIndexError(uint32 index, bool set) const
-{
-    TC_LOG_ERROR("misc", "Attempt %s non-existed value field: %u (count: %u) for object typeid: %u type mask: %u", (set ? "set value to" : "get value from"), index, m_valuesCount, GetTypeId(), m_objectType);
-
-    // ASSERT must fail after function call
-    //return false;//It's a dangerous place,disable,may cause crash
-    return true;//tmp,I wrote this to reduce crash
-}
+//bool Object::PrintIndexError(uint32 index, bool set) const
+//{
+//    TC_LOG_ERROR("misc", "Attempt %s non-existed value field: %u (count: %u) for object typeid: %u type mask: %u", (set ? "set value to" : "get value from"), index, m_valuesCount, GetTypeId(), m_objectType);
+//
+//    // ASSERT must fail after function call
+//    //return false;//It's a dangerous place,disable,may cause crash
+//    return true;//tmp,I wrote this to reduce crash
+//}
 
 uint32 Object::GetUInt32Value(uint16 index) const
 {
@@ -836,27 +836,27 @@ uint32 Object::GetUInt32Value(uint16 index) const
     return m_uint32Values[index];
 }
 
-void Object::ApplyModUInt32Value(uint16 index, int32 val, bool apply)
-{
-    int32 cur = GetUInt32Value(index);
-    cur += (apply ? val : -val);
-    if (cur < 0)
-        cur = 0;
-    SetUInt32Value(index, cur);
-}
+//void Object::ApplyModUInt32Value(uint16 index, int32 val, bool apply)
+//{
+//    int32 cur = GetUInt32Value(index);
+//    cur += (apply ? val : -val);
+//    if (cur < 0)
+//        cur = 0;
+//    SetUInt32Value(index, cur);
+//}
 
-void Object::SetUInt32Value(uint16 index, uint32 value)
-{
-    ASSERT(index < m_valuesCount || PrintIndexError(index, true));
-
-    if (m_uint32Values[index] != value)
-    {
-        m_uint32Values[index] = value;
-        _changesMask[index] = 1;
-
-        AddToObjectUpdateIfNeeded();
-    }
-}
+//void Object::SetUInt32Value(uint16 index, uint32 value)
+//{
+//    ASSERT(index < m_valuesCount || PrintIndexError(index, true));
+//
+//    if (m_uint32Values[index] != value)
+//    {
+//        m_uint32Values[index] = value;
+//        _changesMask[index] = 1;
+//
+//        AddToObjectUpdateIfNeeded();
+//    }
+//}
 
 void Object::BuildFieldsUpdate(Player* player, UpdateDataMapType& data_map) const
 {
