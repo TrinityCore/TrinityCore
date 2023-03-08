@@ -18,7 +18,7 @@
 #ifndef _FIELD_H
 #define _FIELD_H
 
-#include "Duration.h"//AZ
+//#include "Duration.h"//AZ
 #include "Define.h"
 #include "DatabaseEnvFwd.h"
 #include <array>
@@ -27,20 +27,20 @@
 #include <vector>
 //#include "SmartAI.h"
 
-namespace Trinity::Types
-{
-    template <typename T>
-    using is_chrono_v = std::enable_if_t<std::is_same_v<Milliseconds, T>
-        || std::is_same_v<Seconds, T>
-        || std::is_same_v<Minutes, T>
-        || std::is_same_v<Hours, T>
-        || std::is_same_v<Days, T>
-        || std::is_same_v<Weeks, T>
-        || std::is_same_v<Years, T>
-        || std::is_same_v<Months, T>, T>;
-}
-
-using Binary = std::vector<uint8>;
+//namespace Trinity::Types
+//{
+//    template <typename T>
+//    using is_chrono_v = std::enable_if_t<std::is_same_v<Milliseconds, T>
+//        || std::is_same_v<Seconds, T>
+//        || std::is_same_v<Minutes, T>
+//        || std::is_same_v<Hours, T>
+//        || std::is_same_v<Days, T>
+//        || std::is_same_v<Weeks, T>
+//        || std::is_same_v<Years, T>
+//        || std::is_same_v<Months, T>, T>;
+//}
+//
+//using Binary = std::vector<uint8>;
 
 enum class DatabaseFieldTypes : uint8
 {

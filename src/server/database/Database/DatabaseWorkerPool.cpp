@@ -220,7 +220,7 @@ PreparedQueryResult DatabaseWorkerPool<T>::Query(PreparedStatement<T>* stmt)
 }
 
 //template <class T>
-//PreparedQueryResult DatabaseWorkerPool<T>::Query(PreparedStatement<T>* stmt)//AZ ÷ÿ∏¥∂®“Â
+//PreparedQueryResult DatabaseWorkerPool<T>::Query(PreparedStatement<T>* stmt)//AZ ÈáçÂ§çÂÆö‰πâ
 //{
 //    auto connection = GetFreeConnection();
 //    PreparedResultSet* ret = connection->Query(stmt);
@@ -238,22 +238,22 @@ PreparedQueryResult DatabaseWorkerPool<T>::Query(PreparedStatement<T>* stmt)
 //    return PreparedQueryResult(ret);
 //}
 
-template <class T>
-QueryResult DatabaseWorkerPool<T>::Query(std::string_view sql)//AZ
-{
-    auto connection = GetFreeConnection();
-
-    ResultSet* result = connection->Query(sql);
-    connection->Unlock();
-
-    if (!result || !result->GetRowCount() || !result->NextRow())
-    {
-        delete result;
-        return QueryResult(nullptr);
-    }
-
-    return QueryResult(result);
-}
+//template <class T>
+//QueryResult DatabaseWorkerPool<T>::Query(std::string_view sql)//AZ
+//{
+//    auto connection = GetFreeConnection();
+//
+//    ResultSet* result = connection->Query(sql);
+//    connection->Unlock();
+//
+//    if (!result || !result->GetRowCount() || !result->NextRow())
+//    {
+//        delete result;
+//        return QueryResult(nullptr);
+//    }
+//
+//    return QueryResult(result);
+//}
 
 
 template <class T>

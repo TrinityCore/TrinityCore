@@ -115,17 +115,19 @@ class DatabaseWorkerPool
         //! Directly executes an SQL query in string format that will block the calling thread until finished.
         //! Returns reference counted auto pointer, no need for manual memory management in upper level code.
         QueryResult Query(char const* sql, T* connection = nullptr);
-        QueryResult Query(std::string_view sql);
 
 
-        template<typename... Args>//AZ
-        QueryResult Query(std::string_view sql, Args&&... args)//AZ
-        {
-            if (sql.empty())
-                return QueryResult(nullptr);
+        //QueryResult Query(std::string_view sql);
 
-            return Query(Trinity::StringFormatFmt(sql, std::forward<Args>(args)...));
-        }
+
+        //template<typename... Args>//AZ
+        //QueryResult Query(std::string_view sql, Args&&... args)//AZ
+        //{
+        //    if (sql.empty())
+        //        return QueryResult(nullptr);
+
+        //    return Query(Trinity::StringFormatFmt(sql, std::forward<Args>(args)...));
+        //}
 
         //! Directly executes an SQL query in string format -with variable args- that will block the calling thread until finished.
         //! Returns reference counted auto pointer, no need for manual memory management in upper level code.
