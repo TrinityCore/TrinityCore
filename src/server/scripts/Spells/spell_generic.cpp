@@ -5228,6 +5228,23 @@ class spell_gen_despawn_all_summons_owned_by_caster : public SpellScript
     }
 };
 
+// 387905 - Teleporting
+class spell_gen_gob_lock_triggered_cast : public SpellScript
+{
+    PrepareSpellScript(spell_gen_cast_gob_spell_triggered);
+
+    void HandleOpenLock(SpellEffIndex /*effIndex*/)
+    {
+        uint32 spellId = GetHitGObj()->GetGOInfo()->goober.spell;
+        GetCaster()->CastSpell(nullptr, spellId, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_gob_lock_triggered_cast::HandleOpenLock, EFFECT_0, SPELL_EFFECT_OPEN_LOCK);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     RegisterSpellScript(spell_gen_absorb0_hitlimit1);
@@ -5389,4 +5406,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_eject_passengers_3_8);
     RegisterSpellScript(spell_gen_reverse_cast_target_to_caster_triggered);
     RegisterSpellScript(spell_gen_despawn_all_summons_owned_by_caster);
+    RegisterSpellScript(spell_gen_gob_lock_triggered_cast);
 }
