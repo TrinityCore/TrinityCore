@@ -139,47 +139,47 @@ class TC_DATABASE_API Field
         }
 
 
-        template<typename T>
-        inline std::enable_if_t<std::is_arithmetic_v<T>, T> Get() const
-        {
-            return GetData<T>();
-        }
+        //template<typename T>
+        //inline std::enable_if_t<std::is_arithmetic_v<T>, T> Get() const
+        //{
+        //    return GetData<T>();
+        //}
 
-        template<typename T>
-        inline std::enable_if_t<std::is_same_v<std::string, T>, T> Get() const
-        {
-            return GetDataString();
-        }
+        //template<typename T>
+        //inline std::enable_if_t<std::is_same_v<std::string, T>, T> Get() const
+        //{
+        //    return GetDataString();
+        //}
 
-        template<typename T>
-        inline std::enable_if_t<std::is_same_v<std::string_view, T>, T> Get() const
-        {
-            return GetDataStringView();
-        }
+        //template<typename T>
+        //inline std::enable_if_t<std::is_same_v<std::string_view, T>, T> Get() const
+        //{
+        //    return GetDataStringView();
+        //}
 
-        template<typename T>
-        inline std::enable_if_t<std::is_same_v<Binary, T>, T> Get() const
-        {
-            return GetDataBinary();
-        }
+        //template<typename T>
+        //inline std::enable_if_t<std::is_same_v<Binary, T>, T> Get() const
+        //{
+        //    return GetDataBinary();
+        //}
 
-        template <typename T, size_t S>
-        inline std::enable_if_t<std::is_same_v<Binary, T>, std::array<uint8, S>> Get() const
-        {
-            std::array<uint8, S> buf = {};
-            GetBinarySizeChecked(buf.data(), S);
-            return buf;
-        }
+        //template <typename T, size_t S>
+        //inline std::enable_if_t<std::is_same_v<Binary, T>, std::array<uint8, S>> Get() const
+        //{
+        //    std::array<uint8, S> buf = {};
+        //    GetBinarySizeChecked(buf.data(), S);
+        //    return buf;
+        //}
 
 
 
-        template<typename T>
-        inline Trinity::Types::is_chrono_v<T> Get(bool convertToUin32 = true) const
-        {
-            //return convertToUin32 ? T(GetData<uint32>()) : T(GetData<uint64>());
-        }
+        //template<typename T>
+        //inline Trinity::Types::is_chrono_v<T> Get(bool convertToUin32 = true) const
+        //{
+        //    return convertToUin32 ? T(GetData<uint32>()) : T(GetData<uint64>());
+        //}
 
-        DatabaseFieldTypes GetType() { return meta->Type; }
+        //DatabaseFieldTypes GetType() { return meta->Type; }
 
     protected:
         struct
@@ -200,12 +200,8 @@ class TC_DATABASE_API Field
         QueryResultFieldMetadata const* meta;
         void LogWrongType(char const* getter) const;
         void SetMetadata(QueryResultFieldMetadata const* fieldMeta);
-        
-        void GetBinarySizeChecked(uint8* buf, size_t size) const;
 
-        std::string GetDataString() const;          //AZ
-        std::string_view GetDataStringView() const; //AZ
-        Binary GetDataBinary() const;               //AZ
+        void GetBinarySizeChecked(uint8* buf, size_t size) const;
 };
 
 #endif

@@ -47,8 +47,6 @@
 #include "World.h"
 #include "WorldSession.h"
 #include <sstream>
-#include <ItemEnchantmentMgr.cpp>
-#include <Object.cpp>
 
 Item* NewItemOrBag(ItemTemplate const* proto)
 {

@@ -199,7 +199,6 @@ QueryResult DatabaseWorkerPool<T>::Query(char const* sql, T* connection /*= null
     return QueryResult(result);
 }
 
-
 template <class T>
 PreparedQueryResult DatabaseWorkerPool<T>::Query(PreparedStatement<T>* stmt)
 {
@@ -254,7 +253,6 @@ PreparedQueryResult DatabaseWorkerPool<T>::Query(PreparedStatement<T>* stmt)
 //
 //    return QueryResult(result);
 //}
-
 
 template <class T>
 QueryCallback DatabaseWorkerPool<T>::AsyncQuery(char const* sql)

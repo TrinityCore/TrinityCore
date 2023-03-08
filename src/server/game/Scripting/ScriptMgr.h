@@ -774,10 +774,6 @@ class TC_GAME_API PlayerScript : public ScriptObject
 
         // Called when a player logs in.
         virtual void OnLogin(Player* player, bool firstLogin);
-        virtual void OnLogin(Player* /*player*/) { }//AZ
-
-        // Called for player::update    //AZ
-        virtual void OnBeforeUpdate(Player* /*player*/, uint32 /*p_time*/) { }//AZ
 
         // Called when a player logs out.
         virtual void OnLogout(Player* player);

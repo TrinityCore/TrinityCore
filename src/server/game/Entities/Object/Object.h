@@ -176,13 +176,11 @@ class TC_GAME_API Object
 
         void BuildValuesUpdateBlockForPlayer(UpdateData* data, Player const* target) const;
         void BuildValuesUpdateBlockForPlayerWithFlag(UpdateData* data, UF::UpdateFieldFlag flags, Player const* target) const;
-        void SetInt32Value(uint16 index, int32 value);
         void BuildDestroyUpdateBlock(UpdateData* data) const;
         void BuildOutOfRangeUpdateBlock(UpdateData* data) const;
         ByteBuffer& PrepareValuesUpdateBuffer(UpdateData* data) const;
 
         virtual void DestroyForPlayer(Player* target) const;
-        [[nodiscard]] int32 GetInt32Value(uint16 index) const;
         void SendOutOfRangeForPlayer(Player* target) const;
 
 //        int32 GetInt32Value(uint16 index) const;  //AZ
@@ -221,9 +219,9 @@ class TC_GAME_API Object
         inline bool IsPlayer() const { return GetTypeId() == TYPEID_PLAYER; }
        /* Player* ToPlayer() { if (IsPlayer()) return reinterpret_cast<Player*>(this); else return nullptr; }
         Player const* ToPlayer() const { if (IsPlayer()) return reinterpret_cast<Player const*>(this); else return nullptr; }*/
-        //重复定义
+        //�ظ�����
         Player* ToPlayer() { if (IsPlayer()) return reinterpret_cast<Player*>(this); else return nullptr; }
-//        Player* ToPlayer() { if (IsPlayer()) return reinterpret_cast<Player*>(this); else return nullptr; }//已经定义,预计和上方这句相同
+//        Player* ToPlayer() { if (IsPlayer()) return reinterpret_cast<Player*>(this); else return nullptr; }//�Ѿ�����,Ԥ�ƺ��Ϸ������ͬ
         static Player* ToPlayer(Object* o) { return o ? o->ToPlayer() : nullptr; }
         static Player const* ToPlayer(Object const* o) { return o ? o->ToPlayer() : nullptr; }
 
@@ -423,15 +421,15 @@ class TC_GAME_API Object
         TypeID m_objectTypeId;
         CreateObjectBits m_updateFlag;
 
-        union//AZ
-        {
-            int32* m_int32Values;
-            uint32* m_uint32Values;
-            float* m_floatValues;
-        };
+        //union//AZ
+        //{
+        //    int32* m_int32Values;
+        //    uint32* m_uint32Values;
+        //    float* m_floatValues;
+        //};
 
-//        UpdateMask_AZ _changesMask;   //AZ
-//        uint16 m_valuesCount; //AZ
+        //UpdateMask_AZ _changesMask;//AZ
+        //uint16 m_valuesCount;//AZ
 
 
         virtual bool AddToObjectUpdate() = 0;
@@ -441,8 +439,6 @@ class TC_GAME_API Object
         bool m_objectUpdated;
 
     private:
-        // for output helpfull error messages from asserts
-        [[nodiscard]] bool PrintIndexError(uint32 index, bool set) const;
         ObjectGuid m_guid;
         bool m_inWorld;
         bool m_isNewObject;
@@ -792,7 +788,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         // Transports
         TransportBase* GetTransport() const { return m_transport; }
-        //Transport* getTransport() const { return m_Transport; } //兼容旧版本,自制
+        //Transport* getTransport() const { return m_Transport; } //���ݾɰ汾,����
         float GetTransOffsetX() const { return m_movementInfo.transport.pos.GetPositionX(); }
         float GetTransOffsetY() const { return m_movementInfo.transport.pos.GetPositionY(); }
         float GetTransOffsetZ() const { return m_movementInfo.transport.pos.GetPositionZ(); }
@@ -846,7 +842,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         // transports (gameobjects only)
         TransportBase* m_transport;
-        //Transport* m_Transport;//兼容旧版本
+        //Transport* m_Transport;//���ݾɰ汾
 
         virtual void ProcessPositionDataChanged(PositionFullTerrainStatus const& data);
         uint32 m_zoneId;
