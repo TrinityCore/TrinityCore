@@ -27,7 +27,14 @@
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
-      "inheritEnvironments": [ "msvc_x64_x64" ]
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "variables": [
+        {
+          "name": "WITH_DYNAMIC_LINKING",
+          "value": "False",
+          "type": "BOOL"
+        }
+      ]
     }
   ]
 }
