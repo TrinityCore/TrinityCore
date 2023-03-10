@@ -302,8 +302,14 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool hasQuest(uint32 quest_id) const override;
         bool hasInvolvedQuest(uint32 quest_id)  const override;
 
-        bool CanRegenerateHealth() const { return !_regenerateHealthLock && _regenerateHealth; }
-        void SetRegenerateHealth(bool value) { _regenerateHealthLock = !value; }
+        bool CanRegenerateHealth() const { return !_staticFlags5.HasFlag(CREATURE_STATIC_FLAG_5_NO_HEALTH_REGEN) && _regenerateHealth; }
+        void SetRegenerateHealth(bool value)
+        {
+            if (!value)
+                _staticFlags5 |= CREATURE_STATIC_FLAG_5_NO_HEALTH_REGEN;
+            else
+                _staticFlags5 &= ~CREATURE_STATIC_FLAG_5_NO_HEALTH_REGEN;
+        }
         virtual uint8 GetPetAutoSpellSize() const { return MAX_SPELL_CHARM; }
         virtual uint32 GetPetAutoSpellOnPos(uint8 pos) const;
         float GetPetChaseDistance() const;
@@ -390,6 +396,15 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         void ExitVehicle(Position const* exitPosition = nullptr) override;
 
+        bool HasFlag(CreatureStaticFlags flag) const { return _staticFlags.HasFlag(flag); }
+        bool HasFlag(CreatureStaticFlags2 flag) const { return _staticFlags2.HasFlag(flag); }
+        bool HasFlag(CreatureStaticFlags3 flag) const { return _staticFlags3.HasFlag(flag); }
+        bool HasFlag(CreatureStaticFlags4 flag) const { return _staticFlags4.HasFlag(flag); }
+        bool HasFlag(CreatureStaticFlags5 flag) const { return _staticFlags5.HasFlag(flag); }
+        bool HasFlag(CreatureStaticFlags6 flag) const { return _staticFlags6.HasFlag(flag); }
+        bool HasFlag(CreatureStaticFlags7 flag) const { return _staticFlags7.HasFlag(flag); }
+        bool HasFlag(CreatureStaticFlags8 flag) const { return _staticFlags8.HasFlag(flag); }
+
         uint32 GetTrainerId() const;
         void SetTrainerId(Optional<uint32> trainerId);
 
@@ -473,9 +488,17 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         time_t _lastDamagedTime; // Part of Evade mechanics
         CreatureTextRepeatGroup m_textRepeat;
 
+        EnumFlag<CreatureStaticFlags>_staticFlags;
+        EnumFlag<CreatureStaticFlags2> _staticFlags2;
+        EnumFlag<CreatureStaticFlags3> _staticFlags3;
+        EnumFlag<CreatureStaticFlags4> _staticFlags4;
+        EnumFlag<CreatureStaticFlags5> _staticFlags5;
+        EnumFlag<CreatureStaticFlags6> _staticFlags6;
+        EnumFlag<CreatureStaticFlags7> _staticFlags7;
+        EnumFlag<CreatureStaticFlags8> _staticFlags8;
+
         // Regenerate health
         bool _regenerateHealth; // Set on creation
-        bool _regenerateHealthLock; // Dynamically set
 
         bool _isMissingCanSwimFlagOutOfCombat;
 

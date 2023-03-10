@@ -20,6 +20,7 @@
 
 #include "Common.h"
 #include "DBCEnums.h"
+#include "EnumFlag.h"
 #include "Optional.h"
 #include "SharedDefines.h"
 #include "SpawnData.h"
@@ -68,6 +69,8 @@ enum CreatureStaticFlags
     CREATURE_STATIC_FLAG_LARGE_AOI                         = 0x80000000  // UnitFlags2 0x200000
 };
 
+DEFINE_ENUM_FLAG(CreatureStaticFlags);
+
 enum CreatureStaticFlags2
 {
     CREATURE_STATIC_FLAG_2_NO_PET_SCALING                  = 0x00000001,
@@ -103,6 +106,8 @@ enum CreatureStaticFlags2
     CREATURE_STATIC_FLAG_2_NO_SKILL_GAINS                  = 0x40000000, // CREATURE_FLAG_EXTRA_NO_SKILL_GAINS
     CREATURE_STATIC_FLAG_2_NO_PET_BAR                      = 0x80000000  // CREATURE_TYPE_FLAG_NO_PET_BAR
 };
+
+DEFINE_ENUM_FLAG(CreatureStaticFlags2);
 
 enum CreatureStaticFlags3
 {
@@ -140,6 +145,8 @@ enum CreatureStaticFlags3
     CREATURE_STATIC_FLAG_3_AI_CAN_AUTO_LAND_IN_COMBAT     = 0x80000000
 };
 
+DEFINE_ENUM_FLAG(CreatureStaticFlags3);
+
 enum CreatureStaticFlags4
 {
     CREATURE_STATIC_FLAG_4_NO_BIRTH_ANIM                       = 0x00000001, // SMSG_UPDATE_OBJECT's "NoBirthAnim"
@@ -175,6 +182,8 @@ enum CreatureStaticFlags4
     CREATURE_STATIC_FLAG_4_DO_NOT_RENDER_OBJECT_NAME           = 0x40000000, // CREATURE_TYPE_FLAG_DO_NOT_RENDER_OBJECT_NAME, original description: Hide name in world frame
     CREATURE_STATIC_FLAG_4_QUEST_BOSS                          = 0x80000000  // CREATURE_TYPE_FLAG_QUEST_BOSS
 };
+
+DEFINE_ENUM_FLAG(CreatureStaticFlags4);
 
 enum CreatureStaticFlags5
 {
@@ -212,6 +221,8 @@ enum CreatureStaticFlags5
     CREATURE_STATIC_FLAG_5_GIVE_CRITERIA_KILL_CREDIT_WHEN_CHARMED = 0x80000000
 };
 
+DEFINE_ENUM_FLAG(CreatureStaticFlags5);
+
 enum CreatureStaticFlags6
 {
     CREATURE_STATIC_FLAG_6_DO_NOT_AUTO_RESUMMON                = 0x00000001, // "Do not auto-resummon this companion creature"
@@ -248,6 +259,8 @@ enum CreatureStaticFlags6
     CREATURE_STATIC_FLAG_6_APPLY_PROCEDURAL_WOUND_ANIM_TO_BASE = 0x80000000  // TFLAG2_UNK14
 };
 
+DEFINE_ENUM_FLAG(CreatureStaticFlags6);
+
 enum CreatureStaticFlags7
 {
     CREATURE_STATIC_FLAG_7_IMPORTANT_NPC                            = 0x00000001,
@@ -264,12 +277,16 @@ enum CreatureStaticFlags7
     CREATURE_STATIC_FLAG_7_AI_ADDITIONAL_PATHING                    = 0x00080000,
 };
 
+DEFINE_ENUM_FLAG(CreatureStaticFlags7);
+
 enum CreatureStaticFlags8
 {
     CREATURE_STATIC_FLAG_8_FORCE_CLOSE_IN_ON_PATH_FAIL_BEHAVIOR     = 0x00000002,
     CREATURE_STATIC_FLAG_8_USE_2D_CHASING_CALCULATION               = 0x00000020,
     CREATURE_STATIC_FLAG_8_USE_FAST_CLASSIC_HEARTBEAT               = 0x00000040,
 };
+
+DEFINE_ENUM_FLAG(CreatureStaticFlags8);
 
 // EnumUtils: DESCRIBE THIS
 enum CreatureFlagsExtra : uint32
