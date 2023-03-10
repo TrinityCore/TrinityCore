@@ -3522,3 +3522,16 @@ void Creature::ExitVehicle(Position const* /*exitPosition*/)
     // exited position so it won't run away (home) and evade if it's hostile
     SetHomePosition(GetPosition());
 }
+
+uint32 Creature::GetTrainerId() const
+{
+    if (_trainerId)
+        return *_trainerId;
+
+    return sObjectMgr->GetCreatureDefaultTrainer(GetEntry());
+}
+
+void Creature::SetTrainerId(Optional<uint32> trainerId)
+{
+    _trainerId = trainerId;
+}
