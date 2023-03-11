@@ -155,7 +155,8 @@ class TC_GAME_API CreatureAI : public UnitAI
         // Called at reaching home after evade
         virtual void JustReachedHome() { }
 
-        void DoZoneInCombat(Creature* creature = nullptr);
+        void DoZoneInCombat() { DoZoneInCombat(me); }
+        static void DoZoneInCombat(Creature* creature);
 
         // Called at text emote receive from player
         virtual void ReceiveEmote(Player* /*player*/, uint32 /*emoteId*/) { }
@@ -251,6 +252,8 @@ class TC_GAME_API CreatureAI : public UnitAI
         uint32 const _scriptId;
         bool _isEngaged;
         bool _moveInLOSLocked;
+
+        friend Scripting::v2::ScriptedAI;
 };
 
 #endif
