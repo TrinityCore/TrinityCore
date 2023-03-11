@@ -184,6 +184,32 @@ enum CreatureStaticFlags4
 
 DEFINE_ENUM_FLAG(CreatureStaticFlags4);
 
+class CreatureStaticFlagsHolder
+{
+public:
+    explicit CreatureStaticFlagsHolder(CreatureStaticFlags flags = CreatureStaticFlags(), CreatureStaticFlags2 flags2 = CreatureStaticFlags2(),
+        CreatureStaticFlags3 flags3 = CreatureStaticFlags3(), CreatureStaticFlags4 flags4 = CreatureStaticFlags4())
+            : _flags(flags), _flags2(flags2), _flags3(flags3), _flags4(flags4)
+    {
+    }
+
+    bool HasFlag(CreatureStaticFlags flag) const { return _flags.HasFlag(flag); }
+    bool HasFlag(CreatureStaticFlags2 flag) const { return _flags2.HasFlag(flag); }
+    bool HasFlag(CreatureStaticFlags3 flag) const { return _flags3.HasFlag(flag); }
+    bool HasFlag(CreatureStaticFlags4 flag) const { return _flags4.HasFlag(flag); }
+
+    void ApplyFlag(CreatureStaticFlags flag, bool apply) { if (apply) _flags |= flag; else _flags &= ~flag; }
+    void ApplyFlag(CreatureStaticFlags2 flag, bool apply) { if (apply) _flags2 |= flag; else _flags2 &= ~flag; }
+    void ApplyFlag(CreatureStaticFlags3 flag, bool apply) { if (apply) _flags3 |= flag; else _flags3 &= ~flag; }
+    void ApplyFlag(CreatureStaticFlags4 flag, bool apply) { if (apply) _flags4 |= flag; else _flags4 &= ~flag; }
+
+private:
+    EnumFlag<CreatureStaticFlags> _flags;
+    EnumFlag<CreatureStaticFlags2> _flags2;
+    EnumFlag<CreatureStaticFlags3> _flags3;
+    EnumFlag<CreatureStaticFlags4> _flags4;
+};
+
 // EnumUtils: DESCRIBE THIS
 enum CreatureFlagsExtra : uint32
 {

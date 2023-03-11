@@ -371,9 +371,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void ExitVehicle(Position const* exitPosition = nullptr) override;
 
         bool HasFlag(CreatureStaticFlags flag) const { return _staticFlags.HasFlag(flag); }
-        bool HasFlag(CreatureStaticFlags2 flag) const { return _staticFlags2.HasFlag(flag); }
-        bool HasFlag(CreatureStaticFlags3 flag) const { return _staticFlags3.HasFlag(flag); }
-        bool HasFlag(CreatureStaticFlags4 flag) const { return _staticFlags4.HasFlag(flag); }
+        bool HasFlag(CreatureStaticFlags2 flag) const { return _staticFlags.HasFlag(flag); }
+        bool HasFlag(CreatureStaticFlags3 flag) const { return _staticFlags.HasFlag(flag); }
+        bool HasFlag(CreatureStaticFlags4 flag) const { return _staticFlags.HasFlag(flag); }
         
     protected:
         bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);
@@ -456,10 +456,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         time_t _lastDamagedTime; // Part of Evade mechanics
         CreatureTextRepeatGroup m_textRepeat;
 
-        EnumFlag<CreatureStaticFlags>_staticFlags;
-        EnumFlag<CreatureStaticFlags2> _staticFlags2;
-        EnumFlag<CreatureStaticFlags3> _staticFlags3;
-        EnumFlag<CreatureStaticFlags4> _staticFlags4;
+        CreatureStaticFlagsHolder _staticFlags;
 
         // Regenerate health
         bool _regenerateHealth; // Set on creation
