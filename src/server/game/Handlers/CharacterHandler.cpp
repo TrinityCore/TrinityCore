@@ -1674,6 +1674,7 @@ void WorldSession::HandleCharFactionOrRaceChangeCallback(std::shared_ptr<Charact
     Field* fields              = result->Fetch();
     uint32 atLoginFlags        = fields[0].GetUInt16();
     std::string knownTitlesStr = fields[1].GetString();
+    uint32 groupId             = !fields[2].IsNull() ? fields[2].GetUInt32() : 0;
 
     uint32 usedLoginFlag = (factionChangeInfo->FactionChange ? AT_LOGIN_CHANGE_FACTION : AT_LOGIN_CHANGE_RACE);
     if (!(atLoginFlags & usedLoginFlag))
@@ -1882,15 +1883,10 @@ void WorldSession::HandleCharFactionOrRaceChangeCallback(std::shared_ptr<Charact
                 Player::LeaveAllArenaTeams(factionChangeInfo->Guid);
             }
 
-            if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP))
+            if (groupId && !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP))
             {
-                CharacterDatabasePreparedStatement* stmt2 = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GROUP_MEMBER);
-                stmt2->setUInt32(0, lowGuid);
-                PreparedQueryResult resultGroup = CharacterDatabase.Query(stmt2);
-
-                if (resultGroup)
-                    if (Group* group = sGroupMgr->GetGroupByDbStoreId((*resultGroup)[0].GetUInt32()))
-                        group->RemoveMember(factionChangeInfo->Guid);
+                if (Group* group = sGroupMgr->GetGroupByDbStoreId(groupId))
+                    group->RemoveMember(factionChangeInfo->Guid);
             }
 
             if (!HasPermission(rbac::RBAC_PERM_TWO_SIDE_ADD_FRIEND))
