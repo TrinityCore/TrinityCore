@@ -639,15 +639,15 @@ void MotionMaster::MoveConfused()
     }
 }
 
-void MotionMaster::MoveFleeing(Unit* enemy, uint32 time)
+void MotionMaster::MoveFleeing(Unit* enemy, Milliseconds time)
 {
     if (!enemy)
         return;
 
-    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveFleeing: '{}', flees from '{}' (time: {})", _owner->GetGUID().ToString(), enemy->GetGUID().ToString(), time);
+    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveFleeing: '{}', flees from '{}' (time: {}ms)", _owner->GetGUID().ToString(), enemy->GetGUID().ToString(), time.count());
     if (_owner->GetTypeId() == TYPEID_UNIT)
     {
-        if (time)
+        if (time > 0ms)
             Add(new TimedFleeingMovementGenerator(enemy->GetGUID(), time));
         else
             Add(new FleeingMovementGenerator<Creature>(enemy->GetGUID()));
