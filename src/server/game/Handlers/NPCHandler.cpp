@@ -183,7 +183,7 @@ void WorldSession::HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet)
     if (!unit->AI()->OnGossipHello(_player))
     {
 //        _player->TalkedToCreature(unit->GetEntry(), unit->GetGUID());
-        _player->PrepareGossipMenu(unit, unit->GetCreatureTemplate()->GossipMenuId, true);
+        _player->PrepareGossipMenu(unit, unit->GetGossipMenuId(), true);
         _player->SendPreparedGossip(unit);
     }
 }
