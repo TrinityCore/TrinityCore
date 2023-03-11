@@ -252,8 +252,6 @@ class TC_GAME_API CreatureAI : public UnitAI
         uint32 const _scriptId;
         bool _isEngaged;
         bool _moveInLOSLocked;
-
-        friend Scripting::v2::ScriptedAI;
 };
 
 #endif
