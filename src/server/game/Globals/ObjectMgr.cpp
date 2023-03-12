@@ -8109,22 +8109,6 @@ int32 ObjectMgr::GetFishingBaseSkillLevel(AreaTableEntry const* areaEntry) const
     return 0;
 }
 
-ContentTuningEntry const* ObjectMgr::GetContentTuningForArea(AreaTableEntry const* areaEntry) const
-{
-    if (!areaEntry)
-        return nullptr;
-
-    // Get ContentTuning for the area
-    if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(areaEntry->ContentTuningID))
-        return contentTuning;
-
-    // If there is no data for the current area and it has a parent area, get data from the last (recursive)
-    if (AreaTableEntry const* parentAreaEntry = sAreaTableStore.LookupEntry(areaEntry->ParentAreaID))
-        return GetContentTuningForArea(parentAreaEntry);
-
-    return nullptr;
-}
-
 void ObjectMgr::LoadPetNames()
 {
     uint32 oldMSTime = getMSTime();

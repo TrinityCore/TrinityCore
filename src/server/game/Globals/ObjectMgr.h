@@ -1431,8 +1431,6 @@ class TC_GAME_API ObjectMgr
 
         int32 GetFishingBaseSkillLevel(AreaTableEntry const* areaEntry) const;
 
-        ContentTuningEntry const* GetContentTuningForArea(AreaTableEntry const* areaEntry) const;
-
         SkillTiersEntry const* GetSkillTier(uint32 skillTierId) const
         {
             auto itr = _skillTiers.find(skillTierId);

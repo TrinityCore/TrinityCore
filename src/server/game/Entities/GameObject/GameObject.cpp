@@ -2534,7 +2534,7 @@ void GameObject::Use(Unit* user)
                     }
 
                     // Update the correct fishing skill according to the area's ContentTuning
-                    ContentTuningEntry const* areaContentTuning = sObjectMgr->GetContentTuningForArea(areaEntry);
+                    ContentTuningEntry const* areaContentTuning = DB2Manager::GetContentTuningForArea(areaEntry);
                     if (!areaContentTuning)
                         break;
 
