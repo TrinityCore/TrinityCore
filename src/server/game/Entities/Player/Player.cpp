@@ -6005,8 +6005,8 @@ uint32 Player::GetProfessionSkillForExp(uint32 skill, int32 expansion) const
         {
             // Values of ParentTierIndex in SkillLine.db2 start at 4 (Classic) and increase by one for each expansion skillLine
             // Subtract 4 (BASE_PARENT_TIER_INDEX) from this value to obtain the expansion of the skillLine
-            uint32 skillLineExpansion = childSkillLine->ParentTierIndex - BASE_PARENT_TIER_INDEX;
-            if (expansion == (int32)skillLineExpansion)
+            int32 skillLineExpansion = childSkillLine->ParentTierIndex - BASE_PARENT_TIER_INDEX;
+            if (expansion == skillLineExpansion)
                 return childSkillLine->ID;
         }
 
