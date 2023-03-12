@@ -2176,7 +2176,7 @@ SpellCastResult SpellInfo::CheckTarget(WorldObject const* caster, WorldObject co
                     if (!targetCreature)
                         return SPELL_FAILED_BAD_TARGETS;
 
-                    if (!LootTemplates_Pickpocketing.HaveLootFor(targetCreature->GetCreatureTemplate()->pickpocketLootId))
+                    if (!targetCreature->CanHaveLoot() || !LootTemplates_Pickpocketing.HaveLootFor(targetCreature->GetCreatureTemplate()->pickpocketLootId))
                         return SPELL_FAILED_TARGET_NO_POCKETS;
                 }
 

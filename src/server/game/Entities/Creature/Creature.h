@@ -229,6 +229,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         virtual void SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDifficulties);
         static bool DeleteFromDB(ObjectGuid::LowType spawnId);
 
+        bool CanHaveLoot() const { return !_staticFlags.HasFlag(CREATURE_STATIC_FLAG_NO_LOOT); }
+        void SetCanHaveLoot(bool canHaveLoot) { _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_NO_LOOT, !canHaveLoot); }
         std::unique_ptr<Loot> m_loot;
         std::unordered_map<ObjectGuid, std::unique_ptr<Loot>> m_personalLoot;
         void StartPickPocketRefillTimer();
