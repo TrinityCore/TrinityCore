@@ -5138,7 +5138,18 @@ void AuraEffect::HandleTriggerSpellOnExpire(AuraApplication const* aurApp, uint8
     if (!(mode & AURA_EFFECT_HANDLE_REAL) || apply || aurApp->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
         return;
 
-    aurApp->GetTarget()->CastSpell(aurApp->GetTarget(), GetSpellEffectInfo().TriggerSpell, this);
+    Unit* caster = aurApp->GetTarget();
+
+    // MiscValue (Caster):
+    // 0 - Aura target
+    // 1 - Aura caster
+    // 2 - ? Aura target is always TARGET_UNIT_CASTER so we consider the same behavior as MiscValue 1
+    uint32 casterType = uint32(GetMiscValue());
+    if (casterType > 0)
+        caster = GetCaster();
+
+    if (caster)
+        caster->CastSpell(aurApp->GetTarget(), GetSpellEffectInfo().TriggerSpell, this);
 }
 
 void AuraEffect::HandleAuraOpenStable(AuraApplication const* aurApp, uint8 mode, bool apply) const
