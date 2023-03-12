@@ -1885,6 +1885,22 @@ bool DB2Manager::IsInArea(uint32 objectAreaId, uint32 areaId)
     return false;
 }
 
+ContentTuningEntry const* DB2Manager::GetContentTuningForArea(AreaTableEntry const* areaEntry)
+{
+    if (!areaEntry)
+        return nullptr;
+
+    // Get ContentTuning for the area
+    if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(areaEntry->ContentTuningID))
+        return contentTuning;
+
+    // If there is no data for the current area and it has a parent area, get data from the last (recursive)
+    if (AreaTableEntry const* parentAreaEntry = sAreaTableStore.LookupEntry(areaEntry->ParentAreaID))
+        return GetContentTuningForArea(parentAreaEntry);
+
+    return nullptr;
+}
+
 std::vector<ArtifactPowerEntry const*> DB2Manager::GetArtifactPowers(uint8 artifactId) const
 {
     auto itr = _artifactPowers.find(artifactId);

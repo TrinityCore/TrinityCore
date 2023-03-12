@@ -87,6 +87,7 @@ namespace Movement
          */
         void SetFacing(float angle);
         void SetFacing(Vector3 const& point);
+        void SetFacing(float x, float y, float z);
         void SetFacing(Unit const* target);
 
         /* Initializes movement by path

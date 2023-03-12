@@ -236,7 +236,7 @@ DELETE FROM `game_event_gameobject` WHERE `guid` BETWEEN 84966 AND 84979;
 DELETE FROM `game_event_gameobject` WHERE `guid`=83300;
 
 -- Gameobject spawns
-DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+602;
+DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+606;
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
 -- Stormwind City
 (@OGUID+0, 181014, 0, 12, 7486, '0', 0, 0, -9065.8798828125, 414.82598876953125, 98.7891998291015625, 2.251473426818847656, 0, 0, 0.902585029602050781, 0.430511653423309326, 120, 255, 1, 48069), -- Hanging, Square, Large - Val (Area: Stormwind Gate - Difficulty: 0)

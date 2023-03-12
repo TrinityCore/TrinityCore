@@ -2025,7 +2025,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool UpdateSkillPro(uint16 skillId, int32 chance, uint32 step);
         bool UpdateCraftSkill(SpellInfo const* spellInfo);
         bool UpdateGatherSkill(uint32 SkillId, uint32 SkillValue, uint32 RedLevel, uint32 Multiplicator = 1, WorldObject const* object = nullptr);
-        bool UpdateFishingSkill();
+        bool UpdateFishingSkill(int32 expansion);
 
         float GetHealthBonusFromStamina() const;
         Stats GetPrimaryStat() const;
@@ -2204,6 +2204,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         int16 GetSkillPermBonusValue(uint32 skill) const;
         int16 GetSkillTempBonusValue(uint32 skill) const;
         uint16 GetSkillStep(uint32 skill) const;            // 0...6
+        uint32 GetProfessionSkillForExp(uint32 skill, int32 expansion) const;
         bool HasSkill(uint32 skill) const;
         void LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue, Races race);
         int32 GetProfessionSlotFor(uint32 skillId) const;

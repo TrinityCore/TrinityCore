@@ -78,11 +78,8 @@ void CreatureAI::OnCharmed(bool isNew)
     UnitAI::OnCharmed(isNew);
 }
 
-void CreatureAI::DoZoneInCombat(Creature* creature /*= nullptr*/)
+void CreatureAI::DoZoneInCombat(Creature* creature)
 {
-    if (!creature)
-        creature = me;
-
     Map* map = creature->GetMap();
     if (!map->IsDungeon()) // use IsDungeon instead of Instanceable, in case battlegrounds will be instantiated
     {

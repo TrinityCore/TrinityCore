@@ -104,7 +104,7 @@ class npc_voljin_zulaman : public CreatureScript
                 if (_instance->GetData(DATA_ZULAMAN_STATE) != NOT_STARTED)
                     return true;
 
-                if (me->GetCreatureTemplate()->GossipMenuId == menuId && !gossipListId)
+                if (me->GetGossipMenuId() == menuId && !gossipListId)
                 {
                     _events.Reset();
                     me->SetMountDisplayId(0);

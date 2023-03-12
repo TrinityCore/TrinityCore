@@ -214,7 +214,7 @@ struct boss_lord_marrowgar : public BossAI
                 case EVENT_WARN_BONE_STORM:
                     _boneSlice = false;
                     Talk(EMOTE_BONE_STORM);
-                    me->FinishSpell(CURRENT_MELEE_SPELL, false);
+                    me->FinishSpell(CURRENT_MELEE_SPELL, SPELL_FAILED_INTERRUPTED);
                     DoCast(me, SPELL_BONE_STORM);
                     events.DelayEvents(3s, EVENT_GROUP_SPECIAL);
                     events.ScheduleEvent(EVENT_BONE_STORM_BEGIN, 3050ms);
@@ -242,7 +242,7 @@ struct boss_lord_marrowgar : public BossAI
                     {
                         if (a->GetMovementGeneratorType() == POINT_MOTION_TYPE)
                         {
-                            PointMovementGenerator<Creature> const* pointMovement = dynamic_cast<PointMovementGenerator<Creature> const*>(a);
+                            PointMovementGenerator const* pointMovement = dynamic_cast<PointMovementGenerator const*>(a);
                             return pointMovement && pointMovement->GetId() == POINT_TARGET_BONESTORM_PLAYER;
                         }
                         return false;

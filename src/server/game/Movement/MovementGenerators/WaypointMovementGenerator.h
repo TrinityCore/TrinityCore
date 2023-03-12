@@ -30,12 +30,19 @@ template<class T>
 class WaypointMovementGenerator;
 
 template<>
-class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creature, WaypointMovementGenerator<Creature>>, public PathMovementBase<Creature, WaypointPath const*>
+class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creature, WaypointMovementGenerator<Creature>>,
+    public PathMovementBase<Creature, WaypointPath const*>
 {
     public:
-        explicit WaypointMovementGenerator(uint32 pathId = 0, bool repeating = true);
-        explicit WaypointMovementGenerator(WaypointPath& path, bool repeating = true);
-        ~WaypointMovementGenerator() { _path = nullptr; }
+        explicit WaypointMovementGenerator(uint32 pathId, bool repeating, Optional<Milliseconds> duration = {}, Optional<float> speed = {},
+            MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default,
+            Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd = {}, Optional<float> wanderDistanceAtPathEnds = {},
+            bool followPathBackwardsFromEndToStart = false, bool generatePath = true);
+        explicit WaypointMovementGenerator(WaypointPath const& path, bool repeating, Optional<Milliseconds> duration, Optional<float> speed,
+            MovementWalkRunSpeedSelectionMode speedSelectionMode,
+            Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd, Optional<float> wanderDistanceAtPathEnds,
+            bool followPathBackwardsFromEndToStart, bool generatePath);
+        ~WaypointMovementGenerator();
 
         MovementGeneratorType GetMovementGeneratorType() const override;
 
@@ -72,6 +79,15 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creat
         uint32 _pathId;
         bool _repeating;
         bool _loadedFromDB;
+
+        Optional<TimeTracker> _duration;
+        Optional<float> _speed;
+        MovementWalkRunSpeedSelectionMode _speedSelectionMode;
+        Optional<std::pair<Milliseconds, Milliseconds>> _waitTimeRangeAtPathEnd;
+        Optional<float> _wanderDistanceAtPathEnds;
+        bool _followPathBackwardsFromEndToStart;
+        bool _isReturningToStart;
+        bool _generatePath;
 };
 
 #endif
