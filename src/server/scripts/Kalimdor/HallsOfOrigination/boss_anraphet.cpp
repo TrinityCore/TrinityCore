@@ -336,7 +336,7 @@ class npc_brann_bronzebeard_anraphet : public CreatureScript
                 if (_instance->GetBossState(DATA_VAULT_OF_LIGHTS) == DONE)
                     return true;
 
-                if (me->GetCreatureTemplate()->GossipMenuId == sender && !action)
+                if (me->GetGossipMenuId() == sender && !action)
                 {
                     _instance->SetBossState(DATA_VAULT_OF_LIGHTS, IN_PROGRESS);
                     _currentPoint = 0;
