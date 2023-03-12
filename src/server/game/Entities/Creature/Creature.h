@@ -379,6 +379,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool IsEscorted() const;
 
         bool CanGiveExperience() const;
+        void SetCanGiveExperience(bool xpEnabled) { _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_NO_XP, !xpEnabled); }
 
         bool IsEngaged() const override;
         void AtEngage(Unit* target) override;

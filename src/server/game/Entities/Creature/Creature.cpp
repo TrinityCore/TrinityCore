@@ -579,6 +579,11 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
     for (uint8 i = 0; i < MAX_CREATURE_SPELLS; ++i)
         m_spells[i] = GetCreatureTemplate()->spells[i];
 
+    _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_NO_XP, cinfo->type == CREATURE_TYPE_CRITTER
+        || IsPet()
+        || IsTotem()
+        || cinfo->flags_extra & CREATURE_FLAG_EXTRA_NO_XP);
+
     return true;
 }
 
@@ -3431,10 +3436,7 @@ void Creature::ClearTextRepeatGroup(uint8 textGroup)
 
 bool Creature::CanGiveExperience() const
 {
-    return !IsCritter()
-        && !IsPet()
-        && !IsTotem()
-        && !(GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP);
+    return !_staticFlags.HasFlag(CREATURE_STATIC_FLAG_NO_XP);
 }
 
 bool Creature::IsEngaged() const
