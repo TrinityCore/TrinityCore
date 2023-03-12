@@ -6472,7 +6472,8 @@ enum TaxiNodeStatus
 enum ProfessionUI
 {
     MAX_PRIMARY_PROFESSIONS = 2,
-    MAX_SECONDARY_SKILLS = 5
+    MAX_SECONDARY_SKILLS    = 5,
+    BASE_PARENT_TIER_INDEX  = 4
 };
 
 enum DuelCompleteType : uint8

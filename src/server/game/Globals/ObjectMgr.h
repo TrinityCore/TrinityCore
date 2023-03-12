@@ -1429,11 +1429,9 @@ class TC_GAME_API ObjectMgr
         uint32 GetBaseXP(uint8 level);
         uint32 GetXPForLevel(uint8 level) const;
 
-        int32 GetFishingBaseSkillLevel(uint32 entry) const
-        {
-            FishingBaseSkillContainer::const_iterator itr = _fishingBaseForAreaStore.find(entry);
-            return itr != _fishingBaseForAreaStore.end() ? itr->second : 0;
-        }
+        int32 GetFishingBaseSkillLevel(AreaTableEntry const* areaEntry) const;
+
+        ContentTuningEntry const* GetContentTuningForArea(AreaTableEntry const* areaEntry) const;
 
         SkillTiersEntry const* GetSkillTier(uint32 skillTierId) const
         {

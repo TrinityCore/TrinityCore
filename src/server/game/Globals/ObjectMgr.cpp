@@ -8090,6 +8090,41 @@ uint32 ObjectMgr::GetXPForLevel(uint8 level) const
     return 0;
 }
 
+int32 ObjectMgr::GetFishingBaseSkillLevel(AreaTableEntry const* areaEntry) const
+{
+    if (!areaEntry)
+        return 0;
+
+    // Get level for the area
+    FishingBaseSkillContainer::const_iterator itr = _fishingBaseForAreaStore.find(areaEntry->ID);
+    if (itr != _fishingBaseForAreaStore.end())
+        return itr->second;
+
+    // If there is no data for the current area and it has a parent area, get data from the last (recursive)
+    if (AreaTableEntry const* parentAreaEntry = sAreaTableStore.LookupEntry(areaEntry->ParentAreaID))
+       return GetFishingBaseSkillLevel(parentAreaEntry);
+
+    TC_LOG_ERROR("sql.sql", "Fishable areaId {} is not properly defined in `skill_fishing_base_level`.", areaEntry->ID);
+
+    return 0;
+}
+
+ContentTuningEntry const* ObjectMgr::GetContentTuningForArea(AreaTableEntry const* areaEntry) const
+{
+    if (!areaEntry)
+        return nullptr;
+
+    // Get ContentTuning for the area
+    if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(areaEntry->ContentTuningID))
+        return contentTuning;
+
+    // If there is no data for the current area and it has a parent area, get data from the last (recursive)
+    if (AreaTableEntry const* parentAreaEntry = sAreaTableStore.LookupEntry(areaEntry->ParentAreaID))
+        return GetContentTuningForArea(parentAreaEntry);
+
+    return nullptr;
+}
+
 void ObjectMgr::LoadPetNames()
 {
     uint32 oldMSTime = getMSTime();
