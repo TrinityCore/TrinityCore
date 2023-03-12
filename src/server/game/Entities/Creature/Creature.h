@@ -231,6 +231,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         bool CanHaveLoot() const { return !_staticFlags.HasFlag(CREATURE_STATIC_FLAG_NO_LOOT); }
         void SetCanHaveLoot(bool canHaveLoot) { _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_NO_LOOT, !canHaveLoot); }
+        uint32 GetLootId() const;
+        void SetLootId(Optional<uint32> lootId);
         std::unique_ptr<Loot> m_loot;
         std::unordered_map<ObjectGuid, std::unique_ptr<Loot>> m_personalLoot;
         void StartPickPocketRefillTimer();
@@ -459,6 +461,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         std::array<std::string_view, 3> m_stringIds;
         Optional<std::string> m_scriptStringId;
 
+        Optional<uint32> m_lootId;
         uint16 m_LootMode;                                  // Bitmask (default: LOOT_MODE_DEFAULT) that determines what loot will be lootable
 
         bool IsInvisibleDueToDespawn(WorldObject const* seer) const override;

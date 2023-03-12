@@ -1303,6 +1303,19 @@ bool Creature::CanResetTalents(Player* player) const
         && player->GetClass() == GetCreatureTemplate()->trainer_class;
 }
 
+uint32 Creature::GetLootId() const
+{
+    if (m_lootId)
+        return *m_lootId;
+
+    return GetCreatureTemplate()->lootid;
+}
+
+void Creature::SetLootId(Optional<uint32> lootId)
+{
+    m_lootId = lootId;
+}
+
 void Creature::SetTappedBy(Unit const* unit, bool withGroup)
 {
     // set the player whose group should receive the right
