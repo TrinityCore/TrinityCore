@@ -5634,20 +5634,20 @@ bool Player::UpdateFishingSkill(int32 expansion)
     if (!fishingSkill || !HasSkill(fishingSkill))
         return false;
 
-    uint32 SkillValue = GetPureSkillValue(fishingSkill);
+    uint32 skillValue = GetPureSkillValue(fishingSkill);
 
-    if (SkillValue >= GetMaxSkillValue(fishingSkill))
+    if (skillValue >= GetMaxSkillValue(fishingSkill))
         return false;
 
-    uint8 stepsNeededToLevelUp = GetFishingStepsNeededToLevelUp(SkillValue);
+    uint8 stepsNeededToLevelUp = GetFishingStepsNeededToLevelUp(skillValue);
     ++m_fishingSteps;
 
     if (m_fishingSteps >= stepsNeededToLevelUp)
     {
         m_fishingSteps = 0;
 
-        uint32 gathering_skill_gain = sWorld->getIntConfig(CONFIG_SKILL_GAIN_GATHERING);
-        return UpdateSkillPro(fishingSkill, 100*10, gathering_skill_gain);
+        uint32 gatheringSkillGain = sWorld->getIntConfig(CONFIG_SKILL_GAIN_GATHERING);
+        return UpdateSkillPro(fishingSkill, 100*10, gatheringSkillGain);
     }
 
     return false;
@@ -6002,8 +6002,13 @@ uint32 Player::GetProfessionSkillForExp(uint32 skill, int32 expansion) const
 
     if (std::vector<SkillLineEntry const*> const* childSkillLines = sDB2Manager.GetSkillLinesForParentSkill(skillEntry->ID))
         for (SkillLineEntry const* childSkillLine : *childSkillLines)
-            if (expansion == (childSkillLine->ParentTierIndex - BASE_PARENT_TIER_INDEX))
+        {
+            // Values of ParentTierIndex in SkillLine.db2 start at 4 (Classic) and increase by one for each expansion skillLine
+            // Subtract 4 (BASE_PARENT_TIER_INDEX) from this value to obtain the expansion of the skillLine
+            uint32 skillLineExpansion = childSkillLine->ParentTierIndex - BASE_PARENT_TIER_INDEX;
+            if (expansion == skillLineExpansion)
                 return childSkillLine->ID;
+        }
 
     return 0;
 }
