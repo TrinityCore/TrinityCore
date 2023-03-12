@@ -1,0 +1,1 @@
+https://github.com/Arctium/WoW-Launcher/blob/windows/README.md
