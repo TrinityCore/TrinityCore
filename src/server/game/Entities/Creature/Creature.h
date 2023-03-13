@@ -184,6 +184,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         SpellSchoolMask GetMeleeDamageSchoolMask(WeaponAttackType /*attackType*/ = BASE_ATTACK) const override { return m_meleeDamageSchoolMask; }
         void SetMeleeDamageSchool(SpellSchools school) { m_meleeDamageSchoolMask = SpellSchoolMask(1 << school); }
+        bool CanMelee() const { return !_staticFlags.HasFlag(CREATURE_STATIC_FLAG_NO_MELEE); }
+        void SetCanMelee(bool canMelee) { _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_NO_MELEE, !canMelee); }
 
         bool HasSpell(uint32 spellID) const override;
 
