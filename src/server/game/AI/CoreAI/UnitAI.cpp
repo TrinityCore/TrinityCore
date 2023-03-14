@@ -60,7 +60,7 @@ void UnitAI::AttackStartCaster(Unit* victim, float dist)
 
 void UnitAI::DoMeleeAttackIfReady()
 {
-    if (me->HasUnitState(UNIT_STATE_CASTING))
+    if (me->HasUnitState(UNIT_STATE_CASTING) || (me->IsCreature() && !me->ToCreature()->CanMelee()))
         return;
 
     Unit* victim = me->GetVictim();
