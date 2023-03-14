@@ -73,6 +73,7 @@ cmake-build-*/*
 /out/build/x64-Debug/bin/Bnet.log
 /out/build/x64-Debug/bin/worldserver.conf
 /out/build/x64-Debug/bin/TDB_full_world_1002.22121_2022_12_20.sql
+/out/build
 /out/build/x64-Debug/bin/Debug/scripts
 /out/build/x64-Debug/bin
 /vcpkg
