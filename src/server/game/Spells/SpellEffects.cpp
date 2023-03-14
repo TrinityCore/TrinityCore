@@ -3721,7 +3721,7 @@ void Spell::EffectSkinning()
     loot->FillLoot(creature->GetCreatureTemplate()->SkinLootId, LootTemplates_Skinning, player, true);
     player->SendLoot(*loot);
 
-    // Blizzard still uses this formula
+    // This formula is still used
     if (skill == SKILL_SKINNING)
     {
         int32 reqValue;
