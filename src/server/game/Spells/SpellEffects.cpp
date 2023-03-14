@@ -3758,7 +3758,6 @@ void Spell::EffectSkinning()
         if (!skinningSkill)
             return;
 
-
         if (uint32 pureSkillValue = player->GetPureSkillValue(skinningSkill))
         {
             // Double chances for elites
