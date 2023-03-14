@@ -1,4 +1,4 @@
-# output generic information about the core and buildtype chosen
+﻿# output generic information about the core and buildtype chosen
 message("")
 message("* TrinityCore revision   : ${rev_hash} ${rev_date} (${rev_branch} branch)")
 if(UNIX)
@@ -32,6 +32,14 @@ if(SCRIPTS AND (NOT SCRIPTS STREQUAL "none"))
 else()
   message("* Build with scripts     : No")
 endif()
+
+if( ELUNA )
+  message("* Build Eluna LuaEngine   : Yes (default)")
+  add_definitions(-DELUNA)
+else()
+  message("* Build Eluna LuaEngine   : No")
+endif()
+
 
 if(TOOLS)
   message("* Build map/vmap tools   : Yes (default)")

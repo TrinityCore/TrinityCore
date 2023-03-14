@@ -1,4 +1,4 @@
-# This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+﻿# This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -34,6 +34,7 @@ foreach(SCRIPT_MODULE ${SCRIPT_MODULE_LIST})
 endforeach()
 
 option(TOOLS            "Build map/vmap/mmap extraction/assembler tools"              1)
+option(ELUNA            "Build Eluna Lua Engine"                                      1)
 option(USE_SCRIPTPCH    "Use precompiled headers when compiling scripts"              1)
 option(USE_COREPCH      "Use precompiled headers when compiling servers"              1)
 option(WITH_DYNAMIC_LINKING "Enable dynamic library linking."                         0)
