@@ -245,6 +245,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         GuidUnorderedSet const& GetTapList() const { return m_tapList; }
         void SetTapList(GuidUnorderedSet tapList) { m_tapList = std::move(tapList); }
         bool hasLootRecipient() const { return !m_tapList.empty(); }
+        bool IsTapListNotClearedOnEvade() const { return m_dontClearTapListOnEvade; }
+        void SetDontClearTapListOnEvade(bool dontClear);
         bool isTappedBy(Player const* player) const;                          // return true if the creature is tapped by the player or a member of his party.
         Loot* GetLootForPlayer(Player const* player) const override;
         bool IsFullyLooted() const;
@@ -426,6 +428,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         static float _GetHealthMod(int32 Rank);
 
         GuidUnorderedSet m_tapList;
+        bool m_dontClearTapListOnEvade;
 
         /// Timers
         time_t _pickpocketLootRestore;
