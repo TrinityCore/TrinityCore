@@ -94,7 +94,8 @@ void EscortAI::EnterEvadeMode(EvadeReason /*why*/)
 {
     me->RemoveAllAuras();
     me->CombatStop(true);
-    me->SetTappedBy(nullptr);
+    if (!me->IsTapListNotClearedOnEvade())
+        me->SetTappedBy(nullptr);
 
     EngagementOver();
 
