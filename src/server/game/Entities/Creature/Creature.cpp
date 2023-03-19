@@ -3260,7 +3260,6 @@ void Creature::SetDisplayId(uint32 displayId, bool setNative /*= false*/)
     {
         SetBoundingRadius((IsPet() ? 1.0f : modelInfo->bounding_radius) * GetObjectScale() * GetDisplayScale());
         SetCombatReach((IsPet() ? DEFAULT_PLAYER_COMBAT_REACH : modelInfo->combat_reach) * GetObjectScale() * GetDisplayScale());
-        SetGender(Gender(modelInfo->gender));
     }
 }
 
