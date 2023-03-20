@@ -41,7 +41,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EuropaTicketConfig const& europaTicketS
     return data;
 }
 
-WorldPacket operator<<(WorldPacket& data, GameRuleValuePair const& gameRuleValue)
+ByteBuffer& operator<<(ByteBuffer& data, GameRuleValuePair const& gameRuleValue)
 {
     data << int32(gameRuleValue.Rule);
     data << int32(gameRuleValue.Value);
