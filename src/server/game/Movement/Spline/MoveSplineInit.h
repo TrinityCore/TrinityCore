@@ -155,7 +155,7 @@ namespace Movement
         /* Sets the velocity (in case you want to have custom movement velocity)
          * if no set, speed will be selected based on unit's speeds and current movement mode
          * Has no effect if falling mode enabled
-         * velocity shouldn't be negative
+         * velocity shouldn't be negative (except knockbacks)
          */
         void SetVelocity(float velocity);
 

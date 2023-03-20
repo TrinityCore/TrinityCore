@@ -166,7 +166,7 @@ void MoveSpline::init_spline(MoveSplineInitArgs const& args)
     }
     else
     {
-        CommonInitializer init(args.velocity);
+        CommonInitializer init(std::abs(args.velocity));
         spline.initLengths(init);
     }
 
@@ -246,7 +246,7 @@ bool MoveSplineInitArgs::Validate(Unit* unit) const
         return false;\
     }
     CHECK(path.size() > 1, true);
-    CHECK(velocity >= 0.01f, true);
+    CHECK(std::abs(velocity) >= 0.01f, true);
     CHECK(time_perc >= 0.f && time_perc <= 1.f, true);
     CHECK(_checkPathLengths(), false);
     if (spellEffectExtra)
