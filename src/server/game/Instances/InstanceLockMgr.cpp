@@ -173,9 +173,6 @@ void InstanceLockMgr::Unload()
 
 TransferAbortReason InstanceLockMgr::CanJoinInstanceLock(ObjectGuid const& playerGuid, MapDb2Entries const& entries, InstanceLock const* instanceLock) const
 {
-    if (!entries.MapDifficulty->HasResetSchedule())
-        return TRANSFER_ABORT_NONE;
-
     InstanceLock const* playerInstanceLock = FindActiveInstanceLock(playerGuid, entries);
     if (!playerInstanceLock)
         return TRANSFER_ABORT_NONE;
@@ -215,6 +212,9 @@ InstanceLock* InstanceLockMgr::FindActiveInstanceLock(ObjectGuid const& playerGu
 
 InstanceLock* InstanceLockMgr::FindActiveInstanceLock(ObjectGuid const& playerGuid, MapDb2Entries const& entries, bool ignoreTemporary, bool ignoreExpired) const
 {
+    if (!entries.MapDifficulty->HasResetSchedule())
+        return nullptr;
+
     std::shared_lock<std::shared_mutex> guard(_locksMutex);
 
     InstanceLock* lock = FindInstanceLock(_instanceLocksByPlayer, playerGuid, entries);
