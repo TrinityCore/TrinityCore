@@ -29,7 +29,8 @@ InstanceLockData::InstanceLockData() = default;
 InstanceLockData::~InstanceLockData() = default;
 
 InstanceLock::InstanceLock(uint32 mapId, Difficulty difficultyId, InstanceResetTimePoint expiryTime, uint32 instanceId)
-    : _mapId(mapId), _difficultyId(difficultyId), _instanceId(instanceId), _expiryTime(expiryTime), _extended(false), _isInUse(false)
+    : _mapId(mapId), _difficultyId(difficultyId), _instanceId(instanceId), _expiryTime(expiryTime), _extended(false),
+    _isInUse(false), _isNew(false)
 {
 }
 
@@ -149,7 +150,7 @@ void InstanceLockMgr::Load()
                 }
 
                 instanceLock = new SharedInstanceLock(mapId, difficulty, expiryTime, instanceId, sharedDataItr->second);
-                _instanceLockDataById[instanceId] = std::weak_ptr<SharedInstanceLockData>(sharedDataItr->second);
+                _instanceLockDataById[instanceId] = sharedDataItr->second;
             }
             else
                 instanceLock = new InstanceLock(mapId, difficulty, expiryTime, instanceId);
@@ -186,7 +187,7 @@ TransferAbortReason InstanceLockMgr::CanJoinInstanceLock(ObjectGuid const& playe
         return TRANSFER_ABORT_NONE;
     }
 
-    if (!entries.MapDifficulty->IsUsingEncounterLocks() && playerInstanceLock->GetInstanceId() && playerInstanceLock->GetInstanceId() != instanceLock->GetInstanceId())
+    if (!entries.MapDifficulty->IsUsingEncounterLocks() && !playerInstanceLock->IsNew() && playerInstanceLock->GetInstanceId() != instanceLock->GetInstanceId())
         return TRANSFER_ABORT_LOCKED_TO_DIFFERENT_INSTANCE;
 
     return TRANSFER_ABORT_NONE;
@@ -256,11 +257,13 @@ InstanceLock* InstanceLockMgr::CreateInstanceLockForNewInstance(ObjectGuid const
         std::shared_ptr<SharedInstanceLockData> sharedData = std::make_shared<SharedInstanceLockData>();
         _instanceLockDataById[instanceId] = sharedData;
         instanceLock = new SharedInstanceLock(entries.MapDifficulty->MapID, Difficulty(entries.MapDifficulty->DifficultyID),
-            GetNextResetTime(entries), 0, std::move(sharedData));
+            GetNextResetTime(entries), instanceId, std::move(sharedData));
     }
     else
         instanceLock = new InstanceLock(entries.MapDifficulty->MapID, Difficulty(entries.MapDifficulty->DifficultyID),
-            GetNextResetTime(entries), 0);
+            GetNextResetTime(entries), instanceId);
+
+    instanceLock->SetIsNew(true);
 
     _temporaryInstanceLocksByPlayer[playerGuid][entries.GetKey()].reset(instanceLock);
     TC_LOG_DEBUG("instance.locks", "[{}-{} | {}-{}] Created new temporary instance lock for {} in instance {}",
@@ -333,7 +336,7 @@ InstanceLock* InstanceLockMgr::UpdateInstanceLockForPlayer(CharacterDatabaseTran
     {
         if (entries.IsInstanceIdBound())
         {
-            ASSERT(!instanceLock->GetInstanceId() || instanceLock->GetInstanceId() == updateEvent.InstanceId);
+            ASSERT(instanceLock->GetInstanceId() == updateEvent.InstanceId);
             auto sharedDataItr = _instanceLockDataById.find(updateEvent.InstanceId);
             ASSERT(sharedDataItr != _instanceLockDataById.end());
             ASSERT(sharedDataItr->second.lock().get() == static_cast<SharedInstanceLock*>(instanceLock)->GetSharedData());
@@ -342,6 +345,7 @@ InstanceLock* InstanceLockMgr::UpdateInstanceLockForPlayer(CharacterDatabaseTran
         instanceLock->SetInstanceId(updateEvent.InstanceId);
     }
 
+    instanceLock->SetIsNew(false);
     instanceLock->GetData()->Data = std::move(updateEvent.NewData);
     if (updateEvent.CompletedEncounter)
     {
@@ -428,7 +432,15 @@ void InstanceLockMgr::OnSharedInstanceLockDataDelete(uint32 instanceId)
     if (_unloading)
         return;
 
-    _instanceLockDataById.erase(instanceId);
+    auto itr = _instanceLockDataById.find(instanceId);
+    if (itr == _instanceLockDataById.end())
+        return;
+
+    // weak_ptr state must be checked as well, it might be pointing to a different and valid lock data
+    if (!itr->second.expired())
+        return;
+
+    _instanceLockDataById.erase(itr);
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INSTANCE);
     stmt->setUInt32(0, instanceId);
     CharacterDatabase.Execute(stmt);
@@ -480,6 +492,9 @@ void InstanceLockMgr::ResetInstanceLocksForPlayer(ObjectGuid const& playerGuid, 
             continue;
 
         if (difficulty && *difficulty != playerLockPair.second->GetDifficultyId())
+            continue;
+
+        if (playerLockPair.second->IsExpired())
             continue;
 
         locksReset->push_back(playerLockPair.second.get());
