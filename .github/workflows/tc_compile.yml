@@ -56,8 +56,8 @@ jobs:
           sudo apt update
           sudo apt install -y git ccache clang gcc g++ cmake make libssl-dev libbz2-dev libreadline-dev libncurses-dev libboost-all-dev p7zip
           if [ ${{ matrix.compiler }} == "clang" ]; then
-            sudo update-alternatives --install /usr/bin/cc cc /usr/bin/clang 100
-            sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang 100
+            sudo update-alternatives --install /usr/bin/cc cc /usr/bin/clang-12 100
+            sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang-12 100
           fi
       
       - name: Setup ccache for ubuntu
@@ -143,7 +143,7 @@ jobs:
         run: |
           md ${{ github.workspace }}\source\build
           cd ${{ github.workspace }}\source\build
-          cmake -G"Visual Studio 17 2022" -A x64 -DSCRIPTS=static -DUSE_COREPCH=${{ matrix.pch }} -DUSE_SCRIPTPCH=${{ matrix.pch }} -DTOOLS=True -DCMAKE_CXX_FLAGS=" /DWIN32 /D_WINDOWS /W3 /GR /EHsc /WX" -DCMAKE_C_FLAGS="/DWIN32 /D_WINDOWS /W3 /WX" ..
+          cmake -G"Visual Studio 17 2022" -A x64 -DSCRIPTS=static -DUSE_COREPCH=${{ matrix.pch }} -DUSE_SCRIPTPCH=${{ matrix.pch }} -DTOOLS=True -DCMAKE_CXX_FLAGS=" /DWIN32 /D_WINDOWS /W3 /GR /EHsc /WX" -DCMAKE_C_FLAGS="/DWIN32 /D_WINDOWS /W3 /WX" -DBoost_INCLUDE_DIR=${{steps.install-boost.outputs.BOOST_ROOT}}/include -DBoost_LIBRARY_DIRS=${{steps.install-boost.outputs.BOOST_ROOT}}/lib ..
         env:
           # SOLUTION_FILE_PATH: .
           BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
