@@ -1026,7 +1026,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_LANGUAGE_WORDS, "SELECT MAX(ID) + 1 FROM language_words", CONNECTION_SYNCH);
 
     // Languages.db2
-    PrepareStatement(HOTFIX_SEL_LANGUAGES, "SELECT ID, Name, Flags, UiTextureKitID, UiTextureKitElementCount FROM languages"
+    PrepareStatement(HOTFIX_SEL_LANGUAGES, "SELECT Name, ID, Flags, UiTextureKitID, UiTextureKitElementCount, LearningCurveID FROM languages"
         " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_LANGUAGES, "SELECT MAX(ID) + 1 FROM languages", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_LANGUAGES, "SELECT ID, Name_lang FROM languages_locale WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);

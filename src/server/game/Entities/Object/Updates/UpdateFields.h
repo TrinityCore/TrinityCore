@@ -458,7 +458,7 @@ struct CTROptions : public IsUpdateFieldStructureTag
     bool operator!=(CTROptions const& right) const { return !(*this == right); }
 };
 
-struct PlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<190>
+struct PlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<240>
 {
     UpdateField<bool, 0, 1> HasQuestSession;
     UpdateField<bool, 0, 2> HasLevelLink;
@@ -495,9 +495,9 @@ struct PlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<190>
     UpdateField<int32, 32, 34> CovenantID;
     UpdateField<int32, 32, 35> SoulbindID;
     UpdateField<WorldPackets::MythicPlus::DungeonScoreSummary, 32, 36> DungeonScore;
-    UpdateFieldArray<UF::QuestLog, 125, 37, 38> QuestLog;
-    UpdateFieldArray<UF::VisibleItem, 19, 163, 164> VisibleItems;
-    UpdateFieldArray<float, 6, 183, 184> AvgItemLevel;
+    UpdateFieldArray<UF::QuestLog, 175, 37, 38> QuestLog;
+    UpdateFieldArray<UF::VisibleItem, 19, 213, 214> VisibleItems;
+    UpdateFieldArray<float, 6, 233, 234> AvgItemLevel;
 
     void WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const;
