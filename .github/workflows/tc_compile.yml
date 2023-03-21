@@ -1,0 +1,231 @@
+name: TC-Compile
+
+on:
+  workflow_dispatch:
+#  push:
+#    paths-ignore:
+#      - '**/README.md'
+#  pull_request:
+#    paths-ignore:
+#      - '**/README.md'
+
+env:
+  TC_GIT_ROOT: ${{ github.workspace }}/source
+  TC_BUILD_DIR: ${{ github.workspace }}/source/build
+  # Release, Debug, RelWithDebInfo  ${{ env.TC_BUILD_TYPE }}
+  TC_BUILD_TYPE: RelWithDebInfo
+
+jobs:
+  build-nix:
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.os }} - ${{ matrix.compiler }} - pch_${{ matrix.pch }}
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: 
+          - clang
+          - gcc
+        pch: 
+          - 0
+          - 1
+        os: 
+          - ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[skip nix]')"
+
+    steps:
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+      
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          path: ${{ env.TC_GIT_ROOT }}
+        
+      - name: package installs Linux
+        run: |
+          sudo apt update
+          sudo apt install -y git ccache clang gcc g++ cmake make libssl-dev libbz2-dev libreadline-dev libncurses-dev libboost-all-dev p7zip
+          if [ ${{ matrix.compiler }} == "clang" ]; then
+            sudo update-alternatives --install /usr/bin/cc cc /usr/bin/clang 100
+            sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang 100
+          fi
+      
+      - name: Setup ccache for ubuntu
+        uses: Chocobo1/setup-ccache-action@v1
+        with:
+          update_packager_index: true
+          install_ccache: false
+          prepend_symlinks_to_path: true
+          restore_cache: true
+          store_cache: true
+          override_cache_key: ${{ matrix.os }}-${{ matrix.compiler }}-${{ env.TC_BUILD_TYPE }}-pch_${{ matrix.pch }}
+          ccache_options: |
+            max_size=600M
+            compression=true
+            compression_level=5
+        
+      - name: make build dir
+        shell: bash
+        run: mkdir -p ${{ env.TC_BUILD_DIR }}
+          
+      - name: CMake Linux
+        working-directory: ${{ env.TC_BUILD_DIR }}
+        run: |
+          mkdir -p ${{ github.workspace }}/server
+          cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=${{ matrix.pch }} -DUSE_SCRIPTPCH=${{ matrix.pch }} -DTOOLS=1 -DSCRIPTS=static \
+            -DSERVERS=1 -DNOJEM=0 -DCMAKE_BUILD_TYPE=${{ env.TC_BUILD_TYPE }} -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache  -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" \
+            -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" \
+            -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/server -DCONF_DIR=${{ github.workspace }}/server/conf
+
+      - name: Make Compile
+        run: |
+          cd ${{ env.TC_BUILD_DIR }}
+          make -j 4
+          make install
+
+      - name: Check executables
+        run: |
+          cd ${{ github.workspace }}/server/bin
+          ./authserver --version
+          ./worldserver --version
+
+  build-win:
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.os }} - ${{ matrix.compiler }} - pch_${{ matrix.pch }}
+    strategy:
+      fail-fast: false
+      matrix:
+        pch: 
+          - 0
+          - 1
+        compiler:
+          - msvc
+        os:
+          - windows-latest
+    if: "!contains(github.event.head_commit.message, '[skip win]')"
+
+    steps:
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+      
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          path: ${{ env.TC_GIT_ROOT }}
+      
+      - name: Install boost
+        uses: MarkusJx/install-boost@v2.4.4
+        with:
+          boost_version: 1.81.0
+          toolset: msvc
+          platform_version: 2022
+        
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v1
+          
+      - name: Package install Windows
+        run: choco install --no-progress openssl
+        
+      - name: cmake Windows
+        run: |
+          md ${{ github.workspace }}\source\build
+          cd ${{ github.workspace }}\source\build
+          cmake -G"Visual Studio 16 2019" -A x64 -DSCRIPTS=static -DUSE_COREPCH=${{ matrix.pch }} -DUSE_SCRIPTPCH=${{ matrix.pch }} -DTOOLS=True -DCMAKE_CXX_FLAGS=" /DWIN32 /D_WINDOWS /W3 /GR /EHsc /WX" -DCMAKE_C_FLAGS="/DWIN32 /D_WINDOWS /W3 /WX" ..
+        env:
+          # SOLUTION_FILE_PATH: .
+          BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
+
+      - name: Msbuild Compile
+        run: |
+          cd ${{ github.workspace }}\source\build
+          MsBuild.exe /nologo /m:2 /p:Configuration=${{ env.TC_BUILD_TYPE }} /p:Platform="X64" /verbosity:minimal "TrinityCore.sln"
+      
+      - name: make windows artifact directory
+        run: md ${{ github.workspace }}\${{ env.TC_BUILD_TYPE }}
+
+      - name: copy needed files for windows artifact
+        shell: pwsh
+        run: |
+          Copy-Item "c:\Program Files\OpenSSL-Win64\bin\libcrypto-1_1-x64.dll" -Destination ${{ github.workspace }}\${{ env.TC_BUILD_TYPE }}\
+          Copy-Item "c:\Program Files\OpenSSL-Win64\bin\libssl-1_1-x64.dll" -Destination ${{ github.workspace }}\${{ env.TC_BUILD_TYPE }}\
+          Copy-Item "C:\mysql\lib\libmysql.dll" -Destination ${{ github.workspace }}\${{ env.TC_BUILD_TYPE }}\
+          Copy-Item ${{ env.TC_BUILD_DIR }}\bin\${{ env.BUILD_TYPE }}\* -Destination ${{ github.workspace }}\${{ env.TC_BUILD_TYPE }}\
+          
+      - name: Upload a windows Build Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: TC-Win-${{ steps.extract_branch.outputs.branch }}-${{ env.TC_BUILD_TYPE }}-pch_${{ matrix.pch }}
+          path: |
+            ${{ github.workspace }}\${{ env.TC_BUILD_TYPE }}\
+            !${{ github.workspace }}\${{ env.TC_BUILD_TYPE }}\*.pdb        
+          if-no-files-found: warn
+          retention-days: 7
+
+  build-mac:
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.os }} - ${{ matrix.compiler }} - pch_${{ matrix.pch }}
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler:
+          - clang
+        pch: 
+          - 0
+          - 1
+        os:
+          - macos-latest
+    if: "!contains(github.event.head_commit.message, '[skip mac]')"
+
+    steps:
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+      
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          path: ${{ env.TC_GIT_ROOT }}
+        
+      - name: package installs Mac
+        run: brew install boost mysql-client ccache
+      
+      - name: Setup ccache for mac
+        uses: Chocobo1/setup-ccache-action@v1
+        with:
+          update_packager_index: true
+          install_ccache: false
+          prepend_symlinks_to_path: true
+          restore_cache: true
+          store_cache: true
+          override_cache_key: ${{ matrix.os }}-${{ matrix.compiler }}-${{ env.TC_BUILD_TYPE }}-pch_${{ matrix.pch }}
+          ccache_options: |
+            max_size=600M
+            compression=true
+            compression_level=5
+        
+      - name: make build dir
+        shell: bash
+        run: mkdir -p ${{ env.TC_BUILD_DIR }}
+
+      - name: CMake mac
+        working-directory: ${{ env.TC_BUILD_DIR }}
+        run: |
+          cmake ../ -G "Xcode" -DWITH_WARNINGS=1 -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+            -DWITH_COREDEBUG=0 -DUSE_COREPCH=${{ matrix.pch }} -DUSE_SCRIPTPCH=${{ matrix.pch }} -DTOOLS=1 -DSCRIPTS=static -DSERVERS=1 -DNOJEM=0 \
+            -DCMAKE_BUILD_TYPE=${{ env.TC_BUILD_TYPE }} -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/server -DBUILD_TESTING=1 \
+            -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror"
+        env:
+          MYSQL_HOME: /usr/local/opt/mysql-client
+          MYSQL_ROOT: /usr/local/opt/mysql-client
+          OPENSSL_ROOT_DIR: /usr/local/opt/openssl@1.1
+          READLINE_ROOT_DIR: /usr/local/opt/readline
+          
+      - name: Xcode Compile
+        working-directory: ${{ env.TC_BUILD_DIR }}
+        run: xcodebuild -config ${{ env.TC_BUILD_TYPE }} -jobs 4 -IDEBuildingContinueBuildingAfterErrors=YES
