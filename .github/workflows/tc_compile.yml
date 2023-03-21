@@ -2,9 +2,17 @@ name: TC-Compile
 
 on:
   workflow_dispatch:
-#  push:
-#    paths-ignore:
-#      - '**/README.md'
+  push:
+    paths-ignore:
+      - '**/README.md'
+      - '**/AUTHORS'
+      - '**/appveyor.yml'
+      - '**/INSTALL'
+      - '**/CONTRIBUTING.md'
+      - '**/COPYING'
+      - '**/issue_template.md'
+      - '**/pull_request_template.md'
+      
 #  pull_request:
 #    paths-ignore:
 #      - '**/README.md'
