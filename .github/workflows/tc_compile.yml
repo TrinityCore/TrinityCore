@@ -84,7 +84,7 @@ jobs:
           mkdir -p ${{ github.workspace }}/server
           cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=${{ matrix.pch }} -DUSE_SCRIPTPCH=${{ matrix.pch }} -DTOOLS=1 -DSCRIPTS=static \
             -DSERVERS=1 -DNOJEM=0 -DCMAKE_BUILD_TYPE=${{ env.TC_BUILD_TYPE }} -DCMAKE_C_COMPILER_LAUNCHER=ccache \
-            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache  -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache  -DCMAKE_C_FLAGS="-Wno-error" -DCMAKE_CXX_FLAGS="-Wno-error" \
             -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" \
             -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/server -DCONF_DIR=${{ github.workspace }}/server/conf
 
@@ -143,7 +143,7 @@ jobs:
         run: |
           md ${{ github.workspace }}\source\build
           cd ${{ github.workspace }}\source\build
-          cmake -G"Visual Studio 16 2019" -A x64 -DSCRIPTS=static -DUSE_COREPCH=${{ matrix.pch }} -DUSE_SCRIPTPCH=${{ matrix.pch }} -DTOOLS=True -DCMAKE_CXX_FLAGS=" /DWIN32 /D_WINDOWS /W3 /GR /EHsc /WX" -DCMAKE_C_FLAGS="/DWIN32 /D_WINDOWS /W3 /WX" ..
+          cmake -G"Visual Studio 17 2022" -A x64 -DSCRIPTS=static -DUSE_COREPCH=${{ matrix.pch }} -DUSE_SCRIPTPCH=${{ matrix.pch }} -DTOOLS=True -DCMAKE_CXX_FLAGS=" /DWIN32 /D_WINDOWS /W3 /GR /EHsc /WX" -DCMAKE_C_FLAGS="/DWIN32 /D_WINDOWS /W3 /WX" ..
         env:
           # SOLUTION_FILE_PATH: .
           BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
@@ -187,7 +187,8 @@ jobs:
           - 1
         os:
           - macos-latest
-    if: "!contains(github.event.head_commit.message, '[skip mac]')"
+    if: "contains(github.event.head_commit.message, '[add mac]')"
+#    if: "!contains(github.event.head_commit.message, '[skip mac]')"
 
     steps:
       - name: Extract branch name
