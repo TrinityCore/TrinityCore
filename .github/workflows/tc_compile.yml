@@ -47,9 +47,14 @@ jobs:
         id: extract_branch
       
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3.4.0
         with:
           path: ${{ env.TC_GIT_ROOT }}
+      
+      - name: show me the bin
+        shell: bash
+        run: |
+          ls -alh /usr/bin/
         
       - name: package installs Linux
         run: |
@@ -122,12 +127,13 @@ jobs:
         id: extract_branch
       
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3.4.0
         with:
           path: ${{ env.TC_GIT_ROOT }}
       
       - name: Install boost
         uses: MarkusJx/install-boost@v2.4.4
+        id: install_boost
         with:
           boost_version: 1.81.0
           toolset: msvc
@@ -143,10 +149,10 @@ jobs:
         run: |
           md ${{ github.workspace }}\source\build
           cd ${{ github.workspace }}\source\build
-          cmake -G"Visual Studio 17 2022" -A x64 -DSCRIPTS=static -DUSE_COREPCH=${{ matrix.pch }} -DUSE_SCRIPTPCH=${{ matrix.pch }} -DTOOLS=True -DCMAKE_CXX_FLAGS=" /DWIN32 /D_WINDOWS /W3 /GR /EHsc /WX" -DCMAKE_C_FLAGS="/DWIN32 /D_WINDOWS /W3 /WX" -DBoost_INCLUDE_DIR=${{steps.install-boost.outputs.BOOST_ROOT}}/include -DBoost_LIBRARY_DIRS=${{steps.install-boost.outputs.BOOST_ROOT}}/lib ..
+          cmake -G"Visual Studio 17 2022" -A x64 -DSCRIPTS=static -DUSE_COREPCH=${{ matrix.pch }} -DUSE_SCRIPTPCH=${{ matrix.pch }} -DTOOLS=True -DCMAKE_CXX_FLAGS=" /DWIN32 /D_WINDOWS /W3 /GR /EHsc /WX" -DCMAKE_C_FLAGS="/DWIN32 /D_WINDOWS /W3 /WX" -DBoost_INCLUDE_DIR=${{steps.install_boost.outputs.BOOST_ROOT}}/include -DBoost_LIBRARY_DIRS=${{steps.install_boost.outputs.BOOST_ROOT}}/lib ..
         env:
           # SOLUTION_FILE_PATH: .
-          BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
+          BOOST_ROOT: ${{ steps.install_boost.outputs.BOOST_ROOT }}
 
       - name: Msbuild Compile
         run: |
@@ -197,7 +203,7 @@ jobs:
         id: extract_branch
       
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3.4.0
         with:
           path: ${{ env.TC_GIT_ROOT }}
         
