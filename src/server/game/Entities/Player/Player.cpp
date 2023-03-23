@@ -22345,9 +22345,9 @@ bool Player::HaveAtClient(Object const* u) const
     return u == this || m_clientGUIDs.find(u->GetGUID()) != m_clientGUIDs.end();
 }
 
-bool Player::IsNeverVisible() const
+bool Player::IsNeverVisible(bool allowServersideObjects) const
 {
-    if (Unit::IsNeverVisible())
+    if (Unit::IsNeverVisible(allowServersideObjects))
         return true;
 
     if (GetSession()->PlayerLogout() || GetSession()->PlayerLoading())
