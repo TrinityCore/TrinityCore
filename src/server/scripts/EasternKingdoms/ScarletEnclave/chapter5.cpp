@@ -258,6 +258,8 @@ Position const LightofDawnLoc[] =
     {2273.972f, -5257.676f, 78.862f, 0},     // 29 Lich king moves forward
 };
 
+static constexpr uint32 PATH_ESCORT_MOGRAINE = 233386;
+
 class npc_highlord_darion_mograine : public CreatureScript
 {
 public:
@@ -1608,6 +1610,7 @@ public:
                 case GOSSIP_ACTION_INFO_DEF + 1:
                     CloseGossipMenuFor(player);
                     uiStep = 1;
+                    LoadPath(PATH_ESCORT_MOGRAINE);
                     Start(true, true, player->GetGUID());
                     break;
             }

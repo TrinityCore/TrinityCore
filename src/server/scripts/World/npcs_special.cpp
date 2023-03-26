@@ -1066,6 +1066,7 @@ public:
                                 break;
                         }
 
+                        LoadPath((me->GetEntry() << 3) | 2);
                         Start(false, true);
                     }
                     else

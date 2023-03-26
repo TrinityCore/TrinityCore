@@ -56,7 +56,9 @@ enum BlastmasterEmi
     SAY_BLASTMASTER_18  = 18,
     SAY_BLASTMASTER_19  = 19,
 
-    SAY_GRUBBIS         = 0
+    SAY_GRUBBIS         = 0,
+
+    PATH_ESCORT_BLASTMASTER_EMI = 63986,
 };
 
 const Position SpawnPosition[] =
@@ -133,6 +135,7 @@ public:
         {
             if (gossipListId == 0)
             {
+                LoadPath(PATH_ESCORT_BLASTMASTER_EMI);
                 Start(true, false, player->GetGUID());
 
                 me->SetFaction(player->GetFaction());

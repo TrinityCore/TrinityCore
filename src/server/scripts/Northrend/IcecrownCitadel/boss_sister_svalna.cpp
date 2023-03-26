@@ -513,6 +513,8 @@ private:
     bool _isEventInProgress;
 };
 
+static constexpr uint32 PATH_ESCORT_CROK_SCOURGEBANE = 297034;
+
 struct npc_crok_scourgebane : public EscortAI
 {
     npc_crok_scourgebane(Creature* creature) : EscortAI(creature), _instance(creature->GetInstanceScript()), _respawnTime(creature->GetRespawnDelay()), _corpseDelay(creature->GetCorpseDelay())
@@ -747,6 +749,7 @@ struct npc_crok_scourgebane : public EscortAI
                     Talk(SAY_CROK_INTRO_3);
                     break;
                 case EVENT_START_PATHING:
+                    LoadPath(PATH_ESCORT_CROK_SCOURGEBANE),
                     Start(true, true);
                     break;
                 case EVENT_SCOURGE_STRIKE:

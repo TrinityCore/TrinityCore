@@ -336,7 +336,8 @@ enum Magwin
     EVENT_STAND                 = 3,
     EVENT_TALK_END              = 4,
     EVENT_COWLEN_TALK           = 5,
-    QUEST_A_CRY_FOR_HELP        = 9528
+    QUEST_A_CRY_FOR_HELP        = 9528,
+    PATH_ESCORT_MAGWIN          = 138498,
 };
 
 class npc_magwin : public CreatureScript
@@ -406,7 +407,10 @@ public:
                         break;
                     case EVENT_START_ESCORT:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
+                        {
+                            LoadPath(PATH_ESCORT_MAGWIN);
                             EscortAI::Start(true, false, player->GetGUID());
+                        }
                         _events.ScheduleEvent(EVENT_STAND, 2s);
                         break;
                     case EVENT_STAND: // Remove kneel standstate. Using a separate delayed event because it causes unwanted delay before starting waypoint movement.

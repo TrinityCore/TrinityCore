@@ -60,7 +60,9 @@ enum MagharCaptive
     NPC_MURK_RAIDER             = 18203,
     NPC_MURK_BRUTE              = 18211,
     NPC_MURK_SCAVENGER          = 18207,
-    NPC_MURK_PUTRIFIER          = 18202
+    NPC_MURK_PUTRIFIER          = 18202,
+
+    PATH_ESCORT_MAGHAR_CAPTIVE  = 145682,
 };
 
 static float m_afAmbushA[]= {-1568.805786f, 8533.873047f, 1.958f};
@@ -207,6 +209,7 @@ public:
             {
                 me->SetStandState(UNIT_STAND_STATE_STAND);
                 me->SetFaction(FACTION_ESCORTEE_H_NEUTRAL_ACTIVE);
+                LoadPath(PATH_ESCORT_MAGHAR_CAPTIVE);
                 Start(true, false, player->GetGUID(), quest);
                 Talk(SAY_MAG_START);
 
@@ -249,6 +252,8 @@ enum KurenaiCaptive
     NPC_KUR_MURK_BRUTE              = 18211,
     NPC_KUR_MURK_SCAVENGER          = 18207,
     NPC_KUR_MURK_PUTRIFIER          = 18202,
+
+    PATH_ESCORT_KURENAI_CAPTIVE     = 145674,
 };
 
 static float kurenaiAmbushA[]= {-1568.805786f, 8533.873047f, 1.958f};
@@ -401,6 +406,7 @@ public:
             {
                 me->SetStandState(UNIT_STAND_STATE_STAND);
                 me->SetFaction(FACTION_ESCORTEE_A_NEUTRAL_ACTIVE);
+                LoadPath(PATH_ESCORT_KURENAI_CAPTIVE);
                 Start(true, false, player->GetGUID(), quest);
                 Talk(SAY_KUR_START);
 

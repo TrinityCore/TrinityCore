@@ -51,6 +51,8 @@ enum Events
     EVENT_BERSERK
 };
 
+static constexpr uint32 PATH_ESCORT_HELLMAW = 149850;
+
 struct boss_ambassador_hellmaw : public EscortAI
 {
     boss_ambassador_hellmaw(Creature* creature) : EscortAI(creature)
@@ -105,6 +107,7 @@ struct boss_ambassador_hellmaw : public EscortAI
             me->RemoveAurasDueToSpell(SPELL_BANISH);
 
         Talk(SAY_INTRO);
+        LoadPath(PATH_ESCORT_HELLMAW);
         Start(true, false, ObjectGuid::Empty, nullptr, false, true);
     }
 

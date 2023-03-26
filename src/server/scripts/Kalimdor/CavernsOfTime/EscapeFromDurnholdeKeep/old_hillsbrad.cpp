@@ -185,6 +185,9 @@ enum ThrallOldHillsbrad
 #define SPEED_RUN               (1.0f)
 #define SPEED_MOUNT             (1.6f)
 
+static constexpr uint32 PATH_ESCORT_THRALL_OLD_HILLSBRAD = 143010;
+static constexpr uint32 PATH_ESCORT_TARETHA = 151098;
+
 struct npc_thrall_old_hillsbrad : public EscortAI
 {
     npc_thrall_old_hillsbrad(Creature* creature) : EscortAI(creature)
@@ -204,7 +207,7 @@ struct npc_thrall_old_hillsbrad : public EscortAI
     void InitializeAI() override
     {
         /* correct respawn positions after wipe cannot be used because of how waypoints are set up for this creature
-         * it would require splitting the path into 4 segments, moving it out of script_waypoint table and changing
+         * it would require splitting the path into 4 segments, moving it out of waypoint_data table and changing
          * all waypoint ids in WaypointReached function
         switch (instance->GetData(TYPE_THRALL_EVENT))
         {
@@ -376,7 +379,13 @@ struct npc_thrall_old_hillsbrad : public EscortAI
                     if (Creature* Taretha = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TARETHA)))
                     {
                         if (Player* player = GetPlayerForEscort())
-                            ENSURE_AI(EscortAI, (Taretha->AI()))->Start(false, true, player->GetGUID());
+                        {
+                            if (EscortAI* ai = CAST_AI(EscortAI, Taretha->AI()))
+                            {
+                                ai->LoadPath(PATH_ESCORT_TARETHA);
+                                ai->Start(false, true, player->GetGUID());
+                            }
+                        }
                     }
 
                     //kill credit Creature for quest
@@ -505,6 +514,7 @@ struct npc_thrall_old_hillsbrad : public EscortAI
 
                 Talk(SAY_TH_START_EVENT_PART1);
 
+                LoadPath(PATH_ESCORT_THRALL_OLD_HILLSBRAD);
                 Start(true, true, player->GetGUID());
 
                 SetMaxPlayerDistance(100.0f);//not really needed, because it will not despawn if player is too far

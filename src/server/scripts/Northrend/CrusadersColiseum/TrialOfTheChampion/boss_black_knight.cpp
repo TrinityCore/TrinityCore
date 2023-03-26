@@ -351,6 +351,8 @@ public:
     }
 };
 
+static constexpr uint32 PATH_ESCORT_GRYPHON = 283930;
+
 class npc_black_knight_skeletal_gryphon : public CreatureScript
 {
 public:
@@ -360,6 +362,7 @@ public:
     {
         npc_black_knight_skeletal_gryphonAI(Creature* creature) : EscortAI(creature)
         {
+            LoadPath(PATH_ESCORT_GRYPHON);
             Start(false, true);
         }
 

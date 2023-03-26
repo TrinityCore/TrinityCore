@@ -25,6 +25,7 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptSystem.h"
+#include "WaypointManager.h"
 #include "World.h"
 
 enum Points
@@ -34,7 +35,7 @@ enum Points
 };
 
 EscortAI::EscortAI(Creature* creature) : ScriptedAI(creature), _pauseTimer(2500ms), _playerCheckTimer(1000), _escortState(STATE_ESCORT_NONE), _maxPlayerDistance(DEFAULT_MAX_PLAYER_DISTANCE),
-    _escortQuest(nullptr), _activeAttacker(true), _running(false), _instantRespawn(false), _returnToStart(false), _despawnAtEnd(true), _despawnAtFar(true), _manualPath(false),
+    _escortQuest(nullptr), _activeAttacker(true), _running(false), _instantRespawn(false), _returnToStart(false), _despawnAtEnd(true), _despawnAtFar(true),
     _hasImmuneToNPCFlags(false), _started(false), _ended(false), _resume(false)
 {
 }
@@ -269,13 +270,38 @@ void EscortAI::AddWaypoint(uint32 id, float x, float y, float z, float orientati
     waypoint.eventId = 0;
     waypoint.eventChance = 100;
     _path.nodes.push_back(std::move(waypoint));
+}
 
-    _manualPath = true;
+void EscortAI::ResetPath()
+{
+    _path.nodes.clear();
+}
+
+void EscortAI::LoadPath(uint32 pathId)
+{
+    WaypointPath const* path = sWaypointMgr->GetPath(pathId);
+    if (!path)
+    {
+        TC_LOG_ERROR("scripts.ai.escortai", "EscortAI::LoadPath: (script: {}) path {} is invalid ({})", me->GetScriptName(), pathId, me->GetGUID().ToString());
+        return;
+    }
+
+    _path = *path;
+
+    // @TODO: drop _running, set in AddWaypoint / db
+    for (WaypointNode& node : _path.nodes)
+        node.moveType = _running ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
 }
 
 /// @todo get rid of this many variables passed in function.
-void EscortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false */, ObjectGuid playerGUID /* = 0 */, Quest const* quest /* = nullptr */, bool instantRespawn /* = false */, bool canLoopPath /* = false */, bool resetWaypoints /* = true */)
+void EscortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false */, ObjectGuid playerGUID /* = 0 */, Quest const* quest /* = nullptr */, bool instantRespawn /* = false */, bool canLoopPath /* = false */)
 {
+    if (_path.nodes.empty())
+    {
+        TC_LOG_ERROR("scripts.ai.escortai", "EscortAI::Start: (script: {}) path is empty ({})", me->GetScriptName(), me->GetGUID().ToString());
+        return;
+    }
+
     // Queue respawn from the point it starts
     if (CreatureData const* cdata = me->GetCreatureData())
     {
@@ -296,9 +322,6 @@ void EscortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false */, 
     }
 
     _running = run;
-
-    if (!_manualPath && resetWaypoints)
-        FillPointMovementListForCreature();
 
     if (_path.nodes.empty())
     {
@@ -433,21 +456,4 @@ bool EscortAI::IsPlayerOrGroupInRange()
     }
 
     return false;
-}
-
-void EscortAI::FillPointMovementListForCreature()
-{
-    WaypointPath const* path = sScriptSystemMgr->GetPath(me->GetEntry());
-    if (!path)
-        return;
-
-    for (WaypointNode const& value : path->nodes)
-    {
-        WaypointNode node = value;
-        Trinity::NormalizeMapCoord(node.x);
-        Trinity::NormalizeMapCoord(node.y);
-        node.moveType = _running ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
-
-        _path.nodes.push_back(std::move(node));
-    }
 }

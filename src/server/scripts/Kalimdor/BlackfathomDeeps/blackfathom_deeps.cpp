@@ -164,7 +164,9 @@ private:
 enum Morridune
 {
     SAY_MORRIDUNE_1 = 0,
-    SAY_MORRIDUNE_2 = 1
+    SAY_MORRIDUNE_2 = 1,
+
+    PATH_ESCORT_MORRIDUNE = 53834,
 };
 
 struct npc_morridune : public EscortAI
@@ -175,6 +177,7 @@ struct npc_morridune : public EscortAI
     {
         Talk(SAY_MORRIDUNE_1);
         me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+        LoadPath(PATH_ESCORT_MORRIDUNE);
         Start(false);
     }
 

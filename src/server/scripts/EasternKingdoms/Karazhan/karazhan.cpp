@@ -122,6 +122,8 @@ float Spawns[6][2]=
 #define SPAWN_Y             -1758
 #define SPAWN_O             4.738f
 
+static constexpr uint32 PATH_ESCORT_BARNES = 134498;
+
 class npc_barnes : public CreatureScript
 {
 public:
@@ -175,6 +177,7 @@ public:
             if (m_uiEventId == EVENT_OZ)
                 instance->SetData(DATA_OPERA_OZ_DEATHCOUNT, IN_PROGRESS);
 
+            LoadPath(PATH_ESCORT_BARNES);
             Start(false, false);
         }
 

@@ -38,6 +38,8 @@ enum Texts
     SAY_ONAGGRO                 = 4
 };
 
+static constexpr uint32 PATH_ESCORT_RAGE_WINTERCHILL = 142138;
+
 class boss_rage_winterchill : public CreatureScript
 {
 public:
@@ -127,6 +129,7 @@ public:
                     AddWaypoint(5, 5026.27f,    -1736.89f,    1323.02f);
                     AddWaypoint(6, 5037.77f,    -1770.56f,    1324.36f);
                     AddWaypoint(7, 5067.23f,    -1789.95f,    1321.17f);
+                    LoadPath(PATH_ESCORT_RAGE_WINTERCHILL);
                     Start(false, true);
                     SetDespawnAtEnd(false);
                 }
