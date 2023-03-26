@@ -391,6 +391,8 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectNULL,                                     //302 SPELL_EFFECT_GATHERING
     &Spell::EffectCreateTraitTreeConfig,                    //303 SPELL_EFFECT_CREATE_TRAIT_TREE_CONFIG
     &Spell::EffectChangeActiveCombatTraitConfig,            //304 SPELL_EFFECT_CHANGE_ACTIVE_COMBAT_TRAIT_CONFIG
+    &Spell::EffectNULL,                                     //305 SPELL_EFFECT_305
+    &Spell::EffectNULL,                                     //306 SPELL_EFFECT_306
 };
 
 void Spell::EffectNULL()

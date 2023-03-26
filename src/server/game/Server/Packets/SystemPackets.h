@@ -103,6 +103,7 @@ namespace WorldPackets
                 uint32 MaxRecruitMonths = 0;
                 uint32 MaxRecruitmentUses = 0;
                 uint32 DaysInCycle = 0;
+                uint32 Unknown1007 = 0;
             };
 
             FeatureSystemStatus() : ServerPacket(SMSG_FEATURE_SYSTEM_STATUS, 200) { }
@@ -118,8 +119,6 @@ namespace WorldPackets
             uint32 CfgRealmID                            = 0;
             uint8 ComplaintStatus                        = 0;
             int32 CfgRealmRecID                          = 0;
-            uint32 TwitterPostThrottleLimit              = 0; ///< Number of twitter posts the client can send before they start being throttled
-            uint32 TwitterPostThrottleCooldown           = 0; ///< Time in seconds the client has to wait before posting again after hitting post limit
             uint32 TokenPollTimeSeconds                  = 0;
             int64 TokenBalanceAmount                     = 0;
             uint32 BpayStoreProductDeliveryDelay         = 0;
@@ -133,7 +132,6 @@ namespace WorldPackets
             bool ItemRestorationButtonEnabled        = false;
             bool CharUndeleteEnabled                 = false; ///< Implemented
             bool BpayStoreDisabledByParentalControls = false;
-            bool TwitterEnabled                      = false;
             bool CommerceSystemEnabled               = false;
             bool Unk67                               = false;
             bool WillKickFromWorld                   = false;
@@ -167,6 +165,12 @@ namespace WorldPackets
             std::vector<GameRuleValuePair> GameRuleValues;
         };
 
+        struct DebugTimeEventInfo
+        {
+            uint32 TimeEvent = 0;
+            std::string_view Text;
+        };
+
         class FeatureSystemStatusGlueScreen final : public ServerPacket
         {
         public:
@@ -193,6 +197,8 @@ namespace WorldPackets
             bool Unknown901CheckoutRelated           = false; // NYI
             bool AddonsDisabled                      = false;
             bool Unused1000                          = false;
+            bool AccountSaveDataExportEnabled        = false;
+            bool AccountLockedByExport               = false;
             Optional<EuropaTicketConfig> EuropaTicketSystemStatus;
             std::vector<int32> LiveRegionCharacterCopySourceRegions;
             uint32 TokenPollTimeSeconds              = 0;     // NYI
@@ -206,10 +212,12 @@ namespace WorldPackets
             uint32 KioskSessionMinutes               = 0;
             int32 ActiveSeason                       = 0;     // Currently active Classic season
             std::vector<GameRuleValuePair> GameRuleValues;
-            int16 MaxPlayerNameQueriesPerPacket = 50;
-            int16 PlayerNameQueryTelemetryInterval = 600;
+            int16 MaxPlayerNameQueriesPerPacket      = 50;
+            int16 PlayerNameQueryTelemetryInterval   = 600;
             Duration<Seconds, uint32> PlayerNameQueryInterval = 10s;
             Optional<int32> LaunchETA;
+            std::vector<DebugTimeEventInfo> DebugTimeEvents;
+            int32 Unused1007                         = 0;
         };
 
         class MOTD final : public ServerPacket

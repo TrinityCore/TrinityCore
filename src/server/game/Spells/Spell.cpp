@@ -6875,6 +6875,12 @@ SpellCastResult Spell::CheckMovement() const
     if (IsTriggered())
         return SPELL_CAST_OK;
 
+    // Creatures (not controlled) give priority to spell casting over movement.
+    // We assume that the casting is always valid and the current movement
+    // is stopped by Unit:IsmovementPreventedByCasting to prevent casting interruption.
+    if (m_caster->IsCreature() && !m_caster->ToCreature()->IsControlledByPlayer())
+        return SPELL_CAST_OK;
+
     if (Unit* unitCaster = m_caster->ToUnit())
     {
         if (!unitCaster->CanCastSpellWhileMoving(m_spellInfo))

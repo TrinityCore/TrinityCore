@@ -10,12 +10,12 @@
 
 file(GLOB_RECURSE sources *.c)
 
-if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
-  list(REMOVE_ITEM sources
-    ${CMAKE_CURRENT_SOURCE_DIR}/argon2/opt.c)
-else()
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "i686|amd64|x86_64|AMD64")
   list(REMOVE_ITEM sources
     ${CMAKE_CURRENT_SOURCE_DIR}/argon2/ref.c)
+else()
+  list(REMOVE_ITEM sources
+    ${CMAKE_CURRENT_SOURCE_DIR}/argon2/opt.c)
 endif()
 
 add_library(argon2 STATIC

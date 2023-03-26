@@ -33,7 +33,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Loot::LootItemData const&
 void WorldPackets::Loot::LootUnit::Read()
 {
     _worldPacket >> Unit;
-    IsSoftInteract = _worldPacket.ReadBit();
 }
 
 WorldPacket const* WorldPackets::Loot::LootResponse::Write()
@@ -77,6 +76,8 @@ void WorldPackets::Loot::LootItem::Read()
         _worldPacket >> Loot[i].Object;
         _worldPacket >> Loot[i].LootListID;
     }
+
+    IsSoftInteract = _worldPacket.ReadBit();
 }
 
 void WorldPackets::Loot::MasterLootItem::Read()
@@ -105,6 +106,11 @@ WorldPacket const* WorldPackets::Loot::LootRemoved::Write()
 void WorldPackets::Loot::LootRelease::Read()
 {
     _worldPacket >> Unit;
+}
+
+void WorldPackets::Loot::LootMoney::Read()
+{
+    IsSoftInteract = _worldPacket.ReadBit();
 }
 
 WorldPacket const* WorldPackets::Loot::LootMoneyNotify::Write()

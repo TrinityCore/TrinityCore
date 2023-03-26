@@ -2121,7 +2121,7 @@ void PlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVi
     data << int32(GuildTimeStamp);
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::PartyMember))
     {
-        for (uint32 i = 0; i < 125; ++i)
+        for (uint32 i = 0; i < 175; ++i)
         {
             QuestLog[i].WriteCreate(data, owner, receiver);
         }
@@ -2180,7 +2180,7 @@ void PlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVi
 
 void PlayerData::WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const
 {
-    Mask allowedMaskForTarget({ 0xFFFFFFEDu, 0x0000001Fu, 0x00000000u, 0x00000000u, 0x00000000u, 0x3FFFFFF8u });
+    Mask allowedMaskForTarget({ 0xFFFFFFEDu, 0x0000001Fu, 0x00000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0xFFE00000u, 0x0000FFFFu });
     AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
     WriteUpdate(data, _changesMask & allowedMaskForTarget, false, owner, receiver);
 }
@@ -2188,20 +2188,20 @@ void PlayerData::WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVi
 void PlayerData::AppendAllowedFieldsMaskForFlag(Mask& allowedMaskForTarget, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags)
 {
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::PartyMember))
-        allowedMaskForTarget |= { 0x00000012u, 0xFFFFFFE0u, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0x00000007u };
+        allowedMaskForTarget |= { 0x00000012u, 0xFFFFFFE0u, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0x001FFFFFu, 0x00000000u };
 }
 
 void PlayerData::FilterDisallowedFieldsMaskForFlag(Mask& changesMask, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags)
 {
-    Mask allowedMaskForTarget({ 0xFFFFFFEDu, 0x0000001Fu, 0x00000000u, 0x00000000u, 0x00000000u, 0x3FFFFFF8u });
+    Mask allowedMaskForTarget({ 0xFFFFFFEDu, 0x0000001Fu, 0x00000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0xFFE00000u, 0x0000FFFFu });
     AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
     changesMask &= allowedMaskForTarget;
 }
 
 void PlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignoreNestedChangesMask, Player const* owner, Player const* receiver) const
 {
-    data.WriteBits(changesMask.GetBlocksMask(0), 6);
-    for (uint32 i = 0; i < 6; ++i)
+    data.WriteBits(changesMask.GetBlocksMask(0), 8);
+    for (uint32 i = 0; i < 8; ++i)
         if (changesMask.GetBlock(i))
             data.WriteBits(changesMask.GetBlock(i), 32);
 
@@ -2413,7 +2413,7 @@ void PlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ign
     }
     if (changesMask[37])
     {
-        for (uint32 i = 0; i < 125; ++i)
+        for (uint32 i = 0; i < 175; ++i)
         {
             if (changesMask[38 + i])
             {
@@ -2424,21 +2424,21 @@ void PlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ign
             }
         }
     }
-    if (changesMask[163])
+    if (changesMask[213])
     {
         for (uint32 i = 0; i < 19; ++i)
         {
-            if (changesMask[164 + i])
+            if (changesMask[214 + i])
             {
                 VisibleItems[i].WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
             }
         }
     }
-    if (changesMask[183])
+    if (changesMask[233])
     {
         for (uint32 i = 0; i < 6; ++i)
         {
-            if (changesMask[184 + i])
+            if (changesMask[234 + i])
             {
                 data << float(AvgItemLevel[i]);
             }

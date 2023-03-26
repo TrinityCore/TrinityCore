@@ -178,7 +178,7 @@ WorldPacket const* WorldPackets::Chat::Chat::Write()
     _worldPacket.WriteBits(Prefix.length(), 5);
     _worldPacket.WriteBits(_Channel.length(), 7);
     _worldPacket.WriteBits(ChatText.length(), 12);
-    _worldPacket.WriteBits(_ChatFlags, 14);
+    _worldPacket.WriteBits(_ChatFlags, 15);
     _worldPacket.WriteBit(HideChatLog);
     _worldPacket.WriteBit(FakeSenderName);
     _worldPacket.WriteBit(Unused_801.has_value());
@@ -300,6 +300,19 @@ WorldPacket const* WorldPackets::Chat::ChatPlayerAmbiguous::Write()
 WorldPacket const* WorldPackets::Chat::ChatRestricted::Write()
 {
     _worldPacket << uint8(Reason);
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Chat::CanLocalWhisperTargetRequest::Read()
+{
+    _worldPacket >> WhisperTarget;
+}
+
+WorldPacket const* WorldPackets::Chat::CanLocalWhisperTargetResponse::Write()
+{
+    _worldPacket << WhisperTarget;
+    _worldPacket << int32(Status);
 
     return &_worldPacket;
 }

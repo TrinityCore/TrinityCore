@@ -54,6 +54,7 @@ void SummonList::DoZoneInCombat(uint32 entry)
                 && (!entry || summon->GetEntry() == entry))
         {
             //tmp         summon->AI()->DoZoneInCombat(nullptr);
+            summon->AI()->DoZoneInCombat();//If cant work,disable this
         }
     }
 }
@@ -586,7 +587,7 @@ void BossAI::JustSummoned(Creature* summon)
 {
     summons.Summon(summon);
     //if (me->IsEngaged())
-    //    //DoZoneInCombat(summon,250.0f);//后面250.f是我瞎写的
+    //    //DoZoneInCombat(summon,250.0f);//����250.f����Ϲд��
     //DoZoneInCombat(summon);//tmp
 }
 

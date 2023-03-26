@@ -2939,7 +2939,7 @@ bool InstanceMap::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
     player->AddInstanceEnterTime(GetInstanceId(), GameTime::GetGameTime());
 
     MapDb2Entries entries{ GetEntry(), GetMapDifficulty() };
-    if (entries.MapDifficulty->HasResetSchedule() && i_instanceLock && i_instanceLock->GetData()->CompletedEncountersMask)
+    if (entries.MapDifficulty->HasResetSchedule() && i_instanceLock && !i_instanceLock->IsNew())
     {
         if (!entries.MapDifficulty->IsUsingEncounterLocks())
         {
@@ -3027,7 +3027,7 @@ void InstanceMap::CreateInstanceData()
     if (!i_data)
         return;
 
-    if (!i_instanceLock || !i_instanceLock->GetInstanceId())
+    if (!i_instanceLock || i_instanceLock->IsNew())
     {
         i_data->Create();
         return;
@@ -3064,7 +3064,7 @@ void InstanceMap::TrySetOwningGroup(Group* group)
 InstanceResetResult InstanceMap::Reset(InstanceResetMethod method)
 {
     // raids can be reset if no boss was killed
-    if (method != InstanceResetMethod::Expire && i_instanceLock && i_instanceLock->GetData()->CompletedEncountersMask)
+    if (method != InstanceResetMethod::Expire && i_instanceLock && !i_instanceLock->IsNew())
         return InstanceResetResult::CannotReset;
 
     if (HavePlayers())
@@ -3160,7 +3160,7 @@ void InstanceMap::UpdateInstanceLock(UpdateBossStateSaveDataEvent const& updateS
                 playerCompletedEncounters = playerLock->GetData()->CompletedEncountersMask | (1u << updateSaveDataEvent.DungeonEncounter->Bit);
             }
 
-            bool isNewLock = !playerLock || !playerLock->GetData()->CompletedEncountersMask || playerLock->IsExpired();
+            bool isNewLock = !playerLock || playerLock->IsNew() || playerLock->IsExpired();
 
             InstanceLock const* newLock = sInstanceLockMgr.UpdateInstanceLockForPlayer(trans, player->GetGUID(), entries,
                 InstanceLockUpdateEvent(GetInstanceId(), i_data->UpdateBossStateSaveData(oldData ? *oldData : "", updateSaveDataEvent),
@@ -3206,7 +3206,7 @@ void InstanceMap::UpdateInstanceLock(UpdateAdditionalSaveDataEvent const& update
             if (playerLock)
                 oldData = &playerLock->GetData()->Data;
 
-            bool isNewLock = !playerLock || !playerLock->GetData()->CompletedEncountersMask || playerLock->IsExpired();
+            bool isNewLock = !playerLock || playerLock->IsNew() || playerLock->IsExpired();
 
             InstanceLock const* newLock = sInstanceLockMgr.UpdateInstanceLockForPlayer(trans, player->GetGUID(), entries,
                 InstanceLockUpdateEvent(GetInstanceId(), i_data->UpdateAdditionalSaveData(oldData ? *oldData : "", updateSaveDataEvent),
@@ -3231,7 +3231,7 @@ void InstanceMap::CreateInstanceLockForPlayer(Player* player)
     MapDb2Entries entries{ GetEntry(), GetMapDifficulty() };
     InstanceLock const* playerLock = sInstanceLockMgr.FindActiveInstanceLock(player->GetGUID(), entries);
 
-    bool isNewLock = !playerLock || !playerLock->GetData()->CompletedEncountersMask || playerLock->IsExpired();
+    bool isNewLock = !playerLock || playerLock->IsNew() || playerLock->IsExpired();
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 

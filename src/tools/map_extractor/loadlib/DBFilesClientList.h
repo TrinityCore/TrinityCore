@@ -611,6 +611,7 @@ DB2FileInfo const DBFilesClientList[] =     //DB2文件信息 静态 DB文件客
     { 4542069, "ProfTraitPathNode.db2" },
     { 4542084, "ProfTraitPerkNode.db2" },
     { 4542085, "ProfTraitTree.db2" },
+    { 4999865, "ProfTraitTreeHighlight.db2" },
     { 4508544, "Profession.db2" },
     { 4505297, "ProfessionEffect.db2" },
     { 4556715, "ProfessionEffectType.db2" },

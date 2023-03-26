@@ -26,6 +26,7 @@
 #include "SharedDefines.h"
 
 class WorldObject;
+enum class ChatWhisperTargetStatus : uint8;
 
 namespace WorldPackets
 {
@@ -322,6 +323,27 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint8 Reason = 0;
+        };
+
+        class CanLocalWhisperTargetRequest final : public ClientPacket
+        {
+        public:
+            CanLocalWhisperTargetRequest(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_CAN_LOCAL_WHISPER_TARGET_REQUEST, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid WhisperTarget;
+        };
+
+        class CanLocalWhisperTargetResponse final : public ServerPacket
+        {
+        public:
+            CanLocalWhisperTargetResponse() : ServerPacket(SMSG_CHAT_CAN_LOCAL_WHISPER_TARGET_RESPONSE, 16 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid WhisperTarget;
+            ChatWhisperTargetStatus Status = {};
         };
     }
 }

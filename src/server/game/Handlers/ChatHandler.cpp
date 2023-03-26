@@ -43,6 +43,13 @@
 #include "World.h"
 #include <algorithm>
 
+enum class ChatWhisperTargetStatus : uint8
+{
+    CanWhisper      = 0,
+    Offline         = 1,
+    WrongFaction    = 2
+};
+
 inline bool isNasty(uint8 c)
 {
     if (c == '\t')
@@ -745,4 +752,26 @@ void WorldSession::SendChatRestricted(ChatRestrictionType restriction)
     WorldPackets::Chat::ChatRestricted packet;
     packet.Reason = restriction;
     SendPacket(packet.Write());
+}
+
+void WorldSession::HandleChatCanLocalWhisperTargetRequest(WorldPackets::Chat::CanLocalWhisperTargetRequest const& canLocalWhisperTargetRequest)
+{
+    ChatWhisperTargetStatus status = [&]
+    {
+        Player* sender = GetPlayer();
+        Player* receiver = ObjectAccessor::FindConnectedPlayer(canLocalWhisperTargetRequest.WhisperTarget);
+        if (!receiver || (!receiver->isAcceptWhispers() && receiver->GetSession()->HasPermission(rbac::RBAC_PERM_CAN_FILTER_WHISPERS) && !receiver->IsInWhisperWhiteList(sender->GetGUID())))
+            return ChatWhisperTargetStatus::Offline;
+
+        if (!receiver->IsInWhisperWhiteList(sender->GetGUID()) && !receiver->IsGameMasterAcceptingWhispers())
+            if (GetPlayer()->GetEffectiveTeam() != receiver->GetEffectiveTeam() && !HasPermission(rbac::RBAC_PERM_TWO_SIDE_INTERACTION_CHAT))
+                return ChatWhisperTargetStatus::WrongFaction;
+
+        return ChatWhisperTargetStatus::CanWhisper;
+    }();
+
+    WorldPackets::Chat::CanLocalWhisperTargetResponse canLocalWhisperTargetResponse;
+    canLocalWhisperTargetResponse.WhisperTarget = canLocalWhisperTargetRequest.WhisperTarget;
+    canLocalWhisperTargetResponse.Status = status;
+    SendPacket(canLocalWhisperTargetResponse.Write());
 }
