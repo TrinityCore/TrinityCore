@@ -1,4 +1,4 @@
---删除重复id,站在同一个地方的生物
+﻿--删除重复id,站在同一个地方的生物
 最容易理解的方法:
 
 --原来一共770884条数据
@@ -60,3 +60,32 @@ unit_flags3,dynamicflags,ScriptName,StringId,VerifiedBuild,size)as x);
 
 
 --来源:https://blog.csdn.net/weixin_39820226/article/details/113553561,其中的方法二
+
+
+
+--broadcast_text_locale
+select min(ID) from broadcast_text_locale where locale='zhCN' group by ID,locale, Text_lang, Text1_lang;
+
+--找出ID、两个文本重复的数据中ID最小的,即最后要保存的数据.
+--197255 rows in set
+
+
+select min(ID) from broadcast_text_locale where locale='zhCN' group by ID;
+--195824 rows in set
+--选择上一种
+
+
+select * from broadcast_text_locale where ID not in(select min(ID) from broadcast_text_locale  group by ID,locale, Text_lang, Text1_lang);
+
+
+
+select min(ID),locale, Text_lang, Text1_lang,VerifiedBuild from broadcast_text_locale where locale='zhCN' group by ID,locale, Text_lang, Text1_lang;
+--查找locale为zhCN的不重复数据,只保留ID最小的
+--197,255条数据
+
+select *  from broadcast_text_locale where locale='zhCN';
+--全部locale为zhCN的数据
+--325,040条数据
+
+delete from broadcast_text_locale where locale='zhCN';
+--删除全部locale为zhCN的数据
