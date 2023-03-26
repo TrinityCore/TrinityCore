@@ -1442,7 +1442,6 @@ enum OpcodeServer : uint16
     
     
     SMSG_ISLANDS_MISSION_NPC                          = 0x27E9,
-    SMSG_ISLAND_COMPLETE                              = 0x2757,
     SMSG_INVENTORY_FIXUP_COMPLETE                     = 0x280F,
     SMSG_INVENTORY_FULL_OVERFLOW                      = 0x2820,
     SMSG_ISLAND_AZERITE_GAIN                          = 0x2757,
