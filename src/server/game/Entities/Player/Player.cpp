@@ -15284,7 +15284,7 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
     //lets remove flag for delayed teleports
     SetCanDelayTeleport(false);
 
-    bool canHaveNextQuest = !quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE) ? !questGiver->IsPlayer() : true;
+    bool canHaveNextQuest = !quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE) ? questGiver && !questGiver->IsPlayer() : true;
     if (canHaveNextQuest)
     {
         switch (questGiver->GetTypeId())
