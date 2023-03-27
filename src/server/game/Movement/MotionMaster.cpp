@@ -692,28 +692,54 @@ void MotionMaster::MoveCloserAndStop(uint32 id, Unit* target, float distance)
     }
 }
 
-void MotionMaster::MoveLand(uint32 id, Position const& pos, Optional<float> velocity /*= {}*/)
+void MotionMaster::MoveLand(uint32 id, Position const& pos, Optional<int32> tierTransitionId /*= {}*/, Optional<float> velocity /*= {}*/,
+    MovementWalkRunSpeedSelectionMode speedSelectionMode /*= MovementWalkRunSpeedSelectionMode::Default*/)
 {
     TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveLand: '{}', landing point Id: {} (X: {}, Y: {}, Z: {})", _owner->GetGUID().ToString(), id, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
 
     std::function<void(Movement::MoveSplineInit&)> initializer = [=](Movement::MoveSplineInit& init)
     {
         init.MoveTo(PositionToVector3(pos), false);
-        init.SetAnimation(AnimTier::Ground);
+        init.SetAnimation(AnimTier::Ground, tierTransitionId.value_or(0));
+        switch (speedSelectionMode)
+        {
+            case MovementWalkRunSpeedSelectionMode::ForceRun:
+                init.SetWalk(false);
+                break;
+            case MovementWalkRunSpeedSelectionMode::ForceWalk:
+                init.SetWalk(true);
+                break;
+            case MovementWalkRunSpeedSelectionMode::Default:
+            default:
+                break;
+        }
         if (velocity)
             init.SetVelocity(*velocity);
     };
     Add(new GenericMovementGenerator(std::move(initializer), EFFECT_MOTION_TYPE, id));
 }
 
-void MotionMaster::MoveTakeoff(uint32 id, Position const& pos, Optional<float> velocity /*= {}*/)
+void MotionMaster::MoveTakeoff(uint32 id, Position const& pos, Optional<int32> tierTransitionId /*= {}*/, Optional<float> velocity /*= {}*/,
+    MovementWalkRunSpeedSelectionMode speedSelectionMode /*= MovementWalkRunSpeedSelectionMode::Default*/)
 {
     TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveTakeoff: '{}', landing point Id: {} (X: {}, Y: {}, Z: {})", _owner->GetGUID().ToString(), id, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
 
     std::function<void(Movement::MoveSplineInit&)> initializer = [=](Movement::MoveSplineInit& init)
     {
         init.MoveTo(PositionToVector3(pos), false);
-        init.SetAnimation(AnimTier::Hover);
+        init.SetAnimation(AnimTier::Hover, tierTransitionId.value_or(0));
+        switch (speedSelectionMode)
+        {
+            case MovementWalkRunSpeedSelectionMode::ForceRun:
+                init.SetWalk(false);
+                break;
+            case MovementWalkRunSpeedSelectionMode::ForceWalk:
+                init.SetWalk(true);
+                break;
+            case MovementWalkRunSpeedSelectionMode::Default:
+            default:
+                break;
+        }
         if (velocity)
             init.SetVelocity(*velocity);
     };
