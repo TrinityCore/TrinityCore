@@ -89,3 +89,20 @@ select *  from broadcast_text_locale where locale='zhCN';
 
 delete from broadcast_text_locale where locale='zhCN';
 --删除全部locale为zhCN的数据
+
+
+--第2出对broadcast_text_locale表进行删减
+
+select min(ID),locale, Text_lang, Text1_lang,VerifiedBuild from broadcast_text_locale where locale='zhCN' group by ID,locale;
+--195824条数据(在手动删除一些重复数据后)
+
+
+--删除重复数据(内容太多,未细看,为防止误删除,备份了数据,文件在同目录下,名称为:删除的zhCN中ID大于34632,VerifiedBuild为47936数据)
+delete
+FROM
+broadcast_text_locale
+WHERE
+broadcast_text_locale.ID >=  '34631' AND
+broadcast_text_locale.locale =  'zhcn' AND
+broadcast_text_locale.VerifiedBuild =  '47936'
+
