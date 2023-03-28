@@ -13,7 +13,7 @@
       "variables": [
         {
           "name": "SCRIPTS",
-          "value": "none",
+          "value": "static",
           "type": "STRING"
         }
       ]

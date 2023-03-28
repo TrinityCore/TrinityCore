@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright 2021 ShadowCore
  * Copyright 2023 AzgathCore
  *
@@ -16,202 +16,204 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// #include "Creature.h"
-// #include "Player.h"
-// #include "ScriptMgr.h"
-// #include "ScriptedCreature.h"
-// #include "ScriptedGossip.h"
-// #include "InstanceScript.h"
-// #include "InstanceScenario.h"
-// #include "Scenario.h"
-// #include "Vehicle.h"
-// #include "SpellInfo.h"
-// #include "scenario_zuldazar.h"
+ #include "Creature.h"
+ #include "Player.h"
+ #include "ScriptMgr.h"
+ #include "ScriptedCreature.h"
+ #include "ScriptedGossip.h"
+ #include "InstanceScript.h"
+ #include "InstanceScenario.h"
+ #include "Scenario.h"
+ #include "Vehicle.h"
+ #include "SpellInfo.h"
+ #include "scenario_zuldazar.h"
 
 //135890/king-rastakhan
-// struct npc_king_rastakhan_135890 : public ScriptedAI
-// {
-    // npc_king_rastakhan_135890(Creature* creature) : ScriptedAI(creature) {  }
+ struct npc_king_rastakhan_135890 : public ScriptedAI
+ {
+     npc_king_rastakhan_135890(Creature* creature) : ScriptedAI(creature) {  }
 
-    // bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
-    // {
-        // player->TeleportTo(1906, Position(61.2f, 627.71f, 119.63f, 6.28179f));
-        // CloseGossipMenuFor(player);
-    // }
-// };
+     bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) 
+     {
+         //player->TeleportTo(1906, Position(61.2f, 627.71f, 119.63f, 6.28179f));   //org
+         player->TeleportTo(1906,61.2f, 627.71f, 119.63f, 6.28179f);
+         CloseGossipMenuFor(player);
+     }
+ };
 
-// struct npc_old_kzlotec_134460 : public ScriptedAI
-// {
-    // npc_old_kzlotec_134460(Creature* creature) : ScriptedAI(creature) { instance = creature->GetInstanceScript(); }
+ struct npc_old_kzlotec_134460 : public ScriptedAI
+ {
+     npc_old_kzlotec_134460(Creature* creature) : ScriptedAI(creature) { instance = creature->GetInstanceScript(); }
 
-    // bool found = false;
+     bool found = false;
 
-    // void OnSpellClick(Unit* clicker, bool& /*result*/)
-    // {
-        // if (Player* player = clicker->ToPlayer())
-        // {
-            // player->CompletedCriteriaTreeId(CRITERIA_TREE_GATHER_YOUR_FORCES_AND_MOUNT_OLD_K_ZLOTEC);
-            // me->setFaction(player->GetFaction()); 
-            // me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
-        // }
-    // }
+     void OnSpellClick(Unit* clicker, bool& /*result*/)
+     {
+         if (Player* player = clicker->ToPlayer())
+         {
+             /*player->CompletedCriteriaTreeId(CRITERIA_TREE_GATHER_YOUR_FORCES_AND_MOUNT_OLD_K_ZLOTEC);
+             me->setFaction(player->GetFaction()); */   //tmp
+             me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+         }
+     }
 
-    // void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply)
-    // {
-        // if (passenger->IsPlayer())
-        // {
-            // passenger->SetDisableGravity(apply);
+     void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply)
+     {
+         if (passenger->IsPlayer())
+         {
+             passenger->SetDisableGravity(apply);
 
-            // if (!apply)
-            // {
-                // passenger->ToPlayer()->SetClientControl(passenger, true);
-                // me->DespawnOrUnsummon(5000);
-            // }
-        // }
-    // }
-// private:
-    // InstanceScript* instance;
-// };
+             if (!apply)
+             {
+                 passenger->ToPlayer()->SetClientControl(passenger, true);
+                 me->DespawnOrUnsummon(Milliseconds(5000));
+             }
+         }
+     }
+ private:
+     InstanceScript* instance;
+ };
 
-// struct npc_blood_scenario : public ScriptedAI
-// {
-    // npc_blood_scenario(Creature* creature) : ScriptedAI(creature) {  }
+ struct npc_blood_scenario : public ScriptedAI
+ {
+     npc_blood_scenario(Creature* creature) : ScriptedAI(creature) {  }
 
-    // void SpellHit(Unit* caster, SpellInfo const* spell) override
-    // {
-        // switch (spell->Id)
-        // {
-        // case 254981:
-        // case 254970:
-        // case 254971:
-            // me->KillSelf();
-            // break;
-        // default:
-            // break;
-        // }
-    // }
-// };
+     void SpellHit(Unit* caster, SpellInfo const* spell) 
+     {
+         switch (spell->Id)
+         {
+         case 254981:
+         case 254970:
+         case 254971:
+             me->KillSelf();
+             break;
+         default:
+             break;
+         }
+     }
+ };
 
 //134493
-// struct npc_pa_ku_134493 : public ScriptedAI
-// {
-    // npc_pa_ku_134493(Creature* creature) : ScriptedAI(creature)
-    // {
-        // instance = creature->GetInstanceScript();    
-    // }
+ struct npc_pa_ku_134493 : public ScriptedAI
+ {
+     npc_pa_ku_134493(Creature* creature) : ScriptedAI(creature)
+     {
+         instance = creature->GetInstanceScript();    
+     }
 
-    // Position const Path01[5] =
-    // {
-        // { -347.22f, 609.57f, 235.73f },
-        // { -76.419f, 744.976f, 201.484f },
-        // { -185.34f, 1064.44f, 314.87f },
-     //   { -673.75f, 701.498f, 270.958f },    
-        // { -333.586f, 1166.28f, 343.88f },
-        // { -407.2205f, 1189.813f, 327.36f },
-    // };
-    // using Path01Size = std::extent<decltype(Path01)>;
-    // ObjectGuid _guid;
+     Position const Path01[6] =
+     {
+         { -347.22f, 609.57f, 235.73f },
+         { -76.419f, 744.976f, 201.484f },
+         { -185.34f, 1064.44f, 314.87f },
+        { -673.75f, 701.498f, 270.958f },    
+         { -333.586f, 1166.28f, 343.88f },
+         { -407.2205f, 1189.813f, 327.36f },
+     };
+     using Path01Size = std::extent<decltype(Path01)>;
+     ObjectGuid _guid;
 
-    // void Reset() override
-    // {
-        // me->SetReactState(REACT_PASSIVE);
-        // me->SetCanFly(true);
-        // me->SetDisableGravity(true);
-        // me->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
-    // }
+     void Reset() override
+     {
+         me->SetReactState(REACT_PASSIVE);
+         me->SetCanFly(true);
+         me->SetDisableGravity(true);
+         //me->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);//org
+         me->SetNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
+     }
 
-    // void OnSpellClick(Unit* clicker, bool& /*result*/)
-    // {
-        // if (Player* player = clicker->ToPlayer())
-        // {
-            // me->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
-            // player->CastSpell(me, 46598, true);
-            // _guid = player->GetGUID();
-        // }
-    // }
+     void OnSpellClick(Unit* clicker, bool& /*result*/)
+     {
+         if (Player* player = clicker->ToPlayer())
+         {
+             me->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
+             player->CastSpell(me, 46598, true);
+             _guid = player->GetGUID();
+         }
+     }
 
-    // void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply)
-    // {
-        // if (passenger->IsPlayer())
-        // {
-            // passenger->SetDisableGravity(apply);
-            // if (apply)
-                // me->GetMotionMaster()->MoveSmoothPath(1, Path01, Path01Size::value, false, true);
-        // }
-    // }
-  //  46598
-    // void MovementInform(uint32 type, uint32 id) override
-    // {
-        // if (type == EFFECT_MOTION_TYPE && id == 1)
-        // {
-            // if(Player* player= ObjectAccessor::GetPlayer(*me, _guid))
-                // player->CompletedCriteriaTreeId(CRITERIA_TREE_RIDE_PA_KU_TO_THE_ZOCALO);
-            // me->DespawnOrUnsummon(1000);
-        // }
-    // }
-// private:
-    // InstanceScript* instance;
-// };
+     void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply)
+     {
+         if (passenger->IsPlayer())
+         {
+             passenger->SetDisableGravity(apply);
+             if (apply)
+                 me->GetMotionMaster()->MoveSmoothPath(1, Path01, Path01Size::value, false, true);
+         }
+     }
+    //46598
+     void MovementInform(uint32 type, uint32 id) override
+     {
+         if (type == EFFECT_MOTION_TYPE && id == 1)
+         {
+             /*if(Player* player= ObjectAccessor::GetPlayer(*me, _guid))
+                 player->CompletedCriteriaTreeId(CRITERIA_TREE_RIDE_PA_KU_TO_THE_ZOCALO);*/ //tmp
+             me->DespawnOrUnsummon(Milliseconds(1000));
+         }
+     }
+ private:
+     InstanceScript* instance;
+ };
 
 
 //136355,136356,136357,136358,136359,136360,136367,136368,136369,136370,136371,136372,142818
-// struct npc_scenario_civilians_resued : public ScriptedAI
-// {
-    // npc_scenario_civilians_resued(Creature* creature) : ScriptedAI(creature) { instance = creature->GetInstanceScript(); }
+ struct npc_scenario_civilians_resued : public ScriptedAI
+ {
+     npc_scenario_civilians_resued(Creature* creature) : ScriptedAI(creature) { instance = creature->GetInstanceScript(); }
 
-    // void Reset() override
-    // {
-    // }
+     void Reset() override
+     {
+     }
 
-    // bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
-    // {
-        // CloseGossipMenuFor(player);
-        // if (!isResued)
-        // {
-            // isResued = true;
-            // if (instance)
-                // instance->SetData(SCENARIO_EVENT_CIVILIANS_RESCUED, 1);
-            // me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-            // me->DespawnOrUnsummon();
-        // }
+     bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) 
+     {
+         CloseGossipMenuFor(player);
+         if (!isResued)
+         {
+             isResued = true;
+             /*if (instance)
+                 instance->SetData(SCENARIO_EVENT_CIVILIANS_RESCUED, 1);*/  //tmp
+             me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+             me->DespawnOrUnsummon();
+         }
 
-        // return;
-    // }
+         return;
+     }
 
-// private:
-    // InstanceScript* instance;
-    // bool isResued = false;
-// };
+ private:
+     InstanceScript* instance;
+     bool isResued = false;
+ };
 
-// struct npc_gonk_134492 : public ScriptedAI
-// {
-    // npc_gonk_134492(Creature* creature) : ScriptedAI(creature)
-    // {
-        // instance = creature->GetInstanceScript();
-        // IsLock = false;
-    // }
+ struct npc_gonk_134492 : public ScriptedAI
+ {
+     npc_gonk_134492(Creature* creature) : ScriptedAI(creature)
+     {
+         instance = creature->GetInstanceScript();
+         //IsLock = false;  //tmp
+     }
 
-    // void MoveInLineOfSight(Unit* who) override
-    // {
-        // if (Player* player = who->ToPlayer())
-        // {
-            // if (me->IsWithinDist(player, 15.0f, false) && !IsLock)
-            // {
-                // IsLock = true;
-               
-                // player->CompletedCriteriaTreeId(CRITERIA_TREE_JOIN_GONK_AND_HIS_PACK_AT_THE_BRIDGE_TO_DAZAR_ALOR);
+     void MoveInLineOfSight(Unit* who) override
+     {
+         if (Player* player = who->ToPlayer())
+         {
+             //if (me->IsWithinDist(player, 15.0f, false) && !IsLock)
+             //{
+             //    IsLock = true;
+             //  
+             //    //player->CompletedCriteriaTreeId(CRITERIA_TREE_JOIN_GONK_AND_HIS_PACK_AT_THE_BRIDGE_TO_DAZAR_ALOR);   //tmp
 
-                // if (instance)
-                // {
-                    // instance->DoPlayScenePackageIdOnPlayers(SCENE_3);
-                    // instance->DoSendScenarioEventByType(CRITERIA_TYPE_KILL_CREATURE, me->GetEntry(), 1);
-                // }
-            // }
-        // }
-    // }
-// private:
-    // InstanceScript* instance;
-// };
+             //    if (instance)
+             //    {
+             //        /*instance->DoPlayScenePackageIdOnPlayers(SCENE_3);
+             //        instance->DoSendScenarioEventByType(CRITERIA_TYPE_KILL_CREATURE, me->GetEntry(), 1);*/ //tmp
+             //    }
+             //}
+         }
+     }
+ private:
+     InstanceScript* instance;
+ };
 
 
 // struct npc_king_rastakhan_136324 : public ScriptedAI
