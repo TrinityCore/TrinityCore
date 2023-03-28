@@ -1,3 +1,6 @@
+﻿/*
+Ŀ¼:scripts/Argus
+*/
 -- Spawns
 SET @CGUID := 450000;
 DELETE FROM `creature` WHERE `guid`= @CGUID+0;
