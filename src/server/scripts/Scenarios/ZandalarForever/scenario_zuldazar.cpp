@@ -47,15 +47,15 @@
 
      bool found = false;
 
-     void OnSpellClick(Unit* clicker, bool& /*result*/)
-     {
-         if (Player* player = clicker->ToPlayer())
-         {
-             /*player->CompletedCriteriaTreeId(CRITERIA_TREE_GATHER_YOUR_FORCES_AND_MOUNT_OLD_K_ZLOTEC);
-             me->setFaction(player->GetFaction()); */   //tmp
-             me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
-         }
-     }
+     //void OnSpellClick(Unit* clicker, bool& /*result*/)   //tmp
+     //{
+     //    if (Player* player = clicker->ToPlayer())
+     //    {
+     //        /*player->CompletedCriteriaTreeId(CRITERIA_TREE_GATHER_YOUR_FORCES_AND_MOUNT_OLD_K_ZLOTEC);
+     //        me->setFaction(player->GetFaction()); */   //tmp
+     //        me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+     //    }
+     //}
 
      void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply)
      {
@@ -78,19 +78,19 @@
  {
      npc_blood_scenario(Creature* creature) : ScriptedAI(creature) {  }
 
-     void SpellHit(Unit* caster, SpellInfo const* spell) 
-     {
-         switch (spell->Id)
-         {
-         case 254981:
-         case 254970:
-         case 254971:
-             me->KillSelf();
-             break;
-         default:
-             break;
-         }
-     }
+     //void SpellHit(Unit* caster, SpellInfo const* spell) //tmp
+     //{
+     //    switch (spell->Id)
+     //    {
+     //    case 254981:
+     //    case 254970:
+     //    case 254971:
+     //        me->KillSelf();
+     //        break;
+     //    default:
+     //        break;
+     //    }
+     //}
  };
 
 //134493
@@ -122,15 +122,15 @@
          me->SetNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
      }
 
-     void OnSpellClick(Unit* clicker, bool& /*result*/)
-     {
-         if (Player* player = clicker->ToPlayer())
-         {
-             me->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
-             player->CastSpell(me, 46598, true);
-             _guid = player->GetGUID();
-         }
-     }
+     //void OnSpellClick(Unit* clicker, bool& /*result*/) //tmp
+     //{
+     //    if (Player* player = clicker->ToPlayer())
+     //    {
+     //        me->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
+     //        player->CastSpell(me, 46598, true);
+     //        _guid = player->GetGUID();
+     //    }
+     //}
 
      void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply)
      {
@@ -177,7 +177,7 @@
              me->DespawnOrUnsummon();
          }
 
-         return;
+         return false;
      }
 
  private:
