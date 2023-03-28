@@ -1,223 +1,223 @@
-﻿///*
-// * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
-// *
-// * This program is free software; you can redistribute it and/or modify it
-// * under the terms of the GNU General Public License as published by the
-// * Free Software Foundation; either version 2 of the License, or (at your
-// * option) any later version.
-// *
-// * This program is distributed in the hope that it will be useful, but WITHOUT
-// * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-// * more details.
-// *
-// * You should have received a copy of the GNU General Public License along
-// * with this program. If not, see <http://www.gnu.org/licenses/>.
-// */
-//
-//#include "AreaTriggerAI.h"
-//#include "CreatureAI.h"
-//#include "CreatureAIImpl.h"
-//#include "GridNotifiers.h"
-//#include "InstanceScript.h"
-//#include "Map.h"
-//#include "ObjectAccessor.h"
-//#include "ScriptMgr.h"
-//#include "ScriptedCreature.h"
-//#include "SpellAuras.h"
-//#include "SpellScript.h"
-//#include "SpellAuraEffects.h"
-//#include "antorus_the_burning_throne.h"
-//#include <Containers.h>
-//
-//enum Texts
-//{
-//    // Garothi Worldbreaker
-//    SAY_AGGRO = 0,
-//    SAY_DISENGAGE = 1,
-//    SAY_ANNOUNCE_APOCALYPSE_DRIVE = 2,
-//    SAY_APOCALYPSE_DRIVE = 3,
-//    SAY_ANNOUNCE_ERADICATION = 4,
-//    SAY_FINISH_APOCALYPSE_DRIVE = 5,
-//    SAY_DECIMATION = 6,
-//    SAY_ANNIHILATION = 7,
-//    SAY_ANNOUNCE_FEL_BOMBARDMENT = 8,
-//    SAY_SLAY = 9,
-//    SAY_DEATH = 10,
-//
-//    // Decimator
-//    SAY_ANNOUNCE_DECIMATION = 0
-//};
-//
-//enum Spells
-//{
-//    // Garothi Worldbreaker
-//    SPELL_MELEE = 248229,
-//    SPELL_APOCALYPSE_DRIVE = 244152,
-//    SPELL_APOCALYPSE_DRIVE_PERIODIC_DAMAGE = 253300,
-//    SPELL_APOCALYPSE_DRIVE_FINAL_DAMAGE = 240277,
-//    SPELL_ERADICATION = 244969,
-//    SPELL_EMPOWERED = 245237,
-//    SPELL_RESTORE_HEALTH = 246012,
-//    SPELL_ANNIHILATOR_CANNON_EJECT = 245527,
-//    SPELL_DECIMATOR_CANNON_EJECT = 245515,
-//    SPELL_FEL_BOMBARDMENT_SELECTOR = 244150,
-//    SPELL_FEL_BOMBARDMENT_WARNING = 246220,
-//    SPELL_FEL_BOMBARDMENT_DUMMY = 245219,
-//    SPELL_FEL_BOMBARDMENT_PERIODIC = 244536,
-//    SPELL_CANNON_CHOOSER = 245124,
-//    SPELL_SEARING_BARRAGE_ANNIHILATOR = 246368,
-//    SPELL_SEARING_BARRAGE_DECIMATOR = 244395,
-//    SPELL_SEARING_BARRAGE_DUMMY_ANNIHILATOR = 244398,
-//    SPELL_SEARING_BARRAGE_DUMMY_DECIMATOR = 246369,
-//    SPELL_SEARING_BARRAGE_SELECTOR = 246360,
-//    SPELL_SEARING_BARRAGE_DAMAGE_ANNIHILATOR = 244400,
-//    SPELL_SEARING_BARRAGE_DAMAGE_DECIMATOR = 246373,
-//    SPELL_CARNAGE = 244106,
-//
-//    // Decimator
-//    SPELL_DECIMATION_SELECTOR = 244399,
-//    SPELL_DECIMATION_WARNING = 244410,
-//    SPELL_DECIMATION_CAST_VISUAL = 245338,
-//    SPELL_DECIMATION_MISSILE = 244448,
-//
-//    // Annihilator
-//    SPELL_ANNIHILATION_SUMMON = 244790,
-//    SPELL_ANNIHILATION_SELECTOR = 247572,
-//    SPELL_ANNIHILATION_DUMMY = 244294,
-//    SPELL_ANNIHILATION_DAMAGE_UNSPLITTED = 244762,
-//
-//    // Annihilation
-//    SPELL_ANNIHILATION_AREA_TRIGGER = 244795,
-//    SPELL_ANNIHILATION_WARNING = 244799,
-//
-//    // Garothi Worldbreaker (Surging Fel)
-//    SPELL_SURGING_FEL_AREA_TRIGGER = 246655,
-//    SPELL_SURGING_FEL_DAMAGE = 246663
-//
-//};
-//
-//enum Events
-//{
-//    // Garothi Worldbreaker
-//    EVENT_REENGAGE_PLAYERS = 1,
-//    EVENT_FEL_BOMBARDMENT,
-//    EVENT_SEARING_BARRAGE,
-//    EVENT_CANNON_CHOOSER,
-//    EVENT_SURGING_FEL
-//};
-//
-//enum Data
-//{
-//    DATA_LAST_FIRED_CANNON = 0
-//};
-//
-//enum AnimKits
-//{
-//    ANIM_KIT_ID_CANNON_DESTROYED = 13264
-//};
-//
-//enum TargetSize : uint8
-//{
-//    MIN_TARGETS_SIZE = 2,
-//    MAX_TARGETS_SIZE = 6
-//};
-//constexpr uint8 MIN_TARGETS_SIZE = 2;
+﻿/*
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "AreaTriggerAI.h"
+#include "CreatureAI.h"
+#include "CreatureAIImpl.h"
+#include "GridNotifiers.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellAuras.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "antorus_the_burning_throne.h"
+#include <Containers.h>
+
+enum Texts
+{
+    // Garothi Worldbreaker
+    SAY_AGGRO = 0,
+    SAY_DISENGAGE = 1,
+    SAY_ANNOUNCE_APOCALYPSE_DRIVE = 2,
+    SAY_APOCALYPSE_DRIVE = 3,
+    SAY_ANNOUNCE_ERADICATION = 4,
+    SAY_FINISH_APOCALYPSE_DRIVE = 5,
+    SAY_DECIMATION = 6,
+    SAY_ANNIHILATION = 7,
+    SAY_ANNOUNCE_FEL_BOMBARDMENT = 8,
+    SAY_SLAY = 9,
+    SAY_DEATH = 10,
+
+    // Decimator
+    SAY_ANNOUNCE_DECIMATION = 0
+};
+
+enum Spells
+{
+    // Garothi Worldbreaker
+    SPELL_MELEE = 248229,
+    SPELL_APOCALYPSE_DRIVE = 244152,
+    SPELL_APOCALYPSE_DRIVE_PERIODIC_DAMAGE = 253300,
+    SPELL_APOCALYPSE_DRIVE_FINAL_DAMAGE = 240277,
+    SPELL_ERADICATION = 244969,
+    SPELL_EMPOWERED = 245237,
+    SPELL_RESTORE_HEALTH = 246012,
+    SPELL_ANNIHILATOR_CANNON_EJECT = 245527,
+    SPELL_DECIMATOR_CANNON_EJECT = 245515,
+    SPELL_FEL_BOMBARDMENT_SELECTOR = 244150,
+    SPELL_FEL_BOMBARDMENT_WARNING = 246220,
+    SPELL_FEL_BOMBARDMENT_DUMMY = 245219,
+    SPELL_FEL_BOMBARDMENT_PERIODIC = 244536,
+    SPELL_CANNON_CHOOSER = 245124,
+    SPELL_SEARING_BARRAGE_ANNIHILATOR = 246368,
+    SPELL_SEARING_BARRAGE_DECIMATOR = 244395,
+    SPELL_SEARING_BARRAGE_DUMMY_ANNIHILATOR = 244398,
+    SPELL_SEARING_BARRAGE_DUMMY_DECIMATOR = 246369,
+    SPELL_SEARING_BARRAGE_SELECTOR = 246360,
+    SPELL_SEARING_BARRAGE_DAMAGE_ANNIHILATOR = 244400,
+    SPELL_SEARING_BARRAGE_DAMAGE_DECIMATOR = 246373,
+    SPELL_CARNAGE = 244106,
+
+    // Decimator
+    SPELL_DECIMATION_SELECTOR = 244399,
+    SPELL_DECIMATION_WARNING = 244410,
+    SPELL_DECIMATION_CAST_VISUAL = 245338,
+    SPELL_DECIMATION_MISSILE = 244448,
+
+    // Annihilator
+    SPELL_ANNIHILATION_SUMMON = 244790,
+    SPELL_ANNIHILATION_SELECTOR = 247572,
+    SPELL_ANNIHILATION_DUMMY = 244294,
+    SPELL_ANNIHILATION_DAMAGE_UNSPLITTED = 244762,
+
+    // Annihilation
+    SPELL_ANNIHILATION_AREA_TRIGGER = 244795,
+    SPELL_ANNIHILATION_WARNING = 244799,
+
+    // Garothi Worldbreaker (Surging Fel)
+    SPELL_SURGING_FEL_AREA_TRIGGER = 246655,
+    SPELL_SURGING_FEL_DAMAGE = 246663
+
+};
+
+enum Events
+{
+    // Garothi Worldbreaker
+    EVENT_REENGAGE_PLAYERS = 1,
+    EVENT_FEL_BOMBARDMENT,
+    EVENT_SEARING_BARRAGE,
+    EVENT_CANNON_CHOOSER,
+    EVENT_SURGING_FEL
+};
+
+enum Data
+{
+    DATA_LAST_FIRED_CANNON = 0
+};
+
+enum AnimKits
+{
+    ANIM_KIT_ID_CANNON_DESTROYED = 13264
+};
+
+enum TargetSize : uint8
+{
+    MIN_TARGETS_SIZE = 2,
+    MAX_TARGETS_SIZE = 6
+};
+//constexpr uint8 MIN_TARGETS_SIZE = 2;//Duplicate define
 //constexpr uint8 MAX_TARGETS_SIZE = 6;
-//
-//enum Misc
-//{
-//    SUMMON_GROUP_ID_SURGING_FEL = 0,
-//    ENCOUNTER_ID_GAROTHI_WORLDBREAKER = 2076
-//};
-//
-//namespace TargetHandler
-//{
-//    class VictimCheck
-//    {
-//    public:
-//        VictimCheck(Unit* caster, bool keepTank) : _caster(caster), _keepTank(keepTank) { }
-//
-//        bool operator()(WorldObject* object)
-//        {
-//            Unit* unit = object->ToUnit();
-//            if (!unit)
-//                return true;
-//
-//            if (_caster->GetVictim() && _caster->GetVictim() != unit)
-//                return _keepTank;
-//
-//            return false;
-//        }
-//    private:
-//        Unit* _caster;
-//        bool _keepTank; // true = remove all nontank targets | false = remove current tank
-//    };
-//
-//    void PreferNonTankTargetsAndResizeTargets(std::list<WorldObject*>& targets, Unit* caster)
-//    {
-//        if (targets.empty())
-//            return;
-//
-//        std::list<WorldObject*> targetsCopy = targets;
-//        uint8 size = targetsCopy.size();
-//        // Selecting our prefered target size based on total targets (min 10 player: 2, max 30 player: 6)
-//        uint8 preferedSize = std::min<uint8>(std::max<uint8>(std::ceil(size / 5), MIN_TARGETS_SIZE), MAX_TARGETS_SIZE);
-//
-//        // Now we get rid of the tank as these abilities prefer non-tanks above tanks as long as there are alternatives
-//        targetsCopy.remove_if(TargetHandler::VictimCheck(caster, false));
-//
-//        // We have less available nontank targets than we want, include tanks
-//        if (targetsCopy.size() < preferedSize)
-//            Trinity::Containers::RandomResize(targets, preferedSize);
-//        else
-//        {
-//            // Our target list has enough alternative targets, resize
-//            Trinity::Containers::RandomResize(targetsCopy, preferedSize);
-//            targets = targetsCopy;
-//        }
-//    }
-//}
-//
-//static constexpr uint32 const MaxApocalypseDriveCount = 2;
-//Position const AnnihilationCenterReferencePos = { -3296.72f, 9767.78f, -60.0f };
-//
-//struct boss_garothi_worldbreaker : public BossAI
-//{
-//    boss_garothi_worldbreaker(Creature* creature) : BossAI(creature, DATA_GAROTHI_WORLDBREAKER)
-//    {
-//        Initialize();
-//        me->SetReactState(REACT_PASSIVE);
-//    }
-//
-//    void Initialize()
-//    {
-//        SetCombatMovement(false);
-//
-//        switch (GetDifficulty())
-//        {
-//        case DIFFICULTY_MYTHIC_RAID:
-//        case DIFFICULTY_HEROIC_RAID:
-//            _apocalypseDriveHealthLimit[0] = 65;
-//            _apocalypseDriveHealthLimit[1] = 35;
-//            break;
-//        case DIFFICULTY_NORMAL_RAID:
-//        case DIFFICULTY_LFR_NEW:
-//            _apocalypseDriveHealthLimit[0] = 60;
-//            _apocalypseDriveHealthLimit[1] = 20;
-//            break;
-//        default:
-//            break;
-//        }
-//
-//        // Todo: move this section out of the ctor and remove the .clear call when dynamic spawns have been merged.
-//        _apocalypseDriveCount = 0;
-//        _searingBarrageSpellId = 0;
-//        _lastCanonEntry = NPC_DECIMATOR;
-//        _castEradication = false;
-//        _surgingFelDummyGuids.clear();
-//    }
-//
+
+enum Misc
+{
+    SUMMON_GROUP_ID_SURGING_FEL = 0,
+    ENCOUNTER_ID_GAROTHI_WORLDBREAKER = 2076
+};
+
+namespace TargetHandler
+{
+    class VictimCheck
+    {
+    public:
+        VictimCheck(Unit* caster, bool keepTank) : _caster(caster), _keepTank(keepTank) { }
+
+        bool operator()(WorldObject* object)
+        {
+            Unit* unit = object->ToUnit();
+            if (!unit)
+                return true;
+
+            if (_caster->GetVictim() && _caster->GetVictim() != unit)
+                return _keepTank;
+
+            return false;
+        }
+    private:
+        Unit* _caster;
+        bool _keepTank; // true = remove all nontank targets | false = remove current tank
+    };
+
+    void PreferNonTankTargetsAndResizeTargets(std::list<WorldObject*>& targets, Unit* caster)
+    {
+        if (targets.empty())
+            return;
+
+        std::list<WorldObject*> targetsCopy = targets;
+        uint8 size = targetsCopy.size();
+        // Selecting our prefered target size based on total targets (min 10 player: 2, max 30 player: 6)
+        uint8 preferedSize = std::min<uint8>(std::max<uint8>(std::ceil(size / 5), MIN_TARGETS_SIZE), MAX_TARGETS_SIZE);
+
+        // Now we get rid of the tank as these abilities prefer non-tanks above tanks as long as there are alternatives
+        targetsCopy.remove_if(TargetHandler::VictimCheck(caster, false));
+
+        // We have less available nontank targets than we want, include tanks
+        if (targetsCopy.size() < preferedSize)
+            Trinity::Containers::RandomResize(targets, preferedSize);
+        else
+        {
+            // Our target list has enough alternative targets, resize
+            Trinity::Containers::RandomResize(targetsCopy, preferedSize);
+            targets = targetsCopy;
+        }
+    }
+}
+
+static constexpr uint32 const MaxApocalypseDriveCount = 2;
+Position const AnnihilationCenterReferencePos = { -3296.72f, 9767.78f, -60.0f };
+
+struct boss_garothi_worldbreaker : public BossAI
+{
+    /*boss_garothi_worldbreaker(Creature* creature) : BossAI(creature, DATA_GAROTHI_WORLDBREAKER)
+    {
+        Initialize();
+        me->SetReactState(REACT_PASSIVE);
+    }*/
+
+    //void Initialize()
+    //{
+    //    SetCombatMovement(false);
+
+    //    switch (GetDifficulty())
+    //    {
+    //    case DIFFICULTY_MYTHIC_RAID:
+    //    case DIFFICULTY_HEROIC_RAID:
+    //        _apocalypseDriveHealthLimit[0] = 65;
+    //        _apocalypseDriveHealthLimit[1] = 35;
+    //        break;
+    //    case DIFFICULTY_NORMAL_RAID:
+    //    case DIFFICULTY_LFR_NEW:
+    //        _apocalypseDriveHealthLimit[0] = 60;
+    //        _apocalypseDriveHealthLimit[1] = 20;
+    //        break;
+    //    default:
+    //        break;
+    //    }
+
+    //    // Todo: move this section out of the ctor and remove the .clear call when dynamic spawns have been merged.
+    //    _apocalypseDriveCount = 0;
+    //    _searingBarrageSpellId = 0;
+    //    _lastCanonEntry = NPC_DECIMATOR;
+    //    _castEradication = false;
+    //    _surgingFelDummyGuids.clear();
+    //}
+
 //    void Reset() override
 //    {
 //        _Reset();
@@ -278,7 +278,7 @@
 //            break;
 //        }
 //    }
-//
+
 //    void DamageTaken(Unit* /*attacker*/, uint32& damage) 
 //    {
 //        if (me->HealthBelowPctDamaged(_apocalypseDriveHealthLimit[_apocalypseDriveCount], damage))
@@ -482,7 +482,7 @@
 //            annihilator->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_31));
 //        }
 //    }
-//};
+};
 //
 //struct at_garothi_annihilation : AreaTriggerAI
 //{
