@@ -1,29 +1,29 @@
-///*
-//* Copyright (C) 2021 BfaCore Reforged
-//*
-//* This program is free software; you can redistribute it and/or modify it
-//* under the terms of the GNU General Public License as published by the
-//* Free Software Foundation; either version 2 of the License, or (at your
-//* option) any later version.
-//*
-//* This program is distributed in the hope that it will be useful, but WITHOUT
-//* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-//* more details.
-//*
-//* You should have received a copy of the GNU General Public License along
-//* with this program. If not, see <http://www.gnu.org/licenses/>.
-//*/
-//#include "antorus.h"
-//#include "AreaTrigger.h"
-//#include "AreaTriggerAI.h"
-//#include "ScriptedCreature.h"
-//#include "ScriptMgr.h"
-//#include "SpellAuras.h"
-//#include "SpellScript.h"
-//#include "GameObject.h"
-//#include "ScriptedGossip.h"
-//
+﻿/*
+* Copyright (C) 2021 BfaCore Reforged
+*
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the
+* Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
+#include "antorus.h"
+#include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "SpellAuras.h"
+#include "SpellScript.h"
+#include "GameObject.h"
+#include "ScriptedGossip.h"
+
 //
 //struct npc_image_of_prophet_velen_125513 : public ScriptedAI
 //{
@@ -372,8 +372,8 @@
 //    }
 //};
 //
-//void AddSC_antorus()
-//{
+void AddSC_antorus()
+{
 //    RegisterCreatureAI(npc_image_of_prophet_velen_125513);
 //    RegisterCreatureAI(npc_garothi_annihilator_123398);
 //    RegisterCreatureAI(npc_lightforged_teleport_pod_130137);
@@ -391,5 +391,5 @@
 //    RegisterCreatureAI(npc_lightforged_beacon_125720);
 //    RegisterCreatureAI(npc_lightforged_warframe_127963);
 //    RegisterCreatureAI(npc_magni_bronzebeard_125584);
-//}
-//
+}
+
