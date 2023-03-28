@@ -88,8 +88,8 @@ public:
             (true);
             events.Reset();
             me->Mount(44634);
-//            if (BrawlersGuild* brawlerGuild = me->GetBrawlerGuild())
- //               brawlerGuild->SetAnnouncer(me->GetGUID());
+            /*if (BrawlersGuild* brawlerGuild = me->GetBrawlerGuild())
+                brawlerGuild->SetAnnouncer(me->GetGUID());*/
             me->GetMotionMaster()->MovePath(11854502, true);
         }
 
