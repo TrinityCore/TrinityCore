@@ -47,7 +47,7 @@
 
      bool found = false;
 
-     //void OnSpellClick(Unit* clicker, bool& /*result*/)   //tmp
+     //void OnSpellClick(Unit* clicker, bool& /*result*/)   //tmp   //No override ERROR
      //{
      //    if (Player* player = clicker->ToPlayer())
      //    {
