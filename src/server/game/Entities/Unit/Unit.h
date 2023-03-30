@@ -1652,15 +1652,11 @@ class TC_GAME_API Unit : public WorldObject
         virtual float GetNativeObjectScale() const { return 1.0f; }
         virtual void RecalculateObjectScale();
         uint32 GetDisplayId() const { return m_unitData->DisplayID; }
-        virtual void SetDisplayId(uint32 modelId, float displayScale = 1.f);
+        float GetDisplayScale() const { return m_unitData->DisplayScale; }
+        virtual void SetDisplayId(uint32 displayId, bool setNative = false);
         uint32 GetNativeDisplayId() const { return m_unitData->NativeDisplayID; }
         float GetNativeDisplayScale() const { return m_unitData->NativeXDisplayScale; }
         void RestoreDisplayId(bool ignorePositiveAurasPreventingMounting = false);
-        void SetNativeDisplayId(uint32 displayId, float displayScale = 1.f)
-        {
-            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NativeDisplayID), displayId);
-            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NativeXDisplayScale), displayScale);
-        }
         void SetTransformSpell(uint32 spellid) { m_transformSpell = spellid;}
         uint32 GetTransformSpell() const { return m_transformSpell;}
 

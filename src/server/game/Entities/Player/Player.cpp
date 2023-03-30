@@ -22395,8 +22395,7 @@ void Player::InitDisplayIds()
         return;
     }
 
-    SetDisplayId(model->DisplayID);
-    SetNativeDisplayId(model->DisplayID);
+    SetDisplayId(model->DisplayID, true);
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::StateAnimID), sDB2Manager.GetEmptyAnimStateID());
 }
 
