@@ -3723,6 +3723,7 @@ void Spell::EffectSkinning()
     loot->FillLoot(creature->GetCreatureTemplate()->SkinLootId, LootTemplates_Skinning, player, true);
     player->SendLoot(*loot);
 
+    // This formula is still used (10.0.5.48526)
     if (skill == SKILL_SKINNING)
     {
         int32 reqValue;
@@ -3751,12 +3752,19 @@ void Spell::EffectSkinning()
         else
             reqValue = 900;
 
-        // TODO: Specialize skillid for each expansion
-        // new db field?
-        // tied to one of existing expansion fields in creature_template?
+        ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(creature->GetContentTuning());
+        if (!contentTuning)
+            return;
 
-        // Double chances for elites
-        m_caster->ToPlayer()->UpdateGatherSkill(skill, damage, reqValue, creature->isElite() ? 2 : 1);
+        uint32 skinningSkill = player->GetProfessionSkillForExp(skill, contentTuning->ExpansionID);
+        if (!skinningSkill)
+            return;
+
+        if (uint32 pureSkillValue = player->GetPureSkillValue(skinningSkill))
+        {
+            // Double chances for elites
+            player->UpdateGatherSkill(skinningSkill, pureSkillValue, reqValue, creature->isElite() ? 2 : 1);
+        }
     }
 }
 

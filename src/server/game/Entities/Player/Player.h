@@ -2024,7 +2024,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         bool UpdateSkillPro(uint16 skillId, int32 chance, uint32 step);
         bool UpdateCraftSkill(SpellInfo const* spellInfo);
-        bool UpdateGatherSkill(uint32 SkillId, uint32 SkillValue, uint32 RedLevel, uint32 Multiplicator = 1, WorldObject const* object = nullptr);
+        bool UpdateGatherSkill(uint32 skillId, uint32 skillValue, uint32 redLevel, uint32 multiplicator = 1, WorldObject const* object = nullptr);
         bool UpdateFishingSkill(int32 expansion);
 
         float GetHealthBonusFromStamina() const;
