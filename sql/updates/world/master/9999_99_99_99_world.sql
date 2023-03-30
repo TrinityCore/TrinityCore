@@ -10,7 +10,11 @@ UPDATE `waypoint_scripts` SET `dataint`=(`dataint` << 3) WHERE `command`=35 AND 
 
 -- use bit 0 for waypoints
 DELETE FROM `waypoint_data` WHERE `id` & 1;
-INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`) SELECT ((w.`entry` << 3) | 1), w.`pointid`, w.`position_x`, w.`position_y`, w.`position_z`, w.`orientation`, w.`delay` FROM `waypoints` w;
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`) 
+SELECT ((w.`entry` << 3) | 1), w.`pointid`, w.`position_x`, w.`position_y`, w.`position_z`, w.`orientation`, w.`delay`, MAX(IFNULL(ss.`action_param1`, 0))
+FROM `waypoints` w
+LEFT JOIN `smart_scripts` ss ON w.`entry`=ss.`action_param2` AND ss.`action_type`=53 AND ss.`action_param2` > 0
+GROUP BY ((w.`entry` << 3) | 1), w.`pointid`, w.`position_x`, w.`position_y`, w.`position_z`, w.`orientation`, w.`delay`;
 
 UPDATE `smart_scripts` SET `action_param2`=((`action_param2` << 3) | 1) WHERE `action_type`=53 AND `action_param2` > 0;
 UPDATE `smart_scripts` SET `action_param1`=((`action_param1` << 3) | 1) WHERE `action_type`=113 AND `action_param1` > 0;

@@ -865,7 +865,7 @@ struct SmartAction
 
         struct
         {
-            SAIBool run;
+            SAIBool run; // unused / overridden by waypoint_data
             uint32 pathID;
             SAIBool repeat;
             uint32 quest;
