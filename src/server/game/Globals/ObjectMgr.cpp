@@ -10183,9 +10183,9 @@ void ObjectMgr::LoadCreatureClassLevelStats()
 
     for (uint8 unitLevel = 1; unitLevel <= DEFAULT_MAX_LEVEL + 3; ++unitLevel)
     {
-        for (uint8 unitClass = 1; unitClass <= MAX_UNIT_CLASSES; ++unitClass)
+        for (uint8 unitClass = 0; unitClass < MAX_UNIT_CLASSES; ++unitClass)
         {
-            uint8 unitClassMask = 1 << (unitClass - 1);
+            uint8 unitClassMask = 1 << unitClass;
             if (!_creatureBaseStatsStore.count(MAKE_PAIR16(unitLevel, unitClassMask)))
                 TC_LOG_ERROR("sql.sql", "Missing base stats for creature class {} level {}", unitClassMask, unitLevel);
         }
