@@ -139,7 +139,7 @@ struct boss_felmyst : public BossAI
                 me->Relocate(madrigosa);
 
         me->SetDisplayFromModel(0);
-        me->SetNativeDisplayId(me->GetDisplayId());
+        me->SetDisplayId(me->GetDisplayId(), true);
     }
 
     void Reset() override

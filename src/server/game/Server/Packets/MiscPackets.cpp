@@ -416,6 +416,13 @@ WorldPacket const* WorldPackets::Misc::RandomRoll::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Misc::EnableBarberShop::Write()
+{
+    _worldPacket << uint8(CustomizationScope);
+
+    return &_worldPacket;
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Misc::PhaseShiftDataPhase const& phaseShiftDataPhase)
 {
     data << uint16(phaseShiftDataPhase.PhaseFlags);

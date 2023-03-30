@@ -3029,7 +3029,8 @@ bool Unit::IsMovementPreventedByCasting() const
         return false;
 
     if (Spell* spell = m_currentSpells[CURRENT_GENERIC_SPELL])
-        if (CanCastSpellWhileMoving(spell->GetSpellInfo()))
+        if (CanCastSpellWhileMoving(spell->GetSpellInfo()) || spell->getState() == SPELL_STATE_FINISHED ||
+            !spell->m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::Movement))
             return false;
 
     // channeled spells during channel stage (after the initial cast timer) allow movement with a specific spell attribute
@@ -5985,10 +5986,7 @@ void Unit::SetMinion(Minion *minion, bool apply)
                         minion->SetWildBattlePetLevel(pet->PacketInfo.Level);
 
                         if (uint32 display = pet->PacketInfo.DisplayID)
-                        {
-                            minion->SetDisplayId(display);
-                            minion->SetNativeDisplayId(display);
-                        }
+                            minion->SetDisplayId(display, true);
                     }
                 }
             }
@@ -10146,14 +10144,26 @@ void Unit::RecalculateObjectScale()
     SetObjectScale(std::max(scale, scaleMin));
 }
 
-void Unit::SetDisplayId(uint32 modelId, float displayScale /*= 1.f*/)
+void Unit::SetDisplayId(uint32 displayId, bool setNative /*= false*/)
 {
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::DisplayID), modelId);
+    float displayScale = DEFAULT_PLAYER_DISPLAY_SCALE;
+
+    if (IsCreature() && !IsPet())
+        if (CreatureModel const* model = ToCreature()->GetCreatureTemplate()->GetModelWithDisplayId(displayId))
+            displayScale = model->DisplayScale;
+
+    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::DisplayID), displayId);
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::DisplayScale), displayScale);
 
+    if (setNative)
+    {
+        SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NativeDisplayID), displayId);
+        SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NativeXDisplayScale), displayScale);
+    }
+
     // Set Gender by modelId
-    if (CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelInfo(modelId))
-        SetGender(Gender(minfo->gender));
+    if (CreatureModelInfo const* modelInfo = sObjectMgr->GetCreatureModelInfo(displayId))
+        SetGender(Gender(modelInfo->gender));
 }
 
 void Unit::RestoreDisplayId(bool ignorePositiveAurasPreventingMounting /*= false*/)
