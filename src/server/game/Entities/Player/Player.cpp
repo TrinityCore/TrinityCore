@@ -7624,8 +7624,10 @@ void Player::_ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, bool appl
             if (extraDPS)
             {
                 float average = extraDPS * proto->Delay / 1000.0f;
-                minDamage = 0.7f * average;
-                maxDamage = 1.3f * average;
+                float mod = ssv->isTwoHand(proto->ScalingStatValue) ? 0.2f : 0.3f;
+
+                minDamage = (1.0f - mod) * average;
+                maxDamage = (1.0f + mod) * average;
             }
         }
 
@@ -22343,9 +22345,9 @@ bool Player::HaveAtClient(Object const* u) const
     return u == this || m_clientGUIDs.find(u->GetGUID()) != m_clientGUIDs.end();
 }
 
-bool Player::IsNeverVisible() const
+bool Player::IsNeverVisible(bool allowServersideObjects) const
 {
-    if (Unit::IsNeverVisible())
+    if (Unit::IsNeverVisible(allowServersideObjects))
         return true;
 
     if (GetSession()->PlayerLogout() || GetSession()->PlayerLoading())
