@@ -303,6 +303,18 @@ struct npc_ley_line_sprouts : public ScriptedAI
         DoCastAOE(SPELL_ARCANE_POWER, true);
     }
 
+    void JustSummoned(Creature* summon) override
+    {
+        Creature* leymor = me->GetInstanceScript()->GetCreature(DATA_LEYMOR);
+        if (!leymor)
+            return;
+
+        if (!leymor->IsAIEnabled())
+            return;
+
+        leymor->AI()->JustSummoned(summon);
+    }
+
     void JustDied(Unit* /*killer*/) override
     {
         if (GetDifficulty() == DIFFICULTY_MYTHIC || GetDifficulty() == DIFFICULTY_MYTHIC_KEYSTONE)
@@ -345,6 +357,14 @@ struct npc_volatile_sapling : public ScriptedAI
                 _isSappyBurstCast = true;
             }
         }
+    }
+
+    void OnSpellFailed(SpellInfo const* spell) override
+    {
+        if (spell->Id != SPELL_SAPPY_BURST)
+            return;
+
+        me->KillSelf();
     }
 
 private:
