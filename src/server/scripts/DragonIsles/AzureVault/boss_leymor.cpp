@@ -345,7 +345,7 @@ struct npc_volatile_sapling : public ScriptedAI
 {
     npc_volatile_sapling(Creature* creature) : ScriptedAI(creature), _isSappyBurstCast(false) { }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/)
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (me->GetHealth() <= damage)
         {
