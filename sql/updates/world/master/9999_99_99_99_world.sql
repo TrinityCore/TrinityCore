@@ -1,7 +1,7 @@
 -- 
 DROP TABLE IF EXISTS `creature_template_sparring`;
 CREATE TABLE `creature_template_sparring` (
-  `Entry` int NOT NULL,
+  `Entry` int unsigned NOT NULL,
   `NoNPCDamageBelowHealthPct` tinyint unsigned NOT NULL,
   PRIMARY KEY (`Entry`,`NoNPCDamageBelowHealthPct`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
