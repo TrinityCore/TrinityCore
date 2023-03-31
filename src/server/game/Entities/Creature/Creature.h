@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -82,7 +82,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void SetObjectScale(float scale) override;
         void SetDisplayId(uint32 displayId, bool setNative = false) override;
         void SetDisplayFromModel(uint32 modelIdx);
-        uint32 GetDisplayId() const final;
+        //uint32 GetDisplayId() const final;
         void SetDisplayIdRaw(uint32 modelId, float displayScale = 1.f);
 
         std::shared_ptr<CreatureOutfit> & GetOutfit() { return m_outfit; };

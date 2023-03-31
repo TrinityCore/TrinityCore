@@ -35,7 +35,8 @@
 #include "SceneMgr.h"
 #include <BattlePet.h>
 #include <InstanceSaveMgr.h>
-#include <PlayerBotSetting.h>
+#include <../PlayerBot/PlayerBotSetting.h>
+#include <PlayerBot/PlayerBotSetting.h>
 
 struct AccessRequirement;
 struct AchievementEntry;

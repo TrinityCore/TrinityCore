@@ -3323,16 +3323,16 @@ void Creature::SetObjectScale(float scale)
     }
 }
 
-uint32 Creature::GetDisplayId() const
-{
-    if (m_outfit && m_outfit->GetId())
-        return m_outfit->GetId();
-    return Unit::GetDisplayId();
-}
+//uint32 Creature::GetDisplayId() const
+//{
+//    if (m_outfit && m_outfit->GetId())
+//        return m_outfit->GetId();
+//    return Unit::GetDisplayId();
+//}
 
 void Creature::SetDisplayId(uint32 displayId, bool setNative /*= false*/)
 {
-    if (auto const & outfit = sObjectMgr->GetOutfit(modelId))
+    if (auto const & outfit = sObjectMgr->GetOutfit(displayId))
     {
         SetOutfit(outfit);
         return;
@@ -3342,7 +3342,7 @@ void Creature::SetDisplayId(uint32 displayId, bool setNative /*= false*/)
         if (m_outfit)
         {
             // if has outfit
-            if (modelId != m_outfit->GetDisplayId())
+            if (displayId != m_outfit->GetDisplayId())
             {
                 // and outfit's real modelid doesnt match modelid being set
                 // remove outfit and continue setting the new model
@@ -3358,15 +3358,14 @@ void Creature::SetDisplayId(uint32 displayId, bool setNative /*= false*/)
         }
     }
 
-    SetDisplayIdRaw(modelId, displayScale);
+    SetDisplayIdRaw(displayId, setNative);
 }
 
 void Creature::SetDisplayIdRaw(uint32 modelId, float displayScale /*= 1.f*/)
 {
     Unit::SetDisplayId(modelId, displayScale);
-    Unit::SetDisplayId(displayId, setNative);
 
-    if (CreatureModelInfo const* modelInfo = sObjectMgr->GetCreatureModelInfo(displayId))
+    if (CreatureModelInfo const* modelInfo = sObjectMgr->GetCreatureModelInfo(modelId))
     {
         SetBoundingRadius((IsPet() ? 1.0f : modelInfo->bounding_radius) * GetObjectScale() * GetDisplayScale());
         SetCombatReach((IsPet() ? DEFAULT_PLAYER_COMBAT_REACH : modelInfo->combat_reach) * GetObjectScale() * GetDisplayScale());

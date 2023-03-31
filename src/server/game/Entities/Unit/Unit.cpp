@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,7 +16,7 @@
  */
 
 #include "Unit.h"
-#include "BrawlersGuild.h"
+#include "../BrawlersGuild/BrawlersGuild.h"
 #include "AbstractFollower.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
