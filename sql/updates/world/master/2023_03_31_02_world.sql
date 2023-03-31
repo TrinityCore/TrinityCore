@@ -1,6 +1,6 @@
 -- Template update
-UPDATE `creature_template` SET `minlevel`=35, `maxlevel`=35, `unit_flags3`=524288 WHERE `entry` IN (42747, 42757); -- Slain Crew Member's Spirit
-UPDATE `creature_template` SET `minlevel`=35, `maxlevel`=35, `unit_flags3`=8192, `dynamicflags`=0 WHERE `entry` IN (42681, 42682); -- Slain Crew Member
+UPDATE `creature_template` SET `unit_flags3`=524288 WHERE `entry` IN (42747, 42757); -- Slain Crew Member's Spirit
+UPDATE `creature_template` SET `unit_flags3`=8192, `dynamicflags`=0 WHERE `entry` IN (42681, 42682); -- Slain Crew Member
 UPDATE `creature_template` SET `speed_run`=1, `unit_flags3`=1 WHERE `entry`=42728; -- Spirit Totem
 
 -- Creature Text
