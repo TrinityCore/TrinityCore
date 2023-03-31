@@ -6006,15 +6006,15 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
             case SPELL_EFFECT_SKINNING:
             {
                 if (m_caster->GetTypeId() != TYPEID_PLAYER || !m_targets.GetUnitTarget() || m_targets.GetUnitTarget()->GetTypeId() != TYPEID_UNIT)
-                    return SPELL_FAILED_BAD_TARGETS;    //技能失败:错误的目标
+                    return SPELL_FAILED_BAD_TARGETS;    //����ʧ��:�����Ŀ��
 
                 if (!m_targets.GetUnitTarget()->HasUnitFlag(UNIT_FLAG_SKINNABLE))
-                    return SPELL_FAILED_TARGET_UNSKINNABLE; //技能失败:目标无法剥皮
+                    return SPELL_FAILED_TARGET_UNSKINNABLE; //����ʧ��:Ŀ���޷���Ƥ
 
                 Creature* creature = m_targets.GetUnitTarget()->ToCreature();
                 Loot* loot = creature->GetLootForPlayer(m_caster->ToPlayer());
                 if (loot && (!loot->isLooted() || loot->loot_type == LOOT_SKINNING))
-                    return SPELL_FAILED_TARGET_NOT_LOOTED;  //技能失败:目标未掉落
+                    return SPELL_FAILED_TARGET_NOT_LOOTED;  //����ʧ��:Ŀ��δ����
 
                 uint32 skill = creature->GetCreatureTemplate()->GetRequiredLootSkill();
 

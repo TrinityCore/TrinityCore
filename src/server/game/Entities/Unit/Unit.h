@@ -895,6 +895,7 @@ class TC_GAME_API Unit : public WorldObject
         bool IsVehicle() const  { return (m_unitTypeMask & UNIT_MASK_VEHICLE) != 0; }
 
         uint8 getLevel() const { return uint8(m_unitData->Level); }//后加 发现是大小写修改了,使用下面的,本条放弃.与此类似的还有下面的SetLevel等.后发现许多脚本调用,为了兼容,增加本条,下同
+        int32 GetContentTuning() const { return m_unitData->ContentTuningID; }
         uint8 GetLevel() const { return uint8(m_unitData->Level); }
         uint8 GetLevelForTarget(WorldObject const* /*target*/) const override { return GetLevel(); }
         void SetLevel(uint8 lvl, bool sendUpdate = true);
@@ -902,7 +903,7 @@ class TC_GAME_API Unit : public WorldObject
         uint8 GetRace() const { return m_unitData->Race; }
         void SetRace(uint8 race) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Race), race); }
         uint64 GetRaceMask() const { return UI64LIT(1) << (GetRace() - 1); }
-        uint8 getClass() const { return m_unitData->ClassId; }//尝试兼容旧版本,如TCB
+        uint8 getClass() const { return m_unitData->ClassId; }//���Լ��ݾɰ汾,��TCB
         uint8 GetClass() const { return m_unitData->ClassId; }
         bool IsAlliedRace();
 
@@ -1338,7 +1339,7 @@ class TC_GAME_API Unit : public WorldObject
 
         ObjectGuid GetCharmerGUID() const { return m_unitData->CharmedBy; }
         Unit* GetCharmer() const { return m_charmer; }
-        //BrawlersGuild* GetBrawlerGuild();//暂时注释
+        //BrawlersGuild* GetBrawlerGuild();//��ʱע��
         
 
         ObjectGuid GetCharmedGUID() const { return m_unitData->Charm; }
@@ -1739,14 +1740,12 @@ class TC_GAME_API Unit : public WorldObject
         virtual void RecalculateObjectScale();
         virtual uint32 GetDisplayId() const { return m_unitData->DisplayID; }
         virtual void SetDisplayId(uint32 modelId, float displayScale = 1.f);
+        uint32 GetDisplayId() const { return m_unitData->DisplayID; }
+        float GetDisplayScale() const { return m_unitData->DisplayScale; }
+        virtual void SetDisplayId(uint32 displayId, bool setNative = false);
         uint32 GetNativeDisplayId() const { return m_unitData->NativeDisplayID; }
         float GetNativeDisplayScale() const { return m_unitData->NativeXDisplayScale; }
         void RestoreDisplayId(bool ignorePositiveAurasPreventingMounting = false);
-        void SetNativeDisplayId(uint32 displayId, float displayScale = 1.f)
-        {
-            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NativeDisplayID), displayId);
-            SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::NativeXDisplayScale), displayScale);
-        }
         void SetTransformSpell(uint32 spellid) { m_transformSpell = spellid;}
         uint32 GetTransformSpell() const { return m_transformSpell;}
 

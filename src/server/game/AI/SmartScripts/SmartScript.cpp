@@ -414,7 +414,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         if (CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(e.action.morphOrMount.creature))
                         {
                             CreatureModel const* model = ObjectMgr::ChooseDisplayId(ci);
-                            target->ToCreature()->SetDisplayId(model->CreatureDisplayID, model->DisplayScale);
+                            target->ToCreature()->SetDisplayId(model->CreatureDisplayID);
                             TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_MORPH_TO_ENTRY_OR_MODEL: Creature {} set displayid to {}",
                                 target->GetGUID().ToString(), model->CreatureDisplayID);
                         }
