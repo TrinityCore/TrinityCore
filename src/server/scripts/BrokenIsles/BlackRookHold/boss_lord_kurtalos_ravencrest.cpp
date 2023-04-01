@@ -21,6 +21,8 @@
 #include "black_rook_hold.h"
 #include "WaypointDefines.h"
 #include "TemporarySummon.h"
+#include "ScriptedCreature.h"
+//#include "Unit.h"
 
 enum Spells
 {
@@ -66,146 +68,146 @@ enum Spells
 
 Position centerPosition = { 3185.36f, 7409.95f, 270.38f, 1.079803f };
 
-// 98965
-//struct boss_kurtalos_ravencrest : public BossAI
-//{
-//    boss_kurtalos_ravencrest(Creature* creature) : BossAI(creature, DATA_LORD_RAVENCREST) { }
-//
-//    void Reset() override
-//    {
-//        BossAI::Reset();
-//
-//        latosiusActionDone = false;
-//        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
-//        me->SetReactState(REACT_DEFENSIVE);
-//
-//        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_UNERRING_SHEAR);
-//        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LEGACY_OF_THE_RAVENCREST);
-//    }
-//
-//    void ScheduleTasks() override
-//    {
-//        events.ScheduleEvent(SPELL_UNERRING_SHEAR, 5s);
-//        events.ScheduleEvent(SPELL_WHIRLING_BLADE, 15s);
-//    }
-//
-//    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
-//    {
-//        if (me->HealthBelowPctDamaged(10, damage))
-//        {
-//            if (!latosiusActionDone)
-//            {
-//                if (Creature* latosius = instance->GetCreature(NPC_LATOSIUS))
-//                {
-//                    events.Reset();
-//                    me->SetReactState(REACT_PASSIVE);
-//                    me->GetMotionMaster()->Clear();
-//                    latosius->AI()->DoAction(SPECIAL);
-//                    latosiusActionDone = true;
-//                }
-//            }
-//
-//            damage = 0;
-//        }
-//    }
-//
-//    void UpdateAI(uint32 diff) override
-//    {
-//        if (!UpdateVictim())
-//            return;
-//
-//        events.Update(diff);
-//
-//        if (me->HasUnitState(UNIT_STATE_CASTING))
-//            return;
-//
-//        while (uint32 eventId = events.ExecuteEvent())
-//        {
-//            ExecuteEvent(eventId);
-//            if (me->HasUnitState(UNIT_STATE_CASTING))
-//                return;
-//        }
-//
-//        if (me->GetReactState() != REACT_PASSIVE)
-//            DoMeleeAttackIfReady();
-//    }
-//
-//    void ExecuteEvent(uint32 eventId) override
-//    {
-//        switch (eventId)
-//        {
-//            case SPELL_UNERRING_SHEAR:
-//                me->CastSpell(me->GetVictim(), SPELL_UNERRING_SHEAR, false);
-//                events.Repeat(10s, 15s);
-//                break;
-//            case SPELL_WHIRLING_BLADE:
-//                me->CastSpell(nullptr, SPELL_WHIRLING_BLADE, false);
-//                events.Repeat(45s, 60s);
-//                break;
-//            default:
-//                break;
-//        }
-//    }
-//
-//   
-//    void OnSuccessfulSpellCast(SpellInfo const* spell) override
-//    {
-//        switch (spell->Id)
-//        {
-//            case SPELL_WHIRLING_BLADE:
-//            {
-//                if (Unit* target = SelectTarget(SelectTargetMethod::MaxDistance, 0, 0.f, true))
-//                    if (TempSummon* whirlingBlade = me->SummonCreature(NPC_WHIRLING_BLADE, me->GetPosition()))
-//                        whirlingBlade->AI()->SetGUID(target->GetGUID());
-//
-//                break;
-//            }
-//        }
-//    }
-//
-//    void JustDied(Unit* attacker) override
-//    {
-//        BossAI::JustDied(attacker);
-//        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_UNERRING_SHEAR);
-//        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LEGACY_OF_THE_RAVENCREST);
-//    }
-//
-//private:
-//    bool latosiusActionDone = false;
-//};
+ //98965
+struct boss_kurtalos_ravencrest : public BossAI
+{
+    boss_kurtalos_ravencrest(Creature* creature) : BossAI(creature, DATA_LORD_RAVENCREST) { }
 
-// 100486
-//struct npc_kurtalos_whirling_blade : public ScriptedAI
-//{
-//    npc_kurtalos_whirling_blade(Creature* creature) : ScriptedAI(creature) { }
-//
-//
-//    void Reset() override
-//    {
-//        me->SetReactState(REACT_PASSIVE);
-//        me->CastSpell(me, SPELL_WHIRLING_BLADE_AT, true);
-//        me->SetSpeed(MOVE_WALK, 2.0f);
-//        me->SetSpeed(MOVE_RUN, 2.0f);
-//    }
-//
-//    void SetGUID(ObjectGuid guid, int32 /*id*/) override
-//    {
-//        Unit* target = ObjectAccessor::GetUnit(*me, guid);
-//        if (!target)
-//        {
-//            me->DisappearAndDie();
-//            return;
-//        }
-//
-//        me->GetMotionMaster()->Clear();
-//
-//        path[0] = me->GetPosition();
-//        path[1] = target->GetPosition();
-//        me->GetMotionMaster()->MoveSmoothPath(0, path, 2, false, true);
-//    }
-//private:
-//    Position path[2];
-//};
+    void Reset() override
+    {
+        BossAI::Reset();
+
+        latosiusActionDone = false;
+        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+        me->SetReactState(REACT_DEFENSIVE);
+
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_UNERRING_SHEAR);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LEGACY_OF_THE_RAVENCREST);
+    }
+
+    void ScheduleTasks() override
+    {
+        events.ScheduleEvent(SPELL_UNERRING_SHEAR, 5s);
+        events.ScheduleEvent(SPELL_WHIRLING_BLADE, 15s);
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        if (me->HealthBelowPctDamaged(10, damage))
+        {
+            if (!latosiusActionDone)
+            {
+                if (Creature* latosius = instance->GetCreature(NPC_LATOSIUS))
+                {
+                    events.Reset();
+                    me->SetReactState(REACT_PASSIVE);
+                    me->GetMotionMaster()->Clear();
+                    latosius->AI()->DoAction(SPECIAL);
+                    latosiusActionDone = true;
+                }
+            }
+
+            damage = 0;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            ExecuteEvent(eventId);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+
+        if (me->GetReactState() != REACT_PASSIVE)
+            DoMeleeAttackIfReady();
+    }
+
+    void ExecuteEvent(uint32 eventId) override
+    {
+        switch (eventId)
+        {
+            case SPELL_UNERRING_SHEAR:
+                me->CastSpell(me->GetVictim(), SPELL_UNERRING_SHEAR, false);
+                events.Repeat(10s, 15s);
+                break;
+            case SPELL_WHIRLING_BLADE:
+                me->CastSpell(nullptr, SPELL_WHIRLING_BLADE, false);
+                events.Repeat(45s, 60s);
+                break;
+            default:
+                break;
+        }
+    }
+
+   
+    void OnSuccessfulSpellCast(SpellInfo const* spell) override
+    {
+        switch (spell->Id)
+        {
+            case SPELL_WHIRLING_BLADE:
+            {
+                if (Unit* target = SelectTarget(SelectTargetMethod::MaxDistance, 0, 0.f, true))
+                    if (TempSummon* whirlingBlade = me->SummonCreature(NPC_WHIRLING_BLADE, me->GetPosition()))
+                        whirlingBlade->AI()->SetGUID(target->GetGUID());
+
+                break;
+            }
+        }
+    }
+
+    void JustDied(Unit* attacker) override
+    {
+        BossAI::JustDied(attacker);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_UNERRING_SHEAR);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LEGACY_OF_THE_RAVENCREST);
+    }
+
+private:
+    bool latosiusActionDone = false;
+};
+
+ //100486
+struct npc_kurtalos_whirling_blade : public ScriptedAI
+{
+    npc_kurtalos_whirling_blade(Creature* creature) : ScriptedAI(creature) { }
+
+
+    void Reset() override
+    {
+        me->SetReactState(REACT_PASSIVE);
+        me->CastSpell(me, SPELL_WHIRLING_BLADE_AT, true);
+        me->SetSpeed(MOVE_WALK, 2.0f);
+        me->SetSpeed(MOVE_RUN, 2.0f);
+    }
+
+    //void SetGUID(ObjectGuid guid, int32 /*id*/) 
+    //{
+    //    Unit* target = ObjectAccessor::GetUnit(*me, guid);
+    //    if (!target)
+    //    {
+    //        me->DisappearAndDie();
+    //        return;
+    //    }
+
+    //    me->GetMotionMaster()->Clear();
+
+    //    path[0] = me->GetPosition();
+    //    path[1] = target->GetPosition();
+    //    me->GetMotionMaster()->MoveSmoothPath(0, path, 2, false, true);
+    //}
+private:
+    Position path[2];
+};
 
 // Spell 198782
 // AT 10185
@@ -228,30 +230,30 @@ struct at_kurtalos_whirling_blade : AreaTriggerAI
     }
 };
 
-//// 98970
-//struct npc_latosius : public ScriptedAI
-//{
-//    npc_latosius(Creature* creature) : ScriptedAI(creature) { }
-//
-//    void Reset() override
-//    {
-//        SetCombatMovement(false);
-//        me->SetDisableGravity(false);
-//        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
-//        me->UpdateEntry(NPC_LATOSIUS);
-//        SetEquipmentSlots(true);
-//        me->ClearUnitState(UNIT_STATE_CANNOT_TURN);
-//
-//        if (!kurtalosSoulGUID.IsEmpty())
-//        {
-//            if (Creature* kurtalosSoul = ObjectAccessor::GetCreature(*me, kurtalosSoulGUID))
-//                kurtalosSoul->ToTempSummon()->DespawnOrUnsummon();
-//
-//            kurtalosSoulGUID = ObjectGuid::Empty;
-//        }
-//    }
+// 98970
+struct npc_latosius : public ScriptedAI
+{
+    npc_latosius(Creature* creature) : ScriptedAI(creature) { }
 
-    //void EnterCombat(Unit* /*attacker*/) override
+    void Reset() override
+    {
+        SetCombatMovement(false);
+        me->SetDisableGravity(false);
+        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+        me->UpdateEntry(NPC_LATOSIUS);
+        SetEquipmentSlots(true);
+        me->ClearUnitState(UNIT_STATE_CANNOT_TURN);
+
+        if (!kurtalosSoulGUID.IsEmpty())
+        {
+            if (Creature* kurtalosSoul = ObjectAccessor::GetCreature(*me, kurtalosSoulGUID))
+                kurtalosSoul->ToTempSummon()->DespawnOrUnsummon();
+
+            kurtalosSoulGUID = ObjectGuid::Empty;
+        }
+    }
+
+    //void EnterCombat(Unit* /*attacker*/) 
     //{
     //    if (IsLatosius())
     //    {
@@ -319,244 +321,246 @@ struct at_kurtalos_whirling_blade : AreaTriggerAI
     //    }
     //}
 
-//    void UpdateAI(uint32 diff) override
-//    {
-//        if (me->HasUnitState(UNIT_STATE_CASTING))
-//            return;
-//
-//        if (!UpdateVictim())
-//            return;
-//
-//        ScriptedAI::UpdateAI(diff);
-//
-//        switch (events.ExecuteEvent())
-//        {
-//            /// Latosius Phase 1
-//            case SPELL_DARK_BLAST:
-//                me->CastSpell(nullptr, SPELL_DARK_BLAST, false);
-//                events.Repeat(10s);
-//                break;
-//            case SPELL_SHADOW_BOLT:
-//                me->CastSpell(nullptr, SPELL_SHADOW_BOLT, false);
-//                events.Repeat(5s);
-//                break;
-//            /// Dantalionax Phase 2
-//            case SPELL_SHADOW_BOLT_VOLLEY:
-//                me->CastSpell(nullptr, SPELL_SHADOW_BOLT, false);
-//                events.Repeat(5s);
-//                break;
-//            case SPELL_CLOUD_OF_HYPNOSIS_SUMMON:
-//            {
-//                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.f, true))
-//                    me->CastSpell(target->GetPosition(), SPELL_CLOUD_OF_HYPNOSIS_SUMMON, false);
-//
-//                events.Repeat(20s);
-//                break;
-//            }
-//            case SPELL_DREADLORDS_GUILE:
-//                me->CastStop();
-//                me->CastSpell(nullptr, SPELL_DREADLORDS_GUILE, false);
-//                events.Repeat(30s);
-//                events.DelayEvents(25s); // 5s spell cast + 17s event + 2s security
-//                break;
-//            case SPELL_STINGING_SWARM:
-//                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.f, true, -SPELL_STINGING_SWARM))
-//                    me->SummonCreature(NPC_STINGING_SWARM, *target, TEMPSUMMON_CORPSE_DESPAWN);
-//                events.Repeat(15s);
-//                break;
-//        }
-//    }
-//
-//    void OnSuccessfulSpellCast(SpellInfo const* spell) override
-//    {
-//        if (spell->Id == SPELL_DREADLORDS_GUILE)
-//        {
-//            me->GetMotionMaster()->Clear();
-//            me->SetDisableGravity(true);
-//            me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
-//            obliterationAngle = frand(0, 2.f * float(M_PI));
-//            me->AddUnitState(UNIT_STATE_CANNOT_TURN);
-//
-//            me->GetScheduler().Schedule(1s, [this](TaskContext /*context*/)
-//            {
-//                Position movePos;
-//                GetPositionWithDistInOrientation(&centerPosition, 20.f, obliterationAngle, movePos);
-//                movePos.m_positionZ = 273.f;
-//
-//                me->CastSpell(nullptr, SPELL_TELEPORT_IN, true); // Visual
-//                me->NearTeleportTo(movePos);
-//                me->SetFacingTo(me->GetAngle(centerPosition));
-//                me->SetOrientation(me->GetAngle(centerPosition));
-//                me->SetTarget(ObjectGuid::Empty);
-//
-//            }).Schedule(2s, [this](TaskContext /*context*/)
-//            {
-//                me->CastSpell(nullptr, SPELL_DARK_OBLITERATION, false);
-//            }).Schedule(5s, [this](TaskContext context)
-//            {
-//                if (context.GetRepeatCounter() >= 12)
-//                {
-//                    TeleportToCenter();
-//                    me->RemoveAurasDueToSpell(SPELL_DREADLORDS_GUILE);
-//                    me->ClearUnitState(UNIT_STATE_CANNOT_TURN);
-//                    if (me->GetVictim())
-//                    {
-//                        me->SetTarget(me->GetVictim()->GetGUID());
-//                        me->GetMotionMaster()->MoveChase(me->GetVictim());
-//                    }
-//                    return;
-//                }
-//
-//                Position movePos;
-//                obliterationAngle += float(M_PI) / 12.f;
-//                GetPositionWithDistInOrientation(&centerPosition, 20.f, obliterationAngle, movePos);
-//                movePos.m_positionZ = 273.f;
-//
-//                me->CastSpell(nullptr, SPELL_TELEPORT_IN, true); // Visual
-//                me->NearTeleportTo(movePos);
-//                me->SetFacingTo(me->GetAngle(centerPosition));
-//
-//                context.Schedule(500ms, [this](TaskContext /*context*/)
-//                {
-//                    me->SetOrientation(me->GetAngle(centerPosition));
-//                    me->CastSpell(nullptr, SPELL_DARK_OBLITERATION, true);
-//                });
-//                context.Repeat(1s);
-//            });
-//        }
-//    }
-//
-//    void JustDied(Unit* /*killer*/) override
-//    {
-//        if (Creature* kurtalos = instance->GetCreature(NPC_LORD_KURTALOS_RAVENCREST))
-//            kurtalos->KillSelf();
-//    }
-//
-//private:
-//    inline bool IsLatosius() const
-//    {
-//        return me->GetEntry() == NPC_LATOSIUS;
-//    }
-//
-//    void TeleportToCenter()
-//    {
-//        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
-//        me->CastSpell(nullptr, SPELL_TELEPORT_IN, true); // Visual
-//        me->NearTeleportTo(centerPosition);
-//        me->SetDisableGravity(false);
-//    }
-//
-//    ObjectGuid kurtalosSoulGUID;
-//    float obliterationAngle;
-//};
-//
-//// 101054
-//struct npc_kurtalos_soul : public ScriptedAI
-//{
-//    npc_kurtalos_soul(Creature* creature) : ScriptedAI(creature) { }
-//
-//    void Reset() override
-//    {
-//        me->SetReactState(REACT_PASSIVE);
-//        me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
-//        Talk(0);
-//
-//        me->GetScheduler().Schedule(3s, [this](TaskContext /*context*/)
-//        {
-//            me->CastSpell(nullptr, SPELL_LEGACY_OF_THE_RAVENCREST, false);
-//        });
-//    }
-//};
-//
-//// 100994
-//struct npc_dantalionax_cloud_of_hypnosis : public ScriptedAI
-//{
-//    npc_dantalionax_cloud_of_hypnosis(Creature* creature) : ScriptedAI(creature) { }
-//
-//    void Reset() override
-//    {
-//        me->CastSpell(me, SPELL_CLOUD_OF_HYPNOSIS_AT, true);
-//        me->SetSpeed(MOVE_WALK, 1.0f);
-//        me->SetSpeed(MOVE_RUN, 1.0f);
-//        me->GetMotionMaster()->MoveRandom(20.0f);
-//    }
-//};
-//
-//// Spell 199092
-//// AT 10200
-//struct at_dantalionax_cloud_of_hypnosis : AreaTriggerAI
-//{
-//    at_dantalionax_cloud_of_hypnosis(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
-//
-//    void OnUnitEnter(Unit* unit) override
-//    {
-//        if (unit->IsPlayer())
-//            unit->CastSpell(unit, SPELL_CLOUD_OF_HYPNOSIS_STUN, true);
-//    }
-//
-//    void OnUnitExit(Unit* unit) override
-//    {
-//        unit->RemoveAurasDueToSpell(SPELL_CLOUD_OF_HYPNOSIS_STUN);
-//    }
-//};
-//
-//// 101008
-//struct npc_dantalionax_stinging_swarm : public ScriptedAI
-//{
-//    npc_dantalionax_stinging_swarm(Creature* creature) : ScriptedAI(creature) { }
-//
-//    void Reset() override
-//    {
-//        Player* target = me->SelectNearestPlayer();
-//
-//        if (!target)
-//        {
-//            me->DisappearAndDie();
-//            return;
-//        }
-//
-//        me->CastSpell(target, SPELL_STINGING_SWARM, true);
-//        me->EnterVehicle(target);
-//        playerGUID = target->GetGUID();
-//
-//        me->GetScheduler().Schedule(2s, [this](TaskContext context)
-//        {
-//            Player* player = ObjectAccessor::GetPlayer(*me, playerGUID);
-//            if (!player || !player->IsAlive())
-//            {
-//                me->DisappearAndDie();
-//                return;
-//            }
-//
-//            context.Repeat();
-//        });
-//    }
-//
-//    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
-//    {
-//        if (me->GetHealth() <= damage)
-//        {
-//            me->CastSpell(nullptr, SPELL_STINGING_SWARM_REMOVAL, true);
-//
-//            if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
-//                player->RemoveAurasDueToSpell(SPELL_STINGING_SWARM);
-//        }
-//    }
-//
-//    void UpdateAI(uint32 /*diff*/) override { }
-//
-//private:
-//    ObjectGuid playerGUID;
-//};
-//
-//void AddSC_boss_lord_kurtalos_ravencrest()
-//{
-//    RegisterCreatureAI(boss_kurtalos_ravencrest);
-//    RegisterCreatureAI(npc_kurtalos_whirling_blade);
-//    RegisterAreaTriggerAI(at_kurtalos_whirling_blade);
-//    RegisterCreatureAI(npc_latosius);
-//    RegisterCreatureAI(npc_kurtalos_soul);
-//    RegisterCreatureAI(npc_dantalionax_cloud_of_hypnosis);
-//    RegisterAreaTriggerAI(at_dantalionax_cloud_of_hypnosis);
-//    RegisterCreatureAI(npc_dantalionax_stinging_swarm);
-//}
+    //void UpdateAI(uint32 diff) override
+    //{
+    //    if (me->HasUnitState(UNIT_STATE_CASTING))
+    //        return;
+
+    //    if (!UpdateVictim())
+    //        return;
+
+    //    ScriptedAI::UpdateAI(diff);
+
+    //    switch (events.ExecuteEvent())
+    //    {
+    //        /// Latosius Phase 1
+    //        case SPELL_DARK_BLAST:
+    //            me->CastSpell(nullptr, SPELL_DARK_BLAST, false);
+    //            events.Repeat(10s);
+    //            break;
+    //        case SPELL_SHADOW_BOLT:
+    //            me->CastSpell(nullptr, SPELL_SHADOW_BOLT, false);
+    //            events.Repeat(5s);
+    //            break;
+    //        /// Dantalionax Phase 2
+    //        case SPELL_SHADOW_BOLT_VOLLEY:
+    //            me->CastSpell(nullptr, SPELL_SHADOW_BOLT, false);
+    //            events.Repeat(5s);
+    //            break;
+    //        case SPELL_CLOUD_OF_HYPNOSIS_SUMMON:
+    //        {
+    //            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.f, true))
+    //                me->CastSpell(target->GetPosition(), SPELL_CLOUD_OF_HYPNOSIS_SUMMON, false);
+
+    //            events.Repeat(20s);
+    //            break;
+    //        }
+    //        case SPELL_DREADLORDS_GUILE:
+    //            me->CastStop();
+    //            me->CastSpell(nullptr, SPELL_DREADLORDS_GUILE, false);
+    //            events.Repeat(30s);
+    //            events.DelayEvents(25s); // 5s spell cast + 17s event + 2s security
+    //            break;
+    //        case SPELL_STINGING_SWARM:
+    //            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.f, true, -SPELL_STINGING_SWARM))
+    //                me->SummonCreature(NPC_STINGING_SWARM, *target, TEMPSUMMON_CORPSE_DESPAWN);
+    //            events.Repeat(15s);
+    //            break;
+    //    }
+    //}
+
+    void OnSuccessfulSpellCast(SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_DREADLORDS_GUILE)
+        {
+            me->GetMotionMaster()->Clear();
+            me->SetDisableGravity(true);
+            me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+            obliterationAngle = frand(0, 2.f * float(M_PI));
+            me->AddUnitState(UNIT_STATE_CANNOT_TURN);
+
+            me->GetScheduler().Schedule(1s, [this](TaskContext /*context*/)
+            {
+                Position movePos;
+                //GetPositionWithDistInOrientation(&centerPosition, 20.f, obliterationAngle, movePos);//tmp
+                movePos.m_positionZ = 273.f;
+
+                me->CastSpell(nullptr, SPELL_TELEPORT_IN, true); // Visual
+                me->NearTeleportTo(movePos);
+                me->SetFacingTo(me->GetAbsoluteAngle(centerPosition));
+                me->SetOrientation(me->GetAbsoluteAngle(centerPosition));
+                me->SetTarget(ObjectGuid::Empty);
+
+            }).Schedule(2s, [this](TaskContext /*context*/)
+            {
+                me->CastSpell(nullptr, SPELL_DARK_OBLITERATION, false);
+                }).Schedule(5s, [this](TaskContext context)
+                    {
+                        if (context.GetRepeatCounter() >= 12)
+                        {
+                            TeleportToCenter();
+                            me->RemoveAurasDueToSpell(SPELL_DREADLORDS_GUILE);
+                            me->ClearUnitState(UNIT_STATE_CANNOT_TURN);
+                            if (me->GetVictim())
+                            {
+                                me->SetTarget(me->GetVictim()->GetGUID());
+                                me->GetMotionMaster()->MoveChase(me->GetVictim());
+                            }
+                            return;
+                        }
+
+                        Position movePos;
+                        obliterationAngle += float(M_PI) / 12.f;
+                        //GetPositionWithDistInOrientation(&centerPosition, 20.f, obliterationAngle, movePos);//tmp
+                        movePos.m_positionZ = 273.f;
+
+                        me->CastSpell(nullptr, SPELL_TELEPORT_IN, true); // Visual
+                        me->NearTeleportTo(movePos);
+                        //me->SetFacingTo(me->GetAngle(centerPosition));//org
+                        me->SetFacingTo(me->GetAbsoluteAngle(centerPosition));
+
+                context.Schedule(500ms, [this](TaskContext /*context*/)
+                {
+                    //me->SetOrientation(me->GetAngle(centerPosition));//org
+                    me->SetOrientation(me->GetAbsoluteAngle(centerPosition));
+                    me->CastSpell(nullptr, SPELL_DARK_OBLITERATION, true);
+                });
+                context.Repeat(1s);
+            });
+        }
+    }
+
+    //void JustDied(Unit* /*killer*/) override
+    //{
+    //    if (Creature* kurtalos = instance->GetCreature(NPC_LORD_KURTALOS_RAVENCREST))
+    //        kurtalos->KillSelf();
+    //}
+
+private:
+    inline bool IsLatosius() const
+    {
+        return me->GetEntry() == NPC_LATOSIUS;
+    }
+
+    void TeleportToCenter()
+    {
+        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+        me->CastSpell(nullptr, SPELL_TELEPORT_IN, true); // Visual
+        me->NearTeleportTo(centerPosition);
+        me->SetDisableGravity(false);
+    }
+
+    ObjectGuid kurtalosSoulGUID;
+    float obliterationAngle;
+};
+
+// 101054
+struct npc_kurtalos_soul : public ScriptedAI
+{
+    npc_kurtalos_soul(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
+    {
+        me->SetReactState(REACT_PASSIVE);
+        me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+        Talk(0);
+
+        me->GetScheduler().Schedule(3s, [this](TaskContext /*context*/)
+        {
+            me->CastSpell(nullptr, SPELL_LEGACY_OF_THE_RAVENCREST, false);
+        });
+    }
+};
+
+// 100994
+struct npc_dantalionax_cloud_of_hypnosis : public ScriptedAI
+{
+    npc_dantalionax_cloud_of_hypnosis(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
+    {
+        me->CastSpell(me, SPELL_CLOUD_OF_HYPNOSIS_AT, true);
+        me->SetSpeed(MOVE_WALK, 1.0f);
+        me->SetSpeed(MOVE_RUN, 1.0f);
+        me->GetMotionMaster()->MoveRandom(20.0f);
+    }
+};
+
+// Spell 199092
+// AT 10200
+struct at_dantalionax_cloud_of_hypnosis : AreaTriggerAI
+{
+    at_dantalionax_cloud_of_hypnosis(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (unit->IsPlayer())
+            unit->CastSpell(unit, SPELL_CLOUD_OF_HYPNOSIS_STUN, true);
+    }
+
+    void OnUnitExit(Unit* unit) override
+    {
+        unit->RemoveAurasDueToSpell(SPELL_CLOUD_OF_HYPNOSIS_STUN);
+    }
+};
+
+// 101008
+struct npc_dantalionax_stinging_swarm : public ScriptedAI
+{
+    npc_dantalionax_stinging_swarm(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
+    {
+        Player* target = me->SelectNearestPlayer(100);//org no 100,just null
+
+        if (!target)
+        {
+            me->DisappearAndDie();
+            return;
+        }
+
+        me->CastSpell(target, SPELL_STINGING_SWARM, true);
+        me->EnterVehicle(target);
+        playerGUID = target->GetGUID();
+
+        me->GetScheduler().Schedule(2s, [this](TaskContext context)
+        {
+            Player* player = ObjectAccessor::GetPlayer(*me, playerGUID);
+            if (!player || !player->IsAlive())
+            {
+                me->DisappearAndDie();
+                return;
+            }
+
+            context.Repeat();
+        });
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        if (me->GetHealth() <= damage)
+        {
+            me->CastSpell(nullptr, SPELL_STINGING_SWARM_REMOVAL, true);
+
+            if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
+                player->RemoveAurasDueToSpell(SPELL_STINGING_SWARM);
+        }
+    }
+
+    void UpdateAI(uint32 /*diff*/) override { }
+
+private:
+    ObjectGuid playerGUID;
+};
+
+void AddSC_boss_lord_kurtalos_ravencrest()
+{
+    RegisterCreatureAI(boss_kurtalos_ravencrest);
+    RegisterCreatureAI(npc_kurtalos_whirling_blade);
+    RegisterAreaTriggerAI(at_kurtalos_whirling_blade);
+    RegisterCreatureAI(npc_latosius);
+    RegisterCreatureAI(npc_kurtalos_soul);
+    RegisterCreatureAI(npc_dantalionax_cloud_of_hypnosis);
+    RegisterAreaTriggerAI(at_dantalionax_cloud_of_hypnosis);
+    RegisterCreatureAI(npc_dantalionax_stinging_swarm);
+}
