@@ -148,6 +148,9 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
 
         void AttackStartNoMove(Unit* target);
 
+        // Called at any Damage from any attacker (before damage apply)
+        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override { }
+
         // Called at World update tick
         virtual void UpdateAI(uint32 diff) override;
 
@@ -341,6 +344,8 @@ class TC_GAME_API BossAI : public ScriptedAI
         void JustEngagedWith(Unit* who) override { _JustEngagedWith(who); }
         void JustDied(Unit* /*killer*/) override { _JustDied(); }
         void JustReachedHome() override { _JustReachedHome(); }
+        //void KilledUnit(Unit* victim) override { _KilledUnit(victim); }   //DONT USE,MAY CAUSE MANY MANY ERROS!
+        //void DamageTaken(Unit* attacker, uint32& damage) override { _DamageTaken(attacker, damage); }//DONT USE,MAY CAUSE MANY MANY ERROS!
 
         bool CanAIAttack(Unit const* target) const override;
 
@@ -351,6 +356,8 @@ class TC_GAME_API BossAI : public ScriptedAI
         void _JustEngagedWith(Unit* who);
         void _JustDied();
         void _JustReachedHome();
+        void _KilledUnit(Unit* victim);
+        void _DamageTaken(Unit* attacker, uint32& damage);
         void _DespawnAtEvade(Seconds delayToRespawn = 30s, Creature* who = nullptr);
 
         void TeleportCheaters();

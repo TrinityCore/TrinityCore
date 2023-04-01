@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -141,6 +141,10 @@ class TC_GAME_API UnitAI
         // Called at any Damage from any attacker (before damage apply)
         // Note: it for recalculation damage or special reaction at damage
         virtual void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) { }
+
+        // for attack reaction use AttackedBy called for not DOT damage in Unit::DealDamage also
+        virtual void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) { }    //OLD STYLE
+
 
         // Called when the creature receives heal
         virtual void HealReceived(Unit* /*done_by*/, uint32& /*addhealth*/) { }
