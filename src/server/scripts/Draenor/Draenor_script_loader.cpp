@@ -1,4 +1,4 @@
-///*
+﻿///*
 // * Copyright 2021 ShadowCore
 // * Copyright 2023 XCore
 // * 
@@ -156,8 +156,8 @@
 //
 //// The name of this function should match:
 //// void Add${NameOfDirectory}Scripts()
-void AddDraenorScripts()
-{
+//void AddDraenorScripts()
+//{
 //    AddSC_frostfire_ridge();
 //    AddSC_shadowmoon_draenor();
 //    AddSC_tanaan_jungle();
@@ -274,4 +274,4 @@ void AddDraenorScripts()
 //    AddSC_boss_rukhran();
 //    AddSC_mob_instance_skyreach();
 //    AddSC_instance_skyreach();
-}
+//}
