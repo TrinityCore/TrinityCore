@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -91,8 +91,8 @@ void AddSC_boss_levantus();
 //// Black Rook Hold
 //void AddSC_instance_black_rook_hold();
 //void AddSC_black_rook_hold();
-//void AddSC_boss_amalgam_of_souls();
-//void AddSC_boss_illysanna_ravencrest();
+void AddSC_boss_amalgam_of_souls();
+void AddSC_boss_illysanna_ravencrest();
 //void AddSC_boss_smashspite_the_hateful();
 //void AddSC_boss_lord_kurtalos_ravencrest();
 //
@@ -337,8 +337,8 @@ void AddBrokenIslesScripts()
 //    // Black Rook Hold
 //    AddSC_instance_black_rook_hold();
 //    AddSC_black_rook_hold();
-//    AddSC_boss_amalgam_of_souls();
-//    AddSC_boss_illysanna_ravencrest();
+    AddSC_boss_amalgam_of_souls();
+    AddSC_boss_illysanna_ravencrest();
 //    AddSC_boss_smashspite_the_hateful();
 //    AddSC_boss_lord_kurtalos_ravencrest();
 //
