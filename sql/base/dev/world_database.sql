@@ -904,8 +904,6 @@ CREATE TABLE `creature_template` (
   `TitleAlt` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `IconName` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `gossip_menu_id` int unsigned NOT NULL DEFAULT '0',
-  `minlevel` smallint NOT NULL DEFAULT '1',
-  `maxlevel` smallint NOT NULL DEFAULT '1',
   `HealthScalingExpansion` int NOT NULL DEFAULT '0',
   `RequiredExpansion` int NOT NULL DEFAULT '0',
   `VignetteID` int NOT NULL DEFAULT '0',
@@ -4874,4 +4872,4 @@ CREATE TABLE `world_state` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-02-03  1:13:57
+-- Dump completed on 2023-04-02  1:02:30
