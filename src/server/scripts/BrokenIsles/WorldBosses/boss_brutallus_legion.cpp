@@ -1,5 +1,6 @@
-/*
-* Copyright 2021 
+﻿/*
+* Copyright 2021
+* Copyright 2023 AzgathCore
 *                      
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -62,7 +63,8 @@ public:
             events.Reset();
         }
 
-        void JustEngagedWith(Unit* who) override
+        void EnterCombat(Unit* who)
+        //void JustEngagedWith(Unit* who) override
         {
             if (!who)
                 return;

@@ -1,5 +1,7 @@
-/*
-* Copyright 2021 
+﻿/*
+* Copyright 2021
+* Copyright 2023 AzgathCore
+* Copyright (C) 2021 BfaCore Reforged
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -95,6 +97,7 @@ public:
             events.Reset();
         }
 
+        //void EnterCombat(Unit* who) override
         void JustEngagedWith(Unit* who) override
         {
             if (!who)
@@ -178,7 +181,7 @@ public:
                 }
                 case EVENT_YAKSAM:
                 {
-                    me->CastSpell(SelectTarget(SelectTargetMethod::MaxThreat), SPELL_YAKSAM_CAST, false);
+                    me->CastSpell(SelectTarget(SelectTargetMethod::MaxThreat), SPELL_YAKSAM_CAST, false);//me->CastSpell(SelectTarget(SELECT_TARGET_TOPAGGRO), SPELL_YAKSAM_CAST, false);//org
                     events.ScheduleEvent(EVENT_JETSAM, Milliseconds(5000));
                     events.ScheduleEvent(EVENT_YAKSAM_SUMMON, Milliseconds(200));
                     break;

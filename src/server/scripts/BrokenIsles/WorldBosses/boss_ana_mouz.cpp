@@ -1,5 +1,7 @@
-/*
-* Copyright 2021 
+﻿/*
+* Copyright 2021
+* Copyright 2023 AzgathCore
+* Copyright (C) 2021 BfaCore Reforged
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -17,6 +19,7 @@
 
 #include "ScriptMgr.h"
 #include "AreaTriggerAI.h"
+#include "SpellScript.cpp"
 
 enum eSpells
 {
@@ -51,14 +54,21 @@ public:
             DoCast(SPELL_REMOVE_CHARM);
         }
 
-        void JustEngagedWith(Unit* unit) override
+        void EnterCombat(Unit* /*unit*/)
         {
             events.RescheduleEvent(1, Milliseconds(4000)); // SPELL_FEL_GEYZER
             events.RescheduleEvent(3, Milliseconds(7000)); // SPELL_GASEOUS_BREATH
             events.RescheduleEvent(4, Milliseconds(31000)); // SPELL_MOTHERS_EMBRACE
         }
 
-        void JustDied(Unit* who) override
+        void JustEngagedWith(Unit* /*unit*/) override
+        {
+            events.RescheduleEvent(1, Milliseconds(4000)); // SPELL_FEL_GEYZER
+            events.RescheduleEvent(3, Milliseconds(7000)); // SPELL_GASEOUS_BREATH
+            events.RescheduleEvent(4, Milliseconds(31000)); // SPELL_MOTHERS_EMBRACE
+        }
+
+        void JustDied(Unit* /*who*/) override
         {
             summons.DespawnAll();
             DoCast(SPELL_REMOVE_CHARM);
@@ -125,7 +135,7 @@ public:
 
         void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
         {
-           // if (!GetCaster() || !GetTarget() || GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL)
+            if (!GetCaster() || !GetTarget() || GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL)
                 return;
             if (GetCaster()->IsAlive() && GetTarget()->IsAlive())
                 GetCaster()->CastSpell(GetTarget(), 219068, true);

@@ -1,5 +1,7 @@
-/*
+﻿/*
 * Copyright (C) 2021 BfaCore Reforged
+* Copyright 2023 AzgathCore
+* Copyright 2021 
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -36,7 +38,7 @@
 #include "PhasingHandler.h"
 #include "SpellScript.h"
 
- //Drugon the Frostblood
+ // Drugon the Frostblood
 class boss_drugon_frostblood : public CreatureScript
 {
 public:
@@ -58,7 +60,8 @@ public:
             _events.Reset();
         }
 
-        void EnterCombat(Unit* who) 
+        void EnterCombat(Unit* who)
+        //void JustEngagedWith(Unit* who) override
         {
             _events.ScheduleEvent(1, Milliseconds(10000));
             _events.ScheduleEvent(3, Milliseconds(15000));

@@ -1,5 +1,7 @@
-/*
-* Copyright 2021 
+﻿/*
+* Copyright 2021
+* Copyright 2023 AzgathCore
+* Copyright (C) 2021 BfaCore Reforged
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -122,6 +124,7 @@ public:
             Reset();
         }
 
+        //void EnterCombat(Unit* who) override
         void JustEngagedWith(Unit* who) override
         {
             if (!who)
