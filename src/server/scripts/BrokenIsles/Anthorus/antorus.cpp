@@ -24,16 +24,16 @@
 #include "GameObject.h"
 #include "ScriptedGossip.h"
 
-//
-//struct npc_image_of_prophet_velen_125513 : public ScriptedAI
-//{
-//    npc_image_of_prophet_velen_125513(Creature* creature) : ScriptedAI(creature) { Initialize(); }
-//
-//    void Initialize()
-//    {
-//        IsLock = false;
-//    }
-//
+
+struct npc_image_of_prophet_velen_125513 : public ScriptedAI
+{
+    npc_image_of_prophet_velen_125513(Creature* creature) : ScriptedAI(creature) { Initialize(); }
+
+    void Initialize() 
+    {
+        //IsLock = false;//tmp
+    }
+
 //    void MoveInLineOfSight(Unit* who) override
 //    {
 //        if (!who || !who->IsInWorld() || !me->IsWithinDist(who, 15.0f, false))
@@ -370,8 +370,8 @@
 //                who->ToPlayer()->AddDelayedConversation(500, 5528);
 //        }
 //    }
-//};
-//
+};
+
 void AddSC_antorus()
 {
 //    RegisterCreatureAI(npc_image_of_prophet_velen_125513);

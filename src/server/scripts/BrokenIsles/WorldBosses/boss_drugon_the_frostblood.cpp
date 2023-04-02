@@ -60,8 +60,8 @@ public:
             _events.Reset();
         }
 
-        void EnterCombat(Unit* who)
-        //void JustEngagedWith(Unit* who) override
+        //void EnterCombat(Unit* who)
+        void JustEngagedWith(Unit* who) override
         {
             _events.ScheduleEvent(1, Milliseconds(10000));
             _events.ScheduleEvent(3, Milliseconds(15000));
@@ -71,9 +71,7 @@ public:
 
         void EnterEvadeMode(EvadeReason why) override
         {
-            
-            //if (why == EVADE_REASON_NO_HOSTILES)//org
-            if (why == EvadeReason::NoHostiles)
+            if (why == EvadeReason::NoHostiles)//if (why == EVADE_REASON_NO_HOSTILES)//org
                 me->GetMotionMaster()->MoveTargetedHome();
             Reset();
 
