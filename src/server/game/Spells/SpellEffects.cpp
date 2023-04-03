@@ -3699,6 +3699,21 @@ void Spell::EffectSelfResurrect()
     player->SpawnCorpseBones();
 }
 
+enum SkinningLearningSpell
+{
+     SPELL_CLASSIC_SKINNING      = 265856,
+     SPELL_OUTLAND_SKINNING      = 265858,
+     SPELL_NORTHREND_SKINNING    = 265860,
+     SPELL_CATACLYSM_SKINNING    = 265862,
+     SPELL_PANDARIA_SKINNING     = 265864,
+     SPELL_DRAENOR_SKINNING      = 265866,
+     SPELL_LEGION_SKINNING       = 265868,
+     SPELL_KUL_TIRAN_SKINNING    = 265870,
+     SPELL_ZANDALARI_SKINNING    = 265872,
+     SPELL_SHADOWLANDS_SKINNING  = 308570,
+     SPELL_DRAGON_ISLES_SKINNING = 366263
+};
+
 void Spell::EffectSkinning()
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
@@ -3760,11 +3775,38 @@ void Spell::EffectSkinning()
         if (!skinningSkill)
             return;
 
-        if (uint32 pureSkillValue = player->GetPureSkillValue(skinningSkill))
+        // Autolearning missing skinning skill (Dragonflight)
+        auto getSkinningLearningSpellBySkill = [&]() -> uint32
         {
-            // Double chances for elites
-            player->UpdateGatherSkill(skinningSkill, pureSkillValue, reqValue, creature->isElite() ? 2 : 1);
+            switch (skinningSkill)
+            {
+                case SKILL_OUTLAND_SKINNING:      return SPELL_OUTLAND_SKINNING;
+                case SKILL_NORTHREND_SKINNING:    return SPELL_NORTHREND_SKINNING;
+                case SKILL_CATACLYSM_SKINNING:    return SPELL_CATACLYSM_SKINNING;
+                case SKILL_PANDARIA_SKINNING:     return SPELL_PANDARIA_SKINNING;
+                case SKILL_DRAENOR_SKINNING:      return SPELL_DRAENOR_SKINNING;
+                case SKILL_KUL_TIRAN_SKINNING:    return player->GetTeam() == ALLIANCE ? SPELL_KUL_TIRAN_SKINNING : SPELL_ZANDALARI_SKINNING;
+                case SKILL_SHADOWLANDS_SKINNING:  return SPELL_SHADOWLANDS_SKINNING;
+                case SKILL_DRAGON_ISLES_SKINNING: return SPELL_DRAGON_ISLES_SKINNING;
+                case SKILL_CLASSIC_SKINNING:      // Trainer only
+                case SKILL_LEGION_SKINNING:       // Quest only
+                default: break;
+            }
+
+            return 0;
+        };
+
+        uint32 pureSkillValue = player->GetPureSkillValue(skinningSkill);
+        if (!pureSkillValue)
+        {
+            if (uint32 spellId = getSkinningLearningSpellBySkill())
+                player->CastSpell(nullptr, spellId, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+            else
+                return;
         }
+
+        // Double chances for elites
+        player->UpdateGatherSkill(skinningSkill, pureSkillValue, reqValue, creature->isElite() ? 2 : 1);
     }
 }
 
