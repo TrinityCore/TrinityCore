@@ -1,249 +1,249 @@
-//#include "AreaTrigger.h"
-//#include "AreaTriggerAI.h"
-//#include "ScriptedCreature.h"
-//#include "ScriptMgr.h"
-//#include "SpellAuras.h"
-//#include "SpellScript.h"
-//#include "GameObject.h"
-//#include "auchindoun.h"
-//
-//enum eEmotes
-//{
-//    EMOTE_HELLO_NYAMI = 3,
-//};
-//
-//Position const g_PositionKaatharCrystalPosition = { 1909.75f, 3188.70f, 66.786f, 5.401960f };
-//
-//enum eventTuulaniIntro
-//{
-//    EVENT_TUULANI_INTRO_1 = 3000,
-//    EVENT_TUULANI_INTRO_2,
-//    EVENT_TUULANI_INTRO_3,
-//    EVENT_TUULANI_INTRO_4,
-//    EVENT_TUULANI_INTRO_5,
-//    EVENT_TUULANI_INTRO_6,
-//    EVENT_TUULANI_INTRO_7,
-//    EVENT_TUULANI_INTRO_8,
-//    EVENT_TUULANI_INTRO_9,
-//    EVENT_TUULANI_INTRO_10,
-//    EVENT_TUULANI_INTRO_11,
-//    EVENT_TUULANI_INTRO_12,
-//    EVENT_TUULANI_INTRO_13,
-//    EVENT_TUULANI_INTRO_14,
-//    EVENT_TUULANI_INTRO_15,
-//    EVENT_TUULANI_INTRO_16,
-//    EVENT_TUULANI_INTRO_17,
-//    EVENT_TUULANI_INTRO_18,
-//    EVENT_TUULANI_INTRO_19,
-//};
-//
-///// Tuulani - 79248
-//struct auchindoun_mob_tuulani : public ScriptedAI
-//{
-//    auchindoun_mob_tuulani(Creature* p_Creature) : ScriptedAI(p_Creature)
-//    {
-//        m_Instance = p_Creature->GetInstanceScript();
-//        m_First = true;
-//    }
-//
-//    EventMap events;
-//    InstanceScript* m_Instance;
-//    bool m_First;
-//    uint32 m_FirstDiff;
-//
-//    void Reset() override
-//    {
-//        events.Reset();
-//        m_First = false;
-//        me->SetFaction(FriendlyFaction);
-//        Talk(eAuchindounTalks::TUULANITALK1);
-//        me->SetSpeed(UnitMoveType::MOVE_RUN, 12.0f);
-//        me->SetSpeed(UnitMoveType::MOVE_WALK, 1.2f);
-//        me->SetWalk(false);
-//        me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_NPC));
-//
-//        //  AddTimedDelayedOperatio(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void
-//        // {  //??????
-//        me->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani01, g_PositionTuulaniMovements[0]);
-//        //  });  
-//    }
-//
-//    void UpdateAI(uint32 p_Diff) override
-//    {
-//        events.Update(p_Diff);
-//        // UpdateOperations(p_Diff);//????
-//        switch (events.ExecuteEvent())
-//        {
-//        case eventTuulaniIntro::EVENT_TUULANI_INTRO_1:
-//            if (Creature* l_Nyami = me->FindNearestCreature(NPC_NYAMI,1000.0f,true))
-//            {
-//                l_Nyami->SetReactState(ReactStates::REACT_PASSIVE);
-//                l_Nyami->AddAura(eAuchindounSpells::SpellDarkFire, l_Nyami);
-//                l_Nyami->CastSpell(l_Nyami, eAuchindounSpells::SpellPrisonAura);
-//                l_Nyami->AddAura(eAuchindounSpells::SpellLevitateNyami, l_Nyami);
-//                l_Nyami->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC));
-//                if (Creature* l_Trigger = l_Nyami->FindNearestCreature(eAuchindounCreatures::CreatureLeftCrystalTrigger, 40.0f, true))
-//                {
-//                    l_Trigger->AddAura(eAuchindounSpells::SpellVoidFormTriggerBuff, l_Trigger);
-//                    l_Nyami->CastSpell(l_Trigger, eAuchindounSpells::SpellShadowBeam);
-//                }
-//            }
-//            Talk(eAuchindounTalks::TUULANITALK1);
-//            me->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani02, g_PositionTuulaniMovements[1]);
-//            break;
-//        case eventTuulaniIntro::EVENT_TUULANI_INTRO_2:
-//            Talk(eAuchindounTalks::TUULANITALK3);
-//            me->CastSpell(me, eAuchindounSpells::SpellTuulaniUnlock);
-//            AddTimedDelayedOperation(2500, [this]() -> void
-//            {
-//                if (GameObject* door = me->FindNearestGameObject(GameobjectDoorBarrier, 100.0f))
-//                    door->Delete();
-//                me->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani03, g_PositionTuulaniMovements[2]);
-//            });           
-//            break;
-//        case eventTuulaniIntro::EVENT_TUULANI_INTRO_3:
-//            if (Creature* l_Guard = me->FindNearestCreature(CreatureAucheniDefender, 50.0f, true))
-//            {
-//                l_Guard->SetFacingToObject(me);
-//                l_Guard->RemoveAura(eAuchindounSpells::SpellKneel);
-//                l_Guard->AI()->Talk(eAuchindounTalks::AUCHENAIDEFENDERTALK1);
-//            }
-//            events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_4, 7 * TimeConstants::IN_MILLISECONDS);
-//            break;
-//        case eventTuulaniIntro::EVENT_TUULANI_INTRO_4:
-//            me->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani04, g_PositionTuulaniMovements[4]);
-//            break;
-//        case eventTuulaniIntro::EVENT_TUULANI_INTRO_5:
-//            Talk(eAuchindounTalks::TUULANITALK4);
-//            events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_6, 4 * TimeConstants::IN_MILLISECONDS);
-//            break;
-//        case eventTuulaniIntro::EVENT_TUULANI_INTRO_6:
-//            me->CastSpell(me, eAuchindounSpells::SpellTuulaniUnlock);
-//            events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_7, 7 * TimeConstants::IN_MILLISECONDS);
-//            break;
-//        case eventTuulaniIntro::EVENT_TUULANI_INTRO_7:
-//            if (GameObject* l_NearestHolyWall = me->FindNearestGameObject(eAuchindounObjects::GameobjectHolyWall, 60.0f))
-//                l_NearestHolyWall->Delete();
-//            Talk(eAuchindounTalks::TUULANITALK18);
-//            me->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani05, g_PositionTuulaniMovements[5]);
-//            break;
-//        case eventTuulaniIntro::EVENT_TUULANI_INTRO_8:
-//            Talk(eAuchindounTalks::TUULANITALK5);
-//            me->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani06, g_PositionTuulaniMovements[6]);               
-//            break;
-//        case eventTuulaniIntro::EVENT_TUULANI_INTRO_9:
-//            me->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani07, g_PositionTuulaniMovements[7]);
-//            break;
-//        case eventTuulaniIntro::EVENT_TUULANI_INTRO_10:
-//            me->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani08, g_PositionTuulaniMovements[8]);
-//            break;
-//        case eventTuulaniIntro::EVENT_TUULANI_INTRO_11:
-//            if (instance)
-//            {
-//                instance->DoNearTeleportPlayers(me->GetPosition());
-//                instance->DoPlayScenePackageIdOnPlayers(SpellAuchindounSceneTulaaniReachNyami);
-//            }
-//            me->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani09, g_PositionTuulaniMovements[9]);
-//            events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_12, 5 * TimeConstants::IN_MILLISECONDS);
-//            //events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_14, 12 * TimeConstants::IN_MILLISECONDS);
-//            break;
-//        case eventTuulaniIntro::EVENT_TUULANI_INTRO_12:
-//            me->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani10, g_PositionTuulaniMovements[10]);
-//            break;
-//        case eventTuulaniIntro::EVENT_TUULANI_INTRO_13:
-//            Talk(eAuchindounTalks::TUULANITALK7);
-//            me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
-//            me->AddAura(eAuchindounSpells::SpellTuulaniCapturedVoidPrison, me);
-//            me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
-//            me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));
-//            events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_15, 7 * TimeConstants::IN_MILLISECONDS);
-//            //l_Tuulina->m_Events.AddEvent(new EventTuulaniIntroduction(l_Tuulina, 15, m_InstanceScript), l_Tuulina->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));14
-//            break;
-//        case eventTuulaniIntro::EVENT_TUULANI_INTRO_14:
-//            break;
-//        case eventTuulaniIntro::EVENT_TUULANI_INTRO_15:
-//            if (Creature* l_Nyami = me->FindNearestCreature(CreatureSoulBinderNyami, 200.0f, true))
-//            {
-//                l_Nyami->SetReactState(ReactStates::REACT_PASSIVE);
-//                l_Nyami->AddAura(eAuchindounSpells::SpellDarkFire, l_Nyami);
-//                l_Nyami->CastSpell(l_Nyami, eAuchindounSpells::SpellPrisonAura);
-//                l_Nyami->AddAura(eAuchindounSpells::SpellLevitateNyami, l_Nyami);
-//                l_Nyami->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC));
-//                if (Creature* l_Trigger = l_Nyami->FindNearestCreature(eAuchindounCreatures::CreatureSoulAegis, 40.0f, true))
-//                {
-//                    l_Trigger->AddAura(eAuchindounSpells::SpellVoidFormTriggerBuff, l_Trigger);
-//                    l_Nyami->CastSpell(l_Trigger, eAuchindounSpells::SpellVoidBeam);
-//                }
-//                l_Nyami->AI()->Talk(eAuchindounTalks::NYAMITALK2);
-//            }               
-//            events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_16, 9 * TimeConstants::IN_MILLISECONDS);
-//            break;
-//        case eventTuulaniIntro::EVENT_TUULANI_INTRO_16:
-//            if (Creature* l_Nyami = me->FindNearestCreature(CreatureSoulBinderNyami, 200.0f, true))
-//                l_Nyami->AI()->Talk(eAuchindounTalks::NYAMITALK3);
-//            events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_17, 9 * TimeConstants::IN_MILLISECONDS);
-//            break;
-//        case eventTuulaniIntro::EVENT_TUULANI_INTRO_17:
-//            if (Creature* l_Nyami = me->FindNearestCreature(CreatureSoulBinderNyami, 200.0f, true))
-//                l_Nyami->AI()->Talk(eAuchindounTalks::NYAMITALK4);
-//            events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_18, 9 * TimeConstants::IN_MILLISECONDS);
-//            break;
-//        case eventTuulaniIntro::EVENT_TUULANI_INTRO_18:
-//            Talk(eAuchindounTalks::TUULANITALK8);
-//            events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_19, 9 * TimeConstants::IN_MILLISECONDS);
-//            break;
-//        case eventTuulaniIntro::EVENT_TUULANI_INTRO_19:
-//            if (Creature* l_Nyami = me->FindNearestCreature(CreatureSoulBinderNyami, 200.0f, true))
-//                l_Nyami->AI()->Talk(eAuchindounTalks::NYAMITALK5);
-//            break;
-//        default:
-//            break;
-//        }
-//    }
-//
-//    void MovementInform(uint32 /*p_Type*/, uint32 p_Id)
-//    {
-//        if (instance)
-//        {
-//            switch (p_Id)
-//            {
-//            case eAuchindounMovementInforms::MovementInformTuulani01:
-//                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_1, 1 * TimeConstants::IN_MILLISECONDS);
-//                break;
-//            case eAuchindounMovementInforms::MovementInformTuulani02:
-//                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_2, 1 * TimeConstants::IN_MILLISECONDS);
-//                break;
-//            case eAuchindounMovementInforms::MovementInformTuulani03:
-//                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_3, 1 * TimeConstants::IN_MILLISECONDS);
-//                break;
-//            case eAuchindounMovementInforms::MovementInformTuulani04:
-//                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_5, 1 * TimeConstants::IN_MILLISECONDS);
-//                break;
-//            case eAuchindounMovementInforms::MovementInformTuulani05:
-//                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_8, 1 * TimeConstants::IN_MILLISECONDS);
-//                break;
-//            case eAuchindounMovementInforms::MovementInformTuulani06:
-//                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_9, 1 * TimeConstants::IN_MILLISECONDS);
-//                break;
-//            case eAuchindounMovementInforms::MovementInformTuulani07:
-//                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_10, 1 * TimeConstants::IN_MILLISECONDS);
-//                break;
-//            case eAuchindounMovementInforms::MovementInformTuulani08:
-//                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_11, 1 * TimeConstants::IN_MILLISECONDS);
-//                break;
-//            case eAuchindounMovementInforms::MovementInformTuulani09:
-//                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_12, 1 * TimeConstants::IN_MILLISECONDS);
-//                break;
-//            case eAuchindounMovementInforms::MovementInformTuulani10:
-//                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_13, 1 * TimeConstants::IN_MILLISECONDS);
-//                break;
-//            default:
-//                break;
-//            }
-//        }
-//    }
-//};
-//
+﻿#include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "SpellAuras.h"
+#include "SpellScript.h"
+#include "GameObject.h"
+#include "auchindoun.h"
+
+enum eEmotes
+{
+    EMOTE_HELLO_NYAMI = 3,
+};
+
+Position const g_PositionKaatharCrystalPosition = { 1909.75f, 3188.70f, 66.786f, 5.401960f };
+
+enum eventTuulaniIntro
+{
+    EVENT_TUULANI_INTRO_1 = 3000,
+    EVENT_TUULANI_INTRO_2,
+    EVENT_TUULANI_INTRO_3,
+    EVENT_TUULANI_INTRO_4,
+    EVENT_TUULANI_INTRO_5,
+    EVENT_TUULANI_INTRO_6,
+    EVENT_TUULANI_INTRO_7,
+    EVENT_TUULANI_INTRO_8,
+    EVENT_TUULANI_INTRO_9,
+    EVENT_TUULANI_INTRO_10,
+    EVENT_TUULANI_INTRO_11,
+    EVENT_TUULANI_INTRO_12,
+    EVENT_TUULANI_INTRO_13,
+    EVENT_TUULANI_INTRO_14,
+    EVENT_TUULANI_INTRO_15,
+    EVENT_TUULANI_INTRO_16,
+    EVENT_TUULANI_INTRO_17,
+    EVENT_TUULANI_INTRO_18,
+    EVENT_TUULANI_INTRO_19,
+};
+
+/// Tuulani - 79248
+struct auchindoun_mob_tuulani : public ScriptedAI
+{
+    auchindoun_mob_tuulani(Creature* p_Creature) : ScriptedAI(p_Creature)
+    {
+        /*m_Instance = p_Creature->GetInstanceScript();
+        m_First = true;*/
+    }
+
+    EventMap events;
+    InstanceScript* m_Instance;
+    bool m_First;
+    uint32 m_FirstDiff;
+
+    void Reset() override
+    {
+        events.Reset();
+        m_First = false;
+        me->SetFaction(FriendlyFaction);
+        Talk(eAuchindounTalks::TUULANITALK1);
+        me->SetSpeed(UnitMoveType::MOVE_RUN, 12.0f);
+        me->SetSpeed(UnitMoveType::MOVE_WALK, 1.2f);
+        me->SetWalk(false);
+        me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_NPC));
+
+        /*AddTimedDelayedOperation(4 * TimeConstants::IN_MILLISECONDS, [this]() -> void //tmp
+            {
+                me->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani01, g_PositionTuulaniMovements[0]);
+            });*/
+    }
+    
+        void UpdateAI(uint32 p_Diff) override
+        {
+            events.Update(p_Diff);
+            // UpdateOperations(p_Diff);//????
+            switch (events.ExecuteEvent())
+            {
+            case eventTuulaniIntro::EVENT_TUULANI_INTRO_1:
+                if (Creature* l_Nyami = me->FindNearestCreature(NPC_NYAMI,1000.0f,true))
+                {
+                    l_Nyami->SetReactState(ReactStates::REACT_PASSIVE);
+                    l_Nyami->AddAura(eAuchindounSpells::SpellDarkFire, l_Nyami);
+                    l_Nyami->CastSpell(l_Nyami, eAuchindounSpells::SpellPrisonAura);
+                    l_Nyami->AddAura(eAuchindounSpells::SpellLevitateNyami, l_Nyami);
+                    l_Nyami->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC));
+                    if (Creature* l_Trigger = l_Nyami->FindNearestCreature(eAuchindounCreatures::CreatureLeftCrystalTrigger, 40.0f, true))
+                    {
+                        l_Trigger->AddAura(eAuchindounSpells::SpellVoidFormTriggerBuff, l_Trigger);
+                        l_Nyami->CastSpell(l_Trigger, eAuchindounSpells::SpellShadowBeam);
+                    }
+                }
+                Talk(eAuchindounTalks::TUULANITALK1);
+                me->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani02, g_PositionTuulaniMovements[1]);
+                break;
+            case eventTuulaniIntro::EVENT_TUULANI_INTRO_2:
+                Talk(eAuchindounTalks::TUULANITALK3);
+                me->CastSpell(me, eAuchindounSpells::SpellTuulaniUnlock);
+                /*AddTimedDelayedOperation(2500, [this]() -> void   //tmp
+                {
+                    if (GameObject* door = me->FindNearestGameObject(GameobjectDoorBarrier, 100.0f))
+                        door->Delete();
+                    me->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani03, g_PositionTuulaniMovements[2]);
+                });   */        
+                break;
+            case eventTuulaniIntro::EVENT_TUULANI_INTRO_3:
+                if (Creature* l_Guard = me->FindNearestCreature(CreatureAucheniDefender, 50.0f, true))
+                {
+                    l_Guard->SetFacingToObject(me);
+                    l_Guard->RemoveAura(eAuchindounSpells::SpellKneel);
+                    l_Guard->AI()->Talk(eAuchindounTalks::AUCHENAIDEFENDERTALK1);
+                }
+                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_4,Milliseconds (7 * TimeConstants::IN_MILLISECONDS));
+                break;
+            case eventTuulaniIntro::EVENT_TUULANI_INTRO_4:
+                me->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani04, g_PositionTuulaniMovements[4]);
+                break;
+            case eventTuulaniIntro::EVENT_TUULANI_INTRO_5:
+                Talk(eAuchindounTalks::TUULANITALK4);
+                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_6, Milliseconds(4 * TimeConstants::IN_MILLISECONDS));
+                break;
+            case eventTuulaniIntro::EVENT_TUULANI_INTRO_6:
+                me->CastSpell(me, eAuchindounSpells::SpellTuulaniUnlock);
+                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_7, Milliseconds(7 * TimeConstants::IN_MILLISECONDS));
+                break;
+            case eventTuulaniIntro::EVENT_TUULANI_INTRO_7:
+                if (GameObject* l_NearestHolyWall = me->FindNearestGameObject(eAuchindounObjects::GameobjectHolyWall, 60.0f))
+                    l_NearestHolyWall->Delete();
+                Talk(eAuchindounTalks::TUULANITALK18);
+                me->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani05, g_PositionTuulaniMovements[5]);
+                break;
+            case eventTuulaniIntro::EVENT_TUULANI_INTRO_8:
+                Talk(eAuchindounTalks::TUULANITALK5);
+                me->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani06, g_PositionTuulaniMovements[6]);               
+                break;
+            case eventTuulaniIntro::EVENT_TUULANI_INTRO_9:
+                me->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani07, g_PositionTuulaniMovements[7]);
+                break;
+            case eventTuulaniIntro::EVENT_TUULANI_INTRO_10:
+                me->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani08, g_PositionTuulaniMovements[8]);
+                break;
+            case eventTuulaniIntro::EVENT_TUULANI_INTRO_11:
+               /* if (instance) //tmp
+                {
+                    instance->DoNearTeleportPlayers(me->GetPosition());
+                    instance->DoPlayScenePackageIdOnPlayers(SpellAuchindounSceneTulaaniReachNyami);
+                }*/
+                me->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani09, g_PositionTuulaniMovements[9]);
+                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_12, Milliseconds(5 * TimeConstants::IN_MILLISECONDS));
+                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_14, Milliseconds(12 * TimeConstants::IN_MILLISECONDS));
+                break;
+            case eventTuulaniIntro::EVENT_TUULANI_INTRO_12:
+                me->GetMotionMaster()->MovePoint(eAuchindounMovementInforms::MovementInformTuulani10, g_PositionTuulaniMovements[10]);
+                break;
+            case eventTuulaniIntro::EVENT_TUULANI_INTRO_13:
+                Talk(eAuchindounTalks::TUULANITALK7);
+                me->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
+                me->AddAura(eAuchindounSpells::SpellTuulaniCapturedVoidPrison, me);
+                me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+                //me->AddUnitFlag(UnitFlags(UNIT_FLAG2_DISABLE_TURN));//org
+                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_15, Milliseconds(7 * TimeConstants::IN_MILLISECONDS));
+                //l_Tuulina->m_Events.AddEvent(new EventTuulaniIntroduction(l_Tuulina, 15, m_InstanceScript), l_Tuulina->m_Events.CalculateTime(7 * TimeConstants::IN_MILLISECONDS));14
+                break;
+            case eventTuulaniIntro::EVENT_TUULANI_INTRO_14:
+                break;
+            case eventTuulaniIntro::EVENT_TUULANI_INTRO_15:
+                if (Creature* l_Nyami = me->FindNearestCreature(CreatureSoulBinderNyami, 200.0f, true))
+                {
+                    l_Nyami->SetReactState(ReactStates::REACT_PASSIVE);
+                    l_Nyami->AddAura(eAuchindounSpells::SpellDarkFire, l_Nyami);
+                    l_Nyami->CastSpell(l_Nyami, eAuchindounSpells::SpellPrisonAura);
+                    l_Nyami->AddAura(eAuchindounSpells::SpellLevitateNyami, l_Nyami);
+                    l_Nyami->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC));
+                    if (Creature* l_Trigger = l_Nyami->FindNearestCreature(eAuchindounCreatures::CreatureSoulAegis, 40.0f, true))
+                    {
+                        l_Trigger->AddAura(eAuchindounSpells::SpellVoidFormTriggerBuff, l_Trigger);
+                        l_Nyami->CastSpell(l_Trigger, eAuchindounSpells::SpellVoidBeam);
+                    }
+                    l_Nyami->AI()->Talk(eAuchindounTalks::NYAMITALK2);
+                }               
+                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_16, Milliseconds(9 * TimeConstants::IN_MILLISECONDS));
+                break;
+            case eventTuulaniIntro::EVENT_TUULANI_INTRO_16:
+                if (Creature* l_Nyami = me->FindNearestCreature(CreatureSoulBinderNyami, 200.0f, true))
+                    l_Nyami->AI()->Talk(eAuchindounTalks::NYAMITALK3);
+                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_17, Milliseconds(9 * TimeConstants::IN_MILLISECONDS));
+                break;
+            case eventTuulaniIntro::EVENT_TUULANI_INTRO_17:
+                if (Creature* l_Nyami = me->FindNearestCreature(CreatureSoulBinderNyami, 200.0f, true))
+                    l_Nyami->AI()->Talk(eAuchindounTalks::NYAMITALK4);
+                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_18, Milliseconds(9 * TimeConstants::IN_MILLISECONDS));
+                break;
+            case eventTuulaniIntro::EVENT_TUULANI_INTRO_18:
+                Talk(eAuchindounTalks::TUULANITALK8);
+                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_19, Milliseconds(9 * TimeConstants::IN_MILLISECONDS));
+                break;
+            case eventTuulaniIntro::EVENT_TUULANI_INTRO_19:
+                if (Creature* l_Nyami = me->FindNearestCreature(CreatureSoulBinderNyami, 200.0f, true))
+                    l_Nyami->AI()->Talk(eAuchindounTalks::NYAMITALK5);
+                break;
+            default:
+                break;
+            }
+        }
+    
+    //    void MovementInform(uint32 /*p_Type*/, uint32 p_Id)
+    //    {
+    //        if (instance)
+    //        {
+    //            switch (p_Id)
+    //            {
+    //            case eAuchindounMovementInforms::MovementInformTuulani01:
+    //                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_1, 1 * TimeConstants::IN_MILLISECONDS);
+    //                break;
+    //            case eAuchindounMovementInforms::MovementInformTuulani02:
+    //                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_2, 1 * TimeConstants::IN_MILLISECONDS);
+    //                break;
+    //            case eAuchindounMovementInforms::MovementInformTuulani03:
+    //                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_3, 1 * TimeConstants::IN_MILLISECONDS);
+    //                break;
+    //            case eAuchindounMovementInforms::MovementInformTuulani04:
+    //                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_5, 1 * TimeConstants::IN_MILLISECONDS);
+    //                break;
+    //            case eAuchindounMovementInforms::MovementInformTuulani05:
+    //                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_8, 1 * TimeConstants::IN_MILLISECONDS);
+    //                break;
+    //            case eAuchindounMovementInforms::MovementInformTuulani06:
+    //                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_9, 1 * TimeConstants::IN_MILLISECONDS);
+    //                break;
+    //            case eAuchindounMovementInforms::MovementInformTuulani07:
+    //                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_10, 1 * TimeConstants::IN_MILLISECONDS);
+    //                break;
+    //            case eAuchindounMovementInforms::MovementInformTuulani08:
+    //                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_11, 1 * TimeConstants::IN_MILLISECONDS);
+    //                break;
+    //            case eAuchindounMovementInforms::MovementInformTuulani09:
+    //                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_12, 1 * TimeConstants::IN_MILLISECONDS);
+    //                break;
+    //            case eAuchindounMovementInforms::MovementInformTuulani10:
+    //                events.ScheduleEvent(eventTuulaniIntro::EVENT_TUULANI_INTRO_13, 1 * TimeConstants::IN_MILLISECONDS);
+    //                break;
+    //            default:
+    //                break;
+    //            }
+    //        }
+    //    }
+};
+
 ///// Sargerei Soulbinder - 77812
 //struct auchindoun_mob_sargerei_soulbinder : public ScriptedAI
 //{
