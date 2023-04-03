@@ -1678,6 +1678,11 @@ float Creature::GetSpellDamageMod(int32 Rank) const
     }
 }
 
+void Creature::OverrideSparringHealthPct(std::vector<float> const& healthPct)
+{
+    _sparringHealthPct = Trinity::Containers::SelectRandomContainerElement(healthPct);
+}
+
 uint32 Creature::CalculateDamageForSparring(Unit* attacker, uint32 damage)
 {
     if (GetSparringHealthPct() == 0)
@@ -2732,9 +2737,7 @@ bool Creature::LoadCreaturesAddon()
 
 void Creature::LoadCreaturesSparringHealth()
 {
-    if (!_overridingSparringHealthPctValues.empty())
-        _sparringHealthPct = Trinity::Containers::SelectRandomContainerElement(_overridingSparringHealthPctValues);
-    else if (std::vector<float> const* templateValues = sObjectMgr->GetCreatureTemplateSparringValues(GetCreatureTemplate()->Entry))
+    if (std::vector<float> const* templateValues = sObjectMgr->GetCreatureTemplateSparringValues(GetCreatureTemplate()->Entry))
         _sparringHealthPct = Trinity::Containers::SelectRandomContainerElement(*templateValues);
 }
 

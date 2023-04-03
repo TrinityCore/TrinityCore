@@ -394,7 +394,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void AtEngage(Unit* target) override;
         void AtDisengage() override;
 
-        void OverrideSparringHealthValues(std::vector<float> healthPct) { _overridingSparringHealthPctValues = healthPct; }
+        void OverrideSparringHealthPct(std::vector<float> const& healthPct);
         float GetSparringHealthPct() { return _sparringHealthPct; }
         uint32 CalculateDamageForSparring(Unit* attacker, uint32 damage);
 
@@ -514,8 +514,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         uint32 _gossipMenuId;
         Optional<uint32> _trainerId;
-
-        std::vector<float> _overridingSparringHealthPctValues;
         float _sparringHealthPct;
 };
 
