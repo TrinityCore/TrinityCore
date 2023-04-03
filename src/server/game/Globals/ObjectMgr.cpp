@@ -911,7 +911,7 @@ void ObjectMgr::LoadCreatureTemplateSparring()
         Field* fields = result->Fetch();
 
         uint32 entry = fields[0].GetUInt32();
-        uint8 noNPCDamageBelowHealthPct = fields[1].GetUInt8();
+        float noNPCDamageBelowHealthPct = fields[1].GetFloat();
 
         if (!sObjectMgr->GetCreatureTemplate(entry))
         {
@@ -921,7 +921,7 @@ void ObjectMgr::LoadCreatureTemplateSparring()
 
         if (noNPCDamageBelowHealthPct < 0 || noNPCDamageBelowHealthPct > 100)
         {
-            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has invalid NoNPCDamageBelowHealthPct (%u) defined in `creature_template_sparring`. Skipping",
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has invalid NoNPCDamageBelowHealthPct (%f) defined in `creature_template_sparring`. Skipping",
                 entry, noNPCDamageBelowHealthPct);
             continue;
         }
