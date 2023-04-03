@@ -203,7 +203,7 @@ public:
         return ItemContext::NONE, true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == ACTION_A_WRINKIE_IN_TIME)
@@ -258,7 +258,7 @@ public:
         EventMap events;
         uint8 curPoint=0;//原先没有定义初值
 
-        void OnQuestAccept(Player* player, Quest const* quest) 
+        void OnQuestAccept(Player* /*player*/, Quest const* /*quest*/) 
         {
             me->AddUnitFlag(UnitFlags(UNIT_NPC_FLAG_GOSSIP));
         }
@@ -458,7 +458,7 @@ public:
         lvlup = 110, //Sets level
     };
 
-    bool OnUse(Player* player, Item* item, SpellCastTargets const& targets, ObjectGuid /*castId*/) override
+    bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& /*targets*/, ObjectGuid /*castId*/) override
     {
         if (player->IsInCombat() || player->InArena() || player->InBattleground()) //Item is not usable in combat, arenas and battlegrounds. This can be modified to your taste.
         {
@@ -772,7 +772,7 @@ public:
         lvlup = 120, //Sets level
     };
 
-    bool OnUse(Player* player, Item* item, SpellCastTargets const& targets, ObjectGuid /*castId*/) override
+    bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& /*targets*/, ObjectGuid /*castId*/) override
     {
         if (player->IsInCombat() || player->InArena() || player->InBattleground()) //Item is not usable in combat, arenas and battlegrounds. This can be modified to your taste.
         {
@@ -1117,7 +1117,7 @@ public:
         item_id = 789003, //Item Entry
     };
 
-    bool OnUse(Player* player, Item* item, SpellCastTargets const& targets, ObjectGuid /*castId*/) override
+    bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& /*targets*/, ObjectGuid /*castId*/) override
     {
         if (player->IsInCombat() || player->InArena() || player->InBattleground()) //Item is not usable in combat, arenas and battlegrounds. This can be modified to your taste.
         {
@@ -1144,7 +1144,7 @@ public:
         item_id = 789004, //Item Entry
     };
 
-    bool OnUse(Player* player, Item* item, SpellCastTargets const& targets, ObjectGuid /*castId*/) override
+    bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& /*targets*/, ObjectGuid /*castId*/) override
     {
         if (player->IsInCombat() || player->InArena() || player->InBattleground()) //Item is not usable in combat, arenas and battlegrounds. This can be modified to your taste.
         {
@@ -1173,7 +1173,7 @@ public:
         item_id = 789005, //Item Entry
     };
 
-    bool OnUse(Player* player, Item* item, SpellCastTargets const& targets, ObjectGuid /*castId*/) override
+    bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& /*targets*/, ObjectGuid /*castId*/) override
     {
         if (player->IsInCombat() || player->InArena() || player->InBattleground()) //Item is not usable in combat, arenas and battlegrounds. This can be modified to your taste.
         {
@@ -1260,7 +1260,7 @@ public:
         }
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
         if (action == ACTION_RANDOM_MORPH)
