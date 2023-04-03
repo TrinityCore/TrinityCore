@@ -44,7 +44,7 @@ class npc_rate_xp_modifier : public CreatureScript
         npc_rate_xp_modifier() : CreatureScript("npc_rate_xp_modifier") { }
 
 //#define MAX_RATE uint32(10)
-#define MAX_RATE uint32(3)
+#define MAX_RATE uint32(3)  //定义最大倍率
 
         bool OnGossipHello(Player* player, Creature* creature) //override   //原先为override
         {
