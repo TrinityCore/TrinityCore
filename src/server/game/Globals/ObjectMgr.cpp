@@ -919,7 +919,7 @@ void ObjectMgr::LoadCreatureTemplateSparring()
             continue;
         }
 
-        if (noNPCDamageBelowHealthPct < 0 || noNPCDamageBelowHealthPct > 100)
+        if (noNPCDamageBelowHealthPct <= 0 || noNPCDamageBelowHealthPct > 100)
         {
             TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has invalid NoNPCDamageBelowHealthPct (%f) defined in `creature_template_sparring`. Skipping",
                 entry, noNPCDamageBelowHealthPct);
