@@ -3800,7 +3800,10 @@ void Spell::EffectSkinning()
         if (!pureSkillValue)
         {
             if (uint32 spellId = getSkinningLearningSpellBySkill())
+            {
                 player->CastSpell(nullptr, spellId, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+                pureSkillValue = player->GetPureSkillValue(skinningSkill);
+            }
             else
                 return;
         }
