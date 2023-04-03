@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright 2021 ShadowCore
  * Copyright 2023 AzgathCore
  *
@@ -60,14 +60,14 @@ public:
             if (!UpdateVictim())
                 return;
 
-            /*while (uint32 eventId = events.ExecuteEvent())
+            while (uint32 eventId = events.ExecuteEvent())//may have problem
             {
                 switch (eventId)
                 {
                     default:
                     break;
                 }
-            }*/
+            }
 
             DoMeleeAttackIfReady();
         }

@@ -207,8 +207,8 @@ class spell_darkmoon_canon_preparation : public SpellScriptLoader
 
 void AddSC_darkmoon_canon()
 {
-    //new npc_canon_maxima();
+    new npc_canon_maxima();
     new npc_darkmoon_canon_target();
-    //new npc_canon_fozlebub();
+    new npc_canon_fozlebub();
     new spell_darkmoon_canon_preparation();
 };
