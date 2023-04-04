@@ -104,7 +104,7 @@ enum Points
     MAX_BRANN_WAYPOINTS_INTRO   = 17
 };
 
-enum GossipMenus
+enum GossipMenuIds
 {
     GOSSIP_MENU_START_INTRO = 11339,
 };
