@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -112,6 +112,9 @@ public:
         if (phase && phase <= 8)
             _phase &= uint8(~(1 << (phase - 1)));
     }
+
+    void ScheduleEvent(uint32 eventId, int time, uint32 group, uint8 phase);
+
 
     /**
     * @name ScheduleEvent

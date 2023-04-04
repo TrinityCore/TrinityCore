@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -113,7 +113,7 @@ class TC_GAME_API GameObjectAI
 
         // Called when the gameobject summon successfully other creature
         virtual void JustSummoned(Creature* /*summon*/) { }
-        void IsSummonedBy(Unit* summoner){}
+        void IsSummonedBy(Unit* /*summoner*/){}
         virtual void SummonedCreatureDespawn(Creature* /*summon*/) { }
         virtual void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) { }
 

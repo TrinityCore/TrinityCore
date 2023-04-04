@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2022 BfaCore Reforged 
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -47,13 +47,14 @@ struct boss_tzane : public BossAI
         BossAI::Reset();
     }
 
-    void EnterCombat(Unit* who) 
+    //void EnterCombat(Unit* who)   //org
+    void JustEngagedWith(Unit* /*who*/) override
     {
-       // events.ScheduleEvent(EVENT_CRUSHING_SLAM, 22000);
-       // events.ScheduleEvent(EVENT_TERROR_WALL, 11000);
-       // events.ScheduleEvent(EVENT_COALSECED_ESSENCE, 8500);
-       // events.ScheduleEvent(EVENT_CONSUMING_SPIRITS, 19000);
-       // BossAI::EnterCombat(who);
+        events.ScheduleEvent(EVENT_CRUSHING_SLAM, Milliseconds(22000));
+        events.ScheduleEvent(EVENT_TERROR_WALL, Milliseconds(11000));
+        events.ScheduleEvent(EVENT_COALSECED_ESSENCE, Milliseconds(8500));
+        events.ScheduleEvent(EVENT_CONSUMING_SPIRITS, Milliseconds(19000));
+        //BossAI::EnterCombat(who);//org
     }
 
     void UpdateAI(uint32 diff) override

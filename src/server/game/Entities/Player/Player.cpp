@@ -422,7 +422,7 @@ uint32 Player::FindTalentType()
     return 0;
 }
 
-bool Player::ResetPlayerToLevel(uint32 level, uint32 talent)
+bool Player::ResetPlayerToLevel(uint32 /*level*/, uint32 /*talent*/)
 {
  //tmp   return m_PlayerBotSetting->ResetPlayerToLevel(level, talent);
     return false;//This is to void mistake,a mass write
@@ -11999,13 +11999,13 @@ uint32 Player::GetBattlePayCredits() const
     return credits;
 }
 
-bool Player::AddBattlePetByCreatureId(uint32 creatureId, bool sendUpdate /*= true*/, bool sendDiliveryUpdate /*= false*/)
+bool Player::AddBattlePetByCreatureId(uint32 /*creatureId*/, bool /*sendUpdate*/ /*= true*/, bool /*sendDiliveryUpdate*/ /*= false*/)
 {
 //    return AddBattlePetWithSpeciesId(sDB2Manager.GetSpeciesByCreatureID(creatureId), 0, sendUpdate, sendDiliveryUpdate);//tmp
     return false;//this is for a return value,no before,when fix,delete this.
 }
 
-bool Player::AddBattlePetWithSpeciesId(BattlePetSpeciesEntry const* entry, uint16 flags /*= 0*/, bool sendUpdate /*= true*/, bool sendDiliveryUpdate /*= false*/)
+bool Player::AddBattlePetWithSpeciesId(BattlePetSpeciesEntry const* entry, uint16 flags /*= 0*/, bool /*sendUpdate*/ /*= true*/, bool /*sendDiliveryUpdate*/ /*= false*/)
 {
     if (!entry)
         return false;
@@ -24195,7 +24195,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     SendEquipmentSetList();
 
 	float speedrate = sWorld->getFloatConfig(CONFIG_SPEED_GAME);
-	uint32 speedtime = ((sWorld->GetGameTime() - sWorld->GetUptime()) + (sWorld->GetUptime() * speedrate));
+	//uint32 speedtime = ((sWorld->GetGameTime() - sWorld->GetUptime()) + (sWorld->GetUptime() * speedrate));//NO USE
 
     m_achievementMgr->SendAllData(this);
     m_questObjectiveCriteriaMgr->SendAllData(this);

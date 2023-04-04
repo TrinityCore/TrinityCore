@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -43,6 +43,18 @@ void EventMap::ScheduleEvent(uint32 eventId, Milliseconds time, uint32 group /*=
 
     _eventMap.insert(EventStore::value_type(_time + time, eventId));
 }
+
+void EventMap::ScheduleEvent(uint32 eventId, int time, uint32 group /*= 0*/, uint8 phase /*= 0*/)
+{    
+    if (group && group <= 8)
+        eventId |= (1 << (group + 15));
+
+    if (phase && phase <= 8)
+        eventId |= (1 << (phase + 23));
+
+    _eventMap.insert(EventStore::value_type(_time + Milliseconds(time), eventId));//HAHA,I DID IT --XCORE //NP,IT DIDN'T WORK...OOPS
+}
+
 
 void EventMap::ScheduleEvent(uint32 eventId, Milliseconds minTime, Milliseconds maxTime, uint32 group /*= 0*/, uint8 phase /*= 0*/)
 {
