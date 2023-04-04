@@ -163,6 +163,6 @@ public:
 
 void AddSC_event_darkmoon_faire()
 {
-    //RegisterCreatureAI(npc_selina_dourman);//REPEAT
+    //RegisterCreatureAI(npc_selina_dourman);//REPEAT,IT WILL CAUSE CRASH
     new at_darkmoon_faire_entrance();
 }
