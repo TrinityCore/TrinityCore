@@ -459,25 +459,25 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.maxgold                = fields[40].GetUInt32();
     creatureTemplate.AIName                 = fields[41].GetString();
     creatureTemplate.MovementType           = uint32(fields[42].GetUInt8());
-    if (!fields[44].IsNull())
+    if (!fields[43].IsNull())
         creatureTemplate.Movement.Ground = static_cast<CreatureGroundMovementType>(fields[43].GetUInt8());
 
-    if (!fields[45].IsNull())
+    if (!fields[44].IsNull())
         creatureTemplate.Movement.Swim = fields[44].GetBool();
 
-    if (!fields[46].IsNull())
+    if (!fields[45].IsNull())
         creatureTemplate.Movement.Flight = static_cast<CreatureFlightMovementType>(fields[45].GetUInt8());
 
-    if (!fields[47].IsNull())
+    if (!fields[46].IsNull())
         creatureTemplate.Movement.Rooted = fields[46].GetBool();
 
-    if (!fields[48].IsNull())
+    if (!fields[47].IsNull())
         creatureTemplate.Movement.Chase = static_cast<CreatureChaseMovementType>(fields[47].GetUInt8());
 
-    if (!fields[49].IsNull())
+    if (!fields[48].IsNull())
         creatureTemplate.Movement.Random = static_cast<CreatureRandomMovementType>(fields[48].GetUInt8());
 
-    if (!fields[50].IsNull())
+    if (!fields[49].IsNull())
         creatureTemplate.Movement.InteractionPauseTimer = fields[49].GetUInt32();
 
     creatureTemplate.HoverHeight            = fields[50].GetFloat();
