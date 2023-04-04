@@ -14260,7 +14260,13 @@ uint32 Player::GetGossipMenuForSource(WorldObject* source)
     {
         case TYPEID_UNIT:
         {
-            uint32 menuIdToShow = 0;
+            uint32 menuIdToShow = source->ToCreature()->GetGossipMenuId();
+
+            // if menu id is set by script
+            if (menuIdToShow)
+                return menuIdToShow;
+
+            // otherwise pick from db based on conditions
             for (uint32 menuId : source->ToCreature()->GetCreatureTemplate()->GossipMenuIds)
             {
                 GossipMenusMapBounds menuBounds = sObjectMgr->GetGossipMenusMapBounds(menuId);

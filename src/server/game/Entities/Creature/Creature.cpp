@@ -3523,6 +3523,16 @@ void Creature::ExitVehicle(Position const* /*exitPosition*/)
     SetHomePosition(GetPosition());
 }
 
+uint32 Creature::GetGossipMenuId() const
+{
+    return _gossipMenuId;
+}
+
+void Creature::SetGossipMenuId(uint32 gossipMenuId)
+{
+    _gossipMenuId = gossipMenuId;
+}
+
 uint32 Creature::GetTrainerId() const
 {
     if (_trainerId)
