@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "world_bosses_zuldazar.h"
+#include "TemporarySummon.h"
 
 enum Spells {
     SPELL_CRUSHING_SLAM            = 262004,
@@ -77,18 +78,18 @@ struct boss_tzane : public BossAI
                 break;
             case EVENT_TERROR_WALL:
                 DoCastVictim(SPELL_TERROR_WALL);
-                //events.ScheduleEvent(EVENT_TERROR_WALL, 23000);
+                events.ScheduleEvent(EVENT_TERROR_WALL, Milliseconds(23000));
                 break;
             case EVENT_COALSECED_ESSENCE:
                 DoCast(SPELL_COALESCED_ESSENCE);
-                //events.ScheduleEvent(EVENT_COALSECED_ESSENCE, 24000);
+                events.ScheduleEvent(EVENT_COALSECED_ESSENCE, Milliseconds(24000));
                 break;
             case EVENT_CONSUMING_SPIRITS:
-                //if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                 {
-                  //  me->CastSpell(target, SPELL_CONSUMING_SPIRITS, TRIGGERED_CAN_CAST_WHILE_CASTING_MASK);
+                    me->CastSpell(target, SPELL_CONSUMING_SPIRITS,TRIGGERED_CAST_DIRECTLY );//TRIGGERED_CAN_CAST_WHILE_CASTING_MASK
                 }
-                //events.ScheduleEvent(EVENT_CONSUMING_SPIRITS, 21000);
+                events.ScheduleEvent(EVENT_CONSUMING_SPIRITS, Milliseconds(21000));
                 break;
             default:
                 break;
@@ -110,9 +111,9 @@ class spell_coalseced_essence : public SpellScript
         if (!caster || !target)
             return;
 
-        //if (Unit* orb = caster->SummonCreature(NPC_ORB_OF_SWIRLING, target->GetPosition()))
+        if (TempSummon* orb = caster->SummonCreature(NPC_ORB_OF_SWIRLING, target->GetPosition()))
         {
-          //  orb->AddAura(SPELL_COALESCED_ESSENCE_VISUAL);
+            orb->AddAura(SPELL_COALESCED_ESSENCE_VISUAL,orb);
         }
     }
 

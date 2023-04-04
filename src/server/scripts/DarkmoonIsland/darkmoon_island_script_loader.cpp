@@ -1,4 +1,4 @@
-/*
+﻿/*
 <<<<<<<< HEAD:src/server/scripts/DarkmoonIsland/darkmoon_island_script_loader.cpp
  * Copyright 2021 ShadowCore
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
@@ -22,10 +22,10 @@
 
 // This is where scripts' loading functions should be declared:
 void AddSC_darkmoon_canon();
-//void AddSC_darkmoon_island();
+void AddSC_darkmoon_island();
 void AddSC_darkmoon_rabbit();//暗月兔子?
-//void AddSC_darkmoon_tonk();
-//void AddSC_darkmoon_whack_gnoll();
+void AddSC_darkmoon_tonk();
+void AddSC_darkmoon_whack_gnoll();
 
 
 // The name of this function should match:
@@ -33,10 +33,10 @@ void AddSC_darkmoon_rabbit();//暗月兔子?
 void AddDarkmoonIslandScripts()
 {
     AddSC_darkmoon_canon();
-    //AddSC_darkmoon_island();
+    AddSC_darkmoon_island();
     AddSC_darkmoon_rabbit();//暗月兔子?
-    //AddSC_darkmoon_tonk();
-    //AddSC_darkmoon_whack_gnoll();
+    AddSC_darkmoon_tonk();
+    AddSC_darkmoon_whack_gnoll();
 }
  //Missing scripts
 
