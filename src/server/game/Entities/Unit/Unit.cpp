@@ -1976,7 +1976,7 @@ void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinit
             // sparring
             if (Creature* victimCreature = damageInfo.GetVictim()->ToCreature())
                 if (Unit* attacker = damageInfo.GetAttacker())
-                    if (attacker->IsCreature() && !attacker->IsCharmedOwnedByPlayerOrPlayer())
+                    if (attacker->IsCreature() && !attacker->IsCharmedOwnedByPlayerOrPlayer() && !victimCreature->IsCharmedOwnedByPlayerOrPlayer())
                         if (victimCreature->GetHealthPct() != 0 && victimCreature->GetHealthPct() <= victimCreature->GetSparringHealthPct())
                             damageInfo.ModifyDamage(damageInfo.GetDamage() * -1);
 
@@ -2147,7 +2147,7 @@ void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extr
 
             // sparring
             if (Creature* victimCreature = victim->ToCreature())
-                if (IsCreature() && !IsCharmedOwnedByPlayerOrPlayer())
+                if (IsCreature() && !IsCharmedOwnedByPlayerOrPlayer() && !victimCreature->IsCharmedOwnedByPlayerOrPlayer())
                     if (victimCreature->GetSparringHealthPct() != 0.0f)
                         if (victimCreature->GetHealthPct() <= victimCreature->GetSparringHealthPct())
                             damageInfo.HitInfo |= HITINFO_FAKE_DAMAGE;
