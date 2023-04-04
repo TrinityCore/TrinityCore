@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -163,6 +163,6 @@ public:
 
 void AddSC_event_darkmoon_faire()
 {
-    RegisterCreatureAI(npc_selina_dourman);
+    //RegisterCreatureAI(npc_selina_dourman);//REPEAT
     new at_darkmoon_faire_entrance();
 }
