@@ -42,16 +42,16 @@ struct boss_dunegorger_kraulok : public BossAI
         BossAI::InitializeAI();
     }
 
-    //void SpellHitTarget(Unit* target, SpellInfo const* spell) //tmp
-    //{
-    //    if (spell->Id == SPELL_SHAKE_LOSE)
-    //    {
-    //        me->CastSpell(target, SPELL_SHAKE_LOSE_DMG);
-    //        me->CastSpell(target, SPELL_SHAKE_LOSE_SUMMON);
-    //    }
-    //    if (spell->Id == SPELL_SONIC_BELLOW)
-    //        me->CastSpell(target, SPELL_SONIC_BELLOW_VISUAL);
-    //}
+  /*  void SpellHitTarget(Unit* target, SpellInfo const* spell) 
+    {
+        if (spell->Id == SPELL_SHAKE_LOSE)
+        {
+            me->CastSpell(target, SPELL_SHAKE_LOSE_DMG);
+            me->CastSpell(target, SPELL_SHAKE_LOSE_SUMMON);
+        }
+        if (spell->Id == SPELL_SONIC_BELLOW)
+            me->CastSpell(target, SPELL_SONIC_BELLOW_VISUAL);
+    }*/
 
     void Reset() override
     {
@@ -59,9 +59,10 @@ struct boss_dunegorger_kraulok : public BossAI
         summons.DespawnAll();
     }
 
-    void EnterCombat(Unit* who) 
+    //void EnterCombat(Unit* who)
+    void JustEngagedWith(Unit* /*who*/) override
     {
-        BossAI:EnterCombat(who);
+        //BossAI:EnterCombat(who);//tmp
         //EVENTS
         events.ScheduleEvent(EVENT_SHAKE_LOSE, Milliseconds(25000));
         events.ScheduleEvent(EVENT_PRIMAL_RAGE, Milliseconds(39000));
