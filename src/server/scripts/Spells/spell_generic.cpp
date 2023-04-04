@@ -5270,11 +5270,7 @@ class spell_gen_skinning : public SpellScript
         if (!player)
             return;
 
-        Creature* creature = GetHitCreature();
-        if (!creature)
-            return;
-
-        ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(creature->GetContentTuning());
+        ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(GetHitUnit()->GetContentTuning());
         if (!contentTuning)
             return;
 
