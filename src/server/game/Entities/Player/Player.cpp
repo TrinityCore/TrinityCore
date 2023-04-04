@@ -14260,8 +14260,7 @@ uint32 Player::GetGossipMenuForSource(WorldObject* source)
     {
         case TYPEID_UNIT:
         {
-            Optional<uint32> menuSetByScript = source->ToCreature()->GetGossipMenuId();
-            uint32 menuIdToShow = menuSetByScript ? *menuSetByScript : 0;
+            uint32 menuIdToShow = source->ToCreature()->GetGossipMenuId();
 
             // if menu id is set by script
             if (menuIdToShow)
