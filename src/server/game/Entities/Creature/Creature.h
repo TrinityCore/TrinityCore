@@ -397,6 +397,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void OverrideSparringHealthPct(std::vector<float> const& healthPct);
         float GetSparringHealthPct() { return _sparringHealthPct; }
         uint32 CalculateDamageForSparring(Unit* attacker, uint32 damage);
+        bool ShouldFakeDamageFrom(Unit* attacker);
 
         bool HasCanSwimFlagOutOfCombat() const
         {

@@ -1704,6 +1704,26 @@ uint32 Creature::CalculateDamageForSparring(Unit* attacker, uint32 damage)
     return damage;
 }
 
+bool Creature::ShouldFakeDamageFrom(Unit* attacker)
+{
+    if (!GetSparringHealthPct())
+        return false;
+
+    if (!attacker)
+        return false;
+
+    if (!attacker->IsCreature())
+        return false;
+
+    if (attacker->IsCharmedOwnedByPlayerOrPlayer() || IsCharmedOwnedByPlayerOrPlayer())
+        return false;
+
+    if (GetHealthPct() > GetSparringHealthPct())
+        return false;
+
+    return true;
+}
+
 bool Creature::CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data /*= nullptr*/, uint32 vehId /*= 0*/)
 {
     SetZoneScript();

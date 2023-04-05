@@ -1975,10 +1975,10 @@ void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinit
 
             // sparring
             if (Creature* victimCreature = damageInfo.GetVictim()->ToCreature())
-                if (Unit* attacker = damageInfo.GetAttacker())
-                    if (attacker->IsCreature() && !attacker->IsCharmedOwnedByPlayerOrPlayer() && !victimCreature->IsCharmedOwnedByPlayerOrPlayer())
-                        if (victimCreature->GetHealthPct() != 0 && victimCreature->GetHealthPct() <= victimCreature->GetSparringHealthPct())
-                            damageInfo.ModifyDamage(damageInfo.GetDamage() * -1);
+            {
+                if (victimCreature->ShouldFakeDamageFrom(damageInfo.GetAttacker()))
+                    damageInfo.ModifyDamage(damageInfo.GetDamage() * -1);
+            }
 
             SpellNonMeleeDamage log(damageInfo.GetAttacker(), caster, (*itr)->GetSpellInfo(), (*itr)->GetBase()->GetSpellVisual(), damageInfo.GetSchoolMask(), (*itr)->GetBase()->GetCastId());
             CleanDamage cleanDamage = CleanDamage(splitDamage, 0, BASE_ATTACK, MELEE_HIT_NORMAL);
@@ -2147,10 +2147,10 @@ void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extr
 
             // sparring
             if (Creature* victimCreature = victim->ToCreature())
-                if (IsCreature() && !IsCharmedOwnedByPlayerOrPlayer() && !victimCreature->IsCharmedOwnedByPlayerOrPlayer())
-                    if (victimCreature->GetSparringHealthPct() != 0.0f)
-                        if (victimCreature->GetHealthPct() <= victimCreature->GetSparringHealthPct())
-                            damageInfo.HitInfo |= HITINFO_FAKE_DAMAGE;
+            {
+                if (victimCreature->ShouldFakeDamageFrom(damageInfo.Attacker))
+                    damageInfo.HitInfo |= HITINFO_FAKE_DAMAGE;
+            }
 
             SendAttackStateUpdate(&damageInfo);
 
