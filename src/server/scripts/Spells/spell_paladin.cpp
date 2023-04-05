@@ -59,6 +59,7 @@ enum PaladinSpells
     SPELL_PALADIN_DIVINE_STEED_BLOODELF          = 221886,
     SPELL_PALADIN_DIVINE_STEED_TAUREN            = 221885,
     SPELL_PALADIN_DIVINE_STEED_ZANDALARI_TROLL   = 294133,
+    SPELL_PALADIN_DIVINE_STEED_LF_DRAENEI        = 363608,
     SPELL_PALADIN_DIVINE_STORM_DAMAGE            = 224239,
     SPELL_PALADIN_ENDURING_LIGHT                 = 40471,
     SPELL_PALADIN_ENDURING_JUDGEMENT             = 40472,
@@ -566,7 +567,8 @@ class spell_pal_divine_steed : public SpellScript
             SPELL_PALADIN_DIVINE_STEED_DARK_IRON_DWARF,
             SPELL_PALADIN_DIVINE_STEED_BLOODELF,
             SPELL_PALADIN_DIVINE_STEED_TAUREN,
-            SPELL_PALADIN_DIVINE_STEED_ZANDALARI_TROLL
+            SPELL_PALADIN_DIVINE_STEED_ZANDALARI_TROLL,
+            SPELL_PALADIN_DIVINE_STEED_LF_DRAENEI
         });
     }
 
@@ -584,8 +586,10 @@ class spell_pal_divine_steed : public SpellScript
                 spellId = SPELL_PALADIN_DIVINE_STEED_DWARF;
                 break;
             case RACE_DRAENEI:
-            case RACE_LIGHTFORGED_DRAENEI:
                 spellId = SPELL_PALADIN_DIVINE_STEED_DRAENEI;
+                break;
+            case RACE_LIGHTFORGED_DRAENEI:
+                spellId = SPELL_PALADIN_DIVINE_STEED_LF_DRAENEI;
                 break;
             case RACE_DARK_IRON_DWARF:
                 spellId = SPELL_PALADIN_DIVINE_STEED_DARK_IRON_DWARF;
