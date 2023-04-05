@@ -201,7 +201,7 @@ struct boss_teronogor : public BossAI
             instance->SetBossState(eAuchindounDatas::DataBossTeronogor, EncounterState::FAIL);
     }
 
-    void DamageTaken(Unit* p_Attacker, uint32 &p_Damage) override
+    void DamageTaken(Unit* /*p_Attacker*/, uint32 &p_Damage) override
     {
         if(me->HealthBelowPctDamaged(75, p_Damage) && !m_SecondPhase)//HealthWillBeBelowPctDamaged
         {
@@ -308,7 +308,7 @@ struct boss_teronogor : public BossAI
             Talk(eTerongorTalks::TERONGOR_KILL_01);
     }
 
-    void MovementInform(uint32 p_Type, uint32 p_Id)
+    void MovementInform(uint32 /*p_Type*/, uint32 p_Id)
     {
         Position pos;
         switch (p_Id)
@@ -391,7 +391,7 @@ struct boss_teronogor : public BossAI
         }
         case eTerongorEvents::EventCorruption:
         {
-            if (Unit* l_Random = SelectTarget(SelectTargetMethod::Random, 0, 50.0f, true, -eTerongorSpells::SpellCorruptionDmg))
+            if (Unit* l_Random = SelectTarget(SelectTargetMethod::Random, 0, 50.0f, true,true))// -eTerongorSpells::SpellCorruptionDmg
                 me->CastSpell(l_Random, eTerongorSpells::SpellCorruptionDmg);
 
             events.ScheduleEvent(eTerongorEvents::EventCorruption, Milliseconds(9 * TimeConstants::IN_MILLISECONDS));
@@ -407,7 +407,7 @@ struct boss_teronogor : public BossAI
         }
         case eTerongorEvents::EventCurseOfExhaustion:
         {
-            if (Unit* l_Random = SelectTarget(SelectTargetMethod::Random, 0, 50.0f, true, -eTerongorSpells::SpellCurseOfExhaustionDebuff))
+            if (Unit* l_Random = SelectTarget(SelectTargetMethod::Random, 0, 50.0f, true, true))//-eTerongorSpells::SpellCurseOfExhaustionDebuff
                 me->CastSpell(l_Random, eTerongorSpells::SpellCurseOfExhaustionDebuff);
 
             events.ScheduleEvent(eTerongorEvents::EventCurseOfExhaustion, Milliseconds(13 * TimeConstants::IN_MILLISECONDS));
@@ -423,7 +423,7 @@ struct boss_teronogor : public BossAI
         }
         case eTerongorEvents::EventUnstableAffliction:
         {
-            if (Unit* l_Random = SelectTarget(SelectTargetMethod::Random, 0, 50.0f, true, -eTerongorSpells::SpellUnstableAffliction))
+            if (Unit* l_Random = SelectTarget(SelectTargetMethod::Random, 0, 50.0f, true,true))// -eTerongorSpells::SpellUnstableAffliction
                 me->CastSpell(l_Random, eTerongorSpells::SpellUnstableAffliction);
 
             events.ScheduleEvent(eTerongorEvents::EventUnstableAffliction, Milliseconds(20 * TimeConstants::IN_MILLISECONDS));
@@ -610,7 +610,7 @@ public:
             me->SetReactState(ReactStates::REACT_DEFENSIVE);
         }
 
-        void EnterCombat(Unit* p_Attacker)
+        void EnterCombat(Unit* /*p_Attacker*/)
         {
             me->CastStop();
             me->RemoveAllAuras();
@@ -638,7 +638,7 @@ public:
                 events.ScheduleEvent(eTeronogorDuragEvents::EventShadowBolt, Milliseconds(6 * TimeConstants::IN_MILLISECONDS));
                 break;
             case eTeronogorDuragEvents::EventCorruption:
-                if (Unit* l_Random = SelectTarget(SelectTargetMethod::Random, 0, 50.0f, true, -eTerongorSpells::SpellCorruptionDmg))
+                if (Unit* l_Random = SelectTarget(SelectTargetMethod::Random, 0, 50.0f, true,true))//, -eTerongorSpells::SpellCorruptionDmg
                     me->CastSpell(l_Random, eTeronogorDuragSpells::SpellCorruptionDmg);
                 events.ScheduleEvent(eTeronogorDuragEvents::EventCorruption, Milliseconds(9 * TimeConstants::IN_MILLISECONDS));
                 break;
@@ -709,7 +709,7 @@ public:
             me->SetReactState(ReactStates::REACT_DEFENSIVE);
         }
 
-        void EnterCombat(Unit* p_Attacker)
+        void EnterCombat(Unit* /*p_Attacker*/)
         {
             me->CastStop();
             me->RemoveAllAuras();
@@ -750,7 +750,7 @@ public:
             }
         }
 
-        void MoveInLineOfSight(Unit* who) override
+        void MoveInLineOfSight(Unit* /*who*/) override
         {
            /* if (who && who->IsPlayer() && me->IsWithinDist(who, 18.0f, false) && !IsLock) //tmp
             {
@@ -801,7 +801,7 @@ public:
             me->SetReactState(ReactStates::REACT_AGGRESSIVE);
         }
 
-        void EnterCombat(Unit* p_Attacker)
+        void EnterCombat(Unit* /*p_Attacker*/)
         {
             events.ScheduleEvent(eTerongorEvents::EventWrathcleave, Milliseconds(10 * TimeConstants::IN_MILLISECONDS));
             events.ScheduleEvent(eTerongorEvents::EventWrathstorm, Milliseconds(urand(14 * TimeConstants::IN_MILLISECONDS, 16 * TimeConstants::IN_MILLISECONDS)));
@@ -836,7 +836,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void MoveInLineOfSight(Unit* who) override
+        void MoveInLineOfSight(Unit* /*who*/) override
         {
             /*if (who && who->IsPlayer() && me->IsWithinDist(who, 18.0f, false) && !IsLock) //tmp
             {
@@ -896,7 +896,7 @@ public:
                 me->CastSpell(l_Teronogor, eAuchindounSpells::SpellDrainSoulVisual);
         }
 
-        void EnterCombat(Unit* p_Attacker)
+        void EnterCombat(Unit* /*p_Attacker*/)
         {
             me->CastStop();
             me->RemoveAllAuras();
@@ -907,7 +907,7 @@ public:
                 me->CastSpell(l_Zashoo, eGromkashSpells::SpellGrimoireOfSacrifice);
         }
 
-        void JustDied(Unit* p_Killer)
+        void JustDied(Unit* /*p_Killer*/)
         {
             if (Creature* l_Teronogor = me->FindNearestCreature(NPC_TERONOGOR, 1000.0f, true))
                 l_Teronogor->RemoveAura(eTerongorSpells::SpellTeronogorShield);
@@ -1040,7 +1040,7 @@ public:
             // }
         }
 
-        void UpdateAI(uint32 p_Diff) override
+        void UpdateAI(uint32 /*p_Diff*/) override
         {
             me->SetSpeed(UnitMoveType::MOVE_RUN, 0.3f);
 
@@ -1117,7 +1117,7 @@ public:
             SpellChaosWaveDmg = 157002
         };
 
-        void HandleDummy(SpellEffIndex p_EffIndex)
+        void HandleDummy(SpellEffIndex /*p_EffIndex*/)
         {
             if (!GetCaster() && !GetExplTargetUnit())
                 return;
@@ -1218,7 +1218,7 @@ public:
             SpellDemonicLeapJump = 157039
         };
 
-        void HandleDummy(SpellEffIndex p_EffIndex)
+        void HandleDummy(SpellEffIndex /*p_EffIndex*/)
         {
             if (!GetCaster() && !GetExplTargetUnit())
                 return;
@@ -1245,7 +1245,7 @@ public:
 
     auchindoun_teronogor_gameobject_soul_transporter_01() : GameObjectScript("auchindoun_teronogor_gameobject_soul_transporter_01") { }
 
-    bool OnGossipHello(Player* p_Player, GameObject* p_Gobject)
+    bool OnGossipHello(Player* p_Player, GameObject* /*p_Gobject*/)
     {
         p_Player->AddAura(eTerongorSpells::SpellTranscend, p_Player);
         //p_Player->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
@@ -1277,7 +1277,7 @@ public:
 
     auchindoun_teronogor_gameobject_soul_transporter_02() : GameObjectScript("auchindoun_teronogor_gameobject_soul_transporter_02") { }
 
-    bool OnGossipHello(Player* p_Player, GameObject* p_Gobject)
+    bool OnGossipHello(Player* p_Player, GameObject* /*p_Gobject*/)
     {
         p_Player->AddAura(eTerongorSpells::SpellTranscend, p_Player);
         //p_Player->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
@@ -1310,7 +1310,7 @@ public:
 
     auchindoun_teronogor_gameobject_soul_transporter_03() : GameObjectScript("auchindoun_teronogor_gameobject_soul_transporter_03") { }
 
-    bool OnGossipHello(Player* p_Player, GameObject* p_Gobject)
+    bool OnGossipHello(Player* p_Player, GameObject* /*p_Gobject*/)
     {
         p_Player->AddAura(eTerongorSpells::SpellTranscend, p_Player);
         //p_Player->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);
@@ -1343,7 +1343,7 @@ public:
 
     auchindoun_teronogor_gameobject_soul_transporter_04() : GameObjectScript("auchindoun_teronogor_gameobject_soul_transporter_04") { }
 
-    bool OnGossipHello(Player* p_Player, GameObject* p_Gobject)
+    bool OnGossipHello(Player* p_Player, GameObject* /*p_Gobject*/)
     {
         p_Player->AddAura(eTerongorSpells::SpellTranscend, p_Player);
         //p_Player->AddUnitMovementFlag(MovementFlags::MOVEMENTFLAG_ROOT);

@@ -69,8 +69,8 @@ public:
             if (guardianangelwatchinghere)
             {
                 // summon guardian angel for a while
-                uint32 minutesforassist = sConfigMgr->GetIntDefault("GuardianAngel.Minutes.For.Assist", 1);
-                TempSummon* npc = player->SummonCreature(8000000, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, minutesforassist * 60000, ObjectGuid::Empty);//ObjectGuid privateObjectOwner /* = ObjectGuid::Empty */
+                //uint32 minutesforassist = sConfigMgr->GetIntDefault("GuardianAngel.Minutes.For.Assist", 1);
+                //TempSummon* npc = player->SummonCreature(8000000, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, minutesforassist * 60000, ObjectGuid::Empty);//ObjectGuid privateObjectOwner /* = ObjectGuid::Empty */
                 //暂时注释看看
                 //这个是新的,但是启用这句后,生成的最后报错
                 //报错内容如下
@@ -91,20 +91,20 @@ public:
 
 
     // if the player getting killed by a mob
-    void OnPlayerKilledByCreature(Creature* killer, Player* player)
+    void OnPlayerKilledByCreature(Creature* /*killer*/, Player* player)
     {
         SummonGuardianAngel(player);
     }
 
     // if the player getting killed by a player
-    void OnPVPKill(Player* killer, Player* player)
+    void OnPVPKill(Player* /*killer*/, Player* player)
     {
         SummonGuardianAngel(player);
     }
 
 
     // if the player getting low hp NOTWORKING??%?%
-    void OnPlayerTakeDamage(Player* player, uint32 damage, SpellSchoolMask schoolMask)
+    void OnPlayerTakeDamage(Player* player, uint32 /*damage*/, SpellSchoolMask /*schoolMask*/)
     {
         if (player->GetHealthPct() <= 30)
         {
@@ -247,7 +247,7 @@ struct GuardianAngel : public ScriptedAI
         return true;
     }
 
-    bool GossipSelect(Player* player, uint32 sender, uint32 action) //override
+    bool GossipSelect(Player* player, uint32 /*sender*/, uint32 action) //override
     {
         switch (action)
         {

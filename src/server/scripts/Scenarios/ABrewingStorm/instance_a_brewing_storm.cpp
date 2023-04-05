@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
@@ -40,11 +40,11 @@ public:
         {
         }
 
-        void OnPlayerEnter(Player* player) override
+        void OnPlayerEnter(Player* /*player*/) override
         {
         }
 
-        void SetData(uint32 type, uint32 data) override
+        void SetData(uint32 type, uint32 /*data*/) override
         {
             switch (type)
             {

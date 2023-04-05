@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright 2023 AzgathCore
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -88,7 +88,7 @@ struct boss_ravnyr : public BossAI
         me->GetPlayerListInGrid(playerList, 100.0f);
         for (auto& players : playerList)
         {
-//            players->ForceCompleteQuest(55992);//tmp
+            players->CompleteQuest(55992);
         }
     }
 };

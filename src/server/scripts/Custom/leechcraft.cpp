@@ -48,7 +48,7 @@ namespace {
     private:
         std::map<ObjectGuid, int> _unitDifficulty;
 
-        int CalculateDifficulty(Map* map, Player* player)
+        int CalculateDifficulty(Map* map, Player* /*player*/)
         {
             int difficulty = 1;
             {

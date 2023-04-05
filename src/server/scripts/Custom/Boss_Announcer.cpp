@@ -23,7 +23,7 @@ public:
             {
                 std::string plr = player->GetName();
                 std::string boss_n = boss->GetName();
-                bool ingroup = player->GetGroup();
+                //bool ingroup = player->GetGroup();
                 std::string tag_colour = "7bbef7";
                 std::string plr_colour = "7bbef7";
                 std::string boss_colour = "ff0000";

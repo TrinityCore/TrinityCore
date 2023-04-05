@@ -1,4 +1,4 @@
-//À´Ô´:https://github.com/openlcoreteam/OpenLCore/blob/master/src/server/scripts/Custom/quest_conversation.cpp
+ï»¿//æ¥æº:https://github.com/openlcoreteam/OpenLCore/blob/master/src/server/scripts/Custom/quest_conversation.cpp
 #include "ScriptMgr.h"
 #include "Player.h"
 #include "Config.h"
@@ -8,8 +8,8 @@
 #include "Log.h"
 
 // Structure Quest Conversation
-//»¹²»Çå³þÕâ¸ö½Å±¾ÊÇ¸ÉÂïµÄ,×ÖÃæÒâË¼ÊÇÈÎÎñ¶Ô»°
-//Õâ»õÆôÓÃ,»áÊ¹·þÎñ¶ËÆô¶¯²»ÁË,Ç§Íò±ðÆôÓÃ,½÷¼Ç!
+//è¿˜ä¸æ¸…æ¥šè¿™ä¸ªè„šæœ¬æ˜¯å¹²å˜›çš„,å­—é¢æ„æ€æ˜¯ä»»åŠ¡å¯¹è¯
+//è¿™è´§å¯ç”¨,ä¼šä½¿æœåŠ¡ç«¯å¯åŠ¨ä¸äº†,åƒä¸‡åˆ«å¯ç”¨,è°¨è®°!
 struct QuestConversation
 {
     QuestConversation(uint32 questId, uint32 questAcceptConversation, uint32 questCompleteConversation) :
@@ -105,8 +105,8 @@ void LoadQuestConversation(void)
             Field* fields = result->Fetch();
 
             uint32 questId = fields[0].GetUInt32();
-            uint32 questAcceptConversation = 0;
-            uint32 questCompleteConversation = 0;
+            //uint32 questAcceptConversation = 0;
+            //uint32 questCompleteConversation = 0;
 
             QuestConversation* questConversation = new QuestConversation(questId, fields[1].GetUInt32(), fields[2].GetUInt32());
             _QuestConversations[questId] = questConversation;

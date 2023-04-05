@@ -188,7 +188,7 @@ public:
             }
         }
 
-        void DoAction(int32 const action) override
+        void DoAction(int32 const /*action*/) override
         {
             me->SetVisible(true);
             DoCast(SPELL_INTRO);
@@ -222,7 +222,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage)
+        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
         {
             if (phase < 3 && me->HealthBelowPct(phases_hp_required[phase]))
             {
@@ -315,7 +315,7 @@ public:
 
         void Reset() override {}
 
-        bool GossipSelect(Player* player, uint32 sender, uint32 action) 
+        bool GossipSelect(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/) 
         {
             me->RemoveAurasDueToSpell(144373);
             me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
@@ -327,7 +327,7 @@ public:
         return true;
         }
 
-        void UpdateAI(uint32 diff) override { }
+        void UpdateAI(uint32 /*diff*/) override { }
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -351,7 +351,7 @@ public:
 
         float scale_by_one_pct{};
 
-        void OnUpdate(uint32 diff) override
+        void OnUpdate(uint32 /*diff*/) override
         {
             Unit* caster = at->GetCaster();
             if (!caster)

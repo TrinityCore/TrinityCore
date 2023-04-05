@@ -1,4 +1,4 @@
-/*
+﻿/*
 *  EXAMPLE OF NPC GOSSIP //NPC闲聊示例
 * 
 */
@@ -38,7 +38,7 @@ public:
         }
         if (action == GOSSIP_ACTION_INFO_DEF + 1)// 2
         {
-            player->TeleportTo(1220, -219.274, 5601.44f, 61.1099f, 2.9442f); // Legion Saturn
+            player->TeleportTo(1220, -219.274f, 5601.44f, 61.1099f, 2.9442f); // Legion Saturn
 
         }
         if (action == GOSSIP_ACTION_INFO_DEF + 2)//3

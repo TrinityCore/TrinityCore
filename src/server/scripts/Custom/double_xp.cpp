@@ -11,7 +11,7 @@ class double_xp : public PlayerScript
 public:
     double_xp() : PlayerScript("double_xp") { }
 
-    void OnGiveXP(Player* player, uint32& amount, Unit* victim) override
+    void OnGiveXP(Player* /*player*/, uint32& amount, Unit* /*victim*/) override
     {
         if (sConfigMgr->GetBoolDefault("Double.XP", false)) //配置里要增加Double.XP选项  //发现和XpWeekend重复了,改为默认禁用
         {
@@ -25,7 +25,7 @@ public:
         }
     }
 
-    void OnLogin(Player* player, bool firstLogin)
+    void OnLogin(Player* player, bool /*firstLogin*/)
     {
         if (sConfigMgr->GetBoolDefault("Double.XP", true))
         {

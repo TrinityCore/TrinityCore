@@ -1,4 +1,4 @@
-/*
+﻿/*
 World Boss: Nalak <The Storm Lord>
 */
 
@@ -92,7 +92,7 @@ public:
         }
 
         //void EnterEvadeMode()         //org
-        void EnterEvadeMode(EvadeReason why) override
+        void EnterEvadeMode(EvadeReason /*why*/) override
         {
             Reset();
      //       me->DeleteThreatList();

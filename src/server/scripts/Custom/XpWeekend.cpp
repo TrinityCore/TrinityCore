@@ -1,4 +1,4 @@
-#include "Player.h"
+ï»¿#include "Player.h"
 #include "ScriptMgr.h"
 #include "Chat.h"
 #include "World.h"
@@ -9,11 +9,11 @@
     {
     public:
         XpWeekend() : PlayerScript("XpWeekend") { }
-        void OnGiveXP(Player* player, uint32& amount, Unit* victim)override
+        void OnGiveXP(Player* /*player*/, uint32& amount, Unit* /*victim*/)override
         {
-            if (sConfigMgr->GetBoolDefault("DynamicXP.Enable", true))   //ÅäÖÃÀïÒªÔö¼ÓDynamicXP.EnableÑ¡Ïî
+            if (sConfigMgr->GetBoolDefault("DynamicXP.Enable", true))   //é…ç½®é‡Œè¦å¢žåŠ DynamicXP.Enableé€‰é¡¹
             {
-                boost::gregorian::date date(boost::gregorian::day_clock::local_day());//¼ì²âÊÇ·ñÊÇÐÇÆÚÎå¡¢Áù»òÐËÈ¤Ìì,ÊÇÔò¼Ó±¶¾­Ñé
+                boost::gregorian::date date(boost::gregorian::day_clock::local_day());//æ£€æµ‹æ˜¯å¦æ˜¯æ˜ŸæœŸäº”ã€å…­æˆ–å…´è¶£å¤©,æ˜¯åˆ™åŠ å€ç»éªŒ
                 auto day = date.day_of_week();
                 if (day == boost::date_time::Friday ||   
                     day == boost::date_time::Saturday ||
@@ -23,7 +23,7 @@
                 }
             }
         }
-        void OnLogin(Player* player, bool firstLogin)
+        void OnLogin(Player* player, bool /*firstLogin*/)
         {
             if (sConfigMgr->GetBoolDefault("DynamicXP.Enable", true))
             {

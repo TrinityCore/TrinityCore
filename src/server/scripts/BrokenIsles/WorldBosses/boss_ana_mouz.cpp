@@ -133,7 +133,7 @@ public:
     {
         PrepareAuraScript(spell_mothers_embrace_AuraScript);
 
-        void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (!GetCaster() || !GetTarget() || GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL)
                 return;

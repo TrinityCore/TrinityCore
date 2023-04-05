@@ -388,7 +388,7 @@ class PlayerSavingOnLogoutFix : public PlayerScript
 public:
     PlayerSavingOnLogoutFix() : PlayerScript("PlayerSavingOnLogoutFix") { }
 
-    void OnLogout(Player* player) override
+    void OnLogout(Player* /*player*/) override
     {
         ObjectAccessor::SaveAllPlayers();
     }
@@ -592,7 +592,7 @@ class sl_playerscript_add_missing_spells_generic : public PlayerScript
 public:
     sl_playerscript_add_missing_spells_generic() : PlayerScript("sl_playerscript_add_missing_spells_generic") { }
 
-    void OnLevelChanged(Player* player, uint8 oldLevel)
+    void OnLevelChanged(Player* player, uint8 /*oldLevel*/)
     {
         SpellCheckData* data = new SpellCheckData();
 
@@ -741,13 +741,13 @@ public:
     ps_spell_azerite_residue() : PlayerScript("ps_spell_azerite_residue") { }
 
     // Called when a player kills another player
-    void OnPVPKill(Player* killer, Player* killed) override
+    void OnPVPKill(Player* /*killer*/, Player* killed) override
     {
         if (killed->HasAura(SPELL_AZERITE_RESIDUE))
         {
             if (Aura* aura = killed->GetAura(SPELL_AZERITE_RESIDUE))
             {
-                uint8 count = aura->GetStackAmount();
+                //uint8 count = aura->GetStackAmount();
                 aura->SetStackAmount(1);
                 /*if (InstanceScript* instance = killer->GetInstanceScript())
                     instance->GiveIslandAzeriteXpGain(killer, killed->GetGUID(), count);*/
@@ -756,13 +756,13 @@ public:
     }
 
     // Called when a player kills a creature
-    void OnCreatureKill(Player* killer, Creature* killed) override
+    void OnCreatureKill(Player* /*killer*/, Creature* killed) override
     {
         if (killed->HasAura(SPELL_AZERITE_RESIDUE))
         {
             if (Aura* aura = killed->GetAura(SPELL_AZERITE_RESIDUE))
             {
-                uint8 count = aura->GetStackAmount();
+                //uint8 count = aura->GetStackAmount();
                 aura->SetStackAmount(1);
                /* if (InstanceScript* instance = killer->GetInstanceScript())
                     instance->GiveIslandAzeriteXpGain(killer, killed->GetGUID(), count);*/

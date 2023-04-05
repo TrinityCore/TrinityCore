@@ -1,7 +1,7 @@
-//À´Ô´:OpenLCore
-//µØÖ·:https://github.com/openlcoreteam/OpenLCore/blob/master/src/server/scripts/Custom/debug_lfg.cpp
+ï»¿//æ¥æº:OpenLCore
+//åœ°å€:https://github.com/openlcoreteam/OpenLCore/blob/master/src/server/scripts/Custom/debug_lfg.cpp
 
-//·¢ÏÖÎÒÒÑ¾­Í¨¹ý×Ô¶¨ÒåÅäÖÃÊµÏÖÁË,°×Ã¦»îÁË
+//å‘çŽ°æˆ‘å·²ç»é€šè¿‡è‡ªå®šä¹‰é…ç½®å®žçŽ°äº†,ç™½å¿™æ´»äº†
 
 #include "Config.h"
 #include "World.h"
@@ -13,7 +13,7 @@ class debug_lfg : public PlayerScript
 public:
     debug_lfg() : PlayerScript("debug_lfg") { }
 
-    void OnLogin(Player* player, bool /*loginFirst*/)
+    void OnLogin(Player* /*player*/, bool /*loginFirst*/)
     {
         if (sConfigMgr->GetBoolDefault("Debug.LFG", true))
             if (!sLFGMgr->IsTesting())

@@ -1,4 +1,4 @@
-/*
+﻿/*
 * Copyright (C) 2021 BfaCore Reforged
 * 2023 XCore
 * This program is free software; you can redistribute it and/or modify it
@@ -67,7 +67,7 @@ public:
             _events.Reset();
         }
 
-        void EnterCombat(Unit* who) 
+        void EnterCombat(Unit* /*who*/) 
         {
             _events.ScheduleEvent(1, Milliseconds(5000));
             _events.ScheduleEvent(2, Milliseconds(8000));
@@ -85,7 +85,7 @@ public:
             _EnterEvadeMode();
         }
 
-        void JustDied(Unit* killer) override
+        void JustDied(Unit* /*killer*/) override
         {
         }
 
@@ -174,7 +174,7 @@ public:
 
         void OnInitialize() override
         {
-            timer = 0.5 * IN_MILLISECONDS;
+            timer = 0.5 * int(IN_MILLISECONDS);
         }
 
         void OnUpdate(uint32 diff) override
@@ -199,7 +199,7 @@ public:
                             itr->CastSpell(itr, 217206, true);
                     }
 
-                timer = 0.5 * IN_MILLISECONDS;
+                timer = 0.5 * int(IN_MILLISECONDS);
             }
             else
                 timer -= diff;

@@ -11802,7 +11802,7 @@ void ObjectMgr::LoadPlayerChoicesLocale()
     }
 }
 
-uint32 ObjectMgr::GetPlayerTeamByGUID(ObjectGuid const& guid)//TCB
+uint32 ObjectMgr::GetPlayerTeamByGUID(ObjectGuid const& /*guid*/)//TCB
 {
 
     //  if (CharacterCacheEntry const* characterInfo = sCharacterCache->GetCharacterCacheByGuid(guid));

@@ -108,7 +108,7 @@ public:
             events.Reset();
             events.SetPhase(PHASE_COMBAT);
             events.ScheduleEvent(EVENT_JETSAM, Milliseconds(10000));
-            me->AI()->Talk(88247); //On aggro text
+            me->AI()->Talk(88247.f,nullptr); //On aggro text
             me->SetPower(POWER_MANA, 0);
             getsamCount = 0;
         }

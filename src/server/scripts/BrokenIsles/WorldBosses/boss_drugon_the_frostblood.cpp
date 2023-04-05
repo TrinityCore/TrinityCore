@@ -61,7 +61,7 @@ public:
         }
 
         //void EnterCombat(Unit* who)
-        void JustEngagedWith(Unit* who) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             _events.ScheduleEvent(1, Milliseconds(10000));
             _events.ScheduleEvent(3, Milliseconds(15000));
@@ -78,7 +78,7 @@ public:
             _EnterEvadeMode();
         }
 
-        void JustDied(Unit* killer) override
+        void JustDied(Unit* /*killer*/) override
         {
 
         }

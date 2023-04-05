@@ -92,7 +92,7 @@ public:
         {
             events.Update(diff);
 
-            Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
+            //Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
 
             //while (uint32 eventId = events.ExecuteEvent())
             //{
@@ -307,7 +307,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 uiSender, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 action)
     {
         char const* GOSSIP_BUTTON_1;
         char const* GOSSIP_BUTTON_2;

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -57,7 +57,7 @@ public:
             return true;
         }
 
-        void OnUpdate(uint32 diff, AuraEffect* aurEff)
+        void OnUpdate(uint32 diff, AuraEffect* /*aurEff*/)
         {
             Unit* player = GetCaster();
             if (!player)

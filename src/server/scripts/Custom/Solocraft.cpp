@@ -1,4 +1,4 @@
-#include <map>
+﻿#include <map>
 
 #include "Config.h"
 #include "ScriptMgr.h"
@@ -24,7 +24,7 @@ public:
 		TC_LOG_INFO("scripts.solocraft.player.instance", "[Solocraft] solocraft_player_instance_handler Loaded");
 	}
 	
-	void OnLogin(Player *player, bool firstLogin) override {
+	void OnLogin(Player *player, bool /*firstLogin*/) override {
 		if (sConfigMgr->GetBoolDefault("Solocraft.Enable", true))
 		{
 		ChatHandler(player->GetSession()).SendSysMessage("Solocraft mode activated in raids");
@@ -42,7 +42,7 @@ public:
 private:
 	std::map<ObjectGuid, int> _unitDifficulty;
 
-	int CalculateDifficulty(Map *map, Player *player) {
+	int CalculateDifficulty(Map *map, Player */*player*/) {
 		int difficulty = 1;
 		if (map) {
 			if (map->Is25ManRaid()) {

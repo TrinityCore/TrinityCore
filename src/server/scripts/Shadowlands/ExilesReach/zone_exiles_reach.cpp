@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright 2023 AzgathCore
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -78,13 +78,13 @@ class exiles_reach : public PlayerScript
 public:
     exiles_reach() : PlayerScript("exiles_reach") { }
 
-    void OnLogin(Player* player, bool /*firstLogin*/) override
+    void OnLogin(Player* /*player*/, bool /*firstLogin*/) override
     {
        /* if (player->GetMapId() == MAP_NPE)
             player->AddPvpFlag(UNIT_BYTE2_FLAG_SANCTUARY);*///tmp
     }
 
-    void OnUpdateArea(Player* player, uint32 /*newArea*/, uint32 /*oldArea*/)
+    void OnUpdateArea(Player* /*player*/, uint32 /*newArea*/, uint32 /*oldArea*/)
     {
        /* if (player->GetMapId() == MAP_NPE)
             player->AddPvpFlag(UNIT_BYTE2_FLAG_SANCTUARY);*///tmp
@@ -128,7 +128,7 @@ struct npc_private_cole : public ScriptedAI
         ScriptedAI::Reset();
     }
 
-    void JustDied(Unit* killer) override
+    void JustDied(Unit* /*killer*/) override
     {
         //if (Player* player = killer->ToPlayer())//tmp
           /*  if (player->HasQuest(QUEST_STAND_YOUR_GROUND))
@@ -161,10 +161,10 @@ struct npc_scout_o_matic_5000 : public ScriptedAI
 private:
     Vehicle* vehicle;
 
-    void IsSummonedBy(WorldObject* summoner)
+    void IsSummonedBy(WorldObject* /*summoner*/)
     {
         vehicle = me->GetVehicleKit();
-        Player* player = summoner->ToPlayer();
+        //Player* player = summoner->ToPlayer();    //NO USE
         me->GetMotionMaster()->MovePoint(1, 206.0f, -2289.0f, 117.0f, true);
 
         //AddTimedDelayedOperation(25000, [this, player]() -> void
@@ -431,7 +431,7 @@ public:
     uint32 PHASE_CHAPTER20 = 15356;
 
 
-    void OnUpdate(Player* player, uint32 diff)
+    void OnUpdate(Player* /*player*/, uint32 /*diff*/)
     {
         /*if (PHASE_UPDATE_DELAY_DIFF <= diff)
         {

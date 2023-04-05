@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright 2021 ShadowCore
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -89,11 +89,11 @@ public:
 
             events.Update(diff);
 
-            switch (events.ExecuteEvent())
-            {
-                default:
-                    break;
-            }
+            //switch (events.ExecuteEvent())
+            //{
+            //    /*default:
+            //        break;*/
+            //}
 
             DoMeleeAttackIfReady();
         }

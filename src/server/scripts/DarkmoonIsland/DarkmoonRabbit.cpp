@@ -60,14 +60,14 @@ public:
             if (!UpdateVictim())
                 return;
 
-            while (uint32 eventId = events.ExecuteEvent())//may have problem
-            {
-                switch (eventId)
-                {
-                    default:
-                    break;
-                }
-            }
+            //while (uint32 eventId = events.ExecuteEvent())//may have problem
+            //{
+            //    switch (eventId)
+            //    {
+            //        default:
+            //        break;
+            //    }
+            //}
 
             DoMeleeAttackIfReady();
         }

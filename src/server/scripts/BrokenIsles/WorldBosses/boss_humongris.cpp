@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright 2021 
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -75,7 +75,7 @@ struct boss_humongris : public ScriptedAI
         ScriptedAI::Reset();
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_FIRE_BOOM, 14000s);
         events.ScheduleEvent(EVENT_EARTHSHAKE_STOMP, Milliseconds(28800));

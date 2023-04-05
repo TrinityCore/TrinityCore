@@ -1,4 +1,4 @@
-/*
+﻿/*
 * Converted from the original LUA script to a module for Azerothcore(Sunwell) :D
 * Converted to Single Player Project - Legion server by Conan
 */
@@ -19,25 +19,25 @@ public:
             //ChatHandler(player->GetSession()).SendSysMessage(sConfigMgr->GetStringDefault("RandomEnchants.OnLoginMessage", "This server is based on Single Player Project - Legion repack.").c_str());//org
             ChatHandler(player->GetSession()).SendSysMessage(sConfigMgr->GetStringDefault("RandomEnchants.OnLoginMessage", "This server is based on XCore.").c_str());
     }
-	void OnLootItem(Player* player, Item* item, uint32 count)
+	void OnLootItem(Player* player, Item* item, uint32 /*count*/)
 	{
 		if (sConfigMgr->GetBoolDefault("RandomEnchants.OnLoot", true))
 			RollPossibleEnchant(player, item);
 	}
-	void OnCreateItem(Player* player, Item* item, uint32 count)
+	void OnCreateItem(Player* player, Item* item, uint32 /*count*/)
 	{
 		if (sConfigMgr->GetBoolDefault("RandomEnchants.OnCreate", true))
 			RollPossibleEnchant(player, item);
 	}
-	void OnQuestRewardItem(Player* player, Item* item, uint32 count)
+	void OnQuestRewardItem(Player* player, Item* item, uint32 /*count*/)
 	{
 		if(sConfigMgr->GetBoolDefault("RandomEnchants.OnQuestReward", true))
 			RollPossibleEnchant(player, item);
 	}
 	void RollPossibleEnchant(Player* player, Item* item)
 	{
-		uint32 Quality = item->GetTemplate()->GetQuality();
-		uint32 Class = item->GetTemplate()->GetClass();
+		//uint32 Quality = item->GetTemplate()->GetQuality();
+		//uint32 Class = item->GetTemplate()->GetClass();
 		//if ((Quality > 5 && Quality < 0)/*eliminates enchanting anything that isn't a recognized quality*/ || (Class != 2 && Class != 4)/*eliminates enchanting anything but weapons/armor*/)
 			//return;
 		int slotRand[3] = { -1, -1, -1 };
