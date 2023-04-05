@@ -385,7 +385,7 @@ CREATE TABLE `area_trigger` (
   `BoxYaw` float NOT NULL DEFAULT '0',
   `ShapeType` tinyint NOT NULL DEFAULT '0',
   `ShapeID` smallint NOT NULL DEFAULT '0',
-  `AreaTriggerActionSetID` smallint NOT NULL DEFAULT '0',
+  `AreaTriggerActionSetID` int NOT NULL DEFAULT '0',
   `Flags` tinyint NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
@@ -2542,7 +2542,7 @@ CREATE TABLE `currency_container` (
   `MinAmount` int NOT NULL DEFAULT '0',
   `MaxAmount` int NOT NULL DEFAULT '0',
   `ContainerIconID` int NOT NULL DEFAULT '0',
-  `ContainerQuality` int NOT NULL DEFAULT '0',
+  `ContainerQuality` tinyint NOT NULL DEFAULT '0',
   `OnLootSpellVisualKitID` int NOT NULL DEFAULT '0',
   `CurrencyTypesID` int unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
@@ -2729,9 +2729,9 @@ CREATE TABLE `difficulty` (
   `Flags` smallint unsigned NOT NULL DEFAULT '0',
   `ItemContext` tinyint unsigned NOT NULL DEFAULT '0',
   `ToggleDifficultyID` tinyint unsigned NOT NULL DEFAULT '0',
-  `GroupSizeHealthCurveID` smallint unsigned NOT NULL DEFAULT '0',
-  `GroupSizeDmgCurveID` smallint unsigned NOT NULL DEFAULT '0',
-  `GroupSizeSpellPointsCurveID` smallint unsigned NOT NULL DEFAULT '0',
+  `GroupSizeHealthCurveID` int unsigned NOT NULL DEFAULT '0',
+  `GroupSizeDmgCurveID` int unsigned NOT NULL DEFAULT '0',
+  `GroupSizeSpellPointsCurveID` int unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -3351,7 +3351,7 @@ CREATE TABLE `garr_building` (
   `AllianceName` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `Description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `Tooltip` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-  `GarrTypeID` tinyint unsigned NOT NULL DEFAULT '0',
+  `GarrTypeID` tinyint NOT NULL DEFAULT '0',
   `BuildingType` tinyint NOT NULL DEFAULT '0',
   `HordeGameObjectID` int NOT NULL DEFAULT '0',
   `AllianceGameObjectID` int NOT NULL DEFAULT '0',
@@ -3487,7 +3487,7 @@ CREATE TABLE `garr_follower` (
   `HordeSourceText` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `AllianceSourceText` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `TitleName` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-  `GarrTypeID` tinyint unsigned NOT NULL DEFAULT '0',
+  `GarrTypeID` tinyint NOT NULL DEFAULT '0',
   `GarrFollowerTypeID` tinyint NOT NULL DEFAULT '0',
   `HordeCreatureID` int NOT NULL DEFAULT '0',
   `AllianceCreatureID` int NOT NULL DEFAULT '0',
@@ -3585,7 +3585,7 @@ CREATE TABLE `garr_mission` (
   `MapPosY` float NOT NULL DEFAULT '0',
   `WorldPosX` float NOT NULL DEFAULT '0',
   `WorldPosY` float NOT NULL DEFAULT '0',
-  `GarrTypeID` tinyint unsigned NOT NULL DEFAULT '0',
+  `GarrTypeID` tinyint NOT NULL DEFAULT '0',
   `GarrMissionTypeID` tinyint unsigned NOT NULL DEFAULT '0',
   `GarrFollowerTypeID` tinyint unsigned NOT NULL DEFAULT '0',
   `MaxFollowers` tinyint unsigned NOT NULL DEFAULT '0',
@@ -3752,7 +3752,7 @@ DROP TABLE IF EXISTS `garr_talent_tree`;
 CREATE TABLE `garr_talent_tree` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `Name` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-  `GarrTypeID` tinyint unsigned NOT NULL DEFAULT '0',
+  `GarrTypeID` tinyint NOT NULL DEFAULT '0',
   `ClassID` int NOT NULL DEFAULT '0',
   `MaxTiers` tinyint NOT NULL DEFAULT '0',
   `UiOrder` tinyint NOT NULL DEFAULT '0',
@@ -5568,11 +5568,12 @@ DROP TABLE IF EXISTS `languages`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `languages` (
-  `ID` int unsigned NOT NULL DEFAULT '0',
   `Name` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `ID` int unsigned NOT NULL DEFAULT '0',
   `Flags` int NOT NULL DEFAULT '0',
   `UiTextureKitID` int NOT NULL DEFAULT '0',
   `UiTextureKitElementCount` int NOT NULL DEFAULT '0',
+  `LearningCurveID` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -6895,7 +6896,7 @@ CREATE TABLE `quest_info` (
   `InfoName` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `Type` tinyint NOT NULL DEFAULT '0',
   `Modifiers` int NOT NULL DEFAULT '0',
-  `Profession` int NOT NULL DEFAULT '0',
+  `Profession` smallint unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -8061,6 +8062,24 @@ CREATE TABLE `spell_item_enchantment_locale` (
  PARTITION ruRU VALUES IN ('ruRU') ENGINE = InnoDB,
  PARTITION zhCN VALUES IN ('zhCN') ENGINE = InnoDB,
  PARTITION zhTW VALUES IN ('zhTW') ENGINE = InnoDB) */;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `spell_keybound_override`
+--
+
+DROP TABLE IF EXISTS `spell_keybound_override`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `spell_keybound_override` (
+  `ID` int unsigned NOT NULL DEFAULT '0',
+  `Function` text COLLATE utf8mb4_unicode_ci,
+  `Type` tinyint NOT NULL DEFAULT '0',
+  `Data` int NOT NULL DEFAULT '0',
+  `Flags` int NOT NULL DEFAULT '0',
+  `VerifiedBuild` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ID`,`VerifiedBuild`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -9342,7 +9361,7 @@ DROP TABLE IF EXISTS `trait_node_x_trait_cost`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `trait_node_x_trait_cost` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `TraitNodeID` int unsigned NOT NULL DEFAULT '0',
+  `TraitNodeID` int NOT NULL DEFAULT '0',
   `TraitCostID` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
@@ -10219,4 +10238,4 @@ CREATE TABLE `world_state_expression` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-02-03  1:14:00
+-- Dump completed on 2023-04-02  1:02:34
