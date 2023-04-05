@@ -164,15 +164,6 @@ CreatureModel const* CreatureTemplate::GetFirstVisibleModel() const
     return &CreatureModel::DefaultVisibleModel;
 }
 
-std::pair<int16, int16> CreatureTemplate::GetMinMaxLevel() const
-{
-    return
-    {
-        HealthScalingExpansion != EXPANSION_LEVEL_CURRENT ? minlevel : minlevel + MAX_LEVEL,
-        HealthScalingExpansion != EXPANSION_LEVEL_CURRENT ? maxlevel : maxlevel + MAX_LEVEL
-    };
-}
-
 int32 CreatureTemplate::GetHealthScalingExpansion() const
 {
     return HealthScalingExpansion == EXPANSION_LEVEL_CURRENT ? CURRENT_EXPANSION : HealthScalingExpansion;
@@ -536,8 +527,7 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
         return false;
     }
 
-    SetDisplayId(model.CreatureDisplayID, model.DisplayScale);
-    SetNativeDisplayId(model.CreatureDisplayID, model.DisplayScale);
+    SetDisplayId(model.CreatureDisplayID, true);
 
     // Load creature equipment
     if (!data)
@@ -1543,16 +1533,11 @@ void Creature::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDiffic
 
 void Creature::SelectLevel()
 {
-    CreatureTemplate const* cInfo = GetCreatureTemplate();
-
-    // level
-    std::pair<int16, int16> levels = cInfo->GetMinMaxLevel();
-    uint8 minlevel = std::min(levels.first, levels.second);
-    uint8 maxlevel = std::max(levels.first, levels.second);
-    uint8 level = minlevel == maxlevel ? minlevel : urand(minlevel, maxlevel);
-    SetLevel(level);
-
+    // Level
     ApplyLevelScaling();
+    int32 levelWithDelta = m_unitData->ScalingLevelMax + m_unitData->ScalingLevelDelta;
+    uint8 level = RoundToInterval<int32>(levelWithDelta, 1, STRONG_MAX_LEVEL);
+    SetLevel(level);
 
     UpdateLevelDependantStats();
 }
@@ -2247,10 +2232,7 @@ void Creature::Respawn(bool force)
 
             CreatureModel display(GetNativeDisplayId(), GetNativeDisplayScale(), 1.0f);
             if (sObjectMgr->GetCreatureModelRandomGender(&display, GetCreatureTemplate()))
-            {
-                SetDisplayId(display.CreatureDisplayID, display.DisplayScale);
-                SetNativeDisplayId(display.CreatureDisplayID, display.DisplayScale);
-            }
+                SetDisplayId(display.CreatureDisplayID, true);
 
             GetMotionMaster()->InitializeDefault();
 
@@ -3251,26 +3233,26 @@ void Creature::SetObjectScale(float scale)
 
     if (CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelInfo(GetDisplayId()))
     {
-        SetBoundingRadius((IsPet() ? 1.0f : minfo->bounding_radius) * scale);
-        SetCombatReach((IsPet() ? DEFAULT_PLAYER_COMBAT_REACH : minfo->combat_reach) * scale);
+        SetBoundingRadius((IsPet() ? 1.0f : minfo->bounding_radius) * scale * GetDisplayScale());
+        SetCombatReach((IsPet() ? DEFAULT_PLAYER_COMBAT_REACH : minfo->combat_reach) * scale * GetDisplayScale());
     }
 }
 
-void Creature::SetDisplayId(uint32 modelId, float displayScale /*= 1.f*/)
+void Creature::SetDisplayId(uint32 displayId, bool setNative /*= false*/)
 {
-    Unit::SetDisplayId(modelId, displayScale);
+    Unit::SetDisplayId(displayId, setNative);
 
-    if (CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelInfo(modelId))
+    if (CreatureModelInfo const* modelInfo = sObjectMgr->GetCreatureModelInfo(displayId))
     {
-        SetBoundingRadius((IsPet() ? 1.0f : minfo->bounding_radius) * GetObjectScale());
-        SetCombatReach((IsPet() ? DEFAULT_PLAYER_COMBAT_REACH : minfo->combat_reach) * GetObjectScale());
+        SetBoundingRadius((IsPet() ? 1.0f : modelInfo->bounding_radius) * GetObjectScale() * GetDisplayScale());
+        SetCombatReach((IsPet() ? DEFAULT_PLAYER_COMBAT_REACH : modelInfo->combat_reach) * GetObjectScale() * GetDisplayScale());
     }
 }
 
 void Creature::SetDisplayFromModel(uint32 modelIdx)
 {
     if (CreatureModel const* model = GetCreatureTemplate()->GetModelByIdx(modelIdx))
-        SetDisplayId(model->CreatureDisplayID, model->DisplayScale);
+        SetDisplayId(model->CreatureDisplayID);
 }
 
 void Creature::SetTarget(ObjectGuid const& guid)

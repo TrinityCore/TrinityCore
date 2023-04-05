@@ -6016,14 +6016,6 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                 if (loot && (!loot->isLooted() || loot->loot_type == LOOT_SKINNING))
                     return SPELL_FAILED_TARGET_NOT_LOOTED;
 
-                uint32 skill = creature->GetCreatureTemplate()->GetRequiredLootSkill();
-
-                int32 skillValue = m_caster->ToPlayer()->GetSkillValue(skill);
-                int32 TargetLevel = m_targets.GetUnitTarget()->GetLevelForTarget(m_caster);
-                int32 ReqValue = (skillValue < 100 ? (TargetLevel-10) * 10 : TargetLevel * 5);
-                if (ReqValue > skillValue)
-                    return SPELL_FAILED_LOW_CASTLEVEL;
-
                 break;
             }
             case SPELL_EFFECT_OPEN_LOCK:

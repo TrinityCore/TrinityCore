@@ -1943,20 +1943,23 @@ float Aura::CalcProcChance(SpellProcEntry const& procEntry, ProcEventInfo& event
 
 void Aura::TriggerProcOnEvent(uint32 procEffectMask, AuraApplication* aurApp, ProcEventInfo& eventInfo)
 {
-    bool prevented = CallScriptProcHandlers(aurApp, eventInfo);
-    if (!prevented)
+    if (procEffectMask)
     {
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        bool prevented = CallScriptProcHandlers(aurApp, eventInfo);
+        if (!prevented)
         {
-            if (!(procEffectMask & (1 << i)))
-                continue;
+            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            {
+                if (!(procEffectMask & (1 << i)))
+                    continue;
 
-            // OnEffectProc / AfterEffectProc hooks handled in AuraEffect::HandleProc()
-            if (aurApp->HasEffect(i))
-                GetEffect(i)->HandleProc(aurApp, eventInfo);
+                // OnEffectProc / AfterEffectProc hooks handled in AuraEffect::HandleProc()
+                if (aurApp->HasEffect(i))
+                    GetEffect(i)->HandleProc(aurApp, eventInfo);
+            }
+
+            CallScriptAfterProcHandlers(aurApp, eventInfo);
         }
-
-        CallScriptAfterProcHandlers(aurApp, eventInfo);
     }
 
     ConsumeProcCharges(ASSERT_NOTNULL(sSpellMgr->GetSpellProcEntry(GetSpellInfo())));

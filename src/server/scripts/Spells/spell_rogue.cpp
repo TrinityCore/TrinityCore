@@ -68,6 +68,7 @@ enum RogueSpells
     SPELL_ROGUE_SYMBOLS_OF_DEATH_CRIT_AURA          = 227151,
     SPELL_ROGUE_SYMBOLS_OF_DEATH_RANK2              = 328077,
     SPELL_ROGUE_TRUE_BEARING                        = 193359,
+    SPELL_ROGUE_TURN_THE_TABLES_BUFF                = 198027,
     SPELL_ROGUE_VANISH                              = 1856,
     SPELL_ROGUE_VANISH_AURA                         = 11327,
     SPELL_ROGUE_TRICKS_OF_THE_TRADE                 = 57934,
@@ -250,6 +251,58 @@ class spell_rog_deadly_poison : public SpellScript
     uint8 _stackAmount = 0;
 };
 
+// 32645 - Envenom
+class spell_rog_envenom : public SpellScript
+{
+    PrepareSpellScript(spell_rog_envenom);
+
+    void CalculateDamage(SpellEffIndex /*effIndex*/)
+    {
+        int32 damagePerCombo = GetHitDamage();
+        if (AuraEffect const* t5 = GetCaster()->GetAuraEffect(SPELL_ROGUE_T5_2P_SET_BONUS, EFFECT_0))
+            damagePerCombo += t5->GetAmount();
+
+        int32 finalDamage = damagePerCombo;
+        std::vector<SpellPowerCost> const& costs = GetSpell()->GetPowerCost();
+        auto c = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Power == POWER_COMBO_POINTS; });
+        if (c != costs.end())
+            finalDamage *= c->Amount;
+
+        SetHitDamage(finalDamage);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_rog_envenom::CalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// 196819 - Eviscerate
+class spell_rog_eviscerate : public SpellScript
+{
+    PrepareSpellScript(spell_rog_eviscerate);
+
+    void CalculateDamage(SpellEffIndex /*effIndex*/)
+    {
+        int32 damagePerCombo = GetHitDamage();
+        if (AuraEffect const* t5 = GetCaster()->GetAuraEffect(SPELL_ROGUE_T5_2P_SET_BONUS, EFFECT_0))
+            damagePerCombo += t5->GetAmount();
+
+        int32 finalDamage = damagePerCombo;
+        std::vector<SpellPowerCost> const& costs = GetSpell()->GetPowerCost();
+        auto c = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Power == POWER_COMBO_POINTS; });
+        if (c != costs.end())
+            finalDamage *= c->Amount;
+
+        SetHitDamage(finalDamage);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_rog_eviscerate::CalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 // 193358 - Grand Melee
 class spell_rog_grand_melee : public AuraScript
 {
@@ -289,6 +342,31 @@ class spell_rog_grand_melee : public AuraScript
     {
         DoCheckProc += AuraCheckProcFn(spell_rog_grand_melee::HandleCheckProc);
         OnEffectProc += AuraEffectProcFn(spell_rog_grand_melee::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 198031 - Honor Among Thieves
+/// 7.1.5
+class spell_rog_honor_among_thieves : public AuraScript
+{
+    PrepareAuraScript(spell_rog_honor_among_thieves);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_HONOR_AMONG_THIEVES_ENERGIZE });
+    }
+
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_ROGUE_HONOR_AMONG_THIEVES_ENERGIZE, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_rog_honor_among_thieves::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -762,60 +840,6 @@ class spell_rog_symbols_of_death : public SpellScript
     }
 };
 
-// 1856 - Vanish - SPELL_ROGUE_VANISH
-class spell_rog_vanish : public SpellScript
-{
-    PrepareSpellScript(spell_rog_vanish);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_ROGUE_VANISH_AURA, SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA });
-    }
-
-    void OnLaunchTarget(SpellEffIndex effIndex)
-    {
-        PreventHitDefaultEffect(effIndex);
-
-        Unit* target = GetHitUnit();
-
-        target->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
-        if (target->GetTypeId() != TYPEID_PLAYER)
-            return;
-
-        if (target->HasAura(SPELL_ROGUE_VANISH_AURA))
-            return;
-
-        target->CastSpell(target, SPELL_ROGUE_VANISH_AURA, TRIGGERED_FULL_MASK);
-        target->CastSpell(target, SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA, TRIGGERED_FULL_MASK);
-    }
-
-    void Register() override
-    {
-        OnEffectLaunchTarget += SpellEffectFn(spell_rog_vanish::OnLaunchTarget, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
-    }
-};
-
-// 11327 - Vanish
-class spell_rog_vanish_aura : public AuraScript
-{
-    PrepareAuraScript(spell_rog_vanish_aura);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_ROGUE_STEALTH });
-    }
-
-    void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        GetTarget()->CastSpell(GetTarget(), SPELL_ROGUE_STEALTH, TRIGGERED_FULL_MASK);
-    }
-
-    void Register() override
-    {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_rog_vanish_aura::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
 // 57934 - Tricks of the Trade
 class spell_rog_tricks_of_the_trade_aura : public AuraScript
 {
@@ -892,80 +916,100 @@ class spell_rog_tricks_of_the_trade_proc : public AuraScript
     }
 };
 
-// 198031 - Honor Among Thieves
-/// 7.1.5
-class spell_rog_honor_among_thieves : public AuraScript
+// 198020 - Turn the Tables (PvP Talent)
+class spell_rog_turn_the_tables : public AuraScript
 {
-    PrepareAuraScript(spell_rog_honor_among_thieves);
+    PrepareAuraScript(spell_rog_turn_the_tables);
+
+    bool CheckForStun(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetProcSpell() && eventInfo.GetProcSpell()->GetSpellInfo()->HasAura(SPELL_AURA_MOD_STUN);
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_rog_turn_the_tables::CheckForStun, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
+// 198023 - Turn the Tables (periodic)
+class spell_rog_turn_the_tables_periodic_check : public AuraScript
+{
+    PrepareAuraScript(spell_rog_turn_the_tables_periodic_check);
+
+    bool Validate(SpellInfo const*) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_TURN_THE_TABLES_BUFF });
+    }
+
+    void CheckForStun(AuraEffect const* aurEff)
+    {
+        Unit* target = GetTarget();
+        if (!target->HasAuraType(SPELL_AURA_MOD_STUN))
+        {
+            target->CastSpell(target, SPELL_ROGUE_TURN_THE_TABLES_BUFF, aurEff);
+            PreventDefaultAction();
+            Remove();
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_turn_the_tables_periodic_check::CheckForStun, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 1856 - Vanish - SPELL_ROGUE_VANISH
+class spell_rog_vanish : public SpellScript
+{
+    PrepareSpellScript(spell_rog_vanish);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_ROGUE_HONOR_AMONG_THIEVES_ENERGIZE });
+        return ValidateSpellInfo({ SPELL_ROGUE_VANISH_AURA, SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA });
     }
 
-    void HandleProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
+    void OnLaunchTarget(SpellEffIndex effIndex)
     {
-        PreventDefaultAction();
+        PreventHitDefaultEffect(effIndex);
 
-        Unit* target = GetTarget();
-        target->CastSpell(target, SPELL_ROGUE_HONOR_AMONG_THIEVES_ENERGIZE, aurEff);
+        Unit* target = GetHitUnit();
+
+        target->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
+        if (target->GetTypeId() != TYPEID_PLAYER)
+            return;
+
+        if (target->HasAura(SPELL_ROGUE_VANISH_AURA))
+            return;
+
+        target->CastSpell(target, SPELL_ROGUE_VANISH_AURA, TRIGGERED_FULL_MASK);
+        target->CastSpell(target, SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA, TRIGGERED_FULL_MASK);
     }
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_rog_honor_among_thieves::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectLaunchTarget += SpellEffectFn(spell_rog_vanish::OnLaunchTarget, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
     }
 };
 
-// 196819 - Eviscerate
-class spell_rog_eviscerate : public SpellScript
+// 11327 - Vanish
+class spell_rog_vanish_aura : public AuraScript
 {
-    PrepareSpellScript(spell_rog_eviscerate);
+    PrepareAuraScript(spell_rog_vanish_aura);
 
-    void CalculateDamage(SpellEffIndex /*effIndex*/)
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        int32 damagePerCombo = GetHitDamage();
-        if (AuraEffect const* t5 = GetCaster()->GetAuraEffect(SPELL_ROGUE_T5_2P_SET_BONUS, EFFECT_0))
-            damagePerCombo += t5->GetAmount();
+        return ValidateSpellInfo({ SPELL_ROGUE_STEALTH });
+    }
 
-        int32 finalDamage = damagePerCombo;
-        std::vector<SpellPowerCost> const& costs = GetSpell()->GetPowerCost();
-        auto c = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Power == POWER_COMBO_POINTS; });
-        if (c != costs.end())
-            finalDamage *= c->Amount;
-
-        SetHitDamage(finalDamage);
+    void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_ROGUE_STEALTH, TRIGGERED_FULL_MASK);
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_rog_eviscerate::CalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-    }
-};
-
-// 32645 - Envenom
-class spell_rog_envenom : public SpellScript
-{
-    PrepareSpellScript(spell_rog_envenom);
-
-    void CalculateDamage(SpellEffIndex /*effIndex*/)
-    {
-        int32 damagePerCombo = GetHitDamage();
-        if (AuraEffect const* t5 = GetCaster()->GetAuraEffect(SPELL_ROGUE_T5_2P_SET_BONUS, EFFECT_0))
-            damagePerCombo += t5->GetAmount();
-
-        int32 finalDamage = damagePerCombo;
-        std::vector<SpellPowerCost> const& costs = GetSpell()->GetPowerCost();
-        auto c = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Power == POWER_COMBO_POINTS; });
-        if (c != costs.end())
-            finalDamage *= c->Amount;
-
-        SetHitDamage(finalDamage);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_rog_envenom::CalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_rog_vanish_aura::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -991,7 +1035,10 @@ void AddSC_rogue_spell_scripts()
     RegisterSpellScript(spell_rog_backstab);
     RegisterSpellScript(spell_rog_blade_flurry);
     RegisterSpellScript(spell_rog_deadly_poison);
+    RegisterSpellScript(spell_rog_envenom);
+    RegisterSpellScript(spell_rog_eviscerate);
     RegisterSpellScript(spell_rog_grand_melee);
+    RegisterSpellScript(spell_rog_honor_among_thieves);
     RegisterSpellAndAuraScriptPair(spell_rog_killing_spree, spell_rog_killing_spree_aura);
     RegisterSpellScript(spell_rog_mastery_main_gauche);
     RegisterSpellScript(spell_rog_pickpocket);
@@ -1003,12 +1050,11 @@ void AddSC_rogue_spell_scripts()
     RegisterSpellScript(spell_rog_sinister_strike);
     RegisterSpellScript(spell_rog_stealth);
     RegisterSpellScript(spell_rog_symbols_of_death);
-    RegisterSpellScript(spell_rog_vanish);
-    RegisterSpellScript(spell_rog_vanish_aura);
     RegisterSpellAndAuraScriptPair(spell_rog_tricks_of_the_trade, spell_rog_tricks_of_the_trade_aura);
     RegisterSpellScript(spell_rog_tricks_of_the_trade_proc);
-    RegisterSpellScript(spell_rog_honor_among_thieves);
-    RegisterSpellScript(spell_rog_eviscerate);
-    RegisterSpellScript(spell_rog_envenom);
+    RegisterSpellScript(spell_rog_turn_the_tables);
+    RegisterSpellScript(spell_rog_turn_the_tables_periodic_check);
+    RegisterSpellScript(spell_rog_vanish);
+    RegisterSpellScript(spell_rog_vanish_aura);
     RegisterSpellScript(spell_rog_venomous_wounds);
 }

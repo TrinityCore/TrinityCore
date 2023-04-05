@@ -209,12 +209,16 @@ void MoveSpline::Initialize(MoveSplineInitArgs const& args)
     // spline initialized, duration known and i able to compute parabolic acceleration
     if (args.flags & (MoveSplineFlag::Parabolic | MoveSplineFlag::Animation | MoveSplineFlag::FadeObject))
     {
-        effect_start_time = Duration() * args.time_perc;
-        if (args.flags.parabolic && effect_start_time < Duration())
+        int32 spline_duration = Duration();
+        effect_start_time = spline_duration * args.effect_start_time_percent + args.effect_start_time.count();
+        if (effect_start_time > spline_duration)
+            effect_start_time = spline_duration;
+
+        if (args.flags.parabolic && effect_start_time < spline_duration)
         {
             if (args.parabolic_amplitude != 0.0f)
             {
-                float f_duration = MSToSec(Duration() - effect_start_time);
+                float f_duration = MSToSec(spline_duration - effect_start_time);
                 vertical_acceleration = args.parabolic_amplitude * 8.f / (f_duration * f_duration);
             }
             else if (args.vertical_acceleration != 0.0f)
@@ -247,7 +251,7 @@ bool MoveSplineInitArgs::Validate(Unit* unit) const
     }
     CHECK(path.size() > 1, true);
     CHECK(velocity >= 0.01f, true);
-    CHECK(time_perc >= 0.f && time_perc <= 1.f, true);
+    CHECK(effect_start_time_percent >= 0.f && effect_start_time_percent <= 1.f, true);
     CHECK(_checkPathLengths(), false);
     if (spellEffectExtra)
     {
@@ -269,7 +273,7 @@ bool MoveSplineInitArgs::_checkPathLengths() const
 }
 
 MoveSplineInitArgs::MoveSplineInitArgs(size_t path_capacity /*= 16*/) : path_Idx_offset(0), velocity(0.f),
-parabolic_amplitude(0.f), vertical_acceleration(0.0f), time_perc(0.f), splineId(0), initialOrientation(0.f),
+parabolic_amplitude(0.f), vertical_acceleration(0.0f), effect_start_time_percent(0.f), splineId(0), initialOrientation(0.f),
 walk(false), HasVelocity(false), TransformForTransport(true)
 {
     path.reserve(path_capacity);

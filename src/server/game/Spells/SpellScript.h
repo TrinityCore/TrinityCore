@@ -159,7 +159,7 @@ class TC_GAME_API _SpellScript
         virtual void Register() = 0;
         // Function called on server startup, if returns false script won't be used in core
         // use for: dbc/template data presence/correctness checks
-        virtual bool Validate(SpellInfo const* /*spellInfo*/) { return true; }
+        virtual bool Validate([[maybe_unused]] SpellInfo const* spellInfo) { return true; }
         // Function called when script is created, if returns false script will be unloaded afterwards
         // use for: initializing local script variables (DO NOT USE CONSTRUCTOR FOR THIS PURPOSE!)
         virtual bool Load() { return true; }
