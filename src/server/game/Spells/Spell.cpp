@@ -2786,7 +2786,9 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
                 hitMask |= createProcHitMask(&damageInfo, MissCondition);
                 procVictim |= PROC_FLAG_TAKE_ANY_DAMAGE;
 
-                spell->m_damage = damageInfo.damage;
+                // sparring
+                if (Creature* victimCreature = damageInfo.target->ToCreature())
+                    damageInfo.damage = victimCreature->CalculateDamageForSparring(damageInfo.attacker, damageInfo.damage);
 
                 caster->DealSpellDamage(&damageInfo, true);
 

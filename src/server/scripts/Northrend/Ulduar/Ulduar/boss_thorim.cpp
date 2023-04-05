@@ -1151,11 +1151,6 @@ class npc_thorim_pre_phase : public CreatureScript
                     thorim->AI()->DoAction(ACTION_INCREASE_PREADDS_COUNT);
             }
 
-            bool ShouldSparWith(Unit const* target) const override
-            {
-                return !target->GetAffectingPlayer();
-            }
-
             void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
             {
                 // nullify spell damage
