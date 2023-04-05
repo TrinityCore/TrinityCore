@@ -413,7 +413,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool HasFlag(CreatureStaticFlags8 flag) const { return _staticFlags.HasFlag(flag); }
 
         uint32 GetGossipMenuId() const;
-        void SetGossipMenuId(Optional<uint32> gossipMenuId);
+        void SetGossipMenuId(uint32 gossipMenuId);
 
         uint32 GetTrainerId() const;
         void SetTrainerId(Optional<uint32> trainerId);
@@ -507,7 +507,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         bool _isMissingCanSwimFlagOutOfCombat;
 
-        Optional<uint32> _gossipMenuId;
+        uint32 _gossipMenuId;
         Optional<uint32> _trainerId;
 };
 

@@ -1542,7 +1542,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         uint32 GetGossipTextId(uint32 menuId, WorldObject* source);
         uint32 GetGossipTextId(WorldObject* source);
-        static uint32 GetDefaultGossipMenuForSource(WorldObject* source);
+        uint32 GetGossipMenuForSource(WorldObject* source);
 
         /*********************************************************/
         /***                    QUEST SYSTEM                   ***/

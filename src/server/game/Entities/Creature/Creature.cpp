@@ -294,7 +294,7 @@ Creature::Creature(bool isWorldObject) : Unit(isWorldObject), MapObject(), m_Pla
     m_defaultMovementType(IDLE_MOTION_TYPE), m_spawnId(UI64LIT(0)), m_equipmentId(0), m_originalEquipmentId(0), m_AlreadyCallAssistance(false), m_AlreadySearchedAssistance(false), m_cannotReachTarget(false), m_cannotReachTimer(0),
     m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL), m_originalEntry(0), m_homePosition(), m_transportHomePosition(), m_creatureInfo(nullptr), m_creatureData(nullptr), _waypointPathId(0), _currentWaypointNodeInfo(0, 0),
     m_formation(nullptr), m_triggerJustAppeared(true), m_respawnCompatibilityMode(false), _lastDamagedTime(0),
-    _regenerateHealth(true), _isMissingCanSwimFlagOutOfCombat(false)
+    _regenerateHealth(true), _isMissingCanSwimFlagOutOfCombat(false), _gossipMenuId(0)
 {
     m_regenTimer = CREATURE_REGEN_INTERVAL;
 
@@ -3525,13 +3525,10 @@ void Creature::ExitVehicle(Position const* /*exitPosition*/)
 
 uint32 Creature::GetGossipMenuId() const
 {
-    if (_gossipMenuId)
-        return *_gossipMenuId;
-
-    return GetCreatureTemplate()->GossipMenuId;
+    return _gossipMenuId;
 }
 
-void Creature::SetGossipMenuId(Optional<uint32> gossipMenuId)
+void Creature::SetGossipMenuId(uint32 gossipMenuId)
 {
     _gossipMenuId = gossipMenuId;
 }

@@ -69,7 +69,9 @@ enum Points
 
 enum Misc
 {
-    ITEM_VIRTUAL_ITEM           = 5301
+    ITEM_VIRTUAL_ITEM           = 5301,
+
+    GOSSIP_MENU_START_INTRO     = 12797,
 };
 
 Position const VoljinIntroWaypoint[4] =
@@ -104,7 +106,7 @@ class npc_voljin_zulaman : public CreatureScript
                 if (_instance->GetData(DATA_ZULAMAN_STATE) != NOT_STARTED)
                     return true;
 
-                if (me->GetGossipMenuId() == menuId && !gossipListId)
+                if (menuId == GOSSIP_MENU_START_INTRO && !gossipListId)
                 {
                     _events.Reset();
                     me->SetMountDisplayId(0);
