@@ -1688,6 +1688,9 @@ uint32 Creature::CalculateDamageForSparring(Unit* attacker, uint32 damage)
     if (GetSparringHealthPct() == 0)
         return damage;
 
+    if (!attacker)
+        return damage;
+
     if (!attacker->IsCreature() || attacker->IsCharmedOwnedByPlayerOrPlayer() || IsCharmedOwnedByPlayerOrPlayer())
         return damage;
 
