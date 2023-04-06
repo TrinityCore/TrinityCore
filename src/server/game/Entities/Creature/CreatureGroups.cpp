@@ -70,7 +70,7 @@ void FormationMgr::AddCreatureToGroup(ObjectGuid::LowType leaderSpawnId, Creatur
         //Create new group
         TC_LOG_DEBUG("entities.unit", "Group not found: {}. Creating new group.", leaderSpawnId);
         CreatureGroup* group = new CreatureGroup(leaderSpawnId);
-        std::tie(itr, std::ignore) = map->CreatureGroupHolder.emplace(leaderSpawnId, group);
+        itr = map->CreatureGroupHolder.emplace(leaderSpawnId, group).first;
     }
 
     itr->second->AddMember(creature);

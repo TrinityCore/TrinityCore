@@ -58,8 +58,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPackets::Transmogrification::Tra
             return false;
         }
 
-        bool hasAppearance, isTemporary;
-        std::tie(hasAppearance, isTemporary) = GetCollectionMgr()->HasItemAppearance(itemModifiedAppearanceId);
+        auto [hasAppearance, isTemporary] = GetCollectionMgr()->HasItemAppearance(itemModifiedAppearanceId);
         if (!hasAppearance)
         {
             TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - {}, Name: {} tried to transmogrify using appearance he has not collected ({}).", player->GetGUID().ToString(), player->GetName(), itemModifiedAppearanceId);

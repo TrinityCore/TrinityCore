@@ -310,8 +310,8 @@ enum QuestTheWarchiefCometh
     EVENT_START_SCENE_COMETH                = 1,
     EVENT_SUMMON_PORTAL_COMETH              = 2,
     EVENT_SUMMON_GARROSH_COMETH             = 3,
-    EVENT_AGATHA_RAISE_FORSAKEN             = 4, // Note: 4-8 are used
-    EVENT_SCENE_TALK_COMETH                 = 9, // Note: 9-36 are used
+    EVENT_AGATHA_RAISE_FORSAKEN             = 4, // Note: 4-8 are used.
+    EVENT_SCENE_TALK_COMETH                 = 9, // Note: 9-36 are used.
 
     ACTION_START_SCENE_COMETH               = 1,
 
@@ -1203,7 +1203,7 @@ struct npc_silverpine_deathstalker : public ScriptedAI
 
     void JustAppeared() override
     {
-        // @TODO: figure out some common thing why powertype energy is used here
+        // @TODO: figure out a common system to allow energy usage without scripts.
         me->SetPowerType(POWER_ENERGY);
         me->SetMaxPower(POWER_ENERGY, 100);
         me->SetPower(POWER_ENERGY, 100, true);
@@ -1233,13 +1233,6 @@ struct npc_silverpine_worgen_renegade : public ScriptedAI
             DoCastSelf(SPELL_KILL_ME_AURA);
 
         me->SetReactState(REACT_AGGRESSIVE);
-    }
-
-    void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
-    {
-        // HACKFIX: sparring system is not implemented yet.
-        if (!attacker->IsPlayer() && me->HealthBelowPctDamaged(80.0f, damage))
-            damage = 0;
     }
 
     void JustEngagedWith(Unit* /*who*/) override
@@ -1316,19 +1309,9 @@ struct npc_silverpine_forsaken_trooper : public ScriptedAI
     {
         _events.Reset();
 
-        // Note: these texts are not sent by summoned creatures from Lordaeron (questId 27098).
-        if (!me->IsSummon())
-        {
-            if (urand(0, 1))
-                Talk(TALK_TROOPER_RESET);
-        }
-    }
-
-    void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
-    {
-        // HACKFIX: sparring system is not implemented yet.
-        if (!attacker->IsPlayer() && me->HealthBelowPctDamaged(80.0f, damage))
-            damage = 0;
+        // Note: these texts are sent aswell during Lordaeron (questId 27098).
+        if (urand(0, 1))
+            Talk(TALK_TROOPER_RESET);
     }
 
     void JustEngagedWith(Unit* /*who*/) override
@@ -3551,7 +3534,7 @@ struct npc_silverpine_forest_ettin : public ScriptedAI
         if (!spellInfo)
             return;
 
-        // Hackfix: according to BasePoints damage is around 90k, which is wrong. On retail, it deals 80% of its health points only.
+        // HACKFIX: according to BasePoints damage is around 90k, which is wrong. On retail, it deals 80% of its health points only.
         // Also, Mutant Bush Chicken is summoned as not player-controlled (not blue-taped), though it uses the same summonProperties's
         // Control and Slot as some other summoning spells from this zone.
         if (spellInfo->Id == SPELL_BUSH_EXPLOSION)
@@ -3790,12 +3773,7 @@ struct npc_silverpine_webbed_victim : public ScriptedAI
         if (Player* player = killer->ToPlayer())
         {
             if (player->GetQuestStatus(QUEST_LOST_IN_THE_DARKNESS) == QUEST_STATUS_INCOMPLETE)
-            {
-                if (roll_chance_i(50))
-                    player->CastSpell(me, SPELL_FREE_WEBBED_VICTIM, true);
-                else
-                    player->CastSpell(me, SPELL_FREE_WEBBED_VICTIM_RANDOM, true);
-            }
+                player->CastSpell(me, roll_chance_i(50) ? SPELL_FREE_WEBBED_VICTIM : SPELL_FREE_WEBBED_VICTIM_RANDOM, true);
         }
     }
 };
@@ -4062,7 +4040,6 @@ struct npc_silverpine_skitterweb_matriarch : public ScriptedAI
                 case EVENT_RESET_POSITION:
                     me->SetFacingTo(0.820305f);
                     me->SetHomePosition(me->GetPosition());
-
                     me->SetAIAnimKitId(ANIMKIT_MATRIARCH_LURKING_ON_CEILING);
                     break;
 
@@ -4152,7 +4129,7 @@ enum AgathaFenrisIsle
 
     SPELL_RIDE_REVERSE_CAST_NO_ESCAPE           = 84109,
 
-    EVENT_AGATHA_CHECK_PLAYER                   = 1,
+    EVENT_AGATHA_CHECK_PLAYER_HEALTH            = 1,
     EVENT_UNHOLY_SMITE                          = 2,
     EVENT_DOOMHOWL                              = 3,
     EVENT_FLEE_FROM_FENRIS                      = 4,
@@ -4187,7 +4164,7 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
         me->GetMotionMaster()->Clear();
         me->GetMotionMaster()->MoveFollow(me->GetOwner(), 3.0f, float(M_PI / 2.0f));
 
-        _events.ScheduleEvent(EVENT_AGATHA_CHECK_PLAYER, 1s);
+        _events.ScheduleEvent(EVENT_AGATHA_CHECK_PLAYER_HEALTH, 1s);
     }
 
     void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
@@ -4199,16 +4176,21 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
         switch (spellInfo->Id)
         {
             case SPELL_AGATHA_BROADCAST:
+            {
                 if (_isSceneStarted)
                     return;
+
                 if (Unit* summoner = tempSummon->GetSummonerUnit())
                     Talk(TALK_AGATHA_BROADCAST, summoner);
                 break;
+            }
 
             case SPELL_GENERAL_TRIGGER_84114:
+            {
                 if (!_isSceneStarted)
                     SetEventNoEscape();
                 break;
+            }
 
             case SPELL_GENERAL_TRIGGER_84107:
                 if (Unit* summoner = tempSummon->GetSummonerUnit())
@@ -4278,7 +4260,7 @@ struct npc_silverpine_agatha_fenris_isle : public ScriptedAI
         {
             switch (eventId)
             {
-                case EVENT_AGATHA_CHECK_PLAYER:
+                case EVENT_AGATHA_CHECK_PLAYER_HEALTH:
                 {
                     if (Unit* summoner = tempSummon->GetSummonerUnit())
                     {
@@ -4971,9 +4953,11 @@ struct npc_silverpine_fenris_keep_camera : public ScriptedAI
         TempSummon* summon = me->ToTempSummon();
         if (!summon)
             return;
+
         Unit* summoner = summon->GetSummonerUnit();
         if (!summoner)
             return;
+
         _events.Update(diff);
 
         while (uint32 eventId = _events.ExecuteEvent())
@@ -5084,6 +5068,7 @@ struct npc_silverpine_crowley_bloodfang_fenris_keep : public ScriptedAI
         Unit* summoner = tempSummon->GetSummonerUnit();
         if (!summoner)
             return;
+
         _events.Update(diff);
 
         if (me->GetEntry() != NPC_CROWLEY_FENRIS)

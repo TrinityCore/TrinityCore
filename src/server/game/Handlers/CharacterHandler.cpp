@@ -1951,8 +1951,7 @@ void WorldSession::HandleEquipmentSetSave(WorldPackets::EquipmentSet::SaveEquipm
                     if (!sItemModifiedAppearanceStore.LookupEntry(saveEquipmentSet.Set.Appearances[i]))
                         return;
 
-                    bool hasAppearance, isTemporary;
-                    std::tie(hasAppearance, isTemporary) = GetCollectionMgr()->HasItemAppearance(saveEquipmentSet.Set.Appearances[i]);
+                    auto [hasAppearance, isTemporary] = GetCollectionMgr()->HasItemAppearance(saveEquipmentSet.Set.Appearances[i]);
                     if (!hasAppearance)
                         return;
                 }

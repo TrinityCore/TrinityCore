@@ -18,10 +18,14 @@
 #ifndef SCRIPT_RELOADER_H
 #define SCRIPT_RELOADER_H
 
+#include "Define.h"
 #include <memory>
 #include <string>
-#include "Define.h"
-#include <boost/filesystem/path.hpp>
+
+namespace boost::filesystem
+{
+class path;
+}
 
 /// Represents a strong reference to a dynamic library which
 /// provides C++ scripts. As long as one reference to the library exists

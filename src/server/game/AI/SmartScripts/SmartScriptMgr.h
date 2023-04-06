@@ -1643,9 +1643,19 @@ struct SmartScriptHolder
 
     operator bool() const { return entryOrGuid != 0; }
     // Default comparision operator using priority field as first ordering field
-    bool operator<(SmartScriptHolder const& other) const
+    std::strong_ordering operator<=>(SmartScriptHolder const& right) const
     {
-        return std::tie(priority, entryOrGuid, source_type, event_id, link) < std::tie(other.priority, other.entryOrGuid, other.source_type, other.event_id, other.link);
+        if (auto cmp = priority <=> right.priority; std::is_neq(cmp))
+            return cmp;
+        if (auto cmp = entryOrGuid <=> right.entryOrGuid; std::is_neq(cmp))
+            return cmp;
+        if (auto cmp = source_type <=> right.source_type; std::is_neq(cmp))
+            return cmp;
+        if (auto cmp = event_id <=> right.event_id; std::is_neq(cmp))
+            return cmp;
+        if (auto cmp = link <=> right.link; std::is_neq(cmp))
+            return cmp;
+        return std::strong_ordering::equal;
     }
 
     static constexpr uint32 DEFAULT_PRIORITY = std::numeric_limits<uint32>::max();

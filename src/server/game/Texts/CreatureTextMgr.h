@@ -73,10 +73,7 @@ struct CreatureTextId
 {
     CreatureTextId(uint32 e, uint32 g, uint32 i) : entry(e), textGroup(g), textId(i) { }
 
-    bool operator<(CreatureTextId const& right) const
-    {
-        return std::tie(entry, textGroup, textId) < std::tie(right.entry, right.textGroup, right.textId);
-    }
+    friend std::strong_ordering operator<=>(CreatureTextId const& left, CreatureTextId const& right) = default;
 
     uint32 entry;
     uint32 textGroup;
