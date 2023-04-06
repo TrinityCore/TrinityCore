@@ -1220,6 +1220,7 @@ class TC_GAME_API Unit : public WorldObject
 
         bool IsPlayingHoverAnim() const { return _playHoverAnim; }
         void SetPlayHoverAnim(bool enable);
+        void CalculateHoverHeight();
         void SetHoverHeight(float hoverHeight) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::HoverHeight), hoverHeight); }
 
         bool IsGravityDisabled() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY); }
