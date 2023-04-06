@@ -512,6 +512,13 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
     // known valid are: CLASS_WARRIOR, CLASS_PALADIN, CLASS_ROGUE, CLASS_MAGE
     SetClass(uint8(cinfo->unit_class));
 
+    // As of 10.x, UNIT_CLASS_ROGUE units always use energy.
+    if (cinfo->unit_class == UNIT_CLASS_ROGUE)
+    {
+        SetPowerType(POWER_ENERGY);
+        SetFullPower(POWER_ENERGY);
+    }
+
     // Cancel load if no model defined
     if (!(cinfo->GetFirstValidModel()))
     {
