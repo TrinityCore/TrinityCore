@@ -1,7 +1,7 @@
-锘縭em 娉ㄦ剰姝ゆ壒澶勭悊,蹇呴』璁剧疆鏂囨湰鏍煎紡涓篈NSI,涓嶇劧涔辩爜,鏃犳硶姝ｅ父鎵ц
-copy /Y "D:\Program Files (x86)\WOWDIY\XCore\閫氱敤\閰嶇疆鏂囦欢\bnetserver.conf" "D:\Program Files (x86)\WOWDIY\XCore\out\build\x64-Debug\bin"
-copy /Y "D:\Program Files (x86)\WOWDIY\XCore\閫氱敤\閰嶇疆鏂囦欢\worldserver.conf" "D:\Program Files (x86)\WOWDIY\XCore\out\build\x64-Debug\bin"
+rem 注意此批处理,必须设置文本格式为ANSI,不然乱码,无法正常执行
+copy /Y "D:\Program Files (x86)\WOWDIY\XCore\通用\配置文件\bnetserver.conf" "D:\Program Files (x86)\WOWDIY\XCore\out\build\x64-Debug\bin"
+copy /Y "D:\Program Files (x86)\WOWDIY\XCore\通用\配置文件\worldserver.conf" "D:\Program Files (x86)\WOWDIY\XCore\out\build\x64-Debug\bin"
 
 
-copy /Y "D:\Program Files (x86)\WOWDIY\XCore\閫氱敤\閰嶇疆鏂囦欢\bnetserver.conf" "D:\Program Files (x86)\WOWDIY\XCore\out\build\x64-Release\bin"
-copy /Y "D:\Program Files (x86)\WOWDIY\XCore\閫氱敤\閰嶇疆鏂囦欢\worldserver.conf" "D:\Program Files (x86)\WOWDIY\XCore\out\build\x64-Release\bin"
+copy /Y "D:\Program Files (x86)\WOWDIY\XCore\通用\配置文件\bnetserver.conf" "D:\Program Files (x86)\WOWDIY\XCore\out\build\x64-Release\bin"
+copy /Y "D:\Program Files (x86)\WOWDIY\XCore\通用\配置文件\worldserver.conf" "D:\Program Files (x86)\WOWDIY\XCore\out\build\x64-Release\bin"
