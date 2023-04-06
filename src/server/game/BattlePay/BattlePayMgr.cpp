@@ -526,7 +526,7 @@ void BattlepayManager::SendBattlePayDistribution(uint32 productId, uint8 status,
     _session->SendPacket(distributionBattlePay.Write());
 }
 
-void BattlepayManager::AssignDistributionToCharacter(ObjectGuid const& targetCharGuid, uint64 distributionId, uint32 productId, uint16 specId, uint16 choiceId)
+void BattlepayManager::AssignDistributionToCharacter(ObjectGuid const& targetCharGuid, uint64 distributionId, uint32 productId, uint16 /*specId*/, uint16 /*choiceId*/)
 {
     WorldPackets::BattlePay::UpgradeStarted upgrade;
     upgrade.CharacterGUID = targetCharGuid;
@@ -544,7 +544,7 @@ void BattlepayManager::AssignDistributionToCharacter(ObjectGuid const& targetCha
     SendBattlePayDistribution(productId, purchase->Status, distributionId, targetCharGuid);
 }
 
-void BattlepayManager::Update(uint32 diff)
+void BattlepayManager::Update(uint32 /*diff*/)
 {
     auto& data = _actualTransaction;
     auto& product = sBattlePayDataStore->GetProduct(data.ProductID);

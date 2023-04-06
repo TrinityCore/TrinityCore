@@ -1,4 +1,4 @@
-#include "BotArenaAI.h"
+﻿#include "BotArenaAI.h"
 #include "MoveSplineInit.h"
 #include "BotBGAIMovement.h"
 #include "PlayerBotMgr.h"
@@ -62,7 +62,7 @@ void BotArenaAI::UpdateAI(uint32 diff)
 	{
 		if (me->InArena() || pGroup->isBGGroup())
 		{
-			int a = 0;
+			//int a = 0;
 		}
 	}
 }

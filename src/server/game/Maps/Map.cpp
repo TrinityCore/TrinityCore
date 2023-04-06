@@ -170,8 +170,8 @@ void Map::DiscoverGridMapFiles()
     // tile list is optional
     if (FILE* tileList = fopen(tileListName.c_str(), "rb"))
     {
-        u_map_magic_TCB mapMagic;
-        u_map_magic_TCB MapMagic;//后加
+        u_map_magic_TCB mapMagic = {0,0};
+        u_map_magic_TCB MapMagic = { 0,0 };//后加
         //u_map_magic_TCB versionMagic;//后加
         u_map_magic_TCB MapVersionMagic;//后加
         u_map_magic_TCB versionMagic;

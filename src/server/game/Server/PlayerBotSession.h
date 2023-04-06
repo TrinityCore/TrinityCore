@@ -1,4 +1,4 @@
-
+﻿
 #ifndef __PlayerBotSESSION_H
 #define __PlayerBotSESSION_H
 
@@ -42,7 +42,7 @@ struct BotGlobleSchedule
 	uint32 scheduleState;
 	int32 processTick;
 
-    BotGlobleSchedule(BotGlobleScheduleType eType, uint64 guid = 0) :
+    BotGlobleSchedule(BotGlobleScheduleType eType, uint64 /*guid = 0*/) :
         bbgType(eType)
     {
         parameter1 = 0;

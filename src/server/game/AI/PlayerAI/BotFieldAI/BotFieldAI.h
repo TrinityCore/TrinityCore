@@ -1,4 +1,4 @@
-
+﻿
 #ifndef _BOT_FIELD_AI_
 #define _BOT_FIELD_AI_
 
@@ -42,7 +42,7 @@ public:
 	void SetCruxMovement(Position& pos);
 	bool IsNotSelect(Unit* pTarget);
 	bool IsIDLEBot();
-	virtual void OnLevelUp(uint32 talentType) {}
+	virtual void OnLevelUp(uint32 /*talentType*/) {}
 	void SearchCreatureListFromRange(Unit* center, NearCreatureVec& nearCreatures, float range, bool selfFaction);
 
 protected:
@@ -71,9 +71,9 @@ protected:
 	void FleeMovement();
 	virtual void ProcessFlee();
 	virtual bool ProcessNormalSpell() { return false; }
-	virtual void ProcessRangeSpell(Unit* pTarget) {}
-	virtual void ProcessMeleeSpell(Unit* pTarget) {}
-	virtual void ProcessHealthSpell(Unit* pTarget) {}
+	virtual void ProcessRangeSpell(Unit* /*pTarget*/) {}
+	virtual void ProcessMeleeSpell(Unit* /*pTarget*/) {}
+	virtual void ProcessHealthSpell(Unit* /*pTarget*/) {}
 	void ProcessIDLE();
 	void ProcessHealth();
 	void ProcessCombat(Unit* pTarget);

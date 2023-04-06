@@ -1,4 +1,4 @@
-
+﻿
 #ifndef _BOT_AI_H_
 #define _BOT_AI_H_
 
@@ -107,7 +107,7 @@ public:
 	void ClearCruxControlCommand() { m_CruxControlTarget = ObjectGuid::Empty; m_LastControlTarget = ObjectGuid::Empty; m_NeedReserveCtrlSpell = false; }
 	bool HasCruxControlTarget() { return m_CruxControlTarget != ObjectGuid::Empty; }
 	DiminishingGroup GetControlSpellDiminishingGroup();
-	virtual float TryPushControlCommand(Player* pTarget) { return -1; }
+	virtual float TryPushControlCommand(Player* /*pTarget*/) { return -1; }
 
 	BotBGAIMovement* GetAIMovement() { return m_Movement; }
 	void SetNeedFindpathSearch() { m_NeedFindpathSearch = true; }
@@ -171,9 +171,9 @@ protected:
 	virtual void ProcessReady();
 	virtual void ProcessFlee() {}
 	virtual bool ProcessNormalSpell() { return false; }
-	virtual void ProcessRangeSpell(Unit* pTarget) {}
-	virtual void ProcessMeleeSpell(Unit* pTarget) {}
-	virtual void ProcessHealthSpell(Unit* pTarget) {}
+	virtual void ProcessRangeSpell(Unit* /*pTarget*/) {}
+	virtual void ProcessMeleeSpell(Unit* /*pTarget*/) {}
+	virtual void ProcessHealthSpell(Unit* /*pTarget*/) {}
 
 	virtual bool IsMeleeBotAI();
 	virtual bool IsRangeBotAI();

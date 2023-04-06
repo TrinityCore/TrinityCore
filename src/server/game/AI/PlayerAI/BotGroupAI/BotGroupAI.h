@@ -60,11 +60,11 @@ public:
 	void DelayGiveXP(uint32 xp) { m_DelayGiveXP.DelayAddXP(xp); }
 	void SearchCreatureListFromRange(Unit* center, NearCreatureVec& nearCreatures, float range, bool selfFaction);
 	void ToggleFliterCreature(Creature* pCreature, bool fliter);
-	virtual bool TryBlockCastingByTarget(Unit* pTarget) { return false; }
+	virtual bool TryBlockCastingByTarget(Unit* /*pTarget*/) { return false; }
 	bool IsFleeing() { return m_Flee.Fleeing(); }
 	void AddCruxFlee(uint32 dur, Unit* pRefUnit) { if(me->IsAlive()) m_Flee.AddCruxFlee(dur, pRefUnit, m_Movement); }
 	void AddWaitSpecialAura(uint32 aura) { m_WaitAuras.AddSpecialAura(aura); }
-	virtual bool ProcessPullSpell(Unit* pTarget) { return false; }
+	virtual bool ProcessPullSpell(Unit* /*pTarget*/) { return false; }
 	void SetCruxHealTarget(ObjectGuid& healTarget) { if (IsHealerBotAI()) m_CruxHealTarget = healTarget; else m_CruxHealTarget = ObjectGuid::Empty; }
 	void SetForceFleeState(bool forceFlee) { m_ForceFlee = forceFlee; }
 	void SetSeduceTarget(ObjectGuid target) { m_SeduceTarget = target; me->SetSelection(m_SeduceTarget); }
@@ -124,11 +124,11 @@ protected:
 	void FleeMovement();
 	virtual void ProcessFlee();
 	virtual bool ProcessNormalSpell() { return false; }
-	virtual void ProcessRangeSpell(Unit* pTarget) {}
-	virtual void ProcessMeleeSpell(Unit* pTarget) {}
-	virtual void ProcessPrepareHealthSpell(Unit* pTarget) {}
-	virtual void ProcessHealthSpell(Unit* pTarget) {}
-	virtual void ProcessSeduceSpell(Unit* pTarget) {}
+	virtual void ProcessRangeSpell(Unit* /*pTarget*/) {}
+	virtual void ProcessMeleeSpell(Unit* /*pTarget*/) {}
+	virtual void ProcessPrepareHealthSpell(Unit* /*pTarget*/) {}
+	virtual void ProcessHealthSpell(Unit* /*pTarget*/) {}
+	virtual void ProcessSeduceSpell(Unit* /*pTarget*/) {}
 	virtual bool ProcessFullDispel() { m_FullDispel = 0; return false; }
 	bool ExecuteSeduceCommand();
 	void ProcessPrepareHealth();

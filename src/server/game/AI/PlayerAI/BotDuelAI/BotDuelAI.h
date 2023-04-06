@@ -1,4 +1,4 @@
-
+﻿
 #ifndef _BOT_DUEL_AI_H_
 #define _BOT_DUEL_AI_H_
 
@@ -75,9 +75,9 @@ protected:
 	virtual bool NeedFlee();
 	virtual void FleeMovement();
 	virtual void ProcessFlee() {}
-	virtual void ProcessRangeSpell(Unit* pTarget) {}
-	virtual void ProcessMeleeSpell(Unit* pTarget) {}
-	virtual void ProcessHealthSpell(Unit* pTarget) {}
+	virtual void ProcessRangeSpell(Unit* /*pTarget*/) {}
+	virtual void ProcessMeleeSpell(Unit* /*pTarget*/) {}
+	virtual void ProcessHealthSpell(Unit* /*pTarget*/) {}
 
 	virtual bool IsMeleeBotAI();
 	virtual bool IsRangeBotAI();

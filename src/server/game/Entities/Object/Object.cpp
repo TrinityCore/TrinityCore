@@ -2113,12 +2113,12 @@ TempSummon* WorldObject::SummonCreature(uint32 entry, Position const& pos, TempS
     return nullptr;
 }
 
-TempSummon* WorldObject::SummonCreature(uint32 entry, Position const& pos, TempSummonType despawnType, uint32 despawnTime, uint32 vehId, ObjectGuid privateObjectOwner)
+TempSummon* WorldObject::SummonCreature(uint32 /*entry*/, Position const& /*pos*/, TempSummonType /*despawnType*/, uint32 /*despawnTime*/, uint32 /*vehId*/, ObjectGuid /*privateObjectOwner*/)
 {
     return nullptr;
 }
 
-TempSummon* WorldObject::SummonCreature(uint32 id, float x, float y, float z, float o, TempSummonType despawnType, uint32 despawnTime, ObjectGuid privateObjectOwner)
+TempSummon* WorldObject::SummonCreature(uint32 /*id*/, float /*x*/, float /*y*/, float /*z*/, float /*o*/, TempSummonType /*despawnType*/, uint32 /*despawnTime*/, ObjectGuid /*privateObjectOwner*/)
 {
     return nullptr;
 }

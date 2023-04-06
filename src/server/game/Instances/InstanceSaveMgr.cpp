@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -410,7 +410,7 @@ void InstanceSaveManager::LoadResetTimes()
                 continue;
 
             // the reset_delay must be at least one day
-            uint32 period = uint32(((mapDiff->GetRaidDuration() * sWorld->getRate(RATE_INSTANCE_RESET_TIME)) / DAY) * DAY);
+            uint32 period = uint32(((float(mapDiff->GetRaidDuration()) * float(sWorld->getRate(RATE_INSTANCE_RESET_TIME))) / float(DAY)) * float(DAY));
             if (period < DAY)
                 period = DAY;
 
@@ -468,7 +468,7 @@ time_t InstanceSaveManager::GetSubsequentResetTime(uint32 mapid, Difficulty diff
     }
 
     time_t diff = sWorld->getIntConfig(CONFIG_INSTANCE_RESET_TIME_HOUR) * HOUR;
-    time_t period = uint32(((mapDiff->GetRaidDuration() * sWorld->getRate(RATE_INSTANCE_RESET_TIME)) / DAY) * DAY);
+    time_t period = uint32(((float(mapDiff->GetRaidDuration()) * float(sWorld->getRate(RATE_INSTANCE_RESET_TIME))) / float(DAY)) * float(DAY));
     if (period < DAY)
         period = DAY;
 
@@ -588,10 +588,10 @@ void InstanceSaveManager::_ResetSave(InstanceSaveHashMap::iterator &itr)
         //}
         temp.push_back(player);
     }
-    for (Player* player : temp)
-    {
-       // player->UnbindInstance(itr->second->GetMapId(), itr->second->GetDifficultyID(), true);    //暂时解决不了
-    }
+    //for (Player* player : temp)
+    //{
+    //   // player->UnbindInstance(itr->second->GetMapId(), itr->second->GetDifficultyID(), true);    //暂时解决不了
+    //}
 
     InstanceSave::GroupListType &gList = itr->second->m_groupList;
     while (!gList.empty())
@@ -710,7 +710,7 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
     Map const* map = sMapMgr->CreateBaseMap(mapid);          // _not_ include difficulty
     MapInstanced::InstancedMaps &instMaps = ((MapInstanced*)map)->GetInstancedMaps();
     MapInstanced::InstancedMaps::iterator mitr;
-    uint32 timeLeft;
+    //uint32 timeLeft;
 
     for (mitr = instMaps.begin(); mitr != instMaps.end(); ++mitr)
         {

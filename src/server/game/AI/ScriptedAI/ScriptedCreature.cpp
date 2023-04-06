@@ -133,8 +133,8 @@ void SummonList::DoActionImpl(int32 action, StorageType& summons, uint16 max)
     for (ObjectGuid const& guid : summons)
     {
         Creature* summon = ObjectAccessor::GetCreature(*_me, guid);
-        //if (summon && summon->IsAIEnabled())
-        //    summon->AI()->DoAction(action);//tmp
+        if (summon && summon->IsAIEnabled())
+            summon->AI()->DoAction(action);
     }
 }
 

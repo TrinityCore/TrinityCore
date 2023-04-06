@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright 2021 DekkCore
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -195,7 +195,7 @@ void BattlePetDataStoreMgr::ComputeBattlePetSpawns()
             continue;
         }
 
-        auto mapEntry = sMapMgr->CreateBaseMap(mapID);
+        //auto mapEntry = sMapMgr->CreateBaseMap(mapID);
         auto zPos = MAX_HEIGHT + 0.5f;
 
         std::string query = "INSERT INTO creature(id, map, zoneID, spawnMask, phaseMask, position_x, position_y, position_z, spawntimesecs) VALUES (";

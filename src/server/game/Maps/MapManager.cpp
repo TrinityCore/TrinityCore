@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -81,7 +81,7 @@ Map* MapManager::CreateBaseMap(uint32 id)
         }
 
         //std::lock_guard<std::mutex> lock(_mapsLock);  //原先
-        std::lock_guard<std::mutex> lock();
+        //std::lock_guard<std::mutex> lock();
         map = CreateBaseMap_i(entry);
     }
 

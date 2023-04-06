@@ -450,7 +450,7 @@ class TC_GAME_API CreatureScript : public ScriptObject
         //Try failed 1
         //virtual CreatureAI* GetAI(Creature* creature/*creature*/) const { return nullptr; }
         //Try failed 2
-        virtual CreatureAI* GetAI(Creature* creature/*creature*/) const { return 0; }
+        virtual CreatureAI* GetAI(Creature* /*creature*/) const { return 0; }
 };
 
 class TC_GAME_API GameObjectScript : public ScriptObject
@@ -819,13 +819,13 @@ class TC_GAME_API PlayerScript : public ScriptObject
         //virtual void OnMovieComplete(Player* /*player*/, uint32 /*movieId*/) { }//old
 
 		//After looting item
-		virtual void OnLootItem(Player* player, Item* item, uint32 count) { }
+		virtual void OnLootItem(Player* /*player*/, Item* /*item*/, uint32 /*count*/) { }
 
 		//After creating item (eg profession item creation)
-		virtual void OnCreateItem(Player* player, Item* item, uint32 count) { }
+		virtual void OnCreateItem(Player* /*player*/, Item* /*item*/, uint32 /*count*/) { }
 
 		//After receiving item as a quest reward
-		virtual void OnQuestRewardItem(Player* player, Item* item, uint32 count) { }
+		virtual void OnQuestRewardItem(Player* /*player*/, Item* /*item*/, uint32 /*count*/) { }
 };
 
 class TC_GAME_API AccountScript : public ScriptObject

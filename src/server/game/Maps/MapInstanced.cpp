@@ -237,7 +237,7 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
     map->LoadRespawnTimes();
     map->LoadCorpseData();
 
-    bool load_data = save != nullptr;
+    //bool load_data = save != nullptr;
     map->CreateInstanceData();
     //map->CreateInstanceData(load_data);
     if (InstanceScenario* instanceScenario = sScenarioMgr->CreateInstanceScenario(map, team))
