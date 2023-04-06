@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "EnumFlag.h"
+#include <array>
 #include <functional>
 #include <list>
 #include <set>
@@ -267,13 +268,13 @@ class TC_GAME_API ObjectGuid
 
         using LowType = uint64;
 
-        ObjectGuid() { Clear(); }
+        ObjectGuid() = default;
 
         uint64 GetRawValue(std::size_t i) const { return _data[i]; }
         std::vector<uint8> GetRawValue() const;
         void SetRawValue(std::vector<uint8> const& guid);
         void SetRawValue(uint64 high, uint64 low) { _data[0] = low; _data[1] = high; }
-        void Clear() { std::fill(std::begin(_data), std::end(_data), UI64LIT(0)); }
+        void Clear() { _data = { }; }
 
         HighGuid GetHigh() const { return HighGuid((_data[1] >> 58) & 0x3F); }
         uint32 GetRealmId() const { return uint32((_data[1] >> 42) & 0xFFFF); }
@@ -373,7 +374,7 @@ class TC_GAME_API ObjectGuid
             _data[1] = high;
         }
 
-        uint64 _data[2];
+        std::array<uint64, 2> _data = { };
 };
 
 #pragma pack(pop)
