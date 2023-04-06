@@ -46,9 +46,10 @@ public:
     template<AcceptCallback acceptCallback>
     void AsyncAcceptWithCallback()
     {
-        tcp::socket* socket;
-        uint32 threadIndex;
-        std::tie(socket, threadIndex) = _socketFactory();
+        auto [tmpSocket, tmpThreadIndex] = _socketFactory();
+        // TODO: get rid of temporary variables (clang 15 cannot handle variables from structured bindings as lambda captures)
+        tcp::socket* socket = tmpSocket;
+        uint32 threadIndex = tmpThreadIndex;
         _acceptor.async_accept(*socket, [this, socket, threadIndex](boost::system::error_code error)
         {
             if (!error)

@@ -329,16 +329,14 @@ class TC_GAME_API ObjectGuid
         bool IsCast()              const { return GetHigh() == HighGuid::Cast; }
 
         bool operator!() const { return IsEmpty(); }
-        bool operator== (ObjectGuid const& guid) const { return _data[0] == guid._data[0] && _data[1] == guid._data[1]; }
-        bool operator!= (ObjectGuid const& guid) const { return !(*this == guid); }
-        bool operator< (ObjectGuid const& guid) const
+        bool operator==(ObjectGuid const& right) const = default;
+        std::strong_ordering operator<=>(ObjectGuid const& right) const
         {
-            if (_data[1] < guid._data[1])
-                return true;
-            else if (_data[1] > guid._data[1])
-                return false;
-
-            return _data[0] < guid._data[0];
+            if (std::strong_ordering cmp = _data[1] <=> right._data[1]; std::is_neq(cmp))
+                return cmp;
+            if (std::strong_ordering cmp = _data[0] <=> right._data[0]; std::is_neq(cmp))
+                return cmp;
+            return std::strong_ordering::equal;
         }
 
         static char const* GetTypeName(HighGuid high);

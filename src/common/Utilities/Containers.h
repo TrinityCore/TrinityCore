@@ -23,6 +23,7 @@
 #include "Random.h"
 #include <algorithm>
 #include <iterator>
+#include <span>
 #include <stdexcept>
 #include <type_traits>
 #include <utility>
@@ -122,7 +123,7 @@ namespace Trinity
          * Note: container cannot be empty
          */
         template<class C>
-        inline auto SelectRandomWeightedContainerElement(C const& container, std::vector<double> const& weights) -> decltype(std::begin(container))
+        inline auto SelectRandomWeightedContainerElement(C const& container, std::span<double> const& weights) -> decltype(std::begin(container))
         {
             auto it = std::begin(container);
             std::advance(it, urandweighted(weights.size(), weights.data()));
@@ -140,19 +141,21 @@ namespace Trinity
         template<class C, class Fn>
         inline auto SelectRandomWeightedContainerElement(C const& container, Fn weightExtractor) -> decltype(std::begin(container))
         {
-            std::vector<double> weights;
-            weights.reserve(std::size(container));
+            std::size_t size = std::size(container);
+            std::size_t i = 0;
+            double* weights = new double[size];
             double weightSum = 0.0;
-            for (auto& val : container)
+            for (auto const& val : container)
             {
                 double weight = weightExtractor(val);
-                weights.push_back(weight);
+                weights[i++] = weight;
                 weightSum += weight;
             }
-            if (weightSum <= 0.0)
-                weights.assign(std::size(container), 1.0);
 
-            return SelectRandomWeightedContainerElement(container, weights);
+            auto it = std::begin(container);
+            std::advance(it, weightSum > 0.0 ? urandweighted(size, weights) : urand(0, uint32(std::size(container)) - 1));
+            delete[] weights;
+            return it;
         }
 
         /**

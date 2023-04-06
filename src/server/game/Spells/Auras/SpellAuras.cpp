@@ -1307,15 +1307,30 @@ uint32 Aura::GetEffectMask() const
     return effMask;
 }
 
-void Aura::GetApplicationVector(std::vector<AuraApplication*>& applicationList) const
+void Aura::GetApplicationVector(std::vector<AuraApplication*>& applications) const
 {
     for (auto const& applicationPair : m_applications)
     {
         if (!applicationPair.second->GetEffectMask())
             continue;
 
-        applicationList.push_back(applicationPair.second);
+        applications.push_back(applicationPair.second);
     }
+}
+
+AuraApplication const* Aura::GetApplicationOfTarget(ObjectGuid guid) const
+{
+    return Trinity::Containers::MapGetValuePtr(m_applications, guid);
+}
+
+AuraApplication* Aura::GetApplicationOfTarget(ObjectGuid guid)
+{
+    return Trinity::Containers::MapGetValuePtr(m_applications, guid);
+}
+
+bool Aura::IsAppliedOnTarget(ObjectGuid guid) const
+{
+    return m_applications.contains(guid);
 }
 
 void Aura::SetNeedClientUpdateForTargets() const

@@ -227,8 +227,6 @@ namespace Trinity::ChatCommands
             Trinity::Impl::ChatCommands::CommandInvoker _invoker;
             TrinityStrings _help;
             Trinity::Impl::ChatCommands::CommandPermissions _permissions;
-
-            auto operator*() const { return std::tie(_invoker, _help, _permissions); }
         };
         using SubCommandEntry = std::reference_wrapper<std::vector<ChatCommandBuilder> const>;
 

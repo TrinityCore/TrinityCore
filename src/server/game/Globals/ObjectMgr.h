@@ -80,11 +80,7 @@ struct TempSummonGroupKey
     {
     }
 
-    bool operator<(TempSummonGroupKey const& rhs) const
-    {
-        return std::tie(_summonerEntry, _summonerType, _summonGroup) <
-            std::tie(rhs._summonerEntry, rhs._summonerType, rhs._summonGroup);
-    }
+    std::strong_ordering operator<=>(TempSummonGroupKey const& right) const = default;
 
 private:
     uint32 _summonerEntry;      ///< Summoner's entry
