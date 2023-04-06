@@ -104,6 +104,11 @@ enum Points
     MAX_BRANN_WAYPOINTS_INTRO   = 17
 };
 
+enum GossipMenuIds
+{
+    GOSSIP_MENU_START_INTRO = 11339,
+};
+
 Position const AnraphetActivatePos = {-193.656f, 366.689f, 75.91001f, 3.138207f};
 
 Position const BrannIntroWaypoint[MAX_BRANN_WAYPOINTS_INTRO] =
@@ -331,12 +336,12 @@ class npc_brann_bronzebeard_anraphet : public CreatureScript
         {
             npc_brann_bronzebeard_anraphetAI(Creature* creature) : CreatureAI(creature), _currentPoint(0), _instance(creature->GetInstanceScript()) { }
 
-            bool OnGossipSelect(Player* /*player*/, uint32 sender, uint32 action) override
+            bool OnGossipSelect(Player* /*player*/, uint32 menuId, uint32 action) override
             {
                 if (_instance->GetBossState(DATA_VAULT_OF_LIGHTS) == DONE)
                     return true;
 
-                if (me->GetGossipMenuId() == sender && !action)
+                if (menuId == GOSSIP_MENU_START_INTRO && !action)
                 {
                     _instance->SetBossState(DATA_VAULT_OF_LIGHTS, IN_PROGRESS);
                     _currentPoint = 0;

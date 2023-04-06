@@ -14566,7 +14566,7 @@ uint32 Player::GetGossipTextId(WorldObject* source)
     if (!source)
         return DEFAULT_GOSSIP_MESSAGE;
 
-    return GetGossipTextId(GetDefaultGossipMenuForSource(source), source);
+    return GetGossipTextId(GetGossipMenuForSource(source), source);
 }
 
 uint32 Player::GetGossipTextId(uint32 menuId, WorldObject* source)
@@ -14580,6 +14580,10 @@ uint32 Player::GetGossipTextId(uint32 menuId, WorldObject* source)
 
     for (GossipMenusContainer::const_iterator itr = menuBounds.first; itr != menuBounds.second; ++itr)
     {
+        // continue if only checks menuid instead of text
+        if (!itr->second.TextID)
+            continue;
+
         if (sConditionMgr->IsObjectMeetToConditions(this, source, itr->second.Conditions))
             textId = itr->second.TextID;
     }
@@ -14587,12 +14591,33 @@ uint32 Player::GetGossipTextId(uint32 menuId, WorldObject* source)
     return textId;
 }
 
-uint32 Player::GetDefaultGossipMenuForSource(WorldObject* source)
+uint32 Player::GetGossipMenuForSource(WorldObject* source)
 {
     switch (source->GetTypeId())
     {
         case TYPEID_UNIT:
-            return source->ToCreature()->GetGossipMenuId();
+        {
+            uint32 menuIdToShow = source->ToCreature()->GetGossipMenuId();
+
+            // if menu id is set by script
+            if (menuIdToShow)
+                return menuIdToShow;
+
+            // otherwise pick from db based on conditions
+            for (uint32 menuId : source->ToCreature()->GetCreatureTemplate()->GossipMenuIds)
+            {
+                GossipMenusMapBounds menuBounds = sObjectMgr->GetGossipMenusMapBounds(menuId);
+
+                for (GossipMenusContainer::const_iterator itr = menuBounds.first; itr != menuBounds.second; ++itr)
+                {
+                    if (!sConditionMgr->IsObjectMeetToConditions(this, source, itr->second.Conditions))
+                        continue;
+
+                    menuIdToShow = menuId;
+                }
+            }
+            return menuIdToShow;
+        }
         case TYPEID_GAMEOBJECT:
             return source->ToGameObject()->GetGOInfo()->GetGossipMenuId();
         default:

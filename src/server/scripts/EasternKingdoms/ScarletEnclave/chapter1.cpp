@@ -678,7 +678,7 @@ public:
 
         bool OnGossipHello(Player* player) override
         {
-            uint32 gossipMenuId = Player::GetDefaultGossipMenuForSource(me);
+            uint32 gossipMenuId = player->GetGossipMenuForSource(me);
             InitGossipMenuFor(player, gossipMenuId);
             if (player->GetQuestStatus(QUEST_DEATH_CHALLENGE) == QUEST_STATUS_INCOMPLETE && me->IsFullHealth())
             {
@@ -688,7 +688,7 @@ public:
                 if (player->IsInCombat() || me->IsInCombat())
                     return true;
 
-                AddGossipItemFor(player, gossipMenuId, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                AddGossipItemFor(player, player->GetGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
                 SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
             }
             return true;
