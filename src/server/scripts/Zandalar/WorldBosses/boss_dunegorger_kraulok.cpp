@@ -42,16 +42,16 @@ struct boss_dunegorger_kraulok : public BossAI
         BossAI::InitializeAI();
     }
 
-  /*  void SpellHitTarget(Unit* target, SpellInfo const* spell) 
-    {
-        if (spell->Id == SPELL_SHAKE_LOSE)
-        {
-            me->CastSpell(target, SPELL_SHAKE_LOSE_DMG);
-            me->CastSpell(target, SPELL_SHAKE_LOSE_SUMMON);
-        }
-        if (spell->Id == SPELL_SONIC_BELLOW)
-            me->CastSpell(target, SPELL_SONIC_BELLOW_VISUAL);
-    }*/
+    //void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    //{
+    //    if (spell->Id == SPELL_SHAKE_LOSE)
+    //    {
+    //        me->CastSpell(target, SPELL_SHAKE_LOSE_DMG);
+    //        me->CastSpell(target, SPELL_SHAKE_LOSE_SUMMON);
+    //    }
+    //    if (spell->Id == SPELL_SONIC_BELLOW)
+    //        me->CastSpell(target, SPELL_SONIC_BELLOW_VISUAL);
+    //}
 
     void Reset() override
     {
