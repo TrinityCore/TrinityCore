@@ -1664,8 +1664,6 @@ enum class PlayerInteractionType : int32
     MajorFactionRenown          = 64
 };
 
-DEFINE_ENUM_FLAG(PowerTypeFlags);
-
 enum class PowerTypeFlags : int16
 {
     StopRegenWhileCasting         = 0x0001,
@@ -1681,6 +1679,8 @@ enum class PowerTypeFlags : int16
     SetToMaxLevelOnInitialLogIn   = 0x2000,
     AllowCostModsForPlayers       = 0x4000
 };
+
+DEFINE_ENUM_FLAG(PowerTypeFlags);
 
 enum PrestigeLevelInfoFlags : uint8
 {
