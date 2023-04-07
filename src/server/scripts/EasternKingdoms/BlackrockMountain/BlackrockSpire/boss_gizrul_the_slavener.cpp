@@ -30,7 +30,7 @@ enum Spells
 
 enum Paths
 {
-    GIZRUL_PATH                     = 402450
+    GIZRUL_PATH                     = 3219600
 };
 
 enum Events
