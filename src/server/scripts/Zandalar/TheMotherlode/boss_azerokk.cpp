@@ -1,87 +1,79 @@
-///*
-// * Copyright 2023 AzgathCore
-//  * Copyright (C) 2022 BfaCore Reforged
-// *
-// * This program is free software; you can redistribute it and/or modify it
-// * under the terms of the GNU General Public License as published by the
-// * Free Software Foundation; either version 2 of the License, or (at your
-// * option) any later version.
-// *
-// * This program is distributed in the hope that it will be useful, but WITHOUT
-// * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-// * more details.
-// *
-// * You should have received a copy of the GNU General Public License along
-// * with this program. If not, see <http://www.gnu.org/licenses/>.
-// */
-//
-//#include "ScriptMgr.h"
-//#include "the_motherlode.h"
-//#include "AreaTrigger.h"
-//#include "AreaTriggerAI.h"
-//
-//enum Spells
-//{
-//    SPELL_RAGING_GAZE_BEAM = 257582,
-//    SPELL_RAGING_GAZE_SELECTOR = 271526,
-//    SPELL_AZERITE_INFUSION1 = 257597,
-//    SPELL_AZERITE_INFUSION2 = 271698,
-//
-//    SPELL_CALL_EARTHRAGER 	= 257593,
-//    SPELL_AZERITE_INFUSION_MISSILE = 271698,
-//    SPELL_JAGGED_CUT = 257543,
-//    SPELL_RESONANT_PULSE = 258622,
-//    SPELL_RESONANT_QUAKE = 258627,
-//    SPELL_TECTONIC_SMASH = 275907,
-//	
-//    SPELL_FRACKING_TOTEM_BUTTON = 257455,
-//    SPELL_FRACKING_TOTEM_CAST = 257480,
-//    SPELL_FRACKING_TOTEM_STUN = 257481,
-//    SPELL_FRACKING_TOTEM_SUMMON = 268204,
-//    SPELL_RESONANT_PULSE 	= 258622,
-//	
-//    SPELL_TECTONIC_SMASH 	= 275907,
-//   
-//};
-//
-//enum Events
-//{
-//    EVENT_FIXATE = 1,
-//    EVENT_AZERITE_INFUSION,
-//    EVENT_JAGGED_CUT,
-//    EVENT_CALL_EARTHRAGER,
-//    EVENT_RESONANT_PULSE,
-//    EVENT_RESONANT_QUAKE,
-//    EVENT_TECTONIC_SMASH,
-//    EVENT_AZERITE_INFUSION 		= 1,
-//    EVENT_CALL_EARTHRAGER 		= 2,
-//    EVENT_RESONANT_PULSE 		= 3,
-//    EVENT_TECTONIC_SMASH 		= 4,
-//};
-//
-//    EVENT_TOTEM_TARGET,
-//enum Yells
-//{
-//    YELL_AZERITE_INFUSION 		= 0,
-//    YELL_CALL_EARTHRAGER 		= 1,
-//    YELL_RESONANT_PULSE 		= 2,
-//    YELL_TECTONIC_SMASH  		= 3,
-//    YELL_KILLED 				= 4,
-//    YELL_KILL 					= 5,
-//	YELL_ENTER_COMBAT			= 6, 
-//};
-//
-//enum Timers
-//enum AnimKit
-//{
-//    TIMER_AZERITE_INFUSION = 28 * IN_MILLISECONDS,
-//    TIMER_CALL_EARTHRAGER = 15 * IN_MILLISECONDS,
-//    TIMER_RESONANT_PULSE = 20 * IN_MILLISECONDS,
-//    TIMER_TECTONIC_SMASH = 40 * IN_MILLISECONDS,
-//
-//    TIMER_TOTEM_TARGET = 2 * IN_MILLISECONDS,
-//};
+﻿/*
+ * Copyright 2023 AzgathCore
+  * Copyright (C) 2022 BfaCore Reforged
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "ScriptMgr.h"
+#include "the_motherlode.h"
+#include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
+
+enum Spells
+{
+    SPELL_RAGING_GAZE_BEAM = 257582,
+    SPELL_RAGING_GAZE_SELECTOR = 271526,
+    SPELL_AZERITE_INFUSION1 = 257597,
+    SPELL_AZERITE_INFUSION2 = 271698,
+
+    SPELL_CALL_EARTHRAGER = 257593,
+    SPELL_AZERITE_INFUSION_MISSILE = 271698,
+    SPELL_JAGGED_CUT = 257543,
+    SPELL_RESONANT_QUAKE = 258627,
+
+    SPELL_FRACKING_TOTEM_BUTTON = 257455,
+    SPELL_FRACKING_TOTEM_CAST   = 257480,
+    SPELL_FRACKING_TOTEM_STUN   = 257481,
+    SPELL_FRACKING_TOTEM_SUMMON = 268204,
+    SPELL_RESONANT_PULSE        = 258622,
+    SPELL_TECTONIC_SMASH        = 275907,
+};
+
+enum Events
+{
+    EVENT_TOTEM_TARGET,
+    EVENT_FIXATE = 1,
+    EVENT_JAGGED_CUT,
+    EVENT_RESONANT_QUAKE,
+    EVENT_AZERITE_INFUSION = 1,
+    EVENT_CALL_EARTHRAGER = 2,
+    EVENT_RESONANT_PULSE = 3,
+    EVENT_TECTONIC_SMASH = 4,
+};
+enum Yells
+{
+    YELL_AZERITE_INFUSION = 0,
+    YELL_CALL_EARTHRAGER = 1,
+    YELL_RESONANT_PULSE = 2,
+    YELL_TECTONIC_SMASH = 3,
+    YELL_KILLED = 4,
+    YELL_KILL = 5,
+    YELL_ENTER_COMBAT = 6,
+};
+
+enum Timers
+{};
+enum AnimKit
+{
+    TIMER_AZERITE_INFUSION = 28 * IN_MILLISECONDS,
+    TIMER_CALL_EARTHRAGER = 15 * IN_MILLISECONDS,
+    TIMER_RESONANT_PULSE = 20 * IN_MILLISECONDS,
+    TIMER_TECTONIC_SMASH = 40 * IN_MILLISECONDS,
+
+    TIMER_TOTEM_TARGET = 2 * IN_MILLISECONDS,
+};
 //enum Creatures
 //
 //struct boss_azerokk : public BossAI

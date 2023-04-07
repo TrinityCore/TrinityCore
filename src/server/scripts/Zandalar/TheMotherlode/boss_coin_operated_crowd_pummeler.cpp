@@ -1,100 +1,89 @@
-///*
-// * Copyright 2023 AzgathCore
-// *
-// * Copyright (C) 2022 BfaCore Reforged
-// * This program is free software; you can redistribute it and/or modify it
-// * under the terms of the GNU General Public License as published by the
-// * Free Software Foundation; either version 2 of the License, or (at your
-// * option) any later version.
-// *
-// * This program is distributed in the hope that it will be useful, but WITHOUT
-// * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-// * more details.
-// *
-// * You should have received a copy of the GNU General Public License along
-// * with this program. If not, see <http://www.gnu.org/licenses/>.
-// */
-//
-//#include "AreaTrigger.h"
-//#include "AreaTriggerAI.h"
-//#include "GridNotifiers.h"
-//#include "GridNotifiersImpl.h"
-//#include "ScriptMgr.h"
-//#include "SpellScript.h"
-//#include "SpellAuras.h"
-//#include "SpellAuraEffects.h"
-//#include "the_motherlode.h"
-//#include "ScriptedCreature.h"
-//#include "SpellHistory.h"
-//
-//enum Spells
-//
-//enum CoinoperatedcrowdpummelerSpells : uint32
-//{
-//    SPELL_PILES_OF_GOLD_VISUAL = 271801,
-//    SPELL_STATIC_PULSE = 262347,
-//    SPELL_FOOTBOMB_LAUNCHER = 269493,
-//    SPELL_PAY_TO_WIN = 271867,
-//    SPELL_SHOCKING_CLAWS = 257337,
-//    SPELL_COIN_MAGNET = 271903,
-//    SPELL_BLAZING_AZERITE = 256163,
-//    SPELL_BLAZING_AZERITE_BOSS = 256493,
-//    SPELL_BLAZING_AZERITE_PLAYERS = 270882,
-//    SPELL_BOMB_TIMER = 256054,
-//    SPELL_INSUFFICIENT_FUNDS		= 267547,
-//	
-//	SPELL_STATIC_PULSE				= 262347,
-//    SPELL_FOOTBOMB_LAUNCHER			= 269493,
-//	
-//    SPELL_TIMED_DETONATION			= 256137,
-//    SPELL_PUNT						= 255996,
-//	
-//    SPELL_BLAZING_AZERITE			= 256163,
-//	
-//    SPELL_SHOCKING_CLAW				= 257337,
-//    SPELL_THROW_COINS				= 271785,
-//	
-//    SPELL_COIN_MAGNET				= 271903,
-//	
-//    SPELL_PAY_TO_WIN				= 271867
-//};
-//
-//enum Events
-//enum CoinoperatedcrowdpummelerTalks : uint8
-//{
-//    EVENT_THROW_COINS = 1,
-//    EVENT_FOOTBOMB_LAUNCHER,
-//    EVENT_SHOCKING_CLAW,
-//    EVENT_DETONATE,
-//    EVENT_STATIC_PULSE,
-//    EVENT_COIN_MAGNET,
-//    TALK_AGGRO					= 0,
-//    TALK_STATIC_PULSE			= 1,
-//	TALK_FOOTBOMB_LAUNCHER		= 2,
-//    TALK_SHOCKING_CLAW			= 3,
-//    TALK_COIN_MAGNET			= 4,
-//    TALK_DEATH					= 5
-//};
-//
-//enum Timers
-//enum CoinoperatedcrowdpummelerEvents : uint8
-//{
-//    TIMER_STATIC_PULSE = 10 * IN_MILLISECONDS,
-//    TIMER_FOOTBOMB_LAUNCHER = 17 * IN_MILLISECONDS,
-//    TIMER_SHOCKING_CLAW = 25 * IN_MILLISECONDS,
-//    TIMER_COIN_MAGNET = 10 * IN_MILLISECONDS,
-//    TIMER_THROW_COINS = 35 * IN_MILLISECONDS,
-//    TIMER_DETONATE = 15 * IN_MILLISECONDS,
-//    EVENT_STATIC_PULSE			= 1,
-//    EVENT_FOOTBOMB_LAUNCHER		= 2,
-//	EVENT_SHOCKING_CLAW			= 3,
-//    EVENT_COIN_MAGNET			= 4,
-//    EVENT_PAY_TO_WIN			= 5
-//};
-//
-//enum Creatures
-//
+﻿/*
+ * Copyright 2023 AzgathCore
+ *
+ * Copyright (C) 2022 BfaCore Reforged
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "ScriptMgr.h"
+#include "SpellScript.h"
+#include "SpellAuras.h"
+#include "SpellAuraEffects.h"
+#include "the_motherlode.h"
+#include "ScriptedCreature.h"
+#include "SpellHistory.h"
+
+enum Spells{};
+
+enum CoinoperatedcrowdpummelerSpells : uint32
+{
+    SPELL_PILES_OF_GOLD_VISUAL      = 271801,
+    SPELL_FOOTBOMB_LAUNCHER         = 269493,
+    SPELL_SHOCKING_CLAWS            = 257337,
+    SPELL_BLAZING_AZERITE_BOSS      = 256493,
+    SPELL_BLAZING_AZERITE_PLAYERS   = 270882,
+    SPELL_BOMB_TIMER                = 256054,
+    SPELL_INSUFFICIENT_FUNDS		= 267547,
+	SPELL_STATIC_PULSE				= 262347,
+    SPELL_TIMED_DETONATION			= 256137,
+    SPELL_PUNT						= 255996,
+    SPELL_BLAZING_AZERITE			= 256163,
+    SPELL_SHOCKING_CLAW				= 257337,
+    SPELL_THROW_COINS				= 271785,
+    SPELL_COIN_MAGNET				= 271903,
+    SPELL_PAY_TO_WIN				= 271867
+};
+
+enum Events{};
+enum CoinoperatedcrowdpummelerTalks : uint8
+{
+    EVENT_THROW_COINS               = 1,
+    EVENT_DETONATE,
+
+    EVENT_STATIC_PULSE           = 1,
+    EVENT_FOOTBOMB_LAUNCHER     = 2,
+    EVENT_SHOCKING_CLAW          = 3,
+    EVENT_COIN_MAGNET            = 4,
+    EVENT_PAY_TO_WIN             = 5,
+
+    TALK_AGGRO					= 0,
+    TALK_STATIC_PULSE			= 1,
+	TALK_FOOTBOMB_LAUNCHER		= 2,
+    TALK_SHOCKING_CLAW			= 3,
+    TALK_COIN_MAGNET			= 4,
+    TALK_DEATH					= 5
+};
+
+enum Timers{
+    TIMER_STATIC_PULSE = 10 * IN_MILLISECONDS,
+    TIMER_FOOTBOMB_LAUNCHER = 17 * IN_MILLISECONDS,
+    TIMER_SHOCKING_CLAW = 25 * IN_MILLISECONDS,
+    TIMER_COIN_MAGNET = 10 * IN_MILLISECONDS,
+    TIMER_THROW_COINS = 35 * IN_MILLISECONDS,
+    TIMER_DETONATE = 15 * IN_MILLISECONDS,
+};
+enum CoinoperatedcrowdpummelerEvents : uint8
+{
+    
+};
+
+enum Creatures{};
+
 //// 129214 - Coin Operated Crowd Pummeler 
 //struct boss_Coin_operated_crowd_pummeler : public BossAI
 //{
