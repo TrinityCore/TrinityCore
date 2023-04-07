@@ -1,73 +1,74 @@
-///*
-// * Copyright 2023 AzgathCore
-// *
-// * This program is free software; you can redistribute it and/or modify it
-// * under the terms of the GNU General Public License as published by the
-// * Free Software Foundation; either version 2 of the License, or (at your
-// * option) any later version.
-// *
-// * This program is distributed in the hope that it will be useful, but WITHOUT
-// * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-// * more details.
-// *
-// * You should have received a copy of the GNU General Public License along
-// * with this program. If not, see <http://www.gnu.org/licenses/>.
-// */
-//
-//#include "ScriptMgr.h"
-//#include "GameObject.h"
-//#include "GameObjectAI.h"
-//#include "temple_of_sethraliss.h"
-//
-//enum Spells
-//{
-//    SPELL_NOXIOUS_BREATH = 272657,
-//    SPELL_NOXIOUS_BREATH_AT_TRIGGER = 263925, //at 12750
-//    SPELL_BLINDING_SAND = 263914,
-//    SPELL_DUST_CLOUD_DUMMY = 256359,
-//    SPELL_DUST_CLOUD_MISSILE = 256336, // npc 134390, spawn spell 267047
-//    // When she reach 60% -> burrow
-//
-//    SPELL_BURROW_KNOCKBACK = 264206,
-//    SPELL_BURROW_CREAT_AT = 264194, // at 12779
-//    SPELL_A_KNOT_OF_SNAKES = 263958,
-//
-//    SPELL_CYTOTOXIN = 267027,
-//    //After burrow -> npc wave 135846
-//};
-//
-//enum Events
-//{
-//    EVENT_NOXIOUS_BREATH = 1,
-//    EVENT_BLINDING_SAND,
-//    EVENT_BURROW,
-//    EVENT_EMERGE,
-//    EVENT_BLINDING_SAND,
-//    EVENT_A_KNOT_OF_SNAKES,
-//
-//    EVENT_CYTOTOXIN,
-//    EVENT_UNBURROW,
-//    EVENT_WAVE_1,
-//    EVENT_WAVE_2
-//};
-//
-//enum Timers
-//enum Phases
-//{
-//    TIMER_EMERGE = 30 * IN_MILLISECONDS,
-//    TIMER_NOXIOUS_BREATH = 15 * IN_MILLISECONDS,
-//    TIMER_BLIDING_SAND = 28 * IN_MILLISECONDS,
-//    TIMER_A_KNOT_OF_SNAKES = 35 * IN_MILLISECONDS,
-//    TIMER_CYTOTOXIN = 10 * IN_MILLISECONDS,
-//    PHASE_1 = 1,
-//    PHASE_2,
-//    PHASE_3,
-//};
-//
+﻿/*
+ * Copyright 2023 AzgathCore
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "ScriptMgr.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "temple_of_sethraliss.h"
+
+enum Spells
+{
+    SPELL_NOXIOUS_BREATH = 272657,
+    SPELL_NOXIOUS_BREATH_AT_TRIGGER = 263925, //at 12750
+    SPELL_BLINDING_SAND = 263914,
+    SPELL_DUST_CLOUD_DUMMY = 256359,
+    SPELL_DUST_CLOUD_MISSILE = 256336, // npc 134390, spawn spell 267047
+    // When she reach 60% -> burrow
+
+    SPELL_BURROW_KNOCKBACK = 264206,
+    SPELL_BURROW_CREAT_AT = 264194, // at 12779
+    SPELL_A_KNOT_OF_SNAKES = 263958,
+
+    SPELL_CYTOTOXIN = 267027,
+    //After burrow -> npc wave 135846
+};
+
+enum Events
+{
+    EVENT_NOXIOUS_BREATH = 1,
+    EVENT_BLINDING_SAND,
+    EVENT_BURROW,
+    EVENT_EMERGE,
+    EVENT_A_KNOT_OF_SNAKES,
+
+    EVENT_CYTOTOXIN,
+    EVENT_UNBURROW,
+    EVENT_WAVE_1,
+    EVENT_WAVE_2
+};
+
+enum Timers
+{};
+
+enum Phases
+{
+    TIMER_EMERGE = 30 * IN_MILLISECONDS,
+    TIMER_NOXIOUS_BREATH = 15 * IN_MILLISECONDS,
+    TIMER_BLIDING_SAND = 28 * IN_MILLISECONDS,
+    TIMER_A_KNOT_OF_SNAKES = 35 * IN_MILLISECONDS,
+    TIMER_CYTOTOXIN = 10 * IN_MILLISECONDS,
+    PHASE_1 = 1,
+    PHASE_2,
+    PHASE_3,
+};
+
 //enum Creatures
-//const Position wave_1_pos = { 3550.0f, 3447.0f, 51.0f, 4.5f };
-//
+const Position wave_1_pos = { 3550.0f, 3447.0f, 51.0f, 4.5f };
+
 ////133384
 //struct boss_merektha : public BossAI
 //{

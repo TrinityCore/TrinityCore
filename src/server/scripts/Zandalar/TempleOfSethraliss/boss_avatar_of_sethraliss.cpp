@@ -1,85 +1,85 @@
-///*
-// * Copyright 2023 AzgathCore
-// *
-// * This program is free software; you can redistribute it and/or modify it
-// * under the terms of the GNU General Public License as published by the
-// * Free Software Foundation; either version 2 of the License, or (at your
-// * option) any later version.
-// *
-// * This program is distributed in the hope that it will be useful, but WITHOUT
-// * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-// * more details.
-// *
-// * You should have received a copy of the GNU General Public License along
-// * with this program. If not, see <http://www.gnu.org/licenses/>.
-// */
-//
-//#include "ScriptMgr.h"
-//#include "temple_of_sethraliss.h"
-//#include "ScriptedGossip.h"
-//
-//enum Misc
-//{
-//    ENCOUNTER_ID = 2127,
-//};
-//
-//enum Texts
-//{
-//    SAY_OBJECTIVE = 0,
-//    SAY_EFFECTIVE_HEAL = 1,
-//    SAY_INTRO = 5,
-//    SAY_RESTORE = 6,
-//    SAY_THANK_YOU = 4,
-//    SAY_JOIN_COMBAT = 3,
-//};
-//
-//enum Spells
-//{
-//    SPELL_EMPOWERMENT = 269670,
-//    SPELL_LIFE_FORCE = 274149,
-//    SPELL_CARDIAC_SHOCK = 279015,
-//    SPELL_LIFE_FORCE_HEAL = 274149,
-//    SPELL_CHAIN_LIGHTNING = 268061,
-//    SPELL_SNAKE_CHARM = 268008,
-//    SPELL_JOLT = 279000,
-//    SPELL_TAINT_DEBUFF = 267944,
-//  
-//    SPELL_TAINT_CHANNEL = 273677,
-//    SPELL_TAINT_VISUAL = 267759,
-//    SPELL_HEART_ATTACK = 268007,
-//  
-//    SPELL_PULSE = 268024,
-//    SPELL_PLAGUE = 269686,
-//    SPELL_SPAWN_FRAGMENT = 278885,
-//    SPELL_LAVA_BURST = 274642,
-//    SPELL_FLAME_SHOCK = 268013
-//};
-//
-//enum Events
-//{
-//    EVENT_SUMMON_TOADS = 1,
-//    EVENT_SUMMON_HEXER,
-//    EVENT_SUMMON_GUARDIAN,
-//    EVENT_SUMMON_DOCTOR,
-//    EVENT_CHECK_PLAYERS,
-//    EVENT_PULSE,
-//    EVENT_CHAIN_LIGHTNING,
-//    EVENT_SNAKE_CHARM,
-//    EVENT_CHANNEL,
-//    EVENT_HEART_ATTACK,
-//    EVENT_LIGHTNING_STRIKE,
-//    EVENT_PLAGUE_DOCTOR = 1,
-//    EVENT_HEART_GUARDIAN,
-//    EVENT_TOAD,
-//    EVENT_JOLT,
-//    EVENT_CHECK_PLAYERS
-//};
-//
-//enum Timers
+﻿/*
+ * Copyright 2023 AzgathCore
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "ScriptMgr.h"
+#include "temple_of_sethraliss.h"
+#include "ScriptedGossip.h"
+
+enum Misc
+{
+    ENCOUNTER_ID = 2127,
+};
+
+enum Texts
+{
+    SAY_OBJECTIVE = 0,
+    SAY_EFFECTIVE_HEAL = 1,
+    SAY_INTRO = 5,
+    SAY_RESTORE = 6,
+    SAY_THANK_YOU = 4,
+    SAY_JOIN_COMBAT = 3,
+};
+
+enum Spells
+{
+    SPELL_EMPOWERMENT = 269670,
+    SPELL_LIFE_FORCE = 274149,
+    SPELL_CARDIAC_SHOCK = 279015,
+    SPELL_LIFE_FORCE_HEAL = 274149,
+    SPELL_CHAIN_LIGHTNING = 268061,
+    SPELL_SNAKE_CHARM = 268008,
+    SPELL_JOLT = 279000,
+    SPELL_TAINT_DEBUFF = 267944,
+  
+    SPELL_TAINT_CHANNEL = 273677,
+    SPELL_TAINT_VISUAL = 267759,
+    SPELL_HEART_ATTACK = 268007,
+  
+    SPELL_PULSE = 268024,
+    SPELL_PLAGUE = 269686,
+    SPELL_SPAWN_FRAGMENT = 278885,
+    SPELL_LAVA_BURST = 274642,
+    SPELL_FLAME_SHOCK = 268013
+};
+
+enum Events
+{
+    EVENT_SUMMON_TOADS = 1,
+    EVENT_SUMMON_HEXER,
+    EVENT_SUMMON_GUARDIAN,
+    EVENT_SUMMON_DOCTOR,
+    EVENT_CHECK_PLAYERS,
+    EVENT_PULSE,
+    EVENT_CHAIN_LIGHTNING,
+    EVENT_SNAKE_CHARM,
+    EVENT_CHANNEL,
+    EVENT_HEART_ATTACK,
+    EVENT_LIGHTNING_STRIKE,
+    EVENT_PLAGUE_DOCTOR = 1,
+    EVENT_HEART_GUARDIAN,
+    EVENT_TOAD,
+    EVENT_JOLT
+};
+
+enum Timers
+{};
 //const Position universal_spawn_pos = { 4140.0f, 3659.0f, -43.0f, 0.59f };
 //const Position middle_of_room_pos = { 4161.0f, 3673.0f, -34.0f, 3.69f };
-//
+
 ////133392
 //struct boss_avatar_of_sethraliss : public BossAI
 //{

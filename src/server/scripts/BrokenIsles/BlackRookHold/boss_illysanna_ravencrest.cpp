@@ -46,7 +46,7 @@ enum Spells
     SPELL_ARCANE_BLITZ          = 197797,
 };
 
-Position centerPos = { 3086.38f, 7295.11f, 103.53f };
+//Position centerPos = { 3086.38f, 7295.11f, 103.53f };//duplicat define in "boss_queen_azshara_ep.cpp"
 
 // 98696
 struct boss_illysanna_ravencrest : public BossAI
