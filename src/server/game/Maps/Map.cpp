@@ -173,8 +173,8 @@ void Map::DiscoverGridMapFiles()
         u_map_magic_TCB mapMagic = {0,0};
         u_map_magic_TCB MapMagic = { 0,0 };//后加
         //u_map_magic_TCB versionMagic;//后加
-        u_map_magic_TCB MapVersionMagic;//后加
-        u_map_magic_TCB versionMagic;
+        u_map_magic_TCB MapVersionMagic = { 0,0 };//后加
+        u_map_magic_TCB versionMagic = { 0,0 };
         uint32 build;
         char tilesData[MAX_NUMBER_OF_GRIDS * MAX_NUMBER_OF_GRIDS];
         if (fread(&mapMagic.asUInt, sizeof(u_map_magic), 1, tileList) == 1
