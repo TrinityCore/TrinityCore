@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright 2023 AzgathCore
  * Copyright 2021 HellgarveCore
  *
@@ -82,9 +82,9 @@ BrawlersGuild::BrawlersGuild(uint32 id, Map* map)
 
 BrawlersGuild::~BrawlersGuild() = default;
 
-void BrawlersGuild::Update(uint32 /*diff*/)     //void BrawlersGuild::Update(uint32 diff)   //有的版本写成前面这样
+void BrawlersGuild::Update(uint32 diff)     
 {
-    /*for (auto& it : _waitList)
+    for (auto& it : _waitList)
         if (!ObjectAccessor::FindPlayer(it))
             RemovePlayer(it);
 
@@ -100,12 +100,12 @@ void BrawlersGuild::Update(uint32 /*diff*/)     //void BrawlersGuild::Update(uin
     if (needUpdateAura)
         UpdateAllAuras();
 
-    UpdateBrawl(diff);*/
+    UpdateBrawl(diff);
 }
 
-void BrawlersGuild::AddPlayer(Player* /*player*/)   //void BrawlersGuild::AddPlayer(Player* player)    //有的版本写成前面这样
+void BrawlersGuild::AddPlayer(Player* player)   
 {
-    /*if (!player)
+    if (!player)
         return;
     if (GetPlayerRank(player) > 7)
     {
@@ -114,7 +114,7 @@ void BrawlersGuild::AddPlayer(Player* /*player*/)   //void BrawlersGuild::AddPla
     }
 
     _waitList.push_back(player->GetGUID());
-    UpdateAura(player, _waitList.size());*/
+    UpdateAura(player, _waitList.size());
 }
 
 void BrawlersGuild::RemovePlayers()
@@ -182,30 +182,30 @@ void BrawlersGuild::UpdateBrawl(uint32 diff)
 
             if (auto player = ObjectAccessor::FindPlayer(_current))
             {
-              //  player->RemoveAura(SPELL_QUEUED_FOR_BRAWL);
-             //   player->TeleportTo(player->GetMapId(), &BrawlersTeleportLocations[player->GetTeamId() == TEAM_ALLIANCE ? 0 : 2]);
-
-             //   player->AddDelayedEvent(500, [player]() -> void
-            //    {
-            //        player->CastSpell(player, SPELL_ARENA_TELEPORTATION, true);
-            //    });
+                player->RemoveAura(SPELL_QUEUED_FOR_BRAWL);
+                player->TeleportTo(player->GetMapId(), 0, 0, 0, 0, 0);//player->TeleportTo(player->GetMapId(), &BrawlersTeleportLocations[player->GetTeamId() == TEAM_ALLIANCE ? 0 : 2]);//org
+                player->AddDelayedEvent(500, [player]() -> void
+                {
+                    player->CastSpell(player, SPELL_ARENA_TELEPORTATION, true);
+                });
 
                 _prepareCombatTimer.SetCurrent(0);
                 _prepareCombatTimer.SetInterval(6000);
                 SetBrawlState(BRAWL_STATE_PREPARE_COMBAT);
 
-             // if (auto ann = ObjectAccessor::FindCreature(_announcer))
-             //  {
-             //      ann->GetMotionMaster()->Clear();
-             //      ann->GetMotionMaster()->MovePath((player->GetTeamId() == TEAM_ALLIANCE ? 11854502 : 11854503), true);
-             //      uint32 repRank = GetPlayerRank(player) + 1;
-             //      ObjectGuid player_guid = player->GetGUID();
-             //
-             //      ann->AddDelayedEvent(1000, [ann, repRank, player_guid]() -> void
-             //      {
-             //          ann->AI()->Talk(repRank, player_guid);
-             //      });
-             //  }
+              //if (auto ann = ObjectAccessor::FindCreature(_announcer))
+              // {
+              //    ObjectAccessor::fin
+              //     ann->GetMotionMaster()->Clear();
+              //     ann->GetMotionMaster()->MovePath((player->GetTeamId() == TEAM_ALLIANCE ? 11854502 : 11854503), true);
+              //     uint32 repRank = GetPlayerRank(player) + 1;
+              //     ObjectGuid player_guid = player->GetGUID();
+             
+              //     ann->AddDelayedEvent(1000, [ann, repRank, player_guid]() -> void
+              //     {
+              //         ann->AI()->Talk(repRank, player_guid);
+              //     });
+              // }
 
             }
         }
