@@ -3477,7 +3477,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->_GetEffect(EFFECT_1).Effect = SPELL_EFFECT_NONE;
     });
 
-    // // Magic Rooster
+    // Magic Rooster
     ApplySpellFix({ 65917 }, [](SpellInfo* spellInfo)
     {
         spellInfo->Attributes &= ~SPELL_ATTR0_CASTABLE_WHILE_MOUNTED;
