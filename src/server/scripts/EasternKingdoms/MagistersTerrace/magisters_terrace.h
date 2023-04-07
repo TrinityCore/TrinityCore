@@ -93,7 +93,7 @@ enum MTInstanceText
 
 enum MTMovementData
 {
-    PATH_KALECGOS_FLIGHT    = 248440
+    PATH_KALECGOS_FLIGHT    = 1987520
 };
 
 template <class AI, class T>

@@ -34,6 +34,7 @@
 #include "UnitDefines.h"
 #include "Util.h"
 #include "WaypointDefines.h"
+#include "WaypointManager.h"
 #include <algorithm>
 
 #define TC_SAI_IS_BOOLEAN_VALID(e, value) \
@@ -44,77 +45,6 @@
             e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), STRINGIZE(value), value); \
         return false; \
     } \
-}
-
-SmartWaypointMgr* SmartWaypointMgr::instance()
-{
-    static SmartWaypointMgr instance;
-    return &instance;
-}
-
-void SmartWaypointMgr::LoadFromDB()
-{
-    uint32 oldMSTime = getMSTime();
-
-    _waypointStore.clear();
-
-    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_SMARTAI_WP);
-    PreparedQueryResult result = WorldDatabase.Query(stmt);
-
-    if (!result)
-    {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 SmartAI Waypoint Paths. DB table `waypoints` is empty.");
-
-        return;
-    }
-
-    uint32 count = 0;
-    uint32 total = 0;
-    uint32 lastEntry = 0;
-    uint32 lastId = 1;
-
-    do
-    {
-        Field* fields = result->Fetch();
-        uint32 entry = fields[0].GetUInt32();
-        uint32 id = fields[1].GetUInt32();
-        float x = fields[2].GetFloat();
-        float y = fields[3].GetFloat();
-        float z = fields[4].GetFloat();
-        Optional<float> o;
-        if (!fields[5].IsNull())
-            o = fields[5].GetFloat();
-        uint32 delay = fields[6].GetUInt32();
-
-        if (lastEntry != entry)
-        {
-            lastId = 1;
-            ++count;
-        }
-
-        if (lastId != id)
-            TC_LOG_ERROR("sql.sql", "SmartWaypointMgr::LoadFromDB: Path entry {}, unexpected point id {}, expected {}.", entry, id, lastId);
-
-        ++lastId;
-
-        WaypointPath& path = _waypointStore[entry];
-        path.id = entry;
-        path.nodes.emplace_back(id, x, y, z, o, delay);
-
-        lastEntry = entry;
-        ++total;
-    }
-    while (result->NextRow());
-
-    TC_LOG_INFO("server.loading", ">> Loaded {} SmartAI waypoint paths (total {} waypoints) in {} ms", count, total, GetMSTimeDiffToNow(oldMSTime));
-}
-
-WaypointPath const* SmartWaypointMgr::GetPath(uint32 id)
-{
-    auto itr = _waypointStore.find(id);
-    if (itr != _waypointStore.end())
-        return &itr->second;
-    return nullptr;
 }
 
 SmartAIMgr* SmartAIMgr::instance()
@@ -1901,7 +1831,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             break;
         case SMART_ACTION_WP_START:
         {
-            WaypointPath const* path = sSmartWaypointMgr->GetPath(e.action.wpStart.pathID);
+            WaypointPath const* path = sWaypointMgr->GetPath(e.action.wpStart.pathID);
             if (!path || path->nodes.empty())
             {
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Creature {} Event {} Action {} uses non-existent WaypointPath id {}, skipped.", e.entryOrGuid, e.event_id, e.GetActionType(), e.action.wpStart.pathID);

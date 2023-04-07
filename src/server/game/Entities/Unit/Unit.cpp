@@ -752,6 +752,10 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
     {
         uint32 tmpDamage = damageTaken;
 
+        // sparring
+        if (Creature* victimCreature = victim->ToCreature())
+            tmpDamage = victimCreature->CalculateDamageForSparring(attacker, tmpDamage);
+
         if (UnitAI* victimAI = victim->GetAI())
             victimAI->DamageTaken(attacker, tmpDamage, damagetype, spellProto);
 
@@ -1969,6 +1973,13 @@ void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinit
             uint32 split_absorb = 0;
             Unit::DealDamageMods(damageInfo.GetAttacker(), caster, splitDamage, &split_absorb);
 
+            // sparring
+            if (Creature* victimCreature = damageInfo.GetVictim()->ToCreature())
+            {
+                if (victimCreature->ShouldFakeDamageFrom(damageInfo.GetAttacker()))
+                    damageInfo.ModifyDamage(damageInfo.GetDamage() * -1);
+            }
+
             SpellNonMeleeDamage log(damageInfo.GetAttacker(), caster, (*itr)->GetSpellInfo(), (*itr)->GetBase()->GetSpellVisual(), damageInfo.GetSchoolMask(), (*itr)->GetBase()->GetCastId());
             CleanDamage cleanDamage = CleanDamage(splitDamage, 0, BASE_ATTACK, MELEE_HIT_NORMAL);
             Unit::DealDamage(damageInfo.GetAttacker(), caster, splitDamage, &cleanDamage, DIRECT_DAMAGE, damageInfo.GetSchoolMask(), (*itr)->GetSpellInfo(), false);
@@ -2133,6 +2144,14 @@ void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extr
             CalculateMeleeDamage(victim, &damageInfo, attType);
             // Send log damage message to client
             Unit::DealDamageMods(damageInfo.Attacker, victim, damageInfo.Damage, &damageInfo.Absorb);
+
+            // sparring
+            if (Creature* victimCreature = victim->ToCreature())
+            {
+                if (victimCreature->ShouldFakeDamageFrom(damageInfo.Attacker))
+                    damageInfo.HitInfo |= HITINFO_FAKE_DAMAGE;
+            }
+
             SendAttackStateUpdate(&damageInfo);
 
             _lastDamagedTargetGuid = victim->GetGUID();

@@ -3723,6 +3723,10 @@ void Spell::EffectSkinning()
     loot->FillLoot(creature->GetCreatureTemplate()->SkinLootId, LootTemplates_Skinning, player, true);
     player->SendLoot(*loot);
 
+    if (!IsPartOfSkillLine(skill, m_spellInfo->Id))
+        return;
+
+    // Skill gain for skinning
     // This formula is still used (10.0.5.48526)
     if (skill == SKILL_SKINNING)
     {

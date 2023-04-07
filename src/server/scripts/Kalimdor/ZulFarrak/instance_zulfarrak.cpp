@@ -29,7 +29,7 @@ enum Misc
     NPC_GAHZRILLA       = 7273,
 
     // Paths
-    PATH_ADDS           = 81553
+    PATH_ADDS           = 652424
 };
 
 int const pyramidSpawnTotal = 54;

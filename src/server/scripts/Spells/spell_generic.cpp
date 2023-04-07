@@ -5228,6 +5228,88 @@ class spell_gen_despawn_all_summons_owned_by_caster : public SpellScript
     }
 };
 
+enum SkinningLearningSpell
+{
+     SPELL_CLASSIC_SKINNING      = 265856,
+     SPELL_OUTLAND_SKINNING      = 265858,
+     SPELL_NORTHREND_SKINNING    = 265860,
+     SPELL_CATACLYSM_SKINNING    = 265862,
+     SPELL_PANDARIA_SKINNING     = 265864,
+     SPELL_DRAENOR_SKINNING      = 265866,
+     SPELL_LEGION_SKINNING       = 265868,
+     SPELL_KUL_TIRAN_SKINNING    = 265870,
+     SPELL_ZANDALARI_SKINNING    = 265872,
+     SPELL_SHADOWLANDS_SKINNING  = 308570,
+     SPELL_DRAGON_ISLES_SKINNING = 366263
+};
+
+// 8613 - Skinning
+class spell_gen_skinning : public SpellScript
+{
+    PrepareSpellScript(spell_gen_skinning);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_OUTLAND_SKINNING,
+            SPELL_NORTHREND_SKINNING,
+            SPELL_CATACLYSM_SKINNING,
+            SPELL_PANDARIA_SKINNING,
+            SPELL_DRAENOR_SKINNING,
+            SPELL_KUL_TIRAN_SKINNING,
+            SPELL_ZANDALARI_SKINNING,
+            SPELL_SHADOWLANDS_SKINNING,
+            SPELL_DRAGON_ISLES_SKINNING
+        });
+    }
+
+    void HandleSkinningEffect(SpellEffIndex /*effIndex*/)
+    {
+        Player* player = GetCaster()->ToPlayer();
+        if (!player)
+            return;
+
+        ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(GetHitUnit()->GetContentTuning());
+        if (!contentTuning)
+            return;
+
+        uint32 skinningSkill = player->GetProfessionSkillForExp(SKILL_SKINNING, contentTuning->ExpansionID);
+        if (!skinningSkill)
+            return;
+
+        // Autolearning missing skinning skill (Dragonflight)
+        auto getSkinningLearningSpellBySkill = [&]() -> uint32
+        {
+            switch (skinningSkill)
+            {
+                case SKILL_OUTLAND_SKINNING:      return SPELL_OUTLAND_SKINNING;
+                case SKILL_NORTHREND_SKINNING:    return SPELL_NORTHREND_SKINNING;
+                case SKILL_CATACLYSM_SKINNING:    return SPELL_CATACLYSM_SKINNING;
+                case SKILL_PANDARIA_SKINNING:     return SPELL_PANDARIA_SKINNING;
+                case SKILL_DRAENOR_SKINNING:      return SPELL_DRAENOR_SKINNING;
+                case SKILL_KUL_TIRAN_SKINNING:    return player->GetTeam() == ALLIANCE ? SPELL_KUL_TIRAN_SKINNING : SPELL_ZANDALARI_SKINNING;
+                case SKILL_SHADOWLANDS_SKINNING:  return SPELL_SHADOWLANDS_SKINNING;
+                case SKILL_DRAGON_ISLES_SKINNING: return SPELL_DRAGON_ISLES_SKINNING;
+                case SKILL_CLASSIC_SKINNING:      // Trainer only
+                case SKILL_LEGION_SKINNING:       // Quest only
+                default: break;
+            }
+
+            return 0;
+        };
+
+        if (!player->HasSkill(skinningSkill))
+            if (uint32 spellId = getSkinningLearningSpellBySkill())
+                player->CastSpell(nullptr, spellId, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_skinning::HandleSkinningEffect, EFFECT_0, SPELL_EFFECT_SKINNING);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     RegisterSpellScript(spell_gen_absorb0_hitlimit1);
@@ -5389,4 +5471,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_eject_passengers_3_8);
     RegisterSpellScript(spell_gen_reverse_cast_target_to_caster_triggered);
     RegisterSpellScript(spell_gen_despawn_all_summons_owned_by_caster);
+    RegisterSpellScript(spell_gen_skinning);
 }

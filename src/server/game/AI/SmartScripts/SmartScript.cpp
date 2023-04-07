@@ -43,6 +43,7 @@
 #include "TemporarySummon.h"
 #include "Vehicle.h"
 #include "WaypointDefines.h"
+#include "WaypointManager.h"
 
 SmartScript::SmartScript()
 {
@@ -1381,7 +1382,6 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!IsSmart())
                 break;
 
-            bool run = e.action.wpStart.run != 0;
             uint32 entry = e.action.wpStart.pathID;
             bool repeat = e.action.wpStart.repeat != 0;
 
@@ -1394,7 +1394,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 }
             }
 
-            ENSURE_AI(SmartAI, me->AI())->StartPath(run, entry, repeat, unit);
+            ENSURE_AI(SmartAI, me->AI())->StartPath(entry, repeat, unit);
 
             uint32 quest = e.action.wpStart.quest;
             uint32 DespawnTime = e.action.wpStart.despawnTime;
@@ -2062,7 +2062,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     {
                         for (uint32 pathId : waypoints)
                         {
-                            WaypointPath const* path = sSmartWaypointMgr->GetPath(pathId);
+                            WaypointPath const* path = sWaypointMgr->GetPath(pathId);
                             if (!path || path->nodes.empty())
                                 continue;
 
@@ -2079,7 +2079,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         }
 
                         if (closest.first != 0)
-                            ENSURE_AI(SmartAI, creature->AI())->StartPath(false, closest.first, true, nullptr, closest.second);
+                            ENSURE_AI(SmartAI, creature->AI())->StartPath(closest.first, true, nullptr, closest.second);
                     }
                 }
             }

@@ -88,6 +88,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         static Creature* CreateCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap = true, bool allowDuplicate = false);
 
         bool LoadCreaturesAddon();
+        void LoadCreaturesSparringHealth();
         void SelectLevel();
         void UpdateLevelDependantStats();
         void SelectWildBattlePetLevel();
@@ -393,6 +394,11 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void AtEngage(Unit* target) override;
         void AtDisengage() override;
 
+        void OverrideSparringHealthPct(std::vector<float> const& healthPct);
+        float GetSparringHealthPct() { return _sparringHealthPct; }
+        uint32 CalculateDamageForSparring(Unit* attacker, uint32 damage);
+        bool ShouldFakeDamageFrom(Unit* attacker);
+
         bool HasCanSwimFlagOutOfCombat() const
         {
             return !_isMissingCanSwimFlagOutOfCombat;
@@ -413,7 +419,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool HasFlag(CreatureStaticFlags8 flag) const { return _staticFlags.HasFlag(flag); }
 
         uint32 GetGossipMenuId() const;
-        void SetGossipMenuId(Optional<uint32> gossipMenuId);
+        void SetGossipMenuId(uint32 gossipMenuId);
 
         uint32 GetTrainerId() const;
         void SetTrainerId(Optional<uint32> trainerId);
@@ -507,8 +513,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         bool _isMissingCanSwimFlagOutOfCombat;
 
-        Optional<uint32> _gossipMenuId;
+        uint32 _gossipMenuId;
         Optional<uint32> _trainerId;
+        float _sparringHealthPct;
 };
 
 class TC_GAME_API AssistDelayEvent : public BasicEvent
