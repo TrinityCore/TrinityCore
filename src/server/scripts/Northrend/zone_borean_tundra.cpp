@@ -769,11 +769,11 @@ enum Thassarian
     SAY_LERYSSA_3               = 2,
     SAY_LERYSSA_4               = 3,
 
-    PATH_THASSARIAN             = 1013030,
-    PATH_ARTHAS                 = 1013031,
-    PATH_TALBOT                 = 1013032,
-    PATH_ARLOS                  = 1013033,
-    PATH_LERYSSA                = 1013034
+    PATH_THASSARIAN             = 8104240,
+    PATH_ARTHAS                 = 8104248,
+    PATH_TALBOT                 = 8104256,
+    PATH_ARLOS                  = 8104264,
+    PATH_LERYSSA                = 8104272
 };
 
 struct npc_thassarian : public ScriptedAI

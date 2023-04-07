@@ -60,12 +60,12 @@ enum HordeHauler
     TALK_ON_SEPULCHER                       = 2,
     TALK_ON_FORSAKEN_FRONT                  = 3,
 
-    PATH_FROM_NORTH_TO_SOUTH                = 447310,
-    PATH_TROOPER_1                          = 447320,
-    PATH_TROOPER_2                          = 447321,
-    PATH_TROOPER_3                          = 447322,
-    PATH_TROOPER_4                          = 447323,
-    PATH_TROOPER_5                          = 447324,
+    PATH_FROM_NORTH_TO_SOUTH                = 3578480,
+    PATH_TROOPER_1                          = 3578560,
+    PATH_TROOPER_2                          = 3578568,
+    PATH_TROOPER_3                          = 3578576,
+    PATH_TROOPER_4                          = 3578584,
+    PATH_TROOPER_5                          = 3578592,
 
     WAYPOINT_ON_FORSAKEN_HIGH               = 11,
     WAYPOINT_ON_SEPULCHER                   = 35,
@@ -340,8 +340,8 @@ enum QuestTheWarchiefCometh
     TALK_CROMUSH_COMETH_0                   = 0,
     TALK_CROMUSH_COMETH_1                   = 1,
 
-    PATH_CROMUSH                            = 446402,
-    PATH_GARROSH                            = 446290,
+    PATH_CROMUSH                            = 3571216,
+    PATH_GARROSH                            = 3570320,
 
     POINT_AGATHA_PRE_RISE                   = 1,
     POINT_AGATHA_RISE                       = 2,
@@ -1417,9 +1417,9 @@ enum ForsakenBat
     TALK_BAT_ARRIVED_TO_ISLE                    = 0,
     TALK_BAT_GOING_HOME                         = 1,
 
-    PATH_BAT_TO_LAKE                            = 448210,
-    PATH_BAT_AROUND_LAKE                        = 448211,
-    PATH_BAT_TO_HOME                            = 448212,
+    PATH_BAT_TO_LAKE                            = 3585680,
+    PATH_BAT_AROUND_LAKE                        = 3585688,
+    PATH_BAT_TO_HOME                            = 3585696,
 
     WAYPOINT_LAST_POINT_TO_LAKE                 = 8,
     WAYPOINT_LAST_POINT_AROUND_LAKE             = 32,
@@ -1660,8 +1660,8 @@ enum DeathstalkerRaneYorick
     TALK_YORICK_EXSANGUINATE_SUMMON         = 0,
     TALK_YORICK_EXSANGUINATE_HIDE           = 1,
 
-    PATH_YORICK_UP                          = 448820,
-    PATH_YORICK_HIDE                        = 448821,
+    PATH_YORICK_UP                          = 3590560,
+    PATH_YORICK_HIDE                        = 3590568,
 
     WAYPOINT_CLOSE_TO_ARMOIRE               = 15,
     WAYPOINT_HIDDEN_NEXT_TO_ARMOIRE         = 2
@@ -1909,12 +1909,12 @@ enum WaitingToExsanguinate
     TALK_BLOODFANG_EXSANGUINATE_9            = 9,
     TALK_BLOODFANG_EXSANGUINATE_10           = 10,
 
-    PATH_CROWLEY_ENTER                       = 448830,
-    PATH_BLOODFANG_ENTER                     = 448840,
-    PATH_BLOODFANG_NEAR_YORICK               = 448841,
-    PATH_BLOODFANG_WITH_YORICK               = 448842,
-    PATH_BLOODFANG_EXIT                      = 448843,
-    PATH_CROWLEY_EXIT                        = 448831
+    PATH_CROWLEY_ENTER                       = 3590640,
+    PATH_BLOODFANG_ENTER                     = 3590720,
+    PATH_BLOODFANG_NEAR_YORICK               = 3590728,
+    PATH_BLOODFANG_WITH_YORICK               = 3590736,
+    PATH_BLOODFANG_EXIT                      = 3590744,
+    PATH_CROWLEY_EXIT                        = 3590648
 };
 
 // 44893 - Armoire
@@ -4140,7 +4140,7 @@ enum AgathaFenrisIsle
     TALK_AGATHA_POST_EVENT1                     = 3,
     TALK_AGATHA_POST_EVENT2                     = 4,
 
-    PATH_AGATHA_TO_FORSAKEN                     = 449510,
+    PATH_AGATHA_TO_FORSAKEN                     = 3596080,
 
     WAYPOINT_SPEED_UP                           = 14,
     WAYPOINT_ARRIVED_TO_FORSAKEN                = 19,
