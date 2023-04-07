@@ -1,375 +1,375 @@
-///*
-// * Copyright 2023 AzgathCore
-// * Copyright (C) 2022 BfaCore Reforged
-// *
-// * This program is free software; you can redistribute it and/or modify it
-// * under the terms of the GNU General Public License as published by the
-// * Free Software Foundation; either version 2 of the License, or (at your
-// * option) any later version.
-// *
-// * This program is distributed in the hope that it will be useful, but WITHOUT
-// * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-// * more details.
-// *
-// * You should have received a copy of the GNU General Public License along
-// * with this program. If not, see <http://www.gnu.org/licenses/>.
-// */
-//
-//#include "AreaTrigger.h"
-//#include "AreaTriggerAI.h"
-//#include "Conversation.h"
-//#include "ScriptMgr.h"
-//#include "SpellScript.h"
-//#include "SpellAuras.h"
-//#include "SpellAuraEffects.h"
-//#include "GameObject.h"
-//#include "InstanceScript.h"
-//#include "Map.h"
-//#include "MotionMaster.h"
-//#include "ObjectAccessor.h"
-//#include "Player.h"
-//#include "ScriptedCreature.h"
-//#include "SpellInfo.h"
-//#include "TemporarySummon.h"
-//#include "atal_dazar.h"
-//
-//enum PriestessAlunzaSpells : uint32
-//{
-//    SPELL_PRE_RITUAL                    = 258386,
-//
-//    SPELL_ENERGY_REGEN                  = 258681,
-//    SPELL_GILDED_CLAWS                  = 255579,
-//    SPELL_GILDED_CLAWS_TRIGGER_SPELL    = 255581,
-//    SPELL_TRANSFUSION                   = 260666,
-//    SPELL_TRANSFUSION_PERIODIC_DUMMY    = 255577,
-//    SPELL_TRANSFUSION_DAMAGE            = 255836,
-//    SPELL_TRANSFUSION_DAMAGE_MYTHIC     = 260667,
-//    SPELL_TRANSFUSION_HEAL              = 255835,
-//    SPELL_TRANSFUSION_HEAL_MYTHIC       = 260668,
-//    SPELL_TAINTED_BLOOD_DOT             = 255558,
-//    SPELL_TAINTED_BLOOD_TARGET_CAULDRON = 255592,
-//    SPELL_TAINTED_BLOOD_MISSILE_BUBBLE  = 260660, // TARGET_DEST_DEST
-//    SPELL_TAINTED_BLOOD_CREATE_AT       = 260670,//AT
-//    SPELL_TAINTED_BLOOD_DAMAGE          = 255842,
-//    SPELL_TAINTED_BLOOD_SPAWN           = 255619,
-//
-//    SPELL_MOLTEN_GOLD_POOL_PRE_SELECTOR = 255615,
-//    SPELL_MOLTEN_GOLD_POOL_SELECTOR     = 255591,
-//    SPELL_MOLTEN_GOLD_TARGET_SELECT     = 255584,
-//    SPELL_MOLTEN_GOLD_MISSILE           = 255583,
-//    SPELL_MOLTEN_GOLD_DOT               = 255582,
-//
-//    SPELL_CORRUPTED_GOLD_TOUCH          = 258709,
-//    SPELL_CORRUPTED_GOLD_AT             = 258703,
-//
-//    SPELL_SUMMON_SPIRIT_OF_GOLD         = 259205,
-//};
-//
-//enum PriestessAlunzaTalks : uint8
-//{
-//    TALK_AGGRO              = 0,
-//    TALK_GILDED_CLAWS_EMOTE = 1,
-//    TALK_GILDED_CLAWS       = 2,
-//    TALK_TRANSFUSION_EMOTE  = 3,
-//    TALK_TRANSFUSION        = 4,
-//    TALK_MOLTEN_GOLD        = 5,
-//    TALK_DEATH              = 6
-//};
-//
-//enum PriestessAlunzaEvents : uint8
-//{
-//    EVENT_GILDED_CLAWS = 1,
-//    EVENT_TRANSFUSION,
-//    EVENT_MOLTEN_GOLD,
-//    EVENT_TAINTED_BLOOD_CAST,
-//    EVENT_TAINTED_BLOOD,
-//    EVENT_SPAWN_CORRUPTED_GOLD,
-//    EVENT_SPIRIT_OF_GOLD,
-//};
-//
-//enum PriestessAlunzaNPCs : uint32
-//{
-//    NPC_BLOOD_TAINTED_CAULDRON  = 128956,
-//    NPC_CORRUPTED_GOLD = 130738,
-//    NPC_SPIRIT_OF_GOLD = 131009,
-//};
-//
-//enum Actions
-//{
-//    ACTION_SPIRIT_DIED = 0,
-//    ACTION_TAINTED_BLOOD,
-//};
-//
-//enum PriestessMisc : uint32
-//{
-//    OUT_OF_COMBAT_ANIM_ID       = 1346    
-//};
-//
-//enum conversationalunza
-//{
-//    CONVERSATION_ALUNZA_DEATH = 6323,
-//};
-//
-//// 122967 - Priestess Alunza
-//struct boss_priestess_alunza : public BossAI
-//{
-//    boss_priestess_alunza(Creature* creature) : BossAI(creature, DATA_PRIESTESS_ALUNZA) { }
-//
-//    void InitializeAI() override
-//    {
-//        me->SetMaxPower(POWER_MANA, 100);
-//        me->SetPower(POWER_MANA, 0);
-//        scheduler.ClearValidator();
-//        taintedCounter = 0;
-//        BossAI::InitializeAI();
-//    }
-//
-//    void Reset() override
-//    {
-//        AreaTriggerList areatriggers = me->SelectNearestAreaTriggers(SPELL_TAINTED_BLOOD_CREATE_AT, 100.f);
-//        for (AreaTrigger* at : areatriggers)
-//            at->Remove();
-//
-//        taintedCounter = 0;
-//
-//        events.Reset();
-//        scheduler.CancelAll();
-//        summons.DespawnAll();
-//
-//        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-//        me->SetPower(POWER_MANA, 0);
-//        DoCastSelf(SPELL_PRE_RITUAL);
-//        BossAI::Reset();
-//    }
-//
-//    void EnterCombat(Unit* who) override
-//    {
-//        Talk(TALK_AGGRO);
-//        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-//        events.ScheduleEvent(EVENT_GILDED_CLAWS, 10500);
-//        events.ScheduleEvent(EVENT_MOLTEN_GOLD, 16500);
-//        events.ScheduleEvent(EVENT_TAINTED_BLOOD, 18000);
-//
-//        if (IsMythic() || IsHeroic())
-//        {
-//            events.ScheduleEvent(EVENT_SPAWN_CORRUPTED_GOLD, 2000);
-//            // Last event to add: Spawn add
-//        }
-//        taintedCounter = 0;
-//        me->RemoveAurasDueToSpell(SPELL_PRE_RITUAL);
-//        me->AddAura(SPELL_ENERGY_REGEN, me);
-//
-//        BossAI::EnterCombat(who);
-//    }
-//
-//    void DoAction(int32 action) override
-//    {
-//        if (action == ACTION_SPIRIT_DIED)
-//            goldfever = true;
-//    }
-//
-//    void EnterEvadeMode(EvadeReason why) override
-//    {
-//        _DespawnAtEvade();
-//        BossAI::EnterEvadeMode(why);
-//    }
-//
-//    void JustDied(Unit* killer) override
-//    {
-//        Talk(TALK_DEATH);
-//        _JustDied();
-//        instance->SetBossState(DATA_PRIESTESS_ALUNZA, DONE);
-//
-//        if (goldfever)
-//            instance->DoCompleteAchievement(AtalDazarAchievements::ACHIEVEMENT_GOLD_FEVER);
-//
-//        for (auto creature : me->FindNearestCreatures(NPC_CORRUPTED_GOLD, 100.0f))
-//        {
-//            creature->DespawnOrUnsummon();
-//        }
-//        std::list<Player*> playerList;
-//        me->GetPlayerListInGrid(playerList, 100.0f);
-//        for (auto player : playerList)
-//        {
-//            Conversation::CreateConversation(CONVERSATION_ALUNZA_DEATH, player, player->GetPosition(), { player->GetGUID() });
-//            if (player->HasAura(SPELL_UNSTABLE_HEX))
-//            {
-//                int cont = instance->GetData(DATA_ACHIEVEMENT_COUNT);
-//                instance->SetData(DATA_ACHIEVEMENT_COUNT, cont++);
-//                break;
-//            }
-//        }
-//    }
-//
-//    void UpdateAI(uint32 diff) override
-//    {
-//        if (!UpdateVictim())
-//            return;
-//
-//        events.Update(diff);
-//        scheduler.Update(diff);
-//
-//        if (me->HasUnitState(UNIT_STATE_CASTING))
-//            return;
-//
-//        if (me->GetPower(POWER_MANA) >= 100 && !events.HasEvent(EVENT_TRANSFUSION))
-//            events.ScheduleEvent(EVENT_TRANSFUSION, 5000);
-//
-//        while (uint32 eventId = events.ExecuteEvent())
-//        {
-//            switch (eventId)
-//            {
-//            case EVENT_GILDED_CLAWS:
-//                Talk(TALK_GILDED_CLAWS);
-//                Talk(TALK_GILDED_CLAWS_EMOTE);
-//                DoCastSelf(SPELL_GILDED_CLAWS);
-//                events.ScheduleEvent(EVENT_GILDED_CLAWS, 34000);
-//                break;
-//            case EVENT_MOLTEN_GOLD:
-//                Talk(TALK_MOLTEN_GOLD);
-//                DoCastSelf(SPELL_MOLTEN_GOLD_POOL_PRE_SELECTOR, true);
-//                events.ScheduleEvent(EVENT_MOLTEN_GOLD, 34000);
-//                break;
-//            case EVENT_TRANSFUSION:
-//                Talk(TALK_TRANSFUSION);
-//                Talk(TALK_TRANSFUSION_EMOTE);
-//                DoCast(SPELL_TRANSFUSION);
-//                taintedCounter = 0;
-//                break;
-//            case EVENT_TAINTED_BLOOD:
-//                events.DelayEvents(11000);
-//                events.ScheduleEvent(EVENT_TAINTED_BLOOD_CAST, 1000);
-//                events.ScheduleEvent(EVENT_TAINTED_BLOOD, 44000);
-//                break;
-//            case EVENT_TAINTED_BLOOD_CAST:
-//                DoCastSelf(SPELL_TAINTED_BLOOD_TARGET_CAULDRON);
-//                ++taintedCounter;
-//                if (taintedCounter < 5)
-//                    events.ScheduleEvent(EVENT_TAINTED_BLOOD_CAST, 2000);
-//                else
-//                {
-//                    if (IsHeroic() || IsMythic())
-//                        events.ScheduleEvent(EVENT_SPIRIT_OF_GOLD, 8500);
-//                    events.ScheduleEvent(EVENT_TRANSFUSION, 13000);
-//                }
-//                break;
-//            case EVENT_SPAWN_CORRUPTED_GOLD:
-//            {
-//                scheduler.Schedule(0s, [this](TaskContext context)
-//                {
-//                    if (Creature* cauldron = me->FindNearestCreature(NPC_BLOOD_TAINTED_CAULDRON, 100.f))
-//                    {
-//                        cauldron = DoSummon(NPC_CORRUPTED_GOLD, cauldron->GetPosition(), 40000, TEMPSUMMON_TIMED_DESPAWN);
-//                    }
-//                    context.Repeat(3500ms);
-//                });
-//                break;
-//            }
-//            case EVENT_SPIRIT_OF_GOLD:
-//            {
-//                me->CastSpell(me, SPELL_SUMMON_SPIRIT_OF_GOLD);
-//                break;
-//            }
-//            default:
-//                break;
-//            }
-//        }
-//
-//        DoMeleeAttackIfReady();
-//    }
-//
-//private:
-//    TaskScheduler scheduler;
-//    int8 taintedCounter;
-//    bool goldfever;
-//};
-//
-//enum CauldronSpells : uint32
-//{
-//    SPELL_TAINTED_BLOOD_CAULDRON_AURA = 255619,
-//    SPELL_TAINTED_BLOOD_CAULDRON_PURIFY = 260658
-//};
-//
-//// 128956 - Blood Tainted Cauldron
-//struct npc_blood_tainted_cauldron : public ScriptedAI
-//{
-//    npc_blood_tainted_cauldron(Creature* creature) : ScriptedAI(creature) { }
-//
-//    void InitializeAI() override
-//    {
-//        me->SetReactState(REACT_PASSIVE);
-//        SetCombatMovement(false);
-//        ScriptedAI::InitializeAI();
-//    }
-//
-//    void Reset() override
-//    {
-//        DoCastSelf(SPELL_TAINTED_BLOOD_CAULDRON_AURA);
-//        ScriptedAI::Reset();
-//    }
-//
-//    void UpdateAI(uint32 diff) override
-//    {
-//        // Do nothing
-//        ScriptedAI::UpdateAI(diff);
-//    }
-//
-//    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
-//    {
-//        if (spell->Id == SPELL_MOLTEN_GOLD_POOL_SELECTOR)
-//            DoCastSelf(SPELL_TAINTED_BLOOD_CAULDRON_PURIFY);
-//    }
-//};
-//
-//// 130738 - Corrupted Gold
-//struct npc_corrupted_gold : public ScriptedAI
-//{
-//    npc_corrupted_gold(Creature* creature) : ScriptedAI(creature) { }
-//
-//    void InitializeAI() override
-//    {
-//        touched = false;
-//        me->SetReactState(REACT_PASSIVE);
-//        SetCombatMovement(false);
-//        ScriptedAI::InitializeAI();
-//    }
-//
-//    void Reset() override
-//    {
-//        touched = false;
-//        DoCastSelf(SPELL_CORRUPTED_GOLD_AT);
-//        MoveForward(70.0f);
-//        ScriptedAI::Reset();
-//    }
-//
-//    void MoveForward(float distance)
-//    {
-//        Position movePos;
-//        float ori = float(M_PI_2) + float(M_PI) + frand(0.0f, float(M_PI));
-//        float x = me->GetPositionX() + distance * cos(ori);
-//        float y = me->GetPositionY() + distance * sin(ori);
-//        float z = me->GetPositionZ();
-//        me->GetNearPoint2D(x, y, distance, ori);
-//        movePos = { x, y, z, ori };
-//        me->GetMotionMaster()->MovePoint(0, movePos, false);
-//    }
-//
-//    void UpdateAI(uint32 diff) override
-//    {
-//        ScriptedAI::UpdateAI(diff);
-//        if (Player* player = me->SelectNearestPlayer(1.5f))
-//            if (!touched)
-//            {
-//                touched = true;
-//                me->GetMotionMaster()->Clear();
-//                me->CastSpell(player, SPELL_CORRUPTED_GOLD_TOUCH);
-//            }
-//
-//    }
-//private:
-//    bool touched;
-//};
+﻿/*
+ * Copyright 2023 AzgathCore
+ * Copyright (C) 2022 BfaCore Reforged
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
+#include "Conversation.h"
+#include "ScriptMgr.h"
+#include "SpellScript.h"
+#include "SpellAuras.h"
+#include "SpellAuraEffects.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "TemporarySummon.h"
+#include "atal_dazar.h"
+#include "Unit.h"
+
+enum PriestessAlunzaSpells : uint32
+{
+    SPELL_PRE_RITUAL = 258386,
+
+    SPELL_ENERGY_REGEN = 258681,
+    SPELL_GILDED_CLAWS = 255579,
+    SPELL_GILDED_CLAWS_TRIGGER_SPELL = 255581,
+    SPELL_TRANSFUSION = 260666,
+    SPELL_TRANSFUSION_PERIODIC_DUMMY = 255577,
+    SPELL_TRANSFUSION_DAMAGE = 255836,
+    SPELL_TRANSFUSION_DAMAGE_MYTHIC = 260667,
+    SPELL_TRANSFUSION_HEAL = 255835,
+    SPELL_TRANSFUSION_HEAL_MYTHIC = 260668,
+    SPELL_TAINTED_BLOOD_DOT = 255558,
+    SPELL_TAINTED_BLOOD_TARGET_CAULDRON = 255592,
+    SPELL_TAINTED_BLOOD_MISSILE_BUBBLE = 260660, // TARGET_DEST_DEST
+    SPELL_TAINTED_BLOOD_CREATE_AT = 260670,//AT
+    SPELL_TAINTED_BLOOD_DAMAGE = 255842,
+    SPELL_TAINTED_BLOOD_SPAWN = 255619,
+
+    SPELL_MOLTEN_GOLD_POOL_PRE_SELECTOR = 255615,
+    SPELL_MOLTEN_GOLD_POOL_SELECTOR = 255591,
+    SPELL_MOLTEN_GOLD_TARGET_SELECT = 255584,
+    SPELL_MOLTEN_GOLD_MISSILE = 255583,
+    SPELL_MOLTEN_GOLD_DOT = 255582,
+
+    SPELL_CORRUPTED_GOLD_TOUCH = 258709,
+    SPELL_CORRUPTED_GOLD_AT = 258703,
+
+    SPELL_SUMMON_SPIRIT_OF_GOLD = 259205,
+};
+
+enum PriestessAlunzaTalks : uint8
+{
+    TALK_AGGRO = 0,
+    TALK_GILDED_CLAWS_EMOTE = 1,
+    TALK_GILDED_CLAWS = 2,
+    TALK_TRANSFUSION_EMOTE = 3,
+    TALK_TRANSFUSION = 4,
+    TALK_MOLTEN_GOLD = 5,
+    TALK_DEATH = 6
+};
+
+enum PriestessAlunzaEvents : uint8
+{
+    EVENT_GILDED_CLAWS = 1,
+    EVENT_TRANSFUSION,
+    EVENT_MOLTEN_GOLD,
+    EVENT_TAINTED_BLOOD_CAST,
+    EVENT_TAINTED_BLOOD,
+    EVENT_SPAWN_CORRUPTED_GOLD,
+    EVENT_SPIRIT_OF_GOLD,
+};
+
+enum PriestessAlunzaNPCs : uint32
+{
+    NPC_BLOOD_TAINTED_CAULDRON = 128956,
+    NPC_CORRUPTED_GOLD = 130738,
+    NPC_SPIRIT_OF_GOLD = 131009,
+};
+
+enum Actions
+{
+    ACTION_SPIRIT_DIED = 0,
+    ACTION_TAINTED_BLOOD,
+};
+
+enum PriestessMisc : uint32
+{
+    OUT_OF_COMBAT_ANIM_ID = 1346
+};
+
+enum conversationalunza
+{
+    CONVERSATION_ALUNZA_DEATH = 6323,
+};
+
+// 122967 - Priestess Alunza
+struct boss_priestess_alunza : public BossAI
+{
+    boss_priestess_alunza(Creature* creature) : BossAI(creature, DATA_PRIESTESS_ALUNZA) { }
+
+    void InitializeAI() override
+    {
+        me->SetMaxPower(POWER_MANA, 100);
+        me->SetPower(POWER_MANA, 0);
+        scheduler.ClearValidator();
+        taintedCounter = 0;
+        BossAI::InitializeAI();
+    }
+
+    void Reset() override
+    {
+        /*AreaTriggerList areatriggers = me->SelectNearestAreaTriggers(SPELL_TAINTED_BLOOD_CREATE_AT, 100.f);
+        for (AreaTrigger* at : areatriggers)
+            at->Remove();*/
+
+        taintedCounter = 0;
+
+        events.Reset();
+        scheduler.CancelAll();
+        summons.DespawnAll();
+
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        me->SetPower(POWER_MANA, 0);
+        DoCastSelf(SPELL_PRE_RITUAL);
+        BossAI::Reset();
+    }
+
+    void JustEnteredCombat(Unit* who) override
+    {
+        Talk(TALK_AGGRO);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        events.ScheduleEvent(EVENT_GILDED_CLAWS, Milliseconds(10500));
+        events.ScheduleEvent(EVENT_MOLTEN_GOLD, Milliseconds(16500));
+        events.ScheduleEvent(EVENT_TAINTED_BLOOD, Milliseconds(18000));
+
+        //if (IsMythic() || IsHeroic())
+        //{
+        //    events.ScheduleEvent(EVENT_SPAWN_CORRUPTED_GOLD, Milliseconds(2000));
+        //    // Last event to add: Spawn add
+        //}
+        taintedCounter = 0;
+        me->RemoveAurasDueToSpell(SPELL_PRE_RITUAL);
+        me->AddAura(SPELL_ENERGY_REGEN, me);
+
+        BossAI::JustEnteredCombat(who);
+    }
+
+    void DoAction(int32 action) override
+    {
+        if (action == ACTION_SPIRIT_DIED)
+            goldfever = true;
+    }
+
+    void EnterEvadeMode(EvadeReason why) override
+    {
+        _DespawnAtEvade();
+        BossAI::EnterEvadeMode(why);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        Talk(TALK_DEATH);
+        _JustDied();
+        instance->SetBossState(DATA_PRIESTESS_ALUNZA, DONE);
+
+        /*if (goldfever)
+            instance->DoCompleteAchievement(AtalDazarAchievements::ACHIEVEMENT_GOLD_FEVER);*/
+        
+        /*for (auto creature : me->FindNearestCreature(NPC_CORRUPTED_GOLD, 100.0f))
+        {
+            creature->DespawnOrUnsummon();
+        }*/
+        std::list<Player*> playerList;
+        me->GetPlayerListInGrid(playerList, 100.0f);
+        for (auto player : playerList)
+        {
+            Conversation::CreateConversation(CONVERSATION_ALUNZA_DEATH, player, player->GetPosition(), { player->GetGUID() });
+            if (player->HasAura(SPELL_UNSTABLE_HEX))
+            {
+                int cont = instance->GetData(DATA_ACHIEVEMENT_COUNT);
+                instance->SetData(DATA_ACHIEVEMENT_COUNT, cont++);
+                break;
+            }
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+        scheduler.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+        /*if (me->GetPower(POWER_MANA) >= 100 && !events.hasEvent(EVENT_TRANSFUSION))
+            events.ScheduleEvent(EVENT_TRANSFUSION, Milliseconds(5000));*/
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+            case EVENT_GILDED_CLAWS:
+                Talk(TALK_GILDED_CLAWS);
+                Talk(TALK_GILDED_CLAWS_EMOTE);
+                DoCastSelf(SPELL_GILDED_CLAWS);
+                events.ScheduleEvent(EVENT_GILDED_CLAWS, Milliseconds(34000));
+                break;
+            case EVENT_MOLTEN_GOLD:
+                Talk(TALK_MOLTEN_GOLD);
+                DoCastSelf(SPELL_MOLTEN_GOLD_POOL_PRE_SELECTOR, true);
+                events.ScheduleEvent(EVENT_MOLTEN_GOLD, Milliseconds(34000));
+                break;
+            case EVENT_TRANSFUSION:
+                Talk(TALK_TRANSFUSION);
+                Talk(TALK_TRANSFUSION_EMOTE);
+                DoCast(SPELL_TRANSFUSION);
+                taintedCounter = 0;
+                break;
+            case EVENT_TAINTED_BLOOD:
+                events.DelayEvents(Milliseconds(11000));
+                events.ScheduleEvent(EVENT_TAINTED_BLOOD_CAST, Milliseconds(1000));
+                events.ScheduleEvent(EVENT_TAINTED_BLOOD, Milliseconds(44000));
+                break;
+            case EVENT_TAINTED_BLOOD_CAST:
+                DoCastSelf(SPELL_TAINTED_BLOOD_TARGET_CAULDRON);
+                ++taintedCounter;
+                if (taintedCounter < 5)
+                    events.ScheduleEvent(EVENT_TAINTED_BLOOD_CAST, Milliseconds(2000));
+                else
+                {
+                   /* if (IsHeroic() || IsMythic())
+                        events.ScheduleEvent(EVENT_SPIRIT_OF_GOLD, Milliseconds(8500));*/
+                    events.ScheduleEvent(EVENT_TRANSFUSION, Milliseconds(13000));
+                }
+                break;
+            case EVENT_SPAWN_CORRUPTED_GOLD:
+            {
+                scheduler.Schedule(0s, [this](TaskContext context)
+                    {
+                        if (Creature* cauldron = me->FindNearestCreature(NPC_BLOOD_TAINTED_CAULDRON, 100.f))
+                        {
+                            cauldron = DoSummon(NPC_CORRUPTED_GOLD, cauldron->GetPosition(), Milliseconds(40000), TEMPSUMMON_TIMED_DESPAWN);
+                        }
+                        context.Repeat(3500ms);
+                    });
+                break;
+            }
+            case EVENT_SPIRIT_OF_GOLD:
+            {
+                me->CastSpell(me, SPELL_SUMMON_SPIRIT_OF_GOLD);
+                break;
+            }
+            default:
+                break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    TaskScheduler scheduler;
+    int8 taintedCounter;
+    bool goldfever;
+};
+
+enum CauldronSpells : uint32
+{
+    SPELL_TAINTED_BLOOD_CAULDRON_AURA = 255619,
+    SPELL_TAINTED_BLOOD_CAULDRON_PURIFY = 260658
+};
+
+// 128956 - Blood Tainted Cauldron
+struct npc_blood_tainted_cauldron : public ScriptedAI
+{
+    npc_blood_tainted_cauldron(Creature* creature) : ScriptedAI(creature) { }
+
+    void InitializeAI() override
+    {
+        me->SetReactState(REACT_PASSIVE);
+        SetCombatMovement(false);
+        ScriptedAI::InitializeAI();
+    }
+
+    void Reset() override
+    {
+        DoCastSelf(SPELL_TAINTED_BLOOD_CAULDRON_AURA);
+        ScriptedAI::Reset();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        // Do nothing
+        ScriptedAI::UpdateAI(diff);
+    }
+    
+    //void SpellHit(Unit* /*caster*/, SpellInfo const* spell) 
+    //{
+    //    if (spell->Id == SPELL_MOLTEN_GOLD_POOL_SELECTOR)
+    //        DoCastSelf(SPELL_TAINTED_BLOOD_CAULDRON_PURIFY);
+    //}
+};
+
+// 130738 - Corrupted Gold
+struct npc_corrupted_gold : public ScriptedAI
+{
+    npc_corrupted_gold(Creature* creature) : ScriptedAI(creature) { }
+
+    void InitializeAI() override
+    {
+        touched = false;
+        me->SetReactState(REACT_PASSIVE);
+        SetCombatMovement(false);
+        ScriptedAI::InitializeAI();
+    }
+
+    void Reset() override
+    {
+        touched = false;
+        DoCastSelf(SPELL_CORRUPTED_GOLD_AT);
+        MoveForward(70.0f);
+        ScriptedAI::Reset();
+    }
+
+    void MoveForward(float distance)
+    {
+        Position movePos;
+        float ori = float(M_PI_2) + float(M_PI) + frand(0.0f, float(M_PI));
+        float x = me->GetPositionX() + distance * cos(ori);
+        float y = me->GetPositionY() + distance * sin(ori);
+        float z = me->GetPositionZ();
+        me->GetNearPoint2D(me,x, y, distance, ori);
+        movePos = { x, y, z, ori };
+        me->GetMotionMaster()->MovePoint(0, movePos, false);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        ScriptedAI::UpdateAI(diff);
+        if (Player* player = me->SelectNearestPlayer(1.5f))
+            if (!touched)
+            {
+                touched = true;
+                me->GetMotionMaster()->Clear();
+                me->CastSpell(player, SPELL_CORRUPTED_GOLD_TOUCH);
+            }
+
+    }
+private:
+    bool touched;
+};
 //
 ////259205
 //struct npc_spirit_of_gold : public ScriptedAI
@@ -424,7 +424,7 @@
 //private:
 //    int taintedblood;
 //};
-//
+
 ////260665
 //class spell_priestess_transfusion_cast : public SpellScript
 //{
