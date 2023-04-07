@@ -1,38 +1,38 @@
-//
-//#include "DB2Structure.h"
-//#include "BotAITool.h"
-//#include "Pet.h"
-//#include "PlayerBotSession.h"
-//#include "Map.h"
-//#include "Group.h"
-//#include "BotBGAIMovement.h"
-//#include "Language.h"
-//#include "Guild.h"
-//#include "SpellAuras.h"
-//#include "WorldSession.h"
-//
-//#include "Cell.h"
-//#include "CellImpl.h"
-//#include "GridDefines.h"
-//#include "GridNotifiers.h"
-//#include "GridNotifiersImpl.h"
-//#include "MiscPackets.h"
-//#include "Packets/AllPackets.h"
-//
-//float BotUtility::BattlegroundScoreRate = 1.0f;
-//float BotUtility::DungeonBotDamageModify = 1.0f;
-//float BotUtility::DungeonBotEndureModify = 1.0f;
-//bool BotUtility::BotCanForceRevive = false;
-//bool BotUtility::BotCanSettingToMaster = true;
-//int32 BotUtility::BotCritTakenAddion = 1;
-//bool BotUtility::ControllSpellDiminishing = true;
-//bool BotUtility::ControllSpellFromDmgBreak = true;
-//bool BotUtility::DownBotArenaTeam = false;
-//bool BotUtility::ArenaIsHell = false;
-//uint32 BotUtility::BotArenaTeamTactics = 1;
-//bool BotUtility::DisableDKQuest = false;
-//
-//
+﻿
+#include "DB2Structure.h"
+#include "BotAITool.h"
+#include "Pet.h"
+#include "PlayerBotSession.h"
+#include "Map.h"
+#include "Group.h"
+#include "BotBGAIMovement.h"
+#include "Language.h"
+#include "Guild.h"
+#include "SpellAuras.h"
+#include "WorldSession.h"
+
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridDefines.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "MiscPackets.h"
+#include "Packets/AllPackets.h"
+
+float BotUtility::BattlegroundScoreRate = 1.0f;
+float BotUtility::DungeonBotDamageModify = 1.0f;
+float BotUtility::DungeonBotEndureModify = 1.0f;
+bool BotUtility::BotCanForceRevive = false;
+bool BotUtility::BotCanSettingToMaster = true;
+int32 BotUtility::BotCritTakenAddion = 1;
+bool BotUtility::ControllSpellDiminishing = true;
+bool BotUtility::ControllSpellFromDmgBreak = true;
+bool BotUtility::DownBotArenaTeam = false;
+bool BotUtility::ArenaIsHell = false;
+uint32 BotUtility::BotArenaTeamTactics = 1;
+bool BotUtility::DisableDKQuest = false;
+
+
 //void BotUtility::AddArenaBotSpellsByPlayer(Player* player)
 //{
 //	if (!player)

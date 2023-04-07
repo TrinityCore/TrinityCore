@@ -585,6 +585,14 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         }
         int32 GetDBPhase() const { return _dbPhase; }
 
+
+        //virtual void SetPhaseId(std::set<uint32> const& newPhaseId, bool update);//maybe duplicate,cause erros.
+        //bool HasPhaseId(uint32 PhaseID) const;
+        std::set<uint32> const& GetPhases() const;
+        //bool InSamePhaseId(WorldObject const* obj) const;
+        //bool InSamePhaseId(std::set<uint32> const& phase, bool otherIsPlayer) const;
+
+
         // if negative it is used as PhaseGroupId
         void SetDBPhase(int32 p) { _dbPhase = p; }
 
@@ -664,6 +672,10 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         virtual void SetMap(Map* map);
         virtual void ResetMap();
+
+        //this function should be removed in nearest time...
+        Map const* GetBaseMap() const;
+
         Map* GetMap() const { ASSERT(m_currMap); return m_currMap; }
         Map* FindMap() const { return m_currMap; }
         //used to check all object's GetMap() calls when object is not in world!

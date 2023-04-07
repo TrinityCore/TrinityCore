@@ -33,6 +33,11 @@
           "name": "WITH_DYNAMIC_LINKING",
           "value": "False",
           "type": "BOOL"
+        },
+        {
+          "name": "SCRIPTS",
+          "value": "static",
+          "type": "STRING"
         }
       ]
     }

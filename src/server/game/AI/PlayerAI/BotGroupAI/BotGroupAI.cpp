@@ -1,31 +1,31 @@
-//
-////#include "G3D/stringutils.h"
-//#include "BotGroupAI.h"
-//#include "MoveSplineInit.h"
-//#include "BotBGAIMovement.h"
-//#include "PlayerBotMgr.h"
-//#include "PlayerBotSession.h"
-//#include "Group.h"
-//#include "Spell.h"
-//#include "Pet.h"
-//#include "BotGroupClassAI.h"
-//#include "Cell.h"
-//#include "CellImpl.h"
-//#include "GridDefines.h"
-//#include "GridNotifiers.h"
-//#include "GridNotifiersImpl.h"
-//#include "ItemTemplate.h"
-//#include "Item.h"
-//#include "Bag.h"
-//#include "TradeData.h"
-//#include "ItemPackets.h"
-//#include "Config.h"
-//
-//BotGroupAI* BotGroupAI::debugGroupAI = NULL;
-//bool BotGroupAI::PVE_MAX_DUNGEON = false;
-//bool BotGroupAI::PVE_DRIVING = true;
-//bool BotGroupAI::PVE_PULL = true;
-//
+﻿
+//#include "G3D/stringutils.h"
+#include "BotGroupAI.h"
+#include "MoveSplineInit.h"
+#include "BotBGAIMovement.h"
+#include "PlayerBotMgr.h"
+#include "PlayerBotSession.h"
+#include "Group.h"
+#include "Spell.h"
+#include "Pet.h"
+#include "BotGroupClassAI.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridDefines.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "ItemTemplate.h"
+#include "Item.h"
+#include "Bag.h"
+#include "TradeData.h"
+#include "ItemPackets.h"
+#include "Config.h"
+
+//BotGroupAI* BotGroupAI::debugGroupAI = NULL   //Duplicate define
+//bool BotGroupAI::PVE_MAX_DUNGEON = false;     //Duplicate define
+//bool BotGroupAI::PVE_DRIVING = true;          //Duplicate define
+//bool BotGroupAI::PVE_PULL = true              //Duplicate define
+
 //BotGroupAI* BotGroupAI::CreateBotGroupAIByPlayerClass(Player* player)
 //{
 //    PlayerBotSetting::ClearUnknowMount(player);
