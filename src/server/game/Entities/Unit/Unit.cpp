@@ -5496,13 +5496,7 @@ void Unit::UpdateDisplayPower()
                 AuraEffect const* powerTypeAura = powerTypeAuras.front();
                 displayPower = Powers(powerTypeAura->GetMiscValue());
             }
-            else if (GetTypeId() == TYPEID_PLAYER)
-            {
-                ChrClassesEntry const* cEntry = sChrClassesStore.LookupEntry(GetClass());
-                if (cEntry && cEntry->DisplayPower < MAX_POWERS)
-                    displayPower = Powers(cEntry->DisplayPower);
-            }
-            else if (GetTypeId() == TYPEID_UNIT)
+            else
             {
                 if (Vehicle* vehicle = GetVehicleKit())
                 {
@@ -5517,6 +5511,12 @@ void Unit::UpdateDisplayPower()
                         displayPower = POWER_FOCUS;
                     else if (pet->IsPetGhoul() || pet->IsPetAbomination()) // DK pets have energy
                         displayPower = POWER_ENERGY;
+                }
+                else
+                {
+                    ChrClassesEntry const* cEntry = sChrClassesStore.LookupEntry(GetClass());
+                    if (cEntry && cEntry->DisplayPower < MAX_POWERS)
+                        displayPower = Powers(cEntry->DisplayPower);
                 }
             }
             break;
@@ -9316,7 +9316,12 @@ int32 Unit::GetCreatePowerValue(Powers power) const
         return GetCreateMana();
 
     if (PowerTypeEntry const* powerType = sDB2Manager.GetPowerTypeEntry(power))
+    {
+        if (IsCreature() && !powerType->GetFlags().HasFlag(PowerTypeFlags::IsUsedByNPCs))
+            return 0;
+
         return powerType->MaxBasePower;
+    }
 
     return 0;
 }
