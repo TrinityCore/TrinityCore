@@ -933,7 +933,7 @@ class spell_warl_random_sayaad : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_warl_random_sayaad::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectLaunch += SpellEffectFn(spell_warl_random_sayaad::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -941,6 +941,15 @@ class spell_warl_random_sayaad : public SpellScript
 class spell_warl_summon_sayaad : public SpellScript
 {
     PrepareSpellScript(spell_warl_summon_sayaad);
+
+    void OnPrecast() override
+    {
+        Unit* caster = GetCaster();
+
+        // Note: this is a special case in which the warlock's minion pet must also cast Summon Disorientation at the beginning since this is only handled by SPELL_EFFECT_SUMMON_PET in Spell::CheckCast.
+        if (Pet* pet = caster->ToPlayer()->GetPet())
+            pet->CastSpell(pet, SPELL_SUMMONING_DISORIENTATION, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetOriginalCaster(pet->GetGUID()).SetTriggeringSpell(GetSpell()));
+    }
 
     void HandleAfterCast()
     {
