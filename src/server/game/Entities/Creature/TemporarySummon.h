@@ -29,6 +29,7 @@ enum PetEntry
     PET_SUCCUBUS        = 1863,
     PET_DOOMGUARD       = 18540,
     PET_FELGUARD        = 30146,
+    PET_INCUBUS         = 184600,
 
     // Death Knight pets
     PET_GHOUL           = 26125,
@@ -97,6 +98,7 @@ class TC_GAME_API Minion : public TempSummon
         bool IsPetSuccubus() const { return GetEntry() == PET_SUCCUBUS; }
         bool IsPetDoomguard() const { return GetEntry() == PET_DOOMGUARD; }
         bool IsPetFelguard() const { return GetEntry() == PET_FELGUARD; }
+        bool IsPetIncubus() const { return GetEntry() == PET_INCUBUS; }
 
         // Death Knight pets
         bool IsPetGhoul() const { return GetEntry() == PET_GHOUL; } // Ghoul may be guardian or pet
