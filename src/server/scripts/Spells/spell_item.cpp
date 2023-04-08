@@ -4489,7 +4489,7 @@ enum AmalgamsSeventhSpine
     SPELL_FRAGILE_ECHO_ENERGIZE             = 215270,
 };
 
-// 215266
+// 215266 - Fragile Echoes
 class spell_item_amalgams_seventh_spine : public AuraScript
 {
     PrepareAuraScript(spell_item_amalgams_seventh_spine);
@@ -4558,7 +4558,7 @@ class spell_item_amalgams_seventh_spine : public AuraScript
     }
 };
 
-// 215267
+// 215267 - Fragile Echo
 class spell_item_amalgams_seventh_spine_mana_restore : public AuraScript
 {
     PrepareAuraScript(spell_item_amalgams_seventh_spine_mana_restore);
@@ -4587,6 +4587,22 @@ class spell_item_amalgams_seventh_spine_mana_restore : public AuraScript
     }
 };
 
+// 228445 - March of the Legion
+class spell_item_set_march_of_the_legion : public AuraScript
+{
+    PrepareAuraScript(spell_item_set_march_of_the_legion);
+
+    bool IsDemon(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetProcTarget() && eventInfo.GetProcTarget()->GetCreatureType() == CREATURE_TYPE_DEMON;
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_item_set_march_of_the_legion::IsDemon, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
 // 277253 - Heart of Azeroth
 class spell_item_heart_of_azeroth : public AuraScript
 {
@@ -4602,7 +4618,7 @@ class spell_item_heart_of_azeroth : public AuraScript
         SetState(false);
     }
 
-    void SetState(bool equipped)
+    void SetState(bool equipped) const
     {
         if (Player* target = GetTarget()->ToPlayer())
         {
@@ -4614,7 +4630,7 @@ class spell_item_heart_of_azeroth : public AuraScript
         }
     }
 
-    void Register()
+    void Register() override
     {
         OnEffectApply += AuraEffectApplyFn(spell_item_heart_of_azeroth::SetEquippedFlag, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
         OnEffectRemove += AuraEffectRemoveFn(spell_item_heart_of_azeroth::ClearEquippedFlag, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
@@ -4763,6 +4779,7 @@ void AddSC_item_spell_scripts()
 
     RegisterSpellScript(spell_item_amalgams_seventh_spine);
     RegisterSpellScript(spell_item_amalgams_seventh_spine_mana_restore);
+    RegisterSpellScript(spell_item_set_march_of_the_legion);
 
     RegisterSpellScript(spell_item_heart_of_azeroth);
 }
