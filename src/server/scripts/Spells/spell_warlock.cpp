@@ -26,6 +26,7 @@
 #include "Creature.h"
 #include "GameObject.h"
 #include "ObjectAccessor.h"
+#include "Pet.h"
 #include "Player.h"
 #include "Random.h"
 #include "SpellAuraEffects.h"
@@ -68,7 +69,8 @@ enum WarlockSpells
     SPELL_WARLOCK_STRENGTHEN_PACT_SUCCUBUS          = 366323,
     SPELL_WARLOCK_STRENGTHEN_PACT_INCUBUS           = 366325,
     SPELL_WARLOCK_SUCCUBUS_PACT                     = 365360,
-    SPELL_WARLOCK_INCUBUS_PACT                      = 365355
+    SPELL_WARLOCK_INCUBUS_PACT                      = 365355,
+    SPELL_SUMMONING_DISORIENTATION                  = 32752
 };
 
 enum MiscSpells
@@ -852,11 +854,26 @@ class spell_warl_strengthen_pact_succubus_incubus : public SpellScript
     {
         return ValidateSpellInfo
         ({
+            SPELL_SUMMONING_DISORIENTATION,
             SPELL_WARLOCK_SUCCUBUS_PACT,
             SPELL_WARLOCK_INCUBUS_PACT,
             SPELL_WARLOCK_SUMMON_SUCCUBUS,
             SPELL_WARLOCK_SUMMON_INCUBUS
         });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+    }
+
+    void OnPrecast() override
+    {
+        Unit* caster = GetCaster();
+
+        // Note: this is a special case in which the warlock's minion pet must also cast Summon Disorientation at the beginning since this is only handled by SPELL_EFFECT_SUMMON_PET in Spell::CheckCast.
+        if (Pet* pet = caster->ToPlayer()->GetPet())
+            pet->CastSpell(pet, SPELL_SUMMONING_DISORIENTATION, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetOriginalCaster(pet->GetGUID()).SetTriggeringSpell(GetSpell()));
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -865,13 +882,13 @@ class spell_warl_strengthen_pact_succubus_incubus : public SpellScript
 
         if (GetSpellInfo()->Id == SPELL_WARLOCK_STRENGTHEN_PACT_SUCCUBUS)
         {
-            caster->CastSpell(caster, SPELL_WARLOCK_SUCCUBUS_PACT, true);
-            caster->CastSpell(caster, SPELL_WARLOCK_SUMMON_SUCCUBUS, true);
+            caster->CastSpell(caster, SPELL_WARLOCK_SUCCUBUS_PACT, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+            caster->CastSpell(caster, SPELL_WARLOCK_SUMMON_SUCCUBUS, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
         }
         else
         {
-            caster->CastSpell(caster, SPELL_WARLOCK_INCUBUS_PACT, true);
-            caster->CastSpell(caster, SPELL_WARLOCK_SUMMON_INCUBUS, true);
+            caster->CastSpell(caster, SPELL_WARLOCK_INCUBUS_PACT, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+            caster->CastSpell(caster, SPELL_WARLOCK_SUMMON_INCUBUS, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
         }
     }
 
