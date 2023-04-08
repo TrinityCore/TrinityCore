@@ -898,7 +898,7 @@ class spell_warl_strengthen_pact_succubus_incubus : public SpellScript
     }
 };
 
-// 366330 - Random Sayaad 
+// 366330 - Random Sayaad
 class spell_warl_random_sayaad : public SpellScript
 {
     PrepareSpellScript(spell_warl_random_sayaad);
