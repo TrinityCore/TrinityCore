@@ -63,6 +63,12 @@ enum WarlockSpells
     SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL        = 31117,
     SPELL_WARLOCK_SHADOWFLAME                       = 37378,
     SPELL_WARLOCK_FLAMESHADOW                       = 37379,
+    SPELL_WARLOCK_SUMMON_SUCCUBUS                   = 712,
+    SPELL_WARLOCK_SUMMON_INCUBUS                    = 365349,
+    SPELL_WARLOCK_STRENGTHEN_PACT_SUCCUBUS          = 366323,
+    SPELL_WARLOCK_STRENGTHEN_PACT_INCUBUS           = 366325,
+    SPELL_WARLOCK_SUCCUBUS_PACT                     = 365360,
+    SPELL_WARLOCK_INCUBUS_PACT                      = 365355
 };
 
 enum MiscSpells
@@ -836,6 +842,63 @@ class spell_warl_rain_of_fire : public AuraScript
     }
 };
 
+// 366323 - Strengthen Pact - Succubus
+// 366325 - Strengthen Pact - Incubus
+class spell_warl_strengthen_pact_succubus_incubus : public SpellScript
+{
+    PrepareSpellScript(spell_warl_strengthen_pact_succubus_incubus);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_WARLOCK_SUCCUBUS_PACT,
+            SPELL_WARLOCK_INCUBUS_PACT,
+            SPELL_WARLOCK_SUMMON_SUCCUBUS,
+            SPELL_WARLOCK_SUMMON_INCUBUS
+        });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+
+        if (GetSpellInfo()->Id == SPELL_WARLOCK_STRENGTHEN_PACT_SUCCUBUS)
+        {
+            caster->CastSpell(caster, SPELL_WARLOCK_SUCCUBUS_PACT, true);
+            caster->CastSpell(caster, SPELL_WARLOCK_SUMMON_SUCCUBUS, true);
+        }
+        else
+        {
+            caster->CastSpell(caster, SPELL_WARLOCK_INCUBUS_PACT, true);
+            caster->CastSpell(caster, SPELL_WARLOCK_SUMMON_INCUBUS, true);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warl_strengthen_pact_succubus_incubus::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 366222 - Summon Sayaad
+class spell_warl_summon_sayaad : public SpellScript
+{
+    PrepareSpellScript(spell_warl_summon_sayaad);
+
+    void HandleAfterCast()
+    {
+        Unit* caster = GetCaster();
+
+        caster->CastSpell(caster, roll_chance_i(50) ? SPELL_WARLOCK_SUMMON_SUCCUBUS : SPELL_WARLOCK_SUMMON_INCUBUS, true);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_warl_summon_sayaad::HandleAfterCast);
+    }
+};
+
 void AddSC_warlock_spell_scripts()
 {
     RegisterSpellScript(spell_warl_banish);
@@ -864,4 +927,6 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellScriptWithArgs(spell_warl_t4_2p_bonus<SPELL_WARLOCK_SHADOWFLAME>, "spell_warl_t4_2p_bonus_fire");
     RegisterSpellScript(spell_warl_unstable_affliction);
     RegisterSpellScript(spell_warl_rain_of_fire);
+    RegisterSpellScript(spell_warl_strengthen_pact_succubus_incubus);
+    RegisterSpellScript(spell_warl_summon_sayaad);
 }
