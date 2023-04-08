@@ -526,14 +526,14 @@ void ObjectMgr::LoadCreatureTemplateGossip()
         CreatureTemplateContainer::iterator itr = _creatureTemplateStore.find(creatureID);
         if (itr == _creatureTemplateStore.end())
         {
-            TC_LOG_ERROR("sql.sql", "creature_template_gossip has gossip definitions for creature %u but this creature doesn't exist", creatureID);
+            TC_LOG_ERROR("sql.sql", "creature_template_gossip has gossip definitions for creature {} but this creature doesn't exist", creatureID);
             continue;
         }
 
         GossipMenusMapBounds menuBounds = sObjectMgr->GetGossipMenusMapBounds(menuID);
         if (menuBounds.first == menuBounds.second)
         {
-            TC_LOG_ERROR("sql.sql", "creature_template_gossip has gossip definitions for menu id %u but this menu doesn't exist", menuID);
+            TC_LOG_ERROR("sql.sql", "creature_template_gossip has gossip definitions for menu id {} but this menu doesn't exist", menuID);
             continue;
         }
 
@@ -544,7 +544,7 @@ void ObjectMgr::LoadCreatureTemplateGossip()
 
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u creature template gossip menus in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} creature template gossip menus in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadCreatureTemplateResistances()
