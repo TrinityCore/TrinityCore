@@ -898,6 +898,45 @@ class spell_warl_strengthen_pact_succubus_incubus : public SpellScript
     }
 };
 
+// 366330 - Random Sayaad 
+class spell_warl_random_sayaad : public SpellScript
+{
+    PrepareSpellScript(spell_warl_random_sayaad);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_WARLOCK_SUCCUBUS_PACT,
+            SPELL_WARLOCK_INCUBUS_PACT
+        });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+
+        caster->RemoveAura(SPELL_WARLOCK_SUCCUBUS_PACT);
+        caster->RemoveAura(SPELL_WARLOCK_INCUBUS_PACT);
+
+        if (Pet* pet = caster->ToPlayer()->GetPet())
+        {
+            if (pet->IsPetSuccubus() || pet->IsPetIncubus())
+                pet->DespawnOrUnsummon();
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warl_random_sayaad::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 // 366222 - Summon Sayaad
 class spell_warl_summon_sayaad : public SpellScript
 {
@@ -945,5 +984,6 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellScript(spell_warl_unstable_affliction);
     RegisterSpellScript(spell_warl_rain_of_fire);
     RegisterSpellScript(spell_warl_strengthen_pact_succubus_incubus);
+    RegisterSpellScript(spell_warl_random_sayaad);
     RegisterSpellScript(spell_warl_summon_sayaad);
 }
