@@ -955,7 +955,7 @@ class spell_warl_summon_sayaad : public SpellScript
     {
         Unit* caster = GetCaster();
 
-        caster->CastSpell(caster, roll_chance_i(50) ? SPELL_WARLOCK_SUMMON_SUCCUBUS : SPELL_WARLOCK_SUMMON_INCUBUS, true);
+        caster->CastSpell(caster, roll_chance_i(50) ? SPELL_WARLOCK_SUMMON_SUCCUBUS : SPELL_WARLOCK_SUMMON_INCUBUS, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
     }
 
     void Register() override
