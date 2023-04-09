@@ -69,8 +69,7 @@ enum WarlockSpells
     SPELL_WARLOCK_STRENGTHEN_PACT_SUCCUBUS          = 366323,
     SPELL_WARLOCK_STRENGTHEN_PACT_INCUBUS           = 366325,
     SPELL_WARLOCK_SUCCUBUS_PACT                     = 365360,
-    SPELL_WARLOCK_INCUBUS_PACT                      = 365355,
-    SPELL_SUMMONING_DISORIENTATION                  = 32752
+    SPELL_WARLOCK_INCUBUS_PACT                      = 365355
 };
 
 enum MiscSpells
@@ -845,26 +844,18 @@ class spell_warl_rain_of_fire : public AuraScript
 };
 
 // 366323 - Strengthen Pact - Succubus
-// 366325 - Strengthen Pact - Incubus
-class spell_warl_strengthen_pact_succubus_incubus : public SpellScript
+class spell_warl_strengthen_pact_succubus : public SpellScript
 {
-    PrepareSpellScript(spell_warl_strengthen_pact_succubus_incubus);
+    PrepareSpellScript(spell_warl_strengthen_pact_succubus);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo
         ({
-            SPELL_SUMMONING_DISORIENTATION,
+            PetSpells::PET_SUMMONING_DESORIENTATION,
             SPELL_WARLOCK_SUCCUBUS_PACT,
-            SPELL_WARLOCK_INCUBUS_PACT,
-            SPELL_WARLOCK_SUMMON_SUCCUBUS,
-            SPELL_WARLOCK_SUMMON_INCUBUS
+            SPELL_WARLOCK_SUMMON_SUCCUBUS
         });
-    }
-
-    bool Load() override
-    {
-        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
     }
 
     void OnPrecast() override
@@ -873,28 +864,58 @@ class spell_warl_strengthen_pact_succubus_incubus : public SpellScript
 
         // Note: this is a special case in which the warlock's minion pet must also cast Summon Disorientation at the beginning since this is only handled by SPELL_EFFECT_SUMMON_PET in Spell::CheckCast.
         if (Pet* pet = caster->ToPlayer()->GetPet())
-            pet->CastSpell(pet, SPELL_SUMMONING_DISORIENTATION, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetOriginalCaster(pet->GetGUID()).SetTriggeringSpell(GetSpell()));
+            pet->CastSpell(pet, PetSpells::PET_SUMMONING_DESORIENTATION, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetOriginalCaster(pet->GetGUID()).SetTriggeringSpell(GetSpell()));
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
 
-        if (GetSpellInfo()->Id == SPELL_WARLOCK_STRENGTHEN_PACT_SUCCUBUS)
-        {
-            caster->CastSpell(caster, SPELL_WARLOCK_SUCCUBUS_PACT, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
-            caster->CastSpell(caster, SPELL_WARLOCK_SUMMON_SUCCUBUS, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
-        }
-        else
-        {
-            caster->CastSpell(caster, SPELL_WARLOCK_INCUBUS_PACT, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
-            caster->CastSpell(caster, SPELL_WARLOCK_SUMMON_INCUBUS, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
-        }
+        caster->CastSpell(caster, SPELL_WARLOCK_SUCCUBUS_PACT, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+        caster->CastSpell(caster, SPELL_WARLOCK_SUMMON_SUCCUBUS, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_warl_strengthen_pact_succubus_incubus::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectLaunch += SpellEffectFn(spell_warl_strengthen_pact_succubus::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 366325 - Strengthen Pact - Incubus
+class spell_warl_strengthen_pact_incubus : public SpellScript
+{
+    PrepareSpellScript(spell_warl_strengthen_pact_incubus);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            PetSpells::PET_SUMMONING_DESORIENTATION,
+            SPELL_WARLOCK_INCUBUS_PACT,
+            SPELL_WARLOCK_SUMMON_INCUBUS
+        });
+    }
+
+    void OnPrecast() override
+    {
+        Unit* caster = GetCaster();
+
+        // Note: this is a special case in which the warlock's minion pet must also cast Summon Disorientation at the beginning since this is only handled by SPELL_EFFECT_SUMMON_PET in Spell::CheckCast.
+        if (Pet* pet = caster->ToPlayer()->GetPet())
+            pet->CastSpell(pet, PetSpells::PET_SUMMONING_DESORIENTATION, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetOriginalCaster(pet->GetGUID()).SetTriggeringSpell(GetSpell()));
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+
+        caster->CastSpell(caster, SPELL_WARLOCK_INCUBUS_PACT, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+        caster->CastSpell(caster, SPELL_WARLOCK_SUMMON_INCUBUS, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_warl_strengthen_pact_incubus::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -910,11 +931,6 @@ class spell_warl_random_sayaad : public SpellScript
             SPELL_WARLOCK_SUCCUBUS_PACT,
             SPELL_WARLOCK_INCUBUS_PACT
         });
-    }
-
-    bool Load() override
-    {
-        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -942,13 +958,23 @@ class spell_warl_summon_sayaad : public SpellScript
 {
     PrepareSpellScript(spell_warl_summon_sayaad);
 
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            PetSpells::PET_SUMMONING_DESORIENTATION,
+            SPELL_WARLOCK_SUMMON_SUCCUBUS,
+            SPELL_WARLOCK_SUMMON_INCUBUS
+        });
+    }
+
     void OnPrecast() override
     {
         Unit* caster = GetCaster();
 
         // Note: this is a special case in which the warlock's minion pet must also cast Summon Disorientation at the beginning since this is only handled by SPELL_EFFECT_SUMMON_PET in Spell::CheckCast.
         if (Pet* pet = caster->ToPlayer()->GetPet())
-            pet->CastSpell(pet, SPELL_SUMMONING_DISORIENTATION, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetOriginalCaster(pet->GetGUID()).SetTriggeringSpell(GetSpell()));
+            pet->CastSpell(pet, PetSpells::PET_SUMMONING_DESORIENTATION, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetOriginalCaster(pet->GetGUID()).SetTriggeringSpell(GetSpell()));
     }
 
     void HandleAfterCast()
@@ -992,7 +1018,8 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellScriptWithArgs(spell_warl_t4_2p_bonus<SPELL_WARLOCK_SHADOWFLAME>, "spell_warl_t4_2p_bonus_fire");
     RegisterSpellScript(spell_warl_unstable_affliction);
     RegisterSpellScript(spell_warl_rain_of_fire);
-    RegisterSpellScript(spell_warl_strengthen_pact_succubus_incubus);
+    RegisterSpellScript(spell_warl_strengthen_pact_succubus);
+    RegisterSpellScript(spell_warl_strengthen_pact_incubus);
     RegisterSpellScript(spell_warl_random_sayaad);
     RegisterSpellScript(spell_warl_summon_sayaad);
 }
