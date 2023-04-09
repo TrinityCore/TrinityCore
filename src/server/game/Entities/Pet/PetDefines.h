@@ -114,7 +114,7 @@ constexpr uint32 CALL_PET_SPELL_ID = 883;
 
 enum PetSpells
 {
-    PET_SUMMONING_DESORIENTATION = 32752
+    PET_SUMMONING_DISORIENTATION = 32752
 };
 
 class PetStable
