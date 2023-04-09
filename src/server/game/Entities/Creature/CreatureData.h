@@ -515,7 +515,6 @@ struct TC_GAME_API CreatureTemplate
     std::string AIName;
     uint32  MovementType;
     CreatureMovementData Movement;
-    float   HoverHeight;
     float   ModHealth;
     float   ModHealthExtra;
     float   ModMana;
