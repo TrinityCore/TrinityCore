@@ -367,14 +367,14 @@ public:
             stormforgedMonitor->SetWalk(false);
             /// The npc would search an alternative way to get to the last waypoint without this unit state.
             stormforgedMonitor->AddUnitState(UNIT_STATE_IGNORE_PATHFINDING);
-            stormforgedMonitor->GetMotionMaster()->MovePath(NPC_STORMFORGED_MONITOR * 100, false);
+            stormforgedMonitor->GetMotionMaster()->MovePath((NPC_STORMFORGED_MONITOR * 100) << 3, false);
         }
 
         stormforgedEradictor = player->SummonCreature(NPC_STORMFORGED_ERADICTOR, stormforgedEradictorPosition, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1min);
         if (stormforgedEradictor)
         {
             stormforgedEradictorGUID = stormforgedEradictor->GetGUID();
-            stormforgedEradictor->GetMotionMaster()->MovePath(NPC_STORMFORGED_ERADICTOR * 100, false);
+            stormforgedEradictor->GetMotionMaster()->MovePath((NPC_STORMFORGED_ERADICTOR * 100) << 3, false);
         }
 
         return true;

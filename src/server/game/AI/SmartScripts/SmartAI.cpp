@@ -30,6 +30,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "Vehicle.h"
+#include "WaypointManager.h"
 
 SmartAI::SmartAI(Creature* creature, uint32 scriptId) : CreatureAI(creature, scriptId), _charmed(false), _followCreditType(0), _followArrivedTimer(0), _followCredit(0), _followArrivedEntry(0), _followDistance(0.f), _followAngle(0.f),
     _escortState(SMART_ESCORT_NONE), _escortNPCFlags(0), _escortInvokerCheckTimer(1000), _currentWaypointNode(0), _waypointReached(false), _waypointPauseTimer(0), _waypointPauseForced(false), _repeatWaypointPath(false),
@@ -44,20 +45,16 @@ bool SmartAI::IsAIControlled() const
     return !_charmed;
 }
 
-void SmartAI::StartPath(bool run/* = false*/, uint32 pathId/* = 0*/, bool repeat/* = false*/, Unit* invoker/* = nullptr*/, uint32 nodeId/* = 1*/)
+void SmartAI::StartPath(uint32 pathId/* = 0*/, bool repeat/* = false*/, Unit* invoker/* = nullptr*/, uint32 nodeId/* = 1*/)
 {
     if (HasEscortState(SMART_ESCORT_ESCORTING))
         StopPath();
 
-    SetRun(run);
+    if (!pathId)
+        return;
 
-    if (pathId)
-    {
-        if (!LoadPath(pathId))
-            return;
-    }
-
-    if (_path.nodes.empty())
+    WaypointPath const* path = LoadPath(pathId);
+    if (!path)
         return;
 
     _currentWaypointNode = nodeId;
@@ -74,32 +71,23 @@ void SmartAI::StartPath(bool run/* = false*/, uint32 pathId/* = 0*/, bool repeat
         me->ReplaceAllNpcFlags(UNIT_NPC_FLAG_NONE);
     }
 
-    me->GetMotionMaster()->MovePath(_path, _repeatWaypointPath);
+    me->GetMotionMaster()->MovePath(*path, _repeatWaypointPath);
 }
 
-bool SmartAI::LoadPath(uint32 entry)
+WaypointPath const* SmartAI::LoadPath(uint32 entry)
 {
     if (HasEscortState(SMART_ESCORT_ESCORTING))
-        return false;
+        return nullptr;
 
-    WaypointPath const* path = sSmartWaypointMgr->GetPath(entry);
+    WaypointPath const* path = sWaypointMgr->GetPath(entry);
     if (!path || path->nodes.empty())
     {
         GetScript()->SetPathId(0);
-        return false;
-    }
-
-    _path.id = path->id;
-    _path.nodes = path->nodes;
-    for (WaypointNode& waypoint : _path.nodes)
-    {
-        Trinity::NormalizeMapCoord(waypoint.x);
-        Trinity::NormalizeMapCoord(waypoint.y);
-        waypoint.moveType = _run ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
+        return nullptr;
     }
 
     GetScript()->SetPathId(entry);
-    return true;
+    return path;
 }
 
 void SmartAI::PausePath(uint32 delay, bool forced)
@@ -190,7 +178,7 @@ void SmartAI::StopPath(uint32 DespawnTime, uint32 quest, bool fail)
 void SmartAI::EndPath(bool fail)
 {
     RemoveEscortState(SMART_ESCORT_ESCORTING | SMART_ESCORT_PAUSED | SMART_ESCORT_RETURNING);
-    _path.nodes.clear();
+
     _waypointPauseTimer = 0;
 
     if (_escortNPCFlags)
@@ -252,7 +240,7 @@ void SmartAI::EndPath(bool fail)
     if (_repeatWaypointPath)
     {
         if (IsAIControlled())
-            StartPath(_run, GetScript()->GetPathId(), _repeatWaypointPath);
+            StartPath(GetScript()->GetPathId(), _repeatWaypointPath);
     }
     else if (pathid == GetScript()->GetPathId()) // if it's not the same pathid, our script wants to start another path; don't override it
         GetScript()->SetPathId(0);
@@ -373,7 +361,8 @@ void SmartAI::WaypointReached(uint32 nodeId, uint32 pathId)
     }
     else if (HasEscortState(SMART_ESCORT_ESCORTING) && me->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
     {
-        if (_currentWaypointNode == _path.nodes.size())
+        WaypointPath const* path = sWaypointMgr->GetPath(pathId);
+        if (path && _currentWaypointNode == path->nodes.size())
             _waypointPathEnded = true;
         else
             SetRun(_run);
@@ -703,7 +692,7 @@ void SmartAI::OnCharmed(bool isNew)
     if (!charmed && !me->IsInEvadeMode())
     {
         if (_repeatWaypointPath)
-            StartPath(_run, GetScript()->GetPathId(), true);
+            StartPath(GetScript()->GetPathId(), true);
         else
             me->SetWalk(!_run);
 
@@ -751,8 +740,6 @@ void SmartAI::SetRun(bool run)
 {
     me->SetWalk(!run);
     _run = run;
-    for (auto& node : _path.nodes)
-        node.moveType = run ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
 }
 
 void SmartAI::SetDisableGravity(bool fly)

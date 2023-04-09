@@ -865,7 +865,7 @@ struct SmartAction
 
         struct
         {
-            SAIBool run;
+            SAIBool run; // unused / overridden by waypoint_data
             uint32 pathID;
             SAIBool repeat;
             uint32 quest;
@@ -1686,24 +1686,6 @@ class ObjectGuidVector
         void UpdateObjects(WorldObject const& ref) const;
 };
 typedef std::unordered_map<uint32, ObjectGuidVector> ObjectVectorMap;
-
-class TC_GAME_API SmartWaypointMgr
-{
-    public:
-        static SmartWaypointMgr* instance();
-
-        void LoadFromDB();
-
-        WaypointPath const* GetPath(uint32 id);
-
-    private:
-        SmartWaypointMgr() { }
-        ~SmartWaypointMgr() { }
-
-        std::unordered_map<uint32, WaypointPath> _waypointStore;
-};
-
-#define sSmartWaypointMgr SmartWaypointMgr::instance()
 
 // all events for a single entry
 typedef std::vector<SmartScriptHolder> SmartAIEventList;

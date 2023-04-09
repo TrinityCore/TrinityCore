@@ -57,7 +57,7 @@ enum Belnistrasz
     EVENT_FIREBALL               = 5,
     EVENT_FROST_NOVA             = 6,
 
-    PATH_ESCORT                  = 871710,
+    PATH_ESCORT                  = 6973680,
     POINT_REACH_IDOL             = 17,
 
     QUEST_EXTINGUISHING_THE_IDOL = 3525,
