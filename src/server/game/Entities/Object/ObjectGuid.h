@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "EnumFlag.h"
+#include "advstd.h"
 #include <array>
 #include <functional>
 #include <list>
@@ -333,9 +334,9 @@ class TC_GAME_API ObjectGuid
         bool operator==(ObjectGuid const& right) const = default;
         std::strong_ordering operator<=>(ObjectGuid const& right) const
         {
-            if (std::strong_ordering cmp = _data[1] <=> right._data[1]; std::is_neq(cmp))
+            if (std::strong_ordering cmp = _data[1] <=> right._data[1]; advstd::is_neq(cmp))
                 return cmp;
-            if (std::strong_ordering cmp = _data[0] <=> right._data[0]; std::is_neq(cmp))
+            if (std::strong_ordering cmp = _data[0] <=> right._data[0]; advstd::is_neq(cmp))
                 return cmp;
             return std::strong_ordering::equal;
         }

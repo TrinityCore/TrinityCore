@@ -4603,6 +4603,44 @@ class spell_item_set_march_of_the_legion : public AuraScript
     }
 };
 
+// 234113 - Arrogance (used by item 142171 - Seal of Darkshire Nobility)
+class spell_item_seal_of_darkshire_nobility : public AuraScript
+{
+    PrepareAuraScript(spell_item_seal_of_darkshire_nobility);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return spellInfo->GetEffects().size() > EFFECT_1
+            && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_1).TriggerSpell });
+    }
+
+    bool CheckCooldownAura(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetProcTarget() && !eventInfo.GetProcTarget()->HasAura(GetEffectInfo(EFFECT_1).TriggerSpell, GetTarget()->GetGUID());
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_item_seal_of_darkshire_nobility::CheckCooldownAura);
+    }
+};
+
+// 247625 - March of the Legion
+class spell_item_lightblood_elixir : public AuraScript
+{
+    PrepareAuraScript(spell_item_lightblood_elixir);
+
+    bool IsDemon(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetProcTarget() && eventInfo.GetProcTarget()->GetCreatureType() == CREATURE_TYPE_DEMON;
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_item_lightblood_elixir::IsDemon, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
 // 277253 - Heart of Azeroth
 class spell_item_heart_of_azeroth : public AuraScript
 {
@@ -4780,6 +4818,8 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_amalgams_seventh_spine);
     RegisterSpellScript(spell_item_amalgams_seventh_spine_mana_restore);
     RegisterSpellScript(spell_item_set_march_of_the_legion);
+    RegisterSpellScript(spell_item_seal_of_darkshire_nobility);
+    RegisterSpellScript(spell_item_lightblood_elixir);
 
     RegisterSpellScript(spell_item_heart_of_azeroth);
 }

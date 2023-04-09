@@ -18,9 +18,14 @@
 #ifndef TRINITY_ADVSTD_H
 #define TRINITY_ADVSTD_H
 
+#include <compare>
+
 // this namespace holds implementations of upcoming stdlib features that our c++ version doesn't have yet
 namespace advstd
 {
+// libc++ is missing these two
+[[nodiscard]] constexpr bool is_eq(std::partial_ordering cmp) noexcept { return cmp == 0; }
+[[nodiscard]] constexpr bool is_neq(std::partial_ordering cmp) noexcept { return cmp != 0; }
 }
 
 #endif

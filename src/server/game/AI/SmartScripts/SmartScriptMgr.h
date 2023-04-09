@@ -21,6 +21,7 @@
 #include "Define.h"
 #include "ObjectGuid.h"
 #include "WaypointDefines.h"
+#include "advstd.h"
 #include <limits>
 #include <map>
 #include <string>
@@ -1645,15 +1646,15 @@ struct SmartScriptHolder
     // Default comparision operator using priority field as first ordering field
     std::strong_ordering operator<=>(SmartScriptHolder const& right) const
     {
-        if (auto cmp = priority <=> right.priority; std::is_neq(cmp))
+        if (std::strong_ordering cmp = priority <=> right.priority; advstd::is_neq(cmp))
             return cmp;
-        if (auto cmp = entryOrGuid <=> right.entryOrGuid; std::is_neq(cmp))
+        if (std::strong_ordering cmp = entryOrGuid <=> right.entryOrGuid; advstd::is_neq(cmp))
             return cmp;
-        if (auto cmp = source_type <=> right.source_type; std::is_neq(cmp))
+        if (std::strong_ordering cmp = source_type <=> right.source_type; advstd::is_neq(cmp))
             return cmp;
-        if (auto cmp = event_id <=> right.event_id; std::is_neq(cmp))
+        if (std::strong_ordering cmp = event_id <=> right.event_id; advstd::is_neq(cmp))
             return cmp;
-        if (auto cmp = link <=> right.link; std::is_neq(cmp))
+        if (std::strong_ordering cmp = link <=> right.link; advstd::is_neq(cmp))
             return cmp;
         return std::strong_ordering::equal;
     }
