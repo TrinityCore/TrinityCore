@@ -852,7 +852,7 @@ class spell_warl_strengthen_pact_succubus : public SpellScript
     {
         return ValidateSpellInfo
         ({
-            PetSpells::PET_SUMMONING_DISORIENTATION,
+            PetSpellEntry::PET_SUMMONING_DISORIENTATION,
             SPELL_WARLOCK_SUCCUBUS_PACT,
             SPELL_WARLOCK_SUMMON_SUCCUBUS
         });
@@ -864,7 +864,7 @@ class spell_warl_strengthen_pact_succubus : public SpellScript
 
         // Note: this is a special case in which the warlock's minion pet must also cast Summon Disorientation at the beginning since this is only handled by SPELL_EFFECT_SUMMON_PET in Spell::CheckCast.
         if (Pet* pet = caster->ToPlayer()->GetPet())
-            pet->CastSpell(pet, PetSpells::PET_SUMMONING_DISORIENTATION, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetOriginalCaster(pet->GetGUID()).SetTriggeringSpell(GetSpell()));
+            pet->CastSpell(pet, PetSpellEntry::PET_SUMMONING_DISORIENTATION, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetOriginalCaster(pet->GetGUID()).SetTriggeringSpell(GetSpell()));
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -890,7 +890,7 @@ class spell_warl_strengthen_pact_incubus : public SpellScript
     {
         return ValidateSpellInfo
         ({
-            PetSpells::PET_SUMMONING_DISORIENTATION,
+            PetSpellEntry::PET_SUMMONING_DISORIENTATION,
             SPELL_WARLOCK_INCUBUS_PACT,
             SPELL_WARLOCK_SUMMON_INCUBUS
         });
@@ -902,7 +902,7 @@ class spell_warl_strengthen_pact_incubus : public SpellScript
 
         // Note: this is a special case in which the warlock's minion pet must also cast Summon Disorientation at the beginning since this is only handled by SPELL_EFFECT_SUMMON_PET in Spell::CheckCast.
         if (Pet* pet = caster->ToPlayer()->GetPet())
-            pet->CastSpell(pet, PetSpells::PET_SUMMONING_DISORIENTATION, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetOriginalCaster(pet->GetGUID()).SetTriggeringSpell(GetSpell()));
+            pet->CastSpell(pet, PetSpellEntry::PET_SUMMONING_DISORIENTATION, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetOriginalCaster(pet->GetGUID()).SetTriggeringSpell(GetSpell()));
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -962,7 +962,7 @@ class spell_warl_summon_sayaad : public SpellScript
     {
         return ValidateSpellInfo
         ({
-            PetSpells::PET_SUMMONING_DISORIENTATION,
+            PetSpellEntry::PET_SUMMONING_DISORIENTATION,
             SPELL_WARLOCK_SUMMON_SUCCUBUS,
             SPELL_WARLOCK_SUMMON_INCUBUS
         });
@@ -974,7 +974,7 @@ class spell_warl_summon_sayaad : public SpellScript
 
         // Note: this is a special case in which the warlock's minion pet must also cast Summon Disorientation at the beginning since this is only handled by SPELL_EFFECT_SUMMON_PET in Spell::CheckCast.
         if (Pet* pet = caster->ToPlayer()->GetPet())
-            pet->CastSpell(pet, PetSpells::PET_SUMMONING_DISORIENTATION, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetOriginalCaster(pet->GetGUID()).SetTriggeringSpell(GetSpell()));
+            pet->CastSpell(pet, PetSpellEntry::PET_SUMMONING_DISORIENTATION, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetOriginalCaster(pet->GetGUID()).SetTriggeringSpell(GetSpell()));
     }
 
     void HandleAfterCast()
