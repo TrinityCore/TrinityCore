@@ -188,7 +188,7 @@ struct npc_emily : public EscortAI
                 Mrfloppy->GetMotionMaster()->MoveFollow(me, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
 
             LoadPath(PATH_ESCORT_EMILY);
-            Start(true, false, player->GetGUID());
+            Start(true, player->GetGUID());
         }
     }
 

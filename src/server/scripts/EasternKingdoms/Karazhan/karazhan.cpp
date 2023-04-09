@@ -178,7 +178,7 @@ public:
                 instance->SetData(DATA_OPERA_OZ_DEATHCOUNT, IN_PROGRESS);
 
             LoadPath(PATH_ESCORT_BARNES);
-            Start(false, false);
+            Start(false);
         }
 
         void JustEngagedWith(Unit* /*who*/) override { }

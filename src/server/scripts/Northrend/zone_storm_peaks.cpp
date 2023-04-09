@@ -198,7 +198,7 @@ struct npc_icefang : public EscortAI
             if (apply)
             {
                 LoadPath(PATH_ESCORT_ICEFANG);
-                Start(false, true, who->GetGUID());
+                Start(false, who->GetGUID());
             }
         }
     }

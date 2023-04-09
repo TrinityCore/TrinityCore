@@ -42,7 +42,7 @@ enum Texts
     SAY_ONAGGRO             = 3,
 };
 
-static constexpr uint32 PATH_ESCORT_AZGALOR = 142738; // @todo: move manual path here
+static constexpr uint32 PATH_ESCORT_AZGALOR = 142738;
 
 class boss_azgalor : public CreatureScript
 {
@@ -132,7 +132,7 @@ public:
                 {
                     go = true;
                     LoadPath(PATH_ESCORT_AZGALOR);
-                    Start(false, true);
+                    Start(false);
                     SetDespawnAtEnd(false);
                 }
             }

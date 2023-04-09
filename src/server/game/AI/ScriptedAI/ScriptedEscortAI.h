@@ -48,12 +48,12 @@ struct TC_GAME_API EscortAI : public ScriptedAI
         void UpdateAI(uint32 diff) override; // the "internal" update, calls UpdateEscortAI()
 
         virtual void UpdateEscortAI(uint32 diff); // used when it's needed to add code in update (abilities, scripted events, etc)
-        void AddWaypoint(uint32 id, float x, float y, float z, float orientation = 0.f, Milliseconds waitTime = 0s);
+        void AddWaypoint(uint32 id, float x, float y, float z, bool run);
+        void AddWaypoint(uint32 id, float x, float y, float z, float orientation = 0.f, Milliseconds waitTime = 0s, bool run = false);
         void ResetPath();
         void LoadPath(uint32 pathId);
-        void Start(bool isActiveAttacker = true, bool run = false, ObjectGuid playerGUID = ObjectGuid::Empty, Quest const* quest = nullptr, bool instantRespawn = false, bool canLoopPath = false);
+        void Start(bool isActiveAttacker = true, ObjectGuid playerGUID = ObjectGuid::Empty, Quest const* quest = nullptr, bool instantRespawn = false, bool canLoopPath = false);
 
-        void SetRun(bool on = true);
         void SetEscortPaused(bool on);
         void SetPauseTimer(Milliseconds timer) { _pauseTimer = timer; }
         bool HasEscortState(uint32 escortState) { return (_escortState & escortState) != 0; }
@@ -87,7 +87,6 @@ struct TC_GAME_API EscortAI : public ScriptedAI
         WaypointPath _path;
 
         bool _activeAttacker;      // obsolete, determined by faction.
-        bool _running;             // all creatures are walking by default (has flag MOVEMENTFLAG_WALK)
         bool _instantRespawn;      // if creature should respawn instantly after escort over (if not, database respawntime are used)
         bool _returnToStart;       // if creature can walk same path (loop) without despawn. Not for regular escort quests.
         bool _despawnAtEnd;

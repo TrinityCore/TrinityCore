@@ -419,7 +419,6 @@ struct npc_brann_hos : public EscortAI
                         return;
                     bIsBattle = false;
                     Talk(SAY_ESCORT_START);
-                    SetRun(true);
                     JumpToNextStep(0);
                     break;
                 case 3:

@@ -59,7 +59,7 @@ public:
             if (quest->GetQuestId() == QUEST_WILLIX_THE_IMPORTER)
             {
                 LoadPath(PATH_ESCORT_WILLIX);
-                Start(true, false, player->GetGUID());
+                Start(true, player->GetGUID());
                 Talk(SAY_READY, player);
                 me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
             }

@@ -310,7 +310,7 @@ public:
             {
                 SetGUID(player->GetGUID(), DATA_EVENT_STARTER_GUID);
                 LoadPath(PATH_ESCORT_LEGOSO);
-                Start(true, true, player->GetGUID(), quest);
+                Start(true, player->GetGUID(), quest);
             }
         }
 

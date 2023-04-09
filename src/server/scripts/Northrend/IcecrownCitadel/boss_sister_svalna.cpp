@@ -750,7 +750,7 @@ struct npc_crok_scourgebane : public EscortAI
                     break;
                 case EVENT_START_PATHING:
                     LoadPath(PATH_ESCORT_CROK_SCOURGEBANE),
-                    Start(true, true);
+                    Start(true);
                     break;
                 case EVENT_SCOURGE_STRIKE:
                     DoCastVictim(SPELL_SCOURGE_STRIKE);

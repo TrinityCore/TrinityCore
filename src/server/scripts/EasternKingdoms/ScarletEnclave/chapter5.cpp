@@ -1611,7 +1611,7 @@ public:
                     CloseGossipMenuFor(player);
                     uiStep = 1;
                     LoadPath(PATH_ESCORT_MOGRAINE);
-                    Start(true, true, player->GetGUID());
+                    Start(true, player->GetGUID());
                     break;
             }
             return true;

@@ -124,7 +124,7 @@ public:
             {
                 CloseGossipMenuFor(player);
                 LoadPath((me->GetEntry() << 3) | 2);
-                Start(false, false, player->GetGUID());
+                Start(false, player->GetGUID());
             }
             return true;
         }

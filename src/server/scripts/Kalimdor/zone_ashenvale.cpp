@@ -88,7 +88,7 @@ public:
             {
                 me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
                 LoadPath(PATH_ESCORT_RUUL_SNOWHOOF);
-                EscortAI::Start(true, false, player->GetGUID());
+                EscortAI::Start(true, player->GetGUID());
             }
         }
 
@@ -244,7 +244,7 @@ public:
                 Talk(SAY_MUG_START1);
                 me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
                 LoadPath(PATH_ESCORT_MUGLASH);
-                EscortAI::Start(true, false, player->GetGUID());
+                EscortAI::Start(true, player->GetGUID());
             }
         }
 

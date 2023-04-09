@@ -141,7 +141,7 @@ struct npc_scarlet_trainee : public EscortAI
             if (_startTimer <= diff)
             {
                 LoadPath(PATH_ESCORT_SCARLET_TRAINEE);
-                Start(true, true);
+                Start(true);
                 _startTimer = 0;
             }
             else

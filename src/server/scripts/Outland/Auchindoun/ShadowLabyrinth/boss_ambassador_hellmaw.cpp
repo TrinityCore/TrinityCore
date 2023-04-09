@@ -108,7 +108,7 @@ struct boss_ambassador_hellmaw : public EscortAI
 
         Talk(SAY_INTRO);
         LoadPath(PATH_ESCORT_HELLMAW);
-        Start(true, false, ObjectGuid::Empty, nullptr, false, true);
+        Start(true, ObjectGuid::Empty, nullptr, false, true);
     }
 
     void JustEngagedWith(Unit* /*who*/) override

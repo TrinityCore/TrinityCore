@@ -129,7 +129,7 @@ public:
                 {
                     go = true;
                     LoadPath(PATH_ESCORT_ANETHERON);
-                    Start(false, true);
+                    Start(false);
                     SetDespawnAtEnd(false);
                 }
             }

@@ -638,7 +638,7 @@ public:
                 me->SetFaction(FACTION_EARTHEN_RING);
 
                 LoadPath(PATH_ESCORT_WILDA);
-                Start(false, false, player->GetGUID(), quest);
+                Start(false, player->GetGUID(), quest);
             }
         }
     };

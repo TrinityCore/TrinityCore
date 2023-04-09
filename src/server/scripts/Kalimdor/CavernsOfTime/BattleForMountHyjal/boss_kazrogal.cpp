@@ -127,7 +127,7 @@ public:
                 {
                     go = true;
                     LoadPath(PATH_ESCORT_KAZROGAL);
-                    Start(false, true);
+                    Start(false);
                     SetDespawnAtEnd(false);
                 }
             }

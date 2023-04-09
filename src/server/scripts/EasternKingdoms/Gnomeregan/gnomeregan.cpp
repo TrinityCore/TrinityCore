@@ -136,7 +136,7 @@ public:
             if (gossipListId == 0)
             {
                 LoadPath(PATH_ESCORT_BLASTMASTER_EMI);
-                Start(true, false, player->GetGUID());
+                Start(true, player->GetGUID());
 
                 me->SetFaction(player->GetFaction());
                 SetData(1, 0);

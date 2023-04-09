@@ -290,7 +290,7 @@ public:
                         Talk(SAY_TEXT5);
                         HandleGameObject(DATA_ARENA4, false);
                         LoadPath(PATH_ESCORT_GRIMSTONE);
-                        Start(false, false);
+                        Start(false);
                         CanWalk = true;
                         Event_Timer = 0;
                         break;
@@ -623,7 +623,7 @@ public:
                     DoCastSelf(SPELL_DRUNKEN_RAGE, false);
 
                     LoadPath(PATH_ESCORT_ROCKNOT);
-                    Start(false, false);
+                    Start(false);
                 }
             }
         }

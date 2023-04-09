@@ -415,9 +415,6 @@ public:
                 case 0:
                     Talk(SAY_STARTUP1);
                     break;
-                case 9:
-                    SetRun(false);
-                    break;
                 case 17:
                     if (Creature* temp = me->SummonCreature(NPC_MERCENARY, 1128.489f, -3037.611f, 92.701f, 1.472f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 2min))
                     {
@@ -445,7 +442,6 @@ public:
                     break;
                 case 18:
                     Talk(SAY_PROGRESS_1, player);
-                    SetRun();
                     break;
             }
         }
@@ -509,7 +505,7 @@ public:
                 Talk(SAY_START);
                 SetDespawnAtEnd(false);
                 LoadPath(PATH_ESCORT_WIZZLECRANK),
-                Start(true, false, player->GetGUID());
+                Start(true, player->GetGUID());
             }
         }
     };
