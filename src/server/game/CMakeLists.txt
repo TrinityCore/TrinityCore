@@ -42,7 +42,7 @@ target_link_libraries(game-interface
     Detour)
 
 add_library(game
-  ${PRIVATE_SOURCES} "Globals/BattlePetDataStore.cpp"  "Instances/InstanceSaveMgr.cpp" "BattlePay/BattlePayMgr.h" "BattlePay/BattlePayMgr.cpp" "Globals/BattlePayData.h" "Server/Packets/BattlePayPackets.h" "Quests/WorldQuestMgr.h" "Movement/PathfindingMgr.h" "Movement/Pathfinding.h")
+  ${PRIVATE_SOURCES} "Globals/BattlePetDataStore.cpp"  "Instances/InstanceSaveMgr.cpp" "BattlePay/BattlePayMgr.h" "BattlePay/BattlePayMgr.cpp" "Globals/BattlePayData.h" "Server/Packets/BattlePayPackets.h" "Quests/WorldQuestMgr.h" "Movement/PathfindingMgr.h" "Movement/Pathfinding.h" "Battlegrounds/CommandBG.h" "AI/PlayerAI/BotClassAI/BotWarriorAI.h" "AI/PlayerAI/BotClassAI/BotMageAI.h" "AI/PlayerAI/BotClassAI/BotPriestAI.h" "AI/PlayerAI/BotClassAI/BotHunterAI.h")
 
 target_include_directories(game
   PRIVATE
