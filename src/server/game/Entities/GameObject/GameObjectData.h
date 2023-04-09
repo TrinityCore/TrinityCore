@@ -1238,8 +1238,10 @@ struct GameObjectTemplate
         {
             case GAMEOBJECT_TYPE_SPELL_FOCUS:
             case GAMEOBJECT_TYPE_MULTI:
-            case GAMEOBJECT_TYPE_SIEGEABLE_MULTI: return false;
-            default: return true;
+            case GAMEOBJECT_TYPE_SIEGEABLE_MULTI:
+                return false;
+            default:
+                return true;
         }
     }
 
