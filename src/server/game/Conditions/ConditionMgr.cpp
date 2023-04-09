@@ -1711,7 +1711,7 @@ bool ConditionMgr::addToPhases(Condition* cond) const
         }
     }
 
-    TC_LOG_ERROR("sql.sql", "{} Area {} does not have phase {}.", cond->ToString(), cond->SourceGroup, cond->SourceEntry);
+    TC_LOG_ERROR("sql.sql", "{} Area {} does not have phase {}.", cond->ToString(), cond->SourceEntry, cond->SourceGroup);
     return false;
 }
 
