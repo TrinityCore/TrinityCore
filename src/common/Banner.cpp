@@ -84,7 +84,7 @@ void Trinity::Banner::Show(char const* applicationName, void(*log)(char const* t
 
 
 
-    //下面的太大了
+    //正在使用的
     log(R"( 
  
                                                       ..]]]]]]]]].                                              
