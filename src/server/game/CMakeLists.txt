@@ -42,7 +42,7 @@ target_link_libraries(game-interface
     Detour)
 
 add_library(game
-  ${PRIVATE_SOURCES} "Globals/BattlePetDataStore.cpp"  "Instances/InstanceSaveMgr.cpp" "BattlePay/BattlePayMgr.h" "BattlePay/BattlePayMgr.cpp" "Globals/BattlePayData.h" "Server/Packets/BattlePayPackets.h" "Quests/WorldQuestMgr.h" "Movement/PathfindingMgr.h" "Movement/Pathfinding.h" "Battlegrounds/CommandBG.h" "AI/PlayerAI/BotClassAI/BotWarriorAI.h" "AI/PlayerAI/BotClassAI/BotMageAI.h" "AI/PlayerAI/BotClassAI/BotPriestAI.h" "AI/PlayerAI/BotClassAI/BotHunterAI.h")
+  ${PRIVATE_SOURCES} "Globals/BattlePetDataStore.cpp"  "Instances/InstanceSaveMgr.cpp" "BattlePay/BattlePayMgr.h" "BattlePay/BattlePayMgr.cpp" "Globals/BattlePayData.h" "Server/Packets/BattlePayPackets.h" "Quests/WorldQuestMgr.h" "Movement/PathfindingMgr.h" "Movement/Pathfinding.h" "Battlegrounds/CommandBG.h" "AI/PlayerAI/BotClassAI/BotWarriorAI.h" "AI/PlayerAI/BotClassAI/BotMageAI.h" "AI/PlayerAI/BotClassAI/BotPriestAI.h" "AI/PlayerAI/BotClassAI/BotHunterAI.h" "AI/PlayerAI/BotClassAI/BotWarlockAI.h" "AI/PlayerAI/BotClassAI/BotPaladinAI.h" "AI/PlayerAI/BotClassAI/BotRogueAI.h" "AI/PlayerAI/BotClassAI/BotShamanAI.h" "AI/PlayerAI/BotClassAI/BotDruidAI.h" "AI/PlayerAI/BotClassAI/BotDemonHunterAI.h" "AI/PlayerAI/BotClassAI/BotMonkAI.h" "AI/PlayerAI/BotClassAI/BotDeathknightAI.h")
 
 target_include_directories(game
   PRIVATE
