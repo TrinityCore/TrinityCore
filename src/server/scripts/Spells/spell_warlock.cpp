@@ -926,7 +926,7 @@ class spell_warl_random_sayaad : public SpellScript
 
         if (Pet* pet = caster->ToPlayer()->GetPet())
         {
-            if (pet->IsPetSuccubus() || pet->IsPetIncubus())
+            if (pet->IsPetSayaad())
                 pet->DespawnOrUnsummon();
         }
     }
