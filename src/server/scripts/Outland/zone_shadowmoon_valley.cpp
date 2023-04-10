@@ -490,7 +490,9 @@ enum Earthmender
     SPELL_HEALING_WAVE          = 12491,
 
     QUEST_ESCAPE_COILSCAR       = 10451,
-    NPC_COILSKAR_ASSASSIN       = 21044
+    NPC_COILSKAR_ASSASSIN       = 21044,
+
+    PATH_ESCORT_WILDA           = 168218,
 };
 
 class npc_earthmender_wilda : public CreatureScript
@@ -635,7 +637,8 @@ public:
                 Talk(SAY_WIL_START, player);
                 me->SetFaction(FACTION_EARTHEN_RING);
 
-                Start(false, false, player->GetGUID(), quest);
+                LoadPath(PATH_ESCORT_WILDA);
+                Start(false, player->GetGUID(), quest);
             }
         }
     };

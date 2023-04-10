@@ -123,7 +123,8 @@ public:
             if (action == GOSSIP_ACTION_INFO_DEF + 1)
             {
                 CloseGossipMenuFor(player);
-                Start(false, false, player->GetGUID());
+                LoadPath((me->GetEntry() << 3) | 2);
+                Start(false, player->GetGUID());
             }
             return true;
         }

@@ -185,6 +185,9 @@ enum ThrallOldHillsbrad
 #define SPEED_RUN               (1.0f)
 #define SPEED_MOUNT             (1.6f)
 
+static constexpr uint32 PATH_ESCORT_THRALL_OLD_HILLSBRAD = 143010;
+static constexpr uint32 PATH_ESCORT_TARETHA = 151098;
+
 struct npc_thrall_old_hillsbrad : public EscortAI
 {
     npc_thrall_old_hillsbrad(Creature* creature) : EscortAI(creature)
@@ -204,7 +207,7 @@ struct npc_thrall_old_hillsbrad : public EscortAI
     void InitializeAI() override
     {
         /* correct respawn positions after wipe cannot be used because of how waypoints are set up for this creature
-         * it would require splitting the path into 4 segments, moving it out of script_waypoint table and changing
+         * it would require splitting the path into 4 segments, moving it out of waypoint_data table and changing
          * all waypoint ids in WaypointReached function
         switch (instance->GetData(TYPE_THRALL_EVENT))
         {
@@ -243,7 +246,6 @@ struct npc_thrall_old_hillsbrad : public EscortAI
         switch (waypointId)
         {
             case 8:
-                SetRun(false);
                 me->SummonCreature(18764, 2181.87f, 112.46f, 89.45f, 0.26f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
                 break;
             case 9:
@@ -255,7 +257,6 @@ struct npc_thrall_old_hillsbrad : public EscortAI
                 me->SetDisplayId(THRALL_MODEL_EQUIPPED);
                 break;
             case 11:
-                SetRun();
                 break;
             case 15:
                 me->SummonCreature(NPC_RIFLE, 2200.28f, 137.37f, 87.93f, 5.07f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
@@ -288,13 +289,11 @@ struct npc_thrall_old_hillsbrad : public EscortAI
                 //temporary, skarloc should rather be triggered to walk up to thrall
                 break;
             case 30:
-                SetRun(false);
                 break;
             case 31:
                 Talk(SAY_TH_MOUNTS_UP);
                 HadMount = true;
                 DoMount();
-                SetRun();
                 break;
             case 37:
                 //possibly regular patrollers? If so, remove this and let database handle them
@@ -306,17 +305,14 @@ struct npc_thrall_old_hillsbrad : public EscortAI
                 me->SummonCreature(SKARLOC_MOUNT, 2488.64f, 625.77f, 58.26f, 4.71f, TEMPSUMMON_TIMED_DESPAWN, 10s);
                 DoUnmount();
                 HadMount = false;
-                SetRun(false);
                 break;
             case 60:
                 me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
                 //make horsie run off
                 SetEscortPaused(true);
                 instance->SetData(TYPE_THRALL_EVENT, OH_ESCORT_BARN_TO_TARETHA);
-                SetRun();
                 break;
             case 64:
-                SetRun(false);
                 break;
             case 68:
                 me->SummonCreature(NPC_BARN_PROTECTOR, 2500.22f, 692.60f, 55.50f, 2.84f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
@@ -325,10 +321,8 @@ struct npc_thrall_old_hillsbrad : public EscortAI
                 me->SummonCreature(NPC_BARN_GUARDSMAN, 2500.94f, 695.81f, 55.50f, 3.14f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
                 break;
             case 71:
-                SetRun();
                 break;
             case 81:
-                SetRun(false);
                 break;
             case 83:
                 me->SummonCreature(NPC_CHURCH_PROTECTOR, 2627.33f, 646.82f, 56.03f, 4.28f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 5s);
@@ -338,11 +332,6 @@ struct npc_thrall_old_hillsbrad : public EscortAI
                 break;
             case 84:
                 Talk(SAY_TH_CHURCH_END);
-                SetRun();
-                break;
-            case 91:
-                me->SetWalk(true);
-                SetRun(false);
                 break;
             case 93:
                 me->SummonCreature(NPC_INN_PROTECTOR, 2652.71f, 660.31f, 61.93f, 1.67f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
@@ -364,7 +353,6 @@ struct npc_thrall_old_hillsbrad : public EscortAI
                 break;
             case 97:
                 Talk(SAY_TH_EPOCH_KILL_TARETHA);
-                SetRun();
                 break;
             case 98:
                 //trigger epoch Yell("Thrall! Come outside and face your fate! ....")
@@ -376,7 +364,13 @@ struct npc_thrall_old_hillsbrad : public EscortAI
                     if (Creature* Taretha = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TARETHA)))
                     {
                         if (Player* player = GetPlayerForEscort())
-                            ENSURE_AI(EscortAI, (Taretha->AI()))->Start(false, true, player->GetGUID());
+                        {
+                            if (EscortAI* ai = CAST_AI(EscortAI, Taretha->AI()))
+                            {
+                                ai->LoadPath(PATH_ESCORT_TARETHA);
+                                ai->Start(false, player->GetGUID());
+                            }
+                        }
                     }
 
                     //kill credit Creature for quest
@@ -505,7 +499,8 @@ struct npc_thrall_old_hillsbrad : public EscortAI
 
                 Talk(SAY_TH_START_EVENT_PART1);
 
-                Start(true, true, player->GetGUID());
+                LoadPath(PATH_ESCORT_THRALL_OLD_HILLSBRAD);
+                Start(true, player->GetGUID());
 
                 SetMaxPlayerDistance(100.0f);//not really needed, because it will not despawn if player is too far
                 SetDespawnAtEnd(false);
