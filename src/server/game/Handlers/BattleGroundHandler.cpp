@@ -663,7 +663,6 @@ void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPackets::Battleground:
     if (_player->GetExactDist(unit) > MAX_AREA_SPIRIT_HEALER_RANGE)
         return;
 
-
     if (SpiritGuideAI* spiritGuideAI = dynamic_cast<SpiritGuideAI*>(unit->AI()))
         if (spiritGuideAI->OnSpiritHealerQuery(_player))
             return;
