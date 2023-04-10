@@ -38,6 +38,7 @@
 #include "SpellHistory.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "SpiritGuideAI.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"
 
@@ -2287,46 +2288,6 @@ struct npc_gen_void_zone : public ScriptedAI
 
 private:
     TaskScheduler _scheduler;
-};
-
-struct SpiritGuideAI : public ScriptedAI
-{
-    static constexpr uint32 SPELL_GRAVEYARD_TELEPORT = 46893;
-
-    static constexpr uint32 HORDE_FACTION = 83;
-    static constexpr uint32 ALLIANCE_FACTION = 84;
-
-    static constexpr uint32 NPC_ALLIANCE_GRAVEYARD_TELEPORT = 26350;
-    static constexpr uint32 NPC_HORDE_GRAVEYARD_TELEPORT = 26351;
-
-    SpiritGuideAI(Creature* creature) : ScriptedAI(creature) { }
-
-    void OnDespawn() override
-    {
-        switch (me->GetFaction())
-        {
-            case HORDE_FACTION:
-                SummonGraveyardTeleporter(NPC_HORDE_GRAVEYARD_TELEPORT);
-                break;
-            case ALLIANCE_FACTION:
-                SummonGraveyardTeleporter(NPC_ALLIANCE_GRAVEYARD_TELEPORT);
-                break;
-            default:
-                break;
-        }
-    }
-
-    void SummonGraveyardTeleporter(uint32 npcEntry)
-    {
-        // maybe NPC is summoned with these spells:
-        // ID - 24237 Summon Alliance Graveyard Teleporter (SERVERSIDE)
-        // ID - 46894 Summon Horde Graveyard Teleporter (SERVERSIDE)
-        if (TempSummon* summon = me->SummonCreature(npcEntry, me->GetPosition(), TEMPSUMMON_DEAD_DESPAWN, 0s, 0, 0))
-        {
-            summon->SetDemonCreatorGUID(me->GetGUID());
-            summon->CastSpell(summon, SPELL_GRAVEYARD_TELEPORT);
-        }
-    }
 };
 
 struct npc_bg_spirit_guide : public SpiritGuideAI

@@ -25,6 +25,7 @@
 #include "ReactorAI.h"
 #include "ScheduledChangeAI.h"
 #include "SmartAI.h"
+#include "SpiritGuideAI.h"
 #include "TotemAI.h"
 #include "ObjectMgr.h"
 
@@ -48,6 +49,7 @@ namespace AIRegistry
         (new CreatureAIFactory<ArcherAI>("ArcherAI"))->RegisterSelf();
         (new CreatureAIFactory<TurretAI>("TurretAI"))->RegisterSelf();
         (new CreatureAIFactory<VehicleAI>("VehicleAI"))->RegisterSelf();
+        (new CreatureAIFactory<SpiritGuideAI>("SpiritGuideAI"))->RegisterSelf();
         (new CreatureAIFactory<SmartAI>("SmartAI"))->RegisterSelf();
         (new CreatureAIFactory<ScheduledChangeAI, false>("ScheduledChangeAI"))->RegisterSelf();
 

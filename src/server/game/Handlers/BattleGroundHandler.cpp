@@ -36,6 +36,7 @@
 #include "Object.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "SpiritGuideAI.h"
 #include "World.h"
 
 void WorldSession::HandleBattlemasterHelloOpcode(WorldPackets::NPC::Hello& hello)
@@ -662,8 +663,10 @@ void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPackets::Battleground:
     if (_player->GetExactDist(unit) > MAX_AREA_SPIRIT_HEALER_RANGE)
         return;
 
-    if (unit->AI()->OnSpiritHealerQuery(_player))
-        return;
+
+    if (SpiritGuideAI* spiritGuideAI = dynamic_cast<SpiritGuideAI*>(unit->AI()))
+        if (spiritGuideAI->OnSpiritHealerQuery(_player))
+            return;
 
     if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(_player->GetMap(), _player->GetZoneId()))
         bf->SendAreaSpiritHealerQueryOpcode(_player, areaSpiritHealerQuery.HealerGuid);
@@ -683,7 +686,8 @@ void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPackets::Battleground:
     if (_player->GetExactDist(unit) > MAX_AREA_SPIRIT_HEALER_RANGE)
         return;
 
-    unit->AI()->OnSpiritHealerQueue(_player);
+    if (SpiritGuideAI* spiritGuideAI = dynamic_cast<SpiritGuideAI*>(unit->AI()))
+        spiritGuideAI->OnSpiritHealerQueue(_player);
 
     if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(_player->GetMap(), _player->GetZoneId()))
         bf->AddPlayerToResurrectQueue(areaSpiritHealerQueue.HealerGuid, _player->GetGUID());
