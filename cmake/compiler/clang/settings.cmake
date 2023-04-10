@@ -4,7 +4,7 @@ target_compile_definitions(trinity-compile-option-interface
     -D_BUILD_DIRECTIVE="$<CONFIG>")
 
 set(CLANG_EXPECTED_VERSION 11.0.0)
-if(CMAKE_CXX_COMPILER MATCHES "Clang")
+if(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang")
   # apple doesnt like to do the sane thing which would be to use the same version numbering as regular clang
   # version number pulled from https://en.wikipedia.org/wiki/Xcode#Toolchain_versions for row matching LLVM 11
   set(CLANG_EXPECTED_VERSION 12.0.5)
