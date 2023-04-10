@@ -33,10 +33,7 @@ class TC_GAME_API SystemMgr
         static SystemMgr* instance();
 
         // database
-        void LoadScriptWaypoints();
         void LoadScriptSplineChains();
-
-        WaypointPath const* GetPath(uint32 creatureEntry) const;
 
         std::vector<SplineChainLink> const* GetSplineChain(uint32 entry, uint16 chainId) const;
         std::vector<SplineChainLink> const* GetSplineChain(Creature const* who, uint16 id) const;
@@ -50,7 +47,6 @@ class TC_GAME_API SystemMgr
         SystemMgr(SystemMgr const&) = delete;
         SystemMgr& operator=(SystemMgr const&) = delete;
 
-        std::unordered_map<uint32, WaypointPath> _waypointStore;
         std::unordered_map<ChainKeyType, std::vector<SplineChainLink>> m_mSplineChainsMap; // spline chains
 };
 

@@ -40,7 +40,9 @@ enum Willix
     SAY_END                     = 10,
 
     QUEST_WILLIX_THE_IMPORTER   = 1144,
-    ENTRY_BOAR                  = 4514
+    ENTRY_BOAR                  = 4514,
+
+    PATH_ESCORT_WILLIX          = 36066
 };
 
 class npc_willix : public CreatureScript
@@ -56,7 +58,8 @@ public:
         {
             if (quest->GetQuestId() == QUEST_WILLIX_THE_IMPORTER)
             {
-                Start(true, false, player->GetGUID());
+                LoadPath(PATH_ESCORT_WILLIX);
+                Start(true, player->GetGUID());
                 Talk(SAY_READY, player);
                 me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
             }

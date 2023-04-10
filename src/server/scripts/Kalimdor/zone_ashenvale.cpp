@@ -1009,7 +1009,8 @@ enum RuulSnowhoof
     QUEST_FREEDOM_TO_RUUL       = 6482,
     GO_CAGE                     = 178147,
     RUUL_SHAPECHANGE            = 20514,
-    SAY_FINISH                  = 0
+    SAY_FINISH                  = 0,
+    PATH_ESCORT_RUUL_SNOWHOOF   = 102546,
 };
 
 Position const RuulSnowhoofSummonsCoord[6] =
@@ -1049,7 +1050,8 @@ public:
             if (quest->GetQuestId() == QUEST_FREEDOM_TO_RUUL)
             {
                 me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
-                EscortAI::Start(true, false, player->GetGUID());
+                LoadPath(PATH_ESCORT_RUUL_SNOWHOOF);
+                EscortAI::Start(true, player->GetGUID());
             }
         }
 
@@ -1130,7 +1132,9 @@ enum Muglash
     NPC_WRATH_SEAWITCH      = 3715,
 
     NPC_VORSHA              = 12940,
-    NPC_MUGLASH             = 12717
+    NPC_MUGLASH             = 12717,
+
+    PATH_ESCORT_MUGLASH     = 101738,
 };
 
 Position const FirstNagaCoord[3] =
@@ -1202,7 +1206,8 @@ public:
             {
                 Talk(SAY_MUG_START1);
                 me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
-                EscortAI::Start(true, false, player->GetGUID());
+                LoadPath(PATH_ESCORT_MUGLASH);
+                EscortAI::Start(true, player->GetGUID());
             }
         }
 
