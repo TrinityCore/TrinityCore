@@ -111,10 +111,10 @@ public:
         return true;
     }
 
-    static bool HandleScenarioStepCommand(ChatHandler* handler, char const* args)
+    static bool HandleScenarioStepCommand(ChatHandler* handler, char const* /*args*/)
     {
         Player* player = handler->GetSession()->GetPlayer();
-        char* stepstr = strtok((char*)args, " ");
+        //char* stepstr = strtok((char*)args, " ");
         //uint8 step = stepstr ? atoi(stepstr) : 0;
 
         Map* map = player->GetMap();
