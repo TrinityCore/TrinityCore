@@ -291,7 +291,7 @@ void BotMonkAI::ProcessMeleeSpell(Unit* pTarget)
 
 void BotMonkAI::ProcessBrewMasterCombat(Unit* pTarget)
 {
-    uint32 rage = GetRagePowerPer();
+    //uint32 rage = GetRagePowerPer();
     if (me->GetHealthPct() < 60)
     {
         if (TryCastSpell(BREWMASTER_fortifying_brew, me) == SpellCastResult::SPELL_CAST_OK)
