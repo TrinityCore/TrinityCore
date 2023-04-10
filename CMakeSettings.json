@@ -38,6 +38,11 @@
           "name": "SCRIPTS",
           "value": "none",
           "type": "STRING"
+        },
+        {
+          "name": "TOOLS",
+          "value": "False",
+          "type": "BOOL"
         }
       ]
     }
