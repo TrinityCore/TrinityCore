@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -99,6 +99,10 @@ enum WorldDatabaseStatements : uint32
     WORLD_DEL_SPAWNGROUP_MEMBER,
     WORLD_DEL_GAMEOBJECT_ADDON,
     WORLD_SEL_GUILD_REWARDS_REQ_ACHIEVEMENTS,
+    WORLD_INS_AIWAYPOINTS,
+    WORLD_UPD_AIWAYPOINTS,
+    WORLD_DEL_AIWAYPOINTS,
+    WORLD_SEL_ALL_AIWAYPOINTS,
 
     MAX_WORLDDATABASE_STATEMENTS
 };

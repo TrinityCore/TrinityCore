@@ -45,7 +45,7 @@ uint32 FieldPriestAI::GetManaPowerPer()
 
 bool FieldPriestAI::CastBuffPrayer()
 {
-    Group* pGroup = me->GetGroup();
+    //Group* pGroup = me->GetGroup();
     if (PriestIDLE_AllShadowRes)
     {
         if (!me->HasAura(PriestIDLE_AllShadowRes))
@@ -309,7 +309,7 @@ void FieldPriestAI::ProcessHealthSpell(Unit* pTarget)
     ProcessDispel();
 }
 
-void FieldPriestAI::ProcessMeleeSpell(Unit* pTarget)
+void FieldPriestAI::ProcessMeleeSpell(Unit* /*pTarget*/)
 {
     ProcessDispel();
 }

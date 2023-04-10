@@ -119,7 +119,7 @@ void BotDemonHunterAI::ProcessFlee()
         return;
 }
 
-void BotDemonHunterAI::ProcessHealthSpell(Unit* pTarget)
+void BotDemonHunterAI::ProcessHealthSpell(Unit* /*pTarget*/)
 {
 }
 

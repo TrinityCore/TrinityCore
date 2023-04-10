@@ -1,4 +1,4 @@
-
+﻿
 #ifndef __PLAYERBOTMGR_H__
 #define __PLAYERBOTMGR_H__
 

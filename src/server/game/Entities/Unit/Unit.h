@@ -814,13 +814,13 @@ class TC_GAME_API Unit : public WorldObject
         void PushAI(UnitAI* newAI);
         bool PopAI();
     protected:
-        void SetAI(UnitAI* newAI);
+        //void SetAI(UnitAI* newAI);
         UnitAI* GetTopAI() const { return i_AIs.empty() ? nullptr : i_AIs.top().get(); }
         void RefreshAI();
         UnitAI* GetScheduledChangeAI();
         bool HasScheduledAIChange() const;
     public:
-
+        void SetAI(UnitAI* newAI);
         void AddToWorld() override;
         void RemoveFromWorld() override;
 
@@ -960,6 +960,7 @@ class TC_GAME_API Unit : public WorldObject
         int32 GetPower(Powers power) const;
         int32 GetMinPower(Powers power) const { return power == POWER_LUNAR_POWER ? -100 : 0; }
         int32 GetMaxPower(Powers power) const;
+        
         float GetPowerPct(Powers power) const { return GetMaxPower(power) ? 100.f * GetPower(power) / GetMaxPower(power) : 0.0f; }
         int32 CountPctFromMaxPower(Powers power, int32 pct) const { return CalculatePct(GetMaxPower(power), pct); }
         void SetPower(Powers power, int32 val, bool withPowerUpdate = true);

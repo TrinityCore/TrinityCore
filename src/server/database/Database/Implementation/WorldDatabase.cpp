@@ -94,7 +94,12 @@ void WorldDatabaseConnection::DoPrepareStatements()
     PrepareStatement(WORLD_DEL_SPAWNGROUP_MEMBER, "DELETE FROM spawn_group WHERE spawnType = ? AND spawnId = ?", CONNECTION_ASYNC);
     PrepareStatement(WORLD_DEL_GAMEOBJECT_ADDON, "DELETE FROM gameobject_addon WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(WORLD_SEL_GUILD_REWARDS_REQ_ACHIEVEMENTS, "SELECT AchievementRequired FROM guild_rewards_req_achievements WHERE ItemID = ?", CONNECTION_SYNCH);
+    PrepareStatement(WORLD_INS_AIWAYPOINTS, "INSERT INTO aiwaypoints (entry, map, x, y, z, link) VALUES (?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(WORLD_UPD_AIWAYPOINTS, "UPDATE aiwaypoints SET map = ?, x = ?, y = ?, z = ?, link = ?, helpText = ? WHERE entry = ?", CONNECTION_ASYNC);
+    PrepareStatement(WORLD_DEL_AIWAYPOINTS, "DELETE FROM aiwaypoints WHERE entry = ?", CONNECTION_ASYNC);
 }
+
+
 
 WorldDatabaseConnection::WorldDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo)
 {
