@@ -1,8 +1,8 @@
 -- 
-DROP PROCEDURE IF EXISTS apply_if_exists_9999_99_99_99_world;
+DROP PROCEDURE IF EXISTS apply_if_exists_2023_04_10_00_world;
 
 DELIMITER ;;
-CREATE PROCEDURE apply_if_exists_9999_99_99_99_world() BEGIN
+CREATE PROCEDURE apply_if_exists_2023_04_10_00_world() BEGIN
   IF EXISTS (SELECT * FROM `information_schema`.`columns` WHERE `table_schema`=SCHEMA() AND `table_name`='script_waypoint') THEN
     DELETE FROM `waypoint_data` WHERE `id` & 2;
     INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `delay`) SELECT ((s.`entry` << 3) | 2), s.`pointid`, s.`location_x`, s.`location_y`, s.`location_z`, s.`waittime` FROM `script_waypoint` s;
@@ -12,9 +12,9 @@ CREATE PROCEDURE apply_if_exists_9999_99_99_99_world() BEGIN
 END;;
 
 DELIMITER ;
-CALL apply_if_exists_9999_99_99_99_world();
+CALL apply_if_exists_2023_04_10_00_world();
 
-DROP PROCEDURE IF EXISTS apply_if_exists_9999_99_99_99_world;
+DROP PROCEDURE IF EXISTS apply_if_exists_2023_04_10_00_world;
 
 -- Rage Winterchill
 SET @PATH_ID := 142138;
