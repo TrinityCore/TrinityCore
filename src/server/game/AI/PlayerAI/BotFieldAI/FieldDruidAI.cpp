@@ -1,18 +1,17 @@
 ﻿
-#include "BotGroupClassAI.h"
+#include "BotFieldClassAI.h"
 #include "BotBGAIMovement.h"
-#include "Group.h"
 #include "MovementPackets.h"
 
-void GroupDruidAI::UpdateTalentType()
+void FieldDruidAI::UpdateTalentType()
 {
     m_BotTalentType = me->FindTalentType();// PlayerBotSetting::FindPlayerTalentType(me);
 }
 
-void GroupDruidAI::ResetBotAI()
+void FieldDruidAI::ResetBotAI()
 {
     UpdateTalentType();
-    BotGroupAI::ResetBotAI();
+    BotFieldAI::ResetBotAI();
     InitializeSpells(me);
     m_WishStore.ClearWishs();
     m_WishStore.RegisterWish(DruidIDLE_AOEFerityWish);
@@ -20,73 +19,53 @@ void GroupDruidAI::ResetBotAI()
     SwitchStatus(0);
 }
 
-uint32 GroupDruidAI::GetSeducePriority()
+void FieldDruidAI::OnLevelUp(uint32 talentType)
 {
-    if (!me->IsAlive())
-        return 0;
-    return 1;
-}
-
-void GroupDruidAI::OnLevelUp(uint32 talentType)
-{
-    BotGroupAI::OnLevelUp(talentType);
     if (talentType < 3)
         m_BotTalentType = talentType;
     InitializeSpells(me);
 
+    m_WishStore.ClearWishs();
     m_WishStore.RegisterWish(DruidIDLE_AOEFerityWish);
     m_WishStore.RegisterWish(DruidIDLE_FerityWish);
 }
 
-uint32 GroupDruidAI::GetManaPowerPer()
+uint32 FieldDruidAI::GetManaPowerPer()
 {
     float per = (float)me->GetPower(POWER_MANA) / (float)me->GetMaxPower(POWER_MANA);
     return (uint32)(per * 100);
 }
 
-uint32 GroupDruidAI::GetEnergyPowerPer()
+uint32 FieldDruidAI::GetEnergyPowerPer()
 {
     float per = (float)me->GetPower(POWER_ENERGY) / (float)me->GetMaxPower(POWER_ENERGY);
     return (uint32)(per * 100);
 }
 
-uint32 GroupDruidAI::GetRagePowerPer()
+uint32 FieldDruidAI::GetRagePowerPer()
 {
     float per = (float)me->GetPower(POWER_RAGE) / (float)me->GetMaxPower(POWER_RAGE);
     return (uint32)(per * 100);
 }
 
-bool GroupDruidAI::NeedFlee()
+bool FieldDruidAI::NeedFlee()
 {
     if (m_Flee.Fleeing())
         return true;
     if (m_BotTalentType == 1)
         return false;
+    Unit* pTarget = me->GetSelectedUnit();
+    if (!pTarget || pTarget->ToCreature())
+        return false;
     if (RangeEnemyListByTargetIsMe(NEEDFLEE_CHECKRANGE).size() > 0)
         return true;
-    Unit* pTarget = me->GetSelectedUnit();
-    if (!pTarget)
-        return false;
     float fleeDistance = m_Flee.CalcMaxFleeDistance(pTarget);
     if (me->GetDistance(pTarget->GetPosition()) < fleeDistance)//BOTAI_FLEE_JUDGE)
         return true;
     return false;
 }
 
-void GroupDruidAI::ProcessSeduceSpell(Unit* pTarget)
-{
-    if (!pTarget)
-        return;
-    SwitchStatus(0);
-    if (!pTarget->HasAura(DruidAssist_PersonSpirit) && TryCastSpell(DruidAssist_PersonSpirit, pTarget) == SpellCastResult::SPELL_CAST_OK)
-        return;
-    if (!pTarget->HasAura(DruidCast_Moonfire, me->GetGUID()) && TryCastSpell(DruidCast_Moonfire, pTarget) == SpellCastResult::SPELL_CAST_OK)
-        return;
-    if (m_BotTalentType == 0 && !pTarget->HasAura(DruidCast_Insect, me->GetGUID()) && TryCastSpell(DruidCast_Insect, pTarget) == SpellCastResult::SPELL_CAST_OK)
-        return;
-}
-
-void GroupDruidAI::ProcessFlee()
+void FieldDruidAI::ProcessFlee()
 {
     if (me->HasUnitState(UNIT_STATE_CASTING))
         return;
@@ -108,8 +87,8 @@ void GroupDruidAI::ProcessFlee()
     else
     {
         float healthPct = me->GetHealthPct();
-        bool hasRelife = me->HasAura(DruidHeal_Relife, me->GetGUID());
-        bool hasBurst = me->HasAura(DruidHeal_LifeBurst, me->GetGUID());
+        bool hasRelife = me->HasAura(DruidHeal_Relife);
+        bool hasBurst = me->HasAura(DruidHeal_LifeBurst);
         if (healthPct < 60 && !hasRelife && TryCastSpell(DruidHeal_Relife, me) == SpellCastResult::SPELL_CAST_OK)
             return;
         if (healthPct < 55 && !hasBurst && TryCastSpell(DruidHeal_LifeBurst, me) == SpellCastResult::SPELL_CAST_OK)
@@ -122,7 +101,7 @@ void GroupDruidAI::ProcessFlee()
     }
 }
 
-bool GroupDruidAI::ProcessSneak()
+bool FieldDruidAI::ProcessSneak()
 {
     if (m_BotTalentType != 1)
         return false;
@@ -165,7 +144,7 @@ bool GroupDruidAI::ProcessSneak()
     return false;
 }
 
-bool GroupDruidAI::ProcessNormalSpell()
+bool FieldDruidAI::ProcessNormalSpell()
 {
     if (me->HasUnitState(UNIT_STATE_CASTING))
         return true;
@@ -183,19 +162,8 @@ bool GroupDruidAI::ProcessNormalSpell()
         }
         else if (DruidIDLE_FerityWish)
         {
-            Group* pGroup = me->GetGroup();
-            if (pGroup && !pGroup->isBGGroup() && !pGroup->isBFGroup())
-            {
-                Group::MemberSlotList const& memList = pGroup->GetMemberSlots();
-                for (Group::MemberSlot const& slot : memList)
-                {
-                    Player* player = ObjectAccessor::FindPlayer(slot.guid);
-                    if (!player || !player->IsAlive() || me->GetMap() != player->GetMap() || !player->IsInWorld())
-                        continue;
-                    if (!player->HasAura(DruidIDLE_FerityWish) && TryCastSpell(DruidIDLE_FerityWish, player, true) == SpellCastResult::SPELL_CAST_OK)
-                        return false;
-                }
-            }
+            if (!me->HasAura(DruidIDLE_FerityWish) && TryCastSpell(DruidIDLE_FerityWish, me, true) == SpellCastResult::SPELL_CAST_OK)
+                return false;
         }
         if (DruidGuard_Thorns && !me->HasAura(DruidGuard_Thorns) && TryCastSpell(DruidGuard_Thorns, me, true) == SpellCastResult::SPELL_CAST_OK)
             return false;
@@ -216,25 +184,7 @@ bool GroupDruidAI::ProcessNormalSpell()
     return false;
 }
 
-void GroupDruidAI::ProcessPrepareHealthSpell(Unit* pTarget)
-{
-    if (!pTarget || GetManaPowerPer() < 5)
-        return;
-    if (ProcessDispel())
-        return;
-    if (DruidHeal_Nourishing && pTarget->HasAura(DruidHeal_Relife))
-    {
-        if (TryCastSpellByLifePCTInterrupt(DruidHeal_Nourishing, pTarget, 82) == SpellCastResult::SPELL_CAST_OK)
-            return;
-    }
-    else if (DruidHeal_Touch)
-    {
-        if (TryCastSpellByLifePCTInterrupt(DruidHeal_Touch, pTarget, 70) == SpellCastResult::SPELL_CAST_OK)
-            return;
-    }
-}
-
-void GroupDruidAI::ProcessHealthSpell(Unit* pTarget)
+void FieldDruidAI::ProcessHealthSpell(Unit* pTarget)
 {
     if (me->HasUnitState(UNIT_STATE_CASTING))
         return;
@@ -246,8 +196,11 @@ void GroupDruidAI::ProcessHealthSpell(Unit* pTarget)
     else if (me->HasAura(DruidStatus_Travel))
         SwitchStatus(0);
     ProcessCombatRevive();
-    if (ProcessActive())
-        return;
+    if (DruidAssist_Active && GetManaPowerPer() < 30)
+    {
+        if (TryCastSpell(DruidAssist_Active, me) == SpellCastResult::SPELL_CAST_OK)
+            return;
+    }
     NearUnitVec friends = SearchLifePctByFriendRange(pTarget, BOTAI_RANGESPELL_DISTANCE);
     if (friends.size() > 3)
     {
@@ -260,11 +213,10 @@ void GroupDruidAI::ProcessHealthSpell(Unit* pTarget)
             return;
     }
 
-    bool isCruxHeal = pTarget->GetGUID() == m_CruxHealTarget;
     float healthPct = pTarget->GetHealthPct();
-    bool hasRelife = pTarget->HasAura(DruidHeal_Relife, me->GetGUID());
-    bool hasBurst = pTarget->HasAura(DruidHeal_LifeBurst, me->GetGUID());
-    bool hasCoale = pTarget->HasAura(DruidHeal_Coalescence, me->GetGUID());
+    bool hasRelife = pTarget->HasAura(DruidHeal_Relife);
+    bool hasBurst = pTarget->HasAura(DruidHeal_LifeBurst);
+    bool hasCoale = pTarget->HasAura(DruidHeal_Coalescence);
     if (healthPct < 30)
     {
         if (DruidHeal_MomentHeal && me->HasAura(DruidHeal_MomentHeal) && TryCastSpell(DruidHeal_Touch, pTarget) == SpellCastResult::SPELL_CAST_OK)
@@ -272,27 +224,27 @@ void GroupDruidAI::ProcessHealthSpell(Unit* pTarget)
         else if (DruidHeal_MomentHeal && TryCastSpell(DruidHeal_MomentHeal, me) == SpellCastResult::SPELL_CAST_OK)
             return;
     }
-    if ((healthPct < 40 || isCruxHeal) && m_BotTalentType == 2 && DruidHeal_MergerLife && (hasRelife || hasCoale))
+    if (healthPct < 40 && m_BotTalentType == 2 && DruidHeal_MergerLife && (hasRelife || hasCoale))
     {
         if (TryCastSpell(DruidHeal_MergerLife, pTarget) == SpellCastResult::SPELL_CAST_OK)
             return;
     }
     if (!hasRelife && TryCastSpell(DruidHeal_Relife, pTarget) == SpellCastResult::SPELL_CAST_OK)
         return;
-    if ((healthPct < 75 || isCruxHeal) && !hasBurst && TryCastSpell(DruidHeal_LifeBurst, pTarget) == SpellCastResult::SPELL_CAST_OK)
+    if (healthPct < 75 && !hasBurst && TryCastSpell(DruidHeal_LifeBurst, pTarget) == SpellCastResult::SPELL_CAST_OK)
         return;
-    if ((healthPct < 75 || isCruxHeal) && !hasCoale && TryCastSpell(DruidHeal_Coalescence, pTarget) == SpellCastResult::SPELL_CAST_OK)
+    if (healthPct < 75 && !hasCoale && TryCastSpell(DruidHeal_Coalescence, pTarget) == SpellCastResult::SPELL_CAST_OK)
         return;
-    if ((healthPct < 75 || isCruxHeal) && DruidHeal_Nourishing && (hasRelife || hasCoale))
+    if (healthPct < 75 && DruidHeal_Nourishing && (hasRelife || hasCoale))
     {
-        if (TryCastSpellByLifePCTInterrupt(DruidHeal_Nourishing, pTarget, 82) == SpellCastResult::SPELL_CAST_OK)
+        if (TryCastSpell(DruidHeal_Nourishing, pTarget) == SpellCastResult::SPELL_CAST_OK)
             return;
     }
-    if ((healthPct < 60 || isCruxHeal) && TryCastSpellByLifePCTInterrupt(DruidHeal_Touch, pTarget, 70) == SpellCastResult::SPELL_CAST_OK)
+    if (healthPct < 60 && TryCastSpell(DruidHeal_Touch, pTarget) == SpellCastResult::SPELL_CAST_OK)
         return;
 }
 
-void GroupDruidAI::ProcessMeleeSpell(Unit* pTarget)
+void FieldDruidAI::ProcessMeleeSpell(Unit* pTarget)
 {
     ProcessSneak();
     if (me->HasAura(DruidStatus_Bear))
@@ -316,7 +268,7 @@ void GroupDruidAI::ProcessMeleeSpell(Unit* pTarget)
     }
 }
 
-void GroupDruidAI::ProcessBearCombat(Unit* pTarget)
+void FieldDruidAI::ProcessBearCombat(Unit* pTarget)
 {
     if (CanMeleeHealthMe())
     {
@@ -342,7 +294,7 @@ void GroupDruidAI::ProcessBearCombat(Unit* pTarget)
         return;
     if (rage > 65 && RangeEnemyListByNonAura(DruidBear_DecAtt, NEEDFLEE_CHECKRANGE).size() >= 2 && TryCastSpell(DruidBear_DecAtt, me) == SpellCastResult::SPELL_CAST_OK)
         return;
-    if (!pTarget->HasAura(DruidBear_Sweep, me->GetGUID()) && TryCastSpell(DruidBear_Sweep, pTarget) == SpellCastResult::SPELL_CAST_OK)
+    if (!pTarget->HasAura(DruidBear_Sweep) && TryCastSpell(DruidBear_Sweep, pTarget) == SpellCastResult::SPELL_CAST_OK)
         return;
     if (DruidBear_Laceration && TryCastSpell(DruidBear_Laceration, pTarget) == SpellCastResult::SPELL_CAST_OK)
         return;
@@ -357,7 +309,7 @@ void GroupDruidAI::ProcessBearCombat(Unit* pTarget)
         return;
 }
 
-void GroupDruidAI::ProcessCatCombat(Unit* pTarget)
+void FieldDruidAI::ProcessCatCombat(Unit* pTarget)
 {
     if (CanMeleeHealthMe())
     {
@@ -398,7 +350,7 @@ void GroupDruidAI::ProcessCatCombat(Unit* pTarget)
                 if (TryCastSpell(DruidCat_Stun, pTarget) == SpellCastResult::SPELL_CAST_OK)
                     return;
             }
-            if (DruidCat_Separate && !pTarget->HasAura(DruidCat_Separate, me->GetGUID()))
+            if (DruidCat_Separate && !pTarget->HasAura(DruidCat_Separate))
             {
                 if (TryCastSpell(DruidCat_Separate, pTarget) == SpellCastResult::SPELL_CAST_OK)
                     return;
@@ -410,7 +362,7 @@ void GroupDruidAI::ProcessCatCombat(Unit* pTarget)
         {
             if (TryCastSpell(DruidCat_Tiger, me) == SpellCastResult::SPELL_CAST_OK)
                 return;
-            if (!pTarget->HasAura(DruidCat_Sweep, me->GetGUID()) && TryCastSpell(DruidCat_Sweep, pTarget) == SpellCastResult::SPELL_CAST_OK)
+            if (!pTarget->HasAura(DruidCat_Sweep) && TryCastSpell(DruidCat_Sweep, pTarget) == SpellCastResult::SPELL_CAST_OK)
                 return;
             if (DruidCat_Laceration && TryCastSpell(DruidCat_Laceration, pTarget) == SpellCastResult::SPELL_CAST_OK)
                 return;
@@ -436,7 +388,7 @@ void GroupDruidAI::ProcessCatCombat(Unit* pTarget)
     }
 }
 
-void GroupDruidAI::ProcessRangeSpell(Unit* pTarget)
+void FieldDruidAI::ProcessRangeSpell(Unit* pTarget)
 {
     if (m_BotTalentType == 0 || m_BotTalentType == 2)
         ProcessBalanceCombat(pTarget);
@@ -444,86 +396,13 @@ void GroupDruidAI::ProcessRangeSpell(Unit* pTarget)
         ProcessSneak();
 }
 
-bool GroupDruidAI::ProcessFullDispel()
-{
-    if (!m_FullDispel)
-        return false;
-    if (me->IsMounted())
-    {
-        m_FullDispel = 0;
-        return false;
-    }
-    if (ProcessDispel())
-        return true;
-    if (ProcessCruel())
-        return true;
-    if (DruidAssist_DecCruse != 0)
-    {
-        if (!BotUtility::SpellHasReady(me, DruidAssist_DecCruse))
-            return true;
-    }
-    if (DruidAssist_DecCruel != 0)
-    {
-        if (!BotUtility::SpellHasReady(me, DruidAssist_DecCruel))
-            return true;
-    }
-    if (m_FullDispel < getMSTime())
-        m_FullDispel = 0;
-    return false;
-}
-
-bool GroupDruidAI::ProcessDispel()
-{
-    if (DruidAssist_DecCruse == 0 || !BotUtility::SpellHasReady(me, DruidAssist_DecCruse))
-        return false;
-    NearUnitVec friends = SearchFriend(BOTAI_RANGESPELL_DISTANCE);
-    if (friends.empty())
-        return false;
-    if (me->HasAura(DruidStatus_Tree) || me->HasAura(DruidStatus_Bear) || me->HasAura(DruidStatus_Cat) || me->HasAura(DruidStatus_Travel))
-        SwitchStatus(0);
-    //std::random_shuffle(friends.begin(), friends.end());
-    for (Unit* player : friends)
-    {
-        if (TryCastSpell(DruidAssist_DecCruse, player) == SpellCastResult::SPELL_CAST_OK)
-            return true;
-    }
-    return false;
-}
-
-bool GroupDruidAI::ProcessCruel()
-{
-    if (DruidAssist_DecCruel == 0 || !BotUtility::SpellHasReady(me, DruidAssist_DecCruel))
-        return false;
-    NearUnitVec friends = SearchFriend(BOTAI_RANGESPELL_DISTANCE);
-    if (friends.empty())
-        return false;
-    if (me->HasAura(DruidStatus_Tree) || me->HasAura(DruidStatus_Bear) || me->HasAura(DruidStatus_Cat) || me->HasAura(DruidStatus_Travel))
-        SwitchStatus(0);
-    //std::random_shuffle(friends.begin(), friends.end());
-    for (Unit* player : friends)
-    {
-        if (player->HasAura(DruidAssist_DecCruel))
-            continue;
-        //if (HasAuraMechanic(player, Mechanics::MECHANIC_ROOT) ||
-        //	HasAuraMechanic(player, Mechanics::MECHANIC_FREEZE) ||
-        //	HasAuraMechanic(player, Mechanics::MECHANIC_SNARE) ||
-        //	HasAuraMechanic(player, Mechanics::MECHANIC_HORROR) ||
-        //	HasAuraMechanic(player, Mechanics::MECHANIC_STUN))
-        {
-            if (TryCastSpell(DruidAssist_DecCruel, player) == SpellCastResult::SPELL_CAST_OK)
-                return true;
-        }
-    }
-    return false;
-}
-
-void GroupDruidAI::ProcessBalanceCombat(Unit* pTarget)
+void FieldDruidAI::ProcessBalanceCombat(Unit* pTarget)
 {
     if (me->HasUnitState(UNIT_STATE_CASTING))
         return;
 
-    if (m_BotTalentType == 2 && GetManaPowerPer() < 75)
-        return;
+    //if (m_BotTalentType == 2 && GetManaPowerPer() < 75)
+    //	return;
     if (m_BotTalentType == 0 && DruidStatus_Bird && me->IsInCombat() && !me->HasAura(DruidStatus_Bird))
     {
         SwitchStatus(DruidStatus_Bird);
@@ -533,8 +412,11 @@ void GroupDruidAI::ProcessBalanceCombat(Unit* pTarget)
         SwitchStatus(0);
     else if (me->HasAura(DruidStatus_Tree))
         SwitchStatus(0);
-    if (ProcessActive())
-        return;
+    if (DruidAssist_Active && GetManaPowerPer() < 30)
+    {
+        if (TryCastSpell(DruidAssist_Active, me) == SpellCastResult::SPELL_CAST_OK)
+            return;
+    }
     if (!pTarget->HasAura(DruidAssist_PersonSpirit) && TryCastSpell(DruidAssist_PersonSpirit, pTarget) == SpellCastResult::SPELL_CAST_OK)
         return;
 
@@ -545,20 +427,20 @@ void GroupDruidAI::ProcessBalanceCombat(Unit* pTarget)
             return;
     }
     NearUnitVec targetRangeEnemy = RangeEnemyListByTargetRange(pTarget, NEEDFLEE_CHECKRANGE);
-    if (targetRangeEnemy.size() > 3 && m_BotTalentType != 2)
+    if (targetRangeEnemy.size() > 5 && m_BotTalentType != 2)
     {
         if (m_BotTalentType == 0 && DruidGuard_TreeMan && TryCastSpell(DruidGuard_TreeMan, me) == SpellCastResult::SPELL_CAST_OK)
             return;
         if (TryCastSpell(DruidAOE_Hurricane, pTarget) == SpellCastResult::SPELL_CAST_OK)
             return;
     }
-    if (!pTarget->HasAura(DruidCast_Moonfire, me->GetGUID()) && TryCastSpell(DruidCast_Moonfire, pTarget) == SpellCastResult::SPELL_CAST_OK)
+    if (!pTarget->HasAura(DruidCast_Moonfire) && TryCastSpell(DruidCast_Moonfire, pTarget) == SpellCastResult::SPELL_CAST_OK)
         return;
-    if (m_BotTalentType == 0 && !pTarget->HasAura(DruidCast_Insect, me->GetGUID()) && TryCastSpell(DruidCast_Insect, pTarget) == SpellCastResult::SPELL_CAST_OK)
+    if (m_BotTalentType == 0 && !pTarget->HasAura(DruidCast_Insect) && TryCastSpell(DruidCast_Insect, pTarget) == SpellCastResult::SPELL_CAST_OK)
         return;
     for (Unit* player : rangeEnemy)
     {
-        if (player == pTarget)
+        if (player == pTarget || player->GetTarget() != me->GetGUID())//GetTargetGUID
             continue;
         if (TargetHasMechanic(player))
             continue;
@@ -573,7 +455,7 @@ void GroupDruidAI::ProcessBalanceCombat(Unit* pTarget)
                 return;
         }
     }
-    if (pTarget->GetHealthPct() > 65 && urand(0, 99) < 15)
+    if (DruidCast_Spark && pTarget->GetHealthPct() > 65)
     {
         if (TryCastSpell(DruidCast_Spark, pTarget) == SpellCastResult::SPELL_CAST_OK)
             return;
@@ -585,59 +467,28 @@ void GroupDruidAI::ProcessBalanceCombat(Unit* pTarget)
     }
 }
 
-void GroupDruidAI::ProcessCombatRevive()
+void FieldDruidAI::ProcessCombatRevive()
 {
     if (DruidIDLE_CombatReive == 0)
         return;
     if (!me->IsAlive() || me->HasUnitState(UNIT_STATE_CASTING))
         return;
-    Group* pGroup = me->GetGroup();
-    if (!pGroup)
-        return;
+    //Group* pGroup = me->GetGroup();
+    //if (!pGroup)
+    //	return;
     //std::vector<ObjectGuid>& needPlayers = pGroup->GetGroupMemberFromNeedRevivePlayer(me->GetMapId());
-   /* if (needPlayers.empty())
-        return;*/
+    //if (needPlayers.empty())
+    //	return;
     //ObjectGuid& guid = needPlayers[urand(0, needPlayers.size() - 1)];
     //Player* pRevive = ObjectAccessor::FindPlayer(guid);
-    /*if (!pRevive || pRevive->IsAlive())
-        return;*/
-   /* if (!me->IsWithinLOSInMap(pRevive) || me->GetDistance(pRevive->GetPosition()) > 15)
-        return;*/
+    //if (!pRevive || pRevive->IsAlive())
+    //	return;
+    //if (!me->IsWithinLOSInMap(pRevive) || me->GetDistance(pRevive->GetPosition()) > 15)
+    //	return;
     //TryCastSpell(DruidIDLE_CombatReive, pRevive, true);
 }
 
-bool GroupDruidAI::ProcessActive()
-{
-    if (!DruidAssist_Active)
-        return false;
-    if (GetManaPowerPer() < 10 && !me->HasAura(DruidAssist_Active))
-    {
-        if (TryCastSpell(DruidAssist_Active, me) == SpellCastResult::SPELL_CAST_OK)
-            return true;
-    }
-    NearUnitVec friends = SearchFriend();
-    for (Unit* pUnit : friends)
-    {
-        uint8 cls = pUnit->getClass();
-        if (cls == Classes::CLASS_HUNTER || cls == Classes::CLASS_MAGE ||
-            cls == Classes::CLASS_WARLOCK || cls == Classes::CLASS_PALADIN)
-            continue;
-        if (me->HasAura(DruidAssist_Active))
-            continue;
-        uint32 maxMana = pUnit->GetMaxPower(POWER_MANA);
-        if (maxMana == 0)
-            continue;
-        float per = (float)pUnit->GetPower(POWER_MANA) / (float)maxMana;
-        uint32 manaPct = (uint32)(per * 100);
-        if (manaPct > 9 || manaPct <= 1)
-            continue;
-        if (TryCastSpell(DruidAssist_Active, pUnit) == SpellCastResult::SPELL_CAST_OK)
-            return true;
-    }
-    return false;
-}
-
-bool GroupDruidAI::CanMeleeHealthMe()
+bool FieldDruidAI::CanMeleeHealthMe()
 {
     if (GetManaPowerPer() > 15 && me->GetHealthPct() < 60 &&
         !HasAuraMechanic(me, Mechanics::MECHANIC_SILENCE))
@@ -648,7 +499,7 @@ bool GroupDruidAI::CanMeleeHealthMe()
     return false;
 }
 
-bool GroupDruidAI::CanConsumeCombo(Unit* pTarget)
+bool FieldDruidAI::CanConsumeCombo(Unit* pTarget)
 {
     uint8 combo = me->GetComboPoints();
     if (combo == 0)
@@ -663,7 +514,7 @@ bool GroupDruidAI::CanConsumeCombo(Unit* pTarget)
     return false;
 }
 
-bool GroupDruidAI::TargetHasMechanic(Unit* pTarget)
+bool FieldDruidAI::TargetHasMechanic(Unit* pTarget)
 {
     if (/*HasAuraMechanic(pTarget, Mechanics::MECHANIC_KNOCKOUT) ||*/
         HasAuraMechanic(pTarget, Mechanics::MECHANIC_BANISH) ||
@@ -676,57 +527,50 @@ bool GroupDruidAI::TargetHasMechanic(Unit* pTarget)
     return false;
 }
 
-uint32 GroupDruidAI::GetReviveSpell()
+uint32 FieldDruidAI::GetReviveSpell()
 {
     return DruidIDLE_Revive;
 }
 
-bool GroupDruidAI::IsMeleeBotAI()
+bool FieldDruidAI::IsMeleeBotAI()
 {
     if (m_BotTalentType == 1)
         return true;
     return false;
 }
 
-bool GroupDruidAI::IsRangeBotAI()
+bool FieldDruidAI::IsRangeBotAI()
 {
     if (m_BotTalentType != 1)
         return true;
     return false;
 }
 
-bool GroupDruidAI::IsHealerBotAI()
+bool FieldDruidAI::IsHealerBotAI()
 {
     if (m_BotTalentType == 2)
         return true;
     return false;
 }
 
-bool GroupDruidAI::IsAttacker()
+bool FieldDruidAI::IsAttacker()
 {
     return (m_BotTalentType != 2);
 }
 
-bool GroupDruidAI::HasEnergyStore()
+bool FieldDruidAI::HasEnergyStore()
 {
     return GetEnergyPowerPer() >= 60;
 }
 
-void GroupDruidAI::UpEnergy()
+void FieldDruidAI::UpEnergy()
 {
     uint32 max = me->GetMaxPower(Powers::POWER_ENERGY);
     uint32 power = me->GetPower(Powers::POWER_ENERGY);
-    me->SetPower(Powers::POWER_ENERGY, (max / 30) + power);
-
-    if (m_BotTalentType == 2)
-    {
-        max = me->GetMaxPower(Powers::POWER_MANA);
-        power = me->GetPower(Powers::POWER_MANA);
-        me->SetPower(Powers::POWER_MANA, (max / 550) + power);
-    }
+    me->SetPower(Powers::POWER_ENERGY, (max / 20) + power);
 }
 
-void GroupDruidAI::SwitchStatus(uint32 status)
+void FieldDruidAI::SwitchStatus(uint32 status)
 {
     if (status != DruidStatus_Travel && me->HasAura(DruidStatus_Travel))
         me->RemoveOwnedAura(DruidStatus_Travel, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
@@ -751,7 +595,7 @@ void GroupDruidAI::SwitchStatus(uint32 status)
         TryCastSpell(DruidStatus_Tree, me, true);
 }
 
-void GroupDruidAI::OnCastSneak()
+void FieldDruidAI::OnCastSneak()
 {
     NearUnitVec enemys = RangeEnemyListByTargetIsMe(BOTAI_SEARCH_RANGE);
     for (Unit* player : enemys)
@@ -761,7 +605,7 @@ void GroupDruidAI::OnCastSneak()
     }
 }
 
-void GroupDruidAI::OnCastCharge(Unit* pTarget)
+void FieldDruidAI::OnCastCharge(Unit* pTarget)
 {
     if (!pTarget)
         return;

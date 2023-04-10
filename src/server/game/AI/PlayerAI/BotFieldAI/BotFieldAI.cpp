@@ -350,7 +350,7 @@ bool BotFieldAI::HasAuraMechanic(Unit* pTarget, Mechanics mask)
 {
     if (!pTarget)
         return false;
-    return (pTarget->HasAuraWithMechanic(1 << mask));
+    return (pTarget->HasAuraWithMechanic(1i64 << mask));
 }
 
 bool BotFieldAI::IsNotMovement()
@@ -486,7 +486,7 @@ bool BotFieldAI::DoFaceToTarget(Unit* pTarget)
     return false;
 }
 
-SpellCastResult BotFieldAI::TryCastSpell(uint32 spellID, Unit* pTarget, bool force, bool dismount)
+SpellCastResult BotFieldAI::TryCastSpell(uint32 spellID, Unit* pTarget, bool /*force*/, bool dismount)
 {
     if (!spellID || !me->HasSpell(spellID))
     {
@@ -539,7 +539,7 @@ SpellCastResult BotFieldAI::TryCastSpell(uint32 spellID, Unit* pTarget, bool for
     return SpellCastResult::SPELL_CAST_OK;
 }
 
-SpellCastResult BotFieldAI::TryCastPullSpell(uint32 spellID, Unit* pTarget)
+SpellCastResult BotFieldAI::TryCastPullSpell(uint32 spellID, Unit* /*pTarget*/)
 {
     if (!spellID || !me->HasSpell(spellID))
         return SpellCastResult::SPELL_FAILED_SPELL_LEARNED;
@@ -571,7 +571,7 @@ SpellCastResult BotFieldAI::TryCastPullSpell(uint32 spellID, Unit* pTarget)
     return SpellCastResult::SPELL_CAST_OK;
 }
 
-SpellCastResult BotFieldAI::PetTryCastSpell(uint32 spellID, Unit* pTarget, bool force)
+SpellCastResult BotFieldAI::PetTryCastSpell(uint32 spellID, Unit* /*pTarget*/, bool /*force*/)
 {
     Pet* pPet = me->GetPet();
     if (!pPet || !pPet->IsAlive())
@@ -675,7 +675,7 @@ void BotFieldAI::SettingPetAutoCastSpell(uint32 spellID, bool autoCast)
     charmInfo->SetSpellAutocast(spellInfo, autoCast);
 }
 
-bool BotFieldAI::NeedWaitSpecialSpell(uint32 diff)
+bool BotFieldAI::NeedWaitSpecialSpell(uint32 /*diff*/)
 {
     if (IsNotSelect(me))
     {

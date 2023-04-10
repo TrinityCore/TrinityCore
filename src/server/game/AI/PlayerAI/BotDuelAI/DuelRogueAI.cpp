@@ -4,6 +4,7 @@
 #include "Item.h"
 #include "Bag.h"
 #include "Spell.h"
+#include "MovementPackets.h"
 
 void DuelRogueAI::UpdateTalentType()
 {
@@ -287,11 +288,11 @@ void DuelRogueAI::OnCastFlash(Unit* pTarget)
     me->GetMotionMaster()->Clear();
     Position pos = pTarget->GetPosition();
     me->TeleportTo(me->GetMapId(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), me->GetOrientation());
-    //WorldSession* pSession = me->GetSession();
+    WorldSession* pSession = me->GetSession();
     WorldPacket opcode2(CMSG_MOVE_TELEPORT_ACK);
-  /*  WorldPackets::Movement::MoveTeleportAck pakcet(std::move(opcode2));
+    WorldPackets::Movement::MoveTeleportAck pakcet(std::move(opcode2));
     pakcet.MoverGUID = me->GetGUID();
-    pSession->HandleMoveTeleportAck(pakcet);*/
+    pSession->HandleMoveTeleportAck(pakcet);
     m_Movement->SyncPosition(pos, true);
 }
 
