@@ -476,10 +476,7 @@ class spell_warl_sayaad_precast_disorientation : public SpellScript
             pet->CastSpell(pet, PET_SUMMONING_DISORIENTATION, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetOriginalCaster(pet->GetGUID()).SetTriggeringSpell(GetSpell()));
     }
 
-    void Register()
-    {
-
-    }
+    void Register() override { }
 };
 
 // 6358 - Seduction (Special Ability)
