@@ -720,8 +720,8 @@ void DefineFoulwealdMound(Creature* crea, uint64 gobjGUID)
         foulwealdAI->SetMoundGuid(gobjGUID);
 }
 
-void AddSC_ashenvale()
-{
+//void AddSC_ashenvale()
+//{
     //Script* newscript;
 
     //newscript = new Script;
@@ -757,4 +757,4 @@ void AddSC_ashenvale()
     //newscript->Name = "go_foulweald_totem_mound";
     //newscript->GOGetAI = &GetAIgo_foulweald_totem_mound;
     //newscript->RegisterSelf();
-}
+//}
