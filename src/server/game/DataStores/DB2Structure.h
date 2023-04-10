@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -489,6 +489,16 @@ struct BattlePetSpeciesStateEntry
     int32 Value;
     uint32 BattlePetSpeciesID;
 };
+
+struct BattlePetSpeciesXAbilityEntry
+{
+    uint32 ID;
+    uint16 BattlePetAbilityID;
+    uint8 RequiredLevel;
+    int8 SlotEnum;
+    uint32 BattlePetSpeciesID;
+};
+
 
 struct BattlemasterListEntry
 {

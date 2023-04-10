@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1795,6 +1795,7 @@ class TC_GAME_API WorldSession
         void SendPetBattleRequestFailed(uint8 reason);
         void SendPetBattleFinalizeLocation(PetBattleRequest* petBattleRequest);
         void HandleCageBattlePet(WorldPackets::BattlePet::CageBattlePet& cageBattlePet);
+        void SendBattlePetUpdates(BattlePet* pet = nullptr, bool add = false);
 
         // Warden
         void HandleWardenData(WorldPackets::Warden::WardenData& packet);

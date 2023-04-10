@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright 2021 DekkCore
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -218,7 +218,7 @@ class BattlePet
     public:
         virtual ~BattlePet() = default;
 
-        /*void Load(Field* fields);
+        void Load(Field* fields);
         void CloneFrom(std::shared_ptr<BattlePet> & p_BattlePet);
         void Save(CharacterDatabaseTransaction& trans);
 
@@ -226,8 +226,8 @@ class BattlePet
         void AddToPlayer(Player* player, CharacterDatabaseTransaction& trans);
         void Remove(Player* player);
         void UpdateAbilities();
-        void UpdateStats();*/
-        //tmp
+        void UpdateStats();
+        
 
         uint32 AccountID;                              ///< Owner account ID
         ObjectGuid JournalID;                              ///< As companion (db/journal id)

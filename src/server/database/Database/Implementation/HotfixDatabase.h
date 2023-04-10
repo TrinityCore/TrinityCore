@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -166,6 +166,10 @@ enum HotfixDatabaseStatements : uint32
 
     HOTFIX_SEL_BATTLE_PET_SPECIES_STATE,
     HOTFIX_SEL_BATTLE_PET_SPECIES_STATE_MAX_ID,
+
+    HOTFIX_SEL_BATTLE_PET_SPECIES_X_ABILITY,
+    HOTFIX_SEL_BATTLE_PET_SPECIES_X_ABILITY_MAX_ID,
+
 
     HOTFIX_SEL_BATTLEMASTER_LIST,
     HOTFIX_SEL_BATTLEMASTER_LIST_MAX_ID,

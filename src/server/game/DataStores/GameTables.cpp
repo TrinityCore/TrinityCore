@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -113,6 +113,7 @@ void LoadGameTables(std::string const& dataPath)
     LOAD_GT(sArtifactKnowledgeMultiplierGameTable, "ArtifactKnowledgeMultiplier.txt");
     LOAD_GT(sArtifactLevelXPGameTable, "ArtifactLevelXP.txt");
     LOAD_GT(sBarberShopCostBaseGameTable, "BarberShopCostBase.txt");
+    //LOAD_GT(sBattlePetXPTable, "BattlePetXP.txt");
     LOAD_GT(sBaseMPGameTable, "BaseMp.txt");
     LOAD_GT(sBattlePetXPGameTable, "BattlePetXP.txt");
     LOAD_GT(sCombatRatingsGameTable, "CombatRatings.txt");

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -736,6 +736,24 @@ struct BattlemasterListLoadInfo
 
     static constexpr DB2LoadInfo Instance{ Fields, 33, &BattlemasterListMeta::Instance, HOTFIX_SEL_BATTLEMASTER_LIST };
 };
+
+struct BattlePetSpeciesXAbilityLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_SHORT, "BattlePetAbilityID" },
+            { false, FT_BYTE, "RequiredLevel" },
+            { true, FT_BYTE, "SlotEnum" },
+            { false, FT_INT, "BattlePetSpeciesID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, &BattlePetSpeciesXAbilityMeta::Instance, HOTFIX_SEL_BATTLE_PET_SPECIES_X_ABILITY);
+        return &loadInfo;
+    }
+};
+
 
 struct BroadcastTextLoadInfo
 {
