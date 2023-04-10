@@ -459,7 +459,7 @@ void GroupWarriorAI::OnCastCharge(Unit* pTarget)
     me->UpdatePosition(posX, posY, posZ, me->GetOrientation(), true);
     me->GetMotionMaster()->MoveCharge(pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), SPEED_CHARGE);
 
-    WorldSession* pSession = me->GetSession();
+    //WorldSession* pSession = me->GetSession();
    /* WorldPacket opcode(2);
     opcode.appendPackGUID(me->GetGUID().GetRawValue());*/
     /*opcode << uint32(0);
