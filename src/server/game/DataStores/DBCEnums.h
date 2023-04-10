@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -956,21 +956,21 @@ enum Curves
 
 enum Difficulty : uint8
 {
-    DIFFICULTY_NONE                 = 0,
-    DIFFICULTY_NORMAL               = 1,
-    DIFFICULTY_HEROIC               = 2,
-    DIFFICULTY_10_N                 = 3,
-    DIFFICULTY_25_N                 = 4,
-    DIFFICULTY_10_HC                = 5,
-    DIFFICULTY_25_HC                = 6,
-    DIFFICULTY_LFR                  = 7,
-    DIFFICULTY_MYTHIC_KEYSTONE      = 8,
-    DIFFICULTY_40                   = 9,
+    DIFFICULTY_NONE                 = 0,    // 1
+    DIFFICULTY_NORMAL               = 1,    // 2
+    DIFFICULTY_HEROIC               = 2,    // 4
+    DIFFICULTY_10_N                 = 3,    // 8
+    DIFFICULTY_25_N                 = 4,    // 16
+    DIFFICULTY_10_HC                = 5,    // 32
+    DIFFICULTY_25_HC                = 6,    // 64
+    DIFFICULTY_LFR                  = 7,    // 128
+    DIFFICULTY_MYTHIC_KEYSTONE      = 8,    // 256
+    DIFFICULTY_40                   = 9,    // 512
     DIFFICULTY_3_MAN_SCENARIO_HC    = 11,
     DIFFICULTY_3_MAN_SCENARIO_N     = 12,
-    DIFFICULTY_NORMAL_RAID          = 14,
-    DIFFICULTY_HEROIC_RAID          = 15,
-    DIFFICULTY_MYTHIC_RAID          = 16,
+    DIFFICULTY_NORMAL_RAID          = 14,   // 16384
+    DIFFICULTY_HEROIC_RAID          = 15,   // 32768
+    DIFFICULTY_MYTHIC_RAID          = 16,   // 65536
     DIFFICULTY_LFR_NEW              = 17,
     DIFFICULTY_EVENT_RAID           = 18,
     DIFFICULTY_EVENT_DUNGEON        = 19,
@@ -993,7 +993,26 @@ enum Difficulty : uint8
     DIFFICULTY_HEROIC_WARFRONT      = 149,
     DIFFICULTY_LFR_15TH_ANNIVERSARY = 151,
     DIFFICULTY_VISIONS_OF_NZOTH     = 152,
-    DIFFICULTY_TEEMING_ISLAND       = 153
+    DIFFICULTY_TEEMING_ISLAND       = 153,
+     
+    DIFFICULTY_HC_SCENARIO          = 154,   //11                       // 2048
+    DIFFICULTY_N_SCENARIO           = 155,    //12                    // 4096                  
+    //                         
+    //DIFFICULTY_LFR_RAID = 17,                        // 131072
+    //DIFFICULTY_EVENT_RAID = 18,                        // 262144
+    //DIFFICULTY_EVENT_DUNGEON = 19,                        // 524288
+    //DIFFICULTY_EVENT_SCENARIO = 20,                        // 1048576
+    //DIFFICULTY_MYTHIC_DUNGEON = 23,                        // 8388608
+    //DIFFICULTY_TIMEWALKING = 24,                        // 16777216
+    //DIFFICULTY_WORLD_PVP_SCENARIO = 25,                        // 33554432 - Ashran           
+    //DIFFICULTY_PVEVP_SCENARIO = 29,                        // 536870912
+    //DIFFICULTY_EVENT_SCENARIO_6 = 30,
+    //DIFFICULTY_WORLD_PVP_SCENARIO_2 = 32,
+    //DIFFICULTY_TIMEWALKING_RAID = 33,
+    //DIFFICULTY_PVP = 34,
+    //up is to be used
+
+    MAX_DIFFICULTY
 };
 
 enum DifficultyFlags
@@ -1908,6 +1927,34 @@ enum ScenarioStepFlags
     SCENARIO_STEP_FLAG_BONUS_OBJECTIVE      = 0x1,
     SCENARIO_STEP_FLAG_HEROIC_ONLY          = 0x2
 };
+
+enum SpawnMask
+{
+    SPAWNMASK_CONTINENT = (1 << DIFFICULTY_NONE),   // any maps without spawn modes
+
+    SPAWNMASK_DUNGEON_NORMAL = (1 << DIFFICULTY_NORMAL),
+    SPAWNMASK_DUNGEON_HEROIC = (1 << DIFFICULTY_HEROIC),
+    SPAWNMASK_DUNGEON_CHALLENGE = (1 << DIFFICULTY_MYTHIC_KEYSTONE),
+    SPAWNMASK_DUNGEON_ALL = (SPAWNMASK_DUNGEON_NORMAL | SPAWNMASK_DUNGEON_HEROIC | SPAWNMASK_DUNGEON_CHALLENGE),
+
+    SPAWNMASK_SCENARIO_NORMAL = (1 << DIFFICULTY_N_SCENARIO),
+    SPAWNMASK_SCENARIO_HEROIC = (1 << DIFFICULTY_HC_SCENARIO),
+    SPAWNMASK_SCENARIO_ALL = (SPAWNMASK_SCENARIO_NORMAL | SPAWNMASK_SCENARIO_HEROIC),
+
+    SPAWNMASK_RAID_10MAN_NORMAL = (1 << DIFFICULTY_10_N),
+    SPAWNMASK_RAID_25MAN_NORMAL = (1 << DIFFICULTY_25_N),
+    SPAWNMASK_RAID_40MAN_NORMAL = (1 << DIFFICULTY_40),
+    SPAWNMASK_RAID_NORMAL_ALL = (SPAWNMASK_RAID_10MAN_NORMAL | SPAWNMASK_RAID_25MAN_NORMAL | SPAWNMASK_RAID_40MAN_NORMAL),
+
+    SPAWNMASK_RAID_10MAN_HEROIC = (1 << DIFFICULTY_10_HC),
+    SPAWNMASK_RAID_25MAN_HEROIC = (1 << DIFFICULTY_25_HC),
+    SPAWNMASK_RAID_HEROIC_ALL = (SPAWNMASK_RAID_10MAN_HEROIC | SPAWNMASK_RAID_25MAN_HEROIC),
+
+    SPAWNMASK_RAID_RAID_TOOL = (1 << DIFFICULTY_LFR),
+
+    SPAWNMASK_RAID_ALL = (SPAWNMASK_RAID_NORMAL_ALL | SPAWNMASK_RAID_HEROIC_ALL | SPAWNMASK_RAID_RAID_TOOL)
+};
+
 
 enum class SkillLineFlags : uint16
 {

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -38,6 +38,17 @@ namespace WorldPackets
         class ScenarioState;
     }
 }
+
+//enum ScenarioType
+//{
+//    SCENARIO_TYPE_DEFAULT = 0,
+//    SCENARIO_TYPE_CHALLENGE_MODE = 1,
+//    SCENARIO_TYPE_PROVING_GROUNDS = 2,
+//    SCENARIO_TYPE_USE_DUNGEON_DISPLAY = 3,
+//    SCENARIO_TYPE_LEGION_INVASION = 4,
+//    SCENARIO_TYPE_BOOST_TUTORIAL = 5,
+//};
+//duplicate
 
 enum ScenarioStepState
 {
