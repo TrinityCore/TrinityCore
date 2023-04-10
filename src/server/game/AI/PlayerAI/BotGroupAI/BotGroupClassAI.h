@@ -1,4 +1,4 @@
-
+﻿
 #ifndef _BOT_GROUP_CLASS_AI_H_
 #define _BOT_GROUP_CLASS_AI_H_
 
@@ -263,6 +263,7 @@ public:
 	uint32 GetSeducePriority() override;
 	void OnLevelUp(uint32 talentType) override;
 	bool TryBlockCastingByTarget(Unit* pTarget) override;
+    bool CheckManaModel();
     bool IsMeleeBotAI() override;
     bool IsRangeBotAI() override;
     bool IsHealerBotAI() override;
@@ -276,6 +277,8 @@ protected:
 	bool ProcessNormalSpell() override;
 	void ProcessMeleeSpell(Unit* pTarget) override;
 	void ProcessRangeSpell(Unit* pTarget) override;
+
+    bool ProcessAura(bool isFlee);
 
 	bool CastRangeSpell(Unit* pTarget);
 	bool CastMeleeSpell(Unit* pTarget);

@@ -1941,7 +1941,25 @@ class TC_GAME_API Unit : public WorldObject
         TempSummon const* ToTempSummon() const { if (IsSummon()) return reinterpret_cast<TempSummon const*>(this); else return nullptr; }
 
         ObjectGuid GetTarget() const { return m_unitData->Target; }
+        /*void SetTarget(ObjectGuid const& guid)
+        {
+            if (!_focusSpell)
+                SetGuidValue(UNIT_FIELD_TARGET, guid);
+            if (guid)
+                m_lastTargetGUID = guid;
+        }*/
+
         virtual void SetTarget(ObjectGuid const& /*guid*/) = 0;
+
+       /* void SetTargetGUID(ObjectGuid const& guid)
+        {
+            m_curTargetGUID = guid;
+        }*/
+
+       /* ObjectGuid GetTargetGUID()
+        {
+            return m_curTargetGUID;
+        }*/
 
         void SetInstantCast(bool set) { _instantCast = set; }
         bool CanInstantCast() const { return _instantCast; }
