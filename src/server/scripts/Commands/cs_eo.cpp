@@ -58,20 +58,20 @@ public:
         if (!eoID)
             return false;
 
-        char* radiusStr = strtok(NULL, " ");
+        //char* radiusStr = strtok(NULL, " ");
         //char* spellStr = strtok(NULL, " ");
-        char* worldsafeStr = strtok(NULL, " ");
+        //char* worldsafeStr = strtok(NULL, " ");
 
-        uint32 id  = atoi(eoID);
+        //uint32 id  = atoi(eoID);
         //float radius  = radiusStr ? atof(radiusStr) : 1.0f;
         //uint32 spell  = spellStr ? atoi(spellStr) : 0;
-        uint32 worldsafe  = worldsafeStr ? atoi(worldsafeStr) : 0;
+        //uint32 worldsafe  = worldsafeStr ? atoi(worldsafeStr) : 0;
 
         Player* chr = handler->GetSession()->GetPlayer();
-        float x = chr->GetPositionX();
+        //float x = chr->GetPositionX();
         //float y = chr->GetPositionY();
         //float z = chr->GetPositionZ();
-        float o = chr->GetOrientation();
+        //float o = chr->GetOrientation();
         //Map* map = chr->GetMap();
 
         if (chr->GetTransport())
@@ -105,7 +105,7 @@ public:
 
     static bool HandleEODeleteCommand(ChatHandler* handler, const char* args)
     {
-        Creature* unit = NULL;
+        //Creature* unit = NULL;
 
         if (*args)
         {
@@ -136,7 +136,7 @@ public:
         float distance = (!*args) ? 10.0f : (float)(atof(args));
         uint32 count = 0;
 
-        Player* player = handler->GetSession()->GetPlayer();
+        //Player* player = handler->GetSession()->GetPlayer();
 
         //PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_EVENTOBJECT_NEAREST);
         /*stmt->setFloat(0, player->GetPositionX());

@@ -70,7 +70,7 @@ namespace
 namespace Trinity
 {
 
-void Assert(char const* file, int line, char const* function, std::string debugInfo, char const* message)
+void Assert(char const* /*file*/, int /*line*/, char const* /*function*/, std::string debugInfo, char const* /*message*/)
 {
     //std::string formattedMessage = StringFormat("\n{}:{} in {} ASSERTION FAILED:\n  {}\n", file, line, function, message) + debugInfo + '\n';
     //fprintf(stderr, "%s", formattedMessage.c_str());
@@ -80,7 +80,7 @@ void Assert(char const* file, int line, char const* function, std::string debugI
     //尝试去掉刷屏的提示,本段全是我后注释掉的
 }
 
-void Assert(char const* file, int line, char const* function, std::string debugInfo, char const* message, char const* format, ...)
+void Assert(char const* /*file*/, int /*line*/, char const* /*function*/, std::string debugInfo, char const* message, char const* format, ...)
 {
     //va_list args;
     //va_start(args, format);

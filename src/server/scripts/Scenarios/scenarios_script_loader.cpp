@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright 2021 ShadowCore
  * Copyright 2023 AzgathCore
  *
@@ -27,9 +27,9 @@ void AddSC_scenario_pursuing_the_black_harvest();
 void AddScenariosScripts()
 {
     AddSC_instance_a_brewing_storm();//风暴烈酒场景战役?
-    //AddSC_stormwind_extraction();
-    //AddSC_scenario_stormwind_extraction();
-    //AddSC_uncharted_island_tutorial();
+    /*AddSC_stormwind_extraction();
+    AddSC_scenario_stormwind_extraction();
+    AddSC_uncharted_island_tutorial();*/
     AddSC_scenario_uncharted_island_tutorial();
 	AddSC_scenario_whispering_reef_island();
 	AddSC_scenario_pursuing_the_black_harvest();
