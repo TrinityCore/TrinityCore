@@ -1282,7 +1282,6 @@ class TC_GAME_API WorldSession
 
         void HandleSetFactionAtWar(WorldPackets::Character::SetFactionAtWar& packet);
         void HandleSetFactionNotAtWar(WorldPackets::Character::SetFactionNotAtWar& packet);
-        void HandleSetFactionCheat(WorldPacket& recvData);
         void HandleSetWatchedFactionOpcode(WorldPackets::Character::SetWatchedFaction& packet);
         void HandleSetFactionInactiveOpcode(WorldPackets::Character::SetFactionInactive& packet);
         void HandleRequestForcedReactionsOpcode(WorldPackets::Reputation::RequestForcedReactions& requestForcedReactions);
