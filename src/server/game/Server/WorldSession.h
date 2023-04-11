@@ -1168,6 +1168,59 @@ class TC_GAME_API WorldSession
 
         // Battle Pets
         BattlePets::BattlePetMgr* GetBattlePetMgr() const { return _battlePetMgr.get(); }
+        void SendPetBattleChatRestricted();
+        void SendPetBattleQueueProposeMatch();
+        void SendPetBattleQueueStatus(uint32 p_TicketTime, uint32 p_TicketID, uint32 p_Status, uint32 p_AvgWaitTime);
+        
+        void HandlePetBattleFinalNotify(WorldPackets::BattlePet::NullCmsg& packet);
+        void HandlePetBattleQuitNotify(WorldPackets::BattlePet::NullCmsg& packet);
+       
+        void HandleBattlePetJournalLock(WorldPackets::BattlePet::NullCmsg& packet);
+        void HandleJoinPetBattleQueue(WorldPackets::BattlePet::NullCmsg& packet);
+        void HandlePetBattleScriptErrorNotify(WorldPackets::BattlePet::NullCmsg& packet);
+        
+        void SendBattlePetUpdates(BattlePet* pet = nullptr, bool add = false);
+        void SendBattlePetTrapLevel();
+        void SendBattlePetJournalLockAcquired();
+        void SendBattlePetJournalLockDenied();
+        void SendBattlePetJournal();
+        void SendBattlePetDeleted(ObjectGuid battlePetGUID);
+        void SendBattlePetRevoked(ObjectGuid battlePetGUID);
+        void SendBattlePetRestored(ObjectGuid battlePetGUID);
+        void SendBattlePetsHealed();
+        void SendBattlePetLicenseChanged();
+        void SendBattlePetError(BattlePetError result, uint32 creatureID);
+        void SendBattlePetCageDateError(uint32 secondsUntilCanCage);
+
+        void SendPetBattleSlotUpdates(bool newSlotUnlocked = false);
+        void SendPetBattleRequestFailed(uint8 p_Reason);
+        void SendPetBattlePvPChallenge(PetBattleRequest* petBattleRequest);
+        void SendPetBattleFinalizeLocation(PetBattleRequest* petBattleRequest);
+        void SendPetBattleInitialUpdate(PetBattle* petBattle);
+        void SendPetBattleFirstRound(PetBattle* petBattle);
+        void SendPetBattleRoundResult(PetBattle* petBattle);
+        void SendPetBattleReplacementMade(PetBattle* petBattle);
+        void SendPetBattleFinalRound(PetBattle* petBattle);
+        void SendPetBattleFinished();
+
+        //void HandleBattlePetDeletePetCheat(WorldPackets::BattlePet::BattlePetGuidRead& packet);
+        //void HandlePetBattleRequestPVP(WorldPackets::BattlePet::RequestPVP& packet);
+        //void HandleReplaceFrontPet(WorldPackets::BattlePet::ReplaceFrontPet& packet);
+        //void HanldeQueueProposeMatchResult(WorldPackets::BattlePet::QueueProposeMatchResult& packet);
+        //void HandleBattlePetLeaveQueue(WorldPackets::BattlePet::LeaveQueue& packet);
+        //void HandleBattlePetSetFlags(WorldPackets::BattlePet::SetFlags& packet);
+        //void HandleBattlePetModifyName(WorldPackets::BattlePet::ModifyName& packet);
+        //void HandleBattlePetNameQuery(WorldPackets::BattlePet::Query& packet);
+        //void HandleCageBattlePet(WorldPackets::BattlePet::BattlePetGuidRead& packet);
+        //void HandleBattlePetSetSlot(WorldPackets::BattlePet::SetBattleSlot& packet);
+        //void HandleBattlePetSummon(WorldPackets::BattlePet::BattlePetGuidRead& packet);
+        //void HandleBattlePetUpdateNotify(WorldPackets::BattlePet::BattlePetGuidRead& packet);
+        //void HandlePetBattleRequestWild(WorldPackets::BattlePet::RequestWild& packet);
+        //void HandlePetBattleRequestUpdate(WorldPackets::BattlePet::RequestUpdate& packet);
+        //void HandlePetBattleInput(WorldPackets::BattlePet::PetBattleInput& packet);
+         //void HandleBattlePetDelete(WorldPackets::BattlePet::BattlePetGuidRead& packet);
+        //void HandleBattlePetRequestJournal(WorldPackets::BattlePet::NullCmsg& packet);
+
 
         CollectionMgr* GetCollectionMgr() const { return _collectionMgr.get(); }
 
@@ -1792,10 +1845,10 @@ class TC_GAME_API WorldSession
         void HandleBattlePetClearFanfare(WorldPackets::BattlePet::BattlePetClearFanfare& battlePetClearFanfare);
         void HandleBattlePetSummon(WorldPackets::BattlePet::BattlePetSummon& battlePetSummon);
         void HandleBattlePetUpdateNotify(WorldPackets::BattlePet::BattlePetUpdateNotify& battlePetUpdateNotify);
-        void SendPetBattleRequestFailed(uint8 reason);
-        void SendPetBattleFinalizeLocation(PetBattleRequest* petBattleRequest);
+        //void SendPetBattleRequestFailed(uint8 reason);
+        //void SendPetBattleFinalizeLocation(PetBattleRequest* petBattleRequest);
         void HandleCageBattlePet(WorldPackets::BattlePet::CageBattlePet& cageBattlePet);
-        void SendBattlePetUpdates(BattlePet* pet = nullptr, bool add = false);
+        //void SendBattlePetUpdates(BattlePet* pet = nullptr, bool add = false);
 
         // Warden
         void HandleWardenData(WorldPackets::Warden::WardenData& packet);

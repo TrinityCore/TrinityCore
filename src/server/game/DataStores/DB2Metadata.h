@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1206,8 +1206,63 @@ struct BattlePetSpeciesXCovenantMeta
     static constexpr DB2Meta Instance{ 3669304, -1, 2, 1, 0xD9C25504, Fields, 1 };
 };
 
+struct BattlePetStateMeta2
+{
+    static DB2Meta const* Instance()
+    {
+        static DB2MetaField const fields[3] =
+        {
+            { FT_STRING_NOT_LOCALIZED, 1, true },
+            { FT_SHORT, 1, false },
+            { FT_SHORT, 1, false },
+        };
+        static DB2Meta instance(801583, -1, 3, 3, 0xEED9BB1F, fields, -1);
+        return &instance;
+    }
+};
+
+struct BattlePetAbilityMeta2
+{
+    static DB2Meta const* Instance()
+    {
+        static DB2MetaField const fields[7] =
+        {
+            { FT_STRING, 1, true },
+            { FT_STRING, 1, true },
+            { FT_INT, 1, true },
+            { FT_BYTE, 1, true },
+            { FT_INT, 1, false },
+            { FT_SHORT, 1, false },
+            { FT_BYTE, 1, false },
+        };
+        static DB2Meta instance(841610, -1, 7, 7, 0x1A4DC74F, fields, -1);
+        return &instance;
+    }
+};
+
+
+struct BattlePetAbilityTurnMeta2
+{
+    static DB2Meta const* Instance()
+    {
+        static DB2MetaField const fields[6] =
+        {
+            { FT_INT, 1, false },
+            { FT_SHORT, 1, false },
+            { FT_BYTE, 1, false },
+            { FT_BYTE, 1, false },
+            { FT_BYTE, 1, true },
+            { FT_SHORT, 1, false },
+        };
+        static DB2Meta instance(801577, 0, 6, 6, 0xB7645CF1, fields, 1);
+        return &instance;
+    }
+};
+
+
 struct BattlePetStateMeta
 {
+   
     static constexpr DB2MetaField Fields[3] =
     {
         { FT_STRING_NOT_LOCALIZED, 1, true },

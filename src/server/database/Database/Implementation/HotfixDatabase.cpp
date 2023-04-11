@@ -244,6 +244,35 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_LOCALE_STMT(HOTFIX_SEL_BARBER_SHOP_STYLE, "SELECT ID, DisplayName_lang, Description_lang FROM barber_shop_style_locale"
         " WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
 
+    // BattlePetState.db2
+    PrepareStatement(HOTFIX_SEL_BATTLE_PET_STATE, "SELECT ID, LuaName, Flags, BattlePetVisualID FROM battle_pet_state WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_BATTLE_PET_STATE, "SELECT MAX(ID) + 1 FROM battle_pet_state", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_BATTLE_PET_STATE, "SELECT ID, LuaName_lang FROM battle_pet_state_locale WHERE (`VerifiedBuild` > 0) = ?"
+        " AND locale = ?", CONNECTION_SYNCH);
+
+    // BattlePetAbility.db2
+    PrepareStatement(HOTFIX_SEL_BATTLE_PET_ABILITY, "SELECT ID, Name, Description, IconFileDataID, PetTypeEnum, Cooldown, BattlePetVisualID, Flags"
+        " FROM battle_pet_ability WHERE (`VerifiedBuild` > 0) = ? ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_BATTLE_PET_ABILITY, "SELECT MAX(ID) + 1 FROM battle_pet_ability", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_BATTLE_PET_ABILITY, "SELECT ID, Name_lang, Description_lang FROM battle_pet_ability_locale WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
+
+    // BattlePetAbilityEffect.db2
+    PrepareStatement(HOTFIX_SEL_BATTLE_PET_ABILITY_EFFECT, "SELECT ID, BattlePetAbilityTurnID, OrderIndex, BattlePetEffectPropertiesID, "
+        "AuraBattlePetAbilityID, BattlePetVisualID, Param1, Param2, Param3, Param4, Param5, Param6 FROM battle_pet_ability_effect WHERE (`VerifiedBuild` > 0) = ? ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_BATTLE_PET_ABILITY_EFFECT, "SELECT MAX(ID) + 1 FROM battle_pet_ability_effect", CONNECTION_SYNCH);
+
+    // BattlePetAbilityState.db2
+    PrepareStatement(HOTFIX_SEL_BATTLE_PET_ABILITY_STATE, "SELECT ID, BattlePetStateID, Value, BattlePetAbilityID FROM battle_pet_ability_state"
+        " WHERE (`VerifiedBuild` > 0) = ? ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_BATTLE_PET_ABILITY_STATE, "SELECT MAX(ID) + 1 FROM battle_pet_ability_state", CONNECTION_SYNCH);
+
+
+    // BattlePetAbilityTurn.db2
+    PrepareStatement(HOTFIX_SEL_BATTLE_PET_ABILITY_TURN, "SELECT ID, BattlePetAbilityID, OrderIndex, TurnTypeEnum, EventTypeEnum, BattlePetVisualID"
+        " FROM battle_pet_ability_turn WHERE (`VerifiedBuild` > 0) = ? ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_BATTLE_PET_ABILITY_TURN, "SELECT MAX(ID) + 1 FROM battle_pet_ability_turn", CONNECTION_SYNCH);
+
+
     // BattlePetBreedQuality.db2
     PrepareStatement(HOTFIX_SEL_BATTLE_PET_BREED_QUALITY, "SELECT ID, MaxQualityRoll, StateMultiplier, QualityEnum FROM battle_pet_breed_quality"
         " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);

@@ -930,6 +930,7 @@ enum PlayerDelayedOperations
     DELAYED_BG_MOUNT_RESTORE    = 0x08,                     ///< Flag to restore mount state after teleport from BG
     DELAYED_BG_TAXI_RESTORE     = 0x10,                     ///< Flag to restore taxi state after teleport from BG
     DELAYED_BG_GROUP_RESTORE    = 0x20,                     ///< Flag to restore group state after teleport from BG
+    DELAYED_PET_BATTLE_INITIAL = 0x080,
     DELAYED_END
 };
 
@@ -1172,7 +1173,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void SetObjectScale(float scale) override;
         bool IsSettingFinish(); //tmp
-
+        void ScheduleDelayedOperation(uint32 operation) { if (operation < DELAYED_END) m_DelayedOperations |= operation; }
 
 
         bool ResetPlayerToLevel(uint32 level, uint32 talent = 3);
@@ -2775,7 +2776,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetPersonnalXpRate(float PersonnalXpRate);
         std::shared_ptr<BattlePet>* GetBattlePetCombatTeam();
         bool HasBattlePetTraining();
-        //���
+        uint32 GetBattlePetCombatSize();
+        void UpdateBattlePetCombatTeam();
+
         std::shared_ptr<BattlePet> _battlePetCombatTeam[3];
         // Reagent Bank
         bool IsReagentBankUnlocked() const { return HasPlayerFlagEx(PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED); }
@@ -3253,7 +3256,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool AddBattlePetWithSpeciesId(BattlePetSpeciesEntry const* entry, uint16 flags = 0, bool sendUpdate = true, bool sendDiliveryUpdate = false);
 
 
-        void ScheduleDelayedOperation(uint32 operation) { if (operation < DELAYED_END) m_DelayedOperations |= operation; }
+       
 
         bool IsInstanceLoginGameMasterException() const;
 

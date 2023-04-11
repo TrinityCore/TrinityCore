@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -75,6 +75,8 @@ namespace ObjectAccessor
     TC_GAME_API Pet* GetPet(WorldObject const&, ObjectGuid const& guid);
     TC_GAME_API Player* GetPlayer(Map const*, ObjectGuid const& guid);
     TC_GAME_API Player* GetPlayer(WorldObject const&, ObjectGuid const& guid);
+    TC_GAME_API Player* GetObjectInWorld(ObjectGuid guid, Player* /*typeSpecifier*/);
+
     TC_GAME_API Creature* GetCreatureOrPetOrVehicle(WorldObject const&, ObjectGuid const&);
 
     // these functions return objects if found in whole world
