@@ -116,11 +116,10 @@ void LoadGameTables(std::string const& dataPath)
     LOAD_GT(sArtifactKnowledgeMultiplierGameTable, "ArtifactKnowledgeMultiplier.txt");//I
     LOAD_GT(sArtifactLevelXPGameTable, "ArtifactLevelXP.txt");//I
     LOAD_GT(sBarberShopCostBaseGameTable, "BarberShopCostBase.txt");//I
-    
     LOAD_GT(sBaseMPGameTable, "BaseMp.txt");//I
     LOAD_GT(sBattlePetXPGameTable, "BattlePetXP.txt");//I
-   
     LOAD_GT(sCombatRatingsGameTable, "CombatRatings.txt");//I
+
     LOAD_GT(sCombatRatingsMultByILvlGameTable, "CombatRatingsMultByILvl.txt");
     LOAD_GT(sItemSocketCostPerLevelGameTable, "ItemSocketCostPerLevel.txt");
     LOAD_GT(sHpPerStaGameTable, "HpPerSta.txt");
@@ -135,7 +134,7 @@ void LoadGameTables(std::string const& dataPath)
     if (gameTableCount != expectedGameTableCount)
     {
         std::ostringstream str;
-        for (std::string const& err  : bad_gt_files)
+        for (std::string const& err : bad_gt_files)
             str << err << std::endl;
 
         WPFatal(false, "Some required *.txt GameTable files (" SZFMTD ") not found or not compatible:\n%s", bad_gt_files.size(), str.str().c_str());
@@ -149,26 +148,26 @@ float GetIlvlStatMultiplier(T const* row, InventoryType invType)
 {
     switch (invType)
     {
-        case INVTYPE_NECK:
-        case INVTYPE_FINGER:
-            return row->JewelryMultiplier;
-            break;
-        case INVTYPE_TRINKET:
-            return row->TrinketMultiplier;
-            break;
-        case INVTYPE_WEAPON:
-        case INVTYPE_SHIELD:
-        case INVTYPE_RANGED:
-        case INVTYPE_2HWEAPON:
-        case INVTYPE_WEAPONMAINHAND:
-        case INVTYPE_WEAPONOFFHAND:
-        case INVTYPE_HOLDABLE:
-        case INVTYPE_RANGEDRIGHT:
-            return row->WeaponMultiplier;
-            break;
-        default:
-            return row->ArmorMultiplier;
-            break;
+    case INVTYPE_NECK:
+    case INVTYPE_FINGER:
+        return row->JewelryMultiplier;
+        break;
+    case INVTYPE_TRINKET:
+        return row->TrinketMultiplier;
+        break;
+    case INVTYPE_WEAPON:
+    case INVTYPE_SHIELD:
+    case INVTYPE_RANGED:
+    case INVTYPE_2HWEAPON:
+    case INVTYPE_WEAPONMAINHAND:
+    case INVTYPE_WEAPONOFFHAND:
+    case INVTYPE_HOLDABLE:
+    case INVTYPE_RANGEDRIGHT:
+        return row->WeaponMultiplier;
+        break;
+    default:
+        return row->ArmorMultiplier;
+        break;
     }
 }
 
