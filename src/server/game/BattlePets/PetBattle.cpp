@@ -377,7 +377,7 @@ void PetBattleTeam::DoCasts(uint32 turn0ProcCond)
             PetBattleInstance->Cast(ActivePetID, ActiveAbilityId, 0, turn0ProcCond, PET_BATTLE_CAST_TRIGGER_ALL);
 
         for (auto& aura : PetBattleInstance->PetAuras)
-            if (!aura->Expired && aura->CasterPetID == ActivePetID)
+            if (!aura->Expired && aura->CasterPetID == uint32(ActivePetID))
                 PetBattleInstance->Cast(aura->CasterPetID, aura->AbilityID, 0, PET_BATTLE_ABILITY_TURN_PROC_ON_ABILITY, PET_BATTLE_CAST_TRIGGER_ALL);
     }
 }
@@ -748,7 +748,7 @@ void PetBattle::ProceedRound()
             aura->Process(this);
 
     for (auto& aura : PetAuras)
-        if (!aura->Expired && Pets[aura->CasterPetID]->TeamID == !firstTeam)
+        if (!aura->Expired && Pets[aura->CasterPetID]->TeamID == uint32(!firstTeam))
             aura->Process(this);
 
     PetBattleEvent eventAuraProcessingEnd(PETBATTLE_EVENT_AURA_PROCESSING_END);
@@ -1227,9 +1227,8 @@ PetBattleCastResult PetBattle::Cast(uint32 casterPetID, uint32 abilityID, uint32
             if (abilitySlot != -1)
                 Pets[casterPetID]->Cooldowns[abilitySlot] = abilityInfo->Cooldown;
         }
-
-        return PET_BATTLE_CAST_OK;
     }
+        return PET_BATTLE_CAST_OK;
 }
 
 bool PetBattle::AddAura(uint32 casterPetID, uint32 targetPetID, uint32 abilityID, int32 duration, int32 maxAllowed, uint32 fromAbilityEffectID, uint32 flags)
@@ -1333,7 +1332,7 @@ void PetBattle::Kill(int8 killer, int8 target, uint32 killerAbibilityEffectID, b
     }
 
     for (auto& aura : PetAuras)
-        if (aura->TargetPetID == target)
+        if (aura->TargetPetID == uint32(target))
             aura->Expire(this);
 
     // TC_LOG_DEBUG(LOG_FILTER_BATTLEPET, "PetBattle::Kill BATTLEPET_STATE_Special_ConsumedCorpse");
