@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -6751,6 +6751,7 @@ enum class CurrencyGainFlags : uint32
 };
 
 DEFINE_ENUM_FLAG(CurrencyGainFlags);
+#define CURRENCY_PRECISION 100  //From:alexkulya/pandaria_5.4.8(github)
 
 enum PartyResult
 {
