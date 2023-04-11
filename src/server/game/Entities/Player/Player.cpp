@@ -16526,7 +16526,7 @@ void Player::UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int3
         Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
 
         if (!QuestObjective::CanAlwaysBeProgressedInRaid(objectiveType))
-            if (GetGroup() && GetGroup()->isRaidGroup() && quest->IsAllowedInRaid(GetMap()->GetDifficultyID()))
+            if (GetGroup() && GetGroup()->isRaidGroup() && !quest->IsAllowedInRaid(GetMap()->GetDifficultyID()))
                 continue;
 
         uint16 logSlot = objectiveItr.second.QuestStatusItr->second.Slot;
