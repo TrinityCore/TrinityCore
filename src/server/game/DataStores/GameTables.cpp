@@ -110,13 +110,16 @@ void LoadGameTables(std::string const& dataPath)
 
 #define LOAD_GT(store, file) gameTableCount += LoadGameTable(bad_gt_files, store, gtPath / file); ++expectedGameTableCount;
 
+    //LOAD_GT(sBattlePetTypeDamageModTable, "BattlePetTypeDamageMod.txt");
+     //LOAD_GT(sBattlePetXPTable, "BattlePetXP.txt");
+
     LOAD_GT(sArtifactKnowledgeMultiplierGameTable, "ArtifactKnowledgeMultiplier.txt");//I
     LOAD_GT(sArtifactLevelXPGameTable, "ArtifactLevelXP.txt");//I
     LOAD_GT(sBarberShopCostBaseGameTable, "BarberShopCostBase.txt");//I
-    //LOAD_GT(sBattlePetTypeDamageModTable, "BattlePetTypeDamageMod.txt");
+    
     LOAD_GT(sBaseMPGameTable, "BaseMp.txt");//I
     LOAD_GT(sBattlePetXPGameTable, "BattlePetXP.txt");//I
-    //LOAD_GT(sBattlePetXPTable, "BattlePetXP.txt");
+   
     LOAD_GT(sCombatRatingsGameTable, "CombatRatings.txt");//I
     LOAD_GT(sCombatRatingsMultByILvlGameTable, "CombatRatingsMultByILvl.txt");
     LOAD_GT(sItemSocketCostPerLevelGameTable, "ItemSocketCostPerLevel.txt");
