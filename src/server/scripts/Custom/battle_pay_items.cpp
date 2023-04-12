@@ -95,7 +95,7 @@ public:
         }
         else if (player->HasItemCount(item->GetEntry(), 1, true))
         {
-            player->ModifyCurrency(392, 1000 * CURRENCY_PRECISION);
+            player->ModifyCurrency(392, 1000 * 100);//CURRENCY_PRECISION
             ChatHandler(player->GetSession()).SendSysMessage(GetText(player, "Спасибо за помощь проекту Pandaria 5.4.8, вы только что получили 1000 очков чести.", "Thanks for helping the Pandaria 5.4.8 project, you just received 1000 honor points."));
             player->DestroyItemCount(item->GetEntry(), 1, true);
             player->SaveToDB();
@@ -122,7 +122,7 @@ public:
         else if (player->HasItemCount(item->GetEntry(), 1, true))
         {
             //player->ModifyCurrency(CURRENCY_TYPE_JUSTICE_POINTS, 1000 * CURRENCY_PRECISION, true, true, true);//org
-            player->ModifyCurrency(395, 1000 * CURRENCY_PRECISION);//CURRENCY_TYPE_JUSTICE_POINTS-->395
+            player->ModifyCurrency(395, 1000 * 100);//CURRENCY_TYPE_JUSTICE_POINTS-->395,CURRENCY_PRECISION->100
             ChatHandler(player->GetSession()).SendSysMessage(GetText(player, "Спасибо за помощь проекту Pandaria 5.4.8, вы только что получили 1000 очков справедливости.", "Thanks for helping the Pandaria 5.4.8 project, you just received 1000 justice points."));
             player->DestroyItemCount(item->GetEntry(), 1, true);
             player->SaveToDB();
@@ -148,7 +148,7 @@ public:
         }
         else if (player->HasItemCount(item->GetEntry(), 1, true))
         {
-            player->ModifyCurrency(396, 1000 * CURRENCY_PRECISION);// CURRENCY_TYPE_VALOR_POINTS = 396
+            player->ModifyCurrency(396, 1000 * 100);// CURRENCY_TYPE_VALOR_POINTS = 396,CURRENCY_PRECISION=100
             //player->ModifyCurrency(CURRENCY_TYPE_VALOR_POINTS, 1000 * CURRENCY_PRECISION, true, true, true);//org
             ChatHandler(player->GetSession()).SendSysMessage(GetText(player, "Спасибо за помощь проекту Pandaria 5.4.8, вы только что получили 1000 очков доблести.", "Thanks for helping the Pandaria 5.4.8 project, you just received 1000 valor points."));
             player->DestroyItemCount(item->GetEntry(), 1, true);
@@ -175,7 +175,7 @@ public:
         }
         else if (player->HasItemCount(item->GetEntry(), 1, true))
         {
-            player->ModifyCurrency(390, 1000 * CURRENCY_PRECISION);
+            player->ModifyCurrency(390, 1000 * 100);//CURRENCY_PRECISION=100
             ChatHandler(player->GetSession()).SendSysMessage(GetText(player, "Спасибо за помощь проекту Pandaria 5.4.8, вы только что получили 1000 очков завоевания.", "Thanks for helping the Pandaria 5.4.8 project, you just received 1000 conquest points."));
             player->DestroyItemCount(item->GetEntry(), 1, true);
             player->SaveToDB();

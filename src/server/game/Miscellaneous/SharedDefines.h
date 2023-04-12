@@ -6751,7 +6751,7 @@ enum class CurrencyGainFlags : uint32
 };
 
 DEFINE_ENUM_FLAG(CurrencyGainFlags);
-#define CURRENCY_PRECISION 100  //From:alexkulya/pandaria_5.4.8(github)
+//#define CURRENCY_PRECISION 100  //From:alexkulya/pandaria_5.4.8(github)
 
 enum PartyResult
 {
