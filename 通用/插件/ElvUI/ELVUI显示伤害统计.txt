@@ -1,2 +1,0 @@
-聊天框输入
-/details show

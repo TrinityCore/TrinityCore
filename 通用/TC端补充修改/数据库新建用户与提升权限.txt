@@ -1,3 +1,0 @@
-mysql -uroot -p root
-create user 'trinity'@'localhost' identified by 'trinity';
-grant all privileges on *.* to 'trinity'@'localhost' ;

@@ -1,4 +1,0 @@
-官方
-https://github.com/TrinityCore/TrinityCore
-个人
-https://github.com/xuehyc/TrinityCore

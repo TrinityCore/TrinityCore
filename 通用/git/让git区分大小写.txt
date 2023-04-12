@@ -1,3 +1,0 @@
-git config core.ignorecase false
-
-来源:https://blog.csdn.net/weixin_42941835/article/details/90298143

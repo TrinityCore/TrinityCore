@@ -1,1 +1,0 @@
-多allowMount(默认0),insideResurrection(默认值0)

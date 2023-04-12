@@ -1,2 +1,0 @@
-dotnet CASCHost.dll
-PAUSE

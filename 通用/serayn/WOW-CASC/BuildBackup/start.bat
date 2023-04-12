@@ -1,2 +1,0 @@
-dotnet BuildBackup.dll forcebuild wow d3192b18729bb6f00c595fd37097c19f d4bd153ea2b84bcdd3188e9e3c1bf4e3
-pause
