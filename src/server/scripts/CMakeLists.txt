@@ -1,4 +1,4 @@
-# This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+﻿# This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -206,7 +206,7 @@ ConfigureScriptLoader("static" SCRIPT_MODULE_PRIVATE_SCRIPTLOADER OFF ${STATIC_S
 add_library(scripts STATIC
   ScriptLoader.h
   ${SCRIPT_MODULE_PRIVATE_SCRIPTLOADER}
-  ${PRIVATE_SOURCES} "Custom/hastecraftv2.cpp" "Custom/healthcraft.cpp" "Custom/mod_solocraft.cpp" "Custom/CRcraft.cpp" "Custom/Spellcraft.cpp" "Custom/custom_player_script.cpp" "Custom/world_chat.cpp"  "Custom/debug_lfg.cpp" "Custom/double_xp.cpp" "Custom/quest_conversation.cpp" "Custom/start_equipment.cpp" "Custom/welcome_player_message.cpp" "Custom/Boss_Announcer.cpp" "Custom/PVP_OnKill.cpp" "Custom/InspireHealer.cpp" "Shadowlands/shadowlands_script_loader.cpp" "Draenor/Draenor_script_loader.cpp" )
+  ${PRIVATE_SOURCES} "Custom/hastecraftv2.cpp" "Custom/healthcraft.cpp" "Custom/mod_solocraft.cpp" "Custom/CRcraft.cpp" "Custom/Spellcraft.cpp" "Custom/custom_player_script.cpp" "Custom/world_chat.cpp"  "Custom/debug_lfg.cpp" "Custom/double_xp.cpp" "Custom/quest_conversation.cpp" "Custom/start_equipment.cpp" "Custom/welcome_player_message.cpp" "Custom/Boss_Announcer.cpp" "Custom/PVP_OnKill.cpp" "Custom/InspireHealer.cpp" "Shadowlands/shadowlands_script_loader.cpp" "Draenor/Draenor_script_loader.cpp"  "Custom/npc_teleport.cpp")
 
 target_link_libraries(scripts
   PRIVATE
