@@ -1,0 +1,5 @@
+﻿SELECT * FROM quest_template_xy837 WHERE NOT EXISTS (SELECT 1 FROM quest_template_org WHERE quest_template_xy837.ID= quest_template_org.ID);
+
+
+
+2023_01_31_03_world.sql

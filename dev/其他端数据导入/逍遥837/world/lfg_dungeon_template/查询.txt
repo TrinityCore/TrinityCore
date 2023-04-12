@@ -1,0 +1,1 @@
+SELECT * FROM lfg_dungeon_template_xy837 WHERE NOT EXISTS (SELECT 1 FROM lfg_dungeon_template_org WHERE lfg_dungeon_template_xy837.dungeonId= lfg_dungeon_template_org.dungeonId);

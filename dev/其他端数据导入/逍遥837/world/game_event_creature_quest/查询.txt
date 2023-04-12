@@ -1,0 +1,6 @@
+//查询用
+SELECT * FROM game_event_creature_quest_xy837 WHERE NOT EXISTS (SELECT 1 FROM game_event_creature_quest WHERE game_event_creature_quest_xy837.id= game_event_creature_quest.id and game_event_creature_quest_xy837.quest= game_event_creature_quest.quest);
+
+
+//最终插入数据
+INSERT INTO game_event_creature_quest SELECT * FROM game_event_creature_quest_xy837 WHERE NOT EXISTS (SELECT 1 FROM game_event_creature_quest WHERE game_event_creature_quest_xy837.id= game_event_creature_quest.id and game_event_creature_quest_xy837.quest= game_event_creature_quest.quest);

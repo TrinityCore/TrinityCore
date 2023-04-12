@@ -1,0 +1,61 @@
+来源:
+本帖最后由 serayn 于 2019-7-12 14:18 编辑
+
+
+模型和地图工具来自Model-Changing.net的工具，也都是Amaroth大神收集的。里面有很多在各种教材里都很著名，但是平时特别难收集到的工具（因为最初的分享链接都失效了）。这些工具虽然我没用过，也暂时用不上，但是也搬运到这里。
+另外，这里还附带有Amaroth大神自己开发的数据库工具，应该是针对azerothcore使用的吧（我没用过）。制作得很精巧，可以看出来花费了许多心思，应该能帮助提升一些开发数据库的效率。
+
+Amaroth大神甚至把自己开发的登录器带源码分享在里面了！！！
+C#的，特别好用！不像别的C#项目那样一天到晚各种迷之错误，特别稳定！
+我自己用的登录器也是魔改自Amaroth大神的登录器。
+
+【唯一的缺点，就是这些工具都是英文的……】
+
+使用方法：
+解压缩后，参照网上找到的诸多教程指引使用。
+Amaroth大神的工具摸索一下应该很快就能搞懂怎么用的。
+Lightmapper我也没用过，也不知道该怎么用，貌似是把dbc文件放在文件夹里，运行程序来进行修改。
+包含的工具名单：
+AdtAdder（这个的使用方法参考绫濑的地图制作教程：http://uiwow.com/thread-44-1-1.html?_dsign=d792aa34）
+ADTGrids
+FuTa
+GroundEffects
+GruulMeWDT
+Rius zone Masher
+WdtSupplies
+anim porter
+M2ModRedux
+MDLVIS
+MDX
+WMOBlenderPlugin
+CataToLkM2AddViewDistance
+LightInject
+OBJtoM2
+WMOEditor
+
+Amaroth的工具箱包含的内容：
+gameobject创造工具
+npc创造工具
+item.dbc生成工具
+把m2文件做成gameobject的工具——就是原本只能用noggit来放的东西，现在可以用gm命令放了。
+
+010脚本合集(010 Editor脚本, 010Editor 正版300多人民币，淘宝没有盗版。注册码和重制试用天数的脚本在这里  010EditorKeygen.rar (303 Bytes, 下载次数: 160) )里面大概是一些模型和地图相关的010脚本。
+具体怎么用我也不知道，没用过。
+
+下载：三合一
+链接：https://pan.baidu.com/s/1rCE8Wdle8LkpuZmB4K5tnQ
+提取码：bxp6
+复制这段内容后打开百度网盘手机App，操作更方便哦
+
+LightMapper
+链接：https://pan.baidu.com/s/1GJjoNUx5mU2OQ6kNKQxIkw
+提取码：u7f6
+复制这段内容后打开百度网盘手机App，操作更方便哦
+
+010脚本合集  010.rar (225.55 KB, 下载次数: 642)
+本帖不设回复可见，希望大家能方便自由地在回帖里讨论遇到的问题和分享经验。
+
+
+
+
+

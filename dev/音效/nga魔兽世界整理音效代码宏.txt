@@ -1,0 +1,170 @@
+nga魔兽世界整理音效代码宏
+2022-08-01 09:03675阅读 · 1喜欢 · 1评论
+
+维艾伦
+粉丝：34文章：2
+关注
+/script PlaySound(8629) 你逃不掉死亡的命运
+
+/script PlaySound(8655) 你被终结了
+
+/script PlaySound(8605) 让敌人胆战心惊吧，让他们在恐惧钟死去
+
+/script PlaySound(8609) 蠢货我会亲自要了你们的命，碾碎他们
+
+/script PlaySound(8796) 跪下求饶吧，懦夫
+
+/script PlaySound(9165) 我就知道总有一天猎人也会变成猎物
+
+/script PlaySound(9245) 我要让你们知道 老狗也有几颗牙
+
+/script PlaySound(9700) 哇哇哇木格，
+
+/script PlaySound(10175) 冲锋
+
+/script PlaySound(10990) 让这个世界燃烧吧
+
+/script PlaySound(11435) 喝你的血，吃你的肉
+
+/script PlaySound(11466) 你们这是自寻死路！！！！！
+
+/script PlaySound(11469) 你对真正的力量一无所知
+
+/script PlaySound(11470) 感受一万年的仇恨吧
+
+/script PlaySound(11475) 感受我体内的恶魔之力吧
+
+/script PlaySound(11480) 让埃辛诺斯的烈焰吞噬你们
+
+/script PlaySound(11488) 为了奎尔塞拉斯 为了太阳之井
+
+/script PlaySound(11500) 受死吧你这魔鬼
+
+/script PlaySound(11965) 无头骑士经典笑声
+
+/script PlaySound(14518) 在我的龙息之下一切都将荡然无存
+
+/script PlaySound(14683) 臣服于大领主的力量吧
+
+/script PlaySound(15568) 燃烧吧，在造物者的烈火中燃烧吧
+
+/script PlaySound(16269) 银色比武场那个搞笑术士
+
+/script PlaySound(16765) 力量无上的力量
+
+/script PlaySound(16905) 你玩完了
+
+/script PlaySound(14432) 你们想见识真正的力量，那我就让你们如愿以偿!!!!!
+
+/script PlaySound(14433) 剁碎他们 刺穿他们
+
+/script PlaySound(14487) 坚持住，圣光必胜
+
+/script PlaySound(14488) 进攻！！！
+
+/script PlaySound(10706) 兽人战歌
+
+/script PlaySound(10165) 靠近的再进店燃烧吧，罪有应得
+
+/script PlaySound(2700左右) 各种表情
+
+新增加
+
+/script PlaySound(20165) 现在见证真正的力量吧
+
+/script PlaySound(20774) 不知道谁的台词，都是文言文
+
+/script PlaySound(20983) 你们这是跑来送死
+
+/script PlaySound(21126) 卑微的渣子
+
+/script PlaySound(21405) 杀光他们
+
+/script PlaySound(34518) 万灵与你同在
+
+/script PlaySound(25916) 我的怒火无边
+
+/script PlaySound(25838) 熊猫人之谜---很奇怪的一点，熊猫人之谜的音乐在上一个版本里面
+
+/script PlaySound(26219) 黑角死亡之翼
+
+/script PlaySound(26314) 暮光审判降临了
+
+/script PlaySound(26317) 我即是末日的开端，蔽日的阴影，毁灭的丧钟
+
+/script PlaySound(26353) 死亡之翼著名的台词
+
+/script PlaySound(28589) 春天花会开
+
+/script PlaySound(28613) 笛子声音
+
+/script PlaySound(28756) 四风谷音乐，这一片都是各地纯音乐
+
+/script PlaySound(29001) 怒之煞----灭亡吧，哈哈！！！，
+
+/script PlaySound(29178) 纳兹格林的 语音 攻击！！
+
+/script PlaySound(29199) 纯音乐
+
+/script PlaySound(29314) 有文化的螳螂妖
+
+/script PlaySound(29546) 人人都得吃香蕉
+
+/script PlaySound(30440) 纯音乐
+
+/script PlaySound(35680) 我将成为雷电之王
+
+/script PlaySound(38745) 为了正统部落
+
+/script PlaySound(38746) 为了地狱咆哮
+
+/script PlaySound(112555) 号角
+
+/script PlaySound(139985) 部落战歌
+
+/script PlaySound(139095) 希尔瓦娜斯 没人能摆脱死亡
+
+/script PlaySound(16247)  银色审判官还是啥的那个“好~那么，让我们开始吧~”
+
+/script PlaySound(16246) 愿圣光赐予我力量，能让我不负众望
+
+/script PlaySound(16250) 下去休息吧~
+
+/script PlaySound(16251) 安心的去吧~
+
+/script PlaySound(16252) 真是~精彩~
+
+/script PlaySound(16253) 银色审判官受伤音效
+
+/script PlaySound(16254) 银色审判官受伤音效
+
+/script PlaySound(16255) 银色审判官攻击音效
+
+ 
+
+ 
+
+ 
+
+实例宏
+
+/cast 技能
+
+/script PlaySound(11466)
+
+ 
+
+效果就是自动播放 伊利丹的官方语音----- 你们这是自寻死路！！！
+
+ 
+
+另，括号内的数字随着增加会一步一步显示正常版本更新的新语音，只要你足够闲，你可找到你听到的所有npc语音。
+
+ 
+
+ 
+
+转载来自：
+
+https://bbs.nga.cn/read.php?&tid=18827081
+

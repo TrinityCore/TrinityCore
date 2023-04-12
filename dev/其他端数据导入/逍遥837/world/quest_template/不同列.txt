@@ -1,0 +1,5 @@
+xy837123列,TC120列
+xy837多5列:
+QuestLevel,ScalingFactionGroup,MaxScalingLevel,MinLevel,RewardMoney(靠前) 
+少2列:
+ContentTuningID(靠前)PortraitGiverModelSceneID(靠后)

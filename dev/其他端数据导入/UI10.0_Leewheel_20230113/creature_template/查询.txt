@@ -1,0 +1,8 @@
+UPDATE creature_template inner join creature_template_10 ON (creature_template.entry = creature_template_10.entry and creature_template.lootid=0 and creature_template_10.lootid!=0) SET creature_template.lootid = creature_template_10.lootid;
+//影响的数据栏: 149058
+
+
+简化版(A是creature_template,B是creature_template_10)
+UPDATE A inner join B ON (A.entry = B.entry and A.lootid=0 and B.lootid!=0) SET A.lootid = B.lootid;
+
+注意:此语句要求存在creature_template_10表,更新TDB后不再需要

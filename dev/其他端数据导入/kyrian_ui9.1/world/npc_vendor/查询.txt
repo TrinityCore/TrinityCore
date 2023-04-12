@@ -1,0 +1,5 @@
+SELECT * FROM npc_vendor_kyrian_ui WHERE NOT EXISTS (SELECT 1 FROM npc_vendor_org WHERE npc_vendor_kyrian_ui.entry= npc_vendor_org.entry);
+2023_02_01_00_world.sql
+
+后补充
+INSERT INTO npc_vendor SELECT * FROM npc_vendor_kyrian_ui WHERE NOT EXISTS (SELECT 1 FROM npc_vendor WHERE npc_vendor_kyrian_ui.entry= npc_vendor.entry and npc_vendor_kyrian_ui.item= npc_vendor.item  and npc_vendor_kyrian_ui.ExtendedCost= npc_vendor.ExtendedCost  and npc_vendor_kyrian_ui.type= npc_vendor.type);

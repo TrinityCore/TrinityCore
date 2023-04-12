@@ -1,0 +1,2 @@
+mysqldump -u root -proot -d  world creature > d:\黑丝洞_塔琳德拉.sql;
+#未成功

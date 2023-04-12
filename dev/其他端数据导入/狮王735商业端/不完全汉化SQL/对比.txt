@@ -1,0 +1,1 @@
+CreatureID,GroupID,ID,`Text`,`Type`,Language,Probability,Emote,Duration,Sound,SoundPlayType,BroadcastTextId,TextRange,`comment`

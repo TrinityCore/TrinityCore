@@ -1,0 +1,2 @@
+INSERT INTO creature_queststarter SELECT * FROM creature_queststarter_xy837 WHERE NOT EXISTS (SELECT 1 FROM creature_queststarter WHERE creature_queststarter_xy837.id= creature_queststarter.id and creature_queststarter_xy837.quest= creature_queststarter.quest);
+//影响的数据栏: 6114

@@ -1,0 +1,1 @@
+vs中安装 force utf-8(with bom)可以一劳永逸

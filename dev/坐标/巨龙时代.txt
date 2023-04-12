@@ -1,0 +1,19 @@
+巨龙时代副本
+.tele HallsOfInfusion //注能大厅
+.tele RubyLifePools //红玉新生地,有怪,默认无
+.tele NokhudOffensive  //诺库德阻击战
+.tele BrackenhideHollow //蕨皮山谷
+.tele Neltharus //奈萨鲁斯
+.tele AlgetharAcademy   //艾杰斯亚学院
+.tele AzureVault    //碧蓝魔馆,有怪
+.tele Uldaman //我去,跑旧版的奥达曼去了
+ 
+巨龙时代地图
+.tele WakingShores  //觉醒海岸 协调观察站
+.tele OhnahranPlains    //欧恩哈啦平原 
+.tele azurespan //碧蓝林海
+.tele Thaldraszus   //索德拉苏斯
+巨龙时代团本
+.tele VaultoftheIncarnates  //不存在
+去暴风城： .tele stormwind
+奥格依次类推

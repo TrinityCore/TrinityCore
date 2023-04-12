@@ -1,0 +1,4 @@
+INSERT INTO game_event_gameobject SELECT * FROM game_event_gameobject_10 WHERE NOT EXISTS (SELECT 1 FROM game_event_gameobject WHERE game_event_gameobject_10.eventEntry= game_event_gameobject.eventEntry and game_event_gameobject_10.guid= game_event_gameobject.guid);
+//10980
+
+

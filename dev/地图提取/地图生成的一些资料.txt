@@ -1,0 +1,3 @@
+解压maps会生成 dbc,gt,maps 3个文件夹
+
+解压vmaps会额外生成buildings

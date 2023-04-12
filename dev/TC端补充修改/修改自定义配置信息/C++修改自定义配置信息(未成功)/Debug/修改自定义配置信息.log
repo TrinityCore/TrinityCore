@@ -1,0 +1,13 @@
+﻿  修改自定义配置信息.cpp
+D:\WOWDIY\9.0.2.37176\修改自定义配置信息\src\修改自定义配置信息.cpp(4,45): error C2660: “fopen_s”: 函数不接受 2 个参数
+D:\Windows Kits\10\Include\10.0.19041.0\ucrt\stdio.h(102,34): message : 参见“fopen_s”的声明
+D:\WOWDIY\9.0.2.37176\修改自定义配置信息\src\修改自定义配置信息.cpp(11,40): warning C4477: “sscanf_s”: 格式字符串“%s”需要类型“unsigned int”的参数，但可变参数 2 拥有了类型“int *”
+D:\WOWDIY\9.0.2.37176\修改自定义配置信息\src\修改自定义配置信息.cpp(11,40): message : 此参数用作缓冲区大小
+D:\WOWDIY\9.0.2.37176\修改自定义配置信息\src\修改自定义配置信息.cpp(11,40): warning C4473: “sscanf_s”: 没有为格式字符串传递足够的参数
+D:\WOWDIY\9.0.2.37176\修改自定义配置信息\src\修改自定义配置信息.cpp(11,40): message : 占位符和其参数预计 4 可变参数，但提供的却是 3 参数
+D:\WOWDIY\9.0.2.37176\修改自定义配置信息\src\修改自定义配置信息.cpp(11,40): message : 缺失的可变参数 4 为格式字符串“%d”所需
+D:\WOWDIY\9.0.2.37176\修改自定义配置信息\src\修改自定义配置信息.cpp(14,68): error C2664: “int sprintf_s(char *const ,const size_t,const char *const ,...)”: 无法将参数 2 从“const char [10]”转换为“const size_t”
+D:\WOWDIY\9.0.2.37176\修改自定义配置信息\src\修改自定义配置信息.cpp(14,47): message : 没有使该转换得以执行的上下文
+D:\Windows Kits\10\Include\10.0.19041.0\ucrt\stdio.h(1815,41): message : 参见“sprintf_s”的声明
+D:\WOWDIY\9.0.2.37176\修改自定义配置信息\src\修改自定义配置信息.cpp(18,59): error C2660: “fopen_s”: 函数不接受 2 个参数
+D:\Windows Kits\10\Include\10.0.19041.0\ucrt\stdio.h(102,34): message : 参见“fopen_s”的声明
