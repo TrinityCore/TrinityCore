@@ -937,7 +937,7 @@ bool PetBattleAbilityEffect::HandleRampingDamage()
     int32 damageIncrementPerUse = EffectInfo->Param[2];
     int32 maxDamage = EffectInfo->Param[3];
 
-    if (GetState(Caster, BATTLE_PET_STATE_Ramping_DamageID) != AbilityID)
+    if (GetState(Caster, BATTLE_PET_STATE_Ramping_DamageID) != int32(AbilityID))
     {
         SetState(Caster, BATTLE_PET_STATE_Ramping_DamageID, AbilityID);
         SetState(Caster, BATTLE_PET_STATE_Ramping_DamageUses, 0);

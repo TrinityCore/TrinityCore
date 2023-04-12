@@ -373,8 +373,8 @@ void PetBattleSystem::Update(uint32 diff)
                         Position battleCenterPosition((location.Positions[0].GetPositionX() + location.Positions[1].GetPositionX()) / 2, (location.Positions[0].GetPositionY() + location.Positions[1].GetPositionY()) / 2, (location.Positions[0].GetPositionZ() + location.Positions[1].GetPositionZ()) / 2);
                         battle->PvPMatchMakingRequest.PetBattleCenterPosition = battleCenterPosition;
 
-                        auto const& l_One = location.Positions[PET_BATTLE_TEAM_1];
-                        auto const& l_Second = location.Positions[PET_BATTLE_TEAM_2];
+                        //auto const& l_One = location.Positions[PET_BATTLE_TEAM_1];
+                        //auto const& l_Second = location.Positions[PET_BATTLE_TEAM_2];
 
                         //float angle = atan2(l_Second.GetPositionY() - l_One.GetPositionY(), l_Second.GetPositionX() - l_One.GetPositionX());
                         //battle->PvPMatchMakingRequest.PetBattleCenterPosition.m_orientation = (angle >= 0) ? angle : 2 * M_PI + angle;
