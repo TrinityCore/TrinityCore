@@ -21,6 +21,8 @@
 #include "DatabaseEnv.h"
 #include "Chat.h"
 #include "ServiceMgr.h"
+#include "Item.h"
+#include "SmartScript.h"
 
 #define GetText(a, b, c) a->GetSession()->GetSessionDbLocaleIndex() == LOCALE_ruRU ? b : c
 
@@ -44,21 +46,21 @@ namespace BattlePay
 
 enum SkillsID
 {
-    FIRST_AID = 129, // First Aid
-    BLACKSMITHING = 164, // Blacksmithing
-    LEATHERWORKING = 165, // Leatherworking
-    ALCHEMY = 171, // Alchemy
-    HERBALISM = 182, // Herbalism
-    COOKING = 185, // Cooking
-    MINING = 186, // Mining
-    TAILORING = 197, // Tailoring
-    ENGINEERING = 202, // Engineering
-    ENCHANTING = 333, // Enchanting
-    FISHING = 356, // Fishing
-    SKINNING = 393, // Skinning
-    JEWELCRAFTING = 755, // Jewelcrafting
-    INSCRIPTION = 773, // Inscription
-    ARCHAEOLOGY = 794  // Archaeology
+    FIRST_AID       = 129, // First Aid
+    BLACKSMITHING   = 164, // Blacksmithing
+    LEATHERWORKING  = 165, // Leatherworking
+    ALCHEMY         = 171, // Alchemy
+    HERBALISM       = 182, // Herbalism
+    COOKING         = 185, // Cooking
+    MINING          = 186, // Mining
+    TAILORING       = 197, // Tailoring
+    ENGINEERING     = 202, // Engineering
+    ENCHANTING      = 333, // Enchanting
+    FISHING         = 356, // Fishing
+    SKINNING        = 393, // Skinning
+    JEWELCRAFTING   = 755, // Jewelcrafting
+    INSCRIPTION     = 773, // Inscription
+    ARCHAEOLOGY     = 794  // Archaeology
 };
 
 enum SpellID_600
@@ -85,7 +87,7 @@ class battle_pay_currency_honor_1000 : public ItemScript
 public:
     battle_pay_currency_honor_1000(const char* ScriptName) : ItemScript(ScriptName) { }
 
-    bool OnUse(Player* player, Item* item, const SpellCastTargets&)
+    bool OnUse(Player* player, Item* item, SpellCastTargets const& /*targets*/, ObjectGuid /*castId*/) override
     {
         if (player->IsInCombat() || player->InArena() || player->InBattleground())
         {
@@ -111,7 +113,7 @@ class battle_pay_currency_justice_1000 : public ItemScript
 public:
     battle_pay_currency_justice_1000(const char* ScriptName) : ItemScript(ScriptName) { }
 
-    bool OnUse(Player* player, Item* item, const SpellCastTargets&)
+    bool OnUse(Player* player, Item* item, SpellCastTargets const& /*targets*/, ObjectGuid /*castId*/) override
     {
         if (player->IsInCombat() || player->InArena() || player->InBattleground())
         {
@@ -119,7 +121,8 @@ public:
         }
         else if (player->HasItemCount(item->GetEntry(), 1, true))
         {
-            player->ModifyCurrency(CURRENCY_TYPE_JUSTICE_POINTS, 1000 * CURRENCY_PRECISION, true, true, true);
+            //player->ModifyCurrency(CURRENCY_TYPE_JUSTICE_POINTS, 1000 * CURRENCY_PRECISION, true, true, true);//org
+            player->ModifyCurrency(CURRENCY_TYPE_JUSTICE_POINTS, 1000 * CURRENCY_PRECISION);
             ChatHandler(player->GetSession()).SendSysMessage(GetText(player, "Спасибо за помощь проекту Pandaria 5.4.8, вы только что получили 1000 очков справедливости.", "Thanks for helping the Pandaria 5.4.8 project, you just received 1000 justice points."));
             player->DestroyItemCount(item->GetEntry(), 1, true);
             player->SaveToDB();
@@ -137,7 +140,7 @@ class battle_pay_currency_valor_1000 : public ItemScript
 public:
     battle_pay_currency_valor_1000(const char* ScriptName) : ItemScript(ScriptName) { }
 
-    bool OnUse(Player* player, Item* item, const SpellCastTargets&)
+    bool OnUse(Player* player, Item* item, SpellCastTargets const& /*targets*/, ObjectGuid /*castId*/) override
     {
         if (player->IsInCombat() || player->InArena() || player->InBattleground())
         {
@@ -145,7 +148,7 @@ public:
         }
         else if (player->HasItemCount(item->GetEntry(), 1, true))
         {
-            player->ModifyCurrency(CURRENCY_TYPE_VALOR_POINTS, 1000 * CURRENCY_PRECISION, true, true, true);
+            player->ModifyCurrency(CURRENCY_TYPE_VALOR_POINTS, 1000 * CURRENCY_PRECISION);//player->ModifyCurrency(CURRENCY_TYPE_VALOR_POINTS, 1000 * CURRENCY_PRECISION, true, true, true);//org
             ChatHandler(player->GetSession()).SendSysMessage(GetText(player, "Спасибо за помощь проекту Pandaria 5.4.8, вы только что получили 1000 очков доблести.", "Thanks for helping the Pandaria 5.4.8 project, you just received 1000 valor points."));
             player->DestroyItemCount(item->GetEntry(), 1, true);
             player->SaveToDB();
@@ -163,7 +166,7 @@ class battle_pay_currency_conquest_1000 : public ItemScript
 public:
     battle_pay_currency_conquest_1000(const char* ScriptName) : ItemScript(ScriptName) { }
 
-    bool OnUse(Player* player, Item* item, const SpellCastTargets&)
+    bool OnUse(Player* player, Item* item, SpellCastTargets const& /*targets*/, ObjectGuid /*castId*/) override
     {
         if (player->IsInCombat() || player->InArena() || player->InBattleground())
         {
@@ -190,7 +193,7 @@ class battle_pay_gold : public ItemScript
 public:
     battle_pay_gold(const char* ScriptName) : ItemScript(ScriptName) { }
 
-    bool OnUse(Player* player, Item* item, const SpellCastTargets&)
+    bool OnUse(Player* player, Item* item, SpellCastTargets const& /*targets*/, ObjectGuid /*castId*/) override
     {
         if (player->IsInCombat() || player->InArena() || player->InBattleground())
         {
@@ -221,7 +224,7 @@ class battle_pay_level : public ItemScript
 public:
     battle_pay_level(const char* ScriptName) : ItemScript(ScriptName) { }
 
-    bool OnUse(Player* player, Item* item, const SpellCastTargets&)
+    bool OnUse(Player* player, Item* item, SpellCastTargets const& /*targets*/, ObjectGuid /*castId*/) override
     {
         if (player->IsInCombat() || player->InArena() || player->InBattleground())
         {
@@ -248,7 +251,7 @@ class battle_pay_service : public ItemScript
 public:
     battle_pay_service(const char* ScriptName) : ItemScript(ScriptName) { }
 
-    bool OnUse(Player* player, Item* item, const SpellCastTargets&)
+    bool OnUse(Player* player, Item* item, SpellCastTargets const& /*targets*/, ObjectGuid /*castId*/) override
     {
         if (player->IsInCombat() || player->InArena() || player->InBattleground())
         {
@@ -275,7 +278,7 @@ class battle_pay_pandaria_token : public ItemScript
 public:
     battle_pay_pandaria_token(const char* ScriptName) : ItemScript(ScriptName) { }
 
-    bool OnUse(Player* player, Item* item, const SpellCastTargets&)
+    bool OnUse(Player* player, Item* item, SpellCastTargets const& /*targets*/, ObjectGuid /*castId*/) override
     {
         if (player->IsInCombat() || player->InArena() || player->InBattleground())
         {
@@ -283,7 +286,7 @@ public:
         }
         else
         {
-            player->AddVirtualPointsCount(Points);
+            //player->AddVirtualPointsCount(Points);
             player->DestroyItemCount(item->GetEntry(), 1, true);
 
             std::ostringstream points_amount_message_ru, points_amount_message_en;
@@ -301,14 +304,14 @@ class battle_pay_boost_profession : public ItemScript
 public:
     battle_pay_boost_profession(const char* ScriptName) : ItemScript(ScriptName) { }
 
-    bool OnUse(Player* player, Item* item, SpellCastTargets const& targets) override
+    bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& /*targets*/, ObjectGuid /*castId*/) override 
     {
-        bool ru = player->GetSession()->GetSessionDbLocaleIndex() == LOCALE_ruRU;
+        //bool ru = player->GetSession()->GetSessionDbLocaleIndex() == LOCALE_ruRU;
 
         player->PlayerTalkClass->ClearMenus();
         player->SaveToDB();
 
-        if (player->HasSkill(FIRST_AID))
+        /*if (player->HasSkill(FIRST_AID))
             player->ADD_GOSSIP_ITEM_DB(51002, 0, GOSSIP_SENDER_MAIN, FIRST_AID);
         if (player->HasSkill(BLACKSMITHING))
             player->ADD_GOSSIP_ITEM_DB(51002, 1, GOSSIP_SENDER_MAIN, BLACKSMITHING);
@@ -340,11 +343,11 @@ public:
             player->ADD_GOSSIP_ITEM_DB(51002, 14, GOSSIP_SENDER_MAIN, ARCHAEOLOGY);
 
         player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "|TInterface/PaperDollInfoFrame/UI-GearManager-LeaveItem-Transparent:28|t Закрыть" : "|TInterface/PaperDollInfoFrame/UI-GearManager-LeaveItem-Transparent:28|t Close", GOSSIP_SENDER_MAIN, 1);
-        player->SEND_GOSSIP_MENU(20010, item->GetGUID());
+        player->SEND_GOSSIP_MENU(20010, item->GetGUID());*/
         return true;
     }
 
-    void OnGossipSelect(Player* player, Item* item, uint32 sender, uint32 action)
+    void OnGossipSelect(Player* player, Item* item, uint32 /*sender*/, uint32 action)
     {
         bool ru = player->GetSession()->GetSessionDbLocaleIndex() == LOCALE_ruRU;
 
@@ -353,9 +356,9 @@ public:
 
         switch (action)
         {
-        case 1:
+        /*case 1:
             player->CLOSE_GOSSIP_MENU();
-            break;
+            break;*/
         case FIRST_AID:
             if (!player->HasSpell(SPELL_600_FIRST_AID))
             {
@@ -475,8 +478,8 @@ public:
 
             std::ostringstream infoSkill;
             infoSkill << "Skill: " << uint32(action) << " Value: " << uint32(max_value_prof);
-            sServiceMgr->ExecutedServices(player->GetGUID(), SERVICE_TYPE_BOOST_PROFESSION, std::string("Boosted name: ") + player->GetName(), infoSkill.str());
-            player->CLOSE_GOSSIP_MENU();
+            sServiceMgr->ExecutedServices(player->GetGUID().GetCounter(), SERVICE_TYPE_BOOST_PROFESSION, std::string("Boosted name: ") + player->GetName(), infoSkill.str());
+            //player->CLOSE_GOSSIP_MENU;
         }
         else if (confirm == 2)
         {
@@ -487,8 +490,8 @@ public:
 
             std::ostringstream infoSkill;
             infoSkill << "Skill: " << uint32(action) << " Value: 600";
-            sServiceMgr->ExecutedServices(player->GetGUID(), SERVICE_TYPE_BOOST_PROFESSION, std::string("Boosted name: ") + player->GetName(), infoSkill.str());
-            player->CLOSE_GOSSIP_MENU();
+            sServiceMgr->ExecutedServices(player->GetGUID().GetCounter(), SERVICE_TYPE_BOOST_PROFESSION, std::string("Boosted name: ") + player->GetName(), infoSkill.str());
+            //player->CLOSE_GOSSIP_MENU();
         }
         else
         {
@@ -505,50 +508,50 @@ class battle_pay_boost_profession_small : public ItemScript
 public:
     battle_pay_boost_profession_small(const char* ScriptName) : ItemScript(ScriptName) { }
 
-    bool OnUse(Player* player, Item* item, SpellCastTargets const& targets) override
+    bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& /*targets*/, ObjectGuid /*castId*/) override
     {
-        bool ru = player->GetSession()->GetSessionDbLocaleIndex() == LOCALE_ruRU;
+        //bool ru = player->GetSession()->GetSessionDbLocaleIndex() == LOCALE_ruRU;
 
         player->PlayerTalkClass->ClearMenus();
         player->SaveToDB();
 
-        if (player->HasSkill(FIRST_AID))
-            player->ADD_GOSSIP_ITEM_DB(51002, 0, GOSSIP_SENDER_MAIN, FIRST_AID);
-        if (player->HasSkill(BLACKSMITHING))
-            player->ADD_GOSSIP_ITEM_DB(51002, 1, GOSSIP_SENDER_MAIN, BLACKSMITHING);
-        if (player->HasSkill(LEATHERWORKING))
-            player->ADD_GOSSIP_ITEM_DB(51002, 2, GOSSIP_SENDER_MAIN, LEATHERWORKING);
-        if (player->HasSkill(ALCHEMY))
-            player->ADD_GOSSIP_ITEM_DB(51002, 3, GOSSIP_SENDER_MAIN, ALCHEMY);
-        if (player->HasSkill(HERBALISM))
-            player->ADD_GOSSIP_ITEM_DB(51002, 4, GOSSIP_SENDER_MAIN, HERBALISM);
-        if (player->HasSkill(COOKING))
-            player->ADD_GOSSIP_ITEM_DB(51002, 5, GOSSIP_SENDER_MAIN, COOKING);
-        if (player->HasSkill(MINING))
-            player->ADD_GOSSIP_ITEM_DB(51002, 6, GOSSIP_SENDER_MAIN, MINING);
-        if (player->HasSkill(TAILORING))
-            player->ADD_GOSSIP_ITEM_DB(51002, 7, GOSSIP_SENDER_MAIN, TAILORING);
-        if (player->HasSkill(ENGINEERING))
-            player->ADD_GOSSIP_ITEM_DB(51002, 8, GOSSIP_SENDER_MAIN, ENGINEERING);
-        if (player->HasSkill(ENCHANTING))
-            player->ADD_GOSSIP_ITEM_DB(51002, 9, GOSSIP_SENDER_MAIN, ENCHANTING);
-        if (player->HasSkill(FISHING))
-            player->ADD_GOSSIP_ITEM_DB(51002, 10, GOSSIP_SENDER_MAIN, FISHING);
-        if (player->HasSkill(SKINNING))
-            player->ADD_GOSSIP_ITEM_DB(51002, 11, GOSSIP_SENDER_MAIN, SKINNING);
-        if (player->HasSkill(JEWELCRAFTING))
-            player->ADD_GOSSIP_ITEM_DB(51002, 12, GOSSIP_SENDER_MAIN, JEWELCRAFTING);
-        if (player->HasSkill(INSCRIPTION))
-            player->ADD_GOSSIP_ITEM_DB(51002, 13, GOSSIP_SENDER_MAIN, INSCRIPTION);
-        if (player->HasSkill(ARCHAEOLOGY))
-            player->ADD_GOSSIP_ITEM_DB(51002, 14, GOSSIP_SENDER_MAIN, ARCHAEOLOGY);
+        //if (player->HasSkill(FIRST_AID))
+        //    player->ADD_GOSSIP_ITEM_DB(51002, 0, GOSSIP_SENDER_MAIN, FIRST_AID);
+        //if (player->HasSkill(BLACKSMITHING))
+        //    player->ADD_GOSSIP_ITEM_DB(51002, 1, GOSSIP_SENDER_MAIN, BLACKSMITHING);
+        //if (player->HasSkill(LEATHERWORKING))
+        //    player->ADD_GOSSIP_ITEM_DB(51002, 2, GOSSIP_SENDER_MAIN, LEATHERWORKING);
+        //if (player->HasSkill(ALCHEMY))
+        //    player->ADD_GOSSIP_ITEM_DB(51002, 3, GOSSIP_SENDER_MAIN, ALCHEMY);
+        //if (player->HasSkill(HERBALISM))
+        //    player->ADD_GOSSIP_ITEM_DB(51002, 4, GOSSIP_SENDER_MAIN, HERBALISM);
+        //if (player->HasSkill(COOKING))
+        //    player->ADD_GOSSIP_ITEM_DB(51002, 5, GOSSIP_SENDER_MAIN, COOKING);
+        //if (player->HasSkill(MINING))
+        //    player->ADD_GOSSIP_ITEM_DB(51002, 6, GOSSIP_SENDER_MAIN, MINING);
+        //if (player->HasSkill(TAILORING))
+        //    player->ADD_GOSSIP_ITEM_DB(51002, 7, GOSSIP_SENDER_MAIN, TAILORING);
+        //if (player->HasSkill(ENGINEERING))
+        //    player->ADD_GOSSIP_ITEM_DB(51002, 8, GOSSIP_SENDER_MAIN, ENGINEERING);
+        //if (player->HasSkill(ENCHANTING))
+        //    player->ADD_GOSSIP_ITEM_DB(51002, 9, GOSSIP_SENDER_MAIN, ENCHANTING);
+        //if (player->HasSkill(FISHING))
+        //    player->ADD_GOSSIP_ITEM_DB(51002, 10, GOSSIP_SENDER_MAIN, FISHING);
+        //if (player->HasSkill(SKINNING))
+        //    player->ADD_GOSSIP_ITEM_DB(51002, 11, GOSSIP_SENDER_MAIN, SKINNING);
+        //if (player->HasSkill(JEWELCRAFTING))
+        //    player->ADD_GOSSIP_ITEM_DB(51002, 12, GOSSIP_SENDER_MAIN, JEWELCRAFTING);
+        //if (player->HasSkill(INSCRIPTION))
+        //    player->ADD_GOSSIP_ITEM_DB(51002, 13, GOSSIP_SENDER_MAIN, INSCRIPTION);
+        //if (player->HasSkill(ARCHAEOLOGY))
+        //    player->ADD_GOSSIP_ITEM_DB(51002, 14, GOSSIP_SENDER_MAIN, ARCHAEOLOGY);
 
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "|TInterface/PaperDollInfoFrame/UI-GearManager-LeaveItem-Transparent:28|t Закрыть" : "|TInterface/PaperDollInfoFrame/UI-GearManager-LeaveItem-Transparent:28|t Close", GOSSIP_SENDER_MAIN, 1);
-        player->SEND_GOSSIP_MENU(20011, item->GetGUID());
+        //player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ru ? "|TInterface/PaperDollInfoFrame/UI-GearManager-LeaveItem-Transparent:28|t Закрыть" : "|TInterface/PaperDollInfoFrame/UI-GearManager-LeaveItem-Transparent:28|t Close", GOSSIP_SENDER_MAIN, 1);
+        //player->SEND_GOSSIP_MENU(20011, item->GetGUID());
         return true;
     }
 
-    void OnGossipSelect(Player* player, Item* item, uint32 sender, uint32 action)
+    void OnGossipSelect(Player* player, Item* item, uint32 /*sender*/, uint32 action)
     {
         bool ru = player->GetSession()->GetSessionDbLocaleIndex() == LOCALE_ruRU;
 
@@ -566,7 +569,7 @@ public:
 
             std::ostringstream infoSkill;
             infoSkill << "Skill: " << uint32(action) << " Value: " << uint32(max_value_prof);
-            sServiceMgr->ExecutedServices(player->GetGUID(), SERVICE_TYPE_BOOST_PROFESSION_SMALL, std::string("Boosted name: ") + player->GetName(), infoSkill.str());
+            sServiceMgr->ExecutedServices(player->GetGUID().GetCounter(), SERVICE_TYPE_BOOST_PROFESSION_SMALL, std::string("Boosted name: ") + player->GetName(), infoSkill.str());
             player->SaveToDB();
         }
         else
@@ -575,7 +578,7 @@ public:
             player->CastSpell(player, 27880, true);
         }
 
-        player->CLOSE_GOSSIP_MENU();
+        //player->CLOSE_GOSSIP_MENU();
     }
 };
 
