@@ -123,43 +123,43 @@ PetBattleEvent& PetBattleEvent::Trigger(int8 targetPetID, uint32 p_AbilityId)
 
 void PetBattleAura::Apply(PetBattle* petBattle)
 {
-    for (auto const& v : sBattlePetAbilityStateStore)
-    {
-        if (v->BattlePetAbilityID != AbilityID)
-            continue;
+    //for (auto const& v : sBattlePetAbilityStateStore)
+    //{
+    //    if (v->BattlePetAbilityID != AbilityID)
+    //        continue;
 
-        uint32 flags = 0;
+    //    uint32 flags = 0;
 
-        // Passive: elemental
-        // TODO: add state flags for positive / negative
-        // FIXME: need more work; check weather ability, dont change state value on remove
-        if (petBattle->Pets[TargetPetID]->States[BATTLE_PET_STATE_Passive_Elemental])
-        {
-            switch (v->BattlePetStateID)
-            {
-            case BATTLE_PET_STATE_Mod_HealingTakenPercent:
-            case BATTLE_PET_STATE_Stat_Accuracy:
-                if (v->Value < 0)
-                    flags |= PETBATTLE_EVENT_FLAG_IMMUNE;
-                break;
-            case BATTLE_PET_STATE_Mechanic_IsBlind:
-            case BATTLE_PET_STATE_Mechanic_IsChilled:
-            case BATTLE_PET_STATE_Mechanic_IsBurning:
-            case BATTLE_PET_STATE_swapOutLock:
-                if (v->Value > 0)
-                    flags |= PETBATTLE_EVENT_FLAG_IMMUNE;
-                break;
-            default:
-                break;
-            }
-        }
+    //    // Passive: elemental
+    //    // TODO: add state flags for positive / negative
+    //    // FIXME: need more work; check weather ability, dont change state value on remove
+    //    if (petBattle->Pets[TargetPetID]->States[BATTLE_PET_STATE_Passive_Elemental])
+    //    {
+    //        switch (v->BattlePetStateID)
+    //        {
+    //        case BATTLE_PET_STATE_Mod_HealingTakenPercent:
+    //        case BATTLE_PET_STATE_Stat_Accuracy:
+    //            if (v->Value < 0)
+    //                flags |= PETBATTLE_EVENT_FLAG_IMMUNE;
+    //            break;
+    //        case BATTLE_PET_STATE_Mechanic_IsBlind:
+    //        case BATTLE_PET_STATE_Mechanic_IsChilled:
+    //        case BATTLE_PET_STATE_Mechanic_IsBurning:
+    //        case BATTLE_PET_STATE_swapOutLock:
+    //            if (v->Value > 0)
+    //                flags |= PETBATTLE_EVENT_FLAG_IMMUNE;
+    //            break;
+    //        default:
+    //            break;
+    //        }
+    //    }
 
-        int32 value = petBattle->Pets[TargetPetID]->States[v->BattlePetStateID];
-        if (!flags)
-            value += v->Value;
+    //    int32 value = petBattle->Pets[TargetPetID]->States[v->BattlePetStateID];
+    //    if (!flags)
+    //        value += v->Value;
 
-        petBattle->SetPetState(CasterPetID, TargetPetID, 0, v->BattlePetStateID, value, false, flags);
-    }
+    //    petBattle->SetPetState(CasterPetID, TargetPetID, 0, v->BattlePetStateID, value, false, flags);
+    //}
 
     if (AbilityID == 577)   ///< Healthy http://www.wowhead.com/petability=576/perk-up
     {
@@ -185,9 +185,9 @@ void PetBattleAura::Remove(PetBattle* petBattle)
     if (AbilityID == petBattle->WeatherAbilityId)
         petBattle->WeatherAbilityId = 0;
 
-    for (auto const& v : sBattlePetAbilityStateStore)
-        if (v->BattlePetAbilityID == AbilityID)
-            petBattle->SetPetState(CasterPetID, TargetPetID, 0, v->BattlePetStateID, petBattle->Pets[TargetPetID]->States[v->BattlePetStateID] - v->Value);
+    //for (auto const& v : sBattlePetAbilityStateStore)
+    //    if (v->BattlePetAbilityID == AbilityID)
+    //        petBattle->SetPetState(CasterPetID, TargetPetID, 0, v->BattlePetStateID, petBattle->Pets[TargetPetID]->States[v->BattlePetStateID] - v->Value);
 
     if (AbilityID == 577)   ///< Healthy http://www.wowhead.com/petability=576/perk-up
     {
@@ -216,7 +216,7 @@ void PetBattleAura::Process(PetBattle* petBattle)
         return;
     }
 
-    if (auto abilityInfo = sBattlePetAbilityStore.LookupEntry(AbilityID))
+    /*if (auto abilityInfo = sBattlePetAbilityStore.LookupEntry(AbilityID))
     {
         PetBattleAbilityTurn abilityTurn;
         memset(&abilityTurn, 0, sizeof abilityTurn);
@@ -273,7 +273,7 @@ void PetBattleAura::Process(PetBattle* petBattle)
                     break;
             }
         }
-    }
+    }*/
 
     PetBattleEvent eventBuffChange(PETBATTLE_EVENT_BUFF_CHANGE, CasterPetID);
     eventBuffChange.UpdateBuff(TargetPetID, ID, AbilityID, Duration, Turn);
@@ -1119,8 +1119,8 @@ bool PetBattle::CanCast(uint32 teamID, uint32 abilityID)
     if (!l_Team->CanCastAny())
         return false;
 
-    if (!sBattlePetAbilityStore.LookupEntry(abilityID))
-        return false;
+   /* if (!sBattlePetAbilityStore.LookupEntry(abilityID))
+        return false;*/
 
     bool haveAbility = false;
 
@@ -1138,14 +1138,14 @@ void PetBattle::PrepareCast(uint32 teamID, uint32 abilityID)
     //memset(&abilityTurn, 0, sizeof(abilityTurn));
 
     uint8 maxTurnID = 0;
-    for (uint32 abilityTurnId = 0; abilityTurnId < sBattlePetAbilityTurnStore.GetNumRows(); ++abilityTurnId)
-    {
-        BattlePetAbilityTurnEntry const* abilityTurnInfo = sBattlePetAbilityTurnStore.LookupEntry(abilityTurnId);
-        if (!abilityTurnInfo || abilityTurnInfo->BattlePetAbilityID != abilityID)
-            continue;
+    //for (uint32 abilityTurnId = 0; abilityTurnId < sBattlePetAbilityTurnStore.GetNumRows(); ++abilityTurnId)
+    //{
+    //    BattlePetAbilityTurnEntry const* abilityTurnInfo = sBattlePetAbilityTurnStore.LookupEntry(abilityTurnId);
+    //    if (!abilityTurnInfo || abilityTurnInfo->BattlePetAbilityID != abilityID)
+    //        continue;
 
-        maxTurnID = std::max(maxTurnID, abilityTurnInfo->OrderIndex);
-    }
+    //    maxTurnID = std::max(maxTurnID, abilityTurnInfo->OrderIndex);
+    //}
 
     Teams[teamID]->ActiveAbilityId = abilityID;
     Teams[teamID]->activeAbilityTurn = 1;
@@ -1163,20 +1163,20 @@ PetBattleCastResult PetBattle::Cast(uint32 casterPetID, uint32 abilityID, uint32
         return PET_BATTLE_CAST_OK;
 
     /// check if the ability exist
-    auto abilityInfo = sBattlePetAbilityStore.LookupEntry(abilityID);
+   /* auto abilityInfo = sBattlePetAbilityStore.LookupEntry(abilityID);
     if (!abilityInfo)
-        return PET_BATTLE_CAST_INVALID_ID;
+        return PET_BATTLE_CAST_INVALID_ID;*/
 
     // States
-    if (!p_Turn && p_TriggerFlag == PET_BATTLE_CAST_TRIGGER_NONE)
+   /* if (!p_Turn && p_TriggerFlag == PET_BATTLE_CAST_TRIGGER_NONE)
         for (auto abilityStateInfo : sBattlePetAbilityStateStore)
             if (abilityStateInfo->BattlePetAbilityID == abilityID)
-                SetPetState(casterPetID, casterPetID, 0, abilityStateInfo->BattlePetStateID, Pets[casterPetID]->States[abilityStateInfo->BattlePetStateID] + abilityStateInfo->Value);
+                SetPetState(casterPetID, casterPetID, 0, abilityStateInfo->BattlePetStateID, Pets[casterPetID]->States[abilityStateInfo->BattlePetStateID] + abilityStateInfo->Value);*/
 
     PetBattleAbilityTurn abilityTurn;
     memset(&abilityTurn, 0, sizeof abilityTurn);
 
-    for (auto abilityTurnInfo : sBattlePetAbilityTurnStore)
+    /*for (auto abilityTurnInfo : sBattlePetAbilityTurnStore)
     {
         if (abilityTurnInfo->BattlePetAbilityID != abilityID || abilityTurnInfo->OrderIndex != p_Turn)
             continue;
@@ -1227,7 +1227,7 @@ PetBattleCastResult PetBattle::Cast(uint32 casterPetID, uint32 abilityID, uint32
             if (abilitySlot != -1)
                 Pets[casterPetID]->Cooldowns[abilitySlot] = abilityInfo->Cooldown;
         }
-    }
+    }*/
         return PET_BATTLE_CAST_OK;
 }
 
@@ -1313,13 +1313,13 @@ void PetBattle::SetPetState(uint32 sourcePetID, uint32 targetPetID, uint32 fromA
 
     Pets[targetPetID]->States[state] = value;
 
-    auto petStateEntry = sBattlePetStateStore.LookupEntry(state);
+  /*  auto petStateEntry = sBattlePetStateStore.LookupEntry(state);
     if (petStateEntry && petStateEntry->Flags && !fromCapture)
     {
         PetBattleEvent battleEvent(PETBATTLE_EVENT_SET_STATE, sourcePetID, flags, fromAbilityEffectID, RoundTurn++, 0, 1);
         battleEvent.UpdateState(targetPetID, state, value);
         RoundEvents.push_back(battleEvent);
-    }
+    }*/
 }
 
 void PetBattle::Kill(int8 killer, int8 target, uint32 killerAbibilityEffectID, bool fromCapture, uint32 flags)
