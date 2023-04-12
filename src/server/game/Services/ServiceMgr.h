@@ -84,7 +84,7 @@ struct RetroactiveFix
 {
     virtual char const* GetDescription() const = 0;
     virtual bool IsActive() { return true; }
-    virtual bool IsApplicable(Player* player) { return true; }
+    virtual bool IsApplicable(Player* /*player*/) { return true; }
     virtual bool Execute(Player* player) = 0;
 };
 
@@ -145,7 +145,7 @@ public:
     void ApplyRetroactiveFixes(Player* player);
 
     void AddService(Player* target, uint32 guid, ServiceEntry& entry);
-    void ExecuteService(Player* player, ServiceEntry const& entry, SQLTransaction const& trans = nullptr);
+    //void ExecuteService(Player* player, ServiceEntry const& entry, SQLTransaction const& trans = nullptr);
 
     uint32 GenerateServiceId() { return ++_serviceID; }
 
