@@ -1154,7 +1154,7 @@ void PetBattle::PrepareCast(uint32 teamID, uint32 abilityID)
 }
 
 
-PetBattleCastResult PetBattle::Cast(uint32 casterPetID, uint32 abilityID, uint32 p_Turn, uint32 p_Turn0ProcCondition, uint32 p_TriggerFlag)
+PetBattleCastResult PetBattle::Cast(uint32 casterPetID, uint32 /*abilityID*/, uint32 /*p_Turn*/, uint32 /*p_Turn0ProcCondition*/, uint32 /*p_TriggerFlag*/)
 {
     if (!Pets[casterPetID])
         return PET_BATTLE_CAST_INTERNAL_ERROR;
@@ -1301,7 +1301,7 @@ bool PetBattle::AddAura(uint32 casterPetID, uint32 targetPetID, uint32 abilityID
     return true;
 }
 
-void PetBattle::SetPetState(uint32 sourcePetID, uint32 targetPetID, uint32 fromAbilityEffectID, uint32 state, int32 value, bool fromCapture, uint32 flags)
+void PetBattle::SetPetState(uint32 /*sourcePetID*/, uint32 targetPetID, uint32 /*fromAbilityEffectID*/, uint32 state, int32 value, bool /*fromCapture*/, uint32 /*flags*/)
 {
     // TC_LOG_DEBUG(LOG_FILTER_BATTLEPET, "PetBattleEvent::SetPetState state %u value %u States %u", state, value, Pets[targetPetID]->States[state]);
 
