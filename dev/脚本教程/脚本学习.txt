@@ -1,0 +1,167 @@
+﻿From:https://uiwow.com/thread-8670-1-1.html?_dsign=fe080743
+通过源码和SQL自定义BOSS（篇二：召唤篇）
+教程以Trinity为例，示范如何通过编辑源码和SQL数据库实现自定义BOSS施放技能、召唤怪物、阶段和剧情文本四个功能。本篇为篇二：召唤篇   
+已发布的其他篇传送门（每篇教程相互独立，可以单独浏览某一篇教程）：
+篇一：BOSS技能篇
+
+下面开始：
+
+首先来看看与此相关的boss源码模板：
+#include "ScriptPCH.h"
+
+enum Spells
+{
+};
+
+enum Events
+{
+};
+
+class example : public CreatureScript
+{
+    public:
+        example() : CreatureScript("example") { }
+
+        struct exampleAI : public BossAI
+        {
+            exampleAI(Creature* creature) : BossAI(creature, 0)
+            {
+            }
+
+            void Reset() OVERRIDE
+            {
+                _Reset();
+            }
+                        
+            void EnterCombat(Unit* /*who*/) OVERRIDE
+            {
+            }
+                        
+            void KilledUnit(Unit * /*victim*/) OVERRIDE
+            {
+            }
+                        
+            void JustDied(Unit * /*victim*/) OVERRIDE
+            {
+            }
+
+            void UpdateAI(uint32 diff) OVERRIDE
+            {
+                if (!UpdateVictim())
+                    return;
+                                        
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+                                        
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        default:
+                            break;
+                    }
+                }
+                                
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        {
+            return new exampleAI(creature);
+        }
+};
+
+void AddSC_example()
+{
+        new example();
+}
+
+下面开始编辑修改
+步骤1
+在上面boss源码模板里找到下列代码，准备添加自定义事件
+enum Events
+{
+};
+
+这里添加一个召唤npc生物的事件，并进行编号，如下所示
+enum Events
+{
+    EVENT_SPAWNCREATURE = 1
+};
+
+步骤2
+在boss源码模板里找到代码“void EnterCombat”
+
+void EnterCombat(Unit* /*who*/) OVERRIDE
+{
+}
+
+然后给这个事件设置循环发生的时间间隔，注意：
+（1）事件名称的前缀“EVENT_”不是必须的，只是方便后面查找修改
+（2）时间单位是毫秒，1000ms=1s
+具体如下
+
+void EnterCombat(Unit* /*who*/) OVERRIDE
+{
+    events.ScheduleEvent(EVENT_SPAWNCREATURE, 25000)
+}
+
+步骤3
+在boss源码模板里找到下列代码
+while (uint32 eventId = events.ExecuteEvent())
+{
+    switch (eventId)
+    {
+        default:
+            break;
+    }
+}
+
+按照步骤2添加的召唤npc生物事件，填充进模板如下
+while (uint32 eventId = events.ExecuteEvent())
+{
+    switch (eventId)
+    {
+        case EVENT_SPAWNCREATURE:
+        events.ScheduleEvent(EVENT_SPAWNCREATURE, 25000);
+            break;
+        default:
+            break;
+    }
+}
+
+因为是召唤npc生物，所以还需要设置召唤物生成的坐标、召唤者脱离战斗后多久解散，因此增加代码如下
+while (uint32 eventId = events.ExecuteEvent())
+{
+    switch (eventId)
+    {case EVENT_SPAWNCREATURE:
+    me->SummonCreature(NPCID, xf, yf, zf, of, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+    events.ScheduleEvent(EVENT_SPAWNCREATURE, 25000);
+    break;
+default:
+            break;
+    }
+}
+
+这里假设召唤npc生物的ID为1123，召唤生成位置的坐标为（-512.42f, 1234.56f, 56.21f, 2.1f），召唤者脱离战斗5秒后消失。注意：坐标值后面的“f”不要删除改动，将相应代码完善如下
+me->SummonCreature(1234, -512.42f, 1234.56f, 56.21f, 2.1f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+这里列一下解散召唤物的其他可用指令
+TEMPSUMMON_TIMED_OR_DEAD_DESPAWN                    //达到设置的限定时间或召唤者消失的情况下
+TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN                  //达到设置的限定时间或召唤者死亡的情况下
+TEMPSUMMON_TIMED_DESPAWN                            //达到设置的限定时间后
+TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT              //达到设置的召唤物脱离战斗后的限定时间
+TEMPSUMMON_CORPSE_DESPAWN                           //召唤物死亡后立即解散
+TEMPSUMMON_CORPSE_TIMED_DESPAWN                     //达到设置的召唤物死亡后的限定时间
+TEMPSUMMON_DEAD_DESPAWN                             //当召唤物消失时立即解散
+TEMPSUMMON_MANUAL_DESPAWN                           //当其他UnSummon()指令被调用时
+注意：如果你选择非时间限制的解散召唤物条件，在套用步骤3的示例模板时，要把最后的数字去掉，如下
+me->SummonCreature(1234, -512.42f, 1234.56f, 56.21f, 2.1f, TEMPSUMMON_DEAD_DESPAWN);
+
+OK 至此，源码自定义BOSS召唤npc生物就完成了，完整代码是这样的：
+
+
+篇二：召唤篇 结束
+下一个教程预告：篇三：BOSS阶段篇
