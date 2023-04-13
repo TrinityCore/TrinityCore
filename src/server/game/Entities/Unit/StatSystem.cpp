@@ -475,7 +475,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     if (ranged)
     {
         SetRangedAttackPower(int32(base_attPower));
-        if (attPowerMod > 0)
+        if (attPowerMod >= 0)
             SetRangedAttackPowerModPos(int32(attPowerMod));
         else
             SetRangedAttackPowerModNeg(int32(attPowerMod));
@@ -484,7 +484,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     else
     {
         SetAttackPower(int32(base_attPower));
-        if (attPowerMod > 0)
+        if (attPowerMod >= 0)
             SetAttackPowerModPos(int32(attPowerMod));
         else
             SetAttackPowerModNeg(int32(attPowerMod));
