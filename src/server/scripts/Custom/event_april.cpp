@@ -1,4 +1,4 @@
-﻿//#include "PrecompiledHeaders/ScriptPCH.h"
+﻿#include "ScriptPCH.h"
 //#include <ScriptMgr.h>
 //
 //#include "GameEventMgr.h"
