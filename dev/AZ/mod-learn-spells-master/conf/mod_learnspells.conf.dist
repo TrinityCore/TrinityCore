@@ -1,0 +1,24 @@
+[worldserver]
+
+###################################################################################################
+#	Learn spells on level-up
+###################################################################################################
+
+# Enable the module? (1: true | 0: false)
+
+LearnSpells.Enable = 1
+
+# Announce the module when the player logs in?
+
+LearnSpells.Announce = 1
+
+# Should the player receive all spells on first login?
+# Useful for instant leveling type of servers
+# (1: true | 0: false)
+
+LearnSpells.LearnAllOnFirstLogin = 0
+
+# Max level Limit the player will learn spells
+# 	Default:  = 80
+
+LearnSpells.MaxLevel = 80
