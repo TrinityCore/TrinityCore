@@ -35,7 +35,7 @@ INSERT INTO creature_template (entry , NAME, subname , faction, npcflag, unit_cl
 --  , maxlevel        ,-1
 
 INSERT INTO creature_template_model (CreatureID, Idx,CreatureDisplayID,DisplayScale,Probability,VerifiedBuild) VALUES
-(1001000, 0, 28153, 1,0, 120);
+(1001000, 0, 28153, 1,0, 120);--120代表x
 
 (上述两句已导入数据库-2023年4月14日07:19:24)
 //teleporter_remove.sql
