@@ -1,4 +1,177 @@
-﻿From:https://uiwow.com/thread-8670-1-1.html?_dsign=fe080743
+﻿From:https://uiwow.com/thread-8667-1-1.html?_dsign=19ba636a
+通过源码和SQL自定义BOSS（篇一：技能篇）
+教程以Trinity为例，示范如何通过编辑源码和SQL数据库实现自定义BOSS施放技能、召唤怪物、阶段和剧情文本四个功能。本篇为篇一：技能篇
+首先来看看与此相关的boss源码模板：
+#include "ScriptPCH.h"
+
+enum Spells
+{
+};
+
+enum Events
+{
+};
+
+class example : public CreatureScript
+{
+    public:
+        example() : CreatureScript("example") { }
+
+        struct exampleAI : public BossAI
+        {
+            exampleAI(Creature* creature) : BossAI(creature, 0)
+            {
+            }
+
+            void Reset() OVERRIDE
+            {
+                _Reset();
+            }
+
+下面开始进行编辑修改
+步骤1
+在上面boss源码模板里找到下列代码，准备添加自定义技能
+
+enum Spells
+{
+};
+
+这里添加三个技能：闪电箭、治疗波、火焰冲击，注意：前缀“SPELL_”不是必须的，只是为了方便后续查找修改
+
+enum Spells
+{
+    SPELL_LIGHTNINGBOLT = 403, 
+    SPELL_HEALINGWAVE = 331,
+    SPELL_FLAMESHOCK = 8050,
+};
+
+
+步骤2
+在boss源码模板里找到下列代码，准备添加自定义事件
+
+enum Events
+{
+};
+
+这里添加三个事件并编号，分别对应步骤1自定义的三个技能。后面会根据事件编号进行切换，下文会说。
+
+enum Events
+{
+    EVENT_LIGHTNINGBOLT = 1,
+    EVENT_HEALINGWAVE = 2,
+    EVENT_FLAMESHOCK = 3,
+};
+
+注意，前缀“EVENT_”不是必须的，这里也是为了方便后续查找修改，事件编号最好按照你想要的先后顺序按照数字大小排列。
+
+在boss源码模板里找到代码“void EnterCombat”
+
+void EnterCombat(Unit* /*who*/) OVERRIDE
+{
+}
+
+
+下面自定义战斗开始后事件发生的间隔时间，注意时间单位是毫秒，1000ms=1s
+
+void EnterCombat(Unit* /*who*/) OVERRIDE
+{
+                        events.ScheduleEvent(EVENT_LIGHTNINGBOLT, 8000);
+                events.ScheduleEvent(EVENT_HEALINGWAVE, 12000);
+                events.ScheduleEvent(EVENT_FLAMESHOCK , 10000);
+}
+
+
+步骤3
+
+while (uint32 eventId = events.ExecuteEvent())
+{
+    switch (eventId)
+    {
+        default:
+            break;
+    }
+}
+
+按照我们步骤2自定义添加的三个事件，应该如下
+
+while (uint32 eventId = events.ExecuteEvent())
+{
+    switch (eventId)
+    {
+        case EVENT_LIGHTNINGBOLT:
+            break;
+        case EVENT_HEALINGWAVE:
+            break;
+        case EVENT_FLAMESHOCK:
+            break;
+        default:
+            break;
+    }
+}
+
+只有事件ID，这样执行是没效果的，我们接着完善，如下所示
+
+while (uint32 eventId = events.ExecuteEvent())
+{
+    switch (eventId)
+    {
+        case EVENT_LIGHTNINGBOLT:
+            DoCastVictim(SPELL_LIGHTNINGBOLT);
+            events.ScheduleEvent(EVENT_LIGHTNINGBOLT, 8000);
+            break;
+        case EVENT_HEALINGWAVE:
+            DoCast(me, SPELL_HEALINGWAVE);
+            events.ScheduleEvent(EVENT_HEALINGWAVE, 12000);
+            break;
+        case EVENT_FLAMESHOCK:
+            if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                DoCast(target, SPELL_FLAMESHOCK);
+            events.ScheduleEvent(EVENT_FLAMESHOCK, 10000);
+            break;
+        default:
+            break;
+    }
+}
+
+boss在满足技能施放要求时就会按照设定的事件发生的间隔时间重复发动技能。
+
+需要说明的是关于事件3“火焰冲击”的说明，如下
+
+if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, [pre]0[/pre]))
+    DoCast(target, SPELL_FLAMESHOCK);
+events.ScheduleEvent(EVENT_FLAMESHOCK , 10000);
+
+高亮标出的数字代表随机玩家的分组类别，0就是任意随机，具体如下
+(SELECT_TARGET_RANDOM, 0)    //任意随机玩家
+(SELECT_TARGET_RANDOM, 1)    //与boss距离近的随机玩家
+(SELECT_TARGET_RANDOM, 2)    //与boss距离中等的随机玩家
+(SELECT_TARGET_RANDOM, 3)    //与boss距离远的随机玩家
+(SELECT_TARGET_RANDOM, 4)    //有魔法值的随机玩家
+(SELECT_TARGET_RANDOM, 5)    //有怒气值的随机玩家
+(SELECT_TARGET_RANDOM, 6)    //有能量值的随机玩家
+
+OK 至此，通过源码自定义BOSS技能就完成了.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+From:https://uiwow.com/thread-8670-1-1.html?_dsign=fe080743
 通过源码和SQL自定义BOSS（篇二：召唤篇）
 教程以Trinity为例，示范如何通过编辑源码和SQL数据库实现自定义BOSS施放技能、召唤怪物、阶段和剧情文本四个功能。本篇为篇二：召唤篇   
 已发布的其他篇传送门（每篇教程相互独立，可以单独浏览某一篇教程）：
