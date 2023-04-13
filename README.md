@@ -1,4 +1,4 @@
-# ![logo](http://m.qpic.cn/psc?/V52nY6a20lzs8U1Wv03f33HFbw43TrKC/bqQfVz5yrrGYSXMvKr.cqad44szbS8X0Ps9P2rb6ioZ.IEkHmy93jWFHC1wIznHyNosj8F9Zh8uGBSXiOwarjryde0sIuzb6NL3T3uLjVrQ!/b&bo=2QDRAAAAAAADByo!&rf=viewer_4) XCore
+﻿# ![logo](http://m.qpic.cn/psc?/V52nY6a20lzs8U1Wv03f33HFbw43TrKC/bqQfVz5yrrGYSXMvKr.cqad44szbS8X0Ps9P2rb6ioZ.IEkHmy93jWFHC1wIznHyNosj8F9Zh8uGBSXiOwarjryde0sIuzb6NL3T3uLjVrQ!/b&bo=2QDRAAAAAAADByo!&rf=viewer_4) XCore
 
 * [介绍](#介绍)
 
@@ -18,10 +18,21 @@
 
 基于TrintyCore的master分支再开发<br>
 (https://github.com/TrinityCore/TrinityCore)<br>
-目标有二：<br>
+原先的目标有二：<br>
 一是容纳众家之长,实现完全开源、支持最新版、不断修复的服务端.<br>
 二是让国人更容易参与编译、修复、阅读、理解代码。<br>
 
+后来发现：<br>
+1.中文注释经常变乱码,就逐渐改为英文的了。<br>
+2.完全开源，毫无保留，貌似也没人承情，升米恩，斗米仇。<br>
+所以，TDB不再上传（也大，传也费事）。<br>
+vmmaps现在还有,以后要是更新了,直接删除旧的,也不再上传新的。<br>
+太大,上传也太费事了。<br>
+研究这个的初衷是基于兴趣爱好,后来一堆人找我问这问那,实在累人。<br>
+所以不再进群,也不闲聊。遇到问题自己多找资料解决吧，ChatGPT也是个不错的选择。<br>
+如果非要找我，发红包吧！<br>
+QQ:350583539<br>
+其他情况勿扰，只想安安静静的。<br>
 ## 安装需求
 
 Windows, Linux和macOS的软件安装需求请点击:[维基](https://trinitycore.info/en/install/requirements)。
