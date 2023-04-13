@@ -1,0 +1,27 @@
+加入：
+
+if (pProto->vipLevel  > GetSession()->GetVipLevel())
+			{
+				ChatHandler(GetSession()).SetSentErrorMessage(true);
+				GetSession()->SendAreaTriggerMessage("|cffFF0000You need to be VIP Level: %u, to equip this item|r. You currently have VIP Level: %u", pProto->vipLevel, GetSession()->GetVipLevel());
+				return EQUIP_ERR_ITEM_CANT_BE_EQUIPPED;
+			}
+			
+			
+在这个位置：
+
+InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool swap, bool not_loading) const
+{
+    dest = 0;
+    if (pItem)
+    {
+        TC_LOG_DEBUG("entities.player.items", "STORAGE: CanEquipItem slot = %u, item = %u, count = %u", slot, pItem->GetEntry(), pItem->GetCount());
+        ItemTemplate const* pProto = pItem->GetTemplate();
+        if (pProto)
+        {
+			if (pProto->vipLevel  > GetSession()->GetVipLevel())
+			{
+				ChatHandler(GetSession()).SetSentErrorMessage(true);
+				GetSession()->SendAreaTriggerMessage("|cffFF0000You need to be VIP Level: %u, to equip this item|r. You currently have VIP Level: %u", pProto->vipLevel, GetSession()->GetVipLevel());
+				return EQUIP_ERR_ITEM_CANT_BE_EQUIPPED;
+			}
