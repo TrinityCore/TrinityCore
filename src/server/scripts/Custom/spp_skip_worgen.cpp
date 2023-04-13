@@ -12,7 +12,7 @@ public:
 
     void OnLogin(Player* p_Player, bool /*firstLogin*/) override
     {
-        if (sConfigMgr->GetBoolDefault("Skip.Worgen.Enable", true))
+        if (sConfigMgr->GetBoolDefault("Skip.Worgen.Enable", false))//默认不启用
         {
             if (p_Player->GetMapId() == 654)
             {
