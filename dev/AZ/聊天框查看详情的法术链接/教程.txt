@@ -1,0 +1,19 @@
+﻿https://uiwow.com/thread-8259-1-1.html?_dsign=bc6ae11a
+
+//法术链接
+std::string GetSpellink(uint32 entry)
+{
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry);
+    if (!spellInfo)
+        return "<UnKnow>";
+    std::string name = spellInfo->SpellName[4];
+
+    std::ostringstream oss;
+
+    oss << "|cff71d5ff|Hspell:" << entry << "|h[" << name << "]|h|r";
+    return oss.str();
+}
+
+应用语句:
+//聊天框显示ID为5的技能链接
+ChatHandler(player->GetSession()).PSendSysMessage("技能预览：%s", GetSpellink(5).c_str());
