@@ -1,0 +1,19 @@
+[worldserver]
+
+# XPWeekend.Announce
+# 	Annnounces to the player that the module is enabled even if its not the weekend.
+# default: 1 = true 
+#
+XPWeekend.Announce = 0
+
+# XPWeekend.Enabled
+#	Enable or Disable the module.
+#default: 1 = enable
+#
+XPWeekend.Enabled = 1
+
+# XPWeekend.xpAmount
+#	Allows the config file to set the amount of times xp is given
+# default = 2 (double)
+#
+XPWeekend.xpAmount = 2
