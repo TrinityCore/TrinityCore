@@ -1,0 +1,130 @@
+﻿//教程1
+https://uiwow.com/forum.php?mod=viewthread&tid=11886&_dsign=9b7956e2
+
+
+[世界服务器]
+#
+############################################### ##############################################
+
+############################################### ##############################################
+# 反作弊模块
+#
+# Antiheat.Enable
+# 描述：启用或禁用反作弊系统功能
+# 默认值：1 -（启用）
+# 0 -（禁用）
+
+Antiheat.Enabled = 1
+
+# Antiheat.EnabledOnGmAccounts
+# 描述：启用检测 GM 账户
+# 默认值：0 -（禁用）
+# 1 -（启用）
+
+Antiheat.EnabledOnGmAccounts = 0
+
+# Antiheat.ReportsForIngameWarnings
+# 描述：当玩家生成新报告时，玩家必须在游戏中通知 GameMasters 的报告数量。
+# 默认值：70
+
+Antiheat.ReportsForIngameWarnings = 70
+
+# Antiheat.MaxReportsForDailyReport
+# 描述：玩家必须报告它在数据库中一天（不仅是在玩家会话期间）需要多少报告。
+# 默认值：70
+
+Antiheat.MaxReportsForDailyReport = 70
+
+# Antiheat.LoginMessage
+# 描述：启用登录消息“此服务器正在运行 Antiheat 模块。”
+# 默认值：1
+
+Antiheat.LoginMessage = 0
+
+# Antiheat.WriteLog
+# 描述：当检测到玩家使用黑客攻击时启用写入日志
+# 默认值：0 -（禁用）
+# 1 -（启用）
+
+Antiheat.WriteLog = 0
+
+# Antiheat.SaveReportsTime
+# 说明：设置每份报告保存的时间间隔（以秒为单位）
+# 默认值：60 -（秒）
+
+Antiheat.SaveReportsTime = 60
+
+# Antiheat.Detect
+# 说明：它表示启用了哪些检测（默认情况下禁用 ClimbHack）。
+# 默认值：1 -（启用）
+# 0 -（禁用）
+
+Antiheat.DetectFlyHack = 1
+Antiheat.DetectWaterWalkHack = 1
+Antiheat.DetectJumpHack = 1
+Antiheat.DetectTelePlaneHack = 1
+Antiheat.DetectSpeedHack = 1
+Antiheat.DetectClimbHack = 0
+
+# Antiheat.StricterFlyHackCheck
+# 描述：检查 moveflag 升序（可能会产生误报）
+# 默认值：0 -（禁用）
+# 1 -（启用）
+
+Antiheat.StricterFlyHackCheck = 0
+
+# Antiheat.KickPlayerFlyHack
+# 描述：首次检测 flyhack 的 Kick 选项（可能会产生误报）
+# 默认值：0 -（禁用）
+# 1 -（启用）
+
+Antiheat.KickPlayerFlyHack = 0
+
+# Antiheat.KickPlayerWaterWalkHack
+# 描述：用于首次检测 waterwalkhack 的踢选项（可能会产生误报）
+# 默认值：0 -（禁用）
+# 1 -（启用）
+
+Antiheat.KickPlayerWaterWalkHack = 0
+
+# Antiheat.AnnounceKick
+# 描述：当用户踢球时向所有玩家发送消息。
+# 默认值：0 -（禁用）
+#     
+Antiheat.AnnounceKick = 1
+（azerothcore）直接使用其他源码需要自行修改
+放在modules 文件夹里面
+
+直接编译即可
+
+
+附属文件需要DKP,暂未购买
+
+//教程2
+//强制消耗物品使用耗尽后消失
+
+首先 正常默认的消耗物品 使用耗尽后是会消失的
+
+比如 力量卷轴，敏捷卷轴，药水，面包 等等类似的物品，耗尽后就消失。
+
+但是！近期接触到一款辅助，可以让此类可以正常消失的消耗品耗尽后不消失。
+是的 没听错，这种现象很明显是很致命的存在。
+比如，积分卷轴，点券卷轴，经验卷轴... 是不是感觉自己的心血 瞬间白给。
+
+鉴于此 我在各群里也请教了大佬，发现可行的方案就是源码控制来解决这个问题。
+随后 就有了下述代码：
+// 物品使用后消失脚本的脚本
+class Func_item_spellcharges : public ItemScript
+{
+public:
+        Func_item_spellcharges() : ItemScript("Func_item_spellcharges") { }
+
+        bool OnUse(Player* player, Item* item, SpellCastTargets const & /*targets*/) override
+        {
+                uint32 count = 1;
+                player->DestroyItemCount(item, count, true);
+                return true;
+        }
+};
+
+把 Func_item_spellcharges 脚本名写在要封堵此问题的物品脚本名里
