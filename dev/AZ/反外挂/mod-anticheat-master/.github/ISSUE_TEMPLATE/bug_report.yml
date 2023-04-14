@@ -1,0 +1,92 @@
+name: Bug report
+description: Create a bug report to help us improve.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to fill out a bug report. Remember to fill out all fields including the title above. 
+        An issue that is not properly filled out will be closed. 
+        You can read more about the standards for a bug report [here](https://www.azerothcore.org/wiki/issue-tracker-standards).
+  - type: textarea
+    id: current
+    attributes:
+      label: Current Behaviour
+      description: |
+        Description of the problem or issue here.
+        Include entries of affected creatures / items / quests / spells etc.
+        If this is a crash, post the crashlog (upload to https://gist.github.com/) and include the link here.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Blizzlike Behaviour
+      description: |
+        Tell us what should happen instead.
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Source
+      description: |
+        If you have a source that proves how it is supposed to work, please add that to make it easier for devs to fix the issue.
+    validations:
+      required: false
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce the problem
+      description: |
+        What does someone else need to do to encounter the same bug?
+      placeholder: |
+        1. Step 1
+        2. Step 2
+        3. Step 3
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Extra Notes
+      description: |
+        Do you have any extra notes that can help solve the issue that does not fit any other field?
+      placeholder: |
+        None
+    validations:
+      required: false
+  - type: textarea
+    id: commit
+    attributes:
+      label: AC rev. hash/commit
+      description: |
+        Copy the result of the `.server debug` command (if you need to run it from the client get a prat addon)
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      description: |
+        Operating System, i.e. Windows 10 x64, Debian 10 x64, etc
+    validations:
+      required: true
+  - type: textarea
+    id: custom
+    attributes:
+      label: Custom changes or Modules
+      description: |
+        List which custom changes or modules you have applied, i.e. Eluna module, etc.
+      placeholder: |
+        None
+    validations:
+      required: false
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for your contribution.
+        If you use AzerothCore regularly, we really NEED your help to:
+        - Test our fixes: https://www.azerothcore.org/wiki/How-to-test-a-PR
+        - Report issues or suggestions: https://github.com/azerothcore/azerothcore-wotlk/issues/new/choose
+        - Improve the documentation/wiki: https://www.azerothcore.org/wiki/home
+        With your help, the project can evolve much quicker!
