@@ -1,0 +1,122 @@
+﻿https://uiwow.com/thread-16861-1-4.html?_dsign=a13c0b7a
+
+原帖地址：https://uiwow.com/forum.php?mod=viewthread&tid=3910&highlight=%E5%AE%9D%E7%9F%B3%E6%8B%86%E5%8D%B8&extra=&_dsign=f36fb958
+
+本人用的AZ端，将原帖中的代码复制粘贴后不能直接使用，所以做了些修改
+Step1. 在核心中加入这个脚本；
+Step2. 在数据库的表（item_template）对应物品的ScriptName列（一般在倒数第七列）填写脚本名
+Step3. 在游戏中 .additem 步骤2加脚本的物品
+Step4. 用步骤3的物品对镶嵌了宝石的装备进行操作
+
+#include "ScriptMgr.h"
+#include "Item.h"
+#include "Chat.h"
+#include "Player.h"
+#include "Spell.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+class item_remove_gems_in_socket : public ItemScript
+{
+public:
+    item_remove_gems_in_socket() : ItemScript("item_remove_gems_in_socket") { }
+        
+        uint32 _gemid[3] = { 0, 0, 0 };
+
+        ObjectGuid _guid;
+
+        bool OnUse(Player* player, Item* item, SpellCastTargets const& targets)
+        {
+                player->PlayerTalkClass->ClearMenus();
+
+                Item * targetItem = player->GetItemByGuid(targets.GetItemTargetGUID());
+
+                if (!targetItem)
+                        return false;
+        
+                _guid = targetItem->GetGUID(); 
+
+                std::string targetsItem_name = GetItemLink(targetItem->GetEntry());
+                
+                std::string _gemname[3] = { "","","" };
+
+                uint8 i = 0;
+               
+                for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT + MAX_GEM_SOCKETS; ++enchant_slot)
+                {
+                        uint32 enchant_id = targetItem->GetEnchantmentId(EnchantmentSlot(enchant_slot));
+                        if (!enchant_id)
+                                continue;
+                        SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
+                        if (!enchantEntry)
+                                continue;
+                        uint32 gemid = enchantEntry->GemID;
+                        if (gemid)
+                        {
+                                ItemTemplate const* gemProto = sObjectMgr->GetItemTemplate(gemid);
+                                if (gemProto)
+                                {
+                                        _gemid[i] = gemid;
+                                        _gemname[i] = GetItemLink(gemid).empty() ? "" : GetItemLink(gemid);
+                                }
+                                
+                        }
+                        ++i;
+                }
+                if (_gemname[0].empty() && _gemname[1].empty() && _gemname[2].empty())
+                {
+                    ChatHandler(player->GetSession()).SendSysMessage("拆除失败。");
+                    return false;//
+                }
+                std::string str = "你确定需要摘除 " + targetsItem_name + "上的";
+                str += _gemname[0].empty() ? "" : "\n" + _gemname[0];
+                str += _gemname[1].empty() ? "" : "\n" + _gemname[1];
+                str += _gemname[2].empty() ? "" : "\n" + _gemname[2];
+                str += "\n吗？";
+                AddGossipItemFor(player, -1, str, GOSSIP_SENDER_MAIN, 1001, str, 0, false);
+                SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, item->GetGUID());
+                return true;
+
+        }
+
+        void OnGossipSelect(Player* player, Item* item, uint32 sender, uint32 action)
+        {
+                player->PlayerTalkClass->ClearMenus();
+
+                if (sender == 1)
+                {
+                        //uint32 tartargetsItemid = action - GOSSIP_ACTION_COMMONFUN_REMOVEGEM;
+
+                        if (!_guid)
+                                return;
+
+                        Item * targetItem = player->GetItemByGuid(_guid);
+                        if (!targetItem)
+                                return;
+
+                        uint8 i = 0;
+                        for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT + MAX_GEM_SOCKETS; ++enchant_slot)
+                        {
+                                targetItem->ClearEnchantment(EnchantmentSlot(enchant_slot));
+                                player->AddItem(_gemid[i], 1);
+                                ++i;
+                        }
+                        player->DestroyItemCount(item->GetEntry(), 1, true);
+                }
+        }
+        std::string GetItemLink(uint32 entry)
+        {
+            const ItemTemplate* temp = sObjectMgr->GetItemTemplate(entry);
+            std::string name = temp->Name1;
+            std::ostringstream oss;
+            oss << "|c" << std::hex << ItemQualityColors[temp->Quality] << std::dec <<
+                "|Hitem:" << entry << ":0:0:0:0:0:0:0:0:0|h[" << name << "]|h|r";
+
+            return oss.str();
+        }      
+};
+// Add all scripts in one
+void AddRemoveGemsScripts()
+{
+    new item_remove_gems_in_socket();
+}
+
