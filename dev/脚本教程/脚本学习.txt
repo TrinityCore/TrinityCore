@@ -338,3 +338,185 @@ OK 至此，源码自定义BOSS召唤npc生物就完成了，完整代码是这�
 
 篇二：召唤篇 结束
 下一个教程预告：篇三：BOSS阶段篇
+
+
+//https://uiwow.com/thread-8689-1-3.html?_dsign=c042525c
+//篇三：BOSS阶段篇
+
+教程以Trinity为例，示范如何通过编辑源码和SQL数据库实现自定义BOSS施放技能、召唤怪物、阶段和剧情文本四个功能。本篇为篇三：BOSS阶段篇
+
+已发布的其他篇传送门（每篇教程相互独立，可以单独浏览某一篇教程）：
+篇一：BOSS技能篇
+
+篇二：召唤篇
+(这两篇就是上面那两个)
+下面开始
+
+本篇将根据BOSS血量状态转换阶段，先来看看与BOSS阶段相关的源码模板：
+
+
+#include "ScriptPCH.h"
+enum Spells
+{
+};
+
+enum Events
+{
+};
+
+enum Phases
+{
+};
+
+class example : public CreatureScript
+{
+    public:
+        example() : CreatureScript("example") { }
+
+        struct exampleAI : public BossAI
+        {
+            exampleAI(Creature* creature) : BossAI(creature, 0)
+            {
+            }
+
+            void Reset() OVERRIDE
+            {
+                _Reset();
+            }
+
+            void EnterCombat(Unit* /*who*/) OVERRIDE
+            {
+            }
+
+            void KilledUnit(Unit * /*victim*/) OVERRIDE
+            {
+            }
+
+            void JustDied(Unit * /*victim*/) OVERRIDE
+            {
+            }
+
+            void UpdateAI(uint32 diff) OVERRIDE
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        {
+            return new exampleAI(creature);
+        }
+};
+
+void AddSC_example()
+{
+        new example();
+}
+
+
+下面开始编辑修改
+步骤1
+在上面的源码模板里找到以下代码，准备添加自定义阶段
+
+enum Phases
+{
+};
+
+这里自定义2个阶段，顺序编号为1、2
+
+enum Phases
+{
+    PHASE_ONE = 1,
+    PHASE_TWO = 2,
+};
+
+
+步骤2
+在源码模板里找到字段“EnterCombat”所在语句块，我们通过添加事件将阶段1作为BOSS战的起始阶段，如下所示
+
+
+void EnterCombat(Unit* /*who*/) OVERRIDE
+{
+    events.SetPhase(PHASE_ONE);
+}
+
+步骤3
+在源码模板里找到字段“void UpdateAI”所在语句块，设定如下：当处于阶段1的boss血量降到75%以下时进入阶段2，代码如下
+void UpdateAI(uint32 diff) OVERRIDE
+{
+    if (!UpdateVictim())
+        return;
+                                        
+    events.Update(diff);
+
+    if (me->HasUnitState(UNIT_STATE_CASTING))
+        return;
+        
+    if (events.IsInPhase(PHASE_ONE) && HealthBelowPct(75))
+    {
+        events.SetPhase(PHASE_TWO);
+    }
+    while (uint32 eventId = events.ExecuteEvent())
+    {
+        switch (eventId)
+        {
+            default:
+                break;
+        }
+    }
+                                
+    DoMeleeAttackIfReady();
+}
+
+
+以上就完成了BOSS的阶段转换，不过…是不是感觉少了点啥 BOSS转换阶段后应该有些变化，比如会施放阶段专属的技能，那我们就为boss加几个阶段技能吧
+
+步骤4
+（1）回到刚刚步骤1 找到字段“EnterCombat”所在的语句块，我们给阶段1的boss加两个技能，这个步骤是不是有点似曾相识，没错，这就是篇一：BOSS技能篇的内容，不熟悉的可以去看一下，我们继续
+
+void EnterCombat(Unit* /*who*/) OVERRIDE
+{
+    events.SetPhase(PHASE_ONE);
+    events.ScheduleEvent(EVENT_LIGHTNINGBOLT, 8000, 0, PHASE_ONE);
+    events.ScheduleEvent(EVENT_HEALINGWAVE, 12000, 0, PHASE_ONE);
+}
+
+仔细看是不是和篇一：BOSS技能篇里的又不太一样，对，因为多了“0, PHASE_ONE”这两个参数变量，作用是这两个施放技能的事件只会在阶段1生效
+
+（2）我们给阶段2的boss也加两个技能，回到刚刚步骤3的源码模板，找到“events.SetPhase(PHASE_TWO)”这行代码，在它下一行新增两行代码，如下所示
+
+if (events.IsInPhase(PHASE_ONE) && HealthBelowPct(75))
+{
+    events.SetPhase(PHASE_TWO);
+    events.ScheduleEvent(EVENT_FLAMESHOCK, 10000, 0, PHASE_TWO);
+    events.ScheduleEvent(EVENT_SPAWNCREATURE, 25000, 0, PHASE_TWO);
+}
+
+这样，BOSS进入第二阶段就会施放火焰冲击和召唤怪物啦
+
+OK 至此，通过源码自定义BOSS阶段就大功告成了.
+
+篇三：BOSS阶段篇 结束
+
+下一个教程预告
+篇四：BOSS剧情文本
+
+
+
