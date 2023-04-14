@@ -1,0 +1,116 @@
+﻿From:https://uiwow.com/thread-7191-1-1.html?_dsign=f12a2ef2
+下载后放到AZ核心的Module目录，CMake后编译后即可使用
+在线充值后，再登陆需要充值的角色，就可以获得相应的积分
+
+需要在account表中加入一个字段game_point,用来记录当次充值
+
+
+#include "Player.h"
+#include "Config.h"
+#include "Chat.h"
+#include "ScriptMgr.h"
+#include "GuildMgr.h"
+#pragma execution_character_set("utf-8")
+bool PayEnable = 1;
+bool PayAnnounceModule = 0;
+
+
+
+
+
+class PayConfig : public WorldScript
+{
+public:
+    PayConfig() : WorldScript("PayConfig") { }
+
+    void OnBeforeConfigLoad(bool reload) override
+    {
+        if (!reload) {
+            std::string conf_path = _CONF_DIR;
+            std::string cfg_file = conf_path + "/mod_pay.conf";
+#ifdef WIN32
+            cfg_file = "mod_pay.conf";
+#endif
+
+            std::string cfg_def_file = cfg_file + ".dist";
+            sConfigMgr->LoadMore(cfg_def_file.c_str());
+            sConfigMgr->LoadMore(cfg_file.c_str());
+
+            // Load Configuration Settings
+            SetInitialWorldSettings();
+        }
+    }
+
+    // Load Configuration Settings
+    void SetInitialWorldSettings()
+    {
+        PayEnable = sConfigMgr->GetBoolDefault("Pay.Enable", 1);
+        PayAnnounceModule = sConfigMgr->GetBoolDefault("Pay.Announce", 1);
+    }
+};
+
+class PayAnnounce : public PlayerScript
+{
+
+public:
+
+    PayAnnounce() : PlayerScript("PayAnnounce") {}
+
+    void OnLogin(Player* player)
+    {
+        if (PayEnable)
+        {
+            if (PayAnnounceModule)
+            {
+                ChatHandler(player->GetSession()).SendSysMessage("This server is running the |cff4CFF00Pay |rmodule.");
+            }
+        }
+    }
+};
+
+class Pay : public PlayerScript
+{
+
+public:
+    Pay() : PlayerScript("Pay") { }
+
+    void OnLogin(Player* player)
+    {
+                std::string name = player->GetName();
+                uint32 point=0;
+                
+        // If enabled..
+        if (PayEnable)
+        {
+            QueryResult GetAccountId = CharacterDatabase.PQuery("SELECT `account` FROM `characters` WHERE `name` = '%s'", player->GetName());
+            if (GetAccountId)
+            {
+                Field* field2 = GetAccountId->Fetch();
+                uint32 AccountID = field2[0].GetInt32();
+                QueryResult result = LoginDatabase.PQuery("SELECT `game_point` FROM acore_auth.`account` WHERE `id` = '%u'", AccountID);
+                Field* fields = result->Fetch();
+                if (result)
+                {
+                    point = fields[0].GetUInt32();
+                    if (point > 0)
+                    {
+                        player->AddItem(4499999, point);
+                        
+                        LoginDatabase.PExecute("update acore_auth.account set game_point=0 where id= '%u' ", AccountID);
+                        player->GetSession()->SendNotification("|cff4CFF00本次充值共获取积分:[%d]!! ", point);
+                    }
+                }
+            }
+
+        }
+    }
+
+
+};
+
+void AddPayScripts()
+{
+    new PayConfig();
+    new PayAnnounce();
+    new Pay();
+}
