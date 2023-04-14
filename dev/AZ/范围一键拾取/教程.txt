@@ -1,0 +1,68 @@
+﻿https://uiwow.com/thread-15214-1-4.html?_dsign=d20d53ca
+<范围一键拾取>
+需要在源码添加
+有一定源码基础的可以尝试使用
+
+
+需要添加的文件如下
+
+src/server/game/Entities/Object/Object.cpp    |  16 +++
+src/server/game/Entities/Object/Object.h      |   1 +
+src/server/game/Entities/Player/Player.cpp    |  15 +--
+src/server/game/Entities/Player/Player.h      |   2 +-
+.../game/Grids/Notifiers/GridNotifiers.h      |  16 +++
+src/server/game/Handlers/LootHandler.cpp      |   7 +-
+src/server/game/YourCore/YourCoreScript.cpp   | 103 ++++++++++++++++++
+src/server/game/Server/WorldSession.h         |   2 +-
+
+
+做的是物品脚本
+比较方便, 点一下就可以拾取一定范围内的物品
+当然是副本首领单位是跳过的
+拾取的条件可以自己修改
+贴出的隐藏的部分函数, 希望大家理解
+
+class Taken_Corpos : public ItemScript
+{
+public:
+        Taken_Corpos() :ItemScript("item_Taken_Corpos") {}
+
+        bool OnUse(Player* player, Item* item, SpellCastTargets const & target) override
+        {
+                if (!player->IsInCombat())
+                {
+                        if (player->GetGroup() && player->GetMap()->IsRaid())
+                        {
+                                player->GetSession()->SendNotification("组队或者在团本状态下无法使用");
+                                return true;
+                        }
+                        else
+                        {
+                                std::list<Creature*> NearCreatureCorpos;
+                                player->GetCreaturesCorpseInRange(NearCreatureCorpos, 50.f); //拾取范围50码
+                                std::list<Creature*>::const_iterator itr;
+                                for (itr = NearCreatureCorpos.begin(); itr != NearCreatureCorpos.end(); ++itr)
+                                {
+                                        if (!IS_CREATURE_GUID((*itr)->GetGUID()))
+                                                continue;
+                                        if ((*itr)->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)// 非副本首领单位
+                                                continue;
+                                        if ((*itr)->GetLootRecipientGUID() == player->GetGUID())
+                                        {
+                                                HandleLootOpcode(player, (*itr));
+                                                HandleLootMoneyOpcode(player, (*itr));
+                                                HandleAutostoreLootItemOpcode(player, (*itr));
+                                                HandleLootReleaseOpcode(player, (*itr));
+                                        }
+                                }
+                        }
+                        return false;
+                }
+                else
+                {
+                        player->GetSession()->SendNotification("请脱离战状态下使用");
+                        return true;
+                }
+                return true;
+        }
+};
