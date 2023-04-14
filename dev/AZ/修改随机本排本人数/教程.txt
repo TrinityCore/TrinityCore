@@ -1,0 +1,4 @@
+﻿https://uiwow.com/thread-11294-1-4.html?_dsign=a1adf51f
+
+在LFGQueue.cpp里找到numPlayers += itQueue->second.roles.size();
+在下面新加一行  int8 numLFGPlayers = MAXGROUPSIZE - numPlayers; 就可以实现随即本单人--5人都能排 原理就是在numplayers的计算后面增加1个判定补齐剩余人数
