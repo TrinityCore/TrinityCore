@@ -1,0 +1,108 @@
+﻿https://uiwow.com/thread-2652-1-1.html?_dsign=403ba3b4
+
+暴雪在大灾变加入了护甲专精以防止跨甲，我也仿制了一个简化版的，通过Spell Script来实现。
+
+食用方法：
+Step1. 写入下面三条SQL，其中Buff Aura是属性奖励，默认是10%；（SQL适用AzCore）(在同目录下)
+Step2. 在内核写入脚本，如果你实在是不会加新的脚本，那么你就打开src/server/scripts/spells/spell_generic.cpp，在里面写入这脚本（写入后别忘记在最下面写上new spell_armor_fit_for_class();）
+Step3. 重生成核心
+Step4. 进入游戏学习技能90001，换上整套的布皮锁板甲看看是否有护甲专精奖励了。修了一个小bug，新加了TriggerSpell-90001遗忘的同时移除BuffSpell-110000。
+
+
+class spell_armor_fit_for_class : public SpellScriptLoader
+{
+public:
+    spell_armor_fit_for_class() : SpellScriptLoader("spell_armor_fit_for_class") { }
+
+    class spell_armor_fit_for_class_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_armor_fit_for_class_AuraScript);
+
+        bool Load() override
+        {
+            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+        }
+
+        void HandleEffectPeriodic(AuraEffect const* aurEff)
+        {
+            Player* target = GetTarget()->ToPlayer();
+            if (isFitForSlot(target))
+            {
+                if (target->GetAura(110000))
+                    return;
+                target->CastSpell(target, 110000, true);
+            }
+            else
+                target->RemoveAurasDueToSpell(110000);
+        }
+
+        void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+        {
+            Player* caster = GetCaster()->ToPlayer();
+            if (caster->GetAura(110000))
+                caster->RemoveAurasDueToSpell(110000);
+        }
+
+        bool isFitForSlot(Player* player)
+        {
+            static EquipmentSlots const gearSlot[] =
+            {
+                EQUIPMENT_SLOT_HEAD,
+                EQUIPMENT_SLOT_SHOULDERS,
+                EQUIPMENT_SLOT_CHEST,
+                EQUIPMENT_SLOT_WAIST,
+                EQUIPMENT_SLOT_LEGS,
+                EQUIPMENT_SLOT_FEET,
+                EQUIPMENT_SLOT_WRISTS,
+                EQUIPMENT_SLOT_HANDS,
+                EQUIPMENT_SLOT_END
+            };
+            uint8 isFit = 0;
+            for (EquipmentSlots const* itr = &gearSlot[0]; *itr != EQUIPMENT_SLOT_END; ++itr)
+                if (Item* gear = player->GetItemByPos(INVENTORY_SLOT_BAG_0, *itr))
+                    if (gear->GetTemplate()->Class == ITEM_CLASS_ARMOR && isFitForClass(player, gear))
+                        ++isFit;
+            if (isFit == 8)
+                return true;
+            return false;
+        }
+
+        bool isFitForClass(Player* player, Item* item)
+        {
+            ItemTemplate const* Proto = item->GetTemplate();
+            switch (player->getClass())
+            {
+            case CLASS_WARRIOR:
+            case CLASS_PALADIN:
+            case CLASS_DEATH_KNIGHT:
+                if (Proto->SubClass == ITEM_SUBCLASS_ARMOR_PLATE)
+                    return true; break;
+            case CLASS_HUNTER:
+            case CLASS_SHAMAN:
+                if (Proto->SubClass == ITEM_SUBCLASS_ARMOR_MAIL)
+                    return true; break;
+            case CLASS_ROGUE:
+            case CLASS_DRUID:
+                if (Proto->SubClass == ITEM_SUBCLASS_ARMOR_LEATHER)
+                    return true; break;
+            case CLASS_PRIEST:
+            case CLASS_MAGE:
+            case CLASS_WARLOCK:
+                if (Proto->SubClass == ITEM_SUBCLASS_ARMOR_CLOTH)
+                    return true; break;
+            }
+            return false;
+        }
+
+        void Register() override
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_armor_fit_for_class_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            AfterEffectRemove += AuraEffectRemoveFn(spell_armor_fit_for_class_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_armor_fit_for_class_AuraScript();
+    }
+};
