@@ -58,7 +58,7 @@ Windows, Linux and macOS.
 
 ## Reporting issues
 
-Issues can be reported via the [Github issue tracker](https://github.com/TrinityCore/TrinityCore/labels/Branch-master).
+Issues can be reported via the [Github issue tracker](https://github.com/TrinityCore/TrinityCore/labels/Branch-3.3.5a).
 
 Please take the time to review existing issues before submitting your own to
 prevent duplicates.
