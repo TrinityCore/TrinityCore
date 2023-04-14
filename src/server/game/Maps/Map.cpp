@@ -534,11 +534,11 @@ bool Map::EnsureGridLoaded(Cell const& cell)
     NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
 
     ASSERT(grid != nullptr);
-    if (!isGridObjectDataLoaded(cell.GridX(), cell.GridY()))
+    if (!grid->isGridObjectDataLoaded())
     {
         TC_LOG_DEBUG("maps", "Loading grid[%u, %u] for map %u instance %u", cell.GridX(), cell.GridY(), GetId(), i_InstanceId);
 
-        setGridObjectDataLoaded(true, cell.GridX(), cell.GridY());
+        grid->setGridObjectDataLoaded(true);
 
         ObjectGridLoader loader(*grid, this, cell);
         loader.LoadN();
@@ -709,7 +709,8 @@ bool Map::AddToMap(Transport* obj)
 
 bool Map::IsGridLoaded(GridCoord const& p) const
 {
-    return (getNGrid(p.x_coord, p.y_coord) && isGridObjectDataLoaded(p.x_coord, p.y_coord));
+    NGridType* grid = getNGrid(p.x_coord, p.y_coord);
+    return grid && grid->isGridObjectDataLoaded();
 }
 
 void Map::VisitNearbyCellsOf(WorldObject* obj, TypeContainerVisitor<Trinity::ObjectUpdater, GridTypeMapContainer> &gridVisitor, TypeContainerVisitor<Trinity::ObjectUpdater, WorldTypeMapContainer> &worldVisitor)
