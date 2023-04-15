@@ -19,8 +19,7 @@
 #define SpiritGuideAI_h__
 
 #include "CreatureAI.h"
-
-class Creature;
+#include "TaskScheduler.h"
 
 struct TC_GAME_API SpiritGuideAI : public CreatureAI
 {
@@ -50,6 +49,38 @@ public:
     virtual bool OnSpiritHealerQuery(Player* /*player*/) { return false; }
     // Called when a player joins spirit healer queue
     virtual void OnSpiritHealerQueue(Player* /*player*/) { }
+};
+
+struct TC_GAME_API AreaSpiritGuideAI : public SpiritGuideAI
+{
+    static constexpr uint32 SPELL_SPIRIT_HEAL_CHANNEL = 22011;
+
+    explicit AreaSpiritGuideAI(Creature* creature) : SpiritGuideAI(creature) { }
+    explicit AreaSpiritGuideAI(Creature* creature, uint32 scriptId) : SpiritGuideAI(creature, scriptId) { }
+    virtual ~AreaSpiritGuideAI() { }
+
+    void UpdateAI(uint32 diff) override;
+
+    void JustAppeared() override;
+
+    void OnChannelFinished(SpellInfo const* spell) override;
+
+    void ScheduleSpiritHealChannel();
+
+private:
+    TaskScheduler _scheduler;
+};
+
+struct TC_GAME_API PersonalSpiritGuideAI : public SpiritGuideAI
+{
+    static constexpr uint32 SPELL_SPIRIT_HEAL_PLAYER_AURA = 156758;
+    static constexpr uint32 SPELL_SPIRIT_HEAL_CHANNEL_SELF = 305122;
+
+    explicit PersonalSpiritGuideAI(Creature* creature) : SpiritGuideAI(creature) { }
+    explicit PersonalSpiritGuideAI(Creature* creature, uint32 scriptId) : SpiritGuideAI(creature, scriptId) { }
+    virtual ~PersonalSpiritGuideAI() { }
+
+    bool OnSpiritHealerQuery(Player* player) override;
 };
 
 #endif

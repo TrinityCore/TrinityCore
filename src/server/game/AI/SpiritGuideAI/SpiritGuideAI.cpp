@@ -16,7 +16,9 @@
  */
 
 #include "SpiritGuideAI.h"
+#include "Auras/SpellAuras.h"
 #include "Creature.h"
+#include "SpellInfo.h"
 #include "TemporarySummon.h"
 
 SpiritGuideAI::SpiritGuideAI(Creature* creature) : SpiritGuideAI(creature, creature->GetScriptId()) { }
@@ -56,4 +58,49 @@ void SpiritGuideAI::SummonGraveyardTeleporter(uint32 npcEntry)
         summon->SetDemonCreatorGUID(me->GetGUID());
         summon->CastSpell(summon, SPELL_GRAVEYARD_TELEPORT);
     }
+}
+
+void AreaSpiritGuideAI::UpdateAI(uint32 diff)
+{
+    _scheduler.Update(diff);
+}
+
+void AreaSpiritGuideAI::JustAppeared()
+{
+    ScheduleSpiritHealChannel();
+}
+
+void AreaSpiritGuideAI::OnChannelFinished(SpellInfo const* spell)
+{
+    if (spell->Id != SPELL_SPIRIT_HEAL_CHANNEL)
+        return;
+
+    ScheduleSpiritHealChannel();
+}
+
+void AreaSpiritGuideAI::ScheduleSpiritHealChannel()
+{
+    _scheduler.Schedule(1s, [this](TaskContext /*context*/)
+    {
+        DoCastSelf(SPELL_SPIRIT_HEAL_CHANNEL);
+    });
+}
+
+bool PersonalSpiritGuideAI::OnSpiritHealerQuery(Player* player)
+{
+    if (Aura* aura = player->GetAura(SPELL_SPIRIT_HEAL_PLAYER_AURA))
+    {
+        player->SendAreaSpiritHealerQueryOpcode(me->GetGUID(), aura->GetDuration());
+        return true;
+    }
+
+    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_SPIRIT_HEAL_PLAYER_AURA, DIFFICULTY_NONE))
+    {
+        DoCast(player, SPELL_SPIRIT_HEAL_PLAYER_AURA);
+        player->SendAreaSpiritHealerQueryOpcode(me->GetGUID(), spellInfo->GetDuration());
+        DoCastSelf(SPELL_SPIRIT_HEAL_CHANNEL_SELF);
+        return true;
+    }
+
+    return false;
 }

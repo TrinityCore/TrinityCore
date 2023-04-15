@@ -38,7 +38,6 @@
 #include "SpellHistory.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
-#include "SpiritGuideAI.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"
 
@@ -2290,66 +2289,6 @@ private:
     TaskScheduler _scheduler;
 };
 
-struct npc_bg_spirit_guide : public SpiritGuideAI
-{
-    static constexpr uint32 SPELL_SPIRIT_HEAL_CHANNEL = 22011;
-
-    npc_bg_spirit_guide(Creature * creature) : SpiritGuideAI(creature) { }
-
-    void UpdateAI(uint32 diff) override
-    {
-        _scheduler.Update(diff);
-    }
-
-    void JustAppeared() override
-    {
-        ScheduleSpiritHealChannel();
-    }
-
-    void OnChannelFinished(SpellInfo const* /*spell*/) override
-    {
-        ScheduleSpiritHealChannel();
-    }
-
-    void ScheduleSpiritHealChannel()
-    {
-        _scheduler.Schedule(1s, [this](TaskContext /*context*/)
-        {
-            DoCastSelf(SPELL_SPIRIT_HEAL_CHANNEL);
-        });
-    }
-
-private:
-    TaskScheduler _scheduler;
-};
-
-struct npc_bg_spirit_guide_personal : public SpiritGuideAI
-{
-    static constexpr uint32 SPELL_SPIRIT_HEAL_PLAYER_AURA = 156758;
-    static constexpr uint32 SPELL_SPIRIT_HEAL_CHANNEL_SELF = 305122;
-
-    npc_bg_spirit_guide_personal(Creature* creature) : SpiritGuideAI(creature) { }
-
-    bool OnSpiritHealerQuery(Player* player) override
-    {
-        if (Aura* aura = player->GetAura(SPELL_SPIRIT_HEAL_PLAYER_AURA))
-        {
-            player->SendAreaSpiritHealerQueryOpcode(me->GetGUID(), aura->GetDuration());
-            return true;
-        }
-
-        if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_SPIRIT_HEAL_PLAYER_AURA, DIFFICULTY_NONE))
-        {
-            DoCast(player, SPELL_SPIRIT_HEAL_PLAYER_AURA);
-            player->SendAreaSpiritHealerQueryOpcode(me->GetGUID(), spellInfo->GetDuration());
-            DoCastSelf(SPELL_SPIRIT_HEAL_CHANNEL_SELF);
-            return true;
-        }
-
-        return false;
-    }
-};
-
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -2373,6 +2312,4 @@ void AddSC_npcs_special()
     new npc_argent_squire_gruntling();
     new npc_bountiful_table();
     RegisterCreatureAI(npc_gen_void_zone);
-    RegisterCreatureAI(npc_bg_spirit_guide);
-    RegisterCreatureAI(npc_bg_spirit_guide_personal);
 }
