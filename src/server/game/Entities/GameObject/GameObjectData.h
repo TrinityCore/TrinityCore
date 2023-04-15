@@ -1232,6 +1232,19 @@ struct GameObjectTemplate
         }
     }
 
+    bool IsDisplayMandatory() const
+    {
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_SPELL_FOCUS:
+            case GAMEOBJECT_TYPE_MULTI:
+            case GAMEOBJECT_TYPE_SIEGEABLE_MULTI:
+                return false;
+            default:
+                return true;
+        }
+    }
+
     void InitializeQueryData();
     WorldPacket BuildQueryData(LocaleConstant loc) const;
 };
