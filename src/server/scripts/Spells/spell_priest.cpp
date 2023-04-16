@@ -50,8 +50,12 @@ enum PriestSpells
     SPELL_PRIEST_BODY_AND_SOUL                      = 64129,
     SPELL_PRIEST_BODY_AND_SOUL_SPEED                = 65081,
     SPELL_PRIEST_DIVINE_BLESSING                    = 40440,
-    SPELL_PRIEST_DIVINE_STAR_DAMAGE                 = 122128,
-    SPELL_PRIEST_DIVINE_STAR_HEAL                   = 110745,
+    SPELL_PRIEST_DIVINE_STAR_HOLY                   = 110744,
+    SPELL_PRIEST_DIVINE_STAR_SHADOW                 = 122121,
+    SPELL_PRIEST_DIVINE_STAR_HOLY_DAMAGE            = 122128,
+    SPELL_PRIEST_DIVINE_STAR_HOLY_HEAL              = 110745,
+    SPELL_PRIEST_DIVINE_STAR_SHADOW_DAMAGE          = 390845,
+    SPELL_PRIEST_DIVINE_STAR_SHADOW_HEAL            = 390981,
     SPELL_PRIEST_DIVINE_WRATH                       = 40441,
     SPELL_PRIEST_FLASH_HEAL                         = 2061,
     SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL               = 48153,
@@ -353,7 +357,8 @@ class spell_pri_divine_hymn : public SpellScript
     }
 };
 
-// 110744 - Divine Star
+// 110744 - Divine Star (Holy)
+// 122121 - Divine Star (Shadow)
 struct areatrigger_pri_divine_star : AreaTriggerAI
 {
     areatrigger_pri_divine_star(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) {}
@@ -364,8 +369,8 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
         {
             _casterCurrentPosition = caster->GetPosition();
 
-            // Note: max. distance at which the Divine Star can travel to is 24 yards.
-            float divineStarXOffSet = 24.0f;
+            // Note: max. distance at which the Divine Star can travel to is EFFECT_1's BasePoints.
+            float divineStarXOffSet = sSpellMgr->GetSpellInfo(at->GetSpellId(), DIFFICULTY_NONE)->GetEffect(EFFECT_1).CalcValue(at->GetCaster());
 
             Position destPos = _casterCurrentPosition;
             at->MovePositionToFirstCollision(destPos, divineStarXOffSet, 0.0f);
@@ -375,8 +380,8 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
 
             G3D::Vector3 const& endPoint = firstPath.GetPath().back();
 
-            // Note: it takes 1000ms to reach 24 yards, so it takes 41.67ms to run 1 yard.
-            at->InitSplines(firstPath.GetPath(), at->GetDistance(endPoint.x, endPoint.y, endPoint.z) * 41.67f);
+            // Note: it takes 1000ms to reach EFFECT_1.BasePoints yards, so it takes (1000 / EFFECT_1's BasePoints) to run 1 yard.
+            at->InitSplines(firstPath.GetPath(), at->GetDistance(endPoint.x, endPoint.y, endPoint.z) * float(1000 / divineStarXOffSet));
         }
     }
 
@@ -392,9 +397,11 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
             if (std::find(_affectedUnits.begin(), _affectedUnits.end(), unit->GetGUID()) == _affectedUnits.end())
             {
                 if (caster->IsValidAttackTarget(unit))
-                    caster->CastSpell(unit, SPELL_PRIEST_DIVINE_STAR_DAMAGE, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+                    caster->CastSpell(unit, at->GetSpellId() == SPELL_PRIEST_DIVINE_STAR_SHADOW ? SPELL_PRIEST_DIVINE_STAR_SHADOW_DAMAGE : SPELL_PRIEST_DIVINE_STAR_HOLY_DAMAGE,
+                        CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
                 else if (caster->IsValidAssistTarget(unit))
-                    caster->CastSpell(unit, SPELL_PRIEST_DIVINE_STAR_HEAL, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+                    caster->CastSpell(unit, at->GetSpellId() == SPELL_PRIEST_DIVINE_STAR_SHADOW ? SPELL_PRIEST_DIVINE_STAR_SHADOW_HEAL : SPELL_PRIEST_DIVINE_STAR_HOLY_HEAL,
+                        CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
 
                 _affectedUnits.push_back(unit->GetGUID());
             }
@@ -409,9 +416,11 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
             if (std::find(_affectedUnits.begin(), _affectedUnits.end(), unit->GetGUID()) == _affectedUnits.end())
             {
                 if (caster->IsValidAttackTarget(unit))
-                    caster->CastSpell(unit, SPELL_PRIEST_DIVINE_STAR_DAMAGE, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+                    caster->CastSpell(unit, at->GetSpellId() == SPELL_PRIEST_DIVINE_STAR_SHADOW ? SPELL_PRIEST_DIVINE_STAR_SHADOW_DAMAGE : SPELL_PRIEST_DIVINE_STAR_HOLY_DAMAGE,
+                        CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
                 else if (caster->IsValidAssistTarget(unit))
-                    caster->CastSpell(unit, SPELL_PRIEST_DIVINE_STAR_HEAL, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+                    caster->CastSpell(unit, at->GetSpellId() == SPELL_PRIEST_DIVINE_STAR_SHADOW ? SPELL_PRIEST_DIVINE_STAR_SHADOW_HEAL : SPELL_PRIEST_DIVINE_STAR_HOLY_HEAL,
+                        CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
 
                 _affectedUnits.push_back(unit->GetGUID());
             }
@@ -449,7 +458,7 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
                 returnSplinePoints.push_back(PositionToVector3(caster));
                 returnSplinePoints.push_back(PositionToVector3(caster));
 
-                at->InitSplines(returnSplinePoints, at->GetDistance(caster) / 24 * 1000);
+                at->InitSplines(returnSplinePoints, uint32(at->GetDistance(caster) / 24 * 1000));
 
                 task.Repeat(250ms);
             }
