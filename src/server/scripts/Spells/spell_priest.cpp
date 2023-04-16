@@ -369,7 +369,7 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
         {
             _casterCurrentPosition = caster->GetPosition();
 
-            // Note: max. distance at which the Divine Star can travel to is EFFECT_1's BasePoints.
+            // Note: max. distance at which the Divine Star can travel to is EFFECT_1's BasePoints yards.
             float divineStarXOffSet = sSpellMgr->GetSpellInfo(at->GetSpellId(), DIFFICULTY_NONE)->GetEffect(EFFECT_1).CalcValue(at->GetCaster());
 
             Position destPos = _casterCurrentPosition;
@@ -380,7 +380,7 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
 
             G3D::Vector3 const& endPoint = firstPath.GetPath().back();
 
-            // Note: it takes 1000ms to reach EFFECT_1's BasePoints yards, so it takes (1000 / EFFECT_1's BasePoints) to run 1 yard.
+            // Note: it takes 1000ms to reach EFFECT_1's BasePoints yards, so it takes (1000 / EFFECT_1's BasePoints)ms to run 1 yard.
             at->InitSplines(firstPath.GetPath(), at->GetDistance(endPoint.x, endPoint.y, endPoint.z) * float(1000 / divineStarXOffSet));
         }
     }
