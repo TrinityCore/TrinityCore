@@ -369,8 +369,7 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
         if (!spellInfo)
             return;
 
-        SpellEffectInfo const& effectSpellInfo = spellInfo->GetEffect(EFFECT_1);
-        if (!effectSpellInfo.BasePoints)
+        if (spellInfo->GetEffects().size() <= EFFECT_1)
             return;
 
         Unit* caster = at->GetCaster();
@@ -380,7 +379,7 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
         _casterCurrentPosition = caster->GetPosition();
 
         // Note: max. distance at which the Divine Star can travel to is EFFECT_1's BasePoints yards.
-        _divineStarXOffSet = float(effectSpellInfo.CalcValue(caster));
+        _divineStarXOffSet = float(spellInfo->GetEffect(EFFECT_1).CalcValue(caster));
 
         Position destPos = _casterCurrentPosition;
         at->MovePositionToFirstCollision(destPos, _divineStarXOffSet, 0.0f);
