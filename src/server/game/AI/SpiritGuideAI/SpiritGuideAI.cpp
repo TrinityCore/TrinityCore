@@ -20,6 +20,7 @@
 #include "Creature.h"
 #include "Player.h"
 #include "SpellInfo.h"
+#include "SpellMgr.h"
 #include "TemporarySummon.h"
 
 SpiritGuideAI::SpiritGuideAI(Creature* creature) : SpiritGuideAI(creature, creature->GetScriptId()) { }
