@@ -22,7 +22,6 @@
  */
 
 #include "ScriptMgr.h"
-#include "AzeritePackets.h"
 #include "Battleground.h"
 #include "Containers.h"
 #include "Creature.h"
@@ -4641,37 +4640,90 @@ class spell_item_lightblood_elixir : public AuraScript
     }
 };
 
-// 277253 - Heart of Azeroth
-class spell_item_heart_of_azeroth : public AuraScript
+enum HighfathersMachination
 {
-    PrepareAuraScript(spell_item_heart_of_azeroth);
+    SPELL_HIGHFATHERS_TIMEKEEPING_HEAL = 253288
+};
 
-    void SetEquippedFlag(AuraEffect const* /*effect*/, AuraEffectHandleModes /*mode*/)
+// 253287 - Highfather's Timekeeping
+class spell_item_highfathers_machination : public AuraScript
+{
+    PrepareAuraScript(spell_item_highfathers_machination);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        SetState(true);
+        return ValidateSpellInfo({ SPELL_HIGHFATHERS_TIMEKEEPING_HEAL });
     }
 
-    void ClearEquippedFlag(AuraEffect const* /*effect*/, AuraEffectHandleModes /*mode*/)
+    bool CheckHealth(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
-        SetState(false);
+        return eventInfo.GetDamageInfo() && GetTarget()->HealthBelowPctDamaged(aurEff->GetAmount(), eventInfo.GetDamageInfo()->GetDamage());
     }
 
-    void SetState(bool equipped) const
+    void Heal(AuraEffect* aurEff, ProcEventInfo& /*procInfo*/)
     {
-        if (Player* target = GetTarget()->ToPlayer())
-        {
-            target->ApplyAllAzeriteEmpoweredItemMods(equipped);
-
-            WorldPackets::Azerite::PlayerAzeriteItemEquippedStatusChanged statusChanged;
-            statusChanged.IsHeartEquipped = equipped;
-            target->SendDirectMessage(statusChanged.Write());
-        }
+        PreventDefaultAction();
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetTarget(), SPELL_HIGHFATHERS_TIMEKEEPING_HEAL, aurEff);
     }
 
     void Register() override
     {
-        OnEffectApply += AuraEffectApplyFn(spell_item_heart_of_azeroth::SetEquippedFlag, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        OnEffectRemove += AuraEffectRemoveFn(spell_item_heart_of_azeroth::ClearEquippedFlag, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_item_highfathers_machination::CheckHealth, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_item_highfathers_machination::Heal, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+enum SeepingScourgewing
+{
+    SPELL_SHADOW_STRIKE_AOE_CHECK   = 255861,
+    SPELL_ISOLATED_STRIKE           = 255609
+};
+
+// 253323 - Shadow Strike
+class spell_item_seeping_scourgewing : public AuraScript
+{
+    PrepareAuraScript(spell_item_seeping_scourgewing);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHADOW_STRIKE_AOE_CHECK });
+    }
+
+    void TriggerIsolatedStrikeCheck(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    {
+        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_SHADOW_STRIKE_AOE_CHECK,
+            CastSpellExtraArgs(aurEff).SetTriggeringSpell(eventInfo.GetProcSpell()));
+    }
+
+    void Register() override
+    {
+        AfterEffectProc += AuraEffectProcFn(spell_item_seeping_scourgewing::TriggerIsolatedStrikeCheck, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
+// 255861 - Shadow Strike
+class spell_item_seeping_scourgewing_aoe_check : public SpellScript
+{
+    PrepareSpellScript(spell_item_seeping_scourgewing_aoe_check);
+
+    void TriggerAdditionalDamage()
+    {
+        if (GetUnitTargetCountForEffect(EFFECT_0) > 1)
+            return;
+
+        CastSpellExtraArgs args;
+        args.TriggerFlags = TRIGGERED_FULL_MASK;
+        args.OriginalCastId = GetSpell()->m_originalCastId;
+        if (GetSpell()->m_castItemLevel >= 0)
+            args.OriginalCastItemLevel = GetSpell()->m_castItemLevel;
+
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_ISOLATED_STRIKE, args);
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_item_seeping_scourgewing_aoe_check::TriggerAdditionalDamage);
     }
 };
 
@@ -4820,6 +4872,7 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_set_march_of_the_legion);
     RegisterSpellScript(spell_item_seal_of_darkshire_nobility);
     RegisterSpellScript(spell_item_lightblood_elixir);
-
-    RegisterSpellScript(spell_item_heart_of_azeroth);
+    RegisterSpellScript(spell_item_highfathers_machination);
+    RegisterSpellScript(spell_item_seeping_scourgewing);
+    RegisterSpellScript(spell_item_seeping_scourgewing_aoe_check);
 }
