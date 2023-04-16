@@ -380,7 +380,7 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
         _casterCurrentPosition = caster->GetPosition();
 
         // Note: max. distance at which the Divine Star can travel to is EFFECT_1's BasePoints yards.
-        _divineStarXOffSet = effectSpellInfo.CalcValue(at->GetCaster());
+        _divineStarXOffSet = effectSpellInfo.CalcValue(caster);
 
         Position destPos = _casterCurrentPosition;
         at->MovePositionToFirstCollision(destPos, _divineStarXOffSet, 0.0f);
