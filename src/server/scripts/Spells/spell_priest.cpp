@@ -49,6 +49,11 @@ enum PriestSpells
     SPELL_PRIEST_BLESSED_HEALING                    = 70772,
     SPELL_PRIEST_BODY_AND_SOUL                      = 64129,
     SPELL_PRIEST_BODY_AND_SOUL_SPEED                = 65081,
+    SPELL_PRIEST_DARK_REPRIMAND                     = 400169,
+    SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_DAMAGE      = 373129,
+    SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_HEALING     = 400171,
+    SPELL_PRIEST_DARK_REPRIMAND_DAMAGE              = 373130,
+    SPELL_PRIEST_DARK_REPRIMAND_HEALING             = 400187,
     SPELL_PRIEST_DIVINE_BLESSING                    = 40440,
     SPELL_PRIEST_DIVINE_STAR_HOLY                   = 110744,
     SPELL_PRIEST_DIVINE_STAR_SHADOW                 = 122121,
@@ -749,22 +754,30 @@ class spell_pri_mind_bomb : public AuraScript
 };
 
 // 47540 - Penance
+// 400169 - Dark Reprimand
 class spell_pri_penance : public SpellScript
 {
     PrepareSpellScript(spell_pri_penance);
 
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo
-        ({
-            SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE,
-            SPELL_PRIEST_PENANCE_CHANNEL_HEALING
-        });
+        switch (spellInfo->Id)
+        {
+            case SPELL_PRIEST_PENANCE:
+                return ValidateSpellInfo({ SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE, SPELL_PRIEST_PENANCE_CHANNEL_HEALING });
+            case SPELL_PRIEST_DARK_REPRIMAND:
+                return ValidateSpellInfo({ SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_DAMAGE, SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_HEALING });
+            default:
+                break;
+        }
+
+        return false;
     }
 
     SpellCastResult CheckCast()
     {
         Unit* caster = GetCaster();
+
         if (Unit* target = GetExplTargetUnit())
         {
             if (!caster->IsFriendlyTo(target))
@@ -787,9 +800,11 @@ class spell_pri_penance : public SpellScript
         if (Unit* target = GetHitUnit())
         {
             if (caster->IsFriendlyTo(target))
-                caster->CastSpell(target, SPELL_PRIEST_PENANCE_CHANNEL_HEALING, CastSpellExtraArgs().SetTriggeringSpell(GetSpell()));
+                caster->CastSpell(target, GetSpellInfo()->Id == SPELL_PRIEST_PENANCE ? SPELL_PRIEST_PENANCE_CHANNEL_HEALING : SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_HEALING,
+                    CastSpellExtraArgs().SetTriggeringSpell(GetSpell()));
             else
-                caster->CastSpell(target, SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE, CastSpellExtraArgs().SetTriggeringSpell(GetSpell()));
+                caster->CastSpell(target, GetSpellInfo()->Id == SPELL_PRIEST_PENANCE ? SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE : SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_DAMAGE,
+                    CastSpellExtraArgs().SetTriggeringSpell(GetSpell()));
         }
     }
 
@@ -801,9 +816,10 @@ class spell_pri_penance : public SpellScript
 };
 
 // 47758 - Penance (Channel Damage), 47757 - Penance (Channel Healing)
-class spell_pri_penance_channeled : public AuraScript
+// 373129 - Dark Reprimand (Channel Damage), 400171 - Dark Reprimand (Channel Healing)
+class spell_pri_penance_or_dark_reprimand_channeled : public AuraScript
 {
-    PrepareAuraScript(spell_pri_penance_channeled);
+    PrepareAuraScript(spell_pri_penance_or_dark_reprimand_channeled);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -818,7 +834,7 @@ class spell_pri_penance_channeled : public AuraScript
 
     void Register() override
     {
-        OnEffectRemove += AuraEffectRemoveFn(spell_pri_penance_channeled::HandleOnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(spell_pri_penance_or_dark_reprimand_channeled::HandleOnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -852,6 +868,7 @@ class spell_pri_power_of_the_dark_side : public AuraScript
 };
 
 // 47666 - Penance (Damage)
+// 373130 - Dark Reprimand (Damage)
 class spell_pri_power_of_the_dark_side_damage_bonus : public SpellScript
 {
     PrepareSpellScript(spell_pri_power_of_the_dark_side_damage_bonus);
@@ -882,6 +899,7 @@ class spell_pri_power_of_the_dark_side_damage_bonus : public SpellScript
 };
 
 // 47750 - Penance (Healing)
+// 400187 - Dark Reprimand (Healing)
 class spell_pri_power_of_the_dark_side_healing_bonus : public SpellScript
 {
     PrepareSpellScript(spell_pri_power_of_the_dark_side_healing_bonus);
@@ -1680,8 +1698,9 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_leap_of_faith_effect_trigger);
     RegisterSpellScript(spell_pri_levitate);
     RegisterSpellScript(spell_pri_mind_bomb);
-    RegisterSpellScript(spell_pri_penance);
-    RegisterSpellScript(spell_pri_penance_channeled);
+    RegisterSpellScriptWithArgs(spell_pri_penance, "spell_pri_penance");
+    RegisterSpellScriptWithArgs(spell_pri_penance, "spell_pri_dark_reprimand");
+    RegisterSpellScript(spell_pri_penance_or_dark_reprimand_channeled);
     RegisterSpellScript(spell_pri_power_of_the_dark_side);
     RegisterSpellScript(spell_pri_power_of_the_dark_side_damage_bonus);
     RegisterSpellScript(spell_pri_power_of_the_dark_side_healing_bonus);
