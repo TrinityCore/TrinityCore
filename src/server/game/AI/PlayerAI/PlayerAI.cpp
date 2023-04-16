@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -702,7 +702,7 @@ Unit* SimpleCharmedPlayerAI::SelectAttackTarget() const
 PlayerAI::TargetedSpell SimpleCharmedPlayerAI::SelectAppropriateCastForSpec()
 {
     PossibleSpellVector spells;
-    /*
+    
     switch (me->getClass())
     {
         case CLASS_WARRIOR:
@@ -1221,7 +1221,7 @@ PlayerAI::TargetedSpell SimpleCharmedPlayerAI::SelectAppropriateCastForSpec()
             }
             break;
     }
-    */
+    
     return SelectSpellCast(spells);
 }
 
