@@ -59,8 +59,12 @@ enum PriestSpells
     SPELL_PRIEST_DIVINE_WRATH                       = 40441,
     SPELL_PRIEST_FLASH_HEAL                         = 2061,
     SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL               = 48153,
-    SPELL_PRIEST_HALO_DAMAGE                        = 120696,
-    SPELL_PRIEST_HALO_HEAL                          = 120692,
+    SPELL_PRIEST_HALO_HOLY                          = 120517,
+    SPELL_PRIEST_HALO_SHADOW                        = 120644,
+    SPELL_PRIEST_HALO_HOLY_DAMAGE                   = 120696,
+    SPELL_PRIEST_HALO_HOLY_HEAL                     = 120692,
+    SPELL_PRIEST_HALO_SHADOW_DAMAGE                 = 390964,
+    SPELL_PRIEST_HALO_SHADOW_HEAL                   = 390971,
     SPELL_PRIEST_HEAL                               = 2060,
     SPELL_PRIEST_HOLY_WORD_CHASTISE                 = 88625,
     SPELL_PRIEST_HOLY_WORD_SANCTIFY                 = 34861,
@@ -541,7 +545,8 @@ class spell_pri_guardian_spirit : public AuraScript
     }
 };
 
-// 120517 - Halo
+// 120517 - Halo (Holy)
+// 120644 - Halo (Shadow)
 struct areatrigger_pri_halo : AreaTriggerAI
 {
     areatrigger_pri_halo(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) {}
@@ -551,9 +556,11 @@ struct areatrigger_pri_halo : AreaTriggerAI
         if (Unit* caster = at->GetCaster())
         {
             if (caster->IsValidAttackTarget(unit))
-                caster->CastSpell(unit, SPELL_PRIEST_HALO_DAMAGE, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+                caster->CastSpell(unit, at->GetSpellId() == SPELL_PRIEST_HALO_SHADOW ? SPELL_PRIEST_HALO_SHADOW_DAMAGE : SPELL_PRIEST_HALO_HOLY_DAMAGE,
+                    CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
             else if (caster->IsValidAssistTarget(unit))
-                caster->CastSpell(unit, SPELL_PRIEST_HALO_HEAL, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+                caster->CastSpell(unit, at->GetSpellId() == SPELL_PRIEST_HALO_SHADOW ? SPELL_PRIEST_HALO_SHADOW_HEAL : SPELL_PRIEST_HALO_HOLY_HEAL,
+                    CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
         }
     }
 };
