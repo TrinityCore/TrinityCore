@@ -64,7 +64,7 @@ enum LeaxaTexts
 
 enum LeaxaAnimKits
 {
-    BLOOD_EFFIGY_DEATH              = 9798
+    ANIMKIT_BLOOD_EFFIGY_DEATH              = 9798
 };
 
 // 131318 - Elder Leaxa
@@ -110,36 +110,30 @@ struct boss_elder_leaxa : public BossAI
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
-        while (uint32 eventId = events.ExecuteEvent())
+        switch (events.ExecuteEvent())
         {
-            switch (eventId)
-            {
-                case EVENT_BLOOD_BOLT:
-                    DoCastVictim(SPELL_BLOOD_BOLT);
-                    events.ScheduleEvent(EVENT_BLOOD_BOLT, 6s);
-                    break;
-                case EVENT_SANGUINE_FEAST:
-                    Talk(SAY_SANGUINE_FEAST);
-                    DoCastAOE(SPELL_SANGUINE_FEAST);
-                    events.ScheduleEvent(EVENT_SANGUINE_FEAST, 30s);
-                    break;
-                case EVENT_CREEPING_ROT:
-                    Talk(SAY_ROT_AND_WITHER);
-                    DoCastAOE(SPELL_CREEPING_ROT_SELECTOR);
-                    events.ScheduleEvent(EVENT_CREEPING_ROT, 16s);
-                    break;
-                case EVENT_BLOOD_MIRROR:
-                    Talk(SAY_BLOOD_MIRROR);
-                    Talk(SAY_ANNOUNCE_BLOOD_MIRROR);
-                    DoCastSelf(SPELL_BLOOD_MIRROR_SELECTOR);
-                    events.ScheduleEvent(EVENT_BLOOD_MIRROR, 47s);
-                    break;
-                default:
-                    break;
-            }
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
+            case EVENT_BLOOD_BOLT:
+                DoCastVictim(SPELL_BLOOD_BOLT);
+                events.ScheduleEvent(EVENT_BLOOD_BOLT, 6s);
+                break;
+            case EVENT_SANGUINE_FEAST:
+                Talk(SAY_SANGUINE_FEAST);
+                DoCastAOE(SPELL_SANGUINE_FEAST);
+                events.ScheduleEvent(EVENT_SANGUINE_FEAST, 30s);
+                break;
+            case EVENT_CREEPING_ROT:
+                Talk(SAY_ROT_AND_WITHER);
+                DoCastAOE(SPELL_CREEPING_ROT_SELECTOR);
+                events.ScheduleEvent(EVENT_CREEPING_ROT, 16s);
+                break;
+            case EVENT_BLOOD_MIRROR:
+                Talk(SAY_BLOOD_MIRROR);
+                Talk(SAY_ANNOUNCE_BLOOD_MIRROR);
+                DoCastSelf(SPELL_BLOOD_MIRROR_SELECTOR);
+                events.ScheduleEvent(EVENT_BLOOD_MIRROR, 47s);
+                break;
+            default:
+                break;
         }
 
         DoMeleeAttackIfReady();
@@ -160,7 +154,7 @@ struct npc_blood_effigy : public ScriptedAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        me->SetAIAnimKitId(BLOOD_EFFIGY_DEATH);
+        me->SetAIAnimKitId(ANIMKIT_BLOOD_EFFIGY_DEATH);
         me->DespawnOrUnsummon(3s);
     }
 
@@ -174,28 +168,22 @@ struct npc_blood_effigy : public ScriptedAI
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
-        while (uint32 eventId = _events.ExecuteEvent())
+        switch (_events.ExecuteEvent())
         {
-            switch (eventId)
-            {
-                case EVENT_BLOOD_BOLT:
-                    DoCastVictim(SPELL_BLOOD_BOLT);
-                    _events.ScheduleEvent(EVENT_BLOOD_BOLT, 2s);
-                    break;
-                case EVENT_SANGUINE_FEAST:
-                    DoCastAOE(SPELL_SANGUINE_FEAST);
-                    _events.ScheduleEvent(EVENT_SANGUINE_FEAST, 30s);
-                    break;
-                case EVENT_CREEPING_ROT:
-                    DoCastAOE(SPELL_CREEPING_ROT_SELECTOR);
-                    _events.ScheduleEvent(EVENT_CREEPING_ROT, 16s);
-                    break;
-                default:
-                    break;
-            }
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
+            case EVENT_BLOOD_BOLT:
+                DoCastVictim(SPELL_BLOOD_BOLT);
+                _events.ScheduleEvent(EVENT_BLOOD_BOLT, 2s);
+                break;
+            case EVENT_SANGUINE_FEAST:
+                DoCastAOE(SPELL_SANGUINE_FEAST);
+                _events.ScheduleEvent(EVENT_SANGUINE_FEAST, 30s);
+                break;
+            case EVENT_CREEPING_ROT:
+                DoCastAOE(SPELL_CREEPING_ROT_SELECTOR);
+                _events.ScheduleEvent(EVENT_CREEPING_ROT, 16s);
+                break;
+            default:
+                break;
         }
 
         DoMeleeAttackIfReady();
