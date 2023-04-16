@@ -3,6 +3,13 @@ DELETE FROM `instance_template` WHERE `map` = 1841;
 INSERT INTO `instance_template` (`map`, `parent`, `script`) VALUES
 (1841, 0, 'instance_underrot');
 
+DELETE FROM `instance_encounters` WHERE `entry` IN (2111, 2112, 2118, 2123);
+INSERT INTO `instance_encounters` (`entry`, `creditType`, `creditEntry`, `lastEncounterDungeon`, `comment`) VALUES
+(2111, 0, 131318, 0, 'Elder Leaxa'),
+(2112, 0, 131817, 0, 'Cragmaw the Infested'),
+(2118, 0, 131383, 0, 'Sporecaller Zancha'),
+(2123, 0, 133007, 0, 'Unbound Abomination');
+
 UPDATE `creature_template` SET `AIName` = '', `ScriptName` = 'boss_elder_leaxa' WHERE `entry` = 131318;
 UPDATE `creature_template` SET `faction` = 14, `BaseAttackTime`=2000, `unit_flags`=33555200, `unit_flags2`=2099200, `unit_flags3`=17301505, `flags_extra` = 0x00000080 | 0x20000000 , `AIName` = '', `ScriptName` = 'npc_blood_wave_stalker' WHERE `entry`=132398; -- Blood Wave Stalker
 UPDATE `creature_template` SET `faction`= 16, `BaseAttackTime`=2000, `unit_flags`=32832, `unit_flags2`=2099200, `unit_flags3`=524288, `AIName` = '', `ScriptName` = 'npc_blood_effigy' WHERE `entry`=134701; -- Blood Effigy

@@ -102,8 +102,6 @@ struct boss_elder_leaxa : public BossAI
 
     void UpdateAI(uint32 diff) override
     {
-        scheduler.Update(diff);
-
         if (!UpdateVictim())
             return;
 
@@ -234,8 +232,7 @@ class spell_sanguine_feast_selector : public SpellScript
 
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        if (Unit* target = GetHitUnit())
-            GetCaster()->CastSpell(target, GetEffectValue());
+        GetCaster()->CastSpell(GetHitUnit(), GetEffectValue());
     }
 
     void Register() override
@@ -264,8 +261,7 @@ class spell_creeping_rot_selector : public SpellScript
     {
         Unit* caster = GetCaster();
 
-        if (Unit* target = GetHitUnit())
-            caster->CastSpell(target, SPELL_CREEPING_ROT_SUMMON);
+        caster->CastSpell(GetHitUnit(), SPELL_CREEPING_ROT_SUMMON);
 
         float angle = caster->GetOrientation();
         float destX = caster->GetPositionX() + SPAWN_DISTANCE * std::cos(angle);
@@ -313,7 +309,7 @@ static Position const MirrorSpawnPositions[] =
     { 857.8333f,    1220.6545f, 56.468567f },
     { 876.17365f,   1240.2848f, 56.409615f },
     { 864.25867f,   1240.5903f, 56.520065f },
-    { 863.1042f,    1218.0591f, 56.468765f },
+    { 863.1042f,    1218.0591f, 56.468765f }
 };
 
 // 264603 - Blood Mirror
