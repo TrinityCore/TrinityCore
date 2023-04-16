@@ -18,6 +18,7 @@
 #include "SpiritGuideAI.h"
 #include "Auras/SpellAuras.h"
 #include "Creature.h"
+#include "Player.h"
 #include "SpellInfo.h"
 #include "TemporarySummon.h"
 
