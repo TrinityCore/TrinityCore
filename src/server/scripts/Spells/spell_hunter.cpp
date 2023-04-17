@@ -58,9 +58,6 @@ enum HunterSpells
 enum MiscSpells
 {
     SPELL_DRAENEI_GIFT_OF_THE_NAARU                 = 59543,
-    SPELL_MAGE_TEMPORAL_DISPLACEMENT                = 80354,
-    SPELL_SHAMAN_EXHAUSTION                         = 57723,
-    SPELL_SHAMAN_SATED                              = 57724
 };
 
 // 131894 - A Murder of Crows
@@ -433,6 +430,46 @@ class spell_hun_posthaste : public SpellScript
     }
 };
 
+// 264667 - Primal Rage
+class spell_hun_primal_rage : public SpellScript
+{
+    PrepareSpellScript(spell_hun_primal_rage);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_EVOKER_EXHAUSTION,
+            SPELL_HUNTER_FATIGUED,
+            SPELL_MAGE_TEMPORAL_DISPLACEMENT,
+            SPELL_SHAMAN_SATED,
+            SPELL_SHAMAN_EXHAUSTION
+        });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_EVOKER_EXHAUSTION));
+        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_HUNTER_FATIGUED));
+        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_MAGE_TEMPORAL_DISPLACEMENT));
+        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_SHAMAN_SATED));
+        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_SHAMAN_EXHAUSTION));
+    }
+
+    void HandleAfterHit()
+    {
+        Unit* target = GetHitUnit();
+
+        target->CastSpell(target, SPELL_MAGE_TEMPORAL_DISPLACEMENT, true);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_primal_rage::FilterTargets, EFFECT_ALL, TARGET_UNIT_CASTER_AREA_RAID);
+        AfterHit += SpellHitFn(spell_hun_primal_rage::HandleAfterHit);
+    }
+};
+
 // 53480 - Roar of Sacrifice
 class spell_hun_roar_of_sacrifice : public AuraScript
 {
@@ -646,6 +683,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_multi_shot);
     RegisterSpellScript(spell_hun_pet_heart_of_the_phoenix);
     RegisterSpellScript(spell_hun_posthaste);
+    RegisterSpellScript(spell_hun_primal_rage);
     RegisterSpellScript(spell_hun_roar_of_sacrifice);
     RegisterSpellScript(spell_hun_scatter_shot);
     RegisterSpellScript(spell_hun_steady_shot);

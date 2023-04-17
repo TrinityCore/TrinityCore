@@ -63,7 +63,6 @@ enum ShamanSpells
     SPELL_SHAMAN_ELEMENTAL_BLAST_OVERLOAD       = 120588,
     SPELL_SHAMAN_ELEMENTAL_MASTERY              = 16166,
     SPELL_SHAMAN_ENERGY_SURGE                   = 40465,
-    SPELL_SHAMAN_EXHAUSTION                     = 57723,
     SPELL_SHAMAN_FLAME_SHOCK                    = 188389,
     SPELL_SHAMAN_FLAMETONGUE_ATTACK             = 10444,
     SPELL_SHAMAN_FLAMETONGUE_WEAPON_ENCHANT     = 334294,
@@ -97,7 +96,6 @@ enum ShamanSpells
     SPELL_SHAMAN_PATH_OF_FLAMES_SPREAD          = 210621,
     SPELL_SHAMAN_PATH_OF_FLAMES_TALENT          = 201909,
     SPELL_SHAMAN_POWER_SURGE                    = 40466,
-    SPELL_SHAMAN_SATED                          = 57724,
     SPELL_SHAMAN_SPIRIT_WOLF_TALENT             = 260878,
     SPELL_SHAMAN_SPIRIT_WOLF_PERIODIC           = 260882,
     SPELL_SHAMAN_SPIRIT_WOLF_AURA               = 260881,
@@ -112,13 +110,6 @@ enum ShamanSpells
     SPELL_SHAMAN_WINDFURY_ATTACK                = 25504,
     SPELL_SHAMAN_WINDFURY_ENCHANTMENT           = 334302,
     SPELL_SHAMAN_WIND_RUSH                      = 192082
-};
-
-enum MiscSpells
-{
-    SPELL_HUNTER_INSANITY                       = 95809,
-    SPELL_MAGE_TEMPORAL_DISPLACEMENT            = 80354,
-    SPELL_PET_NETHERWINDS_FATIGUED              = 160455
 };
 
 enum MiscNpcs
@@ -229,27 +220,36 @@ class spell_sha_bloodlust : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_SHAMAN_SATED, SPELL_HUNTER_INSANITY, SPELL_MAGE_TEMPORAL_DISPLACEMENT, SPELL_PET_NETHERWINDS_FATIGUED });
+        return ValidateSpellInfo
+        ({
+            SPELL_EVOKER_EXHAUSTION,
+            SPELL_HUNTER_FATIGUED,
+            SPELL_MAGE_TEMPORAL_DISPLACEMENT,
+            SPELL_SHAMAN_SATED,
+            SPELL_SHAMAN_EXHAUSTION
+        });
     }
 
-    void RemoveInvalidTargets(std::list<WorldObject*>& targets)
+    void FilterTargets(std::list<WorldObject*>& targets)
     {
-        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_SHAMAN_SATED));
-        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_HUNTER_INSANITY));
+        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_EVOKER_EXHAUSTION));
+        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_HUNTER_FATIGUED));
         targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_MAGE_TEMPORAL_DISPLACEMENT));
+        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_SHAMAN_SATED));
+        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_SHAMAN_EXHAUSTION));
     }
 
-    void ApplyDebuff()
+    void HandleAfterHit()
     {
-        if (Unit* target = GetHitUnit())
-            target->CastSpell(target, SPELL_SHAMAN_SATED, true);
+        Unit* target = GetHitUnit();
+
+        target->CastSpell(target, SPELL_SHAMAN_SATED, true);
     }
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_bloodlust::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_bloodlust::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
-        AfterHit += SpellHitFn(spell_sha_bloodlust::ApplyDebuff);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_bloodlust::FilterTargets, EFFECT_ALL, TARGET_UNIT_CASTER_AREA_RAID);
+        AfterHit += SpellHitFn(spell_sha_bloodlust::HandleAfterHit);
     }
 };
 
@@ -758,27 +758,37 @@ class spell_sha_heroism : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_SHAMAN_EXHAUSTION, SPELL_HUNTER_INSANITY, SPELL_MAGE_TEMPORAL_DISPLACEMENT, SPELL_PET_NETHERWINDS_FATIGUED });
+        return ValidateSpellInfo
+        ({
+            SPELL_EVOKER_EXHAUSTION,
+            SPELL_HUNTER_FATIGUED,
+            SPELL_MAGE_TEMPORAL_DISPLACEMENT,
+            SPELL_SHAMAN_SATED,
+            SPELL_SHAMAN_EXHAUSTION
+        });
     }
 
-    void RemoveInvalidTargets(std::list<WorldObject*>& targets)
+    void FilterTargets(std::list<WorldObject*>& targets)
     {
-        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_SHAMAN_EXHAUSTION));
-        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_HUNTER_INSANITY));
+        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_EVOKER_EXHAUSTION));
+        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_HUNTER_FATIGUED));
         targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_MAGE_TEMPORAL_DISPLACEMENT));
+        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_SHAMAN_SATED));
+        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_SHAMAN_EXHAUSTION));
     }
 
-    void ApplyDebuff()
+    void HandleAfterHit()
     {
-        if (Unit* target = GetHitUnit())
-            target->CastSpell(target, SPELL_SHAMAN_EXHAUSTION, true);
+        Unit* target = GetHitUnit();
+
+        target->CastSpell(target, SPELL_SHAMAN_EXHAUSTION, true);
     }
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_heroism::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_heroism::RemoveInvalidTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
-        AfterHit += SpellHitFn(spell_sha_heroism::ApplyDebuff);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_heroism::FilterTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_heroism::FilterTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
+        AfterHit += SpellHitFn(spell_sha_heroism::HandleAfterHit);
     }
 };
 
