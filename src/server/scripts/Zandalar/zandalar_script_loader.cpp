@@ -197,6 +197,7 @@ void AddZandalarScripts()
  //   AddSC_nazjatar();
  //   //AddSC_boss_stormwall_blockade();
  //   //AddSC_boss_lady_jaina_proudmoore();
+
     // Underrot
     AddSC_instance_underrot();
     AddSC_boss_elder_leaxa();

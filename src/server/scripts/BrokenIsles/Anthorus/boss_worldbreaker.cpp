@@ -993,21 +993,21 @@ class spell_garothi_surging_fel : public AuraScript
     }
 };
 
-void AddSC_boss_worldbreaker()
-{
-    RegisterCreatureAI(boss_garothi_worldbreaker);
-    RegisterAreaTriggerAI(at_garothi_annihilation);
-    //RegisterAuraScript(spell_garothi_apocalypse_drive);
-    RegisterSpellScript(spell_garothi_fel_bombardment_selector);
-    //RegisterAuraScript(spell_garothi_fel_bombardment_warning);
-    //RegisterAuraScript(spell_garothi_fel_bombardment_periodic);
-    //RegisterSpellScript(spell_garothi_searing_barrage_dummy);
-    RegisterSpellScript(spell_garothi_searing_barrage_selector);
-    //RegisterSpellScript(spell_garothi_decimation_selector);
-    //RegisterAuraScript(spell_garothi_decimation_warning);
-    //RegisterAuraScript(spell_garothi_carnage);
-    //RegisterSpellScript(spell_garothi_annihilation_selector);
-    //RegisterAuraScript(spell_garothi_annihilation_triggered);
-    RegisterSpellScript(spell_garothi_eradication);
-    //RegisterAuraScript(spell_garothi_surging_fel);
-}
+//void AddSC_boss_worldbreaker()
+//{
+//    RegisterCreatureAI(boss_garothi_worldbreaker);
+//    RegisterAreaTriggerAI(at_garothi_annihilation);
+//    //RegisterAuraScript(spell_garothi_apocalypse_drive);
+//    RegisterSpellScript(spell_garothi_fel_bombardment_selector);
+//    //RegisterAuraScript(spell_garothi_fel_bombardment_warning);
+//    //RegisterAuraScript(spell_garothi_fel_bombardment_periodic);
+//    //RegisterSpellScript(spell_garothi_searing_barrage_dummy);
+//    RegisterSpellScript(spell_garothi_searing_barrage_selector);
+//    //RegisterSpellScript(spell_garothi_decimation_selector);
+//    //RegisterAuraScript(spell_garothi_decimation_warning);
+//    //RegisterAuraScript(spell_garothi_carnage);
+//    //RegisterSpellScript(spell_garothi_annihilation_selector);
+//    //RegisterAuraScript(spell_garothi_annihilation_triggered);
+//    RegisterSpellScript(spell_garothi_eradication);
+//    //RegisterAuraScript(spell_garothi_surging_fel);
+//}

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2022 BfaCore Reforged
  * Copyright 2023 AzgathCore
  *
@@ -97,7 +97,7 @@ struct instance_the_underrot : public InstanceScript
     }
 };
 
-void AddSC_instance_underrot()
-{
-    //RegisterInstanceScript(instance_the_underrot, 1841);
-}
+//void AddSC_instance_underrot()    //duplicate in instance_underrot.cpp
+//{
+//    //RegisterInstanceScript(instance_the_underrot, 1841);
+//}
