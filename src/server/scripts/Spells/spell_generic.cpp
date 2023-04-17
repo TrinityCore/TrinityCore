@@ -5511,4 +5511,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_mage_time_warp", SPELL_MAGE_TEMPORAL_DISPLACEMENT);
     RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_hun_primal_rage", SPELL_HUNTER_FATIGUED);
     RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_evo_fury_of_the_aspects", SPELL_EVOKER_EXHAUSTION);
+    RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_item_bloodlust_drums", SPELL_SHAMAN_EXHAUSTION);
 }
