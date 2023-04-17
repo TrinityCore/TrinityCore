@@ -236,7 +236,7 @@ class spell_sha_bloodlust : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        targets.remove_if(Trinity::ExhaustionCheck());
+        targets.remove_if(Trinity::BloodlustExhaustionCheck());
     }
 
     void HandleHit(SpellEffIndex /*effIndex*/)

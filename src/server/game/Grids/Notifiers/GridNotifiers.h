@@ -1782,7 +1782,7 @@ namespace Trinity
             ObjectGuid _casterGUID;
     };
 
-    class ExhaustionCheck
+    class BloodlustExhaustionCheck
     {
     public:
         bool operator()(WorldObject* object) const

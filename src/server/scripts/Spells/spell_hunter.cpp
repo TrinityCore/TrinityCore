@@ -430,35 +430,6 @@ class spell_hun_posthaste : public SpellScript
     }
 };
 
-// 264667 - Primal Rage
-class spell_hun_primal_rage : public SpellScript
-{
-    PrepareSpellScript(spell_hun_primal_rage);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_HUNTER_FATIGUED });
-    }
-
-    void FilterTargets(std::list<WorldObject*>& targets)
-    {
-        targets.remove_if(Trinity::ExhaustionCheck());
-    }
-
-    void HandleHit(SpellEffIndex /*effIndex*/)
-    {
-        Unit* target = GetHitUnit();
-        target->CastSpell(target, SPELL_HUNTER_FATIGUED, true);
-    }
-
-    void Register() override
-    {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_primal_rage::FilterTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_primal_rage::FilterTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
-        OnEffectHitTarget += SpellEffectFn(spell_hun_primal_rage::HandleHit, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
-    }
-};
-
 // 53480 - Roar of Sacrifice
 class spell_hun_roar_of_sacrifice : public AuraScript
 {
@@ -672,7 +643,6 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_multi_shot);
     RegisterSpellScript(spell_hun_pet_heart_of_the_phoenix);
     RegisterSpellScript(spell_hun_posthaste);
-    RegisterSpellScript(spell_hun_primal_rage);
     RegisterSpellScript(spell_hun_roar_of_sacrifice);
     RegisterSpellScript(spell_hun_scatter_shot);
     RegisterSpellScript(spell_hun_steady_shot);
