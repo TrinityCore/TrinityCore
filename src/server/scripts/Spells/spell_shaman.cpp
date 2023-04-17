@@ -213,59 +213,6 @@ class spell_sha_ancestral_guidance_heal : public SpellScript
     }
 };
 
-// 2825 - Bloodlust
-// 32182 - Heroism
-// 146555 - Drums of Rage
-// 178207 - Drums of Fury
-// 230935 - Drums of the Mountain
-// 256740 - Drums of the Maelstrom
-// 309658 - Drums of Deathly Ferocity
-// 381301 - Feral Hide Drums
-class spell_sha_bloodlust : public SpellScript
-{
-    PrepareSpellScript(spell_sha_bloodlust);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo
-        ({
-            SPELL_SHAMAN_SATED,
-            SPELL_SHAMAN_EXHAUSTION
-        });
-    }
-
-    void FilterTargets(std::list<WorldObject*>& targets)
-    {
-        targets.remove_if(Trinity::BloodlustExhaustionCheck());
-    }
-
-    void HandleHit(SpellEffIndex /*effIndex*/)
-    {
-        Unit* target = GetHitUnit();
-        uint32 exhaustionSpellId = SPELL_SHAMAN_SATED;
-
-        // debuff is based on targets team, if target isn't a player its using casters team
-        if (Player* player = target->ToPlayer())
-        {
-            if (player->GetTeam() == ALLIANCE)
-                exhaustionSpellId = SPELL_SHAMAN_EXHAUSTION;
-        }
-        else if (Player* casterPlayer = GetCaster()->ToPlayer())
-        {
-            if (casterPlayer->GetTeam() == ALLIANCE)
-                exhaustionSpellId = SPELL_SHAMAN_EXHAUSTION;
-        }
-        target->CastSpell(target, exhaustionSpellId, true);
-    }
-
-    void Register() override
-    {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_bloodlust::FilterTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_bloodlust::FilterTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
-        OnEffectHitTarget += SpellEffectFn(spell_sha_bloodlust::HandleHit, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
-    }
-};
-
 // 188443 - Chain Lightning
 class spell_sha_chain_lightning : public SpellScript
 {
@@ -1786,7 +1733,6 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_aftershock);
     RegisterSpellScript(spell_sha_ancestral_guidance);
     RegisterSpellScript(spell_sha_ancestral_guidance_heal);
-    RegisterSpellScript(spell_sha_bloodlust);
     RegisterSpellScript(spell_sha_chain_lightning);
     RegisterSpellScript(spell_sha_chain_lightning_overload);
     RegisterSpellScript(spell_sha_crash_lightning);

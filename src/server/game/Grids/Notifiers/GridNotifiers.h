@@ -1782,23 +1782,6 @@ namespace Trinity
             ObjectGuid _casterGUID;
     };
 
-    class BloodlustExhaustionCheck
-    {
-    public:
-        bool operator()(WorldObject* object) const
-        {
-            Unit* unit = object->ToUnit();
-            if (!unit)
-                return true;
-
-            return unit->HasAura(SPELL_SHAMAN_SATED)
-                || unit->HasAura(SPELL_SHAMAN_EXHAUSTION)
-                || unit->HasAura(SPELL_MAGE_TEMPORAL_DISPLACEMENT)
-                || unit->HasAura(SPELL_HUNTER_FATIGUED)
-                || unit->HasAura(SPELL_EVOKER_EXHAUSTION);
-        }
-    };
-
     class ObjectEntryAndPrivateOwnerIfExistsCheck
     {
     public:

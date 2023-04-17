@@ -5310,9 +5310,26 @@ class spell_gen_skinning : public SpellScript
     }
 };
 
+enum SpellBloodlustDebuffEntry : uint32
+{
+    SPELL_SHAMAN_SATED               = 57724, // Bloodlust
+    SPELL_SHAMAN_EXHAUSTION          = 57723, 
+    SPELL_MAGE_TEMPORAL_DISPLACEMENT = 80354, 
+    SPELL_HUNTER_FATIGUED            = 264689,
+    SPELL_EVOKER_EXHAUSTION          = 390435,
+};
+
+// 2825 - Bloodlust
+// 32182 - Heroism
 // 80353 - Time Warp
 // 264667 - Primal Rage
 // 390386 - Fury of the Aspects
+// 146555 - Drums of Rage
+// 178207 - Drums of Fury
+// 230935 - Drums of the Mountain
+// 256740 - Drums of the Maelstrom
+// 309658 - Drums of Deathly Ferocity
+// 381301 - Feral Hide Drums
 class spell_gen_bloodlust : public SpellScript
 {
     PrepareSpellScript(spell_gen_bloodlust);
@@ -5321,12 +5338,30 @@ public:
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ _exhaustionSpellId });
+        return ValidateSpellInfo(
+        {
+            SPELL_SHAMAN_SATED,
+            SPELL_SHAMAN_EXHAUSTION,
+            SPELL_MAGE_TEMPORAL_DISPLACEMENT,
+            SPELL_HUNTER_FATIGUED,
+            SPELL_EVOKER_EXHAUSTION
+        });
     }
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        targets.remove_if(Trinity::BloodlustExhaustionCheck());
+        targets.remove_if([](WorldObject* target) -> bool
+        {
+            Unit* unit = target->ToUnit();
+            if (!unit)
+                return true;
+
+            return unit->HasAura(SPELL_SHAMAN_SATED)
+                || unit->HasAura(SPELL_SHAMAN_EXHAUSTION)
+                || unit->HasAura(SPELL_MAGE_TEMPORAL_DISPLACEMENT)
+                || unit->HasAura(SPELL_HUNTER_FATIGUED)
+                || unit->HasAura(SPELL_EVOKER_EXHAUSTION);
+        });
     }
 
     void HandleHit(SpellEffIndex /*effIndex*/)
@@ -5508,6 +5543,8 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_reverse_cast_target_to_caster_triggered);
     RegisterSpellScript(spell_gen_despawn_all_summons_owned_by_caster);
     RegisterSpellScript(spell_gen_skinning);
+    RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_sha_bloodlust", SPELL_SHAMAN_SATED);
+    RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_sha_heroism", SPELL_SHAMAN_EXHAUSTION);
     RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_mage_time_warp", SPELL_MAGE_TEMPORAL_DISPLACEMENT);
     RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_hun_primal_rage", SPELL_HUNTER_FATIGUED);
     RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_evo_fury_of_the_aspects", SPELL_EVOKER_EXHAUSTION);
