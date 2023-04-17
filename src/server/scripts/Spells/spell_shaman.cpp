@@ -213,46 +213,6 @@ class spell_sha_ancestral_guidance_heal : public SpellScript
     }
 };
 
-// 2825 - Bloodlust
-class spell_sha_bloodlust : public SpellScript
-{
-    PrepareSpellScript(spell_sha_bloodlust);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo
-        ({
-            SPELL_EVOKER_EXHAUSTION,
-            SPELL_HUNTER_FATIGUED,
-            SPELL_MAGE_TEMPORAL_DISPLACEMENT,
-            SPELL_SHAMAN_SATED,
-            SPELL_SHAMAN_EXHAUSTION
-        });
-    }
-
-    void FilterTargets(std::list<WorldObject*>& targets)
-    {
-        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_EVOKER_EXHAUSTION));
-        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_HUNTER_FATIGUED));
-        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_MAGE_TEMPORAL_DISPLACEMENT));
-        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_SHAMAN_SATED));
-        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_SHAMAN_EXHAUSTION));
-    }
-
-    void HandleAfterHit()
-    {
-        Unit* target = GetHitUnit();
-
-        target->CastSpell(target, SPELL_SHAMAN_SATED, true);
-    }
-
-    void Register() override
-    {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_bloodlust::FilterTargets, EFFECT_ALL, TARGET_UNIT_CASTER_AREA_RAID);
-        AfterHit += SpellHitFn(spell_sha_bloodlust::HandleAfterHit);
-    }
-};
-
 // 188443 - Chain Lightning
 class spell_sha_chain_lightning : public SpellScript
 {
@@ -748,47 +708,6 @@ class spell_sha_healing_stream_totem_heal : public SpellScript
     void Register() override
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_healing_stream_totem_heal::SelectTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
-    }
-};
-
-// 32182 - Heroism
-class spell_sha_heroism : public SpellScript
-{
-    PrepareSpellScript(spell_sha_heroism);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo
-        ({
-            SPELL_EVOKER_EXHAUSTION,
-            SPELL_HUNTER_FATIGUED,
-            SPELL_MAGE_TEMPORAL_DISPLACEMENT,
-            SPELL_SHAMAN_SATED,
-            SPELL_SHAMAN_EXHAUSTION
-        });
-    }
-
-    void FilterTargets(std::list<WorldObject*>& targets)
-    {
-        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_EVOKER_EXHAUSTION));
-        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_HUNTER_FATIGUED));
-        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_MAGE_TEMPORAL_DISPLACEMENT));
-        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_SHAMAN_SATED));
-        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_SHAMAN_EXHAUSTION));
-    }
-
-    void HandleAfterHit()
-    {
-        Unit* target = GetHitUnit();
-
-        target->CastSpell(target, SPELL_SHAMAN_EXHAUSTION, true);
-    }
-
-    void Register() override
-    {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_heroism::FilterTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_heroism::FilterTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
-        AfterHit += SpellHitFn(spell_sha_heroism::HandleAfterHit);
     }
 };
 
@@ -1814,7 +1733,6 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_aftershock);
     RegisterSpellScript(spell_sha_ancestral_guidance);
     RegisterSpellScript(spell_sha_ancestral_guidance_heal);
-    RegisterSpellScript(spell_sha_bloodlust);
     RegisterSpellScript(spell_sha_chain_lightning);
     RegisterSpellScript(spell_sha_chain_lightning_overload);
     RegisterSpellScript(spell_sha_crash_lightning);
@@ -1830,7 +1748,6 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellAndAuraScriptPair(spell_sha_healing_rain, spell_sha_healing_rain_aura);
     RegisterSpellScript(spell_sha_healing_rain_target_limit);
     RegisterSpellScript(spell_sha_healing_stream_totem_heal);
-    RegisterSpellScript(spell_sha_heroism);
     RegisterSpellScript(spell_sha_icefury);
     RegisterSpellScript(spell_sha_item_lightning_shield);
     RegisterSpellScript(spell_sha_item_lightning_shield_trigger);

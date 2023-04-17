@@ -1289,46 +1289,6 @@ class spell_mage_supernova : public SpellScript
     }
 };
 
-// 80353 - Time Warp
-class spell_mage_time_warp : public SpellScript
-{
-    PrepareSpellScript(spell_mage_time_warp);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo
-        ({
-            SPELL_EVOKER_EXHAUSTION,
-            SPELL_HUNTER_FATIGUED,
-            SPELL_MAGE_TEMPORAL_DISPLACEMENT,
-            SPELL_SHAMAN_SATED,
-            SPELL_SHAMAN_EXHAUSTION
-        });
-    }
-
-    void FilterTargets(std::list<WorldObject*>& targets)
-    {
-        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_EVOKER_EXHAUSTION));
-        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_HUNTER_FATIGUED));
-        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_MAGE_TEMPORAL_DISPLACEMENT));
-        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_SHAMAN_SATED));
-        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_SHAMAN_EXHAUSTION));
-    }
-
-    void HandleAfterHit()
-    {
-        Unit* target = GetHitUnit();
-
-        target->CastSpell(target, SPELL_MAGE_TEMPORAL_DISPLACEMENT, true);
-    }
-
-    void Register() override
-    {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_time_warp::FilterTargets, EFFECT_ALL, TARGET_UNIT_CASTER_AREA_RAID);
-        AfterHit += SpellHitFn(spell_mage_time_warp::HandleAfterHit);
-    }
-};
-
 // 210824 - Touch of the Magi (Aura)
 class spell_mage_touch_of_the_magi_aura : public AuraScript
 {
@@ -1433,7 +1393,6 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_ring_of_frost);
     RegisterSpellAndAuraScriptPair(spell_mage_ring_of_frost_freeze, spell_mage_ring_of_frost_freeze_AuraScript);
     RegisterSpellScript(spell_mage_supernova);
-    RegisterSpellScript(spell_mage_time_warp);
     RegisterSpellScript(spell_mage_touch_of_the_magi_aura);
     RegisterSpellScript(spell_mage_water_elemental_freeze);
 }

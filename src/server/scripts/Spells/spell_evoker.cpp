@@ -60,46 +60,6 @@ class spell_evo_azure_strike : public SpellScript
     }
 };
 
-// 390386 - Fury of the Aspects
-class spell_evo_fury_of_the_aspects : public SpellScript
-{
-    PrepareSpellScript(spell_evo_fury_of_the_aspects);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo
-        ({
-            SPELL_EVOKER_EXHAUSTION,
-            SPELL_HUNTER_FATIGUED,
-            SPELL_MAGE_TEMPORAL_DISPLACEMENT,
-            SPELL_SHAMAN_SATED,
-            SPELL_SHAMAN_EXHAUSTION
-        });
-    }
-
-    void FilterTargets(std::list<WorldObject*>& targets)
-    {
-        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_EVOKER_EXHAUSTION));
-        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_HUNTER_FATIGUED));
-        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_MAGE_TEMPORAL_DISPLACEMENT));
-        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_SHAMAN_SATED));
-        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_SHAMAN_EXHAUSTION));
-    }
-
-    void HandleAfterHit()
-    {
-        Unit* target = GetHitUnit();
-
-        target->CastSpell(target, SPELL_EVOKER_EXHAUSTION, true);
-    }
-
-    void Register() override
-    {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_evo_fury_of_the_aspects::FilterTargets, EFFECT_ALL, TARGET_UNIT_CASTER_AREA_RAID);
-        AfterHit += SpellHitFn(spell_evo_fury_of_the_aspects::HandleAfterHit);
-    }
-};
-
 // 358733 - Glide (Racial)
 class spell_evo_glide : public SpellScript
 {
@@ -183,7 +143,6 @@ class spell_evo_living_flame : public SpellScript
 void AddSC_evoker_spell_scripts()
 {
     RegisterSpellScript(spell_evo_azure_strike);
-    RegisterSpellScript(spell_evo_fury_of_the_aspects);
     RegisterSpellScript(spell_evo_glide);
     RegisterSpellScript(spell_evo_living_flame);
 }
