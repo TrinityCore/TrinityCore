@@ -545,6 +545,25 @@ class spell_pri_guardian_spirit : public AuraScript
     }
 };
 
+// 120644 - Halo (Shadow)
+class spell_pri_halo_shadow : public SpellScript
+{
+    PrepareSpellScript(spell_pri_halo_shadow);
+
+    void HandleHitTarget(SpellEffIndex effIndex)
+    {
+        Unit* caster = GetCaster();
+
+        if (caster->GetPowerType() != GetEffectInfo().MiscValue)
+            PreventHitDefaultEffect(effIndex);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_halo_shadow::HandleHitTarget, EFFECT_1, SPELL_EFFECT_ENERGIZE);
+    }
+};
+
 // 120517 - Halo (Holy)
 // 120644 - Halo (Shadow)
 struct areatrigger_pri_halo : AreaTriggerAI
@@ -1654,6 +1673,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_divine_star_shadow);
     RegisterAreaTriggerAI(areatrigger_pri_divine_star);
     RegisterSpellScript(spell_pri_guardian_spirit);
+    RegisterSpellScript(spell_pri_halo_shadow);
     RegisterAreaTriggerAI(areatrigger_pri_halo);
     RegisterSpellScript(spell_pri_holy_words);
     RegisterSpellScript(spell_pri_item_t6_trinket);
