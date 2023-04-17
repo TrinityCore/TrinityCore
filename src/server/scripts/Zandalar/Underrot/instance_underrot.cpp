@@ -20,6 +20,11 @@
 #include "ScriptMgr.h"
 #include "underrot.h"
 
+BossBoundaryData const boundaries =
+{
+    { DATA_ELDER_LEAXA, new CircleBoundary(Position(869.502014f, 1230.199951f), 58.0f) }
+};
+
 ObjectData const creatureData[] =
 {
     { BOSS_ELDER_LEAXA,             DATA_ELDER_LEAXA            },
@@ -56,6 +61,7 @@ public:
             SetBossNumber(EncounterCount);
             LoadObjectData(creatureData, nullptr);
             LoadDoorData(doorData);
+            LoadBossBoundaries(boundaries);
             LoadDungeonEncounterData(encounters);
         }
     };

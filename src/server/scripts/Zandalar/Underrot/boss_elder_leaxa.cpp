@@ -24,9 +24,9 @@
 #include "MotionMaster.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SharedDefines.h"
 #include "SpellScript.h"
 #include "SpellAuras.h"
-#include "SharedDefines.h"
 #include "TemporarySummon.h"
 #include "underrot.h"
 
@@ -54,17 +54,17 @@ enum LeaxaEvents
 
 enum LeaxaTexts
 {
-    SAY_AGGRO                       = 0,
-    SAY_SANGUINE_FEAST              = 1,
-    SAY_ROT_AND_WITHER              = 2,
-    SAY_BLOOD_MIRROR                = 3,
-    SAY_ANNOUNCE_BLOOD_MIRROR       = 4,
-    SAY_DEATH                       = 5
+    SAY_AGGRO                   = 0,
+    SAY_SANGUINE_FEAST          = 1,
+    SAY_ROT_AND_WITHER          = 2,
+    SAY_BLOOD_MIRROR            = 3,
+    SAY_ANNOUNCE_BLOOD_MIRROR   = 4,
+    SAY_DEATH                   = 5
 };
 
 enum LeaxaAnimKits
 {
-    ANIMKIT_BLOOD_EFFIGY_DEATH              = 9798
+    ANIMKIT_BLOOD_EFFIGY_DEATH = 9798
 };
 
 // 131318 - Elder Leaxa
@@ -76,13 +76,13 @@ struct boss_elder_leaxa : public BossAI
     {
         _JustDied();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+
         Talk(SAY_DEATH);
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
     {
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-
         summons.DespawnAll();
         _EnterEvadeMode();
         _DespawnAtEvade();
@@ -91,13 +91,14 @@ struct boss_elder_leaxa : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
+
         Talk(SAY_AGGRO);
         me->SetAIAnimKitId(0);
         events.ScheduleEvent(EVENT_BLOOD_BOLT, 1s);
         events.ScheduleEvent(EVENT_SANGUINE_FEAST, 8s);
         events.ScheduleEvent(EVENT_CREEPING_ROT, 12s);
         events.ScheduleEvent(EVENT_BLOOD_MIRROR, 17s);
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
     }
 
     void UpdateAI(uint32 diff) override
@@ -218,9 +219,15 @@ class spell_sanguine_feast_selector : public SpellScript
 {
     PrepareSpellScript(spell_sanguine_feast_selector);
 
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return !spellInfo->GetEffects().empty() && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+    }
+
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitUnit(), GetEffectValue());
+        Unit* caster = GetCaster();
+        caster->CastSpell(GetHitUnit(), uint32(GetEffectInfo().CalcValue(caster)));
     }
 
     void Register() override
@@ -236,20 +243,16 @@ class spell_creeping_rot_selector : public SpellScript
 
     static constexpr float SPAWN_DISTANCE = 5.0f;
 
-    // spell has SPELL_ATTR3_ONLY_ON_PLAYER, but its selecting the mirrors somehow
-    void FilterTargets(std::list<WorldObject*>& targets)
-    {
-        targets.remove_if([](WorldObject* target) -> bool
-        {
-            return !target->IsPlayer();
-        });
-    }
-
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
 
-        caster->CastSpell(GetHitUnit(), SPELL_CREEPING_ROT_SUMMON);
+        // make sure spell is cast towards target and caster looks towards target
+        caster->SetInFront(target);
+        caster->SetFacingToObject(target);
+
+        caster->CastSpell(target, SPELL_CREEPING_ROT_SUMMON);
 
         float angle = caster->GetOrientation();
         float destX = caster->GetPositionX() + SPAWN_DISTANCE * std::cos(angle);
@@ -261,7 +264,6 @@ class spell_creeping_rot_selector : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_creeping_rot_selector::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
         OnEffectHitTarget += SpellEffectFn(spell_creeping_rot_selector::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
@@ -291,13 +293,13 @@ class spell_creeping_rot_aura : public AuraScript
 
 static Position const MirrorSpawnPositions[] =
 {
-    { 879.79865f,   1222.6233f, 56.47815f  },
-    { 856.184f,     1232.5435f, 56.52007f  },
-    { 859.34204f,   1238.0243f, 56.520065f },
-    { 857.8333f,    1220.6545f, 56.468567f },
-    { 876.17365f,   1240.2848f, 56.409615f },
-    { 864.25867f,   1240.5903f, 56.520065f },
-    { 863.1042f,    1218.0591f, 56.468765f }
+    { 879.79865f, 1222.6233f, 56.47815f  },
+    { 856.184f,   1232.5435f, 56.52007f  },
+    { 859.34204f, 1238.0243f, 56.520065f },
+    { 857.8333f,  1220.6545f, 56.468567f },
+    { 876.17365f, 1240.2848f, 56.409615f },
+    { 864.25867f, 1240.5903f, 56.520065f },
+    { 863.1042f,  1218.0591f, 56.468765f }
 };
 
 // 264603 - Blood Mirror
@@ -349,7 +351,7 @@ class spell_taint_of_ghuun : public SpellScript
 
     void Register() override
     {
-        OnHit += SpellHitFn(spell_taint_of_ghuun::HandleHit);
+        AfterHit += SpellHitFn(spell_taint_of_ghuun::HandleHit);
     }
 };
 
