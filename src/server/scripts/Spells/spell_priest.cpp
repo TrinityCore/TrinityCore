@@ -357,7 +357,7 @@ class spell_pri_divine_hymn : public SpellScript
     }
 };
 
-// 120644 - Divine Star (Shadow)
+// 122121 - Divine Star (Shadow)
 class spell_pri_divine_star_shadow : public SpellScript
 {
     PrepareSpellScript(spell_pri_divine_star_shadow);
@@ -1651,9 +1651,9 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_atonement);
     RegisterSpellScript(spell_pri_atonement_triggered);
     RegisterSpellScript(spell_pri_divine_hymn);
+    RegisterSpellScript(spell_pri_divine_star_shadow);
     RegisterAreaTriggerAI(areatrigger_pri_divine_star);
     RegisterSpellScript(spell_pri_guardian_spirit);
-    RegisterSpellScript(spell_pri_divine_star_shadow);
     RegisterAreaTriggerAI(areatrigger_pri_halo);
     RegisterSpellScript(spell_pri_holy_words);
     RegisterSpellScript(spell_pri_item_t6_trinket);
