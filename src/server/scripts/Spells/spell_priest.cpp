@@ -357,6 +357,25 @@ class spell_pri_divine_hymn : public SpellScript
     }
 };
 
+// 120644 - Divine Star (Shadow)
+class spell_pri_divine_star_shadow : public SpellScript
+{
+    PrepareSpellScript(spell_pri_divine_star_shadow);
+
+    void HandleHitTarget(SpellEffIndex effIndex)
+    {
+        Unit* caster = GetCaster();
+
+        if (caster->GetPowerType() != GetEffectInfo().MiscValue)
+            PreventHitDefaultEffect(effIndex);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_divine_star_shadow::HandleHitTarget, EFFECT_2, SPELL_EFFECT_ENERGIZE);
+    }
+};
+
 // 110744 - Divine Star (Holy)
 // 122121 - Divine Star (Shadow)
 struct areatrigger_pri_divine_star : AreaTriggerAI
@@ -1634,6 +1653,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_divine_hymn);
     RegisterAreaTriggerAI(areatrigger_pri_divine_star);
     RegisterSpellScript(spell_pri_guardian_spirit);
+    RegisterSpellScript(spell_pri_divine_star_shadow);
     RegisterAreaTriggerAI(areatrigger_pri_halo);
     RegisterSpellScript(spell_pri_holy_words);
     RegisterSpellScript(spell_pri_item_t6_trinket);
