@@ -905,8 +905,8 @@ struct boss_garothi_worldbreaker : public BossAI
 //    }
 //};
 //
-void AddSC_boss_garothi_worldbreaker()
-{
+//void AddSC_boss_garothi_worldbreaker()
+//{
 //    RegisterAntorusTheBurningThroneCreatureAI(boss_garothi_worldbreaker);
 //    RegisterAreaTriggerAI(at_garothi_annihilation);
 //    RegisterAuraScript(spell_garothi_apocalypse_drive);
@@ -923,4 +923,4 @@ void AddSC_boss_garothi_worldbreaker()
 //    RegisterSpellScript(spell_garothi_eradication);
 //    RegisterAuraScript(spell_garothi_surging_fel);
 //    RegisterSpellScript(spell_garothi_cannon_chooser);
-}
+//}
