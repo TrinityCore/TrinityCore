@@ -15,8 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AreaTrigger.h"
-#include "AreaTriggerAI.h"
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
 #include "Containers.h"
@@ -24,10 +22,8 @@
 #include "MotionMaster.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "SharedDefines.h"
 #include "SpellScript.h"
 #include "SpellAuras.h"
-#include "TemporarySummon.h"
 #include "underrot.h"
 
 enum LeaxaSpells
