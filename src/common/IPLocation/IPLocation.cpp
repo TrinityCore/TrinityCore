@@ -98,7 +98,12 @@ void IpLocationStore::Load()
 
 IpLocationRecord const* IpLocationStore::GetLocationRecord(std::string const& ipAddress) const
 {
-    uint32 ip = Trinity::Net::address_to_uint(Trinity::Net::make_address_v4(ipAddress));
+    boost::system::error_code error;
+    boost::asio::ip::address_v4 address = Trinity::Net::make_address_v4(ipAddress, error);
+    if (error)
+        return nullptr;
+
+    uint32 ip = Trinity::Net::address_to_uint(address);
     auto itr = std::upper_bound(_ipLocationStore.begin(), _ipLocationStore.end(), ip, [](uint32 ip, IpLocationRecord const& loc) { return ip < loc.IpTo; });
     if (itr == _ipLocationStore.end())
         return nullptr;
