@@ -22,7 +22,6 @@
  */
 
 #include "Containers.h"
-#include "GridNotifiers.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "Spell.h"
@@ -42,7 +41,7 @@ enum EvokerSpells
     SPELL_EVOKER_SOAR_RACIAL               = 369536
 };
 
-// 362969 - Azure Strike (Blue)
+// 362969 - Azure Strike (blue)
 class spell_evo_azure_strike : public SpellScript
 {
     PrepareSpellScript(spell_evo_azure_strike);

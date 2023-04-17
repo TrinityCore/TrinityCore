@@ -5313,8 +5313,8 @@ class spell_gen_skinning : public SpellScript
 enum SpellBloodlustDebuffEntry : uint32
 {
     SPELL_SHAMAN_SATED               = 57724, // Bloodlust
-    SPELL_SHAMAN_EXHAUSTION          = 57723, 
-    SPELL_MAGE_TEMPORAL_DISPLACEMENT = 80354, 
+    SPELL_SHAMAN_EXHAUSTION          = 57723, // Heroism, Drums
+    SPELL_MAGE_TEMPORAL_DISPLACEMENT = 80354,
     SPELL_HUNTER_FATIGUED            = 264689,
     SPELL_EVOKER_EXHAUSTION          = 390435,
 };
