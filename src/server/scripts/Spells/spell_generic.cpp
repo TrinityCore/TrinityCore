@@ -5310,7 +5310,7 @@ class spell_gen_skinning : public SpellScript
     }
 };
 
-enum SpellBloodlustDebuffEntry : uint32
+enum BloodlustExhaustionSpell : uint32
 {
     SPELL_SHAMAN_SATED               = 57724, // Bloodlust
     SPELL_SHAMAN_EXHAUSTION          = 57723, // Heroism, Drums
