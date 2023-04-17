@@ -304,6 +304,16 @@ enum SpellCastTargetFlags : uint32
     TARGET_FLAG_ITEM_MASK = TARGET_FLAG_TRADE_ITEM | TARGET_FLAG_ITEM | TARGET_FLAG_GAMEOBJECT_ITEM
 };
 
+// @TODO: move me
+enum SpellBloodlustDebuffEntry : uint32
+{
+    SPELL_SHAMAN_SATED               = 57724,
+    SPELL_SHAMAN_EXHAUSTION          = 57723,
+    SPELL_MAGE_TEMPORAL_DISPLACEMENT = 80354,
+    SPELL_HUNTER_FATIGUED            = 264689,
+    SPELL_EVOKER_EXHAUSTION          = 390435,
+};
+
 struct TC_GAME_API SpellDestination
 {
     SpellDestination();

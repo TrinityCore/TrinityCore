@@ -588,87 +588,6 @@ class spell_gen_battleground_mercenary_shapeshift : public AuraScript
     }
 };
 
-enum SpellBloodlustDebuffEntry : uint32
-{
-    SPELL_EVOKER_EXHAUSTION          = 390435,
-    SPELL_HUNTER_FATIGUED            = 264689,
-    SPELL_MAGE_TEMPORAL_DISPLACEMENT = 80354,
-    SPELL_SHAMAN_SATED               = 57724,
-    SPELL_SHAMAN_EXHAUSTION          = 57723
-};
-
-// 2825 - Bloodlust
-// 32182 - Heroism
-// 80353 - Time Warp
-// 146555 - Drums of Rage
-// 178207 - Drums of Fury
-// 230935 - Drums of the Mountain
-// 256740 - Drums of the Maelstrom
-// 264667 - Primal Rage
-// 309658 - Drums of Deathly Ferocity
-// 381301 - Feral Hide Drums
-// 390386 - Fury of the Aspects
-class spell_gen_bloodlust : public SpellScript
-{
-    PrepareSpellScript(spell_gen_bloodlust);
-
-public:
-    spell_gen_bloodlust(uint32 debuffSpellId) : SpellScript(), _debuffSpellId(debuffSpellId) { }
-
-private:
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo
-        ({
-            SPELL_EVOKER_EXHAUSTION,
-            SPELL_HUNTER_FATIGUED,
-            SPELL_MAGE_TEMPORAL_DISPLACEMENT,
-            SPELL_SHAMAN_SATED,
-            SPELL_SHAMAN_EXHAUSTION
-        });
-    }
-
-    void FilterTargets(std::list<WorldObject*>& targets)
-    {
-        targets.remove_if([](WorldObject* obj) -> bool
-        {
-            if (Unit* target = obj->ToUnit())
-                return target->HasAura(SPELL_EVOKER_EXHAUSTION) || target->HasAura(SPELL_HUNTER_FATIGUED) || target->HasAura(SPELL_MAGE_TEMPORAL_DISPLACEMENT) || target->HasAura(SPELL_SHAMAN_SATED) || target->HasAura(SPELL_SHAMAN_EXHAUSTION);
-
-            return false;
-        });
-    }
-
-    void HandleAfterHit()
-    {
-        Unit* target = GetHitUnit();
-
-        uint32 debuffSpellId = _debuffSpellId;
-
-        // Note: the target obtains the default faction debuff even though the caster may be part of the other faction.
-        if (_debuffSpellId == SPELL_SHAMAN_SATED || _debuffSpellId == SPELL_SHAMAN_EXHAUSTION)
-        {
-            Player* player = target->ToPlayer();
-
-            if (player && player->GetTeam() == ALLIANCE)
-                debuffSpellId = SPELL_SHAMAN_EXHAUSTION;
-            else
-                debuffSpellId = SPELL_SHAMAN_SATED;
-        }
-
-        target->CastSpell(target, debuffSpellId, true);
-    }
-
-    void Register() override
-    {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gen_bloodlust::FilterTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gen_bloodlust::FilterTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
-        AfterHit += SpellHitFn(spell_gen_bloodlust::HandleAfterHit);
-    }
-
-    uint32 _debuffSpellId;
-};
-
 // Blood Reserve - 64568
 enum BloodReserve
 {
@@ -5403,12 +5322,6 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_av_drekthar_presence);
     RegisterSpellScript(spell_gen_bandage);
     RegisterSpellScript(spell_gen_battleground_mercenary_shapeshift);
-    RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_evo_fury_of_the_aspects", SPELL_EVOKER_EXHAUSTION);
-    RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_hun_primal_rage", SPELL_HUNTER_FATIGUED);
-    RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_item_bloodlust_drums", SPELL_SHAMAN_SATED);
-    RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_mage_time_warp", SPELL_MAGE_TEMPORAL_DISPLACEMENT);
-    RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_sha_bloodlust", SPELL_SHAMAN_SATED);
-    RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_sha_heroism", SPELL_SHAMAN_EXHAUSTION);
     RegisterSpellScript(spell_gen_blood_reserve);
     RegisterSpellScript(spell_gen_bonked);
     RegisterSpellScriptWithArgs(spell_gen_break_shield, "spell_gen_break_shield");

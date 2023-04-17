@@ -1289,6 +1289,35 @@ class spell_mage_supernova : public SpellScript
     }
 };
 
+// 80353 - Time Warp
+class spell_mage_time_warp : public SpellScript
+{
+    PrepareSpellScript(spell_mage_time_warp);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_TEMPORAL_DISPLACEMENT });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        targets.remove_if(Trinity::ExhaustionCheck());
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+        target->CastSpell(target, SPELL_MAGE_TEMPORAL_DISPLACEMENT, true);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_time_warp::FilterTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_time_warp::FilterTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
+        OnEffectHitTarget += SpellEffectFn(spell_mage_time_warp::HandleHit, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
 // 210824 - Touch of the Magi (Aura)
 class spell_mage_touch_of_the_magi_aura : public AuraScript
 {
@@ -1393,6 +1422,7 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_ring_of_frost);
     RegisterSpellAndAuraScriptPair(spell_mage_ring_of_frost_freeze, spell_mage_ring_of_frost_freeze_AuraScript);
     RegisterSpellScript(spell_mage_supernova);
+    RegisterSpellScript(spell_mage_time_warp);
     RegisterSpellScript(spell_mage_touch_of_the_magi_aura);
     RegisterSpellScript(spell_mage_water_elemental_freeze);
 }

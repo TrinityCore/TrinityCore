@@ -22,6 +22,7 @@
  */
 
 #include "Containers.h"
+#include "GridNotifiers.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "Spell.h"
@@ -56,6 +57,35 @@ class spell_evo_azure_strike : public SpellScript
     void Register() override
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_evo_azure_strike::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
+    }
+};
+
+// 390386 - Fury of the Aspects
+class spell_evo_fury_of_the_aspects : public SpellScript
+{
+    PrepareSpellScript(spell_evo_fury_of_the_aspects);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_EVOKER_EXHAUSTION });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        targets.remove_if(Trinity::ExhaustionCheck());
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+        target->CastSpell(target, SPELL_EVOKER_EXHAUSTION, true);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_evo_fury_of_the_aspects::FilterTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_evo_fury_of_the_aspects::FilterTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_RAID);
+        OnEffectHitTarget += SpellEffectFn(spell_evo_fury_of_the_aspects::HandleHit, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
 
@@ -142,6 +172,7 @@ class spell_evo_living_flame : public SpellScript
 void AddSC_evoker_spell_scripts()
 {
     RegisterSpellScript(spell_evo_azure_strike);
+    RegisterSpellScript(spell_evo_fury_of_the_aspects);
     RegisterSpellScript(spell_evo_glide);
     RegisterSpellScript(spell_evo_living_flame);
 }
