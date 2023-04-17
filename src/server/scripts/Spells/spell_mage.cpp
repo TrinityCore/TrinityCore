@@ -80,7 +80,6 @@ enum MageSpells
     SPELL_MAGE_SERPENT_FORM                      = 32817,
     SPELL_MAGE_SHEEP_FORM                        = 32820,
     SPELL_MAGE_SQUIRREL_FORM                     = 32813,
-    SPELL_MAGE_TEMPORAL_DISPLACEMENT             = 80354,
     SPELL_MAGE_WORGEN_FORM                       = 32819,
     SPELL_PET_NETHERWINDS_FATIGUED               = 160455,
     SPELL_MAGE_ICE_LANCE_TRIGGER                 = 228598,
@@ -89,13 +88,6 @@ enum MageSpells
     SPELL_MAGE_CHAIN_REACTION_DUMMY              = 278309,
     SPELL_MAGE_CHAIN_REACTION                    = 278310,
     SPELL_MAGE_TOUCH_OF_THE_MAGI_EXPLODE         = 210833,
-};
-
-enum MiscSpells
-{
-    SPELL_HUNTER_INSANITY                        = 95809,
-    SPELL_SHAMAN_EXHAUSTION                      = 57723,
-    SPELL_SHAMAN_SATED                           = 57724
 };
 
 // 110909 - Alter Time Aura
@@ -1297,44 +1289,6 @@ class spell_mage_supernova : public SpellScript
     }
 };
 
-// 80353 - Time Warp
-class spell_mage_time_warp : public SpellScript
-{
-    PrepareSpellScript(spell_mage_time_warp);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo(
-        {
-            SPELL_MAGE_TEMPORAL_DISPLACEMENT,
-            SPELL_HUNTER_INSANITY,
-            SPELL_SHAMAN_EXHAUSTION,
-            SPELL_SHAMAN_SATED,
-            SPELL_PET_NETHERWINDS_FATIGUED
-        });
-    }
-
-    void RemoveInvalidTargets(std::list<WorldObject*>& targets)
-    {
-        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_MAGE_TEMPORAL_DISPLACEMENT));
-        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_HUNTER_INSANITY));
-        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_SHAMAN_EXHAUSTION));
-        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_SHAMAN_SATED));
-    }
-
-    void ApplyDebuff()
-    {
-        if (Unit* target = GetHitUnit())
-            target->CastSpell(target, SPELL_MAGE_TEMPORAL_DISPLACEMENT, true);
-    }
-
-    void Register() override
-    {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_time_warp::RemoveInvalidTargets, EFFECT_ALL, TARGET_UNIT_CASTER_AREA_RAID);
-        AfterHit += SpellHitFn(spell_mage_time_warp::ApplyDebuff);
-    }
-};
-
 // 210824 - Touch of the Magi (Aura)
 class spell_mage_touch_of_the_magi_aura : public AuraScript
 {
@@ -1439,7 +1393,6 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_ring_of_frost);
     RegisterSpellAndAuraScriptPair(spell_mage_ring_of_frost_freeze, spell_mage_ring_of_frost_freeze_AuraScript);
     RegisterSpellScript(spell_mage_supernova);
-    RegisterSpellScript(spell_mage_time_warp);
     RegisterSpellScript(spell_mage_touch_of_the_magi_aura);
     RegisterSpellScript(spell_mage_water_elemental_freeze);
 }

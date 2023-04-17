@@ -1,6 +1,7 @@
-/*
+﻿/*
  * Copyright (C) 2022 BfaCore Reforged
  * Copyright 2023 AzgathCore
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -102,7 +103,14 @@
 //void AddSC_nazjatar();
 ////void AddSC_boss_stormwall_blockade();
 ////void AddSC_boss_lady_jaina_proudmoore();
+// This is where scripts' loading functions should be declared:
 
+// Underrot
+void AddSC_instance_underrot();
+void AddSC_boss_elder_leaxa();
+
+// The name of this function should match:
+// void Add${NameOfDirectory}Scripts()
 void AddZandalarScripts()
 {
  //   AddSC_zone_nazmir();
@@ -189,4 +197,7 @@ void AddZandalarScripts()
  //   AddSC_nazjatar();
  //   //AddSC_boss_stormwall_blockade();
  //   //AddSC_boss_lady_jaina_proudmoore();
+    // Underrot
+    AddSC_instance_underrot();
+    AddSC_boss_elder_leaxa();
 }

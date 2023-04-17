@@ -22,17 +22,17 @@
  */
 
 #include "ScriptMgr.h"
-#include "CellImpl.h" //这是个啥
+#include "CellImpl.h" //���Ǹ�ɶ
 #include "GridNotifiersImpl.h"
 #include "Pet.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "SpellScript.h"
 
-enum HunterSpells   //枚举猎人技能
+enum HunterSpells   //ö�����˼���
 {
-    SPELL_HUNTER_HARPOON = 190925,//鱼叉?
-    SPELL_HUNTER_HARPOON_ROOT = 190927,//鱼叉**?
+    SPELL_HUNTER_HARPOON = 190925,//���?
+    SPELL_HUNTER_HARPOON_ROOT = 190927,//���**?
     SPELL_HUNTER_ANIMAL_INSTINCTS = 204315,
     SPELL_HUNTER_ANIMAL_INSTINCTS_CHEETAH = 204324,
     SPELL_HUNTER_ANIMAL_INSTINCTS_MONGOOSE = 204333,
@@ -101,7 +101,7 @@ enum HunterSpells   //枚举猎人技能
     SPELL_HUNTER_LETHAL_SHOTS                       = 260393,
     SPELL_HUNTER_CALLING_THE_SHOTS                  = 260404,
     SPELL_HUNTER_TRUESHOT                           = 288613,
-    //上方为Kyrian版
+    //�Ϸ�ΪKyrian��
 
     SPELL_HUNTER_A_MURDER_OF_CROWS_DAMAGE           = 131900,
     SPELL_HUNTER_A_MURDER_OF_CROWS_VISUAL_1         = 131637,
@@ -118,9 +118,9 @@ enum HunterSpells   //枚举猎人技能
     SPELL_HUNTER_MISDIRECTION_PROC                  = 35079,
     SPELL_HUNTER_MULTI_SHOT_FOCUS                   = 213363,
     SPELL_HUNTER_PET_LAST_STAND_TRIGGERED           = 53479,
-    SPELL_HUNTER_KILL_COMMAND                       = 34026,        //杀戮命令,后加
-    SPELL_HUNTER_KILL_COMMAND_CHARGE                = 118171,       //杀戮命令,后加
-    SPELL_HUNTER_KILL_COMMAND_TRIGGER               = 83381,        //杀戮命令,后加
+    SPELL_HUNTER_KILL_COMMAND                       = 34026,        //ɱ¾����,���
+    SPELL_HUNTER_KILL_COMMAND_CHARGE                = 118171,       //ɱ¾����,���
+    SPELL_HUNTER_KILL_COMMAND_TRIGGER               = 83381,        //ɱ¾����,���
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED = 54114,
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF    = 55711,
     SPELL_HUNTER_POSTHASTE_INCREASE_SPEED           = 118922,
@@ -130,7 +130,7 @@ enum HunterSpells   //枚举猎人技能
     SPELL_ROAR_OF_SACRIFICE_TRIGGERED               = 67481
 };
 
-enum DireBeastSpells    //后加
+enum DireBeastSpells    //���
 {
     DIRE_BEAST_DREAD_WASTES                         = 126216,
     DIRE_BEAST_DUNGEONS                             = 132764,
@@ -234,7 +234,7 @@ public:
                 return SPELL_FAILED_NO_PET;
 
             // pet has a target and target is within 5 yards and target is in line of sight
-            // 宠物内有个目标，并且目标在5码范围内且在直线视线内
+            // �������и�Ŀ�꣬����Ŀ����5�뷶Χ������ֱ��������
            
             if (!petTarget || !pet->IsWithinDist(petTarget, 40.0f, true) || !petTarget->IsWithinLOSInMap(pet))
                 return SPELL_FAILED_DONT_REPORT;
@@ -757,7 +757,7 @@ class spell_hun_steady_shot : public SpellScript
     }
 };
 
-// 1515 - Tame Beast    //原版    //猎人驯服宠物,抓宠物
+// 1515 - Tame Beast    //ԭ��    //����ѱ������,ץ����
 class spell_hun_tame_beast : public SpellScript 
 {
     PrepareSpellScript(spell_hun_tame_beast);
@@ -782,9 +782,9 @@ class spell_hun_tame_beast : public SpellScript
 
         if (Creature* target = GetExplTargetUnit()->ToCreature())
         {
-            //此处注释,尝试取消猎人抓宠物,提示等级过高.但也可能让猎人随意抓高等级宠物.
+            //�˴�ע��,����ȡ������ץ����,��ʾ�ȼ�����.��Ҳ��������������ץ�ߵȼ�����.
             //if (target->GetLevel() > caster->GetLevel())
-            //    return SPELL_FAILED_HIGHLEVEL;//返回驯服失败,等级过高
+            //    return SPELL_FAILED_HIGHLEVEL;//����ѱ��ʧ��,�ȼ�����
 
             // use SMSG_PET_TAME_FAILURE?
             if (!target->GetCreatureTemplate()->IsTameable(caster->CanTameExoticPets()))
@@ -836,7 +836,7 @@ class spell_hun_tame_beast : public SpellScript
     }
 };
 
-// 1515 - Tame Beast    //Kyrian版
+// 1515 - Tame Beast    //Kyrian��
 //class spell_hun_tame_beast : public SpellScriptLoader
 //{
 //public:
