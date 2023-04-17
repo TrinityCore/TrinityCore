@@ -151,7 +151,7 @@ CustomItem* CustomTalkMenu::FindMenuItem(uint32 entry)
 
 void CustomTalkMenu::Initialize()
 {
-    uint32 oldMSTime = getMSTime();
+    //uint32 oldMSTime = getMSTime();
     ClearMenu();
     return;
     QueryResult result = WorldDatabase.Query("SELECT * FROM _功能宝石");
@@ -197,7 +197,7 @@ void CustomTalkMenu::DisplayMainMenu(Player* player)
     player->PlayerTalkClass->SendCloseGossip();
     PlayerMenuState* pMenu = GetPlayerMenu(player, true);
     pMenu->items.push_back(m_MenuItems[0]);
-    uint32 count = SearchMenuItemByType(pMenu, player, 0);
+    //uint32 count = SearchMenuItemByType(pMenu, player, 0);
     //player->SetStandState(UNIT_STAND_STATE_STAND);
     DisplayMenuToPlayer(player, pMenu);
 }
@@ -247,14 +247,14 @@ void CustomTalkMenu::OnSelectMenuItem(Player* player, uint32 index)
         }
         else
             pMenu->items.push_back(m_MenuItems[0]);
-        uint32 count = SearchMenuItemByType(pMenu, player, pSelectItem->menu);
+        //uint32 count = SearchMenuItemByType(pMenu, player, pSelectItem->menu);
         DisplayMenuToPlayer(player, pMenu);
     }
     else if (MenuFunction(pSelectItem->func) == MenuFunction::MENUF_POP)
     {
         pMenu->items.clear();
         pMenu->items.push_back(pSelectItem);
-        uint32 count = SearchMenuItemByType(pMenu, player, pSelectItem->entry);
+        //uint32 count = SearchMenuItemByType(pMenu, player, pSelectItem->entry);
         DisplayMenuToPlayer(player, pMenu);
     }
     else

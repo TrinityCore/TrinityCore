@@ -1162,6 +1162,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         explicit Player(WorldSession* session);
         ~Player();
 
+        bool m_bot;
+        int32 FakerMoveTimer;
+        uint32 m_plguid;
+
         PlayerAI* AI() const { return reinterpret_cast<PlayerAI*>(GetAI()); }
         uint32 FindTalentType();
 

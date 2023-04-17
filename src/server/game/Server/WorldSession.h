@@ -960,7 +960,7 @@ class TC_GAME_API WorldSession
         WorldSession(uint32 id, std::string&& name, uint32 battlenetAccountId, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time,
             std::string os, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
         ~WorldSession();
-
+        
         bool PlayerLoading() const { return !m_playerLoading.IsEmpty(); }
         bool PlayerLogout() const { return m_playerLogout; }
         bool PlayerLogoutWithSave() const { return m_playerLogout && m_playerSave; }
@@ -968,6 +968,17 @@ class TC_GAME_API WorldSession
         bool PlayerDisconnected() const;
 
         bool IsAddonRegistered(std::string_view prefix) const;
+
+
+        void SetAddress(std::string mybot);
+        void Setexpansion(uint8 mybot)
+        {
+            m_expansion = mybot;
+        }
+        void HandleWorldPortAck();                // for server-side calls
+        void HandleFakerPackets();
+        void HandleBotMoveTeleportAck();
+        void HandleBotPlayerLogin(LoginQueryHolder* holder);
 
         void SendPacket(WorldPacket const* packet, bool forced = false);
         void AddInstanceConnection(std::shared_ptr<WorldSocket> sock) { m_Socket[CONNECTION_TYPE_INSTANCE] = sock; }
