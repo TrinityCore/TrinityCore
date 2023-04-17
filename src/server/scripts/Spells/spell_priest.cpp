@@ -470,7 +470,7 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
             returnSplinePoints.push_back(PositionToVector3(caster));
             returnSplinePoints.push_back(PositionToVector3(caster));
 
-            at->InitSplines(returnSplinePoints, uint32(at->GetDistance(caster) / _divineStarXOffSet));
+            at->InitSplines(returnSplinePoints, uint32(at->GetDistance(caster) / _divineStarXOffSet * 1000));
 
             task.Repeat(250ms);
         });
