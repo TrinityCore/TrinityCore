@@ -1,0 +1,91 @@
+﻿绑定炉石代码
+修改
+src/game/NPCHandler.cpp文件
+
+A、
+#include "Guild.h"
+#include
+"Spell.h"//新增？忘记了原来的源码，反正要有
+#include "Item.h"//新增？忘记了原来的源码，要有
+
+void WorldSession::HandleTabardVendorActivateOpcode( WorldPacket &
+recv_data )
+{
+    CHECK_PACKET_SIZE(recv_data,8);
+
+B、查找
+
+oid WorldSession::HandleBinderActivateOpcode( WorldPacket & recv_data )
+
+{
+。。。。
+}
+
+在下面加入下面源码
+
+void WorldSession::SendBindPointHome( uint64 guid )
+{
+    WorldPacket data;
+     // update sql homebind
+    CharacterDatabase.PExecute("UPDATE `character_homebind` SET `map` = '%u', `zone` = '%u', `position_x` = '%f', `position_y` = '%f', `position_z` = '%f' WHERE `guid` = '%u'",
+_player->GetMapId(), _player->GetZoneId(), _player->GetPositionX(),
+_player->GetPositionY(), _player->GetPositionZ(), _player->GetGUIDLow());
+    _player->m_homebindMapId = _player->GetMapId();
+    _player->m_homebindZoneId = _player->GetZoneId();
+    _player->m_homebindX = _player->GetPositionX();
+    _player->m_homebindY = _player->GetPositionY();
+    _player->m_homebindZ = _player->GetPositionZ();
+// send spell for bind 3286 bind magic
+    data.Initialize(SMSG_SPELL_START, (8822242) );
+    data.append(_player->GetPackGUID());
+    //data.append(npc->GetPackGUID());
+    data << uint16(3286) << uint16(0x00) << uint16(0x0F) << uint32(0x00)<< uint16(0x00);
+SendPacket( &data );
+    data.Initialize(SMSG_SPELL_GO, (8+8+2+2+1+1+1+8+4+2+2));
+data.append(_player->GetPackGUID());
+    data << uint16(3286) << uint16(0x00) << uint8(0x0D) <<  uint8(0x01)<< uint8(0x01) << _player->GetGUID();
+    data << uint32(0x00) << uint16(0x0200) << uint16(0x00);
+    SendPacket( &data );
+    // binding
+    data.Initialize( SMSG_BINDPOINTUPDATE, (4+4+4+4+4) );
+    data << float(_player->GetPositionX());
+    data << float(_player->GetPositionY());
+    data << float(_player->GetPositionZ());
+    data << uint32(_player->GetMapId());
+    data << uint32(_player->GetZoneId());
+    SendPacket( &data );
+DEBUG_LOG("New Home Position X is %f",_player->GetPositionX());
+DEBUG_LOG("New Home Position Y is %f",_player->GetPositionY());
+DEBUG_LOG("New Home Position Z is %f",_player->GetPositionZ());
+DEBUG_LOG("New Home MapId is %u",_player->GetMapId());
+DEBUG_LOG("New Home ZoneId is %u",_player->GetZoneId());
+    // zone update
+    data.Initialize( SMSG_PLAYERBOUND, 12 );
+    data << uint64(_player->GetGUID());
+    data << uint32(_player->GetZoneId());
+    SendPacket( &data );
+_player->PlayerTalkClass->CloseGossip();
+}
+
+C、修改src\game\WorldSession.h
+
+       void SendSpiritResurrect();
+      void WorldSession::SendBindPointHome( uint64 guid );//新增
+      void SendBindPoint(Creature* npc);
+
+D、在宝石代码的头文件中加入
+
+#include "DatabaseEnv.h"//新增
+#include "precompiled.h"
+#include "sc_gossip.h"
+#include "Player.h"
+#include "GossipDef.h"
+#include "Spell.h"
+
+E、加入代码到宝石菜单中去
+                  //绑定炉石
+       case GOSSIP_ACTION_INFO_DEF + 6 :
+            player->GetSession()->SendBindPointHome(player->GetGUID());
+            player->GetSession()->SendAreaTriggerMessage(" |CFFFF0000你的炉石点已绑定| ");
+            player->CLOSE_GOSSIP_MENU();
+            break;
