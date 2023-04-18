@@ -1,4 +1,5 @@
-﻿///* Copyright (C) 2007,2008 --- TYRE TELEPORT v1.0 ---
+﻿//From:http://www.mangoscn.com/forum.php?mod=viewthread&tid=9651&extra=page%3D3
+///* Copyright (C) 2007,2008 --- TYRE TELEPORT v1.0 ---
 //* This program is free software; you can redistribute it and/or modify
 //* it under the terms of the GNU General Public License as published by
 //* the Free Software Foundation; either version 2 of the License, or
