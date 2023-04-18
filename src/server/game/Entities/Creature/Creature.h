@@ -212,7 +212,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         uint32 GetVendorItemCurrentCount(VendorItem const* vItem);
         uint32 UpdateVendorItemCurrentCount(VendorItem const* vItem, uint32 used_count);
 
-        CreatureTemplate const* GetCreatureTemplate() const { return m_creatureInfo; }
+        CreatureTemplate const* GetCreatureTemplate() const;
         CreatureData const* GetCreatureData() const { return m_creatureData; }
         CreatureAddon const* GetCreatureAddon() const;
 
@@ -469,7 +469,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         bool DisableReputationGain;
 
-        CreatureTemplate const* m_creatureInfo;                 // Can differ from sObjectMgr->GetCreatureTemplate(GetEntry()) in difficulty mode > 0
         CreatureData const* m_creatureData;
         std::array<std::string_view, 3> m_stringIds;
         Optional<std::string> m_scriptStringId;

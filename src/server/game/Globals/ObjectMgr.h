@@ -502,7 +502,7 @@ typedef std::unordered_map<uint16, CreatureBaseStats> CreatureBaseStatsContainer
 typedef std::unordered_map<uint8, EquipmentInfo> EquipmentInfoContainerInternal;
 typedef std::unordered_map<uint32, EquipmentInfoContainerInternal> EquipmentInfoContainer;
 typedef std::unordered_map<uint32, CreatureModelInfo> CreatureModelContainer;
-typedef std::unordered_map<uint32, std::vector<uint32>> CreatureQuestItemMap;
+typedef std::unordered_map<std::pair<uint32, Difficulty>, std::vector<uint32>> CreatureQuestItemMap;
 typedef std::unordered_map<uint32, GameObjectTemplate> GameObjectTemplateContainer;
 typedef std::unordered_map<uint32, GameObjectTemplateAddon> GameObjectTemplateAddonContainer;
 typedef std::unordered_map<ObjectGuid::LowType, GameObjectOverride> GameObjectOverrideContainer;
@@ -1181,11 +1181,17 @@ class TC_GAME_API ObjectMgr
         }
         GameObjectQuestItemMap const* GetGameObjectQuestItemMap() const { return &_gameObjectQuestItemStore; }
 
-        std::vector<uint32> const* GetCreatureQuestItemList(uint32 id) const
+        std::vector<uint32> const* GetCreatureQuestItemList(uint32 creatureEntry, Difficulty difficulty) const
         {
-            CreatureQuestItemMap::const_iterator itr = _creatureQuestItemStore.find(id);
+            CreatureQuestItemMap::const_iterator itr = _creatureQuestItemStore.find(std::make_pair(creatureEntry, difficulty));
             if (itr != _creatureQuestItemStore.end())
                 return &itr->second;
+
+            // If there is no data for the difficulty, try to get data for the fallback difficulty
+            DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(difficulty);
+            if (difficultyEntry)
+                return GetCreatureQuestItemList(creatureEntry, Difficulty(difficultyEntry->FallbackDifficultyID));
+
             return nullptr;
         }
         CreatureQuestItemMap const* GetCreatureQuestItemMap() const { return &_creatureQuestItemStore; }
@@ -1956,9 +1962,6 @@ class TC_GAME_API ObjectMgr
         CacheVendorItemContainer _cacheVendorItemStore;
         std::unordered_map<uint32, Trainer::Trainer> _trainers;
         std::map<std::tuple<uint32, uint32, uint32>, uint32> _creatureDefaultTrainers;
-
-        std::set<uint32> _difficultyEntries[MAX_CREATURE_DIFFICULTIES]; // already loaded difficulty 1 value in creatures, used in CheckCreatureTemplate
-        std::set<uint32> _hasDifficultyEntries[MAX_CREATURE_DIFFICULTIES]; // already loaded creatures with difficulty 1 values, used in CheckCreatureTemplate
 
         std::unordered_map<uint8, RaceUnlockRequirement> _raceUnlockRequirementStore;
         std::vector<RaceClassAvailability> _classExpansionRequirementStore;

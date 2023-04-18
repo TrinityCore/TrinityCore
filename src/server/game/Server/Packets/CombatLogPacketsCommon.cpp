@@ -68,7 +68,7 @@ template<>
 bool ContentTuningParams::GenerateDataForUnits<Creature, Player>(Creature* attacker, Player* target)
 {
     CreatureTemplate const* creatureTemplate = attacker->GetCreatureTemplate();
-    CreatureLevelScaling const* creatureScaling = creatureTemplate->GetLevelScaling(attacker->GetMap()->GetDifficultyID());
+    CreatureScaling const* creatureScaling = creatureTemplate->GetScaling(attacker->GetMap()->GetDifficultyID());
 
     Type = TYPE_CREATURE_TO_PLAYER_DAMAGE;
     PlayerLevelDelta = target->m_activePlayerData->ScalingPlayerLevelDelta;
@@ -76,7 +76,7 @@ bool ContentTuningParams::GenerateDataForUnits<Creature, Player>(Creature* attac
     TargetItemLevel = 0;
     ScalingHealthItemLevelCurveID = target->m_unitData->ScalingHealthItemLevelCurveID;
     TargetLevel = target->GetLevel();
-    Expansion = creatureTemplate->HealthScalingExpansion;
+    Expansion = creatureScaling->HealthScalingExpansion;
     TargetScalingLevelDelta = int8(attacker->m_unitData->ScalingLevelDelta);
     TargetContentTuningID = creatureScaling->ContentTuningID;
     return true;
@@ -86,7 +86,7 @@ template<>
 bool ContentTuningParams::GenerateDataForUnits<Player, Creature>(Player* attacker, Creature* target)
 {
     CreatureTemplate const* creatureTemplate = target->GetCreatureTemplate();
-    CreatureLevelScaling const* creatureScaling = creatureTemplate->GetLevelScaling(target->GetMap()->GetDifficultyID());
+    CreatureScaling const* creatureScaling = creatureTemplate->GetScaling(target->GetMap()->GetDifficultyID());
 
     Type = TYPE_PLAYER_TO_CREATURE_DAMAGE;
     PlayerLevelDelta = attacker->m_activePlayerData->ScalingPlayerLevelDelta;
@@ -94,7 +94,7 @@ bool ContentTuningParams::GenerateDataForUnits<Player, Creature>(Player* attacke
     TargetItemLevel = 0;
     ScalingHealthItemLevelCurveID = target->m_unitData->ScalingHealthItemLevelCurveID;
     TargetLevel = target->GetLevel();
-    Expansion = creatureTemplate->HealthScalingExpansion;
+    Expansion = creatureScaling->HealthScalingExpansion;
     TargetScalingLevelDelta = int8(target->m_unitData->ScalingLevelDelta);
     TargetContentTuningID = creatureScaling->ContentTuningID;
     return true;
@@ -105,13 +105,13 @@ bool ContentTuningParams::GenerateDataForUnits<Creature, Creature>(Creature* att
 {
     Creature* accessor = target->HasScalableLevels() ? target : attacker;
     CreatureTemplate const* creatureTemplate = accessor->GetCreatureTemplate();
-    CreatureLevelScaling const* creatureScaling = creatureTemplate->GetLevelScaling(accessor->GetMap()->GetDifficultyID());
+    CreatureScaling const* creatureScaling = creatureTemplate->GetScaling(accessor->GetMap()->GetDifficultyID());
 
     Type = TYPE_CREATURE_TO_CREATURE_DAMAGE;
     PlayerLevelDelta = 0;
     PlayerItemLevel = 0;
     TargetLevel = target->GetLevel();
-    Expansion = creatureTemplate->HealthScalingExpansion;
+    Expansion = creatureScaling->HealthScalingExpansion;
     TargetScalingLevelDelta = int8(accessor->m_unitData->ScalingLevelDelta);
     TargetContentTuningID = creatureScaling->ContentTuningID;
     return true;

@@ -441,7 +441,6 @@ const uint8 MAX_KILL_CREDIT = 2;
 const uint32 MAX_CREATURE_MODELS = 4;
 const uint32 MAX_CREATURE_NAMES = 4;
 const uint32 MAX_CREATURE_SPELLS = 8;
-const uint32 MAX_CREATURE_DIFFICULTIES = 3;
 
 struct CreatureModel
 {
@@ -459,18 +458,23 @@ struct CreatureModel
     float Probability;
 };
 
-struct CreatureLevelScaling
+struct CreatureScaling
 {
     int16 DeltaLevelMin;
     int16 DeltaLevelMax;
     int32 ContentTuningID;
+    int32 HealthScalingExpansion;
+    float HealthModifier;
+    float ManaModifier;
+    float ArmorModifier;
+    float DamageModifier;
+    int32 CreatureDifficultyID;
 };
 
 // from `creature_template` table
 struct TC_GAME_API CreatureTemplate
 {
     uint32  Entry;
-    uint32  DifficultyEntry[MAX_CREATURE_DIFFICULTIES];
     uint32  KillCredit[MAX_KILL_CREDIT];
     std::vector<CreatureModel> Models;
     std::string  Name;
@@ -479,8 +483,7 @@ struct TC_GAME_API CreatureTemplate
     std::string  TitleAlt;
     std::string  IconName;
     std::vector<uint32> GossipMenuIds;
-    std::unordered_map<Difficulty, CreatureLevelScaling> scalingStore;
-    int32   HealthScalingExpansion;
+    std::unordered_map<Difficulty, CreatureScaling> scalingStore;
     uint32  RequiredExpansion;
     uint32  VignetteID;                                     /// @todo Read Vignette.db2
     uint32  faction;
@@ -515,16 +518,9 @@ struct TC_GAME_API CreatureTemplate
     std::string AIName;
     uint32  MovementType;
     CreatureMovementData Movement;
-    float   ModHealth;
-    float   ModHealthExtra;
-    float   ModMana;
-    float   ModManaExtra;                                   // Added in 4.x, this value is usually 2 for a small group of creatures with double mana
-    float   ModArmor;
-    float   ModDamage;
     float   ModExperience;
     bool    RacialLeader;
     uint32  movementId;
-    int32   CreatureDifficultyID;
     int32   WidgetSetID;
     int32   WidgetSetUnitConditionID;
     bool    RegenHealth;
@@ -540,8 +536,8 @@ struct TC_GAME_API CreatureTemplate
     CreatureModel const* GetModelWithDisplayId(uint32 displayId) const;
     CreatureModel const* GetFirstInvisibleModel() const;
     CreatureModel const* GetFirstVisibleModel() const;
-    int32 GetHealthScalingExpansion() const;
-    CreatureLevelScaling const* GetLevelScaling(Difficulty difficulty) const;
+    int32 GetHealthScalingExpansion(Difficulty difficulty) const;
+    CreatureScaling const* GetScaling(Difficulty difficulty) const;
 
     // helpers
     SkillType GetRequiredLootSkill() const
@@ -571,39 +567,7 @@ struct TC_GAME_API CreatureTemplate
     }
 
     void InitializeQueryData();
-    WorldPacket BuildQueryData(LocaleConstant loc) const;
-
-    static int32 DifficultyIDToDifficultyEntryIndex(uint32 difficulty)
-    {
-        switch (difficulty)
-        {
-            case DIFFICULTY_NONE:
-            case DIFFICULTY_NORMAL:
-            case DIFFICULTY_10_N:
-            case DIFFICULTY_40:
-            case DIFFICULTY_3_MAN_SCENARIO_N:
-            case DIFFICULTY_NORMAL_RAID:
-                return -1;
-            case DIFFICULTY_HEROIC:
-            case DIFFICULTY_25_N:
-            case DIFFICULTY_3_MAN_SCENARIO_HC:
-            case DIFFICULTY_HEROIC_RAID:
-                return 0;
-            case DIFFICULTY_10_HC:
-            case DIFFICULTY_MYTHIC_KEYSTONE:
-            case DIFFICULTY_MYTHIC_RAID:
-                return 1;
-            case DIFFICULTY_25_HC:
-                return 2;
-            case DIFFICULTY_LFR:
-            case DIFFICULTY_LFR_NEW:
-            case DIFFICULTY_EVENT_RAID:
-            case DIFFICULTY_EVENT_DUNGEON:
-            case DIFFICULTY_EVENT_SCENARIO:
-            default:
-                return -1;
-        }
-    }
+    WorldPacket BuildQueryData(LocaleConstant loc, Difficulty difficulty) const;
 };
 
 #pragma pack(push, 1)
@@ -616,13 +580,14 @@ struct TC_GAME_API CreatureBaseStats
     uint32 RangedAttackPower;
 
     // Helpers
-    uint32 GenerateMana(CreatureTemplate const* info) const
+    uint32 GenerateMana(CreatureTemplate const* info, Difficulty difficulty) const
     {
         // Mana can be 0.
         if (!BaseMana)
             return 0;
 
-        return uint32(ceil(BaseMana * info->ModMana * info->ModManaExtra));
+        CreatureScaling const* scaling = info->GetScaling(difficulty);
+        return uint32(ceil(BaseMana * scaling->ManaModifier));
     }
 
     static CreatureBaseStats const* GetBaseStats(uint8 level, uint8 unitClass);
