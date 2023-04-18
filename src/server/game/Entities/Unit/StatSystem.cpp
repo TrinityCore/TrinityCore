@@ -18,6 +18,7 @@
 #include "Unit.h"
 #include "DB2Stores.h"
 #include "Item.h"
+#include "Map.h"
 #include "Player.h"
 #include "Pet.h"
 #include "GameTables.h"

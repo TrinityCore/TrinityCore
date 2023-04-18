@@ -23,6 +23,7 @@
 #include "GameTime.h"
 #include "Item.h"
 #include "Log.h"
+#include "Map.h"
 #include "NPCHandler.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
