@@ -26,6 +26,10 @@
 #include <utility>
 #include <cstring>
 
+class Temporary_10_0_7_metadata_bug_workaround : public std::exception
+{
+};
+
 enum class DB2ColumnCompression : uint32
 {
     None,
@@ -226,7 +230,7 @@ public:
     char const* GetExpectedSignMismatchReason(uint32 field) const override;
 
 private:
-    void FillParentLookup(char* dataTable);
+    void FillParentLookup(char* dataTable, char** indexTable);
     uint32 GetRecordSection(uint32 recordNumber) const;
     unsigned char const* GetRawRecordData(uint32 recordNumber, uint32 const* section) const override;
     uint32 RecordGetId(uint8 const* record, uint32 recordIndex) const override;
@@ -427,6 +431,8 @@ char* DB2FileLoaderRegularImpl::AutoProduceData(uint32& indexTableSize, char**& 
                 ++fieldIndex;
             }
 
+            try
+            {
             for (uint32 x = 0; x < _header->FieldCount; ++x)
             {
                 for (uint32 z = 0; z < _loadInfo->Meta->Fields[x].ArraySize; ++z)
@@ -498,11 +504,17 @@ char* DB2FileLoaderRegularImpl::AutoProduceData(uint32& indexTableSize, char**& 
                     ++fieldIndex;
                 }
             }
+            }
+            catch (Temporary_10_0_7_metadata_bug_workaround const&)
+            {
+                // pretend this record doesnt exist, has overflown column
+                indexTable[indexVal] = nullptr;
+            }
         }
     }
 
     if (!_parentIndexes.empty())
-        FillParentLookup(dataTable);
+        FillParentLookup(dataTable, indexTable);
 
     return dataTable;
 }
@@ -638,7 +650,7 @@ void DB2FileLoaderRegularImpl::AutoProduceRecordCopies(uint32 records, char** in
     }
 }
 
-void DB2FileLoaderRegularImpl::FillParentLookup(char* dataTable)
+void DB2FileLoaderRegularImpl::FillParentLookup(char* dataTable, char** indexTable)
 {
     int32 parentIdOffset = _loadInfo->Meta->GetParentIndexFieldOffset();
     uint32 recordSize = _loadInfo->Meta->GetRecordSize();
@@ -651,7 +663,13 @@ void DB2FileLoaderRegularImpl::FillParentLookup(char* dataTable)
             for (std::size_t j = 0; j < _parentIndexes[i][0].Entries.size(); ++j)
             {
                 uint32 parentId = _parentIndexes[i][0].Entries[j].ParentId;
-                char* recordData = &dataTable[(_parentIndexes[i][0].Entries[j].RecordIndex + recordIndexOffset) * recordSize];
+                uint32 recordIndex = _parentIndexes[i][0].Entries[j].RecordIndex + recordIndexOffset;
+                char* recordData = &dataTable[recordIndex * recordSize];
+
+                // temporary workaround
+                uint32 id = GetRecord(recordIndex).GetId();
+                if (!indexTable[id])
+                    continue;
 
                 switch (_loadInfo->Meta->Fields[_loadInfo->Meta->ParentIndexField].Type)
                 {
@@ -816,6 +834,9 @@ T DB2FileLoaderRegularImpl::RecordGetVarInt(uint8 const* record, uint32 field, u
             EndianConvert(immediateValue);
             T value;
             memcpy(&value, &immediateValue, std::min(sizeof(T), sizeof(immediateValue)));
+            if constexpr (std::is_integral_v<T>)
+                if (_columnMeta[field].CompressionData.immediate.BitWidth > sizeof(T) * 8 && int64(value) != int64(immediateValue))
+                    throw Temporary_10_0_7_metadata_bug_workaround();
             return value;
         }
         case DB2ColumnCompression::CommonData:
