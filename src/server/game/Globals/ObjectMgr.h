@@ -1181,19 +1181,7 @@ class TC_GAME_API ObjectMgr
         }
         GameObjectQuestItemMap const* GetGameObjectQuestItemMap() const { return &_gameObjectQuestItemStore; }
 
-        std::vector<uint32> const* GetCreatureQuestItemList(uint32 creatureEntry, Difficulty difficulty) const
-        {
-            CreatureQuestItemMap::const_iterator itr = _creatureQuestItemStore.find(std::make_pair(creatureEntry, difficulty));
-            if (itr != _creatureQuestItemStore.end())
-                return &itr->second;
-
-            // If there is no data for the difficulty, try to get data for the fallback difficulty
-            DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(difficulty);
-            if (difficultyEntry)
-                return GetCreatureQuestItemList(creatureEntry, Difficulty(difficultyEntry->FallbackDifficultyID));
-
-            return nullptr;
-        }
+        std::vector<uint32> const* GetCreatureQuestItemList(uint32 creatureEntry, Difficulty difficulty) const;
         CreatureQuestItemMap const* GetCreatureQuestItemMap() const { return &_creatureQuestItemStore; }
 
         uint32 GetNearestTaxiNode(float x, float y, float z, uint32 mapid, uint32 team);
