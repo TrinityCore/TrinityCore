@@ -1,4 +1,6 @@
-﻿绑定炉石代码
+﻿http://www.mangoscn.com/forum.php?mod=viewthread&tid=17720&extra=page%3D4
+绑定炉石代码
+
 修改
 src/game/NPCHandler.cpp文件
 
