@@ -1,0 +1,3 @@
+﻿http://www.mangoscn.com/forum.php?mod=viewthread&tid=3901&extra=&page=1
+
+汉化问路npc文件，直接覆盖文件！然后用UTF－8编码保存来编译就可以了！
