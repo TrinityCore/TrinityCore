@@ -1,0 +1,294 @@
+﻿//http://www.mangoscn.com/forum.php?mod=viewthread&tid=66007&extra=&page=1
+//c++下的一段AI 人工智能
+
+　　#include<iostream>
+　　#include<fstream>
+　　#include<string>
+　　#include<map>
+　　#include<vector>
+　　using namespace std;
+　　/**********************信息结构*************************************************/
+　　typedef vector<string> Msg;
+　　Msg MsgEmpty; // 空的
+　　Msg MsgFalse; // 假
+　　Msg MsgUnknown; //不知道
+　　Msg MsgTrue; //真
+　　Msg MsgAny; //任何值
+　　typedef map<int ,Msg> Knowledge; //解决方案
+　　struct FunTool //辅助工具
+　　{
+　　typedef Msg (*Way)(Msg );
+　　int id;
+　　Way pFun;
+　　string explain;
+　　FunTool(){}
+　　FunTool(int _id,Way _pFun,string _explain)
+　　{
+　　id=_id;
+　　pFun=_pFun;
+　　explain=_explain;
+　　}
+　　};
+　　typedef vector<FunTool> FunTools;
+　　/**********************信息结构定义完毕*****************************************/
+　　//可能需要的方法,人为提供的
+　　Msg say(Msg msg)
+　　{
+　　for(int i=0;i<msg.size();i++)
+　　{
+　　cout<<msg<<"\t";
+　　}
+　　cout<<endl;
+　　return MsgEmpty;
+　　}
+　　Msg makeMsg(string str)
+　　{
+　　Msg a;
+　　a.push_back(str);
+　　return a;
+　　}
+　　Msg nextNumber(Msg msg)
+　　{
+　　string str=msg[0];
+　　if(str.empty())makeMsg("");
+　　int n=0;
+　　for(int i=0;i<str.size();i++)
+　　{
+　　if(str<='9'&&str>='0')
+　　n=n*10+str-'0';
+　　else makeMsg("");
+　　}
+　　n++;
+　　char t[100];
+　　itoa(n,t,10);
+　　return makeMsg(t);
+　　}
+　　class PlusGirl
+　　{
+　　public :
+　　PlusGirl()
+　　{
+　　initMap();
+　　MsgEmpty.push_back("empty");MsgEmpty.push_back("msgState");
+　　MsgFalse.push_back("false");MsgFalse.push_back("msgState");
+　　MsgUnknown.push_back("unknow");MsgUnknown.push_back("msgState");
+　　MsgTrue.push_back("true");MsgTrue.push_back("msgState");
+　　MsgAny.push_back("any");MsgAny.push_back("msgState");
+　　}
+　　int strToInt(string str)
+　　{
+　　int n=0;
+　　int i=0;
+　　while(i<str.size()&&str<='9'&&str>='0')
+　　{
+　　n*=10;
+　　n+=str-'0';
+　　i++;
+　　}
+　　return n;
+　　}
+　　/*******************************************************************************/
+　　FunTools iFunTools;//定义函数工具集
+　　void initMap()
+　　{
+　　iFunTools.push_back(FunTool(iFunTools.size(),nextNumber,"让一个数+1"));
+　　iFunTools.push_back(FunTool(iFunTools.size(),say,"说出msg中内容"));
+　　}
+　　Msg showHelp( Msg msg)
+　　{
+　　cout<<"PlusGirl可用的方法如下 ："<<endl;
+　　cout<<"编号\t方法的使用说明"<<endl;
+　　for(int i=0;i<iFunTools.size();i++)
+　　{
+　　cout<<iFunTools.id<<"\t"<<iFunTools.explain<<endl;
+　　}
+　　return MsgEmpty;
+　　}
+　　/******************************************************************************/
+　　//知识结构 ,校验格式与执行解决方案
+　　vector<Knowledge> iKnows; //解决方案集合
+　　Msg analyse(const Msg &words) //通过各种情况分析，而解决问题
+　　{
+　　for(int i=0;i<iKnows.size();i++)
+　　{
+　　Msg msg=solveProblem(iKnows,words);
+　　if(msg.empty()||msg==MsgUnknown)continue ;
+　　return msg;
+　　}
+　　return MsgEmpty;
+　　}
+　　Msg solveProblem(Knowledge &know,const Msg problem) //使用一种解决方案，解决一个问题
+　　{
+　　Knowledge::iterator loop=know.begin();
+　　map<int ,Msg> data;//数据区域
+　　data[0]=problem;
+　　map<int ,string> itemData;
+　　while(loop!=know.end())
+　　{
+　　Msg & script=loop->second;
+　　if(0>=script.size())return MsgUnknown;
+　　//define a msg
+　　if(script[0]=="define")
+　　{
+　　if(6>script.size())return MsgUnknown;
+　　if(script[3]!="=")return MsgUnknown;
+　　if(script[1]=="msg")
+　　{
+　　if(script[4]=="msg")
+　　{
+　　data[strToInt(script[2])]= data[strToInt(script[5])];
+　　}else
+　　if(script[4]=="item")
+　　{
+　　data[strToInt(script[2])].clear();
+　　for(int i=5;i<script.size();i++)
+　　{
+　　data[strToInt(script[2])].push_back(itemData[strToInt(script)]);
+　　}
+　　}else
+　　if(script[4]=="string")
+　　{
+　　data[strToInt(script[2])].clear();
+　　for(int i=5;i<script.size();i++)
+　　{
+　　data[strToInt(script[2])].push_back(script);
+　　}
+　　}else
+　　return MsgUnknown;
+　　}
+　　if(script[1]=="item")
+　　{
+　　if(script[4]=="msg")
+　　{
+　　itemData[strToInt(script[2])]= data[strToInt(script[5])][strToInt(script[6])];
+　　}else
+　　if(script[4]=="item")
+　　{
+　　itemData[strToInt(script[2])]=itemData[strToInt(script[5])];
+　　}else
+　　if(script[4]=="string")
+　　{
+　　itemData[strToInt(script[2])]=script[5];
+　　}else
+　　return MsgUnknown;
+　　}
+　　}
+　　//if ..
+　　if(script[0]=="if")
+　　{
+　　if(9>script.size())return MsgUnknown;
+　　Msg temp;
+　　if(script[1]=="solve")
+　　{
+　　temp=solveProblem(iKnows[strToInt(script[2])],data[strToInt(script[3])]);
+　　}else
+　　if(script[1]=="fun")
+　　{
+　　temp=iFunTools[strToInt(script[2])].pFun(data[strToInt(script[3])]);
+　　}else
+　　if(script[1]=="msg")
+　　{
+　　temp=data[strToInt(script[2])];
+　　}else return MsgUnknown;
+　　if(temp.empty())return MsgUnknown;
+　　if(temp==MsgUnknown)return temp;
+　　if(script[5]=="msgState")
+　　if((script[4]=="=="&&script[6]!=temp[0])||(script[4]=="!="&&script[6]!=temp[0]))
+　　{
+　　loop++;
+　　continue;
+　　}
+　　if(script[5]=="msg")
+　　if((script[4]=="=="&&data[strToInt(script[6])]!=temp)||(script[4]=="!=" &&data[strToInt(script[6])]!=temp))
+　　{
+　　loop++;
+　　continue;
+　　}
+　　if(script[7]=="end")return data[strToInt(script[8])];
+　　if(script[7]=="goto"){loop=know.find(strToInt(script[8]));continue;}
+　　}
+　　if(script[0]=="use")
+　　{
+　　if(6>=script.size())return MsgUnknown;
+　　if(script[4]=="solve")
+　　{
+　　data[strToInt(script[2])]=solveProblem(iKnows[strToInt(script[5])],data[strToInt(script[7])]);
+　　}
+　　if(script[4]=="fun")
+　　{
+　　data[strToInt(script[2])]=iFunTools[strToInt(script[5])].pFun(data[strToInt(script[7])]);
+　　}
+　　loop++;
+　　continue ;
+　　}
+　　if(script[0]=="end")
+　　{
+　　return data[strToInt(script[1])];
+　　}
+　　if(script[0]=="goto")
+　　{
+　　loop=know.find(strToInt(script[1]));continue;
+　　}
+　　loop ++;
+　　}
+　　return MsgEmpty;
+　　}
+　　/******************************************************************************/
+　　};
+　　int main()
+　　{
+　　PlusGirl girl;
+　　girl.showHelp(MsgEmpty);
+　　cout<<"------------------------------------------"<<endl<<endl;
+　　/*加法指南
+　　输入形如 1 4 可以得到答案
+　　下面是加法代码
+　　0 define msg 0 = msg 0
+　　1 define item 1 = msg 0 0
+　　2 define item 2 = msg 0 1
+　　3 define msg 1 = item 1
+　　4 define msg 2 = item 2
+　　5 define msg 3 = string 0
+　　6 if msg 3 bad == msg 2 goto 10
+　　7 use msg 3 = fun 0 msg 3
+　　8 use msg 1 = fun 0 msg 1
+　　9 goto 6
+　　10 use msg 1 = fun 1 msg 1
+　　11 end msg 1
+　　*/
+　　Knowledge k;
+　　Msg t;
+　　t.push_back("define");t.push_back("item");t.push_back("1");t.push_back("=");t.push_back("msg");t.push_back("0");t.push_back("0");
+　　k[1]=t;t.clear();
+　　t.push_back("define");t.push_back("item");t.push_back("2");t.push_back("=");t.push_back("msg");t.push_back("0");t.push_back("1");
+　　k[2]=t;t.clear();
+　　t.push_back("define");t.push_back("msg");t.push_back("1");t.push_back("=");t.push_back("item");t.push_back("1");
+　　k[3]=t;t.clear();
+　　t.push_back("define");t.push_back("msg");t.push_back("2");t.push_back("=");t.push_back("item");t.push_back("2");
+　　k[4]=t;t.clear();
+　　t.push_back("define");t.push_back("msg");t.push_back("3");t.push_back("=");t.push_back("string");t.push_back("0");
+　　k[5]=t;t.clear();
+　　t.push_back("if");t.push_back("msg");t.push_back("3");t.push_back("bad");t.push_back("==");t.push_back("msg");t.push_back("2");t.push_back("goto");t.push_back("10");
+　　k[6]=t;t.clear();
+　　t.push_back("use");t.push_back("msg");t.push_back("3");t.push_back("=");t.push_back("fun");t.push_back("0");t.push_back("msg");t.push_back("3");
+　　k[7]=t;t.clear();
+　　t.push_back("use");t.push_back("msg");t.push_back("1");t.push_back("=");t.push_back("fun");t.push_back("0");t.push_back("msg");t.push_back("1");
+　　k[8]=t;t.clear();
+　　t.push_back("goto");t.push_back("6");
+　　k[9]=t;t.clear();
+　　t.push_back("use");t.push_back("msg");t.push_back("1");t.push_back("=");t.push_back("fun");t.push_back("1");t.push_back("msg");t.push_back("1");
+　　k[10]=t;t.clear();
+　　t.push_back("end");t.push_back("msg");t.push_back("1");
+　　k[11]=t;t.clear();
+　　girl.iKnows.push_back(k);
+　　string a,b;
+　　while(cin>>a>>b)
+　　{
+　　Msg m;
+　　m.push_back(a);
+　　m.push_back(b);
+　　girl.analyse(m);
+　　}
+　　system("pause");
+　　return 0;
+　　}
