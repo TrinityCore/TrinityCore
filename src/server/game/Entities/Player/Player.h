@@ -2951,7 +2951,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         UF::UpdateField<UF::PlayerData, 0, TYPEID_PLAYER> m_playerData;
         UF::UpdateField<UF::ActivePlayerData, 0, TYPEID_ACTIVE_PLAYER> m_activePlayerData;
         bool AddBattlePetByCreatureId(uint32 creatureId, bool sendUpdate = true, bool sendDiliveryUpdate = false);
-
+        bool IsCanDelayTeleport() const { return m_bCanDelayTeleport; }
+        bool IsHasDelayedTeleport() const { return m_bHasDelayedTeleport; }
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;
@@ -3253,9 +3254,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void AdjustQuestObjectiveProgress(Quest const* quest);
 
-        bool IsCanDelayTeleport() const { return m_bCanDelayTeleport; }
+        
         void SetCanDelayTeleport(bool setting) { m_bCanDelayTeleport = setting; }
-        bool IsHasDelayedTeleport() const { return m_bHasDelayedTeleport; }
+        
         void SetDelayedTeleportFlag(bool setting) { m_bHasDelayedTeleport = setting; }
         bool AddBattlePetWithSpeciesId(BattlePetSpeciesEntry const* entry, uint16 flags = 0, bool sendUpdate = true, bool sendDiliveryUpdate = false);
 

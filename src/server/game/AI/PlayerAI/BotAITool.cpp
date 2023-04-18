@@ -1,4 +1,5 @@
-﻿
+﻿#include "World.h"
+#include "WorldPacket.h"
 #include "DB2Structure.h"
 #include "BotAITool.h"
 #include "Pet.h"
@@ -18,6 +19,9 @@
 #include "GridNotifiersImpl.h"
 #include "MiscPackets.h"
 #include "Packets/AllPackets.h"
+#include <Battleground.h>
+#include "SpellInfo.h"
+#include "g3d/Vector3.h"
 
 float BotUtility::BattlegroundScoreRate = 1.0f;
 float BotUtility::DungeonBotDamageModify = 1.0f;
@@ -33,299 +37,299 @@ uint32 BotUtility::BotArenaTeamTactics = 1;
 bool BotUtility::DisableDKQuest = false;
 
 
-//void BotUtility::AddArenaBotSpellsByPlayer(Player* player)
-//{
-//	if (!player)
-//		return;
-//
-//    //ObjectGuid castId = ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, GetMapId(), spellInfo->Id, GetMap()->GenerateLowGuid<HighGuid::Cast>());
-//    /*todo47
-//	if (!player->HasAura(ARENA_PLAYER_BOT_AURA))
-//	{
-//		if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(ARENA_PLAYER_BOT_AURA))
-//			Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player);
-//	}
-//	if (!BotUtility::ArenaIsHell)
-//		return;
-//	switch (player->getClass())
-//	{
-//	case Classes::CLASS_WARRIOR:
-//		if (!player->HasAura(ARENA_WARRIOR_BOT_AURA))
-//		{
-//			if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(ARENA_WARRIOR_BOT_AURA))
-//				Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player);
-//		}
-//		break;
-//	case Classes::CLASS_PALADIN:
-//		if (!player->HasAura(ARENA_PALADIN_BOT_AURA))
-//		{
-//			if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(ARENA_PALADIN_BOT_AURA))
-//				Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player);
-//		}
-//		break;
-//	case Classes::CLASS_ROGUE:
-//		if (!player->HasAura(ARENA_ROGUE_BOT_AURA))
-//		{
-//			if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(ARENA_ROGUE_BOT_AURA))
-//				Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player);
-//		}
-//		break;
-//	case Classes::CLASS_DRUID:
-//		if (!player->HasAura(ARENA_DRUID_BOT_AURA))
-//		{
-//			if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(ARENA_DRUID_BOT_AURA))
-//				Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player);
-//		}
-//		break;
-//	case Classes::CLASS_HUNTER:
-//		if (!player->HasAura(ARENA_HUNTER_BOT_AURA))
-//		{
-//			if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(ARENA_HUNTER_BOT_AURA))
-//				Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player);
-//		}
-//		break;
-//	case Classes::CLASS_SHAMAN:
-//		if (!player->HasAura(ARENA_SHAMAN_BOT_AURA))
-//		{
-//			if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(ARENA_SHAMAN_BOT_AURA))
-//				Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player);
-//		}
-//		break;
-//	case Classes::CLASS_MAGE:
-//		if (!player->HasAura(ARENA_MAGE_BOT_AURA))
-//		{
-//			if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(ARENA_MAGE_BOT_AURA))
-//				Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player);
-//		}
-//		break;
-//	case Classes::CLASS_WARLOCK:
-//		if (!player->HasAura(ARENA_WARLOCK_BOT_AURA))
-//		{
-//			if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(ARENA_WARLOCK_BOT_AURA))
-//				Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player);
-//		}
-//		break;
-//	case Classes::CLASS_PRIEST:
-//		if (!player->HasAura(ARENA_PRIEST_BOT_AURA))
-//		{
-//			if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(ARENA_PRIEST_BOT_AURA))
-//				Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player);
-//		}
-//		break;
-//	}
-//    */
-//}
-//
-//void BotUtility::RemoveArenaBotSpellsByPlayer(Player* player)
-//{
-//	if (!player)
-//		return;
-//	if (player->HasAura(ARENA_PLAYER_BOT_AURA))
-//		player->RemoveOwnedAura(ARENA_PLAYER_BOT_AURA, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
-//	if (player->HasAura(ARENA_WARRIOR_BOT_AURA))
-//		player->RemoveOwnedAura(ARENA_WARRIOR_BOT_AURA, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
-//	if (player->HasAura(ARENA_PALADIN_BOT_AURA))
-//		player->RemoveOwnedAura(ARENA_PALADIN_BOT_AURA, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
-//	if (player->HasAura(ARENA_ROGUE_BOT_AURA))
-//		player->RemoveOwnedAura(ARENA_ROGUE_BOT_AURA, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
-//	if (player->HasAura(ARENA_DRUID_BOT_AURA))
-//		player->RemoveOwnedAura(ARENA_DRUID_BOT_AURA, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
-//	if (player->HasAura(ARENA_HUNTER_BOT_AURA))
-//		player->RemoveOwnedAura(ARENA_HUNTER_BOT_AURA, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
-//	if (player->HasAura(ARENA_SHAMAN_BOT_AURA))
-//		player->RemoveOwnedAura(ARENA_SHAMAN_BOT_AURA, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
-//	if (player->HasAura(ARENA_MAGE_BOT_AURA))
-//		player->RemoveOwnedAura(ARENA_MAGE_BOT_AURA, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
-//	if (player->HasAura(ARENA_WARLOCK_BOT_AURA))
-//		player->RemoveOwnedAura(ARENA_WARLOCK_BOT_AURA, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
-//	if (player->HasAura(ARENA_PRIEST_BOT_AURA))
-//		player->RemoveOwnedAura(ARENA_PRIEST_BOT_AURA, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
-//}
-//
-//void BotUtility::TryCancelDuel(Player* player)
-//{
-//	if (!player || !player->duel)
-//		return;
-//	player->DuelComplete(DUEL_INTERRUPTED);
-//}
-//
-//bool BotUtility::SpellHasReady(Player* player, uint32 spellID)
-//{
-//	if (!player || spellID == 0)
-//		return false;
-//	SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellID, DIFFICULTY_NONE);
-//	if (!spellInfo || spellInfo->IsPassive())
-//		return false;
-//	if (player->GetSpellHistory()->HasGlobalCooldown(spellInfo))
-//		return false;
-//	if (player->GetSpellHistory()->IsReady(spellInfo))
-//		return true;
-//	return false;   
-//}
-//
-//uint32 BotUtility::GetFirstNumberByString(std::string& text)
-//{
-//	char numStr[21] = { 0 };
-//	char* pCur = numStr;
-//	const char* pText = text.c_str();
-//	int count = text.size();
-//	bool start = false;
-//	for (int i = 0; i < count; ++i)
-//	{
-//		char c = pText[i];
-//		if (c >= '0' && c <= '9')
-//		{
-//			start = true;
-//			*pCur = c;
-//			++pCur;
-//		}
-//		else if (start)
-//			break;
-//	}
-//	return (uint32)atoi(numStr);
-//}
-//
+void BotUtility::AddArenaBotSpellsByPlayer(Player* player)
+{
+    if (!player)
+        return;
+
+    //   ObjectGuid castId = ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, GetMapId(), spellInfo->Id, GetMap()->GenerateLowGuid<HighGuid::Cast>());
+    //   //todo47
+       //if (!player->HasAura(ARENA_PLAYER_BOT_AURA))
+       //{
+       //	if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(ARENA_PLAYER_BOT_AURA))
+       //		Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player);
+       //}
+       //if (!BotUtility::ArenaIsHell)
+       //	return;
+       //switch (player->getClass())
+       //{
+       //case Classes::CLASS_WARRIOR:
+       //	if (!player->HasAura(ARENA_WARRIOR_BOT_AURA))
+       //	{
+       //		if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(ARENA_WARRIOR_BOT_AURA))
+       //			Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player);
+       //	}
+       //	break;
+       //case Classes::CLASS_PALADIN:
+       //	if (!player->HasAura(ARENA_PALADIN_BOT_AURA))
+       //	{
+       //		if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(ARENA_PALADIN_BOT_AURA))
+       //			Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player);
+       //	}
+       //	break;
+       //case Classes::CLASS_ROGUE:
+       //	if (!player->HasAura(ARENA_ROGUE_BOT_AURA))
+       //	{
+       //		if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(ARENA_ROGUE_BOT_AURA))
+       //			Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player);
+       //	}
+       //	break;
+       //case Classes::CLASS_DRUID:
+       //	if (!player->HasAura(ARENA_DRUID_BOT_AURA))
+       //	{
+       //		if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(ARENA_DRUID_BOT_AURA))
+       //			Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player);
+       //	}
+       //	break;
+       //case Classes::CLASS_HUNTER:
+       //	if (!player->HasAura(ARENA_HUNTER_BOT_AURA))
+       //	{
+       //		if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(ARENA_HUNTER_BOT_AURA))
+       //			Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player);
+       //	}
+       //	break;
+       //case Classes::CLASS_SHAMAN:
+       //	if (!player->HasAura(ARENA_SHAMAN_BOT_AURA))
+       //	{
+       //		if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(ARENA_SHAMAN_BOT_AURA))
+       //			Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player);
+       //	}
+       //	break;
+       //case Classes::CLASS_MAGE:
+       //	if (!player->HasAura(ARENA_MAGE_BOT_AURA))
+       //	{
+       //		if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(ARENA_MAGE_BOT_AURA))
+       //			Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player);
+       //	}
+       //	break;
+       //case Classes::CLASS_WARLOCK:
+       //	if (!player->HasAura(ARENA_WARLOCK_BOT_AURA))
+       //	{
+       //		if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(ARENA_WARLOCK_BOT_AURA))
+       //			Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player);
+       //	}
+       //	break;
+       //case Classes::CLASS_PRIEST:
+       //	if (!player->HasAura(ARENA_PRIEST_BOT_AURA))
+       //	{
+       //		if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(ARENA_PRIEST_BOT_AURA))
+       //			Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player);
+       //	}
+       //	break;
+       //}
+
+}
+
+void BotUtility::RemoveArenaBotSpellsByPlayer(Player* player)
+{
+    if (!player)
+        return;
+    if (player->HasAura(ARENA_PLAYER_BOT_AURA))
+        player->RemoveOwnedAura(ARENA_PLAYER_BOT_AURA, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
+    if (player->HasAura(ARENA_WARRIOR_BOT_AURA))
+        player->RemoveOwnedAura(ARENA_WARRIOR_BOT_AURA, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
+    if (player->HasAura(ARENA_PALADIN_BOT_AURA))
+        player->RemoveOwnedAura(ARENA_PALADIN_BOT_AURA, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
+    if (player->HasAura(ARENA_ROGUE_BOT_AURA))
+        player->RemoveOwnedAura(ARENA_ROGUE_BOT_AURA, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
+    if (player->HasAura(ARENA_DRUID_BOT_AURA))
+        player->RemoveOwnedAura(ARENA_DRUID_BOT_AURA, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
+    if (player->HasAura(ARENA_HUNTER_BOT_AURA))
+        player->RemoveOwnedAura(ARENA_HUNTER_BOT_AURA, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
+    if (player->HasAura(ARENA_SHAMAN_BOT_AURA))
+        player->RemoveOwnedAura(ARENA_SHAMAN_BOT_AURA, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
+    if (player->HasAura(ARENA_MAGE_BOT_AURA))
+        player->RemoveOwnedAura(ARENA_MAGE_BOT_AURA, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
+    if (player->HasAura(ARENA_WARLOCK_BOT_AURA))
+        player->RemoveOwnedAura(ARENA_WARLOCK_BOT_AURA, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
+    if (player->HasAura(ARENA_PRIEST_BOT_AURA))
+        player->RemoveOwnedAura(ARENA_PRIEST_BOT_AURA, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
+}
+
+void BotUtility::TryCancelDuel(Player* player)
+{
+    if (!player || !player->duel)
+        return;
+    player->DuelComplete(DUEL_INTERRUPTED);
+}
+
+bool BotUtility::SpellHasReady(Player* player, uint32 spellID)
+{
+    if (!player || spellID == 0)
+        return false;
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellID, DIFFICULTY_NONE);
+    if (!spellInfo || spellInfo->IsPassive())
+        return false;
+    if (player->GetSpellHistory()->HasGlobalCooldown(spellInfo))
+        return false;
+    if (player->GetSpellHistory()->IsReady(spellInfo))
+        return true;
+    return false;
+}
+
+uint32 BotUtility::GetFirstNumberByString(std::string& text)
+{
+    char numStr[21] = { 0 };
+    char* pCur = numStr;
+    const char* pText = text.c_str();
+    int count = text.size();
+    bool start = false;
+    for (int i = 0; i < count; ++i)
+    {
+        char c = pText[i];
+        if (c >= '0' && c <= '9')
+        {
+            start = true;
+            *pCur = c;
+            ++pCur;
+        }
+        else if (start)
+            break;
+    }
+    return (uint32)atoi(numStr);
+}
+
 //std::string BotUtility::BuildItemLinkText(const ItemTemplate* pItemTemplate)
 //{
 //	if (!pItemTemplate)
 //		return "";
 //	std::string text = sObjectMgr->GetTrinityStringForDBCLocale(TrinityStrings::LANG_ITEM_LIST_CHAT);// , LocaleConstant::LOCALE_zhTW);
-//	return Trinity::StringFormat(text.c_str(), pItemTemplate->GetId(), pItemTemplate->GetId(), pItemTemplate->GetName(LOCALE_zhCN));//todo47
+//	//return Trinity::StringFormat(text.c_str(), pItemTemplate->GetId(), pItemTemplate->GetId(), pItemTemplate->GetName(LOCALE_zhCN));//todo47
 //}
-//
-//void BotUtility::UpdatePlayerBotRoll(Player* player)
-//{
-//	if (!player)
-//		return;
-//	Group* pGroup = player->GetGroup();
-//	if (!pGroup)
-//		return;
-//    //tmp	Rolls& rolls = pGroup->GetAllRolls();
-//	//for (Rolls::iterator iter = rolls.begin(); iter != rolls.end(); ++iter)
-//	//{
-//	//	Roll* roll = (*iter);
-//	//	if (!roll->isValid())
-//	//		continue;
-//	//	if (roll->rolledPlayers.find(player->GetGUID()) != roll->rolledPlayers.end())
-//	//		continue;
-//	//	if (roll->totalPass > 0 || roll->totalNeed > 0 || roll->totalGreed > 0)
-//	//	{
-//	//		roll->rolledPlayers.insert(player->GetGUID());
-//	//		pGroup->PlayerBotRoll(player, *roll);
-//	//		break;
-//	//	}
-//	//}//tmp
-//}
-//
-//Item* BotUtility::FindItemFromAllBag(Player* player, uint32 entry, bool destroy)
-//{
-//	if (!player || entry == 0)
-//		return NULL;
-//	for (uint8 slot = InventoryPackSlots::INVENTORY_SLOT_ITEM_START; slot < InventoryPackSlots::INVENTORY_SLOT_ITEM_END; slot++)
-//	{
-//		Item* pItem = player->GetItemByPos(255, slot);
-//		if (!pItem)
-//			continue;
-//		const ItemTemplate* pTemplate = pItem->GetTemplate();
-//		if (!pTemplate || pTemplate->GetId() != entry)
-//			continue;
-//		if (destroy)
-//		{
-//			player->DestroyItem(255, slot, true);
-//			pItem = NULL;
-//		}
-//		return pItem;
-//	}
-//	for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
-//	{
-//		if (Bag* pBag = player->GetBagByPos(i))
-//		{
-//			for (uint32 j = 0; j < pBag->GetBagSize(); j++)
-//			{
-//				Item* pItem = pBag->GetItemByPos(uint8(j));
-//				if (!pItem)
-//					continue;
-//				const ItemTemplate* pTemplate = pItem->GetTemplate();
-//				if (!pTemplate || pTemplate->GetId() != entry)
-//					continue;
-//				if (destroy)
-//				{
-//					player->DestroyItem(255, uint8(j), true);
-//					pItem = NULL;
-//				}
-//				return pItem;
-//			}
-//		}
-//	}
-//	return NULL;
-//}
-//
-//Item* BotUtility::FindItemFromAllBag(Player* player, uint32 entry, uint8& bag, uint8& index)
-//{
-//	if (!player || entry == 0)
-//		return NULL;
-//	for (uint8 slot = InventoryPackSlots::INVENTORY_SLOT_ITEM_START; slot < InventoryPackSlots::INVENTORY_SLOT_ITEM_END; slot++)
-//	{
-//		Item* pItem = player->GetItemByPos(255, slot);
-//		if (!pItem)
-//			continue;
-//		const ItemTemplate* pTemplate = pItem->GetTemplate();
-//		if (!pTemplate || pTemplate->GetId() != entry)
-//			continue;
-//		bag = 255;
-//		index = slot;
-//		return pItem;
-//	}
-//	for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
-//	{
-//		if (Bag* pBag = player->GetBagByPos(i))
-//		{
-//			for (uint32 j = 0; j < pBag->GetBagSize(); j++)
-//			{
-//				Item* pItem = pBag->GetItemByPos(uint8(j));
-//				if (!pItem)
-//					continue;
-//				const ItemTemplate* pTemplate = pItem->GetTemplate();
-//				if (!pTemplate || pTemplate->GetId() != entry)
-//					continue;
-//				bag = i;
-//				index = uint8(j);
-//				return pItem;
-//			}
-//		}
-//	}
-//	return NULL;
-//}
-//
-//bool BotUtility::DestroyItemFromAllBag(Player* player, Item* pItem)
-//{
-//	if (!player || !pItem)
-//		return false;
-//	for (uint8 slot = InventoryPackSlots::INVENTORY_SLOT_ITEM_START; slot < InventoryPackSlots::INVENTORY_SLOT_ITEM_END; slot++)
-//	{
-//		Item* pBagItem = player->GetItemByPos(255, slot);
-//		if (!pBagItem || pBagItem != pItem)
-//			continue;
-//		player->DestroyItem(255, slot, true);
-//		return true;
-//	}
-//	for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
-//	{
-//		if (Bag* pBag = player->GetBagByPos(i))
-//		{
-//			for (uint32 j = 0; j < pBag->GetBagSize(); j++)
-//			{
-//				Item* pBagItem = pBag->GetItemByPos(uint8(j));
-//				if (!pBagItem || pBagItem != pItem)
-//					continue;
-//				player->DestroyItem(255, uint8(j), true);
-//				return true;
-//			}
-//		}
-//	}
-//	return false;
-//}
-//
+
+void BotUtility::UpdatePlayerBotRoll(Player* player)
+{
+    if (!player)
+        return;
+    Group* pGroup = player->GetGroup();
+    if (!pGroup)
+        return;
+    //tmp	Rolls& rolls = pGroup->GetAllRolls();
+    //for (Rolls::iterator iter = rolls.begin(); iter != rolls.end(); ++iter)
+    //{
+    //	Roll* roll = (*iter);
+    //	if (!roll->isValid())
+    //		continue;
+    //	if (roll->rolledPlayers.find(player->GetGUID()) != roll->rolledPlayers.end())
+    //		continue;
+    //	if (roll->totalPass > 0 || roll->totalNeed > 0 || roll->totalGreed > 0)
+    //	{
+    //		roll->rolledPlayers.insert(player->GetGUID());
+    //		pGroup->PlayerBotRoll(player, *roll);
+    //		break;
+    //	}
+    //}//tmp
+}
+
+Item* BotUtility::FindItemFromAllBag(Player* player, uint32 entry, bool destroy)
+{
+    if (!player || entry == 0)
+        return NULL;
+    for (uint8 slot = InventoryPackSlots::INVENTORY_SLOT_ITEM_START; slot < InventoryPackSlots::INVENTORY_SLOT_ITEM_END; slot++)
+    {
+        Item* pItem = player->GetItemByPos(255, slot);
+        if (!pItem)
+            continue;
+        const ItemTemplate* pTemplate = pItem->GetTemplate();
+        if (!pTemplate || pTemplate->GetId() != entry)
+            continue;
+        if (destroy)
+        {
+            player->DestroyItem(255, slot, true);
+            pItem = NULL;
+        }
+        return pItem;
+    }
+    for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
+    {
+        if (Bag* pBag = player->GetBagByPos(i))
+        {
+            for (uint32 j = 0; j < pBag->GetBagSize(); j++)
+            {
+                Item* pItem = pBag->GetItemByPos(uint8(j));
+                if (!pItem)
+                    continue;
+                const ItemTemplate* pTemplate = pItem->GetTemplate();
+                if (!pTemplate || pTemplate->GetId() != entry)
+                    continue;
+                if (destroy)
+                {
+                    player->DestroyItem(255, uint8(j), true);
+                    pItem = NULL;
+                }
+                return pItem;
+            }
+        }
+    }
+    return NULL;
+}
+
+Item* BotUtility::FindItemFromAllBag(Player* player, uint32 entry, uint8& bag, uint8& index)
+{
+    if (!player || entry == 0)
+        return NULL;
+    for (uint8 slot = InventoryPackSlots::INVENTORY_SLOT_ITEM_START; slot < InventoryPackSlots::INVENTORY_SLOT_ITEM_END; slot++)
+    {
+        Item* pItem = player->GetItemByPos(255, slot);
+        if (!pItem)
+            continue;
+        const ItemTemplate* pTemplate = pItem->GetTemplate();
+        if (!pTemplate || pTemplate->GetId() != entry)
+            continue;
+        bag = 255;
+        index = slot;
+        return pItem;
+    }
+    for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
+    {
+        if (Bag* pBag = player->GetBagByPos(i))
+        {
+            for (uint32 j = 0; j < pBag->GetBagSize(); j++)
+            {
+                Item* pItem = pBag->GetItemByPos(uint8(j));
+                if (!pItem)
+                    continue;
+                const ItemTemplate* pTemplate = pItem->GetTemplate();
+                if (!pTemplate || pTemplate->GetId() != entry)
+                    continue;
+                bag = i;
+                index = uint8(j);
+                return pItem;
+            }
+        }
+    }
+    return NULL;
+}
+
+bool BotUtility::DestroyItemFromAllBag(Player* player, Item* pItem)
+{
+    if (!player || !pItem)
+        return false;
+    for (uint8 slot = InventoryPackSlots::INVENTORY_SLOT_ITEM_START; slot < InventoryPackSlots::INVENTORY_SLOT_ITEM_END; slot++)
+    {
+        Item* pBagItem = player->GetItemByPos(255, slot);
+        if (!pBagItem || pBagItem != pItem)
+            continue;
+        player->DestroyItem(255, slot, true);
+        return true;
+    }
+    for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
+    {
+        if (Bag* pBag = player->GetBagByPos(i))
+        {
+            for (uint32 j = 0; j < pBag->GetBagSize(); j++)
+            {
+                Item* pBagItem = pBag->GetItemByPos(uint8(j));
+                if (!pBagItem || pBagItem != pItem)
+                    continue;
+                player->DestroyItem(255, uint8(j), true);
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 //Item* BotUtility::StoreNewItemByEntry(Player* player, uint32 entry, int32 count)
 //{
 //	if (!player || entry == 0 || count == 0)
@@ -340,42 +344,42 @@ bool BotUtility::DisableDKQuest = false;
 //		count -= noSpaceForCount;
 //	if (count <= 0 || dest.empty())
 //		return nullptr;
-//	//Item* itemInst = player->StoreNewItem(dest, pTemplate->GetId(), true, GenerateItemRandomPropertyId(pTemplate->GetId()));
-////	return itemInst;
+//	/*Item* itemInst = player->StoreNewItem(dest, pTemplate->GetId(), true, GenerateItemRandomPropertyId(pTemplate->GetId()));
+//	return itemInst;*/
 //}
-//
-//uint32 BotUtility::FindMaxRankSpellByExist(Player* player, uint32 spellID)
-//{
-//	if (spellID == 0)
-//		return 0;
-//    //return spellID;
-//	uint32 selectSpell = sSpellMgr->GetLastSpellInChain(spellID);
-//	if (selectSpell == 0)
-//	{
-//        if (player->HasSpell(spellID))
-//            return spellID;
-//        return 0;
-//	}
-//	while (!player->HasSpell(selectSpell))
-//	{
-//		selectSpell = sSpellMgr->GetPrevSpellInChain(selectSpell);
-//		if (selectSpell == 0)
-//			return 0;
-//	}
-//    //TC_LOG_ERROR("sql.sql", "BotUtility::FindMaxRankSpellByExist( spellid %d GetLastSpellInChain %d )", spellID, selectSpell);
-//	return selectSpell;
-//}
-//
-//void BotUtility::PlayerBotTogglePVP(Player* player, bool pvp)
-//{
-//	if (!player || !player->IsPlayerBot())
-//		return;
-//
-//    WorldPacket packet;
-//    WorldPackets::Misc::TogglePvP Packets(std::move(packet));
-//    player->GetSession()->HandleTogglePvP(Packets);
-//}
-//
+
+uint32 BotUtility::FindMaxRankSpellByExist(Player* player, uint32 spellID)
+{
+    if (spellID == 0)
+        return 0;
+    //return spellID;
+    uint32 selectSpell = sSpellMgr->GetLastSpellInChain(spellID);
+    if (selectSpell == 0)
+    {
+        if (player->HasSpell(spellID))
+            return spellID;
+        return 0;
+    }
+    while (!player->HasSpell(selectSpell))
+    {
+        selectSpell = sSpellMgr->GetPrevSpellInChain(selectSpell);
+        if (selectSpell == 0)
+            return 0;
+    }
+    TC_LOG_ERROR("sql.sql", "BotUtility::FindMaxRankSpellByExist( spellid %d GetLastSpellInChain %d )", spellID, selectSpell);
+    return selectSpell;
+}
+
+void BotUtility::PlayerBotTogglePVP(Player* player, bool /*pvp*/)
+{
+    if (!player || !player->IsPlayerBot())
+        return;
+
+    WorldPacket packet;
+    WorldPackets::Misc::TogglePvP Packets(std::move(packet));
+    player->GetSession()->HandleTogglePvP(Packets);
+}
+
 //void BotUtility::TryTeleportHome(BotFieldAI* pAI)
 //{
 //	if (!pAI || pAI->HasTeleport())
@@ -389,39 +393,39 @@ bool BotUtility::DisableDKQuest = false;
 //	Position homePosition = Position(player->m_homebindX, player->m_homebindY, player->m_homebindZ, player->GetOrientation());
 //	pAI->SetTeleport(player->m_homebindMapId, homePosition);
 //}
-//
-//uint32 BotUtility::FindPetMaxRankSpellByExist(Player* player, uint32 spellID)
-//{
-//	if (spellID == 0)
-//		return 0;
-//	Pet* pPet = player->GetPet();
-//	if (!pPet)
-//		return 0;
-//	uint32 selectSpell = sSpellMgr->GetLastSpellInChain(spellID);
-//	if (selectSpell == 0)
-//	{
-//		if (pPet->HasSpell(spellID))
-//			return spellID;
-//		return 0;
-//	}
-//	while (!pPet->HasSpell(selectSpell))
-//	{
-//		selectSpell = sSpellMgr->GetPrevSpellInChain(selectSpell);
-//		if (selectSpell == 0)
-//			return 0;
-//	}
-//	return selectSpell;
-//}
-//
-//Position BotUtility::GetPositionFromGroup(Player* pCenterPlayer, ObjectGuid self, Group* pGroup)
+
+uint32 BotUtility::FindPetMaxRankSpellByExist(Player* player, uint32 spellID)
+{
+    if (spellID == 0)
+        return 0;
+    Pet* pPet = player->GetPet();
+    if (!pPet)
+        return 0;
+    uint32 selectSpell = sSpellMgr->GetLastSpellInChain(spellID);
+    if (selectSpell == 0)
+    {
+        if (pPet->HasSpell(spellID))
+            return spellID;
+        return 0;
+    }
+    while (!pPet->HasSpell(selectSpell))
+    {
+        selectSpell = sSpellMgr->GetPrevSpellInChain(selectSpell);
+        if (selectSpell == 0)
+            return 0;
+    }
+    return selectSpell;
+}
+
+//Position BotUtility::GetPositionFromGroup(Player* pCenterPlayer, ObjectGuid /*self*/, Group* pGroup)
 //{
 //	if (!pCenterPlayer || !pGroup || !pCenterPlayer->IsInWorld())
 //		return Position();
-//	Position& centerPos = pCenterPlayer->GetPosition();
+//	Position centerPos = pCenterPlayer->GetPosition();
 //	uint32 index = 0;
 //	uint32 count = 0;
-//	if (!pGroup->GiveAtGroupPos(self, index, count))
-//		return centerPos;
+//	/*if (!pGroup->GiveAtGroupPos(self, index, count))
+//		return centerPos;*/
 //	if (count > 1)
 //		--count;
 //	float distance = 4.0f;
@@ -431,7 +435,10 @@ bool BotUtility::DisableDKQuest = false;
 //		distance = 10.0f;
 //	else if (count > 25)
 //		distance = 12.0f;
-//	float onceAngle = (M_PI * 2) / float(count);
+//    if (count != 0)
+//    {
+//        float onceAngle = (M_PI * 2) / float(count);
+//    }
 //	float angle = pCenterPlayer->GetOrientation() + onceAngle * float(index);
 //	float distX = centerPos.GetPositionX() + distance * std::cosf(angle);
 //	float distY = centerPos.GetPositionY() + distance * std::sinf(angle);
@@ -439,591 +446,591 @@ bool BotUtility::DisableDKQuest = false;
 //	if (!pCenterPlayer->IsFlying())
 //		distZ = pCenterPlayer->GetMap()->GetHeight(pCenterPlayer->GetPhaseShift(), distX, distY, distZ);
 //	Position resultPos(distX, distY, distZ, pCenterPlayer->GetOrientation());
-//	Position& pos = pCenterPlayer->GetFirstCollisionPosition(pCenterPlayer->GetDistance(resultPos), pCenterPlayer->GetRelativeAngle(&resultPos));
+//	Position pos = pCenterPlayer->GetFirstCollisionPosition(pCenterPlayer->GetDistance(resultPos), pCenterPlayer->GetRelativeAngle(&resultPos));
 //	return pos;
 //}
-//
-//void BotUtility::ProcessGroupTankPullTargets(Player* player)
-//{
-//	if (!player || !player->IsInWorld())
-//		return;
-//	Group* pGroup = player->GetGroup();
-//	if (!pGroup || pGroup->isBFGroup() || pGroup->isBGGroup())
-//		return;
-//	std::set<Creature*> allCreature;
-//	std::vector<BotGroupAI*> allTanks;
-//	Group::MemberSlotList const& memList = pGroup->GetMemberSlots();
-//	for (Group::MemberSlot const& slot : memList)
-//	{
-//		Player* player = ObjectAccessor::FindPlayer(slot.guid);
-//		if (!player || !player->IsAlive() || !player->IsPlayerBot())
-//			continue;
-//		BotGroupAI* pAI = dynamic_cast<BotGroupAI*>(player->GetAI());
-//		if (!pAI)
-//			continue;
-//		NearCreatureVec searchCreatures;
-//		pAI->SearchCreatureListFromRange(player, searchCreatures, BOTAI_SEARCH_RANGE, false);
-//		for (Creature* pCreature : searchCreatures)
-//		{
-//			if(pGroup->IsMember(pCreature->GetTarget()))
-//				allCreature.insert(pCreature);
-//		}
-//		if (!pAI->IsTankBotAI())
-//			continue;
-//		allTanks.push_back(pAI);
-//		pAI->ClearTankTarget();
-//	}
-//	if (allTanks.size() <= 1 || allCreature.size() <= 1)
-//		return;
-//	std::queue<Creature*> creatureQueue;
-//	for (Creature* pc : allCreature)
-//		creatureQueue.push(pc);
-//	while (!creatureQueue.empty())
-//	{
-//		for (BotGroupAI* pGroupAI : allTanks)
-//		{
-//			Creature* pCreature = creatureQueue.front();
-//			pGroupAI->AddTankTarget(pCreature);
-//			creatureQueue.pop();
-//			if (creatureQueue.empty())
-//				break;
-//		}
-//	}
-//	Player* lastTankPlayer = NULL;
-//	for (BotGroupAI* pGroupAI : allTanks)
-//	{
-//		if (!pGroupAI->ExistPullTarget())
-//			continue;
-//		if (!lastTankPlayer)
-//		{
-//			lastTankPlayer = pGroupAI->GetAIPayer();
-//			pGroupAI->SetTankPosition(lastTankPlayer->GetPosition());
-//		}
-//		else
-//		{
-//			Player* thisPlayer = pGroupAI->GetAIPayer();
-//			float fleeDistance = BOTAI_RANGESPELL_DISTANCE;
-//			float onceAngle = float(M_PI) * 2.0f / 8.0f;
-//			Position targetPos;
-//			float maxDist = 0.0f;
-//			for (float angle = 0.0f; angle < (float(M_PI) * 2.0f); angle += onceAngle)
-//			{
-//				Position& collPos = thisPlayer->GetFirstCollisionPosition(fleeDistance, angle);
-//				float dist = lastTankPlayer->GetDistance(collPos);
-//				if (maxDist == 0 || dist > maxDist)
-//				{
-//					maxDist = dist;
-//					targetPos = collPos;
-//				}
-//			}
-//			lastTankPlayer = thisPlayer;
-//			pGroupAI->SetTankPosition(targetPos);
-//		}
-//	}
-//}
-//
-//void BotUtility::ProcessGroupRingMovement(Player* pCenterPlayer, BOTAI_WORKTYPE aiType)
-//{
-//	if (!pCenterPlayer || !pCenterPlayer->IsInWorld())
-//		return;
-//	Group* pGroup = pCenterPlayer->GetGroup();
-//	if (!pGroup || pGroup->isBFGroup() || pGroup->isBGGroup())
-//		return;
-//	NearPlayerVec meleePlayers;
-//	NearPlayerVec rangePlayers;
-//	Group::MemberSlotList const& memList = pGroup->GetMemberSlots();
-//	for (Group::MemberSlot const& slot : memList)
-//	{
-//		Player* player = ObjectAccessor::FindPlayer(slot.guid);
-//		if (!player || !player->IsAlive() || !player->IsPlayerBot())
-//			continue;
-//		BotGroupAI* pAI = dynamic_cast<BotGroupAI*>(player->GetAI());
-//		if (!pAI)
-//			continue;
-//		if (pAI->IsTankBotAI() || pAI->IsMeleeBotAI())
-//		{
-//			if (aiType == AIWT_ALL || aiType == AIWT_TANK || aiType == AIWT_MELEE)
-//				meleePlayers.push_back(player);
-//		}
-//		else
-//		{
-//			if (aiType == AIWT_ALL || aiType == AIWT_RANGE || aiType == AIWT_HEAL)
-//				rangePlayers.push_back(player);
-//		}
-//	}
-//	Unit* pCenterUnit = (pCenterPlayer->GetSelectedUnit()) ? pCenterPlayer->GetSelectedUnit() : pCenterPlayer;
-//	float meleeDistance = pCenterUnit->GetObjectSize() + 5.0f;
-//	for (uint32 i = 0; i < meleePlayers.size(); i++)
-//	{
-//		Player* pGroupPlayer = meleePlayers[i];
-//		BotGroupAI* pAI = dynamic_cast<BotGroupAI*>(pGroupPlayer->GetAI());
-//		if (!pAI)
-//			continue;
-//		Position& centerPos = pCenterUnit->GetPosition();
-//		float onceAngle = (M_PI * 2) / float(meleePlayers.size());
-//		float angle = pCenterUnit->GetOrientation() + onceAngle * float(i);
-//		float distX = centerPos.GetPositionX() + meleeDistance * std::cosf(angle);
-//		float distY = centerPos.GetPositionY() + meleeDistance * std::sinf(angle);
-//		float distZ = centerPos.GetPositionZ();
-//		distZ = pCenterUnit->GetMap()->GetHeight(pCenterUnit->GetPhaseShift(), distX, distY, distZ);
-//		Position resultPos(distX, distY, distZ, pCenterUnit->GetOrientation());
-//		Position& pos = pCenterUnit->GetFirstCollisionPosition(pCenterUnit->GetDistance(resultPos), pCenterUnit->GetRelativeAngle(&resultPos));
-//		pAI->SetCruxMovement(pos);
-//		pGroupPlayer->SetSelection(ObjectGuid::Empty);
-//		pAI->ClearTankTarget();
-//	}
-//	float rangeDistance = pCenterUnit->GetObjectSize() + BOTAI_FLEE_JUDGE + NEEDFLEE_CHECKRANGE;
-//	for (uint32 i = 0; i < rangePlayers.size(); i++)
-//	{
-//		Player* pGroupPlayer = rangePlayers[i];
-//		BotGroupAI* pAI = dynamic_cast<BotGroupAI*>(pGroupPlayer->GetAI());
-//		if (!pAI)
-//			continue;
-//		Position& centerPos = pCenterUnit->GetPosition();
-//		float onceAngle = (M_PI * 2) / float(rangePlayers.size());
-//		float angle = pCenterUnit->GetOrientation() + onceAngle * float(i);
-//		float distX = centerPos.GetPositionX() + rangeDistance * std::cosf(angle);
-//		float distY = centerPos.GetPositionY() + rangeDistance * std::sinf(angle);
-//		float distZ = centerPos.GetPositionZ();
-//		distZ = pCenterUnit->GetMap()->GetHeight(pCenterUnit->GetPhaseShift(), distX, distY, distZ);
-//		Position resultPos(distX, distY, distZ, pCenterUnit->GetOrientation());
-//		Position& pos = pCenterUnit->GetFirstCollisionPosition(pCenterUnit->GetDistance(resultPos), pCenterUnit->GetRelativeAngle(&resultPos));
-//		pAI->SetCruxMovement(pos);
-//		pGroupPlayer->SetSelection(ObjectGuid::Empty);
-//		pAI->ClearTankTarget();
-//	}
-//}
-//
-//void BotUtility::ProcessGroupCombatMovement(Player* pCenterPlayer, BOTAI_WORKTYPE aiType)
-//{
-//	if (!pCenterPlayer || !pCenterPlayer->IsInWorld())
-//		return;
-//	Group* pGroup = pCenterPlayer->GetGroup();
-//	if (!pGroup || pGroup->isBFGroup() || pGroup->isBGGroup())
-//		return;
-//	NearPlayerVec tankPlayers;
-//	NearPlayerVec meleePlayers;
-//	NearPlayerVec rangePlayers;
-//	Group::MemberSlotList const& memList = pGroup->GetMemberSlots();
-//	for (Group::MemberSlot const& slot : memList)
-//	{
-//		Player* player = ObjectAccessor::FindPlayer(slot.guid);
-//		if (!player || !player->IsAlive() || !player->IsPlayerBot())
-//			continue;
-//		BotGroupAI* pAI = dynamic_cast<BotGroupAI*>(player->GetAI());
-//		if (!pAI)
-//			continue;
-//		if (pAI->IsTankBotAI())
-//		{
-//			if (aiType == AIWT_ALL || aiType == AIWT_TANK)
-//				tankPlayers.push_back(player);
-//		}
-//		if (pAI->IsMeleeBotAI())
-//		{
-//			if (aiType == AIWT_ALL || aiType == AIWT_MELEE)
-//				meleePlayers.push_back(player);
-//		}
-//		else
-//		{
-//			if (aiType == AIWT_ALL || aiType == AIWT_RANGE || aiType == AIWT_HEAL)
-//				rangePlayers.push_back(player);
-//		}
-//	}
-//	Unit* pCenterUnit = (pCenterPlayer->GetSelectedUnit()) ? pCenterPlayer->GetSelectedUnit() : pCenterPlayer;
-//	//G3D::Vector3 relativePos = (pCenterUnit->GetVector3() - pCenterPlayer->GetVector3()) + pCenterUnit->GetVector3();
-//	//float relativeAngle = pCenterUnit->GetAngle(relativePos.x, relativePos.y);
-//	//Position& centerPos = pCenterUnit->GetPosition();//tmp
-//	float baseAngle = Position::NormalizeOrientation(relativeAngle) - ((M_PI * 0.25) * 0.5);
-//	float meleeDistance = pCenterUnit->GetObjectSize() + 5.0f;
-//	for (uint32 i = 0; i < tankPlayers.size(); i++)
-//	{
-//		Player* pGroupPlayer = tankPlayers[i];
-//		BotGroupAI* pAI = dynamic_cast<BotGroupAI*>(pGroupPlayer->GetAI());
-//		if (!pAI)
-//			continue;
-//		float onceAngle = (M_PI * 0.25) / float(tankPlayers.size());
-//		float angle = baseAngle + (onceAngle * float(i)) + onceAngle * 0.5;
-//		float distX = centerPos.GetPositionX() + meleeDistance * std::cosf(angle);
-//		float distY = centerPos.GetPositionY() + meleeDistance * std::sinf(angle);
-//		float distZ = centerPos.GetPositionZ();
-//		distZ = pCenterUnit->GetMap()->GetHeight(pCenterUnit->GetPhaseShift(), distX, distY, distZ);
-//		Position resultPos(distX, distY, distZ, pCenterUnit->GetOrientation());
-//		Position& pos = pCenterUnit->GetFirstCollisionPosition(pCenterUnit->GetDistance(resultPos), pCenterUnit->GetRelativeAngle(&resultPos));
-//		pAI->SetCruxMovement(pos);
-//		pGroupPlayer->SetSelection(ObjectGuid::Empty);
-//		pAI->ClearTankTarget();
-//	}
-//	meleeDistance += 3.0f;
-//	baseAngle = Position::NormalizeOrientation(relativeAngle + M_PI) - ((M_PI * 0.6) * 0.5);
-//	for (uint32 i = 0; i < meleePlayers.size(); i++)
-//	{
-//		Player* pGroupPlayer = meleePlayers[i];
-//		BotGroupAI* pAI = dynamic_cast<BotGroupAI*>(pGroupPlayer->GetAI());
-//		if (!pAI)
-//			continue;
-//		float onceAngle = (M_PI * 0.6) / float(meleePlayers.size());
-//		float angle = baseAngle + (onceAngle * float(i)) + onceAngle * 0.5;
-//		float distX = centerPos.GetPositionX() + meleeDistance * std::cosf(angle);
-//		float distY = centerPos.GetPositionY() + meleeDistance * std::sinf(angle);
-//		float distZ = centerPos.GetPositionZ();
-//		distZ = pCenterUnit->GetMap()->GetHeight(pCenterUnit->GetPhaseShift(), distX, distY, distZ);
-//		Position resultPos(distX, distY, distZ, pCenterUnit->GetOrientation());
-//		Position& pos = pCenterUnit->GetFirstCollisionPosition(pCenterUnit->GetDistance(resultPos), pCenterUnit->GetRelativeAngle(&resultPos));
-//		pAI->SetCruxMovement(pos);
-//		pGroupPlayer->SetSelection(ObjectGuid::Empty);
-//		pAI->ClearTankTarget();
-//	}
-//	float rangeDistance = pCenterUnit->GetObjectSize() + BOTAI_FLEE_JUDGE + NEEDFLEE_CHECKRANGE;
-//	baseAngle = Position::NormalizeOrientation(relativeAngle + M_PI) - ((M_PI * 0.6) * 0.5);
-//	for (uint32 i = 0; i < rangePlayers.size(); i++)
-//	{
-//		Player* pGroupPlayer = rangePlayers[i];
-//		BotGroupAI* pAI = dynamic_cast<BotGroupAI*>(pGroupPlayer->GetAI());
-//		if (!pAI)
-//			continue;
-//		float onceAngle = (M_PI * 0.6) / float(rangePlayers.size());
-//		float angle = baseAngle + (onceAngle * float(i)) + onceAngle * 0.5;
-//		float distX = centerPos.GetPositionX() + rangeDistance * std::cosf(angle);
-//		float distY = centerPos.GetPositionY() + rangeDistance * std::sinf(angle);
-//		float distZ = centerPos.GetPositionZ();
-//		distZ = pCenterUnit->GetMap()->GetHeight(pCenterUnit->GetPhaseShift(), distX, distY, distZ);
-//		Position resultPos(distX, distY, distZ, pCenterUnit->GetOrientation());
-//		Position& pos = pCenterUnit->GetFirstCollisionPosition(pCenterUnit->GetDistance(resultPos), pCenterUnit->GetRelativeAngle(&resultPos));
-//		pAI->SetCruxMovement(pos);
-//		pGroupPlayer->SetSelection(ObjectGuid::Empty);
-//		pAI->ClearTankTarget();
-//	}
-//}
-//
-//Position BotUtility::FindRadiusByNearDistance(Unit* pTargetUnit, float range, Unit* pRefUnit)
-//{
-//	float onceAngle = float(M_PI) * 2.0f / 8.0f;
-//	Position targetPos;
-//	//float selectAngle = pTargetUnit->GetOrientation() * (-1);
-//	float minDist = 999999.0f;
-//	std::list<Position> allPosition;
-//	for (float angle = 0.0f; angle < (float(M_PI) * 2.0f); angle += onceAngle)
-//	{
-//		Position& pos = pRefUnit->GetFirstCollisionPosition(range, angle);
-//		float dist = pRefUnit->GetDistance(pos);
-//		if (!pTargetUnit->IsWithinLOS(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()))
-//			continue;
-//		allPosition.push_back(pos);
-//	}
-//	if (allPosition.empty())
-//		return pTargetUnit->GetPosition();
-//	for (Position pos : allPosition)
-//	{
-//		float dist = pTargetUnit->GetDistance(pos);
-//		if (dist < minDist)
-//		{
-//			minDist = dist;
-//			targetPos = pos;
-//		}
-//	}
-//	return targetPos;
-//}
-//
-//Position BotUtility::FindRadiusByFarDistance(Unit* pTargetUnit, float range, Unit* pRefUnit)
-//{
-//	float onceAngle = float(M_PI) * 2.0f / 8.0f;
-//	Position targetPos = pTargetUnit->GetPosition();
-//	//float selectAngle = pTargetUnit->GetOrientation() * (-1);
-//	float maxDist = 0.0f;
-//	std::list<Position> allPosition;
-//	for (float angle = 0.0f; angle < (float(M_PI) * 2.0f); angle += onceAngle)
-//	{
-//		Position& pos = pRefUnit->GetFirstCollisionPosition(range, angle);
-//		float dist = pRefUnit->GetDistance(pos);
-//		if (!pTargetUnit->IsWithinLOS(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()))
-//			continue;
-//		allPosition.push_back(pos);
-//	}
-//	if (allPosition.empty())
-//		return targetPos;
-//	for (Position pos : allPosition)
-//	{
-//		float dist = pTargetUnit->GetDistance(pos);
-//		if (dist > maxDist)
-//		{
-//			maxDist = dist;
-//			targetPos = pos;
-//		}
-//	}
-//	return targetPos;
-//}
-//
-//bool BotUtility::FindFirstCollisionPosition(Unit* pTargetUnit, float range, Unit* pRefUnit, Position& outPos)
-//{
-//	if (range < 3.0f || range <= pRefUnit->GetObjectSize() || pRefUnit->GetDistance(pTargetUnit->GetPosition()) >= range)
-//		return false;
-//	Map* pMap = pRefUnit->GetMap();
-//	if (pTargetUnit->GetMap() != pMap)
-//		return false;
-//	//G3D::Vector3 refUnitV3 = pRefUnit->GetVector3();
-//	//G3D::Vector3 tarUnitV3 = pTargetUnit->GetVector3();
-//	//G3D::Vector3 distV3 = tarUnitV3 - refUnitV3;
-//	//if (distV3.length() < 1.0f)
-//	//	return false;
-//	//G3D::Vector3 dir = distV3.directionOrZero();
-//	//G3D::Vector3 target = refUnitV3 + dir * range;
-//	//target.z = pMap->GetHeight(pTargetUnit->GetPhaseShift(), target.x, target.y, target.z);
-//
-//	//G3D::Vector3 searchPos = target;
-//	//float once = range * 0.1f;
-//	//while (!pTargetUnit->IsWithinLOS(searchPos.x, searchPos.y, searchPos.z))
-//	//{
-//	//	if (range <= once)
-//	//		return false;
-//	//	range -= once;
-//	//	searchPos = refUnitV3 + dir * range;
-//	//	searchPos.z = pMap->GetHeight(pTargetUnit->GetPhaseShift(), searchPos.x, searchPos.y, searchPos.z);
-//	//}
-//
-//	float once = range * 0.2f;
-//	std::vector<Position> canPoss;
-//	for (float angle = 0; angle < (float(M_PI) * 2.0f); angle += float(M_PI_4))
-//	{
-//		float calcRange = range;
-//		float distX = pRefUnit->GetPositionX() + calcRange * std::cosf(angle);
-//		float distY = pRefUnit->GetPositionY() + calcRange * std::sinf(angle);
-//		float distZ = pMap->GetHeight(pTargetUnit->GetPhaseShift(), distX, distY, pRefUnit->GetPositionZ());
-//		while (!pTargetUnit->IsWithinLOS(distX, distY, distZ))
-//		{
-//			if (calcRange <= once)
-//				break;
-//			calcRange -= once;
-//			distX = pRefUnit->GetPositionX() + calcRange * std::cosf(angle);
-//			distY = pRefUnit->GetPositionY() + calcRange * std::sinf(angle);
-//			distZ = pMap->GetHeight(pTargetUnit->GetPhaseShift(), distX, distY, pRefUnit->GetPositionZ());
-//		}
-//		if (calcRange >= range * 0.75f)
-//			canPoss.push_back(Position(distX, distY, distZ, pTargetUnit->GetOrientation()));
-//	}
-//	Position calcPos;
-//	if (!canPoss.empty())
-//	{
-//		calcPos = canPoss[urand(0, canPoss.size() - 1)];
-//		float minDist = 0;
-//		for (Position pos : canPoss)
-//		{
-//			float dist = pTargetUnit->GetDistance(pos);
-//			if (dist < minDist)
-//			{
-//				calcPos = pos;
-//				minDist = dist;
-//			}
-//		}
-//	}
-//	else
-//		return false;
-//
-//	outPos.m_positionX = calcPos.GetPositionX();
-//	outPos.m_positionY = calcPos.GetPositionY();
-//	outPos.m_positionZ = calcPos.GetPositionZ();
-//	return true;
-//}
-//
-//void BotUtility::TryTeleportPlayerPet(Player* player, bool force)
-//{
-//	if (!player)
-//		return;
-//	Pet* pet = player->GetPet();
-//	if (!pet)
-//		return;
-//	if (!player->IsInWorld() || !pet->IsInWorld() || player->GetMap() != pet->GetMap())
-//		return;
-//	if (!force && player->GetDistance(pet->GetPosition()) < (BOTAI_SEARCH_RANGE * 2))
-//		return;
-//
-//	if (pet->IsAlive() && pet->IsInCombat())
-//		pet->CombatStop(true);
-//	pet->NearTeleportTo(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());
-//}
-//
-//void BotAIGuild::UpdateGuildProcess()
-//{//todo47
-//	//if (me->GetArenaTeamIdInvited())
-//	//	me->GetSession()->HandleArenaTeamAcceptOpcode(WorldPacket(1));
-//	uint32 inviteGuild = me->GetGuildIdInvited();
-//	if (inviteGuild != 0)
-//	{
-//        if (WorldSession* pSession = me->GetSession())
-//        {
-//            WorldPacket packet;
-//            WorldPackets::Guild::AcceptGuildInvite sPacket(std::move(packet));
-//            pSession->HandleGuildAcceptInvite(sPacket);
-//        }
-//	}
-//	//else if (Guild* pGuild = me->GetGuild())
-//	//{
-//	//	if (pGuild->GetLeaderGUID() == me->GetGUID())
-//	//	{
-//	//	}
-//	//}
-//}
-//
-//void BotAITeleport::SetTeleport(Position* telePos, float offset)
-//{
-//    if (m_Teleporting)
-//        return;
-//    UpdateMapID();
-//    
-//    if(master)
-//    {
-//        Position& pos = master->GetPosition();
-//        float x = pos.GetPositionX() + ((offset != 0) ? frand(offset * (-1), offset) : 0);
-//        float y = pos.GetPositionY() + ((offset != 0) ? frand(offset * (-1), offset) : 0);
-//        float z = pos.GetPositionZ();
-//        m_TeleportPositon = Position(x, y, z, pos.GetOrientation());
-//    }
-//    me->CombatStop(true);
-//    m_Teleporting = true;
-//    m_TeleportStep = 1;
-//}
-//
-//void BotAITeleport::SetTeleport(Position& telePos)
-//{
-//	if (m_Teleporting)
-//		return;
-//	UpdateMapID();
-//	m_TeleportPositon = telePos;
-//	m_Teleporting = true;
-//	m_TeleportStep = 1;
-//}
-//
-//void BotAITeleport::SetTeleport(uint32 mapID, Position& telePos)
-//{
-//	if (m_Teleporting)
-//		return;
-//	m_MapId = mapID;
-//	m_TeleportPositon = telePos;
-//	m_Teleporting = true;
-//	m_TeleportStep = 1;
-//}
-//
-//void BotAITeleport::SetTeleport(Player* pTarget, float offset)
-//{
-//	if (m_Teleporting)
-//		return;
-//	if (!pTarget || !pTarget->GetMap() || !pTarget->IsInWorld() || me->InBattlegroundQueue() || me->InBattleground())
-//		return;
-//    master = pTarget;
-//	Position& pos = pTarget->GetPosition();
-//	float x = pos.GetPositionX() + ((offset != 0) ? frand(offset * (-1), offset) : 0);
-//	float y = pos.GetPositionY() + ((offset != 0) ? frand(offset * (-1), offset) : 0);
-//	float z = pos.GetPositionZ();
-//	pTarget->GetMap()->GetHeight(pTarget->GetPhaseShift(), x, y, z);
-//
-//	me->CombatStop(true);
-//	m_TeleportPositon = Position(x, y, z, pos.GetOrientation());
-//	m_MapId = pTarget->GetMapId();
-//	m_Teleporting = true;
-//	m_TeleportStep = 1;
-//}
-//
-//void BotAITeleport::ClearTeleport()
-//{
-//	m_TeleportPositon.m_positionX = m_TeleportPositon.m_positionY = m_TeleportPositon.m_positionZ = 0;
-//	m_Teleporting = false;
-//	UpdateMapID();
-//	m_TeleportStep = 0;
-//}
-//
-//void BotAITeleport::Update(uint32 diff, BotBGAIMovement* pMovement)
-//{
-//	if (!m_Teleporting || !pMovement)
-//		return;
-//	if (me->isMoving())
-//	{
-//		pMovement->ClearMovement();
-//		me->GetMotionMaster()->Clear();
-//		//me->StopMoving();
-//		//return;
-//	}
-//	if (me->IsCanDelayTeleport() || me->IsHasDelayedTeleport())
-//		return;
-//	if (m_TeleportStep > 0)//m_TeleportPositon.m_positionZ != 0)
-//	{
-//		if (m_TeleportStep == 1)
-//		{
-//			float x = m_TeleportPositon.GetPositionX();
-//			float y = m_TeleportPositon.GetPositionY();
-//			float z = m_TeleportPositon.GetPositionZ();
-//			if (!me->TeleportTo(m_MapId, x, y, z, me->GetOrientation()))
-//			{
-//				ClearTeleport();
-//				return;
-//			}
-//
-//			m_TeleportStep = 2;
-//			if (me->GetMapId() != m_MapId)
-//			{
-//				WorldSession* pSession = me->GetSession();
-//				if (pSession)
-//					pSession->HandleMoveWorldportAck();
-//				m_TeleportStep = 3;
-//			}
-//		}
-//		else if (m_TeleportStep == 2)
-//		{
-//			me->UpdatePosition(m_TeleportPositon, true);
-//            if (WorldSession* pSession = me->GetSession())
-//            {
-//                WorldPacket packet;
-//                WorldPackets::Movement::MoveTeleportAck sPacket(std::move(packet));
-//                sPacket.MoverGUID = me->GetGUID();
-//                sPacket.AckIndex = 0;
-//                sPacket.MoveTime = 100;
-//                pSession->HandleMoveTeleportAck(sPacket);
-//            }
-//			m_TeleportStep = 3;
-//		}
-//		else if (m_TeleportStep == 3)
-//		{
-//			MovementInfo movementInfo;
-//			movementInfo.pos = m_TeleportPositon;
-//			movementInfo.time = getMSTime();
-//			movementInfo.guid = me->GetGUID();
-//			movementInfo.flags = 0;
-//			//WorldPacket data(MSG_MOVE_FALL_LAND);// MSG_MOVE_STOP);todo47
-//			//pSession->WriteMovementInfo(&data, &movementInfo);
-//			//me->SendMessageToSet(&data, me);
-//			me->CombatStop(true);
-//			me->SetSelection(ObjectGuid::Empty);
-//			m_TeleportPositon.m_positionX = m_TeleportPositon.m_positionY = m_TeleportPositon.m_positionZ = 0;
-//			m_TeleportStep = 0;
-//		}
-//	}
-//	else
-//		m_Teleporting = false;
-//}
-//
-//void BotAIStoped::UpdatePosition(uint32 diff)
-//{
-//	//if (me->HasUnitState(UNIT_STATE_CASTING))
-//	//	return;
-//	Position& currentPos = me->GetPosition();
-//	if (HasDifference(m_lastPosition, currentPos))
-//	{
-//		//SyncPosition(currentPos, MSG_MOVE_START_FORWARD);
-//		me->UpdatePosition(currentPos);
-//		m_lastPosition = currentPos;
-//		m_updateTick = 0;
-//	}
-//	//else
-//	//{
-//	//	m_updateTick += diff;
-//	//	if (m_updateTick >= BOTAI_UPDATE_TICK * 2)
-//	//	{
-//	//		SyncPosition(currentPos, MSG_MOVE_STOP);
-//	//		m_updateTick = 0;
-//	//		m_lastPosition = currentPos;
-//	//		me->StopMoving();
-//	//	}
-//	//}
-//}
-//
+
+void BotUtility::ProcessGroupTankPullTargets(Player* player)
+{
+    if (!player || !player->IsInWorld())
+        return;
+    Group* pGroup = player->GetGroup();
+    if (!pGroup || pGroup->isBFGroup() || pGroup->isBGGroup())
+        return;
+    std::set<Creature*> allCreature;
+    std::vector<BotGroupAI*> allTanks;
+    Group::MemberSlotList const& memList = pGroup->GetMemberSlots();
+    for (Group::MemberSlot const& slot : memList)
+    {
+        Player* player = ObjectAccessor::FindPlayer(slot.guid);
+        if (!player || !player->IsAlive() || !player->IsPlayerBot())
+            continue;
+        BotGroupAI* pAI = dynamic_cast<BotGroupAI*>(player->GetAI());
+        if (!pAI)
+            continue;
+        NearCreatureVec searchCreatures;
+        pAI->SearchCreatureListFromRange(player, searchCreatures, BOTAI_SEARCH_RANGE, false);
+        for (Creature* pCreature : searchCreatures)
+        {
+            if (pGroup->IsMember(pCreature->GetTarget()))
+                allCreature.insert(pCreature);
+        }
+        if (!pAI->IsTankBotAI())
+            continue;
+        allTanks.push_back(pAI);
+        pAI->ClearTankTarget();
+    }
+    if (allTanks.size() <= 1 || allCreature.size() <= 1)
+        return;
+    std::queue<Creature*> creatureQueue;
+    for (Creature* pc : allCreature)
+        creatureQueue.push(pc);
+    while (!creatureQueue.empty())
+    {
+        for (BotGroupAI* pGroupAI : allTanks)
+        {
+            Creature* pCreature = creatureQueue.front();
+            pGroupAI->AddTankTarget(pCreature);
+            creatureQueue.pop();
+            if (creatureQueue.empty())
+                break;
+        }
+    }
+    Player* lastTankPlayer = NULL;
+    for (BotGroupAI* pGroupAI : allTanks)
+    {
+        if (!pGroupAI->ExistPullTarget())
+            continue;
+        if (!lastTankPlayer)
+        {
+            lastTankPlayer = pGroupAI->GetAIPayer();
+            //pGroupAI->SetTankPosition(lastTankPlayer->GetPosition());
+        }
+        else
+        {
+            Player* thisPlayer = pGroupAI->GetAIPayer();
+            float fleeDistance = BOTAI_RANGESPELL_DISTANCE;
+            float onceAngle = float(M_PI) * 2.0f / 8.0f;
+            Position targetPos;
+            float maxDist = 0.0f;
+            for (float angle = 0.0f; angle < (float(M_PI) * 2.0f); angle += onceAngle)
+            {
+                Position collPos = thisPlayer->GetFirstCollisionPosition(fleeDistance, angle);
+                float dist = lastTankPlayer->GetDistance(collPos);
+                if (maxDist == 0 || dist > maxDist)
+                {
+                    maxDist = dist;
+                    targetPos = collPos;
+                }
+            }
+            lastTankPlayer = thisPlayer;
+            pGroupAI->SetTankPosition(targetPos);
+        }
+    }
+}
+
+void BotUtility::ProcessGroupRingMovement(Player* pCenterPlayer, BOTAI_WORKTYPE aiType)
+{
+    if (!pCenterPlayer || !pCenterPlayer->IsInWorld())
+        return;
+    Group* pGroup = pCenterPlayer->GetGroup();
+    if (!pGroup || pGroup->isBFGroup() || pGroup->isBGGroup())
+        return;
+    NearPlayerVec meleePlayers;
+    NearPlayerVec rangePlayers;
+    Group::MemberSlotList const& memList = pGroup->GetMemberSlots();
+    for (Group::MemberSlot const& slot : memList)
+    {
+        Player* player = ObjectAccessor::FindPlayer(slot.guid);
+        if (!player || !player->IsAlive() || !player->IsPlayerBot())
+            continue;
+        BotGroupAI* pAI = dynamic_cast<BotGroupAI*>(player->GetAI());
+        if (!pAI)
+            continue;
+        if (pAI->IsTankBotAI() || pAI->IsMeleeBotAI())
+        {
+            if (aiType == AIWT_ALL || aiType == AIWT_TANK || aiType == AIWT_MELEE)
+                meleePlayers.push_back(player);
+        }
+        else
+        {
+            if (aiType == AIWT_ALL || aiType == AIWT_RANGE || aiType == AIWT_HEAL)
+                rangePlayers.push_back(player);
+        }
+    }
+    Unit* pCenterUnit = (pCenterPlayer->GetSelectedUnit()) ? pCenterPlayer->GetSelectedUnit() : pCenterPlayer;
+    float meleeDistance = pCenterUnit->GetObjectSize() + 5.0f;
+    for (uint32 i = 0; i < meleePlayers.size(); i++)
+    {
+        Player* pGroupPlayer = meleePlayers[i];
+        BotGroupAI* pAI = dynamic_cast<BotGroupAI*>(pGroupPlayer->GetAI());
+        if (!pAI)
+            continue;
+        Position centerPos = pCenterUnit->GetPosition();
+        float onceAngle = (M_PI * 2) / float(meleePlayers.size());
+        float angle = pCenterUnit->GetOrientation() + onceAngle * float(i);
+        float distX = centerPos.GetPositionX() + meleeDistance * std::cosf(angle);
+        float distY = centerPos.GetPositionY() + meleeDistance * std::sinf(angle);
+        float distZ = centerPos.GetPositionZ();
+        distZ = pCenterUnit->GetMap()->GetHeight(pCenterUnit->GetPhaseShift(), distX, distY, distZ);
+        Position resultPos(distX, distY, distZ, pCenterUnit->GetOrientation());
+        Position pos = pCenterUnit->GetFirstCollisionPosition(pCenterUnit->GetDistance(resultPos), pCenterUnit->GetRelativeAngle(&resultPos));
+        pAI->SetCruxMovement(pos);
+        pGroupPlayer->SetSelection(ObjectGuid::Empty);
+        pAI->ClearTankTarget();
+    }
+    float rangeDistance = pCenterUnit->GetObjectSize() + BOTAI_FLEE_JUDGE + NEEDFLEE_CHECKRANGE;
+    for (uint32 i = 0; i < rangePlayers.size(); i++)
+    {
+        Player* pGroupPlayer = rangePlayers[i];
+        BotGroupAI* pAI = dynamic_cast<BotGroupAI*>(pGroupPlayer->GetAI());
+        if (!pAI)
+            continue;
+        Position centerPos = pCenterUnit->GetPosition();
+        float onceAngle = (M_PI * 2) / float(rangePlayers.size());
+        float angle = pCenterUnit->GetOrientation() + onceAngle * float(i);
+        float distX = centerPos.GetPositionX() + rangeDistance * std::cosf(angle);
+        float distY = centerPos.GetPositionY() + rangeDistance * std::sinf(angle);
+        float distZ = centerPos.GetPositionZ();
+        distZ = pCenterUnit->GetMap()->GetHeight(pCenterUnit->GetPhaseShift(), distX, distY, distZ);
+        Position resultPos(distX, distY, distZ, pCenterUnit->GetOrientation());
+        Position pos = pCenterUnit->GetFirstCollisionPosition(pCenterUnit->GetDistance(resultPos), pCenterUnit->GetRelativeAngle(&resultPos));
+        pAI->SetCruxMovement(pos);
+        pGroupPlayer->SetSelection(ObjectGuid::Empty);
+        pAI->ClearTankTarget();
+    }
+}
+
+void BotUtility::ProcessGroupCombatMovement(Player* pCenterPlayer, BOTAI_WORKTYPE aiType)
+{
+    if (!pCenterPlayer || !pCenterPlayer->IsInWorld())
+        return;
+    Group* pGroup = pCenterPlayer->GetGroup();
+    if (!pGroup || pGroup->isBFGroup() || pGroup->isBGGroup())
+        return;
+    NearPlayerVec tankPlayers;
+    NearPlayerVec meleePlayers;
+    NearPlayerVec rangePlayers;
+    Group::MemberSlotList const& memList = pGroup->GetMemberSlots();
+    for (Group::MemberSlot const& slot : memList)
+    {
+        Player* player = ObjectAccessor::FindPlayer(slot.guid);
+        if (!player || !player->IsAlive() || !player->IsPlayerBot())
+            continue;
+        BotGroupAI* pAI = dynamic_cast<BotGroupAI*>(player->GetAI());
+        if (!pAI)
+            continue;
+        if (pAI->IsTankBotAI())
+        {
+            if (aiType == AIWT_ALL || aiType == AIWT_TANK)
+                tankPlayers.push_back(player);
+        }
+        if (pAI->IsMeleeBotAI())
+        {
+            if (aiType == AIWT_ALL || aiType == AIWT_MELEE)
+                meleePlayers.push_back(player);
+        }
+        else
+        {
+            if (aiType == AIWT_ALL || aiType == AIWT_RANGE || aiType == AIWT_HEAL)
+                rangePlayers.push_back(player);
+        }
+    }
+    /*Unit* pCenterUnit = (pCenterPlayer->GetSelectedUnit()) ? pCenterPlayer->GetSelectedUnit() : pCenterPlayer;
+    G3D::Vector3 relativePos = (pCenterUnit->GetVector3() - pCenterPlayer->GetVector3()) + pCenterUnit->GetVector3();
+    float relativeAngle = pCenterUnit->GetAngle(relativePos.x, relativePos.y);
+    Position centerPos = pCenterUnit->GetPosition();
+    float baseAngle = Position::NormalizeOrientation(relativeAngle) - ((M_PI * 0.25) * 0.5);
+    float meleeDistance = pCenterUnit->GetObjectSize() + 5.0f;
+    for (uint32 i = 0; i < tankPlayers.size(); i++)
+    {
+        Player* pGroupPlayer = tankPlayers[i];
+        BotGroupAI* pAI = dynamic_cast<BotGroupAI*>(pGroupPlayer->GetAI());
+        if (!pAI)
+            continue;
+        float onceAngle = (M_PI * 0.25) / float(tankPlayers.size());
+        float angle = baseAngle + (onceAngle * float(i)) + onceAngle * 0.5;
+        float distX = centerPos.GetPositionX() + meleeDistance * std::cosf(angle);
+        float distY = centerPos.GetPositionY() + meleeDistance * std::sinf(angle);
+        float distZ = centerPos.GetPositionZ();
+        distZ = pCenterUnit->GetMap()->GetHeight(pCenterUnit->GetPhaseShift(), distX, distY, distZ);
+        Position resultPos(distX, distY, distZ, pCenterUnit->GetOrientation());
+        Position pos = pCenterUnit->GetFirstCollisionPosition(pCenterUnit->GetDistance(resultPos), pCenterUnit->GetRelativeAngle(&resultPos));
+        pAI->SetCruxMovement(pos);
+        pGroupPlayer->SetSelection(ObjectGuid::Empty);
+        pAI->ClearTankTarget();
+    }
+    meleeDistance += 3.0f;
+    baseAngle = Position::NormalizeOrientation(relativeAngle + M_PI) - ((M_PI * 0.6) * 0.5);*/
+    /*for (uint32 i = 0; i < meleePlayers.size(); i++)
+    {
+        Player* pGroupPlayer = meleePlayers[i];
+        BotGroupAI* pAI = dynamic_cast<BotGroupAI*>(pGroupPlayer->GetAI());
+        if (!pAI)
+            continue;
+        float onceAngle = (M_PI * 0.6) / float(meleePlayers.size());
+        float angle = baseAngle + (onceAngle * float(i)) + onceAngle * 0.5;
+        float distX = centerPos.GetPositionX() + meleeDistance * std::cosf(angle);
+        float distY = centerPos.GetPositionY() + meleeDistance * std::sinf(angle);
+        float distZ = centerPos.GetPositionZ();
+        distZ = pCenterUnit->GetMap()->GetHeight(pCenterUnit->GetPhaseShift(), distX, distY, distZ);
+        Position resultPos(distX, distY, distZ, pCenterUnit->GetOrientation());
+        Position pos = pCenterUnit->GetFirstCollisionPosition(pCenterUnit->GetDistance(resultPos), pCenterUnit->GetRelativeAngle(&resultPos));
+        pAI->SetCruxMovement(pos);
+        pGroupPlayer->SetSelection(ObjectGuid::Empty);
+        pAI->ClearTankTarget();
+    }
+    float rangeDistance = pCenterUnit->GetObjectSize() + BOTAI_FLEE_JUDGE + NEEDFLEE_CHECKRANGE;
+    baseAngle = Position::NormalizeOrientation(relativeAngle + M_PI) - ((M_PI * 0.6) * 0.5);
+    for (uint32 i = 0; i < rangePlayers.size(); i++)
+    {
+        Player* pGroupPlayer = rangePlayers[i];
+        BotGroupAI* pAI = dynamic_cast<BotGroupAI*>(pGroupPlayer->GetAI());
+        if (!pAI)
+            continue;
+        float onceAngle = (M_PI * 0.6) / float(rangePlayers.size());
+        float angle = baseAngle + (onceAngle * float(i)) + onceAngle * 0.5;
+        float distX = centerPos.GetPositionX() + rangeDistance * std::cosf(angle);
+        float distY = centerPos.GetPositionY() + rangeDistance * std::sinf(angle);
+        float distZ = centerPos.GetPositionZ();
+        distZ = pCenterUnit->GetMap()->GetHeight(pCenterUnit->GetPhaseShift(), distX, distY, distZ);
+        Position resultPos(distX, distY, distZ, pCenterUnit->GetOrientation());
+        Position pos = pCenterUnit->GetFirstCollisionPosition(pCenterUnit->GetDistance(resultPos), pCenterUnit->GetRelativeAngle(&resultPos));
+        pAI->SetCruxMovement(pos);
+        pGroupPlayer->SetSelection(ObjectGuid::Empty);
+        pAI->ClearTankTarget();
+    }*/
+}
+
+Position BotUtility::FindRadiusByNearDistance(Unit* pTargetUnit, float range, Unit* pRefUnit)
+{
+    float onceAngle = float(M_PI) * 2.0f / 8.0f;
+    Position targetPos;
+    //float selectAngle = pTargetUnit->GetOrientation() * (-1);
+    float minDist = 999999.0f;
+    std::list<Position> allPosition;
+    for (float angle = 0.0f; angle < (float(M_PI) * 2.0f); angle += onceAngle)
+    {
+        Position pos = pRefUnit->GetFirstCollisionPosition(range, angle);
+        //float dist = pRefUnit->GetDistance(pos);
+        if (!pTargetUnit->IsWithinLOS(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()))
+            continue;
+        allPosition.push_back(pos);
+    }
+    if (allPosition.empty())
+        return pTargetUnit->GetPosition();
+    for (Position pos : allPosition)
+    {
+        float dist = pTargetUnit->GetDistance(pos);
+        if (dist < minDist)
+        {
+            minDist = dist;
+            targetPos = pos;
+        }
+    }
+    return targetPos;
+}
+
+Position BotUtility::FindRadiusByFarDistance(Unit* pTargetUnit, float range, Unit* pRefUnit)
+{
+    float onceAngle = float(M_PI) * 2.0f / 8.0f;
+    Position targetPos = pTargetUnit->GetPosition();
+    //float selectAngle = pTargetUnit->GetOrientation() * (-1);
+    float maxDist = 0.0f;
+    std::list<Position> allPosition;
+    for (float angle = 0.0f; angle < (float(M_PI) * 2.0f); angle += onceAngle)
+    {
+        Position pos = pRefUnit->GetFirstCollisionPosition(range, angle);
+        //float dist = pRefUnit->GetDistance(pos);
+        if (!pTargetUnit->IsWithinLOS(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()))
+            continue;
+        allPosition.push_back(pos);
+    }
+    if (allPosition.empty())
+        return targetPos;
+    for (Position pos : allPosition)
+    {
+        float dist = pTargetUnit->GetDistance(pos);
+        if (dist > maxDist)
+        {
+            maxDist = dist;
+            targetPos = pos;
+        }
+    }
+    return targetPos;
+}
+
+bool BotUtility::FindFirstCollisionPosition(Unit* pTargetUnit, float range, Unit* pRefUnit, Position& outPos)
+{
+    if (range < 3.0f || range <= pRefUnit->GetObjectSize() || pRefUnit->GetDistance(pTargetUnit->GetPosition()) >= range)
+        return false;
+    Map* pMap = pRefUnit->GetMap();
+    if (pTargetUnit->GetMap() != pMap)
+        return false;
+    //G3D::Vector3 refUnitV3 = pRefUnit->GetVector3();
+    //G3D::Vector3 tarUnitV3 = pTargetUnit->GetVector3();
+    //G3D::Vector3 distV3 = tarUnitV3 - refUnitV3;
+    //if (distV3.length() < 1.0f)
+    //	return false;
+    //G3D::Vector3 dir = distV3.directionOrZero();
+    //G3D::Vector3 target = refUnitV3 + dir * range;
+    //target.z = pMap->GetHeight(pTargetUnit->GetPhaseShift(), target.x, target.y, target.z);
+
+    //G3D::Vector3 searchPos = target;
+    //float once = range * 0.1f;
+    //while (!pTargetUnit->IsWithinLOS(searchPos.x, searchPos.y, searchPos.z))
+    //{
+    //	if (range <= once)
+    //		return false;
+    //	range -= once;
+    //	searchPos = refUnitV3 + dir * range;
+    //	searchPos.z = pMap->GetHeight(pTargetUnit->GetPhaseShift(), searchPos.x, searchPos.y, searchPos.z);
+    //}
+
+    float once = range * 0.2f;
+    std::vector<Position> canPoss;
+    for (float angle = 0; angle < (float(M_PI) * 2.0f); angle += float(M_PI_4))
+    {
+        float calcRange = range;
+        float distX = pRefUnit->GetPositionX() + calcRange * std::cosf(angle);
+        float distY = pRefUnit->GetPositionY() + calcRange * std::sinf(angle);
+        float distZ = pMap->GetHeight(pTargetUnit->GetPhaseShift(), distX, distY, pRefUnit->GetPositionZ());
+        while (!pTargetUnit->IsWithinLOS(distX, distY, distZ))
+        {
+            if (calcRange <= once)
+                break;
+            calcRange -= once;
+            distX = pRefUnit->GetPositionX() + calcRange * std::cosf(angle);
+            distY = pRefUnit->GetPositionY() + calcRange * std::sinf(angle);
+            distZ = pMap->GetHeight(pTargetUnit->GetPhaseShift(), distX, distY, pRefUnit->GetPositionZ());
+        }
+        if (calcRange >= range * 0.75f)
+            canPoss.push_back(Position(distX, distY, distZ, pTargetUnit->GetOrientation()));
+    }
+    Position calcPos;
+    if (!canPoss.empty())
+    {
+        calcPos = canPoss[urand(0, canPoss.size() - 1)];
+        float minDist = 0;
+        for (Position pos : canPoss)
+        {
+            float dist = pTargetUnit->GetDistance(pos);
+            if (dist < minDist)
+            {
+                calcPos = pos;
+                minDist = dist;
+            }
+        }
+    }
+    else
+        return false;
+
+    outPos.m_positionX = calcPos.GetPositionX();
+    outPos.m_positionY = calcPos.GetPositionY();
+    outPos.m_positionZ = calcPos.GetPositionZ();
+    return true;
+}
+
+void BotUtility::TryTeleportPlayerPet(Player* player, bool force)
+{
+    if (!player)
+        return;
+    Pet* pet = player->GetPet();
+    if (!pet)
+        return;
+    if (!player->IsInWorld() || !pet->IsInWorld() || player->GetMap() != pet->GetMap())
+        return;
+    if (!force && player->GetDistance(pet->GetPosition()) < (BOTAI_SEARCH_RANGE * 2))
+        return;
+
+    if (pet->IsAlive() && pet->IsInCombat())
+        pet->CombatStop(true);
+    pet->NearTeleportTo(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());
+}
+
+void BotAIGuild::UpdateGuildProcess()
+{//todo47
+    //if (me->GetArenaTeamIdInvited())
+    //	me->GetSession()->HandleArenaTeamAcceptOpcode(WorldPacket(1));
+    uint32 inviteGuild = me->GetGuildIdInvited();
+    if (inviteGuild != 0)
+    {
+        if (WorldSession* pSession = me->GetSession())
+        {
+            WorldPacket packet;
+            WorldPackets::Guild::AcceptGuildInvite sPacket(std::move(packet));
+            pSession->HandleGuildAcceptInvite(sPacket);
+        }
+    }
+    else if (Guild* pGuild = me->GetGuild())
+    {
+        if (pGuild->GetLeaderGUID() == me->GetGUID())
+        {
+        }
+    }
+}
+
+void BotAITeleport::SetTeleport(Position* /*telePos*/, float offset)
+{
+    if (m_Teleporting)
+        return;
+    UpdateMapID();
+
+    if (master)
+    {
+        Position pos = master->GetPosition();
+        float x = pos.GetPositionX() + ((offset != 0) ? frand(offset * (-1), offset) : 0);
+        float y = pos.GetPositionY() + ((offset != 0) ? frand(offset * (-1), offset) : 0);
+        float z = pos.GetPositionZ();
+        m_TeleportPositon = Position(x, y, z, pos.GetOrientation());
+    }
+    me->CombatStop(true);
+    m_Teleporting = true;
+    m_TeleportStep = 1;
+}
+
+void BotAITeleport::SetTeleport(Position& telePos)
+{
+    if (m_Teleporting)
+        return;
+    UpdateMapID();
+    m_TeleportPositon = telePos;
+    m_Teleporting = true;
+    m_TeleportStep = 1;
+}
+
+void BotAITeleport::SetTeleport(uint32 mapID, Position& telePos)
+{
+    if (m_Teleporting)
+        return;
+    m_MapId = mapID;
+    m_TeleportPositon = telePos;
+    m_Teleporting = true;
+    m_TeleportStep = 1;
+}
+
+void BotAITeleport::SetTeleport(Player* pTarget, float offset)
+{
+    if (m_Teleporting)
+        return;
+    if (!pTarget || !pTarget->GetMap() || !pTarget->IsInWorld() || me->InBattlegroundQueue() || me->InBattleground())
+        return;
+    master = pTarget;
+    Position pos = pTarget->GetPosition();
+    float x = pos.GetPositionX() + ((offset != 0) ? frand(offset * (-1), offset) : 0);
+    float y = pos.GetPositionY() + ((offset != 0) ? frand(offset * (-1), offset) : 0);
+    float z = pos.GetPositionZ();
+    pTarget->GetMap()->GetHeight(pTarget->GetPhaseShift(), x, y, z);
+
+    me->CombatStop(true);
+    m_TeleportPositon = Position(x, y, z, pos.GetOrientation());
+    m_MapId = pTarget->GetMapId();
+    m_Teleporting = true;
+    m_TeleportStep = 1;
+}
+
+void BotAITeleport::ClearTeleport()
+{
+    m_TeleportPositon.m_positionX = m_TeleportPositon.m_positionY = m_TeleportPositon.m_positionZ = 0;
+    m_Teleporting = false;
+    UpdateMapID();
+    m_TeleportStep = 0;
+}
+
+void BotAITeleport::Update(uint32 /*diff*/, BotBGAIMovement* pMovement)
+{
+    if (!m_Teleporting || !pMovement)
+        return;
+    if (me->isMoving())
+    {
+        pMovement->ClearMovement();
+        me->GetMotionMaster()->Clear();
+        me->StopMoving();
+        return;
+    }
+    if (me->IsCanDelayTeleport() || me->IsHasDelayedTeleport())
+        return;
+    if (m_TeleportStep > 0)//m_TeleportPositon.m_positionZ != 0)
+    {
+        if (m_TeleportStep == 1)
+        {
+            float x = m_TeleportPositon.GetPositionX();
+            float y = m_TeleportPositon.GetPositionY();
+            float z = m_TeleportPositon.GetPositionZ();
+            if (!me->TeleportTo(m_MapId, x, y, z, me->GetOrientation()))
+            {
+                ClearTeleport();
+                return;
+            }
+
+            m_TeleportStep = 2;
+            if (me->GetMapId() != m_MapId)
+            {
+                WorldSession* pSession = me->GetSession();
+                if (pSession)
+                    pSession->HandleMoveWorldportAck();
+                m_TeleportStep = 3;
+            }
+        }
+        else if (m_TeleportStep == 2)
+        {
+            me->UpdatePosition(m_TeleportPositon, true);
+            if (WorldSession* pSession = me->GetSession())
+            {
+                WorldPacket packet;
+                WorldPackets::Movement::MoveTeleportAck sPacket(std::move(packet));
+                sPacket.MoverGUID = me->GetGUID();
+                sPacket.AckIndex = 0;
+                sPacket.MoveTime = 100;
+                pSession->HandleMoveTeleportAck(sPacket);
+            }
+            m_TeleportStep = 3;
+        }
+        else if (m_TeleportStep == 3)
+        {
+            MovementInfo movementInfo;
+            movementInfo.pos = m_TeleportPositon;
+            movementInfo.time = getMSTime();
+            movementInfo.guid = me->GetGUID();
+            movementInfo.flags = 0;
+            //WorldPacket data(MSG_MOVE_FALL_LAND);// MSG_MOVE_STOP);todo47
+            //pSession->WriteMovementInfo(&data, &movementInfo);
+            //me->SendMessageToSet(&data, me);
+            me->CombatStop(true);
+            me->SetSelection(ObjectGuid::Empty);
+            m_TeleportPositon.m_positionX = m_TeleportPositon.m_positionY = m_TeleportPositon.m_positionZ = 0;
+            m_TeleportStep = 0;
+        }
+    }
+    else
+        m_Teleporting = false;
+}
+
+void BotAIStoped::UpdatePosition(uint32 diff)
+{
+    if (me->HasUnitState(UNIT_STATE_CASTING))
+        return;
+    Position currentPos = me->GetPosition();
+    if (HasDifference(m_lastPosition, currentPos))
+    {
+        //SyncPosition(currentPos, MSG_MOVE_START_FORWARD);
+        me->UpdatePosition(currentPos);
+        m_lastPosition = currentPos;
+        m_updateTick = 0;
+    }
+    else
+    {
+        m_updateTick += diff;
+        if (m_updateTick >= BOTAI_UPDATE_TICK * 2)
+        {
+            //SyncPosition(currentPos, MSG_MOVE_STOP);
+            m_updateTick = 0;
+            m_lastPosition = currentPos;
+            me->StopMoving();
+        }
+    }
+}
+
 //bool BotAIStoped::HasDifference(Position& pos1, Position& pos2)
 //{
 //	float posGap = 0.2f;
@@ -1033,31 +1040,31 @@ bool BotUtility::DisableDKQuest = false;
 //		return true;
 //	return false;
 //}
-//
-//void BotAIStoped::SyncPosition(Position& pos, uint32 opcode)
-//{
-//	//if (m_SyncTick < 3)
-//	//{
-//	//	++m_SyncTick;
-//	//	return;
-//	//}
-//	//m_SyncTick = 0;
-//	if (me->IsFlying())
-//		return;
-//
-//	//WorldSession* pSession = me->GetSession();
-//	//MovementInfo movementInfo;
-//	//movementInfo.flags = MOVEMENTFLAG_SPLINE_ENABLED;
-//	//movementInfo.pos = pos;
-//	//movementInfo.time = getMSTime();// +(opcode == MSG_MOVE_START_FORWARD) ? BOTAI_UPDATE_TICK : 0;
-//	//movementInfo.guid = me->GetGUID();
-//	//movementInfo.fallTime = me->m_movementInfo.fallTime;
-//	//WorldPacket data(opcode);
-//	//data << me->GetGUID();
-//	//pSession->WriteMovementInfo(&data, &movementInfo);
-//	//me->SendMessageToSet(&data, me);
-//}
-//
+
+void BotAIStoped::SyncPosition(Position& /*pos*/, uint32 /*opcode*/)
+{
+    if (m_SyncTick < 3)
+    {
+        ++m_SyncTick;
+        return;
+    }
+    m_SyncTick = 0;
+    if (me->IsFlying())
+        return;
+
+    //WorldSession* pSession = me->GetSession();
+    MovementInfo movementInfo;
+    //movementInfo.flags = MOVEMENTFLAG_SPLINE_ENABLED;
+    //movementInfo.pos = pos;
+    //movementInfo.time = getMSTime();// +(opcode == MSG_MOVE_START_FORWARD) ? BOTAI_UPDATE_TICK : 0;
+    //movementInfo.guid = me->GetGUID();
+    //movementInfo.fallTime = me->m_movementInfo.fallTime;
+    //WorldPacket data(opcode);
+    //data << me->GetGUID();
+    //pSession->WriteMovementInfo(&data, &movementInfo);
+    //me->SendMessageToSet(&data, me);
+}
+
 //void BotAIHorrorState::UpdateHorror(uint32 diff, BotBGAIMovement* movement)
 //{
 //	if (!me)
@@ -1081,284 +1088,282 @@ bool BotUtility::DisableDKQuest = false;
 //	me->GetMotionMaster()->Clear();
 //	me->GetMotionMaster()->MovePoint(1, m_CurHorrorPos);
 //}
-//
-//Position BotAIHorrorState::GetNewHorrorPos()
-//{
-//	std::vector<float> angles;
-//	float onceAngle = float(M_PI) * 2.0f / 8.0f;
-//	Position targetPos = me->GetPosition();
-//	float maxDist = 0.0f;
-//	std::list<Position> allPosition;
-//	for (float angle = 0.0f; angle < (float(M_PI) * 2.0f); angle += onceAngle)
-//		angles.push_back(angle);
-//	Trinity::Containers::RandomShuffle(angles);
-////	for (float angle : angles)
-////	{
-////        //tmp		Position& pos = me->GetFirstCollisionPosition(BOTAI_SEARCH_RANGE, angle);
-//////tmp		pos.m_positionZ = me->GetMap()->GetHeight(me->GetPhaseShift(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
-////		if (me->GetDistance(pos) > (BOTAI_SEARCH_RANGE * 0.8f))
-////			return pos;
-////		allPosition.push_back(pos);
-////	}
-//	if (allPosition.empty())
-//		return targetPos;
-//	for (Position pos : allPosition)
-//	{
-//		float dist = me->GetDistance(pos);
-//		if (dist > maxDist)
-//		{
-//			maxDist = dist;
-//			targetPos = pos;
-//		}
-//	}
-//	return targetPos;
-//}
-//
-//Position BotAIHorrorState::GetNewHorrorPosByRange(Player* player, float distance)
-//{
-//	if (!player)
-//		return Position();
-//	std::vector<float> angles;
-//	float onceAngle = float(M_PI) * 2.0f / 8.0f;
-//	Position targetPos = player->GetPosition();
-//	float maxDist = 0.0f;
-//	std::vector<Position> allPosition;
-//	for (float angle = 0.0f; angle < (float(M_PI) * 2.0f); angle += onceAngle)
-//		angles.push_back(angle);
-//	Trinity::Containers::RandomShuffle(angles);
-//	//for (float angle : angles)
-//	//{
-//	//	Position& pos = player->GetFirstCollisionPosition(distance, angle);
-//	//	pos.m_positionZ = player->GetMap()->GetHeight(player->GetPhaseShift(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
-//	//	if (player->GetDistance(pos) >(distance * 0.5f))
-//	//		allPosition.push_back(pos);
-//	//}//tmp
-//	if (allPosition.empty())
-//		return targetPos;
-//	return allPosition[urand(0, allPosition.size() - 1)];
-//}
-//
-//Position BotAIHorrorState::FindNewHorrorPos(BotBGAIMovement* movement)
-//{
-//    //tmp	float moveMaxDistance = sWorld->getFloatConfig(CONFIG_SPECIAL_FEAR_DISTANCE);
-//	float onceAngle = float(M_PI) * 2.0f / 8.0f;
-//	Position targetPos = me->GetPosition();
-//	float maxDist = 0.0f;
-//	std::list<Position> allPosition;
-//	for (float angle = 0.0f; angle < (float(M_PI) * 2.0f); angle += onceAngle)
-//	{
-//		for (float dist = 0.1f; dist <= 1.0f; dist += 0.1f)
-//		{
-//			float distX = me->GetPositionX() + (moveMaxDistance*dist) * std::cosf(angle);
-//			float distY = me->GetPositionY() + (moveMaxDistance*dist) * std::sinf(angle);
-//			float distZ = me->GetPositionZ();
-//			//distZ = me->GetMap()->GetHeight(me->GetPhaseShift(), distX, distY, distZ);
-//			Position pos = me->GetPosition();
-//			if (!movement->SimulationMovementTo(distX, distY, distZ, pos))
-//				break;
-//			allPosition.push_back(pos);
-//		}
-//	}
-//	if (allPosition.empty())
-//		return GetNewHorrorPos();
-//	for (Position pos : allPosition)
-//	{
-//		float dist = me->GetDistance(pos);
-//		if (dist > maxDist)
-//		{
-//			maxDist = dist;
-//			targetPos = pos;
-//		}
-//	}
-//	return targetPos;
-//}
-//
-//BotAIUseFood::BotAIUseFood(Player* self) :
-//me(self),
-//m_HasMana(false),
-//m_LastFoodAura(0),
-//m_LastWaterAura(0)
-//{
-//    m_FoodInfos.push_back(FoodInfo(110, 126934, 185703, 133980, 192128));
-//    m_FoodInfos.push_back(FoodInfo(100, 133893, 191876, 133980, 192128));
-//    m_FoodInfos.push_back(FoodInfo(90, 113099, 160598, 117475, 172786));
-//    m_FoodInfos.push_back(FoodInfo(85, 82450, 104235, 68140, 80167));
-//	m_FoodInfos.push_back(FoodInfo(75, 35948, 45548, 33445, 43183));
-//	m_FoodInfos.push_back(FoodInfo(65, 33449, 43180, 35954, 27089));
-//	m_FoodInfos.push_back(FoodInfo(60, 27855, 27094, 28399, 34291));
-//	m_FoodInfos.push_back(FoodInfo(45, 8950, 1131, 8766, 1137));
-//	m_FoodInfos.push_back(FoodInfo(35, 4601, 1129, 1645, 1135));
-//	m_FoodInfos.push_back(FoodInfo(25, 4544, 1127, 1708, 1133));
-//	m_FoodInfos.push_back(FoodInfo(15, 4542, 435, 1205, 432));
-//	m_FoodInfos.push_back(FoodInfo(5, 4541, 434, 1179, 431));
-//	//m_FoodInfos.push_back(FoodInfo(0, 0, 0, 0, 0));
-//
-//	switch (me->getClass())
-//	{
-//	case CLASS_WARRIOR:
-//	case CLASS_ROGUE:
-//	case CLASS_DEATH_KNIGHT:
-//    case CLASS_DEMON_HUNTER:
-//    case CLASS_HUNTER:
-//		m_HasMana = false;
-//		break;
-//	case CLASS_PALADIN:
-//	case CLASS_SHAMAN:
-//	case CLASS_DRUID:
-//	case CLASS_MAGE:
-//	case CLASS_WARLOCK:
-//	case CLASS_PRIEST:
-//    case CLASS_MONK:
-//		m_HasMana = true;
-//		break;
-//	}
-//}
-//
-//bool BotAIUseFood::UpdateBotFood(uint32 diff, uint32 downMountID)
-//{
-//	static const float readyPct = 95;
-//	if (me->IsInCombat())
-//	{
-//		ClearFoodState();
-//		return false;
-//	}
-//	if (Group* pGroup = me->GetGroup())
-//	{
-//		if (!pGroup->AllGroupNotCombat())
-//			return false;
-//	}
-//	float lifePct = me->GetHealthPct();
-//	float manaPct = (m_HasMana) ? ((float)me->GetPower(POWER_MANA) / (float)me->GetMaxPower(POWER_MANA) * 100.0f) : 100.0f;
-//	if (lifePct >= readyPct && manaPct >= readyPct)
-//	{
-//		ClearFoodState();
-//		return false;
-//	}
-//	FoodInfo* pInfo = GetFoodInfoByLevel(me->getLevel());
-//	if (!pInfo || pInfo->level == 0)
-//		return false;
-//	if (lifePct < readyPct && !me->HasAura(pInfo->foodBuff))
-//	{
-//		Item* pItem = BotUtility::FindItemFromAllBag(me, pInfo->foodEntry);
-//		if (!pItem)
-//			pItem = BotUtility::StoreNewItemByEntry(me, pInfo->foodEntry, 10);
-//		if (pItem)
-//		{
-//			me->StopMoving();
-//			if (downMountID && me->IsMounted() && me->HasAura(downMountID))
-//				me->RemoveOwnedAura(downMountID, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
-//			SpellCastTargets targets;
-//			targets.SetTargetMask(0);
-//			me->CastItemUseSpell(pItem, targets, 0, 0);// == SpellCastResult::SPELL_CAST_OK)
-//			m_LastFoodAura = pInfo->foodBuff;
-//		}
-//	}
-//	if (manaPct < readyPct && !me->HasAura(pInfo->waterBuff))
-//	{
-//		Item* pItem = BotUtility::FindItemFromAllBag(me, pInfo->waterEntry);
-//		if (!pItem)
-//			pItem = BotUtility::StoreNewItemByEntry(me, pInfo->waterEntry, 10);
-//		if (pItem)
-//		{
-//			me->StopMoving();
-//			if (downMountID && me->IsMounted() && me->HasAura(downMountID))
-//				me->RemoveOwnedAura(downMountID, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
-//			SpellCastTargets targets;
-//			targets.SetTargetMask(0);
-//			me->CastItemUseSpell(pItem, targets, 0, 0);// == SpellCastResult::SPELL_CAST_OK)
-//			m_LastWaterAura = pInfo->waterBuff;
-//		}
-//	}
-//	return true;
-//}
-//
-//BotAIUsePotion::BotAIUsePotion(Player* self) :
-//me(self),
-//m_NeedMana(true)
-//{
-//	uint8 cls = me->getClass();
-//	if (cls == 1 || cls == 4)
-//		m_NeedMana = false;
-//
-//    m_LifeVials.push_back(PotionInfo(100, 127834));
-//    m_LifeVials.push_back(PotionInfo(91, 109223));
-//    m_LifeVials.push_back(PotionInfo(85, 76097));
-//	m_LifeVials.push_back(PotionInfo(70, 33447));
-//	m_LifeVials.push_back(PotionInfo(55, 22829));
-//	m_LifeVials.push_back(PotionInfo(45, 13446));
-//	m_LifeVials.push_back(PotionInfo(35, 3928));
-//	m_LifeVials.push_back(PotionInfo(21, 1710));
-//	m_LifeVials.push_back(PotionInfo(12, 929));
-//	m_LifeVials.push_back(PotionInfo(3, 858));
-//	m_LifeVials.push_back(PotionInfo(1, 118));
-//
-//    m_ManaVials.push_back(PotionInfo(100, 127835));
-//    m_ManaVials.push_back(PotionInfo(90, 109222));
-//    m_ManaVials.push_back(PotionInfo(85, 76098));
-//	m_ManaVials.push_back(PotionInfo(70, 33448));
-//	m_ManaVials.push_back(PotionInfo(55, 22832));
-//	m_ManaVials.push_back(PotionInfo(49, 13444));
-//	m_ManaVials.push_back(PotionInfo(41, 13443));
-//	m_ManaVials.push_back(PotionInfo(31, 6149));
-//	m_ManaVials.push_back(PotionInfo(22, 3827));
-//	m_ManaVials.push_back(PotionInfo(14, 3385));
-//	m_ManaVials.push_back(PotionInfo(5, 2455));
-//}
-//
-//bool BotAIUsePotion::TryUsePotion()
-//{
-//	if (!me->IsInCombat() || me->IsMounted() || me->HasUnitState(UNIT_STATE_CASTING))
-//		return false;
-//	if (!m_NeedMana)
-//	{
-//		float healPct = me->GetHealthPct();
-//		if (healPct < 65)
-//		{
-//			return TryUseLifeVial();
-//		}
-//	}
-//	else if (me->InBattleground())
-//	{
-//		float manaPer = (float)me->GetPower(POWER_MANA) / (float)me->GetMaxPower(POWER_MANA);
-//		if (manaPer * 100 < 15)
-//		{
-//			return TryUseManaVial();
-//		}
-//		else if (me->GetHealthPct() < 60)
-//		{
-//			return TryUseLifeVial();
-//		}
-//	}
-//	else
-//	{
-//		float healPct = me->GetHealthPct();
-//		if (healPct < 30)
-//		{
-//			return TryUseLifeVial();
-//		}
-//		else
-//		{
-//			float per = (float)me->GetPower(POWER_MANA) / (float)me->GetMaxPower(POWER_MANA);
-//			float manaPct = per * 100;
-//			if (manaPct < 75)
-//				return TryUseManaVial();
-//		}
-//	}
-//	return false;
-//}
-//
-//bool BotAIUsePotion::TryUseLifeVial()
-//{
-//	Item* pItem = FindLifeVial();
-//	if (!pItem)
-//		return false;
-//	SpellCastTargets targets;
-//	targets.SetTargetMask(0);
-//	if (me->CastItemUseSpell(pItem, targets, 0, 0) == SpellCastResult::SPELL_CAST_OK)
-//		return true;
-//	return false;
-//}
-//
+
+Position BotAIHorrorState::GetNewHorrorPos()
+{
+    std::vector<float> angles;
+    float onceAngle = float(M_PI) * 2.0f / 8.0f;
+    Position targetPos = me->GetPosition();
+    float maxDist = 0.0f;
+    std::list<Position> allPosition;
+    for (float angle = 0.0f; angle < (float(M_PI) * 2.0f); angle += onceAngle)
+        angles.push_back(angle);
+    Trinity::Containers::RandomShuffle(angles);
+    for (float angle : angles)
+    {
+        Position pos = me->GetFirstCollisionPosition(BOTAI_SEARCH_RANGE, angle);
+        pos.m_positionZ = me->GetMap()->GetHeight(me->GetPhaseShift(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
+        if (me->GetDistance(pos) > (BOTAI_SEARCH_RANGE * 0.8f))
+            return pos;
+        allPosition.push_back(pos);
+    }
+    if (allPosition.empty())
+        return targetPos;
+    for (Position pos : allPosition)
+    {
+        float dist = me->GetDistance(pos);
+        if (dist > maxDist)
+        {
+            maxDist = dist;
+            targetPos = pos;
+        }
+    }
+    return targetPos;
+}
+
+Position BotAIHorrorState::GetNewHorrorPosByRange(Player* player, float distance)
+{
+    if (!player)
+        return Position();
+    std::vector<float> angles;
+    float onceAngle = float(M_PI) * 2.0f / 8.0f;
+    Position targetPos = player->GetPosition();
+    //float maxDist = 0.0f;
+    std::vector<Position> allPosition;
+    for (float angle = 0.0f; angle < (float(M_PI) * 2.0f); angle += onceAngle)
+        angles.push_back(angle);
+    Trinity::Containers::RandomShuffle(angles);
+    for (float angle : angles)
+    {
+        Position pos = player->GetFirstCollisionPosition(distance, angle);
+        pos.m_positionZ = player->GetMap()->GetHeight(player->GetPhaseShift(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
+        if (player->GetDistance(pos) > (distance * 0.5f))
+            allPosition.push_back(pos);
+    }
+    if (allPosition.empty())
+        return targetPos;
+    return allPosition[urand(0, allPosition.size() - 1)];
+}
+
+Position BotAIHorrorState::FindNewHorrorPos(BotBGAIMovement* movement)
+{
+    float moveMaxDistance = sWorld->getFloatConfig(CONFIG_SPECIAL_FEAR_DISTANCE);
+    float onceAngle = float(M_PI) * 2.0f / 8.0f;
+    Position targetPos = me->GetPosition();
+    float maxDist = 0.0f;
+    std::list<Position> allPosition;
+    for (float angle = 0.0f; angle < (float(M_PI) * 2.0f); angle += onceAngle)
+    {
+        for (float dist = 0.1f; dist <= 1.0f; dist += 0.1f)
+        {
+            float distX = me->GetPositionX() + (moveMaxDistance * dist) * std::cosf(angle);
+            float distY = me->GetPositionY() + (moveMaxDistance * dist) * std::sinf(angle);
+            float distZ = me->GetPositionZ();
+            distZ = me->GetMap()->GetHeight(me->GetPhaseShift(), distX, distY, distZ);
+            Position pos = me->GetPosition();
+            if (!movement->SimulationMovementTo(distX, distY, distZ, pos))
+                break;
+            allPosition.push_back(pos);
+        }
+    }
+    if (allPosition.empty())
+        return GetNewHorrorPos();
+    for (Position pos : allPosition)
+    {
+        float dist = me->GetDistance(pos);
+        if (dist > maxDist)
+        {
+            maxDist = dist;
+            targetPos = pos;
+        }
+    }
+    return targetPos;
+}
+
+BotAIUseFood::BotAIUseFood(Player* self) :
+    me(self),
+    m_HasMana(false),
+    m_LastFoodAura(0),
+    m_LastWaterAura(0)
+{
+    m_FoodInfos.push_back(FoodInfo(110, 126934, 185703, 133980, 192128));
+    m_FoodInfos.push_back(FoodInfo(100, 133893, 191876, 133980, 192128));
+    m_FoodInfos.push_back(FoodInfo(90, 113099, 160598, 117475, 172786));
+    m_FoodInfos.push_back(FoodInfo(85, 82450, 104235, 68140, 80167));
+    m_FoodInfos.push_back(FoodInfo(75, 35948, 45548, 33445, 43183));
+    m_FoodInfos.push_back(FoodInfo(65, 33449, 43180, 35954, 27089));
+    m_FoodInfos.push_back(FoodInfo(60, 27855, 27094, 28399, 34291));
+    m_FoodInfos.push_back(FoodInfo(45, 8950, 1131, 8766, 1137));
+    m_FoodInfos.push_back(FoodInfo(35, 4601, 1129, 1645, 1135));
+    m_FoodInfos.push_back(FoodInfo(25, 4544, 1127, 1708, 1133));
+    m_FoodInfos.push_back(FoodInfo(15, 4542, 435, 1205, 432));
+    m_FoodInfos.push_back(FoodInfo(5, 4541, 434, 1179, 431));
+    m_FoodInfos.push_back(FoodInfo(0, 0, 0, 0, 0));
+
+    switch (me->getClass())
+    {
+    case CLASS_WARRIOR:
+    case CLASS_ROGUE:
+    case CLASS_DEATH_KNIGHT:
+    case CLASS_DEMON_HUNTER:
+    case CLASS_HUNTER:
+        m_HasMana = false;
+        break;
+    case CLASS_PALADIN:
+    case CLASS_SHAMAN:
+    case CLASS_DRUID:
+    case CLASS_MAGE:
+    case CLASS_WARLOCK:
+    case CLASS_PRIEST:
+    case CLASS_MONK:
+        m_HasMana = true;
+        break;
+    }
+}
+
+bool BotAIUseFood::UpdateBotFood(uint32 /*diff*/, uint32 downMountID)
+{
+    static const float readyPct = 95;
+    if (me->IsInCombat())
+    {
+        ClearFoodState();
+        return false;
+    }
+    //if (Group* pGroup = me->GetGroup())
+    //{
+    //	if (!pGroup->AllGroupNotCombat())
+    //		return false;
+    //}
+    float lifePct = me->GetHealthPct();
+    float manaPct = (m_HasMana) ? ((float)me->GetPower(POWER_MANA) / (float)me->GetMaxPower(POWER_MANA) * 100.0f) : 100.0f;
+    if (lifePct >= readyPct && manaPct >= readyPct)
+    {
+        ClearFoodState();
+        return false;
+    }
+    FoodInfo* pInfo = GetFoodInfoByLevel(me->getLevel());
+    if (!pInfo || pInfo->level == 0)
+        return false;
+    if (lifePct < readyPct && !me->HasAura(pInfo->foodBuff))
+    {
+        Item* pItem = BotUtility::FindItemFromAllBag(me, pInfo->foodEntry);
+        if (!pItem)
+            pItem = BotUtility::StoreNewItemByEntry(me, pInfo->foodEntry, 10);
+        if (pItem)
+        {
+            me->StopMoving();
+            if (downMountID && me->IsMounted() && me->HasAura(downMountID))
+                me->RemoveOwnedAura(downMountID, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
+            SpellCastTargets targets;
+            targets.SetTargetMask(0);
+            me->CastItemUseSpell(pItem, targets, ObjectGuid::Empty, 0);// == SpellCastResult::SPELL_CAST_OK)
+            m_LastFoodAura = pInfo->foodBuff;
+        }
+    }
+    if (manaPct < readyPct && !me->HasAura(pInfo->waterBuff))
+    {
+        Item* pItem = BotUtility::FindItemFromAllBag(me, pInfo->waterEntry);
+        if (!pItem)
+            pItem = BotUtility::StoreNewItemByEntry(me, pInfo->waterEntry, 10);
+        if (pItem)
+        {
+            me->StopMoving();
+            if (downMountID && me->IsMounted() && me->HasAura(downMountID))
+                me->RemoveOwnedAura(downMountID, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
+            SpellCastTargets targets;
+            targets.SetTargetMask(0);
+            me->CastItemUseSpell(pItem, targets, ObjectGuid::Empty, 0);// == SpellCastResult::SPELL_CAST_OK)
+            m_LastWaterAura = pInfo->waterBuff;
+        }
+    }
+    return true;
+}
+
+BotAIUsePotion::BotAIUsePotion(Player* self) :me(self),m_NeedMana(true)
+{
+    uint8 cls = me->getClass();
+    if (cls == 1 || cls == 4)
+        m_NeedMana = false;
+
+    m_LifeVials.push_back(PotionInfo(100, 127834));
+    m_LifeVials.push_back(PotionInfo(91, 109223));
+    m_LifeVials.push_back(PotionInfo(85, 76097));
+    m_LifeVials.push_back(PotionInfo(70, 33447));
+    m_LifeVials.push_back(PotionInfo(55, 22829));
+    m_LifeVials.push_back(PotionInfo(45, 13446));
+    m_LifeVials.push_back(PotionInfo(35, 3928));
+    m_LifeVials.push_back(PotionInfo(21, 1710));
+    m_LifeVials.push_back(PotionInfo(12, 929));
+    m_LifeVials.push_back(PotionInfo(3, 858));
+    m_LifeVials.push_back(PotionInfo(1, 118));
+
+    m_ManaVials.push_back(PotionInfo(100, 127835));
+    m_ManaVials.push_back(PotionInfo(90, 109222));
+    m_ManaVials.push_back(PotionInfo(85, 76098));
+    m_ManaVials.push_back(PotionInfo(70, 33448));
+    m_ManaVials.push_back(PotionInfo(55, 22832));
+    m_ManaVials.push_back(PotionInfo(49, 13444));
+    m_ManaVials.push_back(PotionInfo(41, 13443));
+    m_ManaVials.push_back(PotionInfo(31, 6149));
+    m_ManaVials.push_back(PotionInfo(22, 3827));
+    m_ManaVials.push_back(PotionInfo(14, 3385));
+    m_ManaVials.push_back(PotionInfo(5, 2455));
+}
+
+bool BotAIUsePotion::TryUsePotion()
+{
+	if (!me->IsInCombat() || me->IsMounted() || me->HasUnitState(UNIT_STATE_CASTING))
+		return false;
+	if (!m_NeedMana)
+	{
+		float healPct = me->GetHealthPct();
+		if (healPct < 65)
+		{
+			return TryUseLifeVial();
+		}
+	}
+	else if (me->InBattleground())
+	{
+		float manaPer = (float)me->GetPower(POWER_MANA) / (float)me->GetMaxPower(POWER_MANA);
+		if (manaPer * 100 < 15)
+		{
+			return TryUseManaVial();
+		}
+		else if (me->GetHealthPct() < 60)
+		{
+			return TryUseLifeVial();
+		}
+	}
+	else
+	{
+		float healPct = me->GetHealthPct();
+		if (healPct < 30)
+		{
+			return TryUseLifeVial();
+		}
+		else
+		{
+			float per = (float)me->GetPower(POWER_MANA) / (float)me->GetMaxPower(POWER_MANA);
+			float manaPct = per * 100;
+			if (manaPct < 75)
+				return TryUseManaVial();
+		}
+	}
+	return false;
+}
+
+bool BotAIUsePotion::TryUseLifeVial()
+{
+	Item* pItem = FindLifeVial();
+	if (!pItem)
+		return false;
+	SpellCastTargets targets;
+	targets.SetTargetMask(0);
+	/*if (me->CastItemUseSpell(pItem, targets, 0, 0) == SpellCastResult::SPELL_CAST_OK)
+		return true;*/
+	return false;
+}
+
 //bool BotAIUsePotion::TryUseManaVial()
 //{
 //	Item* pItem = FindManaVial();
