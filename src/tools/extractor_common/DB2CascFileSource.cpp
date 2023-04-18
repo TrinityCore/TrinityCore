@@ -26,6 +26,8 @@ DB2CascFileSource::DB2CascFileSource(std::shared_ptr<CASC::Storage const> storag
     _fileName = Trinity::StringFormat("FileDataId: {}", fileDataId);
 }
 
+DB2CascFileSource::~DB2CascFileSource() = default;
+
 bool DB2CascFileSource::IsOpen() const
 {
     return _fileHandle != nullptr;
