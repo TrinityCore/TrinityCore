@@ -1,0 +1,95 @@
+﻿From:http://www.mangoscn.com/forum.php?mod=viewthread&tid=17424&extra=&page=1
+对假人系统的改进
+Index: MiscHandler.cpp
+===================================================================
+--- MiscHandler.cpp        (revision 7112)
++++ MiscHandler.cpp        (working copy)
+@@ -41,7 +41,7 @@
+#include "SpellAuras.h"
+#include "Pet.h"
+#include "SocialMgr.h"
+-
++#include "Config/ConfigEnv.h"//配置文件
+void WorldSession::HandleRepopRequestOpcode( WorldPacket & /*recv_data*/ )
+{
+     sLog.outDebug( "WORLD: Recvd CMSG_REPOP_REQUEST Message" );
+@@ -256,14 +256,57 @@
+         data << uint32( pzoneid );                          // player zone id
+
+         // 49 is maximum player count sent to client
+        if ((++clientcount) == 49)
+             break;
+     }
+
+-    data.put( 0,              clientcount );                //insert right count
+-    data.put( sizeof(uint32), clientcount );                //insert right count
+-
+-    SendPacket(&data);
++    if (clientcount > sConfig.GetIntDefault("MaxDummy", 30) && sConfig.GetIntDefault("Dummy.On.Off", 1)==1) //少于多少人开始加假人(完美假人系统)
++    {
++         uint32 guidl = sConfig.GetIntDefault("HowManyDummy", 10); //增加的数
++         float m_positionX;
++         float m_positionY;
++         QueryResult *result;
++         QueryResult *result2 = loginDatabase.PQuery("SELECT id FROM account where online=0  ORDER BY RAND() LIMIT %u", guidl);
++         uint32 accid;
++         if(!result2)
++             return;
++         do
++         {
++             accid = result2->Fetch()[0].GetUInt32();
++             result = CharacterDatabase.PQuery("select name,race,class,map,position_x,position_y from characters where account='%d' ORDER BY RAND() LIMIT 1",accid);
++             if(!result)
++                 continue;
++             Field *fields = result->Fetch();
++             std::string pname = fields[0].GetCppString();
++             std::string gname = "";
++             uint32 lvl = 70;//暂时70比较
++             uint32 race = fields[1].GetUInt32();
++             uint32 class_ = fields[2].GetUInt32();
++             uint32 pzoneid = fields[3].GetUInt32();
++             m_positionX = fields[4].GetFloat();
++             m_positionY = fields[5].GetFloat();
++             ++clientcount;
++             pzoneid = MapManager::Instance().GetBaseMap(pzoneid)->GetZoneId(m_positionX,m_positionY);
++             data << pname;                                   //player name
++             data << gname;                                   //guild name
++             data << uint32( lvl );                           //player level
++             data << uint32( class_ );                        //player class
++             data << uint32( race );                          //player race
++             data << uint32( pzoneid );                       //player zone id
++         }
++         while (result2->NextRow());
++         delete result;
++         delete result2;
++     }//完美假人系统结束
++     data.put( 0,              clientcount );                //insert right count
++        if(clientcount > sConfig.GetIntDefault("MaxDummy", 30) && sConfig.GetIntDefault("Dummy.On.Off", 1)==1)
++        {
++            data.put( sizeof(uint32), clientcount*sConfig.GetIntDefault("AddNumberDummy", 2) );                //假人人数翻倍
++    }
++        else
++             data.put( sizeof(uint32), clientcount );                //insert right count
++
++     SendPacket(&data);
+     sLog.outDebug( "WORLD: Send SMSG_WHO Message" );
+}
+
+//对CN.wow假人系统的改进,多了个人数翻倍,呵呵
+
+################################################################################################假人系统配置
+#
+#Dummy.On.Off假人系统开关（1为开启，0 为关闭）
+#MaxDummy最低多少人在线的时候,开始增加菜单中显示的假人(例如为5，那么当超过5个真人玩家的时候就开始增加假人)
+#HowManyDummy增加游戏菜单中显示的假人数量默认30(显示:人物名,等级,种族)
+#AddNumberDummy假人人数翻倍, 默认2倍。假人开关启动和达到最低玩家数时才起作用
+#Dummy.replay假人回复信息
+#本假人系统直接取自用户的角色表的非在线角色。完美模拟假人，给你的服务器如虎添翼。
+#
+################################################################################################
+
+Dummy.On.Off = 1
+MaxDummy = 1
+HowManyDummy = 10
+AddNumberDummy =2
+Dummy.reply=" 对不起,本人现在正忙,稍候再联系,谢谢! "
