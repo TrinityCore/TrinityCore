@@ -1,0 +1,54 @@
+﻿http://www.mangoscn.com/forum.php?mod=viewthread&tid=17452&extra=&page=1
+bool ChatHandler::HandleAddjifen(const char* args)
+{
+    Player *chr = getSelectedPlayer();
+    if (chr == NULL)
+    {
+        SendSysMessage(LANG_NO_CHAR_SELECTED);
+        SetSentErrorMessage(true);
+        return false;
+    }
+    int32 addmoney = atoi((char*)args);
+    chr->modifyjifen (addmoney);
+    chr->GetSession()->SendNotification("修改积分成功");            
+    return true;
+}
+
+bool ChatHandler::HandleSeejifen(const char* args)
+{
+    int32 usermoney = m_session->GetPlayer()->getjifen();
+    std::stringstream sstr;
+    std::string a;
+    sstr<<usermoney;
+    sstr>>a;
+    a="您当前积分为"+a;
+    m_session->GetPlayer()->GetSession()->SendNotification(a.c_str());   
+    return true;
+}
+
+还需新增player的两个函数
+
+本部分设定了隐藏,您已回复过了,以下是隐藏的内容
+uint32 Player::getjifen()
+{
+    QueryResult *result;
+    result = loginDatabase.PQuery("select jifen from jf where accid = %u",GetSession()->GetAccountId());
+    if (result)
+    {  
+        uint32 a = result->Fetch()[0].GetUInt32();;
+        delete result;
+        return a;
+    }
+    delete result;
+    return 0;
+}
+
+void Player::modifyjifen(int32 a)
+{
+    int32 moneyuser = getjifen();
+    int32 newmoney = moneyuser + a;
+    if(newmoney<0)
+        loginDatabase.PExecute("update jf set jifen = 0 where accid = %u",GetSession ()->GetAccountId());
+    else
+        loginDatabase.PExecute("update jf set jifen =  %u where accid = %u",newmoney,GetSession ()->GetAccountId());
+}
