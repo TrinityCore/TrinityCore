@@ -1,4 +1,5 @@
-﻿按时间领取积分代码
+﻿http://www.mangoscn.com/forum.php?mod=viewthread&tid=458&extra=page%3D4
+按时间领取积分代码
 case GOSSIP_ACTION_INFO_DEF + 7 :  //按时间领取积分
                       uint32 onlinemax = player->GetMyintConfig("PlayerOnlineTime_Max")*3600; //最长用户在线时间
                           uint32 maxintegral = player->GetMyintConfig("PlayerOnlineDeal_integralmax");
