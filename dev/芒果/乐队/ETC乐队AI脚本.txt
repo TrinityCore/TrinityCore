@@ -1,0 +1,127 @@
+﻿http://www.mangoscn.com/forum.php?mod=viewthread&tid=17454&extra=&page=1
+
+L70ETC乐队AI脚本[SD2 838]
+
+#include "precompiled.h"
+
+struct MANGOS_DLL_DECL l70etc_orcAI : public ScriptedAI
+{
+        uint32 PerformanceChat;
+        uint32 PerformanceEncore;
+        uint32 PerformanceStarted;
+
+        l70etc_orcAI(Creature *c) : ScriptedAI(c) {Reset();}
+
+        void Reset()
+        {
+                PerformanceEncore = 0;
+                m_creature->RemoveAllAuras();
+                m_creature->DeleteThreatList();
+                m_creature->CombatStop();
+                DoGoHome();
+        }
+
+        void DoGoHome()
+        {
+                if( !m_creature->getVictim() && m_creature->isAlive() )
+                m_creature->GetMotionMaster()->MoveTargetedHome();
+        }
+
+        void Aggro(Unit *who)
+        {
+                if(PerformanceStarted < 1)
+                {
+                        DoYell("你们准备好一起尖叫了么？",LANG_UNIVERSAL,NULL);
+                        DoPlaySoundToSet(m_creature,11803);
+                        PerformanceStarted = 1;
+                }
+        }
+
+        void UpdateAI(const uint32 diff, const uint32 diff2)
+        {
+                if (PerformanceChat < diff)
+                {
+                        switch (rand()%5)
+                        {
+                        case 0:
+                                DoYell("狂叫吧,疯狂一把!",LANG_UNIVERSAL,NULL);
+                                break;
+                        case 1:
+                                DoYell("我爱你们我的朋友!",LANG_UNIVERSAL,NULL);
+                                break;
+                        case 2:
+                                DoYell("摇滚吧!",LANG_UNIVERSAL,NULL);
+                                break;
+                        case 3:
+                                DoYell("再疯狂一些!",LANG_UNIVERSAL,NULL);
+                                break;
+                        case 4:
+                                DoYell("我是一个鱼人,鱼人鱼人鱼人,鱼鱼鱼鱼鱼鱼人人人人人人,面对死亡顺应潮流.",LANG_UNIVERSAL,NULL);
+                                DoPlaySoundToSet(m_creature,416);
+                                break;
+                        case 5:
+                                DoYell("没有摇滚的世界我让我怎么活!",LANG_UNIVERSAL,NULL);
+                                break;
+                        }
+                        PerformanceChat = 60000;
+                }else
+                        PerformanceChat -= diff;
+                if(PerformanceEncore < diff2)
+                {
+                        PerformanceEncore -= diff2;
+                }
+                else{
+                        DoYell("准备好一起摇滚吧?",LANG_UNIVERSAL,NULL);
+                        DoPlaySoundToSet(m_creature,11803);
+                        PerformanceStarted = 1;
+                }
+        }
+};
+bool ReceiveEmote_l70etc_orc(Player *player, Creature *_Creature, uint32 emote)
+{
+        _Creature->HandleEmoteCommand(emote);
+        if (emote == EMOTE_STATE_DANCE)
+                ((l70etc_orcAI*)_Creature->AI())->DoYell("尽情舞动吧 $N!",LANG_UNIVERSAL,player);
+        if (emote == EMOTE_ONESHOT_SALUTE)
+                ((l70etc_orcAI*)_Creature->AI())->DoYell("$N 这是属于你的舞台",LANG_UNIVERSAL,player);
+        if(emote == EMOTE_ONESHOT_KISS)
+                ((l70etc_orcAI*)_Creature->AI())->DoYell("$N 再来一次吧",LANG_UNIVERSAL,player);
+        if(emote == EMOTE_ONESHOT_TALK)
+                ((l70etc_orcAI*)_Creature->AI())->DoYell("$N 我现在很忙,等会招呼你哦",LANG_UNIVERSAL,NULL);
+        if(emote == EMOTE_ONESHOT_WAVE)
+                ((l70etc_orcAI*)_Creature->AI())->DoYell("你好吗 $N!",LANG_UNIVERSAL,player);
+        if(emote == EMOTE_ONESHOT_CHEER)
+                ((l70etc_orcAI*)_Creature->AI())->DoYell("唔哦 $N!",LANG_UNIVERSAL,player);
+        if(emote == EMOTE_ONESHOT_RUDE)
+        {
+                ((l70etc_orcAI*)_Creature->AI())->DoYell("给老子滚出去 $N!",LANG_UNIVERSAL,player);
+                player->TeleportTo(0, -14406.6,419.353,22.3907,0);
+        }
+        if(emote == EMOTE_ONESHOT_BEG)
+                ((l70etc_orcAI*)_Creature->AI())->DoYell("嗨!",LANG_UNIVERSAL,player);
+        if(emote == EMOTE_ONESHOT_APPLAUD)
+                ((l70etc_orcAI*)_Creature->AI())->DoYell("谢谢你 $N!",LANG_UNIVERSAL,player);
+        if(emote == EMOTE_ONESHOT_POINT)
+        {
+                ((l70etc_orcAI*)_Creature->AI())->DoYell("你想知道那会是什么地方么? $N",LANG_UNIVERSAL,player);
+                player->TeleportTo(0, -14406.6,419.353,22.3907,0);
+        }
+        if(emote == EMOTE_ONESHOT_TRAIN)
+                ((l70etc_orcAI*)_Creature->AI())->DoYell("到底谁最疯狂呢，答案就是 你!",LANG_UNIVERSAL,NULL);
+        return true;
+}
+
+CreatureAI* GetAI_l70etc_orc(Creature *_Creature)
+{
+    return new l70etc_orcAI (_Creature);
+}
+
+void AddSC_l70etc_orc()
+{
+        Script *newscript;
+        newscript = new Script;
+        newscript->Name="l70etc_orc";
+        newscript->GetAI = &GetAI_l70etc_orc;
+        newscript->pReceiveEmote = &ReceiveEmote_l70etc_orc;
+        newscript->RegisterSelf();
+}
