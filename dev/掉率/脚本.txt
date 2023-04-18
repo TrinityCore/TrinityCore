@@ -1,0 +1,136 @@
+﻿http://www.mangoscn.com/forum.php?mod=viewthread&tid=858&extra=&page=1
+5644最新各颜色掉率系统（待测试）
+
+Index: LootMgr.cpp
+===================================================================
+--- LootMgr.cpp        (revision 5644)
++++ LootMgr.cpp        (working copy)
+@@ -220,7 +220,37 @@
+// RATE_DROP_ITEMS is used for all types of entries
+bool LootStoreItem::Roll() const        
+{
+-    return rand_chance() < chance*sWorld.getRate(RATE_DROP_ITEMS);
++    uint32 quality=0; //各种颜色掉率系统
++
++        // 各种颜色掉率系统
++    ItemPrototype const *pProto = objmgr.GetItemPrototype(itemid); //各种颜色掉率系统
++    if (pProto) quality = pProto->Quality; //各种颜色掉率系统
++        switch (quality)
++            {
++                case QUALITY_POOR:
++                    return rand_chance() < chance*sWorld.getRate(RATE_DROP_POOR);
++                    break;
++                case QUALITY_COMMON:
++                                        return rand_chance() < chance*sWorld.getRate(RATE_DROP_COMMON);
++                    break;
++                case QUALITY_UNCOMMON:
++                                        return rand_chance() < chance*sWorld.getRate(RATE_DROP_UNCOMMON);
++                    break;
++               case QUALITY_RARE:
++                                        return rand_chance() < chance*sWorld.getRate(RATE_DROP_RARE);
++                    break;
++                case QUALITY_EPIC:
++                                        return rand_chance() < chance*sWorld.getRate(RATE_DROP_EPIC);
++                   break;
++                case QUALITY_LEGENDARY:
++                                        return rand_chance() < chance*sWorld.getRate(RATE_DROP_LEGEND);
++                    break;
++                case QUALITY_QUEST:
++                                        return rand_chance() < chance*sWorld.getRate(RATE_DROP_QUEST);
++                    break;
++            }
++           return NULL;//颜色物品掉率结束
++    //return rand_chance() < chance*sWorld.getRate(RATE_DROP_ITEMS);
+}
+
+// Checks correctness of values
+Index: LootMgr.h
+===================================================================
+--- LootMgr.h        (revision 5644)
++++ LootMgr.h        (working copy)
+@@ -46,6 +46,16 @@
+     GROUP_LOOT        = 3,
+     NEED_BEFORE_GREED = 4
+};
++enum LootTypes
++{
++    QUALITY_POOR        = 0,
++    QUALITY_COMMON      = 1,
++    QUALITY_UNCOMMON    = 2,
++    QUALITY_RARE        = 3,
++    QUALITY_EPIC        = 4,
++    QUALITY_LEGENDARY    = 5,
++        QUALITY_QUEST    = 6
++};
+
+enum PermissionTypes
+{
+Index: src/game/World.cpp
+
+===================================================================
+
+--- src/game/World.cpp        (revision 5644)
+
++++ src/game/World.cpp        (working copy)
+
+@@ -328,6 +328,13 @@
+
+     rate_values[RATE_POWER_FOCUS] = sConfig.GetFloatDefault("Rate.Focus", 1);
+     rate_values[RATE_LOYALTY]     = sConfig.GetFloatDefault("Rate.Loyalty", 1);
+     rate_values[RATE_DROP_ITEMS]  = sConfig.GetFloatDefault("Rate.Drop.Items", 1);
++    rate_values[RATE_DROP_POOR]  = sConfig.GetFloatDefault("Rate.Drop.Items.Quality.Poor", 1);
++    rate_values[RATE_DROP_COMMON]  = sConfig.GetFloatDefault("Rate.Drop.Items.Quality.Common", 1);
++    rate_values[RATE_DROP_UNCOMMON]  = sConfig.GetFloatDefault("Rate.Drop.Items.Quality.Uncommon", 1);
++    rate_values[RATE_DROP_RARE]  = sConfig.GetFloatDefault("Rate.Drop.Items.Quality.Rare", 1);
++    rate_values[RATE_DROP_EPIC]  = sConfig.GetFloatDefault("Rate.Drop.Items.Quality.Epic", 1);
++    rate_values[RATE_DROP_LEGEND]  = sConfig.GetFloatDefault("Rate.Drop.Items.Quality.Legendary", 1);
++    rate_values[RATE_DROP_QUEST]  = sConfig.GetFloatDefault("Rate.Drop.Items.Quest", 1);
+     rate_values[RATE_DROP_MONEY]  = sConfig.GetFloatDefault("Rate.Drop.Money", 1);
+     rate_values[RATE_XP_KILL]     = sConfig.GetFloatDefault("Rate.XP.Kill", 1);
+     rate_values[RATE_XP_QUEST]    = sConfig.GetFloatDefault("Rate.XP.Quest", 1);
+Index: src/game/World.h
+
+===================================================================
+
+--- src/game/World.h        (revision 5644)
+
++++ src/game/World.h        (working copy)
+
+@@ -121,6 +121,13 @@
+
+     RATE_POWER_RAGE_LOSS,
+     RATE_POWER_FOCUS,
+     RATE_DROP_ITEMS,
++    RATE_DROP_POOR,
++    RATE_DROP_COMMON,
++    RATE_DROP_UNCOMMON,
++    RATE_DROP_RARE,
++    RATE_DROP_EPIC,
++    RATE_DROP_LEGEND,
++    RATE_DROP_QUEST,
+     RATE_DROP_MONEY,
+     RATE_XP_KILL,
+     RATE_XP_QUEST,
+Index: src/mangosd/mangosd.conf.in
+
+===================================================================
+
+--- src/mangosd/mangosd.conf.in        (revision 5644)
+
++++ src/mangosd/mangosd.conf.in        (working copy)
+
+@@ -311,6 +311,13 @@
+
+# Drop rates
+# Default: 1
+Rate.Drop.Items = 1
++Rate.Drop.Items.Quality.Poor = 1
++Rate.Drop.Items.Quality.Common = 1
++Rate.Drop.Items.Quality.Uncommon = 1
++Rate.Drop.Items.Quality.Rare = 1
++Rate.Drop.Items.Quality.Epic = 1
++Rate.Drop.Items.Quality.Legendary = 1
++Rate.Drop.Items.Quest = 1
+Rate.Drop.Money = 1
+
+# XP rates
