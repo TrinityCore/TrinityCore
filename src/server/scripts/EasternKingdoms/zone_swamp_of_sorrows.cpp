@@ -1,4 +1,4 @@
-///*
+﻿///*
 // * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
 // *
 // * This program is free software; you can redistribute it and/or modify it
@@ -540,85 +540,85 @@
 //    // The name of this function should match:
 //    // void Add${NameOfDirectory}Scripts()
 //}
-    //void AddBrokenIslesScripts()
-    //{
-    //    AddSC_orderhall_warrior();
-    //    AddSC_zone_mardum();
-    //    AddSC_zone_vault_of_wardens();
-    //    AddSC_valsharah();
-    //    AddSC_suramar();
-    //    AddSC_stormheim();
-    //    AddSC_highmountain();
-    //    AddSC_azsuna();
-    //    AddSC_dalaran_legion();
-    //    AddSC_broken_shore();
-    //    AddSC_zone_argus();
-    //    AddSC_zone_argus_antoran_wastes();
-    //    AddSC_zone_argus_krokuun();
-    //    AddSC_zone_argus_macaree();
-    //    AddSC_legion_portal_at_scripts();
-
-    //    // Halls of Valor
-    //    AddSC_instance_halls_of_valor();
-    //    AddSC_halls_of_valor();
-    //    AddSC_boss_odyn_hov();
-    //    AddSC_boss_hyrja();
-    //    AddSC_boss_hymdall();
-    //    AddSC_boss_godking_skovald();
-    //    AddSC_boss_fenryr();
-
-    //    // WorldBoss
-    //    AddSC_boss_apocron();
-    //    AddSC_boss_ana_mouz();
-    //    AddSC_boss_brutallus_legion();
-    //    AddSC_boss_calamir();
-    //    AddSC_boss_drugon_the_frostblood();
-    //    AddSC_boss_flotsam();
-    //    AddSC_boss_humongris();
-    //    AddSC_boss_levantus();
-    //    AddSC_boss_nazak_the_fiend();
-    //    AddSC_boss_nithogg();
-    //    AddSC_boss_sharthos();
-    //    AddSC_boss_the_soultakers();
-    //    AddSC_boss_withered_jim();
-    //    AddSC_boss_malificus();
-
-    //    // Violet Hold
-    //    AddSC_boss_anubesset();
-    //    AddSC_boss_blood_princess_thalena();
-    //    AddSC_boss_fel_lord_betrug();
-    //    AddSC_boss_festerface();
-    //    AddSC_boss_millificient_manastorm();
-    //    AddSC_boss_mind_flayer_kaarhj();
-    //    AddSC_boss_saelorn();
-    //    AddSC_boss_shivermaw();
-    //    AddSC_instance_violet_hold_assault();
-    //    AddSC_violet_hold_assault();
-
-    //    // Court of Stars
-    //    AddSC_boss_patrol_captain_gerdo();
-    //    AddSC_boss_talixae_flamewreath();
-    //    AddSC_boss_advisor_melandrus();
-    //    AddSC_court_of_stars();
-    //    AddSC_instance_court_of_stars();
-
-    //    //Cathedral of Eternal Night
-    //    AddSC_instance_cathedral_of_eternal_night();
-    //    AddSC_boss_agronox();
-    //    AddSC_boss_thrashbite_the_scornful();
-    //    AddSC_boss_domatrax();
-    //    AddSC_boss_mephistroth();
-    //    AddSC_cathedral_of_eternal_night();
-
-    //    // Black Rook Hold
-    //    AddSC_instance_black_rook_hold();
-    //    AddSC_black_rook_hold();
-    //    AddSC_boss_amalgam_of_souls();
-    //    AddSC_boss_illysanna_ravencrest();
-    //    AddSC_boss_smashspite_the_hateful();
-    //    AddSC_boss_lord_kurtalos_ravencrest();
-
-    //// micro hollidays
-    //addsc_auctionhousedanceparty();
-    //AddSC_AuctionHouseDanceParty();
+//    void AddBrokenIslesScripts()
+//    {
+//        AddSC_orderhall_warrior();
+//        AddSC_zone_mardum();
+//        AddSC_zone_vault_of_wardens();
+//        AddSC_valsharah();
+//        AddSC_suramar();
+//        AddSC_stormheim();
+//        AddSC_highmountain();
+//        AddSC_azsuna();
+//        AddSC_dalaran_legion();
+//        AddSC_broken_shore();
+//        AddSC_zone_argus();
+//        AddSC_zone_argus_antoran_wastes();
+//        AddSC_zone_argus_krokuun();
+//        AddSC_zone_argus_macaree();
+//        AddSC_legion_portal_at_scripts();
+//
+//        // Halls of Valor
+//        AddSC_instance_halls_of_valor();
+//        AddSC_halls_of_valor();
+//        AddSC_boss_odyn_hov();
+//        AddSC_boss_hyrja();
+//        AddSC_boss_hymdall();
+//        AddSC_boss_godking_skovald();
+//        AddSC_boss_fenryr();
+//
+//        // WorldBoss
+//        AddSC_boss_apocron();
+//        AddSC_boss_ana_mouz();
+//        AddSC_boss_brutallus_legion();
+//        AddSC_boss_calamir();
+//        AddSC_boss_drugon_the_frostblood();
+//        AddSC_boss_flotsam();
+//        AddSC_boss_humongris();
+//        AddSC_boss_levantus();
+//        AddSC_boss_nazak_the_fiend();
+//        AddSC_boss_nithogg();
+//        AddSC_boss_sharthos();
+//        AddSC_boss_the_soultakers();
+//        AddSC_boss_withered_jim();
+//        AddSC_boss_malificus();
+//
+//        // Violet Hold
+//        AddSC_boss_anubesset();
+//        AddSC_boss_blood_princess_thalena();
+//        AddSC_boss_fel_lord_betrug();
+//        AddSC_boss_festerface();
+//        AddSC_boss_millificient_manastorm();
+//        AddSC_boss_mind_flayer_kaarhj();
+//        AddSC_boss_saelorn();
+//        AddSC_boss_shivermaw();
+//        AddSC_instance_violet_hold_assault();
+//        AddSC_violet_hold_assault();
+//
+//        // Court of Stars
+//        AddSC_boss_patrol_captain_gerdo();
+//        AddSC_boss_talixae_flamewreath();
+//        AddSC_boss_advisor_melandrus();
+//        AddSC_court_of_stars();
+//        AddSC_instance_court_of_stars();
+//
+//        //Cathedral of Eternal Night
+//        AddSC_instance_cathedral_of_eternal_night();
+//        AddSC_boss_agronox();
+//        AddSC_boss_thrashbite_the_scornful();
+//        AddSC_boss_domatrax();
+//        AddSC_boss_mephistroth();
+//        AddSC_cathedral_of_eternal_night();
+//
+//        // Black Rook Hold
+//        AddSC_instance_black_rook_hold();
+//        AddSC_black_rook_hold();
+//        AddSC_boss_amalgam_of_souls();
+//        AddSC_boss_illysanna_ravencrest();
+//        AddSC_boss_smashspite_the_hateful();
+//        AddSC_boss_lord_kurtalos_ravencrest();
+//
+//    // micro hollidays
+//    addsc_auctionhousedanceparty();
+//    AddSC_AuctionHouseDanceParty();
 //}
