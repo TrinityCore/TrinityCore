@@ -1,0 +1,26 @@
+﻿按时间领取积分代码
+case GOSSIP_ACTION_INFO_DEF + 7 :  //按时间领取积分
+                      uint32 onlinemax = player->GetMyintConfig("PlayerOnlineTime_Max")*3600; //最长用户在线时间
+                          uint32 maxintegral = player->GetMyintConfig("PlayerOnlineDeal_integralmax");
+                          uint32 onlinemin = player->GetMyintConfig("PlayerOnlineTime_Min")*3600; //最短用户在线时间
+              uint32 minintegral = player->GetMyintConfig("PlayerOnlineDeal_integralmin");
+                          uint64 guid = player->GetSession()->GetAccountId();
+              uint32 jf = player->GetAccountJf(player->GetSession()->GetAccountId()); //获得用户当前积分
+              uint32 maxadd = maxintegral + jf;
+                          uint32 minadd = minintegral + jf;
+                          if(player->GetLevelPlayedTime() > onlinemin && player->GetLevelPlayedTime() < onlinemax ) // 条件检查你在线时间大于８Ｈ
+                            {
+                                player->SetAccountJf(minadd,guid);
+                            GossipHello_jf_teleport(player,_Creature);
+                                break;
+                        }
+                          else if(player->GetLevelPlayedTime() > onlinemax )
+                            {
+                                player->SetAccountJf(maxadd,guid);
+                            GossipHello_jf_teleport(player,_Creature);
+                                break;
+                        }
+                        else
+                            player->GetSession()->SendAreaTriggerMessage("时间不够");
+                            GossipHello_jf_teleport(player,_Creature);
+                        break;
