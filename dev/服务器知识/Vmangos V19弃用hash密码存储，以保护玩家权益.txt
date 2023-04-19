@@ -1,0 +1,10 @@
+﻿//http://www.mangoscn.com/forum.php?mod=viewthread&tid=221666&extra=page%3D5
+
+Vmangos迎来了新版本更新V19，V19弃用Hash密码，目的就是为了防止模拟器创建者或者服务器管理者（GM）破解hash密码，盗出玩家的真实密码。这一方法值得称赞，做到了公平公正，即使服务器创建者也无法知晓玩家真实密码。但是随之而来的就是给原来的mangos web v4带来了新的难题。web v4通过hash密码进行账号注册和登陆，v19弃用hash密码之后，造成玩家可以在web v4中注册账号，但无法登陆Vmangos v19服务器。
+      介于此种情况，本人在Github中提出相关疑问，得到Vmangos团队的回答，回复如下：
+      “We do not store the whole password. If we did, then the server owner could decrypt the passwords of players. The sha_pass_hash field was removed to make sure this won't happen. The only information needed to know if the user logged in with the right password is the s and v fields. The new repack contains an example registration page you can use. It works using SOAP to create accounts from the mangosd process.”
+        玩家真实密码被分散存放在散列V和S中，Web注册和登陆只有通过新的算法，进行网站操作。这大大增加了网站更新升级难度，相当于密码由原来的128位 hash密钥升级到现在的256位散列密钥，而且真实密码又被分散存放在V和S中。
+        网站和vmangos V19目前唯一的账户管理联系通道就是SOAP和RA，但是使用这两个通道，本人保持绝对的反对意见，因为极其不安全。一旦GM管理员密码泄露，服务器将是毁天灭地，灰飞烟灭，不复存在。本人抛出这个观点，就是想集思广议，封锁SOAP和RA通道，寻求网站和vmangos V19新的账户管理关联通道。或者直白的说，就是逆向解算V和S的密码算法，以方便网站使用新通道安全管理账户密钥。
+
+        补充说明一点，如果逆向解密散列V和S，违背了VMangos团队的初衷，保护玩家密码安全就形同虚设了！
+
