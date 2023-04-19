@@ -1,0 +1,43 @@
+﻿//http://www.mangoscn.com/forum.php?mod=viewthread&tid=207894&extra=page%3D6
+
+物品右键使用没有反应，没有任何触发？该怎么修改？请各位指教！！
+先上一段源码吧
+“
+........
+bool OnUse(Player* player, Item* item, SpellCastTargets const& targets) // Any hook here
+    {
+        player->PlayerTalkClass->ClearMenus(); // Clears old options
+        player->ADD_GOSSIP_ITEM(0, "Morph", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        player->ADD_GOSSIP_ITEM(0, "Demorph", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+        player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, item->GetGUID());
+        return false; // Cast the spell on use normally
+    }
+
+        bool OnGossipSelect(Player* player, Item* item, uint32 sender, uint32 action)
+    {
+        player->PlayerTalkClass->ClearMenus();
+
+        switch (action)
+        {
+            case GOSSIP_ACTION_INFO_DEF + 1:
+                player->SetDisplayId(999);
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 2:
+                player->DeMorph();
+                break;
+        }
+        player->CLOSE_GOSSIP_MENU();
+                return true;
+.......
+“
+
+源码不知道有没有什么问题，但怎么添加都无法触发，一点反应都没有！
+1.   是我的源码有问题么？
+2.   把这个脚本添加到端里就可以了，还需要修改别的源码么？比如  itemhandler..或是misc...的还有什么？
+3.   在数据库如何添加？  是不是添加物品，然后把script添加到item_script_names表么？？？还是别的表？
+
+
+谢谢了。。。有遇到类似问题的朋友帮我解决下，感谢了
+
+
+你还要将脚本名加进数据库,自548起都分隔开item_script_names这个表里头
