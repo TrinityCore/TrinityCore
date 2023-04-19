@@ -268,7 +268,7 @@ public:
                     }
                     else
                         pet->ToCreature()->AI()->AttackStart(GetExplTargetUnit());
-                    //pet->CastSpell(GetExplTargetUnit(), SPELL_HUNTER_KILL_COMMAND_CHARGE, true);
+                    pet->CastSpell(GetExplTargetUnit(), SPELL_HUNTER_KILL_COMMAND_CHARGE, true);
 
                    //191384 Aspect of the Beast 
                     if (GetCaster()->HasAura(AspectoftheBeast))
