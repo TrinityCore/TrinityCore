@@ -22,17 +22,17 @@
  */
 
 #include "ScriptMgr.h"
-#include "CellImpl.h" //���Ǹ�ɶ
+#include "CellImpl.h" 
 #include "GridNotifiersImpl.h"
 #include "Pet.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "SpellScript.h"
 
-enum HunterSpells   //ö�����˼���
+enum HunterSpells   
 {
-    SPELL_HUNTER_HARPOON = 190925,//���?
-    SPELL_HUNTER_HARPOON_ROOT = 190927,//���**?
+    SPELL_HUNTER_HARPOON = 190925,
+    SPELL_HUNTER_HARPOON_ROOT = 190927,
     SPELL_HUNTER_ANIMAL_INSTINCTS = 204315,
     SPELL_HUNTER_ANIMAL_INSTINCTS_CHEETAH = 204324,
     SPELL_HUNTER_ANIMAL_INSTINCTS_MONGOOSE = 204333,
@@ -101,7 +101,7 @@ enum HunterSpells   //ö�����˼���
     SPELL_HUNTER_LETHAL_SHOTS                       = 260393,
     SPELL_HUNTER_CALLING_THE_SHOTS                  = 260404,
     SPELL_HUNTER_TRUESHOT                           = 288613,
-    //�Ϸ�ΪKyrian��
+    //Kyrian
 
     SPELL_HUNTER_A_MURDER_OF_CROWS_DAMAGE           = 131900,
     SPELL_HUNTER_A_MURDER_OF_CROWS_VISUAL_1         = 131637,
@@ -118,9 +118,9 @@ enum HunterSpells   //ö�����˼���
     SPELL_HUNTER_MISDIRECTION_PROC                  = 35079,
     SPELL_HUNTER_MULTI_SHOT_FOCUS                   = 213363,
     SPELL_HUNTER_PET_LAST_STAND_TRIGGERED           = 53479,
-    SPELL_HUNTER_KILL_COMMAND                       = 34026,        //ɱ¾����,���
-    SPELL_HUNTER_KILL_COMMAND_CHARGE                = 118171,       //ɱ¾����,���
-    SPELL_HUNTER_KILL_COMMAND_TRIGGER               = 83381,        //ɱ¾����,���
+    SPELL_HUNTER_KILL_COMMAND                       = 34026,        
+    SPELL_HUNTER_KILL_COMMAND_CHARGE                = 118171,       
+    SPELL_HUNTER_KILL_COMMAND_TRIGGER               = 83381,        
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED = 54114,
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF    = 55711,
     SPELL_HUNTER_POSTHASTE_INCREASE_SPEED           = 118922,
@@ -130,7 +130,7 @@ enum HunterSpells   //ö�����˼���
     SPELL_ROAR_OF_SACRIFICE_TRIGGERED               = 67481
 };
 
-enum DireBeastSpells    //���
+enum DireBeastSpells    //
 {
     DIRE_BEAST_DREAD_WASTES                         = 126216,
     DIRE_BEAST_DUNGEONS                             = 132764,
@@ -234,7 +234,6 @@ public:
                 return SPELL_FAILED_NO_PET;
 
             // pet has a target and target is within 5 yards and target is in line of sight
-            // �������и�Ŀ�꣬����Ŀ����5�뷶Χ������ֱ��������
            
             if (!petTarget || !pet->IsWithinDist(petTarget, 40.0f, true) || !petTarget->IsWithinLOSInMap(pet))
                 return SPELL_FAILED_DONT_REPORT;
@@ -757,7 +756,7 @@ class spell_hun_steady_shot : public SpellScript
     }
 };
 
-// 1515 - Tame Beast    //ԭ��    //����ѱ������,ץ����
+// 1515 - Tame Beast    //ԭ    //ѱ,ץ
 class spell_hun_tame_beast : public SpellScript 
 {
     PrepareSpellScript(spell_hun_tame_beast);
@@ -782,9 +781,9 @@ class spell_hun_tame_beast : public SpellScript
 
         if (Creature* target = GetExplTargetUnit()->ToCreature())
         {
-            //�˴�ע��,����ȡ������ץ����,��ʾ�ȼ�����.��Ҳ��������������ץ�ߵȼ�����.
+            //˴ע,ȡץ,ʾȼ.Ҳץߵȼ.
             //if (target->GetLevel() > caster->GetLevel())
-            //    return SPELL_FAILED_HIGHLEVEL;//����ѱ��ʧ��,�ȼ�����
+            //    return SPELL_FAILED_HIGHLEVEL;//ѱʧ,ȼ
 
             // use SMSG_PET_TAME_FAILURE?
             if (!target->GetCreatureTemplate()->IsTameable(caster->CanTameExoticPets()))
@@ -836,7 +835,7 @@ class spell_hun_tame_beast : public SpellScript
     }
 };
 
-// 1515 - Tame Beast    //Kyrian��
+// 1515 - Tame Beast    //Kyrian
 //class spell_hun_tame_beast : public SpellScriptLoader
 //{
 //public:
