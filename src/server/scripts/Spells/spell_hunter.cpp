@@ -111,7 +111,6 @@ enum HunterSpells
     SPELL_HUNTER_EXHILARATION                       = 109304,
     SPELL_HUNTER_EXHILARATION_PET                   = 128594,
     SPELL_HUNTER_EXHILARATION_R2                    = 231546,
-//    SPELL_HUNTER_EXPLOSIVE_SHOT_DAMAGE              = 212680,
     SPELL_HUNTER_LONE_WOLF                          = 155228,
     SPELL_HUNTER_MASTERS_CALL_TRIGGERED             = 62305,
     SPELL_HUNTER_MISDIRECTION                       = 34477,
@@ -127,7 +126,7 @@ enum HunterSpells
     SPELL_HUNTER_POSTHASTE_TALENT                   = 109215,
     SPELL_HUNTER_STEADY_SHOT_FOCUS                  = 77443,
     SPELL_HUNTER_T9_4P_GREATNESS                    = 68130,
-    SPELL_ROAR_OF_SACRIFICE_TRIGGERED               = 67481
+    SPELL_ROAR_OF_SACRIFICE_TRIGGERED               = 67481,
 };
 
 enum DireBeastSpells    //
