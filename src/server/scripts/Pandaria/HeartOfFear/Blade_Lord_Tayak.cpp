@@ -1,9 +1,10 @@
-//
+﻿//
 //#include "ObjectMgr.h"
 //#include "Player.h"
 //#include "ScriptMgr.h"
 //#include "ScriptedCreature.h"
 //#include "AchievementMgr.h"
+//#include "TemporarySummon.h"
 //
 //enum Spells
 //{
@@ -94,7 +95,7 @@
 //		boss_lord_tayakAI(Creature* creature) : BossAI(creature, 0)
 //		{
 //			me->SetLevel(94);
-//			me->setFaction(16);
+//			me->SetFaction(16);
 //			me->SetSpeed(MOVE_RUN, 3.5f, true);
 //			me->SetSpeed(MOVE_FLIGHT, 3.5f, true);
 //
@@ -150,20 +151,22 @@
 //			DoPlaySoundToSet(me, 29252);
 //
 //			// Events
-//			events.ScheduleEvent(EVENT_UNSEEN_STRIKE, 60000);
-//			events.ScheduleEvent(EVENT_TEMPEST_SLASH, 10000);
-//			events.ScheduleEvent(EVENT_WIND_STEP, 14000);
-//			events.ScheduleEvent(EVENT_INTENSIFY, 30000);
-//			events.ScheduleEvent(EVENT_UNSEEN_STRIKE, 24000);
-//			events.ScheduleEvent(EVENT_OVERWHELMING_ASSAULT, 30000);
+//            events.ScheduleEvent(EVENT_UNSEEN_STRIKE,Milliseconds (60000));
+//            events.ScheduleEvent(EVENT_TEMPEST_SLASH, Milliseconds(10000));
+//            events.ScheduleEvent(EVENT_WIND_STEP, Milliseconds(14000));
+//            events.ScheduleEvent(EVENT_INTENSIFY, Milliseconds(30000));
+//            events.ScheduleEvent(EVENT_UNSEEN_STRIKE, Milliseconds(24000));
+//            events.ScheduleEvent(EVENT_OVERWHELMING_ASSAULT, Milliseconds(30000));
 //            // 8:15 minutes Enrage timer
-//            events.ScheduleEvent(EVENT_TAYAK_BERSERK, 495000);
+//            events.ScheduleEvent(EVENT_TAYAK_BERSERK, Milliseconds(495000));
 //
 //			// Spawn door -- vizier entrance middle
-//			me->SummonGameObject(183847, -2187.371857f, 281.407440f, 423.931305f, 0.008068f, 0,0,0,0,0,0);
+//			//me->SummonGameObject(183847, -2187.371857f, 281.407440f, 423.931305f, 0.008068f, 0,0,0,0,0,0);
+//            me->SummonGameObject(183847, -2187.371857f, 281.407440f, 423.931305f, 0.008068f,  QuaternionData::QuaternionData(), Seconds(0), GO_SUMMON_TIMED_OR_CORPSE_DESPAWN);
 //
 //			// Spawn other exit door
-//			me->SummonGameObject(180322, -2120.730957f, 385.181702f, 422.534668f, 1.507048f, 0,0,0,0,0,0);
+//			//me->SummonGameObject(180322, -2120.730957f, 385.181702f, 422.534668f, 1.507048f, 0,0,0,0,0,0);
+//            me->SummonGameObject(180322, -2120.730957f, 385.181702f, 422.534668f, 1.507048f,  QuaternionData::QuaternionData(), Seconds(0), GO_SUMMON_TIMED_OR_CORPSE_DESPAWN);
 //
 //		}
 //		void JustReachedHome()
@@ -193,7 +196,7 @@
 //				events.CancelEvent(EVENT_TEMPEST_SLASH);
 //				events.CancelEvent(EVENT_UNSEEN_STRIKE);
 //				events.CancelEvent(EVENT_OVERWHELMING_ASSAULT);
-//				events.ScheduleEvent(EVENT_INTENSIFY, 30000);
+//                events.ScheduleEvent(EVENT_INTENSIFY, Milliseconds(30000));
 //
 //				me->DespawnCreaturesInArea(9432545); // despawns tornados	
 //
@@ -206,7 +209,7 @@
 //					if (BS)
 //						BS->SetDuration(10000000);
 //				}
-//				events.ScheduleEvent(SIDE_A_TORNADO, 1000);
+//                events.ScheduleEvent(SIDE_A_TORNADO, Milliseconds(1000));
 //
 //				me->SummonCreature(PHASE_2_DEACTIVATE_TRIGGER, -2111.67f, 350.64f, 420.899994f);
 //			}
@@ -220,7 +223,7 @@
 //				me->DespawnCreaturesInArea(9432545);
 //				me->DespawnCreaturesInArea(PHASE_2_DEACTIVATE_TRIGGER);
 //
-//				events.ScheduleEvent(SIDE_B_TORNADO, 1000);
+//                events.ScheduleEvent(SIDE_B_TORNADO, Milliseconds(1000));
 //
 //				me->SummonCreature(PHASE_2_DEACTIVATE_TRIGGER, -2112.29f, 208.94f, 420.899994f);
 //			}
@@ -239,7 +242,8 @@
 //					// Phase 2
 //				case SIDE_A_TORNADO:
 //				{
-//					me->SummonGameObject(180322, -2139.68f, 223.62f, 421.404f, 3.178375f, 0, 0, 0, 0, 0, 0);
+//                    /*
+//					me->SummonGameObject(180322, -2139.68f, 223.62f, 421.404f, 3.178375f, QuaternionData::QuaternionData(), Seconds(0), GO_SUMMON_TIMED_OR_CORPSE_DESPAWN);
 //					me->SummonGameObject(180322, -2139.68f, 223.62f, 421.404f, 3.178375f, 0, 0, 0, 0, 0, 0);
 //					me->SummonGameObject(180322, -2131.85f, 282.05f, 420.900f, 3.209791f, 0, 0, 0, 0, 0, 0);
 //					me->SummonGameObject(180322, -2129.44f, 254.02f, 421.064f, 3.166596f, 0, 0, 0, 0, 0, 0);
@@ -253,6 +257,22 @@
 //					me->SummonGameObject(180322, -2109.89f, 285.44f, 420.900f, 6.245404f, 0, 0, 0, 0, 0, 0);
 //					me->SummonGameObject(180322, -2109.40f, 235.82f, 420.900f, 6.245404f, 0, 0, 0, 0, 0, 0);
 //					me->SummonGameObject(180322, -2110.26f, 213.09f, 420.900f, 6.245404f, 0, 0, 0, 0, 0, 0);
+//                    */
+//
+//                    me->SummonGameObject(180322, -2139.68f, 223.62f, 421.404f, 3.178375f, QuaternionData::QuaternionData(), Seconds(0), GO_SUMMON_TIMED_OR_CORPSE_DESPAWN);
+//                    me->SummonGameObject(180322, -2139.68f, 223.62f, 421.404f, 3.178375f, QuaternionData::QuaternionData(), Seconds(0), GO_SUMMON_TIMED_OR_CORPSE_DESPAWN);
+//                    me->SummonGameObject(180322, -2131.85f, 282.05f, 420.900f, 3.209791f, QuaternionData::QuaternionData(), Seconds(0), GO_SUMMON_TIMED_OR_CORPSE_DESPAWN);
+//                    me->SummonGameObject(180322, -2129.44f, 254.02f, 421.064f, 3.166596f, QuaternionData::QuaternionData(), Seconds(0), GO_SUMMON_TIMED_OR_CORPSE_DESPAWN);
+//                    me->SummonGameObject(180322, -2127.97f, 195.09f, 421.626f, 3.166596f, QuaternionData::QuaternionData(), Seconds(0), GO_SUMMON_TIMED_OR_CORPSE_DESPAWN);
+//                    me->SummonGameObject(180322, -2128.41f, 310.90f, 420.900f, 3.116169f, QuaternionData::QuaternionData(), Seconds(0), GO_SUMMON_TIMED_OR_CORPSE_DESPAWN);
+//                    me->SummonGameObject(180322, -2130.58f, 338.06f, 420.900f, 3.087918f, QuaternionData::QuaternionData(), Seconds(0), GO_SUMMON_TIMED_OR_CORPSE_DESPAWN);
+//                    me->SummonGameObject(180322, -2107.83f, 339.86f, 420.900f, 6.245404f, QuaternionData::QuaternionData(), Seconds(0), GO_SUMMON_TIMED_OR_CORPSE_DESPAWN);
+//                    me->SummonGameObject(180322, -2108.99f, 309.15f, 421.056f, 6.245404f, QuaternionData::QuaternionData(), Seconds(0), GO_SUMMON_TIMED_OR_CORPSE_DESPAWN);
+//                    me->SummonGameObject(180322, -2109.89f, 285.44f, 420.900f, 6.245404f, QuaternionData::QuaternionData(), Seconds(0), GO_SUMMON_TIMED_OR_CORPSE_DESPAWN);
+//                    me->SummonGameObject(180322, -2110.79f, 261.65f, 420.900f, 6.245404f, QuaternionData::QuaternionData(), Seconds(0), GO_SUMMON_TIMED_OR_CORPSE_DESPAWN);
+//                    me->SummonGameObject(180322, -2109.89f, 285.44f, 420.900f, 6.245404f, QuaternionData::QuaternionData(), Seconds(0), GO_SUMMON_TIMED_OR_CORPSE_DESPAWN);
+//                    me->SummonGameObject(180322, -2109.40f, 235.82f, 420.900f, 6.245404f, QuaternionData::QuaternionData(), Seconds(0), GO_SUMMON_TIMED_OR_CORPSE_DESPAWN);
+//                    me->SummonGameObject(180322, -2110.26f, 213.09f, 420.900f, 6.245404f, QuaternionData::QuaternionData(), Seconds(0), GO_SUMMON_TIMED_OR_CORPSE_DESPAWN); 
 //				
 //					if (MotionMaster* motion = me->GetMotionMaster())
 //					{
@@ -263,7 +283,7 @@
 //						me->CastSpell(me ,125310);
 //
 //
-//						events.ScheduleEvent(EVENT_DRAG_ALL_SIDE_A, 3000);
+//                        events.ScheduleEvent(EVENT_DRAG_ALL_SIDE_A, Milliseconds(3000));
 //					}
 //				}
 //					break;
@@ -282,12 +302,12 @@
 //							if (!(*it))
 //								return;
 //
-//							(*it)->SummonCreature(PHASE_2_RIGHT_TRONADO, (*it)->GetPositionX(), (*it)->GetPositionY(), (*it)->GetPositionZ(), (*it)->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 4000);
+//                            (*it)->SummonCreature(PHASE_2_RIGHT_TRONADO, (*it)->GetPositionX(), (*it)->GetPositionY(), (*it)->GetPositionZ(), (*it)->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, Milliseconds(4000));
 //						}
 //
 //						motion->MovePoint(1, -2119.229248f, 185.237350f, 422.161530f); // actual position
-//						events.ScheduleEvent(DISABLE_MOVEMENT, 2500);
-//						events.ScheduleEvent(SUMMON_TORNADO_A, 1000);
+//                        events.ScheduleEvent(DISABLE_MOVEMENT, Milliseconds(2500));
+//                        events.ScheduleEvent(SUMMON_TORNADO_A, Milliseconds(1000));
 //					}	
 //					break;
 //				}
@@ -305,7 +325,7 @@
 //
 //						me->CastSpell(me, 125310);
 //
-//						events.ScheduleEvent(EVENT_DRAG_ALL_SIDE_B, 3000);
+//                        events.ScheduleEvent(EVENT_DRAG_ALL_SIDE_B, Milliseconds(3000));
 //					}
 //					break;
 //				case EVENT_DRAG_ALL_SIDE_B:
@@ -323,12 +343,12 @@
 //							if (!(*it))
 //								return;
 //
-//							(*it)->SummonCreature(PHASE_2_LEFT_TRONADO, (*it)->GetPositionX(), (*it)->GetPositionY(), (*it)->GetPositionZ(), (*it)->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 4000);
+//                            (*it)->SummonCreature(PHASE_2_LEFT_TRONADO, (*it)->GetPositionX(), (*it)->GetPositionY(), (*it)->GetPositionZ(), (*it)->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, Milliseconds(4000));
 //						}
 //
 //						motion->MovePoint(1, -2118.701416f, 380.399536f, 422.161560f); // actual position _ 2
-//						events.ScheduleEvent(DISABLE_MOVEMENT, 2500);
-//						events.ScheduleEvent(SUMMON_TORNADO_B, 1000);
+//                        events.ScheduleEvent(DISABLE_MOVEMENT, Milliseconds(2500));
+//                        events.ScheduleEvent(SUMMON_TORNADO_B, Milliseconds(1000));
 //					}
 //					break;
 //				}
@@ -338,28 +358,28 @@
 //					{
 //					case 0:
 //					{
-//						Creature* L = me->SummonCreature(PHASE_2_RIGHT_TRONADO, -2111.67f, 210.71f, 420.900f, 1.630864f, TEMPSUMMON_TIMED_DESPAWN, 10000);
+//						Creature* L = me->SummonCreature(PHASE_2_RIGHT_TRONADO, -2111.67f, 210.71f, 420.900f, 1.630864f, TEMPSUMMON_TIMED_DESPAWN,Milliseconds (10000));
 //						if (MotionMaster* motion = L->GetMotionMaster())
 //							motion->MovePoint(1, -2111.67f, 350.64f, 420.899994f);
 //						break;
 //					}
 //					case 1:
 //					{
-//						Creature* R = me->SummonCreature(PHASE_2_RIGHT_TRONADO, -2127.37f, 209.73f, 420.900f, 1.560178f, TEMPSUMMON_TIMED_DESPAWN, 10000);
+//						Creature* R = me->SummonCreature(PHASE_2_RIGHT_TRONADO, -2127.37f, 209.73f, 420.900f, 1.560178f, TEMPSUMMON_TIMED_DESPAWN,Milliseconds (10000));
 //						if (MotionMaster* motion = R->GetMotionMaster())
 //							motion->MovePoint(1, -2127.03f, 352.90f, 420.899994f);
 //						break;
 //					}
 //					case 2:
 //					{
-//						Creature* F = me->SummonCreature(PHASE_2_RIGHT_TRONADO, -2118.90f, 209.96f, 420.900f, 1.591594f, TEMPSUMMON_TIMED_DESPAWN, 10000);
+//						Creature* F = me->SummonCreature(PHASE_2_RIGHT_TRONADO, -2118.90f, 209.96f, 420.900f, 1.591594f, TEMPSUMMON_TIMED_DESPAWN,Milliseconds (10000));
 //						if (MotionMaster* motion = F->GetMotionMaster())
 //							motion->MovePoint(1, -2119.54f, 358.99f, 420.900330f);
 //						break;
 //					}
 //					}
 //	
-//					events.ScheduleEvent(SUMMON_TORNADO_A, urand(1500, 2500));
+//                    events.ScheduleEvent(SUMMON_TORNADO_A, Milliseconds(urand(1500, 2500)));
 //				}
 //					break;
 //				case SUMMON_TORNADO_B:
@@ -368,28 +388,28 @@
 //					{
 //					case 0:
 //					{
-//						Creature* L = me->SummonCreature(PHASE_2_LEFT_TRONADO, -2111.67f, 350.64f, 420.899994f, me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 10000);
+//						Creature* L = me->SummonCreature(PHASE_2_LEFT_TRONADO, -2111.67f, 350.64f, 420.899994f, me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN,Milliseconds (10000));
 //						if (MotionMaster* motion = L->GetMotionMaster())
 //							motion->MovePoint(1, -2112.29f, 208.94f, 420.899994f);
 //						break;
 //					}
 //					case 1:
 //					{
-//						Creature* R = me->SummonCreature(PHASE_2_LEFT_TRONADO, -2127.03f, 352.90f, 420.899994f, me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 10000);
+//						Creature* R = me->SummonCreature(PHASE_2_LEFT_TRONADO, -2127.03f, 352.90f, 420.899994f, me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN,Milliseconds (10000));
 //						if (MotionMaster* motion = R->GetMotionMaster())
 //							motion->MovePoint(1, -2128.49f, 214.93f, 420.899994f);
 //						break;
 //					}
 //					case 2:
 //					{
-//						Creature* F = me->SummonCreature(PHASE_2_LEFT_TRONADO, -2119.54f, 358.99f, 420.900330f, me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 10000);
+//                        Creature* F = me->SummonCreature(PHASE_2_LEFT_TRONADO, -2119.54f, 358.99f, 420.900330f, me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN,Milliseconds (10000));
 //						if (MotionMaster* motion = F->GetMotionMaster())
 //							motion->MovePoint(1, -2118.81f, 206.04f, 420.900330f);
 //						break;
 //					}
 //					}
 //					
-//					events.ScheduleEvent(SUMMON_TORNADO_B, urand(1500, 2500));
+//                    events.ScheduleEvent(SUMMON_TORNADO_B, Milliseconds(urand(1500, 2500)));
 //				}
 //					break;
 //					// Phase 1
@@ -397,14 +417,14 @@
 //				case EVENT_TEMPEST_SLASH:
 //					me->CastSpell(me, TEMPEST_SLASH_ADDON_SPELL);
 //
-//					events.ScheduleEvent(EVENT_TEMPEST_SLASH, 16000);
-//					events.ScheduleEvent(EVENT_TEMPEST_SLASH_SUMMON, 2500);
+//                    events.ScheduleEvent(EVENT_TEMPEST_SLASH, Milliseconds(16000));
+//                    events.ScheduleEvent(EVENT_TEMPEST_SLASH_SUMMON, Milliseconds(2500));
 //					break;
 //				case EVENT_TEMPEST_SLASH_SUMMON:
 //				{
 //					Creature* Tornado = me->SummonCreature(TEMPEST_SLASH_TRIGGER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
 //
-//                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 20, true))
+//                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 20, true))
 //                    {
 //                        if (MotionMaster* motion = Tornado->GetMotionMaster())
 //                        {
@@ -415,10 +435,10 @@
 //				}
 //					// Random Shadow Step
 //				case EVENT_WIND_STEP:
-//					if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 20, true))
+//					if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 20, true))
 //					{
 //						me->CastSpell(target, WIND_STEP);
-//						events.ScheduleEvent(EVENT_WIND_STEP, 17000);
+//                        events.ScheduleEvent(EVENT_WIND_STEP, Milliseconds(17000));
 //					}
 //					break;
 //				case EVENT_INTENSIFY:
@@ -437,10 +457,10 @@
 //							aura_B->SetStackAmount(aura_B->GetStackAmount() + 1);
 //						}
 //					}
-//					events.ScheduleEvent(EVENT_INTENSIFY, 30000);
+//                    events.ScheduleEvent(EVENT_INTENSIFY, Milliseconds(30000));
 //					break;
 //				case EVENT_UNSEEN_STRIKE:
-//					if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 20, true))
+//					if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 20, true))
 //					{
 //						events.CancelEvent(EVENT_WIND_STEP);
 //						events.CancelEvent(EVENT_TEMPEST_SLASH);
@@ -448,11 +468,11 @@
 //                        me->MonsterTextEmote("Blade Lord Ta'yak marks a player with [Unseen Strike]", me->GetGUID(), true);
 //
 //						me->AddAura(SPELL_UNSEEN_STRIKE_TARGET, target);			
-//						events.ScheduleEvent(EVENT_UNSEEN_STRIKE_DMG, 6000);
+//                        events.ScheduleEvent(EVENT_UNSEEN_STRIKE_DMG, Milliseconds(6000));
 //
-//						events.ScheduleEvent(EVENT_UNSEEN_STRIKE, 80000);
-//						events.ScheduleEvent(EVENT_WIND_STEP, 14000);
-//						events.ScheduleEvent(EVENT_TEMPEST_SLASH, 10000);
+//                        events.ScheduleEvent(EVENT_UNSEEN_STRIKE, Milliseconds(80000));
+//						events.ScheduleEvent(EVENT_WIND_STEP, Milliseconds(14000);
+//                        events.ScheduleEvent(EVENT_TEMPEST_SLASH, Milliseconds(10000));
 //					}
 //					break;
 //				case EVENT_UNSEEN_STRIKE_DMG:
@@ -478,7 +498,7 @@
 //				}
 //				case EVENT_OVERWHELMING_ASSAULT:
 //					me->CastSpell(me->getVictim(), OVERWHELMING_ASSAULT);
-//					events.ScheduleEvent(EVENT_OVERWHELMING_ASSAULT, urand(25000, 30000));
+//                    events.ScheduleEvent(EVENT_OVERWHELMING_ASSAULT, Milliseconds(urand(25000, 30000)));
 //					break;
 //                case EVENT_TAYAK_BERSERK: // Nasty if you're here!
 //                {
@@ -648,7 +668,7 @@
 //		void Reset()
 //		{
 //			me->SetSpeed(MOVE_RUN, 2.0F, true);
-//			me->setFaction(me->getFaction());
+//			me->SetFaction(me->GetFaction());
 //			me->AddAura(TEMPEST_SLASH_TRIGGER_VISUAL, me);
 //
 //            effectcanstart = 3000;
@@ -761,7 +781,7 @@
 //			Fetch = false;
 //
 //			me->SetSpeed(MOVE_RUN, 3.0F, true);
-//			me->setFaction(me->getFaction());
+//			me->SetFaction(me->GetFaction());
 //			me->AddAura(TEMPEST_SLASH_TRIGGER_VISUAL, me);
 //		}
 //		void UpdateAI(uint32 const diff)
@@ -851,7 +871,7 @@
 //			Fetch = false;
 //
 //			me->SetSpeed(MOVE_RUN, 3.0F, true);
-//			me->setFaction(me->getFaction());
+//			me->SetFaction(me->GetFaction());
 //			me->AddAura(TEMPEST_SLASH_TRIGGER_VISUAL, me);
 //		}
 //
@@ -904,7 +924,7 @@
 //							if (MotionMaster* motion = (*it)->GetMotionMaster())
 //							{
 //									(*it)->SetSpeed(MOVE_RUN, 4.0f);
-//									me->DespawnOrUnsummon(1000);
+//                                    me->DespawnOrUnsummon(Milliseconds(1000));
 //									(*it)->AddAura(37640, (*it));
 //									(*it)->AddAura(TEMPEST_SLASH_TRIGGER_VISUAL, (*it));
 //									motion->MovePoint(1, -2119.329102f, 184.325562f, 422.161896f);
