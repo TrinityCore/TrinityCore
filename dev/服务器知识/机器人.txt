@@ -1,0 +1,97 @@
+﻿V19 是机器人端吗？有没有新增野外 和 拍卖行机器人
+
+V19自带三种机器人，一种玩家机器人playerbot;一种组队机器人partybot，一种战场机器人battlebot。
+playerbot和K3机器人工作原理相同，利用玩家自建的角色作为机器人，但是此机器人目前功能不完善，无法正常使用。一是此机器人需要指定AI脚本，否则和木桩没区别；二是此机器人召唤同一账号下的其它角色就强制断线退出游戏了。
+partybot可以正常使用，正常组队，可以同玩家一同成长，可以穿着装绑装备，可以指定预设装备、预设法术、预设天赋。预设项目只有19级、29级、39级、49级、60级，其它等级需要模拟器创建都自行编写脚本，写入游戏数据库player_premade_item_template中的name字段中，方可使用。比如1级预设，比如11级预设等。
+ahbot机器人可以正常使用，可以在mangos.conf中设置ah机器人出现在位置，售卖的品种数量等等。比如只出现在中立拍卖行如加基森、藏宝海湾、冬泉谷，或者是出在联盟阵营中，出现在部落阵营中。
+
+这不就是四种机器人了：playerbot，partybot，battlebot，ahbot。
+
+哥们知道V19 怎么使用机器人吗？
+
+第一种 PVE机器人
+
+.partybot add warrior 添加战士机器人
+.partybot add priest 添加牧师机器人
+.partybot add mage 添加法师机器人
+.partybot add druid 添加德鲁伊机器人
+.partybot add rogue 添加盗贼机器人
+.partybot add warlock 添加术士机器人
+.partybot add paladin 添加圣骑士机器人
+.partybot add shaman 添加萨满祭司机器人
+.partybot add hunter 添加猎人机器人
+.partybot add dps 添加输出机器人
+.partybot add healer 添加治疗机器人
+.partybot add tank 添加坦克机器人
+.partybot clone 克隆目标机器人
+.partybot setrole dps/tank/healer 设置机器人角色为dps/tank/healer
+.partybot remove 移除机器人
+
+.partybot add mage 50 mage是法师 50是等级
+
+.party add tank     召唤MT
+.party add healer   召唤疗
+.party add dps      召唤DPS
+
+什么，召唤出来没装备
+
+.char premade gear tank-phase6-bis 给他MT装备（毕业装）
+.char premade spec tank-phase6-bis 给他MT天赋
+
+.char premade gear heal-phase6-bis 给他治疗装备（毕业装）
+.char premade spec heal-phase6-bis 给他治疗天赋
+
+
+.char premade gear dps-phase6-bis 给他DPS装备（毕业装）
+.char premade spec dps-phase6-bis 给他DPS天赋
+
+
+.char premade gear dps-phase6-bis 里phase6换成preraid ，装备就是蓝绿装
+
+有了装备，有了天赋，机器人很智能，你攻击谁，他们打谁，你被谁打。他们打谁。哈哈
+
+如果你觉得不够，还有些辅助命令
+
+.party attackstart 机器人攻击你当前目标
+
+.party attackstop 机器人停止攻击
+
+.party cometome 机器人向我靠拢
+
+还可以自己建一个人，自己配好装备，天赋，双开一个号，选中你建的这个人
+
+.party clone    就可以复制一个机器人跟你建的那个人一样装备和天赋了。
+
+
+第二种 PVP机器人
+
+.go arathi 玩家排阿拉希
+.go warsong 玩家排战歌
+.go alterac 玩家排奥山
+.battlebot add arathi horde 阿拉希增加部落机器人排队
+.battlebot add arathi alliance 阿拉希增加联盟机器人排队
+.battlebot add warsong horde 战歌增加部落排队
+.battlebot add warsong alliance 战歌增加联盟排队
+.battlebot add alterac horde 奥山增加部落排队
+.battlebot add alterac alliance 奥山增加联盟排队
+
+
+第三种 未知机器人
+
+这个应该是玩家机器人
+命令以
+.bot 开头。
+有这个系统，但好像没什么效果
+比如 .bot add 另一个账号里的角色（为什么是另一个账号，因为调当前帐号，你就掉线了。）
+有提示，但没有机器人建立。
+用.bot add_all 有一个机器人会出现。但很快就消失了。这个还有待研究。
+
+
+最后说一句，很多人说角色无敌。不能被打死。这个说明你登陆的是GM账号。
+用.cheat god off 关掉。就正常了。
+
+至于机器人PK，建立对方阵营机器人。我也不会。有知道的告诉我一声。谢谢！
+
+
+
+
