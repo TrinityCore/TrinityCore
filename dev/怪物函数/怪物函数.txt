@@ -1,0 +1,50 @@
+﻿怪物函数资料
+http://www.mangoscn.com/forum.php?mod=viewthread&tid=205188&extra=page%3D6
+
+void AttackStart(Unit *who)           获得攻击目标
+
+DoCast(who,3110) 这里是使用魔法，ID为3110
+
+DoStartAttack(who); 运行上面的脚本攻击
+
+DoGoHome(); 让怪跑回自己的出生点
+
+who->GetTypeId() == TYPEID_PLAYER 是说明ID是不是攻击玩家
+
+m_creature->GetHealth()
+uint32 cHealth=m_creature->GetHealth();            
+获取怪物当前血量
+
+m_creature->GetMaxHealth()
+uint32 cMaxHealth=m_creature->GetMaxHealth();         
+获取怪物最大血量
+
+m_creature->GetPower(POWER_MANA)
+uint32 cPower=m_creature->GetPower(POWER_MANA);     
+获取怪物当前魔法量
+
+m_creature->GetMaxPower(POWER_MANA)
+uint32 cMaxPower=m_creature->GetMaxPower(POWER_MANA);
+获取怪物最大魔法量
+
+m_creature->Say("Dark!",LANG_UNIVERSAL); 让怪物说话 后参为语言
+
+m_creature->getVictim() 取得被攻击的受害者
+
+void DamageInflict(Unit *who, uint32 amount_damaged) 被攻击时调用此脚本
+
+if( (cHealth<(cMaxHealth*0.8) )&&(cPower>( cMaxPower*0.8)) 怪当前HP少于总HP的80%和魔法量大于总数80%
+
+m_creature->isInCombat() 是否在战斗中
+
+void MoveInLineOfSight(Unit *who) 在视线之内
+
+who->HasStealthAura()) 玩家是否隐行
+
+who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH) 移除玩家身上技能 ()为技能名称
+
+m_creature->IsHostileTo(who) 玩家对怪物是否有敌意
+
+who->isAlive() 测试玩家是否还活着
+
+creature＝怪物或NPC
