@@ -1,6 +1,7 @@
 ﻿/*
  * Copyright 2021 ShadowCore
  * Copyright 2023 AzgathCore
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,11 +20,23 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "gate_setting_sun.h"
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include <Instances/InstanceScript.h>
 #include "TemporarySummon.h"
+#include "Position.h"
+
 
 enum eSpells
 {
-    SPELL_PLANT_EXPLOSIVE = 107187,
+    SPELL_PLANT_EXPLOSIVE               = 107187,
 
     SPELL_SABOTAGE                      = 107268,
     SPELL_SABOTAGE_EXPLOSION            = 113645,
@@ -37,15 +50,15 @@ enum eSpells
 
 enum eEvents
 {
-    EVENT_EXPLOSIVES = 1,
-    EVENT_SABOTAGE = 2
+    EVENT_EXPLOSIVES        = 1,
+    EVENT_SABOTAGE          = 2
 };
 
 enum eWorldInFlames
 {
-    WIF_NONE = 0,
-    WIF_70 = 1,
-    WIF_30 = 2
+    WIF_NONE    = 0,
+    WIF_70      = 1,
+    WIF_30      = 2
 };
 
 class boss_saboteur_kiptilak : public CreatureScript
@@ -79,7 +92,7 @@ class boss_saboteur_kiptilak : public CreatureScript
             //    _EnterCombat();
             //}
 
-            void JustEngagedWith(Unit* who) override {
+            void JustEnteredCombat(Unit* who) override {
                 _JustEngagedWith(who);
             }
 
@@ -286,7 +299,7 @@ class CheckMunitionExplosionPredicate
             if (!_caster->ToTempSummon())
                 return true;
 
-            WorldObject* creator = _caster->ToTempSummon()->GetSummoner();
+            WorldObject* creator = _caster->ToTempSummon()->GetSummoner();//WorldObject-->Unit
 
             if (!creator || creator == target)
                 return true;

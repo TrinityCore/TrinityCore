@@ -1,4 +1,5 @@
 ﻿/*
+* Copyright (C) 2022 BfaCore Reforged
  * Copyright 2021 ShadowCore
  * Copyright 2023 AzgathCore
  *
@@ -21,7 +22,21 @@
 #include "gate_setting_sun.h"
 #include "Vehicle.h"
 #include "Spline.h"
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include <Instances/InstanceScript.h>
 #include "TemporarySummon.h"
+#include "InstanceScript.h"
+#include "Creature.h"
 
 enum eSpells
 {
@@ -60,14 +75,14 @@ enum eActions
 
 enum eEvents
 {
-    EVENT_CHECK_WIPE = 1,
-    EVENT_RAIGONN_CHARGE = 2,
+    EVENT_CHECK_WIPE            = 1,
+    EVENT_RAIGONN_CHARGE        = 2,
 
-    EVENT_SUMMON_PROTECTORAT = 3,
-    EVENT_SUMMON_ENGULFER = 4,
-    EVENT_SUMMON_SWARM_BRINGER = 5,
+    EVENT_SUMMON_PROTECTORAT    = 3,
+    EVENT_SUMMON_ENGULFER       = 4,
+    EVENT_SUMMON_SWARM_BRINGER  = 5,
 
-    EVENT_FIXATE = 6,
+    EVENT_FIXATE                = 6,
     EVENT_FIXATE_STOP = 7,
 
     EVENT_STOMP = 8
@@ -75,8 +90,8 @@ enum eEvents
 
 enum eMovements
 {
-    POINT_MAIN_DOOR = 1,
-    POINT_HERSE = 2
+    POINT_MAIN_DOOR     = 1,
+    POINT_HERSE         = 2
 };
 
 Position chargePos[4] =
@@ -356,7 +371,7 @@ class boss_raigonn : public CreatureScript
                     case EVENT_SUMMON_PROTECTORAT:
                     {
                         for (uint8 i = 0; i < 8; ++i)
-                            if (TempSummon* summon = me->SummonCreature(NPC_KRIKTHIK_PROTECTORAT, frand(941.0f, 974.0f), 2374.85f, 296.67f, 4.73f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000,ObjectGuid::Empty))
+                            if (Creature* summon = me->SummonCreature(NPC_KRIKTHIK_PROTECTORAT, frand(941.0f, 974.0f), 2374.85f, 296.67f, 4.73f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000,ObjectGuid::Empty))
                                 if (Unit* target = SelectTarget(SelectTargetMethod::Random))
                                     if (summon->IsAIEnabled())
                                         summon->AI()->AttackStart(target);
@@ -399,7 +414,7 @@ class boss_raigonn : public CreatureScript
                     {
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->GetMotionMaster()->Clear();
-                        if (Unit* target = SelectTarget(SelectTargetMethod::MaxThreat))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::MaxThreat))//SELECT_TARGET_TOPAGGRO
                             AttackStart(target);
 
                         events.ScheduleEvent(EVENT_FIXATE, Milliseconds(30000), PHASE_VULNERABILITY);

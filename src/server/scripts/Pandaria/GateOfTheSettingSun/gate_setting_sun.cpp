@@ -1,7 +1,8 @@
-///*
+﻿///*
 // * Copyright 2021 ShadowCore
 // * Copyright 2023 AzgathCore
-// *
+// *Copyright (C) 2022 BfaCore Reforged
+// * 
 // * This program is free software; you can redistribute it and/or modify it
 // * under the terms of the GNU General Public License as published by the
 // * Free Software Foundation; either version 2 of the License, or (at your
@@ -21,11 +22,14 @@
 //#include "ScriptedCreature.h"
 //#include "Vehicle.h"
 //#include "GameObject.h"
+//#include <Instances/InstanceScript.h>
+//#include "Player.h"
+//#include "MotionMaster.h"
 //
 //enum spells
 //{
-//    SPELL_MANTID_MUNITION_EXPLOSION = 107153,
-//    SPELL_EXPLOSE_GATE = 115456,
+//    SPELL_MANTID_MUNITION_EXPLOSION     = 107153,
+//    SPELL_EXPLOSE_GATE                  = 115456,
 //
 //    SPELL_BOMB_CAST_VISUAL              = 106729,
 //    SPELL_BOMB_AURA                     = 106875
@@ -76,8 +80,7 @@
 //    }
 //};
 //
-//#ifndef __clang_analyzer__
-//void AddSC_gate_setting_sun()
+//class npc_krikthik_bombarder : public CreatureScript
 //{
 //public:
 //    npc_krikthik_bombarder() : CreatureScript("npc_krikthik_bombarder") { }

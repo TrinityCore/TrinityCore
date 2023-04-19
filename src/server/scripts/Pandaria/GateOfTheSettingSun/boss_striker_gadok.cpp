@@ -1,6 +1,7 @@
 ﻿/*
  * Copyright 2021 ShadowCore
  * Copyright 2023 AzgathCore
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,7 +20,18 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "gate_setting_sun.h"
+#include <Instances/InstanceScript.h>
+#include <Movement/MotionMaster.h>
+#include "SpellInfo.h"
+#include "Player.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "Vehicle.h"
+#include "GameObject.h"
+#include <Instances/InstanceScript.h>
 #include "TemporarySummon.h"
+
 
 struct StrafPointStruct
 {
@@ -38,10 +50,10 @@ struct StrafPointStruct
 
 enum eMovements
 {
-    POINT_NORTH_START = 1,
-    POINT_SOUTH_START = 2,
-    POINT_WEST_START = 3,
-    POINT_EAST_START = 4,
+    POINT_NORTH_START       = 1,
+    POINT_SOUTH_START       = 2,
+    POINT_WEST_START        = 3,
+    POINT_EAST_START        = 4,
 
     POINT_NORTH_END = 5,
     POINT_SOUTH_END = 6,

@@ -1,4 +1,5 @@
-///*
+﻿///*
+//* Copyright (C) 2022 BfaCore Reforged
 // * Copyright 2021 ShadowCore
 //* Copyright 2023 AzgathCore
 // *
@@ -23,6 +24,29 @@
 //#include "ScriptMgr.h"
 //#include "ScriptedCreature.h"
 //#include "gate_setting_sun.h"
+//#include <Instances/InstanceScript.h>
+//#include <Movement/MotionMaster.h>
+//#include "SpellInfo.h"
+//#include "Player.h"
+//#include "MotionMaster.h"
+//#include "ScriptMgr.h"
+//#include "ScriptedCreature.h"
+//#include "Vehicle.h"
+//#include "GameObject.h"
+//#include <Instances/InstanceScript.h>
+//#include "TemporarySummon.h"
+//#include <Instances/InstanceScript.h>
+//#include <Movement/MotionMaster.h>
+//#include "SpellInfo.h"
+//#include "Player.h"
+//#include "MotionMaster.h"
+//#include "ScriptMgr.h"
+//#include "ScriptedCreature.h"
+//#include "Vehicle.h"
+//#include "GameObject.h"
+//#include <Instances/InstanceScript.h>
+//#include "TemporarySummon.h"
+//#include "Position.h"
 //
 //DoorData const doorData[] =
 //{
@@ -36,6 +60,7 @@
 //    {GO_RAIGONN_AFTER_DOOR,                 DATA_RAIGONN,               DOOR_TYPE_PASSAGE},
 //    {0,                                     0,                          DOOR_TYPE_ROOM},// END
 //};
+//
 //class instance_gate_setting_sun : public InstanceMapScript
 //{
 //public:
