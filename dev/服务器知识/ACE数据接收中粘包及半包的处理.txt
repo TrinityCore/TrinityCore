@@ -1,0 +1,117 @@
+﻿//ACE数据接收中粘包及半包的处理
+//http://www.mangoscn.com/forum.php?mod=viewthread&tid=22509&extra=&page=1
+
+在使用TCP协议的网络应用中，不可避免需要处理的一个问题就是半包和粘包的情况。
+    一种做法是在接收端设一个比较大的缓冲区，先将收到的数据包都放到缓冲区中，然后从该缓冲区中选取完整的数据包出来。该缓冲区的实现可以使用环形缓冲区进行优化，避免频繁的数据移动。使用该方法的一个描述见 http://www.vckbase.com/document/viewdoc/?id=1203
+
+
+    另外一种做法就是在接收的时候就只接收完整包。这要求数据包有固定的包头结构体，其中还要包含数据包的长度信息。在服务端接收的时候，先接收该包头数据，然后再接收指定长度的数据体。
+
+    在ACE中，用于保存消息的ACE_Message_Block有一个重要的特性：复合。即将多条消息连接在一起，形成一个单链表。这样便可以将先收到的包头和后收到的包体连成一个复合体，而不用建一个大的数据包，将两个Message_Block拷贝进去。
+
+
+    下面的示例采用ACE的Proactor框架完成，实现了服务器端半包及粘包的处理，以及ACE_Message_Block的复合，网络IO与逻辑处理的分离。
+
+
+
+    在Proactor框架中，接收新连接后，会初始化一个读请求，此时只要求读包头长度的数据：
+void init_read_stream()
+{
+    ACE_NEW_NORETURN (recv_data_, ACE_Message_Block (sizeof(PacketHeader), MB_NORMAL_PACKET));
+    ACE_HANDLE handle = this->handle ();
+    this->recv_data_->copy ((const char *)&handle, sizeof(ACE_HANDLE));
+    this->reader_.read (*recv_data_, recv_data_->space ());
+}
+    这里由于使用了网络IO与逻辑处理分线程处理的方式，递交给逻辑线程的数据包前面还加上了标识网络连接的handle，用以告诉逻辑线程该数据包是哪个客户端连接发上来的。
+
+递交给逻辑线程的数据包头结构为：
+struct PacketHeader
+{
+ACE_HANDLE handler;
+int data_length;
+};
+其中data_length就是从接收到的数据包中获取到的。
+
+
+    对于粘包的情况比较容易处理，先收了包头后再接收指定长度的数据包，多余的数据由下次再读取。
+    半包情况稍微复杂一点，每个数据包是分两次接收的，两次接收的时候都有可能接收不完全。
+
+当接收包头不完全时所做的处理是继续提交读请求，读的数据长度为剩余的包头长度
+if (this->recv_data_->length() < sizeof(PacketHeader))
+{
+    // 数据包长度信息还未接收完
+    this->reader_.read (*recv_data_, recv_data_->space ());
+    return;
+}
+
+当包头接收完后，新建一个Message_Block，长度为需要接收的数据体长度，并将该Message_Block链接到包头后
+PacketHeader * hdr = reinterpret_cast<PacketHeader *> (this->recv_data_->rd_ptr());
+ACE_Message_Block * data_mb = this->recv_data_->cont();
+if (!data_mb)
+{
+    // 刚刚接收完长度信息
+    ACE_NEW (data_mb, ACE_Message_Block(hdr->data_length));
+    this->recv_data_->cont (data_mb);
+}
+
+如果该数据包的包体接收完全，则将该完整的数据包发送到逻辑线程的消息队列，然后初始化一个新的接收请求
+if (data_mb->length () == hdr->data_length)
+{
+    // 数据已接收完
+    // 再继续接收下一个数据包
+    logic_thread->putq (recv_data_);
+    this->init_read_stream();
+    return;
+}
+
+否则表示数据体还未接收完全，处理方法也是继续提交剩余数据的读请求
+this->reader_.read (*data_mb, data_mb->space ());
+直接该数据包读取完全。
+
+
+数据包接收处理函数的完整实现为：
+virtual void handle_read_stream (const ACE_Asynch_Read_Stream::Result &result)
+{
+ACE_Message_Block &mb = result.message_block ();
+if (!result.success () || result.bytes_transferred () == 0)
+{
+  mb.release ();
+  delete this;
+}
+else
+{
+  if (this->recv_data_->length() < sizeof(PacketHeader))
+  {
+   // 数据包长度信息还未接收完
+   this->reader_.read (*recv_data_, recv_data_->space ());
+   return;
+  }
+
+  PacketHeader * hdr = reinterpret_cast<PacketHeader *> (this->recv_data_->rd_ptr());
+  ACE_Message_Block * data_mb = this->recv_data_->cont();
+  if (!data_mb)
+  {
+   // 刚刚接收完长度信息
+   ACE_NEW (data_mb, ACE_Message_Block(hdr->data_length));
+   this->recv_data_->cont (data_mb);
+  }
+
+  if (data_mb->length () == hdr->data_length)
+  {
+   // 数据已接收完
+   // 再继续接收下一个数据包
+   logic_thread->putq (recv_data_);
+   this->init_read_stream();
+   return;
+  }
+
+  // 否则继续接收该数据包
+  this->reader_.read (*data_mb, data_mb->space ());
+}
+}
+
+
+完整的服务器实现和模拟半包及粘包情况的客户端代码见
+http://helloqinglan.googlepages.com/repack.rar
+服务器仅实现了最简单的数据接收功能，为精减代码，未做错误检查
+
