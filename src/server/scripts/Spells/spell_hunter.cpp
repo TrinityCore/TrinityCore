@@ -220,7 +220,11 @@ public:
         bool Validate(SpellInfo const* /*SpellEntry*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_KILL_COMMAND, DIFFICULTY_NONE))
+            {
+                printf("Cant get spell info of kill command.");//I
                 return false;
+            }
+                
             return true;
         }
 
@@ -241,7 +245,9 @@ public:
                 pet->HasAuraType(SPELL_AURA_MOD_FEAR) || pet->HasAuraType(SPELL_AURA_MOD_FEAR_2))
                 return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
 
+            printf("Spell kill command cast ok!");//I
             return SPELL_CAST_OK;
+            
         }
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -251,7 +257,11 @@ public:
                 if (Unit* pet = GetCaster()->GetGuardianPet())
                 {
                     if (!pet)
+                    {
+                        printf("Caster is not a pet!");//I
                         return;
+                    }
+                        
 
                     if (!GetExplTargetUnit())
                         return;
