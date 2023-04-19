@@ -1,0 +1,53 @@
+﻿//http://www.mangoscn.com/forum.php?mod=viewthread&tid=65812&extra=page%3D5
+[原创]修改驯兽技能使能对任何类型生物使用
+
+第一次发贴,不知道有没有人知道这个,反正我是搜不到,浪费了两晚研究,终于功夫不负有心人先看图
+先冰住MM,驯服开始
+http://47.98.205.2/nat123CacheFolder/7777772E6D616E676F73636E2E636F6D/a2cc0ff7f97b4f4db44bc097e534b284CD30CD33D034D031C720CE38C530CF3ACF34_5af9acb4b4bbf1507562c32bd6b9099a/驯兽开始.jpg
+驯服成功!
+http://47.98.205.2/nat123CacheFolder/7777772E6D616E676F73636E2E636F6D/a2cc0ff7f97b4f4db44bc097e534b284CD30CD33D034D031C720CE38C530CF3ACF34_5af9acb4b4bbf1507562c32bd6b9099a/驯兽完毕.jpg
+
+废话少说,下面介绍怎样修改能达到此效果.
+1.要求版本 3.3.3a
+2.用MyDbcEditor.exe工具(或其他修改dbc的工具也行)打开spell.dbc文件.
+修改技能1515 (驯兽的施法马甲技能)
+把第18列,原来是1,改为0;(这里18列应该是施法对象类型,原来的1是野兽的意思,改为0即不限制类型)
+修改技能13481(驯兽的实际起作用技能,由马甲触发)
+把第18列,原来是1,改为0;
+4.把spell.dbc复制一份到服务器端
+5.MPQMaster.exe 把spell.dbc打包成
+patch-zhTW-8.MPQ (打包的方法,论坛里好像挺多,就不贴了)然后放在客户端的.Data\zhTW 目录下
+6.打开mangos的工程,修改\src\game\Creature.h文件 搜索isTameable(bool exotic) 函数.修改为直接return true.我改后是像这样:
+    bool isTameable(bool exotic) const
+    {
+
+return true;//add by eaglet 感觉这里写得不好啊,写死只能是野兽,这个应该是由技能来决定的,这是mangos的潜规则吧
+        if(type != CREATURE_TYPE_BEAST || family == 0 || (type_flags & CREATURE_TYPEFLAGS_TAMEABLE) == 0)
+            return false;
+
+        // if can tame exotic then can tame any temable
+        return exotic || !IsExotic();
+    }
+  改好后,编译,运行.
+
+好了,现在可以进入游戏爽了.
+
+
+记念下我第一只成功捉到的冤大头
+http://47.98.205.2/nat123CacheFolder/7777772E6D616E676F73636E2E636F6D/a2cc0ff7f97b4f4db44bc097e534b284CD30CD33D034D031C720CE38C530CF3ACF34_5af9acb4b4bbf1507562c32bd6b9099a/第一只冤大头.jpg
+
+及精灵MM
+http://47.98.205.2/nat123CacheFolder/7777772E6D616E676F73636E2E636F6D/a2cc0ff7f97b4f4db44bc097e534b284CD30CD33D034D031C720CE38C530CF3ACF34_5af9acb4b4bbf1507562c32bd6b9099a/捉个MM.jpg
+
+
+
+我写得很简单,很直接,希望大家看得懂,虽然简单,但也花了我很多功夫.单为解决客户端提示的"无效目标",这个让我就郁闷了很久....
+这里只介绍了,怎样能成功搏捉,但搏捉后,大家可能会失望......宠物除了样子,没有其他任何个性的东西,(如技能,属性,等等什么都没有),想召吉MM的大失望了...(大大花瓶啊....)
+技能应该有贴子介绍怎样改了,而属性,攻速,这些东西,需要修改代码,我这里就不介绍了,因为我也没完善.(大家都希望召个,吉安娜MM,回来后也有吉安娜MM的技能和血量什么的吧)
+
+另注:不能驯服,小动物一类没有战斗能力的生物,mangos会挂.........,可以写个代码阻止一下,我这也不介绍了,呵呵.
+
+第一次发贴,不懂规则,希望能加多点点分什么的鼓励一下吧,呵呵.
+
+坛子里.到处都是自制装备,传送菜单什么的..我觉得挺失望的.
+希望大家别灌水....有提议或建议或什么的,请提出来,本着分享的精神,一起讨论..顶.就不用了,一大堆,"顶",有意义的回复我就看不到了
