@@ -22,7 +22,35 @@
 #include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellInfo.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
+
+class spell_azerite_gen_aura_calc_from_2nd_effect_triggered_spell : public AuraScript
+{
+    PrepareAuraScript(spell_azerite_gen_aura_calc_from_2nd_effect_triggered_spell);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return spellInfo->GetEffects().size() > EFFECT_1 && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_1).TriggerSpell });
+    }
+
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    {
+        if (Unit* caster = GetCaster())
+        {
+            if (AuraEffect const* trait = caster->GetAuraEffect(GetEffectInfo(EFFECT_1).TriggerSpell, EFFECT_0))
+            {
+                amount = trait->GetAmount();
+                canBeRecalculated = false;
+            }
+        }
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_azerite_gen_aura_calc_from_2nd_effect_triggered_spell::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_RATING);
+    }
+};
 
 // 270658 - Azerite Fortification
 class spell_item_azerite_fortification : public AuraScript
@@ -313,6 +341,146 @@ class spell_item_divine_right : public AuraScript
     }
 };
 
+// 280409 - Blood Rite
+class spell_item_blood_rite : public AuraScript
+{
+    PrepareAuraScript(spell_item_blood_rite);
+
+    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& /*procInfo*/)
+    {
+        RefreshDuration();
+    }
+
+    void Register() override
+    {
+        AfterEffectProc += AuraEffectProcFn(spell_item_blood_rite::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
+    }
+};
+
+// 281843 - Tradewinds
+class spell_item_tradewinds : public AuraScript
+{
+    PrepareAuraScript(spell_item_tradewinds);
+
+    enum
+    {
+        SPELL_TRADEWINDS_ALLY_BUFF = 281844
+    };
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_TRADEWINDS_ALLY_BUFF });
+    }
+
+    void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        if (AuraEffect const* trait = GetTarget()->GetAuraEffect(GetEffectInfo(EFFECT_1).TriggerSpell, EFFECT_1))
+            GetTarget()->CastSpell(nullptr, SPELL_TRADEWINDS_ALLY_BUFF,
+                CastSpellExtraArgs(aurEff).AddSpellMod(SPELLVALUE_BASE_POINT0, trait->GetAmount()));
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_item_tradewinds::HandleRemove, EFFECT_0, SPELL_AURA_MOD_RATING, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 287379 - Bastion of Might
+class spell_item_bastion_of_might : public SpellScript
+{
+    PrepareSpellScript(spell_item_bastion_of_might);
+
+    enum
+    {
+        SPELL_WARRIOR_IGNORE_PAIN = 190456
+    };
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_IGNORE_PAIN });
+    }
+
+    void TriggerIgnorePain()
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_WARRIOR_IGNORE_PAIN, GetSpell());
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_item_bastion_of_might::TriggerIgnorePain);
+    }
+};
+
+// 287650 - Echoing Blades
+class spell_item_echoing_blades : public AuraScript
+{
+    PrepareAuraScript(spell_item_echoing_blades);
+
+    void PrepareProc(ProcEventInfo& eventInfo)
+    {
+        if (eventInfo.GetProcSpell())
+        {
+            if (eventInfo.GetProcSpell()->m_castId != _lastFanOfKnives)
+                GetEffect(EFFECT_0)->RecalculateAmount();
+
+            _lastFanOfKnives = eventInfo.GetProcSpell()->m_castId;
+        }
+    }
+
+    bool CheckFanOfKnivesCounter(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        return aurEff->GetAmount() > 0;
+    }
+
+    void ReduceCounter(AuraEffect* aurEff, ProcEventInfo& /*procInfo*/)
+    {
+        aurEff->SetAmount(aurEff->GetAmount() - 1);
+    }
+
+    void Register() override
+    {
+        DoPrepareProc += AuraProcFn(spell_item_echoing_blades::PrepareProc);
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_item_echoing_blades::CheckFanOfKnivesCounter, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        AfterEffectProc += AuraEffectProcFn(spell_item_echoing_blades::ReduceCounter, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+
+    ObjectGuid _lastFanOfKnives;
+};
+
+// 287653 - Echoing Blades
+class spell_item_echoing_blades_damage : public SpellScript
+{
+    PrepareSpellScript(spell_item_echoing_blades_damage);
+
+    enum
+    {
+        SPELL_ECHOING_BLADES_TRAIT = 287649
+    };
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ECHOING_BLADES_TRAIT })
+            && sSpellMgr->AssertSpellInfo(SPELL_ECHOING_BLADES_TRAIT, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_2;
+    }
+
+    void CalculateDamage(SpellEffIndex /*effIndex*/)
+    {
+        if (AuraEffect const* trait = GetCaster()->GetAuraEffect(SPELL_ECHOING_BLADES_TRAIT, EFFECT_2))
+            SetHitDamage(trait->GetAmount() * 2);
+    }
+
+    void ForceCritical(Unit const* /*victim*/, float& critChance)
+    {
+        critChance = 100.0f;
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_item_echoing_blades_damage::CalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnCalcCritChance += SpellOnCalcCritChanceFn(spell_item_echoing_blades_damage::ForceCritical);
+    }
+};
+
 // 277253 - Heart of Azeroth
 class spell_item_heart_of_azeroth : public AuraScript
 {
@@ -349,6 +517,7 @@ class spell_item_heart_of_azeroth : public AuraScript
 
 void AddSC_azerite_item_spell_scripts()
 {
+    RegisterSpellScript(spell_azerite_gen_aura_calc_from_2nd_effect_triggered_spell);
     RegisterSpellScript(spell_item_azerite_fortification);
     RegisterSpellScript(spell_item_strength_in_numbers);
     RegisterSpellScript(spell_item_blessed_portents);
@@ -359,6 +528,11 @@ void AddSC_azerite_item_spell_scripts()
     RegisterSpellScript(spell_item_orbital_precision);
     RegisterSpellScript(spell_item_blur_of_talons);
     RegisterSpellScript(spell_item_divine_right);
+    RegisterSpellScript(spell_item_blood_rite);
+    RegisterSpellScript(spell_item_tradewinds);
+    RegisterSpellScript(spell_item_bastion_of_might);
+    RegisterSpellScript(spell_item_echoing_blades);
+    RegisterSpellScript(spell_item_echoing_blades_damage);
 
     RegisterSpellScript(spell_item_heart_of_azeroth);
 }

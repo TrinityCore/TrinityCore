@@ -4674,6 +4674,15 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
+    ApplySpellFix({ 265057 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            // Fix incorrect spell id (it has self in TriggerSpell)
+            spellEffectInfo->TriggerSpell = 16403;
+        });
+    });
+
     // Ray of Frost (Fingers of Frost charges)
     ApplySpellFix({ 269748 }, [](SpellInfo* spellInfo)
     {
