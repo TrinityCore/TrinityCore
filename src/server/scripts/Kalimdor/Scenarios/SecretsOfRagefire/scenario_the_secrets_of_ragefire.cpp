@@ -1,4 +1,4 @@
-#include "Log.h"
+﻿#include "Log.h"
 #include "Scenario.h"
 #include "GameObject.h"
 #include "InstanceScenario.h"
@@ -113,7 +113,7 @@ enum ScenarioEvents
     SCENARIO_EVENT_COMPLETE_ALL_BONUS_OBJECTIVES_TO_RECEIVE_BONUS_VALOR = 32799,//treeid
 };
 
-void AddSC_scenario_the_secrets_of_ragefire()
-{
-   
-}
+//void AddSC_scenario_the_secrets_of_ragefire()
+//{
+//   
+//}
