@@ -1,13 +1,13 @@
-[2023/2/25 19:08:13]: CASCHandlerBase: loading CDN indices...
-[2023/2/25 19:08:17]: CDNIndexHandler.Initialize() completed in 00:00:03.3996350
-[2023/2/25 19:08:17]: CASCHandlerBase: loaded 3624483 CDN indexes
-[2023/2/25 19:08:17]: CASCHandlerBase: loading local indices...
-[2023/2/25 19:08:17]: LocalIndexHandler: loaded 1338151 indexes
-[2023/2/25 19:08:17]: LocalIndexHandler.Initialize() completed in 00:00:00.7379802
-[2023/2/25 19:08:17]: CASCHandlerBase: loaded 1338151 local indexes
-[2023/2/25 19:08:17]: CASCHandler: loading encoding data...
-[2023/2/25 19:08:19]: new EncodingHandler() completed in 00:00:01.2668705
-[2023/2/25 19:08:19]: CASCHandler: loaded 2152350 encoding data
-[2023/2/25 19:08:19]: CASCHandler: loading root data...
-[2023/2/25 19:08:19]: new RootHandler() completed in 00:00:00.0593347
-[2023/2/25 19:08:19]: new CASCHandler() completed in 00:00:05.4708390
+[2023/4/20 18:42:53]: CASCHandlerBase: loading CDN indices...
+[2023/4/20 18:42:57]: CDNIndexHandler.Initialize() completed in 00:00:03.8033407
+[2023/4/20 18:42:57]: CASCHandlerBase: loaded 4761797 CDN indexes
+[2023/4/20 18:42:57]: CASCHandlerBase: loading local indices...
+[2023/4/20 18:42:58]: LocalIndexHandler: loaded 1352893 indexes
+[2023/4/20 18:42:58]: LocalIndexHandler.Initialize() completed in 00:00:00.6727121
+[2023/4/20 18:42:58]: CASCHandlerBase: loaded 1352893 local indexes
+[2023/4/20 18:42:58]: CASCHandler: loading encoding data...
+[2023/4/20 18:42:59]: new EncodingHandler() completed in 00:00:01.1842720
+[2023/4/20 18:42:59]: CASCHandler: loaded 2160730 encoding data
+[2023/4/20 18:42:59]: CASCHandler: loading root data...
+[2023/4/20 18:42:59]: new RootHandler() completed in 00:00:00.0399620
+[2023/4/20 18:42:59]: new CASCHandler() completed in 00:00:05.7058388
