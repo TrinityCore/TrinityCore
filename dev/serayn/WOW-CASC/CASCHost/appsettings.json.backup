@@ -1,0 +1,17 @@
+{
+  "AppSettings": {
+    "MinimumFileDataId": 2500000,
+    "BNetAppSupport": false,
+    "StaticMode": false,
+    "RebuildPassword": "这里填入重制的密码",
+    "HostDomain": "你的域名（如果单机使用就写localhost，但是不能写ip）:你的端口号",
+    "CDNs": [],
+    "SqlConnection": "server=sql服务器地址;Port=sql服务器端口;uid=sql的用户名;pwd=sql的密码;database=数据库名称（需要提前用文件夹里的.sql脚本填充内容）",
+    "PatchUrl": "http://cn.patch.battle.net:1119/wow",
+    "Locale": "zhcn",
+    "DirectoryHash": [
+      "ba796567714f97d7a3addb1d5eadf318",
+      "4d6ce5f0eb841e0a8c4a17356dfe75ab"
+    ]
+  }
+}
