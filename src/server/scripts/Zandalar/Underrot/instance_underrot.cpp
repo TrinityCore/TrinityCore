@@ -72,10 +72,10 @@ public:
         {
             switch (dataId)
             {
-            case DATA_CRAGMAW_CRAWG_EATING:
-                return _cragmawCrawgEating ? 1 : 0;
-            default:
-                break;
+                case DATA_CRAGMAW_CRAWG_EATING:
+                    return _cragmawCrawgEating ? 1 : 0;
+                default:
+                    break;
             }
             return 0;
         }
@@ -84,11 +84,11 @@ public:
         {
             switch (dataId)
             {
-            case DATA_CRAGMAW_CRAWG_EATING:
-                _cragmawCrawgEating = true;
-                break;
-            default:
-                break;
+                case DATA_CRAGMAW_CRAWG_EATING:
+                    _cragmawCrawgEating = true;
+                    break;
+                default:
+                    break;
             }
         }
 
