@@ -168,6 +168,7 @@ public:
 
         void HandleDamage(SpellEffIndex /*effIndex*/)
         {
+            TC_LOG_INFO("spell_hunter.cpp","Kill Command (Damage) - 83381,entered HandleDamage module.");
             Unit* caster = GetCaster();
             Unit* owner = caster->GetOwner();
             Unit* target = GetExplTargetUnit();
@@ -189,12 +190,14 @@ public:
 
         void Register() override
         {
+            TC_LOG_INFO("spell_hunter.cpp", "Kill Command (Damage) - 83381,entered Register module.");
             OnEffectHitTarget += SpellEffectFn(spell_hun_kill_command_proc_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
         }
     };
 
     SpellScript* GetSpellScript() const override
     {
+        TC_LOG_INFO("spell_hunter.cpp", "Kill Command (Damage) - 83381,entered GetSpellScript module.");
         return new spell_hun_kill_command_proc_SpellScript();
     }
 };
@@ -219,6 +222,7 @@ public:
         };
         bool Validate(SpellInfo const* /*SpellEntry*/) override
         {
+            TC_LOG_INFO("spell_hunter.cpp", "Kill Command - 34026,entered Validate module.");
             if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_KILL_COMMAND, DIFFICULTY_NONE))
             {
                 printf("Cant get spell info of kill command.");//I
@@ -230,6 +234,7 @@ public:
 
         SpellCastResult CheckCastMeet()
         {
+            TC_LOG_INFO("spell_hunter.cpp", "Kill Command - 34026,entered SpellCastResult CheckCastMeet module.");
             Unit* pet = GetCaster()->GetGuardianPet();
             Unit* petTarget = GetExplTargetUnit();
 
@@ -252,6 +257,7 @@ public:
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
+            TC_LOG_INFO("spell_hunter.cpp", "Kill Command - 34026,entered HandleDummy module.");
             if (GetCaster()->IsPlayer())
             {
                 if (Unit* pet = GetCaster()->GetGuardianPet())
@@ -295,6 +301,7 @@ public:
 
         void Register() override
         {
+            TC_LOG_INFO("spell_hunter.cpp", "Kill Command - 34026,entered Register module.");
             OnCheckCast += SpellCheckCastFn(spell_hun_kill_command_SpellScript::CheckCastMeet);
             OnEffectHit += SpellEffectFn(spell_hun_kill_command_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
         }
@@ -302,6 +309,7 @@ public:
 
     SpellScript* GetSpellScript() const override
     {
+        TC_LOG_INFO("spell_hunter.cpp", "Kill Command - 34026,entered GetSpellScript module.");
         return new spell_hun_kill_command_SpellScript();
     }
 };
