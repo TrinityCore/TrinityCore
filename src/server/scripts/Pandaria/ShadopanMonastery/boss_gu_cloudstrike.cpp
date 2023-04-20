@@ -1,4 +1,4 @@
-///*
+﻿///*
 // * Copyright (C) 2022 BfaCore Reforged
 // *
 // * This program is free software; you can redistribute it and/or modify it
@@ -161,7 +161,7 @@
 //                        azureSerpent->AI()->DoAction(ACTION_AZURE_SERPENT_RESET);
 //
 //                phase = 1;
-//                events.ScheduleEvent(EVENT_INVOKE_LIGHTNING, urand(5000, 10000), PHASE_ONE);
+//                events.ScheduleEvent(EVENT_INVOKE_LIGHTNING, Milliseconds(urand(5000, 10000)), PHASE_ONE);
 //            }
 //
 //            Creature* GetAzureSerpent()
@@ -182,7 +182,7 @@
 //                    phase = 2;
 //                    events.CancelEventGroup(PHASE_ONE);
 //
-//                    events.ScheduleEvent(EVENT_OVERCHARGED_SOUL, 2500, PHASE_TWO);
+//                    events.ScheduleEvent(EVENT_OVERCHARGED_SOUL, Milliseconds(2500), PHASE_TWO);
 //
 //                    me->SetReactState(REACT_PASSIVE);
 //                    me->CastSpell(me, SPELL_CHARGING_SOUL, false);
@@ -217,7 +217,7 @@
 //                summons.Summon(summoned);
 //            }
 //
-//            void EnterCombat(Unit* /*who*/) override
+//            void JustEnteredCombat(Unit* /*who*/) override
 //            {
 //                if (Creature* azureSerpent = GetAzureSerpent())
 //                    if (azureSerpent->AI())
@@ -234,14 +234,14 @@
 //                switch(events.ExecuteEvent())
 //                {
 //                    case EVENT_INVOKE_LIGHTNING:
-//                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
+//                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0, true))
 //                            me->CastSpell(target, SPELL_INVOKE_LIGHTNING, false);
 //
-//                        events.ScheduleEvent(EVENT_INVOKE_LIGHTNING, urand(5000, 10000), PHASE_ONE);
+//                        events.ScheduleEvent(EVENT_INVOKE_LIGHTNING, Milliseconds(urand(5000, 10000)), PHASE_ONE);
 //                        break;
 //                    case EVENT_OVERCHARGED_SOUL:
 //                        me->CastSpell(me, SPELL_OVERCHARGED_SOUL_DAMAGE, false);
-//                        events.ScheduleEvent(EVENT_OVERCHARGED_SOUL, 2500, PHASE_TWO);
+//                        events.ScheduleEvent(EVENT_OVERCHARGED_SOUL, Milliseconds(2500), PHASE_TWO);
 //                        break;
 //                    default:
 //                        break;
@@ -322,8 +322,8 @@
 //                        break;
 //                    case ACTION_AZURE_SERPENT_P_2:
 //                        events.CancelEventGroup(PHASE_ONE);
-//                        events.ScheduleEvent(EVENT_MAGNETIC_SHROUD, urand(10000, 15000), PHASE_TWO);
-//                        events.ScheduleEvent(EVENT_LIGHTNING_BREATH, urand (2500, 7500), PHASE_TWO);
+//                        events.ScheduleEvent(EVENT_MAGNETIC_SHROUD, Milliseconds(urand(10000, 15000)), PHASE_TWO);
+//                        events.ScheduleEvent(EVENT_LIGHTNING_BREATH, Milliseconds(urand(2500, 7500)), PHASE_TWO);
 //
 //                        me->SetReactState(REACT_AGGRESSIVE);
 //                        me->GetMotionMaster()->MovePoint(4, azureSerpentPositions[3].GetPositionX(), azureSerpentPositions[3].GetPositionY(), azureSerpentPositions[3].GetPositionZ());
@@ -356,7 +356,7 @@
 //                {
 //                    // Movement Finished, stop move start event
 //                    phase = 1;
-//                    events.ScheduleEvent(EVENT_STATIC_FIELD, 10000, PHASE_ONE);
+//                    events.ScheduleEvent(EVENT_STATIC_FIELD, Milliseconds(10000), PHASE_ONE);
 //                    DoZoneInCombat();
 //                }
 //            }
@@ -381,18 +381,18 @@
 //                switch(events.ExecuteEvent())
 //                {
 //                    case EVENT_STATIC_FIELD:
-//                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
+//                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0, true))
 //                            me->CastSpell(target, SPELL_STATIC_FIELD, false);
-//                        events.ScheduleEvent(EVENT_STATIC_FIELD, 10000, PHASE_ONE);
+//                        events.ScheduleEvent(EVENT_STATIC_FIELD, Milliseconds(10000), PHASE_ONE);
 //                        break;
 //                    case EVENT_MAGNETIC_SHROUD:
 //                        me->CastSpell(me, SPELL_MAGNETIC_SHROUD, false);
-//                        events.ScheduleEvent(EVENT_MAGNETIC_SHROUD, urand(10000, 15000), PHASE_TWO);
+//                        events.ScheduleEvent(EVENT_MAGNETIC_SHROUD, Milliseconds(urand(10000, 15000)), PHASE_TWO);
 //                        break;
 //                    case EVENT_LIGHTNING_BREATH:
-//                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 0, true))
+//                        if (Unit* target = SelectTarget(SelectTargetMethod::MaxThreat, 0, 0, true))
 //                            me->CastSpell(target, SPELL_LIGHTNING_BREATH, false);
-//                        events.ScheduleEvent(EVENT_LIGHTNING_BREATH, urand(7500, 12500), PHASE_TWO);
+//                        events.ScheduleEvent(EVENT_LIGHTNING_BREATH, Milliseconds(urand(7500, 12500)), PHASE_TWO);
 //                        break;
 //                }
 //            }
@@ -409,7 +409,8 @@
 //    public:
 //        AreaTrigger_at_gu_intro() : AreaTriggerScript("at_gu_intro") {}
 //
-//        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/, bool /*enter*/) override
+//        //bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/, bool /*enter*/) override
+//        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
 //        {
 //            if (InstanceScript* pInstance = player->GetInstanceScript())
 //                if (Creature* gu = pInstance->instance->GetCreature(pInstance->GetGuidData(NPC_GU_CLOUDSTRIKE)))
@@ -464,7 +465,7 @@
 //
 //                for (auto itr: targetList)
 //                    if (Creature* target = itr->ToCreature())
-//                        target->DespawnOrUnsummon(2000);
+//                        target->DespawnOrUnsummon(Milliseconds(2000));
 //            }
 //
 //            void Register() override
