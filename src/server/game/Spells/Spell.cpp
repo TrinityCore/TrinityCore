@@ -850,8 +850,42 @@ uint64 Spell::CalculateDelayMomentForDst(float launchDelay) const
 
 void Spell::RecalculateDelayMomentForDst()
 {
-    m_delayMoment = CalculateDelayMomentForDst(0.0f);
-    m_caster->m_Events.ModifyEventTime(_spellEvent, Milliseconds(GetDelayStart() + m_delayMoment));
+    UpdateDelayMomentForDst(CalculateDelayMomentForDst(0.0f));
+}
+
+void Spell::UpdateDelayMomentForDst(uint64 hitDelay)
+{
+    m_delayMoment = hitDelay;
+
+    if (GetDelayStart())
+        m_caster->m_Events.ModifyEventTime(_spellEvent, Milliseconds(GetDelayStart() + m_delayMoment));
+}
+
+void Spell::UpdateDelayMomentForUnitTarget(Unit* unit, uint64 hitDelay)
+{
+    auto itr = std::find_if(m_UniqueTargetInfo.begin(), m_UniqueTargetInfo.end(), [unit](Spell::TargetInfo const& targetInfo)
+    {
+        return targetInfo.TargetGUID == unit->GetGUID();
+    });
+
+    uint64 oldDelay = itr->TimeDelay;
+    itr->TimeDelay = hitDelay;
+
+    if (hitDelay && (!m_delayMoment || m_delayMoment > hitDelay))
+        m_delayMoment = hitDelay;
+    else if (m_delayMoment && oldDelay < hitDelay)
+    {
+        // if new hit delay is greater than old delay for this target we must check all other spell targets to see if m_delayMoment can be increased
+        auto minDelayTargetItr = std::min_element(m_UniqueTargetInfo.begin(), m_UniqueTargetInfo.end(), [](Spell::TargetInfo const& itr, Spell::TargetInfo const& smallest)
+        {
+            return itr.TimeDelay < smallest.TimeDelay;
+        });
+
+        m_delayMoment = minDelayTargetItr->TimeDelay;
+    }
+
+    if (GetDelayStart())
+        m_caster->m_Events.ModifyEventTime(_spellEvent, Milliseconds(GetDelayStart() + m_delayMoment));
 }
 
 void Spell::SelectEffectImplicitTargets(SpellEffectInfo const& spellEffectInfo, SpellImplicitTargetInfo const& targetType, uint32& processedEffectMask)
@@ -3915,7 +3949,9 @@ uint64 Spell::handle_delayed(uint64 t_offset)
         return 0;
     }
 
+    // when spell has a single missile we hit all targets (except caster) at the same time
     bool single_missile = m_targets.HasDst();
+    bool ignoreTargetInfoTimeDelay = single_missile;
     uint64 next_time = 0;
 
     if (!m_launchHandled)
@@ -3926,21 +3962,13 @@ uint64 Spell::handle_delayed(uint64 t_offset)
 
         HandleLaunchPhase();
         m_launchHandled = true;
-        if (m_delayMoment > t_offset)
-        {
-            if (single_missile)
-                return m_delayMoment;
-
-            next_time = m_delayMoment;
-            if ((m_UniqueTargetInfo.size() > 2 || (m_UniqueTargetInfo.size() == 1 && m_UniqueTargetInfo.front().TargetGUID == m_caster->GetGUID())) || !m_UniqueGOTargetInfo.empty())
-            {
-                t_offset = 0; // if LaunchDelay was present then the only target that has timeDelay = 0 is m_caster - and that is the only target we want to process now
-            }
-        }
     }
 
-    if (single_missile && !t_offset)
-        return m_delayMoment;
+    if (m_delayMoment > t_offset)
+    {
+        ignoreTargetInfoTimeDelay = false;
+        next_time = m_delayMoment;
+    }
 
     Player* modOwner = m_caster->GetSpellModOwner();
     if (modOwner)
@@ -3948,7 +3976,7 @@ uint64 Spell::handle_delayed(uint64 t_offset)
 
     PrepareTargetProcessing();
 
-    if (!m_immediateHandled && t_offset)
+    if (!m_immediateHandled && m_delayMoment <= t_offset)
     {
         _handle_immediate_phase();
         m_immediateHandled = true;
@@ -3959,13 +3987,13 @@ uint64 Spell::handle_delayed(uint64 t_offset)
         std::vector<TargetInfo> delayedTargets;
         m_UniqueTargetInfo.erase(std::remove_if(m_UniqueTargetInfo.begin(), m_UniqueTargetInfo.end(), [&](TargetInfo& target) -> bool
         {
-            if (single_missile || target.TimeDelay <= t_offset)
+            if (ignoreTargetInfoTimeDelay || target.TimeDelay <= t_offset)
             {
                 target.TimeDelay = t_offset;
                 delayedTargets.emplace_back(std::move(target));
                 return true;
             }
-            else if (next_time == 0 || target.TimeDelay < next_time)
+            else if (!single_missile && (next_time == 0 || target.TimeDelay < next_time))
                 next_time = target.TimeDelay;
 
             return false;
@@ -3979,13 +4007,13 @@ uint64 Spell::handle_delayed(uint64 t_offset)
         std::vector<GOTargetInfo> delayedGOTargets;
         m_UniqueGOTargetInfo.erase(std::remove_if(m_UniqueGOTargetInfo.begin(), m_UniqueGOTargetInfo.end(), [&](GOTargetInfo& goTarget) -> bool
         {
-            if (single_missile || goTarget.TimeDelay <= t_offset)
+            if (ignoreTargetInfoTimeDelay || goTarget.TimeDelay <= t_offset)
             {
                 goTarget.TimeDelay = t_offset;
                 delayedGOTargets.emplace_back(std::move(goTarget));
                 return true;
             }
-            else if (next_time == 0 || goTarget.TimeDelay < next_time)
+            else if (!single_missile && (next_time == 0 || goTarget.TimeDelay < next_time))
                 next_time = goTarget.TimeDelay;
 
             return false;
@@ -8111,7 +8139,7 @@ bool SpellEvent::Execute(uint64 e_time, uint32 p_time)
                 if (m_Spell->m_spellInfo->LaunchDelay)
                     ASSERT(n_offset == uint64(std::floor(m_Spell->m_spellInfo->LaunchDelay * 1000.0f)));
                 else
-                    ASSERT(n_offset == m_Spell->GetDelayMoment());
+                    ASSERT(n_offset == m_Spell->GetDelayMoment(), UI64FMTD " == " UI64FMTD, n_offset, m_Spell->GetDelayMoment());
                 // re-plan the event for the delay moment
                 m_Spell->GetCaster()->m_Events.AddEvent(this, Milliseconds(e_time + n_offset), false);
                 return false;                               // event not complete

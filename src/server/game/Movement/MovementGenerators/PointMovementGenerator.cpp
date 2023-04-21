@@ -195,9 +195,12 @@ void PointMovementGenerator::Finalize(Unit* owner, bool active, bool movementInf
 
 void PointMovementGenerator::MovementInform(Unit* owner)
 {
+    // deliver EVENT_CHARGE to scripts, EVENT_CHARGE_PREPATH is just internal implementation detail of this movement generator
+    uint32 movementId = _movementId == EVENT_CHARGE_PREPATH ? EVENT_CHARGE : _movementId;
+
     if (Creature* creature = owner->ToCreature())
         if (creature->AI())
-            creature->AI()->MovementInform(POINT_MOTION_TYPE, _movementId);
+            creature->AI()->MovementInform(POINT_MOTION_TYPE, movementId);
 }
 
 //---- AssistanceMovementGenerator

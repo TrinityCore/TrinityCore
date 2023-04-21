@@ -767,6 +767,8 @@ void MotionMaster::MoveCharge(PathGenerator const& path, float speed /*= SPEED_C
 
     MoveCharge(dest.x, dest.y, dest.z, speed, EVENT_CHARGE_PREPATH);
 
+    // If this is ever changed to not happen immediately then all spell effect handlers that use this must be updated
+
     // Charge movement is not started when using EVENT_CHARGE_PREPATH
     Movement::MoveSplineInit init(_owner);
     init.MovebyPath(path.GetPath());
