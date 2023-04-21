@@ -1,4 +1,4 @@
-///*
+﻿///*
 // * Copyright (C) 2022 BfaCore Reforged
 // * 
 // *
@@ -67,7 +67,7 @@
 //#include "GameObject.h"
 //#include "Position.h"
 //#include <Globals/ObjectAccessor.h>
-//#include <Maps/Map.cpp>
+////#include <Maps/Map.cpp> //DONT USE THIS
 //#include "MapInstanced.h"
 //#include <Instances/InstanceScript.h>
 //#include "LFG.h"

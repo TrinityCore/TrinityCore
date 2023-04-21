@@ -1,4 +1,4 @@
-///*
+﻿///*
 // * Copyright (C) 2022 BfaCore Reforged
 // *
 // * This program is free software; you can redistribute it and/or modify it
@@ -70,7 +70,7 @@
 //#include "TemporarySummon.h"
 //#include "Position.h"
 //#include <Globals/ObjectAccessor.h>
-//#include <Maps/Map.cpp>
+////#include <Maps/Map.cpp> //DONT USE THIS
 //#include "MapInstanced.h"
 //#include <Instances/InstanceScript.h>
 //#include <DungeonFinding/LFGMgr.h>

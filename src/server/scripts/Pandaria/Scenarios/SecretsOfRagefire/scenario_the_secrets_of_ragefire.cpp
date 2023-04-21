@@ -27,17 +27,13 @@
 #include "SceneMgr.h"
 #include "ScriptedGossip.h"
 #include "ScriptedCreature.h"
-#include "ScriptMgr.h"
 #include "Player.h"
 #include "WorldSession.h"
-#include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "ScriptMgr.h"
 #include "SpellMgr.h"
 #include "SpellInfo.h"
 #include "ScriptedCreature.h"
 #include "GameObjectAI.h"
-#include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
@@ -67,10 +63,8 @@
 #include "MapManager.h"
 #include "Spell.h"
 #include "Vehicle.h"
-#include "Cell.h"
-#include "CellImpl.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
+
+
 #include "CreatureTextMgr.h"
 #include "Weather.h"
 #include <Instances/InstanceScript.h>
@@ -86,7 +80,7 @@
 #include "TemporarySummon.h"
 #include "Position.h"
 #include <Globals/ObjectAccessor.h>
-#include <Maps/Map.cpp>
+
 #include "MapInstanced.h"
 #include <Instances/InstanceScript.h>
 #include <DungeonFinding/LFGMgr.h>
@@ -95,6 +89,9 @@
 #include "EventMap.h"
 #include <Instances/InstanceScript.h>
 #include <Scenarios/Scenario.cpp>
+
+//#include <Maps/Map.cpp> //这个是严重问题,放进去会报一堆错误
+//Dont put this in,cause a lot of errors.//Damn!
 
 enum DataTypes
 {

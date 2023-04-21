@@ -1,4 +1,4 @@
-///*
+﻿///*
 // * Copyright (C) 2022 BfaCore Reforged
 // *
 // * This program is free software; you can redistribute it and/or modify it
@@ -64,7 +64,7 @@
 //#include "Position.h"
 //#include "heart_of_fear.h"
 //#include <Globals/ObjectAccessor.h>
-//#include <Maps/Map.cpp>
+////#include <Maps/Map.cpp> // //DONT USE THIS
 //#include "MapInstanced.h"
 //#include <Instances/InstanceScript.h>
 //#include <DungeonFinding/LFGMgr.h>
