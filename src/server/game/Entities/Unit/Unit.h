@@ -2036,8 +2036,9 @@ class TC_GAME_API Unit : public WorldObject
             void operator()(Player const* player) const;
         };
 
-    protected:
         void DestroyForPlayer(Player* target) const override;
+
+    protected:
         void ClearUpdateMask(bool remove) override;
 
         void _UpdateSpells(uint32 time);

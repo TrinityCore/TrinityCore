@@ -414,7 +414,7 @@ class AreaTrigger_at_gu_intro : public AreaTriggerScript
         AreaTrigger_at_gu_intro() : AreaTriggerScript("at_gu_intro") {}
 
         //bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/, bool /*enter*/) override
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
         {
             if (InstanceScript* pInstance = player->GetInstanceScript())
                 if (Creature* gu = pInstance->instance->GetCreature(pInstance->GetGuidData(NPC_GU_CLOUDSTRIKE)))
