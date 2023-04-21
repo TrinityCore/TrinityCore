@@ -663,7 +663,7 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
             uint32 set = fields[0].GetUInt32();
             uint32 battleground = fields[1].GetUInt32();
             float weight        = fields[2].GetFloat();
-            auto itr = battlegroundSets.find(battleground);
+            auto itr = battlegroundSets.find(set);
             if (itr != battlegroundSets.end())
             {
                 itr->second.push_back({battleground,weight});
@@ -1068,6 +1068,12 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
         weights.reserve(itr->second.size());
         for (BattlegroundSetEntry const& entry : itr->second)
         {
+            // don't randomize bgs that aren't initialized for whatever reason (this is kind of a hack)
+            if (!GetBattlegroundTemplate(static_cast<BattlegroundTypeId>(entry.battleground)))
+            {
+                // todo: should we warn the user of this?
+                continue;
+            }
             bgids.push_back(entry.battleground);
             float weight = entry.weight;
             FIRE(
@@ -1078,6 +1084,13 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
                 );
             weights.push_back(entry.weight);
         }
+
+        if (bgids.size() == 0)
+        {
+            TC_LOG_ERROR("bg.battleground", "Battleground set %i has no valid battlegrounds!", static_cast<uint32_t>(bgTypeId));
+            return static_cast<BattlegroundTypeId>(0);
+        }
+
         uint32 selected = *Trinity::Containers::SelectRandomWeightedContainerElement(bgids, weights);
         bgTypeId = (BattlegroundTypeId) selected;
         itr = battlegroundSets.find(bgTypeId);
