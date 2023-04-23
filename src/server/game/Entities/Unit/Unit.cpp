@@ -12280,6 +12280,8 @@ void Unit::ExitVehicle(Position const* /*exitPosition*/)
     //! init spline movement based on those coordinates in unapply handlers, and
     //! relocate exiting passengers based on Unit::moveSpline data. Either way,
     //! Coming Soon(TM)
+
+    RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::AbandonVehicle);
 }
 
 void Unit::_ExitVehicle(Position const* exitPosition)
@@ -12363,6 +12365,8 @@ void Unit::_ExitVehicle(Position const* exitPosition)
         else
             ToTempSummon()->UnSummon(2000); // Approximation
     }
+
+    RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::AbandonVehicle);
 }
 
 bool Unit::IsFalling() const
