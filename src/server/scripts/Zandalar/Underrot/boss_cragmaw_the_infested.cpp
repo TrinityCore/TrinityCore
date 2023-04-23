@@ -20,6 +20,7 @@
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
 #include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -33,8 +34,8 @@ enum CragmawSpells
 {
     // Cragmaw
     SPELL_CRAWG_EATING                  = 279156,
-    SPELL_TANTRUM_ENERGY_BAR            = 271771,
-    SPELL_TANTRUM_PERIODIC_ENERGY       = 271775,
+    SPELL_POWER_DISPLAY_TANTRUM         = 271771,
+    SPELL_POWER_ENERGIZE_TANTRUM        = 271775,
     SPELL_CHARGE_SELECTOR               = 260292,
     SPELL_INDIGESTION                   = 260793,
     SPELL_TANTRUM_INITIAL               = 260333,
@@ -144,8 +145,8 @@ struct boss_cragmaw_the_infested : public BossAI
         if (IsHeroic() || GetDifficulty() == DIFFICULTY_MYTHIC || GetDifficulty() == DIFFICULTY_MYTHIC_KEYSTONE)
         {
             me->SetPowerType(POWER_ENERGY);
-            DoCast(SPELL_TANTRUM_ENERGY_BAR);
-            DoCast(SPELL_TANTRUM_PERIODIC_ENERGY);
+            DoCast(SPELL_POWER_DISPLAY_TANTRUM);
+            DoCast(SPELL_POWER_ENERGIZE_TANTRUM);
         }
     }
 
@@ -247,9 +248,9 @@ private:
 };
 
 // 271775 - Tantrum Energy Bar (periodic)
-class spell_tantrum_energy_bar : public AuraScript
+class spell_cragmaw_power_energize_tantrum : public AuraScript
 {
-    PrepareAuraScript(spell_tantrum_energy_bar);
+    PrepareAuraScript(spell_cragmaw_power_energize_tantrum);
 
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
@@ -259,14 +260,14 @@ class spell_tantrum_energy_bar : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_tantrum_energy_bar::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_cragmaw_power_energize_tantrum::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
 // 260411 - Summon Larva
-class spell_summon_larva : public AuraScript
+class spell_cragmaw_summon_larva : public AuraScript
 {
-    PrepareAuraScript(spell_summon_larva);
+    PrepareAuraScript(spell_cragmaw_summon_larva);
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
@@ -276,7 +277,7 @@ class spell_summon_larva : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_summon_larva::OnRemove, EFFECT_0, SPELL_AURA_AREA_TRIGGER, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_cragmaw_summon_larva::OnRemove, EFFECT_0, SPELL_AURA_AREA_TRIGGER, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -344,9 +345,9 @@ class spell_cragmaw_larva_metamorphosis : public AuraScript
 };
 
 // 278641 - Blood Burst
-class spell_blood_burst : public AuraScript
+class spell_cragmaw_blood_burst : public AuraScript
 {
-    PrepareAuraScript(spell_blood_burst);
+    PrepareAuraScript(spell_cragmaw_blood_burst);
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
@@ -356,7 +357,7 @@ class spell_blood_burst : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_blood_burst::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_cragmaw_blood_burst::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -367,10 +368,10 @@ void AddSC_boss_cragmaw_the_infested()
     RegisterUnderrotCreatureAI(npc_blood_tick);
 
     // Spells
-    RegisterSpellScript(spell_tantrum_energy_bar);
+    RegisterSpellScript(spell_cragmaw_power_energize_tantrum);
     RegisterSpellScript(spell_cragmaw_larva_metamorphosis);
-    RegisterSpellScript(spell_blood_burst);
-    RegisterSpellScript(spell_summon_larva);
+    RegisterSpellScript(spell_cragmaw_blood_burst);
+    RegisterSpellScript(spell_cragmaw_summon_larva);
 
     // AreaTrigger
     RegisterAreaTriggerAI(at_cragmaw_destroy_larva);
