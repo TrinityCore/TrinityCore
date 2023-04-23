@@ -1,0 +1,16 @@
+﻿http://www.mangoscn.com/forum.php?mod=viewthread&tid=22505&extra=&page=1
+WOW用户认证的方式-SRP[代码研究]
+
+ SRP全称Secure Remote Password(安全远程密码).使用SRP的客户机和服务器不会在网络上传送明文密码，这样可以消除直接密码嗅探行为，另外使用高强度的算法保证了不可能使用字典法攻击嗅探到的数据。
+
+  SRP协议实现的描述见 http://srp.stanford.edu/design.html
+
+
+
+  WOW的认证过程使用的是SRP6，最新的标准为SRP-6a，将k由原来的3改为了H(N,g)
+
+
+
+  WOW认证过程的模拟代码 (部分实现，编译需要openssl和ace)  http://helloqinglan.googlepages.com/srp-wow.rar
+
+

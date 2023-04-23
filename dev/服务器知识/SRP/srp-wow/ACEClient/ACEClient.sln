@@ -1,0 +1,21 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ACEClient", "ACEClient.vcproj", "{61867892-AAD0-4B8C-A3D5-E59BA226D469}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{61867892-AAD0-4B8C-A3D5-E59BA226D469}.Debug.ActiveCfg = Debug|Win32
+		{61867892-AAD0-4B8C-A3D5-E59BA226D469}.Debug.Build.0 = Debug|Win32
+		{61867892-AAD0-4B8C-A3D5-E59BA226D469}.Release.ActiveCfg = Release|Win32
+		{61867892-AAD0-4B8C-A3D5-E59BA226D469}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal
