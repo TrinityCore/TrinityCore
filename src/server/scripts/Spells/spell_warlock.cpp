@@ -449,7 +449,7 @@ class spell_warl_random_sayaad : public SpellScript
 
     void Register() override
     {
-        OnEffectLaunch += SpellEffectFn(spell_warl_random_sayaad::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHit += SpellEffectFn(spell_warl_random_sayaad::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -473,10 +473,14 @@ class spell_warl_sayaad_precast_disorientation : public SpellScript
             return;
 
         if (Pet* pet = player->GetPet())
-            pet->CastSpell(pet, PET_SUMMONING_DISORIENTATION, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetOriginalCaster(pet->GetGUID()).SetTriggeringSpell(GetSpell()));
+            pet->CastSpell(pet, PET_SUMMONING_DISORIENTATION, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                .SetOriginalCaster(pet->GetGUID())
+                .SetTriggeringSpell(GetSpell()));
     }
 
-    void Register() override { }
+    void Register() override
+    {
+    }
 };
 
 // 6358 - Seduction (Special Ability)
@@ -834,13 +838,13 @@ class spell_warl_strengthen_pact_succubus : public SpellScript
     {
         Unit* caster = GetCaster();
 
-        caster->CastSpell(nullptr, SPELL_WARLOCK_SUCCUBUS_PACT, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
-        caster->CastSpell(nullptr, SPELL_WARLOCK_SUMMON_SUCCUBUS, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+        caster->CastSpell(nullptr, SPELL_WARLOCK_SUCCUBUS_PACT, TRIGGERED_FULL_MASK);
+        caster->CastSpell(nullptr, SPELL_WARLOCK_SUMMON_SUCCUBUS, TRIGGERED_FULL_MASK);
     }
 
     void Register() override
     {
-        OnEffectLaunch += SpellEffectFn(spell_warl_strengthen_pact_succubus::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHit += SpellEffectFn(spell_warl_strengthen_pact_succubus::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -862,13 +866,13 @@ class spell_warl_strengthen_pact_incubus : public SpellScript
     {
         Unit* caster = GetCaster();
 
-        caster->CastSpell(nullptr, SPELL_WARLOCK_INCUBUS_PACT, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
-        caster->CastSpell(nullptr, SPELL_WARLOCK_SUMMON_INCUBUS, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+        caster->CastSpell(nullptr, SPELL_WARLOCK_INCUBUS_PACT, TRIGGERED_FULL_MASK);
+        caster->CastSpell(nullptr, SPELL_WARLOCK_SUMMON_INCUBUS, TRIGGERED_FULL_MASK);
     }
 
     void Register() override
     {
-        OnEffectLaunch += SpellEffectFn(spell_warl_strengthen_pact_incubus::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHit += SpellEffectFn(spell_warl_strengthen_pact_incubus::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -888,12 +892,12 @@ class spell_warl_summon_sayaad : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(nullptr, roll_chance_i(50) ? SPELL_WARLOCK_SUMMON_SUCCUBUS : SPELL_WARLOCK_SUMMON_INCUBUS, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+        GetCaster()->CastSpell(nullptr, roll_chance_i(50) ? SPELL_WARLOCK_SUMMON_SUCCUBUS : SPELL_WARLOCK_SUMMON_INCUBUS, TRIGGERED_FULL_MASK);
     }
 
     void Register() override
     {
-        OnEffectLaunch += SpellEffectFn(spell_warl_summon_sayaad::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHit += SpellEffectFn(spell_warl_summon_sayaad::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 

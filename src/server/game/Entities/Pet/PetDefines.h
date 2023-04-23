@@ -111,11 +111,7 @@ enum class PetTameResult : uint8
 };
 
 constexpr uint32 CALL_PET_SPELL_ID = 883;
-
-enum PetSpellEntry
-{
-    PET_SUMMONING_DISORIENTATION = 32752
-};
+constexpr uint32 PET_SUMMONING_DISORIENTATION = 32752;
 
 class PetStable
 {
