@@ -1,0 +1,65 @@
+﻿http://www.mangoscn.com/forum.php?mod=viewthread&tid=195464&extra=page%3D5
+
+4#
+
+自动拍卖行过滤器
+
+
+# 自动拍卖行过滤器 AUCTION HOUSE BOT FILTERS PART 2
+#
+#     这些过滤器是0/1来控制是否根据过滤某些物品，例如unusedclass是跳过class大于10的物品
+#
+###############################################################################
+###############################################################################
+# 自动拍卖行过滤部分 3
+#
+#    AuctionHouseBot.DisableItemsBelowLevel
+#        防止卖方上架低于这个等级的物品 默认：0 关闭
+#
+#    AuctionHouseBot.DisableItemsAboveLevel
+#        防止卖方上架高于这个等级的物品 默认：0 关闭
+#
+#    AuctionHouseBot.DisableTGsBelowLevel
+#         防止卖方上架低于这个等级的商品 默认：0 关闭
+#
+#    AuctionHouseBot.DisableTGsAboveLevel
+#        防止卖方上架高于这个等级的商品 默认：0 关闭
+#
+#    AuctionHouseBot.DisableItemsBelowGUID
+#        防止卖方上架低于这个GUID的物品 默认：0 关闭
+#
+#    AuctionHouseBot.DisableItemsAboveGUID
+#        防止卖方上架高于这个GUID的物品 默认：0 关闭
+#
+#    AuctionHouseBot.DisableTGsBelowGUID
+#        防止卖方上架低于这个GUID的商品 默认：0 关闭
+#
+#    AuctionHouseBot.DisableTGsAboveGUID
+#        防止卖方上架高于这个GUID的商品 默认：0 关闭
+#
+#    AuctionHouseBot.DisableItemsBelowReqLevel
+#        防止卖方上架低于这一等级要求的物品 默认：0 关闭
+#
+#    AuctionHouseBot.DisableItemsAboveReqLevel
+#        防止卖方上架高于这一等级要求的物品 默认：0 关闭
+#
+#    AuctionHouseBot.DisableTGsBelowReqLevel
+#        防止卖方上架低于这一等级要求的商品 默认：0 关闭
+#
+#    AuctionHouseBot.DisableTGsAboveReqLevel
+#        防止卖方上架高于这一等级要求的商品 默认：0 关闭
+#
+#    AuctionHouseBot.DisableItemsBelowReqSkillRank
+#        防止卖家上架需要技能多少以下的物品 默认 ：0 关闭
+#
+#    AuctionHouseBot.DisableItemsAboveReqSkillRank
+#        防止卖家上架需要技能多少以上的物品 默认 ：0 关闭
+#
+#    AuctionHouseBot.DisableTGsBelowReqSkillRank
+#        防止卖家上架需要技能多少以下的商品 默认 ：0 关闭
+#
+#    AuctionHouseBot.DisableTGsAboveReqSkillRank
+#        防止卖家上架需要技能多少以上的商品 默认 ：0 关闭
+#
+###############################################################################
+
