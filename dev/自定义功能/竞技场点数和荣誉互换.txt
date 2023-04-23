@@ -1,0 +1,26 @@
+﻿http://www.mangoscn.com/forum.php?mod=viewthread&tid=17876&extra=&page=1
+竞技场点数和荣誉的互换
+
+void Player::jjctohonor()
+{
+    int bs = sConfig.GetIntDefault("Jjc.Beishu",10);
+    if (GetArenaPoints() >= 100)
+    {
+         ModifyArenaPoints(-100);
+         ModifyHonorPoints(90*bs);
+    }
+    else
+        GetSession()->SendNotification("点数不足");
+}
+
+void Player::honortojjc()
+{
+    int bs = sConfig.GetIntDefault("Jjc.Beishu",10);
+    if (GetHonorPoints() >= 100*bs)
+    {
+        ModifyHonorPoints(-int32(100*bs));
+        ModifyArenaPoints(90);
+    }
+    else
+        GetSession()->SendNotification("点数不足");
+}
