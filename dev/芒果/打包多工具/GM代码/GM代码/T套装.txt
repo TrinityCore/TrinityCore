@@ -1,0 +1,95 @@
+法师 　 　  
+T1奥术师 .additemset 201  
+T2灵风 .additemset 210  
+T3霜火 .additemset 526  
+T4占卜者 .additemset 648  
+T5提里斯法 .additemset 649  
+T6风暴 .additemset 671  
+　 　 　  
+牧师 　 　  
+T1预言 .additemset 202  
+T2卓越 .additemset 211  
+T3信仰 .additemset 525  
+T4化身（治疗） .additemset 663  
+T4化身（战斗） .additemset 664  
+T5幻身（治疗） .additemset 665  
+T5幻化（战斗） .additemset 666  
+T6赦免（战斗） .additemset 674  
+T6赦免（治疗） .additemset 675  
+　 　 　  
+术士 　 　  
+T1恶魔之心 .additemset 203  
+T2复仇 .additemset 212  
+T3瘟疫之心 .additemset 529  
+T4虚空之心 .additemset 645  
+T5堕落 .additemset 646  
+T6凶星 .additemset 670  
+　 　 　  
+盗贼 　 　  
+T1夜幕杀手 .additemset 204  
+T2血牙 .additemset 213  
+T3骨镰 .additemset 524  
+T4虚空之刃 .additemset 621  
+T5死神传承 .additemset 622  
+T6刺杀者 .additemset 668  
+　 　 　  
+德鲁伊 　 　  
+T1塞纳里奥 .additemset 205  
+T2怒风 .additemset 214  
+T3梦游者 .additemset 521  
+T4玛洛尼(治疗) .additemset 638  
+T4玛洛尼(平衡) .additemset 639  
+T4玛洛尼(野性) .additemset 640  
+T5诺达希尔（野性） .additemset 641  
+T5诺达希尔（治疗） .additemset 642  
+T5诺达希尔（平衡） .additemset 643  
+T6雷霆之心（野性） .additemset 676  
+T6雷霆之心（平衡） .additemset 677  
+T6雷霆之心（治疗） .additemset 678  
+　 　 　  
+猎人 　 　  
+T1巨兽之王 .additemset 206  
+T2驭龙者 .additemset 215  
+T3地穴追猎者 .additemset 530  
+T4恶魔追猎者 .additemset 651  
+T5裂缝行者 .additemset 652  
+T6戈隆追猎者 .additemset 669  
+　 　 　  
+萨满 　 　  
+T1大地之怒 .additemset 207  
+T2无尽风暴 .additemset 216  
+T3碎地者 .additemset 527  
+T4飓风（治疗） .additemset 631  
+T4飓风（法术） .additemset 632  
+T4飓风（战斗） .additemset 633  
+T4裂地（治疗） .additemset 634  
+T4裂地（法术） .additemset 635  
+T4裂地（战斗） .additemset 636  
+T6破天（战斗） .additemset 682  
+T6破天（治疗） .additemset 683  
+T6破天（法术） .additemset 684  
+　 　 　  
+骑士 　 　  
+T1秩序之源 .additemset 208  
+T2审判 .additemset 217  
+T3救赎 .additemset 528  
+T4庇护（治疗） .additemset 624  
+T4庇护（防御） .additemset 625  
+T4庇护（惩戒） .additemset 626  
+T5晶铸（治疗） .additemset 627  
+T5晶铸（防御） .additemset 628  
+T5晶铸（惩戒） .additemset 629  
+T6光明使者（防御） .additemset 679  
+T6光明使者（惩戒） .additemset 680  
+T6光明使者（治疗） .additemset 681  
+　 　 　  
+战士 　 　  
+T1力量 .additemset 209  
+T2愤怒 .additemset 218  
+T3无畏 .additemset 523  
+T4战神(防御) .additemset 654  
+T4战神(战斗) .additemset 655  
+T5摧毁者（防御） .additemset 656  
+T5摧毁者（战斗） .additemset 657  
+T6冲击（战斗） .additemset 672  
+T6冲击（防御） .additemset 673 

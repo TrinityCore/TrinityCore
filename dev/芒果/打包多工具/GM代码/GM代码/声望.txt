@@ -1,0 +1,112 @@
+.modify rep 阵营 声望值
+.modify rep 67 100000 部落 
+.modify rep 980 100000 TBC
+.modify rep 892 100000 部落军队
+.modify rep 1052 100000 部落远征军
+.modify rep 1097 100000 WLK
+.modify rep 1117 100000 索拉查盆地
+.modify rep 1118 100000 经典旧世
+.modify rep 936 100000 沙塔斯城
+.modify rep 980 100000 燃烧的远征
+.modify rep 469 100000 联盟 
+.modify rep 891 100000 联盟军队
+联盟先锋 
+.modify rep 1037 100000联盟先锋 
+.modify rep 1050 100000骁勇远征军 
+.modify rep 1068 100000探险者协会 
+.modify rep 1126 100000霜诞矮人 
+
+部落远征军 
+.modify rep 1052 100000部落远征军 
+.modify rep 1064 100000坦卡族 
+.modify rep 1067 100000复仇之手 
+.modify rep 1085 100000战歌进攻部队 
+
+巫妖王之怒 
+.modify rep 1073 100000卡鲁耶克 
+.modify rep 1090 100000祈伦托 
+.modify rep 1091 100000龙眠协调者 
+.modify rep 1098 100000黯刃骑士团 
+.modify rep 1106 100000银白十字军 
+.modify rep 1119 100000霍迪尔之子 
+
+休拉萨盆地 
+.modify rep 1104 100000狂心部族
+.modify rep 1105 100000神谕者 
+
+.modify rep 933 100000 联合团(星界财团) 
+.modify rep 942 100000 塞纳里奥远征队 
+.modify rep 989 100000 时光守望者 
+.modify rep 990 100000 流沙之鳞 
+.modify rep 1011 100000 阴浴城 
+.modify rep 1012 100000 灰舌死誓者 
+.modify rep 1015 100000 虚空龙 
+.modify rep 1031 100000 萨塔御空者 
+.modify rep 932 100000 奥多尔 
+.modify rep 934 100000 占卜者 
+.modify rep 935 100000 萨塔 
+.modify rep 1038 100000 奥格瑞拉 
+.modify rep 576 100000 木喉要塞 
+.modify rep 529 100000 银色黎明 
+.modify rep 589 100000 冬刃豹训练师 
+.modify rep 270 100000 赞达拉部族 
+.modify rep 1077 100000 破碎之日 
+.modify rep 21 100000 藏宝海湾 
+.modify rep 46 100000 斯通纳德兽人 
+.modify rep 47 100000 铁炉堡 
+.modify rep 54 100000 诺莫瑞根流亡者 
+.modify rep 59 100000 瑟银兄梯会 
+.modify rep 67 100000 部落 
+.modify rep 68 100000 幽暗城 
+.modify rep 69 100000 达纳苏斯 
+.modify rep 70 100000 辛迪加 
+.modify rep 72 100000 暴风城 
+.modify rep 76 100000 奥格玛 
+.modify rep 81 100000 雷霆崖 
+.modify rep 83 100000 怪物-无组织 
+.modify rep 86 100000 怪物-有组织 
+.modify rep 87 100000 血帆海盗 
+.modify rep 92 100000 吉尔吉斯半人马 
+.modify rep 93 100000 玛格拉姆半人马 
+.modify rep 169 100000 热砂港 
+.modify rep 270 100000 赞达拉部族 
+.modify rep 289 100000 黑水盗贼 
+.modify rep 349 100000 拉文霍德 
+.modify rep 369 100000 加基森 
+.modify rep 469 100000 联盟 
+.modify rep 470 100000 棘齿城 
+.modify rep 471 100000 蛮锤部族 
+.modify rep 509 100000 阿拉索联军(联盟军队) 
+.modify rep 510 100000 污染者(部落军队) 
+.modify rep 530 100000 暗矛巨魔(部落-食人妖) 
+.modify rep 549 100000 不知-_- (Leathrworking ??) 
+.modify rep 550 100000 不知-_- (Engineering-Goblin ??) 
+.modify rep 551 100000 不知-_- (Engineering-Gnome ??) 
+.modify rep 569 100000 不知-_- (Blacksmithing - Hammersmithing ??) 
+.modify rep 570 100000 不知-_- (Blacksmithing - Axesmithing ??) 
+.modify rep 571 100000 不知-_- (Blacksmithing - Swordsmithing ??) 
+.modify rep 574 100000 凯尔达隆 
+.modify rep 577 100000 永望镇 
+.modify rep 609 100000 塞纳里奥议会 
+.modify rep 729 100000 霜狼氏族(部落军队) 
+.modify rep 730 100000 雷矛卫队(联盟军队) 
+.modify rep 749 100000 海达希亚水元素 
+.modify rep 809 100000 辛德拉 
+.modify rep 889 100000 战歌侦察骑兵(部落军队) 
+.modify rep 890 100000 银翼要塞(联盟军队) 
+.modify rep 891 100000 联盟部队 
+.modify rep 892 100000 部落军队 
+.modify rep 909 100000 暗月马戏团 
+.modify rep 910 100000 诺兹多姆的子嗣 
+.modify rep 911 100000 银月城 
+.modify rep 911 100000 卡利姆多联军 
+.modify rep 922 100000 塔奎林 
+.modify rep 930 100000 埃索达 
+.modify rep 936 100000 萨城(占卜者、萨塔、萨塔御天者、破碎之日) 
+.modify rep 941 100000 玛格哈 
+.modify rep 946 100000 荣耀堡 
+.modify rep 947 100000 索尔玛 
+.modify rep 967 100000 紫罗兰之眼 
+.modify rep 970 100000 孢子村(斯博格尔) 
+.modify rep 978 100000 库雷尼 
+.modify rep 980 100000 外域

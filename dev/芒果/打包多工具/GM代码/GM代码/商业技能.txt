@@ -1,0 +1,97 @@
+生活技能  
+＝＝采矿＝＝  
+初级：.learn 2575  
+中级：.learn 2576  
+高级：.learn 3564  
+专家：.learn 10248  
+大师：.learn 29354  
+.setskill 186 375  
+
+＝＝炼金＝＝  
+初级：.learn 2259  
+中级：.learn 3101  
+高级：.learn 3464  
+专家：.learn 11611  
+大师：.learn 28596  
+.setskill 171 375  
+
+＝＝锻造＝＝  
+初级：.learn 2018  
+中级：.learn 3100  
+高级：.learn 3538  
+专家：.learn 9785  
+大师：.learn 29844  
+.setskill 164 375  
+
+＝＝裁缝＝＝  
+初级：.learn 3908  
+中级：.learn 3909  
+高级：.learn 3910  
+专家：.learn 12180  
+大师：.learn 26790  
+.setskill 197 375  
+
+＝＝烹饪＝＝  
+初级：.learn 2550  
+中级：.learn 3102  
+高级：.learn 3413  
+专家：.learn 18260  
+大师：.learn 33359  
+.setskill 185 375  
+
+＝＝制皮＝＝  
+初级：.learn 2108  
+中级：.learn 3104  
+高级：.learn 3811  
+专家：.learn 10662  
+大师：.learn 32549  
+.setskill 165 375  
+
+＝＝钓鱼＝＝  
+初级：.learn 7620  
+中级：.learn 7731  
+高级：.learn 7732  
+专家：.learn 18248  
+大师：.learn 33095  
+.setskill 356 375  
+
+＝＝附魔＝＝  
+初级：.learn 7411  
+中级：.learn 7412  
+高级：.learn 7413  
+专家：.learn 13920  
+大师：.learn 28029  
+.setskill 333 375  
+
+＝＝珠宝加工＝＝  
+初级：.learn 25229  
+中级：.learn 25230  
+高级：.learn 28894  
+专家：.learn 28895  
+大师：.learn 28897  
+.setskill 755 375  
+
+＝＝工程学＝＝  
+初级：.learn 4036  
+中级：.learn 4037  
+高级：.learn 4038  
+专家：.learn 12656  
+大师：.learn 30350  
+.setskill 202 375  
+
+＝＝急救＝＝  
+初级：.learn 3273  
+中级：.learn 3274  
+高级：.learn 7924  
+专家：.learn 10846  
+大师：.learn 27028  
+.setskill 129 375  
+
+＝＝草药＝＝  
+初级：.learn 2366  
+中级：.learn 2368  
+高级：.learn 3570  
+专家：.learn 11993  
+大师：.learn 28695  
+.setskill 182 375
+

@@ -1,0 +1,8 @@
+1、希尔瓦纳斯女王唱的《上层精灵的挽歌》
+
+/script PlaySoundFile("Sound\\Music\\GlueScreenMusic\\BCCredits_Lament_of_the_Highborne.mp3") 
+
+
+2、牛头人酋长乐队的《部落力量》
+
+/script PlaySoundFile("Sound\\Music\\ZoneMusic\\DMF_L70ETC01.mp3")

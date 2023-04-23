@@ -1,0 +1,31 @@
+.learn 196   单手斧 
+.learn 197   双手斧 
+.learn 264   弓 
+.learn 7919  弩 
+.learn 198   锤 
+.learn 199   双手锤 
+.learn 1180  匕首 
+.learn 2567  投掷 
+.learn 5009  魔杖 
+.learn 227   法仗 
+.learn 201   剑 
+.learn 202   双手剑 
+.learn 203   徒手 
+.learn 266   枪械 
+.learn 9116  盾牌
+.learn 3386  长柄武器
+.learn 15590 拳套武器
+
+
+.learn 9078  布甲 
+.learn 9077  皮甲 
+.learn 8737  锁甲 
+.learn 750   板甲 
+
+.learn 20597 剑类武器精通 
+.learn 20864 锤类武器精通 
+.learn 20595 枪械专精 
+.learn 20593 工程学专精 
+.learn 20558 投掷精通
+.Learn 674   双武器    被动
+

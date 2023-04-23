@@ -1,0 +1,8 @@
+This patch add custom GM vendor on GM island (MaNGOS: r7908)
+1- apply patch "mangos_gm_island_vendors.sql" on db mangos
+
+2- currently this vendors can only be seen by GM char in mode .gm on to prevent possible abuse from hack telport users - if you want to allow every player to see them set phasemask = 1 by applying this code after patch:
+
+update creature set phasemask = 1 where id between 155000 and 155038;
+
+3- if you want to remove this vendors and related spawn apply patch "remove_gm_island_vendors.sql" on db mangos
