@@ -1,0 +1,12 @@
+﻿http://www.mangoscn.com/forum.php?mod=viewthread&tid=61540&extra=page%3D6
+3.33修改称号GM命令：包括所有军衔称号及部分成就竞技场称号
+.titles add 1   =======士兵
+.titles add 2   =======下士
+.titles add 3   =======士官
+.titles add 4   =======上士
+联盟以此类推到.titles add 14为总元帅
+.titles add 15 =======斥候
+.titles add 16 =======蛮兵
+部落以此类推到.titles add 28为高阶督军
+.titles setmask -14000mask  ========获得大部分称号
+
