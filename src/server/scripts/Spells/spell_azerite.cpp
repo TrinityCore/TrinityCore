@@ -481,6 +481,38 @@ class spell_item_echoing_blades_damage : public SpellScript
     }
 };
 
+// 288882 - Hour of Reaping
+class spell_item_hour_of_reaping : public AuraScript
+{
+    PrepareAuraScript(spell_item_hour_of_reaping);
+
+    enum
+    {
+        SPELL_DH_SOUL_BARRIER  = 263648
+    };
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_SOUL_BARRIER });
+    }
+
+    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+    {
+        return GetStackAmount() == GetAura()->CalcMaxStackAmount();
+    }
+
+    void TriggerSoulBarrier(AuraEffect* aurEff, ProcEventInfo& /*procInfo*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_DH_SOUL_BARRIER, aurEff);
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_item_hour_of_reaping::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
+        AfterEffectProc += AuraEffectProcFn(spell_item_hour_of_reaping::TriggerSoulBarrier, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 277253 - Heart of Azeroth
 class spell_item_heart_of_azeroth : public AuraScript
 {
@@ -533,6 +565,7 @@ void AddSC_azerite_item_spell_scripts()
     RegisterSpellScript(spell_item_bastion_of_might);
     RegisterSpellScript(spell_item_echoing_blades);
     RegisterSpellScript(spell_item_echoing_blades_damage);
+    RegisterSpellScript(spell_item_hour_of_reaping);
 
     RegisterSpellScript(spell_item_heart_of_azeroth);
 }
