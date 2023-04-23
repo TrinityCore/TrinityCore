@@ -380,7 +380,7 @@ class spell_pri_divine_star_shadow : public SpellScript
 // 122121 - Divine Star (Shadow)
 struct areatrigger_pri_divine_star : AreaTriggerAI
 {
-    areatrigger_pri_divine_star(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) {}
+    areatrigger_pri_divine_star(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger), _maxTravelDistance(0.0f) { }
 
     void OnInitialize() override
     {
@@ -398,10 +398,10 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
         _casterCurrentPosition = caster->GetPosition();
 
         // Note: max. distance at which the Divine Star can travel to is EFFECT_1's BasePoints yards.
-        _divineStarXOffSet = float(spellInfo->GetEffect(EFFECT_1).CalcValue(caster));
+        _maxTravelDistance = float(spellInfo->GetEffect(EFFECT_1).CalcValue(caster));
 
         Position destPos = _casterCurrentPosition;
-        at->MovePositionToFirstCollision(destPos, _divineStarXOffSet, 0.0f);
+        at->MovePositionToFirstCollision(destPos, _maxTravelDistance, 0.0f);
 
         PathGenerator firstPath(at);
         firstPath.CalculatePath(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ(), false);
@@ -409,7 +409,7 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
         G3D::Vector3 const& endPoint = firstPath.GetPath().back();
 
         // Note: it takes 1000ms to reach EFFECT_1's BasePoints yards, so it takes (1000 / EFFECT_1's BasePoints)ms to run 1 yard.
-        at->InitSplines(firstPath.GetPath(), at->GetDistance(endPoint.x, endPoint.y, endPoint.z) * float(1000 / _divineStarXOffSet));
+        at->InitSplines(firstPath.GetPath(), at->GetDistance(endPoint.x, endPoint.y, endPoint.z) * float(1000 / _maxTravelDistance));
     }
 
     void OnUpdate(uint32 diff) override
@@ -489,7 +489,7 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
             returnSplinePoints.push_back(PositionToVector3(caster));
             returnSplinePoints.push_back(PositionToVector3(caster));
 
-            at->InitSplines(returnSplinePoints, uint32(at->GetDistance(caster) / _divineStarXOffSet * 1000));
+            at->InitSplines(returnSplinePoints, uint32(at->GetDistance(caster) / _maxTravelDistance * 1000));
 
             task.Repeat(250ms);
         });
@@ -499,7 +499,7 @@ private:
     TaskScheduler _scheduler;
     Position _casterCurrentPosition;
     std::vector<ObjectGuid> _affectedUnits;
-    float _divineStarXOffSet;
+    float _maxTravelDistance;
 };
 
 // 47788 - Guardian Spirit
