@@ -134,7 +134,7 @@ enum class SpellAuraInterruptFlags2 : uint32
     ChangeGlyph                 = 0x00008000,
     SeamlessTransfer            = 0x00010000, // NYI
     WarModeLeave                = 0x00020000, // NYI
-    TouchingGround              = 0x00040000, // NYI
+    TouchingGround              = 0x00040000, // Implemented in Unit::UpdatePosition
     ChromieTime                 = 0x00080000, // NYI
     SplineFlightOrFreeFlight    = 0x00100000, // NYI
     ProcOrPeriodicAttacking     = 0x00200000  // NYI

@@ -12483,6 +12483,9 @@ bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool tel
     if (isInWater)
         RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::Swimming);
 
+    if (!IsFlying() && !IsFalling())
+        RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::TouchingGround);
+
     return (relocated || turn);
 }
 
