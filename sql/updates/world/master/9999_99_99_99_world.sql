@@ -49,8 +49,8 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- SpellScripts
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (271775, 260416, 159474, 278641, 260411);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(271775, 'spell_tantrum_energy_bar'),
+(271775, 'spell_cragmaw_power_energize_tantrum'),
 (260416, 'spell_cragmaw_larva_metamorphosis'),
 (159474, 'spell_gen_feign_death_all_flags'),
-(278641, 'spell_blood_burst'),
-(260411, 'spell_summon_larva');
+(278641, 'spell_cragmaw_blood_burst'),
+(260411, 'spell_cragmaw_summon_larva');
