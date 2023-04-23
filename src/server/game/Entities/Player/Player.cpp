@@ -7745,6 +7745,8 @@ void Player::DuelComplete(DuelCompleteType type)
             ++i;
     }
 
+    opponent->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::DuelEnd);
+
     // cleanup combo points
     ClearComboPoints();
     opponent->ClearComboPoints();
