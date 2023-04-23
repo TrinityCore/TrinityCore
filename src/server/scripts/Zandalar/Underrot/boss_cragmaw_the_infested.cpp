@@ -61,6 +61,7 @@ enum CragmawEvents
     EVENT_CHARGE_SELECTOR       = 1,
     EVENT_INDIGESTION,
     EVENT_NORMAL_REQUEUE,
+    EVENT_CHECK_ENERGY_TANTRUM,
 
     // Blood Tick
     EVENT_SERRATED_FANGS        = 1
@@ -91,6 +92,9 @@ struct boss_cragmaw_the_infested : public BossAI
 
     void JustAppeared() override
     {
+        me->SetPowerType(POWER_ENERGY);
+        DoCast(SPELL_POWER_DISPLAY_TANTRUM);
+
         if (instance->GetData(DATA_CRAGMAW_CRAWG_EATING))
             return;
 
@@ -100,7 +104,6 @@ struct boss_cragmaw_the_infested : public BossAI
         {
             _fetidMaggotGuid = summon->GetGUID();
             summon->CastSpell(nullptr, SPELL_FEIGN_DEATH, true);
-            summon->SetUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_UNINTERACTIBLE));
         }
     }
 
@@ -139,16 +142,13 @@ struct boss_cragmaw_the_infested : public BossAI
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
         instance->SetData(DATA_CRAGMAW_CRAWG_EATING, 1);
         ScheduleSpells();
+        events.ScheduleEvent(EVENT_CHECK_ENERGY_TANTRUM, 500ms);
 
         if (Creature* fetidMaggot = ObjectAccessor::GetCreature(*me, _fetidMaggotGuid))
             fetidMaggot->DespawnOrUnsummon();
 
         if (IsHeroic() || GetDifficulty() == DIFFICULTY_MYTHIC || GetDifficulty() == DIFFICULTY_MYTHIC_KEYSTONE)
-        {
-            me->SetPowerType(POWER_ENERGY);
-            DoCast(SPELL_POWER_DISPLAY_TANTRUM);
             DoCast(SPELL_POWER_ENERGIZE_TANTRUM);
-        }
     }
 
     void MovementInform(uint32 /*type*/, uint32 id) override
@@ -173,14 +173,6 @@ struct boss_cragmaw_the_infested : public BossAI
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
-        if (me->GetPower(POWER_ENERGY) >= 100)
-        {
-            ScheduleSpells();
-            DoCast(SPELL_TANTRUM_INITIAL);
-            me->SetReactState(REACT_PASSIVE);
-            me->GetMotionMaster()->MovePoint(POINT_TANTRUM_START_RND_MOVEMENT, me->GetHomePosition());
-        }
-
         switch (events.ExecuteEvent())
         {
             case EVENT_CHARGE_SELECTOR:
@@ -191,6 +183,16 @@ struct boss_cragmaw_the_infested : public BossAI
                 break;
             case EVENT_NORMAL_REQUEUE:
                 ScheduleSpells();
+                break;
+            case EVENT_CHECK_ENERGY_TANTRUM:
+                if (me->GetPower(POWER_ENERGY) >= 100)
+                {
+                    ScheduleSpells();
+                    DoCast(SPELL_TANTRUM_INITIAL);
+                    me->SetReactState(REACT_PASSIVE);
+                    me->GetMotionMaster()->MovePoint(POINT_TANTRUM_START_RND_MOVEMENT, me->GetHomePosition());
+                }
+                events.Repeat(500ms);
                 break;
             default:
                 break;

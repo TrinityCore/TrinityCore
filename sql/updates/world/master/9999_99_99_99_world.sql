@@ -51,6 +51,6 @@ DELETE FROM `spell_script_names` WHERE `spell_id` IN (271775, 260416, 159474, 27
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (271775, 'spell_cragmaw_power_energize_tantrum'),
 (260416, 'spell_cragmaw_larva_metamorphosis'),
-(159474, 'spell_gen_feign_death_all_flags'),
+(159474, 'spell_gen_feign_death_all_flags_uninteractible'),
 (278641, 'spell_cragmaw_blood_burst'),
 (260411, 'spell_cragmaw_summon_larva');
