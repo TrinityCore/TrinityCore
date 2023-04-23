@@ -1,0 +1,19 @@
+﻿http://www.mangoscn.com/forum.php?mod=viewthread&tid=187703&extra=page%3D6
+ac7.0装备升级简化教程
+
+首先进入navicat   帐号密码可以从worldserver.conf看到。方法是
+1.用写字板打开worldserver.conf，按快捷键：Ctrl+F,查找127.0.0.1，你就会看到帐号密码了.
+2.登陆navicay,打开world,打开item_up表
+3.分别会看到ID（代表要升级的装备），upid(要用什么材料来升级），amount(代表要几件upid的数量)，id1(要用什么材料来升级),amount1(代表要id1的数量)。Id2和amount2一样的意思
+4.Chance(代表成功的机率）
+5.比喻我想把一件绿装备升级青铜绿，但又没有5件绿的装备.而且机率只有80%。现在我们可以这样做：把ID中的5改成1，把chance改成100，那么我只要一件绿装就要以100%升级青铜绿.
+6.如果要批量改可以先设置最友下角的设置按钮，将（）条记录改到比条数还大.
+7.再点击一下最顶上的amount，Chance，等行列。
+8.点击粘贴(要先用记事本把要改的数字复制好，比喻5改1，先复制5，再到表里复制）
+
+
+5#
+
+打开表 打开查询编辑器
+update item_up set amount=1
+然后运行就可以了
