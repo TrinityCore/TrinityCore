@@ -79,6 +79,7 @@ class TC_GAME_API PathGenerator
         G3D::Vector3 const& GetActualEndPosition() const { return _actualEndPosition; }
 
         Movement::PointsArray const& GetPath() const { return _pathPoints; }
+        float GetPathLength() const;
 
         PathType GetPathType() const { return _type; }
 

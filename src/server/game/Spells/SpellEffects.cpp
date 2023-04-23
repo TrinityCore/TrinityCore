@@ -54,6 +54,7 @@
 #include "Map.h"
 #include "MiscPackets.h"
 #include "MotionMaster.h"
+#include "MoveSpline.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
@@ -3799,23 +3800,19 @@ void Spell::EffectCharge()
         // Spell is not using explicit target - no generated path
         if (!m_preGeneratedPath)
         {
-            //unitTarget->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
             Position pos = unitTarget->GetFirstCollisionPosition(unitTarget->GetCombatReach(), unitTarget->GetRelativeAngle(m_caster));
-            if (G3D::fuzzyGt(m_spellInfo->Speed, 0.0f) && m_spellInfo->HasAttribute(SPELL_ATTR9_SPECIAL_DELAY_CALCULATION))
-                speed = pos.GetExactDist(m_caster) / speed;
 
-            unitCaster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ, speed, EVENT_CHARGE, false, unitTarget, spellEffectExtraData ? &*spellEffectExtraData : nullptr);
+            m_preGeneratedPath = std::make_unique<PathGenerator>(unitCaster);
+            m_preGeneratedPath->CalculatePath(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false);
         }
-        else
-        {
-            if (G3D::fuzzyGt(m_spellInfo->Speed, 0.0f) && m_spellInfo->HasAttribute(SPELL_ATTR9_SPECIAL_DELAY_CALCULATION))
-            {
-                G3D::Vector3 pos = m_preGeneratedPath->GetActualEndPosition();
-                speed = Position(pos.x, pos.y, pos.z).GetExactDist(m_caster) / speed;
-            }
 
-            unitCaster->GetMotionMaster()->MoveCharge(*m_preGeneratedPath, speed, unitTarget, spellEffectExtraData ? &*spellEffectExtraData : nullptr);
-        }
+        if (G3D::fuzzyGt(m_spellInfo->Speed, 0.0f) && m_spellInfo->HasAttribute(SPELL_ATTR9_SPECIAL_DELAY_CALCULATION))
+            speed = m_preGeneratedPath->GetPathLength() / speed;
+
+        unitCaster->GetMotionMaster()->MoveCharge(*m_preGeneratedPath, speed, unitTarget, spellEffectExtraData ? &*spellEffectExtraData : nullptr);
+
+        // abuse implementation detail of MoveCharge accepting PathGenerator argument (instantly started spline)
+        UpdateDelayMomentForUnitTarget(unitTarget, unitCaster->movespline->Duration());
     }
 
     if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT_TARGET)
@@ -3851,7 +3848,18 @@ void Spell::EffectChargeDest()
             pos = unitCaster->GetFirstCollisionPosition(dist, angle);
         }
 
-        unitCaster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
+        PathGenerator path(unitCaster);
+        path.CalculatePath(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false);
+
+        float speed = G3D::fuzzyGt(m_spellInfo->Speed, 0.0f) ? m_spellInfo->Speed : SPEED_CHARGE;
+
+        if (G3D::fuzzyGt(m_spellInfo->Speed, 0.0f) && m_spellInfo->HasAttribute(SPELL_ATTR9_SPECIAL_DELAY_CALCULATION))
+            speed = path.GetPathLength() / speed;
+
+        unitCaster->GetMotionMaster()->MoveCharge(path, speed);
+
+        // abuse implementation detail of MoveCharge accepting PathGenerator argument (instantly started spline)
+        UpdateDelayMomentForDst(unitCaster->movespline->Duration());
     }
     else if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT)
     {
