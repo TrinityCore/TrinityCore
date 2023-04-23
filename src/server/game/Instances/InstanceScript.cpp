@@ -414,10 +414,19 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
                     break;
                 }
                 case FAIL:
+                {
                     ResetCombatResurrections();
                     SendEncounterEnd();
+
+                    instance->DoOnPlayers([](Player* player)
+                    {
+                        if (player->IsAlive())
+                            player->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::EndOfEncounter);
+                    });
                     break;
+                }
                 case DONE:
+                {
                     ResetCombatResurrections();
                     SendEncounterEnd();
                     dungeonEncounter = bossInfo->GetDungeonEncounterForDifficulty(instance->GetDifficultyID());
@@ -426,7 +435,14 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
                         DoUpdateCriteria(CriteriaType::DefeatDungeonEncounter, dungeonEncounter->ID);
                         SendBossKillCredit(dungeonEncounter->ID);
                     }
+
+                    instance->DoOnPlayers([](Player* player)
+                    {
+                        if (player->IsAlive())
+                            player->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::EndOfEncounter);
+                    });
                     break;
+                }
                 default:
                     break;
             }
