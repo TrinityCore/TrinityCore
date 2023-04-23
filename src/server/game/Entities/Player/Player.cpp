@@ -29153,6 +29153,7 @@ void Player::SetWarModeDesired(bool enabled)
     {
         RemovePlayerFlag(PLAYER_FLAGS_WAR_MODE_DESIRED);
         SetPvP(false);
+        RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::WarModeLeave);
     }
 
     UpdateWarModeAuras();
