@@ -50,8 +50,12 @@ enum PriestSpells
     SPELL_PRIEST_BODY_AND_SOUL                      = 64129,
     SPELL_PRIEST_BODY_AND_SOUL_SPEED                = 65081,
     SPELL_PRIEST_DIVINE_BLESSING                    = 40440,
-    SPELL_PRIEST_DIVINE_STAR_DAMAGE                 = 122128,
-    SPELL_PRIEST_DIVINE_STAR_HEAL                   = 110745,
+    SPELL_PRIEST_DIVINE_STAR_HOLY                   = 110744,
+    SPELL_PRIEST_DIVINE_STAR_SHADOW                 = 122121,
+    SPELL_PRIEST_DIVINE_STAR_HOLY_DAMAGE            = 122128,
+    SPELL_PRIEST_DIVINE_STAR_HOLY_HEAL              = 110745,
+    SPELL_PRIEST_DIVINE_STAR_SHADOW_DAMAGE          = 390845,
+    SPELL_PRIEST_DIVINE_STAR_SHADOW_HEAL            = 390981,
     SPELL_PRIEST_DIVINE_WRATH                       = 40441,
     SPELL_PRIEST_FLASH_HEAL                         = 2061,
     SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL               = 48153,
@@ -353,31 +357,59 @@ class spell_pri_divine_hymn : public SpellScript
     }
 };
 
-// 110744 - Divine Star
+// 122121 - Divine Star (Shadow)
+class spell_pri_divine_star_shadow : public SpellScript
+{
+    PrepareSpellScript(spell_pri_divine_star_shadow);
+
+    void HandleHitTarget(SpellEffIndex effIndex)
+    {
+        Unit* caster = GetCaster();
+
+        if (caster->GetPowerType() != GetEffectInfo().MiscValue)
+            PreventHitDefaultEffect(effIndex);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_divine_star_shadow::HandleHitTarget, EFFECT_2, SPELL_EFFECT_ENERGIZE);
+    }
+};
+
+// 110744 - Divine Star (Holy)
+// 122121 - Divine Star (Shadow)
 struct areatrigger_pri_divine_star : AreaTriggerAI
 {
-    areatrigger_pri_divine_star(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) {}
+    areatrigger_pri_divine_star(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger), _maxTravelDistance(0.0f) { }
 
     void OnInitialize() override
     {
-        if (Unit* caster = at->GetCaster())
-        {
-            _casterCurrentPosition = caster->GetPosition();
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(at->GetSpellId(), DIFFICULTY_NONE);
+        if (!spellInfo)
+            return;
 
-            // Note: max. distance at which the Divine Star can travel to is 24 yards.
-            float divineStarXOffSet = 24.0f;
+        if (spellInfo->GetEffects().size() <= EFFECT_1)
+            return;
 
-            Position destPos = _casterCurrentPosition;
-            at->MovePositionToFirstCollision(destPos, divineStarXOffSet, 0.0f);
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
 
-            PathGenerator firstPath(at);
-            firstPath.CalculatePath(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ(), false);
+        _casterCurrentPosition = caster->GetPosition();
 
-            G3D::Vector3 const& endPoint = firstPath.GetPath().back();
+        // Note: max. distance at which the Divine Star can travel to is EFFECT_1's BasePoints yards.
+        _maxTravelDistance = float(spellInfo->GetEffect(EFFECT_1).CalcValue(caster));
 
-            // Note: it takes 1000ms to reach 24 yards, so it takes 41.67ms to run 1 yard.
-            at->InitSplines(firstPath.GetPath(), at->GetDistance(endPoint.x, endPoint.y, endPoint.z) * 41.67f);
-        }
+        Position destPos = _casterCurrentPosition;
+        at->MovePositionToFirstCollision(destPos, _maxTravelDistance, 0.0f);
+
+        PathGenerator firstPath(at);
+        firstPath.CalculatePath(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ(), false);
+
+        G3D::Vector3 const& endPoint = firstPath.GetPath().back();
+
+        // Note: it takes 1000ms to reach EFFECT_1's BasePoints yards, so it takes (1000 / EFFECT_1's BasePoints)ms to run 1 yard.
+        at->InitSplines(firstPath.GetPath(), at->GetDistance(endPoint.x, endPoint.y, endPoint.z) * float(1000 / _maxTravelDistance));
     }
 
     void OnUpdate(uint32 diff) override
@@ -387,35 +419,34 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
 
     void OnUnitEnter(Unit* unit) override
     {
-        if (Unit* caster = at->GetCaster())
-        {
-            if (std::find(_affectedUnits.begin(), _affectedUnits.end(), unit->GetGUID()) == _affectedUnits.end())
-            {
-                if (caster->IsValidAttackTarget(unit))
-                    caster->CastSpell(unit, SPELL_PRIEST_DIVINE_STAR_DAMAGE, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
-                else if (caster->IsValidAssistTarget(unit))
-                    caster->CastSpell(unit, SPELL_PRIEST_DIVINE_STAR_HEAL, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
-
-                _affectedUnits.push_back(unit->GetGUID());
-            }
-        }
+        HandleUnitEnterExit(unit);
     }
 
     void OnUnitExit(Unit* unit) override
     {
         // Note: this ensures any unit receives a second hit if they happen to be inside the AT when Divine Star starts its return path.
-        if (Unit* caster = at->GetCaster())
-        {
-            if (std::find(_affectedUnits.begin(), _affectedUnits.end(), unit->GetGUID()) == _affectedUnits.end())
-            {
-                if (caster->IsValidAttackTarget(unit))
-                    caster->CastSpell(unit, SPELL_PRIEST_DIVINE_STAR_DAMAGE, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
-                else if (caster->IsValidAssistTarget(unit))
-                    caster->CastSpell(unit, SPELL_PRIEST_DIVINE_STAR_HEAL, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+        HandleUnitEnterExit(unit);
+    }
 
-                _affectedUnits.push_back(unit->GetGUID());
-            }
-        }
+    void HandleUnitEnterExit(Unit* unit)
+    {
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
+
+        if (std::find(_affectedUnits.begin(), _affectedUnits.end(), unit->GetGUID()) != _affectedUnits.end())
+            return;
+
+        constexpr TriggerCastFlags TriggerFlags = TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+
+        if (caster->IsValidAttackTarget(unit))
+            caster->CastSpell(unit, at->GetSpellId() == SPELL_PRIEST_DIVINE_STAR_SHADOW ? SPELL_PRIEST_DIVINE_STAR_SHADOW_DAMAGE : SPELL_PRIEST_DIVINE_STAR_HOLY_DAMAGE,
+                TriggerFlags);
+        else if (caster->IsValidAssistTarget(unit))
+            caster->CastSpell(unit, at->GetSpellId() == SPELL_PRIEST_DIVINE_STAR_SHADOW ? SPELL_PRIEST_DIVINE_STAR_SHADOW_HEAL : SPELL_PRIEST_DIVINE_STAR_HOLY_HEAL,
+                TriggerFlags);
+
+        _affectedUnits.push_back(unit->GetGUID());
     }
 
     void OnDestinationReached() override
@@ -438,21 +469,22 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
     {
         _scheduler.Schedule(0ms, [this](TaskContext task)
         {
-            if (Unit* caster = at->GetCaster())
-            {
-                _casterCurrentPosition = caster->GetPosition();
+            Unit* caster = at->GetCaster();
+            if (!caster)
+                return;
 
-                Movement::PointsArray returnSplinePoints;
+            _casterCurrentPosition = caster->GetPosition();
 
-                returnSplinePoints.push_back(PositionToVector3(at));
-                returnSplinePoints.push_back(PositionToVector3(at));
-                returnSplinePoints.push_back(PositionToVector3(caster));
-                returnSplinePoints.push_back(PositionToVector3(caster));
+            Movement::PointsArray returnSplinePoints;
 
-                at->InitSplines(returnSplinePoints, at->GetDistance(caster) / 24 * 1000);
+            returnSplinePoints.push_back(PositionToVector3(at));
+            returnSplinePoints.push_back(PositionToVector3(at));
+            returnSplinePoints.push_back(PositionToVector3(caster));
+            returnSplinePoints.push_back(PositionToVector3(caster));
 
-                task.Repeat(250ms);
-            }
+            at->InitSplines(returnSplinePoints, uint32(at->GetDistance(caster) / _maxTravelDistance * 1000));
+
+            task.Repeat(250ms);
         });
     }
 
@@ -460,6 +492,7 @@ private:
     TaskScheduler _scheduler;
     Position _casterCurrentPosition;
     std::vector<ObjectGuid> _affectedUnits;
+    float _maxTravelDistance;
 };
 
 // 47788 - Guardian Spirit
@@ -1611,6 +1644,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_atonement);
     RegisterSpellScript(spell_pri_atonement_triggered);
     RegisterSpellScript(spell_pri_divine_hymn);
+    RegisterSpellScript(spell_pri_divine_star_shadow);
     RegisterAreaTriggerAI(areatrigger_pri_divine_star);
     RegisterSpellScript(spell_pri_guardian_spirit);
     RegisterAreaTriggerAI(areatrigger_pri_halo);
