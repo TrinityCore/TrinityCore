@@ -29,6 +29,7 @@
 #include "SpellScript.h"
 #include "SpellAuras.h"
 #include "SharedDefines.h"
+#include "TemporarySummon.h"
 #include "underrot.h"
 
 enum CragmawSpells
