@@ -1,6 +1,6 @@
 -- Cragmaw the Infested
 UPDATE `creature_template` SET `AIName` = '', `ScriptName` = 'boss_cragmaw_the_infested' WHERE `entry` = 131817;
-UPDATE `creature_template` SET `AIName` = '', `ScriptName` = 'npc_blood_tick' WHERE `entry` = 132051;
+UPDATE `creature_template` SET `AIName` = '', `ScriptName` = 'npc_cragmaw_blood_tick' WHERE `entry` = 132051;
 UPDATE `creature_template` SET `flags_extra` = 128 WHERE `entry` = 132080;
 
 UPDATE `creature_template_addon` SET `Emote` = 0, `auras` = '' WHERE `entry` = 131817;

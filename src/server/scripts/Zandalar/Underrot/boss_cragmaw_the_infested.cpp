@@ -29,7 +29,6 @@
 #include "SpellScript.h"
 #include "SpellAuras.h"
 #include "SharedDefines.h"
-#include "TemporarySummon.h"
 #include "underrot.h"
 
 enum CragmawSpells
@@ -68,7 +67,7 @@ enum CragmawEvents
     EVENT_SERRATED_FANGS        = 1
 };
 
-enum Points
+enum CragmawPoints
 {
     POINT_TANTRUM_START_RND_MOVEMENT    = 0
 };
@@ -206,9 +205,9 @@ private:
 };
 
 // 132051 - Blood Tick
-struct npc_blood_tick : public ScriptedAI
+struct npc_cragmaw_blood_tick : public ScriptedAI
 {
-    npc_blood_tick(Creature* creature) : ScriptedAI(creature) { }
+    npc_cragmaw_blood_tick(Creature* creature) : ScriptedAI(creature) { }
 
     void JustAppeared() override
     {
@@ -316,7 +315,7 @@ class spell_cragmaw_larva_metamorphosis : public AuraScript
 
     void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
-        // Spellduration is 8s on Heroic+ difficulties
+        // Spell duration is 8s on heroic+ difficulties
         if (GetTarget()->GetMap()->GetDifficultyID() != DIFFICULTY_NORMAL)
         {
             aurEff->GetBase()->SetDuration(8000);
@@ -326,7 +325,7 @@ class spell_cragmaw_larva_metamorphosis : public AuraScript
 
     void HandlePeriodic(AuraEffect const* aurEff)
     {
-        if (aurEff->GetTickNumber() == aurEff->GetTotalTicks() / 2)
+        if (aurEff->GetTickNumber() == aurEff->GetTotalTicks() - 2)
             GetTarget()->CastSpell(nullptr, SPELL_METAMORPHOSIS_2, true);
     }
 
@@ -336,7 +335,7 @@ class spell_cragmaw_larva_metamorphosis : public AuraScript
             return;
 
         Unit* target = GetTarget();
-        target->CastSpell(target, SPELL_SUMMON_BLOOD_TICK_VISUAL, true);
+        target->CastSpell(nullptr, SPELL_SUMMON_BLOOD_TICK_VISUAL, true);
         target->CastSpell(target->GetPosition(), SPELL_SUMMON_BLOOD_TICK, true);
     }
 
@@ -369,7 +368,7 @@ void AddSC_boss_cragmaw_the_infested()
 {
     // Creature
     RegisterUnderrotCreatureAI(boss_cragmaw_the_infested);
-    RegisterUnderrotCreatureAI(npc_blood_tick);
+    RegisterUnderrotCreatureAI(npc_cragmaw_blood_tick);
 
     // Spells
     RegisterSpellScript(spell_cragmaw_power_energize_tantrum);
