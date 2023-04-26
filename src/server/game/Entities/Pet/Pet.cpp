@@ -931,7 +931,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
         SetPowerType(POWER_ENERGY);
         SetFullPower(POWER_ENERGY);
     }
-    else if (IsPetImp() || IsPetFelhunter() || IsPetVoidwalker() || IsPetSuccubus() || IsPetDoomguard() || IsPetFelguard()) // Warlock pets have energy (since 5.x)
+    else if (IsWarlockPet()) // Warlock pets have energy (since 5.x)
         SetPowerType(POWER_ENERGY);
     else
         SetPowerType(POWER_MANA);
