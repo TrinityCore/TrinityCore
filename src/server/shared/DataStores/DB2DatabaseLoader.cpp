@@ -25,7 +25,7 @@
 
 static char const* nullStr = "";
 
-char* DB2DatabaseLoader::Load(bool custom, uint32& records, char**& indexTable, std::vector<char*>& stringPool)
+char* DB2DatabaseLoader::Load(bool custom, uint32& records, char**& indexTable, std::vector<char*>& stringPool, uint32& minId)
 {
     // Even though this query is executed only once, prepared statement is used to send data from mysql server in binary format
     HotfixDatabasePreparedStatement* stmt = HotfixDatabase.GetPreparedStatement(_loadInfo->Statement);
@@ -170,7 +170,11 @@ char* DB2DatabaseLoader::Load(bool custom, uint32& records, char**& indexTable, 
 
     // insert new records to index table
     for (uint32 i = 0; i < newRecords; ++i)
-        indexTable[newIndexes[i]] = &dataTable[i * recordSize];
+    {
+        uint32 newId = newIndexes[i];
+        indexTable[newId] = &dataTable[i * recordSize];
+        minId = std::min(minId, newId);
+    }
 
     delete[] tempDataTable;
     delete[] newIndexes;
