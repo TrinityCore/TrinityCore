@@ -773,7 +773,7 @@ class spell_hun_steady_shot : public SpellScript
     }
 };
 
-// 1515 - Tame Beast    //ԭ    //ѱ,ץ
+// 1515 - Tame Beast    
 class spell_hun_tame_beast : public SpellScript 
 {
     PrepareSpellScript(spell_hun_tame_beast);
@@ -798,9 +798,9 @@ class spell_hun_tame_beast : public SpellScript
 
         if (Creature* target = GetExplTargetUnit()->ToCreature())
         {
-            //˴ע,ȡץ,ʾȼ.Ҳץߵȼ.
+            //In case of show can't tame errors,tempory disable this.
             //if (target->GetLevel() > caster->GetLevel())
-            //    return SPELL_FAILED_HIGHLEVEL;//ѱʧ,ȼ
+            //    return SPELL_FAILED_HIGHLEVEL;
 
             // use SMSG_PET_TAME_FAILURE?
             if (!target->GetCreatureTemplate()->IsTameable(caster->CanTameExoticPets()))

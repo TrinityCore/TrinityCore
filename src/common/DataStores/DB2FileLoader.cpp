@@ -597,23 +597,13 @@ char* DB2FileLoaderRegularImpl::AutoProduceStrings(char** indexTable, uint32 ind
                             offset += 8;
                             break;
                         case FT_STRING:
-                        {
-                            char const* string = RecordGetString(rawRecord, x, z);
-                            if (string >= reinterpret_cast<char const*>(_stringTable)) // ensure string is inside _stringTable
-                                reinterpret_cast<LocalizedString*>(&recordData[offset])->Str[locale] = stringPool + (string - reinterpret_cast<char const*>(_stringTable));
-
+                            reinterpret_cast<LocalizedString*>(&recordData[offset])->Str[locale] = stringPool + (RecordGetString(rawRecord, x, z) - reinterpret_cast<char const*>(_stringTable));
                             offset += sizeof(LocalizedString);
                             break;
-                        }
                         case FT_STRING_NOT_LOCALIZED:
-                        {
-                            char const* string = RecordGetString(rawRecord, x, z);
-                            if (string >= reinterpret_cast<char const*>(_stringTable)) // ensure string is inside _stringTable
-                                *reinterpret_cast<char**>(&recordData[offset]) = stringPool + (string - reinterpret_cast<char const*>(_stringTable));
-
+                            *reinterpret_cast<char**>(&recordData[offset]) = stringPool + (RecordGetString(rawRecord, x, z) - reinterpret_cast<char const*>(_stringTable));
                             offset += sizeof(char*);
                             break;
-                        }
                         default:
                             ABORT_MSG("Unknown format character '%c' found in %s meta for field %s",
                                 _loadInfo->Fields[fieldIndex].Type, _fileName, _loadInfo->Fields[fieldIndex].Name);
@@ -810,7 +800,7 @@ char const* DB2FileLoaderRegularImpl::RecordGetString(uint8 const* record, uint3
     uint32 fieldOffset = GetFieldOffset(field) + sizeof(uint32) * arrayIndex;
     uint32 stringOffset = RecordGetVarInt<uint32>(record, field, arrayIndex);
     ASSERT(stringOffset < _header->RecordSize * _header->RecordCount + _header->StringTableSize);
-    return reinterpret_cast<char const*>(record + fieldOffset + stringOffset);
+    return stringOffset ? reinterpret_cast<char const*>(record + fieldOffset + stringOffset) : EmptyDb2String;
 }
 
 template<typename T>
