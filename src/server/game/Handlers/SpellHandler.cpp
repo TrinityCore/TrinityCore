@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -77,6 +77,13 @@ void WorldSession::HandleUseItemOpcode(WorldPackets::Spells::UseItem& packet)
         return;
     }
 
+    SpellCastTargets targets(user, packet.Cast);
+
+    Item* target = targets.GetItemTarget();
+    ObjectGuid::LowType guidlow = 0;
+    if (target && target->IsInWorld()) {
+        guidlow = target->GetGUIDLow();
+    }
     InventoryResult msg = user->CanUseItem(item);
     if (msg != EQUIP_ERR_OK)
     {
@@ -126,7 +133,12 @@ void WorldSession::HandleUseItemOpcode(WorldPackets::Spells::UseItem& packet)
 
     user->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::ItemUse);
 
-    SpellCastTargets targets(user, packet.Cast);
+    // SpellCastTargets targets(user, packet.Cast);
+    uint32 entry = proto->GetId();
+    if (entry > 0 && aaCenter.aa_teleport_targets.find(entry) != aaCenter.aa_teleport_targets.end()) {
+        sScriptMgr->OnItemUse(user, item, targets, packet.Cast.CastID);
+        return;
+    }
 
     // Note: If script stop casting it must send appropriate data to client to prevent stuck item in gray state.
     if (!sScriptMgr->OnItemUse(user, item, targets, packet.Cast.CastID))
@@ -329,6 +341,42 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
 
     // client provided targets
     SpellCastTargets targets(caster, cast.Cast);
+
+    if (targets.GetUnitTarget())
+    {
+        AA_Spell_Conf conf = aaCenter.aa_spell_confs[spellInfo->Id];
+        bool isOk = false;
+        if (!aaCenter.AA_StringHasString(conf.target, "boss") &&
+            !aaCenter.AA_StringHasString(conf.target, "小怪") &&
+            !aaCenter.AA_StringHasString(conf.target, "玩家")) {
+            isOk = true;
+        }
+        if (aaCenter.AA_StringHasString(conf.target, "boss")) {
+            Creature* creature = targets.GetUnitTarget()->ToCreature();
+            if (creature && creature->GetCreatureTemplate() && creature->GetCreatureTemplate()->rank == 3) {
+                isOk = true;
+            }
+        }
+        if (aaCenter.AA_StringHasString(conf.target, "小怪")) {
+            Creature* creature = targets.GetUnitTarget()->ToCreature();
+            if (creature && creature->GetCreatureTemplate() && creature->GetCreatureTemplate()->rank != 3) {
+                isOk = true;
+            }
+        }
+        if (aaCenter.AA_StringHasString(conf.target, "玩家")) {
+            Player* player = targets.GetUnitTarget()->ToPlayer();
+            if (player) {
+                isOk = true;
+            }
+        }
+
+        if (!isOk) {
+            if (_player && _player->IsInWorld()) {
+                aaCenter.AA_SendMessage(_player, 1, "|cffFF0000目标不符合类型|r");
+            }
+            return;
+        }
+    }
 
     // check known spell or raid marker spell (which not requires player to know it)
     if (caster->GetTypeId() == TYPEID_PLAYER && !caster->ToPlayer()->HasActiveSpell(spellInfo->Id) && !spellInfo->HasEffect(SPELL_EFFECT_CHANGE_RAID_MARKER) && !spellInfo->HasAttribute(SPELL_ATTR8_RAID_MARKER))

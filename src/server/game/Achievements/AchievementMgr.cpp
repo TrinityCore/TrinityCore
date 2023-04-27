@@ -539,6 +539,16 @@ void PlayerAchievementMgr::CompletedAchievement(AchievementEntry const* achievem
 
     sScriptMgr->OnAchievementCompleted(referencePlayer, achievement);
 
+    //完成成就奖励
+    {
+        std::vector<AA_Event_Map> mapeventconfs = aaCenter.aa_event_maps["完成成就"];
+        for (auto mapconf : mapeventconfs) {
+            if (achievement->ID == uint32(mapconf.value) || mapconf.value == -1) {
+                aaCenter.AA_EventMapStart(referencePlayer, mapconf);
+            }
+        }
+    }
+
     // reward items and titles if any
     AchievementReward const* reward = sAchievementMgr->GetAchievementReward(achievement);
 

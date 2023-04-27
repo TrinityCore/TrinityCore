@@ -69,6 +69,13 @@ typedef std::unordered_map<uint8, CreatureTextRepeatIds> CreatureTextRepeatGroup
 class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public MapObject
 {
     public:
+        uint32 aa_id = 0;
+        uint32 aa_boss_id = 0;
+        uint32 aa_boss_time = 0;
+        uint32 aa_boss_time_max = 0;
+        std::map<ObjectGuid, uint32> aa_boss_dmg;
+        ObjectGuid::LowType GetGUIDLow() { return GetGUID().GetCounter(); }
+
         explicit Creature(bool isWorldObject = false);
         ~Creature();
 
@@ -212,7 +219,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         uint32 GetVendorItemCurrentCount(VendorItem const* vItem);
         uint32 UpdateVendorItemCurrentCount(VendorItem const* vItem, uint32 used_count);
 
-        CreatureTemplate const* GetCreatureTemplate() const { return m_creatureInfo; }
+        CreatureTemplate const* GetCreatureTemplate() const;
+        // CreatureTemplate const* GetCreatureTemplate() const { return m_creatureInfo; }
         CreatureData const* GetCreatureData() const { return m_creatureData; }
         CreatureAddon const* GetCreatureAddon() const;
 

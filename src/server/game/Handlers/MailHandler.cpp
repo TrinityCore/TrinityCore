@@ -39,11 +39,11 @@ bool WorldSession::CanOpenMailBox(ObjectGuid guid)
 {
     if (guid == _player->GetGUID())
     {
-        if (!HasPermission(rbac::RBAC_PERM_COMMAND_MAILBOX))
-        {
-            TC_LOG_WARN("cheat", "{} attempted to open mailbox by using a cheat.", _player->GetName());
-            return false;
-        }
+        // if (!HasPermission(rbac::RBAC_PERM_COMMAND_MAILBOX))
+        // {
+        //     TC_LOG_WARN("cheat", "{} attempted to open mailbox by using a cheat.", _player->GetName());
+        //     return false;
+        // }
     }
     else if (guid.IsGameObject())
     {

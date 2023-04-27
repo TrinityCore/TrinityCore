@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -392,7 +392,7 @@ enum DuelState
 };
 struct DuelInfo
 {
-    DuelInfo(Player* opponent, Player* initiator, bool isMounted) : Opponent(opponent), Initiator(initiator), IsMounted(isMounted) {}
+    DuelInfo(Player* opponent, Player* initiator, bool isMounted, bool aa_biwu1 = false) : Opponent(opponent), Initiator(initiator), IsMounted(isMounted), aa_biwu(aa_biwu1) {}
 
     Player* const Opponent;
     Player* const Initiator;
@@ -400,6 +400,7 @@ struct DuelInfo
     DuelState State = DUEL_STATE_CHALLENGED;
     time_t StartTime = 0;
     time_t OutOfBoundsTime = 0;
+    bool aa_biwu;
 };
 
 struct Areas
@@ -1129,6 +1130,51 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
     friend void AddItemToUpdateQueueOf(Item* item, Player* player);
     friend void RemoveItemFromUpdateQueueOf(Item* item, Player* player);
     public:
+        uint32 aa_biwu_teamid = 0;
+        std::string aa_namepre_temp = "";
+        std::string aa_namesuf_temp = "";
+        ObjectGuid::LowType aa_jijie_guidlow = 0;
+        bool isKuangbao = false;
+        std::unordered_map<uint32,uint32> aa_yewai_types;
+        bool aa_yewai_teleport = false;
+        std::unordered_map<uint32,bool> aa_lj_times;
+        uint32 aa_lj_time = 0;
+        uint32 jindu_time = 0;
+        uint32 aa_usedTalentCount = 0; //官方天赋数量
+        
+        //副本模式
+        int32 aa_teleport_map = -2;
+        int32 aa_teleport_nandu = -2;
+        int32 aa_teleport_moshi = -2;
+        
+        //防外挂-定高次数
+        uint32 aa_wg_dinggao = 0;
+        uint32 aa_wg_chaosu = 0;
+        
+        //拾取次数，防脚本验证
+        uint32 lootcount = 0;
+        uint32 codeindex = 0;
+        int32 codecishu = 3;
+        uint32 codetime = 0;
+        uint32 guajiyanzhengtime = 0;
+        uint32 liansha = 0;
+        Item *aa_item = nullptr;
+        Item *aa_target_item = nullptr;
+        uint32 aa_menuId = 0;
+        int32 vendorSummonTime = 0; // 随身商人临时召唤时间
+        
+        Position aa_lastPos;
+        
+        std::unordered_map<std::string,bool> m_guajis;  //防挂机检测条件
+        uint32 guajiTime = 0; // 防挂机时间
+        uint32 combatTime = 0; // 解除战斗时间
+        uint32 clickTime = 0; // 点击心跳时间
+        std::unordered_map<uint32, uint32> paodianTimes; // 泡点心跳时间
+        uint32 leijiTime = 0; // 累计心跳时间
+        ObjectGuid::LowType GetGUIDLow() const { return GetGUID().GetCounter(); }
+        void AA_SendLoot(Loot& loot, bool aeLooting = false);
+        void AA_ApplyItem(Item* pItem, bool apply);
+    
         explicit Player(WorldSession* session);
         ~Player();
 
@@ -1416,11 +1462,12 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         InventoryResult CanUnequipItems(uint32 item, uint32 count) const;
         InventoryResult CanUnequipItem(uint16 src, bool swap) const;
         InventoryResult CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, Item* pItem, bool swap, bool not_loading = true, bool reagentBankOnly = false) const;
-        InventoryResult CanUseItem(Item* pItem, bool not_loading = true) const;
+        InventoryResult CanUseItem(Item* pItem, bool not_loading = true, ObjectGuid::LowType guidlow = 0) const;
         bool HasItemTotemCategory(uint32 TotemCategory) const;
         InventoryResult CanUseItem(ItemTemplate const* pItem, bool skipRequiredLevelCheck = false) const;
         InventoryResult CanRollNeedForItem(ItemTemplate const* item, Map const* map, bool restrictOnlyLfg) const;
-        Item* StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool update, ItemRandomBonusListId randomBonusListId = 0, GuidSet const& allowedLooters = GuidSet(), ItemContext context = ItemContext::NONE, std::vector<int32> const& bonusListIDs = std::vector<int32>(), bool addToCollection = true);
+        //aawow 拾取鉴定，需要知道loot 从哪里过来的 怪物掉落，队长分配还是队伍分配，还是哪
+        Item* StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool update, ItemRandomBonusListId randomBonusListId = 0, GuidSet const& allowedLooters = GuidSet(), ItemContext context = ItemContext::NONE, std::vector<int32> const& bonusListIDs = std::vector<int32>(), bool addToCollection = true, Loot* loot = nullptr);
         Item* StoreItem(ItemPosCountVec const& pos, Item* pItem, bool update);
         Item* EquipNewItem(uint16 pos, uint32 item, ItemContext context, bool update);
         Item* EquipItem(uint16 pos, Item* pItem, bool update);

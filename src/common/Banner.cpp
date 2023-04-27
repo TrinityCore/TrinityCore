@@ -22,16 +22,15 @@
 void Trinity::Banner::Show(char const* applicationName, void(*log)(char const* text), void(*logExtraInfo)())
 {
     log(Trinity::StringFormat("{} ({})", GitRevision::GetFullVersion(), applicationName).c_str());
-    log(R"(<Ctrl-C> to stop.)");
-    log(R"( ______                       __)");
-    log(R"(/\__  _\       __          __/\ \__)");
-    log(R"(\/_/\ \/ _ __ /\_\    ___ /\_\ \, _\  __  __)");
-    log(R"(   \ \ \/\`'__\/\ \ /' _ `\/\ \ \ \/ /\ \/\ \)");
-    log(R"(    \ \ \ \ \/ \ \ \/\ \/\ \ \ \ \ \_\ \ \_\ \)");
-    log(R"(     \ \_\ \_\  \ \_\ \_\ \_\ \_\ \__\\/`____ \)");
-    log(R"(      \/_/\/_/   \/_/\/_/\/_/\/_/\/__/ `/___/> \)");
-    log(R"(                                 C O R E  /\___/)");
-    log(R"(http://TrinityCore.org                    \/__/)");
+
+    log(R"(<Ctrl-C> to stop.\n");
+    log(R"(   █████╗   █████╗   ██████╗ ██████╗ ██████╗ ███████╗)");
+    log(R"(  ██╔══██╗ ██╔══██╗ ██╔════╝██╔═══██╗██╔══██╗██╔════╝)");
+    log(R"(  ███████║ ███████║ ██║     ██║   ██║██████╔╝█████╗)");
+    log(R"(  ██╔══██║ ██╔══██║ ██║     ██║   ██║██╔══██╗██╔══╝)");
+    log(R"(  ██║  ██║ ██║  ██║ ╚██████╗╚██████╔╝██║  ██║███████╗)");
+    log(R"(  ╚═╝  ╚═╝ ╚═╝  ╚═╝  ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝\n)");
+    log(R"(     AACore 3.3.5a  -  QQ643125009 - QQ群680848103\n)");
 
     if (logExtraInfo)
         logExtraInfo();

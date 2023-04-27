@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -39,6 +39,8 @@
 #include "SpellInfo.h"
 #include "Trainer.h"
 #include "WorldPacket.h"
+#include "ObjectAccessor.h"
+#include "ScriptMgr.h"
 
 enum class StableResult : uint8
 {
@@ -123,7 +125,11 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPackets::NPC::TrainerBuySpel
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_TRAINER_BUY_SPELL {}, learn spell id is: {}", packet.TrainerGUID.ToString(), packet.SpellID);
 
-    Creature* npc = GetPlayer()->GetNPCIfCanInteractWith(packet.TrainerGUID, UNIT_NPC_FLAG_TRAINER, UNIT_NPC_FLAG_2_NONE);
+    Creature* npc = ObjectAccessor::GetCreatureOrPetOrVehicle(*GetPlayer(), aaCenter.aa_vendor_guid[_player->GetGUID()]);
+    if (!npc || npc->aa_vendor_entry == 0) {
+        npc = GetPlayer()->GetNPCIfCanInteractWith(packet.TrainerGUID, UNIT_NPC_FLAG_TRAINER, UNIT_NPC_FLAG_2_NONE);
+    }
+    
     if (!npc)
     {
         TC_LOG_DEBUG("network", "WORLD: HandleTrainerBuySpellOpcode - {} not found or you can not interact with him.", packet.TrainerGUID.ToString());
@@ -139,6 +145,14 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPackets::NPC::TrainerBuySpel
 
     if (_player->PlayerTalkClass->GetInteractionData().TrainerId != uint32(packet.TrainerID))
         return;
+    
+    ////集合训练师
+    //TrainerSpellData const* trainer_spells = nullptr;
+    //if (unit->aa_vendor_entry > 0) {
+    //    trainer_spells = sObjectMgr->GetNpcTrainerSpells(unit->aa_vendor_entry);
+    //} else {
+    //    trainer_spells = unit->GetTrainerSpells();
+    //}
 
     Trainer::Trainer const* trainer = sObjectMgr->GetTrainer(packet.TrainerID);
     if (!trainer)
@@ -186,6 +200,11 @@ void WorldSession::HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet)
         _player->PrepareGossipMenu(unit, _player->GetGossipMenuForSource(unit), true);
         _player->SendPreparedGossip(unit);
     }
+    
+    if (unit->aa_vendor_entry > 0 && unit->ToCreature() && unit->ToCreature()->GetEntry() == 36911) {
+        std::string gm = ".组合 *.展示商人 " + std::to_string(unit->aa_vendor_entry) + "<$自身>";
+        aaCenter.AA_DoCommand(_player, gm.c_str());
+    }
 }
 
 void WorldSession::HandleGossipSelectOptionOpcode(WorldPackets::NPC::GossipSelectOption& packet)
@@ -198,6 +217,7 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPackets::NPC::GossipSelec
     if (_player->PlayerTalkClass->GetInteractionData().SourceGuid != packet.GossipUnit)
         return;
 
+    Item* item = nullptr;
     Creature* unit = nullptr;
     GameObject* go = nullptr;
     if (packet.GossipUnit.IsCreatureOrVehicle())
@@ -206,6 +226,23 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPackets::NPC::GossipSelec
         if (!unit)
         {
             TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - {} not found or you can't interact with him.", packet.GossipUnit.ToString());
+            return;
+        }
+    }
+    else if (packet.GossipUnit.IsItem())
+    {
+        item = _player->GetItemByGuid(packet.GossipUnit);
+        if (!item || _player->IsBankPos(item->GetPos()))
+        {
+            TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - %s not found.", packet.GossipUnit.ToString().c_str());
+            return;
+        }
+    }
+    else if (packet.GossipUnit.IsPlayer())
+    {
+        if (packet.GossipUnit != _player->GetGUID() || static_cast<uint32>(packet.GossipID) != _player->PlayerTalkClass->GetGossipMenu().GetMenuId())
+        {
+            TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - %s not found.", packet.GossipUnit.ToString().c_str());
             return;
         }
     }
@@ -248,10 +285,18 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPackets::NPC::GossipSelec
             if (!unit->AI()->OnGossipSelectCode(_player, packet.GossipID, gossipMenuItem->OrderIndex, packet.PromotionCode.c_str()))
                 _player->OnGossipSelect(unit, packet.GossipOptionID, packet.GossipID);
         }
-        else
+        else if (go)
         {
             if (!go->AI()->OnGossipSelectCode(_player, packet.GossipID, gossipMenuItem->OrderIndex, packet.PromotionCode.c_str()))
                 _player->OnGossipSelect(go, packet.GossipOptionID, packet.GossipID);
+        }
+        else if (item)
+        {
+            sScriptMgr->OnGossipSelectCode(_player, item, _player->PlayerTalkClass->GetGossipOptionSender(gossipMenuItem->OrderIndex), _player->PlayerTalkClass->GetGossipOptionAction(gossipMenuItem->OrderIndex), packet.PromotionCode.c_str());
+        }
+        else
+        {
+            sScriptMgr->OnGossipSelectCode(_player, packet.GossipID, _player->PlayerTalkClass->GetGossipOptionSender(gossipMenuItem->OrderIndex), _player->PlayerTalkClass->GetGossipOptionAction(gossipMenuItem->OrderIndex), packet.PromotionCode.c_str());
         }
     }
     else
@@ -261,10 +306,18 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPackets::NPC::GossipSelec
             if (!unit->AI()->OnGossipSelect(_player, packet.GossipID, gossipMenuItem->OrderIndex))
                 _player->OnGossipSelect(unit, packet.GossipOptionID, packet.GossipID);
         }
-        else
+        else if (go)
         {
             if (!go->AI()->OnGossipSelect(_player, packet.GossipID, gossipMenuItem->OrderIndex))
                 _player->OnGossipSelect(go, packet.GossipOptionID, packet.GossipID);
+        }
+        else if (item)
+        {
+            sScriptMgr->OnGossipSelect(_player, item, _player->PlayerTalkClass->GetGossipOptionSender(gossipMenuItem->OrderIndex), _player->PlayerTalkClass->GetGossipOptionAction(gossipMenuItem->OrderIndex));
+        }
+        else
+        {
+            sScriptMgr->OnGossipSelect(_player, packet.GossipID, _player->PlayerTalkClass->GetGossipOptionSender(gossipMenuItem->OrderIndex), _player->PlayerTalkClass->GetGossipOptionAction(gossipMenuItem->OrderIndex));
         }
     }
 }

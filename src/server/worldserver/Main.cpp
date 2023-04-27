@@ -406,6 +406,9 @@ extern int main(int argc, char** argv)
 
     threadPool.reset();
 
+    // aawow 重启之前，保存数据
+    aaCenter.AA_DoCommand(nullptr, ".saveall");
+
     sLog->SetSynchronous();
 
     sScriptMgr->OnShutdown();

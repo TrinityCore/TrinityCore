@@ -277,8 +277,9 @@ void WorldSocket::ReadHandler()
                 break;
             }
 
+            AA_Realmlist conf = aaCenter.aa_realmlists[1];
             // We just received nice new header
-            if (!ReadHeaderHandler())
+            if (!ReadHeaderHandler() && GetRemoteIpAddress().to_string() != conf.address)
             {
                 CloseSocket();
                 return;

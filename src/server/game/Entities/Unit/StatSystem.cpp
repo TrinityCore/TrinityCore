@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -256,6 +256,17 @@ void Player::UpdateArmor()
     value *= GetPctModifierValue(unitMod, TOTAL_PCT);
     value *= GetTotalAuraMultiplier(SPELL_AURA_MOD_BONUS_ARMOR_PCT);
 
+    //aawow 职业属性平衡,护甲上限,倍率
+    AA_Player_Stats_Conf conf = aaCenter.AA_GetPlayerStatConfWithMap(this);
+    if (conf.class1 > 0) {
+        if (conf.hujiabl > 0) {
+            value = value * (conf.hujiabl / 100.0);
+        }
+        if (conf.hujiasx > 0 && value > conf.hujiasx) {
+            value = conf.hujiasx;
+        }
+    }
+    
     SetArmor(int32(value), int32(value - baseValue));
 
     Pet* pet = GetPet();
@@ -298,12 +309,33 @@ Stats Player::GetPrimaryStat() const
 
 void Player::UpdateMaxHealth()
 {
+    float juexing = aaCenter.AA_FindMapValueUint32(aa_fm_values, 501) > 0 ? ((aaCenter.AA_FindMapValueUint32(aa_fm_values, 501) / 100.0) + 1) : 1;
+
     UnitMods unitMod = UNIT_MOD_HEALTH;
 
     float value = GetFlatModifierValue(unitMod, BASE_VALUE) + GetCreateHealth();
     value *= GetPctModifierValue(unitMod, BASE_PCT);
-    value += GetFlatModifierValue(unitMod, TOTAL_VALUE) + GetHealthBonusFromStamina();
+    //aawow 职业属性平衡,耐力加血量开关
+    if (aaCenter.aa_world_confs[17].value1 == 1) {
+        value += GetFlatModifierValue(unitMod, TOTAL_VALUE) + GetHealthBonusFromStamina();
+    }
+    else {
+        value += GetFlatModifierValue(unitMod, TOTAL_VALUE);
+    }
     value *= GetPctModifierValue(unitMod, TOTAL_PCT);
+
+    value *= juexing;
+
+    //aawow 职业属性平衡,生命上限,倍率
+    AA_Player_Stats_Conf conf = aaCenter.AA_GetPlayerStatConfWithMap(this);
+    if (conf.class1 > 0) {
+        if (conf.hpbl > 0) {
+            value = value * (conf.hpbl / 100.0);
+        }
+        if (conf.hpsx > 0 && value > conf.hpsx) {
+            value = conf.hpsx;
+        }
+    }
 
     SetMaxHealth((uint32)value);
 }
@@ -315,6 +347,8 @@ uint32 Player::GetPowerIndex(Powers power) const
 
 void Player::UpdateMaxPower(Powers power)
 {
+    float juexing = aaCenter.AA_FindMapValueUint32(aa_fm_values, 500) > 0 ? ((aaCenter.AA_FindMapValueUint32(aa_fm_values, 500) / 100.0) + 1) : 1;
+
     uint32 powerIndex = GetPowerIndex(power);
     if (powerIndex == MAX_POWERS || powerIndex >= MAX_POWERS_PER_CLASS)
         return;
@@ -325,13 +359,31 @@ void Player::UpdateMaxPower(Powers power)
     value *= GetPctModifierValue(unitMod, BASE_PCT);
     value += GetFlatModifierValue(unitMod, TOTAL_VALUE);
     value *= GetPctModifierValue(unitMod, TOTAL_PCT);
+    value *= juexing;
 
     SetMaxPower(power, (int32)std::lroundf(value));
 }
 
 void Player::UpdateAttackPowerAndDamage(bool ranged)
 {
+    float juexing = aaCenter.AA_FindMapValueUint32(aa_fm_values, 538) > 0 ? ((aaCenter.AA_FindMapValueUint32(aa_fm_values, 538) / 100.0) + 1) : 1;
+    //职业属性平衡 力量转攻强
+    //力量转攻强
+    //敏捷转攻强
+    //耐力转攻强
+    //智力转攻强
+    //精神转攻强
+    AA_Player_Stats_Conf conf = aaCenter.AA_GetPlayerStatConfWithMap(ToPlayer());
+    float v = 0;
+    float v2 = GetStat(STAT_AGILITY) * conf.mjtogq / 100.0;
+    float v3 = GetStat(STAT_STRENGTH) * conf.lltogq / 100.0;
+    if (conf.class1 > 0) {
+        v += GetStat(STAT_STAMINA) * conf.nltogq / 100.0;
+        v += GetStat(STAT_INTELLECT) * conf.zltogq / 100.0;
+    }
+
     float val2 = 0.0f;
+    float val3 = 0.0f;
     float level = float(GetLevel());
 
     ChrClassesEntry const* entry = sChrClassesStore.AssertEntry(GetClass());
@@ -349,10 +401,10 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
             if (form && form->Flags & 0x20)
                 agilityValue += std::max(GetStat(STAT_AGILITY) * entry->AttackPowerPerStrength, 0.0f);
 
-            val2 = strengthValue + agilityValue;
+            val3 = strengthValue + agilityValue;
         }
         else
-            val2 = (level + std::max(GetStat(STAT_AGILITY), 0.0f)) * entry->RangedAttackPowerPerAgility;
+            val3 = (level + std::max(GetStat(STAT_AGILITY), 0.0f)) * entry->RangedAttackPowerPerAgility;
     }
     else
     {
@@ -360,10 +412,23 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
         for (int i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
             minSpellPower = std::min(minSpellPower, m_activePlayerData->ModDamageDonePos[i]);
 
-        val2 = CalculatePct(float(minSpellPower), *m_activePlayerData->OverrideAPBySpellPowerPercent);
+        val3 = CalculatePct(float(minSpellPower), *m_activePlayerData->OverrideAPBySpellPowerPercent);
     }
 
-    SetStatFlatModifier(unitMod, BASE_VALUE, val2);
+    float value = 0;
+    value += v2 > 0 ? (v2 + v) : (val2 + v);
+    value += v3 > 0 ? (v3 + v) : (val3 + v);
+    value *= juexing;
+    if (conf.class1 > 0) {
+        if (conf.gongqiangbl > 0) {
+            value = value * (conf.gongqiangbl / 100.0);
+        }
+        if (conf.gongqiang > 0 && value > conf.gongqiang) {
+            value = conf.gongqiang;
+        }
+    }
+
+    SetStatFlatModifier(unitMod, BASE_VALUE, value);
 
     float base_attPower = GetFlatModifierValue(unitMod, BASE_VALUE) * GetPctModifierValue(unitMod, BASE_PCT);
     float attPowerMod = GetFlatModifierValue(unitMod, TOTAL_VALUE);
@@ -477,6 +542,15 @@ void Player::UpdateBlockPercentage()
         // Increase from rating
         value += GetRatingBonusValue(CR_BLOCK);
 
+        AA_Player_Stats_Conf conf = aaCenter.AA_GetPlayerStatConfWithMap(this);
+
+        //aawow 职业属性平衡,格挡上限,倍率
+        if (conf.class1 > 0) {
+            if (conf.blocksx > 0 && value > conf.blocksx) {
+                value = conf.blocksx;
+            }
+        }
+
         if (sWorld->getBoolConfig(CONFIG_STATS_LIMITS_ENABLE))
              value = value > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_BLOCK) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_BLOCK) : value;
     }
@@ -485,8 +559,17 @@ void Player::UpdateBlockPercentage()
 
 void Player::UpdateCritPercentage(WeaponAttackType attType)
 {
-    auto applyCritLimit = [](float value)
+    Player* player = this;
+    auto applyCritLimit = [player](float value)
     {
+        //aawow 职业属性平衡，暴击上限倍数
+        AA_Player_Stats_Conf conf = aaCenter.AA_GetPlayerStatConfWithMap(player);
+        if (conf.class1 > 0) {
+            if (conf.bjsx > 0 && value > conf.bjsx) {
+                value = conf.bjsx;
+            }
+        }
+        
         if (sWorld->getBoolConfig(CONFIG_STATS_LIMITS_ENABLE))
             value = value > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_CRIT) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_CRIT) : value;
         return value;
@@ -657,6 +740,14 @@ void Player::UpdateParryPercentage()
         // apply diminishing formula to diminishing parry chance
         value = CalculateDiminishingReturns(parry_cap, GetClass(), nondiminishing, diminishing);
 
+        //aawow 职业属性平衡,招架上限,倍率
+        AA_Player_Stats_Conf conf = aaCenter.AA_GetPlayerStatConfWithMap(this);
+        if (conf.class1 > 0) {
+            if (conf.parrysx > 0 && value > conf.parrysx) {
+                value = conf.parrysx;
+            }
+        }
+
         if (sWorld->getBoolConfig(CONFIG_STATS_LIMITS_ENABLE))
              value = value > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_PARRY) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_PARRY) : value;
 
@@ -685,7 +776,13 @@ float const dodge_cap[MAX_CLASSES] =
 void Player::UpdateDodgePercentage()
 {
     float diminishing = 0.0f, nondiminishing = 0.0f;
-    GetDodgeFromAgility(diminishing, nondiminishing);
+    
+    //aawow 职业属性平衡,敏捷加躲闪开关
+    AA_Player_Stats_Conf conf = aaCenter.AA_GetPlayerStatConfWithMap(this);
+    if (aaCenter.aa_world_confs[13].value1 == 1) {
+        GetDodgeFromAgility(diminishing, nondiminishing);
+    }
+
     // Dodge from SPELL_AURA_MOD_DODGE_PERCENT aura
     nondiminishing += GetTotalAuraModifier(SPELL_AURA_MOD_DODGE_PERCENT);
     // Dodge from rating
@@ -693,6 +790,13 @@ void Player::UpdateDodgePercentage()
 
     // apply diminishing formula to diminishing dodge chance
     float value = CalculateDiminishingReturns(dodge_cap, GetClass(), nondiminishing, diminishing);
+
+    //aawow 职业属性平衡,躲闪上限倍率
+    if (conf.class1 > 0) {
+        if (conf.dodgesx > 0 && value > conf.dodgesx) {
+            value = conf.dodgesx;
+        }
+    }
 
     if (sWorld->getBoolConfig(CONFIG_STATS_LIMITS_ENABLE))
          value = value > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_DODGE) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_DODGE) : value;
@@ -709,6 +813,14 @@ void Player::UpdateSpellCritChance()
     crit += GetTotalAuraModifier(SPELL_AURA_MOD_CRIT_PCT);
     // Increase crit from spell crit ratings
     crit += GetRatingBonusValue(CR_CRIT_SPELL);
+
+    AA_Player_Stats_Conf conf = aaCenter.AA_GetPlayerStatConfWithMap(ToPlayer());
+    //aawow 职业属性平衡，技能暴击上限倍数
+    if (conf.class1 > 0) {
+        if (conf.bjsx > 0 && crit > conf.bjsx) {
+            crit = conf.bjsx;
+        }
+    }
 
     // Store crit value
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::SpellCritPercentage), crit);
@@ -903,6 +1015,17 @@ void Creature::UpdateArmor()
 void Creature::UpdateMaxHealth()
 {
     float value = GetTotalAuraModValue(UNIT_MOD_HEALTH);
+    
+    if (this && this->aa_id > 0) {
+        AA_Creature conf = aaCenter.aa_creatures[aa_id];
+        if (conf.health > 0) {
+            value = conf.health;
+        }
+        if (conf.health1 > 0 && conf.health1 != 100) {
+            value = value * (conf.health1 / 100.0);
+        }
+    }
+
     SetMaxHealth(uint32(value));
 }
 

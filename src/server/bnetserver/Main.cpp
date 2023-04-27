@@ -130,6 +130,7 @@ int main(int argc, char** argv)
             TC_LOG_INFO("server.bnetserver", "Using configuration file {}.", sConfigMgr->GetFilename());
             TC_LOG_INFO("server.bnetserver", "Using SSL version: {} (library: {})", OPENSSL_VERSION_TEXT, OpenSSL_version(OPENSSL_VERSION));
             TC_LOG_INFO("server.bnetserver", "Using Boost version: {}.{}.{}", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
+            TC_LOG_INFO("server.bnetserver", "唯一QQ:643125009,其他都是骗子\n暗黑魔兽-超强特色-随机属性\n单机游戏交流QQ群:680848103");
         }
     );
 

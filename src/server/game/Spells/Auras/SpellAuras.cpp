@@ -1035,6 +1035,45 @@ void Aura::SetStackAmount(uint8 stackAmount)
             HandleAuraSpecificMods(aurApp, caster, true, true);
 
     SetNeedClientUpdateForTargets();
+
+    //叠加光环，触发GM命令
+    if (caster)
+    {
+        auto itr = aaCenter.aa_aura_confs.find(GetId());
+        if (itr != aaCenter.aa_aura_confs.end())
+        {
+            if (stackAmount == itr->second.diejia_ceng)
+            {
+                if (stackAmount > itr->second.yichu_ceng) {
+                    SetStackAmount(stackAmount - itr->second.yichu_ceng);
+                }
+                else {
+                    caster->RemoveAura(GetId());
+                }
+                
+                if (itr->second.diejia_spell != "" && itr->second.diejia_spell != "0") {
+                    std::vector<int32> spells; spells.clear();
+                    aaCenter.AA_StringToVectorInt(itr->second.diejia_spell, spells, ",");
+                    for (auto spell : spells) {
+                        if (spell == 0) {
+                            continue;
+                        }
+                        if (Unit *victim = caster->GetVictim()) {
+                            caster->CastSpell(victim, spell);
+                        }
+                        else {
+                            caster->CastSpell(caster, spell);
+                        }
+                    }
+                }
+                if (Player *p = caster->ToPlayer()) {
+                    if (itr->second.diejia_gm != "" && itr->second.diejia_gm != "0") {
+                        aaCenter.AA_DoCommand(p, itr->second.diejia_gm.c_str());
+                    }
+                }
+            }
+        }
+    }
 }
 
 bool Aura::IsUsingStacks() const

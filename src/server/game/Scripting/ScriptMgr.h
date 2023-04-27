@@ -383,6 +383,12 @@ class TC_GAME_API ItemScript : public ScriptObject
 
         ~ItemScript();
 
+        // Called when a player selects an option in an item gossip window
+        virtual void OnGossipSelect(Player* /*player*/, Item* /*item*/, uint32 /*sender*/, uint32 /*action*/) { }
+
+        // Called when a player selects an option in an item gossip window
+        virtual void OnGossipSelectCode(Player* /*player*/, Item* /*item*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) { }
+
         // Called when a player accepts a quest from the item.
         virtual bool OnQuestAccept(Player* player, Item* item, Quest const* quest);
 
@@ -700,11 +706,23 @@ class TC_GAME_API PlayerScript : public ScriptObject
 
         ~PlayerScript();
 
+        // Called when a player selects an option in a player gossip window
+        virtual void OnGossipSelect(Player* /*player*/, uint32 /*menu_id*/, uint32 /*sender*/, uint32 /*action*/) { }
+
+        // Called when a player selects an option in a player gossip window
+        virtual void OnGossipSelectCode(Player* /*player*/, uint32 /*menu_id*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) { }
+
         // Called when a player kills another player
         virtual void OnPVPKill(Player* killer, Player* killed);
 
         // Called when a player kills a creature
         virtual void OnCreatureKill(Player* killer, Creature* killed);
+
+        // Called when a player's pet kills a creature
+        virtual void OnCreatureKilledBySelf(Creature* killer);
+
+        // Called when a player's pet kills a creature
+        virtual void OnCreatureKilledByPet(Player* petOwner, Creature* killed);
 
         // Called when a player is killed by a creature
         virtual void OnPlayerKilledByCreature(Creature* killer, Player* killed);
@@ -781,6 +799,9 @@ class TC_GAME_API PlayerScript : public ScriptObject
 
         // Called when a player switches to a new zone
         virtual void OnUpdateZone(Player* player, uint32 newZone, uint32 newArea);
+
+        // Called when a player switches to a new area (more accurate than UpdateZone)
+        virtual void OnUpdateArea(Player* /*player*/, uint32 /*oldArea*/, uint32 /*newArea*/) { }
 
         // Called when a player changes to a new map (after moving to new map)
         virtual void OnMapChanged(Player* player);
@@ -1104,6 +1125,8 @@ class TC_GAME_API ScriptMgr
 
     public: /* ItemScript */
 
+        void OnGossipSelect(Player * player, Item * item, uint32 sender, uint32 action);
+        void OnGossipSelectCode(Player * player, Item * item, uint32 sender, uint32 action, const char* code);
         bool OnQuestAccept(Player* player, Item* item, Quest const* quest);
         bool OnItemUse(Player* player, Item* item, SpellCastTargets const& targets, ObjectGuid castId);
         bool OnItemExpire(Player* player, ItemTemplate const* proto);
@@ -1186,9 +1209,12 @@ class TC_GAME_API ScriptMgr
         bool OnCriteriaCheck(uint32 scriptId, Player* source, Unit* target);
 
     public: /* PlayerScript */
-
+        void OnGossipSelect(Player * player, uint32 menu_id, uint32 sender, uint32 action);
+        void OnGossipSelectCode(Player * player, uint32 menu_id, uint32 sender, uint32 action, const char* code);
         void OnPVPKill(Player* killer, Player* killed);
         void OnCreatureKill(Player* killer, Creature* killed);
+        void OnCreatureKilledBySelf(Creature* killer);
+        void OnCreatureKilledByPet(Player* petOwner, Creature* killed);
         void OnPlayerKilledByCreature(Creature* killer, Player* killed);
         void OnPlayerLevelChanged(Player* player, uint8 oldLevel);
         void OnPlayerFreeTalentPointsChanged(Player* player, uint32 newPoints);
@@ -1216,6 +1242,7 @@ class TC_GAME_API ScriptMgr
         void OnPlayerSave(Player* player);
         void OnPlayerBindToInstance(Player* player, Difficulty difficulty, uint32 mapid, bool permanent, uint8 extendState);
         void OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea);
+        void OnPlayerUpdateArea(Player* player, uint32 oldArea, uint32 newArea);
         void OnQuestStatusChange(Player* player, uint32 questId);
         void OnPlayerRepop(Player* player);
         void OnMovieComplete(Player* player, uint32 movieId);

@@ -35,6 +35,10 @@
 #include "World.h"
 #include "WorldStateMgr.h"
 
+//aa
+#include "ArenaTeamMgr.h"
+#include "ArenaTeam.h"
+
 GameEventMgr* GameEventMgr::instance()
 {
     static GameEventMgr instance;
@@ -135,6 +139,58 @@ void GameEventMgr::StartInternalEvent(uint16 event_id)
 bool GameEventMgr::StartEvent(uint16 event_id, bool overwrite)
 {
     GameEventData &data = mGameEvent[event_id];
+    AA_Event_GameEvent econf = aaCenter.aa_event_gameevents[event_id];
+    std::set<Player*> players = aaCenter.GetOnlinePlayers();
+    for (auto p : players) {
+        if (econf.gm1 != "" && econf.gm1 != "0") {
+            aaCenter.AA_DoCommand(p, econf.gm1.c_str());
+        }
+        if (econf.target == 0) {
+            break;
+        }
+    }
+    //百团战场开始，赋予当前战场事件
+    for (auto itr : aaCenter.aa_battleground_confs) {
+        AA_Battleground_Conf conf;
+        std::unordered_map<uint32, AA_Battleground_Conf> map = itr.second;
+        for (auto itr : map) {
+            conf = itr.second;
+            if (conf.stop_time == event_id && conf.is_open == 1) {
+                aaCenter.aa_battleground_events[conf.id] = conf.stop_time;
+            }
+        }
+    }
+    //比武大会开始准备
+    {
+        AA_Biwu_Conf conf = aaCenter.aa_biwu_confs[event_id];
+        if (conf.event_id > 0) {
+            aaCenter.aa_biwu_guid = ObjectGuid::Empty;
+            if (GameObject* gob = aaCenter.AA_Biwu_SpawnGob(conf.guid, true)) {
+                aaCenter.aa_biwu_start_time = conf.wait_time * 1000;
+                //清空当前比武前十名
+                aaCenter.aa_biwu_paiming.clear();
+                for (int i = 0; i < 10; i++) {
+                    std::string gm = ".变量 系统 比武排名" + std::to_string(i + 1) + " =0";
+                    aaCenter.AA_DoCommand(nullptr, gm.c_str());
+                }
+                aaCenter.aa_biwu_winners.clear();
+
+                //获取地图所有人
+                std::set<Player*> players = aaCenter.GetOnlinePlayers();
+                for (auto p : players) {
+                    aaCenter.aa_biwu_index = 1;
+                    aaCenter.aa_biwu_isnotice = conf.wait_time;
+                    std::string msg = "|cff00FFFF[比武擂台]|cffFFFF00比武大会将在" + std::to_string(conf.wait_time) + "秒后开始，进入活动地图后，自动报名参加。";
+                    aaCenter.AA_SendMessage(p, 0, msg.c_str());
+                }
+
+                if (conf.alert_id > 0) {
+                    aaCenter.AA_EventStart(nullptr, conf.alert_id);
+                }
+                aaCenter.aa_biwu_event_id = event_id;
+            }
+        }
+    }
     if (data.state == GAMEEVENT_NORMAL || data.state == GAMEEVENT_INTERNAL)
     {
         AddActiveEvent(event_id);
@@ -175,6 +231,36 @@ bool GameEventMgr::StartEvent(uint16 event_id, bool overwrite)
 void GameEventMgr::StopEvent(uint16 event_id, bool overwrite)
 {
     GameEventData &data = mGameEvent[event_id];
+    AA_Event_GameEvent econf = aaCenter.aa_event_gameevents[event_id];
+    std::set<Player*> players = aaCenter.GetOnlinePlayers();
+    for (auto p : players) {
+        if (econf.gm2 != "" && econf.gm2 != "0") {
+            aaCenter.AA_DoCommand(p, econf.gm2.c_str());
+        }
+        if (econf.target == 0) {
+            break;
+        }
+    }
+    //百团战场结束，赋予当前战场事件
+    for (auto itr : aaCenter.aa_battleground_confs) {
+        AA_Battleground_Conf conf;
+        std::unordered_map<uint32, AA_Battleground_Conf> map = itr.second;
+        for (auto itr : map) {
+            conf = itr.second;
+            if (conf.is_open == 1 && conf.stop_time == event_id) {
+                aaCenter.aa_battleground_events[conf.id] = 0;
+            }
+        }
+    }
+
+    //比武大会结束
+    {
+        AA_Biwu_Conf conf = aaCenter.aa_biwu_confs[event_id];
+        if (conf.event_id > 0) {
+            aaCenter.AA_Biwu_End();
+        }
+    }
+    
     bool serverwide_evt = data.state != GAMEEVENT_NORMAL && data.state != GAMEEVENT_INTERNAL;
 
     RemoveActiveEvent(event_id);

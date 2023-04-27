@@ -1398,6 +1398,15 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z, float* grou
 
 float WorldObject::GetGridActivationRange() const
 {
+    WorldObject* obj = const_cast<WorldObject*>(this);
+    if (obj && obj->ToPlayer()) {
+        //可视距离
+        AA_Map_Player_Conf map_conf = aaCenter.AA_GetAA_Map_Player_Conf(obj);
+        if (map_conf.visibility_dist > 0) {
+            return map_conf.visibility_dist;
+        }
+    }
+
     if (isActiveObject())
     {
         if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetCinematicMgr()->IsOnCinematic())
@@ -1414,6 +1423,15 @@ float WorldObject::GetGridActivationRange() const
 
 float WorldObject::GetVisibilityRange() const
 {
+    WorldObject* obj = const_cast<WorldObject*>(this);
+    if (obj && obj->ToPlayer()) {
+        //可视距离
+        AA_Map_Player_Conf map_conf = aaCenter.AA_GetAA_Map_Player_Conf(obj);
+        if (map_conf.visibility_dist > 0) {
+            return map_conf.visibility_dist;
+        }
+    }
+
     if (IsVisibilityOverridden() && !ToPlayer())
         return *m_visibilityDistanceOverride;
     else if (IsFarVisible() && !ToPlayer())
@@ -1424,6 +1442,15 @@ float WorldObject::GetVisibilityRange() const
 
 float WorldObject::GetSightRange(WorldObject const* target) const
 {
+    WorldObject* obj = const_cast<WorldObject*>(this);
+    if (obj && obj->ToPlayer()) {
+        //可视距离
+        AA_Map_Player_Conf map_conf = aaCenter.AA_GetAA_Map_Player_Conf(obj);
+        if (map_conf.visibility_dist > 0) {
+            return map_conf.visibility_dist;
+        }
+    }
+
     if (ToUnit())
     {
         if (ToPlayer())
@@ -1490,6 +1517,56 @@ bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool implicitDetect, bo
     if (obj->IsAlwaysVisibleFor(this) || CanAlwaysSee(obj))
         return true;
 
+    if (aaCenter.aa_biwu_event_id > 0) {
+        Player const* pp1 = ToPlayer();
+        Player const* pp2 = obj->ToPlayer();
+        Player* p1 = nullptr;
+        Player* p2 = nullptr;
+        if (pp1) {
+            p1 = const_cast<Player*>(pp1);
+        }
+        if (pp2) {
+            p2 = const_cast<Player*>(pp2);
+        }
+        if (!p1) {
+            //比武中的玩家，可以看到对方的召唤物
+            if (Creature const* c = ToCreature()) {
+                Unit* owner = c->GetOwner();
+                if (owner && owner->ToPlayer()) {
+                    p1 = owner->ToPlayer();
+                }
+            }
+        }
+        if (!p2) {
+            //比武中的玩家，可以看到对方的召唤物
+            if (Creature const* c = obj->ToCreature()) {
+                Unit* owner = c->GetOwner();
+                if (owner && owner->ToPlayer()) {
+                    p2 = owner->ToPlayer();
+                }
+            }
+        }
+        //比武中的玩家双方能看到
+        if (p1 && p2) {
+            if (p1->aa_biwu_teamid > 0 && p2->aa_biwu_teamid > 0) {
+                if (p1->aa_biwu_teamid == p2->aa_biwu_teamid) {
+                    return true;
+                }
+            }
+            //没有比武的能看见比武的
+            if (p1->aa_biwu_teamid == 0 && p2->aa_biwu_teamid > 0) {
+                return true;
+            }
+        }
+        //比武中的自己看不到所有，除了gameobject
+        if (p1 && p1->aa_biwu_teamid > 0) {
+            if (obj->ToGameObject()) {
+                return true;
+            }
+            return false;
+        }
+    }
+    
     if (!obj->CheckPrivateObjectOwnerVisibility(this))
         return false;
 

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1558,6 +1558,17 @@ void ScriptMgr::OnPlayerEnterMap(Map* map, Player* player)
     ASSERT(map);
     ASSERT(player);
 
+    {
+        std::vector<AA_Event_Map> mapeventconfs = aaCenter.aa_event_maps["进入地图"];
+        for (auto conf : mapeventconfs) {
+            if ((conf.mapid == -1 && conf.zoneid == -1 && conf.areaid == -1) || conf.mapid > -1) {
+                if (conf.gm != "" && conf.gm != "0") {
+                    aaCenter.AA_DoCommand(player, conf.gm.c_str());
+                }
+            }
+        }
+    }
+
     FOREACH_SCRIPT(PlayerScript)->OnMapChanged(player);
 
     SCR_MAP_BGN(WorldMapScript, map, itr, end, entry, IsWorldMap);
@@ -1617,6 +1628,24 @@ InstanceScript* ScriptMgr::CreateInstanceData(InstanceMap* map)
 
     GET_SCRIPT_RET(InstanceMapScript, map->GetScriptId(), tmpscript, nullptr);
     return tmpscript->GetInstanceScript(map);
+}
+
+void ScriptMgr::OnGossipSelect(Player * player, Item * item, uint32 sender, uint32 action)
+{
+    ASSERT(player);
+    ASSERT(item);
+    
+    GET_SCRIPT(ItemScript, item->GetScriptId(), tmpscript);
+    tmpscript->OnGossipSelect(player, item, sender, action);
+}
+
+void ScriptMgr::OnGossipSelectCode(Player * player, Item * item, uint32 sender, uint32 action, const char* code)
+{
+    ASSERT(player);
+    ASSERT(item);
+    
+    GET_SCRIPT(ItemScript, item->GetScriptId(), tmpscript);
+    tmpscript->OnGossipSelectCode(player, item, sender, action, code);
 }
 
 bool ScriptMgr::OnQuestAccept(Player* player, Item* item, Quest const* quest)
@@ -1940,6 +1969,16 @@ bool ScriptMgr::OnCriteriaCheck(uint32 scriptId, Player* source, Unit* target)
 }
 
 // Player
+void ScriptMgr::OnGossipSelect(Player* player, uint32 menu_id, uint32 sender, uint32 action)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnGossipSelect(player, menu_id, sender, action);
+}
+
+void ScriptMgr::OnGossipSelectCode(Player* player, uint32 menu_id, uint32 sender, uint32 action, const char* code)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnGossipSelectCode(player, menu_id, sender, action, code);
+}
+
 void ScriptMgr::OnPVPKill(Player* killer, Player* killed)
 {
     FOREACH_SCRIPT(PlayerScript)->OnPVPKill(killer, killed);
@@ -1948,6 +1987,16 @@ void ScriptMgr::OnPVPKill(Player* killer, Player* killed)
 void ScriptMgr::OnCreatureKill(Player* killer, Creature* killed)
 {
     FOREACH_SCRIPT(PlayerScript)->OnCreatureKill(killer, killed);
+}
+
+void ScriptMgr::OnCreatureKilledBySelf(Creature* killer)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnCreatureKilledBySelf(killer);
+}
+
+void ScriptMgr::OnCreatureKilledByPet(Player* petOwner, Creature* killed)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnCreatureKilledByPet(petOwner, killed);
 }
 
 void ScriptMgr::OnPlayerKilledByCreature(Creature* killer, Player* killed)
@@ -2083,6 +2132,11 @@ void ScriptMgr::OnPlayerBindToInstance(Player* player, Difficulty difficulty, ui
 void ScriptMgr::OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea)
 {
     FOREACH_SCRIPT(PlayerScript)->OnUpdateZone(player, newZone, newArea);
+}
+
+void ScriptMgr::OnPlayerUpdateArea(Player* player, uint32 oldArea, uint32 newArea)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnUpdateArea(player, oldArea, newArea);
 }
 
 void ScriptMgr::OnQuestStatusChange(Player* player, uint32 questId)
@@ -2849,12 +2903,19 @@ PlayerScript::PlayerScript(char const* name)
 }
 
 PlayerScript::~PlayerScript() = default;
-
 void PlayerScript::OnPVPKill(Player* /*killer*/, Player* /*killed*/)
 {
 }
 
 void PlayerScript::OnCreatureKill(Player* /*killer*/, Creature* /*killed*/)
+{
+}
+
+void PlayerScript::OnCreatureKilledBySelf(Creature* /*killer*/)
+{
+}
+
+void PlayerScript::OnCreatureKilledByPet(Player* /*petOwner*/, Creature* /*killed*/)
 {
 }
 

@@ -455,8 +455,11 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
         {
             if (pProto->GetSellPrice() > 0)
             {
+                //aawow 商人卖出奖励
+                aaCenter.M_Reward(_player, aaCenter.aa_item_buy_rewards[pProto->GetId()].reward, pItem->GetCount());
+                
                 uint64 money = uint64(pProto->GetSellPrice()) * packet.Amount;
-
+            
                 if (!_player->ModifyMoney(money)) // ensure player doesn't exceed gold limit
                 {
                     _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID);
@@ -533,6 +536,19 @@ void WorldSession::HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet)
         InventoryResult msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, pItem, false);
         if (msg == EQUIP_ERR_OK)
         {
+            ItemTemplate const* pProto = pItem->GetTemplate();
+            uint32 reward = aaCenter.aa_item_buy_rewards[pProto->GetId()].reward;
+            if (pProto && reward > 0) {
+                uint32 need = reward + 10000000;
+                uint32 count = pItem->GetCount();
+                if (!aaCenter.M_CanNeed(_player, need, count, true)) {
+                    return;
+                }
+                else {
+                    aaCenter.M_Need(_player, need, count);
+                }
+            }
+            
             _player->ModifyMoney(-(int32)price);
             _player->RemoveItemFromBuyBackSlot(packet.Slot, false);
             _player->ItemAddedQuestCheck(pItem->GetEntry(), pItem->GetCount());
@@ -938,6 +954,10 @@ void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
     ItemTemplate const* itemProto = itemTarget->GetTemplate();
     if (!itemProto)
         return;
+    
+    if (itemTarget->IsEquipped()) {
+        aaCenter.AA_SendMessage(_player, 1, "|cff00FFFF[系统提示]|cffFF0000请将物品放入背包再操作。"); return;
+    }
 
     //this slot is excepted when applying / removing meta gem bonus
     uint8 slot = itemTarget->IsEquipped() ? itemTarget->GetSlot() : uint8(NULL_SLOT);
@@ -1004,6 +1024,16 @@ void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
 
         // continue check for case when attempt add 2 similar unique equipped gems in one item.
         ItemTemplate const* iGemProto = gems[i]->GetTemplate();
+
+        //宝石插件显示baoshi_entry
+        if (i == 0 && iGemProto) {
+            ObjectGuid::LowType guidlow = itemTarget->GetGUIDLow();
+            time_t timep;
+            time(&timep); /*当前time_t类型UTC时间*/
+            aaCenter.aa_character_instances[guidlow].update_time = timep;
+            aaCenter.aa_character_instances[guidlow].isUpdate = true;
+            aaCenter.aa_character_instances[guidlow].baoshi_entry = iGemProto->GetId();
+        }
 
         // unique item (for new and already placed bit removed enchantments
         if (iGemProto->HasFlag(ITEM_FLAG_UNIQUE_EQUIPPABLE))

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -230,6 +230,25 @@ void WorldSession::HandleChatMessage(ChatMsg type, Language lang, std::string ms
     if (msg.empty())
         return;
 
+    // 聊天内容屏蔽
+    std::unordered_map<std::string, AA_Chat>::iterator iter;
+    for (iter=aaCenter.aa_chats.begin(); iter!=aaCenter.aa_chats.end(); iter++)
+    {
+        AA_Chat conf = iter->second;
+        if (conf.msg == "") {
+            continue;
+        }
+        aaCenter.AA_StringToLower(conf.msg);
+        string::size_type idx= msg.find(conf.msg);//在a中查找b.
+        if (idx != string::npos) {
+            if (conf.show == 1) {
+                return;
+            } else {
+                msg = conf.tomsg;
+            }
+        }
+    }
+
     if (ChatHandler(this).ParseCommands(msg.c_str()))
         return;
 
@@ -373,6 +392,23 @@ void WorldSession::HandleChatMessage(ChatMsg type, Language lang, std::string ms
         }
         case CHAT_MSG_OFFICER:
         {
+            //aawow 世界聊天开关
+            if (aaCenter.aa_world_confs[1].value1 == 1) {
+                uint32 need = aaCenter.aa_world_confs[2].value1;
+                if (need > 0) {
+                    if (aaCenter.M_CanNeed(GetPlayer(), need)) {
+                        aaCenter.M_Need(GetPlayer(), need);
+                    } else {
+                        break;
+                    }
+                }
+                AA_Message aa_message;
+                AA_Notice notice = aaCenter.aa_notices[4];
+                notice.msg = msg;
+                aaCenter.AA_SendNotice(GetPlayer(), notice, true, aa_message);
+                break;
+            }
+            
             if (GetPlayer()->GetGuildId())
             {
                 if (Guild* guild = sGuildMgr->GetGuildById(GetPlayer()->GetGuildId()))
@@ -488,6 +524,19 @@ void WorldSession::HandleChatAddonMessage(ChatMsg type, std::string prefix, std:
 
     if (!CanSpeak())
         return;
+
+    std::string::size_type pos = text.find("\t");
+    std::string msg = "";
+    if(pos != std::string::npos)
+    {
+        prefix = text.substr(0, pos);
+        if (text.length() > pos+1) {
+            msg = text.substr(pos+1, text.length());
+        }
+    }
+    if (prefix != "") {                    
+        aaCenter.AA_ReceiveAddon(sender, prefix, msg);
+    }
 
     sender->UpdateSpeakTime(Player::ChatFloodThrottle::ADDON);
 

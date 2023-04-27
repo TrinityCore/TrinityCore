@@ -400,6 +400,44 @@ void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movem
     // interrupt parachutes upon falling or landing in water
     if (opcode == CMSG_MOVE_FALL_LAND || opcode == CMSG_MOVE_START_SWIM || opcode == CMSG_MOVE_SET_FLY)
         mover->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::LandingOrFlight); // Parachutes
+    
+    //aawow 跑步、游泳、飞行触发Event
+    if (plrMover) {
+        Position pos = plrMover->aa_lastPos;
+        if (movementInfo.pos.GetPositionX() - pos.GetPositionX() >= 1 ||
+            movementInfo.pos.GetPositionX() - pos.GetPositionX() <= -1 ||
+            movementInfo.pos.GetPositionY() - pos.GetPositionY() >= 1 ||
+            movementInfo.pos.GetPositionY() - pos.GetPositionY() <= -1) {
+            std::string type = "";
+            if (movementInfo.HasMovementFlag(MOVEMENTFLAG_SWIMMING)) { // 游泳
+                type = "水中移动";
+            } else if (movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_MOVING_FLY)) { // 飞行
+                type = "空中移动";
+            } else if (movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_MOVING)) { // 跑步
+                type = "陆地移动";
+            }
+            {
+                std::vector<AA_Event_Map> mapeventconfs = aaCenter.aa_event_maps[type];
+                for (auto mapconf : mapeventconfs) {
+                    aaCenter.AA_EventMapStart(plrMover, mapconf);
+                }
+            }
+            {
+                std::set<uint32> aiids = aaCenter.AA_GetAis(plrMover, type);
+                for (auto id : aiids) {
+                    if (id > 0) {
+                        AA_Ai conf = aaCenter.aa_ais[id];
+                        if (conf.event_param1 > 0) {
+                            aaCenter.AA_AiStart(plrMover, nullptr, id);
+                        }
+                    }
+                }
+            }
+        }
+        
+        //aawow 防挂机
+        plrMover->aa_lastPos = movementInfo.pos;
+    }
 
     /* process position-change */
     movementInfo.guid = mover->GetGUID();

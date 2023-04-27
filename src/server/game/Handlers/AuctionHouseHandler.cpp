@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -197,6 +197,14 @@ void WorldSession::HandleAuctionHelloOpcode(WorldPackets::AuctionHouse::AuctionH
     {
         TC_LOG_DEBUG("network", "WORLD: HandleAuctionHelloOpcode - Unit ({}) not found or you can't interact with him.", hello.Guid.ToString());
         return;
+    }
+
+    if (aaCenter.aa_world_confs[60].value1 != 0)
+    {
+        std::string danwei = aaCenter.AA_GetAuctionUnit();
+        std::ostringstream oss;
+        oss << "欢迎使用" << danwei << "拍卖，1[铜币]已经修改为1[" << danwei << "]";
+        unit->Whisper(oss.str().c_str(), LANG_UNIVERSAL, GetPlayer());
     }
 
     // remove fake death
@@ -425,14 +433,45 @@ void WorldSession::HandleAuctionPlaceBid(WorldPackets::AuctionHouse::AuctionPlac
             priceToPay = placeBid.BidAmount - auction->BidAmount;
     }
 
-    // check money
-    if (!player->HasEnoughMoney(priceToPay))
+    std::string danwei = aaCenter.AA_GetAuctionUnit();
+    if (aaCenter.aa_world_confs[60].value1 != 0)
     {
-        SendAuctionCommandResult(placeBid.AuctionID, AuctionCommand::PlaceBid, AuctionResult::NotEnoughMoney, throttle.DelayUntilNext);
-        return;
+        if (priceToPay < auction->BuyoutOrUnitPrice) {
+            std::ostringstream oss;
+            oss << "|cff00FFFF[" + danwei + "拍卖]|cffFF0000系统禁用[竞标]，请使用[一口价]。";
+            player->GetSession()->SendNotification("%s", oss.str().c_str());
+            return;
+        }
+        uint32 hasToken = aaCenter.AA_GetAuctionMoney(player);
+        uint32 reqToken = priceToPay;
+        std::string danwei = aaCenter.AA_GetAuctionUnit();
+        if (hasToken < reqToken)
+        {
+            std::ostringstream oss;
+            oss << "|cff00FFFF["+danwei+"拍卖]|cffFF0000[" << danwei << "]不足，缺少" << reqToken - hasToken << "[" << danwei << "]";
+            player->GetSession()->SendNotification("%s", oss.str().c_str());
+            return;
+        }
+    }
+    else {
+        // check money
+        if (!player->HasEnoughMoney(priceToPay))
+        {
+            SendAuctionCommandResult(placeBid.AuctionID, AuctionCommand::PlaceBid, AuctionResult::NotEnoughMoney, throttle.DelayUntilNext);
+            return;
+        }
     }
 
-    player->ModifyMoney(-int64(priceToPay));
+    if (aaCenter.aa_world_confs[60].value1 == 0) {
+        player->ModifyMoney(-int64(priceToPay));
+    } else {
+        int64 token = priceToPay;
+        aaCenter.AA_AuctionModifyMoney(GetPlayer(), -token);
+        std::ostringstream oss;
+        oss << "|cff00FFFF["+danwei+"拍卖]|cffFF0000扣除" << token << "[" << danwei << "]";
+        aaCenter.AA_SendMessage(player, 1, oss.str().c_str());
+    }
+    
     auction->Bidder = player->GetGUID();
     auction->BidAmount = placeBid.BidAmount;
     if (HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
@@ -516,13 +555,40 @@ void WorldSession::HandleAuctionRemoveItem(WorldPackets::AuctionHouse::AuctionRe
         if (auction->Bidder.IsEmpty())                   // If we have a bidder, we have to send him the money he paid
         {
             uint64 cancelCost = CalculatePct(auction->BidAmount, 5u);
-            if (!player->HasEnoughMoney(cancelCost))          //player doesn't have enough money
+            
+            std::string danwei = aaCenter.AA_GetAuctionUnit();
+            if (aaCenter.aa_world_confs[60].value1 != 0)
             {
-                SendAuctionCommandResult(0, AuctionCommand::Cancel, AuctionResult::NotEnoughMoney, throttle.DelayUntilNext);
-                return;
+                uint32 hasToken = aaCenter.AA_GetAuctionMoney(player);
+                uint32 reqToken = cancelCost;
+                std::string danwei = aaCenter.AA_GetAuctionUnit();
+                if (hasToken < reqToken)
+                {
+                    std::ostringstream oss;
+                    oss << "|cff00FFFF["+danwei+"拍卖]|cffFF0000[" << danwei << "]不足，缺少" << reqToken - hasToken << "[" << danwei << "]";
+                    player->GetSession()->SendNotification("%s", oss.str().c_str());
+                    return;
+                }
             }
+            else {
+                if (!player->HasEnoughMoney(cancelCost))          //player doesn't have enough money
+                {
+                    SendAuctionCommandResult(0, AuctionCommand::Cancel, AuctionResult::NotEnoughMoney, throttle.DelayUntilNext);
+                    return;
+                }
+            }
+            
             auctionHouse->SendAuctionCancelledToBidder(auction, trans);
-            player->ModifyMoney(-int64(cancelCost));
+
+            if (aaCenter.aa_world_confs[60].value1 == 0) {
+                player->ModifyMoney(-int64(cancelCost));
+            } else {
+                int64 token = cancelCost;
+                aaCenter.AA_AuctionModifyMoney(GetPlayer(), -token);
+                std::ostringstream oss;
+                oss << "|cff00FFFF["+danwei+"拍卖]|cffFF0000扣除" << token << "[" << danwei << "]";
+                aaCenter.AA_SendMessage(player, 1, oss.str().c_str());
+            }
         }
 
         auctionHouse->SendAuctionRemoved(auction, player, trans);
@@ -911,6 +977,21 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
     {
         SendAuctionCommandResult(0, AuctionCommand::SellItem, AuctionResult::NotEnoughMoney, throttle.DelayUntilNext);
         return;
+    }
+
+    if (item) {
+        if (aaCenter.aa_world_confs[60].value1 != 0)
+        {
+            std::string danwei = aaCenter.AA_GetAuctionUnit();
+            std::string msg = "";
+            uint64 finalCount = 1;
+            if (finalCount > 1) {
+                msg = "|cff00FFFF["+danwei+"拍卖]|r玩家["+aaCenter.AA_GetPlayerNameLink(GetPlayer())+"]拍卖了"+std::to_string(finalCount)+"个"+aaCenter.AA_GetItemLinkJd(item) + "，一口价"+std::to_string(sellItem.BuyoutPrice)+"["+danwei+"]。";
+            } else {
+                msg = "|cff00FFFF["+danwei+"拍卖]|r玩家["+aaCenter.AA_GetPlayerNameLink(GetPlayer())+"]拍卖了"+aaCenter.AA_GetItemLinkJd(item) + "，一口价"+std::to_string(sellItem.BuyoutPrice)+"["+danwei+"]。";
+            }
+            aaCenter.AA_SendMessage(nullptr, 2, msg.c_str());
+        }
     }
 
     uint32 auctionId = sObjectMgr->GenerateAuctionID();

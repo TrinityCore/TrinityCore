@@ -185,6 +185,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 {
     friend class MapReference;
     public:
+        std::unordered_map<uint32, std::unordered_map<uint32, bool>> aa_map_time_status;
+    
         Map(uint32 id, time_t, uint32 InstanceId, Difficulty SpawnMode);
         virtual ~Map();
 

@@ -645,6 +645,28 @@ enum CharacterDatabaseStatements : uint32
     CHAR_DEL_INSTANCE,
     CHAR_INS_INSTANCE,
 
+    _AA_REP_Character_Juanxian,
+    _AA_UPD_Character_Paihang_Jisha,
+    _AA_UPD_Character_Paihang_Renwu,
+    _AA_REP_Character_Instance,
+    _AA_REP_Characters,
+    _AA_REP_Systems,
+    _AA_REP_Characters_Dianfeng,
+    _AA_REP_Characters_Douqi,
+    _AA_REP_Characters_Junxian,
+    
+    _AA_REP_Player_Map_Value,
+    _AA_REP_Player_Zone_Value,
+    _AA_REP_Player_Area_Value,
+    _AA_REP_Player_Instance_Value,
+
+    _AA_REP_Map_Map_Value,
+    _AA_REP_Map_Zone_Value,
+    _AA_REP_Map_Area_Value,
+    _AA_REP_Map_Instance_Value,
+    
+    _AA_REP_Item_Instance,
+
     MAX_CHARACTERDATABASE_STATEMENTS
 };
 

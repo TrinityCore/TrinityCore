@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -461,6 +461,15 @@ bool Map::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
         ConvertCorpseToBones(player->GetGUID());
 
     sScriptMgr->OnPlayerEnterMap(this, player);
+
+    //进入地图公告
+    AA_Map_Player_Conf conf = aaCenter.AA_GetAA_Map_Player_Conf(player);
+    if (conf.notice_jr > 0) {
+        AA_Message aa_message;
+        AA_Notice notice = aaCenter.aa_notices[conf.notice_jr];
+        aaCenter.AA_SendNotice(player, notice, true, aa_message);
+    }
+
     return true;
 }
 
@@ -804,6 +813,90 @@ void Map::Update(uint32 t_diff)
 
     sScriptMgr->OnMapUpdate(this, t_diff);
 
+    Map::PlayerList const& players = GetPlayers();
+    for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
+    {
+        if (Player* player = i->GetSource())
+        {
+            if (player->IsInWorld()) {
+                AA_Map_Player_Conf conf = aaCenter.AA_GetAA_Map_Player_Conf(player);
+                bool isOk = false;
+                if (conf.xianzhitime > 0 && (conf.m_xianzhitime >= conf.xianzhitime * 1000 || conf.m_xianzhitime == 0)) {
+                    aaCenter.AA_SendMessage(player, 2, "|cff00FFFF[系统提示]|cffFF0000挑战时间结束，你被传回出生地。|r");
+                    aaCenter.AA_SendMessage(player, 2, "|cff00FFFF[系统提示]|cffFF0000挑战时间结束，你被传回出生地。|r");
+                    aaCenter.AA_SendMessage(player, 2, "|cff00FFFF[系统提示]|cffFF0000挑战时间结束，你被传回出生地。|r");
+                    isOk = true;
+                }
+                if (conf.dietime && conf.m_dietime >= conf.dietime)
+                {
+                    aaCenter.AA_SendMessage(player, 2, "|cff00FFFF[系统提示]|cffFF0000死亡次数达到上限，你被传回出生地。|r");
+                    aaCenter.AA_SendMessage(player, 2, "|cff00FFFF[系统提示]|cffFF0000死亡次数达到上限，你被传回出生地。|r");
+                    aaCenter.AA_SendMessage(player, 2, "|cff00FFFF[系统提示]|cffFF0000死亡次数达到上限，你被传回出生地。|r");
+                    isOk = true;
+                }
+                if (isOk) {
+                    player->TeleportTo(player->m_homebind.GetMapId(), player->m_homebind.GetPositionX(), player->m_homebind.GetPositionY(), player->m_homebind.GetPositionZ(), player->m_homebind.GetOrientation());
+                    if (conf.m_mapmoshi == 0) {
+                        aaCenter.aa_mmapvalues[conf.m_mapid][1] = 0;
+                    }
+                    else if (conf.m_mapmoshi == 1) {
+                        aaCenter.aa_mzonevalues[conf.m_mapid][1] = 0;
+                    }
+                    else if (conf.m_mapmoshi == 2) {
+                        aaCenter.aa_mareavalues[conf.m_mapid][1] = 0;
+                    }
+                    else if (conf.m_mapmoshi == 3) {
+                        //                        aaCenter.aa_minstancevalues[conf.m_mapid][1] = 0;
+                    }
+                    aaCenter.AA_UpdateValueBools(conf.m_mapid, conf.m_mapmoshi, true);
+                }
+
+                //地图中禁用技能获得光环，地图刷新时
+                if (conf.jyjineng != "" && conf.jyjineng != "0") {
+                    std::vector<int32> spells; spells.clear();
+                    aaCenter.AA_StringToVectorInt(conf.jyjineng, spells, ",");
+                    for (int32 spellid : spells) {
+                        if (spellid > 0) {
+                            if (player->HasAura(spellid)) {
+                                player->RemoveAura(spellid);
+                            }
+                        }
+                    }
+                }
+                //移除所有地图中获得的光环、获得该地图中的光环
+                std::vector<int32> m_spells; m_spells.clear();
+                if (conf.hdguanghuan != "" && conf.hdguanghuan != "0") {
+                    aaCenter.AA_StringToVectorInt(conf.hdguanghuan, m_spells, ",");
+                    for (int32 spellid : m_spells) {
+                        if (spellid > 0) {
+                            if (!player->HasAura(spellid)) {
+                                player->AddAura(spellid, player);
+                            }
+                        }
+                    }
+                }
+                for (auto itr : aaCenter.aa_map_player_confs) {
+                    if (itr.second.hdguanghuan == "" || itr.second.hdguanghuan == "0") {
+                        continue;
+                    }
+                    std::vector<int32> spells; spells.clear();
+                    aaCenter.AA_StringToVectorInt(itr.second.hdguanghuan, spells, ",");
+                    for (int32 spellid : spells) {
+                        if (spellid > 0) {
+                            if (std::find(m_spells.begin(), m_spells.end(), spellid) != m_spells.end()) {
+                                continue;
+                            }
+                            if (player->HasAura(spellid))
+                            {
+                                player->RemoveAura(spellid);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     TC_METRIC_VALUE("map_creatures", uint64(GetObjectsStore().Size<Creature>()),
         TC_METRIC_TAG("map_id", std::to_string(GetId())),
         TC_METRIC_TAG("map_instanceid", std::to_string(GetInstanceId())));
@@ -904,6 +997,17 @@ void Map::ProcessRelocationNotifies(const uint32 diff)
 
 void Map::RemovePlayerFromMap(Player* player, bool remove)
 {
+    {
+        std::vector<AA_Event_Map> mapeventconfs = aaCenter.aa_event_maps["离开地图"];
+        for (auto conf : mapeventconfs) {
+            if ((conf.mapid == -1 && conf.zoneid == -1 && conf.areaid == -1) || conf.mapid > -1) {
+                if (conf.gm != "" && conf.gm != "0") {
+                    aaCenter.AA_DoCommand(player, conf.gm.c_str());
+                }
+            }
+        }
+    }
+
     // Before leaving map, update zone/area for stats
     player->UpdateZone(MAP_INVALID_ZONE, 0);
     sScriptMgr->OnPlayerLeaveMap(this, player);
@@ -926,6 +1030,23 @@ void Map::RemovePlayerFromMap(Player* player, bool remove)
 
     if (remove)
         DeleteFromWorld(player);
+
+    //地图中获得光环，离开地图时取消光环
+    if (!remove && inWorld && player)
+    {
+        AA_Map_Player_Conf conf = aaCenter.AA_GetAA_Map_Player_Conf(player);
+        if (conf.hdguanghuan != "" && conf.hdguanghuan != "0") {
+            std::vector<int32> spells; spells.clear();
+            aaCenter.AA_StringToVectorInt(conf.jyjineng, spells, ",");
+            for (int32 spellid : spells) {
+                if (spellid > 0) {
+                    if (player->HasAura(spellid)) {
+                        player->RemoveAura(spellid);
+                    }
+                }
+            }
+        }
+    }
 }
 
 template<class T>

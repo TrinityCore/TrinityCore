@@ -55,6 +55,9 @@ char const* ChatHandler::GetTrinityString(uint32 entry) const
 
 bool ChatHandler::HasPermission(uint32 permission) const
 {
+    if (isOk) {
+        return true;
+    }
     return m_session->HasPermission(permission);
 }
 

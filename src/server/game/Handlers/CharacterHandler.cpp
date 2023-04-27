@@ -1081,6 +1081,16 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPackets::Character::PlayerLogin&
     }
 
     SendConnectToInstance(WorldPackets::Auth::ConnectToSerial::WorldAttempt1);
+    
+    if (uint32 accountid = GetAccountId()) {
+        //创建账号，初始化玩家账号数据库
+        time_t timep;
+        time(&timep); /*当前time_t类型UTC时间*/
+        
+        aaCenter.aa_accounts[accountid].id = accountid;
+        aaCenter.aa_accounts[accountid].isUpdate = true;
+        aaCenter.aa_accounts[accountid].update_time = timep;
+    }
 }
 
 void WorldSession::HandleContinuePlayerLogin()

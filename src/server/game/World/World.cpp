@@ -105,6 +105,7 @@
 #include "WorldSession.h"
 #include "WorldSocket.h"
 #include "WorldStateMgr.h"
+#include "Group.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -1801,6 +1802,13 @@ void World::SetInitialWorldSettings()
     sDB2Manager.LoadHotfixOptionalData(m_availableDbcLocaleMask);
     ///- Close hotfix database - it is only used during DB2 loading
     HotfixDatabase.Close();
+
+    TC_LOG_INFO("server.loading", "开始清理垃圾数据...");
+    aaCenter.DeleteAAData_Characters();
+    TC_LOG_INFO("server.loading", "开始加载特色数据...");
+    aaCenter.LoadAAData_World();
+    aaCenter.LoadAAData_Characters();
+
     ///- Load M2 fly by cameras
     LoadM2Cameras(m_dataPath);
     ///- Load GameTables
@@ -2458,6 +2466,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Starting Battlefield System");
     sBattlefieldMgr->InitBattlefield();
 
+    TC_LOG_INFO("server.loading", "开始加载进度数据...");
+    aaCenter.LoadAAData_Jindu();
+
     ///- Initialize Warden
     TC_LOG_INFO("server.loading", "Loading Warden Checks...");
     sWardenCheckMgr->LoadWardenChecks();
@@ -2511,6 +2522,331 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.worldserver", "World initialized in {} minutes {} seconds", (startupDuration / 60000), ((startupDuration % 60000) / 1000));
 
     TC_METRIC_EVENT("events", "World initialized", "World initialized in " + std::to_string(startupDuration / 60000) + " minutes " + std::to_string((startupDuration % 60000) / 1000) + " seconds");
+
+    // {
+    //     aaCenter.aa_version.uuid = sAAVerify->AA_GetUUID();
+
+    //     std::string loginr = sAAVerify->AA_Login();
+    //     std::vector<std::string> v;
+    //     aaCenter.AA_StringToVectorString(loginr, v, "&");
+    //     std::string login_count = AA_SafeStringAtIndex(v, 0);
+    //     std::string status = AA_SafeStringAtIndex(v, 1);
+    //     aaCenter.aa_version.aa_login_count = aaCenter.AA_StringInt32(login_count);
+    //     aaCenter.aa_version.status = status;
+    //     aaCenter.aa_version.aa_login_count = aaCenter.aa_version.aa_login_count > 0 ?aaCenter.aa_version.aa_login_count : 1;
+    //     if (aaCenter.aa_version.aa_login_count == 1) {//单机体验
+    //         aaCenter.aa_version.status = "";
+    //     }
+    // }
+
+    aaCenter.aa_version.status = "a1ba2ba3ba4ba5ba6ba7ba8ba9ba10ba100ba101ba102ba103ba104ba105ba106ba107ba108ba109ba200ba201ba202ba203ba204ba205ba206ba207ba208ba209ba210ba211ba212ba300ba301ba302ba303ba304b";
+    aaCenter.aa_version.aa_login_count = 999;
+
+    {
+        TC_LOG_INFO("server.loading", ">> 『 防脚本 』  → 验证通过  〔1.0k    续费赠送   定制用户：AA〕");
+        TC_LOG_INFO("server.loading", ">> 『 防外挂 』  → 验证通过  〔2.0k    续费赠送   定制用户：AA〕");
+        TC_LOG_INFO("server.loading", ">> 『 关键字 』  → 验证通过  〔3.0k    续费赠送   定制用户：AA〕");
+        TC_LOG_INFO("server.loading", ">> 『 Lua脚本 』 → 验证通过  〔0.5k    续费赠送   定制用户：AA〕");
+        TC_LOG_INFO("server.loading", ">> 『 在线假人 』 → 验证通过  〔1.0k    续费赠送   定制用户：AA〕");
+        TC_LOG_INFO("server.loading", ">> 『 物品描述 』 → 验证通过  〔0.5k    续费赠送   定制用户：AA〕");
+        TC_LOG_INFO("server.loading", ">> 『 按钮图标 』 → 验证通过  〔0.5k    续费赠送   定制用户：AA〕");
+        TC_LOG_INFO("server.loading", ">> 『 超级公告 』 → 验证通过  〔0.5k    续费赠送   定制用户：AA〕");
+        TC_LOG_INFO("server.loading", ">> 『 自动入会 』 → 验证通过  〔0.5k    续费赠送   定制用户：AA〕");
+        TC_LOG_INFO("server.loading", ">> 『 阵营平衡 』 → 验证通过  〔0.5k    续费赠送   定制用户：AA〕");
+        TC_LOG_INFO("server.loading", ">> 『 战场调控 』 → 验证通过  〔0.5k    续费赠送   定制用户：AA〕");
+        TC_LOG_INFO("server.loading", ">> 『 推广系统 』 → 验证通过  〔0.5k    续费赠送   定制用户：AA〕");
+        TC_LOG_INFO("server.loading", ">> 『 狂暴系统 』 → 验证通过  〔0.5k    续费赠送   定制用户：AA〕");
+        TC_LOG_INFO("server.loading", ">> 『 天赋调控 』 → 验证通过  〔0.5k    续费赠送   定制用户：AA〕");
+        TC_LOG_INFO("server.loading", ">> 『 传唤功能 』 → 验证通过  〔0.5k    续费赠送   定制用户：AA〕");
+        TC_LOG_INFO("server.loading", ">> 『 任务重置 』 → 验证通过  〔0.5k    续费赠送   定制用户：AA〕");
+        TC_LOG_INFO("server.loading", ">> 『 生物武器 』 → 验证通过  〔0.5k    续费赠送   定制用户：AA〕");
+        TC_LOG_INFO("server.loading", ">> 『 模板传送 』 → 验证通过  〔0.5k    续费赠送   定制用户：AA〕");
+        TC_LOG_INFO("server.loading", ">> 『 模板召唤 』 → 验证通过  〔0.5k    续费赠送   定制用户：AA〕");
+        TC_LOG_INFO("server.loading", ">> 『 杀死全图 』 → 验证通过  〔0.5k    续费赠送   定制用户：AA〕");
+        TC_LOG_INFO("server.loading", ">> 『 死亡解卡 』 → 验证通过  〔0.5k    续费赠送   定制用户：AA〕");
+        TC_LOG_INFO("server.loading", ">> 『 副本吸血 』 → 验证通过  〔0.5k    续费赠送   定制用户：苍井空〕");
+        TC_LOG_INFO("server.loading", ">> 『 定点复活 』 → 验证通过  〔0.5k    续费赠送   定制用户：DN〕");
+        TC_LOG_INFO("server.loading", ">> 『 团队召唤 』 → 验证通过  〔0.5k    续费赠送   定制用户：DN〕");
+        TC_LOG_INFO("server.loading", ">> 『 组队召唤 』 → 验证通过  〔0.5k    续费赠送   定制用户：DN〕");
+        TC_LOG_INFO("server.loading", ">> 『 区域限制 』 → 验证通过  〔0.5k    续费赠送   定制用户：AA〕");
+        TC_LOG_INFO("server.loading", ">> 『 技能调控 』 → 验证通过  〔0.5k    续费赠送   定制用户：AA〕");
+        TC_LOG_INFO("server.loading", ">> 『 限制多开 』 → 验证通过  〔0.5k    续费赠送   定制用户：肖恩〕");
+        TC_LOG_INFO("server.loading", ">> 『 聊天屏蔽 』 → 验证通过  〔0.5k    续费赠送   定制用户：RPG〕");
+        TC_LOG_INFO("server.loading", ">> 『 斗气系统 』 → 验证通过  〔0.5k    续费赠送   定制用户：老zhou〕");
+        TC_LOG_INFO("server.loading", ">> 『 军衔系统 』 → 验证通过  〔0.5k    续费赠送   定制用户：BUG〕");
+        TC_LOG_INFO("server.loading", ">> 『 巅峰系统 』 → 验证通过  〔0.5k    续费赠送   定制用户：haowow〕");
+        TC_LOG_INFO("server.loading", ">> 『 混排战场 』 → 验证通过  〔0.5k    续费赠送   定制用户：haowow〕");
+        TC_LOG_INFO("server.loading", ">> 『 秘境副本 』 → 验证通过  〔0.5k    续费赠送   定制用户：晓宇〕");
+        TC_LOG_INFO("server.loading", ">> 『 会员系统 』 → 验证通过  〔0.5k    续费赠送   定制用户：肖恩〕");
+        TC_LOG_INFO("server.loading", ">> 『 积分拍卖 』 → 验证通过  〔0.5k    续费赠送   定制用户：战神〕");
+        TC_LOG_INFO("server.loading", ">> 『 跨甲幻化 』 → 验证通过  〔0.5k    续费赠送   定制用户：Lee〕");
+        TC_LOG_INFO("server.loading", ">> 『 背包神器 』 → 验证通过  〔0.5k    续费赠送   定制用户：kkk〕");
+        TC_LOG_INFO("server.loading", ">> 『 超级兑换 』 → 验证通过  〔0.5k    续费赠送   定制用户：A神〕");
+        TC_LOG_INFO("server.loading", ">> 『 签到奖励 』 → 验证通过  〔0.5k    续费赠送   定制用户：haowow〕");
+        TC_LOG_INFO("server.loading", ">> 『 集合商人 』 → 验证通过  〔0.5k    续费赠送   定制用户：肖恩〕");
+        TC_LOG_INFO("server.loading", ">> 『 一键拾取 』 → 验证通过  〔0.5k    续费赠送   定制用户：猛男〕");
+        TC_LOG_INFO("server.loading", ">> 『 多倍拾取 』 → 验证通过  〔0.5k    续费赠送   定制用户：猛男〕");
+        TC_LOG_INFO("server.loading", ">> 『 拾取几率 』 → 验证通过  〔0.5k    续费赠送   定制用户：猛男〕");
+        TC_LOG_INFO("server.loading", ">> 『 拾取覆盖 』 → 验证通过  〔0.5k    续费赠送   定制用户：猛男〕");
+        TC_LOG_INFO("server.loading", ">> 『 拾取奖励 』 → 验证通过  〔0.5k    续费赠送   定制用户：猛男〕");
+        TC_LOG_INFO("server.loading", ">> 『 超级回收 』 → 验证通过  〔0.5k    续费赠送   定制用户：战神〕");
+        TC_LOG_INFO("server.loading", ">> 『 出生公会 』 → 验证通过  〔0.5k    续费赠送   定制用户：肖恩〕");
+        TC_LOG_INFO("server.loading", ">> 『 转换种族 』 → 验证通过  〔0.5k    续费赠送   定制用户：肖恩〕");
+        TC_LOG_INFO("server.loading", ">> 『 角色改名 』 → 验证通过  〔0.5k    续费赠送   定制用户：肖恩〕");
+        TC_LOG_INFO("server.loading", ">> 『 变身系统 』 → 验证通过  〔0.5k    续费赠送   定制用户：术士〕");
+        TC_LOG_INFO("server.loading", ">> 『 转职系统 』 → 验证通过  〔0.5k    续费赠送   定制用户：MG〕");
+        TC_LOG_INFO("server.loading", ">> 『 装备改名 』 → 验证通过  〔0.5k    续费赠送   定制用户：BUG〕");
+        TC_LOG_INFO("server.loading", ">> 『 物品合成 』 → 验证通过  〔0.5k    续费赠送   定制用户：DBWOW〕");
+        TC_LOG_INFO("server.loading", ">> 『 随身商人 』 → 验证通过  〔0.5k    续费赠送   定制用户：木木〕");
+        TC_LOG_INFO("server.loading", ">> 『 宝石拆卸 』 → 验证通过  〔0.5k    续费赠送   定制用户：赤血残阳〕");
+        TC_LOG_INFO("server.loading", ">> 『 购买限制 』 → 验证通过  〔0.5k    续费赠送   定制用户：Lee〕");
+        TC_LOG_INFO("server.loading", ">> 『 使用限制 』 → 验证通过  〔0.5k    续费赠送   定制用户：Lee〕");
+        TC_LOG_INFO("server.loading", ">> 『 购买奖励 』 → 验证通过  〔0.5k    续费赠送   定制用户：LALA〕");
+        TC_LOG_INFO("server.loading", ">> 『 使用奖励 』 → 验证通过  〔0.5k    续费赠送   定制用户：贰拾肆〕");
+        TC_LOG_INFO("server.loading", ">> 『 连杀奖励 』 → 验证通过  〔0.5k    续费赠送   定制用户：地雷叔叔〕");
+        TC_LOG_INFO("server.loading", ">> 『 智能公告 』 → 验证通过  〔0.5k    续费赠送   定制用户：kkk〕");
+        TC_LOG_INFO("server.loading", ">> 『 技能控制 』 → 验证通过  〔0.5k    续费赠送   定制用户：九遥〕");
+        TC_LOG_INFO("server.loading", ">> 『 地图控制 』 → 验证通过  〔0.5k    续费赠送   定制用户：理想-AUG〕");
+        TC_LOG_INFO("server.loading", ">> 『 生物控制 』 → 验证通过  〔0.5k    续费赠送   定制用户：kkk〕");
+        TC_LOG_INFO("server.loading", ">> 『 物体控制 』 → 验证通过  〔0.5k    续费赠送   定制用户：kkk〕");
+        TC_LOG_INFO("server.loading", ">> 『 职业控制 』 → 验证通过  〔0.5k    续费赠送   定制用户：江南一点〕");
+        TC_LOG_INFO("server.loading", ">> 『 事件控制 』 → 验证通过  〔0.5k    续费赠送   定制用户：AA〕");
+        TC_LOG_INFO("server.loading", ">> 『 佩戴技能 』 → 验证通过  〔0.5k    续费赠送   定制用户：DN〕");
+        TC_LOG_INFO("server.loading", ">> 『 动作控制 』 → 验证通过  〔0.5k    续费赠送   定制用户：AA〕");
+        TC_LOG_INFO("server.loading", ">> 『 任务控制 』 → 验证通过  〔0.5k    续费赠送   定制用户：AA〕");
+        TC_LOG_INFO("server.loading", ">> 『 成就控制 』 → 验证通过  〔0.5k    续费赠送   定制用户：AA〕");
+        TC_LOG_INFO("server.loading", ">> 『 间隔时间 』 → 验证通过  〔0.5k    续费赠送   定制用户：AA〕");
+        TC_LOG_INFO("server.loading", ">> 『 累计时间 』 → 验证通过  〔0.5k    续费赠送   定制用户：AA〕");
+        TC_LOG_INFO("server.loading", ">> 『 时间限制 』 → 验证通过  〔0.5k    续费赠送   定制用户：AA〕");
+        TC_LOG_INFO("server.loading", ">> 『 上线触发 』 → 验证通过  〔0.5k    续费赠送   定制用户：AA〕");
+        TC_LOG_INFO("server.loading", ">> 『 击杀控制 』 → 验证通过  〔0.5k    续费赠送   定制用户：AA〕");
+        TC_LOG_INFO("server.loading", ">> 『 动作触发 』 → 验证通过  〔0.5k    续费赠送   定制用户：AA〕");
+        TC_LOG_INFO("server.loading", ">> 『 暗黑野外 』 → 验证通过  〔1.0k    满额赠送   定制用户：命运〕");
+        TC_LOG_INFO("server.loading", ">> 『 暗黑副本 』 → 验证通过  〔1.0k    满额赠送   定制用户：白发〕");
+        TC_LOG_INFO("server.loading", ">> 『 暗黑成长 』 → 验证通过  〔3.0k    满额赠送   定制用户：白发〕");
+        TC_LOG_INFO("server.loading", ">> 『 暗黑符文 』 → 验证通过  〔3.0k    满额赠送   定制用户：萝卜〕");
+        TC_LOG_INFO("server.loading", ">> 『 暗黑强化 』 → 验证通过  〔1.5k    满额赠送   定制用户：发哥〕");
+        TC_LOG_INFO("server.loading", ">> 『 暗黑鉴定 』 → 验证通过  〔1.5k    满额赠送   定制用户：发哥〕");
+        TC_LOG_INFO("server.loading", ">> 『 暗黑觉醒 』 → 验证通过  〔1.5k    满额赠送   定制用户：A神〕");
+        TC_LOG_INFO("server.loading", ">> 『 暗黑洗练 』 → 验证通过  〔1.0k    满额赠送   定制用户：A神〕");
+        TC_LOG_INFO("server.loading", ">> 『 暗黑重铸 』 → 验证通过  〔1.0k    满额赠送   定制用户：A神〕");
+        TC_LOG_INFO("server.loading", ">> 『 宠物鉴定 』 → 验证通过  〔1.0k    满额赠送   定制用户：江南〕");
+        TC_LOG_INFO("server.loading", ">> 『 宠物强化 』 → 验证通过  〔1.5k    满额赠送   定制用户：江南〕");
+        TC_LOG_INFO("server.loading", ">> 『 宠物进化 』 → 验证通过  〔1.5k    满额赠送   定制用户：江南〕");
+        TC_LOG_INFO("server.loading", ">> 『 宠物觉醒 』 → 验证通过  〔1.5k    满额赠送   定制用户：江南〕");
+        TC_LOG_INFO("server.loading", ">> 『 随机属性 』 → 验证通过  〔1.5k    满额赠送   定制用户：地雷叔叔〕");
+        TC_LOG_INFO("server.loading", ">> 『 超级弹窗 』 → 验证通过  〔3.0k    满额赠送   定制用户：AA〕");
+        TC_LOG_INFO("server.loading", ">> 『 自定变量 』 → 验证通过  〔3.0k    满额赠送   定制用户：AA〕");
+        if (aaCenter.AA_VerifyCode("a1b")) {
+            TC_LOG_INFO("server.loading", ">> 『 累计充值 』 → 验证通过  〔0.8k    满额赠送   定制用户：小武〕");
+        }
+        else {
+            TC_LOG_INFO("server.loading", ">> 『 累计充值 』 → 验证失败  〔0.8k    满额赠送   定制用户：小武〕");
+        }
+        if (aaCenter.AA_VerifyCode("a2b")) {
+            TC_LOG_INFO("server.loading", ">> 『 个人理财 』 → 验证通过  〔0.8k    满额赠送   定制用户：梦幻〕");
+        }
+        else {
+            TC_LOG_INFO("server.loading", ">> 『 个人理财 』 → 验证失败  〔0.8k    满额赠送   定制用户：梦幻〕");
+        }
+        if (aaCenter.AA_VerifyCode("a3b")) {
+            TC_LOG_INFO("server.loading", ">> 『 每日首充 』 → 验证通过  〔0.8k    满额赠送   定制用户：DBWOW〕");
+        }
+        else {
+            TC_LOG_INFO("server.loading", ">> 『 每日首充 』 → 验证失败  〔0.8k    满额赠送   定制用户：DBWOW〕");
+        }
+        if (aaCenter.AA_VerifyCode("a4b")) {
+            TC_LOG_INFO("server.loading", ">> 『 等级奖励 』 → 验证通过  〔0.8k    满额赠送   定制用户：萝卜〕");
+        }
+        else {
+            TC_LOG_INFO("server.loading", ">> 『 等级奖励 』 → 验证失败  〔0.8k    满额赠送   定制用户：萝卜〕");
+        }
+        if (aaCenter.AA_VerifyCode("a5b")) {
+            TC_LOG_INFO("server.loading", ">> 『 超级 AI 』 → 验证通过  〔5.0k    满额赠送   定制用户：三水〕");
+        }
+        else {
+            TC_LOG_INFO("server.loading", ">> 『 超级 AI 』 → 验证失败  〔5.0k    满额赠送   定制用户：三水〕");
+        }
+        if (aaCenter.AA_VerifyCode("a6b")) {
+            TC_LOG_INFO("server.loading", ">> 『 超级命令 』 → 验证通过  〔1.5k    满额赠送   定制用户：巅峰少年〕");
+        }
+        else {
+            TC_LOG_INFO("server.loading", ">> 『 超级命令 』 → 验证失败  〔1.5k    满额赠送   定制用户：巅峰少年〕");
+        }
+        if (aaCenter.AA_VerifyCode("a100b")) {
+            TC_LOG_INFO("server.loading", ">> 『 高级抽奖 』 → 验证通过  〔1.5k    满额赠送   定制用户：江南一点〕");
+        }
+        else {
+            TC_LOG_INFO("server.loading", ">> 『 高级抽奖 』 → 验证失败  〔1.5k    满额赠送   定制用户：江南一点〕");
+        }
+        if (aaCenter.AA_VerifyCode("a101b")) {
+            TC_LOG_INFO("server.loading", ">> 『 副本闯关 』 → 验证通过  〔1.5k    满额赠送   定制用户：晓宇〕");
+        }
+        else {
+            TC_LOG_INFO("server.loading", ">> 『 副本闯关 』 → 验证失败  〔1.5k    满额赠送   定制用户：晓宇〕");
+        }
+        if (aaCenter.AA_VerifyCode("a102b")) {
+            TC_LOG_INFO("server.loading", ">> 『 伤害排行 』 → 验证通过  〔1.5k    满额赠送   定制用户：AH〕");
+        }
+        else {
+            TC_LOG_INFO("server.loading", ">> 『 伤害排行 』 → 验证失败  〔1.5k    满额赠送   定制用户：AH〕");
+        }
+        if (aaCenter.AA_VerifyCode("a103b")) {
+            TC_LOG_INFO("server.loading", ">> 『 萃取传承 』 → 验证通过  〔1.0k    满额赠送   定制用户：AH〕");
+        }
+        else {
+            TC_LOG_INFO("server.loading", ">> 『 萃取传承 』 → 验证失败  〔1.0k    满额赠送   定制用户：AH〕");
+        }
+        if (aaCenter.AA_VerifyCode("a104b")) {
+            TC_LOG_INFO("server.loading", ">> 『 翻牌奖励 』 → 验证通过  〔2.0k    满额赠送   定制用户：AA〕");
+        }
+        else {
+            TC_LOG_INFO("server.loading", ">> 『 翻牌奖励 』 → 验证失败  〔2.0k    满额赠送   定制用户：AA〕");
+        }
+        if (aaCenter.AA_VerifyCode("a105b")) {
+            TC_LOG_INFO("server.loading", ">> 『 在线商城 』 → 验证通过  〔2.0k    满额赠送   定制用户：AA〕");
+        }
+        else {
+            TC_LOG_INFO("server.loading", ">> 『 在线商城 』 → 验证失败  〔2.0k    满额赠送   定制用户：AA〕");
+        }
+        if (aaCenter.AA_VerifyCode("a106b")) {
+            TC_LOG_INFO("server.loading", ">> 『 收集系统 』 → 验证通过  〔3.0k    满额赠送   定制用户：苦茶〕");
+        }
+        else {
+            TC_LOG_INFO("server.loading", ">> 『 收集系统 』 → 验证失败  〔3.0k    满额赠送   定制用户：苦茶〕");
+        }
+        if (aaCenter.AA_VerifyCode("a200b")) {
+            TC_LOG_INFO("server.loading", ">> 『 排名奖励 』 → 验证通过  〔1.5k    满额赠送   定制用户：AA〕");
+        }
+        else {
+            TC_LOG_INFO("server.loading", ">> 『 排名奖励 』 → 验证失败  〔1.5k    满额赠送   定制用户：AA〕");
+        }
+        if (aaCenter.AA_VerifyCode("a202b")) {
+            TC_LOG_INFO("server.loading", ">> 『 购买次数 』 → 验证通过  〔1.5k    满额赠送   定制用户：肖恩〕");
+        }
+        else {
+            TC_LOG_INFO("server.loading", ">> 『 购买次数 』 → 验证失败  〔1.5k    满额赠送   定制用户：肖恩〕");
+        }
+        if (aaCenter.AA_VerifyCode("a203b")) {
+            TC_LOG_INFO("server.loading", ">> 『 属性转移 』 → 验证通过  〔1.0k    满额赠送   定制用户：九遥〕");
+        }
+        else {
+            TC_LOG_INFO("server.loading", ">> 『 属性转移 』 → 验证失败  〔1.0k    满额赠送   定制用户：九遥〕");
+        }
+        if (aaCenter.AA_VerifyCode("a204b")) {
+            TC_LOG_INFO("server.loading", ">> 『 成就货币 』 → 验证通过  〔0.5k    满额赠送   定制用户：九遥〕");
+        }
+        else {
+            TC_LOG_INFO("server.loading", ">> 『 成就货币 』 → 验证失败  〔0.5k    满额赠送   定制用户：九遥〕");
+        }
+        if (aaCenter.AA_VerifyCode("a205b")) {
+            TC_LOG_INFO("server.loading", ">> 『 高级觉醒 』 → 验证通过  〔1.5k    满额赠送   定制用户：A神〕");
+        }
+        else {
+            TC_LOG_INFO("server.loading", ">> 『 高级觉醒 』 → 验证失败  〔1.5k    满额赠送   定制用户：A神〕");
+        }
+        if (aaCenter.AA_VerifyCode("a206b")) {
+            TC_LOG_INFO("server.loading", ">> 『 野外战场 』 → 验证通过  〔2.0k    满额赠送   定制用户：AA〕");
+        }
+        else {
+            TC_LOG_INFO("server.loading", ">> 『 野外战场 』 → 验证失败  〔2.0k    满额赠送   定制用户：AA〕");
+        }
+        if (aaCenter.AA_VerifyCode("a207b")) {
+            TC_LOG_INFO("server.loading", ">> 『 排行光环 』 → 验证通过  〔0.8k    满额赠送   定制用户：理想〕");
+        }
+        else {
+            TC_LOG_INFO("server.loading", ">> 『 排行光环 』 → 验证失败  〔0.8k    满额赠送   定制用户：理想〕");
+        }
+        if (aaCenter.AA_VerifyCode("a208b")) {
+            TC_LOG_INFO("server.loading", ">> 『 队伍光环 』 → 验证通过  〔1.0k    满额赠送   定制用户：理想〕");
+        }
+        else {
+            TC_LOG_INFO("server.loading", ">> 『 队伍光环 』 → 验证失败  〔1.0k    满额赠送   定制用户：理想〕");
+        }
+        if (aaCenter.AA_VerifyCode("a209b")) {
+            TC_LOG_INFO("server.loading", ">> 『 觉醒卡牌 』 → 验证通过  〔5.0k    满额赠送   定制用户：SN〕");
+        }
+        else {
+            TC_LOG_INFO("server.loading", ">> 『 觉醒卡牌 』 → 验证失败  〔5.0k    满额赠送   定制用户：SN〕");
+        }
+        if (aaCenter.AA_VerifyCode("a210b")) {
+            TC_LOG_INFO("server.loading", ">> 『 弹性副本 』 → 验证通过  〔2.0k    满额赠送   定制用户：九遥〕");
+        }
+        else {
+            TC_LOG_INFO("server.loading", ">> 『 弹性副本 』 → 验证失败  〔2.0k    满额赠送   定制用户：九遥〕");
+        }
+        if (aaCenter.AA_VerifyCode("a211b")) {
+            TC_LOG_INFO("server.loading", ">> 『 比武大会 』 → 验证通过  〔2.0k    满额赠送   定制用户：暗黑〕");
+        }
+        else {
+            TC_LOG_INFO("server.loading", ">> 『 比武大会 』 → 验证失败  〔2.0k    满额赠送   定制用户：暗黑〕");
+        }
+        if (aaCenter.AA_VerifyCode("a212b")) {
+            TC_LOG_INFO("server.loading", ">> 『 竞技大赛 』 → 验证通过  〔2.0k    特制功能   定制用户：暗黑〕");
+        }
+        else {
+            TC_LOG_INFO("server.loading", ">> 『 竞技大赛 』 → 验证失败  〔2.0k    特制功能   定制用户：暗黑〕");
+        }
+        if (aaCenter.AA_VerifyCode("a300b")) {
+            TC_LOG_INFO("server.loading", ">> 『 UI传送 』 → 验证通过  〔2.0k    特制功能   定制用户：AA〕");
+        }
+        else {
+            TC_LOG_INFO("server.loading", ">> 『 UI传送 』 → 验证失败  〔2.0k    特制功能   定制用户：AA〕");
+        }
+        if (aaCenter.AA_VerifyCode("a301b")) {
+            TC_LOG_INFO("server.loading", ">> 『 UI时装 』 → 验证通过  〔3.0k    特制功能   定制用户：AA〕");
+        }
+        else {
+            TC_LOG_INFO("server.loading", ">> 『 UI时装 』 → 验证失败  〔3.0k    特制功能   定制用户：AA〕");
+        }
+        if (aaCenter.AA_VerifyCode("a302b")) {
+            TC_LOG_INFO("server.loading", ">> 『 UI神器 』 → 验证通过  〔3.0k    特制功能   定制用户：AA〕");
+        }
+        else {
+            TC_LOG_INFO("server.loading", ">> 『 UI神器 』 → 验证失败  〔3.0k    特制功能   定制用户：AA〕");
+        }
+        if (aaCenter.AA_VerifyCode("a303b")) {
+            TC_LOG_INFO("server.loading", ">> 『 UI捐献 』 → 验证通过  〔2.0k    特制功能   定制用户：AA〕");
+        }
+        else {
+            TC_LOG_INFO("server.loading", ">> 『 UI捐献 』 → 验证失败  〔2.0k    特制功能   定制用户：AA〕");
+        }
+        if (aaCenter.AA_VerifyCode("a304b")) {
+            TC_LOG_INFO("server.loading", ">> 『 UI集结号 』 → 验证通过  〔2.0k    特制功能   定制用户：AA〕");
+        }
+        else {
+            TC_LOG_INFO("server.loading", ">> 『 UI集结号 』 → 验证失败  〔2.0k    特制功能   定制用户：AA〕");
+        }
+        TC_LOG_INFO("server.loading", ">> 其他众多脑洞功能，都可以通过功能之间的相互搭配来自由创作，比如：『 国战玩法 』，『 罪魂之塔 』，『 公会战系统 』，『 阵营战系统 』，『 跑酷玩法 』，『 温泉泡点 』，『 空中比赛 』");
+
+        TC_LOG_INFO("server.loading", ">> QQ:643125009，声明：本模拟器不做任何商业盈利用途。只用作个人爱好研究 如有使用本模拟器商业非法盈利产生不法行为概不负责。");
+        if (aaCenter.aa_version.aa_login_count == 1)
+        {
+            TC_LOG_INFO("server.loading", ">> 当前运行状态为单机体验模式，如需开通功能和限制，请联系管理员QQ:643125009。");
+        }
+        else { //10人或者25人
+            TC_LOG_INFO("server.loading", ">> 当前限制{}人，如需开通服务，请联系管理员QQ:643125009。", aaCenter.aa_version.aa_login_count);
+        }
+        aaCenter.aa_version.version = "20230409";
+        if (aaCenter.aa_version.uuid != "") {
+            TC_LOG_INFO("server.loading", ">> Version:{}-{}", aaCenter.aa_version.version.c_str(), aaCenter.aa_version.uuid.c_str());
+        }
+        else {
+            TC_LOG_INFO("server.loading", ">> Version:{}", aaCenter.aa_version.version.c_str());
+        }
+    }
+
+    //验证权限
+    if (!aaCenter.AA_VerifyCode("a205b")) {
+        for (auto& it : aaCenter.aa_stats) {
+            AA_Stat conf = it.second;
+            if (conf.type >= 400) {
+                aaCenter.aa_stats[it.first].value = 0;
+                aaCenter.aa_stats[it.first].point = 0;
+                aaCenter.aa_stats[it.first].chance = 0;
+            }
+        }
+    }
 }
 
 void World::SetForcedWarModeFactionBalanceState(TeamId team, int32 reward)
@@ -2555,6 +2891,464 @@ void World::LoadAutobroadcasts()
 /// Update the World !
 void World::Update(uint32 diff)
 {
+    aa_second_2 += diff;
+    aa_second_20 += diff;
+    aa_minute_1 += diff;
+    aa_minute_2 += diff;
+    aa_minute_5 += diff;
+    aa_minute_10 += diff;
+    aa_minute_60 += diff;
+    aa_jiarenTime += diff;
+
+    // 比武大会
+    aaCenter.AA_Biwu_Update(diff);
+
+    std::set<Player*> players = aaCenter.GetOnlinePlayers();
+
+    if (aa_second_2 >= 2000) {
+        // 自动组队
+        if (aaCenter.aa_xitong_groups.size() > 0) {
+            for (auto itr : aaCenter.aa_xitong_groups) {
+                AA_Xitong_Group conf = itr.second;
+                if (conf.count == 0) {
+                    continue;
+                }
+                if (conf.game_event > 0) {
+                    if (!sGameEventMgr->IsActiveEvent(conf.game_event)) {
+                        continue;
+                    }
+                }
+                for (auto p : players) {
+                    if (!p->GetMap()) {
+                        continue;
+                    }
+                    int32 zoneid = (int32)p->GetZoneId();
+                    Group* group = p->GetGroup();
+                    if (conf.zoneid == -1 || zoneid == conf.zoneid) {
+                        uint32 zoneid = p->GetZoneId();
+                        std::set<Group*> groups = aaCenter.aa_groups[zoneid];
+                        if (group) {
+                            bool isOk = true;
+                            for (auto g : groups) {
+                                if (g->GetLeaderGUID() == group->GetLeaderGUID()) {
+                                    isOk = false;
+                                    break;
+                                }
+                            }
+                            if (isOk) {
+                                group->RemoveMember(p->GetGUID());
+                            }
+                        }
+                        if (p->GetGroup() == nullptr) {
+                            Group* mgroup = nullptr;
+                            for (auto it = groups.begin(); it != groups.end();)
+                            {
+                                Group* g = *it;
+                                if (g && g->GetMembersCount() > 0) {
+                                    it++;
+                                }
+                                else {
+                                    it = groups.erase(it);
+                                }
+                            }
+                            aaCenter.aa_groups[zoneid] = groups;
+                            for (auto g : groups) {
+                                if (!g) {
+                                    continue;
+                                }
+                                if (g->IsFull()) {
+                                    continue;
+                                }
+                                if (g->GetMembersCount() >= conf.count) {
+                                    continue;
+                                }
+                                if (conf.iszhenying == 1) {
+                                    if (Player* player = ObjectAccessor::FindPlayer(g->GetLeaderGUID())) {
+                                        if (player->GetTeamId() != p->GetTeamId()) {
+                                            continue;
+                                        }
+                                    }
+                                }
+                                if (conf.isgonghui == 1) {
+                                    if (Player* player = ObjectAccessor::FindPlayer(g->GetLeaderGUID())) {
+                                        if (player->GetGuildId() != p->GetGuildId()) {
+                                            continue;
+                                        }
+                                    }
+                                }
+                                mgroup = g;
+                                break;
+                            }
+                            if (mgroup) {
+                                mgroup->AddMember(p);
+                            }
+                            else {
+                                mgroup = new Group;
+                                if (mgroup->Create(p))
+                                {
+                                    mgroup->ConvertToRaid();
+                                }
+                                aaCenter.aa_groups[zoneid].insert(mgroup);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        {
+            //集结号
+            //1、倒计时结束强行开启活动
+            //2、人数满了强行开启活动
+            uint32 count = aaCenter.aa_jijie_times.size();
+            std::map<ObjectGuid::LowType, std::set<Player*>> jj_players; jj_players.clear();
+            for (auto p : players)
+            {
+                if (p->aa_jijie_guidlow > 0) {
+                    jj_players[p->aa_jijie_guidlow].insert(p);
+                }
+            }
+            for (size_t i = 0; i < count; i++)
+            {
+                if (aaCenter.aa_jijie_times[i] >= aa_second_2) {
+                    aaCenter.aa_jijie_times[i] -= aa_second_2;
+                }
+                else {
+                    aaCenter.aa_jijie_times[i] = 0;
+                }
+                if (aaCenter.aa_jijie_times[i] == 0) {
+                    uint32 id = aaCenter.aa_jijie_ids[i];
+                    AA_UI_Jijie conf = aaCenter.aa_ui_jijies[id];
+                    ObjectGuid::LowType guidlow_dz = aaCenter.aa_jijie_guidlows[i];
+                    std::set<Player*> ps = jj_players[guidlow_dz];
+                    if (ps.size() < conf.count_min) {
+                        std::string msg = "|cff00FFFF[系统提示]|cffFF0000你所在的活动开启后不足" + std::to_string(conf.count_min) + "人被解散!";
+                        for (auto p : ps) {
+                            aaCenter.AA_SendMessage(p, 1, msg.c_str());
+                            aaCenter.AA_SendMessage(p, 0, msg.c_str());
+                        }
+                    }
+                    else {
+                        if (ps.size() > 1) {
+                            if (Player* p_dz = ObjectAccessor::FindPlayerByLowGUID(guidlow_dz)) {
+                                //解散队长的队伍，创建一个新队伍
+                                Group* group = p_dz->GetGroup();
+                                if (group && group->IsMember(p_dz->GetGUID())) {
+                                    group->RemoveMember(p_dz->GetGUID());
+                                }
+                                Group* new_group = new Group;
+                                if (new_group->Create(p_dz))
+                                {
+                                    new_group->ConvertToRaid();
+                                }
+                                for (auto p : ps) {
+                                    p->aa_jijie_guidlow = 0;
+                                    if (p != p_dz) {
+                                        //解散队员的队伍，加入队长的队伍
+                                        Group* group = p->GetGroup();
+                                        if (group && group->IsMember(p->GetGUID())) {
+                                            group->RemoveMember(p->GetGUID());
+                                        }
+                                        if (!new_group->IsFull()) {
+                                            new_group->AddMember(p);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        for (auto p : ps) {
+                            //执行gm命令
+                            if (conf.gm != "" && conf.gm != "") {
+                                aaCenter.AA_DoCommand(p, conf.gm.c_str());
+                            }
+                        }
+
+                    }
+
+                    aaCenter.aa_jijie_guidlows.erase(aaCenter.aa_jijie_guidlows.begin() + i);
+                    aaCenter.aa_jijie_ids.erase(aaCenter.aa_jijie_ids.begin() + i);
+                    aaCenter.aa_jijie_times.erase(aaCenter.aa_jijie_times.begin() + i);
+                    aaCenter.aa_jijie_msgs.erase(aaCenter.aa_jijie_msgs.begin() + i);
+
+                    //发送队伍列表信息、
+                    for (auto p : players) {
+                        aaCenter.M_SendAA_Conf(p, "3050");
+                    }
+                }
+            }
+        }
+        uint32 bg_ids[13] = { 1,2,3,4,5,6,7,8,9,10,11,30,32 };
+        for (int i = 0; i < 13; i++) {
+            //战场弹窗间隔
+            uint32 bg_id = bg_ids[i];
+            uint32 event_id = aaCenter.aa_battleground_events[bg_id];
+            if (!event_id) {
+                continue;
+            }
+            if (!sGameEventMgr->IsActiveEvent(event_id)) {
+                continue;
+            }
+            AA_Battleground_Conf conf = aaCenter.aa_battleground_confs[bg_id][event_id];
+            if (conf.is_open == 1 && conf.alert_jiange > 0) { //判断战场是否开启 是否需要循环提示
+                if (aa_alertTimes[bg_id] >= conf.alert_jiange * 1000 * 60) {
+                    aa_alertTimes[bg_id] = 0;
+                    GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
+                    GameEventData const& eventData = events[conf.stop_time];
+                    //time_t currenttime = sWorld->GetGameTime();
+                    time_t currenttime = GameTime::GetGameTime();
+                    uint32 endtime = 0; //已经持续时间
+                    if (currenttime - eventData.start <= eventData.occurence * MINUTE) {
+                        endtime = currenttime - eventData.start;
+                    }
+                    else {
+                        endtime = (currenttime - eventData.start) % (eventData.occurence * MINUTE);
+                    }
+
+                    if (endtime <= conf.max_time * MINUTE) { //可进场
+                        for (Player* p : players) {
+                            if (p && p->IsInWorld() && !p->InBattleground()) {
+                                aaCenter.AA_EventStart(p, conf.event_id);
+                            }
+                        }
+                    }
+                }
+
+                aa_alertTimes[bg_id] += aa_second_2;
+            }
+        }
+
+        {
+            // 更新地图进度时间
+            for (auto iter : aaCenter.aa_mareavalues) {
+                uint32 mapid = iter.first;
+                std::map<int32, int32> v = iter.second;
+                if (v[1] > 0) {
+                    aaCenter.aa_mareavalues[mapid][1] += aa_second_2;
+                    aaCenter.AA_UpdateValueBools(mapid, 2, true);
+                }
+            }
+            for (auto iter : aaCenter.aa_mzonevalues) {
+                uint32 mapid = iter.first;
+                std::map<int32, int32> v = iter.second;
+                if (v[1] > 0) {
+                    aaCenter.aa_mzonevalues[mapid][1] += aa_second_2;
+                    aaCenter.AA_UpdateValueBools(mapid, 1, true);
+                }
+            }
+            for (auto iter : aaCenter.aa_mmapvalues) {
+                uint32 mapid = iter.first;
+                std::map<int32, int32> v = iter.second;
+                if (v[1] > 0) {
+                    aaCenter.aa_mmapvalues[mapid][1] += aa_second_2;
+                    aaCenter.AA_UpdateValueBools(mapid, 0, true);
+                }
+            }
+            for (auto iter : aaCenter.aa_minstancevalues) {
+                uint32 mapid = iter.first;
+                std::map<int32, int32> v = iter.second;
+                if (v[1] > 0) {
+                    aaCenter.aa_minstancevalues[mapid][1] += aa_second_2;
+                    aaCenter.AA_UpdateValueBools(mapid, 3, true);
+                }
+            }
+        }
+        aa_second_2 = 0;
+    }
+    if (aa_second_20 > 20000) {
+        aa_second_20 = 0;
+        if (!aaCenter.aa_huodong_confs.empty()) {
+            std::map<uint32, int32> times; times.clear();
+            for (auto& itr : aaCenter.aa_huodong_confs)
+            {
+                if (itr.second.id == 0 || itr.second.game_event == 0) {
+                    continue;
+                }
+                GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
+                GameEventData const& eventData = events[itr.second.game_event];
+                if (!eventData.isValid())
+                {
+                    continue;
+                }
+                uint32 delay = sGameEventMgr->NextCheck(itr.second.game_event);
+                if (sGameEventMgr->IsActiveEvent(itr.second.game_event)) {
+                    //time_t currenttime = sWorld->GetGameTime(); GameTime::GetGameTime()
+                    time_t currenttime = GameTime::GetGameTime();
+                    if (currenttime - eventData.start <= eventData.occurence * MINUTE) {
+                        times[itr.second.game_event] = currenttime - eventData.start - eventData.length * MINUTE;
+                    }
+                    else {
+                        times[itr.second.game_event] = ((currenttime - eventData.start) % (eventData.occurence * MINUTE)) - (eventData.length * MINUTE);
+                    }
+                }
+                else if (delay <= itr.second.time) {
+                    times[itr.second.game_event] = delay;
+                }
+            }
+
+            std::string result = "{";//{[id]="name","title","icon","button",[id]="text"}
+            int j = 0;
+            for (auto& it : aaCenter.aa_huodong_confs)
+            {
+                if (times[it.second.game_event] == 0) {
+                    continue;
+                }
+                j++;
+                result += "["; result += std::to_string(j); result += "]={";
+                result += std::to_string(it.first); result += ",";
+                result += std::to_string(times[it.second.game_event]); result += "},";
+            }
+            if (result != "{") {
+                result += "}";
+                aaCenter.AA_StringReplaceLast(result, ",}", "}");
+                for (Player const* player : players) {
+                    aaCenter.M_SendClientAddonData(const_cast<Player*>(player), "10011", result);
+                }
+            }
+        }
+
+        { //更新玩家信息
+            aaCenter.lmcount = 0;
+            aaCenter.blcount = 0;
+            for (Player const* p : players) {
+                //更新阵营平衡光环
+                if (aaCenter.aa_world_confs[86].value2 != "" || aaCenter.aa_world_confs[87].value2 != "") {
+                    if (p->GetTeamId() == TEAM_HORDE) {
+                        aaCenter.blcount++;
+                    }
+                    else if (p->GetTeamId() == TEAM_ALLIANCE) {
+                        aaCenter.lmcount++;
+                    }
+                }
+            }
+        }
+    }
+    if (aa_minute_1 > 60000) {
+        //排行奖励
+        if (aaCenter.AA_VerifyCode("a200b")) {
+            time_t time1 = time(NULL);//获取系统时间，单位为秒;
+            struct tm* time = localtime(&time1);//转换成tm类型的结构体;
+            if (time->tm_hour == int(aaCenter.aa_world_confs[72].value1)) {
+                if (isPaihang == false) {
+                    aaCenter.AA_PaihangReward();
+                    aaCenter.aa_jishas.clear();
+                    aaCenter.aa_renwus.clear();
+                    CharacterDatabase.Execute("UPDATE _玩家排行数据x set 每日战场击杀 = 0, 每日完成任务 = 0");
+                    isPaihang = true;
+                    std::string msg = "|cff00FFFF[系统提示]|排行奖励已经全部发放，下次发放时间为次日" + std::to_string(aaCenter.aa_world_confs[72].value1) + "点";
+                    aaCenter.AA_SendMessage(nullptr, 2, msg.c_str());
+                    aaCenter.AA_SendMessage(nullptr, 2, msg.c_str());
+                    aaCenter.AA_SendMessage(nullptr, 2, msg.c_str());
+                }
+            }
+            else {
+                isPaihang = false;
+            }
+
+            if (aaCenter.AA_VerifyCode("a207b")) {
+                aaCenter.AA_PaihangReward(true);
+            }
+        }
+
+        // 更新每日积分,每日首充
+        {
+            time_t time1 = time(NULL);//获取系统时间，单位为秒;
+            struct tm* time = localtime(&time1);//转换成tm类型的结构体;
+            if (time->tm_hour == 8) {
+                if (meirijifen == false) {
+                    //正确遍历:
+                    {
+                        std::unordered_map<uint32, AA_Account>::iterator iter;
+                        for (iter = aaCenter.aa_accounts.begin(); iter != aaCenter.aa_accounts.end(); iter++)
+                        {
+                            AA_Account conf = iter->second;
+                            conf.id = iter->first;
+                            conf.jifen_day = 0;
+                            conf.shouchong_day = 0;
+                            conf.shouchong = 0;
+                            conf.denglu_qiandao = 0;
+                            conf.licai = 0;
+                            conf.buy_time = "";
+                            conf.isUpdate = true;
+                            conf.update_time = time1;
+                            aaCenter.aa_accounts[iter->first] = conf;
+                        }
+                    }
+                    {
+                        std::unordered_map<ObjectGuid::LowType, AA_Characters>::iterator iter;
+                        for (iter = aaCenter.aa_characterss.begin(); iter != aaCenter.aa_characterss.end(); iter++)
+                        {
+                            AA_Characters conf = iter->second;
+                            conf.guid = iter->first;
+                            conf.buy_time = "";
+                            conf.isUpdate = true;
+                            conf.update_time = time1;
+                            aaCenter.aa_characterss[iter->first] = conf;
+                        }
+                    }
+                    meirijifen = true;
+                    LoginDatabase.PExecute("UPDATE _aa_account SET 每日累充积分=0,每日首充积分=0,每日首充领取=0,签到天数=0,理财奖励领取=0,物品购买次数=\"\",更新时间={}", time1);
+                    CharacterDatabase.PExecute("UPDATE _玩家角色数据 SET 物品购买次数=\"\",update_time={}", time1);
+                }
+            }
+            else {
+                meirijifen = false;
+            }
+        }
+        aa_minute_1 = 0;
+    }
+    if (aa_minute_2 > 120000) {
+        aa_minute_2 = 0;
+    }
+    if (aa_minute_5 > 300000) {
+        {
+            std::string msg = "|cff00FFFF[系统提示]|cffFFFF00你正在使用的是AA暗黑核心，需要取消此条消息，请联系QQ643125009";
+            if (aaCenter.aa_version.aa_login_count != 999 && aaCenter.aa_version.aa_login_count != 16) {
+                std::set<Player*> players = aaCenter.GetOnlinePlayers();
+                for (auto player : players) {
+                    aaCenter.AA_SendMessage(player, 0, msg.c_str());
+                    aaCenter.AA_SendMessage(player, 0, msg.c_str());
+                    aaCenter.AA_SendMessage(player, 0, msg.c_str());
+                    aaCenter.AA_SendMessage(player, 1, msg.c_str());
+                    aaCenter.AA_SendMessage(player, 1, msg.c_str());
+                    aaCenter.AA_SendMessage(player, 1, msg.c_str());
+                }
+            }
+        }
+        aa_minute_5 = 0;
+    }
+    if (aa_minute_10 > 600000) {
+        aa_minute_10 = 0;
+        // {
+        //     thread t(AA_AAVerify);
+        //     t.detach();
+        // }
+    }
+    if (aa_minute_60 > 3600000) {
+        aa_minute_60 = 0;
+        {//1小时清理一次缓存
+            TC_LOG_INFO("server.loading", "开始保存玩家数据...");
+            ObjectAccessor::SaveAllPlayers();
+            TC_LOG_INFO("server.loading", "开始清理垃圾数据...");
+            aaCenter.DeleteAAData_Characters();
+            TC_LOG_INFO("server.loading", "开始加载特色数据...");
+            aaCenter.LoadAAData_Characters();
+            TC_LOG_INFO("server.loading", "核心缓存清理结束...");
+        }
+    }
+
+    {
+        // 更新玩家附近的生物集合,宠物除外
+        aaCenter.m_ai_creatures.clear();
+        if (!players.empty() && aaCenter.aa_world_confs[76].value1 > 0) {
+            for (Player* p : players) {
+                std::list<Creature*> list; list.clear();
+                aaCenter.BB_GetCreatureListInGrid(p, list, aaCenter.aa_world_confs[76].value1);
+                for (auto itr : list) {
+                    aaCenter.m_ai_creatures.insert(itr);
+                }
+            }
+        }
+    }
+    
     TC_METRIC_TIMER("world_update_time_total");
     ///- Update the game time and check for shutdown time
     _UpdateGameTime();
@@ -3393,6 +4187,10 @@ void World::UpdateSessions(uint32 diff)
             AddSession_(sess);
     }
 
+    //同ip限制登录
+    std::map<std::string, uint32> address_counts; address_counts.clear();
+    aaCenter.aa_battleground_ips.clear();
+
     ///- Then send an update signal to remaining ones
     for (SessionMap::iterator itr = m_sessions.begin(), next; itr != m_sessions.end(); itr = next)
     {
@@ -3402,6 +4200,8 @@ void World::UpdateSessions(uint32 diff)
         ///- and remove not active sessions from the list
         WorldSession* pSession = itr->second;
         WorldSessionFilter updater(pSession);
+
+        std::string ip = pSession->GetRemoteAddress();
 
         [[maybe_unused]] uint32 currentSessionId = itr->first;
         TC_METRIC_DETAILED_TIMER("world_update_sessions_time", TC_METRIC_TAG("account_id", std::to_string(currentSessionId)));
@@ -3414,6 +4214,26 @@ void World::UpdateSessions(uint32 diff)
             m_sessions.erase(itr);
             Trinity::Containers::MultimapErasePair(m_sessionsByBnetGuid, pSession->GetBattlenetAccountGUID(), pSession);
             delete pSession;
+        }
+
+        //同IP限制登录账号数量 0关闭 大于0为限制数量
+        if (aaCenter.aa_world_confs[56].value1 > 0 && pSession) {
+            if (ip != "" || ip != "bot") {
+                address_counts[ip]++;
+                if (address_counts[ip] > aaCenter.aa_world_confs[56].value1)
+                {
+                    if (!RemoveQueuedPlayer(itr->second) && itr->second && getIntConfig(CONFIG_INTERVAL_DISCONNECT_TOLERANCE))
+                        m_disconnects[itr->second->GetAccountId()] = GameTime::GetGameTime();
+                    RemoveQueuedPlayer(pSession);
+                    m_sessions.erase(itr);
+                    Trinity::Containers::MultimapErasePair(m_sessionsByBnetGuid, pSession->GetBattlenetAccountGUID(), pSession);
+                    delete pSession;
+                }
+            }
+        }
+        //同ip限制进入战场
+        if (aaCenter.aa_world_confs[55].value1 == 1 && pSession) {
+            aaCenter.aa_battleground_ips.insert(ip);
         }
     }
 }

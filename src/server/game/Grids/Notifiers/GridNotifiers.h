@@ -1661,6 +1661,45 @@ namespace Trinity
             float m_fRange;
     };
 
+    class AA_AllCreaturesInRange
+    {
+        public:
+            AA_AllCreaturesInRange(const WorldObject* object, float maxRange) : m_pObject(object), m_fRange(maxRange) {}
+            bool operator() (Unit* unit)
+            {
+                if (m_pObject->IsWithinDist(unit, m_fRange, false))
+                    return true;
+
+                return false;
+            }
+
+        private:
+            const WorldObject* m_pObject;
+            float m_fRange;
+    };
+
+    class AA_AllCreaturesInMap
+    {
+        public:
+            AA_AllCreaturesInMap(const WorldObject* object, int32 mapId) : m_pObject(object), m_dMap(mapId) {}
+            bool operator() (Unit* unit)
+            {
+                int32 mapId1 = m_dMap;
+                if (m_dMap < 0) {
+                    mapId1 = m_pObject->GetMapId();
+                }
+                if (unit && (int32)(unit->GetMapId()) == mapId1 && !unit->IsPet() && !unit->IsVehicle() && !unit->IsTotem()) {
+                    return true;
+                }
+
+                return false;
+            }
+
+        private:
+            const WorldObject* m_pObject;
+            int32 m_dMap;
+    };
+
     class PlayerAtMinimumRangeAway
     {
         public:

@@ -445,7 +445,7 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons)
         joinData.result = LFG_JOIN_NO_SLOTS;
     else if (grp)
     {
-        if (grp->GetMembersCount() > MAX_GROUP_SIZE)
+        if (grp->GetMembersCount() > aaCenter.AA_GetMaxGroupSize())
             joinData.result = LFG_JOIN_TOO_MANY_MEMBERS;
         else
         {

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -3328,6 +3328,50 @@ bool Spell::UpdateChanneledTargetList()
 
 SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const* triggeredByAura)
 {
+    // 技能是否禁用
+    AA_Spell_Conf conf = aaCenter.aa_spell_confs[m_spellInfo->Id];
+    if (conf.isOk == "是") {
+        if (m_caster->GetTypeId() == TYPEID_PLAYER) {
+            Player* p = m_caster->ToPlayer();
+            if (p && p->IsInWorld()) {
+                aaCenter.AA_SendMessage(p, 1, "|cff00FFFF[系统提示]|cffFF0000该技能已被禁用|r");
+            }
+        }
+        return SPELL_FAILED_UNKNOWN;
+    }
+
+    if (m_caster->GetTypeId() == TYPEID_PLAYER) {
+        Player* p = m_caster->ToPlayer();
+        if (p && p->IsInWorld()) {
+            AA_Map_Player_Conf conf = aaCenter.AA_GetAA_Map_Player_Conf(p);
+            if (conf.jyjineng != "" && conf.jyjineng != "0") {
+                std::vector<int32> spells; spells.clear();
+                aaCenter.AA_StringToVectorInt(conf.jyjineng, spells, ",");
+                if (std::find(spells.begin(), spells.end(), m_spellInfo->Id) != spells.end()) {
+                    aaCenter.AA_SendMessage(p, 1, "|cff00FFFF[系统提示]|cffFF0000该地图中禁用此技能|r");
+                    return SPELL_FAILED_UNKNOWN;
+                }
+            }
+        }
+    }
+
+    // 施放技能需要
+    if (conf.need > 0) {
+        if (m_caster->GetTypeId() == TYPEID_PLAYER) {
+            Player* p = m_caster->ToPlayer();
+            if (!aaCenter.M_CanNeed(p, conf.need)) {
+                return SPELL_FAILED_UNKNOWN;
+            }
+        }
+        else if (WorldObject* w = m_caster->GetOwner()) {
+            if (Player* p = w->ToPlayer()) {
+                if (!aaCenter.M_CanNeed(p, conf.need)) {
+                    return SPELL_FAILED_UNKNOWN;
+                }
+            }
+        }
+    }
+    
     if (m_CastItem)
     {
         m_castItemGUID = m_CastItem->GetGUID();
@@ -3387,6 +3431,28 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
 
     int32 param1 = 0, param2 = 0;
     SpellCastResult result = CheckCast(true, &param1, &param2);
+
+    //如果是Ai触发，不检测技能消耗，近距离，隐身状态，狂暴，防御，战斗状态
+    bool isOK = false;
+    if (result == SPELL_FAILED_NO_POWER ||
+        result == SPELL_FAILED_ONLY_SHAPESHIFT ||
+        result == SPELL_FAILED_TOO_CLOSE ||
+        result == SPELL_FAILED_ONLY_STEALTHED ||
+        result == SPELL_FAILED_NOT_SHAPESHIFT) {
+        AA_Spell_Conf conf = aaCenter.aa_spell_confs[m_spellInfo->Id];
+        if (aaCenter.aa_world_confs[90].value1 == 1 && m_caster->aa_spells[m_spellInfo->Id]) {
+            isOK = true;
+        }
+        else if (conf.shifangxianzhi == 1) {
+            isOK = true;
+        }
+        else {
+            isOK = false;
+        }
+        m_caster->aa_spells[m_spellInfo->Id] = false;
+        m_caster->aa_spells.erase(m_spellInfo->Id);
+    }
+
     // target is checked in too many locations and with different results to handle each of them
     // handle just the general SPELL_FAILED_BAD_TARGETS result which is the default result for most DBC target checks
     if (_triggeredCastFlags & TRIGGERED_IGNORE_TARGET_CHECK && result == SPELL_FAILED_BAD_TARGETS)
@@ -3490,6 +3556,20 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
 
         if (willCastDirectly)
             cast(true);
+    }
+
+    if (conf.need > 0) {
+        if (m_caster->GetTypeId() == TYPEID_PLAYER) {
+            Player* p = m_caster->ToPlayer();
+            aaCenter.M_Need(p, conf.need);
+        }
+        else if (Unit* unitCaster = m_caster->ToUnit())
+        {
+            if (Pet* pet = unitCaster->ToPet()) {
+                Player* p = pet->GetOwner();
+                aaCenter.M_Need(p, conf.need);
+            }
+        }
     }
 
     return SPELL_CAST_OK;
@@ -4302,6 +4382,51 @@ void Spell::finish(SpellCastResult result)
     // Stop Attack for some spells
     if (m_spellInfo->HasAttribute(SPELL_ATTR0_CANCELS_AUTO_ATTACK_COMBAT))
         unitCaster->AttackStop();
+
+    AA_Spell_Conf conf = aaCenter.aa_spell_confs[m_spellInfo->Id];
+    {
+        std::set<uint32> aiids = aaCenter.AA_GetAis(unitCaster, "施放技能");
+        for (auto id : aiids) {
+            if (id > 0) {
+                AA_Ai conf = aaCenter.aa_ais[id];
+                if (conf.event_param1 == (int32)GetSpellInfo()->Id || conf.event_param1 == -1) {
+                    aaCenter.AA_AiStart(unitCaster, nullptr, id);
+                }
+            }
+        }
+    }
+    {
+        // 施放技能奖励
+        if (conf.spell_cast != "" && conf.spell_cast != "0") {
+            std::vector<int32> spells; spells.clear();
+            aaCenter.AA_StringToVectorInt(conf.spell_cast, spells, ",");
+            for (auto spell : spells) {
+                if (spell == 0) {
+                    continue;
+                }
+                Unit* victim = unitCaster->GetVictim();
+                if (victim) {
+                    unitCaster->CastSpell(victim, spell);
+                }
+                else {
+                    unitCaster->CastSpell(unitCaster, spell);
+                }
+            }
+        }
+        if (conf.gm_cast != "" && conf.gm_cast != "0") {
+            Player* player = nullptr;
+            if (m_caster->GetTypeId() == TYPEID_PLAYER) {
+                Player* p = unitCaster->ToPlayer();
+                player = p;
+            }
+            else if (Pet* pet = unitCaster->ToPet()) {
+                player = pet->GetOwner();
+            }
+            if (player) {
+                aaCenter.AA_DoCommand(player, conf.gm_cast.c_str());
+            }
+        }
+    }
 }
 
 template<class T>
@@ -5198,6 +5323,15 @@ void Spell::TakeCastItem()
         }
     }
 
+    //物品使用奖励
+    if (m_CastItem && m_CastItem->GetEntry() && aaCenter.aa_item_use_rewards[m_CastItem->GetEntry()].reward > 0) {
+        aaCenter.M_Reward(m_caster->ToPlayer(), aaCenter.aa_item_use_rewards[m_CastItem->GetEntry()].reward);
+    }
+    if (aaCenter.aa_item_use_rewards[m_CastItem->GetEntry()].gm != "" && aaCenter.aa_item_use_rewards[m_CastItem->GetEntry()].gm != "0")
+    {
+        aaCenter.AA_DoCommand(m_caster->ToPlayer(), aaCenter.aa_item_use_rewards[m_CastItem->GetEntry()].gm.c_str());
+    }
+    
     if (expendable && withoutCharges)
     {
         uint32 count = 1;
@@ -6530,7 +6664,26 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                 if (unitCaster->IsInWater() && m_spellInfo->HasAura(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED))
                     return SPELL_FAILED_ONLY_ABOVEWATER;
 
-                if (unitCaster->IsInDisallowedMountForm())
+                bool isZuoji = false;
+                bool isBianshen = false;
+                if (Player *p = m_caster->ToPlayer()) {
+                    AA_Map_Player_Conf conf = aaCenter.AA_GetAA_Map_Player_Conf(p);
+                    if (conf.zuoqis != "" && conf.zuoqis != "0") {
+                        std::vector<int32> zuoqis; zuoqis.clear();
+                        aaCenter.AA_StringToVectorInt(conf.zuoqis, zuoqis, ",");
+                        //放开限制的坐骑
+                        if (std::find(zuoqis.begin(), zuoqis.end(), m_spellInfo->Id) != zuoqis.end()) {
+                            isZuoji = true;
+                        }
+                    }
+                    uint32 displayid = aaCenter.aa_bianshen1[p->GetGUIDLow()];
+                    if (displayid > 0)
+                    {
+                        isBianshen = true;
+                    }
+                }
+
+                if (unitCaster->IsInDisallowedMountForm() && !isBianshen)
                 {
                     SendMountResult(MountResult::Shapeshifted); // mount result gets sent before the cast result
                     return SPELL_FAILED_DONT_REPORT;

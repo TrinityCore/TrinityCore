@@ -1583,6 +1583,25 @@ void Creature::UpdateLevelDependantStats()
     float weaponBaseMinDamage = basedamage;
     float weaponBaseMaxDamage = basedamage * 1.5f;
 
+
+    // 没有主人，有主人为玩家 加难度
+    if (!GetOwner() && !IsTotem()) {
+        AA_Creature conf = aaCenter.AA_GetCreatureConf(this);
+        if (conf.id > 0) {
+            if (conf.damage > 0 && conf.damage != 100) {
+                weaponBaseMinDamage = weaponBaseMinDamage * (conf.damage / 100.0);
+                weaponBaseMaxDamage = weaponBaseMaxDamage * (conf.damage / 100.0);
+            }
+
+            aaCenter.AA_ModifyCreature(this, conf);
+            if (conf.notice_sx > 0) {
+                AA_Message aa_message;
+                AA_Notice notice = aaCenter.aa_notices[conf.notice_sx];
+                aaCenter.AA_SendNotice(this, notice, true, aa_message);
+            }
+        }
+    }
+
     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, weaponBaseMinDamage);
     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, weaponBaseMaxDamage);
 
@@ -3599,4 +3618,17 @@ uint32 Creature::GetTrainerId() const
 void Creature::SetTrainerId(Optional<uint32> trainerId)
 {
     _trainerId = trainerId;
+}
+
+CreatureTemplate const* Creature::GetCreatureTemplate() const
+{
+    if (this && this->aa_id > 0) {
+        AA_Creature conf = aaCenter.aa_creatures[this->aa_id];
+        if (conf.type > 0 && conf.id > 0) {
+            CreatureTemplate* cinfo = const_cast<CreatureTemplate*>(m_creatureInfo);
+            cinfo->rank = conf.type;
+            return cinfo;
+        }
+    }
+    return m_creatureInfo;
 }

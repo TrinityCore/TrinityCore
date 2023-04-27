@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,6 +28,7 @@
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "World.h"
+#include "ObjectAccessor.h"
 
 static Rates const qualityToRate[MAX_ITEM_QUALITY] =
 {
@@ -284,9 +285,51 @@ void LootStore::ReportNonExistingId(uint32 lootId, char const* ownerType, uint32
 
 // Checks if the entry (quest, non-quest, reference) takes it's chance (at loot generation)
 // RATE_DROP_ITEMS is no longer used for all types of entries
-bool LootStoreItem::Roll(bool rate) const
+bool LootStoreItem::Roll(bool rate, Player const* personalLooter) const
 {
-    if (chance >= 100.0f)
+    //自定义掉落修改
+    float itemChance = 0;
+    if (groupid == 0) {
+        //aawowVip掉率提升
+        if (Player* player = const_cast<Player *>(personalLooter))
+        {
+            if (player->IsInWorld()) {
+                uint32 accountid = player->GetSession()->GetAccountId();
+                if (accountid > 0) {
+                    AA_Account a_conf = aaCenter.aa_accounts[accountid];
+                    AA_Vip_Conf conf = aaCenter.aa_vip_confs[a_conf.vip];
+                    if (conf.loot > 0) {
+                        itemChance = itemChance + conf.loot;
+                    }
+                }
+                //aawow 爆率
+                if (aaCenter.aa_world_confs[18].value1 == 1) {
+                    if (player->GetTeamId() == TEAM_ALLIANCE) {
+                        uint32 lm = aaCenter.aa_world_confs[19].value1;
+                        itemChance = itemChance + lm;
+                    }
+                    else if (player->GetTeamId() == TEAM_HORDE) {
+                        uint32 bl = aaCenter.aa_world_confs[20].value1;
+                        itemChance = itemChance + bl;
+                    }
+                }
+
+                //觉醒属性掉率
+                if (aaCenter.AA_FindMapValueUint32(player->aa_fm_values, 401) > 0) {
+                    itemChance += aaCenter.AA_FindMapValueUint32(player->aa_fm_values, 401);
+                }
+            }
+        }
+    }
+    float _chance = chance;
+    if (aaCenter.aa_world_confs[93].value1 == 0) {
+        _chance += itemChance;
+    }
+    else {
+        _chance = _chance * (itemChance / 100.0);
+    }
+
+    if (_chance >= 100.0f)
         return true;
 
     if (reference > 0)                                   // reference case
@@ -387,13 +430,59 @@ LootStoreItem const* LootTemplate::LootGroup::Roll(uint16 lootMode, Player const
     {
         float roll = (float)rand_chance();
 
+        //aawow 自定义掉落修改，爆率
+        float itemChance = 0;
+        //aawowVip掉率提升
+        if (Player* player = const_cast<Player *>(personalLooter))
+        {
+            if (player->IsInWorld()) {
+                uint32 accountId = player->GetSession()->GetAccountId();
+                if (accountId > 0) {
+                    AA_Account a_conf = aaCenter.aa_accounts[accountId];
+                    AA_Vip_Conf conf = aaCenter.aa_vip_confs[a_conf.vip];
+                    if (conf.loot > 0) {
+                        itemChance = itemChance + conf.loot;
+                    }
+                }
+                //aawow 爆率
+                if (aaCenter.aa_world_confs[18].value1 == 1) {
+                    if (player->GetTeamId() == TEAM_ALLIANCE) {
+                        uint32 lm = aaCenter.aa_world_confs[19].value1;
+                        itemChance = itemChance + lm;
+                    }
+                    else if (player->GetTeamId() == TEAM_HORDE) {
+                        uint32 bl = aaCenter.aa_world_confs[20].value1;
+                        itemChance = itemChance + bl;
+                    }
+                }
+
+
+                //觉醒属性掉率
+                if (aaCenter.AA_FindMapValueUint32(player->aa_fm_values, 401) > 0) {
+                    itemChance += aaCenter.AA_FindMapValueUint32(player->aa_fm_values, 401);
+                }
+            }
+        }
+
         for (LootStoreItemList::const_iterator itr = possibleLoot.begin(); itr != possibleLoot.end(); ++itr)   // check each explicitly chanced entry in the template and modify its chance based on quality.
         {
             LootStoreItem* item = *itr;
-            if (item->chance >= 100.0f)
+            float chance = item->chance;
+
+            float _chance = chance;
+            if (item->groupid == 0) {
+                if (aaCenter.aa_world_confs[93].value1 == 0) {
+                    _chance += itemChance;
+                }
+                else {
+                    _chance *= ((itemChance + 100.0) / 100.0);
+                }
+            }
+
+            if (_chance >= 100.0f)
                 return item;
 
-            roll -= item->chance;
+            roll -= _chance;
             if (roll < 0)
                 return item;
         }
@@ -602,8 +691,8 @@ void LootTemplate::Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId
         LootStoreItem* item = *i;
         if (!(item->lootmode & lootMode))                       // Do not add if mode mismatch
             continue;
-
-        if (!item->Roll(rate))
+        
+        if (!item->Roll(rate, personalLooter))
             continue;                                           // Bad luck for the entry
 
         if (item->reference > 0)                                // References processing
@@ -636,11 +725,13 @@ void LootTemplate::Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId
 
 void LootTemplate::ProcessPersonalLoot(std::unordered_map<Player*, std::unique_ptr<Loot>>& personalLoot, bool rate, uint16 lootMode) const
 {
-    auto getLootersForItem = [&personalLoot](auto&& predicate)
+    Player* lootOwner = nullptr;
+    auto getLootersForItem = [&personalLoot, &lootOwner](auto&& predicate)
     {
         std::vector<Player*> lootersForItem;
         for (auto&& [looter, loot] : personalLoot)
         {
+            lootOwner = ObjectAccessor::FindPlayer(loot->GetOwnerGUID());
             if (predicate(looter))
                 lootersForItem.push_back(looter);
         }
@@ -653,7 +744,7 @@ void LootTemplate::ProcessPersonalLoot(std::unordered_map<Player*, std::unique_p
         if (!(item->lootmode & lootMode))                       // Do not add if mode mismatch
             continue;
 
-        if (!item->Roll(rate))
+        if (!item->Roll(rate, lootOwner))
             continue;                                           // Bad luck for the entry
 
         if (item->reference > 0)                                // References processing

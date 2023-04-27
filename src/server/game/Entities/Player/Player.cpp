@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -133,6 +133,7 @@
 #include "WorldStatePackets.h"
 #include <G3D/g3dmath.h>
 #include <sstream>
+#include "AAData.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -392,6 +393,10 @@ Player::~Player()
         delete _voidStorageItems[i];
 
     sWorld->DecreasePlayerCount();
+
+    liansha = 0;
+    codetime = 0;
+    vendorSummonTime = 0;
 }
 
 void Player::CleanupsBeforeDelete(bool finalCleanup)
@@ -2045,6 +2050,8 @@ Creature* Player::GetNPCIfCanInteractWith(ObjectGuid const& guid, NPCFlags npcFl
     if (!creature->IsWithinDistInMap(this, creature->GetCombatReach() + 4.0f))
         return nullptr;
 
+    aaCenter.aa_vendor_guid[this->GetGUID()] = guid;
+    
     return creature;
 }
 
@@ -2272,6 +2279,148 @@ void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
 
     sScriptMgr->OnGivePlayerXP(this, xp, victim);
 
+    uint32 centry = 0;
+    if (victim && victim->GetTypeId() == TYPEID_UNIT) {
+        if (Creature* creature = victim->ToCreature()) {
+            centry = creature->GetEntry();
+        }
+    }
+    //aawow vip经验倍数
+    ObjectGuid::LowType guidlow = GetGUIDLow();
+    uint32 accountid = GetSession()->GetAccountId();
+    float beilv = 0;
+    if (guidlow > 0) {
+        AA_Account conf = aaCenter.aa_accounts[accountid];
+        AA_Vip_Conf vipconf = aaCenter.aa_vip_confs[conf.vip];
+        beilv += vipconf.exp;
+    }
+
+    //觉醒属性，通过杀死怪物和完成任务经验提高
+    if (aaCenter.AA_FindMapValueUint32(this->aa_fm_values, 400) > 0) {
+        beilv += aaCenter.AA_FindMapValueUint32(this->aa_fm_values, 400);
+    }
+
+    if (beilv > 0) {
+        beilv = 1.0 + beilv / 100.0;
+    }
+
+    AA_Creature_Exp econf = aaCenter.aa_creature_exps[centry];
+    // 军衔经验 斗气经验 巅峰经验 成长经验
+    try {
+        bool isJxOk = true;
+        if (aaCenter.aa_world_confs[48].value2 != "" && aaCenter.aa_world_confs[48].value2 != "0") {
+            std::vector<int32> types; types.clear();
+            aaCenter.AA_StringToVectorInt(aaCenter.aa_world_confs[48].value2, types, ",");
+            if (std::find(types.begin(), types.end(), GetMapId()) == types.end()) {
+                isJxOk = false;
+            }
+        }
+        if (isJxOk) {
+            float axp = 0;
+            if (econf.creatureid > 0) {
+                axp = xp * (econf.exppjx / 100.0);
+            }
+            else {
+                if (aaCenter.aa_world_confs[48].value1 > 0) {
+                    axp = xp * (aaCenter.aa_world_confs[48].value1 / 100.0);
+                }
+            }
+            if (axp > 0) {
+                if (beilv > 0) {
+                    axp = axp * beilv;
+                }
+                aaCenter.GiveJXXP(this, axp);
+            }
+        }
+    }
+    catch (std::exception const& e) {}
+    try {
+        bool isDqOk = true;
+        if (aaCenter.aa_world_confs[49].value2 != "" && aaCenter.aa_world_confs[49].value2 != "0") {
+            std::vector<int32> types; types.clear();
+            aaCenter.AA_StringToVectorInt(aaCenter.aa_world_confs[49].value2, types, ",");
+            if (std::find(types.begin(), types.end(), GetMapId()) == types.end()) {
+                isDqOk = false;
+            }
+        }
+        if (isDqOk) {
+            float axp = 0;
+            if (econf.creatureid > 0) {
+                axp = xp * (econf.exppdq / 100.0);
+            }
+            else {
+                if (aaCenter.aa_world_confs[49].value1 > 0) {
+                    axp = xp * (aaCenter.aa_world_confs[49].value1 / 100.0);
+                }
+            }
+            if (axp > 0) {
+                if (beilv > 0) {
+                    axp = axp * beilv;
+                }
+                aaCenter.GiveDQXP(this, axp);
+            }
+        }
+    }
+    catch (std::exception const& e) {}
+    try {
+        bool isDfOk = true;
+        if (aaCenter.aa_world_confs[50].value2 != "" && aaCenter.aa_world_confs[50].value2 != "0") {
+            std::vector<int32> types; types.clear();
+            aaCenter.AA_StringToVectorInt(aaCenter.aa_world_confs[50].value2, types, ",");
+            if (std::find(types.begin(), types.end(), GetMapId()) == types.end()) {
+                isDfOk = false;
+            }
+        }
+        if (isDfOk) {
+            float axp = 0;
+            if (econf.creatureid > 0) {
+                axp = xp * (econf.exppdf / 100.0);
+            }
+            else {
+                if (aaCenter.aa_world_confs[50].value1 > 0) {
+                    axp = xp * (aaCenter.aa_world_confs[50].value1 / 100.0);
+                }
+            }
+            if (axp > 0) {
+                if (beilv > 0) {
+                    axp = axp * beilv;
+                }
+                aaCenter.GiveDFXP(this, axp);
+            }
+        }
+    }
+    catch (std::exception const& e) {}
+    try {
+        if (aaCenter.aa_world_confs[57].value1 == 1) {
+            bool isCzOk = true;
+            if (aaCenter.aa_world_confs[58].value2 != "" && aaCenter.aa_world_confs[58].value2 != "0") {
+                std::vector<int32> types; types.clear();
+                aaCenter.AA_StringToVectorInt(aaCenter.aa_world_confs[58].value2, types, ",");
+                if (std::find(types.begin(), types.end(), GetMapId()) == types.end()) {
+                    isCzOk = false;
+                }
+            }
+            if (isCzOk) {
+                float axp = 0;
+                if (econf.exppcz > 0) {
+                    axp = xp * econf.exppcz / 100;
+                }
+                else {
+                    if (aaCenter.aa_world_confs[58].value1 > 0) {
+                        axp = xp * (aaCenter.aa_world_confs[58].value1 / 100.0);
+                    }
+                }
+                if (axp > 0) {
+                    if (beilv > 0) {
+                        axp = axp * beilv;
+                    }
+                    aaCenter.GiveCZXP(this, axp);
+                }
+            }
+        }
+    }
+    catch (std::exception const& e) {}
+
     // XP to money conversion processed in Player::RewardQuest
     if (IsMaxLevel())
         return;
@@ -2284,6 +2433,11 @@ void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
         bonus_xp = 2 * xp; // xp + bonus_xp must add up to 3 * xp for RaF; calculation for quests done client-side
     else
         bonus_xp = victim ? _restMgr->GetRestBonusFor(REST_TYPE_XP, xp) : 0; // XP resting bonus
+
+    //aawow vip经验倍数
+    if (beilv > 0) {
+        xp = xp * beilv;
+    }
 
     WorldPackets::Character::LogXPGain packet;
     packet.Victim = victim ? victim->GetGUID() : ObjectGuid::Empty;
@@ -2317,6 +2471,18 @@ void Player::GiveLevel(uint8 level)
     uint8 oldLevel = GetLevel();
     if (level == oldLevel)
         return;
+
+    {
+        std::vector<AA_Event_Map> mapeventconfs = aaCenter.aa_event_maps["玩家升级"];
+        for (auto mapconf : mapeventconfs) {
+            if (level > oldLevel) {
+                uint32 count = level - oldLevel;
+                for (int i = 0; i < count; i++) {
+                    aaCenter.AA_EventMapStart(this, mapconf);
+                }
+            }
+        }
+    }
 
     if (Guild* guild = GetGuild())
         guild->UpdateMemberData(this, GUILD_MEMBER_DATA_LEVEL, level);
@@ -3266,6 +3432,16 @@ void Player::LearnSpell(uint32 spell_id, bool dependent, int32 fromSkill /*= 0*/
     }
     else
         UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_LEARNSPELL, spell_id, 1);
+    
+    std::unordered_map<uint32, AA_Spell_Conf>::iterator iter = aaCenter.aa_spell_confs.find(spell_id);
+
+    //学习技能触发GM命令
+    if (iter != aaCenter.aa_spell_confs.end())
+    {
+        if (iter->second.gm_learn != "" && iter->second.gm_learn != "0") {
+            aaCenter.AA_DoCommand(this, iter->second.gm_learn.c_str());
+        }
+    }
 }
 
 void Player::RemoveSpell(uint32 spell_id, bool disabled /*= false*/, bool learn_low_rank /*= true*/, bool suppressMessaging /*= false*/)
@@ -3276,6 +3452,16 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled /*= false*/, bool learn_
 
     if (itr->second.state == PLAYERSPELL_REMOVED || (disabled && itr->second.disabled) || itr->second.state == PLAYERSPELL_TEMPORARY)
         return;
+    
+    std::unordered_map<uint32, AA_Spell_Conf>::iterator iter = aaCenter.aa_spell_confs.find(spell_id);
+
+    //遗忘技能触发GM命令
+    if (iter != aaCenter.aa_spell_confs.end())
+    {
+        if (iter->second.gm_unlearn != "" && iter->second.gm_unlearn != "0") {
+            aaCenter.AA_DoCommand(this, iter->second.gm_unlearn.c_str());
+        }
+    }
 
     // unlearn non talent higher ranks (recursive)
     if (uint32 nextSpell = sSpellMgr->GetNextSpellInChain(spell_id))
@@ -3284,6 +3470,7 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled /*= false*/, bool learn_
         if (HasSpell(nextSpell) && !spellInfo->HasAttribute(SPELL_ATTR0_CU_IS_TALENT))
             RemoveSpell(nextSpell, disabled, false);
     }
+    
     //unlearn spells dependent from recently removed spells
     SpellsRequiringSpellMapBounds spellsRequiringSpell = sSpellMgr->GetSpellsRequiringSpellBounds(spell_id);
     for (SpellsRequiringSpellMap::const_iterator itr2 = spellsRequiringSpell.first; itr2 != spellsRequiringSpell.second; ++itr2)
@@ -3323,7 +3510,11 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled /*= false*/, bool learn_
     if (spellInfo && spellInfo->IsPrimaryProfessionFirstRank())
     {
         uint32 freeProfs = GetFreePrimaryProfessionPoints()+1;
-        if (freeProfs <= sWorld->getIntConfig(CONFIG_MAX_PRIMARY_TRADE_SKILL))
+        uint32 accountid = GetSession()->GetAccountId();
+        AA_Account a_conf = aaCenter.aa_accounts[accountid];
+        AA_Vip_Conf vipconf = aaCenter.aa_vip_confs[a_conf.vip];
+        uint32 zhuanye = vipconf.zhuanye + sWorld->getIntConfig(CONFIG_MAX_PRIMARY_TRADE_SKILL);
+        if (freeProfs <= zhuanye)
             SetFreePrimaryProfessions(freeProfs);
     }
 
@@ -4802,6 +4993,13 @@ void Player::DurabilityRepair(uint16 pos, bool takeCost, float discountMod)
 
 void Player::RepopAtGraveyard()
 {
+    if (isDead()) {
+        if (aaCenter.AA_TeleportDied(this))
+        {
+            SpawnCorpseBones();
+            return;
+        }
+    }
     // note: this can be called also when the player is alive
     // for example from WorldSession::HandleMovementOpcodes
 
@@ -5150,7 +5348,7 @@ void Player::GetDodgeFromAgility(float &/*diminishing*/, float &/*nondiminishing
     //};
 
     //uint8 level = getLevel();
-    //uint32 pclass = getClass();
+    //uint32 pclass = GetClass();
 
     //if (level >= sGtChanceToMeleeCritStore.GetTableRowCount())
     //    level = sGtChanceToMeleeCritStore.GetTableRowCount() - 1;
@@ -7424,13 +7622,61 @@ uint32 Player::GetZoneIdFromDB(ObjectGuid guid)
 
 void Player::UpdateArea(uint32 newArea)
 {
+    AA_Map_Player_Conf map_conf = aaCenter.AA_GetAA_Map_Player_Conf(this);
+    //清除地图进度显示
+    aaCenter.M_SendClientAddonData(this, "1010", "{}");
+
+    if (newArea && m_areaUpdateId != newArea) {
+        //切换area
+        {
+            std::vector<AA_Event_Map> mapeventconfs = aaCenter.aa_event_maps["进入地图"];
+            for (auto conf : mapeventconfs) {
+                if (conf.areaid > 0 && newArea == conf.areaid) {
+                    if (conf.gm != "" && conf.gm != "0") {
+                        aaCenter.AA_DoCommand(this, conf.gm.c_str());
+                    }
+                }
+            }
+        }
+        {
+            std::vector<AA_Event_Map> mapeventconfs = aaCenter.aa_event_maps["离开地图"];
+            for (auto conf : mapeventconfs) {
+                if (conf.areaid > 0 && m_areaUpdateId == conf.areaid) {
+                    if (conf.gm != "" && conf.gm != "0") {
+                        aaCenter.AA_DoCommand(this, conf.gm.c_str());
+                    }
+                }
+            }
+        }
+
+        if (map_conf.isMaxHealth) {
+            this->UpdateMaxHealth();
+        }
+
+        if (map_conf.PvpType == "绝对安全区")
+        {
+            SetFaction(FACTION_FRIENDLY);
+            SetUnitFlag2(UNIT_FLAG2_ALLOW_CHEAT_SPELLS);
+
+            if (Pet* pet = GetPet())
+                pet->SetFaction(FACTION_FRIENDLY);
+
+            RemovePvpFlag(UNIT_BYTE2_FLAG_FFA_PVP);
+            ResetContestedPvP();
+
+            CombatStopWithPets();
+        }
+    }
+
+    sScriptMgr->OnPlayerUpdateArea(this, m_areaUpdateId, newArea);
+
     // FFA_PVP flags are area and not zone id dependent
     // so apply them accordingly
     m_areaUpdateId = newArea;
 
     AreaTableEntry const* area = sAreaTableStore.LookupEntry(newArea);
     bool oldFFAPvPArea = pvpInfo.IsInFFAPvPArea;
-    pvpInfo.IsInFFAPvPArea = area && (area->Flags[0] & AREA_FLAG_ARENA);
+    pvpInfo.IsInFFAPvPArea     = (area && (area->Flags[0] & AREA_FLAG_ARENA)) || (map_conf.PvpType == "自由PVP" || map_conf.PvpType == "自定义阵营" || map_conf.PvpType == "公会PVP");
     UpdatePvPState(true);
 
     // check if we were in ffa arena and we left
@@ -7447,7 +7693,7 @@ void Player::UpdateArea(uint32 newArea)
 
     // previously this was in UpdateZone (but after UpdateArea) so nothing will break
     pvpInfo.IsInNoPvPArea = false;
-    if (area && area->IsSanctuary())    // in sanctuary
+    if ((area && area->IsSanctuary()) || map_conf.PvpType == "安全区" || map_conf.PvpType == "绝对安全区")
     {
         SetPvpFlag(UNIT_BYTE2_FLAG_SANCTUARY);
         pvpInfo.IsInNoPvPArea = true;
@@ -7474,7 +7720,30 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
 {
     if (!IsInWorld())
         return;
-
+    //切换zone
+    if (m_zoneUpdateId != newZone) {
+        {
+            std::vector<AA_Event_Map> mapeventconfs = aaCenter.aa_event_maps["进入地图"];
+            for (auto conf : mapeventconfs) {
+                if (conf.zoneid > 0 && newZone == conf.zoneid) {
+                    if (conf.gm != "" && conf.gm != "0") {
+                        aaCenter.AA_DoCommand(this, conf.gm.c_str());
+                    }
+                }
+            }
+        }
+        {
+            std::vector<AA_Event_Map> mapeventconfs = aaCenter.aa_event_maps["离开地图"];
+            for (auto conf : mapeventconfs) {
+                if (conf.zoneid > 0 && m_zoneUpdateId == conf.zoneid) {
+                    if (conf.gm != "" && conf.gm != "0") {
+                        aaCenter.AA_DoCommand(this, conf.gm.c_str());
+                    }
+                }
+            }
+        }
+    }
+    
     uint32 const oldZone = m_zoneUpdateId;
     m_zoneUpdateId = newZone;
     m_zoneUpdateTimer = ZONE_UPDATE_INTERVAL;
@@ -7755,6 +8024,61 @@ void Player::DuelComplete(DuelCompleteType type)
     opponent->SetDuelArbiter(ObjectGuid::Empty);
     opponent->SetDuelTeam(0);
 
+    bool isBiwu = false;
+    if (duel->aa_biwu) {
+        UpdateObjectVisibility();
+        opponent->UpdateObjectVisibility();
+
+        if (type != DUEL_INTERRUPTED) //胜利  决斗者输了. A 赢了 B就输了
+        {
+            isBiwu = true;
+            ObjectGuid::LowType guidlow = GetGUIDLow();
+            if (std::find(aaCenter.aa_biwu_winners.begin(), aaCenter.aa_biwu_winners.end(), guidlow) != aaCenter.aa_biwu_winners.end()) {
+                aaCenter.aa_biwu_score[guidlow] += 1;
+                aaCenter.aa_biwu_score[opponent->GetGUIDLow()] += 2;
+                aaCenter.aa_biwu_winners.erase(guidlow);
+                aaCenter.aa_biwu_teams.erase(aa_biwu_teamid);
+                aa_biwu_teamid = 0;
+                opponent->aa_biwu_teamid = 0;
+                opponent->CastSpell(duel->Opponent, 47292, false);
+                if (aaCenter.aa_biwu_event_id > 0) {
+                    AA_Biwu_Conf conf = aaCenter.aa_biwu_confs[aaCenter.aa_biwu_event_id];
+                    if (conf.gm_win != "" && conf.gm_win != "0") {
+                        aaCenter.AA_DoCommand(this, conf.gm_win.c_str());
+                    }
+                    if (conf.gm_lose != "" && conf.gm_lose != "0") {
+                        aaCenter.AA_DoCommand(opponent, conf.gm_lose.c_str());
+                    }
+
+                    //比武中，超过决斗时间，结算
+                    uint32 aa_biwu_next_time = conf.juedou_time * 1000;
+                    if (aa_biwu_next_time > aaCenter.aa_biwu_time) {
+                        uint32 length = aa_biwu_next_time - aaCenter.aa_biwu_time;
+                        uint32 time = length / 1000;
+                        if (opponent) {
+                            std::string msg = "|cff00FFFF[比武擂台]你获胜了，请等待" + std::to_string(time) + "秒后比赛奖励结算。";
+                            aaCenter.AA_SendMessage(opponent, 0, msg.c_str());
+                        }
+                        if (this) {
+                            std::string msg = "|cff00FFFF[比武擂台]你失败了，请等待" + std::to_string(time) + "秒后比赛奖励结算。";
+                            aaCenter.AA_SendMessage(this, 0, msg.c_str());
+                        }
+                    }
+                    
+                }
+            }
+
+            SetHealth(GetMaxHealth());
+            RemoveArenaSpellCooldowns();
+            SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
+            SetPower(POWER_ENERGY, GetMaxPower(POWER_ENERGY));
+            opponent->SetHealth(duel->Opponent->GetMaxHealth());
+            opponent->RemoveArenaSpellCooldowns();
+            opponent->SetPower(POWER_MANA, duel->Opponent->GetMaxPower(POWER_MANA));
+            opponent->SetPower(POWER_ENERGY, duel->Opponent->GetMaxPower(POWER_ENERGY));
+        }
+    }
+
     opponent->duel.reset(nullptr);
     duel.reset(nullptr);
 }
@@ -7763,16 +8087,25 @@ void Player::DuelComplete(DuelCompleteType type)
 
 void Player::_ApplyItemMods(Item* item, uint8 slot, bool apply, bool updateItemAuras /*= true*/)
 {
-    if (slot >= INVENTORY_SLOT_BAG_END || !item)
-        return;
+    // if (slot >= INVENTORY_SLOT_BAG_END || !item)
+    //     return;
 
     ItemTemplate const* proto = item->GetTemplate();
     if (!proto)
         return;
+    
+    uint8 bagslot = item->GetBagSlot();
+    if (bagslot != INVENTORY_SLOT_BAG_0 || (bagslot == INVENTORY_SLOT_BAG_0 && slot >= INVENTORY_SLOT_BAG_END)) {
+        if (!aaCenter.AA_IsShenQiItem(item)) {
+            return;
+        }
+    }
 
     // not apply/remove mods for broken item
     if (item->IsBroken())
         return;
+
+    AA_ApplyItem(item, apply);
 
     TC_LOG_DEBUG("entities.player.items", "Player::_ApplyItemMods: Applying mods for item {}", item->GetGUID().ToString());
 
@@ -7799,13 +8132,47 @@ void Player::_ApplyItemMods(Item* item, uint8 slot, bool apply, bool updateItemA
 void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
 {
     ItemTemplate const* proto = item->GetTemplate();
-    if (slot >= INVENTORY_SLOT_BAG_END || !proto)
+    if (!proto)
         return;
+    
+    uint8 bagslot = item->GetBagSlot();
+    if (bagslot != INVENTORY_SLOT_BAG_0 || (bagslot == INVENTORY_SLOT_BAG_0 && slot >= INVENTORY_SLOT_BAG_END)) {
+        if (!aaCenter.AA_IsShenQiItem(item)) {
+            return;
+        }
+    }
 
     uint32 itemLevel = item->GetItemLevel(this);
     float combatRatingMultiplier = 1.0f;
     if (GtCombatRatingsMultByILvl const* ratingMult = sCombatRatingsMultByILvlGameTable.GetRow(itemLevel))
         combatRatingMultiplier = GetIlvlStatMultiplier(ratingMult, proto->GetInventoryType());
+
+    
+    AA_Character_Instance conf = aaCenter.aa_character_instances[item->GetGUIDLow()];
+    
+    //基础属性，极品，强化，成长，附魔，符文，符文组合
+    if (conf.itemEntry > 0) {
+        if (aaCenter.AA_IsShenQiItem(item) && conf.jd_id > 0) { //神器穿戴需要
+            AA_Item_Nonsuch i_conf = aaCenter.aa_item_nonsuchs[conf.jd_id];
+            if (i_conf.chuandai > 0) {
+                if (!aaCenter.M_CanNeed(this, i_conf.chuandai, 1, false)) {
+                    return;
+                }
+            }
+        }
+        aaCenter.AA_ApplyItemBonuses(this, item, apply);
+
+        //刷新宠物属性
+        if (Pet* pet = GetPet()) {
+            if (Player* owner = pet->GetOwner()) {
+                AA_Pet_Conf p_conf = aaCenter.aa_pet_confs[owner->GetClass()];
+                if (p_conf.class1 > 0) {
+                    pet->InitStatsForLevel(GetLevel());
+                }
+            }
+        }
+        return;
+    }
 
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
     {
@@ -8147,6 +8514,25 @@ void Player::ApplyItemObtainSpells(Item* item, bool apply)
         else
             RemoveAurasDueToSpell(spellId);
     }
+
+    //自定义技能
+    std::set<uint32> m_spells = aaCenter.aa_allitemspells[GetGUID()][item->GetGUIDLow()];
+    for (uint32 spellid : m_spells) {
+        if (spellid == 0) {
+            continue;
+        }
+        AA_Spell conf = aaCenter.aa_spells[spellid];
+        if (conf.TriggerType != ITEM_SPELLTRIGGER_ON_PICKUP) {
+            continue;
+        }
+        if (apply)
+        {
+            if (!HasAura(conf.SpellID))
+                CastSpell(this, conf.SpellID, CastSpellExtraArgs().SetCastItem(item));
+        }
+        else
+            RemoveAurasDueToSpell(conf.SpellID);
+    }
 }
 
 // this one rechecks weapon auras and stores them in BaseModGroup container
@@ -8227,10 +8613,172 @@ bool Player::CheckAttackFitToAuraRequirement(WeaponAttackType attackType, AuraEf
     return true;
 }
 
+void _ReloadAllItemSpell(Player* player, Item* item, bool apply) {
+    AA_Character_Instance conf = aaCenter.aa_character_instances[item->GetGUIDLow()];
+    {
+        //套装技能
+        if (conf.item_set > 0) {
+            //刷新套装技能
+            aaCenter.aa_allsetspells_new[player->GetGUID()][conf.item_set].clear();
+
+            std::vector<uint32> setids = aaCenter.aa_item_set_zus[conf.item_set];
+            uint32 count = aaCenter.aa_allsetitems[player->GetGUID()][conf.item_set].size();
+
+            for (auto id : setids)
+            {
+                AA_Item_Set iconf = aaCenter.aa_item_sets[id];
+                std::vector<int32> v; v.clear();
+                aaCenter.AA_StringToVectorInt(iconf.spells, v, ",");
+                for (auto spell : v) {
+                    if (count >= iconf.count) {
+                        aaCenter.aa_allsetspells_new[player->GetGUID()][conf.item_set].push_back(spell);
+                    }
+                }
+            }
+            //对比之前的套装技能，如果增加了，增加的加属性
+            //如果减少了，减少的减属性
+            std::vector<uint32> newspells = aaCenter.aa_allsetspells_new[player->GetGUID()][conf.item_set];
+            std::vector<uint32> oldspells = aaCenter.aa_allsetspells_old[player->GetGUID()][conf.item_set];
+            for (auto oldspell : oldspells)
+            {
+                //新的如果减少了技能
+                if (std::find(newspells.begin(), newspells.end(), oldspell) == newspells.end()) {
+                    std::vector<uint32> ids = aaCenter.aa_allspells1[player->GetGUID()];
+                    for (auto itr = ids.begin(); itr != ids.end();) {
+                        if (*itr == oldspell)
+                        {
+                            itr = ids.erase(itr);
+                            break;
+                        }
+                        else {
+                            itr++;
+                        }
+                    }
+                    aaCenter.aa_allspells1[player->GetGUID()].clear();
+                    for (auto itr : ids) {
+                        aaCenter.aa_allspells1[player->GetGUID()].push_back(itr);
+                    }
+
+                    AA_Spell sconf = aaCenter.aa_spells[oldspell];
+                    std::map<int32, int32> values; values.clear();
+                    aaCenter.AA_StringToMap(sconf.values, values);
+                    for (auto v : values) {
+                        if (v.first > 0 && v.second > 0) {
+                            aaCenter.AddValue(player, v.first, v.second, false);
+                        }
+                    }
+                }
+            }
+            for (auto newspell : newspells)
+            {
+                //新的如果新增了技能
+                if (std::find(oldspells.begin(), oldspells.end(), newspell) == oldspells.end()) {
+                    aaCenter.aa_allspells1[player->GetGUID()].push_back(newspell);
+                    AA_Spell sconf = aaCenter.aa_spells[newspell];
+                    std::map<int32, int32> values; values.clear();
+                    aaCenter.AA_StringToMap(sconf.values, values);
+                    for (auto v : values) {
+                        if (v.first > 0 && v.second > 0) {
+                            aaCenter.AddValue(player, v.first, v.second, true);
+                        }
+                    }
+                }
+            }
+            aaCenter.aa_allsetspells_old[player->GetGUID()][conf.item_set].clear();
+            for (auto spell : aaCenter.aa_allsetspells_new[player->GetGUID()][conf.item_set]) {
+                aaCenter.aa_allsetspells_old[player->GetGUID()][conf.item_set].push_back(spell);
+            }
+        }
+    }
+    {
+        //物品技能
+        std::set<uint32> itemspells = aaCenter.M_GetAllItemSpell(item->GetGUIDLow());
+        for (auto spell : itemspells)
+        {
+            if (apply) {
+                aaCenter.aa_allspells1[player->GetGUID()].push_back(spell);
+                aaCenter.aa_allitemspells1[player->GetGUID()][item->GetGUIDLow()].push_back(spell);
+                //加物品技能属性
+                if (std::find(aaCenter.aa_spell_values.begin(), aaCenter.aa_spell_values.end(), spell) != aaCenter.aa_spell_values.end()) {
+                    AA_Spell conf = aaCenter.aa_spells[spell];
+                    std::map<int32, int32> values; values.clear();
+                    aaCenter.AA_StringToMap(conf.values, values);
+                    for (auto v : values) {
+                        if (v.first > 0 && v.second > 0) {
+                            aaCenter.AddValue(player, v.first, v.second, true);
+                        }
+                    }
+                }
+            }
+            else {
+                {
+                    std::vector<uint32> ids = aaCenter.aa_allspells1[player->GetGUID()];
+                    for (auto itr = ids.begin(); itr != ids.end();) {
+                        if (*itr == spell)
+                        {
+                            itr = ids.erase(itr);
+                            //减物品技能属性
+                            if (std::find(aaCenter.aa_spell_values.begin(), aaCenter.aa_spell_values.end(), spell) != aaCenter.aa_spell_values.end()) {
+                                AA_Spell conf = aaCenter.aa_spells[spell];
+                                std::map<int32, int32> values;
+                                aaCenter.AA_StringToMap(conf.values, values);
+                                for (auto v : values) {
+                                    if (v.first > 0 && v.second > 0) {
+                                        aaCenter.AddValue(player, v.first, v.second, false);
+                                    }
+                                }
+                            }
+                            break;
+                        }
+                        else {
+                            itr++;
+                        }
+                    }
+                    aaCenter.aa_allspells1[player->GetGUID()].clear();
+                    for (auto itr : ids) {
+                        aaCenter.aa_allspells1[player->GetGUID()].push_back(itr);
+                    }
+                }
+                {
+                    std::vector<uint32> ids = aaCenter.aa_allitemspells1[player->GetGUID()][item->GetGUIDLow()];
+                    for (auto itr = ids.begin(); itr != ids.end();) {
+                        if (*itr == spell)
+                        {
+                            itr = ids.erase(itr);
+                            break;
+                        }
+                        else {
+                            itr++;
+                        }
+                    }
+                    aaCenter.aa_allitemspells1[player->GetGUID()][item->GetGUIDLow()].clear();
+                    for (auto itr : ids) {
+                        aaCenter.aa_allitemspells1[player->GetGUID()][item->GetGUIDLow()].push_back(itr);
+                    }
+                }
+            }
+        }
+        aaCenter.aa_allspells[player->GetGUID()].clear();
+        for (auto it : aaCenter.aa_allspells1[player->GetGUID()]) {
+            aaCenter.aa_allspells[player->GetGUID()].insert(it);
+        }
+        aaCenter.aa_allitemspells[player->GetGUID()][item->GetGUIDLow()].clear();
+        for (auto it : aaCenter.aa_allitemspells1[player->GetGUID()][item->GetGUIDLow()]) {
+            aaCenter.aa_allitemspells[player->GetGUID()][item->GetGUIDLow()].insert(it);
+        }
+    }
+}
+
 void Player::ApplyItemEquipSpell(Item* item, bool apply, bool formChange /*= false*/)
 {
     if (!item || item->GetTemplate()->HasFlag(ITEM_FLAG_LEGACY))
         return;
+
+    //穿戴装备，先加载装备技能，再加载技能
+    //取下装备，先取消技能，再重新加载装备技能
+    if (apply) {
+        _ReloadAllItemSpell(this, item, apply);
+    }
 
     for (ItemEffectEntry const* effectData : item->GetEffects())
     {
@@ -8247,6 +8795,79 @@ void Player::ApplyItemEquipSpell(Item* item, bool apply, bool formChange /*= fal
             continue;
 
         ApplyEquipSpell(spellproto, item, apply, formChange);
+    }
+
+    //自定义技能
+    std::set<uint32> m_spells = aaCenter.aa_allitemspells[GetGUID()][item->GetGUIDLow()];
+    for (uint32 spellid : m_spells) {
+        if (spellid == 0) {
+            continue;
+        }
+        AA_Spell conf = aaCenter.aa_spells[spellid];
+        if (apply && conf.TriggerType != ITEM_SPELLTRIGGER_ON_EQUIP && conf.TriggerType != 100) {
+            continue;
+        }
+
+        // check if it is valid spell
+        SpellInfo const* spellproto = sSpellMgr->GetSpellInfo(conf.SpellID, DIFFICULTY_NONE);
+        if (!spellproto)
+            continue;
+
+        if (conf.TriggerType == 100) {
+            if (apply) {
+                if (!HasSpell(conf.SpellID)) {
+                    LearnSpell(conf.SpellID, true);
+                }
+            }
+            else {
+                if (HasSpell(conf.SpellID)) {
+                    RemoveSpell(conf.SpellID);
+                }
+            }
+        }
+        else {
+            ApplyEquipSpell(spellproto, item, apply, formChange);
+        }
+    }
+
+    //自定义套装技能
+    AA_Character_Instance conf = aaCenter.aa_character_instances[item->GetGUIDLow()];
+    if (conf.item_set > 0) {
+        std::vector<uint32> oldsm_spellspells = aaCenter.aa_allsetspells_old[GetGUID()][conf.item_set];
+        for (uint32 spellid : oldsm_spellspells) {
+            if (spellid == 0) {
+                continue;
+            }
+            AA_Spell conf = aaCenter.aa_spells[spellid];
+            if (apply && conf.TriggerType != ITEM_SPELLTRIGGER_ON_EQUIP && conf.TriggerType != 100) {
+                continue;
+            }
+
+            // check if it is valid spell
+            SpellInfo const* spellproto = sSpellMgr->GetSpellInfo(conf.SpellID, DIFFICULTY_NONE);
+            if (!spellproto)
+                continue;
+
+            if (conf.TriggerType == 100) {
+                if (apply) {
+                    if (!HasSpell(conf.SpellID)) {
+                        LearnSpell(conf.SpellID, true);
+                    }
+                }
+                else {
+                    if (HasSpell(conf.SpellID)) {
+                        RemoveSpell(conf.SpellID);
+                    }
+                }
+            }
+            else {
+                ApplyEquipSpell(spellproto, item, apply, formChange);
+            }
+        }
+    }
+
+    if (!apply) {
+        _ReloadAllItemSpell(this, item, apply);
     }
 }
 
@@ -8521,6 +9142,38 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo)
     if (!target || !target->IsAlive() || target == this)
         return;
 
+    //神器
+    for (uint8 i = EQUIPMENT_SLOT_END; i < BANK_SLOT_BAG_END; ++i)
+        if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+        {
+            if (aaCenter.AA_IsShenQiItem(item) && !item->IsBroken()) {
+                if (ItemTemplate const* proto = item->GetTemplate()) {
+                    CastItemCombatSpell(damageInfo, item, proto);
+                }
+            }
+        }
+
+    //双甲
+    ObjectGuid::LowType guidlow = GetGUID().GetCounter();
+    std::vector<ObjectGuid::LowType> guids = aaCenter.aa_item_instance_owner[guidlow];
+    time_t timep;
+    time(&timep); /*当前time_t类型UTC时间*/
+    for (auto guid : guids) {
+        AA_Item_Instance conf = aaCenter.aa_item_instances[guid];
+        if (conf.weizhi != "") {
+            ItemTemplate const* proto = sObjectMgr->GetItemTemplate(conf.itemEntry);
+            if (proto)
+            {
+                Item* item = NewItemOrBag(proto);
+                if (item->AA_LoadFromDB(guid, ObjectGuid::Empty, conf.itemEntry))
+                {
+                    CastItemCombatSpell(damageInfo, item, proto);
+                    delete item;
+                }
+            }
+        }
+    }
+
     for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
     {
         // If usable, try to cast item spell
@@ -8585,6 +9238,39 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
                 {
                     TC_LOG_ERROR("entities.player.items", "Player::CastItemCombatSpell: Player '{}' ({}) cast unknown item spell (ID: {})",
                         GetName(), GetGUID().ToString(), effectData->SpellID);
+                    continue;
+                }
+
+                float chance = (float)spellInfo->ProcChance;
+
+                if (proto->SpellPPMRate)
+                {
+                    uint32 WeaponSpeed = GetBaseAttackTime(damageInfo.GetAttackType());
+                    chance = GetPPMProcChance(WeaponSpeed, proto->SpellPPMRate, spellInfo);
+                }
+                else if (chance > 100.0f)
+                    chance = GetWeaponProcChance();
+
+                if (roll_chance_f(chance) && sScriptMgr->OnCastItemCombatSpell(this, damageInfo.GetVictim(), spellInfo, item))
+                    CastSpell(damageInfo.GetVictim(), spellInfo->Id, item);
+            }
+
+            //自定义技能
+            std::set<uint32> m_spells = aaCenter.aa_allitemspells[GetGUID()][item->GetGUIDLow()];
+            for (uint32 spellid : m_spells) {
+                if (spellid == 0) {
+                    continue;
+                }
+                AA_Spell conf = aaCenter.aa_spells[spellid];
+                if (conf.TriggerType != ITEM_SPELLTRIGGER_ON_PROC) {
+                    continue;
+                }
+
+                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(conf.SpellID, DIFFICULTY_NONE);
+                if (!spellInfo)
+                {
+                    TC_LOG_ERROR("entities.player.items", "Player::CastItemCombatSpell: Player '{}' ({}) cast unknown item spell (ID: {})",
+                        GetName(), GetGUID().ToString(), conf.SpellID);
                     continue;
                 }
 
@@ -8818,12 +9504,38 @@ void Player::_RemoveAllItemMods()
         }
     }
 
+    for (uint8 i = 0; i < INVENTORY_SLOT_BAG_END; ++i)
+    {
+        if (m_items[i])
+        {
+            if (m_items[i]->IsBroken() || !CanUseAttackType(Player::GetAttackBySlot(i, m_items[i]->GetTemplate()->GetInventoryType())))
+                continue;
+
+            AA_ApplyItem(m_items[i], false);
+        }
+    }
+
     TC_LOG_DEBUG("entities.player.items", "_RemoveAllItemMods complete.");
 }
 
 void Player::_ApplyAllItemMods()
 {
     TC_LOG_DEBUG("entities.player.items", "_ApplyAllItemMods start.");
+    for (uint8 i = 0; i < INVENTORY_SLOT_BAG_END; ++i)
+    {
+        if (m_items[i])
+        {
+            AA_ApplyItem(m_items[i], true);
+        }
+    }
+
+    for (uint8 i = 0; i < INVENTORY_SLOT_BAG_END; ++i)
+    {
+        if (m_items[i])
+        {
+            AA_ApplyItem(m_items[i], true);
+        }
+    }
 
     for (uint8 i = 0; i < INVENTORY_SLOT_BAG_END; ++i)
     {
@@ -8859,6 +9571,25 @@ void Player::_ApplyAllItemMods()
             ApplyItemEquipSpell(m_items[i], true);
             ApplyArtifactPowers(m_items[i], true);
             ApplyEnchantment(m_items[i], true);
+        }
+    }
+
+    std::vector<ObjectGuid::LowType> guids = aaCenter.aa_item_instance_owner[GetGUIDLow()];
+    for (auto guid : guids) {
+        AA_Item_Instance conf = aaCenter.aa_item_instances[guid];
+        if (conf.weizhi != "") {
+            ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(conf.itemEntry);
+            if (pProto)
+            {
+                Item* pItem = NewItemOrBag(pProto);
+                if (pItem->AA_LoadFromDB(guid, ObjectGuid::Empty, conf.itemEntry))
+                {
+                    aaCenter.AA_ApplyItemBonuses(this, pItem, true);
+                    this->ApplyItemEquipSpell(pItem, true);
+                    this->ApplyEnchantment(pItem, true);
+                    delete pItem;
+                }
+            }
         }
     }
 
@@ -9025,6 +9756,45 @@ void Player::SendLoot(Loot& loot, bool aeLooting)
 
     if (loot.loot_type == LOOT_CORPSE && !loot.GetOwnerGUID().IsItem())
         SetUnitFlag(UNIT_FLAG_LOOTING);
+
+    //aawow 活动触发
+    std::string type = "";
+    switch (loot.loot_type)
+    {
+        case LOOT_CORPSE: // 世界或生物尸体奖励
+        {
+            type = "物体生物掉落";
+        }
+        break;
+        case LOOT_DISENCHANTING: // 分解奖励
+        {
+            type = "分解掉落";
+        }
+        break;
+        case LOOT_SKINNING: // 剥皮奖励
+        {
+            type = "剥皮掉落";
+        }
+        break;
+        case LOOT_FISHING: //钓鱼奖励
+        {
+            type = "钓鱼掉落";
+        }
+        break;
+        case LOOT_MILLING: // 挖矿奖励
+        {
+            type = "挖矿掉落";
+        }
+        break;
+        default:
+            break;
+    }
+    {
+        std::vector<AA_Event_Map> mapeventconfs = aaCenter.aa_event_maps[type];
+        for (auto mapconf : mapeventconfs) {
+            aaCenter.AA_EventMapStart(this, mapconf);
+        }
+    }
 }
 
 void Player::SendLootError(ObjectGuid const& lootObj, ObjectGuid const& owner, LootError error) const
@@ -9447,6 +10217,21 @@ std::vector<Item*> Player::GetCraftingReagentItemsToDeposit()
 
 Item* Player::GetItemByGuid(ObjectGuid guid) const
 {
+    //双甲
+    std::vector<ObjectGuid::LowType> guids = aaCenter.aa_item_instance_owner[GetGUID().GetCounter()];
+    for (auto g : guids) {
+        AA_Item_Instance i_conf = aaCenter.aa_item_instances[g];
+        if (i_conf.weizhi != "" && guid.GetCounter() == g) {
+            ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(i_conf.itemEntry);
+            if (pProto)
+            {
+                Item* pItem = NewItemOrBag(pProto);
+                pItem->AA_LoadFromDB(g, ObjectGuid::Empty, i_conf.itemEntry);
+                return pItem;
+            }
+        }
+    }
+
     Item* result = nullptr;
     ForEachItem(ItemSearchLocation::Everywhere, [&result, guid](Item* item)
     {
@@ -9774,6 +10559,18 @@ bool Player::HasItemCount(uint32 item, uint32 count, bool inBankAlso) const
         location |= ItemSearchLocation::Bank;
 
     uint32 currentCount = 0;
+
+    //双甲
+    std::vector<ObjectGuid::LowType> guids = aaCenter.aa_item_instance_owner[GetGUID().GetCounter()];
+    for (auto guid : guids) {
+        AA_Item_Instance i_conf = aaCenter.aa_item_instances[guid];
+        if (i_conf.weizhi != "" && i_conf.itemEntry == item) {
+            currentCount += 1;
+            if (currentCount >= count)
+                return true;
+        }
+    }
+
     return !ForEachItem(location, [item, count, &currentCount](Item* pItem)
     {
         if (pItem->GetEntry() == item && !pItem->IsInTrade())
@@ -11260,7 +12057,7 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec& dest
     return reagentBankOnly ? EQUIP_ERR_REAGENT_BANK_FULL : EQUIP_ERR_BANK_FULL;
 }
 
-InventoryResult Player::CanUseItem(Item* pItem, bool not_loading) const
+InventoryResult Player::CanUseItem(Item* pItem, bool not_loading, ObjectGuid::LowType guidlow) const
 {
     if (pItem)
     {
@@ -11282,9 +12079,37 @@ InventoryResult Player::CanUseItem(Item* pItem, bool not_loading) const
             if (GetLevel() < pItem->GetRequiredLevel())
                 return EQUIP_ERR_CANT_EQUIP_LEVEL_I;
 
+            AA_Character_Instance conf = aaCenter.aa_character_instances[pItem->GetGUIDLow()];
             InventoryResult res = CanUseItem(pProto, true);
-            if (res != EQUIP_ERR_OK)
+            if (res == EQUIP_ERR_OK) {
+                Player* player = const_cast<Player*>(this);
+                AA_Map_Player_Conf conf1 = aaCenter.AA_GetAA_Map_Player_Conf(player);
+                if (conf1.jywupin != "" && conf1.jywupin != "0") {
+                    std::vector<int32> items; items.clear();
+                    aaCenter.AA_StringToVectorInt(conf1.jywupin, items, ",");
+                    if (std::find(items.begin(), items.end(), pProto->GetId()) != items.end()) {
+                        aaCenter.AA_SendMessage(player, 1, "|cff00FFFF[系统提示]|cffFF0000该地图中禁用此物品|r");
+                        return EQUIP_ERR_ITEM_NOT_FOUND;
+                    }
+                }
+                if (pProto && conf.jd_id > 0) {
+                    AA_Item_Nonsuch i_conf = aaCenter.aa_item_nonsuchs[conf.jd_id];
+                    if (i_conf.chuandai > 0) {
+                        if (!aaCenter.M_CanNeed(player, i_conf.chuandai)) {
+                            return EQUIP_ERR_ITEM_NOT_FOUND;
+                        }
+                    }
+                }
+
+
+                if (!aaCenter.M_CanNeed(player, aaCenter.aa_item_use_needs[pProto->GetId()].need, 1, true, guidlow)) {
+                    return EQUIP_ERR_ITEM_NOT_FOUND;
+                }
+
+            }
+            else {
                 return res;
+            }
 
             if (pItem->GetSkill() != 0)
             {
@@ -11311,6 +12136,19 @@ InventoryResult Player::CanUseItem(Item* pItem, bool not_loading) const
                 }
                 if (!allowEquip && GetSkillValue(itemSkill) == 0)
                     return EQUIP_ERR_PROFICIENCY_NEEDED;
+            }
+
+            if (pProto && conf.jd_id > 0) {
+                AA_Item_Nonsuch i_conf = aaCenter.aa_item_nonsuchs[conf.jd_id];
+                if (i_conf.chuandai > 0) {
+                    Player* player = const_cast<Player*>(this);
+                    aaCenter.M_Need(player, i_conf.chuandai);
+                }
+            }
+
+            if (pProto && aaCenter.aa_item_use_needs[pProto->GetId()].need > 0) {
+                Player* player = const_cast<Player*>(this);
+                aaCenter.M_Need(player, aaCenter.aa_item_use_needs[pProto->GetId()].need);
             }
 
             return EQUIP_ERR_OK;
@@ -11417,7 +12255,7 @@ InventoryResult Player::CanRollNeedForItem(ItemTemplate const* proto, Map const*
 
 // Return stored item (if stored to stack, it can diff. from pItem). And pItem ca be deleted in this case.
 Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool update, ItemRandomBonusListId randomBonusListId /*= 0*/,
-    GuidSet const& allowedLooters /*= GuidSet()*/, ItemContext context /*= ItemContext::NONE*/, std::vector<int32> const& bonusListIDs /*= std::vector<int32>()*/, bool addToCollection /*= true*/)
+    GuidSet const& allowedLooters /*= GuidSet()*/, ItemContext context /*= ItemContext::NONE*/, std::vector<int32> const& bonusListIDs /*= std::vector<int32>()*/, bool addToCollection /*= true*/, Loot *loot /*nullptr*/)
 {
     uint32 count = 0;
     for (ItemPosCountVec::const_iterator itr = pos.begin(); itr != pos.end(); ++itr)
@@ -11435,6 +12273,119 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
         ItemAddedQuestCheck(itemId, count);
         UpdateCriteria(CriteriaType::ObtainAnyItem, itemId, count);
         UpdateCriteria(CriteriaType::AcquireItem, itemId, count);
+
+        if (loot) {
+            //aawow 生物死亡，掉落极品鉴定，拾取鉴定
+            ItemTemplate const* pProto = item->GetTemplate();
+            uint32 noticeid = 0;
+            if (pProto && aaCenter.aa_item_nojiandings[pProto->GetId()].itemid == 0) {
+                AA_Creature c_conf;
+                AA_Object o_conf;
+                AA_Item i_conf;
+                if (loot->aa_id_c > 0) { //生物掉落
+                    c_conf = aaCenter.aa_creatures[loot->aa_id_c];
+                }
+                if (loot->aa_id_o > 0) {
+                    o_conf = aaCenter.aa_objects[loot->aa_id_o];
+                }
+                if (loot->aa_id_i > 0) {
+                    i_conf = aaCenter.aa_items[loot->aa_id_i];
+                }
+                time_t timep;
+                time(&timep); /*当前time_t类型UTC时间*/
+                ObjectGuid::LowType guidlow = item->GetGUIDLow();
+                //如果是拾取鉴定
+                //普通装备掉落鉴定
+                aaCenter.aa_character_instance_owner[GetGUIDLow()].push_back(guidlow);
+                aaCenter.aa_character_instances[guidlow].guid = guidlow;
+                aaCenter.aa_character_instances[guidlow].itemEntry = pProto->GetId();
+                aaCenter.aa_character_instances[guidlow].owner_guid = GetGUIDLow();
+                aaCenter.aa_character_instances[guidlow].update_time = timep;
+                aaCenter.aa_character_instances[guidlow].isUpdate = true;
+                if (aaCenter.aa_item_nonsuch_ids[pProto->GetId()].zu > 0) {
+                    noticeid = aaCenter.M_NonsuchItem(this, item, aaCenter.aa_item_nonsuch_ids[pProto->GetId()].zu, -3);
+                    aaCenter.aa_character_instances[guidlow].chongzhu_count = aaCenter.aa_item_jianding_czs[pProto->GetId()].cishu;
+                    aaCenter.aa_character_instances[guidlow].chongzhu_value = aaCenter.aa_item_jianding_czs[pProto->GetId()].need_value;
+                    aaCenter.aa_character_instances[guidlow].chongzhu_spell = aaCenter.aa_item_jianding_czs[pProto->GetId()].need_spell;
+                }
+                else if (c_conf.nonsuch_group > 0 || o_conf.nonsuch_group > 0 || i_conf.nonsuch_group > 0) {
+                    if (aaCenter.aa_world_confs[34].value1 == 1) {
+                        if (c_conf.nonsuch_group > 0) {
+                            noticeid = aaCenter.M_NonsuchItem(this, item, c_conf.nonsuch_group, -3);
+                            aaCenter.aa_character_instances[guidlow].chongzhu_count = aaCenter.aa_item_jianding_czs[pProto->GetId()].cishu;
+                            aaCenter.aa_character_instances[guidlow].chongzhu_value = aaCenter.aa_item_jianding_czs[pProto->GetId()].need_value;
+                            aaCenter.aa_character_instances[guidlow].chongzhu_spell = aaCenter.aa_item_jianding_czs[pProto->GetId()].need_spell;
+                        }
+                        if (o_conf.nonsuch_group > 0) {
+                            noticeid = aaCenter.M_NonsuchItem(this, item, o_conf.nonsuch_group, -3);
+                            aaCenter.aa_character_instances[guidlow].chongzhu_count = aaCenter.aa_item_jianding_czs[pProto->GetId()].cishu;
+                            aaCenter.aa_character_instances[guidlow].chongzhu_value = aaCenter.aa_item_jianding_czs[pProto->GetId()].need_value;
+                            aaCenter.aa_character_instances[guidlow].chongzhu_spell = aaCenter.aa_item_jianding_czs[pProto->GetId()].need_spell;
+                        }
+                        if (i_conf.nonsuch_group > 0) {
+                            noticeid = aaCenter.M_NonsuchItem(this, item, i_conf.nonsuch_group, -3);
+                            aaCenter.aa_character_instances[guidlow].chongzhu_count = aaCenter.aa_item_jianding_czs[pProto->GetId()].cishu;
+                            aaCenter.aa_character_instances[guidlow].chongzhu_value = aaCenter.aa_item_jianding_czs[pProto->GetId()].need_value;
+                            aaCenter.aa_character_instances[guidlow].chongzhu_spell = aaCenter.aa_item_jianding_czs[pProto->GetId()].need_spell;
+                        }
+                    }
+                }
+                else {
+                    noticeid = aaCenter.M_NonsuchItem(this, item, 0, -3);
+                }
+            }
+
+            if (noticeid > 0) {
+                AA_Message aa_message;
+                aa_message.use_item = item;
+                AA_Notice notice = aaCenter.aa_notices[noticeid];
+                aaCenter.AA_SendNotice(this, notice, true, aa_message);
+            }
+        }
+        else {
+            //aawow 命令制造，商人购买，物品鉴定，宠物鉴定
+            uint32 noticeid = 0;
+            ItemTemplate const* pProto = item->GetTemplate();
+            if (pProto && aaCenter.aa_item_nojiandings[pProto->GetId()].itemid == 0) {
+                time_t timep;
+                time(&timep); /*当前time_t类型UTC时间*/
+                ObjectGuid::LowType guidlow = item->GetGUIDLow();
+                aaCenter.aa_character_instance_owner[GetGUIDLow()].push_back(guidlow);
+                aaCenter.aa_character_instances[guidlow].guid = guidlow;
+                aaCenter.aa_character_instances[guidlow].itemEntry = pProto->GetId();
+                aaCenter.aa_character_instances[guidlow].owner_guid = GetGUIDLow();
+                aaCenter.aa_character_instances[guidlow].update_time = timep;
+                aaCenter.aa_character_instances[guidlow].isUpdate = true;
+                uint32 zu = aaCenter.AA_StringRandom(aaCenter.aa_item_jianding_buys[pProto->GetId()].zus);
+                if (zu > 0) {
+                    if (aaCenter.aa_world_confs[35].value1 == 1) {
+                        noticeid = aaCenter.M_NonsuchItem(this, item, zu, -2);
+                        aaCenter.aa_character_instances[guidlow].chongzhu_count = aaCenter.aa_item_jianding_czs[pProto->GetId()].cishu;
+                        aaCenter.aa_character_instances[guidlow].chongzhu_value = aaCenter.aa_item_jianding_czs[pProto->GetId()].need_value;
+                        aaCenter.aa_character_instances[guidlow].chongzhu_spell = aaCenter.aa_item_jianding_czs[pProto->GetId()].need_spell;
+                    }
+                }
+                else if (aaCenter.aa_item_nonsuch_ids[pProto->GetId()].zu > 0) {
+                    if (aaCenter.aa_world_confs[35].value1 == 1) {
+                        noticeid = aaCenter.M_NonsuchItem(this, item, aaCenter.aa_item_nonsuch_ids[pProto->GetId()].zu, -2);
+                        aaCenter.aa_character_instances[guidlow].chongzhu_count = aaCenter.aa_item_jianding_czs[pProto->GetId()].cishu;
+                        aaCenter.aa_character_instances[guidlow].chongzhu_value = aaCenter.aa_item_jianding_czs[pProto->GetId()].need_value;
+                        aaCenter.aa_character_instances[guidlow].chongzhu_spell = aaCenter.aa_item_jianding_czs[pProto->GetId()].need_spell;
+                    }
+                }
+                else {
+                    noticeid = aaCenter.M_NonsuchItem(this, item, 0, -2);
+                }
+            }
+
+            if (noticeid > 0) {
+                AA_Message aa_message;
+                aa_message.use_item = item;
+                AA_Notice notice = aaCenter.aa_notices[noticeid];
+                aaCenter.AA_SendNotice(this, notice, false, aa_message);
+            }
+        }
+        
 
         item->SetFixedLevel(GetLevel());
         item->SetItemRandomBonusList(randomBonusListId);
@@ -11506,6 +12457,39 @@ Item* Player::StoreItem(ItemPosCountVec const& dest, Item* pItem, bool update)
     }
 
     AutoUnequipChildItem(lastItem);
+
+    if (lastItem)
+    {
+        ObjectGuid::LowType guidlow = lastItem->GetGUIDLow();
+        uint32 pguidlow = GetGUIDLow();
+        if (aaCenter.aa_character_instances[guidlow].owner_guid > 0 &&
+            aaCenter.aa_character_instances[guidlow].owner_guid != pguidlow) {
+            aaCenter.aa_character_instances[guidlow].owner_guid = pguidlow;
+            time_t timep;
+            time(&timep); /*当前time_t类型UTC时间*/
+            aaCenter.aa_character_instances[guidlow].update_time = timep;
+            aaCenter.aa_character_instances[guidlow].isUpdate = true;
+        }
+
+        ObjectGuid::LowType guidlowH = guidlow / 10000;
+        ObjectGuid::LowType guidlowL = guidlow - guidlowH * 10000;
+        //lastItem->SetUInt32Value(ITEM_FIELD_ENCHANTMENT_4_1, guidlowH + 5000);
+        //lastItem->SetUInt32Value(ITEM_FIELD_ENCHANTMENT_5_1, guidlowL + 5000);
+
+        //宝石插件显示baoshi_entry
+        uint32 baoshi_entry = aaCenter.AA_GetBaoshiEntry(lastItem, 0);
+        if (aaCenter.aa_character_instances[guidlow].baoshi_entry != baoshi_entry) {
+            time_t timep;
+            time(&timep); /*当前time_t类型UTC时间*/
+            aaCenter.aa_character_instances[guidlow].update_time = timep;
+            aaCenter.aa_character_instances[guidlow].isUpdate = true;
+            aaCenter.aa_character_instances[guidlow].baoshi_entry = baoshi_entry;
+        }
+
+        if (aaCenter.AA_IsShenQiItem(lastItem)) {
+            _ApplyItemMods(lastItem, lastItem->GetSlot(), true, lastItem->GetBagSlot());
+        }
+    }
 
     return lastItem;
 }
@@ -11929,6 +12913,10 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
     Item* pItem = GetItemByPos(bag, slot);
     if (pItem)
     {
+        if (aaCenter.AA_IsShenQiItem(pItem)) {
+            _ApplyItemMods(pItem, slot, false, bag);
+        }
+
         TC_LOG_DEBUG("entities.player.items", "Player::RemoveItem: Player '{}' ({}), Bag: {}, Slot: {}, Item: {}",
             GetName(), GetGUID().ToString(), bag, slot, pItem->GetEntry());
 
@@ -12084,6 +13072,10 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
         ApplyItemLootedSpell(pItem, false);
 
         sScriptMgr->OnItemRemove(this, pItem);
+
+        if (aaCenter.AA_IsShenQiItem(pItem)) {
+            _ApplyItemMods(pItem, slot, false);
+        }
 
         ItemTemplate const* pProto = pItem->GetTemplate();
         if (bag == INVENTORY_SLOT_BAG_0)
@@ -15345,6 +16337,18 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
 
     if (conditionChanged)
         UpdateObjectVisibility();
+
+    {
+        std::vector<AA_Event_Map> mapeventconfs = aaCenter.aa_event_maps["完成任务"];
+        for (auto mapconf : mapeventconfs) {
+            if (quest_id == uint32(mapconf.value) || mapconf.value == -1) {
+                aaCenter.AA_EventMapStart(this, mapconf);
+            }
+        }
+    }
+    {
+        aaCenter.aa_renwus[GetGUIDLow()] = aaCenter.aa_renwus[GetGUIDLow()] + 1;
+    }
 }
 
 void Player::SetRewardedQuest(uint32 quest_id)
@@ -19601,7 +20605,30 @@ void Player::SaveToDB(bool create /*=false*/)
 
     SaveToDB(loginTransaction, trans, create);
 
+    sAAData->AA_REP_Character_Juanxian(this, trans);
+    sAAData->AA_UPD_Character_Paihang(this, trans);
+    sAAData->AA_REP_Character_Instance(this, trans);
+    sAAData->AA_REP_Characters(this, trans);
+    sAAData->AA_REP_Systems(trans);
+    sAAData->AA_REP_Characters_Dianfeng(this, trans);
+    sAAData->AA_REP_Characters_Douqi(this, trans);
+    sAAData->AA_REP_Characters_Junxian(this, trans);
+
+    sAAData->AA_REP_Player_Map_Value(this, trans);
+    sAAData->AA_REP_Player_Zone_Value(this, trans);
+    sAAData->AA_REP_Player_Area_Value(this, trans);
+    sAAData->AA_REP_Player_Instance_Value(this, trans);
+
+    sAAData->AA_REP_Map_Map_Value(trans);
+    sAAData->AA_REP_Map_Zone_Value(trans);
+    sAAData->AA_REP_Map_Area_Value(trans);
+    sAAData->AA_REP_Map_Instance_Value(trans);
+
+    sAAData->AA_REP_Item_Instance(trans);
+    
     CharacterDatabase.CommitTransaction(trans);
+
+    sAAData->AA_REP_Account(this, loginTransaction);
     LoginDatabase.CommitTransaction(loginTransaction);
 }
 
@@ -22675,7 +23702,11 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
     if (!IsGameMaster() && ((pProto->HasFlag(ITEM_FLAG2_FACTION_HORDE) && GetTeam() == ALLIANCE) || (pProto->HasFlag(ITEM_FLAG2_FACTION_ALLIANCE) && GetTeam() == HORDE)))
         return false;
 
-    Creature* creature = GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR, UNIT_NPC_FLAG_2_NONE);
+    Creature* creature = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, aaCenter.aa_vendor_guid[GetGUID()]);
+    if (!creature || creature->aa_vendor_entry == 0) {
+        creature = GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR, UNIT_NPC_FLAG_2_NONE);
+    }
+
     if (!creature)
     {
         TC_LOG_DEBUG("network", "Player::BuyItemFromVendorSlot: Vendor ({}) not found or player '{}' ({}) can't interact with him.",
@@ -22692,7 +23723,15 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
         return false;
     }
 
-    VendorItemData const* vItems = creature->GetVendorItems();
+    //集合商人
+    VendorItemData const* vItems = nullptr;
+    if (creature->aa_vendor_entry > 0) {
+        vItems = sObjectMgr->GetNpcVendorItemList(creature->aa_vendor_entry);
+    }
+    else {
+        vItems = creature->GetVendorItems();
+    }
+
     if (!vItems || vItems->Empty())
     {
         SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, item, 0);
@@ -22815,6 +23854,63 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
         }
     }
 
+    uint32 buycount = pProto->GetBuyCount() * count;
+    //aawow 商人购买需要，购买次数限制
+    if (aaCenter.AA_VerifyCode("a202b")) {
+        if (aaCenter.aa_buy_times[pProto->GetId()].entry > 0) {
+            uint32 accountid = GetSession()->GetAccountId();
+            ObjectGuid::LowType guidlow = GetGUIDLow();
+            {
+                std::map<int32, int32> buy_times; buy_times.clear();
+                aaCenter.AA_StringToMap(aaCenter.aa_accounts[accountid].buy_time_yj, buy_times);
+                if (aaCenter.aa_buy_times[pProto->GetId()].yongjiu_a && (buy_times[pProto->GetId()] + buycount) > aaCenter.aa_buy_times[pProto->GetId()].yongjiu_a) {
+                    std::string msg = "|cff00FFFF[系统提示]|cffFF0000该物品同一账号限制购买[" + std::to_string(aaCenter.aa_buy_times[pProto->GetId()].yongjiu_a) + "]次";
+                    aaCenter.AA_SendMessage(this, 1, msg.c_str());
+                    return false;
+                }
+            }
+            {
+                std::map<int32, int32> buy_times; buy_times.clear();
+                aaCenter.AA_StringToMap(aaCenter.aa_characterss[guidlow].buy_time_yj, buy_times);
+                if (aaCenter.aa_buy_times[pProto->GetId()].yongjiu_c && (buy_times[pProto->GetId()] + buycount) > aaCenter.aa_buy_times[pProto->GetId()].yongjiu_c) {
+                    std::string msg = "|cff00FFFF[系统提示]|cffFF0000该物品同一角色限制购买[" + std::to_string(aaCenter.aa_buy_times[pProto->GetId()].yongjiu_c) + "]次";
+                    aaCenter.AA_SendMessage(this, 1, msg.c_str());
+                    return false;
+                }
+            }
+            {
+                std::map<int32, int32> buy_times; buy_times.clear();
+                aaCenter.AA_StringToMap(aaCenter.aa_accounts[accountid].buy_time, buy_times);
+                if (aaCenter.aa_buy_times[pProto->GetId()].buy_a && (buy_times[pProto->GetId()] + buycount) > aaCenter.aa_buy_times[pProto->GetId()].buy_a) {
+                    std::string msg = "|cff00FFFF[系统提示]|cffFF0000该物品同一账号每日限制购买[" + std::to_string(aaCenter.aa_buy_times[pProto->GetId()].buy_a) + "]次";
+                    aaCenter.AA_SendMessage(this, 1, msg.c_str());
+                    return false;
+                }
+            }
+            {
+                std::map<int32, int32> buy_times; buy_times.clear();
+                aaCenter.AA_StringToMap(aaCenter.aa_characterss[guidlow].buy_time, buy_times);
+                if (aaCenter.aa_buy_times[pProto->GetId()].buy_c && (buy_times[pProto->GetId()] + buycount) > aaCenter.aa_buy_times[pProto->GetId()].buy_c) {
+                    std::string msg = "|cff00FFFF[系统提示]|cffFF0000该物品同一角色每日限制购买[" + std::to_string(aaCenter.aa_buy_times[pProto->GetId()].buy_c) + "]次";
+                    aaCenter.AA_SendMessage(this, 1, msg.c_str());
+                    return false;
+                }
+            }
+        }
+    }
+
+    uint32 centry = creature->GetEntry();
+    uint32 buyneed = aaCenter.aa_item_buy_needs[centry][pProto->GetId()].need;
+    if (buyneed == 0) {
+        buyneed = aaCenter.aa_item_buy_needs[0][pProto->GetId()].need;
+    }
+    if (buyneed > 0) {
+        if (!aaCenter.M_CanNeed(this, buyneed, pProto->GetBuyCount() * count)) {
+            SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, item, 0);
+            return false;
+        }
+    }
+
     uint64 price = 0;
     if (pProto->GetBuyPrice() > 0) //Assume price cannot be negative (do not know why it is int32)
     {
@@ -22871,6 +23967,73 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
 
         UpdateCriteria(CriteriaType::BuyItemsFromVendors, 1);
         return true;
+    }
+
+    if (buyneed > 0) {
+        aaCenter.M_Need(this, buyneed, pProto->GetBuyCount() * count);
+    }
+
+    if (aaCenter.AA_VerifyCode("a202b")) {
+        if (aaCenter.aa_buy_times[pProto->GetId()].buy_a > 0) {
+            uint32 accountid = GetSession()->GetAccountId();
+            {
+                std::map<int32, int32> buy_times;
+                aaCenter.AA_StringToMap(aaCenter.aa_accounts[accountid].buy_time, buy_times);
+                buy_times[pProto->GetId()] += buycount;
+                std::string buy_timestr = "";
+                aaCenter.AA_MapToString(buy_times, buy_timestr);
+                aaCenter.aa_accounts[accountid].buy_time = buy_timestr;
+                time_t timep;
+                time(&timep); /*当前time_t类型UTC时间*/
+                aaCenter.aa_accounts[accountid].update_time = timep;
+                aaCenter.aa_accounts[accountid].isUpdate = true;
+            }
+        }
+        if (aaCenter.aa_buy_times[pProto->GetId()].buy_c > 0) {
+            ObjectGuid::LowType guidlow = GetGUIDLow();
+            {
+                std::map<int32, int32> buy_times;
+                aaCenter.AA_StringToMap(aaCenter.aa_characterss[guidlow].buy_time, buy_times);
+                buy_times[pProto->GetId()] += buycount;
+                std::string buy_timestr = "";
+                aaCenter.AA_MapToString(buy_times, buy_timestr);
+                aaCenter.aa_characterss[guidlow].buy_time = buy_timestr;
+                time_t timep;
+                time(&timep); /*当前time_t类型UTC时间*/
+                aaCenter.aa_characterss[guidlow].update_time = timep;
+                aaCenter.aa_characterss[guidlow].isUpdate = true;
+            }
+        }
+        if (aaCenter.aa_buy_times[pProto->GetId()].yongjiu_a > 0) {
+            uint32 accountid = GetSession()->GetAccountId();
+            {
+                std::map<int32, int32> buy_times;
+                aaCenter.AA_StringToMap(aaCenter.aa_accounts[accountid].buy_time_yj, buy_times);
+                buy_times[pProto->GetId()] += buycount;
+                std::string buy_timestr = "";
+                aaCenter.AA_MapToString(buy_times, buy_timestr);
+                aaCenter.aa_accounts[accountid].buy_time_yj = buy_timestr;
+                time_t timep;
+                time(&timep); /*当前time_t类型UTC时间*/
+                aaCenter.aa_accounts[accountid].update_time = timep;
+                aaCenter.aa_accounts[accountid].isUpdate = true;
+            }
+        }
+        if (aaCenter.aa_buy_times[pProto->GetId()].yongjiu_c > 0) {
+            ObjectGuid::LowType guidlow = GetGUIDLow();
+            {
+                std::map<int32, int32> buy_times;
+                aaCenter.AA_StringToMap(aaCenter.aa_characterss[guidlow].buy_time_yj, buy_times);
+                buy_times[pProto->GetId()] += buycount;
+                std::string buy_timestr = "";
+                aaCenter.AA_MapToString(buy_times, buy_timestr);
+                aaCenter.aa_characterss[guidlow].buy_time_yj = buy_timestr;
+                time_t timep;
+                time(&timep); /*当前time_t类型UTC时间*/
+                aaCenter.aa_characterss[guidlow].update_time = timep;
+                aaCenter.aa_characterss[guidlow].isUpdate = true;
+            }
+        }
     }
 
     return false;
@@ -23656,7 +24819,11 @@ void Player::UpdateVisibilityForPlayer()
 
 void Player::InitPrimaryProfessions()
 {
-    SetFreePrimaryProfessions(sWorld->getIntConfig(CONFIG_MAX_PRIMARY_TRADE_SKILL));
+    uint32 accountid = GetSession()->GetAccountId();
+    AA_Account a_conf = aaCenter.aa_accounts[accountid];
+    AA_Vip_Conf vipconf = aaCenter.aa_vip_confs[a_conf.vip];
+    uint32 zhuanye = vipconf.zhuanye + sWorld->getIntConfig(CONFIG_MAX_PRIMARY_TRADE_SKILL);
+    SetFreePrimaryProfessions(zhuanye);
 }
 
 bool Player::ModifyMoney(int64 amount, bool sendError /*= true*/)
@@ -24018,6 +25185,59 @@ void Player::ApplyEquipCooldown(Item* pItem)
         data.SpellID = effectData->SpellID;
         data.Cooldown = 30 * IN_MILLISECONDS; // Always 30secs?
         SendDirectMessage(data.Write());
+    }
+
+    //自定义技能
+    std::set<uint32> m_spells = aaCenter.aa_allitemspells[GetGUID()][pItem->GetGUIDLow()];
+    for (uint32 spellid : m_spells) {
+        if (spellid == 0) {
+            continue;
+        }
+        AA_Spell conf = aaCenter.aa_spells[spellid];
+
+        SpellInfo const* effectSpellInfo = sSpellMgr->GetSpellInfo(conf.SpellID, DIFFICULTY_NONE);
+        if (!effectSpellInfo)
+            continue;
+
+        // apply proc cooldown to equip auras if we have any
+        if (conf.TriggerType == ITEM_SPELLTRIGGER_ON_EQUIP)
+        {
+            SpellProcEntry const* procEntry = sSpellMgr->GetSpellProcEntry(effectSpellInfo);
+            if (!procEntry)
+                continue;
+
+            if (Aura* itemAura = GetAura(conf.SpellID, GetGUID(), pItem->GetGUID()))
+                itemAura->AddProcCooldown(procEntry, now);
+            continue;
+        }
+    }
+
+    //自定义套装技能
+    AA_Character_Instance conf = aaCenter.aa_character_instances[pItem->GetGUIDLow()];
+    if (conf.item_set > 0) {
+        std::vector<uint32> oldsm_spellspells = aaCenter.aa_allsetspells_old[GetGUID()][conf.item_set];
+        for (uint32 spellid : oldsm_spellspells) {
+            if (spellid == 0) {
+                continue;
+            }
+            AA_Spell conf = aaCenter.aa_spells[spellid];
+
+            SpellInfo const* effectSpellInfo = sSpellMgr->GetSpellInfo(conf.SpellID, DIFFICULTY_NONE);
+            if (!effectSpellInfo)
+                continue;
+
+            // apply proc cooldown to equip auras if we have any
+            if (conf.TriggerType == ITEM_SPELLTRIGGER_ON_EQUIP)
+            {
+                SpellProcEntry const* procEntry = sSpellMgr->GetSpellProcEntry(effectSpellInfo);
+                if (!procEntry)
+                    continue;
+
+                if (Aura* itemAura = GetAura(conf.SpellID, GetGUID(), pItem->GetGUID()))
+                    itemAura->AddProcCooldown(procEntry, now);
+                continue;
+            }
+        }
     }
 }
 
@@ -25881,7 +27101,7 @@ void Player::StoreLootItem(ObjectGuid lootWorldObjectGuid, uint8 lootSlot, Loot*
     InventoryResult msg = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item->itemid, item->count);
     if (msg == EQUIP_ERR_OK)
     {
-        Item* newitem = StoreNewItem(dest, item->itemid, true, item->randomBonusListId, item->GetAllowedLooters(), item->context, item->BonusListIDs);
+        Item* newitem = StoreNewItem(dest, item->itemid, true, item->randomBonusListId, item->GetAllowedLooters(), item->context, item->BonusListIDs, true, loot);
 
         if (ffaItem)
         {
@@ -25919,6 +27139,23 @@ void Player::StoreLootItem(ObjectGuid lootWorldObjectGuid, uint8 lootSlot, Loot*
             sLootItemStorage->RemoveStoredLootItemForContainer(lootWorldObjectGuid.GetCounter(), item->itemid, item->count, item->LootListId);
 
         ApplyItemLootedSpell(newitem, true);
+
+        //防挂机检测，拾取次数+1，每次拾取发送验证框
+        if (aaCenter.aa_world_confs[33].value1 == 1) {
+            std::vector<int32> maps; maps.clear();
+            aaCenter.AA_StringToVectorInt(aaCenter.aa_world_confs[32].value2, maps, ",");
+            if (aaCenter.aa_world_confs[32].value2 == "" || std::find(maps.begin(), maps.end(), GetAreaId()) == maps.end()) {
+                uint32 maxcount = aaCenter.AA_StringUint32(aaCenter.aa_world_confs[31].value2);
+                if (maxcount > 0) {
+                    this->lootcount += 1;
+                    if (this->lootcount >= maxcount) {
+                        uint32 codeindex = rand() % 618 + 1;
+                        this->codeindex = codeindex;
+                        aaCenter.M_SendClientAddonData(this, "301", std::to_string(codeindex));
+                    }
+                }
+            }
+        }
     }
     else
         SendEquipError(msg, nullptr, nullptr, item->itemid);
@@ -26234,6 +27471,12 @@ bool Player::ModifierTreeSatisfied(uint32 modifierTreeId) const
 
 TalentLearnResult Player::LearnTalent(uint32 talentId, int32* spellOnCooldown)
 {
+    if (aaCenter.aa_world_confs[71].value1 > 0) {
+        if (!aaCenter.M_CanNeed(this, aaCenter.aa_world_confs[71].value1)) {
+            return TALENT_FAILED_UNKNOWN;
+        }
+    }
+
     if (IsInCombat())
         return TALENT_FAILED_AFFECTING_COMBAT;
 
@@ -26319,6 +27562,9 @@ TalentLearnResult Player::LearnTalent(uint32 talentId, int32* spellOnCooldown)
 
     TC_LOG_DEBUG("misc", "Player::LearnTalent: TalentID: {} Spell: {} Group: {}\n", talentId, spellid, GetActiveTalentGroup());
 
+    if (aaCenter.aa_world_confs[71].value1 > 0) {
+        aaCenter.M_Need(this, aaCenter.aa_world_confs[71].value1);
+    }
     return TALENT_LEARN_OK;
 }
 
@@ -29284,4 +30530,192 @@ bool TraitMgr::PlayerDataAccessor::HasAchieved(int32 achievementId) const
 uint32 TraitMgr::PlayerDataAccessor::GetPrimarySpecialization() const
 {
     return _player->GetPrimarySpecialization();
+}
+
+void Player::AA_ApplyItem(Item* pItem, bool apply)
+{
+    if (!pItem)
+        return;
+
+    ItemTemplate const* proto = pItem->GetTemplate();
+    if (!proto)
+        return;
+
+    AA_Character_Instance conf = aaCenter.aa_character_instances[pItem->GetGUIDLow()];
+    if (apply) {
+        //随机套装
+        if (conf.item_set > 0 && conf.guid > 0) {
+            aaCenter.aa_allsetitems1[this->GetGUID()][conf.item_set].push_back(conf.guid);
+        }
+        //物品entry
+        if (proto->GetId() > 0) {
+            aaCenter.aa_allitems1[this->GetGUID()].push_back(proto->GetId());
+        }
+        //身上所有有效的物品entry--宝石
+        if (conf.baoshi_entry > 0) {
+            aaCenter.aa_allitems1[this->GetGUID()].push_back(conf.baoshi_entry);
+        }
+        //符文
+        if (conf.fw_count > 0 && conf.fw_values != "" && conf.fw_values != "0") {
+            std::vector<int32> fwids; fwids.clear();
+            aaCenter.AA_StringToVectorInt(conf.fw_values, fwids, ",");
+            for (size_t i = 0; i < fwids.size(); i++) {
+                uint32 fwid = fwids[i];
+                if (fwid == 0) { continue; }
+
+                //身上所有有效的物品entry--符文
+                aaCenter.aa_allitems1[this->GetGUID()].push_back(fwid);
+            }
+        }
+    }
+    else {
+        //随机套装
+        if (conf.item_set > 0 && conf.guid > 0) {
+            std::vector<ObjectGuid::LowType> ids = aaCenter.aa_allsetitems1[this->GetGUID()][conf.item_set];
+            for (auto itr = ids.begin(); itr != ids.end();) {
+                if (*itr == pItem->GetGUIDLow())
+                {
+                    itr = ids.erase(itr);
+                    break;
+                }
+                else {
+                    itr++;
+                }
+            }
+            aaCenter.aa_allsetitems1[this->GetGUID()][conf.item_set] = ids;
+        }
+        //物品entry
+        if (proto->GetId() > 0) {
+            std::vector<uint32> ids = aaCenter.aa_allitems1[this->GetGUID()];
+            for (auto itr = ids.begin(); itr != ids.end();) {
+                if (*itr == proto->GetId())
+                {
+                    itr = ids.erase(itr);
+                    break;
+                }
+                else {
+                    itr++;
+                }
+            }
+            aaCenter.aa_allitems1[this->GetGUID()] = ids;
+        }
+        //身上所有有效的物品entry--宝石
+        if (conf.baoshi_entry > 0) {
+            std::vector<uint32> ids = aaCenter.aa_allitems1[this->GetGUID()];
+            for (auto itr = ids.begin(); itr != ids.end();) {
+                if (*itr == conf.baoshi_entry)
+                {
+                    itr = ids.erase(itr);
+                    break;
+                }
+                else {
+                    itr++;
+                }
+            }
+            aaCenter.aa_allitems1[this->GetGUID()] = ids;
+        }
+        //符文
+        if (conf.fw_count > 0 && conf.fw_values != "" && conf.fw_values != "0") {
+            std::vector<int32> fwids; fwids.clear();
+            aaCenter.AA_StringToVectorInt(conf.fw_values, fwids, ",");
+            for (size_t i = 0; i < fwids.size(); i++) {
+                uint32 fwid = fwids[i];
+                if (fwid == 0) { continue; }
+
+                //身上所有有效的物品entry--符文
+                std::vector<uint32> ids = aaCenter.aa_allitems1[this->GetGUID()];
+                for (auto itr = ids.begin(); itr != ids.end();) {
+                    if (*itr == fwid)
+                    {
+                        itr = ids.erase(itr);
+                        break;
+                    }
+                    else {
+                        itr++;
+                    }
+                }
+                aaCenter.aa_allitems1[this->GetGUID()] = ids;
+            }
+        }
+    }
+
+    //身上所有套装guidlow
+    aaCenter.aa_allsetitems[this->GetGUID()][conf.item_set].clear();
+    for (auto it : aaCenter.aa_allsetitems1[this->GetGUID()][conf.item_set]) {
+        aaCenter.aa_allsetitems[this->GetGUID()][conf.item_set].insert(it);
+    }
+
+    //身上所有有效的物品entry
+    aaCenter.aa_allitems[this->GetGUID()].clear();
+    for (auto it : aaCenter.aa_allitems1[this->GetGUID()]) {
+        aaCenter.aa_allitems[this->GetGUID()].insert(it);
+    }
+}
+
+void Player::AA_SendLoot(Loot& loot, bool aeLooting)
+{
+    if (!GetLootGUID().IsEmpty() && !aeLooting)
+        m_session->DoLootReleaseAll();
+
+    TC_LOG_DEBUG("loot", "Player::SendLoot: Player: '{}' ({}), Loot: {}",
+        GetName(), GetGUID().ToString(), loot.GetOwnerGUID().ToString());
+
+    if (!loot.GetOwnerGUID().IsItem() && !aeLooting)
+        SetLootGUID(loot.GetOwnerGUID());
+
+    WorldPackets::Loot::LootResponse packet;
+    packet.Owner = loot.GetOwnerGUID();
+    packet.LootObj = loot.GetGUID();
+    packet._LootMethod = loot.GetLootMethod();
+    packet.AcquireReason = GetLootTypeForClient(loot.loot_type);
+    packet.Acquired = true; // false == No Loot (this too^^)
+    packet.AELooting = aeLooting;
+    loot.BuildLootResponse(packet, this);
+    SendDirectMessage(packet.Write());
+
+    // add 'this' player as one of the players that are looting 'loot'
+    loot.OnLootOpened(GetMap(), GetGUID());
+    m_AELootView[loot.GetGUID()] = &loot;
+
+    if (loot.loot_type == LOOT_CORPSE && !loot.GetOwnerGUID().IsItem())
+        SetUnitFlag(UNIT_FLAG_LOOTING);
+
+    //aawow 活动触发
+    std::string type = "";
+    switch (loot.loot_type)
+    {
+    case LOOT_CORPSE: // 世界或生物尸体奖励
+    {
+        type = "物体生物掉落";
+    }
+    break;
+    case LOOT_DISENCHANTING: // 分解奖励
+    {
+        type = "分解掉落";
+    }
+    break;
+    case LOOT_SKINNING: // 剥皮奖励
+    {
+        type = "剥皮掉落";
+    }
+    break;
+    case LOOT_FISHING: //钓鱼奖励
+    {
+        type = "钓鱼掉落";
+    }
+    break;
+    case LOOT_MILLING: // 挖矿奖励
+    {
+        type = "挖矿掉落";
+    }
+    break;
+    default:
+        break;
+    }
+    {
+        std::vector<AA_Event_Map> mapeventconfs = aaCenter.aa_event_maps[type];
+        for (auto mapconf : mapeventconfs) {
+            aaCenter.AA_EventMapStart(this, mapconf);
+        }
+    }
 }

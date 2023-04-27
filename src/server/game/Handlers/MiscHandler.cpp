@@ -239,11 +239,13 @@ void WorldSession::HandleWhoOpcode(WorldPackets::Who::WhoRequestPkt& whoRequest)
 
 void WorldSession::HandleLogoutRequestOpcode(WorldPackets::Character::LogoutRequest& /*logoutRequest*/)
 {
+    AA_Map_Player_Conf map_conf = aaCenter.AA_GetAA_Map_Player_Conf(GetPlayer());
+
     if (!GetPlayer()->GetLootGUID().IsEmpty())
         GetPlayer()->SendLootReleaseAll();
 
     bool instantLogout = (GetPlayer()->HasPlayerFlag(PLAYER_FLAGS_RESTING) && !GetPlayer()->IsInCombat()) ||
-                         GetPlayer()->IsInFlight() || HasPermission(rbac::RBAC_PERM_INSTANT_LOGOUT);
+                         GetPlayer()->IsInFlight() || HasPermission(rbac::RBAC_PERM_INSTANT_LOGOUT) || map_conf.PvpType == "安全区" || map_conf.PvpType == "绝对安全区";
 
     /// TODO: Possibly add RBAC permission to log out in combat
     bool canLogoutInCombat = GetPlayer()->HasPlayerFlag(PLAYER_FLAGS_RESTING);
@@ -569,6 +571,16 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
     AreaTriggerStruct const* at = sObjectMgr->GetAreaTrigger(packet.AreaTriggerID);
     if (!at)
         return;
+
+    //aawow 进入副本撞门提示
+    //获取menus
+    vector<uint32> menus = aaCenter.aa_teleport_targets[at->target_mapId];
+    size_t size = menus.size();
+    if (size > 0) {
+        std::string gm = ".组合 *.传送列表 " + std::to_string(at->target_mapId)+"<$自身>";
+        aaCenter.AA_DoCommand(player, gm.c_str());
+        return;
+    }
 
     bool teleported = false;
     if (player->GetMapId() != at->target_mapId)

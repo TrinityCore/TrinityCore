@@ -174,6 +174,7 @@ struct RaidMarker
 class TC_GAME_API Group
 {
     public:
+        uint32 aa_id = 0;
         struct MemberSlot
         {
             ObjectGuid  guid;

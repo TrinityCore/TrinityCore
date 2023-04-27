@@ -176,6 +176,11 @@ enum LoginDatabaseStatements : uint32
     LOGIN_SEL_BNET_TRANSMOG_ILLUSIONS,
     LOGIN_INS_BNET_TRANSMOG_ILLUSIONS,
 
+    _AA_REP_Account,
+    _AA_UP_Account_LeiChong1,
+    _AA_UP_Account_LeiChong2,
+    _AA_UP_Account_LeiChong3,
+
     MAX_LOGINDATABASE_STATEMENTS
 };
 

@@ -898,30 +898,89 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
 
     // Health, Mana or Power, Armor
     PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(creature_ID, petlevel);
-    if (pInfo)                                      // exist in DB
-    {
-        SetCreateHealth(pInfo->health);
-        SetCreateMana(pInfo->mana);
 
-        if (pInfo->armor > 0)
-            SetStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(pInfo->armor));
-
-        for (uint8 stat = 0; stat < MAX_STATS; ++stat)
-            SetCreateStat(Stats(stat), float(pInfo->stats[stat]));
+    bool isAAPet = false;
+    float minjie = 0;
+    float liliang = 0;
+    float zhili = 0;
+    float naili = 0;
+    float hujia = 0;
+    float mana = 0;
+    Unit* owner = GetOwner();
+    if (owner && owner->ToPlayer()) {
+        AA_Pet_Conf p_conf;
+        minjie = owner->GetStat(STAT_AGILITY);
+        liliang = owner->GetStat(STAT_STRENGTH);
+        zhili = owner->GetStat(STAT_INTELLECT);
+        naili = owner->GetStat(STAT_STAMINA);
+        hujia = owner->GetArmor();
+        mana = owner->GetCreateMana();
+        if (IsPet()) {
+            p_conf = aaCenter.aa_pet_confs[owner->GetClass()];
+            if (p_conf.class1 > 0) {
+                minjie = p_conf.agility > 0 ? minjie * (p_conf.agility / 100.0) : minjie;
+                liliang = p_conf.strength > 0 ? liliang * (p_conf.strength / 100.0) : liliang;
+                zhili = p_conf.intellect > 0 ? zhili * (p_conf.intellect / 100.0) : zhili;
+                naili = p_conf.stamina > 0 ? naili * (p_conf.stamina / 100.0) : naili;
+                isAAPet = true;
+            }
+        }
     }
-    else                                            // not exist in DB, use some default fake data
-    {
-        // remove elite bonuses included in DB values
-        CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(petlevel, cinfo->unit_class);
-        ApplyLevelScaling();
+    if (isAAPet) {
+        if (pInfo) {
+            SetCreateHealth(pInfo->health);
+        }
+        else {
+            float baseStam = naili < 20 ? naili : 20;
+            float moreStam = naili - baseStam;
+            SetCreateHealth(baseStam + (moreStam * 10.0f));
+        }
 
-        SetCreateHealth(sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureHealth, petlevel, cinfo->GetHealthScalingExpansion(), m_unitData->ContentTuningID, Classes(cinfo->unit_class)) * cinfo->ModHealth * cinfo->ModHealthExtra * _GetHealthMod(cinfo->rank));
-        SetCreateMana(stats->GenerateMana(cinfo));
-        SetCreateStat(STAT_STRENGTH, 22);
-        SetCreateStat(STAT_AGILITY, 22);
-        SetCreateStat(STAT_STAMINA, 25);
-        SetCreateStat(STAT_INTELLECT, 28);
+        if (petType != HUNTER_PET) //hunter pet use focus
+        {
+            if (pInfo) {
+                SetCreateMana(pInfo->mana);
+                SetStatFlatModifier(UNIT_MOD_MANA, BASE_VALUE, (float)pInfo->mana);
+            }
+            else {
+                SetCreateMana(mana);
+                SetStatFlatModifier(UNIT_MOD_MANA, BASE_VALUE, mana);
+            }
+        }
+
+        SetStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, hujia);
+
+        SetCreateStat(STAT_STRENGTH, liliang);
+        SetCreateStat(STAT_AGILITY, minjie);
+        SetCreateStat(STAT_STAMINA, naili);
+        SetCreateStat(STAT_INTELLECT, zhili);
+    } else {
+        if (pInfo)                                      // exist in DB
+        {
+            SetCreateHealth(pInfo->health);
+            SetCreateMana(pInfo->mana);
+
+            if (pInfo->armor > 0)
+                SetStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(pInfo->armor));
+
+            for (uint8 stat = 0; stat < MAX_STATS; ++stat)
+                SetCreateStat(Stats(stat), float(pInfo->stats[stat]));
+        }
+        else                                            // not exist in DB, use some default fake data
+        {
+            // remove elite bonuses included in DB values
+            CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(petlevel, cinfo->unit_class);
+            ApplyLevelScaling();
+
+            SetCreateHealth(sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureHealth, petlevel, cinfo->GetHealthScalingExpansion(), m_unitData->ContentTuningID, Classes(cinfo->unit_class)) * cinfo->ModHealth * cinfo->ModHealthExtra * _GetHealthMod(cinfo->rank));
+            SetCreateMana(stats->GenerateMana(cinfo));
+            SetCreateStat(STAT_STRENGTH, 22);
+            SetCreateStat(STAT_AGILITY, 22);
+            SetCreateStat(STAT_STAMINA, 25);
+            SetCreateStat(STAT_INTELLECT, 28);
+        }
     }
+    
 
     // Power
     if (petType == HUNTER_PET) // Hunter pets have focus

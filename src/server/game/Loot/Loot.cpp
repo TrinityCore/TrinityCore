@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -754,6 +754,99 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
     if (!lootOwner)
         return false;
 
+    bool isOldLoot = true;
+    std::vector<int32> lootids;
+    lootids.clear();
+    AA_Creature c_conf = aaCenter.aa_creatures[this->aa_id_c];
+    AA_Object o_conf = aaCenter.aa_objects[this->aa_id_o];
+    AA_Item i_conf = aaCenter.aa_items[this->aa_id_i];
+    if (c_conf.lootid != "" && c_conf.lootid != "0") {
+        aaCenter.AA_StringToVectorInt(c_conf.lootid, lootids, ",");
+    }
+    if (o_conf.lootid != "" && o_conf.lootid != "0") {
+        aaCenter.AA_StringToVectorInt(o_conf.lootid, lootids, ",");
+    }
+    if (i_conf.lootid != "" && i_conf.lootid != "0") {
+        aaCenter.AA_StringToVectorInt(i_conf.lootid, lootids, ",");
+    }
+    if (c_conf.lootid1 != "" && c_conf.lootid1 != "0") {
+        uint32 lootid = aaCenter.AA_StringRandom(c_conf.lootid1);
+        lootids.push_back(lootid);
+    }
+    if (o_conf.lootid1 != "" && o_conf.lootid1 != "0") {
+        uint32 lootid = aaCenter.AA_StringRandom(o_conf.lootid1);
+        lootids.push_back(lootid);
+    }
+    if (i_conf.lootid1 != "" && i_conf.lootid1 != "0") {
+        uint32 lootid = aaCenter.AA_StringRandom(i_conf.lootid1);
+        lootids.push_back(lootid);
+    }
+    if (c_conf.old_loot == "否" || o_conf.old_loot == "否" || i_conf.old_loot == "否") {
+        isOldLoot = false;
+    }
+    //多倍掉落控制：value1 默认0 ，0表示同一件物品乘以倍数 1表示多倍拾取，每次拾取均随机。
+    uint32 shuliang = 1;
+    if (aaCenter.aa_world_confs[95].value1 == 1) {
+        //if (sourceWorldObjectGUID && (sourceWorldObjectGUID.IsCreature() || sourceWorldObjectGUID.IsGameObject())) {//只有物体和生物掉落生效
+        //装备掉落数量倍率
+        uint32 accountid = lootOwner->GetSession()->GetAccountId();
+        AA_Account a_conf = aaCenter.aa_accounts[accountid];
+        AA_Vip_Conf conf = aaCenter.aa_vip_confs[a_conf.vip];
+        float chance = rand() % 100;
+        float shuliang_chance = conf.shuliang_chance;
+        if (aaCenter.AA_FindMapValueUint32(lootOwner->aa_fm_values, 403) > 0) {
+            shuliang_chance += aaCenter.AA_FindMapValueUint32(lootOwner->aa_fm_values, 403);
+        }
+
+        if (shuliang_chance > chance) {
+            shuliang += conf.shuliang;
+
+            if (aaCenter.AA_FindMapValueUint32(lootOwner->aa_fm_values, 402) > 0) {
+                shuliang += aaCenter.AA_FindMapValueUint32(lootOwner->aa_fm_values, 402);
+            }
+        }
+    }
+    if (isOldLoot) {
+        LootTemplate const* tab = store.GetLootFor(lootId);
+
+        if (!tab)
+        {
+            if (!noEmptyError)
+                TC_LOG_ERROR("sql.sql", "Table '{}' loot id #{} used but it doesn't have records.", store.GetName(), lootId);
+            return false;
+        }
+
+        _itemContext = context;
+
+        items.reserve(MAX_NR_LOOT_ITEMS);
+
+        tab->Process(*this, store.IsRatesAllowed(), lootMode, 0);    // Processing is done there, callback via Loot::AddItem()
+    }
+    
+    if (lootids.size() > 0) {
+        for (auto itr : lootids) {
+            uint32 lootid = itr;
+            if (lootid > 0) {
+                LootTemplate const* tab = store.GetLootFor(lootId);
+
+                if (!tab)
+                {
+                    if (!noEmptyError)
+                        TC_LOG_ERROR("sql.sql", "Table '{}' loot id #{} used but it doesn't have records.", store.GetName(), lootId);
+                    return false;
+                }
+
+                _itemContext = context;
+
+                items.reserve(MAX_NR_LOOT_ITEMS);
+
+                for (int i = 0; i < shuliang; i++)
+                    tab->Process(*this, store.IsRatesAllowed(), lootMode, 0);    // Processing is done there, callback via Loot::AddItem()
+                    
+            }
+        }
+    }
+
     LootTemplate const* tab = store.GetLootFor(lootId);
 
     if (!tab)
@@ -823,6 +916,34 @@ void Loot::AddItem(LootStoreItem const& item)
         return;
 
     uint32 count = urand(item.mincount, item.maxcount);
+    
+    //多倍掉落控制：value1 默认0 ，0表示同一件物品乘以倍数 1表示多倍拾取，每次拾取均随机。
+    if (aaCenter.aa_world_confs[95].value1 == 0) {
+        uint32 shuliang = 1;
+        //if (sourceWorldObjectGUID && (sourceWorldObjectGUID.IsCreature() || sourceWorldObjectGUID.IsGameObject())) {//只有物体和生物掉落生效
+        //装备掉落数量倍率
+        if (auto player = ObjectAccessor::FindPlayer(GetOwnerGUID())) {
+            uint32 accountid = player->GetSession()->GetAccountId();
+            AA_Account a_conf = aaCenter.aa_accounts[accountid];
+            AA_Vip_Conf conf = aaCenter.aa_vip_confs[a_conf.vip];
+            uint32 chance = rand() % 100;
+            float shuliang_chance = conf.shuliang_chance;
+            Player* p = const_cast<Player*>(player);
+            if (aaCenter.AA_FindMapValueUint32(p->aa_fm_values, 403) > 0) {
+                shuliang_chance += aaCenter.AA_FindMapValueUint32(p->aa_fm_values, 403);
+            }
+
+            if (shuliang_chance > chance) {
+                shuliang += conf.shuliang;
+
+                if (aaCenter.AA_FindMapValueUint32(p->aa_fm_values, 402) > 0) {
+                    shuliang += aaCenter.AA_FindMapValueUint32(p->aa_fm_values, 402);
+                }
+            }
+        }
+        count *= shuliang;
+    }
+
     uint32 stacks = count / proto->GetMaxStackSize() + ((count % proto->GetMaxStackSize()) ? 1 : 0);
 
     for (uint32 i = 0; i < stacks && items.size() < MAX_NR_LOOT_ITEMS; ++i)

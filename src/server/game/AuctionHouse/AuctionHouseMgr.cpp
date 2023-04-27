@@ -1943,10 +1943,58 @@ void AuctionHouseObject::SendAuctionSold(AuctionPosting const* auction, Player* 
             owner->GetSession()->SendAuctionClosedNotification(auction, (float)sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY), true);
         }
 
-        MailDraft(AuctionHouseMgr::BuildItemAuctionMailSubject(AuctionMailType::Sold, auction),
-            AuctionHouseMgr::BuildAuctionSoldMailBody(auction->Bidder, auction->BidAmount, auction->BuyoutOrUnitPrice, auction->Deposit, auctionHouseCut))
-            .AddMoney(profit)
-            .SendMailTo(trans, MailReceiver(owner, auction->Owner), this, MAIL_CHECK_MASK_COPIED, sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY));
+        // 积分拍卖行，货币类型：0金币 1泡点 2魔币 3积分 4战场分数 5物品
+        uint32 accountid = sCharacterCache->GetCharacterAccountIdByGuid(auction->Owner);
+        std::string danwei = aaCenter.AA_GetAuctionUnit();
+        uint64 token = auction->BuyoutOrUnitPrice;
+        int32 sx = 0;
+        if (aaCenter.aa_world_confs[61].value1 > 0)
+        {
+            sx = token*(aaCenter.aa_world_confs[61].value1/100.0);
+            token = token - sx;
+        }
+        if (aaCenter.aa_world_confs[60].value1 == 1) {
+            aaCenter.aa_accounts[accountid].paodian += token;
+            time_t timep;
+            time(&timep); /*当前time_t类型UTC时间*/
+            aaCenter.aa_accounts[accountid].update_time = timep;
+            if (owner && owner->IsInWorld()) {
+                std::string jf = "|cff00FFFF["+danwei+"拍卖]|你获得了"+aaCenter.aa_color_blue+"["+aaCenter.aa_world_confs[62].value2+"]|r"+aaCenter.aa_color_yellow+" x "+std::to_string(token)+"|r";
+                aaCenter.AA_SendMessage(owner, 2, jf.c_str());
+            }
+        } else if (aaCenter.aa_world_confs[60].value1 == 2) {
+            aaCenter.aa_accounts[accountid].mobi += token;
+            time_t timep;
+            time(&timep); /*当前time_t类型UTC时间*/
+            aaCenter.aa_accounts[accountid].update_time = timep;
+            if (owner && owner->IsInWorld()) {
+                std::string jf = "|cff00FFFF["+danwei+"拍卖]|你获得了"+aaCenter.aa_color_blue+"["+aaCenter.aa_world_confs[63].value2+"]|r"+aaCenter.aa_color_yellow+" x "+std::to_string(token)+"|r";
+                aaCenter.AA_SendMessage(owner, 2, jf.c_str());
+            }
+        } else if (aaCenter.aa_world_confs[60].value1 == 3) {
+            aaCenter.aa_accounts[accountid].jifen += token;
+            time_t timep;
+            time(&timep); /*当前time_t类型UTC时间*/
+            aaCenter.aa_accounts[accountid].update_time = timep;
+            if (owner && owner->IsInWorld()) {
+                std::string jf = "|cff00FFFF["+danwei+"拍卖]|你获得了"+aaCenter.aa_color_blue+"["+aaCenter.aa_world_confs[64].value2+"]|r"+aaCenter.aa_color_yellow+" x "+std::to_string(token)+"|r";
+                aaCenter.AA_SendMessage(owner, 2, jf.c_str());
+            }
+        } else if (aaCenter.aa_world_confs[60].value1 == 4) {
+            aaCenter.aa_accounts[accountid].battlecore += token;
+            time_t timep;
+            time(&timep); /*当前time_t类型UTC时间*/
+            aaCenter.aa_accounts[accountid].update_time = timep;
+            if (owner && owner->IsInWorld()) {
+                std::string jf = "|cff00FFFF["+danwei+"拍卖]|你获得了"+aaCenter.aa_color_blue+"["+aaCenter.aa_world_confs[65].value2+"]|r"+aaCenter.aa_color_yellow+" x "+std::to_string(token)+"|r";
+                aaCenter.AA_SendMessage(owner, 2, jf.c_str());
+            }
+        } else {
+            MailDraft(AuctionHouseMgr::BuildItemAuctionMailSubject(AuctionMailType::Sold, auction),
+                AuctionHouseMgr::BuildAuctionSoldMailBody(auction->Bidder, auction->BidAmount, auction->BuyoutOrUnitPrice, auction->Deposit, auctionHouseCut))
+                .AddMoney(profit)
+                .SendMailTo(trans, MailReceiver(owner, auction->Owner), this, MAIL_CHECK_MASK_COPIED, sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY));
+        }
     }
 }
 

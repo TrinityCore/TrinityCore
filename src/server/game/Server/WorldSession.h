@@ -957,7 +957,14 @@ class TC_GAME_API WorldSession
             std::string os, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
         ~WorldSession();
 
+        void AA_HandleAutostoreLootItemOpcode(WorldPackets::Loot::LootItem& packet);
+        void AA_HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet*/);
+        void AA_HandleLootReleaseOpcode(WorldPackets::Loot::LootRelease& packet);
+        void AA_DoLootRelease(Loot* loot);
+        void AA_HandleLootOpcode(WorldPackets::Loot::LootUnit& packet);
+        
         bool PlayerLoading() const { return !m_playerLoading.IsEmpty(); }
+    
         bool PlayerLogout() const { return m_playerLogout; }
         bool PlayerLogoutWithSave() const { return m_playerLogout && m_playerSave; }
         bool PlayerRecentlyLoggedOut() const { return m_playerRecentlyLogout; }

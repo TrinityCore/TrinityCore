@@ -10704,6 +10704,10 @@ GameObjectOverride const* ObjectMgr::GetGameObjectOverride(ObjectGuid::LowType s
 
 CreatureTemplate const* ObjectMgr::GetCreatureTemplate(uint32 entry) const
 {
+    uint32 entry1 = aaCenter.AA_GetCreatureRandomEntry(entry);
+    if (entry1 > 0) {
+        Trinity::Containers::MapGetValuePtr(_creatureTemplateStore, entry1);
+    }
     return Trinity::Containers::MapGetValuePtr(_creatureTemplateStore, entry);
 }
 

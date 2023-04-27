@@ -190,6 +190,20 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PrepareStatement(LOGIN_SEL_BNET_TRANSMOG_ILLUSIONS, "SELECT blobIndex, illusionMask FROM battlenet_account_transmog_illusions WHERE battlenetAccountId = ? ORDER BY blobIndex DESC", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_INS_BNET_TRANSMOG_ILLUSIONS, "INSERT INTO battlenet_account_transmog_illusions (battlenetAccountId, blobIndex, illusionMask) VALUES (?, ?, ?) "
         "ON DUPLICATE KEY UPDATE illusionMask = illusionMask | VALUES(illusionMask)", CONNECTION_ASYNC);
+    // AA_DB
+//    PrepareStatement(_AA_REP_Account,"replace into _aa_account (id, 会员等级, 当前积分, jifen, 累计充值积分, 泡点, 魔币, 战场分数, 每日累充积分, 每日首充积分, 每日首充领取, 累充奖励领取, 登录天数, 签到奖励领取, 签到天数, 理财剩余领取天数, 理财奖励领取, 更新时间) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", CONNECTION_ASYNC);
+    
+    
+    PrepareStatement(_AA_REP_Account,"insert into _aa_account (id, 会员等级, 当前积分, jifen, 累计充值积分, 泡点, 魔币, 战场分数, 每日累充积分, 每日首充积分, 每日首充领取, 累充奖励领取, 登录天数, 签到奖励领取, 签到天数, 理财剩余领取天数, 理财奖励领取, 物品购买次数, 物品永久购买, 自定义账号变量, 更新时间) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY update 会员等级 = ?, 当前积分 = ?, 累计充值积分 = ?, 泡点 = ?, 魔币 = ?, 战场分数 = ?, 每日累充积分 = ?, 每日首充积分 = ?, 每日首充领取 = ?, 累充奖励领取 = ?, 登录天数 = ?, 签到奖励领取 = ?, 签到天数 = ?, 理财剩余领取天数 = ?, 理财奖励领取 = ?, 物品购买次数 = ?, 物品永久购买 = ?, 自定义账号变量 = ?, 更新时间 = ?", CONNECTION_ASYNC);
+
+    
+//    PrepareStatement(_AA_REP_Account,"replace into _aa_account set id = ?, 会员等级 = ?, 当前积分 = ?, jifen = jifen, 累计充值积分 = ?, 泡点 = ?, 魔币 = ?, 战场分数 = ?, 每日累充积分 = ?, 每日首充积分 = ?, 每日首充领取 = ?, 累充奖励领取 = ?, 登录天数 = ?, 签到奖励领取 = ?, 签到天数 = ?, 理财剩余领取天数 = ?, 理财奖励领取 = ?, 更新时间 = ?", CONNECTION_ASYNC);
+    
+    PrepareStatement(_AA_UP_Account_LeiChong1,"update _aa_account set 当前积分 = 当前积分+jifen,累计充值积分 = 累计充值积分+jifen,每日累充积分 = 每日累充积分+jifen where jifen > 0", CONNECTION_SYNCH);
+    
+    PrepareStatement(_AA_UP_Account_LeiChong2,"update _aa_account set 每日首充积分 = jifen where jifen > 0 and 每日首充积分 = 0", CONNECTION_SYNCH);
+    
+    PrepareStatement(_AA_UP_Account_LeiChong3,"update _aa_account set jifen = 0 where jifen > 0", CONNECTION_SYNCH);
 }
 
 LoginDatabaseConnection::LoginDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo)

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1329,6 +1329,24 @@ SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, S
     }
 
     _visuals = data.Visuals;
+
+    //AA_Spell_Conf
+    {
+        std::unordered_map<uint32, AA_Spell_Conf>::iterator iter = aaCenter.aa_spell_confs.find(spellName->ID);
+
+        if (iter != aaCenter.aa_spell_confs.end())
+        {
+            if (iter->second.chance != 0)
+                ProcChance = iter->second.chance;
+
+            if (iter->second.time_lengque != 0)
+                RecoveryTime = iter->second.time_lengque;
+
+            // for (size_t i = 0; i < MAX_SPELL_EFFECTS; i++)
+            //     if (iter->second.Periodic[i] != 0)
+            //         Effects[i].Amplitude = iter->second.Periodic[i];
+        }
+    }
 }
 
 SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, std::vector<SpellEffectEntry> const& effects)
@@ -3838,6 +3856,11 @@ int32 SpellInfo::CalcDuration(WorldObject const* caster /*= nullptr*/) const
 
 int32 SpellInfo::GetDuration() const
 {
+    AA_Spell_Conf conf = aaCenter.aa_spell_confs[Id];
+    if (conf.time_chixu > 0) {
+        return conf.time_chixu;
+    }
+
     if (!DurationEntry)
         return IsPassive() ? -1 : 0;
     return (DurationEntry->Duration == -1) ? -1 : abs(DurationEntry->Duration);
@@ -3852,6 +3875,12 @@ int32 SpellInfo::GetMaxDuration() const
 
 uint32 SpellInfo::CalcCastTime(Spell* spell /*= nullptr*/) const
 {
+    // 技能施法时间
+    AA_Spell_Conf conf = aaCenter.aa_spell_confs[Id];
+    if (conf.time_shifa > 0) {
+        return conf.time_shifa;
+    }
+    
     int32 castTime = 0;
     if (CastTimeEntry)
         castTime = std::max(CastTimeEntry->Base, CastTimeEntry->Minimum);

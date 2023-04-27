@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -857,6 +857,12 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
     // Check if GameObject is Large
     if (goInfo->IsLargeGameObject())
         SetVisibilityDistanceOverride(VisibilityDistanceType::Large);
+
+    // 玩家宠物不加难度 可能生物的召唤物也会被影响
+    AA_Object conf = aaCenter.AA_GetGameObjectConf(this, goInfo);
+    if (conf.id > 0) {
+        aaCenter.AA_ModifyGameObject(this, conf);
+    }
 
     return true;
 }

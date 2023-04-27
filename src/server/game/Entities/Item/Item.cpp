@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -515,6 +515,15 @@ bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemId, ItemContext contex
         }
 
         CheckArtifactRelicSlotUnlock(owner ? owner : GetOwner());
+    }
+
+    //aawow 宝箱属性调整
+    AA_Item conf = aaCenter.aa_items[itemProto->GetId()];
+    if (conf.id > 0) {
+        this->aa_id = conf.id;
+        Loot* loot = const_cast<Loot*>(this->m_loot.get());
+        loot->aa_id_i = conf.id;
+        this->m_loot.reset(loot);
     }
 
     return true;
@@ -1468,7 +1477,17 @@ void Item::ClearEnchantment(EnchantmentSlot slot)
 {
     if (!GetEnchantmentId(slot))
         return;
-
+    
+    //宝石插件显示baoshi_entry
+    if (slot == EnchantmentSlot(SOCK_ENCHANTMENT_SLOT)) {
+        ObjectGuid::LowType guidlow = GetGUIDLow();
+        time_t timep;
+        time(&timep); /*当前time_t类型UTC时间*/
+        aaCenter.aa_character_instances[guidlow].update_time = timep;
+        aaCenter.aa_character_instances[guidlow].isUpdate = true;
+        aaCenter.aa_character_instances[guidlow].baoshi_entry = 0;
+    }
+    
     auto enchantmentField = m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Enchantment, slot);
     SetUpdateFieldValue(enchantmentField.ModifyValue(&UF::ItemEnchantment::ID), 0);
     SetUpdateFieldValue(enchantmentField.ModifyValue(&UF::ItemEnchantment::Duration), 0);
@@ -2991,4 +3010,91 @@ void BonusData::AddBonus(uint32 type, std::array<int32, 4> const& values)
             }
             break;
     }
+}
+
+bool Item::AA_LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, uint32 entry)
+{
+    ////                                                    0                1      2         3        4      5             6                 7           8           9    10
+    ////result = CharacterDatabase.PQuery("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text FROM item_instance WHERE guid = '%u'", guid);
+
+    //// create item before any checks for store correct guid
+    //// and allow use "FSetState(ITEM_REMOVED); SaveToDB();" for deleting item from DB
+    //AA_Item_Instance conf = aaCenter.aa_item_instances[guid];
+    //if (conf.guid == 0 || conf.weizhi == "") {
+    //    return false;
+    //}
+    //Object::_Create(ObjectGuid::Create<HighGuid::Item>(guid));
+
+    //// Set entry, MUST be before proto check
+    //SetEntry(entry);
+    //SetObjectScale(1.0f);
+
+    //ItemTemplate const* proto = GetTemplate();
+    //if (!proto)
+    //    return false;
+
+    //// set owner (not if item is only loaded for gbank/auction/mail
+    //if (owner_guid)
+    //    SetOwnerGUID(owner_guid);
+
+    //bool need_save = false;                                 // need explicit save data at load fixes
+    //SetGuidValue(ITEM_FIELD_CREATOR, ObjectGuid::Create<HighGuid::Player>(conf.creatorGuid));
+    //SetGuidValue(ITEM_FIELD_GIFTCREATOR, ObjectGuid::Create<HighGuid::Player>(conf.giftCreatorGuid));
+    //SetCount(conf.count);
+
+    //uint32 duration = conf.duration;
+    //SetUInt32Value(ITEM_FIELD_DURATION, duration);
+    //// update duration if need, and remove if not need
+    //if ((proto->Duration == 0) != (duration == 0))
+    //{
+    //    SetUInt32Value(ITEM_FIELD_DURATION, proto->Duration);
+    //    need_save = true;
+    //}
+    //std::vector<std::string_view> tokens = Acore::Tokenize(conf.charges, ' ', false);
+    ////Tokenizer tokens(conf.charges, ' ', MAX_ITEM_PROTO_SPELLS);
+    //if (tokens.size() == MAX_ITEM_PROTO_SPELLS)
+    //    for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+    //        SetSpellCharges(i, atoi(static_cast<std::string>(tokens[i]).c_str()));
+
+    //SetUInt32Value(ITEM_FIELD_FLAGS, conf.flags);
+    //// Remove bind flag for items vs NO_BIND set
+    //if (IsSoulBound() && proto->Bonding == NO_BIND && sScriptMgr->CanApplySoulboundFlag(this, proto))
+    //{
+    //    ApplyModFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_SOULBOUND, false);
+    //    need_save = true;
+    //}
+
+    //std::string enchants = conf.enchantments;
+    //_LoadIntoDataField(enchants.c_str(), ITEM_FIELD_ENCHANTMENT_1_1, MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET);
+    //SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, conf.randomPropertyId);
+    //// recalculate suffix factor
+    //if (GetItemRandomPropertyId() < 0)
+    //    UpdateItemSuffixFactor();
+
+    //uint32 durability = conf.durability;
+    //SetUInt32Value(ITEM_FIELD_DURABILITY, durability);
+
+    //// update max durability (and durability) if need
+    //// xinef: do not overwrite durability for wrapped items!!
+    //SetUInt32Value(ITEM_FIELD_MAXDURABILITY, proto->MaxDurability);
+    //if (durability > proto->MaxDurability && !HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_WRAPPED))
+    //{
+    //    SetUInt32Value(ITEM_FIELD_DURABILITY, proto->MaxDurability);
+    //    need_save = true;
+    //}
+
+    //SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, conf.playedTime);
+    //SetText(conf.text);
+
+    //if (need_save)                                           // normal item changed state set not work at loading
+    //{
+    //    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_INSTANCE_ON_LOAD);
+    //    stmt->SetData(0, GetUInt32Value(ITEM_FIELD_DURATION));
+    //    stmt->SetData(1, GetUInt32Value(ITEM_FIELD_FLAGS));
+    //    stmt->SetData(2, GetUInt32Value(ITEM_FIELD_DURABILITY));
+    //    stmt->SetData(3, guid);
+    //    CharacterDatabase.Execute(stmt);
+    //}
+
+    return true;
 }

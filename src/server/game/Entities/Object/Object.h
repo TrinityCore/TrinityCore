@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -484,6 +484,17 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
     protected:
         explicit WorldObject(bool isWorldObject); //note: here it means if it is in grid object list or world object list
     public:
+        std::map<uint32, uint32> aa_fm_values;
+        std::map<uint32, uint32> aa_aura_values;
+        std::map<uint32, bool> aa_spells;
+        uint32 aa_zhenshi_time = 0; //觉醒真实伤害间隔
+        uint32 aa_xixue_time = 0; //觉醒吸血间隔
+        uint32 aa_die_time = 0; //光环阻止死亡冷却
+        uint32 aa_vendor_entry = 0; //随身商人
+
+        std::map<uint32, std::set<uint32>> aa_auras;
+
+
         virtual ~WorldObject();
 
         virtual void Update(uint32 diff);

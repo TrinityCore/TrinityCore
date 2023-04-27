@@ -38,6 +38,8 @@ enum LocaleConstant : uint8;
 class TC_GAME_API ChatHandler
 {
     public:
+        bool isOk = false;
+        
         bool IsConsole() const { return (m_session == nullptr); }
         WorldSession* GetSession() { return m_session; }
         WorldSession const* GetSession() const { return m_session; }
