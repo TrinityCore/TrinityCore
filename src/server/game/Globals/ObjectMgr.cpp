@@ -371,11 +371,11 @@ void ObjectMgr::LoadCreatureTemplates()
         //  0
         "SELECT entry,"
         //  1
-        "difficulty_entry_1,"
+        "ctd.DifficultyCreatureId1,"
         //  2
-        "difficulty_entry_2,"
+        "ctd.DifficultyCreatureId2,"
         //  3
-        "difficulty_entry_3,"
+        "ctd.DifficultyCreatureId3,"
         //  4
         "KillCredit1,"
         //  5
@@ -497,7 +497,8 @@ void ObjectMgr::LoadCreatureTemplates()
         // 63
         "ScriptName"
         " FROM creature_template ct"
-        " LEFT JOIN creature_template_movement ctm ON ct.entry = ctm.CreatureId");
+        " LEFT JOIN creature_template_movement ctm ON ct.entry = ctm.CreatureId"
+        " LEFT JOIN creature_template_difficulty ctd ON ct.entry = ctd.CreatureId");
 
     if (!result)
     {
