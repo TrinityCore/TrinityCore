@@ -635,6 +635,23 @@ struct BarberShopStyleLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 8, &BarberShopStyleMeta::Instance, HOTFIX_SEL_BARBER_SHOP_STYLE };
 };
 
+struct BattlePetAbilityLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[8] =
+    {
+        { false, FT_INT, "ID" },
+        { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Description" },
+        { true, FT_INT, "IconFileDataID" },
+        { true, FT_BYTE, "PetTypeEnum" },
+        { false, FT_INT, "Cooldown" },
+        { false, FT_SHORT, "BattlePetVisualID" },
+        { false, FT_BYTE, "Flags" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 8, &BattlePetAbilityMeta::Instance, HOTFIX_SEL_BATTLE_PET_ABILITY };
+};
+
 struct BattlePetBreedQualityLoadInfo
 {
     static constexpr DB2FieldMeta Fields[4] =

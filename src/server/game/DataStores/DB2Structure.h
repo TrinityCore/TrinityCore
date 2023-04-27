@@ -448,6 +448,18 @@ struct BarberShopStyleEntry
     uint8 Data;                                                     // real ID to hair/facial hair
 };
 
+struct BattlePetAbilityEntry
+{
+    uint32 ID;
+    LocalizedString Name;
+    LocalizedString Description;
+    int32 IconFileDataID;
+    int8 PetTypeEnum;
+    uint32 Cooldown;
+    uint16 BattlePetVisualID;
+    uint8 Flags;
+};
+
 struct BattlePetBreedQualityEntry
 {
     uint32 ID;
