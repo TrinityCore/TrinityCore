@@ -1,4 +1,4 @@
-﻿//#include "ScriptMgr.h"
+//#include "ScriptMgr.h"
 //#include "ObjectMgr.h"
 //#include "Chat.h"
 //#include "Language.h"
@@ -789,7 +789,7 @@
 //                break;
 //            }
 //        }
-//        
+//
 //        return true;
 //    }
 //    static bool AA_HandleSetScaleCommand(ChatHandler* handler, const char* args)
@@ -1424,7 +1424,7 @@
 //                LoginDatabase.DirectExecute("UPDATE _aa_account SET 自定义账号变量=\"{}\", 更新时间 = {} where id = {}; ", str, timep, accountid);
 //            }
 //        }
-//        
+//
 //        return true;
 //    }
 //
@@ -3842,7 +3842,7 @@
 //                }
 //            }
 //        }
-//        
+//
 //        return true;
 //    }
 //    static bool AA_chongzhilicailingqu(ChatHandler* handler, char const* args)
@@ -4843,7 +4843,7 @@
 //
 //        ObjectGuid guid = aaCenter.aa_vendor_guid[player->GetGUID()];
 //        Creature* unit = ObjectAccessor::GetCreatureOrPetOrVehicle(*player, guid);
-//        
+//
 //        if (!unit || !unit->IsInWorld()) {
 //            return false;
 //        }

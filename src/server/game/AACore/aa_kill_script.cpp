@@ -1,4 +1,4 @@
-﻿#include "ScriptMgr.h"
+#include "ScriptMgr.h"
 #include "ObjectMgr.h"
 #include "Language.h"
 #include "DisableMgr.h"
@@ -333,10 +333,10 @@ private:
             }
         }
     }
-    
+
 public:
     aa_kill_script() : PlayerScript("aa_kill_script") { }
-    
+
     // pvp 人杀了人
     void OnPVPKill(Player* killer, Player* killed) override
     {

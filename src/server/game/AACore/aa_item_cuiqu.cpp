@@ -1,4 +1,4 @@
-﻿#include "ObjectMgr.h"
+#include "ObjectMgr.h"
 #include "WorldSession.h"
 #include "Configuration/Config.h"
 
@@ -20,7 +20,7 @@ private:
     uint32 scount = 0;
 public:
     aa_item_cuiqu() : ItemScript("aa_item_cuiqu") { }
-    
+
     // Called when a player uses the item.
     bool OnUse(Player* player, Item* item, SpellCastTargets const& targets, ObjectGuid /*castId*/) override {
         if (!aaCenter.AA_VerifyCode("a103b")) {
@@ -90,7 +90,7 @@ public:
                     }
                 }
             }
-            
+
             //弹框
             int32 vindex = 0;
             int32 sindex = 10000;
@@ -113,7 +113,7 @@ public:
                         } else {
                             vtitle = "+" + std::to_string(value) + statconf.text;
                         }
-                        
+
                         AddGossipItemFor(player, GossipOptionNpc(0), vtitle, vindex, 0);
                         vindex++;
                         type_ids.push_back(type_id);
@@ -147,7 +147,7 @@ public:
         }
         return true; // Cast the spell on use normally
     }
-    
+
     void OnGossipSelect(Player* player, Item* item, uint32 action, uint32 /*menuid*/) override
     {
         if (!aaCenter.AA_VerifyCode("a103b")) {
@@ -157,7 +157,7 @@ public:
             aaCenter.AA_SendMessage(player, 1, "|cff00FFFF[系统提示]|cffFF0000该装备无法萃取!");
             return;
         }
-        
+
         std::string name = "";
         //判断萃取或传承
         AA_Character_Instance conf = aaCenter.aa_character_instances[item->GetGUIDLow()];
@@ -178,11 +178,11 @@ public:
                 std::vector<int32> types; types.clear();
                 std::vector<int32> values; values.clear();
                 aaCenter.AA_StringToVector2(conf.fm_values, types, values);
-                
+
                 std::vector<int32> types2; types2.clear();
                 std::vector<int32> values2; values2.clear();
                 aaCenter.AA_StringToVector2(conf2.fm_values, types2, values2);
-                
+
                 int32 type = AA_SafeObjectAtIndex(types, 0);
                 int32 value = AA_SafeObjectAtIndex(values, 0);
                 if (value == 0) {
@@ -231,10 +231,10 @@ public:
             } else if ( type_ids.size() > saction && conf.fm_spell_count > 0 && conf2.fm_spell_count > 0) { //传承技能
                 std::vector<int32> spells; spells.clear();
                 aaCenter.AA_StringToVectorInt(conf.fm_spells, spells, ",");
-                
+
                 std::vector<int32> spells2; spells2.clear();
                 aaCenter.AA_StringToVectorInt(conf2.fm_spells, spells2, ",");
-                
+
                 uint32 spellid = AA_SafeObjectAtIndex(spells, 0);
                 if (spellid == 0) {
                     aaCenter.AA_SendMessage(player, 1, "|cff00FFFF[系统提示]|cffFF0000该物品没有觉醒技能，无法传承!");
@@ -259,7 +259,7 @@ public:
                             }
                         }
                     }
-                    
+
                     spells2[saction] = spellid;
                     std::string fm_spells = "";
                     aaCenter.AA_VectorIntToString(fm_spells, spells2, ",");
@@ -404,7 +404,7 @@ public:
             player->aa_item = nullptr;
             player->aa_target_item = nullptr;
         }
-        
+
         CloseGossipMenuFor(player);
     }
 };

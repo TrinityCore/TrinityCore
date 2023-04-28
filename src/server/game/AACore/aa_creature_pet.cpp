@@ -1,4 +1,4 @@
-﻿#include "ScriptMgr.h"
+#include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "GameEventMgr.h"

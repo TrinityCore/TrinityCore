@@ -1,4 +1,4 @@
-﻿#include "ScriptMgr.h"
+#include "ScriptMgr.h"
 #include "ObjectMgr.h"
 #include "Language.h"
 #include "DisableMgr.h"
@@ -14,7 +14,7 @@ using namespace std;
 class aa_player_script : public PlayerScript
 {
 public:
-    aa_player_script() : PlayerScript("aa_player_script") { } 
+    aa_player_script() : PlayerScript("aa_player_script") { }
     // CHARACTER_LOGIN = 8
     void OnLogin(Player* player, bool firstLogin) override
     {
@@ -136,7 +136,7 @@ public:
                         }
                     }
                 } catch (std::exception const& e) { }
-                
+
                 {
                     std::vector<AA_Event_Map> mapeventconfs = aaCenter.aa_event_maps["玩家上线"];
                     for (auto mapconf : mapeventconfs) {

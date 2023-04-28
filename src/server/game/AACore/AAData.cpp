@@ -1,4 +1,4 @@
-﻿#include "AAData.h"
+#include "AAData.h"
 #include "Player.h"
 
 using namespace std;

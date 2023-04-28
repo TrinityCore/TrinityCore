@@ -1,4 +1,4 @@
-﻿#include "ObjectMgr.h"
+#include "ObjectMgr.h"
 #include "WorldSession.h"
 #include "Configuration/Config.h"
 
@@ -27,7 +27,7 @@ private:
         if (player->aa_target_item && player->aa_target_item->GetState() != ITEM_REMOVED && player->aa_target_item->IsInWorld()) {
             aa_message.target_item = player->aa_target_item;
         }
-        
+
         //排名显示
         AA_Paihang p_conf;
         for (size_t i = 0;i<menus.size();i++) {
@@ -39,8 +39,8 @@ private:
                 break;
             }
         }
-        
-        
+
+
         for (size_t i = 0;i<menus.size();i++) {
             uint32 menuid = menus[i];
             AA_Teleport_Conf conf = aaCenter.aa_teleports[menuid];
@@ -79,12 +79,12 @@ private:
         if (action > 0) {
             AddGossipItemFor(player, GossipOptionNpc(0), "返回上一页", GOSSIP_SENDER_MAIN, pId);
         }
-        
+
         SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, item->GetGUID());
     }
 public:
     aa_item_teleport() : ItemScript("aa_item_teleport") { }
-    
+
     // Called when a player uses the item.
     bool OnUse(Player* player, Item* item, SpellCastTargets const& targets, ObjectGuid castId) override
     {
@@ -222,7 +222,7 @@ public:
         }
         return target != nullptr;
     }
-    
+
     void OnGossipSelect(Player* player, Item* item, uint32 sender, uint32 action) override
     {
         //执行功能
@@ -276,7 +276,7 @@ public:
             CloseGossipMenuFor(player);
         }
     }
-    
+
     void OnGossipSelectCode(Player* player, Item* /*item*/, uint32 /*sender*/, uint32 action, const char* code) override
     {
         AA_Teleport_Conf conf = aaCenter.aa_teleports[action];

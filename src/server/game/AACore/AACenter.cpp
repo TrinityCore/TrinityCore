@@ -1,4 +1,4 @@
-﻿/*
+/*
  经济套餐a1ba2ba3ba4ba5ba6ba7ba8b
  a1b累计充值奖励
  a2b个人理财奖励
@@ -28,7 +28,7 @@
  a207b排行光环
  a208b队伍光环
  a209b觉醒卡牌
- 
+
  */
 
 
@@ -12503,7 +12503,7 @@ void AACenter::LoadAAData_World()
                 conf.id = fields[1].GetUInt32();
                 conf.game_event = fields[2].GetUInt32();
                 conf.count = fields[3].GetUInt32();
-                conf.zoneid = fields[4].GetInt32(); 
+                conf.zoneid = fields[4].GetInt32();
                 conf.iszhenying = fields[5].GetUInt32();
                 conf.isgonghui = fields[5].GetUInt32();
                 aa_xitong_groups[conf.id] = conf;
@@ -13495,7 +13495,7 @@ void AACenter::LoadAAData_World()
                 {
                     conf.Periodic[i] = fields[i+15].GetUInt32();
                 }
-                
+
                 aa_spell_confs[conf.spellid] = conf;
             } while (result->NextRow());
             TC_LOG_INFO("server.loading", ">> 成功加载 {}条 _属性调整_技能 用时 {} 毫秒", (unsigned long)aa_spell_confs.size(), GetMSTimeDiffToNow(oldMSTime));
@@ -18021,7 +18021,7 @@ AA_Map_Player_Conf AACenter::AA_GetAA_Map_Player_Conf(WorldObject* object)
         //}
         uint32 nanduid = aaCenter.aa_minstancevalues[instanceid][3];
         uint32 confid = 0;
-        if (confid == 0) 
+        if (confid == 0)
         {
             confid = aaCenter.aa_map_player_conf_areas[areaid][moshi][nanduid][0];
         }

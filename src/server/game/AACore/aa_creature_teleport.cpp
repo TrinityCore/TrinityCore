@@ -1,4 +1,4 @@
-﻿#include "ScriptMgr.h"
+#include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "GameEventMgr.h"
@@ -13,7 +13,7 @@ class aa_creature_teleport : public CreatureScript
 {
 public:
     aa_creature_teleport() : CreatureScript("aa_creature_teleport") { }
-    
+
     struct aa_creature_teleportAI : public ScriptedAI
     {
         aa_creature_teleportAI(Creature* creature) : ScriptedAI(creature) { }
@@ -193,7 +193,7 @@ public:
             return true;
         }
     };
-    
+
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new aa_creature_teleportAI(creature);

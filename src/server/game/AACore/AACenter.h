@@ -1,4 +1,4 @@
-﻿#ifndef __CLY_AACENTER_H__
+#ifndef __CLY_AACENTER_H__
 #define __CLY_AACENTER_H__
 
 #define AA_FACTION_DUEL 10000
@@ -1760,7 +1760,7 @@ public:
     //    std::map<uint32, std::map<uint32, std::map<int32, int32>>> aa_player_zone_bools;
     //    std::map<uint32, std::map<uint32, std::map<int32, int32>>> aa_player_area_bools;
     //    std::map<uint32, std::map<uint32, std::map<int32, int32>>> aa_player_instance_bools;
-    //    
+    //
     //    //地图变量 Key=mapid value=(0confid 1已挑战时间 2已获得地图进度经验 3区域模式 4难度)
     //    std::map<uint32, std::map<int32, int32>> aa_map_map_values;
     //    std::map<uint32, std::map<int32, int32>> aa_map_zone_values;
@@ -2240,7 +2240,7 @@ public:
     bool AA_UpdateJuanxianShuliang(Player *);
     std::map<ObjectGuid::LowType, uint32> aa_juanxian_players;
     std::vector<std::pair<uint32, uint32>> aa_juanxians;
-    
+
     //比武专区
     int32 aa_biwu_start_time = -1;
     uint32 aa_biwu_event_id = 0;

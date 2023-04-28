@@ -1,4 +1,4 @@
-﻿#include "ObjectMgr.h"
+#include "ObjectMgr.h"
 #include "WorldSession.h"
 #include "Configuration/Config.h"
 

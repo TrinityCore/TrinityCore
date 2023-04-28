@@ -1,4 +1,4 @@
-﻿#include "ScriptMgr.h"
+#include "ScriptMgr.h"
 #include "ObjectMgr.h"
 #include "Language.h"
 #include "DisableMgr.h"
@@ -32,6 +32,6 @@ public:
 };
 
 void AddAA_player_Event()
-{ 
+{
     new aa_player_event();
 }

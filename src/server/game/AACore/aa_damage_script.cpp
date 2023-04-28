@@ -1,4 +1,4 @@
-﻿#include "ScriptMgr.h"
+#include "ScriptMgr.h"
 #include "ObjectMgr.h"
 #include "Language.h"
 #include "DisableMgr.h"
@@ -16,7 +16,7 @@ public:
     void OnDamage(Unit* attacker, Unit* victim, uint32& damage) override
     {
 //        if (victim->GetEntry() == ) {
-//            
+//
 //        }
     }
 };
