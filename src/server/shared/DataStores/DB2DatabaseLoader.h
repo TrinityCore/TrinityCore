@@ -37,7 +37,7 @@ class TC_SHARED_API DB2DatabaseLoader
 public:
     DB2DatabaseLoader(std::string const& storageName, DB2LoadInfo const* loadInfo) : _storageName(storageName), _loadInfo(loadInfo) { }
 
-    char* Load(bool custom, uint32& records, char**& indexTable, std::vector<char*>& stringPool);
+    char* Load(bool custom, uint32& records, char**& indexTable, std::vector<char*>& stringPool, uint32& minId);
     void LoadStrings(bool custom, LocaleConstant locale, uint32 records, char** indexTable, std::vector<char*>& stringPool);
     static char* AddString(char const** holder, std::string const& value);
 
