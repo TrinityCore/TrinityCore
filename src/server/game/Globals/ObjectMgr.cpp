@@ -10882,62 +10882,6 @@ void ObjectMgr::LoadRaceAndClassExpansionRequirements()
         TC_LOG_INFO("server.loading", ">> Loaded 0 class expansion requirements. DB table `class_expansion_requirement` is empty.");
 }
 
-void ObjectMgr::LoadRealmNames()
-{
-    uint32 oldMSTime = getMSTime();
-    _realmNameStore.clear();
-
-    //                                               0   1
-    QueryResult result = LoginDatabase.Query("SELECT id, name FROM `realmlist`");
-
-    if (!result)
-    {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 realm names. DB table `realmlist` is empty.");
-        return;
-    }
-
-    uint32 count = 0;
-    do
-    {
-        Field* fields = result->Fetch();
-
-        uint32 realmId = fields[0].GetUInt32();
-        std::string realmName = fields[1].GetString();
-
-        _realmNameStore[realmId] = realmName;
-
-        ++count;
-    }
-    while (result->NextRow());
-    TC_LOG_INFO("server.loading", ">> Loaded {} realm names in {} ms.", count, GetMSTimeDiffToNow(oldMSTime));
-}
-
-std::string ObjectMgr::GetRealmName(uint32 realmId) const
-{
-    RealmNameContainer::const_iterator iter = _realmNameStore.find(realmId);
-    return iter != _realmNameStore.end() ? iter->second : "";
-}
-
-std::string ObjectMgr::GetNormalizedRealmName(uint32 realmId) const
-{
-    std::string name = GetRealmName(realmId);
-    name.erase(std::remove_if(name.begin(), name.end(), ::isspace), name.end());
-    return name;
-}
-
-bool ObjectMgr::GetRealmName(uint32 realmId, std::string& name, std::string& normalizedName) const
-{
-    RealmNameContainer::const_iterator itr = _realmNameStore.find(realmId);
-    if (itr != _realmNameStore.end())
-    {
-        name = itr->second;
-        normalizedName = itr->second;
-        normalizedName.erase(std::remove_if(normalizedName.begin(), normalizedName.end(), ::isspace), normalizedName.end());
-        return true;
-    }
-    return false;
-}
-
 ClassAvailability const* ObjectMgr::GetClassExpansionRequirement(uint8 raceId, uint8 classId) const
 {
     auto raceItr = std::find_if(_classExpansionRequirementStore.begin(), _classExpansionRequirementStore.end(), [raceId](RaceClassAvailability const& raceClass)

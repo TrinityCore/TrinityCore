@@ -1752,11 +1752,6 @@ class TC_GAME_API ObjectMgr
         }
 
         void LoadRaceAndClassExpansionRequirements();
-        void LoadRealmNames();
-
-        std::string GetRealmName(uint32 realm) const;
-        std::string GetNormalizedRealmName(uint32 realm) const;
-        bool GetRealmName(uint32 realmId, std::string& name, std::string& normalizedName) const;
 
         std::string GetPhaseName(uint32 phaseId) const;
 
