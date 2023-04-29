@@ -287,3 +287,11 @@ void WorldSession::HandleComplaintOpcode(WorldPackets::Ticket::Complaint& /*pack
 
     SendPacket(complaintResult.Write());
 }
+
+void WorldSession::HandleSupportTicketSubmitSuggestionOpcode(WorldPackets::Ticket::SupportTicketSubmitSuggestion& /*packet*/)
+{
+}
+
+void WorldSession::HandleSupportTicketSubmitBugOpcode(WorldPackets::Ticket::SupportTicketSubmitBug& /*packet*/)
+{
+}

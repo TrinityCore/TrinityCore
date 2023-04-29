@@ -21,6 +21,7 @@
 #include "Packet.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
+#include "Position.h"
 
 namespace WorldPackets
 {
@@ -62,6 +63,35 @@ namespace WorldPackets
 
             uint8 ComplaintType = 0;
             uint8 Result = 0;
+        };
+
+        struct SupportTicketHeader
+        {
+            int32 MapID = 0;
+            TaggedPosition<Position::XYZ> Position;
+            float Facing = 0.0f;
+        };
+
+        class SupportTicketSubmitSuggestion final : public ClientPacket
+        {
+        public:
+            SupportTicketSubmitSuggestion(WorldPacket&& packet) : ClientPacket(CMSG_SUPPORT_TICKET_SUBMIT_SUGGESTION, std::move(packet)) { }
+
+            void Read() override;
+
+            SupportTicketHeader Header;
+            std::string Note;
+        };
+
+        class SupportTicketSubmitBug final : public ClientPacket
+        {
+        public:
+            SupportTicketSubmitBug(WorldPacket&& packet) : ClientPacket(CMSG_SUPPORT_TICKET_SUBMIT_BUG, std::move(packet)) { }
+
+            void Read() override;
+
+            SupportTicketHeader Header;
+            std::string Note;
         };
     }
 }
