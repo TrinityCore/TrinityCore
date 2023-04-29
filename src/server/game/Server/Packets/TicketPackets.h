@@ -93,6 +93,32 @@ namespace WorldPackets
             SupportTicketHeader Header;
             std::string Note;
         };
+
+        struct SupportTicketChatLine
+        {
+            int32 Timestamp = 0;
+            std::string Text;
+        };
+
+        struct SupportTicketChatLog
+        {
+            std::vector<SupportTicketChatLine> Lines;
+            Optional<uint32> ReportLineIndex;
+        };
+
+        class SupportTicketSubmitComplaint final : public ClientPacket
+        {
+        public:
+            SupportTicketSubmitComplaint(WorldPacket&& packet) : ClientPacket(CMSG_SUPPORT_TICKET_SUBMIT_COMPLAINT, std::move(packet)) { }
+
+            void Read() override;
+
+            SupportTicketHeader Header;
+            SupportTicketChatLog ChatLog;
+            ObjectGuid TargetCharacterGUID;
+            std::string Note;
+            uint8 ComplaintType = 0;
+        };
     }
 }
 

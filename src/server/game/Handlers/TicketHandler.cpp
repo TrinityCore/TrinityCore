@@ -295,3 +295,7 @@ void WorldSession::HandleSupportTicketSubmitSuggestionOpcode(WorldPackets::Ticke
 void WorldSession::HandleSupportTicketSubmitBugOpcode(WorldPackets::Ticket::SupportTicketSubmitBug& /*packet*/)
 {
 }
+
+void WorldSession::HandleSupportTicketSubmitComplaintOpcode(WorldPackets::Ticket::SupportTicketSubmitComplaint& /*packet*/)
+{
+}

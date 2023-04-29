@@ -527,7 +527,7 @@ enum OpcodeClient : uint16
     CMSG_STOP_DANCE                                   = 0x2907,
     CMSG_STORE_LOOT_IN_SLOT                           = 0x0000,
     CMSG_SUPPORT_TICKET_SUBMIT_BUG                    = 0x2520,
-    CMSG_SUBMIT_COMPLAIN                              = 0x2501,
+    CMSG_SUPPORT_TICKET_SUBMIT_COMPLAINT              = 0x2501,
     CMSG_SUPPORT_TICKET_SUBMIT_SUGGESTION             = 0x2512,
     CMSG_SUMMON_RESPONSE                              = 0x6F27,
     CMSG_SUSPEND_TOKEN_RESPONSE                       = 0x046D,

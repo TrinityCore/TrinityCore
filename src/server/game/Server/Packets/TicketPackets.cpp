@@ -72,3 +72,59 @@ void WorldPackets::Ticket::SupportTicketSubmitBug::Read()
     _worldPacket >> Header.MapID;
     _worldPacket >> Header.Facing;
 }
+
+void WorldPackets::Ticket::SupportTicketSubmitComplaint::Read()
+{
+    TargetCharacterGUID[5] = _worldPacket.ReadBit();
+    TargetCharacterGUID[0] = _worldPacket.ReadBit();
+    TargetCharacterGUID[1] = _worldPacket.ReadBit();
+
+    uint32 noteLen = _worldPacket.ReadBits(12);
+
+    TargetCharacterGUID[3] = _worldPacket.ReadBit();
+    TargetCharacterGUID[2] = _worldPacket.ReadBit();
+    TargetCharacterGUID[4] = _worldPacket.ReadBit();
+    TargetCharacterGUID[7] = _worldPacket.ReadBit();
+
+    ComplaintType = _worldPacket.ReadBits(4);
+
+    TargetCharacterGUID[6] = _worldPacket.ReadBit();
+
+    _worldPacket.ReadByteSeq(TargetCharacterGUID[3]);
+    _worldPacket.ReadByteSeq(TargetCharacterGUID[5]);
+    _worldPacket.ReadByteSeq(TargetCharacterGUID[1]);
+    _worldPacket.ReadByteSeq(TargetCharacterGUID[2]);
+    _worldPacket.ReadByteSeq(TargetCharacterGUID[6]);
+    _worldPacket.ReadByteSeq(TargetCharacterGUID[0]);
+
+    Note = _worldPacket.ReadString(noteLen);
+
+    _worldPacket.ReadByteSeq(TargetCharacterGUID[7]);
+    _worldPacket.ReadByteSeq(TargetCharacterGUID[4]);
+
+    _worldPacket >> Header.Position.Pos.m_positionY;
+    _worldPacket >> Header.Position.Pos.m_positionZ;
+    _worldPacket >> Header.Position.Pos.m_positionX;
+    _worldPacket >> Header.MapID;
+    _worldPacket >> Header.Facing;
+
+    bool hasChatLogReportLineIndex = _worldPacket.ReadBit();
+    uint32 chatLogSize = _worldPacket.ReadBits(22);
+
+    std::vector<uint32> chatLogLineLengths;
+    chatLogLineLengths.reserve(chatLogSize);
+    for (uint32 i = 0; i < chatLogSize; ++i)
+        chatLogLineLengths.push_back(_worldPacket.ReadBits(13));
+
+    ChatLog.Lines.resize(chatLogSize);
+    uint32 lineIndex = 0;
+    for (SupportTicketChatLine& line : ChatLog.Lines)
+    {
+        _worldPacket >> line.Timestamp;
+        line.Text = _worldPacket.ReadString(chatLogLineLengths[lineIndex]);
+        ++lineIndex;
+    }
+
+    if (hasChatLogReportLineIndex)
+        ChatLog.ReportLineIndex = _worldPacket.read<int32>();
+}
