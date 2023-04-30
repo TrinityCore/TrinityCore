@@ -258,6 +258,18 @@ namespace WorldPackets
 
             ObjectGuid MoverGUID;
         };
+
+        class MoveSetVehicleRecID final : public ServerPacket
+        {
+        public:
+            MoveSetVehicleRecID(ObjectGuid moverGuid) : ServerPacket(SMSG_MOVE_SET_VEHICLE_REC_ID, 8 + 4 + 4), MoverGUID(moverGuid) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid MoverGUID;
+            uint32 SequenceIndex = 0;
+            int32 VehicleRecID = 0;
+        };
     }
 
     ByteBuffer& operator<<(ByteBuffer& data, Movement::MovementSpline const& movementSpline);
