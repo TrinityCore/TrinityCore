@@ -307,7 +307,7 @@ bool ForcedDespawnDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 Creature::Creature(bool isWorldObject) : Unit(isWorldObject), MapObject(), m_PlayerDamageReq(0), m_dontClearTapListOnEvade(false), _pickpocketLootRestore(0),
     m_corpseRemoveTime(0), m_respawnTime(0), m_respawnDelay(300), m_corpseDelay(60), m_ignoreCorpseDecayRatio(false), m_wanderDistance(0.0f), m_boundaryCheckTime(2500), m_combatPulseTime(0), m_combatPulseDelay(0), m_reactState(REACT_AGGRESSIVE),
     m_defaultMovementType(IDLE_MOTION_TYPE), m_spawnId(UI64LIT(0)), m_equipmentId(0), m_originalEquipmentId(0), m_AlreadyCallAssistance(false), m_AlreadySearchedAssistance(false), m_cannotReachTarget(false), m_cannotReachTimer(0),
-    m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL), m_originalEntry(0), m_homePosition(), m_transportHomePosition(), m_creatureData(nullptr), _waypointPathId(0), _currentWaypointNodeInfo(0, 0),
+    m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL), m_originalEntry(0), m_homePosition(), m_transportHomePosition(), m_creatureInfo(nullptr), m_creatureData(nullptr), _waypointPathId(0), _currentWaypointNodeInfo(0, 0),
     m_formation(nullptr), m_triggerJustAppeared(true), m_respawnCompatibilityMode(false), _lastDamagedTime(0),
     _regenerateHealth(true), _isMissingCanSwimFlagOutOfCombat(false), _gossipMenuId(0), _sparringHealthPct(0)
 {
@@ -494,6 +494,7 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
         return false;
     }
 
+    m_creatureInfo = creatureInfo;
     SetEntry(entry);
 
     // equal to player Race field, but creature does not have race
@@ -2666,11 +2667,6 @@ bool Creature::CanCreatureAttack(Unit const* victim, bool /*force*/) const
         else
             return victim->IsInDist(&m_homePosition, dist);
     }
-}
-
-CreatureTemplate const* Creature::GetCreatureTemplate() const
-{
-    return sObjectMgr->GetCreatureTemplate(GetEntry());
 }
 
 CreatureAddon const* Creature::GetCreatureAddon() const
