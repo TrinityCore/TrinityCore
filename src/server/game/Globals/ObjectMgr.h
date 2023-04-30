@@ -1705,7 +1705,7 @@ class TC_GAME_API ObjectMgr
         // for wintergrasp only
         GraveyardContainer GraveyardStore;
 
-        static void AddLocaleString(std::string&& value, LocaleConstant localeConstant, std::vector<std::string>& data);
+        static void AddLocaleString(std::string_view value, LocaleConstant localeConstant, std::vector<std::string>& data);
         static std::string_view GetLocaleString(std::vector<std::string> const& data, LocaleConstant locale)
         {
             if (locale < data.size())
