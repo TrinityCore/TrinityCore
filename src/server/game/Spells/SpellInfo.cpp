@@ -4808,7 +4808,6 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, SpellEffectInfo const& ef
             case SPELL_AURA_MOD_ATTACKER_RANGED_HIT_CHANCE:
             case SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE:
             case SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_CHANCE:
-            case SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_CHANCE:
             case SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE:
             case SPELL_AURA_DUMMY:
             case SPELL_AURA_PERIODIC_DUMMY:
