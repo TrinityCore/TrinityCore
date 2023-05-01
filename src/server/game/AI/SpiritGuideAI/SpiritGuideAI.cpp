@@ -29,7 +29,7 @@ SpiritGuideAI::SpiritGuideAI(Creature* creature, uint32 scriptId) : CreatureAI(c
 
 int32 SpiritGuideAI::Permissible(Creature const* creature)
 {
-    if (creature->IsSpiritService())
+    if (creature->IsSpiritGuide())
         return PERMIT_BASE_PROACTIVE;
 
     return PERMIT_BASE_NO;
