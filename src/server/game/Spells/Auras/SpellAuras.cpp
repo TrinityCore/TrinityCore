@@ -891,6 +891,7 @@ int32 Aura::CalcMaxDuration(Unit* caster) const
 
 void Aura::SetDuration(int32 duration, bool withMods)
 {
+    FIRE_ID(GetSpellInfo()->events.id, Spell, OnSetDuration, TSAura(this), TSMutableNumber<int32>(&duration), TSMutable<bool,bool>(&withMods));
     if (withMods)
         if (Unit* caster = GetCaster())
             if (Player* modOwner = caster->GetSpellModOwner())
