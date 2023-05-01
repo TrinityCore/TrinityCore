@@ -1,4 +1,4 @@
-﻿/*
+/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -2051,7 +2051,7 @@ Creature* Player::GetNPCIfCanInteractWith(ObjectGuid const& guid, NPCFlags npcFl
         return nullptr;
 
     aaCenter.aa_vendor_guid[this->GetGUID()] = guid;
-    
+
     return creature;
 }
 
@@ -3432,7 +3432,7 @@ void Player::LearnSpell(uint32 spell_id, bool dependent, int32 fromSkill /*= 0*/
     }
     else
         UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_LEARNSPELL, spell_id, 1);
-    
+
     std::unordered_map<uint32, AA_Spell_Conf>::iterator iter = aaCenter.aa_spell_confs.find(spell_id);
 
     //学习技能触发GM命令
@@ -3452,7 +3452,7 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled /*= false*/, bool learn_
 
     if (itr->second.state == PLAYERSPELL_REMOVED || (disabled && itr->second.disabled) || itr->second.state == PLAYERSPELL_TEMPORARY)
         return;
-    
+
     std::unordered_map<uint32, AA_Spell_Conf>::iterator iter = aaCenter.aa_spell_confs.find(spell_id);
 
     //遗忘技能触发GM命令
@@ -3470,7 +3470,7 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled /*= false*/, bool learn_
         if (HasSpell(nextSpell) && !spellInfo->HasAttribute(SPELL_ATTR0_CU_IS_TALENT))
             RemoveSpell(nextSpell, disabled, false);
     }
-    
+
     //unlearn spells dependent from recently removed spells
     SpellsRequiringSpellMapBounds spellsRequiringSpell = sSpellMgr->GetSpellsRequiringSpellBounds(spell_id);
     for (SpellsRequiringSpellMap::const_iterator itr2 = spellsRequiringSpell.first; itr2 != spellsRequiringSpell.second; ++itr2)
@@ -7743,7 +7743,7 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
             }
         }
     }
-    
+
     uint32 const oldZone = m_zoneUpdateId;
     m_zoneUpdateId = newZone;
     m_zoneUpdateTimer = ZONE_UPDATE_INTERVAL;
@@ -8064,7 +8064,7 @@ void Player::DuelComplete(DuelCompleteType type)
                             aaCenter.AA_SendMessage(this, 0, msg.c_str());
                         }
                     }
-                    
+
                 }
             }
 
@@ -8093,7 +8093,7 @@ void Player::_ApplyItemMods(Item* item, uint8 slot, bool apply, bool updateItemA
     ItemTemplate const* proto = item->GetTemplate();
     if (!proto)
         return;
-    
+
     uint8 bagslot = item->GetBagSlot();
     if (bagslot != INVENTORY_SLOT_BAG_0 || (bagslot == INVENTORY_SLOT_BAG_0 && slot >= INVENTORY_SLOT_BAG_END)) {
         if (!aaCenter.AA_IsShenQiItem(item)) {
@@ -8134,7 +8134,7 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
     ItemTemplate const* proto = item->GetTemplate();
     if (!proto)
         return;
-    
+
     uint8 bagslot = item->GetBagSlot();
     if (bagslot != INVENTORY_SLOT_BAG_0 || (bagslot == INVENTORY_SLOT_BAG_0 && slot >= INVENTORY_SLOT_BAG_END)) {
         if (!aaCenter.AA_IsShenQiItem(item)) {
@@ -8147,9 +8147,9 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
     if (GtCombatRatingsMultByILvl const* ratingMult = sCombatRatingsMultByILvlGameTable.GetRow(itemLevel))
         combatRatingMultiplier = GetIlvlStatMultiplier(ratingMult, proto->GetInventoryType());
 
-    
+
     AA_Character_Instance conf = aaCenter.aa_character_instances[item->GetGUIDLow()];
-    
+
     //基础属性，极品，强化，成长，附魔，符文，符文组合
     if (conf.itemEntry > 0) {
         if (aaCenter.AA_IsShenQiItem(item) && conf.jd_id > 0) { //神器穿戴需要
@@ -12385,7 +12385,7 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
                 aaCenter.AA_SendNotice(this, notice, false, aa_message);
             }
         }
-        
+
 
         item->SetFixedLevel(GetLevel());
         item->SetItemRandomBonusList(randomBonusListId);
@@ -15073,7 +15073,7 @@ void Player::OnGossipSelect(WorldObject* source, int32 gossipOptionId, uint32 me
     switch (gossipOptionNpc)
     {
         case GossipOptionNpc::Vendor:
-            GetSession()->SendListInventory(guid);
+            GetSession()->SendListInventory(guid, item->ActionMenuID);
             break;
         case GossipOptionNpc::Taxinode:
             GetSession()->SendTaxiMenu(source->ToCreature());
@@ -20625,7 +20625,7 @@ void Player::SaveToDB(bool create /*=false*/)
     sAAData->AA_REP_Map_Instance_Value(trans);
 
     sAAData->AA_REP_Item_Instance(trans);
-    
+
     CharacterDatabase.CommitTransaction(trans);
 
     sAAData->AA_REP_Account(this, loginTransaction);
@@ -23723,14 +23723,11 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
         return false;
     }
 
-    //集合商人
-    VendorItemData const* vItems = nullptr;
-    if (creature->aa_vendor_entry > 0) {
-        vItems = sObjectMgr->GetNpcVendorItemList(creature->aa_vendor_entry);
-    }
-    else {
-        vItems = creature->GetVendorItems();
-    }
+    uint32 currentVendor = PlayerTalkClass->GetInteractionData().VendorId;
+    if (currentVendor && vendorguid != PlayerTalkClass->GetInteractionData().SourceGuid)
+        return false; // Cheating
+
+    VendorItemData const* vItems = currentVendor ? sObjectMgr->GetNpcVendorItemList(currentVendor) : creature->GetVendorItems();
 
     if (!vItems || vItems->Empty())
     {

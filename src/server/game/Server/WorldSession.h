@@ -957,11 +957,11 @@ class TC_GAME_API WorldSession
             std::string os, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
         ~WorldSession();
 
-        void AA_HandleAutostoreLootItemOpcode(WorldPackets::Loot::LootItem& packet);
-        void AA_HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet*/);
-        void AA_HandleLootReleaseOpcode(WorldPackets::Loot::LootRelease& packet);
-        void AA_DoLootRelease(Loot* loot);
-        void AA_HandleLootOpcode(WorldPackets::Loot::LootUnit& packet);
+        //void AA_HandleAutostoreLootItemOpcode(WorldPackets::Loot::LootItem& packet);
+        //void AA_HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet*/);
+        //void AA_HandleLootReleaseOpcode(WorldPackets::Loot::LootRelease& packet);
+        //void AA_DoLootRelease(Loot* loot);
+        //void AA_HandleLootOpcode(WorldPackets::Loot::LootUnit& packet);
         
         bool PlayerLoading() const { return !m_playerLoading.IsEmpty(); }
     
@@ -1057,7 +1057,7 @@ class TC_GAME_API WorldSession
         void BuildNameQueryData(ObjectGuid guid, WorldPackets::Query::NameCacheLookupResult& lookupData);
 
         void SendTrainerList(Creature* npc, uint32 trainerId);
-        void SendListInventory(ObjectGuid guid);
+        void SendListInventory(ObjectGuid guid, uint32 vendorEntry = 0);
         void SendShowBank(ObjectGuid guid);
         bool CanOpenMailBox(ObjectGuid guid);
         void SendShowMailBox(ObjectGuid guid);
@@ -1248,6 +1248,12 @@ class TC_GAME_API WorldSession
         void HandleMoveApplyMovementForceAck(WorldPackets::Movement::MoveApplyMovementForceAck& moveApplyMovementForceAck);
         void HandleMoveRemoveMovementForceAck(WorldPackets::Movement::MoveRemoveMovementForceAck& moveRemoveMovementForceAck);
         void HandleMoveSetModMovementForceMagnitudeAck(WorldPackets::Movement::MovementSpeedAck& setModMovementForceMagnitudeAck);
+
+        void AA_HandleAutostoreLootItemOpcode(WorldPackets::Loot::LootItem& packet);
+        void AA_HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet*/);
+        void AA_HandleLootReleaseOpcode(WorldPackets::Loot::LootRelease& packet);
+        void AA_DoLootRelease(Loot* loot);
+        void AA_HandleLootOpcode(WorldPackets::Loot::LootUnit& packet);
 
         void HandleRepopRequest(WorldPackets::Misc::RepopRequest& packet);
         void HandleAutostoreLootItemOpcode(WorldPackets::Loot::LootItem& packet);

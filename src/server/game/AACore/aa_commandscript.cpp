@@ -23,6 +23,11 @@
 //#include "TerrainMgr.h"
 //#include "PhasingHandler.h"
 //#include "ChatCommand.h"
+//#include "SharedDefines.h"
+//#include "Bag.h"
+//#include "Group.h"
+//#include "ObjectAccessor.h"
+//#include "Mail.h"
 //
 //using namespace Trinity::ChatCommands;
 //
@@ -34,219 +39,216 @@
 //    {
 //        static ChatCommandTable setCommandTable =
 //        {
-//            { "scale",              AA_HandleSetScaleCommand,       LANG_VALUE_SAVED,        rbac::RBAC_ROLE_GAMEMASTER,          Console::Yes }
-//            { "display",			AA_HandleSetDisplayCommand,			"" },
-//            { "name",				AA_HandleSetNameCommand,				"" },
-//            { "subname",			AA_HandleSetSubNameCommand,			"" },
-//            { "npcflag",			AA_HandleSetNPCFlagCommand,			"" },
-//            { "equip",              AA_npcWuqi,                            "" },
-//            { "entry",              AA_npcentry,                           "" },
-//
+//            { "scale",              AA_HandleSetScaleCommand, LANG_AA_HandleSetScaleCommand, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes },
+//            { "display",			AA_HandleSetDisplayCommand, LANG_AA_HandleSetDisplayCommand, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes },
+//            { "name",				AA_HandleSetNameCommand, LANG_AA_HandleSetNameCommand, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes },
+//            { "subname",			AA_HandleSetSubNameCommand, LANG_AA_HandleSetSubNameCommand, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes },
+//            { "npcflag",			AA_HandleSetNPCFlagCommand, LANG_AA_HandleSetNPCFlagCommand, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes },
+//            { "equip",              AA_npcWuqi, LANG_AA_npcWuqi, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes },
+//            { "entry",              AA_npcentry, LANG_AA_npcentry, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes }
 //        };
 //        static ChatCommandTable commandTable =
 //        {
 //            { "_set", setCommandTable },
-//            { "_npcarea",   SEC_GAMEMASTER,         false,      &AA_npcarea,                    "" },
-//            { "_db_clear",	SEC_CONSOLE,			true,		&AA_HandleDBClearCommand,	    	"" },
-//            { "_morpet",	SEC_GAMEMASTER,			false,		&AA_HandlePetMorphCommand,		    "" },
-//            { "_emote",		SEC_GAMEMASTER,			false,		&AA_HandleEmoteCommand,			"" },
-//            { "_clearbag",	SEC_GAMEMASTER,			false,		&AA_HandleClearBagCommand,		"" },
-//            { "_group",		SEC_GAMEMASTER,			false,		&AA_HandleGroupCommand,			"" },
-//            { "_heal",		SEC_GAMEMASTER,			false,		&AA_HandleHealCommand,			"" },
-//            { "_level",		SEC_GAMEMASTER,			false,		&AA_HandleLevelCommand,			"" },
-//            { "_pet",		SEC_GAMEMASTER,			false,		&AA_HandlePetCommand,			"" },
-//            { "_cast",		SEC_GAMEMASTER,			false,		&AA_HandleCastCommand,			"" },
-//            { "_learn",		SEC_GAMEMASTER,			false,		&AA_HandleLearnCommand,			"" },
-//            { "_unlearn",		SEC_GAMEMASTER,			false,		&AA_HandleUnLearnCommand,			"" },
-//            { "_aura",		SEC_GAMEMASTER,			false,		&AA_HandleAuraCommand,			"" },
-//            { "_unaura",		SEC_GAMEMASTER,			false,		&AA_HandleUnAuraCommand,			"" },
-//            { "ui",                SEC_GAMEMASTER,         false, &AA_ui,                   "" },
-//            { "ai",                SEC_GAMEMASTER,         false, &AA_DoAi,                   "" },
+//            { "_npcarea" ,AA_npcarea, LANG_AA_npcarea, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "_db_clear" ,AA_HandleDBClearCommand, LANG_AA_HandleDBClearCommand, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "_morpet" ,AA_HandlePetMorphCommand, LANG_AA_HandlePetMorphCommand, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "_emote" ,AA_HandleEmoteCommand, LANG_AA_HandleEmoteCommand, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "_clearbag" ,AA_HandleClearBagCommand, LANG_AA_HandleClearBagCommand, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "_group" ,AA_HandleGroupCommand, LANG_AA_HandleGroupCommand, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "_heal" ,AA_HandleHealCommand, LANG_AA_HandleHealCommand, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "_level" ,AA_HandleLevelCommand, LANG_AA_HandleLevelCommand, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "_cast" ,AA_HandleCastCommand, LANG_AA_HandleCastCommand, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "_learn" ,AA_HandleLearnCommand, LANG_AA_HandleLearnCommand, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "_unlearn" ,AA_HandleUnLearnCommand, LANG_AA_HandleUnLearnCommand, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "_aura" ,AA_HandleAuraCommand, LANG_AA_HandleAuraCommand, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "_unaura" ,AA_HandleUnAuraCommand, LANG_AA_HandleUnAuraCommand, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "ui" ,AA_ui, LANG_AA_ui, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "ai" ,AA_DoAi, LANG_AA_DoAi, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
 //            /*格式命令*/
-//            { "zuhe",                SEC_GAMEMASTER,         true, &AA_zuhe,                   "" },
-//            { "组合",                SEC_GAMEMASTER,         true, &AA_zuhe,                   "" },
-//            { "zh",                SEC_GAMEMASTER,         true, &AA_zuhe,                   "" },
-//            { "suiji",                SEC_GAMEMASTER,         true, &AA_suiji,                   "" },
-//            { "随机",                SEC_GAMEMASTER,         true, &AA_suiji,                   "" },
-//            { "sj",                SEC_GAMEMASTER,         true, &AA_suiji,                   "" },
+//            { "zuhe" ,AA_zuhe, LANG_AA_zuhe, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "组合" ,AA_zuhe, LANG_AA_zuhe, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "zh" ,AA_zuhe, LANG_AA_zuhe, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "suiji" ,AA_suiji, LANG_AA_suiji, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "随机" ,AA_suiji, LANG_AA_suiji, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "sj" ,AA_suiji, LANG_AA_suiji, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
 //            /*sql操作*/
-//            { "jiazaitese",                SEC_GAMEMASTER,         true, &AA_jiazaitese,                   "" },
-//            { "加载特色",                SEC_GAMEMASTER,         true, &AA_jiazaitese,                   "" },
-//            { "jzts",                SEC_GAMEMASTER,         true, &AA_jiazaitese,                   "" },
-//            { "采集坐标",                SEC_GAMEMASTER,         false, &AA_caijizuobiao,                   "" },
-//            { "cjzb",                SEC_GAMEMASTER,         false, &AA_caijizuobiao,                   "" },
-//            { "采集生物",                SEC_GAMEMASTER,         false, &AA_caijishengwu,                   "" },
-//            { "cjsw",                SEC_GAMEMASTER,         false, &AA_caijishengwu,                   "" },
-//            { "采集玩家",                SEC_GAMEMASTER,         false, &AA_caijiwanjia,                   "" },
-//            { "cjwj",                SEC_GAMEMASTER,         false, &AA_caijiwanjia,                   "" },
+//            { "jiazaitese" ,AA_jiazaitese, LANG_AA_jiazaitese, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "加载特色" ,AA_jiazaitese, LANG_AA_jiazaitese, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "jzts" ,AA_jiazaitese, LANG_AA_jiazaitese, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "采集坐标" ,AA_caijizuobiao, LANG_AA_caijizuobiao, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "cjzb" ,AA_caijizuobiao, LANG_AA_caijizuobiao, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "采集生物" ,AA_caijishengwu, LANG_AA_caijishengwu, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "cjsw" ,AA_caijishengwu, LANG_AA_caijishengwu, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "采集玩家" ,AA_caijiwanjia, LANG_AA_caijiwanjia, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "cjwj" ,AA_caijiwanjia, LANG_AA_caijiwanjia, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
 //            /*不支持的操作-我的队友执行*/
-//            { "传唤",                SEC_GAMEMASTER,         false, &AA_chuanhuan,                   "" },
-//            { "ch",                SEC_GAMEMASTER,         false, &AA_chuanhuan,                   "" },
+//            { "传唤" ,AA_chuanhuan, LANG_AA_chuanhuan, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "ch" ,AA_chuanhuan, LANG_AA_chuanhuan, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
 //            /*玩家操作-我执行*/
-//            { "领取积分",                SEC_GAMEMASTER,         false, &AA_lingqujifen,                   "" },
-//            { "lqjf",                SEC_GAMEMASTER,         false, &AA_lingqujifen,                   "" },
-//            { "传送模板",                SEC_GAMEMASTER,         false, &AA_chuansongmoban,                   "" },
-//            { "csmb",                SEC_GAMEMASTER,         false, &AA_chuansongmoban,                   "" },
-//            { "传送玩家",                SEC_GAMEMASTER,         false, &AA_chuansongwanjia,                   "" },
-//            { "cswj",                SEC_GAMEMASTER,         false, &AA_chuansongwanjia,                   "" },
-//            { "传送",                SEC_GAMEMASTER,         false, &AA_chuansong,                   "" },
-//            { "cs",                SEC_GAMEMASTER,         false, &AA_chuansong,                   "" },
-//            { "拾取",                SEC_GAMEMASTER,         false, &AA_shiqu,                   "" },
-//            { "sq",                SEC_GAMEMASTER,         false, &AA_shiqu,                   "" },
-//            { "奖励",                SEC_GAMEMASTER,         false, &AA_jiangli,                   "" },
-//            { "需求",                SEC_GAMEMASTER,         false, &AA_xuqiu,                   "" },
-//            { "xq",                SEC_GAMEMASTER,         false, &AA_xuqiu,                   "" },
-//            { "会员等级",                SEC_GAMEMASTER,         false, &AA_huiyuandengji,                   "" },
-//            { "hydj",                SEC_GAMEMASTER,         false, &AA_huiyuandengji,                   "" },
-//            { "积分",                SEC_GAMEMASTER,         false, &AA_jifen,                   "" },
-//            { "jf",                SEC_GAMEMASTER,         false, &AA_jifen,                   "" },
-//            { "魔币",                SEC_GAMEMASTER,         false, &AA_mobi,                   "" },
-//            { "mb",                SEC_GAMEMASTER,         false, &AA_mobi,                   "" },
-//            { "泡点",                SEC_GAMEMASTER,         false, &AA_paodian,                   "" },
-//            { "pd",                SEC_GAMEMASTER,         false, &AA_paodian,                   "" },
-//            { "战场积分",                SEC_GAMEMASTER,         false, &AA_zhanchangjifen,                   "" },
-//            { "dzjf",                SEC_GAMEMASTER,         false, &AA_zhanchangjifen,                   "" },
-//            { "巅峰等级",                SEC_GAMEMASTER,         false, &AA_dianfengdengji,                   "" },
-//            { "dfdj",                SEC_GAMEMASTER,         false, &AA_dianfengdengji,                   "" },
-//            { "斗气等级",                SEC_GAMEMASTER,         false, &AA_douqidengji,                   "" },
-//            { "dqdj",                SEC_GAMEMASTER,         false, &AA_douqidengji,                   "" },
-//            { "军衔等级",                SEC_GAMEMASTER,         false, &AA_junxiandengji,                   "" },
-//            { "jxdj",                SEC_GAMEMASTER,         false, &AA_junxiandengji,                   "" },
-//            { "展示商人",                SEC_GAMEMASTER,         false, &AA_xianshishangren,                   "" },
-//            { "zssr",                SEC_GAMEMASTER,         false, &AA_xianshishangren,                   "" },
-//            { "随身商人",                SEC_GAMEMASTER,         false, &AA_suishenshangren,                   "" },
-//            { "sssr",                SEC_GAMEMASTER,         false, &AA_suishenshangren,                   "" },
-//            { "展示训练师",                SEC_GAMEMASTER,         false, &AA_zhanshixunlianshi,                   "" },
-//            { "zsxls",                SEC_GAMEMASTER,         false, &AA_zhanshixunlianshi,                   "" },
-//            { "转职",                SEC_GAMEMASTER,         false, &AA_zhuanzhi,                   "" },
-//            { "zz",                SEC_GAMEMASTER,         false, &AA_zhuanzhi,                   "" },
-//            { "公告",                SEC_GAMEMASTER,         false, &AA_gonggao,                   "" },
-//            { "gg",                SEC_GAMEMASTER,         false, &AA_gonggao,                   "" },
-//            { "弹窗",                SEC_GAMEMASTER,         false, &AA_tanchuang,                   "" },
-//            { "tc",                SEC_GAMEMASTER,         false, &AA_tanchuang,                   "" },
-//            { "弹窗内容",                SEC_GAMEMASTER,         false, &AA_tanchuangneirong,                   "" },
-//            { "tcnr",                SEC_GAMEMASTER,         false, &AA_tanchuangneirong,                   "" },
-//            { "重置日任务",                SEC_GAMEMASTER,         false, &AA_chongzhirirenwu,                   "" },
-//            { "czrrw",                SEC_GAMEMASTER,         false, &AA_chongzhirirenwu,                   "" },
-//            { "重置周任务",                SEC_GAMEMASTER,         false, &AA_chongzhizhourenwu,                   "" },
-//            { "czzrw",                SEC_GAMEMASTER,         false, &AA_chongzhizhourenwu,                   "" },
-//            { "重置月任务",                SEC_GAMEMASTER,         false, &AA_chongzhiyuerenwu,                   "" },
-//            { "czyrw",                SEC_GAMEMASTER,         false, &AA_chongzhiyuerenwu,                   "" },
-//            { "加血",                SEC_GAMEMASTER,         false, &AA_jiaxue,                   "" },
-//            { "jx",                SEC_GAMEMASTER,         false, &AA_jiaxue,                   "" },
-//            { "解卡",                SEC_PLAYER,         false, &AA_jieka,                   "" },
-//            { "jk",                SEC_PLAYER,         false, &AA_jieka,                   "" },
-//            { "邮件",                SEC_PLAYER,         false, &AA_youjian,                   "" },
-//            { "yj",                SEC_PLAYER,         false, &AA_youjian,                   "" },
-//            { "重置理财",                SEC_GAMEMASTER,         false, &AA_chongzhilicailingqu,                   "" },
-//            { "czlc",                SEC_GAMEMASTER,         false, &AA_chongzhilicailingqu,                   "" },
-//            { "重置首充",                SEC_GAMEMASTER,         false, &AA_chongzhishouchonglingqu,                   "" },
-//            { "czsc",                SEC_GAMEMASTER,         false, &AA_chongzhishouchonglingqu,                   "" },
-//            { "重置签到",                SEC_GAMEMASTER,         false, &AA_chongzhiqiandaolingqu,                   "" },
-//            { "czqd",                SEC_GAMEMASTER,         false, &AA_chongzhiqiandaolingqu,                   "" },
-//            { "召唤",                SEC_GAMEMASTER,         false, &AA_zhaohuan,                   "" },
-//            { "zhao",                SEC_GAMEMASTER,         false, &AA_zhaohuan,                   "" },
-//            { "专业",                SEC_GAMEMASTER,         false, &AA_zhuanye,                   "" },
-//            { "zy",                SEC_GAMEMASTER,         false, &AA_zhuanye,                   "" },
-//            { "杀死全图",                SEC_GAMEMASTER,         false, &AA_shasiquantu,                   "" },
-//            { "ssqt",                SEC_GAMEMASTER,         false, &AA_shasiquantu,                   "" },
-//            { "变身",                SEC_GAMEMASTER,         false, &AA_bianshen,                   "" },
-//            { "bs",                SEC_GAMEMASTER,         false, &AA_bianshen,                   "" },
-//
-//            { "排行奖励",                SEC_GAMEMASTER,         false, &AA_paihangjiangli,                   "" },
-//            { "phjl",                SEC_GAMEMASTER,         false, &AA_paihangjiangli,                   "" },
-//            { "个人银行",                SEC_GAMEMASTER,         false, &AA_gerenyinhang,                   "" },
-//            { "gryh",                SEC_GAMEMASTER,         false, &AA_gerenyinhang,                   "" },
-//            { "个人邮箱",                SEC_GAMEMASTER,         false, &AA_gerenyouxiang,                   "" },
-//            { "gryx",                SEC_GAMEMASTER,         false, &AA_gerenyouxiang,                   "" },
-//            { "装备修理",                SEC_GAMEMASTER,         false, &AA_zhuangbeixiuli,                   "" },
-//            { "zbxl",                SEC_GAMEMASTER,         false, &AA_zhuangbeixiuli,                   "" },
-//            { "重置天赋",                SEC_GAMEMASTER,         false, &AA_chongzhitianfu,                   "" },
-//            { "cztf",                SEC_GAMEMASTER,         false, &AA_chongzhitianfu,                   "" },
-//            { "重置宠物天赋",                SEC_GAMEMASTER,         false, &AA_chongzhichongwutianfu,                   "" },
-//            { "czcwtf",                SEC_GAMEMASTER,         false, &AA_chongzhichongwutianfu,                   "" },
-//            { "双天赋",                SEC_GAMEMASTER,         false, &AA_shuangtianfu,                   "" },
-//            { "stf",                SEC_GAMEMASTER,         false, &AA_shuangtianfu,                   "" },
-//            { "解除虚弱",                SEC_GAMEMASTER,         false, &AA_jiechuxuruo,                   "" },
-//            { "jcxr",                SEC_GAMEMASTER,         false, &AA_jiechuxuruo,                   "" },
-//            { "重置副本",                SEC_GAMEMASTER,         false, &AA_chongzhifuben,                   "" },
-//            { "czfb",                SEC_GAMEMASTER,         false, &AA_chongzhifuben,                   "" },
-//            { "解除战斗",                SEC_GAMEMASTER,         false, &AA_jiechuzhandou,                   "" },
-//            { "jczd",                SEC_GAMEMASTER,         false, &AA_jiechuzhandou,                   "" },
-//            { "恢复生命魔法",                SEC_GAMEMASTER,         false, &AA_huifuhpmp,                   "" },
-//            { "hfsmmf",                SEC_GAMEMASTER,         false, &AA_huifuhpmp,                   "" },
-//            { "重置技能冷却",                SEC_GAMEMASTER,         false, &AA_chongzhijineng,                   "" },
-//            { "czjnlq",                SEC_GAMEMASTER,         false, &AA_chongzhijineng,                   "" },
-//            { "加入百团大战",                SEC_GAMEMASTER,         false, &AA_jiarubaituan,                   "" },
-//            { "jrbtdz",                SEC_GAMEMASTER,         false, &AA_jiarubaituan,                   "" },
-//            { "修改阵营",                SEC_GAMEMASTER,         false, &AA_xiugaizhenying,                   "" },
-//            { "xgzy",                SEC_GAMEMASTER,         false, &AA_xiugaizhenying,                   "" },
-//            { "修改种族",                SEC_GAMEMASTER,         false, &AA_xiugaizhongzhu,                   "" },
-//            { "xgzz",                SEC_GAMEMASTER,         false, &AA_xiugaizhongzhu,                   "" },
-//            { "修改名字",                SEC_GAMEMASTER,         false, &AA_xiugaimingzi,                   "" },
-//            { "xgmz",                SEC_GAMEMASTER,         false, &AA_xiugaimingzi,                   "" },
-//            { "修改外观",                SEC_GAMEMASTER,         false, &AA_xiugaiwaiguan,                   "" },
-//            { "xgwg",                SEC_GAMEMASTER,         false, &AA_xiugaiwaiguan,                   "" },
-//            { "回收",                SEC_GAMEMASTER,         false, &AA_huishou,                   "" },
-//            { "hs",                SEC_GAMEMASTER,         false, &AA_huishou,                   "" },
-//            { "物品回收",                SEC_GAMEMASTER,         false, &AA_huishouwupin,                   "" },
-//            { "wphs",                SEC_GAMEMASTER,         false, &AA_huishouwupin,                   "" },
-//            { "巅峰属性",                SEC_GAMEMASTER,         false, &AA_dianfengshuxing,                   "" },
-//            { "dfsx",                SEC_GAMEMASTER,         false, &AA_dianfengshuxing,                   "" },
-//            { "斗气属性",                SEC_GAMEMASTER,         false, &AA_douqishuxing,                   "" },
-//            { "dqsx",                SEC_GAMEMASTER,         false, &AA_douqishuxing,                   "" },
-//            { "军衔属性",                SEC_GAMEMASTER,         false, &AA_junxianshuxing,                   "" },
-//            { "jxsx",                SEC_GAMEMASTER,         false, &AA_junxianshuxing,                   "" },
-//            { "重置巅峰",                SEC_GAMEMASTER,         false, &AA_chongzhidianfeng,                   "" },
-//            { "czdf",                SEC_GAMEMASTER,         false, &AA_chongzhidianfeng,                   "" },
-//            { "重置斗气",                SEC_GAMEMASTER,         false, &AA_chongzhidouqi,                   "" },
-//            { "czdq",                SEC_GAMEMASTER,         false, &AA_chongzhidouqi,                   "" },
-//            { "重置军衔",                SEC_GAMEMASTER,         false, &AA_chongzhijunxian,                   "" },
-//            { "czjx",                SEC_GAMEMASTER,         false, &AA_chongzhijunxian,                   "" },
-//            { "会员升级",                SEC_GAMEMASTER,         false, &AA_huiyuanshengji,                   "" },
-//            { "hysj",                SEC_GAMEMASTER,         false, &AA_huiyuanshengji,                   "" },
-//            { "生成兑换码",                SEC_GAMEMASTER,         false, &AA_duihuanmashengcheng,                   "" },
-//            { "scdhm",                SEC_GAMEMASTER,         false, &AA_duihuanmashengcheng,                   "" },
-//            { "兑换码",                SEC_GAMEMASTER,         false, &AA_duihuanma,                   "" },
-//            { "dhm",                SEC_GAMEMASTER,         false, &AA_duihuanma,                   "" },
-//            { "召唤模板",                SEC_GAMEMASTER,         true, &AA_zhaohuanmoban,                   "" },
-//            { "zhmb",                SEC_GAMEMASTER,         true, &AA_zhaohuanmoban,                   "" },
-//            { "领取累充",                SEC_GAMEMASTER,         true, &AA_lingquleichong,                   "" },
-//            { "leichong",                SEC_GAMEMASTER,         true, &AA_lingquleichong,                   "" },
-//            { "领取首充",                SEC_GAMEMASTER,         true, &AA_lingqushouchong,                   "" },
-//            { "lqsc",                SEC_GAMEMASTER,         true, &AA_lingqushouchong,                   "" },
-//            { "领取签到",                SEC_GAMEMASTER,         true, &AA_lingquqiandao,                   "" },
-//            { "lqqd",                SEC_GAMEMASTER,         true, &AA_lingquqiandao,                   "" },
-//            { "领取等级",                SEC_GAMEMASTER,         true, &AA_lingqudengji,                   "" },
-//            { "lqdj",                SEC_GAMEMASTER,         true, &AA_lingqudengji,                   "" },
-//            { "领取理财",                SEC_GAMEMASTER,         true, &AA_lingqulicai,                   "" },
-//            { "licai",                SEC_GAMEMASTER,         true, &AA_lingqulicai,                   "" },
-//            { "采集物品",                SEC_GAMEMASTER,         false, &AA_caijiwupin,                   "" },
-//            { "cjwp",                SEC_GAMEMASTER,         false, &AA_caijiwupin,                   "" },
-//            { "抽奖",                SEC_GAMEMASTER,         false, &AA_choujiang,                   "" },
-//            { "cj",                SEC_GAMEMASTER,         false, &AA_choujiang,                   "" },
-//            { "重置购买次数",                SEC_GAMEMASTER,         false, &AA_chongzhigoumaicishu,                   "" },
-//            { "czgmcs",                SEC_GAMEMASTER,         false, &AA_chongzhigoumaicishu,                   "" },
-//            { "传送列表",                SEC_GAMEMASTER,         false, &AA_chuansongliebiao,                   "" },
-//            { "cslb",                SEC_GAMEMASTER,         false, &AA_chuansongliebiao,                   "" },
-//            { "招募",                SEC_GAMEMASTER,         false, &AA_zhaomu,                   "" },
-//            { "zm",                SEC_GAMEMASTER,         false, &AA_zhaomu,                   "" },
-//            { "制造",                SEC_GAMEMASTER,         false, &AA_zhizao,                   "" },
-//            { "zhizao",                SEC_GAMEMASTER,         false, &AA_zhizao,                   "" },
-//            { "关键字",                SEC_GAMEMASTER,         false, &AA_guanjianzi,                   "" },
-//            { "gjz",                SEC_GAMEMASTER,         false, &AA_guanjianzi,                   "" },
-//            { "翻牌弹窗",                SEC_GAMEMASTER,         false, &AA_fanpaitanchuang,                   "" },
-//            { "fptc",                SEC_GAMEMASTER,         false, &AA_fanpaitanchuang,                   "" },
-//            { "翻牌",                SEC_GAMEMASTER,         false, &AA_fanpai,                   "" },
-//            { "fp",                SEC_GAMEMASTER,         false, &AA_fanpai,                   "" },
-//            { "打开网址",                SEC_GAMEMASTER,         false, &AA_www,                   "" },
-//            { "dkwz",                SEC_GAMEMASTER,         false, &AA_www,                   "" },
-//            { "野外挑战开始",                SEC_GAMEMASTER,         false, &AA_yewaitiaozhankaishi,                   "" },
-//            { "ywtzks",                SEC_GAMEMASTER,         false, &AA_yewaitiaozhankaishi,                   "" },
-//            { "清理缓存",                SEC_GAMEMASTER,         false, &AA_qinglihuancun,                   "" },
-//            { "qlhc",                SEC_GAMEMASTER,         false, &AA_qinglihuancun,                   "" },
-//            { "变量",                SEC_GAMEMASTER,         false, &AA_bianliang,                   "" },
-//            { "bl",                 SEC_GAMEMASTER,         false, &AA_bianliang,                    "" },
+//            { "领取积分" ,AA_lingqujifen, LANG_AA_lingqujifen, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "lqjf" ,AA_lingqujifen, LANG_AA_lingqujifen, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "传送模板" ,AA_chuansongmoban, LANG_AA_chuansongmoban, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "csmb" ,AA_chuansongmoban, LANG_AA_chuansongmoban, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "传送玩家" ,AA_chuansongwanjia, LANG_AA_chuansongwanjia, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "cswj" ,AA_chuansongwanjia, LANG_AA_chuansongwanjia, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "传送" ,AA_chuansong, LANG_AA_chuansong, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "cs" ,AA_chuansong, LANG_AA_chuansong, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "拾取" ,AA_shiqu, LANG_AA_shiqu, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "sq" ,AA_shiqu, LANG_AA_shiqu, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "奖励" ,AA_jiangli, LANG_AA_jiangli, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "需求" ,AA_xuqiu, LANG_AA_xuqiu, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "xq" ,AA_xuqiu, LANG_AA_xuqiu, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "会员等级" ,AA_huiyuandengji, LANG_AA_huiyuandengji, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "hydj" ,AA_huiyuandengji, LANG_AA_huiyuandengji, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "积分" ,AA_jifen, LANG_AA_jifen, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "jf" ,AA_jifen, LANG_AA_jifen, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "魔币" ,AA_mobi, LANG_AA_mobi, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "mb" ,AA_mobi, LANG_AA_mobi, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "泡点" ,AA_paodian, LANG_AA_paodian, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "pd" ,AA_paodian, LANG_AA_paodian, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "战场积分" ,AA_zhanchangjifen, LANG_AA_zhanchangjifen, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "dzjf" ,AA_zhanchangjifen, LANG_AA_zhanchangjifen, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "巅峰等级" ,AA_dianfengdengji, LANG_AA_dianfengdengji, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "dfdj" ,AA_dianfengdengji, LANG_AA_dianfengdengji, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "斗气等级" ,AA_douqidengji, LANG_AA_douqidengji, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "dqdj" ,AA_douqidengji, LANG_AA_douqidengji, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "军衔等级" ,AA_junxiandengji, LANG_AA_junxiandengji, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "jxdj" ,AA_junxiandengji, LANG_AA_junxiandengji, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "展示商人" ,AA_xianshishangren, LANG_AA_xianshishangren, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "zssr" ,AA_xianshishangren, LANG_AA_xianshishangren, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "随身商人" ,AA_suishenshangren, LANG_AA_suishenshangren, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "sssr" ,AA_suishenshangren, LANG_AA_suishenshangren, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "展示训练师" ,AA_zhanshixunlianshi, LANG_AA_zhanshixunlianshi, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "zsxls" ,AA_zhanshixunlianshi, LANG_AA_zhanshixunlianshi, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "转职" ,AA_zhuanzhi, LANG_AA_zhuanzhi, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "zz" ,AA_zhuanzhi, LANG_AA_zhuanzhi, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "公告" ,AA_gonggao, LANG_AA_gonggao, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "gg" ,AA_gonggao, LANG_AA_gonggao, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "弹窗" ,AA_tanchuang, LANG_AA_tanchuang, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "tc" ,AA_tanchuang, LANG_AA_tanchuang, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "弹窗内容" ,AA_tanchuangneirong, LANG_AA_tanchuangneirong, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "tcnr" ,AA_tanchuangneirong, LANG_AA_tanchuangneirong, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "重置日任务" ,AA_chongzhirirenwu, LANG_AA_chongzhirirenwu, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "czrrw" ,AA_chongzhirirenwu, LANG_AA_chongzhirirenwu, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "重置周任务" ,AA_chongzhizhourenwu, LANG_AA_chongzhizhourenwu, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "czzrw" ,AA_chongzhizhourenwu, LANG_AA_chongzhizhourenwu, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "重置月任务" ,AA_chongzhiyuerenwu, LANG_AA_chongzhiyuerenwu, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "czyrw" ,AA_chongzhiyuerenwu, LANG_AA_chongzhiyuerenwu, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "加血" ,AA_jiaxue, LANG_AA_jiaxue, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "jx" ,AA_jiaxue, LANG_AA_jiaxue, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "解卡" ,AA_jieka, LANG_AA_jieka, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "jk" ,AA_jieka, LANG_AA_jieka, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "邮件" ,AA_youjian, LANG_AA_youjian, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "yj" ,AA_youjian, LANG_AA_youjian, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "重置理财" ,AA_chongzhilicailingqu, LANG_AA_chongzhilicailingqu, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "czlc" ,AA_chongzhilicailingqu, LANG_AA_chongzhilicailingqu, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "重置首充" ,AA_chongzhishouchonglingqu, LANG_AA_chongzhishouchonglingqu, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "czsc" ,AA_chongzhishouchonglingqu, LANG_AA_chongzhishouchonglingqu, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "重置签到" ,AA_chongzhiqiandaolingqu, LANG_AA_chongzhiqiandaolingqu, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "czqd" ,AA_chongzhiqiandaolingqu, LANG_AA_chongzhiqiandaolingqu, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "召唤" ,AA_zhaohuan, LANG_AA_zhaohuan, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "zhao" ,AA_zhaohuan, LANG_AA_zhaohuan, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "专业" ,AA_zhuanye, LANG_AA_zhuanye, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "zy" ,AA_zhuanye, LANG_AA_zhuanye, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "杀死全图" ,AA_shasiquantu, LANG_AA_shasiquantu, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "ssqt" ,AA_shasiquantu, LANG_AA_shasiquantu, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "变身" ,AA_bianshen, LANG_AA_bianshen, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "bs" ,AA_bianshen, LANG_AA_bianshen, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "排行奖励" ,AA_paihangjiangli, LANG_AA_paihangjiangli, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "phjl" ,AA_paihangjiangli, LANG_AA_paihangjiangli, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "个人银行" ,AA_gerenyinhang, LANG_AA_gerenyinhang, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "gryh" ,AA_gerenyinhang, LANG_AA_gerenyinhang, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "个人邮箱" ,AA_gerenyouxiang, LANG_AA_gerenyouxiang, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "gryx" ,AA_gerenyouxiang, LANG_AA_gerenyouxiang, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "装备修理" ,AA_zhuangbeixiuli, LANG_AA_zhuangbeixiuli, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "zbxl" ,AA_zhuangbeixiuli, LANG_AA_zhuangbeixiuli, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "重置天赋" ,AA_chongzhitianfu, LANG_AA_chongzhitianfu, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "cztf" ,AA_chongzhitianfu, LANG_AA_chongzhitianfu, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "重置宠物天赋" ,AA_chongzhichongwutianfu, LANG_AA_chongzhichongwutianfu, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "czcwtf" ,AA_chongzhichongwutianfu, LANG_AA_chongzhichongwutianfu, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "双天赋" ,AA_shuangtianfu, LANG_AA_shuangtianfu, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "stf" ,AA_shuangtianfu, LANG_AA_shuangtianfu, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "解除虚弱" ,AA_jiechuxuruo, LANG_AA_jiechuxuruo, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "jcxr" ,AA_jiechuxuruo, LANG_AA_jiechuxuruo, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "重置副本" ,AA_chongzhifuben, LANG_AA_chongzhifuben, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "czfb" ,AA_chongzhifuben, LANG_AA_chongzhifuben, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "解除战斗" ,AA_jiechuzhandou, LANG_AA_jiechuzhandou, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "jczd" ,AA_jiechuzhandou, LANG_AA_jiechuzhandou, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "恢复生命魔法" ,AA_huifuhpmp, LANG_AA_huifuhpmp, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "hfsmmf" ,AA_huifuhpmp, LANG_AA_huifuhpmp, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "重置技能冷却" ,AA_chongzhijineng, LANG_AA_chongzhijineng, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "czjnlq" ,AA_chongzhijineng, LANG_AA_chongzhijineng, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "加入百团大战" ,AA_jiarubaituan, LANG_AA_jiarubaituan, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "jrbtdz" ,AA_jiarubaituan, LANG_AA_jiarubaituan, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "修改阵营" ,AA_xiugaizhenying, LANG_AA_xiugaizhenying, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "xgzy" ,AA_xiugaizhenying, LANG_AA_xiugaizhenying, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "修改种族" ,AA_xiugaizhongzhu, LANG_AA_xiugaizhongzhu, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "xgzz" ,AA_xiugaizhongzhu, LANG_AA_xiugaizhongzhu, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "修改名字" ,AA_xiugaimingzi, LANG_AA_xiugaimingzi, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "xgmz" ,AA_xiugaimingzi, LANG_AA_xiugaimingzi, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "修改外观" ,AA_xiugaiwaiguan, LANG_AA_xiugaiwaiguan, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "xgwg" ,AA_xiugaiwaiguan, LANG_AA_xiugaiwaiguan, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "回收" ,AA_huishou, LANG_AA_huishou, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "hs" ,AA_huishou, LANG_AA_huishou, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "物品回收" ,AA_huishouwupin, LANG_AA_huishouwupin, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "wphs" ,AA_huishouwupin, LANG_AA_huishouwupin, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "巅峰属性" ,AA_dianfengshuxing, LANG_AA_dianfengshuxing, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "dfsx" ,AA_dianfengshuxing, LANG_AA_dianfengshuxing, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "斗气属性" ,AA_douqishuxing, LANG_AA_douqishuxing, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "dqsx" ,AA_douqishuxing, LANG_AA_douqishuxing, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "军衔属性" ,AA_junxianshuxing, LANG_AA_junxianshuxing, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "jxsx" ,AA_junxianshuxing, LANG_AA_junxianshuxing, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "重置巅峰" ,AA_chongzhidianfeng, LANG_AA_chongzhidianfeng, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "czdf" ,AA_chongzhidianfeng, LANG_AA_chongzhidianfeng, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "重置斗气" ,AA_chongzhidouqi, LANG_AA_chongzhidouqi, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "czdq" ,AA_chongzhidouqi, LANG_AA_chongzhidouqi, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "重置军衔" ,AA_chongzhijunxian, LANG_AA_chongzhijunxian, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "czjx" ,AA_chongzhijunxian, LANG_AA_chongzhijunxian, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "会员升级" ,AA_huiyuanshengji, LANG_AA_huiyuanshengji, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "hysj" ,AA_huiyuanshengji, LANG_AA_huiyuanshengji, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "生成兑换码" ,AA_duihuanmashengcheng, LANG_AA_duihuanmashengcheng, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "scdhm" ,AA_duihuanmashengcheng, LANG_AA_duihuanmashengcheng, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "兑换码" ,AA_duihuanma, LANG_AA_duihuanma, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "dhm" ,AA_duihuanma, LANG_AA_duihuanma, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "召唤模板" ,AA_zhaohuanmoban, LANG_AA_zhaohuanmoban, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "zhmb" ,AA_zhaohuanmoban, LANG_AA_zhaohuanmoban, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "领取累充" ,AA_lingquleichong, LANG_AA_lingquleichong, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "leichong" ,AA_lingquleichong, LANG_AA_lingquleichong, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "领取首充" ,AA_lingqushouchong, LANG_AA_lingqushouchong, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "lqsc" ,AA_lingqushouchong, LANG_AA_lingqushouchong, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "领取签到" ,AA_lingquqiandao, LANG_AA_lingquqiandao, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "lqqd" ,AA_lingquqiandao, LANG_AA_lingquqiandao, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "领取等级" ,AA_lingqudengji, LANG_AA_lingqudengji, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "lqdj" ,AA_lingqudengji, LANG_AA_lingqudengji, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "领取理财" ,AA_lingqulicai, LANG_AA_lingqulicai, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "licai" ,AA_lingqulicai, LANG_AA_lingqulicai, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "采集物品" ,AA_caijiwupin, LANG_AA_caijiwupin, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "cjwp" ,AA_caijiwupin, LANG_AA_caijiwupin, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "抽奖" ,AA_choujiang, LANG_AA_choujiang, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "cj" ,AA_choujiang, LANG_AA_choujiang, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "重置购买次数" ,AA_chongzhigoumaicishu, LANG_AA_chongzhigoumaicishu, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "czgmcs" ,AA_chongzhigoumaicishu, LANG_AA_chongzhigoumaicishu, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "传送列表" ,AA_chuansongliebiao, LANG_AA_chuansongliebiao, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "cslb" ,AA_chuansongliebiao, LANG_AA_chuansongliebiao, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "招募" ,AA_zhaomu, LANG_AA_zhaomu, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "zm" ,AA_zhaomu, LANG_AA_zhaomu, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "制造" ,AA_zhizao, LANG_AA_zhizao, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "zhizao" ,AA_zhizao, LANG_AA_zhizao, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "关键字" ,AA_guanjianzi, LANG_AA_guanjianzi, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "gjz" ,AA_guanjianzi, LANG_AA_guanjianzi, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "翻牌弹窗" ,AA_fanpaitanchuang, LANG_AA_fanpaitanchuang, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "fptc" ,AA_fanpaitanchuang, LANG_AA_fanpaitanchuang, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "翻牌" ,AA_fanpai, LANG_AA_fanpai, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "fp" ,AA_fanpai, LANG_AA_fanpai, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "打开网址" ,AA_www, LANG_AA_www, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "dkwz" ,AA_www, LANG_AA_www, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "野外挑战开始" ,AA_yewaitiaozhankaishi, LANG_AA_yewaitiaozhankaishi, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "ywtzks" ,AA_yewaitiaozhankaishi, LANG_AA_yewaitiaozhankaishi, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "清理缓存" ,AA_qinglihuancun, LANG_AA_qinglihuancun, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "qlhc" ,AA_qinglihuancun, LANG_AA_qinglihuancun, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "变量" ,AA_bianliang, LANG_AA_bianliang, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+//            { "bl" ,AA_bianliang, LANG_AA_bianliang, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes}
 //        };
 //        return commandTable;
 //    }
@@ -653,145 +655,6 @@
 //        }
 //        return true;
 //    }
-//    static bool AA_HandlePetCommand(ChatHandler* handler, const char* args)
-//    {
-//        Player* target = handler->GetSession()->GetPlayer();
-//        if (!target)
-//        {
-//            handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
-//            handler->SetSentErrorMessage(true);
-//            return false;
-//        }
-//        char* typestr = strtok((char*)args, " ");
-//        if (!typestr)
-//        {
-//            ChatHandler(handler->GetSession()).PSendSysMessage("语法格式:._pet 1-6（1停留 2跟随 3攻击 4攻击型 5防守型 6被动型）");
-//            return false;
-//        }
-//        int32 type = atoi(typestr);
-//        std::list<Creature*> minions = aaCenter.AA_GetAllPet(target);
-//        for (auto guardian : minions) {
-//            if (!guardian) {
-//                continue;
-//            }
-//            ObjectGuid guid1 = guardian->GetGUID();
-//            ObjectGuid guid2;
-//            if (target->GetSelectedUnit()) {
-//                guid2 = target->GetSelectedUnit()->GetGUID();
-//            }
-//            switch (type)
-//            {
-//            case 1:                          //flat=1792  //STAY
-//            {
-//                bool controlledMotion = guardian->GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_CONTROLLED) != NULL_MOTION_TYPE;
-//                if (!controlledMotion)
-//                {
-//                    guardian->StopMovingOnCurrentPos();
-//                    guardian->GetMotionMaster()->Clear(false);
-//                    guardian->GetMotionMaster()->MoveIdle();
-//                }
-//                break;
-//            }
-//            case 2:                        //spellId=1792  //FOLLOW
-//            {
-//                guardian->AttackStop();
-//                guardian->InterruptNonMeleeSpells(false);
-//                guardian->ClearInPetCombat();
-//                guardian->GetMotionMaster()->MoveFollow(target, PET_FOLLOW_DIST, guardian->GetFollowAngle());
-//                break;
-//            }
-//            case 3:                        //spellId=1792  //ATTACK
-//            {
-//                // Can't attack if owner is pacified
-//                if (target->HasAuraType(SPELL_AURA_MOD_PACIFY))
-//                {
-//                    //pet->SendPetCastFail(spellId, SPELL_FAILED_PACIFIED);
-//                    //TODO: Send proper error message to client
-//                    continue;
-//                }
-//
-//                // only place where pet can be player
-//                Unit* TargetUnit = ObjectAccessor::GetUnit(*target, guid2);
-//                if (!TargetUnit)
-//                    break;
-//
-//                if (Unit* owner = guardian->GetOwner())
-//                    if (!owner->IsValidAttackTarget(TargetUnit))
-//                        break;
-//
-//                // pussywizard (excluded charmed)
-//                if (!guardian->IsCharmed())
-//                    if (Creature* creaturePet = guardian->ToCreature())
-//                        if (!creaturePet->CanCreatureAttack(TargetUnit))
-//                            break;
-//
-//                // Not let attack through obstructions
-//                bool checkLos = !DisableMgr::IsPathfindingEnabled(guardian->GetMap()) ||
-//                    (TargetUnit->GetTypeId() == TYPEID_UNIT && (TargetUnit->ToCreature()->isWorldBoss() || TargetUnit->ToCreature()->IsDungeonBoss()));
-//
-//                if (checkLos && !guardian->IsWithinLOSInMap(TargetUnit))
-//                {
-//                    WorldPacket data(SMSG_CAST_FAILED, 1 + 4 + 1);
-//                    data << uint8(0);
-//                    data << uint32(7389);
-//                    data << uint8(SPELL_FAILED_LINE_OF_SIGHT);
-//                    target->GetSession()->SendPacket(&data);
-//                    break;
-//                }
-//
-//                guardian->ClearUnitState(UNIT_STATE_FOLLOW);
-//
-//                // This is true if pet has no target or has target but targets differs.
-//                guardian->AttackStop();
-//
-//                if (guardian->GetTypeId() != TYPEID_PLAYER && guardian->ToCreature()->IsAIEnabled)
-//                {
-//                    guardian->ToCreature()->AI()->AttackStart(TargetUnit);
-//
-//                    //10% chance to play special pet attack talk, else growl
-//                    if (guardian->IsPet() && ((Pet*)guardian)->getPetType() == SUMMON_PET && guardian != TargetUnit && urand(0, 100) < 10)
-//                        guardian->SendPetTalk((uint32)PET_TALK_ATTACK);
-//                    else
-//                    {
-//                        // 90% chance for pet and 100% chance for charmed creature
-//                        guardian->SendPetAIReaction(guid1);
-//                    }
-//                }
-//                else                                // charmed player
-//                {
-//                    guardian->Attack(TargetUnit, true);
-//                    guardian->SendPetAIReaction(guid1);
-//                }
-//                break;
-//            }
-//            case 4:                         //passive
-//            {
-//                guardian->AttackStop();
-//                if (guardian->ToPet())
-//                    guardian->ToPet()->ClearCastWhenWillAvailable();
-//                guardian->ClearInPetCombat();
-//                [[fallthrough]]; /// @todo: Not sure whether the fallthrough was a mistake (forgetting a break) or intended. This should be double-checked.
-//                break;
-//            }
-//            case 5:                       //recovery
-//            {
-//                if (guardian->GetTypeId() == TYPEID_UNIT)
-//                    guardian->ToCreature()->SetReactState(ReactStates(1));
-//                break;
-//            }
-//            case 6:                      //activete
-//            {
-//                if (guardian->GetTypeId() == TYPEID_UNIT)
-//                    guardian->ToCreature()->SetReactState(ReactStates(0));
-//                break;
-//            }
-//            default:
-//                break;
-//            }
-//        }
-//
-//        return true;
-//    }
 //    static bool AA_HandleSetScaleCommand(ChatHandler* handler, const char* args)
 //    {
 //        if (!*args)
@@ -815,7 +678,7 @@
 //
 //
 //        target->SetObjectScale(Scale);
-//        WorldDatabase.DirectExecute("Update creature_template Set scale = {} WHERE entry = {}", Scale, target->GetEntry());
+//        WorldDatabase.DirectPExecute("Update creature_template Set scale = {} WHERE entry = {}", Scale, target->GetEntry());
 //        ChatHandler(handler->GetSession()).PSendSysMessage("[%s][Scale]设置为%f", target->GetName().c_str(), Scale);
 //
 //        std::string gm = ".reload creature_template " + std::to_string(target->GetEntry());
@@ -838,7 +701,7 @@
 //        }
 //
 //        target->SetDisplayId(displayId);
-//        WorldDatabase.DirectExecute("Update creature_template Set modelid1 = {},modelid2 = 0,modelid3 = 0,modelid4 = 0 WHERE entry = {}", displayId, target->GetEntry());
+//        WorldDatabase.DirectPExecute("Update creature_template Set modelid1 = {},modelid2 = 0,modelid3 = 0,modelid4 = 0 WHERE entry = {}", displayId, target->GetEntry());
 //        ChatHandler(handler->GetSession()).PSendSysMessage("[%s][DisplayId]设置为%d", target->GetName().c_str(), displayId);
 //
 //        std::string gm = ".reload creature_template " + std::to_string(target->GetEntry());
@@ -893,7 +756,7 @@
 //            handler->GetSession()->SendPacket(&queryData);
 //        }
 //
-//        WorldDatabase.DirectExecute("Update creature_template Set name = '{}' WHERE entry = {}", name.c_str(), target->GetEntry());
+//        WorldDatabase.DirectPExecute("Update creature_template Set name = '{}' WHERE entry = {}", name.c_str(), target->GetEntry());
 //
 //        std::string gm = ".reload creature_template " + std::to_string(target->GetEntry());
 //        aaCenter.AA_DoCommand(nullptr, gm.c_str());
@@ -944,7 +807,7 @@
 //            handler->GetSession()->SendPacket(&queryData);
 //        }
 //
-//        WorldDatabase.DirectExecute("Update creature_template Set subname = '{}' WHERE entry = {}", subName.c_str(), target->GetEntry());
+//        WorldDatabase.DirectPExecute("Update creature_template Set subname = '{}' WHERE entry = {}", subName.c_str(), target->GetEntry());
 //        ChatHandler(handler->GetSession()).PSendSysMessage("[%s][SubName]设置为%s", target->GetName().c_str(), subName.c_str());
 //
 //        std::string gm = ".reload creature_template " + std::to_string(target->GetEntry());
@@ -967,7 +830,7 @@
 //        }
 //
 //        target->SetUInt32Value(UNIT_NPC_FLAGS, npcflag);
-//        WorldDatabase.DirectExecute("Update creature_template Set npcflag = {} WHERE entry = {}", npcflag, target->GetEntry());
+//        WorldDatabase.DirectPExecute("Update creature_template Set npcflag = {} WHERE entry = {}", npcflag, target->GetEntry());
 //        ChatHandler(handler->GetSession()).PSendSysMessage("[%s][NpcFlag]设置为%d", target->GetName().c_str(), npcflag);
 //
 //        std::string gm = ".reload creature_template " + std::to_string(target->GetEntry());
@@ -986,76 +849,76 @@
 //        for (size_t i = 0; i < max + 1; i++)
 //            AccountMgr::DeleteAccount(i);
 //
-//        LoginDatabase.DirectExecute("TRUNCATE account_rank");
+//        LoginDatabase.DirectPExecute("TRUNCATE account_rank");
 //        TC_LOG_INFO("server.loading", ">> Delete account_rank..");
 //
-//        LoginDatabase.DirectExecute("TRUNCATE account_spells");
+//        LoginDatabase.DirectPExecute("TRUNCATE account_spells");
 //        TC_LOG_INFO("server.loading", ">> Delete account_spells..");
 //
-//        CharacterDatabase.DirectExecute("TRUNCATE account_instance_times");
+//        CharacterDatabase.DirectPExecute("TRUNCATE account_instance_times");
 //        TC_LOG_INFO("server.loading", ">> Delete account_instance_times..");
 //
-//        CharacterDatabase.DirectExecute("TRUNCATE challenge");
+//        CharacterDatabase.DirectPExecute("TRUNCATE challenge");
 //        TC_LOG_INFO("server.loading", ">> Delete challenge..");
 //
-//        CharacterDatabase.DirectExecute("TRUNCATE character_talisman");
+//        CharacterDatabase.DirectPExecute("TRUNCATE character_talisman");
 //        TC_LOG_INFO("server.loading", ">> Delete character_talisman..");
 //
-//        CharacterDatabase.DirectExecute("TRUNCATE characters_extra_equipments");
+//        CharacterDatabase.DirectPExecute("TRUNCATE characters_extra_equipments");
 //        TC_LOG_INFO("server.loading", ">> Delete characters_extra_equipments..");
 //
-//        CharacterDatabase.DirectExecute("TRUNCATE chatacters_anticheat");
+//        CharacterDatabase.DirectPExecute("TRUNCATE chatacters_anticheat");
 //        TC_LOG_INFO("server.loading", ">> Delete chatacters_anticheat..");
 //
-//        CharacterDatabase.DirectExecute("TRUNCATE chatacters_token_monitor");
+//        CharacterDatabase.DirectPExecute("TRUNCATE chatacters_token_monitor");
 //        TC_LOG_INFO("server.loading", ">> Delete chatacters_token_monitor..");
 //
-//        CharacterDatabase.DirectExecute("TRUNCATE character_recruit");
+//        CharacterDatabase.DirectPExecute("TRUNCATE character_recruit");
 //        TC_LOG_INFO("server.loading", ">> Delete character_recruit..");
 //
-//        CharacterDatabase.DirectExecute("TRUNCATE character_lottery");
+//        CharacterDatabase.DirectPExecute("TRUNCATE character_lottery");
 //        TC_LOG_INFO("server.loading", ">> Delete character_lottery..");
 //
-//        CharacterDatabase.DirectExecute("TRUNCATE character_day_item");
+//        CharacterDatabase.DirectPExecute("TRUNCATE character_day_item");
 //        TC_LOG_INFO("server.loading", ">> Delete character_day_item..");
 //
-//        CharacterDatabase.DirectExecute("TRUNCATE character_achievement_progress");
+//        CharacterDatabase.DirectPExecute("TRUNCATE character_achievement_progress");
 //        TC_LOG_INFO("server.loading", ">> Delete character_custom_skill..");
 //
-//        CharacterDatabase.DirectExecute("TRUNCATE characters_talent_req");
+//        CharacterDatabase.DirectPExecute("TRUNCATE characters_talent_req");
 //        TC_LOG_INFO("server.loading", ">> Delete characters_talent_req..");
 //
-//        CharacterDatabase.DirectExecute("TRUNCATE character_achievement");
+//        CharacterDatabase.DirectPExecute("TRUNCATE character_achievement");
 //        TC_LOG_INFO("server.loading", ">> Delete character_achievement..");
 //
-//        CharacterDatabase.DirectExecute("TRUNCATE guild");
+//        CharacterDatabase.DirectPExecute("TRUNCATE guild");
 //        TC_LOG_INFO("server.loading", ">> Delete guild..");
 //
-//        CharacterDatabase.DirectExecute("TRUNCATE guild_bank_eventlog");
+//        CharacterDatabase.DirectPExecute("TRUNCATE guild_bank_eventlog");
 //        TC_LOG_INFO("server.loading", ">> Delete guild_bank_eventlog..");
 //
-//        CharacterDatabase.DirectExecute("TRUNCATE guild_bank_item");
+//        CharacterDatabase.DirectPExecute("TRUNCATE guild_bank_item");
 //        TC_LOG_INFO("server.loading", ">> Delete guild_bank_item..");
 //
-//        CharacterDatabase.DirectExecute("TRUNCATE guild_bank_right");
+//        CharacterDatabase.DirectPExecute("TRUNCATE guild_bank_right");
 //        TC_LOG_INFO("server.loading", ">> Delete guild_bank_right..");
 //
-//        CharacterDatabase.DirectExecute("TRUNCATE guild_bank_tab");
+//        CharacterDatabase.DirectPExecute("TRUNCATE guild_bank_tab");
 //        TC_LOG_INFO("server.loading", ">> Delete guild_bank_tab..");
 //
-//        CharacterDatabase.DirectExecute("TRUNCATE guild_eventlog");
+//        CharacterDatabase.DirectPExecute("TRUNCATE guild_eventlog");
 //        TC_LOG_INFO("server.loading", ">> Delete guild_eventlog..");
 //
-//        CharacterDatabase.DirectExecute("TRUNCATE guild_member");
+//        CharacterDatabase.DirectPExecute("TRUNCATE guild_member");
 //        TC_LOG_INFO("server.loading", ">> Delete guild_member..");
 //
-//        CharacterDatabase.DirectExecute("TRUNCATE guild_member_withdraw");
+//        CharacterDatabase.DirectPExecute("TRUNCATE guild_member_withdraw");
 //        TC_LOG_INFO("server.loading", ">> Delete guild_member_withdraw..");
 //
-//        CharacterDatabase.DirectExecute("TRUNCATE guild_rank");
+//        CharacterDatabase.DirectPExecute("TRUNCATE guild_rank");
 //        TC_LOG_INFO("server.loading", ">> Delete guild_rank..");
 //
-//        CharacterDatabase.DirectExecute("TRUNCATE character_rank");
+//        CharacterDatabase.DirectPExecute("TRUNCATE character_rank");
 //        TC_LOG_INFO("server.loading", ">> Delete character_rank..");
 //
 //        TC_LOG_INFO("server.loading", ">> 账号库、角色库清理完毕！");
@@ -1085,7 +948,7 @@
 //        {
 //            pet->SetDisplayId(displayID);
 //            pet->SetNativeDisplayId(displayID);
-//            CharacterDatabase.DirectExecute("UPDATE character_pet SET modelid = '{}' WHERE owner = '{}' AND entry = '{}'", displayID, target->GetGUIDLow(), pet->GetEntry());
+//            CharacterDatabase.DirectPExecute("UPDATE character_pet SET modelid = '{}' WHERE owner = '{}' AND entry = '{}'", displayID, target->GetGUIDLow(), pet->GetEntry());
 //            ChatHandler(target->GetSession()).PSendSysMessage("改变宠物模型为 - %u", displayID);
 //            return true;
 //        }
@@ -1103,7 +966,8 @@
 //        if (!target)
 //            target = handler->GetSession()->GetPlayer();
 //
-//        target->HandleEmoteCommand(atoi(args));
+//        uint32 emote = atoi(args);
+//        target->HandleEmoteCommand(Emote(emote));
 //
 //        return true;
 //    }
@@ -1208,7 +1072,7 @@
 //
 //        uint32 level = atoi(args);
 //        int32 rlevel = 0;
-//        rlevel = level - player->getLevel();
+//        rlevel = level - player->GetLevel();
 //
 //        std::string gm = ".level " + std::to_string(rlevel);
 //        aaCenter.AA_DoCommand(player, gm.c_str());
@@ -1302,12 +1166,12 @@
 //                std::string v = valuestr;
 //                std::string v2 = mdiy_guids[k];
 //                double value2 = aaCenter.AA_StringFloat(v2);
-//                if (v.find("+") != string::npos || (v.find("+") == string::npos && v.find("-") == string::npos && v.find("=") == string::npos)) { //加
+//                if (v.find("+") != std::string::npos || (v.find("+") == std::string::npos && v.find("-") == std::string::npos && v.find("=") == std::string::npos)) { //加
 //                    aaCenter.AA_StringReplaceFirst(v, "+", "");
 //                    double value = aaCenter.AA_StringFloat(v);
 //                    value2 += value;
 //                }
-//                if (v.find("-") != string::npos) { //减
+//                if (v.find("-") != std::string::npos) { //减
 //                    aaCenter.AA_StringReplaceFirst(v, "-", "");
 //                    double value = aaCenter.AA_StringFloat(v);
 //                    if (value2 >= value) {
@@ -1317,7 +1181,7 @@
 //                        value2 = 0;
 //                    }
 //                }
-//                if (v.find("=") != string::npos) { //赋值
+//                if (v.find("=") != std::string::npos) { //赋值
 //                    aaCenter.AA_StringReplaceFirst(v, "=", "");
 //                    double value = aaCenter.AA_StringFloat(v);
 //                    value2 = value;
@@ -1330,7 +1194,7 @@
 //                std::string str = "";
 //                aaCenter.AA_StringMapToString(mdiy_guids, str);
 //                aaCenter.aa_characterss[guidlow].diy_guid = str;
-//                CharacterDatabase.DirectExecute("UPDATE _玩家角色数据 SET 自定义角色变量=\"{}\",update_time={} where guid={};", str, timep, guidlow);
+//                CharacterDatabase.DirectPExecute("UPDATE _玩家角色数据 SET 自定义角色变量=\"{}\",update_time={} where guid={};", str, timep, guidlow);
 //            }
 //        }
 //        else if (type == "系统") {
@@ -1341,12 +1205,12 @@
 //            std::string v = valuestr;
 //            std::string v2 = mdiy_systems[k];
 //            double value2 = aaCenter.AA_StringFloat(v2);
-//            if (v.find("+") != string::npos || (v.find("+") == string::npos && v.find("-") == string::npos && v.find("=") == string::npos)) { //加
+//            if (v.find("+") != std::string::npos || (v.find("+") == std::string::npos && v.find("-") == std::string::npos && v.find("=") == std::string::npos)) { //加
 //                aaCenter.AA_StringReplaceFirst(v, "+", "");
 //                double value = aaCenter.AA_StringFloat(v);
 //                value2 += value;
 //            }
-//            if (v.find("-") != string::npos) { //减
+//            if (v.find("-") != std::string::npos) { //减
 //                aaCenter.AA_StringReplaceFirst(v, "-", "");
 //                double value = aaCenter.AA_StringFloat(v);
 //                if (value2 >= value) {
@@ -1356,7 +1220,7 @@
 //                    value2 = 0;
 //                }
 //            }
-//            if (v.find("=") != string::npos) { //赋值
+//            if (v.find("=") != std::string::npos) { //赋值
 //                aaCenter.AA_StringReplaceFirst(v, "=", "");
 //                double value = aaCenter.AA_StringFloat(v);
 //                value2 = value;
@@ -1393,12 +1257,12 @@
 //                std::string v = valuestr;
 //                std::string v2 = mdiy_accounts[k];
 //                double value2 = aaCenter.AA_StringFloat(v2);
-//                if (v.find("+") != string::npos || (v.find("+") == string::npos && v.find("-") == string::npos && v.find("=") == string::npos)) { //加
+//                if (v.find("+") != std::string::npos || (v.find("+") == std::string::npos && v.find("-") == std::string::npos && v.find("=") == std::string::npos)) { //加
 //                    aaCenter.AA_StringReplaceFirst(v, "+", "");
 //                    double value = aaCenter.AA_StringFloat(v);
 //                    value2 += value;
 //                }
-//                if (v.find("-") != string::npos) { //减
+//                if (v.find("-") != std::string::npos) { //减
 //                    aaCenter.AA_StringReplaceFirst(v, "-", "");
 //                    double value = aaCenter.AA_StringFloat(v);
 //                    if (value2 >= value) {
@@ -1408,7 +1272,7 @@
 //                        value2 = 0;
 //                    }
 //                }
-//                if (v.find("=") != string::npos) { //赋值
+//                if (v.find("=") != std::string::npos) { //赋值
 //                    aaCenter.AA_StringReplaceFirst(v, "=", "");
 //                    double value = aaCenter.AA_StringFloat(v);
 //                    value2 = value;
@@ -1421,7 +1285,7 @@
 //                std::string str = "";
 //                aaCenter.AA_StringMapToString(mdiy_accounts, str);
 //                aaCenter.aa_accounts[accountid].diy_account = str;
-//                LoginDatabase.DirectExecute("UPDATE _aa_account SET 自定义账号变量=\"{}\", 更新时间 = {} where id = {}; ", str, timep, accountid);
+//                LoginDatabase.DirectPExecute("UPDATE _aa_account SET 自定义账号变量=\"{}\", 更新时间 = {} where id = {}; ", str, timep, accountid);
 //            }
 //        }
 //
@@ -1542,8 +1406,8 @@
 //            if (isOk || (!isOk && aaCenter.aa_mareavalues[conf.area][1] == 0)) {
 //                aaCenter.aa_map_area_values.erase(conf.area);
 //                aaCenter.aa_player_area_values.erase(conf.area);
-//                CharacterDatabase.DirectExecute("delete from _数据地图area where area = {}", conf.area);
-//                CharacterDatabase.DirectExecute("delete from _数据玩家area where area = {}", conf.area);
+//                CharacterDatabase.DirectPExecute("delete from _数据地图area where area = {}", conf.area);
+//                CharacterDatabase.DirectPExecute("delete from _数据玩家area where area = {}", conf.area);
 //                aaCenter.aa_mareavalues.erase(conf.area);
 //                aaCenter.aa_mareabools.erase(conf.area);
 //                aaCenter.aa_pareavalues.erase(conf.area);
@@ -1558,8 +1422,8 @@
 //            if (isOk || (!isOk && aaCenter.aa_mzonevalues[conf.zone][1] == 0)) {
 //                aaCenter.aa_map_zone_values.erase(conf.zone);
 //                aaCenter.aa_player_zone_values.erase(conf.zone);
-//                CharacterDatabase.DirectExecute("delete from _数据地图zone where zone = {}", conf.zone);
-//                CharacterDatabase.DirectExecute("delete from _数据玩家zone where zone = {}", conf.zone);
+//                CharacterDatabase.DirectPExecute("delete from _数据地图zone where zone = {}", conf.zone);
+//                CharacterDatabase.DirectPExecute("delete from _数据玩家zone where zone = {}", conf.zone);
 //                aaCenter.aa_mzonevalues.erase(conf.zone);
 //                aaCenter.aa_mzonebools.erase(conf.zone);
 //                aaCenter.aa_pzonevalues.erase(conf.zone);
@@ -1574,8 +1438,8 @@
 //            if (isOk || (!isOk && aaCenter.aa_mmapvalues[conf.map][1] == 0)) {
 //                aaCenter.aa_map_map_values.erase(conf.map);
 //                aaCenter.aa_player_map_values.erase(conf.map);
-//                CharacterDatabase.DirectExecute("delete from _数据地图map where map = {}", conf.map);
-//                CharacterDatabase.DirectExecute("delete from _数据玩家map where map = {}", conf.map);
+//                CharacterDatabase.DirectPExecute("delete from _数据地图map where map = {}", conf.map);
+//                CharacterDatabase.DirectPExecute("delete from _数据玩家map where map = {}", conf.map);
 //                aaCenter.aa_mmapvalues.erase(conf.map);
 //                aaCenter.aa_mmapbools.erase(conf.map);
 //                aaCenter.aa_pmapvalues.erase(conf.map);
@@ -1606,16 +1470,16 @@
 //        int32 zu2 = int32(std::atoi(zustr2));
 //        int32 zu3 = int32(std::atoi(zustr3));
 //
-//        target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, zu1);
-//        target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, zu2);
-//        target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, zu3);
+//        target->SetVirtualItem(0, zu1, 0, 0);
+//        target->SetVirtualItem(1, zu2, 0, 0);
+//        target->SetVirtualItem(2, zu3, 0, 0);
 //
 //        char* isstr = strtok(nullptr, " ");
 //        if (isstr)
 //        {
 //            int32 isOk = int32(std::atoi(isstr));
 //            if (isOk) {
-//                WorldDatabase.DirectExecute("INSERT INTO creature_equip_template (CreatureID, ID, ItemID1, ItemID2, ItemID3, VerifiedBuild) VALUES ({}, 1, {}, {}, {}, 18019) ON DUPLICATE KEY UPDATE ItemID1 = {}, ItemID2 = {}, ItemID3 = {}", target->GetEntry(), zu1, zu2, zu3, zu1, zu2, zu3);
+//                WorldDatabase.DirectPExecute("INSERT INTO creature_equip_template (CreatureID, ID, ItemID1, ItemID2, ItemID3, VerifiedBuild) VALUES ({}, 1, {}, {}, {}, 18019) ON DUPLICATE KEY UPDATE ItemID1 = {}, ItemID2 = {}, ItemID3 = {}", target->GetEntry(), zu1, zu2, zu3, zu1, zu2, zu3);
 //                sObjectMgr->LoadEquipmentTemplates();
 //            }
 //        }
@@ -1817,7 +1681,7 @@
 //        }
 //        int32 entry = int32(std::atoi(prefix));
 //        int32 time = int32(std::atoi(suffix));
-//        WorldDatabase.DirectExecute("UPDATE creature SET id = {},spawntimesecs = {} WHERE guid = {}", entry, time, guidlow);
+//        WorldDatabase.DirectPExecute("UPDATE creature SET id = {},spawntimesecs = {} WHERE guid = {}", entry, time, guidlow);
 //        target->Kill(target, target);
 //        target->Respawn();
 //        return true;
@@ -1837,7 +1701,7 @@
 //        //排名显示
 //        AA_Paihang p_conf;
 //        std::string zustr1 = zustr;
-//        if (zustr1.find("排行") != string::npos) {
+//        if (zustr1.find("排行") != std::string::npos) {
 //            p_conf = aaCenter.AA_GetPaihangs();
 //            p_conf.isOk = true;
 //        }
@@ -1953,7 +1817,7 @@
 //                    aaCenter.AA_SendMessage(player, 1, "|cff00FFFF[系统提示]|cffFF0000无法招募当前账号的角色。");
 //                    return false;
 //                }
-//                CharacterDatabase.DirectExecute("UPDATE _玩家角色数据 SET 招募者姓名 = '{}' WHERE guid = {}", zhaomu, guidlow);
+//                CharacterDatabase.DirectPExecute("UPDATE _玩家角色数据 SET 招募者姓名 = '{}' WHERE guid = {}", zhaomu, guidlow);
 //                return true;
 //            }
 //        }
@@ -2109,7 +1973,7 @@
 //        player->aa_menuId = entry;
 //        //aawow 进入副本撞门提示
 //        //获取menus
-//        vector<uint32> menus = aaCenter.aa_teleport_targets[entry];
+//        std::vector<uint32> menus = aaCenter.aa_teleport_targets[entry];
 //        size_t size = menus.size();
 //        if (size > 0) {
 //            //如果只有一项m，直接执行功能
@@ -2126,7 +1990,7 @@
 //            else {
 //                //否则显示菜单
 //                // 传送石
-//                vector<uint32> menus = aaCenter.aa_teleport_targets[entry];
+//                std::vector<uint32> menus = aaCenter.aa_teleport_targets[entry];
 //                ClearGossipMenuFor(player); // Clears old options
 //                int pId = -1;
 //                AA_Message aa_message;
@@ -2135,7 +1999,7 @@
 //                for (size_t i = 0; i < menus.size(); i++) {
 //                    uint32 menuid = menus[i];
 //                    AA_Teleport_Conf conf = aaCenter.aa_teleports[menuid];
-//                    if (conf.title.find("排行") != string::npos || conf.subtitle.find("排行") != string::npos) {
+//                    if (conf.title.find("排行") != std::string::npos || conf.subtitle.find("排行") != std::string::npos) {
 //                        p_conf = aaCenter.AA_GetPaihangs();
 //                        p_conf.isOk = true;
 //                        break;
@@ -2382,7 +2246,7 @@
 //                }
 //            }
 //            if (rcishu > 0) {
-//                CharacterDatabase.DirectExecute("UPDATE _玩家角色数据 SET 累计抽奖次数 = {} WHERE guid = {}", aaCenter.aa_characterss[guidlow].choujiang, guidlow);
+//                CharacterDatabase.DirectPExecute("UPDATE _玩家角色数据 SET 累计抽奖次数 = {} WHERE guid = {}", aaCenter.aa_characterss[guidlow].choujiang, guidlow);
 //                if (itemids.size() > 0) {
 //                    std::string items = "{";
 //                    for (uint32 id : itemids) {
@@ -2427,19 +2291,22 @@
 //            if (itemNameStr && itemNameStr[0])
 //            {
 //                std::string itemName = itemNameStr + 1;
-//                WorldDatabase.EscapeString(itemName);
+//                auto itr = std::find_if(sItemSparseStore.begin(), sItemSparseStore.end(), [&itemName](ItemSparseEntry const* sparse)
+//                    {
+//                        for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
+//                            if (itemName == sparse->Display[i])
+//                                return true;
+//                        return false;
+//                    });
 //
-//                WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_ITEM_TEMPLATE_BY_NAME);
-//                stmt->SetData(0, itemName);
-//                PreparedQueryResult result = WorldDatabase.Query(stmt);
-//
-//                if (!result)
+//                if (itr == sItemSparseStore.end())
 //                {
 //                    handler->PSendSysMessage(LANG_COMMAND_COULDNOTFIND, itemNameStr + 1);
 //                    handler->SetSentErrorMessage(true);
 //                    return false;
 //                }
-//                itemId = result->Fetch()->Get<uint32>();
+//
+//                itemId = itr->ID;
 //            }
 //            else
 //                return false;
@@ -2449,8 +2316,9 @@
 //            char const* id = handler->extractKeyFromLink((char*)args, "Hitem");
 //            if (!id)
 //                return false;
-//            itemId = uint32(atol(id));
+//            itemId = atoul(id);
 //        }
+//
 //        ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
 //        if (!itemTemplate)
 //        {
@@ -2473,7 +2341,7 @@
 //        if (arg4) {
 //            zs = arg4;
 //        }
-//        WorldDatabase.DirectExecute("INSERT INTO __采集_物品 (注释,组,entry,class,subclass,name,displayid,Quality,notice) VALUES ('{}',{},{},{},{},'{}',{},{},{})", zs, zu, itemTemplate->ItemId, itemTemplate->Class, itemTemplate->SubClass, itemTemplate->GetName(LOCALE_zhCN), itemTemplate->DisplayInfoID, itemTemplate->Quality, 1);
+//        WorldDatabase.DirectPExecute("INSERT INTO __采集_物品 (注释,组,entry,class,subclass,name,displayid,Quality,notice) VALUES ('{}',{},{},{},{},'{}',{},{},{})", zs, zu, itemTemplate->ItemId, itemTemplate->Class, itemTemplate->SubClass, itemTemplate->GetName(LOCALE_zhCN), itemTemplate->DisplayInfoID, itemTemplate->Quality, 1);
 //        QueryResult result = WorldDatabase.Query("SELECT id from __采集_物品");
 //        int32 rid = 0;
 //        if (result) {
@@ -3907,16 +3775,14 @@
 //    }
 //    static bool AA_youjian(ChatHandler* handler, char const* args)
 //    {
-//        std::string argstr = args;
-//        char const* args1 = argstr.c_str();
-//        // format: name "subject text" "mail text" item1[:count1] item2[:count2] ... item12[:count12]
-//        Player* receiver = handler->getSelectedPlayerOrSelf();
-//        if (!receiver || !receiver->IsInWorld()) {
+//        // format: name "subject text" "mail text"
+//        Player* target;
+//        ObjectGuid targetGuid;
+//        std::string targetName;
+//        if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
 //            return false;
-//        }
-//        ObjectGuid receiverGuid = receiver->GetGUID();
-//        std::string receiverName = receiver->GetName();
-//        char* tail1 = strtok((char*)args1, "");
+//
+//        char* tail1 = strtok(nullptr, "");
 //        if (!tail1)
 //            return false;
 //
@@ -3936,80 +3802,17 @@
 //        std::string subject = msgSubject;
 //        std::string text = msgText;
 //
-//        // extract items
-//        typedef std::pair<uint32, uint32> ItemPair;
-//        typedef std::list< ItemPair > ItemPairs;
-//        ItemPairs items;
+//        // from console, use non-existing sender
+//        MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetGUID().GetCounter() : UI64LIT(0), MAIL_STATIONERY_GM);
 //
-//        // get all tail string
-//        char* tail = strtok(nullptr, "");
-//
-//        // get from tail next item str
-//        while (char* itemStr = strtok(tail, " "))
-//        {
-//            // and get new tail
-//            tail = strtok(nullptr, "");
-//
-//            // parse item str
-//            char const* itemIdStr = strtok(itemStr, ":");
-//            char const* itemCountStr = strtok(nullptr, " ");
-//
-//            uint32 itemId = atoi(itemIdStr);
-//            if (!itemId)
-//                return false;
-//
-//            ItemTemplate const* item_proto = sObjectMgr->GetItemTemplate(itemId);
-//            if (!item_proto)
-//            {
-//                handler->PSendSysMessage(LANG_COMMAND_ITEMIDINVALID, itemId);
-//                handler->SetSentErrorMessage(true);
-//                return false;
-//            }
-//
-//            uint32 itemCount = itemCountStr ? atoi(itemCountStr) : 1;
-//            if (itemCount < 1 || (item_proto->MaxCount > 0 && itemCount > uint32(item_proto->MaxCount)))
-//            {
-//                handler->PSendSysMessage(LANG_COMMAND_INVALID_ITEM_COUNT, itemCount, itemId);
-//                handler->SetSentErrorMessage(true);
-//                return false;
-//            }
-//
-//            while (itemCount > item_proto->GetMaxStackSize())
-//            {
-//                items.push_back(ItemPair(itemId, item_proto->GetMaxStackSize()));
-//                itemCount -= item_proto->GetMaxStackSize();
-//            }
-//
-//            items.push_back(ItemPair(itemId, itemCount));
-//
-//            if (items.size() > MAX_MAIL_ITEMS)
-//            {
-//                handler->PSendSysMessage(LANG_COMMAND_MAIL_ITEMS_LIMIT, MAX_MAIL_ITEMS);
-//                handler->SetSentErrorMessage(true);
-//                return false;
-//            }
-//        }
-//
-//        // from console show not existed sender
-//        MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->getSelectedPlayerOrSelf()->GetGUIDLow() : 0, MAIL_STATIONERY_GM);
-//
-//        // fill mail
-//        MailDraft draft(subject, text);
-//
+//        /// @todo Fix poor design
 //        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+//        MailDraft(subject, text)
+//            .SendMailTo(trans, MailReceiver(target, targetGuid.GetCounter()), sender);
 //
-//        for (ItemPairs::const_iterator itr = items.begin(); itr != items.end(); ++itr)
-//        {
-//            if (Item* item = Item::CreateItem(itr->first, itr->second, handler->GetSession() ? handler->getSelectedPlayerOrSelf() : 0))
-//            {
-//                item->SaveToDB(trans);                               // save for prevent lost at next mail load, if send fail then item will deleted
-//                draft.AddItem(item);
-//            }
-//        }
-//        draft.SendMailTo(trans, MailReceiver(receiver, receiverGuid.GetCounter()), sender);
 //        CharacterDatabase.CommitTransaction(trans);
 //
-//        std::string nameLink = handler->playerLink(receiverName);
+//        std::string nameLink = handler->playerLink(targetName);
 //        handler->PSendSysMessage(LANG_MAIL_SENT, nameLink.c_str());
 //        return true;
 //    }
@@ -4097,7 +3900,7 @@
 //            }
 //        }
 //
-//        CharacterDatabase.DirectExecute("UPDATE characters SET position_x = {},position_y = {}, position_z = {}, map = {}, instance_id = 0, instance_mode_mask = 0 where name=\"{}\";", target->m_homebindX, target->m_homebindY, target->m_homebindZ, target->m_homebindMapId, currName);
+//        CharacterDatabase.DirectPExecute("UPDATE characters SET position_x = {},position_y = {}, position_z = {}, map = {}, instance_id = 0, instance_mode_mask = 0 where name=\"{}\";", target->m_homebindX, target->m_homebindY, target->m_homebindZ, target->m_homebindMapId, currName);
 //        aaCenter.AA_SendMessage(target, 1, "|cff00FFFF[系统提示]|r|cffFFFF00解卡成功，角色已经被传送至出生点");
 //        return true;
 //    }
@@ -4265,7 +4068,7 @@
 //            conf.isUpdate = true;
 //            conf.update_time = timep;
 //            aaCenter.aa_accounts[accountid] = conf;
-//            LoginDatabase.DirectExecute("UPDATE _aa_account SET 当前积分 = {},jifen = 0,累计充值积分={},每日累充积分={},每日首充积分={},更新时间=0 WHERE id = {};", conf.jifen, conf.jifen_all, conf.jifen_day, conf.shouchong_day, conf.id);
+//            LoginDatabase.DirectPExecute("UPDATE _aa_account SET 当前积分 = {},jifen = 0,累计充值积分={},每日累充积分={},每日首充积分={},更新时间=0 WHERE id = {};", conf.jifen, conf.jifen_all, conf.jifen_day, conf.shouchong_day, conf.id);
 //            std::string msg = "|cff00FFFF[系统提示]|cffFFFF00你的" + aaCenter.aa_world_confs[64].value2 + "增加：" + std::to_string(jifen_cz) + "，剩余：" + std::to_string(aaCenter.aa_accounts[accountid].jifen);
 //            sWorld->SendServerMessage(SERVER_MSG_STRING, msg.c_str(), me);
 //            std::string jfstr = "|cff00FFFF[系统提示]|r|cffFFFF00恭喜玩家【" + aaCenter.AA_GetPlayerNameLink(me) + "】获得充值奖励，" + aaCenter.aa_world_confs[64].value2 + "增加【" + std::to_string(jifen_cz) + "】！";
@@ -4420,9 +4223,9 @@
 //        player->SetCanModifyStats(true);
 //        player->UpdateAllStats();
 //
-//        //CharacterDatabase.DirectExecute("update characters set class={} where guid ={}", targetClass, player->GetGUIDLow()); //更新转职后的职业
-//        CharacterDatabase.DirectExecute("delete from character_glyphs where guid ={}", player->GetGUIDLow()); // 删除雕文
-//        CharacterDatabase.DirectExecute("delete from character_pet where owner ={}", player->GetGUIDLow());//删除宠物
+//        //CharacterDatabase.DirectPExecute("update characters set class={} where guid ={}", targetClass, player->GetGUIDLow()); //更新转职后的职业
+//        CharacterDatabase.DirectPExecute("delete from character_glyphs where guid ={}", player->GetGUIDLow()); // 删除雕文
+//        CharacterDatabase.DirectPExecute("delete from character_pet where owner ={}", player->GetGUIDLow());//删除宠物
 //
 //        std::string gm = ".组合 *.cache delete<$自身>";
 //        aaCenter.AA_DoCommand(player, gm.c_str());
@@ -4462,7 +4265,7 @@
 //                conf.update_time = timep;
 //                conf.isUpdate = true;
 //                aaCenter.aa_accounts[accountid] = conf;
-//                LoginDatabase.DirectExecute("UPDATE _aa_account SET 当前积分 = {},jifen = 0,累计充值积分={},每日累充积分={},每日首充积分={},更新时间=0 WHERE id = {};", conf.jifen, conf.jifen_all, conf.jifen_day, conf.shouchong_day, conf.id);
+//                LoginDatabase.DirectPExecute("UPDATE _aa_account SET 当前积分 = {},jifen = 0,累计充值积分={},每日累充积分={},每日首充积分={},更新时间=0 WHERE id = {};", conf.jifen, conf.jifen_all, conf.jifen_day, conf.shouchong_day, conf.id);
 //                std::string msg = "|cff00FFFF[系统提示]|cffFFFF00你的" + aaCenter.aa_world_confs[64].value2 + "增加：" + std::to_string(jifen_cz) + "，剩余：" + std::to_string(aaCenter.aa_accounts[accountid].jifen);
 //                sWorld->SendServerMessage(SERVER_MSG_STRING, msg.c_str(), target);
 //            }
@@ -4470,7 +4273,7 @@
 //                int32 val = aaCenter.aa_accounts[accountid].jifen;
 //                val = val += jifen_cz; val = val < 0 ? 0 : val;
 //                aaCenter.aa_accounts[accountid].jifen = val;
-//                LoginDatabase.DirectExecute("UPDATE _aa_account SET 当前积分 = {}, 更新时间=0 WHERE id = {};", val, accountid);
+//                LoginDatabase.DirectPExecute("UPDATE _aa_account SET 当前积分 = {}, 更新时间=0 WHERE id = {};", val, accountid);
 //                std::string msg = "|cff00FFFF[系统提示]|cffFF0000你的" + aaCenter.aa_world_confs[64].value2 + "减少：" + std::to_string(-jifen_cz) + "，剩余：" + std::to_string(aaCenter.aa_accounts[accountid].jifen);
 //                sWorld->SendServerMessage(SERVER_MSG_STRING, msg.c_str(), target);
 //            }
@@ -4713,7 +4516,7 @@
 //            if (arg2) {
 //                zu = int32(std::atoi(arg2));
 //            }
-//            WorldDatabase.DirectExecute("INSERT INTO __采集_坐标 (注释,组,name,map,zone,area,position_x,position_y,position_z,orientation,instanceId) VALUES ('{}',{},'{}',{},{},{},{},{},{},{},{})", arg1str, zu, target->GetMap()->GetMapName(), target->GetMapId(), target->GetZoneId(), target->GetAreaId(), target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), target->GetInstanceId());
+//            WorldDatabase.DirectPExecute("INSERT INTO __采集_坐标 (注释,组,name,map,zone,area,position_x,position_y,position_z,orientation,instanceId) VALUES ('{}',{},'{}',{},{},{},{},{},{},{},{})", arg1str, zu, target->GetMap()->GetMapName(), target->GetMapId(), target->GetZoneId(), target->GetAreaId(), target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), target->GetInstanceId());
 //            QueryResult result = WorldDatabase.Query("SELECT id from __采集_坐标");
 //            int32 rid = 0;
 //            if (result) {
@@ -4761,7 +4564,7 @@
 //        }
 //        //aatodo target为生物，可能有错
 //        AA_Map_Player_Conf map_conf = aaCenter.AA_GetAA_Map_Player_Conf(target);
-//        WorldDatabase.DirectExecute("INSERT INTO __采集_生物 (注释,组,name,subname,entry,faction,displayid,map,zone,area,秘境难度,position_x,position_y,position_z,orientation,instanceId) VALUES ('{}',{},'{}','{}',{},{},{},{},{},{},{},{},{},{},{},{})", arg1str, zu, target->GetName(), target->GetCreatureTemplate()->SubName, target->GetEntry(), target->GetFaction(), target->GetDisplayId(), target->GetMapId(), target->GetZoneId(), target->GetAreaId(), map_conf.nanduid, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), target->GetInstanceId());
+//        WorldDatabase.DirectPExecute("INSERT INTO __采集_生物 (注释,组,name,subname,entry,faction,displayid,map,zone,area,秘境难度,position_x,position_y,position_z,orientation,instanceId) VALUES ('{}',{},'{}','{}',{},{},{},{},{},{},{},{},{},{},{},{})", arg1str, zu, target->GetName(), target->GetCreatureTemplate()->SubName, target->GetEntry(), target->GetFaction(), target->GetDisplayId(), target->GetMapId(), target->GetZoneId(), target->GetAreaId(), map_conf.nanduid, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), target->GetInstanceId());
 //        QueryResult result = WorldDatabase.Query("SELECT id from __采集_生物");
 //        int32 rid = 0;
 //        if (result) {
@@ -4811,7 +4614,7 @@
 //        if (arg2) {
 //            zu = int32(std::atoi(arg2));
 //        }
-//        WorldDatabase.DirectExecute("INSERT INTO __采集_玩家 (注释,账号id,角色id,组,name,ip) VALUES ('{}',{},{},{},'{}','{}')", arg1str, target->GetSession()->GetAccountId(), target->GetGUIDLow(), zu, target->GetName(), target->GetSession()->GetRemoteAddress());
+//        WorldDatabase.DirectPExecute("INSERT INTO __采集_玩家 (注释,账号id,角色id,组,name,ip) VALUES ('{}',{},{},{},'{}','{}')", arg1str, target->GetSession()->GetAccountId(), target->GetGUIDLow(), zu, target->GetName(), target->GetSession()->GetRemoteAddress());
 //        QueryResult result = WorldDatabase.Query("SELECT id from __采集_玩家");
 //        int32 rid = 0;
 //        if (result) {
@@ -4854,7 +4657,7 @@
 //        /*Tokenizer entries(std::string(args), ' ');
 //        Tokenizer::const_iterator itr = entries.begin();
 //        uint32 entry = uint32(atoi(*itr));*/
-//        std::vector<std::string_view> entries = Acore::Tokenize(args, ' ', false);
+//        std::vector<std::string_view> entries = Trinity::Tokenize(args, ' ', false);
 //        auto itr = entries.begin();
 //        //std::string_view itr = entries[0];
 //        //Optional<uint32> entry = Acore::StringTo<uint32>(itr);
@@ -4864,110 +4667,7 @@
 //            return false;
 //        }
 //
-//        // remove fake death
-//        if (player->HasUnitState(UNIT_STATE_DIED))
-//            player->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
-//
-//        CreatureTemplate const* ci = unit->GetCreatureTemplate();
-//
-//        if (!ci)
-//        {
-//#if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-//            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: SendTrainerList - (GUID: {}) NO CREATUREINFO!", GUID_LOPART(guid));
-//#endif
-//            return false;
-//        }
-//
-//        TrainerSpellData const* trainer_spells = sObjectMgr->GetNpcTrainerSpells(entry);
-//        if (!trainer_spells)
-//        {
-//#if defined(ENABLE_EXTRAS) && defined(ENABLE_EXTRA_LOGS)
-//            sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: SendTrainerList - Training spells not found for creature (GUID: {} Entry: {})", GUID_LOPART(guid), unit->GetEntry());
-//#endif
-//            return false;
-//        }
-//
-//        WorldPacket data(SMSG_TRAINER_LIST, 8 + 4 + 4 + trainer_spells->spellList.size() * 38 + 1);
-//        data << guid;
-//        data << uint32(trainer_spells->trainerType);
-//
-//        size_t count_pos = data.wpos();
-//        data << uint32(trainer_spells->spellList.size());
-//
-//        // reputation discount
-//        float fDiscountMod = player->GetReputationPriceDiscount(unit);
-//        bool can_learn_primary_prof = player->GetFreePrimaryProfessionPoints() > 0;
-//
-//        uint32 count = 0;
-//        for (TrainerSpellMap::const_iterator itr = trainer_spells->spellList.begin(); itr != trainer_spells->spellList.end(); ++itr)
-//        {
-//            TrainerSpell const* tSpell = &itr->second;
-//
-//            bool valid = true;
-//            bool primary_prof_first_rank = false;
-//            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-//            {
-//                if (!tSpell->learnedSpell[i])
-//                    continue;
-//                if (!player->IsSpellFitByClassAndRace(tSpell->learnedSpell[i]))
-//                {
-//                    valid = false;
-//                    break;
-//                }
-//                SpellInfo const* learnedSpellInfo = sSpellMgr->GetSpellInfo(tSpell->learnedSpell[i]);
-//                if (learnedSpellInfo && learnedSpellInfo->IsPrimaryProfessionFirstRank())
-//                    primary_prof_first_rank = true;
-//            }
-//            if (!valid)
-//                continue;
-//
-//            TrainerSpellState state = player->GetTrainerSpellState(tSpell);
-//
-//            data << uint32(tSpell->spell);                      // learned spell (or cast-spell in profession case)
-//            data << uint8(state == TRAINER_SPELL_GREEN_DISABLED ? TRAINER_SPELL_GREEN : state);
-//            data << uint32(floor(tSpell->spellCost * fDiscountMod));
-//
-//            data << uint32(primary_prof_first_rank && can_learn_primary_prof ? 1 : 0);
-//            // primary prof. learn confirmation dialog
-//            data << uint32(primary_prof_first_rank ? 1 : 0);    // must be equal prev. field to have learn button in enabled state
-//            data << uint8(tSpell->reqLevel);
-//            data << uint32(tSpell->reqSkill);
-//            data << uint32(tSpell->reqSkillValue);
-//            //prev + req or req + 0
-//            uint8 maxReq = 0;
-//            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-//            {
-//                if (!tSpell->learnedSpell[i])
-//                    continue;
-//                if (uint32 prevSpellId = sSpellMgr->GetPrevSpellInChain(tSpell->learnedSpell[i]))
-//                {
-//                    data << uint32(prevSpellId);
-//                    ++maxReq;
-//                }
-//                if (maxReq == 3)
-//                    break;
-//                SpellsRequiringSpellMapBounds spellsRequired = sSpellMgr->GetSpellsRequiredForSpellBounds(tSpell->learnedSpell[i]);
-//                for (SpellsRequiringSpellMap::const_iterator itr2 = spellsRequired.first; itr2 != spellsRequired.second && maxReq < 3; ++itr2)
-//                {
-//                    data << uint32(itr2->second);
-//                    ++maxReq;
-//                }
-//                if (maxReq == 3)
-//                    break;
-//            }
-//            while (maxReq < 3)
-//            {
-//                data << uint32(0);
-//                ++maxReq;
-//            }
-//
-//            ++count;
-//        }
-//
-//        data << "";
-//
-//        data.put<uint32>(count_pos, count);
-//        player->GetSession()->SendPacket(&data);
+//        player->GetSession()->SendTrainerList(unit, entry);
 //
 //        unit->aa_vendor_entry = entry;
 //        return true;
@@ -5015,7 +4715,7 @@
 //        /*Tokenizer entries(std::string(args), ' ');
 //        Tokenizer::const_iterator itr = entries.begin();
 //        uint32 entry = uint32(atoi(*itr));*/
-//        std::vector<std::string_view> entries = Acore::Tokenize(args, ' ', false);
+//        std::vector<std::string_view> entries = Trinity::Tokenize(args, ' ', false);
 //        auto itr = entries.begin();
 //        //std::string_view itr = entries[0];
 //        //Optional<uint32> entry = Acore::StringTo<uint32>(itr);
@@ -5620,7 +5320,7 @@
 //        }
 //        std::string sql = "INSERT INTO _奖励_兑换码 (注释,兑换码,奖励) VALUES " + sqlstrs;
 //        aaCenter.AA_StringReplaceLast(sql, ",", "");
-//        WorldDatabase.DirectExecute(sql.c_str());
+//        WorldDatabase.DirectPExecute(sql.c_str());
 //        aaCenter.AA_SendMessage(target, 0, "|cff00FFFF[系统提示]|cffFFFF00兑换码生成成功");
 //        return true;
 //    }
@@ -5736,7 +5436,7 @@
 //            aaCenter.AA_VectorStringToString(str, ips, ",");
 //            aaCenter.aa_duihuanmas[arg1].ip = str;
 //        }
-//        WorldDatabase.DirectExecute("update _奖励_兑换码 set 兑换角色 = '{}',兑换账号 = '{}',兑换IP = '{}',兑换次数 = {} where 兑换码 = '{}'", aaCenter.aa_duihuanmas[arg1].guid, aaCenter.aa_duihuanmas[arg1].account, aaCenter.aa_duihuanmas[arg1].ip, dh_time, arg1);
+//        WorldDatabase.DirectPExecute("update _奖励_兑换码 set 兑换角色 = '{}',兑换账号 = '{}',兑换IP = '{}',兑换次数 = {} where 兑换码 = '{}'", aaCenter.aa_duihuanmas[arg1].guid, aaCenter.aa_duihuanmas[arg1].account, aaCenter.aa_duihuanmas[arg1].ip, dh_time, arg1);
 //        aaCenter.aa_duihuanmas[arg1].time = dh_time;
 //        if (conf.notice > 0) {
 //            AA_Message aa_message;
