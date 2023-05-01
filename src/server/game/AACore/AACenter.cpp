@@ -77,7 +77,6 @@
 #include "BattlegroundQueue.h"
 #include "ArenaTeam.h"
 
-using namespace std;
 
 #define MSG_COLOR_DRUID        "|cffff7d0a"
 #define MSG_COLOR_HUNTER       "|cffabd473"
@@ -93,57 +92,57 @@ using namespace std;
 
 constexpr uint32 ARENA_TEAM_5V5 = 5;
 
-bool cmpbiwu(pair<ObjectGuid::LowType, uint32> a, pair<ObjectGuid::LowType, uint32> b) {
+bool cmpbiwu(std::pair<ObjectGuid::LowType, uint32> a, std::pair<ObjectGuid::LowType, uint32> b) {
     return a.second > b.second;
 }
 
-bool cmp(pair<ObjectGuid, uint32> a, pair<ObjectGuid, uint32> b) {
+bool cmp(std::pair<ObjectGuid, uint32> a, std::pair<ObjectGuid, uint32> b) {
     return a.second > b.second;
 }
 
 void paihangbiwu(std::vector<std::pair<ObjectGuid::LowType, uint32>>& v, std::map<ObjectGuid::LowType, uint32> mp)
 {
-    std::vector< pair<ObjectGuid::LowType, uint32> > vec; vec.clear();
+    std::vector< std::pair<ObjectGuid::LowType, uint32> > vec; vec.clear();
     for (std::map<ObjectGuid::LowType, uint32>::iterator it = mp.begin(); it != mp.end(); it++) {
-        vec.push_back(pair<ObjectGuid::LowType, uint32>(it->first, it->second));
+        vec.push_back(std::pair<ObjectGuid::LowType, uint32>(it->first, it->second));
     }
-    sort(vec.begin(), vec.end(), cmpbiwu);
+    std::sort(vec.begin(), vec.end(), cmpbiwu);
     v = vec;
 }
 
 void paihangpx(std::vector<std::pair<ObjectGuid, uint32>>& v, std::map<ObjectGuid, uint32> mp)
 {
-    std::vector< pair<ObjectGuid, uint32> > vec; vec.clear();
+    std::vector< std::pair<ObjectGuid, uint32> > vec; vec.clear();
     for (std::map<ObjectGuid, uint32>::iterator it = mp.begin(); it != mp.end(); it++) {
-        vec.push_back(pair<ObjectGuid, uint32>(it->first, it->second));
+        vec.push_back(std::pair<ObjectGuid, uint32>(it->first, it->second));
     }
-    sort(vec.begin(), vec.end(), cmp);
+    std::sort(vec.begin(), vec.end(), cmp);
     v = vec;
 }
 
 //野外战场
 //std::unordered_map<uint32, uint32>
-bool yewai_cmp(pair<uint32, uint32> a, pair<uint32, uint32> b) {
+bool yewai_cmp(std::pair<uint32, uint32> a, std::pair<uint32, uint32> b) {
     return a.second > b.second;
 }
 
 void yewai_paihangpx(std::vector<std::pair<uint32, uint32>>& v, std::map<uint32, uint32> mp)
 {
-    std::vector< pair<uint32, uint32> > vec; vec.clear();
+    std::vector< std::pair<uint32, uint32> > vec; vec.clear();
     for (std::map<uint32, uint32>::iterator it = mp.begin(); it != mp.end(); it++) {
-        vec.push_back(pair<uint32, uint32>(it->first, it->second));
+        vec.push_back(std::pair<uint32, uint32>(it->first, it->second));
     }
-    sort(vec.begin(), vec.end(), yewai_cmp);
+    std::sort(vec.begin(), vec.end(), yewai_cmp);
     v = vec;
 }
 
 void zudui_paihangpx(std::vector<std::pair<uint32, uint32>>& v, std::map<int32, int32> mp)
 {
-    std::vector< pair<uint32, uint32> > vec; vec.clear();
+    std::vector< std::pair<uint32, uint32> > vec; vec.clear();
     for (std::map<int32, int32>::iterator it = mp.begin(); it != mp.end(); it++) {
-        vec.push_back(pair<uint32, uint32>(it->first, it->second));
+        vec.push_back(std::pair<uint32, uint32>(it->first, it->second));
     }
-    sort(vec.begin(), vec.end(), yewai_cmp);
+    std::sort(vec.begin(), vec.end(), yewai_cmp);
     v = vec;
 }
 
@@ -1508,7 +1507,7 @@ std::string AACenter::AA_StringFromFloat(const float dbNum)
         char* chCode;
         chCode = new(std::nothrow)char[20];
         sprintf(chCode, "%.2f", dbNum);  // .2 是控制输出精度的，两位小数
-        string strCode(chCode);
+        std::string strCode(chCode);
         delete[]chCode;
         return strCode;
     }
@@ -1935,7 +1934,7 @@ float AACenter::AA_StringFloat(std::string s)
     }
     try {
         double result;
-        stringstream ss;
+        std::stringstream ss;
         ss << s;
         ss >> result;
         result = round(result * 100) / 100;//四舍五入保留两位小数
@@ -3118,7 +3117,7 @@ std::string AACenter::GetMyInfo(Unit* me, std::string message, AA_Message aa_mes
         }
 
         //自定义关键字
-        if (message.find("<$自定义角色@") != string::npos) {
+        if (message.find("<$自定义角色@") != std::string::npos) {
             std::string prestr = "<$自定义角色@";
             std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
             if (nums != "") {
@@ -3132,7 +3131,7 @@ std::string AACenter::GetMyInfo(Unit* me, std::string message, AA_Message aa_mes
                 aaCenter.AA_StringReplace(message, fulstr, std::to_string(value));
             }
         }
-        if (message.find("<$自定义账号@") != string::npos) {
+        if (message.find("<$自定义账号@") != std::string::npos) {
             std::string prestr = "<$自定义账号@";
             std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
             if (nums != "") {
@@ -3146,7 +3145,7 @@ std::string AACenter::GetMyInfo(Unit* me, std::string message, AA_Message aa_mes
                 aaCenter.AA_StringReplace(message, fulstr, std::to_string(value));
             }
         }
-        if (message.find("<$自定义系统@") != string::npos) {
+        if (message.find("<$自定义系统@") != std::string::npos) {
             std::string prestr = "<$自定义系统@";
             std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
             if (nums != "") {
@@ -4015,7 +4014,7 @@ bool AACenter::M_CanNeedDo(Player* player, std::string& needstr, uint32 needid, 
             std::string k = itr.first;
             std::string v = itr.second;
             std::string v2 = mdiy_guids[k];
-            if (v.find(">") == string::npos && v.find("<") == string::npos && v.find("!=") == string::npos && v.find("=") == string::npos) { //大于等于，消耗
+            if (v.find(">") == std::string::npos && v.find("<") == std::string::npos && v.find("!=") == std::string::npos && v.find("=") == std::string::npos) { //大于等于，消耗
                 float value = aaCenter.AA_StringFloat(v) * count;
                 float value2 = aaCenter.AA_StringFloat(v2);
                 if (value2 < value) {
@@ -4024,7 +4023,7 @@ bool AACenter::M_CanNeedDo(Player* player, std::string& needstr, uint32 needid, 
                 }
             }
             else {
-                if (v.find(">") != string::npos) { //大于
+                if (v.find(">") != std::string::npos) { //大于
                     aaCenter.AA_StringReplaceFirst(v, ">", "");
                     float value = aaCenter.AA_StringFloat(v) * count;
                     float value2 = aaCenter.AA_StringFloat(v2);
@@ -4033,7 +4032,7 @@ bool AACenter::M_CanNeedDo(Player* player, std::string& needstr, uint32 needid, 
                         isOk = false;
                     }
                 }
-                if (v.find("<") != string::npos) { //小于
+                if (v.find("<") != std::string::npos) { //小于
                     aaCenter.AA_StringReplaceFirst(v, "<", "");
                     float value = aaCenter.AA_StringFloat(v) * count;
                     float value2 = aaCenter.AA_StringFloat(v2);
@@ -4042,7 +4041,7 @@ bool AACenter::M_CanNeedDo(Player* player, std::string& needstr, uint32 needid, 
                         isOk = false;
                     }
                 }
-                if (v.find("!=") != string::npos) { //不等于
+                if (v.find("!=") != std::string::npos) { //不等于
                     aaCenter.AA_StringReplaceFirst(v, "!=", "");
                     float value = aaCenter.AA_StringFloat(v) * count;
                     float value2 = aaCenter.AA_StringFloat(v2);
@@ -4051,7 +4050,7 @@ bool AACenter::M_CanNeedDo(Player* player, std::string& needstr, uint32 needid, 
                         isOk = false;
                     }
                 }
-                if (v.find("=") != string::npos) { //等于
+                if (v.find("=") != std::string::npos) { //等于
                     aaCenter.AA_StringReplaceFirst(v, "=", "");
                     float value = aaCenter.AA_StringFloat(v) * count;
                     float value2 = aaCenter.AA_StringFloat(v2);
@@ -4075,7 +4074,7 @@ bool AACenter::M_CanNeedDo(Player* player, std::string& needstr, uint32 needid, 
             std::string k = itr.first;
             std::string v = itr.second;
             std::string v2 = mdiy_systems[k];
-            if (v.find(">") == string::npos && v.find("<") == string::npos && v.find("!=") == string::npos && v.find("=") == string::npos) { //大于等于，消耗
+            if (v.find(">") == std::string::npos && v.find("<") == std::string::npos && v.find("!=") == std::string::npos && v.find("=") == std::string::npos) { //大于等于，消耗
                 float value = aaCenter.AA_StringFloat(v) * count;
                 float value2 = aaCenter.AA_StringFloat(v2);
                 if (value2 < value) {
@@ -4084,7 +4083,7 @@ bool AACenter::M_CanNeedDo(Player* player, std::string& needstr, uint32 needid, 
                 }
             }
             else {
-                if (v.find(">") != string::npos) { //大于
+                if (v.find(">") != std::string::npos) { //大于
                     aaCenter.AA_StringReplaceFirst(v, ">", "");
                     float value = aaCenter.AA_StringFloat(v) * count;
                     float value2 = aaCenter.AA_StringFloat(v2);
@@ -4093,7 +4092,7 @@ bool AACenter::M_CanNeedDo(Player* player, std::string& needstr, uint32 needid, 
                         isOk = false;
                     }
                 }
-                if (v.find("<") != string::npos) { //小于
+                if (v.find("<") != std::string::npos) { //小于
                     aaCenter.AA_StringReplaceFirst(v, "<", "");
                     float value = aaCenter.AA_StringFloat(v) * count;
                     float value2 = aaCenter.AA_StringFloat(v2);
@@ -4102,7 +4101,7 @@ bool AACenter::M_CanNeedDo(Player* player, std::string& needstr, uint32 needid, 
                         isOk = false;
                     }
                 }
-                if (v.find("!=") != string::npos) { //不等于
+                if (v.find("!=") != std::string::npos) { //不等于
                     aaCenter.AA_StringReplaceFirst(v, "!=", "");
                     float value = aaCenter.AA_StringFloat(v) * count;
                     float value2 = aaCenter.AA_StringFloat(v2);
@@ -4111,7 +4110,7 @@ bool AACenter::M_CanNeedDo(Player* player, std::string& needstr, uint32 needid, 
                         isOk = false;
                     }
                 }
-                if (v.find("=") != string::npos) { //等于
+                if (v.find("=") != std::string::npos) { //等于
                     aaCenter.AA_StringReplaceFirst(v, "=", "");
                     float value = aaCenter.AA_StringFloat(v) * count;
                     float value2 = aaCenter.AA_StringFloat(v2);
@@ -4135,7 +4134,7 @@ bool AACenter::M_CanNeedDo(Player* player, std::string& needstr, uint32 needid, 
             std::string k = itr.first;
             std::string v = itr.second;
             std::string v2 = mdiy_accounts[k];
-            if (v.find(">") == string::npos && v.find("<") == string::npos && v.find("!=") == string::npos && v.find("=") == string::npos) { //大于等于，消耗
+            if (v.find(">") == std::string::npos && v.find("<") == std::string::npos && v.find("!=") == std::string::npos && v.find("=") == std::string::npos) { //大于等于，消耗
                 float value = aaCenter.AA_StringFloat(v) * count;
                 float value2 = aaCenter.AA_StringFloat(v2);
                 if (value2 < value) {
@@ -4144,7 +4143,7 @@ bool AACenter::M_CanNeedDo(Player* player, std::string& needstr, uint32 needid, 
                 }
             }
             else {
-                if (v.find(">") != string::npos) { //大于
+                if (v.find(">") != std::string::npos) { //大于
                     aaCenter.AA_StringReplaceFirst(v, ">", "");
                     float value = aaCenter.AA_StringFloat(v) * count;
                     float value2 = aaCenter.AA_StringFloat(v2);
@@ -4153,7 +4152,7 @@ bool AACenter::M_CanNeedDo(Player* player, std::string& needstr, uint32 needid, 
                         isOk = false;
                     }
                 }
-                if (v.find(">") != string::npos) { //大于
+                if (v.find(">") != std::string::npos) { //大于
                     aaCenter.AA_StringReplaceFirst(v, ">", "");
                     float value = aaCenter.AA_StringFloat(v);
                     float value2 = aaCenter.AA_StringFloat(v2);
@@ -4162,7 +4161,7 @@ bool AACenter::M_CanNeedDo(Player* player, std::string& needstr, uint32 needid, 
                         isOk = false;
                     }
                 }
-                if (v.find("<") != string::npos) { //小于
+                if (v.find("<") != std::string::npos) { //小于
                     aaCenter.AA_StringReplaceFirst(v, "<", "");
                     float value = aaCenter.AA_StringFloat(v);
                     float value2 = aaCenter.AA_StringFloat(v2);
@@ -4171,7 +4170,7 @@ bool AACenter::M_CanNeedDo(Player* player, std::string& needstr, uint32 needid, 
                         isOk = false;
                     }
                 }
-                if (v.find("!=") != string::npos) { //不等于
+                if (v.find("!=") != std::string::npos) { //不等于
                     aaCenter.AA_StringReplaceFirst(v, "!=", "");
                     float value = aaCenter.AA_StringFloat(v);
                     float value2 = aaCenter.AA_StringFloat(v2);
@@ -4180,7 +4179,7 @@ bool AACenter::M_CanNeedDo(Player* player, std::string& needstr, uint32 needid, 
                         isOk = false;
                     }
                 }
-                if (v.find("=") != string::npos) { //等于
+                if (v.find("=") != std::string::npos) { //等于
                     aaCenter.AA_StringReplaceFirst(v, "=", "");
                     float value = aaCenter.AA_StringFloat(v);
                     float value2 = aaCenter.AA_StringFloat(v2);
@@ -4299,7 +4298,7 @@ void AACenter::M_Need(Player* player, uint32 needid, uint32 count)
                 std::string k = itr.first;
                 std::string v = itr.second;
                 std::string v2 = mdiy_guids[k];
-                if (v.find(">") == string::npos && v.find("<") == string::npos && v.find("!=") == string::npos && v.find("=") == string::npos) { //大于等于
+                if (v.find(">") == std::string::npos && v.find("<") == std::string::npos && v.find("!=") == std::string::npos && v.find("=") == std::string::npos) { //大于等于
                     uint32 value = aaCenter.AA_StringUint32(v) * count;
                     uint32 value2 = aaCenter.AA_StringUint32(v2);
                     if (value2 >= value) {
@@ -4331,7 +4330,7 @@ void AACenter::M_Need(Player* player, uint32 needid, uint32 count)
                 std::string k = itr.first;
                 std::string v = itr.second;
                 std::string v2 = mdiy_systems[k];
-                if (v.find(">") == string::npos && v.find("<") == string::npos && v.find("!=") == string::npos && v.find("=") == string::npos) { //大于等于
+                if (v.find(">") == std::string::npos && v.find("<") == std::string::npos && v.find("!=") == std::string::npos && v.find("=") == std::string::npos) { //大于等于
                     uint32 value = aaCenter.AA_StringUint32(v) * count;
                     uint32 value2 = aaCenter.AA_StringUint32(v2);
                     if (value2 >= value) {
@@ -4363,7 +4362,7 @@ void AACenter::M_Need(Player* player, uint32 needid, uint32 count)
                 std::string k = itr.first;
                 std::string v = itr.second;
                 std::string v2 = mdiy_accounts[k];
-                if (v.find(">") == string::npos && v.find("<") == string::npos && v.find("!=") == string::npos && v.find("=") == string::npos) { //大于等于
+                if (v.find(">") == std::string::npos && v.find("<") == std::string::npos && v.find("!=") == std::string::npos && v.find("=") == std::string::npos) { //大于等于
                     uint32 value = aaCenter.AA_StringUint32(v) * count;
                     uint32 value2 = aaCenter.AA_StringUint32(v2);
                     if (value2 >= value) {
@@ -4547,12 +4546,12 @@ void AACenter::M_RewardDo(Player* player, uint32 rewardid, uint32 count)
                 std::string v = itr.second;
                 std::string v2 = mdiy_guids[k];
                 uint32 value2 = aaCenter.AA_StringUint32(v2);
-                if (v.find("+") != string::npos || (v.find("+") == string::npos && v.find("-") == string::npos && v.find("=") == string::npos)) { //加
+                if (v.find("+") != std::string::npos || (v.find("+") == std::string::npos && v.find("-") == std::string::npos && v.find("=") == std::string::npos)) { //加
                     aaCenter.AA_StringReplaceFirst(v, "+", "");
                     uint32 value = aaCenter.AA_StringUint32(v) * count;
                     value2 += value;
                 }
-                if (v.find("-") != string::npos) { //减
+                if (v.find("-") != std::string::npos) { //减
                     aaCenter.AA_StringReplaceFirst(v, "-", "");
                     uint32 value = aaCenter.AA_StringUint32(v) * count;
                     if (value2 >= value) {
@@ -4562,7 +4561,7 @@ void AACenter::M_RewardDo(Player* player, uint32 rewardid, uint32 count)
                         value2 = 0;
                     }
                 }
-                if (v.find("=") != string::npos) { //赋值
+                if (v.find("=") != std::string::npos) { //赋值
                     aaCenter.AA_StringReplaceFirst(v, "=", "");
                     uint32 value = aaCenter.AA_StringUint32(v);
                     value2 = value;
@@ -4590,12 +4589,12 @@ void AACenter::M_RewardDo(Player* player, uint32 rewardid, uint32 count)
                 std::string v = itr.second;
                 std::string v2 = mdiy_systems[k];
                 uint32 value2 = aaCenter.AA_StringUint32(v2);
-                if (v.find("+") != string::npos || (v.find("+") == string::npos && v.find("-") == string::npos && v.find("=") == string::npos)) { //加
+                if (v.find("+") != std::string::npos || (v.find("+") == std::string::npos && v.find("-") == std::string::npos && v.find("=") == std::string::npos)) { //加
                     aaCenter.AA_StringReplaceFirst(v, "+", "");
                     uint32 value = aaCenter.AA_StringUint32(v) * count;
                     value2 += value;
                 }
-                if (v.find("-") != string::npos) { //减
+                if (v.find("-") != std::string::npos) { //减
                     aaCenter.AA_StringReplaceFirst(v, "-", "");
                     uint32 value = aaCenter.AA_StringUint32(v) * count;
                     if (value2 >= value) {
@@ -4605,7 +4604,7 @@ void AACenter::M_RewardDo(Player* player, uint32 rewardid, uint32 count)
                         value2 = 0;
                     }
                 }
-                if (v.find("=") != string::npos) { //赋值
+                if (v.find("=") != std::string::npos) { //赋值
                     aaCenter.AA_StringReplaceFirst(v, "=", "");
                     uint32 value = aaCenter.AA_StringUint32(v);
                     value2 = value;
@@ -4633,12 +4632,12 @@ void AACenter::M_RewardDo(Player* player, uint32 rewardid, uint32 count)
                 std::string v = itr.second;
                 std::string v2 = mdiy_accounts[k];
                 uint32 value2 = aaCenter.AA_StringUint32(v2);
-                if (v.find("+") != string::npos || (v.find("+") == string::npos && v.find("-") == string::npos && v.find("=") == string::npos)) { //加
+                if (v.find("+") != std::string::npos || (v.find("+") == std::string::npos && v.find("-") == std::string::npos && v.find("=") == std::string::npos)) { //加
                     aaCenter.AA_StringReplaceFirst(v, "+", "");
                     uint32 value = aaCenter.AA_StringUint32(v) * count;
                     value2 += value;
                 }
-                if (v.find("-") != string::npos) { //减
+                if (v.find("-") != std::string::npos) { //减
                     aaCenter.AA_StringReplaceFirst(v, "-", "");
                     uint32 value = aaCenter.AA_StringUint32(v) * count;
                     if (value2 >= value) {
@@ -4648,7 +4647,7 @@ void AACenter::M_RewardDo(Player* player, uint32 rewardid, uint32 count)
                         value2 = 0;
                     }
                 }
-                if (v.find("=") != string::npos) { //赋值
+                if (v.find("=") != std::string::npos) { //赋值
                     aaCenter.AA_StringReplaceFirst(v, "=", "");
                     uint32 value = aaCenter.AA_StringUint32(v);
                     value2 = value;
@@ -8531,7 +8530,7 @@ void AACenter::AA_CallBack_Event(Player* eventer, uint32 eventid, uint32 timep, 
             }
             if (conf.done_gm != "" && conf.done_gm != "0") {
                 aaCenter.AA_DoCommand(eventer, conf.done_gm.c_str());
-                if (conf.done_gm.find("传送 触发者") != string::npos) {
+                if (conf.done_gm.find("传送 触发者") != std::string::npos) {
                     AA_Caiji_Zuobiao z_conf = aaCenter.aa_event_senders[timep];
                     eventer->TeleportTo(z_conf.map, z_conf.position_x, z_conf.position_y, z_conf.position_z, z_conf.orientation);
                 }
@@ -10385,7 +10384,7 @@ void AACenter::AA_ReceiveAddon(Player* player, std::string& prefix, std::string&
                     itemEntrys.insert(itemEntry);
                 }
             }
-            string sendmsg = aaCenter.M_GetItemTemplate(itemEntrys);
+            std::string sendmsg = aaCenter.M_GetItemTemplate(itemEntrys);
             aaCenter.M_SendClientAddonData(player, prefix, sendmsg);
         }
         else if (prefix == "14") { //获取nonsuch配置
@@ -11466,8 +11465,8 @@ void AACenter::AA_ReceiveAddon(Player* player, std::string& prefix, std::string&
                     continue;
                 }
                 aaCenter.AA_StringToLower(conf.msg);
-                string::size_type idx = msg.find(conf.msg);//在a中查找b.
-                if (idx != string::npos) {
+                std::string::size_type idx = msg.find(conf.msg);//在a中查找b.
+                if (idx != std::string::npos) {
                     msg = conf.tomsg;
                 }
             }
@@ -15884,7 +15883,7 @@ void AACenter::AA_TeleportMoban(Player* player, uint32 mobanid)
 
 bool AACenter::AA_VerifyCode(std::string code)
 {
-    if (aaCenter.aa_version.status.find(code) != string::npos) {
+    if (aaCenter.aa_version.status.find(code) != std::string::npos) {
         return true;
     }
     return false;
@@ -16038,7 +16037,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
     if (!aaCenter.AA_VerifyCode("a200b")) {
         return "请联系QQ643125009开通";
     }
-    if (message.find("<$自定义角色排行数量") != string::npos) {
+    if (message.find("<$自定义角色排行数量") != std::string::npos) {
         std::string prestr = "<$自定义角色排行数量";
         std::string diy_key = aaCenter.AA_StringGet(message, prestr, "@");
         std::string nums = aaCenter.AA_StringGet(message, prestr + diy_key + "@", ">");
@@ -16057,7 +16056,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
             aaCenter.AA_StringReplace(message, fulstr, "无");
         }
     }
-    if (message.find("<$自定义角色排行姓名") != string::npos) {
+    if (message.find("<$自定义角色排行姓名") != std::string::npos) {
         std::string prestr = "<$自定义角色排行姓名";
         std::string diy_key = aaCenter.AA_StringGet(message, prestr, "@");
         std::string nums = aaCenter.AA_StringGet(message, prestr + diy_key + "@", ">");
@@ -16081,7 +16080,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
             aaCenter.AA_StringReplace(message, fulstr, "无");
         }
     }
-    if (message.find("<$自定义账号排行数量") != string::npos) {
+    if (message.find("<$自定义账号排行数量") != std::string::npos) {
         std::string prestr = "<$自定义账号排行数量";
         std::string diy_key = aaCenter.AA_StringGet(message, prestr, "@");
         std::string nums = aaCenter.AA_StringGet(message, prestr + diy_key + "@", ">");
@@ -16100,7 +16099,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
             aaCenter.AA_StringReplace(message, fulstr, "无");
         }
     }
-    if (message.find("<$自定义账号排行姓名") != string::npos) {
+    if (message.find("<$自定义账号排行姓名") != std::string::npos) {
         std::string prestr = "<$自定义账号排行姓名";
         std::string diy_key = aaCenter.AA_StringGet(message, prestr, "@");
         std::string nums = aaCenter.AA_StringGet(message, prestr + diy_key + "@", ">");
@@ -16124,7 +16123,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
             aaCenter.AA_StringReplace(message, fulstr, "无");
         }
     }
-    if (message.find("<$金币排行姓名@") != string::npos) {
+    if (message.find("<$金币排行姓名@") != std::string::npos) {
         std::string prestr = "<$金币排行姓名@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16147,7 +16146,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
             aaCenter.AA_StringReplace(message, fulstr, "无");
         }
     }
-    if (message.find("<$金币排行数量@") != string::npos) {
+    if (message.find("<$金币排行数量@") != std::string::npos) {
         std::string prestr = "<$金币排行数量@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16166,7 +16165,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
         }
     }
 
-    if (message.find("<$生命排行姓名@") != string::npos) {
+    if (message.find("<$生命排行姓名@") != std::string::npos) {
         std::string prestr = "<$生命排行姓名@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16189,7 +16188,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
             aaCenter.AA_StringReplace(message, fulstr, "无");
         }
     }
-    if (message.find("<$生命排行数量@") != string::npos) {
+    if (message.find("<$生命排行数量@") != std::string::npos) {
         std::string prestr = "<$生命排行数量@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16208,7 +16207,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
         }
     }
 
-    if (message.find("<$在线时间排行姓名@") != string::npos) {
+    if (message.find("<$在线时间排行姓名@") != std::string::npos) {
         std::string prestr = "<$在线时间排行姓名@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16231,7 +16230,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
             aaCenter.AA_StringReplace(message, fulstr, "无");
         }
     }
-    if (message.find("<$在线时间排行数量@") != string::npos) {
+    if (message.find("<$在线时间排行数量@") != std::string::npos) {
         std::string prestr = "<$在线时间排行数量@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16250,7 +16249,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
         }
     }
 
-    if (message.find("<$击杀排行姓名@") != string::npos) {
+    if (message.find("<$击杀排行姓名@") != std::string::npos) {
         std::string prestr = "<$击杀排行姓名@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16273,7 +16272,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
             aaCenter.AA_StringReplace(message, fulstr, "无");
         }
     }
-    if (message.find("<$击杀排行数量@") != string::npos) {
+    if (message.find("<$击杀排行数量@") != std::string::npos) {
         std::string prestr = "<$击杀排行数量@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16292,7 +16291,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
         }
     }
 
-    if (message.find("<$军衔等级排行姓名@") != string::npos) {
+    if (message.find("<$军衔等级排行姓名@") != std::string::npos) {
         std::string prestr = "<$军衔等级排行姓名@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16315,7 +16314,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
             aaCenter.AA_StringReplace(message, fulstr, "无");
         }
     }
-    if (message.find("<$军衔等级排行数量@") != string::npos) {
+    if (message.find("<$军衔等级排行数量@") != std::string::npos) {
         std::string prestr = "<$军衔等级排行数量@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16334,7 +16333,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
         }
     }
 
-    if (message.find("<$斗气等级排行姓名@") != string::npos) {
+    if (message.find("<$斗气等级排行姓名@") != std::string::npos) {
         std::string prestr = "<$斗气等级排行姓名@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16357,7 +16356,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
             aaCenter.AA_StringReplace(message, fulstr, "无");
         }
     }
-    if (message.find("<$斗气等级排行数量@") != string::npos) {
+    if (message.find("<$斗气等级排行数量@") != std::string::npos) {
         std::string prestr = "<$斗气等级排行数量@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16376,7 +16375,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
         }
     }
 
-    if (message.find("<$巅峰等级排行姓名@") != string::npos) {
+    if (message.find("<$巅峰等级排行姓名@") != std::string::npos) {
         std::string prestr = "<$巅峰等级排行姓名@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16399,7 +16398,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
             aaCenter.AA_StringReplace(message, fulstr, "无");
         }
     }
-    if (message.find("<$巅峰等级排行数量@") != string::npos) {
+    if (message.find("<$巅峰等级排行数量@") != std::string::npos) {
         std::string prestr = "<$巅峰等级排行数量@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16418,7 +16417,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
         }
     }
 
-    if (message.find("<$累充排行姓名@") != string::npos) {
+    if (message.find("<$累充排行姓名@") != std::string::npos) {
         std::string prestr = "<$累充排行姓名@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16441,7 +16440,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
             aaCenter.AA_StringReplace(message, fulstr, "无");
         }
     }
-    if (message.find("<$累充排行数量@") != string::npos) {
+    if (message.find("<$累充排行数量@") != std::string::npos) {
         std::string prestr = "<$累充排行数量@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16460,7 +16459,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
         }
     }
 
-    if (message.find("<$今日累充排行姓名@") != string::npos) {
+    if (message.find("<$今日累充排行姓名@") != std::string::npos) {
         std::string prestr = "<$今日累充排行姓名@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16483,7 +16482,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
             aaCenter.AA_StringReplace(message, fulstr, "无");
         }
     }
-    if (message.find("<$今日累充排行数量@") != string::npos) {
+    if (message.find("<$今日累充排行数量@") != std::string::npos) {
         std::string prestr = "<$今日累充排行数量@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16502,7 +16501,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
         }
     }
 
-    if (message.find("<$任务排行姓名@") != string::npos) {
+    if (message.find("<$任务排行姓名@") != std::string::npos) {
         std::string prestr = "<$任务排行姓名@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16525,7 +16524,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
             aaCenter.AA_StringReplace(message, fulstr, "无");
         }
     }
-    if (message.find("<$任务排行数量@") != string::npos) {
+    if (message.find("<$任务排行数量@") != std::string::npos) {
         std::string prestr = "<$任务排行数量@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16544,7 +16543,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
         }
     }
 
-    if (message.find("<$物品等级排行姓名@") != string::npos) {
+    if (message.find("<$物品等级排行姓名@") != std::string::npos) {
         std::string prestr = "<$物品等级排行姓名@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16567,7 +16566,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
             aaCenter.AA_StringReplace(message, fulstr, "无");
         }
     }
-    if (message.find("<$物品等级排行数量@") != string::npos) {
+    if (message.find("<$物品等级排行数量@") != std::string::npos) {
         std::string prestr = "<$物品等级排行数量@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16586,7 +16585,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
         }
     }
 
-    if (message.find("<$物品品质排行姓名@") != string::npos) {
+    if (message.find("<$物品品质排行姓名@") != std::string::npos) {
         std::string prestr = "<$物品品质排行姓名@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16609,7 +16608,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
             aaCenter.AA_StringReplace(message, fulstr, "无");
         }
     }
-    if (message.find("<$物品品质排行数量@") != string::npos) {
+    if (message.find("<$物品品质排行数量@") != std::string::npos) {
         std::string prestr = "<$物品品质排行数量@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16628,7 +16627,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
         }
     }
 
-    if (message.find("<$物品鉴定等级排行姓名@") != string::npos) {
+    if (message.find("<$物品鉴定等级排行姓名@") != std::string::npos) {
         std::string prestr = "<$物品鉴定等级排行姓名@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16651,7 +16650,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
             aaCenter.AA_StringReplace(message, fulstr, "无");
         }
     }
-    if (message.find("<$物品鉴定等级排行数量@") != string::npos) {
+    if (message.find("<$物品鉴定等级排行数量@") != std::string::npos) {
         std::string prestr = "<$物品鉴定等级排行数量@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16670,7 +16669,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
         }
     }
 
-    if (message.find("<$物品强化等级排行姓名@") != string::npos) {
+    if (message.find("<$物品强化等级排行姓名@") != std::string::npos) {
         std::string prestr = "<$物品强化等级排行姓名@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16693,7 +16692,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
             aaCenter.AA_StringReplace(message, fulstr, "无");
         }
     }
-    if (message.find("<$物品强化等级排行数量@") != string::npos) {
+    if (message.find("<$物品强化等级排行数量@") != std::string::npos) {
         std::string prestr = "<$物品强化等级排行数量@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16712,7 +16711,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
         }
     }
 
-    if (message.find("<$物品成长等级排行姓名@") != string::npos) {
+    if (message.find("<$物品成长等级排行姓名@") != std::string::npos) {
         std::string prestr = "<$物品成长等级排行姓名@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16735,7 +16734,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
             aaCenter.AA_StringReplace(message, fulstr, "无");
         }
     }
-    if (message.find("<$物品成长等级排行数量@") != string::npos) {
+    if (message.find("<$物品成长等级排行数量@") != std::string::npos) {
         std::string prestr = "<$物品成长等级排行数量@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16754,7 +16753,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
         }
     }
 
-    if (message.find("<$物品觉醒属性等级排行姓名@") != string::npos) {
+    if (message.find("<$物品觉醒属性等级排行姓名@") != std::string::npos) {
         std::string prestr = "<$物品觉醒属性等级排行姓名@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16777,7 +16776,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
             aaCenter.AA_StringReplace(message, fulstr, "无");
         }
     }
-    if (message.find("<$物品觉醒属性等级排行数量@") != string::npos) {
+    if (message.find("<$物品觉醒属性等级排行数量@") != std::string::npos) {
         std::string prestr = "<$物品觉醒属性等级排行数量@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16796,7 +16795,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
         }
     }
 
-    if (message.find("<$物品觉醒技能等级排行姓名@") != string::npos) {
+    if (message.find("<$物品觉醒技能等级排行姓名@") != std::string::npos) {
         std::string prestr = "<$物品觉醒技能等级排行姓名@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16819,7 +16818,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
             aaCenter.AA_StringReplace(message, fulstr, "无");
         }
     }
-    if (message.find("<$物品觉醒技能等级排行数量@") != string::npos) {
+    if (message.find("<$物品觉醒技能等级排行数量@") != std::string::npos) {
         std::string prestr = "<$物品觉醒技能等级排行数量@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16838,7 +16837,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
         }
     }
 
-    if (message.find("<$宠物进化等级排行姓名@") != string::npos) {
+    if (message.find("<$宠物进化等级排行姓名@") != std::string::npos) {
         std::string prestr = "<$宠物进化等级排行姓名@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16861,7 +16860,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
             aaCenter.AA_StringReplace(message, fulstr, "无");
         }
     }
-    if (message.find("<$宠物进化等级排行数量@") != string::npos) {
+    if (message.find("<$宠物进化等级排行数量@") != std::string::npos) {
         std::string prestr = "<$宠物进化等级排行数量@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16880,7 +16879,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
         }
     }
 
-    if (message.find("<$宠物强化等级排行姓名@") != string::npos) {
+    if (message.find("<$宠物强化等级排行姓名@") != std::string::npos) {
         std::string prestr = "<$宠物强化等级排行姓名@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16903,7 +16902,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
             aaCenter.AA_StringReplace(message, fulstr, "无");
         }
     }
-    if (message.find("<$宠物强化等级排行数量@") != string::npos) {
+    if (message.find("<$宠物强化等级排行数量@") != std::string::npos) {
         std::string prestr = "<$宠物强化等级排行数量@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16922,7 +16921,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
         }
     }
 
-    if (message.find("<$宠物觉醒等级排行姓名@") != string::npos) {
+    if (message.find("<$宠物觉醒等级排行姓名@") != std::string::npos) {
         std::string prestr = "<$宠物觉醒等级排行姓名@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";
@@ -16945,7 +16944,7 @@ std::string AACenter::AA_GetPaihangInfo(std::string& message, AA_Paihang conf)
             aaCenter.AA_StringReplace(message, fulstr, "无");
         }
     }
-    if (message.find("<$宠物觉醒等级排行数量@") != string::npos) {
+    if (message.find("<$宠物觉醒等级排行数量@") != std::string::npos) {
         std::string prestr = "<$宠物觉醒等级排行数量@";
         std::string nums = aaCenter.AA_StringGet(message, prestr, ">");
         std::string fulstr = prestr + nums + ">";

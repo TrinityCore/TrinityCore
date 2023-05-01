@@ -6,8 +6,6 @@
 #include "World.h"
 #include "DatabaseEnv.h"
 
-using namespace std;
-
 class Player;
 
 class AAData

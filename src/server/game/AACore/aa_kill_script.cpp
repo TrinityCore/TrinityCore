@@ -8,7 +8,6 @@
 #include "Pet.h"
 #include "ObjectAccessor.h"
 
-using namespace std;
 
 class aa_kill_script : public PlayerScript
 {

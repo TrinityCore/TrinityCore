@@ -11,7 +11,6 @@
 #include "ScriptedGossip.h"
 #include "ScriptMgr.h"
 
-using namespace std;
 
 class aa_player_teleport : public PlayerScript
 {
@@ -19,7 +18,7 @@ private:
     void show_teleport(Player* player, uint32 menu_id, uint32 action) {
         // 传送石
         uint32 entry = menu_id;
-        vector<uint32> menus = aaCenter.aa_teleport_targets[entry];
+        std::vector<uint32> menus = aaCenter.aa_teleport_targets[entry];
         ClearGossipMenuFor(player); // Clears old options
         int pId = -1;
         AA_Message aa_message;
@@ -28,7 +27,7 @@ private:
         for (size_t i = 0;i<menus.size();i++) {
             uint32 menuid = menus[i];
             AA_Teleport_Conf conf = aaCenter.aa_teleports[menuid];
-            if (conf.title.find("排行") != string::npos || conf.subtitle.find("排行") != string::npos) {
+            if (conf.title.find("排行") != std::string::npos || conf.subtitle.find("排行") != std::string::npos) {
                 p_conf = aaCenter.AA_GetPaihangs();
                 p_conf.isOk = true;
                 break;
@@ -86,7 +85,7 @@ public:
         }
 
         // 需要刷新当前页面 ，没有子菜单
-        vector<uint32> menus = aaCenter.aa_teleport_targets[player->aa_menuId];
+        std::vector<uint32> menus = aaCenter.aa_teleport_targets[player->aa_menuId];
         bool isOk = false;
         for (size_t i = 0; i < menus.size(); i++) {
             uint32 menuid = menus[i];

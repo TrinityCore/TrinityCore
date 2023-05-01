@@ -1,4 +1,4 @@
-﻿/*
+/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1477,7 +1477,7 @@ void Item::ClearEnchantment(EnchantmentSlot slot)
 {
     if (!GetEnchantmentId(slot))
         return;
-    
+
     //宝石插件显示baoshi_entry
     if (slot == EnchantmentSlot(SOCK_ENCHANTMENT_SLOT)) {
         ObjectGuid::LowType guidlow = GetGUIDLow();
@@ -1487,7 +1487,7 @@ void Item::ClearEnchantment(EnchantmentSlot slot)
         aaCenter.aa_character_instances[guidlow].isUpdate = true;
         aaCenter.aa_character_instances[guidlow].baoshi_entry = 0;
     }
-    
+
     auto enchantmentField = m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Enchantment, slot);
     SetUpdateFieldValue(enchantmentField.ModifyValue(&UF::ItemEnchantment::ID), 0);
     SetUpdateFieldValue(enchantmentField.ModifyValue(&UF::ItemEnchantment::Duration), 0);

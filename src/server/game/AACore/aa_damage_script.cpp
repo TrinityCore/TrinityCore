@@ -5,7 +5,6 @@
 #include "WorldSession.h"
 #include "Player.h"
 
-using namespace std;
 
 class aa_damage_script : public UnitScript
 {

@@ -28,7 +28,6 @@ void AddAA_player_Script();
 void AddAA_Kill_Script();
 void AddAA_player_Event();
 void AddAA_Player_Teleport();
-void AddAA_Creature_Pet();
 
 void AddCustomScripts()
 {
@@ -41,5 +40,4 @@ void AddCustomScripts()
     AddAA_Kill_Script();
     AddAA_player_Event();
     AddAA_Player_Teleport();
-    AddAA_Creature_Pet();
 }

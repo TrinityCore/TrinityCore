@@ -109,6 +109,8 @@
 
 #include <boost/algorithm/string.hpp>
 
+AACenter& aaCenter = AACenter::get_instance();
+
 TC_GAME_API std::atomic<bool> World::m_stopEvent(false);
 TC_GAME_API uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
 
@@ -3348,7 +3350,7 @@ void World::Update(uint32 diff)
             }
         }
     }
-    
+
     TC_METRIC_TIMER("world_update_time_total");
     ///- Update the game time and check for shutdown time
     _UpdateGameTime();

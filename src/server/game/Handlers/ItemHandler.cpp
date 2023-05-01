@@ -457,9 +457,9 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
             {
                 //aawow 商人卖出奖励
                 aaCenter.M_Reward(_player, aaCenter.aa_item_buy_rewards[pProto->GetId()].reward, pItem->GetCount());
-                
+
                 uint64 money = uint64(pProto->GetSellPrice()) * packet.Amount;
-            
+
                 if (!_player->ModifyMoney(money)) // ensure player doesn't exceed gold limit
                 {
                     _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID);
@@ -548,7 +548,7 @@ void WorldSession::HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet)
                     aaCenter.M_Need(_player, need, count);
                 }
             }
-            
+
             _player->ModifyMoney(-(int32)price);
             _player->RemoveItemFromBuyBackSlot(packet.Slot, false);
             _player->ItemAddedQuestCheck(pItem->GetEntry(), pItem->GetCount());
@@ -954,7 +954,7 @@ void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
     ItemTemplate const* itemProto = itemTarget->GetTemplate();
     if (!itemProto)
         return;
-    
+
     if (itemTarget->IsEquipped()) {
         aaCenter.AA_SendMessage(_player, 1, "|cff00FFFF[系统提示]|cffFF0000请将物品放入背包再操作。"); return;
     }

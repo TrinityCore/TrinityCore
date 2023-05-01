@@ -9,7 +9,6 @@
 #include "GameObject.h"
 #include "GameObjectAI.h"
 
-using namespace std;
 
 class aa_object_teleport : public GameObjectScript
 {
@@ -23,7 +22,7 @@ public:
         void show_teleport(Player* player, GameObject* item, uint32 action) {
             // 传送石
             uint32 entry = item->GetEntry();
-            vector<uint32> menus = aaCenter.aa_teleport_targets[entry];
+            std::vector<uint32> menus = aaCenter.aa_teleport_targets[entry];
             ClearGossipMenuFor(player); // Clears old options
             int pId = -1;
 
@@ -32,7 +31,7 @@ public:
             for (size_t i = 0; i < menus.size(); i++) {
                 uint32 menuid = menus[i];
                 AA_Teleport_Conf conf = aaCenter.aa_teleports[menuid];
-                if (conf.title.find("排行") != string::npos || conf.subtitle.find("排行") != string::npos) {
+                if (conf.title.find("排行") != std::string::npos || conf.subtitle.find("排行") != std::string::npos) {
                     p_conf = aaCenter.AA_GetPaihangs();
                     p_conf.isOk = true;
                     break;
@@ -93,7 +92,7 @@ public:
             if (!player || !player->IsInWorld() || !item || !item->IsInWorld()) {
                 return false;
             }
-            vector<uint32> menus = aaCenter.aa_teleport_targets[item->GetEntry()];
+            std::vector<uint32> menus = aaCenter.aa_teleport_targets[item->GetEntry()];
             size_t size = menus.size();
             if (size == 0) {
                 return false;
@@ -126,7 +125,7 @@ public:
             }
 
             // 需要刷新当前页面 ，没有子菜单
-            vector<uint32> menus = aaCenter.aa_teleport_targets[item->GetEntry()];
+            std::vector<uint32> menus = aaCenter.aa_teleport_targets[item->GetEntry()];
             bool isOk = false;
             for (size_t i = 0; i < menus.size(); i++) {
                 uint32 menuid = menus[i];

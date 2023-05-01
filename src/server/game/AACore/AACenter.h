@@ -5,6 +5,7 @@
 #define AA_GUILD_DUEL 20000
 
 #include <iostream>
+#include <map>
 
 class Player;
 class Item;
@@ -19,7 +20,6 @@ class Group;
 struct ItemTemplate;
 struct GameObjectTemplate;
 
-using namespace std;
 template <typename AAInt>
 inline AAInt AA_SafeObjectAtIndex(std::vector<AAInt> objects, size_t index)
 {

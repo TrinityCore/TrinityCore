@@ -1,7 +1,6 @@
 #include "AAData.h"
 #include "Player.h"
 
-using namespace std;
 
 AAData* AAData::instance()
 {

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -239,8 +239,8 @@ void WorldSession::HandleChatMessage(ChatMsg type, Language lang, std::string ms
             continue;
         }
         aaCenter.AA_StringToLower(conf.msg);
-        string::size_type idx= msg.find(conf.msg);//在a中查找b.
-        if (idx != string::npos) {
+        std::string::size_type idx= msg.find(conf.msg);//在a中查找b.
+        if (idx != std::string::npos) {
             if (conf.show == 1) {
                 return;
             } else {

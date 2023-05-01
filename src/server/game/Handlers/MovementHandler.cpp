@@ -400,7 +400,7 @@ void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movem
     // interrupt parachutes upon falling or landing in water
     if (opcode == CMSG_MOVE_FALL_LAND || opcode == CMSG_MOVE_START_SWIM || opcode == CMSG_MOVE_SET_FLY)
         mover->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::LandingOrFlight); // Parachutes
-    
+
     //aawow 跑步、游泳、飞行触发Event
     if (plrMover) {
         Position pos = plrMover->aa_lastPos;
@@ -434,7 +434,7 @@ void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movem
                 }
             }
         }
-        
+
         //aawow 防挂机
         plrMover->aa_lastPos = movementInfo.pos;
     }

@@ -574,7 +574,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
 
     //aawow 进入副本撞门提示
     //获取menus
-    vector<uint32> menus = aaCenter.aa_teleport_targets[at->target_mapId];
+    std::vector<uint32> menus = aaCenter.aa_teleport_targets[at->target_mapId];
     size_t size = menus.size();
     if (size > 0) {
         std::string gm = ".组合 *.传送列表 " + std::to_string(at->target_mapId)+"<$自身>";

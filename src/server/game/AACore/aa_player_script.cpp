@@ -9,7 +9,6 @@
 #include "GuildMgr.h"
 
 
-using namespace std;
 
 class aa_player_script : public PlayerScript
 {

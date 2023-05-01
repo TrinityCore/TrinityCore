@@ -11,7 +11,6 @@
 #include "ScriptedGossip.h"
 #include "ScriptMgr.h"
 
-using namespace std;
 class aa_item_cuiqu : public ItemScript
 {
 private:

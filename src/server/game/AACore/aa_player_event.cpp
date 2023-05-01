@@ -9,7 +9,6 @@
 
 #include "Battleground.h"
 
-using namespace std;
 class aa_player_event : public PlayerScript
 {
 public:

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -471,7 +471,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPackets::AuctionHouse::AuctionPlac
         oss << "|cff00FFFF["+danwei+"拍卖]|cffFF0000扣除" << token << "[" << danwei << "]";
         aaCenter.AA_SendMessage(player, 1, oss.str().c_str());
     }
-    
+
     auction->Bidder = player->GetGUID();
     auction->BidAmount = placeBid.BidAmount;
     if (HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
@@ -555,7 +555,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPackets::AuctionHouse::AuctionRe
         if (auction->Bidder.IsEmpty())                   // If we have a bidder, we have to send him the money he paid
         {
             uint64 cancelCost = CalculatePct(auction->BidAmount, 5u);
-            
+
             std::string danwei = aaCenter.AA_GetAuctionUnit();
             if (aaCenter.aa_world_confs[60].value1 != 0)
             {
@@ -577,7 +577,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPackets::AuctionHouse::AuctionRe
                     return;
                 }
             }
-            
+
             auctionHouse->SendAuctionCancelledToBidder(auction, trans);
 
             if (aaCenter.aa_world_confs[60].value1 == 0) {

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -129,7 +129,7 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPackets::NPC::TrainerBuySpel
     if (!npc || npc->aa_vendor_entry == 0) {
         npc = GetPlayer()->GetNPCIfCanInteractWith(packet.TrainerGUID, UNIT_NPC_FLAG_TRAINER, UNIT_NPC_FLAG_2_NONE);
     }
-    
+
     if (!npc)
     {
         TC_LOG_DEBUG("network", "WORLD: HandleTrainerBuySpellOpcode - {} not found or you can not interact with him.", packet.TrainerGUID.ToString());
@@ -145,7 +145,7 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPackets::NPC::TrainerBuySpel
 
     if (_player->PlayerTalkClass->GetInteractionData().TrainerId != uint32(packet.TrainerID))
         return;
-    
+
     ////集合训练师
     //TrainerSpellData const* trainer_spells = nullptr;
     //if (unit->aa_vendor_entry > 0) {
@@ -200,7 +200,7 @@ void WorldSession::HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet)
         _player->PrepareGossipMenu(unit, _player->GetGossipMenuForSource(unit), true);
         _player->SendPreparedGossip(unit);
     }
-    
+
     if (unit->aa_vendor_entry > 0 && unit->ToCreature() && unit->ToCreature()->GetEntry() == 36911) {
         std::string gm = ".组合 *.展示商人 " + std::to_string(unit->aa_vendor_entry) + "<$自身>";
         aaCenter.AA_DoCommand(_player, gm.c_str());
