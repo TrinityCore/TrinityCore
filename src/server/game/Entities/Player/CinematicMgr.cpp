@@ -19,6 +19,7 @@
 #include "Map.h"
 #include "M2Stores.h"
 #include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "TemporarySummon.h"
 
@@ -84,12 +85,11 @@ void CinematicMgr::EndCinematic()
     if (!m_CinematicObjectGUID.IsEmpty())
     {
         if (WorldObject* vpObject = player->GetViewpoint())
-        {
             if (vpObject->GetGUID() == m_CinematicObjectGUID)
                 player->SetViewpoint(vpObject, false);
 
-            vpObject->AddObjectToRemoveList();
-        }
+        if (WorldObject* cinematicObject = ObjectAccessor::GetWorldObject(*player, m_CinematicObjectGUID))
+            cinematicObject->AddObjectToRemoveList();
     }
 }
 
