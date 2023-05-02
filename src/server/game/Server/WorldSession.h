@@ -957,11 +957,11 @@ class TC_GAME_API WorldSession
             std::string os, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
         ~WorldSession();
 
-        //void AA_HandleAutostoreLootItemOpcode(WorldPackets::Loot::LootItem& packet);
-        //void AA_HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet*/);
-        //void AA_HandleLootReleaseOpcode(WorldPackets::Loot::LootRelease& packet);
-        //void AA_DoLootRelease(Loot* loot);
-        //void AA_HandleLootOpcode(WorldPackets::Loot::LootUnit& packet);
+        void AA_HandleAutostoreLootItemOpcode(WorldPackets::Loot::LootItem& packet);
+        void AA_HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet*/);
+        void AA_HandleLootReleaseOpcode(WorldPackets::Loot::LootRelease& packet);
+        void AA_DoLootRelease(Loot* loot);
+        void AA_HandleLootOpcode(WorldPackets::Loot::LootUnit& packet);
         
         bool PlayerLoading() const { return !m_playerLoading.IsEmpty(); }
     
@@ -1248,12 +1248,6 @@ class TC_GAME_API WorldSession
         void HandleMoveApplyMovementForceAck(WorldPackets::Movement::MoveApplyMovementForceAck& moveApplyMovementForceAck);
         void HandleMoveRemoveMovementForceAck(WorldPackets::Movement::MoveRemoveMovementForceAck& moveRemoveMovementForceAck);
         void HandleMoveSetModMovementForceMagnitudeAck(WorldPackets::Movement::MovementSpeedAck& setModMovementForceMagnitudeAck);
-
-        void AA_HandleAutostoreLootItemOpcode(WorldPackets::Loot::LootItem& packet);
-        void AA_HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet*/);
-        void AA_HandleLootReleaseOpcode(WorldPackets::Loot::LootRelease& packet);
-        void AA_DoLootRelease(Loot* loot);
-        void AA_HandleLootOpcode(WorldPackets::Loot::LootUnit& packet);
 
         void HandleRepopRequest(WorldPackets::Misc::RepopRequest& packet);
         void HandleAutostoreLootItemOpcode(WorldPackets::Loot::LootItem& packet);

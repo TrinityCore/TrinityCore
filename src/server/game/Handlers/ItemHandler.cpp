@@ -626,8 +626,6 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid, uint32 vendorEntry)
         vendor->PauseMovement(pause);
     vendor->SetHomePosition(vendor->GetPosition());
 
-    VendorItemData const* vendorItems = vendor->GetVendorItems();
-
     GetPlayer()->PlayerTalkClass->GetInteractionData().Reset();
     GetPlayer()->PlayerTalkClass->GetInteractionData().SourceGuid = vendorGuid;
     GetPlayer()->PlayerTalkClass->GetInteractionData().VendorId = vendorEntry;
