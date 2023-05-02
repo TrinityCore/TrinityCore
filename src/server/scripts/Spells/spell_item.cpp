@@ -4748,6 +4748,22 @@ class spell_item_grips_of_forsaken_sanity : public AuraScript
     }
 };
 
+// 302385 - Resurrect Health
+class spell_item_zanjir_scaleguard_greatcloak : public AuraScript
+{
+    PrepareAuraScript(spell_item_zanjir_scaleguard_greatcloak);
+
+    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetSpellInfo() && eventInfo.GetSpellInfo()->HasEffect(SPELL_EFFECT_RESURRECT);
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_item_zanjir_scaleguard_greatcloak::CheckProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -4897,4 +4913,5 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_seeping_scourgewing);
     RegisterSpellScript(spell_item_seeping_scourgewing_aoe_check);
     RegisterSpellScript(spell_item_grips_of_forsaken_sanity);
+    RegisterSpellScript(spell_item_zanjir_scaleguard_greatcloak);
 }
