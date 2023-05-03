@@ -279,7 +279,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_ATTACKER_RANGED_HIT_CHANCE               = 185,
     SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE                = 186,
     SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_CHANCE               = 187,
-    SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_CHANCE              = 188,
+    SPELL_AURA_MOD_UI_HEALING_RANGE                         = 188,
     SPELL_AURA_MOD_RATING                                   = 189,
     SPELL_AURA_MOD_FACTION_REPUTATION_GAIN                  = 190,
     SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED                    = 191,

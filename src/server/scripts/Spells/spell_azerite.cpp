@@ -513,6 +513,27 @@ class spell_item_hour_of_reaping : public AuraScript
     }
 };
 
+// 304086  - Azerite Fortification
+class spell_item_conflict_wearer_on_stun_proc : public AuraScript
+{
+    PrepareAuraScript(spell_item_conflict_wearer_on_stun_proc);
+
+    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        Spell const* procSpell = eventInfo.GetProcSpell();
+        if (!procSpell)
+            return false;
+
+        return procSpell->GetSpellInfo()->HasAura(SPELL_AURA_MOD_STUN)
+            || procSpell->GetSpellInfo()->HasAura(SPELL_AURA_MOD_STUN_DISABLE_GRAVITY);
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_item_conflict_wearer_on_stun_proc::CheckProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
 // 277253 - Heart of Azeroth
 class spell_item_heart_of_azeroth : public AuraScript
 {
@@ -566,6 +587,7 @@ void AddSC_azerite_item_spell_scripts()
     RegisterSpellScript(spell_item_echoing_blades);
     RegisterSpellScript(spell_item_echoing_blades_damage);
     RegisterSpellScript(spell_item_hour_of_reaping);
+    RegisterSpellScript(spell_item_conflict_wearer_on_stun_proc);
 
     RegisterSpellScript(spell_item_heart_of_azeroth);
 }

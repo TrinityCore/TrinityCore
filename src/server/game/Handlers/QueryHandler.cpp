@@ -28,7 +28,7 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "QueryPackets.h"
-#include "Realm.h"
+#include "RealmList.h"
 #include "TerrainMgr.h"
 #include "World.h"
 
@@ -317,11 +317,11 @@ void WorldSession::HandleQueryRealmName(WorldPackets::Query::QueryRealmName& que
     realmQueryResponse.VirtualRealmAddress = queryRealmName.VirtualRealmAddress;
 
     Battlenet::RealmHandle realmHandle(queryRealmName.VirtualRealmAddress);
-    if (sObjectMgr->GetRealmName(realmHandle.Realm, realmQueryResponse.NameInfo.RealmNameActual, realmQueryResponse.NameInfo.RealmNameNormalized))
+    if (sRealmList->GetRealmNames(realmHandle, &realmQueryResponse.NameInfo.RealmNameActual, &realmQueryResponse.NameInfo.RealmNameNormalized))
     {
         realmQueryResponse.LookupState = RESPONSE_SUCCESS;
         realmQueryResponse.NameInfo.IsInternalRealm = false;
-        realmQueryResponse.NameInfo.IsLocal = queryRealmName.VirtualRealmAddress == realm.Id.GetAddress();
+        realmQueryResponse.NameInfo.IsLocal = queryRealmName.VirtualRealmAddress == GetVirtualRealmAddress();
     }
     else
         realmQueryResponse.LookupState = RESPONSE_FAILURE;
