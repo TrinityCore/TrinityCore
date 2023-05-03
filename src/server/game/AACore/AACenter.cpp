@@ -13490,10 +13490,6 @@ void AACenter::LoadAAData_World()
                 conf.time_lengque = fields[15].GetUInt32();
                 conf.chance = fields[16].GetFloat();
                 conf.shifangxianzhi = fields[17].GetUInt32();
-                for (size_t i = 0; i < MAX_SPELL_EFFECTS; i++)
-                {
-                    conf.Periodic[i] = fields[i+15].GetUInt32();
-                }
 
                 aa_spell_confs[conf.spellid] = conf;
             } while (result->NextRow());

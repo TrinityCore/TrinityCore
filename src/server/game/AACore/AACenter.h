@@ -843,7 +843,7 @@ struct AA_Spell_Conf
     uint32 time_lengque = 0; //`冷却时间
     float chance = 0;//`触发机率`
     uint32 shifangxianzhi = 0;//施放限制开关,开启后不消耗符文、能量、魔法值、怒气。不限制变身，狂暴姿势、防御姿势、战斗姿势、隐身模式，不限制射程太近
-    uint32 Periodic[3];//`周期123`
+    float Periodic[3];//`周期123`
 };
 
 struct AA_Pet_Conf
