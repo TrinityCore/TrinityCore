@@ -1251,7 +1251,7 @@ public:
         {
             int32 isOk = int32(std::atoi(isstr));
             if (isOk) {
-                WorldDatabase.DirectPExecute("INSERT INTO creature_equip_template (CreatureID, ID, ItemID1, ItemID2, ItemID3, VerifiedBuild) VALUES ({}, 1, {}, {}, {}, 18019) ON DUPLICATE KEY UPDATE ItemID1 = {}, ItemID2 = {}, ItemID3 = {}", target->GetEntry(), zu1, zu2, zu3, zu1, zu2, zu3);
+                WorldDatabase.DirectPExecute("INSERT INTO creature_equip_template (CreatureID, ID, ItemID1, AppearanceModID1, ItemVisual1, ItemID2, AppearanceModID2, ItemVisual2, ItemID3, AppearanceModID3, ItemVisual3, VerifiedBuild) VALUES (?, 1, ?, 0, 0, ?, 0, 0, ?, 0, 0, 18019) ON DUPLICATE KEY UPDATE ItemID1 = ?, ItemID2 = ?, ItemID3 = ?", target->GetEntry(), zu1, zu2, zu3, zu1, zu2, zu3);
                 sObjectMgr->LoadEquipmentTemplates();
             }
         }
@@ -3206,7 +3206,7 @@ public:
             Creature* creature = nullptr;
 
             if (Map* map = target->GetMap()) {
-                creature = target->SummonCreature(entry, pos, TEMPSUMMON_TIMED_DESPAWN, time * 1000s);
+                creature = target->SummonCreature(entry, pos, TEMPSUMMON_TIMED_DESPAWN, time * 1s);
             }
             if (nandu > 0) {
                 AA_Creature conf = aaCenter.aa_creatures[nandu];
@@ -3340,7 +3340,7 @@ public:
                 pos.m_positionZ = conf.position_z;
                 pos.SetOrientation(conf.orientation);
 
-                creature = map->SummonCreature(conf.entry, pos, NULL, time * 1000);
+                creature = target->SummonCreature(conf.entry, pos, TEMPSUMMON_TIMED_DESPAWN, time * 1s);
                 if (creature) {
                     if (nandu > 0) {
                         AA_Creature conf = aaCenter.aa_creatures[nandu];
@@ -4156,7 +4156,7 @@ public:
             if (arg2) {
                 zu = int32(std::atoi(arg2));
             }
-            WorldDatabase.DirectPExecute("INSERT INTO __采集_坐标 (注释,组,name,map,zone,area,position_x,position_y,position_z,orientation,instanceId) VALUES ('{}',{},'{}',{},{},{},{},{},{},{},{})", arg1str, zu, target->GetMap()->GetMapName(), target->GetMapId(), target->GetZoneId(), target->GetAreaId(), target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), target->GetInstanceId());
+            WorldDatabase.DirectPExecute("INSERT INTO __采集_坐标 (注释,组,name,map,zone,area,position_x,position_y,position_z,orientation,instanceId) VALUES (?,?,?,?,?,?,?,?,?,?,?)", arg1str, zu, target->GetMap()->GetMapName(), target->GetMapId(), target->GetZoneId(), target->GetAreaId(), target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), target->GetInstanceId());
             QueryResult result = WorldDatabase.Query("SELECT id from __采集_坐标");
             int32 rid = 0;
             if (result) {

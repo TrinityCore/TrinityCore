@@ -11781,63 +11781,63 @@ void AACenter::DeleteAAData_Characters()
 /*DB*/
 void AACenter::LoadAAData_Jindu()
 {
-    {
-        TC_LOG_INFO("server.loading", "正在清除垃圾数据 玩家进度数据...");
-        uint32 oldMSTime = getMSTime();
-        std::map<ObjectGuid::LowType, std::vector<uint32>> instances; instances.clear();
-        QueryResult result = CharacterDatabase.Query("SELECT guid, instance FROM character_instance");
-        if (result)
-        {
-            do
-            {
-                Field* fields = result->Fetch();
-                if (fields) {
-                    ObjectGuid::LowType guidlow = fields[0].GetUInt32();
-                    uint32 instanceId = fields[1].GetUInt32();
-                    instances[guidlow].push_back(instanceId);
-                }
-            } while (result->NextRow());
-        }
+    //{
+    //    TC_LOG_INFO("server.loading", "正在清除垃圾数据 玩家进度数据...");
+    //    uint32 oldMSTime = getMSTime();
+    //    std::map<ObjectGuid::LowType, std::vector<uint32>> instances; instances.clear();
+    //    QueryResult result = CharacterDatabase.Query("SELECT guid, instance FROM character_instance_lock");
+    //    if (result)
+    //    {
+    //        do
+    //        {
+    //            Field* fields = result->Fetch();
+    //            if (fields) {
+    //                ObjectGuid::LowType guidlow = fields[0].GetUInt32();
+    //                uint32 instanceId = fields[1].GetUInt32();
+    //                instances[guidlow].push_back(instanceId);
+    //            }
+    //        } while (result->NextRow());
+    //    }
 
-        std::vector<uint32> instanceids; instanceids.clear();
-        result = CharacterDatabase.Query("SELECT * FROM _数据玩家instance");
-        if (result) {
-            do {
-                Field* fields = result->Fetch();
-                ObjectGuid::LowType guidlow = fields[0].GetUInt64();
-                int32 instance = fields[1].GetInt32();
-                std::vector<uint32> ins = instances[guidlow];
-                if (std::find(ins.begin(), ins.end(), instance) != ins.end())
-                {
-                    instanceids.push_back(instance);
-                }
-            } while (result->NextRow());
-        }
+    //    std::vector<uint32> instanceids; instanceids.clear();
+    //    result = CharacterDatabase.Query("SELECT * FROM _数据玩家instance");
+    //    if (result) {
+    //        do {
+    //            Field* fields = result->Fetch();
+    //            ObjectGuid::LowType guidlow = fields[0].GetUInt64();
+    //            int32 instance = fields[1].GetInt32();
+    //            std::vector<uint32> ins = instances[guidlow];
+    //            if (std::find(ins.begin(), ins.end(), instance) != ins.end())
+    //            {
+    //                instanceids.push_back(instance);
+    //            }
+    //        } while (result->NextRow());
+    //    }
 
-        std::string instancestr = "";
-        for (auto instanceid : instanceids) {
-            instancestr = std::to_string(instanceid) + ",";
-        }
-        if (instancestr != "") {
-            aaCenter.AA_StringReplaceLast(instancestr, ",", "");
-        }
-        TC_LOG_INFO("server.loading", ">> 成功清除垃圾数据 玩家进度数据 用时 {} 毫秒", GetMSTimeDiffToNow(oldMSTime));
+    //    std::string instancestr = "";
+    //    for (auto instanceid : instanceids) {
+    //        instancestr = std::to_string(instanceid) + ",";
+    //    }
+    //    if (instancestr != "") {
+    //        aaCenter.AA_StringReplaceLast(instancestr, ",", "");
+    //    }
+    //    TC_LOG_INFO("server.loading", ">> 成功清除垃圾数据 玩家进度数据 用时 {} 毫秒", GetMSTimeDiffToNow(oldMSTime));
 
-        std::string sqlstr1 = "";
-        std::string sqlstr2 = "";
-        if (instancestr != "") {
-            sqlstr1 = "DELETE FROM _数据地图instance WHERE instance NOT IN (" + instancestr + ")";
-            sqlstr2 = "DELETE FROM _数据玩家instance WHERE instance NOT IN (" + instancestr + ")";
-            CharacterDatabase.Execute(sqlstr1.c_str());
-            CharacterDatabase.Execute(sqlstr2.c_str());
-        }
-        else {
-            sqlstr1 = "DELETE FROM _数据地图instance WHERE instance != -1";
-            sqlstr2 = "DELETE FROM _数据玩家instance WHERE instance != -1";
-            CharacterDatabase.Execute(sqlstr1.c_str());
-            CharacterDatabase.Execute(sqlstr2.c_str());
-        }
-    }
+    //    std::string sqlstr1 = "";
+    //    std::string sqlstr2 = "";
+    //    if (instancestr != "") {
+    //        sqlstr1 = "DELETE FROM _数据地图instance WHERE instance NOT IN (" + instancestr + ")";
+    //        sqlstr2 = "DELETE FROM _数据玩家instance WHERE instance NOT IN (" + instancestr + ")";
+    //        CharacterDatabase.Execute(sqlstr1.c_str());
+    //        CharacterDatabase.Execute(sqlstr2.c_str());
+    //    }
+    //    else {
+    //        sqlstr1 = "DELETE FROM _数据地图instance WHERE instance != -1";
+    //        sqlstr2 = "DELETE FROM _数据玩家instance WHERE instance != -1";
+    //        CharacterDatabase.Execute(sqlstr1.c_str());
+    //        CharacterDatabase.Execute(sqlstr2.c_str());
+    //    }
+    //}
 
     {
         TC_LOG_INFO("server.loading", "正在加载 _数据地图area...");
@@ -15587,9 +15587,6 @@ void AACenter::AA_ModifyGameObject(GameObject* gameObject, AA_Object conf)
         }
         //aawow 物体属性调整
         gameObject->aa_id = conf.id;
-        Loot* loot = const_cast<Loot*>(gameObject->m_loot.get());
-        loot->aa_id_o = conf.id;
-        gameObject->m_loot.reset(loot);
         //模型大小
         if (conf.scale != 1) {
             gameObject->SetObjectScale(conf.scale);
@@ -15614,9 +15611,6 @@ void AACenter::AA_ModifyCreature(Creature* creature, AA_Creature conf)
         }
         creature->SetCanModifyStats(false);
         creature->aa_id = conf.id;
-        Loot *loot = const_cast<Loot *>(creature->m_loot.get());
-        loot->aa_id_c = conf.id;
-        creature->m_loot.reset(loot);
         if (conf.level > 0) {
             creature->SetLevel(conf.level);
         }
