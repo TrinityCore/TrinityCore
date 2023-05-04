@@ -18450,14 +18450,14 @@ std::unordered_map<uint32, AA_Biwu_Team> AACenter::AA_Biwu_Fenzu()
     std::unordered_map<uint32, AA_Biwu_Team> aa_biwu_teams; aa_biwu_teams.clear();
 
     //1、获取所有winners
-    std::vector<Player*> players; players.clear();
+    std::set<Player*> players; players.clear();
     for (auto guidlow : aaCenter.aa_biwu_winners) {
         if (Player* p = ObjectAccessor::FindPlayerByLowGUID(guidlow)) {
             p->aa_biwu_teamid = 0;
             if (!p->IsInWorld() || !p->IsAlive()) {
                 continue;
             }
-            players.push_back(p);
+            players.insert(p);
         }
     }
     //如果只剩一个赢家，比武结束
@@ -18474,9 +18474,8 @@ std::unordered_map<uint32, AA_Biwu_Team> AACenter::AA_Biwu_Fenzu()
     if (count % 2 == 1) {
         count = count - 1;
     }
-    for (size_t i = 0; i < players.size(); i++)
-    {
-        Player* p = players[i];
+    int i = 0;
+    for (auto p : players) {
         if (i < count) {
             if (p) {
                 p->aa_biwu_teamid = teamid;
@@ -18496,6 +18495,7 @@ std::unordered_map<uint32, AA_Biwu_Team> AACenter::AA_Biwu_Fenzu()
             std::string msg = "|cff00FFFF[比武擂台]|cffFFFF00恭喜你，获得躺赢资格，请等待下一轮开始。";
             aaCenter.AA_SendMessage(p, 0, msg.c_str());
         }
+        i++;
     }
 
     return aa_biwu_teams;
@@ -18666,6 +18666,38 @@ void AACenter::AA_Biwu_Complete()
         aaCenter.AA_SendMessage(nullptr, 1, "|cff00FFFF[系统提示]|cffFF0000请联系QQ643125009开通!");
         return;
     }
+    //判断winners，teams 是否重开
+    //如果决斗全部结束，重新开始
+    if (aaCenter.aa_biwu_teams.size() == 0)
+    {
+        aaCenter.AA_Biwu_Start();
+    }
+    //如果没有队伍了，比武结束
+    if (aaCenter.aa_biwu_teams.size() == 0) {
+        aaCenter.AA_Biwu_End();
+    }
+    else {
+        //计算排名
+        paihangbiwu(aaCenter.aa_biwu_paiming, aaCenter.aa_biwu_score);
+        for (int i = 0; i < 10; i++) {
+            if (aaCenter.aa_biwu_paiming.size() > i) {
+                std::pair<ObjectGuid::LowType, uint32> aa_biwu_score = aaCenter.aa_biwu_paiming[i];
+                std::string gm = ".变量 系统 比武排名" + std::to_string(i + 1) + " =" + std::to_string(aa_biwu_score.first);
+                aaCenter.AA_DoCommand(nullptr, gm.c_str());
+            }
+            else {
+                std::string gm = ".变量 系统 比武排名" + std::to_string(i + 1) + " =0";
+                aaCenter.AA_DoCommand(nullptr, gm.c_str());
+            }
+        }
+    }
+}
+void AACenter::AA_Biwu_End()
+{
+    if (aaCenter.aa_biwu_event_id == 0) {
+        return;
+    }
+
     //计算排名
     paihangbiwu(aaCenter.aa_biwu_paiming, aaCenter.aa_biwu_score);
     for (int i = 0; i < 10; i++) {
@@ -18679,22 +18711,7 @@ void AACenter::AA_Biwu_Complete()
             aaCenter.AA_DoCommand(nullptr, gm.c_str());
         }
     }
-    //判断winners，teams 是否重开
-    //如果决斗全部结束，重新开始
-    if (aaCenter.aa_biwu_teams.size() == 0)
-    {
-        aaCenter.AA_Biwu_Start();
-    }
-    //如果没有队伍了，比武结束
-    if (aaCenter.aa_biwu_teams.size() == 0) {
-        aaCenter.AA_Biwu_End();
-    }
-}
-void AACenter::AA_Biwu_End()
-{
-    if (aaCenter.aa_biwu_event_id == 0) {
-        return;
-    }
+
     AA_Biwu_Conf conf = aaCenter.aa_biwu_confs[aaCenter.aa_biwu_event_id];
 
     if (GameObject* gob = aaCenter.AA_Biwu_SpawnGob(conf.guid, false)) {

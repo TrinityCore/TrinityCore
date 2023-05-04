@@ -8044,10 +8044,10 @@ void Player::DuelComplete(DuelCompleteType type)
                 if (aaCenter.aa_biwu_event_id > 0) {
                     AA_Biwu_Conf conf = aaCenter.aa_biwu_confs[aaCenter.aa_biwu_event_id];
                     if (conf.gm_win != "" && conf.gm_win != "0") {
-                        aaCenter.AA_DoCommand(this, conf.gm_win.c_str());
+                        aaCenter.AA_DoCommand(opponent, conf.gm_win.c_str());
                     }
                     if (conf.gm_lose != "" && conf.gm_lose != "0") {
-                        aaCenter.AA_DoCommand(opponent, conf.gm_lose.c_str());
+                        aaCenter.AA_DoCommand(this, conf.gm_lose.c_str());
                     }
 
                     //比武中，超过决斗时间，结算
