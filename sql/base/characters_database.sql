@@ -1668,6 +1668,9 @@ CREATE TABLE `character_stats` (
   `maxpower5` int unsigned NOT NULL DEFAULT '0',
   `maxpower6` int unsigned NOT NULL DEFAULT '0',
   `maxpower7` int unsigned NOT NULL DEFAULT '0',
+  `maxpower8` int unsigned NOT NULL DEFAULT '0',
+  `maxpower9` int unsigned NOT NULL DEFAULT '0',
+  `maxpower10` int unsigned NOT NULL DEFAULT '0',
   `strength` int unsigned NOT NULL DEFAULT '0',
   `agility` int unsigned NOT NULL DEFAULT '0',
   `stamina` int unsigned NOT NULL DEFAULT '0',
@@ -1937,6 +1940,9 @@ CREATE TABLE `characters` (
   `power5` int unsigned NOT NULL DEFAULT '0',
   `power6` int unsigned NOT NULL DEFAULT '0',
   `power7` int unsigned NOT NULL DEFAULT '0',
+  `power8` int unsigned NOT NULL DEFAULT '0',
+  `power9` int unsigned NOT NULL DEFAULT '0',
+  `power10` int unsigned NOT NULL DEFAULT '0',
   `latency` int unsigned NOT NULL DEFAULT '0',
   `activeTalentGroup` tinyint unsigned NOT NULL DEFAULT '0',
   `lootSpecId` int unsigned NOT NULL DEFAULT '0',
@@ -3699,7 +3705,8 @@ INSERT INTO `updates` VALUES
 ('2023_01_29_00_characters.sql','24FA9E0F616BF77AC588A25A8A8699903A19A5FE','ARCHIVED','2023-01-29 16:31:12',0),
 ('2023_02_03_00_characters.sql','A04BA4386B3D5C60407D22CA4BF9A4A6258AA39D','ARCHIVED','2023-02-03 01:13:52',0),
 ('2023_02_08_00_characters.sql','C9DF607CCE99540F613F5E25E17090176C995C7C','ARCHIVED','2023-02-08 21:41:17',0),
-('2023_04_02_00_characters.sql','AAC1B81AFE4716CF4DAB6BCF01D22F421BFAD253','ARCHIVED','2023-04-02 01:02:26',0);
+('2023_04_02_00_characters.sql','AAC1B81AFE4716CF4DAB6BCF01D22F421BFAD253','ARCHIVED','2023-04-02 01:02:26',0),
+('2023_05_04_00_characters.sql','9AC370E51507F5BD368707E90D8F6BF0FF16CA09','RELEASED','2023-05-04 16:17:31',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

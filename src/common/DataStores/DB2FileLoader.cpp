@@ -114,6 +114,11 @@ struct DB2IndexData
     std::vector<DB2IndexEntry> Entries;
 };
 
+static bool IsKnownTactId(uint64 tactId)
+{
+    return tactId == 0 || tactId == DUMMY_KNOWN_TACT_ID;
+}
+
 uint32 DB2FileLoadInfo::GetStringFieldCount(bool localizedOnly) const
 {
     uint32 stringFields = 0;
@@ -409,7 +414,7 @@ char* DB2FileLoaderRegularImpl::AutoProduceData(uint32& indexTableSize, char**& 
     for (uint32 section = 0; section < _header->SectionCount; ++section)
     {
         DB2SectionHeader const& sectionHeader = GetSection(section);
-        if (sectionHeader.TactId)
+        if (!IsKnownTactId(sectionHeader.TactId))
         {
             offset += recordsize * sectionHeader.RecordCount;
             recordIndex += sectionHeader.RecordCount;
@@ -552,7 +557,7 @@ char* DB2FileLoaderRegularImpl::AutoProduceStrings(char** indexTable, uint32 ind
     for (uint32 section = 0; section < _header->SectionCount; ++section)
     {
         DB2SectionHeader const& sectionHeader = GetSection(section);
-        if (sectionHeader.TactId)
+        if (!IsKnownTactId(sectionHeader.TactId))
         {
             y += sectionHeader.RecordCount;
             continue;
@@ -655,7 +660,7 @@ void DB2FileLoaderRegularImpl::FillParentLookup(char* dataTable, char** indexTab
     for (uint32 i = 0; i < _header->SectionCount; ++i)
     {
         DB2SectionHeader const& section = GetSection(i);
-        if (!section.TactId)
+        if (IsKnownTactId(section.TactId))
         {
             for (std::size_t j = 0; j < _parentIndexes[i][0].Entries.size(); ++j)
             {
@@ -758,7 +763,7 @@ unsigned char const* DB2FileLoaderRegularImpl::GetRawRecordData(uint32 recordNum
     if (recordNumber >= _header->RecordCount)
         return nullptr;
 
-    if (GetSection(section ? *section : GetRecordSection(recordNumber)).TactId)
+    if (!IsKnownTactId(GetSection(section ? *section : GetRecordSection(recordNumber)).TactId))
         return nullptr;
 
     return &_data[recordNumber * _header->RecordSize];
@@ -1146,7 +1151,7 @@ char* DB2FileLoaderSparseImpl::AutoProduceData(uint32& indexTableSize, char**& i
     for (uint32 section = 0; section < _header->SectionCount; ++section)
     {
         DB2SectionHeader const& sectionHeader = GetSection(section);
-        if (sectionHeader.TactId)
+        if (!IsKnownTactId(sectionHeader.TactId))
         {
             offset += recordsize * sectionHeader.RecordCount;
             y += sectionHeader.RecordCount;
@@ -1292,7 +1297,7 @@ char* DB2FileLoaderSparseImpl::AutoProduceStrings(char** indexTable, uint32 inde
     for (uint32 section = 0; section < _header->SectionCount; ++section)
     {
         DB2SectionHeader const& sectionHeader = GetSection(section);
-        if (sectionHeader.TactId)
+        if (!IsKnownTactId(sectionHeader.TactId))
         {
             y += sectionHeader.RecordCount;
             continue;
@@ -1424,7 +1429,7 @@ void DB2FileLoaderSparseImpl::FillParentLookup(char* dataTable)
     for (uint32 i = 0; i < _header->SectionCount; ++i)
     {
         DB2SectionHeader const& section = GetSection(i);
-        if (!section.TactId)
+        if (IsKnownTactId(section.TactId))
         {
             for (std::size_t j = 0; j < _parentIndexes[i][0].Entries.size(); ++j)
             {
@@ -1498,7 +1503,7 @@ unsigned char const* DB2FileLoaderSparseImpl::GetRawRecordData(uint32 recordNumb
     if (recordNumber >= _catalog.size())
         return nullptr;
 
-    if (GetSection(section ? *section : GetRecordSection(recordNumber)).TactId)
+    if (!IsKnownTactId(GetSection(section ? *section : GetRecordSection(recordNumber)).TactId))
         return nullptr;
 
     _source->SetPosition(_catalog[recordNumber].FileOffset);
@@ -1844,7 +1849,7 @@ void DB2FileLoader::LoadHeaders(DB2FileSource* source, DB2FileLoadInfo const* lo
     EndianConvert(_header.PalletDataSize);
     EndianConvert(_header.SectionCount);
 
-    if (_header.Signature != 0x33434457)                        //'WDC3'
+    if (_header.Signature != 0x34434457)                        //'WDC4'
         throw DB2FileLoadException(Trinity::StringFormat("Incorrect file signature in {}, expected 'WDC3', got %c%c%c%c", source->GetFileName(),
             char(_header.Signature & 0xFF), char((_header.Signature >> 8) & 0xFF), char((_header.Signature >> 16) & 0xFF), char((_header.Signature >> 24) & 0xFF)));
 
@@ -1866,33 +1871,6 @@ void DB2FileLoader::LoadHeaders(DB2FileSource* source, DB2FileLoadInfo const* lo
     std::unique_ptr<DB2SectionHeader[]> sections = std::make_unique<DB2SectionHeader[]>(_header.SectionCount);
     if (_header.SectionCount && !source->Read(sections.get(), sizeof(DB2SectionHeader) * _header.SectionCount))
         throw DB2FileLoadException(Trinity::StringFormat("Unable to read section headers from {}", source->GetFileName()));
-
-    uint32 totalCopyTableSize = 0;
-    uint32 totalParentLookupDataSize = 0;
-    for (uint32 i = 0; i < _header.SectionCount; ++i)
-    {
-        totalCopyTableSize += sections[i].CopyTableCount * sizeof(DB2RecordCopy);
-        totalParentLookupDataSize += sections[i].ParentLookupDataSize;
-    }
-
-    if (loadInfo && !(_header.Flags & 0x1))
-    {
-        int64 expectedFileSize =
-            sizeof(DB2Header) +
-            sizeof(DB2SectionHeader) * _header.SectionCount +
-            sizeof(DB2FieldEntry) * _header.FieldCount +
-            int64(_header.RecordSize) * _header.RecordCount  +
-            _header.StringTableSize +
-            (loadInfo->Meta->IndexField == -1 ? sizeof(uint32) * _header.RecordCount : 0) +
-            totalCopyTableSize +
-            _header.ColumnMetaSize +
-            _header.PalletDataSize +
-            _header.CommonDataSize +
-            totalParentLookupDataSize;
-
-        if (source->GetFileSize() != expectedFileSize)
-            throw DB2FileLoadException(Trinity::StringFormat("{} failed size consistency check, expected {}, got {}", source->GetFileName(), expectedFileSize, source->GetFileSize()));
-    }
 
     std::unique_ptr<DB2FieldEntry[]> fieldData = std::make_unique<DB2FieldEntry[]>(_header.FieldCount);
     if (!source->Read(fieldData.get(), sizeof(DB2FieldEntry) * _header.FieldCount))
@@ -1995,6 +1973,44 @@ void DB2FileLoader::Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo)
 
         if (section.TactId)
         {
+            uint32 encryptedIdCount;
+            if (!source->Read(&encryptedIdCount, sizeof(encryptedIdCount)))
+                throw DB2FileLoadException(Trinity::StringFormat("Unable to read number of encrypted records in {} for section {}", source->GetFileName(), i));
+
+            // it doesnt matter what the encrypted ids are, we have no use for them
+            source->SetPosition(source->GetPosition() + sizeof(uint32) * encryptedIdCount);
+        }
+    }
+
+    if (loadInfo && !(_header.Flags & 0x1))
+    {
+        uint32 totalCopyTableSize = 0;
+        uint32 totalParentLookupDataSize = 0;
+        for (uint32 i = 0; i < _header.SectionCount; ++i)
+        {
+            DB2SectionHeader& section = _impl->GetSection(i);
+            totalCopyTableSize += section.CopyTableCount * sizeof(DB2RecordCopy);
+            totalParentLookupDataSize += section.ParentLookupDataSize;
+        }
+
+        int64 expectedFileSize =
+            source->GetPosition() +
+            int64(_header.RecordSize) * _header.RecordCount +
+            _header.StringTableSize +
+            (loadInfo->Meta->IndexField == -1 ? sizeof(uint32) * _header.RecordCount : 0) +
+            totalCopyTableSize +
+            totalParentLookupDataSize;
+
+        if (source->GetFileSize() != expectedFileSize)
+            throw DB2FileLoadException(Trinity::StringFormat("{} failed size consistency check, expected {}, got {}", source->GetFileName(), expectedFileSize, source->GetFileSize()));
+    }
+
+    for (uint32 i = 0; i < _header.SectionCount; ++i)
+    {
+        DB2SectionHeader& section = _impl->GetSection(i);
+
+        if (!IsKnownTactId(section.TactId))
+        {
             switch (source->HandleEncryptedSection(section))
             {
                 case DB2EncryptedSectionHandling::Skip:
@@ -2002,7 +2018,7 @@ void DB2FileLoader::Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo)
                     idTable.resize(idTable.size() + section.IdTableSize / sizeof(uint32));
                     continue;
                 case DB2EncryptedSectionHandling::Process:
-                    section.TactId = 0;
+                    section.TactId = DUMMY_KNOWN_TACT_ID;
                     break;
                 default:
                     break;

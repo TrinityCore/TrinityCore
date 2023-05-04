@@ -297,11 +297,17 @@ enum Powers : int8
     POWER_FURY                          = 17, // TITLE Fury
     POWER_PAIN                          = 18, // TITLE Pain
     POWER_ESSENCE                       = 19, // TITLE Essence
-    MAX_POWERS                          = 20, // SKIP
+    POWER_RUNE_BLOOD                    = 20, // TITLE Blood Runes
+    POWER_RUNE_FROST                    = 21, // TITLE Frost Runes
+    POWER_RUNE_UNHOLY                   = 22, // TITLE Unholy Runes
+    POWER_ALTERNATE_QUEST               = 23, // TITLE Alternate (Quest)
+    POWER_ALTERNATE_ENCOUNTER           = 24, // TITLE Alternate (Encounter)
+    POWER_ALTERNATE_MOUNT               = 25, // TITLE Alternate (Mount)
+    MAX_POWERS                          = 26, // SKIP
     POWER_ALL                           = 127 // SKIP
 };
 
-#define MAX_POWERS_PER_CLASS            7
+#define MAX_POWERS_PER_CLASS            10
 
 // EnumUtils: DESCRIBE THIS
 enum SpellSchools : uint16
@@ -1435,11 +1441,19 @@ enum SpellEffectName
     SPELL_EFFECT_CHANGE_ACTIVE_COMBAT_TRAIT_CONFIG  = 304,
     SPELL_EFFECT_305                                = 305,
     SPELL_EFFECT_306                                = 306,
+    SPELL_EFFECT_307                                = 307,
+    SPELL_EFFECT_CANCEL_PRELOAD_WORLD               = 308,
+    SPELL_EFFECT_PRELOAD_WORLD                      = 309,
+    SPELL_EFFECT_310                                = 310,
+    SPELL_EFFECT_ENSURE_WORLD_LOADED                = 311,
+    SPELL_EFFECT_312                                = 312,
+    SPELL_EFFECT_CHANGE_ITEM_BONUSES_2              = 313, // MiscValue[0] = ItemBonusTreeID to preserve
+    SPELL_EFFECT_ADD_SOCKET_BONUS                   = 314, // MiscValue[0] = required ItemBonusTreeID
     TOTAL_SPELL_EFFECTS
 };
 
 // EnumUtils: DESCRIBE THIS
-enum SpellCastResult
+enum SpellCastResult : int32
 {
     SPELL_FAILED_SUCCESS                                        = 0,
     SPELL_FAILED_AFFECTING_COMBAT                               = 1,
@@ -2347,6 +2361,7 @@ enum SpellCustomErrors
     SPELL_CUSTOM_ERROR_YOU_CAN_ONLY_DO_THIS_WHILE_MIDAIR                = 638, // You can only do this while midair.
     SPELL_CUSTOM_ERROR_YOU_CANNOT_DO_THAT_WHILE_AIRBORNE                = 639, // You cannot do that while airborne.
     SPELL_CUSTOM_ERROR_POCOPOC_IS_UNAVAILABLE_ON_QUESTLINE              = 640, // Pocopoc is unavailable to summon during the questline A Means to an End.
+    SPELL_CUSTOM_ERROR_CANNOT_CAST_THAT_WITH_AURA_OF_RECKONING_TALENT   = 650, // You cannot cast that while Aura of Reckoning is talented.
     SPELL_CUSTOM_ERROR_REQUIRES_SULFURON_SLAMMER                        = 711, // Requires Sulfuron Slammer
     SPELL_CUSTOM_ERROR_NOT_READY_YET                                    = 788, // Not ready yet.
     SPELL_CUSTOM_ERROR_QUALITY_OF_TIERED_MEDALLION_SETTING_IS_TOO_LOW   = 789, // The quality of your Tiered Medallion Setting is too low to add another socket to this item.
@@ -2381,8 +2396,25 @@ enum SpellCustomErrors
     SPELL_CUSTOM_ERROR_YOU_ARE_ALREADY_BRAVE_ENOUGH_TO_CONTINUE_WITH_YOUR_EXPERIMENTATION = 818, // You are already brave enough to continue with your experimentation.
     SPELL_CUSTOM_ERROR_YOU_DONT_KNOW_HOW_TO_REPAIR_THIS_ITEM            = 819, // You don't know how to repair this item.
     SPELL_CUSTOM_ERROR_THERE_IS_NO_MORE_ROOM_ON_THAT_HANDHOLD           = 820, // There is no more room on that handhold.
-    SPELL_CUSTOM_ERROR_YOU_MUST_UNBLOCK_THIS_SPOT_BY_COMPLETING_A_DAILY_QUest = 821, // You must unblock this spot by completing a daily quest.
+    SPELL_CUSTOM_ERROR_YOU_MUST_UNBLOCK_THIS_SPOT_BY_COMPLETING_A_DAILY_QUEST = 821, // You must unblock this spot by completing a daily quest.
     SPELL_CUSTOM_ERROR_YOU_MUST_BE_CLOSER_TO_AN_ICE_HOLE_TO_DO_THAT     = 822, // You must be closer to an ice hole to do that.
+    SPELL_CUSTOM_ERROR_SHADOWFLAME_IS_TOO_STRONG_TO_BEAR                = 823, // The shadowflame is too strong to bear.
+    SPELL_CUSTOM_ERROR_SOMEONE_HAS_ALREADY_OVERLOADED_THIS              = 824, // Someone has already overloaded this.
+    SPELL_CUSTOM_ERROR_REQUIRES_NOKHUD_TRAINING_COURSE                  = 825, // Requires Nokhud Training Course.
+    SPELL_CUSTOM_ERROR_THIS_RECIPE_IS_CURRENTLY_DISABLED                = 826, // This recipe is currently disabled. Please try again later.
+    SPELL_CUSTOM_ERROR_YOU_DO_NOT_HAVE_THE_CORRECT_BATTLE_PET_SUMMONED  = 827, // You do not have the correct battle pet summoned.
+    SPELL_CUSTOM_ERROR_YOU_ALREADY_HAVE_AT_LEAST_ONE_CONJURED_PHIAL     = 828, // You already have at least one conjured phial.
+    SPELL_CUSTOM_ERROR_MARKED_TOO_MANY_TREASURES_IN_THE_FORBIDDEN_REACH = 830, // You have already marked too many treasures in the Forbidden Reach. Collect a few before unsealing more Forbidden Reach treasure scrolls.
+    SPELL_CUSTOM_ERROR_REQUIRES_A_DJARADIN_PILLAR_SHARD                 = 831, // Requires a Djaradin Pillar Shard.
+    SPELL_CUSTOM_ERROR_REQUIRES_A_RESILIENT_STONE                       = 832, // Requires a Resilient Stone.
+    SPELL_CUSTOM_ERROR_MYRRIT_CANNOT_CARRY_ANY_MORE_MAPS                = 835, // Myrrit cannot carry any more maps. Go on a dig with him!
+    SPELL_CUSTOM_ERROR_REQUIRES_NIFFEN_CAVE_DIVE_KEYAND_SHIELD_DISABLED = 850, // Requires Niffen Cave Dive Key and shield disabled.
+    SPELL_CUSTOM_ERROR_ELUSIVE_CREATURE_BAIT_WAS_RECENTLY_USED          = 851, // You cannot lure anything in this area for a few minutes. Elusive Creature Bait was recently used.
+    SPELL_CUSTOM_ERROR_YOU_DONT_HAVE_THE_SWIRLING_MOJO_STONE            = 999, // You don't have the Swirling Mojo Stone equipped.
+    SPELL_CUSTOM_ERROR_YOU_MUST_BE_NEAR_A_DRAGONFLIGHT_OATHSTONE        = 1000, // You must be near one of the five dragonflight oathstones in the Dragon Isles.
+    SPELL_CUSTOM_ERROR_CAN_ONLY_USE_THIS_ITEM_WHILE_AIRBORNE            = 1001, // You can only use this item while airborne.
+    SPELL_CUSTOM_ERROR_YOU_MUST_BE_IN_VISAGE_FORM                       = 2222, // You must be in visage form to do this.
+    SPELL_CUSTOM_ERROR_TOO_CLOSE_TO_ANOTHER_MOLTEN_RITUAL               = 2424, // You can't begin a molten ritual this close to another one.
 };
 
 enum StealthType
@@ -5902,7 +5934,8 @@ enum ChatFlags
     CHAT_FLAG_BOSS_SOUND = 0x0020, // Plays "RaidBossEmoteWarning" sound on raid boss emote/whisper
     CHAT_FLAG_MOBILE     = 0x0040,
     CHAT_FLAG_GUIDE      = 0x1000,
-    CHAT_FLAG_NEWCOMER   = 0x2000
+    CHAT_FLAG_NEWCOMER   = 0x2000,
+    CHAT_FLAG_CENSORED   = 0x4000
 };
 
 enum ChatLinkColors : uint32
@@ -7997,6 +8030,12 @@ enum class GameError : uint32
     ERR_CROSS_FACTION_GROUP_JOINED                                  = 1114,
     ERR_CANT_TARGET_UNFRIENDLY_IN_OVERWORLD                         = 1115,
     ERR_EQUIPABLESPELLS_SLOTS_FULL                                  = 1116,
+    ERR_WOW_LABS_PARTY_ERROR_TYPE_PARTY_IS_FULL                     = 1117,
+    ERR_WOW_LABS_PARTY_ERROR_TYPE_MAX_INVITE_SENT                   = 1118,
+    ERR_WOW_LABS_PARTY_ERROR_TYPE_PLAYER_ALREADY_INVITED            = 1119,
+    ERR_WOW_LABS_PARTY_ERROR_TYPE_PARTY_INVITE_INVALID              = 1120,
+    ERR_WOW_LABS_LOBBY_MATCHMAKER_ERROR_ENTER_QUEUE_FAILED          = 1121,
+    ERR_WOW_LABS_LOBBY_MATCHMAKER_ERROR_LEAVE_QUEUE_FAILED          = 1122,
 };
 
 enum class MountResult : uint32

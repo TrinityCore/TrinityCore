@@ -46,7 +46,7 @@ namespace WorldPackets
 {
 namespace Character
 {
-void SortCustomizations(Array<ChrCustomizationChoice, 72>& customizations)
+void SortCustomizations(Array<ChrCustomizationChoice, 125>& customizations)
 {
     auto first = customizations.begin();
     auto last = customizations.end();

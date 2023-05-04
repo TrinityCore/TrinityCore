@@ -369,13 +369,17 @@ uint32 Quest::XPValue(Player const* player, uint32 contentTuningId, uint32 xpDif
         if (!questXp || xpDifficulty >= 10)
             return 0;
 
+        uint32 xp = questXp->Difficulty[xpDifficulty];
+        if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(contentTuningId))
+            xp = xp * contentTuning->QuestXpMultiplier;
+
         int32 diffFactor = 2 * (questLevel - player->GetLevel()) + 12;
         if (diffFactor < 1)
             diffFactor = 1;
         else if (diffFactor > 10)
             diffFactor = 10;
 
-        uint32 xp = diffFactor * questXp->Difficulty[xpDifficulty] * xpMultiplier / 10;
+        xp = diffFactor * xp * xpMultiplier / 10;
         if (player->GetLevel() >= GetMaxLevelForExpansion(CURRENT_EXPANSION - 1) && player->GetSession()->GetExpansion() == CURRENT_EXPANSION && expansion >= 0 && expansion < CURRENT_EXPANSION)
             xp = uint32(xp / 9.0f);
 

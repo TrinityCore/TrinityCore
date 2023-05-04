@@ -679,11 +679,6 @@ void WorldSession::HandleUpdateMissileTrajectory(WorldPackets::Spells::UpdateMis
         HandleMovementOpcode(CMSG_MOVE_STOP, *packet.Status);
 }
 
-void WorldSession::HandleRequestCategoryCooldowns(WorldPackets::Spells::RequestCategoryCooldowns& /*requestCategoryCooldowns*/)
-{
-    _player->SendSpellCategoryCooldowns();
-}
-
 void WorldSession::HandleKeyboundOverride(WorldPackets::Spells::KeyboundOverride& keyboundOverride)
 {
     Player* player = GetPlayer();
