@@ -135,6 +135,7 @@ void Quest::LoadRewardDisplaySpell(Field* fields)
 {
     uint32 spellId = fields[1].GetUInt32();
     uint32 playerConditionId = fields[2].GetUInt32();
+    uint32 type = fields[3].GetUInt32();
 
     if (!sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE))
     {
@@ -148,7 +149,13 @@ void Quest::LoadRewardDisplaySpell(Field* fields)
         playerConditionId = 0;
     }
 
-    RewardDisplaySpell.emplace_back(spellId, playerConditionId);
+    if (type >= AsUnderlyingType(QuestCompleteSpellType::Max))
+    {
+        TC_LOG_ERROR("sql.sql", "Table `quest_reward_display_spell` invalid type value ({}) set for quest {} and spell {}. Set to 0.", type, fields[0].GetUInt32(), spellId);
+        type = AsUnderlyingType(QuestCompleteSpellType::LegacyBehavior);
+    }
+
+    RewardDisplaySpell.emplace_back(spellId, playerConditionId, QuestCompleteSpellType(type));
 }
 
 void Quest::LoadRewardChoiceItems(Field* fields)
@@ -633,7 +640,12 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc, Player* player) const
     response.Info.RewardMoneyMultiplier = GetMoneyMultiplier();
     response.Info.RewardBonusMoney = GetRewMoneyMaxLevel();
     for (QuestRewardDisplaySpell displaySpell : RewardDisplaySpell)
-        response.Info.RewardDisplaySpell.push_back({ int32(displaySpell.SpellId), int32(displaySpell.PlayerConditionId) });
+    {
+        WorldPackets::Quest::QuestCompleteDisplaySpell& rewardDisplaySpell = response.Info.RewardDisplaySpell.emplace_back();
+        rewardDisplaySpell.SpellID = displaySpell.SpellId;
+        rewardDisplaySpell.PlayerConditionID = displaySpell.PlayerConditionId;
+        rewardDisplaySpell.Type = int32(displaySpell.Type);
+    }
 
     response.Info.RewardSpell = GetRewSpell();
 
