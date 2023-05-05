@@ -116,6 +116,9 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPMatchSta
     if (playerData.MmrChange)
         data << int32(*playerData.MmrChange);
 
+    if (playerData.PostMatchMMR)
+        data << uint32(*playerData.PostMatchMMR);
+
     return data;
 }
 

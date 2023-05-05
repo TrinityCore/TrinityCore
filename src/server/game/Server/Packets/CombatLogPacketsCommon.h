@@ -69,7 +69,7 @@ namespace WorldPackets
             int16 PlayerLevelDelta = 0;
             float PlayerItemLevel = 0;
             float TargetItemLevel = 0;
-            uint16 ScalingHealthItemLevelCurveID = 0;
+            uint32 ScalingHealthItemLevelCurveID = 0;
             uint8 TargetLevel = 0;
             uint8 Expansion = 0;
             int8 TargetScalingLevelDelta = 0;

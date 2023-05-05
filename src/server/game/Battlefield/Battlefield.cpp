@@ -361,7 +361,7 @@ bool Battlefield::HasPlayer(Player* player) const
     return m_players[player->GetTeamId()].find(player->GetGUID()) != m_players[player->GetTeamId()].end();
 }
 
-// Called in WorldSession::HandleBfQueueInviteResponse
+// Called in Battlefield::InvitePlayerToQueue
 void Battlefield::PlayerAcceptInviteToQueue(Player* player)
 {
     // Add player in queue
@@ -383,7 +383,7 @@ void Battlefield::PlayerAskToLeave(Player* player)
     player->TeleportTo(571, 5804.1499f, 624.7710f, 647.7670f, 1.6400f);
 }
 
-// Called in WorldSession::HandleBfEntryInviteResponse
+// Called in Battlefield::InvitePlayerToWar
 void Battlefield::PlayerAcceptInviteToWar(Player* player)
 {
     if (!IsWarTime())

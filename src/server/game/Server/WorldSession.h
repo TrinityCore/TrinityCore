@@ -708,7 +708,6 @@ namespace WorldPackets
         class CancelMountAura;
         class CancelModSpeedNoControlAuras;
         class PetCancelAura;
-        class RequestCategoryCooldowns;
         class CancelCast;
         class CastSpell;
         class PetCastSpell;
@@ -1733,7 +1732,6 @@ class TC_GAME_API WorldSession
         void HandleViolenceLevel(WorldPackets::Misc::ViolenceLevel& violenceLevel);
         void HandleObjectUpdateFailedOpcode(WorldPackets::Misc::ObjectUpdateFailed& objectUpdateFailed);
         void HandleObjectUpdateRescuedOpcode(WorldPackets::Misc::ObjectUpdateRescued& objectUpdateRescued);
-        void HandleRequestCategoryCooldowns(WorldPackets::Spells::RequestCategoryCooldowns& requestCategoryCooldowns);
         void HandleCloseInteraction(WorldPackets::Misc::CloseInteraction& closeInteraction);
         void HandleConversationLineStarted(WorldPackets::Misc::ConversationLineStarted& conversationLineStarted);
         void HandleKeyboundOverride(WorldPackets::Spells::KeyboundOverride& keyboundOverride);
