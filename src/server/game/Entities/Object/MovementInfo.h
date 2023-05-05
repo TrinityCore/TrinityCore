@@ -95,6 +95,8 @@ struct MovementInfo
 
     Optional<AdvFlying> advFlying;
 
+    Optional<ObjectGuid> standingOnGameObjectGUID;
+
     MovementInfo() :
         flags(0), flags2(0), flags3(0), time(0), pitch(0.0f), stepUpStartElevation(0.0f)
     {

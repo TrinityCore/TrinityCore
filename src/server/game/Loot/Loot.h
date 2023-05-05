@@ -56,7 +56,8 @@ enum RollType
     ROLL_NEED         = 1,
     ROLL_GREED        = 2,
     ROLL_DISENCHANT   = 3,
-    MAX_ROLL_TYPE     = 4
+    ROLL_TRANSMOG     = 4,
+    MAX_ROLL_TYPE     = 5
 };
 
 enum class RollVote
@@ -75,6 +76,7 @@ enum RollMask
     ROLL_FLAG_TYPE_NEED         = 0x02,
     ROLL_FLAG_TYPE_GREED        = 0x04,
     ROLL_FLAG_TYPE_DISENCHANT   = 0x08,
+    ROLL_FLAG_TYPE_TRANSMOG     = 0x10,
 
     ROLL_ALL_TYPE_NO_DISENCHANT = 0x07,
     ROLL_ALL_TYPE_MASK          = 0x0F

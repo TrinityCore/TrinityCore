@@ -16,32 +16,34 @@
  */
 
 /*
-本文件是客户端DB2文件编号和文件名对应列表
+���ļ��ǿͻ���DB2�ļ���ź��ļ�����Ӧ�б�
 */
-#ifndef DBFilesClientList_h__   //宏定义开始
+#ifndef DBFilesClientList_h__   //�궨�忪ʼ
 #define DBFilesClientList_h__
 
-struct DB2FileInfo  //结构 DB2文件信息
+struct DB2FileInfo  //�ṹ DB2�ļ���Ϣ
 {
-    uint32 FileDataId;  //32位无符号整数 文件数据编号
-    char const* Name;   //字符 静态指针 名称    
+    uint32 FileDataId;  //32λ�޷������� �ļ����ݱ��
+    char const* Name;   //�ַ� ��ָ̬�� ����    
 };
 
-DB2FileInfo const DBFilesClientList[] =     //DB2文件信息 静态 DB文件客户端列表
+DB2FileInfo const DBFilesClientList[] =     //DB2�ļ���Ϣ ��̬ DB�ļ��ͻ����б�
 {
-    { 1260179, "Achievement.db2" },         //成就
-    { 1324299, "Achievement_Category.db2" },//成就_目录
-    { 1115949, "AdventureJournal.db2" },    //冒险旅程
-    { 1267070, "AdventureMapPOI.db2" },     //冒险地图兴趣点
-    { 1710672, "AlliedRace.db2" },          //联盟阵营
-    { 1304323, "AnimKit.db2" },             //动画配件
-    { 1375433, "AnimKitBoneSet.db2" },      //动画配件骨骼设置
-    { 1266937, "AnimKitBoneSetAlias.db2" }, //动画配件骨骼设置别名
-    { 1300872, "AnimKitConfig.db2" },       //动画配件设置
-    { 1300873, "AnimKitConfigBoneSet.db2" },//动画配件骨骼配置设置
-    { 1266540, "AnimKitPriority.db2" },     //动画配件属性
-    { 1559807, "AnimKitReplacement.db2" },  //动画配件替换
-    { 1304324, "AnimKitSegment.db2" },      //动画配件片段
+    { 1260179, "Achievement.db2" },
+    { 1324299, "Achievement_Category.db2" },
+    { 4572795, "ActionBarGroup.db2" },
+    { 4572797, "ActionBarGroupEntry.db2" },
+    { 1115949, "AdventureJournal.db2" },
+    { 1267070, "AdventureMapPOI.db2" },
+    { 1710672, "AlliedRace.db2" },
+    { 1304323, "AnimKit.db2" },
+    { 1375433, "AnimKitBoneSet.db2" },
+    { 1266937, "AnimKitBoneSetAlias.db2" },
+    { 1300872, "AnimKitConfig.db2" },
+    { 1300873, "AnimKitConfigBoneSet.db2" },
+    { 1266540, "AnimKitPriority.db2" },
+    { 1559807, "AnimKitReplacement.db2" },
+    { 1304324, "AnimKitSegment.db2" },
     { 1301100, "AnimReplacement.db2" },
     { 1284817, "AnimReplacementSet.db2" },
     { 3286805, "AnimaCable.db2" },
@@ -111,6 +113,7 @@ DB2FileInfo const DBFilesClientList[] =     //DB2文件信息 静态 DB文件客
     { 801584, "BattlePetVisual.db2" },
     { 1360265, "BattlemasterList.db2" },
     { 1525607, "BeamEffect.db2" },
+    { 3491563, "BeckonTrigger.db2" },
     { 1467254, "BoneWindModifierModel.db2" },
     { 1416756, "BoneWindModifiers.db2" },
     { 1983274, "BonusRoll.db2" },
@@ -139,7 +142,9 @@ DB2FileInfo const DBFilesClientList[] =     //DB2文件信息 静态 DB文件客
     { 972425, "CharShipment.db2" },
     { 972405, "CharShipmentContainer.db2" },
     { 3055696, "CharStartKit.db2" },
+    { 1237591, "CharStartOutfit.db2" },
     { 1349054, "CharTitles.db2" },
+    { 1028733, "CharacterFaceBoneSet.db2" },
     { 1369752, "CharacterFacialHairStyles.db2" },
     { 1344281, "CharacterLoadout.db2" },
     { 1302846, "CharacterLoadoutItem.db2" },
@@ -221,6 +226,7 @@ DB2FileInfo const DBFilesClientList[] =     //DB2文件信息 静态 DB文件客
     { 4373538, "CraftingQuality.db2" },
     { 4541803, "CraftingReagentEffect.db2" },
     { 4382197, "CraftingReagentQuality.db2" },
+    { 5049814, "CraftingReagentRequirement.db2" },
     { 841631, "Creature.db2" },
     { 879282, "CreatureDifficulty.db2" },
     { 4044373, "CreatureDifficultyTreasure.db2" },
@@ -290,6 +296,7 @@ DB2FileInfo const DBFilesClientList[] =     //DB2文件信息 静态 DB文件客
     { 1278178, "GMSurveyQuestions.db2" },
     { 1283020, "GMSurveySurveys.db2" },
     { 2922072, "GameClockDebug.db2" },
+    { 5008306, "GameMode.db2" },
     { 3565753, "GameObjectAnimGroupMember.db2" },
     { 1266737, "GameObjectArtKit.db2" },
     { 1302847, "GameObjectDiffAnimMap.db2" },
@@ -414,12 +421,16 @@ DB2FileInfo const DBFilesClientList[] =     //DB2文件信息 静态 DB文件客
     { 3025306, "ItemBonusListGroupEntry.db2" },
     { 1320358, "ItemBonusListLevelDelta.db2" },
     { 2924997, "ItemBonusListWarforgeLevelDelta.db2" },
+    { 5155639, "ItemBonusSeason.db2" },
+    { 5155640, "ItemBonusSeasonBonusListGroup.db2" },
+    { 5155641, "ItemBonusSeasonUpgradeCost.db2" },
     { 3026822, "ItemBonusSequenceSpell.db2" },
     { 3055768, "ItemBonusTree.db2" },
     { 4407505, "ItemBonusTreeGroupEntry.db2" },
     { 987134, "ItemBonusTreeNode.db2" },
     { 1247926, "ItemChildEquipment.db2" },
     { 1140189, "ItemClass.db2" },
+    { 5128111, "ItemCondition.db2" },
     { 1405665, "ItemContextPickerEntry.db2" },
     { 4337196, "ItemConversion.db2" },
     { 4337197, "ItemConversionEntry.db2" },
@@ -437,6 +448,8 @@ DB2FileInfo const DBFilesClientList[] =     //DB2文件信息 静态 DB文件客
     { 969941, "ItemEffect.db2" },
     { 801681, "ItemExtendedCost.db2" },
     { 2358574, "ItemFallbackVisual.db2" },
+    { 5152256, "ItemFixup.db2" },
+    { 5015219, "ItemGroupIlvlScalingEntry.db2" },
     { 1283023, "ItemGroupSounds.db2" },
     { 1588911, "ItemLevelSelector.db2" },
     { 1624937, "ItemLevelSelectorQuality.db2" },
@@ -452,6 +465,7 @@ DB2FileInfo const DBFilesClientList[] =     //DB2文件信息 静态 DB文件客
     { 1302240, "ItemPetFood.db2" },
     { 1121231, "ItemPriceBase.db2" },
     { 1270315, "ItemRangedDisplayInfo.db2" },
+    { 5150118, "ItemRecraft.db2" },
     { 4548446, "ItemSalvage.db2" },
     { 4549058, "ItemSalvageLoot.db2" },
     { 1273408, "ItemSearchName.db2" },
@@ -497,6 +511,7 @@ DB2FileInfo const DBFilesClientList[] =     //DB2文件信息 静态 DB文件客
     { 1371380, "LiquidType.db2" },
     { 2261065, "LiquidTypeXTexture.db2" },
     { 4276965, "LivingWorldObjectTemplate.db2" },
+    { 4276966, "LivingWorldObjectTemplateModel.db2" },
     { 2478235, "LoadingScreenSkin.db2" },
     { 1302239, "LoadingScreenTaxiSplines.db2" },
     { 1266541, "LoadingScreens.db2" },
@@ -516,6 +531,7 @@ DB2FileInfo const DBFilesClientList[] =     //DB2文件信息 静态 DB文件客
     { 1375801, "ManifestInterfaceData.db2" },
     { 1375804, "ManifestInterfaceItemIcon.db2" },
     { 1267335, "ManifestInterfaceTOCData.db2" },
+    { 1375802, "ManifestMP3.db2" },
     { 1349477, "Map.db2" },
     { 1597466, "MapCelestialBody.db2" },
     { 801709, "MapChallengeMode.db2" },
@@ -762,6 +778,7 @@ DB2FileInfo const DBFilesClientList[] =     //DB2文件信息 静态 DB文件客
     { 1001907, "SpellLearnSpell.db2" },
     { 1140079, "SpellLevels.db2" },
     { 1014438, "SpellMechanic.db2" },
+    { 3549053, "SpellMemorizeCost.db2" },
     { 1003144, "SpellMisc.db2" },
     { 897956, "SpellMissile.db2" },
     { 897955, "SpellMissileMotion.db2" },
@@ -856,6 +873,7 @@ DB2FileInfo const DBFilesClientList[] =     //DB2文件信息 静态 DB文件客
     { 1121973, "TransportPhysics.db2" },
     { 1140687, "TransportRotation.db2" },
     { 975024, "Trophy.db2" },
+    { 5011999, "UIArrowCallout.db2" },
     { 3488582, "UIChromieTimeExpansionInfo.db2" },
     { 3502042, "UICovenantAbility.db2" },
     { 3502043, "UICovenantPreview.db2" },
@@ -953,4 +971,4 @@ DB2FileInfo const DBFilesClientList[] =     //DB2文件信息 静态 DB文件客
     { 1797864, "ZoneStory.db2" },
 };
 
-#endif // DBFilesClientList_h__ ////宏定义结束
+#endif // DBFilesClientList_h__ ////�궨�����

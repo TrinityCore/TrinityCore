@@ -30,6 +30,7 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo const& movementInfo)
     bool hasSpline = false; // todo 6.x send this infos
     bool hasInertia = movementInfo.inertia.has_value();
     bool hasAdvFlying = movementInfo.advFlying.has_value();
+    bool hasStandingOnGameObjectGUID = movementInfo.standingOnGameObjectGUID.has_value();
 
     data << movementInfo.guid;
     data << uint32(movementInfo.flags);
@@ -51,6 +52,7 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo const& movementInfo)
         data << ObjectGuid;
     }*/
 
+    data.WriteBit(hasStandingOnGameObjectGUID);
     data.WriteBit(hasTransportData);
     data.WriteBit(hasFallData);
     data.WriteBit(hasSpline);
@@ -64,6 +66,9 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo const& movementInfo)
 
     if (hasTransportData)
         data << movementInfo.transport;
+
+    if (hasStandingOnGameObjectGUID)
+        data << *movementInfo.standingOnGameObjectGUID;
 
     if (hasInertia)
     {
@@ -121,6 +126,7 @@ ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo)
         data >> guid;
     }
 
+    bool hasStandingOnGameObjectGUID = data.ReadBit();
     bool hasTransport = data.ReadBit();
     bool hasFall = data.ReadBit();
     /*hasSpline = */data.ReadBit(); // todo 6.x read this infos
@@ -132,6 +138,9 @@ ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo)
 
     if (hasTransport)
         data >> movementInfo.transport;
+
+    if (hasStandingOnGameObjectGUID)
+        data >> movementInfo.standingOnGameObjectGUID.emplace();
 
     if (hasInertia)
     {

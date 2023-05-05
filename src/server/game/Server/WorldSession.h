@@ -711,7 +711,6 @@ namespace WorldPackets
         class CancelMountAura;
         class CancelModSpeedNoControlAuras;
         class PetCancelAura;
-        class RequestCategoryCooldowns;
         class CancelCast;
         class CastSpell;
         class PetCastSpell;

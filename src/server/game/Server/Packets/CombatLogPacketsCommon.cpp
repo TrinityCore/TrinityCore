@@ -171,7 +171,7 @@ ByteBuffer& operator<<(ByteBuffer& data, ContentTuningParams const& contentTunin
     data << float(contentTuningParams.PlayerItemLevel);
     data << float(contentTuningParams.TargetItemLevel);
     data << int16(contentTuningParams.PlayerLevelDelta);
-    data << uint16(contentTuningParams.ScalingHealthItemLevelCurveID);
+    data << uint32(contentTuningParams.ScalingHealthItemLevelCurveID);
     data << uint8(contentTuningParams.TargetLevel);
     data << uint8(contentTuningParams.Expansion);
     data << int8(contentTuningParams.TargetScalingLevelDelta);
