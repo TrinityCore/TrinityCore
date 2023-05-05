@@ -5878,26 +5878,6 @@ void Spell::EffectLearnTransmogIllusion()
     player->GetSession()->GetCollectionMgr()->AddTransmogIllusion(illusionId);
 }
 
-void Spell::EffectTeleportGraveyard()
-{
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
-        return;
-
-    Player* player = unitTarget->ToPlayer();
-    if (Battleground* bg = player->GetBattleground())
-    {
-        WorldSafeLocsEntry const* entry = bg->GetClosestGraveyard(player);
-        if (entry)
-        {
-            player->TeleportTo(entry->Loc);
-            return;
-        }
-    }
-
-    if (WorldSafeLocsEntry const* entry = sObjectMgr->GetClosestGraveyard(*player, player->GetTeam(), player))
-        player->TeleportTo(entry->Loc);
-}
-
 void Spell::EffectModifyAuraStacks()
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
