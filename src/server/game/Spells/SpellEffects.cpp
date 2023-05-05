@@ -6002,3 +6002,15 @@ void Spell::EffectChangeActiveCombatTraitConfig()
 
     target->UpdateTraitConfig(std::move(*traitConfig), damage, false);
 }
+
+void Spell::EffectTeleportGraveyard()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    Player* target = Object::ToPlayer(unitTarget);
+    if (!target)
+        return;
+
+    target->RepopAtGraveyard();
+}
