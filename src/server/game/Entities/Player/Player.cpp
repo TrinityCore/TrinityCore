@@ -29407,13 +29407,14 @@ uint32 Player::GetRoleBySpecializationId(uint32 specializationId) //later add
     return ROLE_DAMAGE;
 }
 
-void Player::SendSpellCategoryCooldowns() const
-{
-    WorldPackets::Spells::CategoryCooldown cooldowns;
-uint32 Player::GetDefaultSpecId() const
-{
-    return ASSERT_NOTNULL(sDB2Manager.GetDefaultChrSpecializationForClass(GetClass()))->ID;
-}
+//void Player::SendSpellCategoryCooldowns() const
+//{
+//    WorldPackets::Spells::CategoryCooldown cooldowns;
+//}
+//uint32 Player::GetDefaultSpecId() const
+//{
+//    return ASSERT_NOTNULL(sDB2Manager.GetDefaultChrSpecializationForClass(GetClass()))->ID;
+//}
 
 void Player::SendRaidGroupOnlyMessage(RaidGroupReason reason, int32 delay) const
 {
