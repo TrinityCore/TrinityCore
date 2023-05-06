@@ -1605,7 +1605,7 @@ INSERT INTO `rbac_permissions` VALUES
 (642,'Command: reload disenchant_loot_template'),
 (643,'Command: reload event_scripts'),
 (644,'Command: reload fishing_loot_template'),
-(645,'Command: reload game_graveyard_zone'),
+(645,'Command: reload graveyard_zone'),
 (646,'Command: reload game_tele'),
 (647,'Command: reload gameobject_questender'),
 (648,'Command: reload gameobject_loot_template'),
