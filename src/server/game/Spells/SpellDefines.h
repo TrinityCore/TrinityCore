@@ -128,7 +128,7 @@ enum class SpellAuraInterruptFlags2 : uint32
     EndOfEncounter              = 0x00000200, // NYI
     Disconnect                  = 0x00000400, // NYI
     EnteringInstance            = 0x00000800, // Implemented in Map::AddPlayerToMap
-    DuelEnd                     = 0x00001000, // NYI
+    DuelEnd                     = 0x00001000, // Implemented in Player::DuelComplete
     LeaveArenaOrBattleground    = 0x00002000, // Implemented in Battleground::RemovePlayerAtLeave
     ChangeTalent                = 0x00004000,
     ChangeGlyph                 = 0x00008000,
