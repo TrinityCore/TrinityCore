@@ -481,6 +481,10 @@ inline void Battleground::_ProcessJoin(uint32 diff)
         SetStatus(STATUS_IN_PROGRESS);
         SetStartDelayTime(StartDelayTimes[BG_STARTING_EVENT_FOURTH]);
 
+        for (auto const& [guid, _] : GetPlayers())
+            if (Player* player = ObjectAccessor::FindPlayer(guid))
+                player->AtStartOfEncounter();
+
         // Remove preparation
         if (isArena())
         {

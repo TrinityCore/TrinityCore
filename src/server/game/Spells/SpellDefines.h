@@ -124,7 +124,7 @@ enum class SpellAuraInterruptFlags2 : uint32
     Jump                        = 0x00000020,
     ChangeSpec                  = 0x00000040,
     AbandonVehicle              = 0x00000080, // Implemented in Unit::_ExitVehicle
-    StartOfEncounter            = 0x00000100, // NYI
+    StartOfEncounter            = 0x00000100, // Implemented in InstanceScript::SetBossState and Battleground::_ProcessJoin
     EndOfEncounter              = 0x00000200, // NYI
     Disconnect                  = 0x00000400, // NYI
     EnteringInstance            = 0x00000800, // Implemented in Map::AddPlayerToMap
