@@ -116,7 +116,7 @@ DEFINE_ENUM_FLAG(SpellAuraInterruptFlags);
 enum class SpellAuraInterruptFlags2 : uint32
 {
     None                        = 0,
-    Falling                     = 0x00000001, // NYI
+    Falling                     = 0x00000001, // Implemented in Unit::UpdatePosition
     Swimming                    = 0x00000002,
     NotMoving                   = 0x00000004, // NYI
     Ground                      = 0x00000008,
