@@ -129,7 +129,7 @@ enum class SpellAuraInterruptFlags2 : uint32
     Disconnect                  = 0x00000400, // NYI
     EnteringInstance            = 0x00000800, // NYI
     DuelEnd                     = 0x00001000, // NYI
-    LeaveArenaOrBattleground    = 0x00002000, // NYI
+    LeaveArenaOrBattleground    = 0x00002000, // Implemented in Battleground::RemovePlayerAtLeave
     ChangeTalent                = 0x00004000,
     ChangeGlyph                 = 0x00008000,
     SeamlessTransfer            = 0x00010000, // NYI
