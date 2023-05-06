@@ -199,26 +199,26 @@ public:
 
     /// Update the scheduler to the current time.
     /// Calls the optional callback on successfully finish.
-    TaskScheduler& Update(success_t&& callback = nullptr);
+    TaskScheduler& Update(success_t const& callback = nullptr);
 
     /// Update the scheduler with a difftime in ms.
     /// Calls the optional callback on successfully finish.
-    TaskScheduler& Update(size_t const milliseconds, success_t&& callback = nullptr);
+    TaskScheduler& Update(size_t const milliseconds, success_t const& callback = nullptr);
 
     /// Update the scheduler with a difftime.
     /// Calls the optional callback on successfully finish.
     template<class _Rep, class _Period>
     TaskScheduler& Update(std::chrono::duration<_Rep, _Period> difftime,
-        success_t&& callback = nullptr)
+        success_t const& callback = nullptr)
     {
         _now += difftime;
-        Dispatch(std::move(callback));
+        Dispatch(callback);
         return *this;
     }
 
     /// Schedule an callable function that is executed at the next update tick.
     /// Its safe to modify the TaskScheduler from within the callable.
-    TaskScheduler& Async(std::function<void()> const& callable);
+    TaskScheduler& Async(std::function<void()> callable);
 
     /// Schedule an event with a fixed rate.
     /// Never call this from within a task context! Use TaskContext::Schedule instead!
@@ -386,7 +386,7 @@ private:
     }
 
     /// Dispatch remaining tasks
-    void Dispatch(success_t&& callback = nullptr);
+    void Dispatch(success_t const& callback);
 };
 
 class TC_COMMON_API TaskContext
@@ -403,7 +403,7 @@ class TC_COMMON_API TaskContext
     std::shared_ptr<bool> _consumed;
 
     /// Dispatches an action safe on the TaskScheduler
-    TaskContext& Dispatch(std::function<TaskScheduler&(TaskScheduler&)> apply);
+    TaskContext& Dispatch(std::function<TaskScheduler&(TaskScheduler&)> const& apply);
 
 public:
     // Empty constructor
@@ -412,7 +412,7 @@ public:
 
     // Construct from task and owner
     explicit TaskContext(TaskScheduler::TaskContainer&& task, std::weak_ptr<TaskScheduler>&& owner)
-        : _task(task), _owner(owner), _consumed(std::make_shared<bool>(false)) { }
+        : _task(std::move(task)), _owner(owner), _consumed(std::make_shared<bool>(false)) { }
 
     // Copy construct
     TaskContext(TaskContext const& right)
