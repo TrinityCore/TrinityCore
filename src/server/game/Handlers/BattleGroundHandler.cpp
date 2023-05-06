@@ -27,7 +27,6 @@
 #include "Chat.h"
 #include "Common.h"
 #include "Creature.h"
-#include "CreatureAI.h"
 #include "DB2Stores.h"
 #include "DisableMgr.h"
 #include "Group.h"
@@ -655,15 +654,12 @@ void WorldSession::HandleRequestPvpReward(WorldPackets::Battleground::RequestPVP
 
 void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPackets::Battleground::AreaSpiritHealerQuery& areaSpiritHealerQuery)
 {
-    static constexpr uint32 SPELL_SPIRIT_HEAL_PLAYER_AURA = 156758;
-    static constexpr uint32 SPELL_SPIRIT_HEAL_CHANNEL_SELF = 305122;
-
     Player* player = GetPlayer();
-    Creature* spiritHealer = ObjectAccessor::GetCreature(*GetPlayer(), areaSpiritHealerQuery.HealerGuid);
+    Creature* spiritHealer = ObjectAccessor::GetCreature(*player, areaSpiritHealerQuery.HealerGuid);
     if (!spiritHealer)
         return;
 
-    if (!spiritHealer->IsSpiritService())                            // it's not spirit service
+    if (!spiritHealer->IsAreaSpiritHealer())
         return;
 
     if (_player->GetExactDist(spiritHealer) > MAX_AREA_SPIRIT_HEALER_RANGE)

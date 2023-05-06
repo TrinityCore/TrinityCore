@@ -29243,7 +29243,7 @@ void Player::SetAreaSpiritHealer(Creature* creature)
         return;
 
     _areaSpiritHealerGUID = creature->GetGUID();
-    CastSpell(this, SPELL_WAITING_FOR_RESURRECT);
+    CastSpell(nullptr, SPELL_WAITING_FOR_RESURRECT);
 }
 
 void Player::SendAreaSpiritHealerTime(Unit* spiritHealer) const

@@ -1,6 +1,6 @@
 UPDATE `creature_template_addon` SET `auras`='9036 9617' WHERE `entry`=13117; -- 13117 (Horde Spirit Guide) - Ghost, Ghost Visual
 UPDATE `creature_template_addon` SET `auras`='9036 9617' WHERE `entry`=13116; -- 13116 (Alliance Spirit Guide) - Ghost, Ghost Visual
-UPDATE `creature_template` SET `ScriptName`='npc_area_spirit_healer', `AIName`='' where `entry` IN (13116, 13117, 88238, 88239);
+UPDATE `creature_template` SET `ScriptName`='npc_area_spirit_healer', `AIName`='' WHERE `entry` IN (13116, 13117, 88238, 88239);
 
 -- Graveyard Teleport
 DELETE FROM `serverside_spell_effect` WHERE `SpellID` = 46893;
