@@ -454,7 +454,6 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         bool hasFaceMovementDir     = areaTriggerTemplate && areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_FACE_MOVEMENT_DIR);
         bool hasFollowsTerrain      = areaTriggerTemplate && areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_FOLLOWS_TERRAIN);
         bool hasUnk1                = areaTriggerTemplate && areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_UNK1);
-        bool hasUnk2                = false;
         bool hasTargetRollPitchYaw  = areaTriggerTemplate && areaTrigger->GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_TARGET_ROLL_PITCH_YAW);
         bool hasScaleCurveID        = createProperties && createProperties->ScaleCurveId != 0;
         bool hasMorphCurveID        = createProperties && createProperties->MorphCurveId != 0;
@@ -476,7 +475,6 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         data->WriteBit(hasFaceMovementDir);
         data->WriteBit(hasFollowsTerrain);
         data->WriteBit(hasUnk1);
-        data->WriteBit(hasUnk2);
         data->WriteBit(hasTargetRollPitchYaw);
         data->WriteBit(hasScaleCurveID);
         data->WriteBit(hasMorphCurveID);
