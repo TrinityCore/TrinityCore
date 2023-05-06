@@ -23,6 +23,30 @@
 #include "SpellMgr.h"
 #include "TemporarySummon.h"
 
+enum SpiritGuideFactions
+{
+    FACTION_HORDE                       = 83,
+    FACTION_ALLIANCE                    = 84
+};
+
+enum SpiritGuideSpells
+{
+    SPELL_GRAVEYARD_TELEPORT            = 46893,
+
+    // AoE
+    SPELL_SPIRIT_HEAL_CHANNEL           = 22011,
+
+    // Personal
+    SPELL_SPIRIT_HEAL_PLAYER_AURA       = 156758,
+    SPELL_SPIRIT_HEAL_CHANNEL_SELF      = 305122
+};
+
+enum SpiritGuideCreatures
+{
+    NPC_ALLIANCE_GRAVEYARD_TELEPORT     = 26350,
+    NPC_HORDE_GRAVEYARD_TELEPORT        = 26351
+};
+
 SpiritGuideAI::SpiritGuideAI(Creature* creature) : SpiritGuideAI(creature, creature->GetScriptId()) { }
 
 SpiritGuideAI::SpiritGuideAI(Creature* creature, uint32 scriptId) : CreatureAI(creature, scriptId) { }
@@ -39,10 +63,10 @@ void SpiritGuideAI::OnDespawn()
 {
     switch (me->GetFaction())
     {
-        case HORDE_FACTION:
+        case FACTION_HORDE:
             SummonGraveyardTeleporter(NPC_HORDE_GRAVEYARD_TELEPORT);
             break;
-        case ALLIANCE_FACTION:
+        case FACTION_ALLIANCE:
             SummonGraveyardTeleporter(NPC_ALLIANCE_GRAVEYARD_TELEPORT);
             break;
         default:

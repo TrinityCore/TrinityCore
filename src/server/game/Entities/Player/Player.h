@@ -2867,10 +2867,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         UF::UpdateField<UF::ActivePlayerData, 0, TYPEID_ACTIVE_PLAYER> m_activePlayerData;
 
         void SetSpiritHealer(Creature* creature);
-        ObjectGuid const& GetSpiritHealer() const { return _spiritHealerGuid; }
-        bool CanAcceptSpiritHealFrom(ObjectGuid const& spiritHealerGuid) const { return _spiritHealerGuid == spiritHealerGuid; }
-        void SendAreaSpiritHealerQueryOpcode(ObjectGuid const& spiritHealerGuid) const;
-        void SendAreaSpiritHealerQueryOpcode(ObjectGuid const& spiritHealerGuid, int32 timeLeft) const;
+        ObjectGuid const& GetSpiritHealerGUID() const { return _spiritHealerGuid; }
+        bool CanAcceptSpiritHealFrom(Unit* spiritHealer) const { return spiritHealer->GetGUID() == _spiritHealerGuid; }
+        void SendAreaSpiritHealerQueryOpcode(Unit* spiritHealer) const;
+        void SendAreaSpiritHealerQueryOpcode(ObjectGuid const& spiritHealerGUID, int32 timeLeft) const;
 
     protected:
         // Gamemaster whisper whitelist

@@ -23,6 +23,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "BattlefieldMgr.h"
 #include "Battleground.h"
 #include "BattlePetMgr.h"
 #include "CellImpl.h"
@@ -5415,7 +5416,7 @@ private:
     uint32 _exhaustionSpellId;
 };
 
-// Aoe resurrections by spirit guides
+// AoE resurrections by spirit guides
 // 22012 - Spirit Heal
 class spell_gen_spirit_heal_aoe : public SpellScript
 {
@@ -5423,11 +5424,11 @@ class spell_gen_spirit_heal_aoe : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        ObjectGuid const& casterGuid = GetCaster()->GetGUID();
-        targets.remove_if([casterGuid](WorldObject* target) -> bool
+        Unit* caster = GetCaster();
+        targets.remove_if([caster](WorldObject* target) -> bool
         {
             if (Player* playerTarget = target->ToPlayer())
-                return !playerTarget->CanAcceptSpiritHealFrom(casterGuid);
+                return !playerTarget->CanAcceptSpiritHealFrom(caster);
 
             return true;
         });
@@ -5452,16 +5453,43 @@ class spell_gen_spirit_heal_personal : public AuraScript
         if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
             return;
 
-        if (Unit* owner = GetUnitOwner())
-            if (Player* playerOwner = owner->ToPlayer())
-                if (Unit* caster = GetCaster())
-                    if (playerOwner->CanAcceptSpiritHealFrom(caster->GetGUID()))
-                        caster->CastSpell(playerOwner, SPELL_SPIRIT_HEAL_EFFECT);
+        Player* targetPlayer = GetTarget()->ToPlayer();
+        if (!targetPlayer)
+            return;
+
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (targetPlayer->CanAcceptSpiritHealFrom(caster))
+            caster->CastSpell(targetPlayer, SPELL_SPIRIT_HEAL_EFFECT);
     }
 
     void Register() override
     {
         AfterEffectRemove += AuraEffectRemoveFn(spell_gen_spirit_heal_personal::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 2584 - Waiting to Resurrect
+class spell_gen_waiting_to_resurrect : public AuraScript
+{
+    PrepareAuraScript(spell_gen_waiting_to_resurrect);
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Player* targetPlayer = GetTarget()->ToPlayer();
+        if (!targetPlayer)
+            return;
+
+        targetPlayer->SetSpiritHealer(nullptr);
+        if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(targetPlayer->GetMap(), targetPlayer->GetZoneId()))
+            bf->RemovePlayerFromResurrectQueue(targetPlayer->GetGUID());
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_gen_waiting_to_resurrect::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -5636,4 +5664,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_item_bloodlust_drums", SPELL_SHAMAN_EXHAUSTION);
     RegisterSpellScript(spell_gen_spirit_heal_aoe);
     RegisterSpellScript(spell_gen_spirit_heal_personal);
+    RegisterSpellScript(spell_gen_waiting_to_resurrect);
 }

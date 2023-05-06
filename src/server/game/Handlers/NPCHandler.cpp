@@ -171,7 +171,7 @@ void WorldSession::HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet)
     if (unit->IsSpiritGuide())
     {
         _player->SetSpiritHealer(unit);
-        _player->SendAreaSpiritHealerQueryOpcode(unit->GetGUID());
+        _player->SendAreaSpiritHealerQueryOpcode(unit);
         return;
     }
 

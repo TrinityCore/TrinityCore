@@ -664,13 +664,15 @@ void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPackets::Battleground:
         return;
 
     if (SpiritGuideAI* spiritGuideAI = dynamic_cast<SpiritGuideAI*>(unit->AI()))
+    {
         if (spiritGuideAI->OnSpiritHealerQuery(_player))
             return;
+    }
 
     if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(_player->GetMap(), _player->GetZoneId()))
         bf->SendAreaSpiritHealerQueryOpcode(_player, areaSpiritHealerQuery.HealerGuid);
     else
-        _player->SendAreaSpiritHealerQueryOpcode(areaSpiritHealerQuery.HealerGuid);
+        _player->SendAreaSpiritHealerQueryOpcode(unit);
 }
 
 void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPackets::Battleground::AreaSpiritHealerQueue& areaSpiritHealerQueue)
@@ -684,9 +686,6 @@ void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPackets::Battleground:
 
     if (_player->GetExactDist(unit) > MAX_AREA_SPIRIT_HEALER_RANGE)
         return;
-
-    if (SpiritGuideAI* spiritGuideAI = dynamic_cast<SpiritGuideAI*>(unit->AI()))
-        spiritGuideAI->OnSpiritHealerQueue(_player);
 
     if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(_player->GetMap(), _player->GetZoneId()))
         bf->AddPlayerToResurrectQueue(areaSpiritHealerQueue.HealerGuid, _player->GetGUID());

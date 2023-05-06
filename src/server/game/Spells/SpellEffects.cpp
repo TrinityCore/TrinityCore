@@ -4498,14 +4498,14 @@ void Spell::EffectSpiritHeal()
     if (bf) // battlefield is handling this
         return;
 
-    Creature* spiritGuide = GetCaster()->ToCreature();
+    Unit* caster = GetCaster()->ToUnit();
     if (Player* playerTarget = unitTarget->ToPlayer())
     {
         if (!playerTarget->IsInWorld())
             return;
 
         // skip if player does not want to live
-        if (spiritGuide && !playerTarget->CanAcceptSpiritHealFrom(spiritGuide->GetGUID()))
+        if (!playerTarget->CanAcceptSpiritHealFrom(caster))
             return;
 
         playerTarget->ResurrectPlayer(1.0f);
