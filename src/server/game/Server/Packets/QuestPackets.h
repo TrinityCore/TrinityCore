@@ -121,6 +121,7 @@ namespace WorldPackets
         {
             int32 SpellID = 0;
             int32 PlayerConditionID = 0;
+            int32 Type = 0;
         };
 
         struct ConditionalQuestText
