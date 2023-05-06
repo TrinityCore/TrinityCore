@@ -23,7 +23,6 @@
  */
 
 #include "ScriptMgr.h"
-#include "BattlefieldMgr.h"
 #include "Battleground.h"
 #include "BattlePetMgr.h"
 #include "CellImpl.h"
@@ -5483,8 +5482,6 @@ class spell_gen_waiting_to_resurrect : public AuraScript
             return;
 
         targetPlayer->SetAreaSpiritHealer(nullptr);
-        if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(targetPlayer->GetMap(), targetPlayer->GetZoneId()))
-            bf->RemovePlayerFromResurrectQueue(targetPlayer->GetGUID());
     }
 
     void Register() override

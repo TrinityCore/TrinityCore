@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "AreaSpiritHealerAI.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "Battlefield/BattlefieldWG.h"
@@ -61,9 +62,6 @@ enum Spells
     SPELL_RIDE_WG_VEHICLE                     = 60968,
 
     SPELL_VEHICLE_TELEPORT                    = 49759,
-
-    // Spirit guide
-    SPELL_CHANNEL_SPIRIT_HEAL                 = 22011,
 };
 
 enum CreatureIds
@@ -188,15 +186,9 @@ private:
     }
 };
 
-struct npc_wg_spirit_guide : public ScriptedAI
+struct npc_wg_spirit_guide : public AreaSpiritHealerAI
 {
-    npc_wg_spirit_guide(Creature* creature) : ScriptedAI(creature) { }
-
-    void UpdateAI(uint32 /*diff*/) override
-    {
-        if (!me->HasUnitState(UNIT_STATE_CASTING))
-            DoCast(me, SPELL_CHANNEL_SPIRIT_HEAL);
-    }
+    npc_wg_spirit_guide(Creature* creature) : AreaSpiritHealerAI(creature) { }
 
     bool OnGossipHello(Player* player) override
     {

@@ -4491,14 +4491,13 @@ void Spell::EffectSkill()
 
 void Spell::EffectSpiritHeal()
 {
+    Unit* caster = GetCaster()->ToUnit();
+    if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT)
+        caster->CastSpell(nullptr, SPELL_RESURRECTION_VISUAL, true);
+
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(unitTarget->GetMap(), unitTarget->GetZoneId());
-    if (bf) // battlefield is handling this
-        return;
-
-    Unit* caster = GetCaster()->ToUnit();
     if (Player* playerTarget = unitTarget->ToPlayer())
     {
         if (!playerTarget->IsInWorld())

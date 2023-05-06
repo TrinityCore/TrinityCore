@@ -90,8 +90,8 @@ enum BattlegroundMarksCount
 
 enum BattlegroundCreatures
 {
-    BG_CREATURE_ENTRY_A_SPIRITGUIDE      = 13116,           // alliance
-    BG_CREATURE_ENTRY_H_SPIRITGUIDE      = 13117            // horde
+    BG_CREATURE_ENTRY_A_SPIRITGUIDE      = 88238,           // alliance
+    BG_CREATURE_ENTRY_H_SPIRITGUIDE      = 88239            // horde
 };
 
 enum BattlegroundSpells
@@ -99,7 +99,6 @@ enum BattlegroundSpells
     SPELL_SPIRIT_HEAL_PLAYER_AURA   = 156758,
     SPELL_SPIRIT_HEAL_CHANNEL_SELF  = 305122,
     SPELL_WAITING_FOR_RESURRECT     = 2584,                 // Waiting to Resurrect
-    SPELL_SPIRIT_HEAL_CHANNEL       = 22011,                // Spirit Heal Channel
     VISUAL_SPIRIT_HEAL_CHANNEL      = 3060,
     SPELL_SPIRIT_HEAL               = 22012,                // Spirit Heal
     SPELL_RESURRECTION_VISUAL       = 24171,                // Resurrection Impact Visual

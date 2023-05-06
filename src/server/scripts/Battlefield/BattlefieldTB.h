@@ -54,7 +54,6 @@ enum TolBaradSpells
     SPELL_TB_SLOW_FALL = 88473,
     SPELL_TB_VETERAN = 84655,
     SPELL_TOWER_ATTACK_BONUS = 82629,
-    SPELL_TB_SPIRIT_HEAL_CHANNEL = 22011, // this spell replaces m_LastResurrectTimer in Battlefield.cpp?
     SPELL_TB_SPIRITUAL_IMMUNITY = 95332,
 
     // Vehicle
