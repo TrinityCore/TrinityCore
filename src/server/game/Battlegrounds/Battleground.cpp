@@ -481,11 +481,9 @@ inline void Battleground::_ProcessJoin(uint32 diff)
         SetStatus(STATUS_IN_PROGRESS);
         SetStartDelayTime(StartDelayTimes[BG_STARTING_EVENT_FOURTH]);
 
-        for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-        {
-            if (Player* player = ObjectAccessor::FindPlayer(itr->first))
-                player->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::StartOfEncounter);
-        }
+        for (auto const& [guid, _] : GetPlayers())
+            if (Player* player = ObjectAccessor::FindPlayer(guid))
+                player->AtStartOfEncounter();
 
         // Remove preparation
         if (isArena())
