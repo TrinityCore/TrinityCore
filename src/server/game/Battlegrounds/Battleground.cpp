@@ -912,7 +912,7 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
         player->RemoveAura(SPELL_MERCENARY_SHAPESHIFT);
         player->RemovePlayerFlagEx(PLAYER_FLAGS_EX_MERCENARY_MODE);
 
-        player->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::EndOfEncounter);
+        player->AtEndOfEncounter();
 
         player->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::LeaveArenaOrBattleground);
 

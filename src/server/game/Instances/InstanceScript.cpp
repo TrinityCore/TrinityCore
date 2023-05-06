@@ -420,7 +420,7 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
 
                     instance->DoOnPlayers([](Player* player)
                     {
-                        player->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::EndOfEncounter);
+                        player->AtEndOfEncounter();
                     });
                     break;
                 }
@@ -437,7 +437,7 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
 
                     instance->DoOnPlayers([](Player* player)
                     {
-                        player->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::EndOfEncounter);
+                        player->AtEndOfEncounter();
                     });
                     break;
                 }
