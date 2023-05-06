@@ -4505,14 +4505,14 @@ void Spell::EffectSpiritHeal()
             return;
 
         // skip if player does not want to live
-        if (!playerTarget->CanAcceptSpiritHealFrom(caster))
+        if (!playerTarget->CanAcceptAreaSpiritHealFrom(caster))
             return;
 
         playerTarget->ResurrectPlayer(1.0f);
         playerTarget->CastSpell(playerTarget, SPELL_PET_SUMMONED, true);
         playerTarget->CastSpell(playerTarget, SPELL_SPIRIT_HEAL_MANA, true);
         playerTarget->SpawnCorpseBones(false);
-        playerTarget->SetSpiritHealer(nullptr);
+        playerTarget->SetAreaSpiritHealer(nullptr);
     }
 }
 

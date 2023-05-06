@@ -29230,11 +29230,11 @@ std::string Player::GetDebugInfo() const
     return sstr.str();
 }
 
-void Player::SetSpiritHealer(Creature* creature)
+void Player::SetAreaSpiritHealer(Creature* creature)
 {
     if (!creature)
     {
-        _spiritHealerGuid = ObjectGuid::Empty;
+        _areaSpiritHealerGUID = ObjectGuid::Empty;
         RemoveAurasDueToSpell(SPELL_WAITING_FOR_RESURRECT);
         return;
     }
@@ -29242,20 +29242,20 @@ void Player::SetSpiritHealer(Creature* creature)
     if (!creature->IsSpiritService())
         return;
 
-    _spiritHealerGuid = creature->GetGUID();
+    _areaSpiritHealerGUID = creature->GetGUID();
     CastSpell(this, SPELL_WAITING_FOR_RESURRECT);
 }
 
-void Player::SendAreaSpiritHealerQueryOpcode(Unit* spiritHealer) const
+void Player::SendAreaSpiritHealerTime(Unit* spiritHealer) const
 {
     int32 timeLeft = 0;
     if (Spell* spell = spiritHealer->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
         timeLeft = spell->GetTimer();
 
-    SendAreaSpiritHealerQueryOpcode(spiritHealer->GetGUID(), timeLeft);
+    SendAreaSpiritHealerTime(spiritHealer->GetGUID(), timeLeft);
 }
 
-void Player::SendAreaSpiritHealerQueryOpcode(ObjectGuid const& spiritHealerGUID, int32 timeLeft) const
+void Player::SendAreaSpiritHealerTime(ObjectGuid const& spiritHealerGUID, int32 timeLeft) const
 {
     WorldPackets::Battleground::AreaSpiritHealerTime areaSpiritHealerTime;
     areaSpiritHealerTime.HealerGuid = spiritHealerGUID;

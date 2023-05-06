@@ -5428,7 +5428,7 @@ class spell_gen_spirit_heal_aoe : public SpellScript
         targets.remove_if([caster](WorldObject* target) -> bool
         {
             if (Player* playerTarget = target->ToPlayer())
-                return !playerTarget->CanAcceptSpiritHealFrom(caster);
+                return !playerTarget->CanAcceptAreaSpiritHealFrom(caster);
 
             return true;
         });
@@ -5461,7 +5461,7 @@ class spell_gen_spirit_heal_personal : public AuraScript
         if (!caster)
             return;
 
-        if (targetPlayer->CanAcceptSpiritHealFrom(caster))
+        if (targetPlayer->CanAcceptAreaSpiritHealFrom(caster))
             caster->CastSpell(targetPlayer, SPELL_SPIRIT_HEAL_EFFECT);
     }
 
@@ -5482,7 +5482,7 @@ class spell_gen_waiting_to_resurrect : public AuraScript
         if (!targetPlayer)
             return;
 
-        targetPlayer->SetSpiritHealer(nullptr);
+        targetPlayer->SetAreaSpiritHealer(nullptr);
         if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(targetPlayer->GetMap(), targetPlayer->GetZoneId()))
             bf->RemovePlayerFromResurrectQueue(targetPlayer->GetGUID());
     }

@@ -18,6 +18,7 @@
 #include "WorldSession.h"
 #include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
+#include "SpellAuras.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "Battleground.h"
@@ -36,7 +37,8 @@
 #include "Object.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "SpiritGuideAI.h"
+#include "SpellMgr.h"
+#include "SpellInfo.h"
 #include "World.h"
 
 void WorldSession::HandleBattlemasterHelloOpcode(WorldPackets::NPC::Hello& hello)
@@ -653,26 +655,40 @@ void WorldSession::HandleRequestPvpReward(WorldPackets::Battleground::RequestPVP
 
 void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPackets::Battleground::AreaSpiritHealerQuery& areaSpiritHealerQuery)
 {
-    Creature* unit = ObjectAccessor::GetCreature(*GetPlayer(), areaSpiritHealerQuery.HealerGuid);
-    if (!unit)
+    static constexpr uint32 SPELL_SPIRIT_HEAL_PLAYER_AURA = 156758;
+    static constexpr uint32 SPELL_SPIRIT_HEAL_CHANNEL_SELF = 305122;
+
+    Player* player = GetPlayer();
+    Creature* spiritHealer = ObjectAccessor::GetCreature(*GetPlayer(), areaSpiritHealerQuery.HealerGuid);
+    if (!spiritHealer)
         return;
 
-    if (!unit->IsSpiritService())                            // it's not spirit service
+    if (!spiritHealer->IsSpiritService())                            // it's not spirit service
         return;
 
-    if (_player->GetExactDist(unit) > MAX_AREA_SPIRIT_HEALER_RANGE)
+    if (_player->GetExactDist(spiritHealer) > MAX_AREA_SPIRIT_HEALER_RANGE)
         return;
 
-    if (SpiritGuideAI* spiritGuideAI = dynamic_cast<SpiritGuideAI*>(unit->AI()))
+    if (spiritHealer->IsAreaSpiritHealerIndividual())
     {
-        if (spiritGuideAI->OnSpiritHealerQuery(_player))
-            return;
+        if (Aura* aura = player->GetAura(SPELL_SPIRIT_HEAL_PLAYER_AURA))
+        {
+            player->SendAreaSpiritHealerTime(spiritHealer->GetGUID(), aura->GetDuration());
+        }
+        else if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_SPIRIT_HEAL_PLAYER_AURA, DIFFICULTY_NONE))
+        {
+            spiritHealer->CastSpell(player, SPELL_SPIRIT_HEAL_PLAYER_AURA);
+            player->SendAreaSpiritHealerTime(spiritHealer->GetGUID(), spellInfo->GetDuration());
+            spiritHealer->CastSpell(nullptr, SPELL_SPIRIT_HEAL_CHANNEL_SELF);
+        }
     }
-
-    if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(_player->GetMap(), _player->GetZoneId()))
-        bf->SendAreaSpiritHealerQueryOpcode(_player, areaSpiritHealerQuery.HealerGuid);
     else
-        _player->SendAreaSpiritHealerQueryOpcode(unit);
+    {
+        if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(_player->GetMap(), _player->GetZoneId()))
+            bf->SendAreaSpiritHealerTime(_player, areaSpiritHealerQuery.HealerGuid);
+        else
+            _player->SendAreaSpiritHealerTime(spiritHealer);
+    }
 }
 
 void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPackets::Battleground::AreaSpiritHealerQueue& areaSpiritHealerQueue)
@@ -690,7 +706,7 @@ void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPackets::Battleground:
     if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(_player->GetMap(), _player->GetZoneId()))
         bf->AddPlayerToResurrectQueue(areaSpiritHealerQueue.HealerGuid, _player->GetGUID());
     else
-        _player->SetSpiritHealer(unit);
+        _player->SetAreaSpiritHealer(unit);
 }
 
 void WorldSession::HandleHearthAndResurrect(WorldPackets::Battleground::HearthAndResurrect& /*hearthAndResurrect*/)

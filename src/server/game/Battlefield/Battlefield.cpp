@@ -626,7 +626,7 @@ void Battlefield::RemovePlayerFromResurrectQueue(ObjectGuid playerGuid)
     }
 }
 
-void Battlefield::SendAreaSpiritHealerQueryOpcode(Player* player, ObjectGuid const& guid)
+void Battlefield::SendAreaSpiritHealerTime(Player* player, ObjectGuid const& guid)
 {
     WorldPackets::Battleground::AreaSpiritHealerTime areaSpiritHealerTime;
     areaSpiritHealerTime.HealerGuid = guid;

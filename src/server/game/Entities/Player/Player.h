@@ -2866,11 +2866,11 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         UF::UpdateField<UF::PlayerData, 0, TYPEID_PLAYER> m_playerData;
         UF::UpdateField<UF::ActivePlayerData, 0, TYPEID_ACTIVE_PLAYER> m_activePlayerData;
 
-        void SetSpiritHealer(Creature* creature);
-        ObjectGuid const& GetSpiritHealerGUID() const { return _spiritHealerGuid; }
-        bool CanAcceptSpiritHealFrom(Unit* spiritHealer) const { return spiritHealer->GetGUID() == _spiritHealerGuid; }
-        void SendAreaSpiritHealerQueryOpcode(Unit* spiritHealer) const;
-        void SendAreaSpiritHealerQueryOpcode(ObjectGuid const& spiritHealerGUID, int32 timeLeft) const;
+        void SetAreaSpiritHealer(Creature* creature);
+        ObjectGuid const& GetSpiritHealerGUID() const { return _areaSpiritHealerGUID; }
+        bool CanAcceptAreaSpiritHealFrom(Unit* spiritHealer) const { return spiritHealer->GetGUID() == _areaSpiritHealerGUID; }
+        void SendAreaSpiritHealerTime(Unit* spiritHealer) const;
+        void SendAreaSpiritHealerTime(ObjectGuid const& spiritHealerGUID, int32 timeLeft) const;
 
     protected:
         // Gamemaster whisper whitelist
@@ -3224,7 +3224,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::unique_ptr<RestMgr> _restMgr;
 
         bool _usePvpItemLevels;
-        ObjectGuid _spiritHealerGuid;
+        ObjectGuid _areaSpiritHealerGUID;
 };
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item const* item);

@@ -2289,6 +2289,87 @@ private:
     TaskScheduler _scheduler;
 };
 
+enum SpiritGuideFactions
+{
+    FACTION_HORDE = 83,
+    FACTION_ALLIANCE = 84
+};
+
+enum SpiritGuideSpells
+{
+    SPELL_GRAVEYARD_TELEPORT = 46893,
+
+    // AoE
+    SPELL_SPIRIT_HEAL_CHANNEL = 22011,
+};
+
+enum SpiritGuideCreatures
+{
+    NPC_ALLIANCE_GRAVEYARD_TELEPORT = 26350,
+    NPC_HORDE_GRAVEYARD_TELEPORT = 26351
+};
+
+struct npc_area_spirit_healer : public ScriptedAI
+{
+    npc_area_spirit_healer(Creature* creature) : ScriptedAI(creature) { }
+
+    void SummonGraveyardTeleporter(uint32 npcEntry)
+    {
+        // maybe NPC is summoned with these spells:
+        // ID - 24237 Summon Alliance Graveyard Teleporter (SERVERSIDE)
+        // ID - 46894 Summon Horde Graveyard Teleporter (SERVERSIDE)
+        if (TempSummon* summon = me->SummonCreature(npcEntry, me->GetPosition(), TEMPSUMMON_DEAD_DESPAWN, 0s, 0, 0))
+        {
+            summon->SetDemonCreatorGUID(me->GetGUID());
+            summon->CastSpell(summon, SPELL_GRAVEYARD_TELEPORT);
+        }
+    }
+
+    void ScheduleSpiritHealChannel()
+    {
+        _scheduler.Schedule(1s, [this](TaskContext /*context*/)
+        {
+            DoCastSelf(SPELL_SPIRIT_HEAL_CHANNEL);
+        });
+    }
+
+    void JustAppeared() override
+    {
+        ScheduleSpiritHealChannel();
+    }
+
+    void OnChannelFinished(SpellInfo const* spell) override
+    {
+        if (spell->Id != SPELL_SPIRIT_HEAL_CHANNEL)
+            return;
+
+        ScheduleSpiritHealChannel();
+    }
+
+    void OnDespawn() override
+    {
+        switch (me->GetFaction())
+        {
+            case FACTION_HORDE:
+                SummonGraveyardTeleporter(NPC_HORDE_GRAVEYARD_TELEPORT);
+                break;
+            case FACTION_ALLIANCE:
+                SummonGraveyardTeleporter(NPC_ALLIANCE_GRAVEYARD_TELEPORT);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -2312,4 +2393,5 @@ void AddSC_npcs_special()
     new npc_argent_squire_gruntling();
     new npc_bountiful_table();
     RegisterCreatureAI(npc_gen_void_zone);
+    RegisterCreatureAI(npc_area_spirit_healer);
 }
