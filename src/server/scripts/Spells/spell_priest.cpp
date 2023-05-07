@@ -1345,36 +1345,39 @@ class spell_pri_purge_the_wicked_dummy : public SpellScript
             return !target || target == explTarget || target->HasBreakableByDamageCrowdControlAura();
         });
 
-        if (!targets.empty())
+        if (targets.empty())
+            return;
+
+        // Note: there's no SPELL_EFFECT_DUMMY with BasePoints 1 in any of the spells related to use as reference so we hardcode the value.
+        int32 spreadCount = 1;
+
+        // Note: we must sort our list of targets whose priority is 1) aura, 2) distance, and 3) duration.
+        targets.sort([&](WorldObject const* lhs, WorldObject const* rhs) -> bool
         {
-            // Note: we must sort our list of targets whose priority is 1) aura, 2) distance, and 3) duration.
-            targets.sort([&](WorldObject const* lhs, WorldObject const* rhs) -> bool
+            Unit const* targetA = lhs->ToUnit();
+            Unit const* targetB = rhs->ToUnit();
+
+            Aura* auraA = targetA->GetAura(SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC, caster->GetGUID());
+            Aura* auraB = targetB->GetAura(SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC, caster->GetGUID());
+
+            if (!auraA)
             {
-                Unit const* targetA = lhs->ToUnit();
-                Unit const* targetB = rhs->ToUnit();
+                if (auraB)
+                    return true;
+                return explTarget->GetExactDist(targetA) < explTarget->GetExactDist(targetB);
+            }
+            if (!auraB)
+                return false;
 
-                Aura* auraA = targetA->GetAura(SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC, caster->GetGUID());
-                Aura* auraB = targetB->GetAura(SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC, caster->GetGUID());
+            return auraA->GetDuration() < auraB->GetDuration();
+        });
 
-                if (!auraA)
-                {
-                    if (auraB)
-                        return true;
-                    else
-                        return explTarget->GetExactDist(targetA) < explTarget->GetExactDist(targetB);
-                }
-                else if (!auraB)
-                    return false;
+        // Note: Revel in Purity talent.
+        if (caster->HasAura(SPELL_PRIEST_TALENT_REVEL_IN_PURITY))
+            spreadCount += sSpellMgr->AssertSpellInfo(SPELL_PRIEST_TALENT_REVEL_IN_PURITY, DIFFICULTY_NONE)->GetEffect(EFFECT_1).CalcValue(GetCaster());
 
-                return auraA->GetDuration() < auraB->GetDuration();
-            });
-
-            // Note: Revel in Purity talent.
-            if (caster->HasAura(SPELL_PRIEST_TALENT_REVEL_IN_PURITY))
-                _spreadCount += sSpellMgr->AssertSpellInfo(SPELL_PRIEST_TALENT_REVEL_IN_PURITY, DIFFICULTY_NONE)->GetEffect(EFFECT_1).CalcValue(GetCaster());
-        }
-
-        targets.resize(std::min<uint32>(targets.size(), _spreadCount));
+        if (targets.size() > spreadCount)
+            targets.resize(spreadCount);
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -1392,8 +1395,6 @@ class spell_pri_purge_the_wicked_dummy : public SpellScript
     }
 
 private:
-    // Note: there's no SPELL_EFFECT_DUMMY with BasePoints 1 in any of the spells related to use as reference so we hardcode the value.
-    int32 _spreadCount = 1;
 };
 
 // 47536 - Rapture
