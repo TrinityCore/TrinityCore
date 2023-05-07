@@ -3606,8 +3606,6 @@ void Creature::SetTrainerId(Optional<uint32> trainerId)
 
 enum AreaSpiritHealerData
 {
-    SPELL_GRAVEYARD_TELEPORT            = 46893,
-
     NPC_ALLIANCE_GRAVEYARD_TELEPORT     = 26350,
     NPC_HORDE_GRAVEYARD_TELEPORT        = 26351
 };
@@ -3622,10 +3620,5 @@ void Creature::SummonGraveyardTeleporter()
     // maybe NPC is summoned with these spells:
     // ID - 24237 Summon Alliance Graveyard Teleporter (SERVERSIDE)
     // ID - 46894 Summon Horde Graveyard Teleporter (SERVERSIDE)
-    if (TempSummon* summon = SummonCreature(npcEntry, GetPosition(), TEMPSUMMON_TIMED_DESPAWN, 1s, 0, 0))
-    {
-        // @TODO: move to SAI
-        summon->SetDemonCreatorGUID(GetGUID());
-        summon->CastSpell(summon, SPELL_GRAVEYARD_TELEPORT);
-    }
+    SummonCreature(npcEntry, GetPosition(), TEMPSUMMON_TIMED_DESPAWN, 1s, 0, 0);
 }
