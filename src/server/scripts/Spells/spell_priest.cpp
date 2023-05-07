@@ -774,26 +774,22 @@ class spell_pri_painful_punishment : public AuraScript
 
     void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
-        DamageInfo* damageInfo = eventInfo.GetDamageInfo();
-        if (!damageInfo || !damageInfo->GetDamage())
-            return;
-
         Unit* caster = eventInfo.GetActor();
         Unit* target = eventInfo.GetActionTarget();
         if (!caster || !target)
             return;
 
-        uint32 additionalDuration = aurEff->GetSpellEffectInfo().CalcValue(caster);
+        int32 additionalDuration = aurEff->GetAmount();
 
-        if (Aura* shadowWordPain = target->GetAura(SPELL_PRIEST_SHADOW_WORD_PAIN, caster->GetGUID()))
+        if (Aura* shadowWordPain = target->GetOwnedAura(SPELL_PRIEST_SHADOW_WORD_PAIN, caster->GetGUID()))
             shadowWordPain->SetDuration(shadowWordPain->GetDuration() + additionalDuration);
-        else if (Aura* purgeTheWicked = target->GetAura(SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC, caster->GetGUID()))
+
+        if (Aura* purgeTheWicked = target->GetOwnedAura(SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC, caster->GetGUID()))
             purgeTheWicked->SetDuration(purgeTheWicked->GetDuration() + additionalDuration);
     }
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_pri_painful_punishment::CheckProc);
         OnEffectProc += AuraEffectProcFn(spell_pri_painful_punishment::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
