@@ -16,7 +16,6 @@
  */
 
 #include "ScriptMgr.h"
-#include "AreaSpiritHealerAI.h"
 #include "Battlefield.h"
 #include "Containers.h"
 #include "Battlefield/BattlefieldTB.h"
@@ -38,9 +37,9 @@ enum TBSpiritGuide
     GOSSIP_OPTION_ID_SOUTH_SPIRE = 5,
 };
 
-struct npc_tb_spirit_guide : public AreaSpiritHealerAI
+struct npc_tb_spirit_guide : public ScriptedAI
 {
-    npc_tb_spirit_guide(Creature* creature) : AreaSpiritHealerAI(creature) { }
+    npc_tb_spirit_guide(Creature* creature) : ScriptedAI(creature) { }
 
     bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
     {

@@ -1525,6 +1525,9 @@ bool Battleground::DelCreature(uint32 type)
 
     if (Creature* creature = GetBgMap()->GetCreature(BgCreatures[type]))
     {
+        if (creature->IsAreaSpiritHealer())
+            creature->SummonGraveyardTeleporter();
+
         creature->AddObjectToRemoveList();
         BgCreatures[type].Clear();
         return true;

@@ -96,8 +96,9 @@ enum BattlegroundCreatures
 
 enum BattlegroundSpells
 {
-    SPELL_SPIRIT_HEAL_PLAYER_AURA   = 156758,
-    SPELL_SPIRIT_HEAL_CHANNEL_SELF  = 305122,
+    SPELL_SPIRIT_HEAL_CHANNEL_AOE   = 22011,                // used for AoE resurrections
+    SPELL_SPIRIT_HEAL_PLAYER_AURA   = 156758,               // individual player timers for resurrection
+    SPELL_SPIRIT_HEAL_CHANNEL_SELF  = 305122,               // channel visual for individual area spirit healers
     SPELL_WAITING_FOR_RESURRECT     = 2584,                 // Waiting to Resurrect
     VISUAL_SPIRIT_HEAL_CHANNEL      = 3060,
     SPELL_SPIRIT_HEAL               = 22012,                // Spirit Heal

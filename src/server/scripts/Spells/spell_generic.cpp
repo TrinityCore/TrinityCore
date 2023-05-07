@@ -5470,6 +5470,43 @@ class spell_gen_spirit_heal_personal : public AuraScript
     }
 };
 
+class RecastSpiritHealChannelEvent : public BasicEvent
+{
+public:
+    RecastSpiritHealChannelEvent(Unit* caster) : _caster(caster) { }
+
+    bool Execute(uint64 /*e_time*/, uint32 /*p_time*/) override
+    {
+        if (_caster->GetChannelSpellId() == 0)
+            _caster->CastSpell(nullptr, SPELL_SPIRIT_HEAL_CHANNEL_AOE, false);
+
+        return true;
+    }
+
+private:
+    Unit* _caster;
+};
+
+// 22011 - Spirit Heal Channel
+class spell_gen_spirit_heal_channel : public AuraScript
+{
+    PrepareAuraScript(spell_gen_spirit_heal_channel);
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+            return;
+
+        Unit* target = GetTarget();
+        target->m_Events.AddEventAtOffset(new RecastSpiritHealChannelEvent(target), 1s);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_gen_spirit_heal_channel::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 2584 - Waiting to Resurrect
 class spell_gen_waiting_to_resurrect : public AuraScript
 {
@@ -5661,5 +5698,6 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_item_bloodlust_drums", SPELL_SHAMAN_EXHAUSTION);
     RegisterSpellScript(spell_gen_spirit_heal_aoe);
     RegisterSpellScript(spell_gen_spirit_heal_personal);
+    RegisterSpellScript(spell_gen_spirit_heal_channel);
     RegisterSpellScript(spell_gen_waiting_to_resurrect);
 }

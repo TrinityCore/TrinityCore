@@ -16,7 +16,6 @@
  */
 
 #include "ScriptMgr.h"
-#include "AreaSpiritHealerAI.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "Battlefield/BattlefieldWG.h"
@@ -186,9 +185,9 @@ private:
     }
 };
 
-struct npc_wg_spirit_guide : public AreaSpiritHealerAI
+struct npc_wg_spirit_guide : public ScriptedAI
 {
-    npc_wg_spirit_guide(Creature* creature) : AreaSpiritHealerAI(creature) { }
+    npc_wg_spirit_guide(Creature* creature) : ScriptedAI(creature) { }
 
     bool OnGossipHello(Player* player) override
     {
