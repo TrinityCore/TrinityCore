@@ -90,8 +90,8 @@ enum BattlegroundMarksCount
 
 enum BattlegroundCreatures
 {
-    BG_CREATURE_ENTRY_A_SPIRITGUIDE      = 88238,           // alliance
-    BG_CREATURE_ENTRY_H_SPIRITGUIDE      = 88239            // horde
+    BG_CREATURE_ENTRY_A_SPIRITGUIDE      = 13116,           // alliance
+    BG_CREATURE_ENTRY_H_SPIRITGUIDE      = 13117            // horde
 };
 
 enum BattlegroundSpells
