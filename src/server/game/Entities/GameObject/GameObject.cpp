@@ -2156,7 +2156,7 @@ void GameObject::SaveRespawnTime(uint32 forceDelay)
 
 bool GameObject::IsNeverVisibleFor(WorldObject const* seer, bool allowServersideObjects) const
 {
-    if (WorldObject::IsNeverVisibleFor(seer))
+    if (WorldObject::IsNeverVisibleFor(seer, allowServersideObjects))
         return true;
 
     if (GetGOInfo()->GetServerOnly() && !allowServersideObjects)
