@@ -92,10 +92,14 @@ enum PriestSpells
     SPELL_PRIEST_POWER_WORD_SHIELD                  = 17,
     SPELL_PRIEST_POWER_WORD_SOLACE_ENERGIZE         = 129253,
     SPELL_PRIEST_PRAYER_OF_HEALING                  = 596,
+    SPELL_PRIEST_PURGE_THE_WICKED                   = 204197,
+    SPELL_PRIEST_PURGE_THE_WICKED_DUMMY             = 204215,
+    SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC          = 204213,
     SPELL_PRIEST_RAPTURE                            = 47536,
     SPELL_PRIEST_RENEW                              = 139,
     SPELL_PRIEST_RENEWED_HOPE                       = 197469,
     SPELL_PRIEST_RENEWED_HOPE_EFFECT                = 197470,
+    SPELL_PRIEST_REVEL_IN_PURITY                    = 373003,
     SPELL_PRIEST_SHADOW_MEND_DAMAGE                 = 186439,
     SPELL_PRIEST_SHADOW_MEND_PERIODIC_DUMMY         = 187464,
     SPELL_PRIEST_SHIELD_DISCIPLINE_ENERGIZE         = 47755,
@@ -1284,6 +1288,109 @@ class spell_pri_prayer_of_mending_jump : public spell_pri_prayer_of_mending_Spel
     }
 };
 
+// 204197 - Purge the Wicked
+// Called by Penance - 47540, Dark Reprimand - 400169
+class spell_pri_purge_the_wicked : public SpellScript
+{
+    PrepareSpellScript(spell_pri_purge_the_wicked);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC,
+            SPELL_PRIEST_PURGE_THE_WICKED_DUMMY
+        });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        if (target->HasAura(SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC, caster->GetGUID()))
+            caster->CastSpell(target, SPELL_PRIEST_PURGE_THE_WICKED_DUMMY, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_purge_the_wicked::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 204215 - Purge the Wicked
+class spell_pri_purge_the_wicked_dummy : public SpellScript
+{
+    PrepareSpellScript(spell_pri_purge_the_wicked_dummy);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC, SPELL_PRIEST_REVEL_IN_PURITY })
+            && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_REVEL_IN_PURITY, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_1;
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        Unit* caster = GetCaster();
+        Unit* explTarget = GetExplTargetUnit();
+
+        targets.remove_if([&](WorldObject* object) -> bool
+        {
+            // Note: we must remove any non-unit target, the explicit target and any other target that may be under any crowd control aura.
+            Unit* target = object->ToUnit();
+            return !target || target == explTarget || target->HasBreakableByDamageCrowdControlAura();
+        });
+
+        if (targets.empty())
+            return;
+
+        // Note: there's no SPELL_EFFECT_DUMMY with BasePoints 1 in any of the spells related to use as reference so we hardcode the value.
+        uint32 spreadCount = 1;
+
+        // Note: we must sort our list of targets whose priority is 1) aura, 2) distance, and 3) duration.
+        targets.sort([&](WorldObject const* lhs, WorldObject const* rhs) -> bool
+        {
+            Unit const* targetA = lhs->ToUnit();
+            Unit const* targetB = rhs->ToUnit();
+
+            Aura* auraA = targetA->GetAura(SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC, caster->GetGUID());
+            Aura* auraB = targetB->GetAura(SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC, caster->GetGUID());
+
+            if (!auraA)
+            {
+                if (auraB)
+                    return true;
+                return explTarget->GetExactDist(targetA) < explTarget->GetExactDist(targetB);
+            }
+            if (!auraB)
+                return false;
+
+            return auraA->GetDuration() < auraB->GetDuration();
+        });
+
+        // Note: Revel in Purity talent.
+        if (caster->HasAura(SPELL_PRIEST_REVEL_IN_PURITY))
+            spreadCount += sSpellMgr->AssertSpellInfo(SPELL_PRIEST_REVEL_IN_PURITY, DIFFICULTY_NONE)->GetEffect(EFFECT_1).CalcValue(GetCaster());
+
+        if (targets.size() > spreadCount)
+            targets.resize(spreadCount);
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        caster->CastSpell(target, SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_purge_the_wicked_dummy::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_pri_purge_the_wicked_dummy::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+    }
+};
+
 // 47536 - Rapture
 class spell_pri_rapture : public SpellScript
 {
@@ -1707,6 +1814,8 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_prayer_of_mending);
     RegisterSpellScript(spell_pri_prayer_of_mending_aura);
     RegisterSpellScript(spell_pri_prayer_of_mending_jump);
+    RegisterSpellScript(spell_pri_purge_the_wicked);
+    RegisterSpellScript(spell_pri_purge_the_wicked_dummy);
     RegisterSpellScript(spell_pri_rapture);
     RegisterSpellScript(spell_pri_sins_of_the_many);
     RegisterSpellScript(spell_pri_spirit_of_redemption);
