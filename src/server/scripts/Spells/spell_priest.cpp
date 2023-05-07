@@ -102,6 +102,7 @@ enum PriestSpells
     SPELL_PRIEST_REVEL_IN_PURITY                    = 373003,
     SPELL_PRIEST_SHADOW_MEND_DAMAGE                 = 186439,
     SPELL_PRIEST_SHADOW_MEND_PERIODIC_DUMMY         = 187464,
+    SPELL_PRIEST_SHADOW_WORD_PAIN                   = 589,
     SPELL_PRIEST_SHIELD_DISCIPLINE_ENERGIZE         = 47755,
     SPELL_PRIEST_SHIELD_DISCIPLINE_PASSIVE          = 197045,
     SPELL_PRIEST_SINS_OF_THE_MANY                   = 280398,
@@ -754,6 +755,42 @@ class spell_pri_mind_bomb : public AuraScript
     void Register() override
     {
         AfterEffectRemove += AuraEffectRemoveFn(spell_pri_mind_bomb::RemoveEffect, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 390686 - Painful Punishment
+class spell_pri_painful_punishment : public AuraScript
+{
+    PrepareAuraScript(spell_pri_painful_punishment);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_PRIEST_SHADOW_WORD_PAIN,
+            SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC
+        });
+    }
+
+    void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    {
+        Unit* caster = eventInfo.GetActor();
+        Unit* target = eventInfo.GetActionTarget();
+        if (!caster || !target)
+            return;
+
+        int32 additionalDuration = aurEff->GetAmount();
+
+        if (Aura* shadowWordPain = target->GetOwnedAura(SPELL_PRIEST_SHADOW_WORD_PAIN, caster->GetGUID()))
+            shadowWordPain->SetDuration(shadowWordPain->GetDuration() + additionalDuration);
+
+        if (Aura* purgeTheWicked = target->GetOwnedAura(SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC, caster->GetGUID()))
+            purgeTheWicked->SetDuration(purgeTheWicked->GetDuration() + additionalDuration);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_pri_painful_punishment::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -1802,6 +1839,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_leap_of_faith_effect_trigger);
     RegisterSpellScript(spell_pri_levitate);
     RegisterSpellScript(spell_pri_mind_bomb);
+    RegisterSpellScript(spell_pri_painful_punishment);
     RegisterSpellScriptWithArgs(spell_pri_penance, "spell_pri_penance", SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE, SPELL_PRIEST_PENANCE_CHANNEL_HEALING);
     RegisterSpellScriptWithArgs(spell_pri_penance, "spell_pri_dark_reprimand", SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_DAMAGE, SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_HEALING);
     RegisterSpellScript(spell_pri_penance_or_dark_reprimand_channeled);
