@@ -99,6 +99,7 @@ enum PriestSpells
     SPELL_PRIEST_RENEW                              = 139,
     SPELL_PRIEST_RENEWED_HOPE                       = 197469,
     SPELL_PRIEST_RENEWED_HOPE_EFFECT                = 197470,
+    SPELL_PRIEST_REVEL_IN_PURITY                    = 373003,
     SPELL_PRIEST_SHADOW_MEND_DAMAGE                 = 186439,
     SPELL_PRIEST_SHADOW_MEND_PERIODIC_DUMMY         = 187464,
     SPELL_PRIEST_SHIELD_DISCIPLINE_ENERGIZE         = 47755,
@@ -118,11 +119,6 @@ enum PriestSpells
     SPELL_PRIEST_PRAYER_OF_MENDING_HEAL             = 33110,
     SPELL_PRIEST_PRAYER_OF_MENDING_JUMP             = 155793,
     SPELL_PRIEST_WEAKENED_SOUL                      = 6788
-};
-
-enum PriestTalents
-{
-    SPELL_PRIEST_TALENT_REVEL_IN_PURITY             = 373003
 };
 
 enum MiscSpells
@@ -1329,8 +1325,8 @@ class spell_pri_purge_the_wicked_dummy : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC, SPELL_PRIEST_TALENT_REVEL_IN_PURITY })
-            && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_TALENT_REVEL_IN_PURITY, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_1;
+        return ValidateSpellInfo({ SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC, SPELL_PRIEST_REVEL_IN_PURITY })
+            && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_REVEL_IN_PURITY, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_1;
     }
 
     void FilterTargets(std::list<WorldObject*>& targets)
@@ -1349,7 +1345,7 @@ class spell_pri_purge_the_wicked_dummy : public SpellScript
             return;
 
         // Note: there's no SPELL_EFFECT_DUMMY with BasePoints 1 in any of the spells related to use as reference so we hardcode the value.
-        int32 spreadCount = 1;
+        uint32 spreadCount = 1;
 
         // Note: we must sort our list of targets whose priority is 1) aura, 2) distance, and 3) duration.
         targets.sort([&](WorldObject const* lhs, WorldObject const* rhs) -> bool
@@ -1373,8 +1369,8 @@ class spell_pri_purge_the_wicked_dummy : public SpellScript
         });
 
         // Note: Revel in Purity talent.
-        if (caster->HasAura(SPELL_PRIEST_TALENT_REVEL_IN_PURITY))
-            spreadCount += sSpellMgr->AssertSpellInfo(SPELL_PRIEST_TALENT_REVEL_IN_PURITY, DIFFICULTY_NONE)->GetEffect(EFFECT_1).CalcValue(GetCaster());
+        if (caster->HasAura(SPELL_PRIEST_REVEL_IN_PURITY))
+            spreadCount += sSpellMgr->AssertSpellInfo(SPELL_PRIEST_REVEL_IN_PURITY, DIFFICULTY_NONE)->GetEffect(EFFECT_1).CalcValue(GetCaster());
 
         if (targets.size() > spreadCount)
             targets.resize(spreadCount);
@@ -1393,8 +1389,6 @@ class spell_pri_purge_the_wicked_dummy : public SpellScript
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_purge_the_wicked_dummy::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
         OnEffectHitTarget += SpellEffectFn(spell_pri_purge_the_wicked_dummy::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
     }
-
-private:
 };
 
 // 47536 - Rapture
