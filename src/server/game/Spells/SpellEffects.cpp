@@ -20,7 +20,6 @@
 #include "AreaTrigger.h"
 #include "AzeriteEmpoweredItem.h"
 #include "AzeriteItem.h"
-#include "BattlefieldMgr.h"
 #include "Battleground.h"
 #include "BattlegroundMgr.h"
 #include "BattlePetMgr.h"
