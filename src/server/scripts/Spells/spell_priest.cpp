@@ -759,19 +759,14 @@ class spell_pri_penance : public SpellScript
 {
     PrepareSpellScript(spell_pri_penance);
 
-    bool Validate(SpellInfo const* spellInfo) override
+public:
+    spell_pri_penance(uint32 damageSpellId, uint32 healingSpellId) : _damageSpellId(damageSpellId), _healingSpellId(healingSpellId)
     {
-        switch (spellInfo->Id)
-        {
-            case SPELL_PRIEST_PENANCE:
-                return ValidateSpellInfo({ SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE, SPELL_PRIEST_PENANCE_CHANNEL_HEALING });
-            case SPELL_PRIEST_DARK_REPRIMAND:
-                return ValidateSpellInfo({ SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_DAMAGE, SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_HEALING });
-            default:
-                break;
-        }
+    }
 
-        return false;
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ _damageSpellId, _healingSpellId });
     }
 
     SpellCastResult CheckCast()
@@ -800,11 +795,9 @@ class spell_pri_penance : public SpellScript
         if (Unit* target = GetHitUnit())
         {
             if (caster->IsFriendlyTo(target))
-                caster->CastSpell(target, GetSpellInfo()->Id == SPELL_PRIEST_PENANCE ? SPELL_PRIEST_PENANCE_CHANNEL_HEALING : SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_HEALING,
-                    CastSpellExtraArgs().SetTriggeringSpell(GetSpell()));
+                caster->CastSpell(target, _healingSpellId, CastSpellExtraArgs().SetTriggeringSpell(GetSpell()));
             else
-                caster->CastSpell(target, GetSpellInfo()->Id == SPELL_PRIEST_PENANCE ? SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE : SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_DAMAGE,
-                    CastSpellExtraArgs().SetTriggeringSpell(GetSpell()));
+                caster->CastSpell(target, _damageSpellId, CastSpellExtraArgs().SetTriggeringSpell(GetSpell()));
         }
     }
 
@@ -813,6 +806,10 @@ class spell_pri_penance : public SpellScript
         OnCheckCast += SpellCheckCastFn(spell_pri_penance::CheckCast);
         OnEffectHitTarget += SpellEffectFn(spell_pri_penance::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
+
+private:
+    uint32 _damageSpellId;
+    uint32 _healingSpellId;
 };
 
 // 47758 - Penance (Channel Damage), 47757 - Penance (Channel Healing)
@@ -1698,8 +1695,8 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_leap_of_faith_effect_trigger);
     RegisterSpellScript(spell_pri_levitate);
     RegisterSpellScript(spell_pri_mind_bomb);
-    RegisterSpellScriptWithArgs(spell_pri_penance, "spell_pri_penance");
-    RegisterSpellScriptWithArgs(spell_pri_penance, "spell_pri_dark_reprimand");
+    RegisterSpellScriptWithArgs(spell_pri_penance, "spell_pri_penance", SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE, SPELL_PRIEST_PENANCE_CHANNEL_HEALING);
+    RegisterSpellScriptWithArgs(spell_pri_penance, "spell_pri_dark_reprimand", SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_DAMAGE, SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_HEALING);
     RegisterSpellScript(spell_pri_penance_or_dark_reprimand_channeled);
     RegisterSpellScript(spell_pri_power_of_the_dark_side);
     RegisterSpellScript(spell_pri_power_of_the_dark_side_damage_bonus);
