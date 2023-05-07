@@ -481,6 +481,10 @@ inline void Battleground::_ProcessJoin(uint32 diff)
         SetStatus(STATUS_IN_PROGRESS);
         SetStartDelayTime(StartDelayTimes[BG_STARTING_EVENT_FOURTH]);
 
+        for (auto const& [guid, _] : GetPlayers())
+            if (Player* player = ObjectAccessor::FindPlayer(guid))
+                player->AtStartOfEncounter();
+
         // Remove preparation
         if (isArena())
         {
@@ -907,6 +911,10 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
         player->RemoveAura(SPELL_MERCENARY_ALLIANCE_REACTIONS);
         player->RemoveAura(SPELL_MERCENARY_SHAPESHIFT);
         player->RemovePlayerFlagEx(PLAYER_FLAGS_EX_MERCENARY_MODE);
+
+        player->AtEndOfEncounter();
+
+        player->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::LeaveArenaOrBattleground);
 
         if (!player->IsAlive())                              // resurrect on exit
         {
