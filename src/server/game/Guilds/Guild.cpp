@@ -2120,7 +2120,7 @@ bool Guild::Validate()
         _SetLeaderGUID(*pLeader);
 
     // Check config if multiple guildmasters are allowed
-    if (!sConfigMgr->GetBoolDefault("Guild.AllowMultipleGuildMaster", 0))
+    if (!sConfigMgr->GetBoolDefault("Guild.AllowMultipleGuildMaster", false))
         for (auto& [guid, member] : m_members)
             if ((member.GetRankId() == GR_GUILDMASTER) && !member.IsSamePlayer(m_leaderGuid))
                 member.ChangeRank(trans, GR_OFFICER);
