@@ -1313,7 +1313,7 @@ class spell_pri_purge_the_wicked : public SpellScript
         Unit* target = GetHitUnit();
 
         if (target->HasAura(SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC, caster->GetGUID()))
-            caster->CastSpell(target, SPELL_PRIEST_PURGE_THE_WICKED_DUMMY, CastSpellExtraArgs(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS));
+            caster->CastSpell(target, SPELL_PRIEST_PURGE_THE_WICKED_DUMMY, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
     }
 
     void Register() override
@@ -1329,7 +1329,7 @@ class spell_pri_purge_the_wicked_dummy : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC })
+        return ValidateSpellInfo({ SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC, SPELL_PRIEST_TALENT_REVEL_IN_PURITY })
             && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_TALENT_REVEL_IN_PURITY, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_1;
     }
 
@@ -1341,7 +1341,8 @@ class spell_pri_purge_the_wicked_dummy : public SpellScript
         targets.remove_if([&](WorldObject* object) -> bool
         {
             // Note: we must remove any non-unit target, the explicit target and any other target that may be under any crowd control aura.
-            return (!object->ToUnit() || object->ToUnit() == explTarget || object->ToUnit()->HasBreakableByDamageCrowdControlAura());
+            Unit* target = object->ToUnit();
+            return !target || target == explTarget || target->HasBreakableByDamageCrowdControlAura();
         });
 
         if (!targets.empty())
@@ -1370,7 +1371,7 @@ class spell_pri_purge_the_wicked_dummy : public SpellScript
 
             // Note: Revel in Purity talent.
             if (caster->HasAura(SPELL_PRIEST_TALENT_REVEL_IN_PURITY))
-                _spreadCount += sSpellMgr->GetSpellInfo(SPELL_PRIEST_TALENT_REVEL_IN_PURITY, DIFFICULTY_NONE)->GetEffect(EFFECT_1).CalcValue(GetCaster());
+                _spreadCount += sSpellMgr->AssertSpellInfo(SPELL_PRIEST_TALENT_REVEL_IN_PURITY, DIFFICULTY_NONE)->GetEffect(EFFECT_1).CalcValue(GetCaster());
         }
 
         targets.resize(std::min<uint32>(targets.size(), _spreadCount));
@@ -1381,7 +1382,7 @@ class spell_pri_purge_the_wicked_dummy : public SpellScript
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
 
-        caster->CastSpell(target, SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC, CastSpellExtraArgs(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS));
+        caster->CastSpell(target, SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
     }
 
     void Register() override
@@ -1818,6 +1819,8 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_prayer_of_mending);
     RegisterSpellScript(spell_pri_prayer_of_mending_aura);
     RegisterSpellScript(spell_pri_prayer_of_mending_jump);
+    RegisterSpellScript(spell_pri_purge_the_wicked);
+    RegisterSpellScript(spell_pri_purge_the_wicked_dummy);
     RegisterSpellScript(spell_pri_rapture);
     RegisterSpellScript(spell_pri_sins_of_the_many);
     RegisterSpellScript(spell_pri_spirit_of_redemption);
