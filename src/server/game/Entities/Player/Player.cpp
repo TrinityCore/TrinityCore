@@ -29239,7 +29239,7 @@ void Player::SetAreaSpiritHealer(Creature* creature)
         return;
     }
 
-    if (!creature->IsSpiritService())
+    if (!creature->IsAreaSpiritHealer())
         return;
 
     _areaSpiritHealerGUID = creature->GetGUID();

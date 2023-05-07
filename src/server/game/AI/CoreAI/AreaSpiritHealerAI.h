@@ -39,6 +39,8 @@ public:
     void OnDespawn() override;
     void UpdateAI(uint32 diff) override;
 
+    // Called when graveyard control changes
+    virtual void OnControlChange(TeamId newTeamId);
 private:
     TaskScheduler _scheduler;
 };

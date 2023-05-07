@@ -45,9 +45,7 @@ int32 AreaSpiritHealerAI::Permissible(Creature const* creature)
 
 void AreaSpiritHealerAI::SummonGraveyardTeleporter()
 {
-    uint32 npcEntry = NPC_HORDE_GRAVEYARD_TELEPORT;
-    if (me->GetFaction() == FACTION_ALLIANCE_GENERIC)
-        npcEntry = NPC_ALLIANCE_GRAVEYARD_TELEPORT;
+    uint32 npcEntry = me->GetFaction() == FACTION_ALLIANCE_GENERIC ? NPC_ALLIANCE_GRAVEYARD_TELEPORT : NPC_HORDE_GRAVEYARD_TELEPORT;
 
     // maybe NPC is summoned with these spells:
     // ID - 24237 Summon Alliance Graveyard Teleporter (SERVERSIDE)
@@ -87,10 +85,16 @@ void AreaSpiritHealerAI::OnChannelFinished(SpellInfo const* spell)
 
 void AreaSpiritHealerAI::OnDespawn()
 {
-    SummonGraveyardTeleporter();
+    TeamId team = me->GetFaction() == FACTION_ALLIANCE_GENERIC ? TEAM_HORDE : TEAM_ALLIANCE;
+    OnControlChange(team);
 }
 
 void AreaSpiritHealerAI::UpdateAI(uint32 diff)
 {
     _scheduler.Update(diff);
+}
+
+void AreaSpiritHealerAI::OnControlChange(TeamId /*newTeamId*/)
+{
+    SummonGraveyardTeleporter();
 }

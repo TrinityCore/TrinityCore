@@ -167,7 +167,7 @@ void WorldSession::HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet)
         unit->PauseMovement(pause);
     unit->SetHomePosition(unit->GetPosition());
 
-    // If spiritguide, no need for gossip menu, just put player into resurrect queue
+    // if area spirit healer, no need for gossip menu, just put player into resurrect queue
     if (unit->IsAreaSpiritHealer())
     {
         _player->SetAreaSpiritHealer(unit);

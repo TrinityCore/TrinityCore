@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AreaSpiritHealerAI.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "Battleground.h"
@@ -627,6 +628,12 @@ void BfGraveyard::GiveControlTo(TeamId team)
         m_SpiritGuide[1 - team]->SetVisible(false);
     if (m_SpiritGuide[team])
         m_SpiritGuide[team]->SetVisible(true);*/
+
+    if (Creature* spiritHealer = m_Bf->GetCreature(m_SpiritGuide[team]))
+    {
+        if (AreaSpiritHealerAI* ai = dynamic_cast<AreaSpiritHealerAI*>(spiritHealer->GetAI()))
+            ai->OnControlChange(team);
+    }
 
     m_ControlTeam = team;
 }
