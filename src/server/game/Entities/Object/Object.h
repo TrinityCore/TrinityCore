@@ -550,7 +550,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void SetLocationMapId(uint32 _mapId) { m_mapId = _mapId; }
         void SetLocationInstanceId(uint32 _instanceId) { m_InstanceId = _instanceId; }
 
-        virtual bool IsNeverVisible([[maybe_unused]] bool allowServersideObjects = false) const { return !IsInWorld(); }
+        virtual bool IsNeverVisible([[maybe_unused]] bool allowServersideObjects) const { return !IsInWorld(); }
         virtual bool IsAlwaysVisibleFor(WorldObject const* /*seer*/) const { return false; }
         virtual bool IsInvisibleDueToDespawn() const { return false; }
         //difference from IsAlwaysVisibleFor: 1. after distance check; 2. use owner or charmer as seer
