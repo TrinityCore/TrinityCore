@@ -4380,6 +4380,8 @@ void Player::BuildPlayerRepop()
 
 void Player::ResurrectPlayer(float restore_percent, bool applySickness)
 {
+    SetAreaSpiritHealer(nullptr);
+
     WorldPackets::Misc::DeathReleaseLoc packet;
     packet.MapID = -1;
     SendDirectMessage(packet.Write());
