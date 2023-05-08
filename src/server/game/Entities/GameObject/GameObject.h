@@ -33,6 +33,7 @@ class TransportBase;
 class Unit;
 struct Loot;
 struct TransportAnimation;
+enum SpellTargetCheckTypes : uint8;
 enum TriggerCastFlags : uint32;
 
 namespace Vignettes
@@ -122,6 +123,11 @@ private:
 
 union GameObjectValue
 {
+    //6 GAMEOBJECT_TYPE_TRAP
+    struct
+    {
+        SpellTargetCheckTypes TargetSearcherCheckType;
+    } Trap;
     //25 GAMEOBJECT_TYPE_FISHINGHOLE
     struct
     {
