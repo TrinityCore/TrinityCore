@@ -991,7 +991,7 @@ void PathGenerator::ShortenPathUntilDist(G3D::Vector3 const& target, float dist)
     //  - _pathPoints[i] is still too close
     //  - _pathPoints[i-1] is too far away
     // => the end point is somewhere on the line between the two
-    while (1)
+    while (true)
     {
         // we know that pathPoints[i] is too close already (from the previous iteration)
         if ((_pathPoints[i-1] - target).squaredLength() >= distSq)

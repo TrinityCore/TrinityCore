@@ -1242,7 +1242,7 @@ void GameObject::SaveRespawnTime(uint32 forceDelay)
 
 bool GameObject::IsNeverVisible(bool allowServersideObjects) const
 {
-    if (WorldObject::IsNeverVisible())
+    if (WorldObject::IsNeverVisible(allowServersideObjects))
         return true;
 
     if (GetGOInfo()->GetServerOnly() && !allowServersideObjects)
