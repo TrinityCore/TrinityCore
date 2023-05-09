@@ -1666,18 +1666,18 @@ enum class PlayerInteractionType : int32
 
 enum class PowerTypeFlags : int16
 {
-    StopRegenWhileCasting         = 0x0001,
+    StopRegenWhileCasting         = 0x0001, // NYI
     UseRegenInterrupt             = 0x0002,
-    FillFractionalPowerOnEnergize = 0x0008,
-    NoClientPrediction            = 0x0010,
+    FillFractionalPowerOnEnergize = 0x0008, // NYI
+    NoClientPrediction            = 0x0010, // NYI
     UnitsUseDefaultPowerOnInit    = 0x0020,
-    NotSetToDefaultOnResurrect    = 0x0040,
+    NotSetToDefaultOnResurrect    = 0x0040, // NYI
     IsUsedByNPCs                  = 0x0080,
-    ContinueRegenWhileFatigued    = 0x0200,
-    RegenAffectedByHaste          = 0x0400,
+    ContinueRegenWhileFatigued    = 0x0200, // NYI
+    RegenAffectedByHaste          = 0x0400, // NYI
     SetToMaxOnLevelUp             = 0x1000,
-    SetToMaxLevelOnInitialLogIn   = 0x2000,
-    AllowCostModsForPlayers       = 0x4000
+    SetToMaxLevelOnInitialLogIn   = 0x2000, // NYI
+    AllowCostModsForPlayers       = 0x4000  // NYI
 };
 
 DEFINE_ENUM_FLAG(PowerTypeFlags);
