@@ -1664,6 +1664,24 @@ enum class PlayerInteractionType : int32
     MajorFactionRenown          = 64
 };
 
+enum class PowerTypeFlags : int16
+{
+    StopRegenWhileCasting         = 0x0001,
+    UseRegenInterrupt             = 0x0002,
+    FillFractionalPowerOnEnergize = 0x0008,
+    NoClientPrediction            = 0x0010,
+    UnitsUseDefaultPowerOnInit    = 0x0020,
+    NotSetToDefaultOnResurrect    = 0x0040,
+    IsUsedByNPCs                  = 0x0080,
+    ContinueRegenWhileFatigued    = 0x0200,
+    RegenAffectedByHaste          = 0x0400,
+    SetToMaxOnLevelUp             = 0x1000,
+    SetToMaxLevelOnInitialLogIn   = 0x2000,
+    AllowCostModsForPlayers       = 0x4000
+};
+
+DEFINE_ENUM_FLAG(PowerTypeFlags);
+
 enum PrestigeLevelInfoFlags : uint8
 {
     PRESTIGE_FLAG_DISABLED  = 0x01                      // Prestige levels with this flag won't be included to calculate max prestigelevel.
