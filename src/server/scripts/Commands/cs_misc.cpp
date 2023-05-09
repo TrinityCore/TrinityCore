@@ -1056,8 +1056,6 @@ public:
                 return false;
             }
 
-            team = data->team;
-
             std::string team_name = handler->GetTrinityString(LANG_COMMAND_GRAVEYARD_NOTEAM);
 
             if (team == 0)

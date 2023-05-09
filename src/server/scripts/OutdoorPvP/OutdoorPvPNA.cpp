@@ -87,13 +87,7 @@ uint32 OPvPCapturePointNA::GetControllingFaction() const
 
 void OPvPCapturePointNA::FactionTakeOver(uint32 team)
 {
-    if (m_ControllingFaction)
-        sObjectMgr->RemoveGraveyardLink(NA_HALAA_GRAVEYARD, NA_HALAA_GRAVEYARD_ZONE, m_ControllingFaction, false);
-
     m_ControllingFaction = team;
-    if (m_ControllingFaction)
-        sObjectMgr->AddGraveyardLink(NA_HALAA_GRAVEYARD, NA_HALAA_GRAVEYARD_ZONE, m_ControllingFaction, false);
-
     m_GuardsAlive = NA_GUARDS_MAX;
     m_capturable = false;
     UpdateHalaaWorldState();

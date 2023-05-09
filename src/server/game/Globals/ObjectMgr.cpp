@@ -7015,8 +7015,8 @@ void ObjectMgr::LoadGraveyardZones()
 
     GraveyardStore.clear(); // needed for reload case
 
-    //                                               0   1          2
-    QueryResult result = WorldDatabase.Query("SELECT ID, GhostZone, Faction FROM graveyard_zone");
+    //                                                   0   1
+    QueryResult result = WorldDatabase.Query("SELECT ID, GhostZone FROM graveyard_zone");
 
     if (!result)
     {
@@ -7034,7 +7034,6 @@ void ObjectMgr::LoadGraveyardZones()
 
         uint32 safeLocId = fields[0].GetUInt32();
         uint32 zoneId = fields[1].GetUInt32();
-        uint32 team   = fields[2].GetUInt16();
 
         WorldSafeLocsEntry const* entry = GetWorldSafeLoc(safeLocId);
         if (!entry)
@@ -7050,13 +7049,7 @@ void ObjectMgr::LoadGraveyardZones()
             continue;
         }
 
-        if (team != 0 && team != HORDE && team != ALLIANCE)
-        {
-            TC_LOG_ERROR("sql.sql", "Table `graveyard_zone` has a record for non player faction ({}), skipped.", team);
-            continue;
-        }
-
-        if (!AddGraveyardLink(safeLocId, zoneId, team, false))
+        if (!AddGraveyardLink(safeLocId, zoneId, false))
             TC_LOG_ERROR("sql.sql", "Table `graveyard_zone` has a duplicate record for Graveyard (ID: {}) and Zone (ID: {}), skipped.", safeLocId, zoneId);
     } while (result->NextRow());
 
@@ -7136,11 +7129,6 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyard(WorldLocation const& lo
         GraveyardData const& data = range.first->second;
 
         WorldSafeLocsEntry const* entry = ASSERT_NOTNULL(GetWorldSafeLoc(data.safeLocId));
-
-        // skip enemy faction graveyard
-        // team == 0 case can be at call from .neargrave
-        if (data.team != 0 && team != 0 && data.team != team)
-            continue;
 
         if (conditionObject)
         {
@@ -7280,7 +7268,7 @@ AccessRequirement const* ObjectMgr::GetAccessRequirement(uint32 mapid, Difficult
     return Trinity::Containers::MapGetValuePtr(_accessRequirementStore, MAKE_PAIR64(mapid, difficulty));
 }
 
-bool ObjectMgr::AddGraveyardLink(uint32 id, uint32 zoneId, uint32 team, bool persist /*= true*/)
+bool ObjectMgr::AddGraveyardLink(uint32 id, uint32 zoneId, bool persist /*= true*/)
 {
     if (FindGraveyardData(id, zoneId))
         return false;
@@ -7288,7 +7276,6 @@ bool ObjectMgr::AddGraveyardLink(uint32 id, uint32 zoneId, uint32 team, bool per
     // add link to loaded data
     GraveyardData data;
     data.safeLocId = id;
-    data.team = team;
 
     GraveyardStore.insert(GraveyardContainer::value_type(zoneId, data));
 
@@ -7299,7 +7286,6 @@ bool ObjectMgr::AddGraveyardLink(uint32 id, uint32 zoneId, uint32 team, bool per
 
         stmt->setUInt32(0, id);
         stmt->setUInt32(1, zoneId);
-        stmt->setUInt16(2, uint16(team));
 
         WorldDatabase.Execute(stmt);
     }
@@ -7307,7 +7293,7 @@ bool ObjectMgr::AddGraveyardLink(uint32 id, uint32 zoneId, uint32 team, bool per
     return true;
 }
 
-void ObjectMgr::RemoveGraveyardLink(uint32 id, uint32 zoneId, uint32 team, bool persist /*= false*/)
+void ObjectMgr::RemoveGraveyardLink(uint32 id, uint32 zoneId, bool persist /*= false*/)
 {
     GraveyardMapBoundsNonConst range = GraveyardStore.equal_range(zoneId);
     if (range.first == range.second)
@@ -7324,11 +7310,6 @@ void ObjectMgr::RemoveGraveyardLink(uint32 id, uint32 zoneId, uint32 team, bool 
 
         // skip not matching safezone id
         if (data.safeLocId != id)
-            continue;
-
-        // skip enemy faction graveyard at same map (normal area, city, or battleground)
-        // team == 0 case can be at call from .neargrave
-        if (data.team != 0 && team != 0 && data.team != team)
             continue;
 
         found = true;
@@ -7349,7 +7330,6 @@ void ObjectMgr::RemoveGraveyardLink(uint32 id, uint32 zoneId, uint32 team, bool 
 
         stmt->setUInt32(0, id);
         stmt->setUInt32(1, zoneId);
-        stmt->setUInt16(2, uint16(team));
 
         WorldDatabase.Execute(stmt);
     }
