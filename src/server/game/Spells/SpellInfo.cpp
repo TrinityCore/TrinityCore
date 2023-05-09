@@ -1134,6 +1134,14 @@ std::array<SpellEffectInfo::StaticData, TOTAL_SPELL_EFFECTS> SpellEffectInfo::_d
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 304 SPELL_EFFECT_CHANGE_ACTIVE_COMBAT_TRAIT_CONFIG
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 305 SPELL_EFFECT_305
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 306 SPELL_EFFECT_306
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 307 SPELL_EFFECT_307
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 308 SPELL_EFFECT_308
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 309 SPELL_EFFECT_309
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 310 SPELL_EFFECT_310
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 311 SPELL_EFFECT_311
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 312 SPELL_EFFECT_312
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_ITEM}, // 313 SPELL_EFFECT_313
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 314 SPELL_EFFECT_314
 } };
 
 SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, SpellInfoLoadHelper const& data)
@@ -2044,8 +2052,6 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
         case 34976:                                         // Netherstorm Flag
             return map_id == 566 && player && player->InBattleground() ? SPELL_CAST_OK : SPELL_FAILED_REQUIRES_AREA;
         case 2584:                                          // Waiting to Resurrect
-        case 22011:                                         // Spirit Heal Channel
-        case 22012:                                         // Spirit Heal
         case 42792:                                         // Recently Dropped Flag
         case 43681:                                         // Inactive
         case 44535:                                         // Spirit Heal (mana)
@@ -2400,7 +2406,7 @@ bool SpellInfo::CheckTargetCreatureType(Unit const* target) const
         return true;
 
     uint32 creatureType = target->GetCreatureTypeMask();
-    return !TargetCreatureType || !creatureType || (creatureType & TargetCreatureType);
+    return !TargetCreatureType || !creatureType || (creatureType & TargetCreatureType) || target->HasAuraType(SPELL_AURA_IGNORE_SPELL_CREATURE_TYPE_REQUIREMENTS);
 }
 
 SpellSchoolMask SpellInfo::GetSchoolMask() const
@@ -4808,7 +4814,6 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, SpellEffectInfo const& ef
             case SPELL_AURA_MOD_ATTACKER_RANGED_HIT_CHANCE:
             case SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE:
             case SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_CHANCE:
-            case SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_CHANCE:
             case SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE:
             case SPELL_AURA_DUMMY:
             case SPELL_AURA_PERIODIC_DUMMY:

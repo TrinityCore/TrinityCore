@@ -66,6 +66,8 @@ struct DB2SectionHeader
 
 #pragma pack(pop)
 
+inline constinit uint64 DUMMY_KNOWN_TACT_ID = 0x5452494E49545900; // TRINITY
+
 struct DB2FieldMeta
 {
     bool IsSigned;
@@ -204,6 +206,7 @@ public:
     uint32 GetRecordCopyCount() const;
     uint32 GetTableHash() const { return _header.TableHash; }
     uint32 GetLayoutHash() const { return _header.LayoutHash; }
+    uint32 GetMinId() const;
     uint32 GetMaxId() const;
 
     DB2Header const& GetHeader() const { return _header; }

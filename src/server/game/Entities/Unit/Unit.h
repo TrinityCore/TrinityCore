@@ -190,6 +190,12 @@ enum UnitMods
     UNIT_MOD_FURY,
     UNIT_MOD_PAIN,
     UNIT_MOD_ESSENCE,
+    UNIT_MOD_RUNE_BLOOD,
+    UNIT_MOD_RUNE_FROST,
+    UNIT_MOD_RUNE_UNHOLY,
+    UNIT_MOD_ALTERNATE_QUEST,
+    UNIT_MOD_ALTERNATE_ENCOUNTER,
+    UNIT_MOD_ALTERNATE_MOUNT,
     UNIT_MOD_ARMOR,                                         // UNIT_MOD_ARMOR..UNIT_MOD_RESISTANCE_ARCANE must be in existed order, it's accessed by index values of SpellSchools enum.
     UNIT_MOD_RESISTANCE_HOLY,
     UNIT_MOD_RESISTANCE_FIRE,
@@ -209,7 +215,7 @@ enum UnitMods
     UNIT_MOD_RESISTANCE_START = UNIT_MOD_ARMOR,
     UNIT_MOD_RESISTANCE_END = UNIT_MOD_RESISTANCE_ARCANE + 1,
     UNIT_MOD_POWER_START = UNIT_MOD_MANA,
-    UNIT_MOD_POWER_END = UNIT_MOD_ESSENCE + 1
+    UNIT_MOD_POWER_END = UNIT_MOD_ALTERNATE_MOUNT + 1
 };
 
 static_assert(UNIT_MOD_POWER_END - UNIT_MOD_POWER_START == MAX_POWERS, "UnitMods powers section does not match Powers enum!");
@@ -909,6 +915,7 @@ class TC_GAME_API Unit : public WorldObject
         Powers GetPowerType() const { return Powers(*m_unitData->DisplayPower); }
         void SetPowerType(Powers power, bool sendUpdate = true);
         void SetOverrideDisplayPowerId(uint32 powerDisplayId) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::OverrideDisplayPowerID), powerDisplayId); }
+        Powers CalculateDisplayPowerType() const;
         void UpdateDisplayPower();
         int32 GetPower(Powers power) const;
         int32 GetMinPower(Powers power) const { return power == POWER_LUNAR_POWER ? -100 : 0; }
@@ -1106,14 +1113,15 @@ class TC_GAME_API Unit : public WorldObject
         bool IsBattleMaster()   const { return HasNpcFlag(UNIT_NPC_FLAG_BATTLEMASTER); }
         bool IsBanker()         const { return HasNpcFlag(UNIT_NPC_FLAG_BANKER); }
         bool IsInnkeeper()      const { return HasNpcFlag(UNIT_NPC_FLAG_INNKEEPER); }
-        bool IsSpiritHealer()   const { return HasNpcFlag(UNIT_NPC_FLAG_SPIRITHEALER); }
-        bool IsSpiritGuide()    const { return HasNpcFlag(UNIT_NPC_FLAG_SPIRITGUIDE); }
+        bool IsSpiritHealer()   const { return HasNpcFlag(UNIT_NPC_FLAG_SPIRIT_HEALER); }
+        bool IsAreaSpiritHealer() const { return HasNpcFlag(UNIT_NPC_FLAG_AREA_SPIRIT_HEALER); }
         bool IsTabardDesigner() const { return HasNpcFlag(UNIT_NPC_FLAG_TABARDDESIGNER); }
         bool IsAuctioner()      const { return HasNpcFlag(UNIT_NPC_FLAG_AUCTIONEER); }
         bool IsArmorer()        const { return HasNpcFlag(UNIT_NPC_FLAG_REPAIR); }
         bool IsWildBattlePet()  const { return HasNpcFlag(UNIT_NPC_FLAG_WILD_BATTLE_PET); }
         bool IsServiceProvider() const;
-        bool IsSpiritService() const { return HasNpcFlag(UNIT_NPC_FLAG_SPIRITHEALER | UNIT_NPC_FLAG_SPIRITGUIDE); }
+        bool IsSpiritService() const { return HasNpcFlag(UNIT_NPC_FLAG_SPIRIT_HEALER | UNIT_NPC_FLAG_AREA_SPIRIT_HEALER); }
+        bool IsAreaSpiritHealerIndividual() const { return HasNpcFlag2(UNIT_NPC_FLAG_2_AREA_SPIRIT_HEALER_INDIVIDUAL); }
         bool IsCritter() const { return GetCreatureType() == CREATURE_TYPE_CRITTER; }
 
         bool IsInFlight()  const { return HasUnitState(UNIT_STATE_IN_FLIGHT); }
@@ -1483,7 +1491,7 @@ class TC_GAME_API Unit : public WorldObject
         uint32 GetCreateHealth() const { return m_unitData->BaseHealth; }
         void SetCreateMana(uint32 val) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::BaseMana), val); }
         uint32 GetCreateMana() const { return m_unitData->BaseMana; }
-        int32 GetCreatePowerValue(Powers power) const;
+        virtual int32 GetCreatePowerValue(Powers power) const;
         float GetPosStat(Stats stat) const { return m_unitData->StatPosBuff[stat]; }
         float GetNegStat(Stats stat) const { return m_unitData->StatNegBuff[stat]; }
         float GetCreateStat(Stats stat) const { return m_createStats[stat]; }
@@ -2010,6 +2018,10 @@ class TC_GAME_API Unit : public WorldObject
 
         virtual void AtEngage(Unit* /*target*/) {}
         virtual void AtDisengage() {}
+
+    public:
+        void AtStartOfEncounter();
+        void AtEndOfEncounter();
 
     private:
 

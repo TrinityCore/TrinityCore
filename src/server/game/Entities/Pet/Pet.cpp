@@ -896,12 +896,16 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
         for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
             SetStatFlatModifier(UnitMods(UNIT_MOD_RESISTANCE_START + i), BASE_VALUE, float(cinfo->resistance[i]));
 
+    Powers powerType = CalculateDisplayPowerType();
+
     // Health, Mana or Power, Armor
     PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(creature_ID, petlevel);
     if (pInfo)                                      // exist in DB
     {
         SetCreateHealth(pInfo->health);
         SetCreateMana(pInfo->mana);
+
+        SetStatPctModifier(UnitMods(UNIT_MOD_POWER_START + AsUnderlyingType(powerType)), BASE_PCT, 1.0f);
 
         if (pInfo->armor > 0)
             SetStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(pInfo->armor));
@@ -917,7 +921,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
 
         CreatureScaling const* scaling = GetCreatureTemplate()->GetScaling(DIFFICULTY_NONE);
         SetCreateHealth(sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureHealth, petlevel, cinfo->GetHealthScalingExpansion(DIFFICULTY_NONE), m_unitData->ContentTuningID, Classes(cinfo->unit_class)) * scaling->HealthModifier * _GetHealthMod(cinfo->rank));
-        SetCreateMana(stats->GenerateMana(cinfo, DIFFICULTY_NONE));
+        SetCreateMana(stats->BaseMana);
         SetCreateStat(STAT_STRENGTH, 22);
         SetCreateStat(STAT_AGILITY, 22);
         SetCreateStat(STAT_STAMINA, 25);
@@ -925,17 +929,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
     }
 
     // Power
-    if (petType == HUNTER_PET) // Hunter pets have focus
-        SetPowerType(POWER_FOCUS);
-    else if (IsPetGhoul() || IsPetAbomination()) // DK pets have energy
-    {
-        SetPowerType(POWER_ENERGY);
-        SetFullPower(POWER_ENERGY);
-    }
-    else if (IsPetImp() || IsPetFelhunter() || IsPetVoidwalker() || IsPetSuccubus() || IsPetDoomguard() || IsPetFelguard()) // Warlock pets have energy (since 5.x)
-        SetPowerType(POWER_ENERGY);
-    else
-        SetPowerType(POWER_MANA);
+    SetPowerType(powerType);
 
     // Damage
     SetBonusDamage(0);

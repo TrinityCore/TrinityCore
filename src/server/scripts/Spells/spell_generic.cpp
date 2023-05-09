@@ -1727,6 +1727,7 @@ There are only 3 possible flags Feign Death auras can apply: UNIT_DYNFLAG_DEAD, 
 and UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT. Some auras can apply only 2 flags
 
 spell_gen_feign_death_all_flags applies all 3 flags
+spell_gen_feign_death_all_flags_uninteractible applies all 3 flags and additionally sets UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_UNINTERACTIBLE
 spell_gen_feign_death_no_dyn_flag applies no UNIT_DYNFLAG_DEAD (does not make the creature appear dead)
 spell_gen_feign_death_no_prevent_emotes applies no UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT
 
@@ -1765,6 +1766,39 @@ class spell_gen_feign_death_all_flags : public AuraScript
     {
         OnEffectApply += AuraEffectApplyFn(spell_gen_feign_death_all_flags::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
         OnEffectRemove += AuraEffectRemoveFn(spell_gen_feign_death_all_flags::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+class spell_gen_feign_death_all_flags_uninteractible : public AuraScript
+{
+    PrepareAuraScript(spell_gen_feign_death_all_flags_uninteractible);
+
+    void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->SetUnitFlag3(UNIT_FLAG3_FAKE_DEAD);
+        target->SetUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
+        target->SetUnitFlag(UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_UNINTERACTIBLE);
+
+        if (Creature* creature = target->ToCreature())
+            creature->SetReactState(REACT_PASSIVE);
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->RemoveUnitFlag3(UNIT_FLAG3_FAKE_DEAD);
+        target->RemoveUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
+        target->RemoveUnitFlag(UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_UNINTERACTIBLE);
+
+        if (Creature* creature = target->ToCreature())
+            creature->InitializeReactState();
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_gen_feign_death_all_flags_uninteractible::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(spell_gen_feign_death_all_flags_uninteractible::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -5381,6 +5415,118 @@ private:
     uint32 _exhaustionSpellId;
 };
 
+// AoE resurrections by spirit guides
+// 22012 - Spirit Heal
+class spell_gen_spirit_heal_aoe : public SpellScript
+{
+    PrepareSpellScript(spell_gen_spirit_heal_aoe);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        Unit* caster = GetCaster();
+        targets.remove_if([caster](WorldObject* target) -> bool
+        {
+            if (Player* playerTarget = target->ToPlayer())
+                return !playerTarget->CanAcceptAreaSpiritHealFrom(caster);
+
+            return true;
+        });
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gen_spirit_heal_aoe::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+    }
+};
+
+// Personal resurrections in battlegrounds
+// 156758 - Spirit Heal
+class spell_gen_spirit_heal_personal : public AuraScript
+{
+    static constexpr uint32 SPELL_SPIRIT_HEAL_EFFECT = 156763;
+
+    PrepareAuraScript(spell_gen_spirit_heal_personal);
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+            return;
+
+        Player* targetPlayer = GetTarget()->ToPlayer();
+        if (!targetPlayer)
+            return;
+
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (targetPlayer->CanAcceptAreaSpiritHealFrom(caster))
+            caster->CastSpell(targetPlayer, SPELL_SPIRIT_HEAL_EFFECT);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_gen_spirit_heal_personal::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+class RecastSpiritHealChannelEvent : public BasicEvent
+{
+public:
+    RecastSpiritHealChannelEvent(Unit* caster) : _caster(caster) { }
+
+    bool Execute(uint64 /*e_time*/, uint32 /*p_time*/) override
+    {
+        if (_caster->GetChannelSpellId() == 0)
+            _caster->CastSpell(nullptr, SPELL_SPIRIT_HEAL_CHANNEL_AOE, false);
+
+        return true;
+    }
+
+private:
+    Unit* _caster;
+};
+
+// 22011 - Spirit Heal Channel
+class spell_gen_spirit_heal_channel : public AuraScript
+{
+    PrepareAuraScript(spell_gen_spirit_heal_channel);
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+            return;
+
+        Unit* target = GetTarget();
+        target->m_Events.AddEventAtOffset(new RecastSpiritHealChannelEvent(target), 1s);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_gen_spirit_heal_channel::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 2584 - Waiting to Resurrect
+class spell_gen_waiting_to_resurrect : public AuraScript
+{
+    PrepareAuraScript(spell_gen_waiting_to_resurrect);
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Player* targetPlayer = GetTarget()->ToPlayer();
+        if (!targetPlayer)
+            return;
+
+        targetPlayer->SetAreaSpiritHealer(nullptr);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_gen_waiting_to_resurrect::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     RegisterSpellScript(spell_gen_absorb0_hitlimit1);
@@ -5426,6 +5572,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_steal_essence_visual);
     RegisterSpellScript(spell_gen_feast);
     RegisterSpellScript(spell_gen_feign_death_all_flags);
+    RegisterSpellScript(spell_gen_feign_death_all_flags_uninteractible);
     RegisterSpellScript(spell_gen_feign_death_no_dyn_flag);
     RegisterSpellScript(spell_gen_feign_death_no_prevent_emotes);
     RegisterSpellScript(spell_gen_furious_rage);
@@ -5549,4 +5696,8 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_hun_primal_rage", SPELL_HUNTER_FATIGUED);
     RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_evo_fury_of_the_aspects", SPELL_EVOKER_EXHAUSTION);
     RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_item_bloodlust_drums", SPELL_SHAMAN_EXHAUSTION);
+    RegisterSpellScript(spell_gen_spirit_heal_aoe);
+    RegisterSpellScript(spell_gen_spirit_heal_personal);
+    RegisterSpellScript(spell_gen_spirit_heal_channel);
+    RegisterSpellScript(spell_gen_waiting_to_resurrect);
 }

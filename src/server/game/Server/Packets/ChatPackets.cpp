@@ -26,6 +26,18 @@ void WorldPackets::Chat::ChatMessage::Read()
 {
     _worldPacket >> Language;
     uint32 len = _worldPacket.ReadBits(11);
+    switch (GetOpcode())
+    {
+        case CMSG_CHAT_MESSAGE_SAY:
+        case CMSG_CHAT_MESSAGE_PARTY:
+        case CMSG_CHAT_MESSAGE_RAID:
+        case CMSG_CHAT_MESSAGE_RAID_WARNING:
+        case CMSG_CHAT_MESSAGE_INSTANCE_CHAT:
+            IsSecure = _worldPacket.ReadBit();
+            break;
+        default:
+            break;
+    }
     Text = _worldPacket.ReadString(len);
 }
 
@@ -44,6 +56,9 @@ void WorldPackets::Chat::ChatMessageChannel::Read()
     _worldPacket >> ChannelGUID;
     uint32 targetLen = _worldPacket.ReadBits(9);
     uint32 textLen = _worldPacket.ReadBits(11);
+    if (_worldPacket.ReadBit())
+        IsSecure = _worldPacket.ReadBit();
+
     Target = _worldPacket.ReadString(targetLen);
     Text = _worldPacket.ReadString(textLen);
 }
@@ -95,7 +110,7 @@ void WorldPackets::Chat::ChatMessageEmote::Read()
 
 WorldPackets::Chat::Chat::Chat(Chat const& chat) : ServerPacket(SMSG_CHAT, chat._worldPacket.size()),
     SlashCmd(chat.SlashCmd), _Language(chat._Language), SenderGUID(chat.SenderGUID),
-    SenderGuildGUID(chat.SenderGuildGUID), SenderAccountGUID(chat.SenderAccountGUID), TargetGUID(chat.TargetGUID), PartyGUID(chat.PartyGUID),
+    SenderGuildGUID(chat.SenderGuildGUID), SenderAccountGUID(chat.SenderAccountGUID), TargetGUID(chat.TargetGUID),
     SenderVirtualAddress(chat.SenderVirtualAddress), TargetVirtualAddress(chat.TargetVirtualAddress), SenderName(chat.SenderName), TargetName(chat.TargetName),
     Prefix(chat.Prefix), _Channel(chat._Channel), ChatText(chat.ChatText), AchievementID(chat.AchievementID), _ChatFlags(chat._ChatFlags),
     DisplayTime(chat.DisplayTime), HideChatLog(chat.HideChatLog), FakeSenderName(chat.FakeSenderName)
@@ -111,7 +126,6 @@ void WorldPackets::Chat::Chat::Initialize(ChatMsg chatType, Language language, W
     SenderGUID.Clear();
     SenderAccountGUID.Clear();
     SenderGuildGUID.Clear();
-    PartyGUID.Clear();
     TargetGUID.Clear();
     SenderName.clear();
     TargetName.clear();
@@ -147,9 +161,6 @@ void WorldPackets::Chat::Chat::SetSender(WorldObject const* sender, LocaleConsta
         _ChatFlags = playerSender->GetChatFlags();
 
         SenderGuildGUID = ObjectGuid::Create<HighGuid::Guild>(playerSender->GetGuildId());
-
-        if (Group const* group = playerSender->GetGroup())
-            PartyGUID = group->GetGUID();
     }
 }
 
@@ -170,9 +181,9 @@ WorldPacket const* WorldPackets::Chat::Chat::Write()
     _worldPacket << TargetGUID;
     _worldPacket << uint32(TargetVirtualAddress);
     _worldPacket << uint32(SenderVirtualAddress);
-    _worldPacket << PartyGUID;
-    _worldPacket << uint32(AchievementID);
+    _worldPacket << int32(AchievementID);
     _worldPacket << float(DisplayTime);
+    _worldPacket << int32(SpellID);
     _worldPacket.WriteBits(SenderName.length(), 11);
     _worldPacket.WriteBits(TargetName.length(), 11);
     _worldPacket.WriteBits(Prefix.length(), 5);

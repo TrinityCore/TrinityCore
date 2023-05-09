@@ -536,6 +536,19 @@ void Unit::MonsterMoveWithSpeed(float x, float y, float z, float speed, bool gen
     GetMotionMaster()->LaunchMoveSpline(std::move(initializer), 0, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
 }
 
+void Unit::AtStartOfEncounter()
+{
+    RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::StartOfEncounter);
+
+    if (IsAlive())
+        Unit::ProcSkillsAndAuras(this, nullptr, PROC_FLAG_ENCOUNTER_START, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
+}
+
+void Unit::AtEndOfEncounter()
+{
+    RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::EndOfEncounter);
+}
+
 void Unit::UpdateSplineMovement(uint32 t_diff)
 {
     if (movespline->Finalized())
@@ -2722,9 +2735,7 @@ float Unit::GetUnitCriticalChanceTaken(Unit const* attacker, WeaponAttackType at
     float chance = critDone;
 
     // flat aura mods
-    if (attackType == RANGED_ATTACK)
-        chance += GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_CHANCE);
-    else
+    if (attackType != RANGED_ATTACK)
         chance += GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_CHANCE);
 
     chance += GetTotalAuraModifier(SPELL_AURA_MOD_CRIT_CHANCE_VERSUS_TARGET_HEALTH, [this](AuraEffect const* aurEff)
@@ -5461,7 +5472,7 @@ void Unit::SetPowerType(Powers new_powertype, bool sendUpdate/* = true*/)
     }
 }
 
-void Unit::UpdateDisplayPower()
+Powers Unit::CalculateDisplayPowerType() const
 {
     Powers displayPower = POWER_MANA;
     switch (GetShapeshiftForm())
@@ -5485,22 +5496,18 @@ void Unit::UpdateDisplayPower()
                 AuraEffect const* powerTypeAura = powerTypeAuras.front();
                 displayPower = Powers(powerTypeAura->GetMiscValue());
             }
-            else if (GetTypeId() == TYPEID_PLAYER)
+            else
             {
                 ChrClassesEntry const* cEntry = sChrClassesStore.LookupEntry(GetClass());
                 if (cEntry && cEntry->DisplayPower < MAX_POWERS)
                     displayPower = Powers(cEntry->DisplayPower);
-            }
-            else if (GetTypeId() == TYPEID_UNIT)
-            {
+
                 if (Vehicle* vehicle = GetVehicleKit())
                 {
                     if (PowerDisplayEntry const* powerDisplay = sPowerDisplayStore.LookupEntry(vehicle->GetVehicleInfo()->PowerDisplayID[0]))
                         displayPower = Powers(powerDisplay->ActualType);
-                    else if (GetClass() == CLASS_ROGUE)
-                        displayPower = POWER_ENERGY;
                 }
-                else if (Pet* pet = ToPet())
+                else if (Pet const* pet = ToPet())
                 {
                     if (pet->getPetType() == HUNTER_PET) // Hunter pets have focus
                         displayPower = POWER_FOCUS;
@@ -5512,7 +5519,12 @@ void Unit::UpdateDisplayPower()
         }
     }
 
-    SetPowerType(displayPower);
+    return displayPower;
+}
+
+void Unit::UpdateDisplayPower()
+{
+    SetPowerType(CalculateDisplayPowerType());
 }
 
 void Unit::SetSheath(SheathState sheathed)
@@ -6485,6 +6497,11 @@ void Unit::SendEnergizeSpellLog(Unit* victim, uint32 spellID, int32 damage, int3
 
 void Unit::EnergizeBySpell(Unit* victim, SpellInfo const* spellInfo, int32 damage, Powers powerType)
 {
+    if (Player* player = victim->ToPlayer())
+        if (PowerTypeEntry const* powerTypeEntry = sDB2Manager.GetPowerTypeEntry(powerType))
+            if (powerTypeEntry->GetFlags().HasFlag(PowerTypeFlags::UseRegenInterrupt))
+                player->InterruptPowerRegen(powerType);
+
     int32 gain = victim->ModifyPower(powerType, damage, false);
     int32 overEnergize = damage - gain;
     victim->GetThreatManager().ForwardThreatForAssistingMe(this, float(damage) / 2, spellInfo, true);
@@ -7904,8 +7921,8 @@ bool Unit::IsServiceProvider() const
     return HasNpcFlag(
         UNIT_NPC_FLAG_VENDOR | UNIT_NPC_FLAG_TRAINER | UNIT_NPC_FLAG_FLIGHTMASTER |
         UNIT_NPC_FLAG_PETITIONER | UNIT_NPC_FLAG_BATTLEMASTER | UNIT_NPC_FLAG_BANKER |
-        UNIT_NPC_FLAG_INNKEEPER | UNIT_NPC_FLAG_SPIRITHEALER |
-        UNIT_NPC_FLAG_SPIRITGUIDE | UNIT_NPC_FLAG_TABARDDESIGNER | UNIT_NPC_FLAG_AUCTIONEER);
+        UNIT_NPC_FLAG_INNKEEPER | UNIT_NPC_FLAG_SPIRIT_HEALER |
+        UNIT_NPC_FLAG_AREA_SPIRIT_HEALER | UNIT_NPC_FLAG_TABARDDESIGNER | UNIT_NPC_FLAG_AUCTIONEER);
 }
 
 void Unit::EngageWithTarget(Unit* enemy)
@@ -8864,7 +8881,14 @@ void Unit::UpdateUnitMod(UnitMods unitMod)
         case UNIT_MOD_DEMONIC_FURY:
         case UNIT_MOD_ARCANE_CHARGES:
         case UNIT_MOD_FURY:
-        case UNIT_MOD_PAIN:                UpdateMaxPower(Powers(unitMod - UNIT_MOD_POWER_START));     break;
+        case UNIT_MOD_PAIN:
+        case UNIT_MOD_ESSENCE:
+        case UNIT_MOD_RUNE_BLOOD:
+        case UNIT_MOD_RUNE_FROST:
+        case UNIT_MOD_RUNE_UNHOLY:
+        case UNIT_MOD_ALTERNATE_QUEST:
+        case UNIT_MOD_ALTERNATE_ENCOUNTER:
+        case UNIT_MOD_ALTERNATE_MOUNT:     UpdateMaxPower(Powers(unitMod - UNIT_MOD_POWER_START));     break;
 
         case UNIT_MOD_RESISTANCE_HOLY:
         case UNIT_MOD_RESISTANCE_FIRE:
@@ -9292,17 +9316,6 @@ void Unit::TriggerOnPowerChangeAuras(Powers power, int32 oldVal, int32 newVal)
     }
 }
 
-int32 Unit::GetCreatePowerValue(Powers power) const
-{
-    if (power == POWER_MANA)
-        return GetCreateMana();
-
-    if (PowerTypeEntry const* powerType = sDB2Manager.GetPowerTypeEntry(power))
-        return powerType->MaxBasePower;
-
-    return 0;
-}
-
 void Unit::AIUpdateTick(uint32 diff)
 {
     if (UnitAI* ai = GetAI())
@@ -9396,6 +9409,12 @@ void Unit::RemoveFromWorld()
 
     if (IsInWorld())
     {
+        if (IsAreaSpiritHealer())
+        {
+            if (Creature* creature = ToCreature())
+                creature->SummonGraveyardTeleporter();
+        }
+
         m_duringRemoveFromWorld = true;
         if (UnitAI* ai = GetAI())
             ai->OnDespawn();
@@ -12358,6 +12377,8 @@ void Unit::_ExitVehicle(Position const* exitPosition)
         else
             ToTempSummon()->UnSummon(2000); // Approximation
     }
+
+    RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::AbandonVehicle);
 }
 
 bool Unit::IsFalling() const
@@ -12475,6 +12496,9 @@ bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool tel
 
     _positionUpdateInfo.Relocated = relocated;
     _positionUpdateInfo.Turned = turn;
+
+    if (IsFalling())
+        RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::Falling);
 
     bool isInWater = IsInWater();
     if (!IsFalling() || isInWater || IsFlying())

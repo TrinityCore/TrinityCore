@@ -414,6 +414,7 @@ class TC_GAME_API Spell
         void EffectModifySpellCharges();
         void EffectCreateTraitTreeConfig();
         void EffectChangeActiveCombatTraitConfig();
+        void EffectTeleportGraveyard();
 
         typedef std::unordered_set<Aura*> UsedSpellMods;
 
@@ -613,6 +614,8 @@ class TC_GAME_API Spell
         uint64 GetDelayMoment() const { return m_delayMoment; }
         uint64 CalculateDelayMomentForDst(float launchDelay) const;
         void RecalculateDelayMomentForDst();
+        void UpdateDelayMomentForDst(uint64 hitDelay);
+        void UpdateDelayMomentForUnitTarget(Unit* unit, uint64 hitDelay);
         uint8 GetRuneState() const { return m_runesState; }
         void SetRuneState(uint8 value) { m_runesState = value; }
 

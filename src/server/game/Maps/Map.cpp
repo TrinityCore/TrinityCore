@@ -457,6 +457,9 @@ bool Map::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
     player->UpdateObjectVisibility(false);
     PhasingHandler::SendToPlayer(player);
 
+    if (Instanceable())
+        player->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::EnteringInstance);
+
     if (player->IsAlive())
         ConvertCorpseToBones(player->GetGUID());
 

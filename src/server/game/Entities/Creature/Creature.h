@@ -192,6 +192,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         bool UpdateEntry(uint32 entry, CreatureData const* data = nullptr, bool updateLevel = true);
 
+        int32 GetCreatePowerValue(Powers power) const override;
         bool UpdateStats(Stats stat) override;
         bool UpdateAllStats() override;
         void UpdateArmor() override;
@@ -423,6 +424,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         uint32 GetTrainerId() const;
         void SetTrainerId(Optional<uint32> trainerId);
+
+        void SummonGraveyardTeleporter();
 
     protected:
         bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);

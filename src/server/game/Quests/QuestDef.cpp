@@ -135,6 +135,7 @@ void Quest::LoadRewardDisplaySpell(Field* fields)
 {
     uint32 spellId = fields[1].GetUInt32();
     uint32 playerConditionId = fields[2].GetUInt32();
+    uint32 type = fields[3].GetUInt32();
 
     if (!sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE))
     {
@@ -148,7 +149,13 @@ void Quest::LoadRewardDisplaySpell(Field* fields)
         playerConditionId = 0;
     }
 
-    RewardDisplaySpell.emplace_back(spellId, playerConditionId);
+    if (type >= AsUnderlyingType(QuestCompleteSpellType::Max))
+    {
+        TC_LOG_ERROR("sql.sql", "Table `quest_reward_display_spell` invalid type value ({}) set for quest {} and spell {}. Set to 0.", type, fields[0].GetUInt32(), spellId);
+        type = AsUnderlyingType(QuestCompleteSpellType::LegacyBehavior);
+    }
+
+    RewardDisplaySpell.emplace_back(spellId, playerConditionId, QuestCompleteSpellType(type));
 }
 
 void Quest::LoadRewardChoiceItems(Field* fields)
@@ -292,7 +299,7 @@ void Quest::LoadConditionalConditionalQuestDescription(Field* fields)
     QuestConditionalText& text = itr != _conditionalQuestDescription.end() ? *itr : _conditionalQuestDescription.emplace_back();
     text.PlayerConditionId = fields[1].GetInt32();
     text.QuestgiverCreatureId = fields[2].GetInt32();
-    ObjectMgr::AddLocaleString(fields[3].GetString(), locale, text.Text);
+    ObjectMgr::AddLocaleString(fields[3].GetStringView(), locale, text.Text);
 }
 
 void Quest::LoadConditionalConditionalRequestItemsText(Field* fields)
@@ -312,7 +319,7 @@ void Quest::LoadConditionalConditionalRequestItemsText(Field* fields)
     QuestConditionalText& text = itr != _conditionalRequestItemsText.end() ? *itr : _conditionalRequestItemsText.emplace_back();
     text.PlayerConditionId = fields[1].GetInt32();
     text.QuestgiverCreatureId = fields[2].GetInt32();
-    ObjectMgr::AddLocaleString(fields[3].GetString(), locale, text.Text);
+    ObjectMgr::AddLocaleString(fields[3].GetStringView(), locale, text.Text);
 }
 
 void Quest::LoadConditionalConditionalOfferRewardText(Field* fields)
@@ -332,7 +339,7 @@ void Quest::LoadConditionalConditionalOfferRewardText(Field* fields)
     QuestConditionalText& text = itr != _conditionalOfferRewardText.end() ? *itr : _conditionalOfferRewardText.emplace_back();
     text.PlayerConditionId = fields[1].GetInt32();
     text.QuestgiverCreatureId = fields[2].GetInt32();
-    ObjectMgr::AddLocaleString(fields[3].GetString(), locale, text.Text);
+    ObjectMgr::AddLocaleString(fields[3].GetStringView(), locale, text.Text);
 }
 
 void Quest::LoadConditionalConditionalQuestCompletionLog(Field* fields)
@@ -352,7 +359,7 @@ void Quest::LoadConditionalConditionalQuestCompletionLog(Field* fields)
     QuestConditionalText& text = itr != _conditionalQuestCompletionLog.end() ? *itr : _conditionalQuestCompletionLog.emplace_back();
     text.PlayerConditionId = fields[1].GetInt32();
     text.QuestgiverCreatureId = fields[2].GetInt32();
-    ObjectMgr::AddLocaleString(fields[3].GetString(), locale, text.Text);
+    ObjectMgr::AddLocaleString(fields[3].GetStringView(), locale, text.Text);
 }
 
 uint32 Quest::XPValue(Player const* player) const
@@ -369,13 +376,17 @@ uint32 Quest::XPValue(Player const* player, uint32 contentTuningId, uint32 xpDif
         if (!questXp || xpDifficulty >= 10)
             return 0;
 
+        uint32 xp = questXp->Difficulty[xpDifficulty];
+        if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(contentTuningId))
+            xp = xp * contentTuning->QuestXpMultiplier;
+
         int32 diffFactor = 2 * (questLevel - player->GetLevel()) + 12;
         if (diffFactor < 1)
             diffFactor = 1;
         else if (diffFactor > 10)
             diffFactor = 10;
 
-        uint32 xp = diffFactor * questXp->Difficulty[xpDifficulty] * xpMultiplier / 10;
+        xp = diffFactor * xp * xpMultiplier / 10;
         if (player->GetLevel() >= GetMaxLevelForExpansion(CURRENT_EXPANSION - 1) && player->GetSession()->GetExpansion() == CURRENT_EXPANSION && expansion >= 0 && expansion < CURRENT_EXPANSION)
             xp = uint32(xp / 9.0f);
 
@@ -629,7 +640,12 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc, Player* player) const
     response.Info.RewardMoneyMultiplier = GetMoneyMultiplier();
     response.Info.RewardBonusMoney = GetRewMoneyMaxLevel();
     for (QuestRewardDisplaySpell displaySpell : RewardDisplaySpell)
-        response.Info.RewardDisplaySpell.push_back({ int32(displaySpell.SpellId), int32(displaySpell.PlayerConditionId) });
+    {
+        WorldPackets::Quest::QuestCompleteDisplaySpell& rewardDisplaySpell = response.Info.RewardDisplaySpell.emplace_back();
+        rewardDisplaySpell.SpellID = displaySpell.SpellId;
+        rewardDisplaySpell.PlayerConditionID = displaySpell.PlayerConditionId;
+        rewardDisplaySpell.Type = int32(displaySpell.Type);
+    }
 
     response.Info.RewardSpell = GetRewSpell();
 

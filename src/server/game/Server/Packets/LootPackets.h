@@ -228,6 +228,7 @@ namespace WorldPackets
             uint8 ValidRolls = 0;
             std::array<LootRollIneligibilityReason, 4> LootRollIneligibleReason = { };
             LootItemData Item;
+            int32 DungeonEncounterID = 0;
         };
 
         class LootRollBroadcast final : public ServerPacket
@@ -243,6 +244,8 @@ namespace WorldPackets
             uint8 RollType = 0;
             LootItemData Item;
             bool Autopassed = false;    ///< Triggers message |HlootHistory:%d|h[Loot]|h: You automatically passed on: %s because you cannot loot that item.
+            bool OffSpec = false;
+            int32 DungeonEncounterID = 0;
         };
 
         class LootRollWon final : public ServerPacket
@@ -258,6 +261,7 @@ namespace WorldPackets
             uint8 RollType = 0;
             LootItemData Item;
             bool MainSpec = false;
+            int32 DungeonEncounterID = 0;
         };
 
         class LootAllPassed final : public ServerPacket
@@ -269,6 +273,7 @@ namespace WorldPackets
 
             ObjectGuid LootObj;
             LootItemData Item;
+            int32 DungeonEncounterID = 0;
         };
 
         class LootRollsComplete final : public ServerPacket
@@ -280,6 +285,7 @@ namespace WorldPackets
 
             ObjectGuid LootObj;
             uint8 LootListID = 0;
+            int32 DungeonEncounterID = 0;
         };
 
         class MasterLootCandidateList final : public ServerPacket

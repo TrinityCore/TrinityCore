@@ -44,21 +44,6 @@ void PetCancelAura::Read()
     _worldPacket >> SpellID;
 }
 
-WorldPacket const* CategoryCooldown::Write()
-{
-    _worldPacket.reserve(4 + 8 * CategoryCooldowns.size());
-
-    _worldPacket << uint32(CategoryCooldowns.size());
-
-    for (CategoryCooldownInfo const& cooldown : CategoryCooldowns)
-    {
-        _worldPacket << uint32(cooldown.Category);
-        _worldPacket << int32(cooldown.ModCooldown);
-    }
-
-    return &_worldPacket;
-}
-
 WorldPacket const* SendKnownSpells::Write()
 {
     _worldPacket.reserve(1 + 4 * KnownSpells.size() + 4 * FavoriteSpells.size());
@@ -165,13 +150,12 @@ WorldPacket const* AuraUpdate::Write()
     return &_worldPacket;
 }
 
-ByteBuffer& operator>>(ByteBuffer& buffer, Optional<TargetLocation>& location)
+ByteBuffer& operator>>(ByteBuffer& buffer, TargetLocation& location)
 {
-    location.emplace();
-    buffer >> location->Transport;
-    buffer >> location->Location.m_positionX;
-    buffer >> location->Location.m_positionY;
-    buffer >> location->Location.m_positionZ;
+    buffer >> location.Transport;
+    buffer >> location.Location.m_positionX;
+    buffer >> location.Location.m_positionY;
+    buffer >> location.Location.m_positionZ;
     return buffer;
 }
 
@@ -190,10 +174,10 @@ ByteBuffer& operator>>(ByteBuffer& buffer, SpellTargetData& targetData)
     buffer >> targetData.Item;
 
     if (hasSrcLocation)
-        buffer >> targetData.SrcLocation;
+        buffer >> targetData.SrcLocation.emplace();
 
     if (hasDstLocation)
-        buffer >> targetData.DstLocation;
+        buffer >> targetData.DstLocation.emplace();
 
     if (hasOrientation)
         targetData.Orientation = buffer.read<float>();
@@ -242,6 +226,7 @@ ByteBuffer& operator>>(ByteBuffer& buffer, SpellCastRequest& request)
     buffer >> request.CraftingNPC;
     request.OptionalCurrencies.resize(buffer.read<uint32>());
     request.OptionalReagents.resize(buffer.read<uint32>());
+    request.RemovedModifications.resize(buffer.read<uint32>());
 
     for (SpellExtraCurrencyCost& optionalCurrency : request.OptionalCurrencies)
         buffer >> optionalCurrency;
@@ -258,11 +243,11 @@ ByteBuffer& operator>>(ByteBuffer& buffer, SpellCastRequest& request)
     for (SpellCraftingReagent& optionalReagent : request.OptionalReagents)
         buffer >> optionalReagent;
 
+    for (SpellCraftingReagent& optionalReagent : request.RemovedModifications)
+        buffer >> optionalReagent;
+
     if (hasMoveUpdate)
-    {
-        request.MoveUpdate.emplace();
-        buffer >> *request.MoveUpdate;
-    }
+        buffer >> request.MoveUpdate.emplace();
 
     for (SpellWeight& weight : request.Weight)
     {
@@ -997,10 +982,7 @@ void UpdateMissileTrajectory::Read()
 
     _worldPacket.ResetBitPos();
     if (hasStatus)
-    {
-        Status.emplace();
-        _worldPacket >> *Status;
-    }
+        _worldPacket >> Status.emplace();
 }
 
 WorldPacket const* SpellDelayed::Write()

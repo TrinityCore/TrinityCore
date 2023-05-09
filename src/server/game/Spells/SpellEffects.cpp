@@ -54,6 +54,7 @@
 #include "Map.h"
 #include "MiscPackets.h"
 #include "MotionMaster.h"
+#include "MoveSpline.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
@@ -206,7 +207,7 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectSpiritHeal,                               //117 SPELL_EFFECT_SPIRIT_HEAL              one spell: Spirit Heal
     &Spell::EffectSkill,                                    //118 SPELL_EFFECT_SKILL                    professions and more
     &Spell::EffectUnused,                                   //119 SPELL_EFFECT_APPLY_AREA_AURA_PET
-    &Spell::EffectNULL,                                     //120 SPELL_EFFECT_TELEPORT_GRAVEYARD
+    &Spell::EffectTeleportGraveyard,                        //120 SPELL_EFFECT_TELEPORT_GRAVEYARD
     &Spell::EffectWeaponDmg,                                //121 SPELL_EFFECT_NORMALIZED_WEAPON_DMG
     &Spell::EffectUnused,                                   //122 SPELL_EFFECT_122                      unused
     &Spell::EffectSendTaxi,                                 //123 SPELL_EFFECT_SEND_TAXI                taxi/flight related (misc value is taxi path id)
@@ -393,6 +394,14 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectChangeActiveCombatTraitConfig,            //304 SPELL_EFFECT_CHANGE_ACTIVE_COMBAT_TRAIT_CONFIG
     &Spell::EffectNULL,                                     //305 SPELL_EFFECT_305
     &Spell::EffectNULL,                                     //306 SPELL_EFFECT_306
+    &Spell::EffectNULL,                                     //307 SPELL_EFFECT_307
+    &Spell::EffectNULL,                                     //308 SPELL_EFFECT_CANCEL_PRELOAD_WORLD
+    &Spell::EffectNULL,                                     //309 SPELL_EFFECT_PRELOAD_WORLD
+    &Spell::EffectNULL,                                     //310 SPELL_EFFECT_310
+    &Spell::EffectNULL,                                     //311 SPELL_EFFECT_ENSURE_WORLD_LOADED
+    &Spell::EffectNULL,                                     //312 SPELL_EFFECT_312
+    &Spell::EffectNULL,                                     //313 SPELL_EFFECT_CHANGE_ITEM_BONUSES_2
+    &Spell::EffectNULL,                                     //314 SPELL_EFFECT_ADD_SOCKET_BONUS
 };
 
 void Spell::EffectNULL()
@@ -3799,23 +3808,19 @@ void Spell::EffectCharge()
         // Spell is not using explicit target - no generated path
         if (!m_preGeneratedPath)
         {
-            //unitTarget->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
             Position pos = unitTarget->GetFirstCollisionPosition(unitTarget->GetCombatReach(), unitTarget->GetRelativeAngle(m_caster));
-            if (G3D::fuzzyGt(m_spellInfo->Speed, 0.0f) && m_spellInfo->HasAttribute(SPELL_ATTR9_SPECIAL_DELAY_CALCULATION))
-                speed = pos.GetExactDist(m_caster) / speed;
 
-            unitCaster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ, speed, EVENT_CHARGE, false, unitTarget, spellEffectExtraData ? &*spellEffectExtraData : nullptr);
+            m_preGeneratedPath = std::make_unique<PathGenerator>(unitCaster);
+            m_preGeneratedPath->CalculatePath(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false);
         }
-        else
-        {
-            if (G3D::fuzzyGt(m_spellInfo->Speed, 0.0f) && m_spellInfo->HasAttribute(SPELL_ATTR9_SPECIAL_DELAY_CALCULATION))
-            {
-                G3D::Vector3 pos = m_preGeneratedPath->GetActualEndPosition();
-                speed = Position(pos.x, pos.y, pos.z).GetExactDist(m_caster) / speed;
-            }
 
-            unitCaster->GetMotionMaster()->MoveCharge(*m_preGeneratedPath, speed, unitTarget, spellEffectExtraData ? &*spellEffectExtraData : nullptr);
-        }
+        if (G3D::fuzzyGt(m_spellInfo->Speed, 0.0f) && m_spellInfo->HasAttribute(SPELL_ATTR9_SPECIAL_DELAY_CALCULATION))
+            speed = m_preGeneratedPath->GetPathLength() / speed;
+
+        unitCaster->GetMotionMaster()->MoveCharge(*m_preGeneratedPath, speed, unitTarget, spellEffectExtraData ? &*spellEffectExtraData : nullptr);
+
+        // abuse implementation detail of MoveCharge accepting PathGenerator argument (instantly started spline)
+        UpdateDelayMomentForUnitTarget(unitTarget, unitCaster->movespline->Duration());
     }
 
     if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT_TARGET)
@@ -3851,7 +3856,18 @@ void Spell::EffectChargeDest()
             pos = unitCaster->GetFirstCollisionPosition(dist, angle);
         }
 
-        unitCaster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
+        PathGenerator path(unitCaster);
+        path.CalculatePath(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false);
+
+        float speed = G3D::fuzzyGt(m_spellInfo->Speed, 0.0f) ? m_spellInfo->Speed : SPEED_CHARGE;
+
+        if (G3D::fuzzyGt(m_spellInfo->Speed, 0.0f) && m_spellInfo->HasAttribute(SPELL_ATTR9_SPECIAL_DELAY_CALCULATION))
+            speed = path.GetPathLength() / speed;
+
+        unitCaster->GetMotionMaster()->MoveCharge(path, speed);
+
+        // abuse implementation detail of MoveCharge accepting PathGenerator argument (instantly started spline)
+        UpdateDelayMomentForDst(unitCaster->movespline->Duration());
     }
     else if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT)
     {
@@ -4472,26 +4488,29 @@ void Spell::EffectSkill()
     TC_LOG_DEBUG("spells", "WORLD: SkillEFFECT");
 }
 
-/* There is currently no need for this effect. We handle it in Battleground.cpp
-   If we would handle the resurrection here, the spiritguide would instantly disappear as the
-   player revives, and so we wouldn't see the spirit heal visual effect on the npc.
-   This is why we use a half sec delay between the visual effect and the resurrection itself */
 void Spell::EffectSpiritHeal()
 {
+    Unit* caster = GetCaster()->ToUnit();
+    if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT)
+        caster->CastSpell(nullptr, SPELL_RESURRECTION_VISUAL, true);
+
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    /*
-    if (unitTarget->GetTypeId() != TYPEID_PLAYER)
-        return;
-    if (!unitTarget->IsInWorld())
-        return;
+    if (Player* playerTarget = unitTarget->ToPlayer())
+    {
+        if (!playerTarget->IsInWorld())
+            return;
 
-    //m_spellInfo->Effects[i].BasePoints; == 99 (percent?)
-    //unitTarget->ToPlayer()->setResurrect(m_caster->GetGUID(), unitTarget->GetPositionX(), unitTarget->GetPositionY(), unitTarget->GetPositionZ(), unitTarget->GetMaxHealth(), unitTarget->GetMaxPower(POWER_MANA));
-    unitTarget->ToPlayer()->ResurrectPlayer(1.0f);
-    unitTarget->ToPlayer()->SpawnCorpseBones();
-    */
+        // skip if player does not want to live
+        if (!playerTarget->CanAcceptAreaSpiritHealFrom(caster))
+            return;
+
+        playerTarget->ResurrectPlayer(1.0f);
+        playerTarget->CastSpell(playerTarget, SPELL_PET_SUMMONED, true);
+        playerTarget->CastSpell(playerTarget, SPELL_SPIRIT_HEAL_MANA, true);
+        playerTarget->SpawnCorpseBones(false);
+    }
 }
 
 // remove insignia spell effect
@@ -5959,4 +5978,16 @@ void Spell::EffectChangeActiveCombatTraitConfig()
         return;
 
     target->UpdateTraitConfig(std::move(*traitConfig), damage, false);
+}
+
+void Spell::EffectTeleportGraveyard()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    Player* target = Object::ToPlayer(unitTarget);
+    if (!target)
+        return;
+
+    target->RepopAtGraveyard();
 }

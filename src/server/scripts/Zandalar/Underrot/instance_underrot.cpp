@@ -22,7 +22,8 @@
 
 BossBoundaryData const boundaries =
 {
-    { DATA_ELDER_LEAXA, new CircleBoundary(Position(869.502014f, 1230.199951f), 58.0f) }
+    { DATA_ELDER_LEAXA,          new CircleBoundary(Position(869.502014f, 1230.199951f), 58.0f) },
+    { DATA_CRAGMAW_THE_INFESTED, new CircleBoundary(Position(852.797974f, 982.133545f), 90.0f) }
 };
 
 ObjectData const creatureData[] =
@@ -63,7 +64,36 @@ public:
             LoadDoorData(doorData);
             LoadBossBoundaries(boundaries);
             LoadDungeonEncounterData(encounters);
+
+            _cragmawCrawgEating = false;
         }
+
+        uint32 GetData(uint32 dataId) const override
+        {
+            switch (dataId)
+            {
+                case DATA_CRAGMAW_CRAWG_EATING:
+                    return _cragmawCrawgEating ? 1 : 0;
+                default:
+                    break;
+            }
+            return 0;
+        }
+
+        void SetData(uint32 dataId, uint32 /*value*/) override
+        {
+            switch (dataId)
+            {
+                case DATA_CRAGMAW_CRAWG_EATING:
+                    _cragmawCrawgEating = true;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+    private:
+        bool _cragmawCrawgEating;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override

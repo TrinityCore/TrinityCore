@@ -33,9 +33,9 @@ namespace Trainer
         return sSpellMgr->AssertSpellInfo(SpellId, DIFFICULTY_NONE)->HasEffect(SPELL_EFFECT_LEARN_SPELL);
     }
 
-    Trainer::Trainer(uint32 id, Type type, std::string greeting, std::vector<Spell> spells) : _id(id), _type(type), _spells(std::move(spells))
+    Trainer::Trainer(uint32 id, Type type, std::string_view greeting, std::vector<Spell> spells) : _id(id), _type(type), _spells(std::move(spells))
     {
-        _greeting[DEFAULT_LOCALE] = std::move(greeting);
+        _greeting[DEFAULT_LOCALE] = greeting;
     }
 
     void Trainer::SendSpells(Creature const* npc, Player* player, LocaleConstant locale) const
@@ -226,8 +226,8 @@ namespace Trainer
         return _greeting[locale];
     }
 
-    void Trainer::AddGreetingLocale(LocaleConstant locale, std::string greeting)
+    void Trainer::AddGreetingLocale(LocaleConstant locale, std::string_view greeting)
     {
-        _greeting[locale] = std::move(greeting);
+        _greeting[locale] = greeting;
     }
 }
