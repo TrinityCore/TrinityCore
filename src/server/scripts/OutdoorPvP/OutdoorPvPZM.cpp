@@ -36,9 +36,6 @@ uint32 const OutdoorPvPZMBuffZones[OutdoorPvPZMBuffZonesNum] = { 3521, 3607, 371
 // linked when the central tower is controlled
 uint32 const ZM_GRAVEYARD_ZONE = 3521;
 
-// linked when the central tower is controlled
-uint32 const ZM_GRAVEYARD_ID = 969;
-
 struct zm_beacon
 {
     int32 ui_tower_n;
