@@ -167,16 +167,10 @@ void WorldSession::HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet)
         unit->PauseMovement(pause);
     unit->SetHomePosition(unit->GetPosition());
 
-    // If spiritguide, no need for gossip menu, just put player into resurrect queue
     if (unit->IsAreaSpiritHealer())
     {
-        Battleground* bg = _player->GetBattleground();
-        if (bg)
-        {
-            bg->AddPlayerToResurrectQueue(unit->GetGUID(), _player->GetGUID());
-            sBattlegroundMgr->SendAreaSpiritHealerQueryOpcode(_player, bg, unit->GetGUID());
-            return;
-        }
+        _player->SetAreaSpiritHealer(unit);
+        _player->SendAreaSpiritHealerTime(unit);
     }
 
     _player->PlayerTalkClass->ClearMenus();
