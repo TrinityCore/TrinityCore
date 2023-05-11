@@ -548,7 +548,7 @@ class spell_hun_tame_beast : public SpellScript
                 return SPELL_FAILED_HIGHLEVEL;
 
             // use SMSG_PET_TAME_FAILURE?
-            if (!target->GetCreatureTemplate()->IsTameable(caster->CanTameExoticPets()))
+            if (!target->GetCreatureTemplate()->IsTameable(caster->CanTameExoticPets(), target->GetCreatureDifficulty()))
                 return SPELL_FAILED_BAD_TARGETS;
 
             if (PetStable const* petStable = caster->GetPetStable())

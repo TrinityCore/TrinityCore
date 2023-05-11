@@ -1319,12 +1319,12 @@ class TC_GAME_API ObjectMgr
         void LoadCreatureTemplateAddons();
         void LoadCreatureTemplateSparring();
         void LoadCreatureTemplate(Field* fields);
+        void LoadCreatureTemplateDifficulty();
         void LoadCreatureTemplateGossip();
         void LoadCreatureTemplateResistances();
         void LoadCreatureTemplateSpells();
         void LoadCreatureTemplateModels();
         void LoadCreatureSummonedData();
-        void LoadCreatureScalingData();
         void CheckCreatureTemplate(CreatureTemplate const* cInfo);
         void CheckCreatureMovement(char const* table, uint64 id, CreatureMovementData& creatureMovement);
         void LoadGameObjectQuestItems();

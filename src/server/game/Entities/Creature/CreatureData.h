@@ -458,7 +458,7 @@ struct CreatureModel
     float Probability;
 };
 
-struct CreatureScaling
+struct CreatureDifficulty
 {
     int16 DeltaLevelMin;
     int16 DeltaLevelMax;
@@ -469,6 +469,28 @@ struct CreatureScaling
     float ArmorModifier;
     float DamageModifier;
     int32 CreatureDifficultyID;
+    uint32 TypeFlags;
+    uint32 TypeFlags2;
+    uint32 GoldMin;
+    uint32 GoldMax;
+
+    // Helpers
+    int32 GetHealthScalingExpansion() const
+    {
+        return HealthScalingExpansion == EXPANSION_LEVEL_CURRENT ? CURRENT_EXPANSION : HealthScalingExpansion;
+    }
+
+    SkillType GetRequiredLootSkill() const
+    {
+        if (TypeFlags & CREATURE_TYPE_FLAG_SKIN_WITH_HERBALISM)
+            return SKILL_HERBALISM;
+        else if (TypeFlags & CREATURE_TYPE_FLAG_SKIN_WITH_MINING)
+            return SKILL_MINING;
+        else if (TypeFlags & CREATURE_TYPE_FLAG_SKIN_WITH_ENGINEERING)
+            return SKILL_ENGINEERING;
+        else
+            return SKILL_SKINNING; // Default case
+    }
 };
 
 // from `creature_template` table
@@ -483,7 +505,7 @@ struct TC_GAME_API CreatureTemplate
     std::string  TitleAlt;
     std::string  IconName;
     std::vector<uint32> GossipMenuIds;
-    std::unordered_map<Difficulty, CreatureScaling> scalingStore;
+    std::unordered_map<Difficulty, CreatureDifficulty> difficultyStore;
     uint32  RequiredExpansion;
     uint32  VignetteID;                                     /// @todo Read Vignette.db2
     uint32  faction;
@@ -505,16 +527,12 @@ struct TC_GAME_API CreatureTemplate
     CreatureFamily  family;                                 // enum CreatureFamily values (optional)
     uint32  trainer_class;
     uint32  type;                                           // enum CreatureType values
-    uint32  type_flags;                                     // enum CreatureTypeFlags mask values
-    uint32  type_flags2;                                    // unknown enum, only set for 4 creatures (with value 1)
     uint32  lootid;
     uint32  pickpocketLootId;
     uint32  SkinLootId;
     int32   resistance[MAX_SPELL_SCHOOL];
     uint32  spells[MAX_CREATURE_SPELLS];
     uint32  VehicleId;
-    uint32  mingold;
-    uint32  maxgold;
     std::string AIName;
     uint32  MovementType;
     CreatureMovementData Movement;
@@ -536,34 +554,21 @@ struct TC_GAME_API CreatureTemplate
     CreatureModel const* GetModelWithDisplayId(uint32 displayId) const;
     CreatureModel const* GetFirstInvisibleModel() const;
     CreatureModel const* GetFirstVisibleModel() const;
-    int32 GetHealthScalingExpansion(Difficulty difficulty) const;
-    CreatureScaling const* GetScaling(Difficulty difficulty) const;
+    CreatureDifficulty const* GetDifficulty(Difficulty difficulty) const;
 
-    // helpers
-    SkillType GetRequiredLootSkill() const
+    // Helpers
+    bool IsExotic(CreatureDifficulty const* creatureDifficulty) const
     {
-        if (type_flags & CREATURE_TYPE_FLAG_SKIN_WITH_HERBALISM)
-            return SKILL_HERBALISM;
-        else if (type_flags & CREATURE_TYPE_FLAG_SKIN_WITH_MINING)
-            return SKILL_MINING;
-        else if (type_flags & CREATURE_TYPE_FLAG_SKIN_WITH_ENGINEERING)
-            return SKILL_ENGINEERING;
-        else
-            return SKILL_SKINNING;                          // normal case
+        return (creatureDifficulty->TypeFlags & CREATURE_TYPE_FLAG_TAMEABLE_EXOTIC) != 0;
     }
 
-    bool IsExotic() const
+    bool IsTameable(bool canTameExotic, CreatureDifficulty const* creatureDifficulty) const
     {
-        return (type_flags & CREATURE_TYPE_FLAG_TAMEABLE_EXOTIC) != 0;
-    }
-
-    bool IsTameable(bool canTameExotic) const
-    {
-        if (type != CREATURE_TYPE_BEAST || family == CREATURE_FAMILY_NONE || (type_flags & CREATURE_TYPE_FLAG_TAMEABLE) == 0)
+        if (type != CREATURE_TYPE_BEAST || family == CREATURE_FAMILY_NONE || (creatureDifficulty->TypeFlags & CREATURE_TYPE_FLAG_TAMEABLE) == 0)
             return false;
 
         // if can tame exotic then can tame any tameable
-        return canTameExotic || !IsExotic();
+        return canTameExotic || !IsExotic(creatureDifficulty);
     }
 
     void InitializeQueryData();

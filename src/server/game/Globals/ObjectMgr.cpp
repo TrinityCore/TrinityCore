@@ -361,15 +361,15 @@ void ObjectMgr::LoadCreatureTemplates()
     //                                       "faction, npcflag, speed_walk, speed_run, scale, `rank`, dmgschool, BaseAttackTime, RangeAttackTime, BaseVariance, RangeVariance, "
     //                                        21          22          23           24           25            26      27             28
     //                                       "unit_class, unit_flags, unit_flags2, unit_flags3, dynamicflags, family, trainer_class, type, "
-    //                                        29          30           31      32              33        34         35       36       37      38
-    //                                       "type_flags, type_flags2, lootid, pickpocketloot, skinloot, VehicleId, mingold, maxgold, AIName, MovementType, "
-    //                                        39          40        41          42          43         44          45                         46
+    //                                        29      30              31        32         33      34
+    //                                       "lootid, pickpocketloot, skinloot, VehicleId, AIName, MovementType, "
+    //                                        35          36        37          38          39         40          41                         42
     //                                       "ctm.Ground, ctm.Swim, ctm.Flight, ctm.Rooted, ctm.Chase, ctm.Random, ctm.InteractionPauseTimer, ExperienceModifier, "
-    //                                        47            48          49           50                        51
+    //                                        43            44          45           46                        47
     //                                       "RacialLeader, movementId, WidgetSetID, WidgetSetUnitConditionID, RegenHealth, "
-    //                                        52                    53                        54
+    //                                        48                    49                        50
     //                                       "mechanic_immune_mask, spell_school_immune_mask, flags_extra, "
-    //                                        55          56
+    //                                        51          52
     //                                       "ScriptName, StringId FROM creature_template WHERE entry = ? OR 1 = ?");
 
     WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_TEMPLATE);
@@ -441,11 +441,9 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.family                 = CreatureFamily(fields[26].GetInt32());
     creatureTemplate.trainer_class          = uint32(fields[27].GetUInt8());
     creatureTemplate.type                   = uint32(fields[28].GetUInt8());
-    creatureTemplate.type_flags             = fields[29].GetUInt32();
-    creatureTemplate.type_flags2            = fields[30].GetUInt32();
-    creatureTemplate.lootid                 = fields[31].GetUInt32();
-    creatureTemplate.pickpocketLootId       = fields[32].GetUInt32();
-    creatureTemplate.SkinLootId             = fields[33].GetUInt32();
+    creatureTemplate.lootid                 = fields[29].GetUInt32();
+    creatureTemplate.pickpocketLootId       = fields[30].GetUInt32();
+    creatureTemplate.SkinLootId             = fields[31].GetUInt32();
 
     for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
         creatureTemplate.resistance[i] = 0;
@@ -453,43 +451,41 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     for (uint8 i = 0; i < MAX_CREATURE_SPELLS; ++i)
         creatureTemplate.spells[i] = 0;
 
-    creatureTemplate.VehicleId              = fields[34].GetUInt32();
-    creatureTemplate.mingold                = fields[35].GetUInt32();
-    creatureTemplate.maxgold                = fields[36].GetUInt32();
-    creatureTemplate.AIName                 = fields[37].GetString();
-    creatureTemplate.MovementType           = uint32(fields[38].GetUInt8());
+    creatureTemplate.VehicleId              = fields[32].GetUInt32();
+    creatureTemplate.AIName                 = fields[33].GetString();
+    creatureTemplate.MovementType           = uint32(fields[34].GetUInt8());
+    if (!fields[35].IsNull())
+        creatureTemplate.Movement.Ground = static_cast<CreatureGroundMovementType>(fields[35].GetUInt8());
+
+    if (!fields[36].IsNull())
+        creatureTemplate.Movement.Swim = fields[36].GetBool();
+
+    if (!fields[37].IsNull())
+        creatureTemplate.Movement.Flight = static_cast<CreatureFlightMovementType>(fields[37].GetUInt8());
+
+    if (!fields[38].IsNull())
+        creatureTemplate.Movement.Rooted = fields[38].GetBool();
+
     if (!fields[39].IsNull())
-        creatureTemplate.Movement.Ground = static_cast<CreatureGroundMovementType>(fields[39].GetUInt8());
+        creatureTemplate.Movement.Chase = static_cast<CreatureChaseMovementType>(fields[39].GetUInt8());
 
     if (!fields[40].IsNull())
-        creatureTemplate.Movement.Swim = fields[40].GetBool();
+        creatureTemplate.Movement.Random = static_cast<CreatureRandomMovementType>(fields[40].GetUInt8());
 
     if (!fields[41].IsNull())
-        creatureTemplate.Movement.Flight = static_cast<CreatureFlightMovementType>(fields[41].GetUInt8());
+        creatureTemplate.Movement.InteractionPauseTimer = fields[41].GetUInt32();
 
-    if (!fields[42].IsNull())
-        creatureTemplate.Movement.Rooted = fields[42].GetBool();
-
-    if (!fields[43].IsNull())
-        creatureTemplate.Movement.Chase = static_cast<CreatureChaseMovementType>(fields[43].GetUInt8());
-
-    if (!fields[44].IsNull())
-        creatureTemplate.Movement.Random = static_cast<CreatureRandomMovementType>(fields[44].GetUInt8());
-
-    if (!fields[45].IsNull())
-        creatureTemplate.Movement.InteractionPauseTimer = fields[45].GetUInt32();
-
-    creatureTemplate.ModExperience          = fields[46].GetFloat();
-    creatureTemplate.RacialLeader           = fields[47].GetBool();
-    creatureTemplate.movementId             = fields[48].GetUInt32();
-    creatureTemplate.WidgetSetID            = fields[49].GetInt32();
-    creatureTemplate.WidgetSetUnitConditionID = fields[50].GetInt32();
-    creatureTemplate.RegenHealth            = fields[51].GetBool();
-    creatureTemplate.MechanicImmuneMask     = fields[52].GetUInt64();
-    creatureTemplate.SpellSchoolImmuneMask  = fields[53].GetUInt32();
-    creatureTemplate.flags_extra            = fields[54].GetUInt32();
-    creatureTemplate.ScriptID               = GetScriptId(fields[55].GetString());
-    creatureTemplate.StringId               = fields[56].GetString();
+    creatureTemplate.ModExperience          = fields[42].GetFloat();
+    creatureTemplate.RacialLeader           = fields[43].GetBool();
+    creatureTemplate.movementId             = fields[44].GetUInt32();
+    creatureTemplate.WidgetSetID            = fields[45].GetInt32();
+    creatureTemplate.WidgetSetUnitConditionID = fields[46].GetInt32();
+    creatureTemplate.RegenHealth            = fields[47].GetBool();
+    creatureTemplate.MechanicImmuneMask     = fields[48].GetUInt64();
+    creatureTemplate.SpellSchoolImmuneMask  = fields[49].GetUInt32();
+    creatureTemplate.flags_extra            = fields[50].GetUInt32();
+    creatureTemplate.ScriptID               = GetScriptId(fields[51].GetString());
+    creatureTemplate.StringId               = fields[52].GetString();
 }
 
 void ObjectMgr::LoadCreatureTemplateGossip()
@@ -924,16 +920,16 @@ void ObjectMgr::LoadCreatureTemplateSparring()
     TC_LOG_INFO("server.loading", ">> Loaded %u creature template sparring rows in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::LoadCreatureScalingData()
+void ObjectMgr::LoadCreatureTemplateDifficulty()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0      1             2                     3                     4                5                       6               7             8              9               10
-    QueryResult result = WorldDatabase.Query("SELECT Entry, DifficultyID, LevelScalingDeltaMin, LevelScalingDeltaMax, ContentTuningID, HealthScalingExpansion, HealthModifier, ManaModifier, ArmorModifier, DamageModifier, CreatureDifficultyID FROM creature_template_scaling ORDER BY Entry");
+    //                                               0      1             2                     3                     4                5                       6               7             8              9               10                    11         12          13       14
+    QueryResult result = WorldDatabase.Query("SELECT Entry, DifficultyID, LevelScalingDeltaMin, LevelScalingDeltaMax, ContentTuningID, HealthScalingExpansion, HealthModifier, ManaModifier, ArmorModifier, DamageModifier, CreatureDifficultyID, TypeFlags, TypeFlags2, GoldMin, GoldMax FROM creature_template_difficulty ORDER BY Entry");
 
     if (!result)
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 creature template scaling definitions. DB table `creature_template_scaling` is empty.");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 creature template difficulty definitions. DB table `creature_template_difficulty` is empty.");
         return;
     }
 
@@ -948,49 +944,54 @@ void ObjectMgr::LoadCreatureScalingData()
         auto itr = _creatureTemplateStore.find(entry);
         if (itr == _creatureTemplateStore.end())
         {
-            TC_LOG_ERROR("sql.sql", "Creature template (Entry: {}) does not exist but has a record in `creature_template_scaling`", entry);
+            TC_LOG_ERROR("sql.sql", "Creature template (Entry: {}) does not exist but has a record in `creature_template_difficulty`", entry);
             continue;
         }
 
-        CreatureScaling creatureScaling;
-        creatureScaling.DeltaLevelMin          = fields[2].GetInt16();
-        creatureScaling.DeltaLevelMax          = fields[3].GetInt16();
-        creatureScaling.ContentTuningID        = fields[4].GetInt32();
-        creatureScaling.HealthScalingExpansion = fields[5].GetInt32();
-        creatureScaling.HealthModifier         = fields[6].GetFloat();
-        creatureScaling.ManaModifier           = fields[7].GetFloat();
-        creatureScaling.ArmorModifier          = fields[8].GetFloat();
-        creatureScaling.DamageModifier         = fields[9].GetFloat();
-        creatureScaling.CreatureDifficultyID   = fields[10].GetInt32();
+        CreatureDifficulty creatureDifficulty;
+        creatureDifficulty.DeltaLevelMin          = fields[2].GetInt16();
+        creatureDifficulty.DeltaLevelMax          = fields[3].GetInt16();
+        creatureDifficulty.ContentTuningID        = fields[4].GetInt32();
+        creatureDifficulty.HealthScalingExpansion = fields[5].GetInt32();
+        creatureDifficulty.HealthModifier         = fields[6].GetFloat();
+        creatureDifficulty.ManaModifier           = fields[7].GetFloat();
+        creatureDifficulty.ArmorModifier          = fields[8].GetFloat();
+        creatureDifficulty.DamageModifier         = fields[9].GetFloat();
+        creatureDifficulty.CreatureDifficultyID   = fields[10].GetInt32();
+        creatureDifficulty.TypeFlags              = fields[11].GetUInt32();
+        creatureDifficulty.TypeFlags2             = fields[12].GetUInt32();
+        creatureDifficulty.GoldMin                = fields[13].GetUInt32();
+        creatureDifficulty.GoldMax                = fields[14].GetUInt32();
 
         // TODO: Check if this still applies
-        creatureScaling.DamageModifier *= Creature::_GetDamageMod(itr->second.rank);
+        creatureDifficulty.DamageModifier *= Creature::_GetDamageMod(itr->second.rank);
 
-        if (creatureScaling.HealthScalingExpansion < EXPANSION_LEVEL_CURRENT || creatureScaling.HealthScalingExpansion >= MAX_EXPANSIONS)
+        if (creatureDifficulty.HealthScalingExpansion < EXPANSION_LEVEL_CURRENT || creatureDifficulty.HealthScalingExpansion >= MAX_EXPANSIONS)
         {
-            TC_LOG_ERROR("sql.sql", "Table `creature_template_scaling` lists creature (ID: {}) with invalid `HealthScalingExpansion` {}. Ignored and set to 0.", entry, creatureScaling.HealthScalingExpansion);
-            creatureScaling.HealthScalingExpansion = 0;
+            TC_LOG_ERROR("sql.sql", "Table `creature_template_difficulty` lists creature (ID: {}) with invalid `HealthScalingExpansion` {}. Ignored and set to 0.",
+                entry, creatureDifficulty.HealthScalingExpansion);
+            creatureDifficulty.HealthScalingExpansion = 0;
         }
 
-        itr->second.scalingStore[difficulty] = creatureScaling;
+        if (creatureDifficulty.GoldMin > creatureDifficulty.GoldMax)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `creature_template_difficulty` lists creature (ID: {}) with `GoldMin` {} greater than `GoldMax` {}, setting `GoldMax` to {}.",
+                entry, creatureDifficulty.GoldMin, creatureDifficulty.GoldMax, creatureDifficulty.GoldMin);
+            creatureDifficulty.GoldMax = creatureDifficulty.GoldMin;
+        }
+
+        itr->second.difficultyStore[difficulty] = creatureDifficulty;
 
         ++count;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded {} creature template scaling data in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} creature template difficulty data in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
 {
     if (!cInfo)
         return;
-
-    if (cInfo->mingold > cInfo->maxgold)
-    {
-        TC_LOG_ERROR("sql.sql", "Creature (Entry: {}) has `mingold` {} which is greater than `maxgold` {}, setting `maxgold` to {}.",
-            cInfo->Entry, cInfo->mingold, cInfo->maxgold, cInfo->mingold);
-        const_cast<CreatureTemplate*>(cInfo)->maxgold = cInfo->mingold;
-    }
 
     if (!cInfo->AIName.empty())
     {
