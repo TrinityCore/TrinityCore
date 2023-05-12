@@ -11272,7 +11272,7 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
         }
         // Call KilledUnit for creatures
         // @tswow-begin
-        if(Creature* c = attacker->ToCreature())
+        if(Creature* c = Object::ToCreature(attacker))
         {
             // @tswow-begin
             FIRE_ID(c->GetCreatureTemplate()->events.id,Creature,OnKilledUnit,TSCreature(c),TSUnit(victim));
