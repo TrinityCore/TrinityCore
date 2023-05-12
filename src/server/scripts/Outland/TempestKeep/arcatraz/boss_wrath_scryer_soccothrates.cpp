@@ -56,7 +56,9 @@ enum Spells
     SPELL_KNOCK_AWAY                = 36512,
     SPELL_FELFIRE_LINE_UP           = 35770,
     SPELL_CHARGE_TARGETING          = 36038,
-    SPELL_CHARGE                    = 35754
+    SPELL_CHARGE                    = 35754,
+    SPELL_FEL_IMMOLATION_NORMAL     = 36051,
+    SPELL_FEL_IMMOLATION_HEROIC     = 39007
 };
 
 enum Events
@@ -92,6 +94,8 @@ struct boss_wrath_scryer_soccothrates : public BossAI
         preFight = false;
         dalliahTaunt = false;
         dalliahDeath = false;
+
+        DoCastSelf(GetDifficulty() != DIFFICULTY_NORMAL ? SPELL_FEL_IMMOLATION_HEROIC : SPELL_FEL_IMMOLATION_NORMAL, true);
     }
 
     void JustDied(Unit* /*killer*/) override
