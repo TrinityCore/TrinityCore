@@ -92,7 +92,7 @@ inline uint32 LoadGameTable(std::vector<std::string>& errors, GameTable<T>& stor
         data.emplace_back();
         float* row = reinterpret_cast<float*>(&data.back());
         for (auto itr = values.begin() + 1; itr != end; ++itr)
-            *row++ = Trinity::StringTo<float>(itr->data(), 10).value_or(0.0f);
+            *row++ = Trinity::StringTo<float>(*itr, 10).value_or(0.0f);
     }
 
     storage.SetData(std::move(data));
