@@ -18,6 +18,7 @@
 #include "Field.h"
 #include "Errors.h"
 #include "Log.h"
+#include "StringConvert.h"
 #include <cstring>
 
 Field::Field()
@@ -45,7 +46,7 @@ uint8 Field::GetUInt8() const
 
     if (data.raw)
         return *reinterpret_cast<uint8 const*>(data.value);
-    return static_cast<uint8>(strtoul(data.value, nullptr, 10));
+    return Trinity::StringTo<uint8>(data.value, 10).value_or(0);
 }
 
 int8 Field::GetInt8() const
@@ -63,7 +64,7 @@ int8 Field::GetInt8() const
 
     if (data.raw)
         return *reinterpret_cast<int8 const*>(data.value);
-    return static_cast<int8>(strtol(data.value, nullptr, 10));
+    return Trinity::StringTo<int8>(data.value, 10).value_or(0);
 }
 
 uint16 Field::GetUInt16() const
@@ -81,7 +82,7 @@ uint16 Field::GetUInt16() const
 
     if (data.raw)
         return *reinterpret_cast<uint16 const*>(data.value);
-    return static_cast<uint16>(strtoul(data.value, nullptr, 10));
+    return Trinity::StringTo<uint16>(data.value, 10).value_or(0);
 }
 
 int16 Field::GetInt16() const
@@ -99,7 +100,7 @@ int16 Field::GetInt16() const
 
     if (data.raw)
         return *reinterpret_cast<int16 const*>(data.value);
-    return static_cast<int16>(strtol(data.value, nullptr, 10));
+    return Trinity::StringTo<int16>(data.value, 10).value_or(0);
 }
 
 uint32 Field::GetUInt32() const
@@ -117,7 +118,7 @@ uint32 Field::GetUInt32() const
 
     if (data.raw)
         return *reinterpret_cast<uint32 const*>(data.value);
-    return static_cast<uint32>(strtoul(data.value, nullptr, 10));
+    return Trinity::StringTo<uint32>(data.value, 10).value_or(0);
 }
 
 int32 Field::GetInt32() const
@@ -135,7 +136,7 @@ int32 Field::GetInt32() const
 
     if (data.raw)
         return *reinterpret_cast<int32 const*>(data.value);
-    return static_cast<int32>(strtol(data.value, nullptr, 10));
+    return Trinity::StringTo<int32>(data.value, 10).value_or(0);
 }
 
 uint64 Field::GetUInt64() const
@@ -153,7 +154,7 @@ uint64 Field::GetUInt64() const
 
     if (data.raw)
         return *reinterpret_cast<uint64 const*>(data.value);
-    return static_cast<uint64>(strtoull(data.value, nullptr, 10));
+    return Trinity::StringTo<uint64>(data.value, 10).value_or(0);
 }
 
 int64 Field::GetInt64() const
@@ -171,7 +172,7 @@ int64 Field::GetInt64() const
 
     if (data.raw)
         return *reinterpret_cast<int64 const*>(data.value);
-    return static_cast<int64>(strtoll(data.value, nullptr, 10));
+    return Trinity::StringTo<int64>(data.value, 10).value_or(0);
 }
 
 float Field::GetFloat() const
@@ -189,25 +190,25 @@ float Field::GetFloat() const
 
     if (data.raw)
         return *reinterpret_cast<float const*>(data.value);
-    return static_cast<float>(atof(data.value));
+    return Trinity::StringTo<float>(data.value, 10).value_or(0);
 }
 
 double Field::GetDouble() const
 {
     if (!data.value)
-        return 0.0f;
+        return 0.0;
 
 #ifdef TRINITY_STRICT_DATABASE_TYPE_CHECKS
     if (!IsType(DatabaseFieldTypes::Double) && !IsType(DatabaseFieldTypes::Decimal))
     {
         LogWrongType(__FUNCTION__);
-        return 0.0f;
+        return 0.0;
     }
 #endif
 
     if (data.raw && !IsType(DatabaseFieldTypes::Decimal))
         return *reinterpret_cast<double const*>(data.value);
-    return static_cast<double>(atof(data.value));
+    return Trinity::StringTo<double>(data.value, 10).value_or(0);
 }
 
 char const* Field::GetCString() const
