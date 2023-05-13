@@ -679,7 +679,7 @@ struct npc_gothik_minion_livingrider : public npc_gothik_minion_baseAI
         JustAppeared();
     }
 
-    void _UpdateAI(uint32 diff)
+    void _UpdateAI(uint32 diff) override
     {
         if (diff < _boltVolleyTimer)
             _boltVolleyTimer -= diff;
@@ -690,6 +690,8 @@ struct npc_gothik_minion_livingrider : public npc_gothik_minion_baseAI
         }
         if (!me->HasUnitState(UNIT_STATE_CASTING))
             DoMeleeAttackIfReady();
+
+        npc_gothik_minion_baseAI::_UpdateAI(diff);
     }
     uint32 _boltVolleyTimer;
 };
@@ -745,7 +747,7 @@ struct npc_gothik_minion_spectralrider : public npc_gothik_minion_baseAI
         JustAppeared();
     }
 
-    void _UpdateAI(uint32 diff)
+    void _UpdateAI(uint32 diff) override
     {
         if (diff < _frenzyTimer)
             _frenzyTimer -= diff;
@@ -791,6 +793,8 @@ struct npc_gothik_minion_spectralrider : public npc_gothik_minion_baseAI
 
         if (!me->HasUnitState(UNIT_STATE_CASTING))
             DoMeleeAttackIfReady();
+
+        npc_gothik_minion_baseAI::_UpdateAI(diff);
     }
     uint32 _frenzyTimer, _drainTimer;
 };
