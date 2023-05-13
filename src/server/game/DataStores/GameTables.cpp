@@ -68,6 +68,7 @@ inline uint32 LoadGameTable(std::vector<std::string>& errors, GameTable<T>& stor
     std::string line;
     while (std::getline(stream, line))
     {
+        RemoveCRLF(line); // file extracted from client will always have CRLF line endings, on linux opening file in text mode will not work, manually erase \r
         std::vector<std::string_view> values = Trinity::Tokenize(line, '\t', true);
         if (values.empty())
             break;
