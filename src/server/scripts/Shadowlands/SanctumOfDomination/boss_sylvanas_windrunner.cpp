@@ -36,7 +36,7 @@ Position const SylvanasIntroPos[4] =
     { 225.73611f, -844.0746f,  4104.9882f, 1.3613f }
 };
 
-enum Spells
+enum SylvanasSpells
 {
     // Stances
     SPELL_RANGER_BOW_STANCE                             = 347560,
@@ -49,7 +49,7 @@ enum Spells
     SPELL_SYLVANAS_ROOT                                 = 347608
 };
 
-enum Phases
+enum SylvanasPhases
 {
     PHASE_ONE                                           = 1,
     PHASE_INTERMISSION                                  = 4,
@@ -58,37 +58,37 @@ enum Phases
     PHASE_INTERMISSION_WORLD_STATE                      = 11
 };
 
-enum EventGroups
+enum SylvanasEventGroups
 {
     EVENT_GROUP_NORMAL_EVENTS                           = 1,
     EVENT_GROUP_WINDRUNNER_EVENTS                       = 2,
     EVENT_GROUP_INTRODUCTION_EVENTS                     = 3
 };
 
-enum Events
+enum SylvanasEvents
 {
     EVENT_INTRODUCTION                                  = 1,
     EVENT_SIZE_MAX                                      = 200
 };
 
-enum Texts
+enum SylvanasTexts
 {
     SAY_AGGRO                                           = 0,
     SAY_SLAY                                            = 1,
     SAY_DISENGAGE                                       = 2
 };
 
-enum Conversations
+enum SylvanasConversations
 {
     CONVERSATION_INTRO                                  = 17368
 };
 
-enum SpawnGroups
+enum SylvanasSpawnGroups
 {
     SPAWN_GROUP_CHAMPIONS                               = 0
 };
 
-enum Points
+enum SylvanasPoints
 {
     POINT_INTRO_01                                      = 1,
     POINT_INTRO_02                                      = 2,
@@ -96,7 +96,7 @@ enum Points
     POINT_INTRO_FINISHED                                = 4
 };
 
-enum SpellVisualKits
+enum SylvanasSpellVisualKits
 {
     SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_01      = 150067,
     SPELL_VISUAL_KIT_SYLVANAS_INTRODUCTION_TALK_02      = 150068,
@@ -212,7 +212,8 @@ struct boss_sylvanas_windrunner : public BossAI
         DoCastSelf(SPELL_SYLVANAS_ROOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_DURATION, 2000));
 
         // Note: we won't allow engaging until Phase 1 PR is merged.
-        EnterEvadeMode(CreatureAI::EvadeReason::EVADE_REASON_OTHER);
+        EnterEvadeMode(EvadeReason::Other);
+        me->Say("Only intro is implemented so far, evading.", LANG_UNIVERSAL);
     }
 
     void DoAction(int32 action) override

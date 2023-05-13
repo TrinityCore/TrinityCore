@@ -1,7 +1,9 @@
 -- Sanctum of Domination
  
-SET @CGUID := 1200000;
-SET @OGUID := 650000;
+SET @CGUID := 1051934;
+SET @OGUID := 600246;
+SET @ATID := 23;
+SET @ATSPAWNID := 23;
 
 -- Instance stuff
 DELETE FROM `access_requirement` WHERE `mapId`=2450;
@@ -26,18 +28,18 @@ DELETE FROM `world_state` WHERE `ID` IN (20348, 20346, 20545, 20546, 20547, 2054
 INSERT INTO `world_state` (`ID`, `DefaultValue`, `MapIDs`, `AreaIDs`, `ScriptName`, `Comment`) VALUES 
 (20348, 1, '2450', NULL, '', 'Sanctum of Domination - Sylvanas Windrunner - Encounter phase'),
 (20346, 0, '2450', NULL, '', 'Sanctum of Domination - Sylvanas Windrunner - Encounter started'),
-(20545, 0, '2450', NULL, '', 'Sanctum of Domination - Normal difficulty - Testing State'),
-(20546, 0, '2450', NULL, '', 'Sanctum of Domination - Heroic difficulty - Testing State'),
-(20547, 0, '2450', NULL, '', 'Sanctum of Domination - Mythic difficulty - Testing State'),
-(20549, 0, '2450', NULL, '', 'Sanctum of Domination - LFR difficulty: The Jailer\'s Vanguard - Testing State'),
-(20550, 0, '2450', NULL, '', 'Sanctum of Domination - LFR difficulty: The Dark Bastille - Testing State'),
-(20551, 0, '2450', NULL, '', 'Sanctum of Domination - LFR difficulty: Shackles of Fate - Testing State'),
-(20552, 0, '2450', NULL, '', 'Sanctum of Domination - LFR difficulty: The Reckoning - Testing State'),
-(20554, 1, '2450', NULL, '', 'Sanctum of Domination - Normal and Heroic difficulties - Open State'),
-(20555, 1, '2450', NULL, '', 'Sanctum of Domination - Mythic difficulty and LFR difficulty: The Jailer\'s Vanguard - Open State'),
-(20556, 1, '2450', NULL, '', 'Sanctum of Domination - LFR difficulty: The Dark Bastille - Open State'),
-(20557, 1, '2450', NULL, '', 'Sanctum of Domination - LFR difficulty: Shackles of Fate - Open State'),
-(20558, 1, '2450', NULL, '', 'Sanctum of Domination - LFR difficulty: The Reckoning - Open State');
+(20545, 0, '-1', NULL, '', 'Sanctum of Domination - Normal difficulty - Testing State'),
+(20546, 0, '-1', NULL, '', 'Sanctum of Domination - Heroic difficulty - Testing State'),
+(20547, 0, '-1', NULL, '', 'Sanctum of Domination - Mythic difficulty - Testing State'),
+(20549, 0, '-1', NULL, '', 'Sanctum of Domination - LFR difficulty: The Jailer\'s Vanguard - Testing State'),
+(20550, 0, '-1', NULL, '', 'Sanctum of Domination - LFR difficulty: The Dark Bastille - Testing State'),
+(20551, 0, '-1', NULL, '', 'Sanctum of Domination - LFR difficulty: Shackles of Fate - Testing State'),
+(20552, 0, '-1', NULL, '', 'Sanctum of Domination - LFR difficulty: The Reckoning - Testing State'),
+(20554, 1, '-1', NULL, '', 'Sanctum of Domination - Normal and Heroic difficulties - Open State'),
+(20555, 1, '-1', NULL, '', 'Sanctum of Domination - Mythic difficulty and LFR difficulty: The Jailer\'s Vanguard - Open State'),
+(20556, 1, '-1', NULL, '', 'Sanctum of Domination - LFR difficulty: The Dark Bastille - Open State'),
+(20557, 1, '-1', NULL, '', 'Sanctum of Domination - LFR difficulty: Shackles of Fate - Open State'),
+(20558, 1, '-1', NULL, '', 'Sanctum of Domination - LFR difficulty: The Reckoning - Open State');
 
 -- Spikes (Pinnacle of Domination)
 DELETE FROM `gameobject_template_addon` WHERE `entry` IN (368743, 368744, 368745, 368746, 368747, 368748, 368749, 368750, 368751, 368752, 368753, 368754);
@@ -86,32 +88,32 @@ INSERT INTO `gameobject_addon` (`guid`, `parent_rotation0`, `parent_rotation1`, 
 (@OGUID+11, 0, 0, 0.000000087422776573, 1, 0, 0);
 
 -- Areatrigger Check Z
-DELETE FROM `areatrigger_template` WHERE `Id`=7 AND `IsServerSide`=1;
+DELETE FROM `areatrigger_template` WHERE `Id`=@ATID+0 AND `IsServerSide`=1;
 INSERT INTO `areatrigger_template` (`Id`, `IsServerSide`, `Type`, `Flags`, `Data0`, `Data1`, `Data2`, `Data3`, `Data4`, `Data5`, `Data6`, `Data7`, `VerifiedBuild`) VALUES 
-(7, 1, 1, 0, 250, 250, 5, 0, 0, 0, 0, 0, 0);
+(@ATID+0, 1, 1, 0, 250, 250, 5, 0, 0, 0, 0, 0, 0);
 
-DELETE FROM `areatrigger` WHERE `SpawnId` IN (7, 8, 9, 10);
+DELETE FROM `areatrigger` WHERE `SpawnId` BETWEEN @ATSPAWNID+0 AND @ATSPAWNID+3 AND `IsServerSide`=1;
 INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerId`, `IsServerSide`, `MapId`, `PosX`, `PosY`, `PosZ`, `Orientation`, `PhaseUseFlags`, `PhaseId`, `PhaseGroup`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `Comment`) VALUES 
-(7, 7, 1, 2450, 235.217, -830.563, 4094.99, 2.6387, 0, 0, 0, 1, 250, 250, 3, 5, 0, 0, 0, 0, 'at_sylvanas_windrunner_z_check', 'Sanctum of Domination - Pinnacle of Dominance (Z Check)'),
-(8, 7, 1, 2450, -115.461, -1102.84, 4976.29, 0.7831, 0, 0, 0, 1, 250, 250, 3, 5, 0, 0, 0, 0, 'at_sylvanas_windrunner_z_check', 'Sanctum of Domination - Edge of the Abyss (Z Check)'),
-(9, 7, 1, 2450, 225.434, -766.006, 4983.74, 3.9239, 0, 0, 0, 1, 250, 250, 3, 5, 0, 0, 0, 0, 'at_sylvanas_windrunner_z_check', 'Sanctum of Domination - Edge of the Abyss (Z Check)'),
-(10, 7, 1, 2450, -249.124, -1277.07, 5605.18, 5.48411, 0, 0, 0, 1, 250, 250, 3, 5, 0, 0, 0, 0, 'at_sylvanas_windrunner_z_check', 'Sanctum of Domination - The Crucible (Z Check)');
+(@ATSPAWNID+0, @ATID+0, 1, 2450, 235.217, -830.563, 4094.99, 2.6387, 0, 0, 0, 1, 250, 250, 3, 5, 0, 0, 0, 0, 'at_sylvanas_windrunner_z_check', 'Sanctum of Domination - Pinnacle of Dominance (Z Check)'),
+(@ATSPAWNID+1, @ATID+0, 1, 2450, -115.461, -1102.84, 4976.29, 0.7831, 0, 0, 0, 1, 250, 250, 3, 5, 0, 0, 0, 0, 'at_sylvanas_windrunner_z_check', 'Sanctum of Domination - Edge of the Abyss (Z Check)'),
+(@ATSPAWNID+2, @ATID+0, 1, 2450, 225.434, -766.006, 4983.74, 3.9239, 0, 0, 0, 1, 250, 250, 3, 5, 0, 0, 0, 0, 'at_sylvanas_windrunner_z_check', 'Sanctum of Domination - Edge of the Abyss (Z Check)'),
+(@ATSPAWNID+3, @ATID+0, 1, 2450, -249.124, -1277.07, 5605.18, 5.48411, 0, 0, 0, 1, 250, 250, 3, 5, 0, 0, 0, 0, 'at_sylvanas_windrunner_z_check', 'Sanctum of Domination - The Crucible (Z Check)');
 
 -- Areatrigger Introduction Conversation
-DELETE FROM `areatrigger_template` WHERE `Id`=8 AND `IsServerSide`=1;
+DELETE FROM `areatrigger_template` WHERE `Id`=@ATID+1 AND `IsServerSide`=1;
 INSERT INTO `areatrigger_template` (`Id`, `IsServerSide`, `Type`, `Flags`, `Data0`, `Data1`, `Data2`, `Data3`, `Data4`, `Data5`, `Data6`, `Data7`, `VerifiedBuild`) VALUES 
-(8, 1, 0, 0, 75, 75, 0, 0, 0, 0, 0, 0, 0);
+(@ATID+1, 1, 0, 0, 75, 75, 0, 0, 0, 0, 0, 0, 0);
 
-DELETE FROM `areatrigger` WHERE `SpawnId`=11;
+DELETE FROM `areatrigger` WHERE `SpawnId`=@ATSPAWNID+4 AND `IsServerSide`=1;
 INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerId`, `IsServerSide`, `MapId`, `PosX`, `PosY`, `PosZ`, `Orientation`, `PhaseUseFlags`, `PhaseId`, `PhaseGroup`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `Comment`) VALUES 
-(11, 8, 1, 2450, 234.9542, -829.9804, 4104.986, 0.0, 0, 0, 0, 0, 75, 75, 0, 0, 0, 0, 0, 0, 'at_sylvanas_windrunner_introduction', 'Sanctum of Domination - Pinnacle of Dominance (Conv. Introduction)');
+(@ATSPAWNID+4, @ATID+1, 1, 2450, 234.9542, -829.9804, 4104.986, 0.0, 0, 0, 0, 0, 75, 75, 0, 0, 0, 0, 0, 0, 'at_sylvanas_windrunner_introduction', 'Sanctum of Domination - Pinnacle of Dominance (Conv. Introduction)');
 
 -- Throne of the Damned (Teleporter from Pinnacle of Domination to Throne of the Damned)
-UPDATE `creature_template` SET `minlevel`=60, `maxlevel`=60, `faction`=190, `npcflag`=16777216, `BaseAttackTime`=2000, `unit_flags`=768, `unit_flags2`=67143680, `unit_flags3`=1, `CreatureDifficultyID`=204469 WHERE `entry`=180803;
+UPDATE `creature_template` SET `faction`=190, `npcflag`=16777216, `BaseAttackTime`=2000, `unit_flags`=768, `unit_flags2`=67143680, `unit_flags3`=1, `CreatureDifficultyID`=204469 WHERE `entry`=180803;
 
 DELETE FROM `creature_template_addon` WHERE `entry`=180803;
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
-(180803, 0, 0, 0, 1, 0, 0, 0, 4, 0, '355809');
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `SheathState`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
+(180803, 0, 0, 1, 0, 0, 0, 4, 0, '355809');
 
 DELETE FROM `creature_template_scaling` WHERE `Entry`=180803;
 INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
@@ -137,11 +139,11 @@ INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, 
 (358839, 0, 2450, 233.3006, -540.5422, 3707.7519, 41079);
 
 -- Sylvanas Windrunner
-UPDATE `creature_template` SET `minlevel`=63, `maxlevel`=63, `faction`=16, `BaseAttackTime`=1000, `unit_flags`=832, `unit_flags3`=0, `VehicleId`=7461, `CreatureDifficultyID`=204624, `mechanic_immune_mask`=617299839, `ScriptName`='boss_sylvanas_windrunner' WHERE `entry`=175732; 
+UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=1000, `unit_flags`=832, `unit_flags3`=0, `VehicleId`=7461, `CreatureDifficultyID`=204624, `mechanic_immune_mask`=617299839, `ScriptName`='boss_sylvanas_windrunner' WHERE `entry`=175732; 
 
 DELETE FROM `creature_template_addon` WHERE `entry`=175732;
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
-(175732, 0, 0, 0, 0, 0, 0, 0, 0, 5, '');
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `SheathState`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
+(175732, 0, 0, 0, 0, 0, 0, 0, 5, '');
 
 DELETE FROM `creature_equip_template` WHERE `CreatureID`=175732;
 INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `AppearanceModID1`, `ItemVisual1`, `ItemID2`, `AppearanceModID2`, `ItemVisual2`, `ItemID3`, `AppearanceModID3`, `ItemVisual3`) VALUES
@@ -233,11 +235,11 @@ INSERT INTO `creature_summon_groups` (`summonerId`, `summonerType`, `groupId`, `
 (175732, 0, 0, 178081, 239.795, -806.064, 4105.07, 4.77206, 8, 0, 'Bolvar - Sylvanas Windrunner Encounter');
 
 -- Sylvanas Shadowcopy (Riding)
-UPDATE `creature_template` SET `minlevel`=60, `maxlevel`=60, `faction`=16, `BaseAttackTime`=2000, `unit_flags`=33554432, `unit_flags2`=35653664, `unit_flags3`=1, `CreatureDifficultyID`=201696, `ScriptName`='npc_sylvanas_windrunner_shadowcopy_riding' WHERE `entry`=178355;
+UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=33554432, `unit_flags2`=35653664, `unit_flags3`=1, `CreatureDifficultyID`=201696, `ScriptName`='npc_sylvanas_windrunner_shadowcopy_riding' WHERE `entry`=178355;
 
 DELETE FROM `creature_template_addon` WHERE `entry`=178355;
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
-(178355, 0, 0, 0, 1, 0, 0, 0, 0, 4, '');
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `SheathState`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
+(178355, 0, 0, 1, 0, 0, 0, 0, 4, '');
 
 DELETE FROM `creature_template_scaling` WHERE `Entry`=178355;
 INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
@@ -251,11 +253,11 @@ INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Fligh
 (178355, 1, 0, 1, 0, 0, 0);
 
 -- Highlord Bolvar Fordragon
-UPDATE `creature_template` SET `minlevel`=60, `maxlevel`=60, `faction`=35, `npcflag`=0, `speed_walk`=1.20000004768371582, `speed_run`=1.428571462631225585, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=0, `unit_flags3`=65568, `CreatureDifficultyID`=201344, `ScriptName`='npc_sylvanas_windrunner_bolvar' WHERE `entry`=178081;
+UPDATE `creature_template` SET `faction`=35, `npcflag`=0, `speed_walk`=1.20000004768371582, `speed_run`=1.428571462631225585, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=0, `unit_flags3`=65568, `CreatureDifficultyID`=201344, `ScriptName`='npc_sylvanas_windrunner_bolvar' WHERE `entry`=178081;
 
 DELETE FROM `creature_template_addon` WHERE `entry`=178081;
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
-(178081, 0, 0, 0, 0, 1, 506, 0, 0, 0, 5, '');
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `MountCreatureID`, `SheathState`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
+(178081, 0, 0, 0, 1, 506, 0, 0, 0, 5, '');
 
 DELETE FROM `creature_model_info` WHERE `DisplayID`=101964;
 INSERT INTO `creature_model_info` (`DisplayID`, `BoundingRadius`, `CombatReach`, `DisplayID_Other_Gender`, `VerifiedBuild`) VALUES 
@@ -288,11 +290,11 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (178081, 11, 0, 'No! The Jailer is going to destroy the Arbiter!', 14, 0, 100, 0, 0, 181604, 0, 211464, 0, '');
 
 -- Thrall
-UPDATE `creature_template` SET `minlevel`=62, `maxlevel`=62, `faction`=35, `npcflag`=0, `speed_walk`=1.20000004768371582, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=0, `unit_flags3`=65568, `CreatureDifficultyID`=199181, `ScriptName`='npc_sylvanas_windrunner_thrall' WHERE `entry`=176532;
+UPDATE `creature_template` SET `faction`=35, `npcflag`=0, `speed_walk`=1.20000004768371582, `BaseAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=0, `unit_flags3`=65568, `CreatureDifficultyID`=199181, `ScriptName`='npc_sylvanas_windrunner_thrall' WHERE `entry`=176532;
 
 DELETE FROM `creature_template_addon` WHERE `entry`=176532;
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
-(176532, 0, 0, 0, 0, 1, 505, 0, 0, 0, 5, '');
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `MountCreatureID`, `SheathState`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
+(176532, 0, 0, 0, 1, 505, 0, 0, 0, 5, '');
 
 DELETE FROM `creature_equip_template` WHERE `CreatureID` = 176532;
 INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `AppearanceModID1`, `ItemVisual1`, `ItemID2`, `AppearanceModID2`, `ItemVisual2`, `ItemID3`, `AppearanceModID3`, `ItemVisual3`) VALUES
@@ -328,11 +330,11 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (176532, 10, 0, 'The Arbiter\'s defenses are weakening! Stop the Jailer while we still can!', 14, 0, 100, 0, 0, 181606, 0, 211463, 0, '');
 
 -- Lady Jaina Proudmoore
-UPDATE `creature_template` SET `minlevel`=60, `maxlevel`=60, `faction`=35, `npcflag`=0, `speed_walk`=1.60000002384185791, `BaseAttackTime`=2000, `unit_flags`=32832, `unit_flags2`=0, `unit_flags3`=65568, `CreatureDifficultyID`=199182, `ScriptName`='npc_sylvanas_windrunner_jaina' WHERE `entry`=176533;
+UPDATE `creature_template` SET `faction`=35, `npcflag`=0, `speed_walk`=1.60000002384185791, `BaseAttackTime`=2000, `unit_flags`=32832, `unit_flags2`=0, `unit_flags3`=65568, `CreatureDifficultyID`=199182, `ScriptName`='npc_sylvanas_windrunner_jaina' WHERE `entry`=176533;
 
 DELETE FROM `creature_template_addon` WHERE `entry`=176533;
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
-(176533, 0, 0, 0, 0, 1, 654, 0, 0, 0, 5, '');
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `MountCreatureID`, `SheathState`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
+(176533, 0, 0, 0, 1, 654, 0, 0, 0, 5, '');
 
 DELETE FROM `creature_template_scaling` WHERE `Entry` = 176533;
 INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
