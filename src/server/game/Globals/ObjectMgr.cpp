@@ -7268,7 +7268,7 @@ AccessRequirement const* ObjectMgr::GetAccessRequirement(uint32 mapid, Difficult
     return Trinity::Containers::MapGetValuePtr(_accessRequirementStore, MAKE_PAIR64(mapid, difficulty));
 }
 
-bool ObjectMgr::AddGraveyardLink(uint32 id, uint32 zoneId, bool persist /*= true*/)
+bool ObjectMgr::AddGraveyardLink(uint32 id, uint32 zoneId, uint32 team, bool persist /*= true*/)
 {
     if (FindGraveyardData(id, zoneId))
         return false;
@@ -7288,51 +7288,36 @@ bool ObjectMgr::AddGraveyardLink(uint32 id, uint32 zoneId, bool persist /*= true
         stmt->setUInt32(1, zoneId);
 
         WorldDatabase.Execute(stmt);
+
+        // Store graveyard condition if team is set
+        if (team != 0)
+        {
+            WorldDatabasePreparedStatement* conditionStmt = WorldDatabase.GetPreparedStatement(WORLD_INS_CONDITION);
+            conditionStmt->setUInt32(0, CONDITION_SOURCE_TYPE_GRAVEYARD); // SourceTypeOrReferenceId
+            conditionStmt->setUInt32(1, zoneId); // SourceGroup
+            conditionStmt->setUInt32(2, id); // SourceEntry
+            conditionStmt->setUInt32(3, 0); // SourceId
+            conditionStmt->setUInt32(4, 0); // ElseGroup
+            conditionStmt->setUInt32(5, CONDITION_TEAM); // ConditionTypeOrReference
+            conditionStmt->setUInt8(6, 0); // ConditionTarget
+            conditionStmt->setUInt32(7, team); // ConditionValue1
+            conditionStmt->setUInt32(8, 0); // ConditionValue2
+            conditionStmt->setUInt32(9, 0); // ConditionValue3
+            conditionStmt->setUInt8(10, 0); // NegativeCondition
+            conditionStmt->setUInt32(11, 0); // ErrorType
+            conditionStmt->setUInt32(12, 0); // ErrorTextId
+            conditionStmt->setString(13, ""); // ScriptName
+            conditionStmt->setString(14, ""); // Comment
+
+            WorldDatabase.Execute(conditionStmt);
+
+            // reload conditions to make sure everything is loaded as it should be
+            sConditionMgr->LoadConditions(true);
+            sScriptMgr->NotifyScriptIDUpdate();
+        }
     }
 
     return true;
-}
-
-void ObjectMgr::RemoveGraveyardLink(uint32 id, uint32 zoneId, bool persist /*= false*/)
-{
-    GraveyardMapBoundsNonConst range = GraveyardStore.equal_range(zoneId);
-    if (range.first == range.second)
-    {
-        //TC_LOG_ERROR("sql.sql", "Table `graveyard_zone` incomplete: Zone {} Team {} does not have a linked graveyard.", zoneId, team);
-        return;
-    }
-
-    bool found = false;
-
-    for (; range.first != range.second; ++range.first)
-    {
-        GraveyardData & data = range.first->second;
-
-        // skip not matching safezone id
-        if (data.safeLocId != id)
-            continue;
-
-        found = true;
-        break;
-    }
-
-    // no match, return
-    if (!found)
-        return;
-
-    // remove from links
-    GraveyardStore.erase(range.first);
-
-    // remove link from DB
-    if (persist)
-    {
-        WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GRAVEYARD_ZONE);
-
-        stmt->setUInt32(0, id);
-        stmt->setUInt32(1, zoneId);
-
-        WorldDatabase.Execute(stmt);
-    }
 }
 
 void ObjectMgr::LoadAreaTriggerTeleports()
