@@ -7015,7 +7015,7 @@ void ObjectMgr::LoadGraveyardZones()
 
     GraveyardStore.clear(); // needed for reload case
 
-    //                                                   0   1
+    //                                               0   1
     QueryResult result = WorldDatabase.Query("SELECT ID, GhostZone FROM graveyard_zone");
 
     if (!result)
