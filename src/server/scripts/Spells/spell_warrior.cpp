@@ -44,6 +44,7 @@ enum WarriorSpells
     SPELL_WARRIOR_COLOSSUS_SMASH                    = 167105,
     SPELL_WARRIOR_COLOSSUS_SMASH_EFFECT             = 208086,
     SPELL_WARRIOR_EXECUTE                           = 20647,
+    SPELL_WARRIOR_FUELED_BY_VIOLENCE_HEAL           = 383104,
     SPELL_WARRIOR_GLYPH_OF_THE_BLAZING_TRAIL        = 123779,
     SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP              = 159708,
     SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP_BUFF         = 133278,
@@ -197,6 +198,46 @@ class spell_warr_colossus_smash : public SpellScript
     {
         OnHit += SpellHitFn(spell_warr_colossus_smash::HandleOnHit);
     }
+};
+
+// 383103  - Fueled by Violence
+class spell_warr_fueled_by_violence : public AuraScript
+{
+    PrepareAuraScript(spell_warr_fueled_by_violence);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_FUELED_BY_VIOLENCE_HEAL });
+    }
+
+    void HandleProc(ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+
+        _nextHealAmount += CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), GetEffectInfo(EFFECT_0).CalcValue(GetTarget()));
+    }
+
+    void HandlePeriodic(AuraEffect const* aurEff)
+    {
+        if (_nextHealAmount == 0)
+            return;
+
+        Unit* target = GetTarget();
+        CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+        args.AddSpellBP0(_nextHealAmount);
+
+        target->CastSpell(target, SPELL_WARRIOR_FUELED_BY_VIOLENCE_HEAL, args);
+        _nextHealAmount = 0;
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_warr_fueled_by_violence::HandleProc);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_warr_fueled_by_violence::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+
+private:
+    uint32 _nextHealAmount;
 };
 
 // 6544 - Heroic leap
@@ -640,6 +681,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_charge_drop_fire_periodic);
     RegisterSpellScript(spell_warr_charge_effect);
     RegisterSpellScript(spell_warr_colossus_smash);
+    RegisterSpellScript(spell_warr_fueled_by_violence);
     RegisterSpellScript(spell_warr_heroic_leap);
     RegisterSpellScript(spell_warr_heroic_leap_jump);
     RegisterSpellScript(spell_warr_impending_victory);
