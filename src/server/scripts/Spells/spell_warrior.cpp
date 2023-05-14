@@ -205,7 +205,7 @@ class spell_warr_fueled_by_violence : public AuraScript
 {
     PrepareAuraScript(spell_warr_fueled_by_violence);
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_WARRIOR_FUELED_BY_VIOLENCE_HEAL });
     }
@@ -217,7 +217,7 @@ class spell_warr_fueled_by_violence : public AuraScript
         _nextHealAmount += CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), GetEffectInfo(EFFECT_0).CalcValue(GetTarget()));
     }
 
-    void HandlePeriodic(AuraEffect const* aurEff)
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
         if (_nextHealAmount == 0)
             return;
