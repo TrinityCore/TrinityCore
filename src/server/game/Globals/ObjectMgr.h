@@ -839,6 +839,7 @@ struct WorldSafeLocsEntry
 struct GraveyardData
 {
     uint32 safeLocId;
+    ConditionContainer Conditions;
 };
 
 typedef std::multimap<uint32, GraveyardData> GraveyardContainer;
