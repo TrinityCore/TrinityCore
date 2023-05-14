@@ -237,7 +237,7 @@ class spell_warr_fueled_by_violence : public AuraScript
     }
 
 private:
-    uint32 _nextHealAmount;
+    uint32 _nextHealAmount = 0;
 };
 
 // 6544 - Heroic leap
