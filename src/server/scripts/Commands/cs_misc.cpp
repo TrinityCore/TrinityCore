@@ -1019,7 +1019,7 @@ public:
             return false;
         }
 
-        if (sObjectMgr->AddGraveyardLink(graveyardId, zoneId, team))
+        if (sObjectMgr->AddGraveyardLink(graveyardId, zoneId))
             handler->PSendSysMessage(LANG_COMMAND_GRAVEYARDLINKED, graveyardId, zoneId);
         else
             handler->PSendSysMessage(LANG_COMMAND_GRAVEYARDALRLINKED, graveyardId, zoneId);
