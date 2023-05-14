@@ -105,8 +105,6 @@ class spell_warr_brutal_vitality : public AuraScript
 
     void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
     {
-        PreventDefaultAction();
-
         damageAmount += CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), GetEffectInfo(EFFECT_0).CalcValue(GetTarget()));
     }
 
