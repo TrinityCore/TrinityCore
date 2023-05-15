@@ -103,20 +103,20 @@ class spell_warr_brutal_vitality : public AuraScript
         return ValidateSpellInfo({ SPELL_WARRIOR_IGNORE_PAIN });
     }
 
-    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
-        damageAmount += CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), GetEffectInfo(EFFECT_0).CalcValue(GetTarget()));
+        _damageAmount += CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount());
     }
 
     void HandleDummyTick(AuraEffect const* /*aurEff*/)
     {
-        if (damageAmount == 0)
+        if (_damageAmount == 0)
             return;
 
-        if (AuraEffect* ignorePainAura = GetCaster()->GetAuraEffect(SPELL_WARRIOR_IGNORE_PAIN, EFFECT_0))
-            ignorePainAura->ChangeAmount(ignorePainAura->GetAmount() + damageAmount);
+        if (AuraEffect* ignorePainAura = GetTarget()->GetAuraEffect(SPELL_WARRIOR_IGNORE_PAIN, EFFECT_0))
+            ignorePainAura->ChangeAmount(ignorePainAura->GetAmount() + _damageAmount);
 
-        damageAmount = 0;
+        _damageAmount = 0;
     }
 
     void Register() override
@@ -125,7 +125,7 @@ class spell_warr_brutal_vitality : public AuraScript
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_warr_brutal_vitality::HandleDummyTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 
-    uint32 damageAmount = 0;
+    uint32 _damageAmount = 0;
 };
 
 // 100 - Charge
