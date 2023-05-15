@@ -758,6 +758,18 @@ class TC_PROTO_API FriendInvitationParams : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 program() const PROTOBUF_DEPRECATED;
   inline void set_program(::google::protobuf::uint32 value) PROTOBUF_DEPRECATED;
 
+  // optional string target_phone_number = 11;
+  inline bool has_target_phone_number() const;
+  inline void clear_target_phone_number();
+  static const int kTargetPhoneNumberFieldNumber = 11;
+  inline const ::std::string& target_phone_number() const;
+  inline void set_target_phone_number(const ::std::string& value);
+  inline void set_target_phone_number(const char* value);
+  inline void set_target_phone_number(const char* value, size_t size);
+  inline ::std::string* mutable_target_phone_number();
+  inline ::std::string* release_target_phone_number();
+  inline void set_allocated_target_phone_number(::std::string* target_phone_number);
+
   static const int kFriendParamsFieldNumber = 103;
   static ::google::protobuf::internal::ExtensionIdentifier< ::bgs::protocol::InvitationParams,
       ::google::protobuf::internal::MessageTypeTraits< ::bgs::protocol::friends::v1::FriendInvitationParams >, 11, false >
@@ -772,6 +784,8 @@ class TC_PROTO_API FriendInvitationParams : public ::google::protobuf::Message {
   inline void clear_has_target_name();
   inline void set_has_program();
   inline void clear_has_program();
+  inline void set_has_target_phone_number();
+  inline void clear_has_target_phone_number();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -782,6 +796,7 @@ class TC_PROTO_API FriendInvitationParams : public ::google::protobuf::Message {
   ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > role_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Attribute > attribute_;
   ::std::string* target_name_;
+  ::std::string* target_phone_number_;
   ::google::protobuf::uint32 program_;
   friend void TC_PROTO_API protobuf_AddDesc_friends_5ftypes_2eproto();
   friend void protobuf_AssignDesc_friends_5ftypes_2eproto();
@@ -2330,6 +2345,82 @@ inline void FriendInvitationParams::set_program(::google::protobuf::uint32 value
   set_has_program();
   program_ = value;
   // @@protoc_insertion_point(field_set:bgs.protocol.friends.v1.FriendInvitationParams.program)
+}
+
+// optional string target_phone_number = 11;
+inline bool FriendInvitationParams::has_target_phone_number() const {
+  return (_has_bits_[0] & 0x00000040u) != 0;
+}
+inline void FriendInvitationParams::set_has_target_phone_number() {
+  _has_bits_[0] |= 0x00000040u;
+}
+inline void FriendInvitationParams::clear_has_target_phone_number() {
+  _has_bits_[0] &= ~0x00000040u;
+}
+inline void FriendInvitationParams::clear_target_phone_number() {
+  if (target_phone_number_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    target_phone_number_->clear();
+  }
+  clear_has_target_phone_number();
+}
+inline const ::std::string& FriendInvitationParams::target_phone_number() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.friends.v1.FriendInvitationParams.target_phone_number)
+  return *target_phone_number_;
+}
+inline void FriendInvitationParams::set_target_phone_number(const ::std::string& value) {
+  set_has_target_phone_number();
+  if (target_phone_number_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    target_phone_number_ = new ::std::string;
+  }
+  target_phone_number_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.friends.v1.FriendInvitationParams.target_phone_number)
+}
+inline void FriendInvitationParams::set_target_phone_number(const char* value) {
+  set_has_target_phone_number();
+  if (target_phone_number_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    target_phone_number_ = new ::std::string;
+  }
+  target_phone_number_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.friends.v1.FriendInvitationParams.target_phone_number)
+}
+inline void FriendInvitationParams::set_target_phone_number(const char* value, size_t size) {
+  set_has_target_phone_number();
+  if (target_phone_number_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    target_phone_number_ = new ::std::string;
+  }
+  target_phone_number_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.friends.v1.FriendInvitationParams.target_phone_number)
+}
+inline ::std::string* FriendInvitationParams::mutable_target_phone_number() {
+  set_has_target_phone_number();
+  if (target_phone_number_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    target_phone_number_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.friends.v1.FriendInvitationParams.target_phone_number)
+  return target_phone_number_;
+}
+inline ::std::string* FriendInvitationParams::release_target_phone_number() {
+  clear_has_target_phone_number();
+  if (target_phone_number_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = target_phone_number_;
+    target_phone_number_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void FriendInvitationParams::set_allocated_target_phone_number(::std::string* target_phone_number) {
+  if (target_phone_number_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete target_phone_number_;
+  }
+  if (target_phone_number) {
+    set_has_target_phone_number();
+    target_phone_number_ = target_phone_number;
+  } else {
+    clear_has_target_phone_number();
+    target_phone_number_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.friends.v1.FriendInvitationParams.target_phone_number)
 }
 
 // -------------------------------------------------------------------

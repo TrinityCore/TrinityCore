@@ -36,6 +36,7 @@ void protobuf_AssignDesc_content_5fhandle_5ftypes_2eproto();
 void protobuf_ShutdownFile_content_5fhandle_5ftypes_2eproto();
 
 class ContentHandle;
+class TitleIconContentHandle;
 
 // ===================================================================
 
@@ -142,6 +143,84 @@ class TC_PROTO_API ContentHandle : public ::google::protobuf::Message {
 
   void InitAsDefaultInstance();
   static ContentHandle* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API TitleIconContentHandle : public ::google::protobuf::Message {
+ public:
+  TitleIconContentHandle();
+  virtual ~TitleIconContentHandle();
+
+  TitleIconContentHandle(const TitleIconContentHandle& from);
+
+  inline TitleIconContentHandle& operator=(const TitleIconContentHandle& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const TitleIconContentHandle& default_instance();
+
+  void Swap(TitleIconContentHandle* other);
+
+  // implements Message ----------------------------------------------
+
+  TitleIconContentHandle* New() const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional uint32 title_id = 1;
+  inline bool has_title_id() const;
+  inline void clear_title_id();
+  static const int kTitleIdFieldNumber = 1;
+  inline ::google::protobuf::uint32 title_id() const;
+  inline void set_title_id(::google::protobuf::uint32 value);
+
+  // optional .bgs.protocol.ContentHandle content_handle = 2;
+  inline bool has_content_handle() const;
+  inline void clear_content_handle();
+  static const int kContentHandleFieldNumber = 2;
+  inline const ::bgs::protocol::ContentHandle& content_handle() const;
+  inline ::bgs::protocol::ContentHandle* mutable_content_handle();
+  inline ::bgs::protocol::ContentHandle* release_content_handle();
+  inline void set_allocated_content_handle(::bgs::protocol::ContentHandle* content_handle);
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.TitleIconContentHandle)
+ private:
+  inline void set_has_title_id();
+  inline void clear_has_title_id();
+  inline void set_has_content_handle();
+  inline void clear_has_content_handle();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::bgs::protocol::ContentHandle* content_handle_;
+  ::google::protobuf::uint32 title_id_;
+  friend void TC_PROTO_API protobuf_AddDesc_content_5fhandle_5ftypes_2eproto();
+  friend void protobuf_AssignDesc_content_5fhandle_5ftypes_2eproto();
+  friend void protobuf_ShutdownFile_content_5fhandle_5ftypes_2eproto();
+
+  void InitAsDefaultInstance();
+  static TitleIconContentHandle* default_instance_;
 };
 // ===================================================================
 
@@ -349,6 +428,75 @@ inline void ContentHandle::set_allocated_proto_url(::std::string* proto_url) {
     proto_url_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   }
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.ContentHandle.proto_url)
+}
+
+// -------------------------------------------------------------------
+
+// TitleIconContentHandle
+
+// optional uint32 title_id = 1;
+inline bool TitleIconContentHandle::has_title_id() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void TitleIconContentHandle::set_has_title_id() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void TitleIconContentHandle::clear_has_title_id() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void TitleIconContentHandle::clear_title_id() {
+  title_id_ = 0u;
+  clear_has_title_id();
+}
+inline ::google::protobuf::uint32 TitleIconContentHandle::title_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.TitleIconContentHandle.title_id)
+  return title_id_;
+}
+inline void TitleIconContentHandle::set_title_id(::google::protobuf::uint32 value) {
+  set_has_title_id();
+  title_id_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.TitleIconContentHandle.title_id)
+}
+
+// optional .bgs.protocol.ContentHandle content_handle = 2;
+inline bool TitleIconContentHandle::has_content_handle() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void TitleIconContentHandle::set_has_content_handle() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void TitleIconContentHandle::clear_has_content_handle() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void TitleIconContentHandle::clear_content_handle() {
+  if (content_handle_ != NULL) content_handle_->::bgs::protocol::ContentHandle::Clear();
+  clear_has_content_handle();
+}
+inline const ::bgs::protocol::ContentHandle& TitleIconContentHandle::content_handle() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.TitleIconContentHandle.content_handle)
+  return content_handle_ != NULL ? *content_handle_ : *default_instance_->content_handle_;
+}
+inline ::bgs::protocol::ContentHandle* TitleIconContentHandle::mutable_content_handle() {
+  set_has_content_handle();
+  if (content_handle_ == NULL) content_handle_ = new ::bgs::protocol::ContentHandle;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.TitleIconContentHandle.content_handle)
+  return content_handle_;
+}
+inline ::bgs::protocol::ContentHandle* TitleIconContentHandle::release_content_handle() {
+  clear_has_content_handle();
+  ::bgs::protocol::ContentHandle* temp = content_handle_;
+  content_handle_ = NULL;
+  return temp;
+}
+inline void TitleIconContentHandle::set_allocated_content_handle(::bgs::protocol::ContentHandle* content_handle) {
+  delete content_handle_;
+  content_handle_ = content_handle;
+  if (content_handle) {
+    set_has_content_handle();
+  } else {
+    clear_has_content_handle();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.TitleIconContentHandle.content_handle)
 }
 
 // @@protoc_insertion_point(namespace_scope)

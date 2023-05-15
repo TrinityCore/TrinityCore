@@ -27,8 +27,8 @@
 #include <google/protobuf/unknown_field_set.h>
 #include "api/client/v2/attribute_types.pb.h"
 #include "account_types.pb.h"
-#include "rpc_types.pb.h"
 #include "message_types.pb.h"
+#include "global_extensions/field_options.pb.h"
 #include "Define.h" // for TC_PROTO_API
 // @@protoc_insertion_point(includes)
 
@@ -94,14 +94,18 @@ inline bool UserSource_Parse(
     UserSource_descriptor(), name, value);
 }
 enum ClubSource {
-  CLUB_SOURCE_OTHER = 0,
+  CLUB_SOURCE_NONE = 0,
   CLUB_SOURCE_MESSAGE = 1,
   CLUB_SOURCE_CLUB_NAME = 2,
-  CLUB_SOURCE_STREAM_NAME = 3
+  CLUB_SOURCE_STREAM_NAME = 3,
+  CLUB_SOURCE_BROADCAST = 4,
+  CLUB_SOURCE_CLUB_SHORT_NAME = 5,
+  CLUB_SOURCE_CLUB_DESCRIPTION = 6,
+  CLUB_SOURCE_STREAM_SUBJECT = 7
 };
 TC_PROTO_API bool ClubSource_IsValid(int value);
-const ClubSource ClubSource_MIN = CLUB_SOURCE_OTHER;
-const ClubSource ClubSource_MAX = CLUB_SOURCE_STREAM_NAME;
+const ClubSource ClubSource_MIN = CLUB_SOURCE_NONE;
+const ClubSource ClubSource_MAX = CLUB_SOURCE_STREAM_SUBJECT;
 const int ClubSource_ARRAYSIZE = ClubSource_MAX + 1;
 
 TC_PROTO_API const ::google::protobuf::EnumDescriptor* ClubSource_descriptor();

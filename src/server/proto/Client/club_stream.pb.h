@@ -26,6 +26,7 @@
 #include <google/protobuf/unknown_field_set.h>
 #include "club_enum.pb.h"
 #include "club_member.pb.h"
+#include "club_type.pb.h"
 #include "api/client/v2/attribute_types.pb.h"
 #include "embed_types.pb.h"
 #include "event_view_types.pb.h"
@@ -1147,6 +1148,15 @@ class TC_PROTO_API StreamMention : public ::google::protobuf::Message {
   inline ::bgs::protocol::club::v1::StreamMessage* release_message();
   inline void set_allocated_message(::bgs::protocol::club::v1::StreamMessage* message);
 
+  // optional .bgs.protocol.club.v1.UniqueClubType club_type = 9;
+  inline bool has_club_type() const;
+  inline void clear_club_type();
+  static const int kClubTypeFieldNumber = 9;
+  inline const ::bgs::protocol::club::v1::UniqueClubType& club_type() const;
+  inline ::bgs::protocol::club::v1::UniqueClubType* mutable_club_type();
+  inline ::bgs::protocol::club::v1::UniqueClubType* release_club_type();
+  inline void set_allocated_club_type(::bgs::protocol::club::v1::UniqueClubType* club_type);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.StreamMention)
  private:
   inline void set_has_club_id();
@@ -1165,6 +1175,8 @@ class TC_PROTO_API StreamMention : public ::google::protobuf::Message {
   inline void clear_has_member_id();
   inline void set_has_message();
   inline void clear_has_message();
+  inline void set_has_club_type();
+  inline void clear_has_club_type();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -1177,6 +1189,7 @@ class TC_PROTO_API StreamMention : public ::google::protobuf::Message {
   ::bgs::protocol::TimeSeriesId* mention_id_;
   ::bgs::protocol::club::v1::MemberId* member_id_;
   ::bgs::protocol::club::v1::StreamMessage* message_;
+  ::bgs::protocol::club::v1::UniqueClubType* club_type_;
   bool destroyed_;
   friend void TC_PROTO_API protobuf_AddDesc_club_5fstream_2eproto();
   friend void protobuf_AssignDesc_club_5fstream_2eproto();
@@ -3541,6 +3554,47 @@ inline void StreamMention::set_allocated_message(::bgs::protocol::club::v1::Stre
     clear_has_message();
   }
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.StreamMention.message)
+}
+
+// optional .bgs.protocol.club.v1.UniqueClubType club_type = 9;
+inline bool StreamMention::has_club_type() const {
+  return (_has_bits_[0] & 0x00000100u) != 0;
+}
+inline void StreamMention::set_has_club_type() {
+  _has_bits_[0] |= 0x00000100u;
+}
+inline void StreamMention::clear_has_club_type() {
+  _has_bits_[0] &= ~0x00000100u;
+}
+inline void StreamMention::clear_club_type() {
+  if (club_type_ != NULL) club_type_->::bgs::protocol::club::v1::UniqueClubType::Clear();
+  clear_has_club_type();
+}
+inline const ::bgs::protocol::club::v1::UniqueClubType& StreamMention::club_type() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.StreamMention.club_type)
+  return club_type_ != NULL ? *club_type_ : *default_instance_->club_type_;
+}
+inline ::bgs::protocol::club::v1::UniqueClubType* StreamMention::mutable_club_type() {
+  set_has_club_type();
+  if (club_type_ == NULL) club_type_ = new ::bgs::protocol::club::v1::UniqueClubType;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.StreamMention.club_type)
+  return club_type_;
+}
+inline ::bgs::protocol::club::v1::UniqueClubType* StreamMention::release_club_type() {
+  clear_has_club_type();
+  ::bgs::protocol::club::v1::UniqueClubType* temp = club_type_;
+  club_type_ = NULL;
+  return temp;
+}
+inline void StreamMention::set_allocated_club_type(::bgs::protocol::club::v1::UniqueClubType* club_type) {
+  delete club_type_;
+  club_type_ = club_type;
+  if (club_type) {
+    set_has_club_type();
+  } else {
+    clear_has_club_type();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.StreamMention.club_type)
 }
 
 // -------------------------------------------------------------------

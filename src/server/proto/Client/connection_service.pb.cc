@@ -24,6 +24,9 @@ namespace v1 {
 
 namespace {
 
+const ::google::protobuf::Descriptor* ClientSdkVersionInfo_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  ClientSdkVersionInfo_reflection_ = NULL;
 const ::google::protobuf::Descriptor* ConnectRequest_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   ConnectRequest_reflection_ = NULL;
@@ -57,6 +60,7 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* EncryptRequest_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   EncryptRequest_reflection_ = NULL;
+const ::google::protobuf::EnumDescriptor* MeteringLevel_descriptor_ = NULL;
 const ::google::protobuf::ServiceDescriptor* ConnectionService_descriptor_ = NULL;
 
 }  // namespace
@@ -67,11 +71,30 @@ void protobuf_AssignDesc_connection_5fservice_2eproto() {
     ::google::protobuf::DescriptorPool::generated_pool()->FindFileByName(
       "connection_service.proto");
   GOOGLE_CHECK(file != NULL);
-  ConnectRequest_descriptor_ = file->message_type(0);
-  static const int ConnectRequest_offsets_[3] = {
+  ClientSdkVersionInfo_descriptor_ = file->message_type(0);
+  static const int ClientSdkVersionInfo_offsets_[3] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClientSdkVersionInfo, sdk_name_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClientSdkVersionInfo, sdk_version_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClientSdkVersionInfo, protocol_version_),
+  };
+  ClientSdkVersionInfo_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      ClientSdkVersionInfo_descriptor_,
+      ClientSdkVersionInfo::default_instance_,
+      ClientSdkVersionInfo_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClientSdkVersionInfo, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClientSdkVersionInfo, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(ClientSdkVersionInfo));
+  ConnectRequest_descriptor_ = file->message_type(1);
+  static const int ConnectRequest_offsets_[5] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConnectRequest, client_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConnectRequest, bind_request_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConnectRequest, use_bindless_rpc_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConnectRequest, metering_level_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConnectRequest, client_sdk_info_),
   };
   ConnectRequest_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -84,7 +107,7 @@ void protobuf_AssignDesc_connection_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ConnectRequest));
-  ConnectionMeteringContentHandles_descriptor_ = file->message_type(1);
+  ConnectionMeteringContentHandles_descriptor_ = file->message_type(2);
   static const int ConnectionMeteringContentHandles_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConnectionMeteringContentHandles, content_handle_),
   };
@@ -99,8 +122,8 @@ void protobuf_AssignDesc_connection_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ConnectionMeteringContentHandles));
-  ConnectResponse_descriptor_ = file->message_type(2);
-  static const int ConnectResponse_offsets_[8] = {
+  ConnectResponse_descriptor_ = file->message_type(3);
+  static const int ConnectResponse_offsets_[9] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConnectResponse, server_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConnectResponse, client_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConnectResponse, bind_result_),
@@ -109,6 +132,7 @@ void protobuf_AssignDesc_connection_5fservice_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConnectResponse, server_time_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConnectResponse, use_bindless_rpc_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConnectResponse, binary_content_handle_array_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ConnectResponse, ciid_),
   };
   ConnectResponse_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -121,7 +145,7 @@ void protobuf_AssignDesc_connection_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ConnectResponse));
-  BoundService_descriptor_ = file->message_type(3);
+  BoundService_descriptor_ = file->message_type(4);
   static const int BoundService_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BoundService, hash_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BoundService, id_),
@@ -137,7 +161,7 @@ void protobuf_AssignDesc_connection_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(BoundService));
-  BindRequest_descriptor_ = file->message_type(4);
+  BindRequest_descriptor_ = file->message_type(5);
   static const int BindRequest_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BindRequest, deprecated_imported_service_hash_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BindRequest, deprecated_exported_service_),
@@ -155,7 +179,7 @@ void protobuf_AssignDesc_connection_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(BindRequest));
-  BindResponse_descriptor_ = file->message_type(5);
+  BindResponse_descriptor_ = file->message_type(6);
   static const int BindResponse_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BindResponse, imported_service_id_),
   };
@@ -170,7 +194,7 @@ void protobuf_AssignDesc_connection_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(BindResponse));
-  EchoRequest_descriptor_ = file->message_type(6);
+  EchoRequest_descriptor_ = file->message_type(7);
   static const int EchoRequest_offsets_[5] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EchoRequest, time_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EchoRequest, network_only_),
@@ -189,7 +213,7 @@ void protobuf_AssignDesc_connection_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(EchoRequest));
-  EchoResponse_descriptor_ = file->message_type(7);
+  EchoResponse_descriptor_ = file->message_type(8);
   static const int EchoResponse_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EchoResponse, time_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EchoResponse, payload_),
@@ -205,7 +229,7 @@ void protobuf_AssignDesc_connection_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(EchoResponse));
-  DisconnectRequest_descriptor_ = file->message_type(8);
+  DisconnectRequest_descriptor_ = file->message_type(9);
   static const int DisconnectRequest_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DisconnectRequest, error_code_),
   };
@@ -220,7 +244,7 @@ void protobuf_AssignDesc_connection_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(DisconnectRequest));
-  DisconnectNotification_descriptor_ = file->message_type(9);
+  DisconnectNotification_descriptor_ = file->message_type(10);
   static const int DisconnectNotification_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DisconnectNotification, error_code_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(DisconnectNotification, reason_),
@@ -236,7 +260,7 @@ void protobuf_AssignDesc_connection_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(DisconnectNotification));
-  EncryptRequest_descriptor_ = file->message_type(10);
+  EncryptRequest_descriptor_ = file->message_type(11);
   static const int EncryptRequest_offsets_[1] = {
   };
   EncryptRequest_reflection_ =
@@ -250,6 +274,7 @@ void protobuf_AssignDesc_connection_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(EncryptRequest));
+  MeteringLevel_descriptor_ = file->enum_type(0);
   ConnectionService_descriptor_ = file->service(0);
 }
 
@@ -263,6 +288,8 @@ inline void protobuf_AssignDescriptorsOnce() {
 
 void protobuf_RegisterTypes(const ::std::string&) {
   protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    ClientSdkVersionInfo_descriptor_, &ClientSdkVersionInfo::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     ConnectRequest_descriptor_, &ConnectRequest::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
@@ -290,6 +317,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
 }  // namespace
 
 void protobuf_ShutdownFile_connection_5fservice_2eproto() {
+  delete ClientSdkVersionInfo::default_instance_;
+  delete ClientSdkVersionInfo_reflection_;
   delete ConnectRequest::default_instance_;
   delete ConnectRequest_reflection_;
   delete ConnectionMeteringContentHandles::default_instance_;
@@ -322,67 +351,79 @@ void protobuf_AddDesc_connection_5fservice_2eproto() {
 
   ::bgs::protocol::protobuf_AddDesc_content_5fhandle_5ftypes_2eproto();
   ::bgs::protocol::protobuf_AddDesc_rpc_5ftypes_2eproto();
+  ::bgs::protocol::protobuf_AddDesc_semantic_5fversion_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\030connection_service.proto\022\032bgs.protocol"
     ".connection.v1\032\032content_handle_types.pro"
-    "to\032\017rpc_types.proto\"\233\001\n\016ConnectRequest\022*"
-    "\n\tclient_id\030\001 \001(\0132\027.bgs.protocol.Process"
-    "Id\022=\n\014bind_request\030\002 \001(\0132\'.bgs.protocol."
-    "connection.v1.BindRequest\022\036\n\020use_bindles"
-    "s_rpc\030\003 \001(\010:\004true\"W\n ConnectionMeteringC"
-    "ontentHandles\0223\n\016content_handle\030\001 \003(\0132\033."
-    "bgs.protocol.ContentHandle\"\264\003\n\017ConnectRe"
-    "sponse\022*\n\tserver_id\030\001 \002(\0132\027.bgs.protocol"
-    ".ProcessId\022*\n\tclient_id\030\002 \001(\0132\027.bgs.prot"
-    "ocol.ProcessId\022\023\n\013bind_result\030\003 \001(\r\022\?\n\rb"
-    "ind_response\030\004 \001(\0132(.bgs.protocol.connec"
-    "tion.v1.BindResponse\022Z\n\024content_handle_a"
-    "rray\030\005 \001(\0132<.bgs.protocol.connection.v1."
-    "ConnectionMeteringContentHandles\022\023\n\013serv"
-    "er_time\030\006 \001(\004\022\037\n\020use_bindless_rpc\030\007 \001(\010:"
-    "\005false\022a\n\033binary_content_handle_array\030\010 "
-    "\001(\0132<.bgs.protocol.connection.v1.Connect"
-    "ionMeteringContentHandles\"(\n\014BoundServic"
-    "e\022\014\n\004hash\030\001 \002(\007\022\n\n\002id\030\002 \002(\r\"\230\002\n\013BindRequ"
-    "est\022.\n deprecated_imported_service_hash\030"
-    "\001 \003(\007B\004\020\001\030\001\022Q\n\033deprecated_exported_servi"
-    "ce\030\002 \003(\0132(.bgs.protocol.connection.v1.Bo"
-    "undServiceB\002\030\001\022B\n\020exported_service\030\003 \003(\013"
+    "to\032\017rpc_types.proto\032\026semantic_version.pr"
+    "oto\"\225\001\n\024ClientSdkVersionInfo\022\020\n\010sdk_name"
+    "\030\001 \001(\t\0222\n\013sdk_version\030\002 \001(\0132\035.bgs.protoc"
+    "ol.SemanticVersion\0227\n\020protocol_version\030\003"
+    " \001(\0132\035.bgs.protocol.SemanticVersion\"\251\002\n\016"
+    "ConnectRequest\022*\n\tclient_id\030\001 \001(\0132\027.bgs."
+    "protocol.ProcessId\022=\n\014bind_request\030\002 \001(\013"
+    "2\'.bgs.protocol.connection.v1.BindReques"
+    "t\022\036\n\020use_bindless_rpc\030\003 \001(\010:\004true\022A\n\016met"
+    "ering_level\030\004 \001(\0162).bgs.protocol.connect"
+    "ion.v1.MeteringLevel\022I\n\017client_sdk_info\030"
+    "\005 \001(\01320.bgs.protocol.connection.v1.Clien"
+    "tSdkVersionInfo\"W\n ConnectionMeteringCon"
+    "tentHandles\0223\n\016content_handle\030\001 \003(\0132\033.bg"
+    "s.protocol.ContentHandle\"\302\003\n\017ConnectResp"
+    "onse\022*\n\tserver_id\030\001 \002(\0132\027.bgs.protocol.P"
+    "rocessId\022*\n\tclient_id\030\002 \001(\0132\027.bgs.protoc"
+    "ol.ProcessId\022\023\n\013bind_result\030\003 \001(\r\022\?\n\rbin"
+    "d_response\030\004 \001(\0132(.bgs.protocol.connecti"
+    "on.v1.BindResponse\022Z\n\024content_handle_arr"
+    "ay\030\005 \001(\0132<.bgs.protocol.connection.v1.Co"
+    "nnectionMeteringContentHandles\022\023\n\013server"
+    "_time\030\006 \001(\004\022\037\n\020use_bindless_rpc\030\007 \001(\010:\005f"
+    "alse\022a\n\033binary_content_handle_array\030\010 \001("
+    "\0132<.bgs.protocol.connection.v1.Connectio"
+    "nMeteringContentHandles\022\014\n\004ciid\030\t \001(\t\"(\n"
+    "\014BoundService\022\014\n\004hash\030\001 \002(\007\022\n\n\002id\030\002 \002(\r\""
+    "\230\002\n\013BindRequest\022.\n deprecated_imported_s"
+    "ervice_hash\030\001 \003(\007B\004\020\001\030\001\022Q\n\033deprecated_ex"
+    "ported_service\030\002 \003(\0132(.bgs.protocol.conn"
+    "ection.v1.BoundServiceB\002\030\001\022B\n\020exported_s"
+    "ervice\030\003 \003(\0132(.bgs.protocol.connection.v"
+    "1.BoundService\022B\n\020imported_service\030\004 \003(\013"
     "2(.bgs.protocol.connection.v1.BoundServi"
-    "ce\022B\n\020imported_service\030\004 \003(\0132(.bgs.proto"
-    "col.connection.v1.BoundService\"1\n\014BindRe"
-    "sponse\022!\n\023imported_service_id\030\001 \003(\rB\004\020\001\030"
-    "\001\"\216\001\n\013EchoRequest\022\014\n\004time\030\001 \001(\006\022\033\n\014netwo"
-    "rk_only\030\002 \001(\010:\005false\022\017\n\007payload\030\003 \001(\014\022(\n"
-    "\007forward\030\004 \001(\0132\027.bgs.protocol.ProcessId\022"
-    "\031\n\021forward_client_id\030\005 \001(\t\"-\n\014EchoRespon"
-    "se\022\014\n\004time\030\001 \001(\006\022\017\n\007payload\030\002 \001(\014\"\'\n\021Dis"
-    "connectRequest\022\022\n\nerror_code\030\001 \002(\r\"<\n\026Di"
-    "sconnectNotification\022\022\n\nerror_code\030\001 \002(\r"
-    "\022\016\n\006reason\030\002 \001(\t\"\020\n\016EncryptRequest2\375\005\n\021C"
-    "onnectionService\022j\n\007Connect\022*.bgs.protoc"
-    "ol.connection.v1.ConnectRequest\032+.bgs.pr"
-    "otocol.connection.v1.ConnectResponse\"\006\202\371"
-    "+\002\010\001\022d\n\004Bind\022\'.bgs.protocol.connection.v"
-    "1.BindRequest\032(.bgs.protocol.connection."
-    "v1.BindResponse\"\t\210\002\001\202\371+\002\010\002\022a\n\004Echo\022\'.bgs"
-    ".protocol.connection.v1.EchoRequest\032(.bg"
-    "s.protocol.connection.v1.EchoResponse\"\006\202"
-    "\371+\002\010\003\022h\n\017ForceDisconnect\0222.bgs.protocol."
-    "connection.v1.DisconnectNotification\032\031.b"
-    "gs.protocol.NO_RESPONSE\"\006\202\371+\002\010\004\022D\n\tKeepA"
-    "live\022\024.bgs.protocol.NoData\032\031.bgs.protoco"
-    "l.NO_RESPONSE\"\006\202\371+\002\010\005\022V\n\007Encrypt\022*.bgs.p"
-    "rotocol.connection.v1.EncryptRequest\032\024.b"
-    "gs.protocol.NoData\"\t\210\002\001\202\371+\002\010\006\022e\n\021Request"
-    "Disconnect\022-.bgs.protocol.connection.v1."
-    "DisconnectRequest\032\031.bgs.protocol.NO_RESP"
-    "ONSE\"\006\202\371+\002\010\007\032D\202\371+8\n*bnet.protocol.connec"
-    "tion.ConnectionService*\nconnection\212\371+\004\010\001"
-    "\020\001B=\n\033bnet.protocol.connection.v1B\026Conne"
-    "ctionServiceProtoH\002\200\001\000\210\001\001", 2305);
+    "ce\"1\n\014BindResponse\022!\n\023imported_service_i"
+    "d\030\001 \003(\rB\004\020\001\030\001\"\216\001\n\013EchoRequest\022\014\n\004time\030\001 "
+    "\001(\006\022\033\n\014network_only\030\002 \001(\010:\005false\022\017\n\007payl"
+    "oad\030\003 \001(\014\022(\n\007forward\030\004 \001(\0132\027.bgs.protoco"
+    "l.ProcessId\022\031\n\021forward_client_id\030\005 \001(\t\"-"
+    "\n\014EchoResponse\022\014\n\004time\030\001 \001(\006\022\017\n\007payload\030"
+    "\002 \001(\014\"\'\n\021DisconnectRequest\022\022\n\nerror_code"
+    "\030\001 \002(\r\"<\n\026DisconnectNotification\022\022\n\nerro"
+    "r_code\030\001 \002(\r\022\016\n\006reason\030\002 \001(\t\"\020\n\016EncryptR"
+    "equest*J\n\rMeteringLevel\022\031\n\025METERING_LEVE"
+    "L_LEGACY\020\000\022\036\n\032METERING_LEVEL_CATEGORIZED"
+    "\020\0012\373\005\n\021ConnectionService\022j\n\007Connect\022*.bg"
+    "s.protocol.connection.v1.ConnectRequest\032"
+    "+.bgs.protocol.connection.v1.ConnectResp"
+    "onse\"\006\202\371+\002\010\001\022c\n\004Bind\022\'.bgs.protocol.conn"
+    "ection.v1.BindRequest\032(.bgs.protocol.con"
+    "nection.v1.BindResponse\"\010\202\371+\004\010\002P\001\022a\n\004Ech"
+    "o\022\'.bgs.protocol.connection.v1.EchoReque"
+    "st\032(.bgs.protocol.connection.v1.EchoResp"
+    "onse\"\006\202\371+\002\010\003\022h\n\017ForceDisconnect\0222.bgs.pr"
+    "otocol.connection.v1.DisconnectNotificat"
+    "ion\032\031.bgs.protocol.NO_RESPONSE\"\006\202\371+\002\010\004\022D"
+    "\n\tKeepAlive\022\024.bgs.protocol.NoData\032\031.bgs."
+    "protocol.NO_RESPONSE\"\006\202\371+\002\010\005\022U\n\007Encrypt\022"
+    "*.bgs.protocol.connection.v1.EncryptRequ"
+    "est\032\024.bgs.protocol.NoData\"\010\202\371+\004\010\006P\001\022e\n\021R"
+    "equestDisconnect\022-.bgs.protocol.connecti"
+    "on.v1.DisconnectRequest\032\031.bgs.protocol.N"
+    "O_RESPONSE\"\006\202\371+\002\010\007\032D\202\371+8\n*bnet.protocol."
+    "connection.ConnectionService*\nconnection"
+    "\212\371+\004\010\001\020\001B<\n\032bgs.protocol.connection.v1B\026"
+    "ConnectionServiceProtoH\002\200\001\000\210\001\001", 2710);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "connection_service.proto", &protobuf_RegisterTypes);
+  ClientSdkVersionInfo::default_instance_ = new ClientSdkVersionInfo();
   ConnectRequest::default_instance_ = new ConnectRequest();
   ConnectionMeteringContentHandles::default_instance_ = new ConnectionMeteringContentHandles();
   ConnectResponse::default_instance_ = new ConnectResponse();
@@ -394,6 +435,7 @@ void protobuf_AddDesc_connection_5fservice_2eproto() {
   DisconnectRequest::default_instance_ = new DisconnectRequest();
   DisconnectNotification::default_instance_ = new DisconnectNotification();
   EncryptRequest::default_instance_ = new EncryptRequest();
+  ClientSdkVersionInfo::default_instance_->InitAsDefaultInstance();
   ConnectRequest::default_instance_->InitAsDefaultInstance();
   ConnectionMeteringContentHandles::default_instance_->InitAsDefaultInstance();
   ConnectResponse::default_instance_->InitAsDefaultInstance();
@@ -414,12 +456,112 @@ struct StaticDescriptorInitializer_connection_5fservice_2eproto {
     protobuf_AddDesc_connection_5fservice_2eproto();
   }
 } static_descriptor_initializer_connection_5fservice_2eproto_;
+const ::google::protobuf::EnumDescriptor* MeteringLevel_descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return MeteringLevel_descriptor_;
+}
+bool MeteringLevel_IsValid(int value) {
+  switch(value) {
+    case 0:
+    case 1:
+      return true;
+    default:
+      return false;
+  }
+}
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int ClientSdkVersionInfo::kSdkNameFieldNumber;
+const int ClientSdkVersionInfo::kSdkVersionFieldNumber;
+const int ClientSdkVersionInfo::kProtocolVersionFieldNumber;
+#endif  // !_MSC_VER
+
+ClientSdkVersionInfo::ClientSdkVersionInfo()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.connection.v1.ClientSdkVersionInfo)
+}
+
+void ClientSdkVersionInfo::InitAsDefaultInstance() {
+  sdk_version_ = const_cast< ::bgs::protocol::SemanticVersion*>(&::bgs::protocol::SemanticVersion::default_instance());
+  protocol_version_ = const_cast< ::bgs::protocol::SemanticVersion*>(&::bgs::protocol::SemanticVersion::default_instance());
+}
+
+ClientSdkVersionInfo::ClientSdkVersionInfo(const ClientSdkVersionInfo& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.connection.v1.ClientSdkVersionInfo)
+}
+
+void ClientSdkVersionInfo::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
+  _cached_size_ = 0;
+  sdk_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  sdk_version_ = NULL;
+  protocol_version_ = NULL;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+ClientSdkVersionInfo::~ClientSdkVersionInfo() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.connection.v1.ClientSdkVersionInfo)
+  SharedDtor();
+}
+
+void ClientSdkVersionInfo::SharedDtor() {
+  if (sdk_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete sdk_name_;
+  }
+  if (this != default_instance_) {
+    delete sdk_version_;
+    delete protocol_version_;
+  }
+}
+
+void ClientSdkVersionInfo::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* ClientSdkVersionInfo::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return ClientSdkVersionInfo_descriptor_;
+}
+
+const ClientSdkVersionInfo& ClientSdkVersionInfo::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_connection_5fservice_2eproto();
+  return *default_instance_;
+}
+
+ClientSdkVersionInfo* ClientSdkVersionInfo::default_instance_ = NULL;
+
+ClientSdkVersionInfo* ClientSdkVersionInfo::New() const {
+  return new ClientSdkVersionInfo;
+}
+
+void ClientSdkVersionInfo::Swap(ClientSdkVersionInfo* other) {
+  if (other != this) {
+    GetReflection()->Swap(this, other);}
+}
+
+::google::protobuf::Metadata ClientSdkVersionInfo::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = ClientSdkVersionInfo_descriptor_;
+  metadata.reflection = ClientSdkVersionInfo_reflection_;
+  return metadata;
+}
+
 // ===================================================================
 
 #ifndef _MSC_VER
 const int ConnectRequest::kClientIdFieldNumber;
 const int ConnectRequest::kBindRequestFieldNumber;
 const int ConnectRequest::kUseBindlessRpcFieldNumber;
+const int ConnectRequest::kMeteringLevelFieldNumber;
+const int ConnectRequest::kClientSdkInfoFieldNumber;
 #endif  // !_MSC_VER
 
 ConnectRequest::ConnectRequest()
@@ -431,6 +573,7 @@ ConnectRequest::ConnectRequest()
 void ConnectRequest::InitAsDefaultInstance() {
   client_id_ = const_cast< ::bgs::protocol::ProcessId*>(&::bgs::protocol::ProcessId::default_instance());
   bind_request_ = const_cast< ::bgs::protocol::connection::v1::BindRequest*>(&::bgs::protocol::connection::v1::BindRequest::default_instance());
+  client_sdk_info_ = const_cast< ::bgs::protocol::connection::v1::ClientSdkVersionInfo*>(&::bgs::protocol::connection::v1::ClientSdkVersionInfo::default_instance());
 }
 
 ConnectRequest::ConnectRequest(const ConnectRequest& from)
@@ -445,6 +588,8 @@ void ConnectRequest::SharedCtor() {
   client_id_ = NULL;
   bind_request_ = NULL;
   use_bindless_rpc_ = true;
+  metering_level_ = 0;
+  client_sdk_info_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -457,6 +602,7 @@ void ConnectRequest::SharedDtor() {
   if (this != default_instance_) {
     delete client_id_;
     delete bind_request_;
+    delete client_sdk_info_;
   }
 }
 
@@ -576,6 +722,7 @@ const int ConnectResponse::kContentHandleArrayFieldNumber;
 const int ConnectResponse::kServerTimeFieldNumber;
 const int ConnectResponse::kUseBindlessRpcFieldNumber;
 const int ConnectResponse::kBinaryContentHandleArrayFieldNumber;
+const int ConnectResponse::kCiidFieldNumber;
 #endif  // !_MSC_VER
 
 ConnectResponse::ConnectResponse()
@@ -600,6 +747,7 @@ ConnectResponse::ConnectResponse(const ConnectResponse& from)
 }
 
 void ConnectResponse::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
   server_id_ = NULL;
   client_id_ = NULL;
@@ -609,6 +757,7 @@ void ConnectResponse::SharedCtor() {
   server_time_ = GOOGLE_ULONGLONG(0);
   use_bindless_rpc_ = false;
   binary_content_handle_array_ = NULL;
+  ciid_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -618,6 +767,9 @@ ConnectResponse::~ConnectResponse() {
 }
 
 void ConnectResponse::SharedDtor() {
+  if (ciid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete ciid_;
+  }
   if (this != default_instance_) {
     delete server_id_;
     delete client_id_;

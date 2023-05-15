@@ -38,13 +38,14 @@ void protobuf_AssignDesc_global_5fextensions_2fservice_5foptions_2eproto() {
       "global_extensions/service_options.proto");
   GOOGLE_CHECK(file != NULL);
   BGSServiceOptions_descriptor_ = file->message_type(0);
-  static const int BGSServiceOptions_offsets_[6] = {
+  static const int BGSServiceOptions_offsets_[7] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSServiceOptions, descriptor_name_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSServiceOptions, version_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSServiceOptions, shard_name_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSServiceOptions, resolve_client_instance_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSServiceOptions, type_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSServiceOptions, api_type_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSServiceOptions, is_global_),
   };
   BGSServiceOptions_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -112,22 +113,23 @@ void protobuf_AddDesc_global_5fextensions_2fservice_5foptions_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\'global_extensions/service_options.prot"
     "o\022\014bgs.protocol\032 google/protobuf/descrip"
-    "tor.proto\"\236\002\n\021BGSServiceOptions\022\027\n\017descr"
+    "tor.proto\"\316\002\n\021BGSServiceOptions\022\027\n\017descr"
     "iptor_name\030\001 \001(\t\022\017\n\007version\030\004 \001(\r\022\022\n\nsha"
     "rd_name\030\005 \001(\t\022\037\n\027resolve_client_instance"
     "\030\006 \001(\010\0229\n\004type\030\007 \001(\0162+.bgs.protocol.BGSS"
     "erviceOptions.ServiceType\022\020\n\010api_type\030\010 "
-    "\001(\t\"]\n\013ServiceType\022\024\n\020SERVICE_TYPE_RPC\020\000"
-    "\022\026\n\022SERVICE_TYPE_EVENT\020\001\022 \n\034SERVICE_TYPE"
-    "_EVENT_BROADCAST\020\002\"M\n\021SDKServiceOptions\022"
-    "\017\n\007inbound\030\001 \001(\010\022\020\n\010outbound\030\002 \001(\010\022\025\n\rus"
-    "e_client_id\030\003 \001(\010:[\n\017service_options\022\037.g"
-    "oogle.protobuf.ServiceOptions\030\220\277\005 \001(\0132\037."
-    "bgs.protocol.BGSServiceOptions:_\n\023sdk_se"
-    "rvice_options\022\037.google.protobuf.ServiceO"
-    "ptions\030\221\277\005 \001(\0132\037.bgs.protocol.SDKService"
-    "OptionsB&\n\rbnet.protocolB\023ServiceOptions"
-    "ProtoH\002", 687);
+    "\001(\t\022\021\n\tis_global\030\t \001(\010\"z\n\013ServiceType\022\024\n"
+    "\020SERVICE_TYPE_RPC\020\000\022\033\n\027SERVICE_TYPE_RPC_"
+    "DIRECT\020\001\022\026\n\022SERVICE_TYPE_EVENT\020\002\022 \n\034SERV"
+    "ICE_TYPE_EVENT_BROADCAST\020\003\"M\n\021SDKService"
+    "Options\022\017\n\007inbound\030\001 \001(\010\022\020\n\010outbound\030\002 \001"
+    "(\010\022\025\n\ruse_client_id\030\003 \001(\010:[\n\017service_opt"
+    "ions\022\037.google.protobuf.ServiceOptions\030\220\277"
+    "\005 \001(\0132\037.bgs.protocol.BGSServiceOptions:_"
+    "\n\023sdk_service_options\022\037.google.protobuf."
+    "ServiceOptions\030\221\277\005 \001(\0132\037.bgs.protocol.SD"
+    "KServiceOptionsB%\n\014bgs.protocolB\023Service"
+    "OptionsProtoH\002", 734);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "global_extensions/service_options.proto", &protobuf_RegisterTypes);
   BGSServiceOptions::default_instance_ = new BGSServiceOptions();
@@ -162,6 +164,7 @@ bool BGSServiceOptions_ServiceType_IsValid(int value) {
     case 0:
     case 1:
     case 2:
+    case 3:
       return true;
     default:
       return false;
@@ -170,6 +173,7 @@ bool BGSServiceOptions_ServiceType_IsValid(int value) {
 
 #ifndef _MSC_VER
 const BGSServiceOptions_ServiceType BGSServiceOptions::SERVICE_TYPE_RPC;
+const BGSServiceOptions_ServiceType BGSServiceOptions::SERVICE_TYPE_RPC_DIRECT;
 const BGSServiceOptions_ServiceType BGSServiceOptions::SERVICE_TYPE_EVENT;
 const BGSServiceOptions_ServiceType BGSServiceOptions::SERVICE_TYPE_EVENT_BROADCAST;
 const BGSServiceOptions_ServiceType BGSServiceOptions::ServiceType_MIN;
@@ -183,6 +187,7 @@ const int BGSServiceOptions::kShardNameFieldNumber;
 const int BGSServiceOptions::kResolveClientInstanceFieldNumber;
 const int BGSServiceOptions::kTypeFieldNumber;
 const int BGSServiceOptions::kApiTypeFieldNumber;
+const int BGSServiceOptions::kIsGlobalFieldNumber;
 #endif  // !_MSC_VER
 
 BGSServiceOptions::BGSServiceOptions()
@@ -210,6 +215,7 @@ void BGSServiceOptions::SharedCtor() {
   resolve_client_instance_ = false;
   type_ = 0;
   api_type_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  is_global_ = false;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 

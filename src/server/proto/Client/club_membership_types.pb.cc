@@ -261,41 +261,43 @@ void protobuf_AddDesc_club_5fmembership_5ftypes_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ::bgs::protocol::club::v1::protobuf_AddDesc_club_5fcore_2eproto();
+  ::bgs::protocol::club::v1::protobuf_AddDesc_club_5ftype_2eproto();
   ::bgs::protocol::club::v1::protobuf_AddDesc_club_5fmember_2eproto();
   ::bgs::protocol::club::v1::protobuf_AddDesc_club_5finvitation_2eproto();
   ::bgs::protocol::protobuf_AddDesc_event_5fview_5ftypes_2eproto();
   ::bgs::protocol::protobuf_AddDesc_rpc_5ftypes_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\033club_membership_types.proto\022\024bgs.proto"
-    "col.club.v1\032\017club_core.proto\032\021club_membe"
-    "r.proto\032\025club_invitation.proto\032\026event_vi"
-    "ew_types.proto\032\017rpc_types.proto\"}\n\024ClubM"
-    "embershipFilter\0221\n\tmember_id\030\001 \001(\0132\036.bgs"
-    ".protocol.club.v1.MemberId\0222\n\004type\030\002 \001(\013"
-    "2$.bgs.protocol.club.v1.UniqueClubType\"j"
-    "\n\036ClubMembershipSubscribeOptions\022H\n\006filt"
-    "er\030\001 \003(\0132*.bgs.protocol.club.v1.ClubMemb"
-    "ershipFilterB\014\212\371+\010*\006\n\004\010\000\020\031\"i\n\035ClubMember"
-    "shipGetStateOptions\022H\n\006filter\030\001 \003(\0132*.bg"
-    "s.protocol.club.v1.ClubMembershipFilterB"
-    "\014\212\371+\010*\006\n\004\010\000\020\031\"\203\001\n\031ClubMembershipDescript"
-    "ion\0221\n\tmember_id\030\001 \001(\0132\036.bgs.protocol.cl"
-    "ub.v1.MemberId\0223\n\004club\030\002 \001(\0132%.bgs.proto"
-    "col.club.v1.ClubDescription\"\200\002\n\023ClubMemb"
-    "ershipState\022D\n\013description\030\001 \003(\0132/.bgs.p"
-    "rotocol.club.v1.ClubMembershipDescriptio"
-    "n\0228\n\ninvitation\030\002 \003(\0132$.bgs.protocol.clu"
-    "b.v1.ClubInvitation\0229\n\007setting\030\003 \001(\0132(.b"
-    "gs.protocol.club.v1.ClubSharedSettings\022."
-    "\n\014mention_view\030\004 \001(\0132\030.bgs.protocol.View"
-    "Marker\"#\n\014ClubPosition\022\023\n\007club_id\030\001 \003(\004B"
-    "\002\020\001\"O\n\022ClubSharedSettings\0229\n\rclub_positi"
-    "on\030\001 \001(\0132\".bgs.protocol.club.v1.ClubPosi"
-    "tion\"V\n\031ClubSharedSettingsOptions\0229\n\rclu"
-    "b_position\030\001 \001(\0132\".bgs.protocol.club.v1."
-    "ClubPosition\"Y\n\034ClubSharedSettingsAssign"
-    "ment\0229\n\rclub_position\030\001 \001(\0132\".bgs.protoc"
-    "ol.club.v1.ClubPositionB\002H\002", 1187);
+    "col.club.v1\032\017club_core.proto\032\017club_type."
+    "proto\032\021club_member.proto\032\025club_invitatio"
+    "n.proto\032\026event_view_types.proto\032\017rpc_typ"
+    "es.proto\"}\n\024ClubMembershipFilter\0221\n\tmemb"
+    "er_id\030\001 \001(\0132\036.bgs.protocol.club.v1.Membe"
+    "rId\0222\n\004type\030\002 \001(\0132$.bgs.protocol.club.v1"
+    ".UniqueClubType\"j\n\036ClubMembershipSubscri"
+    "beOptions\022H\n\006filter\030\001 \003(\0132*.bgs.protocol"
+    ".club.v1.ClubMembershipFilterB\014\212\371+\010*\006\n\004\010"
+    "\000\020\031\"i\n\035ClubMembershipGetStateOptions\022H\n\006"
+    "filter\030\001 \003(\0132*.bgs.protocol.club.v1.Club"
+    "MembershipFilterB\014\212\371+\010*\006\n\004\010\000\020\031\"\203\001\n\031ClubM"
+    "embershipDescription\0221\n\tmember_id\030\001 \001(\0132"
+    "\036.bgs.protocol.club.v1.MemberId\0223\n\004club\030"
+    "\002 \001(\0132%.bgs.protocol.club.v1.ClubDescrip"
+    "tion\"\200\002\n\023ClubMembershipState\022D\n\013descript"
+    "ion\030\001 \003(\0132/.bgs.protocol.club.v1.ClubMem"
+    "bershipDescription\0228\n\ninvitation\030\002 \003(\0132$"
+    ".bgs.protocol.club.v1.ClubInvitation\0229\n\007"
+    "setting\030\003 \001(\0132(.bgs.protocol.club.v1.Clu"
+    "bSharedSettings\022.\n\014mention_view\030\004 \001(\0132\030."
+    "bgs.protocol.ViewMarker\"#\n\014ClubPosition\022"
+    "\023\n\007club_id\030\001 \003(\004B\002\020\001\"O\n\022ClubSharedSettin"
+    "gs\0229\n\rclub_position\030\001 \001(\0132\".bgs.protocol"
+    ".club.v1.ClubPosition\"V\n\031ClubSharedSetti"
+    "ngsOptions\0229\n\rclub_position\030\001 \001(\0132\".bgs."
+    "protocol.club.v1.ClubPosition\"Y\n\034ClubSha"
+    "redSettingsAssignment\0229\n\rclub_position\030\001"
+    " \001(\0132\".bgs.protocol.club.v1.ClubPosition"
+    "B\002H\002", 1204);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "club_membership_types.proto", &protobuf_RegisterTypes);
   ClubMembershipFilter::default_instance_ = new ClubMembershipFilter();

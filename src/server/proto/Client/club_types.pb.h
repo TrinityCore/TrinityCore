@@ -31,6 +31,9 @@
 #include "club_invitation.pb.h"  // IWYU pragma: export
 #include "club_ban.pb.h"  // IWYU pragma: export
 #include "club_stream.pb.h"  // IWYU pragma: export
+#include "club_type.pb.h"  // IWYU pragma: export
+#include "club_tag.pb.h"  // IWYU pragma: export
+#include "club_name_generator.pb.h"  // IWYU pragma: export
 #include "api/client/v2/attribute_types.pb.h"  // IWYU pragma: export
 #include "account_types.pb.h"  // IWYU pragma: export
 #include "event_view_types.pb.h"  // IWYU pragma: export

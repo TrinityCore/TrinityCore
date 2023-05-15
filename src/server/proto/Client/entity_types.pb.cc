@@ -111,8 +111,8 @@ void protobuf_AddDesc_entity_5ftypes_2eproto() {
     "\006B\006\202\371+\002\010\002:\006\202\371+\002\010\001\"{\n\010Identity\0224\n\naccount"
     "_id\030\001 \001(\0132\026.bgs.protocol.EntityIdB\010\212\371+\004:"
     "\002\020\001\0229\n\017game_account_id\030\002 \001(\0132\026.bgs.proto"
-    "col.EntityIdB\010\212\371+\004:\002\020\002B\036\n\rbnet.protocolB"
-    "\013EntityProtoH\002", 334);
+    "col.EntityIdB\010\212\371+\004:\002\020\002B\035\n\014bgs.protocolB\013"
+    "EntityProtoH\002", 333);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "entity_types.proto", &protobuf_RegisterTypes);
   EntityId::default_instance_ = new EntityId();
