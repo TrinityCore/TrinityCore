@@ -616,15 +616,6 @@ struct TC_GAME_API CreatureBaseStats
     uint32 RangedAttackPower;
 
     // Helpers
-    uint32 GenerateMana(CreatureTemplate const* info) const
-    {
-        // Mana can be 0.
-        if (!BaseMana)
-            return 0;
-
-        return uint32(ceil(BaseMana * info->ModMana * info->ModManaExtra));
-    }
-
     static CreatureBaseStats const* GetBaseStats(uint8 level, uint8 unitClass);
 };
 

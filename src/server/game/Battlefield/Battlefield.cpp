@@ -56,7 +56,6 @@ Battlefield::Battlefield(Map* map)
 
     m_uiKickAfkPlayersTimer = 1000;
 
-    m_LastResurrectTimer = 30 * IN_MILLISECONDS;
     m_StartGroupingTimer = 0;
     m_StartGrouping = false;
 }
@@ -122,7 +121,6 @@ void Battlefield::HandlePlayerLeaveZone(Player* player, uint32 /*zone*/)
     m_PlayersWillBeKick[player->GetTeamId()].erase(player->GetGUID());
     m_players[player->GetTeamId()].erase(player->GetGUID());
     SendRemoveWorldStates(player);
-    RemovePlayerFromResurrectQueue(player->GetGUID());
     OnPlayerLeaveZone(player);
 }
 
@@ -182,16 +180,6 @@ bool Battlefield::Update(uint32 diff)
             if (itr->second->Update(diff))
                 objective_changed = true;
     }
-
-    if (m_LastResurrectTimer <= diff)
-    {
-        for (uint8 i = 0; i < m_GraveyardList.size(); i++)
-            if (GetGraveyardById(i))
-                m_GraveyardList[i]->Resurrect();
-        m_LastResurrectTimer = RESURRECTION_INTERVAL;
-    }
-    else
-        m_LastResurrectTimer -= diff;
 
     return objective_changed;
 }
@@ -596,44 +584,6 @@ WorldSafeLocsEntry const* Battlefield::GetClosestGraveyard(Player* player)
     return nullptr;
 }
 
-void Battlefield::AddPlayerToResurrectQueue(ObjectGuid npcGuid, ObjectGuid playerGuid)
-{
-    for (uint8 i = 0; i < m_GraveyardList.size(); i++)
-    {
-        if (!m_GraveyardList[i])
-            continue;
-
-        if (m_GraveyardList[i]->HasNpc(npcGuid))
-        {
-            m_GraveyardList[i]->AddPlayer(playerGuid);
-            break;
-        }
-    }
-}
-
-void Battlefield::RemovePlayerFromResurrectQueue(ObjectGuid playerGuid)
-{
-    for (uint8 i = 0; i < m_GraveyardList.size(); i++)
-    {
-        if (!m_GraveyardList[i])
-            continue;
-
-        if (m_GraveyardList[i]->HasPlayer(playerGuid))
-        {
-            m_GraveyardList[i]->RemovePlayer(playerGuid);
-            break;
-        }
-    }
-}
-
-void Battlefield::SendAreaSpiritHealerQueryOpcode(Player* player, ObjectGuid const& guid)
-{
-    WorldPackets::Battleground::AreaSpiritHealerTime areaSpiritHealerTime;
-    areaSpiritHealerTime.HealerGuid = guid;
-    areaSpiritHealerTime.TimeLeft = m_LastResurrectTimer;
-    player->SendDirectMessage(areaSpiritHealerTime.Write());
-}
-
 // ----------------------
 // - BfGraveyard Method -
 // ----------------------
@@ -668,54 +618,6 @@ float BfGraveyard::GetDistance(Player* player)
     return player->GetDistance2d(safeLoc->Loc.GetPositionX(), safeLoc->Loc.GetPositionY());
 }
 
-void BfGraveyard::AddPlayer(ObjectGuid playerGuid)
-{
-    if (!m_ResurrectQueue.count(playerGuid))
-    {
-        m_ResurrectQueue.insert(playerGuid);
-
-        if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
-            player->CastSpell(player, SPELL_WAITING_FOR_RESURRECT, true);
-    }
-}
-
-void BfGraveyard::RemovePlayer(ObjectGuid playerGuid)
-{
-    m_ResurrectQueue.erase(m_ResurrectQueue.find(playerGuid));
-
-    if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
-        player->RemoveAurasDueToSpell(SPELL_WAITING_FOR_RESURRECT);
-}
-
-void BfGraveyard::Resurrect()
-{
-    if (m_ResurrectQueue.empty())
-        return;
-
-    for (GuidSet::const_iterator itr = m_ResurrectQueue.begin(); itr != m_ResurrectQueue.end(); ++itr)
-    {
-        // Get player object from his guid
-        Player* player = ObjectAccessor::FindPlayer(*itr);
-        if (!player)
-            continue;
-
-        // Check if the player is in world and on the good graveyard
-        if (player->IsInWorld())
-            if (Creature* spirit = m_Bf->GetCreature(m_SpiritGuide[m_ControlTeam]))
-                spirit->CastSpell(spirit, SPELL_SPIRIT_HEAL, true);
-
-        // Resurrect player
-        player->CastSpell(player, SPELL_RESURRECTION_VISUAL, true);
-        player->ResurrectPlayer(1.0f);
-        player->CastSpell(player, 6962, true);
-        player->CastSpell(player, SPELL_SPIRIT_HEAL_MANA, true);
-
-        player->SpawnCorpseBones(false);
-    }
-
-    m_ResurrectQueue.clear();
-}
-
 // For changing graveyard control
 void BfGraveyard::GiveControlTo(TeamId team)
 {
@@ -726,29 +628,10 @@ void BfGraveyard::GiveControlTo(TeamId team)
     if (m_SpiritGuide[team])
         m_SpiritGuide[team]->SetVisible(true);*/
 
+    if (Creature* spiritHealer = m_Bf->GetCreature(m_SpiritGuide[team]))
+        spiritHealer->SummonGraveyardTeleporter();
+
     m_ControlTeam = team;
-    // Teleport to other graveyard, player witch were on this graveyard
-    RelocateDeadPlayers();
-}
-
-void BfGraveyard::RelocateDeadPlayers()
-{
-    WorldSafeLocsEntry const* closestGrave = nullptr;
-    for (GuidSet::const_iterator itr = m_ResurrectQueue.begin(); itr != m_ResurrectQueue.end(); ++itr)
-    {
-        Player* player = ObjectAccessor::FindPlayer(*itr);
-        if (!player)
-            continue;
-
-        if (closestGrave)
-            player->TeleportTo(closestGrave->Loc);
-        else
-        {
-            closestGrave = m_Bf->GetClosestGraveyard(player);
-            if (closestGrave)
-                player->TeleportTo(closestGrave->Loc);
-        }
-    }
 }
 
 bool BfGraveyard::HasNpc(ObjectGuid guid)

@@ -314,16 +314,6 @@ class spell_cragmaw_larva_metamorphosis : public AuraScript
         });
     }
 
-    void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
-    {
-        // Spell duration is 8s on heroic+ difficulties
-        if (GetTarget()->GetMap()->GetDifficultyID() != DIFFICULTY_NORMAL)
-        {
-            aurEff->GetBase()->SetDuration(8000);
-            aurEff->GetBase()->SetMaxDuration(8000);
-        }
-    }
-
     void HandlePeriodic(AuraEffect const* aurEff)
     {
         if (aurEff->GetTickNumber() == aurEff->GetTotalTicks() - 2)
@@ -342,7 +332,6 @@ class spell_cragmaw_larva_metamorphosis : public AuraScript
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_cragmaw_larva_metamorphosis::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_cragmaw_larva_metamorphosis::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
         AfterEffectRemove += AuraEffectRemoveFn(spell_cragmaw_larva_metamorphosis::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }

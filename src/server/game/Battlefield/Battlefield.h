@@ -177,23 +177,8 @@ class TC_GAME_API BfGraveyard
         // Set spirit service for the graveyard
         void SetSpirit(Creature* spirit, TeamId team);
 
-        // Add a player to the graveyard
-        void AddPlayer(ObjectGuid player_guid);
-
-        // Remove a player from the graveyard
-        void RemovePlayer(ObjectGuid player_guid);
-
-        // Resurrect players
-        void Resurrect();
-
-        // Move players waiting to that graveyard on the nearest one
-        void RelocateDeadPlayers();
-
         // Check if this graveyard has a spirit guide
         bool HasNpc(ObjectGuid guid);
-
-        // Check if a player is in this graveyard's resurrect queue
-        bool HasPlayer(ObjectGuid guid) { return m_ResurrectQueue.find(guid) != m_ResurrectQueue.end(); }
 
         // Get the graveyard's ID.
         uint32 GetGraveyardId() const { return m_GraveyardId; }
@@ -202,7 +187,6 @@ class TC_GAME_API BfGraveyard
         TeamId m_ControlTeam;
         uint32 m_GraveyardId;
         ObjectGuid m_SpiritGuide[PVP_TEAMS_COUNT];
-        GuidSet m_ResurrectQueue;
         Battlefield* m_Bf;
 };
 
@@ -304,8 +288,6 @@ class TC_GAME_API Battlefield : public ZoneScript
         // Find which graveyard the player must be teleported to to be resurrected by spiritguide
         WorldSafeLocsEntry const* GetClosestGraveyard(Player* player);
 
-        virtual void AddPlayerToResurrectQueue(ObjectGuid npc_guid, ObjectGuid player_guid);
-        void RemovePlayerFromResurrectQueue(ObjectGuid player_guid);
         void SetGraveyardNumber(uint32 number) { m_GraveyardList.resize(number); }
         BfGraveyard* GetGraveyardById(uint32 id) const;
 
@@ -345,8 +327,6 @@ class TC_GAME_API Battlefield : public ZoneScript
 
         /// Return if we can use mount in battlefield
         bool CanFlyIn() { return !m_isActive; }
-
-        void SendAreaSpiritHealerQueryOpcode(Player* player, ObjectGuid const& guid);
 
         void StartBattle();
         void EndBattle(bool endByTimer);
@@ -403,7 +383,6 @@ class TC_GAME_API Battlefield : public ZoneScript
 
         // Graveyard variables
         GraveyardVect m_GraveyardList;                          // Vector witch contain the different GY of the battle
-        uint32 m_LastResurrectTimer;                            // Timer for resurrect player every 30 sec
 
         uint32 m_StartGroupingTimer;                            // Timer for invite players in area 15 minute before start battle
         bool m_StartGrouping;                                   // bool for know if all players in area has been invited
