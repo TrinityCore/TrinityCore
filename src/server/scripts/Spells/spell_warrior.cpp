@@ -705,5 +705,5 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_t3_prot_8p_bonus);
     RegisterSpellScript(spell_warr_victorious_state);
     RegisterSpellScript(spell_warr_victory_rush);
-	RegisterSpellScript(spell_warr_warbreaker);
+    RegisterSpellScript(spell_warr_warbreaker);
 }
