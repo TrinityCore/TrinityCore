@@ -36,10 +36,11 @@ void protobuf_AssignDesc_api_2fclient_2fv1_2fchannel_5fid_2eproto() {
       "api/client/v1/channel_id.proto");
   GOOGLE_CHECK(file != NULL);
   ChannelId_descriptor_ = file->message_type(0);
-  static const int ChannelId_offsets_[3] = {
+  static const int ChannelId_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ChannelId, type_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ChannelId, host_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ChannelId, id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ChannelId, region_),
   };
   ChannelId_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -84,10 +85,10 @@ void protobuf_AddDesc_api_2fclient_2fv1_2fchannel_5fid_2eproto() {
   ::bgs::protocol::protobuf_AddDesc_rpc_5ftypes_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\036api/client/v1/channel_id.proto\022\027bgs.pr"
-    "otocol.channel.v1\032\017rpc_types.proto\"T\n\tCh"
+    "otocol.channel.v1\032\017rpc_types.proto\"d\n\tCh"
     "annelId\022\014\n\004type\030\001 \001(\r\022%\n\004host\030\002 \001(\0132\027.bg"
-    "s.protocol.ProcessId\022\n\n\002id\030\003 \001(\007:\006\202\371+\002\010\001"
-    "B\002H\002", 164);
+    "s.protocol.ProcessId\022\n\n\002id\030\003 \001(\007\022\016\n\006regi"
+    "on\030\004 \001(\r:\006\202\371+\002\010\001B\002H\002", 180);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "api/client/v1/channel_id.proto", &protobuf_RegisterTypes);
   ChannelId::default_instance_ = new ChannelId();
@@ -107,6 +108,7 @@ struct StaticDescriptorInitializer_api_2fclient_2fv1_2fchannel_5fid_2eproto {
 const int ChannelId::kTypeFieldNumber;
 const int ChannelId::kHostFieldNumber;
 const int ChannelId::kIdFieldNumber;
+const int ChannelId::kRegionFieldNumber;
 #endif  // !_MSC_VER
 
 ChannelId::ChannelId()
@@ -131,6 +133,7 @@ void ChannelId::SharedCtor() {
   type_ = 0u;
   host_ = NULL;
   id_ = 0u;
+  region_ = 0u;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 

@@ -102,19 +102,20 @@ void protobuf_AddDesc_api_2fclient_2fv2_2freport_5fservice_2eproto() {
     "\n\"api/client/v2/report_service.proto\022\026bg"
     "s.protocol.report.v2\032\023account_types.prot"
     "o\032 api/client/v2/report_types.proto\032\017rpc"
-    "_types.proto\"\250\002\n\023SubmitReportRequest\0224\n\010"
+    "_types.proto\"\260\002\n\023SubmitReportRequest\0224\n\010"
     "agent_id\030\001 \001(\0132\".bgs.protocol.account.v1"
     ".AccountId\022\030\n\020user_description\030\002 \001(\t\022;\n\014"
     "user_options\030\n \001(\0132#.bgs.protocol.report"
     ".v2.UserOptionsH\000\022;\n\014club_options\030\013 \001(\0132"
     "#.bgs.protocol.report.v2.ClubOptionsH\000\022\?"
     "\n\016entity_options\030\024 \001(\0132%.bgs.protocol.re"
-    "port.v2.EntityOptionsH\000B\006\n\004type2\245\001\n\rRepo"
-    "rtService\022Y\n\014SubmitReport\022+.bgs.protocol"
-    ".report.v2.SubmitReportRequest\032\024.bgs.pro"
-    "tocol.NoData\"\006\202\371+\002\010\001\0329\202\371+/\n%bnet.protoco"
-    "l.report.v2.ReportService*\006report\212\371+\002\020\001B"
-    "\005H\002\200\001\000", 606);
+    "port.v2.EntityOptionsH\000:\006\202\371+\002\010\001B\006\n\004type2"
+    "\302\001\n\rReportService\022t\n\014SubmitReport\022+.bgs."
+    "protocol.report.v2.SubmitReportRequest\032\024"
+    ".bgs.protocol.NoData\"!\202\371+\035\010\001B\031ResolveSub"
+    "mitReportRegion\032;\202\371+1\n%bnet.protocol.rep"
+    "ort.v2.ReportService*\006reportH\001\212\371+\002\020\001B\005H\002"
+    "\200\001\000", 643);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "api/client/v2/report_service.proto", &protobuf_RegisterTypes);
   SubmitReportRequest::default_instance_ = new SubmitReportRequest();
