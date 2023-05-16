@@ -837,6 +837,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
     ObjectAccessor::AddObject(pCurrChar);
     //TC_LOG_DEBUG("Player %s added to Map.", pCurrChar->GetName().c_str());
 
+    pCurrChar->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Login);
+
     pCurrChar->SendInitialPacketsAfterAddToMap();
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_ONLINE);

@@ -2537,7 +2537,7 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
             if (MissCondition == SPELL_MISS_RESIST && spell->m_spellInfo->HasAttribute(SPELL_ATTR0_CU_PICKPOCKET) && spell->unitTarget->GetTypeId() == TYPEID_UNIT)
             {
                 Unit* unitCaster = ASSERT_NOTNULL(spell->m_caster->ToUnit());
-                unitCaster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TALK);
+                unitCaster->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Interacting);
                 spell->unitTarget->ToCreature()->EngageWithTarget(unitCaster);
             }
         }
@@ -2698,7 +2698,7 @@ SpellMissInfo Spell::PreprocessSpellHit(Unit* unit, bool scaleAura, TargetInfo& 
             return SPELL_MISS_EVADE;
 
         if (m_caster->IsValidAttackTarget(unit, m_spellInfo))
-            unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_HITBYSPELL);
+            unit->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::HostileActionReceived);
         else if (m_caster->IsFriendlyTo(unit))
         {
             // for delayed spells ignore negative spells (after duel end) for friendly targets
@@ -3129,17 +3129,7 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
             // stealth must be removed at cast starting (at show channel bar)
             // skip triggered spell (item equip spell casting and other not explicit character casts/item uses)
             if (!(_triggeredCastFlags & TRIGGERED_IGNORE_AURA_INTERRUPT_FLAGS) && m_spellInfo->IsBreakingStealth())
-            {
-                unitCaster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CAST);
-                for (SpellEffectInfo const& spellEffectInfo : m_spellInfo->GetEffects())
-                {
-                    if (spellEffectInfo.GetUsedTargetObjectType() == TARGET_OBJECT_TYPE_UNIT)
-                    {
-                        unitCaster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_SPELL_ATTACK);
-                        break;
-                    }
-                }
-            }
+                unitCaster->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Action);
 
             unitCaster->SetCurrentCastSpell(this);
         }
@@ -3489,6 +3479,7 @@ void Spell::_cast(bool skipCheck)
     if (!(hitMask & PROC_HIT_CRITICAL))
         hitMask |= PROC_HIT_NORMAL;
 
+    m_originalCaster->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::ActionDelayed);
     Unit::ProcSkillsAndAuras(m_originalCaster, nullptr, procAttacker, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_CAST, hitMask, this, nullptr, nullptr);
 
     // Call CreatureAI hook OnSpellCast
@@ -5217,7 +5208,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
         {
             // skip stuck spell to allow use it in falling case and apply spell limitations at movement
             if ((!unitCaster->HasUnitMovementFlag(MOVEMENTFLAG_FALLING_FAR) || !m_spellInfo->HasEffect(SPELL_EFFECT_STUCK)) &&
-                (IsAutoRepeat() || (m_spellInfo->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED) != 0))
+                (IsAutoRepeat() || m_spellInfo->HasAuraInterruptFlag(SpellAuraInterruptFlags::Standing)))
                 return SPELL_FAILED_MOVING;
         }
 
@@ -7163,10 +7154,6 @@ void Spell::DelayedChannel()
         return;
 
     if (m_spellState != SPELL_STATE_CASTING)
-        return;
-
-    // spells not losing channeling time
-    if (!(m_spellInfo->ChannelInterruptFlags & CHANNEL_FLAG_DELAY))
         return;
 
     if (IsDelayableNoMore())                                    // Spells may only be delayed twice

@@ -800,8 +800,8 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry)
     StartRecoveryCategory = spellEntry->StartRecoveryCategory;
     StartRecoveryTime = spellEntry->StartRecoveryTime;
     InterruptFlags = spellEntry->InterruptFlags;
-    AuraInterruptFlags = spellEntry->AuraInterruptFlags;
-    ChannelInterruptFlags = spellEntry->ChannelInterruptFlags;
+    AuraInterruptFlags = SpellAuraInterruptFlags(spellEntry->AuraInterruptFlags);
+    ChannelInterruptFlags = SpellAuraInterruptFlags(spellEntry->ChannelInterruptFlags);
     ProcFlags = spellEntry->ProcTypeMask;
     ProcChance = spellEntry->ProcChance;
     ProcCharges = spellEntry->ProcCharges;
@@ -912,6 +912,11 @@ bool SpellInfo::HasOnlyDamageEffects() const
     }
 
     return true;
+}
+
+bool SpellInfo::HasAnyAuraInterruptFlag() const
+{
+    return AuraInterruptFlags != SpellAuraInterruptFlags::None;
 }
 
 bool SpellInfo::IsExplicitDiscovery() const
@@ -1209,7 +1214,7 @@ bool SpellInfo::IsChanneled() const
 
 bool SpellInfo::IsMoveAllowedChannel() const
 {
-    return IsChanneled() && (HasAttribute(SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING) || (!(ChannelInterruptFlags & (AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_TURNING))));
+    return IsChanneled() && (HasAttribute(SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING) || !ChannelInterruptFlags.HasFlag(SpellAuraInterruptFlags::Moving | SpellAuraInterruptFlags::Turning));
 }
 
 bool SpellInfo::NeedsComboPoints() const
@@ -2018,7 +2023,7 @@ void SpellInfo::_LoadSpellSpecific()
             case SPELLFAMILY_GENERIC:
             {
                 // Food / Drinks (mostly)
-                if (AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED)
+                if (HasAuraInterruptFlag(SpellAuraInterruptFlags::Standing))
                 {
                     bool food = false;
                     bool drink = false;
@@ -2847,6 +2852,9 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, uint8 effIndex, bool app
                     auraSpellInfo->Id != Id);                                     // Don't remove self
             });
         }
+
+        if (apply && schoolImmunity & SPELL_SCHOOL_MASK_NORMAL)
+            target->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::InvulnerabilityBuff);
     }
 
     if (uint32 mechanicImmunity = immuneInfo.MechanicImmuneMask)
@@ -2896,7 +2904,12 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, uint8 effIndex, bool app
     }
 
     if (uint32 damageImmunity = immuneInfo.DamageSchoolMask)
+    {
         target->ApplySpellImmune(Id, IMMUNITY_DAMAGE, damageImmunity, apply);
+
+        if (apply && damageImmunity & SPELL_SCHOOL_MASK_NORMAL)
+            target->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::InvulnerabilityBuff);
+    }
 
     for (AuraType auraType : immuneInfo.AuraTypeImmune)
     {
