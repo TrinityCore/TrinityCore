@@ -2879,6 +2879,9 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                     if (spellVisual->MissileModel == -4 || spellVisual->MissileModel == -5)
                         spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEEDS_AMMO_DATA;
 
+        // Saving to DB happens before removing from world - skip saving these auras
+        if (spellInfo->HasAuraInterruptFlag(SpellAuraInterruptFlags::LeaveWorld))
+            spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CANNOT_BE_SAVED;
     }
 
     // addition for binary spells, omit spells triggering other spells
