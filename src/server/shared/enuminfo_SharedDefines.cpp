@@ -1184,7 +1184,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr7>::ToString(SpellAttr7 value)
         case SPELL_ATTR7_DISPEL_CHARGES: return { "SPELL_ATTR7_DISPEL_CHARGES", "Dispel/Spellsteal remove individual charges", "" };
         case SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER: return { "SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER", "Only interrupt non-player casting", "" };
         case SPELL_ATTR7_UNK12: return { "SPELL_ATTR7_UNK12", "Unknown attribute 12@Attr7", "" };
-        case SPELL_ATTR7_UNK13: return { "SPELL_ATTR7_UNK13", "Unknown attribute 13@Attr7", "" };
+        case SPELL_ATTR7_CAN_ALWAYS_BE_INTERRUPTED: return { "SPELL_ATTR7_CAN_ALWAYS_BE_INTERRUPTED", "Can always be interrupted, even if caster is immune", "" };
         case SPELL_ATTR7_UNK14: return { "SPELL_ATTR7_UNK14", "Unknown attribute 14@Attr7", "" };
         case SPELL_ATTR7_UNK15: return { "SPELL_ATTR7_UNK15", "Unknown attribute 15@Attr7", "Exorcism - guaranteed crit vs families?" };
         case SPELL_ATTR7_CAN_RESTORE_SECONDARY_POWER: return { "SPELL_ATTR7_CAN_RESTORE_SECONDARY_POWER", "Can restore secondary power", "Only spells with this attribute can replenish a non-active power type" };
@@ -1228,7 +1228,7 @@ TC_API_EXPORT SpellAttr7 EnumUtils<SpellAttr7>::FromIndex(size_t index)
         case 10: return SPELL_ATTR7_DISPEL_CHARGES;
         case 11: return SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER;
         case 12: return SPELL_ATTR7_UNK12;
-        case 13: return SPELL_ATTR7_UNK13;
+        case 13: return SPELL_ATTR7_CAN_ALWAYS_BE_INTERRUPTED;
         case 14: return SPELL_ATTR7_UNK14;
         case 15: return SPELL_ATTR7_UNK15;
         case 16: return SPELL_ATTR7_CAN_RESTORE_SECONDARY_POWER;
@@ -1269,7 +1269,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr7>::ToIndex(SpellAttr7 value)
         case SPELL_ATTR7_DISPEL_CHARGES: return 10;
         case SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER: return 11;
         case SPELL_ATTR7_UNK12: return 12;
-        case SPELL_ATTR7_UNK13: return 13;
+        case SPELL_ATTR7_CAN_ALWAYS_BE_INTERRUPTED: return 13;
         case SPELL_ATTR7_UNK14: return 14;
         case SPELL_ATTR7_UNK15: return 15;
         case SPELL_ATTR7_CAN_RESTORE_SECONDARY_POWER: return 16;
