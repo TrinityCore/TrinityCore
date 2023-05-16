@@ -125,6 +125,7 @@ public:
             { "quest_template_locale",         rbac::RBAC_PERM_COMMAND_RELOAD_QUEST_TEMPLATE_LOCALE,            true,  &HandleReloadLocalesQuestCommand,               "" },
             { "mail_level_reward",             rbac::RBAC_PERM_COMMAND_RELOAD_MAIL_LEVEL_REWARD,                true,  &HandleReloadMailLevelRewardCommand,            "" },
             { "mail_loot_template",            rbac::RBAC_PERM_COMMAND_RELOAD_MAIL_LOOT_TEMPLATE,               true,  &HandleReloadLootTemplatesMailCommand,          "" },
+            { "mail_server_template",          rbac::RBAC_PERM_COMMAND_RELOAD_MAIL_LOOT_TEMPLATE,               true,  &HandleReloadMailServerTemplateCommand,         "" },
             { "milling_loot_template",         rbac::RBAC_PERM_COMMAND_RELOAD_MILLING_LOOT_TEMPLATE,            true,  &HandleReloadLootTemplatesMillingCommand,       "" },
             { "npc_spellclick_spells",         rbac::RBAC_PERM_COMMAND_RELOAD_NPC_SPELLCLICK_SPELLS,            true,  &HandleReloadSpellClickSpellsCommand,           "" },
             { "npc_vendor",                    rbac::RBAC_PERM_COMMAND_RELOAD_NPC_VENDOR,                       true,  &HandleReloadNpcVendorCommand,                  "" },
@@ -649,6 +650,14 @@ public:
         LootTemplates_Mail.CheckLootRefs();
         handler->SendGlobalGMSysMessage("DB table `mail_loot_template` reloaded.");
         sConditionMgr->LoadConditions(true);
+        return true;
+    }
+
+    static bool HandleReloadMailServerTemplateCommand(ChatHandler* handler, char const* /*args*/)
+    {
+        TC_LOG_INFO("server.loading", "Re-Loading `server_mail_template` table");
+        sObjectMgr->LoadMailServerTemplates();
+        handler->SendGlobalGMSysMessage("DB table `server_mail_template` reloaded.");
         return true;
     }
 
