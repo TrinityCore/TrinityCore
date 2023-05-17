@@ -6033,7 +6033,7 @@ void ObjectMgr::LoadEventScripts()
 
     uint32 oldMSTime = getMSTime();
 
-    _eventScriptStore.clear();                            // need for reload case
+    _eventScriptStore.clear(); // Reload case
 
     QueryResult result = WorldDatabase.Query("SELECT Id, ScriptName FROM event_script_names");
     if (!result)
