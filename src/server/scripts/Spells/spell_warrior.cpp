@@ -219,6 +219,7 @@ class spell_warr_charge_effect : public SpellScript
 };
 
 // 167105 - Colossus Smash
+// 262161 - Warbreaker
 class spell_warr_colossus_smash : public SpellScript
 {
     PrepareSpellScript(spell_warr_colossus_smash);
