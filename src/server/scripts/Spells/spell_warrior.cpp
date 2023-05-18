@@ -236,6 +236,7 @@ class spell_warr_colossus_smash : public SpellScript
         caster->CastSpell(target, SPELL_WARRIOR_COLOSSUS_SMASH_EFFECT, true);
 
         if (caster->HasAura(SPELL_WARRIOR_IN_FOR_THE_KILL))
+        {
             if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_WARRIOR_IN_FOR_THE_KILL, DIFFICULTY_NONE))
             {
                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
@@ -246,6 +247,7 @@ class spell_warr_colossus_smash : public SpellScript
 
                 caster->CastSpell(caster, SPELL_WARRIOR_IN_FOR_THE_KILL_HASTE, args);
             }
+        }
     }
 
     void Register() override
