@@ -277,9 +277,6 @@ private:
 
 struct TC_GAME_API Loot
 {
-    uint32 aa_id_c = 0;
-    uint32 aa_id_o = 0;
-    uint32 aa_id_i = 0;
     uint32 creatureEntry = 0;
     
     NotNormalLootItemMap const& GetPlayerFFAItems() const { return PlayerFFAItems; }

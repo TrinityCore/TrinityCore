@@ -12279,17 +12279,18 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
             ItemTemplate const* pProto = item->GetTemplate();
             uint32 noticeid = 0;
             if (pProto && aaCenter.aa_item_nojiandings[pProto->GetId()].itemid == 0) {
+                ObjectGuid owner = loot->GetOwnerGUID();
                 AA_Creature c_conf;
                 AA_Object o_conf;
                 AA_Item i_conf;
-                if (loot->aa_id_c > 0) { //生物掉落
-                    c_conf = aaCenter.aa_creatures[loot->aa_id_c];
+                if (owner.IsItem()) {
+                    i_conf = aaCenter.aa_items[this->aa_id];
                 }
-                if (loot->aa_id_o > 0) {
-                    o_conf = aaCenter.aa_objects[loot->aa_id_o];
+                else if (owner.IsCreature()) {
+                    c_conf = aaCenter.aa_creatures[this->aa_id];
                 }
-                if (loot->aa_id_i > 0) {
-                    i_conf = aaCenter.aa_items[loot->aa_id_i];
+                else if (owner.IsGameObject()) {
+                    o_conf = aaCenter.aa_objects[this->aa_id];
                 }
                 time_t timep;
                 time(&timep); /*当前time_t类型UTC时间*/

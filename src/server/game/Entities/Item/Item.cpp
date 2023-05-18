@@ -521,9 +521,6 @@ bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemId, ItemContext contex
     AA_Item conf = aaCenter.aa_items[itemProto->GetId()];
     if (conf.id > 0) {
         this->aa_id = conf.id;
-        Loot* loot = const_cast<Loot*>(this->m_loot.get());
-        loot->aa_id_i = conf.id;
-        this->m_loot.reset(loot);
     }
 
     return true;

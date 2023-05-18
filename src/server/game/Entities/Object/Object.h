@@ -1,4 +1,4 @@
-﻿/*
+/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -147,6 +147,7 @@ float const DEFAULT_COLLISION_HEIGHT = 2.03128f; // Most common value in dbc
 class TC_GAME_API Object
 {
     public:
+        uint32 aa_id = 0;
         virtual ~Object();
 
         bool IsInWorld() const { return m_inWorld; }

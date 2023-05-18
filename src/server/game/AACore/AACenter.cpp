@@ -65,6 +65,7 @@
 #include "Loot.h"
 #include "SpellHistory.h"
 #include "Player.h"
+#include "ChatPackets.h"
 
 #include <iostream>
 #include <sstream>
@@ -7619,8 +7620,13 @@ bool AACenter::M_SendClientAddonData(Player* player, std::string command, std::s
         return false;
     }
     if (msg == "" || command == "") { return false; }
-    std::string fullmsg = command + "\t" + msg;
-    player->WhisperAddon(fullmsg, "", false, player);
+    //player->WhisperAddon(command, msg, false, player);
+
+    WorldPackets::Chat::Chat packet;
+    packet.Initialize(CHAT_MSG_GUILD, LANG_ADDON, player, nullptr, msg, 0, "", DEFAULT_LOCALE, command);
+    WorldPacket const* data = packet.Write();
+    player->SendDirectMessage(data);
+
     return true;
 }
 

@@ -124,7 +124,6 @@ enum LootState
 class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>, public MapObject
 {
     public:
-        uint32 aa_id = 0;
         explicit GameObject();
         ~GameObject();
 

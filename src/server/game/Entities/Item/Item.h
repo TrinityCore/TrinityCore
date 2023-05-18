@@ -172,7 +172,6 @@ class TC_GAME_API Item : public Object
     friend void RemoveItemFromUpdateQueueOf(Item* item, Player* player);
 
     public:
-        uint32 aa_id = 0;
         virtual bool AA_LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, uint32 entry);
         ObjectGuid::LowType GetGUIDLow() { return GetGUID().GetCounter(); }
 

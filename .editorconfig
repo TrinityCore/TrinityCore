@@ -7,5 +7,5 @@ insert_final_newline = true
 trim_trailing_whitespace = true
 max_line_length = 160
 
-[*.{c,h,cpp,hpp,inl}]
+[*.{c,hpp,inl}]
 charset = latin1

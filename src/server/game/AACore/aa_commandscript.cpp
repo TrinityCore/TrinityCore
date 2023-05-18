@@ -2113,7 +2113,7 @@ public:
         if (arg4) {
             zs = arg4;
         }
-        WorldDatabase.DirectPExecute("INSERT INTO __采集_物品 (注释,组,entry,class,subclass,name,displayid,Quality,notice) VALUES ('{}',{},{},{},{},'{}',{},{},{})", zs, zu, itemTemplate->GetId(), itemTemplate->GetClass(), itemTemplate->GetSubClass(), itemTemplate->GetName(LOCALE_zhCN), 0, itemTemplate->GetQuality(), 1);
+        WorldDatabase.DirectPExecute("INSERT INTO __采集_物品 (注释,组,entry,class,subclass,name,displayid,Quality,抽奖公告开关) VALUES ('{}',{},{},{},{},'{}',{},{},{})", zs, zu, itemTemplate->GetId(), itemTemplate->GetClass(), itemTemplate->GetSubClass(), itemTemplate->GetName(LOCALE_zhCN), 0, itemTemplate->GetQuality(), 1);
         QueryResult result = WorldDatabase.Query("SELECT id from __采集_物品");
         int32 rid = 0;
         if (result) {
@@ -4156,7 +4156,7 @@ public:
             if (arg2) {
                 zu = int32(std::atoi(arg2));
             }
-            WorldDatabase.DirectPExecute("INSERT INTO __采集_坐标 (注释,组,name,map,zone,area,position_x,position_y,position_z,orientation,instanceId) VALUES (?,?,?,?,?,?,?,?,?,?,?)", arg1str, zu, target->GetMap()->GetMapName(), target->GetMapId(), target->GetZoneId(), target->GetAreaId(), target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), target->GetInstanceId());
+            WorldDatabase.DirectPExecute("INSERT INTO __采集_坐标 (注释,组,name,map,zone,area,position_x,position_y,position_z,orientation,instanceId) VALUES ('{}',{},'{}',{},{},{},{},{},{},{},{})", arg1str, zu, target->GetMap()->GetMapName(), target->GetMapId(), target->GetZoneId(), target->GetAreaId(), target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), target->GetInstanceId());
             QueryResult result = WorldDatabase.Query("SELECT id from __采集_坐标");
             int32 rid = 0;
             if (result) {

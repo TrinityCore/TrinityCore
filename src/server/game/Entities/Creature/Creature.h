@@ -69,7 +69,6 @@ typedef std::unordered_map<uint8, CreatureTextRepeatIds> CreatureTextRepeatGroup
 class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public MapObject
 {
     public:
-        uint32 aa_id = 0;
         uint32 aa_boss_id = 0;
         uint32 aa_boss_time = 0;
         uint32 aa_boss_time_max = 0;

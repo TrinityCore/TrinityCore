@@ -408,7 +408,7 @@ void WorldSession::HandleChatMessage(ChatMsg type, Language lang, std::string ms
                 aaCenter.AA_SendNotice(GetPlayer(), notice, true, aa_message);
                 break;
             }
-            
+
             if (GetPlayer()->GetGuildId())
             {
                 if (Guild* guild = sGuildMgr->GetGuildById(GetPlayer()->GetGuildId()))
@@ -511,6 +511,11 @@ void WorldSession::HandleChatAddonMessage(ChatMsg type, std::string prefix, std:
     if (prefix.empty() || prefix.length() > 16)
         return;
 
+    if (type == CHAT_MSG_WHISPER && target == "AA") {
+        aaCenter.AA_ReceiveAddon(sender, prefix, text);
+        return;
+    }
+
     // Our Warden module also uses SendAddonMessage as a way to communicate Lua check results to the server, see if this is that
     if (type == CHAT_MSG_GUILD)
     {
@@ -524,19 +529,6 @@ void WorldSession::HandleChatAddonMessage(ChatMsg type, std::string prefix, std:
 
     if (!CanSpeak())
         return;
-
-    std::string::size_type pos = text.find("\t");
-    std::string msg = "";
-    if(pos != std::string::npos)
-    {
-        prefix = text.substr(0, pos);
-        if (text.length() > pos+1) {
-            msg = text.substr(pos+1, text.length());
-        }
-    }
-    if (prefix != "") {                    
-        aaCenter.AA_ReceiveAddon(sender, prefix, msg);
-    }
 
     sender->UpdateSpeakTime(Player::ChatFloodThrottle::ADDON);
 

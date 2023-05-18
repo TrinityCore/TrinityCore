@@ -1,4 +1,4 @@
-﻿/*
+/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -33,6 +33,7 @@
 #include "Random.h"
 #include "World.h"
 #include "WorldSession.h"
+#include "GameObject.h"
 
 //
 // --------- LootItem ---------
@@ -757,9 +758,28 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
     bool isOldLoot = true;
     std::vector<int32> lootids;
     lootids.clear();
-    AA_Creature c_conf = aaCenter.aa_creatures[this->aa_id_c];
-    AA_Object o_conf = aaCenter.aa_objects[this->aa_id_o];
-    AA_Item i_conf = aaCenter.aa_items[this->aa_id_i];
+    ObjectGuid owner = GetOwnerGUID();
+    AA_Creature c_conf;
+    AA_Object o_conf;
+    AA_Item i_conf;
+    if (owner.IsItem()) {
+        Item* pItem = lootOwner->GetItemByGuid(owner);
+        if (pItem) {
+            i_conf = aaCenter.aa_items[pItem->aa_id];
+        }
+    }
+    else if (owner.IsCreature()){
+        Creature* creature = lootOwner->GetMap()->GetCreature(owner);
+        if (creature) {
+            c_conf = aaCenter.aa_creatures[creature->aa_id];
+        }
+    }
+    else if (owner.IsGameObject()) {
+        GameObject* go = lootOwner->GetMap()->GetGameObject(owner);
+        if (go) {
+            o_conf = aaCenter.aa_objects[go->aa_id];
+        }
+    }
     if (c_conf.lootid != "" && c_conf.lootid != "0") {
         aaCenter.AA_StringToVectorInt(c_conf.lootid, lootids, ",");
     }
@@ -827,12 +847,12 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
         for (auto itr : lootids) {
             uint32 lootid = itr;
             if (lootid > 0) {
-                LootTemplate const* tab = store.GetLootFor(lootId);
+                LootTemplate const* tab = store.GetLootFor(lootid);
 
                 if (!tab)
                 {
                     if (!noEmptyError)
-                        TC_LOG_ERROR("sql.sql", "Table '{}' loot id #{} used but it doesn't have records.", store.GetName(), lootId);
+                        TC_LOG_ERROR("sql.sql", "Table '{}' loot id #{} used but it doesn't have records.", store.GetName(), lootid);
                     return false;
                 }
 
@@ -846,21 +866,6 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
             }
         }
     }
-
-    LootTemplate const* tab = store.GetLootFor(lootId);
-
-    if (!tab)
-    {
-        if (!noEmptyError)
-            TC_LOG_ERROR("sql.sql", "Table '{}' loot id #{} used but it doesn't have records.", store.GetName(), lootId);
-        return false;
-    }
-
-    _itemContext = context;
-
-    items.reserve(MAX_NR_LOOT_ITEMS);
-
-    tab->Process(*this, store.IsRatesAllowed(), lootMode, 0);    // Processing is done there, callback via Loot::AddItem()
 
     // Setting access rights for group loot case
     Group const* group = lootOwner->GetGroup();
