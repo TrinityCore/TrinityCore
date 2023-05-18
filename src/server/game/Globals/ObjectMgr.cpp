@@ -7096,6 +7096,28 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyard(WorldLocation const& lo
         }
     }
 
+    WorldSafeLocsEntry const* graveyard = GetClosestGraveyardInZone(location, team, conditionObject, zoneId);
+    AreaTableEntry const* zoneEntry = sAreaTableStore.AssertEntry(zoneId);
+    AreaTableEntry const* parentEntry = sAreaTableStore.LookupEntry(zoneEntry->ParentAreaID);
+
+    while (!graveyard && parentEntry)
+    {
+        graveyard = GetClosestGraveyardInZone(location, team, conditionObject, parentEntry->ID);
+        if (!graveyard && parentEntry->ParentAreaID != 0)
+            parentEntry = sAreaTableStore.LookupEntry(parentEntry->ParentAreaID);
+        else // nothing found, cant look further, give up.
+            parentEntry = nullptr;
+    }
+
+    return graveyard;
+}
+
+WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyardInZone(WorldLocation const& location, uint32 team, WorldObject* conditionObject, uint32 zoneId) const
+{
+    float x, y, z;
+    location.GetPosition(x, y, z);
+    uint32 MapId = location.GetMapId();
+
     // Simulate std. algorithm:
     //   found some graveyard associated to (ghost_zone, ghost_map)
     //
@@ -7104,10 +7126,10 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyard(WorldLocation const& lo
     //   if mapId != graveyard.mapId (ghost in instance) and search any graveyard associated
     //     then check faction
     GraveyardMapBounds range = GraveyardStore.equal_range(zoneId);
-    MapEntry const* map = sMapStore.LookupEntry(MapId);
+    MapEntry const* mapEntry = sMapStore.LookupEntry(MapId);
 
     // not need to check validity of map object; MapId _MUST_ be valid here
-    if (range.first == range.second && !map->IsBattlegroundOrArena())
+    if (range.first == range.second && !mapEntry->IsBattlegroundOrArena())
     {
         if (zoneId != 0) // zone == 0 can't be fixed, used by bliz for bugged zones
             TC_LOG_ERROR("sql.sql", "Table `game_graveyard_zone` incomplete: Zone {} Team {} does not have a linked graveyard.", zoneId, team);
@@ -7126,8 +7148,6 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyard(WorldLocation const& lo
 
     // some where other
     WorldSafeLocsEntry const* entryFar = nullptr;
-
-    MapEntry const* mapEntry = sMapStore.LookupEntry(MapId);
 
     ConditionSourceInfo conditionSource(conditionObject);
 
