@@ -199,10 +199,10 @@ class spell_warr_colossus_smash : public SpellScript
             if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_WARRIOR_IN_FOR_THE_KILL, DIFFICULTY_NONE))
             {
                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                args.AddSpellBP0(spellInfo->GetEffect(EFFECT_0).CalcValue(GetTarget()));
+                args.AddSpellBP0(spellInfo->GetEffect(EFFECT_0).CalcValue(target));
 
-                if (target->HealthBelowPct(spellInfo->GetEffect(EFFECT_2).CalcValue(GetTarget())))
-                    args.AddSpellBP0(spellInfo->GetEffect(EFFECT_1).CalcValue(GetTarget()));
+                if (target->HealthBelowPct(spellInfo->GetEffect(EFFECT_2).CalcValue(target)))
+                    args.AddSpellBP0(spellInfo->GetEffect(EFFECT_1).CalcValue(target));
 
                 caster->CastSpell(caster, SPELL_WARRIOR_IN_FOR_THE_KILL_HASTE, args);
             }
