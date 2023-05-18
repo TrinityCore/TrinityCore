@@ -186,7 +186,8 @@ class spell_warr_colossus_smash : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_WARRIOR_COLOSSUS_SMASH_EFFECT, SPELL_WARRIOR_IN_FOR_THE_KILL, SPELL_WARRIOR_IN_FOR_THE_KILL_HASTE });
+        return ValidateSpellInfo({ SPELL_WARRIOR_COLOSSUS_SMASH_EFFECT, SPELL_WARRIOR_IN_FOR_THE_KILL, SPELL_WARRIOR_IN_FOR_THE_KILL_HASTE })
+            && sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_IN_FOR_THE_KILL, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_2;
     }
 
     void HandleOnHit()
@@ -199,10 +200,10 @@ class spell_warr_colossus_smash : public SpellScript
             if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_WARRIOR_IN_FOR_THE_KILL, DIFFICULTY_NONE))
             {
                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                args.AddSpellBP0(spellInfo->GetEffect(EFFECT_0).CalcValue(target));
+                args.AddSpellBP0(spellInfo->GetEffect(EFFECT_0).CalcValue(caster));
 
-                if (target->HealthBelowPct(spellInfo->GetEffect(EFFECT_2).CalcValue(target)))
-                    args.AddSpellBP0(spellInfo->GetEffect(EFFECT_1).CalcValue(target));
+                if (target->HealthBelowPct(spellInfo->GetEffect(EFFECT_2).CalcValue(caster)))
+                    args.AddSpellBP0(spellInfo->GetEffect(EFFECT_1).CalcValue(caster));
 
                 caster->CastSpell(caster, SPELL_WARRIOR_IN_FOR_THE_KILL_HASTE, args);
             }
