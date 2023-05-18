@@ -49,6 +49,7 @@ enum WarriorSpells
     SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP              = 159708,
     SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP_BUFF         = 133278,
     SPELL_WARRIOR_HEROIC_LEAP_JUMP                  = 178368,
+    SPELL_WARRIOR_IGNORE_PAIN                       = 190456,
     SPELL_WARRIOR_IMPENDING_VICTORY                 = 202168,
     SPELL_WARRIOR_IMPENDING_VICTORY_HEAL            = 202166,
     SPELL_WARRIOR_IMPROVED_HEROIC_LEAP              = 157449,
@@ -92,6 +93,42 @@ class spell_warr_bloodthirst : public SpellScript
     {
         OnEffectHit += SpellEffectFn(spell_warr_bloodthirst::HandleDummy, EFFECT_3, SPELL_EFFECT_DUMMY);
     }
+};
+
+// 384036 - Brutal Vitality
+class spell_warr_brutal_vitality : public AuraScript
+{
+    PrepareAuraScript(spell_warr_brutal_vitality);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_IGNORE_PAIN });
+    }
+
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    {
+        _damageAmount += CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount());
+    }
+
+    void HandleDummyTick(AuraEffect const* /*aurEff*/)
+    {
+        if (_damageAmount == 0)
+            return;
+
+        if (AuraEffect* ignorePainAura = GetTarget()->GetAuraEffect(SPELL_WARRIOR_IGNORE_PAIN, EFFECT_0))
+            ignorePainAura->ChangeAmount(ignorePainAura->GetAmount() + _damageAmount);
+
+        _damageAmount = 0;
+    }
+
+    void Register() override
+    {
+        AfterEffectProc += AuraEffectProcFn(spell_warr_brutal_vitality::HandleProc, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_warr_brutal_vitality::HandleDummyTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+
+private:
+    uint32 _damageAmount = 0;
 };
 
 // 100 - Charge
@@ -699,6 +736,7 @@ class spell_warr_victory_rush : public SpellScript
 void AddSC_warrior_spell_scripts()
 {
     RegisterSpellScript(spell_warr_bloodthirst);
+    RegisterSpellScript(spell_warr_brutal_vitality);
     RegisterSpellScript(spell_warr_charge);
     RegisterSpellScript(spell_warr_charge_drop_fire_periodic);
     RegisterSpellScript(spell_warr_charge_effect);
