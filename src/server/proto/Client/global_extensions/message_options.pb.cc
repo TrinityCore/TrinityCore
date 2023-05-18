@@ -86,8 +86,8 @@ void protobuf_AddDesc_global_5fextensions_2fmessage_5foptions_2eproto() {
     "_select_shard\030\001 \001(\010\022\030\n\020custom_validator\030"
     "\002 \001(\010:[\n\017message_options\022\037.google.protob"
     "uf.MessageOptions\030\220\277\005 \001(\0132\037.bgs.protocol"
-    ".BGSMessageOptionsB&\n\rbnet.protocolB\023Mes"
-    "sageOptionsProtoH\002", 298);
+    ".BGSMessageOptionsB%\n\014bgs.protocolB\023Mess"
+    "ageOptionsProtoH\002", 297);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "global_extensions/message_options.proto", &protobuf_RegisterTypes);
   BGSMessageOptions::default_instance_ = new BGSMessageOptions();

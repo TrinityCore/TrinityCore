@@ -24,6 +24,9 @@ namespace {
 const ::google::protobuf::Descriptor* ContentHandle_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   ContentHandle_reflection_ = NULL;
+const ::google::protobuf::Descriptor* TitleIconContentHandle_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  TitleIconContentHandle_reflection_ = NULL;
 
 }  // namespace
 
@@ -51,6 +54,22 @@ void protobuf_AssignDesc_content_5fhandle_5ftypes_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ContentHandle));
+  TitleIconContentHandle_descriptor_ = file->message_type(1);
+  static const int TitleIconContentHandle_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(TitleIconContentHandle, title_id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(TitleIconContentHandle, content_handle_),
+  };
+  TitleIconContentHandle_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      TitleIconContentHandle_descriptor_,
+      TitleIconContentHandle::default_instance_,
+      TitleIconContentHandle_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(TitleIconContentHandle, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(TitleIconContentHandle, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(TitleIconContentHandle));
 }
 
 namespace {
@@ -65,6 +84,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
   protobuf_AssignDescriptorsOnce();
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     ContentHandle_descriptor_, &ContentHandle::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    TitleIconContentHandle_descriptor_, &TitleIconContentHandle::default_instance());
 }
 
 }  // namespace
@@ -72,6 +93,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
 void protobuf_ShutdownFile_content_5fhandle_5ftypes_2eproto() {
   delete ContentHandle::default_instance_;
   delete ContentHandle_reflection_;
+  delete TitleIconContentHandle::default_instance_;
+  delete TitleIconContentHandle_reflection_;
 }
 
 void protobuf_AddDesc_content_5fhandle_5ftypes_2eproto() {
@@ -84,12 +107,16 @@ void protobuf_AddDesc_content_5fhandle_5ftypes_2eproto() {
     "\n\032content_handle_types.proto\022\014bgs.protoc"
     "ol\"O\n\rContentHandle\022\016\n\006region\030\001 \002(\007\022\r\n\005u"
     "sage\030\002 \002(\007\022\014\n\004hash\030\003 \002(\014\022\021\n\tproto_url\030\004 "
-    "\001(\tB%\n\rbnet.protocolB\022ContentHandleProto"
-    "H\002", 162);
+    "\001(\t\"_\n\026TitleIconContentHandle\022\020\n\010title_i"
+    "d\030\001 \001(\r\0223\n\016content_handle\030\002 \001(\0132\033.bgs.pr"
+    "otocol.ContentHandleB$\n\014bgs.protocolB\022Co"
+    "ntentHandleProtoH\002", 258);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "content_handle_types.proto", &protobuf_RegisterTypes);
   ContentHandle::default_instance_ = new ContentHandle();
+  TitleIconContentHandle::default_instance_ = new TitleIconContentHandle();
   ContentHandle::default_instance_->InitAsDefaultInstance();
+  TitleIconContentHandle::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_content_5fhandle_5ftypes_2eproto);
 }
 
@@ -181,6 +208,82 @@ void ContentHandle::Swap(ContentHandle* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = ContentHandle_descriptor_;
   metadata.reflection = ContentHandle_reflection_;
+  return metadata;
+}
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int TitleIconContentHandle::kTitleIdFieldNumber;
+const int TitleIconContentHandle::kContentHandleFieldNumber;
+#endif  // !_MSC_VER
+
+TitleIconContentHandle::TitleIconContentHandle()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.TitleIconContentHandle)
+}
+
+void TitleIconContentHandle::InitAsDefaultInstance() {
+  content_handle_ = const_cast< ::bgs::protocol::ContentHandle*>(&::bgs::protocol::ContentHandle::default_instance());
+}
+
+TitleIconContentHandle::TitleIconContentHandle(const TitleIconContentHandle& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.TitleIconContentHandle)
+}
+
+void TitleIconContentHandle::SharedCtor() {
+  _cached_size_ = 0;
+  title_id_ = 0u;
+  content_handle_ = NULL;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+TitleIconContentHandle::~TitleIconContentHandle() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.TitleIconContentHandle)
+  SharedDtor();
+}
+
+void TitleIconContentHandle::SharedDtor() {
+  if (this != default_instance_) {
+    delete content_handle_;
+  }
+}
+
+void TitleIconContentHandle::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* TitleIconContentHandle::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return TitleIconContentHandle_descriptor_;
+}
+
+const TitleIconContentHandle& TitleIconContentHandle::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_content_5fhandle_5ftypes_2eproto();
+  return *default_instance_;
+}
+
+TitleIconContentHandle* TitleIconContentHandle::default_instance_ = NULL;
+
+TitleIconContentHandle* TitleIconContentHandle::New() const {
+  return new TitleIconContentHandle;
+}
+
+void TitleIconContentHandle::Swap(TitleIconContentHandle* other) {
+  if (other != this) {
+    GetReflection()->Swap(this, other);}
+}
+
+::google::protobuf::Metadata TitleIconContentHandle::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = TitleIconContentHandle_descriptor_;
+  metadata.reflection = TitleIconContentHandle_reflection_;
   return metadata;
 }
 

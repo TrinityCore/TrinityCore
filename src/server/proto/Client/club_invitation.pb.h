@@ -24,6 +24,7 @@
 #include <google/protobuf/repeated_field.h>
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/unknown_field_set.h>
+#include "global_extensions/field_options.pb.h"  // IWYU pragma: export
 #include "club_core.pb.h"
 #include "club_member.pb.h"
 #include "api/client/v2/attribute_types.pb.h"
@@ -448,12 +449,21 @@ class TC_PROTO_API SendSuggestionOptions : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute >*
       mutable_attribute();
 
+  // optional uint32 join_club_source = 4;
+  inline bool has_join_club_source() const;
+  inline void clear_join_club_source();
+  static const int kJoinClubSourceFieldNumber = 4;
+  inline ::google::protobuf::uint32 join_club_source() const;
+  inline void set_join_club_source(::google::protobuf::uint32 value);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.SendSuggestionOptions)
  private:
   inline void set_has_target_id();
   inline void clear_has_target_id();
   inline void set_has_slot();
   inline void clear_has_slot();
+  inline void set_has_join_club_source();
+  inline void clear_has_join_club_source();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -462,6 +472,7 @@ class TC_PROTO_API SendSuggestionOptions : public ::google::protobuf::Message {
   ::bgs::protocol::club::v1::MemberId* target_id_;
   ::bgs::protocol::club::v1::ClubSlot* slot_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute > attribute_;
+  ::google::protobuf::uint32 join_club_source_;
   friend void TC_PROTO_API protobuf_AddDesc_club_5finvitation_2eproto();
   friend void protobuf_AssignDesc_club_5finvitation_2eproto();
   friend void protobuf_ShutdownFile_club_5finvitation_2eproto();
@@ -1472,6 +1483,30 @@ inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute >*
 SendSuggestionOptions::mutable_attribute() {
   // @@protoc_insertion_point(field_mutable_list:bgs.protocol.club.v1.SendSuggestionOptions.attribute)
   return &attribute_;
+}
+
+// optional uint32 join_club_source = 4;
+inline bool SendSuggestionOptions::has_join_club_source() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void SendSuggestionOptions::set_has_join_club_source() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void SendSuggestionOptions::clear_has_join_club_source() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void SendSuggestionOptions::clear_join_club_source() {
+  join_club_source_ = 0u;
+  clear_has_join_club_source();
+}
+inline ::google::protobuf::uint32 SendSuggestionOptions::join_club_source() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.SendSuggestionOptions.join_club_source)
+  return join_club_source_;
+}
+inline void SendSuggestionOptions::set_join_club_source(::google::protobuf::uint32 value) {
+  set_has_join_club_source();
+  join_club_source_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.SendSuggestionOptions.join_club_source)
 }
 
 // -------------------------------------------------------------------

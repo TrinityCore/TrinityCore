@@ -77,9 +77,16 @@ Channel::Channel(ObjectGuid const& guid, std::string const& name, uint32 team /*
     for (std::string_view guid : Trinity::Tokenize(banList, ' ', false))
     {
         // legacy db content might not have 0x prefix, account for that
-        std::string bannedGuidStr(guid.size() > 2 && guid.substr(0, 2) == "0x" ? guid.substr(2) : guid);
+        if (guid.size() > 2 && guid.substr(0, 2) == "0x")
+            guid.remove_suffix(2);
+
+        Optional<uint64> high = Trinity::StringTo<uint64>(guid.substr(0, 16), 16);
+        Optional<uint64> low = Trinity::StringTo<uint64>(guid.substr(16, 16), 16);
+        if (!high || !low)
+            continue;
+
         ObjectGuid banned;
-        banned.SetRawValue(uint64(strtoull(bannedGuidStr.substr(0, 16).c_str(), nullptr, 16)), uint64(strtoull(bannedGuidStr.substr(16).c_str(), nullptr, 16)));
+        banned.SetRawValue(*high, *low);
         if (!banned)
             continue;
 

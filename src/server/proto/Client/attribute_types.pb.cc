@@ -148,8 +148,8 @@ void protobuf_AddDesc_attribute_5ftypes_2eproto() {
     "tributeFilter.Operation\022*\n\tattribute\030\002 \003"
     "(\0132\027.bgs.protocol.Attribute\"V\n\tOperation"
     "\022\016\n\nMATCH_NONE\020\000\022\r\n\tMATCH_ANY\020\001\022\r\n\tMATCH"
-    "_ALL\020\002\022\033\n\027MATCH_ALL_MOST_SPECIFIC\020\003B!\n\rb"
-    "net.protocolB\016AttributeProtoH\002", 590);
+    "_ALL\020\002\022\033\n\027MATCH_ALL_MOST_SPECIFIC\020\003B \n\014b"
+    "gs.protocolB\016AttributeProtoH\002", 589);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "attribute_types.proto", &protobuf_RegisterTypes);
   Variant::default_instance_ = new Variant();

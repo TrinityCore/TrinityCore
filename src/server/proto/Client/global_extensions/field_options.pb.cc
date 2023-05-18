@@ -358,8 +358,8 @@ void protobuf_AddDesc_global_5fextensions_2ffield_5foptions_2eproto() {
     "le.protobuf.FieldOptions\030\220\277\005 \001(\0132\035.bgs.p"
     "rotocol.BGSFieldOptions:N\n\005valid\022\035.googl"
     "e.protobuf.FieldOptions\030\221\277\005 \001(\0132\036.bgs.pr"
-    "otocol.FieldRestrictionB$\n\rbnet.protocol"
-    "B\021FieldOptionsProtoH\002", 2021);
+    "otocol.FieldRestrictionB#\n\014bgs.protocolB"
+    "\021FieldOptionsProtoH\002", 2020);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "global_extensions/field_options.proto", &protobuf_RegisterTypes);
   BGSFieldOptions::default_instance_ = new BGSFieldOptions();

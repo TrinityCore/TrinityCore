@@ -61,6 +61,9 @@ void protobuf_AddDesc_club_5ftypes_2eproto() {
   ::bgs::protocol::club::v1::protobuf_AddDesc_club_5finvitation_2eproto();
   ::bgs::protocol::club::v1::protobuf_AddDesc_club_5fban_2eproto();
   ::bgs::protocol::club::v1::protobuf_AddDesc_club_5fstream_2eproto();
+  ::bgs::protocol::club::v1::protobuf_AddDesc_club_5ftype_2eproto();
+  ::bgs::protocol::club::v1::protobuf_AddDesc_club_5ftag_2eproto();
+  ::bgs::protocol::club::v1::protobuf_AddDesc_club_5fname_5fgenerator_2eproto();
   ::bgs::protocol::v2::protobuf_AddDesc_api_2fclient_2fv2_2fattribute_5ftypes_2eproto();
   ::bgs::protocol::account::v1::protobuf_AddDesc_account_5ftypes_2eproto();
   ::bgs::protocol::protobuf_AddDesc_event_5fview_5ftypes_2eproto();
@@ -75,12 +78,14 @@ void protobuf_AddDesc_club_5ftypes_2eproto() {
     ".proto\032\017club_role.proto\032\024club_range_set."
     "proto\032\017club_core.proto\032\021club_member.prot"
     "o\032\025club_invitation.proto\032\016club_ban.proto"
-    "\032\021club_stream.proto\032#api/client/v2/attri"
-    "bute_types.proto\032\023account_types.proto\032\026e"
-    "vent_view_types.proto\032\026invitation_types."
-    "proto\032\023message_types.proto\032\017ets_types.pr"
-    "oto\032\021voice_types.proto\032\017rpc_types.protoB"
-    "\002H\002P\000P\001P\002P\003P\004P\005P\006P\007P\010P\tP\nP\013P\014P\rP\016P\017P\020", 437);
+    "\032\021club_stream.proto\032\017club_type.proto\032\016cl"
+    "ub_tag.proto\032\031club_name_generator.proto\032"
+    "#api/client/v2/attribute_types.proto\032\023ac"
+    "count_types.proto\032\026event_view_types.prot"
+    "o\032\026invitation_types.proto\032\023message_types"
+    ".proto\032\017ets_types.proto\032\021voice_types.pro"
+    "to\032\017rpc_types.protoB\002H\002P\000P\001P\002P\003P\004P\005P\006P\007P"
+    "\010P\tP\nP\013P\014P\rP\016P\017P\020P\021P\022P\023", 503);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "club_types.proto", &protobuf_RegisterTypes);
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_club_5ftypes_2eproto);
