@@ -58,8 +58,8 @@ enum WarriorSpells
     SPELL_WARRIOR_MORTAL_STRIKE                     = 12294,
     SPELL_WARRIOR_MORTAL_WOUNDS                     = 213667,
     SPELL_WARRIOR_RALLYING_CRY                      = 97463,
-
-    SPELL_WARRIOR_SHIELD_BLOCK                      = 132404,    SPELL_WARRIOR_SHIELD_CHARGE_EFFECT              = 385953,
+    SPELL_WARRIOR_SHIELD_BLOCK_AURA                 = 132404,
+    SPELL_WARRIOR_SHIELD_CHARGE_EFFECT              = 385953,
     SPELL_WARRIOR_SHOCKWAVE                         = 46968,
     SPELL_WARRIOR_SHOCKWAVE_STUN                    = 132168,
     SPELL_WARRIOR_STOICISM                          = 70845,
@@ -513,7 +513,6 @@ class spell_warr_rallying_cry : public SpellScript
     }
 };
 
-
 // 2565 - Shield Block
 class spell_warr_shield_block : public SpellScript
 {
@@ -521,20 +520,21 @@ class spell_warr_shield_block : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_WARRIOR_SHIELD_BLOCK });
+        return ValidateSpellInfo({ SPELL_WARRIOR_SHIELD_BLOCK_AURA });
     }
 
-    void HandleDummy(SpellEffIndex /*effIndex*/)
+    void HandleHitTarget(SpellEffIndex /*effIndex*/)
     {
-        Unit* caster = GetCaster();
-        caster->CastSpell(caster, SPELL_WARRIOR_SHIELD_BLOCK, true);
+        GetCaster()->CastSpell(nullptr, SPELL_WARRIOR_SHIELD_BLOCK_AURA, true);
     }
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_warr_shield_block::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_warr_shield_block::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
-};// 385952 - Shield Charge
+};
+
+// 385952 - Shield Charge
 class spell_warr_shield_charge : public SpellScript
 {
     PrepareSpellScript(spell_warr_shield_charge);
