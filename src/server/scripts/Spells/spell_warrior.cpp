@@ -804,8 +804,8 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_item_t10_prot_4p_bonus);
     RegisterSpellScript(spell_warr_mortal_strike);
     RegisterSpellScript(spell_warr_rallying_cry);
-
-    RegisterSpellScript(spell_warr_shield_block);    RegisterSpellScript(spell_warr_shield_charge);
+    RegisterSpellScript(spell_warr_shield_block);
+    RegisterSpellScript(spell_warr_shield_charge);
     RegisterSpellScript(spell_warr_shockwave);
     RegisterSpellScript(spell_warr_storm_bolt);
     RegisterSpellScript(spell_warr_sudden_death);
