@@ -43,6 +43,7 @@ enum WarriorSpells
     SPELL_WARRIOR_CHARGE_SLOW_EFFECT                = 236027,
     SPELL_WARRIOR_COLOSSUS_SMASH                    = 167105,
     SPELL_WARRIOR_COLOSSUS_SMASH_AURA               = 208086,
+    SPELL_WARRIOR_CRITICAL_THINKING_ENERGIZE        = 392776,
     SPELL_WARRIOR_EXECUTE                           = 20647,
     SPELL_WARRIOR_FUELED_BY_VIOLENCE_HEAL           = 383104,
     SPELL_WARRIOR_GLYPH_OF_THE_BLAZING_TRAIL        = 123779,
@@ -270,6 +271,32 @@ class spell_warr_colossus_smash : public SpellScript
 
 private:
     bool _bonusHaste = false;
+};
+
+// 389306 - Critical Thinking
+class spell_warr_critical_thinking : public AuraScript
+{
+    PrepareAuraScript(spell_warr_critical_thinking);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_CRITICAL_THINKING_ENERGIZE });
+    }
+
+    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        Unit* target = GetTarget();
+        int32 rageAmount = *eventInfo.GetProcSpell()->GetPowerTypeCostAmount(POWER_RAGE);
+        if (rageAmount == 0)
+            return;
+
+        target->CastSpell(target, SPELL_WARRIOR_CRITICAL_THINKING_ENERGIZE, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellBP0(CalculatePct(rageAmount, GetEffectInfo(EFFECT_1).CalcValue(target))));
+    }
+
+    void Register() override
+    {
+        AfterEffectProc += AuraEffectProcFn(spell_warr_critical_thinking::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
+    }
 };
 
 // 383103  - Fueled by Violence
@@ -796,6 +823,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_charge_drop_fire_periodic);
     RegisterSpellScript(spell_warr_charge_effect);
     RegisterSpellScript(spell_warr_colossus_smash);
+    RegisterSpellScript(spell_warr_critical_thinking);
     RegisterSpellScript(spell_warr_fueled_by_violence);
     RegisterSpellScript(spell_warr_heroic_leap);
     RegisterSpellScript(spell_warr_heroic_leap_jump);
