@@ -42,7 +42,7 @@ enum WarriorSpells
     SPELL_WARRIOR_CHARGE_ROOT_EFFECT                = 105771,
     SPELL_WARRIOR_CHARGE_SLOW_EFFECT                = 236027,
     SPELL_WARRIOR_COLOSSUS_SMASH                    = 167105,
-    SPELL_WARRIOR_COLOSSUS_SMASH_EFFECT             = 208086,
+    SPELL_WARRIOR_COLOSSUS_SMASH_AURA               = 208086,
     SPELL_WARRIOR_EXECUTE                           = 20647,
     SPELL_WARRIOR_FUELED_BY_VIOLENCE_HEAL           = 383104,
     SPELL_WARRIOR_GLYPH_OF_THE_BLAZING_TRAIL        = 123779,
@@ -50,6 +50,8 @@ enum WarriorSpells
     SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP_BUFF         = 133278,
     SPELL_WARRIOR_HEROIC_LEAP_JUMP                  = 178368,
     SPELL_WARRIOR_IGNORE_PAIN                       = 190456,
+    SPELL_WARRIOR_IN_FOR_THE_KILL                   = 248621,
+    SPELL_WARRIOR_IN_FOR_THE_KILL_HASTE             = 248622,
     SPELL_WARRIOR_IMPENDING_VICTORY                 = 202168,
     SPELL_WARRIOR_IMPENDING_VICTORY_HEAL            = 202166,
     SPELL_WARRIOR_IMPROVED_HEROIC_LEAP              = 157449,
@@ -216,26 +218,57 @@ class spell_warr_charge_effect : public SpellScript
     }
 };
 
-// 167105 - Colossus Smash 7.1.5
+// 167105 - Colossus Smash
+// 262161 - Warbreaker
 class spell_warr_colossus_smash : public SpellScript
 {
     PrepareSpellScript(spell_warr_colossus_smash);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_WARRIOR_COLOSSUS_SMASH_EFFECT });
+        return ValidateSpellInfo({ SPELL_WARRIOR_COLOSSUS_SMASH_AURA, SPELL_WARRIOR_IN_FOR_THE_KILL, SPELL_WARRIOR_IN_FOR_THE_KILL_HASTE })
+            && sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_IN_FOR_THE_KILL, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_2;
     }
 
-    void HandleOnHit()
+    void HandleHit()
     {
-        if (Unit* target = GetHitUnit())
-            GetCaster()->CastSpell(target, SPELL_WARRIOR_COLOSSUS_SMASH_EFFECT, true);
+        Unit* target = GetHitUnit();
+        Unit* caster = GetCaster();
+
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_COLOSSUS_SMASH_AURA, true);
+
+        if (caster->HasAura(SPELL_WARRIOR_IN_FOR_THE_KILL))
+        {
+            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_WARRIOR_IN_FOR_THE_KILL, DIFFICULTY_NONE))
+            {
+                if (target->HealthBelowPct(spellInfo->GetEffect(EFFECT_2).CalcValue(caster)))
+                    _bonusHaste = true;
+            }
+        }
+    }
+
+    void HandleAfterCast()
+    {
+        Unit* caster = GetCaster();
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_WARRIOR_IN_FOR_THE_KILL, DIFFICULTY_NONE);
+        if (!spellInfo)
+            return;
+
+        CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+        args.AddSpellBP0(spellInfo->GetEffect(EFFECT_0).CalcValue(caster));
+        if (_bonusHaste)
+            args.AddSpellBP0(spellInfo->GetEffect(EFFECT_1).CalcValue(caster));
+        caster->CastSpell(caster, SPELL_WARRIOR_IN_FOR_THE_KILL_HASTE, args);
     }
 
     void Register() override
     {
-        OnHit += SpellHitFn(spell_warr_colossus_smash::HandleOnHit);
+        OnHit += SpellHitFn(spell_warr_colossus_smash::HandleHit);
+        AfterCast += SpellCastFn(spell_warr_colossus_smash::HandleAfterCast);
     }
+
+private:
+    bool _bonusHaste = false;
 };
 
 // 383103  - Fueled by Violence
