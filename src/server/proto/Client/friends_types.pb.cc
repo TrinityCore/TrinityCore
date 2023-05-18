@@ -153,13 +153,14 @@ void protobuf_AssignDesc_friends_5ftypes_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(SentInvitation));
   FriendInvitationParams_descriptor_ = file->message_type(5);
-  static const int FriendInvitationParams_offsets_[6] = {
+  static const int FriendInvitationParams_offsets_[7] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FriendInvitationParams, target_email_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FriendInvitationParams, target_battle_tag_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FriendInvitationParams, role_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FriendInvitationParams, attribute_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FriendInvitationParams, target_name_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FriendInvitationParams, program_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FriendInvitationParams, target_phone_number_),
   };
   FriendInvitationParams_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -299,27 +300,28 @@ void protobuf_AddDesc_friends_5ftypes_2eproto() {
     "tion\"\223\001\n\016SentInvitation\022\n\n\002id\030\001 \001(\006\022\023\n\013t"
     "arget_name\030\002 \001(\t\022\014\n\004role\030\003 \001(\r\022*\n\tattrib"
     "ute\030\004 \003(\0132\027.bgs.protocol.Attribute\022\025\n\rcr"
-    "eation_time\030\005 \001(\004\022\017\n\007program\030\006 \001(\007\"\265\002\n\026F"
+    "eation_time\030\005 \001(\004\022\017\n\007program\030\006 \001(\007\"\332\002\n\026F"
     "riendInvitationParams\022\034\n\014target_email\030\001 "
     "\001(\tB\006\202\371+\002\010\001\022!\n\021target_battle_tag\030\002 \001(\tB\006"
     "\202\371+\002\010\001\022\034\n\004role\030\006 \003(\rB\016\020\001\212\371+\010*\006\n\004\010\001\020\001\022*\n\t"
     "attribute\030\010 \003(\0132\027.bgs.protocol.Attribute"
     "\022\023\n\013target_name\030\t \001(\t\022\023\n\007program\030\n \001(\007B\002"
-    "\030\0012f\n\rfriend_params\022\036.bgs.protocol.Invit"
-    "ationParams\030g \001(\0132/.bgs.protocol.friends"
-    ".v1.FriendInvitationParams\"\326\002\n\021Subscribe"
-    "Response\022\027\n\013max_friends\030\001 \001(\rB\002\030\001\022$\n\030max"
-    "_received_invitations\030\002 \001(\rB\002\030\001\022 \n\024max_s"
-    "ent_invitations\030\003 \001(\rB\002\030\001\022 \n\004role\030\004 \003(\0132"
-    "\022.bgs.protocol.Role\0220\n\007friends\030\005 \003(\0132\037.b"
-    "gs.protocol.friends.v1.Friend\022I\n\024receive"
-    "d_invitations\030\007 \003(\0132+.bgs.protocol.frien"
-    "ds.v1.ReceivedInvitation\022A\n\020sent_invitat"
-    "ions\030\010 \003(\0132\'.bgs.protocol.friends.v1.Sen"
-    "tInvitation\"F\n\027AcceptInvitationOptions\022\032"
-    "\n\004role\030\001 \001(\rB\014\212\371+\010\022\006\n\004\010\000\020\002\022\017\n\007program\030\002 "
-    "\001(\007B/\n\030bnet.protocol.friends.v1B\021Friends"
-    "TypesProtoH\002P\000", 1894);
+    "\030\001\022#\n\023target_phone_number\030\013 \001(\tB\006\202\371+\002\010\0012"
+    "f\n\rfriend_params\022\036.bgs.protocol.Invitati"
+    "onParams\030g \001(\0132/.bgs.protocol.friends.v1"
+    ".FriendInvitationParams\"\326\002\n\021SubscribeRes"
+    "ponse\022\027\n\013max_friends\030\001 \001(\rB\002\030\001\022$\n\030max_re"
+    "ceived_invitations\030\002 \001(\rB\002\030\001\022 \n\024max_sent"
+    "_invitations\030\003 \001(\rB\002\030\001\022 \n\004role\030\004 \003(\0132\022.b"
+    "gs.protocol.Role\0220\n\007friends\030\005 \003(\0132\037.bgs."
+    "protocol.friends.v1.Friend\022I\n\024received_i"
+    "nvitations\030\007 \003(\0132+.bgs.protocol.friends."
+    "v1.ReceivedInvitation\022A\n\020sent_invitation"
+    "s\030\010 \003(\0132\'.bgs.protocol.friends.v1.SentIn"
+    "vitation\"F\n\027AcceptInvitationOptions\022\032\n\004r"
+    "ole\030\001 \001(\rB\014\212\371+\010\022\006\n\004\010\000\020\002\022\017\n\007program\030\002 \001(\007"
+    "B.\n\027bgs.protocol.friends.v1B\021FriendsType"
+    "sProtoH\002P\000", 1930);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "friends_types.proto", &protobuf_RegisterTypes);
   Friend::default_instance_ = new Friend();
@@ -792,6 +794,7 @@ const int FriendInvitationParams::kRoleFieldNumber;
 const int FriendInvitationParams::kAttributeFieldNumber;
 const int FriendInvitationParams::kTargetNameFieldNumber;
 const int FriendInvitationParams::kProgramFieldNumber;
+const int FriendInvitationParams::kTargetPhoneNumberFieldNumber;
 #endif  // !_MSC_VER
 
 #ifndef _MSC_VER
@@ -823,6 +826,7 @@ void FriendInvitationParams::SharedCtor() {
   target_battle_tag_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   target_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   program_ = 0u;
+  target_phone_number_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -840,6 +844,9 @@ void FriendInvitationParams::SharedDtor() {
   }
   if (target_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete target_name_;
+  }
+  if (target_phone_number_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete target_phone_number_;
   }
   if (this != default_instance_) {
   }

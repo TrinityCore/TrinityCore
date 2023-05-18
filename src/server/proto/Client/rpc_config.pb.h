@@ -38,8 +38,6 @@ void protobuf_ShutdownFile_rpc_5fconfig_2eproto();
 
 class RPCMethodConfig;
 class RPCMeterConfig;
-class ProtocolAlias;
-class ServiceAliases;
 
 // ===================================================================
 
@@ -114,14 +112,14 @@ class TC_PROTO_API RPCMethodConfig : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 fixed_call_cost() const;
   inline void set_fixed_call_cost(::google::protobuf::uint32 value);
 
-  // optional uint32 fixed_packet_size = 4 [default = 0];
+  // optional uint32 fixed_packet_size = 4;
   inline bool has_fixed_packet_size() const;
   inline void clear_fixed_packet_size();
   static const int kFixedPacketSizeFieldNumber = 4;
   inline ::google::protobuf::uint32 fixed_packet_size() const;
   inline void set_fixed_packet_size(::google::protobuf::uint32 value);
 
-  // optional float variable_multiplier = 5 [default = 0];
+  // optional float variable_multiplier = 5;
   inline bool has_variable_multiplier() const;
   inline void clear_variable_multiplier();
   static const int kVariableMultiplierFieldNumber = 5;
@@ -177,7 +175,7 @@ class TC_PROTO_API RPCMethodConfig : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 cap_balance() const;
   inline void set_cap_balance(::google::protobuf::uint32 value);
 
-  // optional float income_per_second = 13 [default = 0];
+  // optional float income_per_second = 13;
   inline bool has_income_per_second() const;
   inline void clear_income_per_second();
   static const int kIncomePerSecondFieldNumber = 13;
@@ -332,7 +330,7 @@ class TC_PROTO_API RPCMeterConfig : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 cap_balance() const;
   inline void set_cap_balance(::google::protobuf::uint32 value);
 
-  // optional float startup_period = 5 [default = 0];
+  // optional float startup_period = 5;
   inline bool has_startup_period() const;
   inline void clear_startup_period();
   static const int kStartupPeriodFieldNumber = 5;
@@ -365,161 +363,6 @@ class TC_PROTO_API RPCMeterConfig : public ::google::protobuf::Message {
 
   void InitAsDefaultInstance();
   static RPCMeterConfig* default_instance_;
-};
-// -------------------------------------------------------------------
-
-class TC_PROTO_API ProtocolAlias : public ::google::protobuf::Message {
- public:
-  ProtocolAlias();
-  virtual ~ProtocolAlias();
-
-  ProtocolAlias(const ProtocolAlias& from);
-
-  inline ProtocolAlias& operator=(const ProtocolAlias& from) {
-    CopyFrom(from);
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _unknown_fields_;
-  }
-
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return &_unknown_fields_;
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const ProtocolAlias& default_instance();
-
-  void Swap(ProtocolAlias* other);
-
-  // implements Message ----------------------------------------------
-
-  ProtocolAlias* New() const;
-  int GetCachedSize() const { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const;
-  public:
-  ::google::protobuf::Metadata GetMetadata() const;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // required string server_service_name = 1;
-  inline bool has_server_service_name() const;
-  inline void clear_server_service_name();
-  static const int kServerServiceNameFieldNumber = 1;
-  inline const ::std::string& server_service_name() const;
-  inline void set_server_service_name(const ::std::string& value);
-  inline void set_server_service_name(const char* value);
-  inline void set_server_service_name(const char* value, size_t size);
-  inline ::std::string* mutable_server_service_name();
-  inline ::std::string* release_server_service_name();
-  inline void set_allocated_server_service_name(::std::string* server_service_name);
-
-  // required string client_service_name = 2;
-  inline bool has_client_service_name() const;
-  inline void clear_client_service_name();
-  static const int kClientServiceNameFieldNumber = 2;
-  inline const ::std::string& client_service_name() const;
-  inline void set_client_service_name(const ::std::string& value);
-  inline void set_client_service_name(const char* value);
-  inline void set_client_service_name(const char* value, size_t size);
-  inline ::std::string* mutable_client_service_name();
-  inline ::std::string* release_client_service_name();
-  inline void set_allocated_client_service_name(::std::string* client_service_name);
-
-  // @@protoc_insertion_point(class_scope:bgs.protocol.config.ProtocolAlias)
- private:
-  inline void set_has_server_service_name();
-  inline void clear_has_server_service_name();
-  inline void set_has_client_service_name();
-  inline void clear_has_client_service_name();
-
-  ::google::protobuf::UnknownFieldSet _unknown_fields_;
-
-  ::google::protobuf::uint32 _has_bits_[1];
-  mutable int _cached_size_;
-  ::std::string* server_service_name_;
-  ::std::string* client_service_name_;
-  friend void TC_PROTO_API protobuf_AddDesc_rpc_5fconfig_2eproto();
-  friend void protobuf_AssignDesc_rpc_5fconfig_2eproto();
-  friend void protobuf_ShutdownFile_rpc_5fconfig_2eproto();
-
-  void InitAsDefaultInstance();
-  static ProtocolAlias* default_instance_;
-};
-// -------------------------------------------------------------------
-
-class TC_PROTO_API ServiceAliases : public ::google::protobuf::Message {
- public:
-  ServiceAliases();
-  virtual ~ServiceAliases();
-
-  ServiceAliases(const ServiceAliases& from);
-
-  inline ServiceAliases& operator=(const ServiceAliases& from) {
-    CopyFrom(from);
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _unknown_fields_;
-  }
-
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return &_unknown_fields_;
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const ServiceAliases& default_instance();
-
-  void Swap(ServiceAliases* other);
-
-  // implements Message ----------------------------------------------
-
-  ServiceAliases* New() const;
-  int GetCachedSize() const { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const;
-  public:
-  ::google::protobuf::Metadata GetMetadata() const;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // repeated .bgs.protocol.config.ProtocolAlias protocol_alias = 1;
-  inline int protocol_alias_size() const;
-  inline void clear_protocol_alias();
-  static const int kProtocolAliasFieldNumber = 1;
-  inline const ::bgs::protocol::config::ProtocolAlias& protocol_alias(int index) const;
-  inline ::bgs::protocol::config::ProtocolAlias* mutable_protocol_alias(int index);
-  inline ::bgs::protocol::config::ProtocolAlias* add_protocol_alias();
-  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::config::ProtocolAlias >&
-      protocol_alias() const;
-  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::config::ProtocolAlias >*
-      mutable_protocol_alias();
-
-  // @@protoc_insertion_point(class_scope:bgs.protocol.config.ServiceAliases)
- private:
-
-  ::google::protobuf::UnknownFieldSet _unknown_fields_;
-
-  ::google::protobuf::uint32 _has_bits_[1];
-  mutable int _cached_size_;
-  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::config::ProtocolAlias > protocol_alias_;
-  friend void TC_PROTO_API protobuf_AddDesc_rpc_5fconfig_2eproto();
-  friend void protobuf_AssignDesc_rpc_5fconfig_2eproto();
-  friend void protobuf_ShutdownFile_rpc_5fconfig_2eproto();
-
-  void InitAsDefaultInstance();
-  static ServiceAliases* default_instance_;
 };
 // ===================================================================
 
@@ -705,7 +548,7 @@ inline void RPCMethodConfig::set_fixed_call_cost(::google::protobuf::uint32 valu
   // @@protoc_insertion_point(field_set:bgs.protocol.config.RPCMethodConfig.fixed_call_cost)
 }
 
-// optional uint32 fixed_packet_size = 4 [default = 0];
+// optional uint32 fixed_packet_size = 4;
 inline bool RPCMethodConfig::has_fixed_packet_size() const {
   return (_has_bits_[0] & 0x00000008u) != 0;
 }
@@ -729,7 +572,7 @@ inline void RPCMethodConfig::set_fixed_packet_size(::google::protobuf::uint32 va
   // @@protoc_insertion_point(field_set:bgs.protocol.config.RPCMethodConfig.fixed_packet_size)
 }
 
-// optional float variable_multiplier = 5 [default = 0];
+// optional float variable_multiplier = 5;
 inline bool RPCMethodConfig::has_variable_multiplier() const {
   return (_has_bits_[0] & 0x00000010u) != 0;
 }
@@ -921,7 +764,7 @@ inline void RPCMethodConfig::set_cap_balance(::google::protobuf::uint32 value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.config.RPCMethodConfig.cap_balance)
 }
 
-// optional float income_per_second = 13 [default = 0];
+// optional float income_per_second = 13;
 inline bool RPCMethodConfig::has_income_per_second() const {
   return (_has_bits_[0] & 0x00001000u) != 0;
 }
@@ -1099,7 +942,7 @@ inline void RPCMeterConfig::set_cap_balance(::google::protobuf::uint32 value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.config.RPCMeterConfig.cap_balance)
 }
 
-// optional float startup_period = 5 [default = 0];
+// optional float startup_period = 5;
 inline bool RPCMeterConfig::has_startup_period() const {
   return (_has_bits_[0] & 0x00000010u) != 0;
 }
@@ -1121,196 +964,6 @@ inline void RPCMeterConfig::set_startup_period(float value) {
   set_has_startup_period();
   startup_period_ = value;
   // @@protoc_insertion_point(field_set:bgs.protocol.config.RPCMeterConfig.startup_period)
-}
-
-// -------------------------------------------------------------------
-
-// ProtocolAlias
-
-// required string server_service_name = 1;
-inline bool ProtocolAlias::has_server_service_name() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void ProtocolAlias::set_has_server_service_name() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void ProtocolAlias::clear_has_server_service_name() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void ProtocolAlias::clear_server_service_name() {
-  if (server_service_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    server_service_name_->clear();
-  }
-  clear_has_server_service_name();
-}
-inline const ::std::string& ProtocolAlias::server_service_name() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.config.ProtocolAlias.server_service_name)
-  return *server_service_name_;
-}
-inline void ProtocolAlias::set_server_service_name(const ::std::string& value) {
-  set_has_server_service_name();
-  if (server_service_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    server_service_name_ = new ::std::string;
-  }
-  server_service_name_->assign(value);
-  // @@protoc_insertion_point(field_set:bgs.protocol.config.ProtocolAlias.server_service_name)
-}
-inline void ProtocolAlias::set_server_service_name(const char* value) {
-  set_has_server_service_name();
-  if (server_service_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    server_service_name_ = new ::std::string;
-  }
-  server_service_name_->assign(value);
-  // @@protoc_insertion_point(field_set_char:bgs.protocol.config.ProtocolAlias.server_service_name)
-}
-inline void ProtocolAlias::set_server_service_name(const char* value, size_t size) {
-  set_has_server_service_name();
-  if (server_service_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    server_service_name_ = new ::std::string;
-  }
-  server_service_name_->assign(reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.config.ProtocolAlias.server_service_name)
-}
-inline ::std::string* ProtocolAlias::mutable_server_service_name() {
-  set_has_server_service_name();
-  if (server_service_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    server_service_name_ = new ::std::string;
-  }
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.config.ProtocolAlias.server_service_name)
-  return server_service_name_;
-}
-inline ::std::string* ProtocolAlias::release_server_service_name() {
-  clear_has_server_service_name();
-  if (server_service_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    return NULL;
-  } else {
-    ::std::string* temp = server_service_name_;
-    server_service_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-    return temp;
-  }
-}
-inline void ProtocolAlias::set_allocated_server_service_name(::std::string* server_service_name) {
-  if (server_service_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete server_service_name_;
-  }
-  if (server_service_name) {
-    set_has_server_service_name();
-    server_service_name_ = server_service_name;
-  } else {
-    clear_has_server_service_name();
-    server_service_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.config.ProtocolAlias.server_service_name)
-}
-
-// required string client_service_name = 2;
-inline bool ProtocolAlias::has_client_service_name() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void ProtocolAlias::set_has_client_service_name() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void ProtocolAlias::clear_has_client_service_name() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void ProtocolAlias::clear_client_service_name() {
-  if (client_service_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    client_service_name_->clear();
-  }
-  clear_has_client_service_name();
-}
-inline const ::std::string& ProtocolAlias::client_service_name() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.config.ProtocolAlias.client_service_name)
-  return *client_service_name_;
-}
-inline void ProtocolAlias::set_client_service_name(const ::std::string& value) {
-  set_has_client_service_name();
-  if (client_service_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    client_service_name_ = new ::std::string;
-  }
-  client_service_name_->assign(value);
-  // @@protoc_insertion_point(field_set:bgs.protocol.config.ProtocolAlias.client_service_name)
-}
-inline void ProtocolAlias::set_client_service_name(const char* value) {
-  set_has_client_service_name();
-  if (client_service_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    client_service_name_ = new ::std::string;
-  }
-  client_service_name_->assign(value);
-  // @@protoc_insertion_point(field_set_char:bgs.protocol.config.ProtocolAlias.client_service_name)
-}
-inline void ProtocolAlias::set_client_service_name(const char* value, size_t size) {
-  set_has_client_service_name();
-  if (client_service_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    client_service_name_ = new ::std::string;
-  }
-  client_service_name_->assign(reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.config.ProtocolAlias.client_service_name)
-}
-inline ::std::string* ProtocolAlias::mutable_client_service_name() {
-  set_has_client_service_name();
-  if (client_service_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    client_service_name_ = new ::std::string;
-  }
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.config.ProtocolAlias.client_service_name)
-  return client_service_name_;
-}
-inline ::std::string* ProtocolAlias::release_client_service_name() {
-  clear_has_client_service_name();
-  if (client_service_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    return NULL;
-  } else {
-    ::std::string* temp = client_service_name_;
-    client_service_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-    return temp;
-  }
-}
-inline void ProtocolAlias::set_allocated_client_service_name(::std::string* client_service_name) {
-  if (client_service_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete client_service_name_;
-  }
-  if (client_service_name) {
-    set_has_client_service_name();
-    client_service_name_ = client_service_name;
-  } else {
-    clear_has_client_service_name();
-    client_service_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.config.ProtocolAlias.client_service_name)
-}
-
-// -------------------------------------------------------------------
-
-// ServiceAliases
-
-// repeated .bgs.protocol.config.ProtocolAlias protocol_alias = 1;
-inline int ServiceAliases::protocol_alias_size() const {
-  return protocol_alias_.size();
-}
-inline void ServiceAliases::clear_protocol_alias() {
-  protocol_alias_.Clear();
-}
-inline const ::bgs::protocol::config::ProtocolAlias& ServiceAliases::protocol_alias(int index) const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.config.ServiceAliases.protocol_alias)
-  return protocol_alias_.Get(index);
-}
-inline ::bgs::protocol::config::ProtocolAlias* ServiceAliases::mutable_protocol_alias(int index) {
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.config.ServiceAliases.protocol_alias)
-  return protocol_alias_.Mutable(index);
-}
-inline ::bgs::protocol::config::ProtocolAlias* ServiceAliases::add_protocol_alias() {
-  // @@protoc_insertion_point(field_add:bgs.protocol.config.ServiceAliases.protocol_alias)
-  return protocol_alias_.Add();
-}
-inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::config::ProtocolAlias >&
-ServiceAliases::protocol_alias() const {
-  // @@protoc_insertion_point(field_list:bgs.protocol.config.ServiceAliases.protocol_alias)
-  return protocol_alias_;
-}
-inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::config::ProtocolAlias >*
-ServiceAliases::mutable_protocol_alias() {
-  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.config.ServiceAliases.protocol_alias)
-  return &protocol_alias_;
 }
 
 // @@protoc_insertion_point(namespace_scope)

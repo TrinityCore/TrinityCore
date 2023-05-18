@@ -237,7 +237,7 @@ std::string LanguageMgr::Translate(std::string const& msg, uint32 language, Loca
                     for (size_t i = 0; i < length; ++i)
                     {
                         if (str[i] >= 'A' && str[i] <= 'Z')
-                            result += char(toupper(replacementWord[i]));
+                            result += charToUpper(replacementWord[i]);
                         else
                             result += replacementWord[i];
                     }
@@ -252,9 +252,9 @@ std::string LanguageMgr::Translate(std::string const& msg, uint32 language, Loca
                         for (size_t i = 0; i < length; ++i)
                         {
                             if (isUpper(wstrSourceWord[i]))
-                                result += char(toupper(replacementWord[i]));
+                                result += charToUpper(replacementWord[i]);
                             else
-                                result += char(tolower(replacementWord[i]));
+                                result += charToLower(replacementWord[i]);
                         }
                     }
                     break;

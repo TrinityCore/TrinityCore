@@ -25,6 +25,8 @@
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/unknown_field_set.h>
 #include "club_types.pb.h"  // IWYU pragma: export
+#include "club_tag.pb.h"  // IWYU pragma: export
+#include "rpc_types.pb.h"
 #include "Define.h" // for TC_PROTO_API
 // @@protoc_insertion_point(includes)
 
@@ -797,6 +799,30 @@ class TC_PROTO_API GetClubTypeResponse : public ::google::protobuf::Message {
   inline ::bgs::protocol::club::v1::ClubTypeRangeSet* release_range_set();
   inline void set_allocated_range_set(::bgs::protocol::club::v1::ClubTypeRangeSet* range_set);
 
+  // repeated .bgs.protocol.club.v1.LocalizedTag platform_tag_set = 4;
+  inline int platform_tag_set_size() const;
+  inline void clear_platform_tag_set();
+  static const int kPlatformTagSetFieldNumber = 4;
+  inline const ::bgs::protocol::club::v1::LocalizedTag& platform_tag_set(int index) const;
+  inline ::bgs::protocol::club::v1::LocalizedTag* mutable_platform_tag_set(int index);
+  inline ::bgs::protocol::club::v1::LocalizedTag* add_platform_tag_set();
+  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::LocalizedTag >&
+      platform_tag_set() const;
+  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::LocalizedTag >*
+      mutable_platform_tag_set();
+
+  // repeated .bgs.protocol.club.v1.LocalizedTag custom_tag_set = 5;
+  inline int custom_tag_set_size() const;
+  inline void clear_custom_tag_set();
+  static const int kCustomTagSetFieldNumber = 5;
+  inline const ::bgs::protocol::club::v1::LocalizedTag& custom_tag_set(int index) const;
+  inline ::bgs::protocol::club::v1::LocalizedTag* mutable_custom_tag_set(int index);
+  inline ::bgs::protocol::club::v1::LocalizedTag* add_custom_tag_set();
+  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::LocalizedTag >&
+      custom_tag_set() const;
+  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::LocalizedTag >*
+      mutable_custom_tag_set();
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.GetClubTypeResponse)
  private:
   inline void set_has_type();
@@ -813,6 +839,8 @@ class TC_PROTO_API GetClubTypeResponse : public ::google::protobuf::Message {
   ::bgs::protocol::club::v1::UniqueClubType* type_;
   ::bgs::protocol::club::v1::ClubRoleSet* role_set_;
   ::bgs::protocol::club::v1::ClubTypeRangeSet* range_set_;
+  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::LocalizedTag > platform_tag_set_;
+  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::LocalizedTag > custom_tag_set_;
   friend void TC_PROTO_API protobuf_AddDesc_club_5frequest_2eproto();
   friend void protobuf_AssignDesc_club_5frequest_2eproto();
   friend void protobuf_ShutdownFile_club_5frequest_2eproto();
@@ -7841,6 +7869,66 @@ inline void GetClubTypeResponse::set_allocated_range_set(::bgs::protocol::club::
     clear_has_range_set();
   }
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.GetClubTypeResponse.range_set)
+}
+
+// repeated .bgs.protocol.club.v1.LocalizedTag platform_tag_set = 4;
+inline int GetClubTypeResponse::platform_tag_set_size() const {
+  return platform_tag_set_.size();
+}
+inline void GetClubTypeResponse::clear_platform_tag_set() {
+  platform_tag_set_.Clear();
+}
+inline const ::bgs::protocol::club::v1::LocalizedTag& GetClubTypeResponse::platform_tag_set(int index) const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.GetClubTypeResponse.platform_tag_set)
+  return platform_tag_set_.Get(index);
+}
+inline ::bgs::protocol::club::v1::LocalizedTag* GetClubTypeResponse::mutable_platform_tag_set(int index) {
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.GetClubTypeResponse.platform_tag_set)
+  return platform_tag_set_.Mutable(index);
+}
+inline ::bgs::protocol::club::v1::LocalizedTag* GetClubTypeResponse::add_platform_tag_set() {
+  // @@protoc_insertion_point(field_add:bgs.protocol.club.v1.GetClubTypeResponse.platform_tag_set)
+  return platform_tag_set_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::LocalizedTag >&
+GetClubTypeResponse::platform_tag_set() const {
+  // @@protoc_insertion_point(field_list:bgs.protocol.club.v1.GetClubTypeResponse.platform_tag_set)
+  return platform_tag_set_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::LocalizedTag >*
+GetClubTypeResponse::mutable_platform_tag_set() {
+  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.club.v1.GetClubTypeResponse.platform_tag_set)
+  return &platform_tag_set_;
+}
+
+// repeated .bgs.protocol.club.v1.LocalizedTag custom_tag_set = 5;
+inline int GetClubTypeResponse::custom_tag_set_size() const {
+  return custom_tag_set_.size();
+}
+inline void GetClubTypeResponse::clear_custom_tag_set() {
+  custom_tag_set_.Clear();
+}
+inline const ::bgs::protocol::club::v1::LocalizedTag& GetClubTypeResponse::custom_tag_set(int index) const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.GetClubTypeResponse.custom_tag_set)
+  return custom_tag_set_.Get(index);
+}
+inline ::bgs::protocol::club::v1::LocalizedTag* GetClubTypeResponse::mutable_custom_tag_set(int index) {
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.GetClubTypeResponse.custom_tag_set)
+  return custom_tag_set_.Mutable(index);
+}
+inline ::bgs::protocol::club::v1::LocalizedTag* GetClubTypeResponse::add_custom_tag_set() {
+  // @@protoc_insertion_point(field_add:bgs.protocol.club.v1.GetClubTypeResponse.custom_tag_set)
+  return custom_tag_set_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::LocalizedTag >&
+GetClubTypeResponse::custom_tag_set() const {
+  // @@protoc_insertion_point(field_list:bgs.protocol.club.v1.GetClubTypeResponse.custom_tag_set)
+  return custom_tag_set_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::LocalizedTag >*
+GetClubTypeResponse::mutable_custom_tag_set() {
+  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.club.v1.GetClubTypeResponse.custom_tag_set)
+  return &custom_tag_set_;
 }
 
 // -------------------------------------------------------------------

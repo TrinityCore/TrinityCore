@@ -25,7 +25,6 @@
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/unknown_field_set.h>
 #include "club_member_id.pb.h"  // IWYU pragma: export
-#include "global_extensions/message_options.pb.h"
 #include "api/client/v2/attribute_types.pb.h"
 #include "club_enum.pb.h"
 #include "rpc_types.pb.h"
