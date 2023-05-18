@@ -199,10 +199,10 @@ class spell_warr_colossus_smash : public SpellScript
             if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_WARRIOR_IN_FOR_THE_KILL, DIFFICULTY_NONE))
             {
                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                args.AddSpellBP0(spellInfo->GetEffect(EFFECT_0).CalcValue());
+                args.AddSpellBP0(spellInfo->GetEffect(EFFECT_0).CalcValue(GetTarget()));
 
-                if (target->HealthBelowPct(spellInfo->GetEffect(EFFECT_2).CalcValue()))
-                    args.AddSpellBP0(spellInfo->GetEffect(EFFECT_1).CalcValue());
+                if (target->HealthBelowPct(spellInfo->GetEffect(EFFECT_2).CalcValue(GetTarget())))
+                    args.AddSpellBP0(spellInfo->GetEffect(EFFECT_1).CalcValue(GetTarget()));
 
                 caster->CastSpell(caster, SPELL_WARRIOR_IN_FOR_THE_KILL_HASTE, args);
             }
@@ -648,41 +648,6 @@ class spell_warr_victory_rush : public SpellScript
     }
 };
 
-// 262161 - Warbreaker
-class spell_warr_warbreaker : public SpellScript
-{
-    PrepareSpellScript(spell_warr_warbreaker);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_WARRIOR_COLOSSUS_SMASH_EFFECT, SPELL_WARRIOR_IN_FOR_THE_KILL, SPELL_WARRIOR_IN_FOR_THE_KILL_HASTE });
-    }
-
-    void HandleOnHit()
-    {
-        Unit* target = GetHitUnit();
-        Unit* caster = GetCaster();
-        caster->CastSpell(target, SPELL_WARRIOR_COLOSSUS_SMASH_EFFECT, true);
-
-        if (caster->HasAura(SPELL_WARRIOR_IN_FOR_THE_KILL))
-            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_WARRIOR_IN_FOR_THE_KILL, DIFFICULTY_NONE))
-            {
-                CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                args.AddSpellBP0(spellInfo->GetEffect(EFFECT_0).CalcValue());
-
-                if (target->HealthBelowPct(spellInfo->GetEffect(EFFECT_2).CalcValue()))
-                    args.AddSpellBP0(spellInfo->GetEffect(EFFECT_1).CalcValue());
-
-                caster->CastSpell(caster, SPELL_WARRIOR_IN_FOR_THE_KILL_HASTE, args);
-            }
-    }
-
-    void Register() override
-    {
-        OnHit += SpellHitFn(spell_warr_warbreaker::HandleOnHit);
-    }
-};
-
 void AddSC_warrior_spell_scripts()
 {
     RegisterSpellScript(spell_warr_bloodthirst);
@@ -705,5 +670,4 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_t3_prot_8p_bonus);
     RegisterSpellScript(spell_warr_victorious_state);
     RegisterSpellScript(spell_warr_victory_rush);
-    RegisterSpellScript(spell_warr_warbreaker);
 }

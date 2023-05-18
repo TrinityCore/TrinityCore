@@ -1,3 +1,3 @@
-DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_warr_warbreaker';
+DELETE FROM `spell_script_names` WHERE `spell_id`= 262161;
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES 
-(262161,'spell_warr_warbreaker');
+(262161,'spell_warr_colossus_smash');
