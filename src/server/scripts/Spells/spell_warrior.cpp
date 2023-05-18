@@ -125,6 +125,7 @@ class spell_warr_brutal_vitality : public AuraScript
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_warr_brutal_vitality::HandleDummyTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 
+private:
     uint32 _damageAmount = 0;
 };
 
