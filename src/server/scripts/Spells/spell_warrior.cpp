@@ -283,14 +283,12 @@ class spell_warr_critical_thinking : public AuraScript
         return ValidateSpellInfo({ SPELL_WARRIOR_CRITICAL_THINKING_ENERGIZE });
     }
 
-    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
         Unit* target = GetTarget();
-        int32 rageAmount = *eventInfo.GetProcSpell()->GetPowerTypeCostAmount(POWER_RAGE);
-        if (rageAmount == 0)
-            return;
-
-        target->CastSpell(target, SPELL_WARRIOR_CRITICAL_THINKING_ENERGIZE, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellBP0(CalculatePct(rageAmount, GetEffectInfo(EFFECT_1).CalcValue(target))));
+        Optional<int32> rageCost = eventInfo.GetProcSpell()->GetPowerTypeCostAmount(POWER_RAGE);
+        if (rageCost.has_value())
+            target->CastSpell(nullptr, SPELL_WARRIOR_CRITICAL_THINKING_ENERGIZE, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellBP0(CalculatePct(rageCost.value(), aurEff->GetAmount())));
     }
 
     void Register() override
