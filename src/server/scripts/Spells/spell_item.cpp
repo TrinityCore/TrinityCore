@@ -3180,9 +3180,8 @@ class spell_item_nitro_boosts : public SpellScript
     void HandleDummy(SpellEffIndex /* effIndex */)
     {
         Unit* caster = GetCaster();
-        AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(caster->GetAreaId());
         bool success = true;
-        if (areaEntry && areaEntry->IsFlyable() && !caster->GetMap()->IsDungeon())
+        if (!caster->GetMap()->IsDungeon())
             success = roll_chance_i(95); // nitro boosts can only fail in flying-enabled locations on 3.3.5
         caster->CastSpell(caster, success ? SPELL_NITRO_BOOSTS_SUCCESS : SPELL_NITRO_BOOSTS_BACKFIRE, GetCastItem());
     }

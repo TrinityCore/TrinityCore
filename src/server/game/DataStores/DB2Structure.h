@@ -158,11 +158,6 @@ struct AreaTableEntry
     {
         return GetFlags().HasFlag(AreaFlags::NoPvP);
     }
-
-    bool IsFlyable() const
-    {
-        return GetFlags().HasFlag(AreaFlags::EnableFlightBoundsOnMap);
-    }
 };
 
 struct AreaTriggerEntry
