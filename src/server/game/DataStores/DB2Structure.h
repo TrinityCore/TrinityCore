@@ -150,20 +150,18 @@ struct AreaTableEntry
     std::array<uint16, 4> LiquidTypeID;
 
     // helpers
+    EnumFlag<AreaMountFlags> GetMountFlags() const { return static_cast<AreaMountFlags>(MountFlags); }
+    EnumFlag<AreaFlags> GetFlags() const { return static_cast<AreaFlags>(Flags[0]); }
+    EnumFlag<AreaFlags2> GetFlags2() const { return static_cast<AreaFlags2>(Flags[1]); }
+
     bool IsSanctuary() const
     {
-        return (Flags[0] & AREA_FLAG_SANCTUARY) != 0;
+        return GetFlags().HasFlag(AreaFlags::NoPvP);
     }
 
     bool IsFlyable() const
     {
-        if (Flags[0] & AREA_FLAG_OUTLAND)
-        {
-            if (!(Flags[0] & AREA_FLAG_NO_FLY_ZONE))
-                return true;
-        }
-
-        return false;
+        return GetFlags().HasFlag(AreaFlags::EnableFlightBoundsOnMap);
     }
 };
 
