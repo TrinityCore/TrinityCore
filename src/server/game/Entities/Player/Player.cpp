@@ -4839,16 +4839,10 @@ void Player::RepopAtGraveyard()
 
     WorldSafeLocsEntry const* ClosestGrave;
 
-    // Special handle for battleground maps
-    if (Battleground* bg = GetBattleground())
-        ClosestGrave = bg->GetClosestGraveyard(this);
+    if (ZoneScript* zonescript = FindZoneScript())
+        ClosestGrave = zonescript->GetClosestGraveyard(this);
     else
-    {
-        if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetMap(), GetZoneId()))
-            ClosestGrave = bf->GetClosestGraveyard(this);
-        else
-            ClosestGrave = sObjectMgr->GetClosestGraveyard(*this, GetTeam(), this);
-    }
+        ClosestGrave = sObjectMgr->GetClosestGraveyard(*this, GetTeam(), this);
 
     // stop countdown until repop
     m_deathTimer = 0;

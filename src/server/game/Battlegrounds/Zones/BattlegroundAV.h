@@ -1672,7 +1672,7 @@ class BattlegroundAV : public Battleground
 
         void EndBattleground(uint32 winner) override;
 
-        WorldSafeLocsEntry const* GetClosestGraveyard(Player* player) override;
+        WorldSafeLocsEntry const* GetClosestGraveyard(Player* player) const override;
         WorldSafeLocsEntry const* GetExploitTeleportLocation(Team team) override;
 
         uint32 GetPrematureWinner() override;

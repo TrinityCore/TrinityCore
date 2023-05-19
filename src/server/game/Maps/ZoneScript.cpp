@@ -38,3 +38,8 @@ void ZoneScript::TriggerGameEvent(uint32 gameEventId, WorldObject* source /*= nu
     else
         ProcessEvent(nullptr, gameEventId, nullptr);
 }
+
+WorldSafeLocsEntry const* ZoneScript::GetClosestGraveyard(Player* player) const
+{
+    return sObjectMgr->GetClosestGraveyard(*player, player->GetTeam(), player);
+}

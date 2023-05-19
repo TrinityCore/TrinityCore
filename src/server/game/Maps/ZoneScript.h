@@ -26,6 +26,7 @@ class GameObject;
 class Unit;
 class WorldObject;
 struct CreatureData;
+struct WorldSafeLocsEntry;
 
 class TC_GAME_API ZoneScript
 {
@@ -62,6 +63,8 @@ class TC_GAME_API ZoneScript
 
         virtual void TriggerGameEvent(uint32 gameEventId, WorldObject* source = nullptr, WorldObject* target = nullptr);
         virtual void ProcessEvent(WorldObject* /*obj*/, uint32 /*eventId*/, WorldObject* /*invoker*/) { }
+
+        virtual WorldSafeLocsEntry const* GetClosestGraveyard(Player* player) const;
 };
 
 #endif

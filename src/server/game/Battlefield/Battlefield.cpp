@@ -558,7 +558,7 @@ BfGraveyard* Battlefield::GetGraveyardById(uint32 id) const
     return nullptr;
 }
 
-WorldSafeLocsEntry const* Battlefield::GetClosestGraveyard(Player* player)
+WorldSafeLocsEntry const* Battlefield::GetClosestGraveyard(Player* player) const
 {
     BfGraveyard* closestGY = nullptr;
     float maxdist = -1;

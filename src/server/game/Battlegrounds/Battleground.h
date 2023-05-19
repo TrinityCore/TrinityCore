@@ -432,7 +432,7 @@ class TC_GAME_API Battleground : public ZoneScript
         virtual void HandlePlayerResurrect(Player* /*player*/) { }
 
         // Death related
-        virtual WorldSafeLocsEntry const* GetClosestGraveyard(Player* player);
+        virtual WorldSafeLocsEntry const* GetClosestGraveyard(Player* player) const override;
 
         virtual WorldSafeLocsEntry const* GetExploitTeleportLocation(Team /*team*/) { return nullptr; }
         // GetExploitTeleportLocation(TeamId) must be implemented in the battleground subclass.

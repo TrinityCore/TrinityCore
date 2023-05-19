@@ -1064,7 +1064,7 @@ void BattlegroundAV::SendMineWorldStates(uint32 mine)
     UpdateWorldState(BG_AV_MineWorldStates[mine2][3], m_Mine_Owner[mine] == HORDE ? 2 : m_Mine_Owner[mine] == ALLIANCE ? 1 : 0);
 }
 
-WorldSafeLocsEntry const* BattlegroundAV::GetClosestGraveyard(Player* player)
+WorldSafeLocsEntry const* BattlegroundAV::GetClosestGraveyard(Player* player) const
 {
     float x, y;
     player->GetPosition(x, y);
