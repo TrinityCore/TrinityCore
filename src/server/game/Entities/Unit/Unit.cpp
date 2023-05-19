@@ -7825,7 +7825,7 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
     if (HasAuraType(SPELL_AURA_MOUNT_RESTRICTIONS))
     {
         for (AuraEffect const* auraEffect : GetAuraEffectsByType(SPELL_AURA_MOUNT_RESTRICTIONS))
-            mountFlags = AreaMountFlags(auraEffect->GetMiscValue());
+            mountFlags |= AreaMountFlags(auraEffect->GetMiscValue());
     }
     else if (AreaTableEntry const* areaTable = sAreaTableStore.LookupEntry(areaId))
         mountFlags = areaTable->GetMountFlags();

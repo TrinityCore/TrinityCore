@@ -2000,7 +2000,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
         if (player && player->HasAuraType(SPELL_AURA_MOUNT_RESTRICTIONS))
         {
             for (AuraEffect const* auraEffect : player->GetAuraEffectsByType(SPELL_AURA_MOUNT_RESTRICTIONS))
-                mountFlags = AreaMountFlags(auraEffect->GetMiscValue());
+                mountFlags |= AreaMountFlags(auraEffect->GetMiscValue());
         }
         else if (AreaTableEntry const* areaTable = sAreaTableStore.LookupEntry(area_id))
             mountFlags = areaTable->GetMountFlags();
