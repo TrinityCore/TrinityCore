@@ -471,6 +471,9 @@ struct CreatureDifficulty
     int32 CreatureDifficultyID;
     uint32 TypeFlags;
     uint32 TypeFlags2;
+    uint32 LootID;
+    uint32 PickPocketLootID;
+    uint32 SkinLootID;
     uint32 GoldMin;
     uint32 GoldMax;
 
@@ -527,9 +530,6 @@ struct TC_GAME_API CreatureTemplate
     CreatureFamily  family;                                 // enum CreatureFamily values (optional)
     uint32  trainer_class;
     uint32  type;                                           // enum CreatureType values
-    uint32  lootid;
-    uint32  pickpocketLootId;
-    uint32  SkinLootId;
     int32   resistance[MAX_SPELL_SCHOOL];
     uint32  spells[MAX_CREATURE_SPELLS];
     uint32  VehicleId;

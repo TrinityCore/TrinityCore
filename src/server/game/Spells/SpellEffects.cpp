@@ -2175,7 +2175,7 @@ void Spell::EffectPickPocket()
         creature->StartPickPocketRefillTimer();
 
         creature->m_loot.reset(new Loot(creature->GetMap(), creature->GetGUID(), LOOT_PICKPOCKETING, nullptr));
-        if (uint32 lootid = creature->GetCreatureTemplate()->pickpocketLootId)
+        if (uint32 lootid = creature->GetCreatureDifficulty()->PickPocketLootID)
             creature->m_loot->FillLoot(lootid, LootTemplates_Pickpocketing, player, true);
 
         // Generate extra money for pick pocket loot
@@ -3729,7 +3729,7 @@ void Spell::EffectSkinning()
     creature->SetDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
     Loot* loot = new Loot(creature->GetMap(), creature->GetGUID(), LOOT_SKINNING, nullptr);
     creature->m_personalLoot[player->GetGUID()].reset(loot);
-    loot->FillLoot(creature->GetCreatureTemplate()->SkinLootId, LootTemplates_Skinning, player, true);
+    loot->FillLoot(creature->GetCreatureDifficulty()->SkinLootID, LootTemplates_Skinning, player, true);
     player->SendLoot(*loot);
 
     if (!IsPartOfSkillLine(skill, m_spellInfo->Id))

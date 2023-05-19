@@ -264,6 +264,9 @@ CreatureDifficulty const* CreatureTemplate::GetDifficulty(Difficulty difficulty)
             CreatureDifficultyID = 0;
             TypeFlags = 0;
             TypeFlags2 = 0;
+            LootID = 0;
+            PickPocketLootID = 0;
+            SkinLootID = 0;
             GoldMin = 0;
             GoldMax = 0;
         }
@@ -1294,7 +1297,7 @@ uint32 Creature::GetLootId() const
     if (m_lootId)
         return *m_lootId;
 
-    return GetCreatureTemplate()->lootid;
+    return GetCreatureDifficulty()->LootID;
 }
 
 void Creature::SetLootId(Optional<uint32> lootId)

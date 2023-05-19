@@ -993,12 +993,16 @@ void LoadLootTemplates_Creature()
     CreatureTemplateContainer const& ctc = sObjectMgr->GetCreatureTemplates();
     for (auto const& creatureTemplatePair : ctc)
     {
-        if (uint32 lootid = creatureTemplatePair.second.lootid)
+        std::unordered_map<Difficulty, CreatureDifficulty> const& cds = creatureTemplatePair.second.difficultyStore;
+        for (auto const& creatureDifficultyPair : cds)
         {
-            if (!lootIdSet.count(lootid))
-                LootTemplates_Creature.ReportNonExistingId(lootid, "Creature", creatureTemplatePair.first);
-            else
-                lootIdSetUsed.insert(lootid);
+            if (uint32 lootid = creatureDifficultyPair.second.LootID)
+            {
+                if (!lootIdSet.count(lootid))
+                    LootTemplates_Creature.ReportNonExistingId(lootid, "Creature", creatureTemplatePair.first);
+                else
+                    lootIdSetUsed.insert(lootid);
+            }
         }
     }
 
@@ -1182,12 +1186,16 @@ void LoadLootTemplates_Pickpocketing()
     CreatureTemplateContainer const& ctc = sObjectMgr->GetCreatureTemplates();
     for (auto const& creatureTemplatePair : ctc)
     {
-        if (uint32 lootid = creatureTemplatePair.second.pickpocketLootId)
+        std::unordered_map<Difficulty, CreatureDifficulty> const& cds = creatureTemplatePair.second.difficultyStore;
+        for (auto const& creatureDifficultyPair : cds)
         {
-            if (!lootIdSet.count(lootid))
-                LootTemplates_Pickpocketing.ReportNonExistingId(lootid, "Creature", creatureTemplatePair.first);
-            else
-                lootIdSetUsed.insert(lootid);
+            if (uint32 lootid = creatureDifficultyPair.second.PickPocketLootID)
+            {
+                if (!lootIdSet.count(lootid))
+                    LootTemplates_Pickpocketing.ReportNonExistingId(lootid, "Creature", creatureTemplatePair.first);
+                else
+                    lootIdSetUsed.insert(lootid);
+            }
         }
     }
 
@@ -1269,12 +1277,16 @@ void LoadLootTemplates_Skinning()
     CreatureTemplateContainer const& ctc = sObjectMgr->GetCreatureTemplates();
     for (auto const& creatureTemplatePair : ctc)
     {
-        if (uint32 lootid = creatureTemplatePair.second.SkinLootId)
+        std::unordered_map<Difficulty, CreatureDifficulty> const& cds = creatureTemplatePair.second.difficultyStore;
+        for (auto const& creatureDifficultyPair : cds)
         {
-            if (!lootIdSet.count(lootid))
-                LootTemplates_Skinning.ReportNonExistingId(lootid, "Creature", creatureTemplatePair.first);
-            else
-                lootIdSetUsed.insert(lootid);
+            if (uint32 lootid = creatureDifficultyPair.second.SkinLootID)
+            {
+                if (!lootIdSet.count(lootid))
+                    LootTemplates_Skinning.ReportNonExistingId(lootid, "Creature", creatureTemplatePair.first);
+                else
+                    lootIdSetUsed.insert(lootid);
+            }
         }
     }
 
