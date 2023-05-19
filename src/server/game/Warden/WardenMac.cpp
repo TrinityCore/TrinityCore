@@ -80,10 +80,11 @@ ClientWardenModule* WardenMac::GetModuleForClient()
     memcpy(mod->Key, Module_0DBBF209A27B1E279A9FEC5C168A15F7_Key, 16);
 
     // md5 hash
-    MD5_CTX ctx;
-    MD5_Init(&ctx);
-    MD5_Update(&ctx, mod->CompressedData, len);
-    MD5_Final((uint8*)&mod->Id, &ctx);
+    EVP_MD_CTX *md5 = EVP_MD_CTX_new();
+    EVP_DigestInit_ex(md5, EVP_md5(), nullptr);
+    EVP_DigestUpdate(md5, mod->CompressedData, len);
+    EVP_DigestFinal_ex(md5, (uint8 *)&mod->Id, &len);
+    EVP_MD_CTX_free(md5);
 
     return mod;
 }

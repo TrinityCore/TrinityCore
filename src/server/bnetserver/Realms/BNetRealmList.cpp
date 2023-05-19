@@ -108,7 +108,7 @@ void BNetRealmList::UpdateRealms(boost::system::error_code const& error)
     if (error)
         return;
 
-    TC_LOG_DEBUG("server.authserver", "Updating Realm List...");
+    TC_LOG_DEBUG("server.bnetserver", "Updating Realm List...");
 
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALMLIST);
     PreparedQueryResult result = LoginDatabase.Query(stmt);

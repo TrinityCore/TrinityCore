@@ -18,15 +18,9 @@ target_include_directories(gsoap
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_compile_definitions(gsoap
-  PUBLIC
-    -DWITH_OPENSSL)
-
 target_link_libraries(gsoap
   PRIVATE
-    trinity-dependency-interface
-  PUBLIC
-    openssl)
+    trinity-dependency-interface)
 
 set_target_properties(gsoap
     PROPERTIES

@@ -35,13 +35,18 @@
 #include "IoContext.h"
 #include "MySQLThreading.h"
 #include "ModuleManager.h"
+#include "OpenSSLCrypto.h"
 #include "ProcessPriority.h"
 #include "SessionManager.h"
 #include "Util.h"
 #include "ZmqContext.h"
 #include <boost/asio/signal_set.hpp>
+#include <boost/dll/runtime_symbol_info.hpp>
 #include <boost/program_options.hpp>
 #include <boost/filesystem/operations.hpp>
+#if defined(OPENSSL_VERSION_MAJOR) && (OPENSSL_VERSION_MAJOR >= 3)
+#include <openssl/provider.h>
+#endif
 #include <csignal>
 #include <iostream>
 
@@ -119,10 +124,14 @@ int main(int argc, char** argv)
         []()
         {
             TC_LOG_INFO("server.bnetserver", "Using configuration file %s.", sConfigMgr->GetFilename().c_str());
-            TC_LOG_INFO("server.bnetserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
+            TC_LOG_INFO("server.bnetserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, OpenSSL_version(OPENSSL_VERSION));
             TC_LOG_INFO("server.bnetserver", "Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
         }
     );
+
+    OpenSSLCrypto::threadsSetup(boost::dll::program_location().remove_filename());
+
+    std::shared_ptr<void> opensslHandle(nullptr, [](void*) { OpenSSLCrypto::threadsCleanup(); });
 
     // Seed the OpenSSL's PRNG here.
     // That way it won't auto-seed when calling BigNumber::SetRand and slow down the first world login

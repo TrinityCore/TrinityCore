@@ -30,7 +30,7 @@ class TC_COMMON_API ConfigMgr
     ~ConfigMgr() = default;
 
 public:
-    /// Method used only for loading main configuration files (authserver.conf and worldserver.conf)
+    /// Method used only for loading main configuration files (bnetserver.conf and worldserver.conf)
     bool LoadInitial(std::string const& file, std::vector<std::string> args, std::string& error);
 
     static ConfigMgr* instance();

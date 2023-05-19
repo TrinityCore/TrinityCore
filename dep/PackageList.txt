@@ -1,16 +1,21 @@
 TrinityCore uses (parts of or in whole) the following opensource software:
 
-Boost (external)
-  http://www.boost.org
-  Version: 1.55
+argon2
+  https://github.com/P-H-C/phc-winner-argon2
+  Version: 62358ba
 
-Boost Process (Proposed for boost, but its not an official part of it yet. Used to start child processes.)
-  http://www.highscore.de/boost/process0.5/
-  Version: 0.5
+Boost (a set of C++ libraries)
+  http://www.boost.org
+  Version: external
 
 bzip2 (a freely available, patent free, high-quality data compressor)
   http://www.bzip.org/
   Version: 1.0.6
+
+catch2
+  https://github.com/catchorg/Catch2
+  Version: v2.13.0
+
 efws (Entropia File System Watcher - crossplatform file system watcher)
   https://bitbucket.org/SpartanJ/efsw
   Version: 1.0.0 e6afbec564e249771046c714b0c7f2154e4c7fef
@@ -23,33 +28,37 @@ G3D (a commercial-grade C++ 3D engine available as Open Source (BSD License)
   http://g3d.sourceforge.net/
   Version: 9.0-Release r4036
 
+gSOAP (a portable development toolkit for C and C++ XML Web services and XML data bindings)
+  http://gsoap2.sourceforge.net/
+  Version: 2.8.117
+
 jemalloc (a general-purpose scalable concurrent malloc-implementation)
   http://www.canonware.com/jemalloc/
   Version: 5.2.1
 
-libreadline (command line editing library)
-  https://cnswww.cns.cwru.edu/php/chet/readline/rltop.html
+libMPQ (a library for reading MPQ files)
+  https://github.com/mbroemme/libmpq/
+  Version: d59b4cf1d107b5f6a0f67d6bc545c6c6ebef3d74
+
+libzmq (ZeroMQ core engine in C++, implements ZMTP/3.1)
+  https://github.com/zeromq/libzmq
+  Version: 4.2.3 stable
+
+MariaDB:
+  https://mariadb.org/
   Version: external
 
 OpenSSL (general-purpose cryptography library)
   https://www.openssl.org/
   Version: external
 
-SFMT (SIMD-oriented Fast Mersenne Twister)
-  https://github.com/MersenneTwister-Lab/SFMT
-  Version: 73bcba2e483640b8d50c1275514326dd4c1b0ca4
+rapidjson (A fast JSON parser/generator for C++ with both SAX/DOM style API http://rapidjson.org/)
+  https://github.com/Tencent/rapidjson
+  Version: 27c3a8dc0e2c9218fe94986d249a12b5ed838f1d
 
-utf8-cpp (UTF-8 with C++ in a Portable Way)
-  http://utfcpp.sourceforge.net/
-  Version: 2.3.4
-
-zlib (A Massively Spiffy Yet Delicately Unobtrusive Compression Library)
-  http://www.zlib.net/
-  Version: 1.2.12
-
-gSOAP (a portable development toolkit for C and C++ XML Web services and XML data bindings)
-  http://gsoap2.sourceforge.net/
-  Version: 2.8.117
+readline (command line editing library)
+  https://cnswww.cns.cwru.edu/php/chet/readline/rltop.html
+  Version: external
 
 recastnavigation (Recast is state of the art navigation mesh construction toolset for games)
   https://github.com/recastnavigation/recastnavigation
@@ -59,19 +68,15 @@ recastnavigation (Recast is state of the art navigation mesh construction toolse
 StormLib (a pack of modules, written in C++, which are able to read and also to write files from/to the MPQ archives)
   http://www.zezula.net/en/mpq/stormlib.html
   Version: 8.04
-  
-libzmq (ZeroMQ core engine in C++, implements ZMTP/3.1)
-  https://github.com/zeromq/libzmq
-  Version: 4.2.3 stable
+
+utf8-cpp (UTF-8 with C++ in a Portable Way)
+  http://utfcpp.sourceforge.net/
+  Version: 2.3.4
+
+zlib (A Massively Spiffy Yet Delicately Unobtrusive Compression Library)
+  http://www.zlib.net/
+  Version: 1.2.12
 
 zmqpp (C++ binding for 0mq/zmq is a 'high-level' library that hides most of the c-style interface core 0mq provides.)
   https://github.com/zeromq/zmqpp
   Version: 3.2.0 17e9f6afa98f56ecac1e3f3eecbfc112357a6732
-
-rapidjson (A fast JSON parser/generator for C++ with both SAX/DOM style API http://rapidjson.org/)
-  https://github.com/Tencent/rapidjson
-  Version: 27c3a8dc0e2c9218fe94986d249a12b5ed838f1d
-
-catch2
-  https://github.com/catchorg/Catch2
-  Version: v2.13.0
