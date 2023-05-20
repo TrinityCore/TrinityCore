@@ -4842,13 +4842,18 @@ void Player::RepopAtGraveyard()
     // Special handle for battleground maps
     if (Battleground* bg = GetBattleground())
         ClosestGrave = bg->GetClosestGraveyard(this);
-    else
+    else if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetMap(), GetZoneId()))
+        ClosestGrave = bf->GetClosestGraveyard(this);
+    else if (InstanceScript* instance = GetInstanceScript())
     {
-        if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetMap(), GetZoneId()))
-            ClosestGrave = bf->GetClosestGraveyard(this);
+        uint32 entrance = instance->GetEntranceLocation();
+        if (entrance != 0)
+            ClosestGrave = sObjectMgr->GetWorldSafeLoc(entrance);
         else
             ClosestGrave = sObjectMgr->GetClosestGraveyard(*this, GetTeam(), this);
     }
+    else
+        ClosestGrave = sObjectMgr->GetClosestGraveyard(*this, GetTeam(), this);
 
     // stop countdown until repop
     m_deathTimer = 0;
