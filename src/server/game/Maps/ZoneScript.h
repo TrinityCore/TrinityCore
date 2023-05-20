@@ -23,6 +23,7 @@
 
 class Creature;
 class GameObject;
+class Player;
 class Unit;
 class WorldObject;
 struct CreatureData;
