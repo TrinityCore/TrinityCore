@@ -90,6 +90,8 @@
 #define MSG_COLOR_WARRIOR      "|cffc79c6e"
 #define MSG_COLOR_DEATH_KNIGHT "|cffc41f3b"
 #define MSG_COLOR_MONK         "|cff00ff96"
+#define MSG_COLOR_DEMON_HUNTER "|cff00FF00"
+#define MSG_COLOR_EVOKER       "|cffF0B42A"
 
 constexpr uint32 ARENA_TEAM_5V5 = 5;
 
@@ -1001,6 +1003,48 @@ std::string AACenter::AA_GetNeedText(uint32 needid, uint32 count)
                 case RACE_DRAENEI:
                     s7 = aa_color_red + "· 需要" + aa_color_blues + "[种族]" + aa_color_yellow + " 德莱尼&";
                     break;
+                case RACE_WORGEN:
+                    s7 = aa_color_red + "· 需要" + aa_color_blues + "[种族]" + aa_color_yellow + " 狼人&";
+                    break;
+                case RACE_PANDAREN_NEUTRAL:
+                case RACE_PANDAREN_ALLIANCE:
+                case RACE_PANDAREN_HORDE:
+                    s7 = aa_color_red + "· 需要" + aa_color_blues + "[种族]" + aa_color_yellow + " 熊猫人&";
+                    break;
+                case RACE_NIGHTBORNE:
+                    s7 = aa_color_red + "· 需要" + aa_color_blues + "[种族]" + aa_color_yellow + " 夜之子&";
+                    break;
+                case RACE_HIGHMOUNTAIN_TAUREN:
+                    s7 = aa_color_red + "· 需要" + aa_color_blues + "[种族]" + aa_color_yellow + " 至高岭牛头人&";
+                    break;
+                case RACE_VOID_ELF:
+                    s7 = aa_color_red + "· 需要" + aa_color_blues + "[种族]" + aa_color_yellow + " 虚空精灵&";
+                    break;
+                case RACE_LIGHTFORGED_DRAENEI:
+                    s7 = aa_color_red + "· 需要" + aa_color_blues + "[种族]" + aa_color_yellow + " 光铸德莱尼&";
+                    break;
+                case RACE_ZANDALARI_TROLL:
+                    s7 = aa_color_red + "· 需要" + aa_color_blues + "[种族]" + aa_color_yellow + " 赞达拉巨魔&";
+                    break;
+                case RACE_KUL_TIRAN:
+                    s7 = aa_color_red + "· 需要" + aa_color_blues + "[种族]" + aa_color_yellow + " 库尔提拉斯人&";
+                    break;
+                case RACE_DARK_IRON_DWARF:
+                    s7 = aa_color_red + "· 需要" + aa_color_blues + "[种族]" + aa_color_yellow + " 黑铁矮人&";
+                    break;
+                case RACE_VULPERA:
+                    s7 = aa_color_red + "· 需要" + aa_color_blues + "[种族]" + aa_color_yellow + " 狐人&";
+                    break;
+                case RACE_MAGHAR_ORC:
+                    s7 = aa_color_red + "· 需要" + aa_color_blues + "[种族]" + aa_color_yellow + " 玛格汉兽人&";
+                    break;
+                case RACE_MECHAGNOME:
+                    s7 = aa_color_red + "· 需要" + aa_color_blues + "[种族]" + aa_color_yellow + " 机械侏儒&";
+                    break;
+                case RACE_DRACTHYR_ALLIANCE:
+                case RACE_DRACTHYR_HORDE:
+                    s7 = aa_color_red + "· 需要" + aa_color_blues + "[种族]" + aa_color_yellow + " 龙希尔&";
+                    break;
                 default:
                     break;
                 }
@@ -1033,8 +1077,17 @@ std::string AACenter::AA_GetNeedText(uint32 needid, uint32 count)
                 case CLASS_WARLOCK:
                     s8 = aa_color_red + "· 需要" + aa_color_blues + "[职业]" + MSG_COLOR_WARLOCK + " 术士&";
                     break;
+                case CLASS_MONK:
+                    s8 = aa_color_red + "· 需要" + aa_color_blues + "[职业]" + MSG_COLOR_MONK + " 武僧&";
+                    break;
                 case CLASS_DRUID:
                     s8 = aa_color_red + "· 需要" + aa_color_blues + "[职业]" + MSG_COLOR_DRUID + " 德鲁伊&";
+                    break;
+                case CLASS_DEMON_HUNTER:
+                    s8 = aa_color_red + "· 需要" + aa_color_blues + "[职业]" + MSG_COLOR_DEMON_HUNTER + " 恶魔猎手&";
+                    break;
+                case CLASS_EVOKER:
+                    s8 = aa_color_red + "· 需要" + aa_color_blues + "[职业]" + MSG_COLOR_EVOKER + " 唤魔师&";
                     break;
                 default:
                     break;
@@ -2931,8 +2984,17 @@ std::string AACenter::GetPlayerClass(uint8 class1)
     case CLASS_WARLOCK:
         s8 = "术士";
         break;
+    case CLASS_MONK:
+        s8 = "武僧";
+        break;
     case CLASS_DRUID:
         s8 = "德鲁伊";
+        break;
+    case CLASS_DEMON_HUNTER:
+        s8 = "恶魔猎手";
+        break;
+    case CLASS_EVOKER:
+        s8 = "唤魔师";
         break;
     default:
         break;
@@ -2972,6 +3034,48 @@ std::string AACenter::GetPlayerRace(Player* player)
         break;
     case RACE_DRAENEI:
         s7 = "德莱尼";
+        break;
+    case RACE_WORGEN:
+        s7 = "狼人";
+        break;
+    case RACE_PANDAREN_NEUTRAL:
+    case RACE_PANDAREN_ALLIANCE:
+    case RACE_PANDAREN_HORDE:
+        s7 = "熊猫人";
+        break;
+    case RACE_NIGHTBORNE:
+        s7 = "夜之子";
+        break;
+    case RACE_HIGHMOUNTAIN_TAUREN:
+        s7 = "至高岭牛头人";
+        break;
+    case RACE_VOID_ELF:
+        s7 = "虚空精灵";
+        break;
+    case RACE_LIGHTFORGED_DRAENEI:
+        s7 = "光铸德莱尼";
+        break;
+    case RACE_ZANDALARI_TROLL:
+        s7 = "赞达拉巨魔";
+        break;
+    case RACE_KUL_TIRAN:
+        s7 = "库尔提拉斯人";
+        break;
+    case RACE_DARK_IRON_DWARF:
+        s7 = "黑铁矮人";
+        break;
+    case RACE_VULPERA:
+        s7 = "狐人";
+        break;
+    case RACE_MAGHAR_ORC:
+        s7 = "玛格汉兽人";
+        break;
+    case RACE_MECHAGNOME:
+        s7 = "机械侏儒";
+        break;
+    case RACE_DRACTHYR_ALLIANCE:
+    case RACE_DRACTHYR_HORDE:
+        s7 = "龙希尔";
         break;
     default:
         break;
@@ -4931,6 +5035,8 @@ uint32 AACenter::M_NonsuchItem(Player* player, Item* pItem, uint32 zu, int32 typ
                     continue;
 
                 float val = pItem->GetItemStatValue(i, player);
+                int val1 = val - (int32)val > 0 ? 1 : 0;
+                val = val + val1;
                 if (val == 0)
                     continue;
 
@@ -6641,13 +6747,7 @@ void AACenter::M_GetItemText(Player* player, std::vector<uint32> itemIds, std::v
             //            {[itemid]={},[itemid]={}}
             if (time != time1) {
                 ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(conf.itemEntry);
-                std::string stat_count = "";
-                if (pProto) {
-                    uint32 count07 = 0;
-                    uint32 count78 = 0;
-                    uint32 statsCount = aaCenter.AA_GetItemValueCount(pProto->GetId());
-                    stat_count = std::to_string(count07) + "," + std::to_string(count78);
-                }
+                std::string stat_count = "0,0";
                 std::string item = "[";
                 item += std::to_string(conf.guid); item += "]={[";
                 item += std::to_string(conf.itemEntry); item += "]={";
@@ -13614,6 +13714,7 @@ void AACenter::LoadAAData_World()
                 conf.subclass = fields[i++].GetString();
                 conf.inventoryType = fields[i++].GetString();
                 conf.values = fields[i++].GetString();
+                conf.SpellID = fields[i++].GetInt32();
                 conf.chance = fields[i++].GetUInt32();
                 conf.LegacySlotIndex = fields[i++].GetUInt8();
                 conf.TriggerType = fields[i++].GetInt8();
