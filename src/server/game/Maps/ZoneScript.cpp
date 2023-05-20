@@ -18,6 +18,7 @@
 #include "ZoneScript.h"
 #include "Creature.h"
 #include "GameEventSender.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 
 ZoneScript::ZoneScript() = default;
