@@ -1150,11 +1150,9 @@ std::string AACenter::AA_GetItemLink(uint32 itemid)
         return "";
     }
     std::string name = temp->GetName(LOCALE_zhCN);
-
     std::ostringstream oss;
-    oss << "|c" << std::hex << ItemQualityColors[temp->GetQuality()] << std::dec <<
-        "|Hitem:" << itemid << ":0:0:0:0:0:0:0:0:0|h[" << name << "]|h|r";
-
+    oss << "|c" << std::hex << ItemQualityColors[temp->GetQuality()] << "|Hitem:" << itemid << ":0:0:0:0:0:0:0:" << temp->GetBaseItemLevel()
+        << ":0:0:0:0:0|h[" << name << "]|h|r";
     return oss.str();
 }
 std::string AACenter::AA_GetItemLinkJd(Item* item)
@@ -1166,11 +1164,19 @@ std::string AACenter::AA_GetItemLinkJd(Item* item)
     if (!pProto) {
         return "";
     }
+
+    uint32 itemId = pProto->GetId();
+    std::string name = pProto->GetName(LOCALE_zhCN);
+    ObjectGuid::LowType guid = item->GetGUIDLow();
+
+    uint32 color = ItemQualityColors[pProto->GetQuality()];
+    std::ostringstream itemStr;
+    itemStr << "|c" << std::hex << color << "|Hitem:" << itemId << ":0:0:0:0:0:0:0:" << pProto->GetBaseItemLevel()
+        << ":0:0:0:0:" << guid << "|h[" << name << "]|h|r";
+
     try {
         uint32 itemId = pProto->GetId();
         ObjectGuid::LowType guid = item->GetGUIDLow();
-        ObjectGuid::LowType guidlowH = guid / 10000;
-        ObjectGuid::LowType guidlowL = guid - guidlowH * 10000;
         std::string name = pProto->GetName(LOCALE_zhCN);
         std::ostringstream ss;
         ss << "|c" << std::hex << ItemQualityColors[pProto->GetQuality()] << std::dec;
@@ -1194,7 +1200,7 @@ std::string AACenter::AA_GetItemLinkJd(Item* item)
         else {
             name = q_color + "[" + name + "]|r";
         }
-        std::string itemlink = "|Hitem:" + std::to_string(itemId) + ":0:0:" + std::to_string(guidlowH + 5000) + ":" + std::to_string(guidlowL + 5000) + ":0:0:0|h" + name + "|h|r";
+        std::string itemlink = "|Hitem:" + std::to_string(itemId) + ":0:0:0:0:0:0:0:" + std::to_string(pProto->GetBaseItemLevel()) + ":0:0:0:0:" + std::to_string(guid) + "|h[" + name + "]|h|r";
         return itemlink;
     }
     catch (std::exception const& e) {}
@@ -9930,12 +9936,10 @@ void _AA_Shizhuang_3023(Player *player, uint32 lan)
             }
             std::string itemlink = "";
             if (guidlow > 0) {
-                ObjectGuid::LowType guidlowH = guidlow / 10000;
-                ObjectGuid::LowType guidlowL = guidlow - guidlowH * 10000;
-                itemlink = "|Hitem:" + std::to_string(conf.item) + ":0:0:" + std::to_string(guidlowH + 5000) + ":" + std::to_string(guidlowL + 5000) + ":0:0:0|h" + pProto->GetName(LOCALE_zhCN) + "|h|r";
+                itemlink = "|Hitem:" + std::to_string(conf.item) + ":0:0:0:0:0:0:0:" + std::to_string(pProto->GetBaseItemLevel()) + ":0:0:0:0:" + std::to_string(guidlow) + "|h[" + pProto->GetName(LOCALE_zhCN) + "]|h|r";
             }
             else {
-                itemlink = "|Hitem:" + std::to_string(conf.item) + ":0:0:0:0:0:0:0|h" + pProto->GetName(LOCALE_zhCN) + "|h|r";
+                itemlink = "|Hitem:" + std::to_string(conf.item) + ":0:0:0:0:0:0:0:" + std::to_string(pProto->GetBaseItemLevel()) + ":0:0:0:0:0|h[" + pProto->GetName(LOCALE_zhCN) + "]|h|r";
             }
             if (isconf) {
                 result += ",[";
@@ -10036,12 +10040,10 @@ void _AA_Shenqi_3031(Player* player, uint32 lan)
                     name = pProto1->GetName(LOCALE_zhCN);
                 }
                 if (guidlow > 0) { //已经激活，如果有下一级，显示升级。如果没有下一级，显示已满级
-                    ObjectGuid::LowType guidlowH = guidlow / 10000;
-                    ObjectGuid::LowType guidlowL = guidlow - guidlowH * 10000;
-                    itemlink = "|Hitem:" + std::to_string(conf.item) + ":0:0:" + std::to_string(guidlowH + 5000) + ":" + std::to_string(guidlowL + 5000) + ":0:0:0|h" + name + "|h|r";
+                    itemlink = "|Hitem:" + std::to_string(conf.item) + ":0:0:0:0:0:0:0:" + std::to_string(pProto->GetBaseItemLevel()) + ":0:0:0:0:" + std::to_string(guidlow) + "|h[" + name + "]|h|r";
                 }
                 else { //没有激活，显示激活
-                    itemlink = "|Hitem:" + std::to_string(conf.item) + ":0:0:0:0:0:0:0|h" + name + "|h|r";
+                    itemlink = "|Hitem:" + std::to_string(conf.item) + ":0:0:0:0:0:0:0:" + std::to_string(pProto->GetBaseItemLevel()) + ":0:0:0:0:0|h[" + name + "]|h|r";
                 }
                 result += std::to_string(conf.id); result += "]={\"";
                 result += itemlink; result += "\",\"";

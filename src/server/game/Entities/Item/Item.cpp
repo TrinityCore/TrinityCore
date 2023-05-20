@@ -2544,9 +2544,17 @@ void Item::AddBonuses(uint32 bonusListID)
 
 void Item::SetBonuses(std::vector<int32> bonusListIDs)
 {
+    std::string guidstr = std::to_string(GetGUID().GetCounter());
+    std::vector<std::string_view> bonusListString = Trinity::Tokenize(guidstr, ' ', false);
+    std::vector<int32> bonusListIDs1;
+    bonusListIDs1.reserve(bonusListString.size());
+    for (std::string_view token : bonusListString)
+        if (Optional<int32> bonusListID = Trinity::StringTo<int32>(token))
+            bonusListIDs1.push_back(*bonusListID);
+
     WorldPackets::Item::ItemBonusKey itemBonusKey;
     itemBonusKey.ItemID = GetEntry();
-    itemBonusKey.BonusListIDs = std::move(bonusListIDs);
+    itemBonusKey.BonusListIDs = std::move(bonusListIDs1);
     SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ItemBonusKey), std::move(itemBonusKey));
 
     for (int32 bonusListID : GetBonusListIDs())

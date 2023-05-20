@@ -12472,11 +12472,6 @@ Item* Player::StoreItem(ItemPosCountVec const& dest, Item* pItem, bool update)
             aaCenter.aa_character_instances[guidlow].isUpdate = true;
         }
 
-        ObjectGuid::LowType guidlowH = guidlow / 10000;
-        ObjectGuid::LowType guidlowL = guidlow - guidlowH * 10000;
-        //lastItem->SetUInt32Value(ITEM_FIELD_ENCHANTMENT_4_1, guidlowH + 5000);
-        //lastItem->SetUInt32Value(ITEM_FIELD_ENCHANTMENT_5_1, guidlowL + 5000);
-
         //宝石插件显示baoshi_entry
         uint32 baoshi_entry = aaCenter.AA_GetBaoshiEntry(lastItem, 0);
         if (aaCenter.aa_character_instances[guidlow].baoshi_entry != baoshi_entry) {
