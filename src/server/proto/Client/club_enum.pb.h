@@ -199,6 +199,26 @@ inline bool StreamNotificationFilter_Parse(
   return ::google::protobuf::internal::ParseNamedEnum<StreamNotificationFilter>(
     StreamNotificationFilter_descriptor(), name, value);
 }
+enum JoinClubSource {
+  JOIN_CLUB_SOURCE_NONE = 0,
+  JOIN_CLUB_SOURCE_CLUB_FINDER = 1,
+  JOIN_CLUB_SOURCE_CLUB_RECOMMENDATION = 2
+};
+TC_PROTO_API bool JoinClubSource_IsValid(int value);
+const JoinClubSource JoinClubSource_MIN = JOIN_CLUB_SOURCE_NONE;
+const JoinClubSource JoinClubSource_MAX = JOIN_CLUB_SOURCE_CLUB_RECOMMENDATION;
+const int JoinClubSource_ARRAYSIZE = JoinClubSource_MAX + 1;
+
+TC_PROTO_API const ::google::protobuf::EnumDescriptor* JoinClubSource_descriptor();
+inline const ::std::string& JoinClubSource_Name(JoinClubSource value) {
+  return ::google::protobuf::internal::NameOfEnum(
+    JoinClubSource_descriptor(), value);
+}
+inline bool JoinClubSource_Parse(
+    const ::std::string& name, JoinClubSource* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<JoinClubSource>(
+    JoinClubSource_descriptor(), name, value);
+}
 // ===================================================================
 
 // ===================================================================
@@ -255,6 +275,11 @@ template <> struct is_proto_enum< ::bgs::protocol::club::v1::StreamNotificationF
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::club::v1::StreamNotificationFilter>() {
   return ::bgs::protocol::club::v1::StreamNotificationFilter_descriptor();
+}
+template <> struct is_proto_enum< ::bgs::protocol::club::v1::JoinClubSource> : ::google::protobuf::internal::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::club::v1::JoinClubSource>() {
+  return ::bgs::protocol::club::v1::JoinClubSource_descriptor();
 }
 }  // namespace google
 }  // namespace protobuf

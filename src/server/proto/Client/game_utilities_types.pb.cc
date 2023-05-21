@@ -115,9 +115,9 @@ void protobuf_AddDesc_game_5futilities_5ftypes_2eproto() {
     "bgs.protocol.Identity\022\016\n\006rating\030\002 \001(\001\022*\n"
     "\tattribute\030\003 \003(\0132\027.bgs.protocol.Attribut"
     "e\"@\n\nClientInfo\022\026\n\016client_address\030\001 \001(\t\022"
-    "\032\n\022privileged_network\030\002 \001(\010B<\n\037bnet.prot"
-    "ocol.game_utilities.v1B\027GameUtilitiesTyp"
-    "esProtoH\002", 369);
+    "\032\n\022privileged_network\030\002 \001(\010B;\n\036bgs.proto"
+    "col.game_utilities.v1B\027GameUtilitiesType"
+    "sProtoH\002", 368);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "game_utilities_types.proto", &protobuf_RegisterTypes);
   PlayerVariables::default_instance_ = new PlayerVariables();

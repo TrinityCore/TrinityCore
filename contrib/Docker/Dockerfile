@@ -4,5 +4,6 @@ FROM trinitycore/circle-ci:master-base-22.04
 WORKDIR /home/circleci
 COPY README.md /
 COPY --chown=circleci:circleci sql /home/circleci/project/sql
-COPY ["bnetserver", "mapextractor", "mmaps_generator", "vmap4assembler", "vmap4extractor", "worldserver", "/usr/local/bin/"]
+COPY bin /usr/local/bin/
+COPY lib /usr/local/lib/
 ENTRYPOINT [ "echo",  "Check the README.md file for instructions"]

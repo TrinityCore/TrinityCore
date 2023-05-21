@@ -431,40 +431,22 @@ public:
         return true;
     }
 
-    static bool HandleGroupListCommand(ChatHandler* handler, char const* args)
+    static bool HandleGroupListCommand(ChatHandler* handler, PlayerIdentifier const& target)
     {
-        // Get ALL the variables!
-        Player* playerTarget;
-        ObjectGuid guidTarget;
-        std::string nameTarget;
-        std::string zoneName;
-        char const* onlineState = "";
-
-        // Parse the guid to uint32...
-        ObjectGuid parseGUID = ObjectGuid::Create<HighGuid::Player>(strtoull(args, nullptr, 10));
-
-        // ... and try to extract a player out of it.
-        if (sCharacterCache->GetCharacterNameByGuid(parseGUID, nameTarget))
-        {
-            playerTarget = ObjectAccessor::FindPlayer(parseGUID);
-            guidTarget = parseGUID;
-        }
-        // If not, we return false and end right away.
-        else if (!handler->extractPlayerTarget((char*)args, &playerTarget, &guidTarget, &nameTarget))
-            return false;
+        char const* zoneName = "<ERROR>";
+        char const* onlineState = "Offline";
 
         // Next, we need a group. So we define a group variable.
         Group* groupTarget = nullptr;
 
         // We try to extract a group from an online player.
-        if (playerTarget)
-            groupTarget = playerTarget->GetGroup();
-
-        // If not, we extract it from the SQL.
-        if (!groupTarget)
+        if (target.IsConnected())
+            groupTarget = target.GetConnectedPlayer()->GetGroup();
+        else
         {
+            // If not, we extract it from the SQL.
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GROUP_MEMBER);
-            stmt->setUInt64(0, guidTarget.GetCounter());
+            stmt->setUInt64(0, target.GetGUID().GetCounter());
             PreparedQueryResult resultGroup = CharacterDatabase.Query(stmt);
             if (resultGroup)
                 groupTarget = sGroupMgr->GetGroupByDbStoreId((*resultGroup)[0].GetUInt32());
@@ -473,7 +455,7 @@ public:
         // If both fails, players simply has no party. Return false.
         if (!groupTarget)
         {
-            handler->PSendSysMessage(LANG_GROUP_NOT_IN_GROUP, nameTarget.c_str());
+            handler->PSendSysMessage(LANG_GROUP_NOT_IN_GROUP, target.GetName().c_str());
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -531,16 +513,10 @@ public:
                         zoneName = zone->AreaName[locale];
                 }
             }
-            else
-            {
-                // ... else, everything is set to offline or neutral values.
-                zoneName    = "<ERROR>";
-                onlineState = "Offline";
-            }
 
             // Now we can print those informations for every single member of each group!
             handler->PSendSysMessage(LANG_GROUP_PLAYER_NAME_GUID, slot.name.c_str(), onlineState,
-                zoneName.c_str(), phases.c_str(), slot.guid.ToString().c_str(), flags.c_str(),
+                zoneName, phases.c_str(), slot.guid.ToString().c_str(), flags.c_str(),
                 lfg::GetRolesString(slot.roles).c_str());
         }
 
