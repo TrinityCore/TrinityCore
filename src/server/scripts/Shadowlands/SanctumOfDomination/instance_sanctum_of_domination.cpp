@@ -45,7 +45,7 @@ DungeonEncounterData const encounters[] =
     { DATA_GUARDIAN_OF_THE_FIRST_ONES, {{ 2436 }} },
     { DATA_FATESCRIBE_ROHKALO,         {{ 2431 }} },
     { DATA_KELTHUZAD,                  {{ 2422 }} },
-    { BOSS_SYLVANAS_WINDRUNNER,        {{ 2435 }} }
+    { DATA_SYLVANAS_WINDRUNNER,        {{ 2435 }} }
 };
 
 class instance_sanctum_of_domination : public InstanceMapScript
