@@ -17,11 +17,6 @@ DELETE FROM `instance_template` WHERE `map`=2450;
 INSERT INTO `instance_template` (`map`, `parent`, `script`) VALUES
 (2450, 0, 'instance_sanctum_of_domination');
 
--- TODO: find out if her encounter ends with her npcId or a spell on players, most likely a spell since she's feigning death.
-DELETE FROM `instance_encounters` WHERE `entry`=2435;
-INSERT INTO `instance_encounters` (`entry`, `creditType`, `creditEntry`, `lastEncounterDungeon`, `comment`) VALUES 
-(2435, 0, 0, 2224, 'Sylvanas Windrunner');
-
 -- Not entirely sure if Testing State is correct. It might refer to Closed instead and Open State could be Week of Release reached.
 DELETE FROM `world_state` WHERE `ID` IN (20348, 20346, 20545, 20546, 20547, 20549, 20550, 20551, 20552, 20554, 20555, 20556, 20557, 20558);
 INSERT INTO `world_state` (`ID`, `DefaultValue`, `MapIDs`, `AreaIDs`, `ScriptName`, `Comment`) VALUES 
