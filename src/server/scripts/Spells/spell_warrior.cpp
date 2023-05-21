@@ -26,6 +26,7 @@
 #include "MoveSpline.h"
 #include "PathGenerator.h"
 #include "Player.h"
+#include "Spell.h"
 #include "SpellMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
