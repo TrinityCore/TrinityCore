@@ -27,14 +27,14 @@ uint32 const EncounterCount = 10;
 
 enum SanctumOfDominationDataTypes
 {
-    DATA_THE_TERRAGRUE                         = 0,
+    DATA_THE_TARRAGRUE                         = 0,
     DATA_THE_EYE_OF_THE_JAILER                 = 1,
     DATA_THE_NINE                              = 2,
     DATA_REMNANT_OF_NERZHUL                    = 3,
     DATA_SOULRENDER_DORMAZAIN                  = 4,
     DATA_PAINSMITH_RAZNAL                      = 5,
     DATA_GUARDIAN_OF_THE_FIRST_ONES            = 6,
-    DATA_FATESCRIBRE_ROHKALO                   = 7,
+    DATA_FATESCRIBE_ROHKALO                    = 7,
     DATA_KELTHUZAD                             = 8,
     DATA_SYLVANAS_WINDRUNNER                   = 9,
 

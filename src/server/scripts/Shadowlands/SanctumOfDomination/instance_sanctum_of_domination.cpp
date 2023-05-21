@@ -36,14 +36,14 @@ ObjectData const creatureData[] =
 
 DungeonEncounterData const encounters[] =
 {
-    { DATA_THE_TERRAGRUE,              {{ 2423 }} },
+    { DATA_THE_TARRAGRUE,              {{ 2423 }} },
     { DATA_THE_EYE_OF_THE_JAILER,      {{ 2433 }} },
     { DATA_THE_NINE,                   {{ 2429 }} },
     { DATA_REMNANT_OF_NERZHUL,         {{ 2432 }} },
     { DATA_SOULRENDER_DORMAZAIN,       {{ 2434 }} },
     { DATA_PAINSMITH_RAZNAL,           {{ 2430 }} },
     { DATA_GUARDIAN_OF_THE_FIRST_ONES, {{ 2436 }} },
-    { DATA_FATESCRIBRE_ROHKALO,        {{ 2431 }} },
+    { DATA_FATESCRIBE_ROHKALO,         {{ 2431 }} },
     { DATA_KELTHUZAD,                  {{ 2422 }} },
     { BOSS_SYLVANAS_WINDRUNNER,        {{ 2435 }} }
 };
