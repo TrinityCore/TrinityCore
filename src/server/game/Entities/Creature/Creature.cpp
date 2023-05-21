@@ -2960,7 +2960,7 @@ uint64 Creature::GetMaxHealthByLevel(uint8 level) const
     CreatureTemplate const* cInfo = GetCreatureTemplate();
     CreatureLevelScaling const* scaling = cInfo->GetLevelScaling(GetMap()->GetDifficultyID());
     float baseHealth = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureHealth, level, cInfo->GetHealthScalingExpansion(), scaling->ContentTuningID, Classes(cInfo->unit_class));
-    return baseHealth * cInfo->ModHealth * cInfo->ModHealthExtra;
+    return std::max(baseHealth * cInfo->ModHealth * cInfo->ModHealthExtra, 1.0f);
 }
 
 float Creature::GetHealthMultiplierForTarget(WorldObject const* target) const
