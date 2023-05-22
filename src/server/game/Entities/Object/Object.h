@@ -482,7 +482,8 @@ class FlaggedValuesArray32
 
 struct FindCreatureOptions
 {
-    FindCreatureOptions() = default;
+    FindCreatureOptions();
+    ~FindCreatureOptions();
 
     FindCreatureOptions& SetCreatureId(uint32 creatureId) { CreatureId = creatureId; return *this; }
     FindCreatureOptions& SetStringId(std::string_view stringId) { StringId = stringId; return *this; }
@@ -509,9 +510,9 @@ struct FindCreatureOptions
     Optional<bool> IsInCombat;
     Optional<bool> IsSummon;
 
-    bool IgnorePhases;
-    bool IgnoreNotOwnedPrivateObjects;
-    bool IgnorePrivateObjects;
+    bool IgnorePhases = false;
+    bool IgnoreNotOwnedPrivateObjects = true;
+    bool IgnorePrivateObjects = false;
 
     Optional<uint32> AuraSpellId;
     Optional<ObjectGuid> OwnerGuid;
