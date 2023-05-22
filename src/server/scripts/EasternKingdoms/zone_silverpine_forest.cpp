@@ -1196,20 +1196,6 @@ struct npc_silverpine_sylvanas_windrunner_high_command : public ScriptedAI
     }
 };
 
-// 44789, 44790 - Deathstalker and Deathstalker Commander Belmont
-struct npc_silverpine_deathstalker : public ScriptedAI
-{
-    npc_silverpine_deathstalker(Creature* creature) : ScriptedAI(creature) { }
-
-    void JustAppeared() override
-    {
-        // @TODO: figure out a common system to allow energy usage without scripts.
-        me->SetPowerType(POWER_ENERGY);
-        me->SetMaxPower(POWER_ENERGY, 100);
-        me->SetPower(POWER_ENERGY, 100, true);
-    }
-};
-
 enum WorgenRenegade
 {
     SPELL_HEARTSTRIKE                           = 84182,
@@ -1671,13 +1657,6 @@ enum DeathstalkerRaneYorick
 struct npc_silverpine_deathstalker_rane_yorick : public ScriptedAI
 {
     npc_silverpine_deathstalker_rane_yorick(Creature* creature) : ScriptedAI(creature), _playerArrived(false), _playerSkipped(false) { }
-
-    void JustAppeared() override
-    {
-        me->SetPowerType(POWER_ENERGY);
-        me->SetMaxPower(POWER_ENERGY, 100);
-        me->SetPower(POWER_ENERGY, 100, true);
-    }
 
     void IsSummonedBy(WorldObject* summoner) override
     {
@@ -3862,10 +3841,6 @@ struct npc_silverpine_orc_sea_dog : public ScriptedAI
 
     void JustAppeared() override
     {
-        me->SetPowerType(POWER_ENERGY);
-        me->SetMaxPower(POWER_ENERGY, 100);
-        me->SetPower(POWER_ENERGY, 100, true);
-
         // Note: SummonPropertiesFlags::HelpWhenSummonedInCombat is NYI.
         me->SetReactState(REACT_ASSIST);
     }
@@ -5307,39 +5282,21 @@ enum BloodfangStalker
 // 45195 - Bloodfang Stalker
 struct npc_silverpine_bloodfang_stalker : public ScriptedAI
 {
-    npc_silverpine_bloodfang_stalker(Creature* creature) : ScriptedAI(creature) { }
+    npc_silverpine_bloodfang_stalker(Creature* creature) : ScriptedAI(creature)
+    {
+        _isRare = me->GetEntry() == NPC_BERARD_THE_MOON_CRAZY;
+    }
 
     void JustAppeared() override
     {
-        me->SetPowerType(POWER_ENERGY);
-        me->SetMaxPower(POWER_ENERGY, 100);
-        me->SetPower(POWER_ENERGY, 100, true);
-
-        DoCastSelf(SPELL_STALKING);
-
-        if (me->GetEntry() != NPC_BERARD_THE_MOON_CRAZY)
-            DoCastSelf(SPELL_KILL_ME_QUEST);
+        StartStalking(_isRare);
     }
 
     void Reset() override
     {
         _events.Reset();
 
-        DoCastSelf(SPELL_STALKING);
-
-        if (me->GetEntry() != NPC_BERARD_THE_MOON_CRAZY)
-            DoCastSelf(SPELL_KILL_ME_QUEST);
-
-        // Note: I don't like this way of handling. I would rather look for a spawnGUID, but it is not recommended.
-        if (Creature* boar = me->FindNearestCreature(NPC_DARKTUSK_BOAR, 5.0f))
-        {
-            if (boar->HasAura(SPELL_PERMANENT_FEIGN_DEATH_BLOODFANG))
-                _events.ScheduleEvent(EVENT_STRIKE_BOAR, 2s, 12s);
-            else
-                _events.ScheduleEvent(EVENT_SNIFFING, 2s, 12s);
-        }
-        else
-            _events.ScheduleEvent(EVENT_SNIFFING, 2s, 12s);
+        StartStalking(_isRare);
     }
 
     void JustEngagedWith(Unit* /*who*/) override
@@ -5354,6 +5311,9 @@ struct npc_silverpine_bloodfang_stalker : public ScriptedAI
 
     void JustDied(Unit* killer) override
     {
+        if (me->GetEntry() == NPC_BERARD_THE_MOON_CRAZY)
+            return;
+
         if (Player* player = killer->ToPlayer())
         {
             if (player->GetQuestStatus(QUEST_EXCISING_THE_TAINT) == QUEST_STATUS_NONE)
@@ -5378,8 +5338,8 @@ struct npc_silverpine_bloodfang_stalker : public ScriptedAI
                     break;
 
                 case EVENT_STRIKE_BOAR:
-                    if (Creature* boar = me->FindNearestCreature(NPC_DARKTUSK_BOAR, 5.0f))
-                        me->CastSpell(boar, SPELL_BLOODY_STRIKE, true);
+                    if (Creature* deadBoar = me->FindNearestCreatureWithOptions(10.0f, FindCreatureOptions().SetStringId("darktusk_boar_dead")))
+                        me->CastSpell(deadBoar, SPELL_BLOODY_STRIKE, true);
                     _events.Repeat(5s, 7s);
                     break;
 
@@ -5404,8 +5364,22 @@ struct npc_silverpine_bloodfang_stalker : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
+    void StartStalking(bool isRare = false)
+    {
+        DoCastSelf(SPELL_STALKING);
+
+        if (!isRare)
+            DoCastSelf(SPELL_KILL_ME_QUEST);
+
+        if (me->FindNearestCreatureWithOptions(10.0f, FindCreatureOptions().SetStringId("darktusk_boar_dead")))
+            _events.ScheduleEvent(EVENT_STRIKE_BOAR, 2s, 12s);
+        else
+            _events.ScheduleEvent(EVENT_SNIFFING, 2s, 12s);
+    }
+
 private:
     EventMap _events;
+    bool _isRare;
 };
 
 Position const SmithersResetPos[2] =
@@ -5516,7 +5490,6 @@ void AddSC_silverpine_forest()
     RegisterCreatureAI(npc_silverpine_fallen_human);
     RegisterSpellScript(spell_silverpine_forsaken_trooper_masterscript_high_command);
     RegisterCreatureAI(npc_silverpine_sylvanas_windrunner_high_command);
-    RegisterCreatureAI(npc_silverpine_deathstalker);
     RegisterCreatureAI(npc_silverpine_worgen_renegade);
     RegisterSpellScript(spell_silverpine_flurry_of_claws);
     RegisterCreatureAI(npc_silverpine_forsaken_trooper);

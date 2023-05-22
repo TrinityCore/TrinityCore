@@ -117,7 +117,7 @@ UPDATE `creature_template` SET `gossip_menu_id`=4281 WHERE `entry`=2226;
 UPDATE `gossip_menu` SET `VerifiedBuild`=45745 WHERE `MenuID`=2226;
 
 -- Thom Denger (Mage Trainer)
-UPDATE `creature_template` SET `gossip_menu_id`=14230, `minlevel`=30, `maxlevel`=30 WHERE `entry`=49716;
+UPDATE `creature_template` SET `gossip_menu_id`=14230 WHERE `entry`=49716;
 
 DELETE FROM `gossip_menu` WHERE `MenuID`=14230;
 INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
@@ -165,7 +165,7 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 UPDATE `creature_template_addon` SET `path_id` = @PATH WHERE `entry` = @ENTRY;
 
 -- Matt Bruxworthy (Hunter Trainer)
-UPDATE `creature_template` SET `gossip_menu_id`=14189, `minlevel`=30, `maxlevel`=30 WHERE `entry`=49958;
+UPDATE `creature_template` SET `gossip_menu_id`=14189 WHERE `entry`=49958;
 
 DELETE FROM `gossip_menu` WHERE `MenuID`=14189;
 INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
@@ -189,14 +189,12 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (15, 14189, 8, 0, 0, 15, 0, 4, 0, 0, 0, 0, 0, '', 'Show gossip option 8 if player is a hunter');
 
 -- Hobbes (Matt's Pet)
-UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=49960;
-
 UPDATE `creature_template_addon` SET `bytes1`=3, `auras`='34664' WHERE `entry`=49960; -- 49960 (Hobbes) - Sleep Visual - Flavor
 
 UPDATE `creature_model_info` SET `BoundingRadius`=0.697653055191040039, `CombatReach`=1.316326498985290527, `VerifiedBuild`=45745 WHERE `DisplayID`=36686;
 
 -- Angela Hipple (Rogue Trainer)
-UPDATE `creature_template` SET `gossip_menu_id`=14232, `minlevel`=30, `maxlevel`=30 WHERE `entry`=49870;
+UPDATE `creature_template` SET `gossip_menu_id`=14232 WHERE `entry`=49870;
 
 DELETE FROM `gossip_menu` WHERE `MenuID`=14232;
 INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
@@ -220,7 +218,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (15, 14232, 8, 0, 0, 15, 0, 8, 0, 0, 0, 0, 0, '', 'Show gossip option 8 if player is a rogue');
 
 -- Eugene Daller (Warrior Trainer)
-UPDATE `creature_template` SET `gossip_menu_id`=14233, `minlevel`=30, `maxlevel`=30 WHERE `entry`=49720;
+UPDATE `creature_template` SET `gossip_menu_id`=14233 WHERE `entry`=49720;
 
 DELETE FROM `gossip_menu` WHERE `MenuID`=14233;
 INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
@@ -244,7 +242,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (15, 14233, 8, 0, 0, 15, 0, 1, 0, 0, 0, 0, 0, '', 'Show gossip option 8 if player is a warrior');
 
 -- Bee Bruxworthy (Warlock Trainer)
-UPDATE `creature_template` SET `gossip_menu_id`=14229, `minlevel`=30, `maxlevel`=30 WHERE `entry`=49718;
+UPDATE `creature_template` SET `gossip_menu_id`=14229 WHERE `entry`=49718;
 
 DELETE FROM `gossip_menu` WHERE `MenuID`=14229;
 INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
@@ -414,8 +412,6 @@ INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `by
 (321240, @PATH, 0, 0, 0, 1, 0, 0, 0, 0, 0, '18950');
 
 -- Andrew Hilbert
-UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=3556;
-
 UPDATE `npc_vendor` SET `slot`=502, `VerifiedBuild`=45745 WHERE (`entry`=3556 AND `item`=5786 AND `ExtendedCost`=0 AND `type`=1); -- Pattern: Murloc Scale Belt
 UPDATE `npc_vendor` SET `slot`=501, `VerifiedBuild`=45745 WHERE (`entry`=3556 AND `item`=6272 AND `ExtendedCost`=0 AND `type`=1); -- Pattern: Blue Linen Robe
 UPDATE `npc_vendor` SET `slot`=500, `VerifiedBuild`=45745 WHERE (`entry`=3556 AND `item`=5771 AND `ExtendedCost`=0 AND `type`=1); -- Pattern: Red Linen Bag
@@ -437,15 +433,7 @@ UPDATE `npc_vendor` SET `slot`=4, `VerifiedBuild`=45745 WHERE (`entry`=3556 AND 
 UPDATE `npc_vendor` SET `slot`=2, `VerifiedBuild`=45745 WHERE (`entry`=3556 AND `item`=2901 AND `ExtendedCost`=0 AND `type`=1); -- Mining Pick
 UPDATE `npc_vendor` SET `slot`=1, `VerifiedBuild`=45745 WHERE (`entry`=3556 AND `item`=7005 AND `ExtendedCost`=0 AND `type`=1); -- Skinning Knife
 
--- Patrice Dwyer
-UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=3551;
-
--- Mura Runetotem
-UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=8385;
-
 -- Lilly
-UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=5757;
-
 UPDATE `npc_vendor` SET `slot`=1574, `VerifiedBuild`=45745 WHERE (`entry`=5757 AND `item`=6346 AND `ExtendedCost`=0 AND `type`=1); -- Formula: Enchant Chest - Lesser Mana
 UPDATE `npc_vendor` SET `slot`=1585, `VerifiedBuild`=45745 WHERE (`entry`=5757 AND `item`=22307 AND `ExtendedCost`=0 AND `type`=1); -- Pattern: Enchanted Mageweave Pouch
 UPDATE `npc_vendor` SET `slot`=1584, `VerifiedBuild`=45745 WHERE (`entry`=5757 AND `item`=20753 AND `ExtendedCost`=0 AND `type`=1); -- Formula: Lesser Wizard Oil
@@ -457,18 +445,10 @@ UPDATE `npc_vendor` SET `slot`=1579, `VerifiedBuild`=45745 WHERE (`entry`=5757 A
 UPDATE `npc_vendor` SET `slot`=1578, `maxcount`=3, `VerifiedBuild`=45745 WHERE (`entry`=5757 AND `item`=10940 AND `ExtendedCost`=0 AND `type`=1); -- Strange Dust
 UPDATE `npc_vendor` SET `slot`=1577, `VerifiedBuild`=45745 WHERE (`entry`=5757 AND `item`=6217 AND `ExtendedCost`=0 AND `type`=1); -- Copper Rod
 
--- Shadow Priest Allister
-UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=2121;
-
--- Dalar Dawnweaver
-UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=1938;
-
 -- Sarah Goode
 UPDATE `creature_template` SET `gossip_menu_id`=9821 WHERE `entry`=9979;
 
 -- Edwin Harly
-UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=2140;
-
 UPDATE `npc_vendor` SET `slot`=74, `maxcount`=2, `VerifiedBuild`=45745 WHERE (`entry`=2140 AND `item`=858 AND `ExtendedCost`=0 AND `type`=1); -- Lesser Healing Potion
 UPDATE `npc_vendor` SET `slot`=8, `VerifiedBuild`=45745 WHERE (`entry`=2140 AND `item`=5042 AND `ExtendedCost`=0 AND `type`=1); -- Red Ribboned Wrapping Paper
 UPDATE `npc_vendor` SET `slot`=7, `VerifiedBuild`=45745 WHERE (`entry`=2140 AND `item`=4470 AND `ExtendedCost`=0 AND `type`=1); -- Simple Wood
@@ -492,8 +472,6 @@ UPDATE `npc_vendor` SET `slot`=4, `VerifiedBuild`=45745 WHERE (`entry`=6739 AND 
 UPDATE `npc_vendor` SET `slot`=3, `VerifiedBuild`=45745 WHERE (`entry`=6739 AND `item`=1205 AND `ExtendedCost`=0 AND `type`=1); -- Melon Juice
 
 -- Sebastian Meloche
-UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=3553;
-
 UPDATE `npc_vendor` SET `slot`=6, `VerifiedBuild`=45745 WHERE (`entry`=3553 AND `item`=850 AND `ExtendedCost`=0 AND `type`=1); -- Chainmail Gloves
 UPDATE `npc_vendor` SET `slot`=5, `VerifiedBuild`=45745 WHERE (`entry`=3553 AND `item`=1846 AND `ExtendedCost`=0 AND `type`=1); -- Chainmail Bracers
 UPDATE `npc_vendor` SET `slot`=4, `VerifiedBuild`=45745 WHERE (`entry`=3553 AND `item`=849 AND `ExtendedCost`=0 AND `type`=1); -- Chainmail Boots
@@ -502,8 +480,6 @@ UPDATE `npc_vendor` SET `slot`=2, `VerifiedBuild`=45745 WHERE (`entry`=3553 AND 
 UPDATE `npc_vendor` SET `slot`=1, `VerifiedBuild`=45745 WHERE (`entry`=3553 AND `item`=847 AND `ExtendedCost`=0 AND `type`=1); -- Chainmail Armor
 
 -- Andrea Boynton
-UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=3554;
-
 UPDATE `npc_vendor` SET `slot`=98, `VerifiedBuild`=45745 WHERE (`entry`=3554 AND `item`=4786 AND `ExtendedCost`=0 AND `type`=1); -- Wise Man's Belt
 UPDATE `npc_vendor` SET `slot`=9, `VerifiedBuild`=45745 WHERE (`entry`=3554 AND `item`=839 AND `ExtendedCost`=0 AND `type`=1); -- Heavy Weave Gloves
 UPDATE `npc_vendor` SET `slot`=8, `VerifiedBuild`=45745 WHERE (`entry`=3554 AND `item`=3590 AND `ExtendedCost`=0 AND `type`=1); -- Heavy Weave Bracers
@@ -515,15 +491,10 @@ UPDATE `npc_vendor` SET `slot`=3, `VerifiedBuild`=45745 WHERE (`entry`=3554 AND 
 UPDATE `npc_vendor` SET `slot`=2, `VerifiedBuild`=45745 WHERE (`entry`=3554 AND `item`=3428 AND `ExtendedCost`=0 AND `type`=1); -- Common Gray Shirt
 UPDATE `npc_vendor` SET `slot`=1, `VerifiedBuild`=45745 WHERE (`entry`=3554 AND `item`=16059 AND `ExtendedCost`=0 AND `type`=1); -- Common Brown Shirt
 
--- Deathguard Podrig
-UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=6389;
-
 -- Astor Hadren
-UPDATE `creature_template` SET `gossip_menu_id`=126, `minlevel`=30, `maxlevel`=30 WHERE `entry`=6497;
+UPDATE `creature_template` SET `gossip_menu_id`=126 WHERE `entry`=6497;
 
 -- Alexandre Lefevre
-UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=3552;
-
 UPDATE `npc_vendor` SET `slot`=116, `VerifiedBuild`=45745 WHERE (`entry`=3552 AND `item`=4789 AND `ExtendedCost`=0 AND `type`=1); -- Stable Boots
 UPDATE `npc_vendor` SET `slot`=115, `maxcount`=1, `VerifiedBuild`=45745 WHERE (`entry`=3552 AND `item`=4788 AND `ExtendedCost`=0 AND `type`=1); -- Agile Boots
 UPDATE `npc_vendor` SET `slot`=6, `VerifiedBuild`=45745 WHERE (`entry`=3552 AND `item`=844 AND `ExtendedCost`=0 AND `type`=1); -- Tanned Leather Gloves
@@ -534,20 +505,13 @@ UPDATE `npc_vendor` SET `slot`=2, `VerifiedBuild`=45745 WHERE (`entry`=3552 AND 
 UPDATE `npc_vendor` SET `slot`=1, `VerifiedBuild`=45745 WHERE (`entry`=3552 AND `item`=846 AND `ExtendedCost`=0 AND `type`=1); -- Tanned Leather Jerkin
 
 -- Nadia Vernon
-UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=9553;
-
 UPDATE `npc_vendor` SET `slot`=3, `maxcount`=1, `VerifiedBuild`=45745 WHERE (`entry`=9553 AND `item`=11304 AND `ExtendedCost`=0 AND `type`=1); -- Fine Longbow
 UPDATE `npc_vendor` SET `slot`=2, `IgnoreFiltering`=1, `VerifiedBuild`=45745 WHERE (`entry`=9553 AND `item`=3026 AND `ExtendedCost`=0 AND `type`=1); -- Reinforced Bow
 UPDATE `npc_vendor` SET `slot`=1, `IgnoreFiltering`=1, `VerifiedBuild`=45745 WHERE (`entry`=9553 AND `item`=2507 AND `ExtendedCost`=0 AND `type`=1); -- Laminated Recurve Bow
 DELETE FROM `npc_vendor` WHERE `entry`=9553 AND `item`=5439;
 DELETE FROM `npc_vendor` WHERE `entry`=9553 AND `item`=11362;
 
--- Apothecary Renferrel
-UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=1937;
-
 -- Gwyn Farrow
-UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=5886;
-
 UPDATE `npc_vendor` SET `slot`=6, `VerifiedBuild`=45745 WHERE (`entry`=5886 AND `item`=8948 AND `ExtendedCost`=0 AND `type`=1); -- Dried King Bolete
 UPDATE `npc_vendor` SET `slot`=5, `VerifiedBuild`=45745 WHERE (`entry`=5886 AND `item`=4608 AND `ExtendedCost`=0 AND `type`=1); -- Raw Black Truffle
 UPDATE `npc_vendor` SET `slot`=4, `VerifiedBuild`=45745 WHERE (`entry`=5886 AND `item`=4607 AND `ExtendedCost`=0 AND `type`=1); -- Delicious Cave Mold
@@ -556,26 +520,19 @@ UPDATE `npc_vendor` SET `slot`=2, `VerifiedBuild`=45745 WHERE (`entry`=5886 AND 
 UPDATE `npc_vendor` SET `slot`=1, `VerifiedBuild`=45745 WHERE (`entry`=5886 AND `item`=4604 AND `ExtendedCost`=0 AND `type`=1); -- Forest Mushroom Cap
 
 -- Johan Focht
-UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=3555;
-
 DELETE FROM `creature_trainer` WHERE `CreatureID`=3555;
 INSERT INTO `creature_trainer` (`CreatureID`, `TrainerID`, `MenuID`, `OptionID`) VALUES
 (3555, 91, 0, 0);
 
 -- Guillaume Sorouy
-UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30, `npcflag`=17 WHERE `entry`=3557;
+UPDATE `creature_template` SET `npcflag`=17 WHERE `entry`=3557;
 
 DELETE FROM `creature_trainer` WHERE `CreatureID`=3557;
 INSERT INTO `creature_trainer` (`CreatureID`, `TrainerID`, `MenuID`, `OptionID`) VALUES
 (3557, 27, 2749, 0);
 
 -- Corpse-Fed Rat
-UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=50141;
-
 UPDATE `creature` SET `wander_distance`=5, `MovementType`=1 WHERE `id`=50141;
-
--- Advisor Sorrelon
-UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30 WHERE `entry`=16288;
 
 -- Forest Ettin
 UPDATE `creature_model_info` SET `BoundingRadius`=1, `CombatReach`=4, `VerifiedBuild`=45745 WHERE `DisplayID`=30500;
@@ -616,7 +573,7 @@ INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spe
 (86560, 229, 27098, 27181, 0, 0, 2, 3, 64, 1);
 
 -- Veteran Forsaken Trooper
-UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30, `npcflag` = 16777216, `pickpocketloot` = 45197, `ScriptName` = '' WHERE `entry` = 45197;
+UPDATE `creature_template` SET `npcflag` = 16777216, `pickpocketloot` = 45197, `ScriptName` = '' WHERE `entry` = 45197;
 
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` = 45197 AND `spell_id` = 84379;
 INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES 
@@ -635,12 +592,12 @@ INSERT INTO `pickpocketing_loot_template` (`Entry`, `Item`, `Reference`, `Chance
 (45197, 60862, 0, 100, 1, 1, 0, 1, 1, 'Forsaken Insignia');
 
 -- Berard the Moon-Crazed
-UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30, `dynamicflags`=4, `ScriptName` = 'npc_silverpine_bloodfang_stalker' WHERE `entry` = 46992;
+UPDATE `creature_template` SET `dynamicflags`=4, `ScriptName` = 'npc_silverpine_bloodfang_stalker' WHERE `entry` = 46992;
 
 UPDATE `creature` SET `equipment_id`= 1 WHERE `guid` = 321162;
 
 -- Bloodfang Stalker
-UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30, `ScriptName` = 'npc_silverpine_bloodfang_stalker' WHERE `entry` = 45195;
+UPDATE `creature_template` SET `ScriptName` = 'npc_silverpine_bloodfang_stalker' WHERE `entry` = 45195;
 
 UPDATE `creature_template_addon` SET `auras` = '86237 86559' WHERE `entry` = 45195;
 
@@ -649,7 +606,7 @@ UPDATE `creature` SET `MovementType`= 1, `wander_distance`= 5 WHERE `id` = 45195
 UPDATE `creature` SET `MovementType`= 0, `wander_distance`= 0 WHERE `guid` = 321102;
 
 -- Darktusk Boar
-UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30, `unit_flags`=32768, `unit_flags2`=2048, `unit_flags3`=0 WHERE `entry`=46575;
+UPDATE `creature_template` SET `unit_flags`=32768, `unit_flags2`=2048, `unit_flags3`=0 WHERE `entry`=46575;
 
 DELETE FROM `creature_template_movement` WHERE `CreatureId`=46575;
 INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`, `InteractionPauseTimer`) VALUES 
@@ -657,14 +614,14 @@ INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Fligh
 
 UPDATE `creature` SET `MovementType`=1, `wander_distance`=5 WHERE `id`=46575;
 
-UPDATE `creature` SET `unit_flags`=262600, `MovementType`=0, `wander_distance`=0 WHERE `guid`=321101;
+UPDATE `creature` SET `unit_flags`=262600, `MovementType`=0, `wander_distance`=0, `StringId`='darktusk_boar_dead' WHERE `guid`=321101;
 
 DELETE FROM `creature_addon` WHERE `guid` = 321101;
 INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
 (321101, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, '29266');
 
 -- Caretaker Smithers
-UPDATE `creature_template` SET `minlevel`=30, `maxlevel`=30, `ScriptName`='npc_silverpine_caretaker_smithers' WHERE `entry`=45219;
+UPDATE `creature_template` SET `ScriptName`='npc_silverpine_caretaker_smithers' WHERE `entry`=45219;
 
 DELETE FROM `creature_text` WHERE `CreatureID` = 45219;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `SoundPlayType`, `BroadcastTextId`, `TextRange`, `comment`) VALUES 
@@ -691,3 +648,6 @@ INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `by
 DELETE FROM `spell_script_names` WHERE `spell_id`=84386 AND `ScriptName`='spell_gen_feign_death_all_flags';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (84386, 'spell_gen_feign_death_all_flags');
+
+-- Deathstalker
+UPDATE `creature_template` SET `ScriptName`='' WHERE `ScriptName`='npc_silverpine_deathstalker';
