@@ -34,7 +34,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 
 DELETE FROM `creature_addon` WHERE `guid`= @CGUID+0;
 INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvPFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
-(@CGUID+0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 3, '84183');
+(@CGUID+0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 3, '84183');
 
 -- Arthura
 UPDATE `creature_template` SET `unit_flags2` = 2107392, `VehicleId` = 1109  WHERE `entry` = 44610;
@@ -189,7 +189,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (15, 14189, 8, 0, 0, 15, 0, 4, 0, 0, 0, 0, 0, '', 'Show gossip option 8 if player is a hunter');
 
 -- Hobbes (Matt's Pet)
-UPDATE `creature_template_addon` SET `bytes1`=3, `auras`='34664' WHERE `entry`=49960; -- 49960 (Hobbes) - Sleep Visual - Flavor
+UPDATE `creature_template_addon` SET `StandState`=3, `auras`='34664' WHERE `entry`=49960; -- 49960 (Hobbes) - Sleep Visual - Flavor
 
 UPDATE `creature_model_info` SET `BoundingRadius`=0.697653055191040039, `CombatReach`=1.316326498985290527, `VerifiedBuild`=45745 WHERE `DisplayID`=36686;
 
