@@ -43,15 +43,15 @@ INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spe
 UPDATE `creature` SET `ScriptName`='npc_silverpine_sylvanas_windrunner_high_command_sepulcher' WHERE `guid`=395637;
 
 DELETE FROM `creature_template_addon` WHERE `entry`=45051;
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
-(45051, 0, 0, 0, 0, 2, 0, 0, 0, 0, 5, '');
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `MountCreatureID`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvPFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
+(45051, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 5, '');
 
 -- Forsaken Warhorse
 UPDATE `creature_template` SET `VehicleId` = 1076, `ScriptName` = 'npc_silverpine_warhorse_player_lordaeron' WHERE `entry` = 45041;
 
 DELETE FROM `creature_template_addon` WHERE `entry`=45041;
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
-(45041, 0, 0, 0, 0, 1, 0, 0, 0, 0, 5, '');
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `MountCreatureID`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvPFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
+(45041, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 5, '');
 
 -- Ride Sylvanas Horse
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry`=84166 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=31 AND `ConditionTarget`=0 AND `ConditionValue1`=3 AND `ConditionValue2`=45057 AND `ConditionValue3`=0;
@@ -62,8 +62,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 UPDATE `creature_template` SET `VehicleId` = 1077, `ScriptName` = 'npc_silverpine_warhorse_sylvanas_lordaeron' WHERE `entry` = 45057;
 
 DELETE FROM `creature_template_addon` WHERE `entry`=45057;
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
-(45057, 0, 0, 0, 0, 1, 0, 0, 0, 0, 5, '');
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `MountCreatureID`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvPFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
+(45057, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 5, '');
 
 DELETE FROM `waypoint_data` WHERE `id` = 450570;
 INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES 
@@ -182,8 +182,8 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 UPDATE `creature_template` SET `ScriptName` = 'npc_silverpine_dreadguard_lordaeron' WHERE `entry` = 44911;
 
 DELETE FROM `creature_template_addon` WHERE `entry` = 44911;
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
-(44911, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, '18950');
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `MountCreatureID`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvPFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
+(44911, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '18950');
 
 -- Summon Lordaeron Actors
 DELETE FROM `spell_script_names` WHERE `spell_id` = 84127 AND `ScriptName` = 'spell_silverpine_summon_lordaeron_actors';
