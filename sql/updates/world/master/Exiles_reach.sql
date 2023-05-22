@@ -1,6 +1,6 @@
 -- *** Missing Spawns ***
 
-SET @CGUID := XXXXXX;
+SET @CGUID := 100000000;
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+25;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
 (@CGUID+0,174971,2369,10424,13377,'0',0,0,-1,0,0,-17.644917,-6.061374,9.000128,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
