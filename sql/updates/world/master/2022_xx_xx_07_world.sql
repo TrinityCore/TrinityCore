@@ -2,8 +2,8 @@
 -- 
 -- Silverpine Forest
 
-SET @CGUID := 395775;
-SET @OGUID := 242412;
+SET @CGUID := 999999;
+SET @OGUID := 999999;
 
 -- 
 -- The Sepulcher
@@ -33,8 +33,8 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 (@CGUID+0, 44365, 0, 130, 228, '0', 0, 169, 0, -1, 0, 0, 500.622, 1564.54, 128.34532, 4.2935099, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'npc_silverpine_sylvanas_windrunner_high_command_sepulcher', 45745);
 
 DELETE FROM `creature_addon` WHERE `guid`= @CGUID+0;
-INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
-(@CGUID+0, 0, 0, 0, 65536, 1, 0, 0, 0, 0, 3, '84183');
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvPFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
+(@CGUID+0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 3, '84183');
 
 -- Arthura
 UPDATE `creature_template` SET `unit_flags2` = 2107392, `VehicleId` = 1109  WHERE `entry` = 44610;
@@ -44,8 +44,8 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 (@CGUID+1, 44610, 0, 130, 228, '0', 0, 169, 0, -1, 0, 0, 499.993011474609375, 1570.6300048828125, 131.7693328857421875, 4.815308570861816406, 120, 0, 0, 0, 0, 0, 0, 2099200, 0, 0, 0, '', 45745);
 
 DELETE FROM `creature_addon` WHERE `guid`= @CGUID+1;
-INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
-(@CGUID+1, 0, 0, 0, 50331648, 1, 0, 0, 0, 0, 3, '84705');
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvPFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
+(@CGUID+1, 0, 0, 0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 3, '84705');
 
 -- Agatha
 DELETE FROM `creature` WHERE `guid`= @CGUID+2;
@@ -53,8 +53,8 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 (@CGUID+2, 44608, 0, 130, 228, '0', 0, 169, 0, -1, 0, 0, 505.1929931640625, 1574.030029296875, 132.09832763671875, 4.26351785659790039, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 45745);
 
 DELETE FROM `creature_addon` WHERE `guid`= @CGUID+2;
-INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
-(@CGUID+2, 0, 0, 0, 50331648, 1, 0, 0, 0, 0, 3, '84183');
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvPFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
+(@CGUID+2, 0, 0, 0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 3, '84183');
 
 -- Daschla
 UPDATE `creature_template` SET `unit_flags2` = 2099200, `HoverHeight` = 2.8 WHERE `entry` = 44609;
@@ -64,8 +64,8 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 (@CGUID+3, 44609, 0, 130, 228, '0', 0, 169, 0, -1, 0, 0, 505.571014404296875, 1567.6600341796875, 132.6943206787109375, 3.7040863037109375, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 45745);
 
 DELETE FROM `creature_addon` WHERE `guid`= @CGUID+3;
-INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
-(@CGUID+3, 0, 0, 0, 50331648, 1, 0, 0, 0, 0, 3, '84183');
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvPFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
+(@CGUID+3, 0, 0, 0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 3, '84183');
 
 -- High Warlord Cromush
 DELETE FROM `creature_equip_template` WHERE `CreatureID` = 44640;
@@ -90,8 +90,8 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (@PATH, 9, 516.704, 1567.92, 129.798, NULL, 0, 0, 0, 0, 0);
 
 DELETE FROM `creature_addon` WHERE `guid` = @CGUID+4;
-INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
-(@CGUID+4, @PATH, 0, 0, 65536, 1, 0, 0, 0, 0, 3, '84183');
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvPFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
+(@CGUID+4, @PATH, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 3, '84183');
 
 -- Admiral Hatchet
 DELETE FROM `creature` WHERE `guid` = @CGUID+5;
@@ -99,8 +99,8 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 (@CGUID+5, 44916, 0, 130, 228, '0', 0, 169, 0, -1, 0, 0, 492.516, 1527.46, 130.503, 5.52134, 120, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, '', 45745);
 
 DELETE FROM `creature_addon` WHERE `guid` = @CGUID+5;
-INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
-(@CGUID+5, 0, 0, 0, 65536, 1, 0, 0, 0, 0, 3, '84183 83847');
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvPFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
+(@CGUID+5, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 3, '84183 83847');
 
 -- Warlord Torok
 DELETE FROM `creature` WHERE `guid` = @CGUID+6;
@@ -108,8 +108,8 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 (@CGUID+6, 44917, 0, 130, 228, '0', 0, 169, 0, -1, 0, 0, 494.368, 1529.64, 130.002, 5.41923, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 45745);
 
 DELETE FROM `creature_addon` WHERE `guid` = @CGUID+6;
-INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
-(@CGUID+6, 0, 0, 0, 65536, 1, 0, 0, 0, 0, 3, '84183');
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvPFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
+(@CGUID+6, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 3, '84183');
 
 -- Karos Razok
 UPDATE `creature_template` SET `gossip_menu_id`=4281 WHERE `entry`=2226;
@@ -408,8 +408,8 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (@PATH, 76, 481.1579, 1518.977, 134.49368, NULL, 0, 0, 0, 0, 0);
 
 DELETE FROM `creature_addon` WHERE `guid`= 321240;
-INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
-(321240, @PATH, 0, 0, 0, 1, 0, 0, 0, 0, 0, '18950');
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvPFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
+(321240, @PATH, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '18950');
 
 -- Andrew Hilbert
 UPDATE `npc_vendor` SET `slot`=502, `VerifiedBuild`=45745 WHERE (`entry`=3556 AND `item`=5786 AND `ExtendedCost`=0 AND `type`=1); -- Pattern: Murloc Scale Belt
@@ -617,8 +617,8 @@ UPDATE `creature` SET `MovementType`=1, `wander_distance`=5 WHERE `id`=46575;
 UPDATE `creature` SET `unit_flags`=262600, `MovementType`=0, `wander_distance`=0, `StringId`='darktusk_boar_dead' WHERE `guid`=321101;
 
 DELETE FROM `creature_addon` WHERE `guid` = 321101;
-INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
-(321101, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, '29266');
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvPFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
+(321101, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '29266');
 
 -- Caretaker Smithers
 UPDATE `creature_template` SET `ScriptName`='npc_silverpine_caretaker_smithers' WHERE `entry`=45219;
@@ -634,15 +634,15 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 UPDATE `creature_template` SET `unit_flags3`=1 WHERE `entry` IN (321185, 321177, 321159, 321154, 321143, 321142, 321119, 321103);
 
 DELETE FROM `creature_addon` WHERE `guid` IN (321185, 321177, 321159, 321154, 321143, 321142, 321119, 321103);
-INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `bytes1`, `bytes2`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
-(321185, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, '84386'),
-(321177, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, '84386'),
-(321159, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, '84386'),
-(321154, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, '84386'),
-(321143, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, '84386'),
-(321142, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, '84386'),
-(321119, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, '84386'),
-(321103, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, '84386');
+INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvPFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES 
+(321185, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '84386'),
+(321177, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '84386'),
+(321159, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '84386'),
+(321154, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '84386'),
+(321143, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '84386'),
+(321142, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '84386'),
+(321119, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '84386'),
+(321103, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '84386');
 
 -- Permanent Feign Death
 DELETE FROM `spell_script_names` WHERE `spell_id`=84386 AND `ScriptName`='spell_gen_feign_death_all_flags';
