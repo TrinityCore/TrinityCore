@@ -154,7 +154,7 @@ bool PreparedStatementTask::Execute()
 template<typename T>
 std::string PreparedStatementData::ToString(T value)
 {
-    return fmt::format("{}", value);
+    return Trinity::StringFormat("{}", value);
 }
 
 std::string PreparedStatementData::ToString(bool value)
@@ -184,7 +184,7 @@ template std::string PreparedStatementData::ToString<double>(double);
 
 std::string PreparedStatementData::ToString(std::string const& value)
 {
-    return fmt::format("'{}'", value);
+    return Trinity::StringFormat("'{}'", value);
 }
 
 std::string PreparedStatementData::ToString(std::vector<uint8> const& /*value*/)

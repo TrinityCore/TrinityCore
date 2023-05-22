@@ -97,6 +97,14 @@ bool Trinity::Hyperlinks::LinkTags::achievement::StoreTo(AchievementLinkData& va
     return (t.TryConsumeTo(val.Criteria[0]) && t.TryConsumeTo(val.Criteria[1]) && t.TryConsumeTo(val.Criteria[2]) && t.TryConsumeTo(val.Criteria[3]) && t.IsEmpty());
 }
 
+bool Trinity::Hyperlinks::LinkTags::api::StoreTo(ApiLinkData& val, std::string_view text)
+{
+    HyperlinkDataTokenizer t(text, true);
+    if (!(t.TryConsumeTo(val.Type) && t.TryConsumeTo(val.Name) && t.TryConsumeTo(val.Parent) && t.IsEmpty()))
+        return false;
+    return true;
+}
+
 bool Trinity::Hyperlinks::LinkTags::apower::StoreTo(ArtifactPowerLinkData& val, std::string_view text)
 {
     HyperlinkDataTokenizer t(text);
@@ -134,6 +142,17 @@ bool Trinity::Hyperlinks::LinkTags::battlepet::StoreTo(BattlePetLinkData& val, s
         && t.IsEmpty();
 }
 
+bool Trinity::Hyperlinks::LinkTags::battlePetAbil::StoreTo(BattlePetAbilLinkData& val, std::string_view text)
+{
+    HyperlinkDataTokenizer t(text);
+    uint32 battlePetAbilityId;
+    if (!t.TryConsumeTo(battlePetAbilityId))
+        return false;
+    return (val.Ability = sBattlePetAbilityStore.LookupEntry(battlePetAbilityId))
+        && t.TryConsumeTo(val.MaxHealth) && t.TryConsumeTo(val.Power) && t.TryConsumeTo(val.Speed)
+        && t.IsEmpty();
+}
+
 bool Trinity::Hyperlinks::LinkTags::conduit::StoreTo(SoulbindConduitRankEntry const*& val, std::string_view text)
 {
     HyperlinkDataTokenizer t(text);
@@ -154,6 +173,32 @@ bool Trinity::Hyperlinks::LinkTags::currency::StoreTo(CurrencyLinkData& val, std
         return false;
     val.Container = sDB2Manager.GetCurrencyContainerForCurrencyQuantity(currencyId, val.Quantity);
     return true;
+}
+
+bool Trinity::Hyperlinks::LinkTags::dungeonScore::StoreTo(DungeonScoreLinkData& val, std::string_view text)
+{
+    HyperlinkDataTokenizer t(text);
+    if (!t.TryConsumeTo(val.Score) || !t.TryConsumeTo(val.Player) || !val.Player.IsPlayer()
+        || !t.TryConsumeTo(val.PlayerName) || !t.TryConsumeTo(val.PlayerClass) || !t.TryConsumeTo(val.AvgItemLevel)
+        || !t.TryConsumeTo(val.PlayerLevel) || !t.TryConsumeTo(val.RunsThisSeason)
+        || !t.TryConsumeTo(val.BestSeasonScore) || !t.TryConsumeTo(val.BestSeasonNumber))
+        return false;
+
+    if (t.IsEmpty())
+        return true;
+
+    for (uint32 i = 0; i < 10; ++i)
+    {
+        DungeonScoreLinkData::Dungeon& dungeon = val.Dungeons.emplace_back();
+        if (!t.TryConsumeTo(dungeon.MapChallengeModeID) || !sMapChallengeModeStore.LookupEntry(dungeon.MapChallengeModeID))
+            return false;
+        if (!t.TryConsumeTo(dungeon.CompletedInTime) || !t.TryConsumeTo(dungeon.KeystoneLevel))
+            return false;
+        if (t.IsEmpty())
+            return true;
+    }
+
+    return false;
 }
 
 bool Trinity::Hyperlinks::LinkTags::enchant::StoreTo(SpellInfo const*& val, std::string_view text)
@@ -359,6 +404,17 @@ bool Trinity::Hyperlinks::LinkTags::mawpower::StoreTo(MawPowerEntry const*& val,
     return !!(val = sMawPowerStore.LookupEntry(mawPowerId)) && t.IsEmpty();
 }
 
+bool Trinity::Hyperlinks::LinkTags::mount::StoreTo(MountLinkData& val, std::string_view text)
+{
+    HyperlinkDataTokenizer t(text);
+    uint32 spellId;
+    if (!t.TryConsumeTo(spellId) || !((val.Spell = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE))))
+        return false;
+    if (!t.TryConsumeTo(val.DisplayId) || !sCreatureDisplayInfoStore.LookupEntry(val.DisplayId))
+        return false;
+    return t.TryConsumeTo(val.Customizations) && t.IsEmpty();
+}
+
 bool Trinity::Hyperlinks::LinkTags::pvptal::StoreTo(PvpTalentEntry const*& val, std::string_view text)
 {
     HyperlinkDataTokenizer t(text);
@@ -396,6 +452,19 @@ bool Trinity::Hyperlinks::LinkTags::talent::StoreTo(TalentEntry const*& val, std
     if (!(t.TryConsumeTo(talentId) && t.IsEmpty()))
         return false;
     if (!(val = sTalentStore.LookupEntry(talentId)))
+        return false;
+    return true;
+}
+
+bool Trinity::Hyperlinks::LinkTags::talentbuild::StoreTo(TalentBuildLinkData& val, std::string_view text)
+{
+    HyperlinkDataTokenizer t(text);
+    uint32 chrSpecializationId;
+    if (!t.TryConsumeTo(chrSpecializationId))
+        return false;
+    if (!(val.Spec = sChrSpecializationStore.LookupEntry(chrSpecializationId)))
+        return false;
+    if (!t.TryConsumeTo(val.Level) || !t.TryConsumeTo(val.ImportString))
         return false;
     return true;
 }

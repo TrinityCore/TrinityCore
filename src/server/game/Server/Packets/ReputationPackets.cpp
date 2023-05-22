@@ -21,7 +21,7 @@ WorldPacket const* WorldPackets::Reputation::InitializeFactions::Write()
 {
     for (uint16 i = 0; i < FactionCount; ++i)
     {
-        _worldPacket << uint8(FactionFlags[i]);
+        _worldPacket << uint16(FactionFlags[i]);
         _worldPacket << int32(FactionStandings[i]);
     }
 
@@ -58,7 +58,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Reputation::FactionStandi
 
 WorldPacket const* WorldPackets::Reputation::SetFactionStanding::Write()
 {
-    _worldPacket << float(ReferAFriendBonus);
     _worldPacket << float(BonusFromAchievementSystem);
     _worldPacket << uint32(Faction.size());
     for (FactionStandingData const& factionStanding : Faction)

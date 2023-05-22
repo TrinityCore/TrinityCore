@@ -102,7 +102,7 @@ struct boss_sjonnir : public BossAI
     {
         if (!instance->CheckRequiredBosses(DATA_SJONNIR_THE_IRONSHAPER, who->ToPlayer()))
         {
-            EnterEvadeMode(EVADE_REASON_SEQUENCE_BREAK);
+            EnterEvadeMode(EvadeReason::SequenceBreak);
             return;
         }
 

@@ -31,24 +31,26 @@
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
+using namespace Trinity::ChatCommands;
+
 class send_commandscript : public CommandScript
 {
 public:
     send_commandscript() : CommandScript("send_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> sendCommandTable =
+        static ChatCommandTable sendCommandTable =
         {
-            { "items",   rbac::RBAC_PERM_COMMAND_SEND_ITEMS,   true, &HandleSendItemsCommand,   "" },
-            { "mail",    rbac::RBAC_PERM_COMMAND_SEND_MAIL,    true, &HandleSendMailCommand,    "" },
-            { "message", rbac::RBAC_PERM_COMMAND_SEND_MESSAGE, true, &HandleSendMessageCommand, "" },
-            { "money",   rbac::RBAC_PERM_COMMAND_SEND_MONEY,   true, &HandleSendMoneyCommand,   "" },
+            { "items",   HandleSendItemsCommand,   rbac::RBAC_PERM_COMMAND_SEND_ITEMS,   Console::Yes },
+            { "mail",    HandleSendMailCommand,    rbac::RBAC_PERM_COMMAND_SEND_MAIL,    Console::Yes },
+            { "message", HandleSendMessageCommand, rbac::RBAC_PERM_COMMAND_SEND_MESSAGE, Console::Yes },
+            { "money",   HandleSendMoneyCommand,   rbac::RBAC_PERM_COMMAND_SEND_MONEY,   Console::Yes },
         };
 
-        static std::vector<ChatCommand> commandTable =
+        static ChatCommandTable commandTable =
         {
-            { "send", rbac::RBAC_PERM_COMMAND_SEND, false, nullptr, "", sendCommandTable },
+            { "send", sendCommandTable },
         };
         return commandTable;
     }
@@ -146,14 +148,14 @@ public:
             char const* itemIdStr = strtok(itemStr, ":");
             char const* itemCountStr = strtok(nullptr, " ");
 
-            uint32 itemId = atoul(itemIdStr);
+            Optional<uint32> itemId = Trinity::StringTo<uint32>(itemIdStr);
             if (!itemId)
                 return false;
 
-            ItemTemplate const* item_proto = sObjectMgr->GetItemTemplate(itemId);
+            ItemTemplate const* item_proto = sObjectMgr->GetItemTemplate(*itemId);
             if (!item_proto)
             {
-                handler->PSendSysMessage(LANG_COMMAND_ITEMIDINVALID, itemId);
+                handler->PSendSysMessage(LANG_COMMAND_ITEMIDINVALID, *itemId);
                 handler->SetSentErrorMessage(true);
                 return false;
             }
@@ -161,18 +163,18 @@ public:
             uint32 itemCount = itemCountStr ? atoi(itemCountStr) : 1;
             if (itemCount < 1 || (item_proto->GetMaxCount() > 0 && itemCount > uint32(item_proto->GetMaxCount())))
             {
-                handler->PSendSysMessage(LANG_COMMAND_INVALID_ITEM_COUNT, itemCount, itemId);
+                handler->PSendSysMessage(LANG_COMMAND_INVALID_ITEM_COUNT, itemCount, *itemId);
                 handler->SetSentErrorMessage(true);
                 return false;
             }
 
             while (itemCount > item_proto->GetMaxStackSize())
             {
-                items.push_back(ItemPair(itemId, item_proto->GetMaxStackSize()));
+                items.push_back(ItemPair(*itemId, item_proto->GetMaxStackSize()));
                 itemCount -= item_proto->GetMaxStackSize();
             }
 
-            items.push_back(ItemPair(itemId, itemCount));
+            items.push_back(ItemPair(*itemId, itemCount));
 
             if (items.size() > MAX_MAIL_ITEMS)
             {
@@ -207,40 +209,9 @@ public:
         return true;
     }
     /// Send money by mail
-    static bool HandleSendMoneyCommand(ChatHandler* handler, char const* args)
+    static bool HandleSendMoneyCommand(ChatHandler* handler, PlayerIdentifier const& receiver, QuotedString const& subject, QuotedString const& text, int64 money)
     {
         /// format: name "subject text" "mail text" money
-
-        Player* receiver;
-        ObjectGuid receiverGuid;
-        std::string receiverName;
-        if (!handler->extractPlayerTarget((char*)args, &receiver, &receiverGuid, &receiverName))
-            return false;
-
-        char* tail1 = strtok(nullptr, "");
-        if (!tail1)
-            return false;
-
-        char* msgSubject = handler->extractQuotedArg(tail1);
-        if (!msgSubject)
-            return false;
-
-        char* tail2 = strtok(nullptr, "");
-        if (!tail2)
-            return false;
-
-        char* msgText = handler->extractQuotedArg(tail2);
-        if (!msgText)
-            return false;
-
-        char* moneyStr = strtok(nullptr, "");
-        int64 money = moneyStr ? atoll(moneyStr) : 0;
-        if (money <= 0)
-            return false;
-
-        // msgSubject, msgText isn't NUL after prev. check
-        std::string subject = msgSubject;
-        std::string text    = msgText;
 
         // from console show nonexisting sender
         MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetGUID().GetCounter() : UI64LIT(0), MAIL_STATIONERY_GM);
@@ -249,11 +220,11 @@ public:
 
         MailDraft(subject, text)
             .AddMoney(money)
-            .SendMailTo(trans, MailReceiver(receiver, receiverGuid.GetCounter()), sender);
+            .SendMailTo(trans, MailReceiver(receiver.GetConnectedPlayer(), receiver.GetGUID().GetCounter()), sender);
 
         CharacterDatabase.CommitTransaction(trans);
 
-        std::string nameLink = handler->playerLink(receiverName);
+        std::string nameLink = handler->playerLink(receiver.GetName());
         handler->PSendSysMessage(LANG_MAIL_SENT, nameLink.c_str());
         return true;
     }

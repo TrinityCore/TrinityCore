@@ -31,210 +31,127 @@ namespace Trinity
 {
     // Helpers
     // Insert helpers
-    template<class SPECIFIC_TYPE, class KEY_TYPE>
-    bool Insert(ContainerUnorderedMap<SPECIFIC_TYPE, KEY_TYPE>& elements, KEY_TYPE const& handle, SPECIFIC_TYPE* obj)
-    {
-        auto i = elements._element.find(handle);
-        if (i == elements._element.end())
-        {
-            elements._element[handle] = obj;
-            return true;
-        }
-        else
-        {
-            ASSERT(i->second == obj, "Object with certain key already in but objects are different!");
-            return false;
-        }
-    }
-
-    template<class SPECIFIC_TYPE, class KEY_TYPE>
-    bool Insert(ContainerUnorderedMap<TypeNull, KEY_TYPE>& /*elements*/, KEY_TYPE const& /*handle*/, SPECIFIC_TYPE* /*obj*/)
-    {
-        return false;
-    }
-
-    template<class SPECIFIC_TYPE, class KEY_TYPE, class T>
-    bool Insert(ContainerUnorderedMap<T, KEY_TYPE>& /*elements*/, KEY_TYPE const& /*handle*/, SPECIFIC_TYPE* /*obj*/)
-    {
-        return false;
-    }
-
     template<class SPECIFIC_TYPE, class KEY_TYPE, class H, class T>
-    bool Insert(ContainerUnorderedMap<TypeList<H, T>, KEY_TYPE>& elements, KEY_TYPE const& handle, SPECIFIC_TYPE* obj)
+    inline bool Insert(ContainerUnorderedMap<TypeList<H, T>, KEY_TYPE>& elements, KEY_TYPE const& handle, SPECIFIC_TYPE* obj)
     {
-        bool ret = Insert(elements._elements, handle, obj);
-        return ret ? ret : Insert(elements._TailElements, handle, obj);
+        if constexpr (std::is_same_v<H, SPECIFIC_TYPE>)
+        {
+            auto i = elements._elements._element.find(handle);
+            if (i == elements._elements._element.end())
+            {
+                elements._elements._element[handle] = obj;
+                return true;
+            }
+            else
+            {
+                ASSERT(i->second == obj, "Object with certain key already in but objects are different!");
+                return false;
+            }
+        }
+
+        if constexpr (std::is_same_v<T, TypeNull>)
+            return false;
+        else
+            return Insert(elements._TailElements, handle, obj);
     }
 
     // Find helpers
-    template<class SPECIFIC_TYPE, class KEY_TYPE>
-    SPECIFIC_TYPE* Find(ContainerUnorderedMap<SPECIFIC_TYPE, KEY_TYPE> const& elements, KEY_TYPE const& handle, SPECIFIC_TYPE* /*obj*/)
+    template<class SPECIFIC_TYPE, class KEY_TYPE, class H, class T>
+    inline SPECIFIC_TYPE* Find(ContainerUnorderedMap<TypeList<H, T>, KEY_TYPE> const& elements, KEY_TYPE const& handle, SPECIFIC_TYPE* obj)
     {
-        auto i = elements._element.find(handle);
-        if (i == elements._element.end())
+        if constexpr (std::is_same_v<H, SPECIFIC_TYPE>)
+        {
+            auto i = elements._elements._element.find(handle);
+            if (i == elements._elements._element.end())
+                return nullptr;
+            else
+                return i->second;
+        }
+
+        if constexpr (std::is_same_v<T, TypeNull>)
             return nullptr;
         else
-            return i->second;
-    }
-
-    template<class SPECIFIC_TYPE, class KEY_TYPE>
-    SPECIFIC_TYPE* Find(ContainerUnorderedMap<TypeNull, KEY_TYPE> const& /*elements*/, KEY_TYPE const& /*handle*/, SPECIFIC_TYPE* /*obj*/)
-    {
-        return nullptr;
-    }
-
-    template<class SPECIFIC_TYPE, class KEY_TYPE, class T>
-    SPECIFIC_TYPE* Find(ContainerUnorderedMap<T, KEY_TYPE> const& /*elements*/, KEY_TYPE const& /*handle*/, SPECIFIC_TYPE* /*obj*/)
-    {
-        return nullptr;
-    }
-
-    template<class SPECIFIC_TYPE, class KEY_TYPE, class H, class T>
-    SPECIFIC_TYPE* Find(ContainerUnorderedMap<TypeList<H, T>, KEY_TYPE> const& elements, KEY_TYPE const& handle, SPECIFIC_TYPE* /*obj*/)
-    {
-        SPECIFIC_TYPE* ret = Find(elements._elements, handle, (SPECIFIC_TYPE*)nullptr);
-        return ret ? ret : Find(elements._TailElements, handle, (SPECIFIC_TYPE*)nullptr);
+            return Find(elements._TailElements, handle, obj);
     }
 
     // Erase helpers
-    template<class SPECIFIC_TYPE, class KEY_TYPE>
-    bool Remove(ContainerUnorderedMap<SPECIFIC_TYPE, KEY_TYPE>& elements, KEY_TYPE const& handle, SPECIFIC_TYPE* /*obj*/)
-    {
-        elements._element.erase(handle);
-        return true;
-    }
-
-    template<class SPECIFIC_TYPE, class KEY_TYPE>
-    bool Remove(ContainerUnorderedMap<TypeNull, KEY_TYPE>& /*elements*/, KEY_TYPE const& /*handle*/, SPECIFIC_TYPE* /*obj*/)
-    {
-        return false;
-    }
-
-    template<class SPECIFIC_TYPE, class KEY_TYPE, class T>
-    bool Remove(ContainerUnorderedMap<T, KEY_TYPE>& /*elements*/, KEY_TYPE const& /*handle*/, SPECIFIC_TYPE* /*obj*/)
-    {
-        return false;
-    }
-
     template<class SPECIFIC_TYPE, class KEY_TYPE, class H, class T>
-    bool Remove(ContainerUnorderedMap<TypeList<H, T>, KEY_TYPE>& elements, KEY_TYPE const& handle, SPECIFIC_TYPE* /*obj*/)
+    inline bool Remove(ContainerUnorderedMap<TypeList<H, T>, KEY_TYPE>& elements, KEY_TYPE const& handle, SPECIFIC_TYPE* obj)
     {
-        bool ret = Remove(elements._elements, handle, (SPECIFIC_TYPE*)nullptr);
-        return ret ? ret : Remove(elements._TailElements, handle, (SPECIFIC_TYPE*)nullptr);
+        if constexpr (std::is_same_v<H, SPECIFIC_TYPE>)
+        {
+            elements._elements._element.erase(handle);
+            return true;
+        }
+
+        if constexpr (std::is_same_v<T, TypeNull>)
+            return false;
+        else
+            return Remove(elements._TailElements, handle, obj);
     }
 
     // Count helpers
-    template<class SPECIFIC_TYPE, class KEY_TYPE>
-    bool Size(ContainerUnorderedMap<SPECIFIC_TYPE, KEY_TYPE> const& elements, std::size_t* size, SPECIFIC_TYPE* /*obj*/)
-    {
-        *size = elements._element.size();
-        return true;
-    }
-
-    template<class SPECIFIC_TYPE, class KEY_TYPE>
-    bool Size(ContainerUnorderedMap<TypeNull, KEY_TYPE> const& /*elements*/, std::size_t* /*size*/, SPECIFIC_TYPE* /*obj*/)
-    {
-        return false;
-    }
-
-    template<class SPECIFIC_TYPE, class KEY_TYPE, class T>
-    bool Size(ContainerUnorderedMap<T, KEY_TYPE> const& /*elements*/, std::size_t* /*size*/, SPECIFIC_TYPE* /*obj*/)
-    {
-        return false;
-    }
-
     template<class SPECIFIC_TYPE, class KEY_TYPE, class H, class T>
-    bool Size(ContainerUnorderedMap<TypeList<H, T>, KEY_TYPE> const& elements, std::size_t* size, SPECIFIC_TYPE* /*obj*/)
+    inline bool Size(ContainerUnorderedMap<TypeList<H, T>, KEY_TYPE> const& elements, std::size_t* size, SPECIFIC_TYPE* obj)
     {
-        bool ret = Size(elements._elements, size, (SPECIFIC_TYPE*)nullptr);
-        return ret ? ret : Size(elements._TailElements, size, (SPECIFIC_TYPE*)nullptr);
+        if constexpr (std::is_same_v<H, SPECIFIC_TYPE>)
+        {
+            *size = elements._elements._element.size();
+            return true;
+        }
+
+        if constexpr (std::is_same_v<T, TypeNull>)
+            return false;
+        else
+            return Size(elements._TailElements, size, obj);
     }
 
     /* ContainerMapList Helpers */
     // count functions
-    template<class SPECIFIC_TYPE>
-    size_t Count(ContainerMapList<SPECIFIC_TYPE> const& elements, SPECIFIC_TYPE* /*fake*/)
-    {
-        return elements._element.getSize();
-    }
-
-    template<class SPECIFIC_TYPE>
-    size_t Count(ContainerMapList<TypeNull> const& /*elements*/, SPECIFIC_TYPE* /*fake*/)
-    {
-        return 0;
-    }
-
-    template<class SPECIFIC_TYPE, class T>
-    size_t Count(ContainerMapList<T> const& /*elements*/, SPECIFIC_TYPE* /*fake*/)
-    {
-        return 0;
-    }
-
-    template<class SPECIFIC_TYPE, class T>
-    size_t Count(ContainerMapList<TypeList<SPECIFIC_TYPE, T>> const& elements, SPECIFIC_TYPE* fake)
-    {
-        return Count(elements._elements, fake);
-    }
-
     template<class SPECIFIC_TYPE, class H, class T>
-    size_t Count(ContainerMapList<TypeList<H, T>> const& elements, SPECIFIC_TYPE* fake)
+    inline size_t Count(ContainerMapList<TypeList<H, T>> const& elements, SPECIFIC_TYPE* fake)
     {
-        return Count(elements._TailElements, fake);
+        if constexpr (std::is_same_v<H, SPECIFIC_TYPE>)
+        {
+            return elements._elements._element.getSize();
+        }
+
+        if constexpr (std::is_same_v<T, TypeNull>)
+            return 0;
+        else
+            return Count(elements._TailElements, fake);
     }
 
     // non-const insert functions
-    template<class SPECIFIC_TYPE>
-    SPECIFIC_TYPE* Insert(ContainerMapList<SPECIFIC_TYPE>& elements, SPECIFIC_TYPE* obj)
-    {
-        //elements._element[hdl] = obj;
-        obj->AddToGrid(elements._element);
-        return obj;
-    }
-
-    template<class SPECIFIC_TYPE>
-    SPECIFIC_TYPE* Insert(ContainerMapList<TypeNull>& /*elements*/, SPECIFIC_TYPE* /*obj*/)
-    {
-        return nullptr;
-    }
-
-    // this is a missed
-    template<class SPECIFIC_TYPE, class T>
-    SPECIFIC_TYPE* Insert(ContainerMapList<T>& /*elements*/, SPECIFIC_TYPE* /*obj*/)
-    {
-        return nullptr;                                        // a missed
-    }
-
-    // Recursion
     template<class SPECIFIC_TYPE, class H, class T>
-    SPECIFIC_TYPE* Insert(ContainerMapList<TypeList<H, T>>& elements, SPECIFIC_TYPE* obj)
+    inline SPECIFIC_TYPE* Insert(ContainerMapList<TypeList<H, T>>& elements, SPECIFIC_TYPE* obj)
     {
-        SPECIFIC_TYPE* t = Insert(elements._elements, obj);
-        return (t != nullptr ? t : Insert(elements._TailElements, obj));
+        if constexpr (std::is_same_v<H, SPECIFIC_TYPE>)
+        {
+            obj->AddToGrid(elements._elements._element);
+            return obj;
+        }
+
+        if constexpr (std::is_same_v<T, TypeNull>)
+            return nullptr;
+        else
+            return Insert(elements._TailElements, obj);
     }
 
     //// non-const remove method
-    //template<class SPECIFIC_TYPE> SPECIFIC_TYPE* Remove(ContainerMapList<SPECIFIC_TYPE> & /*elements*/, SPECIFIC_TYPE *obj)
+    //template<class SPECIFIC_TYPE, class H, class T>
+    //SPECIFIC_TYPE* Remove(ContainerMapList<TypeList<H, T>>& elements, SPECIFIC_TYPE* obj)
     //{
-    //    obj->GetGridRef().unlink();
-    //    return obj;
-    //}
+    //    if constexpr (std::is_same_v<H, SPECIFIC_TYPE>)
+    //    {
+    //        obj->GetGridRef().unlink();
+    //        return obj;
+    //    }
 
-    //template<class SPECIFIC_TYPE> SPECIFIC_TYPE* Remove(ContainerMapList<TypeNull> &/*elements*/, SPECIFIC_TYPE * /*obj*/)
-    //{
-    //    return nullptr;
-    //}
-
-    //// this is a missed
-    //template<class SPECIFIC_TYPE, class T> SPECIFIC_TYPE* Remove(ContainerMapList<T> &/*elements*/, SPECIFIC_TYPE * /*obj*/)
-    //{
-    //    return nullptr;                                        // a missed
-    //}
-
-    //template<class SPECIFIC_TYPE, class T, class H> SPECIFIC_TYPE* Remove(ContainerMapList<TypeList<H, T> > &elements, SPECIFIC_TYPE *obj)
-    //{
-    //    // The head element is bad
-    //    SPECIFIC_TYPE* t = Remove(elements._elements, obj);
-    //    return (t != nullptr ? t : Remove(elements._TailElements, obj));
+    //    if constexpr (std::is_same_v<T, TypeNull>)
+    //        return nullptr;
+    //    else
+    //        return Remove(elements._TailElements, obj);
     //}
 }
 #endif

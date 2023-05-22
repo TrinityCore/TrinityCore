@@ -52,7 +52,9 @@ namespace Trinity
 
 TC_COMMON_API Optional<int64> MoneyStringToMoney(std::string const& moneyString);
 
+#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
 TC_COMMON_API struct tm* localtime_r(time_t const* time, struct tm *result);
+#endif
 TC_COMMON_API time_t LocalTimeToUTCTime(time_t time);
 TC_COMMON_API time_t GetLocalHourTimestamp(time_t time, uint8 hour, bool onlyAfterTime = true);
 TC_COMMON_API tm TimeBreakdown(time_t t);
@@ -485,11 +487,24 @@ Ret* Coalesce(T1* first, T*... rest)
         return static_cast<Ret*>(first);
 }
 
-TC_COMMON_API std::string GetTypeName(std::type_info const&);
+namespace Trinity
+{
+namespace Impl
+{
+    TC_COMMON_API std::string GetTypeName(std::type_info const&);
+}
+
 template <typename T>
-std::string GetTypeName() { return GetTypeName(typeid(T)); }
+std::string GetTypeName() { return Impl::GetTypeName(typeid(T)); }
 template <typename T>
-std::enable_if_t<!std::is_same_v<std::decay_t<T>, std::type_info>, std::string> GetTypeName(T&& v) { return GetTypeName(typeid(v)); }
+std::string GetTypeName(T&& v)
+{
+    if constexpr (std::is_same_v<std::remove_cv_t<T>, std::type_info>)
+        return Impl::GetTypeName(v);
+    else
+        return Impl::GetTypeName(typeid(v));
+}
+}
 
 template<typename T>
 struct NonDefaultConstructible

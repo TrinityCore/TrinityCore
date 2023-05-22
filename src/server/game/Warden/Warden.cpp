@@ -112,8 +112,8 @@ void Warden::Update(uint32 diff)
             // Kick player if client response delays more than set in config
             if (_clientResponseTimer > maxClientResponseDelay * IN_MILLISECONDS)
             {
-                TC_LOG_WARN("warden", "%s (latency: %u, IP: %s) exceeded Warden module response delay (%s) - disconnecting client",
-                                _session->GetPlayerInfo().c_str(), _session->GetLatency(), _session->GetRemoteAddress().c_str(), secsToTimeString(maxClientResponseDelay, TimeFormat::ShortText).c_str());
+                TC_LOG_WARN("warden", "{} (latency: {}, IP: {}) exceeded Warden module response delay ({}) - disconnecting client",
+                                _session->GetPlayerInfo(), _session->GetLatency(), _session->GetRemoteAddress(), secsToTimeString(maxClientResponseDelay, TimeFormat::ShortText));
                 _session->KickPlayer("Warden::Update Warden module response delay exceeded");
             }
             else
@@ -193,7 +193,7 @@ char const* Warden::ApplyPenalty(WardenCheck const* check)
             std::string banReason = "Warden Anticheat Violation";
             // Check can be NULL, for example if the client sent a wrong signature in the warden packet (CHECKSUM FAIL)
             if (check)
-                banReason += Trinity::StringFormat(": %s (CheckId: %u", check->Comment.c_str(), uint32(check->CheckId));
+                banReason += Trinity::StringFormat(": {} (CheckId: {}", check->Comment, check->CheckId);
 
             sWorld->BanAccount(BAN_ACCOUNT, accountName, sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_BAN_DURATION), banReason, "Server");
 
@@ -211,7 +211,7 @@ void Warden::HandleData(ByteBuffer& buff)
     DecryptData(buff.contents(), buff.size());
     uint8 opcode;
     buff >> opcode;
-    TC_LOG_DEBUG("warden", "Got packet, opcode %02X, size %u", opcode, uint32(buff.size() - 1));
+    TC_LOG_DEBUG("warden", "Got packet, opcode {:02X}, size {}", opcode, uint32(buff.size() - 1));
     buff.hexlike();
 
     switch (opcode)
@@ -236,7 +236,7 @@ void Warden::HandleData(ByteBuffer& buff)
         TC_LOG_DEBUG("warden", "NYI WARDEN_CMSG_MODULE_FAILED received!");
         break;
     default:
-        TC_LOG_WARN("warden", "Got unknown warden opcode %02X of size %u.", opcode, uint32(buff.size() - 1));
+        TC_LOG_WARN("warden", "Got unknown warden opcode {:02X} of size {}.", opcode, uint32(buff.size() - 1));
         break;
     }
 }
@@ -255,13 +255,13 @@ bool Warden::ProcessLuaCheckResponse(std::string const& msg)
         if (check.Type == LUA_EVAL_CHECK)
         {
             char const* penalty = ApplyPenalty(&check);
-            TC_LOG_WARN("warden", "%s failed Warden check %u (%s). Action: %s", _session->GetPlayerInfo().c_str(), id, EnumUtils::ToConstant(check.Type), penalty);
+            TC_LOG_WARN("warden", "{} failed Warden check {} ({}). Action: {}", _session->GetPlayerInfo(), id, EnumUtils::ToConstant(check.Type), penalty);
             return true;
         }
     }
 
     char const* penalty = ApplyPenalty(nullptr);
-    TC_LOG_WARN("warden", "%s sent bogus Lua check response for Warden. Action: %s", _session->GetPlayerInfo().c_str(), penalty);
+    TC_LOG_WARN("warden", "{} sent bogus Lua check response for Warden. Action: {}", _session->GetPlayerInfo(), penalty);
     return true;
 }
 

@@ -72,7 +72,7 @@ ChannelMgr::~ChannelMgr()
         std::wstring channelName;
         if (!Utf8toWStr(dbName, channelName))
         {
-            TC_LOG_ERROR("server.loading", "Failed to load custom chat channel '%s' from database - invalid utf8 sequence? Deleted.", dbName.c_str());
+            TC_LOG_ERROR("server.loading", "Failed to load custom chat channel '{}' from database - invalid utf8 sequence? Deleted.", dbName);
             toDelete.push_back({ dbName, team });
             continue;
         }
@@ -80,7 +80,7 @@ ChannelMgr::~ChannelMgr()
         ChannelMgr* mgr = ForTeam(team);
         if (!mgr)
         {
-            TC_LOG_ERROR("server.loading", "Failed to load custom chat channel '%s' from database - invalid team %u. Deleted.", dbName.c_str(), team);
+            TC_LOG_ERROR("server.loading", "Failed to load custom chat channel '{}' from database - invalid team {}. Deleted.", dbName, team);
             toDelete.push_back({ dbName, team });
             continue;
         }
@@ -102,7 +102,7 @@ ChannelMgr::~ChannelMgr()
         CharacterDatabase.Execute(stmt);
     }
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u custom chat channels in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} custom chat channels in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 /*static*/ ChannelMgr* ChannelMgr::ForTeam(uint32 team)

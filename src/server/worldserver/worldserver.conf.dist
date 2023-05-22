@@ -423,7 +423,7 @@ mmap.enablePathFinding = 1
 #
 #    vmap.enableLOS
 #    vmap.enableHeight
-#        Description: VMmap support for line of sight and height calculation.
+#        Description: Vmap support for line of sight and height calculation.
 #        Default:     1 - (Enabled, vmap.enableLOS)
 #                     1 - (Enabled, vmap.enableHeight)
 #                     0 - (Disabled)
@@ -699,7 +699,8 @@ DeclinedNames = 0
 #    Expansion
 #        Description: Allow server to use content from expansions. Checks for expansion-related
 #                     map files, client compatibility and class/race character creation.
-#        Default:     8 - (Expansion 8)
+#        Default:     9 - (Expansion 9)
+#                     8 - (Expansion 8)
 #                     7 - (Expansion 7)
 #                     6 - (Expansion 6)
 #                     5 - (Expansion 5)
@@ -709,7 +710,7 @@ DeclinedNames = 0
 #                     1 - (Expansion 1)
 #                     0 - (Disabled, Ignore and disable expansion content (maps, races, classes)
 
-Expansion = 8
+Expansion = 9
 
 #
 #    MinPlayerName
@@ -826,17 +827,25 @@ CharacterCreating.Disabled.ClassMask = 0
 #    CharactersPerAccount
 #        Description: Limit number of characters per account on all realms on this realmlist.
 #        Important:   Number must be >= CharactersPerRealm
-#        Default:     50
+#        Default:     60
 
-CharactersPerAccount = 50
+CharactersPerAccount = 60
 
 #
 #    CharactersPerRealm
 #        Description: Limit number of characters per account on this realm.
 #        Range:       1-200
-#        Default:     50
+#        Default:     60
 
-CharactersPerRealm = 50
+CharactersPerRealm = 60
+
+#
+#    CharacterCreating.EvokersPerRealm
+#        Description: Limit number of death knight characters per account on this realm.
+#        Range:       1-60
+#        Default:     1
+
+CharacterCreating.EvokersPerRealm = 1
 
 #
 #    CharacterCreating.MinLevelForDemonHunter
@@ -846,6 +855,15 @@ CharactersPerRealm = 50
 #                     1  - (Enabled, Requires at least another level 1 character)
 
 CharacterCreating.MinLevelForDemonHunter = 0
+
+#
+#    CharacterCreating.MinLevelForEvoker
+#        Description: Limit creating demon hunters only for account with another
+#                     character of specific level.
+#        Default:     50  - (Enabled, Requires at least another level 50 character)
+#                     0  - (Disabled, No requirement)
+
+CharacterCreating.MinLevelForEvoker = 0
 
 #
 #    CharacterCreating.DisableAlliedRaceAchievementRequirement
@@ -870,9 +888,9 @@ SkipCinematics = 0
 #        Description: Maximum level that can be reached by players.
 #        Important:   Levels beyond 110 are not recommended at all.
 #        Range:       1-255
-#        Default:     60
+#        Default:     70
 
-MaxPlayerLevel = 60
+MaxPlayerLevel = 70
 
 #
 #    MinDualSpecLevel
@@ -904,6 +922,14 @@ StartDeathKnightPlayerLevel = 8
 #        Default:     8
 
 StartDemonHunterPlayerLevel = 8
+
+#
+#    StartEvokerPlayerLevel
+#        Description: Staring level for evokers after creation.
+#        Range:       1-MaxPlayerLevel
+#        Default:     58
+
+StartEvokerPlayerLevel = 58
 
 #
 #    StartAlliedRacePlayerLevel
@@ -2388,6 +2414,7 @@ Rate.Insanity.Loss     = 1
 Rate.ArcaneCharges.Loss= 1
 Rate.Fury.Loss         = 1
 Rate.Pain.Loss         = 1
+Rate.Essence.Loss      = 1
 
 #
 #    Rate.Skill.Discovery
@@ -4229,38 +4256,6 @@ Currency.ResetDay = 3
 #
 
 Currency.ResetHour = 6
-
-#
-#    Currency.StartApexisCrystals
-#        Amount of Apexis Crystals that new players will start with
-#        Default: 0 (with precision)
-#
-
-Currency.StartApexisCrystals = 0
-
-#
-#    Currency.MaxApexisCrystals
-#        Amount Apexis Crystals a player can have
-#        Default: 20000
-#
-
-Currency.MaxApexisCrystals = 20000
-
-#
-#    Currency.StartJusticePoints
-#        Amount of justice points that new players will start with
-#        Default: 0 (with precision)
-#
-
-Currency.StartJusticePoints = 0
-
-#
-#    Currency.MaxJusticePoints
-#        Amount justice points a player can have
-#        Default: 4000
-#
-
-Currency.MaxJusticePoints = 4000
 
 #
 ###################################################################################################

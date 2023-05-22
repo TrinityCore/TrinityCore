@@ -15,7 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Log.h"
 #include "club_types.pb.h"
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/generated_message_reflection.h>

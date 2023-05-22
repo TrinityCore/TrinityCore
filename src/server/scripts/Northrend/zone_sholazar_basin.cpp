@@ -50,7 +50,9 @@ enum EngineerHelice
     SAY_WP_7                    = 6,
 
     // Quests
-    QUEST_DISASTER              = 12688
+    QUEST_DISASTER              = 12688,
+
+    PATH_ESCORT_HELICE          = 230298,
 };
 
 struct npc_engineer_helice : public EscortAI
@@ -104,7 +106,8 @@ struct npc_engineer_helice : public EscortAI
         {
             me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
 
-            Start(false, false, player->GetGUID());
+            LoadPath(PATH_ESCORT_HELICE);
+            Start(false, player->GetGUID());
             Talk(SAY_WP_1);
         }
     }

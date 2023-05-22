@@ -19,6 +19,7 @@
 #include "ItemTemplate.h"
 #include "Timer.h"
 #include "Log.h"
+#include "StringConvert.h"
 #include "Util.h"
 #include <boost/filesystem/path.hpp>
 #include <fstream>
@@ -44,14 +45,14 @@ inline uint32 LoadGameTable(std::vector<std::string>& errors, GameTable<T>& stor
     std::ifstream stream(path.string());
     if (!stream)
     {
-        errors.push_back(Trinity::StringFormat("GameTable file %s cannot be opened.", path.string().c_str()));
+        errors.push_back(Trinity::StringFormat("GameTable file {} cannot be opened.", path.string()));
         return 0;
     }
 
     std::string headers;
     if (!std::getline(stream, headers))
     {
-        errors.push_back(Trinity::StringFormat("GameTable file %s is empty.", path.string().c_str()));
+        errors.push_back(Trinity::StringFormat("GameTable file {} is empty.", path.string()));
         return 0;
     }
 
@@ -67,6 +68,7 @@ inline uint32 LoadGameTable(std::vector<std::string>& errors, GameTable<T>& stor
     std::string line;
     while (std::getline(stream, line))
     {
+        RemoveCRLF(line); // file extracted from client will always have CRLF line endings, on linux opening file in text mode will not work, manually erase \r
         std::vector<std::string_view> values = Trinity::Tokenize(line, '\t', true);
         if (values.empty())
             break;
@@ -84,14 +86,14 @@ inline uint32 LoadGameTable(std::vector<std::string>& errors, GameTable<T>& stor
         ASSERT(std::size_t(std::distance(values.begin(), end)) == columnDefs.size(), SZFMTD " == " SZFMTD, std::size_t(std::distance(values.begin(), end)), columnDefs.size());
 
         // client ignores id column - CombatRatings has copypasted rows for levels > 110
-        //ASSERT(strtol(values[0], nullptr, 10) == data.size(),
-        //    "Unexpected row identifier %u at row " SZFMTD " (expected " SZFMTD ")",
-        //    strtol(values[0], nullptr, 10), data.size(), data.size());
+        //ASSERT(Trinity::StringTo<int32>(values[0], 10) == data.size(),
+        //    "Unexpected row identifier %d at row " SZFMTD " (expected " SZFMTD ")",
+        //    Trinity::StringTo<int32>(values[0], 10).value_or(0), data.size(), data.size());
 
         data.emplace_back();
         float* row = reinterpret_cast<float*>(&data.back());
         for (auto itr = values.begin() + 1; itr != end; ++itr)
-            *row++ = strtof(itr->data(), nullptr);
+            *row++ = Trinity::StringTo<float>(*itr, 10).value_or(0.0f);
     }
 
     storage.SetData(std::move(data));
@@ -136,7 +138,7 @@ void LoadGameTables(std::string const& dataPath)
         WPFatal(false, "Some required *.txt GameTable files (" SZFMTD ") not found or not compatible:\n%s", bad_gt_files.size(), str.str().c_str());
     }
 
-    TC_LOG_INFO("server.loading", ">> Initialized %d GameTables in %u ms", gameTableCount, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Initialized {} GameTables in {} ms", gameTableCount, GetMSTimeDiffToNow(oldMSTime));
 }
 
 template<class T>

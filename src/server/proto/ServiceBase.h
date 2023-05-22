@@ -27,6 +27,7 @@ namespace google
 {
     namespace protobuf
     {
+        class Descriptor;
         class Message;
     }
 }
@@ -34,16 +35,32 @@ namespace google
 class TC_PROTO_API ServiceBase
 {
 public:
+    explicit ServiceBase(uint32 serviceHash) : service_hash_(serviceHash) { }
+
     virtual ~ServiceBase() { }
 
     virtual void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) = 0;
 
+    virtual std::string GetCallerInfo() const = 0;
+
+    void LogDisallowedMethod(uint32 methodId);
+    void LogCallClientMethod(char const* methodName, char const* inputTypeName, google::protobuf::Message const* request);
+    void LogCallServerMethod(char const* methodName, char const* inputTypeName, google::protobuf::Message const* request);
+    void LogUnimplementedServerMethod(char const* methodName, google::protobuf::Message const* request);
+    void LogInvalidMethod(uint32 methodId);
+    void LogFailedParsingRequest(char const* methodName);
+
+    uint32 GetServiceHash() const { return service_hash_; }
+
 protected:
+    std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> CreateServerContinuation(uint32 token, uint32 methodId, char const* methodName, google::protobuf::Descriptor const* outputDescriptor);
+
     virtual void SendRequest(uint32 serviceHash, uint32 methodId, google::protobuf::Message const* request, std::function<void(MessageBuffer)> callback) = 0;
     virtual void SendRequest(uint32 serviceHash, uint32 methodId, google::protobuf::Message const* request) = 0;
     virtual void SendResponse(uint32 serviceHash, uint32 methodId, uint32 token, uint32 status) = 0;
     virtual void SendResponse(uint32 serviceHash, uint32 methodId, uint32 token, google::protobuf::Message const* response) = 0;
-    virtual std::string GetCallerInfo() const = 0;
+
+    uint32 service_hash_;
 };
 
 #endif // ServiceBase_h__

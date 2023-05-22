@@ -24,6 +24,10 @@
 struct TC_COMMON_API DB2FileSystemSource : public DB2FileSource
 {
     DB2FileSystemSource(std::string const& fileName);
+    DB2FileSystemSource(DB2FileSystemSource const& other) = delete;
+    DB2FileSystemSource(DB2FileSystemSource&& other) noexcept = delete;
+    DB2FileSystemSource& operator=(DB2FileSystemSource const& other) = delete;
+    DB2FileSystemSource& operator=(DB2FileSystemSource&& other) noexcept = delete;
     ~DB2FileSystemSource();
     bool IsOpen() const override;
     bool Read(void* buffer, std::size_t numBytes) override;

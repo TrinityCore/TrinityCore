@@ -66,6 +66,8 @@ struct DB2SectionHeader
 
 #pragma pack(pop)
 
+inline constinit uint64 DUMMY_KNOWN_TACT_ID = 0x5452494E49545900; // TRINITY
+
 struct DB2FieldMeta
 {
     bool IsSigned;
@@ -75,7 +77,8 @@ struct DB2FieldMeta
 
 struct TC_COMMON_API DB2FileLoadInfo
 {
-    DB2FileLoadInfo(DB2FieldMeta const* fields, std::size_t fieldCount, DB2Meta const* meta);
+    constexpr explicit DB2FileLoadInfo(DB2FieldMeta const* fields, std::size_t fieldCount, DB2Meta const* meta)
+        : Fields(fields), FieldCount(fieldCount), Meta(meta) { }
 
     uint32 GetStringFieldCount(bool localizedOnly) const;
     std::pair<int32/*fieldIndex*/, int32/*arrayIndex*/> GetFieldIndexByName(char const* fieldName) const;
@@ -84,7 +87,6 @@ struct TC_COMMON_API DB2FileLoadInfo
     DB2FieldMeta const* Fields;
     std::size_t FieldCount;
     DB2Meta const* Meta;
-    std::string TypesString;
 };
 
 enum class DB2EncryptedSectionHandling
@@ -95,6 +97,12 @@ enum class DB2EncryptedSectionHandling
 
 struct TC_COMMON_API DB2FileSource
 {
+    DB2FileSource();
+    DB2FileSource(DB2FileSource const& other) = delete;
+    DB2FileSource(DB2FileSource&& other) noexcept = delete;
+    DB2FileSource& operator=(DB2FileSource const& other) = delete;
+    DB2FileSource& operator=(DB2FileSource&& other) noexcept = delete;
+
     virtual ~DB2FileSource();
 
     // Returns true when the source is open for reading
@@ -120,9 +128,13 @@ class TC_COMMON_API DB2Record
 {
 public:
     DB2Record(DB2FileLoaderImpl const& db2, uint32 recordIndex, std::size_t* fieldOffsets);
+    DB2Record(DB2Record const& other);
+    DB2Record(DB2Record&& other) noexcept;
+    DB2Record& operator=(DB2Record const& other) = delete;
+    DB2Record& operator=(DB2Record&& other) noexcept = delete;
     ~DB2Record();
 
-    operator bool();
+    explicit operator bool() const;
 
     uint32 GetId() const;
 
@@ -176,6 +188,10 @@ class TC_COMMON_API DB2FileLoader
 {
 public:
     DB2FileLoader();
+    DB2FileLoader(DB2FileLoader const& other) = delete;
+    DB2FileLoader(DB2FileLoader&& other) noexcept = delete;
+    DB2FileLoader& operator=(DB2FileLoader const& other) = delete;
+    DB2FileLoader& operator=(DB2FileLoader&& other) noexcept = delete;
     ~DB2FileLoader();
 
     // loadInfo argument is required when trying to read data from the file
@@ -190,6 +206,7 @@ public:
     uint32 GetRecordCopyCount() const;
     uint32 GetTableHash() const { return _header.TableHash; }
     uint32 GetLayoutHash() const { return _header.LayoutHash; }
+    uint32 GetMinId() const;
     uint32 GetMaxId() const;
 
     DB2Header const& GetHeader() const { return _header; }

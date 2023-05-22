@@ -144,12 +144,17 @@ TC_API_EXPORT EnumText EnumUtils<InventoryResult>::ToString(InventoryResult valu
         case EQUIP_ERR_NOT_IN_NPE: return { "EQUIP_ERR_NOT_IN_NPE", "EQUIP_ERR_NOT_IN_NPE", "Not available during the tutorial" };
         case EQUIP_ERR_ITEM_COOLDOWN: return { "EQUIP_ERR_ITEM_COOLDOWN", "EQUIP_ERR_ITEM_COOLDOWN", "Item is not ready yet." };
         case EQUIP_ERR_NOT_IN_RATED_BATTLEGROUND: return { "EQUIP_ERR_NOT_IN_RATED_BATTLEGROUND", "EQUIP_ERR_NOT_IN_RATED_BATTLEGROUND", "You can't do that in a rated battleground." };
+        case EQUIP_ERR_EQUIPABLESPELLS_SLOTS_FULL: return { "EQUIP_ERR_EQUIPABLESPELLS_SLOTS_FULL", "EQUIP_ERR_EQUIPABLESPELLS_SLOTS_FULL", "" };
+        case EQUIP_ERR_CANT_BE_RECRAFTED: return { "EQUIP_ERR_CANT_BE_RECRAFTED", "EQUIP_ERR_CANT_BE_RECRAFTED", "You can't recraft that itemv" };
+        case EQUIP_ERR_REAGENTBAG_WRONG_SLOT: return { "EQUIP_ERR_REAGENTBAG_WRONG_SLOT", "EQUIP_ERR_REAGENTBAG_WRONG_SLOT", "Reagent Bags can only be placed in the reagent bag slot." };
+        case EQUIP_ERR_SLOT_ONLY_REAGENTBAG: return { "EQUIP_ERR_SLOT_ONLY_REAGENTBAG", "EQUIP_ERR_SLOT_ONLY_REAGENTBAG", "Only Reagent Bags can be placed in the reagent bag slot." };
+        case EQUIP_ERR_REAGENTBAG_ITEM_TYPE: return { "EQUIP_ERR_REAGENTBAG_ITEM_TYPE", "EQUIP_ERR_REAGENTBAG_ITEM_TYPE", "Only Reagents can be placed in Reagent Bags." };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<InventoryResult>::Count() { return 113; }
+TC_API_EXPORT size_t EnumUtils<InventoryResult>::Count() { return 118; }
 
 template <>
 TC_API_EXPORT InventoryResult EnumUtils<InventoryResult>::FromIndex(size_t index)
@@ -269,6 +274,11 @@ TC_API_EXPORT InventoryResult EnumUtils<InventoryResult>::FromIndex(size_t index
         case 110: return EQUIP_ERR_NOT_IN_NPE;
         case 111: return EQUIP_ERR_ITEM_COOLDOWN;
         case 112: return EQUIP_ERR_NOT_IN_RATED_BATTLEGROUND;
+        case 113: return EQUIP_ERR_EQUIPABLESPELLS_SLOTS_FULL;
+        case 114: return EQUIP_ERR_CANT_BE_RECRAFTED;
+        case 115: return EQUIP_ERR_REAGENTBAG_WRONG_SLOT;
+        case 116: return EQUIP_ERR_SLOT_ONLY_REAGENTBAG;
+        case 117: return EQUIP_ERR_REAGENTBAG_ITEM_TYPE;
         default: throw std::out_of_range("index");
     }
 }
@@ -391,6 +401,11 @@ TC_API_EXPORT size_t EnumUtils<InventoryResult>::ToIndex(InventoryResult value)
         case EQUIP_ERR_NOT_IN_NPE: return 110;
         case EQUIP_ERR_ITEM_COOLDOWN: return 111;
         case EQUIP_ERR_NOT_IN_RATED_BATTLEGROUND: return 112;
+        case EQUIP_ERR_EQUIPABLESPELLS_SLOTS_FULL: return 113;
+        case EQUIP_ERR_CANT_BE_RECRAFTED: return 114;
+        case EQUIP_ERR_REAGENTBAG_WRONG_SLOT: return 115;
+        case EQUIP_ERR_SLOT_ONLY_REAGENTBAG: return 116;
+        case EQUIP_ERR_REAGENTBAG_ITEM_TYPE: return 117;
         default: throw std::out_of_range("value");
     }
 }

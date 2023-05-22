@@ -86,6 +86,17 @@ void Unit::UpdateDamagePhysical(WeaponAttackType attType)
     }
 }
 
+int32 Unit::GetCreatePowerValue(Powers power) const
+{
+    if (power == POWER_MANA)
+        return GetCreateMana();
+
+    if (PowerTypeEntry const* powerType = sDB2Manager.GetPowerTypeEntry(power))
+        return powerType->MaxBasePower;
+
+    return 0;
+}
+
 /*#######################################
 ########                         ########
 ########   PLAYERS STAT SYSTEM   ########
@@ -319,7 +330,7 @@ void Player::UpdateMaxPower(Powers power)
     if (powerIndex == MAX_POWERS || powerIndex >= MAX_POWERS_PER_CLASS)
         return;
 
-    UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + power);
+    UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + AsUnderlyingType(power));
 
     float value = GetFlatModifierValue(unitMod, BASE_VALUE) + GetCreatePowerValue(power);
     value *= GetPctModifierValue(unitMod, BASE_PCT);
@@ -595,7 +606,9 @@ float const m_diminishing_k[MAX_CLASSES] =
     0.9830f,  // Warlock
     0.9830f,  // Monk
     0.9720f,  // Druid
-    0.9830f   // Demon Hunter
+    0.9830f,  // Demon Hunter
+    0.9880f,  // Evoker
+    1.0f,     // Adventurer
 };
 
 // helper function
@@ -634,7 +647,9 @@ float const parry_cap[MAX_CLASSES] =
     0.0f,           // Warlock
     90.6425f,       // Monk
     0.0f,           // Druid
-    65.631440f      // Demon Hunter
+    65.631440f,     // Demon Hunter
+    0.0f,           // Evoker
+    0.0f,           // Adventurer
 };
 
 void Player::UpdateParryPercentage()
@@ -673,7 +688,9 @@ float const dodge_cap[MAX_CLASSES] =
     150.375940f,    // Warlock
     145.560408f,    // Monk
     116.890707f,    // Druid
-    145.560408f     // Demon Hunter
+    145.560408f,    // Demon Hunter
+    145.560408f,    // Evoker
+    0.0f,           // Adventurer
 };
 
 void Player::UpdateDodgePercentage()
@@ -868,6 +885,15 @@ void Player::_RemoveAllStatBonuses()
 ########                         ########
 #######################################*/
 
+int32 Creature::GetCreatePowerValue(Powers power) const
+{
+    if (PowerTypeEntry const* powerType = sDB2Manager.GetPowerTypeEntry(power))
+        if (!powerType->GetFlags().HasFlag(PowerTypeFlags::IsUsedByNPCs))
+            return 0;
+
+    return Unit::GetCreatePowerValue(power);
+}
+
 bool Creature::UpdateStats(Stats /*stat*/)
 {
     return true;
@@ -904,10 +930,21 @@ uint32 Creature::GetPowerIndex(Powers power) const
 {
     if (power == GetPowerType())
         return 0;
-    if (power == POWER_ALTERNATE_POWER)
-        return 1;
-    if (power == POWER_COMBO_POINTS)
-        return 2;
+    switch (power)
+    {
+        case POWER_COMBO_POINTS:
+            return 2;
+        case POWER_ALTERNATE_POWER:
+            return 1;
+        case POWER_ALTERNATE_QUEST:
+            return 3;
+        case POWER_ALTERNATE_ENCOUNTER:
+            return 4;
+        case POWER_ALTERNATE_MOUNT:
+            return 5;
+        default:
+            break;
+    }
     return MAX_POWERS;
 }
 
@@ -916,7 +953,7 @@ void Creature::UpdateMaxPower(Powers power)
     if (GetPowerIndex(power) == MAX_POWERS)
         return;
 
-    UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + power);
+    UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + AsUnderlyingType(power));
 
     float value = GetFlatModifierValue(unitMod, BASE_VALUE) + GetCreatePowerValue(power);
     value *= GetPctModifierValue(unitMod, BASE_PCT);
@@ -1167,7 +1204,7 @@ void Guardian::UpdateMaxPower(Powers power)
     if (GetPowerIndex(power) == MAX_POWERS)
         return;
 
-    UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + power);
+    UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + AsUnderlyingType(power));
 
     float value = GetFlatModifierValue(unitMod, BASE_VALUE) + GetCreatePowerValue(power);
     value *= GetPctModifierValue(unitMod, BASE_PCT);

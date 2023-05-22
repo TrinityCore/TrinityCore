@@ -4,7 +4,6 @@
 #define INTERNAL_SUPPRESS_PROTOBUF_FIELD_DEPRECATION
 #include "club_enum.pb.h"
 
-#include <algorithm>
 #include <utility>
 
 #include <google/protobuf/stubs/common.h>
@@ -15,7 +14,6 @@
 #include <google/protobuf/generated_message_reflection.h>
 #include <google/protobuf/reflection_ops.h>
 #include <google/protobuf/wire_format.h>
-#include "Log.h"
 // @@protoc_insertion_point(includes)
 
 namespace bgs {
@@ -33,6 +31,7 @@ const ::google::protobuf::EnumDescriptor* VoiceMicrophoneState_descriptor_ = NUL
 const ::google::protobuf::EnumDescriptor* PresenceLevel_descriptor_ = NULL;
 const ::google::protobuf::EnumDescriptor* WhisperLevel_descriptor_ = NULL;
 const ::google::protobuf::EnumDescriptor* StreamNotificationFilter_descriptor_ = NULL;
+const ::google::protobuf::EnumDescriptor* JoinClubSource_descriptor_ = NULL;
 
 }  // namespace
 
@@ -50,6 +49,7 @@ void protobuf_AssignDesc_club_5fenum_2eproto() {
   PresenceLevel_descriptor_ = file->enum_type(5);
   WhisperLevel_descriptor_ = file->enum_type(6);
   StreamNotificationFilter_descriptor_ = file->enum_type(7);
+  JoinClubSource_descriptor_ = file->enum_type(8);
 }
 
 namespace {
@@ -103,7 +103,10 @@ void protobuf_AddDesc_club_5fenum_2eproto() {
     "tionFilter\022#\n\037STREAM_NOTIFICATION_FILTER"
     "_NONE\020\000\022&\n\"STREAM_NOTIFICATION_FILTER_ME"
     "NTION\020\001\022\"\n\036STREAM_NOTIFICATION_FILTER_AL"
-    "L\020\002B\002H\001", 1087);
+    "L\020\002*w\n\016JoinClubSource\022\031\n\025JOIN_CLUB_SOURC"
+    "E_NONE\020\000\022 \n\034JOIN_CLUB_SOURCE_CLUB_FINDER"
+    "\020\001\022(\n$JOIN_CLUB_SOURCE_CLUB_RECOMMENDATI"
+    "ON\020\002B\002H\002", 1208);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "club_enum.proto", &protobuf_RegisterTypes);
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_club_5fenum_2eproto);
@@ -228,6 +231,21 @@ const ::google::protobuf::EnumDescriptor* StreamNotificationFilter_descriptor() 
   return StreamNotificationFilter_descriptor_;
 }
 bool StreamNotificationFilter_IsValid(int value) {
+  switch(value) {
+    case 0:
+    case 1:
+    case 2:
+      return true;
+    default:
+      return false;
+  }
+}
+
+const ::google::protobuf::EnumDescriptor* JoinClubSource_descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return JoinClubSource_descriptor_;
+}
+bool JoinClubSource_IsValid(int value) {
   switch(value) {
     case 0:
     case 1:

@@ -36,7 +36,6 @@
 template<class OBJECT>
 struct ContainerMapList
 {
-    //std::map<OBJECT_HANDLE, OBJECT *> _element;
     GridRefManager<OBJECT> _element;
 };
 
@@ -82,67 +81,145 @@ struct ContainerUnorderedMap<TypeList<H, T>, KEY_TYPE>
 template<class OBJECT_TYPES>
 class TypeMapContainer
 {
-    public:
-        template<class SPECIFIC_TYPE> size_t Count() const { return Trinity::Count(i_elements, (SPECIFIC_TYPE*)nullptr); }
+public:
+    TypeMapContainer();
+    TypeMapContainer(TypeMapContainer const&) = default;
+    TypeMapContainer(TypeMapContainer&&) noexcept = default;
+    TypeMapContainer& operator=(TypeMapContainer const&) = default;
+    TypeMapContainer& operator=(TypeMapContainer&&) noexcept = default;
+    ~TypeMapContainer();
 
-        /// inserts a specific object into the container
-        template<class SPECIFIC_TYPE>
-        bool insert(SPECIFIC_TYPE *obj)
-        {
-            SPECIFIC_TYPE* t = Trinity::Insert(i_elements, obj);
-            return (t != nullptr);
-        }
+    template<class SPECIFIC_TYPE>
+    size_t Count() const;
 
-        ///  Removes the object from the container, and returns the removed object
-        //template<class SPECIFIC_TYPE>
-        //bool remove(SPECIFIC_TYPE* obj)
-        //{
-        //    SPECIFIC_TYPE* t = Trinity::Remove(i_elements, obj);
-        //    return (t != nullptr);
-        //}
+    /// inserts a specific object into the container
+    template<class SPECIFIC_TYPE>
+    bool insert(SPECIFIC_TYPE *obj);
 
-        ContainerMapList<OBJECT_TYPES> & GetElements(void) { return i_elements; }
-        const ContainerMapList<OBJECT_TYPES> & GetElements(void) const { return i_elements;}
+    ///  Removes the object from the container, and returns the removed object
+    //template<class SPECIFIC_TYPE>
+    //bool remove(SPECIFIC_TYPE* obj)
+    //{
+    //    SPECIFIC_TYPE* t = Trinity::Remove(i_elements, obj);
+    //    return (t != nullptr);
+    //}
 
-    private:
-        ContainerMapList<OBJECT_TYPES> i_elements;
+    ContainerMapList<OBJECT_TYPES>& GetElements(void);
+    const ContainerMapList<OBJECT_TYPES>& GetElements(void) const;
+
+private:
+    ContainerMapList<OBJECT_TYPES> i_elements;
 };
+
+template <class OBJECT_TYPES>
+TypeMapContainer<OBJECT_TYPES>::TypeMapContainer() = default;
+
+template <class OBJECT_TYPES>
+TypeMapContainer<OBJECT_TYPES>::~TypeMapContainer() = default;
+
+template <class OBJECT_TYPES>
+template <class SPECIFIC_TYPE>
+size_t TypeMapContainer<OBJECT_TYPES>::Count() const
+{
+    return Trinity::Count(i_elements, (SPECIFIC_TYPE*)nullptr);
+}
+
+template <class OBJECT_TYPES>
+template <class SPECIFIC_TYPE>
+bool TypeMapContainer<OBJECT_TYPES>::insert(SPECIFIC_TYPE* obj)
+{
+    SPECIFIC_TYPE* t = Trinity::Insert(i_elements, obj);
+    return (t != nullptr);
+}
+
+template <class OBJECT_TYPES>
+ContainerMapList<OBJECT_TYPES>& TypeMapContainer<OBJECT_TYPES>::GetElements()
+{
+    return i_elements;
+}
+
+template <class OBJECT_TYPES>
+const ContainerMapList<OBJECT_TYPES>& TypeMapContainer<OBJECT_TYPES>::GetElements() const
+{
+    return i_elements;
+}
 
 template<class OBJECT_TYPES, class KEY_TYPE>
 class TypeUnorderedMapContainer
 {
 public:
-    template<class SPECIFIC_TYPE>
-    bool Insert(KEY_TYPE const& handle, SPECIFIC_TYPE* obj)
-    {
-        return Trinity::Insert(_elements, handle, obj);
-    }
+    TypeUnorderedMapContainer();
+    TypeUnorderedMapContainer(TypeUnorderedMapContainer const&) = default;
+    TypeUnorderedMapContainer(TypeUnorderedMapContainer&&) noexcept = default;
+    TypeUnorderedMapContainer& operator=(TypeUnorderedMapContainer const&) = default;
+    TypeUnorderedMapContainer& operator=(TypeUnorderedMapContainer&&) noexcept = default;
+    ~TypeUnorderedMapContainer();
 
     template<class SPECIFIC_TYPE>
-    bool Remove(KEY_TYPE const& handle)
-    {
-        return Trinity::Remove(_elements, handle, (SPECIFIC_TYPE*)nullptr);
-    }
+    bool Insert(KEY_TYPE const& handle, SPECIFIC_TYPE* obj);
 
     template<class SPECIFIC_TYPE>
-    SPECIFIC_TYPE* Find(KEY_TYPE const& handle)
-    {
-        return Trinity::Find(_elements, handle, (SPECIFIC_TYPE*)nullptr);
-    }
+    bool Remove(KEY_TYPE const& handle);
 
     template<class SPECIFIC_TYPE>
-    std::size_t Size() const
-    {
-        std::size_t size = 0;
-        Trinity::Size(_elements, &size, (SPECIFIC_TYPE*)nullptr);
-        return size;
-    }
+    SPECIFIC_TYPE* Find(KEY_TYPE const& handle);
 
-    ContainerUnorderedMap<OBJECT_TYPES, KEY_TYPE>& GetElements() { return _elements; }
-    ContainerUnorderedMap<OBJECT_TYPES, KEY_TYPE> const& GetElements() const { return _elements; }
+    template<class SPECIFIC_TYPE>
+    std::size_t Size() const;
+
+    ContainerUnorderedMap<OBJECT_TYPES, KEY_TYPE>& GetElements();
+    ContainerUnorderedMap<OBJECT_TYPES, KEY_TYPE> const& GetElements() const;
 
 private:
     ContainerUnorderedMap<OBJECT_TYPES, KEY_TYPE> _elements;
 };
+
+template <class OBJECT_TYPES, class KEY_TYPE>
+TypeUnorderedMapContainer<OBJECT_TYPES, KEY_TYPE>::TypeUnorderedMapContainer() = default;
+
+template <class OBJECT_TYPES, class KEY_TYPE>
+TypeUnorderedMapContainer<OBJECT_TYPES, KEY_TYPE>::~TypeUnorderedMapContainer() = default;
+
+template <class OBJECT_TYPES, class KEY_TYPE>
+template <class SPECIFIC_TYPE>
+bool TypeUnorderedMapContainer<OBJECT_TYPES, KEY_TYPE>::Insert(KEY_TYPE const& handle, SPECIFIC_TYPE* obj)
+{
+    return Trinity::Insert(_elements, handle, obj);
+}
+
+template <class OBJECT_TYPES, class KEY_TYPE>
+template <class SPECIFIC_TYPE>
+bool TypeUnorderedMapContainer<OBJECT_TYPES, KEY_TYPE>::Remove(KEY_TYPE const& handle)
+{
+    return Trinity::Remove(_elements, handle, (SPECIFIC_TYPE*)nullptr);
+}
+
+template <class OBJECT_TYPES, class KEY_TYPE>
+template <class SPECIFIC_TYPE>
+SPECIFIC_TYPE* TypeUnorderedMapContainer<OBJECT_TYPES, KEY_TYPE>::Find(KEY_TYPE const& handle)
+{
+    return Trinity::Find(_elements, handle, (SPECIFIC_TYPE*)nullptr);
+}
+
+template <class OBJECT_TYPES, class KEY_TYPE>
+template <class SPECIFIC_TYPE>
+std::size_t TypeUnorderedMapContainer<OBJECT_TYPES, KEY_TYPE>::Size() const
+{
+    std::size_t size = 0;
+    Trinity::Size(_elements, &size, (SPECIFIC_TYPE*)nullptr);
+    return size;
+}
+
+template <class OBJECT_TYPES, class KEY_TYPE>
+ContainerUnorderedMap<OBJECT_TYPES, KEY_TYPE>& TypeUnorderedMapContainer<OBJECT_TYPES, KEY_TYPE>::GetElements()
+{
+    return _elements;
+}
+
+template <class OBJECT_TYPES, class KEY_TYPE>
+ContainerUnorderedMap<OBJECT_TYPES, KEY_TYPE> const& TypeUnorderedMapContainer<OBJECT_TYPES, KEY_TYPE>::GetElements() const
+{
+    return _elements;
+}
 
 #endif

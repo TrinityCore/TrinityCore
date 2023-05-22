@@ -54,6 +54,7 @@ struct FactionState
     uint32 ID;
     RepListID ReputationListID;
     int32 Standing;
+    int32 VisualStandingIncrease;
     EnumFlag<ReputationFlags> Flags = ReputationFlags::None;
     bool needSend;
     bool needSave;
@@ -116,8 +117,15 @@ class TC_GAME_API ReputationMgr
             return forceItr != _forcedReactions.end() ? &forceItr->second : nullptr;
         }
 
+        bool IsParagonReputation(FactionEntry const* factionEntry) const;
         int32 GetParagonLevel(uint32 paragonFactionId) const;
         int32 GetParagonLevel(FactionEntry const* paragonFactionEntry) const;
+
+        bool HasMaximumRenownReputation(FactionEntry const* factionEntry) const;
+        bool IsRenownReputation(FactionEntry const* factionEntry) const;
+        int32 GetRenownLevel(FactionEntry const* renownFactionEntry) const;
+        int32 GetRenownLevelThreshold(FactionEntry const* renownFactionEntry) const;
+        int32 GetRenownMaxLevel(FactionEntry const* renownFactionEntry) const;
 
     public:                                                 // modifiers
         bool SetReputation(FactionEntry const* factionEntry, int32 standing)

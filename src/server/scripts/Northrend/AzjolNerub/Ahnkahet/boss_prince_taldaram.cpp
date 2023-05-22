@@ -150,7 +150,7 @@ struct boss_prince_taldaram : public BossAI
         {
             if (me->GetThreatManager().IsThreatListEmpty(true))
             {
-                EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+                EnterEvadeMode(EvadeReason::NoHostiles);
                 return;
             }
         }

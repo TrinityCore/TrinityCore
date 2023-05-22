@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "Group.h"
 #include "Map.h"
 #include "Player.h"

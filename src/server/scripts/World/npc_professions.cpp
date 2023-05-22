@@ -299,7 +299,7 @@ bool EquippedOk(Player* player, uint32 spellId)
             if (item && item->GetTemplate()->GetRequiredSpell() == reqSpell)
             {
                 //player has item equipped that require specialty. Not allow to unlearn, player has to unequip first
-                TC_LOG_DEBUG("scripts", "player attempt to unlearn spell %u, but item %u is equipped.", reqSpell, item->GetEntry());
+                TC_LOG_DEBUG("scripts", "player attempt to unlearn spell {}, but item {} is equipped.", reqSpell, item->GetEntry());
                 return false;
             }
         }

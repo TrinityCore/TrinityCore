@@ -303,14 +303,14 @@ LPBYTE ListFile_GetData(void * pvListFile, PDWORD PtrDataSize)
     DWORD cbData = 0;
 
     // Get data from the list file cache
-    if (pvListFile != NULL)
+    if(pvListFile != NULL)
     {
         pbData = (LPBYTE)pCache->pBegin;
         cbData = (DWORD)(pCache->pEnd - pCache->pBegin);
     }
 
     // Give the data to the caller
-    if (PtrDataSize != NULL)
+    if(PtrDataSize != NULL)
         PtrDataSize[0] = cbData;
     return pbData;
 }

@@ -80,7 +80,7 @@ void LanguageMgr::LoadLanguages()
     _langsMap.emplace(LANG_ADDON_LOGGED, LanguageDesc());
 
     // Log load time
-    TC_LOG_INFO("server.loading", ">> Loaded %u languages in %u ms", uint32(_langsMap.size()), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} languages in {} ms", uint32(_langsMap.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void LanguageMgr::LoadLanguagesWords()
@@ -99,7 +99,7 @@ void LanguageMgr::LoadLanguagesWords()
     }
 
     // log load time
-    TC_LOG_INFO("server.loading", ">> Loaded %u word groups from %u words in %u ms", uint32(_wordsMap.size()), wordsNum, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} word groups from {} words in {} ms", uint32(_wordsMap.size()), wordsNum, GetMSTimeDiffToNow(oldMSTime));
 }
 
 LanguageMgr::WordList const* LanguageMgr::FindWordGroup(uint32 language, uint32 wordLen) const
@@ -237,7 +237,7 @@ std::string LanguageMgr::Translate(std::string const& msg, uint32 language, Loca
                     for (size_t i = 0; i < length; ++i)
                     {
                         if (str[i] >= 'A' && str[i] <= 'Z')
-                            result += char(toupper(replacementWord[i]));
+                            result += charToUpper(replacementWord[i]);
                         else
                             result += replacementWord[i];
                     }
@@ -252,9 +252,9 @@ std::string LanguageMgr::Translate(std::string const& msg, uint32 language, Loca
                         for (size_t i = 0; i < length; ++i)
                         {
                             if (isUpper(wstrSourceWord[i]))
-                                result += char(toupper(replacementWord[i]));
+                                result += charToUpper(replacementWord[i]);
                             else
-                                result += char(tolower(replacementWord[i]));
+                                result += charToLower(replacementWord[i]);
                         }
                     }
                     break;

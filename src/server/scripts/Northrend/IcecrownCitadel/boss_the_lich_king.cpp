@@ -17,6 +17,7 @@
 
 #include "icecrown_citadel.h"
 #include "CellImpl.h"
+#include "Containers.h"
 #include "CreatureTextMgr.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
@@ -363,7 +364,9 @@ enum MiscData
 enum Misc
 {
     DATA_PLAGUE_STACK           = 70337,
-    DATA_VILE                   = 45814622
+    DATA_VILE                   = 45814622,
+
+    GOSSIP_MENU_START_INTRO     = 10993
 };
 
 class NecroticPlagueTargetCheck
@@ -543,7 +546,7 @@ struct boss_the_lich_king : public BossAI
     {
         if (!instance->CheckRequiredBosses(DATA_THE_LICH_KING, target->ToPlayer()))
         {
-            EnterEvadeMode(EVADE_REASON_OTHER);
+            EnterEvadeMode(EvadeReason::Other);
             instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
             return;
         }
@@ -1192,7 +1195,7 @@ struct npc_tirion_fordring_tft : public ScriptedAI
 
     bool OnGossipSelect(Player* /*player*/, uint32 menuId, uint32 gossipListId) override
     {
-        if (me->GetCreatureTemplate()->GossipMenuId == menuId && !gossipListId)
+        if (menuId == GOSSIP_MENU_START_INTRO && !gossipListId)
         {
             _events.SetPhase(PHASE_INTRO);
             me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);

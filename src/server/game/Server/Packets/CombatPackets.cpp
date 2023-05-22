@@ -114,6 +114,13 @@ WorldPacket const* WorldPackets::Combat::PowerUpdate::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Combat::InterruptPowerRegen::Write()
+{
+    _worldPacket << int32(PowerType);
+
+    return &_worldPacket;
+}
+
 void WorldPackets::Combat::SetSheathed::Read()
 {
     _worldPacket >> CurrentSheathState;

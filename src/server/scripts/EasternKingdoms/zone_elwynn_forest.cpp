@@ -16,21 +16,20 @@
  */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "CreatureAIImpl.h"
 #include "CreatureGroups.h"
-#include "GameEventMgr.h"
-#include "GameTime.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 
 enum COG_Paths
 {
-    STORMWIND_PATH  = 80500,
-    GOLDSHIRE_PATH  = 80501,
-    WOODS_PATH      = 80502,
-    HOUSE_PATH      = 80503,
-    LISA_PATH       = 80700
+    STORMWIND_PATH  = 644000,
+    GOLDSHIRE_PATH  = 644008,
+    WOODS_PATH      = 644016,
+    HOUSE_PATH      = 644024,
+    LISA_PATH       = 645600
 };
 
 enum COG_Waypoints

@@ -26,6 +26,7 @@
 #include "SharedDefines.h"
 
 class WorldObject;
+enum class ChatWhisperTargetStatus : uint8;
 
 namespace WorldPackets
 {
@@ -48,6 +49,7 @@ namespace WorldPackets
 
             std::string Text;
             int32 Language = LANG_UNIVERSAL;
+            bool IsSecure = true;
         };
 
         // CMSG_CHAT_MESSAGE_WHISPER
@@ -75,6 +77,7 @@ namespace WorldPackets
             ObjectGuid ChannelGUID;
             std::string Text;
             std::string Target;
+            Optional<bool> IsSecure;
         };
 
         struct ChatAddonMessageParams
@@ -162,7 +165,6 @@ namespace WorldPackets
             ObjectGuid SenderGuildGUID;
             ObjectGuid SenderAccountGUID;
             ObjectGuid TargetGUID;
-            ObjectGuid PartyGUID;
             uint32 SenderVirtualAddress = 0;
             uint32 TargetVirtualAddress = 0;
             std::string SenderName;
@@ -171,8 +173,9 @@ namespace WorldPackets
             std::string _Channel;   ///< Channel Name
             std::string ChatText;
             uint32 AchievementID = 0;
-            uint8 _ChatFlags = 0;   ///< @see enum ChatFlags
+            uint16 _ChatFlags = 0;   ///< @see enum ChatFlags
             float DisplayTime = 0.0f;
+            int32 SpellID = 0;
             Optional<uint32> Unused_801;
             bool HideChatLog = false;
             bool FakeSenderName = false;
@@ -322,6 +325,27 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint8 Reason = 0;
+        };
+
+        class CanLocalWhisperTargetRequest final : public ClientPacket
+        {
+        public:
+            CanLocalWhisperTargetRequest(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_CAN_LOCAL_WHISPER_TARGET_REQUEST, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid WhisperTarget;
+        };
+
+        class CanLocalWhisperTargetResponse final : public ServerPacket
+        {
+        public:
+            CanLocalWhisperTargetResponse() : ServerPacket(SMSG_CHAT_CAN_LOCAL_WHISPER_TARGET_RESPONSE, 16 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid WhisperTarget;
+            ChatWhisperTargetStatus Status = {};
         };
     }
 }

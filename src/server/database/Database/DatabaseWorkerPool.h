@@ -73,7 +73,7 @@ class DatabaseWorkerPool
         //! Enqueues a one-way SQL operation in string format -with variable args- that will be executed asynchronously.
         //! This method should only be used for queries that are only executed once, e.g during startup.
         template<typename... Args>
-        void PExecute(std::string_view sql, Args&&... args)
+        void PExecute(Trinity::FormatString<Args...> sql, Args&&... args)
         {
             if (Trinity::IsFormatEmptyOrNull(sql))
                 return;
@@ -96,7 +96,7 @@ class DatabaseWorkerPool
         //! Directly executes a one-way SQL operation in string format -with variable args-, that will block the calling thread until finished.
         //! This method should only be used for queries that are only executed once, e.g during startup.
         template<typename... Args>
-        void DirectPExecute(std::string_view sql, Args&&... args)
+        void DirectPExecute(Trinity::FormatString<Args...> sql, Args&&... args)
         {
             if (Trinity::IsFormatEmptyOrNull(sql))
                 return;
@@ -119,7 +119,7 @@ class DatabaseWorkerPool
         //! Directly executes an SQL query in string format -with variable args- that will block the calling thread until finished.
         //! Returns reference counted auto pointer, no need for manual memory management in upper level code.
         template<typename... Args>
-        QueryResult PQuery(std::string_view sql, T* conn, Args&&... args)
+        QueryResult PQuery(Trinity::FormatString<Args...> sql, T* conn, Args&&... args)
         {
             if (Trinity::IsFormatEmptyOrNull(sql))
                 return QueryResult(nullptr);
@@ -130,7 +130,7 @@ class DatabaseWorkerPool
         //! Directly executes an SQL query in string format -with variable args- that will block the calling thread until finished.
         //! Returns reference counted auto pointer, no need for manual memory management in upper level code.
         template<typename... Args>
-        QueryResult PQuery(std::string_view sql, Args&&... args)
+        QueryResult PQuery(Trinity::FormatString<Args...> sql, Args&&... args)
         {
             if (Trinity::IsFormatEmptyOrNull(sql))
                 return QueryResult(nullptr);

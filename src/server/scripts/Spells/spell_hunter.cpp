@@ -39,6 +39,7 @@ enum HunterSpells
     SPELL_HUNTER_EXHILARATION                       = 109304,
     SPELL_HUNTER_EXHILARATION_PET                   = 128594,
     SPELL_HUNTER_EXHILARATION_R2                    = 231546,
+    SPELL_HUNTER_EXPLOSIVE_SHOT_DAMAGE              = 212680,
     SPELL_HUNTER_LONE_WOLF                          = 155228,
     SPELL_HUNTER_MASTERS_CALL_TRIGGERED             = 62305,
     SPELL_HUNTER_MISDIRECTION                       = 34477,
@@ -57,9 +58,6 @@ enum HunterSpells
 enum MiscSpells
 {
     SPELL_DRAENEI_GIFT_OF_THE_NAARU                 = 59543,
-    SPELL_MAGE_TEMPORAL_DISPLACEMENT                = 80354,
-    SPELL_SHAMAN_EXHAUSTION                         = 57723,
-    SPELL_SHAMAN_SATED                              = 57724
 };
 
 // 131894 - A Murder of Crows
@@ -149,6 +147,28 @@ class spell_hun_exhilaration : public SpellScript
     void Register() override
     {
         OnHit += SpellHitFn(spell_hun_exhilaration::HandleOnHit);
+    }
+};
+
+// 212431 - Explosive Shot
+class spell_hun_explosive_shot : public AuraScript
+{
+    PrepareAuraScript(spell_hun_explosive_shot);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_EXPLOSIVE_SHOT_DAMAGE });
+    }
+
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetTarget(), SPELL_HUNTER_EXPLOSIVE_SHOT_DAMAGE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_explosive_shot::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -524,7 +544,7 @@ class spell_hun_tame_beast : public SpellScript
 
         if (Creature* target = GetExplTargetUnit()->ToCreature())
         {
-            if (target->GetLevel() > caster->GetLevel())
+            if (target->GetLevelForTarget(caster) > caster->GetLevel())
                 return SPELL_FAILED_HIGHLEVEL;
 
             // use SMSG_PET_TAME_FAILURE?
@@ -614,6 +634,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_a_murder_of_crows);
     RegisterSpellScript(spell_hun_aspect_cheetah);
     RegisterSpellScript(spell_hun_exhilaration);
+    RegisterSpellScript(spell_hun_explosive_shot);
     RegisterSpellScript(spell_hun_hunting_party);
     RegisterSpellScript(spell_hun_last_stand_pet);
     RegisterSpellScript(spell_hun_masters_call);

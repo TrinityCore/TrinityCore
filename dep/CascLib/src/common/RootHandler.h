@@ -62,6 +62,14 @@ struct TRootHandler
         return NULL;
     }
 
+    // Searches the file by file name
+    // nFileIndex - Index to the table
+    // szFileName - Pointer to the file name
+    virtual PCASC_CKEY_ENTRY GetFile(size_t /* nFileIndex */, char * /* szFileName */, size_t /* ccFileName */)
+    {
+        return NULL;
+    }
+
     // Performs find-next-file operation
     // pSearch   - Pointer to the initialized search structure
     // pFindData - Pointer to output structure that will contain the information
@@ -78,6 +86,19 @@ struct TRootHandler
         return false;
     }
 
+    // Copies all items from the given root handler to the new one
+    virtual size_t Copy(TRootHandler * /* pRoot */)
+    {
+        return 0;
+    }
+
+    // Returns the maximum file index
+    virtual size_t GetMaxFileIndex()
+    {
+        return 0;
+    }
+
+    // Returns the list of features
     DWORD GetFeatures()
     {
         return dwFeatures;
@@ -100,8 +121,11 @@ struct TFileTreeRoot : public TRootHandler
 
     PCASC_CKEY_ENTRY GetFile(struct TCascStorage * hs, const char * szFileName);
     PCASC_CKEY_ENTRY GetFile(struct TCascStorage * hs, DWORD FileDataId);
+    PCASC_CKEY_ENTRY GetFile(size_t nFileIndex, char * /* szFileName */, size_t /* ccFileName */);
     PCASC_CKEY_ENTRY Search(struct TCascSearch * pSearch, struct _CASC_FIND_DATA * pFindData);
     bool GetInfo(PCASC_CKEY_ENTRY pCKeyEntry, struct _CASC_FILE_FULL_INFO * pFileInfo);
+    size_t Copy(TRootHandler * pRoot);
+    size_t GetMaxFileIndex();
 
     protected:
 

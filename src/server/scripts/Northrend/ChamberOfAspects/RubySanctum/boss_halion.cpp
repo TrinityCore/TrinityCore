@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "DB2Stores.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
@@ -234,7 +235,7 @@ class boss_halion : public CreatureScript
 
             void EnterEvadeMode(EvadeReason why) override
             {
-                if (why == EVADE_REASON_BOUNDARY || events.IsInPhase(PHASE_ONE))
+                if (why == EvadeReason::Boundary || events.IsInPhase(PHASE_ONE))
                     if (Creature* controller = instance->GetCreature(DATA_HALION_CONTROLLER))
                         controller->AI()->EnterEvadeMode(why);
             }
@@ -301,7 +302,7 @@ class boss_halion : public CreatureScript
                 if (events.IsInPhase(PHASE_THREE))
                 {
                     // Don't consider copied damage.
-                    if (!attacker || !me->IsInPhase(attacker))
+                    if (!attacker || !me->InSamePhase(attacker))
                         return;
 
                     if (Creature* controller = instance->GetCreature(DATA_HALION_CONTROLLER))
@@ -485,7 +486,7 @@ class boss_twilight_halion : public CreatureScript
                 if (events.IsInPhase(PHASE_THREE))
                 {
                     // Don't consider copied damage.
-                    if (!attacker || !me->IsInPhase(attacker))
+                    if (!attacker || !me->InSamePhase(attacker))
                         return;
 
                     if (Creature* controller = instance->GetCreature(DATA_HALION_CONTROLLER))
@@ -772,7 +773,7 @@ class npc_halion_controller : public CreatureScript
                         if (player->IsAlive() && IsInBoundary(player) && !player->IsGameMaster())
                             return;
 
-                EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+                EnterEvadeMode(EvadeReason::NoHostiles);
             }
 
             void SetData(uint32 id, uint32 value) override

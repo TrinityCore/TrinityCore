@@ -29,7 +29,7 @@ AppenderFile::AppenderFile(uint8 id, std::string const& name, LogLevel level, Ap
     _fileSize(0)
 {
     if (args.size() < 4)
-        throw InvalidAppenderArgsException(Trinity::StringFormat("Log::CreateAppenderFromConfig: Missing file name for appender %s", name.c_str()));
+        throw InvalidAppenderArgsException(Trinity::StringFormat("Log::CreateAppenderFromConfig: Missing file name for appender {}", name));
 
     _fileName.assign(args[3]);
 
@@ -51,7 +51,7 @@ AppenderFile::AppenderFile(uint8 id, std::string const& name, LogLevel level, Ap
         if (Optional<uint32> size = Trinity::StringTo<uint32>(args[5]))
             _maxFileSize = *size;
         else
-            throw InvalidAppenderArgsException(Trinity::StringFormat("Log::CreateAppenderFromConfig: Invalid size '%s' for appender %s", std::string(args[5]).c_str(), name.c_str()));
+            throw InvalidAppenderArgsException(Trinity::StringFormat("Log::CreateAppenderFromConfig: Invalid size '{}' for appender {}", args[5], name));
     }
 
     _dynamicName = std::string::npos != _fileName.find("%s");

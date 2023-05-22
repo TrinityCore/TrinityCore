@@ -60,7 +60,9 @@ enum MagharCaptive
     NPC_MURK_RAIDER             = 18203,
     NPC_MURK_BRUTE              = 18211,
     NPC_MURK_SCAVENGER          = 18207,
-    NPC_MURK_PUTRIFIER          = 18202
+    NPC_MURK_PUTRIFIER          = 18202,
+
+    PATH_ESCORT_MAGHAR_CAPTIVE  = 145682,
 };
 
 static float m_afAmbushA[]= {-1568.805786f, 8533.873047f, 1.958f};
@@ -130,8 +132,6 @@ public:
 
                     if (Player* player = GetPlayerForEscort())
                         player->GroupEventHappens(QUEST_TOTEM_KARDASH_H, me);
-
-                    SetRun();
                     break;
             }
         }
@@ -207,7 +207,8 @@ public:
             {
                 me->SetStandState(UNIT_STAND_STATE_STAND);
                 me->SetFaction(FACTION_ESCORTEE_H_NEUTRAL_ACTIVE);
-                Start(true, false, player->GetGUID(), quest);
+                LoadPath(PATH_ESCORT_MAGHAR_CAPTIVE);
+                Start(true, player->GetGUID(), quest);
                 Talk(SAY_MAG_START);
 
                 me->SummonCreature(NPC_MURK_RAIDER, m_afAmbushA[0] + 2.5f, m_afAmbushA[1] - 2.5f, m_afAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25s);
@@ -249,6 +250,8 @@ enum KurenaiCaptive
     NPC_KUR_MURK_BRUTE              = 18211,
     NPC_KUR_MURK_SCAVENGER          = 18207,
     NPC_KUR_MURK_PUTRIFIER          = 18202,
+
+    PATH_ESCORT_KURENAI_CAPTIVE     = 145674,
 };
 
 static float kurenaiAmbushA[]= {-1568.805786f, 8533.873047f, 1.958f};
@@ -321,8 +324,6 @@ public:
 
                     if (Player* player = GetPlayerForEscort())
                         player->GroupEventHappens(QUEST_TOTEM_KARDASH_A, me);
-
-                    SetRun();
                     break;
                 }
             }
@@ -401,7 +402,8 @@ public:
             {
                 me->SetStandState(UNIT_STAND_STATE_STAND);
                 me->SetFaction(FACTION_ESCORTEE_A_NEUTRAL_ACTIVE);
-                Start(true, false, player->GetGUID(), quest);
+                LoadPath(PATH_ESCORT_KURENAI_CAPTIVE);
+                Start(true, player->GetGUID(), quest);
                 Talk(SAY_KUR_START);
 
                 me->SummonCreature(NPC_KUR_MURK_RAIDER, kurenaiAmbushA[0] + 2.5f, kurenaiAmbushA[1] - 2.5f, kurenaiAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25s);

@@ -327,7 +327,7 @@ struct boss_hadronox : public BossAI
                         {
                             if (!instance->CheckRequiredBosses(DATA_HADRONOX))
                             {
-                                EnterEvadeMode(EVADE_REASON_SEQUENCE_BREAK);
+                                EnterEvadeMode(EvadeReason::SequenceBreak);
                                 return;
                             }
                             // cancel current point movement if engaged by players
@@ -339,7 +339,7 @@ struct boss_hadronox : public BossAI
                             }
                         }
                         else // we are no longer in combat with players - reset the encounter
-                            EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+                            EnterEvadeMode(EvadeReason::NoHostiles);
                     }
                     events.Repeat(Seconds(1));
                     break;
@@ -408,7 +408,7 @@ struct npc_hadronox_crusherPackAI : public ScriptedAI
     void EnterEvadeMode(EvadeReason /*why*/) override
     {
         if (Creature* hadronox = _instance->GetCreature(DATA_HADRONOX))
-            hadronox->AI()->EnterEvadeMode(EVADE_REASON_OTHER);
+            hadronox->AI()->EnterEvadeMode(EvadeReason::Other);
     }
 
     uint32 GetData(uint32 data) const override

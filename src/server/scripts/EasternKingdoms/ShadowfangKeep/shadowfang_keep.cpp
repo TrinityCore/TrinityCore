@@ -123,14 +123,15 @@ public:
             if (action == GOSSIP_ACTION_INFO_DEF + 1)
             {
                 CloseGossipMenuFor(player);
-                Start(false, false, player->GetGUID());
+                LoadPath((me->GetEntry() << 3) | 2);
+                Start(false, player->GetGUID());
             }
             return true;
         }
 
         bool OnGossipHello(Player* player) override
         {
-            uint32 gossipMenuId = Player::GetDefaultGossipMenuForSource(me);
+            uint32 gossipMenuId = player->GetGossipMenuForSource(me);
             InitGossipMenuFor(player, gossipMenuId);
             if (instance->GetData(TYPE_FREE_NPC) != DONE && instance->GetData(TYPE_RETHILGORE) == DONE)
                 AddGossipItemFor(player, gossipMenuId, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);

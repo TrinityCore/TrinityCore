@@ -105,12 +105,7 @@ struct AuraKey
     uint32 SpellId;
     uint32 EffectMask;
 
-    bool operator<(AuraKey const& right) const
-    {
-        auto comparisonTuple = [](AuraKey const& k) { return std::tie(k.Caster, k.Item, k.SpellId, k.EffectMask); };
-
-        return comparisonTuple(*this) < comparisonTuple(right);
-    }
+    friend std::strong_ordering operator<=>(AuraKey const& left, AuraKey const& right) = default;
 };
 
 struct AuraLoadEffectInfo
@@ -236,10 +231,10 @@ class TC_GAME_API Aura
 
         // Helpers for targets
         ApplicationMap const& GetApplicationMap() { return m_applications; }
-        void GetApplicationVector(std::vector<AuraApplication*>& applicationVector) const;
-        AuraApplication const* GetApplicationOfTarget(ObjectGuid guid) const { ApplicationMap::const_iterator itr = m_applications.find(guid); if (itr != m_applications.end()) return itr->second; return nullptr; }
-        AuraApplication* GetApplicationOfTarget(ObjectGuid guid) { ApplicationMap::iterator itr = m_applications.find(guid); if (itr != m_applications.end()) return itr->second; return nullptr; }
-        bool IsAppliedOnTarget(ObjectGuid guid) const { return m_applications.find(guid) != m_applications.end(); }
+        void GetApplicationVector(std::vector<AuraApplication*>& applications) const;
+        AuraApplication const* GetApplicationOfTarget(ObjectGuid guid) const;
+        AuraApplication* GetApplicationOfTarget(ObjectGuid guid);
+        bool IsAppliedOnTarget(ObjectGuid guid) const;
 
         void SetNeedClientUpdateForTargets() const;
         void HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, bool apply, bool onReapply);

@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "baradin_hold.h"
+#include "Containers.h"
 #include "InstanceScript.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"

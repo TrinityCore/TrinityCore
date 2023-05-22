@@ -65,7 +65,7 @@ namespace Trainer
     class Trainer
     {
     public:
-        Trainer(uint32 id, Type type, std::string greeting, std::vector<Spell> spells);
+        Trainer(uint32 id, Type type, std::string_view greeting, std::vector<Spell> spells);
 
         void SendSpells(Creature const* npc, Player* player, LocaleConstant locale) const;
         void TeachSpell(Creature const* npc, Player* player, uint32 spellId) const;
@@ -78,7 +78,7 @@ namespace Trainer
         std::string const& GetGreeting(LocaleConstant locale) const;
 
         friend ObjectMgr;
-        void AddGreetingLocale(LocaleConstant locale, std::string greeting);
+        void AddGreetingLocale(LocaleConstant locale, std::string_view greeting);
 
         uint32 _id;
         Type _type;

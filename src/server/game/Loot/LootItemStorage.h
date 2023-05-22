@@ -63,7 +63,7 @@ class StoredLootContainer
         void RemoveMoney();
         void RemoveItem(uint32 itemId, uint32 count, uint32 itemIndex);
 
-        uint32 GetContainer() const { return _containerId; }
+        uint64 GetContainer() const { return _containerId; }
         uint32 GetMoney() const { return _money; }
         StoredLootItemContainer const& GetLootItems() const { return _lootItems; }
 
