@@ -342,7 +342,7 @@ struct npc_crystal_channel_target : public ScriptedAI
         }
 
         if (summon)
-            summon->GetMotionMaster()->MovePath(summon->GetEntry() * 100, false);
+            summon->GetMotionMaster()->MovePath((summon->GetEntry() * 100) << 3, false);
 
         if (_spell == SPELL_SUMMON_CRYSTAL_HANDLER)
             Reset();

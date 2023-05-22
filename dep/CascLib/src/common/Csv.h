@@ -113,11 +113,11 @@ class CASC_CSV
 
     CASC_CSV_LINE * m_pLines;
     CASC_CSV_LINE Header;
+    CASC_BLOB CsvFile;
     BYTE HashTable[CSV_HASH_TABLE_SIZE];
     void * m_pvUserData;
     char * m_szCsvFile;
     char * m_szCsvPtr;
-    size_t m_nCsvFile;
     size_t m_nLinesMax;
     size_t m_nLines;
     bool m_bHasHeader;

@@ -144,7 +144,7 @@ namespace VMAP
             {
                 uint32 x, y;
                 StaticMapTree::unpackTileID(tileItr->first, x, y);
-                std::string tileFileName = Trinity::StringFormat("%s/%04u_%02u_%02u.vmtile", iDestDir.c_str(), data.MapId, y, x);
+                std::string tileFileName = Trinity::StringFormat("{}/{:04}_{:02}_{:02}.vmtile", iDestDir, data.MapId, y, x);
                 if (FILE* tileFile = fopen(tileFileName.c_str(), "wb"))
                 {
                     std::set<TileSpawn> const& parentTileEntries = data.ParentTileEntries[tileItr->first];

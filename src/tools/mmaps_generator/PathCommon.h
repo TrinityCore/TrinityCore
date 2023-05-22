@@ -18,7 +18,8 @@
 #ifndef _MMAP_COMMON_H
 #define _MMAP_COMMON_H
 
-#include "Common.h"
+#include "Define.h"
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>

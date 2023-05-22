@@ -458,6 +458,7 @@ struct npc_zm_field_scout : public ScriptedAI
         if (me->GetEntry() == ZM_ALLIANCE_FIELD_SCOUT)
             gossipMenuId = GOSSIP_MENU_FIELD_SCOUT_ALLIANCE;
 
+        InitGossipMenuFor(player, gossipMenuId);
         if (CanObtainBanner(player))
             AddGossipItemFor(player, gossipMenuId, GOSSIP_OPTION_FIELD_SCOUT_BATTLE_STANDARD, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 

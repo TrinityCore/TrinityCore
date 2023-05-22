@@ -1,0 +1,256 @@
+SET @CGUID := 396416;
+SET @OGUID := 248208;
+SET @EVENT := 26;
+
+-- Creature templates
+UPDATE `creature_template` SET `minlevel`=60, `maxlevel`=60 WHERE `entry`=32820; -- Wild Turkey
+UPDATE `creature_template` SET `unit_flags3`=16777216 WHERE `entry`=32824; -- [PH] Pilgrim's Bounty Table - Turkey
+UPDATE `creature_template` SET `unit_flags3`=16777216 WHERE `entry`=32825; -- [PH] Pilgrim's Bounty Table - Yams
+UPDATE `creature_template` SET `unit_flags3`=16777216 WHERE `entry`=32827; -- [PH] Pilgrim's Bounty Table - Cranberry Sauce
+UPDATE `creature_template` SET `unit_flags3`=16777216 WHERE `entry`=32829; -- [PH] Pilgrim's Bounty Table - Pie
+UPDATE `creature_template` SET `unit_flags3`=16777216 WHERE `entry`=32831; -- [PH] Pilgrim's Bounty Table - Stuffing
+UPDATE `creature_template` SET `unit_flags3`=16777216 WHERE `entry`=32839; -- Sturdy Plate
+UPDATE `creature_template` SET `gossip_menu_id`=10576, `minlevel`=60, `maxlevel`=60 WHERE `entry`=34653; -- Bountiful Table Hostess
+UPDATE `creature_template` SET `minlevel`=60, `maxlevel`=60 WHERE `entry`=34675; -- Gregory Tabor
+UPDATE `creature_template` SET `minlevel`=60, `maxlevel`=60 WHERE `entry`=34682; -- Wilmina Holbeck
+UPDATE `creature_template` SET `gossip_menu_id`=10569, `minlevel`=60, `maxlevel`=60 WHERE `entry`=34710; -- Ellen Moore
+UPDATE `creature_template` SET `gossip_menu_id`=10570, `minlevel`=60, `maxlevel`=60 WHERE `entry`=34744; -- Jasper Moore
+UPDATE `creature_template` SET `unit_flags3`=16777216 WHERE `entry`=34812; -- The Turkey Chair
+UPDATE `creature_template` SET `unit_flags3`=16777217 WHERE `entry`=34819; -- The Stuffing Chair
+UPDATE `creature_template` SET `unit_flags3`=16777216 WHERE `entry`=34822; -- The Pie Chair
+UPDATE `creature_template` SET `unit_flags3`=16777216 WHERE `entry`=34823; -- The Cranberry Chair
+UPDATE `creature_template` SET `unit_flags3`=16777216 WHERE `entry`=34824; -- The Sweet Potato Chair
+UPDATE `creature_template` SET `minlevel`=60, `maxlevel`=60, `unit_flags`=2147746560 WHERE `entry`=35337; -- Bountiful Barrel
+
+DELETE FROM `creature_template_movement` WHERE `CreatureId` IN (32830, 32840);
+INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`, `InteractionPauseTimer`) VALUES
+(32830, 0, 0, 1, 0, 0, 0, NULL),
+(32840, 0, 0, 1, 0, 0, 0, NULL);
+
+-- Vehicle data
+DELETE FROM `vehicle_seat_addon` WHERE `SeatEntry` IN (2824, 2841, 2842, 2843, 2844, 2845);
+INSERT INTO `vehicle_seat_addon` (`SeatEntry`, `SeatOrientation`, `ExitParamX`, `ExitParamY`, `ExitParamZ`, `ExitParamO`, `ExitParamValue`) VALUES
+(2824, 0, -3.9238, 0, 0, 0, 1),
+(2841, 3.7000983, 0, 0, 0, 0, 0),
+(2842, 2.4609144, 0, 0, 0, 0, 0),
+(2843, 0, 0, 0, 0, 0, 0),
+(2844, 1.1868243, 0, 0, 0, 0, 0),
+(2845, 5.009095, 0, 0, 0, 0, 0);
+
+-- Gossips
+DELETE FROM `gossip_menu` WHERE `MenuID` IN (10569, 10570, 10576, 10588);
+INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
+(10569, 14627, 46741), -- 34710 (Ellen Moore)
+(10570, 14628, 46741), -- 34744 (Jasper Moore)
+(10576, 14634, 46741), -- 34653 (Bountiful Table Hostess)
+(10588, 14647, 46741); -- 34653 (Bountiful Table Hostess)
+
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextId`=35108, `ActionMenuID`=10588, `VerifiedBuild`=46741 WHERE (`MenuID`=10576 AND `OptionID`=0);
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextId`=35062, `VerifiedBuild`=46741 WHERE (`MenuID`=10569 AND `OptionID`=0);
+
+-- Equipments
+DELETE FROM `creature_equip_template` WHERE `CreatureID`=34653 AND `ID` IN (1, 2);
+INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `AppearanceModID1`, `ItemVisual1`, `ItemID2`, `AppearanceModID2`, `ItemVisual2`, `ItemID3`, `AppearanceModID3`, `ItemVisual3`, `VerifiedBuild`) VALUES
+(34653, 1, 2202, 0, 0, 0, 0, 0, 0, 0, 0, 46741), -- Bountiful Table Hostess
+(34653, 2, 2703, 0, 0, 0, 0, 0, 0, 0, 0, 46741); -- Bountiful Table Hostess
+
+UPDATE `creature_equip_template` SET `VerifiedBuild`=46741 WHERE (`ID`=1 AND `CreatureID` IN (51348,34744,34710,34675,1423,68)) OR (`ID`=2 AND `CreatureID`=42218);
+
+-- Scaling
+DELETE FROM `creature_template_scaling` WHERE `DifficultyID`=0 AND `Entry` IN (32820, 34653, 34675, 34682, 34710, 34744, 35337);
+INSERT INTO `creature_template_scaling` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `VerifiedBuild`) VALUES
+(32820, 0, 0, 0, 389, 46741),
+(34653, 0, 0, 0, 389, 46741),
+(34675, 0, 0, 0, 389, 46741),
+(34682, 0, 0, 0, 389, 46741),
+(34710, 0, 0, 0, 389, 46741),
+(34744, 0, 0, 0, 389, 46741),
+(35337, 0, 0, 0, 389, 46741);
+
+-- Trainer
+DELETE FROM `creature_trainer` WHERE `CreatureID`=34710;
+INSERT INTO `creature_trainer` (`CreatureID`, `TrainerID`, `MenuID`, `OptionID`) VALUES
+(34710, 136, 10569, 0);
+
+-- Gameobject templates
+UPDATE `gameobject_template_addon` SET `faction`=35 WHERE `entry`=195200; -- Pilgrim's Bounty Cooking Fire
+
+-- Quests
+UPDATE `quest_poi_points` SET `VerifiedBuild`=46741 WHERE (`QuestID`=14053 AND `Idx1`=1 AND `Idx2`=0) OR (`QuestID`=14053 AND `Idx1`=0 AND `Idx2`=0) OR (`QuestID`=14055 AND `Idx1`=1 AND `Idx2`=0) OR (`QuestID`=14055 AND `Idx1`=0 AND `Idx2`=0) OR (`QuestID`=14023 AND `Idx1`=1 AND `Idx2`=0) OR (`QuestID`=14023 AND `Idx1`=0 AND `Idx2`=0) OR (`QuestID`=14054 AND `Idx1`=2 AND `Idx2`=0) OR (`QuestID`=14054 AND `Idx1`=1 AND `Idx2`=0) OR (`QuestID`=14054 AND `Idx1`=0 AND `Idx2`=0);
+
+UPDATE `quest_details` SET `VerifiedBuild`=46741 WHERE `ID` IN (14053, 14055, 14023);
+
+UPDATE `quest_request_items` SET `EmoteOnIncomplete`=1 WHERE `ID` IN (14055, 14023);
+
+UPDATE `creature_queststarter` SET `VerifiedBuild`=46741 WHERE (`id`=34710 AND `quest`=14053) OR (`id`=34744 AND `quest`=14055) OR (`id`=34675 AND `quest`=14023);
+
+UPDATE `creature_questender` SET `VerifiedBuild`=46741 WHERE (`id`=34710 AND `quest`=14053) OR (`id`=34744 AND `quest` IN (14055,14023));
+
+-- Creature spawns
+DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+10;
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
+(@CGUID+0, 32823, 0, 12, 7486, '0', 0, 0, 0, 0, -9125.173828125, 343.607635498046875, 94.2982177734375, 0, 120, 0, 0, 19343, 0, 0, 0, 0, 0, 46741), -- Bountiful Table (Area: Stormwind Gate - Difficulty: 0) (Auras: )
+(@CGUID+1, 32823, 0, 12, 7486, '0', 0, 0, 0, 0, -9106.7939453125, 326.197906494140625, 93.49233245849609375, 2.042035102844238281, 120, 0, 0, 19343, 0, 0, 0, 0, 0, 46741), -- Bountiful Table (Area: Stormwind Gate - Difficulty: 0) (Auras: )
+(@CGUID+2, 32823, 0, 12, 7486, '0', 0, 0, 0, 0, -9115.9189453125, 334.338531494140625, 93.3733062744140625, 1.274090290069580078, 120, 0, 0, 19343, 0, 0, 0, 0, 0, 46741), -- Bountiful Table (Area: Stormwind Gate - Difficulty: 0)
+(@CGUID+3, 34653, 0, 12, 7486, '0', 0, 0, 0, 0, -9121.7724609375, 349.138885498046875, 94.0400390625, 2.164208173751831054, 120, 0, 0, 19343, 0, 0, 0, 0, 0, 46741), -- Bountiful Table Hostess (Area: Stormwind Gate - Difficulty: 0)
+(@CGUID+4, 34675, 0, 12, 7486, '0', 0, 0, 0, 1, -9130.263671875, 351.836822509765625, 93.8494873046875, 2.268928050994873046, 120, 0, 0, 19343, 0, 0, 0, 0, 0, 46741), -- Gregory Tabor (Area: Stormwind Gate - Difficulty: 0)
+(@CGUID+5, 34682, 0, 12, 7486, '0', 0, 0, 0, 0, -9132.2255859375, 350.265625, 93.7830047607421875, 2.373647689819335937, 120, 0, 0, 19343, 0, 0, 0, 0, 0, 46741), -- Wilmina Holbeck (Area: Stormwind Gate - Difficulty: 0)
+(@CGUID+6, 34710, 0, 12, 7486, '0', 0, 0, 0, 1, -9111.498046875, 365.263885498046875, 94.74680328369140625, 2.216568231582641601, 120, 0, 0, 19343, 0, 0, 0, 0, 0, 46741), -- Ellen Moore (Area: Stormwind Gate - Difficulty: 0)
+(@CGUID+7, 34744, 0, 12, 7486, '0', 0, 0, 0, 1, -9115.4443359375, 359.26910400390625, 93.55462646484375, 2.652900457382202148, 120, 0, 0, 19343, 0, 0, 0, 0, 0, 46741), -- Jasper Moore (Area: Stormwind Gate - Difficulty: 0)
+(@CGUID+8, 35337, 0, 12, 7486, '0', 0, 0, 0, 0, -9132.5283203125, 347.779510498046875, 93.24025726318359375, 4.886921882629394531, 120, 0, 0, 19343, 0, 0, 0, 0, 0, 46741), -- Bountiful Barrel (Area: Stormwind Gate - Difficulty: 0)
+(@CGUID+9, 35337, 0, 12, 7486, '0', 0, 0, 0, 0, -9133.2080078125, 349.3350830078125, 93.0038299560546875, 0, 120, 0, 0, 19343, 0, 0, 0, 0, 0, 46741), -- Bountiful Barrel (Area: Stormwind Gate - Difficulty: 0)
+(@CGUID+10, 35337, 0, 12, 7486, '0', 0, 0, 0, 0, -9130.798828125, 348.3194580078125, 93.48369598388671875, 4.171336650848388671, 120, 0, 0, 19343, 0, 0, 0, 0, 0, 46741); -- Bountiful Barrel (Area: Stormwind Gate - Difficulty: 0)
+
+-- Gameobject spawns
+DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+65;
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
+(@OGUID+0, 179968, 0, 12, 7486, '0', 0, 0, -9129.6044921875, 350.798614501953125, 93.4149322509765625, 2.303830623626708984, 0, 0, 0.913544654846191406, 0.406738430261611938, 120, 255, 1, 46741), -- Haystack 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+1, 179968, 0, 12, 7486, '0', 0, 0, -9130.0693359375, 351.388885498046875, 93.164306640625, 2.303830623626708984, 0, 0, 0.913544654846191406, 0.406738430261611938, 120, 255, 1, 46741), -- Haystack 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+2, 179968, 0, 12, 7486, '0', 0, 0, -9130.53125, 351.958343505859375, 93.15648651123046875, 2.303830623626708984, 0, 0, 0.913544654846191406, 0.406738430261611938, 120, 255, 1, 46741), -- Haystack 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+3, 179968, 0, 12, 7486, '0', 0, 0, -9112.4150390625, 364.545135498046875, 94.01459503173828125, 2.286378860473632812, 0, 0, 0.909960746765136718, 0.414694398641586303, 120, 255, 1, 46741), -- Haystack 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+4, 179968, 0, 12, 7486, '0', 0, 0, -9131.4423828125, 349.170135498046875, 93.3055572509765625, 2.286378860473632812, 0, 0, 0.909960746765136718, 0.414694398641586303, 120, 255, 1, 46741), -- Haystack 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+5, 179968, 0, 12, 7486, '0', 0, 0, -9123.36328125, 329.789947509765625, 93.28472137451171875, 3.926995515823364257, 0, 0, -0.92387866973876953, 0.38268551230430603, 120, 255, 1, 46741), -- Haystack 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+6, 179968, 0, 12, 7486, '0', 0, 0, -9101.234375, 334.829864501953125, 94.189239501953125, 0.767943859100341796, 0, 0, 0.374606132507324218, 0.927184045314788818, 120, 255, 1, 46741), -- Haystack 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+7, 179968, 0, 12, 7486, '0', 0, 0, -9121.826171875, 328.229156494140625, 93.19097137451171875, 0.785396754741668701, 0, 0, 0.38268280029296875, 0.923879802227020263, 120, 255, 1, 46741), -- Haystack 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+8, 179968, 0, 12, 7486, '0', 0, 0, -9132.640625, 338.791656494140625, 93.26215362548828125, 3.94444584846496582, 0, 0, -0.92050457000732421, 0.3907318115234375, 120, 255, 1, 46741), -- Haystack 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+9, 179968, 0, 12, 7486, '0', 0, 0, -9110.607421875, 366.095489501953125, 94.0480499267578125, 2.286378860473632812, 0, 0, 0.909960746765136718, 0.414694398641586303, 120, 255, 1, 46741), -- Haystack 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+10, 179968, 0, 12, 7486, '0', 0, 0, -9118.3232421875, 352.451385498046875, 93.59378814697265625, 3.839725255966186523, 0, 0, -0.93969249725341796, 0.34202045202255249, 120, 255, 1, 46741), -- Haystack 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+11, 179968, 0, 12, 7486, '0', 0, 0, -9109.716796875, 342.875, 93.4774627685546875, 3.874631166458129882, 0, 0, -0.93358039855957031, 0.358368009328842163, 120, 255, 1, 46741), -- Haystack 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+12, 179968, 0, 12, 7486, '0', 0, 0, -9130.373046875, 336.82464599609375, 93.4618072509765625, 0.855210542678833007, 0, 0, 0.414692878723144531, 0.909961462020874023, 120, 255, 1, 46741), -- Haystack 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+13, 179968, 0, 12, 7486, '0', 0, 0, -9131.921875, 349.739593505859375, 93.086761474609375, 2.286378860473632812, 0, 0, 0.909960746765136718, 0.414694398641586303, 120, 255, 1, 46741), -- Haystack 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+14, 179968, 0, 12, 7486, '0', 0, 0, -9111.5205078125, 365.3194580078125, 94.02376556396484375, 2.286378860473632812, 0, 0, 0.909960746765136718, 0.414694398641586303, 120, 255, 1, 46741), -- Haystack 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+15, 179968, 0, 12, 7486, '0', 0, 0, -9108.3212890625, 341.447906494140625, 93.501739501953125, 3.874631166458129882, 0, 0, -0.93358039855957031, 0.358368009328842163, 120, 255, 1, 46741), -- Haystack 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+16, 179968, 0, 12, 7486, '0', 0, 0, -9132.3837890625, 350.317718505859375, 93.0628509521484375, 2.286378860473632812, 0, 0, 0.909960746765136718, 0.414694398641586303, 120, 255, 1, 46741), -- Haystack 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+17, 179968, 0, 12, 7486, '0', 0, 0, -9116.998046875, 350.876739501953125, 93.6508636474609375, 3.857182979583740234, 0, 0, -0.93667125701904296, 0.350209832191467285, 120, 255, 1, 46741), -- Haystack 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+18, 179968, 0, 12, 7486, '0', 0, 0, -9099.716796875, 333.30035400390625, 94.3125, 3.94444584846496582, 0, 0, -0.92050457000732421, 0.3907318115234375, 120, 255, 1, 46741), -- Haystack 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+19, 179968, 0, 12, 7486, '0', 0, 0, -9112.7626953125, 319.407989501953125, 93.15767669677734375, 3.961898565292358398, 0, 0, -0.91705989837646484, 0.398749500513076782, 120, 255, 1, 46741), -- Haystack 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+20, 179968, 0, 12, 7486, '0', 0, 0, -9114.45703125, 320.90972900390625, 93.1864776611328125, 0.820303261280059814, 0, 0, 0.398748397827148437, 0.917060375213623046, 120, 255, 1, 46741), -- Haystack 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+21, 179968, 0, 12, 7486, '0', 0, 0, -9097.7451171875, 320.314239501953125, 93.797454833984375, 2.303830623626708984, 0, 0, 0.913544654846191406, 0.406738430261611938, 120, 255, 1, 46741), -- Haystack 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+22, 179968, 0, 12, 7486, '0', 0, 0, -9099.5830078125, 318.685760498046875, 93.83853912353515625, 2.286378860473632812, 0, 0, 0.909960746765136718, 0.414694398641586303, 120, 255, 1, 46741), -- Haystack 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+23, 180353, 0, 12, 7486, '0', 0, 0, -9122.6220703125, 329.0225830078125, 93.240203857421875, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+24, 180353, 0, 12, 7486, '0', 0, 0, -9131.75, 337.94097900390625, 93.34102630615234375, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+25, 180353, 0, 12, 7486, '0', 0, 0, -9130.513671875, 349.9444580078125, 93.372589111328125, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+26, 180353, 0, 12, 7486, '0', 0, 0, -9117.6201171875, 351.670135498046875, 93.62094879150390625, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+27, 180353, 0, 12, 7486, '0', 0, 0, -9111.4599609375, 361.625, 93.87502288818359375, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+28, 180353, 0, 12, 7486, '0', 0, 0, -9108.4794921875, 363.73089599609375, 93.95777130126953125, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+29, 180353, 0, 12, 7486, '0', 0, 0, -9109.0087890625, 342.180572509765625, 93.49059295654296875, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+30, 180353, 0, 12, 7486, '0', 0, 0, -9098.654296875, 319.4600830078125, 93.8115692138671875, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+31, 180353, 0, 12, 7486, '0', 0, 0, -9100.3798828125, 334.015625, 94.26544952392578125, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+32, 180353, 0, 12, 7486, '0', 0, 0, -9113.609375, 320.149322509765625, 93.16226959228515625, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+33, 195164, 0, 12, 7486, '0', 0, 0, -9129.7392578125, 350.654510498046875, 94.10631561279296875, 2.251473426818847656, 0, 0, 0.902585029602050781, 0.430511653423309326, 120, 255, 1, 46741), -- Pumpkin (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+34, 195164, 0, 12, 7486, '0', 0, 0, -9131.2451171875, 351.2725830078125, 93.13372802734375, 3.804818391799926757, 0, 0, -0.94551849365234375, 0.325568377971649169, 120, 255, 1, 46741), -- Pumpkin (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+35, 195164, 0, 12, 7486, '0', 0, 0, -9130.2763671875, 336.779510498046875, 94.16184234619140625, 0.872663915157318115, 0, 0, 0.422617912292480468, 0.906307935714721679, 120, 255, 1, 46741), -- Pumpkin (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+36, 195164, 0, 12, 7486, '0', 0, 0, -9132.544921875, 338.74652099609375, 93.96569061279296875, 3.90954136848449707, 0, 0, -0.92718315124511718, 0.37460830807685852, 120, 255, 1, 46741), -- Pumpkin (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+37, 195164, 0, 12, 7486, '0', 0, 0, -9108.7568359375, 364.289947509765625, 94.82573699951171875, 6.178466320037841796, 0, 0, -0.05233573913574218, 0.998629570007324218, 120, 255, 1, 46741), -- Pumpkin (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+38, 195164, 0, 12, 7486, '0', 0, 0, -9121.6875, 328.348968505859375, 93.88315582275390625, 0.802850961685180664, 0, 0, 0.390730857849121093, 0.920504987239837646, 120, 255, 1, 46741), -- Pumpkin (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+39, 195164, 0, 12, 7486, '0', 0, 0, -9117.01953125, 350.83160400390625, 94.34537506103515625, 3.839725255966186523, 0, 0, -0.93969249725341796, 0.34202045202255249, 120, 255, 1, 46741), -- Pumpkin (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+40, 195164, 0, 12, 7486, '0', 0, 0, -9118.2255859375, 352.40625, 94.28531646728515625, 3.804818391799926757, 0, 0, -0.94551849365234375, 0.325568377971649169, 120, 255, 1, 46741), -- Pumpkin (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+41, 195164, 0, 12, 7486, '0', 0, 0, -9131.48828125, 350.74652099609375, 93.15081787109375, 3.804818391799926757, 0, 0, -0.94551849365234375, 0.325568377971649169, 120, 255, 1, 46741), -- Pumpkin (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+42, 195164, 0, 12, 7486, '0', 0, 0, -9108.4580078125, 341.435760498046875, 94.18932342529296875, 3.90954136848449707, 0, 0, -0.92718315124511718, 0.37460830807685852, 120, 255, 1, 46741), -- Pumpkin (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+43, 195164, 0, 12, 7486, '0', 0, 0, -9109.7568359375, 342.779510498046875, 94.17063140869140625, 3.857182979583740234, 0, 0, -0.93667125701904296, 0.350209832191467285, 120, 255, 1, 46741), -- Pumpkin (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+44, 195164, 0, 12, 7486, '0', 0, 0, -9131.5, 349.2413330078125, 93.979583740234375, 2.286378860473632812, 0, 0, 0.909960746765136718, 0.414694398641586303, 120, 255, 1, 46741), -- Pumpkin (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+45, 195164, 0, 12, 7486, '0', 0, 0, -9123.453125, 329.76214599609375, 93.97652435302734375, 3.961898565292358398, 0, 0, -0.91705989837646484, 0.398749500513076782, 120, 255, 1, 46741), -- Pumpkin (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+46, 195164, 0, 12, 7486, '0', 0, 0, -9099.78515625, 333.37152099609375, 95.00388336181640625, 3.9793548583984375, 0, 0, -0.9135446548461914, 0.406738430261611938, 120, 255, 1, 46741), -- Pumpkin (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+47, 195164, 0, 12, 7486, '0', 0, 0, -9101.1826171875, 334.875, 94.88756561279296875, 0.767943859100341796, 0, 0, 0.374606132507324218, 0.927184045314788818, 120, 255, 1, 46741), -- Pumpkin (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+48, 195164, 0, 12, 7486, '0', 0, 0, -9114.513671875, 320.98089599609375, 93.87872314453125, 0.785396754741668701, 0, 0, 0.38268280029296875, 0.923879802227020263, 120, 255, 1, 46741), -- Pumpkin (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+49, 195164, 0, 12, 7486, '0', 0, 0, -9112.8994140625, 319.263885498046875, 93.84804534912109375, 3.961898565292358398, 0, 0, -0.91705989837646484, 0.398749500513076782, 120, 255, 1, 46741), -- Pumpkin (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+50, 195164, 0, 12, 7486, '0', 0, 0, -9099.640625, 318.7569580078125, 94.5261688232421875, 2.286378860473632812, 0, 0, 0.909960746765136718, 0.414694398641586303, 120, 255, 1, 46741), -- Pumpkin (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+51, 195164, 0, 12, 7486, '0', 0, 0, -9097.8798828125, 320.170135498046875, 94.48999786376953125, 2.251473426818847656, 0, 0, 0.902585029602050781, 0.430511653423309326, 120, 255, 1, 46741), -- Pumpkin (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+52, 195191, 0, 12, 7486, '0', 0, 0, -9110.45703125, 363.703125, 93.9090576171875, 2.216565132141113281, 0, 0, 0.894933700561523437, 0.44619917869567871, 120, 255, 1, 46741), -- Dwarven Table Simple 05 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+53, 195192, 0, 12, 7486, '0', 0, 0, -9109.3974609375, 365.076385498046875, 94.8199615478515625, 5.777040958404541015, 0, 0, -0.25037956237792968, 0.968147754669189453, 120, 255, 1, 46741), -- Basket of Corn (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+54, 195194, 0, 12, 7486, '0', 0, 0, -9111.283203125, 362.201385498046875, 94.82390594482421875, 3.804818391799926757, 0, 0, -0.94551849365234375, 0.325568377971649169, 120, 255, 1, 46741), -- Small Basket 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+55, 195195, 0, 12, 7486, '0', 0, 0, -9111.908203125, 362.8350830078125, 94.752593994140625, 3.298687219619750976, 0, 0, -0.99691677093505859, 0.078466430306434631, 120, 255, 1, 46741), -- Cranberry Masher (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+56, 195196, 0, 12, 7486, '0', 0, 0, -9107.794921875, 361.203125, 93.81951141357421875, 3.804818391799926757, 0, 0, -0.94551849365234375, 0.325568377971649169, 120, 255, 1, 46741), -- Large Basket 03 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+57, 195197, 0, 12, 7486, '0', 0, 0, -9108.107421875, 365.2882080078125, 93.830322265625, 3.9793548583984375, 0, 0, -0.9135446548461914, 0.406738430261611938, 120, 255, 1, 46741), -- Grain Sack 02 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+58, 195198, 0, 12, 7486, '0', 0, 0, -9109.8681640625, 360.736114501953125, 93.79140472412109375, 4.834563255310058593, 0, 0, -0.66261959075927734, 0.748956084251403808, 120, 255, 1, 46741), -- Crate 01 (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+59, 195200, 0, 12, 7486, '0', 0, 0, -9113.81640625, 361.357635498046875, 93.56732940673828125, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pilgrim's Bounty Cooking Fire (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+60, 195212, 0, 12, 7486, '0', 0, 0, -9111.2705078125, 358.232635498046875, 93.6134033203125, 5.916667938232421875, 0, 0, -0.18223476409912109, 0.98325502872467041, 120, 255, 1, 46741), -- Pumpkin (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+61, 195212, 0, 12, 7486, '0', 0, 0, -9109.642578125, 357.170135498046875, 93.48175811767578125, 4.241150379180908203, 0, 0, -0.85264015197753906, 0.522498607635498046, 120, 255, 1, 46741), -- Pumpkin (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+62, 195212, 0, 12, 7486, '0', 0, 0, -9112.9580078125, 356.243072509765625, 93.34070587158203125, 2.635444164276123046, 0, 0, 0.96814727783203125, 0.250381410121917724, 120, 255, 1, 46741), -- Pumpkin (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+63, 195664, 0, 12, 7486, '0', 0, 0, -9125.173828125, 343.607635498046875, 94.21488189697265625, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- [DND] Collision Thanksgiving Table Size (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+64, 195664, 0, 12, 7486, '0', 0, 0, -9115.919921875, 334.338531494140625, 93.28997039794921875, 1.274088263511657714, 0, 0, 0.594821929931640625, 0.80385744571685791, 120, 255, 1, 46741), -- [DND] Collision Thanksgiving Table Size (Area: Stormwind Gate - Difficulty: 0)
+(@OGUID+65, 195664, 0, 12, 7486, '0', 0, 0, -9106.794921875, 326.197906494140625, 93.40899658203125, 2.042035102844238281, 0, 0, 0.852640151977539062, 0.522498607635498046, 120, 255, 1, 46741); -- [DND] Collision Thanksgiving Table Size (Area: Stormwind Gate - Difficulty: 0)
+
+-- Event spawns
+DELETE FROM `game_event_creature` WHERE `eventEntry`=@EVENT AND `guid` BETWEEN @CGUID+0 AND @CGUID+10;
+INSERT INTO `game_event_creature` (`eventEntry`, `guid`) VALUES
+(@EVENT, @CGUID+0), 
+(@EVENT, @CGUID+1),
+(@EVENT, @CGUID+2),
+(@EVENT, @CGUID+3),
+(@EVENT, @CGUID+4),
+(@EVENT, @CGUID+5),
+(@EVENT, @CGUID+6),
+(@EVENT, @CGUID+7),
+(@EVENT, @CGUID+8),
+(@EVENT, @CGUID+9),
+(@EVENT, @CGUID+10);
+
+DELETE FROM `game_event_gameobject` WHERE `eventEntry`=@EVENT AND `guid` BETWEEN @OGUID+0 AND @OGUID+65;
+INSERT INTO `game_event_gameobject` (`eventEntry`, `guid`) VALUES
+(@EVENT, @OGUID+0),
+(@EVENT, @OGUID+1),
+(@EVENT, @OGUID+2),
+(@EVENT, @OGUID+3),
+(@EVENT, @OGUID+4),
+(@EVENT, @OGUID+5),
+(@EVENT, @OGUID+6),
+(@EVENT, @OGUID+7),
+(@EVENT, @OGUID+8),
+(@EVENT, @OGUID+9),
+(@EVENT, @OGUID+10),
+(@EVENT, @OGUID+11),
+(@EVENT, @OGUID+12),
+(@EVENT, @OGUID+13),
+(@EVENT, @OGUID+14),
+(@EVENT, @OGUID+15),
+(@EVENT, @OGUID+16),
+(@EVENT, @OGUID+17),
+(@EVENT, @OGUID+18),
+(@EVENT, @OGUID+19),
+(@EVENT, @OGUID+20),
+(@EVENT, @OGUID+21),
+(@EVENT, @OGUID+22),
+(@EVENT, @OGUID+23),
+(@EVENT, @OGUID+24),
+(@EVENT, @OGUID+25),
+(@EVENT, @OGUID+26),
+(@EVENT, @OGUID+27),
+(@EVENT, @OGUID+28),
+(@EVENT, @OGUID+29),
+(@EVENT, @OGUID+30),
+(@EVENT, @OGUID+31),
+(@EVENT, @OGUID+32),
+(@EVENT, @OGUID+33),
+(@EVENT, @OGUID+34),
+(@EVENT, @OGUID+35),
+(@EVENT, @OGUID+36),
+(@EVENT, @OGUID+37),
+(@EVENT, @OGUID+38),
+(@EVENT, @OGUID+39),
+(@EVENT, @OGUID+40),
+(@EVENT, @OGUID+41),
+(@EVENT, @OGUID+42),
+(@EVENT, @OGUID+43),
+(@EVENT, @OGUID+44),
+(@EVENT, @OGUID+45),
+(@EVENT, @OGUID+46),
+(@EVENT, @OGUID+47),
+(@EVENT, @OGUID+48),
+(@EVENT, @OGUID+49),
+(@EVENT, @OGUID+50),
+(@EVENT, @OGUID+51),
+(@EVENT, @OGUID+52),
+(@EVENT, @OGUID+53),
+(@EVENT, @OGUID+54),
+(@EVENT, @OGUID+55),
+(@EVENT, @OGUID+56),
+(@EVENT, @OGUID+57),
+(@EVENT, @OGUID+58),
+(@EVENT, @OGUID+59),
+(@EVENT, @OGUID+60),
+(@EVENT, @OGUID+61),
+(@EVENT, @OGUID+62),
+(@EVENT, @OGUID+63),
+(@EVENT, @OGUID+64),
+(@EVENT, @OGUID+65);

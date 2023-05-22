@@ -29,7 +29,8 @@ InstanceLockData::InstanceLockData() = default;
 InstanceLockData::~InstanceLockData() = default;
 
 InstanceLock::InstanceLock(uint32 mapId, Difficulty difficultyId, InstanceResetTimePoint expiryTime, uint32 instanceId)
-    : _mapId(mapId), _difficultyId(difficultyId), _instanceId(instanceId), _expiryTime(expiryTime), _extended(false), _isInUse(false)
+    : _mapId(mapId), _difficultyId(difficultyId), _instanceId(instanceId), _expiryTime(expiryTime), _extended(false),
+    _isInUse(false), _isNew(false)
 {
 }
 
@@ -143,13 +144,13 @@ void InstanceLockMgr::Load()
                 auto sharedDataItr = instanceLockDataById.find(instanceId);
                 if (sharedDataItr == instanceLockDataById.end())
                 {
-                    TC_LOG_ERROR("instance.locks", "Missing instance data for instance id based lock (id %u)", instanceId);
-                    CharacterDatabase.PExecute("DELETE FROM character_instance_lock WHERE instanceId = %u", instanceId);
+                    TC_LOG_ERROR("instance.locks", "Missing instance data for instance id based lock (id {})", instanceId);
+                    CharacterDatabase.PExecute("DELETE FROM character_instance_lock WHERE instanceId = {}", instanceId);
                     continue;
                 }
 
                 instanceLock = new SharedInstanceLock(mapId, difficulty, expiryTime, instanceId, sharedDataItr->second);
-                _instanceLockDataById[instanceId] = std::weak_ptr<SharedInstanceLockData>(sharedDataItr->second);
+                _instanceLockDataById[instanceId] = sharedDataItr->second;
             }
             else
                 instanceLock = new InstanceLock(mapId, difficulty, expiryTime, instanceId);
@@ -173,9 +174,6 @@ void InstanceLockMgr::Unload()
 
 TransferAbortReason InstanceLockMgr::CanJoinInstanceLock(ObjectGuid const& playerGuid, MapDb2Entries const& entries, InstanceLock const* instanceLock) const
 {
-    if (!entries.MapDifficulty->HasResetSchedule())
-        return TRANSFER_ABORT_NONE;
-
     InstanceLock const* playerInstanceLock = FindActiveInstanceLock(playerGuid, entries);
     if (!playerInstanceLock)
         return TRANSFER_ABORT_NONE;
@@ -189,7 +187,7 @@ TransferAbortReason InstanceLockMgr::CanJoinInstanceLock(ObjectGuid const& playe
         return TRANSFER_ABORT_NONE;
     }
 
-    if (!entries.MapDifficulty->IsUsingEncounterLocks() && playerInstanceLock->GetInstanceId() && playerInstanceLock->GetInstanceId() != instanceLock->GetInstanceId())
+    if (!entries.MapDifficulty->IsUsingEncounterLocks() && !playerInstanceLock->IsNew() && playerInstanceLock->GetInstanceId() != instanceLock->GetInstanceId())
         return TRANSFER_ABORT_LOCKED_TO_DIFFERENT_INSTANCE;
 
     return TRANSFER_ABORT_NONE;
@@ -215,6 +213,9 @@ InstanceLock* InstanceLockMgr::FindActiveInstanceLock(ObjectGuid const& playerGu
 
 InstanceLock* InstanceLockMgr::FindActiveInstanceLock(ObjectGuid const& playerGuid, MapDb2Entries const& entries, bool ignoreTemporary, bool ignoreExpired) const
 {
+    if (!entries.MapDifficulty->HasResetSchedule())
+        return nullptr;
+
     std::shared_lock<std::shared_mutex> guard(_locksMutex);
 
     InstanceLock* lock = FindInstanceLock(_instanceLocksByPlayer, playerGuid, entries);
@@ -256,17 +257,19 @@ InstanceLock* InstanceLockMgr::CreateInstanceLockForNewInstance(ObjectGuid const
         std::shared_ptr<SharedInstanceLockData> sharedData = std::make_shared<SharedInstanceLockData>();
         _instanceLockDataById[instanceId] = sharedData;
         instanceLock = new SharedInstanceLock(entries.MapDifficulty->MapID, Difficulty(entries.MapDifficulty->DifficultyID),
-            GetNextResetTime(entries), 0, std::move(sharedData));
+            GetNextResetTime(entries), instanceId, std::move(sharedData));
     }
     else
         instanceLock = new InstanceLock(entries.MapDifficulty->MapID, Difficulty(entries.MapDifficulty->DifficultyID),
-            GetNextResetTime(entries), 0);
+            GetNextResetTime(entries), instanceId);
+
+    instanceLock->SetIsNew(true);
 
     _temporaryInstanceLocksByPlayer[playerGuid][entries.GetKey()].reset(instanceLock);
-    TC_LOG_DEBUG("instance.locks", "[%u-%s | %u-%s] Created new temporary instance lock for %s in instance %u",
+    TC_LOG_DEBUG("instance.locks", "[{}-{} | {}-{}] Created new temporary instance lock for {} in instance {}",
         entries.Map->ID, entries.Map->MapName[sWorld->GetDefaultDbcLocale()],
         uint32(entries.MapDifficulty->DifficultyID), sDifficultyStore.AssertEntry(entries.MapDifficulty->DifficultyID)->Name[sWorld->GetDefaultDbcLocale()],
-        playerGuid.ToString().c_str(), instanceId);
+        playerGuid.ToString(), instanceId);
     return instanceLock;
 }
 
@@ -294,10 +297,10 @@ InstanceLock* InstanceLockMgr::UpdateInstanceLockForPlayer(CharacterDatabaseTran
                 if (playerLocksItr->second.empty())
                     _temporaryInstanceLocksByPlayer.erase(playerLocksItr);
 
-                TC_LOG_DEBUG("instance.locks", "[%u-%s | %u-%s] Promoting temporary lock to permanent for %s in instance %u",
+                TC_LOG_DEBUG("instance.locks", "[{}-{} | {}-{}] Promoting temporary lock to permanent for {} in instance {}",
                     entries.Map->ID, entries.Map->MapName[sWorld->GetDefaultDbcLocale()],
                     uint32(entries.MapDifficulty->DifficultyID), sDifficultyStore.AssertEntry(entries.MapDifficulty->DifficultyID)->Name[sWorld->GetDefaultDbcLocale()],
-                    playerGuid.ToString().c_str(), updateEvent.InstanceId);
+                    playerGuid.ToString(), updateEvent.InstanceId);
             }
         }
     }
@@ -324,16 +327,16 @@ InstanceLock* InstanceLockMgr::UpdateInstanceLockForPlayer(CharacterDatabaseTran
             _instanceLocksByPlayer[playerGuid][entries.GetKey()].reset(instanceLock);
         }
 
-        TC_LOG_DEBUG("instance.locks", "[%u-%s | %u-%s] Created new instance lock for %s in instance %u",
+        TC_LOG_DEBUG("instance.locks", "[{}-{} | {}-{}] Created new instance lock for {} in instance {}",
             entries.Map->ID, entries.Map->MapName[sWorld->GetDefaultDbcLocale()],
             uint32(entries.MapDifficulty->DifficultyID), sDifficultyStore.AssertEntry(entries.MapDifficulty->DifficultyID)->Name[sWorld->GetDefaultDbcLocale()],
-            playerGuid.ToString().c_str(), updateEvent.InstanceId);
+            playerGuid.ToString(), updateEvent.InstanceId);
     }
     else
     {
         if (entries.IsInstanceIdBound())
         {
-            ASSERT(!instanceLock->GetInstanceId() || instanceLock->GetInstanceId() == updateEvent.InstanceId);
+            ASSERT(instanceLock->GetInstanceId() == updateEvent.InstanceId);
             auto sharedDataItr = _instanceLockDataById.find(updateEvent.InstanceId);
             ASSERT(sharedDataItr != _instanceLockDataById.end());
             ASSERT(sharedDataItr->second.lock().get() == static_cast<SharedInstanceLock*>(instanceLock)->GetSharedData());
@@ -342,14 +345,15 @@ InstanceLock* InstanceLockMgr::UpdateInstanceLockForPlayer(CharacterDatabaseTran
         instanceLock->SetInstanceId(updateEvent.InstanceId);
     }
 
+    instanceLock->SetIsNew(false);
     instanceLock->GetData()->Data = std::move(updateEvent.NewData);
     if (updateEvent.CompletedEncounter)
     {
         instanceLock->GetData()->CompletedEncountersMask |= 1u << updateEvent.CompletedEncounter->Bit;
-        TC_LOG_DEBUG("instance.locks", "[%u-%s | %u-%s] Instance lock for %s in instance %u gains completed encounter [%u-%s]",
+        TC_LOG_DEBUG("instance.locks", "[{}-{} | {}-{}] Instance lock for {} in instance {} gains completed encounter [{}-{}]",
             entries.Map->ID, entries.Map->MapName[sWorld->GetDefaultDbcLocale()],
             uint32(entries.MapDifficulty->DifficultyID), sDifficultyStore.AssertEntry(entries.MapDifficulty->DifficultyID)->Name[sWorld->GetDefaultDbcLocale()],
-            playerGuid.ToString().c_str(), updateEvent.InstanceId,
+            playerGuid.ToString(), updateEvent.InstanceId,
             updateEvent.CompletedEncounter->ID, updateEvent.CompletedEncounter->Name[sWorld->GetDefaultDbcLocale()]);
     }
 
@@ -364,10 +368,10 @@ InstanceLock* InstanceLockMgr::UpdateInstanceLockForPlayer(CharacterDatabaseTran
     {
         instanceLock->SetExpiryTime(GetNextResetTime(entries));
         instanceLock->SetExtended(false);
-        TC_LOG_DEBUG("instance.locks", "[%u-%s | %u-%s] Expired instance lock for %s in instance %u is now active",
+        TC_LOG_DEBUG("instance.locks", "[{}-{} | {}-{}] Expired instance lock for {} in instance {} is now active",
             entries.Map->ID, entries.Map->MapName[sWorld->GetDefaultDbcLocale()],
             uint32(entries.MapDifficulty->DifficultyID), sDifficultyStore.AssertEntry(entries.MapDifficulty->DifficultyID)->Name[sWorld->GetDefaultDbcLocale()],
-            playerGuid.ToString().c_str(), updateEvent.InstanceId);
+            playerGuid.ToString(), updateEvent.InstanceId);
     }
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_INSTANCE_LOCK);
@@ -397,12 +401,14 @@ void InstanceLockMgr::UpdateSharedInstanceLock(CharacterDatabaseTransaction tran
     auto sharedDataItr = _instanceLockDataById.find(updateEvent.InstanceId);
     ASSERT(sharedDataItr != _instanceLockDataById.end());
     std::shared_ptr<SharedInstanceLockData> sharedData = sharedDataItr->second.lock();
-    ASSERT(sharedData && sharedData->InstanceId == updateEvent.InstanceId);
+    ASSERT(sharedData);
+    ASSERT(!sharedData->InstanceId || sharedData->InstanceId == updateEvent.InstanceId);
     sharedData->Data = std::move(updateEvent.NewData);
+    sharedData->InstanceId = updateEvent.InstanceId;
     if (updateEvent.CompletedEncounter)
     {
         sharedData->CompletedEncountersMask |= 1u << updateEvent.CompletedEncounter->Bit;
-        TC_LOG_DEBUG("instance.locks", "Instance %u gains completed encounter [%u-%s]",
+        TC_LOG_DEBUG("instance.locks", "Instance {} gains completed encounter [{}-{}]",
             updateEvent.InstanceId, updateEvent.CompletedEncounter->ID, updateEvent.CompletedEncounter->Name[sWorld->GetDefaultDbcLocale()]);
     }
 
@@ -426,11 +432,19 @@ void InstanceLockMgr::OnSharedInstanceLockDataDelete(uint32 instanceId)
     if (_unloading)
         return;
 
-    _instanceLockDataById.erase(instanceId);
+    auto itr = _instanceLockDataById.find(instanceId);
+    if (itr == _instanceLockDataById.end())
+        return;
+
+    // weak_ptr state must be checked as well, it might be pointing to a different and valid lock data
+    if (!itr->second.expired())
+        return;
+
+    _instanceLockDataById.erase(itr);
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INSTANCE);
     stmt->setUInt32(0, instanceId);
     CharacterDatabase.Execute(stmt);
-    TC_LOG_DEBUG("instance.locks", "Deleting instance %u as it is no longer referenced by any player", instanceId);
+    TC_LOG_DEBUG("instance.locks", "Deleting instance {} as it is no longer referenced by any player", instanceId);
 }
 
 std::pair<InstanceResetTimePoint, InstanceResetTimePoint> InstanceLockMgr::UpdateInstanceLockExtensionForPlayer(ObjectGuid const& playerGuid,
@@ -448,10 +462,10 @@ std::pair<InstanceResetTimePoint, InstanceResetTimePoint> InstanceLockMgr::Updat
         stmt->setUInt32(3, entries.MapDifficulty->LockID);
         CharacterDatabase.Execute(stmt);
 
-        TC_LOG_DEBUG("instance.locks", "[%u-%s | %u-%s] Instance lock for %s is %s extended",
+        TC_LOG_DEBUG("instance.locks", "[{}-{} | {}-{}] Instance lock for {} is {} extended",
             entries.Map->ID, entries.Map->MapName[sWorld->GetDefaultDbcLocale()],
             uint32(entries.MapDifficulty->DifficultyID), sDifficultyStore.AssertEntry(entries.MapDifficulty->DifficultyID)->Name[sWorld->GetDefaultDbcLocale()],
-            playerGuid.ToString().c_str(), extended ? "now" : "no longer");
+            playerGuid.ToString(), extended ? "now" : "no longer");
 
         return { oldExpiryTime, instanceLock->GetEffectiveExpiryTime() };
     }
@@ -478,6 +492,9 @@ void InstanceLockMgr::ResetInstanceLocksForPlayer(ObjectGuid const& playerGuid, 
             continue;
 
         if (difficulty && *difficulty != playerLockPair.second->GetDifficultyId())
+            continue;
+
+        if (playerLockPair.second->IsExpired())
             continue;
 
         locksReset->push_back(playerLockPair.second.get());

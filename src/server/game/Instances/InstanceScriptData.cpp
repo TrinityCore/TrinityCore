@@ -51,7 +51,7 @@ InstanceScriptDataReader::Result InstanceScriptDataReader::Load(char const* data
     */
     if (_doc.Parse(data).HasParseError())
     {
-        TC_LOG_ERROR("scripts.data.load", "JSON parser error %s at " SZFMTD " while loading data for instance %u [%u-%s | %u-%s]",
+        TC_LOG_ERROR("scripts.data.load", "JSON parser error {} at {} while loading data for instance {} [{}-{} | {}-{}]",
             rapidjson::GetParseError_En(_doc.GetParseError()), _doc.GetErrorOffset(),
             GetInstanceId(), GetMapId(), GetMapName(), GetDifficultyId(), GetDifficultyName());
         return Result::MalformedJson;
@@ -59,7 +59,7 @@ InstanceScriptDataReader::Result InstanceScriptDataReader::Load(char const* data
 
     if (!_doc.IsObject())
     {
-        TC_LOG_ERROR("scripts.data.load", "Root JSON value is not an object for instance %u [%u-%s | %u-%s]",
+        TC_LOG_ERROR("scripts.data.load", "Root JSON value is not an object for instance {} [{}-{} | {}-{}]",
             GetInstanceId(), GetMapId(), GetMapName(), GetDifficultyId(), GetDifficultyName());
         return Result::RootIsNotAnObject;
     }
@@ -84,16 +84,16 @@ InstanceScriptDataReader::Result InstanceScriptDataReader::ParseHeader()
     auto headerItr = _doc.FindMember(HeadersKey);
     if (headerItr == _doc.MemberEnd())
     {
-        TC_LOG_ERROR("scripts.data.load", "Missing data header for instance %u [%u-%s | %u-%s]",
+        TC_LOG_ERROR("scripts.data.load", "Missing data header for instance {} [{}-{} | {}-{}]",
             GetInstanceId(), GetMapId(), GetMapName(), GetDifficultyId(), GetDifficultyName());
         return Result::MissingHeader;
     }
 
     if (headerItr->value != _instance.GetHeader())
     {
-        TC_LOG_ERROR("scripts.data.load", "Incorrect data header for instance %u [%u-%s | %u-%s], expected \"%s\" got \"%s\"",
+        TC_LOG_ERROR("scripts.data.load", "Incorrect data header for instance {} [{}-{} | {}-{}], expected \"{}\" got \"{}\"",
             GetInstanceId(), GetMapId(), GetMapName(), GetDifficultyId(), GetDifficultyName(),
-            _instance.GetHeader().c_str(), headerItr->value.IsString() ? headerItr->value.GetString() : "");
+            _instance.GetHeader(), headerItr->value.IsString() ? headerItr->value.GetString() : "");
         return Result::UnexpectedHeader;
     }
 
@@ -105,14 +105,14 @@ InstanceScriptDataReader::Result InstanceScriptDataReader::ParseBossStates()
     auto bossStatesItr = _doc.FindMember(BossStatesSaveDataKey);
     if (bossStatesItr == _doc.MemberEnd())
     {
-        TC_LOG_ERROR("scripts.data.load", "Missing boss states for instance %u [%u-%s | %u-%s]",
+        TC_LOG_ERROR("scripts.data.load", "Missing boss states for instance {} [{}-{} | {}-{}]",
             GetInstanceId(), GetMapId(), GetMapName(), GetDifficultyId(), GetDifficultyName());
         return Result::MissingBossStates;
     }
 
     if (!bossStatesItr->value.IsArray())
     {
-        TC_LOG_ERROR("scripts.data.load", "Boss states is not an array for instance %u [%u-%s | %u-%s]",
+        TC_LOG_ERROR("scripts.data.load", "Boss states is not an array for instance {} [{}-{} | {}-{}]",
             GetInstanceId(), GetMapId(), GetMapName(), GetDifficultyId(), GetDifficultyName());
         return Result::BossStatesIsNotAnObject;
     }
@@ -121,7 +121,7 @@ InstanceScriptDataReader::Result InstanceScriptDataReader::ParseBossStates()
     {
         if (bossId >= _instance.GetEncounterCount())
         {
-            TC_LOG_ERROR("scripts.data.load", "Boss states has entry for boss with higher id (%u) than number of bosses (%u) for instance %u [%u-%s | %u-%s]",
+            TC_LOG_ERROR("scripts.data.load", "Boss states has entry for boss with higher id ({}) than number of bosses ({}) for instance {} [{}-{} | {}-{}]",
                 bossId, _instance.GetEncounterCount(), GetInstanceId(), GetMapId(), GetMapName(), GetDifficultyId(), GetDifficultyName());
             return Result::UnknownBoss;
         }
@@ -129,7 +129,7 @@ InstanceScriptDataReader::Result InstanceScriptDataReader::ParseBossStates()
         auto& bossState = bossStatesItr->value[bossId];
         if (!bossState.IsNumber())
         {
-            TC_LOG_ERROR("scripts.data.load", "Boss state for boss (%u) is not a number for instance %u [%u-%s | %u-%s]",
+            TC_LOG_ERROR("scripts.data.load", "Boss state for boss ({}) is not a number for instance {} [{}-{} | {}-{}]",
                 bossId, GetInstanceId(), GetMapId(), GetMapName(), GetDifficultyId(), GetDifficultyName());
             return Result::BossStateIsNotAnObject;
         }
@@ -153,7 +153,7 @@ InstanceScriptDataReader::Result InstanceScriptDataReader::ParseAdditionalData()
 
     if (!moreDataItr->value.IsObject())
     {
-        TC_LOG_ERROR("scripts.data.load", "Additional data is not an object for instance %u [%u-%s | %u-%s]",
+        TC_LOG_ERROR("scripts.data.load", "Additional data is not an object for instance {} [{}-{} | {}-{}]",
             GetInstanceId(), GetMapId(), GetMapName(), GetDifficultyId(), GetDifficultyName());
         return Result::AdditionalDataIsNotAnObject;
     }
@@ -165,7 +165,7 @@ InstanceScriptDataReader::Result InstanceScriptDataReader::ParseAdditionalData()
         {
             if (!valueItr->value.IsNumber())
             {
-                TC_LOG_ERROR("scripts.data.load", "Additional data value for key %s is not a number for instance %u [%u-%s | %u-%s]",
+                TC_LOG_ERROR("scripts.data.load", "Additional data value for key {} is not a number for instance {} [{}-{} | {}-{}]",
                     value->GetName(), GetInstanceId(), GetMapId(), GetMapName(), GetDifficultyId(), GetDifficultyName());
                 return Result::AdditionalDataUnexpectedValueType;
             }
@@ -238,7 +238,7 @@ void InstanceScriptDataWriter::FillDataFrom(std::string const& data)
 
 void InstanceScriptDataWriter::SetBossState(UpdateBossStateSaveDataEvent const& data)
 {
-    std::string bossIdKey = Trinity::StringFormat("%u", data.BossId);
+    std::string bossIdKey = Trinity::StringFormat("{}", data.BossId);
 
     rapidjson::Pointer::Token tokens[] =
     {

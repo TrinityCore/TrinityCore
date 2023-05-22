@@ -278,7 +278,7 @@ public:
 
     static bool HandleBanInfoHelper(uint32 accountId, char const* accountName, ChatHandler* handler)
     {
-        QueryResult result = LoginDatabase.PQuery("SELECT FROM_UNIXTIME(bandate), unbandate-bandate, active, unbandate, banreason, bannedby FROM account_banned WHERE id = '%u' ORDER BY bandate ASC", accountId);
+        QueryResult result = LoginDatabase.PQuery("SELECT FROM_UNIXTIME(bandate), unbandate-bandate, active, unbandate, banreason, bannedby FROM account_banned WHERE id = '{}' ORDER BY bandate ASC", accountId);
         if (!result)
         {
             handler->PSendSysMessage(LANG_BANINFO_NOACCOUNTBAN, accountName);
@@ -375,7 +375,7 @@ public:
         std::string IP = ipStr;
 
         LoginDatabase.EscapeString(IP);
-        QueryResult result = LoginDatabase.PQuery("SELECT ip, FROM_UNIXTIME(bandate), FROM_UNIXTIME(unbandate), unbandate-UNIX_TIMESTAMP(), banreason, bannedby, unbandate-bandate FROM ip_banned WHERE ip = '%s'", IP.c_str());
+        QueryResult result = LoginDatabase.PQuery("SELECT ip, FROM_UNIXTIME(bandate), FROM_UNIXTIME(unbandate), unbandate-UNIX_TIMESTAMP(), banreason, bannedby, unbandate-bandate FROM ip_banned WHERE ip = '{}'", IP);
         if (!result)
         {
             handler->PSendSysMessage(LANG_BANINFO_NOIP);
@@ -436,7 +436,7 @@ public:
                 Field* fields = result->Fetch();
                 uint32 accountid = fields[0].GetUInt32();
 
-                QueryResult banResult = LoginDatabase.PQuery("SELECT account.username FROM account, account_banned WHERE account_banned.id='%u' AND account_banned.id = account.id", accountid);
+                QueryResult banResult = LoginDatabase.PQuery("SELECT account.username FROM account, account_banned WHERE account_banned.id='{}' AND account_banned.id = account.id", accountid);
                 if (banResult)
                 {
                     Field* fields2 = banResult->Fetch();
@@ -467,7 +467,7 @@ public:
                     AccountMgr::GetName(accountId, accountName);
 
                 // No SQL injection. id is uint32.
-                QueryResult banInfo = LoginDatabase.PQuery("SELECT bandate, unbandate, bannedby, banreason FROM account_banned WHERE id = %u ORDER BY unbandate", accountId);
+                QueryResult banInfo = LoginDatabase.PQuery("SELECT bandate, unbandate, bannedby, banreason FROM account_banned WHERE id = {} ORDER BY unbandate", accountId);
                 if (banInfo)
                 {
                     Field* fields2 = banInfo->Fetch();

@@ -21,6 +21,7 @@
 #include "Define.h"
 #include "ObjectGuid.h"
 #include "WaypointDefines.h"
+#include "advstd.h"
 #include <limits>
 #include <map>
 #include <string>
@@ -33,7 +34,7 @@ typedef uint32 SAIBool;
 enum eSmartAI
 {
     SMART_EVENT_PARAM_COUNT = 4,
-    SMART_ACTION_PARAM_COUNT = 6,
+    SMART_ACTION_PARAM_COUNT = 7,
     SMART_SUMMON_COUNTER = 0xFFFFFF,
     SMART_ESCORT_LAST_OOC_POINT = 0xFFFFFF,
     SMART_RANDOM_POINT = 0xFFFFFE,
@@ -551,7 +552,7 @@ enum SMART_ACTION
     SMART_ACTION_SET_DYNAMIC_FLAG                   = 94,     // UNUSED, DO NOT REUSE
     SMART_ACTION_ADD_DYNAMIC_FLAG                   = 95,     // UNUSED, DO NOT REUSE
     SMART_ACTION_REMOVE_DYNAMIC_FLAG                = 96,     // UNUSED, DO NOT REUSE
-    SMART_ACTION_JUMP_TO_POS                        = 97,     // speedXY, speedZ, targetX, targetY, targetZ
+    SMART_ACTION_JUMP_TO_POS                        = 97,     // SpeedXY, SpeedZ, Gravity, UseDefaultGravity, PointId, ContactDistance
     SMART_ACTION_SEND_GOSSIP_MENU                   = 98,     // menuId, optionId
     SMART_ACTION_GO_SET_LOOT_STATE                  = 99,     // state
     SMART_ACTION_SEND_TARGET_TO_TARGET              = 100,    // id
@@ -568,7 +569,7 @@ enum SMART_ACTION
     SMART_ACTION_GAME_EVENT_STOP                    = 111,    // GameEventId
     SMART_ACTION_GAME_EVENT_START                   = 112,    // GameEventId
     SMART_ACTION_START_CLOSEST_WAYPOINT             = 113,    // wp1, wp2, wp3, wp4, wp5, wp6, wp7
-    SMART_ACTION_MOVE_OFFSET                        = 114,
+    SMART_ACTION_MOVE_OFFSET                        = 114,    // PointId
     SMART_ACTION_RANDOM_SOUND                       = 115,    // soundId1, soundId2, soundId3, soundId4, soundId5, onlySelf
     SMART_ACTION_SET_CORPSE_DELAY                   = 116,    // timer
     SMART_ACTION_DISABLE_EVADE                      = 117,    // 0/1 (1 = disabled, 0 = enabled)
@@ -865,7 +866,7 @@ struct SmartAction
 
         struct
         {
-            SAIBool run;
+            SAIBool run; // unused / overridden by waypoint_data
             uint32 pathID;
             SAIBool repeat;
             uint32 quest;
@@ -986,8 +987,12 @@ struct SmartAction
 
         struct
         {
-            uint32 speedxy;
-            uint32 speedz;
+            uint32 SpeedXY;
+            uint32 SpeedZ;
+            uint32 Gravity;
+            SAIBool UseDefaultGravity;
+            uint32 PointId;
+            uint32 ContactDistance;
         } jump;
 
         struct
@@ -1071,6 +1076,11 @@ struct SmartAction
         {
             uint32 wps[SMART_ACTION_PARAM_COUNT];
         } closestWaypointFromList;
+
+        struct
+        {
+            uint32 PointId;
+        } moveOffset;
 
         struct
         {
@@ -1242,6 +1252,7 @@ struct SmartAction
             uint32 param4;
             uint32 param5;
             uint32 param6;
+            uint32 param7;
         } raw;
     };
 };
@@ -1633,9 +1644,19 @@ struct SmartScriptHolder
 
     operator bool() const { return entryOrGuid != 0; }
     // Default comparision operator using priority field as first ordering field
-    bool operator<(SmartScriptHolder const& other) const
+    std::strong_ordering operator<=>(SmartScriptHolder const& right) const
     {
-        return std::tie(priority, entryOrGuid, source_type, event_id, link) < std::tie(other.priority, other.entryOrGuid, other.source_type, other.event_id, other.link);
+        if (std::strong_ordering cmp = priority <=> right.priority; advstd::is_neq(cmp))
+            return cmp;
+        if (std::strong_ordering cmp = entryOrGuid <=> right.entryOrGuid; advstd::is_neq(cmp))
+            return cmp;
+        if (std::strong_ordering cmp = source_type <=> right.source_type; advstd::is_neq(cmp))
+            return cmp;
+        if (std::strong_ordering cmp = event_id <=> right.event_id; advstd::is_neq(cmp))
+            return cmp;
+        if (std::strong_ordering cmp = link <=> right.link; advstd::is_neq(cmp))
+            return cmp;
+        return std::strong_ordering::equal;
     }
 
     static constexpr uint32 DEFAULT_PRIORITY = std::numeric_limits<uint32>::max();
@@ -1666,24 +1687,6 @@ class ObjectGuidVector
         void UpdateObjects(WorldObject const& ref) const;
 };
 typedef std::unordered_map<uint32, ObjectGuidVector> ObjectVectorMap;
-
-class TC_GAME_API SmartWaypointMgr
-{
-    public:
-        static SmartWaypointMgr* instance();
-
-        void LoadFromDB();
-
-        WaypointPath const* GetPath(uint32 id);
-
-    private:
-        SmartWaypointMgr() { }
-        ~SmartWaypointMgr() { }
-
-        std::unordered_map<uint32, WaypointPath> _waypointStore;
-};
-
-#define sSmartWaypointMgr SmartWaypointMgr::instance()
 
 // all events for a single entry
 typedef std::vector<SmartScriptHolder> SmartAIEventList;

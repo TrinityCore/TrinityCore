@@ -49,6 +49,7 @@
 #include "SecretMgr.h"
 #include "TCSoap.h"
 #include "TerrainMgr.h"
+#include "ThreadPool.h"
 #include "World.h"
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
@@ -204,18 +205,18 @@ extern int main(int argc, char** argv)
     Trinity::Banner::Show("worldserver-daemon",
         [](char const* text)
         {
-            TC_LOG_INFO("server.worldserver", "%s", text);
+            TC_LOG_INFO("server.worldserver", "{}", text);
         },
         []()
         {
-            TC_LOG_INFO("server.worldserver", "Using configuration file %s.", sConfigMgr->GetFilename().c_str());
-            TC_LOG_INFO("server.worldserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, OpenSSL_version(OPENSSL_VERSION));
-            TC_LOG_INFO("server.worldserver", "Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
+            TC_LOG_INFO("server.worldserver", "Using configuration file {}.", sConfigMgr->GetFilename());
+            TC_LOG_INFO("server.worldserver", "Using SSL version: {} (library: {})", OPENSSL_VERSION_TEXT, OpenSSL_version(OPENSSL_VERSION));
+            TC_LOG_INFO("server.worldserver", "Using Boost version: {}.{}.{}", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
         }
     );
 
     for (std::string const& key : overriddenKeys)
-        TC_LOG_INFO("server.worldserver", "Configuration field '%s' was overridden with environment variable.", key.c_str());
+        TC_LOG_INFO("server.worldserver", "Configuration field '{}' was overridden with environment variable.", key);
 
     OpenSSLCrypto::threadsSetup(boost::dll::program_location().remove_filename());
 
@@ -231,10 +232,10 @@ extern int main(int argc, char** argv)
     if (!pidFile.empty())
     {
         if (uint32 pid = CreatePIDFile(pidFile))
-            TC_LOG_INFO("server.worldserver", "Daemon PID: %u\n", pid);
+            TC_LOG_INFO("server.worldserver", "Daemon PID: {}\n", pid);
         else
         {
-            TC_LOG_ERROR("server.worldserver", "Cannot create PID file %s.\n", pidFile.c_str());
+            TC_LOG_ERROR("server.worldserver", "Cannot create PID file {}.\n", pidFile);
             return 1;
         }
     }
@@ -248,20 +249,15 @@ extern int main(int argc, char** argv)
 
     // Start the Boost based thread pool
     int numThreads = sConfigMgr->GetIntDefault("ThreadPool", 1);
-    std::shared_ptr<std::vector<std::thread>> threadPool(new std::vector<std::thread>(), [ioContext](std::vector<std::thread>* del)
-    {
-        ioContext->stop();
-        for (std::thread& thr : *del)
-            thr.join();
-
-        delete del;
-    });
-
     if (numThreads < 1)
         numThreads = 1;
 
+    std::shared_ptr<Trinity::ThreadPool> threadPool = std::make_shared<Trinity::ThreadPool>(numThreads);
+
     for (int i = 0; i < numThreads; ++i)
-        threadPool->push_back(std::thread([ioContext]() { ioContext->run(); }));
+        threadPool->PostWork([ioContext]() { ioContext->run(); });
+
+    std::shared_ptr<void> ioContextStopHandle(nullptr, [ioContext](void*) { ioContext->stop(); });
 
     // Set process priority according to configuration settings
     SetProcessPriority("server.worldserver", sConfigMgr->GetIntDefault(CONFIG_PROCESSOR_AFFINITY, 0), sConfigMgr->GetBoolDefault(CONFIG_HIGH_PRIORITY, false));
@@ -276,7 +272,7 @@ extern int main(int argc, char** argv)
         return 0;
 
     // Set server offline (not connectable)
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, realm.Id.Realm);
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, realm.Id.Realm);
 
     sRealmList->Initialize(*ioContext, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 10));
 
@@ -372,7 +368,7 @@ extern int main(int argc, char** argv)
     });
 
     // Set server online (allow connecting now)
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_OFFLINE, realm.Id.Realm);
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~{}, population = 0 WHERE id = '{}'", REALM_FLAG_OFFLINE, realm.Id.Realm);
     realm.PopulationLevel = 0.0f;
     realm.Flags = RealmFlags(realm.Flags & ~uint32(REALM_FLAG_OFFLINE));
 
@@ -382,12 +378,12 @@ extern int main(int argc, char** argv)
     {
         freezeDetector = std::make_shared<FreezeDetector>(*ioContext, coreStuckTime * 1000);
         FreezeDetector::Start(freezeDetector);
-        TC_LOG_INFO("server.worldserver", "Starting up anti-freeze thread (%u seconds max stuck time)...", coreStuckTime);
+        TC_LOG_INFO("server.worldserver", "Starting up anti-freeze thread ({} seconds max stuck time)...", coreStuckTime);
     }
 
     sScriptMgr->OnStartup();
 
-    TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon) ready...", GitRevision::GetFullVersion());
+    TC_LOG_INFO("server.worldserver", "{} (worldserver-daemon) ready...", GitRevision::GetFullVersion());
 
     // Launch CliRunnable thread
     std::shared_ptr<std::thread> cliThread;
@@ -406,6 +402,8 @@ extern int main(int argc, char** argv)
     WorldPackets::Auth::ConnectTo::ShutdownEncryption();
     WorldPackets::Auth::EnterEncryptedMode::ShutdownEncryption();
 
+    ioContextStopHandle.reset();
+
     threadPool.reset();
 
     sLog->SetSynchronous();
@@ -413,7 +411,7 @@ extern int main(int argc, char** argv)
     sScriptMgr->OnShutdown();
 
     // set server offline
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, realm.Id.Realm);
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | {} WHERE id = '{}'", REALM_FLAG_OFFLINE, realm.Id.Realm);
 
     TC_LOG_INFO("server.worldserver", "Halting process...");
 
@@ -444,7 +442,7 @@ void ShutdownCLIThread(std::thread* cliThread)
                 if (!numCharsWritten)
                     errorBuffer = "Unknown error";
 
-                TC_LOG_DEBUG("server.worldserver", "Error cancelling I/O of CliThread, error code %u, detail: %s", uint32(errorCode), errorBuffer);
+                TC_LOG_DEBUG("server.worldserver", "Error cancelling I/O of CliThread, error code {}, detail: {}", uint32(errorCode), errorBuffer);
 
                 if (numCharsWritten)
                     LocalFree((LPSTR)errorBuffer);
@@ -516,7 +514,7 @@ void WorldUpdateLoop()
         {
             uint32 sleepTime = minUpdateDiff - diff;
             if (sleepTime >= halfMaxCoreStuckTime)
-                TC_LOG_ERROR("server.worldserver", "WorldUpdateLoop() waiting for %u ms with MaxCoreStuckTime set to %u ms", sleepTime, maxCoreStuckTime);
+                TC_LOG_ERROR("server.worldserver", "WorldUpdateLoop() waiting for {} ms with MaxCoreStuckTime set to {} ms", sleepTime, maxCoreStuckTime);
             // sleep until enough time passes that we can update all timers
             std::this_thread::sleep_for(Milliseconds(sleepTime));
             continue;
@@ -566,7 +564,7 @@ void FreezeDetector::Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, bo
                 uint32 msTimeDiff = getMSTimeDiff(freezeDetector->_lastChangeMsTime, curtime);
                 if (msTimeDiff > freezeDetector->_maxCoreStuckTimeInMs)
                 {
-                    TC_LOG_ERROR("server.worldserver", "World Thread hangs for %u ms, forcing a crash!", msTimeDiff);
+                    TC_LOG_ERROR("server.worldserver", "World Thread hangs for {} ms, forcing a crash!", msTimeDiff);
                     ABORT_MSG("World Thread hangs for %u ms, forcing a crash!", msTimeDiff);
                 }
             }
@@ -641,17 +639,17 @@ bool StartDB()
         return false;
     }
 
-    TC_LOG_INFO("server.worldserver", "Realm running as realm ID %u", realm.Id.Realm);
+    TC_LOG_INFO("server.worldserver", "Realm running as realm ID {}", realm.Id.Realm);
 
     ///- Clean the database before starting
     ClearOnlineAccounts();
 
     ///- Insert version info into DB
-    WorldDatabase.PExecute("UPDATE version SET core_version = '%s', core_revision = '%s'", GitRevision::GetFullVersion(), GitRevision::GetHash());        // One-time query
+    WorldDatabase.PExecute("UPDATE version SET core_version = '{}', core_revision = '{}'", GitRevision::GetFullVersion(), GitRevision::GetHash());        // One-time query
 
     sWorld->LoadDBVersion();
 
-    TC_LOG_INFO("server.worldserver", "Using World DB: %s", sWorld->GetDBVersion());
+    TC_LOG_INFO("server.worldserver", "Using World DB: {}", sWorld->GetDBVersion());
     return true;
 }
 
@@ -668,7 +666,7 @@ void StopDB()
 void ClearOnlineAccounts()
 {
     // Reset online status for all accounts with characters on the current realm
-    LoginDatabase.DirectPExecute("UPDATE account SET online = 0 WHERE online > 0 AND id IN (SELECT acctid FROM realmcharacters WHERE realmid = %d)", realm.Id.Realm);
+    LoginDatabase.DirectPExecute("UPDATE account SET online = 0 WHERE online > 0 AND id IN (SELECT acctid FROM realmcharacters WHERE realmid = {})", realm.Id.Realm);
 
     // Reset online status for all characters
     CharacterDatabase.DirectExecute("UPDATE characters SET online = 0 WHERE online <> 0");

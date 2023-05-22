@@ -304,29 +304,25 @@ public:
             return false;
 
         char* arg_id = strtok(nullptr, " ");
-        uint32 id = 0;
 
         if (show == "add")
         {
-            if (arg_id)
-                id = atoul(arg_id);
-
-            if (id)
+            if (Optional<uint32> id = Trinity::StringTo<uint32>(arg_id))
             {
                 stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_SCRIPT_ID_BY_GUID);
-                stmt->setUInt32(0, id);
+                stmt->setUInt32(0, *id);
                 PreparedQueryResult result = WorldDatabase.Query(stmt);
 
                 if (!result)
                 {
                     stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_WAYPOINT_SCRIPT);
-                    stmt->setUInt32(0, id);
+                    stmt->setUInt32(0, *id);
                     WorldDatabase.Execute(stmt);
 
-                    handler->PSendSysMessage("%s%s%u|r", "|cff00ff00", "Wp Event: New waypoint event added: ", id);
+                    handler->PSendSysMessage("%s%s%u|r", "|cff00ff00", "Wp Event: New waypoint event added: ", *id);
                 }
                 else
-                    handler->PSendSysMessage("|cff00ff00Wp Event: You have choosed an existing waypoint script guid: %u|r", id);
+                    handler->PSendSysMessage("|cff00ff00Wp Event: You have choosed an existing waypoint script guid: %u|r", *id);
             }
             else
             {
@@ -334,10 +330,10 @@ public:
                 PreparedQueryResult result = WorldDatabase.Query(stmt);
                 id = result->Fetch()->GetUInt32();
                 stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_WAYPOINT_SCRIPT);
-                stmt->setUInt32(0, id + 1);
+                stmt->setUInt32(0, *id + 1);
                 WorldDatabase.Execute(stmt);
 
-                handler->PSendSysMessage("%s%s%u|r", "|cff00ff00", "Wp Event: New waypoint event added: |r|cff00ffff", id+1);
+                handler->PSendSysMessage("%s%s%u|r", "|cff00ff00", "Wp Event: New waypoint event added: |r|cff00ffff", *id+1);
             }
 
             return true;
@@ -351,7 +347,7 @@ public:
                 return true;
             }
 
-            id = atoul(arg_id);
+            uint32 id = Trinity::StringTo<uint32>(arg_id).value_or(0);
 
             uint32 a2, a3, a4, a5, a6;
             float a8, a9, a10, a11;
@@ -396,7 +392,7 @@ public:
                 return true;
             }
 
-            id = atoul(arg_id);
+            uint32 id = Trinity::StringTo<uint32>(arg_id).value_or(0);
 
             stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_SCRIPT_ID_BY_GUID);
             stmt->setUInt32(0, id);
@@ -424,7 +420,7 @@ public:
                 return true;
             }
 
-            id = atoul(arg_id);
+            uint32 id = Trinity::StringTo<uint32>(arg_id).value_or(0);
 
             if (!id)
             {
@@ -462,7 +458,7 @@ public:
 
             if (arg_str_2 == "setid")
             {
-                uint32 newid = atoul(arg_3);
+                uint32 newid = Trinity::StringTo<uint32>(arg_3).value_or(0);
                 handler->PSendSysMessage("%s%s|r|cff00ffff%u|r|cff00ff00%s|r|cff00ffff%u|r", "|cff00ff00", "Wp Event: Waypoint script guid: ", newid, " id changed: ", id);
 
                 stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_WAYPOINT_SCRIPT_ID);
@@ -530,7 +526,7 @@ public:
                 }
                 else if (arg_str_2 == "dataint")
                 {
-                    WorldDatabase.PExecute("UPDATE waypoint_scripts SET %s='%u' WHERE guid='%u'", arg_2, atoul(arg_3), id); // Query can't be a prepared statement
+                    WorldDatabase.PExecute("UPDATE waypoint_scripts SET {}='{}' WHERE guid='{}'", arg_2, arg_3, id); // Query can't be a prepared statement
 
                     handler->PSendSysMessage("|cff00ff00Waypoint script: |r|cff00ffff%u|r|cff00ff00 dataint updated.|r", id);
                     return true;
@@ -539,7 +535,7 @@ public:
                 {
                     std::string arg_str_3 = arg_3;
                     WorldDatabase.EscapeString(arg_str_3);
-                    WorldDatabase.PExecute("UPDATE waypoint_scripts SET %s='%s' WHERE guid='%u'", arg_2, arg_str_3.c_str(), id); // Query can't be a prepared statement
+                    WorldDatabase.PExecute("UPDATE waypoint_scripts SET {}='{}' WHERE guid='{}'", arg_2, arg_str_3, id); // Query can't be a prepared statement
                 }
             }
             handler->PSendSysMessage("%s%s|r|cff00ffff%u:|r|cff00ff00 %s %s|r", "|cff00ff00", "Waypoint script:", id, arg_2, "updated.");
@@ -724,14 +720,14 @@ public:
         if (text == nullptr)
         {
             // show_str check for present in list of correct values, no sql injection possible
-            WorldDatabase.PExecute("UPDATE waypoint_data SET %s=NULL WHERE id='%u' AND point='%u'", show_str, pathid, point); // Query can't be a prepared statement
+            WorldDatabase.PExecute("UPDATE waypoint_data SET {}=NULL WHERE id='{}' AND point='{}'", show_str, pathid, point); // Query can't be a prepared statement
         }
         else
         {
             // show_str check for present in list of correct values, no sql injection possible
             std::string text2 = text;
             WorldDatabase.EscapeString(text2);
-            WorldDatabase.PExecute("UPDATE waypoint_data SET %s='%s' WHERE id='%u' AND point='%u'", show_str, text2.c_str(), pathid, point); // Query can't be a prepared statement
+            WorldDatabase.PExecute("UPDATE waypoint_data SET {}='{}' WHERE id='{}' AND point='{}'", show_str, text2, pathid, point); // Query can't be a prepared statement
         }
 
         handler->PSendSysMessage(LANG_WAYPOINT_CHANGED_NO, show_str);
@@ -779,7 +775,7 @@ public:
             if (target)
                 handler->SendSysMessage(LANG_WAYPOINT_CREATSELECTED);
 
-            pathid = atoul(guid_str);
+            pathid = Trinity::StringTo<uint32>(guid_str).value_or(0);
         }
 
         std::string show = show_str;

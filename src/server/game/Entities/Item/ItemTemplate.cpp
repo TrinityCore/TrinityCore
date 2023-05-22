@@ -20,7 +20,7 @@
 #include "ItemTemplate.h"
 #include "Player.h"
 
-int32 const SocketColorToGemTypeMask[19] =
+int32 const SocketColorToGemTypeMask[26] =
 {
     0,
     SOCKET_COLOR_META,
@@ -40,7 +40,14 @@ int32 const SocketColorToGemTypeMask[19] =
     SOCKET_COLOR_RELIC_WATER,
     SOCKET_COLOR_RELIC_LIFE,
     SOCKET_COLOR_RELIC_WIND,
-    SOCKET_COLOR_RELIC_HOLY
+    SOCKET_COLOR_RELIC_HOLY,
+    SOCKET_COLOR_PUNCHCARD_RED,
+    SOCKET_COLOR_PUNCHCARD_YELLOW,
+    SOCKET_COLOR_PUNCHCARD_BLUE,
+    SOCKET_COLOR_DOMINATION,
+    SOCKET_COLOR_CYPHER,
+    SOCKET_COLOR_TINKER,
+    SOCKET_COLOR_PRIMORDIAL
 };
 
 char const* ItemTemplate::GetName(LocaleConstant locale) const
@@ -98,6 +105,13 @@ uint32 ItemTemplate::GetSkill() const
         0, SKILL_CLOTH, SKILL_LEATHER, SKILL_MAIL, SKILL_PLATE_MAIL, 0, SKILL_SHIELD, 0, 0, 0, 0
     };
 
+    static uint32 const itemProfessionSkills[MAX_ITEM_SUBCLASS_PROFESSION] =
+    {
+        SKILL_BLACKSMITHING, SKILL_LEATHERWORKING, SKILL_ALCHEMY,     SKILL_HERBALISM,  SKILL_COOKING,
+        SKILL_MINING,        SKILL_TAILORING,      SKILL_ENGINEERING, SKILL_ENCHANTING, SKILL_FISHING,
+        SKILL_SKINNING,      SKILL_JEWELCRAFTING,  SKILL_INSCRIPTION, SKILL_ARCHAEOLOGY
+    };
+
     switch (GetClass())
     {
         case ITEM_CLASS_WEAPON:
@@ -105,13 +119,16 @@ uint32 ItemTemplate::GetSkill() const
                 return 0;
             else
                 return itemWeaponSkills[GetSubClass()];
-
         case ITEM_CLASS_ARMOR:
             if (GetSubClass() >= MAX_ITEM_SUBCLASS_ARMOR)
                 return 0;
             else
                 return itemArmorSkills[GetSubClass()];
-
+        case ITEM_CLASS_PROFESSION:
+            if (GetSubClass() >= MAX_ITEM_SUBCLASS_PROFESSION)
+                return 0;
+            else
+                return itemProfessionSkills[GetSubClass()];
         default:
             return 0;
     }

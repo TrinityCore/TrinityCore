@@ -361,7 +361,7 @@ WorldPacket const* WorldPackets::CombatLog::AttackerStateUpdate::Write()
     attackRoundInfo << int8(ContentTuning.TargetScalingLevelDelta);
     attackRoundInfo << float(ContentTuning.PlayerItemLevel);
     attackRoundInfo << float(ContentTuning.TargetItemLevel);
-    attackRoundInfo << uint16(ContentTuning.ScalingHealthItemLevelCurveID);
+    attackRoundInfo << uint32(ContentTuning.ScalingHealthItemLevelCurveID);
     attackRoundInfo << uint32(ContentTuning.Flags);
     attackRoundInfo << int32(ContentTuning.PlayerContentTuningID);
     attackRoundInfo << int32(ContentTuning.TargetContentTuningID);

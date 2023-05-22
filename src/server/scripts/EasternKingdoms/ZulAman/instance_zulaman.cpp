@@ -48,7 +48,6 @@ class instance_zulaman : public InstanceMapScript
                 LoadDungeonEncounterData(encounters);
 
                 SpeedRunTimer           = 15;
-                ZulAmanState            = NOT_STARTED;
                 ZulAmanBossCount        = 0;
             }
 

@@ -81,6 +81,7 @@ public:
             { "commands",         HandleCommandsCommand,         rbac::RBAC_PERM_COMMAND_COMMANDS,         Console::Yes },
             { "cooldown",         HandleCooldownCommand,         rbac::RBAC_PERM_COMMAND_COOLDOWN,         Console::No },
             { "damage",           HandleDamageCommand,           rbac::RBAC_PERM_COMMAND_DAMAGE,           Console::No },
+            { "damage go",        HandleDamageGoCommand,         rbac::RBAC_PERM_COMMAND_DAMAGE,           Console::No },
             { "dev",              HandleDevCommand,              rbac::RBAC_PERM_COMMAND_DEV,              Console::No },
             { "die",              HandleDieCommand,              rbac::RBAC_PERM_COMMAND_DIE,              Console::No },
             { "dismount",         HandleDismountCommand,         rbac::RBAC_PERM_COMMAND_DISMOUNT,         Console::No },
@@ -1206,7 +1207,8 @@ public:
             char const* id = handler->extractKeyFromLink((char*)args, "Hitem");
             if (!id)
                 return false;
-            itemId = atoul(id);
+
+            itemId = Trinity::StringTo<uint32>(id).value_or(0);
         }
 
         char const* ccount = strtok(nullptr, " ");
@@ -1233,7 +1235,7 @@ public:
         ItemContext itemContext = ItemContext::NONE;
         if (context)
         {
-            itemContext = ItemContext(atoul(context));
+            itemContext = ItemContext(Trinity::StringTo<uint8>(context).value_or(0));
             if (itemContext != ItemContext::NONE && itemContext < ItemContext::Max)
             {
                 std::set<uint32> contextBonuses = sDB2Manager.GetDefaultItemBonusTree(itemId, itemContext);
@@ -1370,7 +1372,8 @@ public:
             char const* id = handler->extractKeyFromLink(tailArgs, "Hitem");
             if (!id)
                 return false;
-            itemId = atoul(id);
+
+            itemId = Trinity::StringTo<uint32>(id).value_or(0);
         }
 
         char const* ccount = strtok(nullptr, " ");
@@ -1397,7 +1400,7 @@ public:
         ItemContext itemContext = ItemContext::NONE;
         if (context)
         {
-            itemContext = ItemContext(atoul(context));
+            itemContext = ItemContext(Trinity::StringTo<uint8>(context).value_or(0));
             if (itemContext != ItemContext::NONE && itemContext < ItemContext::Max)
             {
                 std::set<uint32> contextBonuses = sDB2Manager.GetDefaultItemBonusTree(itemId, itemContext);
@@ -1634,26 +1637,19 @@ public:
     *
     * @return Several pieces of information about the character and the account
     **/
-    static bool HandlePInfoCommand(ChatHandler* handler, char const* args)
+    static bool HandlePInfoCommand(ChatHandler* handler, Optional<PlayerIdentifier> arg)
     {
-        // Define ALL the player variables!
-        Player* target;
-        ObjectGuid targetGuid;
-        std::string targetName;
-        CharacterDatabasePreparedStatement* stmt = nullptr;
+        if (!arg)
+            arg = PlayerIdentifier::FromTargetOrSelf(handler);
 
-        // To make sure we get a target, we convert our guid to an omniversal...
-        ObjectGuid parseGUID = ObjectGuid::Create<HighGuid::Player>(strtoull(args, nullptr, 10));
-
-        // ... and make sure we get a target, somehow.
-        if (sCharacterCache->GetCharacterNameByGuid(parseGUID, targetName))
-        {
-            target = ObjectAccessor::FindPlayer(parseGUID);
-            targetGuid = parseGUID;
-        }
-        // if not, then return false. Which shouldn't happen, now should it ?
-        else if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
+        if (!arg)
             return false;
+
+        // Define ALL the player variables!
+        Player* target = arg->GetConnectedPlayer();
+        ObjectGuid targetGuid = arg->GetGUID();
+        std::string targetName = arg->GetName();
+        CharacterDatabasePreparedStatement* stmt = nullptr;
 
         /* The variables we extract for the command. They are
          * default as "does not exist" to prevent problems
@@ -2319,71 +2315,8 @@ public:
         return true;
     }
 
-    static bool HandleDamageCommand(ChatHandler* handler, char const* args)
+    static bool HandleDamageCommand(ChatHandler* handler, uint32 damage, Optional<SpellSchools> school, Optional<SpellInfo const*> spellInfo)
     {
-        if (!*args)
-            return false;
-
-        char* str = strtok((char*)args, " ");
-
-        if (strcmp(str, "go") == 0)
-        {
-            char* guidStr = strtok(nullptr, " ");
-            if (!guidStr)
-            {
-                handler->SendSysMessage(LANG_BAD_VALUE);
-                handler->SetSentErrorMessage(true);
-                return false;
-            }
-
-            ObjectGuid::LowType guidLow = atoull(guidStr);
-            if (!guidLow)
-            {
-                handler->SendSysMessage(LANG_BAD_VALUE);
-                handler->SetSentErrorMessage(true);
-                return false;
-            }
-
-            char* damageStr = strtok(nullptr, " ");
-            if (!damageStr)
-            {
-                handler->SendSysMessage(LANG_BAD_VALUE);
-                handler->SetSentErrorMessage(true);
-                return false;
-            }
-
-            int32 damage = atoi(damageStr);
-            if (!damage)
-            {
-                handler->SendSysMessage(LANG_BAD_VALUE);
-                handler->SetSentErrorMessage(true);
-                return false;
-            }
-
-            if (Player* player = handler->GetSession()->GetPlayer())
-            {
-                GameObject* go = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
-                if (!go)
-                {
-                    handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, std::to_string(guidLow).c_str());
-                    handler->SetSentErrorMessage(true);
-                    return false;
-                }
-
-                if (!go->IsDestructibleBuilding())
-                {
-                    handler->SendSysMessage(LANG_INVALID_GAMEOBJECT_TYPE);
-                    handler->SetSentErrorMessage(true);
-                    return false;
-                }
-
-                go->ModifyHealth(-damage, player);
-                handler->PSendSysMessage(LANG_GAMEOBJECT_DAMAGED, go->GetName().c_str(), std::to_string(guidLow).c_str(), -damage, go->GetGOValue()->Building.Health);
-            }
-
-            return true;
-        }
-
         Unit* target = handler->getSelectedUnit();
         if (!target || !handler->GetSession()->GetPlayer()->GetTarget())
         {
@@ -2399,16 +2332,8 @@ public:
         if (!target->IsAlive())
             return true;
 
-        int32 damage_int = atoi((char*)str);
-        if (damage_int <= 0)
-            return true;
-
-        uint32 damage = damage_int;
-
-        char* schoolStr = strtok((char*)nullptr, " ");
-
         // flat melee damage without resistence/etc reduction
-        if (!schoolStr)
+        if (!school)
         {
             Unit::DealDamage(handler->GetSession()->GetPlayer(), target, damage, nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
             if (target != handler->GetSession()->GetPlayer())
@@ -2416,21 +2341,15 @@ public:
             return true;
         }
 
-        uint32 school = atoi((char*)schoolStr);
-        if (school >= MAX_SPELL_SCHOOL)
-            return false;
-
-        SpellSchoolMask schoolmask = SpellSchoolMask(1 << school);
+        SpellSchoolMask schoolmask = SpellSchoolMask(1 << *school);
 
         if (Unit::IsDamageReducedByArmor(schoolmask))
             damage = Unit::CalcArmorReducedDamage(handler->GetSession()->GetPlayer(), target, damage, nullptr, BASE_ATTACK);
 
-        char* spellStr = strtok((char*)nullptr, " ");
-
         Player* attacker = handler->GetSession()->GetPlayer();
 
         // melee damage by specific school
-        if (!spellStr)
+        if (!spellInfo)
         {
             DamageInfo dmgInfo(attacker, target, damage, nullptr, schoolmask, SPELL_DIRECT_DAMAGE, BASE_ATTACK);
             Unit::CalcAbsorbResist(dmgInfo);
@@ -2450,20 +2369,33 @@ public:
 
         // non-melee damage
 
-        // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
-        uint32 spellid = handler->extractSpellIdFromLink((char*)args);
-        if (!spellid)
-            return false;
-
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellid, attacker->GetMap()->GetDifficultyID());
-        if (!spellInfo)
-            return false;
-
-        SpellNonMeleeDamage damageInfo(attacker, target, spellInfo, { spellInfo->GetSpellXSpellVisualId(handler->GetSession()->GetPlayer()), 0 }, spellInfo->SchoolMask);
+        SpellNonMeleeDamage damageInfo(attacker, target, *spellInfo, { (*spellInfo)->GetSpellXSpellVisualId(handler->GetSession()->GetPlayer()), 0 }, (*spellInfo)->SchoolMask);
         damageInfo.damage = damage;
         Unit::DealDamageMods(damageInfo.attacker, damageInfo.target, damageInfo.damage, &damageInfo.absorb);
         target->DealSpellDamage(&damageInfo, true);
         target->SendSpellNonMeleeDamageLog(&damageInfo);
+        return true;
+    }
+
+    static bool HandleDamageGoCommand(ChatHandler* handler, Variant<Hyperlink<gameobject>, ObjectGuid::LowType> spawnId, int32 damage)
+    {
+        GameObject* go = handler->GetObjectFromPlayerMapByDbGuid(*spawnId);
+        if (!go)
+        {
+            handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, std::to_string(*spawnId).c_str());
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (!go->IsDestructibleBuilding())
+        {
+            handler->SendSysMessage(LANG_INVALID_GAMEOBJECT_TYPE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        go->ModifyHealth(-damage, handler->GetSession()->GetPlayer());
+        handler->PSendSysMessage(LANG_GAMEOBJECT_DAMAGED, go->GetName().c_str(), std::to_string(*spawnId).c_str(), -damage, go->GetGOValue()->Building.Health);
         return true;
     }
 

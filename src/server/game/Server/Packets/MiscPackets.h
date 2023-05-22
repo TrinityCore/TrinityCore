@@ -31,7 +31,6 @@
 #include <array>
 #include <map>
 
-enum MountStatusFlags : uint8;
 enum UnitStandStateType : uint8;
 enum WeatherState : uint32;
 
@@ -61,17 +60,6 @@ namespace WorldPackets
 
             ObjectGuid BinderID;
             uint32 AreaID = 0;
-        };
-
-        class BinderConfirm final : public ServerPacket
-        {
-        public:
-            BinderConfirm() : ServerPacket(SMSG_BINDER_CONFIRM, 16) { }
-            BinderConfirm(ObjectGuid unit) : ServerPacket(SMSG_BINDER_CONFIRM, 16), Unit(unit) { }
-
-            WorldPacket const* Write() override;
-
-            ObjectGuid Unit;
         };
 
         class InvalidatePlayer final : public ServerPacket
@@ -115,14 +103,18 @@ namespace WorldPackets
 
             int32 Type = 0;
             int32 Quantity = 0;
-            uint32 Flags = 0;
+            CurrencyGainFlags Flags = CurrencyGainFlags(0);
+            std::vector<Item::UiEventToast> Toasts;
             Optional<int32> WeeklyQuantity;
             Optional<int32> TrackedQuantity;
             Optional<int32> MaxQuantity;
-            Optional<int32> Unused901;
+            Optional<int32> TotalEarned;
             Optional<int32> QuantityChange;
-            Optional<int32> QuantityGainSource;
-            Optional<int32> QuantityLostSource;
+            Optional<CurrencyGainSource> QuantityGainSource;
+            Optional<CurrencyDestroyReason> QuantityLostSource;
+            Optional<uint32> FirstCraftOperationID;
+            Optional<Timestamp<>> NextRechargeTime;
+            Optional<Timestamp<>> RechargeCycleStartTime;
             bool SuppressChatLog = false;
         };
 
@@ -147,8 +139,10 @@ namespace WorldPackets
                 Optional<int32> MaxWeeklyQuantity;    // Weekly Currency cap.
                 Optional<int32> TrackedQuantity;
                 Optional<int32> MaxQuantity;
-                Optional<int32> Unused901;
-                uint8 Flags = 0;                      // 0 = none,
+                Optional<int32> TotalEarned;
+                Optional<Timestamp<>> NextRechargeTime;
+                Optional<Timestamp<>> RechargeCycleStartTime;
+                uint8 Flags = 0;
             };
 
             SetupCurrency() : ServerPacket(SMSG_SETUP_CURRENCY, 22) { }
@@ -555,9 +549,11 @@ namespace WorldPackets
         class EnableBarberShop final : public ServerPacket
         {
         public:
-            EnableBarberShop() : ServerPacket(SMSG_ENABLE_BARBER_SHOP, 0) { }
+            EnableBarberShop() : ServerPacket(SMSG_ENABLE_BARBER_SHOP, 1) { }
 
-            WorldPacket const* Write() override { return &_worldPacket; }
+            WorldPacket const* Write() override;
+
+            uint8 CustomizationScope = 0;
         };
 
         struct PhaseShiftDataPhase

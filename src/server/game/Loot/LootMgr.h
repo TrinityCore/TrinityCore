@@ -20,7 +20,9 @@
 
 #include "Define.h"
 #include "ConditionMgr.h"
+#include "ObjectGuid.h"
 #include <list>
+#include <memory>
 #include <set>
 #include <unordered_map>
 #include <vector>
@@ -30,6 +32,8 @@ class LootTemplate;
 class Player;
 struct Loot;
 struct LootItem;
+enum LootType : uint8;
+enum class ItemContext : uint8;
 
 struct TC_GAME_API LootStoreItem
 {
@@ -108,10 +112,13 @@ class TC_GAME_API LootTemplate
         // Adds an entry to the group (at loading stage)
         void AddEntry(LootStoreItem* item);
         // Rolls for every item in the template and adds the rolled items the the loot
-        void Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId) const;
+        void Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId, Player const* personalLooter = nullptr) const;
+        void ProcessPersonalLoot(std::unordered_map<Player*, std::unique_ptr<Loot>>& personalLoot, bool rate, uint16 lootMode) const;
         void CopyConditions(ConditionContainer const& conditions);
         void CopyConditions(LootItem* li) const;
 
+        // True if template includes at least 1 drop for the player
+        bool HasDropForPlayer(Player const* player, uint8 groupId = 0, bool strictUsabilityCheck = false) const;
         // True if template includes at least 1 quest drop entry
         bool HasQuestDrop(LootTemplateMap const& store, uint8 groupId = 0) const;
         // True if template includes at least 1 quest drop for an active quest of the player
@@ -131,6 +138,12 @@ class TC_GAME_API LootTemplate
         LootTemplate(LootTemplate const&) = delete;
         LootTemplate& operator=(LootTemplate const&) = delete;
 };
+
+std::unordered_map<ObjectGuid, std::unique_ptr<Loot>> GenerateDungeonEncounterPersonalLoot(uint32 dungeonEncounterId,
+    uint32 lootId, LootStore const& store, LootType type, WorldObject const* lootOwner,
+    uint32 minMoney, uint32 maxMoney,
+    uint16 lootMode, ItemContext context,
+    std::vector<Player*> const& tappers);
 
 //=====================================================
 

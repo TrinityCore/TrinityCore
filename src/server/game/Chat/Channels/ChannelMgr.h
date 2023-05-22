@@ -32,7 +32,7 @@ class TC_GAME_API ChannelMgr
     typedef std::unordered_map<ObjectGuid, Channel*> BuiltinChannelContainer;
 
     protected:
-        explicit ChannelMgr(uint32 team) : _team(team) { }
+        explicit ChannelMgr(uint32 team) : _team(team), _guidGenerator(HighGuid::ChatChannel) { }
         ~ChannelMgr();
 
     public:
@@ -57,7 +57,7 @@ class TC_GAME_API ChannelMgr
         CustomChannelContainer _customChannels;
         BuiltinChannelContainer _channels;
         uint32 const _team;
-        ObjectGuidGenerator<HighGuid::ChatChannel> _guidGenerator;
+        ObjectGuidGenerator _guidGenerator;
 
         static void SendNotOnChannelNotify(Player const* player, std::string const& name);
         ObjectGuid CreateCustomChannelGuid();

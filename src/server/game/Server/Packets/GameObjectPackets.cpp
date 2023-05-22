@@ -70,20 +70,34 @@ WorldPacket const* WorldPackets::GameObject::GameObjectCustomAnim::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::GameObject::GameObjectUILink::Write()
-{
-    _worldPacket << ObjectGUID;
-    _worldPacket << int32(UILink);
-    _worldPacket << int32(UIItemInteractionID);
-
-    return &_worldPacket;
-}
-
 WorldPacket const* WorldPackets::GameObject::GameObjectPlaySpellVisual::Write()
 {
     _worldPacket << ObjectGUID;
     _worldPacket << ActivatorGUID;
     _worldPacket << int32(SpellVisualID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::GameObject::GameObjectSetStateLocal::Write()
+{
+    _worldPacket << ObjectGUID;
+    _worldPacket << uint8(State);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::GameObject::GameObjectInteraction::Write()
+{
+    _worldPacket << ObjectGUID;
+    _worldPacket << int32(InteractionType);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::GameObject::GameObjectCloseInteraction::Write()
+{
+    _worldPacket << int32(InteractionType);
 
     return &_worldPacket;
 }

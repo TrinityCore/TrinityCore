@@ -72,7 +72,7 @@ void WorldSession::HandleUseToy(WorldPackets::Toy::UseToy& packet)
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(packet.Cast.SpellID, DIFFICULTY_NONE);
     if (!spellInfo)
     {
-        TC_LOG_ERROR("network", "HandleUseToy: unknown spell id: %u used by Toy Item entry %u", packet.Cast.SpellID, itemId);
+        TC_LOG_ERROR("network", "HandleUseToy: unknown spell id: {} used by Toy Item entry {}", packet.Cast.SpellID, itemId);
         return;
     }
 

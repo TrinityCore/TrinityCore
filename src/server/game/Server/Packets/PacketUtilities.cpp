@@ -18,7 +18,6 @@
 #include "PacketUtilities.h"
 #include "Hyperlinks.h"
 #include <utf8.h>
-#include <sstream>
 
 WorldPackets::InvalidStringValueException::InvalidStringValueException(std::string const& value) : ByteBufferInvalidValueException("string", value.c_str())
 {
@@ -59,7 +58,5 @@ bool WorldPackets::Strings::NoHyperlinks::Validate(std::string const& value)
 
 WorldPackets::PacketArrayMaxCapacityException::PacketArrayMaxCapacityException(std::size_t requestedSize, std::size_t sizeLimit)
 {
-    std::ostringstream builder;
-    builder << "Attempted to read more array elements from packet " << requestedSize << " than allowed " << sizeLimit;
-    message().assign(builder.str());
+    message().assign("Attempted to read more array elements from packet " + Trinity::ToString(requestedSize) + " than allowed " + Trinity::ToString(sizeLimit));
 }

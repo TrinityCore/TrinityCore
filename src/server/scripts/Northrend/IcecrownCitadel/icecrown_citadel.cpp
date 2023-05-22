@@ -17,6 +17,7 @@
 
 #include "icecrown_citadel.h"
 #include "CellImpl.h"
+#include "Containers.h"
 #include "GameObjectAI.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
@@ -378,7 +379,7 @@ struct npc_highlord_tirion_fordring_lh : public ScriptedAI
                 case EVENT_MURADIN_RUN:
                 case EVENT_SAURFANG_RUN:
                     if (Creature* factionNPC = ObjectAccessor::GetCreature(*me, _factionNPC))
-                        factionNPC->GetMotionMaster()->MovePath(factionNPC->GetSpawnId() * 10, false);
+                        factionNPC->GetMotionMaster()->MovePath((factionNPC->GetSpawnId() * 10) << 3, false);
                     me->setActive(false);
                     _damnedKills = 3;
                     break;

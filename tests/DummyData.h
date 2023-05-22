@@ -48,15 +48,15 @@ class UnitTestDataLoader
                 LoaderGuard Loader() { return {*this}; }
                 void Dump()
                 {
-                    delete[] _store._indexTable.AsT;
+                    delete[] _store._indexTable;
                     for (T const& entry : _storage)
                         if (entry.*ID >= _store._indexTableSize)
                             _store._indexTableSize = entry.*ID + 1;
-                    _store._indexTable.AsT = new T*[_store._indexTableSize];
+                    _store._indexTable = new char*[_store._indexTableSize];
                     for (size_t i = 0; i < _store._indexTableSize; ++i)
-                        _store._indexTable.AsT[i] = nullptr;
+                        _store._indexTable[i] = nullptr;
                     for (T& entry : _storage)
-                        _store._indexTable.AsT[entry.*ID] = &entry;
+                        _store._indexTable[entry.*ID] = reinterpret_cast<char*>(&entry);
                 }
 
             private:

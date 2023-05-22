@@ -53,7 +53,7 @@ InstanceScenario* ScenarioMgr::CreateInstanceScenario(InstanceMap const* map, Te
     auto itr = _scenarioData.find(scenarioID);
     if (itr == _scenarioData.end())
     {
-        TC_LOG_ERROR("scenario", "Table `scenarios` contained data linking scenario (Id: %u) to map (Id: %u), difficulty (Id: %u) but no scenario data was found related to that scenario Id.", scenarioID, map->GetId(), map->GetDifficultyID());
+        TC_LOG_ERROR("scenario", "Table `scenarios` contained data linking scenario (Id: {}) to map (Id: {}), difficulty (Id: {}) but no scenario data was found related to that scenario Id.", scenarioID, map->GetId(), map->GetDifficultyID());
         return nullptr;
     }
 
@@ -84,14 +84,14 @@ void ScenarioMgr::LoadDBData()
         uint32 scenarioAllianceId = fields[2].GetUInt32();
         if (scenarioAllianceId > 0 && _scenarioData.find(scenarioAllianceId) == _scenarioData.end())
         {
-            TC_LOG_ERROR("sql.sql", "ScenarioMgr::LoadDBData: DB Table `scenarios`, column scenario_A contained an invalid scenario (Id: %u)!", scenarioAllianceId);
+            TC_LOG_ERROR("sql.sql", "ScenarioMgr::LoadDBData: DB Table `scenarios`, column scenario_A contained an invalid scenario (Id: {})!", scenarioAllianceId);
             continue;
         }
 
         uint32 scenarioHordeId = fields[3].GetUInt32();
         if (scenarioHordeId > 0 && _scenarioData.find(scenarioHordeId) == _scenarioData.end())
         {
-            TC_LOG_ERROR("sql.sql", "ScenarioMgr::LoadDBData: DB Table `scenarios`, column scenario_H contained an invalid scenario (Id: %u)!", scenarioHordeId);
+            TC_LOG_ERROR("sql.sql", "ScenarioMgr::LoadDBData: DB Table `scenarios`, column scenario_H contained an invalid scenario (Id: {})!", scenarioHordeId);
             continue;
         }
 
@@ -106,7 +106,7 @@ void ScenarioMgr::LoadDBData()
     }
     while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " instance scenario entries in %u ms", _scenarioDBData.size(), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} instance scenario entries in {} ms", _scenarioDBData.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ScenarioMgr::LoadDB2Data()
@@ -195,7 +195,7 @@ void ScenarioMgr::LoadScenarioPOI()
         int32 navigationPlayerConditionID = fields[9].GetInt32();
 
         if (!sCriteriaMgr->GetCriteriaTree(criteriaTreeID))
-            TC_LOG_ERROR("sql.sql", "`scenario_poi` CriteriaTreeID (%u) Idx1 (%u) does not correspond to a valid criteria tree", criteriaTreeID, idx1);
+            TC_LOG_ERROR("sql.sql", "`scenario_poi` CriteriaTreeID ({}) Idx1 ({}) does not correspond to a valid criteria tree", criteriaTreeID, idx1);
 
         if (std::map<int32, std::vector<ScenarioPOIPoint>>* blobs = Trinity::Containers::MapGetValuePtr(allPoints, criteriaTreeID))
         {
@@ -207,11 +207,11 @@ void ScenarioMgr::LoadScenarioPOI()
             }
         }
 
-        TC_LOG_ERROR("server.loading", "Table scenario_poi references unknown scenario poi points for criteria tree id %i POI id %i", criteriaTreeID, blobIndex);
+        TC_LOG_ERROR("server.loading", "Table scenario_poi references unknown scenario poi points for criteria tree id {} POI id {}", criteriaTreeID, blobIndex);
 
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u scenario POI definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} scenario POI definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 ScenarioPOIVector const* ScenarioMgr::GetScenarioPOIs(int32 criteriaTreeID) const

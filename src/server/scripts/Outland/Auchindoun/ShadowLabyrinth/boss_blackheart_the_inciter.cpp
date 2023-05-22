@@ -112,7 +112,7 @@ struct boss_blackheart_the_inciter : public BossAI
         else
         {
             if (!charmCount)
-                EnterEvadeMode(EVADE_REASON_OTHER); // sanity check
+                EnterEvadeMode(EvadeReason::Other); // sanity check
             --charmCount;
         }
         if (charmCount)

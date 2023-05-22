@@ -48,7 +48,7 @@ class CASC_SOCKET
 {
     public:
 
-    char * ReadResponse(const char * request, size_t request_length = 0, size_t * PtrLength = NULL);
+    char * ReadResponse(const char * request, size_t request_length, CASC_MIME_RESPONSE & MimeResponse);
     DWORD AddRef();
     void Release();
 

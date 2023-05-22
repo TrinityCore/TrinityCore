@@ -181,7 +181,7 @@ public:
 
     void EnterEvadeMode(EvadeReason why) override
     {
-        if (!ballLightningEnabled && why == EVADE_REASON_NO_HOSTILES)
+        if (!ballLightningEnabled && why == EvadeReason::NoHostiles)
         {
             ballLightningEnabled = true;
             return; // try again

@@ -19,6 +19,7 @@
 #define MOTIONMASTER_H
 
 #include "Common.h"
+#include "Duration.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "MovementDefines.h"
@@ -36,6 +37,7 @@ struct Position;
 struct SplineChainLink;
 struct SplineChainResumeInfo;
 struct WaypointPath;
+enum UnitMoveType : uint8;
 
 namespace Movement
 {
@@ -154,15 +156,17 @@ class TC_GAME_API MotionMaster
 
         void MoveIdle();
         void MoveTargetedHome();
-        void MoveRandom(float wanderDistance = 0.0f);
-        void MoveFollow(Unit* target, float dist, ChaseAngle angle, MovementSlot slot = MOTION_SLOT_ACTIVE);
+        void MoveRandom(float wanderDistance = 0.0f, Optional<Milliseconds> duration = {}, MovementSlot slot = MOTION_SLOT_DEFAULT);
+        void MoveFollow(Unit* target, float dist, ChaseAngle angle, Optional<Milliseconds> duration = {}, MovementSlot slot = MOTION_SLOT_ACTIVE);
         void MoveChase(Unit* target, Optional<ChaseRange> dist = {}, Optional<ChaseAngle> angle = {});
         void MoveChase(Unit* target, float dist, float angle) { MoveChase(target, ChaseRange(dist), ChaseAngle(angle)); }
         void MoveChase(Unit* target, float dist) { MoveChase(target, ChaseRange(dist)); }
         void MoveConfused();
-        void MoveFleeing(Unit* enemy, uint32 time = 0);
-        void MovePoint(uint32 id, Position const& pos, bool generatePath = true, Optional<float> finalOrient = {});
-        void MovePoint(uint32 id, float x, float y, float z, bool generatePath = true, Optional<float> finalOrient = {});
+        void MoveFleeing(Unit* enemy, Milliseconds time = 0ms);
+        void MovePoint(uint32 id, Position const& pos, bool generatePath = true, Optional<float> finalOrient = {}, Optional<float> speed = {},
+            MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default, Optional<float> closeEnoughDistance = {});
+        void MovePoint(uint32 id, float x, float y, float z, bool generatePath = true, Optional<float> finalOrient = {}, Optional<float> speed = {},
+            MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default, Optional<float> closeEnoughDistance = {});
         /*
          *  Makes the unit move toward the target until it is at a certain distance from it. The unit then stops.
          *  Only works in 2D.
@@ -170,8 +174,10 @@ class TC_GAME_API MotionMaster
          */
         void MoveCloserAndStop(uint32 id, Unit* target, float distance);
         // These two movement types should only be used with creatures having landing/takeoff animations
-        void MoveLand(uint32 id, Position const& pos, Optional<float> velocity = {});
-        void MoveTakeoff(uint32 id, Position const& pos, Optional<float> velocity = {});
+        void MoveLand(uint32 id, Position const& pos, Optional<int32> tierTransitionId = {}, Optional<float> velocity = {},
+            MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default);
+        void MoveTakeoff(uint32 id, Position const& pos, Optional<int32> tierTransitionId = {}, Optional<float> velocity = {},
+            MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default);
         void MoveCharge(float x, float y, float z, float speed = SPEED_CHARGE, uint32 id = EVENT_CHARGE, bool generatePath = false, Unit const* target = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
         void MoveCharge(PathGenerator const& path, float speed = SPEED_CHARGE, Unit const* target = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
         void MoveKnockbackFrom(Position const& origin, float speedXY, float speedZ, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
@@ -190,12 +196,21 @@ class TC_GAME_API MotionMaster
         void MoveSeekAssistanceDistract(uint32 timer);
         void MoveTaxiFlight(uint32 path, uint32 pathnode);
         void MoveDistract(uint32 time, float orientation);
-        void MovePath(uint32 pathId, bool repeatable);
-        void MovePath(WaypointPath& path, bool repeatable);
+        void MovePath(uint32 pathId, bool repeatable, Optional<Milliseconds> duration = {}, Optional<float> speed = {},
+            MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default,
+            Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd = {}, Optional<float> wanderDistanceAtPathEnds = {},
+            bool followPathBackwardsFromEndToStart = false, bool generatePath = true);
+        void MovePath(WaypointPath const& path, bool repeatable, Optional<Milliseconds> duration = {}, Optional<float> speed = {},
+            MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default,
+            Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd = {}, Optional<float> wanderDistanceAtPathEnds = {},
+            bool followPathBackwardsFromEndToStart = false, bool generatePath = true);
         void MoveRotate(uint32 id, uint32 time, RotateDirection direction);
         void MoveFormation(Unit* leader, float range, float angle, uint32 point1, uint32 point2);
 
         void LaunchMoveSpline(std::function<void(Movement::MoveSplineInit& init)>&& initializer, uint32 id = 0, MovementGeneratorPriority priority = MOTION_PRIORITY_NORMAL, MovementGeneratorType type = EFFECT_MOTION_TYPE);
+
+        void CalculateJumpSpeeds(float dist, UnitMoveType moveType, float speedMultiplier, float minHeight, float maxHeight, float& speedXY, float& speedZ) const;
+
     private:
         typedef std::unique_ptr<MovementGenerator, MovementGeneratorDeleter> MovementGeneratorPointer;
         typedef std::multiset<MovementGenerator*, MovementGeneratorComparator> MotionMasterContainer;

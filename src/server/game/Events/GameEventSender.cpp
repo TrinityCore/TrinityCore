@@ -16,14 +16,13 @@
  */
 
 #include "GameEventSender.h"
-#include "Battleground.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
-#include "InstanceScript.h"
 #include "Map.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "Util.h"
+#include "ZoneScript.h"
 
 void GameEvents::Trigger(uint32 gameEventId, WorldObject* source, WorldObject* target)
 {
@@ -66,8 +65,5 @@ void GameEvents::TriggerForPlayer(uint32 gameEventId, Player* source)
 
 void GameEvents::TriggerForMap(uint32 gameEventId, Map* map, WorldObject* source, WorldObject* target)
 {
-    if (BattlegroundMap* bgMap = map->ToBattlegroundMap())
-        bgMap->GetBG()->ProcessEvent(target, gameEventId, source);
-
     map->ScriptsStart(sEventScripts, gameEventId, source, target);
 }

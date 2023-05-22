@@ -124,7 +124,7 @@ private:
 public:
     // MOGP
 
-    char* MOPY;
+    std::unique_ptr<uint16[]> MPY2;
     std::unique_ptr<uint32[]> MOVX;
     float* MOVT;
     uint16* MOBA;
@@ -142,7 +142,7 @@ public:
     uint16 nBatchB;
     uint32 nBatchC, fogIdx, groupLiquid, groupWMOID;
 
-    int mopy_size, moba_size;
+    int moba_size;
     int LiquEx_size;
     unsigned int nVertices; // number when loaded
     int nTriangles; // number when loaded

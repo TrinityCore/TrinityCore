@@ -21,6 +21,8 @@
 #include "Config.h"
 #include <boost/filesystem.hpp>
 #include <cstdlib>
+#include <cstring>
+#include <map>
 #include <string>
 
 std::string CreateConfigWithMap(std::map<std::string, std::string> const& map)
@@ -36,10 +38,10 @@ std::string CreateConfigWithMap(std::map<std::string, std::string> const& map)
 
     iniStream.close();
 
-    return mTempFileAbs.native();
+    return mTempFileAbs.string();
 }
 
-TEST_CASE("Envariable variables", "[Config]")
+TEST_CASE("Environment variables", "[Config]")
 {
     std::map<std::string, std::string> config;
     config["Int.Nested"] = "4242";
@@ -57,7 +59,7 @@ TEST_CASE("Envariable variables", "[Config]")
     {
         REQUIRE(sConfigMgr->GetIntDefault("Int.Nested", 10) == 4242);
 
-        setenv("TC_INT_NESTED", "8080", 1);
+        putenv(strdup("TC_INT_NESTED=8080"));
         REQUIRE(!sConfigMgr->OverrideWithEnvVariablesIfAny().empty());
         REQUIRE(sConfigMgr->GetIntDefault("Int.Nested", 10) == 8080);
     }
@@ -66,7 +68,7 @@ TEST_CASE("Envariable variables", "[Config]")
     {
         REQUIRE(sConfigMgr->GetStringDefault("lower", "") == "simpleString");
 
-        setenv("TC_LOWER", "envstring", 1);
+        putenv(strdup("TC_LOWER=envstring"));
         REQUIRE(!sConfigMgr->OverrideWithEnvVariablesIfAny().empty());
         REQUIRE(sConfigMgr->GetStringDefault("lower", "") == "envstring");
     }
@@ -75,29 +77,29 @@ TEST_CASE("Envariable variables", "[Config]")
     {
         REQUIRE(sConfigMgr->GetStringDefault("UPPER", "") == "simpleString");
 
-        setenv("TC_UPPER", "envupperstring", 1);
+        putenv(strdup("TC_UPPER=envupperstring"));
         REQUIRE(!sConfigMgr->OverrideWithEnvVariablesIfAny().empty());
         REQUIRE(sConfigMgr->GetStringDefault("UPPER", "") == "envupperstring");
     }
 
     SECTION("Long nested name with number")
     {
-        REQUIRE(sConfigMgr->GetFloatDefault("SomeLong.NestedNameWithNumber.Like1", 0) == 1);
+        REQUIRE(sConfigMgr->GetFloatDefault("SomeLong.NestedNameWithNumber.Like1", 0) == 1.0f);
 
-        setenv("TC_SOME_LONG_NESTED_NAME_WITH_NUMBER_LIKE_1", "42", 1);
+        putenv(strdup("TC_SOME_LONG_NESTED_NAME_WITH_NUMBER_LIKE_1=42"));
         REQUIRE(!sConfigMgr->OverrideWithEnvVariablesIfAny().empty());
-        REQUIRE(sConfigMgr->GetFloatDefault("SomeLong.NestedNameWithNumber.Like1", 0) == 42);
+        REQUIRE(sConfigMgr->GetFloatDefault("SomeLong.NestedNameWithNumber.Like1", 0) == 42.0f);
     }
 
     SECTION("String that not exist in config")
     {
-        setenv("TC_UNIQUE_STRING", "somevalue", 1);
+        putenv(strdup("TC_UNIQUE_STRING=somevalue"));
         REQUIRE(sConfigMgr->GetStringDefault("Unique.String", "") == "somevalue");
     }
 
     SECTION("Int that not exist in config")
     {
-        setenv("TC_UNIQUE_INT", "100", 1);
+        putenv(strdup("TC_UNIQUE_INT=100"));
         REQUIRE(sConfigMgr->GetIntDefault("Unique.Int", 1) == 100);
     }
 

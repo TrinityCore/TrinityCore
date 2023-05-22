@@ -37,12 +37,6 @@ void UpdateData::AddOutOfRangeGUID(ObjectGuid guid)
     m_outOfRangeGUIDs.insert(guid);
 }
 
-void UpdateData::AddUpdateBlock(ByteBuffer const& block)
-{
-    m_data.append(block);
-    ++m_blockCount;
-}
-
 bool UpdateData::BuildPacket(WorldPacket* packet)
 {
     ASSERT(packet->empty());                                // shouldn't happen

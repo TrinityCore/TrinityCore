@@ -7,7 +7,7 @@
 /*---------------------------------------------------------------------------*/
 /*   Date    Ver   Who  Comment                                              */
 /* --------  ----  ---  -------                                              */
-/* 29.04.14  1.00  Lad  The first version of CascOpenStorage.cpp             */
+/* 29.04.14  1.00  Lad  Created                                              */
 /*****************************************************************************/
 
 #define __CASCLIB_SELF__
@@ -61,7 +61,8 @@ TCascStorage::TCascStorage()
     pRootHandler = NULL;
     dwRefCount = 1;
 
-    szRootPath = szDataPath = szIndexPath = szBuildFile = szCdnServers = szCdnPath = szCodeName = NULL;
+    szRootPath = szDataPath = szIndexPath = szFilesPath = szConfigPath = szMainFile = NULL;
+    szCdnHostUrl = szCdnServers = szCdnPath = szCodeName = NULL;
     szIndexFormat = NULL;
     szRegion = NULL;
     szBuildKey = NULL;
@@ -100,10 +101,13 @@ TCascStorage::~TCascStorage()
     CascFreeLock(StorageLock);
 
     // Free the file paths
-    CASC_FREE(szDataPath);
     CASC_FREE(szRootPath);
-    CASC_FREE(szBuildFile);
+    CASC_FREE(szDataPath);
     CASC_FREE(szIndexPath);
+    CASC_FREE(szFilesPath);
+    CASC_FREE(szConfigPath);
+    CASC_FREE(szMainFile);
+    CASC_FREE(szCdnHostUrl);
     CASC_FREE(szCdnServers);
     CASC_FREE(szCdnPath);
     CASC_FREE(szCodeName);
@@ -163,20 +167,6 @@ void * ProbeOutputBuffer(void * pvBuffer, size_t cbLength, size_t cbMinLength, s
     if(pcbLengthNeeded != NULL)
         pcbLengthNeeded[0] = cbMinLength;
     return pvBuffer;
-}
-
-static LPTSTR CheckForIndexDirectory(TCascStorage * hs, LPCTSTR szSubDir)
-{
-    TCHAR szIndexPath[MAX_PATH];
-
-    // Combine the index path
-    CombinePath(szIndexPath, _countof(szIndexPath), hs->szDataPath, szSubDir, NULL);
-
-    // Check whether the path exists
-    if(!DirectoryExists(szIndexPath))
-        return NULL;
-
-    return CascNewStr(szIndexPath);
 }
 
 // Inserts an entry from the text build file
@@ -450,8 +440,7 @@ static int LoadEncodingCKeyPage(TCascStorage * hs, CASC_ENCODING_HEADER & EnHead
 static int LoadEncodingManifest(TCascStorage * hs)
 {
     CASC_CKEY_ENTRY & CKeyEntry = hs->EncodingCKey;
-    LPBYTE pbEncodingFile;
-    DWORD cbEncodingFile = 0;
+    CASC_BLOB EncodingFile;
     DWORD dwErrCode = ERROR_SUCCESS;
 
     // Inform the user about what we are doing
@@ -464,24 +453,25 @@ static int LoadEncodingManifest(TCascStorage * hs)
     InsertCKeyEntry(hs, CKeyEntry);
 
     // Load the entire encoding file to memory
-    pbEncodingFile = LoadInternalFileToMemory(hs, &hs->EncodingCKey, &cbEncodingFile);
-    if(pbEncodingFile != NULL && cbEncodingFile != 0)
+    dwErrCode = LoadInternalFileToMemory(hs, &hs->EncodingCKey, EncodingFile);
+    if(dwErrCode == ERROR_SUCCESS && EncodingFile.cbData != 0)
     {
         CASC_ENCODING_HEADER EnHeader;
 
         // Capture the header of the ENCODING file
-        dwErrCode = CaptureEncodingHeader(EnHeader, pbEncodingFile, cbEncodingFile);
+        dwErrCode = CaptureEncodingHeader(EnHeader, EncodingFile.pbData, EncodingFile.cbData);
         if(dwErrCode == ERROR_SUCCESS)
         {
             // Get the CKey page header and the first page
-            PFILE_CKEY_PAGE pPageHeader = (PFILE_CKEY_PAGE)(pbEncodingFile + sizeof(FILE_ENCODING_HEADER) + EnHeader.ESpecBlockSize);
+            PFILE_CKEY_PAGE pPageHeader = (PFILE_CKEY_PAGE)(EncodingFile.pbData + sizeof(FILE_ENCODING_HEADER) + EnHeader.ESpecBlockSize);
+            LPBYTE pbEncodingEnd = EncodingFile.pbData + EncodingFile.cbData;
             LPBYTE pbCKeyPage = (LPBYTE)(pPageHeader + EnHeader.CKeyPageCount);
 
             // Go through all CKey pages and verify them
             for(DWORD i = 0; i < EnHeader.CKeyPageCount; i++)
             {
                 // Check if there is enough space in the buffer
-                if((pbCKeyPage + EnHeader.CKeyPageSize) > (pbEncodingFile + cbEncodingFile))
+                if((pbCKeyPage + EnHeader.CKeyPageSize) > pbEncodingEnd)
                 {
                     dwErrCode = ERROR_FILE_CORRUPT;
                     break;
@@ -518,9 +508,6 @@ static int LoadEncodingManifest(TCascStorage * hs)
         {
             dwErrCode = CopyBuildFileItemsToCKeyArray(hs);
         }
-
-        // Free the loaded ENCODING file
-        CASC_FREE(pbEncodingFile);
     }
     else
     {
@@ -535,7 +522,7 @@ size_t GetTagBitmapLength(LPBYTE pbFilePtr, LPBYTE pbFileEnd, DWORD EntryCount)
     size_t nBitmapLength;
 
     nBitmapLength = (EntryCount / 8) + ((EntryCount & 0x07) ? 1 : 0);
-    if ((pbFilePtr + nBitmapLength) > pbFileEnd)
+    if((pbFilePtr + nBitmapLength) > pbFileEnd)
         nBitmapLength = (pbFileEnd - pbFilePtr);
 
     return nBitmapLength;
@@ -565,14 +552,14 @@ int CaptureDownloadHeader(CASC_DOWNLOAD_HEADER & DlHeader, LPBYTE pbFileData, si
     DlHeader.EntryLength = DlHeader.EKeyLength + 5 + 1 + (DlHeader.EntryHasChecksum ? 4 : 0);
 
     // Capture header version 2
-    if (pFileHeader->Version >= 2)
+    if(pFileHeader->Version >= 2)
     {
         DlHeader.FlagByteSize = pFileHeader->FlagByteSize;
         DlHeader.HeaderLength = FIELD_OFFSET(FILE_DOWNLOAD_HEADER, BasePriority);
         DlHeader.EntryLength += DlHeader.FlagByteSize;
 
         // Capture header version 3
-        if (pFileHeader->Version >= 3)
+        if(pFileHeader->Version >= 3)
         {
             DlHeader.BasePriority = pFileHeader->BasePriority;
             DlHeader.HeaderLength = sizeof(FILE_DOWNLOAD_HEADER);
@@ -734,15 +721,18 @@ static int LoadDownloadManifest(TCascStorage * hs, CASC_DOWNLOAD_HEADER & DlHead
         // Insert the entry to the central CKey table
         if((pCKeyEntry = InsertCKeyEntry(hs, DlEntry)) != NULL)
         {
-            // Supply the tag bits
-            for(size_t j = 0; j < TagItemCount; j++)
+            if(TagArray != NULL)
             {
-                // Set the bit in the entry, if the tag for it is present
-                if((BitMaskOffset < TagArray[j].BitmapLength) && (TagArray[j].Bitmap[BitMaskOffset] & BitMaskBit))
-                    pCKeyEntry->TagBitMask |= TagBit;
+                // Supply the tag bits
+                for(size_t j = 0; j < TagItemCount; j++)
+                {
+                    // Set the bit in the entry, if the tag for it is present
+                    if((BitMaskOffset < TagArray[j].BitmapLength) && (TagArray[j].Bitmap[BitMaskOffset] & BitMaskBit))
+                        pCKeyEntry->TagBitMask |= TagBit;
 
-                // Move to the next bit
-                TagBit <<= 1;
+                    // Move to the next bit
+                    TagBit <<= 1;
+                }
             }
         }
 
@@ -761,8 +751,7 @@ static int LoadDownloadManifest(TCascStorage * hs, CASC_DOWNLOAD_HEADER & DlHead
 static int LoadDownloadManifest(TCascStorage * hs)
 {
     PCASC_CKEY_ENTRY pCKeyEntry = FindCKeyEntry_CKey(hs, hs->DownloadCKey.CKey);
-    LPBYTE pbDownloadFile = NULL;
-    DWORD cbDownloadFile = 0;
+    CASC_BLOB DownloadFile;
     DWORD dwErrCode = ERROR_SUCCESS;
 
     // Inform the user about what we are doing
@@ -770,21 +759,18 @@ static int LoadDownloadManifest(TCascStorage * hs)
         return ERROR_CANCELLED;
 
     // Load the entire DOWNLOAD file to memory
-    pbDownloadFile = LoadInternalFileToMemory(hs, pCKeyEntry, &cbDownloadFile);
-    if(pbDownloadFile != NULL && cbDownloadFile != 0)
+    dwErrCode = LoadInternalFileToMemory(hs, pCKeyEntry, DownloadFile);
+    if(dwErrCode == ERROR_SUCCESS && DownloadFile.cbData != 0)
     {
         CASC_DOWNLOAD_HEADER DlHeader;
 
         // Capture the header of the DOWNLOAD file
-        dwErrCode = CaptureDownloadHeader(DlHeader, pbDownloadFile, cbDownloadFile);
+        dwErrCode = CaptureDownloadHeader(DlHeader, DownloadFile.pbData, DownloadFile.cbData);
         if(dwErrCode == ERROR_SUCCESS)
         {
             // Parse the entire download manifest
-            dwErrCode = LoadDownloadManifest(hs, DlHeader, pbDownloadFile, pbDownloadFile + cbDownloadFile); 
+            dwErrCode = LoadDownloadManifest(hs, DlHeader, DownloadFile.pbData, DownloadFile.pbData + DownloadFile.cbData); 
         }
-
-        // Free the loaded manifest
-        CASC_FREE(pbDownloadFile);
     }
 
     // If the DOWNLOAD manifest is not present, we won't abort the downloading process.
@@ -798,8 +784,7 @@ static int LoadDownloadManifest(TCascStorage * hs)
 static int LoadInstallManifest(TCascStorage * hs)
 {
     PCASC_CKEY_ENTRY pCKeyEntry = FindCKeyEntry_CKey(hs, hs->InstallCKey.CKey);
-    LPBYTE pbInstallFile = NULL;
-    DWORD cbInstallFile = 0;
+    CASC_BLOB InstallFile;
     DWORD dwErrCode = ERROR_SUCCESS;
 
     // Inform the user about what we are doing
@@ -807,11 +792,10 @@ static int LoadInstallManifest(TCascStorage * hs)
         return ERROR_CANCELLED;
 
     // Load the entire DOWNLOAD file to memory
-    pbInstallFile = LoadInternalFileToMemory(hs, pCKeyEntry, &cbInstallFile);
-    if (pbInstallFile != NULL && cbInstallFile != 0)
+    dwErrCode = LoadInternalFileToMemory(hs, pCKeyEntry, InstallFile);
+    if(dwErrCode == ERROR_SUCCESS && InstallFile.cbData != 0)
     {
-        dwErrCode = RootHandler_CreateInstall(hs, pbInstallFile, cbInstallFile);
-        CASC_FREE(pbInstallFile);
+        dwErrCode = RootHandler_CreateInstall(hs, InstallFile);
     }
     else
     {
@@ -861,10 +845,10 @@ static bool InsertWellKnownFile(TCascStorage * hs, const char * szFileName, CASC
 
 static int LoadBuildManifest(TCascStorage * hs, DWORD dwLocaleMask)
 {
-    PCASC_CKEY_ENTRY pCKeyEntry;
+    PCASC_CKEY_ENTRY pCKeyEntry = &hs->RootFile;
+    TRootHandler * pOldRootHandler = NULL;
+    CASC_BLOB RootFile;
     PDWORD FileSignature;
-    LPBYTE pbRootFile = NULL;
-    DWORD cbRootFile = 0;
     DWORD dwErrCode = ERROR_BAD_FORMAT;
 
     // Sanity checks
@@ -878,35 +862,38 @@ static int LoadBuildManifest(TCascStorage * hs, DWORD dwLocaleMask)
     // Locale: The default parameter is 0 - in that case, we load all locales
     dwLocaleMask = (dwLocaleMask != 0) ? dwLocaleMask : 0xFFFFFFFF;
 
-    // Prioritize the VFS root over legacy ROOT file
-    pCKeyEntry = (hs->VfsRoot.ContentSize != CASC_INVALID_SIZE) ? &hs->VfsRoot : &hs->RootFile;
-    pCKeyEntry = FindCKeyEntry_CKey(hs, pCKeyEntry->CKey);
+    // Prioritize the VFS root over legacy ROOT file, unless it's WoW
+    if(hs->VfsRoot.ContentSize != CASC_INVALID_SIZE)
+        pCKeyEntry = &hs->VfsRoot;
+
+__LoadRootFile:
 
     // Load the entire ROOT file to memory
-    pbRootFile = LoadInternalFileToMemory(hs, pCKeyEntry, &cbRootFile);
-    if(pbRootFile != NULL)
+    pCKeyEntry = FindCKeyEntry_CKey(hs, pCKeyEntry->CKey);
+    dwErrCode = LoadInternalFileToMemory(hs, pCKeyEntry, RootFile);
+    if(dwErrCode == ERROR_SUCCESS)
     {
         // Ignore ROOT files that contain just a MD5 hash
-        if(cbRootFile > MD5_STRING_SIZE)
+        if(RootFile.cbData > MD5_STRING_SIZE)
         {
             // Check the type of the ROOT file
-            FileSignature = (PDWORD)pbRootFile;
+            FileSignature = (PDWORD)(RootFile.pbData);
             switch(FileSignature[0])
             {
                 case CASC_MNDX_ROOT_SIGNATURE:
-                    dwErrCode = RootHandler_CreateMNDX(hs, pbRootFile, cbRootFile);
+                    dwErrCode = RootHandler_CreateMNDX(hs, RootFile);
                     break;
 
                 case CASC_DIABLO3_ROOT_SIGNATURE:
-                    dwErrCode = RootHandler_CreateDiablo3(hs, pbRootFile, cbRootFile);
+                    dwErrCode = RootHandler_CreateDiablo3(hs, RootFile);
                     break;
 
                 case CASC_TVFS_ROOT_SIGNATURE:
-                    dwErrCode = RootHandler_CreateTVFS(hs, pbRootFile, cbRootFile);
+                    dwErrCode = RootHandler_CreateTVFS(hs, RootFile);
                     break;
 
                 case CASC_WOW82_ROOT_SIGNATURE:
-                    dwErrCode = RootHandler_CreateWoW(hs, pbRootFile, cbRootFile, dwLocaleMask);
+                    dwErrCode = RootHandler_CreateWoW(hs, RootFile, dwLocaleMask);
                     break;
 
                 default:
@@ -916,25 +903,44 @@ static int LoadBuildManifest(TCascStorage * hs, DWORD dwLocaleMask)
                     // If the format was not recognized, they need to return ERROR_BAD_FORMAT
                     //
 
-                    dwErrCode = RootHandler_CreateOverwatch(hs, pbRootFile, cbRootFile);
+                    dwErrCode = RootHandler_CreateOverwatch(hs, RootFile);
                     if(dwErrCode == ERROR_BAD_FORMAT)
                     {
-                        dwErrCode = RootHandler_CreateStarcraft1(hs, pbRootFile, cbRootFile);
+                        dwErrCode = RootHandler_CreateStarcraft1(hs, RootFile);
                         if(dwErrCode == ERROR_BAD_FORMAT)
                         {
-                            dwErrCode = RootHandler_CreateWoW(hs, pbRootFile, cbRootFile, dwLocaleMask);
+                            dwErrCode = RootHandler_CreateWoW(hs, RootFile, dwLocaleMask);
                         }
                     }
                     break;
             }
         }
-
-        // Free the root file
-        CASC_FREE(pbRootFile);
     }
     else
     {
         dwErrCode = GetCascError();
+    }
+
+    // Handle reparsing of the root file
+    if(dwErrCode == ERROR_REPARSE_ROOT && pCKeyEntry != &hs->RootFile)
+    {
+        if(InvokeProgressCallback(hs, "Loading ROOT manifest (reparsed)", NULL, 0, 0))
+            return ERROR_CANCELLED;
+
+        // Replace the root handler
+        pOldRootHandler = hs->pRootHandler;
+        hs->pRootHandler = NULL;
+
+        // Replace the CKey entry for the ROOT file
+        pCKeyEntry = &hs->RootFile;
+        goto __LoadRootFile;
+    }
+
+    // If we reparsed the ROOT file and we have the old one, we need to copy all items to the new one
+    if(hs->pRootHandler && pOldRootHandler)
+    {
+        hs->pRootHandler->Copy(pOldRootHandler);
+        delete pOldRootHandler;
     }
 
     return dwErrCode;
@@ -1082,73 +1088,9 @@ static bool GetStoragePathProduct(TCascStorage * hs, void * pvStorageInfo, size_
     return (szBuffer != NULL);
 }
 
-static DWORD InitializeLocalDirectories(TCascStorage * hs, PCASC_OPEN_STORAGE_ARGS pArgs)
+static DWORD LoadCascStorage(TCascStorage * hs, PCASC_OPEN_STORAGE_ARGS pArgs, LPCTSTR szMainFile, CBLD_TYPE BuildFileType, DWORD dwFeatures)
 {
-    LPTSTR szWorkPath;
-    DWORD dwErrCode = ERROR_NOT_ENOUGH_MEMORY;
-
-    // Find the root directory of the storage. The root directory
-    // is the one with ".build.info" or ".build.db".
-    szWorkPath = CascNewStr(pArgs->szLocalPath);
-    if(szWorkPath != NULL)
-    {
-        // Get the length and go up until we find the ".build.info" or ".build.db"
-        for(;;)
-        {
-            // Is this a game directory?
-            dwErrCode = CheckGameDirectory(hs, szWorkPath);
-            if(dwErrCode == ERROR_SUCCESS)
-            {
-                dwErrCode = ERROR_SUCCESS;
-                break;
-            }
-
-            // Cut one path part
-            if(!CutLastPathPart(szWorkPath))
-            {
-                dwErrCode = ERROR_FILE_NOT_FOUND;
-                break;
-            }
-        }
-
-        // Find the index directory
-        if (dwErrCode == ERROR_SUCCESS)
-        {
-            // First, check for more common "data" subdirectory
-            if ((hs->szIndexPath = CheckForIndexDirectory(hs, _T("data"))) != NULL)
-                dwErrCode = ERROR_SUCCESS;
-
-            // Second, try the "darch" subdirectory (older builds of HOTS - Alpha)
-            else if ((hs->szIndexPath = CheckForIndexDirectory(hs, _T("darch"))) != NULL)
-                dwErrCode = ERROR_SUCCESS;
-
-            else
-                dwErrCode = ERROR_FILE_NOT_FOUND;
-        }
-
-        // Free the work path buffer
-        CASC_FREE(szWorkPath);
-    }
-
-    return dwErrCode;
-}
-
-static DWORD InitializeOnlineDirectories(TCascStorage * hs, PCASC_OPEN_STORAGE_ARGS pArgs)
-{
-    // Create the root path
-    hs->szRootPath = CascNewStr(pArgs->szLocalPath);
-    if (hs->szRootPath != NULL)
-    {
-        hs->BuildFileType = CascVersionsDb;
-        hs->dwFeatures |= CASC_FEATURE_ONLINE;
-        return ERROR_SUCCESS;
-    }
-
-    return ERROR_NOT_ENOUGH_MEMORY;
-}
-
-static DWORD LoadCascStorage(TCascStorage * hs, PCASC_OPEN_STORAGE_ARGS pArgs)
-{
+    LPCTSTR szCdnHostUrl = NULL;
     LPCTSTR szCodeName = NULL;
     LPCTSTR szRegion = NULL;
     LPCTSTR szBuildKey = NULL;
@@ -1160,7 +1102,11 @@ static DWORD LoadCascStorage(TCascStorage * hs, PCASC_OPEN_STORAGE_ARGS pArgs)
 
     // Extract optional arguments
     ExtractVersionedArgument(pArgs, FIELD_OFFSET(CASC_OPEN_STORAGE_ARGS, dwLocaleMask), &dwLocaleMask);
-    
+
+    // Extract the CDN host URL
+    if(ExtractVersionedArgument(pArgs, FIELD_OFFSET(CASC_OPEN_STORAGE_ARGS, szCdnHostUrl), &szCdnHostUrl) && szCdnHostUrl != NULL)
+        hs->szCdnHostUrl = CascNewStr(szCdnHostUrl);
+
     // Extract the product code name
     if(ExtractVersionedArgument(pArgs, FIELD_OFFSET(CASC_OPEN_STORAGE_ARGS, szCodeName), &szCodeName) && szCodeName != NULL)
         hs->szCodeName = CascNewStr(szCodeName);
@@ -1173,26 +1119,52 @@ static DWORD LoadCascStorage(TCascStorage * hs, PCASC_OPEN_STORAGE_ARGS pArgs)
     if(ExtractVersionedArgument(pArgs, FIELD_OFFSET(CASC_OPEN_STORAGE_ARGS, szBuildKey), &szBuildKey) && szBuildKey != NULL)
         hs->szBuildKey = CascNewStrT2A(szBuildKey);
 
-    // Special handling to online storages
-    if(hs->dwFeatures & CASC_FEATURE_ONLINE)
-    {
-        // Enable caching of the sockets. This will add references
-        // to all existing and all future sockets
-        sockets_set_caching(true);
+    // Merge features
+    hs->dwFeatures |= (dwFeatures & (CASC_FEATURE_DATA_ARCHIVES | CASC_FEATURE_DATA_FILES | CASC_FEATURE_ONLINE));
+    hs->dwFeatures |= (pArgs->dwFlags & CASC_FEATURE_FORCE_DOWNLOAD);
+    hs->BuildFileType = BuildFileType;
 
-        // For online storages, we need to load CDN servers
-        dwErrCode = LoadCdnsFile(hs);
+    // Copy the name of the build file
+    hs->szMainFile = CascNewStr(szMainFile);
+
+    // Construct the root path from the name of the build file
+    CASC_PATH<TCHAR> RootPath(szMainFile, NULL);
+    hs->szRootPath = RootPath.New(true);
+
+    // If either of the root path or build file is known, it's an error
+    if(hs->szRootPath == NULL || hs->szMainFile == NULL)
+    {
+        dwErrCode = ERROR_NOT_ENOUGH_MEMORY;
     }
 
-    // Now, load the main storage file ".build.info" (or ".build.db" in old storages) 
+    // Initialize variables for local CASC storages
     if(dwErrCode == ERROR_SUCCESS)
     {
-        dwErrCode = LoadBuildInfo(hs);
+        // For local (game) storages, we need the data and indices subdirectory
+        if(hs->dwFeatures & CASC_FEATURE_DATA_ARCHIVES)
+        {
+            if(CheckArchiveFilesDirectories(hs) != ERROR_SUCCESS)
+                hs->dwFeatures &= ~CASC_FEATURE_DATA_ARCHIVES;
+        }
+
+        // For data files storage, we need that folder
+        if(hs->dwFeatures & CASC_FEATURE_DATA_FILES)
+        {
+            if(CheckDataFilesDirectory(hs) != ERROR_SUCCESS)
+                hs->dwFeatures &= ~CASC_FEATURE_DATA_FILES;
+        }
+
+        // Enable caching of the sockets. This will add references
+        // to all existing and all future sockets
+        if(hs->dwFeatures & CASC_FEATURE_ONLINE)
+            sockets_set_caching(true);
+
+        // Now, load the main storage file (".build.info", ".build.db" or "versions")
+        dwErrCode = LoadMainFile(hs);
     }
 
-    // If the .build.info OR .build.db file has been loaded,
-    // proceed with loading the CDN config file
-    if (dwErrCode == ERROR_SUCCESS)
+    // Proceed with loading the CDN config file
+    if(dwErrCode == ERROR_SUCCESS)
     {
         dwErrCode = LoadCdnConfigFile(hs);
         if(dwErrCode != ERROR_SUCCESS && (hs->dwFeatures & CASC_FEATURE_ONLINE) == 0)
@@ -1200,7 +1172,7 @@ static DWORD LoadCascStorage(TCascStorage * hs, PCASC_OPEN_STORAGE_ARGS pArgs)
     }
 
     // Proceed with loading the CDN build file
-    if (dwErrCode == ERROR_SUCCESS)
+    if(dwErrCode == ERROR_SUCCESS)
     {
         dwErrCode = LoadCdnBuildFile(hs);
     }
@@ -1243,7 +1215,7 @@ static DWORD LoadCascStorage(TCascStorage * hs, PCASC_OPEN_STORAGE_ARGS pArgs)
 
         // Continue loading the manifest
         dwErrCode = LoadBuildManifest(hs, dwLocaleMask);
-        if (dwErrCode != ERROR_SUCCESS)
+        if(dwErrCode != ERROR_SUCCESS)
         {
             // If we fail to load the ROOT file, we take the file names from the INSTALL manifest
             dwErrCode = LoadInstallManifest(hs);
@@ -1252,7 +1224,7 @@ static DWORD LoadCascStorage(TCascStorage * hs, PCASC_OPEN_STORAGE_ARGS pArgs)
 
     // Insert entries for files with well-known names. Their CKeys are in the BUILD file
     // See https://wowdev.wiki/TACT#Encoding_table for their list
-    if (dwErrCode == ERROR_SUCCESS)
+    if(dwErrCode == ERROR_SUCCESS)
     {
         InsertWellKnownFile(hs, "ENCODING", hs->EncodingCKey);
         InsertWellKnownFile(hs, "DOWNLOAD", hs->DownloadCKey);
@@ -1266,7 +1238,7 @@ static DWORD LoadCascStorage(TCascStorage * hs, PCASC_OPEN_STORAGE_ARGS pArgs)
     }
 
     // Load the encryption keys
-    if (dwErrCode == ERROR_SUCCESS)
+    if(dwErrCode == ERROR_SUCCESS)
     {
         dwErrCode = CascLoadEncryptionKeys(hs);
     }
@@ -1277,64 +1249,91 @@ static DWORD LoadCascStorage(TCascStorage * hs, PCASC_OPEN_STORAGE_ARGS pArgs)
     return dwErrCode;
 }
 
-static LPTSTR ParseOpenParams(LPCTSTR szParams, PCASC_OPEN_STORAGE_ARGS pArgs)
+// Check for URL pattern. Note that the string may be terminated by ':' instead of '\0'
+static bool IsUrl(LPCTSTR szString)
 {
-    LPTSTR szParamsCopy;
-
-    // The 'szParams' must not be empty
-    if(szParams == NULL || pArgs == NULL || szParams[0] == 0)
+    while(szString[0] != 0 && szString[0] != '*')
     {
-        SetCascError(ERROR_INVALID_PARAMETER);
-        return NULL;
+        // Check for "://"
+        if(!_tcsncmp(szString, _T("://"), 3))
+            return true;
+
+        // Dot or slash both indicate an URL
+        if(szString[0] == '.' || szString[0] == '/')
+            return true;
+
+        szString++;
     }
+    return false;
+}
 
-    // The 'pArgs' must be valid but must not contain 'szLocalPath', 'szCodeName' or 'szRegion'
-    if(pArgs->szLocalPath != NULL || pArgs->szCodeName != NULL || pArgs->szRegion != NULL)
+static LPTSTR GetNextParam(LPTSTR szParamsPtr, bool bMustBeUrl = false)
+{
+    LPTSTR szSeparator = NULL;
+
+    // The 'szParamsPtr' must be valid
+    if(szParamsPtr != NULL)
     {
-        SetCascError(ERROR_INVALID_PARAMETER);
-        return NULL;
-    }
-
-    // Make a copy of the parameters so we can temper with them
-    if((szParamsCopy = CascNewStr(szParams)) != NULL)
-    {
-        LPTSTR szPlainName = (LPTSTR)GetPlainFileName(szParamsCopy);
-        LPTSTR szSeparator;
-
-        // The local path is always set
-        pArgs->szLocalPath = szParamsCopy;
-        pArgs->szCodeName = NULL;
-        pArgs->szRegion = NULL;
-        pArgs->szBuildKey = NULL;
-
-        // Find the first ":". This will indicate the end of local path and also begin of product code
-        if((szSeparator = _tcschr(szPlainName, _T(':'))) != NULL)
+        // Find the separator ("*") or end of string
+        if((szSeparator = _tcschr(szParamsPtr, _T('*'))) != NULL)
         {
-            // The found string is a product code name
-            pArgs->szCodeName = szSeparator + 1;
-            szSeparator[0] = 0;
+            // Check for URL pattern, if needed
+            if(bMustBeUrl && IsUrl(szSeparator + 1) == false)
+                return NULL;
 
-            // Try again. If found, it is a product region
-            if((szSeparator = _tcschr(szSeparator + 1, _T(':'))) != NULL)
-            {
-                pArgs->szRegion = szSeparator + 1;
-                szSeparator[0] = 0;
-
-                // Try again. If found, it is a build key (MD5 of a build file)
-                if((szSeparator = _tcschr(szSeparator + 1, _T(':'))) != NULL)
-                {
-                    pArgs->szBuildKey = szSeparator + 1;
-                    szSeparator[0] = 0;
-                }
-            }
+            // Put the EOS there
+            *szSeparator++ = 0;
         }
     }
-    else
+
+    return szSeparator;
+}
+
+static DWORD ParseOpenParams(LPTSTR szParams, PCASC_OPEN_STORAGE_ARGS pArgs)
+{
+    LPTSTR szParamsPtr = szParams;
+    LPTSTR szParamsTmp;
+
+    //
+    // Format of the params:
+    //
+    // Local:  local_path*code_name                         ("C:\\Games\\World of Warcraft*wowt")
+    // Online: local_cache_path[*cdn_url]*code_name*region" ("C:\\Cache*wowt*us)
+    //
+
+    // If the caller supplied the local_path/local_cache_path
+    // both in szParams and pArgs, it's a conflict
+    if(pArgs->szLocalPath && pArgs->szLocalPath[0])
+        return ERROR_INVALID_PARAMETER;
+    pArgs->szLocalPath = szParams;
+
+    // Extract the optional CDN path. If present, then we put it
+    // into CASC_OPEN_STORAGE_ARGS::szCdnHostUrl
+    if((szParamsTmp = GetNextParam(szParamsPtr, true)) != NULL)
     {
-        SetCascError(ERROR_NOT_ENOUGH_MEMORY);
+        if(pArgs->szCdnHostUrl && pArgs->szCdnHostUrl[0])
+            return ERROR_INVALID_PARAMETER;
+        pArgs->szCdnHostUrl = szParamsTmp;
+        szParamsPtr = szParamsTmp;
     }
 
-    return szParamsCopy;
+    // The next must be the code name of the product
+    if((szParamsPtr = GetNextParam(szParamsPtr)) != NULL)
+    {
+        if(pArgs->szCodeName && pArgs->szCodeName[0])
+            return ERROR_INVALID_PARAMETER;
+        pArgs->szCodeName = szParamsPtr;
+    }
+
+    // There could be region appended at the end
+    if((szParamsPtr = GetNextParam(szParamsPtr)) != NULL)
+    {
+        if(pArgs->szRegion && pArgs->szRegion[0])
+            return ERROR_INVALID_PARAMETER;
+        pArgs->szRegion = szParamsPtr;
+    }
+
+    return ERROR_SUCCESS;
 }
 
 //-----------------------------------------------------------------------------
@@ -1343,62 +1342,99 @@ static LPTSTR ParseOpenParams(LPCTSTR szParams, PCASC_OPEN_STORAGE_ARGS pArgs)
 bool WINAPI CascOpenStorageEx(LPCTSTR szParams, PCASC_OPEN_STORAGE_ARGS pArgs, bool bOnlineStorage, HANDLE * phStorage)
 {
     CASC_OPEN_STORAGE_ARGS LocalArgs = {sizeof(CASC_OPEN_STORAGE_ARGS)};
-    TCascStorage * hs;
+    TCascStorage * hs = NULL;
     LPTSTR szParamsCopy = NULL;
-    DWORD dwErrCode = ERROR_NOT_ENOUGH_MEMORY;
+    DWORD dwErrCode = ERROR_SUCCESS;
 
-    // The storage path[+product[+region]] must either be passed in szParams or in pArgs. Not both.
-    // It is allowed to pass NULL as pArgs if the szParams is not NULL
+    // Supply the local args if not given by the caller
+    pArgs = (pArgs != NULL) ? pArgs : &LocalArgs;
+
+    //
+    // Parse the parameter string and put the parts into CASC_OPEN_STORAGE_ARGS
+    //
+    // Note that the parameter string is optional - is it possible
+    // to enter all params purely in CASC_OPEN_STORAGE_ARGS structure.
+    //
+
     if(szParams != NULL)
     {
-        if(pArgs == NULL)
-            pArgs = &LocalArgs;
-
-        szParamsCopy = ParseOpenParams(szParams, pArgs);
-        if(szParamsCopy == NULL)
-            return false;
-    }
-    else
-    {
-        // The arguments and the local path must be entered
-        if(pArgs == NULL || pArgs->szLocalPath == NULL || pArgs->szLocalPath[0] == 0)
+        // Make a copy of the parameters so we can tamper with them
+        if((szParamsCopy = CascNewStr(szParams)) == NULL)
         {
-            SetCascError(ERROR_INVALID_PARAMETER);
+            SetCascError(ERROR_NOT_ENOUGH_MEMORY);
             return false;
         }
+
+        // Parse the parameter string and put the corresponding parts
+        // into the CASC_OPEN_STORAGE_ARGS structure.
+        dwErrCode = ParseOpenParams(szParamsCopy, pArgs);
     }
 
-    // Allocate the storage structure
-    if((hs = new TCascStorage()) != NULL)
+    // Verify the minimum arguments
+    if(dwErrCode == ERROR_SUCCESS)
     {
-        // Setup the directories
-        dwErrCode = (bOnlineStorage) ? InitializeOnlineDirectories(hs, pArgs) : InitializeLocalDirectories(hs, pArgs);
-        if(dwErrCode == ERROR_SUCCESS)
+        if(pArgs->szLocalPath == NULL || pArgs->szLocalPath[0] == 0)
         {
-            // Perform the entire storage loading
-            dwErrCode = LoadCascStorage(hs, pArgs);
-        }
-
-        // Free the storage structure on fail
-        if(dwErrCode != ERROR_SUCCESS)
-        {
-            hs = hs->Release();
+            dwErrCode = ERROR_INVALID_PARAMETER;
         }
     }
+
+    // Now we need to get the CASC main file, which is either
+    // [*] .build.info - for current local storages
+    // [*] .build.db   - for older local storages
+    // [*] versions    - for cached online storages
+    // If there is none of these and `bOnlineStorage` is specified,
+    // CascLib will download it, as long as the product code was specified
+    if(dwErrCode == ERROR_SUCCESS)
+    {
+        if((hs = new TCascStorage()) != NULL)
+        {
+            CASC_BUILD_FILE BuildFile = {NULL};
+            DWORD dwFeatures = bOnlineStorage ? CASC_FEATURE_ONLINE : 0;
+            
+            // Check for one of the supported main files (.build.info, .build.db, versions)
+            if((dwErrCode = CheckCascBuildFileExact(BuildFile, pArgs->szLocalPath)) == ERROR_SUCCESS)
+            {
+                dwErrCode = LoadCascStorage(hs, pArgs, BuildFile.szFullPath, BuildFile.BuildFileType, dwFeatures | CASC_FEATURE_DATA_ARCHIVES | CASC_FEATURE_DATA_FILES);
+            }
+
+            // Search the folder and upper folders for the build file
+            else if((dwErrCode = CheckCascBuildFileDirs(BuildFile, pArgs->szLocalPath)) == ERROR_SUCCESS)
+            {
+                dwErrCode = LoadCascStorage(hs, pArgs, BuildFile.szFullPath, BuildFile.BuildFileType, dwFeatures | CASC_FEATURE_DATA_ARCHIVES | CASC_FEATURE_DATA_FILES);
+            }
+
+            // If the caller requested an online storage, we must have the code name
+            else if((dwErrCode = CheckOnlineStorage(pArgs, BuildFile, dwFeatures)) == ERROR_SUCCESS)
+            {
+                dwErrCode = LoadCascStorage(hs, pArgs, BuildFile.szFullPath, BuildFile.BuildFileType, dwFeatures | CASC_FEATURE_DATA_FILES);
+            }
+        }
+    }
+
+    // Delete the storage on error
+    if(dwErrCode != ERROR_SUCCESS)
+        hs = hs->Release();
+    CASC_FREE(szParamsCopy);
 
     // Give the output parameter to the caller
-    CASC_FREE(szParamsCopy);
-    *phStorage = (HANDLE)hs;
-
-    // Return the result
+    if(phStorage != NULL)
+        phStorage[0] = (HANDLE)hs;
     if(dwErrCode != ERROR_SUCCESS)
         SetCascError(dwErrCode);
     return (dwErrCode == ERROR_SUCCESS);
 }
 
-// szParams: "LocalPath:CodeName", e.g. "C:\\Games\\World of Warcraft:wowt"
-// * LocalPath: Local folder, where the online file will be cached.
-// * CodeName: Product code name, e.g. "agent" for Battle.net Agent. More info: https://wowdev.wiki/TACT#Products
+//
+// Opens a local CASC storage 
+//
+// szParams: "local_path:code_name", like "C:\\Games\\World of Warcraft:wowt"
+//
+//  local_path          Local folder, where the online file will be cached.
+//
+//  code_name:          Product code name, e.g. "agent" for Battle.net Agent.
+//                      More info: https://wowdev.wiki/TACT#Products
+//
 bool WINAPI CascOpenStorage(LPCTSTR szParams, DWORD dwLocaleMask, HANDLE * phStorage)
 {
     CASC_OPEN_STORAGE_ARGS OpenArgs = {sizeof(CASC_OPEN_STORAGE_ARGS)};
@@ -1407,11 +1443,19 @@ bool WINAPI CascOpenStorage(LPCTSTR szParams, DWORD dwLocaleMask, HANDLE * phSto
     return CascOpenStorageEx(szParams, &OpenArgs, false, phStorage);
 }
 
-// Allows to browse an online CDN storage
-// szParams: "CachePath:CodeName:Region", e.g. "C:\\Cache:wowt:us"
-// * CachePath: Local folder, where the online file will be cached.
-// * CodeName: Product code name, e.g. "agent" for Battle.net Agent. More info: https://wowdev.wiki/TACT#Products
-// * Region: The region (or subvariant) of the product. Corresponds to the first column of the "versions" file.
+//
+// Opens an online CDN storage
+//
+// szParams: "local_cache_path[:cdn_url]:code_name:region", e.g. "C:\\Cache:wowt:us"
+//
+//  local_cache_path    Local folder, where the online file will be cached.
+//  cdn_url             URL of the custom CDN server. Can also contain port.
+//                      This parameter is optional. Example: http://eu.custom-wow-cdn.com:8000
+//  code_name           Product code name, e.g. "agent" for Battle.net Agent.
+//                      More info: https://wowdev.wiki/TACT#Products
+//  region              The region (or subvariant) of the product.
+//                      Corresponds to the first column of the "versions" file.
+//
 bool WINAPI CascOpenOnlineStorage(LPCTSTR szParams, DWORD dwLocaleMask, HANDLE * phStorage)
 {
     CASC_OPEN_STORAGE_ARGS OpenArgs = {sizeof(CASC_OPEN_STORAGE_ARGS)};

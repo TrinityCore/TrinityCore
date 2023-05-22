@@ -76,19 +76,6 @@ class TC_PROTO_API SubscribeNotification : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   SubscribeNotification* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const SubscribeNotification& from);
-  void MergeFrom(const SubscribeNotification& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -170,19 +157,6 @@ class TC_PROTO_API StateChangedNotification : public ::google::protobuf::Message
   // implements Message ----------------------------------------------
 
   StateChangedNotification* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const StateChangedNotification& from);
-  void MergeFrom(const StateChangedNotification& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -241,6 +215,10 @@ class TC_PROTO_API PresenceListener : public ServiceBase
  public:
 
   explicit PresenceListener(bool use_original_hash);
+  PresenceListener(PresenceListener const&) = delete;
+  PresenceListener(PresenceListener&&) = delete;
+  PresenceListener& operator=(PresenceListener const&) = delete;
+  PresenceListener& operator=(PresenceListener&&) = delete;
   virtual ~PresenceListener();
 
   typedef std::integral_constant<uint32, 0x890AB85Fu> OriginalHash;
@@ -253,11 +231,6 @@ class TC_PROTO_API PresenceListener : public ServiceBase
   void OnStateChanged(::bgs::protocol::presence::v1::StateChangedNotification const* request, bool client = false, bool server = false);
 
   void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) final;
-
- private:
-  uint32 service_hash_;
-
-  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(PresenceListener);
 };
 
 // ===================================================================

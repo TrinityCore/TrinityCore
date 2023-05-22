@@ -266,7 +266,7 @@ struct boss_blood_council_controller : public BossAI
 
         if (!instance->CheckRequiredBosses(DATA_BLOOD_PRINCE_COUNCIL, who->ToPlayer()))
         {
-            EnterEvadeMode(EVADE_REASON_SEQUENCE_BREAK);
+            EnterEvadeMode(EvadeReason::SequenceBreak);
             instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
             return;
         }
@@ -304,7 +304,7 @@ struct boss_blood_council_controller : public BossAI
     {
         _resetCounter += uint8(data);
         if (_resetCounter == 3)
-            EnterEvadeMode(EVADE_REASON_OTHER);
+            EnterEvadeMode(EvadeReason::Other);
     }
 
     uint32 GetData(uint32 data) const override
@@ -327,8 +327,7 @@ struct boss_blood_council_controller : public BossAI
             if (Creature* prince = ObjectAccessor::GetCreature(*me, _invocationOrder[_invocationStage].guid))
             {
                 // Make sure looting is allowed
-                if (me->IsDamageEnoughForLootingAndReward())
-                    prince->LowerPlayerDamageReq(prince->GetMaxHealth());
+                prince->LowerPlayerDamageReq(prince->GetMaxHealth());
                 Unit::Kill(killer, prince);
             }
         }

@@ -17,6 +17,7 @@
 
 #include "Common.h"
 #include "CellImpl.h"
+#include "Containers.h"
 #include "DynamicObject.h"
 #include "GridNotifiersImpl.h"
 #include "Item.h"
@@ -86,10 +87,10 @@ _flags(AFLAG_NONE), _effectsToApply(effMask), _needClientUpdate(false), _effectM
         _slot = slot;
         GetTarget()->SetVisibleAura(this);
         _needClientUpdate = true;
-        TC_LOG_DEBUG("spells", "Aura: %u Effect: %d put to unit visible auras slot: %u", GetBase()->GetId(), GetEffectMask(), slot);
+        TC_LOG_DEBUG("spells", "Aura: {} Effect: {} put to unit visible auras slot: {}", GetBase()->GetId(), GetEffectMask(), slot);
     }
     else
-        TC_LOG_ERROR("spells", "Aura: %u Effect: %d could not find empty unit visible slot", GetBase()->GetId(), GetEffectMask());
+        TC_LOG_ERROR("spells", "Aura: {} Effect: {} could not find empty unit visible slot", GetBase()->GetId(), GetEffectMask());
 
     _InitFlags(caster, effMask);
 }
@@ -155,13 +156,13 @@ void AuraApplication::_HandleEffect(uint8 effIndex, bool apply)
     AuraEffect* aurEff = GetBase()->GetEffect(effIndex);
     if (!aurEff)
     {
-        TC_LOG_ERROR("spells", "Aura %u has no effect at effectIndex %u but _HandleEffect was called", GetBase()->GetSpellInfo()->Id, uint32(effIndex));
+        TC_LOG_ERROR("spells", "Aura {} has no effect at effectIndex {} but _HandleEffect was called", GetBase()->GetSpellInfo()->Id, uint32(effIndex));
         return;
     }
     ASSERT(aurEff);
     ASSERT(HasEffect(effIndex) == (!apply));
     ASSERT((1<<effIndex) & _effectsToApply);
-    TC_LOG_DEBUG("spells", "AuraApplication::_HandleEffect: %u, apply: %u: amount: %u", aurEff->GetAuraType(), apply, aurEff->GetAmount());
+    TC_LOG_DEBUG("spells", "AuraApplication::_HandleEffect: {}, apply: {}: amount: {}", aurEff->GetAuraType(), apply, aurEff->GetAmount());
 
     if (apply)
     {
@@ -567,8 +568,8 @@ void Aura::_UnapplyForTarget(Unit* target, Unit* caster, AuraApplication* auraAp
     /// @todo Figure out why this happens
     if (itr == m_applications.end())
     {
-        TC_LOG_ERROR("spells", "Aura::_UnapplyForTarget, target: %s, caster: %s, spell:%u was not found in owners application map!",
-        target->GetGUID().ToString().c_str(), caster ? caster->GetGUID().ToString().c_str() : "Empty", auraApp->GetBase()->GetSpellInfo()->Id);
+        TC_LOG_ERROR("spells", "Aura::_UnapplyForTarget, target: {}, caster: {}, spell:{} was not found in owners application map!",
+        target->GetGUID().ToString(), caster ? caster->GetGUID().ToString().c_str() : "Empty", auraApp->GetBase()->GetSpellInfo()->Id);
         ABORT();
     }
 
@@ -704,9 +705,9 @@ void Aura::UpdateTargetMap(Unit* caster, bool apply)
             if (!GetOwner()->IsSelfOrInSameMap(itr->first))
             {
                 /// @todo There is a crash caused by shadowfiend load addon
-                TC_LOG_FATAL("spells", "Aura %u: Owner %s (map %u) is not in the same map as target %s (map %u).", GetSpellInfo()->Id,
-                    GetOwner()->GetName().c_str(), GetOwner()->IsInWorld() ? GetOwner()->GetMap()->GetId() : uint32(-1),
-                    itr->first->GetName().c_str(), itr->first->IsInWorld() ? itr->first->GetMap()->GetId() : uint32(-1));
+                TC_LOG_FATAL("spells", "Aura {}: Owner {} (map {}) is not in the same map as target {} (map {}).", GetSpellInfo()->Id,
+                    GetOwner()->GetName(), GetOwner()->IsInWorld() ? GetOwner()->GetMap()->GetId() : uint32(-1),
+                    itr->first->GetName(), itr->first->IsInWorld() ? itr->first->GetMap()->GetId() : uint32(-1));
                 ABORT();
             }
 
@@ -1306,15 +1307,30 @@ uint32 Aura::GetEffectMask() const
     return effMask;
 }
 
-void Aura::GetApplicationVector(std::vector<AuraApplication*>& applicationList) const
+void Aura::GetApplicationVector(std::vector<AuraApplication*>& applications) const
 {
     for (auto const& applicationPair : m_applications)
     {
         if (!applicationPair.second->GetEffectMask())
             continue;
 
-        applicationList.push_back(applicationPair.second);
+        applications.push_back(applicationPair.second);
     }
+}
+
+AuraApplication const* Aura::GetApplicationOfTarget(ObjectGuid guid) const
+{
+    return Trinity::Containers::MapGetValuePtr(m_applications, guid);
+}
+
+AuraApplication* Aura::GetApplicationOfTarget(ObjectGuid guid)
+{
+    return Trinity::Containers::MapGetValuePtr(m_applications, guid);
+}
+
+bool Aura::IsAppliedOnTarget(ObjectGuid guid) const
+{
+    return m_applications.contains(guid);
 }
 
 void Aura::SetNeedClientUpdateForTargets() const
@@ -1356,7 +1372,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
         // apply linked auras
         if (apply)
         {
-            if (std::vector<int32> const* spellTriggered = sSpellMgr->GetSpellLinked(GetId() + SPELL_LINK_AURA))
+            if (std::vector<int32> const* spellTriggered = sSpellMgr->GetSpellLinked(SPELL_LINK_AURA, GetId()))
             {
                 for (std::vector<int32>::const_iterator itr = spellTriggered->begin(); itr != spellTriggered->end(); ++itr)
                 {
@@ -1370,7 +1386,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
         else
         {
             // remove linked auras
-            if (std::vector<int32> const* spellTriggered = sSpellMgr->GetSpellLinked(-(int32)GetId()))
+            if (std::vector<int32> const* spellTriggered = sSpellMgr->GetSpellLinked(SPELL_LINK_REMOVE, GetId()))
             {
                 for (std::vector<int32>::const_iterator itr = spellTriggered->begin(); itr != spellTriggered->end(); ++itr)
                 {
@@ -1382,7 +1398,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                             .SetOriginalCastId(GetCastId()));
                 }
             }
-            if (std::vector<int32> const* spellTriggered = sSpellMgr->GetSpellLinked(GetId() + SPELL_LINK_AURA))
+            if (std::vector<int32> const* spellTriggered = sSpellMgr->GetSpellLinked(SPELL_LINK_AURA, GetId()))
             {
                 for (std::vector<int32>::const_iterator itr = spellTriggered->begin(); itr != spellTriggered->end(); ++itr)
                 {
@@ -1397,7 +1413,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
     else if (apply)
     {
         // modify stack amount of linked auras
-        if (std::vector<int32> const* spellTriggered = sSpellMgr->GetSpellLinked(GetId() + SPELL_LINK_AURA))
+        if (std::vector<int32> const* spellTriggered = sSpellMgr->GetSpellLinked(SPELL_LINK_AURA, GetId()))
         {
             for (std::vector<int32>::const_iterator itr = spellTriggered->begin(); itr != spellTriggered->end(); ++itr)
                 if (*itr > 0)
@@ -1799,6 +1815,9 @@ uint32 Aura::GetProcEffectMask(AuraApplication* aurApp, ProcEventInfo& eventInfo
 
         if (spell->GetSpellInfo()->HasAttribute(SPELL_ATTR4_SUPPRESS_WEAPON_PROCS) && GetSpellInfo()->HasAttribute(SPELL_ATTR6_AURA_IS_WEAPON_PROC))
             return 0;
+
+        if (GetSpellInfo()->HasAttribute(SPELL_ATTR12_ONLY_PROC_FROM_CLASS_ABILITIES) && !spell->GetSpellInfo()->HasAttribute(SPELL_ATTR13_ALLOW_CLASS_ABILITY_PROCS))
+            return 0;
     }
 
     // check don't break stealth attr present
@@ -1939,20 +1958,23 @@ float Aura::CalcProcChance(SpellProcEntry const& procEntry, ProcEventInfo& event
 
 void Aura::TriggerProcOnEvent(uint32 procEffectMask, AuraApplication* aurApp, ProcEventInfo& eventInfo)
 {
-    bool prevented = CallScriptProcHandlers(aurApp, eventInfo);
-    if (!prevented)
+    if (procEffectMask)
     {
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        bool prevented = CallScriptProcHandlers(aurApp, eventInfo);
+        if (!prevented)
         {
-            if (!(procEffectMask & (1 << i)))
-                continue;
+            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            {
+                if (!(procEffectMask & (1 << i)))
+                    continue;
 
-            // OnEffectProc / AfterEffectProc hooks handled in AuraEffect::HandleProc()
-            if (aurApp->HasEffect(i))
-                GetEffect(i)->HandleProc(aurApp, eventInfo);
+                // OnEffectProc / AfterEffectProc hooks handled in AuraEffect::HandleProc()
+                if (aurApp->HasEffect(i))
+                    GetEffect(i)->HandleProc(aurApp, eventInfo);
+            }
+
+            CallScriptAfterProcHandlers(aurApp, eventInfo);
         }
-
-        CallScriptAfterProcHandlers(aurApp, eventInfo);
     }
 
     ConsumeProcCharges(ASSERT_NOTNULL(sSpellMgr->GetSpellProcEntry(GetSpellInfo())));
@@ -1988,7 +2010,7 @@ void Aura::LoadScripts()
     sScriptMgr->CreateAuraScripts(m_spellInfo->Id, m_loadedScripts, this);
     for (auto itr = m_loadedScripts.begin(); itr != m_loadedScripts.end(); ++itr)
     {
-        TC_LOG_DEBUG("spells", "Aura::LoadScripts: Script `%s` for aura `%u` is loaded now", (*itr)->_GetScriptName()->c_str(), m_spellInfo->Id);
+        TC_LOG_DEBUG("spells", "Aura::LoadScripts: Script `{}` for aura `{}` is loaded now", (*itr)->_GetScriptName()->c_str(), m_spellInfo->Id);
         (*itr)->Register();
     }
 }

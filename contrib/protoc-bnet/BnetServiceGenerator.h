@@ -66,6 +66,7 @@ private:
     // Prints signatures for all methods in the
     void GenerateClientMethodSignatures(pb::io::Printer* printer);
     void GenerateServerMethodSignatures(pb::io::Printer* printer);
+    void GenerateServerMethodParserSignatures(pb::io::Printer* printer);
 
     // Source file stuff.
 
@@ -74,6 +75,7 @@ private:
     // Generate the CallMethod() method of the service.
     void GenerateServerCallMethod(pb::io::Printer* printer);
     void GenerateServerImplementations(pb::io::Printer* printer);
+    void GenerateServerMethodParserImplementations(pb::io::Printer* printer);
 
     std::uint32_t HashServiceName(std::string const& name);
 

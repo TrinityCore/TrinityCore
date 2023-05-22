@@ -87,7 +87,7 @@ bool DynamicObject::CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caste
     Relocate(pos);
     if (!IsPositionValid())
     {
-        TC_LOG_ERROR("misc", "DynamicObject (spell %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)", spell->Id, GetPositionX(), GetPositionY());
+        TC_LOG_ERROR("misc", "DynamicObject (spell {}) not created. Suggested coordinates isn't valid (X: {} Y: {})", spell->Id, GetPositionX(), GetPositionY());
         return false;
     }
 
@@ -289,7 +289,7 @@ void DynamicObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Obj
     if (requestedDynamicObjectMask.IsAnySet())
         valuesMask.Set(TYPEID_DYNAMICOBJECT);
 
-    ByteBuffer buffer = PrepareValuesUpdateBuffer();
+    ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
     buffer << uint32(valuesMask.GetBlock(0));
@@ -302,7 +302,7 @@ void DynamicObject::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Obj
 
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
-    data->AddUpdateBlock(buffer);
+    data->AddUpdateBlock();
 }
 
 void DynamicObject::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const

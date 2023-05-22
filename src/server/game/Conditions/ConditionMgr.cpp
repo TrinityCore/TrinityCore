@@ -154,7 +154,7 @@ ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[COND
     { "Player Condition",          true, false, false },
 };
 
-ConditionSourceInfo::ConditionSourceInfo(WorldObject* target0, WorldObject* target1, WorldObject* target2)
+ConditionSourceInfo::ConditionSourceInfo(WorldObject const* target0, WorldObject const* target1, WorldObject const* target2)
 {
     mConditionTargets[0] = target0;
     mConditionTargets[1] = target1;
@@ -248,24 +248,24 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
             break;
     }
 
-    WorldObject* object = sourceInfo.mConditionTargets[ConditionTarget];
+    WorldObject const* object = sourceInfo.mConditionTargets[ConditionTarget];
     // object not present, return false
     if (needsObject && !object)
     {
-        TC_LOG_DEBUG("condition", "Condition object not found for %s", ToString().c_str());
+        TC_LOG_DEBUG("condition", "Condition object not found for {}", ToString());
         return false;
     }
     switch (ConditionType)
     {
         case CONDITION_AURA:
         {
-            if (Unit* unit = object->ToUnit())
+            if (Unit const* unit = object->ToUnit())
                 condMeets = unit->HasAuraEffect(ConditionValue1, ConditionValue2);
             break;
         }
         case CONDITION_ITEM:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
             {
                 // don't allow 0 items (it's checked during table load)
                 ASSERT(ConditionValue2);
@@ -276,7 +276,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_ITEM_EQUIPPED:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
                 condMeets = player->HasItemOrGemWithIdEquipped(ConditionValue1, 1);
             break;
         }
@@ -285,7 +285,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
             break;
         case CONDITION_REPUTATION_RANK:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
             {
                 if (FactionEntry const* faction = sFactionStore.LookupEntry(ConditionValue1))
                     condMeets = (ConditionValue2 & (1 << player->GetReputationMgr().GetRank(faction))) != 0;
@@ -294,49 +294,49 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_ACHIEVEMENT:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
                 condMeets = player->HasAchieved(ConditionValue1);
             break;
         }
         case CONDITION_TEAM:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
                 condMeets = player->GetTeam() == ConditionValue1;
             break;
         }
         case CONDITION_CLASS:
         {
-            if (Unit* unit = object->ToUnit())
+            if (Unit const* unit = object->ToUnit())
                 condMeets = (unit->GetClassMask() & ConditionValue1) != 0;
             break;
         }
         case CONDITION_RACE:
         {
-            if (Unit* unit = object->ToUnit())
+            if (Unit const* unit = object->ToUnit())
                 condMeets = Trinity::RaceMask<uint32>{ ConditionValue1 }.HasRace(unit->GetRace());
             break;
         }
         case CONDITION_GENDER:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
                 condMeets = player->GetNativeGender() == Gender(ConditionValue1);
             break;
         }
         case CONDITION_SKILL:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
                 condMeets = player->HasSkill(ConditionValue1) && player->GetBaseSkillValue(ConditionValue1) >= ConditionValue2;
             break;
         }
         case CONDITION_QUESTREWARDED:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
                 condMeets = player->GetQuestRewardStatus(ConditionValue1);
             break;
         }
         case CONDITION_QUESTTAKEN:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
             {
                 QuestStatus status = player->GetQuestStatus(ConditionValue1);
                 condMeets = (status == QUEST_STATUS_INCOMPLETE);
@@ -345,7 +345,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_QUEST_COMPLETE:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
             {
                 QuestStatus status = player->GetQuestStatus(ConditionValue1);
                 condMeets = (status == QUEST_STATUS_COMPLETE && !player->GetQuestRewardStatus(ConditionValue1));
@@ -354,7 +354,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_QUEST_NONE:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
             {
                 QuestStatus status = player->GetQuestStatus(ConditionValue1);
                 condMeets = (status == QUEST_STATUS_NONE);
@@ -366,19 +366,19 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
             break;
         case CONDITION_SPELL:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
                 condMeets = player->HasSpell(ConditionValue1);
             break;
         }
         case CONDITION_LEVEL:
         {
-            if (Unit* unit = object->ToUnit())
+            if (Unit const* unit = object->ToUnit())
                 condMeets = CompareValues(static_cast<ComparisionType>(ConditionValue2), static_cast<uint32>(unit->GetLevel()), ConditionValue1);
             break;
         }
         case CONDITION_DRUNKENSTATE:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
                 condMeets = (uint32)Player::GetDrunkenstateByValue(player->GetDrunkValue()) >= ConditionValue1;
             break;
         }
@@ -422,10 +422,10 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_RELATION_TO:
         {
-            if (WorldObject* toObject = sourceInfo.mConditionTargets[ConditionValue1])
+            if (WorldObject const* toObject = sourceInfo.mConditionTargets[ConditionValue1])
             {
-                Unit* toUnit = toObject->ToUnit();
-                Unit* unit = object->ToUnit();
+                Unit const* toUnit = toObject->ToUnit();
+                Unit const* unit = object->ToUnit();
                 if (toUnit && unit)
                 {
                     switch (static_cast<RelationType>(ConditionValue2))
@@ -457,10 +457,10 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_REACTION_TO:
         {
-            if (WorldObject* toObject = sourceInfo.mConditionTargets[ConditionValue1])
+            if (WorldObject const* toObject = sourceInfo.mConditionTargets[ConditionValue1])
             {
-                Unit* toUnit = toObject->ToUnit();
-                Unit* unit = object->ToUnit();
+                Unit const* toUnit = toObject->ToUnit();
+                Unit const* unit = object->ToUnit();
                 if (toUnit && unit)
                     condMeets = ((1 << unit->GetReactionTo(toUnit)) & ConditionValue2) != 0;
             }
@@ -468,25 +468,25 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_DISTANCE_TO:
         {
-            if (WorldObject* toObject = sourceInfo.mConditionTargets[ConditionValue1])
+            if (WorldObject const* toObject = sourceInfo.mConditionTargets[ConditionValue1])
                 condMeets = CompareValues(static_cast<ComparisionType>(ConditionValue3), object->GetDistance(toObject), static_cast<float>(ConditionValue2));
             break;
         }
         case CONDITION_ALIVE:
         {
-            if (Unit* unit = object->ToUnit())
+            if (Unit const* unit = object->ToUnit())
                 condMeets = unit->IsAlive();
             break;
         }
         case CONDITION_HP_VAL:
         {
-            if (Unit* unit = object->ToUnit())
+            if (Unit const* unit = object->ToUnit())
                 condMeets = CompareValues(static_cast<ComparisionType>(ConditionValue2), unit->GetHealth(), static_cast<uint64>(ConditionValue1));
             break;
         }
         case CONDITION_HP_PCT:
         {
-            if (Unit* unit = object->ToUnit())
+            if (Unit const* unit = object->ToUnit())
                 condMeets = CompareValues(static_cast<ComparisionType>(ConditionValue2), unit->GetHealthPct(), static_cast<float>(ConditionValue1));
             break;
         }
@@ -497,25 +497,25 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_TITLE:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
                 condMeets = player->HasTitle(ConditionValue1);
             break;
         }
         case CONDITION_UNIT_STATE:
         {
-            if (Unit* unit = object->ToUnit())
+            if (Unit const* unit = object->ToUnit())
                 condMeets = unit->HasUnitState(ConditionValue1);
             break;
         }
         case CONDITION_CREATURE_TYPE:
         {
-            if (Creature* creature = object->ToCreature())
+            if (Creature const* creature = object->ToCreature())
                 condMeets = creature->GetCreatureTemplate()->type == ConditionValue1;
             break;
         }
         case CONDITION_IN_WATER:
         {
-            if (Unit* unit = object->ToUnit())
+            if (Unit const* unit = object->ToUnit())
                 condMeets = unit->IsInWater();
             break;
         }
@@ -526,7 +526,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_STAND_STATE:
         {
-            if (Unit* unit = object->ToUnit())
+            if (Unit const* unit = object->ToUnit())
             {
                 if (ConditionValue1 == 0)
                     condMeets = (unit->GetStandState() == UnitStandStateType(ConditionValue2));
@@ -539,32 +539,32 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_DAILY_QUEST_DONE:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
                 condMeets = player->IsDailyQuestDone(ConditionValue1);
             break;
         }
         case CONDITION_CHARMED:
         {
-            if (Unit* unit = object->ToUnit())
+            if (Unit const* unit = object->ToUnit())
                 condMeets = unit->IsCharmed();
             break;
         }
         case CONDITION_PET_TYPE:
         {
-            if (Player* player = object->ToPlayer())
-                if (Pet* pet = player->GetPet())
+            if (Player const* player = object->ToPlayer())
+                if (Pet const* pet = player->GetPet())
                     condMeets = (((1 << pet->getPetType()) & ConditionValue1) != 0);
             break;
         }
         case CONDITION_TAXI:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
                 condMeets = player->IsInFlight();
             break;
         }
         case CONDITION_QUESTSTATE:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
             {
                 if (
                     ((ConditionValue2 & (1 << QUEST_STATUS_NONE)) && (player->GetQuestStatus(ConditionValue1) == QUEST_STATUS_NONE)) ||
@@ -579,7 +579,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_QUEST_OBJECTIVE_PROGRESS:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
             {
                 QuestObjective const* obj = sObjectMgr->GetQuestObjective(ConditionValue1);
                 if (!obj)
@@ -599,7 +599,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_GAMEMASTER:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
             {
                 if (ConditionValue1 == 1)
                     condMeets = player->CanBeGameMaster();
@@ -610,7 +610,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_BATTLE_PET_COUNT:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
                 condMeets = CompareValues(static_cast<ComparisionType>(ConditionValue3),
                     player->GetSession()->GetBattlePetMgr()->GetPetCount(sBattlePetSpeciesStore.AssertEntry(ConditionValue1), player->GetGUID()),
                     static_cast<uint8>(ConditionValue2));
@@ -618,13 +618,13 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_SCENE_IN_PROGRESS:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
                 condMeets = player->GetSceneMgr().GetActiveSceneCount(ConditionValue1) > 0;
             break;
         }
         case CONDITION_PLAYER_CONDITION:
         {
-            if (Player* player = object->ToPlayer())
+            if (Player const* player = object->ToPlayer())
                 if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(ConditionValue1))
                     condMeets = ConditionMgr::IsPlayerMeetingCondition(player, playerCondition);
             break;
@@ -950,7 +950,7 @@ bool ConditionMgr::IsObjectMeetToConditionList(ConditionSourceInfo& sourceInfo, 
     std::map<uint32, bool> elseGroupStore;
     for (Condition const* condition : conditions)
     {
-        TC_LOG_DEBUG("condition", "ConditionMgr::IsPlayerMeetToConditionList %s val1: %u", condition->ToString().c_str(), condition->ConditionValue1);
+        TC_LOG_DEBUG("condition", "ConditionMgr::IsPlayerMeetToConditionList {} val1: {}", condition->ToString(), condition->ConditionValue1);
         if (condition->isLoaded())
         {
             //! Find ElseGroup in ElseGroupStore
@@ -971,8 +971,8 @@ bool ConditionMgr::IsObjectMeetToConditionList(ConditionSourceInfo& sourceInfo, 
                 }
                 else
                 {
-                    TC_LOG_DEBUG("condition", "ConditionMgr::IsPlayerMeetToConditionList %s Reference template -%u not found",
-                        condition->ToString().c_str(), condition->ReferenceId); // checked at loading, should never happen
+                    TC_LOG_DEBUG("condition", "ConditionMgr::IsPlayerMeetToConditionList {} Reference template -{} not found",
+                        condition->ToString(), condition->ReferenceId); // checked at loading, should never happen
                 }
 
             }
@@ -990,13 +990,13 @@ bool ConditionMgr::IsObjectMeetToConditionList(ConditionSourceInfo& sourceInfo, 
     return false;
 }
 
-bool ConditionMgr::IsObjectMeetToConditions(WorldObject* object, ConditionContainer const& conditions) const
+bool ConditionMgr::IsObjectMeetToConditions(WorldObject const* object, ConditionContainer const& conditions) const
 {
     ConditionSourceInfo srcInfo = ConditionSourceInfo(object);
     return IsObjectMeetToConditions(srcInfo, conditions);
 }
 
-bool ConditionMgr::IsObjectMeetToConditions(WorldObject* object1, WorldObject* object2, ConditionContainer const& conditions) const
+bool ConditionMgr::IsObjectMeetToConditions(WorldObject const* object1, WorldObject const* object2, ConditionContainer const& conditions) const
 {
     ConditionSourceInfo srcInfo = ConditionSourceInfo(object1, object2);
     return IsObjectMeetToConditions(srcInfo, conditions);
@@ -1076,7 +1076,7 @@ bool ConditionMgr::IsObjectMeetingNotGroupedConditions(ConditionSourceType sourc
         ConditionsByEntryMap::const_iterator i = ConditionStore[sourceType].find(entry);
         if (i != ConditionStore[sourceType].end())
         {
-            TC_LOG_DEBUG("condition", "GetConditionsForNotGroupedEntry: found conditions for type %u and entry %u", uint32(sourceType), entry);
+            TC_LOG_DEBUG("condition", "GetConditionsForNotGroupedEntry: found conditions for type {} and entry {}", uint32(sourceType), entry);
             return IsObjectMeetToConditions(sourceInfo, i->second);
         }
     }
@@ -1084,7 +1084,7 @@ bool ConditionMgr::IsObjectMeetingNotGroupedConditions(ConditionSourceType sourc
     return true;
 }
 
-bool ConditionMgr::IsObjectMeetingNotGroupedConditions(ConditionSourceType sourceType, uint32 entry, WorldObject* target0, WorldObject* target1 /*= nullptr*/, WorldObject* target2 /*= nullptr*/) const
+bool ConditionMgr::IsObjectMeetingNotGroupedConditions(ConditionSourceType sourceType, uint32 entry, WorldObject const* target0, WorldObject const* target1 /*= nullptr*/, WorldObject const* target2 /*= nullptr*/) const
 {
     ConditionSourceInfo conditionSource(target0, target1, target2);
     return IsObjectMeetingNotGroupedConditions(sourceType, entry, conditionSource);
@@ -1105,7 +1105,7 @@ bool ConditionMgr::HasConditionsForNotGroupedEntry(ConditionSourceType sourceTyp
     return false;
 }
 
-bool ConditionMgr::IsObjectMeetingSpellClickConditions(uint32 creatureId, uint32 spellId, WorldObject* clicker, WorldObject* target) const
+bool ConditionMgr::IsObjectMeetingSpellClickConditions(uint32 creatureId, uint32 spellId, WorldObject const* clicker, WorldObject const* target) const
 {
     ConditionEntriesByCreatureIdMap::const_iterator itr = SpellClickEventConditionStore.find(creatureId);
     if (itr != SpellClickEventConditionStore.end())
@@ -1113,7 +1113,7 @@ bool ConditionMgr::IsObjectMeetingSpellClickConditions(uint32 creatureId, uint32
         ConditionsByEntryMap::const_iterator i = itr->second.find(spellId);
         if (i != itr->second.end())
         {
-            TC_LOG_DEBUG("condition", "GetConditionsForSpellClickEvent: found conditions for SpellClickEvent entry %u spell %u", creatureId, spellId);
+            TC_LOG_DEBUG("condition", "GetConditionsForSpellClickEvent: found conditions for SpellClickEvent entry {} spell {}", creatureId, spellId);
             ConditionSourceInfo sourceInfo(clicker, target);
             return IsObjectMeetToConditions(sourceInfo, i->second);
         }
@@ -1129,14 +1129,14 @@ ConditionContainer const* ConditionMgr::GetConditionsForSpellClickEvent(uint32 c
         ConditionsByEntryMap::const_iterator i = itr->second.find(spellId);
         if (i != itr->second.end())
         {
-            TC_LOG_DEBUG("condition", "GetConditionsForSpellClickEvent: found conditions for SpellClickEvent entry %u spell %u", creatureId, spellId);
+            TC_LOG_DEBUG("condition", "GetConditionsForSpellClickEvent: found conditions for SpellClickEvent entry {} spell {}", creatureId, spellId);
             return &i->second;
         }
     }
     return nullptr;
 }
 
-bool ConditionMgr::IsObjectMeetingVehicleSpellConditions(uint32 creatureId, uint32 spellId, Player* player, Unit* vehicle) const
+bool ConditionMgr::IsObjectMeetingVehicleSpellConditions(uint32 creatureId, uint32 spellId, Player const* player, Unit const* vehicle) const
 {
     ConditionEntriesByCreatureIdMap::const_iterator itr = VehicleSpellConditionStore.find(creatureId);
     if (itr != VehicleSpellConditionStore.end())
@@ -1144,7 +1144,7 @@ bool ConditionMgr::IsObjectMeetingVehicleSpellConditions(uint32 creatureId, uint
         ConditionsByEntryMap::const_iterator i = itr->second.find(spellId);
         if (i != itr->second.end())
         {
-            TC_LOG_DEBUG("condition", "GetConditionsForVehicleSpell: found conditions for Vehicle entry %u spell %u", creatureId, spellId);
+            TC_LOG_DEBUG("condition", "GetConditionsForVehicleSpell: found conditions for Vehicle entry {} spell {}", creatureId, spellId);
             ConditionSourceInfo sourceInfo(player, vehicle);
             return IsObjectMeetToConditions(sourceInfo, i->second);
         }
@@ -1152,7 +1152,7 @@ bool ConditionMgr::IsObjectMeetingVehicleSpellConditions(uint32 creatureId, uint
     return true;
 }
 
-bool ConditionMgr::IsObjectMeetingSmartEventConditions(int64 entryOrGuid, uint32 eventId, uint32 sourceType, Unit* unit, WorldObject* baseObject) const
+bool ConditionMgr::IsObjectMeetingSmartEventConditions(int64 entryOrGuid, uint32 eventId, uint32 sourceType, Unit const* unit, WorldObject const* baseObject) const
 {
     SmartEventConditionContainer::const_iterator itr = SmartEventConditionStore.find(std::make_pair(entryOrGuid, sourceType));
     if (itr != SmartEventConditionStore.end())
@@ -1160,7 +1160,7 @@ bool ConditionMgr::IsObjectMeetingSmartEventConditions(int64 entryOrGuid, uint32
         ConditionsByEntryMap::const_iterator i = itr->second.find(eventId + 1);
         if (i != itr->second.end())
         {
-            TC_LOG_DEBUG("condition", "GetConditionsForSmartEvent: found conditions for Smart Event entry or guid " SI64FMTD " eventId %u", entryOrGuid, eventId);
+            TC_LOG_DEBUG("condition", "GetConditionsForSmartEvent: found conditions for Smart Event entry or guid {} eventId {}", entryOrGuid, eventId);
             ConditionSourceInfo sourceInfo(unit, baseObject);
             return IsObjectMeetToConditions(sourceInfo, i->second);
         }
@@ -1168,7 +1168,7 @@ bool ConditionMgr::IsObjectMeetingSmartEventConditions(int64 entryOrGuid, uint32
     return true;
 }
 
-bool ConditionMgr::IsObjectMeetingVendorItemConditions(uint32 creatureId, uint32 itemId, Player* player, Creature* vendor) const
+bool ConditionMgr::IsObjectMeetingVendorItemConditions(uint32 creatureId, uint32 itemId, Player const* player, Creature const* vendor) const
 {
     ConditionEntriesByCreatureIdMap::const_iterator itr = NpcVendorConditionContainerStore.find(creatureId);
     if (itr != NpcVendorConditionContainerStore.end())
@@ -1176,7 +1176,7 @@ bool ConditionMgr::IsObjectMeetingVendorItemConditions(uint32 creatureId, uint32
         ConditionsByEntryMap::const_iterator i = (*itr).second.find(itemId);
         if (i != (*itr).second.end())
         {
-            TC_LOG_DEBUG("condition", "GetConditionsForNpcVendor: found conditions for creature entry %u item %u", creatureId, itemId);
+            TC_LOG_DEBUG("condition", "GetConditionsForNpcVendor: found conditions for creature entry {} item {}", creatureId, itemId);
             ConditionSourceInfo sourceInfo(player, vendor);
             return IsObjectMeetToConditions(sourceInfo, i->second);
         }
@@ -1202,18 +1202,18 @@ bool ConditionMgr::IsObjectMeetingTrainerSpellConditions(uint32 trainerId, uint3
         ConditionsByEntryMap::const_iterator i = (*itr).second.find(spellId);
         if (i != (*itr).second.end())
         {
-            TC_LOG_DEBUG("condition", "GetConditionsForTrainerSpell: found conditions for trainer id %u spell %u", trainerId, spellId);
+            TC_LOG_DEBUG("condition", "GetConditionsForTrainerSpell: found conditions for trainer id {} spell {}", trainerId, spellId);
             return IsObjectMeetToConditions(player, i->second);
         }
     }
     return true;
 }
 
-bool ConditionMgr::IsObjectMeetingVisibilityByObjectIdConditions(uint32 objectType, uint32 entry, WorldObject* seer) const
+bool ConditionMgr::IsObjectMeetingVisibilityByObjectIdConditions(uint32 objectType, uint32 entry, WorldObject const* seer) const
 {
     if (ConditionContainer const* conditions = Trinity::Containers::MapGetValuePtr(ObjectVisibilityConditionStore, { objectType, entry }))
     {
-        TC_LOG_DEBUG("condition", "IsObjectMeetingVisibilityByObjectIdConditions: found conditions for objectType %u entry %u", objectType, entry);
+        TC_LOG_DEBUG("condition", "IsObjectMeetingVisibilityByObjectIdConditions: found conditions for objectType {} entry {}", objectType, entry);
         return IsObjectMeetToConditions(seer, *conditions);
     }
     return true;
@@ -1300,7 +1300,7 @@ void ConditionMgr::LoadConditions(bool isReload)
         {
             if (iConditionTypeOrReference == iSourceTypeOrReferenceId)//self referencing, skip
             {
-                TC_LOG_ERROR("sql.sql", "Condition reference %i is referencing self, skipped", iSourceTypeOrReferenceId);
+                TC_LOG_ERROR("sql.sql", "Condition reference {} is referencing self, skipped", iSourceTypeOrReferenceId);
                 delete cond;
                 continue;
             }
@@ -1311,19 +1311,19 @@ void ConditionMgr::LoadConditions(bool isReload)
                 rowType = "reference";
             //check for useless data
             if (cond->ConditionTarget)
-                TC_LOG_ERROR("sql.sql", "Condition %s %i has useless data in ConditionTarget (%u)!", rowType, iSourceTypeOrReferenceId, cond->ConditionTarget);
+                TC_LOG_ERROR("sql.sql", "Condition {} {} has useless data in ConditionTarget ({})!", rowType, iSourceTypeOrReferenceId, cond->ConditionTarget);
             if (cond->ConditionValue1)
-                TC_LOG_ERROR("sql.sql", "Condition %s %i has useless data in value1 (%u)!", rowType, iSourceTypeOrReferenceId, cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "Condition {} {} has useless data in value1 ({})!", rowType, iSourceTypeOrReferenceId, cond->ConditionValue1);
             if (cond->ConditionValue2)
-                TC_LOG_ERROR("sql.sql", "Condition %s %i has useless data in value2 (%u)!", rowType, iSourceTypeOrReferenceId, cond->ConditionValue2);
+                TC_LOG_ERROR("sql.sql", "Condition {} {} has useless data in value2 ({})!", rowType, iSourceTypeOrReferenceId, cond->ConditionValue2);
             if (cond->ConditionValue3)
-                TC_LOG_ERROR("sql.sql", "Condition %s %i has useless data in value3 (%u)!", rowType, iSourceTypeOrReferenceId, cond->ConditionValue3);
+                TC_LOG_ERROR("sql.sql", "Condition {} {} has useless data in value3 ({})!", rowType, iSourceTypeOrReferenceId, cond->ConditionValue3);
             if (cond->NegativeCondition)
-                TC_LOG_ERROR("sql.sql", "Condition %s %i has useless data in NegativeCondition (%u)!", rowType, iSourceTypeOrReferenceId, cond->NegativeCondition);
+                TC_LOG_ERROR("sql.sql", "Condition {} {} has useless data in NegativeCondition ({})!", rowType, iSourceTypeOrReferenceId, cond->NegativeCondition);
             if (cond->SourceGroup && iSourceTypeOrReferenceId < 0)
-                TC_LOG_ERROR("sql.sql", "Condition %s %i has useless data in SourceGroup (%u)!", rowType, iSourceTypeOrReferenceId, cond->SourceGroup);
+                TC_LOG_ERROR("sql.sql", "Condition {} {} has useless data in SourceGroup ({})!", rowType, iSourceTypeOrReferenceId, cond->SourceGroup);
             if (cond->SourceEntry && iSourceTypeOrReferenceId < 0)
-                TC_LOG_ERROR("sql.sql", "Condition %s %i has useless data in SourceEntry (%u)!", rowType, iSourceTypeOrReferenceId, cond->SourceEntry);
+                TC_LOG_ERROR("sql.sql", "Condition {} {} has useless data in SourceEntry ({})!", rowType, iSourceTypeOrReferenceId, cond->SourceEntry);
         }
         else if (!isConditionTypeValid(cond))//doesn't have reference, validate ConditionType
         {
@@ -1348,26 +1348,26 @@ void ConditionMgr::LoadConditions(bool isReload)
         //Grouping is only allowed for some types (loot templates, gossip menus, gossip items)
         if (cond->SourceGroup && !CanHaveSourceGroupSet(cond->SourceType))
         {
-            TC_LOG_ERROR("sql.sql", "%s has not allowed value of SourceGroup = %u!", cond->ToString().c_str(), cond->SourceGroup);
+            TC_LOG_ERROR("sql.sql", "{} has not allowed value of SourceGroup = {}!", cond->ToString(), cond->SourceGroup);
             delete cond;
             continue;
         }
         if (cond->SourceId && !CanHaveSourceIdSet(cond->SourceType))
         {
-            TC_LOG_ERROR("sql.sql", "%s has not allowed value of SourceId = %u!", cond->ToString().c_str(), cond->SourceId);
+            TC_LOG_ERROR("sql.sql", "{} has not allowed value of SourceId = {}!", cond->ToString(), cond->SourceId);
             delete cond;
             continue;
         }
 
         if (cond->ErrorType && cond->SourceType != CONDITION_SOURCE_TYPE_SPELL)
         {
-            TC_LOG_ERROR("sql.sql", "%s can't have ErrorType (%u), set to 0!", cond->ToString().c_str(), cond->ErrorType);
+            TC_LOG_ERROR("sql.sql", "{} can't have ErrorType ({}), set to 0!", cond->ToString(), cond->ErrorType);
             cond->ErrorType = 0;
         }
 
         if (cond->ErrorTextId && !cond->ErrorType)
         {
-            TC_LOG_ERROR("sql.sql", "%s has any ErrorType, ErrorTextId (%u) is set, set to 0!", cond->ToString().c_str(), cond->ErrorTextId);
+            TC_LOG_ERROR("sql.sql", "{} has any ErrorType, ErrorTextId ({}) is set, set to 0!", cond->ToString(), cond->ErrorTextId);
             cond->ErrorTextId = 0;
         }
 
@@ -1484,7 +1484,7 @@ void ConditionMgr::LoadConditions(bool isReload)
 
             if (!valid)
             {
-                TC_LOG_ERROR("sql.sql", "%s Not handled grouped condition.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} Not handled grouped condition.", cond->ToString());
                 delete cond;
             }
             else
@@ -1504,21 +1504,21 @@ void ConditionMgr::LoadConditions(bool isReload)
     }
     while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u conditions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} conditions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 bool ConditionMgr::addToLootTemplate(Condition* cond, LootTemplate* loot) const
 {
     if (!loot)
     {
-        TC_LOG_ERROR("sql.sql", "%s LootTemplate %u not found.", cond->ToString().c_str(), cond->SourceGroup);
+        TC_LOG_ERROR("sql.sql", "{} LootTemplate {} not found.", cond->ToString(), cond->SourceGroup);
         return false;
     }
 
     if (loot->addConditionItem(cond))
         return true;
 
-    TC_LOG_ERROR("sql.sql", "%s Item %u not found in LootTemplate %u.", cond->ToString().c_str(), cond->SourceEntry, cond->SourceGroup);
+    TC_LOG_ERROR("sql.sql", "{} Item {} not found in LootTemplate {}.", cond->ToString(), cond->SourceEntry, cond->SourceGroup);
     return false;
 }
 
@@ -1530,15 +1530,13 @@ bool ConditionMgr::addToGossipMenus(Condition* cond) const
     {
         for (GossipMenusContainer::iterator itr = pMenuBounds.first; itr != pMenuBounds.second; ++itr)
         {
-            if ((*itr).second.MenuID == cond->SourceGroup && (*itr).second.TextID == uint32(cond->SourceEntry))
-            {
-                (*itr).second.Conditions.push_back(cond);
-                return true;
-            }
+            if (itr->second.MenuID == cond->SourceGroup && (itr->second.TextID == uint32(cond->SourceEntry) || cond->SourceEntry == 0))
+                itr->second.Conditions.push_back(cond);
         }
+        return true;
     }
 
-    TC_LOG_ERROR("sql.sql", "%s GossipMenu %u not found.", cond->ToString().c_str(), cond->SourceGroup);
+    TC_LOG_ERROR("sql.sql", "{} GossipMenu {} not found.", cond->ToString(), cond->SourceGroup);
     return false;
 }
 
@@ -1547,14 +1545,14 @@ bool ConditionMgr::addToGossipMenuItems(Condition* cond) const
     Trinity::IteratorPair pMenuItemBounds = sObjectMgr->GetGossipMenuItemsMapBoundsNonConst(cond->SourceGroup);
     for (auto& [_, gossipMenuItem] : pMenuItemBounds)
     {
-        if (gossipMenuItem.MenuID == cond->SourceGroup && gossipMenuItem.OptionID == uint32(cond->SourceEntry))
+        if (gossipMenuItem.MenuID == cond->SourceGroup && gossipMenuItem.OrderIndex == uint32(cond->SourceEntry))
         {
             gossipMenuItem.Conditions.push_back(cond);
             return true;
         }
     }
 
-    TC_LOG_ERROR("sql.sql", "%s GossipMenuId %u Item %u not found.", cond->ToString().c_str(), cond->SourceGroup, cond->SourceEntry);
+    TC_LOG_ERROR("sql.sql", "{} GossipMenuId {} Item {} not found.", cond->ToString(), cond->SourceGroup, cond->SourceEntry);
     return false;
 }
 
@@ -1577,22 +1575,22 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond) const
                         uint32 implicitTargetMask = GetTargetFlagMask(spellEffectInfo.TargetA.GetObjectType()) | GetTargetFlagMask(spellEffectInfo.TargetB.GetObjectType());
                         if ((implicitTargetMask & TARGET_FLAG_UNIT_MASK) && cond->ConditionValue1 != TYPEID_UNIT && cond->ConditionValue1 != TYPEID_PLAYER)
                         {
-                            TC_LOG_ERROR("sql.sql", "%s in `condition` table - spell %u EFFECT_%u - "
-                                "target requires ConditionValue1 to be either TYPEID_UNIT (%u) or TYPEID_PLAYER (%u)", cond->ToString().c_str(), spellInfo->Id, uint32(spellEffectInfo.EffectIndex), uint32(TYPEID_UNIT), uint32(TYPEID_PLAYER));
+                            TC_LOG_ERROR("sql.sql", "{} in `condition` table - spell {} EFFECT_{} - "
+                                "target requires ConditionValue1 to be either TYPEID_UNIT ({}) or TYPEID_PLAYER ({})", cond->ToString(), spellInfo->Id, uint32(spellEffectInfo.EffectIndex), uint32(TYPEID_UNIT), uint32(TYPEID_PLAYER));
                             return;
                         }
 
                         if ((implicitTargetMask & TARGET_FLAG_GAMEOBJECT_MASK) && cond->ConditionValue1 != TYPEID_GAMEOBJECT)
                         {
-                            TC_LOG_ERROR("sql.sql", "%s in `condition` table - spell %u EFFECT_%u - "
-                                "target requires ConditionValue1 to be TYPEID_GAMEOBJECT (%u)", cond->ToString().c_str(), spellInfo->Id, uint32(spellEffectInfo.EffectIndex), uint32(TYPEID_GAMEOBJECT));
+                            TC_LOG_ERROR("sql.sql", "{} in `condition` table - spell {} EFFECT_{} - "
+                                "target requires ConditionValue1 to be TYPEID_GAMEOBJECT ({})", cond->ToString(), spellInfo->Id, uint32(spellEffectInfo.EffectIndex), uint32(TYPEID_GAMEOBJECT));
                             return;
                         }
 
                         if ((implicitTargetMask & TARGET_FLAG_CORPSE_MASK) && cond->ConditionValue1 != TYPEID_CORPSE)
                         {
-                            TC_LOG_ERROR("sql.sql", "%s in `condition` table - spell %u EFFECT_%u - "
-                                "target requires ConditionValue1 to be TYPEID_CORPSE (%u)", cond->ToString().c_str(), spellInfo->Id, uint32(spellEffectInfo.EffectIndex), uint32(TYPEID_CORPSE));
+                            TC_LOG_ERROR("sql.sql", "{} in `condition` table - spell {} EFFECT_{} - "
+                                "target requires ConditionValue1 to be TYPEID_CORPSE ({})", cond->ToString(), spellInfo->Id, uint32(spellEffectInfo.EffectIndex), uint32(TYPEID_CORPSE));
                             return;
                         }
                         break;
@@ -1639,9 +1637,9 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond) const
                     // we have overlapping masks in db
                     if (conditionEffMask != effectMask)
                     {
-                        TC_LOG_ERROR("sql.sql", "%s in `condition` table, has incorrect SourceGroup %u (spell effectMask) set - "
-                            "effect masks are overlapping (all SourceGroup values having given bit set must be equal) - ignoring (Difficulty %u).",
-                            cond->ToString().c_str(), cond->SourceGroup, uint32(spellInfo->Difficulty));
+                        TC_LOG_ERROR("sql.sql", "{} in `condition` table, has incorrect SourceGroup {} (spell effectMask) set - "
+                            "effect masks are overlapping (all SourceGroup values having given bit set must be equal) - ignoring (Difficulty {}).",
+                            cond->ToString(), cond->SourceGroup, uint32(spellInfo->Difficulty));
                         return;
                     }
                 }
@@ -1713,7 +1711,7 @@ bool ConditionMgr::addToPhases(Condition* cond) const
         }
     }
 
-    TC_LOG_ERROR("sql.sql", "%s Area %u does not have phase %u.", cond->ToString().c_str(), cond->SourceGroup, cond->SourceEntry);
+    TC_LOG_ERROR("sql.sql", "{} Area {} does not have phase {}.", cond->ToString(), cond->SourceEntry, cond->SourceGroup);
     return false;
 }
 
@@ -1725,7 +1723,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
         {
             if (!LootTemplates_Creature.HaveLootFor(cond->SourceGroup))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceGroup in `condition` table, does not exist in `creature_loot_template`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceGroup in `condition` table, does not exist in `creature_loot_template`, ignoring.", cond->ToString());
                 return false;
             }
 
@@ -1733,7 +1731,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->SourceEntry);
             if (!pItemProto && !loot->isReference(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString());
                 return false;
             }
             break;
@@ -1742,7 +1740,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
         {
             if (!LootTemplates_Disenchant.HaveLootFor(cond->SourceGroup))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceGroup in `condition` table, does not exist in `disenchant_loot_template`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceGroup in `condition` table, does not exist in `disenchant_loot_template`, ignoring.", cond->ToString());
                 return false;
             }
 
@@ -1750,7 +1748,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->SourceEntry);
             if (!pItemProto && !loot->isReference(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString());
                 return false;
             }
             break;
@@ -1759,7 +1757,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
         {
             if (!LootTemplates_Fishing.HaveLootFor(cond->SourceGroup))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceGroup in `condition` table, does not exist in `fishing_loot_template`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceGroup in `condition` table, does not exist in `fishing_loot_template`, ignoring.", cond->ToString());
                 return false;
             }
 
@@ -1767,7 +1765,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->SourceEntry);
             if (!pItemProto && !loot->isReference(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString());
                 return false;
             }
             break;
@@ -1776,7 +1774,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
         {
             if (!LootTemplates_Gameobject.HaveLootFor(cond->SourceGroup))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceGroup in `condition` table, does not exist in `gameobject_loot_template`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceGroup in `condition` table, does not exist in `gameobject_loot_template`, ignoring.", cond->ToString());
                 return false;
             }
 
@@ -1784,7 +1782,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->SourceEntry);
             if (!pItemProto && !loot->isReference(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString());
                 return false;
             }
             break;
@@ -1793,7 +1791,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
         {
             if (!LootTemplates_Item.HaveLootFor(cond->SourceGroup))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceGroup in `condition` table, does not exist in `item_loot_template`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceGroup in `condition` table, does not exist in `item_loot_template`, ignoring.", cond->ToString());
                 return false;
             }
 
@@ -1801,7 +1799,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->SourceEntry);
             if (!pItemProto && !loot->isReference(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString());
                 return false;
             }
             break;
@@ -1810,7 +1808,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
         {
             if (!LootTemplates_Mail.HaveLootFor(cond->SourceGroup))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceGroup in `condition` table, does not exist in `mail_loot_template`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceGroup in `condition` table, does not exist in `mail_loot_template`, ignoring.", cond->ToString());
                 return false;
             }
 
@@ -1818,7 +1816,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->SourceEntry);
             if (!pItemProto && !loot->isReference(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString());
                 return false;
             }
             break;
@@ -1827,7 +1825,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
         {
             if (!LootTemplates_Milling.HaveLootFor(cond->SourceGroup))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceGroup in `condition` table, does not exist in `milling_loot_template`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceGroup in `condition` table, does not exist in `milling_loot_template`, ignoring.", cond->ToString());
                 return false;
             }
 
@@ -1835,7 +1833,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->SourceEntry);
             if (!pItemProto && !loot->isReference(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString());
                 return false;
             }
             break;
@@ -1844,7 +1842,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
         {
             if (!LootTemplates_Pickpocketing.HaveLootFor(cond->SourceGroup))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceGroup in `condition` table, does not exist in `pickpocketing_loot_template`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceGroup in `condition` table, does not exist in `pickpocketing_loot_template`, ignoring.", cond->ToString());
                 return false;
             }
 
@@ -1852,7 +1850,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->SourceEntry);
             if (!pItemProto && !loot->isReference(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString());
                 return false;
             }
             break;
@@ -1861,7 +1859,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
         {
             if (!LootTemplates_Prospecting.HaveLootFor(cond->SourceGroup))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceGroup in `condition` table, does not exist in `prospecting_loot_template`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceGroup in `condition` table, does not exist in `prospecting_loot_template`, ignoring.", cond->ToString());
                 return false;
             }
 
@@ -1869,7 +1867,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->SourceEntry);
             if (!pItemProto && !loot->isReference(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString());
                 return false;
             }
             break;
@@ -1878,7 +1876,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
         {
             if (!LootTemplates_Reference.HaveLootFor(cond->SourceGroup))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceGroup in `condition` table, does not exist in `reference_loot_template`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceGroup in `condition` table, does not exist in `reference_loot_template`, ignoring.", cond->ToString());
                 return false;
             }
 
@@ -1886,7 +1884,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->SourceEntry);
             if (!pItemProto && !loot->isReference(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString());
                 return false;
             }
             break;
@@ -1895,7 +1893,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
         {
             if (!LootTemplates_Skinning.HaveLootFor(cond->SourceGroup))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceGroup in `condition` table, does not exist in `skinning_loot_template`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceGroup in `condition` table, does not exist in `skinning_loot_template`, ignoring.", cond->ToString());
                 return false;
             }
 
@@ -1903,7 +1901,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->SourceEntry);
             if (!pItemProto && !loot->isReference(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString());
                 return false;
             }
             break;
@@ -1912,7 +1910,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
         {
             if (!LootTemplates_Spell.HaveLootFor(cond->SourceGroup))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceGroup in `condition` table, does not exist in `spell_loot_template`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceGroup in `condition` table, does not exist in `spell_loot_template`, ignoring.", cond->ToString());
                 return false;
             }
 
@@ -1920,7 +1918,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->SourceEntry);
             if (!pItemProto && !loot->isReference(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString());
                 return false;
             }
             break;
@@ -1930,13 +1928,13 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(cond->SourceEntry, DIFFICULTY_NONE);
             if (!spellInfo)
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table does not exist in `Spell.db2`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceEntry in `condition` table does not exist in `Spell.db2`, ignoring.", cond->ToString());
                 return false;
             }
 
             if ((cond->SourceGroup > MAX_EFFECT_MASK) || !cond->SourceGroup)
             {
-                TC_LOG_ERROR("sql.sql", "%s in `condition` table, has incorrect SourceGroup (spell effectMask) set, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} in `condition` table, has incorrect SourceGroup (spell effectMask) set, ignoring.", cond->ToString());
                 return false;
             }
 
@@ -1991,7 +1989,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
                         break;
                 }
 
-                TC_LOG_ERROR("sql.sql", "SourceEntry %u SourceGroup %u in `condition` table - spell %u does not have implicit targets of types: _AREA_, _CONE_, _NEARBY_, __CHAIN__ or is not SPELL_EFFECT_PERSISTENT_AREA_AURA or SPELL_EFFECT_APPLY_AREA_AURA_* for effect %u, SourceGroup needs correction, ignoring.", cond->SourceEntry, origGroup, cond->SourceEntry, uint32(spellEffectInfo.EffectIndex));
+                TC_LOG_ERROR("sql.sql", "SourceEntry {} SourceGroup {} in `condition` table - spell {} does not have implicit targets of types: _AREA_, _CONE_, _NEARBY_, __CHAIN__ or is not SPELL_EFFECT_PERSISTENT_AREA_AURA or SPELL_EFFECT_APPLY_AREA_AURA_* for effect {}, SourceGroup needs correction, ignoring.", cond->SourceEntry, origGroup, cond->SourceEntry, uint32(spellEffectInfo.EffectIndex));
                 cond->SourceGroup &= ~(1 << spellEffectInfo.EffectIndex);
             }
             // all effects were removed, no need to add the condition at all
@@ -2003,7 +2001,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
         {
             if (!sObjectMgr->GetCreatureTemplate(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in `creature_template`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceEntry in `condition` table, does not exist in `creature_template`, ignoring.", cond->ToString());
                 return false;
             }
             break;
@@ -2014,7 +2012,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             SpellInfo const* spellProto = sSpellMgr->GetSpellInfo(cond->SourceEntry, DIFFICULTY_NONE);
             if (!spellProto)
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table does not exist in `Spell.db2`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceEntry in `condition` table does not exist in `Spell.db2`, ignoring.", cond->ToString());
                 return false;
             }
             break;
@@ -2022,33 +2020,33 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
         case CONDITION_SOURCE_TYPE_QUEST_AVAILABLE:
             if (!sObjectMgr->GetQuestTemplate(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceEntry specifies non-existing quest, skipped.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceEntry specifies non-existing quest, skipped.", cond->ToString());
                 return false;
             }
             break;
         case CONDITION_SOURCE_TYPE_VEHICLE_SPELL:
             if (!sObjectMgr->GetCreatureTemplate(cond->SourceGroup))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceGroup in `condition` table, does not exist in `creature_template`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceGroup in `condition` table, does not exist in `creature_template`, ignoring.", cond->ToString());
                 return false;
             }
 
             if (!sSpellMgr->GetSpellInfo(cond->SourceEntry, DIFFICULTY_NONE))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table does not exist in `Spell.db2`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceEntry in `condition` table does not exist in `Spell.db2`, ignoring.", cond->ToString());
                 return false;
             }
             break;
         case CONDITION_SOURCE_TYPE_SPELL_CLICK_EVENT:
             if (!sObjectMgr->GetCreatureTemplate(cond->SourceGroup))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceGroup in `condition` table, does not exist in `creature_template`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceGroup in `condition` table, does not exist in `creature_template`, ignoring.", cond->ToString());
                 return false;
             }
 
             if (!sSpellMgr->GetSpellInfo(cond->SourceEntry, DIFFICULTY_NONE))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table does not exist in `Spell.db2`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceEntry in `condition` table does not exist in `Spell.db2`, ignoring.", cond->ToString());
                 return false;
             }
             break;
@@ -2056,13 +2054,13 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
         {
             if (!sObjectMgr->GetCreatureTemplate(cond->SourceGroup))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceGroup in `condition` table, does not exist in `creature_template`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceGroup in `condition` table, does not exist in `creature_template`, ignoring.", cond->ToString());
                 return false;
             }
             ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(cond->SourceEntry);
             if (!itemTemplate)
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString());
                 return false;
             }
             break;
@@ -2071,7 +2069,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
         {
             if (!sMapStore.LookupEntry(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in Map.db2, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceEntry in `condition` table, does not exist in Map.db2, ignoring.", cond->ToString());
                 return false;
             }
             break;
@@ -2080,7 +2078,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
         {
             if (cond->SourceEntry && !sAreaTableStore.LookupEntry(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in AreaTable.db2, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceEntry in `condition` table, does not exist in AreaTable.db2, ignoring.", cond->ToString());
                 return false;
             }
             break;
@@ -2092,33 +2090,33 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
         case CONDITION_SOURCE_TYPE_GRAVEYARD:
             if (!sObjectMgr->GetWorldSafeLoc(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in WorldSafeLocs.db2, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceEntry in `condition` table, does not exist in WorldSafeLocs.db2, ignoring.", cond->ToString());
                 return false;
             }
             break;
         case CONDITION_SOURCE_TYPE_AREATRIGGER:
             if (cond->SourceEntry != 0 && cond->SourceEntry != 1)
             {
-                TC_LOG_ERROR("sql.sql", "%s in `condition` table, unexpected SourceEntry value (expected 0 or 1), ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} in `condition` table, unexpected SourceEntry value (expected 0 or 1), ignoring.", cond->ToString());
                 return false;
             }
             if (!sAreaTriggerDataStore->GetAreaTriggerTemplate({ uint32(cond->SourceGroup), bool(cond->SourceEntry) }))
             {
-                TC_LOG_ERROR("sql.sql", "%s in `condition` table, does not exist in `areatrigger_template`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} in `condition` table, does not exist in `areatrigger_template`, ignoring.", cond->ToString());
                 return false;
             }
             break;
         case CONDITION_SOURCE_TYPE_CONVERSATION_LINE:
             if (!sConversationDataStore->GetConversationLineTemplate(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s does not exist in `conversation_line_template`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} does not exist in `conversation_line_template`, ignoring.", cond->ToString());
                 return false;
             }
             break;
         case CONDITION_SOURCE_TYPE_AREATRIGGER_CLIENT_TRIGGERED:
             if (!sAreaTriggerStore.LookupEntry(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exists in AreaTrigger.db2, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceEntry in `condition` table, does not exists in AreaTrigger.db2, ignoring.", cond->ToString());
                 return false;
             }
             break;
@@ -2126,12 +2124,12 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
         {
             if (!sObjectMgr->GetTrainer(cond->SourceGroup))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceGroup in `condition` table, does not exist in `trainer`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceGroup in `condition` table, does not exist in `trainer`, ignoring.", cond->ToString());
                 return false;
             }
             if (!sSpellMgr->GetSpellInfo(cond->SourceEntry, DIFFICULTY_NONE))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table does not exist in `Spell.db2`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceEntry in `condition` table does not exist in `Spell.db2`, ignoring.", cond->ToString());
                 return false;
             }
             break;
@@ -2140,7 +2138,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
         {
             if (cond->SourceGroup <= 0 || cond->SourceGroup >= NUM_CLIENT_OBJECT_TYPES)
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceGroup in `condition` table, is no valid object type, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceGroup in `condition` table, is no valid object type, ignoring.", cond->ToString());
                 return false;
             }
 
@@ -2148,7 +2146,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             {
                 if (!sObjectMgr->GetCreatureTemplate(cond->SourceEntry))
                 {
-                    TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in `creature_template`, ignoring.", cond->ToString().c_str());
+                    TC_LOG_ERROR("sql.sql", "{} SourceEntry in `condition` table, does not exist in `creature_template`, ignoring.", cond->ToString());
                     return false;
                 }
             }
@@ -2156,13 +2154,13 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             {
                 if (!sObjectMgr->GetGameObjectTemplate(cond->SourceEntry))
                 {
-                    TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in `gameobject_template`, ignoring.", cond->ToString().c_str());
+                    TC_LOG_ERROR("sql.sql", "{} SourceEntry in `condition` table, does not exist in `gameobject_template`, ignoring.", cond->ToString());
                     return false;
                 }
             }
             else
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceGroup in `condition` table, uses unchecked type id, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceGroup in `condition` table, uses unchecked type id, ignoring.", cond->ToString());
                 return false;
             }
             break;
@@ -2172,18 +2170,18 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             SpawnGroupTemplateData const* spawnGroup = sObjectMgr->GetSpawnGroupData(cond->SourceEntry);
             if (!spawnGroup)
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in `spawn_group_template`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} SourceEntry in `condition` table, does not exist in `spawn_group_template`, ignoring.", cond->ToString());
                 return false;
             }
-            if (spawnGroup->flags & (SPAWNGROUP_FLAG_SYSTEM | SPAWNGROUP_FLAG_MANUAL_SPAWN))
+            if (spawnGroup->flags & (SPAWNGROUP_FLAG_SYSTEM))
             {
-                TC_LOG_ERROR("sql.sql", "%s in `spawn_group_template` table cannot have SPAWNGROUP_FLAG_SYSTEM or SPAWNGROUP_FLAG_MANUAL_SPAWN flags, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "{} in `spawn_group_template` table cannot have SPAWNGROUP_FLAG_SYSTEM flags, ignoring.", cond->ToString());
                 return false;
             }
             break;
         }
         default:
-            TC_LOG_ERROR("sql.sql", "%s Invalid ConditionSourceType in `condition` table, ignoring.", cond->ToString().c_str());
+            TC_LOG_ERROR("sql.sql", "{} Invalid ConditionSourceType in `condition` table, ignoring.", cond->ToString());
             return false;
     }
 
@@ -2198,13 +2196,13 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (!sSpellMgr->GetSpellInfo(cond->ConditionValue1, DIFFICULTY_NONE))
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing spell (Id: %d), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} has non existing spell (Id: {}), skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
 
             if (cond->ConditionValue2 >= MAX_SPELL_EFFECTS)
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing effect index (%u) (must be 0..%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2, MAX_SPELL_EFFECTS - 1);
+                TC_LOG_ERROR("sql.sql", "{} has non existing effect index ({}) (must be 0..{}), skipped.", cond->ToString(true), cond->ConditionValue2, MAX_SPELL_EFFECTS - 1);
                 return false;
             }
             break;
@@ -2214,13 +2212,13 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             ItemTemplate const* proto = sObjectMgr->GetItemTemplate(cond->ConditionValue1);
             if (!proto)
             {
-                TC_LOG_ERROR("sql.sql", "%s Item (%u) does not exist, skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} Item ({}) does not exist, skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
 
             if (!cond->ConditionValue2)
             {
-                TC_LOG_ERROR("sql.sql", "%s Zero item count in ConditionValue2, skipped.", cond->ToString(true).c_str());
+                TC_LOG_ERROR("sql.sql", "{} Zero item count in ConditionValue2, skipped.", cond->ToString(true));
                 return false;
             }
             break;
@@ -2230,7 +2228,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             ItemTemplate const* proto = sObjectMgr->GetItemTemplate(cond->ConditionValue1);
             if (!proto)
             {
-                TC_LOG_ERROR("sql.sql", "%s Item (%u) does not exist, skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} Item ({}) does not exist, skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2240,13 +2238,13 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(cond->ConditionValue1);
             if (!areaEntry)
             {
-                TC_LOG_ERROR("sql.sql", "%s Area (%u) does not exist, skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} Area ({}) does not exist, skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
 
             if (areaEntry->ParentAreaID != 0)
             {
-                TC_LOG_ERROR("sql.sql", "%s requires to be in area (%u) which is a subzone but zone expected, skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} requires to be in area ({}) which is a subzone but zone expected, skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2256,7 +2254,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             FactionEntry const* factionEntry = sFactionStore.LookupEntry(cond->ConditionValue1);
             if (!factionEntry)
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing faction (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} has non existing faction ({}), skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2265,7 +2263,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (cond->ConditionValue1 != ALLIANCE && cond->ConditionValue1 != HORDE)
             {
-                TC_LOG_ERROR("sql.sql", "%s specifies unknown team (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} specifies unknown team ({}), skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2275,13 +2273,13 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(cond->ConditionValue1);
             if (!pSkill)
             {
-                TC_LOG_ERROR("sql.sql", "%s specifies non-existing skill (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} specifies non-existing skill ({}), skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
 
             if (cond->ConditionValue2 < 1 || cond->ConditionValue2 > sWorld->GetConfigMaxSkillValue())
             {
-                TC_LOG_ERROR("sql.sql", "%s specifies skill (%u) with invalid value (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1, cond->ConditionValue2);
+                TC_LOG_ERROR("sql.sql", "{} specifies skill ({}) with invalid value ({}), skipped.", cond->ToString(true), cond->ConditionValue1, cond->ConditionValue2);
                 return false;
             }
             break;
@@ -2289,7 +2287,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         case CONDITION_QUESTSTATE:
             if (cond->ConditionValue2 >= (1 << MAX_QUEST_STATUS))
             {
-                TC_LOG_ERROR("sql.sql", "%s has invalid state mask (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
+                TC_LOG_ERROR("sql.sql", "{} has invalid state mask ({}), skipped.", cond->ToString(true), cond->ConditionValue2);
                 return false;
             }
             [[fallthrough]];
@@ -2301,7 +2299,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (!sObjectMgr->GetQuestTemplate(cond->ConditionValue1))
             {
-                TC_LOG_ERROR("sql.sql", "%s points to non-existing quest (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} points to non-existing quest ({}), skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2311,7 +2309,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
             if (cond->ConditionValue1 >= events.size() || !events[cond->ConditionValue1].isValid())
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing event id (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} has non existing event id ({}), skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2321,7 +2319,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             AchievementEntry const* achievement = sAchievementStore.LookupEntry(cond->ConditionValue1);
             if (!achievement)
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing achivement id (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} has non existing achivement id ({}), skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2330,7 +2328,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (cond->ConditionValue1 & ~CLASSMASK_ALL_PLAYABLE)
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing classmask (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1 & ~CLASSMASK_ALL_PLAYABLE);
+                TC_LOG_ERROR("sql.sql", "{} has non existing classmask ({}), skipped.", cond->ToString(true), cond->ConditionValue1 & ~CLASSMASK_ALL_PLAYABLE);
                 return false;
             }
             break;
@@ -2340,7 +2338,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             Trinity::RaceMask<uint64> invalidRaceMask = Trinity::RaceMask<uint64>{ cond->ConditionValue1 } & ~RACEMASK_ALL_PLAYABLE;
             if (!invalidRaceMask.IsEmpty()) // uint32 works thanks to weird index remapping in racemask
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing racemask (" UI64FMTD "), skipped.", cond->ToString(true).c_str(), invalidRaceMask.RawValue);
+                TC_LOG_ERROR("sql.sql", "{} has non existing racemask ({}), skipped.", cond->ToString(true), invalidRaceMask.RawValue);
                 return false;
             }
             break;
@@ -2349,7 +2347,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (!Player::IsValidGender(uint8(cond->ConditionValue1)))
             {
-                TC_LOG_ERROR("sql.sql", "%s has invalid gender (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} has invalid gender ({}), skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2359,7 +2357,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             MapEntry const* me = sMapStore.LookupEntry(cond->ConditionValue1);
             if (!me)
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing map (%u), skipped", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} has non existing map ({}), skipped", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2368,7 +2366,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (!sSpellMgr->GetSpellInfo(cond->ConditionValue1, DIFFICULTY_NONE))
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing spell (Id: %d), skipped", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} has non existing spell (Id: {}), skipped", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2377,7 +2375,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (cond->ConditionValue2 >= COMP_TYPE_MAX)
             {
-                TC_LOG_ERROR("sql.sql", "%s has invalid ComparisionType (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
+                TC_LOG_ERROR("sql.sql", "{} has invalid ComparisionType ({}), skipped.", cond->ToString(true), cond->ConditionValue2);
                 return false;
             }
             break;
@@ -2386,7 +2384,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (cond->ConditionValue1 > DRUNKEN_SMASHED)
             {
-                TC_LOG_ERROR("sql.sql", "%s has invalid state (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} has invalid state ({}), skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2395,7 +2393,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (!sObjectMgr->GetCreatureTemplate(cond->ConditionValue1))
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing creature template entry (%u), skipped", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} has non existing creature template entry ({}), skipped", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2404,7 +2402,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (!sObjectMgr->GetGameObjectTemplate(cond->ConditionValue1))
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing gameobject template entry (%u), skipped.", cond->ToString().c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} has non existing gameobject template entry ({}), skipped.", cond->ToString(), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2420,7 +2418,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
                 case TYPEID_UNIT:
                     if (cond->ConditionValue2 && !sObjectMgr->GetCreatureTemplate(cond->ConditionValue2))
                     {
-                        TC_LOG_ERROR("sql.sql", "%s has non existing creature template entry (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
+                        TC_LOG_ERROR("sql.sql", "{} has non existing creature template entry ({}), skipped.", cond->ToString(true), cond->ConditionValue2);
                         return false;
                     }
                     if (cond->ConditionValue3)
@@ -2429,13 +2427,13 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
                         {
                             if (cond->ConditionValue2 && creatureData->id != cond->ConditionValue2)
                             {
-                                TC_LOG_ERROR("sql.sql", "%s has guid %u set but does not match creature entry (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue3, cond->ConditionValue2);
+                                TC_LOG_ERROR("sql.sql", "{} has guid {} set but does not match creature entry ({}), skipped.", cond->ToString(true), cond->ConditionValue3, cond->ConditionValue2);
                                 return false;
                             }
                         }
                         else
                         {
-                            TC_LOG_ERROR("sql.sql", "%s has non existing creature guid (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue3);
+                            TC_LOG_ERROR("sql.sql", "{} has non existing creature guid ({}), skipped.", cond->ToString(true), cond->ConditionValue3);
                             return false;
                         }
                     }
@@ -2443,7 +2441,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
                 case TYPEID_GAMEOBJECT:
                     if (cond->ConditionValue2 && !sObjectMgr->GetGameObjectTemplate(cond->ConditionValue2))
                     {
-                        TC_LOG_ERROR("sql.sql", "%s has non existing gameobject template entry (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
+                        TC_LOG_ERROR("sql.sql", "{} has non existing gameobject template entry ({}), skipped.", cond->ToString(true), cond->ConditionValue2);
                         return false;
                     }
                     if (cond->ConditionValue3)
@@ -2452,13 +2450,13 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
                         {
                             if (cond->ConditionValue2 && goData->id != cond->ConditionValue2)
                             {
-                                TC_LOG_ERROR("sql.sql", "%s has guid %u set but does not match gameobject entry (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue3, cond->ConditionValue2);
+                                TC_LOG_ERROR("sql.sql", "{} has guid {} set but does not match gameobject entry ({}), skipped.", cond->ToString(true), cond->ConditionValue3, cond->ConditionValue2);
                                 return false;
                             }
                         }
                         else
                         {
-                            TC_LOG_ERROR("sql.sql", "%s has non existing gameobject guid (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue3);
+                            TC_LOG_ERROR("sql.sql", "{} has non existing gameobject guid ({}), skipped.", cond->ToString(true), cond->ConditionValue3);
                             return false;
                         }
                     }
@@ -2471,7 +2469,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
                         LogUselessConditionValue(cond, 3, cond->ConditionValue3);
                     break;
                 default:
-                    TC_LOG_ERROR("sql.sql", "%s has wrong typeid set (%u), skipped", cond->ToString(true).c_str(), cond->ConditionValue1);
+                    TC_LOG_ERROR("sql.sql", "{} has wrong typeid set ({}), skipped", cond->ToString(true), cond->ConditionValue1);
                     return false;
             }
             break;
@@ -2484,7 +2482,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (!cond->ConditionValue1 || (cond->ConditionValue1 & ~(TYPEMASK_UNIT | TYPEMASK_PLAYER | TYPEMASK_GAMEOBJECT | TYPEMASK_CORPSE)))
             {
-                TC_LOG_ERROR("sql.sql", "%s has invalid typemask set (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
+                TC_LOG_ERROR("sql.sql", "{} has invalid typemask set ({}), skipped.", cond->ToString(true), cond->ConditionValue2);
                 return false;
             }
             break;
@@ -2493,17 +2491,17 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (cond->ConditionValue1 >= cond->GetMaxAvailableConditionTargets())
             {
-                TC_LOG_ERROR("sql.sql", "%s has invalid ConditionValue1(ConditionTarget selection) (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} has invalid ConditionValue1(ConditionTarget selection) ({}), skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
             if (cond->ConditionValue1 == cond->ConditionTarget)
             {
-                TC_LOG_ERROR("sql.sql", "%s has ConditionValue1(ConditionTarget selection) set to self (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} has ConditionValue1(ConditionTarget selection) set to self ({}), skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
             if (cond->ConditionValue2 >= RELATION_MAX)
             {
-                TC_LOG_ERROR("sql.sql", "%s has invalid ConditionValue2(RelationType) (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
+                TC_LOG_ERROR("sql.sql", "{} has invalid ConditionValue2(RelationType) ({}), skipped.", cond->ToString(true), cond->ConditionValue2);
                 return false;
             }
             break;
@@ -2512,17 +2510,17 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (cond->ConditionValue1 >= cond->GetMaxAvailableConditionTargets())
             {
-                TC_LOG_ERROR("sql.sql", "%s has invalid ConditionValue1(ConditionTarget selection) (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} has invalid ConditionValue1(ConditionTarget selection) ({}), skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
             if (cond->ConditionValue1 == cond->ConditionTarget)
             {
-                TC_LOG_ERROR("sql.sql", "%s has ConditionValue1(ConditionTarget selection) set to self (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} has ConditionValue1(ConditionTarget selection) set to self ({}), skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
             if (!cond->ConditionValue2)
             {
-                TC_LOG_ERROR("sql.sql", "%s has invalid ConditionValue2(rankMask) (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
+                TC_LOG_ERROR("sql.sql", "{} has invalid ConditionValue2(rankMask) ({}), skipped.", cond->ToString(true), cond->ConditionValue2);
                 return false;
             }
             break;
@@ -2531,17 +2529,17 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (cond->ConditionValue1 >= cond->GetMaxAvailableConditionTargets())
             {
-                TC_LOG_ERROR("sql.sql", "%s has invalid ConditionValue1(ConditionTarget selection) (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} has invalid ConditionValue1(ConditionTarget selection) ({}), skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
             if (cond->ConditionValue1 == cond->ConditionTarget)
             {
-                TC_LOG_ERROR("sql.sql", "%s has ConditionValue1(ConditionTarget selection) set to self (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} has ConditionValue1(ConditionTarget selection) set to self ({}), skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
             if (cond->ConditionValue3 >= COMP_TYPE_MAX)
             {
-                TC_LOG_ERROR("sql.sql", "%s has invalid ComparisionType (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue3);
+                TC_LOG_ERROR("sql.sql", "{} has invalid ComparisionType ({}), skipped.", cond->ToString(true), cond->ConditionValue3);
                 return false;
             }
             break;
@@ -2550,7 +2548,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (cond->ConditionValue2 >= COMP_TYPE_MAX)
             {
-                TC_LOG_ERROR("sql.sql", "%s has invalid ComparisionType (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
+                TC_LOG_ERROR("sql.sql", "{} has invalid ComparisionType ({}), skipped.", cond->ToString(true), cond->ConditionValue2);
                 return false;
             }
             break;
@@ -2559,12 +2557,12 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (cond->ConditionValue1 > 100)
             {
-                TC_LOG_ERROR("sql.sql", "%s has too big percent value (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} has too big percent value ({}), skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
             if (cond->ConditionValue2 >= COMP_TYPE_MAX)
             {
-                TC_LOG_ERROR("sql.sql", "%s has invalid ComparisionType (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
+                TC_LOG_ERROR("sql.sql", "{} has invalid ComparisionType ({}), skipped.", cond->ToString(true), cond->ConditionValue2);
                 return false;
             }
             break;
@@ -2573,7 +2571,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (!sWorldStateMgr->GetWorldStateTemplate(cond->ConditionValue1))
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing world state in value1 (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} has non existing world state in value1 ({}), skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2582,7 +2580,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (!sPhaseStore.LookupEntry(cond->ConditionValue1))
             {
-                TC_LOG_ERROR("sql.sql", "%s has nonexistent phaseid in value1 (%u), skipped", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} has nonexistent phaseid in value1 ({}), skipped", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2592,21 +2590,21 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(cond->ConditionValue1);
             if (!titleEntry)
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing title in value1 (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} has non existing title in value1 ({}), skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
             break;
         }
         case CONDITION_SPAWNMASK_DEPRECATED:
         {
-            TC_LOG_ERROR("sql.sql", "%s using deprecated condition type CONDITION_SPAWNMASK.", cond->ToString(true).c_str());
+            TC_LOG_ERROR("sql.sql", "{} using deprecated condition type CONDITION_SPAWNMASK.", cond->ToString(true));
             return false;
         }
         case CONDITION_UNIT_STATE:
         {
             if (!(cond->ConditionValue1 & UNIT_STATE_ALL_STATE_SUPPORTED))
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing UnitState in value1 (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} has non existing UnitState in value1 ({}), skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2615,7 +2613,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (!cond->ConditionValue1 || cond->ConditionValue1 > CREATURE_TYPE_GAS_CLOUD)
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing CreatureType in value1 (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} has non existing CreatureType in value1 ({}), skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2625,7 +2623,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             AchievementEntry const* achievement = sAchievementStore.LookupEntry(cond->ConditionValue1);
             if (!achievement)
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing realm first achivement id (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} has non existing realm first achivement id ({}), skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2647,7 +2645,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             }
             if (!valid)
             {
-                TC_LOG_ERROR("sql.sql", "%s has non-existing stand state (%u,%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1, cond->ConditionValue2);
+                TC_LOG_ERROR("sql.sql", "{} has non-existing stand state ({},{}), skipped.", cond->ToString(true), cond->ConditionValue1, cond->ConditionValue2);
                 return false;
             }
             break;
@@ -2657,13 +2655,13 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             QuestObjective const* obj = sObjectMgr->GetQuestObjective(cond->ConditionValue1);
             if (!obj)
             {
-                TC_LOG_ERROR("sql.sql", "%s points to non-existing quest objective (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} points to non-existing quest objective ({}), skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
             int32 limit = obj->IsStoringFlag() ? 1 : obj->Amount;
             if (int32(cond->ConditionValue3) > limit)
             {
-                TC_LOG_ERROR("sql.sql", "%s has quest objective count %u in value3, but quest objective %u has a maximum objective count of %u, skipped.", cond->ToString(true).c_str(), cond->ConditionValue3, cond->ConditionValue1, limit);
+                TC_LOG_ERROR("sql.sql", "{} has quest objective count {} in value3, but quest objective {} has a maximum objective count of {}, skipped.", cond->ToString(true), cond->ConditionValue3, cond->ConditionValue1, limit);
                 return false;
             }
             break;
@@ -2671,7 +2669,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         case CONDITION_PET_TYPE:
             if (cond->ConditionValue1 >= (1 << MAX_PET_TYPE))
             {
-                TC_LOG_ERROR("sql.sql", "%s has non-existing pet type %u, skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} has non-existing pet type {}, skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2687,25 +2685,25 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         case CONDITION_DIFFICULTY_ID:
             if (!sDifficultyStore.LookupEntry(cond->ConditionValue1))
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing difficulty in value1 (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} has non existing difficulty in value1 ({}), skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
             break;
         case CONDITION_BATTLE_PET_COUNT:
             if (!sBattlePetSpeciesStore.LookupEntry(cond->ConditionValue1))
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing BattlePet SpeciesId in value1 (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} has non existing BattlePet SpeciesId in value1 ({}), skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
             if (cond->ConditionValue2 > BattlePets::DEFAULT_MAX_BATTLE_PETS_PER_SPECIES)
             {
-                TC_LOG_ERROR("sql.sql", "%s has invalid (greater than %u) value2 (%u), skipped.", cond->ToString(true).c_str(),
+                TC_LOG_ERROR("sql.sql", "{} has invalid (greater than {}) value2 ({}), skipped.", cond->ToString(true),
                     uint32(BattlePets::DEFAULT_MAX_BATTLE_PETS_PER_SPECIES), cond->ConditionValue2);
                 return false;
             }
             if (cond->ConditionValue3 >= COMP_TYPE_MAX)
             {
-                TC_LOG_ERROR("sql.sql", "%s has invalid ComparisionType (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue3);
+                TC_LOG_ERROR("sql.sql", "{} has invalid ComparisionType ({}), skipped.", cond->ToString(true), cond->ConditionValue3);
                 return false;
             }
             break;
@@ -2713,7 +2711,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (!sScenarioStepStore.LookupEntry(cond->ConditionValue1))
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing ScenarioStep in value1 (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} has non existing ScenarioStep in value1 ({}), skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2722,7 +2720,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (!sSceneScriptPackageStore.LookupEntry(cond->ConditionValue1))
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing SceneScriptPackageId in value1 (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} has non existing SceneScriptPackageId in value1 ({}), skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
             break;
@@ -2731,19 +2729,19 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (!sPlayerConditionStore.LookupEntry(cond->ConditionValue1))
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing PlayerConditionId in value1 (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                TC_LOG_ERROR("sql.sql", "{} has non existing PlayerConditionId in value1 ({}), skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
             }
             break;
         }
         default:
-            TC_LOG_ERROR("sql.sql", "%s Invalid ConditionType in `condition` table, ignoring.", cond->ToString().c_str());
+            TC_LOG_ERROR("sql.sql", "{} Invalid ConditionType in `condition` table, ignoring.", cond->ToString());
             return false;
     }
 
     if (cond->ConditionTarget >= cond->GetMaxAvailableConditionTargets())
     {
-        TC_LOG_ERROR("sql.sql", "%s in `condition` table, has incorrect ConditionTarget set, ignoring.", cond->ToString(true).c_str());
+        TC_LOG_ERROR("sql.sql", "{} in `condition` table, has incorrect ConditionTarget set, ignoring.", cond->ToString(true));
         return false;
     }
 
@@ -2759,7 +2757,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
 
 void ConditionMgr::LogUselessConditionValue(Condition* cond, uint8 index, uint32 value)
 {
-    TC_LOG_ERROR("sql.sql", "%s has useless data in ConditionValue%u (%u)!", cond->ToString(true).c_str(), index, value);
+    TC_LOG_ERROR("sql.sql", "{} has useless data in ConditionValue{} ({})!", cond->ToString(true), index, value);
 }
 
 void ConditionMgr::Clean()
@@ -3186,7 +3184,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
         results.fill(true);
         for (std::size_t i = 0; i < condition->CurrencyID.size(); ++i)
             if (condition->CurrencyID[i])
-                results[i] = player->GetCurrency(condition->CurrencyID[i]) >= condition->CurrencyCount[i];
+                results[i] = player->GetCurrencyQuantity(condition->CurrencyID[i]) >= condition->CurrencyCount[i];
 
         if (!PlayerConditionLogic(condition->CurrencyLogic, results))
             return false;
@@ -3349,6 +3347,46 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
     if (condition->CovenantID && player->m_playerData->CovenantID != condition->CovenantID)
         return false;
+
+    if (std::any_of(condition->TraitNodeEntryID.begin(), condition->TraitNodeEntryID.end(), [](int32 traitNodeEntryId) { return traitNodeEntryId != 0; }))
+    {
+        auto getTraitNodeEntryRank = [player](int32 traitNodeEntryId) -> Optional<uint16>
+        {
+            for (UF::TraitConfig const& traitConfig : player->m_activePlayerData->TraitConfigs)
+            {
+                if (TraitConfigType(*traitConfig.Type) == TraitConfigType::Combat)
+                {
+                    if (int32(*player->m_activePlayerData->ActiveCombatTraitConfigID) != traitConfig.ID
+                        || !EnumFlag(TraitCombatConfigFlags(*traitConfig.CombatConfigFlags)).HasFlag(TraitCombatConfigFlags::ActiveForSpec))
+                        continue;
+                }
+
+                for (UF::TraitEntry const& traitEntry : traitConfig.Entries)
+                    if (traitEntry.TraitNodeEntryID == traitNodeEntryId)
+                        return traitEntry.Rank;
+            }
+            return {};
+        };
+
+        std::array<bool, std::tuple_size_v<decltype(condition->TraitNodeEntryID)>> results;
+        results.fill(true);
+        for (std::size_t i = 0; i < condition->TraitNodeEntryID.size(); ++i)
+        {
+            if (!condition->TraitNodeEntryID[i])
+                continue;
+
+            Optional<int32> rank = getTraitNodeEntryRank(condition->TraitNodeEntryID[i]);
+            if (!rank)
+                results[i] = false;
+            else if (condition->TraitNodeEntryMinRank[i] && rank < condition->TraitNodeEntryMinRank[i])
+                results[i] = false;
+            else if (condition->TraitNodeEntryMaxRank[i] && rank > condition->TraitNodeEntryMaxRank[i])
+                results[i] = false;
+        }
+
+        if (!PlayerConditionLogic(condition->TraitNodeEntryLogic, results))
+            return false;
+    }
 
     return true;
 }
@@ -3787,7 +3825,7 @@ int32 GetUnitConditionVariable(Unit const* unit, Unit const* otherUnit, UnitCond
         case UnitConditionVariable::HasHelpfulAuraMechanic:
             return unit->GetAuraApplication([value](AuraApplication const* aurApp)
             {
-                return (aurApp->GetFlags() & AFLAG_NEGATIVE) == 0 && (aurApp->GetBase()->GetSpellInfo()->GetSpellMechanicMaskByEffectMask(aurApp->GetEffectMask()) & (1 << value)) != 0;
+                return (aurApp->GetFlags() & AFLAG_NEGATIVE) == 0 && (aurApp->GetBase()->GetSpellInfo()->GetSpellMechanicMaskByEffectMask(aurApp->GetEffectMask()) & (UI64LIT(1) << value)) != 0;
             }) != nullptr ? value : 0;
         case UnitConditionVariable::HasHarmfulAuraSpell:
             return unit->GetAuraApplication(value, [](AuraApplication const* aurApp)
@@ -3802,7 +3840,7 @@ int32 GetUnitConditionVariable(Unit const* unit, Unit const* otherUnit, UnitCond
         case UnitConditionVariable::HasHarmfulAuraMechanic:
             return unit->GetAuraApplication([value](AuraApplication const* aurApp)
             {
-                return (aurApp->GetFlags() & AFLAG_NEGATIVE) != 0 && (aurApp->GetBase()->GetSpellInfo()->GetSpellMechanicMaskByEffectMask(aurApp->GetEffectMask()) & (1 << value)) != 0;
+                return (aurApp->GetFlags() & AFLAG_NEGATIVE) != 0 && (aurApp->GetBase()->GetSpellInfo()->GetSpellMechanicMaskByEffectMask(aurApp->GetEffectMask()) & (UI64LIT(1) << value)) != 0;
             }) != nullptr ? value : 0;
         case UnitConditionVariable::HasHarmfulAuraSchool:
             return unit->GetAuraApplication([value](AuraApplication const* aurApp)
@@ -3952,13 +3990,17 @@ int32 GetUnitConditionVariable(Unit const* unit, Unit const* otherUnit, UnitCond
         case UnitConditionVariable::IsEnemy:
             return otherUnit && unit->GetReactionTo(otherUnit) <= REP_HOSTILE;
         case UnitConditionVariable::IsSpecMelee:
-            return unit->IsPlayer() && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Flags & CHR_SPECIALIZATION_FLAG_MELEE;
+            return unit->IsPlayer() && unit->ToPlayer()->GetPrimarySpecialization()
+                && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Flags & CHR_SPECIALIZATION_FLAG_MELEE;
         case UnitConditionVariable::IsSpecTank:
-            return unit->IsPlayer() && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Role == 0;
+            return unit->IsPlayer() && unit->ToPlayer()->GetPrimarySpecialization()
+                && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Role == 0;
         case UnitConditionVariable::IsSpecRanged:
-            return unit->IsPlayer() && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Flags & CHR_SPECIALIZATION_FLAG_RANGED;
+            return unit->IsPlayer() && unit->ToPlayer()->GetPrimarySpecialization()
+                && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Flags & CHR_SPECIALIZATION_FLAG_RANGED;
         case UnitConditionVariable::IsSpecHealer:
-            return unit->IsPlayer() && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Role == 1;
+            return unit->IsPlayer() && unit->ToPlayer()->GetPrimarySpecialization()
+                && sChrSpecializationStore.AssertEntry(unit->ToPlayer()->GetPrimarySpecialization())->Role == 1;
         case UnitConditionVariable::IsPlayerControlledNPC:
             return unit->IsCreature() && unit->HasUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
         case UnitConditionVariable::IsDying:

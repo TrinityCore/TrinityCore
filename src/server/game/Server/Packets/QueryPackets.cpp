@@ -190,7 +190,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::PlayerGuidLookupDa
     return data;
 }
 
-ByteBuffer operator<<(ByteBuffer& data, WorldPackets::Query::NameCacheUnused920 const& thing)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::NameCacheUnused920 const& thing)
 {
     data << uint32(thing.Unused1);
     data << thing.Unused2;

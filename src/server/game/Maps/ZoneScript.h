@@ -31,12 +31,11 @@ class TC_GAME_API ZoneScript
 {
     public:
         ZoneScript();
+        ZoneScript(ZoneScript const& right);
+        ZoneScript(ZoneScript&& right) noexcept;
+        ZoneScript& operator=(ZoneScript const& right);
+        ZoneScript& operator=(ZoneScript&& right) noexcept;
         virtual ~ZoneScript();
-
-        ZoneScript(ZoneScript const& right) = delete;
-        ZoneScript(ZoneScript&& right) = delete;
-        ZoneScript& operator=(ZoneScript const& right) = delete;
-        ZoneScript& operator=(ZoneScript&& right) = delete;
 
         virtual uint32 GetCreatureEntry(ObjectGuid::LowType /*spawnId*/, CreatureData const* data);
         virtual uint32 GetGameObjectEntry(ObjectGuid::LowType /*spawnId*/, uint32 entry) { return entry; }

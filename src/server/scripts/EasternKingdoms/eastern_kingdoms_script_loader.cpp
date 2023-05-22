@@ -191,6 +191,7 @@ void AddSC_dun_morogh_area_coldridge_valley();
 void AddSC_duskwood();
 void AddSC_eastern_plaguelands();
 void AddSC_elwynn_forest();
+void AddSC_eversong_woods();
 //void AddSC_ghostlands();
 void AddSC_hinterlands();
 void AddSC_isle_of_queldanas();
@@ -383,6 +384,7 @@ void AddEasternKingdomsScripts()
     AddSC_duskwood();
     AddSC_eastern_plaguelands();
     AddSC_elwynn_forest();
+    AddSC_eversong_woods();
     //AddSC_ghostlands();
     AddSC_hinterlands();
     AddSC_isle_of_queldanas();

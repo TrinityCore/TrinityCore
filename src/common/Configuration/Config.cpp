@@ -226,25 +226,25 @@ T ConfigMgr::GetValueDefault(std::string const& name, T def, bool quiet) const
             Optional<T> castedVar = Trinity::StringTo<T>(*envVar);
             if (!castedVar)
             {
-                TC_LOG_ERROR("server.loading", "Bad value defined for name %s in environment variables, going to use default instead", name.c_str());
+                TC_LOG_ERROR("server.loading", "Bad value defined for name {} in environment variables, going to use default instead", name);
                 return def;
             }
 
             if (!quiet)
-                TC_LOG_WARN("server.loading", "Missing name %s in config file %s, recovered with environment '%s' value.", name.c_str(), _filename.c_str(), envVar->c_str());
+                TC_LOG_WARN("server.loading", "Missing name {} in config file {}, recovered with environment '{}' value.", name, _filename, *envVar);
 
             return *castedVar;
         }
         else if (!quiet)
         {
-            TC_LOG_WARN("server.loading", "Missing name %s in config file %s, add \"%s = %s\" to this file",
-                name.c_str(), _filename.c_str(), name.c_str(), std::to_string(def).c_str());
+            TC_LOG_WARN("server.loading", "Missing name {} in config file {}, add \"{} = {}\" to this file",
+                name, _filename, name, def);
         }
     }
     catch (bpt::ptree_bad_data const&)
     {
-        TC_LOG_ERROR("server.loading", "Bad value defined for name %s in config file %s, going to use %s instead",
-            name.c_str(), _filename.c_str(), std::to_string(def).c_str());
+        TC_LOG_ERROR("server.loading", "Bad value defined for name {} in config file {}, going to use {} instead",
+            name, _filename, def);
     }
 
     return def;
@@ -263,20 +263,20 @@ std::string ConfigMgr::GetValueDefault<std::string>(std::string const& name, std
         if (envVar)
         {
             if (!quiet)
-                TC_LOG_WARN("server.loading", "Missing name %s in config file %s, recovered with environment '%s' value.", name.c_str(), _filename.c_str(), envVar->c_str());
+                TC_LOG_WARN("server.loading", "Missing name {} in config file {}, recovered with environment '{}' value.", name, _filename, *envVar);
 
             return *envVar;
         }
         else if (!quiet)
         {
-            TC_LOG_WARN("server.loading", "Missing name %s in config file %s, add \"%s = %s\" to this file",
-                name.c_str(), _filename.c_str(), name.c_str(), def.c_str());
+            TC_LOG_WARN("server.loading", "Missing name {} in config file {}, add \"{} = {}\" to this file",
+                name, _filename, name, def);
         }
     }
     catch (bpt::ptree_bad_data const&)
     {
-        TC_LOG_ERROR("server.loading", "Bad value defined for name %s in config file %s, going to use %s instead",
-            name.c_str(), _filename.c_str(), def.c_str());
+        TC_LOG_ERROR("server.loading", "Bad value defined for name {} in config file {}, going to use {} instead",
+            name, _filename, def);
     }
 
     return def;
@@ -298,8 +298,8 @@ bool ConfigMgr::GetBoolDefault(std::string const& name, bool def, bool quiet) co
         return *boolVal;
     else
     {
-        TC_LOG_ERROR("server.loading", "Bad value defined for name %s in config file %s, going to use '%s' instead",
-            name.c_str(), _filename.c_str(), def ? "true" : "false");
+        TC_LOG_ERROR("server.loading", "Bad value defined for name {} in config file {}, going to use '{}' instead",
+            name, _filename, def ? "true" : "false");
         return def;
     }
 }

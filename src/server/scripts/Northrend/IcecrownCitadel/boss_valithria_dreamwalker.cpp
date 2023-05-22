@@ -17,6 +17,7 @@
 
 #include "icecrown_citadel.h"
 #include "CellImpl.h"
+#include "Containers.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
@@ -318,7 +319,7 @@ struct boss_valithria_dreamwalker : public ScriptedAI
     void HealReceived(Unit* healer, uint32& heal) override
     {
         if (!me->hasLootRecipient())
-            me->SetLootRecipient(healer);
+            me->SetTappedBy(healer);
 
         me->LowerPlayerDamageReq(heal);
 
@@ -498,7 +499,7 @@ struct npc_green_dragon_combat_trigger : public BossAI
 
         if (!instance->CheckRequiredBosses(DATA_VALITHRIA_DREAMWALKER, target->ToPlayer()))
         {
-            EnterEvadeMode(EVADE_REASON_SEQUENCE_BREAK);
+            EnterEvadeMode(EvadeReason::SequenceBreak);
             instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
             return;
         }

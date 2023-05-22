@@ -207,7 +207,7 @@ class boss_steelbreaker : public CreatureScript
                 }
                 else
                 {
-                    me->SetLootRecipient(nullptr);
+                    me->SetTappedBy(nullptr);
                     Talk(SAY_STEELBREAKER_DEATH);
                     //DoCastAOE(SPELL_SUPERCHARGE, true);
 
@@ -355,7 +355,7 @@ class boss_runemaster_molgeim : public CreatureScript
                 }
                 else
                 {
-                    me->SetLootRecipient(nullptr);
+                    me->SetTappedBy(nullptr);
                     Talk(SAY_MOLGEIM_DEATH);
                     //DoCastAOE(SPELL_SUPERCHARGE, true);
 
@@ -534,7 +534,7 @@ class boss_stormcaller_brundir : public CreatureScript
                 }
                 else
                 {
-                    me->SetLootRecipient(nullptr);
+                    me->SetTappedBy(nullptr);
                     Talk(SAY_BRUNDIR_DEATH);
                     //DoCastAOE(SPELL_SUPERCHARGE, true);
 

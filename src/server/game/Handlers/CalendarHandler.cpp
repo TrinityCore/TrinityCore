@@ -363,7 +363,7 @@ void WorldSession::HandleCalendarInvite(WorldPackets::Calendar::CalendarInvite& 
         return;
     }
 
-    if (QueryResult result = CharacterDatabase.PQuery("SELECT flags FROM character_social WHERE guid = %u AND friend = %u", inviteeGuid.GetCounter(), playerGuid.GetCounter()))
+    if (QueryResult result = CharacterDatabase.PQuery("SELECT flags FROM character_social WHERE guid = {} AND friend = {}", inviteeGuid.GetCounter(), playerGuid.GetCounter()))
     {
         Field* fields = result->Fetch();
         if (fields[0].GetUInt8() & SOCIAL_FLAG_IGNORED)
@@ -407,7 +407,7 @@ void WorldSession::HandleCalendarEventSignup(WorldPackets::Calendar::CalendarEve
 {
     ObjectGuid guid = _player->GetGUID();
 
-    TC_LOG_DEBUG("network", "CMSG_CALENDAR_EVENT_SIGNUP [%s] EventId [" UI64FMTD "] Tentative %u", guid.ToString().c_str(), calendarEventSignUp.EventID, calendarEventSignUp.Tentative);
+    TC_LOG_DEBUG("network", "CMSG_CALENDAR_EVENT_SIGNUP [{}] EventId [{}] Tentative {}", guid.ToString(), calendarEventSignUp.EventID, calendarEventSignUp.Tentative);
 
     if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(calendarEventSignUp.EventID))
     {
@@ -459,9 +459,8 @@ void WorldSession::HandleCalendarEventRemoveInvite(WorldPackets::Calendar::Calen
 {
     ObjectGuid guid = _player->GetGUID();
 
-    TC_LOG_DEBUG("network", "CMSG_CALENDAR_REMOVE_INVITE [%s] EventId [" UI64FMTD
-        "], ownerInviteId [" UI64FMTD "], Invitee ([%s] id: [" UI64FMTD "])",
-        guid.ToString().c_str(), calendarRemoveInvite.EventID, calendarRemoveInvite.ModeratorID, calendarRemoveInvite.Guid.ToString().c_str(), calendarRemoveInvite.InviteID);
+    TC_LOG_DEBUG("network", "CMSG_CALENDAR_REMOVE_INVITE [{}] EventId [{}], ownerInviteId [{}], Invitee ([{}] id: [{}])",
+        guid.ToString(), calendarRemoveInvite.EventID, calendarRemoveInvite.ModeratorID, calendarRemoveInvite.Guid.ToString(), calendarRemoveInvite.InviteID);
 
     if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(calendarRemoveInvite.EventID))
     {
@@ -481,9 +480,8 @@ void WorldSession::HandleCalendarStatus(WorldPackets::Calendar::CalendarStatus& 
 {
     ObjectGuid guid = _player->GetGUID();
 
-    TC_LOG_DEBUG("network", "CMSG_CALENDAR_STATUS [%s] EventId ["
-        UI64FMTD "] ownerInviteId [" UI64FMTD "], Invitee ([%s] id: ["
-        UI64FMTD "], status %u", guid.ToString().c_str(), calendarStatus.EventID, calendarStatus.ModeratorID, calendarStatus.Guid.ToString().c_str(), calendarStatus.InviteID, calendarStatus.Status);
+    TC_LOG_DEBUG("network", "CMSG_CALENDAR_STATUS [{}] EventId [{}] ownerInviteId [{}], Invitee ([{}] id: [{}], status {}",
+        guid.ToString(), calendarStatus.EventID, calendarStatus.ModeratorID, calendarStatus.Guid.ToString(), calendarStatus.InviteID, calendarStatus.Status);
 
     if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(calendarStatus.EventID))
     {
@@ -506,9 +504,9 @@ void WorldSession::HandleCalendarModeratorStatus(WorldPackets::Calendar::Calenda
 {
     ObjectGuid guid = _player->GetGUID();
 
-    TC_LOG_DEBUG("network", "CMSG_CALENDAR_MODERATOR_STATUS [%s] EventID ["
-        UI64FMTD "] ModeratorID [" UI64FMTD "], Invitee ([%s] InviteID: ["
-        UI64FMTD "], Status %u", guid.ToString().c_str(), calendarModeratorStatus.EventID, calendarModeratorStatus.ModeratorID, calendarModeratorStatus.Guid.ToString().c_str(), calendarModeratorStatus.InviteID, calendarModeratorStatus.Status);
+    TC_LOG_DEBUG("network", "CMSG_CALENDAR_MODERATOR_STATUS [{}] EventID [{}] ModeratorID [{}], Invitee ([{}] InviteID: [{}], Status {}",
+        guid.ToString(), calendarModeratorStatus.EventID, calendarModeratorStatus.ModeratorID, calendarModeratorStatus.Guid.ToString(), calendarModeratorStatus.InviteID,
+        calendarModeratorStatus.Status);
 
     if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(calendarModeratorStatus.EventID))
     {
@@ -528,9 +526,8 @@ void WorldSession::HandleCalendarModeratorStatus(WorldPackets::Calendar::Calenda
 void WorldSession::HandleCalendarComplain(WorldPackets::Calendar::CalendarComplain& calendarComplain)
 {
     ObjectGuid guid = _player->GetGUID();
-    TC_LOG_DEBUG("network", "CMSG_CALENDAR_COMPLAIN [%s] EventId ["
-        UI64FMTD "] guid [%s] InviteId [" UI64FMTD "]", guid.ToString().c_str(), calendarComplain.EventID,
-        calendarComplain.InvitedByGUID.ToString().c_str(), calendarComplain.InviteID);
+    TC_LOG_DEBUG("network", "CMSG_CALENDAR_COMPLAIN [{}] EventId [{}] guid [{}] InviteId [{}]", guid.ToString(), calendarComplain.EventID,
+        calendarComplain.InvitedByGUID.ToString(), calendarComplain.InviteID);
 
     // what to do with complains?
 }
@@ -540,14 +537,14 @@ void WorldSession::HandleCalendarGetNumPending(WorldPackets::Calendar::CalendarG
     ObjectGuid guid = _player->GetGUID();
     uint32 pending = sCalendarMgr->GetPlayerNumPending(guid);
 
-    TC_LOG_DEBUG("network", "CMSG_CALENDAR_GET_NUM_PENDING: [%s] Pending: %u", guid.ToString().c_str(), pending);
+    TC_LOG_DEBUG("network", "CMSG_CALENDAR_GET_NUM_PENDING: [{}] Pending: {}", guid.ToString(), pending);
 
     SendPacket(WorldPackets::Calendar::CalendarSendNumPending(pending).Write());
 }
 
 void WorldSession::HandleSetSavedInstanceExtend(WorldPackets::Calendar::SetSavedInstanceExtend& setSavedInstanceExtend)
 {
-    TC_LOG_DEBUG("network", "CMSG_SET_SAVED_INSTANCE_EXTEND - MapId: %u, Difficulty: %u, ToggleExtend: %s", setSavedInstanceExtend.MapID, setSavedInstanceExtend.DifficultyID, setSavedInstanceExtend.Extend ? "On" : "Off");
+    TC_LOG_DEBUG("network", "CMSG_SET_SAVED_INSTANCE_EXTEND - MapId: {}, Difficulty: {}, ToggleExtend: {}", setSavedInstanceExtend.MapID, setSavedInstanceExtend.DifficultyID, setSavedInstanceExtend.Extend ? "On" : "Off");
 
     // cannot modify locks currently in use
     if (_player->GetMapId() == uint32(setSavedInstanceExtend.MapID))

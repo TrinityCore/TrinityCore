@@ -202,7 +202,7 @@ void WorldSession::HandlePartyInviteResponseOpcode(WorldPackets::Party::PartyInv
 
         if (group->GetLeaderGUID() == GetPlayer()->GetGUID())
         {
-            TC_LOG_ERROR("network", "HandleGroupAcceptOpcode: player %s %s tried to accept an invite to his own group", GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().ToString().c_str());
+            TC_LOG_ERROR("network", "HandleGroupAcceptOpcode: player {} {} tried to accept an invite to his own group", GetPlayer()->GetName(), GetPlayer()->GetGUID().ToString());
             return;
         }
 
@@ -260,8 +260,8 @@ void WorldSession::HandlePartyUninviteOpcode(WorldPackets::Party::PartyUninvite&
     // can't uninvite yourself
     if (packet.TargetGUID == GetPlayer()->GetGUID())
     {
-        TC_LOG_ERROR("network", "WorldSession::HandleGroupUninviteGuidOpcode: leader %s %s tried to uninvite himself from the group.",
-            GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().ToString().c_str());
+        TC_LOG_ERROR("network", "WorldSession::HandleGroupUninviteGuidOpcode: leader {} {} tried to uninvite himself from the group.",
+            GetPlayer()->GetName(), GetPlayer()->GetGUID().ToString());
         return;
     }
 
@@ -360,13 +360,14 @@ void WorldSession::HandleLeaveGroupOpcode(WorldPackets::Party::LeaveGroup& /*pac
     }
 }
 
-void WorldSession::HandleSetLootMethodOpcode(WorldPackets::Party::SetLootMethod& packet)
+void WorldSession::HandleSetLootMethodOpcode(WorldPackets::Party::SetLootMethod& /*packet*/)
 {
+    // not allowed to change
+    /*
     Group* group = GetPlayer()->GetGroup();
     if (!group)
         return;
 
-    /** error handling **/
     if (!group->IsLeader(GetPlayer()->GetGUID()))
         return;
 
@@ -389,13 +390,13 @@ void WorldSession::HandleSetLootMethodOpcode(WorldPackets::Party::SetLootMethod&
 
     if (packet.LootMethod == MASTER_LOOT && !group->IsMember(packet.LootMasterGUID))
         return;
-    /********************/
 
     // everything's fine, do it
     group->SetLootMethod(static_cast<LootMethod>(packet.LootMethod));
     group->SetMasterLooterGuid(packet.LootMasterGUID);
     group->SetLootThreshold(static_cast<ItemQualities>(packet.LootThreshold));
     group->SendUpdate();
+    */
 }
 
 void WorldSession::HandleMinimapPingOpcode(WorldPackets::Party::MinimapPingClient& packet)

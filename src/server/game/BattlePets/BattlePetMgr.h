@@ -39,7 +39,6 @@ enum BattlePetMisc
 };
 
 static constexpr uint16 MAX_BATTLE_PET_LEVEL = 25;
-static constexpr Milliseconds REVIVE_BATTLE_PETS_COOLDOWN = 180s;
 
 enum class BattlePetBreedQuality : uint8
 {
