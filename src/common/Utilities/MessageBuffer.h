@@ -41,7 +41,7 @@ public:
     {
     }
 
-    MessageBuffer(MessageBuffer&& right) : _wpos(right._wpos), _rpos(right._rpos), _storage(right.Move()) { }
+    MessageBuffer(MessageBuffer&& right) noexcept : _wpos(right._wpos), _rpos(right._rpos), _storage(right.Move()) { }
 
     void Reset()
     {
@@ -118,7 +118,7 @@ public:
         return *this;
     }
 
-    MessageBuffer& operator=(MessageBuffer&& right)
+    MessageBuffer& operator=(MessageBuffer&& right) noexcept
     {
         if (this != &right)
         {

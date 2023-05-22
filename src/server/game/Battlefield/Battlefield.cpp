@@ -56,7 +56,6 @@ Battlefield::Battlefield(Map* map)
 
     m_uiKickAfkPlayersTimer = 1000;
 
-    m_LastResurrectTimer = 30 * IN_MILLISECONDS;
     m_StartGroupingTimer = 0;
     m_StartGrouping = false;
 }
@@ -122,7 +121,6 @@ void Battlefield::HandlePlayerLeaveZone(Player* player, uint32 /*zone*/)
     m_PlayersWillBeKick[player->GetTeamId()].erase(player->GetGUID());
     m_players[player->GetTeamId()].erase(player->GetGUID());
     SendRemoveWorldStates(player);
-    RemovePlayerFromResurrectQueue(player->GetGUID());
     OnPlayerLeaveZone(player);
 }
 
@@ -182,16 +180,6 @@ bool Battlefield::Update(uint32 diff)
             if (itr->second->Update(diff))
                 objective_changed = true;
     }
-
-    if (m_LastResurrectTimer <= diff)
-    {
-        for (uint8 i = 0; i < m_GraveyardList.size(); i++)
-            if (GetGraveyardById(i))
-                m_GraveyardList[i]->Resurrect();
-        m_LastResurrectTimer = RESURRECTION_INTERVAL;
-    }
-    else
-        m_LastResurrectTimer -= diff;
 
     return objective_changed;
 }
@@ -294,7 +282,7 @@ void Battlefield::InitStalker(uint32 entry, Position const& pos)
     if (Creature* creature = SpawnCreature(entry, pos))
         StalkerGuid = creature->GetGUID();
     else
-        TC_LOG_ERROR("bg.battlefield", "Battlefield::InitStalker: Could not spawn Stalker (Creature entry %u), zone messages will be unavailable!", entry);
+        TC_LOG_ERROR("bg.battlefield", "Battlefield::InitStalker: Could not spawn Stalker (Creature entry {}), zone messages will be unavailable!", entry);
 }
 
 void Battlefield::KickAfkPlayers()
@@ -361,7 +349,7 @@ bool Battlefield::HasPlayer(Player* player) const
     return m_players[player->GetTeamId()].find(player->GetGUID()) != m_players[player->GetTeamId()].end();
 }
 
-// Called in WorldSession::HandleBfQueueInviteResponse
+// Called in Battlefield::InvitePlayerToQueue
 void Battlefield::PlayerAcceptInviteToQueue(Player* player)
 {
     // Add player in queue
@@ -383,7 +371,7 @@ void Battlefield::PlayerAskToLeave(Player* player)
     player->TeleportTo(571, 5804.1499f, 624.7710f, 647.7670f, 1.6400f);
 }
 
-// Called in WorldSession::HandleBfEntryInviteResponse
+// Called in Battlefield::InvitePlayerToWar
 void Battlefield::PlayerAcceptInviteToWar(Player* player)
 {
     if (!IsWarTime())
@@ -452,7 +440,7 @@ void Battlefield::AddCapturePoint(BfCapturePoint* cp)
     Battlefield::BfCapturePointMap::iterator i = m_capturePoints.find(cp->GetCapturePointEntry());
     if (i != m_capturePoints.end())
     {
-        TC_LOG_ERROR("bg.battlefield", "Battlefield::AddCapturePoint: CapturePoint %u already exists!", cp->GetCapturePointEntry());
+        TC_LOG_ERROR("bg.battlefield", "Battlefield::AddCapturePoint: CapturePoint {} already exists!", cp->GetCapturePointEntry());
         delete i->second;
     }
     m_capturePoints[cp->GetCapturePointEntry()] = cp;
@@ -562,10 +550,10 @@ BfGraveyard* Battlefield::GetGraveyardById(uint32 id) const
         if (BfGraveyard* graveyard = m_GraveyardList.at(id))
             return graveyard;
         else
-            TC_LOG_ERROR("bg.battlefield", "Battlefield::GetGraveyardById Id:%u does not exist.", id);
+            TC_LOG_ERROR("bg.battlefield", "Battlefield::GetGraveyardById Id:{} does not exist.", id);
     }
     else
-        TC_LOG_ERROR("bg.battlefield", "Battlefield::GetGraveyardById Id:%u could not be found.", id);
+        TC_LOG_ERROR("bg.battlefield", "Battlefield::GetGraveyardById Id:{} could not be found.", id);
 
     return nullptr;
 }
@@ -594,44 +582,6 @@ WorldSafeLocsEntry const* Battlefield::GetClosestGraveyard(Player* player)
         return sObjectMgr->GetWorldSafeLoc(closestGY->GetGraveyardId());
 
     return nullptr;
-}
-
-void Battlefield::AddPlayerToResurrectQueue(ObjectGuid npcGuid, ObjectGuid playerGuid)
-{
-    for (uint8 i = 0; i < m_GraveyardList.size(); i++)
-    {
-        if (!m_GraveyardList[i])
-            continue;
-
-        if (m_GraveyardList[i]->HasNpc(npcGuid))
-        {
-            m_GraveyardList[i]->AddPlayer(playerGuid);
-            break;
-        }
-    }
-}
-
-void Battlefield::RemovePlayerFromResurrectQueue(ObjectGuid playerGuid)
-{
-    for (uint8 i = 0; i < m_GraveyardList.size(); i++)
-    {
-        if (!m_GraveyardList[i])
-            continue;
-
-        if (m_GraveyardList[i]->HasPlayer(playerGuid))
-        {
-            m_GraveyardList[i]->RemovePlayer(playerGuid);
-            break;
-        }
-    }
-}
-
-void Battlefield::SendAreaSpiritHealerQueryOpcode(Player* player, ObjectGuid const& guid)
-{
-    WorldPackets::Battleground::AreaSpiritHealerTime areaSpiritHealerTime;
-    areaSpiritHealerTime.HealerGuid = guid;
-    areaSpiritHealerTime.TimeLeft = m_LastResurrectTimer;
-    player->SendDirectMessage(areaSpiritHealerTime.Write());
 }
 
 // ----------------------
@@ -668,54 +618,6 @@ float BfGraveyard::GetDistance(Player* player)
     return player->GetDistance2d(safeLoc->Loc.GetPositionX(), safeLoc->Loc.GetPositionY());
 }
 
-void BfGraveyard::AddPlayer(ObjectGuid playerGuid)
-{
-    if (!m_ResurrectQueue.count(playerGuid))
-    {
-        m_ResurrectQueue.insert(playerGuid);
-
-        if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
-            player->CastSpell(player, SPELL_WAITING_FOR_RESURRECT, true);
-    }
-}
-
-void BfGraveyard::RemovePlayer(ObjectGuid playerGuid)
-{
-    m_ResurrectQueue.erase(m_ResurrectQueue.find(playerGuid));
-
-    if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
-        player->RemoveAurasDueToSpell(SPELL_WAITING_FOR_RESURRECT);
-}
-
-void BfGraveyard::Resurrect()
-{
-    if (m_ResurrectQueue.empty())
-        return;
-
-    for (GuidSet::const_iterator itr = m_ResurrectQueue.begin(); itr != m_ResurrectQueue.end(); ++itr)
-    {
-        // Get player object from his guid
-        Player* player = ObjectAccessor::FindPlayer(*itr);
-        if (!player)
-            continue;
-
-        // Check if the player is in world and on the good graveyard
-        if (player->IsInWorld())
-            if (Creature* spirit = m_Bf->GetCreature(m_SpiritGuide[m_ControlTeam]))
-                spirit->CastSpell(spirit, SPELL_SPIRIT_HEAL, true);
-
-        // Resurrect player
-        player->CastSpell(player, SPELL_RESURRECTION_VISUAL, true);
-        player->ResurrectPlayer(1.0f);
-        player->CastSpell(player, 6962, true);
-        player->CastSpell(player, SPELL_SPIRIT_HEAL_MANA, true);
-
-        player->SpawnCorpseBones(false);
-    }
-
-    m_ResurrectQueue.clear();
-}
-
 // For changing graveyard control
 void BfGraveyard::GiveControlTo(TeamId team)
 {
@@ -726,29 +628,10 @@ void BfGraveyard::GiveControlTo(TeamId team)
     if (m_SpiritGuide[team])
         m_SpiritGuide[team]->SetVisible(true);*/
 
+    if (Creature* spiritHealer = m_Bf->GetCreature(m_SpiritGuide[team]))
+        spiritHealer->SummonGraveyardTeleporter();
+
     m_ControlTeam = team;
-    // Teleport to other graveyard, player witch were on this graveyard
-    RelocateDeadPlayers();
-}
-
-void BfGraveyard::RelocateDeadPlayers()
-{
-    WorldSafeLocsEntry const* closestGrave = nullptr;
-    for (GuidSet::const_iterator itr = m_ResurrectQueue.begin(); itr != m_ResurrectQueue.end(); ++itr)
-    {
-        Player* player = ObjectAccessor::FindPlayer(*itr);
-        if (!player)
-            continue;
-
-        if (closestGrave)
-            player->TeleportTo(closestGrave->Loc);
-        else
-        {
-            closestGrave = m_Bf->GetClosestGraveyard(player);
-            if (closestGrave)
-                player->TeleportTo(closestGrave->Loc);
-        }
-    }
 }
 
 bool BfGraveyard::HasNpc(ObjectGuid guid)
@@ -773,14 +656,14 @@ Creature* Battlefield::SpawnCreature(uint32 entry, Position const& pos)
 {
     if (!sObjectMgr->GetCreatureTemplate(entry))
     {
-        TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnCreature: entry %u does not exist.", entry);
+        TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnCreature: entry {} does not exist.", entry);
         return nullptr;
     }
 
     Creature* creature = Creature::CreateCreature(entry, m_Map, pos);
     if (!creature)
     {
-        TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnCreature: Can't create creature entry: %u", entry);
+        TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnCreature: Can't create creature entry: {}", entry);
         return nullptr;
     }
 
@@ -799,7 +682,7 @@ GameObject* Battlefield::SpawnGameObject(uint32 entry, Position const& pos, Quat
 {
     if (!sObjectMgr->GetGameObjectTemplate(entry))
     {
-        TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnGameObject: GameObject template %u not found in database! Battlefield not created!", entry);
+        TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnGameObject: GameObject template {} not found in database! Battlefield not created!", entry);
         return nullptr;
     }
 
@@ -807,7 +690,7 @@ GameObject* Battlefield::SpawnGameObject(uint32 entry, Position const& pos, Quat
     GameObject* go = GameObject::CreateGameObject(entry, m_Map, pos, rot, 255, GO_STATE_READY);
     if (!go)
     {
-        TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnGameObject: Could not create gameobject template %u! Battlefield has not been created!", entry);
+        TC_LOG_ERROR("bg.battlefield", "Battlefield::SpawnGameObject: Could not create gameobject template {}! Battlefield has not been created!", entry);
         return nullptr;
     }
 
@@ -900,7 +783,7 @@ bool BfCapturePoint::SetCapturePointData(GameObject* capturePoint)
 {
     ASSERT(capturePoint);
 
-    TC_LOG_DEBUG("bg.battlefield", "Creating capture point %u", capturePoint->GetEntry());
+    TC_LOG_DEBUG("bg.battlefield", "Creating capture point {}", capturePoint->GetEntry());
 
     m_capturePointGUID = capturePoint->GetGUID();
     m_capturePointEntry = capturePoint->GetEntry();
@@ -909,7 +792,7 @@ bool BfCapturePoint::SetCapturePointData(GameObject* capturePoint)
     GameObjectTemplate const* goinfo = capturePoint->GetGOInfo();
     if (goinfo->type != GAMEOBJECT_TYPE_CONTROL_ZONE)
     {
-        TC_LOG_ERROR("misc", "OutdoorPvP: GO %u is not a capture point!", capturePoint->GetEntry());
+        TC_LOG_ERROR("misc", "OutdoorPvP: GO {} is not a capture point!", capturePoint->GetEntry());
         return false;
     }
 
@@ -991,7 +874,7 @@ bool BfCapturePoint::Update(uint32 diff)
     }
 
     // get the difference of numbers
-    float fact_diff = ((float) m_activePlayers[TEAM_ALLIANCE].size() - (float) m_activePlayers[TEAM_HORDE].size()) * diff / BATTLEFIELD_OBJECTIVE_UPDATE_INTERVAL;
+    float fact_diff = ((float) m_activePlayers[TEAM_ALLIANCE].size() - (float) m_activePlayers[TEAM_HORDE].size()) * diff / float(BATTLEFIELD_OBJECTIVE_UPDATE_INTERVAL);
     if (G3D::fuzzyEq(fact_diff, 0.0f))
         return false;
 
@@ -1067,7 +950,7 @@ bool BfCapturePoint::Update(uint32 diff)
 
     if (m_OldState != m_State)
     {
-        //TC_LOG_ERROR("bg.battlefield", "%u->%u", m_OldState, m_State);
+        //TC_LOG_ERROR("bg.battlefield", "{}->{}", m_OldState, m_State);
         if (oldTeam != m_team)
             ChangeTeam(oldTeam);
         return true;

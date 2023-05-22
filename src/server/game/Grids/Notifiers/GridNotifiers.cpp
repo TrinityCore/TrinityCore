@@ -96,8 +96,8 @@ void VisibleChangesNotifier::Visit(PlayerMapType &m)
 
         for (SharedVisionList::const_iterator i = iter->GetSource()->GetSharedVisionList().begin();
             i != iter->GetSource()->GetSharedVisionList().end(); ++i)
-                if ((*i)->m_seer == iter->GetSource())
-                    (*i)->UpdateVisibilityOf(i_objects);
+            if ((*i)->m_seer == iter->GetSource())
+                (*i)->UpdateVisibilityOf(i_objects);
     }
 }
 

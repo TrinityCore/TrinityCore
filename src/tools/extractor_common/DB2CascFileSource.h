@@ -20,11 +20,18 @@
 
 #include "DB2FileLoader.h"
 #include "CascHandles.h"
+#include <memory>
 #include <string>
 
 struct DB2CascFileSource : public DB2FileSource
 {
     DB2CascFileSource(std::shared_ptr<CASC::Storage const> storage, uint32 fileDataId, bool printErrors = true);
+    DB2CascFileSource(DB2CascFileSource const& other) = delete;
+    DB2CascFileSource(DB2CascFileSource&& other) noexcept = delete;
+    DB2CascFileSource& operator=(DB2CascFileSource const& other) = delete;
+    DB2CascFileSource& operator=(DB2CascFileSource&& other) noexcept = delete;
+    ~DB2CascFileSource();
+
     bool IsOpen() const override;
     bool Read(void* buffer, std::size_t numBytes) override;
     int64 GetPosition() const override;

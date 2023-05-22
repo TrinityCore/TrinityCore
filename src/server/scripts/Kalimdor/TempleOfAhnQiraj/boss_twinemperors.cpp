@@ -56,11 +56,12 @@ enum Sound
 
 enum Misc
 {
-    PULL_RANGE                    = 50,
     ABUSE_BUG_RANGE               = 20,
     VEKLOR_DIST                   = 20,                      // VL will not come to melee when attacking
     TELEPORTTIME                  = 30000
 };
+
+static constexpr float PULL_RANGE = 50.0f;
 
 struct boss_twinemperorsAI : public BossAI
 {

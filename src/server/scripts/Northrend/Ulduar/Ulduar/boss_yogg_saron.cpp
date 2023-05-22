@@ -540,7 +540,7 @@ class boss_voice_of_yogg_saron : public CreatureScript
                     return;
 
                 if (!me->GetCombatManager().HasPvECombatWithPlayers())
-                    EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+                    EnterEvadeMode(EvadeReason::NoHostiles);
 
                 events.Update(diff);
                 // don't summon tentacles when illusion is shattered, delay them

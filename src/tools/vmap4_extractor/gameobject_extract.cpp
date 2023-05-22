@@ -113,7 +113,7 @@ void ExtractGameobjectModels()
         if (!fileId)
             continue;
 
-        std::string fileName = Trinity::StringFormat("FILE%08X.xxx", fileId);
+        std::string fileName = Trinity::StringFormat("FILE{:08X}.xxx", fileId);
         bool result = false;
         uint32 header;
         if (!GetHeaderMagic(fileName, &header))

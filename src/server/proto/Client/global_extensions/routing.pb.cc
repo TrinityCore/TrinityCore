@@ -4,7 +4,6 @@
 #define INTERNAL_SUPPRESS_PROTOBUF_FIELD_DEPRECATION
 #include "global_extensions/routing.pb.h"
 
-#include <algorithm>
 #include <utility>
 
 #include <google/protobuf/stubs/common.h>
@@ -15,7 +14,6 @@
 #include <google/protobuf/generated_message_reflection.h>
 #include <google/protobuf/reflection_ops.h>
 #include <google/protobuf/wire_format.h>
-#include "Log.h"
 // @@protoc_insertion_point(includes)
 
 namespace bgs {
@@ -66,7 +64,7 @@ void protobuf_AddDesc_global_5fextensions_2frouting_2eproto() {
     "LIENT_IDENTITY_ROUTING_BATTLE_NET_ACCOUN"
     "T\020\001\022(\n$CLIENT_IDENTITY_ROUTING_GAME_ACCO"
     "UNT\020\002\022\'\n#CLIENT_IDENTITY_ROUTING_INSTANC"
-    "E_ID\020\003B\002H\001", 250);
+    "E_ID\020\003B\002H\002", 250);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "global_extensions/routing.proto", &protobuf_RegisterTypes);
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_global_5fextensions_2frouting_2eproto);

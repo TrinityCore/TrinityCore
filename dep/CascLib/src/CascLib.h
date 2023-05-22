@@ -1,7 +1,7 @@
 /*****************************************************************************/
-/* CascLib.h                              Copyright (c) Ladislav Zezula 2014 */
+/* CascLib.h                              Copyright (c) Ladislav Zezula 2022 */
 /*---------------------------------------------------------------------------*/
-/* CascLib library v 1.00                                                    */
+/* CascLib library v 3.0                                                     */
 /*                                                                           */
 /* Author : Ladislav Zezula                                                  */
 /* E-mail : ladik@zezula.net                                                 */
@@ -10,13 +10,14 @@
 /*   Date    Ver   Who  Comment                                              */
 /* --------  ----  ---  -------                                              */
 /* 29.04.14  1.00  Lad  Created                                              */
+/* 19.12.22  1.00  Lad  Version 3.0                                          */
 /*****************************************************************************/
 
 #ifndef __CASCLIB_H__
 #define __CASCLIB_H__
 
 #ifdef _MSC_VER
-#pragma warning(disable:4668)                   // 'XXX' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'
+#pragma warning(disable:4668)       // 'XXX' is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'
 #pragma warning(disable:4820)       // 'XXX' : '2' bytes padding added after data member 'XXX::yyy'
 #endif
 
@@ -74,8 +75,8 @@ extern "C" {
 //-----------------------------------------------------------------------------
 // Defines
 
-#define CASCLIB_VERSION                 0x0210  // CascLib version - integral (2.1)
-#define CASCLIB_VERSION_STRING           "2.1"  // CascLib version - string
+#define CASCLIB_VERSION                 0x0300  // CascLib version - integral (3.0)
+#define CASCLIB_VERSION_STRING           "3.0"  // CascLib version - string
 
 // Values for CascOpenFile
 #define CASC_OPEN_BY_NAME           0x00000000  // Open the file by name. This is the default value
@@ -122,13 +123,14 @@ extern "C" {
 #define MD5_STRING_SIZE                   0x20
 #endif
 
-// Return value for CascGetFileSize and CascSetFilePointer
+// Invalid values of all kind
 #define CASC_INVALID_INDEX          0xFFFFFFFF
 #define CASC_INVALID_SIZE           0xFFFFFFFF
 #define CASC_INVALID_POS            0xFFFFFFFF
 #define CASC_INVALID_ID             0xFFFFFFFF
 #define CASC_INVALID_OFFS64         0xFFFFFFFFFFFFFFFF
 #define CASC_INVALID_SIZE64         0xFFFFFFFFFFFFFFFF
+#define CASC_INVALID_SIZE_T         ((size_t)(-1))
 
 // Flags for CASC_STORAGE_FEATURES::dwFeatures
 #define CASC_FEATURE_FILE_NAMES     0x00000001  // File names are supported by the storage
@@ -139,7 +141,10 @@ extern "C" {
 #define CASC_FEATURE_FILE_DATA_IDS  0x00000020  // The storage indexes files by FileDataId
 #define CASC_FEATURE_LOCALE_FLAGS   0x00000040  // Locale flags are supported
 #define CASC_FEATURE_CONTENT_FLAGS  0x00000080  // Content flags are supported
-#define CASC_FEATURE_ONLINE         0x00000100  // The storage is an online storage
+#define CASC_FEATURE_DATA_ARCHIVES  0x00000100  // The storage supports files stored in data.### archives
+#define CASC_FEATURE_DATA_FILES     0x00000200  // The storage supports raw files stored in %CascRoot%\xx\yy\xxyy## (CKey-based)
+#define CASC_FEATURE_ONLINE         0x00000400  // Load the missing files from online CDNs
+#define CASC_FEATURE_FORCE_DOWNLOAD 0x00001000  // (Online) always download "versions" and "cdns" even if it exists locally
 
 // Macro to convert FileDataId to the argument of CascOpenFile
 #define CASC_FILE_DATA_ID(FileDataId) ((LPCSTR)(size_t)FileDataId)
@@ -329,7 +334,7 @@ typedef struct _CASC_OPEN_STORAGE_ARGS
     void * PtrProductParam;                     // Pointer-sized parameter that will be passed to PfnProgressCallback
 
     DWORD dwLocaleMask;                         // Locale mask to open
-    DWORD dwFlags;                              // Reserved. Set to zero.
+    DWORD dwFlags;                              // Additional CASC_FEATURE_XXX can be set here
 
     //
     // Any additional member from here on must be checked for availability using the ExtractVersionedArgument function.
@@ -341,31 +346,34 @@ typedef struct _CASC_OPEN_STORAGE_ARGS
 
     LPCTSTR szBuildKey;                         // If non-null, this will specify a build key (aka MD5 of build config that is different that current online version)
 
+    LPCTSTR szCdnHostUrl;                       // If non-null, specifies the custom CDN URL. Must contain protocol, can contain port number
+                                                // Example: http://eu.custom-wow-cdn.com:8000
+
 } CASC_OPEN_STORAGE_ARGS, *PCASC_OPEN_STORAGE_ARGS;
 
 //-----------------------------------------------------------------------------
 // Functions for storage manipulation
 
-bool  WINAPI CascOpenStorageEx(LPCTSTR szParams, PCASC_OPEN_STORAGE_ARGS pArgs, bool bOnlineStorage, HANDLE * phStorage);
-bool  WINAPI CascOpenStorage(LPCTSTR szParams, DWORD dwLocaleMask, HANDLE * phStorage);
-bool  WINAPI CascOpenOnlineStorage(LPCTSTR szParams, DWORD dwLocaleMask, HANDLE * phStorage);
-bool  WINAPI CascGetStorageInfo(HANDLE hStorage, CASC_STORAGE_INFO_CLASS InfoClass, void * pvStorageInfo, size_t cbStorageInfo, size_t * pcbLengthNeeded);
-bool  WINAPI CascCloseStorage(HANDLE hStorage);
+bool   WINAPI CascOpenStorageEx(LPCTSTR szParams, PCASC_OPEN_STORAGE_ARGS pArgs, bool bOnlineStorage, HANDLE * phStorage);
+bool   WINAPI CascOpenStorage(LPCTSTR szParams, DWORD dwLocaleMask, HANDLE * phStorage);
+bool   WINAPI CascOpenOnlineStorage(LPCTSTR szParams, DWORD dwLocaleMask, HANDLE * phStorage);
+bool   WINAPI CascGetStorageInfo(HANDLE hStorage, CASC_STORAGE_INFO_CLASS InfoClass, void * pvStorageInfo, size_t cbStorageInfo, size_t * pcbLengthNeeded);
+bool   WINAPI CascCloseStorage(HANDLE hStorage);
 
-bool  WINAPI CascOpenFile(HANDLE hStorage, const void * pvFileName, DWORD dwLocaleFlags, DWORD dwOpenFlags, HANDLE * PtrFileHandle);
-bool  WINAPI CascOpenLocalFile(LPCTSTR szFileName, DWORD dwOpenFlags, HANDLE * PtrFileHandle);
-bool  WINAPI CascGetFileInfo(HANDLE hFile, CASC_FILE_INFO_CLASS InfoClass, void * pvFileInfo, size_t cbFileInfo, size_t * pcbLengthNeeded);
-bool  WINAPI CascGetFileSize64(HANDLE hFile, PULONGLONG PtrFileSize);
-bool  WINAPI CascSetFilePointer64(HANDLE hFile, LONGLONG DistanceToMove, PULONGLONG PtrNewPos, DWORD dwMoveMethod);
-bool  WINAPI CascReadFile(HANDLE hFile, void * lpBuffer, DWORD dwToRead, PDWORD pdwRead);
-bool  WINAPI CascCloseFile(HANDLE hFile);
+bool   WINAPI CascOpenFile(HANDLE hStorage, const void * pvFileName, DWORD dwLocaleFlags, DWORD dwOpenFlags, HANDLE * PtrFileHandle);
+bool   WINAPI CascOpenLocalFile(LPCTSTR szFileName, DWORD dwOpenFlags, HANDLE * PtrFileHandle);
+bool   WINAPI CascGetFileInfo(HANDLE hFile, CASC_FILE_INFO_CLASS InfoClass, void * pvFileInfo, size_t cbFileInfo, size_t * pcbLengthNeeded);
+bool   WINAPI CascGetFileSize64(HANDLE hFile, PULONGLONG PtrFileSize);
+bool   WINAPI CascSetFilePointer64(HANDLE hFile, LONGLONG DistanceToMove, PULONGLONG PtrNewPos, DWORD dwMoveMethod);
+bool   WINAPI CascReadFile(HANDLE hFile, void * lpBuffer, DWORD dwToRead, PDWORD pdwRead);
+bool   WINAPI CascCloseFile(HANDLE hFile);
 
-DWORD WINAPI CascGetFileSize(HANDLE hFile, PDWORD pdwFileSizeHigh);
-DWORD WINAPI CascSetFilePointer(HANDLE hFile, LONG lFilePos, LONG * PtrFilePosHigh, DWORD dwMoveMethod);
+DWORD  WINAPI CascGetFileSize(HANDLE hFile, PDWORD pdwFileSizeHigh);
+DWORD  WINAPI CascSetFilePointer(HANDLE hFile, LONG lFilePos, LONG * PtrFilePosHigh, DWORD dwMoveMethod);
 
 HANDLE WINAPI CascFindFirstFile(HANDLE hStorage, LPCSTR szMask, PCASC_FIND_DATA pFindData, LPCTSTR szListFile);
-bool  WINAPI CascFindNextFile(HANDLE hFind, PCASC_FIND_DATA pFindData);
-bool  WINAPI CascFindClose(HANDLE hFind);
+bool   WINAPI CascFindNextFile(HANDLE hFind, PCASC_FIND_DATA pFindData);
+bool   WINAPI CascFindClose(HANDLE hFind);
 
 bool   WINAPI CascAddEncryptionKey(HANDLE hStorage, ULONGLONG KeyName, LPBYTE Key);
 bool   WINAPI CascAddStringEncryptionKey(HANDLE hStorage, ULONGLONG KeyName, LPCSTR szKey);
@@ -373,6 +381,13 @@ bool   WINAPI CascImportKeysFromString(HANDLE hStorage, LPCSTR szKeyList);
 bool   WINAPI CascImportKeysFromFile(HANDLE hStorage, LPCTSTR szFileName);
 LPBYTE WINAPI CascFindEncryptionKey(HANDLE hStorage, ULONGLONG KeyName);
 bool   WINAPI CascGetNotFoundEncryptionKey(HANDLE hStorage, ULONGLONG * KeyName);
+
+//-----------------------------------------------------------------------------
+// CDN Support
+
+LPCTSTR WINAPI CascCdnGetDefault();
+LPBYTE  WINAPI CascCdnDownload(LPCTSTR szCdnHostUrl, LPCTSTR szProduct, LPCTSTR szFileName, DWORD * PtrSize);
+void    WINAPI CascCdnFree(void * buffer);
 
 //-----------------------------------------------------------------------------
 // Error code support

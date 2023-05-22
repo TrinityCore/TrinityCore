@@ -56,7 +56,8 @@ enum RollType
     ROLL_NEED         = 1,
     ROLL_GREED        = 2,
     ROLL_DISENCHANT   = 3,
-    MAX_ROLL_TYPE     = 4
+    ROLL_TRANSMOG     = 4,
+    MAX_ROLL_TYPE     = 5
 };
 
 enum class RollVote
@@ -75,6 +76,7 @@ enum RollMask
     ROLL_FLAG_TYPE_NEED         = 0x02,
     ROLL_FLAG_TYPE_GREED        = 0x04,
     ROLL_FLAG_TYPE_DISENCHANT   = 0x08,
+    ROLL_FLAG_TYPE_TRANSMOG     = 0x10,
 
     ROLL_ALL_TYPE_NO_DISENCHANT = 0x07,
     ROLL_ALL_TYPE_MASK          = 0x0F
@@ -157,6 +159,17 @@ enum LootSlotType
     LOOT_SLOT_TYPE_MASTER       = 3,                        // item can only be distributed by group loot master.
     LOOT_SLOT_TYPE_LOCKED       = 2,                        // item is shown in red. player cannot loot.
     LOOT_SLOT_TYPE_OWNER        = 4                         // ignore binding confirmation and etc, for single player looting
+};
+
+enum class LootRollIneligibilityReason : uint32
+{
+    None                    = 0,
+    UnusableByClass         = 1, // Your class may not roll need on this item.
+    MaxUniqueItemCount      = 2, // You already have the maximum amount of this item.
+    CannotBeDisenchanted    = 3, // This item may not be disenchanted.
+    EnchantingSkillTooLow   = 4, // You do not have an Enchanter of skill %d in your group.
+    NeedDisabled            = 5, // Need rolls are disabled for this item.
+    OwnBetterItem           = 6  // You already have a powerful version of this item.
 };
 
 struct TC_GAME_API LootItem

@@ -18,6 +18,7 @@
 #ifndef TRINITYSERVER_MOVESPLINEINIT_ARGS_H
 #define TRINITYSERVER_MOVESPLINEINIT_ARGS_H
 
+#include "Duration.h"
 #include "MoveSplineFlag.h"
 #include "MovementTypedefs.h"
 #include "ObjectGuid.h"
@@ -62,7 +63,7 @@ namespace Movement
     struct MoveSplineInitArgs
     {
         explicit MoveSplineInitArgs(size_t path_capacity = 16);
-        MoveSplineInitArgs(MoveSplineInitArgs&& args);
+        MoveSplineInitArgs(MoveSplineInitArgs&& args) noexcept;
         ~MoveSplineInitArgs();
 
         PointsArray path;
@@ -72,7 +73,8 @@ namespace Movement
         float velocity;
         float parabolic_amplitude;
         float vertical_acceleration;
-        float time_perc;
+        float effect_start_time_percent; // fraction of total spline duration
+        Milliseconds effect_start_time;  // absolute value
         uint32 splineId;
         float initialOrientation;
         Optional<SpellEffectExtraData> spellEffectExtra;

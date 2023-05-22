@@ -359,21 +359,21 @@ void GarrisonMgr::LoadPlotFinalizeGOInfo()
 
         if (!sGarrPlotInstanceStore.LookupEntry(garrPlotInstanceId))
         {
-            TC_LOG_ERROR("sql.sql", "Non-existing GarrPlotInstance.db2 entry %u was referenced in `garrison_plot_finalize_info`.", garrPlotInstanceId);
+            TC_LOG_ERROR("sql.sql", "Non-existing GarrPlotInstance.db2 entry {} was referenced in `garrison_plot_finalize_info`.", garrPlotInstanceId);
             continue;
         }
 
         GameObjectTemplate const* goTemplate = sObjectMgr->GetGameObjectTemplate(hordeGameObjectId);
         if (!goTemplate)
         {
-            TC_LOG_ERROR("sql.sql", "Non-existing gameobject_template entry %u was referenced in `garrison_plot_finalize_info`.`hordeGameObjectId` for garrPlotInstanceId %u.",
+            TC_LOG_ERROR("sql.sql", "Non-existing gameobject_template entry {} was referenced in `garrison_plot_finalize_info`.`hordeGameObjectId` for garrPlotInstanceId {}.",
                 hordeGameObjectId, garrPlotInstanceId);
             continue;
         }
 
         if (goTemplate->type != GAMEOBJECT_TYPE_GOOBER)
         {
-            TC_LOG_ERROR("sql.sql", "Invalid gameobject type %u (entry %u) was referenced in `garrison_plot_finalize_info`.`hordeGameObjectId` for garrPlotInstanceId %u.",
+            TC_LOG_ERROR("sql.sql", "Invalid gameobject type {} (entry {}) was referenced in `garrison_plot_finalize_info`.`hordeGameObjectId` for garrPlotInstanceId {}.",
                 goTemplate->type, hordeGameObjectId, garrPlotInstanceId);
             continue;
         }
@@ -381,28 +381,28 @@ void GarrisonMgr::LoadPlotFinalizeGOInfo()
         goTemplate = sObjectMgr->GetGameObjectTemplate(allianceGameObjectId);
         if (!goTemplate)
         {
-            TC_LOG_ERROR("sql.sql", "Non-existing gameobject_template entry %u was referenced in `garrison_plot_finalize_info`.`allianceGameObjectId` for garrPlotInstanceId %u.",
+            TC_LOG_ERROR("sql.sql", "Non-existing gameobject_template entry {} was referenced in `garrison_plot_finalize_info`.`allianceGameObjectId` for garrPlotInstanceId {}.",
                 allianceGameObjectId, garrPlotInstanceId);
             continue;
         }
 
         if (goTemplate->type != GAMEOBJECT_TYPE_GOOBER)
         {
-            TC_LOG_ERROR("sql.sql", "Invalid gameobject type %u (entry %u) was referenced in `garrison_plot_finalize_info`.`allianceGameObjectId` for garrPlotInstanceId %u.",
+            TC_LOG_ERROR("sql.sql", "Invalid gameobject type {} (entry {}) was referenced in `garrison_plot_finalize_info`.`allianceGameObjectId` for garrPlotInstanceId {}.",
                 goTemplate->type, allianceGameObjectId, garrPlotInstanceId);
             continue;
         }
 
         if (hordeAnimKitId && !sAnimKitStore.LookupEntry(hordeAnimKitId))
         {
-            TC_LOG_ERROR("sql.sql", "Non-existing AnimKit.dbc entry %u was referenced in `garrison_plot_finalize_info`.`hordeAnimKitId` for garrPlotInstanceId %u.",
+            TC_LOG_ERROR("sql.sql", "Non-existing AnimKit.dbc entry {} was referenced in `garrison_plot_finalize_info`.`hordeAnimKitId` for garrPlotInstanceId {}.",
                 hordeAnimKitId, garrPlotInstanceId);
             continue;
         }
 
         if (allianceAnimKitId && !sAnimKitStore.LookupEntry(allianceAnimKitId))
         {
-            TC_LOG_ERROR("sql.sql", "Non-existing AnimKit.dbc entry %u was referenced in `garrison_plot_finalize_info`.`allianceAnimKitId` for garrPlotInstanceId %u.",
+            TC_LOG_ERROR("sql.sql", "Non-existing AnimKit.dbc entry {} was referenced in `garrison_plot_finalize_info`.`allianceAnimKitId` for garrPlotInstanceId {}.",
                 allianceAnimKitId, garrPlotInstanceId);
             continue;
         }
@@ -418,7 +418,7 @@ void GarrisonMgr::LoadPlotFinalizeGOInfo()
 
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u garrison plot finalize entries in %u.", uint32(_finalizePlotGOInfo.size()), GetMSTimeDiffToNow(msTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} garrison plot finalize entries in {}.", uint32(_finalizePlotGOInfo.size()), GetMSTimeDiffToNow(msTime));
 }
 
 void GarrisonMgr::LoadFollowerClassSpecAbilities()
@@ -440,14 +440,14 @@ void GarrisonMgr::LoadFollowerClassSpecAbilities()
 
         if (!sGarrClassSpecStore.LookupEntry(classSpecId))
         {
-            TC_LOG_ERROR("sql.sql", "Non-existing GarrClassSpec.db2 entry %u was referenced in `garrison_follower_class_spec_abilities` by row (%u, %u).", classSpecId, classSpecId, abilityId);
+            TC_LOG_ERROR("sql.sql", "Non-existing GarrClassSpec.db2 entry {} was referenced in `garrison_follower_class_spec_abilities` by row ({}, {}).", classSpecId, classSpecId, abilityId);
             continue;
         }
 
         GarrAbilityEntry const* ability = sGarrAbilityStore.LookupEntry(abilityId);
         if (!ability)
         {
-            TC_LOG_ERROR("sql.sql", "Non-existing GarrAbility.db2 entry %u was referenced in `garrison_follower_class_spec_abilities` by row (%u, %u).", abilityId, classSpecId, abilityId);
+            TC_LOG_ERROR("sql.sql", "Non-existing GarrAbility.db2 entry {} was referenced in `garrison_follower_class_spec_abilities` by row ({}, {}).", abilityId, classSpecId, abilityId);
             continue;
         }
 
@@ -459,5 +459,5 @@ void GarrisonMgr::LoadFollowerClassSpecAbilities()
     for (auto& pair : _garrisonFollowerClassSpecAbilities)
         pair.second.sort();
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u garrison follower class spec abilities in %u.", count, GetMSTimeDiffToNow(msTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} garrison follower class spec abilities in {}.", count, GetMSTimeDiffToNow(msTime));
 }

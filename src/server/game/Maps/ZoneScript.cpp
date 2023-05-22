@@ -19,13 +19,12 @@
 #include "Creature.h"
 #include "GameEventSender.h"
 
-ZoneScript::ZoneScript()
-{
-}
-
-ZoneScript::~ZoneScript()
-{
-}
+ZoneScript::ZoneScript() = default;
+ZoneScript::ZoneScript(ZoneScript const& right) = default;
+ZoneScript::ZoneScript(ZoneScript&& right) noexcept = default;
+ZoneScript& ZoneScript::operator=(ZoneScript const& right) = default;
+ZoneScript& ZoneScript::operator=(ZoneScript&& right) noexcept = default;
+ZoneScript::~ZoneScript() = default;
 
 uint32 ZoneScript::GetCreatureEntry(ObjectGuid::LowType /*guidLow*/, CreatureData const* data)
 {

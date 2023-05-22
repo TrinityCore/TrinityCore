@@ -35,99 +35,6 @@ EndContentData */
 #include "TemporarySummon.h"
 
 /*######
-# npc_gilthares
-######*/
-
-enum Gilthares
-{
-    SAY_GIL_START               = 0,
-    SAY_GIL_AT_LAST             = 1,
-    SAY_GIL_PROCEED             = 2,
-    SAY_GIL_FREEBOOTERS         = 3,
-    SAY_GIL_AGGRO               = 4,
-    SAY_GIL_ALMOST              = 5,
-    SAY_GIL_SWEET               = 6,
-    SAY_GIL_FREED               = 7,
-
-    QUEST_FREE_FROM_HOLD        = 898,
-    AREA_MERCHANT_COAST         = 391
-};
-
-class npc_gilthares : public CreatureScript
-{
-public:
-    npc_gilthares() : CreatureScript("npc_gilthares") { }
-
-    struct npc_giltharesAI : public EscortAI
-    {
-        npc_giltharesAI(Creature* creature) : EscortAI(creature) { }
-
-        void Reset() override { }
-
-        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
-        {
-            Player* player = GetPlayerForEscort();
-            if (!player)
-                return;
-
-            switch (waypointId)
-            {
-                case 16:
-                    Talk(SAY_GIL_AT_LAST, player);
-                    break;
-                case 17:
-                    Talk(SAY_GIL_PROCEED, player);
-                    break;
-                case 18:
-                    Talk(SAY_GIL_FREEBOOTERS, player);
-                    break;
-                case 37:
-                    Talk(SAY_GIL_ALMOST, player);
-                    break;
-                case 47:
-                    Talk(SAY_GIL_SWEET, player);
-                    break;
-                case 53:
-                    Talk(SAY_GIL_FREED, player);
-                    player->GroupEventHappens(QUEST_FREE_FROM_HOLD, me);
-                    break;
-            }
-        }
-
-        void JustEngagedWith(Unit* who) override
-        {
-            //not always use
-            if (rand32() % 4)
-                return;
-
-            //only aggro text if not player and only in this area
-            if (who->GetTypeId() != TYPEID_PLAYER && me->GetAreaId() == AREA_MERCHANT_COAST)
-            {
-                //appears to be pretty much random (possible only if escorter not in combat with who yet?)
-                Talk(SAY_GIL_AGGRO, who);
-            }
-        }
-
-        void OnQuestAccept(Player* player, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_FREE_FROM_HOLD)
-            {
-                me->SetFaction(FACTION_ESCORTEE_H_NEUTRAL_ACTIVE);
-                me->SetStandState(UNIT_STAND_STATE_STAND);
-
-                Talk(SAY_GIL_START, player);
-                Start(false, false, player->GetGUID(), quest);
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_giltharesAI(creature);
-    }
-};
-
-/*######
 ## npc_taskmaster_fizzule
 ######*/
 
@@ -478,6 +385,8 @@ enum Wizzlecrank
     QUEST_ESCAPE        = 863,
     NPC_PILOT_WIZZ      = 3451,
     NPC_MERCENARY       = 3282,
+
+    PATH_ESCORT_WIZZLECRANK = 27514,
 };
 
 class npc_wizzlecrank_shredder : public CreatureScript
@@ -506,9 +415,6 @@ public:
                 case 0:
                     Talk(SAY_STARTUP1);
                     break;
-                case 9:
-                    SetRun(false);
-                    break;
                 case 17:
                     if (Creature* temp = me->SummonCreature(NPC_MERCENARY, 1128.489f, -3037.611f, 92.701f, 1.472f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 2min))
                     {
@@ -536,7 +442,6 @@ public:
                     break;
                 case 18:
                     Talk(SAY_PROGRESS_1, player);
-                    SetRun();
                     break;
             }
         }
@@ -599,7 +504,8 @@ public:
                 me->SetFaction(FACTION_RATCHET);
                 Talk(SAY_START);
                 SetDespawnAtEnd(false);
-                Start(true, false, player->GetGUID());
+                LoadPath(PATH_ESCORT_WIZZLECRANK),
+                Start(true, player->GetGUID());
             }
         }
     };

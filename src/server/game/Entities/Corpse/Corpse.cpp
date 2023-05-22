@@ -76,8 +76,8 @@ bool Corpse::Create(ObjectGuid::LowType guidlow, Player* owner)
 
     if (!IsPositionValid())
     {
-        TC_LOG_ERROR("entities.player", "Corpse (guidlow " UI64FMTD ", owner %s) not created. Suggested coordinates isn't valid (X: %f Y: %f)",
-            guidlow, owner->GetName().c_str(), owner->GetPositionX(), owner->GetPositionY());
+        TC_LOG_ERROR("entities.player", "Corpse (guidlow {}, owner {}) not created. Suggested coordinates isn't valid (X: {} Y: {})",
+            guidlow, owner->GetName(), owner->GetPositionX(), owner->GetPositionY());
         return false;
     }
 
@@ -108,7 +108,7 @@ void Corpse::SaveToDB()
     DeleteFromDB(trans);
 
     std::ostringstream items;
-    for (uint16 index = 0; index < EQUIPMENT_SLOT_END; ++index)
+    for (size_t index = 0; index < m_corpseData->Items.size(); ++index)
         items << m_corpseData->Items[index] << ' ';
 
     uint16 index = 0;
@@ -194,8 +194,8 @@ bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
     SetObjectScale(1.0f);
     SetDisplayId(fields[5].GetUInt32());
     std::vector<std::string_view> items = Trinity::Tokenize(fields[6].GetStringView(), ' ', false);
-    if (items.size() == EQUIPMENT_SLOT_END)
-        for (uint32 index = 0; index < EQUIPMENT_SLOT_END; ++index)
+    if (items.size() == m_corpseData->Items.size())
+        for (size_t index = 0; index < m_corpseData->Items.size(); ++index)
             SetItem(index, Trinity::StringTo<uint32>(items[index]).value_or(0));
 
     SetRace(fields[7].GetUInt8());
@@ -217,8 +217,8 @@ bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
 
     if (!IsPositionValid())
     {
-        TC_LOG_ERROR("entities.player", "Corpse (%s, owner: %s) is not created, given coordinates are not valid (X: %f, Y: %f, Z: %f)",
-            GetGUID().ToString().c_str(), GetOwnerGUID().ToString().c_str(), posX, posY, posZ);
+        TC_LOG_ERROR("entities.player", "Corpse ({}, owner: {}) is not created, given coordinates are not valid (X: {}, Y: {}, Z: {})",
+            GetGUID().ToString(), GetOwnerGUID().ToString(), posX, posY, posZ);
         return false;
     }
 

@@ -93,6 +93,7 @@ void WorldSession::SendSetTimeZoneInformation()
     WorldPackets::System::SetTimeZoneInformation packet;
     packet.ServerTimeTZ = "Europe/Paris";
     packet.GameTimeTZ = "Europe/Paris";
+    packet.ServerRegionalTZ = "Europe/Paris";
 
     SendPacket(packet.Write());
 }

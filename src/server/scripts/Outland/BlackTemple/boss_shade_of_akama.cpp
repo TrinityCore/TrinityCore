@@ -290,7 +290,7 @@ struct boss_shade_of_akama : public BossAI
                 if (player->IsAlive() && !player->IsGameMaster() && IsInBoundary(player))
                     return;
 
-        EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+        EnterEvadeMode(EvadeReason::NoHostiles);
     }
 
     void UpdateAI(uint32 diff) override
@@ -529,7 +529,7 @@ struct npc_akama_shade : public ScriptedAI
         Talk(SAY_DEAD);
         if (Creature* shade = _instance->GetCreature(DATA_SHADE_OF_AKAMA))
             if (shade->IsAlive())
-                shade->AI()->EnterEvadeMode(EVADE_REASON_OTHER);
+                shade->AI()->EnterEvadeMode(EvadeReason::Other);
     }
 
     bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override

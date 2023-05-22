@@ -69,13 +69,13 @@ class TC_COMMON_API Log
         bool SetLogLevel(std::string const& name, int32 level, bool isLogger = true);
 
         template<typename... Args>
-        void OutMessage(std::string_view filter, LogLevel const level, std::string_view fmt, Args&&... args)
+        void OutMessage(std::string_view filter, LogLevel const level, Trinity::FormatString<Args...> fmt, Args&&... args)
         {
             OutMessageImpl(filter, level, Trinity::StringFormat(fmt, std::forward<Args>(args)...));
         }
 
         template<typename... Args>
-        void OutCommand(uint32 account, std::string_view fmt, Args&&... args)
+        void OutCommand(uint32 account, Trinity::FormatString<Args...> fmt, Args&&... args)
         {
             if (!ShouldLog("commands.gm", LOG_LEVEL_INFO))
                 return;
@@ -132,19 +132,12 @@ class TC_COMMON_API Log
 #ifdef PERFORMANCE_PROFILING
 #define TC_LOG_MESSAGE_BODY(filterType__, level__, ...) ((void)0)
 #elif TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
-void check_args(char const*, ...) ATTR_PRINTF(1, 2);
-void check_args(std::string const&, ...);
 
 // This will catch format errors on build time
 #define TC_LOG_MESSAGE_BODY(filterType__, level__, ...)                 \
         do {                                                            \
             if (sLog->ShouldLog(filterType__, level__))                 \
-            {                                                           \
-                if (false)                                              \
-                    check_args(__VA_ARGS__);                            \
-                                                                        \
                 sLog->OutMessage(filterType__, level__, __VA_ARGS__);   \
-            }                                                           \
         } while (0)
 #else
 #define TC_LOG_MESSAGE_BODY(filterType__, level__, ...)                 \

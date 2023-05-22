@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "ruins_of_ahnqiraj.h"
 #include "ScriptedCreature.h"
 

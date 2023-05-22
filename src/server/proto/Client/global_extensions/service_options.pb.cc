@@ -4,7 +4,6 @@
 #define INTERNAL_SUPPRESS_PROTOBUF_FIELD_DEPRECATION
 #include "global_extensions/service_options.pb.h"
 
-#include <algorithm>
 #include <utility>
 
 #include <google/protobuf/stubs/common.h>
@@ -15,7 +14,6 @@
 #include <google/protobuf/generated_message_reflection.h>
 #include <google/protobuf/reflection_ops.h>
 #include <google/protobuf/wire_format.h>
-#include "Log.h"
 // @@protoc_insertion_point(includes)
 
 namespace bgs {
@@ -40,13 +38,14 @@ void protobuf_AssignDesc_global_5fextensions_2fservice_5foptions_2eproto() {
       "global_extensions/service_options.proto");
   GOOGLE_CHECK(file != NULL);
   BGSServiceOptions_descriptor_ = file->message_type(0);
-  static const int BGSServiceOptions_offsets_[6] = {
+  static const int BGSServiceOptions_offsets_[7] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSServiceOptions, descriptor_name_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSServiceOptions, version_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSServiceOptions, shard_name_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSServiceOptions, resolve_client_instance_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSServiceOptions, type_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSServiceOptions, api_type_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSServiceOptions, is_global_),
   };
   BGSServiceOptions_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -114,22 +113,23 @@ void protobuf_AddDesc_global_5fextensions_2fservice_5foptions_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\'global_extensions/service_options.prot"
     "o\022\014bgs.protocol\032 google/protobuf/descrip"
-    "tor.proto\"\236\002\n\021BGSServiceOptions\022\027\n\017descr"
+    "tor.proto\"\316\002\n\021BGSServiceOptions\022\027\n\017descr"
     "iptor_name\030\001 \001(\t\022\017\n\007version\030\004 \001(\r\022\022\n\nsha"
     "rd_name\030\005 \001(\t\022\037\n\027resolve_client_instance"
     "\030\006 \001(\010\0229\n\004type\030\007 \001(\0162+.bgs.protocol.BGSS"
     "erviceOptions.ServiceType\022\020\n\010api_type\030\010 "
-    "\001(\t\"]\n\013ServiceType\022\024\n\020SERVICE_TYPE_RPC\020\000"
-    "\022\026\n\022SERVICE_TYPE_EVENT\020\001\022 \n\034SERVICE_TYPE"
-    "_EVENT_BROADCAST\020\002\"M\n\021SDKServiceOptions\022"
-    "\017\n\007inbound\030\001 \001(\010\022\020\n\010outbound\030\002 \001(\010\022\025\n\rus"
-    "e_client_id\030\003 \001(\010:[\n\017service_options\022\037.g"
-    "oogle.protobuf.ServiceOptions\030\220\277\005 \001(\0132\037."
-    "bgs.protocol.BGSServiceOptions:_\n\023sdk_se"
-    "rvice_options\022\037.google.protobuf.ServiceO"
-    "ptions\030\221\277\005 \001(\0132\037.bgs.protocol.SDKService"
-    "OptionsB&\n\rbnet.protocolB\023ServiceOptions"
-    "ProtoH\001", 687);
+    "\001(\t\022\021\n\tis_global\030\t \001(\010\"z\n\013ServiceType\022\024\n"
+    "\020SERVICE_TYPE_RPC\020\000\022\033\n\027SERVICE_TYPE_RPC_"
+    "DIRECT\020\001\022\026\n\022SERVICE_TYPE_EVENT\020\002\022 \n\034SERV"
+    "ICE_TYPE_EVENT_BROADCAST\020\003\"M\n\021SDKService"
+    "Options\022\017\n\007inbound\030\001 \001(\010\022\020\n\010outbound\030\002 \001"
+    "(\010\022\025\n\ruse_client_id\030\003 \001(\010:[\n\017service_opt"
+    "ions\022\037.google.protobuf.ServiceOptions\030\220\277"
+    "\005 \001(\0132\037.bgs.protocol.BGSServiceOptions:_"
+    "\n\023sdk_service_options\022\037.google.protobuf."
+    "ServiceOptions\030\221\277\005 \001(\0132\037.bgs.protocol.SD"
+    "KServiceOptionsB%\n\014bgs.protocolB\023Service"
+    "OptionsProtoH\002", 734);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "global_extensions/service_options.proto", &protobuf_RegisterTypes);
   BGSServiceOptions::default_instance_ = new BGSServiceOptions();
@@ -164,6 +164,7 @@ bool BGSServiceOptions_ServiceType_IsValid(int value) {
     case 0:
     case 1:
     case 2:
+    case 3:
       return true;
     default:
       return false;
@@ -172,6 +173,7 @@ bool BGSServiceOptions_ServiceType_IsValid(int value) {
 
 #ifndef _MSC_VER
 const BGSServiceOptions_ServiceType BGSServiceOptions::SERVICE_TYPE_RPC;
+const BGSServiceOptions_ServiceType BGSServiceOptions::SERVICE_TYPE_RPC_DIRECT;
 const BGSServiceOptions_ServiceType BGSServiceOptions::SERVICE_TYPE_EVENT;
 const BGSServiceOptions_ServiceType BGSServiceOptions::SERVICE_TYPE_EVENT_BROADCAST;
 const BGSServiceOptions_ServiceType BGSServiceOptions::ServiceType_MIN;
@@ -185,6 +187,7 @@ const int BGSServiceOptions::kShardNameFieldNumber;
 const int BGSServiceOptions::kResolveClientInstanceFieldNumber;
 const int BGSServiceOptions::kTypeFieldNumber;
 const int BGSServiceOptions::kApiTypeFieldNumber;
+const int BGSServiceOptions::kIsGlobalFieldNumber;
 #endif  // !_MSC_VER
 
 BGSServiceOptions::BGSServiceOptions()
@@ -212,6 +215,7 @@ void BGSServiceOptions::SharedCtor() {
   resolve_client_instance_ = false;
   type_ = 0;
   api_type_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  is_global_ = false;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -255,412 +259,9 @@ BGSServiceOptions* BGSServiceOptions::New() const {
   return new BGSServiceOptions;
 }
 
-void BGSServiceOptions::Clear() {
-#define OFFSET_OF_FIELD_(f) (reinterpret_cast<char*>(      \
-  &reinterpret_cast<BGSServiceOptions*>(16)->f) - \
-   reinterpret_cast<char*>(16))
-
-#define ZR_(first, last) do {                              \
-    size_t f = OFFSET_OF_FIELD_(first);                    \
-    size_t n = OFFSET_OF_FIELD_(last) - f + sizeof(last);  \
-    ::memset(&first, 0, n);                                \
-  } while (0)
-
-  if (_has_bits_[0 / 32] & 63) {
-    ZR_(version_, resolve_client_instance_);
-    if (has_descriptor_name()) {
-      if (descriptor_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-        descriptor_name_->clear();
-      }
-    }
-    if (has_shard_name()) {
-      if (shard_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-        shard_name_->clear();
-      }
-    }
-    type_ = 0;
-    if (has_api_type()) {
-      if (api_type_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-        api_type_->clear();
-      }
-    }
-  }
-
-#undef OFFSET_OF_FIELD_
-#undef ZR_
-
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool BGSServiceOptions::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.BGSServiceOptions)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional string descriptor_name = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_descriptor_name()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-            this->descriptor_name().data(), this->descriptor_name().length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "descriptor_name");
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(32)) goto parse_version;
-        break;
-      }
-
-      // optional uint32 version = 4;
-      case 4: {
-        if (tag == 32) {
-         parse_version:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 input, &version_)));
-          set_has_version();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(42)) goto parse_shard_name;
-        break;
-      }
-
-      // optional string shard_name = 5;
-      case 5: {
-        if (tag == 42) {
-         parse_shard_name:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_shard_name()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-            this->shard_name().data(), this->shard_name().length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "shard_name");
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(48)) goto parse_resolve_client_instance;
-        break;
-      }
-
-      // optional bool resolve_client_instance = 6;
-      case 6: {
-        if (tag == 48) {
-         parse_resolve_client_instance:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
-                 input, &resolve_client_instance_)));
-          set_has_resolve_client_instance();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(56)) goto parse_type;
-        break;
-      }
-
-      // optional .bgs.protocol.BGSServiceOptions.ServiceType type = 7;
-      case 7: {
-        if (tag == 56) {
-         parse_type:
-          int value;
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   int, ::google::protobuf::internal::WireFormatLite::TYPE_ENUM>(
-                 input, &value)));
-          if (::bgs::protocol::BGSServiceOptions_ServiceType_IsValid(value)) {
-            set_type(static_cast< ::bgs::protocol::BGSServiceOptions_ServiceType >(value));
-          } else {
-            mutable_unknown_fields()->AddVarint(7, value);
-          }
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(66)) goto parse_api_type;
-        break;
-      }
-
-      // optional string api_type = 8;
-      case 8: {
-        if (tag == 66) {
-         parse_api_type:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_api_type()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-            this->api_type().data(), this->api_type().length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "api_type");
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.BGSServiceOptions)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.BGSServiceOptions)
-  return false;
-#undef DO_
-}
-
-void BGSServiceOptions::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.BGSServiceOptions)
-  // optional string descriptor_name = 1;
-  if (has_descriptor_name()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->descriptor_name().data(), this->descriptor_name().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "descriptor_name");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      1, this->descriptor_name(), output);
-  }
-
-  // optional uint32 version = 4;
-  if (has_version()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(4, this->version(), output);
-  }
-
-  // optional string shard_name = 5;
-  if (has_shard_name()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->shard_name().data(), this->shard_name().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "shard_name");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      5, this->shard_name(), output);
-  }
-
-  // optional bool resolve_client_instance = 6;
-  if (has_resolve_client_instance()) {
-    ::google::protobuf::internal::WireFormatLite::WriteBool(6, this->resolve_client_instance(), output);
-  }
-
-  // optional .bgs.protocol.BGSServiceOptions.ServiceType type = 7;
-  if (has_type()) {
-    ::google::protobuf::internal::WireFormatLite::WriteEnum(
-      7, this->type(), output);
-  }
-
-  // optional string api_type = 8;
-  if (has_api_type()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->api_type().data(), this->api_type().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "api_type");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      8, this->api_type(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.BGSServiceOptions)
-}
-
-::google::protobuf::uint8* BGSServiceOptions::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.BGSServiceOptions)
-  // optional string descriptor_name = 1;
-  if (has_descriptor_name()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->descriptor_name().data(), this->descriptor_name().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "descriptor_name");
-    target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        1, this->descriptor_name(), target);
-  }
-
-  // optional uint32 version = 4;
-  if (has_version()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(4, this->version(), target);
-  }
-
-  // optional string shard_name = 5;
-  if (has_shard_name()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->shard_name().data(), this->shard_name().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "shard_name");
-    target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        5, this->shard_name(), target);
-  }
-
-  // optional bool resolve_client_instance = 6;
-  if (has_resolve_client_instance()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(6, this->resolve_client_instance(), target);
-  }
-
-  // optional .bgs.protocol.BGSServiceOptions.ServiceType type = 7;
-  if (has_type()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
-      7, this->type(), target);
-  }
-
-  // optional string api_type = 8;
-  if (has_api_type()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->api_type().data(), this->api_type().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "api_type");
-    target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        8, this->api_type(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.BGSServiceOptions)
-  return target;
-}
-
-int BGSServiceOptions::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional string descriptor_name = 1;
-    if (has_descriptor_name()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::StringSize(
-          this->descriptor_name());
-    }
-
-    // optional uint32 version = 4;
-    if (has_version()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt32Size(
-          this->version());
-    }
-
-    // optional string shard_name = 5;
-    if (has_shard_name()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::StringSize(
-          this->shard_name());
-    }
-
-    // optional bool resolve_client_instance = 6;
-    if (has_resolve_client_instance()) {
-      total_size += 1 + 1;
-    }
-
-    // optional .bgs.protocol.BGSServiceOptions.ServiceType type = 7;
-    if (has_type()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::EnumSize(this->type());
-    }
-
-    // optional string api_type = 8;
-    if (has_api_type()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::StringSize(
-          this->api_type());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void BGSServiceOptions::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const BGSServiceOptions* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const BGSServiceOptions*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void BGSServiceOptions::MergeFrom(const BGSServiceOptions& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_descriptor_name()) {
-      set_descriptor_name(from.descriptor_name());
-    }
-    if (from.has_version()) {
-      set_version(from.version());
-    }
-    if (from.has_shard_name()) {
-      set_shard_name(from.shard_name());
-    }
-    if (from.has_resolve_client_instance()) {
-      set_resolve_client_instance(from.resolve_client_instance());
-    }
-    if (from.has_type()) {
-      set_type(from.type());
-    }
-    if (from.has_api_type()) {
-      set_api_type(from.api_type());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void BGSServiceOptions::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void BGSServiceOptions::CopyFrom(const BGSServiceOptions& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool BGSServiceOptions::IsInitialized() const {
-  return true;
-}
-
 void BGSServiceOptions::Swap(BGSServiceOptions* other) {
   if (other != this) {
-    std::swap(descriptor_name_, other->descriptor_name_);
-    std::swap(version_, other->version_);
-    std::swap(shard_name_, other->shard_name_);
-    std::swap(resolve_client_instance_, other->resolve_client_instance_);
-    std::swap(type_, other->type_);
-    std::swap(api_type_, other->api_type_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata BGSServiceOptions::GetMetadata() const {
@@ -734,237 +335,9 @@ SDKServiceOptions* SDKServiceOptions::New() const {
   return new SDKServiceOptions;
 }
 
-void SDKServiceOptions::Clear() {
-#define OFFSET_OF_FIELD_(f) (reinterpret_cast<char*>(      \
-  &reinterpret_cast<SDKServiceOptions*>(16)->f) - \
-   reinterpret_cast<char*>(16))
-
-#define ZR_(first, last) do {                              \
-    size_t f = OFFSET_OF_FIELD_(first);                    \
-    size_t n = OFFSET_OF_FIELD_(last) - f + sizeof(last);  \
-    ::memset(&first, 0, n);                                \
-  } while (0)
-
-  ZR_(inbound_, use_client_id_);
-
-#undef OFFSET_OF_FIELD_
-#undef ZR_
-
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool SDKServiceOptions::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.SDKServiceOptions)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional bool inbound = 1;
-      case 1: {
-        if (tag == 8) {
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
-                 input, &inbound_)));
-          set_has_inbound();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(16)) goto parse_outbound;
-        break;
-      }
-
-      // optional bool outbound = 2;
-      case 2: {
-        if (tag == 16) {
-         parse_outbound:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
-                 input, &outbound_)));
-          set_has_outbound();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(24)) goto parse_use_client_id;
-        break;
-      }
-
-      // optional bool use_client_id = 3;
-      case 3: {
-        if (tag == 24) {
-         parse_use_client_id:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
-                 input, &use_client_id_)));
-          set_has_use_client_id();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.SDKServiceOptions)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.SDKServiceOptions)
-  return false;
-#undef DO_
-}
-
-void SDKServiceOptions::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.SDKServiceOptions)
-  // optional bool inbound = 1;
-  if (has_inbound()) {
-    ::google::protobuf::internal::WireFormatLite::WriteBool(1, this->inbound(), output);
-  }
-
-  // optional bool outbound = 2;
-  if (has_outbound()) {
-    ::google::protobuf::internal::WireFormatLite::WriteBool(2, this->outbound(), output);
-  }
-
-  // optional bool use_client_id = 3;
-  if (has_use_client_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteBool(3, this->use_client_id(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.SDKServiceOptions)
-}
-
-::google::protobuf::uint8* SDKServiceOptions::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.SDKServiceOptions)
-  // optional bool inbound = 1;
-  if (has_inbound()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(1, this->inbound(), target);
-  }
-
-  // optional bool outbound = 2;
-  if (has_outbound()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(2, this->outbound(), target);
-  }
-
-  // optional bool use_client_id = 3;
-  if (has_use_client_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(3, this->use_client_id(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.SDKServiceOptions)
-  return target;
-}
-
-int SDKServiceOptions::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional bool inbound = 1;
-    if (has_inbound()) {
-      total_size += 1 + 1;
-    }
-
-    // optional bool outbound = 2;
-    if (has_outbound()) {
-      total_size += 1 + 1;
-    }
-
-    // optional bool use_client_id = 3;
-    if (has_use_client_id()) {
-      total_size += 1 + 1;
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void SDKServiceOptions::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const SDKServiceOptions* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const SDKServiceOptions*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void SDKServiceOptions::MergeFrom(const SDKServiceOptions& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_inbound()) {
-      set_inbound(from.inbound());
-    }
-    if (from.has_outbound()) {
-      set_outbound(from.outbound());
-    }
-    if (from.has_use_client_id()) {
-      set_use_client_id(from.use_client_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void SDKServiceOptions::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void SDKServiceOptions::CopyFrom(const SDKServiceOptions& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool SDKServiceOptions::IsInitialized() const {
-  return true;
-}
-
 void SDKServiceOptions::Swap(SDKServiceOptions* other) {
   if (other != this) {
-    std::swap(inbound_, other->inbound_);
-    std::swap(outbound_, other->outbound_);
-    std::swap(use_client_id_, other->use_client_id_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata SDKServiceOptions::GetMetadata() const {

@@ -32,7 +32,7 @@
 
 void WorldSession::HandleContactListOpcode(WorldPackets::Social::SendContactList& packet)
 {
-    TC_LOG_DEBUG("network", "WorldSession::HandleContactListOpcode: Flags: %u", packet.Flags);
+    TC_LOG_DEBUG("network", "WorldSession::HandleContactListOpcode: Flags: {}", packet.Flags);
     _player->GetSocial()->SendSocialList(_player, packet.Flags);
 }
 
@@ -41,8 +41,8 @@ void WorldSession::HandleAddFriendOpcode(WorldPackets::Social::AddFriend& packet
     if (!normalizePlayerName(packet.Name))
         return;
 
-    TC_LOG_DEBUG("network", "WorldSession::HandleAddFriendOpcode: %s asked to add friend: %s",
-        GetPlayerInfo().c_str(), packet.Name.c_str());
+    TC_LOG_DEBUG("network", "WorldSession::HandleAddFriendOpcode: {} asked to add friend: {}",
+        GetPlayerInfo(), packet.Name);
 
     CharacterCacheEntry const* friendCharacterInfo = sCharacterCache->GetCharacterCacheByName(packet.Name);
     if (!friendCharacterInfo)
@@ -120,7 +120,7 @@ void WorldSession::HandleAddFriendOpcode(WorldPackets::Social::AddFriend& packet
 void WorldSession::HandleDelFriendOpcode(WorldPackets::Social::DelFriend& packet)
 {
     /// @todo: handle VirtualRealmAddress
-    TC_LOG_DEBUG("network", "WorldSession::HandleDelFriendOpcode: %s", packet.Player.Guid.ToString().c_str());
+    TC_LOG_DEBUG("network", "WorldSession::HandleDelFriendOpcode: {}", packet.Player.Guid.ToString());
 
     GetPlayer()->GetSocial()->RemoveFromSocialList(packet.Player.Guid, SOCIAL_FLAG_FRIEND);
 
@@ -132,8 +132,8 @@ void WorldSession::HandleAddIgnoreOpcode(WorldPackets::Social::AddIgnore& packet
     if (!normalizePlayerName(packet.Name))
         return;
 
-    TC_LOG_DEBUG("network", "WorldSession::HandleAddIgnoreOpcode: %s asked to Ignore: %s",
-        GetPlayer()->GetName().c_str(), packet.Name.c_str());
+    TC_LOG_DEBUG("network", "WorldSession::HandleAddIgnoreOpcode: {} asked to Ignore: {}",
+        GetPlayer()->GetName(), packet.Name);
 
     ObjectGuid ignoreGuid;
     FriendsResult ignoreResult = FRIEND_IGNORE_NOT_FOUND;
@@ -162,7 +162,7 @@ void WorldSession::HandleAddIgnoreOpcode(WorldPackets::Social::AddIgnore& packet
 void WorldSession::HandleDelIgnoreOpcode(WorldPackets::Social::DelIgnore& packet)
 {
     /// @todo: handle VirtualRealmAddress
-    TC_LOG_DEBUG("network", "WorldSession::HandleDelIgnoreOpcode: %s", packet.Player.Guid.ToString().c_str());
+    TC_LOG_DEBUG("network", "WorldSession::HandleDelIgnoreOpcode: {}", packet.Player.Guid.ToString());
 
     GetPlayer()->GetSocial()->RemoveFromSocialList(packet.Player.Guid, SOCIAL_FLAG_IGNORED);
 
@@ -172,7 +172,7 @@ void WorldSession::HandleDelIgnoreOpcode(WorldPackets::Social::DelIgnore& packet
 void WorldSession::HandleSetContactNotesOpcode(WorldPackets::Social::SetContactNotes& packet)
 {
     /// @todo: handle VirtualRealmAddress
-    TC_LOG_DEBUG("network", "WorldSession::HandleSetContactNotesOpcode: Contact: %s, Notes: %s", packet.Player.Guid.ToString().c_str(), packet.Notes.c_str());
+    TC_LOG_DEBUG("network", "WorldSession::HandleSetContactNotesOpcode: Contact: {}, Notes: {}", packet.Player.Guid.ToString(), packet.Notes);
     _player->GetSocial()->SetFriendNote(packet.Player.Guid, packet.Notes);
 }
 

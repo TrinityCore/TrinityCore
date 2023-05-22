@@ -16,6 +16,7 @@
  */
 
 #include "icecrown_citadel.h"
+#include "Containers.h"
 #include "DB2Stores.h"
 #include "GridNotifiers.h"
 #include "Group.h"

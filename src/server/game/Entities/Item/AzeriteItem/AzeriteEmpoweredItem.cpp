@@ -142,14 +142,14 @@ void AzeriteEmpoweredItem::ClearSelectedAzeritePowers()
         SetUpdateFieldValue(m_values.ModifyValue(&AzeriteEmpoweredItem::m_azeriteEmpoweredItemData).ModifyValue(&UF::AzeriteEmpoweredItemData::Selections, i), 0);
 
     _bonusData.Initialize(GetTemplate());
-    for (int32 bonusListID : *m_itemData->BonusListIDs)
+    for (int32 bonusListID : GetBonusListIDs())
         _bonusData.AddBonusList(bonusListID);
 }
 
 int64 AzeriteEmpoweredItem::GetRespecCost() const
 {
     if (Player const* owner = GetOwner())
-        return int64(GOLD * sDB2Manager.GetCurveValueAt(CURVE_ID_AZERITE_EMPOWERED_ITEM_RESPEC_COST, float(owner->GetNumRespecs())));
+        return int64(float(GOLD) * sDB2Manager.GetCurveValueAt(CURVE_ID_AZERITE_EMPOWERED_ITEM_RESPEC_COST, float(owner->GetNumRespecs())));
 
     return MAX_MONEY_AMOUNT + 1;
 }

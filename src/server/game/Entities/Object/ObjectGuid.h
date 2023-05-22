@@ -20,7 +20,8 @@
 
 #include "Define.h"
 #include "EnumFlag.h"
-#include <deque>
+#include "advstd.h"
+#include <array>
 #include <functional>
 #include <list>
 #include <set>
@@ -268,13 +269,13 @@ class TC_GAME_API ObjectGuid
 
         using LowType = uint64;
 
-        ObjectGuid() { Clear(); }
+        ObjectGuid() = default;
 
         uint64 GetRawValue(std::size_t i) const { return _data[i]; }
         std::vector<uint8> GetRawValue() const;
         void SetRawValue(std::vector<uint8> const& guid);
         void SetRawValue(uint64 high, uint64 low) { _data[0] = low; _data[1] = high; }
-        void Clear() { std::fill(std::begin(_data), std::end(_data), UI64LIT(0)); }
+        void Clear() { _data = { }; }
 
         HighGuid GetHigh() const { return HighGuid((_data[1] >> 58) & 0x3F); }
         uint32 GetRealmId() const { return uint32((_data[1] >> 42) & 0xFFFF); }
@@ -330,16 +331,14 @@ class TC_GAME_API ObjectGuid
         bool IsCast()              const { return GetHigh() == HighGuid::Cast; }
 
         bool operator!() const { return IsEmpty(); }
-        bool operator== (ObjectGuid const& guid) const { return _data[0] == guid._data[0] && _data[1] == guid._data[1]; }
-        bool operator!= (ObjectGuid const& guid) const { return !(*this == guid); }
-        bool operator< (ObjectGuid const& guid) const
+        bool operator==(ObjectGuid const& right) const = default;
+        std::strong_ordering operator<=>(ObjectGuid const& right) const
         {
-            if (_data[1] < guid._data[1])
-                return true;
-            else if (_data[1] > guid._data[1])
-                return false;
-
-            return _data[0] < guid._data[0];
+            if (std::strong_ordering cmp = _data[1] <=> right._data[1]; advstd::is_neq(cmp))
+                return cmp;
+            if (std::strong_ordering cmp = _data[0] <=> right._data[0]; advstd::is_neq(cmp))
+                return cmp;
+            return std::strong_ordering::equal;
         }
 
         static char const* GetTypeName(HighGuid high);
@@ -376,7 +375,7 @@ class TC_GAME_API ObjectGuid
             _data[1] = high;
         }
 
-        uint64 _data[2];
+        std::array<uint64, 2> _data = { };
 };
 
 #pragma pack(pop)
@@ -384,42 +383,24 @@ class TC_GAME_API ObjectGuid
 // Some Shared defines
 using GuidSet = std::set<ObjectGuid>;
 using GuidList = std::list<ObjectGuid>;
-using GuidDeque = std::deque<ObjectGuid>;
 using GuidVector = std::vector<ObjectGuid>;
 using GuidUnorderedSet = std::unordered_set<ObjectGuid>;
 
-class TC_GAME_API ObjectGuidGeneratorBase
+class TC_GAME_API ObjectGuidGenerator
 {
 public:
-    ObjectGuidGeneratorBase(ObjectGuid::LowType start = UI64LIT(1)) : _nextGuid(start) { }
-    virtual ~ObjectGuidGeneratorBase() = default;
+    explicit ObjectGuidGenerator(HighGuid high, ObjectGuid::LowType start = UI64LIT(1)) : _high(high), _nextGuid(start) { }
+    ~ObjectGuidGenerator() = default;
 
-    virtual void Set(ObjectGuid::LowType val) { _nextGuid = val; }
-    virtual ObjectGuid::LowType Generate() = 0;
+    void Set(ObjectGuid::LowType val) { _nextGuid = val; }
+    ObjectGuid::LowType Generate();
     ObjectGuid::LowType GetNextAfterMaxUsed() const { return _nextGuid; }
 
 protected:
-    static void HandleCounterOverflow(HighGuid high);
-    static void CheckGuidTrigger(ObjectGuid::LowType guid);
+    void HandleCounterOverflow();
+    void CheckGuidTrigger();
+    HighGuid _high;
     ObjectGuid::LowType _nextGuid;
-};
-
-template<HighGuid high>
-class TC_GAME_API ObjectGuidGenerator : public ObjectGuidGeneratorBase
-{
-public:
-    explicit ObjectGuidGenerator(ObjectGuid::LowType start = UI64LIT(1)) : ObjectGuidGeneratorBase(start) { }
-
-    ObjectGuid::LowType Generate() override
-    {
-        if (_nextGuid >= ObjectGuid::GetMaxCounter(high) - 1)
-            HandleCounterOverflow(high);
-
-        if (high == HighGuid::Creature || high == HighGuid::Vehicle || high == HighGuid::GameObject || high == HighGuid::Transport)
-            CheckGuidTrigger(_nextGuid);
-
-        return _nextGuid++;
-    }
 };
 
 TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, ObjectGuid const& guid);
@@ -431,7 +412,7 @@ namespace std
     struct hash<ObjectGuid>
     {
     public:
-        size_t operator()(ObjectGuid const& key) const
+        size_t operator()(ObjectGuid const& key) const noexcept
         {
             return key.GetHash();
         }

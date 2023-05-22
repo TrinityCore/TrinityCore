@@ -67,16 +67,7 @@ void LootItemStorage::LoadStorageFromDB()
             Field* fields = result->Fetch();
 
             uint64 key = fields[0].GetUInt64();
-            auto itr = _lootItemStore.find(key);
-            if (itr == _lootItemStore.end())
-            {
-                bool added;
-                std::tie(itr, added) = _lootItemStore.emplace(std::piecewise_construct, std::forward_as_tuple(key), std::forward_as_tuple(key));
-
-                ASSERT(added);
-            }
-
-            StoredLootContainer& storedContainer = itr->second;
+            StoredLootContainer& storedContainer = _lootItemStore.try_emplace(key, key).first->second;
 
             LootItem lootItem;
             lootItem.itemid = fields[1].GetUInt32();
@@ -99,7 +90,7 @@ void LootItemStorage::LoadStorageFromDB()
             ++count;
         } while (result->NextRow());
 
-        TC_LOG_INFO("server.loading", ">> Loaded %u stored item loots in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        TC_LOG_INFO("server.loading", ">> Loaded {} stored item loots in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
     else
         TC_LOG_INFO("server.loading", ">> Loaded 0 stored item loots");
@@ -114,22 +105,13 @@ void LootItemStorage::LoadStorageFromDB()
             Field* fields = result->Fetch();
 
             uint64 key = fields[0].GetUInt64();
-            auto itr = _lootItemStore.find(key);
-            if (itr == _lootItemStore.end())
-            {
-                bool added;
-                std::tie(itr, added) = _lootItemStore.emplace(std::piecewise_construct, std::forward_as_tuple(key), std::forward_as_tuple(key));
-
-                ASSERT(added);
-            }
-
-            StoredLootContainer& storedContainer = itr->second;
+            StoredLootContainer& storedContainer = _lootItemStore.try_emplace(key, key).first->second;
             storedContainer.AddMoney(fields[1].GetUInt32(), trans);
 
             ++count;
         } while (result->NextRow());
 
-        TC_LOG_INFO("server.loading", ">> Loaded %u stored item money in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        TC_LOG_INFO("server.loading", ">> Loaded {} stored item money in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
     else
         TC_LOG_INFO("server.loading", ">> Loaded 0 stored item money");
@@ -250,7 +232,7 @@ void LootItemStorage::AddNewStoredLoot(uint64 containerId, Loot* loot, Player* p
         auto itr = _lootItemStore.find(containerId);
         if (itr != _lootItemStore.end())
         {
-            TC_LOG_ERROR("misc", "Trying to store item loot by player: %s for container id: " UI64FMTD " that is already in storage!", player->GetGUID().ToString().c_str(), containerId);
+            TC_LOG_ERROR("misc", "Trying to store item loot by player: {} for container id: {} that is already in storage!", player->GetGUID().ToString(), containerId);
             return;
         }
     }

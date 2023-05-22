@@ -75,7 +75,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
 
         bool IsServerSide() const { return _areaTriggerTemplate->Id.IsServerSide; }
 
-        bool IsNeverVisibleFor(WorldObject const* seer) const override { return WorldObject::IsNeverVisibleFor(seer) || IsServerSide(); }
+        bool IsNeverVisibleFor(WorldObject const* seer, bool allowServersideObjects = false) const override { return WorldObject::IsNeverVisibleFor(seer) || (IsServerSide() && !allowServersideObjects); }
 
     private:
         bool Create(uint32 areaTriggerCreatePropertiesId, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, int32 duration, SpellCastVisual spellVisual, ObjectGuid const& castId, AuraEffect const* aurEff);
@@ -141,6 +141,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         void SearchUnitInPolygon(std::vector<Unit*>& targetList);
         void SearchUnitInCylinder(std::vector<Unit*>& targetList);
         void SearchUnitInDisk(std::vector<Unit*>& targetList);
+        void SearchUnitInBoundedPlane(std::vector<Unit*>& targetList);
         bool CheckIsInPolygon2D(Position const* pos) const;
         void HandleUnitEnterExit(std::vector<Unit*> const& targetList);
 

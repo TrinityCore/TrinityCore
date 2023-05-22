@@ -26,13 +26,6 @@ WorldPacket const* WorldPackets::Azerite::PlayerAzeriteItemGains::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Azerite::OpenHeartForge::Write()
-{
-    _worldPacket << ForgeGUID;
-
-    return &_worldPacket;
-}
-
 void WorldPackets::Azerite::AzeriteEssenceUnlockMilestone::Read()
 {
     _worldPacket >> AzeriteItemMilestonePowerID;
@@ -73,13 +66,6 @@ WorldPacket const* WorldPackets::Azerite::PlayerAzeriteItemEquippedStatusChanged
 {
     _worldPacket.WriteBit(IsHeartEquipped);
     _worldPacket.FlushBits();
-
-    return &_worldPacket;
-}
-
-WorldPacket const* WorldPackets::Azerite::AzeriteRespecNPC::Write()
-{
-    _worldPacket << NpcGUID;
 
     return &_worldPacket;
 }

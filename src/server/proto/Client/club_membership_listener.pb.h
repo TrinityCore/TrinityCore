@@ -81,19 +81,6 @@ class TC_PROTO_API ClubAddedNotification : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   ClubAddedNotification* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const ClubAddedNotification& from);
-  void MergeFrom(const ClubAddedNotification& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -174,19 +161,6 @@ class TC_PROTO_API ClubRemovedNotification : public ::google::protobuf::Message 
   // implements Message ----------------------------------------------
 
   ClubRemovedNotification* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const ClubRemovedNotification& from);
-  void MergeFrom(const ClubRemovedNotification& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -287,19 +261,6 @@ class TC_PROTO_API ReceivedInvitationAddedNotification : public ::google::protob
   // implements Message ----------------------------------------------
 
   ReceivedInvitationAddedNotification* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const ReceivedInvitationAddedNotification& from);
-  void MergeFrom(const ReceivedInvitationAddedNotification& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -380,19 +341,6 @@ class TC_PROTO_API ReceivedInvitationRemovedNotification : public ::google::prot
   // implements Message ----------------------------------------------
 
   ReceivedInvitationRemovedNotification* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const ReceivedInvitationRemovedNotification& from);
-  void MergeFrom(const ReceivedInvitationRemovedNotification& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -481,19 +429,6 @@ class TC_PROTO_API SharedSettingsChangedNotification : public ::google::protobuf
   // implements Message ----------------------------------------------
 
   SharedSettingsChangedNotification* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const SharedSettingsChangedNotification& from);
-  void MergeFrom(const SharedSettingsChangedNotification& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -574,19 +509,6 @@ class TC_PROTO_API StreamMentionAddedNotification : public ::google::protobuf::M
   // implements Message ----------------------------------------------
 
   StreamMentionAddedNotification* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const StreamMentionAddedNotification& from);
-  void MergeFrom(const StreamMentionAddedNotification& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -667,19 +589,6 @@ class TC_PROTO_API StreamMentionRemovedNotification : public ::google::protobuf:
   // implements Message ----------------------------------------------
 
   StreamMentionRemovedNotification* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const StreamMentionRemovedNotification& from);
-  void MergeFrom(const StreamMentionRemovedNotification& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -760,19 +669,6 @@ class TC_PROTO_API StreamMentionAdvanceViewTimeNotification : public ::google::p
   // implements Message ----------------------------------------------
 
   StreamMentionAdvanceViewTimeNotification* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const StreamMentionAdvanceViewTimeNotification& from);
-  void MergeFrom(const StreamMentionAdvanceViewTimeNotification& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -828,6 +724,10 @@ class TC_PROTO_API ClubMembershipListener : public ServiceBase
  public:
 
   explicit ClubMembershipListener(bool use_original_hash);
+  ClubMembershipListener(ClubMembershipListener const&) = delete;
+  ClubMembershipListener(ClubMembershipListener&&) = delete;
+  ClubMembershipListener& operator=(ClubMembershipListener const&) = delete;
+  ClubMembershipListener& operator=(ClubMembershipListener&&) = delete;
   virtual ~ClubMembershipListener();
 
   typedef std::integral_constant<uint32, 0x2B34597Bu> OriginalHash;
@@ -846,11 +746,6 @@ class TC_PROTO_API ClubMembershipListener : public ServiceBase
   void OnStreamMentionAdvanceViewTime(::bgs::protocol::club::v1::membership::StreamMentionAdvanceViewTimeNotification const* request, bool client = false, bool server = false);
 
   void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) final;
-
- private:
-  uint32 service_hash_;
-
-  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(ClubMembershipListener);
 };
 
 // ===================================================================

@@ -235,6 +235,7 @@ void LootRoll::SendStartRoll()
 
         FillPacket(startLootRoll.Item);
         startLootRoll.Item.UIType = LOOT_SLOT_TYPE_ROLL_ONGOING;
+        startLootRoll.DungeonEncounterID = m_loot->GetDungeonEncounterId();
 
         player->SendDirectMessage(startLootRoll.Write());
     }
@@ -256,6 +257,7 @@ void LootRoll::SendAllPassed()
     lootAllPassed.LootObj = m_loot->GetGUID();
     FillPacket(lootAllPassed.Item);
     lootAllPassed.Item.UIType = LOOT_SLOT_TYPE_ALLOW_LOOT;
+    lootAllPassed.DungeonEncounterID = m_loot->GetDungeonEncounterId();
     lootAllPassed.Write();
 
     for (auto const& [playerGuid, roll] : m_rollVoteMap)
@@ -282,6 +284,7 @@ void LootRoll::SendRoll(ObjectGuid const& targetGuid, int32 rollNumber, RollVote
     lootRoll.Autopassed = false;
     FillPacket(lootRoll.Item);
     lootRoll.Item.UIType = LOOT_SLOT_TYPE_ROLL_ONGOING;
+    lootRoll.DungeonEncounterID = m_loot->GetDungeonEncounterId();
     lootRoll.Write();
 
     for (auto const& [playerGuid, roll] : m_rollVoteMap)
@@ -337,6 +340,7 @@ void LootRoll::SendLootRollWon(ObjectGuid const& targetGuid, int32 rollNumber, R
     lootRollWon.RollType = AsUnderlyingType(rollType);
     FillPacket(lootRollWon.Item);
     lootRollWon.Item.UIType = LOOT_SLOT_TYPE_LOCKED;
+    lootRollWon.DungeonEncounterID = m_loot->GetDungeonEncounterId();
     lootRollWon.MainSpec = true;    // offspec rolls not implemented
     lootRollWon.Write();
 
@@ -759,7 +763,7 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
     if (!tab)
     {
         if (!noEmptyError)
-            TC_LOG_ERROR("sql.sql", "Table '%s' loot id #%u used but it doesn't have records.", store.GetName(), lootId);
+            TC_LOG_ERROR("sql.sql", "Table '{}' loot id #{} used but it doesn't have records.", store.GetName(), lootId);
         return false;
     }
 
@@ -902,6 +906,9 @@ LootItem const* Loot::GetItemInSlot(uint32 lootListId) const
 
 LootItem* Loot::LootItemInSlot(uint32 lootListId, Player const* player, NotNormalLootItem** ffaItem)
 {
+    if (lootListId >= items.size())
+        return nullptr;
+
     LootItem* item = &items[lootListId];
     bool is_looted = item->is_looted;
 

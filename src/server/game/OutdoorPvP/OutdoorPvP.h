@@ -23,6 +23,7 @@
 #include "SharedDefines.h"
 #include "ZoneScript.h"
 #include <map>
+#include <memory>
 
 enum OutdoorPvPTypes
 {
@@ -157,12 +158,16 @@ class TC_GAME_API OutdoorPvP : public ZoneScript
     public:
 
         // ctor
-        OutdoorPvP(Map* map);
+        explicit OutdoorPvP(Map* map);
+        OutdoorPvP(OutdoorPvP const& right) = delete;
+        OutdoorPvP(OutdoorPvP&& right) = delete;
+        OutdoorPvP& operator=(OutdoorPvP const& right) = delete;
+        OutdoorPvP& operator=(OutdoorPvP&& right) = delete;
 
         // dtor
         virtual ~OutdoorPvP();
 
-        typedef std::map<ObjectGuid::LowType/*spawnId*/, OPvPCapturePoint*> OPvPCapturePointMap;
+        typedef std::map<ObjectGuid::LowType/*spawnId*/, std::unique_ptr<OPvPCapturePoint>> OPvPCapturePointMap;
 
         // called when a player triggers an areatrigger
         virtual bool HandleAreaTrigger(Player* /*player*/, uint32 /*trigger*/, bool /*entered*/) { return false; }

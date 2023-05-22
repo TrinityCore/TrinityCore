@@ -48,6 +48,10 @@ class TC_PROTO_API ClubService : public ServiceBase
  public:
 
   explicit ClubService(bool use_original_hash);
+  ClubService(ClubService const&) = delete;
+  ClubService(ClubService&&) = delete;
+  ClubService& operator=(ClubService const&) = delete;
+  ClubService& operator=(ClubService&&) = delete;
   virtual ~ClubService();
 
   typedef std::integral_constant<uint32, 0xE273DE0Eu> OriginalHash;
@@ -116,9 +120,61 @@ class TC_PROTO_API ClubService : public ServiceBase
   virtual uint32 HandleGetStreamMessage(::bgs::protocol::club::v1::GetStreamMessageRequest const* request, ::bgs::protocol::club::v1::GetStreamMessageResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
 
  private:
-  uint32 service_hash_;
-
-  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(ClubService);
+  void ParseAndHandleSubscribe(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleUnsubscribe(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleCreate(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleDestroy(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleGetDescription(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleGetClubType(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleUpdateClubState(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleUpdateClubSettings(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleJoin(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleLeave(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleKick(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleGetMember(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleGetMembers(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleUpdateMemberState(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleUpdateSubscriberState(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleAssignRole(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleUnassignRole(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleSendInvitation(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleAcceptInvitation(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleDeclineInvitation(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleRevokeInvitation(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleGetInvitation(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleGetInvitations(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleSendSuggestion(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleAcceptSuggestion(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleDeclineSuggestion(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleGetSuggestion(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleGetSuggestions(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleCreateTicket(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleDestroyTicket(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleRedeemTicket(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleGetTicket(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleGetTickets(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleAddBan(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleRemoveBan(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleGetBan(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleGetBans(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleSubscribeStream(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleUnsubscribeStream(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleCreateStream(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleDestroyStream(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleGetStream(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleGetStreams(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleUpdateStreamState(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleSetStreamFocus(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleGetStreamVoiceToken(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleKickFromStreamVoice(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleCreateMessage(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleDestroyMessage(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleEditMessage(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleSetMessagePinned(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleSetTypingIndicator(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleAdvanceStreamViewTime(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleGetStreamHistory(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleGetStreamMessage(uint32 token, uint32 methodId, MessageBuffer& buffer);
 };
 
 // ===================================================================
