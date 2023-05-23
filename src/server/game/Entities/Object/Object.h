@@ -432,7 +432,7 @@ class FlaggedValuesArray32
         T_FLAGS m_flags;
 };
 
-struct FindCreatureOptions
+struct TC_GAME_API FindCreatureOptions
 {
     FindCreatureOptions();
     ~FindCreatureOptions();
