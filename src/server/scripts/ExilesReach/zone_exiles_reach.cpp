@@ -177,7 +177,6 @@ public:
                     break;
                 case RACE_PANDAREN_ALLIANCE:
                     SpawnActor(player, player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId("q58208_turtle").SetIgnorePhases(true)), petpos);
-
                     break;
                 default:
                     break;
