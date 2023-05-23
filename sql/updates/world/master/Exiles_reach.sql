@@ -269,39 +269,36 @@ UPDATE `quest_template_addon` SET `ScriptName`='quest_brace_for_impact' WHERE `I
 
 -- *** String IDs ***
 
-UPDATE `creature` SET `StringId`="garrick1_alliance_ship" WHERE `guid`=1050145;
-UPDATE `creature` SET `StringId`="garrick2_alliance_ship" WHERE `guid`=1050589;
-UPDATE `creature` SET `StringId`="garrick3_alliance_ship" WHERE `guid`=1050176;
-UPDATE `creature` SET `StringId`="richter_alliance_ship" WHERE `guid`=1050177;
-UPDATE `creature` SET `StringId`="austin_alliance_ship" WHERE `guid`=1050178;
-UPDATE `creature` SET `StringId`="bjorn_alliance_ship" WHERE `guid`=1050179;
-UPDATE `creature` SET `StringId`="keela_alliance_ship" WHERE `guid`=1050180;
-UPDATE `creature` SET `StringId`="cole_alliance_ship" WHERE `guid`=1050181;
-
-UPDATE `creature` SET `StringId`="wolf_alliance_ship" WHERE `guid`=1050152;
-UPDATE `creature` SET `StringId`="bear_alliance_ship" WHERE `guid`=1050148;
-UPDATE `creature` SET `StringId`="tiger_alliance_ship" WHERE `guid`=1050150;
-UPDATE `creature` SET `StringId`="bunny_alliance_ship" WHERE `guid`=1050154;
-UPDATE `creature` SET `StringId`="moth_alliance_ship" WHERE `guid`=1050156;
-UPDATE `creature` SET `StringId`="dog_alliance_ship" WHERE `guid`=1050158;
-UPDATE `creature` SET `StringId`="turtle_alliance_ship" WHERE `guid`=1050160;
-
-UPDATE `creature` SET `StringId`="grimaxe1_horde_ship" WHERE `guid`=1050189;
-UPDATE `creature` SET `StringId`="grimaxe2_horde_ship" WHERE `guid`=1050190;
-UPDATE `creature` SET `StringId`="grimaxe3_horde_ship" WHERE `guid`=1050191;
-UPDATE `creature` SET `StringId`="bo_horde_ship" WHERE `guid`=1050201;
-UPDATE `creature` SET `StringId`="mithdran_horde_ship" WHERE `guid`=1050199;
-UPDATE `creature` SET `StringId`="lana_horde_ship" WHERE `guid`=1050198;
-UPDATE `creature` SET `StringId`="jinhake_horde_ship" WHERE `guid`=1050200;
-UPDATE `creature` SET `StringId`="throg_horde_ship" WHERE `guid`=1050188;
-
-UPDATE `creature` SET `StringId`="wolf_horde_ship" WHERE `guid`=1050203;
-UPDATE `creature` SET `StringId`="bat_horde_ship" WHERE `guid`=1050205;
-UPDATE `creature` SET `StringId`="plainstrider_horde_ship" WHERE `guid`=1050207;
-UPDATE `creature` SET `StringId`="raptor_horde_ship" WHERE `guid`=1050209;
-UPDATE `creature` SET `StringId`="scorpion_horde_ship" WHERE `guid`=1050213;
-UPDATE `creature` SET `StringId`="dragonhawk_horde_ship" WHERE `guid`=1050211;
-UPDATE `creature` SET `StringId`="turtle_horde_ship" WHERE `guid`=1050215;
+UPDATE `creature` SET `StringId`="q56775_garrick_lower_deck" WHERE `guid`=1050145;
+UPDATE `creature` SET `StringId`="q56775_garrick_upper_deck" WHERE `guid`=1050589;
+UPDATE `creature` SET `StringId`="q58208_garrick" WHERE `guid`=1050176;
+UPDATE `creature` SET `StringId`="q58208_richter" WHERE `guid`=1050177;
+UPDATE `creature` SET `StringId`="q58208_austin" WHERE `guid`=1050178;
+UPDATE `creature` SET `StringId`="q58208_bjorn" WHERE `guid`=1050179;
+UPDATE `creature` SET `StringId`="q58208_keela" WHERE `guid`=1050180;
+UPDATE `creature` SET `StringId`="q58208_cole" WHERE `guid`=1050181;
+UPDATE `creature` SET `StringId`="q58208_wolf" WHERE `guid`=1050152;
+UPDATE `creature` SET `StringId`="q58208_bear" WHERE `guid`=1050148;
+UPDATE `creature` SET `StringId`="q58208_tiger" WHERE `guid`=1050150;
+UPDATE `creature` SET `StringId`="q58208_bunny" WHERE `guid`=1050154;
+UPDATE `creature` SET `StringId`="q58208_moth" WHERE `guid`=1050156;
+UPDATE `creature` SET `StringId`="q58208_dog" WHERE `guid`=1050158;
+UPDATE `creature` SET `StringId`="q58208_turtle" WHERE `guid`=1050160;
+UPDATE `creature` SET `StringId`="q59926_grimaxe_lower_deck" WHERE `guid`=1050189;
+UPDATE `creature` SET `StringId`="q59926_grimaxe_upper_deck" WHERE `guid`=1050190;
+UPDATE `creature` SET `StringId`="q59928_grimaxe" WHERE `guid`=1050191;
+UPDATE `creature` SET `StringId`="q59928_bo" WHERE `guid`=1050201;
+UPDATE `creature` SET `StringId`="q59928_mithdran" WHERE `guid`=1050199;
+UPDATE `creature` SET `StringId`="q59928_lana" WHERE `guid`=1050198;
+UPDATE `creature` SET `StringId`="q59928_jinhake" WHERE `guid`=1050200;
+UPDATE `creature` SET `StringId`="q59928_throg" WHERE `guid`=1050188;
+UPDATE `creature` SET `StringId`="q59928_wolf" WHERE `guid`=1050203;
+UPDATE `creature` SET `StringId`="q59928_bat" WHERE `guid`=1050205;
+UPDATE `creature` SET `StringId`="q59928_plainstrider" WHERE `guid`=1050207;
+UPDATE `creature` SET `StringId`="q59928_raptor" WHERE `guid`=1050209;
+UPDATE `creature` SET `StringId`="q59928_scorpion" WHERE `guid`=1050213;
+UPDATE `creature` SET `StringId`="q59928_dragonhawk" WHERE `guid`=1050211;
+UPDATE `creature` SET `StringId`="q59928_turtle" WHERE `guid`=1050215;
 
 -- *** Pathing ***
 
