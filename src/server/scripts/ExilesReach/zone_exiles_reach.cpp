@@ -109,6 +109,7 @@ public:
         if (newStatus != QUEST_STATUS_NONE)
             return;
 
+        // Remove aura if player drops quest
         if (player->GetTeam() == ALLIANCE)
             player->RemoveAura(SPELL_SUMMON_COLE);
         else
@@ -116,7 +117,7 @@ public:
     }
 };
 
-// This quest script is used for alliance and horde quest "Brace For Impact" // Not complete
+// This quest script is used for alliance and horde quest "Brace For Impact"
 
 class quest_brace_for_impact : public QuestScript
 {
