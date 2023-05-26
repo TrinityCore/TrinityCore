@@ -7043,6 +7043,7 @@ void AACenter::M_SendAA_Conf(Player* player, std::string prefix)
                 result += std::to_string(it.second.jifen); result += ",";
                 result += std::to_string(it.second.battlecore); result += ",";
                 result += std::to_string(it.second.honorcore); result += ",";
+                result += std::to_string(0); result += ",";
                 result += std::to_string(it.second.deplete); result += ",";
                 result += "\""; result += it.second.items; result += "\",";
                 result += std::to_string(it.second.level_item_ItemLevel); result += ","; //物品ItemLevel

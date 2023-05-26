@@ -1816,6 +1816,7 @@ public:
                     pId = aaCenter.aa_teleports[conf.menuid].menuid;
                 }
                 SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, player->GetGUID());
+                SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, player->GetGUID());
             }
         }
         return true;
