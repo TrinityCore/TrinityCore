@@ -322,12 +322,11 @@ struct npc_sparring_partner : public ScriptedAI
     void IsSummonedBy(WorldObject* summonerWO) override
     {
         Unit* summoner = summonerWO->ToUnit();
-        _playerGUID = summoner->GetGUID();
 
         if (!summoner || !summoner->IsPlayer())
             return;
 
-
+        _playerGUID = summoner->GetGUID();
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
