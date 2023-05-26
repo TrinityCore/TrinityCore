@@ -54,7 +54,8 @@ enum QuestScripts
     QUEST_BRACE_FOR_IMPACT_HORDE     = 59928,
 
     SPELL_SUMMON_COLE                = 303064,
-    SPELL_SUMMON_THROG               = 325107
+    SPELL_SUMMON_THROG               = 325107,
+    SPELL_COMBAT_TRAINING_COMPLETE   = 303120
 };
 
 // This quest script is used for alliance and horde quest "Warming Up"
@@ -106,14 +107,9 @@ public:
 
     void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
     {
-        if (newStatus != QUEST_STATUS_NONE)
-            return;
-
         // Remove aura if player drops quest
-        if (player->GetTeam() == ALLIANCE)
-            player->RemoveAura(SPELL_SUMMON_COLE);
-        else
-            player->RemoveAura(SPELL_SUMMON_THROG);
+        if (newStatus == QUEST_STATUS_NONE)
+            player->CastSpell(player, SPELL_COMBAT_TRAINING_COMPLETE);
     }
 };
 
@@ -270,8 +266,8 @@ enum SparingPartner
     EQUIPMENT_AXE                   = 175161,
 
     EVENT_MOVE_TO_A_POSITION        = 1,
-    EVENT_PREFIGHT_CONVERSATION     = 2,
-    EVENT_WALK_BACK                 = 3,
+    EVENT_PREFIGHT_CONVERSATION,
+    EVENT_WALK_BACK,
 
     NPC_ALLIANCE_SPARING_PARTNER    = 157051,
     NPC_HORDE_SPARING_PARTNER       = 166814,
@@ -300,7 +296,6 @@ struct npc_sparring_partner : public ScriptedAI
         if (me->GetEntry() == NPC_ALLIANCE_SPARING_PARTNER)
         {
             SetEquipmentSlots(false, EQUIPMENT_SWORD, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
-            _summonSpell = SPELL_SUMMON_COLE;
             _path = PATH_ALLIANCE_SPARING_PARTNER;
             _actorId = ACTOR_ID_ALLIANCE;
             _actorIndex = 0;
@@ -308,7 +303,6 @@ struct npc_sparring_partner : public ScriptedAI
         else if (me->GetEntry() == NPC_HORDE_SPARING_PARTNER)
         {
             SetEquipmentSlots(false, EQUIPMENT_AXE, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
-            _summonSpell = SPELL_SUMMON_THROG;
             _path = PATH_HORDE_SPARING_PARTNER;
             _actorId = ACTOR_ID_HORDE;
             _actorIndex = 1;
@@ -361,14 +355,12 @@ struct npc_sparring_partner : public ScriptedAI
 
     void WaypointPathEnded(uint32 /*nodeId*/, uint32 /*pathId*/) override
     {
-        Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID);
-
-        if (!player)
-            return;
-
-        player->KilledMonsterCredit(NPC_KILL_CREDIT); // MINOR HACK should be done when fight ends but phase change is tied to quest conditions.
-        player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT); // Here is where phase should change.
-        player->RemoveAura(_summonSpell);
+        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+        {
+            player->KilledMonsterCredit(NPC_KILL_CREDIT); // MINOR HACK should be done when fight ends but phase change is tied to quest conditions.
+            player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT); // Here is where phase should change.
+            player->CastSpell(player, SPELL_COMBAT_TRAINING_COMPLETE);
+        }
     }
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
@@ -380,13 +372,12 @@ struct npc_sparring_partner : public ScriptedAI
             DoStopAttack();
             me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNINTERACTIBLE);
 
-            Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID);
-            if (!player)
-                return;
-
-            me->SetFacingToObject(player);
-            Talk(TALK_SPARING_COMPLETE, player);
-            player->CastSpell(player, SPELL_COMBAT_TRAINING);
+            if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+            {
+                me->SetFacingToObject(player);
+                Talk(TALK_SPARING_COMPLETE, player);
+                player->CastSpell(player, SPELL_COMBAT_TRAINING);
+            }
         }
 
         if (me->HealthBelowPctDamaged(65, damage) && !_jumped)
@@ -397,7 +388,7 @@ struct npc_sparring_partner : public ScriptedAI
         }
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         ConversationWithPlayer(CONVERSATION_AGGRO);
     }
@@ -410,14 +401,12 @@ struct npc_sparring_partner : public ScriptedAI
 
     void ConversationWithPlayer(uint32 conversationId)
     {
-        Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID);
-
-        if (!player)
-            return;
-
-        Conversation* conversation = Conversation::CreateConversation(conversationId, player, *player, player->GetGUID(), nullptr, false);
-        conversation->AddActor(_actorId, _actorIndex, me->GetGUID());
-        conversation->Start();
+        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+        {
+            Conversation* conversation = Conversation::CreateConversation(conversationId, player, *player, player->GetGUID(), nullptr, false);
+            conversation->AddActor(_actorId, _actorIndex, me->GetGUID());
+            conversation->Start();
+        }
     }
 
     void UpdateAI(uint32 diff) override
@@ -446,7 +435,6 @@ struct npc_sparring_partner : public ScriptedAI
                     break;
                 case EVENT_WALK_BACK:
                     me->GetMotionMaster()->Clear();
-                    me->SetWalk(true);
                     me->GetMotionMaster()->MovePath(_path, false);
                     break;
                 default:
@@ -465,7 +453,6 @@ private:
     uint8 _actorIndex = 0;
     uint32 _actorId = 0;
     uint32 _path = 0;
-    uint32 _summonSpell = 0;
     ObjectGuid _playerGUID;
 };
 
@@ -494,13 +481,13 @@ struct npc_ship_captain_private : public ScriptedAI
     {
         if (me->GetEntry() == NPC_CAPTAIN_GARRICK)
         {
-            _path1 = PATH_GARRICK_TO_COLE;
-            _path2 = PATH_GARRICK_TO_UPPER_DECK;
+            _path_to_sparing_partner = PATH_GARRICK_TO_COLE;
+            _path_to_upper_deck = PATH_GARRICK_TO_UPPER_DECK;
         }
         else if (me->GetEntry() == NPC_WARLORD_BREKA_GRIMAXE2)
         {
-            _path1 = PATH_GRIMAXE_TO_THROG;
-            _path2 = PATH_GRIMAXE_TO_UPPER_DECK;
+            _path_to_sparing_partner = PATH_GRIMAXE_TO_THROG;
+            _path_to_upper_deck = PATH_GRIMAXE_TO_UPPER_DECK;
         }
 
         me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
@@ -509,9 +496,9 @@ struct npc_ship_captain_private : public ScriptedAI
 
     void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
     {
-        if (pathId == _path1)
+        if (pathId == _path_to_sparing_partner)
             _events.ScheduleEvent(EVENT_SHIP_CAPTAIN1_SCRIPT2, 1s);
-        else if (pathId == _path2)
+        else if (pathId == _path_to_upper_deck)
             me->DespawnOrUnsummon();
     }
 
@@ -525,14 +512,14 @@ struct npc_ship_captain_private : public ScriptedAI
             {
                 case EVENT_SHIP_CAPTAIN1_SCRIPT1:
                     Talk(SAY_SPAR);
-                    me->GetMotionMaster()->MovePath(_path1, false);
+                    me->GetMotionMaster()->MovePath(_path_to_sparing_partner, false);
                     break;
                 case EVENT_SHIP_CAPTAIN1_SCRIPT2:
                     me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
                     _events.ScheduleEvent(EVENT_SHIP_CAPTAIN1_SCRIPT3, 3s);
                     break;
                 case EVENT_SHIP_CAPTAIN1_SCRIPT3:
-                    me->GetMotionMaster()->MovePath(_path2, false);
+                    me->GetMotionMaster()->MovePath(_path_to_upper_deck, false);
                     break;
                 default:
                     break;
@@ -541,8 +528,8 @@ struct npc_ship_captain_private : public ScriptedAI
     }
 private:
     EventMap _events;
-    uint32 _path1 = 0;
-    uint32 _path2 = 0;
+    uint32 _path_to_sparing_partner = 0;
+    uint32 _path_to_upper_deck = 0;
 };
 
 // This script used to script Captain Garrick and Warlord Breka Grimaxe for quest "Brace for Impact" Alliance and Horde
@@ -569,24 +556,24 @@ struct npc_ship_captain2_private : public ScriptedAI
     {
         if (me->GetEntry() == NPC_CAPTAIN_GARRICK)
         {
-            _path1 = PATH_GARRICK_FROM_UPPER_DECK;
-            _path2 = PATH_GARRICK_TO_LOWER_DECK;
+            _path_pre_talk = PATH_GARRICK_FROM_UPPER_DECK;
+            _path_post_talk = PATH_GARRICK_TO_LOWER_DECK;
         }
         else if (me->GetEntry() == NPC_WARLORD_BREKA_GRIMAXE3)
         {
-            _path1 = PATH_GRIMAXE_FROM_UPPER_DECK;
-            _path2 = PATH_GRIMAXE_TO_LOWER_DECK;
+            _path_pre_talk = PATH_GRIMAXE_FROM_UPPER_DECK;
+            _path_post_talk = PATH_GRIMAXE_TO_LOWER_DECK;
         }
 
         me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
-        me->GetMotionMaster()->MovePath(_path1, false);
+        me->GetMotionMaster()->MovePath(_path_pre_talk, false);
     }
 
     void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
     {
-        if (pathId == _path1)
+        if (pathId == _path_pre_talk)
             _events.ScheduleEvent(EVENT_SHIP_CAPTAIN2_SCRIPT1, 1s);
-        else if (pathId == _path2)
+        else if (pathId == _path_post_talk)
             me->DespawnOrUnsummon();
     }
 
@@ -603,7 +590,7 @@ struct npc_ship_captain2_private : public ScriptedAI
                     _events.ScheduleEvent(EVENT_SHIP_CAPTAIN2_SCRIPT2, 2s);
                     break;
                 case EVENT_SHIP_CAPTAIN2_SCRIPT2:
-                    me->GetMotionMaster()->MovePath(_path2, false);
+                    me->GetMotionMaster()->MovePath(_path_post_talk, false);
                     break;
                 default:
                     break;
@@ -612,8 +599,8 @@ struct npc_ship_captain2_private : public ScriptedAI
     }
 private:
     EventMap _events;
-    uint32 _path1 = 0;
-    uint32 _path2 = 0;
+    uint32 _path_pre_talk = 0;
+    uint32 _path_post_talk = 0;
 };
 
 CreatureAI* CaptainGarrickShipAISelector(Creature* creature)
