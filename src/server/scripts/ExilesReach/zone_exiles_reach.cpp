@@ -468,11 +468,17 @@ struct npc_sparring_partner : public ScriptedAI
                     Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID);
 
                     if (!player)
+                    {
+                        me->DespawnOrUnsummon();
+                        break;
+                    }
+
+                    if (!player->IsInWorld())
                         me->DespawnOrUnsummon();
                     else
                         _events.ScheduleEvent(EVENT_CHECK_FOR_PLAYER, 1s);
                 }
-                    break;
+                break;
                 default:
                     break;
             }
