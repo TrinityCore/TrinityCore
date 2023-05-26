@@ -272,6 +272,7 @@ enum SparingPartner
     EVENT_MOVE_TO_A_POSITION        = 1,
     EVENT_PREFIGHT_CONVERSATION     = 2,
     EVENT_WALK_BACK                 = 3,
+    EVENT_CHECK_FOR_PLAYER          = 4,
 
     NPC_ALLIANCE_SPARING_PARTNER    = 157051,
     NPC_HORDE_SPARING_PARTNER       = 166814,
@@ -313,17 +314,20 @@ struct npc_sparring_partner : public ScriptedAI
             _actorId = ACTOR_ID_HORDE;
             _actorIndex = 1;
         }
+
+        _events.ScheduleEvent(EVENT_MOVE_TO_A_POSITION, 2s);
+        _events.ScheduleEvent(EVENT_CHECK_FOR_PLAYER, 1s);
     }
 
     void IsSummonedBy(WorldObject* summonerWO) override
     {
         Unit* summoner = summonerWO->ToUnit();
+        _playerGUID = summoner->GetGUID();
 
         if (!summoner || !summoner->IsPlayer())
             return;
 
-        _playerGUID = summoner->GetGUID();
-        _events.ScheduleEvent(EVENT_MOVE_TO_A_POSITION, 2s);
+
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -380,7 +384,6 @@ struct npc_sparring_partner : public ScriptedAI
             me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNINTERACTIBLE);
 
             Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID);
-
             if (!player)
                 return;
 
@@ -415,6 +418,12 @@ struct npc_sparring_partner : public ScriptedAI
         Conversation* conversation = Conversation::CreateConversation(CONVERSATION_AGGRO, player, *player, player->GetGUID(), nullptr, false);
         conversation->AddActor(_actorId, _actorIndex, me->GetGUID());
         conversation->Start();
+    }
+
+    void DamageDealt(Unit* target, uint32& damage, DamageEffectType /*damageType*/) override
+    {
+        if (target->GetHealthPct() < 90)
+            damage = 0;
     }
 
     void UpdateAI(uint32 diff) override
@@ -454,6 +463,16 @@ struct npc_sparring_partner : public ScriptedAI
                     me->GetMotionMaster()->Clear();
                     me->SetWalk(true);
                     me->GetMotionMaster()->MovePath(_path, false);
+                    break;
+                case EVENT_CHECK_FOR_PLAYER:
+                {
+                    Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID);
+
+                    if (!player)
+                        me->DespawnOrUnsummon();
+                    else
+                        _events.ScheduleEvent(EVENT_CHECK_FOR_PLAYER, 1s);
+                }
                     break;
                 default:
                     break;
