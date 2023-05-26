@@ -272,7 +272,6 @@ enum SparingPartner
     EVENT_MOVE_TO_A_POSITION        = 1,
     EVENT_PREFIGHT_CONVERSATION     = 2,
     EVENT_WALK_BACK                 = 3,
-    EVENT_CHECK_FOR_PLAYER          = 4,
 
     NPC_ALLIANCE_SPARING_PARTNER    = 157051,
     NPC_HORDE_SPARING_PARTNER       = 166814,
@@ -316,7 +315,6 @@ struct npc_sparring_partner : public ScriptedAI
         }
 
         _events.ScheduleEvent(EVENT_MOVE_TO_A_POSITION, 2s);
-        _events.ScheduleEvent(EVENT_CHECK_FOR_PLAYER, 1s);
     }
 
     void IsSummonedBy(WorldObject* summonerWO) override
@@ -395,34 +393,31 @@ struct npc_sparring_partner : public ScriptedAI
         {
             _jumped = true;
             DoCastVictim(SPELL_JUMP_BEHIND, true);
-
-            Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID);
-
-            if (!player)
-                return;
-
-            Conversation* conversation = Conversation::CreateConversation(CONVERSATION_JUMP, player, *player, player->GetGUID(), nullptr, false);
-            conversation->AddActor(_actorId, _actorIndex, me->GetGUID());
-            conversation->Start();
+            ConversationWithPlayer(CONVERSATION_JUMP);
         }
     }
 
     void JustEngagedWith(Unit* who) override
     {
-        Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID);
-
-        if (!player || who != player)
-            return;
-
-        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_AGGRO, player, *player, player->GetGUID(), nullptr, false);
-        conversation->AddActor(_actorId, _actorIndex, me->GetGUID());
-        conversation->Start();
+        ConversationWithPlayer(CONVERSATION_AGGRO);
     }
 
     void DamageDealt(Unit* target, uint32& damage, DamageEffectType /*damageType*/) override
     {
-        if (target->GetHealthPct() < 90)
+        if (target->GetHealthPct() < 91)
             damage = 0;
+    }
+
+    void ConversationWithPlayer(uint32 conversationId)
+    {
+        Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID);
+
+        if (!player)
+            return;
+
+        Conversation* conversation = Conversation::CreateConversation(conversationId, player, *player, player->GetGUID(), nullptr, false);
+        conversation->AddActor(_actorId, _actorIndex, me->GetGUID());
+        conversation->Start();
     }
 
     void UpdateAI(uint32 diff) override
@@ -447,38 +442,13 @@ struct npc_sparring_partner : public ScriptedAI
                     }
                     break;
                 case EVENT_PREFIGHT_CONVERSATION:
-                    {
-                        Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID);
-
-                        if (!player)
-                            break;
-
-                        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_PREFIGHT, player, *player, player->GetGUID(), nullptr, false);
-                        conversation->AddActor(_actorId, _actorIndex, me->GetGUID());
-                        conversation->Start();
-                    }
+                    ConversationWithPlayer(CONVERSATION_PREFIGHT);
                     break;
                 case EVENT_WALK_BACK:
                     me->GetMotionMaster()->Clear();
                     me->SetWalk(true);
                     me->GetMotionMaster()->MovePath(_path, false);
                     break;
-                case EVENT_CHECK_FOR_PLAYER:
-                {
-                    Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID);
-
-                    if (!player)
-                    {
-                        me->DespawnOrUnsummon();
-                        break;
-                    }
-
-                    if (!player->IsInWorld())
-                        me->DespawnOrUnsummon();
-                    else
-                        _events.ScheduleEvent(EVENT_CHECK_FOR_PLAYER, 1s);
-                }
-                break;
                 default:
                     break;
             }
