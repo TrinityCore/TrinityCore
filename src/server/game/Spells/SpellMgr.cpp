@@ -1495,7 +1495,7 @@ void SpellMgr::LoadSpellGroupStackRules()
             }
 
             if (commonAuraTypes.empty()) {
-                TC_LOG_ERROR("sql.sql", "Spells listed in `spell_group` for group %u with stack rule 3 do not have any aura type that multiple spells or their ranks would share, skipping", group_id);
+                TC_LOG_ERROR("sql.sql", "Spells listed in `spell_group` for group %u with stack rule 3 do not have any aura type that all spells in the group or their ranks would share, skipping", group_id);
                 continue;
             }
 
@@ -1534,33 +1534,6 @@ void SpellMgr::LoadSpellGroupStackRules()
                 if (!added)
                     sharedEffectAuraTypeIds.insert(maxAuraTypes.begin(), maxAuraTypes.end());
             }
-        }
-
-        // re-check spells against guessed group
-        for (uint32 spellId : spellIds)
-        {
-            SpellInfo const* spellInfo = AssertSpellInfo(spellId);
-
-            bool found = false;
-            while (spellInfo)
-            {
-                for (uint32 auraType : sharedEffectAuraTypeIds)
-                {
-                    if (spellInfo->HasAura(AuraType(auraType)))
-                    {
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (found)
-                    break;
-
-                spellInfo = spellInfo->GetNextRankSpell();
-            }
-
-            if (!found)
-                TC_LOG_ERROR("sql.sql", "None of the spell ranks of spellId %u in the group %u listed in `spell_group` with stack rule 3 in `spell_group_stack_rules` share any of the most frequent common aura types with another spell in the same group. It will not be affected by the group", spellId, group_id);
         }
 
         mSpellSameEffectStack[SpellGroup(group_id)] = sharedEffectAuraTypeIds;
