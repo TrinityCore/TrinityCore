@@ -1146,6 +1146,25 @@ void Spell::SelectImplicitNearbyTargets(SpellEffectInfo const& spellEffectInfo, 
                     }
                     return;
                 }
+                if (targetType.GetTarget() == TARGET_DEST_NEARBY_ENTRY_OR_DB)
+                {
+                    if (SpellTargetPosition const* st = sSpellMgr->GetSpellTargetPosition(m_spellInfo->Id, spellEffectInfo.EffectIndex))
+                    {
+                        SpellDestination dest(*m_caster);
+                        if (st->target_mapId == m_caster->GetMapId() && m_caster->IsInDist(st->target_X, st->target_Y, st->target_Z, range))
+                            dest = SpellDestination(st->target_X, st->target_Y, st->target_Z, st->target_Orientation);
+                        else
+                        {
+                            float randomRadius = spellEffectInfo.CalcRadius(m_caster);
+                            if (randomRadius > 0.0f)
+                                m_caster->MovePositionToFirstCollision(dest._position, randomRadius, targetType.CalcDirectionAngle());
+                        }
+
+                        CallScriptDestinationTargetSelectHandlers(dest, spellEffectInfo.EffectIndex, targetType);
+                        m_targets.SetDst(dest);
+                        return;
+                    }
+                }
                 break;
             default:
                 break;
@@ -1153,6 +1172,22 @@ void Spell::SelectImplicitNearbyTargets(SpellEffectInfo const& spellEffectInfo, 
     }
 
     WorldObject* target = SearchNearbyTarget(range, targetType.GetObjectType(), targetType.GetCheckType(), condList);
+    float randomRadius = 0.0f;
+    switch (targetType.GetTarget())
+    {
+        case TARGET_DEST_NEARBY_ENTRY_OR_DB:
+            // if we are here then there was no db target
+            if (!target)
+            {
+                target = m_caster;
+                // radius is only meant to be randomized when using caster fallback
+                randomRadius = spellEffectInfo.CalcRadius(m_caster);
+            }
+            break;
+        default:
+            break;
+    }
+
     if (!target)
     {
         TC_LOG_DEBUG("spells", "Spell::SelectImplicitNearbyTargets: cannot find nearby target for spell ID {}, effect {}", m_spellInfo->Id, uint32(spellEffectInfo.EffectIndex));
@@ -1208,6 +1243,9 @@ void Spell::SelectImplicitNearbyTargets(SpellEffectInfo const& spellEffectInfo, 
         case TARGET_OBJECT_TYPE_DEST:
         {
             SpellDestination dest(*target);
+            if (randomRadius > 0.0f)
+                target->MovePositionToFirstCollision(dest._position, randomRadius, targetType.CalcDirectionAngle());
+
             if (m_spellInfo->HasAttribute(SPELL_ATTR4_USE_FACING_FROM_SPELL))
                 dest._position.SetOrientation(spellEffectInfo.PositionFacing);
 

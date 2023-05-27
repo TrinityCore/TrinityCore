@@ -1202,7 +1202,13 @@ void SpellMgr::LoadSpellTargetPositions()
         else
             st.target_Orientation = spellInfo->GetEffect(effIndex).PositionFacing;
 
-        if (spellInfo->GetEffect(effIndex).TargetA.GetTarget() == TARGET_DEST_DB || spellInfo->GetEffect(effIndex).TargetB.GetTarget() == TARGET_DEST_DB)
+        auto hasTarget = [&](Targets target)
+        {
+            SpellEffectInfo const& spellEffectInfo = spellInfo->GetEffect(effIndex);
+            return spellEffectInfo.TargetA.GetTarget() == target || spellEffectInfo.TargetB.GetTarget() == target;
+        };
+
+        if (hasTarget(TARGET_DEST_DB) || hasTarget(TARGET_DEST_NEARBY_ENTRY_OR_DB))
         {
             std::pair<uint32, SpellEffIndex> key = std::make_pair(spellId, effIndex);
             mSpellTargetPositions[key] = st;
