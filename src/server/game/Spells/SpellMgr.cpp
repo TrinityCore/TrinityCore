@@ -412,7 +412,7 @@ bool SpellMgr::AddSameEffectStackRuleSpellGroups(SpellInfo const* spellInfo, uin
         if (found != mSpellSameEffectStack.end())
         {
             // check auraTypes
-            if (!found->second.count(auraType))
+            if (found->second.find(auraType) == found->second.end())
                 continue;
 
             // Put the highest amount in the map
@@ -1413,69 +1413,89 @@ void SpellMgr::LoadSpellGroupStackRules()
     oldMSTime = getMSTime();
     TC_LOG_INFO("server.loading", ">> Parsing SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT stack rules...");
 
+    // Haste effects cancel each other out, so define a special shared group for them
+    std::vector<std::vector<AuraType>> const SubGroups =
+    {
+        { SPELL_AURA_MOD_MELEE_HASTE, SPELL_AURA_MOD_MELEE_RANGED_HASTE, SPELL_AURA_MOD_RANGED_HASTE }
+    };
+
     for (uint32 group_id : sameEffectGroups)
     {
         std::set<uint32> spellIds;
         GetSetOfSpellsInSpellGroup(SpellGroup(group_id), spellIds);
 
-        std::unordered_set<uint32> auraTypes;
+        std::unordered_set<uint32> sharedEffectAuraTypeIds;
 
-        // we have to 'guess' what effect this group corresponds to
+        // We have to 'guess' what effect this group corresponds to
+        // We do it by finding the most frequent aura type in the group between all spells and their ranks in the group
         {
-            std::unordered_multiset<uint32 /*auraName*/> frequencyContainer;
-
-            // only waylay for the moment (shared group)
-            std::vector<std::vector<uint32 /*auraName*/>> const SubGroups =
-            {
-                { SPELL_AURA_MOD_MELEE_HASTE, SPELL_AURA_MOD_MELEE_RANGED_HASTE, SPELL_AURA_MOD_RANGED_HASTE }
-            };
+            // Collection of unique aura types of all spells and their rank's effects.
+            // The count is increased only once for each aura type per spell and its ranks, even if it appears multiple times in the spell or their ranks.
+            std::map<uint32 /*auraType*/, uint32 /*count*/> frequencyContainer;
 
             for (uint32 spellId : spellIds)
             {
-                SpellInfo const* spellInfo = AssertSpellInfo(spellId);
-                for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
-                {
-                    if (!spellEffectInfo.IsAura())
-                        continue;
-
-                    uint32 auraName = spellEffectInfo.ApplyAuraName;
-                    for (std::vector<uint32> const& subGroup : SubGroups)
-                    {
-                        if (std::find(subGroup.begin(), subGroup.end(), auraName) != subGroup.end())
-                        {
-                            // count as first aura
-                            auraName = subGroup.front();
-                            break;
+                // Collect the aura types of all effects of the spell and its ranks - but only once per aura type
+                std::set<AuraType> auraTypes;
+                SpellInfo const* firstRankSpellInfo = AssertSpellInfo(spellId)->GetFirstRankSpell();
+                // Loop through all ranks of the spell as the effect types may differ between ranks and only last rank is affected by stacking rules
+                // For example, only the last rank of 27275/soothing-kiss modifies attack speed, which is the aura type we are looking for
+                SpellInfo const* spellInfo = firstRankSpellInfo;
+                while (spellInfo) {
+                    for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects()) {
+                        if (!spellEffectInfo.IsAura()) {
+                            continue;
                         }
+                        AuraType auraType = spellEffectInfo.ApplyAuraName;
+                        for (auto const& subGroup : SubGroups)
+                        {
+                            if (std::find(subGroup.begin(), subGroup.end(), auraType) != subGroup.end())
+                            {
+                                // set the aura type to the first aura in the group
+                                auraType = subGroup.front();
+                                break;
+                            }
+                        }
+                        auraTypes.insert(auraType);
                     }
+                    spellInfo = spellInfo->GetNextRankSpell();
+                }
+                // Insert the aura types to the frequency container
+                for (uint32 auraName : auraTypes)
+                    ++frequencyContainer[auraName];
+            }
 
-                    frequencyContainer.insert(auraName);
+            // find auraType with maximum count from frequencyContainer
+            uint32 maxAuraType = 0;
+            size_t maxAuraTypeCount = 0;
+            for (auto& [auraType, count] : frequencyContainer)
+            {
+                if (count > maxAuraTypeCount)
+                {
+                    maxAuraType = auraType;
+                    maxAuraTypeCount = count;
+                }
+            }
+            for (auto& [auraType, count] : frequencyContainer)
+            {
+                if (auraType != maxAuraType && count == maxAuraTypeCount)
+                {
+                    TC_LOG_ERROR("sql.sql", "Spells listed in `spell_group` for group %u with stack rule 3 have multiple aura types that are most frequent (%u and %u), picking first one found", group_id, maxAuraType, auraType);
                 }
             }
 
-            uint32 auraType = 0;
-            size_t auraTypeCount = 0;
-            for (uint32 auraName : frequencyContainer)
+            // Expand the shared aura type group
+            for (auto const& subGroup : SubGroups)
             {
-                size_t currentCount = frequencyContainer.count(auraName);
-                if (currentCount > auraTypeCount)
+                if (maxAuraType == subGroup.front())
                 {
-                    auraType = auraName;
-                    auraTypeCount = currentCount;
-                }
-            }
-
-            for (std::vector<uint32> const& subGroup : SubGroups)
-            {
-                if (auraType == subGroup.front())
-                {
-                    auraTypes.insert(subGroup.begin(), subGroup.end());
+                    sharedEffectAuraTypeIds.insert(subGroup.begin(), subGroup.end());
                     break;
                 }
             }
 
-            if (auraTypes.empty())
-                auraTypes.insert(auraType);
+            if (sharedEffectAuraTypeIds.empty())
+                sharedEffectAuraTypeIds.insert(maxAuraType);
         }
 
         // re-check spells against guessed group
@@ -1486,7 +1506,7 @@ void SpellMgr::LoadSpellGroupStackRules()
             bool found = false;
             while (spellInfo)
             {
-                for (uint32 auraType : auraTypes)
+                for (uint32 auraType : sharedEffectAuraTypeIds)
                 {
                     if (spellInfo->HasAura(AuraType(auraType)))
                     {
@@ -1501,12 +1521,11 @@ void SpellMgr::LoadSpellGroupStackRules()
                 spellInfo = spellInfo->GetNextRankSpell();
             }
 
-            // not found either, log error
             if (!found)
-                TC_LOG_ERROR("sql.sql", "SpellId %u listed in `spell_group` with stack rule 3 does not share aura assigned for group %u", spellId, group_id);
+                TC_LOG_ERROR("sql.sql", "None of the spell ranks of spellId %u in the group %u listed in `spell_group` with stack rule 3 in `spell_group_stack_rules` share an aura effect type with another spell in the same group", spellId, group_id);
         }
 
-        mSpellSameEffectStack[SpellGroup(group_id)] = auraTypes;
+        mSpellSameEffectStack[SpellGroup(group_id)] = sharedEffectAuraTypeIds;
         ++count;
     }
 
