@@ -10747,7 +10747,7 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
                 if (dungeonEncounter)
                 {
                     creature->m_personalLoot = GenerateDungeonEncounterPersonalLoot(dungeonEncounter->ID, creature->GetLootId(),
-                        LootTemplates_Creature, LOOT_CORPSE, creature, creature->GetCreatureTemplate()->mingold, creature->GetCreatureTemplate()->maxgold,
+                        LootTemplates_Creature, LOOT_CORPSE, creature, creature->GetCreatureDifficulty()->GoldMin, creature->GetCreatureDifficulty()->GoldMax,
                         creature->GetLootMode(), creature->GetMap()->GetDifficultyLootItemContext(), tappers);
                 }
                 else if (!tappers.empty())
@@ -10761,7 +10761,7 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
                         loot->FillLoot(lootid, LootTemplates_Creature, looter, dungeonEncounter != nullptr, false, creature->GetLootMode(), creature->GetMap()->GetDifficultyLootItemContext());
 
                     if (creature->GetLootMode() > 0)
-                        loot->generateMoneyLoot(creature->GetCreatureTemplate()->mingold, creature->GetCreatureTemplate()->maxgold);
+                        loot->generateMoneyLoot(creature->GetCreatureDifficulty()->GoldMin, creature->GetCreatureDifficulty()->GoldMax);
 
                     if (group)
                         loot->NotifyLootList(creature->GetMap());
@@ -10787,7 +10787,7 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
                         loot->FillLoot(lootid, LootTemplates_Creature, tapper, true, false, creature->GetLootMode(), creature->GetMap()->GetDifficultyLootItemContext());
 
                     if (creature->GetLootMode() > 0)
-                        loot->generateMoneyLoot(creature->GetCreatureTemplate()->mingold, creature->GetCreatureTemplate()->maxgold);
+                        loot->generateMoneyLoot(creature->GetCreatureDifficulty()->GoldMin, creature->GetCreatureDifficulty()->GoldMax);
 
                     creature->m_personalLoot[tapper->GetGUID()].reset(loot);
                 }
@@ -10887,7 +10887,7 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
             else
                 creature->AllLootRemovedFromCorpse();
 
-            if (creature->CanHaveLoot() && LootTemplates_Skinning.HaveLootFor(creature->GetCreatureTemplate()->SkinLootId))
+            if (creature->CanHaveLoot() && LootTemplates_Skinning.HaveLootFor(creature->GetCreatureDifficulty()->SkinLootID))
             {
                 creature->SetDynamicFlag(UNIT_DYNFLAG_CAN_SKIN);
                 creature->SetUnitFlag(UNIT_FLAG_SKINNABLE);

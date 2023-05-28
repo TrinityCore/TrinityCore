@@ -230,7 +230,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     if (petInfo->Type == HUNTER_PET)
     {
         CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(petInfo->CreatureId);
-        if (!creatureInfo || !creatureInfo->IsTameable(owner->CanTameExoticPets()))
+        if (!creatureInfo || !creatureInfo->IsTameable(owner->CanTameExoticPets(), GetCreatureDifficulty()))
             return false;
     }
 
@@ -919,7 +919,8 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
         CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(petlevel, cinfo->unit_class);
         ApplyLevelScaling();
 
-        SetCreateHealth(std::max(sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureHealth, petlevel, cinfo->GetHealthScalingExpansion(), m_unitData->ContentTuningID, Classes(cinfo->unit_class)) * cinfo->ModHealth * cinfo->ModHealthExtra * _GetHealthMod(cinfo->rank), 1.0f));
+        CreatureDifficulty const* creatureDifficulty = GetCreatureDifficulty();
+        SetCreateHealth(std::max(sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureHealth, petlevel, creatureDifficulty->GetHealthScalingExpansion(), m_unitData->ContentTuningID, Classes(cinfo->unit_class)) * creatureDifficulty->HealthModifier * _GetHealthMod(cinfo->rank), 1.0f));
         SetCreateMana(stats->BaseMana);
         SetCreateStat(STAT_STRENGTH, 22);
         SetCreateStat(STAT_AGILITY, 22);
