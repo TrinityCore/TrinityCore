@@ -504,7 +504,7 @@ struct npc_ship_captain_warming_up_private : public ScriptedAI
             _path_to_sparing_partner = PATH_GRIMAXE_TO_THROG;
             _path_to_upper_deck = PATH_GRIMAXE_TO_UPPER_DECK;
         }
-        
+
         _events.ScheduleEvent(EVENT_SHIP_CAPTAIN1_SCRIPT1, 1s);
     }
 
