@@ -2784,9 +2784,11 @@ void Player::InitStatsForLevel(bool reapplyMods)
 
     SetAttackPower(0);
     SetAttackPowerModPos(0);
+    SetAttackPowerModNeg(0);
     SetAttackPowerMultiplier(0.0f);
     SetRangedAttackPower(0);
     SetRangedAttackPowerModPos(0);
+    SetRangedAttackPowerModNeg(0);
     SetRangedAttackPowerMultiplier(0.0f);
 
     // Base crit values (will be recalculated in UpdateAllStats() at loading and in _ApplyAllStatBonuses() at reset
