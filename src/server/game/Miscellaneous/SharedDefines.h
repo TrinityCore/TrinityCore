@@ -2747,7 +2747,7 @@ enum Targets
     TARGET_UNK_139                              = 139,
     TARGET_DEST_CASTER_CLUMP_CENTROID           = 140, // NYI
     TARGET_UNK_141                              = 141,
-    TARGET_UNK_142                              = 142,
+    TARGET_DEST_NEARBY_ENTRY_OR_DB              = 142,
     TARGET_UNK_143                              = 143,
     TARGET_UNK_144                              = 144,
     TARGET_UNK_145                              = 145,
