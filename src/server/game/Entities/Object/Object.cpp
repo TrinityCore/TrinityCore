@@ -863,6 +863,9 @@ void MovementInfo::OutDebug()
         TC_LOG_DEBUG("misc", "standingOnGameObjectGUID: {}", standingOnGameObjectGUID->ToString());
 }
 
+FindCreatureOptions::FindCreatureOptions() = default;
+FindCreatureOptions::~FindCreatureOptions() = default;
+
 WorldObject::WorldObject(bool isWorldObject) : Object(), WorldLocation(), LastUsedScriptID(0),
 m_movementInfo(), m_name(), m_isActive(false), m_isFarVisible(false), m_isWorldObject(isWorldObject), m_zoneScript(nullptr),
 m_transport(nullptr), m_zoneId(0), m_areaId(0), m_staticFloorZ(VMAP_INVALID_HEIGHT), m_outdoors(false), m_liquidStatus(LIQUID_MAP_NO_WATER),
@@ -1917,7 +1920,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
 
     summon->SetHomePosition(pos);
 
-    summon->InitStats(duration);
+    summon->InitStats(summoner, duration);
 
     summon->SetPrivateObjectOwner(privateObjectOwner);
 
@@ -1948,7 +1951,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
         return nullptr;
     }
 
-    summon->InitSummon();
+    summon->InitSummon(summoner);
 
     // call MoveInLineOfSight for nearby creatures
     Trinity::AIRelocationNotifier notifier(*summon);
