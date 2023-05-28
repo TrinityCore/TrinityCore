@@ -664,9 +664,15 @@ struct npc_gothik_minion_livingrider : public npc_gothik_minion_baseAI
 {
     npc_gothik_minion_livingrider(Creature* creature) : npc_gothik_minion_baseAI(creature, SPELL_ANCHOR_1_RIDER), _boltVolleyTimer(urandms(5,10)) { }
 
-    void Reset() override
+    void JustAppeared() override
     {
-        npc_gothik_minion_baseAI::Reset();
+        npc_gothik_minion_baseAI::JustAppeared();
+        DoCastSelf(SPELL_UNHOLY_AURA, true);
+    }
+
+    void JustReachedHome() override
+    {
+        npc_gothik_minion_baseAI::JustReachedHome();
         DoCastSelf(SPELL_UNHOLY_AURA, true);
     }
 
@@ -727,9 +733,15 @@ struct npc_gothik_minion_spectralrider : public npc_gothik_minion_baseAI
 {
     npc_gothik_minion_spectralrider(Creature* creature) : npc_gothik_minion_baseAI(creature), _frenzyTimer(urandms(2,5)), _drainTimer(urandms(8,12)) { }
 
-    void Reset() override
+    void JustAppeared() override
     {
-        npc_gothik_minion_baseAI::Reset();
+        npc_gothik_minion_baseAI::JustAppeared();
+        DoCastSelf(SPELL_UNHOLY_AURA, true);
+    }
+
+    void JustReachedHome() override
+    {
+        npc_gothik_minion_baseAI::JustReachedHome();
         DoCastSelf(SPELL_UNHOLY_AURA, true);
     }
 
