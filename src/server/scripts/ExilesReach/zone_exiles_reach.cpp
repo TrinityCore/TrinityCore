@@ -632,12 +632,12 @@ CreatureAI* CaptainGarrickShipAISelector(Creature* creature)
     return new NullCreatureAI(creature);
 };
 
-CreatureAI* Grimaxe2ShipAISelector(Creature* creature)
+CreatureAI* GrimaxeLowerShipAISelector(Creature* creature)
 {
     return creature->IsPrivateObject() ? new npc_ship_captain_warming_up_private(creature) : nullptr;
 };
 
-CreatureAI* Grimaxe3ShipAISelector(Creature* creature)
+CreatureAI* GrimaxeUpperShipAISelector(Creature* creature)
 {
     return creature->IsPrivateObject() ? new npc_ship_captain_brace_for_impact_private(creature) : nullptr;
 };
@@ -982,7 +982,7 @@ class spell_summon_sparing_partner : public SpellScript
         {
             if(caster->GetTeam() == ALLIANCE)
                 partner = caster->FindNearestCreatureWithOptions(100.0f, FindCreatureOptions().SetStringId("q58209_cole").SetIgnorePhases(true));
-            else if (caster->GetTeam() == HORDE)
+            else
                 partner = caster->FindNearestCreatureWithOptions(100.0f, FindCreatureOptions().SetStringId("q59927_throg").SetIgnorePhases(true));
         }
 
@@ -1029,8 +1029,8 @@ void AddSC_zone_exiles_reach()
     // Ship
     RegisterCreatureAI(npc_sparring_partner);
     new FactoryCreatureScript<CreatureAI, &CaptainGarrickShipAISelector>("npc_captain_garrick_ship");
-    new FactoryCreatureScript<CreatureAI, &Grimaxe2ShipAISelector>("npc_warlord_grimaxe2_ship");
-    new FactoryCreatureScript<CreatureAI, &Grimaxe3ShipAISelector>("npc_warlord_grimaxe3_ship");
+    new FactoryCreatureScript<CreatureAI, &GrimaxeLowerShipAISelector>("npc_warlord_grimaxe_lower_ship");
+    new FactoryCreatureScript<CreatureAI, &GrimaxeUpperShipAISelector>("npc_warlord_grimaxe_upper_ship");
     new FactoryCreatureScript<CreatureAI, &ColeShipAISelector>("npc_cole_ship");
     new FactoryCreatureScript<CreatureAI, &ThrogShipAISelector>("npc_throg_ship");
     new FactoryCreatureScript<CreatureAI, &ShipCrewAISelector>("npc_crew_ship");

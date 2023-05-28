@@ -255,8 +255,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 -- *** Creature scripts ***
 
 UPDATE `creature_template` SET `ScriptName`="npc_captain_garrick_ship" WHERE entry IN (156280);
-UPDATE `creature_template` SET `ScriptName`="npc_warlord_grimaxe2_ship" WHERE entry IN (166824);
-UPDATE `creature_template` SET `ScriptName`="npc_warlord_grimaxe3_ship" WHERE entry IN (166827);
+UPDATE `creature_template` SET `ScriptName`="npc_warlord_grimaxe_lower_ship" WHERE entry IN (166824);
+UPDATE `creature_template` SET `ScriptName`="npc_warlord_grimaxe_upper_ship" WHERE entry IN (166827);
 UPDATE `creature_template` SET `ScriptName`='npc_sparring_partner' WHERE `entry` IN (157051,166814);
 UPDATE `creature_template` SET `ScriptName`="npc_cole_ship" WHERE entry IN (160664);
 UPDATE `creature_template` SET `ScriptName`="npc_throg_ship" WHERE entry IN (166583);
