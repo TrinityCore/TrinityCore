@@ -46,6 +46,7 @@ enum PriestSpells
     SPELL_PRIEST_ATONEMENT_HEAL                     = 81751,
     SPELL_PRIEST_ATONEMENT_TRIGGERED                = 194384,
     SPELL_PRIEST_ATONEMENT_TRIGGERED_TRINITY        = 214206,
+    SPELL_PRIEST_BENEDICTION                        = 193157,
     SPELL_PRIEST_BLESSED_HEALING                    = 70772,
     SPELL_PRIEST_BODY_AND_SOUL                      = 64129,
     SPELL_PRIEST_BODY_AND_SOUL_SPEED                = 65081,
@@ -1428,6 +1429,36 @@ class spell_pri_prayer_of_mending_jump : public spell_pri_prayer_of_mending_Spel
     }
 };
 
+// 33110 - Prayer of Mending (Heal)
+class spell_pri_prayer_of_mending_heal : public spell_pri_prayer_of_mending_SpellScriptBase
+{
+    PrepareSpellScript(spell_pri_prayer_of_mending_heal);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_BENEDICTION, SPELL_PRIEST_RENEW });
+    }
+
+    void HandleEffectHitTarget(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        if (AuraEffect* benediction = caster->GetAuraEffect(SPELL_PRIEST_BENEDICTION, EFFECT_0))
+        {
+            if (roll_chance_i(benediction->GetAmount()))
+                caster->CastSpell(target, SPELL_PRIEST_RENEW,
+                    CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS))
+                    .SetTriggeringSpell(GetSpell()));
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_prayer_of_mending_heal::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_HEAL);
+    }
+};
+
 // 204197 - Purge the Wicked
 // Called by Penance - 47540, Dark Reprimand - 400169
 class spell_pri_purge_the_wicked : public SpellScript
@@ -2015,6 +2046,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_prayer_of_mending);
     RegisterSpellScript(spell_pri_prayer_of_mending_aura);
     RegisterSpellScript(spell_pri_prayer_of_mending_jump);
+    RegisterSpellScript(spell_pri_prayer_of_mending_heal);
     RegisterSpellScript(spell_pri_purge_the_wicked);
     RegisterSpellScript(spell_pri_purge_the_wicked_dummy);
     RegisterSpellScript(spell_pri_rapture);
