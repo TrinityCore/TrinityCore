@@ -49,6 +49,8 @@ enum Spells
     SPELL_MORTAL_STRIKES_HEROIC                   = 59454
 };
 
+#define SPELL_MORTAL_STRIKES DUNGEON_MODE<uint32>(SPELL_MORTAL_STRIKES_NORMAL, SPELL_MORTAL_STRIKES_HEROIC)
+
 enum ColossusEvents
 {
     EVENT_MIGHTY_BLOW   = 1,
@@ -113,7 +115,7 @@ struct boss_drakkari_colossus : public BossAI
 
         Initialize();
 
-        DoCastSelf(GetDifficulty() != DIFFICULTY_NORMAL ? SPELL_MORTAL_STRIKES_HEROIC : SPELL_MORTAL_STRIKES_NORMAL, true);
+        DoCastSelf(SPELL_MORTAL_STRIKES, true);
     }
 
     void JustEngagedWith(Unit* who) override

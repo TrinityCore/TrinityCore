@@ -993,10 +993,9 @@ void LoadLootTemplates_Creature()
     CreatureTemplateContainer const& ctc = sObjectMgr->GetCreatureTemplates();
     for (auto const& creatureTemplatePair : ctc)
     {
-        std::unordered_map<Difficulty, CreatureDifficulty> const& cds = creatureTemplatePair.second.difficultyStore;
-        for (auto const& creatureDifficultyPair : cds)
+        for (auto const& [difficulty, creatureDifficulty] : creatureTemplatePair.second.difficultyStore)
         {
-            if (uint32 lootid = creatureDifficultyPair.second.LootID)
+            if (uint32 lootid = creatureDifficulty.LootID)
             {
                 if (!lootIdSet.count(lootid))
                     LootTemplates_Creature.ReportNonExistingId(lootid, "Creature", creatureTemplatePair.first);
@@ -1186,10 +1185,9 @@ void LoadLootTemplates_Pickpocketing()
     CreatureTemplateContainer const& ctc = sObjectMgr->GetCreatureTemplates();
     for (auto const& creatureTemplatePair : ctc)
     {
-        std::unordered_map<Difficulty, CreatureDifficulty> const& cds = creatureTemplatePair.second.difficultyStore;
-        for (auto const& creatureDifficultyPair : cds)
+        for (auto const& [difficulty, creatureDifficulty] : creatureTemplatePair.second.difficultyStore)
         {
-            if (uint32 lootid = creatureDifficultyPair.second.PickPocketLootID)
+            if (uint32 lootid = creatureDifficulty.PickPocketLootID)
             {
                 if (!lootIdSet.count(lootid))
                     LootTemplates_Pickpocketing.ReportNonExistingId(lootid, "Creature", creatureTemplatePair.first);
@@ -1277,10 +1275,9 @@ void LoadLootTemplates_Skinning()
     CreatureTemplateContainer const& ctc = sObjectMgr->GetCreatureTemplates();
     for (auto const& creatureTemplatePair : ctc)
     {
-        std::unordered_map<Difficulty, CreatureDifficulty> const& cds = creatureTemplatePair.second.difficultyStore;
-        for (auto const& creatureDifficultyPair : cds)
+        for (auto const& [difficulty, creatureDifficulty] : creatureTemplatePair.second.difficultyStore)
         {
-            if (uint32 lootid = creatureDifficultyPair.second.SkinLootID)
+            if (uint32 lootid = creatureDifficulty.SkinLootID)
             {
                 if (!lootIdSet.count(lootid))
                     LootTemplates_Skinning.ReportNonExistingId(lootid, "Creature", creatureTemplatePair.first);

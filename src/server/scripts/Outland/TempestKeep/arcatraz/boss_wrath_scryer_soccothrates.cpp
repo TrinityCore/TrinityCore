@@ -61,6 +61,8 @@ enum Spells
     SPELL_FEL_IMMOLATION_HEROIC     = 39007
 };
 
+#define SPELL_FEL_IMMOLATION DUNGEON_MODE<uint32>(SPELL_FEL_IMMOLATION_NORMAL, SPELL_FEL_IMMOLATION_HEROIC)
+
 enum Events
 {
     EVENT_FELFIRE_SHOCK             = 1,
@@ -95,7 +97,7 @@ struct boss_wrath_scryer_soccothrates : public BossAI
         dalliahTaunt = false;
         dalliahDeath = false;
 
-        DoCastSelf(GetDifficulty() != DIFFICULTY_NORMAL ? SPELL_FEL_IMMOLATION_HEROIC : SPELL_FEL_IMMOLATION_NORMAL, true);
+        DoCastSelf(SPELL_FEL_IMMOLATION, true);
     }
 
     void JustDied(Unit* /*killer*/) override
