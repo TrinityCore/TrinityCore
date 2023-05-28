@@ -280,7 +280,7 @@ class spell_pri_answered_prayers : public AuraScript
             answeredPrayers->Remove();
 
             caster->CastSpell(caster, SPELL_PRIEST_APOTHEOSIS,
-                CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS))
+                CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD | TRIGGERED_IGNORE_CAST_IN_PROGRESS))
                 .AddSpellMod(SPELLVALUE_DURATION, GetEffect(EFFECT_1)->GetAmount()));
         }
     }
