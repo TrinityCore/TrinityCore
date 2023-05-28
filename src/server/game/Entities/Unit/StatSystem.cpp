@@ -475,13 +475,19 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     if (ranged)
     {
         SetRangedAttackPower(int32(base_attPower));
-        SetRangedAttackPowerModPos(int32(attPowerMod));
+        if (attPowerMod >= 0)
+            SetRangedAttackPowerModPos(int32(attPowerMod));
+        if (attPowerMod <= 0)
+            SetRangedAttackPowerModNeg(int32(attPowerMod));
         SetRangedAttackPowerMultiplier(attPowerMultiplier);
     }
     else
     {
         SetAttackPower(int32(base_attPower));
-        SetAttackPowerModPos(int32(attPowerMod));
+        if (attPowerMod >= 0)
+            SetAttackPowerModPos(int32(attPowerMod));
+        if (attPowerMod <= 0)
+            SetAttackPowerModNeg(int32(attPowerMod));
         SetAttackPowerMultiplier(attPowerMultiplier);
     }
 
@@ -1051,13 +1057,19 @@ void Creature::UpdateAttackPowerAndDamage(bool ranged)
     if (ranged)
     {
         SetRangedAttackPower(int32(baseAttackPower));
-        SetRangedAttackPowerModPos(int32(attackPowerMod));
+        if (attackPowerMod >= 0)
+            SetRangedAttackPowerModPos(int32(attackPowerMod));
+        if (attackPowerMod <= 0)
+            SetRangedAttackPowerModNeg(int32(attackPowerMod));
         SetRangedAttackPowerMultiplier(attackPowerMultiplier);
     }
     else
     {
         SetAttackPower(int32(baseAttackPower));
-        SetAttackPowerModPos(int32(attackPowerMod));
+        if (attackPowerMod >= 0)
+            SetAttackPowerModPos(int32(attackPowerMod));
+        if (attackPowerMod <= 0)
+            SetAttackPowerModNeg(int32(attackPowerMod));
         SetAttackPowerMultiplier(attackPowerMultiplier);
     }
 
