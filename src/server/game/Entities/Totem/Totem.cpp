@@ -52,7 +52,7 @@ void Totem::Update(uint32 time)
     Creature::Update(time);
 }
 
-void Totem::InitStats(uint32 duration)
+void Totem::InitStats(WorldObject* summoner, uint32 duration)
 {
     // client requires SMSG_TOTEM_CREATED to be sent before adding to world and before removing old totem
     if (Player* owner = GetOwner()->ToPlayer())
@@ -75,7 +75,7 @@ void Totem::InitStats(uint32 duration)
                          GetEntry(), owner->GetGUID().ToString(), *m_unitData->CreatedBySpell, EnumUtils::ToTitle(Races(owner->GetRace())));
     }
 
-    Minion::InitStats(duration);
+    Minion::InitStats(summoner, duration);
 
     // Get spell cast by totem
     if (SpellInfo const* totemSpell = sSpellMgr->GetSpellInfo(GetSpell(), GetMap()->GetDifficultyID()))
@@ -85,7 +85,7 @@ void Totem::InitStats(uint32 duration)
     m_duration = duration;
 }
 
-void Totem::InitSummon()
+void Totem::InitSummon(WorldObject* /*summoner*/)
 {
     if (m_type == TOTEM_PASSIVE && GetSpell())
         CastSpell(this, GetSpell(), true);
