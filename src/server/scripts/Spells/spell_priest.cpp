@@ -261,13 +261,17 @@ class spell_pri_answered_prayers : public AuraScript
 
     void HandleOnProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
-        Unit* caster = eventInfo.GetActor();
+        Milliseconds extraDuration = 0ms;
+        if (AuraEffect const* durationEffect = GetEffect(EFFECT_1))
+            extraDuration = Seconds(durationEffect->GetAmount());
 
-        Aura* answeredPrayers = caster->GetAura(SPELL_PRIEST_ANSWERED_PRAYERS);
+        Unit* target = eventInfo.GetActor();
+
+        Aura* answeredPrayers = target->GetAura(SPELL_PRIEST_ANSWERED_PRAYERS);
 
         // Note: if caster has no aura, we must cast it first.
         if (!answeredPrayers)
-            caster->CastSpell(caster, SPELL_PRIEST_ANSWERED_PRAYERS, true);
+            target->CastSpell(target, SPELL_PRIEST_ANSWERED_PRAYERS, true);
         else
         {
             // Note: there's no BaseValue dummy that we can use as reference, so we hardcode the increasing stack value.
@@ -279,9 +283,16 @@ class spell_pri_answered_prayers : public AuraScript
 
             answeredPrayers->Remove();
 
-            caster->CastSpell(caster, SPELL_PRIEST_APOTHEOSIS,
-                CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD | TRIGGERED_IGNORE_CAST_IN_PROGRESS))
-                .AddSpellMod(SPELLVALUE_DURATION, GetEffect(EFFECT_1)->GetAmount()));
+            if (Aura* apotheosis = GetTarget()->GetAura(SPELL_PRIEST_APOTHEOSIS))
+            {
+                apotheosis->SetDuration(apotheosis->GetDuration() + extraDuration.count());
+                apotheosis->SetMaxDuration(apotheosis->GetMaxDuration() + extraDuration.count());
+            }
+            else
+                target->CastSpell(target, SPELL_PRIEST_APOTHEOSIS,
+                    CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD))
+                    .SetTriggeringSpell(eventInfo.GetProcSpell())
+                    .AddSpellMod(SPELLVALUE_DURATION, extraDuration.count()));
         }
     }
 
