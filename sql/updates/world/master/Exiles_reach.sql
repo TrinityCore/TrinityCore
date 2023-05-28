@@ -158,8 +158,8 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 -- Needed to remove player from transport before teleporting
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (305425,325131);
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
-(305425,'spell_alliance_spell_ship_crash_teleport'),
-(325131,'spell_horde_spell_ship_crash_teleport');
+(305425,'spell_exiles_reach_ship_crash_teleport'),
+(325131,'spell_exiles_reach_ship_crash_teleport');
 
 -- Crash movie spell cast on player for "Brace for Impact" quest rewarded Alliance and Horde
 DELETE FROM `spell_area` WHERE `spell` IN (346797,346799);
@@ -267,7 +267,8 @@ UPDATE `creature_template` SET `ScriptName`="npc_pet_ship" WHERE entry IN (16733
 
 DELETE FROM `quest_template_addon` WHERE `ID` IN (56775,59926); 
 INSERT INTO `quest_template_addon` (`ID`,`ScriptName`) VALUES
-(56775,'quest_warming_up'),(59926,'quest_warming_up');
+(56775,'q56775_warming_up'),
+(59926,'q59926_warming_up');
 
 UPDATE `quest_template_addon` SET `ScriptName`='quest_stand_your_ground' WHERE `ID` IN (58209,59927);
 UPDATE `quest_template_addon` SET `ScriptName`='quest_brace_for_impact' WHERE `ID` IN (58208,59928);

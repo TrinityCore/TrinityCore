@@ -60,36 +60,73 @@ enum QuestScripts
 
 // This quest script is used for alliance and horde quest "Warming Up"
 
-class quest_warming_up : public QuestScript
+class BaseQuestWarmingUp : public QuestScript
 {
 public:
-    quest_warming_up() : QuestScript("quest_warming_up") { }
+    BaseQuestWarmingUp(const char* name) : QuestScript(name) { }
 
-    void OnQuestStatusChange(Player* player, Quest const* quest, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus)
     {
         switch (newStatus)
         {
             case QUEST_STATUS_COMPLETE:
                 Conversation::CreateConversation(CONVERSATION_WARMING_UP, player, *player, player->GetGUID(), nullptr);
                 break;
+        }
+    }
+};
+
+
+class q56775_warming_up : public BaseQuestWarmingUp
+{
+public:
+    q56775_warming_up() : BaseQuestWarmingUp("q56775_warming_up") { }
+
+    const float CloneOrientation = 5.124503135681152343f;
+    const float CloneSpawnZOffSet = 0.308f;
+
+    void OnQuestStatusChange(Player* player, Quest const* quest, QuestStatus oldStatus, QuestStatus newStatus) override
+    {
+        BaseQuestWarmingUp::OnQuestStatusChange(player, quest, oldStatus, newStatus);
+
+        switch (newStatus)
+        {
             case QUEST_STATUS_REWARDED:
                 {
-                    Creature* npc_to_replace = nullptr;
-                    Creature* npc_replacement = nullptr;
+                    Creature* garrickLowerDeck = player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId("q56775_garrick_lower_deck").SetIgnorePhases(true));
+                    Creature* garrickUpperDeck = player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId("q56775_garrick_upper_deck").SetIgnorePhases(true));
+                    if (!garrickLowerDeck || !garrickUpperDeck)
+                        return;
 
-                    if (quest->GetQuestId() == QUEST_WARMING_UP_ALLIANCE)
-                    {
-                        npc_to_replace = player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId("q56775_garrick_lower_deck").SetIgnorePhases(true));
-                        npc_replacement = player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId("q56775_garrick_upper_deck").SetIgnorePhases(true));
-                    }
-                    else if (quest->GetQuestId() == QUEST_WARMING_UP_HORDE)
-                    {
-                        npc_to_replace = player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId("q59926_grimaxe_lower_deck").SetIgnorePhases(true));
-                        npc_replacement = player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId("q59926_grimaxe_upper_deck").SetIgnorePhases(true));
-                    }
+                    Position pos(garrickLowerDeck->GetPositionX(), garrickLowerDeck->GetPositionY(), garrickLowerDeck->GetPositionZ() - CloneSpawnZOffSet, CloneOrientation);
+                    garrickUpperDeck->SummonPersonalClone(pos, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+                }
+                break;
+            default:
+                break;
+        }
+    }
+};
 
-                    if (npc_to_replace && npc_replacement)
-                        npc_replacement->SummonPersonalClone(npc_to_replace->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+class q59926_warming_up : public BaseQuestWarmingUp
+{
+public:
+    q59926_warming_up() : BaseQuestWarmingUp("q59926_warming_up") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* quest, QuestStatus oldStatus, QuestStatus newStatus) override
+    {
+        BaseQuestWarmingUp::OnQuestStatusChange(player, quest, oldStatus, newStatus);
+
+        switch (newStatus)
+        {
+            case QUEST_STATUS_REWARDED:
+                {
+                    Creature* grimaxeLowerDeck = player->FindNearestCreatureWithOptions(20.0f, FindCreatureOptions().SetStringId("q59926_grimaxe_lower_deck").SetIgnorePhases(true));
+                    Creature* grimaxeUpperDeck = player->FindNearestCreatureWithOptions(100.0f, FindCreatureOptions().SetStringId("q59926_grimaxe_upper_deck").SetIgnorePhases(true));
+                    if (!grimaxeLowerDeck || !grimaxeUpperDeck)
+                        return;
+
+                    grimaxeUpperDeck->SummonPersonalClone(*grimaxeLowerDeck, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
                 }
                 break;
             default:
@@ -115,6 +152,54 @@ public:
 
 // This quest script is used for alliance and horde quest "Brace For Impact"
 
+struct ActorData
+{
+    std::string StringId;
+    Position Position;
+    TeamId TeamId;
+};
+
+struct ActorPetData
+{
+    std::string StringId;
+    Races Race;
+
+};
+
+ActorData const actorData[] =
+{
+    { "q58208_garrick",  { 35.5643f, -1.19837f, 12.1479f, 3.3272014f },    TEAM_ALLIANCE },
+    { "q58208_richter",  { -1.84858f, -8.38776f, 5.10018f, 1.5184366f },   TEAM_ALLIANCE },
+    { "q58208_keela",    { -15.3642f, 6.5793f, 5.5026f, 3.1415925f },      TEAM_ALLIANCE },
+    { "q58208_bjorn",    { 12.8406f, -8.49553f, 4.98031f, 4.8520155f },    TEAM_ALLIANCE },
+    { "q58208_austin",   { -4.48607f, 9.89729f, 5.07851f, 1.5184366f },    TEAM_ALLIANCE },
+    { "q58208_cole",     { -13.3396f, 0.702157f, 5.57996f, 0.087266445f }, TEAM_ALLIANCE },
+    { "q59928_grimaxe",  { 25.5237f, 0.283005f, 26.5455f, 3.3526998f },    TEAM_HORDE },
+    { "q59928_throg",    { -10.8399f, 11.9039f, 8.88028f, 6.2308254f },    TEAM_HORDE },
+    { "q59928_mithdran", { -24.4763f, -4.48273f, 9.13471f, 0.62831855f },  TEAM_HORDE },
+    { "q59928_lana",     { -5.1971f, -15.0268f, 8.992f, 4.712389f },       TEAM_HORDE },
+    { "q59928_bo",       { -22.1559f, 5.58041f, 9.09176f, 6.143559f },     TEAM_HORDE },
+    { "q59928_jinhake",  { -31.9464f, 7.5772f, 10.6408f, 6.0737457f },     TEAM_HORDE }
+};
+
+ActorPetData const actorPetData[] =
+{
+    { "q58208_wolf", RACE_HUMAN },
+    { "q58208_bear", RACE_DWARF },
+    { "q58208_tiger", RACE_NIGHTELF },
+    { "q58208_bunny", RACE_GNOME },
+    { "q58208_moth", RACE_DRAENEI },
+    { "q58208_dog", RACE_WORGEN },
+    { "q58208_turtle", RACE_PANDAREN_ALLIANCE },
+    { "q59928_wolf", RACE_ORC },
+    { "q59928_bat", RACE_UNDEAD_PLAYER},
+    { "q59928_plainstrider", RACE_TAUREN},
+    { "q59928_raptor", RACE_TROLL},
+    { "q59928_scorpion", RACE_GOBLIN},
+    { "q59928_dragonhawk", RACE_BLOODELF},
+    { "q59928_turtle", RACE_PANDAREN_HORDE}
+};
+
 class quest_brace_for_impact : public QuestScript
 {
 public:
@@ -127,24 +212,9 @@ public:
 
         if (quest->GetQuestId() == QUEST_BRACE_FOR_IMPACT_ALLIANCE)
         {
-            struct ActorData
-            {
-                std::string stringId;
-                Position position;
-            };
-
-            ActorData const actorData[] =
-            {
-                { "q58208_garrick", { 35.5643f, -1.19837f, 12.1479f, 3.3272014f } },
-                { "q58208_richter", { -1.84858f, -8.38776f, 5.10018f, 1.5184366f } },
-                { "q58208_keela", { -15.3642f, 6.5793f, 5.5026f, 3.1415925f } },
-                { "q58208_bjorn", { 12.8406f, -8.49553f, 4.98031f, 4.8520155f } },
-                { "q58208_austin", { -4.48607f, 9.89729f, 5.07851f, 1.5184366f } },
-                { "q58208_cole", { -13.3396f, 0.702157f, 5.57996f, 0.087266445f } }
-            };
-
-            for (auto actor : actorData)
-                SpawnActor(player, player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId(actor.stringId).SetIgnorePhases(true)), actor.position);
+            for (auto const& actor : actorData)
+                if (actor.TeamId == TEAM_ALLIANCE)
+                    SpawnActor(player, player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId(actor.StringId).SetIgnorePhases(true)), actor.Position);
 
             if (player->GetClass() != CLASS_HUNTER)
                 return;
@@ -152,87 +222,34 @@ public:
             // Spawn pet
             Position petpos = { -1.4492f, 8.06887f,  5.10348f, 2.6005409f };
 
-            switch (player->GetRace())
-            {
-                case RACE_HUMAN:
-                    SpawnActor(player, player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId("q58208_wolf").SetIgnorePhases(true)), petpos);
-                    break;
-                case RACE_DWARF:
-                    SpawnActor(player, player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId("q58208_bear").SetIgnorePhases(true)), petpos);
-                    break;
-                case RACE_NIGHTELF:
-                    SpawnActor(player, player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId("q58208_tiger").SetIgnorePhases(true)), petpos);
-                    break;
-                case RACE_GNOME:
-                    SpawnActor(player, player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId("q58208_bunny").SetIgnorePhases(true)), petpos);
-                    break;
-                case RACE_DRAENEI:
-                    SpawnActor(player, player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId("q58208_moth").SetIgnorePhases(true)), petpos);
-                    break;
-                case RACE_WORGEN:
-                    SpawnActor(player, player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId("q58208_dog").SetIgnorePhases(true)), petpos);
-                    break;
-                case RACE_PANDAREN_ALLIANCE:
-                    SpawnActor(player, player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId("q58208_turtle").SetIgnorePhases(true)), petpos);
-                    break;
-                default:
-                    break;
-            }
+            SpawnPet(player, petpos);
+            /*for (auto const& petActorData : actorPetData)
+                if (petActorData.Race == player->GetRace())
+                    SpawnActor(player, player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId(petActorData.StringId).SetIgnorePhases(true)), petpos);*/
         }
         else if (quest->GetQuestId() == QUEST_BRACE_FOR_IMPACT_HORDE)
         {
-            struct ActorData
-            {
-                std::string stringId;
-                Position position;
-            };
-
-            ActorData const actorData[] =
-            {
-                { "q59928_grimaxe", { 25.5237f, 0.283005f, 26.5455f, 3.3526998f } },
-                { "q59928_throg", { -10.8399f, 11.9039f, 8.88028f, 6.2308254f } },
-                { "q59928_mithdran", { -24.4763f, -4.48273f, 9.13471f, 0.62831855f } },
-                { "q59928_lana", { -5.1971f, -15.0268f, 8.992f, 4.712389f } },
-                { "q59928_bo", { -22.1559f, 5.58041f, 9.09176f, 6.143559f } },
-                { "q59928_jinhake", { -31.9464f, 7.5772f, 10.6408f, 6.0737457f } }
-            };
-
-            for (auto actor : actorData)
-                SpawnActor(player, player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId(actor.stringId).SetIgnorePhases(true)), actor.position);
+            for (auto const& actor : actorData)
+                if (actor.TeamId == TEAM_HORDE)
+                    SpawnActor(player, player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId(actor.StringId).SetIgnorePhases(true)), actor.Position);
 
             if (player->GetClass() != CLASS_HUNTER)
                 return;
 
             // Spawn pet
             Position petpos = { -22.8374f, -3.08287f, 9.12613f, 3.857178f };
-
-            switch (player->GetRace())
-            {
-                case RACE_ORC:
-                    SpawnActor(player, player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId("q59928_wolf").SetIgnorePhases(true)), petpos);
-                    break;
-                case RACE_UNDEAD_PLAYER:
-                    SpawnActor(player, player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId("q59928_bat").SetIgnorePhases(true)), petpos);
-                    break;
-                case RACE_TAUREN:
-                    SpawnActor(player, player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId("q59928_plainstrider").SetIgnorePhases(true)), petpos);
-                    break;
-                case RACE_TROLL:
-                    SpawnActor(player, player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId("q59928_raptor").SetIgnorePhases(true)), petpos);
-                    break;
-                case RACE_GOBLIN:
-                    SpawnActor(player, player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId("q59928_scorpion").SetIgnorePhases(true)), petpos);
-                    break;
-                case RACE_BLOODELF:
-                    SpawnActor(player, player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId("q59928_dragonhawk").SetIgnorePhases(true)), petpos);
-                    break;
-                case RACE_PANDAREN_HORDE:
-                    SpawnActor(player, player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId("q59928_turtle").SetIgnorePhases(true)), petpos);
-                    break;
-                default:
-                    break;
-            }
+            SpawnPet(player, petpos);
+            /*for (auto const& petActorData : actorPetData)
+                if (petActorData.Race == player->GetRace())
+                    SpawnActor(player, player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId(petActorData.StringId).SetIgnorePhases(true)), petpos);*/
         }
+    }
+
+    void SpawnPet(Player* player, const Position& position)
+    {
+        for (auto const& petActorData : actorPetData)
+            if (petActorData.Race == player->GetRace())
+                SpawnActor(player, player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId(petActorData.StringId).SetIgnorePhases(true)), position);
     }
 
     void SpawnActor(Player* player, Creature* creature, Position position)
@@ -473,9 +490,14 @@ enum ShipCaptains
     SAY_SPAR                    = 0
 };
 
-struct npc_ship_captain_private : public ScriptedAI
+struct npc_ship_captain_warming_up_private : public ScriptedAI
 {
-    npc_ship_captain_private(Creature* creature) : ScriptedAI(creature) { }
+    npc_ship_captain_warming_up_private(Creature* creature) : ScriptedAI(creature) { }
+
+    void InitializeAI() override
+    {
+        me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+    }
 
     void JustAppeared() override
     {
@@ -489,8 +511,7 @@ struct npc_ship_captain_private : public ScriptedAI
             _path_to_sparing_partner = PATH_GRIMAXE_TO_THROG;
             _path_to_upper_deck = PATH_GRIMAXE_TO_UPPER_DECK;
         }
-
-        me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+        
         _events.ScheduleEvent(EVENT_SHIP_CAPTAIN1_SCRIPT1, 1s);
     }
 
@@ -535,7 +556,7 @@ private:
 // This script used to script Captain Garrick and Warlord Breka Grimaxe for quest "Brace for Impact" Alliance and Horde
 // by entries: 156280,166827
 
-enum CaptainGarrick2Ship
+enum CaptainGarrickBraceForImpactShip
 {
     EVENT_SHIP_CAPTAIN2_SCRIPT1     = 1,
     EVENT_SHIP_CAPTAIN2_SCRIPT2,
@@ -548,9 +569,9 @@ enum CaptainGarrick2Ship
     SAY_GET_TO_POSITIONS            = 1
 };
 
-struct npc_ship_captain2_private : public ScriptedAI
+struct npc_ship_captain_brace_for_impact_private : public ScriptedAI
 {
-    npc_ship_captain2_private(Creature* creature) : ScriptedAI(creature) { }
+    npc_ship_captain_brace_for_impact_private(Creature* creature) : ScriptedAI(creature) { }
 
     void JustAppeared() override
     {
@@ -610,9 +631,9 @@ CreatureAI* CaptainGarrickShipAISelector(Creature* creature)
         if (Player* privateObjectOwner = ObjectAccessor::GetPlayer(*creature, creature->GetPrivateObjectOwner()))
         {
             if ((privateObjectOwner->GetTeam() == ALLIANCE && privateObjectOwner->GetQuestStatus(QUEST_BRACE_FOR_IMPACT_ALLIANCE) == QUEST_STATUS_NONE))
-                return new npc_ship_captain_private(creature);
+                return new npc_ship_captain_warming_up_private(creature);
             else
-                return new npc_ship_captain2_private(creature);
+                return new npc_ship_captain_brace_for_impact_private(creature);
         }
     }
 
@@ -621,12 +642,12 @@ CreatureAI* CaptainGarrickShipAISelector(Creature* creature)
 
 CreatureAI* Grimaxe2ShipAISelector(Creature* creature)
 {
-    return creature->IsPrivateObject() ? new npc_ship_captain_private(creature) : nullptr;
+    return creature->IsPrivateObject() ? new npc_ship_captain_warming_up_private(creature) : nullptr;
 };
 
 CreatureAI* Grimaxe3ShipAISelector(Creature* creature)
 {
-    return creature->IsPrivateObject() ? new npc_ship_captain2_private(creature) : nullptr;
+    return creature->IsPrivateObject() ? new npc_ship_captain_brace_for_impact_private(creature) : nullptr;
 };
 
 // This script is used to script Private Cole and Grunt Throg for quest "Stand Your Ground" Alliance and Horde
@@ -938,9 +959,9 @@ public:
 
 // Player needs to be removed from transport before teleport or will not be teleported to correct location
 
-class spell_alliance_spell_ship_crash_teleport : public SpellScript
+class spell_exiles_reach_ship_crash_teleport : public SpellScript
 {
-    PrepareSpellScript(spell_alliance_spell_ship_crash_teleport);
+    PrepareSpellScript(spell_exiles_reach_ship_crash_teleport);
 
     void RelocateTransportOffset(SpellEffIndex /*effIndex*/)
     {
@@ -952,27 +973,8 @@ class spell_alliance_spell_ship_crash_teleport : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_alliance_spell_ship_crash_teleport::RelocateTransportOffset, EFFECT_4, SPELL_EFFECT_TELEPORT_UNITS);
-    }
-};
-
-// Player needs to be removed from transport before teleport or will not be teleported to correct location
-
-class spell_horde_spell_ship_crash_teleport : public SpellScript
-{
-    PrepareSpellScript(spell_horde_spell_ship_crash_teleport);
-
-    void RelocateTransportOffset(SpellEffIndex /*effIndex*/)
-    {
-        Unit* target = GetHitUnit();
-
-        if (TransportBase* transport = target->GetTransport())
-            transport->RemovePassenger(target);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_horde_spell_ship_crash_teleport::RelocateTransportOffset, EFFECT_3, SPELL_EFFECT_TELEPORT_UNITS);
+        OnEffectHitTarget += SpellEffectFn(spell_exiles_reach_ship_crash_teleport::RelocateTransportOffset, EFFECT_3, SPELL_EFFECT_TELEPORT_UNITS);
+        OnEffectHitTarget += SpellEffectFn(spell_exiles_reach_ship_crash_teleport::RelocateTransportOffset, EFFECT_4, SPELL_EFFECT_TELEPORT_UNITS);
     }
 };
 
@@ -987,9 +989,9 @@ class spell_summon_sparing_partner : public SpellScript
         if (Player* caster = GetCaster()->ToPlayer())
         {
             if(caster->GetTeam() == ALLIANCE)
-                partner = caster->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId("q58209_cole").SetIgnorePhases(true));
+                partner = caster->FindNearestCreatureWithOptions(100.0f, FindCreatureOptions().SetStringId("q58209_cole").SetIgnorePhases(true));
             else if (caster->GetTeam() == HORDE)
-                partner = caster->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId("q59927_throg").SetIgnorePhases(true));
+                partner = caster->FindNearestCreatureWithOptions(100.0f, FindCreatureOptions().SetStringId("q59927_throg").SetIgnorePhases(true));
         }
 
         if (!partner)
@@ -1041,13 +1043,13 @@ void AddSC_zone_exiles_reach()
     new FactoryCreatureScript<CreatureAI, &ThrogShipAISelector>("npc_throg_ship");
     new FactoryCreatureScript<CreatureAI, &ShipCrewAISelector>("npc_crew_ship");
     new FactoryCreatureScript<CreatureAI, &ShipPetAISelector>("npc_pet_ship");
-    new quest_warming_up();
+    new q59926_warming_up();
+    new q56775_warming_up();
     new quest_stand_your_ground();
     new quest_brace_for_impact();
     new player_ship_crash();
     new scene_alliance_and_horde_ship();
-    RegisterSpellScript(spell_alliance_spell_ship_crash_teleport);
-    RegisterSpellScript(spell_horde_spell_ship_crash_teleport);
+    RegisterSpellScript(spell_exiles_reach_ship_crash_teleport);
     RegisterSpellScript(spell_summon_sparing_partner);
     // Beach
     new scene_alliance_and_horde_crash();
