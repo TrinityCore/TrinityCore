@@ -221,11 +221,7 @@ public:
 
             // Spawn pet
             Position petpos = { -1.4492f, 8.06887f,  5.10348f, 2.6005409f };
-
             SpawnPet(player, petpos);
-            /*for (auto const& petActorData : actorPetData)
-                if (petActorData.Race == player->GetRace())
-                    SpawnActor(player, player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId(petActorData.StringId).SetIgnorePhases(true)), petpos);*/
         }
         else if (quest->GetQuestId() == QUEST_BRACE_FOR_IMPACT_HORDE)
         {
@@ -239,9 +235,6 @@ public:
             // Spawn pet
             Position petpos = { -22.8374f, -3.08287f, 9.12613f, 3.857178f };
             SpawnPet(player, petpos);
-            /*for (auto const& petActorData : actorPetData)
-                if (petActorData.Race == player->GetRace())
-                    SpawnActor(player, player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId(petActorData.StringId).SetIgnorePhases(true)), petpos);*/
         }
     }
 
