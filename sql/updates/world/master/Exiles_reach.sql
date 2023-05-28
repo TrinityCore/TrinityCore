@@ -150,6 +150,11 @@ UPDATE `conditions` SET `ConditionValue1`=58208, `Comment`='Apply Phase 13861 if
 
 -- *** Spells ***
 
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (303065,325108);
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+(303065,'spell_summon_sparing_partner'),
+(325108,'spell_summon_sparing_partner');
+
 -- Needed to remove player from transport before teleporting
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (305425,325131);
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
@@ -269,6 +274,7 @@ UPDATE `quest_template_addon` SET `ScriptName`='quest_brace_for_impact' WHERE `I
 
 -- *** String IDs ***
 
+UPDATE `creature` SET `StringId`="q58209_cole" WHERE `guid`=1050146;
 UPDATE `creature` SET `StringId`="q56775_garrick_lower_deck" WHERE `guid`=1050145;
 UPDATE `creature` SET `StringId`="q56775_garrick_upper_deck" WHERE `guid`=1050589;
 UPDATE `creature` SET `StringId`="q58208_garrick" WHERE `guid`=1050176;
@@ -284,6 +290,7 @@ UPDATE `creature` SET `StringId`="q58208_bunny" WHERE `guid`=1050154;
 UPDATE `creature` SET `StringId`="q58208_moth" WHERE `guid`=1050156;
 UPDATE `creature` SET `StringId`="q58208_dog" WHERE `guid`=1050158;
 UPDATE `creature` SET `StringId`="q58208_turtle" WHERE `guid`=1050160;
+UPDATE `creature` SET `StringId`="q59927_throg" WHERE `guid`=1050187;
 UPDATE `creature` SET `StringId`="q59926_grimaxe_lower_deck" WHERE `guid`=1050189;
 UPDATE `creature` SET `StringId`="q59926_grimaxe_upper_deck" WHERE `guid`=1050190;
 UPDATE `creature` SET `StringId`="q59928_grimaxe" WHERE `guid`=1050191;

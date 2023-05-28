@@ -74,22 +74,22 @@ public:
                 break;
             case QUEST_STATUS_REWARDED:
                 {
-                    Creature* npc1 = nullptr;
-                    Creature* npc2 = nullptr;
+                    Creature* npc_to_replace = nullptr;
+                    Creature* npc_replacement = nullptr;
 
                     if (quest->GetQuestId() == QUEST_WARMING_UP_ALLIANCE)
                     {
-                        npc1 = player->FindNearestCreatureWithOptions(100.0f, FindCreatureOptions().SetStringId("q56775_garrick_lower_deck").SetIgnorePhases(true));
-                        npc2 = player->FindNearestCreatureWithOptions(100.0f, FindCreatureOptions().SetStringId("q56775_garrick_upper_deck").SetIgnorePhases(true));
+                        npc_to_replace = player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId("q56775_garrick_lower_deck").SetIgnorePhases(true));
+                        npc_replacement = player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId("q56775_garrick_upper_deck").SetIgnorePhases(true));
                     }
                     else if (quest->GetQuestId() == QUEST_WARMING_UP_HORDE)
                     {
-                        npc1 = player->FindNearestCreatureWithOptions(100.0f, FindCreatureOptions().SetStringId("q59926_grimaxe_lower_deck").SetIgnorePhases(true));
-                        npc2 = player->FindNearestCreatureWithOptions(100.0f, FindCreatureOptions().SetStringId("q59926_grimaxe_upper_deck").SetIgnorePhases(true));
+                        npc_to_replace = player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId("q59926_grimaxe_lower_deck").SetIgnorePhases(true));
+                        npc_replacement = player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId("q59926_grimaxe_upper_deck").SetIgnorePhases(true));
                     }
 
-                    if (npc1 && npc2)
-                        npc2->SummonPersonalClone(npc1->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+                    if (npc_to_replace && npc_replacement)
+                        npc_replacement->SummonPersonalClone(npc_to_replace->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
                 }
                 break;
             default:
@@ -308,7 +308,7 @@ struct npc_sparring_partner : public ScriptedAI
             _actorIndex = 1;
         }
 
-        _events.ScheduleEvent(EVENT_MOVE_TO_A_POSITION, 2s);
+        _events.ScheduleEvent(EVENT_MOVE_TO_A_POSITION, 1s);
     }
 
     void IsSummonedBy(WorldObject* summonerWO) override
@@ -638,6 +638,8 @@ struct npc_first_mate_stand_your_ground : public ScriptedAI
 
     void OnQuestAccept(Player* player, Quest const* quest) override
     {
+        player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+
         switch (quest->GetQuestId())
         {
             case QUEST_STAND_YOUR_GROUND_ALLIANCE:
@@ -974,6 +976,34 @@ class spell_horde_spell_ship_crash_teleport : public SpellScript
     }
 };
 
+class spell_summon_sparing_partner : public SpellScript
+{
+    PrepareSpellScript(spell_summon_sparing_partner);
+
+    void SelectTarget(WorldObject*& target)
+    {
+        Creature* partner = nullptr;
+
+        if (Player* caster = GetCaster()->ToPlayer())
+        {
+            if(caster->GetTeam() == ALLIANCE)
+                partner = caster->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId("q58209_cole").SetIgnorePhases(true));
+            else if (caster->GetTeam() == HORDE)
+                partner = caster->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId("q59927_throg").SetIgnorePhases(true));
+        }
+
+        if (!partner)
+            return;
+
+        target = partner;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_summon_sparing_partner::SelectTarget, EFFECT_0, TARGET_DEST_NEARBY_ENTRY_OR_DB);
+    }
+};
+
 // ***************************************************************
 // * Scripting in this section occurs after teleporting to beach *
 // ***************************************************************
@@ -1018,6 +1048,7 @@ void AddSC_zone_exiles_reach()
     new scene_alliance_and_horde_ship();
     RegisterSpellScript(spell_alliance_spell_ship_crash_teleport);
     RegisterSpellScript(spell_horde_spell_ship_crash_teleport);
+    RegisterSpellScript(spell_summon_sparing_partner);
     // Beach
     new scene_alliance_and_horde_crash();
 }
