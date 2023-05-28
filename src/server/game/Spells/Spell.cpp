@@ -45,6 +45,7 @@
 #include "ObjectMgr.h"
 #include "PathGenerator.h"
 #include "Pet.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "SharedDefines.h"
