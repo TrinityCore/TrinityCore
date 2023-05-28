@@ -6105,14 +6105,14 @@ void AuraEffect::HandleLinkedSummon(AuraApplication const* aurApp, uint8 mode, b
             target->GetCreatureListWithEntryInGrid(nearbyEntries, summonEntry);
             for (auto creature : nearbyEntries)
             {
-                if (creature->GetOwner() == target)
+                if (creature->GetOwnerGUID() == target->GetGUID())
                 {
                     creature->DespawnOrUnsummon();
                     break;
                 }
                 else if (TempSummon* tempSummon = creature->ToTempSummon())
                 {
-                    if (tempSummon->GetSummoner() == target)
+                    if (tempSummon->GetSummonerGUID() == target->GetGUID())
                     {
                         tempSummon->DespawnOrUnsummon();
                         break;

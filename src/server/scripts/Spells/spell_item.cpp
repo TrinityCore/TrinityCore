@@ -4763,6 +4763,83 @@ class spell_item_zanjir_scaleguard_greatcloak : public AuraScript
     }
 };
 
+enum ShiverVenomSpell : uint32
+{
+    SPELL_SHIVER_VENOM      = 301624,
+    SPELL_SHIVERING_BOLT    = 303559,
+    SPELL_VENOMOUS_LANCE    = 303562
+};
+
+// 303358 Venomous Bolt
+// 303361 Shivering Lance
+class spell_item_shiver_venom_weapon_proc : public AuraScript
+{
+    PrepareAuraScript(spell_item_shiver_venom_weapon_proc);
+
+public:
+    spell_item_shiver_venom_weapon_proc(ShiverVenomSpell additionalProcSpellId) : _additionalProcSpellId(additionalProcSpellId) { }
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHIVER_VENOM, _additionalProcSpellId });
+    }
+
+    void HandleAdditionalProc(AuraEffect* aurEff, ProcEventInfo& procInfo)
+    {
+        if (procInfo.GetProcTarget()->HasAura(SPELL_SHIVER_VENOM))
+            procInfo.GetActor()->CastSpell(procInfo.GetProcTarget(), _additionalProcSpellId, CastSpellExtraArgs(aurEff)
+                .AddSpellMod(SPELLVALUE_BASE_POINT0, aurEff->GetAmount())
+                .SetTriggeringSpell(procInfo.GetProcSpell()));
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_item_shiver_venom_weapon_proc::HandleAdditionalProc, EFFECT_1, SPELL_AURA_DUMMY);
+    }
+
+private:
+    ShiverVenomSpell _additionalProcSpellId;
+};
+
+// 302774 - Arcane Tempest
+class spell_item_phial_of_the_arcane_tempest_damage : public SpellScript
+{
+    PrepareSpellScript(spell_item_phial_of_the_arcane_tempest_damage);
+
+    void ModifyStacks()
+    {
+        if (GetUnitTargetCountForEffect(EFFECT_0) != 1 || !GetTriggeringSpell())
+            return;
+
+        if (AuraEffect* aurEff = GetCaster()->GetAuraEffect(GetTriggeringSpell()->Id, EFFECT_0))
+        {
+            aurEff->GetBase()->ModStackAmount(1, AURA_REMOVE_NONE, false);
+            aurEff->CalculatePeriodic(GetCaster(), false);
+        }
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_item_phial_of_the_arcane_tempest_damage::ModifyStacks);
+    }
+};
+
+// 302769 - Arcane Tempest
+class spell_item_phial_of_the_arcane_tempest_periodic : public AuraScript
+{
+    PrepareAuraScript(spell_item_phial_of_the_arcane_tempest_periodic);
+
+    void CalculatePeriod(AuraEffect const* /*aurEff*/, bool& /*isPeriodic*/, int32& period)
+    {
+        period -= (GetStackAmount() - 1) * 300;
+    }
+
+    void Register() override
+    {
+        DoEffectCalcPeriodic += AuraEffectCalcPeriodicFn(spell_item_phial_of_the_arcane_tempest_periodic::CalculatePeriod, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -4913,4 +4990,8 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_seeping_scourgewing_aoe_check);
     RegisterSpellScript(spell_item_grips_of_forsaken_sanity);
     RegisterSpellScript(spell_item_zanjir_scaleguard_greatcloak);
+    RegisterSpellScriptWithArgs(spell_item_shiver_venom_weapon_proc, "spell_item_shiver_venom_crossbow", SPELL_SHIVERING_BOLT);
+    RegisterSpellScriptWithArgs(spell_item_shiver_venom_weapon_proc, "spell_item_shiver_venom_lance", SPELL_VENOMOUS_LANCE);
+    RegisterSpellScript(spell_item_phial_of_the_arcane_tempest_damage);
+    RegisterSpellScript(spell_item_phial_of_the_arcane_tempest_periodic);
 }
