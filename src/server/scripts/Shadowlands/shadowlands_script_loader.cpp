@@ -28,8 +28,8 @@ void AddShadowlandsScripts()
 {
     AddSC_covenant_spell_scripts();
     AddSC_torghast_spell_scripts();
-	
-	// Sanctum of Domination
-	AddSC_boss_sylvanas_windrunner();
-	AddSC_instance_sanctum_of_domination();
+
+    // Sanctum of Domination
+    AddSC_boss_sylvanas_windrunner();
+    AddSC_instance_sanctum_of_domination();
 }
