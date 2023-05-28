@@ -769,9 +769,7 @@ struct AA_Teleport_Conf {
 
 struct AA_Map_Player_Conf {
     uint32 id = 0;
-    std::string nandumoshi = "";
     uint32 nanduid = 0;
-    uint32 playercount = 0;
     int32 map = -1;
     int32 zone = -1;
     int32 area = -1;
@@ -1363,9 +1361,7 @@ struct AA_Creature_Id
 
 struct AA_Creature_Map {
     uint32 id = 0;
-    std::string nandumoshi = "";
     uint32 nanduid = 0;
-    uint32 playercount = 0;
     std::string rank = "";
     int32 map = -1;
     int32 zone = -1;
@@ -1896,10 +1892,10 @@ public:
     std::unordered_map<uint32, AA_Item> aa_items;
     std::unordered_map<uint32, AA_Map_Player_Conf> aa_map_player_confs;
     //副本-   [区域][模式][难度][队伍人数]
-    std::unordered_map < uint32, std::unordered_map < std::string, std::unordered_map < uint32, std::unordered_map < uint32, uint32>>>> aa_map_player_conf_areas;
-    std::unordered_map < uint32, std::unordered_map < std::string, std::unordered_map < uint32, std::unordered_map < uint32, uint32>>>> aa_map_player_conf_zones;
-    std::unordered_map < uint32, std::unordered_map < std::string, std::unordered_map < uint32, std::unordered_map < uint32, uint32>>>> aa_map_player_conf_maps;
-    std::unordered_map <std::string, std::unordered_map < uint32, std::unordered_map < uint32, uint32>>> aa_map_player_conf_alls;
+    std::unordered_map < uint32, std::unordered_map < uint32, uint32>> aa_map_player_conf_areas;
+    std::unordered_map < uint32, std::unordered_map < uint32, uint32>> aa_map_player_conf_zones;
+    std::unordered_map < uint32, std::unordered_map < uint32, uint32>> aa_map_player_conf_maps;
+    std::unordered_map < uint32, uint32> aa_map_player_conf_alls;
     //野外-   [区域]
     std::unordered_map < uint32, uint32> aa_map_player_conf_yewai_areas;
     std::unordered_map < uint32, uint32> aa_map_player_conf_yewai_zones;
@@ -1942,10 +1938,10 @@ public:
     std::unordered_map<uint32, std::unordered_map<uint32, AA_Creature_Id>> aa_creature_ids;
     std::unordered_map<uint32, AA_Creature_Map> aa_creature_maps;
     //副本-   [区域][模式][生物类型][难度][队伍人数]
-    std::unordered_map < uint32, std::unordered_map < std::string, std::unordered_map < std::string, std::unordered_map < uint32, std::unordered_map < uint32, uint32>>>>> aa_creature_map_areas;
-    std::unordered_map < uint32, std::unordered_map < std::string, std::unordered_map < std::string, std::unordered_map < uint32, std::unordered_map < uint32, uint32>>>>> aa_creature_map_zones;
-    std::unordered_map < uint32, std::unordered_map < std::string, std::unordered_map < std::string, std::unordered_map < uint32, std::unordered_map < uint32, uint32>>>>> aa_creature_map_maps;
-    std::unordered_map <std::string, std::unordered_map < std::string, std::unordered_map < uint32, std::unordered_map < uint32, uint32>>>> aa_creature_map_alls;
+    std::unordered_map < uint32, std::unordered_map < std::string, std::unordered_map < uint32, uint32>>> aa_creature_map_areas;
+    std::unordered_map < uint32, std::unordered_map < std::string, std::unordered_map < uint32, uint32>>> aa_creature_map_zones;
+    std::unordered_map < uint32, std::unordered_map < std::string, std::unordered_map < uint32, uint32>>> aa_creature_map_maps;
+    std::unordered_map < std::string, std::unordered_map < uint32, uint32>> aa_creature_map_alls;
     //野外-   [区域]
     std::unordered_map < uint32, std::unordered_map < std::string, uint32>> aa_creature_map_yewai_areas;
     std::unordered_map < uint32, std::unordered_map < std::string, uint32>> aa_creature_map_yewai_zones;

@@ -14033,40 +14033,39 @@ void AACenter::LoadAAData_World()
             {
                 Field* fields = result->Fetch();
                 AA_Creature_Map conf;
-                conf.id = fields[1].GetUInt32();
-                conf.nandumoshi = fields[2].GetString();
-                conf.nanduid = fields[3].GetUInt32();
-                conf.playercount = fields[4].GetUInt32();
-                conf.rank = fields[5].GetString();
-                conf.map = fields[6].GetInt32();
-                conf.zone = fields[7].GetInt32();
-                conf.area = fields[8].GetInt32();
-                conf.c_zus = fields[9].GetString();
-                conf.o_zus = fields[10].GetString();
-                conf.factions = fields[11].GetString();
-                conf.entrys = fields[12].GetString();
+                int i = 1;
+                conf.id = fields[i++].GetUInt32();
+                conf.nanduid = fields[i++].GetUInt32();
+                conf.rank = fields[i++].GetString();
+                conf.map = fields[i++].GetInt32();
+                conf.zone = fields[i++].GetInt32();
+                conf.area = fields[i++].GetInt32();
+                conf.c_zus = fields[i++].GetString();
+                conf.o_zus = fields[i++].GetString();
+                conf.factions = fields[i++].GetString();
+                conf.entrys = fields[i++].GetString();
                 aa_creature_maps[conf.id] = conf;
                 if (conf.area != -1) {
-                    aaCenter.aa_creature_map_areas[conf.area][conf.nandumoshi][conf.rank][conf.nanduid][conf.playercount] = conf.id;
-                    if (conf.nanduid == 0 && conf.nandumoshi == "全部") {
+                    aaCenter.aa_creature_map_areas[conf.area][conf.rank][conf.nanduid] = conf.id;
+                    if (conf.nanduid == 0) {
                         aa_creature_map_yewai_areas[conf.area][conf.rank] = conf.id;
                     }
                 }
                 if (conf.zone != -1) {
-                    aaCenter.aa_creature_map_zones[conf.zone][conf.nandumoshi][conf.rank][conf.nanduid][conf.playercount] = conf.id;
-                    if (conf.nanduid == 0 && conf.nandumoshi == "全部") {
+                    aaCenter.aa_creature_map_zones[conf.zone][conf.rank][conf.nanduid] = conf.id;
+                    if (conf.nanduid == 0) {
                         aa_creature_map_yewai_zones[conf.zone][conf.rank] = conf.id;
                     }
                 }
                 if (conf.map != -1) {
-                    aaCenter.aa_creature_map_maps[conf.map][conf.nandumoshi][conf.rank][conf.nanduid][conf.playercount] = conf.id;
-                    if (conf.nanduid == 0 && conf.nandumoshi == "全部") {
+                    aaCenter.aa_creature_map_maps[conf.map][conf.rank][conf.nanduid] = conf.id;
+                    if (conf.nanduid == 0) {
                         aa_creature_map_yewai_maps[conf.map][conf.rank] = conf.id;
                     }
                 }
                 if (conf.area == -1 && conf.zone == -1 && conf.map == -1) {
-                    aaCenter.aa_creature_map_alls[conf.nandumoshi][conf.rank][conf.nanduid][conf.playercount] = conf.id;
-                    if (conf.nanduid == 0 && conf.nandumoshi == "全部") {
+                    aaCenter.aa_creature_map_alls[conf.rank][conf.nanduid] = conf.id;
+                    if (conf.nanduid == 0) {
                         aa_creature_map_yewai_alls[conf.rank] = conf.id;
                     }
                 }
@@ -14172,9 +14171,7 @@ void AACenter::LoadAAData_World()
                 AA_Map_Player_Conf conf;
                 int i = 1;
                 conf.id = fields[i++].GetUInt32();
-                conf.nandumoshi = fields[i++].GetString();
                 conf.nanduid = fields[i++].GetUInt32();
-                conf.playercount = fields[i++].GetUInt32();
                 conf.map = fields[i++].GetInt32();
                 conf.zone = fields[i++].GetInt32();
                 conf.area = fields[i++].GetInt32();
@@ -14201,19 +14198,19 @@ void AACenter::LoadAAData_World()
                 conf.notice_jr = fields[i++].GetUInt32();
                 aa_map_player_confs[conf.id] = conf;
                 if (conf.area != -1) {
-                    aaCenter.aa_map_player_conf_areas[conf.area][conf.nandumoshi][conf.nanduid][conf.playercount] = conf.id;
+                    aaCenter.aa_map_player_conf_areas[conf.area][conf.nanduid] = conf.id;
                     aa_map_player_conf_yewai_areas[conf.area] = conf.id;
                 }
                 if (conf.zone != -1) {
-                    aaCenter.aa_map_player_conf_zones[conf.zone][conf.nandumoshi][conf.nanduid][conf.playercount] = conf.id;
+                    aaCenter.aa_map_player_conf_zones[conf.zone][conf.nanduid] = conf.id;
                     aa_map_player_conf_yewai_zones[conf.zone] = conf.id;
                 }
                 if (conf.map != -1) {
-                    aaCenter.aa_map_player_conf_maps[conf.map][conf.nandumoshi][conf.nanduid][conf.playercount] = conf.id;
+                    aaCenter.aa_map_player_conf_maps[conf.map][conf.nanduid] = conf.id;
                     aa_map_player_conf_yewai_maps[conf.map] = conf.id;
                 }
                 if (conf.area == -1 && conf.zone == -1 && conf.map == -1) {
-                    aaCenter.aa_map_player_conf_alls[conf.nandumoshi][conf.nanduid][conf.playercount] = conf.id;
+                    aaCenter.aa_map_player_conf_alls[conf.nanduid] = conf.id;
                     aa_map_player_conf_yewai_all_id = conf.id;
                 }
             } while (result->NextRow());
@@ -15270,56 +15267,38 @@ AA_Object AACenter::AA_GetGameObjectConf(GameObject* gameObject, GameObjectTempl
         }
         if (conf.id == 0) {
             if (map->IsDungeon()) {
-                Difficulty diff = DIFFICULTY_NONE;
-                //Difficulty diff = map->GetDifficulty();
-                //uint32 instanceid = gameObject->GetInstanceId();
-                //uint32 nanduid = aaCenter.aa_minstancevalues[instanceid][3];
-                //std::string moshi = "";
-                //if (diff == RAID_DIFFICULTY_25MAN_HEROIC) {
-                //    moshi = "英雄25人";
-                //}
-                //else if (diff == RAID_DIFFICULTY_25MAN_NORMAL) {
-                //    moshi = "普通25人";
-                //}
-                //else if (diff == DUNGEON_DIFFICULTY_HEROIC || diff == RAID_DIFFICULTY_10MAN_HEROIC || diff == DUNGEON_DIFFICULTY_EPIC) {
-                //    moshi = "英雄5或10人";
-                //}
-                //else if (diff == DUNGEON_DIFFICULTY_NORMAL || diff == RAID_DIFFICULTY_10MAN_NORMAL || diff == REGULAR_DIFFICULTY) {
-                //    moshi = "普通5或10人";
-                //}
                 uint32 nanduid = 0;
-                std::string moshi = "全部";
                 if (confid == 0)
                 {
-                    confid = aaCenter.aa_creature_map_areas[areaid][moshi][rank][nanduid][0];
+                    confid = aaCenter.aa_creature_map_areas[areaid][rank][nanduid];
                 }
                 if (confid == 0)
                 {
-                    confid = aaCenter.aa_creature_map_zones[zoneid][moshi][rank][nanduid][0];
+                    confid = aaCenter.aa_creature_map_zones[zoneid][rank][nanduid];
                 }
                 if (confid == 0)
                 {
-                    confid = aaCenter.aa_creature_map_maps[mapid][moshi][rank][nanduid][0];
+                    confid = aaCenter.aa_creature_map_maps[mapid][rank][nanduid];
                 }
                 if (confid == 0)
                 {
-                    confid = aaCenter.aa_creature_map_alls[moshi][rank][nanduid][0];
+                    confid = aaCenter.aa_creature_map_alls[rank][nanduid];
                 }
                 if (confid == 0)
                 {
-                    confid = aaCenter.aa_creature_map_areas[areaid]["全部"][rank][nanduid][0];
+                    confid = aaCenter.aa_creature_map_areas[areaid][rank][nanduid];
                 }
                 if (confid == 0)
                 {
-                    confid = aaCenter.aa_creature_map_zones[zoneid]["全部"][rank][nanduid][0];
+                    confid = aaCenter.aa_creature_map_zones[zoneid][rank][nanduid];
                 }
                 if (confid == 0)
                 {
-                    confid = aaCenter.aa_creature_map_maps[mapid]["全部"][rank][nanduid][0];
+                    confid = aaCenter.aa_creature_map_maps[mapid][rank][nanduid];
                 }
                 if (confid == 0)
                 {
-                    confid = aaCenter.aa_creature_map_alls["全部"][rank][nanduid][0];
+                    confid = aaCenter.aa_creature_map_alls[rank][nanduid];
                 }
                 if (confid > 0) {
                     m_conf = aaCenter.aa_creature_maps[confid];
@@ -15449,15 +15428,34 @@ AA_Creature AACenter::AA_GetCreatureConf(Creature* creature)
     uint32 confid = 0;
     AA_Creature_Id idconf;
     CreatureTemplate const* normalInfo = creature->GetCreatureTemplate();
-    if (map->IsDungeon()) {
-        CreatureTemplate const* cinfo = normalInfo;
-        uint8 diff = uint8(map->GetDifficultyID());
-        if (diff > 0 && normalInfo->DifficultyEntry[diff - 1] > 0) {
-            cinfo = sObjectMgr->GetCreatureTemplate(normalInfo->DifficultyEntry[diff - 1]);
+    if (map->IsDungeon() && normalInfo) {
+        // get difficulty 1 mode entry
+        CreatureTemplate const* cInfo = nullptr;
+        DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(map->GetDifficultyID());
+        while (!cInfo && difficultyEntry)
+        {
+            int32 idx = CreatureTemplate::DifficultyIDToDifficultyEntryIndex(difficultyEntry->ID);
+            if (idx == -1)
+                break;
+
+            if (normalInfo->DifficultyEntry[idx])
+            {
+                cInfo = sObjectMgr->GetCreatureTemplate(normalInfo->DifficultyEntry[idx]);
+                break;
+            }
+
+            if (!difficultyEntry->FallbackDifficultyID)
+                break;
+
+            difficultyEntry = sDifficultyStore.LookupEntry(difficultyEntry->FallbackDifficultyID);
         }
+
+        if (!cInfo)
+            cInfo = normalInfo;
+
         uint32 instanceid = creature->GetInstanceId();
         uint32 nanduid = aaCenter.aa_minstancevalues[instanceid][3];
-        idconf = aaCenter.aa_creature_ids[cinfo->Entry][nanduid];
+        idconf = aaCenter.aa_creature_ids[cInfo->Entry][nanduid];
     }
     else {
         idconf = aaCenter.aa_creature_ids[normalInfo->Entry][0];
@@ -15505,73 +15503,55 @@ AA_Creature AACenter::AA_GetCreatureConf(Creature* creature)
     }
     if (conf.id == 0) {
         if (map->IsDungeon()) {
-            uint8 diff = uint8(map->GetDifficultyID());
-            CreatureTemplate const* cinfo = normalInfo;
-            if (diff > 0 && normalInfo->DifficultyEntry[diff - 1] > 0) {
-                cinfo = sObjectMgr->GetCreatureTemplate(normalInfo->DifficultyEntry[diff - 1]);
-            }
             uint32 instanceid = creature->GetInstanceId();
             uint32 nanduid = aaCenter.aa_minstancevalues[instanceid][3];
-            std::string moshi = "";
-            //if (diff == RAID_DIFFICULTY_25MAN_HEROIC) {
-            //    moshi = "英雄25人";
-            //}
-            //else if (diff == RAID_DIFFICULTY_25MAN_NORMAL) {
-            //    moshi = "普通25人";
-            //}
-            //else if (diff == DUNGEON_DIFFICULTY_HEROIC || diff == RAID_DIFFICULTY_10MAN_HEROIC || diff == DUNGEON_DIFFICULTY_EPIC) {
-            //    moshi = "英雄5或10人";
-            //}
-            //else if (diff == DUNGEON_DIFFICULTY_NORMAL || diff == RAID_DIFFICULTY_10MAN_NORMAL || diff == REGULAR_DIFFICULTY) {
-            //    moshi = "普通5或10人";
-            //}
             if (confid == 0)
             {
-                confid = aaCenter.aa_creature_map_areas[areaid][moshi][rank][nanduid][0];
+                confid = aaCenter.aa_creature_map_areas[areaid][rank][nanduid];
             }
             if (confid == 0)
             {
-                confid = aaCenter.aa_creature_map_zones[zoneid][moshi][rank][nanduid][0];
+                confid = aaCenter.aa_creature_map_zones[zoneid][rank][nanduid];
             }
             if (confid == 0)
             {
-                confid = aaCenter.aa_creature_map_maps[mapid][moshi][rank][nanduid][0];
+                confid = aaCenter.aa_creature_map_maps[mapid][rank][nanduid];
             }
             if (confid == 0)
             {
-                confid = aaCenter.aa_creature_map_alls[moshi][rank][nanduid][0];
+                confid = aaCenter.aa_creature_map_alls[rank][nanduid];
             }
             if (confid == 0)
             {
-                confid = aaCenter.aa_creature_map_areas[areaid]["全部"][rank][nanduid][0];
+                confid = aaCenter.aa_creature_map_areas[areaid][rank][nanduid];
             }
             if (confid == 0)
             {
-                confid = aaCenter.aa_creature_map_zones[zoneid]["全部"][rank][nanduid][0];
+                confid = aaCenter.aa_creature_map_zones[zoneid][rank][nanduid];
             }
             if (confid == 0)
             {
-                confid = aaCenter.aa_creature_map_maps[mapid]["全部"][rank][nanduid][0];
+                confid = aaCenter.aa_creature_map_maps[mapid][rank][nanduid];
             }
             if (confid == 0)
             {
-                confid = aaCenter.aa_creature_map_alls["全部"][rank][nanduid][0];
+                confid = aaCenter.aa_creature_map_alls[rank][nanduid];
             }
             if (confid == 0)
             {
-                confid = aaCenter.aa_creature_map_areas[areaid]["全部"]["所有类型"][nanduid][0];
+                confid = aaCenter.aa_creature_map_areas[areaid]["所有类型"][nanduid];
             }
             if (confid == 0)
             {
-                confid = aaCenter.aa_creature_map_zones[zoneid]["全部"]["所有类型"][nanduid][0];
+                confid = aaCenter.aa_creature_map_zones[zoneid]["所有类型"][nanduid];
             }
             if (confid == 0)
             {
-                confid = aaCenter.aa_creature_map_maps[mapid]["全部"]["所有类型"][nanduid][0];
+                confid = aaCenter.aa_creature_map_maps[mapid]["所有类型"][nanduid];
             }
             if (confid == 0)
             {
-                confid = aaCenter.aa_creature_map_alls["全部"]["所有类型"][nanduid][0];
+                confid = aaCenter.aa_creature_map_alls["所有类型"][nanduid];
             }
             if (confid > 0) {
                 m_conf = aaCenter.aa_creature_maps[confid];
@@ -15715,10 +15695,37 @@ void AACenter::AA_ModifyCreature(Creature* creature, AA_Creature conf)
         if (conf.id == 0) {
             return;
         }
-        CreatureTemplate const* cInfo = creature->GetCreatureTemplate();
-        if (!cInfo) {
+
+        Map* map = creature->GetMap();
+        CreatureTemplate const* normalInfo = creature->GetCreatureTemplate();
+        if (!map || !normalInfo) {
             return;
         }
+
+        CreatureTemplate const* cInfo = nullptr;
+        // get difficulty 1 mode entry
+        DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(map->GetDifficultyID());
+        while (!cInfo && difficultyEntry)
+        {
+            int32 idx = CreatureTemplate::DifficultyIDToDifficultyEntryIndex(difficultyEntry->ID);
+            if (idx == -1)
+                break;
+
+            if (normalInfo->DifficultyEntry[idx])
+            {
+                cInfo = sObjectMgr->GetCreatureTemplate(normalInfo->DifficultyEntry[idx]);
+                break;
+            }
+
+            if (!difficultyEntry->FallbackDifficultyID)
+                break;
+
+            difficultyEntry = sDifficultyStore.LookupEntry(difficultyEntry->FallbackDifficultyID);
+        }
+
+        if (!cInfo)
+            cInfo = normalInfo;
+
         creature->SetCanModifyStats(false);
         creature->aa_id = conf.id;
         if (conf.level > 0) {
@@ -18103,54 +18110,39 @@ AA_Map_Player_Conf AACenter::AA_GetAA_Map_Player_Conf(WorldObject* object)
             conf.m_jindu_exp = aaCenter.aa_minstancevalues[instanceid][2];
             return conf;
         }
-        Difficulty diff = DIFFICULTY_NONE;
-        //Difficulty diff = object->GetMap()->GetDifficulty();
-        std::string moshi = "";
-        //if (diff == RAID_DIFFICULTY_25MAN_HEROIC) {
-        //    moshi = "英雄25人";
-        //}
-        //else if (diff == RAID_DIFFICULTY_25MAN_NORMAL) {
-        //    moshi = "普通25人";
-        //}
-        //else if (diff == DUNGEON_DIFFICULTY_HEROIC || diff == RAID_DIFFICULTY_10MAN_HEROIC || diff == DUNGEON_DIFFICULTY_EPIC) {
-        //    moshi = "英雄5或10人";
-        //}
-        //else if (diff == DUNGEON_DIFFICULTY_NORMAL || diff == RAID_DIFFICULTY_10MAN_NORMAL || diff == REGULAR_DIFFICULTY) {
-        //    moshi = "普通5或10人";
-        //}
         uint32 nanduid = aaCenter.aa_minstancevalues[instanceid][3];
         uint32 confid = 0;
         if (confid == 0)
         {
-            confid = aaCenter.aa_map_player_conf_areas[areaid][moshi][nanduid][0];
+            confid = aaCenter.aa_map_player_conf_areas[areaid][nanduid];
         }
         if (confid == 0)
         {
-            confid = aaCenter.aa_map_player_conf_zones[zoneid][moshi][nanduid][0];
+            confid = aaCenter.aa_map_player_conf_zones[zoneid][nanduid];
         }
         if (confid == 0)
         {
-            confid = aaCenter.aa_map_player_conf_maps[mapid][moshi][nanduid][0];
+            confid = aaCenter.aa_map_player_conf_maps[mapid][nanduid];
         }
         if (confid == 0)
         {
-            confid = aaCenter.aa_map_player_conf_alls[moshi][nanduid][0];
+            confid = aaCenter.aa_map_player_conf_alls[nanduid];
         }
         if (confid == 0)
         {
-            confid = aaCenter.aa_map_player_conf_areas[areaid]["全部"][nanduid][0];
+            confid = aaCenter.aa_map_player_conf_areas[areaid][nanduid];
         }
         if (confid == 0)
         {
-            confid = aaCenter.aa_map_player_conf_zones[zoneid]["全部"][nanduid][0];
+            confid = aaCenter.aa_map_player_conf_zones[zoneid][nanduid];
         }
         if (confid == 0)
         {
-            confid = aaCenter.aa_map_player_conf_maps[mapid]["全部"][nanduid][0];
+            confid = aaCenter.aa_map_player_conf_maps[mapid][nanduid];
         }
         if (confid == 0)
         {
-            confid = aaCenter.aa_map_player_conf_alls["全部"][nanduid][0];
+            confid = aaCenter.aa_map_player_conf_alls[nanduid];
         }
         if (confid > 0) {
             conf0 = aaCenter.aa_map_player_confs[confid];
