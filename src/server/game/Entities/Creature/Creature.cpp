@@ -569,6 +569,8 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
 
     _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_4_TREAT_AS_RAID_UNIT_FOR_HELPFUL_SPELLS, (GetCreatureDifficulty()->TypeFlags & CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT) != 0);
 
+    _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_4_IGNORE_LOS_WHEN_CASTING_ON_ME, (cinfo->flags_extra & CREATURE_FLAG_EXTRA_IGNORE_LOS_WHEN_CASTING_ON_ME) != 0);
+
     return true;
 }
 

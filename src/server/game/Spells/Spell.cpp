@@ -5762,7 +5762,10 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                     if (DynamicObject* dynObj = m_caster->ToUnit()->GetDynObject(m_triggeredByAuraSpell->Id))
                         losTarget = dynObj;
 
-                if (!m_spellInfo->HasAttribute(SPELL_ATTR2_IGNORE_LINE_OF_SIGHT) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, nullptr, SPELL_DISABLE_LOS) && !target->IsWithinLOSInMap(losTarget, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2))
+                if (!m_spellInfo->HasAttribute(SPELL_ATTR2_IGNORE_LINE_OF_SIGHT)
+                    && !DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, nullptr, SPELL_DISABLE_LOS)
+                    && !(target->IsCreature() && target->ToCreature()->CanIgnoreLineOfSightWhenCastingOnMe())
+                    && !target->IsWithinLOSInMap(losTarget, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2))
                     return SPELL_FAILED_LINE_OF_SIGHT;
             }
         }
@@ -6058,7 +6061,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                         return SPELL_FAILED_DONT_REPORT;
 
                     // first we must check to see if the target is in LoS. A path can usually be built but LoS matters for charge spells
-                    if (!target->IsWithinLOSInMap(unitCaster)) //Do full LoS/Path check. Don't exclude m2
+                    if (!(target->IsCreature() && target->ToCreature()->CanIgnoreLineOfSightWhenCastingOnMe()) && !target->IsWithinLOSInMap(unitCaster)) //Do full LoS/Path check. Don't exclude m2
                         return SPELL_FAILED_LINE_OF_SIGHT;
 
                     float objSize = target->GetCombatReach();
@@ -8011,7 +8014,7 @@ bool Spell::CheckEffectTarget(Unit const* target, SpellEffectInfo const& spellEf
                     caster = m_caster->GetMap()->GetGameObject(m_originalCasterGUID);
                 if (!caster)
                     caster = m_caster;
-                if (target != m_caster && !target->IsWithinLOSInMap(caster, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2))
+                if (target != m_caster && !(target->ToCreature() && target->ToCreature()->CanIgnoreLineOfSightWhenCastingOnMe()) && !target->IsWithinLOSInMap(caster, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::M2))
                     return false;
             }
 

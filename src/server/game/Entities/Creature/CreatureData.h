@@ -353,7 +353,7 @@ enum CreatureFlagsExtra : uint32
     CREATURE_FLAG_EXTRA_OBEYS_TAUNT_DIMINISHING_RETURNS = 0x00080000,       // Taunt is subject to diminishing returns on this creature
     CREATURE_FLAG_EXTRA_ALL_DIMINISH         = 0x00100000,       // creature is subject to all diminishing returns as players are
     CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ = 0x00200000,       // creature does not need to take player damage for kill credit
-    CREATURE_FLAG_EXTRA_UNUSED_22            = 0x00400000,
+    CREATURE_FLAG_EXTRA_IGNORE_LOS_WHEN_CASTING_ON_ME = 0x00400000, // Other objects can ignore line of sight requirements when casting spells on me
     CREATURE_FLAG_EXTRA_UNUSED_23            = 0x00800000,
     CREATURE_FLAG_EXTRA_UNUSED_24            = 0x01000000,
     CREATURE_FLAG_EXTRA_UNUSED_25            = 0x02000000,
@@ -365,8 +365,7 @@ enum CreatureFlagsExtra : uint32
     CREATURE_FLAG_EXTRA_UNUSED_31            = 0x80000000,
 
     // Masks
-    CREATURE_FLAG_EXTRA_UNUSED               = (CREATURE_FLAG_EXTRA_UNUSED_22 |
-                                                CREATURE_FLAG_EXTRA_UNUSED_23 | CREATURE_FLAG_EXTRA_UNUSED_24 | CREATURE_FLAG_EXTRA_UNUSED_25 |
+    CREATURE_FLAG_EXTRA_UNUSED               = (CREATURE_FLAG_EXTRA_UNUSED_23 | CREATURE_FLAG_EXTRA_UNUSED_24 | CREATURE_FLAG_EXTRA_UNUSED_25 |
                                                 CREATURE_FLAG_EXTRA_UNUSED_26 | CREATURE_FLAG_EXTRA_UNUSED_27 | CREATURE_FLAG_EXTRA_UNUSED_31), // SKIP
 
     CREATURE_FLAG_EXTRA_DB_ALLOWED           = (0xFFFFFFFF & ~(CREATURE_FLAG_EXTRA_UNUSED | CREATURE_FLAG_EXTRA_DUNGEON_BOSS)) // SKIP
