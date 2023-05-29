@@ -554,13 +554,6 @@ void Unit::AtEndOfEncounter()
 
         return spellInfo->HasAttribute(SPELL_ATTR10_RESET_COOLDOWN_ON_ENCOUNTER_END);
     }, true);
-
-    GetSpellHistory()->ResetCharges([](SpellHistory::ChargeStorageType::iterator itr)
-    {
-        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first, DIFFICULTY_NONE);
-
-        return spellInfo->HasAttribute(SPELL_ATTR10_RESET_COOLDOWN_ON_ENCOUNTER_END);
-    });
 }
 
 void Unit::UpdateSplineMovement(uint32 t_diff)

@@ -163,22 +163,6 @@ public:
     void RestoreCharge(uint32 chargeCategoryId);
     void ResetCharges(uint32 chargeCategoryId);
     void ResetAllCharges();
-    template<typename Predicate>
-    void ResetCharges(Predicate predicate)
-    {
-        std::vector<int32> resetCharges;
-        resetCharges.reserve(_categoryCharges.size());
-        for (auto itr = _categoryCharges.begin(); itr != _categoryCharges.end();)
-        {
-            if (predicate(itr))
-            {
-                resetCharges.push_back(int32(itr->first));
-                ResetCharges(itr, GetCastDifficulty()->ChargeCategoryId);
-            }
-            else
-                ++itr;
-        }
-    }
     bool HasCharge(uint32 chargeCategoryId) const;
     int32 GetMaxCharges(uint32 chargeCategoryId) const;
     int32 GetChargeRecoveryTime(uint32 chargeCategoryId) const;
