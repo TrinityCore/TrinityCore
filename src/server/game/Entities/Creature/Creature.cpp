@@ -2324,9 +2324,6 @@ void Creature::ForcedDespawn(uint32 timeMSToDespawn, Seconds forceRespawnTimer)
         // do it before killing creature
         UpdateObjectVisibilityOnDestroy();
 
-        if (IsAIEnabled())
-            AI()->JustDespawned();
-
         bool overrideRespawnTime = false;
         if (IsAlive())
         {

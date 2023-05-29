@@ -15,7 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CreatureAI.h"
 #include "Totem.h"
 #include "Group.h"
 #include "Log.h"
@@ -137,9 +136,6 @@ void Totem::UnSummon(uint32 msTime)
             }
         }
     }
-
-    if (IsAIEnabled())
-        ToCreature()->AI()->JustDespawned();
 
     AddObjectToRemoveList();
 }

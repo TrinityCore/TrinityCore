@@ -78,7 +78,7 @@ struct npc_pet_pri_divine_image : public PetAI
         me->SetReactState(ReactStates::REACT_PASSIVE);
     }
 
-    void JustDespawned() override
+    void OnDespawn() override
     {
         if (Unit* owner = me->GetOwner())
             owner->RemoveAura(SPELL_PRIEST_DIVINE_IMAGE_SPELL_CHECK);
