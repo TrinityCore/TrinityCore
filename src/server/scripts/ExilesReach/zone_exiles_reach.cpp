@@ -76,12 +76,8 @@ public:
 
     void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus)
     {
-        switch (newStatus)
-        {
-            case QUEST_STATUS_COMPLETE:
-                Conversation::CreateConversation(CONVERSATION_WARMING_UP, player, *player, player->GetGUID(), nullptr);
-                break;
-        }
+        if(newStatus == QUEST_STATUS_COMPLETE)
+            Conversation::CreateConversation(CONVERSATION_WARMING_UP, player, *player, player->GetGUID(), nullptr);
     }
 };
 
@@ -97,21 +93,15 @@ public:
     {
         BaseQuestWarmingUp::OnQuestStatusChange(player, quest, oldStatus, newStatus);
 
-        switch (newStatus)
+        if (newStatus == QUEST_STATUS_REWARDED)
         {
-            case QUEST_STATUS_REWARDED:
-            {
-                Creature* garrickLowerDeck = ExilesReach::FindCreature(player, "q56775_garrick_lower_deck");
-                Creature* garrickUpperDeck = ExilesReach::FindCreature(player, "q56775_garrick_upper_deck");
-                if (!garrickLowerDeck || !garrickUpperDeck)
-                    return;
+            Creature* garrickLowerDeck = ExilesReach::FindCreature(player, "q56775_garrick_lower_deck");
+            Creature* garrickUpperDeck = ExilesReach::FindCreature(player, "q56775_garrick_upper_deck");
+            if (!garrickLowerDeck || !garrickUpperDeck)
+                return;
 
-                Position pos(garrickLowerDeck->GetPositionX(), garrickLowerDeck->GetPositionY(), garrickLowerDeck->GetPositionZ() - CloneSpawnZOffSet, CloneOrientation);
-                garrickUpperDeck->SummonPersonalClone(pos, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
-            }
-            break;
-            default:
-                break;
+            Position pos(garrickLowerDeck->GetPositionX(), garrickLowerDeck->GetPositionY(), garrickLowerDeck->GetPositionZ() - CloneSpawnZOffSet, CloneOrientation);
+            garrickUpperDeck->SummonPersonalClone(pos, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
         }
     }
 };
@@ -125,20 +115,14 @@ public:
     {
         BaseQuestWarmingUp::OnQuestStatusChange(player, quest, oldStatus, newStatus);
 
-        switch (newStatus)
+        if (newStatus == QUEST_STATUS_REWARDED)
         {
-            case QUEST_STATUS_REWARDED:
-            {
-                Creature* grimaxeLowerDeck = ExilesReach::FindCreature(player, "q59926_grimaxe_lower_deck");
-                Creature* grimaxeUpperDeck = ExilesReach::FindCreature(player, "q59926_grimaxe_upper_deck");
-                if (!grimaxeLowerDeck || !grimaxeUpperDeck)
-                    return;
+            Creature* grimaxeLowerDeck = ExilesReach::FindCreature(player, "q59926_grimaxe_lower_deck");
+            Creature* grimaxeUpperDeck = ExilesReach::FindCreature(player, "q59926_grimaxe_upper_deck");
+            if (!grimaxeLowerDeck || !grimaxeUpperDeck)
+                return;
 
-                grimaxeUpperDeck->SummonPersonalClone(*grimaxeLowerDeck, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
-            }
-            break;
-            default:
-                break;
+            grimaxeUpperDeck->SummonPersonalClone(*grimaxeLowerDeck, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
         }
     }
 };
@@ -777,13 +761,14 @@ struct npc_crew_ship_private : public ScriptedAI
 
     std::unordered_map<uint32, uint32> const PathData =
     {
-        { NPC_QUARTERMASTER_RICHTER, PATH_RICHTER_BRACE_FOR_IMPACT },
-        { NPC_KEE_LA,                PATH_KEE_LA_BRACE_FOR_IMPACT  },
-        { NPC_BJORN_STOUTHANDS,      PATH_BJORN_BRACE_FOR_IMPACT   },
-        { NPC_AUSTIN_HUXWORTH,       PATH_AUSTIN_BRACE_FOR_IMPACT  },
-        { NPC_BO,                    PATH_BO_BRACE_FOR_IMPACT      },
-        { NPC_MITHDRAN_DAWNTRACKER,  NPC_MITHDRAN_DAWNTRACKER      },
-        { NPC_LANA_JORDAN,           NPC_PROVISONER_JIN_HAKE       }
+        { NPC_QUARTERMASTER_RICHTER, PATH_RICHTER_BRACE_FOR_IMPACT  },
+        { NPC_KEE_LA,                PATH_KEE_LA_BRACE_FOR_IMPACT   },
+        { NPC_BJORN_STOUTHANDS,      PATH_BJORN_BRACE_FOR_IMPACT    },
+        { NPC_AUSTIN_HUXWORTH,       PATH_AUSTIN_BRACE_FOR_IMPACT   },
+        { NPC_BO,                    PATH_BO_BRACE_FOR_IMPACT       },
+        { NPC_MITHDRAN_DAWNTRACKER,  PATH_MITHDRAN_BRACE_FOR_IMPACT },
+        { NPC_LANA_JORDAN,           PATH_LANA_BRACE_FOR_IMPACT     },
+        { NPC_PROVISONER_JIN_HAKE,   PATH_JIN_HAKE_BRACE_FOR_IMPACT }
     };
 
     void JustAppeared() override
