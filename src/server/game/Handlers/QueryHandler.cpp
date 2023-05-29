@@ -23,7 +23,6 @@
 #include "GameTime.h"
 #include "Item.h"
 #include "Log.h"
-#include "Map.h"
 #include "NPCHandler.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -73,15 +72,11 @@ void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packe
     if (CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(packet.CreatureID))
     {
         TC_LOG_DEBUG("network", "WORLD: CMSG_QUERY_CREATURE '{}' - Entry: {}.", ci->Name, packet.CreatureID);
-
-        Difficulty difficulty = _player->GetMap()->GetDifficultyID();
-
-        // Cache only exists for difficulty base
-        if (sWorld->getBoolConfig(CONFIG_CACHE_DATA_QUERIES) && difficulty == DIFFICULTY_NONE)
+        if (sWorld->getBoolConfig(CONFIG_CACHE_DATA_QUERIES))
             SendPacket(&ci->QueryData[static_cast<uint32>(GetSessionDbLocaleIndex())]);
         else
         {
-            WorldPacket response = ci->BuildQueryData(GetSessionDbLocaleIndex(), difficulty);
+            WorldPacket response = ci->BuildQueryData(GetSessionDbLocaleIndex());
             SendPacket(&response);
         }
         TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUERY_CREATURE_RESPONSE");

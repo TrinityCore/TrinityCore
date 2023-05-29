@@ -441,6 +441,7 @@ const uint8 MAX_KILL_CREDIT = 2;
 const uint32 MAX_CREATURE_MODELS = 4;
 const uint32 MAX_CREATURE_NAMES = 4;
 const uint32 MAX_CREATURE_SPELLS = 8;
+const uint32 MAX_CREATURE_DIFFICULTIES = 3;
 
 struct CreatureModel
 {
@@ -458,48 +459,18 @@ struct CreatureModel
     float Probability;
 };
 
-struct CreatureDifficulty
+struct CreatureLevelScaling
 {
     int16 DeltaLevelMin;
     int16 DeltaLevelMax;
     int32 ContentTuningID;
-    int32 HealthScalingExpansion;
-    float HealthModifier;
-    float ManaModifier;
-    float ArmorModifier;
-    float DamageModifier;
-    int32 CreatureDifficultyID;
-    uint32 TypeFlags;
-    uint32 TypeFlags2;
-    uint32 LootID;
-    uint32 PickPocketLootID;
-    uint32 SkinLootID;
-    uint32 GoldMin;
-    uint32 GoldMax;
-
-    // Helpers
-    int32 GetHealthScalingExpansion() const
-    {
-        return HealthScalingExpansion == EXPANSION_LEVEL_CURRENT ? CURRENT_EXPANSION : HealthScalingExpansion;
-    }
-
-    SkillType GetRequiredLootSkill() const
-    {
-        if (TypeFlags & CREATURE_TYPE_FLAG_SKIN_WITH_HERBALISM)
-            return SKILL_HERBALISM;
-        else if (TypeFlags & CREATURE_TYPE_FLAG_SKIN_WITH_MINING)
-            return SKILL_MINING;
-        else if (TypeFlags & CREATURE_TYPE_FLAG_SKIN_WITH_ENGINEERING)
-            return SKILL_ENGINEERING;
-        else
-            return SKILL_SKINNING; // Default case
-    }
 };
 
 // from `creature_template` table
 struct TC_GAME_API CreatureTemplate
 {
     uint32  Entry;
+    uint32  DifficultyEntry[MAX_CREATURE_DIFFICULTIES];
     uint32  KillCredit[MAX_KILL_CREDIT];
     std::vector<CreatureModel> Models;
     std::string  Name;
@@ -508,7 +479,8 @@ struct TC_GAME_API CreatureTemplate
     std::string  TitleAlt;
     std::string  IconName;
     std::vector<uint32> GossipMenuIds;
-    std::unordered_map<Difficulty, CreatureDifficulty> difficultyStore;
+    std::unordered_map<Difficulty, CreatureLevelScaling> scalingStore;
+    int32   HealthScalingExpansion;
     uint32  RequiredExpansion;
     uint32  VignetteID;                                     /// @todo Read Vignette.db2
     uint32  faction;
@@ -530,15 +502,29 @@ struct TC_GAME_API CreatureTemplate
     CreatureFamily  family;                                 // enum CreatureFamily values (optional)
     uint32  trainer_class;
     uint32  type;                                           // enum CreatureType values
+    uint32  type_flags;                                     // enum CreatureTypeFlags mask values
+    uint32  type_flags2;                                    // unknown enum, only set for 4 creatures (with value 1)
+    uint32  lootid;
+    uint32  pickpocketLootId;
+    uint32  SkinLootId;
     int32   resistance[MAX_SPELL_SCHOOL];
     uint32  spells[MAX_CREATURE_SPELLS];
     uint32  VehicleId;
+    uint32  mingold;
+    uint32  maxgold;
     std::string AIName;
     uint32  MovementType;
     CreatureMovementData Movement;
+    float   ModHealth;
+    float   ModHealthExtra;
+    float   ModMana;
+    float   ModManaExtra;                                   // Added in 4.x, this value is usually 2 for a small group of creatures with double mana
+    float   ModArmor;
+    float   ModDamage;
     float   ModExperience;
     bool    RacialLeader;
     uint32  movementId;
+    int32   CreatureDifficultyID;
     int32   WidgetSetID;
     int32   WidgetSetUnitConditionID;
     bool    RegenHealth;
@@ -554,25 +540,70 @@ struct TC_GAME_API CreatureTemplate
     CreatureModel const* GetModelWithDisplayId(uint32 displayId) const;
     CreatureModel const* GetFirstInvisibleModel() const;
     CreatureModel const* GetFirstVisibleModel() const;
-    CreatureDifficulty const* GetDifficulty(Difficulty difficulty) const;
+    int32 GetHealthScalingExpansion() const;
+    CreatureLevelScaling const* GetLevelScaling(Difficulty difficulty) const;
 
-    // Helpers
-    bool IsExotic(CreatureDifficulty const* creatureDifficulty) const
+    // helpers
+    SkillType GetRequiredLootSkill() const
     {
-        return (creatureDifficulty->TypeFlags & CREATURE_TYPE_FLAG_TAMEABLE_EXOTIC) != 0;
+        if (type_flags & CREATURE_TYPE_FLAG_SKIN_WITH_HERBALISM)
+            return SKILL_HERBALISM;
+        else if (type_flags & CREATURE_TYPE_FLAG_SKIN_WITH_MINING)
+            return SKILL_MINING;
+        else if (type_flags & CREATURE_TYPE_FLAG_SKIN_WITH_ENGINEERING)
+            return SKILL_ENGINEERING;
+        else
+            return SKILL_SKINNING;                          // normal case
     }
 
-    bool IsTameable(bool canTameExotic, CreatureDifficulty const* creatureDifficulty) const
+    bool IsExotic() const
     {
-        if (type != CREATURE_TYPE_BEAST || family == CREATURE_FAMILY_NONE || (creatureDifficulty->TypeFlags & CREATURE_TYPE_FLAG_TAMEABLE) == 0)
+        return (type_flags & CREATURE_TYPE_FLAG_TAMEABLE_EXOTIC) != 0;
+    }
+
+    bool IsTameable(bool canTameExotic) const
+    {
+        if (type != CREATURE_TYPE_BEAST || family == CREATURE_FAMILY_NONE || (type_flags & CREATURE_TYPE_FLAG_TAMEABLE) == 0)
             return false;
 
         // if can tame exotic then can tame any tameable
-        return canTameExotic || !IsExotic(creatureDifficulty);
+        return canTameExotic || !IsExotic();
     }
 
     void InitializeQueryData();
-    WorldPacket BuildQueryData(LocaleConstant loc, Difficulty difficulty) const;
+    WorldPacket BuildQueryData(LocaleConstant loc) const;
+
+    static int32 DifficultyIDToDifficultyEntryIndex(uint32 difficulty)
+    {
+        switch (difficulty)
+        {
+            case DIFFICULTY_NONE:
+            case DIFFICULTY_NORMAL:
+            case DIFFICULTY_10_N:
+            case DIFFICULTY_40:
+            case DIFFICULTY_3_MAN_SCENARIO_N:
+            case DIFFICULTY_NORMAL_RAID:
+                return -1;
+            case DIFFICULTY_HEROIC:
+            case DIFFICULTY_25_N:
+            case DIFFICULTY_3_MAN_SCENARIO_HC:
+            case DIFFICULTY_HEROIC_RAID:
+                return 0;
+            case DIFFICULTY_10_HC:
+            case DIFFICULTY_MYTHIC_KEYSTONE:
+            case DIFFICULTY_MYTHIC_RAID:
+                return 1;
+            case DIFFICULTY_25_HC:
+                return 2;
+            case DIFFICULTY_LFR:
+            case DIFFICULTY_LFR_NEW:
+            case DIFFICULTY_EVENT_RAID:
+            case DIFFICULTY_EVENT_DUNGEON:
+            case DIFFICULTY_EVENT_SCENARIO:
+            default:
+                return -1;
+        }
+    }
 };
 
 #pragma pack(push, 1)

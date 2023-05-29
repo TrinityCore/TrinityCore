@@ -76,7 +76,6 @@ enum Spells
     SPELL_TELEPORT_LIVE         = 28026
 };
 
-#define SPELL_UNHOLY_AURA RAID_MODE<uint32>(55606, 55608)
 #define SPELL_DEATH_PLAGUE RAID_MODE<uint32>(55604, 55645)
 #define SPELL_SHADOW_BOLT_VOLLEY RAID_MODE<uint32>(27831, 55638)
 #define SPELL_ARCANE_EXPLOSION RAID_MODE<uint32>(27989, 56407)
@@ -664,19 +663,7 @@ struct npc_gothik_minion_livingrider : public npc_gothik_minion_baseAI
 {
     npc_gothik_minion_livingrider(Creature* creature) : npc_gothik_minion_baseAI(creature, SPELL_ANCHOR_1_RIDER), _boltVolleyTimer(urandms(5,10)) { }
 
-    void JustAppeared() override
-    {
-        npc_gothik_minion_baseAI::JustAppeared();
-        DoCastSelf(SPELL_UNHOLY_AURA, true);
-    }
-
-    void JustReachedHome() override
-    {
-        npc_gothik_minion_baseAI::JustReachedHome();
-        DoCastSelf(SPELL_UNHOLY_AURA, true);
-    }
-
-    void _UpdateAI(uint32 diff) override
+    void _UpdateAI(uint32 diff)
     {
         if (diff < _boltVolleyTimer)
             _boltVolleyTimer -= diff;
@@ -687,8 +674,6 @@ struct npc_gothik_minion_livingrider : public npc_gothik_minion_baseAI
         }
         if (!me->HasUnitState(UNIT_STATE_CASTING))
             DoMeleeAttackIfReady();
-
-        npc_gothik_minion_baseAI::_UpdateAI(diff);
     }
     uint32 _boltVolleyTimer;
 };
@@ -733,19 +718,7 @@ struct npc_gothik_minion_spectralrider : public npc_gothik_minion_baseAI
 {
     npc_gothik_minion_spectralrider(Creature* creature) : npc_gothik_minion_baseAI(creature), _frenzyTimer(urandms(2,5)), _drainTimer(urandms(8,12)) { }
 
-    void JustAppeared() override
-    {
-        npc_gothik_minion_baseAI::JustAppeared();
-        DoCastSelf(SPELL_UNHOLY_AURA, true);
-    }
-
-    void JustReachedHome() override
-    {
-        npc_gothik_minion_baseAI::JustReachedHome();
-        DoCastSelf(SPELL_UNHOLY_AURA, true);
-    }
-
-    void _UpdateAI(uint32 diff) override
+    void _UpdateAI(uint32 diff)
     {
         if (diff < _frenzyTimer)
             _frenzyTimer -= diff;
@@ -791,8 +764,6 @@ struct npc_gothik_minion_spectralrider : public npc_gothik_minion_baseAI
 
         if (!me->HasUnitState(UNIT_STATE_CASTING))
             DoMeleeAttackIfReady();
-
-        npc_gothik_minion_baseAI::_UpdateAI(diff);
     }
     uint32 _frenzyTimer, _drainTimer;
 };

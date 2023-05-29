@@ -1074,12 +1074,11 @@ class spell_item_extract_gas : public AuraScript
         {
             Player* player = GetCaster()->ToPlayer();
             Creature* creature = GetTarget()->ToCreature();
-            CreatureDifficulty const* creatureDifficulty = creature->GetCreatureDifficulty();
             // missing lootid has been reported on startup - just return
-            if (!creatureDifficulty->SkinLootID)
+            if (!creature->GetCreatureTemplate()->SkinLootId)
                 return;
 
-            player->AutoStoreLoot(creatureDifficulty->SkinLootID, LootTemplates_Skinning, ItemContext::NONE, true);
+            player->AutoStoreLoot(creature->GetCreatureTemplate()->SkinLootId, LootTemplates_Skinning, ItemContext::NONE, true);
             creature->DespawnOrUnsummon();
         }
     }

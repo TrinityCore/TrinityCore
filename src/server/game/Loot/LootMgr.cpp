@@ -993,15 +993,12 @@ void LoadLootTemplates_Creature()
     CreatureTemplateContainer const& ctc = sObjectMgr->GetCreatureTemplates();
     for (auto const& creatureTemplatePair : ctc)
     {
-        for (auto const& [difficulty, creatureDifficulty] : creatureTemplatePair.second.difficultyStore)
+        if (uint32 lootid = creatureTemplatePair.second.lootid)
         {
-            if (uint32 lootid = creatureDifficulty.LootID)
-            {
-                if (!lootIdSet.count(lootid))
-                    LootTemplates_Creature.ReportNonExistingId(lootid, "Creature", creatureTemplatePair.first);
-                else
-                    lootIdSetUsed.insert(lootid);
-            }
+            if (!lootIdSet.count(lootid))
+                LootTemplates_Creature.ReportNonExistingId(lootid, "Creature", creatureTemplatePair.first);
+            else
+                lootIdSetUsed.insert(lootid);
         }
     }
 
@@ -1185,15 +1182,12 @@ void LoadLootTemplates_Pickpocketing()
     CreatureTemplateContainer const& ctc = sObjectMgr->GetCreatureTemplates();
     for (auto const& creatureTemplatePair : ctc)
     {
-        for (auto const& [difficulty, creatureDifficulty] : creatureTemplatePair.second.difficultyStore)
+        if (uint32 lootid = creatureTemplatePair.second.pickpocketLootId)
         {
-            if (uint32 lootid = creatureDifficulty.PickPocketLootID)
-            {
-                if (!lootIdSet.count(lootid))
-                    LootTemplates_Pickpocketing.ReportNonExistingId(lootid, "Creature", creatureTemplatePair.first);
-                else
-                    lootIdSetUsed.insert(lootid);
-            }
+            if (!lootIdSet.count(lootid))
+                LootTemplates_Pickpocketing.ReportNonExistingId(lootid, "Creature", creatureTemplatePair.first);
+            else
+                lootIdSetUsed.insert(lootid);
         }
     }
 
@@ -1275,15 +1269,12 @@ void LoadLootTemplates_Skinning()
     CreatureTemplateContainer const& ctc = sObjectMgr->GetCreatureTemplates();
     for (auto const& creatureTemplatePair : ctc)
     {
-        for (auto const& [difficulty, creatureDifficulty] : creatureTemplatePair.second.difficultyStore)
+        if (uint32 lootid = creatureTemplatePair.second.SkinLootId)
         {
-            if (uint32 lootid = creatureDifficulty.SkinLootID)
-            {
-                if (!lootIdSet.count(lootid))
-                    LootTemplates_Skinning.ReportNonExistingId(lootid, "Creature", creatureTemplatePair.first);
-                else
-                    lootIdSetUsed.insert(lootid);
-            }
+            if (!lootIdSet.count(lootid))
+                LootTemplates_Skinning.ReportNonExistingId(lootid, "Creature", creatureTemplatePair.first);
+            else
+                lootIdSetUsed.insert(lootid);
         }
     }
 
