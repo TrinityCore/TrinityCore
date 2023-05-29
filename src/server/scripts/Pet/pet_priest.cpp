@@ -29,9 +29,11 @@ enum PriestSpells
 {
     SPELL_PRIEST_GLYPH_OF_SHADOWFIEND       = 58228,
     SPELL_PRIEST_SHADOWFIEND_DEATH          = 57989,
-    SPELL_PRIEST_LIGHTWELL_CHARGES          = 59907
+    SPELL_PRIEST_LIGHTWELL_CHARGES          = 59907,
+    SPELL_PRIEST_DIVINE_IMAGE_SPELL_CHECK   = 405216
 };
 
+// 189820 - Lightwell
 struct npc_pet_pri_lightwell : public PassiveAI
 {
     npc_pet_pri_lightwell(Creature* creature) : PassiveAI(creature)
@@ -50,18 +52,36 @@ struct npc_pet_pri_lightwell : public PassiveAI
     }
 };
 
+// 19668 - Shadowfiend
 struct npc_pet_pri_shadowfiend : public PetAI
 {
     npc_pet_pri_shadowfiend(Creature* creature) : PetAI(creature) { }
 
-    void IsSummonedBy(WorldObject* summonerWO) override
+    void IsSummonedBy(WorldObject* summoner) override
     {
-        Unit* summoner = summonerWO->ToUnit();
-        if (!summoner)
+        Unit* owner = summoner->ToUnit();
+        if (!owner)
             return;
 
-        if (summoner->HasAura(SPELL_PRIEST_GLYPH_OF_SHADOWFIEND))
+        if (owner->HasAura(SPELL_PRIEST_GLYPH_OF_SHADOWFIEND))
             DoCastAOE(SPELL_PRIEST_SHADOWFIEND_DEATH);
+    }
+};
+
+// 198236 - Divine Image
+struct npc_pet_pri_divine_image : public PetAI
+{
+    npc_pet_pri_divine_image(Creature* creature) : PetAI(creature) { }
+
+    void IsSummonedBy(WorldObject* /*summoner*/) override
+    {
+        me->SetReactState(ReactStates::REACT_PASSIVE);
+    }
+
+    void JustDespawned() override
+    {
+        if (Unit* owner = me->GetOwner())
+            owner->RemoveAura(SPELL_PRIEST_DIVINE_IMAGE_SPELL_CHECK);
     }
 };
 
@@ -69,4 +89,5 @@ void AddSC_priest_pet_scripts()
 {
     RegisterCreatureAI(npc_pet_pri_lightwell);
     RegisterCreatureAI(npc_pet_pri_shadowfiend);
+    RegisterCreatureAI(npc_pet_pri_divine_image);
 }

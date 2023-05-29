@@ -326,13 +326,16 @@ void TempSummon::UnSummon(uint32 msTime)
         return;
     }
 
-    if (WorldObject * owner = GetSummoner())
+    if (WorldObject* owner = GetSummoner())
     {
         if (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsAIEnabled())
             owner->ToCreature()->AI()->SummonedCreatureDespawn(this);
         else if (owner->GetTypeId() == TYPEID_GAMEOBJECT && owner->ToGameObject()->AI())
             owner->ToGameObject()->AI()->SummonedCreatureDespawn(this);
     }
+
+    if (IsAIEnabled)
+        AI()->JustDespawned();
 
     AddObjectToRemoveList();
 }
