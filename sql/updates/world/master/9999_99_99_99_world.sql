@@ -7,3 +7,6 @@ DELETE FROM `spell_script_names` WHERE `spell_id` IN (392988, 405216);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
 (392988, 'spell_pri_divine_image'),
 (405216, 'spell_pri_divine_image_spell_triggered');
+
+UPDATE `creature_template` SET `ScriptName`='npc_pet_pri_divine_image' WHERE `entry`=198236;
+
