@@ -1875,7 +1875,7 @@ void Spell::SelectImplicitTrajTargets(SpellEffectInfo const& spellEffectInfo, Sp
 
             if (Creature* creatureTarget = unit->ToCreature())
             {
-                if (!(creatureTarget->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_COLLIDE_WITH_MISSILES))
+                if (!(creatureTarget->GetCreatureDifficulty()->TypeFlags & CREATURE_TYPE_FLAG_COLLIDE_WITH_MISSILES))
                     continue;
             }
         }
@@ -6252,10 +6252,11 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                         if (info.first->Type == HUNTER_PET)
                         {
                             CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(info.first->CreatureId);
-                            if (!creatureInfo || !creatureInfo->IsTameable(playerCaster->CanTameExoticPets()))
+                            CreatureDifficulty const* creatureDifficulty = creatureInfo->GetDifficulty(DIFFICULTY_NONE);
+                            if (!creatureInfo || !creatureInfo->IsTameable(playerCaster->CanTameExoticPets(), creatureDifficulty))
                             {
                                 // if problem in exotic pet
-                                if (creatureInfo && creatureInfo->IsTameable(true))
+                                if (creatureInfo && creatureInfo->IsTameable(true, creatureDifficulty))
                                     playerCaster->SendTameFailure(PetTameResult::CantControlExotic);
                                 else
                                     playerCaster->SendTameFailure(PetTameResult::NoPetAvailable);
