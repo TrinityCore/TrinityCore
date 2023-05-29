@@ -148,7 +148,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         virtual void JustAppeared();
 
         // Called when creature despawns or is unsummoned.
-        virtual void JustDespawned();
+        virtual void JustDespawned() { }
 
         // Called at waypoint reached or point movement finished
         virtual void MovementInform(uint32 /*type*/, uint32 /*id*/) { }
