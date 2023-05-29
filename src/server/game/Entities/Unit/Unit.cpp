@@ -1,4 +1,4 @@
-﻿/*
+/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1377,7 +1377,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
             }
         }
     }
-    
+
     {//BOSS伤害排行
         if (attacker && victim && attacker != victim && damage > 1) {
             Creature *c = nullptr;
@@ -7405,7 +7405,7 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
 int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const
 {
     float juexing = aaCenter.AA_FindMapValueUint32(aa_fm_values, 545) > 0 ? ((aaCenter.AA_FindMapValueUint32(aa_fm_values, 545) /100.0) + 1) : 1;
-    
+
     if (Player const* thisPlayer = ToPlayer())
     {
         float overrideSP = thisPlayer->m_activePlayerData->OverrideSpellPowerByAPPercent;
@@ -7454,9 +7454,9 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const
             v += GetTotalStatValue(STAT_STAMINA) * conf.nltofq / 100.0;
             v += GetTotalStatValue(STAT_INTELLECT) * conf.zltofq / 100.0;
         }
-        
+
         DoneAdvertisedBenefit += v;
-        
+
         DoneAdvertisedBenefit *= juexing;
         if (conf.class1 > 0) {
             if (conf.faqiangbl > 0) {
