@@ -147,7 +147,7 @@ public:
 struct ActorData
 {
     std::string_view StringId;
-    Position Position;
+    Position ActorPosition;
 };
 
 static std::unordered_map<TeamId, std::vector<ActorData>> const actorData =
@@ -206,7 +206,7 @@ public:
         {
             if (auto const* actors = Trinity::Containers::MapGetValuePtr(actorData, TeamId(TEAM_ALLIANCE)))
             for (ActorData const actor : *actors)
-                SpawnActor(player, ExilesReach::FindCreature(player, actor.StringId), actor.Position);
+                SpawnActor(player, ExilesReach::FindCreature(player, actor.StringId), actor.ActorPosition);
 
             // Spawn pet
             SpawnPet(player, { -1.4492f, 8.06887f,  5.10348f, 2.6005409f });
@@ -215,7 +215,7 @@ public:
         {
             if (auto const* actors = Trinity::Containers::MapGetValuePtr(actorData, TeamId(TEAM_HORDE)))
                 for (ActorData const actor : *actors)
-                SpawnActor(player, ExilesReach::FindCreature(player, actor.StringId), actor.Position);
+                SpawnActor(player, ExilesReach::FindCreature(player, actor.StringId), actor.ActorPosition);
 
             // Spawn pet
             SpawnPet(player, { -22.8374f, -3.08287f, 9.12613f, 3.857178f });
