@@ -56,6 +56,7 @@ enum PriestSpells
     SPELL_PRIEST_DARK_REPRIMAND_DAMAGE              = 373130,
     SPELL_PRIEST_DARK_REPRIMAND_HEALING             = 400187,
     SPELL_PRIEST_DIVINE_BLESSING                    = 40440,
+    SPELL_PRIEST_DIVINE_SERVICE                     = 391233,
     SPELL_PRIEST_DIVINE_STAR_HOLY                   = 110744,
     SPELL_PRIEST_DIVINE_STAR_SHADOW                 = 122121,
     SPELL_PRIEST_DIVINE_STAR_HOLY_DAMAGE            = 122128,
@@ -1436,13 +1437,29 @@ class spell_pri_prayer_of_mending_heal : public spell_pri_prayer_of_mending_Spel
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_BENEDICTION, SPELL_PRIEST_RENEW });
+        return ValidateSpellInfo
+        ({
+            SPELL_PRIEST_BENEDICTION,
+            SPELL_PRIEST_RENEW,
+            SPELL_PRIEST_DIVINE_SERVICE,
+            SPELL_PRIEST_PRAYER_OF_MENDING_AURA
+        });
     }
 
     void HandleEffectHitTarget(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
+
+        if (AuraEffect const* divineService = caster->GetAuraEffect(SPELL_PRIEST_DIVINE_SERVICE, EFFECT_0))
+        {
+            if (Aura* prayerOfMending = target->GetAura(SPELL_PRIEST_PRAYER_OF_MENDING_AURA, caster->GetGUID()))
+            {
+                float healBonus = 1.0f + (divineService->GetAmount() * prayerOfMending->GetStackAmount() / 100.0f);
+
+                SetHitHeal(GetHitHeal() * healBonus);
+            }
+        }
 
         if (AuraEffect* benediction = caster->GetAuraEffect(SPELL_PRIEST_BENEDICTION, EFFECT_0))
         {
