@@ -34,9 +34,18 @@
 #include "ScriptedCreature.h"
 #include <Containers.h>
 
-// ********************************************
-// * Scripting in this section occurs on ship *
-// ********************************************
+class ExilesReach
+{
+public:
+    static Creature* FindCreature(WorldObject const* obj, std::string_view stringId)
+    {
+        return obj->FindNearestCreatureWithOptions(100.0f, FindCreatureOptions().SetIgnorePhases(true).SetStringId(stringId));
+    }
+};
+
+ // ********************************************
+ // * Scripting in this section occurs on ship *
+ // ********************************************
 
 enum QuestScripts
 {
@@ -76,6 +85,7 @@ public:
     }
 };
 
+
 class q56775_warming_up : public BaseQuestWarmingUp
 {
 public:
@@ -91,16 +101,16 @@ public:
         switch (newStatus)
         {
             case QUEST_STATUS_REWARDED:
-                {
-                    Creature* garrickLowerDeck = player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId("q56775_garrick_lower_deck").SetIgnorePhases(true));
-                    Creature* garrickUpperDeck = player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId("q56775_garrick_upper_deck").SetIgnorePhases(true));
-                    if (!garrickLowerDeck || !garrickUpperDeck)
-                        return;
+            {
+                Creature* garrickLowerDeck = ExilesReach::FindCreature(player, "q56775_garrick_lower_deck");
+                Creature* garrickUpperDeck = ExilesReach::FindCreature(player, "q56775_garrick_upper_deck");
+                if (!garrickLowerDeck || !garrickUpperDeck)
+                    return;
 
-                    Position pos(garrickLowerDeck->GetPositionX(), garrickLowerDeck->GetPositionY(), garrickLowerDeck->GetPositionZ() - CloneSpawnZOffSet, CloneOrientation);
-                    garrickUpperDeck->SummonPersonalClone(pos, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
-                }
-                break;
+                Position pos(garrickLowerDeck->GetPositionX(), garrickLowerDeck->GetPositionY(), garrickLowerDeck->GetPositionZ() - CloneSpawnZOffSet, CloneOrientation);
+                garrickUpperDeck->SummonPersonalClone(pos, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+            }
+            break;
             default:
                 break;
         }
@@ -119,15 +129,15 @@ public:
         switch (newStatus)
         {
             case QUEST_STATUS_REWARDED:
-                {
-                    Creature* grimaxeLowerDeck = player->FindNearestCreatureWithOptions(20.0f, FindCreatureOptions().SetStringId("q59926_grimaxe_lower_deck").SetIgnorePhases(true));
-                    Creature* grimaxeUpperDeck = player->FindNearestCreatureWithOptions(100.0f, FindCreatureOptions().SetStringId("q59926_grimaxe_upper_deck").SetIgnorePhases(true));
-                    if (!grimaxeLowerDeck || !grimaxeUpperDeck)
-                        return;
+            {
+                Creature* grimaxeLowerDeck = ExilesReach::FindCreature(player, "q59926_grimaxe_lower_deck");
+                Creature* grimaxeUpperDeck = ExilesReach::FindCreature(player, "q59926_grimaxe_upper_deck");
+                if (!grimaxeLowerDeck || !grimaxeUpperDeck)
+                    return;
 
-                    grimaxeUpperDeck->SummonPersonalClone(*grimaxeLowerDeck, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
-                }
-                break;
+                grimaxeUpperDeck->SummonPersonalClone(*grimaxeLowerDeck, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+            }
+            break;
             default:
                 break;
         }
@@ -153,50 +163,50 @@ public:
 
 struct ActorData
 {
-    std::string StringId;
+    std::string_view StringId;
     Position Position;
-    TeamId TeamId;
 };
 
-struct ActorPetData
+static std::unordered_map<TeamId, std::vector<ActorData>> const actorData =
 {
-    std::string StringId;
-    Races Race;
-
+    { TEAM_ALLIANCE,
+        {
+            { "q58208_garrick",  { 35.5643f, -1.19837f, 12.1479f, 3.3272014f }    },
+            { "q58208_richter",  { -1.84858f, -8.38776f, 5.10018f, 1.5184366f }   },
+            { "q58208_keela",    { -15.3642f, 6.5793f, 5.5026f, 3.1415925f }      },
+            { "q58208_bjorn",    { 12.8406f, -8.49553f, 4.98031f, 4.8520155f }    },
+            { "q58208_austin",   { -4.48607f, 9.89729f, 5.07851f, 1.5184366f }    },
+            { "q58208_cole",     { -13.3396f, 0.702157f, 5.57996f, 0.087266445f } },
+        }
+    },
+    { TEAM_HORDE,
+        {
+            { "q59928_grimaxe",  { 25.5237f, 0.283005f, 26.5455f, 3.3526998f }   },
+            { "q59928_throg",    { -10.8399f, 11.9039f, 8.88028f, 6.2308254f }   },
+            { "q59928_mithdran", { -24.4763f, -4.48273f, 9.13471f, 0.62831855f } },
+            { "q59928_lana",     { -5.1971f, -15.0268f, 8.992f, 4.712389f }      },
+            { "q59928_bo",       { -22.1559f, 5.58041f, 9.09176f, 6.143559f }    },
+            { "q59928_jinhake",  { -31.9464f, 7.5772f, 10.6408f, 6.0737457f }    },
+        }
+    }
 };
 
-ActorData const actorData[] =
+static std::unordered_map<Races, std::string_view> const actorPetData =
 {
-    { "q58208_garrick",  { 35.5643f, -1.19837f, 12.1479f, 3.3272014f },    TEAM_ALLIANCE },
-    { "q58208_richter",  { -1.84858f, -8.38776f, 5.10018f, 1.5184366f },   TEAM_ALLIANCE },
-    { "q58208_keela",    { -15.3642f, 6.5793f, 5.5026f, 3.1415925f },      TEAM_ALLIANCE },
-    { "q58208_bjorn",    { 12.8406f, -8.49553f, 4.98031f, 4.8520155f },    TEAM_ALLIANCE },
-    { "q58208_austin",   { -4.48607f, 9.89729f, 5.07851f, 1.5184366f },    TEAM_ALLIANCE },
-    { "q58208_cole",     { -13.3396f, 0.702157f, 5.57996f, 0.087266445f }, TEAM_ALLIANCE },
-    { "q59928_grimaxe",  { 25.5237f, 0.283005f, 26.5455f, 3.3526998f },    TEAM_HORDE },
-    { "q59928_throg",    { -10.8399f, 11.9039f, 8.88028f, 6.2308254f },    TEAM_HORDE },
-    { "q59928_mithdran", { -24.4763f, -4.48273f, 9.13471f, 0.62831855f },  TEAM_HORDE },
-    { "q59928_lana",     { -5.1971f, -15.0268f, 8.992f, 4.712389f },       TEAM_HORDE },
-    { "q59928_bo",       { -22.1559f, 5.58041f, 9.09176f, 6.143559f },     TEAM_HORDE },
-    { "q59928_jinhake",  { -31.9464f, 7.5772f, 10.6408f, 6.0737457f },     TEAM_HORDE }
-};
-
-ActorPetData const actorPetData[] =
-{
-    { "q58208_wolf", RACE_HUMAN },
-    { "q58208_bear", RACE_DWARF },
-    { "q58208_tiger", RACE_NIGHTELF },
-    { "q58208_bunny", RACE_GNOME },
-    { "q58208_moth", RACE_DRAENEI },
-    { "q58208_dog", RACE_WORGEN },
-    { "q58208_turtle", RACE_PANDAREN_ALLIANCE },
-    { "q59928_wolf", RACE_ORC },
-    { "q59928_bat", RACE_UNDEAD_PLAYER},
-    { "q59928_plainstrider", RACE_TAUREN},
-    { "q59928_raptor", RACE_TROLL},
-    { "q59928_scorpion", RACE_GOBLIN},
-    { "q59928_dragonhawk", RACE_BLOODELF},
-    { "q59928_turtle", RACE_PANDAREN_HORDE}
+    { RACE_HUMAN,             "q58208_wolf"         },
+    { RACE_DWARF,             "q58208_bear"         },
+    { RACE_NIGHTELF,          "q58208_tiger"        },
+    { RACE_GNOME,             "q58208_bunny"        },
+    { RACE_DRAENEI,           "q58208_moth"         },
+    { RACE_WORGEN,            "q58208_dog"          },
+    { RACE_PANDAREN_ALLIANCE, "q58208_turtle"       },
+    { RACE_ORC,               "q59928_wolf"         },
+    { RACE_UNDEAD_PLAYER,     "q59928_bat"          },
+    { RACE_TAUREN,            "q59928_plainstrider" },
+    { RACE_TROLL,             "q59928_raptor"       },
+    { RACE_GOBLIN,            "q59928_scorpion"     },
+    { RACE_BLOODELF,          "q59928_dragonhawk"   },
+    { RACE_PANDAREN_HORDE,    "q59928_turtle"       }
 };
 
 class quest_brace_for_impact : public QuestScript
@@ -211,40 +221,40 @@ public:
 
         if (quest->GetQuestId() == QUEST_BRACE_FOR_IMPACT_ALLIANCE)
         {
-            for (auto const& actor : actorData)
-                if (actor.TeamId == TEAM_ALLIANCE)
-                    SpawnActor(player, player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId(actor.StringId).SetIgnorePhases(true)), actor.Position);
-
-            if (player->GetClass() != CLASS_HUNTER)
-                return;
+            if (auto const* actors = Trinity::Containers::MapGetValuePtr(actorData, TeamId(TEAM_ALLIANCE)))
+            for (ActorData const actor : *actors)
+                SpawnActor(player, ExilesReach::FindCreature(player, actor.StringId), actor.Position);
 
             // Spawn pet
-            Position petpos = { -1.4492f, 8.06887f,  5.10348f, 2.6005409f };
-            SpawnPet(player, petpos);
+            SpawnPet(player, { -1.4492f, 8.06887f,  5.10348f, 2.6005409f });
         }
         else if (quest->GetQuestId() == QUEST_BRACE_FOR_IMPACT_HORDE)
         {
-            for (auto const& actor : actorData)
-                if (actor.TeamId == TEAM_HORDE)
-                    SpawnActor(player, player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId(actor.StringId).SetIgnorePhases(true)), actor.Position);
-
-            if (player->GetClass() != CLASS_HUNTER)
-                return;
+            if (auto const* actors = Trinity::Containers::MapGetValuePtr(actorData, TeamId(TEAM_HORDE)))
+                for (ActorData const actor : *actors)
+                SpawnActor(player, ExilesReach::FindCreature(player, actor.StringId), actor.Position);
 
             // Spawn pet
-            Position petpos = { -22.8374f, -3.08287f, 9.12613f, 3.857178f };
-            SpawnPet(player, petpos);
+            SpawnPet(player, { -22.8374f, -3.08287f, 9.12613f, 3.857178f });
         }
     }
 
-    void SpawnPet(Player* player, const Position& position)
+    void SpawnPet(Player* player, Position const& position)
     {
-        for (auto const& petActorData : actorPetData)
-            if (petActorData.Race == player->GetRace())
-                SpawnActor(player, player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId(petActorData.StringId).SetIgnorePhases(true)), position);
+        if (player->GetClass() != CLASS_HUNTER)
+            return;
+
+        if (std::string_view const* stringId = Trinity::Containers::MapGetValuePtr(actorPetData, Races(player->GetRace())))
+        {
+            Creature* pet = ExilesReach::FindCreature(player, *stringId);
+            if (!pet)
+                return;
+
+            SpawnActor(player, pet, position);
+        }
     }
 
-    void SpawnActor(Player* player, Creature* creature, Position position)
+    void SpawnActor(Player* player, Creature* creature, Position const& position)
     {
         TransportBase const* transport = player->GetDirectTransport();
 
@@ -254,8 +264,7 @@ public:
         float x, y, z, o;
         position.GetPosition(x, y, z, o);
         transport->CalculatePassengerPosition(x, y, z, &o);
-        position.Relocate(x, y, z, o);
-        creature->SummonPersonalClone(position, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+        creature->SummonPersonalClone({ x, y, z, o }, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
     }
 };
 
@@ -427,18 +436,18 @@ struct npc_sparring_partner : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_MOVE_TO_A_POSITION:
-                    {
-                        std::list<Creature*> sparpoints;
-                        GetCreatureListWithEntryInGrid(sparpoints, me, NPC_SPAR_POINT_ADVERTISMENT, 25.0f);
-                        Trinity::Containers::RandomResize(sparpoints, 1);
+                {
+                    std::list<Creature*> sparpoints;
+                    GetCreatureListWithEntryInGrid(sparpoints, me, NPC_SPAR_POINT_ADVERTISMENT, 25.0f);
+                    Trinity::Containers::RandomResize(sparpoints, 1);
 
-                        for (Creature* creature : sparpoints)
-                            me->GetMotionMaster()->MovePoint(POSITION_SPARPOINT_ADVERTISMENT, creature->GetPosition());
+                    for (Creature* creature : sparpoints)
+                        me->GetMotionMaster()->MovePoint(POSITION_SPARPOINT_ADVERTISMENT, creature->GetPosition());
 
-                        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-                        _events.ScheduleEvent(EVENT_PREFIGHT_CONVERSATION, 1s);
-                    }
-                    break;
+                    me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                    _events.ScheduleEvent(EVENT_PREFIGHT_CONVERSATION, 1s);
+                }
+                break;
                 case EVENT_PREFIGHT_CONVERSATION:
                     ConversationWithPlayer(CONVERSATION_PREFIGHT);
                     break;
@@ -470,16 +479,16 @@ private:
 
 enum ShipCaptains
 {
-    EVENT_SHIP_CAPTAIN1_SCRIPT1 = 1,
+    EVENT_SHIP_CAPTAIN1_SCRIPT1     = 1,
     EVENT_SHIP_CAPTAIN1_SCRIPT2,
     EVENT_SHIP_CAPTAIN1_SCRIPT3,
 
-    PATH_GARRICK_TO_COLE        = 10501450,
-    PATH_GARRICK_TO_UPPER_DECK  = 10501451,
-    PATH_GRIMAXE_TO_THROG       = 10501900,
-    PATH_GRIMAXE_TO_UPPER_DECK  = 10501901,
+    PATH_GARRICK_TO_COLE            = 10501450,
+    PATH_GARRICK_TO_UPPER_DECK      = 10501451,
+    PATH_GRIMAXE_TO_THROG           = 10501900,
+    PATH_GRIMAXE_TO_UPPER_DECK      = 10501901,
 
-    SAY_SPAR                    = 0
+    SAY_SPAR                        = 0
 };
 
 struct npc_ship_captain_warming_up_private : public ScriptedAI
@@ -632,15 +641,9 @@ CreatureAI* CaptainGarrickShipAISelector(Creature* creature)
     return new NullCreatureAI(creature);
 };
 
-CreatureAI* GrimaxeLowerShipAISelector(Creature* creature)
-{
-    return creature->IsPrivateObject() ? new npc_ship_captain_warming_up_private(creature) : nullptr;
-};
+CreatureAI* GrimaxeLowerShipAISelector(Creature* creature) { return creature->IsPrivateObject() ? new npc_ship_captain_warming_up_private(creature) : nullptr; };
 
-CreatureAI* GrimaxeUpperShipAISelector(Creature* creature)
-{
-    return creature->IsPrivateObject() ? new npc_ship_captain_brace_for_impact_private(creature) : nullptr;
-};
+CreatureAI* GrimaxeUpperShipAISelector(Creature* creature) { return creature->IsPrivateObject() ? new npc_ship_captain_brace_for_impact_private(creature) : nullptr; };
 
 // This script is used to script Private Cole and Grunt Throg for quest "Stand Your Ground" Alliance and Horde
 // by entries: 160664,166583
@@ -748,8 +751,6 @@ CreatureAI* ThrogShipAISelector(Creature* creature)
 
 enum CrewShipBraceForImpact
 {
-    EVENT_CREW_SHIP_RUN_TO_POSITION = 1,
-
     NPC_QUARTERMASTER_RICHTER       = 157042,
     NPC_KEE_LA                      = 157043,
     NPC_BJORN_STOUTHANDS            = 157044,
@@ -775,39 +776,27 @@ struct npc_crew_ship_private : public ScriptedAI
 {
     npc_crew_ship_private(Creature* creature) : ScriptedAI(creature) { }
 
+    std::unordered_map<uint32, uint32> const PathData =
+    {
+        { NPC_QUARTERMASTER_RICHTER, PATH_RICHTER_BRACE_FOR_IMPACT },
+        { NPC_KEE_LA,                PATH_KEE_LA_BRACE_FOR_IMPACT  },
+        { NPC_BJORN_STOUTHANDS,      PATH_BJORN_BRACE_FOR_IMPACT   },
+        { NPC_AUSTIN_HUXWORTH,       PATH_AUSTIN_BRACE_FOR_IMPACT  },
+        { NPC_BO,                    PATH_BO_BRACE_FOR_IMPACT      },
+        { NPC_MITHDRAN_DAWNTRACKER,  NPC_MITHDRAN_DAWNTRACKER      },
+        { NPC_LANA_JORDAN,           NPC_PROVISONER_JIN_HAKE       }
+    };
+
     void JustAppeared() override
     {
-        switch (me->GetEntry())
+        if (uint32 const* path = Trinity::Containers::MapGetValuePtr(PathData, me->GetEntry()))
         {
-            case NPC_QUARTERMASTER_RICHTER:
-                _path = PATH_RICHTER_BRACE_FOR_IMPACT;
-                break;
-            case NPC_KEE_LA:
-                _path = PATH_KEE_LA_BRACE_FOR_IMPACT;
-                break;
-            case NPC_BJORN_STOUTHANDS:
-                _path = PATH_BJORN_BRACE_FOR_IMPACT;
-                break;
-            case NPC_AUSTIN_HUXWORTH:
-                _path = PATH_AUSTIN_BRACE_FOR_IMPACT;
-                break;
-            case NPC_BO:
-                _path = PATH_BO_BRACE_FOR_IMPACT;
-                break;
-            case NPC_MITHDRAN_DAWNTRACKER:
-                _path = PATH_MITHDRAN_BRACE_FOR_IMPACT;
-                break;
-            case NPC_LANA_JORDAN:
-                _path = PATH_LANA_BRACE_FOR_IMPACT;
-                break;
-            case NPC_PROVISONER_JIN_HAKE:
-                _path = PATH_JIN_HAKE_BRACE_FOR_IMPACT;
-                break;
-            default:
-                break;
+            _path = *path;
+            _scheduler.Schedule(Seconds(7), [this](TaskContext)
+            {
+                me->GetMotionMaster()->MovePath(_path, false);
+            });
         }
-
-        _events.ScheduleEvent(EVENT_CREW_SHIP_RUN_TO_POSITION, 7s);
     }
 
     void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
@@ -818,16 +807,10 @@ struct npc_crew_ship_private : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
-        _events.Update(diff);
-
-        while (uint32 eventId = _events.ExecuteEvent())
-        {
-            if (eventId == EVENT_CREW_SHIP_RUN_TO_POSITION)
-                me->GetMotionMaster()->MovePath(_path, false);
-        }
+        _scheduler.Update(diff);
     }
 private:
-    EventMap _events;
+    TaskScheduler _scheduler;
     uint32 _path = 0;
 };
 
@@ -976,16 +959,11 @@ class spell_summon_sparing_partner : public SpellScript
 
     void SelectTarget(WorldObject*& target)
     {
-        Creature* partner = nullptr;
+        Player* caster = GetCaster()->ToPlayer();
+        if (!caster)
+            return;
 
-        if (Player* caster = GetCaster()->ToPlayer())
-        {
-            if(caster->GetTeam() == ALLIANCE)
-                partner = caster->FindNearestCreatureWithOptions(100.0f, FindCreatureOptions().SetStringId("q58209_cole").SetIgnorePhases(true));
-            else
-                partner = caster->FindNearestCreatureWithOptions(100.0f, FindCreatureOptions().SetStringId("q59927_throg").SetIgnorePhases(true));
-        }
-
+        Creature* partner = ExilesReach::FindCreature(caster, caster->GetTeam() == ALLIANCE ? "q58209_cole" : "q59927_throg");
         if (!partner)
             return;
 
@@ -1017,10 +995,7 @@ public:
 
     void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
     {
-        if (player->GetTeam() == ALLIANCE)
-            player->CastSpell(player, SPELL_CRASHED_LANDED_ALLIANCE, true);
-        else
-            player->CastSpell(player, SPELL_CRASHED_LANDED_HORDE, true);
+        player->CastSpell(player, player->GetTeam() == ALLIANCE ? SPELL_CRASHED_LANDED_ALLIANCE : SPELL_CRASHED_LANDED_HORDE, true);
     }
 };
 
