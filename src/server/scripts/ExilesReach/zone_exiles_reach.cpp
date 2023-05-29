@@ -275,18 +275,18 @@ enum SparingPartner
 {
     ACTOR_ID_ALLIANCE               = 68598,
     ACTOR_ID_HORDE                  = 75920,
-                                    
+
     CONVERSATION_PREFIGHT           = 14422,
     CONVERSATION_AGGRO              = 14423,
     CONVERSATION_JUMP               = 14424,
-                                    
+
     EQUIPMENT_SWORD                 = 108493,
     EQUIPMENT_AXE                   = 175161,
-                                    
+
     EVENT_MOVE_TO_A_POSITION        = 1,
-    EVENT_PREFIGHT_CONVERSATION,    
-    EVENT_WALK_BACK,                
-                                    
+    EVENT_PREFIGHT_CONVERSATION,
+    EVENT_WALK_BACK,
+
     NPC_ALLIANCE_SPARING_PARTNER    = 157051,
     NPC_HORDE_SPARING_PARTNER       = 166814,
     NPC_SPAR_POINT_ADVERTISMENT     = 174971,
@@ -962,7 +962,7 @@ class spell_summon_sparing_partner : public SpellScript
         Player* caster = GetCaster()->ToPlayer();
         if (!caster)
             return;
-        
+
         Creature* partner = ExilesReach::FindCreature(caster, caster->GetTeam() == ALLIANCE ? "q58209_cole" : "q59927_throg");
         if (!partner)
             return;
