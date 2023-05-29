@@ -85,7 +85,6 @@ public:
     }
 };
 
-
 class q56775_warming_up : public BaseQuestWarmingUp
 {
 public:
