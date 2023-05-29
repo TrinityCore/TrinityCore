@@ -334,7 +334,7 @@ void TempSummon::UnSummon(uint32 msTime)
             owner->ToGameObject()->AI()->SummonedCreatureDespawn(this);
     }
 
-    if (IsAIEnabled)
+    if (IsAIEnabled())
         AI()->JustDespawned();
 
     AddObjectToRemoveList();

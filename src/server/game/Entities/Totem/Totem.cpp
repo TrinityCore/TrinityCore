@@ -138,7 +138,7 @@ void Totem::UnSummon(uint32 msTime)
         }
     }
 
-    if (IsAIEnabled)
+    if (IsAIEnabled())
         ToCreature()->AI()->JustDespawned();
 
     AddObjectToRemoveList();
