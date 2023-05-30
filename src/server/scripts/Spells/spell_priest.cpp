@@ -1443,7 +1443,9 @@ class spell_pri_prayer_of_mending_heal : public spell_pri_prayer_of_mending_Spel
             SPELL_PRIEST_RENEW,
             SPELL_PRIEST_DIVINE_SERVICE,
             SPELL_PRIEST_PRAYER_OF_MENDING_AURA
-        });
+            })
+            && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_DIVINE_SERVICE, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_1
+            && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_BENEDICTION, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_1;
     }
 
     void HandleEffectHitTarget(SpellEffIndex /*effIndex*/)
@@ -1465,8 +1467,7 @@ class spell_pri_prayer_of_mending_heal : public spell_pri_prayer_of_mending_Spel
         {
             if (roll_chance_i(benediction->GetAmount()))
                 caster->CastSpell(target, SPELL_PRIEST_RENEW,
-                    CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS))
-                    .SetTriggeringSpell(GetSpell()));
+                    CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
         }
     }
 
