@@ -45,9 +45,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* Header_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   Header_reflection_ = NULL;
-const ::google::protobuf::Descriptor* KafkaHeader_descriptor_ = NULL;
-const ::google::protobuf::internal::GeneratedMessageReflection*
-  KafkaHeader_reflection_ = NULL;
 
 }  // namespace
 
@@ -201,30 +198,6 @@ void protobuf_AssignDesc_rpc_5ftypes_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(Header));
-  KafkaHeader_descriptor_ = file->message_type(8);
-  static const int KafkaHeader_offsets_[10] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(KafkaHeader, service_hash_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(KafkaHeader, method_id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(KafkaHeader, token_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(KafkaHeader, object_id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(KafkaHeader, size_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(KafkaHeader, status_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(KafkaHeader, timeout_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(KafkaHeader, forward_target_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(KafkaHeader, return_topic_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(KafkaHeader, client_id_),
-  };
-  KafkaHeader_reflection_ =
-    new ::google::protobuf::internal::GeneratedMessageReflection(
-      KafkaHeader_descriptor_,
-      KafkaHeader::default_instance_,
-      KafkaHeader_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(KafkaHeader, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(KafkaHeader, _unknown_fields_),
-      -1,
-      ::google::protobuf::DescriptorPool::generated_pool(),
-      ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(KafkaHeader));
 }
 
 namespace {
@@ -253,8 +226,6 @@ void protobuf_RegisterTypes(const ::std::string&) {
     FanoutTarget_descriptor_, &FanoutTarget::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     Header_descriptor_, &Header::default_instance());
-  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    KafkaHeader_descriptor_, &KafkaHeader::default_instance());
 }
 
 }  // namespace
@@ -276,8 +247,6 @@ void protobuf_ShutdownFile_rpc_5ftypes_2eproto() {
   delete FanoutTarget_reflection_;
   delete Header::default_instance_;
   delete Header_reflection_;
-  delete KafkaHeader::default_instance_;
-  delete KafkaHeader_reflection_;
 }
 
 void protobuf_AddDesc_rpc_5ftypes_2eproto() {
@@ -317,14 +286,8 @@ void protobuf_AddDesc_rpc_5ftypes_2eproto() {
     "get\022\037\n\027client_id_fanout_target\030\017 \003(\t\022\025\n\r"
     "client_record\030\020 \001(\014\022\027\n\017original_sender\030\021"
     " \001(\014\022\024\n\014sender_token\030\022 \001(\r\022\024\n\014router_lab"
-    "el\030\023 \001(\r\022\024\n\014error_reason\030\024 \001(\t\"\352\001\n\013Kafka"
-    "Header\022\024\n\014service_hash\030\001 \001(\007\022\021\n\tmethod_i"
-    "d\030\002 \001(\r\022\r\n\005token\030\003 \001(\r\022\024\n\tobject_id\030\004 \001("
-    "\004:\0010\022\017\n\004size\030\005 \001(\r:\0010\022\021\n\006status\030\006 \001(\r:\0010"
-    "\022\017\n\007timeout\030\007 \001(\004\022/\n\016forward_target\030\010 \001("
-    "\0132\027.bgs.protocol.ProcessId\022\024\n\014return_top"
-    "ic\030\t \001(\t\022\021\n\tclient_id\030\013 \001(\tB\033\n\rbnet.prot"
-    "ocolB\010RpcProtoH\002P\000P\001P\002P\003", 1344);
+    "el\030\023 \001(\r\022\024\n\014error_reason\030\024 \001(\tB\032\n\014bgs.pr"
+    "otocolB\010RpcProtoH\002P\000P\001P\002P\003", 1106);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "rpc_types.proto", &protobuf_RegisterTypes);
   NO_RESPONSE::default_instance_ = new NO_RESPONSE();
@@ -335,7 +298,6 @@ void protobuf_AddDesc_rpc_5ftypes_2eproto() {
   ErrorInfo::default_instance_ = new ErrorInfo();
   FanoutTarget::default_instance_ = new FanoutTarget();
   Header::default_instance_ = new Header();
-  KafkaHeader::default_instance_ = new KafkaHeader();
   NO_RESPONSE::default_instance_->InitAsDefaultInstance();
   Address::default_instance_->InitAsDefaultInstance();
   ProcessId::default_instance_->InitAsDefaultInstance();
@@ -344,7 +306,6 @@ void protobuf_AddDesc_rpc_5ftypes_2eproto() {
   ErrorInfo::default_instance_->InitAsDefaultInstance();
   FanoutTarget::default_instance_->InitAsDefaultInstance();
   Header::default_instance_->InitAsDefaultInstance();
-  KafkaHeader::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_rpc_5ftypes_2eproto);
 }
 
@@ -999,105 +960,6 @@ void Header::Swap(Header* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = Header_descriptor_;
   metadata.reflection = Header_reflection_;
-  return metadata;
-}
-
-// ===================================================================
-
-#ifndef _MSC_VER
-const int KafkaHeader::kServiceHashFieldNumber;
-const int KafkaHeader::kMethodIdFieldNumber;
-const int KafkaHeader::kTokenFieldNumber;
-const int KafkaHeader::kObjectIdFieldNumber;
-const int KafkaHeader::kSizeFieldNumber;
-const int KafkaHeader::kStatusFieldNumber;
-const int KafkaHeader::kTimeoutFieldNumber;
-const int KafkaHeader::kForwardTargetFieldNumber;
-const int KafkaHeader::kReturnTopicFieldNumber;
-const int KafkaHeader::kClientIdFieldNumber;
-#endif  // !_MSC_VER
-
-KafkaHeader::KafkaHeader()
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:bgs.protocol.KafkaHeader)
-}
-
-void KafkaHeader::InitAsDefaultInstance() {
-  forward_target_ = const_cast< ::bgs::protocol::ProcessId*>(&::bgs::protocol::ProcessId::default_instance());
-}
-
-KafkaHeader::KafkaHeader(const KafkaHeader& from)
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:bgs.protocol.KafkaHeader)
-}
-
-void KafkaHeader::SharedCtor() {
-  ::google::protobuf::internal::GetEmptyString();
-  _cached_size_ = 0;
-  service_hash_ = 0u;
-  method_id_ = 0u;
-  token_ = 0u;
-  object_id_ = GOOGLE_ULONGLONG(0);
-  size_ = 0u;
-  status_ = 0u;
-  timeout_ = GOOGLE_ULONGLONG(0);
-  forward_target_ = NULL;
-  return_topic_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  client_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-}
-
-KafkaHeader::~KafkaHeader() {
-  // @@protoc_insertion_point(destructor:bgs.protocol.KafkaHeader)
-  SharedDtor();
-}
-
-void KafkaHeader::SharedDtor() {
-  if (return_topic_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete return_topic_;
-  }
-  if (client_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete client_id_;
-  }
-  if (this != default_instance_) {
-    delete forward_target_;
-  }
-}
-
-void KafkaHeader::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-}
-const ::google::protobuf::Descriptor* KafkaHeader::descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return KafkaHeader_descriptor_;
-}
-
-const KafkaHeader& KafkaHeader::default_instance() {
-  if (default_instance_ == NULL) protobuf_AddDesc_rpc_5ftypes_2eproto();
-  return *default_instance_;
-}
-
-KafkaHeader* KafkaHeader::default_instance_ = NULL;
-
-KafkaHeader* KafkaHeader::New() const {
-  return new KafkaHeader;
-}
-
-void KafkaHeader::Swap(KafkaHeader* other) {
-  if (other != this) {
-    GetReflection()->Swap(this, other);}
-}
-
-::google::protobuf::Metadata KafkaHeader::GetMetadata() const {
-  protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::Metadata metadata;
-  metadata.descriptor = KafkaHeader_descriptor_;
-  metadata.reflection = KafkaHeader_reflection_;
   return metadata;
 }
 

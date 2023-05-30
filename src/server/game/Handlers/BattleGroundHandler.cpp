@@ -662,7 +662,7 @@ void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPackets::Battleground:
     if (!spiritHealer->IsAreaSpiritHealer())
         return;
 
-    if (_player->GetExactDist(spiritHealer) > MAX_AREA_SPIRIT_HEALER_RANGE)
+    if (!_player->IsWithinDistInMap(spiritHealer, MAX_AREA_SPIRIT_HEALER_RANGE))
         return;
 
     if (spiritHealer->IsAreaSpiritHealerIndividual())
@@ -691,7 +691,7 @@ void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPackets::Battleground:
     if (!spiritHealer->IsAreaSpiritHealer())
         return;
 
-    if (_player->GetExactDist(spiritHealer) > MAX_AREA_SPIRIT_HEALER_RANGE)
+    if (!_player->IsWithinDistInMap(spiritHealer, MAX_AREA_SPIRIT_HEALER_RANGE))
         return;
 
     _player->SetAreaSpiritHealer(spiritHealer);
@@ -709,7 +709,7 @@ void WorldSession::HandleHearthAndResurrect(WorldPackets::Battleground::HearthAn
     }
 
     AreaTableEntry const* atEntry = sAreaTableStore.LookupEntry(_player->GetAreaId());
-    if (!atEntry || !(atEntry->Flags[0] & AREA_FLAG_CAN_HEARTH_AND_RESURRECT))
+    if (!atEntry || !(atEntry->GetFlags().HasFlag(AreaFlags::AllowHearthAndRessurectFromArea)))
         return;
 
     _player->BuildPlayerRepop();

@@ -250,8 +250,7 @@ class spell_pri_atonement : public AuraScript
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT_HEAL, SPELL_PRIEST_SINS_OF_THE_MANY })
-            && spellInfo->GetEffects().size() > EFFECT_1
-            && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_SINS_OF_THE_MANY, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_2;
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 }, { SPELL_PRIEST_SINS_OF_THE_MANY, EFFECT_2 } });
     }
 
     bool CheckProc(ProcEventInfo& eventInfo)
@@ -518,7 +517,7 @@ class spell_pri_guardian_spirit : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL }) && spellInfo->GetEffects().size() > EFFECT_1;
+        return ValidateSpellInfo({ SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL }) && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
     bool Load() override
@@ -601,8 +600,8 @@ class spell_pri_holy_words : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo
-        ({
+        return ValidateSpellInfo(
+        {
             SPELL_PRIEST_HEAL,
             SPELL_PRIEST_FLASH_HEAL,
             SPELL_PRIEST_PRAYER_OF_HEALING,
@@ -611,10 +610,12 @@ class spell_pri_holy_words : public AuraScript
             SPELL_PRIEST_HOLY_WORD_CHASTISE,
             SPELL_PRIEST_HOLY_WORD_SANCTIFY,
             SPELL_PRIEST_HOLY_WORD_SERENITY
-            })
-            && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_HOLY_WORD_SERENITY, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_1
-            && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_HOLY_WORD_SANCTIFY, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_3
-            && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_HOLY_WORD_CHASTISE, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_1;
+        }) && ValidateSpellEffect(
+        {
+            { SPELL_PRIEST_HOLY_WORD_SERENITY, EFFECT_1 },
+            { SPELL_PRIEST_HOLY_WORD_SANCTIFY, EFFECT_3 },
+            { SPELL_PRIEST_HOLY_WORD_CHASTISE, EFFECT_1 }
+        });
     }
 
     void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -975,7 +976,7 @@ class spell_pri_power_word_radiance : public SpellScript
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT, SPELL_PRIEST_ATONEMENT_TRIGGERED, SPELL_PRIEST_TRINITY })
-            && spellInfo->GetEffects().size() > EFFECT_3;
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_3 } });
     }
 
     void OnTargetSelect(std::list<WorldObject*>& targets)
@@ -1363,7 +1364,7 @@ class spell_pri_purge_the_wicked_dummy : public SpellScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC, SPELL_PRIEST_REVEL_IN_PURITY })
-            && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_REVEL_IN_PURITY, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_1;
+            && ValidateSpellEffect({ { SPELL_PRIEST_REVEL_IN_PURITY, EFFECT_1 } });
     }
 
     void FilterTargets(std::list<WorldObject*>& targets)

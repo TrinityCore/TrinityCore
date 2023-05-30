@@ -140,6 +140,32 @@ class TC_PROTO_API BGSMethodOptions : public ::google::protobuf::Message {
   inline bool handle_destination_unreachable() const;
   inline void set_handle_destination_unreachable(bool value);
 
+  // optional string custom_region_resolver = 8;
+  inline bool has_custom_region_resolver() const;
+  inline void clear_custom_region_resolver();
+  static const int kCustomRegionResolverFieldNumber = 8;
+  inline const ::std::string& custom_region_resolver() const;
+  inline void set_custom_region_resolver(const ::std::string& value);
+  inline void set_custom_region_resolver(const char* value);
+  inline void set_custom_region_resolver(const char* value, size_t size);
+  inline ::std::string* mutable_custom_region_resolver();
+  inline ::std::string* release_custom_region_resolver();
+  inline void set_allocated_custom_region_resolver(::std::string* custom_region_resolver);
+
+  // optional bool explicit_region_routing = 9;
+  inline bool has_explicit_region_routing() const;
+  inline void clear_explicit_region_routing();
+  static const int kExplicitRegionRoutingFieldNumber = 9;
+  inline bool explicit_region_routing() const;
+  inline void set_explicit_region_routing(bool value);
+
+  // optional bool obsolete = 10;
+  inline bool has_obsolete() const;
+  inline void clear_obsolete();
+  static const int kObsoleteFieldNumber = 10;
+  inline bool obsolete() const;
+  inline void set_obsolete(bool value);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.BGSMethodOptions)
  private:
   inline void set_has_id();
@@ -156,6 +182,12 @@ class TC_PROTO_API BGSMethodOptions : public ::google::protobuf::Message {
   inline void clear_has_idempotent();
   inline void set_has_handle_destination_unreachable();
   inline void clear_has_handle_destination_unreachable();
+  inline void set_has_custom_region_resolver();
+  inline void clear_has_custom_region_resolver();
+  inline void set_has_explicit_region_routing();
+  inline void clear_has_explicit_region_routing();
+  inline void set_has_obsolete();
+  inline void clear_has_obsolete();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -168,6 +200,9 @@ class TC_PROTO_API BGSMethodOptions : public ::google::protobuf::Message {
   bool enable_fanout_;
   bool idempotent_;
   bool handle_destination_unreachable_;
+  bool explicit_region_routing_;
+  bool obsolete_;
+  ::std::string* custom_region_resolver_;
   friend void TC_PROTO_API protobuf_AddDesc_global_5fextensions_2fmethod_5foptions_2eproto();
   friend void protobuf_AssignDesc_global_5fextensions_2fmethod_5foptions_2eproto();
   friend void protobuf_ShutdownFile_global_5fextensions_2fmethod_5foptions_2eproto();
@@ -459,6 +494,130 @@ inline void BGSMethodOptions::set_handle_destination_unreachable(bool value) {
   set_has_handle_destination_unreachable();
   handle_destination_unreachable_ = value;
   // @@protoc_insertion_point(field_set:bgs.protocol.BGSMethodOptions.handle_destination_unreachable)
+}
+
+// optional string custom_region_resolver = 8;
+inline bool BGSMethodOptions::has_custom_region_resolver() const {
+  return (_has_bits_[0] & 0x00000080u) != 0;
+}
+inline void BGSMethodOptions::set_has_custom_region_resolver() {
+  _has_bits_[0] |= 0x00000080u;
+}
+inline void BGSMethodOptions::clear_has_custom_region_resolver() {
+  _has_bits_[0] &= ~0x00000080u;
+}
+inline void BGSMethodOptions::clear_custom_region_resolver() {
+  if (custom_region_resolver_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    custom_region_resolver_->clear();
+  }
+  clear_has_custom_region_resolver();
+}
+inline const ::std::string& BGSMethodOptions::custom_region_resolver() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.BGSMethodOptions.custom_region_resolver)
+  return *custom_region_resolver_;
+}
+inline void BGSMethodOptions::set_custom_region_resolver(const ::std::string& value) {
+  set_has_custom_region_resolver();
+  if (custom_region_resolver_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    custom_region_resolver_ = new ::std::string;
+  }
+  custom_region_resolver_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.BGSMethodOptions.custom_region_resolver)
+}
+inline void BGSMethodOptions::set_custom_region_resolver(const char* value) {
+  set_has_custom_region_resolver();
+  if (custom_region_resolver_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    custom_region_resolver_ = new ::std::string;
+  }
+  custom_region_resolver_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.BGSMethodOptions.custom_region_resolver)
+}
+inline void BGSMethodOptions::set_custom_region_resolver(const char* value, size_t size) {
+  set_has_custom_region_resolver();
+  if (custom_region_resolver_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    custom_region_resolver_ = new ::std::string;
+  }
+  custom_region_resolver_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.BGSMethodOptions.custom_region_resolver)
+}
+inline ::std::string* BGSMethodOptions::mutable_custom_region_resolver() {
+  set_has_custom_region_resolver();
+  if (custom_region_resolver_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    custom_region_resolver_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.BGSMethodOptions.custom_region_resolver)
+  return custom_region_resolver_;
+}
+inline ::std::string* BGSMethodOptions::release_custom_region_resolver() {
+  clear_has_custom_region_resolver();
+  if (custom_region_resolver_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = custom_region_resolver_;
+    custom_region_resolver_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void BGSMethodOptions::set_allocated_custom_region_resolver(::std::string* custom_region_resolver) {
+  if (custom_region_resolver_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete custom_region_resolver_;
+  }
+  if (custom_region_resolver) {
+    set_has_custom_region_resolver();
+    custom_region_resolver_ = custom_region_resolver;
+  } else {
+    clear_has_custom_region_resolver();
+    custom_region_resolver_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.BGSMethodOptions.custom_region_resolver)
+}
+
+// optional bool explicit_region_routing = 9;
+inline bool BGSMethodOptions::has_explicit_region_routing() const {
+  return (_has_bits_[0] & 0x00000100u) != 0;
+}
+inline void BGSMethodOptions::set_has_explicit_region_routing() {
+  _has_bits_[0] |= 0x00000100u;
+}
+inline void BGSMethodOptions::clear_has_explicit_region_routing() {
+  _has_bits_[0] &= ~0x00000100u;
+}
+inline void BGSMethodOptions::clear_explicit_region_routing() {
+  explicit_region_routing_ = false;
+  clear_has_explicit_region_routing();
+}
+inline bool BGSMethodOptions::explicit_region_routing() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.BGSMethodOptions.explicit_region_routing)
+  return explicit_region_routing_;
+}
+inline void BGSMethodOptions::set_explicit_region_routing(bool value) {
+  set_has_explicit_region_routing();
+  explicit_region_routing_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.BGSMethodOptions.explicit_region_routing)
+}
+
+// optional bool obsolete = 10;
+inline bool BGSMethodOptions::has_obsolete() const {
+  return (_has_bits_[0] & 0x00000200u) != 0;
+}
+inline void BGSMethodOptions::set_has_obsolete() {
+  _has_bits_[0] |= 0x00000200u;
+}
+inline void BGSMethodOptions::clear_has_obsolete() {
+  _has_bits_[0] &= ~0x00000200u;
+}
+inline void BGSMethodOptions::clear_obsolete() {
+  obsolete_ = false;
+  clear_has_obsolete();
+}
+inline bool BGSMethodOptions::obsolete() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.BGSMethodOptions.obsolete)
+  return obsolete_;
+}
+inline void BGSMethodOptions::set_obsolete(bool value) {
+  set_has_obsolete();
+  obsolete_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.BGSMethodOptions.obsolete)
 }
 
 // @@protoc_insertion_point(namespace_scope)

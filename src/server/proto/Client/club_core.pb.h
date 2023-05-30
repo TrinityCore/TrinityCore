@@ -24,10 +24,12 @@
 #include <google/protobuf/repeated_field.h>
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/unknown_field_set.h>
+#include "club_type.pb.h"
 #include "club_enum.pb.h"
 #include "club_role.pb.h"
 #include "club_member.pb.h"
 #include "club_stream.pb.h"
+#include "club_tag.pb.h"
 #include "api/client/v2/attribute_types.pb.h"
 #include "event_view_types.pb.h"
 #include "Define.h" // for TC_PROTO_API
@@ -46,7 +48,6 @@ void protobuf_ShutdownFile_club_5fcore_2eproto();
 class AvatarId;
 class SetBroadcastOptions;
 class Broadcast;
-class UniqueClubType;
 class ClubCreateOptions;
 class Club;
 class ClubDescription;
@@ -290,87 +291,6 @@ class TC_PROTO_API Broadcast : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TC_PROTO_API UniqueClubType : public ::google::protobuf::Message {
- public:
-  UniqueClubType();
-  virtual ~UniqueClubType();
-
-  UniqueClubType(const UniqueClubType& from);
-
-  inline UniqueClubType& operator=(const UniqueClubType& from) {
-    CopyFrom(from);
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _unknown_fields_;
-  }
-
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return &_unknown_fields_;
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const UniqueClubType& default_instance();
-
-  void Swap(UniqueClubType* other);
-
-  // implements Message ----------------------------------------------
-
-  UniqueClubType* New() const;
-  int GetCachedSize() const { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const;
-  public:
-  ::google::protobuf::Metadata GetMetadata() const;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // optional fixed32 program = 1;
-  inline bool has_program() const;
-  inline void clear_program();
-  static const int kProgramFieldNumber = 1;
-  inline ::google::protobuf::uint32 program() const;
-  inline void set_program(::google::protobuf::uint32 value);
-
-  // optional string name = 2;
-  inline bool has_name() const;
-  inline void clear_name();
-  static const int kNameFieldNumber = 2;
-  inline const ::std::string& name() const;
-  inline void set_name(const ::std::string& value);
-  inline void set_name(const char* value);
-  inline void set_name(const char* value, size_t size);
-  inline ::std::string* mutable_name();
-  inline ::std::string* release_name();
-  inline void set_allocated_name(::std::string* name);
-
-  // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.UniqueClubType)
- private:
-  inline void set_has_program();
-  inline void clear_has_program();
-  inline void set_has_name();
-  inline void clear_has_name();
-
-  ::google::protobuf::UnknownFieldSet _unknown_fields_;
-
-  ::google::protobuf::uint32 _has_bits_[1];
-  mutable int _cached_size_;
-  ::std::string* name_;
-  ::google::protobuf::uint32 program_;
-  friend void TC_PROTO_API protobuf_AddDesc_club_5fcore_2eproto();
-  friend void protobuf_AssignDesc_club_5fcore_2eproto();
-  friend void protobuf_ShutdownFile_club_5fcore_2eproto();
-
-  void InitAsDefaultInstance();
-  static UniqueClubType* default_instance_;
-};
-// -------------------------------------------------------------------
-
 class TC_PROTO_API ClubCreateOptions : public ::google::protobuf::Message {
  public:
   ClubCreateOptions();
@@ -484,6 +404,13 @@ class TC_PROTO_API ClubCreateOptions : public ::google::protobuf::Message {
   inline ::std::string* release_short_name();
   inline void set_allocated_short_name(::std::string* short_name);
 
+  // optional .bgs.protocol.club.v1.VisibilityLevel visibility_level = 8;
+  inline bool has_visibility_level() const;
+  inline void clear_visibility_level();
+  static const int kVisibilityLevelFieldNumber = 8;
+  inline ::bgs::protocol::club::v1::VisibilityLevel visibility_level() const;
+  inline void set_visibility_level(::bgs::protocol::club::v1::VisibilityLevel value);
+
   // optional .bgs.protocol.club.v1.CreateMemberOptions member = 10;
   inline bool has_member() const;
   inline void clear_member();
@@ -502,6 +429,51 @@ class TC_PROTO_API ClubCreateOptions : public ::google::protobuf::Message {
   inline ::bgs::protocol::club::v1::CreateStreamOptions* release_stream();
   inline void set_allocated_stream(::bgs::protocol::club::v1::CreateStreamOptions* stream);
 
+  // optional .bgs.protocol.club.v1.TagOptions tag = 12;
+  inline bool has_tag() const;
+  inline void clear_tag();
+  static const int kTagFieldNumber = 12;
+  inline const ::bgs::protocol::club::v1::TagOptions& tag() const;
+  inline ::bgs::protocol::club::v1::TagOptions* mutable_tag();
+  inline ::bgs::protocol::club::v1::TagOptions* release_tag();
+  inline void set_allocated_tag(::bgs::protocol::club::v1::TagOptions* tag);
+
+  // repeated .bgs.protocol.v2.Attribute search_attribute = 13;
+  inline int search_attribute_size() const;
+  inline void clear_search_attribute();
+  static const int kSearchAttributeFieldNumber = 13;
+  inline const ::bgs::protocol::v2::Attribute& search_attribute(int index) const;
+  inline ::bgs::protocol::v2::Attribute* mutable_search_attribute(int index);
+  inline ::bgs::protocol::v2::Attribute* add_search_attribute();
+  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute >&
+      search_attribute() const;
+  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute >*
+      mutable_search_attribute();
+
+  // optional string locale = 14;
+  inline bool has_locale() const;
+  inline void clear_locale();
+  static const int kLocaleFieldNumber = 14;
+  inline const ::std::string& locale() const;
+  inline void set_locale(const ::std::string& value);
+  inline void set_locale(const char* value);
+  inline void set_locale(const char* value, size_t size);
+  inline ::std::string* mutable_locale();
+  inline ::std::string* release_locale();
+  inline void set_allocated_locale(::std::string* locale);
+
+  // optional string timezone = 15;
+  inline bool has_timezone() const;
+  inline void clear_timezone();
+  static const int kTimezoneFieldNumber = 15;
+  inline const ::std::string& timezone() const;
+  inline void set_timezone(const ::std::string& value);
+  inline void set_timezone(const char* value);
+  inline void set_timezone(const char* value, size_t size);
+  inline ::std::string* mutable_timezone();
+  inline ::std::string* release_timezone();
+  inline void set_allocated_timezone(::std::string* timezone);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.ClubCreateOptions)
  private:
   inline void set_has_type();
@@ -516,10 +488,18 @@ class TC_PROTO_API ClubCreateOptions : public ::google::protobuf::Message {
   inline void clear_has_privacy_level();
   inline void set_has_short_name();
   inline void clear_has_short_name();
+  inline void set_has_visibility_level();
+  inline void clear_has_visibility_level();
   inline void set_has_member();
   inline void clear_has_member();
   inline void set_has_stream();
   inline void clear_has_stream();
+  inline void set_has_tag();
+  inline void clear_has_tag();
+  inline void set_has_locale();
+  inline void clear_has_locale();
+  inline void set_has_timezone();
+  inline void clear_has_timezone();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -531,9 +511,14 @@ class TC_PROTO_API ClubCreateOptions : public ::google::protobuf::Message {
   ::std::string* description_;
   ::bgs::protocol::club::v1::AvatarId* avatar_;
   ::std::string* short_name_;
+  int privacy_level_;
+  int visibility_level_;
   ::bgs::protocol::club::v1::CreateMemberOptions* member_;
   ::bgs::protocol::club::v1::CreateStreamOptions* stream_;
-  int privacy_level_;
+  ::bgs::protocol::club::v1::TagOptions* tag_;
+  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute > search_attribute_;
+  ::std::string* locale_;
+  ::std::string* timezone_;
   friend void TC_PROTO_API protobuf_AddDesc_club_5fcore_2eproto();
   friend void protobuf_AssignDesc_club_5fcore_2eproto();
   friend void protobuf_ShutdownFile_club_5fcore_2eproto();
@@ -723,6 +708,54 @@ class TC_PROTO_API Club : public ::google::protobuf::Message {
   inline ::std::string* release_short_name();
   inline void set_allocated_short_name(::std::string* short_name);
 
+  // repeated .bgs.protocol.v2.Attribute search_attribute = 16;
+  inline int search_attribute_size() const;
+  inline void clear_search_attribute();
+  static const int kSearchAttributeFieldNumber = 16;
+  inline const ::bgs::protocol::v2::Attribute& search_attribute(int index) const;
+  inline ::bgs::protocol::v2::Attribute* mutable_search_attribute(int index);
+  inline ::bgs::protocol::v2::Attribute* add_search_attribute();
+  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute >&
+      search_attribute() const;
+  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute >*
+      mutable_search_attribute();
+
+  // repeated .bgs.protocol.club.v1.TagIdentifier tag = 17;
+  inline int tag_size() const;
+  inline void clear_tag();
+  static const int kTagFieldNumber = 17;
+  inline const ::bgs::protocol::club::v1::TagIdentifier& tag(int index) const;
+  inline ::bgs::protocol::club::v1::TagIdentifier* mutable_tag(int index);
+  inline ::bgs::protocol::club::v1::TagIdentifier* add_tag();
+  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::TagIdentifier >&
+      tag() const;
+  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::TagIdentifier >*
+      mutable_tag();
+
+  // optional string locale = 18;
+  inline bool has_locale() const;
+  inline void clear_locale();
+  static const int kLocaleFieldNumber = 18;
+  inline const ::std::string& locale() const;
+  inline void set_locale(const ::std::string& value);
+  inline void set_locale(const char* value);
+  inline void set_locale(const char* value, size_t size);
+  inline ::std::string* mutable_locale();
+  inline ::std::string* release_locale();
+  inline void set_allocated_locale(::std::string* locale);
+
+  // optional string timezone = 19;
+  inline bool has_timezone() const;
+  inline void clear_timezone();
+  static const int kTimezoneFieldNumber = 19;
+  inline const ::std::string& timezone() const;
+  inline void set_timezone(const ::std::string& value);
+  inline void set_timezone(const char* value);
+  inline void set_timezone(const char* value, size_t size);
+  inline ::std::string* mutable_timezone();
+  inline ::std::string* release_timezone();
+  inline void set_allocated_timezone(::std::string* timezone);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.Club)
  private:
   inline void set_has_id();
@@ -751,6 +784,10 @@ class TC_PROTO_API Club : public ::google::protobuf::Message {
   inline void clear_has_role_set();
   inline void set_has_short_name();
   inline void clear_has_short_name();
+  inline void set_has_locale();
+  inline void clear_has_locale();
+  inline void set_has_timezone();
+  inline void clear_has_timezone();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -770,6 +807,10 @@ class TC_PROTO_API Club : public ::google::protobuf::Message {
   ::bgs::protocol::club::v1::ClubRoleSet* role_set_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::MemberDescription > leader_;
   ::std::string* short_name_;
+  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute > search_attribute_;
+  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::TagIdentifier > tag_;
+  ::std::string* locale_;
+  ::std::string* timezone_;
   ::google::protobuf::uint32 member_count_;
   friend void TC_PROTO_API protobuf_AddDesc_club_5fcore_2eproto();
   friend void protobuf_AssignDesc_club_5fcore_2eproto();
@@ -909,6 +950,42 @@ class TC_PROTO_API ClubDescription : public ::google::protobuf::Message {
   inline ::google::protobuf::uint64 creation_time() const;
   inline void set_creation_time(::google::protobuf::uint64 value);
 
+  // optional string timezone = 11;
+  inline bool has_timezone() const;
+  inline void clear_timezone();
+  static const int kTimezoneFieldNumber = 11;
+  inline const ::std::string& timezone() const;
+  inline void set_timezone(const ::std::string& value);
+  inline void set_timezone(const char* value);
+  inline void set_timezone(const char* value, size_t size);
+  inline ::std::string* mutable_timezone();
+  inline ::std::string* release_timezone();
+  inline void set_allocated_timezone(::std::string* timezone);
+
+  // optional string locale = 12;
+  inline bool has_locale() const;
+  inline void clear_locale();
+  static const int kLocaleFieldNumber = 12;
+  inline const ::std::string& locale() const;
+  inline void set_locale(const ::std::string& value);
+  inline void set_locale(const char* value);
+  inline void set_locale(const char* value, size_t size);
+  inline ::std::string* mutable_locale();
+  inline ::std::string* release_locale();
+  inline void set_allocated_locale(::std::string* locale);
+
+  // repeated .bgs.protocol.club.v1.TagIdentifier tag = 13;
+  inline int tag_size() const;
+  inline void clear_tag();
+  static const int kTagFieldNumber = 13;
+  inline const ::bgs::protocol::club::v1::TagIdentifier& tag(int index) const;
+  inline ::bgs::protocol::club::v1::TagIdentifier* mutable_tag(int index);
+  inline ::bgs::protocol::club::v1::TagIdentifier* add_tag();
+  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::TagIdentifier >&
+      tag() const;
+  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::TagIdentifier >*
+      mutable_tag();
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.ClubDescription)
  private:
   inline void set_has_id();
@@ -929,6 +1006,10 @@ class TC_PROTO_API ClubDescription : public ::google::protobuf::Message {
   inline void clear_has_member_count();
   inline void set_has_creation_time();
   inline void clear_has_creation_time();
+  inline void set_has_timezone();
+  inline void clear_has_timezone();
+  inline void set_has_locale();
+  inline void clear_has_locale();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -943,6 +1024,9 @@ class TC_PROTO_API ClubDescription : public ::google::protobuf::Message {
   int visibility_level_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::MemberDescription > leader_;
   ::google::protobuf::uint64 creation_time_;
+  ::std::string* timezone_;
+  ::std::string* locale_;
+  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::TagIdentifier > tag_;
   ::google::protobuf::uint32 member_count_;
   friend void TC_PROTO_API protobuf_AddDesc_club_5fcore_2eproto();
   friend void protobuf_AssignDesc_club_5fcore_2eproto();
@@ -1153,6 +1237,58 @@ class TC_PROTO_API ClubStateOptions : public ::google::protobuf::Message {
   inline ::std::string* release_short_name();
   inline void set_allocated_short_name(::std::string* short_name);
 
+  // optional .bgs.protocol.club.v1.VisibilityLevel visibility_level = 9;
+  inline bool has_visibility_level() const;
+  inline void clear_visibility_level();
+  static const int kVisibilityLevelFieldNumber = 9;
+  inline ::bgs::protocol::club::v1::VisibilityLevel visibility_level() const;
+  inline void set_visibility_level(::bgs::protocol::club::v1::VisibilityLevel value);
+
+  // optional string locale = 10;
+  inline bool has_locale() const;
+  inline void clear_locale();
+  static const int kLocaleFieldNumber = 10;
+  inline const ::std::string& locale() const;
+  inline void set_locale(const ::std::string& value);
+  inline void set_locale(const char* value);
+  inline void set_locale(const char* value, size_t size);
+  inline ::std::string* mutable_locale();
+  inline ::std::string* release_locale();
+  inline void set_allocated_locale(::std::string* locale);
+
+  // optional string timezone = 11;
+  inline bool has_timezone() const;
+  inline void clear_timezone();
+  static const int kTimezoneFieldNumber = 11;
+  inline const ::std::string& timezone() const;
+  inline void set_timezone(const ::std::string& value);
+  inline void set_timezone(const char* value);
+  inline void set_timezone(const char* value, size_t size);
+  inline ::std::string* mutable_timezone();
+  inline ::std::string* release_timezone();
+  inline void set_allocated_timezone(::std::string* timezone);
+
+  // optional .bgs.protocol.club.v1.TagOptions tag_options = 12;
+  inline bool has_tag_options() const;
+  inline void clear_tag_options();
+  static const int kTagOptionsFieldNumber = 12;
+  inline const ::bgs::protocol::club::v1::TagOptions& tag_options() const;
+  inline ::bgs::protocol::club::v1::TagOptions* mutable_tag_options();
+  inline ::bgs::protocol::club::v1::TagOptions* release_tag_options();
+  inline void set_allocated_tag_options(::bgs::protocol::club::v1::TagOptions* tag_options);
+
+  // repeated .bgs.protocol.v2.Attribute search_attribute = 13;
+  inline int search_attribute_size() const;
+  inline void clear_search_attribute();
+  static const int kSearchAttributeFieldNumber = 13;
+  inline const ::bgs::protocol::v2::Attribute& search_attribute(int index) const;
+  inline ::bgs::protocol::v2::Attribute* mutable_search_attribute(int index);
+  inline ::bgs::protocol::v2::Attribute* add_search_attribute();
+  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute >&
+      search_attribute() const;
+  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute >*
+      mutable_search_attribute();
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.ClubStateOptions)
  private:
   inline void set_has_name();
@@ -1169,6 +1305,14 @@ class TC_PROTO_API ClubStateOptions : public ::google::protobuf::Message {
   inline void clear_has_stream_position();
   inline void set_has_short_name();
   inline void clear_has_short_name();
+  inline void set_has_visibility_level();
+  inline void clear_has_visibility_level();
+  inline void set_has_locale();
+  inline void clear_has_locale();
+  inline void set_has_timezone();
+  inline void clear_has_timezone();
+  inline void set_has_tag_options();
+  inline void clear_has_tag_options();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -1180,8 +1324,13 @@ class TC_PROTO_API ClubStateOptions : public ::google::protobuf::Message {
   ::bgs::protocol::club::v1::SetBroadcastOptions* broadcast_;
   ::bgs::protocol::club::v1::AvatarId* avatar_;
   ::bgs::protocol::club::v1::StreamPosition* stream_position_;
-  ::std::string* short_name_;
   int privacy_level_;
+  int visibility_level_;
+  ::std::string* short_name_;
+  ::std::string* locale_;
+  ::std::string* timezone_;
+  ::bgs::protocol::club::v1::TagOptions* tag_options_;
+  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute > search_attribute_;
   friend void TC_PROTO_API protobuf_AddDesc_club_5fcore_2eproto();
   friend void protobuf_AssignDesc_club_5fcore_2eproto();
   friend void protobuf_ShutdownFile_club_5fcore_2eproto();
@@ -1320,6 +1469,68 @@ class TC_PROTO_API ClubStateAssignment : public ::google::protobuf::Message {
   inline ::std::string* release_short_name();
   inline void set_allocated_short_name(::std::string* short_name);
 
+  // optional .bgs.protocol.club.v1.VisibilityLevel visibility_level = 10;
+  inline bool has_visibility_level() const;
+  inline void clear_visibility_level();
+  static const int kVisibilityLevelFieldNumber = 10;
+  inline ::bgs::protocol::club::v1::VisibilityLevel visibility_level() const;
+  inline void set_visibility_level(::bgs::protocol::club::v1::VisibilityLevel value);
+
+  // optional string locale = 11;
+  inline bool has_locale() const;
+  inline void clear_locale();
+  static const int kLocaleFieldNumber = 11;
+  inline const ::std::string& locale() const;
+  inline void set_locale(const ::std::string& value);
+  inline void set_locale(const char* value);
+  inline void set_locale(const char* value, size_t size);
+  inline ::std::string* mutable_locale();
+  inline ::std::string* release_locale();
+  inline void set_allocated_locale(::std::string* locale);
+
+  // optional string timezone = 12;
+  inline bool has_timezone() const;
+  inline void clear_timezone();
+  static const int kTimezoneFieldNumber = 12;
+  inline const ::std::string& timezone() const;
+  inline void set_timezone(const ::std::string& value);
+  inline void set_timezone(const char* value);
+  inline void set_timezone(const char* value, size_t size);
+  inline ::std::string* mutable_timezone();
+  inline ::std::string* release_timezone();
+  inline void set_allocated_timezone(::std::string* timezone);
+
+  // repeated .bgs.protocol.club.v1.TagIdentifier tag = 13;
+  inline int tag_size() const;
+  inline void clear_tag();
+  static const int kTagFieldNumber = 13;
+  inline const ::bgs::protocol::club::v1::TagIdentifier& tag(int index) const;
+  inline ::bgs::protocol::club::v1::TagIdentifier* mutable_tag(int index);
+  inline ::bgs::protocol::club::v1::TagIdentifier* add_tag();
+  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::TagIdentifier >&
+      tag() const;
+  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::TagIdentifier >*
+      mutable_tag();
+
+  // repeated .bgs.protocol.v2.Attribute search_attribute = 14;
+  inline int search_attribute_size() const;
+  inline void clear_search_attribute();
+  static const int kSearchAttributeFieldNumber = 14;
+  inline const ::bgs::protocol::v2::Attribute& search_attribute(int index) const;
+  inline ::bgs::protocol::v2::Attribute* mutable_search_attribute(int index);
+  inline ::bgs::protocol::v2::Attribute* add_search_attribute();
+  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute >&
+      search_attribute() const;
+  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute >*
+      mutable_search_attribute();
+
+  // optional bool tag_cleared = 15;
+  inline bool has_tag_cleared() const;
+  inline void clear_tag_cleared();
+  static const int kTagClearedFieldNumber = 15;
+  inline bool tag_cleared() const;
+  inline void set_tag_cleared(bool value);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.ClubStateAssignment)
  private:
   inline void set_has_club_id();
@@ -1338,6 +1549,14 @@ class TC_PROTO_API ClubStateAssignment : public ::google::protobuf::Message {
   inline void clear_has_stream_position();
   inline void set_has_short_name();
   inline void clear_has_short_name();
+  inline void set_has_visibility_level();
+  inline void clear_has_visibility_level();
+  inline void set_has_locale();
+  inline void clear_has_locale();
+  inline void set_has_timezone();
+  inline void clear_has_timezone();
+  inline void set_has_tag_cleared();
+  inline void clear_has_tag_cleared();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -1350,8 +1569,14 @@ class TC_PROTO_API ClubStateAssignment : public ::google::protobuf::Message {
   ::bgs::protocol::club::v1::Broadcast* broadcast_;
   ::bgs::protocol::club::v1::AvatarId* avatar_;
   ::bgs::protocol::club::v1::StreamPosition* stream_position_;
-  ::std::string* short_name_;
   int privacy_level_;
+  int visibility_level_;
+  ::std::string* short_name_;
+  ::std::string* locale_;
+  ::std::string* timezone_;
+  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::TagIdentifier > tag_;
+  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute > search_attribute_;
+  bool tag_cleared_;
   friend void TC_PROTO_API protobuf_AddDesc_club_5fcore_2eproto();
   friend void protobuf_AssignDesc_club_5fcore_2eproto();
   friend void protobuf_ShutdownFile_club_5fcore_2eproto();
@@ -1968,110 +2193,6 @@ inline void Broadcast::set_creation_time(::google::protobuf::uint64 value) {
 
 // -------------------------------------------------------------------
 
-// UniqueClubType
-
-// optional fixed32 program = 1;
-inline bool UniqueClubType::has_program() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void UniqueClubType::set_has_program() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void UniqueClubType::clear_has_program() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void UniqueClubType::clear_program() {
-  program_ = 0u;
-  clear_has_program();
-}
-inline ::google::protobuf::uint32 UniqueClubType::program() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.UniqueClubType.program)
-  return program_;
-}
-inline void UniqueClubType::set_program(::google::protobuf::uint32 value) {
-  set_has_program();
-  program_ = value;
-  // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.UniqueClubType.program)
-}
-
-// optional string name = 2;
-inline bool UniqueClubType::has_name() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void UniqueClubType::set_has_name() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void UniqueClubType::clear_has_name() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void UniqueClubType::clear_name() {
-  if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    name_->clear();
-  }
-  clear_has_name();
-}
-inline const ::std::string& UniqueClubType::name() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.UniqueClubType.name)
-  return *name_;
-}
-inline void UniqueClubType::set_name(const ::std::string& value) {
-  set_has_name();
-  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    name_ = new ::std::string;
-  }
-  name_->assign(value);
-  // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.UniqueClubType.name)
-}
-inline void UniqueClubType::set_name(const char* value) {
-  set_has_name();
-  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    name_ = new ::std::string;
-  }
-  name_->assign(value);
-  // @@protoc_insertion_point(field_set_char:bgs.protocol.club.v1.UniqueClubType.name)
-}
-inline void UniqueClubType::set_name(const char* value, size_t size) {
-  set_has_name();
-  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    name_ = new ::std::string;
-  }
-  name_->assign(reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.club.v1.UniqueClubType.name)
-}
-inline ::std::string* UniqueClubType::mutable_name() {
-  set_has_name();
-  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    name_ = new ::std::string;
-  }
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.UniqueClubType.name)
-  return name_;
-}
-inline ::std::string* UniqueClubType::release_name() {
-  clear_has_name();
-  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    return NULL;
-  } else {
-    ::std::string* temp = name_;
-    name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-    return temp;
-  }
-}
-inline void UniqueClubType::set_allocated_name(::std::string* name) {
-  if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete name_;
-  }
-  if (name) {
-    set_has_name();
-    name_ = name;
-  } else {
-    clear_has_name();
-    name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.UniqueClubType.name)
-}
-
-// -------------------------------------------------------------------
-
 // ClubCreateOptions
 
 // optional .bgs.protocol.club.v1.UniqueClubType type = 1;
@@ -2439,15 +2560,40 @@ inline void ClubCreateOptions::set_allocated_short_name(::std::string* short_nam
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.ClubCreateOptions.short_name)
 }
 
-// optional .bgs.protocol.club.v1.CreateMemberOptions member = 10;
-inline bool ClubCreateOptions::has_member() const {
+// optional .bgs.protocol.club.v1.VisibilityLevel visibility_level = 8;
+inline bool ClubCreateOptions::has_visibility_level() const {
   return (_has_bits_[0] & 0x00000080u) != 0;
 }
-inline void ClubCreateOptions::set_has_member() {
+inline void ClubCreateOptions::set_has_visibility_level() {
   _has_bits_[0] |= 0x00000080u;
 }
-inline void ClubCreateOptions::clear_has_member() {
+inline void ClubCreateOptions::clear_has_visibility_level() {
   _has_bits_[0] &= ~0x00000080u;
+}
+inline void ClubCreateOptions::clear_visibility_level() {
+  visibility_level_ = 0;
+  clear_has_visibility_level();
+}
+inline ::bgs::protocol::club::v1::VisibilityLevel ClubCreateOptions::visibility_level() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.ClubCreateOptions.visibility_level)
+  return static_cast< ::bgs::protocol::club::v1::VisibilityLevel >(visibility_level_);
+}
+inline void ClubCreateOptions::set_visibility_level(::bgs::protocol::club::v1::VisibilityLevel value) {
+  assert(::bgs::protocol::club::v1::VisibilityLevel_IsValid(value));
+  set_has_visibility_level();
+  visibility_level_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.ClubCreateOptions.visibility_level)
+}
+
+// optional .bgs.protocol.club.v1.CreateMemberOptions member = 10;
+inline bool ClubCreateOptions::has_member() const {
+  return (_has_bits_[0] & 0x00000100u) != 0;
+}
+inline void ClubCreateOptions::set_has_member() {
+  _has_bits_[0] |= 0x00000100u;
+}
+inline void ClubCreateOptions::clear_has_member() {
+  _has_bits_[0] &= ~0x00000100u;
 }
 inline void ClubCreateOptions::clear_member() {
   if (member_ != NULL) member_->::bgs::protocol::club::v1::CreateMemberOptions::Clear();
@@ -2482,13 +2628,13 @@ inline void ClubCreateOptions::set_allocated_member(::bgs::protocol::club::v1::C
 
 // optional .bgs.protocol.club.v1.CreateStreamOptions stream = 11;
 inline bool ClubCreateOptions::has_stream() const {
-  return (_has_bits_[0] & 0x00000100u) != 0;
+  return (_has_bits_[0] & 0x00000200u) != 0;
 }
 inline void ClubCreateOptions::set_has_stream() {
-  _has_bits_[0] |= 0x00000100u;
+  _has_bits_[0] |= 0x00000200u;
 }
 inline void ClubCreateOptions::clear_has_stream() {
-  _has_bits_[0] &= ~0x00000100u;
+  _has_bits_[0] &= ~0x00000200u;
 }
 inline void ClubCreateOptions::clear_stream() {
   if (stream_ != NULL) stream_->::bgs::protocol::club::v1::CreateStreamOptions::Clear();
@@ -2519,6 +2665,229 @@ inline void ClubCreateOptions::set_allocated_stream(::bgs::protocol::club::v1::C
     clear_has_stream();
   }
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.ClubCreateOptions.stream)
+}
+
+// optional .bgs.protocol.club.v1.TagOptions tag = 12;
+inline bool ClubCreateOptions::has_tag() const {
+  return (_has_bits_[0] & 0x00000400u) != 0;
+}
+inline void ClubCreateOptions::set_has_tag() {
+  _has_bits_[0] |= 0x00000400u;
+}
+inline void ClubCreateOptions::clear_has_tag() {
+  _has_bits_[0] &= ~0x00000400u;
+}
+inline void ClubCreateOptions::clear_tag() {
+  if (tag_ != NULL) tag_->::bgs::protocol::club::v1::TagOptions::Clear();
+  clear_has_tag();
+}
+inline const ::bgs::protocol::club::v1::TagOptions& ClubCreateOptions::tag() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.ClubCreateOptions.tag)
+  return tag_ != NULL ? *tag_ : *default_instance_->tag_;
+}
+inline ::bgs::protocol::club::v1::TagOptions* ClubCreateOptions::mutable_tag() {
+  set_has_tag();
+  if (tag_ == NULL) tag_ = new ::bgs::protocol::club::v1::TagOptions;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.ClubCreateOptions.tag)
+  return tag_;
+}
+inline ::bgs::protocol::club::v1::TagOptions* ClubCreateOptions::release_tag() {
+  clear_has_tag();
+  ::bgs::protocol::club::v1::TagOptions* temp = tag_;
+  tag_ = NULL;
+  return temp;
+}
+inline void ClubCreateOptions::set_allocated_tag(::bgs::protocol::club::v1::TagOptions* tag) {
+  delete tag_;
+  tag_ = tag;
+  if (tag) {
+    set_has_tag();
+  } else {
+    clear_has_tag();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.ClubCreateOptions.tag)
+}
+
+// repeated .bgs.protocol.v2.Attribute search_attribute = 13;
+inline int ClubCreateOptions::search_attribute_size() const {
+  return search_attribute_.size();
+}
+inline void ClubCreateOptions::clear_search_attribute() {
+  search_attribute_.Clear();
+}
+inline const ::bgs::protocol::v2::Attribute& ClubCreateOptions::search_attribute(int index) const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.ClubCreateOptions.search_attribute)
+  return search_attribute_.Get(index);
+}
+inline ::bgs::protocol::v2::Attribute* ClubCreateOptions::mutable_search_attribute(int index) {
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.ClubCreateOptions.search_attribute)
+  return search_attribute_.Mutable(index);
+}
+inline ::bgs::protocol::v2::Attribute* ClubCreateOptions::add_search_attribute() {
+  // @@protoc_insertion_point(field_add:bgs.protocol.club.v1.ClubCreateOptions.search_attribute)
+  return search_attribute_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute >&
+ClubCreateOptions::search_attribute() const {
+  // @@protoc_insertion_point(field_list:bgs.protocol.club.v1.ClubCreateOptions.search_attribute)
+  return search_attribute_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute >*
+ClubCreateOptions::mutable_search_attribute() {
+  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.club.v1.ClubCreateOptions.search_attribute)
+  return &search_attribute_;
+}
+
+// optional string locale = 14;
+inline bool ClubCreateOptions::has_locale() const {
+  return (_has_bits_[0] & 0x00001000u) != 0;
+}
+inline void ClubCreateOptions::set_has_locale() {
+  _has_bits_[0] |= 0x00001000u;
+}
+inline void ClubCreateOptions::clear_has_locale() {
+  _has_bits_[0] &= ~0x00001000u;
+}
+inline void ClubCreateOptions::clear_locale() {
+  if (locale_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    locale_->clear();
+  }
+  clear_has_locale();
+}
+inline const ::std::string& ClubCreateOptions::locale() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.ClubCreateOptions.locale)
+  return *locale_;
+}
+inline void ClubCreateOptions::set_locale(const ::std::string& value) {
+  set_has_locale();
+  if (locale_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    locale_ = new ::std::string;
+  }
+  locale_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.ClubCreateOptions.locale)
+}
+inline void ClubCreateOptions::set_locale(const char* value) {
+  set_has_locale();
+  if (locale_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    locale_ = new ::std::string;
+  }
+  locale_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.club.v1.ClubCreateOptions.locale)
+}
+inline void ClubCreateOptions::set_locale(const char* value, size_t size) {
+  set_has_locale();
+  if (locale_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    locale_ = new ::std::string;
+  }
+  locale_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.club.v1.ClubCreateOptions.locale)
+}
+inline ::std::string* ClubCreateOptions::mutable_locale() {
+  set_has_locale();
+  if (locale_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    locale_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.ClubCreateOptions.locale)
+  return locale_;
+}
+inline ::std::string* ClubCreateOptions::release_locale() {
+  clear_has_locale();
+  if (locale_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = locale_;
+    locale_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void ClubCreateOptions::set_allocated_locale(::std::string* locale) {
+  if (locale_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete locale_;
+  }
+  if (locale) {
+    set_has_locale();
+    locale_ = locale;
+  } else {
+    clear_has_locale();
+    locale_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.ClubCreateOptions.locale)
+}
+
+// optional string timezone = 15;
+inline bool ClubCreateOptions::has_timezone() const {
+  return (_has_bits_[0] & 0x00002000u) != 0;
+}
+inline void ClubCreateOptions::set_has_timezone() {
+  _has_bits_[0] |= 0x00002000u;
+}
+inline void ClubCreateOptions::clear_has_timezone() {
+  _has_bits_[0] &= ~0x00002000u;
+}
+inline void ClubCreateOptions::clear_timezone() {
+  if (timezone_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timezone_->clear();
+  }
+  clear_has_timezone();
+}
+inline const ::std::string& ClubCreateOptions::timezone() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.ClubCreateOptions.timezone)
+  return *timezone_;
+}
+inline void ClubCreateOptions::set_timezone(const ::std::string& value) {
+  set_has_timezone();
+  if (timezone_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timezone_ = new ::std::string;
+  }
+  timezone_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.ClubCreateOptions.timezone)
+}
+inline void ClubCreateOptions::set_timezone(const char* value) {
+  set_has_timezone();
+  if (timezone_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timezone_ = new ::std::string;
+  }
+  timezone_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.club.v1.ClubCreateOptions.timezone)
+}
+inline void ClubCreateOptions::set_timezone(const char* value, size_t size) {
+  set_has_timezone();
+  if (timezone_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timezone_ = new ::std::string;
+  }
+  timezone_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.club.v1.ClubCreateOptions.timezone)
+}
+inline ::std::string* ClubCreateOptions::mutable_timezone() {
+  set_has_timezone();
+  if (timezone_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timezone_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.ClubCreateOptions.timezone)
+  return timezone_;
+}
+inline ::std::string* ClubCreateOptions::release_timezone() {
+  clear_has_timezone();
+  if (timezone_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = timezone_;
+    timezone_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void ClubCreateOptions::set_allocated_timezone(::std::string* timezone) {
+  if (timezone_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete timezone_;
+  }
+  if (timezone) {
+    set_has_timezone();
+    timezone_ = timezone;
+  } else {
+    clear_has_timezone();
+    timezone_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.ClubCreateOptions.timezone)
 }
 
 // -------------------------------------------------------------------
@@ -3140,6 +3509,218 @@ inline void Club::set_allocated_short_name(::std::string* short_name) {
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.Club.short_name)
 }
 
+// repeated .bgs.protocol.v2.Attribute search_attribute = 16;
+inline int Club::search_attribute_size() const {
+  return search_attribute_.size();
+}
+inline void Club::clear_search_attribute() {
+  search_attribute_.Clear();
+}
+inline const ::bgs::protocol::v2::Attribute& Club::search_attribute(int index) const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.Club.search_attribute)
+  return search_attribute_.Get(index);
+}
+inline ::bgs::protocol::v2::Attribute* Club::mutable_search_attribute(int index) {
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.Club.search_attribute)
+  return search_attribute_.Mutable(index);
+}
+inline ::bgs::protocol::v2::Attribute* Club::add_search_attribute() {
+  // @@protoc_insertion_point(field_add:bgs.protocol.club.v1.Club.search_attribute)
+  return search_attribute_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute >&
+Club::search_attribute() const {
+  // @@protoc_insertion_point(field_list:bgs.protocol.club.v1.Club.search_attribute)
+  return search_attribute_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute >*
+Club::mutable_search_attribute() {
+  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.club.v1.Club.search_attribute)
+  return &search_attribute_;
+}
+
+// repeated .bgs.protocol.club.v1.TagIdentifier tag = 17;
+inline int Club::tag_size() const {
+  return tag_.size();
+}
+inline void Club::clear_tag() {
+  tag_.Clear();
+}
+inline const ::bgs::protocol::club::v1::TagIdentifier& Club::tag(int index) const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.Club.tag)
+  return tag_.Get(index);
+}
+inline ::bgs::protocol::club::v1::TagIdentifier* Club::mutable_tag(int index) {
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.Club.tag)
+  return tag_.Mutable(index);
+}
+inline ::bgs::protocol::club::v1::TagIdentifier* Club::add_tag() {
+  // @@protoc_insertion_point(field_add:bgs.protocol.club.v1.Club.tag)
+  return tag_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::TagIdentifier >&
+Club::tag() const {
+  // @@protoc_insertion_point(field_list:bgs.protocol.club.v1.Club.tag)
+  return tag_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::TagIdentifier >*
+Club::mutable_tag() {
+  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.club.v1.Club.tag)
+  return &tag_;
+}
+
+// optional string locale = 18;
+inline bool Club::has_locale() const {
+  return (_has_bits_[0] & 0x00020000u) != 0;
+}
+inline void Club::set_has_locale() {
+  _has_bits_[0] |= 0x00020000u;
+}
+inline void Club::clear_has_locale() {
+  _has_bits_[0] &= ~0x00020000u;
+}
+inline void Club::clear_locale() {
+  if (locale_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    locale_->clear();
+  }
+  clear_has_locale();
+}
+inline const ::std::string& Club::locale() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.Club.locale)
+  return *locale_;
+}
+inline void Club::set_locale(const ::std::string& value) {
+  set_has_locale();
+  if (locale_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    locale_ = new ::std::string;
+  }
+  locale_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.Club.locale)
+}
+inline void Club::set_locale(const char* value) {
+  set_has_locale();
+  if (locale_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    locale_ = new ::std::string;
+  }
+  locale_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.club.v1.Club.locale)
+}
+inline void Club::set_locale(const char* value, size_t size) {
+  set_has_locale();
+  if (locale_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    locale_ = new ::std::string;
+  }
+  locale_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.club.v1.Club.locale)
+}
+inline ::std::string* Club::mutable_locale() {
+  set_has_locale();
+  if (locale_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    locale_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.Club.locale)
+  return locale_;
+}
+inline ::std::string* Club::release_locale() {
+  clear_has_locale();
+  if (locale_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = locale_;
+    locale_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void Club::set_allocated_locale(::std::string* locale) {
+  if (locale_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete locale_;
+  }
+  if (locale) {
+    set_has_locale();
+    locale_ = locale;
+  } else {
+    clear_has_locale();
+    locale_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.Club.locale)
+}
+
+// optional string timezone = 19;
+inline bool Club::has_timezone() const {
+  return (_has_bits_[0] & 0x00040000u) != 0;
+}
+inline void Club::set_has_timezone() {
+  _has_bits_[0] |= 0x00040000u;
+}
+inline void Club::clear_has_timezone() {
+  _has_bits_[0] &= ~0x00040000u;
+}
+inline void Club::clear_timezone() {
+  if (timezone_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timezone_->clear();
+  }
+  clear_has_timezone();
+}
+inline const ::std::string& Club::timezone() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.Club.timezone)
+  return *timezone_;
+}
+inline void Club::set_timezone(const ::std::string& value) {
+  set_has_timezone();
+  if (timezone_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timezone_ = new ::std::string;
+  }
+  timezone_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.Club.timezone)
+}
+inline void Club::set_timezone(const char* value) {
+  set_has_timezone();
+  if (timezone_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timezone_ = new ::std::string;
+  }
+  timezone_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.club.v1.Club.timezone)
+}
+inline void Club::set_timezone(const char* value, size_t size) {
+  set_has_timezone();
+  if (timezone_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timezone_ = new ::std::string;
+  }
+  timezone_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.club.v1.Club.timezone)
+}
+inline ::std::string* Club::mutable_timezone() {
+  set_has_timezone();
+  if (timezone_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timezone_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.Club.timezone)
+  return timezone_;
+}
+inline ::std::string* Club::release_timezone() {
+  clear_has_timezone();
+  if (timezone_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = timezone_;
+    timezone_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void Club::set_allocated_timezone(::std::string* timezone) {
+  if (timezone_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete timezone_;
+  }
+  if (timezone) {
+    set_has_timezone();
+    timezone_ = timezone;
+  } else {
+    clear_has_timezone();
+    timezone_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.Club.timezone)
+}
+
 // -------------------------------------------------------------------
 
 // ClubDescription
@@ -3528,6 +4109,188 @@ inline void ClubDescription::set_creation_time(::google::protobuf::uint64 value)
   set_has_creation_time();
   creation_time_ = value;
   // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.ClubDescription.creation_time)
+}
+
+// optional string timezone = 11;
+inline bool ClubDescription::has_timezone() const {
+  return (_has_bits_[0] & 0x00000400u) != 0;
+}
+inline void ClubDescription::set_has_timezone() {
+  _has_bits_[0] |= 0x00000400u;
+}
+inline void ClubDescription::clear_has_timezone() {
+  _has_bits_[0] &= ~0x00000400u;
+}
+inline void ClubDescription::clear_timezone() {
+  if (timezone_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timezone_->clear();
+  }
+  clear_has_timezone();
+}
+inline const ::std::string& ClubDescription::timezone() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.ClubDescription.timezone)
+  return *timezone_;
+}
+inline void ClubDescription::set_timezone(const ::std::string& value) {
+  set_has_timezone();
+  if (timezone_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timezone_ = new ::std::string;
+  }
+  timezone_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.ClubDescription.timezone)
+}
+inline void ClubDescription::set_timezone(const char* value) {
+  set_has_timezone();
+  if (timezone_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timezone_ = new ::std::string;
+  }
+  timezone_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.club.v1.ClubDescription.timezone)
+}
+inline void ClubDescription::set_timezone(const char* value, size_t size) {
+  set_has_timezone();
+  if (timezone_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timezone_ = new ::std::string;
+  }
+  timezone_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.club.v1.ClubDescription.timezone)
+}
+inline ::std::string* ClubDescription::mutable_timezone() {
+  set_has_timezone();
+  if (timezone_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timezone_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.ClubDescription.timezone)
+  return timezone_;
+}
+inline ::std::string* ClubDescription::release_timezone() {
+  clear_has_timezone();
+  if (timezone_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = timezone_;
+    timezone_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void ClubDescription::set_allocated_timezone(::std::string* timezone) {
+  if (timezone_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete timezone_;
+  }
+  if (timezone) {
+    set_has_timezone();
+    timezone_ = timezone;
+  } else {
+    clear_has_timezone();
+    timezone_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.ClubDescription.timezone)
+}
+
+// optional string locale = 12;
+inline bool ClubDescription::has_locale() const {
+  return (_has_bits_[0] & 0x00000800u) != 0;
+}
+inline void ClubDescription::set_has_locale() {
+  _has_bits_[0] |= 0x00000800u;
+}
+inline void ClubDescription::clear_has_locale() {
+  _has_bits_[0] &= ~0x00000800u;
+}
+inline void ClubDescription::clear_locale() {
+  if (locale_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    locale_->clear();
+  }
+  clear_has_locale();
+}
+inline const ::std::string& ClubDescription::locale() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.ClubDescription.locale)
+  return *locale_;
+}
+inline void ClubDescription::set_locale(const ::std::string& value) {
+  set_has_locale();
+  if (locale_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    locale_ = new ::std::string;
+  }
+  locale_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.ClubDescription.locale)
+}
+inline void ClubDescription::set_locale(const char* value) {
+  set_has_locale();
+  if (locale_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    locale_ = new ::std::string;
+  }
+  locale_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.club.v1.ClubDescription.locale)
+}
+inline void ClubDescription::set_locale(const char* value, size_t size) {
+  set_has_locale();
+  if (locale_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    locale_ = new ::std::string;
+  }
+  locale_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.club.v1.ClubDescription.locale)
+}
+inline ::std::string* ClubDescription::mutable_locale() {
+  set_has_locale();
+  if (locale_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    locale_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.ClubDescription.locale)
+  return locale_;
+}
+inline ::std::string* ClubDescription::release_locale() {
+  clear_has_locale();
+  if (locale_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = locale_;
+    locale_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void ClubDescription::set_allocated_locale(::std::string* locale) {
+  if (locale_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete locale_;
+  }
+  if (locale) {
+    set_has_locale();
+    locale_ = locale;
+  } else {
+    clear_has_locale();
+    locale_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.ClubDescription.locale)
+}
+
+// repeated .bgs.protocol.club.v1.TagIdentifier tag = 13;
+inline int ClubDescription::tag_size() const {
+  return tag_.size();
+}
+inline void ClubDescription::clear_tag() {
+  tag_.Clear();
+}
+inline const ::bgs::protocol::club::v1::TagIdentifier& ClubDescription::tag(int index) const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.ClubDescription.tag)
+  return tag_.Get(index);
+}
+inline ::bgs::protocol::club::v1::TagIdentifier* ClubDescription::mutable_tag(int index) {
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.ClubDescription.tag)
+  return tag_.Mutable(index);
+}
+inline ::bgs::protocol::club::v1::TagIdentifier* ClubDescription::add_tag() {
+  // @@protoc_insertion_point(field_add:bgs.protocol.club.v1.ClubDescription.tag)
+  return tag_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::TagIdentifier >&
+ClubDescription::tag() const {
+  // @@protoc_insertion_point(field_list:bgs.protocol.club.v1.ClubDescription.tag)
+  return tag_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::TagIdentifier >*
+ClubDescription::mutable_tag() {
+  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.club.v1.ClubDescription.tag)
+  return &tag_;
 }
 
 // -------------------------------------------------------------------
@@ -4009,6 +4772,254 @@ inline void ClubStateOptions::set_allocated_short_name(::std::string* short_name
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.ClubStateOptions.short_name)
 }
 
+// optional .bgs.protocol.club.v1.VisibilityLevel visibility_level = 9;
+inline bool ClubStateOptions::has_visibility_level() const {
+  return (_has_bits_[0] & 0x00000100u) != 0;
+}
+inline void ClubStateOptions::set_has_visibility_level() {
+  _has_bits_[0] |= 0x00000100u;
+}
+inline void ClubStateOptions::clear_has_visibility_level() {
+  _has_bits_[0] &= ~0x00000100u;
+}
+inline void ClubStateOptions::clear_visibility_level() {
+  visibility_level_ = 0;
+  clear_has_visibility_level();
+}
+inline ::bgs::protocol::club::v1::VisibilityLevel ClubStateOptions::visibility_level() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.ClubStateOptions.visibility_level)
+  return static_cast< ::bgs::protocol::club::v1::VisibilityLevel >(visibility_level_);
+}
+inline void ClubStateOptions::set_visibility_level(::bgs::protocol::club::v1::VisibilityLevel value) {
+  assert(::bgs::protocol::club::v1::VisibilityLevel_IsValid(value));
+  set_has_visibility_level();
+  visibility_level_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.ClubStateOptions.visibility_level)
+}
+
+// optional string locale = 10;
+inline bool ClubStateOptions::has_locale() const {
+  return (_has_bits_[0] & 0x00000200u) != 0;
+}
+inline void ClubStateOptions::set_has_locale() {
+  _has_bits_[0] |= 0x00000200u;
+}
+inline void ClubStateOptions::clear_has_locale() {
+  _has_bits_[0] &= ~0x00000200u;
+}
+inline void ClubStateOptions::clear_locale() {
+  if (locale_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    locale_->clear();
+  }
+  clear_has_locale();
+}
+inline const ::std::string& ClubStateOptions::locale() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.ClubStateOptions.locale)
+  return *locale_;
+}
+inline void ClubStateOptions::set_locale(const ::std::string& value) {
+  set_has_locale();
+  if (locale_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    locale_ = new ::std::string;
+  }
+  locale_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.ClubStateOptions.locale)
+}
+inline void ClubStateOptions::set_locale(const char* value) {
+  set_has_locale();
+  if (locale_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    locale_ = new ::std::string;
+  }
+  locale_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.club.v1.ClubStateOptions.locale)
+}
+inline void ClubStateOptions::set_locale(const char* value, size_t size) {
+  set_has_locale();
+  if (locale_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    locale_ = new ::std::string;
+  }
+  locale_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.club.v1.ClubStateOptions.locale)
+}
+inline ::std::string* ClubStateOptions::mutable_locale() {
+  set_has_locale();
+  if (locale_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    locale_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.ClubStateOptions.locale)
+  return locale_;
+}
+inline ::std::string* ClubStateOptions::release_locale() {
+  clear_has_locale();
+  if (locale_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = locale_;
+    locale_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void ClubStateOptions::set_allocated_locale(::std::string* locale) {
+  if (locale_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete locale_;
+  }
+  if (locale) {
+    set_has_locale();
+    locale_ = locale;
+  } else {
+    clear_has_locale();
+    locale_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.ClubStateOptions.locale)
+}
+
+// optional string timezone = 11;
+inline bool ClubStateOptions::has_timezone() const {
+  return (_has_bits_[0] & 0x00000400u) != 0;
+}
+inline void ClubStateOptions::set_has_timezone() {
+  _has_bits_[0] |= 0x00000400u;
+}
+inline void ClubStateOptions::clear_has_timezone() {
+  _has_bits_[0] &= ~0x00000400u;
+}
+inline void ClubStateOptions::clear_timezone() {
+  if (timezone_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timezone_->clear();
+  }
+  clear_has_timezone();
+}
+inline const ::std::string& ClubStateOptions::timezone() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.ClubStateOptions.timezone)
+  return *timezone_;
+}
+inline void ClubStateOptions::set_timezone(const ::std::string& value) {
+  set_has_timezone();
+  if (timezone_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timezone_ = new ::std::string;
+  }
+  timezone_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.ClubStateOptions.timezone)
+}
+inline void ClubStateOptions::set_timezone(const char* value) {
+  set_has_timezone();
+  if (timezone_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timezone_ = new ::std::string;
+  }
+  timezone_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.club.v1.ClubStateOptions.timezone)
+}
+inline void ClubStateOptions::set_timezone(const char* value, size_t size) {
+  set_has_timezone();
+  if (timezone_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timezone_ = new ::std::string;
+  }
+  timezone_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.club.v1.ClubStateOptions.timezone)
+}
+inline ::std::string* ClubStateOptions::mutable_timezone() {
+  set_has_timezone();
+  if (timezone_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timezone_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.ClubStateOptions.timezone)
+  return timezone_;
+}
+inline ::std::string* ClubStateOptions::release_timezone() {
+  clear_has_timezone();
+  if (timezone_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = timezone_;
+    timezone_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void ClubStateOptions::set_allocated_timezone(::std::string* timezone) {
+  if (timezone_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete timezone_;
+  }
+  if (timezone) {
+    set_has_timezone();
+    timezone_ = timezone;
+  } else {
+    clear_has_timezone();
+    timezone_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.ClubStateOptions.timezone)
+}
+
+// optional .bgs.protocol.club.v1.TagOptions tag_options = 12;
+inline bool ClubStateOptions::has_tag_options() const {
+  return (_has_bits_[0] & 0x00000800u) != 0;
+}
+inline void ClubStateOptions::set_has_tag_options() {
+  _has_bits_[0] |= 0x00000800u;
+}
+inline void ClubStateOptions::clear_has_tag_options() {
+  _has_bits_[0] &= ~0x00000800u;
+}
+inline void ClubStateOptions::clear_tag_options() {
+  if (tag_options_ != NULL) tag_options_->::bgs::protocol::club::v1::TagOptions::Clear();
+  clear_has_tag_options();
+}
+inline const ::bgs::protocol::club::v1::TagOptions& ClubStateOptions::tag_options() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.ClubStateOptions.tag_options)
+  return tag_options_ != NULL ? *tag_options_ : *default_instance_->tag_options_;
+}
+inline ::bgs::protocol::club::v1::TagOptions* ClubStateOptions::mutable_tag_options() {
+  set_has_tag_options();
+  if (tag_options_ == NULL) tag_options_ = new ::bgs::protocol::club::v1::TagOptions;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.ClubStateOptions.tag_options)
+  return tag_options_;
+}
+inline ::bgs::protocol::club::v1::TagOptions* ClubStateOptions::release_tag_options() {
+  clear_has_tag_options();
+  ::bgs::protocol::club::v1::TagOptions* temp = tag_options_;
+  tag_options_ = NULL;
+  return temp;
+}
+inline void ClubStateOptions::set_allocated_tag_options(::bgs::protocol::club::v1::TagOptions* tag_options) {
+  delete tag_options_;
+  tag_options_ = tag_options;
+  if (tag_options) {
+    set_has_tag_options();
+  } else {
+    clear_has_tag_options();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.ClubStateOptions.tag_options)
+}
+
+// repeated .bgs.protocol.v2.Attribute search_attribute = 13;
+inline int ClubStateOptions::search_attribute_size() const {
+  return search_attribute_.size();
+}
+inline void ClubStateOptions::clear_search_attribute() {
+  search_attribute_.Clear();
+}
+inline const ::bgs::protocol::v2::Attribute& ClubStateOptions::search_attribute(int index) const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.ClubStateOptions.search_attribute)
+  return search_attribute_.Get(index);
+}
+inline ::bgs::protocol::v2::Attribute* ClubStateOptions::mutable_search_attribute(int index) {
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.ClubStateOptions.search_attribute)
+  return search_attribute_.Mutable(index);
+}
+inline ::bgs::protocol::v2::Attribute* ClubStateOptions::add_search_attribute() {
+  // @@protoc_insertion_point(field_add:bgs.protocol.club.v1.ClubStateOptions.search_attribute)
+  return search_attribute_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute >&
+ClubStateOptions::search_attribute() const {
+  // @@protoc_insertion_point(field_list:bgs.protocol.club.v1.ClubStateOptions.search_attribute)
+  return search_attribute_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute >*
+ClubStateOptions::mutable_search_attribute() {
+  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.club.v1.ClubStateOptions.search_attribute)
+  return &search_attribute_;
+}
+
 // -------------------------------------------------------------------
 
 // ClubStateAssignment
@@ -4441,6 +5452,267 @@ inline void ClubStateAssignment::set_allocated_short_name(::std::string* short_n
     short_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   }
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.ClubStateAssignment.short_name)
+}
+
+// optional .bgs.protocol.club.v1.VisibilityLevel visibility_level = 10;
+inline bool ClubStateAssignment::has_visibility_level() const {
+  return (_has_bits_[0] & 0x00000200u) != 0;
+}
+inline void ClubStateAssignment::set_has_visibility_level() {
+  _has_bits_[0] |= 0x00000200u;
+}
+inline void ClubStateAssignment::clear_has_visibility_level() {
+  _has_bits_[0] &= ~0x00000200u;
+}
+inline void ClubStateAssignment::clear_visibility_level() {
+  visibility_level_ = 0;
+  clear_has_visibility_level();
+}
+inline ::bgs::protocol::club::v1::VisibilityLevel ClubStateAssignment::visibility_level() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.ClubStateAssignment.visibility_level)
+  return static_cast< ::bgs::protocol::club::v1::VisibilityLevel >(visibility_level_);
+}
+inline void ClubStateAssignment::set_visibility_level(::bgs::protocol::club::v1::VisibilityLevel value) {
+  assert(::bgs::protocol::club::v1::VisibilityLevel_IsValid(value));
+  set_has_visibility_level();
+  visibility_level_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.ClubStateAssignment.visibility_level)
+}
+
+// optional string locale = 11;
+inline bool ClubStateAssignment::has_locale() const {
+  return (_has_bits_[0] & 0x00000400u) != 0;
+}
+inline void ClubStateAssignment::set_has_locale() {
+  _has_bits_[0] |= 0x00000400u;
+}
+inline void ClubStateAssignment::clear_has_locale() {
+  _has_bits_[0] &= ~0x00000400u;
+}
+inline void ClubStateAssignment::clear_locale() {
+  if (locale_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    locale_->clear();
+  }
+  clear_has_locale();
+}
+inline const ::std::string& ClubStateAssignment::locale() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.ClubStateAssignment.locale)
+  return *locale_;
+}
+inline void ClubStateAssignment::set_locale(const ::std::string& value) {
+  set_has_locale();
+  if (locale_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    locale_ = new ::std::string;
+  }
+  locale_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.ClubStateAssignment.locale)
+}
+inline void ClubStateAssignment::set_locale(const char* value) {
+  set_has_locale();
+  if (locale_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    locale_ = new ::std::string;
+  }
+  locale_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.club.v1.ClubStateAssignment.locale)
+}
+inline void ClubStateAssignment::set_locale(const char* value, size_t size) {
+  set_has_locale();
+  if (locale_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    locale_ = new ::std::string;
+  }
+  locale_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.club.v1.ClubStateAssignment.locale)
+}
+inline ::std::string* ClubStateAssignment::mutable_locale() {
+  set_has_locale();
+  if (locale_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    locale_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.ClubStateAssignment.locale)
+  return locale_;
+}
+inline ::std::string* ClubStateAssignment::release_locale() {
+  clear_has_locale();
+  if (locale_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = locale_;
+    locale_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void ClubStateAssignment::set_allocated_locale(::std::string* locale) {
+  if (locale_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete locale_;
+  }
+  if (locale) {
+    set_has_locale();
+    locale_ = locale;
+  } else {
+    clear_has_locale();
+    locale_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.ClubStateAssignment.locale)
+}
+
+// optional string timezone = 12;
+inline bool ClubStateAssignment::has_timezone() const {
+  return (_has_bits_[0] & 0x00000800u) != 0;
+}
+inline void ClubStateAssignment::set_has_timezone() {
+  _has_bits_[0] |= 0x00000800u;
+}
+inline void ClubStateAssignment::clear_has_timezone() {
+  _has_bits_[0] &= ~0x00000800u;
+}
+inline void ClubStateAssignment::clear_timezone() {
+  if (timezone_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timezone_->clear();
+  }
+  clear_has_timezone();
+}
+inline const ::std::string& ClubStateAssignment::timezone() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.ClubStateAssignment.timezone)
+  return *timezone_;
+}
+inline void ClubStateAssignment::set_timezone(const ::std::string& value) {
+  set_has_timezone();
+  if (timezone_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timezone_ = new ::std::string;
+  }
+  timezone_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.ClubStateAssignment.timezone)
+}
+inline void ClubStateAssignment::set_timezone(const char* value) {
+  set_has_timezone();
+  if (timezone_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timezone_ = new ::std::string;
+  }
+  timezone_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.club.v1.ClubStateAssignment.timezone)
+}
+inline void ClubStateAssignment::set_timezone(const char* value, size_t size) {
+  set_has_timezone();
+  if (timezone_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timezone_ = new ::std::string;
+  }
+  timezone_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.club.v1.ClubStateAssignment.timezone)
+}
+inline ::std::string* ClubStateAssignment::mutable_timezone() {
+  set_has_timezone();
+  if (timezone_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timezone_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.ClubStateAssignment.timezone)
+  return timezone_;
+}
+inline ::std::string* ClubStateAssignment::release_timezone() {
+  clear_has_timezone();
+  if (timezone_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = timezone_;
+    timezone_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void ClubStateAssignment::set_allocated_timezone(::std::string* timezone) {
+  if (timezone_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete timezone_;
+  }
+  if (timezone) {
+    set_has_timezone();
+    timezone_ = timezone;
+  } else {
+    clear_has_timezone();
+    timezone_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.ClubStateAssignment.timezone)
+}
+
+// repeated .bgs.protocol.club.v1.TagIdentifier tag = 13;
+inline int ClubStateAssignment::tag_size() const {
+  return tag_.size();
+}
+inline void ClubStateAssignment::clear_tag() {
+  tag_.Clear();
+}
+inline const ::bgs::protocol::club::v1::TagIdentifier& ClubStateAssignment::tag(int index) const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.ClubStateAssignment.tag)
+  return tag_.Get(index);
+}
+inline ::bgs::protocol::club::v1::TagIdentifier* ClubStateAssignment::mutable_tag(int index) {
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.ClubStateAssignment.tag)
+  return tag_.Mutable(index);
+}
+inline ::bgs::protocol::club::v1::TagIdentifier* ClubStateAssignment::add_tag() {
+  // @@protoc_insertion_point(field_add:bgs.protocol.club.v1.ClubStateAssignment.tag)
+  return tag_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::TagIdentifier >&
+ClubStateAssignment::tag() const {
+  // @@protoc_insertion_point(field_list:bgs.protocol.club.v1.ClubStateAssignment.tag)
+  return tag_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::TagIdentifier >*
+ClubStateAssignment::mutable_tag() {
+  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.club.v1.ClubStateAssignment.tag)
+  return &tag_;
+}
+
+// repeated .bgs.protocol.v2.Attribute search_attribute = 14;
+inline int ClubStateAssignment::search_attribute_size() const {
+  return search_attribute_.size();
+}
+inline void ClubStateAssignment::clear_search_attribute() {
+  search_attribute_.Clear();
+}
+inline const ::bgs::protocol::v2::Attribute& ClubStateAssignment::search_attribute(int index) const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.ClubStateAssignment.search_attribute)
+  return search_attribute_.Get(index);
+}
+inline ::bgs::protocol::v2::Attribute* ClubStateAssignment::mutable_search_attribute(int index) {
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.ClubStateAssignment.search_attribute)
+  return search_attribute_.Mutable(index);
+}
+inline ::bgs::protocol::v2::Attribute* ClubStateAssignment::add_search_attribute() {
+  // @@protoc_insertion_point(field_add:bgs.protocol.club.v1.ClubStateAssignment.search_attribute)
+  return search_attribute_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute >&
+ClubStateAssignment::search_attribute() const {
+  // @@protoc_insertion_point(field_list:bgs.protocol.club.v1.ClubStateAssignment.search_attribute)
+  return search_attribute_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::v2::Attribute >*
+ClubStateAssignment::mutable_search_attribute() {
+  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.club.v1.ClubStateAssignment.search_attribute)
+  return &search_attribute_;
+}
+
+// optional bool tag_cleared = 15;
+inline bool ClubStateAssignment::has_tag_cleared() const {
+  return (_has_bits_[0] & 0x00004000u) != 0;
+}
+inline void ClubStateAssignment::set_has_tag_cleared() {
+  _has_bits_[0] |= 0x00004000u;
+}
+inline void ClubStateAssignment::clear_has_tag_cleared() {
+  _has_bits_[0] &= ~0x00004000u;
+}
+inline void ClubStateAssignment::clear_tag_cleared() {
+  tag_cleared_ = false;
+  clear_has_tag_cleared();
+}
+inline bool ClubStateAssignment::tag_cleared() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.ClubStateAssignment.tag_cleared)
+  return tag_cleared_;
+}
+inline void ClubStateAssignment::set_tag_cleared(bool value) {
+  set_has_tag_cleared();
+  tag_cleared_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.ClubStateAssignment.tag_cleared)
 }
 
 // -------------------------------------------------------------------

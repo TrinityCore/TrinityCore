@@ -99,6 +99,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPMatchSta
     data.WriteBit(playerData.RatingChange.has_value());
     data.WriteBit(playerData.PreMatchMMR.has_value());
     data.WriteBit(playerData.MmrChange.has_value());
+    data.WriteBit(playerData.PostMatchMMR.has_value());
     data.FlushBits();
 
     if (playerData.Honor)

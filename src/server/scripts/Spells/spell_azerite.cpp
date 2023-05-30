@@ -31,7 +31,7 @@ class spell_azerite_gen_aura_calc_from_2nd_effect_triggered_spell : public AuraS
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return spellInfo->GetEffects().size() > EFFECT_1 && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_1).TriggerSpell });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } }) && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_1).TriggerSpell });
     }
 
     void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
@@ -459,8 +459,7 @@ class spell_item_echoing_blades_damage : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_ECHOING_BLADES_TRAIT })
-            && sSpellMgr->AssertSpellInfo(SPELL_ECHOING_BLADES_TRAIT, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_2;
+        return ValidateSpellEffect({ { SPELL_ECHOING_BLADES_TRAIT, EFFECT_2 } });
     }
 
     void CalculateDamage(SpellEffIndex /*effIndex*/)
@@ -534,6 +533,41 @@ class spell_item_conflict_wearer_on_stun_proc : public AuraScript
     }
 };
 
+// 305723 - Strife (Azerite Essence)
+class spell_item_conflict_rank3 : public AuraScript
+{
+    PrepareAuraScript(spell_item_conflict_rank3);
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        if (eventInfo.GetHitMask() & (PROC_HIT_INTERRUPT | PROC_HIT_DISPEL))
+            return true;
+
+        Spell const* procSpell = eventInfo.GetProcSpell();
+        if (!procSpell)
+            return false;
+
+        bool isCrowdControl = procSpell->GetSpellInfo()->HasAura(SPELL_AURA_MOD_CONFUSE)
+            || procSpell->GetSpellInfo()->HasAura(SPELL_AURA_MOD_FEAR)
+            || procSpell->GetSpellInfo()->HasAura(SPELL_AURA_MOD_STUN)
+            || procSpell->GetSpellInfo()->HasAura(SPELL_AURA_MOD_PACIFY)
+            || procSpell->GetSpellInfo()->HasAura(SPELL_AURA_MOD_ROOT)
+            || procSpell->GetSpellInfo()->HasAura(SPELL_AURA_MOD_SILENCE)
+            || procSpell->GetSpellInfo()->HasAura(SPELL_AURA_MOD_PACIFY_SILENCE)
+            || procSpell->GetSpellInfo()->HasAura(SPELL_AURA_MOD_ROOT_2);
+
+        if (!isCrowdControl)
+            return false;
+
+        return eventInfo.GetActionTarget()->HasAura([&](Aura const* aura) { return aura->GetCastId() == procSpell->m_castId; });
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_item_conflict_rank3::CheckProc);
+    }
+};
+
 // 277253 - Heart of Azeroth
 class spell_item_heart_of_azeroth : public AuraScript
 {
@@ -568,6 +602,29 @@ class spell_item_heart_of_azeroth : public AuraScript
     }
 };
 
+// 315176 - Grasping Tendrils
+class spell_item_corruption_grasping_tendrils : public AuraScript
+{
+    PrepareAuraScript(spell_item_corruption_grasping_tendrils);
+
+    bool Load() override
+    {
+        return GetUnitOwner()->IsPlayer();
+    }
+
+    void CalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    {
+        Player* player = GetUnitOwner()->ToPlayer();
+        amount = std::clamp(10.0f + player->GetRatingBonusValue(CR_CORRUPTION) - player->GetRatingBonusValue(CR_CORRUPTION_RESISTANCE), 0.0f, 99.0f);
+        canBeRecalculated = false;
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_item_corruption_grasping_tendrils::CalcAmount, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED);
+    }
+};
+
 void AddSC_azerite_item_spell_scripts()
 {
     RegisterSpellScript(spell_azerite_gen_aura_calc_from_2nd_effect_triggered_spell);
@@ -588,6 +645,9 @@ void AddSC_azerite_item_spell_scripts()
     RegisterSpellScript(spell_item_echoing_blades_damage);
     RegisterSpellScript(spell_item_hour_of_reaping);
     RegisterSpellScript(spell_item_conflict_wearer_on_stun_proc);
+    RegisterSpellScript(spell_item_conflict_rank3);
 
     RegisterSpellScript(spell_item_heart_of_azeroth);
+
+    RegisterSpellScript(spell_item_corruption_grasping_tendrils);
 }

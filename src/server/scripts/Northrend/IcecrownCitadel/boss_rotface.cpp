@@ -492,7 +492,8 @@ class spell_rotface_mutated_infection_aura : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return spellInfo->GetEffects().size() > EFFECT_2 && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_2).CalcValue()) });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } })
+            && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_2).CalcValue()) });
     }
 
     void HandleEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)

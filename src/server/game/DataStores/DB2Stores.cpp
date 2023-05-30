@@ -2981,7 +2981,7 @@ PowerTypeEntry const* DB2Manager::GetPowerTypeByName(std::string const& name) co
     for (PowerTypeEntry const* powerType : sPowerTypeStore)
     {
         std::string powerName = powerType->NameGlobalStringTag;
-        std::transform(powerName.begin(), powerName.end(), powerName.begin(), [](char c) { return char(::tolower(c)); });
+        strToLower(powerName);
         if (powerName == name)
             return powerType;
 

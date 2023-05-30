@@ -547,6 +547,13 @@ void Unit::AtStartOfEncounter()
 void Unit::AtEndOfEncounter()
 {
     RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::EndOfEncounter);
+
+    GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr)
+    {
+        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first, DIFFICULTY_NONE);
+
+        return spellInfo->HasAttribute(SPELL_ATTR10_RESET_COOLDOWN_ON_ENCOUNTER_END);
+    }, true);
 }
 
 void Unit::UpdateSplineMovement(uint32 t_diff)
@@ -7815,7 +7822,7 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
 
     uint32 areaId = GetAreaId();
     uint32 ridingSkill = 5000;
-    uint32 mountFlags = 0;
+    EnumFlag<AreaMountFlags> mountFlags = AreaMountFlags::None;
     bool isSubmerged = false;
     bool isInWater = false;
 
@@ -7825,10 +7832,10 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
     if (HasAuraType(SPELL_AURA_MOUNT_RESTRICTIONS))
     {
         for (AuraEffect const* auraEffect : GetAuraEffectsByType(SPELL_AURA_MOUNT_RESTRICTIONS))
-            mountFlags |= auraEffect->GetMiscValue();
+            mountFlags |= AreaMountFlags(auraEffect->GetMiscValue());
     }
     else if (AreaTableEntry const* areaTable = sAreaTableStore.LookupEntry(areaId))
-        mountFlags = areaTable->MountFlags;
+        mountFlags = areaTable->GetMountFlags();
 
     LiquidData liquid;
     ZLiquidStatus liquidStatus = GetMap()->GetLiquidStatus(GetPhaseShift(), GetPositionX(), GetPositionY(), GetPositionZ(), map_liquidHeaderTypeFlags::AllLiquids, &liquid);
@@ -7846,13 +7853,13 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
 
         if (!(mountCapability->Flags & MOUNT_CAPABIILTY_FLAG_IGNORE_RESTRICTIONS))
         {
-            if (mountCapability->Flags & MOUNT_CAPABILITY_FLAG_GROUND && !(mountFlags & AREA_MOUNT_FLAG_GROUND_ALLOWED))
+            if (mountCapability->Flags & MOUNT_CAPABILITY_FLAG_GROUND && !(mountFlags.HasFlag(AreaMountFlags::AllowGroundMounts)))
                 continue;
-            if (mountCapability->Flags & MOUNT_CAPABILITY_FLAG_FLYING && !(mountFlags & AREA_MOUNT_FLAG_FLYING_ALLOWED))
+            if (mountCapability->Flags & MOUNT_CAPABILITY_FLAG_FLYING && !(mountFlags.HasFlag(AreaMountFlags::AllowFlyingMounts)))
                 continue;
-            if (mountCapability->Flags & MOUNT_CAPABILITY_FLAG_FLOAT && !(mountFlags & AREA_MOUNT_FLAG_FLOAT_ALLOWED))
+            if (mountCapability->Flags & MOUNT_CAPABILITY_FLAG_FLOAT && !(mountFlags.HasFlag(AreaMountFlags::AllowSurfaceSwimmingMounts)))
                 continue;
-            if (mountCapability->Flags & MOUNT_CAPABILITY_FLAG_UNDERWATER && !(mountFlags & AREA_MOUNT_FLAG_UNDERWATER_ALLOWED))
+            if (mountCapability->Flags & MOUNT_CAPABILITY_FLAG_UNDERWATER && !(mountFlags.HasFlag(AreaMountFlags::AllowUnderwaterSwimmingMounts)))
                 continue;
         }
 
@@ -10747,7 +10754,7 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
                 if (dungeonEncounter)
                 {
                     creature->m_personalLoot = GenerateDungeonEncounterPersonalLoot(dungeonEncounter->ID, creature->GetLootId(),
-                        LootTemplates_Creature, LOOT_CORPSE, creature, creature->GetCreatureTemplate()->mingold, creature->GetCreatureTemplate()->maxgold,
+                        LootTemplates_Creature, LOOT_CORPSE, creature, creature->GetCreatureDifficulty()->GoldMin, creature->GetCreatureDifficulty()->GoldMax,
                         creature->GetLootMode(), creature->GetMap()->GetDifficultyLootItemContext(), tappers);
                 }
                 else if (!tappers.empty())
@@ -10761,7 +10768,7 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
                         loot->FillLoot(lootid, LootTemplates_Creature, looter, dungeonEncounter != nullptr, false, creature->GetLootMode(), creature->GetMap()->GetDifficultyLootItemContext());
 
                     if (creature->GetLootMode() > 0)
-                        loot->generateMoneyLoot(creature->GetCreatureTemplate()->mingold, creature->GetCreatureTemplate()->maxgold);
+                        loot->generateMoneyLoot(creature->GetCreatureDifficulty()->GoldMin, creature->GetCreatureDifficulty()->GoldMax);
 
                     if (group)
                         loot->NotifyLootList(creature->GetMap());
@@ -10787,7 +10794,7 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
                         loot->FillLoot(lootid, LootTemplates_Creature, tapper, true, false, creature->GetLootMode(), creature->GetMap()->GetDifficultyLootItemContext());
 
                     if (creature->GetLootMode() > 0)
-                        loot->generateMoneyLoot(creature->GetCreatureTemplate()->mingold, creature->GetCreatureTemplate()->maxgold);
+                        loot->generateMoneyLoot(creature->GetCreatureDifficulty()->GoldMin, creature->GetCreatureDifficulty()->GoldMax);
 
                     creature->m_personalLoot[tapper->GetGUID()].reset(loot);
                 }
@@ -10887,7 +10894,7 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
             else
                 creature->AllLootRemovedFromCorpse();
 
-            if (creature->CanHaveLoot() && LootTemplates_Skinning.HaveLootFor(creature->GetCreatureTemplate()->SkinLootId))
+            if (creature->CanHaveLoot() && LootTemplates_Skinning.HaveLootFor(creature->GetCreatureDifficulty()->SkinLootID))
             {
                 creature->SetDynamicFlag(UNIT_DYNFLAG_CAN_SKIN);
                 creature->SetUnitFlag(UNIT_FLAG_SKINNABLE);
