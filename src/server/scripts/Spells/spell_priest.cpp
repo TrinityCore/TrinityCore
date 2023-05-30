@@ -615,8 +615,7 @@ class spell_pri_holy_mending : public AuraScript
 
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
-        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_PRIEST_HOLY_MENDING_HEAL,
-            CastSpellExtraArgs(aurEff).SetTriggeringSpell(eventInfo.GetProcSpell()));
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_PRIEST_HOLY_MENDING_HEAL, CastSpellExtraArgs(aurEff));
     }
 
     void Register() override
