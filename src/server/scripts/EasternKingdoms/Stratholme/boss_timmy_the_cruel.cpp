@@ -56,7 +56,7 @@ struct boss_timmy_the_cruel : public BossAI
         events.ScheduleEvent(EVENT_RAVENOUS_CLAW, 14s);
     }
 
-    void EnterEvadeMode(EvadeReason /*why*/)
+    void EnterEvadeMode(EvadeReason /*why*/) override
     {
         _DespawnAtEvade();
     }
