@@ -1252,7 +1252,8 @@ class spell_pri_prayer_of_mending_aura : public AuraScript
             SPELL_PRIEST_PRAYER_OF_MENDING_HEAL,
             SPELL_PRIEST_PRAYER_OF_MENDING_JUMP,
             SPELL_PRIEST_SAY_YOUR_PRAYERS
-        });
+        })
+        && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_SAY_YOUR_PRAYERS, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_1;
     }
 
     void HandleHeal(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
