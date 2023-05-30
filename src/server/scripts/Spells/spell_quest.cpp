@@ -1886,7 +1886,7 @@ class spell_quest_portal_with_condition : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return spellInfo->GetEffects().size() > EFFECT_1
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } })
             && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) })
             && sObjectMgr->GetQuestTemplate(uint32(spellInfo->GetEffect(EFFECT_1).CalcValue()));
     }

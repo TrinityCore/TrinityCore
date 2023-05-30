@@ -177,7 +177,7 @@ class spell_mage_arcane_barrage : public SpellScript
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ SPELL_MAGE_ARCANE_BARRAGE_R3, SPELL_MAGE_ARCANE_BARRAGE_ENERGIZE })
-            && spellInfo->GetEffects().size() > EFFECT_1;
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
     void ConsumeArcaneCharges()
@@ -242,7 +242,7 @@ class spell_mage_arcane_explosion : public SpellScript
         if (!ValidateSpellInfo({ SPELL_MAGE_ARCANE_MAGE, SPELL_MAGE_REVERBERATE }))
             return false;
 
-        if (spellInfo->GetEffects().size() <= EFFECT_1)
+        if (!ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } }))
             return false;
 
         return spellInfo->GetEffect(EFFECT_1).IsEffect(SPELL_EFFECT_SCHOOL_DAMAGE);
@@ -403,7 +403,7 @@ class spell_mage_cauterize_AuraScript : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return spellInfo->GetEffects().size() > EFFECT_2 && ValidateSpellInfo
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } }) && ValidateSpellInfo
         ({
             SPELL_MAGE_CAUTERIZE_DOT,
             SPELL_MAGE_CAUTERIZED,
@@ -681,7 +681,7 @@ class spell_mage_flame_on : public AuraScript
    {
        return ValidateSpellInfo({ SPELL_MAGE_FIRE_BLAST })
            && sSpellCategoryStore.HasRecord(sSpellMgr->AssertSpellInfo(SPELL_MAGE_FIRE_BLAST, DIFFICULTY_NONE)->ChargeCategoryId)
-           && spellInfo->GetEffects().size() > EFFECT_2;
+           && ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
    }
 
    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)

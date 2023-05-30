@@ -481,8 +481,7 @@ class spell_dru_ferocious_bite : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DRUID_INCARNATION_KING_OF_THE_JUNGLE  })
-            && sSpellMgr->AssertSpellInfo(SPELL_DRUID_INCARNATION_KING_OF_THE_JUNGLE, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_1;
+        return ValidateSpellEffect({ { SPELL_DRUID_INCARNATION_KING_OF_THE_JUNGLE, EFFECT_1 } });
     }
 
     void HandleHitTargetBurn(SpellEffIndex /*effIndex*/)
@@ -1543,7 +1542,7 @@ class spell_dru_wild_growth : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        if (spellInfo->GetEffects().size() <= EFFECT_2 || spellInfo->GetEffect(EFFECT_2).IsEffect() || spellInfo->GetEffect(EFFECT_2).CalcValue() <= 0)
+        if (!ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } }) || spellInfo->GetEffect(EFFECT_2).IsEffect() || spellInfo->GetEffect(EFFECT_2).CalcValue() <= 0)
             return false;
         return true;
     }
