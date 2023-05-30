@@ -353,6 +353,11 @@ class spell_pri_circle_of_healing : public SpellScript
 {
     PrepareSpellScript(spell_pri_circle_of_healing);
 
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return spellInfo->GetEffects().size() > EFFECT_2;
+    }
+
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         // Note: we must remove one since target is always chosen.
