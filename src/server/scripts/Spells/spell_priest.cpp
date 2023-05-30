@@ -426,12 +426,15 @@ class spell_pri_divine_image : public AuraScript
             if (caster->GetDistance(divineImage) > 15.0f)
                 divineImage->NearTeleportTo(caster->GetRandomNearPosition(3.0f));
 
-            divineImage->CastSpell(divineImage, SPELL_PRIEST_DIVINE_IMAGE_EMPOWER, aurEff);
+            divineImage->CastSpell(divineImage, SPELL_PRIEST_DIVINE_IMAGE_EMPOWER,
+                CastSpellExtraArgs(aurEff).SetTriggeringSpell(eventInfo.GetProcSpell()));
         }
         else
-            caster->CastSpell(*caster, SPELL_PRIEST_DIVINE_IMAGE_SUMMON, aurEff);
+            caster->CastSpell(*caster, SPELL_PRIEST_DIVINE_IMAGE_SUMMON,
+                CastSpellExtraArgs(aurEff).SetTriggeringSpell(eventInfo.GetProcSpell()));
 
-        caster->CastSpell(caster, SPELL_PRIEST_DIVINE_IMAGE_EMPOWER_STACK, aurEff);
+        caster->CastSpell(caster, SPELL_PRIEST_DIVINE_IMAGE_EMPOWER_STACK,
+            CastSpellExtraArgs(aurEff).SetTriggeringSpell(eventInfo.GetProcSpell()));
     }
 
     void Register() override
