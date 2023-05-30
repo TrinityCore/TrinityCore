@@ -526,7 +526,6 @@ struct TC_GAME_API CreatureTemplate
     uint32  unit_flags;                                     // enum UnitFlags mask values
     uint32  unit_flags2;                                    // enum UnitFlags2 mask values
     uint32  unit_flags3;                                    // enum UnitFlags3 mask values
-    uint32  dynamicflags;
     CreatureFamily  family;                                 // enum CreatureFamily values (optional)
     uint32  trainer_class;
     uint32  type;                                           // enum CreatureType values
