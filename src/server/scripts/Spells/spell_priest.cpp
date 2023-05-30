@@ -536,8 +536,7 @@ class spell_pri_empowered_renew : public AuraScript
 
         int32 healAmount = CalculatePct(spellInfo->GetEffect(EFFECT_0).CalcValue(caster) * renew->GetTotalTicks(), aurEff->GetAmount());
 
-        caster->CastSpell(target, SPELL_PRIEST_EMPOWERED_RENEW_HEAL,
-            CastSpellExtraArgs(aurEff).AddSpellBP0(healAmount).SetTriggeringSpell(eventInfo.GetProcSpell()));
+        caster->CastSpell(target, SPELL_PRIEST_EMPOWERED_RENEW_HEAL, CastSpellExtraArgs(aurEff).AddSpellBP0(healAmount)));
     }
 
     void Register() override
