@@ -46,7 +46,7 @@ enum Texts
 
 struct boss_balnazzar : public BossAI
 {
-    boss_balnazzar(Creature* creature) : BossAI(creature, DATA_BALNAZZAR) { }
+    boss_balnazzar(Creature* creature) : BossAI(creature, BOSS_BALNAZZAR) { }
 
     void JustEngagedWith(Unit* who) override
     {

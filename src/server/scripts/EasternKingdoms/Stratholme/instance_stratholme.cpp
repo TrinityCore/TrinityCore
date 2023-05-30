@@ -15,13 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: instance_stratholme
-SD%Complete: 50
-SDComment: In progress. Undead side 75% implemented. Save/load not implemented.
-SDCategory: Stratholme
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "AreaBoundary.h"
 #include "Creature.h"
@@ -51,13 +44,13 @@ EllipseBoundary const beforeScarletGate(Position(3671.158f, -3181.79f), 60.0f, 4
 
 ObjectData const creatureData[] =
 {
-    { BOSS_HEARTSINGER_FORRESTEN,   DATA_HEARTHSINGER_FORRESTEN },
-    { BOSS_TIMMY_THE_CRUEL,         DATA_TIMMY_THE_CRUEL        },
-    { BOSS_COMMANDER_MALOR,         DATA_COMMANDER_MALOR        },
-    { BOSS_WILLEY_HOPEBREAKER,      DATA_WILLEY_HOPEBREAKER     },
-    { BOSS_INSTRUCTOR_GALFORD,      DATA_INSTRUCTOR_GALFORD     },
-    { BOSS_BALNAZZAR,               DATA_BALNAZZAR              },
-    { 0,                            0                           }, // END
+    { NPC_HEARTSINGER_FORRESTEN,   BOSS_HEARTHSINGER_FORRESTEN },
+    { NPC_TIMMY_THE_CRUEL,         BOSS_TIMMY_THE_CRUEL        },
+    { NPC_COMMANDER_MALOR,         BOSS_COMMANDER_MALOR        },
+    { NPC_WILLEY_HOPEBREAKER,      BOSS_WILLEY_HOPEBREAKER     },
+    { NPC_INSTRUCTOR_GALFORD,      BOSS_INSTRUCTOR_GALFORD     },
+    { NPC_BALNAZZAR,               BOSS_BALNAZZAR              },
+    { 0,                           0                           }, // END
 };
 
 class instance_stratholme : public InstanceMapScript

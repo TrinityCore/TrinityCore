@@ -15,88 +15,98 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: boss_timmy_the_cruel
-SD%Complete: 100
-SDComment:
-SDCategory: Stratholme
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "stratholme.h"
 
-enum Says
+enum Texts
 {
-    SAY_SPAWN                   = 0
+    // Timmy the Cruel
+    SAY_AGGRO = 0
 };
 
 enum Spells
 {
-    SPELL_RAVENOUSCLAW          = 17470
+    // Timmy the Cruel
+    SPELL_THRASH            = 12787,
+    SPELL_ENRAGE            = 8599,
+    SPELL_RAVENOUS_CLAW     = 17470
 };
 
-class boss_timmy_the_cruel : public CreatureScript
+enum Events
 {
-public:
-    boss_timmy_the_cruel() : CreatureScript("boss_timmy_the_cruel") { }
+    // Timmy the Cruel
+    EVENT_ENRAGE = 1,
+    EVENT_RAVENOUS_CLAW
+};
 
-    CreatureAI* GetAI(Creature* creature) const override
+struct boss_timmy_the_cruel : public BossAI
+{
+    boss_timmy_the_cruel(Creature* creature) : BossAI(creature, BOSS_TIMMY_THE_CRUEL), _enraged(false) { }
+
+    void JustAppeared() override
     {
-        return new boss_timmy_the_cruelAI(creature);
+        DoCastSelf(SPELL_THRASH);
     }
 
-    struct boss_timmy_the_cruelAI : public ScriptedAI
+    void JustEngagedWith(Unit* who) override
     {
-        boss_timmy_the_cruelAI(Creature* creature) : ScriptedAI(creature)
+        BossAI::JustEngagedWith(who);
+        Talk(SAY_AGGRO, who);
+        events.ScheduleEvent(EVENT_RAVENOUS_CLAW, 14s);
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/)
+    {
+        _DespawnAtEvade();
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        if (!_enraged && me->HealthBelowPctDamaged(25, damage))
         {
-            Initialize();
+            _enraged = true;
+            events.ScheduleEvent(EVENT_ENRAGE, 1ms);
         }
+    }
 
-        void Initialize()
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            RavenousClaw_Timer = 10000;
-            HasYelled = false;
-        }
-
-        uint32 RavenousClaw_Timer;
-        bool HasYelled;
-
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-            if (!HasYelled)
+            switch (eventId)
             {
-                Talk(SAY_SPAWN);
-                HasYelled = true;
+                case EVENT_ENRAGE:
+                    DoCastSelf(SPELL_ENRAGE);
+                    break;
+                case EVENT_RAVENOUS_CLAW:
+                    DoCastVictim(SPELL_RAVENOUS_CLAW);
+                    events.Repeat(5s, 8s);
+                    break;
+                default:
+                    break;
             }
-        }
 
-        void UpdateAI(uint32 diff) override
-        {
-            //Return since we have no target
-            if (!UpdateVictim())
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-
-            //RavenousClaw
-            if (RavenousClaw_Timer <= diff)
-            {
-                //Cast
-                DoCastVictim(SPELL_RAVENOUSCLAW);
-                //15 seconds until we should cast this again
-                RavenousClaw_Timer = 15000;
-            } else RavenousClaw_Timer -= diff;
-
-            DoMeleeAttackIfReady();
         }
-    };
 
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    bool _enraged;
 };
 
 void AddSC_boss_timmy_the_cruel()
 {
-    new boss_timmy_the_cruel();
+    RegisterStratholmeCreatureAI(boss_timmy_the_cruel);
 }
