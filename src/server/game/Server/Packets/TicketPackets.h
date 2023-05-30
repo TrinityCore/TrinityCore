@@ -68,7 +68,7 @@ namespace WorldPackets
         struct SupportTicketHeader
         {
             int32 MapID = 0;
-            TaggedPosition<Position::XYZ> Position;
+            TaggedPosition<Position::XYZ> _Position;
             float Facing = 0.0f;
         };
 

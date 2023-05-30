@@ -54,9 +54,9 @@ void WorldPackets::Ticket::SupportTicketSubmitSuggestion::Read()
     uint32 noteLen = _worldPacket.ReadBits(12);
     Note = _worldPacket.ReadString(noteLen);
 
-    _worldPacket >> Header.Position.Pos.m_positionY;
-    _worldPacket >> Header.Position.Pos.m_positionZ;
-    _worldPacket >> Header.Position.Pos.m_positionX;
+    _worldPacket >> Header._Position.Pos.m_positionY;
+    _worldPacket >> Header._Position.Pos.m_positionZ;
+    _worldPacket >> Header._Position.Pos.m_positionX;
     _worldPacket >> Header.MapID;
     _worldPacket >> Header.Facing;
 }
@@ -66,9 +66,9 @@ void WorldPackets::Ticket::SupportTicketSubmitBug::Read()
     uint32 noteLen = _worldPacket.ReadBits(12);
     Note = _worldPacket.ReadString(noteLen);
 
-    _worldPacket >> Header.Position.Pos.m_positionY;
-    _worldPacket >> Header.Position.Pos.m_positionZ;
-    _worldPacket >> Header.Position.Pos.m_positionX;
+    _worldPacket >> Header._Position.Pos.m_positionY;
+    _worldPacket >> Header._Position.Pos.m_positionZ;
+    _worldPacket >> Header._Position.Pos.m_positionX;
     _worldPacket >> Header.MapID;
     _worldPacket >> Header.Facing;
 }
@@ -102,9 +102,9 @@ void WorldPackets::Ticket::SupportTicketSubmitComplaint::Read()
     _worldPacket.ReadByteSeq(TargetCharacterGUID[7]);
     _worldPacket.ReadByteSeq(TargetCharacterGUID[4]);
 
-    _worldPacket >> Header.Position.Pos.m_positionY;
-    _worldPacket >> Header.Position.Pos.m_positionZ;
-    _worldPacket >> Header.Position.Pos.m_positionX;
+    _worldPacket >> Header._Position.Pos.m_positionY;
+    _worldPacket >> Header._Position.Pos.m_positionZ;
+    _worldPacket >> Header._Position.Pos.m_positionX;
     _worldPacket >> Header.MapID;
     _worldPacket >> Header.Facing;
 
