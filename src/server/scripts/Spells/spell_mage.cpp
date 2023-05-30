@@ -1734,10 +1734,11 @@ class spell_mage_combustion : public SpellScript
             if (!aurEff->GetSpellInfo()->IsAffected(SPELLFAMILY_MAGE, GetSpellInfo()->Effects[effIndex].SpellClassMask))
                 continue;
 
-            basePoints = CalculatePct(aurEff->GetAmount(), scalingFactor);
-            if (basePoints > 0)
-                caster->CastSpell(target, SPELL_MAGE_COMBUSTION_DAMAGE, CastSpellExtraArgs(true).AddSpellBP0(basePoints));
+            basePoints += CalculatePct(aurEff->GetAmount(), scalingFactor);
         }
+
+        if (basePoints > 0)
+            caster->CastSpell(target, SPELL_MAGE_COMBUSTION_DAMAGE, CastSpellExtraArgs(true).AddSpellBP0(basePoints));
     }
 
     void Register() override
