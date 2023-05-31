@@ -6965,6 +6965,23 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyardInZone(WorldLocation con
             if (int16(entry->Loc.GetMapId()) == mapEntry->ParentMapID && !conditionObject->GetPhaseShift().HasVisibleMapId(entry->Loc.GetMapId()))
                 continue;
         }
+        else if (team != 0)
+        {
+            bool teamConditionMet = true;
+            for (Condition const* cond : data.Conditions)
+            {
+                if (cond->ConditionType != CONDITION_TEAM)
+                    continue;
+
+                if (cond->ConditionValue1 == team)
+                    continue;
+
+                teamConditionMet = false;
+            }
+
+            if (!teamConditionMet)
+                continue;
+        }
 
         // find now nearest graveyard at other map
         if (MapId != entry->Loc.GetMapId() && int16(entry->Loc.GetMapId()) != mapEntry->ParentMapID)
