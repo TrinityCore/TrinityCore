@@ -296,7 +296,7 @@ class spell_pal_awakening : public AuraScript
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ SPELL_PALADIN_AVENGING_WRATH })
-            && spellInfo->GetEffects().size() >= EFFECT_1;
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
     bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)

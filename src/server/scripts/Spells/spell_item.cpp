@@ -1074,11 +1074,12 @@ class spell_item_extract_gas : public AuraScript
         {
             Player* player = GetCaster()->ToPlayer();
             Creature* creature = GetTarget()->ToCreature();
+            CreatureDifficulty const* creatureDifficulty = creature->GetCreatureDifficulty();
             // missing lootid has been reported on startup - just return
-            if (!creature->GetCreatureTemplate()->SkinLootId)
+            if (!creatureDifficulty->SkinLootID)
                 return;
 
-            player->AutoStoreLoot(creature->GetCreatureTemplate()->SkinLootId, LootTemplates_Skinning, ItemContext::NONE, true);
+            player->AutoStoreLoot(creatureDifficulty->SkinLootID, LootTemplates_Skinning, ItemContext::NONE, true);
             creature->DespawnOrUnsummon();
         }
     }
@@ -4150,7 +4151,7 @@ class spell_item_artifical_stamina : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return spellInfo->GetEffects().size() > EFFECT_1;
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
     bool Load() override
@@ -4176,7 +4177,7 @@ class spell_item_artifical_damage : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return spellInfo->GetEffects().size() > EFFECT_1;
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
     bool Load() override
@@ -4301,7 +4302,7 @@ class spell_item_water_strider : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return spellInfo->GetEffects().size() > EFFECT_1;
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
     void OnRemove(AuraEffect const* /*effect*/, AuraEffectHandleModes /*mode*/)
@@ -4608,7 +4609,7 @@ class spell_item_seal_of_darkshire_nobility : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return spellInfo->GetEffects().size() > EFFECT_1
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } })
             && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_1).TriggerSpell });
     }
 
@@ -4733,7 +4734,7 @@ class spell_item_grips_of_forsaken_sanity : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return spellInfo->GetEffects().size() > EFFECT_1;
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
     bool CheckHealth(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
