@@ -100,6 +100,7 @@ enum PriestSpells
     SPELL_PRIEST_RENEWED_HOPE                       = 197469,
     SPELL_PRIEST_RENEWED_HOPE_EFFECT                = 197470,
     SPELL_PRIEST_REVEL_IN_PURITY                    = 373003,
+    SPELL_PRIEST_SAY_YOUR_PRAYERS                   = 391186,
     SPELL_PRIEST_SHADOW_MEND_DAMAGE                 = 186439,
     SPELL_PRIEST_SHADOW_MEND_PERIODIC_DUMMY         = 187464,
     SPELL_PRIEST_SHADOW_WORD_PAIN                   = 589,
@@ -1247,7 +1248,13 @@ class spell_pri_prayer_of_mending_aura : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_PRAYER_OF_MENDING_HEAL, SPELL_PRIEST_PRAYER_OF_MENDING_JUMP });
+        return ValidateSpellInfo
+        ({
+            SPELL_PRIEST_PRAYER_OF_MENDING_HEAL,
+            SPELL_PRIEST_PRAYER_OF_MENDING_JUMP,
+            SPELL_PRIEST_SAY_YOUR_PRAYERS
+        })
+            && ValidateSpellEffect({ { SPELL_PRIEST_SAY_YOUR_PRAYERS, EFFECT_0 } });
     }
 
     void HandleHeal(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
@@ -1266,7 +1273,14 @@ class spell_pri_prayer_of_mending_aura : public AuraScript
             {
                 CastSpellExtraArgs args(aurEff);
                 args.OriginalCaster = caster->GetGUID();
-                args.AddSpellMod(SPELLVALUE_BASE_POINT0, stackAmount - 1);
+
+                int32 newStackAmount = stackAmount - 1;
+                if (AuraEffect* sayYourPrayers = caster->GetAuraEffect(SPELL_PRIEST_SAY_YOUR_PRAYERS, EFFECT_0))
+                    if (roll_chance_i(sayYourPrayers->GetAmount()))
+                        ++newStackAmount;
+
+                args.AddSpellMod(SPELLVALUE_BASE_POINT0, newStackAmount);
+
                 target->CastSpell(target, SPELL_PRIEST_PRAYER_OF_MENDING_JUMP, args);
             }
 
