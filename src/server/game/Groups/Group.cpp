@@ -1385,21 +1385,21 @@ void Group::MasterLoot(Loot* loot, WorldObject* pLootedObject)
     }
 }
 
-void Group::CountRollVote(ObjectGuid playerGUID, ObjectGuid Guid, uint8 Choice)
+bool Group::CountRollVote(ObjectGuid playerGUID, ObjectGuid Guid, uint8 Choice)
 {
     Rolls::iterator rollI = GetRoll(Guid);
     if (rollI == RollId.end())
-        return;
+        return false;
     Roll* roll = *rollI;
 
     Roll::PlayerVote::iterator itr = roll->playerVote.find(playerGUID);
     // this condition means that player joins to the party after roll begins
-    if (itr == roll->playerVote.end())
-        return;
+    if (itr == roll->playerVote.end() || itr->second != NOT_EMITED_YET)
+        return false;
 
     if (roll->getLoot())
         if (roll->getLoot()->items.empty())
-            return;
+            return false;
 
     switch (Choice)
     {
@@ -1427,6 +1427,8 @@ void Group::CountRollVote(ObjectGuid playerGUID, ObjectGuid Guid, uint8 Choice)
 
     if (roll->totalPass + roll->totalNeed + roll->totalGreed >= roll->totalPlayersRolling)
         CountTheRoll(rollI, nullptr);
+
+    return true;
 }
 
 //called when roll timer expires
