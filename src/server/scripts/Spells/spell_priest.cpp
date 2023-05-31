@@ -1254,7 +1254,7 @@ class spell_pri_prayer_of_mending_aura : public AuraScript
             SPELL_PRIEST_PRAYER_OF_MENDING_JUMP,
             SPELL_PRIEST_SAY_YOUR_PRAYERS
         })
-        && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_SAY_YOUR_PRAYERS, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_1;
+            && ValidateSpellEffect({ { SPELL_PRIEST_SAY_YOUR_PRAYERS, EFFECT_0 } });
     }
 
     void HandleHeal(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
@@ -1274,15 +1274,12 @@ class spell_pri_prayer_of_mending_aura : public AuraScript
                 CastSpellExtraArgs args(aurEff);
                 args.OriginalCaster = caster->GetGUID();
 
+                int32 newStackAmount = stackAmount - 1;
                 if (AuraEffect* sayYourPrayers = caster->GetAuraEffect(SPELL_PRIEST_SAY_YOUR_PRAYERS, EFFECT_0))
-                {
                     if (roll_chance_i(sayYourPrayers->GetAmount()))
-                        args.AddSpellMod(SPELLVALUE_BASE_POINT0, stackAmount);
-                    else
-                        args.AddSpellMod(SPELLVALUE_BASE_POINT0, stackAmount - 1);
-                }
-                else
-                    args.AddSpellMod(SPELLVALUE_BASE_POINT0, stackAmount - 1);
+                        ++newStackAmount;
+
+                args.AddSpellMod(SPELLVALUE_BASE_POINT0, newStackAmount);
 
                 target->CastSpell(target, SPELL_PRIEST_PRAYER_OF_MENDING_JUMP, args);
             }
