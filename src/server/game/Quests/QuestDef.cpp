@@ -131,6 +131,12 @@ Quest::Quest(Field* questRecord)
     _questCompletionLog = questRecord[115].GetString();
 }
 
+Quest::~Quest()
+{
+    for (QuestObjective& objective : Objectives)
+        delete objective.CompletionEffect;
+}
+
 void Quest::LoadRewardDisplaySpell(Field* fields)
 {
     uint32 spellId = fields[1].GetUInt32();
@@ -248,7 +254,7 @@ void Quest::LoadQuestMailSender(Field* fields)
 
 void Quest::LoadQuestObjective(Field* fields)
 {
-    QuestObjective obj;
+    QuestObjective& obj = Objectives.emplace_back();
     obj.QuestID = fields[0].GetUInt32();
     obj.ID = fields[1].GetUInt32();
     obj.Type = fields[2].GetUInt8();
@@ -260,7 +266,22 @@ void Quest::LoadQuestObjective(Field* fields)
     obj.ProgressBarWeight = fields[8].GetFloat();
     obj.Description = fields[9].GetString();
 
-    Objectives.push_back(obj);
+    bool hasCompletionEffect = std::any_of(fields + 10, fields + 15, [](Field const& f) { return !f.IsNull(); });
+    if (hasCompletionEffect)
+    {
+        obj.CompletionEffect = new QuestObjectiveAction();
+        if (!fields[10].IsNull())
+            obj.CompletionEffect->GameEventId = fields[10].GetUInt32();
+        if (!fields[11].IsNull())
+            obj.CompletionEffect->SpellId = fields[11].GetUInt32();
+        if (!fields[12].IsNull())
+            obj.CompletionEffect->ConversationId = fields[12].GetUInt32();
+        if (!fields[13].IsNull())
+            obj.CompletionEffect->UpdatePhaseShift = fields[13].GetBool();
+        if (!fields[14].IsNull())
+            obj.CompletionEffect->UpdateZoneAuras = fields[14].GetBool();
+    }
+
     _usedQuestObjectiveTypes[obj.Type] = true;
 }
 
