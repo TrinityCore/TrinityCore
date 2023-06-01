@@ -1227,7 +1227,7 @@ std::vector<std::pair<ConditionsObjectVisibilityIdKey, bool /*conditionMet*/>> C
     {
         for (auto const& [objectVisibilityIdKey, conditions] : *conditionEntriesByObjectVisibilityMap)
         {
-            TC_LOG_DEBUG("condition", "CountQuestObjectiveMeetingVisibilityByObjectIdConditions: found conditions for quest objective {}", questObjectiveId);
+            TC_LOG_DEBUG("condition", "GetQuestObjectiveMeetingVisibilityByObjectIdConditionsResult: found conditions for quest objective {}", questObjectiveId);
             result.emplace_back(objectVisibilityIdKey, IsObjectMeetToConditions(seer, conditions));
         }
     }
