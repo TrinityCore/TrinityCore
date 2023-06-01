@@ -62,8 +62,8 @@ INSERT INTO `spawn_group` (`groupId`,`spawnType`,`spawnId`) VALUES
 -- *** Creature Fixes ***
 
 -- Phase updates
-UPDATE `creature` SET `PhaseId`=15286 WHERE `id` IN (166573,166824); -- Warlord Breka Grimaxe
-UPDATE `creature` SET `PhaseId`=15287 WHERE `id`=166827; -- Warlord Breka Grimaxe
+UPDATE `creature` SET `PhaseId`=0 WHERE `id` IN (166573,166824); -- Warlord Breka Grimaxe
+UPDATE `creature` SET `PhaseId`=0 WHERE `id`=166827; -- Warlord Breka Grimaxe
 
 -- Misc creature and template fixes
 UPDATE `creature` SET `equipment_id`=1 WHERE `guid`=1050189;
@@ -115,18 +115,20 @@ INSERT INTO `phase_name` (`ID`,`Name`) VALUES
 (14353,'Cosmetic - NPE Alliance Ship - Private Cole on deck initial'),
 (14355,'Cosmetic - NPE Alliance Ship - Decoration NPCs deck'),
 (15284,'Cosmetic - NPE Horde Ship - Grunt Throg deck initial'),
-(15286,'Cosmetic - NPE Horde Ship - Warlord Breka Grimaxe deck and upper deck initial'),
-(15287,'Cosmetic - NPE Horde Ship - Grunt Throg and Warlord Breka Grimaxe deck storm'),
+(15286,'Cosmetic - NPE Horde Ship - ?'),
+(15287,'Cosmetic - NPE Horde Ship - Grunt Throg storm'),
 (15514,'Cosmetic - NPE Horde Ship - Decoration NPCs deck initial'),
 (15516,'Cosmetic - NPE Horde Ship - Decoration NPCs deck storm');
 
 -- *** Conditions ***
 
 -- Spawn Conditions for Warlord Breka Grimaxe spawns Phase 1
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=32 AND `SourceGroup`=5 AND `SourceEntry` IN (166573,166824) AND `SourceId`=0;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=32 AND `SourceGroup`=5 AND `SourceEntry` IN (166573,166824,166827) AND `SourceId`=0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (32,5,166573,0,0,47,0,59926,11,0,0,0,0,'','Spawn of creature with entry 166573 requires Quest 59926 not rewarded'),
-(32,5,166824,0,0,47,0,59926,64,0,0,0,0,'','Spawn of creature with entry 166824 requires Quest 59926 rewarded');
+(32,5,166824,0,0,47,0,59926,64,0,0,0,0,'','Spawn of creature with entry 166824 requires Quest 59926 rewarded'),
+(32,5,166824,0,0,47,0,59928,2,0,1,0,0,'','Spawn of creature with entry 166824 requires Quest 59928 not complete'),
+(32,5,166827,0,0,47,0,59928,2,0,0,0,0,'','Spawn of creature with entry 166827 requires Quest 59928 complete');
 
 -- Phase conditions
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (15284,15286,15514,15287,15516) AND `SourceEntry`=13377;
