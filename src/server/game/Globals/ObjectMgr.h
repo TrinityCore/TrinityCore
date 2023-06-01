@@ -505,7 +505,7 @@ typedef std::unordered_map<uint16, CreatureBaseStats> CreatureBaseStatsContainer
 typedef std::unordered_map<uint8, EquipmentInfo> EquipmentInfoContainerInternal;
 typedef std::unordered_map<uint32, EquipmentInfoContainerInternal> EquipmentInfoContainer;
 typedef std::unordered_map<uint32, CreatureModelInfo> CreatureModelContainer;
-typedef std::unordered_map<uint32, std::vector<uint32>> CreatureQuestItemMap;
+typedef std::unordered_map<std::pair<uint32, Difficulty>, std::vector<uint32>> CreatureQuestItemMap;
 typedef std::unordered_map<uint32, GameObjectTemplate> GameObjectTemplateContainer;
 typedef std::unordered_map<uint32, GameObjectTemplateAddon> GameObjectTemplateAddonContainer;
 typedef std::unordered_map<ObjectGuid::LowType, GameObjectOverride> GameObjectOverrideContainer;
@@ -847,7 +847,7 @@ struct WorldSafeLocsEntry
 struct GraveyardData
 {
     uint32 safeLocId;
-    uint32 team;
+    ConditionContainer Conditions;
 };
 
 typedef std::multimap<uint32, GraveyardData> GraveyardContainer;
@@ -1191,13 +1191,7 @@ class TC_GAME_API ObjectMgr
         }
         GameObjectQuestItemMap const* GetGameObjectQuestItemMap() const { return &_gameObjectQuestItemStore; }
 
-        std::vector<uint32> const* GetCreatureQuestItemList(uint32 id) const
-        {
-            CreatureQuestItemMap::const_iterator itr = _creatureQuestItemStore.find(id);
-            if (itr != _creatureQuestItemStore.end())
-                return &itr->second;
-            return nullptr;
-        }
+        std::vector<uint32> const* GetCreatureQuestItemList(uint32 creatureEntry, Difficulty difficulty) const;
         CreatureQuestItemMap const* GetCreatureQuestItemMap() const { return &_creatureQuestItemStore; }
 
         uint32 GetNearestTaxiNode(float x, float y, float z, uint32 mapid, uint32 team);
@@ -1240,8 +1234,8 @@ class TC_GAME_API ObjectMgr
 
         WorldSafeLocsEntry const* GetDefaultGraveyard(uint32 team) const;
         WorldSafeLocsEntry const* GetClosestGraveyard(WorldLocation const& location, uint32 team, WorldObject* conditionObject) const;
+        WorldSafeLocsEntry const* GetClosestGraveyardInZone(WorldLocation const& location, uint32 team, WorldObject* conditionObject, uint32 zoneId) const;
         bool AddGraveyardLink(uint32 id, uint32 zoneId, uint32 team, bool persist = true);
-        void RemoveGraveyardLink(uint32 id, uint32 zoneId, uint32 team, bool persist = false);
         void LoadGraveyardZones();
         GraveyardData const* FindGraveyardData(uint32 id, uint32 zone) const;
         void LoadWorldSafeLocs();
@@ -1335,12 +1329,12 @@ class TC_GAME_API ObjectMgr
         void LoadCreatureTemplateAddons();
         void LoadCreatureTemplateSparring();
         void LoadCreatureTemplate(Field* fields);
+        void LoadCreatureTemplateDifficulty();
         void LoadCreatureTemplateGossip();
         void LoadCreatureTemplateResistances();
         void LoadCreatureTemplateSpells();
         void LoadCreatureTemplateModels();
         void LoadCreatureSummonedData();
-        void LoadCreatureScalingData();
         void CheckCreatureTemplate(CreatureTemplate const* cInfo);
         void CheckCreatureMovement(char const* table, uint64 id, CreatureMovementData& creatureMovement);
         void LoadGameObjectQuestItems();
@@ -1971,9 +1965,6 @@ class TC_GAME_API ObjectMgr
         CacheVendorItemContainer _cacheVendorItemStore;
         std::unordered_map<uint32, Trainer::Trainer> _trainers;
         std::map<std::tuple<uint32, uint32, uint32>, uint32> _creatureDefaultTrainers;
-
-        std::set<uint32> _difficultyEntries[MAX_CREATURE_DIFFICULTIES]; // already loaded difficulty 1 value in creatures, used in CheckCreatureTemplate
-        std::set<uint32> _hasDifficultyEntries[MAX_CREATURE_DIFFICULTIES]; // already loaded creatures with difficulty 1 values, used in CheckCreatureTemplate
 
         std::unordered_map<uint8, RaceUnlockRequirement> _raceUnlockRequirementStore;
         std::vector<RaceClassAvailability> _classExpansionRequirementStore;

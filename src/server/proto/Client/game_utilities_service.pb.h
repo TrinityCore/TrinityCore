@@ -111,15 +111,6 @@ class TC_PROTO_API ClientRequest : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Attribute >*
       mutable_attribute();
 
-  // optional .bgs.protocol.ProcessId host = 2 [deprecated = true];
-  inline bool has_host() const PROTOBUF_DEPRECATED;
-  inline void clear_host() PROTOBUF_DEPRECATED;
-  static const int kHostFieldNumber = 2;
-  inline const ::bgs::protocol::ProcessId& host() const PROTOBUF_DEPRECATED;
-  inline ::bgs::protocol::ProcessId* mutable_host() PROTOBUF_DEPRECATED;
-  inline ::bgs::protocol::ProcessId* release_host() PROTOBUF_DEPRECATED;
-  inline void set_allocated_host(::bgs::protocol::ProcessId* host) PROTOBUF_DEPRECATED;
-
   // optional .bgs.protocol.EntityId account_id = 3;
   inline bool has_account_id() const;
   inline void clear_account_id();
@@ -156,8 +147,6 @@ class TC_PROTO_API ClientRequest : public ::google::protobuf::Message {
 
   // @@protoc_insertion_point(class_scope:bgs.protocol.game_utilities.v1.ClientRequest)
  private:
-  inline void set_has_host();
-  inline void clear_has_host();
   inline void set_has_account_id();
   inline void clear_has_account_id();
   inline void set_has_game_account_id();
@@ -172,7 +161,6 @@ class TC_PROTO_API ClientRequest : public ::google::protobuf::Message {
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Attribute > attribute_;
-  ::bgs::protocol::ProcessId* host_;
   ::bgs::protocol::EntityId* account_id_;
   ::bgs::protocol::EntityId* game_account_id_;
   ::bgs::protocol::game_utilities::v1::ClientInfo* client_info_;
@@ -314,28 +302,16 @@ class TC_PROTO_API ServerRequest : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 program() const;
   inline void set_program(::google::protobuf::uint32 value);
 
-  // optional .bgs.protocol.ProcessId host = 3 [deprecated = true];
-  inline bool has_host() const PROTOBUF_DEPRECATED;
-  inline void clear_host() PROTOBUF_DEPRECATED;
-  static const int kHostFieldNumber = 3;
-  inline const ::bgs::protocol::ProcessId& host() const PROTOBUF_DEPRECATED;
-  inline ::bgs::protocol::ProcessId* mutable_host() PROTOBUF_DEPRECATED;
-  inline ::bgs::protocol::ProcessId* release_host() PROTOBUF_DEPRECATED;
-  inline void set_allocated_host(::bgs::protocol::ProcessId* host) PROTOBUF_DEPRECATED;
-
   // @@protoc_insertion_point(class_scope:bgs.protocol.game_utilities.v1.ServerRequest)
  private:
   inline void set_has_program();
   inline void clear_has_program();
-  inline void set_has_host();
-  inline void clear_has_host();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Attribute > attribute_;
-  ::bgs::protocol::ProcessId* host_;
   ::google::protobuf::uint32 program_;
   friend void TC_PROTO_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
   friend void protobuf_AssignDesc_game_5futilities_5fservice_2eproto();
@@ -482,15 +458,6 @@ class TC_PROTO_API PresenceChannelCreatedRequest : public ::google::protobuf::Me
   inline ::bgs::protocol::EntityId* release_account_id();
   inline void set_allocated_account_id(::bgs::protocol::EntityId* account_id);
 
-  // optional .bgs.protocol.ProcessId host = 5 [deprecated = true];
-  inline bool has_host() const PROTOBUF_DEPRECATED;
-  inline void clear_host() PROTOBUF_DEPRECATED;
-  static const int kHostFieldNumber = 5;
-  inline const ::bgs::protocol::ProcessId& host() const PROTOBUF_DEPRECATED;
-  inline ::bgs::protocol::ProcessId* mutable_host() PROTOBUF_DEPRECATED;
-  inline ::bgs::protocol::ProcessId* release_host() PROTOBUF_DEPRECATED;
-  inline void set_allocated_host(::bgs::protocol::ProcessId* host) PROTOBUF_DEPRECATED;
-
   // @@protoc_insertion_point(class_scope:bgs.protocol.game_utilities.v1.PresenceChannelCreatedRequest)
  private:
   inline void set_has_id();
@@ -499,8 +466,6 @@ class TC_PROTO_API PresenceChannelCreatedRequest : public ::google::protobuf::Me
   inline void clear_has_game_account_id();
   inline void set_has_account_id();
   inline void clear_has_account_id();
-  inline void set_has_host();
-  inline void clear_has_host();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -509,7 +474,6 @@ class TC_PROTO_API PresenceChannelCreatedRequest : public ::google::protobuf::Me
   ::bgs::protocol::EntityId* id_;
   ::bgs::protocol::EntityId* game_account_id_;
   ::bgs::protocol::EntityId* account_id_;
-  ::bgs::protocol::ProcessId* host_;
   friend void TC_PROTO_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
   friend void protobuf_AssignDesc_game_5futilities_5fservice_2eproto();
   friend void protobuf_ShutdownFile_game_5futilities_5fservice_2eproto();
@@ -568,15 +532,6 @@ class TC_PROTO_API GameAccountOnlineNotification : public ::google::protobuf::Me
   inline ::bgs::protocol::EntityId* release_game_account_id();
   inline void set_allocated_game_account_id(::bgs::protocol::EntityId* game_account_id);
 
-  // optional .bgs.protocol.ProcessId host = 2 [deprecated = true];
-  inline bool has_host() const PROTOBUF_DEPRECATED;
-  inline void clear_host() PROTOBUF_DEPRECATED;
-  static const int kHostFieldNumber = 2;
-  inline const ::bgs::protocol::ProcessId& host() const PROTOBUF_DEPRECATED;
-  inline ::bgs::protocol::ProcessId* mutable_host() PROTOBUF_DEPRECATED;
-  inline ::bgs::protocol::ProcessId* release_host() PROTOBUF_DEPRECATED;
-  inline void set_allocated_host(::bgs::protocol::ProcessId* host) PROTOBUF_DEPRECATED;
-
   // optional string session_id = 3;
   inline bool has_session_id() const;
   inline void clear_session_id();
@@ -593,8 +548,6 @@ class TC_PROTO_API GameAccountOnlineNotification : public ::google::protobuf::Me
  private:
   inline void set_has_game_account_id();
   inline void clear_has_game_account_id();
-  inline void set_has_host();
-  inline void clear_has_host();
   inline void set_has_session_id();
   inline void clear_has_session_id();
 
@@ -603,7 +556,6 @@ class TC_PROTO_API GameAccountOnlineNotification : public ::google::protobuf::Me
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::bgs::protocol::EntityId* game_account_id_;
-  ::bgs::protocol::ProcessId* host_;
   ::std::string* session_id_;
   friend void TC_PROTO_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
   friend void protobuf_AssignDesc_game_5futilities_5fservice_2eproto();
@@ -663,15 +615,6 @@ class TC_PROTO_API GameAccountOfflineNotification : public ::google::protobuf::M
   inline ::bgs::protocol::EntityId* release_game_account_id();
   inline void set_allocated_game_account_id(::bgs::protocol::EntityId* game_account_id);
 
-  // optional .bgs.protocol.ProcessId host = 2 [deprecated = true];
-  inline bool has_host() const PROTOBUF_DEPRECATED;
-  inline void clear_host() PROTOBUF_DEPRECATED;
-  static const int kHostFieldNumber = 2;
-  inline const ::bgs::protocol::ProcessId& host() const PROTOBUF_DEPRECATED;
-  inline ::bgs::protocol::ProcessId* mutable_host() PROTOBUF_DEPRECATED;
-  inline ::bgs::protocol::ProcessId* release_host() PROTOBUF_DEPRECATED;
-  inline void set_allocated_host(::bgs::protocol::ProcessId* host) PROTOBUF_DEPRECATED;
-
   // optional string session_id = 3;
   inline bool has_session_id() const;
   inline void clear_session_id();
@@ -688,8 +631,6 @@ class TC_PROTO_API GameAccountOfflineNotification : public ::google::protobuf::M
  private:
   inline void set_has_game_account_id();
   inline void clear_has_game_account_id();
-  inline void set_has_host();
-  inline void clear_has_host();
   inline void set_has_session_id();
   inline void clear_has_session_id();
 
@@ -698,7 +639,6 @@ class TC_PROTO_API GameAccountOfflineNotification : public ::google::protobuf::M
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::bgs::protocol::EntityId* game_account_id_;
-  ::bgs::protocol::ProcessId* host_;
   ::std::string* session_id_;
   friend void TC_PROTO_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
   friend void protobuf_AssignDesc_game_5futilities_5fservice_2eproto();
@@ -1163,56 +1103,15 @@ ClientRequest::mutable_attribute() {
   return &attribute_;
 }
 
-// optional .bgs.protocol.ProcessId host = 2 [deprecated = true];
-inline bool ClientRequest::has_host() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void ClientRequest::set_has_host() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void ClientRequest::clear_has_host() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void ClientRequest::clear_host() {
-  if (host_ != NULL) host_->::bgs::protocol::ProcessId::Clear();
-  clear_has_host();
-}
-inline const ::bgs::protocol::ProcessId& ClientRequest::host() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.game_utilities.v1.ClientRequest.host)
-  return host_ != NULL ? *host_ : *default_instance_->host_;
-}
-inline ::bgs::protocol::ProcessId* ClientRequest::mutable_host() {
-  set_has_host();
-  if (host_ == NULL) host_ = new ::bgs::protocol::ProcessId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.game_utilities.v1.ClientRequest.host)
-  return host_;
-}
-inline ::bgs::protocol::ProcessId* ClientRequest::release_host() {
-  clear_has_host();
-  ::bgs::protocol::ProcessId* temp = host_;
-  host_ = NULL;
-  return temp;
-}
-inline void ClientRequest::set_allocated_host(::bgs::protocol::ProcessId* host) {
-  delete host_;
-  host_ = host;
-  if (host) {
-    set_has_host();
-  } else {
-    clear_has_host();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.game_utilities.v1.ClientRequest.host)
-}
-
 // optional .bgs.protocol.EntityId account_id = 3;
 inline bool ClientRequest::has_account_id() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
+  return (_has_bits_[0] & 0x00000002u) != 0;
 }
 inline void ClientRequest::set_has_account_id() {
-  _has_bits_[0] |= 0x00000004u;
+  _has_bits_[0] |= 0x00000002u;
 }
 inline void ClientRequest::clear_has_account_id() {
-  _has_bits_[0] &= ~0x00000004u;
+  _has_bits_[0] &= ~0x00000002u;
 }
 inline void ClientRequest::clear_account_id() {
   if (account_id_ != NULL) account_id_->::bgs::protocol::EntityId::Clear();
@@ -1247,13 +1146,13 @@ inline void ClientRequest::set_allocated_account_id(::bgs::protocol::EntityId* a
 
 // optional .bgs.protocol.EntityId game_account_id = 4;
 inline bool ClientRequest::has_game_account_id() const {
-  return (_has_bits_[0] & 0x00000008u) != 0;
+  return (_has_bits_[0] & 0x00000004u) != 0;
 }
 inline void ClientRequest::set_has_game_account_id() {
-  _has_bits_[0] |= 0x00000008u;
+  _has_bits_[0] |= 0x00000004u;
 }
 inline void ClientRequest::clear_has_game_account_id() {
-  _has_bits_[0] &= ~0x00000008u;
+  _has_bits_[0] &= ~0x00000004u;
 }
 inline void ClientRequest::clear_game_account_id() {
   if (game_account_id_ != NULL) game_account_id_->::bgs::protocol::EntityId::Clear();
@@ -1288,13 +1187,13 @@ inline void ClientRequest::set_allocated_game_account_id(::bgs::protocol::Entity
 
 // optional fixed32 program = 5;
 inline bool ClientRequest::has_program() const {
-  return (_has_bits_[0] & 0x00000010u) != 0;
+  return (_has_bits_[0] & 0x00000008u) != 0;
 }
 inline void ClientRequest::set_has_program() {
-  _has_bits_[0] |= 0x00000010u;
+  _has_bits_[0] |= 0x00000008u;
 }
 inline void ClientRequest::clear_has_program() {
-  _has_bits_[0] &= ~0x00000010u;
+  _has_bits_[0] &= ~0x00000008u;
 }
 inline void ClientRequest::clear_program() {
   program_ = 0u;
@@ -1312,13 +1211,13 @@ inline void ClientRequest::set_program(::google::protobuf::uint32 value) {
 
 // optional .bgs.protocol.game_utilities.v1.ClientInfo client_info = 6;
 inline bool ClientRequest::has_client_info() const {
-  return (_has_bits_[0] & 0x00000020u) != 0;
+  return (_has_bits_[0] & 0x00000010u) != 0;
 }
 inline void ClientRequest::set_has_client_info() {
-  _has_bits_[0] |= 0x00000020u;
+  _has_bits_[0] |= 0x00000010u;
 }
 inline void ClientRequest::clear_has_client_info() {
-  _has_bits_[0] &= ~0x00000020u;
+  _has_bits_[0] &= ~0x00000010u;
 }
 inline void ClientRequest::clear_client_info() {
   if (client_info_ != NULL) client_info_->::bgs::protocol::game_utilities::v1::ClientInfo::Clear();
@@ -1441,47 +1340,6 @@ inline void ServerRequest::set_program(::google::protobuf::uint32 value) {
   set_has_program();
   program_ = value;
   // @@protoc_insertion_point(field_set:bgs.protocol.game_utilities.v1.ServerRequest.program)
-}
-
-// optional .bgs.protocol.ProcessId host = 3 [deprecated = true];
-inline bool ServerRequest::has_host() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
-}
-inline void ServerRequest::set_has_host() {
-  _has_bits_[0] |= 0x00000004u;
-}
-inline void ServerRequest::clear_has_host() {
-  _has_bits_[0] &= ~0x00000004u;
-}
-inline void ServerRequest::clear_host() {
-  if (host_ != NULL) host_->::bgs::protocol::ProcessId::Clear();
-  clear_has_host();
-}
-inline const ::bgs::protocol::ProcessId& ServerRequest::host() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.game_utilities.v1.ServerRequest.host)
-  return host_ != NULL ? *host_ : *default_instance_->host_;
-}
-inline ::bgs::protocol::ProcessId* ServerRequest::mutable_host() {
-  set_has_host();
-  if (host_ == NULL) host_ = new ::bgs::protocol::ProcessId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.game_utilities.v1.ServerRequest.host)
-  return host_;
-}
-inline ::bgs::protocol::ProcessId* ServerRequest::release_host() {
-  clear_has_host();
-  ::bgs::protocol::ProcessId* temp = host_;
-  host_ = NULL;
-  return temp;
-}
-inline void ServerRequest::set_allocated_host(::bgs::protocol::ProcessId* host) {
-  delete host_;
-  host_ = host;
-  if (host) {
-    set_has_host();
-  } else {
-    clear_has_host();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.game_utilities.v1.ServerRequest.host)
 }
 
 // -------------------------------------------------------------------
@@ -1645,47 +1503,6 @@ inline void PresenceChannelCreatedRequest::set_allocated_account_id(::bgs::proto
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.game_utilities.v1.PresenceChannelCreatedRequest.account_id)
 }
 
-// optional .bgs.protocol.ProcessId host = 5 [deprecated = true];
-inline bool PresenceChannelCreatedRequest::has_host() const {
-  return (_has_bits_[0] & 0x00000008u) != 0;
-}
-inline void PresenceChannelCreatedRequest::set_has_host() {
-  _has_bits_[0] |= 0x00000008u;
-}
-inline void PresenceChannelCreatedRequest::clear_has_host() {
-  _has_bits_[0] &= ~0x00000008u;
-}
-inline void PresenceChannelCreatedRequest::clear_host() {
-  if (host_ != NULL) host_->::bgs::protocol::ProcessId::Clear();
-  clear_has_host();
-}
-inline const ::bgs::protocol::ProcessId& PresenceChannelCreatedRequest::host() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.game_utilities.v1.PresenceChannelCreatedRequest.host)
-  return host_ != NULL ? *host_ : *default_instance_->host_;
-}
-inline ::bgs::protocol::ProcessId* PresenceChannelCreatedRequest::mutable_host() {
-  set_has_host();
-  if (host_ == NULL) host_ = new ::bgs::protocol::ProcessId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.game_utilities.v1.PresenceChannelCreatedRequest.host)
-  return host_;
-}
-inline ::bgs::protocol::ProcessId* PresenceChannelCreatedRequest::release_host() {
-  clear_has_host();
-  ::bgs::protocol::ProcessId* temp = host_;
-  host_ = NULL;
-  return temp;
-}
-inline void PresenceChannelCreatedRequest::set_allocated_host(::bgs::protocol::ProcessId* host) {
-  delete host_;
-  host_ = host;
-  if (host) {
-    set_has_host();
-  } else {
-    clear_has_host();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.game_utilities.v1.PresenceChannelCreatedRequest.host)
-}
-
 // -------------------------------------------------------------------
 
 // GameAccountOnlineNotification
@@ -1731,56 +1548,15 @@ inline void GameAccountOnlineNotification::set_allocated_game_account_id(::bgs::
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.game_utilities.v1.GameAccountOnlineNotification.game_account_id)
 }
 
-// optional .bgs.protocol.ProcessId host = 2 [deprecated = true];
-inline bool GameAccountOnlineNotification::has_host() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void GameAccountOnlineNotification::set_has_host() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void GameAccountOnlineNotification::clear_has_host() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void GameAccountOnlineNotification::clear_host() {
-  if (host_ != NULL) host_->::bgs::protocol::ProcessId::Clear();
-  clear_has_host();
-}
-inline const ::bgs::protocol::ProcessId& GameAccountOnlineNotification::host() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.game_utilities.v1.GameAccountOnlineNotification.host)
-  return host_ != NULL ? *host_ : *default_instance_->host_;
-}
-inline ::bgs::protocol::ProcessId* GameAccountOnlineNotification::mutable_host() {
-  set_has_host();
-  if (host_ == NULL) host_ = new ::bgs::protocol::ProcessId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.game_utilities.v1.GameAccountOnlineNotification.host)
-  return host_;
-}
-inline ::bgs::protocol::ProcessId* GameAccountOnlineNotification::release_host() {
-  clear_has_host();
-  ::bgs::protocol::ProcessId* temp = host_;
-  host_ = NULL;
-  return temp;
-}
-inline void GameAccountOnlineNotification::set_allocated_host(::bgs::protocol::ProcessId* host) {
-  delete host_;
-  host_ = host;
-  if (host) {
-    set_has_host();
-  } else {
-    clear_has_host();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.game_utilities.v1.GameAccountOnlineNotification.host)
-}
-
 // optional string session_id = 3;
 inline bool GameAccountOnlineNotification::has_session_id() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
+  return (_has_bits_[0] & 0x00000002u) != 0;
 }
 inline void GameAccountOnlineNotification::set_has_session_id() {
-  _has_bits_[0] |= 0x00000004u;
+  _has_bits_[0] |= 0x00000002u;
 }
 inline void GameAccountOnlineNotification::clear_has_session_id() {
-  _has_bits_[0] &= ~0x00000004u;
+  _has_bits_[0] &= ~0x00000002u;
 }
 inline void GameAccountOnlineNotification::clear_session_id() {
   if (session_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
@@ -1893,56 +1669,15 @@ inline void GameAccountOfflineNotification::set_allocated_game_account_id(::bgs:
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.game_utilities.v1.GameAccountOfflineNotification.game_account_id)
 }
 
-// optional .bgs.protocol.ProcessId host = 2 [deprecated = true];
-inline bool GameAccountOfflineNotification::has_host() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void GameAccountOfflineNotification::set_has_host() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void GameAccountOfflineNotification::clear_has_host() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void GameAccountOfflineNotification::clear_host() {
-  if (host_ != NULL) host_->::bgs::protocol::ProcessId::Clear();
-  clear_has_host();
-}
-inline const ::bgs::protocol::ProcessId& GameAccountOfflineNotification::host() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.game_utilities.v1.GameAccountOfflineNotification.host)
-  return host_ != NULL ? *host_ : *default_instance_->host_;
-}
-inline ::bgs::protocol::ProcessId* GameAccountOfflineNotification::mutable_host() {
-  set_has_host();
-  if (host_ == NULL) host_ = new ::bgs::protocol::ProcessId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.game_utilities.v1.GameAccountOfflineNotification.host)
-  return host_;
-}
-inline ::bgs::protocol::ProcessId* GameAccountOfflineNotification::release_host() {
-  clear_has_host();
-  ::bgs::protocol::ProcessId* temp = host_;
-  host_ = NULL;
-  return temp;
-}
-inline void GameAccountOfflineNotification::set_allocated_host(::bgs::protocol::ProcessId* host) {
-  delete host_;
-  host_ = host;
-  if (host) {
-    set_has_host();
-  } else {
-    clear_has_host();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.game_utilities.v1.GameAccountOfflineNotification.host)
-}
-
 // optional string session_id = 3;
 inline bool GameAccountOfflineNotification::has_session_id() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
+  return (_has_bits_[0] & 0x00000002u) != 0;
 }
 inline void GameAccountOfflineNotification::set_has_session_id() {
-  _has_bits_[0] |= 0x00000004u;
+  _has_bits_[0] |= 0x00000002u;
 }
 inline void GameAccountOfflineNotification::clear_has_session_id() {
-  _has_bits_[0] &= ~0x00000004u;
+  _has_bits_[0] &= ~0x00000002u;
 }
 inline void GameAccountOfflineNotification::clear_session_id() {
   if (session_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {

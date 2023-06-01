@@ -2133,6 +2133,8 @@ void Spell::EffectDispel()
     m_caster->SendMessageToSet(spellDispellLog.Write(), true);
 
     CallScriptSuccessfulDispel(SpellEffIndex(effectInfo->EffectIndex));
+
+    m_hitMask |= PROC_HIT_DISPEL;
 }
 
 void Spell::EffectDualWield()
@@ -2177,7 +2179,7 @@ void Spell::EffectPickPocket()
         creature->StartPickPocketRefillTimer();
 
         creature->m_loot.reset(new Loot(creature->GetMap(), creature->GetGUID(), LOOT_PICKPOCKETING, nullptr));
-        if (uint32 lootid = creature->GetCreatureTemplate()->pickpocketLootId)
+        if (uint32 lootid = creature->GetCreatureDifficulty()->PickPocketLootID)
             creature->m_loot->FillLoot(lootid, LootTemplates_Pickpocketing, player, true);
 
         // Generate extra money for pick pocket loot
@@ -3130,14 +3132,14 @@ void Spell::EffectDuel()
 
     // Players can only fight a duel in zones with this flag
     AreaTableEntry const* casterAreaEntry = sAreaTableStore.LookupEntry(caster->GetAreaId());
-    if (casterAreaEntry && !(casterAreaEntry->Flags[0] & AREA_FLAG_ALLOW_DUELS))
+    if (casterAreaEntry && !(casterAreaEntry->GetFlags().HasFlag(AreaFlags::AllowDueling)))
     {
         SendCastResult(SPELL_FAILED_NO_DUELING);            // Dueling isn't allowed here
         return;
     }
 
     AreaTableEntry const* targetAreaEntry = sAreaTableStore.LookupEntry(target->GetAreaId());
-    if (targetAreaEntry && !(targetAreaEntry->Flags[0] & AREA_FLAG_ALLOW_DUELS))
+    if (targetAreaEntry && !(targetAreaEntry->GetFlags().HasFlag(AreaFlags::AllowDueling)))
     {
         SendCastResult(SPELL_FAILED_NO_DUELING);            // Dueling isn't allowed here
         return;
@@ -3725,13 +3727,13 @@ void Spell::EffectSkinning()
     Creature* creature = unitTarget->ToCreature();
     int32 targetLevel = creature->GetLevelForTarget(m_caster);
 
-    uint32 skill = creature->GetCreatureTemplate()->GetRequiredLootSkill();
+    uint32 skill = creature->GetCreatureDifficulty()->GetRequiredLootSkill();
 
     creature->SetUnitFlag3(UNIT_FLAG3_ALREADY_SKINNED);
     creature->SetDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
     Loot* loot = new Loot(creature->GetMap(), creature->GetGUID(), LOOT_SKINNING, nullptr);
     creature->m_personalLoot[player->GetGUID()].reset(loot);
-    loot->FillLoot(creature->GetCreatureTemplate()->SkinLootId, LootTemplates_Skinning, player, true);
+    loot->FillLoot(creature->GetCreatureDifficulty()->SkinLootID, LootTemplates_Skinning, player, true);
     player->SendLoot(*loot);
 
     if (!IsPartOfSkillLine(skill, m_spellInfo->Id))
@@ -4107,8 +4109,13 @@ void Spell::EffectDispelMechanic()
                 dispel_list.emplace_back(aura->GetId(), aura->GetCasterGUID());
     }
 
+    if (dispel_list.empty())
+        return;
+
     for (auto itr = dispel_list.begin(); itr != dispel_list.end(); ++itr)
         unitTarget->RemoveAura(itr->first, itr->second, 0, AURA_REMOVE_BY_ENEMY_SPELL);
+
+    m_hitMask |= PROC_HIT_DISPEL;
 }
 
 void Spell::EffectResurrectPet()//revive pet
@@ -4651,6 +4658,8 @@ void Spell::EffectStealBeneficialBuff()
     }
 
     m_caster->SendMessageToSet(spellDispellLog.Write(), true);
+
+    m_hitMask |= PROC_HIT_DISPEL;
 }
 
 void Spell::EffectKillCreditPersonal()

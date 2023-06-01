@@ -604,6 +604,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //534
     &AuraEffect::HandleNULL,                                      //535
     &AuraEffect::HandleNoImmediateEffect,                         //536 SPELL_AURA_IGNORE_SPELL_CREATURE_TYPE_REQUIREMENTS implemented in SpellInfo::CheckTargetCreatureType
+    &AuraEffect::HandleNULL,                                      //537
 };
 
 AuraEffect::AuraEffect(Aura* base, SpellEffectInfo const& spellEfffectInfo, int32 const* baseAmount, Unit* caster) :
@@ -6104,14 +6105,14 @@ void AuraEffect::HandleLinkedSummon(AuraApplication const* aurApp, uint8 mode, b
             target->GetCreatureListWithEntryInGrid(nearbyEntries, summonEntry);
             for (auto creature : nearbyEntries)
             {
-                if (creature->GetOwner() == target)
+                if (creature->GetOwnerGUID() == target->GetGUID())
                 {
                     creature->DespawnOrUnsummon();
                     break;
                 }
                 else if (TempSummon* tempSummon = creature->ToTempSummon())
                 {
-                    if (tempSummon->GetSummoner() == target)
+                    if (tempSummon->GetSummonerGUID() == target->GetGUID())
                     {
                         tempSummon->DespawnOrUnsummon();
                         break;

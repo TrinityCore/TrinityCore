@@ -24,36 +24,18 @@ namespace v1 {
 
 namespace {
 
-const ::google::protobuf::Descriptor* ModuleLoadRequest_descriptor_ = NULL;
-const ::google::protobuf::internal::GeneratedMessageReflection*
-  ModuleLoadRequest_reflection_ = NULL;
-const ::google::protobuf::Descriptor* ModuleNotification_descriptor_ = NULL;
-const ::google::protobuf::internal::GeneratedMessageReflection*
-  ModuleNotification_reflection_ = NULL;
-const ::google::protobuf::Descriptor* ModuleMessageRequest_descriptor_ = NULL;
-const ::google::protobuf::internal::GeneratedMessageReflection*
-  ModuleMessageRequest_reflection_ = NULL;
 const ::google::protobuf::Descriptor* LogonRequest_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   LogonRequest_reflection_ = NULL;
 const ::google::protobuf::Descriptor* LogonResult_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   LogonResult_reflection_ = NULL;
-const ::google::protobuf::Descriptor* GenerateSSOTokenRequest_descriptor_ = NULL;
-const ::google::protobuf::internal::GeneratedMessageReflection*
-  GenerateSSOTokenRequest_reflection_ = NULL;
-const ::google::protobuf::Descriptor* GenerateSSOTokenResponse_descriptor_ = NULL;
-const ::google::protobuf::internal::GeneratedMessageReflection*
-  GenerateSSOTokenResponse_reflection_ = NULL;
 const ::google::protobuf::Descriptor* LogonUpdateRequest_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   LogonUpdateRequest_reflection_ = NULL;
 const ::google::protobuf::Descriptor* LogonQueueUpdateRequest_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   LogonQueueUpdateRequest_reflection_ = NULL;
-const ::google::protobuf::Descriptor* AccountSettingsNotification_descriptor_ = NULL;
-const ::google::protobuf::internal::GeneratedMessageReflection*
-  AccountSettingsNotification_reflection_ = NULL;
 const ::google::protobuf::Descriptor* ServerStateChangeRequest_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   ServerStateChangeRequest_reflection_ = NULL;
@@ -63,18 +45,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* VersionInfoNotification_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   VersionInfoNotification_reflection_ = NULL;
-const ::google::protobuf::Descriptor* MemModuleLoadRequest_descriptor_ = NULL;
-const ::google::protobuf::internal::GeneratedMessageReflection*
-  MemModuleLoadRequest_reflection_ = NULL;
-const ::google::protobuf::Descriptor* MemModuleLoadResponse_descriptor_ = NULL;
-const ::google::protobuf::internal::GeneratedMessageReflection*
-  MemModuleLoadResponse_reflection_ = NULL;
-const ::google::protobuf::Descriptor* SelectGameAccountRequest_descriptor_ = NULL;
-const ::google::protobuf::internal::GeneratedMessageReflection*
-  SelectGameAccountRequest_reflection_ = NULL;
-const ::google::protobuf::Descriptor* GameAccountSelectedRequest_descriptor_ = NULL;
-const ::google::protobuf::internal::GeneratedMessageReflection*
-  GameAccountSelectedRequest_reflection_ = NULL;
 const ::google::protobuf::Descriptor* GenerateWebCredentialsRequest_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   GenerateWebCredentialsRequest_reflection_ = NULL;
@@ -95,55 +65,7 @@ void protobuf_AssignDesc_authentication_5fservice_2eproto() {
     ::google::protobuf::DescriptorPool::generated_pool()->FindFileByName(
       "authentication_service.proto");
   GOOGLE_CHECK(file != NULL);
-  ModuleLoadRequest_descriptor_ = file->message_type(0);
-  static const int ModuleLoadRequest_offsets_[2] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ModuleLoadRequest, module_handle_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ModuleLoadRequest, message_),
-  };
-  ModuleLoadRequest_reflection_ =
-    new ::google::protobuf::internal::GeneratedMessageReflection(
-      ModuleLoadRequest_descriptor_,
-      ModuleLoadRequest::default_instance_,
-      ModuleLoadRequest_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ModuleLoadRequest, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ModuleLoadRequest, _unknown_fields_),
-      -1,
-      ::google::protobuf::DescriptorPool::generated_pool(),
-      ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(ModuleLoadRequest));
-  ModuleNotification_descriptor_ = file->message_type(1);
-  static const int ModuleNotification_offsets_[2] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ModuleNotification, module_id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ModuleNotification, result_),
-  };
-  ModuleNotification_reflection_ =
-    new ::google::protobuf::internal::GeneratedMessageReflection(
-      ModuleNotification_descriptor_,
-      ModuleNotification::default_instance_,
-      ModuleNotification_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ModuleNotification, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ModuleNotification, _unknown_fields_),
-      -1,
-      ::google::protobuf::DescriptorPool::generated_pool(),
-      ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(ModuleNotification));
-  ModuleMessageRequest_descriptor_ = file->message_type(2);
-  static const int ModuleMessageRequest_offsets_[2] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ModuleMessageRequest, module_id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ModuleMessageRequest, message_),
-  };
-  ModuleMessageRequest_reflection_ =
-    new ::google::protobuf::internal::GeneratedMessageReflection(
-      ModuleMessageRequest_descriptor_,
-      ModuleMessageRequest::default_instance_,
-      ModuleMessageRequest_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ModuleMessageRequest, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ModuleMessageRequest, _unknown_fields_),
-      -1,
-      ::google::protobuf::DescriptorPool::generated_pool(),
-      ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(ModuleMessageRequest));
-  LogonRequest_descriptor_ = file->message_type(3);
+  LogonRequest_descriptor_ = file->message_type(0);
   static const int LogonRequest_offsets_[12] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LogonRequest, program_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LogonRequest, platform_),
@@ -169,7 +91,7 @@ void protobuf_AssignDesc_authentication_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(LogonRequest));
-  LogonResult_descriptor_ = file->message_type(4);
+  LogonResult_descriptor_ = file->message_type(1);
   static const int LogonResult_offsets_[11] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LogonResult, error_code_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LogonResult, account_id_),
@@ -194,38 +116,7 @@ void protobuf_AssignDesc_authentication_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(LogonResult));
-  GenerateSSOTokenRequest_descriptor_ = file->message_type(5);
-  static const int GenerateSSOTokenRequest_offsets_[1] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GenerateSSOTokenRequest, program_),
-  };
-  GenerateSSOTokenRequest_reflection_ =
-    new ::google::protobuf::internal::GeneratedMessageReflection(
-      GenerateSSOTokenRequest_descriptor_,
-      GenerateSSOTokenRequest::default_instance_,
-      GenerateSSOTokenRequest_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GenerateSSOTokenRequest, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GenerateSSOTokenRequest, _unknown_fields_),
-      -1,
-      ::google::protobuf::DescriptorPool::generated_pool(),
-      ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(GenerateSSOTokenRequest));
-  GenerateSSOTokenResponse_descriptor_ = file->message_type(6);
-  static const int GenerateSSOTokenResponse_offsets_[2] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GenerateSSOTokenResponse, sso_id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GenerateSSOTokenResponse, sso_secret_),
-  };
-  GenerateSSOTokenResponse_reflection_ =
-    new ::google::protobuf::internal::GeneratedMessageReflection(
-      GenerateSSOTokenResponse_descriptor_,
-      GenerateSSOTokenResponse::default_instance_,
-      GenerateSSOTokenResponse_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GenerateSSOTokenResponse, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GenerateSSOTokenResponse, _unknown_fields_),
-      -1,
-      ::google::protobuf::DescriptorPool::generated_pool(),
-      ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(GenerateSSOTokenResponse));
-  LogonUpdateRequest_descriptor_ = file->message_type(7);
+  LogonUpdateRequest_descriptor_ = file->message_type(2);
   static const int LogonUpdateRequest_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LogonUpdateRequest, error_code_),
   };
@@ -240,7 +131,7 @@ void protobuf_AssignDesc_authentication_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(LogonUpdateRequest));
-  LogonQueueUpdateRequest_descriptor_ = file->message_type(8);
+  LogonQueueUpdateRequest_descriptor_ = file->message_type(3);
   static const int LogonQueueUpdateRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LogonQueueUpdateRequest, position_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LogonQueueUpdateRequest, estimated_time_),
@@ -257,26 +148,7 @@ void protobuf_AssignDesc_authentication_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(LogonQueueUpdateRequest));
-  AccountSettingsNotification_descriptor_ = file->message_type(9);
-  static const int AccountSettingsNotification_offsets_[5] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountSettingsNotification, licenses_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountSettingsNotification, is_using_rid_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountSettingsNotification, is_playing_from_igr_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountSettingsNotification, can_receive_voice_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountSettingsNotification, can_send_voice_),
-  };
-  AccountSettingsNotification_reflection_ =
-    new ::google::protobuf::internal::GeneratedMessageReflection(
-      AccountSettingsNotification_descriptor_,
-      AccountSettingsNotification::default_instance_,
-      AccountSettingsNotification_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountSettingsNotification, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountSettingsNotification, _unknown_fields_),
-      -1,
-      ::google::protobuf::DescriptorPool::generated_pool(),
-      ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(AccountSettingsNotification));
-  ServerStateChangeRequest_descriptor_ = file->message_type(10);
+  ServerStateChangeRequest_descriptor_ = file->message_type(4);
   static const int ServerStateChangeRequest_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ServerStateChangeRequest, state_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ServerStateChangeRequest, event_time_),
@@ -292,7 +164,7 @@ void protobuf_AssignDesc_authentication_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ServerStateChangeRequest));
-  VersionInfo_descriptor_ = file->message_type(11);
+  VersionInfo_descriptor_ = file->message_type(5);
   static const int VersionInfo_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(VersionInfo, number_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(VersionInfo, patch_),
@@ -310,7 +182,7 @@ void protobuf_AssignDesc_authentication_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(VersionInfo));
-  VersionInfoNotification_descriptor_ = file->message_type(12);
+  VersionInfoNotification_descriptor_ = file->message_type(6);
   static const int VersionInfoNotification_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(VersionInfoNotification, version_info_),
   };
@@ -325,70 +197,7 @@ void protobuf_AssignDesc_authentication_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(VersionInfoNotification));
-  MemModuleLoadRequest_descriptor_ = file->message_type(13);
-  static const int MemModuleLoadRequest_offsets_[3] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MemModuleLoadRequest, handle_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MemModuleLoadRequest, key_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MemModuleLoadRequest, input_),
-  };
-  MemModuleLoadRequest_reflection_ =
-    new ::google::protobuf::internal::GeneratedMessageReflection(
-      MemModuleLoadRequest_descriptor_,
-      MemModuleLoadRequest::default_instance_,
-      MemModuleLoadRequest_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MemModuleLoadRequest, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MemModuleLoadRequest, _unknown_fields_),
-      -1,
-      ::google::protobuf::DescriptorPool::generated_pool(),
-      ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(MemModuleLoadRequest));
-  MemModuleLoadResponse_descriptor_ = file->message_type(14);
-  static const int MemModuleLoadResponse_offsets_[1] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MemModuleLoadResponse, data_),
-  };
-  MemModuleLoadResponse_reflection_ =
-    new ::google::protobuf::internal::GeneratedMessageReflection(
-      MemModuleLoadResponse_descriptor_,
-      MemModuleLoadResponse::default_instance_,
-      MemModuleLoadResponse_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MemModuleLoadResponse, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MemModuleLoadResponse, _unknown_fields_),
-      -1,
-      ::google::protobuf::DescriptorPool::generated_pool(),
-      ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(MemModuleLoadResponse));
-  SelectGameAccountRequest_descriptor_ = file->message_type(15);
-  static const int SelectGameAccountRequest_offsets_[1] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SelectGameAccountRequest, game_account_id_),
-  };
-  SelectGameAccountRequest_reflection_ =
-    new ::google::protobuf::internal::GeneratedMessageReflection(
-      SelectGameAccountRequest_descriptor_,
-      SelectGameAccountRequest::default_instance_,
-      SelectGameAccountRequest_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SelectGameAccountRequest, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SelectGameAccountRequest, _unknown_fields_),
-      -1,
-      ::google::protobuf::DescriptorPool::generated_pool(),
-      ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(SelectGameAccountRequest));
-  GameAccountSelectedRequest_descriptor_ = file->message_type(16);
-  static const int GameAccountSelectedRequest_offsets_[2] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountSelectedRequest, result_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountSelectedRequest, game_account_id_),
-  };
-  GameAccountSelectedRequest_reflection_ =
-    new ::google::protobuf::internal::GeneratedMessageReflection(
-      GameAccountSelectedRequest_descriptor_,
-      GameAccountSelectedRequest::default_instance_,
-      GameAccountSelectedRequest_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountSelectedRequest, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountSelectedRequest, _unknown_fields_),
-      -1,
-      ::google::protobuf::DescriptorPool::generated_pool(),
-      ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(GameAccountSelectedRequest));
-  GenerateWebCredentialsRequest_descriptor_ = file->message_type(17);
+  GenerateWebCredentialsRequest_descriptor_ = file->message_type(7);
   static const int GenerateWebCredentialsRequest_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GenerateWebCredentialsRequest, program_),
   };
@@ -403,7 +212,7 @@ void protobuf_AssignDesc_authentication_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GenerateWebCredentialsRequest));
-  GenerateWebCredentialsResponse_descriptor_ = file->message_type(18);
+  GenerateWebCredentialsResponse_descriptor_ = file->message_type(8);
   static const int GenerateWebCredentialsResponse_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GenerateWebCredentialsResponse, web_credentials_),
   };
@@ -418,7 +227,7 @@ void protobuf_AssignDesc_authentication_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GenerateWebCredentialsResponse));
-  VerifyWebCredentialsRequest_descriptor_ = file->message_type(19);
+  VerifyWebCredentialsRequest_descriptor_ = file->message_type(9);
   static const int VerifyWebCredentialsRequest_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(VerifyWebCredentialsRequest, web_credentials_),
   };
@@ -448,39 +257,19 @@ inline void protobuf_AssignDescriptorsOnce() {
 void protobuf_RegisterTypes(const ::std::string&) {
   protobuf_AssignDescriptorsOnce();
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    ModuleLoadRequest_descriptor_, &ModuleLoadRequest::default_instance());
-  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    ModuleNotification_descriptor_, &ModuleNotification::default_instance());
-  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    ModuleMessageRequest_descriptor_, &ModuleMessageRequest::default_instance());
-  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     LogonRequest_descriptor_, &LogonRequest::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     LogonResult_descriptor_, &LogonResult::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    GenerateSSOTokenRequest_descriptor_, &GenerateSSOTokenRequest::default_instance());
-  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    GenerateSSOTokenResponse_descriptor_, &GenerateSSOTokenResponse::default_instance());
-  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     LogonUpdateRequest_descriptor_, &LogonUpdateRequest::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     LogonQueueUpdateRequest_descriptor_, &LogonQueueUpdateRequest::default_instance());
-  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    AccountSettingsNotification_descriptor_, &AccountSettingsNotification::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     ServerStateChangeRequest_descriptor_, &ServerStateChangeRequest::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     VersionInfo_descriptor_, &VersionInfo::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     VersionInfoNotification_descriptor_, &VersionInfoNotification::default_instance());
-  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    MemModuleLoadRequest_descriptor_, &MemModuleLoadRequest::default_instance());
-  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    MemModuleLoadResponse_descriptor_, &MemModuleLoadResponse::default_instance());
-  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    SelectGameAccountRequest_descriptor_, &SelectGameAccountRequest::default_instance());
-  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    GameAccountSelectedRequest_descriptor_, &GameAccountSelectedRequest::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     GenerateWebCredentialsRequest_descriptor_, &GenerateWebCredentialsRequest::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
@@ -492,40 +281,20 @@ void protobuf_RegisterTypes(const ::std::string&) {
 }  // namespace
 
 void protobuf_ShutdownFile_authentication_5fservice_2eproto() {
-  delete ModuleLoadRequest::default_instance_;
-  delete ModuleLoadRequest_reflection_;
-  delete ModuleNotification::default_instance_;
-  delete ModuleNotification_reflection_;
-  delete ModuleMessageRequest::default_instance_;
-  delete ModuleMessageRequest_reflection_;
   delete LogonRequest::default_instance_;
   delete LogonRequest_reflection_;
   delete LogonResult::default_instance_;
   delete LogonResult_reflection_;
-  delete GenerateSSOTokenRequest::default_instance_;
-  delete GenerateSSOTokenRequest_reflection_;
-  delete GenerateSSOTokenResponse::default_instance_;
-  delete GenerateSSOTokenResponse_reflection_;
   delete LogonUpdateRequest::default_instance_;
   delete LogonUpdateRequest_reflection_;
   delete LogonQueueUpdateRequest::default_instance_;
   delete LogonQueueUpdateRequest_reflection_;
-  delete AccountSettingsNotification::default_instance_;
-  delete AccountSettingsNotification_reflection_;
   delete ServerStateChangeRequest::default_instance_;
   delete ServerStateChangeRequest_reflection_;
   delete VersionInfo::default_instance_;
   delete VersionInfo_reflection_;
   delete VersionInfoNotification::default_instance_;
   delete VersionInfoNotification_reflection_;
-  delete MemModuleLoadRequest::default_instance_;
-  delete MemModuleLoadRequest_reflection_;
-  delete MemModuleLoadResponse::default_instance_;
-  delete MemModuleLoadResponse_reflection_;
-  delete SelectGameAccountRequest::default_instance_;
-  delete SelectGameAccountRequest_reflection_;
-  delete GameAccountSelectedRequest::default_instance_;
-  delete GameAccountSelectedRequest_reflection_;
   delete GenerateWebCredentialsRequest::default_instance_;
   delete GenerateWebCredentialsRequest_reflection_;
   delete GenerateWebCredentialsResponse::default_instance_;
@@ -540,159 +309,90 @@ void protobuf_AddDesc_authentication_5fservice_2eproto() {
   already_here = true;
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-  ::bgs::protocol::account::v1::protobuf_AddDesc_account_5ftypes_2eproto();
-  ::bgs::protocol::protobuf_AddDesc_content_5fhandle_5ftypes_2eproto();
   ::bgs::protocol::protobuf_AddDesc_entity_5ftypes_2eproto();
   ::bgs::protocol::protobuf_AddDesc_rpc_5ftypes_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\034authentication_service.proto\022\036bgs.prot"
-    "ocol.authentication.v1\032\023account_types.pr"
-    "oto\032\032content_handle_types.proto\032\022entity_"
-    "types.proto\032\017rpc_types.proto\"X\n\021ModuleLo"
-    "adRequest\0222\n\rmodule_handle\030\001 \002(\0132\033.bgs.p"
-    "rotocol.ContentHandle\022\017\n\007message\030\002 \001(\014\"7"
-    "\n\022ModuleNotification\022\021\n\tmodule_id\030\002 \001(\005\022"
-    "\016\n\006result\030\003 \001(\r\":\n\024ModuleMessageRequest\022"
-    "\021\n\tmodule_id\030\001 \002(\005\022\017\n\007message\030\002 \001(\014\"\264\002\n\014"
-    "LogonRequest\022\017\n\007program\030\001 \001(\t\022\020\n\010platfor"
-    "m\030\002 \001(\t\022\016\n\006locale\030\003 \001(\t\022\025\n\005email\030\004 \001(\tB\006"
-    "\202\371+\002\010\001\022\017\n\007version\030\005 \001(\t\022\033\n\023application_v"
-    "ersion\030\006 \001(\005\022\027\n\017public_computer\030\007 \001(\010\022.\n"
-    "\037allow_logon_queue_notifications\030\n \001(\010:\005"
-    "false\022\036\n\026cached_web_credentials\030\014 \001(\014\022\022\n"
-    "\nuser_agent\030\016 \001(\t\022\021\n\tdevice_id\030\017 \001(\t\022\034\n\014"
-    "phone_number\030\020 \001(\tB\006\202\371+\002\010\001\"\275\002\n\013LogonResu"
-    "lt\022\022\n\nerror_code\030\001 \002(\r\022*\n\naccount_id\030\002 \001"
-    "(\0132\026.bgs.protocol.EntityId\022/\n\017game_accou"
-    "nt_id\030\003 \003(\0132\026.bgs.protocol.EntityId\022\025\n\005e"
-    "mail\030\004 \001(\tB\006\202\371+\002\010\001\022\030\n\020available_region\030\005"
-    " \003(\r\022\030\n\020connected_region\030\006 \001(\r\022\032\n\nbattle"
-    "_tag\030\007 \001(\tB\006\202\371+\002\010\001\022\025\n\rgeoip_country\030\010 \001("
-    "\t\022\023\n\013session_key\030\t \001(\014\022\027\n\017restricted_mod"
-    "e\030\n \001(\010\022\021\n\tclient_id\030\013 \001(\t\"*\n\027GenerateSS"
-    "OTokenRequest\022\017\n\007program\030\001 \001(\007\">\n\030Genera"
-    "teSSOTokenResponse\022\016\n\006sso_id\030\001 \001(\014\022\022\n\nss"
-    "o_secret\030\002 \001(\014\"(\n\022LogonUpdateRequest\022\022\n\n"
-    "error_code\030\001 \002(\r\"a\n\027LogonQueueUpdateRequ"
-    "est\022\020\n\010position\030\001 \002(\r\022\026\n\016estimated_time\030"
-    "\002 \002(\004\022\034\n\024eta_deviation_in_sec\030\003 \002(\004\"\276\001\n\033"
-    "AccountSettingsNotification\0229\n\010licenses\030"
-    "\001 \003(\0132\'.bgs.protocol.account.v1.AccountL"
-    "icense\022\024\n\014is_using_rid\030\002 \001(\010\022\033\n\023is_playi"
-    "ng_from_igr\030\003 \001(\010\022\031\n\021can_receive_voice\030\004"
-    " \001(\010\022\026\n\016can_send_voice\030\005 \001(\010\"=\n\030ServerSt"
-    "ateChangeRequest\022\r\n\005state\030\001 \002(\r\022\022\n\nevent"
-    "_time\030\002 \002(\004\"T\n\013VersionInfo\022\016\n\006number\030\001 \001"
-    "(\r\022\r\n\005patch\030\002 \001(\t\022\023\n\013is_optional\030\003 \001(\010\022\021"
-    "\n\tkick_time\030\004 \001(\004\"\\\n\027VersionInfoNotifica"
-    "tion\022A\n\014version_info\030\001 \001(\0132+.bgs.protoco"
-    "l.authentication.v1.VersionInfo\"_\n\024MemMo"
-    "duleLoadRequest\022+\n\006handle\030\001 \002(\0132\033.bgs.pr"
-    "otocol.ContentHandle\022\013\n\003key\030\002 \002(\014\022\r\n\005inp"
-    "ut\030\003 \002(\014\"%\n\025MemModuleLoadResponse\022\014\n\004dat"
-    "a\030\001 \002(\014\"K\n\030SelectGameAccountRequest\022/\n\017g"
-    "ame_account_id\030\001 \002(\0132\026.bgs.protocol.Enti"
-    "tyId\"]\n\032GameAccountSelectedRequest\022\016\n\006re"
-    "sult\030\001 \002(\r\022/\n\017game_account_id\030\002 \001(\0132\026.bg"
-    "s.protocol.EntityId\"0\n\035GenerateWebCreden"
-    "tialsRequest\022\017\n\007program\030\001 \001(\007\"9\n\036Generat"
-    "eWebCredentialsResponse\022\027\n\017web_credentia"
-    "ls\030\001 \001(\014\"6\n\033VerifyWebCredentialsRequest\022"
-    "\027\n\017web_credentials\030\001 \001(\0142\237\t\n\026Authenticat"
-    "ionListener\022g\n\014OnModuleLoad\0221.bgs.protoc"
-    "ol.authentication.v1.ModuleLoadRequest\032\031"
-    ".bgs.protocol.NO_RESPONSE\"\t\210\002\001\202\371+\002\010\001\022h\n\017"
-    "OnModuleMessage\0224.bgs.protocol.authentic"
-    "ation.v1.ModuleMessageRequest\032\024.bgs.prot"
-    "ocol.NoData\"\t\210\002\001\202\371+\002\010\002\022r\n\023OnServerStateC"
-    "hange\0228.bgs.protocol.authentication.v1.S"
-    "erverStateChangeRequest\032\031.bgs.protocol.N"
-    "O_RESPONSE\"\006\202\371+\002\010\004\022a\n\017OnLogonComplete\022+."
-    "bgs.protocol.authentication.v1.LogonResu"
-    "lt\032\031.bgs.protocol.NO_RESPONSE\"\006\202\371+\002\010\005\022\206\001"
-    "\n\017OnMemModuleLoad\0224.bgs.protocol.authent"
-    "ication.v1.MemModuleLoadRequest\0325.bgs.pr"
-    "otocol.authentication.v1.MemModuleLoadRe"
-    "sponse\"\006\202\371+\002\010\006\022f\n\rOnLogonUpdate\0222.bgs.pr"
-    "otocol.authentication.v1.LogonUpdateRequ"
-    "est\032\031.bgs.protocol.NO_RESPONSE\"\006\202\371+\002\010\n\022r"
-    "\n\024OnVersionInfoUpdated\0227.bgs.protocol.au"
-    "thentication.v1.VersionInfoNotification\032"
-    "\031.bgs.protocol.NO_RESPONSE\"\006\202\371+\002\010\013\022p\n\022On"
-    "LogonQueueUpdate\0227.bgs.protocol.authenti"
-    "cation.v1.LogonQueueUpdateRequest\032\031.bgs."
-    "protocol.NO_RESPONSE\"\006\202\371+\002\010\014\022J\n\017OnLogonQ"
-    "ueueEnd\022\024.bgs.protocol.NoData\032\031.bgs.prot"
-    "ocol.NO_RESPONSE\"\006\202\371+\002\010\r\022y\n\025OnGameAccoun"
-    "tSelected\022:.bgs.protocol.authentication."
-    "v1.GameAccountSelectedRequest\032\031.bgs.prot"
-    "ocol.NO_RESPONSE\"\t\210\002\001\202\371+\002\010\016\032=\202\371+3\n1bnet."
-    "protocol.authentication.AuthenticationCl"
-    "ient\212\371+\002\010\0012\366\007\n\025AuthenticationService\022S\n\005"
-    "Logon\022,.bgs.protocol.authentication.v1.L"
-    "ogonRequest\032\024.bgs.protocol.NoData\"\006\202\371+\002\010"
-    "\001\022c\n\014ModuleNotify\0222.bgs.protocol.authent"
-    "ication.v1.ModuleNotification\032\024.bgs.prot"
-    "ocol.NoData\"\t\210\002\001\202\371+\002\010\002\022f\n\rModuleMessage\022"
-    "4.bgs.protocol.authentication.v1.ModuleM"
-    "essageRequest\032\024.bgs.protocol.NoData\"\t\210\002\001"
-    "\202\371+\002\010\003\022W\n\034SelectGameAccount_DEPRECATED\022\026"
-    ".bgs.protocol.EntityId\032\024.bgs.protocol.No"
-    "Data\"\t\210\002\001\202\371+\002\010\004\022\215\001\n\020GenerateSSOToken\0227.b"
-    "gs.protocol.authentication.v1.GenerateSS"
-    "OTokenRequest\0328.bgs.protocol.authenticat"
-    "ion.v1.GenerateSSOTokenResponse\"\006\202\371+\002\010\005\022"
-    "n\n\021SelectGameAccount\0228.bgs.protocol.auth"
-    "entication.v1.SelectGameAccountRequest\032\024"
-    ".bgs.protocol.NoData\"\t\210\002\001\202\371+\002\010\006\022q\n\024Verif"
-    "yWebCredentials\022;.bgs.protocol.authentic"
-    "ation.v1.VerifyWebCredentialsRequest\032\024.b"
-    "gs.protocol.NoData\"\006\202\371+\002\010\007\022\237\001\n\026GenerateW"
-    "ebCredentials\022=.bgs.protocol.authenticat"
-    "ion.v1.GenerateWebCredentialsRequest\032>.b"
-    "gs.protocol.authentication.v1.GenerateWe"
-    "bCredentialsResponse\"\006\202\371+\002\010\010\032M\202\371+C\n1bnet"
-    ".protocol.authentication.AuthenticationS"
-    "erver*\016authentication\212\371+\002\020\001B\005H\002\200\001\000", 4354);
+    "ocol.authentication.v1\032\022entity_types.pro"
+    "to\032\017rpc_types.proto\"\264\002\n\014LogonRequest\022\017\n\007"
+    "program\030\001 \001(\t\022\020\n\010platform\030\002 \001(\t\022\016\n\006local"
+    "e\030\003 \001(\t\022\025\n\005email\030\004 \001(\tB\006\202\371+\002\010\001\022\017\n\007versio"
+    "n\030\005 \001(\t\022\033\n\023application_version\030\006 \001(\005\022\027\n\017"
+    "public_computer\030\007 \001(\010\022.\n\037allow_logon_que"
+    "ue_notifications\030\n \001(\010:\005false\022\036\n\026cached_"
+    "web_credentials\030\014 \001(\014\022\022\n\nuser_agent\030\016 \001("
+    "\t\022\021\n\tdevice_id\030\017 \001(\t\022\034\n\014phone_number\030\020 \001"
+    "(\tB\006\202\371+\002\010\001\"\275\002\n\013LogonResult\022\022\n\nerror_code"
+    "\030\001 \002(\r\022*\n\naccount_id\030\002 \001(\0132\026.bgs.protoco"
+    "l.EntityId\022/\n\017game_account_id\030\003 \003(\0132\026.bg"
+    "s.protocol.EntityId\022\025\n\005email\030\004 \001(\tB\006\202\371+\002"
+    "\010\001\022\030\n\020available_region\030\005 \003(\r\022\030\n\020connecte"
+    "d_region\030\006 \001(\r\022\032\n\nbattle_tag\030\007 \001(\tB\006\202\371+\002"
+    "\010\001\022\025\n\rgeoip_country\030\010 \001(\t\022\023\n\013session_key"
+    "\030\t \001(\014\022\027\n\017restricted_mode\030\n \001(\010\022\021\n\tclien"
+    "t_id\030\013 \001(\t\"(\n\022LogonUpdateRequest\022\022\n\nerro"
+    "r_code\030\001 \002(\r\"a\n\027LogonQueueUpdateRequest\022"
+    "\020\n\010position\030\001 \002(\r\022\026\n\016estimated_time\030\002 \002("
+    "\004\022\034\n\024eta_deviation_in_sec\030\003 \002(\004\"=\n\030Serve"
+    "rStateChangeRequest\022\r\n\005state\030\001 \002(\r\022\022\n\nev"
+    "ent_time\030\002 \002(\004\"T\n\013VersionInfo\022\016\n\006number\030"
+    "\001 \001(\r\022\r\n\005patch\030\002 \001(\t\022\023\n\013is_optional\030\003 \001("
+    "\010\022\021\n\tkick_time\030\004 \001(\004\"\\\n\027VersionInfoNotif"
+    "ication\022A\n\014version_info\030\001 \001(\0132+.bgs.prot"
+    "ocol.authentication.v1.VersionInfo\"0\n\035Ge"
+    "nerateWebCredentialsRequest\022\017\n\007program\030\001"
+    " \001(\007\"9\n\036GenerateWebCredentialsResponse\022\027"
+    "\n\017web_credentials\030\001 \001(\014\"6\n\033VerifyWebCred"
+    "entialsRequest\022\027\n\017web_credentials\030\001 \001(\0142"
+    "\312\005\n\026AuthenticationListener\022r\n\023OnServerSt"
+    "ateChange\0228.bgs.protocol.authentication."
+    "v1.ServerStateChangeRequest\032\031.bgs.protoc"
+    "ol.NO_RESPONSE\"\006\202\371+\002\010\004\022a\n\017OnLogonComplet"
+    "e\022+.bgs.protocol.authentication.v1.Logon"
+    "Result\032\031.bgs.protocol.NO_RESPONSE\"\006\202\371+\002\010"
+    "\005\022f\n\rOnLogonUpdate\0222.bgs.protocol.authen"
+    "tication.v1.LogonUpdateRequest\032\031.bgs.pro"
+    "tocol.NO_RESPONSE\"\006\202\371+\002\010\n\022r\n\024OnVersionIn"
+    "foUpdated\0227.bgs.protocol.authentication."
+    "v1.VersionInfoNotification\032\031.bgs.protoco"
+    "l.NO_RESPONSE\"\006\202\371+\002\010\013\022p\n\022OnLogonQueueUpd"
+    "ate\0227.bgs.protocol.authentication.v1.Log"
+    "onQueueUpdateRequest\032\031.bgs.protocol.NO_R"
+    "ESPONSE\"\006\202\371+\002\010\014\022J\n\017OnLogonQueueEnd\022\024.bgs"
+    ".protocol.NoData\032\031.bgs.protocol.NO_RESPO"
+    "NSE\"\006\202\371+\002\010\r\032\?\202\371+5\n1bnet.protocol.authent"
+    "ication.AuthenticationClient8\001\212\371+\002\010\0012\302\003\n"
+    "\025AuthenticationService\022S\n\005Logon\022,.bgs.pr"
+    "otocol.authentication.v1.LogonRequest\032\024."
+    "bgs.protocol.NoData\"\006\202\371+\002\010\001\022q\n\024VerifyWeb"
+    "Credentials\022;.bgs.protocol.authenticatio"
+    "n.v1.VerifyWebCredentialsRequest\032\024.bgs.p"
+    "rotocol.NoData\"\006\202\371+\002\010\007\022\237\001\n\026GenerateWebCr"
+    "edentials\022=.bgs.protocol.authentication."
+    "v1.GenerateWebCredentialsRequest\032>.bgs.p"
+    "rotocol.authentication.v1.GenerateWebCre"
+    "dentialsResponse\"\006\202\371+\002\010\010\032\?\202\371+5\n1bnet.pro"
+    "tocol.authentication.AuthenticationServe"
+    "r8\001\212\371+\002\020\001B\005H\002\200\001\000", 2456);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "authentication_service.proto", &protobuf_RegisterTypes);
-  ModuleLoadRequest::default_instance_ = new ModuleLoadRequest();
-  ModuleNotification::default_instance_ = new ModuleNotification();
-  ModuleMessageRequest::default_instance_ = new ModuleMessageRequest();
   LogonRequest::default_instance_ = new LogonRequest();
   LogonResult::default_instance_ = new LogonResult();
-  GenerateSSOTokenRequest::default_instance_ = new GenerateSSOTokenRequest();
-  GenerateSSOTokenResponse::default_instance_ = new GenerateSSOTokenResponse();
   LogonUpdateRequest::default_instance_ = new LogonUpdateRequest();
   LogonQueueUpdateRequest::default_instance_ = new LogonQueueUpdateRequest();
-  AccountSettingsNotification::default_instance_ = new AccountSettingsNotification();
   ServerStateChangeRequest::default_instance_ = new ServerStateChangeRequest();
   VersionInfo::default_instance_ = new VersionInfo();
   VersionInfoNotification::default_instance_ = new VersionInfoNotification();
-  MemModuleLoadRequest::default_instance_ = new MemModuleLoadRequest();
-  MemModuleLoadResponse::default_instance_ = new MemModuleLoadResponse();
-  SelectGameAccountRequest::default_instance_ = new SelectGameAccountRequest();
-  GameAccountSelectedRequest::default_instance_ = new GameAccountSelectedRequest();
   GenerateWebCredentialsRequest::default_instance_ = new GenerateWebCredentialsRequest();
   GenerateWebCredentialsResponse::default_instance_ = new GenerateWebCredentialsResponse();
   VerifyWebCredentialsRequest::default_instance_ = new VerifyWebCredentialsRequest();
-  ModuleLoadRequest::default_instance_->InitAsDefaultInstance();
-  ModuleNotification::default_instance_->InitAsDefaultInstance();
-  ModuleMessageRequest::default_instance_->InitAsDefaultInstance();
   LogonRequest::default_instance_->InitAsDefaultInstance();
   LogonResult::default_instance_->InitAsDefaultInstance();
-  GenerateSSOTokenRequest::default_instance_->InitAsDefaultInstance();
-  GenerateSSOTokenResponse::default_instance_->InitAsDefaultInstance();
   LogonUpdateRequest::default_instance_->InitAsDefaultInstance();
   LogonQueueUpdateRequest::default_instance_->InitAsDefaultInstance();
-  AccountSettingsNotification::default_instance_->InitAsDefaultInstance();
   ServerStateChangeRequest::default_instance_->InitAsDefaultInstance();
   VersionInfo::default_instance_->InitAsDefaultInstance();
   VersionInfoNotification::default_instance_->InitAsDefaultInstance();
-  MemModuleLoadRequest::default_instance_->InitAsDefaultInstance();
-  MemModuleLoadResponse::default_instance_->InitAsDefaultInstance();
-  SelectGameAccountRequest::default_instance_->InitAsDefaultInstance();
-  GameAccountSelectedRequest::default_instance_->InitAsDefaultInstance();
   GenerateWebCredentialsRequest::default_instance_->InitAsDefaultInstance();
   GenerateWebCredentialsResponse::default_instance_->InitAsDefaultInstance();
   VerifyWebCredentialsRequest::default_instance_->InitAsDefaultInstance();
@@ -705,238 +405,6 @@ struct StaticDescriptorInitializer_authentication_5fservice_2eproto {
     protobuf_AddDesc_authentication_5fservice_2eproto();
   }
 } static_descriptor_initializer_authentication_5fservice_2eproto_;
-// ===================================================================
-
-#ifndef _MSC_VER
-const int ModuleLoadRequest::kModuleHandleFieldNumber;
-const int ModuleLoadRequest::kMessageFieldNumber;
-#endif  // !_MSC_VER
-
-ModuleLoadRequest::ModuleLoadRequest()
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:bgs.protocol.authentication.v1.ModuleLoadRequest)
-}
-
-void ModuleLoadRequest::InitAsDefaultInstance() {
-  module_handle_ = const_cast< ::bgs::protocol::ContentHandle*>(&::bgs::protocol::ContentHandle::default_instance());
-}
-
-ModuleLoadRequest::ModuleLoadRequest(const ModuleLoadRequest& from)
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:bgs.protocol.authentication.v1.ModuleLoadRequest)
-}
-
-void ModuleLoadRequest::SharedCtor() {
-  ::google::protobuf::internal::GetEmptyString();
-  _cached_size_ = 0;
-  module_handle_ = NULL;
-  message_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-}
-
-ModuleLoadRequest::~ModuleLoadRequest() {
-  // @@protoc_insertion_point(destructor:bgs.protocol.authentication.v1.ModuleLoadRequest)
-  SharedDtor();
-}
-
-void ModuleLoadRequest::SharedDtor() {
-  if (message_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete message_;
-  }
-  if (this != default_instance_) {
-    delete module_handle_;
-  }
-}
-
-void ModuleLoadRequest::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-}
-const ::google::protobuf::Descriptor* ModuleLoadRequest::descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return ModuleLoadRequest_descriptor_;
-}
-
-const ModuleLoadRequest& ModuleLoadRequest::default_instance() {
-  if (default_instance_ == NULL) protobuf_AddDesc_authentication_5fservice_2eproto();
-  return *default_instance_;
-}
-
-ModuleLoadRequest* ModuleLoadRequest::default_instance_ = NULL;
-
-ModuleLoadRequest* ModuleLoadRequest::New() const {
-  return new ModuleLoadRequest;
-}
-
-void ModuleLoadRequest::Swap(ModuleLoadRequest* other) {
-  if (other != this) {
-    GetReflection()->Swap(this, other);}
-}
-
-::google::protobuf::Metadata ModuleLoadRequest::GetMetadata() const {
-  protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::Metadata metadata;
-  metadata.descriptor = ModuleLoadRequest_descriptor_;
-  metadata.reflection = ModuleLoadRequest_reflection_;
-  return metadata;
-}
-
-// ===================================================================
-
-#ifndef _MSC_VER
-const int ModuleNotification::kModuleIdFieldNumber;
-const int ModuleNotification::kResultFieldNumber;
-#endif  // !_MSC_VER
-
-ModuleNotification::ModuleNotification()
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:bgs.protocol.authentication.v1.ModuleNotification)
-}
-
-void ModuleNotification::InitAsDefaultInstance() {
-}
-
-ModuleNotification::ModuleNotification(const ModuleNotification& from)
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:bgs.protocol.authentication.v1.ModuleNotification)
-}
-
-void ModuleNotification::SharedCtor() {
-  _cached_size_ = 0;
-  module_id_ = 0;
-  result_ = 0u;
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-}
-
-ModuleNotification::~ModuleNotification() {
-  // @@protoc_insertion_point(destructor:bgs.protocol.authentication.v1.ModuleNotification)
-  SharedDtor();
-}
-
-void ModuleNotification::SharedDtor() {
-  if (this != default_instance_) {
-  }
-}
-
-void ModuleNotification::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-}
-const ::google::protobuf::Descriptor* ModuleNotification::descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return ModuleNotification_descriptor_;
-}
-
-const ModuleNotification& ModuleNotification::default_instance() {
-  if (default_instance_ == NULL) protobuf_AddDesc_authentication_5fservice_2eproto();
-  return *default_instance_;
-}
-
-ModuleNotification* ModuleNotification::default_instance_ = NULL;
-
-ModuleNotification* ModuleNotification::New() const {
-  return new ModuleNotification;
-}
-
-void ModuleNotification::Swap(ModuleNotification* other) {
-  if (other != this) {
-    GetReflection()->Swap(this, other);}
-}
-
-::google::protobuf::Metadata ModuleNotification::GetMetadata() const {
-  protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::Metadata metadata;
-  metadata.descriptor = ModuleNotification_descriptor_;
-  metadata.reflection = ModuleNotification_reflection_;
-  return metadata;
-}
-
-// ===================================================================
-
-#ifndef _MSC_VER
-const int ModuleMessageRequest::kModuleIdFieldNumber;
-const int ModuleMessageRequest::kMessageFieldNumber;
-#endif  // !_MSC_VER
-
-ModuleMessageRequest::ModuleMessageRequest()
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:bgs.protocol.authentication.v1.ModuleMessageRequest)
-}
-
-void ModuleMessageRequest::InitAsDefaultInstance() {
-}
-
-ModuleMessageRequest::ModuleMessageRequest(const ModuleMessageRequest& from)
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:bgs.protocol.authentication.v1.ModuleMessageRequest)
-}
-
-void ModuleMessageRequest::SharedCtor() {
-  ::google::protobuf::internal::GetEmptyString();
-  _cached_size_ = 0;
-  module_id_ = 0;
-  message_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-}
-
-ModuleMessageRequest::~ModuleMessageRequest() {
-  // @@protoc_insertion_point(destructor:bgs.protocol.authentication.v1.ModuleMessageRequest)
-  SharedDtor();
-}
-
-void ModuleMessageRequest::SharedDtor() {
-  if (message_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete message_;
-  }
-  if (this != default_instance_) {
-  }
-}
-
-void ModuleMessageRequest::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-}
-const ::google::protobuf::Descriptor* ModuleMessageRequest::descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return ModuleMessageRequest_descriptor_;
-}
-
-const ModuleMessageRequest& ModuleMessageRequest::default_instance() {
-  if (default_instance_ == NULL) protobuf_AddDesc_authentication_5fservice_2eproto();
-  return *default_instance_;
-}
-
-ModuleMessageRequest* ModuleMessageRequest::default_instance_ = NULL;
-
-ModuleMessageRequest* ModuleMessageRequest::New() const {
-  return new ModuleMessageRequest;
-}
-
-void ModuleMessageRequest::Swap(ModuleMessageRequest* other) {
-  if (other != this) {
-    GetReflection()->Swap(this, other);}
-}
-
-::google::protobuf::Metadata ModuleMessageRequest::GetMetadata() const {
-  protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::Metadata metadata;
-  metadata.descriptor = ModuleMessageRequest_descriptor_;
-  metadata.reflection = ModuleMessageRequest_reflection_;
-  return metadata;
-}
-
 // ===================================================================
 
 #ifndef _MSC_VER
@@ -1170,159 +638,6 @@ void LogonResult::Swap(LogonResult* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
-const int GenerateSSOTokenRequest::kProgramFieldNumber;
-#endif  // !_MSC_VER
-
-GenerateSSOTokenRequest::GenerateSSOTokenRequest()
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:bgs.protocol.authentication.v1.GenerateSSOTokenRequest)
-}
-
-void GenerateSSOTokenRequest::InitAsDefaultInstance() {
-}
-
-GenerateSSOTokenRequest::GenerateSSOTokenRequest(const GenerateSSOTokenRequest& from)
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:bgs.protocol.authentication.v1.GenerateSSOTokenRequest)
-}
-
-void GenerateSSOTokenRequest::SharedCtor() {
-  _cached_size_ = 0;
-  program_ = 0u;
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-}
-
-GenerateSSOTokenRequest::~GenerateSSOTokenRequest() {
-  // @@protoc_insertion_point(destructor:bgs.protocol.authentication.v1.GenerateSSOTokenRequest)
-  SharedDtor();
-}
-
-void GenerateSSOTokenRequest::SharedDtor() {
-  if (this != default_instance_) {
-  }
-}
-
-void GenerateSSOTokenRequest::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-}
-const ::google::protobuf::Descriptor* GenerateSSOTokenRequest::descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return GenerateSSOTokenRequest_descriptor_;
-}
-
-const GenerateSSOTokenRequest& GenerateSSOTokenRequest::default_instance() {
-  if (default_instance_ == NULL) protobuf_AddDesc_authentication_5fservice_2eproto();
-  return *default_instance_;
-}
-
-GenerateSSOTokenRequest* GenerateSSOTokenRequest::default_instance_ = NULL;
-
-GenerateSSOTokenRequest* GenerateSSOTokenRequest::New() const {
-  return new GenerateSSOTokenRequest;
-}
-
-void GenerateSSOTokenRequest::Swap(GenerateSSOTokenRequest* other) {
-  if (other != this) {
-    GetReflection()->Swap(this, other);}
-}
-
-::google::protobuf::Metadata GenerateSSOTokenRequest::GetMetadata() const {
-  protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::Metadata metadata;
-  metadata.descriptor = GenerateSSOTokenRequest_descriptor_;
-  metadata.reflection = GenerateSSOTokenRequest_reflection_;
-  return metadata;
-}
-
-// ===================================================================
-
-#ifndef _MSC_VER
-const int GenerateSSOTokenResponse::kSsoIdFieldNumber;
-const int GenerateSSOTokenResponse::kSsoSecretFieldNumber;
-#endif  // !_MSC_VER
-
-GenerateSSOTokenResponse::GenerateSSOTokenResponse()
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:bgs.protocol.authentication.v1.GenerateSSOTokenResponse)
-}
-
-void GenerateSSOTokenResponse::InitAsDefaultInstance() {
-}
-
-GenerateSSOTokenResponse::GenerateSSOTokenResponse(const GenerateSSOTokenResponse& from)
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:bgs.protocol.authentication.v1.GenerateSSOTokenResponse)
-}
-
-void GenerateSSOTokenResponse::SharedCtor() {
-  ::google::protobuf::internal::GetEmptyString();
-  _cached_size_ = 0;
-  sso_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  sso_secret_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-}
-
-GenerateSSOTokenResponse::~GenerateSSOTokenResponse() {
-  // @@protoc_insertion_point(destructor:bgs.protocol.authentication.v1.GenerateSSOTokenResponse)
-  SharedDtor();
-}
-
-void GenerateSSOTokenResponse::SharedDtor() {
-  if (sso_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete sso_id_;
-  }
-  if (sso_secret_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete sso_secret_;
-  }
-  if (this != default_instance_) {
-  }
-}
-
-void GenerateSSOTokenResponse::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-}
-const ::google::protobuf::Descriptor* GenerateSSOTokenResponse::descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return GenerateSSOTokenResponse_descriptor_;
-}
-
-const GenerateSSOTokenResponse& GenerateSSOTokenResponse::default_instance() {
-  if (default_instance_ == NULL) protobuf_AddDesc_authentication_5fservice_2eproto();
-  return *default_instance_;
-}
-
-GenerateSSOTokenResponse* GenerateSSOTokenResponse::default_instance_ = NULL;
-
-GenerateSSOTokenResponse* GenerateSSOTokenResponse::New() const {
-  return new GenerateSSOTokenResponse;
-}
-
-void GenerateSSOTokenResponse::Swap(GenerateSSOTokenResponse* other) {
-  if (other != this) {
-    GetReflection()->Swap(this, other);}
-}
-
-::google::protobuf::Metadata GenerateSSOTokenResponse::GetMetadata() const {
-  protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::Metadata metadata;
-  metadata.descriptor = GenerateSSOTokenResponse_descriptor_;
-  metadata.reflection = GenerateSSOTokenResponse_reflection_;
-  return metadata;
-}
-
-// ===================================================================
-
-#ifndef _MSC_VER
 const int LogonUpdateRequest::kErrorCodeFieldNumber;
 #endif  // !_MSC_VER
 
@@ -1465,85 +780,6 @@ void LogonQueueUpdateRequest::Swap(LogonQueueUpdateRequest* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = LogonQueueUpdateRequest_descriptor_;
   metadata.reflection = LogonQueueUpdateRequest_reflection_;
-  return metadata;
-}
-
-// ===================================================================
-
-#ifndef _MSC_VER
-const int AccountSettingsNotification::kLicensesFieldNumber;
-const int AccountSettingsNotification::kIsUsingRidFieldNumber;
-const int AccountSettingsNotification::kIsPlayingFromIgrFieldNumber;
-const int AccountSettingsNotification::kCanReceiveVoiceFieldNumber;
-const int AccountSettingsNotification::kCanSendVoiceFieldNumber;
-#endif  // !_MSC_VER
-
-AccountSettingsNotification::AccountSettingsNotification()
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:bgs.protocol.authentication.v1.AccountSettingsNotification)
-}
-
-void AccountSettingsNotification::InitAsDefaultInstance() {
-}
-
-AccountSettingsNotification::AccountSettingsNotification(const AccountSettingsNotification& from)
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:bgs.protocol.authentication.v1.AccountSettingsNotification)
-}
-
-void AccountSettingsNotification::SharedCtor() {
-  _cached_size_ = 0;
-  is_using_rid_ = false;
-  is_playing_from_igr_ = false;
-  can_receive_voice_ = false;
-  can_send_voice_ = false;
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-}
-
-AccountSettingsNotification::~AccountSettingsNotification() {
-  // @@protoc_insertion_point(destructor:bgs.protocol.authentication.v1.AccountSettingsNotification)
-  SharedDtor();
-}
-
-void AccountSettingsNotification::SharedDtor() {
-  if (this != default_instance_) {
-  }
-}
-
-void AccountSettingsNotification::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-}
-const ::google::protobuf::Descriptor* AccountSettingsNotification::descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return AccountSettingsNotification_descriptor_;
-}
-
-const AccountSettingsNotification& AccountSettingsNotification::default_instance() {
-  if (default_instance_ == NULL) protobuf_AddDesc_authentication_5fservice_2eproto();
-  return *default_instance_;
-}
-
-AccountSettingsNotification* AccountSettingsNotification::default_instance_ = NULL;
-
-AccountSettingsNotification* AccountSettingsNotification::New() const {
-  return new AccountSettingsNotification;
-}
-
-void AccountSettingsNotification::Swap(AccountSettingsNotification* other) {
-  if (other != this) {
-    GetReflection()->Swap(this, other);}
-}
-
-::google::protobuf::Metadata AccountSettingsNotification::GetMetadata() const {
-  protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::Metadata metadata;
-  metadata.descriptor = AccountSettingsNotification_descriptor_;
-  metadata.reflection = AccountSettingsNotification_reflection_;
   return metadata;
 }
 
@@ -1774,317 +1010,6 @@ void VersionInfoNotification::Swap(VersionInfoNotification* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = VersionInfoNotification_descriptor_;
   metadata.reflection = VersionInfoNotification_reflection_;
-  return metadata;
-}
-
-// ===================================================================
-
-#ifndef _MSC_VER
-const int MemModuleLoadRequest::kHandleFieldNumber;
-const int MemModuleLoadRequest::kKeyFieldNumber;
-const int MemModuleLoadRequest::kInputFieldNumber;
-#endif  // !_MSC_VER
-
-MemModuleLoadRequest::MemModuleLoadRequest()
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:bgs.protocol.authentication.v1.MemModuleLoadRequest)
-}
-
-void MemModuleLoadRequest::InitAsDefaultInstance() {
-  handle_ = const_cast< ::bgs::protocol::ContentHandle*>(&::bgs::protocol::ContentHandle::default_instance());
-}
-
-MemModuleLoadRequest::MemModuleLoadRequest(const MemModuleLoadRequest& from)
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:bgs.protocol.authentication.v1.MemModuleLoadRequest)
-}
-
-void MemModuleLoadRequest::SharedCtor() {
-  ::google::protobuf::internal::GetEmptyString();
-  _cached_size_ = 0;
-  handle_ = NULL;
-  key_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  input_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-}
-
-MemModuleLoadRequest::~MemModuleLoadRequest() {
-  // @@protoc_insertion_point(destructor:bgs.protocol.authentication.v1.MemModuleLoadRequest)
-  SharedDtor();
-}
-
-void MemModuleLoadRequest::SharedDtor() {
-  if (key_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete key_;
-  }
-  if (input_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete input_;
-  }
-  if (this != default_instance_) {
-    delete handle_;
-  }
-}
-
-void MemModuleLoadRequest::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-}
-const ::google::protobuf::Descriptor* MemModuleLoadRequest::descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return MemModuleLoadRequest_descriptor_;
-}
-
-const MemModuleLoadRequest& MemModuleLoadRequest::default_instance() {
-  if (default_instance_ == NULL) protobuf_AddDesc_authentication_5fservice_2eproto();
-  return *default_instance_;
-}
-
-MemModuleLoadRequest* MemModuleLoadRequest::default_instance_ = NULL;
-
-MemModuleLoadRequest* MemModuleLoadRequest::New() const {
-  return new MemModuleLoadRequest;
-}
-
-void MemModuleLoadRequest::Swap(MemModuleLoadRequest* other) {
-  if (other != this) {
-    GetReflection()->Swap(this, other);}
-}
-
-::google::protobuf::Metadata MemModuleLoadRequest::GetMetadata() const {
-  protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::Metadata metadata;
-  metadata.descriptor = MemModuleLoadRequest_descriptor_;
-  metadata.reflection = MemModuleLoadRequest_reflection_;
-  return metadata;
-}
-
-// ===================================================================
-
-#ifndef _MSC_VER
-const int MemModuleLoadResponse::kDataFieldNumber;
-#endif  // !_MSC_VER
-
-MemModuleLoadResponse::MemModuleLoadResponse()
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:bgs.protocol.authentication.v1.MemModuleLoadResponse)
-}
-
-void MemModuleLoadResponse::InitAsDefaultInstance() {
-}
-
-MemModuleLoadResponse::MemModuleLoadResponse(const MemModuleLoadResponse& from)
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:bgs.protocol.authentication.v1.MemModuleLoadResponse)
-}
-
-void MemModuleLoadResponse::SharedCtor() {
-  ::google::protobuf::internal::GetEmptyString();
-  _cached_size_ = 0;
-  data_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-}
-
-MemModuleLoadResponse::~MemModuleLoadResponse() {
-  // @@protoc_insertion_point(destructor:bgs.protocol.authentication.v1.MemModuleLoadResponse)
-  SharedDtor();
-}
-
-void MemModuleLoadResponse::SharedDtor() {
-  if (data_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete data_;
-  }
-  if (this != default_instance_) {
-  }
-}
-
-void MemModuleLoadResponse::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-}
-const ::google::protobuf::Descriptor* MemModuleLoadResponse::descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return MemModuleLoadResponse_descriptor_;
-}
-
-const MemModuleLoadResponse& MemModuleLoadResponse::default_instance() {
-  if (default_instance_ == NULL) protobuf_AddDesc_authentication_5fservice_2eproto();
-  return *default_instance_;
-}
-
-MemModuleLoadResponse* MemModuleLoadResponse::default_instance_ = NULL;
-
-MemModuleLoadResponse* MemModuleLoadResponse::New() const {
-  return new MemModuleLoadResponse;
-}
-
-void MemModuleLoadResponse::Swap(MemModuleLoadResponse* other) {
-  if (other != this) {
-    GetReflection()->Swap(this, other);}
-}
-
-::google::protobuf::Metadata MemModuleLoadResponse::GetMetadata() const {
-  protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::Metadata metadata;
-  metadata.descriptor = MemModuleLoadResponse_descriptor_;
-  metadata.reflection = MemModuleLoadResponse_reflection_;
-  return metadata;
-}
-
-// ===================================================================
-
-#ifndef _MSC_VER
-const int SelectGameAccountRequest::kGameAccountIdFieldNumber;
-#endif  // !_MSC_VER
-
-SelectGameAccountRequest::SelectGameAccountRequest()
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:bgs.protocol.authentication.v1.SelectGameAccountRequest)
-}
-
-void SelectGameAccountRequest::InitAsDefaultInstance() {
-  game_account_id_ = const_cast< ::bgs::protocol::EntityId*>(&::bgs::protocol::EntityId::default_instance());
-}
-
-SelectGameAccountRequest::SelectGameAccountRequest(const SelectGameAccountRequest& from)
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:bgs.protocol.authentication.v1.SelectGameAccountRequest)
-}
-
-void SelectGameAccountRequest::SharedCtor() {
-  _cached_size_ = 0;
-  game_account_id_ = NULL;
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-}
-
-SelectGameAccountRequest::~SelectGameAccountRequest() {
-  // @@protoc_insertion_point(destructor:bgs.protocol.authentication.v1.SelectGameAccountRequest)
-  SharedDtor();
-}
-
-void SelectGameAccountRequest::SharedDtor() {
-  if (this != default_instance_) {
-    delete game_account_id_;
-  }
-}
-
-void SelectGameAccountRequest::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-}
-const ::google::protobuf::Descriptor* SelectGameAccountRequest::descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return SelectGameAccountRequest_descriptor_;
-}
-
-const SelectGameAccountRequest& SelectGameAccountRequest::default_instance() {
-  if (default_instance_ == NULL) protobuf_AddDesc_authentication_5fservice_2eproto();
-  return *default_instance_;
-}
-
-SelectGameAccountRequest* SelectGameAccountRequest::default_instance_ = NULL;
-
-SelectGameAccountRequest* SelectGameAccountRequest::New() const {
-  return new SelectGameAccountRequest;
-}
-
-void SelectGameAccountRequest::Swap(SelectGameAccountRequest* other) {
-  if (other != this) {
-    GetReflection()->Swap(this, other);}
-}
-
-::google::protobuf::Metadata SelectGameAccountRequest::GetMetadata() const {
-  protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::Metadata metadata;
-  metadata.descriptor = SelectGameAccountRequest_descriptor_;
-  metadata.reflection = SelectGameAccountRequest_reflection_;
-  return metadata;
-}
-
-// ===================================================================
-
-#ifndef _MSC_VER
-const int GameAccountSelectedRequest::kResultFieldNumber;
-const int GameAccountSelectedRequest::kGameAccountIdFieldNumber;
-#endif  // !_MSC_VER
-
-GameAccountSelectedRequest::GameAccountSelectedRequest()
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:bgs.protocol.authentication.v1.GameAccountSelectedRequest)
-}
-
-void GameAccountSelectedRequest::InitAsDefaultInstance() {
-  game_account_id_ = const_cast< ::bgs::protocol::EntityId*>(&::bgs::protocol::EntityId::default_instance());
-}
-
-GameAccountSelectedRequest::GameAccountSelectedRequest(const GameAccountSelectedRequest& from)
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:bgs.protocol.authentication.v1.GameAccountSelectedRequest)
-}
-
-void GameAccountSelectedRequest::SharedCtor() {
-  _cached_size_ = 0;
-  result_ = 0u;
-  game_account_id_ = NULL;
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-}
-
-GameAccountSelectedRequest::~GameAccountSelectedRequest() {
-  // @@protoc_insertion_point(destructor:bgs.protocol.authentication.v1.GameAccountSelectedRequest)
-  SharedDtor();
-}
-
-void GameAccountSelectedRequest::SharedDtor() {
-  if (this != default_instance_) {
-    delete game_account_id_;
-  }
-}
-
-void GameAccountSelectedRequest::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-}
-const ::google::protobuf::Descriptor* GameAccountSelectedRequest::descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return GameAccountSelectedRequest_descriptor_;
-}
-
-const GameAccountSelectedRequest& GameAccountSelectedRequest::default_instance() {
-  if (default_instance_ == NULL) protobuf_AddDesc_authentication_5fservice_2eproto();
-  return *default_instance_;
-}
-
-GameAccountSelectedRequest* GameAccountSelectedRequest::default_instance_ = NULL;
-
-GameAccountSelectedRequest* GameAccountSelectedRequest::New() const {
-  return new GameAccountSelectedRequest;
-}
-
-void GameAccountSelectedRequest::Swap(GameAccountSelectedRequest* other) {
-  if (other != this) {
-    GetReflection()->Swap(this, other);}
-}
-
-::google::protobuf::Metadata GameAccountSelectedRequest::GetMetadata() const {
-  protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::Metadata metadata;
-  metadata.descriptor = GameAccountSelectedRequest_descriptor_;
-  metadata.reflection = GameAccountSelectedRequest_reflection_;
   return metadata;
 }
 
@@ -2325,21 +1250,6 @@ google::protobuf::ServiceDescriptor const* AuthenticationListener::descriptor() 
   return AuthenticationListener_descriptor_;
 }
 
-void AuthenticationListener::OnModuleLoad(::bgs::protocol::authentication::v1::ModuleLoadRequest const* request, bool client /*= false*/, bool server /*= false*/) {
-  LogCallClientMethod("AuthenticationListener.OnModuleLoad", "bgs.protocol.authentication.v1.ModuleLoadRequest", request);
-  SendRequest(service_hash_, 1 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
-}
-
-void AuthenticationListener::OnModuleMessage(::bgs::protocol::authentication::v1::ModuleMessageRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback, bool client /*= false*/, bool server /*= false*/) {
-  LogCallClientMethod("AuthenticationListener.OnModuleMessage", "bgs.protocol.authentication.v1.ModuleMessageRequest", request);
-  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
-    ::bgs::protocol::NoData response;
-    if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      responseCallback(&response);
-  };
-  SendRequest(service_hash_, 2 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request, std::move(callback));
-}
-
 void AuthenticationListener::OnServerStateChange(::bgs::protocol::authentication::v1::ServerStateChangeRequest const* request, bool client /*= false*/, bool server /*= false*/) {
   LogCallClientMethod("AuthenticationListener.OnServerStateChange", "bgs.protocol.authentication.v1.ServerStateChangeRequest", request);
   SendRequest(service_hash_, 4 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
@@ -2348,16 +1258,6 @@ void AuthenticationListener::OnServerStateChange(::bgs::protocol::authentication
 void AuthenticationListener::OnLogonComplete(::bgs::protocol::authentication::v1::LogonResult const* request, bool client /*= false*/, bool server /*= false*/) {
   LogCallClientMethod("AuthenticationListener.OnLogonComplete", "bgs.protocol.authentication.v1.LogonResult", request);
   SendRequest(service_hash_, 5 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
-}
-
-void AuthenticationListener::OnMemModuleLoad(::bgs::protocol::authentication::v1::MemModuleLoadRequest const* request, std::function<void(::bgs::protocol::authentication::v1::MemModuleLoadResponse const*)> responseCallback, bool client /*= false*/, bool server /*= false*/) {
-  LogCallClientMethod("AuthenticationListener.OnMemModuleLoad", "bgs.protocol.authentication.v1.MemModuleLoadRequest", request);
-  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
-    ::bgs::protocol::authentication::v1::MemModuleLoadResponse response;
-    if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      responseCallback(&response);
-  };
-  SendRequest(service_hash_, 6 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request, std::move(callback));
 }
 
 void AuthenticationListener::OnLogonUpdate(::bgs::protocol::authentication::v1::LogonUpdateRequest const* request, bool client /*= false*/, bool server /*= false*/) {
@@ -2378,11 +1278,6 @@ void AuthenticationListener::OnLogonQueueUpdate(::bgs::protocol::authentication:
 void AuthenticationListener::OnLogonQueueEnd(::bgs::protocol::NoData const* request, bool client /*= false*/, bool server /*= false*/) {
   LogCallClientMethod("AuthenticationListener.OnLogonQueueEnd", "bgs.protocol.NoData", request);
   SendRequest(service_hash_, 13 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
-}
-
-void AuthenticationListener::OnGameAccountSelected(::bgs::protocol::authentication::v1::GameAccountSelectedRequest const* request, bool client /*= false*/, bool server /*= false*/) {
-  LogCallClientMethod("AuthenticationListener.OnGameAccountSelected", "bgs.protocol.authentication.v1.GameAccountSelectedRequest", request);
-  SendRequest(service_hash_, 14 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
 void AuthenticationListener::CallServerMethod(uint32 /*token*/, uint32 methodId, MessageBuffer /*buffer*/) {
@@ -2407,21 +1302,6 @@ void AuthenticationService::CallServerMethod(uint32 token, uint32 methodId, Mess
     case 1:
       ParseAndHandleLogon(token, methodId, buffer);
       break;
-    case 2:
-      ParseAndHandleModuleNotify(token, methodId, buffer);
-      break;
-    case 3:
-      ParseAndHandleModuleMessage(token, methodId, buffer);
-      break;
-    case 4:
-      ParseAndHandleSelectGameAccount_DEPRECATED(token, methodId, buffer);
-      break;
-    case 5:
-      ParseAndHandleGenerateSSOToken(token, methodId, buffer);
-      break;
-    case 6:
-      ParseAndHandleSelectGameAccount(token, methodId, buffer);
-      break;
     case 7:
       ParseAndHandleVerifyWebCredentials(token, methodId, buffer);
       break;
@@ -2437,31 +1317,6 @@ void AuthenticationService::CallServerMethod(uint32 token, uint32 methodId, Mess
 
 uint32 AuthenticationService::HandleLogon(::bgs::protocol::authentication::v1::LogonRequest const* request, ::bgs::protocol::NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
   LogUnimplementedServerMethod("AuthenticationService.Logon", request);
-  return ERROR_RPC_NOT_IMPLEMENTED;
-}
-
-uint32 AuthenticationService::HandleModuleNotify(::bgs::protocol::authentication::v1::ModuleNotification const* request, ::bgs::protocol::NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
-  LogUnimplementedServerMethod("AuthenticationService.ModuleNotify", request);
-  return ERROR_RPC_NOT_IMPLEMENTED;
-}
-
-uint32 AuthenticationService::HandleModuleMessage(::bgs::protocol::authentication::v1::ModuleMessageRequest const* request, ::bgs::protocol::NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
-  LogUnimplementedServerMethod("AuthenticationService.ModuleMessage", request);
-  return ERROR_RPC_NOT_IMPLEMENTED;
-}
-
-uint32 AuthenticationService::HandleSelectGameAccount_DEPRECATED(::bgs::protocol::EntityId const* request, ::bgs::protocol::NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
-  LogUnimplementedServerMethod("AuthenticationService.SelectGameAccount_DEPRECATED", request);
-  return ERROR_RPC_NOT_IMPLEMENTED;
-}
-
-uint32 AuthenticationService::HandleGenerateSSOToken(::bgs::protocol::authentication::v1::GenerateSSOTokenRequest const* request, ::bgs::protocol::authentication::v1::GenerateSSOTokenResponse* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
-  LogUnimplementedServerMethod("AuthenticationService.GenerateSSOToken", request);
-  return ERROR_RPC_NOT_IMPLEMENTED;
-}
-
-uint32 AuthenticationService::HandleSelectGameAccount(::bgs::protocol::authentication::v1::SelectGameAccountRequest const* request, ::bgs::protocol::NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
-  LogUnimplementedServerMethod("AuthenticationService.SelectGameAccount", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
@@ -2486,81 +1341,6 @@ void AuthenticationService::ParseAndHandleLogon(uint32 token, uint32 methodId, M
   std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "AuthenticationService.Logon", ::bgs::protocol::NoData::descriptor());
   ::bgs::protocol::NoData response;
   uint32 status = HandleLogon(&request, &response, continuation);
-  if (continuation)
-    continuation(this, status, &response);
-}
-
-void AuthenticationService::ParseAndHandleModuleNotify(uint32 token, uint32 methodId, MessageBuffer& buffer) {
-  ::bgs::protocol::authentication::v1::ModuleNotification request;
-  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-    LogFailedParsingRequest("AuthenticationService.ModuleNotify");
-    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-    return;
-  }
-  LogCallServerMethod("AuthenticationService.ModuleNotify", "bgs.protocol.authentication.v1.ModuleNotification", &request);
-  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "AuthenticationService.ModuleNotify", ::bgs::protocol::NoData::descriptor());
-  ::bgs::protocol::NoData response;
-  uint32 status = HandleModuleNotify(&request, &response, continuation);
-  if (continuation)
-    continuation(this, status, &response);
-}
-
-void AuthenticationService::ParseAndHandleModuleMessage(uint32 token, uint32 methodId, MessageBuffer& buffer) {
-  ::bgs::protocol::authentication::v1::ModuleMessageRequest request;
-  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-    LogFailedParsingRequest("AuthenticationService.ModuleMessage");
-    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-    return;
-  }
-  LogCallServerMethod("AuthenticationService.ModuleMessage", "bgs.protocol.authentication.v1.ModuleMessageRequest", &request);
-  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "AuthenticationService.ModuleMessage", ::bgs::protocol::NoData::descriptor());
-  ::bgs::protocol::NoData response;
-  uint32 status = HandleModuleMessage(&request, &response, continuation);
-  if (continuation)
-    continuation(this, status, &response);
-}
-
-void AuthenticationService::ParseAndHandleSelectGameAccount_DEPRECATED(uint32 token, uint32 methodId, MessageBuffer& buffer) {
-  ::bgs::protocol::EntityId request;
-  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-    LogFailedParsingRequest("AuthenticationService.SelectGameAccount_DEPRECATED");
-    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-    return;
-  }
-  LogCallServerMethod("AuthenticationService.SelectGameAccount_DEPRECATED", "bgs.protocol.EntityId", &request);
-  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "AuthenticationService.SelectGameAccount_DEPRECATED", ::bgs::protocol::NoData::descriptor());
-  ::bgs::protocol::NoData response;
-  uint32 status = HandleSelectGameAccount_DEPRECATED(&request, &response, continuation);
-  if (continuation)
-    continuation(this, status, &response);
-}
-
-void AuthenticationService::ParseAndHandleGenerateSSOToken(uint32 token, uint32 methodId, MessageBuffer& buffer) {
-  ::bgs::protocol::authentication::v1::GenerateSSOTokenRequest request;
-  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-    LogFailedParsingRequest("AuthenticationService.GenerateSSOToken");
-    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-    return;
-  }
-  LogCallServerMethod("AuthenticationService.GenerateSSOToken", "bgs.protocol.authentication.v1.GenerateSSOTokenRequest", &request);
-  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "AuthenticationService.GenerateSSOToken", ::bgs::protocol::authentication::v1::GenerateSSOTokenResponse::descriptor());
-  ::bgs::protocol::authentication::v1::GenerateSSOTokenResponse response;
-  uint32 status = HandleGenerateSSOToken(&request, &response, continuation);
-  if (continuation)
-    continuation(this, status, &response);
-}
-
-void AuthenticationService::ParseAndHandleSelectGameAccount(uint32 token, uint32 methodId, MessageBuffer& buffer) {
-  ::bgs::protocol::authentication::v1::SelectGameAccountRequest request;
-  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-    LogFailedParsingRequest("AuthenticationService.SelectGameAccount");
-    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-    return;
-  }
-  LogCallServerMethod("AuthenticationService.SelectGameAccount", "bgs.protocol.authentication.v1.SelectGameAccountRequest", &request);
-  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "AuthenticationService.SelectGameAccount", ::bgs::protocol::NoData::descriptor());
-  ::bgs::protocol::NoData response;
-  uint32 status = HandleSelectGameAccount(&request, &response, continuation);
   if (continuation)
     continuation(this, status, &response);
 }

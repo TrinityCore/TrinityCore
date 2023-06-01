@@ -34,7 +34,7 @@ void protobuf_AssignDesc_global_5fextensions_2fmethod_5foptions_2eproto() {
       "global_extensions/method_options.proto");
   GOOGLE_CHECK(file != NULL);
   BGSMethodOptions_descriptor_ = file->message_type(0);
-  static const int BGSMethodOptions_offsets_[7] = {
+  static const int BGSMethodOptions_offsets_[10] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSMethodOptions, id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSMethodOptions, client_identity_routing_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSMethodOptions, enable_fanout_),
@@ -42,6 +42,9 @@ void protobuf_AssignDesc_global_5fextensions_2fmethod_5foptions_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSMethodOptions, forward_key_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSMethodOptions, idempotent_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSMethodOptions, handle_destination_unreachable_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSMethodOptions, custom_region_resolver_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSMethodOptions, explicit_region_routing_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSMethodOptions, obsolete_),
   };
   BGSMethodOptions_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -89,16 +92,18 @@ void protobuf_AddDesc_global_5fextensions_2fmethod_5foptions_2eproto() {
     "\n&global_extensions/method_options.proto"
     "\022\014bgs.protocol\032 google/protobuf/descript"
     "or.proto\032\037global_extensions/routing.prot"
-    "o\"\363\001\n\020BGSMethodOptions\022\n\n\002id\030\001 \001(\r\022H\n\027cl"
+    "o\"\306\002\n\020BGSMethodOptions\022\n\n\002id\030\001 \001(\r\022H\n\027cl"
     "ient_identity_routing\030\002 \001(\0162\'.bgs.protoc"
     "ol.ClientIdentityRoutingType\022\025\n\renable_f"
     "anout\030\003 \001(\010\022!\n\031legacy_fanout_replacement"
     "\030\004 \001(\t\022\023\n\013forward_key\030\005 \001(\t\022\022\n\nidempoten"
     "t\030\006 \001(\010\022&\n\036handle_destination_unreachabl"
-    "e\030\007 \001(\010:X\n\016method_options\022\036.google.proto"
-    "buf.MethodOptions\030\220\277\005 \001(\0132\036.bgs.protocol"
-    ".BGSMethodOptionsB%\n\rbnet.protocolB\022Meth"
-    "odOptionsProtoH\002", 496);
+    "e\030\007 \001(\010\022\036\n\026custom_region_resolver\030\010 \001(\t\022"
+    "\037\n\027explicit_region_routing\030\t \001(\010\022\020\n\010obso"
+    "lete\030\n \001(\010:X\n\016method_options\022\036.google.pr"
+    "otobuf.MethodOptions\030\220\277\005 \001(\0132\036.bgs.proto"
+    "col.BGSMethodOptionsB$\n\014bgs.protocolB\022Me"
+    "thodOptionsProtoH\002", 578);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "global_extensions/method_options.proto", &protobuf_RegisterTypes);
   BGSMethodOptions::default_instance_ = new BGSMethodOptions();
@@ -126,6 +131,9 @@ const int BGSMethodOptions::kLegacyFanoutReplacementFieldNumber;
 const int BGSMethodOptions::kForwardKeyFieldNumber;
 const int BGSMethodOptions::kIdempotentFieldNumber;
 const int BGSMethodOptions::kHandleDestinationUnreachableFieldNumber;
+const int BGSMethodOptions::kCustomRegionResolverFieldNumber;
+const int BGSMethodOptions::kExplicitRegionRoutingFieldNumber;
+const int BGSMethodOptions::kObsoleteFieldNumber;
 #endif  // !_MSC_VER
 
 BGSMethodOptions::BGSMethodOptions()
@@ -154,6 +162,9 @@ void BGSMethodOptions::SharedCtor() {
   forward_key_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   idempotent_ = false;
   handle_destination_unreachable_ = false;
+  custom_region_resolver_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  explicit_region_routing_ = false;
+  obsolete_ = false;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -168,6 +179,9 @@ void BGSMethodOptions::SharedDtor() {
   }
   if (forward_key_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete forward_key_;
+  }
+  if (custom_region_resolver_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete custom_region_resolver_;
   }
   if (this != default_instance_) {
   }

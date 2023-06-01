@@ -379,7 +379,7 @@ void protobuf_AddDesc_user_5fmanager_5fservice_2eproto() {
     "er_manager.v1.UnsubscribeRequest\032\024.bgs.p"
     "rotocol.NoData\"\006\202\371+\002\0103\032I\202\371+\?\n-bnet.proto"
     "col.user_manager.UserManagerService*\014use"
-    "r_manager0\001\212\371+\002\020\0012\273\004\n\023UserManagerListene"
+    "r_manager0\001\212\371+\002\020\0012\275\004\n\023UserManagerListene"
     "r\022w\n\024OnBlockedPlayerAdded\022<.bgs.protocol"
     ".user_manager.v1.BlockedPlayerAddedNotif"
     "ication\032\031.bgs.protocol.NO_RESPONSE\"\006\202\371+\002"
@@ -392,8 +392,8 @@ void protobuf_AddDesc_user_5fmanager_5fservice_2eproto() {
     "\"\006\202\371+\002\010\013\022{\n\026OnRecentPlayersRemoved\022>.bgs"
     ".protocol.user_manager.v1.RecentPlayersR"
     "emovedNotification\032\031.bgs.protocol.NO_RES"
-    "PONSE\"\006\202\371+\002\010\014\0328\202\371+.\n,bnet.protocol.user_"
-    "manager.UserManagerNotify\212\371+\002\010\001B\005H\002\200\001\000", 2958);
+    "PONSE\"\006\202\371+\002\010\014\032:\202\371+0\n,bnet.protocol.user_"
+    "manager.UserManagerNotify8\001\212\371+\002\010\001B\005H\002\200\001\000", 2960);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "user_manager_service.proto", &protobuf_RegisterTypes);
   SubscribeRequest::default_instance_ = new SubscribeRequest();

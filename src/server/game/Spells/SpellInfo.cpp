@@ -385,7 +385,7 @@ std::array<SpellImplicitTargetInfo::StaticData, TOTAL_SPELL_TARGETS> SpellImplic
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 139
     {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 140 TARGET_DEST_CASTER_CLUMP_CENTROID
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 141
-    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 142
+    {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_NEARBY,  TARGET_CHECK_ENTRY,    TARGET_DIR_FRONT_RIGHT}, // 142 TARGET_DEST_NEARBY_ENTRY_OR_DB
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 143
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 144
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 145
@@ -1999,16 +1999,16 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
     // continent limitation (virtual continent)
     if (HasAttribute(SPELL_ATTR4_ONLY_FLYING_AREAS))
     {
-        uint32 mountFlags = 0;
+        EnumFlag<AreaMountFlags> mountFlags = AreaMountFlags::None;
         if (player && player->HasAuraType(SPELL_AURA_MOUNT_RESTRICTIONS))
         {
             for (AuraEffect const* auraEffect : player->GetAuraEffectsByType(SPELL_AURA_MOUNT_RESTRICTIONS))
-                mountFlags |= auraEffect->GetMiscValue();
+                mountFlags |= AreaMountFlags(auraEffect->GetMiscValue());
         }
         else if (AreaTableEntry const* areaTable = sAreaTableStore.LookupEntry(area_id))
-            mountFlags = areaTable->MountFlags;
+            mountFlags = areaTable->GetMountFlags();
 
-        if (!(mountFlags & AREA_MOUNT_FLAG_FLYING_ALLOWED))
+        if (!(mountFlags.HasFlag(AreaMountFlags::AllowFlyingMounts)))
             return SPELL_FAILED_INCORRECT_AREA;
 
         if (player)
@@ -2187,7 +2187,7 @@ SpellCastResult SpellInfo::CheckTarget(WorldObject const* caster, WorldObject co
                     if (!targetCreature)
                         return SPELL_FAILED_BAD_TARGETS;
 
-                    if (!targetCreature->CanHaveLoot() || !LootTemplates_Pickpocketing.HaveLootFor(targetCreature->GetCreatureTemplate()->pickpocketLootId))
+                    if (!targetCreature->CanHaveLoot() || !LootTemplates_Pickpocketing.HaveLootFor(targetCreature->GetCreatureDifficulty()->PickPocketLootID))
                         return SPELL_FAILED_TARGET_NO_POCKETS;
                 }
 
