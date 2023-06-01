@@ -1220,6 +1220,20 @@ bool ConditionMgr::IsObjectMeetingVisibilityByObjectIdConditions(uint32 objectTy
     return true;
 }
 
+std::vector<std::pair<ConditionsObjectVisibilityIdKey, bool /*conditionMet*/>> ConditionMgr::GetQuestObjectiveMeetingVisibilityByObjectIdConditionsResult(uint32 questObjectiveId, WorldObject const* seer) const
+{
+    std::vector<std::pair<ConditionsObjectVisibilityIdKey, bool>> result;
+    if (ConditionEntriesByObjectVisibilityMap const* conditionEntriesByObjectVisibilityMap = Trinity::Containers::MapGetValuePtr(QuestObjectiveUsedInObjectIdVisibilityConditions, questObjectiveId))
+    {
+        for (auto const& [objectVisibilityIdKey, conditions] : *conditionEntriesByObjectVisibilityMap)
+        {
+            TC_LOG_DEBUG("condition", "CountQuestObjectiveMeetingVisibilityByObjectIdConditions: found conditions for quest objective {}", questObjectiveId);
+            result.emplace_back(objectVisibilityIdKey, IsObjectMeetToConditions(seer, conditions));
+        }
+    }
+    return result;
+}
+
 ConditionMgr* ConditionMgr::instance()
 {
     static ConditionMgr instance;
@@ -1477,7 +1491,12 @@ void ConditionMgr::LoadConditions(bool isReload)
                 }
                 case CONDITION_SOURCE_TYPE_OBJECT_ID_VISIBILITY:
                 {
-                    ObjectVisibilityConditionStore[{ cond->SourceGroup, uint32(cond->SourceEntry) }].push_back(cond);
+                    std::pair objectVisibilityKey = { cond->SourceGroup, uint32(cond->SourceEntry) };
+
+                    ObjectVisibilityConditionStore[objectVisibilityKey].push_back(cond);
+                    if (cond->ConditionType == CONDITION_QUEST_OBJECTIVE_PROGRESS)
+                        QuestObjectiveUsedInObjectIdVisibilityConditions[cond->ConditionValue1][objectVisibilityKey].push_back(cond);
+
                     valid = true;
                     ++count;
                     continue;
@@ -1503,6 +1522,7 @@ void ConditionMgr::LoadConditions(bool isReload)
         //add new Condition to storage based on Type/Entry
         if (cond->SourceType == CONDITION_SOURCE_TYPE_SPELL_CLICK_EVENT && cond->ConditionType == CONDITION_AURA)
             SpellsUsedInSpellClickConditions.insert(cond->ConditionValue1);
+
         ConditionStore[cond->SourceType][cond->SourceEntry].push_back(cond);
         ++count;
     }
@@ -2839,6 +2859,7 @@ void ConditionMgr::Clean()
         for (Condition* condition : conditions)
             delete condition;
 
+    QuestObjectiveUsedInObjectIdVisibilityConditions.clear();
     ObjectVisibilityConditionStore.clear();
 
     // this is a BIG hack, feel free to fix it if you can figure out the ConditionMgr ;)

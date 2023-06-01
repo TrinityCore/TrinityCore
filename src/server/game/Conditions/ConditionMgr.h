@@ -270,6 +270,8 @@ typedef std::unordered_map<uint32, ConditionsByEntryMap> ConditionEntriesByCreat
 typedef std::unordered_map<std::pair<int32, uint32 /*SAI source_type*/>, ConditionsByEntryMap> SmartEventConditionContainer;
 typedef std::unordered_map<uint32, ConditionContainer> ConditionReferenceContainer;//only used for references
 typedef std::unordered_map<std::pair<int32, bool>, ConditionContainer> ConditionEntriesByAreaTriggerIdMap;
+typedef std::pair<uint32 /*object type*/, uint32 /*object id*/> ConditionsObjectVisibilityIdKey;
+typedef std::unordered_map<ConditionsObjectVisibilityIdKey, ConditionContainer> ConditionEntriesByObjectVisibilityMap;
 
 class TC_GAME_API ConditionMgr
 {
@@ -305,6 +307,7 @@ class TC_GAME_API ConditionMgr
         ConditionContainer const* GetConditionsForAreaTrigger(uint32 areaTriggerId, bool isServerSide) const;
         bool IsObjectMeetingTrainerSpellConditions(uint32 trainerId, uint32 spellId, Player* player) const;
         bool IsObjectMeetingVisibilityByObjectIdConditions(uint32 objectType, uint32 entry, WorldObject const* seer) const;
+        std::vector<std::pair<ConditionsObjectVisibilityIdKey, bool /*conditionMet*/>> GetQuestObjectiveMeetingVisibilityByObjectIdConditionsResult(uint32 questObjectiveId, WorldObject const* seer) const;
 
         static uint32 GetPlayerConditionLfgValue(Player const* player, PlayerConditionLfgStatus status);
         static bool IsPlayerMeetingCondition(Player const* player, PlayerConditionEntry const* condition);
@@ -346,7 +349,8 @@ class TC_GAME_API ConditionMgr
         std::unordered_set<uint32> SpellsUsedInSpellClickConditions;
         ConditionEntriesByAreaTriggerIdMap AreaTriggerConditionContainerStore;
         ConditionEntriesByCreatureIdMap TrainerSpellConditionContainerStore;
-        std::unordered_map<std::pair<uint32 /*object type*/, uint32 /*object id*/>, ConditionContainer> ObjectVisibilityConditionStore;
+        ConditionEntriesByObjectVisibilityMap ObjectVisibilityConditionStore;
+        std::unordered_map<uint32, ConditionEntriesByObjectVisibilityMap> QuestObjectiveUsedInObjectIdVisibilityConditions;
 };
 
 #define sConditionMgr ConditionMgr::instance()

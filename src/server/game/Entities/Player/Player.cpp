@@ -16544,6 +16544,7 @@ void Player::CurrencyChanged(uint32 currencyId, int32 change)
 void Player::UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int32 objectId, int64 addCount, ObjectGuid victimGuid)
 {
     bool anyObjectiveChangedCompletionState = false;
+    bool forceVisibilityUpdate = false;
 
     for (QuestObjectiveStatusMap::value_type const& objectiveItr : Trinity::Containers::MapEqualRange(m_questObjectiveStatus, { objectiveType, objectId }))
     {
@@ -16558,6 +16559,8 @@ void Player::UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int3
         QuestObjective const& objective = *objectiveItr.second.Objective;
         if (!IsQuestObjectiveCompletable(logSlot, quest, objective))
             continue;
+
+        auto conditionMatchesBeforeUpdate = sConditionMgr->GetQuestObjectiveMeetingVisibilityByObjectIdConditionsResult(objective.ID, this);
 
         bool objectiveWasComplete = IsQuestObjectiveComplete(logSlot, quest, objective);
         if (!objectiveWasComplete || addCount < 0)
@@ -16652,13 +16655,29 @@ void Player::UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int3
                 CompleteQuest(questId);
             else if (objectiveItr.second.QuestStatusItr->second.Status == QUEST_STATUS_COMPLETE)
                 IncompleteQuest(questId);
+
+            auto conditionMatchesAfterUpdate = sConditionMgr->GetQuestObjectiveMeetingVisibilityByObjectIdConditionsResult(objective.ID, this);
+            if (conditionMatchesBeforeUpdate.size() != conditionMatchesAfterUpdate.size())
+                forceVisibilityUpdate = true;
+
+            if (!forceVisibilityUpdate)
+            {
+                for (const auto& [conditionBeforeUpdateKey, conditionBeforeUpdateIsMatching] : conditionMatchesBeforeUpdate)
+                    for (const auto& [conditionAfterUpdateKey, conditionAfterUpdateIsMatching] : conditionMatchesAfterUpdate)
+                        if (conditionBeforeUpdateKey == conditionAfterUpdateKey)
+                            if (conditionBeforeUpdateIsMatching != conditionAfterUpdateIsMatching)
+                                forceVisibilityUpdate = true;
+            }
+
         }
     }
 
     if (anyObjectiveChangedCompletionState)
         UpdateVisibleGameobjectsOrSpellClicks();
 
-    PhasingHandler::OnConditionChange(this);
+    bool visibilityUpdated = PhasingHandler::OnConditionChange(this);
+    if (!visibilityUpdated && forceVisibilityUpdate)
+        UpdateObjectVisibility();
 }
 
 bool Player::HasQuestForItem(uint32 itemid) const
