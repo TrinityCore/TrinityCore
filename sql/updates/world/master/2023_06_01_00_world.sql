@@ -58,7 +58,6 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceEntry`, `SourceGroup
 (27, 969, 3521, 0, 11, 2648, 1, 'Graveyard - Zangarmarsh - PvP - Alliance Controlled'),
 (27, 969, 3521, 1, 6, 67, 0, 'Graveyard - Zangarmarsh - PvP - Team Horde'),
 (27, 969, 3521, 1, 11, 2649, 1, 'Graveyard - Zangarmarsh - PvP - Horde Controlled'),
-
 (27, 993, 3518, 0, 6, 469, 0, 'Graveyard - Nagrand (Outland), Halaa - PvP - Team Alliance'),
 (27, 993, 3518, 0, 11, 2672, 1, 'Graveyard - Nagrand (Outland), Halaa - PvP - Alliance Controlled'),
 (27, 993, 3518, 1, 6, 67, 0, 'Graveyard - Nagrand (Outland), Halaa - PvP - Team Horde'),
