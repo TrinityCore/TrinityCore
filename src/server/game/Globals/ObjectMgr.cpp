@@ -6822,8 +6822,8 @@ void ObjectMgr::LoadGraveyardZones()
 
     GraveyardStore.clear(); // needed for reload case
 
-    //                                               0   1          2
-    QueryResult result = WorldDatabase.Query("SELECT ID, GhostZone, Faction FROM graveyard_zone");
+    //                                               0   1
+    QueryResult result = WorldDatabase.Query("SELECT ID, GhostZone FROM graveyard_zone");
 
     if (!result)
     {
@@ -6841,7 +6841,6 @@ void ObjectMgr::LoadGraveyardZones()
 
         uint32 safeLocId = fields[0].GetUInt32();
         uint32 zoneId = fields[1].GetUInt32();
-        uint32 team   = fields[2].GetUInt16();
 
         WorldSafeLocsEntry const* entry = GetWorldSafeLoc(safeLocId);
         if (!entry)
@@ -6857,13 +6856,7 @@ void ObjectMgr::LoadGraveyardZones()
             continue;
         }
 
-        if (team != 0 && team != HORDE && team != ALLIANCE)
-        {
-            TC_LOG_ERROR("sql.sql", "Table `graveyard_zone` has a record for non player faction ({}), skipped.", team);
-            continue;
-        }
-
-        if (!AddGraveyardLink(safeLocId, zoneId, team, false))
+        if (!AddGraveyardLink(safeLocId, zoneId, 0, false))
             TC_LOG_ERROR("sql.sql", "Table `graveyard_zone` has a duplicate record for Graveyard (ID: {}) and Zone (ID: {}), skipped.", safeLocId, zoneId);
     } while (result->NextRow());
 
@@ -6964,17 +6957,29 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyardInZone(WorldLocation con
 
         WorldSafeLocsEntry const* entry = ASSERT_NOTNULL(GetWorldSafeLoc(data.safeLocId));
 
-        // skip enemy faction graveyard
-        // team == 0 case can be at call from .neargrave
-        if (data.team != 0 && team != 0 && data.team != team)
-            continue;
-
         if (conditionObject)
         {
-            if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_GRAVEYARD, data.safeLocId, conditionSource))
+            if (!sConditionMgr->IsObjectMeetToConditions(conditionSource, data.Conditions))
                 continue;
 
             if (int16(entry->Loc.GetMapId()) == mapEntry->ParentMapID && !conditionObject->GetPhaseShift().HasVisibleMapId(entry->Loc.GetMapId()))
+                continue;
+        }
+        else if (team != 0)
+        {
+            bool teamConditionMet = true;
+            for (Condition const* cond : data.Conditions)
+            {
+                if (cond->ConditionType != CONDITION_TEAM)
+                    continue;
+
+                if (cond->ConditionValue1 == team)
+                    continue;
+
+                teamConditionMet = false;
+            }
+
+            if (!teamConditionMet)
                 continue;
         }
 
@@ -7115,7 +7120,6 @@ bool ObjectMgr::AddGraveyardLink(uint32 id, uint32 zoneId, uint32 team, bool per
     // add link to loaded data
     GraveyardData data;
     data.safeLocId = id;
-    data.team = team;
 
     GraveyardStore.insert(GraveyardContainer::value_type(zoneId, data));
 
@@ -7126,60 +7130,38 @@ bool ObjectMgr::AddGraveyardLink(uint32 id, uint32 zoneId, uint32 team, bool per
 
         stmt->setUInt32(0, id);
         stmt->setUInt32(1, zoneId);
-        stmt->setUInt16(2, uint16(team));
 
         WorldDatabase.Execute(stmt);
+
+        // Store graveyard condition if team is set
+        if (team != 0)
+        {
+            WorldDatabasePreparedStatement* conditionStmt = WorldDatabase.GetPreparedStatement(WORLD_INS_CONDITION);
+            conditionStmt->setUInt32(0, CONDITION_SOURCE_TYPE_GRAVEYARD); // SourceTypeOrReferenceId
+            conditionStmt->setUInt32(1, zoneId); // SourceGroup
+            conditionStmt->setUInt32(2, id); // SourceEntry
+            conditionStmt->setUInt32(3, 0); // SourceId
+            conditionStmt->setUInt32(4, 0); // ElseGroup
+            conditionStmt->setUInt32(5, CONDITION_TEAM); // ConditionTypeOrReference
+            conditionStmt->setUInt8(6, 0); // ConditionTarget
+            conditionStmt->setUInt32(7, team); // ConditionValue1
+            conditionStmt->setUInt32(8, 0); // ConditionValue2
+            conditionStmt->setUInt32(9, 0); // ConditionValue3
+            conditionStmt->setUInt8(10, 0); // NegativeCondition
+            conditionStmt->setUInt32(11, 0); // ErrorType
+            conditionStmt->setUInt32(12, 0); // ErrorTextId
+            conditionStmt->setString(13, ""); // ScriptName
+            conditionStmt->setString(14, ""); // Comment
+
+            WorldDatabase.Execute(conditionStmt);
+
+            // reload conditions to make sure everything is loaded as it should be
+            sConditionMgr->LoadConditions(true);
+            sScriptMgr->NotifyScriptIDUpdate();
+        }
     }
 
     return true;
-}
-
-void ObjectMgr::RemoveGraveyardLink(uint32 id, uint32 zoneId, uint32 team, bool persist /*= false*/)
-{
-    GraveyardMapBoundsNonConst range = GraveyardStore.equal_range(zoneId);
-    if (range.first == range.second)
-    {
-        //TC_LOG_ERROR("sql.sql", "Table `graveyard_zone` incomplete: Zone {} Team {} does not have a linked graveyard.", zoneId, team);
-        return;
-    }
-
-    bool found = false;
-
-    for (; range.first != range.second; ++range.first)
-    {
-        GraveyardData & data = range.first->second;
-
-        // skip not matching safezone id
-        if (data.safeLocId != id)
-            continue;
-
-        // skip enemy faction graveyard at same map (normal area, city, or battleground)
-        // team == 0 case can be at call from .neargrave
-        if (data.team != 0 && team != 0 && data.team != team)
-            continue;
-
-        found = true;
-        break;
-    }
-
-    // no match, return
-    if (!found)
-        return;
-
-    // remove from links
-    GraveyardStore.erase(range.first);
-
-    // remove link from DB
-    if (persist)
-    {
-        WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GRAVEYARD_ZONE);
-
-        stmt->setUInt32(0, id);
-        stmt->setUInt32(1, zoneId);
-        stmt->setUInt16(2, uint16(team));
-
-        WorldDatabase.Execute(stmt);
-    }
 }
 
 void ObjectMgr::LoadAreaTriggerTeleports()
