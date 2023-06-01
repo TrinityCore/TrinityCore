@@ -166,6 +166,9 @@ enum BG_WS_Objectives
 struct BattlegroundWGScore final : public BattlegroundScore
 {
     friend class BattlegroundWS;
+    // @tswow-begin
+    friend class TSBattlegroundScore;
+    // @tswow-end
 
     protected:
         BattlegroundWGScore(ObjectGuid playerGuid) : BattlegroundScore(playerGuid), FlagCaptures(0), FlagReturns(0) { }

@@ -1568,6 +1568,9 @@ inline BG_AV_Nodes &operator++(BG_AV_Nodes& i) { return i = BG_AV_Nodes(i + 1); 
 struct BattlegroundAVScore final : public BattlegroundScore
 {
     friend class BattlegroundAV;
+    // @tswow-begin
+    friend class TSBattlegroundScore;
+    // @tswow-end
 
     protected:
         BattlegroundAVScore(ObjectGuid playerGuid) : BattlegroundScore(playerGuid), GraveyardsAssaulted(0), GraveyardsDefended(0), TowersAssaulted(0), TowersDefended(0), MinesCaptured(0) { }

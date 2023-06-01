@@ -61,7 +61,6 @@ void BattlegroundScore::AppendToPacket(WorldPacket& data)
     data << uint32(BonusHonor);
     data << uint32(DamageDone);
     data << uint32(HealingDone);
-
     BuildObjectivesBlock(data);
 }
 
@@ -1104,6 +1103,7 @@ void Battleground::AddPlayer(Player* player)
         , TSBattleground(m_Map, this)
         , TSPlayer(player)
     );
+    TSPlayer(player).SendAddonMessage("tsmp", std::to_string(m_MapId), CHAT_MSG_WHISPER, TSPlayer(player));
     // @tswow-end
 }
 
@@ -1314,8 +1314,27 @@ void Battleground::BuildPvPLogDataPacket(WorldPacket& data)
         data << uint8(0);                      // bg not ended
 
     data << uint32(GetPlayerScoresSize());
-    for (auto const& score : PlayerScores)
+
+    // @tswow-begin event, make score mutable
+    for (auto& score : PlayerScores)
+    {
+        // @tswow-begin
+        bool cancel = false;
+        FIRE_ID(
+              m_MapId
+            , Battleground, OnSendScore
+            , TSBattleground(m_Map, this)
+            , TSBattlegroundScore(score.second)
+            , TSWorldPacket(&data)
+            , TSMutable<bool,bool>(&cancel)
+        );
+        if (cancel)
+        {
+            continue;
+        }
+        // @tswow-end
         score.second->AppendToPacket(data);
+    }
 }
 
 bool Battleground::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor)

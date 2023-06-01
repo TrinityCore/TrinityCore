@@ -24,6 +24,9 @@
 struct TC_GAME_API ArenaScore : public BattlegroundScore
 {
     friend class Arena;
+    // @tswow-begin
+    friend TSBattlegroundScore;
+    // @tswow-end
 
     protected:
         ArenaScore(ObjectGuid playerGuid, uint32 team) : BattlegroundScore(playerGuid), TeamId(team == ALLIANCE ? PVP_TEAM_ALLIANCE : PVP_TEAM_HORDE) { }

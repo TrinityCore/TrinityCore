@@ -336,6 +336,12 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             }
 
             Player* receiver = ObjectAccessor::FindConnectedPlayerByName(to);
+            // @tswow-begin
+            if (sender == receiver && lang == LANG_ADDON && msg.size() == 5 && msg == "tcmp\t")
+            {
+                TSPlayer(sender).SendAddonMessage("tsmp", std::to_string(sender->GetMapId()), CHAT_MSG_WHISPER, TSPlayer(sender));
+            }
+            // @tswow-end
             if (!receiver || (lang != LANG_ADDON && !receiver->isAcceptWhispers() && receiver->GetSession()->HasPermission(rbac::RBAC_PERM_CAN_FILTER_WHISPERS) && !receiver->IsInWhisperWhiteList(sender->GetGUID())))
             {
                 SendPlayerNotFoundNotice(to);

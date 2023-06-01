@@ -268,6 +268,9 @@ struct BG_AB_BannerTimer
 struct BattlegroundABScore final : public BattlegroundScore
 {
     friend class BattlegroundAB;
+    // @tswow-begin
+    friend class TSBattlegroundScore;
+    // @tswow-end
 
     protected:
         BattlegroundABScore(ObjectGuid playerGuid) : BattlegroundScore(playerGuid), BasesAssaulted(0), BasesDefended(0) { }

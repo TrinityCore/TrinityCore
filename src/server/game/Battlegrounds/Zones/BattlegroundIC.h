@@ -910,6 +910,9 @@ enum HonorRewards
 struct BattlegroundICScore final : public BattlegroundScore
 {
     friend class BattlegroundIC;
+    // @tswow-begin
+    friend class TSBattlegroundScore;
+    // @tswow-end
 
     protected:
         BattlegroundICScore(ObjectGuid playerGuid) : BattlegroundScore(playerGuid), BasesAssaulted(0), BasesDefended(0) { }

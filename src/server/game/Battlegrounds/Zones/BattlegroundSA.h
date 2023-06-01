@@ -519,6 +519,9 @@ struct BG_SA_RoundScore
 struct BattlegroundSAScore final : public BattlegroundScore
 {
     friend class BattlegroundSA;
+    // @tswow-begin
+    friend class TSBattlegroundScore;
+    // @tswow-end
 
     protected:
         BattlegroundSAScore(ObjectGuid playerGuid) : BattlegroundScore(playerGuid), DemolishersDestroyed(0), GatesDestroyed(0) { }

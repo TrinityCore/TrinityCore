@@ -22,6 +22,10 @@
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
 
+// @tswow-begin
+#include <map>
+// @tswow-end
+
 class WorldPacket;
 
 enum ScoreType
@@ -57,6 +61,9 @@ struct BattlegroundScore
 {
     friend class Arena;
     friend class Battleground;
+    // @tswow-begin
+    friend class TSBattlegroundScore;
+    // @tswow-end
 
     protected:
         BattlegroundScore(ObjectGuid playerGuid) : PlayerGuid(playerGuid), KillingBlows(0), Deaths(0),
@@ -120,6 +127,10 @@ struct BattlegroundScore
         uint32 BonusHonor;
         uint32 DamageDone;
         uint32 HealingDone;
+
+        // @tswow-begin
+        std::map<std::string, uint32> CustomAttributes;
+        // @tswow-end
 };
 
 #endif // TRINITY_BATTLEGROUND_SCORE_H

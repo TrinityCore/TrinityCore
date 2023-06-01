@@ -353,6 +353,9 @@ const BattlegroundEYCapturingPointStruct m_CapturingPointTypes[EY_POINTS_MAX] =
 struct BattlegroundEYScore final : public BattlegroundScore
 {
     friend class BattlegroundEY;
+    // @tswow-begin
+    friend class TSBattlegroundScore;
+    // @tswow-end
 
     protected:
         BattlegroundEYScore(ObjectGuid playerGuid) : BattlegroundScore(playerGuid), FlagCaptures(0) { }
