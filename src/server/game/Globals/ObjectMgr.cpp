@@ -6856,7 +6856,7 @@ void ObjectMgr::LoadGraveyardZones()
             continue;
         }
 
-        if (!AddGraveyardLink(safeLocId, zoneId, false))
+        if (!AddGraveyardLink(safeLocId, zoneId, 0, false))
             TC_LOG_ERROR("sql.sql", "Table `graveyard_zone` has a duplicate record for Graveyard (ID: {}) and Zone (ID: {}), skipped.", safeLocId, zoneId);
     } while (result->NextRow());
 
