@@ -2004,6 +2004,75 @@ void Unit::CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, Weapon
             // Crit bonus calc
             damageInfo->Damage *= 2;
 
+            //觉醒属性，PVP魔法伤害增加-攻击目标
+                    //攻击者-玩家或雇佣兵，被攻击者是人物 = PVP魔法暴击伤害增加
+            Unit* unit = const_cast<Unit*>(this);
+            bool isPVP = false;
+            if (unit && unit->GetTypeId() == TYPEID_PLAYER) {
+                if (victim) {
+                    if (victim->GetTypeId() == TYPEID_PLAYER) {
+                        isPVP = true;
+                    }
+                }
+            }
+            else {
+                isPVP = false;
+            }
+            if (unit && victim && unit->IsAlive() && victim->IsAlive()) {
+                if (isPVP) {
+                    if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 217) > 0) {
+                        damageInfo->Damage += (damageInfo->Damage * (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 217) / 100.0));
+                    }
+                    if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 216) > 0) {
+                        uint32 damage = aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 216);
+                        damageInfo->Damage += damage;
+                    }
+                    //觉醒属性，PVP魔法伤害增加-攻击目标
+                    //被攻击者-玩家或雇佣兵，攻击者是人物 = PVP受到魔法暴击伤害减少
+                    if (aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 226) > 0) {
+                        uint32 damage = aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 226);
+                        damage = damage > 100 ? 100 : damage;
+                        damageInfo->Damage -= (damageInfo->Damage * (damage / 100.0));
+                    }
+                    if (aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 225) > 0) {
+                        uint32 damage = aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 225);
+                        if (damageInfo->Damage > damage) {
+                            damageInfo->Damage -= damage;
+                        }
+                        else {
+                            damageInfo->Damage = 0;
+                        }
+                    }
+                }
+                else {
+                    //觉醒属性，PVE魔法伤害增加-攻击目标
+                    //攻击者-玩家或雇佣兵，被攻击者是怪物 = PVE魔法暴击伤害增加
+                    if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 317) > 0) {
+                        damageInfo->Damage += (damageInfo->Damage * (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 317) / 100.0));
+                    }
+                    if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 316) > 0) {
+                        uint32 damage = aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 316);
+                        damageInfo->Damage += damage;
+                    }
+                    //觉醒属性，PVP魔法伤害增加-攻击目标
+                    //被攻击者-玩家或雇佣兵，攻击者是怪物 = PVE受到魔法暴击伤害减少
+                    if (aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 326) > 0) {
+                        uint32 damage = aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 326);
+                        damage = damage > 100 ? 100 : damage;
+                        damageInfo->Damage -= (damageInfo->Damage * (damage / 100.0));
+                    }
+                    if (aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 325) > 0) {
+                        uint32 damage = aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 325);
+                        if (damageInfo->Damage > damage) {
+                            damageInfo->Damage -= damage;
+                        }
+                        else {
+                            damageInfo->Damage = 0;
+                        }
+                    }
+                }
+            }
+
             // Increase crit damage from SPELL_AURA_MOD_CRIT_DAMAGE_BONUS
             float mod = (GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, damageInfo->DamageSchoolMask) - 1.0f) * 100;
 
@@ -2096,6 +2165,209 @@ void Unit::CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, Weapon
     }
     else // Impossible get negative result but....
         damageInfo->Damage = 0;
+
+    //ToDo物理伤害
+    Unit* unit = const_cast<Unit*>(this);
+    bool isPVP = false;
+    if (unit && unit->GetTypeId() == TYPEID_PLAYER) {
+        if (victim) {
+            if (victim->GetTypeId() == TYPEID_PLAYER) {
+                isPVP = true;
+            }
+        }
+    }
+    else {
+        isPVP = false;
+    }
+
+    //生物伤害修改
+    if (Creature* creature = unit->ToCreature()) {
+        if (creature->aa_id > 0) {
+            AA_Creature conf = aaCenter.aa_creatures[creature->aa_id];
+            if (conf.id > 0) {
+                uint32 fmval_count = 0;
+                uint32 dmgmin = conf.damage_min;
+                uint32 dmgmax = conf.damage_max;
+                if (dmgmin >= dmgmax) {
+                    fmval_count = dmgmin;
+                }
+                else {
+                    fmval_count = (rand() % (dmgmax - dmgmin + 1)) + dmgmin;
+                }
+                damageInfo->Damage = fmval_count > 0 ? fmval_count : damageInfo->Damage;
+
+                if (conf.damage > 0) {
+                    damageInfo->Damage *= (conf.damage / 100.0);
+                }
+            }
+        }
+    }
+
+    uint32 zhenshi = 0;
+    if (unit && victim && unit->IsAlive() && victim->IsAlive()) {
+        if (isPVP) {
+            //觉醒属性，PVP魔法伤害增加-攻击目标
+            //攻击者-玩家或仆从，被攻击者是人物 = PVP魔法伤害增加
+            if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 201) > 0) {
+                damageInfo->Damage += (damageInfo->Damage * (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 201) / 100.0));
+            }
+            //攻击者-玩家或仆从，被攻击者是人物 = PVP魔法伤害增加
+            if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 200) > 0) {
+                uint32 damage = aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 200);
+                damageInfo->Damage += damage;
+            }
+            //觉醒属性，PVP魔法伤害增加-攻击目标
+            //被攻击者-玩家或仆从，攻击者是人物 = PVP受到魔法伤害减少
+            if (aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 207) > 0) {
+                uint32 damage = aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 207);
+                damage = damage > 100 ? 100 : damage;
+                damageInfo->Damage -= (damageInfo->Damage * (damage / 100.0));
+            }
+            //觉醒属性，PVP魔法伤害增加-攻击目标
+            //被攻击者-玩家或仆从，攻击者是人物 = PVP受到魔法伤害减少
+            if (aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 206) > 0) {
+                uint32 damage = aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 206);
+                if (damageInfo->Damage > damage) {
+                    damageInfo->Damage -= damage;
+                }
+                else {
+                    damageInfo->Damage = 0;
+                }
+            }
+            //aawow 职业属性平衡,物理伤害增加
+            AA_Player_Stats_Conf conf = aaCenter.AA_GetPlayerStatConfWithMap(unit);
+            if (conf.class1 > 0) {
+                if (conf.ptshbl > 0) {
+                    damageInfo->Damage *= (conf.ptshbl / 100.0);
+                }
+                if (conf.ptshsx > 0 && damageInfo->Damage > (conf.ptshsx)) {
+                    damageInfo->Damage = (conf.ptshsx);
+                }
+            }
+            conf = aaCenter.AA_GetPlayerStatConfWithMap(victim);
+            if (conf.jianshangpvp != 0 && conf.jianshangpvp != 100) {
+                damageInfo->Damage *= (conf.jianshangpvp / 100.0);
+            }
+
+            if (unit->aa_zhenshi_time >= 500) {
+                unit->aa_zhenshi_time = 0;
+                if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 222) > 0) {
+                    zhenshi = zhenshi + aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 222);
+                }
+                {
+                    uint32 chanceMax = aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 228);
+                    if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 227) > 0 && chanceMax > 0) {
+                        uint32 chanceVal = rand() % 100;
+                        if (chanceVal <= chanceMax)
+                        {
+                            zhenshi = zhenshi + aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 227);
+                        }
+                    }
+                }
+                {
+                    uint32 chanceMax = aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 230);
+                    if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 229) > 0 && chanceMax > 0) {
+                        uint32 qiege = victim->GetMaxHealth() * aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 229) / 100;
+                        zhenshi = zhenshi + qiege;
+                    }
+                }
+            }
+        }
+        else {
+            //觉醒属性，PVE魔法伤害增加-攻击目标
+            //攻击者-玩家或仆从，被攻击者是怪物 = PVE魔法伤害增加
+            if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 301) > 0) {
+                damageInfo->Damage += (damageInfo->Damage * (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 301) / 100.0));
+            }
+            //觉醒属性，PVE魔法伤害增加-攻击目标
+            //攻击者-玩家或仆从，被攻击者是怪物 = PVE魔法伤害增加
+            if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 300) > 0) {
+                uint32 damage = aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 300);
+                damageInfo->Damage += damage;
+            }
+            //觉醒属性，PVP魔法伤害增加-攻击目标
+            //被攻击者-玩家或仆从，攻击者是怪物 = PVE受到魔法伤害减少
+            if (aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 307) > 0) {
+                uint32 damage = aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 307);
+                damage = damage > 100 ? 100 : damage;
+                damageInfo->Damage -= (damageInfo->Damage * (damage / 100.0));
+            }
+            //觉醒属性，PVP魔法伤害增加-攻击目标
+            //被攻击者-玩家或仆从，攻击者是怪物 = PVE受到魔法伤害减少
+            if (aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 306) > 0) {
+                uint32 damage = aaCenter.AA_FindMapValueUint32(victim->aa_fm_values, 306);
+                if (damageInfo->Damage > damage) {
+                    damageInfo->Damage -= damage;
+                }
+                else {
+                    damageInfo->Damage = 0;
+                }
+            }
+            //aawow 职业属性平衡,物理伤害增加
+            AA_Player_Stats_Conf conf = aaCenter.AA_GetPlayerStatConfWithMap(unit);
+            if (conf.class1 > 0) {
+                if (conf.cptshbl > 0) {
+                    damageInfo->Damage *= (conf.cptshbl / 100.0);
+                }
+                if (conf.ptshsx > 0 && damageInfo->Damage > (conf.ptshsx)) {
+                    damageInfo->Damage = (conf.ptshsx);
+                }
+            }
+            conf = aaCenter.AA_GetPlayerStatConfWithMap(victim);
+            if (conf.jianshangpve != 0 && conf.jianshangpve != 100) {
+                damageInfo->Damage *= (conf.jianshangpve / 100.0);
+            }
+            if (unit->aa_zhenshi_time >= 500) {
+                unit->aa_zhenshi_time = 0;
+                if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 322) > 0) {
+                    zhenshi = zhenshi + aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 322);
+                }
+                {
+                    uint32 chanceMax = aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 328);
+                    if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 327) > 0 && chanceMax > 0) {
+                        uint32 chanceVal = rand() % 100;
+                        if (chanceVal < chanceMax) {
+                            zhenshi = zhenshi + aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 327);
+                        }
+                    }
+                }
+                {
+                    uint32 chanceMax = aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 330);
+                    if (aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 329) > 0 && chanceMax > 0) {
+                        uint32 chanceVal = rand() % 100;
+                        if (chanceVal < chanceMax) {
+                            uint32 qiege = victim->GetMaxHealth() * aaCenter.AA_FindMapValueUint32(unit->aa_fm_values, 329) / 100;
+                            zhenshi = zhenshi + qiege;
+                        }
+                    }
+                }
+            }
+        }
+
+        //生物物理受伤百分比
+        if (Creature* c = victim->ToCreature()) {
+            AA_Creature conf;
+            if (c->aa_id > 0) {
+                conf = aaCenter.aa_creatures[c->aa_id];
+            }
+            if (conf.jianshang_wl != 0 && conf.jianshang_wl != 100) {
+                damageInfo->Damage *= (conf.jianshang_wl / 100.0);
+            }
+            if (conf.qiege == 1) {
+                damageInfo->Damage += zhenshi;
+            }
+            //生物受伤上限
+            if (conf.shangxian > 0) {
+                uint32 shangxian = conf.shangxian;
+                if (damageInfo->Damage > shangxian) {
+                    damageInfo->Damage = shangxian;
+                }
+            }
+        }
+        else {
+            damageInfo->Damage += zhenshi;
+        }
+    }
 }
 
 void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)

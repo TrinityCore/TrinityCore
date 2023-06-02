@@ -15741,8 +15741,10 @@ void AACenter::AA_ModifyCreature(Creature* creature, AA_Creature conf)
             speed_walk = speed_walk * (conf.walk_speed1 / 100.0);
             speed_run = speed_run * (conf.walk_speed1 / 100.0);
         }
-        creature->SetSpeed(MOVE_WALK, speed_walk);
-        creature->SetSpeed(MOVE_RUN, speed_run);
+        if (speed_walk != cInfo->speed_walk || speed_run != cInfo->speed_run) {
+            creature->SetSpeed(MOVE_WALK, speed_walk);
+            creature->SetSpeed(MOVE_RUN, speed_run);
+        }
 
         //生命
         uint32 CreateHealth = creature->GetCreateHealth();
@@ -15795,9 +15797,11 @@ void AACenter::AA_ModifyCreature(Creature* creature, AA_Creature conf)
             BaseAttackTime = BaseAttackTime * (conf.attack_speed1 / 100.0);
             RangeAttackTime = RangeAttackTime * (conf.attack_speed1 / 100.0);
         }
-        creature->SetBaseAttackTime(BASE_ATTACK, BaseAttackTime);
-        creature->SetBaseAttackTime(OFF_ATTACK, BaseAttackTime);
-        creature->SetBaseAttackTime(RANGED_ATTACK, RangeAttackTime);
+        if (BaseAttackTime != cInfo->BaseAttackTime || RangeAttackTime != cInfo->RangeAttackTime) {
+            creature->SetBaseAttackTime(BASE_ATTACK, BaseAttackTime);
+            creature->SetBaseAttackTime(OFF_ATTACK, BaseAttackTime);
+            creature->SetBaseAttackTime(RANGED_ATTACK, RangeAttackTime);
+        }
 
         //护甲
         uint32 armor = creature->GetArmor();
