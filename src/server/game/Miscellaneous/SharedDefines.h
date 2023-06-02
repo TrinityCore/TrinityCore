@@ -901,7 +901,7 @@ enum Team
     TEAM_OTHER               = 0                            // if ReputationListId > 0 && Flags != FACTION_FLAG_TEAM_HEADER
 };
 
-enum SpellEffects
+enum SpellEffects : uint32
 {
     SPELL_EFFECT_INSTAKILL                          = 1,
     SPELL_EFFECT_SCHOOL_DAMAGE                      = 2,
