@@ -68,7 +68,7 @@ template<>
 bool ContentTuningParams::GenerateDataForUnits<Creature, Player>(Creature* attacker, Player* target)
 {
     CreatureTemplate const* creatureTemplate = attacker->GetCreatureTemplate();
-    CreatureLevelScaling const* creatureScaling = creatureTemplate->GetLevelScaling(attacker->GetMap()->GetDifficultyID());
+    CreatureLevelScaling const* creatureScaling = creatureTemplate->GetLevelScaling(attacker->GetMap()->GetDifficultyID(), attacker);
 
     Type = TYPE_CREATURE_TO_PLAYER_DAMAGE;
     PlayerLevelDelta = target->m_activePlayerData->ScalingPlayerLevelDelta;
@@ -86,7 +86,7 @@ template<>
 bool ContentTuningParams::GenerateDataForUnits<Player, Creature>(Player* attacker, Creature* target)
 {
     CreatureTemplate const* creatureTemplate = target->GetCreatureTemplate();
-    CreatureLevelScaling const* creatureScaling = creatureTemplate->GetLevelScaling(target->GetMap()->GetDifficultyID());
+    CreatureLevelScaling const* creatureScaling = creatureTemplate->GetLevelScaling(target->GetMap()->GetDifficultyID(), target);
 
     Type = TYPE_PLAYER_TO_CREATURE_DAMAGE;
     PlayerLevelDelta = attacker->m_activePlayerData->ScalingPlayerLevelDelta;
@@ -105,7 +105,7 @@ bool ContentTuningParams::GenerateDataForUnits<Creature, Creature>(Creature* att
 {
     Creature* accessor = target->HasScalableLevels() ? target : attacker;
     CreatureTemplate const* creatureTemplate = accessor->GetCreatureTemplate();
-    CreatureLevelScaling const* creatureScaling = creatureTemplate->GetLevelScaling(accessor->GetMap()->GetDifficultyID());
+    CreatureLevelScaling const* creatureScaling = creatureTemplate->GetLevelScaling(accessor->GetMap()->GetDifficultyID(), accessor);
 
     Type = TYPE_CREATURE_TO_CREATURE_DAMAGE;
     PlayerLevelDelta = 0;

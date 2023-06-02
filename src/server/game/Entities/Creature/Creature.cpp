@@ -240,11 +240,14 @@ WorldPacket CreatureTemplate::BuildQueryData(LocaleConstant loc) const
     return queryTemp.Move();
 }
 
-CreatureLevelScaling const* CreatureTemplate::GetLevelScaling(Difficulty difficulty) const
+CreatureLevelScaling const* CreatureTemplate::GetLevelScaling(Difficulty difficulty, Creature const* creature) const
 {
     auto it = scalingStore.find(difficulty);
-    if (it != scalingStore.end())
-        return &it->second;
+    if (it != scalingStore.end()) {
+        if (!creature || (creature && creature->aa_id == 0)) {
+            return &it->second;
+        }
+    }
 
     struct DefaultCreatureLevelScaling : public CreatureLevelScaling
     {
@@ -1533,6 +1536,11 @@ void Creature::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDiffic
 
 void Creature::SelectLevel()
 {
+    if (!GetOwner() && !IsTotem() && this->aa_id == 0) {
+        AA_Creature conf = aaCenter.AA_GetCreatureConf(this);
+        this->aa_id = conf.id;
+    }
+
     // Level
     ApplyLevelScaling();
     int32 levelWithDelta = m_unitData->ScalingLevelMax + m_unitData->ScalingLevelDelta;
@@ -1585,20 +1593,18 @@ void Creature::UpdateLevelDependantStats()
 
 
     // 没有主人，有主人为玩家 加难度
-    if (!GetOwner() && !IsTotem()) {
-        AA_Creature conf = aaCenter.AA_GetCreatureConf(this);
-        if (conf.id > 0) {
-            if (conf.damage > 0 && conf.damage != 100) {
-                weaponBaseMinDamage = weaponBaseMinDamage * (conf.damage / 100.0);
-                weaponBaseMaxDamage = weaponBaseMaxDamage * (conf.damage / 100.0);
-            }
+    if (this->aa_id > 0) {
+        AA_Creature conf = aaCenter.aa_creatures[this->aa_id];
+        if (conf.damage > 0 && conf.damage != 100) {
+            weaponBaseMinDamage = weaponBaseMinDamage * (conf.damage / 100.0);
+            weaponBaseMaxDamage = weaponBaseMaxDamage * (conf.damage / 100.0);
+        }
 
-            aaCenter.AA_ModifyCreature(this, conf);
-            if (conf.notice_sx > 0) {
-                AA_Message aa_message;
-                AA_Notice notice = aaCenter.aa_notices[conf.notice_sx];
-                aaCenter.AA_SendNotice(this, notice, true, aa_message);
-            }
+        aaCenter.AA_ModifyCreature(this, conf);
+        if (conf.notice_sx > 0) {
+            AA_Message aa_message;
+            AA_Notice notice = aaCenter.aa_notices[conf.notice_sx];
+            aaCenter.AA_SendNotice(this, notice, true, aa_message);
         }
     }
 
@@ -2956,7 +2962,7 @@ bool Creature::HasScalableLevels() const
 
 void Creature::ApplyLevelScaling()
 {
-    CreatureLevelScaling const* scaling = GetCreatureTemplate()->GetLevelScaling(GetMap()->GetDifficultyID());
+    CreatureLevelScaling const* scaling = GetCreatureTemplate()->GetLevelScaling(GetMap()->GetDifficultyID(), this);
 
     if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(scaling->ContentTuningID, 0))
     {
@@ -2975,7 +2981,7 @@ void Creature::ApplyLevelScaling()
 uint64 Creature::GetMaxHealthByLevel(uint8 level) const
 {
     CreatureTemplate const* cInfo = GetCreatureTemplate();
-    CreatureLevelScaling const* scaling = cInfo->GetLevelScaling(GetMap()->GetDifficultyID());
+    CreatureLevelScaling const* scaling = cInfo->GetLevelScaling(GetMap()->GetDifficultyID(), this);
     float baseHealth = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureHealth, level, cInfo->GetHealthScalingExpansion(), scaling->ContentTuningID, Classes(cInfo->unit_class));
     return baseHealth * cInfo->ModHealth * cInfo->ModHealthExtra;
 }
@@ -2995,7 +3001,7 @@ float Creature::GetHealthMultiplierForTarget(WorldObject const* target) const
 float Creature::GetBaseDamageForLevel(uint8 level) const
 {
     CreatureTemplate const* cInfo = GetCreatureTemplate();
-    CreatureLevelScaling const* scaling = cInfo->GetLevelScaling(GetMap()->GetDifficultyID());
+    CreatureLevelScaling const* scaling = cInfo->GetLevelScaling(GetMap()->GetDifficultyID(), this);
     return sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureAutoAttackDps, level, cInfo->GetHealthScalingExpansion(), scaling->ContentTuningID, Classes(cInfo->unit_class));
 }
 
@@ -3012,7 +3018,7 @@ float Creature::GetDamageMultiplierForTarget(WorldObject const* target) const
 float Creature::GetBaseArmorForLevel(uint8 level) const
 {
     CreatureTemplate const* cInfo = GetCreatureTemplate();
-    CreatureLevelScaling const* scaling = cInfo->GetLevelScaling(GetMap()->GetDifficultyID());
+    CreatureLevelScaling const* scaling = cInfo->GetLevelScaling(GetMap()->GetDifficultyID(), this);
     float baseArmor = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureArmor, level, cInfo->GetHealthScalingExpansion(), scaling->ContentTuningID, Classes(cInfo->unit_class));
     return baseArmor * cInfo->ModArmor;
 }

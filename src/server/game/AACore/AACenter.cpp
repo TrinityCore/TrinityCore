@@ -15408,7 +15408,8 @@ AA_Creature AACenter::AA_GetCreatureConf(Creature* creature)
     uint32 mapid = creature->GetMapId();
     uint32 zoneid = creature->GetZoneId();
     uint32 areaid = creature->GetAreaId();
-    uint32 rankid = creature->GetCreatureTemplate()->rank;
+    CreatureTemplate const* normalInfo = creature->GetCreatureTemplate();
+    uint32 rankid = normalInfo->rank;
     std::string rank = "";
     if (rankid == 0) {
         rank = "普通";
@@ -15427,7 +15428,6 @@ AA_Creature AACenter::AA_GetCreatureConf(Creature* creature)
     }
     uint32 confid = 0;
     AA_Creature_Id idconf;
-    CreatureTemplate const* normalInfo = creature->GetCreatureTemplate();
     if (map->IsDungeon() && normalInfo) {
         // get difficulty 1 mode entry
         CreatureTemplate const* cInfo = nullptr;
@@ -15727,7 +15727,6 @@ void AACenter::AA_ModifyCreature(Creature* creature, AA_Creature conf)
             cInfo = normalInfo;
 
         creature->SetCanModifyStats(false);
-        creature->aa_id = conf.id;
         if (conf.level > 0) {
             creature->SetLevel(conf.level);
         }

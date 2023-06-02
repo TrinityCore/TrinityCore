@@ -541,7 +541,7 @@ struct TC_GAME_API CreatureTemplate
     CreatureModel const* GetFirstInvisibleModel() const;
     CreatureModel const* GetFirstVisibleModel() const;
     int32 GetHealthScalingExpansion() const;
-    CreatureLevelScaling const* GetLevelScaling(Difficulty difficulty) const;
+    CreatureLevelScaling const* GetLevelScaling(Difficulty difficulty, Creature const* creature = nullptr) const;
 
     // helpers
     SkillType GetRequiredLootSkill() const

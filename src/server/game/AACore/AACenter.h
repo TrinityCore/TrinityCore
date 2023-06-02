@@ -19,6 +19,7 @@ class GameObject;
 class Group;
 struct ItemTemplate;
 struct GameObjectTemplate;
+struct CreatureTemplate;
 
 template <typename AAInt>
 inline AAInt AA_SafeObjectAtIndex(std::vector<AAInt> objects, size_t index)

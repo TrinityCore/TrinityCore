@@ -3212,7 +3212,8 @@ public:
             if (nandu > 0) {
                 AA_Creature conf = aaCenter.aa_creatures[nandu];
                 if (conf.id > 0) {
-                    aaCenter.AA_ModifyCreature(creature, conf);
+                    creature->aa_id = conf.id;
+                    creature->SelectLevel();
                 }
             }
             AA_Boss_Conf bconf = aaCenter.aa_boss_confs[entry];
@@ -3346,7 +3347,8 @@ public:
                     if (nandu > 0) {
                         AA_Creature conf = aaCenter.aa_creatures[nandu];
                         if (conf.id > 0) {
-                            aaCenter.AA_ModifyCreature(creature, conf);
+                            creature->aa_id = conf.id;
+                            creature->SelectLevel();
                         }
                     }
 
