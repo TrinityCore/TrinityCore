@@ -416,12 +416,8 @@ class spell_pri_divine_image : public AuraScript
             return;
 
         // Note: if caster has an active Divine Image, we should empower it rather than summoning a new one.
-        if (IsDivineImageSummoned(caster))
+        if (Unit* divineImage = ObjectAccessor::GetUnit(*caster, *GetDivineImageGUID(caster)))
         {
-            Unit* divineImage = ObjectAccessor::GetUnit(*caster, _divineImageGUID);
-            if (!divineImage)
-                return;
-
             // Note: Divine Image now teleports near the Priest when the Priest casts a Holy Word spell if the Image is further than 15 yards away (Patch 10.1.0).
             if (caster->GetDistance(divineImage) > 15.0f)
                 divineImage->NearTeleportTo(caster->GetRandomNearPosition(3.0f));
@@ -443,20 +439,18 @@ class spell_pri_divine_image : public AuraScript
     }
 
 public:
-    bool IsDivineImageSummoned(Unit* caster)
+    Optional<ObjectGuid> GetDivineImageGUID(Unit* caster)
     {
         for (Unit* summon : caster->m_Controlled)
         {
-            if (!summon || summon->GetEntry() != NPC_PRIEST_DIVINE_IMAGE)
-                return false;
+            if (!summon || !summon->IsCreature() || summon->GetEntry() != NPC_PRIEST_DIVINE_IMAGE)
+                continue;
 
-            _divineImageGUID = summon->GetGUID();
+            return summon->GetGUID();
         }
 
-        return true;
+        return std::nullopt;
     }
-
-    ObjectGuid _divineImageGUID;
 };
 
 // 405216 - Divine Image (Spell Cast Check)
@@ -498,7 +492,7 @@ class spell_pri_divine_image_spell_triggered : public spell_pri_divine_image
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        return IsDivineImageSummoned(eventInfo.GetActor());
+        return GetDivineImageGUID(eventInfo.GetActor()).has_value();
     }
 
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
@@ -507,57 +501,71 @@ class spell_pri_divine_image_spell_triggered : public spell_pri_divine_image
         if (!caster)
             return;
 
-        Unit* divineImage = ObjectAccessor::GetUnit(*caster, _divineImageGUID);
-        if (!divineImage)
+        Unit* divineImage = ObjectAccessor::GetUnit(*caster, *GetDivineImageGUID(caster));
+        if (divineImage)
             return;
 
-        for (std::pair<uint32, uint32> const& spellToTrigger : _divineImagineSpells)
-        {
-            if (eventInfo.GetSpellInfo()->Id != spellToTrigger.first)
-                continue;
-
-            divineImage->CastSpell(eventInfo.GetProcTarget(), spellToTrigger.second, aurEff);
-        }
+        divineImage->CastSpell(eventInfo.GetProcTarget(), RetrieveDivineImageSpell(eventInfo.GetSpellInfo()->Id), aurEff);
     }
 
-    void HandleOnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void HandleAfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* caster = GetCaster())
             caster->RemoveAura(SPELL_PRIEST_DIVINE_IMAGE_EMPOWER_STACK);
+    }
+
+    uint32 RetrieveDivineImageSpell(uint32 spellProc)
+    {
+        uint32 spellToTrigger = 0;
+
+        switch (spellProc)
+        {
+            case SPELL_PRIEST_RENEW:
+                spellToTrigger = SPELL_PRIEST_TRANQUIL_LIGHT;
+                break;
+            case SPELL_PRIEST_POWER_WORD_SHIELD:
+            case SPELL_PRIEST_POWER_WORD_LIFE:
+            case SPELL_PRIEST_FLASH_HEAL:
+            case SPELL_PRIEST_HEAL:
+            case SPELL_PRIEST_GREATER_HEAL:
+            case SPELL_PRIEST_HOLY_WORD_SERENITY:
+                spellToTrigger = SPELL_PRIEST_HEALING_LIGHT;
+                break;
+            case SPELL_PRIEST_PRAYER_OF_MENDING:
+            case SPELL_PRIEST_PRAYER_OF_MENDING_HEAL:
+                spellToTrigger = SPELL_PRIEST_BLESSED_LIGHT;
+                break;
+            case SPELL_PRIEST_PRAYER_OF_HEALING:
+            case SPELL_PRIEST_CIRCLE_OF_HEALING:
+            case SPELL_PRIEST_HALO_HOLY:
+            case SPELL_PRIEST_DIVINE_STAR_HOLY_HEAL:
+            case SPELL_PRIEST_DIVINE_HYMN:
+            case SPELL_PRIEST_DIVINE_HYMN_HEAL:
+            case SPELL_PRIEST_HOLY_WORD_SANCTIFY:
+            case SPELL_PRIEST_HOLY_WORD_SALVATION:
+                spellToTrigger = SPELL_PRIEST_DAZZLING_LIGHT;
+                break;
+            case SPELL_PRIEST_SMITE:
+            case SPELL_PRIEST_HOLY_FIRE:
+            case SPELL_PRIEST_HOLY_WORD_CHASTISE:
+                spellToTrigger = SPELL_PRIEST_SEARING_LIGHT;
+                break;
+            case SPELL_PRIEST_HOLY_NOVA:
+                spellToTrigger = SPELL_PRIEST_LIGHT_ERUPTION;
+                break;
+            default:
+                break;
+        }
+
+        return spellToTrigger;
     }
 
     void Register() override
     {
         DoCheckProc += AuraCheckProcFn(spell_pri_divine_image_spell_triggered::CheckProc);
         OnEffectProc += AuraEffectProcFn(spell_pri_divine_image_spell_triggered::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-        OnEffectRemove += AuraEffectRemoveFn(spell_pri_divine_image_spell_triggered::HandleOnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_pri_divine_image_spell_triggered::HandleAfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
-
-private:
-    std::vector<std::pair<uint32, uint32>> _divineImagineSpells =
-    {
-        { SPELL_PRIEST_RENEW,                  SPELL_PRIEST_TRANQUIL_LIGHT },
-        { SPELL_PRIEST_POWER_WORD_SHIELD,      SPELL_PRIEST_HEALING_LIGHT  },
-        { SPELL_PRIEST_POWER_WORD_LIFE,        SPELL_PRIEST_HEALING_LIGHT  },
-        { SPELL_PRIEST_FLASH_HEAL,             SPELL_PRIEST_HEALING_LIGHT  },
-        { SPELL_PRIEST_HEAL,                   SPELL_PRIEST_HEALING_LIGHT  },
-        { SPELL_PRIEST_GREATER_HEAL,           SPELL_PRIEST_HEALING_LIGHT  },
-        { SPELL_PRIEST_HOLY_WORD_SERENITY,     SPELL_PRIEST_HEALING_LIGHT  },
-        { SPELL_PRIEST_PRAYER_OF_MENDING,      SPELL_PRIEST_BLESSED_LIGHT  },
-        { SPELL_PRIEST_PRAYER_OF_MENDING_HEAL, SPELL_PRIEST_BLESSED_LIGHT  },
-        { SPELL_PRIEST_PRAYER_OF_HEALING,      SPELL_PRIEST_DAZZLING_LIGHT },
-        { SPELL_PRIEST_CIRCLE_OF_HEALING,      SPELL_PRIEST_DAZZLING_LIGHT },
-        { SPELL_PRIEST_HALO_HOLY,              SPELL_PRIEST_DAZZLING_LIGHT },
-        { SPELL_PRIEST_DIVINE_STAR_HOLY_HEAL,  SPELL_PRIEST_DAZZLING_LIGHT },
-        { SPELL_PRIEST_DIVINE_HYMN,            SPELL_PRIEST_DAZZLING_LIGHT },
-        { SPELL_PRIEST_DIVINE_HYMN_HEAL,       SPELL_PRIEST_DAZZLING_LIGHT },
-        { SPELL_PRIEST_HOLY_WORD_SANCTIFY,     SPELL_PRIEST_DAZZLING_LIGHT },
-        { SPELL_PRIEST_HOLY_WORD_SALVATION,    SPELL_PRIEST_DAZZLING_LIGHT },
-        { SPELL_PRIEST_SMITE,                  SPELL_PRIEST_SEARING_LIGHT  },
-        { SPELL_PRIEST_HOLY_FIRE,              SPELL_PRIEST_SEARING_LIGHT  },
-        { SPELL_PRIEST_HOLY_WORD_CHASTISE,     SPELL_PRIEST_SEARING_LIGHT  },
-        { SPELL_PRIEST_HOLY_NOVA,              SPELL_PRIEST_LIGHT_ERUPTION }
-    };
 };
 
 // 122121 - Divine Star (Shadow)
