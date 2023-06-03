@@ -638,7 +638,7 @@ class spell_sholazar_take_sputum_sample : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return spellInfo->GetEffects().size() > EFFECT_1 && ValidateSpellInfo(
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } }) && ValidateSpellInfo(
         {
             uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()),
             uint32(spellInfo->GetEffect(EFFECT_1).CalcValue())

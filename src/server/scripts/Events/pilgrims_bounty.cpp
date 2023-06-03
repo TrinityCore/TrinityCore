@@ -90,9 +90,8 @@ class spell_pilgrims_bounty_feast_on : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return !spellInfo->GetEffects().empty()
-            && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) })
-            && !sSpellMgr->AssertSpellInfo(spellInfo->GetEffect(EFFECT_0).CalcValue(), DIFFICULTY_NONE)->GetEffects().empty();
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } })
+            && ValidateSpellEffect({ { uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()), EFFECT_0 } });
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)

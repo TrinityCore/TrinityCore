@@ -416,10 +416,8 @@ class spell_baleroc_decimating_strike : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        if (spellInfo->GetEffects().size() <= EFFECT_2)
-            return false;
-        SpellEffectInfo const& spellEffectInfo = spellInfo->GetEffect(EFFECT_2);
-        return ValidateSpellInfo({ uint32(spellEffectInfo.CalcValue()) });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } })
+            && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_2).CalcValue()) });
     }
 
     void ChangeDamage()
@@ -799,8 +797,7 @@ class spell_baleroc_vital_flame : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_VITAL_SPARK })
-            && !sSpellMgr->AssertSpellInfo(SPELL_VITAL_SPARK, DIFFICULTY_NONE)->GetEffects().empty();
+        return ValidateSpellEffect({ { SPELL_VITAL_SPARK, EFFECT_0 } });
     }
 
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

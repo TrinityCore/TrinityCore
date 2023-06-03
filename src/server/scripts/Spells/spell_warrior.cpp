@@ -230,7 +230,7 @@ class spell_warr_colossus_smash : public SpellScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_WARRIOR_COLOSSUS_SMASH_AURA, SPELL_WARRIOR_IN_FOR_THE_KILL, SPELL_WARRIOR_IN_FOR_THE_KILL_HASTE })
-            && sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_IN_FOR_THE_KILL, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_2;
+            && ValidateSpellEffect({ { SPELL_WARRIOR_IN_FOR_THE_KILL, EFFECT_2 } });
     }
 
     void HandleHit()
@@ -467,7 +467,7 @@ class spell_warr_item_t10_prot_4p_bonus : public AuraScript
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ SPELL_WARRIOR_STOICISM })
-            && spellInfo->GetEffects().size() > EFFECT_1;
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
     void HandleProc(ProcEventInfo& eventInfo)
@@ -587,10 +587,8 @@ class spell_warr_shockwave : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        if (!ValidateSpellInfo({ SPELL_WARRIOR_SHOCKWAVE, SPELL_WARRIOR_SHOCKWAVE_STUN }))
-            return false;
-
-        return spellInfo->GetEffects().size() > EFFECT_3;
+        return !ValidateSpellInfo({ SPELL_WARRIOR_SHOCKWAVE, SPELL_WARRIOR_SHOCKWAVE_STUN })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_3 } });
     }
 
     bool Load() override

@@ -102,7 +102,7 @@ class spell_rog_backstab : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return spellInfo->GetEffects().size() > EFFECT_3;
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_3 } });
     }
 
     void HandleHitDamage(SpellEffIndex /*effIndex*/)
@@ -677,7 +677,7 @@ class spell_rog_shadowstrike : public SpellScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ROGUE_PREMEDITATION_AURA, SPELL_ROGUE_SLICE_AND_DICE, SPELL_ROGUE_PREMEDITATION_PASSIVE })
-            && sSpellMgr->AssertSpellInfo(SPELL_ROGUE_PREMEDITATION_PASSIVE, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_0;
+            && ValidateSpellEffect({ { SPELL_ROGUE_PREMEDITATION_PASSIVE, EFFECT_0 } });
     }
 
     SpellCastResult HandleCheckCast()

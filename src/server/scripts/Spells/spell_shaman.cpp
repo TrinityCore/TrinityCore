@@ -221,7 +221,7 @@ class spell_sha_chain_lightning : public SpellScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SHAMAN_CHAIN_LIGHTNING_ENERGIZE, SPELL_SHAMAN_MAELSTROM_CONTROLLER })
-            && sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_MAELSTROM_CONTROLLER, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_4;
+            && ValidateSpellEffect({ { SPELL_SHAMAN_MAELSTROM_CONTROLLER, EFFECT_4 } });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
@@ -245,7 +245,7 @@ class spell_sha_chain_lightning_overload : public SpellScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SHAMAN_CHAIN_LIGHTNING_OVERLOAD_ENERGIZE, SPELL_SHAMAN_MAELSTROM_CONTROLLER })
-            && sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_MAELSTROM_CONTROLLER, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_5;
+            && ValidateSpellEffect({ { SPELL_SHAMAN_MAELSTROM_CONTROLLER, EFFECT_5 } });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
@@ -305,7 +305,7 @@ class spell_sha_downpour : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return spellInfo->GetEffects().size() > EFFECT_1;
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
     void FilterTargets(std::list<WorldObject*>& targets)
@@ -475,7 +475,8 @@ class spell_sha_earthquake_tick : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_SHAMAN_EARTHQUAKE_KNOCKING_DOWN }) && spellInfo->GetEffects().size() > EFFECT_1;
+        return ValidateSpellInfo({ SPELL_SHAMAN_EARTHQUAKE_KNOCKING_DOWN })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
     void HandleDamageCalc(SpellEffIndex /*effIndex*/)
@@ -526,7 +527,7 @@ class spell_sha_elemental_blast : public SpellScript
             SPELL_SHAMAN_ELEMENTAL_BLAST_MASTERY,
             SPELL_SHAMAN_ELEMENTAL_BLAST_ENERGIZE,
             SPELL_SHAMAN_MAELSTROM_CONTROLLER
-        }) && sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_MAELSTROM_CONTROLLER, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_10;
+        }) && ValidateSpellEffect({ { SPELL_SHAMAN_MAELSTROM_CONTROLLER, EFFECT_10 } });
     }
 
     void HandleEnergize(SpellEffIndex /*effIndex*/)
@@ -1049,7 +1050,7 @@ class spell_sha_lightning_bolt : public SpellScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SHAMAN_LIGHTNING_BOLT_ENERGIZE, SPELL_SHAMAN_MAELSTROM_CONTROLLER })
-            && sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_MAELSTROM_CONTROLLER, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_0;
+            && ValidateSpellEffect({ { SPELL_SHAMAN_MAELSTROM_CONTROLLER, EFFECT_0 } });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
@@ -1073,7 +1074,7 @@ class spell_sha_lightning_bolt_overload : public SpellScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SHAMAN_LIGHTNING_BOLT_OVERLOAD_ENERGIZE, SPELL_SHAMAN_MAELSTROM_CONTROLLER })
-            && sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_MAELSTROM_CONTROLLER, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_1;
+            && ValidateSpellEffect({ { SPELL_SHAMAN_MAELSTROM_CONTROLLER, EFFECT_1 } });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)

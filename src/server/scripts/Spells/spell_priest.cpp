@@ -72,6 +72,7 @@ enum PriestSpells
     SPELL_PRIEST_HALO_SHADOW_HEAL                   = 390971,
     SPELL_PRIEST_HEAL                               = 2060,
     SPELL_PRIEST_HEALING_CHORUS                     = 390885,
+    SPELL_PRIEST_HOLY_MENDING_HEAL                  = 391156,
     SPELL_PRIEST_HOLY_WORD_CHASTISE                 = 88625,
     SPELL_PRIEST_HOLY_WORD_SANCTIFY                 = 34861,
     SPELL_PRIEST_HOLY_WORD_SERENITY                 = 2050,
@@ -101,6 +102,7 @@ enum PriestSpells
     SPELL_PRIEST_RENEWED_HOPE                       = 197469,
     SPELL_PRIEST_RENEWED_HOPE_EFFECT                = 197470,
     SPELL_PRIEST_REVEL_IN_PURITY                    = 373003,
+    SPELL_PRIEST_SAY_YOUR_PRAYERS                   = 391186,
     SPELL_PRIEST_SHADOW_MEND_DAMAGE                 = 186439,
     SPELL_PRIEST_SHADOW_MEND_PERIODIC_DUMMY         = 187464,
     SPELL_PRIEST_SHADOW_WORD_PAIN                   = 589,
@@ -251,8 +253,7 @@ class spell_pri_atonement : public AuraScript
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT_HEAL, SPELL_PRIEST_SINS_OF_THE_MANY })
-            && spellInfo->GetEffects().size() > EFFECT_1
-            && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_SINS_OF_THE_MANY, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_2;
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 }, { SPELL_PRIEST_SINS_OF_THE_MANY, EFFECT_2 } });
     }
 
     bool CheckProc(ProcEventInfo& eventInfo)
@@ -553,7 +554,7 @@ class spell_pri_guardian_spirit : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL }) && spellInfo->GetEffects().size() > EFFECT_1;
+        return ValidateSpellInfo({ SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL }) && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
     bool Load() override
@@ -629,6 +630,33 @@ struct areatrigger_pri_halo : AreaTriggerAI
     }
 };
 
+// 391154 - Holy Mending
+class spell_pri_holy_mending : public AuraScript
+{
+    PrepareAuraScript(spell_pri_holy_mending);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_RENEW, SPELL_PRIEST_HOLY_MENDING_HEAL });
+    }
+
+    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& procInfo)
+    {
+        return procInfo.GetProcTarget()->HasAura(SPELL_PRIEST_RENEW, procInfo.GetActor()->GetGUID());
+    }
+
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    {
+        eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_PRIEST_HOLY_MENDING_HEAL, CastSpellExtraArgs(aurEff));
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_pri_holy_mending::CheckProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        OnEffectProc += AuraEffectProcFn(spell_pri_holy_mending::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
 // 63733 - Holy Words
 class spell_pri_holy_words : public AuraScript
 {
@@ -636,8 +664,8 @@ class spell_pri_holy_words : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo
-        ({
+        return ValidateSpellInfo(
+        {
             SPELL_PRIEST_HEAL,
             SPELL_PRIEST_FLASH_HEAL,
             SPELL_PRIEST_PRAYER_OF_HEALING,
@@ -646,10 +674,12 @@ class spell_pri_holy_words : public AuraScript
             SPELL_PRIEST_HOLY_WORD_CHASTISE,
             SPELL_PRIEST_HOLY_WORD_SANCTIFY,
             SPELL_PRIEST_HOLY_WORD_SERENITY
-            })
-            && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_HOLY_WORD_SERENITY, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_1
-            && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_HOLY_WORD_SANCTIFY, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_3
-            && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_HOLY_WORD_CHASTISE, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_1;
+        }) && ValidateSpellEffect(
+        {
+            { SPELL_PRIEST_HOLY_WORD_SERENITY, EFFECT_1 },
+            { SPELL_PRIEST_HOLY_WORD_SANCTIFY, EFFECT_3 },
+            { SPELL_PRIEST_HOLY_WORD_CHASTISE, EFFECT_1 }
+        });
     }
 
     void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -1010,7 +1040,7 @@ class spell_pri_power_word_radiance : public SpellScript
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT, SPELL_PRIEST_ATONEMENT_TRIGGERED, SPELL_PRIEST_TRINITY })
-            && spellInfo->GetEffects().size() > EFFECT_3;
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_3 } });
     }
 
     void OnTargetSelect(std::list<WorldObject*>& targets)
@@ -1233,7 +1263,7 @@ public:
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_PRAYER_OF_MENDING_HEAL, SPELL_PRIEST_PRAYER_OF_MENDING_AURA })
-            && !sSpellMgr->AssertSpellInfo(SPELL_PRIEST_PRAYER_OF_MENDING_HEAL, DIFFICULTY_NONE)->GetEffects().empty();
+            && ValidateSpellEffect({ { SPELL_PRIEST_PRAYER_OF_MENDING_HEAL, EFFECT_0 } });
     }
 
     bool Load() override
@@ -1281,7 +1311,13 @@ class spell_pri_prayer_of_mending_aura : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_PRAYER_OF_MENDING_HEAL, SPELL_PRIEST_PRAYER_OF_MENDING_JUMP });
+        return ValidateSpellInfo
+        ({
+            SPELL_PRIEST_PRAYER_OF_MENDING_HEAL,
+            SPELL_PRIEST_PRAYER_OF_MENDING_JUMP,
+            SPELL_PRIEST_SAY_YOUR_PRAYERS
+        })
+            && ValidateSpellEffect({ { SPELL_PRIEST_SAY_YOUR_PRAYERS, EFFECT_0 } });
     }
 
     void HandleHeal(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
@@ -1300,7 +1336,14 @@ class spell_pri_prayer_of_mending_aura : public AuraScript
             {
                 CastSpellExtraArgs args(aurEff);
                 args.OriginalCaster = caster->GetGUID();
-                args.AddSpellMod(SPELLVALUE_BASE_POINT0, stackAmount - 1);
+
+                int32 newStackAmount = stackAmount - 1;
+                if (AuraEffect* sayYourPrayers = caster->GetAuraEffect(SPELL_PRIEST_SAY_YOUR_PRAYERS, EFFECT_0))
+                    if (roll_chance_i(sayYourPrayers->GetAmount()))
+                        ++newStackAmount;
+
+                args.AddSpellMod(SPELLVALUE_BASE_POINT0, newStackAmount);
+
                 target->CastSpell(target, SPELL_PRIEST_PRAYER_OF_MENDING_JUMP, args);
             }
 
@@ -1398,7 +1441,7 @@ class spell_pri_purge_the_wicked_dummy : public SpellScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC, SPELL_PRIEST_REVEL_IN_PURITY })
-            && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_REVEL_IN_PURITY, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_1;
+            && ValidateSpellEffect({ { SPELL_PRIEST_REVEL_IN_PURITY, EFFECT_1 } });
     }
 
     void FilterTargets(std::list<WorldObject*>& targets)
