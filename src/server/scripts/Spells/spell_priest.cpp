@@ -519,14 +519,14 @@ class spell_pri_divine_image_spell_triggered : public spell_pri_divine_image
             return;
 
         Optional<ObjectGuid> divineImageGUID = GetDivineImageGUID(caster);
-        if (divineImageGUID.has_value())
-        {
-            Unit* divineImage = ObjectAccessor::GetUnit(*caster, *divineImageGUID);
-            if (!divineImage)
-                return;
+        if (!divineImageGUID.has_value())
+            return;
 
-            divineImage->CastSpell(eventInfo.GetProcTarget(), RetrieveDivineImageSpell(eventInfo.GetSpellInfo()->Id), aurEff);
-        }
+        Unit* divineImage = ObjectAccessor::GetUnit(*caster, *divineImageGUID);
+        if (!divineImage)
+            return;
+
+        divineImage->CastSpell(eventInfo.GetProcTarget(), RetrieveDivineImageSpell(eventInfo.GetSpellInfo()->Id), aurEff);
     }
 
     void HandleAfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
