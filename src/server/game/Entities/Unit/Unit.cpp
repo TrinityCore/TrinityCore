@@ -547,6 +547,13 @@ void Unit::AtStartOfEncounter()
 void Unit::AtEndOfEncounter()
 {
     RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::EndOfEncounter);
+
+    GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr)
+    {
+        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first, DIFFICULTY_NONE);
+
+        return spellInfo->HasAttribute(SPELL_ATTR10_RESET_COOLDOWN_ON_ENCOUNTER_END);
+    }, true);
 }
 
 void Unit::UpdateSplineMovement(uint32 t_diff)
