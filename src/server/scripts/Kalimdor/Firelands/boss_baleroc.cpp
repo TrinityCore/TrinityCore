@@ -797,8 +797,7 @@ class spell_baleroc_vital_flame : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_VITAL_SPARK })
-            && !sSpellMgr->AssertSpellInfo(SPELL_VITAL_SPARK, DIFFICULTY_NONE)->GetEffects().empty();
+        return ValidateSpellEffect({ { SPELL_VITAL_SPARK, EFFECT_0 } });
     }
 
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
