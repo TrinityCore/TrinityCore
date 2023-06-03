@@ -424,6 +424,18 @@ class spell_pri_divine_image : public AuraScript
 
             divineImage->CastSpell(divineImage, SPELL_PRIEST_DIVINE_IMAGE_EMPOWER,
                 CastSpellExtraArgs(aurEff).SetTriggeringSpell(eventInfo.GetProcSpell()));
+
+            // Note: Divine Image's duration increases by its summon spell's duration.
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_PRIEST_DIVINE_IMAGE_SUMMON, DIFFICULTY_NONE);
+            if (!spellInfo)
+                return;
+
+            Milliseconds extraDuration = Seconds(spellInfo->GetDuration());
+            if (Aura* divineImageSummon = caster->GetAura(SPELL_PRIEST_DIVINE_IMAGE_SUMMON))
+            {
+                divineImageSummon->SetDuration(divineImageSummon->GetDuration() + extraDuration.count());
+                divineImageSummon->SetMaxDuration(divineImageSummon->GetMaxDuration() + extraDuration.count());
+            }
         }
         else
             caster->CastSpell(*caster, SPELL_PRIEST_DIVINE_IMAGE_SUMMON,
