@@ -416,8 +416,13 @@ class spell_pri_divine_image : public AuraScript
             return;
 
         // Note: if caster has an active Divine Image, we should empower it rather than summoning a new one.
-        if (Unit* divineImage = ObjectAccessor::GetUnit(*caster, *GetDivineImageGUID(caster)))
+        Optional<ObjectGuid> divineImageGUID = GetDivineImageGUID(caster);
+        if (divineImageGUID.has_value())
         {
+            Unit* divineImage = ObjectAccessor::GetUnit(*caster, *divineImageGUID);
+            if (!divineImage)
+                return;
+
             // Note: Divine Image now teleports near the Priest when the Priest casts a Holy Word spell if the Image is further than 15 yards away (Patch 10.1.0).
             if (caster->GetDistance(divineImage) > 15.0f)
                 divineImage->NearTeleportTo(caster->GetRandomNearPosition(3.0f));
