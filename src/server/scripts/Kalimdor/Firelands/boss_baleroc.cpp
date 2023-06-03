@@ -416,10 +416,8 @@ class spell_baleroc_decimating_strike : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        if (spellInfo->GetEffects().size() <= EFFECT_2)
-            return false;
-        SpellEffectInfo const& spellEffectInfo = spellInfo->GetEffect(EFFECT_2);
-        return ValidateSpellInfo({ uint32(spellEffectInfo.CalcValue()) });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } })
+            && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_2).CalcValue()) });
     }
 
     void ChangeDamage()
