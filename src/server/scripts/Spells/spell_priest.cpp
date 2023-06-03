@@ -71,7 +71,6 @@ enum PriestSpells
     SPELL_PRIEST_HALO_SHADOW_DAMAGE                 = 390964,
     SPELL_PRIEST_HALO_SHADOW_HEAL                   = 390971,
     SPELL_PRIEST_HEAL                               = 2060,
-    SPELL_PRIEST_HEALING_CHORUS                     = 390885,
     SPELL_PRIEST_HOLY_MENDING_HEAL                  = 391156,
     SPELL_PRIEST_HOLY_WORD_CHASTISE                 = 88625,
     SPELL_PRIEST_HOLY_WORD_SANCTIFY                 = 34861,
@@ -356,7 +355,7 @@ class spell_pri_circle_of_healing : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return spellInfo->GetEffects().size() > EFFECT_2;
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
     void FilterTargets(std::list<WorldObject*>& targets)
@@ -364,22 +363,15 @@ class spell_pri_circle_of_healing : public SpellScript
         // Note: we must remove one since target is always chosen.
         uint32 const maxTargets = uint32(GetSpellInfo()->GetEffect(EFFECT_1).CalcValue(GetCaster()) - 1);
 
-        if (targets.size() > maxTargets)
-        {
-            targets.sort(Trinity::HealthPctOrderPred());
-            targets.resize(maxTargets);
-        }
-    }
+        Trinity::SelectRandomInjuredTargets(targets, maxTargets, true);
 
-    void HandleAfterCast()
-    {
-        GetCaster()->RemoveAura(SPELL_PRIEST_HEALING_CHORUS);
+        if (Unit* explicitTarget = GetExplTargetUnit())
+            targets.push_front(explicitTarget);
     }
 
     void Register() override
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_circle_of_healing::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
-        AfterCast += SpellCastFn(spell_pri_circle_of_healing::HandleAfterCast);
     }
 };
 
