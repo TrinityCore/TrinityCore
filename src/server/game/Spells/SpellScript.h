@@ -178,6 +178,17 @@ class TC_GAME_API _SpellScript
             return _ValidateSpellInfo(std::cbegin(spellIds), std::cend(spellIds));
         }
 
+        static bool ValidateSpellEffect(std::initializer_list<std::pair<uint32, SpellEffIndex>> effects)
+        {
+            return _ValidateSpellEffects(effects.begin(), effects.end());
+        }
+
+        template <class T>
+        static bool ValidateSpellEffect(T const& spellEffects)
+        {
+            return _ValidateSpellEffects(std::cbegin(spellEffects), std::cend(spellEffects));
+        }
+
     private:
         template<typename Iterator>
         static bool _ValidateSpellInfo(Iterator begin, Iterator end)
@@ -193,7 +204,22 @@ class TC_GAME_API _SpellScript
             return allValid;
         }
 
+        template<typename Iterator>
+        static bool _ValidateSpellEffects(Iterator begin, Iterator end)
+        {
+            bool allValid = true;
+            while (begin != end)
+            {
+                if (!_ValidateSpellEffect(begin->first, begin->second))
+                    allValid = false;
+
+                ++begin;
+            }
+            return allValid;
+        }
+
         static bool _ValidateSpellInfo(uint32 spellId);
+        static bool _ValidateSpellEffect(uint32 spellId, SpellEffIndex effectIndex);
 };
 
 // SpellScript interface - enum used for runtime checks of script function calls

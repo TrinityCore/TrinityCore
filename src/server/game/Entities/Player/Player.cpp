@@ -55,6 +55,7 @@
 #include "EquipmentSetPackets.h"
 #include "Formulas.h"
 #include "GameEventMgr.h"
+#include "GameEventSender.h"
 #include "GameObjectAI.h"
 #include "Garrison.h"
 #include "GarrisonMgr.h"
@@ -16544,6 +16545,8 @@ void Player::CurrencyChanged(uint32 currencyId, int32 change)
 void Player::UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int32 objectId, int64 addCount, ObjectGuid victimGuid)
 {
     bool anyObjectiveChangedCompletionState = false;
+    bool updatePhaseShift = false;
+    bool updateZoneAuras = false;
 
     for (QuestObjectiveStatusMap::value_type const& objectiveItr : Trinity::Containers::MapEqualRange(m_questObjectiveStatus, { objectiveType, objectId }))
     {
@@ -16648,6 +16651,20 @@ void Player::UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int3
             if (objectiveWasComplete != objectiveIsNowComplete)
                 anyObjectiveChangedCompletionState = true;
 
+            if (objectiveIsNowComplete && objective.CompletionEffect)
+            {
+                if (objective.CompletionEffect->GameEventId)
+                    GameEvents::Trigger(*objective.CompletionEffect->GameEventId, this, nullptr);
+                if (objective.CompletionEffect->SpellId)
+                    CastSpell(this, *objective.CompletionEffect->SpellId, true);
+                if (objective.CompletionEffect->ConversationId)
+                    Conversation::CreateConversation(*objective.CompletionEffect->ConversationId, this, GetPosition(), GetGUID());
+                if (objective.CompletionEffect->UpdatePhaseShift)
+                    updatePhaseShift = true;
+                if (objective.CompletionEffect->UpdateZoneAuras)
+                    updateZoneAuras = true;
+            }
+
             if (objectiveIsNowComplete && CanCompleteQuest(questId, objective.ID))
                 CompleteQuest(questId);
             else if (objectiveItr.second.QuestStatusItr->second.Status == QUEST_STATUS_COMPLETE)
@@ -16658,7 +16675,14 @@ void Player::UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int3
     if (anyObjectiveChangedCompletionState)
         UpdateVisibleGameobjectsOrSpellClicks();
 
-    PhasingHandler::OnConditionChange(this);
+    if (updatePhaseShift)
+        PhasingHandler::OnConditionChange(this);
+
+    if (updateZoneAuras)
+    {
+        UpdateZoneDependentAuras(GetZoneId());
+        UpdateAreaDependentAuras(GetAreaId());
+    }
 }
 
 bool Player::HasQuestForItem(uint32 itemid) const
