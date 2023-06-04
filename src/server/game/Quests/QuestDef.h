@@ -403,6 +403,15 @@ struct QuestOfferRewardLocale
     std::vector<std::string> RewardText;
 };
 
+struct QuestObjectiveAction
+{
+    Optional<uint32> GameEventId;
+    Optional<uint32> SpellId;
+    Optional<uint32> ConversationId;
+    bool UpdatePhaseShift = false;
+    bool UpdateZoneAuras = false;
+};
+
 struct QuestObjective
 {
     uint32 ID           = 0;
@@ -416,6 +425,7 @@ struct QuestObjective
     float  ProgressBarWeight = 0.0f;
     std::string Description;
     std::vector<int32> VisualEffects;
+    QuestObjectiveAction* CompletionEffect = nullptr;
 
     bool IsStoringValue() const
     {
@@ -504,6 +514,7 @@ class TC_GAME_API Quest
     public:
         // Loading data. All queries are in ObjectMgr::LoadQuests()
         explicit Quest(Field* questRecord);
+        ~Quest();
         void LoadRewardDisplaySpell(Field* fields);
         void LoadRewardChoiceItems(Field* fields);
         void LoadQuestDetails(Field* fields);

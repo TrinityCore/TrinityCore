@@ -31,7 +31,7 @@ class spell_azerite_gen_aura_calc_from_2nd_effect_triggered_spell : public AuraS
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return spellInfo->GetEffects().size() > EFFECT_1 && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_1).TriggerSpell });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } }) && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_1).TriggerSpell });
     }
 
     void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
@@ -459,8 +459,7 @@ class spell_item_echoing_blades_damage : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_ECHOING_BLADES_TRAIT })
-            && sSpellMgr->AssertSpellInfo(SPELL_ECHOING_BLADES_TRAIT, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_2;
+        return ValidateSpellEffect({ { SPELL_ECHOING_BLADES_TRAIT, EFFECT_2 } });
     }
 
     void CalculateDamage(SpellEffIndex /*effIndex*/)

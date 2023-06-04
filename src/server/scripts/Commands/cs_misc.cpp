@@ -1020,7 +1020,7 @@ public:
             return false;
         }
 
-        if (sObjectMgr->AddGraveyardLink(graveyardId, zoneId, team))
+        if (sObjectMgr->AddGraveyardLink(graveyardId, zoneId, team, true))
             handler->PSendSysMessage(LANG_COMMAND_GRAVEYARDLINKED, graveyardId, zoneId);
         else
             handler->PSendSysMessage(LANG_COMMAND_GRAVEYARDALRLINKED, graveyardId, zoneId);
@@ -1056,8 +1056,6 @@ public:
                 handler->SetSentErrorMessage(true);
                 return false;
             }
-
-            team = data->team;
 
             std::string team_name = handler->GetTrinityString(LANG_COMMAND_GRAVEYARD_NOTEAM);
 
