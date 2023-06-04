@@ -546,23 +546,19 @@ class spell_pri_empowered_renew : public AuraScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_RENEW, SPELL_PRIEST_EMPOWERED_RENEW_HEAL })
-            && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_RENEW, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_1;
+            && ValidateSpellEffect({ { SPELL_PRIEST_RENEW, EFFECT_0 } })
+            && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_RENEW, DIFFICULTY_NONE)->GetEffect(EFFECT_0).IsAura(SPELL_AURA_PERIODIC_HEAL);
     }
 
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
         Unit* caster = eventInfo.GetActor();
-        Unit* target = eventInfo.GetActionTarget();
+        Unit* target = eventInfo.GetProcTarget();
 
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_PRIEST_RENEW, GetCastDifficulty());
-        if (!spellInfo)
-            return;
-
-        AuraEffect const* renew = target->GetAuraEffect(SPELL_PRIEST_RENEW, EFFECT_0, caster->GetGUID());
-        if (!renew)
-            return;
-
-        int32 healAmount = CalculatePct(spellInfo->GetEffect(EFFECT_0).CalcValue(caster) * renew->GetTotalTicks(), aurEff->GetAmount());
+        SpellInfo const* renewSpellInfo = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_RENEW, GetCastDifficulty());
+        SpellEffectInfo const& renewEffect = renewSpellInfo->GetEffect(EFFECT_0);
+        int32 estimatedTotalHeal = AuraEffect::CalculateEstimatedfTotalPeriodicAmount(caster, target, renewSpellInfo, renewEffect, renewEffect.CalcValue(caster), 1);
+        int32 healAmount = CalculatePct(estimatedTotalHeal, aurEff->GetAmount());
 
         caster->CastSpell(target, SPELL_PRIEST_EMPOWERED_RENEW_HEAL, CastSpellExtraArgs(aurEff).AddSpellBP0(healAmount));
     }
