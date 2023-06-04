@@ -87,7 +87,6 @@ class TC_GAME_API AuraEffect
         void ResetPeriodic(bool resetPeriodicTimer = false);
         void ResetTicks() { _ticksDone = 0; }
 
-
         bool IsPeriodic() const { return m_isPeriodic; }
         void SetPeriodic(bool isPeriodic) { m_isPeriodic = isPeriodic; }
         bool IsAffectingSpell(SpellInfo const* spell) const;
