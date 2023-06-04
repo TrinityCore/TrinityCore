@@ -947,7 +947,7 @@ class spell_summon_sparing_partner : public SpellScript
         if (!caster)
             return;
 
-        Creature* partner = ExilesReach::FindCreature(caster, caster->GetTeam() == ALLIANCE ? "q58209_cole" : "q59927_throg");
+        Creature* partner = caster->FindNearestCreatureWithOptions(10.0f, FindCreatureOptions().SetIgnorePhases(true).SetStringId(caster->GetTeam() == ALLIANCE ? "q58209_cole" : "q59927_throg"));
         if (!partner)
             return;
 
