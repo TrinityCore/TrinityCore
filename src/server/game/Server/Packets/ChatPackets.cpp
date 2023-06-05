@@ -34,3 +34,11 @@ WorldPacket const* WorldPackets::Chat::STextEmote::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Chat::Emote::Write()
+{
+    _worldPacket << uint32(EmoteID);
+    _worldPacket << Guid;
+
+    return &_worldPacket;
+}

@@ -49,7 +49,18 @@ namespace WorldPackets
             int32 SoundIndex = 0;
             int32 EmoteID = 0;
         };
+
+        class Emote final : public ServerPacket
+        {
+        public:
+            Emote() : ServerPacket(SMSG_EMOTE, 8 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+            uint32 EmoteID = 0;
+        };
     }
 }
 
-#endif // ArchaeologyPackets_h__
+#endif // ChatPackets_h__

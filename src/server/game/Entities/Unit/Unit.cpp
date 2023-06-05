@@ -26,6 +26,7 @@
 #include "CharacterCache.h"
 #include "Chat.h"
 #include "ChatTextBuilder.h"
+#include "ChatPackets.h"
 #include "CombatLogPackets.h"
 #include "CombatPackets.h"
 #include "Common.h"
@@ -1507,12 +1508,13 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
     }
 }
 
-void Unit::HandleEmoteCommand(uint32 anim_id)
+void Unit::HandleEmoteCommand(uint32 emoteId)
 {
-    WorldPacket data(SMSG_EMOTE, 4 + 8);
-    data << uint32(anim_id);
-    data << uint64(GetGUID());
-    SendMessageToSet(&data, true);
+    WorldPackets::Chat::Emote emote;
+    emote.Guid = GetGUID();
+    emote.EmoteID = emoteId;
+
+    SendMessageToSet(emote.Write(), true);
 }
 
 /*static*/ bool Unit::IsDamageReducedByArmor(SpellSchoolMask schoolMask, SpellInfo const* spellInfo /*= nullptr*/)
