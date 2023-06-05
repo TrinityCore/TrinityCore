@@ -169,41 +169,44 @@ void protobuf_AddDesc_api_2fclient_2fv2_2freport_5ftypes_2eproto() {
 
   ::bgs::protocol::v2::protobuf_AddDesc_api_2fclient_2fv2_2fattribute_5ftypes_2eproto();
   ::bgs::protocol::account::v1::protobuf_AddDesc_account_5ftypes_2eproto();
-  ::bgs::protocol::protobuf_AddDesc_rpc_5ftypes_2eproto();
   ::bgs::protocol::protobuf_AddDesc_message_5ftypes_2eproto();
+  ::bgs::protocol::protobuf_AddDesc_global_5fextensions_2ffield_5foptions_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n api/client/v2/report_types.proto\022\026bgs."
     "protocol.report.v2\032#api/client/v2/attrib"
-    "ute_types.proto\032\023account_types.proto\032\017rp"
-    "c_types.proto\032\023message_types.proto\"C\n\nRe"
-    "portItem\022-\n\nmessage_id\030\001 \001(\0132\027.bgs.proto"
-    "col.MessageIdH\000B\006\n\004type\"\333\001\n\013UserOptions\022"
-    "5\n\ttarget_id\030\001 \001(\0132\".bgs.protocol.accoun"
-    "t.v1.AccountId\022/\n\004type\030\002 \001(\0162!.bgs.proto"
-    "col.report.v2.IssueType\0222\n\006source\030\003 \001(\0162"
-    "\".bgs.protocol.report.v2.UserSource\0220\n\004i"
-    "tem\030\004 \001(\0132\".bgs.protocol.report.v2.Repor"
-    "tItem\"\310\001\n\013ClubOptions\022\017\n\007club_id\030\001 \001(\004\022\021"
-    "\n\tstream_id\030\002 \001(\004\022/\n\004type\030\003 \001(\0162!.bgs.pr"
-    "otocol.report.v2.IssueType\0222\n\006source\030\004 \001"
-    "(\0162\".bgs.protocol.report.v2.ClubSource\0220"
-    "\n\004item\030\005 \001(\0132\".bgs.protocol.report.v2.Re"
-    "portItem\"\203\001\n\rEntityOptions\022 \n\tentity_id\030"
-    "\001 \001(\tB\r\212\371+\t\"\007\n\005\010\001\020\310\001\022!\n\013entity_type\030\002 \001("
-    "\tB\014\212\371+\010\"\006\n\004\010\001\020d\022-\n\tattribute\030\005 \003(\0132\032.bgs"
-    ".protocol.v2.Attribute*\215\001\n\tIssueType\022\023\n\017"
-    "ISSUE_TYPE_SPAM\020\000\022\031\n\025ISSUE_TYPE_HARASSME"
-    "NT\020\001\022 \n\034ISSUE_TYPE_OFFENSIVE_CONTENT\020\003\022\026"
-    "\n\022ISSUE_TYPE_HACKING\020\004\022\026\n\022ISSUE_TYPE_BOT"
-    "TING\020\005*\301\001\n\nUserSource\022\025\n\021USER_SOURCE_OTH"
-    "ER\020\000\022\027\n\023USER_SOURCE_WHISPER\020\001\022\027\n\023USER_SO"
-    "URCE_PROFILE\020\002\022\032\n\026USER_SOURCE_BATTLE_TAG"
-    "\020\003\022\024\n\020USER_SOURCE_CHAT\020\004\022!\n\035USER_SOURCE_"
-    "FRIEND_INVITATION\020\005\022\025\n\021USER_SOURCE_VOICE"
-    "\020\006*t\n\nClubSource\022\025\n\021CLUB_SOURCE_OTHER\020\000\022"
-    "\027\n\023CLUB_SOURCE_MESSAGE\020\001\022\031\n\025CLUB_SOURCE_"
-    "CLUB_NAME\020\002\022\033\n\027CLUB_SOURCE_STREAM_NAME\020\003"
-    "B\005H\002\200\001\000", 1247);
+    "ute_types.proto\032\023account_types.proto\032\023me"
+    "ssage_types.proto\032%global_extensions/fie"
+    "ld_options.proto\"C\n\nReportItem\022-\n\nmessag"
+    "e_id\030\001 \001(\0132\027.bgs.protocol.MessageIdH\000B\006\n"
+    "\004type\"\333\001\n\013UserOptions\0225\n\ttarget_id\030\001 \001(\013"
+    "2\".bgs.protocol.account.v1.AccountId\022/\n\004"
+    "type\030\002 \001(\0162!.bgs.protocol.report.v2.Issu"
+    "eType\0222\n\006source\030\003 \001(\0162\".bgs.protocol.rep"
+    "ort.v2.UserSource\0220\n\004item\030\004 \001(\0132\".bgs.pr"
+    "otocol.report.v2.ReportItem\"\310\001\n\013ClubOpti"
+    "ons\022\017\n\007club_id\030\001 \001(\004\022\021\n\tstream_id\030\002 \001(\004\022"
+    "/\n\004type\030\003 \001(\0162!.bgs.protocol.report.v2.I"
+    "ssueType\0222\n\006source\030\004 \001(\0162\".bgs.protocol."
+    "report.v2.ClubSource\0220\n\004item\030\005 \001(\0132\".bgs"
+    ".protocol.report.v2.ReportItem\"\203\001\n\rEntit"
+    "yOptions\022 \n\tentity_id\030\001 \001(\tB\r\212\371+\t\"\007\n\005\010\001\020"
+    "\310\001\022!\n\013entity_type\030\002 \001(\tB\014\212\371+\010\"\006\n\004\010\001\020d\022-\n"
+    "\tattribute\030\005 \003(\0132\032.bgs.protocol.v2.Attri"
+    "bute*\215\001\n\tIssueType\022\023\n\017ISSUE_TYPE_SPAM\020\000\022"
+    "\031\n\025ISSUE_TYPE_HARASSMENT\020\001\022 \n\034ISSUE_TYPE"
+    "_OFFENSIVE_CONTENT\020\003\022\026\n\022ISSUE_TYPE_HACKI"
+    "NG\020\004\022\026\n\022ISSUE_TYPE_BOTTING\020\005*\301\001\n\nUserSou"
+    "rce\022\025\n\021USER_SOURCE_OTHER\020\000\022\027\n\023USER_SOURC"
+    "E_WHISPER\020\001\022\027\n\023USER_SOURCE_PROFILE\020\002\022\032\n\026"
+    "USER_SOURCE_BATTLE_TAG\020\003\022\024\n\020USER_SOURCE_"
+    "CHAT\020\004\022!\n\035USER_SOURCE_FRIEND_INVITATION\020"
+    "\005\022\025\n\021USER_SOURCE_VOICE\020\006*\361\001\n\nClubSource\022"
+    "\024\n\020CLUB_SOURCE_NONE\020\000\022\027\n\023CLUB_SOURCE_MES"
+    "SAGE\020\001\022\031\n\025CLUB_SOURCE_CLUB_NAME\020\002\022\033\n\027CLU"
+    "B_SOURCE_STREAM_NAME\020\003\022\031\n\025CLUB_SOURCE_BR"
+    "OADCAST\020\004\022\037\n\033CLUB_SOURCE_CLUB_SHORT_NAME"
+    "\020\005\022 \n\034CLUB_SOURCE_CLUB_DESCRIPTION\020\006\022\036\n\032"
+    "CLUB_SOURCE_STREAM_SUBJECT\020\007B\005H\002\200\001\000", 1395);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "api/client/v2/report_types.proto", &protobuf_RegisterTypes);
   ReportItem::default_instance_ = new ReportItem();
@@ -270,6 +273,10 @@ bool ClubSource_IsValid(int value) {
     case 1:
     case 2:
     case 3:
+    case 4:
+    case 5:
+    case 6:
+    case 7:
       return true;
     default:
       return false;

@@ -29,7 +29,6 @@
 uint32 const NA_CREDIT_MARKER = 24867; // kill credit for pks
 uint32 const NA_GUARDS_MAX = 15;
 uint32 const NA_BUFF_ZONE = 3518;
-uint32 const NA_HALAA_GRAVEYARD = 993;
 uint32 const NA_HALAA_GRAVEYARD_ZONE = 3518; // need to add zone id, not area id
 uint32 const NA_RESPAWN_TIME = 3600000; // one hour to capture after defeating all guards
 uint32 const NA_GUARD_CHECK_TIME = 500; // every half second
@@ -87,13 +86,7 @@ uint32 OPvPCapturePointNA::GetControllingFaction() const
 
 void OPvPCapturePointNA::FactionTakeOver(uint32 team)
 {
-    if (m_ControllingFaction)
-        sObjectMgr->RemoveGraveyardLink(NA_HALAA_GRAVEYARD, NA_HALAA_GRAVEYARD_ZONE, m_ControllingFaction, false);
-
     m_ControllingFaction = team;
-    if (m_ControllingFaction)
-        sObjectMgr->AddGraveyardLink(NA_HALAA_GRAVEYARD, NA_HALAA_GRAVEYARD_ZONE, m_ControllingFaction, false);
-
     m_GuardsAlive = NA_GUARDS_MAX;
     m_capturable = false;
     UpdateHalaaWorldState();

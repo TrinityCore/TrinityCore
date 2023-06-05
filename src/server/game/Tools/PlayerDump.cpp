@@ -23,6 +23,7 @@
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "StringConvert.h"
 #include "World.h"
 #include <boost/algorithm/string/find.hpp>
 #include <fstream>
@@ -592,7 +593,7 @@ inline T RegisterNewGuid(T oldGuid, MapType<T, T, Rest...>& guidMap, T guidOffse
 template <typename T, template<class, class, class...> class MapType, class... Rest>
 inline bool ChangeGuid(TableStruct const& ts, std::string& str, std::string const& column, MapType<T, T, Rest...>& guidMap, T guidOffset, bool allowZero = false)
 {
-    T oldGuid(atoull(GetColumn(ts, str, column).c_str()));
+    T oldGuid = Trinity::StringTo<T>(GetColumn(ts, str, column)).template value_or<T>(0);
     if (allowZero && !oldGuid)
         return true;                                        // not an error
 
@@ -1015,10 +1016,10 @@ DumpReturn PlayerDumpReader::LoadDump(std::istream& input, uint32 account, std::
         {
             case DTT_CHARACTER:
             {
-                race = uint8(atoul(GetColumn(ts, line, "race").c_str()));
-                playerClass = uint8(atoul(GetColumn(ts, line, "class").c_str()));
-                gender = uint8(atoul(GetColumn(ts, line, "gender").c_str()));
-                level = uint8(atoul(GetColumn(ts, line, "level").c_str()));
+                race = Trinity::StringTo<uint8>(GetColumn(ts, line, "race")).value_or<uint8>(0);
+                playerClass = Trinity::StringTo<uint8>(GetColumn(ts, line, "class")).value_or<uint8>(0);
+                gender = Trinity::StringTo<uint8>(GetColumn(ts, line, "gender")).value_or<uint8>(0);
+                level = Trinity::StringTo<uint8>(GetColumn(ts, line, "level")).value_or<uint8>(0);
                 if (name.empty())
                 {
                     // generate a temporary name

@@ -116,24 +116,24 @@ DEFINE_ENUM_FLAG(SpellAuraInterruptFlags);
 enum class SpellAuraInterruptFlags2 : uint32
 {
     None                        = 0,
-    Falling                     = 0x00000001, // NYI
+    Falling                     = 0x00000001, // Implemented in Unit::UpdatePosition
     Swimming                    = 0x00000002,
     NotMoving                   = 0x00000004, // NYI
     Ground                      = 0x00000008,
     Transform                   = 0x00000010, // NYI
     Jump                        = 0x00000020,
     ChangeSpec                  = 0x00000040,
-    AbandonVehicle              = 0x00000080, // NYI
-    StartOfEncounter            = 0x00000100, // NYI
-    EndOfEncounter              = 0x00000200, // NYI
+    AbandonVehicle              = 0x00000080, // Implemented in Unit::_ExitVehicle
+    StartOfEncounter            = 0x00000100, // Implemented in Unit::AtStartOfEncounter
+    EndOfEncounter              = 0x00000200, // Implemented in Unit::AtEndOfEncounter
     Disconnect                  = 0x00000400, // NYI
-    EnteringInstance            = 0x00000800, // NYI
-    DuelEnd                     = 0x00001000, // NYI
-    LeaveArenaOrBattleground    = 0x00002000, // NYI
+    EnteringInstance            = 0x00000800, // Implemented in Map::AddPlayerToMap
+    DuelEnd                     = 0x00001000, // Implemented in Player::DuelComplete
+    LeaveArenaOrBattleground    = 0x00002000, // Implemented in Battleground::RemovePlayerAtLeave
     ChangeTalent                = 0x00004000,
     ChangeGlyph                 = 0x00008000,
     SeamlessTransfer            = 0x00010000, // NYI
-    WarModeLeave                = 0x00020000, // NYI
+    WarModeLeave                = 0x00020000, // Implemented in Player::UpdateWarModeAuras
     TouchingGround              = 0x00040000, // NYI
     ChromieTime                 = 0x00080000, // NYI
     SplineFlightOrFreeFlight    = 0x00100000, // NYI
@@ -250,7 +250,7 @@ enum TriggerCastFlags : uint32
     TRIGGERED_IGNORE_AURA_INTERRUPT_FLAGS           = 0x00000100,   //! Will ignore interruptible aura's at cast
     TRIGGERED_IGNORE_SET_FACING                     = 0x00000200,   //! Will not adjust facing to target (if any)
     TRIGGERED_IGNORE_SHAPESHIFT                     = 0x00000400,   //! Will ignore shapeshift checks
-    TRIGGERED_IGNORE_CASTER_AURASTATE               = 0x00000800,   //! Will ignore caster aura states including combat requirements and death state
+    // reuse
     TRIGGERED_DISALLOW_PROC_EVENTS                  = 0x00001000,   //! Disallows proc events from triggered spell (default)
     TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE   = 0x00002000,   //! Will ignore mounted/on vehicle restrictions
     // reuse                                        = 0x00004000,
@@ -263,6 +263,7 @@ enum TriggerCastFlags : uint32
     // debug flags (used with .cast triggered commands)
     TRIGGERED_IGNORE_EQUIPPED_ITEM_REQUIREMENT      = 0x00080000,   //! Will ignore equipped item requirements
     TRIGGERED_IGNORE_TARGET_CHECK                   = 0x00100000,   //! Will ignore most target checks (mostly DBC target checks)
+    TRIGGERED_IGNORE_CASTER_AURASTATE               = 0x00200000,   //! Will ignore caster aura states including combat requirements and death state
     TRIGGERED_FULL_DEBUG_MASK                       = 0xFFFFFFFF
 };
 
@@ -434,7 +435,7 @@ struct TC_GAME_API CastSpellTargetArg
 
 struct TC_GAME_API CastSpellExtraArgs
 {
-    CastSpellExtraArgs() = default;
+    CastSpellExtraArgs();
     CastSpellExtraArgs(bool triggered) : TriggerFlags(triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE) {}
     CastSpellExtraArgs(TriggerCastFlags trigger) : TriggerFlags(trigger) {}
     CastSpellExtraArgs(Item* item) : TriggerFlags(TRIGGERED_FULL_MASK), CastItem(item) {}
@@ -442,6 +443,14 @@ struct TC_GAME_API CastSpellExtraArgs
     CastSpellExtraArgs(AuraEffect const* eff) : TriggerFlags(TRIGGERED_FULL_MASK) { SetTriggeringAura(eff); }
     CastSpellExtraArgs(Difficulty castDifficulty) : CastDifficulty(castDifficulty) {}
     CastSpellExtraArgs(SpellValueMod mod, int32 val) { SpellValueOverrides.AddMod(mod, val); }
+
+    CastSpellExtraArgs(CastSpellExtraArgs const& other);
+    CastSpellExtraArgs(CastSpellExtraArgs&& other) noexcept;
+
+    CastSpellExtraArgs& operator=(CastSpellExtraArgs const& other);
+    CastSpellExtraArgs& operator=(CastSpellExtraArgs&& other) noexcept;
+
+    ~CastSpellExtraArgs();
 
     CastSpellExtraArgs& SetTriggerFlags(TriggerCastFlags flag) { TriggerFlags = flag; return *this; }
     CastSpellExtraArgs& SetCastItem(Item* item) { CastItem = item; return *this; }
@@ -476,12 +485,6 @@ struct TC_GAME_API CastSpellExtraArgs
         std::vector<std::pair<SpellValueMod, int32>> data;
     } SpellValueOverrides;
     std::any CustomArg;
-
-    CastSpellExtraArgs(CastSpellExtraArgs const&) = delete;
-    CastSpellExtraArgs(CastSpellExtraArgs&&) = delete;
-
-    CastSpellExtraArgs& operator=(CastSpellExtraArgs const&) = delete;
-    CastSpellExtraArgs& operator=(CastSpellExtraArgs&&) = delete;
 };
 
 struct SpellCastVisual

@@ -115,6 +115,9 @@ public:
     bool IsInUse() const { return _isInUse; }
     void SetInUse(bool inUse) { _isInUse = inUse; }
 
+    bool IsNew() const { return _isNew; }
+    void SetIsNew(bool isNew) { _isNew = isNew; }
+
 private:
     uint32 _mapId;
     Difficulty _difficultyId;
@@ -123,6 +126,7 @@ private:
     bool _extended;
     InstanceLockData _data;
     bool _isInUse;
+    bool _isNew;
 };
 
 struct SharedInstanceLockData : InstanceLockData

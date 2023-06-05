@@ -368,7 +368,7 @@ class npc_molten_barrage : public CreatureScript
             void AttackStart(Unit* target) override
             {
                 if (target)
-                    me->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f, MOTION_SLOT_DEFAULT);
+                    me->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f, {}, MOTION_SLOT_DEFAULT);
             }
 
             void IsSummonedBy(WorldObject* /*summoner*/) override

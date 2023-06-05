@@ -64,7 +64,8 @@ WorldPacket const* WorldPackets::Misc::SetCurrency::Write()
     _worldPacket.WriteBit(QuantityGainSource.has_value());
     _worldPacket.WriteBit(QuantityLostSource.has_value());
     _worldPacket.WriteBit(FirstCraftOperationID.has_value());
-    _worldPacket.WriteBit(LastSpendTime.has_value());
+    _worldPacket.WriteBit(NextRechargeTime.has_value());
+    _worldPacket.WriteBit(RechargeCycleStartTime.has_value());
     _worldPacket.FlushBits();
 
     if (WeeklyQuantity)
@@ -91,8 +92,11 @@ WorldPacket const* WorldPackets::Misc::SetCurrency::Write()
     if (FirstCraftOperationID)
         _worldPacket << uint32(*FirstCraftOperationID);
 
-    if (LastSpendTime)
-        _worldPacket << *LastSpendTime;
+    if (NextRechargeTime)
+        _worldPacket << *NextRechargeTime;
+
+    if (RechargeCycleStartTime)
+        _worldPacket << *RechargeCycleStartTime;
 
     return &_worldPacket;
 }
@@ -116,7 +120,8 @@ WorldPacket const* WorldPackets::Misc::SetupCurrency::Write()
         _worldPacket.WriteBit(data.TrackedQuantity.has_value());
         _worldPacket.WriteBit(data.MaxQuantity.has_value());
         _worldPacket.WriteBit(data.TotalEarned.has_value());
-        _worldPacket.WriteBit(data.LastSpendTime.has_value());
+        _worldPacket.WriteBit(data.NextRechargeTime.has_value());
+        _worldPacket.WriteBit(data.RechargeCycleStartTime.has_value());
         _worldPacket.WriteBits(uint8(data.Flags), 5);
         _worldPacket.FlushBits();
 
@@ -130,8 +135,10 @@ WorldPacket const* WorldPackets::Misc::SetupCurrency::Write()
             _worldPacket << int32(*data.MaxQuantity);
         if (data.TotalEarned)
             _worldPacket << int32(*data.TotalEarned);
-        if (data.LastSpendTime)
-            _worldPacket << *data.LastSpendTime;
+        if (data.NextRechargeTime)
+            _worldPacket << *data.NextRechargeTime;
+        if (data.RechargeCycleStartTime)
+            _worldPacket << *data.RechargeCycleStartTime;
     }
 
     return &_worldPacket;
@@ -412,6 +419,13 @@ WorldPacket const* WorldPackets::Misc::RandomRoll::Write()
     _worldPacket << int32(Min);
     _worldPacket << int32(Max);
     _worldPacket << int32(Result);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::EnableBarberShop::Write()
+{
+    _worldPacket << uint8(CustomizationScope);
 
     return &_worldPacket;
 }
@@ -709,10 +723,10 @@ WorldPacket const* WorldPackets::Misc::AccountMountUpdate::Write()
     _worldPacket.WriteBit(IsFullUpdate);
     _worldPacket << uint32(Mounts->size());
 
-    for (auto const& spell : *Mounts)
+    for (auto [spellId, flags] : *Mounts)
     {
-        _worldPacket << int32(spell.first);
-        _worldPacket.WriteBits(spell.second, 2);
+        _worldPacket << int32(spellId);
+        _worldPacket.WriteBits(flags, 4);
     }
 
     _worldPacket.FlushBits();

@@ -35,7 +35,6 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid Guid;
-            bool IsSoftInteract = false;
         };
 
         class GameObjReportUse final : public ClientPacket
@@ -46,7 +45,6 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid Guid;
-            bool IsSoftInteract = false;
         };
 
         class GameObjectDespawn final : public ServerPacket

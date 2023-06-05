@@ -22,6 +22,7 @@
 #include "ObjectGuid.h"
 
 class Unit;
+enum Powers : int8;
 
 namespace WorldPackets
 {
@@ -164,6 +165,16 @@ namespace WorldPackets
 
             ObjectGuid Guid;
             std::vector<PowerUpdatePower> Powers;
+        };
+
+        class InterruptPowerRegen final : public ServerPacket
+        {
+        public:
+            explicit InterruptPowerRegen(Powers powerType) : ServerPacket(SMSG_INTERRUPT_POWER_REGEN, 4), PowerType(powerType) { }
+
+            WorldPacket const* Write() override;
+
+            Powers PowerType;
         };
 
         class SetSheathed final : public ClientPacket

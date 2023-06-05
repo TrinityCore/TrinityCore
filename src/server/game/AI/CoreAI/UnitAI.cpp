@@ -60,12 +60,16 @@ void UnitAI::AttackStartCaster(Unit* victim, float dist)
 
 void UnitAI::DoMeleeAttackIfReady()
 {
-    if (me->HasUnitState(UNIT_STATE_CASTING))
+    if (me->HasUnitState(UNIT_STATE_CASTING) || (me->IsCreature() && !me->ToCreature()->CanMelee()))
         return;
 
     Unit* victim = me->GetVictim();
 
     if (!me->IsWithinMeleeRange(victim))
+        return;
+
+    // Check that the victim is in front of the unit
+    if (!me->HasInArc(2 * float(M_PI) / 3, victim))
         return;
 
     //Make sure our attack is ready and we aren't currently casting before checking distance

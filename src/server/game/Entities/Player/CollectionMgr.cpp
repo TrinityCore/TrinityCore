@@ -653,8 +653,7 @@ bool CollectionMgr::IsSetCompleted(uint32 transmogSetId) const
         if (transmogSlot < 0 || knownPieces[transmogSlot] == 1)
             continue;
 
-        bool hasAppearance, isTemporary;
-        std::tie(hasAppearance, isTemporary) = HasItemAppearance(transmogSetItem->ItemModifiedAppearanceID);
+        auto [hasAppearance, isTemporary] = HasItemAppearance(transmogSetItem->ItemModifiedAppearanceID);
 
         knownPieces[transmogSlot] = (hasAppearance && !isTemporary) ? 1 : 0;
     }

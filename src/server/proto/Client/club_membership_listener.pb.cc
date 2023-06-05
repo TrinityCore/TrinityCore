@@ -282,7 +282,7 @@ void protobuf_AddDesc_club_5fmembership_5flistener_2eproto() {
     "\001(\0132\032.bgs.protocol.TimeSeriesId\"s\n(Strea"
     "mMentionAdvanceViewTimeNotification\0224\n\010a"
     "gent_id\030\001 \001(\0132\".bgs.protocol.account.v1."
-    "AccountId\022\021\n\tview_time\030\003 \001(\0042\337\010\n\026ClubMem"
+    "AccountId\022\021\n\tview_time\030\003 \001(\0042\341\010\n\026ClubMem"
     "bershipListener\022j\n\013OnClubAdded\0226.bgs.pro"
     "tocol.club.v1.membership.ClubAddedNotifi"
     "cation\032\031.bgs.protocol.NO_RESPONSE\"\010\202\371+\004\010"
@@ -309,8 +309,8 @@ void protobuf_AddDesc_club_5fmembership_5flistener_2eproto() {
     "ionAdvanceViewTime\022I.bgs.protocol.club.v"
     "1.membership.StreamMentionAdvanceViewTim"
     "eNotification\032\031.bgs.protocol.NO_RESPONSE"
-    "\"\010\202\371+\004\010\010\030\001\032:\202\371+.\n,bnet.protocol.club.v1."
-    "ClubMembershipListener\212\371+\004\010\001\030\001B\005H\002\200\001\000", 2437);
+    "\"\010\202\371+\004\010\010\030\001\032<\202\371+0\n,bnet.protocol.club.v1."
+    "ClubMembershipListener8\001\212\371+\004\010\001\030\001B\005H\002\200\001\000", 2439);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "club_membership_listener.proto", &protobuf_RegisterTypes);
   ClubAddedNotification::default_instance_ = new ClubAddedNotification();

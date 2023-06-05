@@ -283,7 +283,8 @@ enum ProcFlagsHit : uint32
     PROC_HIT_REFLECT             = 0x0000800,
     PROC_HIT_INTERRUPT           = 0x0001000,
     PROC_HIT_FULL_BLOCK          = 0x0002000,
-    PROC_HIT_MASK_ALL            = 0x0003FFF
+    PROC_HIT_DISPEL              = 0x0004000,
+    PROC_HIT_MASK_ALL            = 0x0007FFF
 };
 
 DEFINE_ENUM_FLAG(ProcFlagsHit);

@@ -423,7 +423,7 @@ mmap.enablePathFinding = 1
 #
 #    vmap.enableLOS
 #    vmap.enableHeight
-#        Description: VMmap support for line of sight and height calculation.
+#        Description: Vmap support for line of sight and height calculation.
 #        Default:     1 - (Enabled, vmap.enableLOS)
 #                     1 - (Enabled, vmap.enableHeight)
 #                     0 - (Disabled)
@@ -2414,6 +2414,7 @@ Rate.Insanity.Loss     = 1
 Rate.ArcaneCharges.Loss= 1
 Rate.Fury.Loss         = 1
 Rate.Pain.Loss         = 1
+Rate.Essence.Loss      = 1
 
 #
 #    Rate.Skill.Discovery

@@ -20,13 +20,11 @@
 void WorldPackets::GameObject::GameObjUse::Read()
 {
     _worldPacket >> Guid;
-    IsSoftInteract = _worldPacket.ReadBit();
 }
 
 void WorldPackets::GameObject::GameObjReportUse::Read()
 {
     _worldPacket >> Guid;
-    IsSoftInteract = _worldPacket.ReadBit();
 }
 
 WorldPacket const* WorldPackets::GameObject::GameObjectDespawn::Write()

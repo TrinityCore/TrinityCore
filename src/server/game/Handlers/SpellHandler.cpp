@@ -311,9 +311,6 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
         return;
     }
 
-    if (spellInfo->IsPassive())
-        return;
-
     Unit* caster = mover;
     if (caster->GetTypeId() == TYPEID_UNIT && !caster->ToCreature()->HasSpell(spellInfo->Id))
     {
@@ -353,6 +350,9 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
 
     // Check possible spell cast overrides
     spellInfo = caster->GetCastSpellInfo(spellInfo);
+
+    if (spellInfo->IsPassive())
+        return;
 
     // can't use our own spells when we're in possession of another unit,
     if (_player->isPossessing())
@@ -677,11 +677,6 @@ void WorldSession::HandleUpdateMissileTrajectory(WorldPackets::Spells::UpdateMis
 
     if (packet.Status)
         HandleMovementOpcode(CMSG_MOVE_STOP, *packet.Status);
-}
-
-void WorldSession::HandleRequestCategoryCooldowns(WorldPackets::Spells::RequestCategoryCooldowns& /*requestCategoryCooldowns*/)
-{
-    _player->SendSpellCategoryCooldowns();
 }
 
 void WorldSession::HandleKeyboundOverride(WorldPackets::Spells::KeyboundOverride& keyboundOverride)

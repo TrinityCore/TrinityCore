@@ -279,7 +279,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_ATTACKER_RANGED_HIT_CHANCE               = 185,
     SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE                = 186,
     SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_CHANCE               = 187,
-    SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_CHANCE              = 188,
+    SPELL_AURA_MOD_UI_HEALING_RANGE                         = 188,
     SPELL_AURA_MOD_RATING                                   = 189,
     SPELL_AURA_MOD_FACTION_REPUTATION_GAIN                  = 190,
     SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED                    = 191,
@@ -627,6 +627,8 @@ enum AuraType : uint32
     SPELL_AURA_DISABLE_NAVIGATION                           = 533, // disables map pins
     SPELL_AURA_534                                          = 534,
     SPELL_AURA_535                                          = 535, // related to profession equipment; NYI; MiscValue[0] = Profession (enum, not id)
+    SPELL_AURA_IGNORE_SPELL_CREATURE_TYPE_REQUIREMENTS      = 536,
+    SPELL_AURA_537                                          = 537,
     TOTAL_AURAS
 };
 

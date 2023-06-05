@@ -44,7 +44,7 @@ TC_API_EXPORT EnumText EnumUtils<UnitFlags>::ToString(UnitFlags value)
         case UNIT_FLAG_LOOTING: return { "UNIT_FLAG_LOOTING", "UNIT_FLAG_LOOTING", "loot animation" };
         case UNIT_FLAG_PET_IN_COMBAT: return { "UNIT_FLAG_PET_IN_COMBAT", "UNIT_FLAG_PET_IN_COMBAT", "on player pets: whether the pet is chasing a target to attack || on other units: whether any of the unit's minions is in combat" };
         case UNIT_FLAG_PVP_ENABLING: return { "UNIT_FLAG_PVP_ENABLING", "UNIT_FLAG_PVP_ENABLING", "changed in 3.0.3, now UNIT_BYTES_2_OFFSET_PVP_FLAG from UNIT_FIELD_BYTES_2" };
-        case UNIT_FLAG_SILENCED: return { "UNIT_FLAG_SILENCED", "UNIT_FLAG_SILENCED", "silenced, 2.1.1" };
+        case UNIT_FLAG_FORCE_NAMEPLATE: return { "UNIT_FLAG_FORCE_NAMEPLATE", "UNIT_FLAG_FORCE_NAMEPLATE", "Force show nameplate, 9.0" };
         case UNIT_FLAG_CANT_SWIM: return { "UNIT_FLAG_CANT_SWIM", "Can't Swim", "" };
         case UNIT_FLAG_CAN_SWIM: return { "UNIT_FLAG_CAN_SWIM", "Can Swim", "shows swim animation in water" };
         case UNIT_FLAG_NON_ATTACKABLE_2: return { "UNIT_FLAG_NON_ATTACKABLE_2", "UNIT_FLAG_NON_ATTACKABLE_2", "removes attackable icon, if on yourself, cannot assist self but can cast TARGET_SELF spells - added by SPELL_AURA_MOD_UNATTACKABLE" };
@@ -88,7 +88,7 @@ TC_API_EXPORT UnitFlags EnumUtils<UnitFlags>::FromIndex(size_t index)
         case 10: return UNIT_FLAG_LOOTING;
         case 11: return UNIT_FLAG_PET_IN_COMBAT;
         case 12: return UNIT_FLAG_PVP_ENABLING;
-        case 13: return UNIT_FLAG_SILENCED;
+        case 13: return UNIT_FLAG_FORCE_NAMEPLATE;
         case 14: return UNIT_FLAG_CANT_SWIM;
         case 15: return UNIT_FLAG_CAN_SWIM;
         case 16: return UNIT_FLAG_NON_ATTACKABLE_2;
@@ -129,7 +129,7 @@ TC_API_EXPORT size_t EnumUtils<UnitFlags>::ToIndex(UnitFlags value)
         case UNIT_FLAG_LOOTING: return 10;
         case UNIT_FLAG_PET_IN_COMBAT: return 11;
         case UNIT_FLAG_PVP_ENABLING: return 12;
-        case UNIT_FLAG_SILENCED: return 13;
+        case UNIT_FLAG_FORCE_NAMEPLATE: return 13;
         case UNIT_FLAG_CANT_SWIM: return 14;
         case UNIT_FLAG_CAN_SWIM: return 15;
         case UNIT_FLAG_NON_ATTACKABLE_2: return 16;
@@ -433,8 +433,8 @@ TC_API_EXPORT EnumText EnumUtils<NPCFlags>::ToString(NPCFlags value)
         case UNIT_NPC_FLAG_VENDOR_REAGENT: return { "UNIT_NPC_FLAG_VENDOR_REAGENT", "is vendor (reagents)", "100%" };
         case UNIT_NPC_FLAG_REPAIR: return { "UNIT_NPC_FLAG_REPAIR", "can repair", "100%" };
         case UNIT_NPC_FLAG_FLIGHTMASTER: return { "UNIT_NPC_FLAG_FLIGHTMASTER", "is flight master", "100%" };
-        case UNIT_NPC_FLAG_SPIRITHEALER: return { "UNIT_NPC_FLAG_SPIRITHEALER", "is spirit healer", "guessed" };
-        case UNIT_NPC_FLAG_SPIRITGUIDE: return { "UNIT_NPC_FLAG_SPIRITGUIDE", "is spirit guide", "guessed" };
+        case UNIT_NPC_FLAG_SPIRIT_HEALER: return { "UNIT_NPC_FLAG_SPIRIT_HEALER", "is spirit healer", "" };
+        case UNIT_NPC_FLAG_AREA_SPIRIT_HEALER: return { "UNIT_NPC_FLAG_AREA_SPIRIT_HEALER", "is area spirit healer", "" };
         case UNIT_NPC_FLAG_INNKEEPER: return { "UNIT_NPC_FLAG_INNKEEPER", "is innkeeper", "" };
         case UNIT_NPC_FLAG_BANKER: return { "UNIT_NPC_FLAG_BANKER", "is banker", "100%" };
         case UNIT_NPC_FLAG_PETITIONER: return { "UNIT_NPC_FLAG_PETITIONER", "handles guild/arena petitions", "100% 0xC0000 = guild petitions, 0x40000 = arena team petitions" };
@@ -478,8 +478,8 @@ TC_API_EXPORT NPCFlags EnumUtils<NPCFlags>::FromIndex(size_t index)
         case 12: return UNIT_NPC_FLAG_VENDOR_REAGENT;
         case 13: return UNIT_NPC_FLAG_REPAIR;
         case 14: return UNIT_NPC_FLAG_FLIGHTMASTER;
-        case 15: return UNIT_NPC_FLAG_SPIRITHEALER;
-        case 16: return UNIT_NPC_FLAG_SPIRITGUIDE;
+        case 15: return UNIT_NPC_FLAG_SPIRIT_HEALER;
+        case 16: return UNIT_NPC_FLAG_AREA_SPIRIT_HEALER;
         case 17: return UNIT_NPC_FLAG_INNKEEPER;
         case 18: return UNIT_NPC_FLAG_BANKER;
         case 19: return UNIT_NPC_FLAG_PETITIONER;
@@ -520,8 +520,8 @@ TC_API_EXPORT size_t EnumUtils<NPCFlags>::ToIndex(NPCFlags value)
         case UNIT_NPC_FLAG_VENDOR_REAGENT: return 12;
         case UNIT_NPC_FLAG_REPAIR: return 13;
         case UNIT_NPC_FLAG_FLIGHTMASTER: return 14;
-        case UNIT_NPC_FLAG_SPIRITHEALER: return 15;
-        case UNIT_NPC_FLAG_SPIRITGUIDE: return 16;
+        case UNIT_NPC_FLAG_SPIRIT_HEALER: return 15;
+        case UNIT_NPC_FLAG_AREA_SPIRIT_HEALER: return 16;
         case UNIT_NPC_FLAG_INNKEEPER: return 17;
         case UNIT_NPC_FLAG_BANKER: return 18;
         case UNIT_NPC_FLAG_PETITIONER: return 19;
@@ -554,6 +554,7 @@ TC_API_EXPORT EnumText EnumUtils<NPCFlags2>::ToString(NPCFlags2 value)
         case UNIT_NPC_FLAG_2_ITEM_UPGRADE_MASTER: return { "UNIT_NPC_FLAG_2_ITEM_UPGRADE_MASTER", "is item upgrade", "" };
         case UNIT_NPC_FLAG_2_GARRISON_ARCHITECT: return { "UNIT_NPC_FLAG_2_GARRISON_ARCHITECT", "is garrison architect", "garrison building placement UI" };
         case UNIT_NPC_FLAG_2_STEERING: return { "UNIT_NPC_FLAG_2_STEERING", "is avoiding obstacles", "clientside pathfinding" };
+        case UNIT_NPC_FLAG_2_AREA_SPIRIT_HEALER_INDIVIDUAL: return { "UNIT_NPC_FLAG_2_AREA_SPIRIT_HEALER_INDIVIDUAL", "is area spirit healer individual", "area spirit healer with individual timers" };
         case UNIT_NPC_FLAG_2_SHIPMENT_CRAFTER: return { "UNIT_NPC_FLAG_2_SHIPMENT_CRAFTER", "is shipment crafter", "garrison work orders" };
         case UNIT_NPC_FLAG_2_GARRISON_MISSION_NPC: return { "UNIT_NPC_FLAG_2_GARRISON_MISSION_NPC", "is garrison mission", "" };
         case UNIT_NPC_FLAG_2_TRADESKILL_NPC: return { "UNIT_NPC_FLAG_2_TRADESKILL_NPC", "is tradeskill", "crafting at npc" };
@@ -568,7 +569,7 @@ TC_API_EXPORT EnumText EnumUtils<NPCFlags2>::ToString(NPCFlags2 value)
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<NPCFlags2>::Count() { return 13; }
+TC_API_EXPORT size_t EnumUtils<NPCFlags2>::Count() { return 14; }
 
 template <>
 TC_API_EXPORT NPCFlags2 EnumUtils<NPCFlags2>::FromIndex(size_t index)
@@ -579,15 +580,16 @@ TC_API_EXPORT NPCFlags2 EnumUtils<NPCFlags2>::FromIndex(size_t index)
         case 1: return UNIT_NPC_FLAG_2_ITEM_UPGRADE_MASTER;
         case 2: return UNIT_NPC_FLAG_2_GARRISON_ARCHITECT;
         case 3: return UNIT_NPC_FLAG_2_STEERING;
-        case 4: return UNIT_NPC_FLAG_2_SHIPMENT_CRAFTER;
-        case 5: return UNIT_NPC_FLAG_2_GARRISON_MISSION_NPC;
-        case 6: return UNIT_NPC_FLAG_2_TRADESKILL_NPC;
-        case 7: return UNIT_NPC_FLAG_2_BLACK_MARKET_VIEW;
-        case 8: return UNIT_NPC_FLAG_2_GARRISON_TALENT_NPC;
-        case 9: return UNIT_NPC_FLAG_2_CONTRIBUTION_COLLECTOR;
-        case 10: return UNIT_NPC_FLAG_2_AZERITE_RESPEC;
-        case 11: return UNIT_NPC_FLAG_2_ISLANDS_QUEUE;
-        case 12: return UNIT_NPC_FLAG_2_SUPPRESS_NPC_SOUNDS_EXCEPT_END_OF_INTERACTION;
+        case 4: return UNIT_NPC_FLAG_2_AREA_SPIRIT_HEALER_INDIVIDUAL;
+        case 5: return UNIT_NPC_FLAG_2_SHIPMENT_CRAFTER;
+        case 6: return UNIT_NPC_FLAG_2_GARRISON_MISSION_NPC;
+        case 7: return UNIT_NPC_FLAG_2_TRADESKILL_NPC;
+        case 8: return UNIT_NPC_FLAG_2_BLACK_MARKET_VIEW;
+        case 9: return UNIT_NPC_FLAG_2_GARRISON_TALENT_NPC;
+        case 10: return UNIT_NPC_FLAG_2_CONTRIBUTION_COLLECTOR;
+        case 11: return UNIT_NPC_FLAG_2_AZERITE_RESPEC;
+        case 12: return UNIT_NPC_FLAG_2_ISLANDS_QUEUE;
+        case 13: return UNIT_NPC_FLAG_2_SUPPRESS_NPC_SOUNDS_EXCEPT_END_OF_INTERACTION;
         default: throw std::out_of_range("index");
     }
 }
@@ -601,15 +603,16 @@ TC_API_EXPORT size_t EnumUtils<NPCFlags2>::ToIndex(NPCFlags2 value)
         case UNIT_NPC_FLAG_2_ITEM_UPGRADE_MASTER: return 1;
         case UNIT_NPC_FLAG_2_GARRISON_ARCHITECT: return 2;
         case UNIT_NPC_FLAG_2_STEERING: return 3;
-        case UNIT_NPC_FLAG_2_SHIPMENT_CRAFTER: return 4;
-        case UNIT_NPC_FLAG_2_GARRISON_MISSION_NPC: return 5;
-        case UNIT_NPC_FLAG_2_TRADESKILL_NPC: return 6;
-        case UNIT_NPC_FLAG_2_BLACK_MARKET_VIEW: return 7;
-        case UNIT_NPC_FLAG_2_GARRISON_TALENT_NPC: return 8;
-        case UNIT_NPC_FLAG_2_CONTRIBUTION_COLLECTOR: return 9;
-        case UNIT_NPC_FLAG_2_AZERITE_RESPEC: return 10;
-        case UNIT_NPC_FLAG_2_ISLANDS_QUEUE: return 11;
-        case UNIT_NPC_FLAG_2_SUPPRESS_NPC_SOUNDS_EXCEPT_END_OF_INTERACTION: return 12;
+        case UNIT_NPC_FLAG_2_AREA_SPIRIT_HEALER_INDIVIDUAL: return 4;
+        case UNIT_NPC_FLAG_2_SHIPMENT_CRAFTER: return 5;
+        case UNIT_NPC_FLAG_2_GARRISON_MISSION_NPC: return 6;
+        case UNIT_NPC_FLAG_2_TRADESKILL_NPC: return 7;
+        case UNIT_NPC_FLAG_2_BLACK_MARKET_VIEW: return 8;
+        case UNIT_NPC_FLAG_2_GARRISON_TALENT_NPC: return 9;
+        case UNIT_NPC_FLAG_2_CONTRIBUTION_COLLECTOR: return 10;
+        case UNIT_NPC_FLAG_2_AZERITE_RESPEC: return 11;
+        case UNIT_NPC_FLAG_2_ISLANDS_QUEUE: return 12;
+        case UNIT_NPC_FLAG_2_SUPPRESS_NPC_SOUNDS_EXCEPT_END_OF_INTERACTION: return 13;
         default: throw std::out_of_range("value");
     }
 }

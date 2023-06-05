@@ -52,6 +52,24 @@ bool _SpellScript::_ValidateSpellInfo(uint32 spellId)
     return true;
 }
 
+bool _SpellScript::_ValidateSpellEffect(uint32 spellId, SpellEffIndex effectIndex)
+{
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE);
+    if (!spellInfo)
+    {
+        TC_LOG_ERROR("scripts.spells", "_SpellScript::_ValidateSpellEffect: Spell {} does not exist.", spellId);
+        return false;
+    }
+
+    if (spellInfo->GetEffects().size() <= effectIndex)
+    {
+        TC_LOG_ERROR("scripts.spells", "_SpellScript::_ValidateSpellEffect: Spell {} does not have EFFECT_{}.", spellId, uint32(effectIndex));
+        return false;
+    }
+
+    return true;
+}
+
 void _SpellScript::_Register()
 {
     m_currentScriptState = SPELL_SCRIPT_STATE_REGISTRATION;
@@ -895,7 +913,7 @@ SpellInfo const* SpellScript::GetTriggeringSpell() const
 void SpellScript::FinishCast(SpellCastResult result, int32* param1 /*= nullptr*/, int32* param2 /*= nullptr*/)
 {
     m_spell->SendCastResult(result, param1, param2);
-    m_spell->finish(result == SPELL_CAST_OK);
+    m_spell->finish(result);
 }
 
 void SpellScript::SetCustomCastResultMessage(SpellCustomErrors result)

@@ -20,7 +20,7 @@
 #include "ItemTemplate.h"
 #include "Player.h"
 
-int32 const SocketColorToGemTypeMask[19] =
+int32 const SocketColorToGemTypeMask[26] =
 {
     0,
     SOCKET_COLOR_META,
@@ -40,7 +40,14 @@ int32 const SocketColorToGemTypeMask[19] =
     SOCKET_COLOR_RELIC_WATER,
     SOCKET_COLOR_RELIC_LIFE,
     SOCKET_COLOR_RELIC_WIND,
-    SOCKET_COLOR_RELIC_HOLY
+    SOCKET_COLOR_RELIC_HOLY,
+    SOCKET_COLOR_PUNCHCARD_RED,
+    SOCKET_COLOR_PUNCHCARD_YELLOW,
+    SOCKET_COLOR_PUNCHCARD_BLUE,
+    SOCKET_COLOR_DOMINATION,
+    SOCKET_COLOR_CYPHER,
+    SOCKET_COLOR_TINKER,
+    SOCKET_COLOR_PRIMORDIAL
 };
 
 char const* ItemTemplate::GetName(LocaleConstant locale) const

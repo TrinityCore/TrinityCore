@@ -50,7 +50,9 @@ enum EngineerHelice
     SAY_WP_7                    = 6,
 
     // Quests
-    QUEST_DISASTER              = 12688
+    QUEST_DISASTER              = 12688,
+
+    PATH_ESCORT_HELICE          = 230298,
 };
 
 struct npc_engineer_helice : public EscortAI
@@ -104,7 +106,8 @@ struct npc_engineer_helice : public EscortAI
         {
             me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
 
-            Start(false, false, player->GetGUID());
+            LoadPath(PATH_ESCORT_HELICE);
+            Start(false, player->GetGUID());
             Talk(SAY_WP_1);
         }
     }
@@ -635,7 +638,7 @@ class spell_sholazar_take_sputum_sample : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return spellInfo->GetEffects().size() > EFFECT_1 && ValidateSpellInfo(
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } }) && ValidateSpellInfo(
         {
             uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()),
             uint32(spellInfo->GetEffect(EFFECT_1).CalcValue())

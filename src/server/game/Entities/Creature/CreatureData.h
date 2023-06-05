@@ -20,6 +20,7 @@
 
 #include "Common.h"
 #include "DBCEnums.h"
+#include "EnumFlag.h"
 #include "Optional.h"
 #include "SharedDefines.h"
 #include "SpawnData.h"
@@ -54,7 +55,7 @@ enum CreatureStaticFlags
     CREATURE_STATIC_FLAG_COMBAT_PING                       = 0x00020000,
     CREATURE_STATIC_FLAG_AQUATIC                           = 0x00040000, // aka Water Only, creature_template_movement.Ground = 0
     CREATURE_STATIC_FLAG_AMPHIBIOUS                        = 0x00080000, // creature_template_movement.Swim = 1
-    CREATURE_STATIC_FLAG_NO_MELEE_FLEE                     = 0x00100000, // Prevents melee(does not prevent chasing, does not make creature passive). Not sure what 'Flee' means but another flag is named NO_MELEE_APPROACH
+    CREATURE_STATIC_FLAG_NO_MELEE                          = 0x00100000, // "No Melee (Flee)" Prevents melee(does not prevent chasing, does not make creature passive). Not sure what 'Flee' means but another flag is named NO_MELEE_APPROACH
     CREATURE_STATIC_FLAG_VISIBLE_TO_GHOSTS                 = 0x00200000, // CREATURE_TYPE_FLAG_VISIBLE_TO_GHOSTS
     CREATURE_STATIC_FLAG_PVP_ENABLING                      = 0x00400000, // Old UNIT_FLAG_PVP_ENABLING, now UNIT_BYTES_2_OFFSET_PVP_FLAG from UNIT_FIELD_BYTES_2
     CREATURE_STATIC_FLAG_DO_NOT_PLAY_WOUND_ANIM            = 0x00800000, // CREATURE_TYPE_FLAG_DO_NOT_PLAY_WOUND_ANIM
@@ -67,6 +68,8 @@ enum CreatureStaticFlags
     CREATURE_STATIC_FLAG_MORE_AUDIBLE                      = 0x40000000, // CREATURE_TYPE_FLAG_MORE_AUDIBLE
     CREATURE_STATIC_FLAG_LARGE_AOI                         = 0x80000000  // UnitFlags2 0x200000
 };
+
+DEFINE_ENUM_FLAG(CreatureStaticFlags);
 
 enum CreatureStaticFlags2
 {
@@ -104,6 +107,8 @@ enum CreatureStaticFlags2
     CREATURE_STATIC_FLAG_2_NO_PET_BAR                      = 0x80000000  // CREATURE_TYPE_FLAG_NO_PET_BAR
 };
 
+DEFINE_ENUM_FLAG(CreatureStaticFlags2);
+
 enum CreatureStaticFlags3
 {
     CREATURE_STATIC_FLAG_3_NO_DAMAGE_HISTORY              = 0x00000001,
@@ -139,6 +144,8 @@ enum CreatureStaticFlags3
     CREATURE_STATIC_FLAG_3_AI_CAN_AUTO_TAKEOFF_IN_COMBAT  = 0x40000000,
     CREATURE_STATIC_FLAG_3_AI_CAN_AUTO_LAND_IN_COMBAT     = 0x80000000
 };
+
+DEFINE_ENUM_FLAG(CreatureStaticFlags3);
 
 enum CreatureStaticFlags4
 {
@@ -176,6 +183,8 @@ enum CreatureStaticFlags4
     CREATURE_STATIC_FLAG_4_QUEST_BOSS                          = 0x80000000  // CREATURE_TYPE_FLAG_QUEST_BOSS
 };
 
+DEFINE_ENUM_FLAG(CreatureStaticFlags4);
+
 enum CreatureStaticFlags5
 {
     CREATURE_STATIC_FLAG_5_UNTARGETABLE_BY_CLIENT              = 0x00000001, // UnitFlags2 0x4000000 UNIT_FLAG2_UNTARGETABLE_BY_CLIENT
@@ -211,6 +220,8 @@ enum CreatureStaticFlags5
     CREATURE_STATIC_FLAG_5_NO_INTERACT_ON_LEFT_CLICK           = 0x40000000, // CREATURE_TYPEFLAGS_2_UNK6
     CREATURE_STATIC_FLAG_5_GIVE_CRITERIA_KILL_CREDIT_WHEN_CHARMED = 0x80000000
 };
+
+DEFINE_ENUM_FLAG(CreatureStaticFlags5);
 
 enum CreatureStaticFlags6
 {
@@ -248,6 +259,8 @@ enum CreatureStaticFlags6
     CREATURE_STATIC_FLAG_6_APPLY_PROCEDURAL_WOUND_ANIM_TO_BASE = 0x80000000  // TFLAG2_UNK14
 };
 
+DEFINE_ENUM_FLAG(CreatureStaticFlags6);
+
 enum CreatureStaticFlags7
 {
     CREATURE_STATIC_FLAG_7_IMPORTANT_NPC                            = 0x00000001,
@@ -264,11 +277,55 @@ enum CreatureStaticFlags7
     CREATURE_STATIC_FLAG_7_AI_ADDITIONAL_PATHING                    = 0x00080000,
 };
 
+DEFINE_ENUM_FLAG(CreatureStaticFlags7);
+
 enum CreatureStaticFlags8
 {
     CREATURE_STATIC_FLAG_8_FORCE_CLOSE_IN_ON_PATH_FAIL_BEHAVIOR     = 0x00000002,
     CREATURE_STATIC_FLAG_8_USE_2D_CHASING_CALCULATION               = 0x00000020,
     CREATURE_STATIC_FLAG_8_USE_FAST_CLASSIC_HEARTBEAT               = 0x00000040,
+};
+
+DEFINE_ENUM_FLAG(CreatureStaticFlags8);
+
+class CreatureStaticFlagsHolder
+{
+public:
+    explicit CreatureStaticFlagsHolder(CreatureStaticFlags flags = CreatureStaticFlags(), CreatureStaticFlags2 flags2 = CreatureStaticFlags2(),
+        CreatureStaticFlags3 flags3 = CreatureStaticFlags3(), CreatureStaticFlags4 flags4 = CreatureStaticFlags4(),
+        CreatureStaticFlags5 flags5 = CreatureStaticFlags5(), CreatureStaticFlags6 flags6 = CreatureStaticFlags6(),
+        CreatureStaticFlags7 flags7 = CreatureStaticFlags7(), CreatureStaticFlags8 flags8 = CreatureStaticFlags8())
+            : _flags(flags), _flags2(flags2), _flags3(flags3), _flags4(flags4), _flags5(flags5), _flags6(flags6), _flags7(flags7), _flags8(flags8)
+    {
+    }
+
+    bool HasFlag(CreatureStaticFlags flag) const { return _flags.HasFlag(flag); }
+    bool HasFlag(CreatureStaticFlags2 flag) const { return _flags2.HasFlag(flag); }
+    bool HasFlag(CreatureStaticFlags3 flag) const { return _flags3.HasFlag(flag); }
+    bool HasFlag(CreatureStaticFlags4 flag) const { return _flags4.HasFlag(flag); }
+    bool HasFlag(CreatureStaticFlags5 flag) const { return _flags5.HasFlag(flag); }
+    bool HasFlag(CreatureStaticFlags6 flag) const { return _flags6.HasFlag(flag); }
+    bool HasFlag(CreatureStaticFlags7 flag) const { return _flags7.HasFlag(flag); }
+    bool HasFlag(CreatureStaticFlags8 flag) const { return _flags8.HasFlag(flag); }
+
+    void ApplyFlag(CreatureStaticFlags flag, bool apply) { if (apply) _flags |= flag; else _flags &= ~flag; }
+    void ApplyFlag(CreatureStaticFlags2 flag, bool apply) { if (apply) _flags2 |= flag; else _flags2 &= ~flag; }
+    void ApplyFlag(CreatureStaticFlags3 flag, bool apply) { if (apply) _flags3 |= flag; else _flags3 &= ~flag; }
+    void ApplyFlag(CreatureStaticFlags4 flag, bool apply) { if (apply) _flags4 |= flag; else _flags4 &= ~flag; }
+    void ApplyFlag(CreatureStaticFlags5 flag, bool apply) { if (apply) _flags5 |= flag; else _flags5 &= ~flag; }
+    void ApplyFlag(CreatureStaticFlags6 flag, bool apply) { if (apply) _flags6 |= flag; else _flags6 &= ~flag; }
+    void ApplyFlag(CreatureStaticFlags7 flag, bool apply) { if (apply) _flags7 |= flag; else _flags7 &= ~flag; }
+    void ApplyFlag(CreatureStaticFlags8 flag, bool apply) { if (apply) _flags8 |= flag; else _flags8 &= ~flag; }
+
+private:
+    EnumFlag<CreatureStaticFlags> _flags;
+    EnumFlag<CreatureStaticFlags2> _flags2;
+    EnumFlag<CreatureStaticFlags3> _flags3;
+    EnumFlag<CreatureStaticFlags4> _flags4;
+    EnumFlag<CreatureStaticFlags5> _flags5;
+    EnumFlag<CreatureStaticFlags6> _flags6;
+    EnumFlag<CreatureStaticFlags7> _flags7;
+    EnumFlag<CreatureStaticFlags8> _flags8;
 };
 
 // EnumUtils: DESCRIBE THIS
@@ -384,7 +441,6 @@ const uint8 MAX_KILL_CREDIT = 2;
 const uint32 MAX_CREATURE_MODELS = 4;
 const uint32 MAX_CREATURE_NAMES = 4;
 const uint32 MAX_CREATURE_SPELLS = 8;
-const uint32 MAX_CREATURE_DIFFICULTIES = 3;
 
 struct CreatureModel
 {
@@ -402,18 +458,48 @@ struct CreatureModel
     float Probability;
 };
 
-struct CreatureLevelScaling
+struct CreatureDifficulty
 {
     int16 DeltaLevelMin;
     int16 DeltaLevelMax;
     int32 ContentTuningID;
+    int32 HealthScalingExpansion;
+    float HealthModifier;
+    float ManaModifier;
+    float ArmorModifier;
+    float DamageModifier;
+    int32 CreatureDifficultyID;
+    uint32 TypeFlags;
+    uint32 TypeFlags2;
+    uint32 LootID;
+    uint32 PickPocketLootID;
+    uint32 SkinLootID;
+    uint32 GoldMin;
+    uint32 GoldMax;
+
+    // Helpers
+    int32 GetHealthScalingExpansion() const
+    {
+        return HealthScalingExpansion == EXPANSION_LEVEL_CURRENT ? CURRENT_EXPANSION : HealthScalingExpansion;
+    }
+
+    SkillType GetRequiredLootSkill() const
+    {
+        if (TypeFlags & CREATURE_TYPE_FLAG_SKIN_WITH_HERBALISM)
+            return SKILL_HERBALISM;
+        else if (TypeFlags & CREATURE_TYPE_FLAG_SKIN_WITH_MINING)
+            return SKILL_MINING;
+        else if (TypeFlags & CREATURE_TYPE_FLAG_SKIN_WITH_ENGINEERING)
+            return SKILL_ENGINEERING;
+        else
+            return SKILL_SKINNING; // Default case
+    }
 };
 
 // from `creature_template` table
 struct TC_GAME_API CreatureTemplate
 {
     uint32  Entry;
-    uint32  DifficultyEntry[MAX_CREATURE_DIFFICULTIES];
     uint32  KillCredit[MAX_KILL_CREDIT];
     std::vector<CreatureModel> Models;
     std::string  Name;
@@ -421,11 +507,8 @@ struct TC_GAME_API CreatureTemplate
     std::string  SubName;
     std::string  TitleAlt;
     std::string  IconName;
-    uint32  GossipMenuId;
-    int16   minlevel;
-    int16   maxlevel;
-    std::unordered_map<Difficulty, CreatureLevelScaling> scalingStore;
-    int32   HealthScalingExpansion;
+    std::vector<uint32> GossipMenuIds;
+    std::unordered_map<Difficulty, CreatureDifficulty> difficultyStore;
     uint32  RequiredExpansion;
     uint32  VignetteID;                                     /// @todo Read Vignette.db2
     uint32  faction;
@@ -447,30 +530,15 @@ struct TC_GAME_API CreatureTemplate
     CreatureFamily  family;                                 // enum CreatureFamily values (optional)
     uint32  trainer_class;
     uint32  type;                                           // enum CreatureType values
-    uint32  type_flags;                                     // enum CreatureTypeFlags mask values
-    uint32  type_flags2;                                    // unknown enum, only set for 4 creatures (with value 1)
-    uint32  lootid;
-    uint32  pickpocketLootId;
-    uint32  SkinLootId;
     int32   resistance[MAX_SPELL_SCHOOL];
     uint32  spells[MAX_CREATURE_SPELLS];
     uint32  VehicleId;
-    uint32  mingold;
-    uint32  maxgold;
     std::string AIName;
     uint32  MovementType;
     CreatureMovementData Movement;
-    float   HoverHeight;
-    float   ModHealth;
-    float   ModHealthExtra;
-    float   ModMana;
-    float   ModManaExtra;                                   // Added in 4.x, this value is usually 2 for a small group of creatures with double mana
-    float   ModArmor;
-    float   ModDamage;
     float   ModExperience;
     bool    RacialLeader;
     uint32  movementId;
-    int32   CreatureDifficultyID;
     int32   WidgetSetID;
     int32   WidgetSetUnitConditionID;
     bool    RegenHealth;
@@ -486,71 +554,25 @@ struct TC_GAME_API CreatureTemplate
     CreatureModel const* GetModelWithDisplayId(uint32 displayId) const;
     CreatureModel const* GetFirstInvisibleModel() const;
     CreatureModel const* GetFirstVisibleModel() const;
-    std::pair<int16, int16> GetMinMaxLevel() const;
-    int32 GetHealthScalingExpansion() const;
-    CreatureLevelScaling const* GetLevelScaling(Difficulty difficulty) const;
+    CreatureDifficulty const* GetDifficulty(Difficulty difficulty) const;
 
-    // helpers
-    SkillType GetRequiredLootSkill() const
+    // Helpers
+    bool IsExotic(CreatureDifficulty const* creatureDifficulty) const
     {
-        if (type_flags & CREATURE_TYPE_FLAG_SKIN_WITH_HERBALISM)
-            return SKILL_HERBALISM;
-        else if (type_flags & CREATURE_TYPE_FLAG_SKIN_WITH_MINING)
-            return SKILL_MINING;
-        else if (type_flags & CREATURE_TYPE_FLAG_SKIN_WITH_ENGINEERING)
-            return SKILL_ENGINEERING;
-        else
-            return SKILL_SKINNING;                          // normal case
+        return (creatureDifficulty->TypeFlags & CREATURE_TYPE_FLAG_TAMEABLE_EXOTIC) != 0;
     }
 
-    bool IsExotic() const
+    bool IsTameable(bool canTameExotic, CreatureDifficulty const* creatureDifficulty) const
     {
-        return (type_flags & CREATURE_TYPE_FLAG_TAMEABLE_EXOTIC) != 0;
-    }
-
-    bool IsTameable(bool canTameExotic) const
-    {
-        if (type != CREATURE_TYPE_BEAST || family == CREATURE_FAMILY_NONE || (type_flags & CREATURE_TYPE_FLAG_TAMEABLE) == 0)
+        if (type != CREATURE_TYPE_BEAST || family == CREATURE_FAMILY_NONE || (creatureDifficulty->TypeFlags & CREATURE_TYPE_FLAG_TAMEABLE) == 0)
             return false;
 
         // if can tame exotic then can tame any tameable
-        return canTameExotic || !IsExotic();
+        return canTameExotic || !IsExotic(creatureDifficulty);
     }
 
     void InitializeQueryData();
-    WorldPacket BuildQueryData(LocaleConstant loc) const;
-
-    static int32 DifficultyIDToDifficultyEntryIndex(uint32 difficulty)
-    {
-        switch (difficulty)
-        {
-            case DIFFICULTY_NONE:
-            case DIFFICULTY_NORMAL:
-            case DIFFICULTY_10_N:
-            case DIFFICULTY_40:
-            case DIFFICULTY_3_MAN_SCENARIO_N:
-            case DIFFICULTY_NORMAL_RAID:
-                return -1;
-            case DIFFICULTY_HEROIC:
-            case DIFFICULTY_25_N:
-            case DIFFICULTY_3_MAN_SCENARIO_HC:
-            case DIFFICULTY_HEROIC_RAID:
-                return 0;
-            case DIFFICULTY_10_HC:
-            case DIFFICULTY_MYTHIC_KEYSTONE:
-            case DIFFICULTY_MYTHIC_RAID:
-                return 1;
-            case DIFFICULTY_25_HC:
-                return 2;
-            case DIFFICULTY_LFR:
-            case DIFFICULTY_LFR_NEW:
-            case DIFFICULTY_EVENT_RAID:
-            case DIFFICULTY_EVENT_DUNGEON:
-            case DIFFICULTY_EVENT_SCENARIO:
-            default:
-                return -1;
-        }
-    }
+    WorldPacket BuildQueryData(LocaleConstant loc, Difficulty difficulty) const;
 };
 
 #pragma pack(push, 1)
@@ -563,15 +585,6 @@ struct TC_GAME_API CreatureBaseStats
     uint32 RangedAttackPower;
 
     // Helpers
-    uint32 GenerateMana(CreatureTemplate const* info) const
-    {
-        // Mana can be 0.
-        if (!BaseMana)
-            return 0;
-
-        return uint32(ceil(BaseMana * info->ModMana * info->ModManaExtra));
-    }
-
     static CreatureBaseStats const* GetBaseStats(uint8 level, uint8 unitClass);
 };
 

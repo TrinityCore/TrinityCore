@@ -113,7 +113,8 @@ namespace WorldPackets
             Optional<CurrencyGainSource> QuantityGainSource;
             Optional<CurrencyDestroyReason> QuantityLostSource;
             Optional<uint32> FirstCraftOperationID;
-            Optional<Timestamp<>> LastSpendTime;
+            Optional<Timestamp<>> NextRechargeTime;
+            Optional<Timestamp<>> RechargeCycleStartTime;
             bool SuppressChatLog = false;
         };
 
@@ -139,7 +140,8 @@ namespace WorldPackets
                 Optional<int32> TrackedQuantity;
                 Optional<int32> MaxQuantity;
                 Optional<int32> TotalEarned;
-                Optional<Timestamp<>> LastSpendTime;
+                Optional<Timestamp<>> NextRechargeTime;
+                Optional<Timestamp<>> RechargeCycleStartTime;
                 uint8 Flags = 0;
             };
 
@@ -547,9 +549,11 @@ namespace WorldPackets
         class EnableBarberShop final : public ServerPacket
         {
         public:
-            EnableBarberShop() : ServerPacket(SMSG_ENABLE_BARBER_SHOP, 0) { }
+            EnableBarberShop() : ServerPacket(SMSG_ENABLE_BARBER_SHOP, 1) { }
 
-            WorldPacket const* Write() override { return &_worldPacket; }
+            WorldPacket const* Write() override;
+
+            uint8 CustomizationScope = 0;
         };
 
         struct PhaseShiftDataPhase

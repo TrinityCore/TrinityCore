@@ -183,6 +183,8 @@ enum UnitClass
     UNIT_CLASS_MAGE                     = 8
 };
 
+static constexpr uint8 MAX_UNIT_CLASSES = 4;
+
 #define CLASSMASK_ALL_CREATURES ((1<<(UNIT_CLASS_WARRIOR-1)) | (1<<(UNIT_CLASS_PALADIN-1)) | (1<<(UNIT_CLASS_ROGUE-1)) | (1<<(UNIT_CLASS_MAGE-1)))
 
 #define CLASSMASK_WAND_USERS ((1<<(CLASS_PRIEST-1)) | (1<<(CLASS_MAGE-1)) | (1<<(CLASS_WARLOCK-1)))
@@ -295,11 +297,17 @@ enum Powers : int8
     POWER_FURY                          = 17, // TITLE Fury
     POWER_PAIN                          = 18, // TITLE Pain
     POWER_ESSENCE                       = 19, // TITLE Essence
-    MAX_POWERS                          = 20, // SKIP
+    POWER_RUNE_BLOOD                    = 20, // TITLE Blood Runes
+    POWER_RUNE_FROST                    = 21, // TITLE Frost Runes
+    POWER_RUNE_UNHOLY                   = 22, // TITLE Unholy Runes
+    POWER_ALTERNATE_QUEST               = 23, // TITLE Alternate (Quest)
+    POWER_ALTERNATE_ENCOUNTER           = 24, // TITLE Alternate (Encounter)
+    POWER_ALTERNATE_MOUNT               = 25, // TITLE Alternate (Mount)
+    MAX_POWERS                          = 26, // SKIP
     POWER_ALL                           = 127 // SKIP
 };
 
-#define MAX_POWERS_PER_CLASS            7
+#define MAX_POWERS_PER_CLASS            10
 
 // EnumUtils: DESCRIBE THIS
 enum SpellSchools : uint16
@@ -1431,11 +1439,21 @@ enum SpellEffectName
     SPELL_EFFECT_GATHERING                          = 302,
     SPELL_EFFECT_CREATE_TRAIT_TREE_CONFIG           = 303, // MiscValue[0] = TraitTreeID
     SPELL_EFFECT_CHANGE_ACTIVE_COMBAT_TRAIT_CONFIG  = 304,
+    SPELL_EFFECT_305                                = 305,
+    SPELL_EFFECT_306                                = 306,
+    SPELL_EFFECT_307                                = 307,
+    SPELL_EFFECT_CANCEL_PRELOAD_WORLD               = 308,
+    SPELL_EFFECT_PRELOAD_WORLD                      = 309,
+    SPELL_EFFECT_310                                = 310,
+    SPELL_EFFECT_ENSURE_WORLD_LOADED                = 311,
+    SPELL_EFFECT_312                                = 312,
+    SPELL_EFFECT_CHANGE_ITEM_BONUSES_2              = 313, // MiscValue[0] = ItemBonusTreeID to preserve
+    SPELL_EFFECT_ADD_SOCKET_BONUS                   = 314, // MiscValue[0] = required ItemBonusTreeID
     TOTAL_SPELL_EFFECTS
 };
 
 // EnumUtils: DESCRIBE THIS
-enum SpellCastResult
+enum SpellCastResult : int32
 {
     SPELL_FAILED_SUCCESS                                        = 0,
     SPELL_FAILED_AFFECTING_COMBAT                               = 1,
@@ -2343,6 +2361,7 @@ enum SpellCustomErrors
     SPELL_CUSTOM_ERROR_YOU_CAN_ONLY_DO_THIS_WHILE_MIDAIR                = 638, // You can only do this while midair.
     SPELL_CUSTOM_ERROR_YOU_CANNOT_DO_THAT_WHILE_AIRBORNE                = 639, // You cannot do that while airborne.
     SPELL_CUSTOM_ERROR_POCOPOC_IS_UNAVAILABLE_ON_QUESTLINE              = 640, // Pocopoc is unavailable to summon during the questline A Means to an End.
+    SPELL_CUSTOM_ERROR_CANNOT_CAST_THAT_WITH_AURA_OF_RECKONING_TALENT   = 650, // You cannot cast that while Aura of Reckoning is talented.
     SPELL_CUSTOM_ERROR_REQUIRES_SULFURON_SLAMMER                        = 711, // Requires Sulfuron Slammer
     SPELL_CUSTOM_ERROR_NOT_READY_YET                                    = 788, // Not ready yet.
     SPELL_CUSTOM_ERROR_QUALITY_OF_TIERED_MEDALLION_SETTING_IS_TOO_LOW   = 789, // The quality of your Tiered Medallion Setting is too low to add another socket to this item.
@@ -2377,8 +2396,25 @@ enum SpellCustomErrors
     SPELL_CUSTOM_ERROR_YOU_ARE_ALREADY_BRAVE_ENOUGH_TO_CONTINUE_WITH_YOUR_EXPERIMENTATION = 818, // You are already brave enough to continue with your experimentation.
     SPELL_CUSTOM_ERROR_YOU_DONT_KNOW_HOW_TO_REPAIR_THIS_ITEM            = 819, // You don't know how to repair this item.
     SPELL_CUSTOM_ERROR_THERE_IS_NO_MORE_ROOM_ON_THAT_HANDHOLD           = 820, // There is no more room on that handhold.
-    SPELL_CUSTOM_ERROR_YOU_MUST_UNBLOCK_THIS_SPOT_BY_COMPLETING_A_DAILY_QUest = 821, // You must unblock this spot by completing a daily quest.
+    SPELL_CUSTOM_ERROR_YOU_MUST_UNBLOCK_THIS_SPOT_BY_COMPLETING_A_DAILY_QUEST = 821, // You must unblock this spot by completing a daily quest.
     SPELL_CUSTOM_ERROR_YOU_MUST_BE_CLOSER_TO_AN_ICE_HOLE_TO_DO_THAT     = 822, // You must be closer to an ice hole to do that.
+    SPELL_CUSTOM_ERROR_SHADOWFLAME_IS_TOO_STRONG_TO_BEAR                = 823, // The shadowflame is too strong to bear.
+    SPELL_CUSTOM_ERROR_SOMEONE_HAS_ALREADY_OVERLOADED_THIS              = 824, // Someone has already overloaded this.
+    SPELL_CUSTOM_ERROR_REQUIRES_NOKHUD_TRAINING_COURSE                  = 825, // Requires Nokhud Training Course.
+    SPELL_CUSTOM_ERROR_THIS_RECIPE_IS_CURRENTLY_DISABLED                = 826, // This recipe is currently disabled. Please try again later.
+    SPELL_CUSTOM_ERROR_YOU_DO_NOT_HAVE_THE_CORRECT_BATTLE_PET_SUMMONED  = 827, // You do not have the correct battle pet summoned.
+    SPELL_CUSTOM_ERROR_YOU_ALREADY_HAVE_AT_LEAST_ONE_CONJURED_PHIAL     = 828, // You already have at least one conjured phial.
+    SPELL_CUSTOM_ERROR_MARKED_TOO_MANY_TREASURES_IN_THE_FORBIDDEN_REACH = 830, // You have already marked too many treasures in the Forbidden Reach. Collect a few before unsealing more Forbidden Reach treasure scrolls.
+    SPELL_CUSTOM_ERROR_REQUIRES_A_DJARADIN_PILLAR_SHARD                 = 831, // Requires a Djaradin Pillar Shard.
+    SPELL_CUSTOM_ERROR_REQUIRES_A_RESILIENT_STONE                       = 832, // Requires a Resilient Stone.
+    SPELL_CUSTOM_ERROR_MYRRIT_CANNOT_CARRY_ANY_MORE_MAPS                = 835, // Myrrit cannot carry any more maps. Go on a dig with him!
+    SPELL_CUSTOM_ERROR_REQUIRES_NIFFEN_CAVE_DIVE_KEYAND_SHIELD_DISABLED = 850, // Requires Niffen Cave Dive Key and shield disabled.
+    SPELL_CUSTOM_ERROR_ELUSIVE_CREATURE_BAIT_WAS_RECENTLY_USED          = 851, // You cannot lure anything in this area for a few minutes. Elusive Creature Bait was recently used.
+    SPELL_CUSTOM_ERROR_YOU_DONT_HAVE_THE_SWIRLING_MOJO_STONE            = 999, // You don't have the Swirling Mojo Stone equipped.
+    SPELL_CUSTOM_ERROR_YOU_MUST_BE_NEAR_A_DRAGONFLIGHT_OATHSTONE        = 1000, // You must be near one of the five dragonflight oathstones in the Dragon Isles.
+    SPELL_CUSTOM_ERROR_CAN_ONLY_USE_THIS_ITEM_WHILE_AIRBORNE            = 1001, // You can only use this item while airborne.
+    SPELL_CUSTOM_ERROR_YOU_MUST_BE_IN_VISAGE_FORM                       = 2222, // You must be in visage form to do this.
+    SPELL_CUSTOM_ERROR_TOO_CLOSE_TO_ANOTHER_MOLTEN_RITUAL               = 2424, // You can't begin a molten ritual this close to another one.
 };
 
 enum StealthType
@@ -2711,7 +2747,7 @@ enum Targets
     TARGET_UNK_139                              = 139,
     TARGET_DEST_CASTER_CLUMP_CENTROID           = 140, // NYI
     TARGET_UNK_141                              = 141,
-    TARGET_UNK_142                              = 142,
+    TARGET_DEST_NEARBY_ENTRY_OR_DB              = 142,
     TARGET_UNK_143                              = 143,
     TARGET_UNK_144                              = 144,
     TARGET_UNK_145                              = 145,
@@ -4425,63 +4461,82 @@ enum LockKeyType
     LOCK_KEY_SPELL = 3,
 };
 
-// LockType.dbc (9.0.2.37176)
+// LockType.dbc (10.0.5.48069)
 enum LockType
 {
-    LOCKTYPE_LOCKPICKING                = 1,
-    LOCKTYPE_HERBALISM                  = 2,
-    LOCKTYPE_MINING                     = 3,
-    LOCKTYPE_DISARM_TRAP                = 4,
-    LOCKTYPE_OPEN                       = 5,
-    LOCKTYPE_TREASURE                   = 6,
-    LOCKTYPE_CALCIFIED_ELVEN_GEMS       = 7,
-    LOCKTYPE_CLOSE                      = 8,
-    LOCKTYPE_ARM_TRAP                   = 9,
-    LOCKTYPE_QUICK_OPEN                 = 10,
-    LOCKTYPE_QUICK_CLOSE                = 11,
-    LOCKTYPE_OPEN_TINKERING             = 12,
-    LOCKTYPE_OPEN_KNEELING              = 13,
-    LOCKTYPE_OPEN_ATTACKING             = 14,
-    LOCKTYPE_GAHZRIDIAN                 = 15,
-    LOCKTYPE_BLASTING                   = 16,
-    LOCKTYPE_PVP_OPEN                   = 17,
-    LOCKTYPE_PVP_CLOSE                  = 18,
-    LOCKTYPE_FISHING                    = 19,
-    LOCKTYPE_INSCRIPTION                = 20,
-    LOCKTYPE_OPEN_FROM_VEHICLE          = 21,
-    LOCKTYPE_ARCHAEOLOGY                = 22,
-    LOCKTYPE_PVP_OPEN_FAST              = 23,
-    LOCKTYPE_LUMBER_MILL                = 28,
-    LOCKTYPE_SKINNING                   = 29,
-    LOCKTYPE_ANCIENT_MANA               = 30,
-    LOCKTYPE_WARBOARD                   = 31,
-    LOCKTYPE_CLASSIC_HERBALISM          = 32,
-    LOCKTYPE_OUTLAND_HERBALISM          = 33,
-    LOCKTYPE_NORTHREND_HERBALISM        = 34,
-    LOCKTYPE_CATACLYSM_HERBALISM        = 35,
-    LOCKTYPE_PANDARIA_HERBALISM         = 36,
-    LOCKTYPE_DRAENOR_HERBALISM          = 37,
-    LOCKTYPE_LEGION_HERBALISM           = 38,
-    LOCKTYPE_KUL_TIRAN_HERBALISM        = 39,
-    LOCKTYPE_CLASSIC_MINING             = 40,
-    LOCKTYPE_OUTLAND_MINING             = 41,
-    LOCKTYPE_NORTHREND_MINING           = 42,
-    LOCKTYPE_CATACLYSM_MINING           = 43,
-    LOCKTYPE_PANDARIA_MINING            = 44,
-    LOCKTYPE_DRAENOR_MINING             = 45,
-    LOCKTYPE_LEGION_MINING              = 46,
-    LOCKTYPE_KUL_TIRAN_MINING           = 47,
-    LOCKTYPE_SKINNING_2                 = 48,
-    LOCKTYPE_OPEN_2                     = 149,
-    LOCKTYPE_FORAGING                   = 150,
-    LOCKTYPE_JELLY_DEPOSIT              = 152,
-    LOCKTYPE_SHADOWLAND_HERBALISM       = 153,
-    LOCKTYPE_SHADOWLAND_MINING          = 155,
-    LOCKTYPE_COVENANT_NIGHT_FAE         = 157,
-    LOCKTYPE_COVENANT_VENTHYR           = 158,
-    LOCKTYPE_COVENANT_KYRIAN            = 159,
-    LOCKTYPE_COVENANT_NECROLORD         = 160,
-    LOCKTYPE_PROFESSION_ENGINEERING     = 161
+    LOCKTYPE_LOCKPICKING                    = 1,
+    LOCKTYPE_HERBALISM                      = 2,
+    LOCKTYPE_MINING                         = 3,
+    LOCKTYPE_DISARM_TRAP                    = 4,
+    LOCKTYPE_OPEN                           = 5,
+    LOCKTYPE_TREASURE                       = 6,
+    LOCKTYPE_CALCIFIED_ELVEN_GEMS           = 7,
+    LOCKTYPE_CLOSE                          = 8,
+    LOCKTYPE_ARM_TRAP                       = 9,
+    LOCKTYPE_QUICK_OPEN                     = 10,
+    LOCKTYPE_QUICK_CLOSE                    = 11,
+    LOCKTYPE_OPEN_TINKERING                 = 12,
+    LOCKTYPE_OPEN_KNEELING                  = 13,
+    LOCKTYPE_OPEN_ATTACKING                 = 14,
+    LOCKTYPE_GAHZRIDIAN                     = 15,
+    LOCKTYPE_BLASTING                       = 16,
+    LOCKTYPE_PVP_OPEN                       = 17,
+    LOCKTYPE_PVP_CLOSE                      = 18,
+    LOCKTYPE_FISHING                        = 19,
+    LOCKTYPE_INSCRIPTION                    = 20,
+    LOCKTYPE_OPEN_FROM_VEHICLE              = 21,
+    LOCKTYPE_ARCHAEOLOGY                    = 22,
+    LOCKTYPE_PVP_OPEN_FAST                  = 23,
+    LOCKTYPE_LUMBER_MILL                    = 28,
+    LOCKTYPE_SKINNING                       = 29,
+    LOCKTYPE_ANCIENT_MANA                   = 30,
+    LOCKTYPE_WARBOARD                       = 31,
+    LOCKTYPE_CLASSIC_HERBALISM              = 32,
+    LOCKTYPE_OUTLAND_HERBALISM              = 33,
+    LOCKTYPE_NORTHREND_HERBALISM            = 34,
+    LOCKTYPE_CATACLYSM_HERBALISM            = 35,
+    LOCKTYPE_PANDARIA_HERBALISM             = 36,
+    LOCKTYPE_DRAENOR_HERBALISM              = 37,
+    LOCKTYPE_LEGION_HERBALISM               = 38,
+    LOCKTYPE_KUL_TIRAN_HERBALISM            = 39,
+    LOCKTYPE_CLASSIC_MINING                 = 40,
+    LOCKTYPE_OUTLAND_MINING                 = 41,
+    LOCKTYPE_NORTHREND_MINING               = 42,
+    LOCKTYPE_CATACLYSM_MINING               = 43,
+    LOCKTYPE_PANDARIA_MINING                = 44,
+    LOCKTYPE_DRAENOR_MINING                 = 45,
+    LOCKTYPE_LEGION_MINING                  = 46,
+    LOCKTYPE_KUL_TIRAN_MINING               = 47,
+    LOCKTYPE_LEGION_SKINNING                = 48,
+    LOCKTYPE_OPEN_ITEM                      = 149,
+    LOCKTYPE_FORAGING                       = 150,
+    LOCKTYPE_JELLY_DEPOSIT                  = 152,
+    LOCKTYPE_SHADOWLANDS_HERBALISM          = 153,
+    LOCKTYPE_SHADOWLANDS_MINING             = 155,
+    LOCKTYPE_COVENANT_NIGHT_FAE             = 157,
+    LOCKTYPE_COVENANT_VENTHYR               = 158,
+    LOCKTYPE_COVENANT_KYRIAN                = 159,
+    LOCKTYPE_COVENANT_NECROLORD             = 160,
+    LOCKTYPE_ENGINEERING                    = 161,
+    LOCKTYPE_DRAGON_ISLES_HERBALISM         = 162,
+    LOCKTYPE_MINING_2                       = 163,
+    LOCKTYPE_ELUSIVE_HERBALISM              = 166,
+    LOCKTYPE_ELUSIVE_MINING                 = 167,
+    LOCKTYPE_ENCHANTING                     = 169,
+    LOCKTYPE_DRAGON_ISLES_TREASURE          = 170,
+    LOCKTYPE_DRAGON_ISLES_ALCHEMY_25        = 172,
+    LOCKTYPE_DRAGON_ISLES_BLACKSMITHING_25  = 173,
+    LOCKTYPE_DRAGON_ISLES_ENCHANTING_25     = 174,
+    LOCKTYPE_DRAGON_ISLES_ENGINEERING_25    = 175,
+    LOCKTYPE_DRAGON_ISLES_HERBALISM_25      = 176,
+    LOCKTYPE_DRAGON_ISLES_INSCRIPTION_25    = 177,
+    LOCKTYPE_DRAGON_ISLES_JEWELCRAFTING_25  = 178,
+    LOCKTYPE_DRAGON_ISLES_LEATHERWORKING_25 = 179,
+    LOCKTYPE_DRAGON_ISLES_MINING_25         = 180,
+    LOCKTYPE_DRAGON_ISLES_SKINNING_25       = 181,
+    LOCKTYPE_DRAGON_ISLES_TAILORING_25      = 182,
+    LOCKTYPE_OPEN_KNEELING_PLANT            = 186,
+    LOCKTYPE_DRAGON_ISLES_MINING            = 188
 };
 
 // this is important type for npcs!
@@ -5255,7 +5310,7 @@ constexpr uint8 ClassByQuestSort(int32 QuestSort)
     return 0;
 }
 
-// SkillLine.db2 (9.0.2.37176)
+// SkillLine.db2 (10.0.5.48069)
 enum SkillType
 {
     SKILL_NONE                                      = 0,
@@ -5553,7 +5608,7 @@ enum SkillType
     SKILL_CATACLYSM_FISHING                         = 2589,
     SKILL_NORTHREND_FISHING                         = 2590,
     SKILL_OUTLAND_FISHING                           = 2591,
-    SKILL_FISHING_2                                 = 2592,
+    SKILL_CLASSIC_FISHING                           = 2592,
     SKILL_RACIAL_DARK_IRON_DWARF                    = 2597,
     SKILL_RACIAL_MAG_HAR_ORC                        = 2598,
     SKILL_PET_LIZARD                                = 2703,
@@ -5567,6 +5622,10 @@ enum SkillType
     SKILL_RACIAL_ZANDALARI_TROLL                    = 2721,
     SKILL_RACIAL_KUL_TIRAN                          = 2723,
     SKILL_AZERITE_POWER                             = 2727,
+    SKILL_COVENANT_KYRIAN                           = 2730,
+    SKILL_COVENANT_VENTHYR                          = 2731,
+    SKILL_COVENANT_NIGHT_FAE                        = 2732,
+    SKILL_COVENANT_NECROLORD                        = 2733,
     SKILL_MOUNT_EQUIPEMENT                          = 2734,
     SKILL_SHADOWLANDS_ALCHEMY                       = 2750,
     SKILL_SHADOWLANDS_BLACKSMITHING                 = 2751,
@@ -5591,37 +5650,82 @@ enum SkillType
     SKILL_PET_MAMMOTH                               = 2805,
     SKILL_PET_COURSER                               = 2806,
     SKILL_PET_CAMEL                                 = 2807,
+    SKILL_RACIAL_DRACTHYR                           = 2808,
+    SKILL_EVOKER                                    = 2810,
     SKILL_STYGIA_CRAFTING                           = 2811,
     SKILL_LANGUAGE_CYPHER                           = 2817,
     SKILL_PROTOFORM_SYNTHESIS                       = 2819,
+    SKILL_ARCANA_MANIPULATION                       = 2821,
+    SKILL_DRAGON_ISLES_BLACKSMITHING                = 2822,
+    SKILL_DRAGON_ISLES_ALCHEMY                      = 2823,
+    SKILL_DRAGON_ISLES_COOKING                      = 2824,
+    SKILL_DRAGON_ISLES_ENCHANTING                   = 2825,
+    SKILL_DRAGON_ISLES_FISHING                      = 2826,
+    SKILL_DRAGON_ISLES_ENGINEERING                  = 2827,
+    SKILL_DRAGON_ISLES_INSCRIPTION                  = 2828,
+    SKILL_DRAGON_ISLES_JEWELCRAFTING                = 2829,
+    SKILL_DRAGON_ISLES_LEATHERWORKING               = 2830,
+    SKILL_DRAGON_ISLES_TAILORING                    = 2831,
+    SKILL_DRAGON_ISLES_HERBALISM                    = 2832,
+    SKILL_DRAGON_ISLES_MINING                       = 2833,
+    SKILL_DRAGON_ISLES_SKINNING                     = 2834,
+    SKILL_CRAFTING                                  = 2846,
+    SKILL_TUSKARR_FISHING_GEAR                      = 2847,
+    SKILL_PET_LESSER_DRAGONKIN                      = 2850
 };
 
 constexpr SkillType SkillByLockType(LockType locktype)
 {
     switch (locktype)
     {
-        case LOCKTYPE_HERBALISM:   return SKILL_HERBALISM;
-        case LOCKTYPE_MINING:      return SKILL_MINING;
-        case LOCKTYPE_FISHING:     return SKILL_FISHING;
-        case LOCKTYPE_INSCRIPTION: return SKILL_INSCRIPTION;
-        case LOCKTYPE_ARCHAEOLOGY: return SKILL_ARCHAEOLOGY;
-        case LOCKTYPE_LUMBER_MILL: return SKILL_LOGGING;
-        case LOCKTYPE_CLASSIC_HERBALISM: return SKILL_CLASSIC_HERBALISM;
-        case LOCKTYPE_OUTLAND_HERBALISM: return SKILL_OUTLAND_HERBALISM;
-        case LOCKTYPE_NORTHREND_HERBALISM: return SKILL_NORTHREND_HERBALISM;
-        case LOCKTYPE_CATACLYSM_HERBALISM: return SKILL_CATACLYSM_HERBALISM;
-        case LOCKTYPE_PANDARIA_HERBALISM: return SKILL_PANDARIA_HERBALISM;
-        case LOCKTYPE_DRAENOR_HERBALISM: return SKILL_DRAENOR_HERBALISM;
-        case LOCKTYPE_LEGION_HERBALISM: return SKILL_LEGION_HERBALISM;
-        case LOCKTYPE_KUL_TIRAN_HERBALISM: return SKILL_KUL_TIRAN_HERBALISM;
-        case LOCKTYPE_CLASSIC_MINING: return SKILL_CLASSIC_MINING;
-        case LOCKTYPE_OUTLAND_MINING: return SKILL_OUTLAND_MINING;
-        case LOCKTYPE_NORTHREND_MINING: return SKILL_NORTHREND_MINING;
-        case LOCKTYPE_CATACLYSM_MINING: return SKILL_CATACLYSM_MINING;
-        case LOCKTYPE_PANDARIA_MINING: return SKILL_PANDARIA_MINING;
-        case LOCKTYPE_DRAENOR_MINING: return SKILL_DRAENOR_MINING;
-        case LOCKTYPE_LEGION_MINING: return SKILL_LEGION_MINING;
-        case LOCKTYPE_KUL_TIRAN_MINING: return SKILL_KUL_TIRAN_MINING;
+        case LOCKTYPE_HERBALISM:
+        case LOCKTYPE_ELUSIVE_HERBALISM:              return SKILL_HERBALISM;
+        case LOCKTYPE_MINING:
+        case LOCKTYPE_MINING_2:
+        case LOCKTYPE_ELUSIVE_MINING:                 return SKILL_MINING;
+        case LOCKTYPE_FISHING:                        return SKILL_FISHING;
+        case LOCKTYPE_INSCRIPTION:                    return SKILL_INSCRIPTION;
+        case LOCKTYPE_ARCHAEOLOGY:                    return SKILL_ARCHAEOLOGY;
+        case LOCKTYPE_LUMBER_MILL:                    return SKILL_LOGGING;
+        case LOCKTYPE_SKINNING:                       return SKILL_SKINNING;
+        case LOCKTYPE_CLASSIC_HERBALISM:              return SKILL_CLASSIC_HERBALISM;
+        case LOCKTYPE_OUTLAND_HERBALISM:              return SKILL_OUTLAND_HERBALISM;
+        case LOCKTYPE_NORTHREND_HERBALISM:            return SKILL_NORTHREND_HERBALISM;
+        case LOCKTYPE_CATACLYSM_HERBALISM:            return SKILL_CATACLYSM_HERBALISM;
+        case LOCKTYPE_PANDARIA_HERBALISM:             return SKILL_PANDARIA_HERBALISM;
+        case LOCKTYPE_DRAENOR_HERBALISM:              return SKILL_DRAENOR_HERBALISM;
+        case LOCKTYPE_LEGION_HERBALISM:               return SKILL_LEGION_HERBALISM;
+        case LOCKTYPE_KUL_TIRAN_HERBALISM:            return SKILL_KUL_TIRAN_HERBALISM;
+        case LOCKTYPE_CLASSIC_MINING:                 return SKILL_CLASSIC_MINING;
+        case LOCKTYPE_OUTLAND_MINING:                 return SKILL_OUTLAND_MINING;
+        case LOCKTYPE_NORTHREND_MINING:               return SKILL_NORTHREND_MINING;
+        case LOCKTYPE_CATACLYSM_MINING:               return SKILL_CATACLYSM_MINING;
+        case LOCKTYPE_PANDARIA_MINING:                return SKILL_PANDARIA_MINING;
+        case LOCKTYPE_DRAENOR_MINING:                 return SKILL_DRAENOR_MINING;
+        case LOCKTYPE_LEGION_MINING:                  return SKILL_LEGION_MINING;
+        case LOCKTYPE_KUL_TIRAN_MINING:               return SKILL_KUL_TIRAN_MINING;
+        case LOCKTYPE_LEGION_SKINNING:                return SKILL_LEGION_SKINNING;
+        case LOCKTYPE_SHADOWLANDS_HERBALISM:          return SKILL_SHADOWLANDS_HERBALISM;
+        case LOCKTYPE_SHADOWLANDS_MINING:             return SKILL_SHADOWLANDS_MINING;
+        case LOCKTYPE_COVENANT_NIGHT_FAE:             return SKILL_COVENANT_NIGHT_FAE;
+        case LOCKTYPE_COVENANT_VENTHYR:               return SKILL_COVENANT_VENTHYR;
+        case LOCKTYPE_COVENANT_KYRIAN:                return SKILL_COVENANT_KYRIAN;
+        case LOCKTYPE_COVENANT_NECROLORD:             return SKILL_COVENANT_NECROLORD;
+        case LOCKTYPE_ENGINEERING:                    return SKILL_ENGINEERING;
+        case LOCKTYPE_DRAGON_ISLES_HERBALISM:
+        case LOCKTYPE_DRAGON_ISLES_HERBALISM_25:      return SKILL_DRAGON_ISLES_HERBALISM;
+        case LOCKTYPE_ENCHANTING:                     return SKILL_ENCHANTING;
+        case LOCKTYPE_DRAGON_ISLES_ALCHEMY_25:        return SKILL_DRAGON_ISLES_ALCHEMY;
+        case LOCKTYPE_DRAGON_ISLES_BLACKSMITHING_25:  return SKILL_DRAGON_ISLES_BLACKSMITHING;
+        case LOCKTYPE_DRAGON_ISLES_ENCHANTING_25:     return SKILL_DRAGON_ISLES_ENCHANTING;
+        case LOCKTYPE_DRAGON_ISLES_ENGINEERING_25:    return SKILL_DRAGON_ISLES_ENGINEERING;
+        case LOCKTYPE_DRAGON_ISLES_INSCRIPTION_25:    return SKILL_DRAGON_ISLES_INSCRIPTION;
+        case LOCKTYPE_DRAGON_ISLES_JEWELCRAFTING_25:  return SKILL_DRAGON_ISLES_JEWELCRAFTING;
+        case LOCKTYPE_DRAGON_ISLES_LEATHERWORKING_25: return SKILL_DRAGON_ISLES_LEATHERWORKING;
+        case LOCKTYPE_DRAGON_ISLES_SKINNING_25:       return SKILL_DRAGON_ISLES_SKINNING;
+        case LOCKTYPE_DRAGON_ISLES_TAILORING_25:      return SKILL_DRAGON_ISLES_TAILORING;
+        case LOCKTYPE_DRAGON_ISLES_MINING:
+        case LOCKTYPE_DRAGON_ISLES_MINING_25:         return SKILL_DRAGON_ISLES_MINING;
         default: break;
     }
     return SKILL_NONE;
@@ -5830,7 +5934,8 @@ enum ChatFlags
     CHAT_FLAG_BOSS_SOUND = 0x0020, // Plays "RaidBossEmoteWarning" sound on raid boss emote/whisper
     CHAT_FLAG_MOBILE     = 0x0040,
     CHAT_FLAG_GUIDE      = 0x1000,
-    CHAT_FLAG_NEWCOMER   = 0x2000
+    CHAT_FLAG_NEWCOMER   = 0x2000,
+    CHAT_FLAG_CENSORED   = 0x4000
 };
 
 enum ChatLinkColors : uint32
@@ -5841,6 +5946,7 @@ enum ChatLinkColors : uint32
     CHAT_LINK_COLOR_ENCHANT         = 0xffffd000,   // orange
     CHAT_LINK_COLOR_ACHIEVEMENT     = 0xffffff00,
     CHAT_LINK_COLOR_ARTIFACT_POWER  = 0xff71d5ff,
+    CHAT_LINK_COLOR_BATTLE_PET_ABIL = 0xff4e96f7,
     CHAT_LINK_COLOR_GARR_ABILITY    = 0xff4e96f7,
     CHAT_LINK_COLOR_INSTANCE_LOCK   = 0xffff8000,
     CHAT_LINK_COLOR_JOURNAL         = 0xff66bbff,
@@ -6404,7 +6510,8 @@ enum TaxiNodeStatus
 enum ProfessionUI
 {
     MAX_PRIMARY_PROFESSIONS = 2,
-    MAX_SECONDARY_SKILLS = 5
+    MAX_SECONDARY_SKILLS    = 5,
+    BASE_PARENT_TIER_INDEX  = 4
 };
 
 enum DuelCompleteType : uint8
@@ -7886,41 +7993,49 @@ enum class GameError : uint32
     ERR_SOCKETING_CYPHER_GEM_ONLY_IN_CYPHERSLOT                     = 1077,
     ERR_SOCKETING_REQUIRES_TINKER_GEM                               = 1078,
     ERR_SOCKETING_TINKER_GEM_ONLY_IN_TINKERSLOT                     = 1079,
-    ERR_LEVEL_LINKING_RESULT_LINKED                                 = 1080,
-    ERR_LEVEL_LINKING_RESULT_UNLINKED                               = 1081,
-    ERR_CLUB_FINDER_ERROR_POST_CLUB                                 = 1082,
-    ERR_CLUB_FINDER_ERROR_APPLY_CLUB                                = 1083,
-    ERR_CLUB_FINDER_ERROR_RESPOND_APPLICANT                         = 1084,
-    ERR_CLUB_FINDER_ERROR_CANCEL_APPLICATION                        = 1085,
-    ERR_CLUB_FINDER_ERROR_TYPE_ACCEPT_APPLICATION                   = 1086,
-    ERR_CLUB_FINDER_ERROR_TYPE_NO_INVITE_PERMISSIONS                = 1087,
-    ERR_CLUB_FINDER_ERROR_TYPE_NO_POSTING_PERMISSIONS               = 1088,
-    ERR_CLUB_FINDER_ERROR_TYPE_APPLICANT_LIST                       = 1089,
-    ERR_CLUB_FINDER_ERROR_TYPE_APPLICANT_LIST_NO_PERM               = 1090,
-    ERR_CLUB_FINDER_ERROR_TYPE_FINDER_NOT_AVAILABLE                 = 1091,
-    ERR_CLUB_FINDER_ERROR_TYPE_GET_POSTING_IDS                      = 1092,
-    ERR_CLUB_FINDER_ERROR_TYPE_JOIN_APPLICATION                     = 1093,
-    ERR_CLUB_FINDER_ERROR_TYPE_REALM_NOT_ELIGIBLE                   = 1094,
-    ERR_CLUB_FINDER_ERROR_TYPE_FLAGGED_RENAME                       = 1095,
-    ERR_CLUB_FINDER_ERROR_TYPE_FLAGGED_DESCRIPTION_CHANGE           = 1096,
-    ERR_ITEM_INTERACTION_NOT_ENOUGH_GOLD                            = 1097,
-    ERR_ITEM_INTERACTION_NOT_ENOUGH_CURRENCY                        = 1098,
-    ERR_PLAYER_CHOICE_ERROR_PENDING_CHOICE                          = 1099,
-    ERR_SOULBIND_INVALID_CONDUIT                                    = 1100,
-    ERR_SOULBIND_INVALID_CONDUIT_ITEM                               = 1101,
-    ERR_SOULBIND_INVALID_TALENT                                     = 1102,
-    ERR_SOULBIND_DUPLICATE_CONDUIT                                  = 1103,
-    ERR_ACTIVATE_SOULBIND_S                                         = 1104,
-    ERR_ACTIVATE_SOULBIND_FAILED_REST_AREA                          = 1105,
-    ERR_CANT_USE_PROFANITY                                          = 1106,
-    ERR_NOT_IN_PET_BATTLE                                           = 1107,
-    ERR_NOT_IN_NPE                                                  = 1108,
-    ERR_NO_SPEC                                                     = 1109,
-    ERR_NO_DOMINATIONSHARD_OVERWRITE                                = 1110,
-    ERR_USE_WEEKLY_REWARDS_DISABLED                                 = 1111,
-    ERR_CROSS_FACTION_GROUP_JOINED                                  = 1112,
-    ERR_CANT_TARGET_UNFRIENDLY_IN_OVERWORLD                         = 1113,
-    ERR_EQUIPABLESPELLS_SLOTS_FULL                                  = 1114,
+    ERR_SOCKETING_REQUIRES_PRIMORDIAL_GEM                           = 1080,
+    ERR_SOCKETING_PRIMORDIAL_GEM_ONLY_IN_PRIMORDIALSLOT             = 1081,
+    ERR_LEVEL_LINKING_RESULT_LINKED                                 = 1082,
+    ERR_LEVEL_LINKING_RESULT_UNLINKED                               = 1083,
+    ERR_CLUB_FINDER_ERROR_POST_CLUB                                 = 1084,
+    ERR_CLUB_FINDER_ERROR_APPLY_CLUB                                = 1085,
+    ERR_CLUB_FINDER_ERROR_RESPOND_APPLICANT                         = 1086,
+    ERR_CLUB_FINDER_ERROR_CANCEL_APPLICATION                        = 1087,
+    ERR_CLUB_FINDER_ERROR_TYPE_ACCEPT_APPLICATION                   = 1088,
+    ERR_CLUB_FINDER_ERROR_TYPE_NO_INVITE_PERMISSIONS                = 1089,
+    ERR_CLUB_FINDER_ERROR_TYPE_NO_POSTING_PERMISSIONS               = 1090,
+    ERR_CLUB_FINDER_ERROR_TYPE_APPLICANT_LIST                       = 1091,
+    ERR_CLUB_FINDER_ERROR_TYPE_APPLICANT_LIST_NO_PERM               = 1092,
+    ERR_CLUB_FINDER_ERROR_TYPE_FINDER_NOT_AVAILABLE                 = 1093,
+    ERR_CLUB_FINDER_ERROR_TYPE_GET_POSTING_IDS                      = 1094,
+    ERR_CLUB_FINDER_ERROR_TYPE_JOIN_APPLICATION                     = 1095,
+    ERR_CLUB_FINDER_ERROR_TYPE_REALM_NOT_ELIGIBLE                   = 1096,
+    ERR_CLUB_FINDER_ERROR_TYPE_FLAGGED_RENAME                       = 1097,
+    ERR_CLUB_FINDER_ERROR_TYPE_FLAGGED_DESCRIPTION_CHANGE           = 1098,
+    ERR_ITEM_INTERACTION_NOT_ENOUGH_GOLD                            = 1099,
+    ERR_ITEM_INTERACTION_NOT_ENOUGH_CURRENCY                        = 1100,
+    ERR_PLAYER_CHOICE_ERROR_PENDING_CHOICE                          = 1101,
+    ERR_SOULBIND_INVALID_CONDUIT                                    = 1102,
+    ERR_SOULBIND_INVALID_CONDUIT_ITEM                               = 1103,
+    ERR_SOULBIND_INVALID_TALENT                                     = 1104,
+    ERR_SOULBIND_DUPLICATE_CONDUIT                                  = 1105,
+    ERR_ACTIVATE_SOULBIND_S                                         = 1106,
+    ERR_ACTIVATE_SOULBIND_FAILED_REST_AREA                          = 1107,
+    ERR_CANT_USE_PROFANITY                                          = 1108,
+    ERR_NOT_IN_PET_BATTLE                                           = 1109,
+    ERR_NOT_IN_NPE                                                  = 1110,
+    ERR_NO_SPEC                                                     = 1111,
+    ERR_NO_DOMINATIONSHARD_OVERWRITE                                = 1112,
+    ERR_USE_WEEKLY_REWARDS_DISABLED                                 = 1113,
+    ERR_CROSS_FACTION_GROUP_JOINED                                  = 1114,
+    ERR_CANT_TARGET_UNFRIENDLY_IN_OVERWORLD                         = 1115,
+    ERR_EQUIPABLESPELLS_SLOTS_FULL                                  = 1116,
+    ERR_WOW_LABS_PARTY_ERROR_TYPE_PARTY_IS_FULL                     = 1117,
+    ERR_WOW_LABS_PARTY_ERROR_TYPE_MAX_INVITE_SENT                   = 1118,
+    ERR_WOW_LABS_PARTY_ERROR_TYPE_PLAYER_ALREADY_INVITED            = 1119,
+    ERR_WOW_LABS_PARTY_ERROR_TYPE_PARTY_INVITE_INVALID              = 1120,
+    ERR_WOW_LABS_LOBBY_MATCHMAKER_ERROR_ENTER_QUEUE_FAILED          = 1121,
+    ERR_WOW_LABS_LOBBY_MATCHMAKER_ERROR_LEAVE_QUEUE_FAILED          = 1122,
 };
 
 enum class MountResult : uint32

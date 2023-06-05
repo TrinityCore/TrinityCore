@@ -77,6 +77,7 @@ DB2Storage<AzeriteUnlockMappingEntry>           sAzeriteUnlockMappingStore("Azer
 DB2Storage<BankBagSlotPricesEntry>              sBankBagSlotPricesStore("BankBagSlotPrices.db2", &BankBagSlotPricesLoadInfo::Instance);
 DB2Storage<BannedAddonsEntry>                   sBannedAddonsStore("BannedAddons.db2", &BannedAddonsLoadInfo::Instance);
 DB2Storage<BarberShopStyleEntry>                sBarberShopStyleStore("BarberShopStyle.db2", &BarberShopStyleLoadInfo::Instance);
+DB2Storage<BattlePetAbilityEntry>               sBattlePetAbilityStore("BattlePetAbility.db2", &BattlePetAbilityLoadInfo::Instance);
 DB2Storage<BattlePetBreedQualityEntry>          sBattlePetBreedQualityStore("BattlePetBreedQuality.db2", &BattlePetBreedQualityLoadInfo::Instance);
 DB2Storage<BattlePetBreedStateEntry>            sBattlePetBreedStateStore("BattlePetBreedState.db2", &BattlePetBreedStateLoadInfo::Instance);
 DB2Storage<BattlePetSpeciesEntry>               sBattlePetSpeciesStore("BattlePetSpecies.db2", &BattlePetSpeciesLoadInfo::Instance);
@@ -679,6 +680,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sBankBagSlotPricesStore);
     LOAD_DB2(sBannedAddonsStore);
     LOAD_DB2(sBarberShopStyleStore);
+    LOAD_DB2(sBattlePetAbilityStore);
     LOAD_DB2(sBattlePetBreedQualityStore);
     LOAD_DB2(sBattlePetBreedStateStore);
     LOAD_DB2(sBattlePetSpeciesStore);
@@ -978,13 +980,13 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     }
 
     // Check loaded DB2 files proper version
-    if (!sAreaTableStore.LookupEntry(14618) ||               // last area added in 10.0.5 (47660)
-        !sCharTitlesStore.LookupEntry(753) ||                // last char title added in 10.0.5 (47660)
-        !sGemPropertiesStore.LookupEntry(4028) ||            // last gem property added in 10.0.5 (47660)
-        !sItemStore.LookupEntry(203716) ||                   // last item added in 10.0.5 (47660)
-        !sItemExtendedCostStore.LookupEntry(7882) ||         // last item extended cost added in 10.0.5 (47660)
-        !sMapStore.LookupEntry(2582) ||                      // last map added in 10.0.5 (47660)
-        !sSpellNameStore.LookupEntry(401848))                // last spell added in 10.0.5 (47660)
+    if (!sAreaTableStore.LookupEntry(14720) ||               // last area added in 10.0.7 (48520)
+        !sCharTitlesStore.LookupEntry(762) ||                // last char title added in 10.0.7 (48520)
+        !sGemPropertiesStore.LookupEntry(4059) ||            // last gem property added in 10.0.7 (48520)
+        !sItemStore.LookupEntry(205244) ||                   // last item added in 10.0.7 (48520)
+        !sItemExtendedCostStore.LookupEntry(8043) ||         // last item extended cost added in 10.0.7 (48520)
+        !sMapStore.LookupEntry(2616) ||                      // last map added in 10.0.7 (48520)
+        !sSpellNameStore.LookupEntry(409033))                // last spell added in 10.0.7 (48520)
     {
         TC_LOG_ERROR("misc", "You have _outdated_ DB2 files. Please extract correct versions from current using client.");
         exit(1);
@@ -1060,6 +1062,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
         }
     }
 
+    _broadcastTextDurations.reserve(sBroadcastTextDurationStore.GetNumRows());
     for (BroadcastTextDurationEntry const* broadcastTextDuration : sBroadcastTextDurationStore)
         _broadcastTextDurations[{ broadcastTextDuration->BroadcastTextID, CascLocaleBit(broadcastTextDuration->Locale) }] = broadcastTextDuration->Duration;
 
@@ -1883,6 +1886,22 @@ bool DB2Manager::IsInArea(uint32 objectAreaId, uint32 areaId)
     } while (objectAreaId);
 
     return false;
+}
+
+ContentTuningEntry const* DB2Manager::GetContentTuningForArea(AreaTableEntry const* areaEntry)
+{
+    if (!areaEntry)
+        return nullptr;
+
+    // Get ContentTuning for the area
+    if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(areaEntry->ContentTuningID))
+        return contentTuning;
+
+    // If there is no data for the current area and it has a parent area, get data from the last (recursive)
+    if (AreaTableEntry const* parentAreaEntry = sAreaTableStore.LookupEntry(areaEntry->ParentAreaID))
+        return GetContentTuningForArea(parentAreaEntry);
+
+    return nullptr;
 }
 
 std::vector<ArtifactPowerEntry const*> DB2Manager::GetArtifactPowers(uint8 artifactId) const
@@ -2962,7 +2981,7 @@ PowerTypeEntry const* DB2Manager::GetPowerTypeByName(std::string const& name) co
     for (PowerTypeEntry const* powerType : sPowerTypeStore)
     {
         std::string powerName = powerType->NameGlobalStringTag;
-        std::transform(powerName.begin(), powerName.end(), powerName.begin(), [](char c) { return char(::tolower(c)); });
+        strToLower(powerName);
         if (powerName == name)
             return powerType;
 
@@ -3479,7 +3498,10 @@ bool ItemLevelSelectorQualityEntryComparator::Compare(ItemLevelSelectorQualityEn
 TaxiMask::TaxiMask()
 {
     if (sTaxiNodesStore.GetNumRows())
-        _data.resize(((sTaxiNodesStore.GetNumRows() - 1) / (sizeof(value_type) * 8)) + 1, 0);
+    {
+        _data.resize(((sTaxiNodesStore.GetNumRows() - 1) / (sizeof(value_type) * 64) + 1) * 8, 0);
+        ASSERT((_data.size() % 8) == 0, "TaxiMask size must be aligned to a multiple of uint64");
+    }
 }
 
 bool DB2Manager::FriendshipRepReactionEntryComparator::Compare(FriendshipRepReactionEntry const* left, FriendshipRepReactionEntry const* right)

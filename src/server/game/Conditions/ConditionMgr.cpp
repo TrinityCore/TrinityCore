@@ -1033,6 +1033,7 @@ bool ConditionMgr::CanHaveSourceGroupSet(ConditionSourceType sourceType)
             sourceType == CONDITION_SOURCE_TYPE_SMART_EVENT ||
             sourceType == CONDITION_SOURCE_TYPE_NPC_VENDOR ||
             sourceType == CONDITION_SOURCE_TYPE_PHASE ||
+            sourceType == CONDITION_SOURCE_TYPE_GRAVEYARD ||
             sourceType == CONDITION_SOURCE_TYPE_AREATRIGGER ||
             sourceType == CONDITION_SOURCE_TYPE_TRAINER_SPELL ||
             sourceType == CONDITION_SOURCE_TYPE_OBJECT_ID_VISIBILITY);
@@ -1457,6 +1458,9 @@ void ConditionMgr::LoadConditions(bool isReload)
                 case CONDITION_SOURCE_TYPE_PHASE:
                     valid = addToPhases(cond);
                     break;
+                case CONDITION_SOURCE_TYPE_GRAVEYARD:
+                    valid = addToGraveyardData(cond);
+                    break;
                 case CONDITION_SOURCE_TYPE_AREATRIGGER:
                 {
                     AreaTriggerConditionContainerStore[{ cond->SourceGroup, cond->SourceEntry }].push_back(cond);
@@ -1530,12 +1534,10 @@ bool ConditionMgr::addToGossipMenus(Condition* cond) const
     {
         for (GossipMenusContainer::iterator itr = pMenuBounds.first; itr != pMenuBounds.second; ++itr)
         {
-            if ((*itr).second.MenuID == cond->SourceGroup && (*itr).second.TextID == uint32(cond->SourceEntry))
-            {
-                (*itr).second.Conditions.push_back(cond);
-                return true;
-            }
+            if (itr->second.MenuID == cond->SourceGroup && (itr->second.TextID == uint32(cond->SourceEntry) || cond->SourceEntry == 0))
+                itr->second.Conditions.push_back(cond);
         }
+        return true;
     }
 
     TC_LOG_ERROR("sql.sql", "{} GossipMenu {} not found.", cond->ToString(), cond->SourceGroup);
@@ -1713,7 +1715,19 @@ bool ConditionMgr::addToPhases(Condition* cond) const
         }
     }
 
-    TC_LOG_ERROR("sql.sql", "{} Area {} does not have phase {}.", cond->ToString(), cond->SourceGroup, cond->SourceEntry);
+    TC_LOG_ERROR("sql.sql", "{} Area {} does not have phase {}.", cond->ToString(), cond->SourceEntry, cond->SourceGroup);
+    return false;
+}
+
+bool ConditionMgr::addToGraveyardData(Condition* cond) const
+{
+    if (GraveyardData* graveyard = const_cast<GraveyardData*>(sObjectMgr->FindGraveyardData(cond->SourceEntry, cond->SourceGroup)))
+    {
+        graveyard->Conditions.push_back(cond);
+        return true;
+    }
+
+    TC_LOG_ERROR("sql.sql", "{}, Graveyard {} does not have ghostzone {}.", cond->ToString(), cond->SourceEntry, cond->SourceGroup);
     return false;
 }
 
@@ -2090,9 +2104,9 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
         case CONDITION_SOURCE_TYPE_SMART_EVENT:
             break;
         case CONDITION_SOURCE_TYPE_GRAVEYARD:
-            if (!sObjectMgr->GetWorldSafeLoc(cond->SourceEntry))
+            if (!sObjectMgr->FindGraveyardData(cond->SourceEntry, cond->SourceGroup))
             {
-                TC_LOG_ERROR("sql.sql", "{} SourceEntry in `condition` table, does not exist in WorldSafeLocs.db2, ignoring.", cond->ToString());
+                TC_LOG_ERROR("sql.sql", "{} SourceEntry in `condition` table, does not exist in `graveyard_zone`, ignoring.", cond->ToString());
                 return false;
             }
             break;

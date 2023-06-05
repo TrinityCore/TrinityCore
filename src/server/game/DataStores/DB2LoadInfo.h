@@ -216,7 +216,7 @@ struct AreaTriggerLoadInfo
         { false, FT_FLOAT, "BoxYaw" },
         { true, FT_BYTE, "ShapeType" },
         { true, FT_SHORT, "ShapeID" },
-        { true, FT_SHORT, "AreaTriggerActionSetID" },
+        { true, FT_INT, "AreaTriggerActionSetID" },
         { true, FT_BYTE, "Flags" },
     };
 
@@ -635,6 +635,23 @@ struct BarberShopStyleLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 8, &BarberShopStyleMeta::Instance, HOTFIX_SEL_BARBER_SHOP_STYLE };
 };
 
+struct BattlePetAbilityLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[8] =
+    {
+        { false, FT_INT, "ID" },
+        { false, FT_STRING, "Name" },
+        { false, FT_STRING, "Description" },
+        { true, FT_INT, "IconFileDataID" },
+        { true, FT_BYTE, "PetTypeEnum" },
+        { false, FT_INT, "Cooldown" },
+        { false, FT_SHORT, "BattlePetVisualID" },
+        { false, FT_BYTE, "Flags" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 8, &BattlePetAbilityMeta::Instance, HOTFIX_SEL_BATTLE_PET_ABILITY };
+};
+
 struct BattlePetBreedQualityLoadInfo
 {
     static constexpr DB2FieldMeta Fields[4] =
@@ -921,7 +938,7 @@ struct ChrClassesXPowerTypesLoadInfo
 
 struct ChrCustomizationChoiceLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[11] =
+    static constexpr DB2FieldMeta Fields[12] =
     {
         { false, FT_STRING, "Name" },
         { false, FT_INT, "ID" },
@@ -932,11 +949,12 @@ struct ChrCustomizationChoiceLoadInfo
         { false, FT_SHORT, "UiOrderIndex" },
         { true, FT_INT, "Flags" },
         { true, FT_INT, "AddedInPatch" },
+        { true, FT_INT, "SoundKitID" },
         { true, FT_INT, "SwatchColor1" },
         { true, FT_INT, "SwatchColor2" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 11, &ChrCustomizationChoiceMeta::Instance, HOTFIX_SEL_CHR_CUSTOMIZATION_CHOICE };
+    static constexpr DB2LoadInfo Instance{ Fields, 12, &ChrCustomizationChoiceMeta::Instance, HOTFIX_SEL_CHR_CUSTOMIZATION_CHOICE };
 };
 
 struct ChrCustomizationDisplayInfoLoadInfo
@@ -955,7 +973,7 @@ struct ChrCustomizationDisplayInfoLoadInfo
 
 struct ChrCustomizationElementLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[11] =
+    static constexpr DB2FieldMeta Fields[12] =
     {
         { false, FT_INT, "ID" },
         { true, FT_INT, "ChrCustomizationChoiceID" },
@@ -968,9 +986,10 @@ struct ChrCustomizationElementLoadInfo
         { true, FT_INT, "ChrCustomizationDisplayInfoID" },
         { true, FT_INT, "ChrCustItemGeoModifyID" },
         { true, FT_INT, "ChrCustomizationVoiceID" },
+        { true, FT_INT, "AnimKitID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 11, &ChrCustomizationElementMeta::Instance, HOTFIX_SEL_CHR_CUSTOMIZATION_ELEMENT };
+    static constexpr DB2LoadInfo Instance{ Fields, 12, &ChrCustomizationElementMeta::Instance, HOTFIX_SEL_CHR_CUSTOMIZATION_ELEMENT };
 };
 
 struct ChrCustomizationOptionLoadInfo
@@ -1201,7 +1220,7 @@ struct CinematicSequencesLoadInfo
 
 struct ContentTuningLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[12] =
+    static constexpr DB2FieldMeta Fields[13] =
     {
         { false, FT_INT, "ID" },
         { true, FT_INT, "Flags" },
@@ -1215,9 +1234,10 @@ struct ContentTuningLoadInfo
         { true, FT_INT, "TargetLevelMin" },
         { true, FT_INT, "TargetLevelMax" },
         { true, FT_INT, "MinItemLevel" },
+        { false, FT_FLOAT, "QuestXpMultiplier" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 12, &ContentTuningMeta::Instance, HOTFIX_SEL_CONTENT_TUNING };
+    static constexpr DB2LoadInfo Instance{ Fields, 13, &ContentTuningMeta::Instance, HOTFIX_SEL_CONTENT_TUNING };
 };
 
 struct ContentTuningXExpectedLoadInfo
@@ -1446,7 +1466,7 @@ struct CurrencyContainerLoadInfo
         { true, FT_INT, "MinAmount" },
         { true, FT_INT, "MaxAmount" },
         { true, FT_INT, "ContainerIconID" },
-        { true, FT_INT, "ContainerQuality" },
+        { true, FT_BYTE, "ContainerQuality" },
         { true, FT_INT, "OnLootSpellVisualKitID" },
         { false, FT_INT, "CurrencyTypesID" },
     };
@@ -1503,7 +1523,7 @@ struct CurvePointLoadInfo
         { false, FT_FLOAT, "PreSLSquishPosX" },
         { false, FT_FLOAT, "PreSLSquishPosY" },
         { false, FT_INT, "ID" },
-        { false, FT_SHORT, "CurveID" },
+        { true, FT_INT, "CurveID" },
         { false, FT_BYTE, "OrderIndex" },
     };
 
@@ -1557,9 +1577,9 @@ struct DifficultyLoadInfo
         { false, FT_SHORT, "Flags" },
         { false, FT_BYTE, "ItemContext" },
         { false, FT_BYTE, "ToggleDifficultyID" },
-        { false, FT_SHORT, "GroupSizeHealthCurveID" },
-        { false, FT_SHORT, "GroupSizeDmgCurveID" },
-        { false, FT_SHORT, "GroupSizeSpellPointsCurveID" },
+        { false, FT_INT, "GroupSizeHealthCurveID" },
+        { false, FT_INT, "GroupSizeDmgCurveID" },
+        { false, FT_INT, "GroupSizeSpellPointsCurveID" },
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 14, &DifficultyMeta::Instance, HOTFIX_SEL_DIFFICULTY };
@@ -1918,7 +1938,7 @@ struct GarrBuildingLoadInfo
         { false, FT_STRING, "AllianceName" },
         { false, FT_STRING, "Description" },
         { false, FT_STRING, "Tooltip" },
-        { false, FT_BYTE, "GarrTypeID" },
+        { true, FT_BYTE, "GarrTypeID" },
         { true, FT_BYTE, "BuildingType" },
         { true, FT_INT, "HordeGameObjectID" },
         { true, FT_INT, "AllianceGameObjectID" },
@@ -1983,7 +2003,7 @@ struct GarrFollowerLoadInfo
         { false, FT_STRING, "HordeSourceText" },
         { false, FT_STRING, "AllianceSourceText" },
         { false, FT_STRING, "TitleName" },
-        { false, FT_BYTE, "GarrTypeID" },
+        { true, FT_BYTE, "GarrTypeID" },
         { true, FT_BYTE, "GarrFollowerTypeID" },
         { true, FT_INT, "HordeCreatureID" },
         { true, FT_INT, "AllianceCreatureID" },
@@ -2044,7 +2064,7 @@ struct GarrMissionLoadInfo
         { false, FT_FLOAT, "MapPosY" },
         { false, FT_FLOAT, "WorldPosX" },
         { false, FT_FLOAT, "WorldPosY" },
-        { false, FT_BYTE, "GarrTypeID" },
+        { true, FT_BYTE, "GarrTypeID" },
         { false, FT_BYTE, "GarrMissionTypeID" },
         { true, FT_BYTE, "GarrFollowerTypeID" },
         { false, FT_BYTE, "MaxFollowers" },
@@ -2158,7 +2178,7 @@ struct GarrTalentTreeLoadInfo
     {
         { false, FT_INT, "ID" },
         { false, FT_STRING, "Name" },
-        { false, FT_BYTE, "GarrTypeID" },
+        { true, FT_BYTE, "GarrTypeID" },
         { true, FT_INT, "ClassID" },
         { true, FT_BYTE, "MaxTiers" },
         { true, FT_BYTE, "UiOrder" },
@@ -2580,7 +2600,7 @@ struct ItemBonusListLevelDeltaLoadInfo
 
 struct ItemBonusTreeNodeLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[8] =
+    static constexpr DB2FieldMeta Fields[10] =
     {
         { false, FT_INT, "ID" },
         { false, FT_BYTE, "ItemContext" },
@@ -2589,10 +2609,12 @@ struct ItemBonusTreeNodeLoadInfo
         { false, FT_SHORT, "ChildItemLevelSelectorID" },
         { true, FT_INT, "ChildItemBonusListGroupID" },
         { true, FT_INT, "IblGroupPointsModSetID" },
+        { true, FT_INT, "Unknown1010_1" },
+        { true, FT_INT, "Unknown1010_2" },
         { false, FT_INT, "ParentItemBonusTreeID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 8, &ItemBonusTreeNodeMeta::Instance, HOTFIX_SEL_ITEM_BONUS_TREE_NODE };
+    static constexpr DB2LoadInfo Instance{ Fields, 10, &ItemBonusTreeNodeMeta::Instance, HOTFIX_SEL_ITEM_BONUS_TREE_NODE };
 };
 
 struct ItemChildEquipmentLoadInfo
@@ -3290,16 +3312,17 @@ struct LanguageWordsLoadInfo
 
 struct LanguagesLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[5] =
+    static constexpr DB2FieldMeta Fields[6] =
     {
-        { false, FT_INT, "ID" },
         { false, FT_STRING, "Name" },
+        { false, FT_INT, "ID" },
         { true, FT_INT, "Flags" },
         { true, FT_INT, "UiTextureKitID" },
         { true, FT_INT, "UiTextureKitElementCount" },
+        { true, FT_INT, "LearningCurveID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 5, &LanguagesMeta::Instance, HOTFIX_SEL_LANGUAGES };
+    static constexpr DB2LoadInfo Instance{ Fields, 6, &LanguagesMeta::Instance, HOTFIX_SEL_LANGUAGES };
 };
 
 struct LfgDungeonsLoadInfo
@@ -3672,16 +3695,17 @@ struct MountXDisplayLoadInfo
 
 struct MovieLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[5] =
+    static constexpr DB2FieldMeta Fields[6] =
     {
         { false, FT_INT, "ID" },
         { false, FT_BYTE, "Volume" },
         { false, FT_BYTE, "KeyID" },
         { false, FT_INT, "AudioFileDataID" },
         { false, FT_INT, "SubtitleFileDataID" },
+        { true, FT_INT, "SubtitleFileFormat" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 5, &MovieMeta::Instance, HOTFIX_SEL_MOVIE };
+    static constexpr DB2LoadInfo Instance{ Fields, 6, &MovieMeta::Instance, HOTFIX_SEL_MOVIE };
 };
 
 struct NameGenLoadInfo
@@ -4140,7 +4164,7 @@ struct QuestInfoLoadInfo
         { false, FT_STRING, "InfoName" },
         { true, FT_BYTE, "Type" },
         { true, FT_INT, "Modifiers" },
-        { true, FT_INT, "Profession" },
+        { false, FT_SHORT, "Profession" },
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 5, &QuestInfoMeta::Instance, HOTFIX_SEL_QUEST_INFO };
@@ -5742,7 +5766,7 @@ struct TraitNodeXTraitCostLoadInfo
     static constexpr DB2FieldMeta Fields[3] =
     {
         { false, FT_INT, "ID" },
-        { false, FT_INT, "TraitNodeID" },
+        { true, FT_INT, "TraitNodeID" },
         { true, FT_INT, "TraitCostID" },
     };
 
@@ -5931,8 +5955,8 @@ struct UiMapLoadInfo
         { false, FT_INT, "ID" },
         { true, FT_INT, "ParentUiMapID" },
         { true, FT_INT, "Flags" },
-        { false, FT_INT, "System" },
-        { false, FT_INT, "Type" },
+        { false, FT_BYTE, "System" },
+        { false, FT_BYTE, "Type" },
         { true, FT_INT, "BountySetID" },
         { false, FT_INT, "BountyDisplayLocation" },
         { true, FT_INT, "VisibilityPlayerConditionID" },
@@ -6107,7 +6131,7 @@ struct VehicleLoadInfo
     {
         { false, FT_INT, "ID" },
         { true, FT_INT, "Flags" },
-        { false, FT_BYTE, "FlagsB" },
+        { true, FT_INT, "FlagsB" },
         { false, FT_FLOAT, "TurnSpeed" },
         { false, FT_FLOAT, "PitchSpeed" },
         { false, FT_FLOAT, "PitchMin" },

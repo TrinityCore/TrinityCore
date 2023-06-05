@@ -135,6 +135,7 @@ namespace WorldPackets
                 Optional<int32> RatingChange;
                 Optional<uint32> PreMatchMMR;
                 Optional<int32> MmrChange;
+                Optional<uint32> PostMatchMMR;
                 std::vector<PVPMatchPlayerPVPStat> Stats;
                 int32 PrimaryTalentTree = 0;
                 int32 Sex = 0;
@@ -436,7 +437,7 @@ namespace WorldPackets
         class RatedPvpInfo final : public ServerPacket
         {
         public:
-            RatedPvpInfo() : ServerPacket(SMSG_RATED_PVP_INFO, 6 * sizeof(BracketInfo)) { }
+            RatedPvpInfo() : ServerPacket(SMSG_RATED_PVP_INFO, 7 * sizeof(BracketInfo)) { }
 
             WorldPacket const* Write() override;
 
@@ -462,7 +463,7 @@ namespace WorldPackets
                 int32 Unused4 = 0;
                 int32 Rank = 0;
                 bool Disqualified = false;
-            } Bracket[6];
+            } Bracket[7];
         };
 
         struct RatedMatchDeserterPenalty

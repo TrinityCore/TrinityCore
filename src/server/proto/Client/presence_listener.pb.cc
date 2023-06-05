@@ -119,15 +119,15 @@ void protobuf_AddDesc_presence_5flistener_2eproto() {
     "resenceState\"\215\001\n\030StateChangedNotificatio"
     "n\0229\n\rsubscriber_id\030\001 \001(\0132\".bgs.protocol."
     "account.v1.AccountId\0226\n\005state\030\002 \003(\0132\'.bg"
-    "s.protocol.presence.v1.PresenceState2\232\002\n"
+    "s.protocol.presence.v1.PresenceState2\234\002\n"
     "\020PresenceListener\022c\n\013OnSubscribe\022/.bgs.p"
     "rotocol.presence.v1.SubscribeNotificatio"
     "n\032\031.bgs.protocol.NO_RESPONSE\"\010\202\371+\004\010\0018\001\022i"
     "\n\016OnStateChanged\0222.bgs.protocol.presence"
     ".v1.StateChangedNotification\032\031.bgs.proto"
-    "col.NO_RESPONSE\"\010\202\371+\004\010\0028\001\0326\202\371+,\n*bnet.pr"
-    "otocol.presence.v1.PresenceListener\212\371+\002\010"
-    "\001B\002H\002", 685);
+    "col.NO_RESPONSE\"\010\202\371+\004\010\0028\001\0328\202\371+.\n*bnet.pr"
+    "otocol.presence.v1.PresenceListener8\001\212\371+"
+    "\002\010\001B\002H\002", 687);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "presence_listener.proto", &protobuf_RegisterTypes);
   SubscribeNotification::default_instance_ = new SubscribeNotification();

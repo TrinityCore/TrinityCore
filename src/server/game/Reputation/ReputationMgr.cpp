@@ -342,21 +342,21 @@ void ReputationMgr::SendState(FactionState const* faction)
     WorldPackets::Reputation::SetFactionStanding setFactionStanding;
     setFactionStanding.BonusFromAchievementSystem = 0.0f;
 
-    int32 standing = faction->VisualStandingIncrease ? faction->VisualStandingIncrease : faction->Standing;
+    auto getStandingForPacket = [](FactionState const* state)
+    {
+        return state->VisualStandingIncrease ? state->VisualStandingIncrease : state->Standing;
+    };
 
     if (faction)
-        setFactionStanding.Faction.emplace_back(int32(faction->ReputationListID), standing);
+        setFactionStanding.Faction.emplace_back(int32(faction->ReputationListID), getStandingForPacket(faction));
 
-    for (FactionStateList::iterator itr = _factions.begin(); itr != _factions.end(); ++itr)
+    for (auto& [reputationIndex, state] : _factions)
     {
-        if (itr->second.needSend)
+        if (state.needSend)
         {
-            itr->second.needSend = false;
-            if (!faction || itr->second.ReputationListID != faction->ReputationListID)
-            {
-                standing = itr->second.VisualStandingIncrease ? itr->second.VisualStandingIncrease : itr->second.Standing;
-                setFactionStanding.Faction.emplace_back(int32(itr->second.ReputationListID), standing);
-            }
+            state.needSend = false;
+            if (!faction || state.ReputationListID != faction->ReputationListID)
+                setFactionStanding.Faction.emplace_back(int32(state.ReputationListID), getStandingForPacket(&state));
         }
     }
 

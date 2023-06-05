@@ -479,7 +479,7 @@ MySQLPreparedStatement* MySQLConnection::GetPreparedStatement(uint32 index)
     return ret;
 }
 
-void MySQLConnection::PrepareStatement(uint32 index, std::string const& sql, ConnectionFlags flags)
+void MySQLConnection::PrepareStatement(uint32 index, std::string_view sql, ConnectionFlags flags)
 {
     // Check if specified query should be prepared on this connection
     // i.e. don't prepare async statements on synchronous connections
@@ -499,7 +499,7 @@ void MySQLConnection::PrepareStatement(uint32 index, std::string const& sql, Con
     }
     else
     {
-        if (mysql_stmt_prepare(stmt, sql.c_str(), static_cast<unsigned long>(sql.size())))
+        if (mysql_stmt_prepare(stmt, sql.data(), static_cast<unsigned long>(sql.size())))
         {
             TC_LOG_ERROR("sql.sql", "In mysql_stmt_prepare() id: {}, sql: \"{}\"", index, sql);
             TC_LOG_ERROR("sql.sql", "{}", mysql_stmt_error(stmt));
@@ -507,7 +507,7 @@ void MySQLConnection::PrepareStatement(uint32 index, std::string const& sql, Con
             m_prepareError = true;
         }
         else
-            m_stmts[index] = std::make_unique<MySQLPreparedStatement>(reinterpret_cast<MySQLStmt*>(stmt), sql);
+            m_stmts[index] = std::make_unique<MySQLPreparedStatement>(reinterpret_cast<MySQLStmt*>(stmt), std::string(sql));
     }
 }
 

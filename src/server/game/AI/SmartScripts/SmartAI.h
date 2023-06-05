@@ -49,8 +49,8 @@ class TC_GAME_API SmartAI : public CreatureAI
         bool IsAIControlled() const;
 
         // Start moving to the desired MovePoint
-        void StartPath(bool run = false, uint32 pathId = 0, bool repeat = false, Unit* invoker = nullptr, uint32 nodeId = 1);
-        bool LoadPath(uint32 entry);
+        void StartPath(uint32 pathId = 0, bool repeat = false, Unit* invoker = nullptr, uint32 nodeId = 1);
+        WaypointPath const* LoadPath(uint32 entry);
         void PausePath(uint32 delay, bool forced = false);
         bool CanResumePath();
         void StopPath(uint32 DespawnTime = 0, uint32 quest = 0, bool fail = false);
@@ -68,12 +68,8 @@ class TC_GAME_API SmartAI : public CreatureAI
         {
             _escortState &= ~escortState;
         }
-        void SetAutoAttack(bool on)
-        {
-            _canAutoAttack = on;
-        }
         void SetCombatMove(bool on, bool stopMoving = false);
-        bool CanCombatMove()
+        bool CanCombatMove() const
         {
             return _canCombatMove;
         }
@@ -257,7 +253,6 @@ class TC_GAME_API SmartAI : public CreatureAI
         uint32 _escortState;
         uint32 _escortNPCFlags;
         uint32 _escortInvokerCheckTimer;
-        WaypointPath _path;
         uint32 _currentWaypointNode;
         bool _waypointReached;
         uint32 _waypointPauseTimer;
@@ -268,7 +263,6 @@ class TC_GAME_API SmartAI : public CreatureAI
 
         bool _run;
         bool _evadeDisabled;
-        bool _canAutoAttack;
         bool _canCombatMove;
         uint32 _invincibilityHPLevel;
 

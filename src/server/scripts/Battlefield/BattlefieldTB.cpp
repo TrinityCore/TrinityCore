@@ -511,7 +511,6 @@ void BattlefieldTB::OnCreatureCreate(Creature* creature)
         case NPC_TB_GY_SPIRIT_EAST_SPIRE_H:
         case NPC_TB_GY_SPIRIT_SOUTH_SPIRE_H:
             creature->CastSpell(creature, SPELL_TB_SPIRITUAL_IMMUNITY, true);
-            creature->CastSpell(creature, SPELL_TB_SPIRIT_HEAL_CHANNEL, true);
             break;
         default:
             break;

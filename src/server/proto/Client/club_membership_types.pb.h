@@ -25,6 +25,7 @@
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/unknown_field_set.h>
 #include "club_core.pb.h"
+#include "club_type.pb.h"
 #include "club_member.pb.h"
 #include "club_invitation.pb.h"
 #include "event_view_types.pb.h"

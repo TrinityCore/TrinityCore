@@ -1360,8 +1360,8 @@ void AchievementGlobalMgr::LoadRewardLocales()
     {
         Field* fields = result->Fetch();
 
-        uint32 id               = fields[0].GetUInt32();
-        std::string localeName  = fields[1].GetString();
+        uint32 id = fields[0].GetUInt32();
+        std::string_view localeName = fields[1].GetStringView();
 
         if (_achievementRewards.find(id) == _achievementRewards.end())
         {
@@ -1369,13 +1369,13 @@ void AchievementGlobalMgr::LoadRewardLocales()
             continue;
         }
 
-        AchievementRewardLocale& data = _achievementRewardLocales[id];
-        LocaleConstant locale         = GetLocaleByName(localeName);
+        LocaleConstant locale = GetLocaleByName(localeName);
         if (!IsValidLocale(locale) || locale == LOCALE_enUS)
             continue;
 
-        ObjectMgr::AddLocaleString(fields[2].GetString(), locale, data.Subject);
-        ObjectMgr::AddLocaleString(fields[3].GetString(), locale, data.Body);
+        AchievementRewardLocale& data = _achievementRewardLocales[id];
+        ObjectMgr::AddLocaleString(fields[2].GetStringView(), locale, data.Subject);
+        ObjectMgr::AddLocaleString(fields[3].GetStringView(), locale, data.Body);
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded {} achievement reward locale strings in {} ms.", uint32(_achievementRewardLocales.size()), GetMSTimeDiffToNow(oldMSTime));

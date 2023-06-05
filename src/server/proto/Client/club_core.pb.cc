@@ -32,9 +32,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* Broadcast_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   Broadcast_reflection_ = NULL;
-const ::google::protobuf::Descriptor* UniqueClubType_descriptor_ = NULL;
-const ::google::protobuf::internal::GeneratedMessageReflection*
-  UniqueClubType_reflection_ = NULL;
 const ::google::protobuf::Descriptor* ClubCreateOptions_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   ClubCreateOptions_reflection_ = NULL;
@@ -121,24 +118,8 @@ void protobuf_AssignDesc_club_5fcore_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(Broadcast));
-  UniqueClubType_descriptor_ = file->message_type(3);
-  static const int UniqueClubType_offsets_[2] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UniqueClubType, program_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UniqueClubType, name_),
-  };
-  UniqueClubType_reflection_ =
-    new ::google::protobuf::internal::GeneratedMessageReflection(
-      UniqueClubType_descriptor_,
-      UniqueClubType::default_instance_,
-      UniqueClubType_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UniqueClubType, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UniqueClubType, _unknown_fields_),
-      -1,
-      ::google::protobuf::DescriptorPool::generated_pool(),
-      ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(UniqueClubType));
-  ClubCreateOptions_descriptor_ = file->message_type(4);
-  static const int ClubCreateOptions_offsets_[9] = {
+  ClubCreateOptions_descriptor_ = file->message_type(3);
+  static const int ClubCreateOptions_offsets_[14] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubCreateOptions, type_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubCreateOptions, attribute_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubCreateOptions, name_),
@@ -146,8 +127,13 @@ void protobuf_AssignDesc_club_5fcore_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubCreateOptions, avatar_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubCreateOptions, privacy_level_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubCreateOptions, short_name_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubCreateOptions, visibility_level_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubCreateOptions, member_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubCreateOptions, stream_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubCreateOptions, tag_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubCreateOptions, search_attribute_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubCreateOptions, locale_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubCreateOptions, timezone_),
   };
   ClubCreateOptions_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -160,8 +146,8 @@ void protobuf_AssignDesc_club_5fcore_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ClubCreateOptions));
-  Club_descriptor_ = file->message_type(5);
-  static const int Club_offsets_[15] = {
+  Club_descriptor_ = file->message_type(4);
+  static const int Club_offsets_[19] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Club, id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Club, type_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Club, attribute_),
@@ -177,6 +163,10 @@ void protobuf_AssignDesc_club_5fcore_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Club, role_set_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Club, leader_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Club, short_name_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Club, search_attribute_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Club, tag_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Club, locale_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Club, timezone_),
   };
   Club_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -189,8 +179,8 @@ void protobuf_AssignDesc_club_5fcore_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(Club));
-  ClubDescription_descriptor_ = file->message_type(6);
-  static const int ClubDescription_offsets_[10] = {
+  ClubDescription_descriptor_ = file->message_type(5);
+  static const int ClubDescription_offsets_[13] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubDescription, id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubDescription, type_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubDescription, name_),
@@ -201,6 +191,9 @@ void protobuf_AssignDesc_club_5fcore_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubDescription, member_count_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubDescription, leader_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubDescription, creation_time_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubDescription, timezone_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubDescription, locale_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubDescription, tag_),
   };
   ClubDescription_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -213,7 +206,7 @@ void protobuf_AssignDesc_club_5fcore_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ClubDescription));
-  ClubView_descriptor_ = file->message_type(7);
+  ClubView_descriptor_ = file->message_type(6);
   static const int ClubView_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubView, club_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubView, marker_),
@@ -229,8 +222,8 @@ void protobuf_AssignDesc_club_5fcore_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ClubView));
-  ClubStateOptions_descriptor_ = file->message_type(8);
-  static const int ClubStateOptions_offsets_[8] = {
+  ClubStateOptions_descriptor_ = file->message_type(7);
+  static const int ClubStateOptions_offsets_[13] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubStateOptions, attribute_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubStateOptions, name_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubStateOptions, description_),
@@ -239,6 +232,11 @@ void protobuf_AssignDesc_club_5fcore_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubStateOptions, privacy_level_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubStateOptions, stream_position_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubStateOptions, short_name_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubStateOptions, visibility_level_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubStateOptions, locale_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubStateOptions, timezone_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubStateOptions, tag_options_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubStateOptions, search_attribute_),
   };
   ClubStateOptions_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -251,8 +249,8 @@ void protobuf_AssignDesc_club_5fcore_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ClubStateOptions));
-  ClubStateAssignment_descriptor_ = file->message_type(9);
-  static const int ClubStateAssignment_offsets_[9] = {
+  ClubStateAssignment_descriptor_ = file->message_type(8);
+  static const int ClubStateAssignment_offsets_[15] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubStateAssignment, club_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubStateAssignment, attribute_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubStateAssignment, name_),
@@ -262,6 +260,12 @@ void protobuf_AssignDesc_club_5fcore_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubStateAssignment, privacy_level_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubStateAssignment, stream_position_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubStateAssignment, short_name_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubStateAssignment, visibility_level_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubStateAssignment, locale_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubStateAssignment, timezone_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubStateAssignment, tag_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubStateAssignment, search_attribute_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubStateAssignment, tag_cleared_),
   };
   ClubStateAssignment_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -274,7 +278,7 @@ void protobuf_AssignDesc_club_5fcore_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ClubStateAssignment));
-  StreamSettings_descriptor_ = file->message_type(10);
+  StreamSettings_descriptor_ = file->message_type(9);
   static const int StreamSettings_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamSettings, stream_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamSettings, filter_),
@@ -290,7 +294,7 @@ void protobuf_AssignDesc_club_5fcore_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(StreamSettings));
-  ClubSettings_descriptor_ = file->message_type(11);
+  ClubSettings_descriptor_ = file->message_type(10);
   static const int ClubSettings_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubSettings, stream_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubSettings, stream_notification_filter_all_),
@@ -308,7 +312,7 @@ void protobuf_AssignDesc_club_5fcore_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ClubSettings));
-  ClubSettingsOptions_descriptor_ = file->message_type(12);
+  ClubSettingsOptions_descriptor_ = file->message_type(11);
   static const int ClubSettingsOptions_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubSettingsOptions, stream_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubSettingsOptions, settings_),
@@ -325,7 +329,7 @@ void protobuf_AssignDesc_club_5fcore_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ClubSettingsOptions));
-  ClubSettingsAssignment_descriptor_ = file->message_type(13);
+  ClubSettingsAssignment_descriptor_ = file->message_type(12);
   static const int ClubSettingsAssignment_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubSettingsAssignment, stream_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubSettingsAssignment, settings_),
@@ -360,8 +364,6 @@ void protobuf_RegisterTypes(const ::std::string&) {
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     Broadcast_descriptor_, &Broadcast::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    UniqueClubType_descriptor_, &UniqueClubType::default_instance());
-  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     ClubCreateOptions_descriptor_, &ClubCreateOptions::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     Club_descriptor_, &Club::default_instance());
@@ -392,8 +394,6 @@ void protobuf_ShutdownFile_club_5fcore_2eproto() {
   delete SetBroadcastOptions_reflection_;
   delete Broadcast::default_instance_;
   delete Broadcast_reflection_;
-  delete UniqueClubType::default_instance_;
-  delete UniqueClubType_reflection_;
   delete ClubCreateOptions::default_instance_;
   delete ClubCreateOptions_reflection_;
   delete Club::default_instance_;
@@ -422,99 +422,121 @@ void protobuf_AddDesc_club_5fcore_2eproto() {
   already_here = true;
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
+  ::bgs::protocol::club::v1::protobuf_AddDesc_club_5ftype_2eproto();
   ::bgs::protocol::club::v1::protobuf_AddDesc_club_5fenum_2eproto();
   ::bgs::protocol::club::v1::protobuf_AddDesc_club_5frole_2eproto();
   ::bgs::protocol::club::v1::protobuf_AddDesc_club_5fmember_2eproto();
   ::bgs::protocol::club::v1::protobuf_AddDesc_club_5fstream_2eproto();
+  ::bgs::protocol::club::v1::protobuf_AddDesc_club_5ftag_2eproto();
   ::bgs::protocol::v2::protobuf_AddDesc_api_2fclient_2fv2_2fattribute_5ftypes_2eproto();
   ::bgs::protocol::protobuf_AddDesc_event_5fview_5ftypes_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\017club_core.proto\022\024bgs.protocol.club.v1\032"
-    "\017club_enum.proto\032\017club_role.proto\032\021club_"
-    "member.proto\032\021club_stream.proto\032#api/cli"
-    "ent/v2/attribute_types.proto\032\026event_view"
-    "_types.proto\"\026\n\010AvatarId\022\n\n\002id\030\001 \001(\r\"&\n\023"
-    "SetBroadcastOptions\022\017\n\007content\030\001 \001(\t\"m\n\t"
-    "Broadcast\022\017\n\007content\030\001 \001(\t\0228\n\007creator\030\002 "
-    "\001(\0132\'.bgs.protocol.club.v1.MemberDescrip"
-    "tion\022\025\n\rcreation_time\030\003 \001(\004\"/\n\016UniqueClu"
-    "bType\022\017\n\007program\030\001 \001(\007\022\014\n\004name\030\002 \001(\t\"\216\003\n"
-    "\021ClubCreateOptions\0222\n\004type\030\001 \001(\0132$.bgs.p"
-    "rotocol.club.v1.UniqueClubType\022-\n\tattrib"
-    "ute\030\002 \003(\0132\032.bgs.protocol.v2.Attribute\022\014\n"
-    "\004name\030\003 \001(\t\022\023\n\013description\030\004 \001(\t\022.\n\006avat"
-    "ar\030\005 \001(\0132\036.bgs.protocol.club.v1.AvatarId"
-    "\0229\n\rprivacy_level\030\006 \001(\0162\".bgs.protocol.c"
-    "lub.v1.PrivacyLevel\022\022\n\nshort_name\030\007 \001(\t\022"
-    "9\n\006member\030\n \001(\0132).bgs.protocol.club.v1.C"
-    "reateMemberOptions\0229\n\006stream\030\013 \001(\0132).bgs"
-    ".protocol.club.v1.CreateStreamOptions\"\346\004"
-    "\n\004Club\022\n\n\002id\030\001 \001(\004\0222\n\004type\030\002 \001(\0132$.bgs.p"
-    "rotocol.club.v1.UniqueClubType\022-\n\tattrib"
-    "ute\030\003 \003(\0132\032.bgs.protocol.v2.Attribute\022\014\n"
-    "\004name\030\004 \001(\t\022\023\n\013description\030\005 \001(\t\0222\n\tbroa"
-    "dcast\030\006 \001(\0132\037.bgs.protocol.club.v1.Broad"
-    "cast\022.\n\006avatar\030\007 \001(\0132\036.bgs.protocol.club"
-    ".v1.AvatarId\0229\n\rprivacy_level\030\010 \001(\0162\".bg"
-    "s.protocol.club.v1.PrivacyLevel\022\?\n\020visib"
-    "ility_level\030\t \001(\0162%.bgs.protocol.club.v1"
-    ".VisibilityLevel\022\024\n\014member_count\030\n \001(\r\022\025"
-    "\n\rcreation_time\030\013 \001(\004\022=\n\017stream_position"
-    "\030\014 \001(\0132$.bgs.protocol.club.v1.StreamPosi"
-    "tion\0223\n\010role_set\030\r \001(\0132!.bgs.protocol.cl"
-    "ub.v1.ClubRoleSet\0227\n\006leader\030\016 \003(\0132\'.bgs."
-    "protocol.club.v1.MemberDescription\022\022\n\nsh"
-    "ort_name\030\017 \001(\t\"\206\003\n\017ClubDescription\022\n\n\002id"
-    "\030\001 \001(\004\0222\n\004type\030\002 \001(\0132$.bgs.protocol.club"
-    ".v1.UniqueClubType\022\014\n\004name\030\003 \001(\t\022\023\n\013desc"
-    "ription\030\004 \001(\t\022.\n\006avatar\030\005 \001(\0132\036.bgs.prot"
-    "ocol.club.v1.AvatarId\0229\n\rprivacy_level\030\006"
-    " \001(\0162\".bgs.protocol.club.v1.PrivacyLevel"
-    "\022\?\n\020visibility_level\030\007 \001(\0162%.bgs.protoco"
-    "l.club.v1.VisibilityLevel\022\024\n\014member_coun"
-    "t\030\010 \001(\r\0227\n\006leader\030\t \003(\0132\'.bgs.protocol.c"
-    "lub.v1.MemberDescription\022\025\n\rcreation_tim"
-    "e\030\n \001(\004\"E\n\010ClubView\022\017\n\007club_id\030\001 \001(\004\022(\n\006"
-    "marker\030\002 \001(\0132\030.bgs.protocol.ViewMarker\"\340"
-    "\002\n\020ClubStateOptions\022-\n\tattribute\030\001 \003(\0132\032"
-    ".bgs.protocol.v2.Attribute\022\014\n\004name\030\002 \001(\t"
-    "\022\023\n\013description\030\003 \001(\t\022<\n\tbroadcast\030\004 \001(\013"
-    "2).bgs.protocol.club.v1.SetBroadcastOpti"
-    "ons\022.\n\006avatar\030\005 \001(\0132\036.bgs.protocol.club."
-    "v1.AvatarId\0229\n\rprivacy_level\030\006 \001(\0162\".bgs"
-    ".protocol.club.v1.PrivacyLevel\022=\n\017stream"
-    "_position\030\007 \001(\0132$.bgs.protocol.club.v1.S"
-    "treamPosition\022\022\n\nshort_name\030\010 \001(\t\"\352\002\n\023Cl"
-    "ubStateAssignment\022\017\n\007club_id\030\001 \001(\004\022-\n\tat"
-    "tribute\030\002 \003(\0132\032.bgs.protocol.v2.Attribut"
-    "e\022\014\n\004name\030\003 \001(\t\022\023\n\013description\030\004 \001(\t\0222\n\t"
-    "broadcast\030\005 \001(\0132\037.bgs.protocol.club.v1.B"
-    "roadcast\022.\n\006avatar\030\006 \001(\0132\036.bgs.protocol."
-    "club.v1.AvatarId\0229\n\rprivacy_level\030\007 \001(\0162"
-    "\".bgs.protocol.club.v1.PrivacyLevel\022=\n\017s"
-    "tream_position\030\010 \001(\0132$.bgs.protocol.club"
-    ".v1.StreamPosition\022\022\n\nshort_name\030\t \001(\t\"c"
-    "\n\016StreamSettings\022\021\n\tstream_id\030\001 \001(\004\022>\n\006f"
-    "ilter\030\002 \001(\0162..bgs.protocol.club.v1.Strea"
-    "mNotificationFilter\"\301\001\n\014ClubSettings\0224\n\006"
-    "stream\030\001 \003(\0132$.bgs.protocol.club.v1.Stre"
-    "amSettings\022&\n\036stream_notification_filter"
-    "_all\030\002 \001(\010\022-\n\tattribute\030\003 \003(\0132\032.bgs.prot"
-    "ocol.v2.Attribute\022$\n\034push_notification_f"
-    "ilter_all\030\004 \001(\010\"\226\001\n\023ClubSettingsOptions\022"
-    "8\n\006stream\030\001 \003(\0132$.bgs.protocol.club.v1.S"
-    "treamSettingsB\002\030\001\0224\n\010settings\030\002 \001(\0132\".bg"
-    "s.protocol.club.v1.ClubSettings\022\017\n\007versi"
-    "on\030\003 \001(\r\"\210\001\n\026ClubSettingsAssignment\0228\n\006s"
-    "tream\030\001 \003(\0132$.bgs.protocol.club.v1.Strea"
-    "mSettingsB\002\030\001\0224\n\010settings\030\002 \001(\0132\".bgs.pr"
-    "otocol.club.v1.ClubSettingsB\002H\002", 3191);
+    "\017club_type.proto\032\017club_enum.proto\032\017club_"
+    "role.proto\032\021club_member.proto\032\021club_stre"
+    "am.proto\032\016club_tag.proto\032#api/client/v2/"
+    "attribute_types.proto\032\026event_view_types."
+    "proto\"\026\n\010AvatarId\022\n\n\002id\030\001 \001(\r\"&\n\023SetBroa"
+    "dcastOptions\022\017\n\007content\030\001 \001(\t\"m\n\tBroadca"
+    "st\022\017\n\007content\030\001 \001(\t\0228\n\007creator\030\002 \001(\0132\'.b"
+    "gs.protocol.club.v1.MemberDescription\022\025\n"
+    "\rcreation_time\030\003 \001(\004\"\326\004\n\021ClubCreateOptio"
+    "ns\0222\n\004type\030\001 \001(\0132$.bgs.protocol.club.v1."
+    "UniqueClubType\022-\n\tattribute\030\002 \003(\0132\032.bgs."
+    "protocol.v2.Attribute\022\014\n\004name\030\003 \001(\t\022\023\n\013d"
+    "escription\030\004 \001(\t\022.\n\006avatar\030\005 \001(\0132\036.bgs.p"
+    "rotocol.club.v1.AvatarId\0229\n\rprivacy_leve"
+    "l\030\006 \001(\0162\".bgs.protocol.club.v1.PrivacyLe"
+    "vel\022\022\n\nshort_name\030\007 \001(\t\022\?\n\020visibility_le"
+    "vel\030\010 \001(\0162%.bgs.protocol.club.v1.Visibil"
+    "ityLevel\0229\n\006member\030\n \001(\0132).bgs.protocol."
+    "club.v1.CreateMemberOptions\0229\n\006stream\030\013 "
+    "\001(\0132).bgs.protocol.club.v1.CreateStreamO"
+    "ptions\022-\n\003tag\030\014 \001(\0132 .bgs.protocol.club."
+    "v1.TagOptions\0224\n\020search_attribute\030\r \003(\0132"
+    "\032.bgs.protocol.v2.Attribute\022\016\n\006locale\030\016 "
+    "\001(\t\022\020\n\010timezone\030\017 \001(\t\"\360\005\n\004Club\022\n\n\002id\030\001 \001"
+    "(\004\0222\n\004type\030\002 \001(\0132$.bgs.protocol.club.v1."
+    "UniqueClubType\022-\n\tattribute\030\003 \003(\0132\032.bgs."
+    "protocol.v2.Attribute\022\014\n\004name\030\004 \001(\t\022\023\n\013d"
+    "escription\030\005 \001(\t\0222\n\tbroadcast\030\006 \001(\0132\037.bg"
+    "s.protocol.club.v1.Broadcast\022.\n\006avatar\030\007"
+    " \001(\0132\036.bgs.protocol.club.v1.AvatarId\0229\n\r"
+    "privacy_level\030\010 \001(\0162\".bgs.protocol.club."
+    "v1.PrivacyLevel\022\?\n\020visibility_level\030\t \001("
+    "\0162%.bgs.protocol.club.v1.VisibilityLevel"
+    "\022\024\n\014member_count\030\n \001(\r\022\025\n\rcreation_time\030"
+    "\013 \001(\004\022=\n\017stream_position\030\014 \001(\0132$.bgs.pro"
+    "tocol.club.v1.StreamPosition\0223\n\010role_set"
+    "\030\r \001(\0132!.bgs.protocol.club.v1.ClubRoleSe"
+    "t\0227\n\006leader\030\016 \003(\0132\'.bgs.protocol.club.v1"
+    ".MemberDescription\022\022\n\nshort_name\030\017 \001(\t\0224"
+    "\n\020search_attribute\030\020 \003(\0132\032.bgs.protocol."
+    "v2.Attribute\0220\n\003tag\030\021 \003(\0132#.bgs.protocol"
+    ".club.v1.TagIdentifier\022\016\n\006locale\030\022 \001(\t\022\020"
+    "\n\010timezone\030\023 \001(\t\"\332\003\n\017ClubDescription\022\n\n\002"
+    "id\030\001 \001(\004\0222\n\004type\030\002 \001(\0132$.bgs.protocol.cl"
+    "ub.v1.UniqueClubType\022\014\n\004name\030\003 \001(\t\022\023\n\013de"
+    "scription\030\004 \001(\t\022.\n\006avatar\030\005 \001(\0132\036.bgs.pr"
+    "otocol.club.v1.AvatarId\0229\n\rprivacy_level"
+    "\030\006 \001(\0162\".bgs.protocol.club.v1.PrivacyLev"
+    "el\022\?\n\020visibility_level\030\007 \001(\0162%.bgs.proto"
+    "col.club.v1.VisibilityLevel\022\024\n\014member_co"
+    "unt\030\010 \001(\r\0227\n\006leader\030\t \003(\0132\'.bgs.protocol"
+    ".club.v1.MemberDescription\022\025\n\rcreation_t"
+    "ime\030\n \001(\004\022\020\n\010timezone\030\013 \001(\t\022\016\n\006locale\030\014 "
+    "\001(\t\0220\n\003tag\030\r \003(\0132#.bgs.protocol.club.v1."
+    "TagIdentifier\"E\n\010ClubView\022\017\n\007club_id\030\001 \001"
+    "(\004\022(\n\006marker\030\002 \001(\0132\030.bgs.protocol.ViewMa"
+    "rker\"\260\004\n\020ClubStateOptions\022-\n\tattribute\030\001"
+    " \003(\0132\032.bgs.protocol.v2.Attribute\022\014\n\004name"
+    "\030\002 \001(\t\022\023\n\013description\030\003 \001(\t\022<\n\tbroadcast"
+    "\030\004 \001(\0132).bgs.protocol.club.v1.SetBroadca"
+    "stOptions\022.\n\006avatar\030\005 \001(\0132\036.bgs.protocol"
+    ".club.v1.AvatarId\0229\n\rprivacy_level\030\006 \001(\016"
+    "2\".bgs.protocol.club.v1.PrivacyLevel\022=\n\017"
+    "stream_position\030\007 \001(\0132$.bgs.protocol.clu"
+    "b.v1.StreamPosition\022\022\n\nshort_name\030\010 \001(\t\022"
+    "\?\n\020visibility_level\030\t \001(\0162%.bgs.protocol"
+    ".club.v1.VisibilityLevel\022\016\n\006locale\030\n \001(\t"
+    "\022\020\n\010timezone\030\013 \001(\t\0225\n\013tag_options\030\014 \001(\0132"
+    " .bgs.protocol.club.v1.TagOptions\0224\n\020sea"
+    "rch_attribute\030\r \003(\0132\032.bgs.protocol.v2.At"
+    "tribute\"\312\004\n\023ClubStateAssignment\022\017\n\007club_"
+    "id\030\001 \001(\004\022-\n\tattribute\030\002 \003(\0132\032.bgs.protoc"
+    "ol.v2.Attribute\022\014\n\004name\030\003 \001(\t\022\023\n\013descrip"
+    "tion\030\004 \001(\t\0222\n\tbroadcast\030\005 \001(\0132\037.bgs.prot"
+    "ocol.club.v1.Broadcast\022.\n\006avatar\030\006 \001(\0132\036"
+    ".bgs.protocol.club.v1.AvatarId\0229\n\rprivac"
+    "y_level\030\007 \001(\0162\".bgs.protocol.club.v1.Pri"
+    "vacyLevel\022=\n\017stream_position\030\010 \001(\0132$.bgs"
+    ".protocol.club.v1.StreamPosition\022\022\n\nshor"
+    "t_name\030\t \001(\t\022\?\n\020visibility_level\030\n \001(\0162%"
+    ".bgs.protocol.club.v1.VisibilityLevel\022\016\n"
+    "\006locale\030\013 \001(\t\022\020\n\010timezone\030\014 \001(\t\0220\n\003tag\030\r"
+    " \003(\0132#.bgs.protocol.club.v1.TagIdentifie"
+    "r\0224\n\020search_attribute\030\016 \003(\0132\032.bgs.protoc"
+    "ol.v2.Attribute\022\023\n\013tag_cleared\030\017 \001(\010\"c\n\016"
+    "StreamSettings\022\021\n\tstream_id\030\001 \001(\004\022>\n\006fil"
+    "ter\030\002 \001(\0162..bgs.protocol.club.v1.StreamN"
+    "otificationFilter\"\301\001\n\014ClubSettings\0224\n\006st"
+    "ream\030\001 \003(\0132$.bgs.protocol.club.v1.Stream"
+    "Settings\022&\n\036stream_notification_filter_a"
+    "ll\030\002 \001(\010\022-\n\tattribute\030\003 \003(\0132\032.bgs.protoc"
+    "ol.v2.Attribute\022$\n\034push_notification_fil"
+    "ter_all\030\004 \001(\010\"\226\001\n\023ClubSettingsOptions\0228\n"
+    "\006stream\030\001 \003(\0132$.bgs.protocol.club.v1.Str"
+    "eamSettingsB\002\030\001\0224\n\010settings\030\002 \001(\0132\".bgs."
+    "protocol.club.v1.ClubSettings\022\017\n\007version"
+    "\030\003 \001(\r\"\210\001\n\026ClubSettingsAssignment\0228\n\006str"
+    "eam\030\001 \003(\0132$.bgs.protocol.club.v1.StreamS"
+    "ettingsB\002\030\001\0224\n\010settings\030\002 \001(\0132\".bgs.prot"
+    "ocol.club.v1.ClubSettingsB\002H\002", 4029);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "club_core.proto", &protobuf_RegisterTypes);
   AvatarId::default_instance_ = new AvatarId();
   SetBroadcastOptions::default_instance_ = new SetBroadcastOptions();
   Broadcast::default_instance_ = new Broadcast();
-  UniqueClubType::default_instance_ = new UniqueClubType();
   ClubCreateOptions::default_instance_ = new ClubCreateOptions();
   Club::default_instance_ = new Club();
   ClubDescription::default_instance_ = new ClubDescription();
@@ -528,7 +550,6 @@ void protobuf_AddDesc_club_5fcore_2eproto() {
   AvatarId::default_instance_->InitAsDefaultInstance();
   SetBroadcastOptions::default_instance_->InitAsDefaultInstance();
   Broadcast::default_instance_->InitAsDefaultInstance();
-  UniqueClubType::default_instance_->InitAsDefaultInstance();
   ClubCreateOptions::default_instance_->InitAsDefaultInstance();
   Club::default_instance_->InitAsDefaultInstance();
   ClubDescription::default_instance_->InitAsDefaultInstance();
@@ -781,84 +802,6 @@ void Broadcast::Swap(Broadcast* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
-const int UniqueClubType::kProgramFieldNumber;
-const int UniqueClubType::kNameFieldNumber;
-#endif  // !_MSC_VER
-
-UniqueClubType::UniqueClubType()
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:bgs.protocol.club.v1.UniqueClubType)
-}
-
-void UniqueClubType::InitAsDefaultInstance() {
-}
-
-UniqueClubType::UniqueClubType(const UniqueClubType& from)
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:bgs.protocol.club.v1.UniqueClubType)
-}
-
-void UniqueClubType::SharedCtor() {
-  ::google::protobuf::internal::GetEmptyString();
-  _cached_size_ = 0;
-  program_ = 0u;
-  name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-}
-
-UniqueClubType::~UniqueClubType() {
-  // @@protoc_insertion_point(destructor:bgs.protocol.club.v1.UniqueClubType)
-  SharedDtor();
-}
-
-void UniqueClubType::SharedDtor() {
-  if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete name_;
-  }
-  if (this != default_instance_) {
-  }
-}
-
-void UniqueClubType::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-}
-const ::google::protobuf::Descriptor* UniqueClubType::descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return UniqueClubType_descriptor_;
-}
-
-const UniqueClubType& UniqueClubType::default_instance() {
-  if (default_instance_ == NULL) protobuf_AddDesc_club_5fcore_2eproto();
-  return *default_instance_;
-}
-
-UniqueClubType* UniqueClubType::default_instance_ = NULL;
-
-UniqueClubType* UniqueClubType::New() const {
-  return new UniqueClubType;
-}
-
-void UniqueClubType::Swap(UniqueClubType* other) {
-  if (other != this) {
-    GetReflection()->Swap(this, other);}
-}
-
-::google::protobuf::Metadata UniqueClubType::GetMetadata() const {
-  protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::Metadata metadata;
-  metadata.descriptor = UniqueClubType_descriptor_;
-  metadata.reflection = UniqueClubType_reflection_;
-  return metadata;
-}
-
-// ===================================================================
-
-#ifndef _MSC_VER
 const int ClubCreateOptions::kTypeFieldNumber;
 const int ClubCreateOptions::kAttributeFieldNumber;
 const int ClubCreateOptions::kNameFieldNumber;
@@ -866,8 +809,13 @@ const int ClubCreateOptions::kDescriptionFieldNumber;
 const int ClubCreateOptions::kAvatarFieldNumber;
 const int ClubCreateOptions::kPrivacyLevelFieldNumber;
 const int ClubCreateOptions::kShortNameFieldNumber;
+const int ClubCreateOptions::kVisibilityLevelFieldNumber;
 const int ClubCreateOptions::kMemberFieldNumber;
 const int ClubCreateOptions::kStreamFieldNumber;
+const int ClubCreateOptions::kTagFieldNumber;
+const int ClubCreateOptions::kSearchAttributeFieldNumber;
+const int ClubCreateOptions::kLocaleFieldNumber;
+const int ClubCreateOptions::kTimezoneFieldNumber;
 #endif  // !_MSC_VER
 
 ClubCreateOptions::ClubCreateOptions()
@@ -881,6 +829,7 @@ void ClubCreateOptions::InitAsDefaultInstance() {
   avatar_ = const_cast< ::bgs::protocol::club::v1::AvatarId*>(&::bgs::protocol::club::v1::AvatarId::default_instance());
   member_ = const_cast< ::bgs::protocol::club::v1::CreateMemberOptions*>(&::bgs::protocol::club::v1::CreateMemberOptions::default_instance());
   stream_ = const_cast< ::bgs::protocol::club::v1::CreateStreamOptions*>(&::bgs::protocol::club::v1::CreateStreamOptions::default_instance());
+  tag_ = const_cast< ::bgs::protocol::club::v1::TagOptions*>(&::bgs::protocol::club::v1::TagOptions::default_instance());
 }
 
 ClubCreateOptions::ClubCreateOptions(const ClubCreateOptions& from)
@@ -899,8 +848,12 @@ void ClubCreateOptions::SharedCtor() {
   avatar_ = NULL;
   privacy_level_ = 0;
   short_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  visibility_level_ = 0;
   member_ = NULL;
   stream_ = NULL;
+  tag_ = NULL;
+  locale_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  timezone_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -919,11 +872,18 @@ void ClubCreateOptions::SharedDtor() {
   if (short_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete short_name_;
   }
+  if (locale_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete locale_;
+  }
+  if (timezone_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete timezone_;
+  }
   if (this != default_instance_) {
     delete type_;
     delete avatar_;
     delete member_;
     delete stream_;
+    delete tag_;
   }
 }
 
@@ -979,6 +939,10 @@ const int Club::kStreamPositionFieldNumber;
 const int Club::kRoleSetFieldNumber;
 const int Club::kLeaderFieldNumber;
 const int Club::kShortNameFieldNumber;
+const int Club::kSearchAttributeFieldNumber;
+const int Club::kTagFieldNumber;
+const int Club::kLocaleFieldNumber;
+const int Club::kTimezoneFieldNumber;
 #endif  // !_MSC_VER
 
 Club::Club()
@@ -1018,6 +982,8 @@ void Club::SharedCtor() {
   stream_position_ = NULL;
   role_set_ = NULL;
   short_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  locale_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  timezone_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -1035,6 +1001,12 @@ void Club::SharedDtor() {
   }
   if (short_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete short_name_;
+  }
+  if (locale_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete locale_;
+  }
+  if (timezone_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete timezone_;
   }
   if (this != default_instance_) {
     delete type_;
@@ -1092,6 +1064,9 @@ const int ClubDescription::kVisibilityLevelFieldNumber;
 const int ClubDescription::kMemberCountFieldNumber;
 const int ClubDescription::kLeaderFieldNumber;
 const int ClubDescription::kCreationTimeFieldNumber;
+const int ClubDescription::kTimezoneFieldNumber;
+const int ClubDescription::kLocaleFieldNumber;
+const int ClubDescription::kTagFieldNumber;
 #endif  // !_MSC_VER
 
 ClubDescription::ClubDescription()
@@ -1124,6 +1099,8 @@ void ClubDescription::SharedCtor() {
   visibility_level_ = 0;
   member_count_ = 0u;
   creation_time_ = GOOGLE_ULONGLONG(0);
+  timezone_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  locale_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -1138,6 +1115,12 @@ void ClubDescription::SharedDtor() {
   }
   if (description_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete description_;
+  }
+  if (timezone_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete timezone_;
+  }
+  if (locale_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete locale_;
   }
   if (this != default_instance_) {
     delete type_;
@@ -1266,6 +1249,11 @@ const int ClubStateOptions::kAvatarFieldNumber;
 const int ClubStateOptions::kPrivacyLevelFieldNumber;
 const int ClubStateOptions::kStreamPositionFieldNumber;
 const int ClubStateOptions::kShortNameFieldNumber;
+const int ClubStateOptions::kVisibilityLevelFieldNumber;
+const int ClubStateOptions::kLocaleFieldNumber;
+const int ClubStateOptions::kTimezoneFieldNumber;
+const int ClubStateOptions::kTagOptionsFieldNumber;
+const int ClubStateOptions::kSearchAttributeFieldNumber;
 #endif  // !_MSC_VER
 
 ClubStateOptions::ClubStateOptions()
@@ -1278,6 +1266,7 @@ void ClubStateOptions::InitAsDefaultInstance() {
   broadcast_ = const_cast< ::bgs::protocol::club::v1::SetBroadcastOptions*>(&::bgs::protocol::club::v1::SetBroadcastOptions::default_instance());
   avatar_ = const_cast< ::bgs::protocol::club::v1::AvatarId*>(&::bgs::protocol::club::v1::AvatarId::default_instance());
   stream_position_ = const_cast< ::bgs::protocol::club::v1::StreamPosition*>(&::bgs::protocol::club::v1::StreamPosition::default_instance());
+  tag_options_ = const_cast< ::bgs::protocol::club::v1::TagOptions*>(&::bgs::protocol::club::v1::TagOptions::default_instance());
 }
 
 ClubStateOptions::ClubStateOptions(const ClubStateOptions& from)
@@ -1297,6 +1286,10 @@ void ClubStateOptions::SharedCtor() {
   privacy_level_ = 0;
   stream_position_ = NULL;
   short_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  visibility_level_ = 0;
+  locale_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  timezone_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  tag_options_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -1315,10 +1308,17 @@ void ClubStateOptions::SharedDtor() {
   if (short_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete short_name_;
   }
+  if (locale_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete locale_;
+  }
+  if (timezone_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete timezone_;
+  }
   if (this != default_instance_) {
     delete broadcast_;
     delete avatar_;
     delete stream_position_;
+    delete tag_options_;
   }
 }
 
@@ -1368,6 +1368,12 @@ const int ClubStateAssignment::kAvatarFieldNumber;
 const int ClubStateAssignment::kPrivacyLevelFieldNumber;
 const int ClubStateAssignment::kStreamPositionFieldNumber;
 const int ClubStateAssignment::kShortNameFieldNumber;
+const int ClubStateAssignment::kVisibilityLevelFieldNumber;
+const int ClubStateAssignment::kLocaleFieldNumber;
+const int ClubStateAssignment::kTimezoneFieldNumber;
+const int ClubStateAssignment::kTagFieldNumber;
+const int ClubStateAssignment::kSearchAttributeFieldNumber;
+const int ClubStateAssignment::kTagClearedFieldNumber;
 #endif  // !_MSC_VER
 
 ClubStateAssignment::ClubStateAssignment()
@@ -1400,6 +1406,10 @@ void ClubStateAssignment::SharedCtor() {
   privacy_level_ = 0;
   stream_position_ = NULL;
   short_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  visibility_level_ = 0;
+  locale_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  timezone_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  tag_cleared_ = false;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -1417,6 +1427,12 @@ void ClubStateAssignment::SharedDtor() {
   }
   if (short_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete short_name_;
+  }
+  if (locale_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete locale_;
+  }
+  if (timezone_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete timezone_;
   }
   if (this != default_instance_) {
     delete broadcast_;

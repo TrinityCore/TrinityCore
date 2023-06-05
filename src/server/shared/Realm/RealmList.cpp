@@ -23,6 +23,7 @@
 #include "Errors.h"
 #include "IoContext.h"
 #include "Log.h"
+#include "MapUtils.h"
 #include "ProtobufJSON.h"
 #include "Resolver.h"
 #include "Util.h"
@@ -224,11 +225,19 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
 Realm const* RealmList::GetRealm(Battlenet::RealmHandle const& id) const
 {
     std::shared_lock<std::shared_mutex> lock(_realmsMutex);
-    auto itr = _realms.find(id);
-    if (itr != _realms.end())
-        return &itr->second;
+    return Trinity::Containers::MapGetValuePtr(_realms, id);
+}
 
-    return nullptr;
+bool RealmList::GetRealmNames(Battlenet::RealmHandle const& id, std::string* name, std::string* normalizedName) const
+{
+    std::shared_lock<std::shared_mutex> lock(_realmsMutex);
+    Realm const* realm = Trinity::Containers::MapGetValuePtr(_realms, id);
+    if (!realm)
+        return false;
+
+    *name = realm->Name;
+    *normalizedName = realm->NormalizedName;
+    return true;
 }
 
 RealmBuildInfo const* RealmList::GetBuildInfo(uint32 build) const

@@ -31,13 +31,14 @@ using ChatSubCommandMap = std::map<std::string_view, Trinity::Impl::ChatCommands
 
 void Trinity::Impl::ChatCommands::ChatCommandNode::LoadFromBuilder(ChatCommandBuilder const& builder)
 {
-    if (std::holds_alternative<ChatCommandBuilder::InvokerEntry>(builder._data))
+    if (ChatCommandBuilder::InvokerEntry const* invokerEntry = std::get_if<ChatCommandBuilder::InvokerEntry>(&builder._data))
     {
         ASSERT(!_invoker, "Duplicate blank sub-command.");
-        TrinityStrings help;
-        std::tie(_invoker, help, _permission) = *(std::get<ChatCommandBuilder::InvokerEntry>(builder._data));
-        if (help)
-            _help.emplace<TrinityStrings>(help);
+        _invoker = invokerEntry->_invoker;
+        if (invokerEntry->_help)
+            _help.emplace<TrinityStrings>(invokerEntry->_help);
+
+        _permission = invokerEntry->_permissions;
     }
     else
         LoadCommandsIntoMap(this, _subCommands, std::get<ChatCommandBuilder::SubCommandEntry>(builder._data));

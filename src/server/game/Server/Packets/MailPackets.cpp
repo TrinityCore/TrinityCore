@@ -166,6 +166,13 @@ void WorldPackets::Mail::MailCreateTextItem::Read()
     _worldPacket >> MailID;
 }
 
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Mail::SendMail::StructSendMail::MailAttachment& attachment)
+{
+    data >> attachment.AttachPosition;
+    data >> attachment.ItemGUID;
+    return data;
+}
+
 void WorldPackets::Mail::SendMail::Read()
 {
     _worldPacket >> Info.Mailbox;
@@ -183,11 +190,8 @@ void WorldPackets::Mail::SendMail::Read()
     Info.Subject = _worldPacket.ReadString(subjectLength);
     Info.Body = _worldPacket.ReadString(bodyLength);
 
-    for (auto& att : Info.Attachments)
-    {
-        _worldPacket >> att.AttachPosition;
-        _worldPacket >> att.ItemGUID;
-    }
+    for (StructSendMail::MailAttachment& att : Info.Attachments)
+        _worldPacket >> att;
 }
 
 void WorldPackets::Mail::MailReturnToSender::Read()

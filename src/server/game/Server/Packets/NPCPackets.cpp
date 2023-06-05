@@ -216,11 +216,11 @@ WorldPacket const* GossipComplete::Write()
 WorldPacket const* GossipPOI::Write()
 {
     _worldPacket << int32(ID);
+    _worldPacket << int32(Flags);
     _worldPacket << Pos;
     _worldPacket << int32(Icon);
     _worldPacket << int32(Importance);
     _worldPacket << int32(WMOGroupID);
-    _worldPacket.WriteBits(Flags, 14);
     _worldPacket.WriteBits(Name.length(), 6);
     _worldPacket.FlushBits();
     _worldPacket.WriteString(Name);

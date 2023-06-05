@@ -324,7 +324,7 @@ void protobuf_AddDesc_club_5fmembership_5fservice_2eproto() {
     ".protocol.TimeSeriesId\"c\n#AdvanceStreamM"
     "entionViewTimeRequest\022<\n\010agent_id\030\001 \001(\0132"
     "\".bgs.protocol.account.v1.AccountIdB\006\202\371+"
-    "\002\020\0012\310\007\n\025ClubMembershipService\022z\n\tSubscri"
+    "\002\020\0012\312\007\n\025ClubMembershipService\022z\n\tSubscri"
     "be\0221.bgs.protocol.club.v1.membership.Sub"
     "scribeRequest\0322.bgs.protocol.club.v1.mem"
     "bership.SubscribeResponse\"\006\202\371+\002\010\001\022`\n\013Uns"
@@ -346,9 +346,9 @@ void protobuf_AddDesc_club_5fmembership_5fservice_2eproto() {
     "\371+\002\010\006\022\202\001\n\034AdvanceStreamMentionViewTime\022D"
     ".bgs.protocol.club.v1.membership.Advance"
     "StreamMentionViewTimeRequest\032\024.bgs.proto"
-    "col.NoData\"\006\202\371+\002\010\007\032J\202\371+>\n+bnet.protocol."
+    "col.NoData\"\006\202\371+\002\010\007\032L\202\371+@\n+bnet.protocol."
     "club.v1.ClubMembershipService*\017club_memb"
-    "ership\212\371+\004\020\001\030\001B\005H\002\200\001\000", 2301);
+    "ershipH\001\212\371+\004\020\001\030\001B\005H\002\200\001\000", 2303);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "club_membership_service.proto", &protobuf_RegisterTypes);
   SubscribeRequest::default_instance_ = new SubscribeRequest();

@@ -175,6 +175,7 @@ namespace WorldPackets
         {
             WorldPackets::LFG::RideTicket RideTicket;
             uint32 GroupFinderActivityID = 0;
+            uint8 Unknown1007 = 0;
             ObjectGuid LastTitleAuthorGuid;
             ObjectGuid LastDescriptionAuthorGuid;
             ObjectGuid LastVoiceChatAuthorGuid;
