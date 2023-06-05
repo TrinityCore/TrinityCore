@@ -26,7 +26,10 @@ class ByteBuffer;
 
 struct TC_GAME_API Position
 {
-    Position(float x = 0, float y = 0, float z = 0, float o = 0)
+    Position()
+        : m_positionX(0.0f), m_positionY(0.0f), m_positionZ(0.0f), m_orientation(0.0f) { }
+
+    Position(float x, float y, float z = 0.0f, float o = 0.0f)
         : m_positionX(x), m_positionY(y), m_positionZ(z), m_orientation(NormalizeOrientation(o)) { }
 
     // streamer tags
@@ -165,7 +168,10 @@ public:
 class WorldLocation : public Position
 {
     public:
-        explicit WorldLocation(uint32 _mapId = MAPID_INVALID, float x = 0.f, float y = 0.f, float z = 0.f, float o = 0.f)
+        explicit WorldLocation()
+            : m_mapId(MAPID_INVALID) { }
+
+        explicit WorldLocation(uint32 _mapId, float x, float y, float z = 0.0f, float o = 0.0f)
             : Position(x, y, z, o), m_mapId(_mapId) { }
 
         WorldLocation(uint32 mapId, Position const& position)
@@ -203,7 +209,8 @@ TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Posi
 template <class Tag>
 struct TaggedPosition
 {
-    TaggedPosition(float x = 0.0f, float y = 0.0f, float z = 0.0f, float o = 0.0f) : Pos(x, y, z, o) { }
+    TaggedPosition() { }
+    TaggedPosition(float x, float y, float z = 0.0f, float o = 0.0f) : Pos(x, y, z, o) { }
     TaggedPosition(Position const& pos) : Pos(pos) { }
 
     TaggedPosition& operator=(Position const& pos)
