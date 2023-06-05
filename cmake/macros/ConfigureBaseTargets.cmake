@@ -12,27 +12,14 @@
 add_library(trinity-compile-option-interface INTERFACE)
 
 # Use -std=c++11 instead of -std=gnu++11
-set(CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 # An interface library to make the target features available to other targets
 add_library(trinity-feature-interface INTERFACE)
 
 target_compile_features(trinity-feature-interface
   INTERFACE
-    cxx_std_17
-    cxx_alias_templates
-    cxx_auto_type
-    cxx_constexpr
-    cxx_decltype
-    cxx_decltype_auto
-    cxx_final
-    cxx_lambdas
-    cxx_generic_lambdas
-    cxx_variadic_templates
-    cxx_defaulted_functions
-    cxx_nullptr
-    cxx_trailing_return_types
-    cxx_return_type_deduction)
+    cxx_std_17)
 
 # An interface library to make the warnings level available to other targets
 # This interface taget is set-up through the platform specific script
