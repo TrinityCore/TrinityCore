@@ -2349,7 +2349,6 @@ void ScriptMgr::OnWorldStateValueChange(WorldStateTemplate const* worldStateTemp
 // Event
 void ScriptMgr::OnEventTrigger(WorldObject* object, WorldObject* invoker, uint32 eventId)
 {
-    ASSERT(object);
     ASSERT(invoker);
 
     GET_SCRIPT(EventScript, sObjectMgr->GetEventScriptId(eventId), tmpscript);

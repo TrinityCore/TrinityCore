@@ -1096,7 +1096,7 @@ void Spell::EffectSendEvent()
 
     TC_LOG_DEBUG("spells", "Spell ScriptStart {} for spellid {} in EffectSendEvent ", effectInfo->MiscValue, m_spellInfo->Id);
 
-    GameEvents::Trigger(effectInfo->MiscValue, m_caster, target ? target : m_caster);
+    GameEvents::Trigger(effectInfo->MiscValue, m_caster, target);
 }
 
 void Spell::EffectPowerBurn()

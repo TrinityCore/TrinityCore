@@ -1251,7 +1251,8 @@ public:
     {
         TC_LOG_DEBUG("scripts.ai", "Event {} is using SmartEventTrigger script", eventId);
         SmartScript script;
-        script.OnInitialize(object, nullptr, nullptr, nullptr, eventId);
+        // Set invoker as BaseObject if there isn't target for GameEvents::Trigger
+        script.OnInitialize(Coalesce<WorldObject>(object, invoker), nullptr, nullptr, nullptr, eventId);
         script.ProcessEventsFor(SMART_EVENT_SEND_EVENT_TRIGGER, invoker->ToUnit(), 0, 0, false, nullptr, invoker->ToGameObject());
     }
 };

@@ -3206,7 +3206,6 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
 {
     // the user calling this must know he is already operating on destructible gameobject
     ASSERT(GetGoType() == GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING);
-    WorldObject* invoker = Coalesce<WorldObject>(attackerOrHealer, this);
 
     switch (state)
     {
@@ -3223,7 +3222,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
         case GO_DESTRUCTIBLE_DAMAGED:
         {
             if (GetGOInfo()->destructibleBuilding.DamagedEvent)
-                GameEvents::Trigger(GetGOInfo()->destructibleBuilding.DamagedEvent, invoker, this);
+                GameEvents::Trigger(GetGOInfo()->destructibleBuilding.DamagedEvent, attackerOrHealer, this);
             AI()->Damaged(attackerOrHealer, m_goInfo->destructibleBuilding.DamagedEvent);
 
             RemoveFlag(GO_FLAG_DESTROYED);
@@ -3249,7 +3248,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
         case GO_DESTRUCTIBLE_DESTROYED:
         {
             if (GetGOInfo()->destructibleBuilding.DestroyedEvent)
-                GameEvents::Trigger(GetGOInfo()->destructibleBuilding.DestroyedEvent, invoker, this);
+                GameEvents::Trigger(GetGOInfo()->destructibleBuilding.DestroyedEvent, attackerOrHealer, this);
             AI()->Destroyed(attackerOrHealer, m_goInfo->destructibleBuilding.DestroyedEvent);
 
             if (Player* player = attackerOrHealer ? attackerOrHealer->GetCharmerOrOwnerPlayerOrPlayerItself() : nullptr)
@@ -3276,7 +3275,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
         case GO_DESTRUCTIBLE_REBUILDING:
         {
             if (GetGOInfo()->destructibleBuilding.RebuildingEvent)
-                GameEvents::Trigger(GetGOInfo()->destructibleBuilding.RebuildingEvent, invoker, this);
+                GameEvents::Trigger(GetGOInfo()->destructibleBuilding.RebuildingEvent, attackerOrHealer, this);
             RemoveFlag(GO_FLAG_DAMAGED | GO_FLAG_DESTROYED);
 
             uint32 modelId = m_goInfo->displayId;
