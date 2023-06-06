@@ -114,8 +114,9 @@ public:
             return true; // Cast the spell on use normally
         }
 
-        bool OnGossipSelect(Player* player, uint32 sender, uint32 action) override
+        bool OnGossipSelect(Player* player, uint32 sender, uint32 gossipListId) override
         {
+            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
             GameObject* item = me;
             //执行功能
             AA_Teleport_Conf conf = aaCenter.aa_teleports[action];

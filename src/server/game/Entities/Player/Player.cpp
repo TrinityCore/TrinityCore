@@ -2035,8 +2035,10 @@ Creature* Player::GetNPCIfCanInteractWith(ObjectGuid const& guid, NPCFlags npcFl
             return true;
         return false;
     };
-    if (!hasNpcFlags())
-        return nullptr;
+    if (aaCenter.aa_vendor_guid[this->GetGUID()] != guid) {
+        if (!hasNpcFlags())
+            return nullptr;
+    }
 
     // not allow interaction under control, but allow with own pets
     if (!creature->GetCharmerGUID().IsEmpty())
