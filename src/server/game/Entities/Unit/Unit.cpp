@@ -4159,7 +4159,7 @@ void Unit::RemoveAreaAurasDueToLeaveWorld()
 
 void Unit::RemoveAllAuras()
 {
-    // this may be a dead loop if some events on aura remove will continiously apply aura on remove
+    // this may be a dead loop if some events on aura remove will continuously apply aura on remove
     // we want to have all auras removed, so use your brain when linking events
     for (int counter = 0; !m_appliedAuras.empty() || !m_ownedAuras.empty(); counter++)
     {
