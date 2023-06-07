@@ -180,7 +180,6 @@ struct AuctionsBucketKey
 
     friend std::strong_ordering operator<=>(AuctionsBucketKey const& left, AuctionsBucketKey const& right) = default;
 
-
     static std::size_t Hash(AuctionsBucketKey const& key);
     static AuctionsBucketKey ForItem(Item const* item);
     static AuctionsBucketKey ForCommodity(ItemTemplate const* itemTemplate);
