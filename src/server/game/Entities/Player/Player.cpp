@@ -14474,47 +14474,28 @@ bool Player::IsActiveQuest(uint32 quest_id) const
     return m_QuestStatus.find(quest_id) != m_QuestStatus.end();
 }
 
-Quest const* Player::GetNextQuest(ObjectGuid guid, Quest const* quest) const
+Quest const* Player::GetNextQuest(Object const* questGiver, Quest const* quest) const
 {
-    QuestRelationResult quests;
     uint32 nextQuestID = quest->GetNextQuestInChain();
+    if (!nextQuestID)
+        return nullptr;
 
-    switch (guid.GetHigh())
+    if (questGiver == this)
     {
-        case HighGuid::Player:
-            ASSERT(quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE));
-            return sObjectMgr->GetQuestTemplate(nextQuestID);
-        case HighGuid::Creature:
-        case HighGuid::Pet:
-        case HighGuid::Vehicle:
-        {
-            if (Creature* creature = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, guid))
-                quests = sObjectMgr->GetCreatureQuestRelations(creature->GetEntry());
-            else
-                return nullptr;
-            break;
-        }
-        case HighGuid::GameObject:
-        {
-            //we should obtain map pointer from GetMap() in 99% of cases. Special case
-            //only for quests which cast teleport spells on player
-            Map* _map = IsInWorld() ? GetMap() : sMapMgr->FindMap(GetMapId(), GetInstanceId());
-            ASSERT(_map);
-            if (GameObject* gameObject = _map->GetGameObject(guid))
-                quests = sObjectMgr->GetGOQuestRelations(gameObject->GetEntry());
-            else
-                return nullptr;
-            break;
-        }
-        default:
-            return nullptr;
+        ASSERT(quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE));
+        return sObjectMgr->GetQuestTemplate(nextQuestID);
     }
 
-    if (uint32 nextQuestID = quest->GetNextQuestInChain())
-        if (quests.HasQuest(nextQuestID))
-            return sObjectMgr->GetQuestTemplate(nextQuestID);
+    //we should obtain map pointer from GetMap() in 99% of cases. Special case
+    //only for quests which cast teleport spells on player
+    if (WorldObject const* worldObjectQuestGiver = dynamic_cast<WorldObject const*>(questGiver))
+        if (!IsInMap(worldObjectQuestGiver))
+            return nullptr;
 
-    return nullptr;
+    if (!questGiver->hasQuest(nextQuestID))
+        return nullptr;
+
+    return sObjectMgr->GetQuestTemplate(nextQuestID);
 }
 
 bool Player::CanSeeStartQuest(Quest const* quest) const
@@ -15324,7 +15305,7 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
             {
                 //For AutoSubmition was added plr case there as it almost same exclute AI script cases.
                 // Send next quest
-                if (Quest const* nextQuest = GetNextQuest(questGiver->GetGUID(), quest))
+                if (Quest const* nextQuest = GetNextQuest(questGiver, quest))
                 {
                     // Only send the quest to the player if the conditions are met
                     if (CanTakeQuest(nextQuest, false))
@@ -15343,9 +15324,8 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
             }
             case TYPEID_GAMEOBJECT:
             {
-                GameObject* questGiverGob = questGiver->ToGameObject();
                 // Send next quest
-                if (Quest const* nextQuest = GetNextQuest(questGiverGob->GetGUID(), quest))
+                if (Quest const* nextQuest = GetNextQuest(questGiver, quest))
                 {
                     // Only send the quest to the player if the conditions are met
                     if (CanTakeQuest(nextQuest, false))
@@ -15353,12 +15333,12 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
                         if (nextQuest->IsAutoAccept() && CanAddQuest(nextQuest, true))
                             AddQuestAndCheckCompletion(nextQuest, questGiver);
 
-                        PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, questGiverGob->GetGUID(), true, false);
+                        PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, questGiver->GetGUID(), true, false);
                     }
                 }
 
                 PlayerTalkClass->ClearMenus();
-                questGiverGob->AI()->OnQuestReward(this, quest, rewardType, rewardId);
+                questGiver->ToGameObject()->AI()->OnQuestReward(this, quest, rewardType, rewardId);
                 break;
             }
             default:
@@ -16966,11 +16946,13 @@ void Player::SendQuestReward(Quest const* quest, Creature const* questGiver, uin
     if (questGiver)
     {
         if (questGiver->IsGossip())
-            packet.LaunchGossip = true;
-        else if (questGiver->IsQuestGiver())
+            packet.LaunchGossip = quest->HasFlag(QUEST_FLAGS_LAUNCH_GOSSIP_COMPLETE);
+
+        if (questGiver->IsQuestGiver())
             packet.LaunchQuest = (GetQuestDialogStatus(questGiver) & ~QuestGiverStatus::Future) != QuestGiverStatus::None;
-        else if (quest->GetNextQuestInChain() && !quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE))
-            if (Quest const* rewardQuest = sObjectMgr->GetQuestTemplate(quest->GetNextQuestInChain()))
+
+        if (!quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE))
+            if (Quest const* rewardQuest = GetNextQuest(questGiver, quest))
                 packet.UseQuestReward = CanTakeQuest(rewardQuest, false);
     }
 
