@@ -480,7 +480,7 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
         if (std::find(_affectedUnits.begin(), _affectedUnits.end(), unit->GetGUID()) != _affectedUnits.end())
             return;
 
-        constexpr TriggerCastFlags TriggerFlags = TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+        constexpr TriggerCastFlags TriggerFlags = TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS;
 
         if (caster->IsValidAttackTarget(unit))
             caster->CastSpell(unit, at->GetSpellId() == SPELL_PRIEST_DIVINE_STAR_SHADOW ? SPELL_PRIEST_DIVINE_STAR_SHADOW_DAMAGE : SPELL_PRIEST_DIVINE_STAR_HOLY_DAMAGE,
@@ -646,10 +646,10 @@ struct areatrigger_pri_halo : AreaTriggerAI
         {
             if (caster->IsValidAttackTarget(unit))
                 caster->CastSpell(unit, at->GetSpellId() == SPELL_PRIEST_HALO_SHADOW ? SPELL_PRIEST_HALO_SHADOW_DAMAGE : SPELL_PRIEST_HALO_HOLY_DAMAGE,
-                    CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+                    TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
             else if (caster->IsValidAssistTarget(unit))
                 caster->CastSpell(unit, at->GetSpellId() == SPELL_PRIEST_HALO_SHADOW ? SPELL_PRIEST_HALO_SHADOW_HEAL : SPELL_PRIEST_HALO_HOLY_HEAL,
-                    CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+                    TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
         }
     }
 };
@@ -1448,7 +1448,7 @@ class spell_pri_purge_the_wicked : public SpellScript
         Unit* target = GetHitUnit();
 
         if (target->HasAura(SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC, caster->GetGUID()))
-            caster->CastSpell(target, SPELL_PRIEST_PURGE_THE_WICKED_DUMMY, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+            caster->CastSpell(target, SPELL_PRIEST_PURGE_THE_WICKED_DUMMY, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
     }
 
     void Register() override
@@ -1520,7 +1520,7 @@ class spell_pri_purge_the_wicked_dummy : public SpellScript
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
 
-        caster->CastSpell(target, SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+        caster->CastSpell(target, SPELL_PRIEST_PURGE_THE_WICKED_PERIODIC, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
     }
 
     void Register() override
@@ -1551,7 +1551,7 @@ class spell_pri_rapture : public SpellScript
 
         if (Unit* target = ObjectAccessor::GetUnit(*caster, _raptureTarget))
             caster->CastSpell(target, SPELL_PRIEST_POWER_WORD_SHIELD,
-                CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST | TRIGGERED_IGNORE_CAST_IN_PROGRESS))
+                CastSpellExtraArgs(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST | TRIGGERED_IGNORE_CAST_IN_PROGRESS)
                 .SetTriggeringSpell(GetSpell()));
     }
 
