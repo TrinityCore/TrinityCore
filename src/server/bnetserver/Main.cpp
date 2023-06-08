@@ -58,6 +58,9 @@ namespace fs = boost::filesystem;
 #ifndef _TRINITY_BNET_CONFIG
 # define _TRINITY_BNET_CONFIG  "bnetserver.conf"
 #endif
+#ifndef _TRINITY_BNET_CONFIG_DIR
+    #define _TRINITY_BNET_CONFIG_DIR "bnetserver.conf.d"
+#endif
 
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
 #include "ServiceWin32.h"
@@ -87,6 +90,7 @@ int main(int argc, char** argv)
     signal(SIGABRT, &Trinity::AbortHandler);
 
     auto configFile = fs::absolute(_TRINITY_BNET_CONFIG);
+    auto configDir  = fs::absolute(_TRINITY_BNET_CONFIG_DIR);
     std::string configService;
     auto vm = GetConsoleArguments(argc, argv, configFile, configService);
     // exit if help or version is enabled
@@ -112,6 +116,15 @@ int main(int argc, char** argv)
                                  configError))
     {
         printf("Error in config file: %s\n", configError.c_str());
+        return 1;
+    }
+
+    std::string configDirError;
+    uint configDirFiles = sConfigMgr->LoadAdditionalDir(configDir.generic_string(), true, configDirError);
+    if (configDirError.empty()) {
+        printf("Loaded %u additional config files", configDirFiles);
+    } else {
+        printf("Error in additional config files: %s\n", configDirError.c_str());
         return 1;
     }
 

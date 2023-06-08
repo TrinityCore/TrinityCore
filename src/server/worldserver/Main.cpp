@@ -73,6 +73,10 @@ namespace fs = boost::filesystem;
     #define _TRINITY_CORE_CONFIG  "worldserver.conf"
 #endif
 
+#ifndef _TRINITY_CORE_CONFIG_DIR
+    #define _TRINITY_CORE_CONFIG_DIR "worldserver.conf.d"
+#endif
+
 #ifdef _WIN32
 #include "ServiceWin32.h"
 char serviceName[] = "worldserver";
@@ -127,6 +131,7 @@ extern int main(int argc, char** argv)
     signal(SIGABRT, &Trinity::AbortHandler);
 
     auto configFile = fs::absolute(_TRINITY_CORE_CONFIG);
+    auto configDir  = fs::absolute(_TRINITY_CORE_CONFIG_DIR);
     std::string configService;
 
     auto vm = GetConsoleArguments(argc, argv, configFile, configService);
@@ -191,6 +196,15 @@ extern int main(int argc, char** argv)
                                  configError))
     {
         printf("Error in config file: %s\n", configError.c_str());
+        return 1;
+    }
+
+    std::string configDirError;
+    uint configDirFiles = sConfigMgr->LoadAdditionalDir(configDir.generic_string(), true, configDirError);
+    if (configDirError.empty()) {
+        printf("Loaded %u additional config files\n", configDirFiles);
+    } else {
+        printf("Error in additional config files: %s\n", configDirError.c_str());
         return 1;
     }
 

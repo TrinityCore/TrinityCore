@@ -18,6 +18,7 @@
 #include "Config.h"
 #include "Log.h"
 #include "StringConvert.h"
+#include <boost/filesystem/operations.hpp>
 #include <boost/property_tree/ini_parser.hpp>
 #include <algorithm>
 #include <cstdlib>
@@ -25,6 +26,7 @@
 #include <mutex>
 
 namespace bpt = boost::property_tree;
+namespace fs  = boost::filesystem;
 
 namespace
 {
@@ -165,6 +167,30 @@ bool ConfigMgr::LoadAdditionalFile(std::string file, bool keepOnReload, std::str
         _additonalFiles.emplace_back(std::move(file));
 
     return true;
+}
+
+uint ConfigMgr::LoadAdditionalDir(std::string dir, bool keepOnReload, std::string& error)
+{
+    if (!fs::exists(dir) || !fs::is_directory(dir))
+        return 0;
+
+    uint loaded = 0;
+    for (auto const& f : fs::recursive_directory_iterator(dir))
+    {
+        if (!fs::is_regular_file(f))
+            continue;
+
+        auto configFile = fs::absolute(f);
+        if (configFile.extension() != ".conf")
+            continue;
+
+        if (LoadAdditionalFile(configFile.generic_string(), keepOnReload, error))
+            loaded++;
+        else
+            break;
+    }
+
+    return loaded;
 }
 
 std::vector<std::string> ConfigMgr::OverrideWithEnvVariablesIfAny()
