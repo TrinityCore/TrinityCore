@@ -829,6 +829,7 @@ enum ArenaTeamInfoType
 
 enum TeleportToOptions
 {
+    TELE_TO_NONE                = 0x00,
     TELE_TO_GM_MODE             = 0x01,
     TELE_TO_NOT_LEAVE_TRANSPORT = 0x02,
     TELE_TO_NOT_LEAVE_COMBAT    = 0x04,
@@ -838,6 +839,8 @@ enum TeleportToOptions
     TELE_REVIVE_AT_TELEPORT     = 0x40,
     TELE_TO_SEAMLESS            = 0x80
 };
+
+DEFINE_ENUM_FLAG(TeleportToOptions);
 
 /// Type of environmental damages
 enum EnviromentalDamage : uint8
@@ -1152,8 +1155,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void SetObjectScale(float scale) override;
 
-        bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options = 0, Optional<uint32> instanceId = {});
-        bool TeleportTo(WorldLocation const& loc, uint32 options = 0, Optional<uint32> instanceId = {});
+        bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, TeleportToOptions options = TELE_TO_NONE, Optional<uint32> instanceId = {});
+        bool TeleportTo(WorldLocation const& loc, TeleportToOptions options = TELE_TO_NONE, Optional<uint32> instanceId = {});
         bool TeleportToBGEntryPoint();
 
         bool HasSummonPending() const;
@@ -2508,7 +2511,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
             m_recall_location.WorldRelocate(*this);
             m_recall_instanceId = GetInstanceId();
         }
-        void Recall() { TeleportTo(m_recall_location, 0, m_recall_instanceId); }
+        void Recall() { TeleportTo(m_recall_location, TELE_TO_NONE, m_recall_instanceId); }
 
         void SetHomebind(WorldLocation const& loc, uint32 areaId);
         void SendBindPointUpdate() const;
@@ -3180,7 +3183,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         // Current teleport data
         WorldLocation m_teleport_dest;
         Optional<uint32> m_teleport_instanceId;
-        uint32 m_teleport_options;
+        TeleportToOptions m_teleport_options;
         bool mSemaphoreTeleport_Near;
         bool mSemaphoreTeleport_Far;
 

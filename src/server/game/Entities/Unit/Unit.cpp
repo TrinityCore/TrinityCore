@@ -12413,7 +12413,7 @@ void Unit::NearTeleportTo(Position const& pos, bool casting /*= false*/)
     if (GetTypeId() == TYPEID_PLAYER)
     {
         WorldLocation target(GetMapId(), pos);
-        ToPlayer()->TeleportTo(target, TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET | (casting ? TELE_TO_SPELL : 0));
+        ToPlayer()->TeleportTo(target, TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET | (casting ? TELE_TO_SPELL : TELE_TO_NONE));
     }
     else
     {
