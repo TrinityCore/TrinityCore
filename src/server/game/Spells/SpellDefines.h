@@ -425,6 +425,11 @@ struct TC_GAME_API CastSpellTargetArg
         Targets.emplace();
         Targets->SetDst(dest);
     }
+    CastSpellTargetArg(SpellDestination const& dest)
+    {
+        Targets.emplace();
+        Targets->SetDst(dest);
+    }
     CastSpellTargetArg(SpellCastTargets&& targets)
     {
         Targets.emplace(std::move(targets));
