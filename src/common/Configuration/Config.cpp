@@ -160,6 +160,8 @@ bool ConfigMgr::LoadAdditionalFile(std::string file, bool keepOnReload, std::str
     if (!LoadFile(file, fullTree, error))
         return false;
 
+    std::lock_guard<std::mutex> lock(_configLock);
+
     for (bpt::ptree::value_type const& child : fullTree.begin()->second)
         _config.put_child(bpt::ptree::path_type(child.first, '/'), child.second);
 
@@ -169,28 +171,30 @@ bool ConfigMgr::LoadAdditionalFile(std::string file, bool keepOnReload, std::str
     return true;
 }
 
-uint ConfigMgr::LoadAdditionalDir(std::string dir, bool keepOnReload, std::string& error)
+bool ConfigMgr::LoadAdditionalDir(std::string const& dir, bool keepOnReload, std::vector<std::string>& loadedFiles, std::vector<std::string>& errors)
 {
-    if (!fs::exists(dir) || !fs::is_directory(dir))
-        return 0;
+    fs::path dirPath = dir;
+    if (!fs::exists(dirPath) || !fs::is_directory(dirPath))
+        return true;
 
-    uint loaded = 0;
-    for (auto const& f : fs::recursive_directory_iterator(dir))
+    for (fs::directory_entry const& f : fs::recursive_directory_iterator(dirPath))
     {
         if (!fs::is_regular_file(f))
             continue;
 
-        auto configFile = fs::absolute(f);
+        fs::path configFile = fs::absolute(f);
         if (configFile.extension() != ".conf")
             continue;
 
-        if (LoadAdditionalFile(configFile.generic_string(), keepOnReload, error))
-            loaded++;
+        std::string fileName = configFile.generic_string();
+        std::string error;
+        if (LoadAdditionalFile(fileName, keepOnReload, error))
+            loadedFiles.push_back(std::move(fileName));
         else
-            break;
+            errors.push_back(std::move(error));
     }
 
-    return loaded;
+    return errors.empty();
 }
 
 std::vector<std::string> ConfigMgr::OverrideWithEnvVariablesIfAny()

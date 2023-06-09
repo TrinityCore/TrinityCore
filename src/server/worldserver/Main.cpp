@@ -123,7 +123,7 @@ void WorldUpdateLoop();
 void ClearOnlineAccounts();
 void ShutdownCLIThread(std::thread* cliThread);
 bool LoadRealmInfo();
-variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, std::string& cfg_service);
+variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, fs::path& configDir, std::string& winServiceAction);
 
 /// Launch the Trinity server
 extern int main(int argc, char** argv)
@@ -132,9 +132,9 @@ extern int main(int argc, char** argv)
 
     auto configFile = fs::absolute(_TRINITY_CORE_CONFIG);
     auto configDir  = fs::absolute(_TRINITY_CORE_CONFIG_DIR);
-    std::string configService;
+    std::string winServiceAction;
 
-    auto vm = GetConsoleArguments(argc, argv, configFile, configService);
+    auto vm = GetConsoleArguments(argc, argv, configFile, configDir, winServiceAction);
     // exit if help or version is enabled
     if (vm.count("help") || vm.count("version"))
         return 0;
@@ -144,12 +144,12 @@ extern int main(int argc, char** argv)
     std::shared_ptr<void> protobufHandle(nullptr, [](void*) { google::protobuf::ShutdownProtobufLibrary(); });
 
 #ifdef _WIN32
-    if (configService.compare("install") == 0)
+    if (winServiceAction == "install")
         return WinServiceInstall() ? 0 : 1;
-    else if (configService.compare("uninstall") == 0)
+    if (winServiceAction == "uninstall")
         return WinServiceUninstall() ? 0 : 1;
-    else if (configService.compare("run") == 0)
-        return WinServiceRun() ? 0 : 0;
+    if (winServiceAction == "run")
+        return WinServiceRun() ? 0 : 1;
 
     Optional<UINT> newTimerResolution;
     boost::system::error_code dllError;
@@ -199,12 +199,17 @@ extern int main(int argc, char** argv)
         return 1;
     }
 
-    std::string configDirError;
-    uint configDirFiles = sConfigMgr->LoadAdditionalDir(configDir.generic_string(), true, configDirError);
-    if (configDirError.empty()) {
-        printf("Loaded %u additional config files\n", configDirFiles);
-    } else {
-        printf("Error in additional config files: %s\n", configDirError.c_str());
+    std::vector<std::string> loadedConfigFiles;
+    std::vector<std::string> configDirErrors;
+    bool additionalConfigFileLoadSuccess = sConfigMgr->LoadAdditionalDir(configDir.generic_string(), true, loadedConfigFiles, configDirErrors);
+    for (std::string const& loadedConfigFile : loadedConfigFiles)
+        printf("Loaded additional config file %s\n", loadedConfigFile.c_str());
+
+    if (!additionalConfigFileLoadSuccess)
+    {
+        for (std::string const& configDirError : configDirErrors)
+            printf("Error in additional config files: %s\n", configDirError.c_str());
+
         return 1;
     }
 
@@ -691,23 +696,22 @@ void ClearOnlineAccounts()
 
 /// @}
 
-variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, std::string& configService)
+variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, fs::path& configDir, [[maybe_unused]] std::string& winServiceAction)
 {
-    // Silences warning about configService not be used if the OS is not Windows
-    (void)configService;
-
     options_description all("Allowed options");
     all.add_options()
         ("help,h", "print usage message")
         ("version,v", "print version build info")
         ("config,c", value<fs::path>(&configFile)->default_value(fs::absolute(_TRINITY_CORE_CONFIG)),
                      "use <arg> as configuration file")
+        ("config-dir,cd", value<fs::path>(&configDir)->default_value(fs::absolute(_TRINITY_CORE_CONFIG_DIR)),
+                     "use <arg> as directory with additional config files")
         ("update-databases-only,u", "updates databases only")
         ;
 #ifdef _WIN32
     options_description win("Windows platform specific options");
     win.add_options()
-        ("service,s", value<std::string>(&configService)->default_value(""), "Windows service options: [install | uninstall]")
+        ("service,s", value<std::string>(&winServiceAction)->default_value(""), "Windows service options: [install | uninstall]")
         ;
 
     all.add(win);
