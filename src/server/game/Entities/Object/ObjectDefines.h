@@ -58,7 +58,7 @@ enum class VisibilityDistanceType : uint8
     Max
 };
 
-enum TempSummonType
+enum TempSummonType : uint8
 {
     TEMPSUMMON_TIMED_OR_DEAD_DESPAWN       = 1,             // despawns after a specified time OR when the creature disappears
     TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN     = 2,             // despawns after a specified time OR when the creature dies

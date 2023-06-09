@@ -372,7 +372,7 @@ void TerrainInfo::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, 
         data.outdoors = true;
         data.areaId = gridAreaId;
         if (AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(data.areaId))
-            data.outdoors = (areaEntry->Flags[0] & (AREA_FLAG_INSIDE | AREA_FLAG_OUTSIDE)) != AREA_FLAG_INSIDE;
+            data.outdoors = areaEntry->GetFlags().HasFlag(AreaFlags::ForceOutdoors) || !areaEntry->GetFlags().HasFlag(AreaFlags::ForceIndoors);
     }
 
     if (!data.areaId)

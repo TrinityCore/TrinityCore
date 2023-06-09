@@ -256,7 +256,7 @@ class spell_gen_arena_drink : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        if (spellInfo->GetEffects().empty() || !spellInfo->GetEffect(EFFECT_0).IsAura(SPELL_AURA_MOD_POWER_REGEN))
+        if (!ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) || !spellInfo->GetEffect(EFFECT_0).IsAura(SPELL_AURA_MOD_POWER_REGEN))
         {
             TC_LOG_ERROR("spells", "Aura {} structure has been changed - first aura is no longer SPELL_AURA_MOD_POWER_REGEN", GetId());
             return false;
@@ -337,7 +337,7 @@ class spell_gen_aura_of_fear : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return !spellInfo->GetEffects().empty() && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
     }
 
     void PeriodicTick(AuraEffect const* aurEff)
@@ -774,7 +774,8 @@ class spell_gen_burning_depths_necrolyte_image : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return spellInfo->GetEffects().size() > EFFECT_2 && ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_2).CalcValue()) });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } })
+            && ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_2).CalcValue()) });
     }
 
     void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -2019,7 +2020,7 @@ class spell_gen_gift_of_naaru : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return spellInfo->GetEffects().size() > EFFECT_1;
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
     void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
@@ -2637,7 +2638,7 @@ class spell_gen_oracle_wolvar_reputation : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return spellInfo->GetEffects().size() > EFFECT_1;
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
     bool Load() override
@@ -3088,7 +3089,7 @@ class spell_gen_remove_on_health_pct : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return spellInfo->GetEffects().size() > EFFECT_1;
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
     void PeriodicTick(AuraEffect const* /*aurEff*/)
@@ -3980,7 +3981,7 @@ class spell_gen_eject_passenger : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        if (spellInfo->GetEffects().empty())
+        if (!ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }))
             return false;
         if (spellInfo->GetEffect(EFFECT_0).CalcValue() < 1)
             return false;
@@ -4201,7 +4202,7 @@ class spell_gen_mixology_bonus : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_MIXOLOGY }) && !spellInfo->GetEffects().empty();
+        return ValidateSpellInfo({ SPELL_MIXOLOGY }) && ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } });
     }
 
     bool Load() override
@@ -4857,7 +4858,8 @@ class spell_gen_face_rage : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_FACE_RAGE }) && spellInfo->GetEffects().size() > EFFECT_2;
+        return ValidateSpellInfo({ SPELL_FACE_RAGE })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
     }
 
     void OnRemove(AuraEffect const* /*effect*/, AuraEffectHandleModes /*mode*/)
@@ -5415,6 +5417,118 @@ private:
     uint32 _exhaustionSpellId;
 };
 
+// AoE resurrections by spirit guides
+// 22012 - Spirit Heal
+class spell_gen_spirit_heal_aoe : public SpellScript
+{
+    PrepareSpellScript(spell_gen_spirit_heal_aoe);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        Unit* caster = GetCaster();
+        targets.remove_if([caster](WorldObject* target) -> bool
+        {
+            if (Player* playerTarget = target->ToPlayer())
+                return !playerTarget->CanAcceptAreaSpiritHealFrom(caster);
+
+            return true;
+        });
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gen_spirit_heal_aoe::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+    }
+};
+
+// Personal resurrections in battlegrounds
+// 156758 - Spirit Heal
+class spell_gen_spirit_heal_personal : public AuraScript
+{
+    static constexpr uint32 SPELL_SPIRIT_HEAL_EFFECT = 156763;
+
+    PrepareAuraScript(spell_gen_spirit_heal_personal);
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+            return;
+
+        Player* targetPlayer = GetTarget()->ToPlayer();
+        if (!targetPlayer)
+            return;
+
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (targetPlayer->CanAcceptAreaSpiritHealFrom(caster))
+            caster->CastSpell(targetPlayer, SPELL_SPIRIT_HEAL_EFFECT);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_gen_spirit_heal_personal::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+class RecastSpiritHealChannelEvent : public BasicEvent
+{
+public:
+    RecastSpiritHealChannelEvent(Unit* caster) : _caster(caster) { }
+
+    bool Execute(uint64 /*e_time*/, uint32 /*p_time*/) override
+    {
+        if (_caster->GetChannelSpellId() == 0)
+            _caster->CastSpell(nullptr, SPELL_SPIRIT_HEAL_CHANNEL_AOE, false);
+
+        return true;
+    }
+
+private:
+    Unit* _caster;
+};
+
+// 22011 - Spirit Heal Channel
+class spell_gen_spirit_heal_channel : public AuraScript
+{
+    PrepareAuraScript(spell_gen_spirit_heal_channel);
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+            return;
+
+        Unit* target = GetTarget();
+        target->m_Events.AddEventAtOffset(new RecastSpiritHealChannelEvent(target), 1s);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_gen_spirit_heal_channel::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 2584 - Waiting to Resurrect
+class spell_gen_waiting_to_resurrect : public AuraScript
+{
+    PrepareAuraScript(spell_gen_waiting_to_resurrect);
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Player* targetPlayer = GetTarget()->ToPlayer();
+        if (!targetPlayer)
+            return;
+
+        targetPlayer->SetAreaSpiritHealer(nullptr);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_gen_waiting_to_resurrect::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     RegisterSpellScript(spell_gen_absorb0_hitlimit1);
@@ -5584,4 +5698,8 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_hun_primal_rage", SPELL_HUNTER_FATIGUED);
     RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_evo_fury_of_the_aspects", SPELL_EVOKER_EXHAUSTION);
     RegisterSpellScriptWithArgs(spell_gen_bloodlust, "spell_item_bloodlust_drums", SPELL_SHAMAN_EXHAUSTION);
+    RegisterSpellScript(spell_gen_spirit_heal_aoe);
+    RegisterSpellScript(spell_gen_spirit_heal_personal);
+    RegisterSpellScript(spell_gen_spirit_heal_channel);
+    RegisterSpellScript(spell_gen_waiting_to_resurrect);
 }

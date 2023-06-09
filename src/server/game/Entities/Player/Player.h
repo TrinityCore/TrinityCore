@@ -648,7 +648,7 @@ enum PlayerSlots
     // first slot for item stored (in any way in player m_items data)
     PLAYER_SLOT_START           = 0,
     // last+1 slot for item stored (in any way in player m_items data)
-    PLAYER_SLOT_END             = 218,
+    PLAYER_SLOT_END             = 227,
     PLAYER_SLOTS_COUNT          = (PLAYER_SLOT_END - PLAYER_SLOT_START)
 };
 
@@ -751,6 +751,7 @@ enum ChildEquipmentSlots
     CHILD_EQUIPMENT_SLOT_END     = 211,
 };
 
+// slots past 214 are guessed (unused in client)
 enum EquipableSpellSlots
 {
     EQUIPABLE_SPELL_OFFENSIVE_SLOT1 = 211,
@@ -758,8 +759,17 @@ enum EquipableSpellSlots
     EQUIPABLE_SPELL_OFFENSIVE_SLOT3 = 213,
     EQUIPABLE_SPELL_OFFENSIVE_SLOT4 = 214,
     EQUIPABLE_SPELL_UTILITY_SLOT1   = 215,
-    EQUIPABLE_SPELL_DEFENSIVE_SLOT1 = 216,
-    EQUIPABLE_SPELL_MOBILITY_SLOT1  = 217
+    EQUIPABLE_SPELL_UTILITY_SLOT2   = 216,
+    EQUIPABLE_SPELL_UTILITY_SLOT3   = 217,
+    EQUIPABLE_SPELL_UTILITY_SLOT4   = 218,
+    EQUIPABLE_SPELL_DEFENSIVE_SLOT1 = 219,
+    EQUIPABLE_SPELL_DEFENSIVE_SLOT2 = 220,
+    EQUIPABLE_SPELL_DEFENSIVE_SLOT3 = 221,
+    EQUIPABLE_SPELL_DEFENSIVE_SLOT4 = 222,
+    EQUIPABLE_SPELL_WEAPON_SLOT1    = 223,
+    EQUIPABLE_SPELL_WEAPON_SLOT2    = 224,
+    EQUIPABLE_SPELL_WEAPON_SLOT3    = 225,
+    EQUIPABLE_SPELL_WEAPON_SLOT4    = 226,
 };
 
 struct ItemPosCount
@@ -820,6 +830,7 @@ enum ArenaTeamInfoType
 
 enum TeleportToOptions
 {
+    TELE_TO_NONE                = 0x00,
     TELE_TO_GM_MODE             = 0x01,
     TELE_TO_NOT_LEAVE_TRANSPORT = 0x02,
     TELE_TO_NOT_LEAVE_COMBAT    = 0x04,
@@ -829,6 +840,8 @@ enum TeleportToOptions
     TELE_REVIVE_AT_TELEPORT     = 0x40,
     TELE_TO_SEAMLESS            = 0x80
 };
+
+DEFINE_ENUM_FLAG(TeleportToOptions);
 
 /// Type of environmental damages
 enum EnviromentalDamage : uint8
@@ -1112,6 +1125,7 @@ private:
 uint32 constexpr PLAYER_MAX_HONOR_LEVEL = 500;
 uint8 constexpr PLAYER_LEVEL_MIN_HONOR = 10;
 uint32 constexpr SPELL_PVP_RULES_ENABLED = 134735;
+float constexpr MAX_AREA_SPIRIT_HEALER_RANGE = 20.0f;
 
 enum class ZonePVPTypeOverride : uint32
 {
@@ -1187,8 +1201,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void SetObjectScale(float scale) override;
 
-        bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options = 0, Optional<uint32> instanceId = {});
-        bool TeleportTo(WorldLocation const& loc, uint32 options = 0, Optional<uint32> instanceId = {});
+        bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, TeleportToOptions options = TELE_TO_NONE, Optional<uint32> instanceId = {});
+        bool TeleportTo(WorldLocation const& loc, TeleportToOptions options = TELE_TO_NONE, Optional<uint32> instanceId = {});
         bool TeleportToBGEntryPoint();
 
         bool HasSummonPending() const;
@@ -1217,7 +1231,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void ToggleDND();
         bool isAFK() const { return HasPlayerFlag(PLAYER_FLAGS_AFK); }
         bool isDND() const { return HasPlayerFlag(PLAYER_FLAGS_DND); }
-        uint8 GetChatFlags() const;
+        uint16 GetChatFlags() const;
         std::string autoReplyMsg;
 
         int64 GetBarberShopCost(Trinity::IteratorPair<UF::ChrCustomizationChoice const*> newCustomizations) const;
@@ -1602,7 +1616,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void PrepareQuestMenu(ObjectGuid guid);
         void SendPreparedQuest(WorldObject* source);
         bool IsActiveQuest(uint32 quest_id) const;
-        Quest const* GetNextQuest(ObjectGuid guid, Quest const* quest) const;
+        Quest const* GetNextQuest(Object const* questGiver, Quest const* quest) const;
         bool CanSeeStartQuest(Quest const* quest) const;
         bool CanTakeQuest(Quest const* quest, bool msg) const;
         bool CanAddQuest(Quest const* quest, bool msg) const;
@@ -1652,7 +1666,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void RemoveActiveQuest(uint32 questId, bool update = true);
         void RemoveRewardedQuest(uint32 questId, bool update = true);
         bool SendQuestUpdate(uint32 questId, bool updateVisiblity = true);
-        QuestGiverStatus GetQuestDialogStatus(Object* questGiver);
+        QuestGiverStatus GetQuestDialogStatus(Object const* questGiver) const;
 
         void SetDailyQuestStatus(uint32 quest_id);
         bool IsDailyQuestDone(uint32 quest_id) const;
@@ -1783,6 +1797,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendRespecWipeConfirm(ObjectGuid const& guid, uint32 cost, SpecResetType respecType) const;
         void RegenerateAll();
         void Regenerate(Powers power);
+        void InterruptPowerRegen(Powers power);
         void RegenerateHealth();
         void setRegenTimerCount(uint32 time) {m_regenTimerCount = time;}
         void setWeaponChangeTimer(uint32 time) {m_weaponChangeTimer = time;}
@@ -1866,7 +1881,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void RemoveOverrideSpell(uint32 overridenSpellId, uint32 newSpellId);
         void LearnSpecializationSpells();
         void RemoveSpecializationSpells();
-        void SendSpellCategoryCooldowns() const;
+        void AddSpellCategoryCooldownMod(int32 spellCategoryId, int32 mod);
+        void RemoveSpellCategoryCooldownMod(int32 spellCategoryId, int32 mod);
         void SetSpellFavorite(uint32 spellId, bool favorite);
 
         void AddStoredAuraTeleportLocation(uint32 spellId);
@@ -2542,7 +2558,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
             m_recall_location.WorldRelocate(*this);
             m_recall_instanceId = GetInstanceId();
         }
-        void Recall() { TeleportTo(m_recall_location, 0, m_recall_instanceId); }
+        void Recall() { TeleportTo(m_recall_location, TELE_TO_NONE, m_recall_instanceId); }
 
         void SetHomebind(WorldLocation const& loc, uint32 areaId);
         void SendBindPointUpdate() const;
@@ -2901,10 +2917,16 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         UF::UpdateField<UF::PlayerData, 0, TYPEID_PLAYER> m_playerData;
         UF::UpdateField<UF::ActivePlayerData, 0, TYPEID_ACTIVE_PLAYER> m_activePlayerData;
 
+        void SetAreaSpiritHealer(Creature* creature);
+        ObjectGuid const& GetSpiritHealerGUID() const { return _areaSpiritHealerGUID; }
+        bool CanAcceptAreaSpiritHealFrom(Unit* spiritHealer) const { return spiritHealer->GetGUID() == _areaSpiritHealerGUID; }
+        void SendAreaSpiritHealerTime(Unit* spiritHealer) const;
+        void SendAreaSpiritHealerTime(ObjectGuid const& spiritHealerGUID, int32 timeLeft) const;
+
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;
-        uint32 m_combatExitTime;
+        TimePoint m_regenInterruptTimestamp;
         uint32 m_regenTimerCount;
         uint32 m_foodEmoteTimerCount;
         float m_powerFraction[MAX_POWERS_PER_CLASS];
@@ -3208,7 +3230,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         // Current teleport data
         WorldLocation m_teleport_dest;
         Optional<uint32> m_teleport_instanceId;
-        uint32 m_teleport_options;
+        TeleportToOptions m_teleport_options;
         bool mSemaphoreTeleport_Near;
         bool mSemaphoreTeleport_Far;
 
@@ -3253,6 +3275,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::unique_ptr<RestMgr> _restMgr;
 
         bool _usePvpItemLevels;
+        ObjectGuid _areaSpiritHealerGUID;
 };
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item const* item);

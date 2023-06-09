@@ -393,8 +393,6 @@ void BattlegroundAB::_NodeDeOccupied(uint8 node)
     //remove bonus honor aura trigger creature when node is lost
     DelCreature(node+7);//NULL checks are in DelCreature! 0-6 spirit guides
 
-    RelocateDeadPlayers(BgCreatures[node]);
-
     DelCreature(node);
 
     // buff object isn't despawned

@@ -110,10 +110,10 @@ public:
         if (!searchString.empty())
         {
             // search by GUID
-            if (isNumeric(searchString.c_str()))
+            if (Optional<uint64> guidValue = Trinity::StringTo<uint64>(searchString))
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_DEL_INFO_BY_GUID);
-                stmt->setUInt64(0, strtoull(searchString.c_str(), nullptr, 10));
+                stmt->setUInt64(0, *guidValue);
                 result = CharacterDatabase.Query(stmt);
             }
             // search by name

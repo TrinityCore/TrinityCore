@@ -45,6 +45,7 @@
 #include "ObjectMgr.h"
 #include "PathGenerator.h"
 #include "Pet.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "SharedDefines.h"
@@ -546,10 +547,10 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
     _triggeredCastFlags = triggerFlags;
 
     if (info->HasAttribute(SPELL_ATTR2_DO_NOT_REPORT_SPELL_FAILURE))
-        _triggeredCastFlags = TriggerCastFlags(uint32(_triggeredCastFlags) | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        _triggeredCastFlags |= TRIGGERED_DONT_REPORT_CAST_ERROR;
 
     if (info->HasAttribute(SPELL_ATTR4_ALLOW_CAST_WHILE_CASTING))
-        _triggeredCastFlags = TriggerCastFlags(uint32(_triggeredCastFlags) | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+        _triggeredCastFlags |= TRIGGERED_IGNORE_CAST_IN_PROGRESS;
 
     m_CastItem = nullptr;
     m_castItemGUID.Clear();
@@ -1146,6 +1147,25 @@ void Spell::SelectImplicitNearbyTargets(SpellEffectInfo const& spellEffectInfo, 
                     }
                     return;
                 }
+                if (targetType.GetTarget() == TARGET_DEST_NEARBY_ENTRY_OR_DB)
+                {
+                    if (SpellTargetPosition const* st = sSpellMgr->GetSpellTargetPosition(m_spellInfo->Id, spellEffectInfo.EffectIndex))
+                    {
+                        SpellDestination dest(*m_caster);
+                        if (st->target_mapId == m_caster->GetMapId() && m_caster->IsInDist(st->target_X, st->target_Y, st->target_Z, range))
+                            dest = SpellDestination(st->target_X, st->target_Y, st->target_Z, st->target_Orientation);
+                        else
+                        {
+                            float randomRadius = spellEffectInfo.CalcRadius(m_caster);
+                            if (randomRadius > 0.0f)
+                                m_caster->MovePositionToFirstCollision(dest._position, randomRadius, targetType.CalcDirectionAngle());
+                        }
+
+                        CallScriptDestinationTargetSelectHandlers(dest, spellEffectInfo.EffectIndex, targetType);
+                        m_targets.SetDst(dest);
+                        return;
+                    }
+                }
                 break;
             default:
                 break;
@@ -1153,6 +1173,22 @@ void Spell::SelectImplicitNearbyTargets(SpellEffectInfo const& spellEffectInfo, 
     }
 
     WorldObject* target = SearchNearbyTarget(range, targetType.GetObjectType(), targetType.GetCheckType(), condList);
+    float randomRadius = 0.0f;
+    switch (targetType.GetTarget())
+    {
+        case TARGET_DEST_NEARBY_ENTRY_OR_DB:
+            // if we are here then there was no db target
+            if (!target)
+            {
+                target = m_caster;
+                // radius is only meant to be randomized when using caster fallback
+                randomRadius = spellEffectInfo.CalcRadius(m_caster);
+            }
+            break;
+        default:
+            break;
+    }
+
     if (!target)
     {
         TC_LOG_DEBUG("spells", "Spell::SelectImplicitNearbyTargets: cannot find nearby target for spell ID {}, effect {}", m_spellInfo->Id, uint32(spellEffectInfo.EffectIndex));
@@ -1208,6 +1244,9 @@ void Spell::SelectImplicitNearbyTargets(SpellEffectInfo const& spellEffectInfo, 
         case TARGET_OBJECT_TYPE_DEST:
         {
             SpellDestination dest(*target);
+            if (randomRadius > 0.0f)
+                target->MovePositionToFirstCollision(dest._position, randomRadius, targetType.CalcDirectionAngle());
+
             if (m_spellInfo->HasAttribute(SPELL_ATTR4_USE_FACING_FROM_SPELL))
                 dest._position.SetOrientation(spellEffectInfo.PositionFacing);
 
@@ -1836,7 +1875,7 @@ void Spell::SelectImplicitTrajTargets(SpellEffectInfo const& spellEffectInfo, Sp
 
             if (Creature* creatureTarget = unit->ToCreature())
             {
-                if (!(creatureTarget->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_COLLIDE_WITH_MISSILES))
+                if (!(creatureTarget->GetCreatureDifficulty()->TypeFlags & CREATURE_TYPE_FLAG_COLLIDE_WITH_MISSILES))
                     continue;
             }
         }
@@ -2108,9 +2147,11 @@ WorldObject* Spell::SearchNearbyTarget(float range, SpellTargetObjectTypes objec
     uint32 containerTypeMask = GetSearcherTypeMask(objectType, condList);
     if (!containerTypeMask)
         return nullptr;
+
     Trinity::WorldObjectSpellNearbyTargetCheck check(range, m_caster, m_spellInfo, selectionType, condList, objectType);
     Trinity::WorldObjectLastSearcher<Trinity::WorldObjectSpellNearbyTargetCheck> searcher(m_caster, target, check, containerTypeMask);
-    SearchTargets<Trinity::WorldObjectLastSearcher<Trinity::WorldObjectSpellNearbyTargetCheck> > (searcher, containerTypeMask, m_caster, m_caster, range);
+    searcher.i_phaseShift = &PhasingHandler::GetAlwaysVisiblePhaseShift();
+    SearchTargets<Trinity::WorldObjectLastSearcher<Trinity::WorldObjectSpellNearbyTargetCheck>>(searcher, containerTypeMask, m_caster, m_caster, range);
     return target;
 }
 
@@ -2123,7 +2164,8 @@ void Spell::SearchAreaTargets(std::list<WorldObject*>& targets, float range, Pos
     float extraSearchRadius = range > 0.0f ? EXTRA_CELL_SEARCH_RADIUS : 0.0f;
     Trinity::WorldObjectSpellAreaTargetCheck check(range, position, m_caster, referer, m_spellInfo, selectionType, condList, objectType);
     Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> searcher(m_caster, targets, check, containerTypeMask);
-    SearchTargets<Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> > (searcher, containerTypeMask, m_caster, position, range + extraSearchRadius);
+    searcher.i_phaseShift = &PhasingHandler::GetAlwaysVisiblePhaseShift();
+    SearchTargets<Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck>>(searcher, containerTypeMask, m_caster, position, range + extraSearchRadius);
 }
 
 void Spell::SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTargets, WorldObject* target, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectType, SpellEffectInfo const& spellEffectInfo, bool isChainHeal)
@@ -6344,10 +6386,11 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                         if (info.first->Type == HUNTER_PET)
                         {
                             CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(info.first->CreatureId);
-                            if (!creatureInfo || !creatureInfo->IsTameable(playerCaster->CanTameExoticPets()))
+                            CreatureDifficulty const* creatureDifficulty = creatureInfo->GetDifficulty(DIFFICULTY_NONE);
+                            if (!creatureInfo || !creatureInfo->IsTameable(playerCaster->CanTameExoticPets(), creatureDifficulty))
                             {
                                 // if problem in exotic pet
-                                if (creatureInfo && creatureInfo->IsTameable(true))
+                                if (creatureInfo && creatureInfo->IsTameable(true, creatureDifficulty))
                                     playerCaster->SendTameFailure(PetTameResult::CantControlExotic);
                                 else
                                     playerCaster->SendTameFailure(PetTameResult::NoPetAvailable);
@@ -6708,9 +6751,8 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                 if (m_originalCaster && m_originalCaster->GetTypeId() == TYPEID_PLAYER && m_originalCaster->IsAlive())
                 {
                     Battlefield* Bf = sBattlefieldMgr->GetBattlefieldToZoneId(m_originalCaster->GetMap(), m_originalCaster->GetZoneId());
-                    if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(m_originalCaster->GetAreaId()))
-                        if (area->Flags[0] & AREA_FLAG_NO_FLY_ZONE  || (Bf && !Bf->CanFlyIn()))
-                            return SPELL_FAILED_NOT_HERE;
+                    if (Bf && !Bf->CanFlyIn())
+                        return SPELL_FAILED_NOT_HERE;
                 }
                 break;
             }

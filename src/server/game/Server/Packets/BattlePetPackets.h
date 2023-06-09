@@ -200,7 +200,7 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid PetGuid;
-            uint32 Flags = 0;
+            uint16 Flags = 0;
             uint8 ControlType = 0;
         };
 

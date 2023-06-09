@@ -131,10 +131,17 @@ Quest::Quest(Field* questRecord)
     _questCompletionLog = questRecord[115].GetString();
 }
 
+Quest::~Quest()
+{
+    for (QuestObjective& objective : Objectives)
+        delete objective.CompletionEffect;
+}
+
 void Quest::LoadRewardDisplaySpell(Field* fields)
 {
     uint32 spellId = fields[1].GetUInt32();
     uint32 playerConditionId = fields[2].GetUInt32();
+    uint32 type = fields[3].GetUInt32();
 
     if (!sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE))
     {
@@ -148,7 +155,13 @@ void Quest::LoadRewardDisplaySpell(Field* fields)
         playerConditionId = 0;
     }
 
-    RewardDisplaySpell.emplace_back(spellId, playerConditionId);
+    if (type >= AsUnderlyingType(QuestCompleteSpellType::Max))
+    {
+        TC_LOG_ERROR("sql.sql", "Table `quest_reward_display_spell` invalid type value ({}) set for quest {} and spell {}. Set to 0.", type, fields[0].GetUInt32(), spellId);
+        type = AsUnderlyingType(QuestCompleteSpellType::LegacyBehavior);
+    }
+
+    RewardDisplaySpell.emplace_back(spellId, playerConditionId, QuestCompleteSpellType(type));
 }
 
 void Quest::LoadRewardChoiceItems(Field* fields)
@@ -241,7 +254,7 @@ void Quest::LoadQuestMailSender(Field* fields)
 
 void Quest::LoadQuestObjective(Field* fields)
 {
-    QuestObjective obj;
+    QuestObjective& obj = Objectives.emplace_back();
     obj.QuestID = fields[0].GetUInt32();
     obj.ID = fields[1].GetUInt32();
     obj.Type = fields[2].GetUInt8();
@@ -253,7 +266,22 @@ void Quest::LoadQuestObjective(Field* fields)
     obj.ProgressBarWeight = fields[8].GetFloat();
     obj.Description = fields[9].GetString();
 
-    Objectives.push_back(obj);
+    bool hasCompletionEffect = std::any_of(fields + 10, fields + 15, [](Field const& f) { return !f.IsNull(); });
+    if (hasCompletionEffect)
+    {
+        obj.CompletionEffect = new QuestObjectiveAction();
+        if (!fields[10].IsNull())
+            obj.CompletionEffect->GameEventId = fields[10].GetUInt32();
+        if (!fields[11].IsNull())
+            obj.CompletionEffect->SpellId = fields[11].GetUInt32();
+        if (!fields[12].IsNull())
+            obj.CompletionEffect->ConversationId = fields[12].GetUInt32();
+        if (!fields[13].IsNull())
+            obj.CompletionEffect->UpdatePhaseShift = fields[13].GetBool();
+        if (!fields[14].IsNull())
+            obj.CompletionEffect->UpdateZoneAuras = fields[14].GetBool();
+    }
+
     _usedQuestObjectiveTypes[obj.Type] = true;
 }
 
@@ -369,13 +397,17 @@ uint32 Quest::XPValue(Player const* player, uint32 contentTuningId, uint32 xpDif
         if (!questXp || xpDifficulty >= 10)
             return 0;
 
+        uint32 xp = questXp->Difficulty[xpDifficulty];
+        if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(contentTuningId))
+            xp = xp * contentTuning->QuestXpMultiplier;
+
         int32 diffFactor = 2 * (questLevel - player->GetLevel()) + 12;
         if (diffFactor < 1)
             diffFactor = 1;
         else if (diffFactor > 10)
             diffFactor = 10;
 
-        uint32 xp = diffFactor * questXp->Difficulty[xpDifficulty] * xpMultiplier / 10;
+        xp = diffFactor * xp * xpMultiplier / 10;
         if (player->GetLevel() >= GetMaxLevelForExpansion(CURRENT_EXPANSION - 1) && player->GetSession()->GetExpansion() == CURRENT_EXPANSION && expansion >= 0 && expansion < CURRENT_EXPANSION)
             xp = uint32(xp / 9.0f);
 
@@ -629,7 +661,12 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc, Player* player) const
     response.Info.RewardMoneyMultiplier = GetMoneyMultiplier();
     response.Info.RewardBonusMoney = GetRewMoneyMaxLevel();
     for (QuestRewardDisplaySpell displaySpell : RewardDisplaySpell)
-        response.Info.RewardDisplaySpell.push_back({ int32(displaySpell.SpellId), int32(displaySpell.PlayerConditionId) });
+    {
+        WorldPackets::Quest::QuestCompleteDisplaySpell& rewardDisplaySpell = response.Info.RewardDisplaySpell.emplace_back();
+        rewardDisplaySpell.SpellID = displaySpell.SpellId;
+        rewardDisplaySpell.PlayerConditionID = displaySpell.PlayerConditionId;
+        rewardDisplaySpell.Type = int32(displaySpell.Type);
+    }
 
     response.Info.RewardSpell = GetRewSpell();
 

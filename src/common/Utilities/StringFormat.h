@@ -39,6 +39,19 @@ namespace Trinity
         }
     }
 
+    template<typename OutputIt, typename... Args>
+    inline OutputIt StringFormatTo(OutputIt out, FormatString<Args...> fmt, Args&&... args)
+    {
+        try
+        {
+            return fmt::format_to(out, fmt, std::forward<Args>(args)...);
+        }
+        catch (std::exception const& formatError)
+        {
+            return fmt::format_to(out, "An error occurred formatting string \"{}\" : {}", fmt, formatError.what());
+        }
+    }
+
     /// Returns true if the given char pointer is null.
     inline bool IsFormatEmptyOrNull(char const* fmt)
     {

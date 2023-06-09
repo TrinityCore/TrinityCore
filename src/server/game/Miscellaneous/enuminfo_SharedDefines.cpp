@@ -127,12 +127,18 @@ TC_API_EXPORT EnumText EnumUtils<Powers>::ToString(Powers value)
         case POWER_FURY: return { "POWER_FURY", "Fury", "" };
         case POWER_PAIN: return { "POWER_PAIN", "Pain", "" };
         case POWER_ESSENCE: return { "POWER_ESSENCE", "Essence", "" };
+        case POWER_RUNE_BLOOD: return { "POWER_RUNE_BLOOD", "Blood Runes", "" };
+        case POWER_RUNE_FROST: return { "POWER_RUNE_FROST", "Frost Runes", "" };
+        case POWER_RUNE_UNHOLY: return { "POWER_RUNE_UNHOLY", "Unholy Runes", "" };
+        case POWER_ALTERNATE_QUEST: return { "POWER_ALTERNATE_QUEST", "Alternate (Quest)", "" };
+        case POWER_ALTERNATE_ENCOUNTER: return { "POWER_ALTERNATE_ENCOUNTER", "Alternate (Encounter)", "" };
+        case POWER_ALTERNATE_MOUNT: return { "POWER_ALTERNATE_MOUNT", "Alternate (Mount)", "" };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<Powers>::Count() { return 21; }
+TC_API_EXPORT size_t EnumUtils<Powers>::Count() { return 27; }
 
 template <>
 TC_API_EXPORT Powers EnumUtils<Powers>::FromIndex(size_t index)
@@ -160,6 +166,12 @@ TC_API_EXPORT Powers EnumUtils<Powers>::FromIndex(size_t index)
         case 18: return POWER_FURY;
         case 19: return POWER_PAIN;
         case 20: return POWER_ESSENCE;
+        case 21: return POWER_RUNE_BLOOD;
+        case 22: return POWER_RUNE_FROST;
+        case 23: return POWER_RUNE_UNHOLY;
+        case 24: return POWER_ALTERNATE_QUEST;
+        case 25: return POWER_ALTERNATE_ENCOUNTER;
+        case 26: return POWER_ALTERNATE_MOUNT;
         default: throw std::out_of_range("index");
     }
 }
@@ -190,6 +202,12 @@ TC_API_EXPORT size_t EnumUtils<Powers>::ToIndex(Powers value)
         case POWER_FURY: return 18;
         case POWER_PAIN: return 19;
         case POWER_ESSENCE: return 20;
+        case POWER_RUNE_BLOOD: return 21;
+        case POWER_RUNE_FROST: return 22;
+        case POWER_RUNE_UNHOLY: return 23;
+        case POWER_ALTERNATE_QUEST: return 24;
+        case POWER_ALTERNATE_ENCOUNTER: return 25;
+        case POWER_ALTERNATE_MOUNT: return 26;
         default: throw std::out_of_range("value");
     }
 }

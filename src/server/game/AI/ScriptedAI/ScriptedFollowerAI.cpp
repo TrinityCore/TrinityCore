@@ -268,7 +268,7 @@ bool FollowerAI::ShouldAssistPlayerInCombatAgainst(Unit* who) const
         return false;
 
     // experimental (unknown) flag not present
-    if (!(me->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_CAN_ASSIST))
+    if (!(me->GetCreatureDifficulty()->TypeFlags & CREATURE_TYPE_FLAG_CAN_ASSIST))
         return false;
 
     if (!who->isInAccessiblePlaceFor(me))

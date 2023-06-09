@@ -43,6 +43,8 @@ void protobuf_AssignDesc_resource_5fservice_2eproto();
 void protobuf_ShutdownFile_resource_5fservice_2eproto();
 
 class ContentHandleRequest;
+class GetTitleIconsRequest;
+class GetTitleIconsResponse;
 
 // ===================================================================
 
@@ -130,6 +132,164 @@ class TC_PROTO_API ContentHandleRequest : public ::google::protobuf::Message {
   void InitAsDefaultInstance();
   static ContentHandleRequest* default_instance_;
 };
+// -------------------------------------------------------------------
+
+class TC_PROTO_API GetTitleIconsRequest : public ::google::protobuf::Message {
+ public:
+  GetTitleIconsRequest();
+  virtual ~GetTitleIconsRequest();
+
+  GetTitleIconsRequest(const GetTitleIconsRequest& from);
+
+  inline GetTitleIconsRequest& operator=(const GetTitleIconsRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const GetTitleIconsRequest& default_instance();
+
+  void Swap(GetTitleIconsRequest* other);
+
+  // implements Message ----------------------------------------------
+
+  GetTitleIconsRequest* New() const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated uint32 title_ids = 1 [packed = true];
+  inline int title_ids_size() const;
+  inline void clear_title_ids();
+  static const int kTitleIdsFieldNumber = 1;
+  inline ::google::protobuf::uint32 title_ids(int index) const;
+  inline void set_title_ids(int index, ::google::protobuf::uint32 value);
+  inline void add_title_ids(::google::protobuf::uint32 value);
+  inline const ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >&
+      title_ids() const;
+  inline ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >*
+      mutable_title_ids();
+
+  // optional uint32 usage = 2;
+  inline bool has_usage() const;
+  inline void clear_usage();
+  static const int kUsageFieldNumber = 2;
+  inline ::google::protobuf::uint32 usage() const;
+  inline void set_usage(::google::protobuf::uint32 value);
+
+  // optional uint32 version = 3;
+  inline bool has_version() const;
+  inline void clear_version();
+  static const int kVersionFieldNumber = 3;
+  inline ::google::protobuf::uint32 version() const;
+  inline void set_version(::google::protobuf::uint32 value);
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.resources.v1.GetTitleIconsRequest)
+ private:
+  inline void set_has_usage();
+  inline void clear_has_usage();
+  inline void set_has_version();
+  inline void clear_has_version();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > title_ids_;
+  ::google::protobuf::uint32 usage_;
+  ::google::protobuf::uint32 version_;
+  friend void TC_PROTO_API protobuf_AddDesc_resource_5fservice_2eproto();
+  friend void protobuf_AssignDesc_resource_5fservice_2eproto();
+  friend void protobuf_ShutdownFile_resource_5fservice_2eproto();
+
+  void InitAsDefaultInstance();
+  static GetTitleIconsRequest* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API GetTitleIconsResponse : public ::google::protobuf::Message {
+ public:
+  GetTitleIconsResponse();
+  virtual ~GetTitleIconsResponse();
+
+  GetTitleIconsResponse(const GetTitleIconsResponse& from);
+
+  inline GetTitleIconsResponse& operator=(const GetTitleIconsResponse& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const GetTitleIconsResponse& default_instance();
+
+  void Swap(GetTitleIconsResponse* other);
+
+  // implements Message ----------------------------------------------
+
+  GetTitleIconsResponse* New() const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated .bgs.protocol.TitleIconContentHandle title_icon_content_handles = 1;
+  inline int title_icon_content_handles_size() const;
+  inline void clear_title_icon_content_handles();
+  static const int kTitleIconContentHandlesFieldNumber = 1;
+  inline const ::bgs::protocol::TitleIconContentHandle& title_icon_content_handles(int index) const;
+  inline ::bgs::protocol::TitleIconContentHandle* mutable_title_icon_content_handles(int index);
+  inline ::bgs::protocol::TitleIconContentHandle* add_title_icon_content_handles();
+  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::TitleIconContentHandle >&
+      title_icon_content_handles() const;
+  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::TitleIconContentHandle >*
+      mutable_title_icon_content_handles();
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.resources.v1.GetTitleIconsResponse)
+ private:
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::TitleIconContentHandle > title_icon_content_handles_;
+  friend void TC_PROTO_API protobuf_AddDesc_resource_5fservice_2eproto();
+  friend void protobuf_AssignDesc_resource_5fservice_2eproto();
+  friend void protobuf_ShutdownFile_resource_5fservice_2eproto();
+
+  void InitAsDefaultInstance();
+  static GetTitleIconsResponse* default_instance_;
+};
 // ===================================================================
 
 class TC_PROTO_API ResourcesService : public ServiceBase
@@ -153,9 +313,11 @@ class TC_PROTO_API ResourcesService : public ServiceBase
  protected:
   // server methods --------------------------------------------------
   virtual uint32 HandleGetContentHandle(::bgs::protocol::resources::v1::ContentHandleRequest const* request, ::bgs::protocol::ContentHandle* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleGetTitleIcons(::bgs::protocol::resources::v1::GetTitleIconsRequest const* request, ::bgs::protocol::resources::v1::GetTitleIconsResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
 
  private:
   void ParseAndHandleGetContentHandle(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleGetTitleIcons(uint32 token, uint32 methodId, MessageBuffer& buffer);
 };
 
 // ===================================================================
@@ -234,6 +396,122 @@ inline void ContentHandleRequest::set_version(::google::protobuf::uint32 value) 
   set_has_version();
   version_ = value;
   // @@protoc_insertion_point(field_set:bgs.protocol.resources.v1.ContentHandleRequest.version)
+}
+
+// -------------------------------------------------------------------
+
+// GetTitleIconsRequest
+
+// repeated uint32 title_ids = 1 [packed = true];
+inline int GetTitleIconsRequest::title_ids_size() const {
+  return title_ids_.size();
+}
+inline void GetTitleIconsRequest::clear_title_ids() {
+  title_ids_.Clear();
+}
+inline ::google::protobuf::uint32 GetTitleIconsRequest::title_ids(int index) const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.resources.v1.GetTitleIconsRequest.title_ids)
+  return title_ids_.Get(index);
+}
+inline void GetTitleIconsRequest::set_title_ids(int index, ::google::protobuf::uint32 value) {
+  title_ids_.Set(index, value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.resources.v1.GetTitleIconsRequest.title_ids)
+}
+inline void GetTitleIconsRequest::add_title_ids(::google::protobuf::uint32 value) {
+  title_ids_.Add(value);
+  // @@protoc_insertion_point(field_add:bgs.protocol.resources.v1.GetTitleIconsRequest.title_ids)
+}
+inline const ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >&
+GetTitleIconsRequest::title_ids() const {
+  // @@protoc_insertion_point(field_list:bgs.protocol.resources.v1.GetTitleIconsRequest.title_ids)
+  return title_ids_;
+}
+inline ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >*
+GetTitleIconsRequest::mutable_title_ids() {
+  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.resources.v1.GetTitleIconsRequest.title_ids)
+  return &title_ids_;
+}
+
+// optional uint32 usage = 2;
+inline bool GetTitleIconsRequest::has_usage() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void GetTitleIconsRequest::set_has_usage() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void GetTitleIconsRequest::clear_has_usage() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void GetTitleIconsRequest::clear_usage() {
+  usage_ = 0u;
+  clear_has_usage();
+}
+inline ::google::protobuf::uint32 GetTitleIconsRequest::usage() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.resources.v1.GetTitleIconsRequest.usage)
+  return usage_;
+}
+inline void GetTitleIconsRequest::set_usage(::google::protobuf::uint32 value) {
+  set_has_usage();
+  usage_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.resources.v1.GetTitleIconsRequest.usage)
+}
+
+// optional uint32 version = 3;
+inline bool GetTitleIconsRequest::has_version() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void GetTitleIconsRequest::set_has_version() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void GetTitleIconsRequest::clear_has_version() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void GetTitleIconsRequest::clear_version() {
+  version_ = 0u;
+  clear_has_version();
+}
+inline ::google::protobuf::uint32 GetTitleIconsRequest::version() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.resources.v1.GetTitleIconsRequest.version)
+  return version_;
+}
+inline void GetTitleIconsRequest::set_version(::google::protobuf::uint32 value) {
+  set_has_version();
+  version_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.resources.v1.GetTitleIconsRequest.version)
+}
+
+// -------------------------------------------------------------------
+
+// GetTitleIconsResponse
+
+// repeated .bgs.protocol.TitleIconContentHandle title_icon_content_handles = 1;
+inline int GetTitleIconsResponse::title_icon_content_handles_size() const {
+  return title_icon_content_handles_.size();
+}
+inline void GetTitleIconsResponse::clear_title_icon_content_handles() {
+  title_icon_content_handles_.Clear();
+}
+inline const ::bgs::protocol::TitleIconContentHandle& GetTitleIconsResponse::title_icon_content_handles(int index) const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.resources.v1.GetTitleIconsResponse.title_icon_content_handles)
+  return title_icon_content_handles_.Get(index);
+}
+inline ::bgs::protocol::TitleIconContentHandle* GetTitleIconsResponse::mutable_title_icon_content_handles(int index) {
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.resources.v1.GetTitleIconsResponse.title_icon_content_handles)
+  return title_icon_content_handles_.Mutable(index);
+}
+inline ::bgs::protocol::TitleIconContentHandle* GetTitleIconsResponse::add_title_icon_content_handles() {
+  // @@protoc_insertion_point(field_add:bgs.protocol.resources.v1.GetTitleIconsResponse.title_icon_content_handles)
+  return title_icon_content_handles_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::TitleIconContentHandle >&
+GetTitleIconsResponse::title_icon_content_handles() const {
+  // @@protoc_insertion_point(field_list:bgs.protocol.resources.v1.GetTitleIconsResponse.title_icon_content_handles)
+  return title_icon_content_handles_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::TitleIconContentHandle >*
+GetTitleIconsResponse::mutable_title_icon_content_handles() {
+  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.resources.v1.GetTitleIconsResponse.title_icon_content_handles)
+  return &title_icon_content_handles_;
 }
 
 // @@protoc_insertion_point(namespace_scope)

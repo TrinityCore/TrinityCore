@@ -1505,7 +1505,7 @@ class spell_halion_combustion_consumption_periodic : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                return !spellInfo->GetEffects().empty() && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
+                return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
             }
 
             void HandleTick(AuraEffect const* aurEff)

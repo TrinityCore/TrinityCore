@@ -61,9 +61,6 @@ enum Spells
     SPELL_RIDE_WG_VEHICLE                     = 60968,
 
     SPELL_VEHICLE_TELEPORT                    = 49759,
-
-    // Spirit guide
-    SPELL_CHANNEL_SPIRIT_HEAL                 = 22011,
 };
 
 enum CreatureIds
@@ -191,12 +188,6 @@ private:
 struct npc_wg_spirit_guide : public ScriptedAI
 {
     npc_wg_spirit_guide(Creature* creature) : ScriptedAI(creature) { }
-
-    void UpdateAI(uint32 /*diff*/) override
-    {
-        if (!me->HasUnitState(UNIT_STATE_CASTING))
-            DoCast(me, SPELL_CHANNEL_SPIRIT_HEAL);
-    }
 
     bool OnGossipHello(Player* player) override
     {
@@ -484,7 +475,7 @@ class spell_wintergrasp_tenacity_refresh : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        if (spellInfo->GetEffects().size() <= EFFECT_2)
+        if (!ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } }))
             return false;
         uint32 triggeredSpellId = spellInfo->GetEffect(EFFECT_2).CalcValue();
         return !triggeredSpellId || ValidateSpellInfo({ triggeredSpellId });

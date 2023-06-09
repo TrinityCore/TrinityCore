@@ -483,7 +483,7 @@ class spell_astromancer_wrath_of_the_astromancer : public AuraScript
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ SPELL_WRATH_OF_THE_ASTROMANCER_DOT })
-            && spellInfo->GetEffects().size() > EFFECT_1;
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

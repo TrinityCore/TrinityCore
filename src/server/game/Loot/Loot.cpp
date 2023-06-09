@@ -236,6 +236,7 @@ void LootRoll::SendStartRoll()
 
         FillPacket(startLootRoll.Item);
         startLootRoll.Item.UIType = LOOT_SLOT_TYPE_ROLL_ONGOING;
+        startLootRoll.DungeonEncounterID = m_loot->GetDungeonEncounterId();
 
         player->SendDirectMessage(startLootRoll.Write());
     }
@@ -257,6 +258,7 @@ void LootRoll::SendAllPassed()
     lootAllPassed.LootObj = m_loot->GetGUID();
     FillPacket(lootAllPassed.Item);
     lootAllPassed.Item.UIType = LOOT_SLOT_TYPE_ALLOW_LOOT;
+    lootAllPassed.DungeonEncounterID = m_loot->GetDungeonEncounterId();
     lootAllPassed.Write();
 
     for (auto const& [playerGuid, roll] : m_rollVoteMap)
@@ -283,6 +285,7 @@ void LootRoll::SendRoll(ObjectGuid const& targetGuid, int32 rollNumber, RollVote
     lootRoll.Autopassed = false;
     FillPacket(lootRoll.Item);
     lootRoll.Item.UIType = LOOT_SLOT_TYPE_ROLL_ONGOING;
+    lootRoll.DungeonEncounterID = m_loot->GetDungeonEncounterId();
     lootRoll.Write();
 
     for (auto const& [playerGuid, roll] : m_rollVoteMap)
@@ -338,6 +341,7 @@ void LootRoll::SendLootRollWon(ObjectGuid const& targetGuid, int32 rollNumber, R
     lootRollWon.RollType = AsUnderlyingType(rollType);
     FillPacket(lootRollWon.Item);
     lootRollWon.Item.UIType = LOOT_SLOT_TYPE_LOCKED;
+    lootRollWon.DungeonEncounterID = m_loot->GetDungeonEncounterId();
     lootRollWon.MainSpec = true;    // offspec rolls not implemented
     lootRollWon.Write();
 

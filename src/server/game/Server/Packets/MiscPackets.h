@@ -113,7 +113,8 @@ namespace WorldPackets
             Optional<CurrencyGainSource> QuantityGainSource;
             Optional<CurrencyDestroyReason> QuantityLostSource;
             Optional<uint32> FirstCraftOperationID;
-            Optional<Timestamp<>> LastSpendTime;
+            Optional<Timestamp<>> NextRechargeTime;
+            Optional<Timestamp<>> RechargeCycleStartTime;
             bool SuppressChatLog = false;
         };
 
@@ -139,7 +140,8 @@ namespace WorldPackets
                 Optional<int32> TrackedQuantity;
                 Optional<int32> MaxQuantity;
                 Optional<int32> TotalEarned;
-                Optional<Timestamp<>> LastSpendTime;
+                Optional<Timestamp<>> NextRechargeTime;
+                Optional<Timestamp<>> RechargeCycleStartTime;
                 uint8 Flags = 0;
             };
 
