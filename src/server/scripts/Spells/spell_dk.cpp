@@ -128,7 +128,8 @@ public:
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_DK_RUNIC_POWER_ENERGIZE, SPELL_DK_VOLATILE_SHIELDING }) && spellInfo->GetEffects().size() > EFFECT_1;
+        return ValidateSpellInfo({ SPELL_DK_RUNIC_POWER_ENERGIZE, SPELL_DK_VOLATILE_SHIELDING })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
     bool Load() override
@@ -470,7 +471,7 @@ class spell_dk_death_strike : public SpellScript
             SPELL_DK_FROST,
             SPELL_DK_DEATH_STRIKE_OFFHAND
         })
-            && spellInfo->GetEffects().size() > EFFECT_2;
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -578,7 +579,7 @@ class spell_dk_ghoul_explode : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_DK_CORPSE_EXPLOSION_TRIGGERED }) && spellInfo->GetEffects().size() > EFFECT_2;
+        return ValidateSpellInfo({ SPELL_DK_CORPSE_EXPLOSION_TRIGGERED }) && ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
     }
 
     void HandleDamage(SpellEffIndex /*effIndex*/)
@@ -716,7 +717,7 @@ class spell_dk_obliteration : public AuraScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DK_OBLITERATION, SPELL_DK_OBLITERATION_RUNE_ENERGIZE, SPELL_DK_KILLING_MACHINE_PROC })
-            && sSpellMgr->AssertSpellInfo(SPELL_DK_OBLITERATION, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_1;
+            && ValidateSpellEffect({ { SPELL_DK_OBLITERATION, EFFECT_1 } });
     }
 
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
@@ -857,7 +858,7 @@ class spell_dk_rime : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return spellInfo->GetEffects().size() > EFFECT_1 && ValidateSpellInfo({ SPELL_DK_FROST_SCYTHE });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } }) && ValidateSpellInfo({ SPELL_DK_FROST_SCYTHE });
     }
 
     bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)

@@ -384,8 +384,7 @@ static std::shared_ptr<Trinity::AsyncProcessResult> InvokeAsyncCMakeCommand(T&&.
 static std::string CalculateScriptModuleProjectName(std::string const& module)
 {
     std::string module_project = "scripts_" + module;
-    std::transform(module_project.begin(), module_project.end(),
-                   module_project.begin(), ::tolower);
+    strToLower(module_project);
 
     return module_project;
 }

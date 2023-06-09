@@ -346,6 +346,19 @@ enum QuestObjectiveFlags
     QUEST_OBJECTIVE_FLAG_KILL_PLAYERS_SAME_FACTION          = 0x80
 };
 
+enum class QuestCompleteSpellType : uint32
+{
+    LegacyBehavior  = 0,
+    Follower        = 1,
+    Tradeskill      = 2,
+    Ability         = 3,
+    Aura            = 4,
+    Spell           = 5,
+    Unlock          = 6,
+    Companion       = 7,
+    Max
+};
+
 struct QuestGreeting
 {
     uint16 EmoteType;
@@ -390,6 +403,15 @@ struct QuestOfferRewardLocale
     std::vector<std::string> RewardText;
 };
 
+struct QuestObjectiveAction
+{
+    Optional<uint32> GameEventId;
+    Optional<uint32> SpellId;
+    Optional<uint32> ConversationId;
+    bool UpdatePhaseShift = false;
+    bool UpdateZoneAuras = false;
+};
+
 struct QuestObjective
 {
     uint32 ID           = 0;
@@ -403,6 +425,7 @@ struct QuestObjective
     float  ProgressBarWeight = 0.0f;
     std::string Description;
     std::vector<int32> VisualEffects;
+    QuestObjectiveAction* CompletionEffect = nullptr;
 
     bool IsStoringValue() const
     {
@@ -465,11 +488,12 @@ using QuestObjectives = std::vector<QuestObjective>;
 
 struct QuestRewardDisplaySpell
 {
-    QuestRewardDisplaySpell() : SpellId(0), PlayerConditionId(0) { }
-    QuestRewardDisplaySpell(uint32 spellId, uint32 playerConditionId) : SpellId(spellId), PlayerConditionId(playerConditionId) { }
+    QuestRewardDisplaySpell() : SpellId(0), PlayerConditionId(0), Type(QuestCompleteSpellType::LegacyBehavior) { }
+    QuestRewardDisplaySpell(uint32 spellId, uint32 playerConditionId, QuestCompleteSpellType type) : SpellId(spellId), PlayerConditionId(playerConditionId), Type(type) { }
 
     uint32 SpellId;
     uint32 PlayerConditionId;
+    QuestCompleteSpellType Type;
 };
 
 struct QuestConditionalText
@@ -490,6 +514,7 @@ class TC_GAME_API Quest
     public:
         // Loading data. All queries are in ObjectMgr::LoadQuests()
         explicit Quest(Field* questRecord);
+        ~Quest();
         void LoadRewardDisplaySpell(Field* fields);
         void LoadRewardChoiceItems(Field* fields);
         void LoadQuestDetails(Field* fields);

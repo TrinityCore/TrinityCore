@@ -66,6 +66,8 @@ struct DB2SectionHeader
 
 #pragma pack(pop)
 
+inline constinit uint64 DUMMY_KNOWN_TACT_ID = 0x5452494E49545900; // TRINITY
+
 struct DB2FieldMeta
 {
     bool IsSigned;

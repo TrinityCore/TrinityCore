@@ -110,10 +110,11 @@ void protobuf_AssignDesc_club_5finvitation_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ClubInvitation));
   SendSuggestionOptions_descriptor_ = file->message_type(3);
-  static const int SendSuggestionOptions_offsets_[3] = {
+  static const int SendSuggestionOptions_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendSuggestionOptions, target_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendSuggestionOptions, slot_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendSuggestionOptions, attribute_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SendSuggestionOptions, join_club_source_),
   };
   SendSuggestionOptions_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -242,54 +243,57 @@ void protobuf_AddDesc_club_5finvitation_2eproto() {
   already_here = true;
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
+  ::bgs::protocol::protobuf_AddDesc_global_5fextensions_2ffield_5foptions_2eproto();
   ::bgs::protocol::club::v1::protobuf_AddDesc_club_5fcore_2eproto();
   ::bgs::protocol::club::v1::protobuf_AddDesc_club_5fmember_2eproto();
   ::bgs::protocol::v2::protobuf_AddDesc_api_2fclient_2fv2_2fattribute_5ftypes_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\025club_invitation.proto\022\024bgs.protocol.cl"
-    "ub.v1\032\017club_core.proto\032\021club_member.prot"
-    "o\032#api/client/v2/attribute_types.proto\"3"
-    "\n\010ClubSlot\022\014\n\004role\030\001 \001(\r\022\031\n\021default_stre"
-    "am_id\030\002 \001(\004\"\247\001\n\025SendInvitationOptions\0221\n"
-    "\ttarget_id\030\001 \001(\0132\036.bgs.protocol.club.v1."
-    "MemberId\022,\n\004slot\030\002 \001(\0132\036.bgs.protocol.cl"
-    "ub.v1.ClubSlot\022-\n\tattribute\030\003 \003(\0132\032.bgs."
-    "protocol.v2.Attribute\"\216\003\n\016ClubInvitation"
-    "\022\n\n\002id\030\001 \001(\006\0228\n\007inviter\030\002 \001(\0132\'.bgs.prot"
-    "ocol.club.v1.MemberDescription\0228\n\007invite"
-    "e\030\003 \001(\0132\'.bgs.protocol.club.v1.MemberDes"
-    "cription\0223\n\004club\030\004 \001(\0132%.bgs.protocol.cl"
-    "ub.v1.ClubDescription\022,\n\004slot\030\005 \001(\0132\036.bg"
-    "s.protocol.club.v1.ClubSlot\022-\n\tattribute"
-    "\030\006 \003(\0132\032.bgs.protocol.v2.Attribute\022\025\n\rcr"
-    "eation_time\030\007 \001(\004\022\027\n\017expiration_time\030\010 \001"
-    "(\004\022:\n\tsuggester\030\t \001(\0132\'.bgs.protocol.clu"
-    "b.v1.MemberDescription\"\247\001\n\025SendSuggestio"
-    "nOptions\0221\n\ttarget_id\030\001 \001(\0132\036.bgs.protoc"
-    "ol.club.v1.MemberId\022,\n\004slot\030\002 \001(\0132\036.bgs."
-    "protocol.club.v1.ClubSlot\022-\n\tattribute\030\003"
-    " \003(\0132\032.bgs.protocol.v2.Attribute\"\262\002\n\016Clu"
-    "bSuggestion\022\n\n\002id\030\001 \001(\006\022\017\n\007club_id\030\002 \001(\004"
-    "\022:\n\tsuggester\030\003 \001(\0132\'.bgs.protocol.club."
-    "v1.MemberDescription\022:\n\tsuggestee\030\004 \001(\0132"
-    "\'.bgs.protocol.club.v1.MemberDescription"
-    "\022,\n\004slot\030\005 \001(\0132\036.bgs.protocol.club.v1.Cl"
-    "ubSlot\022-\n\tattribute\030\006 \003(\0132\032.bgs.protocol"
-    ".v2.Attribute\022\025\n\rcreation_time\030\007 \001(\004\022\027\n\017"
-    "expiration_time\030\010 \001(\004\"\251\001\n\023CreateTicketOp"
-    "tions\022,\n\004slot\030\001 \001(\0132\036.bgs.protocol.club."
-    "v1.ClubSlot\022-\n\tattribute\030\002 \003(\0132\032.bgs.pro"
-    "tocol.v2.Attribute\022\034\n\024allowed_redeem_cou"
-    "nt\030\003 \001(\r\022\027\n\017expiration_time\030\004 \001(\004\"\320\002\n\nCl"
-    "ubTicket\022\n\n\002id\030\001 \001(\t\0228\n\007creator\030\002 \001(\0132\'."
-    "bgs.protocol.club.v1.MemberDescription\0223"
-    "\n\004club\030\003 \001(\0132%.bgs.protocol.club.v1.Club"
-    "Description\022,\n\004slot\030\004 \001(\0132\036.bgs.protocol"
-    ".club.v1.ClubSlot\022-\n\tattribute\030\005 \003(\0132\032.b"
-    "gs.protocol.v2.Attribute\022\034\n\024current_rede"
-    "em_count\030\006 \001(\r\022\034\n\024allowed_redeem_count\030\007"
-    " \001(\r\022\025\n\rcreation_time\030\010 \001(\004\022\027\n\017expiratio"
-    "n_time\030\t \001(\004B\002H\002", 1736);
+    "ub.v1\032%global_extensions/field_options.p"
+    "roto\032\017club_core.proto\032\021club_member.proto"
+    "\032#api/client/v2/attribute_types.proto\"3\n"
+    "\010ClubSlot\022\014\n\004role\030\001 \001(\r\022\031\n\021default_strea"
+    "m_id\030\002 \001(\004\"\247\001\n\025SendInvitationOptions\0221\n\t"
+    "target_id\030\001 \001(\0132\036.bgs.protocol.club.v1.M"
+    "emberId\022,\n\004slot\030\002 \001(\0132\036.bgs.protocol.clu"
+    "b.v1.ClubSlot\022-\n\tattribute\030\003 \003(\0132\032.bgs.p"
+    "rotocol.v2.Attribute\"\216\003\n\016ClubInvitation\022"
+    "\n\n\002id\030\001 \001(\006\0228\n\007inviter\030\002 \001(\0132\'.bgs.proto"
+    "col.club.v1.MemberDescription\0228\n\007invitee"
+    "\030\003 \001(\0132\'.bgs.protocol.club.v1.MemberDesc"
+    "ription\0223\n\004club\030\004 \001(\0132%.bgs.protocol.clu"
+    "b.v1.ClubDescription\022,\n\004slot\030\005 \001(\0132\036.bgs"
+    ".protocol.club.v1.ClubSlot\022-\n\tattribute\030"
+    "\006 \003(\0132\032.bgs.protocol.v2.Attribute\022\025\n\rcre"
+    "ation_time\030\007 \001(\004\022\027\n\017expiration_time\030\010 \001("
+    "\004\022:\n\tsuggester\030\t \001(\0132\'.bgs.protocol.club"
+    ".v1.MemberDescription\"\327\001\n\025SendSuggestion"
+    "Options\0221\n\ttarget_id\030\001 \001(\0132\036.bgs.protoco"
+    "l.club.v1.MemberId\022,\n\004slot\030\002 \001(\0132\036.bgs.p"
+    "rotocol.club.v1.ClubSlot\022-\n\tattribute\030\003 "
+    "\003(\0132\032.bgs.protocol.v2.Attribute\022.\n\020join_"
+    "club_source\030\004 \001(\rB\024\202\371+\020*\016JoinClubSource\""
+    "\262\002\n\016ClubSuggestion\022\n\n\002id\030\001 \001(\006\022\017\n\007club_i"
+    "d\030\002 \001(\004\022:\n\tsuggester\030\003 \001(\0132\'.bgs.protoco"
+    "l.club.v1.MemberDescription\022:\n\tsuggestee"
+    "\030\004 \001(\0132\'.bgs.protocol.club.v1.MemberDesc"
+    "ription\022,\n\004slot\030\005 \001(\0132\036.bgs.protocol.clu"
+    "b.v1.ClubSlot\022-\n\tattribute\030\006 \003(\0132\032.bgs.p"
+    "rotocol.v2.Attribute\022\025\n\rcreation_time\030\007 "
+    "\001(\004\022\027\n\017expiration_time\030\010 \001(\004\"\251\001\n\023CreateT"
+    "icketOptions\022,\n\004slot\030\001 \001(\0132\036.bgs.protoco"
+    "l.club.v1.ClubSlot\022-\n\tattribute\030\002 \003(\0132\032."
+    "bgs.protocol.v2.Attribute\022\034\n\024allowed_red"
+    "eem_count\030\003 \001(\r\022\027\n\017expiration_time\030\004 \001(\004"
+    "\"\320\002\n\nClubTicket\022\n\n\002id\030\001 \001(\t\0228\n\007creator\030\002"
+    " \001(\0132\'.bgs.protocol.club.v1.MemberDescri"
+    "ption\0223\n\004club\030\003 \001(\0132%.bgs.protocol.club."
+    "v1.ClubDescription\022,\n\004slot\030\004 \001(\0132\036.bgs.p"
+    "rotocol.club.v1.ClubSlot\022-\n\tattribute\030\005 "
+    "\003(\0132\032.bgs.protocol.v2.Attribute\022\034\n\024curre"
+    "nt_redeem_count\030\006 \001(\r\022\034\n\024allowed_redeem_"
+    "count\030\007 \001(\r\022\025\n\rcreation_time\030\010 \001(\004\022\027\n\017ex"
+    "piration_time\030\t \001(\004B\002H\002P\000", 1825);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "club_invitation.proto", &protobuf_RegisterTypes);
   ClubSlot::default_instance_ = new ClubSlot();
@@ -571,6 +575,7 @@ void ClubInvitation::Swap(ClubInvitation* other) {
 const int SendSuggestionOptions::kTargetIdFieldNumber;
 const int SendSuggestionOptions::kSlotFieldNumber;
 const int SendSuggestionOptions::kAttributeFieldNumber;
+const int SendSuggestionOptions::kJoinClubSourceFieldNumber;
 #endif  // !_MSC_VER
 
 SendSuggestionOptions::SendSuggestionOptions()
@@ -595,6 +600,7 @@ void SendSuggestionOptions::SharedCtor() {
   _cached_size_ = 0;
   target_id_ = NULL;
   slot_ = NULL;
+  join_club_source_ = 0u;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 

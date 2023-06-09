@@ -178,6 +178,17 @@ class TC_GAME_API _SpellScript
             return _ValidateSpellInfo(std::cbegin(spellIds), std::cend(spellIds));
         }
 
+        static bool ValidateSpellEffect(std::initializer_list<std::pair<uint32, SpellEffIndex>> effects)
+        {
+            return _ValidateSpellEffects(effects.begin(), effects.end());
+        }
+
+        template <class T>
+        static bool ValidateSpellEffect(T const& spellEffects)
+        {
+            return _ValidateSpellEffects(std::cbegin(spellEffects), std::cend(spellEffects));
+        }
+
     private:
         template<typename Iterator>
         static bool _ValidateSpellInfo(Iterator begin, Iterator end)
@@ -193,7 +204,22 @@ class TC_GAME_API _SpellScript
             return allValid;
         }
 
+        template<typename Iterator>
+        static bool _ValidateSpellEffects(Iterator begin, Iterator end)
+        {
+            bool allValid = true;
+            while (begin != end)
+            {
+                if (!_ValidateSpellEffect(begin->first, begin->second))
+                    allValid = false;
+
+                ++begin;
+            }
+            return allValid;
+        }
+
         static bool _ValidateSpellInfo(uint32 spellId);
+        static bool _ValidateSpellEffect(uint32 spellId, SpellEffIndex effectIndex);
 };
 
 // SpellScript interface - enum used for runtime checks of script function calls
@@ -412,7 +438,7 @@ class TC_GAME_API SpellScript : public _SpellScript
         class OnCalculateResistAbsorbHandlerFunction : public SpellScript::OnCalculateResistAbsorbHandler { public: explicit OnCalculateResistAbsorbHandlerFunction(SpellOnResistAbsorbCalculateFnType _onCalculateResistAbsorbScript) : SpellScript::OnCalculateResistAbsorbHandler((SpellScript::SpellOnResistAbsorbCalculateFnType)_onCalculateResistAbsorbScript) { } }; \
         class ObjectAreaTargetSelectHandlerFunction : public SpellScript::ObjectAreaTargetSelectHandler { public: explicit ObjectAreaTargetSelectHandlerFunction(SpellObjectAreaTargetSelectFnType _pObjectAreaTargetSelectHandlerScript, uint8 _effIndex, uint16 _targetType) : SpellScript::ObjectAreaTargetSelectHandler((SpellScript::SpellObjectAreaTargetSelectFnType)_pObjectAreaTargetSelectHandlerScript, _effIndex, _targetType) { } }; \
         class ObjectTargetSelectHandlerFunction : public SpellScript::ObjectTargetSelectHandler { public: explicit ObjectTargetSelectHandlerFunction(SpellObjectTargetSelectFnType _pObjectTargetSelectHandlerScript, uint8 _effIndex, uint16 _targetType) : SpellScript::ObjectTargetSelectHandler((SpellScript::SpellObjectTargetSelectFnType)_pObjectTargetSelectHandlerScript, _effIndex, _targetType) { } }; \
-        class DestinationTargetSelectHandlerFunction : public SpellScript::DestinationTargetSelectHandler { public: explicit DestinationTargetSelectHandlerFunction(SpellDestinationTargetSelectFnType _DestinationTargetSelectHandlerScript, uint8 _effIndex, uint16 _targetType) : SpellScript::DestinationTargetSelectHandler((SpellScript::SpellDestinationTargetSelectFnType)_DestinationTargetSelectHandlerScript, _effIndex, _targetType) { } };
+        class DestinationTargetSelectHandlerFunction : public SpellScript::DestinationTargetSelectHandler { public: explicit DestinationTargetSelectHandlerFunction(SpellDestinationTargetSelectFnType _DestinationTargetSelectHandlerScript, uint8 _effIndex, uint16 _targetType) : SpellScript::DestinationTargetSelectHandler((SpellScript::SpellDestinationTargetSelectFnType)_DestinationTargetSelectHandlerScript, _effIndex, _targetType) { } }
 
         #define PrepareSpellScript(CLASSNAME) SPELLSCRIPT_FUNCTION_TYPE_DEFINES(CLASSNAME) SPELLSCRIPT_FUNCTION_CAST_DEFINES(CLASSNAME)
     public:

@@ -34,7 +34,8 @@ class spell_ooze_zap : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return spellInfo->GetEffects().size() > EFFECT_1 && ValidateSpellInfo({ SPELL_OOZE_ZAP });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } })
+            && ValidateSpellInfo({ SPELL_OOZE_ZAP });
     }
 
     SpellCastResult CheckRequirement()

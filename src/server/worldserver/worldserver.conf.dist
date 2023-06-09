@@ -2414,6 +2414,7 @@ Rate.Insanity.Loss     = 1
 Rate.ArcaneCharges.Loss= 1
 Rate.Fury.Loss         = 1
 Rate.Pain.Loss         = 1
+Rate.Essence.Loss      = 1
 
 #
 #    Rate.Skill.Discovery

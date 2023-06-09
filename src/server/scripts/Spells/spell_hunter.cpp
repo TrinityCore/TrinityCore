@@ -230,7 +230,7 @@ class spell_hun_masters_call : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return !spellInfo->GetEffects().empty()
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } })
             && ValidateSpellInfo({ SPELL_HUNTER_MASTERS_CALL_TRIGGERED, uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
     }
 
@@ -548,7 +548,7 @@ class spell_hun_tame_beast : public SpellScript
                 return SPELL_FAILED_HIGHLEVEL;
 
             // use SMSG_PET_TAME_FAILURE?
-            if (!target->GetCreatureTemplate()->IsTameable(caster->CanTameExoticPets()))
+            if (!target->GetCreatureTemplate()->IsTameable(caster->CanTameExoticPets(), target->GetCreatureDifficulty()))
                 return SPELL_FAILED_BAD_TARGETS;
 
             if (PetStable const* petStable = caster->GetPetStable())

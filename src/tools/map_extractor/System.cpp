@@ -1218,7 +1218,7 @@ bool ExtractDB2File(uint32 fileDataId, char const* cascFileName, int locale, boo
     {
         DB2SectionHeader sectionHeader = db2.GetSectionHeader(i);
         if (sectionHeader.TactId && CascStorage->HasTactKey(sectionHeader.TactId))
-            sectionHeader.TactId = 0;
+            sectionHeader.TactId = DUMMY_KNOWN_TACT_ID;
 
         posAfterHeaders += fwrite(&sectionHeader, 1, sizeof(sectionHeader), output);
     }

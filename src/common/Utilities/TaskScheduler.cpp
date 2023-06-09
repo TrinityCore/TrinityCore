@@ -24,21 +24,21 @@ TaskScheduler& TaskScheduler::ClearValidator()
     return *this;
 }
 
-TaskScheduler& TaskScheduler::Update(success_t const& callback)
+TaskScheduler& TaskScheduler::Update(success_t const& callback/* = nullptr*/)
 {
     _now = clock_t::now();
     Dispatch(callback);
     return *this;
 }
 
-TaskScheduler& TaskScheduler::Update(size_t const milliseconds, success_t const& callback)
+TaskScheduler& TaskScheduler::Update(size_t const milliseconds, success_t const& callback/* = nullptr*/)
 {
     return Update(std::chrono::milliseconds(milliseconds), callback);
 }
 
-TaskScheduler& TaskScheduler::Async(std::function<void()> const& callable)
+TaskScheduler& TaskScheduler::Async(std::function<void()> callable)
 {
-    _asyncHolder.push(callable);
+    _asyncHolder.emplace(std::move(callable));
     return *this;
 }
 
@@ -73,7 +73,7 @@ TaskScheduler& TaskScheduler::InsertTask(TaskContainer task)
     return *this;
 }
 
-void TaskScheduler::Dispatch(success_t const& callback)
+void TaskScheduler::Dispatch(success_t const& callback/* = nullptr*/)
 {
     // If the validation failed abort the dispatching here.
     if (!_predicate())
@@ -108,12 +108,13 @@ void TaskScheduler::Dispatch(success_t const& callback)
     }
 
     // On finish call the final callback
-    callback();
+    if (callback)
+        callback();
 }
 
 void TaskScheduler::TaskQueue::Push(TaskContainer&& task)
 {
-    container.insert(task);
+    container.emplace(std::move(task));
 }
 
 auto TaskScheduler::TaskQueue::Pop() -> TaskContainer
@@ -164,7 +165,7 @@ bool TaskScheduler::TaskQueue::IsEmpty() const
 
 TaskContext& TaskContext::Dispatch(std::function<TaskScheduler&(TaskScheduler&)> const& apply)
 {
-    if (auto const owner = _owner.lock())
+    if (std::shared_ptr<TaskScheduler> owner = _owner.lock())
         apply(*owner);
 
     return *this;

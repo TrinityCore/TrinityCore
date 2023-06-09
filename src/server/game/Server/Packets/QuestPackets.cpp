@@ -24,6 +24,7 @@ ByteBuffer& operator<<(ByteBuffer& data, QuestCompleteDisplaySpell const& questD
 {
     data << int32(questDisplaySpell.SpellID);
     data << int32(questDisplaySpell.PlayerConditionID);
+    data << int32(questDisplaySpell.Type);
 
     return data;
 }

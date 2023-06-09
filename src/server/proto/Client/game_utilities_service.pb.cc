@@ -71,9 +71,8 @@ void protobuf_AssignDesc_game_5futilities_5fservice_2eproto() {
       "game_utilities_service.proto");
   GOOGLE_CHECK(file != NULL);
   ClientRequest_descriptor_ = file->message_type(0);
-  static const int ClientRequest_offsets_[6] = {
+  static const int ClientRequest_offsets_[5] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClientRequest, attribute_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClientRequest, host_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClientRequest, account_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClientRequest, game_account_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClientRequest, program_),
@@ -106,10 +105,9 @@ void protobuf_AssignDesc_game_5futilities_5fservice_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ClientResponse));
   ServerRequest_descriptor_ = file->message_type(2);
-  static const int ServerRequest_offsets_[3] = {
+  static const int ServerRequest_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ServerRequest, attribute_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ServerRequest, program_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ServerRequest, host_),
   };
   ServerRequest_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -138,11 +136,10 @@ void protobuf_AssignDesc_game_5futilities_5fservice_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ServerResponse));
   PresenceChannelCreatedRequest_descriptor_ = file->message_type(4);
-  static const int PresenceChannelCreatedRequest_offsets_[4] = {
+  static const int PresenceChannelCreatedRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PresenceChannelCreatedRequest, id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PresenceChannelCreatedRequest, game_account_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PresenceChannelCreatedRequest, account_id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(PresenceChannelCreatedRequest, host_),
   };
   PresenceChannelCreatedRequest_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -156,9 +153,8 @@ void protobuf_AssignDesc_game_5futilities_5fservice_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(PresenceChannelCreatedRequest));
   GameAccountOnlineNotification_descriptor_ = file->message_type(5);
-  static const int GameAccountOnlineNotification_offsets_[3] = {
+  static const int GameAccountOnlineNotification_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountOnlineNotification, game_account_id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountOnlineNotification, host_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountOnlineNotification, session_id_),
   };
   GameAccountOnlineNotification_reflection_ =
@@ -173,9 +169,8 @@ void protobuf_AssignDesc_game_5futilities_5fservice_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GameAccountOnlineNotification));
   GameAccountOfflineNotification_descriptor_ = file->message_type(6);
-  static const int GameAccountOfflineNotification_offsets_[3] = {
+  static const int GameAccountOfflineNotification_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountOfflineNotification, game_account_id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountOfflineNotification, host_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountOfflineNotification, session_id_),
   };
   GameAccountOfflineNotification_reflection_ =
@@ -348,74 +343,68 @@ void protobuf_AddDesc_game_5futilities_5fservice_2eproto() {
     "\n\034game_utilities_service.proto\022\036bgs.prot"
     "ocol.game_utilities.v1\032\025attribute_types."
     "proto\032\022entity_types.proto\032\032game_utilitie"
-    "s_types.proto\032\017rpc_types.proto\"\235\002\n\rClien"
+    "s_types.proto\032\017rpc_types.proto\"\362\001\n\rClien"
     "tRequest\022*\n\tattribute\030\001 \003(\0132\027.bgs.protoc"
-    "ol.Attribute\022)\n\004host\030\002 \001(\0132\027.bgs.protoco"
-    "l.ProcessIdB\002\030\001\022*\n\naccount_id\030\003 \001(\0132\026.bg"
-    "s.protocol.EntityId\022/\n\017game_account_id\030\004"
-    " \001(\0132\026.bgs.protocol.EntityId\022\017\n\007program\030"
-    "\005 \001(\007\022\?\n\013client_info\030\006 \001(\0132*.bgs.protoco"
-    "l.game_utilities.v1.ClientInfo:\006\202\371+\002\010\001\"<"
-    "\n\016ClientResponse\022*\n\tattribute\030\001 \003(\0132\027.bg"
-    "s.protocol.Attribute\"w\n\rServerRequest\022*\n"
-    "\tattribute\030\001 \003(\0132\027.bgs.protocol.Attribut"
-    "e\022\017\n\007program\030\002 \002(\007\022)\n\004host\030\003 \001(\0132\027.bgs.p"
-    "rotocol.ProcessIdB\002\030\001\"<\n\016ServerResponse\022"
-    "*\n\tattribute\030\001 \003(\0132\027.bgs.protocol.Attrib"
-    "ute\"\313\001\n\035PresenceChannelCreatedRequest\022\"\n"
-    "\002id\030\001 \002(\0132\026.bgs.protocol.EntityId\022/\n\017gam"
-    "e_account_id\030\003 \001(\0132\026.bgs.protocol.Entity"
-    "Id\022*\n\naccount_id\030\004 \001(\0132\026.bgs.protocol.En"
-    "tityId\022)\n\004host\030\005 \001(\0132\027.bgs.protocol.Proc"
-    "essIdB\002\030\001\"\217\001\n\035GameAccountOnlineNotificat"
-    "ion\022/\n\017game_account_id\030\001 \002(\0132\026.bgs.proto"
-    "col.EntityId\022)\n\004host\030\002 \001(\0132\027.bgs.protoco"
-    "l.ProcessIdB\002\030\001\022\022\n\nsession_id\030\003 \001(\t\"\220\001\n\036"
-    "GameAccountOfflineNotification\022/\n\017game_a"
-    "ccount_id\030\001 \002(\0132\026.bgs.protocol.EntityId\022"
-    ")\n\004host\030\002 \001(\0132\027.bgs.protocol.ProcessIdB\002"
-    "\030\001\022\022\n\nsession_id\030\003 \001(\t\"\212\001\n\037GetAllValuesF"
-    "orAttributeRequest\022$\n\rattribute_key\030\001 \001("
-    "\tB\r\212\371+\t\"\007\n\005\010\001\020\200\002\022(\n\010agent_id\030\002 \001(\0132\026.bgs"
-    ".protocol.EntityId\022\017\n\007program\030\005 \001(\007:\006\202\371+"
-    "\002\010\001\"R\n GetAllValuesForAttributeResponse\022"
-    ".\n\017attribute_value\030\001 \003(\0132\025.bgs.protocol."
-    "Variant\"a\n\030RegisterUtilitiesRequest\022*\n\ta"
-    "ttribute\030\001 \003(\0132\027.bgs.protocol.Attribute\022"
-    "\031\n\007program\030\002 \001(\007B\010\212\371+\004\022\002\020\000\".\n\031RegisterUt"
-    "ilitiesResponse\022\021\n\tclient_id\030\001 \001(\t\"\034\n\032Un"
-    "registerUtilitiesRequest2\376\010\n\024GameUtiliti"
-    "esService\022}\n\024ProcessClientRequest\022-.bgs."
-    "protocol.game_utilities.v1.ClientRequest"
-    "\032..bgs.protocol.game_utilities.v1.Client"
-    "Response\"\006\202\371+\002\010\001\022u\n\026PresenceChannelCreat"
-    "ed\022=.bgs.protocol.game_utilities.v1.Pres"
-    "enceChannelCreatedRequest\032\024.bgs.protocol"
-    ".NoData\"\006\202\371+\002\010\002\022}\n\024ProcessServerRequest\022"
-    "-.bgs.protocol.game_utilities.v1.ServerR"
-    "equest\032..bgs.protocol.game_utilities.v1."
-    "ServerResponse\"\006\202\371+\002\010\006\022w\n\023OnGameAccountO"
-    "nline\022=.bgs.protocol.game_utilities.v1.G"
-    "ameAccountOnlineNotification\032\031.bgs.proto"
-    "col.NO_RESPONSE\"\006\202\371+\002\010\007\022y\n\024OnGameAccount"
-    "Offline\022>.bgs.protocol.game_utilities.v1"
-    ".GameAccountOfflineNotification\032\031.bgs.pr"
-    "otocol.NO_RESPONSE\"\006\202\371+\002\010\010\022\245\001\n\030GetAllVal"
-    "uesForAttribute\022\?.bgs.protocol.game_util"
-    "ities.v1.GetAllValuesForAttributeRequest"
-    "\032@.bgs.protocol.game_utilities.v1.GetAll"
-    "ValuesForAttributeResponse\"\006\202\371+\002\010\n\022\222\001\n\021R"
-    "egisterUtilities\0228.bgs.protocol.game_uti"
-    "lities.v1.RegisterUtilitiesRequest\0329.bgs"
-    ".protocol.game_utilities.v1.RegisterUtil"
-    "itiesResponse\"\010\202\371+\004\010\013\020\003\022v\n\023UnregisterUti"
-    "lities\022:.bgs.protocol.game_utilities.v1."
-    "UnregisterUtilitiesRequest\032\031.bgs.protoco"
-    "l.NO_RESPONSE\"\010\202\371+\004\010\014\020\003\032H\202\371+<\n*bnet.prot"
-    "ocol.game_utilities.GameUtilities*\016game_"
-    "utilities\212\371+\004\010\001\020\001BD\n\037bnet.protocol.game_"
-    "utilities.v1B\031GameUtilitiesServiceProtoH"
-    "\002\200\001\000\210\001\001", 2807);
+    "ol.Attribute\022*\n\naccount_id\030\003 \001(\0132\026.bgs.p"
+    "rotocol.EntityId\022/\n\017game_account_id\030\004 \001("
+    "\0132\026.bgs.protocol.EntityId\022\017\n\007program\030\005 \001"
+    "(\007\022\?\n\013client_info\030\006 \001(\0132*.bgs.protocol.g"
+    "ame_utilities.v1.ClientInfo:\006\202\371+\002\010\001\"<\n\016C"
+    "lientResponse\022*\n\tattribute\030\001 \003(\0132\027.bgs.p"
+    "rotocol.Attribute\"L\n\rServerRequest\022*\n\tat"
+    "tribute\030\001 \003(\0132\027.bgs.protocol.Attribute\022\017"
+    "\n\007program\030\002 \002(\007\"<\n\016ServerResponse\022*\n\tatt"
+    "ribute\030\001 \003(\0132\027.bgs.protocol.Attribute\"\240\001"
+    "\n\035PresenceChannelCreatedRequest\022\"\n\002id\030\001 "
+    "\002(\0132\026.bgs.protocol.EntityId\022/\n\017game_acco"
+    "unt_id\030\003 \001(\0132\026.bgs.protocol.EntityId\022*\n\n"
+    "account_id\030\004 \001(\0132\026.bgs.protocol.EntityId"
+    "\"d\n\035GameAccountOnlineNotification\022/\n\017gam"
+    "e_account_id\030\001 \002(\0132\026.bgs.protocol.Entity"
+    "Id\022\022\n\nsession_id\030\003 \001(\t\"e\n\036GameAccountOff"
+    "lineNotification\022/\n\017game_account_id\030\001 \002("
+    "\0132\026.bgs.protocol.EntityId\022\022\n\nsession_id\030"
+    "\003 \001(\t\"\212\001\n\037GetAllValuesForAttributeReques"
+    "t\022$\n\rattribute_key\030\001 \001(\tB\r\212\371+\t\"\007\n\005\010\001\020\200\002\022"
+    "(\n\010agent_id\030\002 \001(\0132\026.bgs.protocol.EntityI"
+    "d\022\017\n\007program\030\005 \001(\007:\006\202\371+\002\010\001\"R\n GetAllValu"
+    "esForAttributeResponse\022.\n\017attribute_valu"
+    "e\030\001 \003(\0132\025.bgs.protocol.Variant\"a\n\030Regist"
+    "erUtilitiesRequest\022*\n\tattribute\030\001 \003(\0132\027."
+    "bgs.protocol.Attribute\022\031\n\007program\030\002 \001(\007B"
+    "\010\212\371+\004\022\002\020\000\".\n\031RegisterUtilitiesResponse\022\021"
+    "\n\tclient_id\030\001 \001(\t\"\034\n\032UnregisterUtilities"
+    "Request2\204\t\n\024GameUtilitiesService\022}\n\024Proc"
+    "essClientRequest\022-.bgs.protocol.game_uti"
+    "lities.v1.ClientRequest\032..bgs.protocol.g"
+    "ame_utilities.v1.ClientResponse\"\006\202\371+\002\010\001\022"
+    "u\n\026PresenceChannelCreated\022=.bgs.protocol"
+    ".game_utilities.v1.PresenceChannelCreate"
+    "dRequest\032\024.bgs.protocol.NoData\"\006\202\371+\002\010\002\022}"
+    "\n\024ProcessServerRequest\022-.bgs.protocol.ga"
+    "me_utilities.v1.ServerRequest\032..bgs.prot"
+    "ocol.game_utilities.v1.ServerResponse\"\006\202"
+    "\371+\002\010\006\022z\n\023OnGameAccountOnline\022=.bgs.proto"
+    "col.game_utilities.v1.GameAccountOnlineN"
+    "otification\032\031.bgs.protocol.NO_RESPONSE\"\t"
+    "\210\002\001\202\371+\002\010\007\022|\n\024OnGameAccountOffline\022>.bgs."
+    "protocol.game_utilities.v1.GameAccountOf"
+    "flineNotification\032\031.bgs.protocol.NO_RESP"
+    "ONSE\"\t\210\002\001\202\371+\002\010\010\022\245\001\n\030GetAllValuesForAttri"
+    "bute\022\?.bgs.protocol.game_utilities.v1.Ge"
+    "tAllValuesForAttributeRequest\032@.bgs.prot"
+    "ocol.game_utilities.v1.GetAllValuesForAt"
+    "tributeResponse\"\006\202\371+\002\010\n\022\222\001\n\021RegisterUtil"
+    "ities\0228.bgs.protocol.game_utilities.v1.R"
+    "egisterUtilitiesRequest\0329.bgs.protocol.g"
+    "ame_utilities.v1.RegisterUtilitiesRespon"
+    "se\"\010\202\371+\004\010\013\020\003\022v\n\023UnregisterUtilities\022:.bg"
+    "s.protocol.game_utilities.v1.UnregisterU"
+    "tilitiesRequest\032\031.bgs.protocol.NO_RESPON"
+    "SE\"\010\202\371+\004\010\014\020\003\032H\202\371+<\n*bnet.protocol.game_u"
+    "tilities.GameUtilities*\016game_utilities\212\371"
+    "+\004\010\001\020\001BC\n\036bgs.protocol.game_utilities.v1"
+    "B\031GameUtilitiesServiceProtoH\002\200\001\000\210\001\001", 2595);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "game_utilities_service.proto", &protobuf_RegisterTypes);
   ClientRequest::default_instance_ = new ClientRequest();
@@ -455,7 +444,6 @@ struct StaticDescriptorInitializer_game_5futilities_5fservice_2eproto {
 
 #ifndef _MSC_VER
 const int ClientRequest::kAttributeFieldNumber;
-const int ClientRequest::kHostFieldNumber;
 const int ClientRequest::kAccountIdFieldNumber;
 const int ClientRequest::kGameAccountIdFieldNumber;
 const int ClientRequest::kProgramFieldNumber;
@@ -469,7 +457,6 @@ ClientRequest::ClientRequest()
 }
 
 void ClientRequest::InitAsDefaultInstance() {
-  host_ = const_cast< ::bgs::protocol::ProcessId*>(&::bgs::protocol::ProcessId::default_instance());
   account_id_ = const_cast< ::bgs::protocol::EntityId*>(&::bgs::protocol::EntityId::default_instance());
   game_account_id_ = const_cast< ::bgs::protocol::EntityId*>(&::bgs::protocol::EntityId::default_instance());
   client_info_ = const_cast< ::bgs::protocol::game_utilities::v1::ClientInfo*>(&::bgs::protocol::game_utilities::v1::ClientInfo::default_instance());
@@ -484,7 +471,6 @@ ClientRequest::ClientRequest(const ClientRequest& from)
 
 void ClientRequest::SharedCtor() {
   _cached_size_ = 0;
-  host_ = NULL;
   account_id_ = NULL;
   game_account_id_ = NULL;
   program_ = 0u;
@@ -499,7 +485,6 @@ ClientRequest::~ClientRequest() {
 
 void ClientRequest::SharedDtor() {
   if (this != default_instance_) {
-    delete host_;
     delete account_id_;
     delete game_account_id_;
     delete client_info_;
@@ -616,7 +601,6 @@ void ClientResponse::Swap(ClientResponse* other) {
 #ifndef _MSC_VER
 const int ServerRequest::kAttributeFieldNumber;
 const int ServerRequest::kProgramFieldNumber;
-const int ServerRequest::kHostFieldNumber;
 #endif  // !_MSC_VER
 
 ServerRequest::ServerRequest()
@@ -626,7 +610,6 @@ ServerRequest::ServerRequest()
 }
 
 void ServerRequest::InitAsDefaultInstance() {
-  host_ = const_cast< ::bgs::protocol::ProcessId*>(&::bgs::protocol::ProcessId::default_instance());
 }
 
 ServerRequest::ServerRequest(const ServerRequest& from)
@@ -639,7 +622,6 @@ ServerRequest::ServerRequest(const ServerRequest& from)
 void ServerRequest::SharedCtor() {
   _cached_size_ = 0;
   program_ = 0u;
-  host_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -650,7 +632,6 @@ ServerRequest::~ServerRequest() {
 
 void ServerRequest::SharedDtor() {
   if (this != default_instance_) {
-    delete host_;
   }
 }
 
@@ -765,7 +746,6 @@ void ServerResponse::Swap(ServerResponse* other) {
 const int PresenceChannelCreatedRequest::kIdFieldNumber;
 const int PresenceChannelCreatedRequest::kGameAccountIdFieldNumber;
 const int PresenceChannelCreatedRequest::kAccountIdFieldNumber;
-const int PresenceChannelCreatedRequest::kHostFieldNumber;
 #endif  // !_MSC_VER
 
 PresenceChannelCreatedRequest::PresenceChannelCreatedRequest()
@@ -778,7 +758,6 @@ void PresenceChannelCreatedRequest::InitAsDefaultInstance() {
   id_ = const_cast< ::bgs::protocol::EntityId*>(&::bgs::protocol::EntityId::default_instance());
   game_account_id_ = const_cast< ::bgs::protocol::EntityId*>(&::bgs::protocol::EntityId::default_instance());
   account_id_ = const_cast< ::bgs::protocol::EntityId*>(&::bgs::protocol::EntityId::default_instance());
-  host_ = const_cast< ::bgs::protocol::ProcessId*>(&::bgs::protocol::ProcessId::default_instance());
 }
 
 PresenceChannelCreatedRequest::PresenceChannelCreatedRequest(const PresenceChannelCreatedRequest& from)
@@ -793,7 +772,6 @@ void PresenceChannelCreatedRequest::SharedCtor() {
   id_ = NULL;
   game_account_id_ = NULL;
   account_id_ = NULL;
-  host_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -807,7 +785,6 @@ void PresenceChannelCreatedRequest::SharedDtor() {
     delete id_;
     delete game_account_id_;
     delete account_id_;
-    delete host_;
   }
 }
 
@@ -849,7 +826,6 @@ void PresenceChannelCreatedRequest::Swap(PresenceChannelCreatedRequest* other) {
 
 #ifndef _MSC_VER
 const int GameAccountOnlineNotification::kGameAccountIdFieldNumber;
-const int GameAccountOnlineNotification::kHostFieldNumber;
 const int GameAccountOnlineNotification::kSessionIdFieldNumber;
 #endif  // !_MSC_VER
 
@@ -861,7 +837,6 @@ GameAccountOnlineNotification::GameAccountOnlineNotification()
 
 void GameAccountOnlineNotification::InitAsDefaultInstance() {
   game_account_id_ = const_cast< ::bgs::protocol::EntityId*>(&::bgs::protocol::EntityId::default_instance());
-  host_ = const_cast< ::bgs::protocol::ProcessId*>(&::bgs::protocol::ProcessId::default_instance());
 }
 
 GameAccountOnlineNotification::GameAccountOnlineNotification(const GameAccountOnlineNotification& from)
@@ -875,7 +850,6 @@ void GameAccountOnlineNotification::SharedCtor() {
   ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
   game_account_id_ = NULL;
-  host_ = NULL;
   session_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -891,7 +865,6 @@ void GameAccountOnlineNotification::SharedDtor() {
   }
   if (this != default_instance_) {
     delete game_account_id_;
-    delete host_;
   }
 }
 
@@ -933,7 +906,6 @@ void GameAccountOnlineNotification::Swap(GameAccountOnlineNotification* other) {
 
 #ifndef _MSC_VER
 const int GameAccountOfflineNotification::kGameAccountIdFieldNumber;
-const int GameAccountOfflineNotification::kHostFieldNumber;
 const int GameAccountOfflineNotification::kSessionIdFieldNumber;
 #endif  // !_MSC_VER
 
@@ -945,7 +917,6 @@ GameAccountOfflineNotification::GameAccountOfflineNotification()
 
 void GameAccountOfflineNotification::InitAsDefaultInstance() {
   game_account_id_ = const_cast< ::bgs::protocol::EntityId*>(&::bgs::protocol::EntityId::default_instance());
-  host_ = const_cast< ::bgs::protocol::ProcessId*>(&::bgs::protocol::ProcessId::default_instance());
 }
 
 GameAccountOfflineNotification::GameAccountOfflineNotification(const GameAccountOfflineNotification& from)
@@ -959,7 +930,6 @@ void GameAccountOfflineNotification::SharedCtor() {
   ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
   game_account_id_ = NULL;
-  host_ = NULL;
   session_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -975,7 +945,6 @@ void GameAccountOfflineNotification::SharedDtor() {
   }
   if (this != default_instance_) {
     delete game_account_id_;
-    delete host_;
   }
 }
 

@@ -134,8 +134,8 @@ void protobuf_AddDesc_invitation_5ftypes_2eproto() {
     "PPROVED\020\000\022&\n\"SUGGESTION_REMOVED_REASON_D"
     "ECLINED\020\001\022%\n!SUGGESTION_REMOVED_REASON_E"
     "XPIRED\020\002\022&\n\"SUGGESTION_REMOVED_REASON_CA"
-    "NCELED\020\003B\'\n\rbnet.protocolB\024InvitationTyp"
-    "esProtoH\002", 889);
+    "NCELED\020\003B&\n\014bgs.protocolB\024InvitationType"
+    "sProtoH\002", 888);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "invitation_types.proto", &protobuf_RegisterTypes);
   Invitation::default_instance_ = new Invitation();

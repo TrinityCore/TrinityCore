@@ -86,6 +86,17 @@ void Unit::UpdateDamagePhysical(WeaponAttackType attType)
     }
 }
 
+int32 Unit::GetCreatePowerValue(Powers power) const
+{
+    if (power == POWER_MANA)
+        return GetCreateMana();
+
+    if (PowerTypeEntry const* powerType = sDB2Manager.GetPowerTypeEntry(power))
+        return powerType->MaxBasePower;
+
+    return 0;
+}
+
 /*#######################################
 ########                         ########
 ########   PLAYERS STAT SYSTEM   ########
@@ -874,6 +885,15 @@ void Player::_RemoveAllStatBonuses()
 ########                         ########
 #######################################*/
 
+int32 Creature::GetCreatePowerValue(Powers power) const
+{
+    if (PowerTypeEntry const* powerType = sDB2Manager.GetPowerTypeEntry(power))
+        if (!powerType->GetFlags().HasFlag(PowerTypeFlags::IsUsedByNPCs))
+            return 0;
+
+    return Unit::GetCreatePowerValue(power);
+}
+
 bool Creature::UpdateStats(Stats /*stat*/)
 {
     return true;
@@ -910,10 +930,21 @@ uint32 Creature::GetPowerIndex(Powers power) const
 {
     if (power == GetPowerType())
         return 0;
-    if (power == POWER_ALTERNATE_POWER)
-        return 1;
-    if (power == POWER_COMBO_POINTS)
-        return 2;
+    switch (power)
+    {
+        case POWER_COMBO_POINTS:
+            return 2;
+        case POWER_ALTERNATE_POWER:
+            return 1;
+        case POWER_ALTERNATE_QUEST:
+            return 3;
+        case POWER_ALTERNATE_ENCOUNTER:
+            return 4;
+        case POWER_ALTERNATE_MOUNT:
+            return 5;
+        default:
+            break;
+    }
     return MAX_POWERS;
 }
 
@@ -1003,7 +1034,7 @@ void Creature::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, 
     float basePct          = GetPctModifierValue(unitMod, BASE_PCT) * attackSpeedMulti;
     float totalValue       = GetFlatModifierValue(unitMod, TOTAL_VALUE);
     float totalPct         = addTotalPct ? GetPctModifierValue(unitMod, TOTAL_PCT) : 1.0f;
-    float dmgMultiplier    = GetCreatureTemplate()->ModDamage; // = ModDamage * _GetDamageMod(rank);
+    float dmgMultiplier    = GetCreatureDifficulty()->DamageModifier; // = DamageModifier * _GetDamageMod(rank);
 
     minDamage = ((weaponMinDamage + baseValue) * dmgMultiplier * basePct + totalValue) * totalPct;
     maxDamage = ((weaponMaxDamage + baseValue) * dmgMultiplier * basePct + totalValue) * totalPct;

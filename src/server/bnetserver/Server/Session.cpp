@@ -258,7 +258,7 @@ uint32 Battlenet::Session::HandleGenerateWebCredentials(authentication::v1::Gene
     {
         auto asPrintable = [](char c) { return std::isprint(c) ? c : ' '; };
 
-        TC_LOG_DEBUG("session", "[Battlenet::HandleGenerateWebCredentials] {} attempted to generate web cretentials with game other than WoW (using %c%c%c%c)!",
+        TC_LOG_DEBUG("session", "[Battlenet::HandleGenerateWebCredentials] {} attempted to generate web cretentials with game other than WoW (using {}{}{}{})!",
             GetClientInfo(), asPrintable((request->program() >> 24) & 0xFF), asPrintable((request->program() >> 16) & 0xFF),
             asPrintable((request->program() >> 8) & 0xFF), asPrintable(request->program() & 0xFF));
         return ERROR_BAD_PROGRAM;

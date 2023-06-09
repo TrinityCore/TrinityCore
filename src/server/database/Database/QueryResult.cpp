@@ -18,6 +18,7 @@
 #include "QueryResult.h"
 #include "Errors.h"
 #include "Field.h"
+#include "FieldValueConverters.h"
 #include "Log.h"
 #include "MySQLHacks.h"
 #include "MySQLWorkaround.h"
@@ -75,23 +76,23 @@ static uint32 SizeForType(MYSQL_FIELD* field)
     }
 }
 
-DatabaseFieldTypes MysqlTypeToFieldType(enum_field_types type)
+DatabaseFieldTypes MysqlTypeToFieldType(enum_field_types type, uint32 flags)
 {
     switch (type)
     {
         case MYSQL_TYPE_NULL:
             return DatabaseFieldTypes::Null;
         case MYSQL_TYPE_TINY:
-            return DatabaseFieldTypes::Int8;
+            return (flags & UNSIGNED_FLAG) ? DatabaseFieldTypes::UInt8 : DatabaseFieldTypes::Int8;
         case MYSQL_TYPE_YEAR:
         case MYSQL_TYPE_SHORT:
-            return DatabaseFieldTypes::Int16;
+            return (flags & UNSIGNED_FLAG) ? DatabaseFieldTypes::UInt16 : DatabaseFieldTypes::Int16;
         case MYSQL_TYPE_INT24:
         case MYSQL_TYPE_LONG:
-            return DatabaseFieldTypes::Int32;
+            return (flags & UNSIGNED_FLAG) ? DatabaseFieldTypes::UInt32 : DatabaseFieldTypes::Int32;
         case MYSQL_TYPE_LONGLONG:
         case MYSQL_TYPE_BIT:
-            return DatabaseFieldTypes::Int64;
+            return (flags & UNSIGNED_FLAG) ? DatabaseFieldTypes::UInt64 : DatabaseFieldTypes::Int64;
         case MYSQL_TYPE_FLOAT:
             return DatabaseFieldTypes::Float;
         case MYSQL_TYPE_DOUBLE:
@@ -119,7 +120,7 @@ DatabaseFieldTypes MysqlTypeToFieldType(enum_field_types type)
     return DatabaseFieldTypes::Null;
 }
 
-static char const* FieldTypeToString(enum_field_types type)
+static char const* FieldTypeToString(enum_field_types type, uint32 flags)
 {
     switch (type)
     {
@@ -133,19 +134,19 @@ static char const* FieldTypeToString(enum_field_types type)
         case MYSQL_TYPE_ENUM:        return "ENUM";
         case MYSQL_TYPE_FLOAT:       return "FLOAT";
         case MYSQL_TYPE_GEOMETRY:    return "GEOMETRY";
-        case MYSQL_TYPE_INT24:       return "INT24";
-        case MYSQL_TYPE_LONG:        return "LONG";
-        case MYSQL_TYPE_LONGLONG:    return "LONGLONG";
+        case MYSQL_TYPE_INT24:       return (flags & UNSIGNED_FLAG) ? "UNSIGNED INT24" : "INT24";
+        case MYSQL_TYPE_LONG:        return (flags & UNSIGNED_FLAG) ? "UNSIGNED LONG" : "LONG";
+        case MYSQL_TYPE_LONGLONG:    return (flags & UNSIGNED_FLAG) ? "UNSIGNED LONGLONG" : "LONGLONG";
         case MYSQL_TYPE_LONG_BLOB:   return "LONG_BLOB";
         case MYSQL_TYPE_MEDIUM_BLOB: return "MEDIUM_BLOB";
         case MYSQL_TYPE_NEWDATE:     return "NEWDATE";
         case MYSQL_TYPE_NULL:        return "NULL";
         case MYSQL_TYPE_SET:         return "SET";
-        case MYSQL_TYPE_SHORT:       return "SHORT";
+        case MYSQL_TYPE_SHORT:       return (flags & UNSIGNED_FLAG) ? "UNSIGNED SHORT" : "SHORT";
         case MYSQL_TYPE_STRING:      return "STRING";
         case MYSQL_TYPE_TIME:        return "TIME";
         case MYSQL_TYPE_TIMESTAMP:   return "TIMESTAMP";
-        case MYSQL_TYPE_TINY:        return "TINY";
+        case MYSQL_TYPE_TINY:        return (flags & UNSIGNED_FLAG) ? "UNSIGNED TINY" : "TINY";
         case MYSQL_TYPE_TINY_BLOB:   return "TINY_BLOB";
         case MYSQL_TYPE_VAR_STRING:  return "VAR_STRING";
         case MYSQL_TYPE_YEAR:        return "YEAR";
@@ -153,15 +154,52 @@ static char const* FieldTypeToString(enum_field_types type)
     }
 }
 
-void InitializeDatabaseFieldMetadata(QueryResultFieldMetadata* meta, MySQLField const* field, uint32 fieldIndex)
+std::unique_ptr<BaseDatabaseResultValueConverter> FromStringValueConverters[14] =
+{
+    nullptr,
+    std::make_unique<PrimitiveResultValueConverter<uint8, FromStringToDatabaseTypeConverter>>(),
+    std::make_unique<PrimitiveResultValueConverter<int8, FromStringToDatabaseTypeConverter>>(),
+    std::make_unique<PrimitiveResultValueConverter<uint16, FromStringToDatabaseTypeConverter>>(),
+    std::make_unique<PrimitiveResultValueConverter<int16, FromStringToDatabaseTypeConverter>>(),
+    std::make_unique<PrimitiveResultValueConverter<uint32, FromStringToDatabaseTypeConverter>>(),
+    std::make_unique<PrimitiveResultValueConverter<int32, FromStringToDatabaseTypeConverter>>(),
+    std::make_unique<PrimitiveResultValueConverter<uint64, FromStringToDatabaseTypeConverter>>(),
+    std::make_unique<PrimitiveResultValueConverter<int64, FromStringToDatabaseTypeConverter>>(),
+    std::make_unique<PrimitiveResultValueConverter<float, FromStringToDatabaseTypeConverter>>(),
+    std::make_unique<PrimitiveResultValueConverter<double, FromStringToDatabaseTypeConverter>>(),
+    std::make_unique<PrimitiveResultValueConverter<double, FromStringToDatabaseTypeConverter>>(),
+    nullptr,
+    std::make_unique<StringResultValueConverter>()
+};
+
+std::unique_ptr<BaseDatabaseResultValueConverter> BinaryValueConverters[14] =
+{
+    nullptr,
+    std::make_unique<PrimitiveResultValueConverter<uint8, FromBinaryToDatabaseTypeConverter>>(),
+    std::make_unique<PrimitiveResultValueConverter<int8, FromBinaryToDatabaseTypeConverter>>(),
+    std::make_unique<PrimitiveResultValueConverter<uint16, FromBinaryToDatabaseTypeConverter>>(),
+    std::make_unique<PrimitiveResultValueConverter<int16, FromBinaryToDatabaseTypeConverter>>(),
+    std::make_unique<PrimitiveResultValueConverter<uint32, FromBinaryToDatabaseTypeConverter>>(),
+    std::make_unique<PrimitiveResultValueConverter<int32, FromBinaryToDatabaseTypeConverter>>(),
+    std::make_unique<PrimitiveResultValueConverter<uint64, FromBinaryToDatabaseTypeConverter>>(),
+    std::make_unique<PrimitiveResultValueConverter<int64, FromBinaryToDatabaseTypeConverter>>(),
+    std::make_unique<PrimitiveResultValueConverter<float, FromBinaryToDatabaseTypeConverter>>(),
+    std::make_unique<PrimitiveResultValueConverter<double, FromBinaryToDatabaseTypeConverter>>(),
+    std::make_unique<PrimitiveResultValueConverter<double, FromStringToDatabaseTypeConverter>>(), // always sent as string
+    nullptr,
+    std::make_unique<StringResultValueConverter>()
+};
+
+void InitializeDatabaseFieldMetadata(QueryResultFieldMetadata* meta, MySQLField const* field, uint32 fieldIndex, bool binaryProtocol)
 {
     meta->TableName = field->org_table;
     meta->TableAlias = field->table;
     meta->Name = field->org_name;
     meta->Alias = field->name;
-    meta->TypeName = FieldTypeToString(field->type);
+    meta->TypeName = FieldTypeToString(field->type, field->flags);
     meta->Index = fieldIndex;
-    meta->Type = MysqlTypeToFieldType(field->type);
+    meta->Type = MysqlTypeToFieldType(field->type, field->flags);
+    meta->Converter = binaryProtocol ? BinaryValueConverters[AsUnderlyingType(meta->Type)].get() : FromStringValueConverters[AsUnderlyingType(meta->Type)].get();
 }
 }
 
@@ -175,7 +213,7 @@ _fields(fields)
     _currentRow = new Field[_fieldCount];
     for (uint32 i = 0; i < _fieldCount; i++)
     {
-        InitializeDatabaseFieldMetadata(&_fieldMetadata[i], &_fields[i], i);
+        InitializeDatabaseFieldMetadata(&_fieldMetadata[i], &_fields[i], i, false);
         _currentRow[i].SetMetadata(&_fieldMetadata[i]);
     }
 }
@@ -230,7 +268,7 @@ m_metadataResult(result)
         uint32 size = SizeForType(&field[i]);
         rowSize += size;
 
-        InitializeDatabaseFieldMetadata(&m_fieldMetadata[i], &field[i], i);
+        InitializeDatabaseFieldMetadata(&m_fieldMetadata[i], &field[i], i, true);
 
         m_rBind[i].buffer_type = field[i].type;
         m_rBind[i].buffer_length = size;
@@ -290,7 +328,7 @@ m_metadataResult(result)
                         break;
                 }
 
-                m_rows[uint32(m_rowPosition) * m_fieldCount + fIndex].SetByteValue(
+                m_rows[uint32(m_rowPosition) * m_fieldCount + fIndex].SetValue(
                     (char const*)buffer,
                     fetched_length);
 
@@ -299,7 +337,7 @@ m_metadataResult(result)
             }
             else
             {
-                m_rows[uint32(m_rowPosition) * m_fieldCount + fIndex].SetByteValue(
+                m_rows[uint32(m_rowPosition) * m_fieldCount + fIndex].SetValue(
                     nullptr,
                     *m_rBind[fIndex].length);
             }
@@ -345,7 +383,7 @@ bool ResultSet::NextRow()
     }
 
     for (uint32 i = 0; i < _fieldCount; i++)
-        _currentRow[i].SetStructuredValue(row[i], lengths[i]);
+        _currentRow[i].SetValue(row[i], lengths[i]);
 
     return true;
 }

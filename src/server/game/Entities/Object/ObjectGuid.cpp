@@ -535,7 +535,7 @@ std::string ObjectGuid::ToString() const
 
 std::string ObjectGuid::ToHexString() const
 {
-    return Trinity::StringFormat("0x%016llX%016llX", _data[1], _data[0]);
+    return Trinity::StringFormat("0x{:016X}{:016X}", _data[1], _data[0]);
 }
 
 ObjectGuid ObjectGuid::FromString(std::string const& guidString)
