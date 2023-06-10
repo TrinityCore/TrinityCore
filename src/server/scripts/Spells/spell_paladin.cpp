@@ -317,7 +317,7 @@ class spell_pal_awakening : public AuraScript
         }
         else
             GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_AVENGING_WRATH,
-                CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD))
+                CastSpellExtraArgs(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD)
                     .SetTriggeringSpell(eventInfo.GetProcSpell())
                     .AddSpellMod(SPELLVALUE_DURATION, extraDuration.count()));
     }

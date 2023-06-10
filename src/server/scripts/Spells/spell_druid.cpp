@@ -717,7 +717,7 @@ class spell_dru_innervate : public SpellScript
         if (caster != GetHitUnit())
             if (AuraEffect const* innervateR2 = caster->GetAuraEffect(SPELL_DRUID_INNERVATE_RANK_2, EFFECT_0))
                 caster->CastSpell(caster, SPELL_DRUID_INNERVATE,
-                    CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD | TRIGGERED_IGNORE_CAST_IN_PROGRESS))
+                    CastSpellExtraArgs(TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)
                     .SetTriggeringSpell(GetSpell())
                     .AddSpellMod(SPELLVALUE_BASE_POINT0, -innervateR2->GetAmount()));
 

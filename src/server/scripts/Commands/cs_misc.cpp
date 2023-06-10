@@ -564,7 +564,7 @@ public:
             // before GM
             float x, y, z;
             _player->GetClosePoint(x, y, z, target->GetCombatReach());
-            target->TeleportTo(_player->GetMapId(), x, y, z, target->GetOrientation(), 0, map->GetInstanceId());
+            target->TeleportTo(_player->GetMapId(), x, y, z, target->GetOrientation(), TELE_TO_NONE, map->GetInstanceId());
             PhasingHandler::InheritPhaseShift(target, _player);
             target->UpdateObjectVisibility();
         }

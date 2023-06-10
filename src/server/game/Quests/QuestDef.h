@@ -179,37 +179,37 @@ DEFINE_ENUM_FLAG(QuestGiverStatus);
 enum QuestFlags : uint32
 {
     QUEST_FLAGS_NONE                        = 0x00000000,
-    QUEST_FLAGS_STAY_ALIVE                  = 0x00000001,   // Not used currently
-    QUEST_FLAGS_PARTY_ACCEPT                = 0x00000002,   // Not used currently. If player in party, all players that can accept this quest will receive confirmation box to accept quest CMSG_QUEST_CONFIRM_ACCEPT/SMSG_QUEST_CONFIRM_ACCEPT
-    QUEST_FLAGS_EXPLORATION                 = 0x00000004,   // Not used currently
+    QUEST_FLAGS_COMPLETION_NO_DEATH         = 0x00000001,
+    QUEST_FLAGS_COMPLETION_EVENT            = 0x00000002,
+    QUEST_FLAGS_COMPLETION_AREA_TRIGGER     = 0x00000004,
     QUEST_FLAGS_SHARABLE                    = 0x00000008,   // Can be shared: Player::CanShareQuest()
     QUEST_FLAGS_HAS_CONDITION               = 0x00000010,   // Not used currently
-    QUEST_FLAGS_HIDE_REWARD_POI             = 0x00000020,   // Not used currently: Unsure of content
-    QUEST_FLAGS_RAID                        = 0x00000040,   // Can be completed while in raid
+    QUEST_FLAGS_HIDE_REWARD_POI             = 0x00000020,   // Hides questgiver turn-in minimap icon
+    QUEST_FLAGS_RAID_GROUP_OK               = 0x00000040,   // Can be completed while in raid
     QUEST_FLAGS_WAR_MODE_REWARDS_OPT_IN     = 0x00000080,   // Not used currently
-    QUEST_FLAGS_NO_MONEY_FROM_XP            = 0x00000100,   // Not used currently: Experience is not converted to gold at max level
-    QUEST_FLAGS_HIDDEN_REWARDS              = 0x00000200,   // Items and money rewarded only sent in SMSG_QUESTGIVER_OFFER_REWARD (not in SMSG_QUEST_GIVER_QUEST_DETAILS or in client quest log(SMSG_QUEST_QUERY_RESPONSE))
-    QUEST_FLAGS_TRACKING                    = 0x00000400,   // These quests are automatically rewarded on quest complete and they will never appear in quest log client side.
+    QUEST_FLAGS_NO_MONEY_FOR_XP             = 0x00000100,   // Experience is not converted to gold at max level
+    QUEST_FLAGS_HIDE_REWARD                 = 0x00000200,   // Items and money rewarded only sent in SMSG_QUESTGIVER_OFFER_REWARD (not in SMSG_QUEST_GIVER_QUEST_DETAILS or in client quest log(SMSG_QUEST_QUERY_RESPONSE))
+    QUEST_FLAGS_TRACKING_EVENT              = 0x00000400,   // These quests are automatically rewarded on quest complete and they will never appear in quest log client side.
     QUEST_FLAGS_DEPRECATE_REPUTATION        = 0x00000800,   // Not used currently
     QUEST_FLAGS_DAILY                       = 0x00001000,   // Used to know quest is Daily one
     QUEST_FLAGS_FLAGS_PVP                   = 0x00002000,   // Having this quest in log forces PvP flag
-    QUEST_FLAGS_UNAVAILABLE                 = 0x00004000,   // Used on quests that are not generically available
+    QUEST_FLAGS_DEPRECATED                  = 0x00004000,   // Used on quests that are not generally available
     QUEST_FLAGS_WEEKLY                      = 0x00008000,
-    QUEST_FLAGS_AUTOCOMPLETE                = 0x00010000,   // Quests with this flag player submit automatically by special button in player gui
+    QUEST_FLAGS_AUTO_COMPLETE               = 0x00010000,   // Quests with this flag player submit automatically by special button in player gui
     QUEST_FLAGS_DISPLAY_ITEM_IN_TRACKER     = 0x00020000,   // Displays usable item in quest tracker
-    QUEST_FLAGS_OBJ_TEXT                    = 0x00040000,   // use Objective text as Complete text
+    QUEST_FLAGS_DISABLE_COMPLETION_TEXT     = 0x00040000,   // use Objective text as Complete text
     QUEST_FLAGS_AUTO_ACCEPT                 = 0x00080000,   // The client recognizes this flag as auto-accept.
-    QUEST_FLAGS_PLAYER_CAST_ON_ACCEPT       = 0x00100000,
-    QUEST_FLAGS_PLAYER_CAST_ON_COMPLETE     = 0x00200000,
-    QUEST_FLAGS_UPDATE_PHASE_SHIFT          = 0x00400000,
+    QUEST_FLAGS_PLAYER_CAST_ACCEPT          = 0x00100000,
+    QUEST_FLAGS_PLAYER_CAST_COMPLETE        = 0x00200000,
+    QUEST_FLAGS_UPDATE_PHASESHIFT           = 0x00400000,
     QUEST_FLAGS_SOR_WHITELIST               = 0x00800000,
     QUEST_FLAGS_LAUNCH_GOSSIP_COMPLETE      = 0x01000000,
-    QUEST_FLAGS_REMOVE_EXTRA_GET_ITEMS      = 0x02000000,
-    QUEST_FLAGS_HIDE_UNTIL_DISCOVERED       = 0x04000000,
+    QUEST_FLAGS_REMOVE_SURPLUS_ITEMS        = 0x02000000,   // Remove all items from inventory that have the same id as the objective, not just the amount required by quest
+    QUEST_FLAGS_WELL_KNOWN                  = 0x04000000,
     QUEST_FLAGS_PORTRAIT_IN_QUEST_LOG       = 0x08000000,
     QUEST_FLAGS_SHOW_ITEM_WHEN_COMPLETED    = 0x10000000,
     QUEST_FLAGS_LAUNCH_GOSSIP_ACCEPT        = 0x20000000,
-    QUEST_FLAGS_ITEMS_GLOW_WHEN_DONE        = 0x40000000,
+    QUEST_FLAGS_ITEMS_GLOW_WHEN_COMPLETE    = 0x40000000,
     QUEST_FLAGS_FAIL_ON_LOGOUT              = 0x80000000
 };
 
@@ -276,13 +276,13 @@ enum QuestSpecialFlags
     QUEST_SPECIAL_FLAGS_NONE                 = 0x000,
     // Trinity flags for set SpecialFlags in DB if required but used only at server
     QUEST_SPECIAL_FLAGS_REPEATABLE           = 0x001,   // Set by 1 in SpecialFlags from DB
-    QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT = 0x002,   // Set by 2 in SpecialFlags from DB (if required area explore, spell SPELL_EFFECT_QUEST_COMPLETE casting, table `FECT_QUEST_COMPLETE casting, table `*_script` command SCRIPT_COMMAND_QUEST_EXPLORED use, set from script)
+    QUEST_SPECIAL_FLAGS_AUTO_PUSH_TO_PARTY   = 0x002,   // Set by 2 in SpecialFlags from DB will make quest be pushed to entire party when one member accepts it
     QUEST_SPECIAL_FLAGS_AUTO_ACCEPT          = 0x004,   // Set by 4 in SpecialFlags in DB if the quest is to be auto-accepted.
     QUEST_SPECIAL_FLAGS_DF_QUEST             = 0x008,   // Set by 8 in SpecialFlags in DB if the quest is used by Dungeon Finder.
     QUEST_SPECIAL_FLAGS_MONTHLY              = 0x010,   // Set by 16 in SpecialFlags in DB if the quest is reset at the begining of the month
     // room for more custom flags
 
-    QUEST_SPECIAL_FLAGS_DB_ALLOWED = QUEST_SPECIAL_FLAGS_REPEATABLE | QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT | QUEST_SPECIAL_FLAGS_AUTO_ACCEPT | QUEST_SPECIAL_FLAGS_DF_QUEST | QUEST_SPECIAL_FLAGS_MONTHLY,
+    QUEST_SPECIAL_FLAGS_DB_ALLOWED = QUEST_SPECIAL_FLAGS_REPEATABLE | QUEST_SPECIAL_FLAGS_AUTO_ACCEPT | QUEST_SPECIAL_FLAGS_DF_QUEST | QUEST_SPECIAL_FLAGS_MONTHLY,
 
     QUEST_SPECIAL_FLAGS_SEQUENCED_OBJECTIVES = 0x020,    // Internal flag computed only
 };
@@ -540,15 +540,15 @@ class TC_GAME_API Quest
         bool HasFlagEx(QuestFlagsEx flag) const { return (_flagsEx & uint32(flag)) != 0; }
         bool HasFlagEx2(QuestFlagsEx2 flag) const { return (_flagsEx2 & uint32(flag)) != 0; }
 
-        bool HasSpecialFlag(uint32 flag) const { return (_specialFlags & flag) != 0; }
-        void SetSpecialFlag(uint32 flag) { _specialFlags |= flag; }
+        bool HasSpecialFlag(QuestSpecialFlags flag) const { return (_specialFlags & flag) != 0; }
+        void SetSpecialFlag(QuestSpecialFlags flag) { _specialFlags |= flag; }
         bool HasQuestObjectiveType(QuestObjectiveType type) const { return _usedQuestObjectiveTypes[type]; }
 
         bool IsAutoPush() const { return HasFlagEx(QUEST_FLAGS_EX_AUTO_PUSH); }
         bool IsWorldQuest() const { return HasFlagEx(QUEST_FLAGS_EX_IS_WORLD_QUEST); }
 
         // Possibly deprecated flag
-        bool IsUnavailable() const { return HasFlag(QUEST_FLAGS_UNAVAILABLE); }
+        bool IsUnavailable() const { return HasFlag(QUEST_FLAGS_DEPRECATED); }
 
         // whether the quest is globally enabled (spawned by pool, game event active etc.)
         static bool IsTakingQuestEnabled(uint32 questId);
@@ -623,7 +623,7 @@ class TC_GAME_API Quest
         uint32 GetCompleteEmoteDelay() const { return _emoteOnCompleteDelay; }
         bool IsRepeatable() const { return _specialFlags & QUEST_SPECIAL_FLAGS_REPEATABLE; }
         bool IsAutoAccept() const;
-        bool IsAutoComplete() const;
+        bool IsTurnIn() const;
         uint32 GetFlags() const { return _flags; }
         uint32 GetFlagsEx() const { return _flagsEx; }
         uint32 GetFlagsEx2() const { return _flagsEx2; }
@@ -649,6 +649,7 @@ class TC_GAME_API Quest
         bool IsRaidQuest(Difficulty difficulty) const;
         bool IsAllowedInRaid(Difficulty difficulty) const;
         bool IsDFQuest() const { return (_specialFlags & QUEST_SPECIAL_FLAGS_DF_QUEST) != 0; }
+        bool IsPushedToPartyOnAccept() const { return HasSpecialFlag(QUEST_SPECIAL_FLAGS_AUTO_PUSH_TO_PARTY); }
         uint32 CalculateHonorGain(uint8 level) const;
         bool CanIncreaseRewardedQuestCounters() const;
 

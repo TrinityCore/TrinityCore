@@ -547,10 +547,10 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
     _triggeredCastFlags = triggerFlags;
 
     if (info->HasAttribute(SPELL_ATTR2_DO_NOT_REPORT_SPELL_FAILURE))
-        _triggeredCastFlags = TriggerCastFlags(uint32(_triggeredCastFlags) | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        _triggeredCastFlags |= TRIGGERED_DONT_REPORT_CAST_ERROR;
 
     if (info->HasAttribute(SPELL_ATTR4_ALLOW_CAST_WHILE_CASTING))
-        _triggeredCastFlags = TriggerCastFlags(uint32(_triggeredCastFlags) | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+        _triggeredCastFlags |= TRIGGERED_IGNORE_CAST_IN_PROGRESS;
 
     m_CastItem = nullptr;
     m_castItemGUID.Clear();

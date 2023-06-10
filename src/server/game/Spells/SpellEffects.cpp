@@ -897,6 +897,23 @@ void Spell::EffectJumpDest()
     unitCaster->GetMotionMaster()->MoveJump(*destTarget, speedXY, speedZ, EVENT_JUMP, !m_targets.GetObjectTargetGUID().IsEmpty(), &arrivalCast);
 }
 
+TeleportToOptions GetTeleportOptions(WorldObject const* caster, Unit const* unitTarget, SpellDestination const& targetDest)
+{
+    TeleportToOptions options = TELE_TO_NONE;
+    if (caster == unitTarget)
+        options |= TELE_TO_SPELL;
+
+    if (targetDest._position.GetMapId() == unitTarget->GetMapId())
+    {
+        options |= TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET;
+
+        if (unitTarget->GetTransGUID() == targetDest._transportGUID)
+            options |= TELE_TO_NOT_LEAVE_TRANSPORT;
+    }
+
+    return options;
+}
+
 void Spell::EffectTeleportUnits()
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
@@ -924,32 +941,33 @@ void Spell::EffectTeleportUnits()
 
     // Custom loading screen
     if (player)
+    {
         if (uint32 customLoadingScreenId = effectInfo->MiscValue)
             player->SendDirectMessage(WorldPackets::Spells::CustomLoadScreen(m_spellInfo->Id, customLoadingScreenId).Write());
 
-    if (targetDest.GetMapId() == unitTarget->GetMapId())
-        unitTarget->NearTeleportTo(targetDest, unitTarget == m_caster);
-    else if (player)
-        player->TeleportTo(targetDest, unitTarget == m_caster ? TELE_TO_SPELL : 0);
-    else
-    {
-        TC_LOG_ERROR("spells", "Spell::EffectTeleportUnits - spellId {} attempted to teleport creature to a different map.", m_spellInfo->Id);
-        return;
+        TeleportToOptions options = GetTeleportOptions(m_caster, unitTarget, m_destTargets[effectInfo->EffectIndex]);
+
+        player->TeleportTo(targetDest, options);
+
     }
+    else if (targetDest.GetMapId() == unitTarget->GetMapId())
+        unitTarget->NearTeleportTo(targetDest, unitTarget == m_caster);
+    else
+        TC_LOG_ERROR("spells", "Spell::EffectTeleportUnits - spellId {} attempted to teleport creature to a different map.", m_spellInfo->Id);
 }
 
 class DelayedSpellTeleportEvent : public BasicEvent
 {
 public:
-    explicit DelayedSpellTeleportEvent(Unit* target, WorldLocation const& targetDest, uint32 options, uint32 spellId)
+    explicit DelayedSpellTeleportEvent(Unit* target, WorldLocation const& targetDest, TeleportToOptions options, uint32 spellId)
         : _target(target), _targetDest(targetDest), _options(options), _spellId(spellId){ }
 
     bool Execute(uint64 /*e_time*/, uint32 /*p_time*/) override
     {
-        if (_targetDest.GetMapId() == _target->GetMapId())
-            _target->NearTeleportTo(_targetDest, (_options & TELE_TO_SPELL) != 0);
-        else if (Player* player = _target->ToPlayer())
+        if (Player* player = _target->ToPlayer())
             player->TeleportTo(_targetDest, _options);
+        else if (_targetDest.GetMapId() == _target->GetMapId())
+            _target->NearTeleportTo(_targetDest, (_options & TELE_TO_SPELL) != TELE_TO_NONE);
         else
             TC_LOG_ERROR("spells", "Spell::EffectTeleportUnitsWithVisualLoadingScreen - spellId {} attempted to teleport creature to a different map.", _spellId);
 
@@ -959,7 +977,7 @@ public:
 private:
     Unit* _target;
     WorldLocation _targetDest;
-    uint32 _options;
+    TeleportToOptions _options;
     uint32 _spellId;
 };
 
@@ -990,7 +1008,8 @@ void Spell::EffectTeleportUnitsWithVisualLoadingScreen()
         if (Player* playerTarget = unitTarget->ToPlayer())
             playerTarget->SendDirectMessage(WorldPackets::Spells::SpellVisualLoadScreen(effectInfo->MiscValueB, effectInfo->MiscValue).Write());
 
-    unitTarget->m_Events.AddEventAtOffset(new DelayedSpellTeleportEvent(unitTarget, targetDest, unitTarget == m_caster ? TELE_TO_SPELL : 0, m_spellInfo->Id),
+    TeleportToOptions options = GetTeleportOptions(m_caster, unitTarget, m_destTargets[effectInfo->EffectIndex]);
+    unitTarget->m_Events.AddEventAtOffset(new DelayedSpellTeleportEvent(unitTarget, targetDest, options, m_spellInfo->Id),
         Milliseconds(effectInfo->MiscValue));
 }
 
@@ -3633,7 +3652,7 @@ void Spell::EffectQuestComplete()
         uint16 logSlot = player->FindQuestSlot(questId);
         if (logSlot < MAX_QUEST_LOG_SIZE)
             player->AreaExploredOrEventHappens(questId);
-        else if (quest->HasFlag(QUEST_FLAGS_TRACKING))  // Check if the quest is used as a serverside flag.
+        else if (quest->HasFlag(QUEST_FLAGS_TRACKING_EVENT))  // Check if the quest is used as a serverside flag.
             player->SetRewardedQuest(questId);          // If so, set status to rewarded without broadcasting it to client.
     }
 }
@@ -5035,7 +5054,7 @@ void Spell::EffectCastButtons()
             continue;
 
         CastSpellExtraArgs args;
-        args.TriggerFlags = TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_CAST_DIRECTLY | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        args.TriggerFlags = TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_CAST_DIRECTLY | TRIGGERED_DONT_REPORT_CAST_ERROR;
         args.OriginalCastId = m_castId;
         args.CastDifficulty = GetCastDifficulty();
         m_caster->CastSpell(m_caster, spellInfo->Id, args);
@@ -5102,7 +5121,7 @@ void Spell::EffectTeleportToReturnPoint()
 
     if (Player* player = unitTarget->ToPlayer())
         if (WorldLocation const* dest = player->GetStoredAuraTeleportLocation(effectInfo->MiscValue))
-            player->TeleportTo(*dest, unitTarget == m_caster ? TELE_TO_SPELL | TELE_TO_NOT_LEAVE_COMBAT : 0);
+            player->TeleportTo(*dest, unitTarget == m_caster ? TELE_TO_SPELL | TELE_TO_NOT_LEAVE_COMBAT : TELE_TO_NONE);
 }
 
 void Spell::EffectIncreaseCurrencyCap()
