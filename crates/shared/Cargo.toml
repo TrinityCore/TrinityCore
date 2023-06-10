@@ -1,0 +1,25 @@
+[package]
+name = "enturion_shared"
+version = "0.1.0"
+edition = "2021"
+publish = false
+workspace = ".."
+
+[lib]
+crate-type = ["staticlib", "rlib"]
+
+[build-dependencies]
+cbindgen = "0.24.3"
+
+[dependencies]
+anyhow = "1.0.71"
+config = "0.13.3"
+glob = "0.3.1"
+futures = "0.3.28"
+libc = "0.2.144"
+tokio = { version = "1.28.1", features = ["macros", "rt", "rt-multi-thread", "signal", "time"] }
+tokio-stream = "0.1.14"
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3.9", features = ["errhandlingapi", "libloaderapi", "minwindef", "winerror"] }
+windows-service = "0.6.0"

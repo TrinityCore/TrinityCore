@@ -123,47 +123,7 @@ DBCFileLoader::Record DBCFileLoader::getRecord(size_t id)
 
 uint32 DBCFileLoader::GetFormatRecordSize(char const* format, int32* index_pos)
 {
-    uint32 recordsize = 0;
-    int32 i = -1;
-    for (uint32 x = 0; format[x]; ++x)
-    {
-        switch (format[x])
-        {
-            case FT_FLOAT:
-                recordsize += sizeof(float);
-                break;
-            case FT_INT:
-                recordsize += sizeof(uint32);
-                break;
-            case FT_STRING:
-                recordsize += sizeof(char*);
-                break;
-            case FT_SORT:
-                i = x;
-                break;
-            case FT_IND:
-                i = x;
-                recordsize += sizeof(uint32);
-                break;
-            case FT_BYTE:
-                recordsize += sizeof(uint8);
-                break;
-            case FT_NA:
-            case FT_NA_BYTE:
-                break;
-            case FT_LOGIC:
-                ABORT_MSG("Attempted to load DBC files that do not have field types that match what is in the core. Check DBCfmt.h or your DBC files.");
-                break;
-            default:
-                ABORT_MSG("Unknown field format character in DBCfmt.h");
-                break;
-        }
-    }
-
-    if (index_pos)
-        *index_pos = i;
-
-    return recordsize;
+    return (uint32)DBCFileLoader_GetFormatRecordSize(format, index_pos);
 }
 
 char* DBCFileLoader::AutoProduceData(char const* format, uint32& records, char**& indexTable)

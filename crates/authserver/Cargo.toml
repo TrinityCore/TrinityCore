@@ -1,0 +1,17 @@
+[package]
+name = "enturion_authserver"
+version = "0.1.0"
+edition = "2021"
+publish = false
+workspace = ".."
+
+[lib]
+crate-type = ["staticlib"]
+
+[build-dependencies]
+cbindgen = "0.24.3"
+
+[dependencies]
+enturion_shared = { path = "../shared" }
+futures = "0.3.28"
+tokio = { version = "1.28", features = ["rt", "rt-multi-thread", "signal", "time"] }

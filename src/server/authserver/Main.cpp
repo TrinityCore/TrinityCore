@@ -29,7 +29,6 @@
 #include "Config.h"
 #include "DatabaseEnv.h"
 #include "DatabaseLoader.h"
-#include "DeadlineTimer.h"
 #include "IoContext.h"
 #include "IPLocation.h"
 #include "GitRevision.h"
@@ -40,14 +39,14 @@
 #include "SecretMgr.h"
 #include "SharedDefines.h"
 #include "Util.h"
-#include <boost/asio/signal_set.hpp>
 #include <boost/dll/runtime_symbol_info.hpp>
 #include <boost/program_options.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <openssl/crypto.h>
 #include <openssl/opensslv.h>
 #include <iostream>
-#include <csignal>
+#include "libenturion_shared.h"
+#include "libenturion_authserver.h"
 
 using boost::asio::ip::tcp;
 using namespace boost::program_options;
@@ -75,15 +74,18 @@ void ServiceStatusWatcher(std::weak_ptr<Trinity::Asio::DeadlineTimer> serviceSta
 
 bool StartDB();
 void StopDB();
-void SignalHandler(std::weak_ptr<Trinity::Asio::IoContext> ioContextRef, boost::system::error_code const& error, int signalNumber);
-void KeepDatabaseAliveHandler(std::weak_ptr<Trinity::Asio::DeadlineTimer> dbPingTimerRef, int32 dbPingInterval, boost::system::error_code const& error);
-void BanExpiryHandler(std::weak_ptr<Trinity::Asio::DeadlineTimer> banExpiryCheckTimerRef, int32 banExpiryCheckInterval, boost::system::error_code const& error);
+void KeepDatabaseAliveHandler();
+void BanExpiryHandler();
 variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, std::string& configService);
+
+void MainLoopCallback() {
+}
 
 int main(int argc, char** argv)
 {
+    AuthServerRsInit();
+
     Trinity::Impl::CurrentServerProcessHolder::_type = SERVER_PROCESS_AUTHSERVER;
-    signal(SIGABRT, &Trinity::AbortHandler);
 
     auto configFile = fs::absolute(_TRINITY_REALM_CONFIG);
     std::string configService;
@@ -190,26 +192,15 @@ int main(int argc, char** argv)
 
     std::shared_ptr<void> sAuthSocketMgrHandle(nullptr, [](void*) { sAuthSocketMgr.StopNetwork(); });
 
-    // Set signal handlers
-    boost::asio::signal_set signals(*ioContext, SIGINT, SIGTERM);
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
-    signals.add(SIGBREAK);
-#endif
-    signals.async_wait(std::bind(&SignalHandler, std::weak_ptr<Trinity::Asio::IoContext>(ioContext), std::placeholders::_1, std::placeholders::_2));
-
     // Set process priority according to configuration settings
     SetProcessPriority("server.authserver", sConfigMgr->GetIntDefault(CONFIG_PROCESSOR_AFFINITY, 0), sConfigMgr->GetBoolDefault(CONFIG_HIGH_PRIORITY, false));
 
     // Enabled a timed callback for handling the database keep alive ping
     int32 dbPingInterval = sConfigMgr->GetIntDefault("MaxPingTime", 30);
-    std::shared_ptr<Trinity::Asio::DeadlineTimer> dbPingTimer = std::make_shared<Trinity::Asio::DeadlineTimer>(*ioContext);
-    dbPingTimer->expires_from_now(boost::posix_time::minutes(dbPingInterval));
-    dbPingTimer->async_wait(std::bind(&KeepDatabaseAliveHandler, std::weak_ptr<Trinity::Asio::DeadlineTimer>(dbPingTimer), dbPingInterval, std::placeholders::_1));
+    CreateTimer(dbPingInterval * 60, &KeepDatabaseAliveHandler);
 
     int32 banExpiryCheckInterval = sConfigMgr->GetIntDefault("BanExpiryCheckInterval", 60);
-    std::shared_ptr<Trinity::Asio::DeadlineTimer> banExpiryCheckTimer = std::make_shared<Trinity::Asio::DeadlineTimer>(*ioContext);
-    banExpiryCheckTimer->expires_from_now(boost::posix_time::seconds(banExpiryCheckInterval));
-    banExpiryCheckTimer->async_wait(std::bind(&BanExpiryHandler, std::weak_ptr<Trinity::Asio::DeadlineTimer>(banExpiryCheckTimer), banExpiryCheckInterval, std::placeholders::_1));
+    CreateTimer(banExpiryCheckInterval * 60, &BanExpiryHandler);
 
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     std::shared_ptr<Trinity::Asio::DeadlineTimer> serviceStatusWatchTimer;
@@ -224,15 +215,17 @@ int main(int argc, char** argv)
     }
 #endif
 
-    // Start the io service worker loop
-    ioContext->run();
+    std::thread t1([&ioContext]() { ioContext->run(); });
 
-    banExpiryCheckTimer->cancel();
-    dbPingTimer->cancel();
+    // Start the io service worker loop
+    AuthServerRsMain(MainLoopCallback);
 
     TC_LOG_INFO("server.authserver", "Halting process...");
 
-    signals.cancel();
+    ioContext->stop();
+    if (t1.joinable()) {
+        t1.join();
+    }
 
     return 0;
 }
@@ -264,41 +257,16 @@ void StopDB()
     MySQL::Library_End();
 }
 
-void SignalHandler(std::weak_ptr<Trinity::Asio::IoContext> ioContextRef, boost::system::error_code const& error, int /*signalNumber*/)
+void KeepDatabaseAliveHandler()
 {
-    if (!error)
-        if (std::shared_ptr<Trinity::Asio::IoContext> ioContext = ioContextRef.lock())
-            ioContext->stop();
+    TC_LOG_INFO("server.authserver", "Ping MySQL to keep connection alive");
+    LoginDatabase.KeepAlive();
 }
 
-void KeepDatabaseAliveHandler(std::weak_ptr<Trinity::Asio::DeadlineTimer> dbPingTimerRef, int32 dbPingInterval, boost::system::error_code const& error)
+void BanExpiryHandler()
 {
-    if (!error)
-    {
-        if (std::shared_ptr<Trinity::Asio::DeadlineTimer> dbPingTimer = dbPingTimerRef.lock())
-        {
-            TC_LOG_INFO("server.authserver", "Ping MySQL to keep connection alive");
-            LoginDatabase.KeepAlive();
-
-            dbPingTimer->expires_from_now(boost::posix_time::minutes(dbPingInterval));
-            dbPingTimer->async_wait(std::bind(&KeepDatabaseAliveHandler, dbPingTimerRef, dbPingInterval, std::placeholders::_1));
-        }
-    }
-}
-
-void BanExpiryHandler(std::weak_ptr<Trinity::Asio::DeadlineTimer> banExpiryCheckTimerRef, int32 banExpiryCheckInterval, boost::system::error_code const& error)
-{
-    if (!error)
-    {
-        if (std::shared_ptr<Trinity::Asio::DeadlineTimer> banExpiryCheckTimer = banExpiryCheckTimerRef.lock())
-        {
-            LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_DEL_EXPIRED_IP_BANS));
-            LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_UPD_EXPIRED_ACCOUNT_BANS));
-
-            banExpiryCheckTimer->expires_from_now(boost::posix_time::seconds(banExpiryCheckInterval));
-            banExpiryCheckTimer->async_wait(std::bind(&BanExpiryHandler, banExpiryCheckTimerRef, banExpiryCheckInterval, std::placeholders::_1));
-        }
-    }
+    LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_DEL_EXPIRED_IP_BANS));
+    LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_UPD_EXPIRED_ACCOUNT_BANS));
 }
 
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS

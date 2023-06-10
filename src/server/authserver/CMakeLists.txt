@@ -43,6 +43,7 @@ endif()
 target_link_libraries(authserver
   PRIVATE
     trinity-core-interface
+    enturion_authserver
   PUBLIC
     shared)
 
@@ -55,6 +56,7 @@ CollectIncludeDirectories(
 target_include_directories(authserver
   PUBLIC
     ${PUBLIC_INCLUDES}
+    ${CMAKE_SOURCE_DIR}/crates/authserver
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
 

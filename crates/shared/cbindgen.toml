@@ -1,0 +1,11 @@
+language = "C"
+cpp_compat = true
+
+[defines]
+"windows" = "_WIN32"
+
+[enum]
+rename_variants = "ScreamingSnakeCase"
+
+[export]
+include = ["DbcFieldFormat"]

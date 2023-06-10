@@ -55,6 +55,7 @@ target_include_directories(common
     # Provide the binary dir for all child targets
     ${CMAKE_BINARY_DIR}
     ${PUBLIC_INCLUDES}
+    ${CMAKE_SOURCE_DIR}/crates/shared
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -62,6 +63,7 @@ target_link_libraries(common
   PRIVATE
     trinity-core-interface
   PUBLIC
+    enturion_shared
     argon2
     boost
     fmt

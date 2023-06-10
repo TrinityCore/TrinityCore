@@ -152,6 +152,10 @@ void AbortHandler(int sigval)
 
 } // namespace Trinity
 
+extern "C" void AbortHandler() {
+    Trinity::AbortHandler(SIGABRT);
+}
+
 std::string GetDebugInfo()
 {
     return "";
