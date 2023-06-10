@@ -15419,7 +15419,7 @@ void Player::FailQuest(uint32 questId)
 
 void Player::FailQuestsWithFlag(QuestFlags flag)
 {
-    for (uint16 slot = 0; MAX_QUEST_LOG_SIZE; ++slot)
+    for (uint16 slot = 0; slot < MAX_QUEST_LOG_SIZE; ++slot)
     {
         uint32 questId = GetQuestSlotQuestId(slot);
         if (!questId)
