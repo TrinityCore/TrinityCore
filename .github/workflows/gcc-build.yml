@@ -13,6 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - uses: moonrepo/setup-rust@v0
+      with:
+        channel: nightly
+        profile: default
     - name: Dependencies
       run: |
         sudo apt-get update && sudo apt-get install -yq libboost-all-dev g++

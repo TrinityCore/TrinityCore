@@ -21,6 +21,7 @@
 #include <cstdlib>
 #include <thread>
 #include <cstdarg>
+#include <csignal>
 
 /**
     @file Errors.cpp
