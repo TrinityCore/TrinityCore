@@ -5845,14 +5845,13 @@ void Spell::EffectLearnAzeriteEssencePower()
 
 void Spell::EffectCreatePrivateConversation()
 {
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    Unit* unitCaster = GetUnitCasterForEffectHandlers();
-    if (!unitCaster || unitCaster->GetTypeId() != TYPEID_PLAYER)
+    if (unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    Conversation::CreateConversation(effectInfo->MiscValue, unitCaster, destTarget->GetPosition(), unitCaster->GetGUID(), GetSpellInfo());
+    Conversation::CreateConversation(effectInfo->MiscValue, unitTarget, destTarget->GetPosition(), unitTarget->GetGUID(), GetSpellInfo());
 }
 
 void Spell::EffectSendChatMessage()
