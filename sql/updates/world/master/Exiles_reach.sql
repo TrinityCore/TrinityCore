@@ -98,16 +98,15 @@ INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language
 
 -- *** Phasing ***
 
-DELETE FROM `phase_area` WHERE `AreaId`=13377 AND `PhaseId` IN (14355,15286);
+DELETE FROM `phase_area` WHERE `AreaId`=13377 AND `PhaseId` IN (14355);
 INSERT INTO `phase_area` (`AreaId`,`PhaseId`,`Comment`) VALUES
-(13377,14355, 'NPE Horde Ship - Decoration NPCs initial'),
-(13377,15286, 'NPE Horde Ship - Warlord Breka Grimaxe deck and upper deck initial');
+(13377,14355, 'NPE Horde Ship - Decoration NPCs initial');
 
 DELETE FROM `phase_area` WHERE `AreaId`=10639 AND `PhaseId` IN (14350);
 INSERT INTO `phase_area` (`AreaId`,`PhaseId`,`Comment`) VALUES
 (10639,14350, 'NPE Alliance Ship - Captain Garrick pre Quest 56775 rewarded upper deck');
 
-DELETE FROM `phase_name` WHERE `ID` IN (13861,14349,14350,14353,14355,15284,15286,15287,15514,15516);
+DELETE FROM `phase_name` WHERE `ID` IN (13861,14349,14350,14353,14355,15284,15287,15514,15516);
 INSERT INTO `phase_name` (`ID`,`Name`) VALUES
 (13861,'Cosmetic - NPE Alliance Ship - Decoration NPCs lower deck storm'),
 (14349,'Cosmetic - NPE Alliance Ship - Captain Garrick deck'),
@@ -115,7 +114,6 @@ INSERT INTO `phase_name` (`ID`,`Name`) VALUES
 (14353,'Cosmetic - NPE Alliance Ship - Private Cole on deck initial'),
 (14355,'Cosmetic - NPE Alliance Ship - Decoration NPCs deck'),
 (15284,'Cosmetic - NPE Horde Ship - Grunt Throg deck initial'),
-(15286,'Cosmetic - NPE Horde Ship - ?'),
 (15287,'Cosmetic - NPE Horde Ship - Grunt Throg storm'),
 (15514,'Cosmetic - NPE Horde Ship - Decoration NPCs deck initial'),
 (15516,'Cosmetic - NPE Horde Ship - Decoration NPCs deck storm');
@@ -156,12 +154,6 @@ DELETE FROM `spell_script_names` WHERE `spell_id` IN (303065,325108);
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (303065,'spell_summon_sparing_partner'),
 (325108,'spell_summon_sparing_partner');
-
--- Needed to remove player from transport before teleporting
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (305425,325131);
-INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
-(305425,'spell_exiles_reach_ship_crash_teleport'),
-(325131,'spell_exiles_reach_ship_crash_teleport');
 
 -- Crash movie spell cast on player for "Brace for Impact" quest rewarded Alliance and Horde
 DELETE FROM `spell_area` WHERE `spell` IN (346797,346799);

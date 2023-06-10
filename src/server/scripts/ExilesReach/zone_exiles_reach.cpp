@@ -358,8 +358,7 @@ struct npc_sparring_partner : public ScriptedAI
     {
         if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
         {
-            player->KilledMonsterCredit(NPC_KILL_CREDIT); // MINOR HACK should be done when fight ends but phase change is tied to quest conditions.
-            player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT); // Here is where phase should change.
+            player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
             player->CastSpell(player, SPELL_COMBAT_TRAINING_COMPLETE);
         }
     }
@@ -378,6 +377,7 @@ struct npc_sparring_partner : public ScriptedAI
                 me->SetFacingToObject(player);
                 Talk(TALK_SPARING_COMPLETE, player);
                 player->CastSpell(player, SPELL_COMBAT_TRAINING);
+                player->KilledMonsterCredit(NPC_KILL_CREDIT);
             }
         }
 
@@ -396,7 +396,7 @@ struct npc_sparring_partner : public ScriptedAI
 
     void DamageDealt(Unit* target, uint32& damage, DamageEffectType /*damageType*/) override
     {
-        if (target->GetHealthPct() < 91)
+        if (target->GetHealthPct() < 95)
             damage = 0;
     }
 
@@ -419,18 +419,18 @@ struct npc_sparring_partner : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_MOVE_TO_A_POSITION:
-                {
-                    std::list<Creature*> sparpoints;
-                    GetCreatureListWithEntryInGrid(sparpoints, me, NPC_SPAR_POINT_ADVERTISMENT, 25.0f);
-                    Trinity::Containers::RandomResize(sparpoints, 1);
+                    {
+                        std::list<Creature*> sparpoints;
+                        GetCreatureListWithEntryInGrid(sparpoints, me, NPC_SPAR_POINT_ADVERTISMENT, 25.0f);
+                        Trinity::Containers::RandomResize(sparpoints, 1);
 
-                    for (Creature* creature : sparpoints)
-                        me->GetMotionMaster()->MovePoint(POSITION_SPARPOINT_ADVERTISMENT, creature->GetPosition());
+                        for (Creature* creature : sparpoints)
+                            me->GetMotionMaster()->MovePoint(POSITION_SPARPOINT_ADVERTISMENT, creature->GetPosition());
 
-                    me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-                    _events.ScheduleEvent(EVENT_PREFIGHT_CONVERSATION, 1s);
-                }
-                break;
+                        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                        _events.ScheduleEvent(EVENT_PREFIGHT_CONVERSATION, 1s);
+                    }
+                    break;
                 case EVENT_PREFIGHT_CONVERSATION:
                     ConversationWithPlayer(CONVERSATION_PREFIGHT);
                     break;
@@ -502,7 +502,7 @@ struct npc_ship_captain_warming_up_private : public ScriptedAI
     void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
     {
         if (pathId == _path_to_sparing_partner)
-            _events.ScheduleEvent(EVENT_SHIP_CAPTAIN1_SCRIPT2, 1s);
+            _events.ScheduleEvent(EVENT_SHIP_CAPTAIN1_SCRIPT2, 0s);
         else if (pathId == _path_to_upper_deck)
             me->DespawnOrUnsummon();
     }
@@ -577,7 +577,7 @@ struct npc_ship_captain_brace_for_impact_private : public ScriptedAI
     void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
     {
         if (pathId == _path_pre_talk)
-            _events.ScheduleEvent(EVENT_SHIP_CAPTAIN2_SCRIPT1, 1s);
+            _events.ScheduleEvent(EVENT_SHIP_CAPTAIN2_SCRIPT1, 0s);
         else if (pathId == _path_post_talk)
             me->DespawnOrUnsummon();
     }
@@ -592,7 +592,7 @@ struct npc_ship_captain_brace_for_impact_private : public ScriptedAI
             {
                 case EVENT_SHIP_CAPTAIN2_SCRIPT1:
                     Talk(SAY_GET_TO_POSITIONS);
-                    _events.ScheduleEvent(EVENT_SHIP_CAPTAIN2_SCRIPT2, 2s);
+                    _events.ScheduleEvent(EVENT_SHIP_CAPTAIN2_SCRIPT2, 3s);
                     break;
                 case EVENT_SHIP_CAPTAIN2_SCRIPT2:
                     me->GetMotionMaster()->MovePath(_path_post_talk, false);
@@ -916,27 +916,6 @@ public:
     }
 };
 
-// Player needs to be removed from transport before teleport or will not be teleported to correct location
-
-class spell_exiles_reach_ship_crash_teleport : public SpellScript
-{
-    PrepareSpellScript(spell_exiles_reach_ship_crash_teleport);
-
-    void RelocateTransportOffset(SpellEffIndex /*effIndex*/)
-    {
-        Unit* target = GetHitUnit();
-
-        if (TransportBase* transport = target->GetTransport())
-            transport->RemovePassenger(target);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_exiles_reach_ship_crash_teleport::RelocateTransportOffset, EFFECT_3, SPELL_EFFECT_TELEPORT_UNITS);
-        OnEffectHitTarget += SpellEffectFn(spell_exiles_reach_ship_crash_teleport::RelocateTransportOffset, EFFECT_4, SPELL_EFFECT_TELEPORT_UNITS);
-    }
-};
-
 class spell_summon_sparing_partner : public SpellScript
 {
     PrepareSpellScript(spell_summon_sparing_partner);
@@ -1000,7 +979,6 @@ void AddSC_zone_exiles_reach()
     new quest_brace_for_impact();
     new player_ship_crash();
     new scene_alliance_and_horde_ship();
-    RegisterSpellScript(spell_exiles_reach_ship_crash_teleport);
     RegisterSpellScript(spell_summon_sparing_partner);
     // Beach
     new scene_alliance_and_horde_crash();
