@@ -1264,6 +1264,8 @@ void Player::setDeathState(DeathState s)
 
         InitializeSelfResurrectionSpells();
 
+        FailQuestsWithFlag(QUEST_FLAGS_COMPLETION_NO_DEATH);
+
         UpdateCriteria(CriteriaType::DieOnMap, 1);
         UpdateCriteria(CriteriaType::DieAnywhere, 1);
         UpdateCriteria(CriteriaType::DieInInstance, 1);
@@ -14419,9 +14421,9 @@ void Player::PrepareQuestMenu(ObjectGuid guid)
         if (!CanTakeQuest(quest, false))
             continue;
 
-        if (quest->IsAutoComplete() && (!quest->IsRepeatable() || quest->IsDaily() || quest->IsWeekly() || quest->IsMonthly()))
+        if (quest->IsTurnIn() && (!quest->IsRepeatable() || quest->IsDaily() || quest->IsWeekly() || quest->IsMonthly()))
             qm.AddMenuItem(quest_id, 0);
-        else if (quest->IsAutoComplete())
+        else if (quest->IsTurnIn())
             qm.AddMenuItem(quest_id, 4);
         else if (GetQuestStatus(quest_id) == QUEST_STATUS_NONE)
             qm.AddMenuItem(quest_id, 2);
@@ -14454,9 +14456,9 @@ void Player::SendPreparedQuest(WorldObject* source)
                 if (quest->IsAutoAccept() && CanAddQuest(quest, true) && CanTakeQuest(quest, true))
                     AddQuestAndCheckCompletion(quest, source);
 
-                if (quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly() && !quest->IsMonthly())
+                if (quest->IsTurnIn() && quest->IsRepeatable() && !quest->IsDailyOrWeekly() && !quest->IsMonthly())
                     PlayerTalkClass->SendQuestGiverRequestItems(quest, source->GetGUID(), CanCompleteRepeatableQuest(quest), true);
-                else if (quest->IsAutoComplete() && !quest->IsDailyOrWeekly() && !quest->IsMonthly())
+                else if (quest->IsTurnIn() && !quest->IsDailyOrWeekly() && !quest->IsMonthly())
                     PlayerTalkClass->SendQuestGiverRequestItems(quest, source->GetGUID(), CanRewardQuest(quest, false), true);
                 else
                     PlayerTalkClass->SendQuestGiverQuestDetails(quest, source->GetGUID(), true, false);
@@ -14482,7 +14484,9 @@ Quest const* Player::GetNextQuest(Object const* questGiver, Quest const* quest) 
 
     if (questGiver == this)
     {
-        ASSERT(quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE));
+        if (!quest->HasFlag(QUEST_FLAGS_AUTO_COMPLETE))
+            return nullptr;
+
         return sObjectMgr->GetQuestTemplate(nextQuestID);
     }
 
@@ -14560,7 +14564,7 @@ bool Player::CanCompleteQuest(uint32 quest_id, uint32 ignoredQuestObjectiveId /*
             return false;                                   // not allow re-complete quest
 
         // auto complete quest
-        if (qInfo->IsAutoComplete() && CanTakeQuest(qInfo, false))
+        if (qInfo->IsTurnIn() && CanTakeQuest(qInfo, false))
             return true;
 
         QuestStatusMap::iterator itr = m_QuestStatus.find(quest_id);
@@ -14583,7 +14587,7 @@ bool Player::CanCompleteQuest(uint32 quest_id, uint32 ignoredQuestObjectiveId /*
                 }
             }
 
-            if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT) && !q_status.Explored)
+            if ((qInfo->HasFlag(QUEST_FLAGS_COMPLETION_EVENT) || qInfo->HasFlag(QUEST_FLAGS_COMPLETION_AREA_TRIGGER)) && !q_status.Explored)
                 return false;
 
             if (qInfo->GetLimitTime() && q_status.Timer == 0)
@@ -14621,7 +14625,7 @@ bool Player::CanRewardQuest(Quest const* quest, bool msg) const
         return false;
 
     // not auto complete quest and not completed quest (only cheating case, then ignore without message)
-    if (!quest->IsDFQuest() && !quest->IsAutoComplete() && GetQuestStatus(quest->GetQuestId()) != QUEST_STATUS_COMPLETE)
+    if (!quest->IsDFQuest() && !quest->IsTurnIn() && GetQuestStatus(quest->GetQuestId()) != QUEST_STATUS_COMPLETE)
         return false;
 
     // daily quest can't be rewarded (25 daily quest already completed)
@@ -14893,7 +14897,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
     {
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(quest->GetSrcSpell(), GetMap()->GetDifficultyID());
         Unit* caster = this;
-        if (questGiver && questGiver->isType(TYPEMASK_UNIT) && !quest->HasFlag(QUEST_FLAGS_PLAYER_CAST_ON_ACCEPT) && !spellInfo->HasTargetType(TARGET_UNIT_CASTER) && !spellInfo->HasTargetType(TARGET_DEST_CASTER_SUMMON))
+        if (questGiver && questGiver->isType(TYPEMASK_UNIT) && !quest->HasFlag(QUEST_FLAGS_PLAYER_CAST_ACCEPT) && !spellInfo->HasTargetType(TARGET_UNIT_CASTER) && !spellInfo->HasTargetType(TARGET_DEST_CASTER_SUMMON))
             if (Unit* unit = questGiver->ToUnit())
                 caster = unit;
 
@@ -14936,7 +14940,7 @@ void Player::CompleteQuest(uint32 quest_id)
             SetQuestSlotState(questStatus->Slot, QUEST_STATE_COMPLETE);
 
         if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id))
-            if (qInfo->HasFlag(QUEST_FLAGS_TRACKING))
+            if (qInfo->HasFlag(QUEST_FLAGS_TRACKING_EVENT))
                 RewardQuest(qInfo, LootItemType::Item, 0, this, false);
     }
 
@@ -15069,23 +15073,29 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
         switch (obj.Type)
         {
             case QUEST_OBJECTIVE_ITEM:
-                if (!(quest->GetFlagsEx() & QUEST_FLAGS_EX_KEEP_ADDITIONAL_ITEMS))
-                    DestroyItemCount(obj.ObjectID, obj.Amount, true);
+            {
+                int32 amountToDestroy = obj.Amount;
+                if (quest->HasFlag(QUEST_FLAGS_REMOVE_SURPLUS_ITEMS))
+                    amountToDestroy = std::numeric_limits<uint32>::max();
+                DestroyItemCount(obj.ObjectID, amountToDestroy, true);
                 break;
+            }
             case QUEST_OBJECTIVE_CURRENCY:
                 RemoveCurrency(obj.ObjectID, obj.Amount, CurrencyDestroyReason::QuestTurnin);
                 break;
         }
     }
 
-    if (!(quest->GetFlagsEx() & QUEST_FLAGS_EX_KEEP_ADDITIONAL_ITEMS))
+    if (!quest->HasFlagEx(QUEST_FLAGS_EX_KEEP_ADDITIONAL_ITEMS))
     {
         for (uint8 i = 0; i < QUEST_ITEM_DROP_COUNT; ++i)
         {
             if (quest->ItemDrop[i])
             {
                 uint32 count = quest->ItemDropQuantity[i];
-                DestroyItemCount(quest->ItemDrop[i], count ? count : 9999, true);
+                if (!count)
+                    count = std::numeric_limits<uint32>::max();
+                DestroyItemCount(quest->ItemDrop[i], count, true);
             }
         }
     }
@@ -15246,7 +15256,7 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
     {
         SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(quest->GetRewSpell(), GetMap()->GetDifficultyID());
         Unit* caster = this;
-        if (questGiver && questGiver->isType(TYPEMASK_UNIT) && !quest->HasFlag(QUEST_FLAGS_PLAYER_CAST_ON_COMPLETE) && !spellInfo->HasTargetType(TARGET_UNIT_CASTER))
+        if (questGiver && questGiver->isType(TYPEMASK_UNIT) && !quest->HasFlag(QUEST_FLAGS_PLAYER_CAST_COMPLETE) && !spellInfo->HasTargetType(TARGET_UNIT_CASTER))
             if (Unit* unit = questGiver->ToUnit())
                 caster = unit;
 
@@ -15262,7 +15272,7 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
 
             SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(displaySpell.SpellId, GetMap()->GetDifficultyID());
             Unit* caster = this;
-            if (questGiver && questGiver->isType(TYPEMASK_UNIT) && !quest->HasFlag(QUEST_FLAGS_PLAYER_CAST_ON_COMPLETE) && !spellInfo->HasTargetType(TARGET_UNIT_CASTER))
+            if (questGiver && questGiver->isType(TYPEMASK_UNIT) && !quest->HasFlag(QUEST_FLAGS_PLAYER_CAST_COMPLETE) && !spellInfo->HasTargetType(TARGET_UNIT_CASTER))
                 if (Unit* unit = questGiver->ToUnit())
                     caster = unit;
 
@@ -15290,66 +15300,66 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
 
     SendQuestGiverStatusMultiple();
 
-    bool conditionChanged = SendQuestUpdate(quest_id, false);
+    SendQuestUpdate(quest_id);
+
+    bool updateVisibility = false;
+    if (quest->HasFlag(QUEST_FLAGS_UPDATE_PHASESHIFT))
+        updateVisibility = PhasingHandler::OnConditionChange(this, false);
 
     //lets remove flag for delayed teleports
     SetCanDelayTeleport(false);
 
-    bool canHaveNextQuest = !quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE) ? questGiver && !questGiver->IsPlayer() : true;
-    if (canHaveNextQuest)
+    switch (questGiver->GetTypeId())
     {
-        switch (questGiver->GetTypeId())
+        case TYPEID_UNIT:
+        case TYPEID_PLAYER:
         {
-            case TYPEID_UNIT:
-            case TYPEID_PLAYER:
+            //For AutoSubmition was added plr case there as it almost same exclute AI script cases.
+            // Send next quest
+            if (Quest const* nextQuest = GetNextQuest(questGiver, quest))
             {
-                //For AutoSubmition was added plr case there as it almost same exclute AI script cases.
-                // Send next quest
-                if (Quest const* nextQuest = GetNextQuest(questGiver, quest))
+                // Only send the quest to the player if the conditions are met
+                if (CanTakeQuest(nextQuest, false))
                 {
-                    // Only send the quest to the player if the conditions are met
-                    if (CanTakeQuest(nextQuest, false))
-                    {
-                        if (nextQuest->IsAutoAccept() && CanAddQuest(nextQuest, true))
-                            AddQuestAndCheckCompletion(nextQuest, questGiver);
+                    if (nextQuest->IsAutoAccept() && CanAddQuest(nextQuest, true))
+                        AddQuestAndCheckCompletion(nextQuest, questGiver);
 
-                        PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, questGiver->GetGUID(), true, false);
-                    }
+                    PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, questGiver->GetGUID(), true, false);
                 }
-
-                PlayerTalkClass->ClearMenus();
-                if (Creature* creatureQGiver = questGiver->ToCreature())
-                    creatureQGiver->AI()->OnQuestReward(this, quest, rewardType, rewardId);
-                break;
             }
-            case TYPEID_GAMEOBJECT:
-            {
-                // Send next quest
-                if (Quest const* nextQuest = GetNextQuest(questGiver, quest))
-                {
-                    // Only send the quest to the player if the conditions are met
-                    if (CanTakeQuest(nextQuest, false))
-                    {
-                        if (nextQuest->IsAutoAccept() && CanAddQuest(nextQuest, true))
-                            AddQuestAndCheckCompletion(nextQuest, questGiver);
 
-                        PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, questGiver->GetGUID(), true, false);
-                    }
-                }
-
-                PlayerTalkClass->ClearMenus();
-                questGiver->ToGameObject()->AI()->OnQuestReward(this, quest, rewardType, rewardId);
-                break;
-            }
-            default:
-                break;
+            PlayerTalkClass->ClearMenus();
+            if (Creature* creatureQGiver = questGiver->ToCreature())
+                creatureQGiver->AI()->OnQuestReward(this, quest, rewardType, rewardId);
+            break;
         }
+        case TYPEID_GAMEOBJECT:
+        {
+            // Send next quest
+            if (Quest const* nextQuest = GetNextQuest(questGiver, quest))
+            {
+                // Only send the quest to the player if the conditions are met
+                if (CanTakeQuest(nextQuest, false))
+                {
+                    if (nextQuest->IsAutoAccept() && CanAddQuest(nextQuest, true))
+                        AddQuestAndCheckCompletion(nextQuest, questGiver);
+
+                    PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, questGiver->GetGUID(), true, false);
+                }
+            }
+
+            PlayerTalkClass->ClearMenus();
+            questGiver->ToGameObject()->AI()->OnQuestReward(this, quest, rewardType, rewardId);
+            break;
+        }
+        default:
+            break;
     }
 
     sScriptMgr->OnQuestStatusChange(this, quest_id);
     sScriptMgr->OnQuestStatusChange(this, quest, oldStatus, QUEST_STATUS_REWARDED);
 
-    if (conditionChanged)
+    if (updateVisibility)
         UpdateObjectVisibility();
 }
 
@@ -15404,6 +15414,20 @@ void Player::FailQuest(uint32 questId)
             if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->ItemDrop[i]))
                 if (quest->ItemDropQuantity[i] && itemTemplate->GetBonding() == BIND_QUEST)
                     DestroyItemCount(quest->ItemDrop[i], quest->ItemDropQuantity[i], true, true);
+    }
+}
+
+void Player::FailQuestsWithFlag(QuestFlags flag)
+{
+    for (uint16 slot = 0; MAX_QUEST_LOG_SIZE; ++slot)
+    {
+        uint32 questId = GetQuestSlotQuestId(slot);
+        if (!questId)
+            continue;
+
+        if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
+            if (quest->HasFlag(flag))
+                FailQuest(questId);
     }
 }
 
@@ -15981,7 +16005,7 @@ void Player::SetQuestStatus(uint32 questId, QuestStatus status, bool update /*= 
         QuestStatus oldStatus = m_QuestStatus[questId].Status;
         m_QuestStatus[questId].Status = status;
 
-        if (!quest->IsAutoComplete())
+        if (!quest->IsTurnIn())
             m_QuestStatusSave[questId] = QUEST_DEFAULT_SAVE_TYPE;
 
         sScriptMgr->OnQuestStatusChange(this, questId);
@@ -16041,7 +16065,7 @@ void Player::RemoveRewardedQuest(uint32 questId, bool update /*= true*/)
         SendQuestUpdate(questId);
 }
 
-bool Player::SendQuestUpdate(uint32 questId, bool updateVisiblity /*= true*/)
+void Player::SendQuestUpdate(uint32 questId)
 {
     SpellAreaForQuestMapBounds saBounds = sSpellMgr->GetSpellAreaForQuestMapBounds(questId);
 
@@ -16090,7 +16114,6 @@ bool Player::SendQuestUpdate(uint32 questId, bool updateVisiblity /*= true*/)
     }
 
     UpdateVisibleGameobjectsOrSpellClicks();
-    return PhasingHandler::OnConditionChange(this, updateVisiblity);
 }
 
 QuestGiverStatus Player::GetQuestDialogStatus(Object const* questgiver) const
@@ -16152,7 +16175,7 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object const* questgiver) const
                 break;
         }
 
-        if (quest->IsAutoComplete() && CanTakeQuest(quest, false) && quest->IsRepeatable() && !quest->IsDailyOrWeekly() && !quest->IsMonthly())
+        if (quest->IsTurnIn() && CanTakeQuest(quest, false) && quest->IsRepeatable() && !quest->IsDailyOrWeekly() && !quest->IsMonthly())
         {
             if (GetLevel() <= (GetQuestLevel(quest) + sWorld->getIntConfig(CONFIG_QUEST_LOW_LEVEL_HIDE_DIFF)))
                 result |= QuestGiverStatus::RepeatableTurnin;
@@ -16951,7 +16974,7 @@ void Player::SendQuestReward(Quest const* quest, Creature const* questGiver, uin
         if (questGiver->IsQuestGiver())
             packet.LaunchQuest = (GetQuestDialogStatus(questGiver) & ~QuestGiverStatus::Future) != QuestGiverStatus::None;
 
-        if (!quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE))
+        if (!quest->HasFlag(QUEST_FLAGS_AUTO_COMPLETE))
             if (Quest const* rewardQuest = GetNextQuest(questGiver, quest))
                 packet.UseQuestReward = CanTakeQuest(rewardQuest, false);
     }
