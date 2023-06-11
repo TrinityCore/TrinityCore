@@ -845,12 +845,6 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
 
     CharacterDatabase.Execute(stmt);
 
-    LoginDatabasePreparedStatement* loginStmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_ONLINE);
-
-    loginStmt->setUInt32(0, GetAccountId());
-
-    LoginDatabase.Execute(loginStmt);
-
     pCurrChar->SetInGameTime(GameTime::GetGameTimeMS());
 
     // announce group about member online (must be after add to player list to receive announce to self)
