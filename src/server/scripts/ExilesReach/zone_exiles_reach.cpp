@@ -37,9 +37,9 @@
 class ExilesReach
 {
 public:
-    static Creature* FindCreature(WorldObject const* obj, std::string_view stringId)
+    static Creature* FindCreature(WorldObject const* obj, std::string_view stringId, float range = 100.0f)
     {
-        return obj->FindNearestCreatureWithOptions(100.0f, FindCreatureOptions().SetIgnorePhases(true).SetStringId(stringId));
+        return obj->FindNearestCreatureWithOptions(range, FindCreatureOptions().SetIgnorePhases(true).SetStringId(stringId));
     }
 };
 
@@ -95,8 +95,8 @@ public:
 
         if (newStatus == QUEST_STATUS_REWARDED)
         {
-            Creature* garrickLowerDeck = ExilesReach::FindCreature(player, "q56775_garrick_lower_deck");
-            Creature* garrickUpperDeck = ExilesReach::FindCreature(player, "q56775_garrick_upper_deck");
+            Creature* garrickLowerDeck = ExilesReach::FindCreature(player, "q56775_garrick_lower_deck", 5.0f);
+            Creature* garrickUpperDeck = ExilesReach::FindCreature(player, "q56775_garrick_upper_deck", 75.0f);
             if (!garrickLowerDeck || !garrickUpperDeck)
                 return;
 
@@ -117,8 +117,8 @@ public:
 
         if (newStatus == QUEST_STATUS_REWARDED)
         {
-            Creature* grimaxeLowerDeck = ExilesReach::FindCreature(player, "q59926_grimaxe_lower_deck");
-            Creature* grimaxeUpperDeck = ExilesReach::FindCreature(player, "q59926_grimaxe_upper_deck");
+            Creature* grimaxeLowerDeck = ExilesReach::FindCreature(player, "q59926_grimaxe_lower_deck", 5.0f);
+            Creature* grimaxeUpperDeck = ExilesReach::FindCreature(player, "q59926_grimaxe_upper_deck", 75.0f);
             if (!grimaxeLowerDeck || !grimaxeUpperDeck)
                 return;
 
@@ -206,7 +206,7 @@ public:
         {
             if (auto const* actors = Trinity::Containers::MapGetValuePtr(actorData, TeamId(TEAM_ALLIANCE)))
             for (ActorData const actor : *actors)
-                SpawnActor(player, ExilesReach::FindCreature(player, actor.StringId), actor.ActorPosition);
+                SpawnActor(player, ExilesReach::FindCreature(player, actor.StringId, 50.0f), actor.ActorPosition);
 
             // Spawn pet
             SpawnPet(player, { -1.4492f, 8.06887f,  5.10348f, 2.6005409f });
@@ -215,7 +215,7 @@ public:
         {
             if (auto const* actors = Trinity::Containers::MapGetValuePtr(actorData, TeamId(TEAM_HORDE)))
                 for (ActorData const actor : *actors)
-                SpawnActor(player, ExilesReach::FindCreature(player, actor.StringId), actor.ActorPosition);
+                SpawnActor(player, ExilesReach::FindCreature(player, actor.StringId, 50.0f), actor.ActorPosition);
 
             // Spawn pet
             SpawnPet(player, { -22.8374f, -3.08287f, 9.12613f, 3.857178f });
@@ -229,7 +229,7 @@ public:
 
         if (std::string_view const* stringId = Trinity::Containers::MapGetValuePtr(actorPetData, Races(player->GetRace())))
         {
-            Creature* pet = ExilesReach::FindCreature(player, *stringId);
+            Creature* pet = ExilesReach::FindCreature(player, *stringId, 25.0f);
             if (!pet)
                 return;
 
