@@ -1,6 +1,7 @@
 use crate::dbc::DbcFieldFormat;
 use std::ffi::{c_char, c_float, CStr};
 
+/// Returns the size of the record based on textual representation
 pub fn get_format_record_size(format: &str) -> (usize, Option<usize>) {
     let mut record_size = 0;
     let mut index_position = None;
@@ -47,4 +48,27 @@ pub unsafe extern "C" fn DBCFileLoader_GetFormatRecordSize(
     }
 
     record_size
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::dbc::file_loader::get_format_record_size;
+    use std::ffi::c_void;
+
+    #[test]
+    pub fn format_record_size() {
+        assert_eq!(get_format_record_size("f"), (4, None));
+        assert_eq!(get_format_record_size("i"), (4, None));
+        assert_eq!(
+            get_format_record_size("s"),
+            (std::mem::size_of::<*const c_void>(), None)
+        );
+        assert_eq!(get_format_record_size("d"), (0, Some(0)));
+        assert_eq!(get_format_record_size("n"), (4, Some(0)));
+        assert_eq!(get_format_record_size("b"), (1, None));
+        assert_eq!(get_format_record_size("x"), (0, None));
+        assert_eq!(get_format_record_size("X"), (0, None));
+
+        assert_eq!(get_format_record_size("ffinbb"), (18, Some(3)));
+    }
 }

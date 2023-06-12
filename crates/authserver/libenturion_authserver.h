@@ -1,3 +1,6 @@
+#ifndef libenturion_authserver_h
+#define libenturion_authserver_h
+
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -18,3 +21,5 @@ void AuthServerRsMain(TickCallback tick_callback);
 #ifdef __cplusplus
 } // extern "C"
 #endif // __cplusplus
+
+#endif /* libenturion_authserver_h */

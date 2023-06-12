@@ -3,6 +3,7 @@ use tokio::runtime::Runtime;
 
 pub mod config;
 pub mod dbc;
+pub mod error;
 pub mod signals;
 pub mod timer;
 #[cfg(windows)]

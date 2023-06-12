@@ -1,5 +1,5 @@
-use std::path::PathBuf;
 use cbindgen::Config;
+use std::path::PathBuf;
 
 fn main() {
     let path = PathBuf::from(std::env::current_dir().unwrap());
@@ -13,5 +13,7 @@ fn main() {
     header_file.push("libenturion_authserver.h");
 
     let config = Config::from_file(cbindgen_config).unwrap();
-    cbindgen::generate_with_config(current_dir, config).unwrap().write_to_file(header_file);
+    cbindgen::generate_with_config(current_dir, config)
+        .unwrap()
+        .write_to_file(header_file);
 }

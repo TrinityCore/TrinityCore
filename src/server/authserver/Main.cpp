@@ -104,15 +104,11 @@ int main(int argc, char** argv)
 #endif
 
     std::string configError;
-    if (!sConfigMgr->LoadInitial(configFile.generic_string(),
-                                 std::vector<std::string>(argv, argv + argc),
-                                 configError))
+    if (!sConfigMgr->LoadInitial(configFile.generic_string(),configError))
     {
         printf("Error in config file: %s\n", configError.c_str());
         return 1;
     }
-
-    std::vector<std::string> overriddenKeys = sConfigMgr->OverrideWithEnvVariablesIfAny();
 
     sLog->RegisterAppender<AppenderDB>();
     sLog->Initialize(nullptr);
@@ -129,9 +125,6 @@ int main(int argc, char** argv)
             TC_LOG_INFO("server.authserver", "Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
         }
     );
-
-    for (std::string const& key : overriddenKeys)
-        TC_LOG_INFO("server.authserver", "Configuration field '%s' was overridden with environment variable.", key.c_str());
 
     OpenSSLCrypto::threadsSetup(boost::dll::program_location().remove_filename());
 

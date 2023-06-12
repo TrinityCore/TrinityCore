@@ -1,9 +1,9 @@
 language = "C"
 cpp_compat = true
+include_guard = "libenturion_authserver_h"
 
 [defines]
 "windows" = "_WIN32"
 
 [enum]
 rename_variants = "ScreamingSnakeCase"
-

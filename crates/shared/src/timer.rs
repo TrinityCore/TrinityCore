@@ -1,6 +1,6 @@
+use crate::error::DummyError;
 use crate::RUNTIME;
 use std::error::Error;
-use std::fmt::{Debug, Display, Formatter};
 use std::future::Future;
 use std::sync::{Mutex, OnceLock};
 use std::time::Duration;
@@ -8,22 +8,6 @@ use tokio::task::JoinHandle;
 use tokio::time;
 
 static TIMERS: OnceLock<Mutex<Vec<JoinHandle<()>>>> = OnceLock::new();
-
-struct DummyError {}
-
-impl Debug for DummyError {
-    fn fmt(&self, _: &mut Formatter<'_>) -> std::fmt::Result {
-        unreachable!()
-    }
-}
-
-impl Display for DummyError {
-    fn fmt(&self, _: &mut Formatter<'_>) -> std::fmt::Result {
-        unreachable!()
-    }
-}
-
-impl Error for DummyError {}
 
 pub fn create_timer<R, E, F>(interval: Duration, callback: F)
 where
@@ -43,6 +27,15 @@ where
     timers.push(handle);
 }
 
+#[allow(clippy::await_holding_lock)]
+pub async fn stop_timers() {
+    let mut timers = TIMERS.get_or_init(Mutex::default).lock().unwrap();
+    for timer in timers.drain(..) {
+        timer.abort();
+        let _ = timer.await;
+    }
+}
+
 type TimerCallback = unsafe extern "C" fn();
 
 #[no_mangle]
@@ -56,4 +49,31 @@ pub extern "C" fn CreateTimer(interval_seconds: u64, callback: TimerCallback) {
         }
         Ok::<(), DummyError>(())
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::error::DummyError;
+    use crate::timer::{create_timer, stop_timers};
+    use std::sync::atomic::{AtomicU32, Ordering};
+    use std::sync::Arc;
+    use std::time::Duration;
+    use tokio::time::sleep;
+
+    #[tokio::test]
+    pub async fn timer_should_work() {
+        let counter = Arc::new(AtomicU32::new(0));
+        let counter_ref = counter.clone();
+
+        create_timer(Duration::from_secs(1), move || {
+            counter_ref.fetch_add(1, Ordering::SeqCst);
+
+            async { Ok::<(), DummyError>(()) }
+        });
+
+        sleep(Duration::from_millis(3500)).await;
+        assert_eq!(counter.load(Ordering::Relaxed), 4);
+
+        stop_timers().await;
+    }
 }

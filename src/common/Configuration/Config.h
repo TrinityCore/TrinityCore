@@ -21,9 +21,13 @@
 #include "Define.h"
 #include <string>
 #include <vector>
+#include "libenturion_shared.h"
 
 class TC_COMMON_API ConfigMgr
 {
+    std::string _filename;
+    Config _config;
+
     ConfigMgr() = default;
     ConfigMgr(ConfigMgr const&) = delete;
     ConfigMgr& operator=(ConfigMgr const&) = delete;
@@ -31,11 +35,7 @@ class TC_COMMON_API ConfigMgr
 
 public:
     /// Method used only for loading main configuration files (authserver.conf and worldserver.conf)
-    bool LoadInitial(std::string file, std::vector<std::string> args, std::string& error);
-    bool LoadAdditionalFile(std::string file, bool keepOnReload, std::string& error);
-
-    /// Overrides configuration with environment variables and returns overridden keys
-    std::vector<std::string> OverrideWithEnvVariablesIfAny();
+    bool LoadInitial(std::string file, std::string& error);
 
     static ConfigMgr* instance();
 
@@ -47,12 +47,7 @@ public:
     float GetFloatDefault(std::string const& name, float def, bool quiet = false) const;
 
     std::string const& GetFilename();
-    std::vector<std::string> const& GetArguments() const;
     std::vector<std::string> GetKeysByString(std::string const& name);
-
-private:
-    template<class T>
-    T GetValueDefault(std::string const& name, T def, bool quiet) const;
 };
 
 #define sConfigMgr ConfigMgr::instance()

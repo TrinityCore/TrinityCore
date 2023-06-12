@@ -1,4 +1,4 @@
-TrinityCore rev. 0910258e0aa5+ 2023-06-05 22:50:12 +0200 (3.3.5 branch) (Unix, Debug, Static) (authserver)
+TrinityCore rev. b536709110e1+ 2023-06-10 18:29:54 +0200 (develop branch) (Unix, Debug, Static) (authserver)
 <Ctrl-C> to stop.
 
  ______                       __
@@ -26,11 +26,4 @@ DatabasePool 'auth' opened successfully. 2 total connections running.
 Started auth database connection pool.
 Loading IP Location Database...
 Added realm "Trinity" at 127.0.0.1:8085.
-Ping MySQL to keep connection alive
-Ping MySQL to keep connection alive
-Ping MySQL to keep connection alive
-Ping MySQL to keep connection alive
-Ping MySQL to keep connection alive
-Ping MySQL to keep connection alive
-Ping MySQL to keep connection alive
 Ping MySQL to keep connection alive
