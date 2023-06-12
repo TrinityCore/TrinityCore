@@ -150,7 +150,9 @@ struct TC_GAME_API LootItem
                  { };
 
     // Basic checks for player/item compatibility - if false no chance to see the item in the loot
+    bool AllowedForPlayer(Player const* player, bool isGivenByMasterLooter, ObjectGuid ownerGuid) const;
     bool AllowedForPlayer(Player const* player, bool isGivenByMasterLooter = false) const;
+    bool AllowedForPlayer(Player const* player, ObjectGuid ownerGuid) const;
     void AddAllowedLooter(Player const* player);
     GuidSet const& GetAllowedLooters() const { return allowedGUIDs; }
 };
