@@ -6813,11 +6813,9 @@ float Unit::SpellCritChanceTaken(Unit const* caster, SpellInfo const* spellInfo,
 
                         // Improved Searing Pain
                         if (AuraEffect const* effect = caster->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, 816, EFFECT_0))
-                        {
                             if (effect->IsAffectingSpell(spellInfo))
-                                if (GetHealthPct() <= effect->GetSpellInfo()->Effects[EFFECT_1].CalcValue())
+                                if (GetHealthPct() <= 25.f)
                                     crit_chance += effect->GetAmount();
-                        }
                         break;
                 }
 
