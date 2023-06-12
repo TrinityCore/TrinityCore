@@ -445,6 +445,11 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPackets::Quest::QuestLogRemove
 
             if (quest)
             {
+                if (quest->HasFlagEx(QUEST_FLAGS_EX_NO_ABANDON_ONCE_BEGUN))
+                    for (QuestObjective const& objective : quest->Objectives)
+                        if (_player->IsQuestObjectiveComplete(packet.Entry, quest, objective))
+                            return;
+
                 if (quest->GetLimitTime())
                     _player->RemoveTimedQuest(questId);
 
@@ -453,7 +458,6 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPackets::Quest::QuestLogRemove
                     _player->pvpInfo.IsHostile = _player->pvpInfo.IsInHostileArea || _player->HasPvPForcingQuest();
                     _player->UpdatePvPState();
                 }
-
             }
 
             _player->SetQuestSlot(packet.Entry, 0);
