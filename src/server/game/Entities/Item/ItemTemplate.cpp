@@ -67,7 +67,8 @@ float ItemTemplate::getDPS() const
 int32 ItemTemplate::getFeralBonus(int32 extraDPS /*= 0*/) const
 {
     // 0x02A5F3 - is mask for Melee weapon from ItemSubClassMask.dbc
-    if (Class == ITEM_CLASS_WEAPON && (1 << SubClass) & 0x02A5F3)
+    // or Fishing Poles (ITEM_SUBCLASS_WEAPON_FISHING_POLE) included in subclass
+    if (Class == ITEM_CLASS_WEAPON && (1 << SubClass || SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE) & 0x02A5F3)
     {
         int32 bonus = int32((extraDPS + getDPS()) * 14.0f) - 767;
         if (bonus < 0)
