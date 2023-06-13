@@ -507,7 +507,7 @@ bool AuthSession::HandleLogonProof()
         // Update the sessionkey, last_ip, last login time and reset number of failed logins in the account table for this account
         // No SQL injection (escaped user name) and IP address as received by socket
 
-        std::string address = sConfigMgr->GetBoolDefault("AllowLoggingIPAddressesInDatabase", true, true) ? GetRemoteIpAddress().to_string() : "127.0.0.1";
+        std::string address = sConfigMgr->GetBoolDefault("AllowLoggingIPAddressesInDatabase", true) ? GetRemoteIpAddress().to_string() : "127.0.0.1";
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGONPROOF);
         stmt->setBinary(0, _sessionKey);
         stmt->setString(1, address);

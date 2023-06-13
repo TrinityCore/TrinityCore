@@ -41,10 +41,10 @@ public:
 
     bool Reload(std::vector<std::string>& errors);
 
-    std::string GetStringDefault(std::string const& name, const std::string& def, bool quiet = false) const;
-    bool GetBoolDefault(std::string const& name, bool def, bool quiet = false) const;
-    int GetIntDefault(std::string const& name, int def, bool quiet = false) const;
-    float GetFloatDefault(std::string const& name, float def, bool quiet = false) const;
+    std::string GetStringDefault(std::string const& name, const std::string& def) const;
+    bool GetBoolDefault(std::string const& name, bool def) const;
+    int GetIntDefault(std::string const& name, int def) const;
+    float GetFloatDefault(std::string const& name, float def) const;
 
     std::string const& GetFilename();
     std::vector<std::string> GetKeysByString(std::string const& name);

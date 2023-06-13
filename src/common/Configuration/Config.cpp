@@ -50,7 +50,7 @@ bool ConfigMgr::Reload(std::vector<std::string>& errors)
     return errors.empty();
 }
 
-std::string ConfigMgr::GetStringDefault(std::string const& name, const std::string& def, bool quiet) const
+std::string ConfigMgr::GetStringDefault(std::string const& name, const std::string& def) const
 {
     const char *val = Config_GetStringDefault(&_config, name.c_str(), def.c_str());
 
@@ -61,17 +61,17 @@ std::string ConfigMgr::GetStringDefault(std::string const& name, const std::stri
     return str_val;
 }
 
-bool ConfigMgr::GetBoolDefault(std::string const& name, bool def, bool quiet) const
+bool ConfigMgr::GetBoolDefault(std::string const& name, bool def) const
 {
     return Config_GetBoolDefault(&_config, name.c_str(), def);
 }
 
-int ConfigMgr::GetIntDefault(std::string const& name, int def, bool quiet) const
+int ConfigMgr::GetIntDefault(std::string const& name, int def) const
 {
     return Config_GetIntDefault(&_config, name.c_str(), def);
 }
 
-float ConfigMgr::GetFloatDefault(std::string const& name, float def, bool quiet) const
+float ConfigMgr::GetFloatDefault(std::string const& name, float def) const
 {
     return Config_GetFloatDefault(&_config, name.c_str(), def);
 }
