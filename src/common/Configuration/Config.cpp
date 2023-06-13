@@ -17,8 +17,6 @@
 
 #include "Config.h"
 #include "Log.h"
-#include <algorithm>
-#include <mutex>
 
 bool ConfigMgr::LoadInitial(std::string file, std::string& error)
 {

@@ -9,10 +9,12 @@ path = "lib.rs"
 
 [dependencies]
 enturion_shared = { path = "shared" }
+libmpq-rs = { path = "libmpq-rs" }
 
 [workspace]
 resolver = "2"
 members = [
-    "shared",
     "authserver",
+    "libmpq-rs",
+    "shared",
 ]

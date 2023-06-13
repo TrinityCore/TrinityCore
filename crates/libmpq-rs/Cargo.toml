@@ -1,0 +1,21 @@
+[package]
+name = "libmpq-rs"
+version = "0.1.0"
+edition = "2021"
+publish = false
+workspace = ".."
+
+[lib]
+crate-type = ["staticlib", "cdylib"]
+
+[dependencies]
+adler32 = "1.2.0"
+byteorder = "1.4.3"
+bzip2 = "0.4.4"
+flate2 = "1.0.26"
+futures = "0.3.28"
+implode = "0.1.1"
+tokio = { version = "1.28.1", features = ["fs", "io-util"] }
+
+[dev-dependencies]
+tokio-test = "0.4.2"
