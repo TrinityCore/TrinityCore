@@ -98,6 +98,11 @@ int64_t Config_GetIntDefault(const struct Config *self, const char *name, int64_
 double Config_GetFloatDefault(const struct Config *self, const char *name, double default_);
 
 /**
+ * De-allocates the current configuration, freeing memory
+ */
+void Config_Free(struct Config self);
+
+/**
  * # Safety
  * C++ Interface. Do conversions from unsafe structs to safe ones and back.
  * Asserts that the format pointer is non-null.

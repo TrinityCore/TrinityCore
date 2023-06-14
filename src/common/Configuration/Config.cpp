@@ -33,7 +33,7 @@ bool ConfigMgr::LoadInitial(std::string file, std::string& error)
 
     auto oldConfig = _config;
     _config = config;
-    delete oldConfig.inner;
+    Config_Free(oldConfig);
 
     return true;
 }

@@ -258,12 +258,20 @@ impl Config {
             default
         }
     }
+
+    /// De-allocates the current configuration, freeing memory
+    #[no_mangle]
+    pub extern "C" fn Config_Free(self) {
+        drop(self);
+    }
 }
 
 impl Drop for Config {
     fn drop(&mut self) {
-        unsafe {
-            ptr::drop_in_place(self.inner as *mut c_void);
+        if self.inner != ptr::null() {
+            unsafe {
+                ptr::drop_in_place(self.inner as *mut c_void);
+            }
         }
     }
 }
