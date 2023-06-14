@@ -68,7 +68,7 @@ void AAData::AA_REP_Character_Instance(Player* player, CharacterDatabaseTransact
         stmt->setUInt32(32, conf.fw_count);
         stmt->setString(33, conf.fw_values);
         stmt->setString(34, conf.fwzh_values);
-        stmt->setUInt32(35, conf.cuiqu_pos);
+        stmt->setInt32(35, conf.cuiqu_pos);
         stmt->setUInt32(36, conf.baoshi_entry);
         stmt->setUInt32(37, conf.item_set);
         stmt->setUInt32(38, conf.update_time);

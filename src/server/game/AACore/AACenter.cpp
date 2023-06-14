@@ -15431,23 +15431,14 @@ AA_Creature AACenter::AA_GetCreatureConf(Creature* creature)
     if (map->IsDungeon() && normalInfo) {
         // get difficulty 1 mode entry
         CreatureTemplate const* cInfo = nullptr;
-        DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(map->GetDifficultyID());
-        while (!cInfo && difficultyEntry)
-        {
-            int32 idx = CreatureTemplate::DifficultyIDToDifficultyEntryIndex(difficultyEntry->ID);
-            if (idx == -1)
-                break;
 
-            if (normalInfo->DifficultyEntry[idx])
-            {
-                cInfo = sObjectMgr->GetCreatureTemplate(normalInfo->DifficultyEntry[idx]);
-                break;
-            }
+        CreatureDifficulty const* creatureDifficulty = normalInfo->GetDifficulty(map->GetDifficultyID());
 
-            if (!difficultyEntry->FallbackDifficultyID)
-                break;
-
-            difficultyEntry = sDifficultyStore.LookupEntry(difficultyEntry->FallbackDifficultyID);
+        if (!creatureDifficulty->CreatureDifficultyID) {
+            cInfo = normalInfo;
+        }
+        else {
+            cInfo = sObjectMgr->GetCreatureTemplate(creatureDifficulty->CreatureDifficultyID);
         }
 
         if (!cInfo)
@@ -15703,24 +15694,13 @@ void AACenter::AA_ModifyCreature(Creature* creature, AA_Creature conf)
         }
 
         CreatureTemplate const* cInfo = nullptr;
-        // get difficulty 1 mode entry
-        DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(map->GetDifficultyID());
-        while (!cInfo && difficultyEntry)
-        {
-            int32 idx = CreatureTemplate::DifficultyIDToDifficultyEntryIndex(difficultyEntry->ID);
-            if (idx == -1)
-                break;
+        CreatureDifficulty const* creatureDifficulty = normalInfo->GetDifficulty(map->GetDifficultyID());
 
-            if (normalInfo->DifficultyEntry[idx])
-            {
-                cInfo = sObjectMgr->GetCreatureTemplate(normalInfo->DifficultyEntry[idx]);
-                break;
-            }
-
-            if (!difficultyEntry->FallbackDifficultyID)
-                break;
-
-            difficultyEntry = sDifficultyStore.LookupEntry(difficultyEntry->FallbackDifficultyID);
+        if (!creatureDifficulty->CreatureDifficultyID) {
+            cInfo = normalInfo;
+        }
+        else {
+            cInfo = sObjectMgr->GetCreatureTemplate(creatureDifficulty->CreatureDifficultyID);
         }
 
         if (!cInfo)

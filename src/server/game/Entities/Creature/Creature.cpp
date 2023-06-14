@@ -2955,6 +2955,9 @@ bool Creature::HasScalableLevels() const
 
 void Creature::ApplyLevelScaling()
 {
+    if (this->aa_id > 0) {
+        return;
+    }
     CreatureDifficulty const* creatureDifficulty = GetCreatureDifficulty();
 
     if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(creatureDifficulty->ContentTuningID, 0))

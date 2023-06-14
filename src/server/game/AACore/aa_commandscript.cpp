@@ -2089,7 +2089,8 @@ public:
             char const* id = handler->extractKeyFromLink((char*)args, "Hitem");
             if (!id)
                 return false;
-            itemId = atoul(id);
+
+            itemId = Trinity::StringTo<uint32>(id).value_or(0);
         }
 
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
