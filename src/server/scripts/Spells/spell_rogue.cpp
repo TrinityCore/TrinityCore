@@ -1014,8 +1014,13 @@ class spell_rog_deadly_momentum : public AuraScript
 
         // Recuperate duration refreshing
         if (AuraEffect* recuperate = target->GetAuraEffect(SPELL_AURA_PERIODIC_HEAL, SPELLFAMILY_ROGUE, 0, 0x08000000, 0))
+        {
             if (spell_rog_recuperate* script = recuperate->GetBase()->GetScript<spell_rog_recuperate>("spell_rog_recuperate"))
+            {
                 recuperate->GetBase()->SetDuration(script->Duration);
+                recuperate->ResetTicks();
+            }
+        }
     }
 
     void Register() override
