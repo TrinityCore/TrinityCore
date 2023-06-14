@@ -38,6 +38,11 @@ extern "C" {
 #endif // __cplusplus
 
 /**
+ * Gets the current executable filepath.
+ */
+const char *GetCurrentExe(void);
+
+/**
  * Load the configuration from files.
  * If load error is not NULL, an error has been raised and the returned value is invalid.
  *

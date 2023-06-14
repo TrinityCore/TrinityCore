@@ -63,6 +63,7 @@ ScriptReloadMgr* ScriptReloadMgr::instance()
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include "libenturion_shared.h"
 
 namespace fs = boost::filesystem;
 
@@ -107,10 +108,7 @@ typedef void* HandleType;
 
 static fs::path GetDirectoryOfExecutable()
 {
-    ASSERT((!sConfigMgr->GetArguments().empty()),
-           "Expected the arguments to contain at least 1 element!");
-
-    fs::path path(sConfigMgr->GetArguments()[0]);
+    fs::path path(GetCurrentExe());
     if (path.is_absolute())
         return path.parent_path();
     else
