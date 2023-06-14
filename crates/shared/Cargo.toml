@@ -13,7 +13,7 @@ cbindgen = "0.24.3"
 
 [dependencies]
 anyhow = "1.0.71"
-config = "0.13.3"
+config = { git = "https://github.com/mehcode/config-rs.git" }
 glob = "0.3.1"
 futures = "0.3.28"
 libc = "0.2.144"

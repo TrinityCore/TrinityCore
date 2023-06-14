@@ -31,7 +31,10 @@ bool ConfigMgr::LoadInitial(std::string file, std::string& error)
         return false;
     }
 
+    auto oldConfig = _config;
     _config = config;
+    delete oldConfig.inner;
+
     return true;
 }
 

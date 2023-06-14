@@ -1,7 +1,7 @@
 use crate::error::DummyError;
 use anyhow::{Error, Result};
 use config::builder::DefaultState;
-use config::{ConfigBuilder, Environment, File, FileFormat, Source, Value, ValueKind};
+use config::{Case, ConfigBuilder, Environment, File, FileFormat, Source, Value, ValueKind};
 use glob::glob;
 use serde::Deserialize;
 use std::ffi::{c_char, c_void, CStr, CString};
@@ -71,7 +71,12 @@ impl Config {
         let config = Box::new(
             builder
                 .add_source(sources)
-                .add_source(Environment::with_prefix("app"))
+                .add_source(
+                    Environment::with_prefix("app")
+                        .convert_case(Case::Pascal)
+                        .prefix_separator("_")
+                        .separator("__"),
+                )
                 .build()?,
         );
 

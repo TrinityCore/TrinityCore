@@ -30,7 +30,6 @@ std::string CreateConfigWithMap(std::map<std::string, std::string> const& map)
     std::ofstream iniStream;
     iniStream.open(mTempFileAbs.c_str());
 
-    iniStream << "[test]\n";
     for (auto const& itr : map)
         iniStream << itr.first << " = " << itr.second << "\n";
 
@@ -50,15 +49,16 @@ TEST_CASE("Envariable variables", "[Config]")
     auto filePath = CreateConfigWithMap(config);
 
     std::string err;
-    REQUIRE(sConfigMgr->LoadInitial(filePath, std::vector<std::string>(), err));
+    REQUIRE(sConfigMgr->LoadInitial(filePath, err));
     REQUIRE(err.empty());
 
     SECTION("Nested int")
     {
         REQUIRE(sConfigMgr->GetIntDefault("Int.Nested", 10) == 4242);
 
-        setenv("TC_INT_NESTED", "8080", 1);
-        REQUIRE(!sConfigMgr->OverrideWithEnvVariablesIfAny().empty());
+        setenv("APP_INT__NESTED", "8080", 1);
+        std::vector<std::string> configErrors;
+        REQUIRE(sConfigMgr->Reload(configErrors));
         REQUIRE(sConfigMgr->GetIntDefault("Int.Nested", 10) == 8080);
     }
 
@@ -66,8 +66,9 @@ TEST_CASE("Envariable variables", "[Config]")
     {
         REQUIRE(sConfigMgr->GetStringDefault("lower", "") == "simpleString");
 
-        setenv("TC_LOWER", "envstring", 1);
-        REQUIRE(!sConfigMgr->OverrideWithEnvVariablesIfAny().empty());
+        setenv("APP_LOWER", "envstring", 1);
+        std::vector<std::string> configErrors;
+        REQUIRE(sConfigMgr->Reload(configErrors));
         REQUIRE(sConfigMgr->GetStringDefault("lower", "") == "envstring");
     }
 
@@ -75,8 +76,9 @@ TEST_CASE("Envariable variables", "[Config]")
     {
         REQUIRE(sConfigMgr->GetStringDefault("UPPER", "") == "simpleString");
 
-        setenv("TC_UPPER", "envupperstring", 1);
-        REQUIRE(!sConfigMgr->OverrideWithEnvVariablesIfAny().empty());
+        setenv("APP_UPPER", "envupperstring", 1);
+        std::vector<std::string> configErrors;
+        REQUIRE(sConfigMgr->Reload(configErrors));
         REQUIRE(sConfigMgr->GetStringDefault("UPPER", "") == "envupperstring");
     }
 
@@ -84,20 +86,25 @@ TEST_CASE("Envariable variables", "[Config]")
     {
         REQUIRE(sConfigMgr->GetFloatDefault("SomeLong.NestedNameWithNumber.Like1", 0) == 1);
 
-        setenv("TC_SOME_LONG_NESTED_NAME_WITH_NUMBER_LIKE_1", "42", 1);
-        REQUIRE(!sConfigMgr->OverrideWithEnvVariablesIfAny().empty());
+        setenv("APP_SOME_LONG__NESTED_NAME_WITH_NUMBER__LIKE_1", "42", 1);
+        std::vector<std::string> configErrors;
+        REQUIRE(sConfigMgr->Reload(configErrors));
         REQUIRE(sConfigMgr->GetFloatDefault("SomeLong.NestedNameWithNumber.Like1", 0) == 42);
     }
 
     SECTION("String that not exist in config")
     {
-        setenv("TC_UNIQUE_STRING", "somevalue", 1);
+        setenv("APP_UNIQUE__STRING", "somevalue", 1);
+        std::vector<std::string> configErrors;
+        REQUIRE(sConfigMgr->Reload(configErrors));
         REQUIRE(sConfigMgr->GetStringDefault("Unique.String", "") == "somevalue");
     }
 
     SECTION("Int that not exist in config")
     {
-        setenv("TC_UNIQUE_INT", "100", 1);
+        setenv("APP_UNIQUE__INT", "100", 1);
+        std::vector<std::string> configErrors;
+        REQUIRE(sConfigMgr->Reload(configErrors));
         REQUIRE(sConfigMgr->GetIntDefault("Unique.Int", 1) == 100);
     }
 
