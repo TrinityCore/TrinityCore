@@ -5060,11 +5060,15 @@ enum HolidayIds
 
 enum QuestType
 {
-    QUEST_TYPE_AUTOCOMPLETE         = 0,
-    QUEST_TYPE_DISABLED             = 1,
+    QUEST_TYPE_TURNIN               = 0,
+    QUEST_TYPE_WITH_MAX_LEVEL       = 1,
     QUEST_TYPE_NORMAL               = 2,
     QUEST_TYPE_TASK                 = 3,
-    MAX_QUEST_TYPES                 = 4
+    MAX_DB_ALLOWED_QUEST_TYPES      = 4,
+
+    // values used in quest menu packets
+    QUEST_TYPE_IN_PROGRESS          = 4,
+    QUEST_TYPE_TASK_IN_PROGRESS     = 5
 };
 
 // QuestInfo.dbc (9.0.2.37176)

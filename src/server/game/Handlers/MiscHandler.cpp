@@ -541,6 +541,9 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
                         break;
                     }
 
+                    if (qInfo->HasFlag(QUEST_FLAGS_COMPLETION_AREA_TRIGGER))
+                        player->AreaExploredOrEventHappens(questId);
+
                     if (player->CanCompleteQuest(questId))
                         player->CompleteQuest(questId);
                 }

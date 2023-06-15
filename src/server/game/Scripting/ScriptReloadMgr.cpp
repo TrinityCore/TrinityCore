@@ -1505,7 +1505,7 @@ void LibraryUpdateListener::handleFileAction(efsw::WatchID watchid, std::string 
                 reloader->QueueSharedLibraryChanged(path);
                 break;
             default:
-                WPAbort();
+                ABORT();
                 break;
         }
     });
@@ -1595,7 +1595,7 @@ void SourceUpdateListener::handleFileAction(efsw::WatchID watchid, std::string c
                 reloader->QueueModifySourceFile(script_module_name_, path);
                 break;
             default:
-                WPAbort();
+                ABORT();
                 break;
         }
     });
