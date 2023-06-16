@@ -22,6 +22,7 @@
 #include "Battleground.h"
 #include "BattlePetMgr.h"
 #include "CellImpl.h"
+#include "CollectionMgr.h"
 #include "CombatLogPackets.h"
 #include "Common.h"
 #include "ConditionMgr.h"
