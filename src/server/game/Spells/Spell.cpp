@@ -6417,6 +6417,16 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                 }
                 break;
             }
+            case SPELL_EFFECT_CREATE_HEIRLOOM_ITEM:
+            {
+                if (!m_caster->IsPlayer())
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                if (!m_caster->ToPlayer()->GetSession()->GetCollectionMgr()->HasHeirloom(m_misc.Raw.Data[0]))
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                break;
+            }
             case SPELL_EFFECT_GIVE_ARTIFACT_POWER:
             case SPELL_EFFECT_GIVE_ARTIFACT_POWER_NO_BONUS:
             {
