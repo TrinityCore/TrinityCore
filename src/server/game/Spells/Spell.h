@@ -495,7 +495,7 @@ class TC_GAME_API Spell
         uint32 getState() const { return m_spellState; }
         void setState(uint32 state) { m_spellState = state; }
 
-        void DoCreateItem(uint32 itemId, ItemContext context = ItemContext::NONE, std::vector<int32> const& bonusListIDs = std::vector<int32>());
+        void DoCreateItem(uint32 itemId, ItemContext context = ItemContext::NONE, std::vector<int32> const* bonusListIDs = nullptr);
 
         bool CheckEffectTarget(Unit const* target, SpellEffectInfo const& spellEffectInfo, Position const* losPosition) const;
         bool CheckEffectTarget(GameObject const* target, SpellEffectInfo const& spellEffectInfo) const;
