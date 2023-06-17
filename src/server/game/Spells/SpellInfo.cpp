@@ -633,7 +633,7 @@ int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* targ
                 expansion = contentTuning->ExpansionID;
 
             int32 level = caster && caster->IsUnit() ? int32(caster->ToUnit()->GetLevel()) : 1;
-            value = sDB2Manager.EvaluateExpectedStat(stat, level, expansion, 0, CLASS_NONE) * BasePoints / 100.0f;
+            value = sDB2Manager.EvaluateExpectedStat(stat, level, expansion, 0, CLASS_NONE, 0) * BasePoints / 100.0f;
         }
 
         return int32(round(value));
