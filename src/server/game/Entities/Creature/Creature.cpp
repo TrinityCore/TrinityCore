@@ -671,6 +671,7 @@ void Creature::SetPhaseMask(uint32 newPhaseMask, bool update)
 
 void Creature::ApplyAllStaticFlags(CreatureStaticFlagsHolder const& flags)
 {
+    _staticFlags = flags;
 }
 
 void Creature::Update(uint32 diff)
