@@ -1739,7 +1739,7 @@ bool WorldObject::CanDetectStealthOf(WorldObject const* obj, bool checkAlert) co
             return true;
 
         // Starting points
-        int32 detectionValue = 30;
+        int32 detectionValue = 20;
 
         // Level difference: 5 point / level, starting from level 1.
         // There may be spells for this and the starting points too, but
@@ -1750,12 +1750,12 @@ bool WorldObject::CanDetectStealthOf(WorldObject const* obj, bool checkAlert) co
         detectionValue += m_stealthDetect.GetValue(StealthType(i));
         if (go)
             if (Unit* owner = go->GetOwner())
-                detectionValue -= int32(owner->GetLevelForTarget(this) - 1) * 5;
+                detectionValue -= int32(owner->GetLevelForTarget(this) - 1) * 3;
 
         detectionValue -= obj->m_stealth.GetValue(StealthType(i));
 
         // Calculate max distance
-        float visibilityRange = float(detectionValue) * 0.3f + combatReach;
+        float visibilityRange = float(detectionValue) * 0.2f + combatReach;
 
         // If this unit is an NPC then player detect range doesn't apply
         if (unit && unit->GetTypeId() == TYPEID_PLAYER && visibilityRange > MAX_PLAYER_STEALTH_DETECT_RANGE)
