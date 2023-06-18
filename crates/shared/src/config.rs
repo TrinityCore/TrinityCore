@@ -153,7 +153,7 @@ impl Config {
             Err(err) => {
                 let error_message = err.to_string();
                 let conf_error = ManuallyDrop::new(CString::new(error_message).unwrap());
-                *load_error = conf_error.as_ref().as_ptr() as *mut i8;
+                *load_error = conf_error.as_ref().as_ptr() as *mut _;
 
                 std::mem::transmute::<_, Config>(0_usize)
             }
