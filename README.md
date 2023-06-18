@@ -1,6 +1,6 @@
 # ![logo](https://community.trinitycore.org/public/style_images/1_trinitycore.png) Kitron (3.3.5)
 
-[![Average time to resolve an issue](https://isitmaintained.com/badge/resolution/TrinityCore/TrinityCore.svg)](https://isitmaintained.com/project/TrinityCore/TrinityCore "Average time to resolve an issue") [![Percentage of issues still open](https://isitmaintained.com/badge/open/TrinityCore/TrinityCore.svg)](https://isitmaintained.com/project/TrinityCore/TrinityCore "Percentage of issues still open")
+[![Average time to resolve an issue](https://isitmaintained.com/badge/resolution/KitronCore/KitronCore.svg)](https://isitmaintained.com/project/KitronCore/KitronCore "Average time to resolve an issue") [![Percentage of issues still open](https://isitmaintained.com/badge/open/KitronCore/KitronCore.svg)](https://isitmaintained.com/project/KitronCore/KitronCore "Percentage of issues still open")
 
 --------------
 
@@ -21,14 +21,14 @@
 
 master | 3.3.5
 :------------: | :------------:
-[![master Build Status](https://circleci.com/gh/TrinityCore/TrinityCore/tree/master.svg?style=shield)](https://circleci.com/gh/TrinityCore/TrinityCore/tree/master) | [![3.3.5 Build Status](https://circleci.com/gh/TrinityCore/TrinityCore/tree/3.3.5.svg?style=shield)](https://circleci.com/gh/TrinityCore/TrinityCore/tree/3.3.5)
+[![master Build Status](https://circleci.com/gh/KitronCore/KitronCore/tree/master.svg?style=shield)](https://circleci.com/gh/KitronCore/KitronCore/tree/master) | [![3.3.5 Build Status](https://circleci.com/gh/KitronCore/KitronCore/tree/3.3.5.svg?style=shield)](https://circleci.com/gh/KitronCore/KitronCore/tree/3.3.5)
 [![master Build status](https://ci.appveyor.com/api/projects/status/54d0u1fxe50ad80o/branch/master?svg=true)](https://ci.appveyor.com/project/DDuarte/trinitycore/branch/master) | [![Build status](https://ci.appveyor.com/api/projects/status/54d0u1fxe50ad80o/branch/3.3.5?svg=true)](https://ci.appveyor.com/project/DDuarte/trinitycore/branch/3.3.5)
-[![master GCC Build status](https://github.com/TrinityCore/TrinityCore/actions/workflows/gcc-build.yml/badge.svg?branch=master&event=push)](https://github.com/TrinityCore/TrinityCore/actions?query=workflow%3AGCC+branch%3Amaster+event%3Apush) | [![3.3.5 GCC Build status](https://github.com/TrinityCore/TrinityCore/actions/workflows/gcc-build.yml/badge.svg?branch=3.3.5&event=push)](https://github.com/TrinityCore/TrinityCore/actions?query=workflow%3AGCC+branch%3A3.3.5+event%3Apush)
+[![master GCC Build status](https://github.com/KitronCore/KitronCore/actions/workflows/gcc-build.yml/badge.svg?branch=master&event=push)](https://github.com/KitronCore/KitronCore/actions?query=workflow%3AGCC+branch%3Amaster+event%3Apush) | [![3.3.5 GCC Build status](https://github.com/KitronCore/KitronCore/actions/workflows/gcc-build.yml/badge.svg?branch=3.3.5&event=push)](https://github.com/KitronCore/KitronCore/actions?query=workflow%3AGCC+branch%3A3.3.5+event%3Apush)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/435/badge.svg)](https://scan.coverity.com/projects/435) | [![Coverity Scan Build Status](https://scan.coverity.com/projects/4656/badge.svg)](https://scan.coverity.com/projects/4656)
 
 ## Introduction
 
-TrinityCore is a *MMORPG* Framework based mostly in C++.
+KitronCore is a *MMORPG* Framework based mostly in C++.
 
 It is derived from *MaNGOS*, the *Massive Network Game Object Server*, and is
 based on the code of that project with extensive changes over time to optimize,
@@ -38,10 +38,10 @@ mechanics and functionality.
 It is completely open source; community involvement is highly encouraged.
 
 If you wish to contribute ideas or code, please visit our site linked below or
-make pull requests to our [Github repository](https://github.com/TrinityCore/TrinityCore/pulls).
+make pull requests to our [Github repository](https://github.com/KitronCore/KitronCore/pulls).
 
-For further information on the TrinityCore project, please visit our project
-website at [TrinityCore.org](https://www.trinitycore.org).
+For further information on the KitronCore project, please visit our project
+website at [KitronCore.org](https://www.trinitycore.org).
 
 ## Requirements
 
@@ -58,7 +58,7 @@ Windows, Linux and macOS.
 
 ## Reporting issues
 
-Issues can be reported via the [Github issue tracker](https://github.com/TrinityCore/TrinityCore/labels/Branch-3.3.5a).
+Issues can be reported via the [Github issue tracker](https://github.com/KitronCore/KitronCore/labels/Branch-3.3.5a).
 
 Please take the time to review existing issues before submitting your own to
 prevent duplicates.
