@@ -1,0 +1,23 @@
+[package]
+name = "corrosion-generator"
+version = "0.1.0"
+authors = ["Andrew Gaspar <andrew.gaspar@outlook.com>"]
+license = "MIT"
+edition = "2018"
+
+[dependencies]
+cargo_metadata = "0.15"
+# The crates below are indirect dependencies of cargo metadata,
+# We explicitly specify maximum versions to allow building the generator
+# with older toolchains.
+# Version 1.0.157 upgrades to syn 2.0 and raises MSRV to 1.56
+serde = { version = ">=1, <1.0.157", default-features=false }
+# Version 1.0.40 upgrades to syn 2.0 and raises MSRV to 1.56
+thiserror = { version = ">=1, <1.0.40", default-features=false }
+
+[dependencies.clap]
+version = "2.34"
+default-features = false
+# Make sure this crate still compiles while it is checked out
+# in a sub-directory of a repository that has a Cargo.toml.
+[workspace]
