@@ -391,6 +391,8 @@ struct TC_GAME_API CreatureTemplate
     uint32  GetFirstInvisibleModel() const;
     uint32  GetFirstVisibleModel() const;
 
+    CreatureStaticFlagsHolder StaticFlags;
+
     // helpers
     SkillType GetRequiredLootSkill() const
     {
