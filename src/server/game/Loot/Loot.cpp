@@ -22,6 +22,7 @@
 #include "GameTime.h"
 #include "Group.h"
 #include "Item.h"
+#include "ItemBonusMgr.h"
 #include "ItemTemplate.h"
 #include "Log.h"
 #include "LootMgr.h"
@@ -835,11 +836,7 @@ void Loot::AddItem(LootStoreItem const& item)
         generatedLoot.context = _itemContext;
         generatedLoot.count = std::min(count, proto->GetMaxStackSize());
         generatedLoot.LootListId = items.size();
-        if (_itemContext != ItemContext::NONE)
-        {
-            std::set<uint32> bonusListIDs = sDB2Manager.GetDefaultItemBonusTree(generatedLoot.itemid, _itemContext);
-            generatedLoot.BonusListIDs.insert(generatedLoot.BonusListIDs.end(), bonusListIDs.begin(), bonusListIDs.end());
-        }
+        generatedLoot.BonusListIDs = ItemBonusMgr::GetBonusListsForItem(generatedLoot.itemid, _itemContext);
 
         items.push_back(generatedLoot);
         count -= proto->GetMaxStackSize();
@@ -888,7 +885,7 @@ bool Loot::AutoStore(Player* player, uint8 bag, uint8 slot, bool broadcast, bool
 
         --unlootedCount;
 
-        Item* pItem = player->StoreNewItem(dest, lootItem->itemid, true, lootItem->randomBonusListId, GuidSet(), lootItem->context, lootItem->BonusListIDs);
+        Item* pItem = player->StoreNewItem(dest, lootItem->itemid, true, lootItem->randomBonusListId, GuidSet(), lootItem->context, &lootItem->BonusListIDs);
         player->SendNewItem(pItem, lootItem->count, false, createdByPlayer, broadcast);
         player->ApplyItemLootedSpell(pItem, true);
     }

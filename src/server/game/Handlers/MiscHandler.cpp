@@ -237,13 +237,15 @@ void WorldSession::HandleWhoOpcode(WorldPackets::Who::WhoRequestPkt& whoRequest)
     SendPacket(response.Write());
 }
 
-void WorldSession::HandleLogoutRequestOpcode(WorldPackets::Character::LogoutRequest& /*logoutRequest*/)
+void WorldSession::HandleLogoutRequestOpcode(WorldPackets::Character::LogoutRequest& logoutRequest)
 {
     if (!GetPlayer()->GetLootGUID().IsEmpty())
         GetPlayer()->SendLootReleaseAll();
 
-    bool instantLogout = (GetPlayer()->HasPlayerFlag(PLAYER_FLAGS_RESTING) && !GetPlayer()->IsInCombat()) ||
-                         GetPlayer()->IsInFlight() || HasPermission(rbac::RBAC_PERM_INSTANT_LOGOUT);
+    bool instantLogout = GetPlayer()->IsInFlight();
+    if (!logoutRequest.IdleLogout)
+        instantLogout |= (GetPlayer()->HasPlayerFlag(PLAYER_FLAGS_RESTING) && !GetPlayer()->IsInCombat())
+            || HasPermission(rbac::RBAC_PERM_INSTANT_LOGOUT);
 
     /// TODO: Possibly add RBAC permission to log out in combat
     bool canLogoutInCombat = GetPlayer()->HasPlayerFlag(PLAYER_FLAGS_RESTING);
@@ -368,8 +370,11 @@ void WorldSession::HandleRequestCemeteryList(WorldPackets::Misc::RequestCemetery
 
     for (auto it = range.first; it != range.second && graveyardIds.size() < 16; ++it) // client max
     {
-        if (it->second.team == 0 || it->second.team == team)
-            graveyardIds.push_back(it->first);
+        ConditionSourceInfo conditionSource(_player);
+        if (!sConditionMgr->IsObjectMeetToConditions(conditionSource, it->second.Conditions))
+            continue;
+
+        graveyardIds.push_back(it->first);
     }
 
     if (graveyardIds.empty())
@@ -537,6 +542,9 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
                         anyObjectiveChangedCompletionState = true;
                         break;
                     }
+
+                    if (qInfo->HasFlag(QUEST_FLAGS_COMPLETION_AREA_TRIGGER))
+                        player->AreaExploredOrEventHappens(questId);
 
                     if (player->CanCompleteQuest(questId))
                         player->CompleteQuest(questId);

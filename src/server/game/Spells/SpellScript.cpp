@@ -52,6 +52,24 @@ bool _SpellScript::_ValidateSpellInfo(uint32 spellId)
     return true;
 }
 
+bool _SpellScript::_ValidateSpellEffect(uint32 spellId, SpellEffIndex effectIndex)
+{
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE);
+    if (!spellInfo)
+    {
+        TC_LOG_ERROR("scripts.spells", "_SpellScript::_ValidateSpellEffect: Spell {} does not exist.", spellId);
+        return false;
+    }
+
+    if (spellInfo->GetEffects().size() <= effectIndex)
+    {
+        TC_LOG_ERROR("scripts.spells", "_SpellScript::_ValidateSpellEffect: Spell {} does not have EFFECT_{}.", spellId, uint32(effectIndex));
+        return false;
+    }
+
+    return true;
+}
+
 void _SpellScript::_Register()
 {
     m_currentScriptState = SPELL_SCRIPT_STATE_REGISTRATION;

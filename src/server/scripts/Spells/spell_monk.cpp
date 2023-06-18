@@ -341,7 +341,7 @@ class spell_monk_stagger : public AuraScript
         Unit* target = GetTarget();
         float agility = target->GetStat(STAT_AGILITY);
         float base = CalculatePct(agility, float(effect->GetAmount()));
-        float K = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::ArmorConstant, target->GetLevel(), -2, 0, Classes(target->GetClass()));
+        float K = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::ArmorConstant, target->GetLevel(), -2, 0, Classes(target->GetClass()), 0);
 
         float newAmount = (base / (base + K));
         newAmount *= multiplier;
@@ -447,7 +447,7 @@ class spell_monk_stagger_debuff_aura : public AuraScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_MONK_STAGGER_DAMAGE_AURA })
-            && !sSpellMgr->GetSpellInfo(SPELL_MONK_STAGGER_DAMAGE_AURA, DIFFICULTY_NONE)->GetEffects().empty();
+            && ValidateSpellEffect({ { SPELL_MONK_STAGGER_DAMAGE_AURA, EFFECT_0 } });
     }
 
     bool Load() override

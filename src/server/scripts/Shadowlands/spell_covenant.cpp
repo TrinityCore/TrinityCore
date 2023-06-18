@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
 #include "Unit.h"
 
@@ -49,7 +50,38 @@ class spell_soulbind_sulfuric_emission : public AuraScript
     }
 };
 
+// 332753 - Superior Tactics
+class spell_soulbind_superior_tactics : public AuraScript
+{
+    PrepareAuraScript(spell_soulbind_superior_tactics);
+
+    static constexpr uint32 SPELL_SUPERIOR_TACTICS_COOLDOWN_AURA = 332926;
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUPERIOR_TACTICS_COOLDOWN_AURA });
+    }
+
+    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& procInfo)
+    {
+        if (GetTarget()->HasAura(SPELL_SUPERIOR_TACTICS_COOLDOWN_AURA))
+            return false;
+
+        // only dispels from friendly targets count
+        if (procInfo.GetHitMask() & PROC_HIT_DISPEL && !(procInfo.GetTypeMask() & (PROC_FLAG_DEAL_HELPFUL_ABILITY | PROC_FLAG_DEAL_HELPFUL_SPELL | PROC_FLAG_DEAL_HELPFUL_PERIODIC)))
+            return false;
+
+        return true;
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_soulbind_superior_tactics::CheckProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
 void AddSC_covenant_spell_scripts()
 {
     RegisterSpellScript(spell_soulbind_sulfuric_emission);
+    RegisterSpellScript(spell_soulbind_superior_tactics);
 }

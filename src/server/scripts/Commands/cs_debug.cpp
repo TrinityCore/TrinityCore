@@ -515,6 +515,7 @@ public:
             handler->PSendSysMessage(LANG_DEBUG_AREATRIGGER_OFF);
             player->isDebugAreaTriggers = false;
         }
+        player->UpdateObjectVisibility();
         return true;
     }
 

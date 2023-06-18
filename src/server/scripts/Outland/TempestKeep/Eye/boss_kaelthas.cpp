@@ -1412,7 +1412,7 @@ class spell_kaelthas_remove_weapons : public SpellScript
     {
         if (Player* player = GetHitPlayer())
             for (uint32 spells : RemoveWeaponsSpells)
-                player->CastSpell(player, spells, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST));
+                player->CastSpell(player, spells, TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST);
     }
 
     void Register() override
