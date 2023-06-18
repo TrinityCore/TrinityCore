@@ -583,8 +583,8 @@ bool FileSystem::_isNewer(const std::string& _src, const std::string& _dst) {
 int64 FileSystem::_size(const std::string& _filename) {
     const std::string& filename = FilePath::canonicalize(FilePath::expandEnvironmentVariables(_filename));
 
-    struct stat64 st;
-    int result = stat64(filename.c_str(), &st);
+    struct stat st;
+    int result = stat(filename.c_str(), &st);
     
     if (result == -1) {
 #if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */

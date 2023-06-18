@@ -15,6 +15,8 @@
  * software. If not, they may be obtained at the above URLs.
  */
 
+#if !defined(__i386__) && !defined(__x86_64__)
+
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
@@ -192,3 +194,5 @@ void fill_segment(const argon2_instance_t *instance,
         }
     }
 }
+
+#endif
