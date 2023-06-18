@@ -1,1 +1,1 @@
-UPDATE `creature_template` SET `flags_extra` = (`flags_extra` | 0x00400000) WHERE `entry` = 36980; -- Ice Tomb
+UPDATE `creature_template_difficulty` SET `StaticFlags4` = (`StaticFlags4` | 0x00002000) WHERE `entry` = 36980; -- Ice Tomb
