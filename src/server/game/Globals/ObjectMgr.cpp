@@ -360,17 +360,17 @@ void ObjectMgr::LoadCreatureTemplates()
     //                                       "TitleAlt, IconName, RequiredExpansion, VignetteID, "
     //                                        10       11       12          13         14      15     16         17              18               19            20
     //                                       "faction, npcflag, speed_walk, speed_run, scale, `rank`, dmgschool, BaseAttackTime, RangeAttackTime, BaseVariance, RangeVariance, "
-    //                                        21          22          23           24           25            26      27             28
-    //                                       "unit_class, unit_flags, unit_flags2, unit_flags3, dynamicflags, family, trainer_class, type, "
-    //                                        29      30         31
-    //                                       "VehicleId, AIName, MovementType, "
-    //                                        32          33        34          35          36         38          38                         39
+    //                                        21          22          23           24
+    //                                       "unit_class, unit_flags, unit_flags2, unit_flags3, "
+    //                                        25      26             27    28         29      30
+    //                                       "family, trainer_class, type, VehicleId, AIName, MovementType, "
+    //                                        31          32        33          34          35         36          37                         38
     //                                       "ctm.Ground, ctm.Swim, ctm.Flight, ctm.Rooted, ctm.Chase, ctm.Random, ctm.InteractionPauseTimer, ExperienceModifier, "
-    //                                        40            41          42           43                        44
+    //                                        39            40          41           42                        43
     //                                       "RacialLeader, movementId, WidgetSetID, WidgetSetUnitConditionID, RegenHealth, "
-    //                                        45                    46                        47
+    //                                        44                    45                        46
     //                                       "mechanic_immune_mask, spell_school_immune_mask, flags_extra, "
-    //                                        48          49
+    //                                        47          48
     //                                       "ScriptName, StringId FROM creature_template WHERE entry = ? OR 1 = ?");
 
     WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_TEMPLATE);
@@ -438,10 +438,9 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.unit_flags             = fields[22].GetUInt32();
     creatureTemplate.unit_flags2            = fields[23].GetUInt32();
     creatureTemplate.unit_flags3            = fields[24].GetUInt32();
-    creatureTemplate.dynamicflags           = fields[25].GetUInt32();
-    creatureTemplate.family                 = CreatureFamily(fields[26].GetInt32());
-    creatureTemplate.trainer_class          = uint32(fields[27].GetUInt8());
-    creatureTemplate.type                   = uint32(fields[28].GetUInt8());
+    creatureTemplate.family                 = CreatureFamily(fields[25].GetInt32());
+    creatureTemplate.trainer_class          = uint32(fields[26].GetUInt8());
+    creatureTemplate.type                   = uint32(fields[27].GetUInt8());
 
     for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
         creatureTemplate.resistance[i] = 0;
@@ -449,41 +448,41 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     for (uint8 i = 0; i < MAX_CREATURE_SPELLS; ++i)
         creatureTemplate.spells[i] = 0;
 
-    creatureTemplate.VehicleId              = fields[29].GetUInt32();
-    creatureTemplate.AIName                 = fields[30].GetString();
-    creatureTemplate.MovementType           = uint32(fields[31].GetUInt8());
+    creatureTemplate.VehicleId              = fields[28].GetUInt32();
+    creatureTemplate.AIName                 = fields[29].GetString();
+    creatureTemplate.MovementType           = uint32(fields[30].GetUInt8());
+    if (!fields[31].IsNull())
+        creatureTemplate.Movement.Ground = static_cast<CreatureGroundMovementType>(fields[31].GetUInt8());
+
     if (!fields[32].IsNull())
-        creatureTemplate.Movement.Ground = static_cast<CreatureGroundMovementType>(fields[32].GetUInt8());
+        creatureTemplate.Movement.Swim = fields[32].GetBool();
 
     if (!fields[33].IsNull())
-        creatureTemplate.Movement.Swim = fields[33].GetBool();
+        creatureTemplate.Movement.Flight = static_cast<CreatureFlightMovementType>(fields[33].GetUInt8());
 
     if (!fields[34].IsNull())
-        creatureTemplate.Movement.Flight = static_cast<CreatureFlightMovementType>(fields[34].GetUInt8());
+        creatureTemplate.Movement.Rooted = fields[34].GetBool();
 
     if (!fields[35].IsNull())
-        creatureTemplate.Movement.Rooted = fields[35].GetBool();
+        creatureTemplate.Movement.Chase = static_cast<CreatureChaseMovementType>(fields[35].GetUInt8());
 
     if (!fields[36].IsNull())
-        creatureTemplate.Movement.Chase = static_cast<CreatureChaseMovementType>(fields[36].GetUInt8());
+        creatureTemplate.Movement.Random = static_cast<CreatureRandomMovementType>(fields[36].GetUInt8());
 
     if (!fields[37].IsNull())
-        creatureTemplate.Movement.Random = static_cast<CreatureRandomMovementType>(fields[37].GetUInt8());
+        creatureTemplate.Movement.InteractionPauseTimer = fields[37].GetUInt32();
 
-    if (!fields[38].IsNull())
-        creatureTemplate.Movement.InteractionPauseTimer = fields[38].GetUInt32();
-
-    creatureTemplate.ModExperience          = fields[39].GetFloat();
-    creatureTemplate.RacialLeader           = fields[40].GetBool();
-    creatureTemplate.movementId             = fields[41].GetUInt32();
-    creatureTemplate.WidgetSetID            = fields[42].GetInt32();
-    creatureTemplate.WidgetSetUnitConditionID = fields[43].GetInt32();
-    creatureTemplate.RegenHealth            = fields[44].GetBool();
-    creatureTemplate.MechanicImmuneMask     = fields[45].GetUInt64();
-    creatureTemplate.SpellSchoolImmuneMask  = fields[46].GetUInt32();
-    creatureTemplate.flags_extra            = fields[47].GetUInt32();
-    creatureTemplate.ScriptID               = GetScriptId(fields[48].GetString());
-    creatureTemplate.StringId               = fields[49].GetString();
+    creatureTemplate.ModExperience          = fields[38].GetFloat();
+    creatureTemplate.RacialLeader           = fields[39].GetBool();
+    creatureTemplate.movementId             = fields[40].GetUInt32();
+    creatureTemplate.WidgetSetID            = fields[41].GetInt32();
+    creatureTemplate.WidgetSetUnitConditionID = fields[42].GetInt32();
+    creatureTemplate.RegenHealth            = fields[43].GetBool();
+    creatureTemplate.MechanicImmuneMask     = fields[44].GetUInt64();
+    creatureTemplate.SpellSchoolImmuneMask  = fields[45].GetUInt32();
+    creatureTemplate.flags_extra            = fields[46].GetUInt32();
+    creatureTemplate.ScriptID               = GetScriptId(fields[47].GetString());
+    creatureTemplate.StringId               = fields[48].GetString();
 }
 
 void ObjectMgr::LoadCreatureTemplateGossip()
@@ -1144,12 +1143,6 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         const_cast<CreatureTemplate*>(cInfo)->unit_flags3 &= UNIT_FLAG3_ALLOWED;
     }
 
-    if (cInfo->dynamicflags)
-    {
-        TC_LOG_ERROR("sql.sql", "Table `creature_template` lists creature (Entry: {}) with `dynamicflags` > 0. Ignored and set to 0.", cInfo->Entry);
-        const_cast<CreatureTemplate*>(cInfo)->dynamicflags = 0;
-    }
-
     if (!cInfo->GossipMenuIds.empty() && !(cInfo->npcflag & UNIT_NPC_FLAG_GOSSIP))
         TC_LOG_INFO("sql.sql", "Creature (Entry: {}) has assigned gossip menu, but npcflag does not include UNIT_NPC_FLAG_GOSSIP.", cInfo->Entry);
     else if (cInfo->GossipMenuIds.empty() && cInfo->npcflag & UNIT_NPC_FLAG_GOSSIP)
@@ -1647,7 +1640,7 @@ CreatureModel const* ObjectMgr::ChooseDisplayId(CreatureTemplate const* cinfo, C
     return cinfo->GetFirstInvisibleModel();
 }
 
-void ObjectMgr::ChooseCreatureFlags(CreatureTemplate const* cInfo, uint64* npcFlags, uint32* unitFlags, uint32* unitFlags2, uint32* unitFlags3, uint32* dynamicFlags, CreatureData const* data /*= nullptr*/)
+void ObjectMgr::ChooseCreatureFlags(CreatureTemplate const* cInfo, uint64* npcFlags, uint32* unitFlags, uint32* unitFlags2, uint32* unitFlags3, CreatureData const* data /*= nullptr*/)
 {
 #define ChooseCreatureFlagSource(field) ((data && data->field) ? data->field : cInfo->field)
 
@@ -1662,9 +1655,6 @@ void ObjectMgr::ChooseCreatureFlags(CreatureTemplate const* cInfo, uint64* npcFl
 
     if (unitFlags3)
         *unitFlags3 = ChooseCreatureFlagSource(unit_flags3);
-
-    if (dynamicFlags)
-        *dynamicFlags = ChooseCreatureFlagSource(dynamicflags);
 
 #undef ChooseCreatureFlagSource
 }
@@ -2142,8 +2132,8 @@ void ObjectMgr::LoadCreatures()
     QueryResult result = WorldDatabase.Query("SELECT creature.guid, id, map, position_x, position_y, position_z, orientation, modelid, equipment_id, spawntimesecs, wander_distance, "
     //   11               12         13       14            15                 16          17           18                19                   20                    21
         "currentwaypoint, curhealth, curmana, MovementType, spawnDifficulties, eventEntry, poolSpawnId, creature.npcflag, creature.unit_flags, creature.unit_flags2, creature.unit_flags3, "
-    //   22                     23                      24                25                   26                       27                   28
-        "creature.dynamicflags, creature.phaseUseFlags, creature.phaseid, creature.phasegroup, creature.terrainSwapMap, creature.ScriptName, creature.StringId "
+    //   22                      23                24                   25                       26                   27
+        "creature.phaseUseFlags, creature.phaseid, creature.phasegroup, creature.terrainSwapMap, creature.ScriptName, creature.StringId "
         "FROM creature "
         "LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid "
         "LEFT OUTER JOIN pool_members ON pool_members.type = 0 AND creature.guid = pool_members.spawnId");
@@ -2197,13 +2187,12 @@ void ObjectMgr::LoadCreatures()
         data.unit_flags     = fields[19].GetUInt32();
         data.unit_flags2    = fields[20].GetUInt32();
         data.unit_flags3    = fields[21].GetUInt32();
-        data.dynamicflags   = fields[22].GetUInt32();
-        data.phaseUseFlags  = fields[23].GetUInt8();
-        data.phaseId        = fields[24].GetUInt32();
-        data.phaseGroup     = fields[25].GetUInt32();
-        data.terrainSwapMap = fields[26].GetInt32();
-        data.scriptId       = GetScriptId(fields[27].GetString());
-        data.StringId       = fields[28].GetString();
+        data.phaseUseFlags  = fields[22].GetUInt8();
+        data.phaseId        = fields[23].GetUInt32();
+        data.phaseGroup     = fields[24].GetUInt32();
+        data.terrainSwapMap = fields[25].GetInt32();
+        data.scriptId       = GetScriptId(fields[26].GetString());
+        data.StringId       = fields[27].GetString();
         data.spawnGroupData = IsTransportMap(data.mapId) ? GetLegacySpawnGroup() : GetDefaultSpawnGroup(); // transport spawns default to compatibility group
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapId);
@@ -2349,12 +2338,6 @@ void ObjectMgr::LoadCreatures()
         {
             TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: {} Entry: {}) with disallowed `unit_flags2` {}, removing incorrect flag.", guid, data.id, disallowedUnitFlags3);
             data.unit_flags3 &= UNIT_FLAG3_ALLOWED;
-        }
-
-        if (data.dynamicflags)
-        {
-            TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: {} Entry: {}) with `dynamicflags` > 0. Ignored and set to 0.", guid, data.id);
-            data.dynamicflags = 0;
         }
 
         if (sWorld->getBoolConfig(CONFIG_CALCULATE_CREATURE_ZONE_AREA_DATA))
