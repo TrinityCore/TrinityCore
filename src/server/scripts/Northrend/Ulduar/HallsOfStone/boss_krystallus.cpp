@@ -158,7 +158,7 @@ class spell_krystallus_shatter_effect : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return !spellInfo->GetEffects().empty();
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } });
     }
 
     void CalculateDamage()

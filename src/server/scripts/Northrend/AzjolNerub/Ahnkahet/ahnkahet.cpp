@@ -96,7 +96,7 @@ class spell_ahnkahet_shadow_sickle : public AuraScript
 
         if (owner->IsAIEnabled())
             if (Unit* target = owner->GetAI()->SelectTarget(SelectTargetMethod::Random, 0, 40.f))
-                owner->CastSpell(target, spellId, CastSpellExtraArgs(aurEff).SetTriggerFlags(TriggerCastFlags::TRIGGERED_FULL_MASK));
+                owner->CastSpell(target, spellId, CastSpellExtraArgs(aurEff).SetTriggerFlags(TRIGGERED_FULL_MASK));
     }
 
     void Register() override

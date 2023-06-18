@@ -1431,7 +1431,7 @@ class spell_item_crystal_spire_of_karabor : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return !spellInfo->GetEffects().empty();
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } });
     }
 
     bool CheckProc(ProcEventInfo& eventInfo)

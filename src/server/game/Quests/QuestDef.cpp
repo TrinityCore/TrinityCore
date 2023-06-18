@@ -521,7 +521,7 @@ void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player
 uint32 Quest::GetRewMoneyMaxLevel() const
 {
     // If Quest has flag to not give money on max level, it's 0
-    if (HasFlag(QUEST_FLAGS_NO_MONEY_FROM_XP))
+    if (HasFlag(QUEST_FLAGS_NO_MONEY_FOR_XP))
         return 0;
 
     // Else, return the rewarded copper sum modified by the rate
@@ -533,9 +533,9 @@ bool Quest::IsAutoAccept() const
     return !sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_ACCEPT) && HasFlag(QUEST_FLAGS_AUTO_ACCEPT);
 }
 
-bool Quest::IsAutoComplete() const
+bool Quest::IsTurnIn() const
 {
-    return !sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_COMPLETE) && _type == QUEST_TYPE_AUTOCOMPLETE;
+    return !sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_COMPLETE) && _type == QUEST_TYPE_TURNIN;
 }
 
 bool Quest::IsRaidQuest(Difficulty difficulty) const
@@ -552,7 +552,7 @@ bool Quest::IsRaidQuest(Difficulty difficulty) const
             break;
     }
 
-    if ((_flags & QUEST_FLAGS_RAID) != 0)
+    if ((_flags & QUEST_FLAGS_RAID_GROUP_OK) != 0)
         return true;
 
     return false;
@@ -654,7 +654,7 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc, Player* player) const
     response.Info.RewardXPDifficulty = GetXPDifficulty();
     response.Info.RewardXPMultiplier = GetXPMultiplier();
 
-    if (!HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
+    if (!HasFlag(QUEST_FLAGS_HIDE_REWARD))
         response.Info.RewardMoney = player ? player->GetQuestMoneyReward(this) : GetMaxMoneyReward();
 
     response.Info.RewardMoneyDifficulty = GetRewMoneyDifficulty();
@@ -697,7 +697,7 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc, Player* player) const
         response.Info.ItemDropQuantity[i] = ItemDropQuantity[i];
     }
 
-    if (!HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
+    if (!HasFlag(QUEST_FLAGS_HIDE_REWARD))
     {
         for (uint8 i = 0; i < QUEST_REWARD_ITEM_COUNT; ++i)
         {

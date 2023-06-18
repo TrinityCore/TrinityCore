@@ -87,8 +87,7 @@ void WorldSession::HandleAuctionBrowseQuery(WorldPackets::AuctionHouse::AuctionB
 
     auctionHouse->BuildListBuckets(listBucketsResult, _player,
         name, browseQuery.MinLevel, browseQuery.MaxLevel, browseQuery.Filters, classFilters,
-        browseQuery.KnownPets.data(), browseQuery.KnownPets.size(), browseQuery.MaxPetLevel,
-        browseQuery.Offset, browseQuery.Sorts.data(), browseQuery.Sorts.size());
+        browseQuery.KnownPets, browseQuery.MaxPetLevel, browseQuery.Offset, browseQuery.Sorts);
 
     listBucketsResult.BrowseMode = AuctionHouseBrowseMode::Search;
     listBucketsResult.DesiredDelay = uint32(throttle.DelayUntilNext.count());
@@ -228,7 +227,7 @@ void WorldSession::HandleAuctionListBiddedItems(WorldPackets::AuctionHouse::Auct
     WorldPackets::AuctionHouse::AuctionListBiddedItemsResult result;
 
     Player* player = GetPlayer();
-    auctionHouse->BuildListBiddedItems(result, player, listBiddedItems.Offset, listBiddedItems.Sorts.data(), listBiddedItems.Sorts.size());
+    auctionHouse->BuildListBiddedItems(result, player, listBiddedItems.Offset, listBiddedItems.Sorts);
     result.DesiredDelay = uint32(throttle.DelayUntilNext.count());
     SendPacket(result.Write());
 }
@@ -255,9 +254,7 @@ void WorldSession::HandleAuctionListBucketsByBucketKeys(WorldPackets::AuctionHou
 
     WorldPackets::AuctionHouse::AuctionListBucketsResult listBucketsResult;
 
-    auctionHouse->BuildListBuckets(listBucketsResult, _player,
-        listBucketsByBucketKeys.BucketKeys.data(), listBucketsByBucketKeys.BucketKeys.size(),
-        listBucketsByBucketKeys.Sorts.data(), listBucketsByBucketKeys.Sorts.size());
+    auctionHouse->BuildListBuckets(listBucketsResult, _player, listBucketsByBucketKeys.BucketKeys, listBucketsByBucketKeys.Sorts);
 
     listBucketsResult.BrowseMode = AuctionHouseBrowseMode::SpecificKeys;
     listBucketsResult.DesiredDelay = uint32(throttle.DelayUntilNext.count());
@@ -289,8 +286,7 @@ void WorldSession::HandleAuctionListItemsByBucketKey(WorldPackets::AuctionHouse:
     ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(listItemsByBucketKey.BucketKey.ItemID);
     listItemsResult.ListType = itemTemplate && itemTemplate->GetMaxStackSize() > 1 ? AuctionHouseListType::Commodities : AuctionHouseListType::Items;
 
-    auctionHouse->BuildListAuctionItems(listItemsResult, _player, listItemsByBucketKey.BucketKey, listItemsByBucketKey.Offset,
-        listItemsByBucketKey.Sorts.data(), listItemsByBucketKey.Sorts.size());
+    auctionHouse->BuildListAuctionItems(listItemsResult, _player, listItemsByBucketKey.BucketKey, listItemsByBucketKey.Offset, listItemsByBucketKey.Sorts);
 
     SendPacket(listItemsResult.Write());
 }
@@ -320,8 +316,7 @@ void WorldSession::HandleAuctionListItemsByItemID(WorldPackets::AuctionHouse::Au
     ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(listItemsByItemID.ItemID);
     listItemsResult.ListType = itemTemplate && itemTemplate->GetMaxStackSize() > 1 ? AuctionHouseListType::Commodities : AuctionHouseListType::Items;
 
-    auctionHouse->BuildListAuctionItems(listItemsResult, _player, listItemsByItemID.ItemID, listItemsByItemID.Offset,
-        listItemsByItemID.Sorts.data(), listItemsByItemID.Sorts.size());
+    auctionHouse->BuildListAuctionItems(listItemsResult, _player, listItemsByItemID.ItemID, listItemsByItemID.Offset, listItemsByItemID.Sorts);
 
     SendPacket(listItemsResult.Write());
 }
@@ -348,7 +343,7 @@ void WorldSession::HandleAuctionListOwnedItems(WorldPackets::AuctionHouse::Aucti
 
     WorldPackets::AuctionHouse::AuctionListOwnedItemsResult result;
 
-    auctionHouse->BuildListOwnedItems(result, _player, listOwnedItems.Offset, listOwnedItems.Sorts.data(), listOwnedItems.Sorts.size());
+    auctionHouse->BuildListOwnedItems(result, _player, listOwnedItems.Offset, listOwnedItems.Sorts);
     result.DesiredDelay = uint32(throttle.DelayUntilNext.count());
     SendPacket(result.Write());
 }
