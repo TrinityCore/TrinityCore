@@ -687,6 +687,8 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
 
 void Creature::ApplyAllStaticFlags(CreatureStaticFlagsHolder const& flags)
 {
+    _staticFlags = flags;
+
     // Apply all other side effects of flag changes
     SetTemplateRooted(flags.HasFlag(CREATURE_STATIC_FLAG_SESSILE));
 }
