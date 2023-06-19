@@ -52,7 +52,7 @@ enum LadyVashj
     SPELL_ENTANGLE              = 38316,
     SPELL_STATIC_CHARGE_TRIGGER = 38280,
     SPELL_FORKED_LIGHTNING      = 38145,
-    SPELL_SHOOT                 = 40873,
+    SPELL_SHOOT                 = 38295,
     SPELL_POISON_BOLT           = 40095,
     SPELL_TOXIC_SPORES          = 38575,
     SPELL_MAGIC_BARRIER         = 38112,
