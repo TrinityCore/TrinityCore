@@ -97,7 +97,7 @@ std::vector<std::string> ConfigMgr::GetKeysByString(std::string const& name)
     const char* const* keys;
     auto length = Config_GetKeys(&_config, &keys);
     for (uintptr_t i = 0; i < length; ++i) {
-        auto res = strstr(keys[i], name_cstr);
+        auto res = strcasestr(keys[i], name_cstr);
         if (res != nullptr && keys[i] - res == 0) {
             matchingKeys.emplace_back(res);
         }

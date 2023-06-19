@@ -1,4 +1,4 @@
-TrinityCore rev. b536709110e1+ 2023-06-10 18:29:54 +0200 (develop branch) (Unix, Debug, Static) (authserver)
+TrinityCore rev. 9fce449dd853+ 2023-06-19 12:09:12 +0200 (develop branch) (Unix, Debug, Dynamic) (authserver)
 <Ctrl-C> to stop.
 
  ______                       __
@@ -16,14 +16,6 @@ Using SSL version: OpenSSL 1.1.1f  31 Mar 2020 (library: OpenSSL 1.1.1f  31 Mar 
 Using Boost version: 1.71.0
 Automatic database updates are disabled for all databases!
 Opening DatabasePool 'auth'. Asynchronous connections: 1, synchronous connections: 1.
-MySQL client library: 8.0.33
-MySQL server ver: 5.7.41 
-Connected to MySQL database at 127.0.0.1
-MySQL client library: 8.0.33
-MySQL server ver: 5.7.41 
-Connected to MySQL database at 127.0.0.1
-DatabasePool 'auth' opened successfully. 2 total connections running.
-Started auth database connection pool.
-Loading IP Location Database...
-Added realm "Trinity" at 127.0.0.1:8085.
-Ping MySQL to keep connection alive
+Could not connect to MySQL database at 127.0.0.1: Can't connect to MySQL server on '127.0.0.1:32768' (111)
+
+DatabasePool Login NOT opened. There were errors opening the MySQL connections. Check your SQLDriverLogFile for specific errors. Read wiki at http://www.trinitycore.info/display/tc/TrinityCore+Home

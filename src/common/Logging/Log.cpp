@@ -27,6 +27,7 @@
 #include "Strand.h"
 #include "StringConvert.h"
 #include "Util.h"
+#include <boost/algorithm/string.hpp>
 #include <chrono>
 #include <sstream>
 
@@ -51,7 +52,7 @@ uint8 Log::NextAppenderId()
 Appender* Log::GetAppenderByName(std::string_view name)
 {
     auto it = appenders.begin();
-    while (it != appenders.end() && it->second && it->second->getName() != name)
+    while (it != appenders.end() && it->second && !boost::iequals(it->second->getName(), name))
         ++it;
 
     return it == appenders.end() ? nullptr : it->second.get();
