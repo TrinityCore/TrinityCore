@@ -66,6 +66,7 @@ enum PriestSpells
     SPELL_PRIEST_DIVINE_WRATH                       = 40441,
     SPELL_PRIEST_EMPOWERED_RENEW_HEAL               = 391359,
     SPELL_PRIEST_FLASH_HEAL                         = 2061,
+    SPELL_PRIEST_FOCUSED_MENDING                    = 372354,
     SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL               = 48153,
     SPELL_PRIEST_HALO_HOLY                          = 120517,
     SPELL_PRIEST_HALO_SHADOW                        = 120644,
@@ -1283,7 +1284,7 @@ class spell_pri_power_word_solace : public SpellScript
     }
 };
 
-// Base class used by various prayer of mending spells
+// Base class used by various Prayer of Mending spells
 class spell_pri_prayer_of_mending_SpellScriptBase : public SpellScript
 {
 public:
@@ -1300,13 +1301,14 @@ public:
         return true;
     }
 
-    void CastPrayerOfMendingAura(Unit* caster, Unit* target, uint8 stack)
+    void CastPrayerOfMendingAura(Unit* caster, Unit* target, uint8 stack, bool firstCast)
     {
         uint32 basePoints = caster->SpellHealingBonusDone(target, _spellInfoHeal, _healEffectDummy->CalcValue(caster), HEAL, *_healEffectDummy);
         CastSpellExtraArgs args;
         args.TriggerFlags = TRIGGERED_FULL_MASK;
         args.AddSpellMod(SPELLVALUE_AURA_STACK, stack);
         args.AddSpellMod(SPELLVALUE_BASE_POINT0, basePoints);
+        args.SetCustomArg(firstCast);
         caster->CastSpell(target, SPELL_PRIEST_PRAYER_OF_MENDING_AURA, args);
     }
 
@@ -1315,23 +1317,48 @@ protected:
     SpellEffectInfo const* _healEffectDummy;
 };
 
-// 33076 - Prayer of Mending
-class spell_pri_prayer_of_mending : public spell_pri_prayer_of_mending_SpellScriptBase
+// 33076 - Prayer of Mending (Dummy)
+class spell_pri_prayer_of_mending_dummy : public spell_pri_prayer_of_mending_SpellScriptBase
 {
-    PrepareSpellScript(spell_pri_prayer_of_mending);
+    PrepareSpellScript(spell_pri_prayer_of_mending_dummy);
 
     void HandleEffectDummy(SpellEffIndex /*effIndex*/)
     {
-        CastPrayerOfMendingAura(GetCaster(), GetHitUnit(), GetEffectValue());
+        CastPrayerOfMendingAura(GetCaster(), GetHitUnit(), GetEffectValue(), true);
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_pri_prayer_of_mending::HandleEffectDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_pri_prayer_of_mending_dummy::HandleEffectDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
-// 41635 - Prayer of Mending (Aura) - SPELL_PRIEST_PRAYER_OF_MENDING_AURA
+// 41635 - Prayer of Mending (Aura)
+class spell_pri_prayer_of_mending : public SpellScript
+{
+    PrepareSpellScript(spell_pri_prayer_of_mending);
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Aura* aura = GetHitAura();
+        if (!aura)
+            return;
+
+        spell_pri_prayer_of_mending_aura* script = aura->GetScript<spell_pri_prayer_of_mending_aura>();
+        if (!script)
+            return;
+
+        bool isEmpoweredByFocusedMending = std::any_cast<bool>(GetSpell()->m_customArg);
+
+        script->SetEmpoweredByFocusedMending(isEmpoweredByFocusedMending);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_prayer_of_mending::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
 class spell_pri_prayer_of_mending_aura : public AuraScript
 {
     PrepareAuraScript(spell_pri_prayer_of_mending_aura);
@@ -1349,19 +1376,21 @@ class spell_pri_prayer_of_mending_aura : public AuraScript
 
     void HandleHeal(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
     {
-        // Caster: player (priest) that cast the Prayer of Mending
-        // Target: player that currently has Prayer of Mending aura on him
+        // Note: caster is the priest who cast the spell and target is current holder of the aura.
         Unit* target = GetTarget();
+
         if (Unit* caster = GetCaster())
         {
+            CastSpellExtraArgs args(aurEff);
+            args.SetCustomArg(_isEmpoweredByFocusedMending);
+
             // Cast the spell to heal the owner
-            caster->CastSpell(target, SPELL_PRIEST_PRAYER_OF_MENDING_HEAL, aurEff);
+            caster->CastSpell(target, SPELL_PRIEST_PRAYER_OF_MENDING_HEAL, args);
 
             // Only cast jump if stack is higher than 0
             int32 stackAmount = GetStackAmount();
             if (stackAmount > 1)
             {
-                CastSpellExtraArgs args(aurEff);
                 args.OriginalCaster = caster->GetGUID();
 
                 int32 newStackAmount = stackAmount - 1;
@@ -1382,9 +1411,18 @@ class spell_pri_prayer_of_mending_aura : public AuraScript
     {
         OnEffectProc += AuraEffectProcFn(spell_pri_prayer_of_mending_aura::HandleHeal, EFFECT_0, SPELL_AURA_DUMMY);
     }
+
+public:
+    void SetEmpoweredByFocusedMending(bool isEmpowered)
+    {
+        _isEmpoweredByFocusedMending = isEmpowered;
+    }
+
+private:
+    bool _isEmpoweredByFocusedMending = false;
 };
 
-// 155793 - Prayer of Mending (Jump) - SPELL_PRIEST_PRAYER_OF_MENDING_JUMP
+// 155793 - Prayer of Mending (Jump)
 class spell_pri_prayer_of_mending_jump : public spell_pri_prayer_of_mending_SpellScriptBase
 {
     PrepareSpellScript(spell_pri_prayer_of_mending_jump);
@@ -1420,7 +1458,7 @@ class spell_pri_prayer_of_mending_jump : public spell_pri_prayer_of_mending_Spel
         Unit* target = GetHitUnit(); // the target we decided the aura should jump to
 
         if (origCaster)
-            CastPrayerOfMendingAura(origCaster, target, GetEffectValue());
+            CastPrayerOfMendingAura(origCaster, target, GetEffectValue(), false);
     }
 
     void Register() override
@@ -1442,9 +1480,10 @@ class spell_pri_prayer_of_mending_heal : public spell_pri_prayer_of_mending_Spel
             SPELL_PRIEST_BENEDICTION,
             SPELL_PRIEST_RENEW,
             SPELL_PRIEST_DIVINE_SERVICE,
+            SPELL_PRIEST_FOCUSED_MENDING,
             SPELL_PRIEST_PRAYER_OF_MENDING_AURA
         })
-            && ValidateSpellEffect({ { SPELL_PRIEST_DIVINE_SERVICE, EFFECT_0 }, { SPELL_PRIEST_BENEDICTION, EFFECT_0 } });
+            && ValidateSpellEffect({ { SPELL_PRIEST_DIVINE_SERVICE, EFFECT_0 }, { SPELL_PRIEST_BENEDICTION, EFFECT_0 }, { SPELL_PRIEST_FOCUSED_MENDING, EFFECT_0 } });
     }
 
     void HandleEffectHitTarget(SpellEffIndex /*effIndex*/)
@@ -1452,15 +1491,26 @@ class spell_pri_prayer_of_mending_heal : public spell_pri_prayer_of_mending_Spel
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
 
+        if (AuraEffect const* focusedMending = caster->GetAuraEffect(SPELL_PRIEST_FOCUSED_MENDING, EFFECT_0))
+        {
+            bool isEmpoweredByFocusedMending = std::any_cast<bool>(GetSpell()->m_customArg);
+            if (!isEmpoweredByFocusedMending)
+                return;
+
+            _healBonus += focusedMending->GetAmount() / 100.0f;
+        }
+
         if (AuraEffect const* divineService = caster->GetAuraEffect(SPELL_PRIEST_DIVINE_SERVICE, EFFECT_0))
         {
-            if (Aura* prayerOfMending = target->GetAura(SPELL_PRIEST_PRAYER_OF_MENDING_AURA, caster->GetGUID()))
-            {
-                float healBonus = 1.0f + (divineService->GetAmount() * prayerOfMending->GetStackAmount() / 100.0f);
+            Aura* prayerOfMending = target->GetAura(SPELL_PRIEST_PRAYER_OF_MENDING_AURA, caster->GetGUID());
+            if (!prayerOfMending)
+                return;
 
-                SetHitHeal(GetHitHeal() * healBonus);
-            }
+            _healBonus += divineService->GetAmount() * prayerOfMending->GetStackAmount() / 100.0f;
+
         }
+
+        SetHitHeal(GetHitHeal() * _healBonus);
 
         if (AuraEffect* benediction = caster->GetAuraEffect(SPELL_PRIEST_BENEDICTION, EFFECT_0))
         {
@@ -1474,6 +1524,9 @@ class spell_pri_prayer_of_mending_heal : public spell_pri_prayer_of_mending_Spel
     {
         OnEffectHitTarget += SpellEffectFn(spell_pri_prayer_of_mending_heal::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_HEAL);
     }
+
+private:
+    float _healBonus = 1.0f;
 };
 
 // 204197 - Purge the Wicked
@@ -2060,8 +2113,8 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_power_word_radiance);
     RegisterSpellAndAuraScriptPair(spell_pri_power_word_shield, spell_pri_power_word_shield_aura);
     RegisterSpellScript(spell_pri_power_word_solace);
-    RegisterSpellScript(spell_pri_prayer_of_mending);
-    RegisterSpellScript(spell_pri_prayer_of_mending_aura);
+    RegisterSpellScript(spell_pri_prayer_of_mending_dummy);
+    RegisterSpellAndAuraScriptPair(spell_pri_prayer_of_mending, spell_pri_prayer_of_mending_aura);
     RegisterSpellScript(spell_pri_prayer_of_mending_jump);
     RegisterSpellScript(spell_pri_prayer_of_mending_heal);
     RegisterSpellScript(spell_pri_purge_the_wicked);
