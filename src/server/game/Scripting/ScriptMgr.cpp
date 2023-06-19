@@ -2259,6 +2259,14 @@ void ScriptMgr::OnConversationCreate(Conversation* conversation, Unit* creator)
     tmpscript->OnConversationCreate(conversation, creator);
 }
 
+void ScriptMgr::OnConversationStart(Conversation* conversation)
+{
+    ASSERT(conversation);
+
+    GET_SCRIPT(ConversationScript, conversation->GetScriptId(), tmpscript);
+    tmpscript->OnConversationStart(conversation);
+}
+
 void ScriptMgr::OnConversationLineStarted(Conversation* conversation, uint32 lineId, Player* sender)
 {
     ASSERT(conversation);
@@ -2266,6 +2274,14 @@ void ScriptMgr::OnConversationLineStarted(Conversation* conversation, uint32 lin
 
     GET_SCRIPT(ConversationScript, conversation->GetScriptId(), tmpscript);
     tmpscript->OnConversationLineStarted(conversation, lineId, sender);
+}
+
+void ScriptMgr::OnConversationUpdate(Conversation* conversation, uint32 diff)
+{
+    ASSERT(conversation);
+
+    GET_SCRIPT(ConversationScript, conversation->GetScriptId(), tmpscript);
+    tmpscript->OnConversationUpdate(conversation, diff);
 }
 
 // Scene
@@ -3125,7 +3141,15 @@ void ConversationScript::OnConversationCreate(Conversation* /*conversation*/, Un
 {
 }
 
+void ConversationScript::OnConversationStart(Conversation* /*conversation*/ )
+{
+}
+
 void ConversationScript::OnConversationLineStarted(Conversation* /*conversation*/, uint32 /*lineId*/, Player* /*sender*/)
+{
+}
+
+void ConversationScript::OnConversationUpdate(Conversation* /*conversation*/, uint32 /*diff*/)
 {
 }
 
