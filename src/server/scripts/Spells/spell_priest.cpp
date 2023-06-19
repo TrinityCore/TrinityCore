@@ -1331,7 +1331,8 @@ class spell_pri_prayer_of_mending_dummy : public spell_pri_prayer_of_mending_Spe
 
     void HandleEffectDummy(SpellEffIndex /*effIndex*/)
     {
-        CastPrayerOfMendingAura(GetCaster(), GetHitUnit(), GetEffectValue(), true);
+        // Note: we need to increase BasePoints by 1 since it's 4 as default.
+        CastPrayerOfMendingAura(GetCaster(), GetHitUnit(), GetEffectValue() + 1, true);
     }
 
     void Register() override
