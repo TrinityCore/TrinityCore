@@ -1,0 +1,11 @@
+worldserver_build:
+    trigger:
+        project: enturions-world/server-images/worldserver
+    only:
+        - tags
+
+authserver_build:
+    trigger:
+        project: enturions-world/server-images/authserver
+    only:
+        - tags
