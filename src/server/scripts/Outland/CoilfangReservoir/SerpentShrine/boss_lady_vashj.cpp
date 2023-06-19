@@ -607,7 +607,7 @@ struct npc_enchanted_elemental : public ScriptedAI
             if (Phase == 3)
             {
                 me->GetMotionMaster()->MovePoint(0, MIDDLE_X, MIDDLE_Y, MIDDLE_Z);
-                if (me->IsWithinDist3d(MIDDLE_X, MIDDLE_Y, MIDDLE_Z, 3))
+                if (vashj && me->IsWithinDist3d(MIDDLE_X, MIDDLE_Y, MIDDLE_Z, 3))
                     DoCast(vashj, SPELL_SURGE);
             }
             if (vashj)
