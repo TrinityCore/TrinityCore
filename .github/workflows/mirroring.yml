@@ -1,0 +1,15 @@
+name: Downstream mirroring
+on: [push, delete]
+
+jobs:
+    mirror_downstream:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+              with:
+                  fetch-depth: 0
+
+            - uses: pixta-dev/repository-mirroring-action@v1
+              with:
+                  target_repo_url: git@${{ secrets.DOWNSTREAM_HOST }}:${{ secrets.DOWNSTREAM_PATH }}
+                  ssh_private_key: ${{ secrets.DOWNSTREAM_SSH_PRIVATE_KEY }}
