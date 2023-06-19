@@ -1400,7 +1400,7 @@ class spell_pri_prayer_of_mending : public SpellScript
 {
     PrepareSpellScript(spell_pri_prayer_of_mending);
 
-    void HandleDummy(SpellEffIndex /*effIndex*/)
+    void HandleEffectDummy(SpellEffIndex /*effIndex*/)
     {
         Aura* aura = GetHitAura();
         if (!aura)
@@ -1417,7 +1417,7 @@ class spell_pri_prayer_of_mending : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_pri_prayer_of_mending::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+        OnEffectHitTarget += SpellEffectFn(spell_pri_prayer_of_mending::HandleEffectDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
 
