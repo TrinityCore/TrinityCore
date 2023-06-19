@@ -1491,7 +1491,7 @@ class spell_pri_prayer_of_mending_heal : public spell_pri_prayer_of_mending_Spel
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
 
-        bool healBonus = 1.0f;
+        float healBonus = 1.0f;
 
         if (AuraEffect const* focusedMending = caster->GetAuraEffect(SPELL_PRIEST_FOCUSED_MENDING, EFFECT_0))
         {
