@@ -1,9 +1,11 @@
 language = "C"
+header = "#define FFI_CONFIG 1"
 cpp_compat = true
 include_guard = "libenturion_shared_h"
 
 [defines]
 "windows" = "_WIN32"
+"feature = ffi_config" = "FFI_CONFIG"
 
 [enum]
 rename_variants = "ScreamingSnakeCase"

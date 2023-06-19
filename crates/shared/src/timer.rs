@@ -36,9 +36,11 @@ pub async fn stop_timers() {
     }
 }
 
+#[cfg(feature = "ffi_timer")]
 type TimerCallback = unsafe extern "C" fn();
 
 #[no_mangle]
+#[cfg(feature = "ffi_timer")]
 pub extern "C" fn CreateTimer(interval_seconds: u64, callback: TimerCallback) {
     let rt = RUNTIME.get().unwrap();
     let _guard = rt.enter();

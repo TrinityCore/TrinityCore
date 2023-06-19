@@ -1,3 +1,5 @@
+#define FFI_CONFIG 1
+
 #ifndef libenturion_shared_h
 #define libenturion_shared_h
 
@@ -28,7 +30,14 @@ typedef uint8_t DbcFieldFormat;
 #endif // __cplusplus
 
 typedef struct Config {
-  const void *inner;
+#if defined(FFI_CONFIG)
+  const void *inner
+#endif
+  ;
+#if !defined(FFI_CONFIG)
+  struct Config inner
+#endif
+  ;
 } Config;
 
 typedef void (*TimerCallback)(void);
@@ -42,6 +51,7 @@ extern "C" {
  */
 const char *GetCurrentExe(void);
 
+#if defined(FFI_CONFIG)
 /**
  * Load the configuration from files.
  * If load error is not NULL, an error has been raised and the returned value is invalid.
@@ -51,7 +61,9 @@ const char *GetCurrentExe(void);
  * If an error occurred, the return value is invalid and cannot be used.
  */
 struct Config LoadConfig(const char *conf_dir, char **load_error);
+#endif
 
+#if defined(FFI_CONFIG)
 /**
  * Gets all the configuration keys.
  * The keys are returned in the keys array (must be passed as pointer). The return value
@@ -61,7 +73,9 @@ struct Config LoadConfig(const char *conf_dir, char **load_error);
  * Unsafe: keys array must be freed after use.
  */
 uintptr_t Config_GetKeys(const struct Config *self, const char *const **keys);
+#endif
 
+#if defined(FFI_CONFIG)
 /**
  * Gets a string configuration value or default.
  *
@@ -72,7 +86,9 @@ uintptr_t Config_GetKeys(const struct Config *self, const char *const **keys);
 const char *Config_GetStringDefault(const struct Config *self,
                                     const char *name,
                                     const char *default_);
+#endif
 
+#if defined(FFI_CONFIG)
 /**
  * Gets a boolean configuration value.
  *
@@ -80,7 +96,9 @@ const char *Config_GetStringDefault(const struct Config *self,
  * Unsafe: name is not checked for safety/sanity.
  */
 bool Config_GetBoolDefault(const struct Config *self, const char *name, bool default_);
+#endif
 
+#if defined(FFI_CONFIG)
 /**
  * Gets an integer configuration value or default.
  *
@@ -88,7 +106,9 @@ bool Config_GetBoolDefault(const struct Config *self, const char *name, bool def
  * Unsafe: name is not checked for safety/sanity.
  */
 int64_t Config_GetIntDefault(const struct Config *self, const char *name, int64_t default_);
+#endif
 
+#if defined(FFI_CONFIG)
 /**
  * Gets a float configuration value or default.
  *
@@ -96,11 +116,14 @@ int64_t Config_GetIntDefault(const struct Config *self, const char *name, int64_
  * Unsafe: name is not checked for safety/sanity.
  */
 double Config_GetFloatDefault(const struct Config *self, const char *name, double default_);
+#endif
 
+#if defined(FFI_CONFIG)
 /**
  * De-allocates the current configuration, freeing memory
  */
 void Config_Free(struct Config self);
+#endif
 
 /**
  * # Safety

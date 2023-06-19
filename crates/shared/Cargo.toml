@@ -24,3 +24,8 @@ tokio-stream = "0.1.14"
 [target.'cfg(windows)'.dependencies]
 winapi = { version = "0.3.9", features = ["errhandlingapi", "libloaderapi", "minwindef", "winerror"] }
 windows-service = "0.6.0"
+
+[features]
+default = ["ffi_config", "ffi_timer"]
+ffi_config = []
+ffi_timer = []

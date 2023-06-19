@@ -12,7 +12,10 @@ use std::{fs, ptr};
 
 #[repr(C)]
 pub struct Config {
+    #[cfg(feature = "ffi_config")]
     inner: *const c_void,
+    #[cfg(not(feature = "ffi_config"))]
+    inner: Config,
 }
 
 impl Config {
@@ -81,15 +84,26 @@ impl Config {
         );
 
         Ok(Self {
+            #[cfg(feature = "ffi_config")]
             inner: Box::into_raw(config) as *const c_void,
+            #[cfg(not(feature = "ffi_config"))]
+            inner: config,
         })
     }
 
     /// # Safety
     /// Inner is always initialized.
     fn inner(&self) -> &config::Config {
-        let b = unsafe { Box::<config::Config>::from_raw(self.inner as *mut _) };
-        Box::leak(b)
+        #[cfg(feature = "ffi_config")]
+        {
+            let b = unsafe { Box::<config::Config>::from_raw(self.inner as *mut _) };
+            Box::leak(b)
+        }
+
+        #[cfg(not(feature = "ffi_config"))]
+        {
+            &self.inner
+        }
     }
 
     /// Get all the configuration keys as string.
@@ -141,6 +155,7 @@ impl Config {
     /// C interface: unsafe function.
     /// If an error occurred, the return value is invalid and cannot be used.
     #[no_mangle]
+    #[cfg(feature = "ffi_config")]
     pub unsafe extern "C" fn LoadConfig(
         conf_dir: *const c_char,
         load_error: *mut *mut c_char,
@@ -167,6 +182,7 @@ impl Config {
     /// # Safety
     /// Unsafe: keys array must be freed after use.
     #[no_mangle]
+    #[cfg(feature = "ffi_config")]
     pub unsafe extern "C" fn Config_GetKeys(&self, keys: *mut *const *const c_char) -> usize {
         let strings = self
             .get_keys()
@@ -193,6 +209,7 @@ impl Config {
     /// Unsafe: name is not checked for safety/sanity.
     /// Unsafe: returned value must be freed after use.
     #[no_mangle]
+    #[cfg(feature = "ffi_config")]
     pub unsafe extern "C" fn Config_GetStringDefault(
         &self,
         name: *const c_char,
@@ -214,6 +231,7 @@ impl Config {
     /// # Safety
     /// Unsafe: name is not checked for safety/sanity.
     #[no_mangle]
+    #[cfg(feature = "ffi_config")]
     pub unsafe extern "C" fn Config_GetBoolDefault(
         &self,
         name: *const c_char,
@@ -232,6 +250,7 @@ impl Config {
     /// # Safety
     /// Unsafe: name is not checked for safety/sanity.
     #[no_mangle]
+    #[cfg(feature = "ffi_config")]
     pub unsafe extern "C" fn Config_GetIntDefault(&self, name: *const c_char, default: i64) -> i64 {
         let name = CStr::from_ptr(name).to_str().unwrap();
         if let Ok(value) = self.inner().get_int(name) {
@@ -246,6 +265,7 @@ impl Config {
     /// # Safety
     /// Unsafe: name is not checked for safety/sanity.
     #[no_mangle]
+    #[cfg(feature = "ffi_config")]
     pub unsafe extern "C" fn Config_GetFloatDefault(
         &self,
         name: *const c_char,
@@ -261,11 +281,13 @@ impl Config {
 
     /// De-allocates the current configuration, freeing memory
     #[no_mangle]
+    #[cfg(feature = "ffi_config")]
     pub extern "C" fn Config_Free(self) {
         drop(self);
     }
 }
 
+#[cfg(feature = "ffi_config")]
 impl Drop for Config {
     fn drop(&mut self) {
         if self.inner != ptr::null() {

@@ -38,6 +38,11 @@ bool ConfigMgr::LoadInitial(std::string file, std::string& error)
     return true;
 }
 
+ConfigMgr::~ConfigMgr()
+{
+    Config_Free(_config);
+}
+
 ConfigMgr* ConfigMgr::instance()
 {
     static ConfigMgr instance;

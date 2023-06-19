@@ -31,7 +31,7 @@ class TC_COMMON_API ConfigMgr
     ConfigMgr() = default;
     ConfigMgr(ConfigMgr const&) = delete;
     ConfigMgr& operator=(ConfigMgr const&) = delete;
-    ~ConfigMgr() = default;
+    ~ConfigMgr();
 
 public:
     /// Method used only for loading main configuration files (authserver.conf and worldserver.conf)
