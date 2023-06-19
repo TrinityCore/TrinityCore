@@ -2268,6 +2268,13 @@ void ScriptMgr::OnConversationLineStarted(Conversation* conversation, uint32 lin
     tmpscript->OnConversationLineStarted(conversation, lineId, sender);
 }
 
+void ScriptMgr::OnPrivateConversationLineStarted(Conversation* conversation, uint32 lineId, uint8 actorIndex)
+{
+    ASSERT(conversation);
+
+    GET_SCRIPT(ConversationScript, conversation->GetScriptId(), tmpscript);
+    tmpscript->OnPrivateConversationLineStarted(conversation, lineId, actorIndex);
+}
 // Scene
 void ScriptMgr::OnSceneStart(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate)
 {
@@ -3126,6 +3133,10 @@ void ConversationScript::OnConversationCreate(Conversation* /*conversation*/, Un
 }
 
 void ConversationScript::OnConversationLineStarted(Conversation* /*conversation*/, uint32 /*lineId*/, Player* /*sender*/)
+{
+}
+
+void ConversationScript::OnPrivateConversationLineStarted(Conversation* /*conversation*/, uint32 /*lineId*/, uint8 /*actorIndex*/)
 {
 }
 

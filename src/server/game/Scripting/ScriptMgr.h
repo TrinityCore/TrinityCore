@@ -925,6 +925,9 @@ class TC_GAME_API ConversationScript : public ScriptObject
 
         // Called when player sends CMSG_CONVERSATION_LINE_STARTED with valid conversation guid
         virtual void OnConversationLineStarted(Conversation* conversation, uint32 lineId, Player* sender);
+
+        // Called for private conversations when a line starts depending on private owner locale start time
+        virtual void OnPrivateConversationLineStarted(Conversation* conversation, uint32 lineId, uint8 actorIndex);
 };
 
 class TC_GAME_API SceneScript : public ScriptObject
@@ -1270,6 +1273,7 @@ class TC_GAME_API ScriptMgr
 
         void OnConversationCreate(Conversation* conversation, Unit* creator);
         void OnConversationLineStarted(Conversation* conversation, uint32 lineId, Player* sender);
+        void OnPrivateConversationLineStarted(Conversation* conversation, uint32 lineId, uint8 actorIndex);
 
     public: /* SceneScript */
 

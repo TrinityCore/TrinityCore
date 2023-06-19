@@ -24,12 +24,13 @@
 #include "IteratorPair.h"
 #include "Log.h"
 #include "Map.h"
+#include "ObjectAccessor.h"
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "UpdateData.h"
 
-Conversation::Conversation() : WorldObject(false), _duration(0), _textureKitId(0)
+Conversation::Conversation() : WorldObject(false), _duration(0), _maxDuration(0), _textureKitId(0), _activeLineIdx(-1), _privateOwnerLocale(LOCALE_enUS)
 {
     m_objectType |= TYPEMASK_CONVERSATION;
     m_objectTypeId = TYPEID_CONVERSATION;
@@ -64,6 +65,24 @@ void Conversation::RemoveFromWorld()
 
 void Conversation::Update(uint32 diff)
 {
+    if (IsPrivateObject())
+    {
+        uint32 nextLineIdx = _activeLineIdx + 1;
+        std::vector<UF::ConversationLine> const& lines = GetConversationLines();
+        if (nextLineIdx < lines.size())
+        {
+            UF::ConversationLine const& line = lines[nextLineIdx];
+            if (Milliseconds const* localizedStartTime = GetLineStartTime(_privateOwnerLocale, line.ConversationLineID))
+            {
+                if (*localizedStartTime == Milliseconds(0) || GetTimePassed() >= *localizedStartTime)
+                {
+                    sScriptMgr->OnPrivateConversationLineStarted(this, line.ConversationLineID, line.ActorIndex);
+                    _activeLineIdx++;
+                }
+            }
+        }
+    }
+
     if (GetDuration() > Milliseconds(diff))
     {
         _duration -= Milliseconds(diff);
@@ -164,6 +183,12 @@ void Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     _creatorGuid = creator->GetGUID();
     SetPrivateObjectOwner(privateObjectOwner);
 
+    if (IsPrivateObject())
+    {
+        if (Player* owner = ObjectAccessor::GetPlayer(*creator, privateObjectOwner))
+            _privateOwnerLocale = owner->GetSession()->GetSessionDbLocaleIndex();
+    }
+
     SetMap(map);
     Relocate(pos);
     RelocateStationaryPosition(pos);
@@ -214,12 +239,13 @@ void Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
         }
     }
 
-    _duration = Milliseconds(*std::max_element(_lastLineEndTimes.begin(), _lastLineEndTimes.end()));
+    _maxDuration = Milliseconds(*std::max_element(_lastLineEndTimes.begin(), _lastLineEndTimes.end()));
     SetUpdateFieldValue(m_values.ModifyValue(&Conversation::m_conversationData).ModifyValue(&UF::ConversationData::LastLineEndTime), _duration.count());
     SetUpdateFieldValue(m_values.ModifyValue(&Conversation::m_conversationData).ModifyValue(&UF::ConversationData::Lines), std::move(lines));
 
     // conversations are despawned 5-20s after LastLineEndTime
-    _duration += 10s;
+    _maxDuration += 10s;
+    _duration = _maxDuration;
 
     sScriptMgr->OnConversationCreate(this, creator);
 }
@@ -272,6 +298,14 @@ Milliseconds const* Conversation::GetLineStartTime(LocaleConstant locale, int32 
 Milliseconds Conversation::GetLastLineEndTime(LocaleConstant locale) const
 {
     return _lastLineEndTimes[locale];
+}
+
+ObjectGuid Conversation::GetActorGUID(uint32 actorIndex) const
+{
+    if (actorIndex < m_conversationData->Actors.size())
+        return m_conversationData->Actors[actorIndex].ActorGUID;
+
+    return ObjectGuid::Empty;
 }
 
 uint32 Conversation::GetScriptId() const

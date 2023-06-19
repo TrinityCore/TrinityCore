@@ -58,6 +58,8 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
         void Update(uint32 diff) override;
         void Remove();
         Milliseconds GetDuration() const { return _duration; }
+        Milliseconds GetMaxDuration() const { return _maxDuration; }
+        Milliseconds GetTimePassed() const { return _maxDuration - _duration; }
         uint32 GetTextureKitId() const { return _textureKitId; }
 
         static Conversation* CreateConversation(uint32 conversationEntry, Unit* creator, Position const& pos, ObjectGuid privateObjectOwner, SpellInfo const* spellInfo = nullptr, bool autoStart = true);
@@ -79,6 +81,9 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
         Milliseconds const* GetLineStartTime(LocaleConstant locale, int32 lineId) const;
         Milliseconds GetLastLineEndTime(LocaleConstant locale) const;
 
+        ObjectGuid GetActorGUID(uint32 actorIndex) const;
+        std::vector<UF::ConversationLine> const& GetConversationLines() const { return m_conversationData->Lines; }
+
         uint32 GetScriptId() const;
 
         UF::UpdateField<UF::ConversationData, 0, TYPEID_CONVERSATION> m_conversationData;
@@ -87,7 +92,10 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
         Position _stationaryPosition;
         ObjectGuid _creatorGuid;
         Milliseconds _duration;
+        Milliseconds _maxDuration;
         uint32 _textureKitId;
+        uint32 _activeLineIdx;
+        LocaleConstant _privateOwnerLocale;
 
         std::unordered_map<std::pair<LocaleConstant /*locale*/, int32 /*lineId*/>, Milliseconds /*startTime*/> _lineStartTimes;
         std::array<Milliseconds /*endTime*/, TOTAL_LOCALES> _lastLineEndTimes;
