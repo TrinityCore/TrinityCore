@@ -17,6 +17,7 @@ config = { git = "https://github.com/mehcode/config-rs.git" }
 glob = "0.3.1"
 futures = "0.3.28"
 libc = "0.2.144"
+log4rs = "1.2.0"
 serde = "1.0.163"
 tokio = { version = "1.28.1", features = ["macros", "rt", "rt-multi-thread", "signal", "time"] }
 tokio-stream = "0.1.14"

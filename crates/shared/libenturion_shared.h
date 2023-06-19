@@ -51,6 +51,11 @@ extern "C" {
  */
 const char *GetCurrentExe(void);
 
+/**
+ * Print out the banner to stdout
+ */
+void PrintBanner(void);
+
 #if defined(FFI_CONFIG)
 /**
  * Load the configuration from files.

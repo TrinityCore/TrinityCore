@@ -2,6 +2,7 @@ use std::ffi::{c_char, CString};
 use std::sync::OnceLock;
 use tokio::runtime::Runtime;
 
+pub mod banner;
 pub mod config;
 pub mod dbc;
 pub mod error;

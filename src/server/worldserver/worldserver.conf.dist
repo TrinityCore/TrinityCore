@@ -1,5 +1,5 @@
 ################################################
-# Trinity Core World Server configuration file #
+# Kitron World Server configuration file #
 ################################################
 
 ###################################################################################################
@@ -1224,10 +1224,10 @@ FlashAtStart = 1
 #
 #    Motd
 #        Description: Message of the Day, displayed at login. Use '@' for a newline.
-#        Example:     "Welcome to John's Server!@This server is proud to be powered by Trinity Core."
-#        Default:     "Welcome to a Trinity Core server."
+#        Example:     "Welcome to John's Server!@This server is proud to be powered by Kitron."
+#        Default:     "Welcome to a Kitron server."
 
-Motd = "Welcome to a Trinity Core server."
+Motd = "Welcome to a Kitron server."
 
 #
 #    Server.LoginInfo
