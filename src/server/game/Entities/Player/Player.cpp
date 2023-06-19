@@ -15319,51 +15319,27 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
     //lets remove flag for delayed teleports
     SetCanDelayTeleport(false);
 
-    switch (questGiver->GetTypeId())
+    if (questGiver && questGiver->isType(TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT))
     {
-        case TYPEID_UNIT:
-        case TYPEID_PLAYER:
+        //For AutoSubmition was added plr case there as it almost same exclute AI script cases.
+        // Send next quest
+        if (Quest const* nextQuest = GetNextQuest(questGiver, quest))
         {
-            //For AutoSubmition was added plr case there as it almost same exclute AI script cases.
-            // Send next quest
-            if (Quest const* nextQuest = GetNextQuest(questGiver, quest))
+            // Only send the quest to the player if the conditions are met
+            if (CanTakeQuest(nextQuest, false))
             {
-                // Only send the quest to the player if the conditions are met
-                if (CanTakeQuest(nextQuest, false))
-                {
-                    if (nextQuest->IsAutoAccept() && CanAddQuest(nextQuest, true))
-                        AddQuestAndCheckCompletion(nextQuest, questGiver);
+                if (nextQuest->IsAutoAccept() && CanAddQuest(nextQuest, true))
+                    AddQuestAndCheckCompletion(nextQuest, questGiver);
 
-                    PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, questGiver->GetGUID(), true, false);
-                }
+                PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, questGiver->GetGUID(), true, false);
             }
-
-            PlayerTalkClass->ClearMenus();
-            if (Creature* creatureQGiver = questGiver->ToCreature())
-                creatureQGiver->AI()->OnQuestReward(this, quest, rewardType, rewardId);
-            break;
         }
-        case TYPEID_GAMEOBJECT:
-        {
-            // Send next quest
-            if (Quest const* nextQuest = GetNextQuest(questGiver, quest))
-            {
-                // Only send the quest to the player if the conditions are met
-                if (CanTakeQuest(nextQuest, false))
-                {
-                    if (nextQuest->IsAutoAccept() && CanAddQuest(nextQuest, true))
-                        AddQuestAndCheckCompletion(nextQuest, questGiver);
 
-                    PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, questGiver->GetGUID(), true, false);
-                }
-            }
-
-            PlayerTalkClass->ClearMenus();
-            questGiver->ToGameObject()->AI()->OnQuestReward(this, quest, rewardType, rewardId);
-            break;
-        }
-        default:
-            break;
+        PlayerTalkClass->ClearMenus();
+        if (Creature* creatureQGiver = questGiver->ToCreature())
+            creatureQGiver->AI()->OnQuestReward(this, quest, rewardType, rewardId);
+        else if (GameObject* goQGiver = questGiver->ToGameObject())
+            goQGiver->AI()->OnQuestReward(this, quest, rewardType, rewardId);
     }
 
     sScriptMgr->OnQuestStatusChange(this, quest_id);
