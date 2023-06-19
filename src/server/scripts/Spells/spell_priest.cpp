@@ -1434,7 +1434,7 @@ class spell_pri_prayer_of_mending_jump : public spell_pri_prayer_of_mending_Spel
 
     void HandleJump(SpellEffIndex /*effIndex*/)
     {
-        Unit* origCaster = GetOriginalCaster(); 
+        Unit* origCaster = GetOriginalCaster();
         Unit* target = GetHitUnit();
 
         if (origCaster)
