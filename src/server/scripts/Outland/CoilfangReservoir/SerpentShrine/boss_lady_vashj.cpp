@@ -593,6 +593,7 @@ struct npc_enchanted_elemental : public ScriptedAI
 
         if (Move <= diff)
         {
+            Creature* vashj = ObjectAccessor::GetCreature(*me, VashjGUID);
             me->SetWalk(true);
             if (Phase == 1)
                 me->GetMotionMaster()->MovePoint(0, X, Y, Z);
@@ -607,9 +608,9 @@ struct npc_enchanted_elemental : public ScriptedAI
             {
                 me->GetMotionMaster()->MovePoint(0, MIDDLE_X, MIDDLE_Y, MIDDLE_Z);
                 if (me->IsWithinDist3d(MIDDLE_X, MIDDLE_Y, MIDDLE_Z, 3))
-                    DoCast(me, SPELL_SURGE);
+                    DoCast(vashj, SPELL_SURGE);
             }
-            if (Creature* vashj = ObjectAccessor::GetCreature(*me, VashjGUID))
+            if (vashj)
                 if (!vashj->IsInCombat() || ENSURE_AI(boss_lady_vashj, vashj->AI())->Phase != 2 || vashj->isDead())
                     me->KillSelf();
             Move = 1000;
