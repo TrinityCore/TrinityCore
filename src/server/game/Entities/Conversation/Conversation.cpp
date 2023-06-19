@@ -29,6 +29,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "UpdateData.h"
+#include "WorldSession.h"
 
 Conversation::Conversation() : WorldObject(false), _duration(0), _maxDuration(0), _textureKitId(0), _activeLineIdx(-1), _privateOwnerLocale(LOCALE_enUS)
 {
