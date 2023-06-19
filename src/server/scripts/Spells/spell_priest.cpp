@@ -1334,31 +1334,6 @@ class spell_pri_prayer_of_mending_dummy : public spell_pri_prayer_of_mending_Spe
 };
 
 // 41635 - Prayer of Mending (Aura)
-class spell_pri_prayer_of_mending : public SpellScript
-{
-    PrepareSpellScript(spell_pri_prayer_of_mending);
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        Aura* aura = GetHitAura();
-        if (!aura)
-            return;
-
-        spell_pri_prayer_of_mending_aura* script = aura->GetScript<spell_pri_prayer_of_mending_aura>();
-        if (!script)
-            return;
-
-        bool isEmpoweredByFocusedMending = std::any_cast<bool>(GetSpell()->m_customArg);
-
-        script->SetEmpoweredByFocusedMending(isEmpoweredByFocusedMending);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_pri_prayer_of_mending::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
-    }
-};
-
 class spell_pri_prayer_of_mending_aura : public AuraScript
 {
     PrepareAuraScript(spell_pri_prayer_of_mending_aura);
@@ -1420,6 +1395,31 @@ public:
 
 private:
     bool _isEmpoweredByFocusedMending = false;
+};
+
+class spell_pri_prayer_of_mending : public SpellScript
+{
+    PrepareSpellScript(spell_pri_prayer_of_mending);
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Aura* aura = GetHitAura();
+        if (!aura)
+            return;
+
+        spell_pri_prayer_of_mending_aura* script = aura->GetScript<spell_pri_prayer_of_mending_aura>();
+        if (!script)
+            return;
+
+        bool isEmpoweredByFocusedMending = std::any_cast<bool>(GetSpell()->m_customArg);
+
+        script->SetEmpoweredByFocusedMending(isEmpoweredByFocusedMending);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_prayer_of_mending::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
 };
 
 // 155793 - Prayer of Mending (Jump)
