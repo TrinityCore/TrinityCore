@@ -1491,26 +1491,26 @@ class spell_pri_prayer_of_mending_heal : public spell_pri_prayer_of_mending_Spel
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
 
+        bool healBonus = 1.0f;
+
         if (AuraEffect const* focusedMending = caster->GetAuraEffect(SPELL_PRIEST_FOCUSED_MENDING, EFFECT_0))
         {
             bool isEmpoweredByFocusedMending = std::any_cast<bool>(GetSpell()->m_customArg);
-            if (!isEmpoweredByFocusedMending)
-                return;
 
-            _healBonus += focusedMending->GetAmount() / 100.0f;
+            if (isEmpoweredByFocusedMending)
+                healBonus += focusedMending->GetAmount() / 100.0f;
         }
 
         if (AuraEffect const* divineService = caster->GetAuraEffect(SPELL_PRIEST_DIVINE_SERVICE, EFFECT_0))
         {
             Aura* prayerOfMending = target->GetAura(SPELL_PRIEST_PRAYER_OF_MENDING_AURA, caster->GetGUID());
-            if (!prayerOfMending)
-                return;
 
-            _healBonus += divineService->GetAmount() * prayerOfMending->GetStackAmount() / 100.0f;
+            if (prayerOfMending)
+                healBonus += divineService->GetAmount() * prayerOfMending->GetStackAmount() / 100.0f;
 
         }
 
-        SetHitHeal(GetHitHeal() * _healBonus);
+        SetHitHeal(GetHitHeal() * healBonus);
 
         if (AuraEffect* benediction = caster->GetAuraEffect(SPELL_PRIEST_BENEDICTION, EFFECT_0))
         {
@@ -1524,9 +1524,6 @@ class spell_pri_prayer_of_mending_heal : public spell_pri_prayer_of_mending_Spel
     {
         OnEffectHitTarget += SpellEffectFn(spell_pri_prayer_of_mending_heal::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_HEAL);
     }
-
-private:
-    float _healBonus = 1.0f;
 };
 
 // 204197 - Purge the Wicked
