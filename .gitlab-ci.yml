@@ -1,11 +1,15 @@
 worldserver_build:
     trigger:
         project: enturions-world/server-images/worldserver
+    variables:
+        UPSTREAM_SHA: $CI_COMMIT_SHA
     only:
         - tags
 
 authserver_build:
     trigger:
         project: enturions-world/server-images/authserver
+    variables:
+        UPSTREAM_SHA: $CI_COMMIT_SHA
     only:
         - tags
