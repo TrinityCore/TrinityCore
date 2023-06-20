@@ -213,6 +213,7 @@ enum StandYourGroundData
 
     EVENT_MOVE_TO_A_POSITION            = 1,
     EVENT_PREFIGHT_CONVERSATION,
+    EVENT_JUMP_BEHIND,
     EVENT_WALK_BACK,
 
     PATH_ALLIANCE_SPARING_PARTNER       = 10501460,
@@ -229,7 +230,8 @@ enum StandYourGroundData
     NPC_KILL_CREDIT                     = 155607,
 
     SPELL_COMBAT_TRAINING_COMPLETE      = 303120,
-    SPELL_JUMP_BEHIND                   = 312757,
+    SPELL_JUMP_LEFT                     = 312757,
+    SPELL_JUMP_BEHIND                   = 312755,
     SPELL_COMBAT_TRAINING               = 323071,
     SPELL_UPDATE_PHASE_SHIFT            = 82238,
 };
@@ -359,6 +361,7 @@ struct npc_sparring_partner : public ScriptedAI
             me->SetHealth(1);
             DoStopAttack();
             me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNINTERACTIBLE);
+            _events.CancelEvent(EVENT_JUMP_BEHIND);
 
             if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
             {
@@ -372,8 +375,9 @@ struct npc_sparring_partner : public ScriptedAI
         if (me->HealthBelowPctDamaged(65, damage) && !_jumped)
         {
             _jumped = true;
-            DoCastVictim(SPELL_JUMP_BEHIND, true);
+            DoCastVictim(SPELL_JUMP_LEFT, true);
             StartPrivateConversation(CONVERSATION_JUMP);
+            _events.ScheduleEvent(EVENT_JUMP_BEHIND, 2s);
         }
     }
 
@@ -429,6 +433,9 @@ struct npc_sparring_partner : public ScriptedAI
                 }
                 case EVENT_PREFIGHT_CONVERSATION:
                     StartPrivateConversation(CONVERSATION_PREFIGHT);
+                    break;
+                case EVENT_JUMP_BEHIND:
+                    DoCastVictim(SPELL_JUMP_BEHIND, true);
                     break;
                 case EVENT_WALK_BACK:
                     me->GetMotionMaster()->Clear();
