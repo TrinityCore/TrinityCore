@@ -669,11 +669,13 @@ struct npc_ship_captain_brace_for_impact_private : public ScriptedAI
         {
             _pathPreTalk = PATH_GARRICK_FROM_UPPER_DECK;
             _pathPostTalk = PATH_GARRICK_TO_LOWER_DECK;
+            _waitTime = 0s;
         }
         else if (me->GetEntry() == NPC_WARLORD_BREKA_GRIMAXE3)
         {
             _pathPreTalk = PATH_GRIMAXE_FROM_UPPER_DECK;
             _pathPostTalk = PATH_GRIMAXE_TO_LOWER_DECK;
+            _waitTime = 1s;
         }
 
         me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
@@ -683,7 +685,7 @@ struct npc_ship_captain_brace_for_impact_private : public ScriptedAI
     void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
     {
         if (pathId == _pathPreTalk)
-            _events.ScheduleEvent(EVENT_SHIP_CAPTAIN2_SCRIPT1, 0s);
+            _events.ScheduleEvent(EVENT_SHIP_CAPTAIN2_SCRIPT1, _waitTime);
         else if (pathId == _pathPostTalk)
             me->DespawnOrUnsummon();
     }
@@ -712,6 +714,7 @@ private:
     EventMap _events;
     uint32 _pathPreTalk;
     uint32 _pathPostTalk;
+    Seconds _waitTime;
 };
 
 enum BraceForImpactFirstMateData
