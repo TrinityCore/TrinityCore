@@ -348,6 +348,7 @@ struct npc_sparring_partner : public ScriptedAI
     {
         if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
         {
+            me->DespawnOrUnsummon();
             player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
             player->CastSpell(player, SPELL_COMBAT_TRAINING_COMPLETE);
         }
