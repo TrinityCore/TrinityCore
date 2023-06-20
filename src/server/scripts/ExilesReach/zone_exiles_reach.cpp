@@ -15,39 +15,45 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Conversation.h"
+#include "CreatureAIImpl.h"
 #include "Map.h"
 #include "Object.h"
 #include "Player.h"
 #include "CellImpl.h"
+#include "Containers.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "PassiveAI.h"
+#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
-#include "Transport.h"
+#include "ScriptSystem.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
-#include "ScriptSystem.h"
-#include "MotionMaster.h"
-#include "Conversation.h"
-#include "ObjectAccessor.h"
-#include "CreatureAIImpl.h"
 #include "TemporarySummon.h"
-#include "ScriptedCreature.h"
-#include <Containers.h>
+#include "Transport.h"
 
-class ExilesReach
+template<class privateAI, class publicAI>
+CreatureAI* GetPrivatePublicPairAISelector(Creature* creature)
 {
-public:
-    static Creature* FindCreature(WorldObject const* obj, std::string_view stringId, float range = 100.0f)
-    {
-        return obj->FindNearestCreatureWithOptions(range, FindCreatureOptions().SetIgnorePhases(true).SetStringId(stringId));
-    }
-};
+    if (creature->IsPrivateObject())
+        return new privateAI(creature);
+    return new publicAI(creature);
+}
+
+#define RegisterPrivatePublicCreatureAIPair(scriptName, privateAI, publicAI) new FactoryCreatureScript<CreatureAI, &GetPrivatePublicPairAISelector<privateAI, publicAI>>(scriptName);
+
+static Creature* FindCreatureIgnorePhase(WorldObject const* obj, std::string_view stringId, float range = 100.0f)
+{
+    return obj->FindNearestCreatureWithOptions(range, FindCreatureOptions().SetIgnorePhases(true).SetStringId(stringId));
+}
 
  // ********************************************
  // * Scripting in this section occurs on ship *
  // ********************************************
 
-enum QuestScripts
+enum ShipQuestScripts
 {
     CONVERSATION_WARMING_UP          = 12798,
 
@@ -67,8 +73,6 @@ enum QuestScripts
     SPELL_COMBAT_TRAINING_COMPLETE   = 303120
 };
 
-// This quest script is used for alliance and horde quest "Warming Up"
-
 class BaseQuestWarmingUp : public QuestScript
 {
 public:
@@ -86,8 +90,8 @@ class q56775_warming_up : public BaseQuestWarmingUp
 public:
     q56775_warming_up() : BaseQuestWarmingUp("q56775_warming_up") { }
 
-    const float CloneOrientation = 5.124503135681152343f;
-    const float CloneSpawnZOffSet = 0.308f;
+    static constexpr float CLONE_ORIENTATION = 5.124503135681152343f;
+    static constexpr float CLONE_Z_OFFSET = 0.308f;
 
     void OnQuestStatusChange(Player* player, Quest const* quest, QuestStatus oldStatus, QuestStatus newStatus) override
     {
@@ -95,12 +99,12 @@ public:
 
         if (newStatus == QUEST_STATUS_REWARDED)
         {
-            Creature* garrickLowerDeck = ExilesReach::FindCreature(player, "q56775_garrick_lower_deck", 5.0f);
-            Creature* garrickUpperDeck = ExilesReach::FindCreature(player, "q56775_garrick_upper_deck", 75.0f);
+            Creature* garrickLowerDeck = FindCreatureIgnorePhase(player, "q56775_garrick_lower_deck", 5.0f);
+            Creature* garrickUpperDeck = FindCreatureIgnorePhase(player, "q56775_garrick_upper_deck", 75.0f);
             if (!garrickLowerDeck || !garrickUpperDeck)
                 return;
 
-            Position pos(garrickLowerDeck->GetPositionX(), garrickLowerDeck->GetPositionY(), garrickLowerDeck->GetPositionZ() - CloneSpawnZOffSet, CloneOrientation);
+            Position pos(garrickLowerDeck->GetPositionX(), garrickLowerDeck->GetPositionY(), garrickLowerDeck->GetPositionZ() - CLONE_Z_OFFSET, CLONE_ORIENTATION);
             garrickUpperDeck->SummonPersonalClone(pos, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
         }
     }
@@ -117,8 +121,8 @@ public:
 
         if (newStatus == QUEST_STATUS_REWARDED)
         {
-            Creature* grimaxeLowerDeck = ExilesReach::FindCreature(player, "q59926_grimaxe_lower_deck", 5.0f);
-            Creature* grimaxeUpperDeck = ExilesReach::FindCreature(player, "q59926_grimaxe_upper_deck", 75.0f);
+            Creature* grimaxeLowerDeck = FindCreatureIgnorePhase(player, "q59926_grimaxe_lower_deck", 5.0f);
+            Creature* grimaxeUpperDeck = FindCreatureIgnorePhase(player, "q59926_grimaxe_upper_deck", 75.0f);
             if (!grimaxeLowerDeck || !grimaxeUpperDeck)
                 return;
 
@@ -127,8 +131,8 @@ public:
     }
 };
 
-// This quest script is used for alliance and horde quest "Stand Your Ground"
-
+// 58209 - Stand Your Ground
+// 59927 - Stand Your Ground
 class quest_stand_your_ground : public QuestScript
 {
 public:
@@ -142,39 +146,35 @@ public:
     }
 };
 
-// This quest script is used for alliance and horde quest "Brace For Impact"
-
 struct ActorData
 {
     std::string_view StringId;
     Position ActorPosition;
 };
 
-static std::unordered_map<TeamId, std::vector<ActorData>> const actorData =
+static std::vector<ActorData> const ActorDataMap[2] =
 {
-    { TEAM_ALLIANCE,
-        {
-            { "q58208_garrick",  { 35.5643f, -1.19837f, 12.1479f, 3.3272014f }    },
-            { "q58208_richter",  { -1.84858f, -8.38776f, 5.10018f, 1.5184366f }   },
-            { "q58208_keela",    { -15.3642f, 6.5793f, 5.5026f, 3.1415925f }      },
-            { "q58208_bjorn",    { 12.8406f, -8.49553f, 4.98031f, 4.8520155f }    },
-            { "q58208_austin",   { -4.48607f, 9.89729f, 5.07851f, 1.5184366f }    },
-            { "q58208_cole",     { -13.3396f, 0.702157f, 5.57996f, 0.087266445f } },
-        }
+    // TEAM_ALLIANCE
+    {
+        { "q58208_garrick",  { 35.5643f, -1.19837f, 12.1479f, 3.3272014f }    },
+        { "q58208_richter",  { -1.84858f, -8.38776f, 5.10018f, 1.5184366f }   },
+        { "q58208_keela",    { -15.3642f, 6.5793f, 5.5026f, 3.1415925f }      },
+        { "q58208_bjorn",    { 12.8406f, -8.49553f, 4.98031f, 4.8520155f }    },
+        { "q58208_austin",   { -4.48607f, 9.89729f, 5.07851f, 1.5184366f }    },
+        { "q58208_cole",     { -13.3396f, 0.702157f, 5.57996f, 0.087266445f } },
     },
-    { TEAM_HORDE,
-        {
-            { "q59928_grimaxe",  { 25.5237f, 0.283005f, 26.5455f, 3.3526998f }   },
-            { "q59928_throg",    { -10.8399f, 11.9039f, 8.88028f, 6.2308254f }   },
-            { "q59928_mithdran", { -24.4763f, -4.48273f, 9.13471f, 0.62831855f } },
-            { "q59928_lana",     { -5.1971f, -15.0268f, 8.992f, 4.712389f }      },
-            { "q59928_bo",       { -22.1559f, 5.58041f, 9.09176f, 6.143559f }    },
-            { "q59928_jinhake",  { -31.9464f, 7.5772f, 10.6408f, 6.0737457f }    },
-        }
+    // TEAM_HORDE
+    {
+        { "q59928_grimaxe",  { 25.5237f, 0.283005f, 26.5455f, 3.3526998f }   },
+        { "q59928_throg",    { -10.8399f, 11.9039f, 8.88028f, 6.2308254f }   },
+        { "q59928_mithdran", { -24.4763f, -4.48273f, 9.13471f, 0.62831855f } },
+        { "q59928_lana",     { -5.1971f, -15.0268f, 8.992f, 4.712389f }      },
+        { "q59928_bo",       { -22.1559f, 5.58041f, 9.09176f, 6.143559f }    },
+        { "q59928_jinhake",  { -31.9464f, 7.5772f, 10.6408f, 6.0737457f }    },
     }
 };
 
-static std::unordered_map<Races, std::string_view> const actorPetData =
+static std::unordered_map<Races, std::string_view> const ActorPetData =
 {
     { RACE_HUMAN,             "q58208_wolf"         },
     { RACE_DWARF,             "q58208_bear"         },
@@ -192,6 +192,8 @@ static std::unordered_map<Races, std::string_view> const actorPetData =
     { RACE_PANDAREN_HORDE,    "q59928_turtle"       }
 };
 
+// 58208 - Brace For Impact
+// 59928 - Brace For Impact
 class quest_brace_for_impact : public QuestScript
 {
 public:
@@ -202,24 +204,32 @@ public:
         if (newStatus != QUEST_STATUS_COMPLETE)
             return;
 
+        TeamId team = TEAM_NEUTRAL;
+        Position petSpawnPos;
+
         if (quest->GetQuestId() == QUEST_BRACE_FOR_IMPACT_ALLIANCE)
         {
-            if (auto const* actors = Trinity::Containers::MapGetValuePtr(actorData, TeamId(TEAM_ALLIANCE)))
-            for (ActorData const actor : *actors)
-                SpawnActor(player, ExilesReach::FindCreature(player, actor.StringId, 50.0f), actor.ActorPosition);
-
-            // Spawn pet
-            SpawnPet(player, { -1.4492f, 8.06887f,  5.10348f, 2.6005409f });
+            team = TEAM_ALLIANCE;
+            petSpawnPos = { -1.4492f, 8.06887f,  5.10348f, 2.6005409f };
         }
         else if (quest->GetQuestId() == QUEST_BRACE_FOR_IMPACT_HORDE)
         {
-            if (auto const* actors = Trinity::Containers::MapGetValuePtr(actorData, TeamId(TEAM_HORDE)))
-                for (ActorData const actor : *actors)
-                SpawnActor(player, ExilesReach::FindCreature(player, actor.StringId, 50.0f), actor.ActorPosition);
-
-            // Spawn pet
-            SpawnPet(player, { -22.8374f, -3.08287f, 9.12613f, 3.857178f });
+            team = TEAM_HORDE;
+            petSpawnPos = { -22.8374f, -3.08287f, 9.12613f, 3.857178f };
         }
+
+        if (team == TEAM_NEUTRAL)
+            return;
+
+        SpawnActors(player, team, petSpawnPos);
+    }
+
+    void SpawnActors(Player* player, TeamId team, Position petSpawnPos)
+    {
+        for (ActorData const& actor : ActorDataMap[team])
+            SpawnActor(player, FindCreatureIgnorePhase(player, actor.StringId, 50.0f), actor.ActorPosition);
+
+        SpawnPet(player, petSpawnPos);
     }
 
     void SpawnPet(Player* player, Position const& position)
@@ -227,9 +237,9 @@ public:
         if (player->GetClass() != CLASS_HUNTER)
             return;
 
-        if (std::string_view const* stringId = Trinity::Containers::MapGetValuePtr(actorPetData, Races(player->GetRace())))
+        if (std::string_view const* stringId = Trinity::Containers::MapGetValuePtr(ActorPetData, Races(player->GetRace())))
         {
-            Creature* pet = ExilesReach::FindCreature(player, *stringId, 25.0f);
+            Creature* pet = FindCreatureIgnorePhase(player, *stringId, 25.0f);
             if (!pet)
                 return;
 
@@ -251,10 +261,7 @@ public:
     }
 };
 
-// This script is used to script sparring partners for quest "Stand Your Ground" Alliance and Horde
-// by entries: 157051,166814
-
-enum SparingPartner
+enum StandYourGroundData
 {
     ACTOR_ID_ALLIANCE               = 68598,
     ACTOR_ID_HORDE                  = 75920,
@@ -288,9 +295,11 @@ enum SparingPartner
     TALK_SPARING_COMPLETE           = 0
 };
 
+// 157051 - Alliance Sparring Partner
+// 166814 - Horde Sparring Partner
 struct npc_sparring_partner : public ScriptedAI
 {
-    npc_sparring_partner(Creature* creature) : ScriptedAI(creature) { }
+    npc_sparring_partner(Creature* creature) : ScriptedAI(creature), _jumped(false), _actorIndex(0), _actorId(0), _path(0) { }
 
     void JustAppeared() override
     {
@@ -385,13 +394,13 @@ struct npc_sparring_partner : public ScriptedAI
         {
             _jumped = true;
             DoCastVictim(SPELL_JUMP_BEHIND, true);
-            ConversationWithPlayer(CONVERSATION_JUMP);
+            StartPrivateConversation(CONVERSATION_JUMP);
         }
     }
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        ConversationWithPlayer(CONVERSATION_AGGRO);
+        StartPrivateConversation(CONVERSATION_AGGRO);
     }
 
     void DamageDealt(Unit* target, uint32& damage, DamageEffectType /*damageType*/) override
@@ -400,7 +409,7 @@ struct npc_sparring_partner : public ScriptedAI
             damage = 0;
     }
 
-    void ConversationWithPlayer(uint32 conversationId)
+    void StartPrivateConversation(uint32 conversationId)
     {
         if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
         {
@@ -408,6 +417,18 @@ struct npc_sparring_partner : public ScriptedAI
             conversation->AddActor(_actorId, _actorIndex, me->GetGUID());
             conversation->Start();
         }
+    }
+
+    Creature* GetRandomSparPoint()
+    {
+        std::list<Creature*> sparPoints;
+        GetCreatureListWithEntryInGrid(sparPoints, me, NPC_SPAR_POINT_ADVERTISMENT, 25.0f);
+        Trinity::Containers::RandomResize(sparPoints, 1);
+
+        if (sparPoints.empty()) // should never happen
+            return nullptr;
+
+        return sparPoints.front();
     }
 
     void UpdateAI(uint32 diff) override
@@ -419,20 +440,16 @@ struct npc_sparring_partner : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_MOVE_TO_A_POSITION:
-                    {
-                        std::list<Creature*> sparpoints;
-                        GetCreatureListWithEntryInGrid(sparpoints, me, NPC_SPAR_POINT_ADVERTISMENT, 25.0f);
-                        Trinity::Containers::RandomResize(sparpoints, 1);
+                {
+                    if (Creature* sparPoint = GetRandomSparPoint())
+                        me->GetMotionMaster()->MovePoint(POSITION_SPARPOINT_ADVERTISMENT, sparPoint->GetPosition());
 
-                        for (Creature* creature : sparpoints)
-                            me->GetMotionMaster()->MovePoint(POSITION_SPARPOINT_ADVERTISMENT, creature->GetPosition());
-
-                        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-                        _events.ScheduleEvent(EVENT_PREFIGHT_CONVERSATION, 1s);
-                    }
+                    me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                    _events.ScheduleEvent(EVENT_PREFIGHT_CONVERSATION, 1s);
                     break;
+                }
                 case EVENT_PREFIGHT_CONVERSATION:
-                    ConversationWithPlayer(CONVERSATION_PREFIGHT);
+                    StartPrivateConversation(CONVERSATION_PREFIGHT);
                     break;
                 case EVENT_WALK_BACK:
                     me->GetMotionMaster()->Clear();
@@ -450,17 +467,14 @@ struct npc_sparring_partner : public ScriptedAI
     }
 private:
     EventMap _events;
-    bool _jumped = false;
-    uint8 _actorIndex = 0;
-    uint32 _actorId = 0;
-    uint32 _path = 0;
+    bool _jumped;
+    uint8 _actorIndex;
+    uint32 _actorId;
+    uint32 _path;
     ObjectGuid _playerGUID;
 };
 
-// This script used to script Captain Garrick and Warlord Breka Grimaxe after quest "Warming Up" rewarded Alliance and Horde
-// by entries: 156280,166824
-
-enum ShipCaptains
+enum PostWarmingUpShipCaptainsData
 {
     EVENT_SHIP_CAPTAIN1_SCRIPT1     = 1,
     EVENT_SHIP_CAPTAIN1_SCRIPT2,
@@ -474,9 +488,11 @@ enum ShipCaptains
     SAY_SPAR                        = 0
 };
 
+// 156280 - Captain Garrick
+// 166824 - Warlord Breka Grimaxe
 struct npc_ship_captain_warming_up_private : public ScriptedAI
 {
-    npc_ship_captain_warming_up_private(Creature* creature) : ScriptedAI(creature) { }
+    npc_ship_captain_warming_up_private(Creature* creature) : ScriptedAI(creature), _pathToSparringPartner(0), _pathToUpperDeck(0) { }
 
     void InitializeAI() override
     {
@@ -487,13 +503,13 @@ struct npc_ship_captain_warming_up_private : public ScriptedAI
     {
         if (me->GetEntry() == NPC_CAPTAIN_GARRICK)
         {
-            _path_to_sparing_partner = PATH_GARRICK_TO_COLE;
-            _path_to_upper_deck = PATH_GARRICK_TO_UPPER_DECK;
+            _pathToSparringPartner = PATH_GARRICK_TO_COLE;
+            _pathToUpperDeck = PATH_GARRICK_TO_UPPER_DECK;
         }
         else if (me->GetEntry() == NPC_WARLORD_BREKA_GRIMAXE2)
         {
-            _path_to_sparing_partner = PATH_GRIMAXE_TO_THROG;
-            _path_to_upper_deck = PATH_GRIMAXE_TO_UPPER_DECK;
+            _pathToSparringPartner = PATH_GRIMAXE_TO_THROG;
+            _pathToUpperDeck = PATH_GRIMAXE_TO_UPPER_DECK;
         }
 
         _events.ScheduleEvent(EVENT_SHIP_CAPTAIN1_SCRIPT1, 1s);
@@ -501,9 +517,9 @@ struct npc_ship_captain_warming_up_private : public ScriptedAI
 
     void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
     {
-        if (pathId == _path_to_sparing_partner)
+        if (pathId == _pathToSparringPartner)
             _events.ScheduleEvent(EVENT_SHIP_CAPTAIN1_SCRIPT2, 0s);
-        else if (pathId == _path_to_upper_deck)
+        else if (pathId == _pathToUpperDeck)
             me->DespawnOrUnsummon();
     }
 
@@ -517,14 +533,14 @@ struct npc_ship_captain_warming_up_private : public ScriptedAI
             {
                 case EVENT_SHIP_CAPTAIN1_SCRIPT1:
                     Talk(SAY_SPAR);
-                    me->GetMotionMaster()->MovePath(_path_to_sparing_partner, false);
+                    me->GetMotionMaster()->MovePath(_pathToSparringPartner, false);
                     break;
                 case EVENT_SHIP_CAPTAIN1_SCRIPT2:
                     me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
                     _events.ScheduleEvent(EVENT_SHIP_CAPTAIN1_SCRIPT3, 3s);
                     break;
                 case EVENT_SHIP_CAPTAIN1_SCRIPT3:
-                    me->GetMotionMaster()->MovePath(_path_to_upper_deck, false);
+                    me->GetMotionMaster()->MovePath(_pathToUpperDeck, false);
                     break;
                 default:
                     break;
@@ -533,14 +549,11 @@ struct npc_ship_captain_warming_up_private : public ScriptedAI
     }
 private:
     EventMap _events;
-    uint32 _path_to_sparing_partner = 0;
-    uint32 _path_to_upper_deck = 0;
+    uint32 _pathToSparringPartner;
+    uint32 _pathToUpperDeck;
 };
 
-// This script used to script Captain Garrick and Warlord Breka Grimaxe for quest "Brace for Impact" Alliance and Horde
-// by entries: 156280,166827
-
-enum CaptainGarrickBraceForImpactShip
+enum BraceForImpactShip
 {
     EVENT_SHIP_CAPTAIN2_SCRIPT1     = 1,
     EVENT_SHIP_CAPTAIN2_SCRIPT2,
@@ -553,6 +566,8 @@ enum CaptainGarrickBraceForImpactShip
     SAY_GET_TO_POSITIONS            = 1
 };
 
+// 156280 - Captain Garrick
+// 166827 - Warlord Breka Grimaxe
 struct npc_ship_captain_brace_for_impact_private : public ScriptedAI
 {
     npc_ship_captain_brace_for_impact_private(Creature* creature) : ScriptedAI(creature) { }
@@ -561,24 +576,24 @@ struct npc_ship_captain_brace_for_impact_private : public ScriptedAI
     {
         if (me->GetEntry() == NPC_CAPTAIN_GARRICK)
         {
-            _path_pre_talk = PATH_GARRICK_FROM_UPPER_DECK;
-            _path_post_talk = PATH_GARRICK_TO_LOWER_DECK;
+            _pathPreTalk = PATH_GARRICK_FROM_UPPER_DECK;
+            _pathPostTalk = PATH_GARRICK_TO_LOWER_DECK;
         }
         else if (me->GetEntry() == NPC_WARLORD_BREKA_GRIMAXE3)
         {
-            _path_pre_talk = PATH_GRIMAXE_FROM_UPPER_DECK;
-            _path_post_talk = PATH_GRIMAXE_TO_LOWER_DECK;
+            _pathPreTalk = PATH_GRIMAXE_FROM_UPPER_DECK;
+            _pathPostTalk = PATH_GRIMAXE_TO_LOWER_DECK;
         }
 
         me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
-        me->GetMotionMaster()->MovePath(_path_pre_talk, false);
+        me->GetMotionMaster()->MovePath(_pathPreTalk, false);
     }
 
     void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
     {
-        if (pathId == _path_pre_talk)
+        if (pathId == _pathPreTalk)
             _events.ScheduleEvent(EVENT_SHIP_CAPTAIN2_SCRIPT1, 0s);
-        else if (pathId == _path_post_talk)
+        else if (pathId == _pathPostTalk)
             me->DespawnOrUnsummon();
     }
 
@@ -595,7 +610,7 @@ struct npc_ship_captain_brace_for_impact_private : public ScriptedAI
                     _events.ScheduleEvent(EVENT_SHIP_CAPTAIN2_SCRIPT2, 3s);
                     break;
                 case EVENT_SHIP_CAPTAIN2_SCRIPT2:
-                    me->GetMotionMaster()->MovePath(_path_post_talk, false);
+                    me->GetMotionMaster()->MovePath(_pathPostTalk, false);
                     break;
                 default:
                     break;
@@ -604,57 +619,31 @@ struct npc_ship_captain_brace_for_impact_private : public ScriptedAI
     }
 private:
     EventMap _events;
-    uint32 _path_pre_talk = 0;
-    uint32 _path_post_talk = 0;
+    uint32 _pathPreTalk = 0;
+    uint32 _pathPostTalk = 0;
 };
 
-CreatureAI* CaptainGarrickShipAISelector(Creature* creature)
-{
-    if (creature->IsPrivateObject())
-    {
-        if (Player* privateObjectOwner = ObjectAccessor::GetPlayer(*creature, creature->GetPrivateObjectOwner()))
-        {
-            if ((privateObjectOwner->GetTeam() == ALLIANCE && privateObjectOwner->GetQuestStatus(QUEST_BRACE_FOR_IMPACT_ALLIANCE) == QUEST_STATUS_NONE))
-                return new npc_ship_captain_warming_up_private(creature);
-            else
-                return new npc_ship_captain_brace_for_impact_private(creature);
-        }
-    }
-
-    return new NullCreatureAI(creature);
-};
-
-CreatureAI* GrimaxeLowerShipAISelector(Creature* creature) { return creature->IsPrivateObject() ? new npc_ship_captain_warming_up_private(creature) : nullptr; };
-
-CreatureAI* GrimaxeUpperShipAISelector(Creature* creature) { return creature->IsPrivateObject() ? new npc_ship_captain_brace_for_impact_private(creature) : nullptr; };
-
-// This script is used to script Private Cole and Grunt Throg for quest "Stand Your Ground" Alliance and Horde
-// by entries: 160664,166583
-
+// 160664 - Private Cole
+// 166583 - Grunt Throg
 struct npc_first_mate_stand_your_ground : public ScriptedAI
 {
     npc_first_mate_stand_your_ground(Creature* creature) : ScriptedAI(creature) { }
 
     void OnQuestAccept(Player* player, Quest const* quest) override
     {
-        player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
-
+        uint32 summonSpellId = SPELL_SUMMON_COLE;
         switch (quest->GetQuestId())
         {
-            case QUEST_STAND_YOUR_GROUND_ALLIANCE:
-                player->CastSpell(player, SPELL_SUMMON_COLE);
-                break;
             case QUEST_STAND_YOUR_GROUND_HORDE:
-                player->CastSpell(player, SPELL_SUMMON_THROG);
+                summonSpellId = SPELL_SUMMON_THROG;
                 break;
             default:
                 break;
         }
+        player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+        player->CastSpell(player, summonSpellId);
     }
 };
-
-// This script is used to script Private Cole and Grunt Throg for quest "Brace For Impact" Alliance and Horde
-// by private entries: 160664,166583
 
 enum FirstMate
 {
@@ -670,20 +659,18 @@ enum FirstMate
     SAY_STORM                   = 0
 };
 
+// 160664 - Private Cole
+// 166583 - Grunt Throg
 struct npc_first_mate_brace_for_impact_private : public ScriptedAI
 {
-    npc_first_mate_brace_for_impact_private(Creature* creature) : ScriptedAI(creature) { }
+    npc_first_mate_brace_for_impact_private(Creature* creature) : ScriptedAI(creature), _path(0) { }
 
     void JustAppeared() override
     {
         if (me->GetEntry() == NPC_PRIVATE_COLE)
-        {
             _path = PATH_COLE_BRACE_FOR_IMPACT;
-        }
         else if (me->GetEntry() == NPC_GRUNT_THROG)
-        {
             _path = PATH_THROG_BRACE_FOR_IMPACT;
-        }
 
         _events.ScheduleEvent(EVENT_FIRST_MATE_1, 3s);
     }
@@ -716,17 +703,7 @@ struct npc_first_mate_brace_for_impact_private : public ScriptedAI
     }
 private:
     EventMap _events;
-    uint32 _path = 0;
-};
-
-CreatureAI* ColeShipAISelector(Creature* creature)
-{
-    return creature->IsPrivateObject() ? new npc_first_mate_brace_for_impact_private(creature) : (CreatureAI*)new npc_first_mate_stand_your_ground(creature);
-};
-
-CreatureAI* ThrogShipAISelector(Creature* creature)
-{
-    return creature->IsPrivateObject() ? new npc_first_mate_brace_for_impact_private(creature) : (CreatureAI*)new npc_first_mate_stand_your_ground(creature);
+    uint32 _path;
 };
 
 // This script is used to script crew for quest "Brace For Impact" Alliance and Horde
@@ -755,32 +732,41 @@ enum CrewShipBraceForImpact
     PATH_JIN_HAKE_BRACE_FOR_IMPACT  = 10502000
 };
 
+// 157042 - Quartermaster Richter
+// 157043 - Kee-La
+// 157044 - Bjorn Stouthands
+// 157046 - Austin Huxworth
+// 166585 - Bo
+// 166590 - Mithdran Dawntracker
+// 166794 - Lana Jordan
+// 166799 - Provisoner Jin'hake
 struct npc_crew_ship_private : public ScriptedAI
 {
-    npc_crew_ship_private(Creature* creature) : ScriptedAI(creature) { }
+    npc_crew_ship_private(Creature* creature) : ScriptedAI(creature), _path(0) { }
 
-    std::unordered_map<uint32, uint32> const PathData =
+    uint32 GetPathID()
     {
-        { NPC_QUARTERMASTER_RICHTER, PATH_RICHTER_BRACE_FOR_IMPACT  },
-        { NPC_KEE_LA,                PATH_KEE_LA_BRACE_FOR_IMPACT   },
-        { NPC_BJORN_STOUTHANDS,      PATH_BJORN_BRACE_FOR_IMPACT    },
-        { NPC_AUSTIN_HUXWORTH,       PATH_AUSTIN_BRACE_FOR_IMPACT   },
-        { NPC_BO,                    PATH_BO_BRACE_FOR_IMPACT       },
-        { NPC_MITHDRAN_DAWNTRACKER,  PATH_MITHDRAN_BRACE_FOR_IMPACT },
-        { NPC_LANA_JORDAN,           PATH_LANA_BRACE_FOR_IMPACT     },
-        { NPC_PROVISONER_JIN_HAKE,   PATH_JIN_HAKE_BRACE_FOR_IMPACT }
-    };
+        switch (me->GetEntry())
+        {
+            case NPC_QUARTERMASTER_RICHTER: return PATH_RICHTER_BRACE_FOR_IMPACT;
+            case NPC_KEE_LA:                return PATH_KEE_LA_BRACE_FOR_IMPACT;
+            case NPC_BJORN_STOUTHANDS:      return PATH_BJORN_BRACE_FOR_IMPACT;
+            case NPC_AUSTIN_HUXWORTH:       return PATH_AUSTIN_BRACE_FOR_IMPACT;
+            case NPC_BO:                    return PATH_BO_BRACE_FOR_IMPACT;
+            case NPC_MITHDRAN_DAWNTRACKER:  return PATH_MITHDRAN_BRACE_FOR_IMPACT;
+            case NPC_LANA_JORDAN:           return PATH_LANA_BRACE_FOR_IMPACT;
+            case NPC_PROVISONER_JIN_HAKE:   return PATH_JIN_HAKE_BRACE_FOR_IMPACT;
+            default:                        return 0;
+        }
+    }
 
     void JustAppeared() override
     {
-        if (uint32 const* path = Trinity::Containers::MapGetValuePtr(PathData, me->GetEntry()))
+        _path = GetPathID();
+        _scheduler.Schedule(Seconds(7), [this](TaskContext)
         {
-            _path = *path;
-            _scheduler.Schedule(Seconds(7), [this](TaskContext)
-            {
-                me->GetMotionMaster()->MovePath(_path, false);
-            });
-        }
+            me->GetMotionMaster()->MovePath(_path, false);
+        });
     }
 
     void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
@@ -793,18 +779,11 @@ struct npc_crew_ship_private : public ScriptedAI
     {
         _scheduler.Update(diff);
     }
+
 private:
     TaskScheduler _scheduler;
-    uint32 _path = 0;
+    uint32 _path;
 };
-
-CreatureAI* ShipCrewAISelector(Creature* creature)
-{
-    return creature->IsPrivateObject() ? new npc_crew_ship_private(creature) : nullptr;
-};
-
-// This script is used to script pets for quest "Brace For Impact" Alliance and Horde
-// by private entries: 167337,167342,167343,167344,167345,167346,167347,167348,167349,167350,167351,167352,167375
 
 enum PetShipBraceForImpact
 {
@@ -817,18 +796,32 @@ enum PetShipBraceForImpact
     PATH_PET_HORDE_SHIP            = 10502020
 };
 
+// 167337 - Mechanical Bunny
+// 167342 - Moth
+// 167343 - Dragonhawk
+// 167344 - Scorpion
+// 167345 - Wolf
+// 167346 - Wolf
+// 167347 - Tiger
+// 167348 - Turtle
+// 167349 - Plainstrider
+// 167350 - Raptor
+// 167351 - Bat
+// 167352 - Dog
+// 167375 - Bear
 struct npc_pet_ship_private : public ScriptedAI
 {
-    npc_pet_ship_private(Creature* creature) : ScriptedAI(creature) { }
+    npc_pet_ship_private(Creature* creature) : ScriptedAI(creature), _path(0) { }
 
     void JustAppeared() override
     {
         if (!me->GetTransport())
             return;
 
-        if (me->GetTransport()->GetMapIdForSpawning() == MAP_ALLIANCE_SHIP)
+        int32 transportMap = me->GetTransport()->GetMapIdForSpawning();
+        if (transportMap == MAP_ALLIANCE_SHIP)
             _path = PATH_PET_ALLIANCE_SHIP;
-        else if (me->GetTransport()->GetMapIdForSpawning() == MAP_HORDE_SHIP)
+        else if (transportMap == MAP_HORDE_SHIP)
             _path = PATH_PET_HORDE_SHIP;
 
         if (_path)
@@ -850,14 +843,10 @@ struct npc_pet_ship_private : public ScriptedAI
                 me->GetMotionMaster()->MovePath(_path, false);
         }
     }
+
 private:
     EventMap _events;
-    uint32 _path = 0;
-};
-
-CreatureAI* ShipPetAISelector(Creature* creature)
-{
-    return creature->IsPrivateObject() ? new npc_pet_ship_private(creature) : nullptr;
+    uint32 _path;
 };
 
 enum PlayerScriptHordeShipCrash
@@ -869,10 +858,10 @@ enum PlayerScriptHordeShipCrash
     SPELL_HORDE_SHIP_CRASH    = 325133
 };
 
-class player_ship_crash : public PlayerScript
+class player_exiles_reach_ship_crash : public PlayerScript
 {
 public:
-    player_ship_crash() : PlayerScript("player_ship_crash") { }
+    player_exiles_reach_ship_crash() : PlayerScript("player_exiles_reach_ship_crash") { }
 
     void OnMovieComplete(Player* player, uint32 movieId) override
     {
@@ -898,24 +887,30 @@ enum AllianceHordeShipSceneSpells
     SPELL_CRASHED_LANDED_HORDE    = 325136
 };
 
-// This script is used to send conversation to Captian Garrick and Warlord Grimaxe on movement after entering ship
-
 class scene_alliance_and_horde_ship : public SceneScript
 {
 public:
     scene_alliance_and_horde_ship() : SceneScript("scene_alliance_and_horde_ship") { }
 
+    void StartConvo(Player* player)
+    {
+        // This script is used to send conversation to Captian Garrick and Warlord Grimaxe on movement after entering ship
+        player->CastSpell(player, SPELL_BEGIN_TUTORIAL, true);
+    }
+
     void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
     {
-        player->CastSpell(player, SPELL_BEGIN_TUTORIAL, true);
+        StartConvo(player);
     }
 
     void OnSceneCancel(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
     {
-        player->CastSpell(player, SPELL_BEGIN_TUTORIAL, true);
+        StartConvo(player);
     }
 };
 
+// 303065 - Summon Cole - Combat Training (DNT)
+// 325108 - Summon Throg - Combat Training (DNT)
 class spell_summon_sparing_partner : public SpellScript
 {
     PrepareSpellScript(spell_summon_sparing_partner);
@@ -962,24 +957,41 @@ public:
     }
 };
 
+CreatureAI* CaptainGarrickShipAISelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+    {
+        if (Player* privateObjectOwner = ObjectAccessor::GetPlayer(*creature, creature->GetPrivateObjectOwner()))
+        {
+            if ((privateObjectOwner->GetTeam() == ALLIANCE && privateObjectOwner->GetQuestStatus(QUEST_BRACE_FOR_IMPACT_ALLIANCE) == QUEST_STATUS_NONE))
+                return new npc_ship_captain_warming_up_private(creature);
+            else
+                return new npc_ship_captain_brace_for_impact_private(creature);
+        }
+    }
+
+    return new NullCreatureAI(creature);
+};
+
 void AddSC_zone_exiles_reach()
 {
     // Ship
     RegisterCreatureAI(npc_sparring_partner);
     new FactoryCreatureScript<CreatureAI, &CaptainGarrickShipAISelector>("npc_captain_garrick_ship");
-    new FactoryCreatureScript<CreatureAI, &GrimaxeLowerShipAISelector>("npc_warlord_grimaxe_lower_ship");
-    new FactoryCreatureScript<CreatureAI, &GrimaxeUpperShipAISelector>("npc_warlord_grimaxe_upper_ship");
-    new FactoryCreatureScript<CreatureAI, &ColeShipAISelector>("npc_cole_ship");
-    new FactoryCreatureScript<CreatureAI, &ThrogShipAISelector>("npc_throg_ship");
-    new FactoryCreatureScript<CreatureAI, &ShipCrewAISelector>("npc_crew_ship");
-    new FactoryCreatureScript<CreatureAI, &ShipPetAISelector>("npc_pet_ship");
+    RegisterPrivatePublicCreatureAIPair("npc_warlord_grimaxe_lower_ship", npc_ship_captain_warming_up_private, NullCreatureAI);
+    RegisterPrivatePublicCreatureAIPair("npc_warlord_grimaxe_upper_ship", npc_ship_captain_brace_for_impact_private, NullCreatureAI);
+    RegisterPrivatePublicCreatureAIPair("npc_cole_ship", npc_first_mate_brace_for_impact_private, npc_first_mate_stand_your_ground);
+    RegisterPrivatePublicCreatureAIPair("npc_throg_ship", npc_first_mate_brace_for_impact_private, npc_first_mate_stand_your_ground);
+    RegisterPrivatePublicCreatureAIPair("npc_crew_ship", npc_crew_ship_private, NullCreatureAI);
+    RegisterPrivatePublicCreatureAIPair("npc_pet_ship", npc_pet_ship_private, NullCreatureAI);
     new q59926_warming_up();
     new q56775_warming_up();
     new quest_stand_your_ground();
     new quest_brace_for_impact();
-    new player_ship_crash();
+    new player_exiles_reach_ship_crash();
     new scene_alliance_and_horde_ship();
     RegisterSpellScript(spell_summon_sparing_partner);
+
     // Beach
     new scene_alliance_and_horde_crash();
 }
