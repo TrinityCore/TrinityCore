@@ -53,24 +53,24 @@ static Creature* FindCreatureIgnorePhase(WorldObject const* obj, std::string_vie
  // * Scripting in this section occurs on ship *
  // ********************************************
 
-enum ShipQuestScripts
+enum WarmingUpData
 {
-    CONVERSATION_WARMING_UP          = 12798,
+    NPC_WARLORD_BREKA_GRIMAXE2      = 166824,
+    NPC_WARLORD_BREKA_GRIMAXE3      = 166827,
+    NPC_CAPTAIN_GARRICK             = 156280,
 
-    NPC_WARLORD_BREKA_GRIMAXE2       = 166824,
-    NPC_WARLORD_BREKA_GRIMAXE3       = 166827,
-    NPC_CAPTAIN_GARRICK              = 156280,
+    EVENT_SHIP_CAPTAIN1_SCRIPT1     = 1,
+    EVENT_SHIP_CAPTAIN1_SCRIPT2,
+    EVENT_SHIP_CAPTAIN1_SCRIPT3,
 
-    QUEST_WARMING_UP_ALLIANCE        = 56775,
-    QUEST_WARMING_UP_HORDE           = 59926,
-    QUEST_STAND_YOUR_GROUND_ALLIANCE = 58209,
-    QUEST_STAND_YOUR_GROUND_HORDE    = 59927,
-    QUEST_BRACE_FOR_IMPACT_ALLIANCE  = 58208,
-    QUEST_BRACE_FOR_IMPACT_HORDE     = 59928,
+    PATH_GARRICK_TO_COLE            = 10501450,
+    PATH_GARRICK_TO_UPPER_DECK      = 10501451,
+    PATH_GRIMAXE_TO_THROG           = 10501900,
+    PATH_GRIMAXE_TO_UPPER_DECK      = 10501901,
 
-    SPELL_SUMMON_COLE                = 303064,
-    SPELL_SUMMON_THROG               = 325107,
-    SPELL_COMBAT_TRAINING_COMPLETE   = 303120
+    SAY_SPAR                        = 0,
+
+    CONVERSATION_WARMING_UP         = 12798,
 };
 
 class BaseQuestWarmingUp : public QuestScript
@@ -131,134 +131,69 @@ public:
     }
 };
 
-// 58209 - Stand Your Ground
-// 59927 - Stand Your Ground
-class quest_stand_your_ground : public QuestScript
+// 156280 - Captain Garrick
+// 166824 - Warlord Breka Grimaxe
+struct npc_ship_captain_warming_up_private : public ScriptedAI
 {
-public:
-    quest_stand_your_ground() : QuestScript("quest_stand_your_ground") { }
+    npc_ship_captain_warming_up_private(Creature* creature) : ScriptedAI(creature), _pathToSparringPartner(0), _pathToUpperDeck(0) { }
 
-    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    void InitializeAI() override
     {
-        // Remove aura if player drops quest
-        if (newStatus == QUEST_STATUS_NONE)
-            player->CastSpell(player, SPELL_COMBAT_TRAINING_COMPLETE);
+        me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
     }
-};
 
-struct ActorData
-{
-    std::string_view StringId;
-    Position ActorPosition;
-};
-
-static std::vector<ActorData> const ActorDataMap[2] =
-{
-    // TEAM_ALLIANCE
+    void JustAppeared() override
     {
-        { "q58208_garrick",  { 35.5643f, -1.19837f, 12.1479f, 3.3272014f }    },
-        { "q58208_richter",  { -1.84858f, -8.38776f, 5.10018f, 1.5184366f }   },
-        { "q58208_keela",    { -15.3642f, 6.5793f, 5.5026f, 3.1415925f }      },
-        { "q58208_bjorn",    { 12.8406f, -8.49553f, 4.98031f, 4.8520155f }    },
-        { "q58208_austin",   { -4.48607f, 9.89729f, 5.07851f, 1.5184366f }    },
-        { "q58208_cole",     { -13.3396f, 0.702157f, 5.57996f, 0.087266445f } },
-    },
-    // TEAM_HORDE
-    {
-        { "q59928_grimaxe",  { 25.5237f, 0.283005f, 26.5455f, 3.3526998f }   },
-        { "q59928_throg",    { -10.8399f, 11.9039f, 8.88028f, 6.2308254f }   },
-        { "q59928_mithdran", { -24.4763f, -4.48273f, 9.13471f, 0.62831855f } },
-        { "q59928_lana",     { -5.1971f, -15.0268f, 8.992f, 4.712389f }      },
-        { "q59928_bo",       { -22.1559f, 5.58041f, 9.09176f, 6.143559f }    },
-        { "q59928_jinhake",  { -31.9464f, 7.5772f, 10.6408f, 6.0737457f }    },
-    }
-};
-
-static std::unordered_map<Races, std::string_view> const ActorPetData =
-{
-    { RACE_HUMAN,             "q58208_wolf"         },
-    { RACE_DWARF,             "q58208_bear"         },
-    { RACE_NIGHTELF,          "q58208_tiger"        },
-    { RACE_GNOME,             "q58208_bunny"        },
-    { RACE_DRAENEI,           "q58208_moth"         },
-    { RACE_WORGEN,            "q58208_dog"          },
-    { RACE_PANDAREN_ALLIANCE, "q58208_turtle"       },
-    { RACE_ORC,               "q59928_wolf"         },
-    { RACE_UNDEAD_PLAYER,     "q59928_bat"          },
-    { RACE_TAUREN,            "q59928_plainstrider" },
-    { RACE_TROLL,             "q59928_raptor"       },
-    { RACE_GOBLIN,            "q59928_scorpion"     },
-    { RACE_BLOODELF,          "q59928_dragonhawk"   },
-    { RACE_PANDAREN_HORDE,    "q59928_turtle"       }
-};
-
-// 58208 - Brace For Impact
-// 59928 - Brace For Impact
-class quest_brace_for_impact : public QuestScript
-{
-public:
-    quest_brace_for_impact() : QuestScript("quest_brace_for_impact") { }
-
-    void OnQuestStatusChange(Player* player, Quest const* quest, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
-    {
-        if (newStatus != QUEST_STATUS_COMPLETE)
-            return;
-
-        TeamId team = TEAM_NEUTRAL;
-        Position petSpawnPos;
-
-        if (quest->GetQuestId() == QUEST_BRACE_FOR_IMPACT_ALLIANCE)
+        if (me->GetEntry() == NPC_CAPTAIN_GARRICK)
         {
-            team = TEAM_ALLIANCE;
-            petSpawnPos = { -1.4492f, 8.06887f,  5.10348f, 2.6005409f };
+            _pathToSparringPartner = PATH_GARRICK_TO_COLE;
+            _pathToUpperDeck = PATH_GARRICK_TO_UPPER_DECK;
         }
-        else if (quest->GetQuestId() == QUEST_BRACE_FOR_IMPACT_HORDE)
+        else if (me->GetEntry() == NPC_WARLORD_BREKA_GRIMAXE2)
         {
-            team = TEAM_HORDE;
-            petSpawnPos = { -22.8374f, -3.08287f, 9.12613f, 3.857178f };
+            _pathToSparringPartner = PATH_GRIMAXE_TO_THROG;
+            _pathToUpperDeck = PATH_GRIMAXE_TO_UPPER_DECK;
         }
 
-        if (team == TEAM_NEUTRAL)
-            return;
-
-        SpawnActors(player, team, petSpawnPos);
+        _events.ScheduleEvent(EVENT_SHIP_CAPTAIN1_SCRIPT1, 1s);
     }
 
-    void SpawnActors(Player* player, TeamId team, Position petSpawnPos)
+    void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
     {
-        for (ActorData const& actor : ActorDataMap[team])
-            SpawnActor(player, FindCreatureIgnorePhase(player, actor.StringId, 50.0f), actor.ActorPosition);
-
-        SpawnPet(player, petSpawnPos);
+        if (pathId == _pathToSparringPartner)
+            _events.ScheduleEvent(EVENT_SHIP_CAPTAIN1_SCRIPT2, 0s);
+        else if (pathId == _pathToUpperDeck)
+            me->DespawnOrUnsummon();
     }
 
-    void SpawnPet(Player* player, Position const& position)
+    void UpdateAI(uint32 diff) override
     {
-        if (player->GetClass() != CLASS_HUNTER)
-            return;
+        _events.Update(diff);
 
-        if (std::string_view const* stringId = Trinity::Containers::MapGetValuePtr(ActorPetData, Races(player->GetRace())))
+        while (uint32 eventId = _events.ExecuteEvent())
         {
-            Creature* pet = FindCreatureIgnorePhase(player, *stringId, 25.0f);
-            if (!pet)
-                return;
-
-            SpawnActor(player, pet, position);
+            switch (eventId)
+            {
+                case EVENT_SHIP_CAPTAIN1_SCRIPT1:
+                    Talk(SAY_SPAR);
+                    me->GetMotionMaster()->MovePath(_pathToSparringPartner, false);
+                    break;
+                case EVENT_SHIP_CAPTAIN1_SCRIPT2:
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
+                    _events.ScheduleEvent(EVENT_SHIP_CAPTAIN1_SCRIPT3, 3s);
+                    break;
+                case EVENT_SHIP_CAPTAIN1_SCRIPT3:
+                    me->GetMotionMaster()->MovePath(_pathToUpperDeck, false);
+                    break;
+                default:
+                    break;
+            }
         }
     }
-
-    void SpawnActor(Player* player, Creature* creature, Position const& position)
-    {
-        TransportBase const* transport = player->GetDirectTransport();
-
-        if (!transport || !creature)
-            return;
-
-        float x, y, z, o;
-        position.GetPosition(x, y, z, o);
-        transport->CalculatePassengerPosition(x, y, z, &o);
-        creature->SummonPersonalClone({ x, y, z, o }, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
-    }
+private:
+    EventMap _events;
+    uint32 _pathToSparringPartner;
+    uint32 _pathToUpperDeck;
 };
 
 enum StandYourGroundData
@@ -277,22 +212,67 @@ enum StandYourGroundData
     EVENT_PREFIGHT_CONVERSATION,
     EVENT_WALK_BACK,
 
-    NPC_ALLIANCE_SPARING_PARTNER    = 157051,
-    NPC_HORDE_SPARING_PARTNER       = 166814,
-    NPC_SPAR_POINT_ADVERTISMENT     = 174971,
-    NPC_KILL_CREDIT                 = 155607,
-
     PATH_ALLIANCE_SPARING_PARTNER   = 10501460,
     PATH_HORDE_SPARING_PARTNER      = 10501870,
 
     POSITION_SPARPOINT_ADVERTISMENT = 1,
     POSITION_SPARPOINT_READY        = 2,
 
+    QUEST_STAND_YOUR_GROUND_HORDE   = 59927,
+
+    TALK_SPARING_COMPLETE           = 0,
+
+    NPC_ALLIANCE_SPARING_PARTNER    = 157051,
+    NPC_HORDE_SPARING_PARTNER       = 166814,
+    NPC_SPAR_POINT_ADVERTISMENT     = 174971,
+    NPC_KILL_CREDIT                 = 155607,
+
+    SPELL_COMBAT_TRAINING_COMPLETE  = 303120,
     SPELL_JUMP_BEHIND               = 312757,
     SPELL_COMBAT_TRAINING           = 323071,
     SPELL_UPDATE_PHASE_SHIFT        = 82238,
+    SPELL_SUMMON_COLE               = 303064,
+    SPELL_SUMMON_THROG              = 325107,
+};
 
-    TALK_SPARING_COMPLETE           = 0
+// 58209 - Stand Your Ground
+// 59927 - Stand Your Ground
+class quest_stand_your_ground : public QuestScript
+{
+public:
+    quest_stand_your_ground() : QuestScript("quest_stand_your_ground") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        // Remove aura if player drops quest
+        if (newStatus == QUEST_STATUS_NONE)
+            player->CastSpell(player, SPELL_COMBAT_TRAINING_COMPLETE);
+    }
+};
+
+// 303065 - Summon Cole - Combat Training (DNT)
+// 325108 - Summon Throg - Combat Training (DNT)
+class spell_summon_sparing_partner : public SpellScript
+{
+    PrepareSpellScript(spell_summon_sparing_partner);
+
+    void SelectTarget(WorldObject*& target)
+    {
+        Player* caster = GetCaster()->ToPlayer();
+        if (!caster)
+            return;
+
+        Creature* partner = caster->FindNearestCreatureWithOptions(10.0f, FindCreatureOptions().SetIgnorePhases(true).SetStringId(caster->GetTeam() == ALLIANCE ? "q58209_cole" : "q59927_throg"));
+        if (!partner)
+            return;
+
+        target = partner;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_summon_sparing_partner::SelectTarget, EFFECT_0, TARGET_DEST_NEARBY_ENTRY_OR_DB);
+    }
 };
 
 // 157051 - Alliance Sparring Partner
@@ -474,96 +454,186 @@ private:
     ObjectGuid _playerGUID;
 };
 
-enum PostWarmingUpShipCaptainsData
+
+// 160664 - Private Cole
+// 166583 - Grunt Throg
+struct npc_first_mate_stand_your_ground : public ScriptedAI
 {
-    EVENT_SHIP_CAPTAIN1_SCRIPT1     = 1,
-    EVENT_SHIP_CAPTAIN1_SCRIPT2,
-    EVENT_SHIP_CAPTAIN1_SCRIPT3,
+    npc_first_mate_stand_your_ground(Creature* creature) : ScriptedAI(creature) { }
 
-    PATH_GARRICK_TO_COLE            = 10501450,
-    PATH_GARRICK_TO_UPPER_DECK      = 10501451,
-    PATH_GRIMAXE_TO_THROG           = 10501900,
-    PATH_GRIMAXE_TO_UPPER_DECK      = 10501901,
-
-    SAY_SPAR                        = 0
+    void OnQuestAccept(Player* player, Quest const* quest) override
+    {
+        uint32 summonSpellId = SPELL_SUMMON_COLE;
+        switch (quest->GetQuestId())
+        {
+            case QUEST_STAND_YOUR_GROUND_HORDE:
+                summonSpellId = SPELL_SUMMON_THROG;
+                break;
+            default:
+                break;
+        }
+        player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+        player->CastSpell(player, summonSpellId);
+    }
 };
 
-// 156280 - Captain Garrick
-// 166824 - Warlord Breka Grimaxe
-struct npc_ship_captain_warming_up_private : public ScriptedAI
+struct ActorData
 {
-    npc_ship_captain_warming_up_private(Creature* creature) : ScriptedAI(creature), _pathToSparringPartner(0), _pathToUpperDeck(0) { }
-
-    void InitializeAI() override
-    {
-        me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
-    }
-
-    void JustAppeared() override
-    {
-        if (me->GetEntry() == NPC_CAPTAIN_GARRICK)
-        {
-            _pathToSparringPartner = PATH_GARRICK_TO_COLE;
-            _pathToUpperDeck = PATH_GARRICK_TO_UPPER_DECK;
-        }
-        else if (me->GetEntry() == NPC_WARLORD_BREKA_GRIMAXE2)
-        {
-            _pathToSparringPartner = PATH_GRIMAXE_TO_THROG;
-            _pathToUpperDeck = PATH_GRIMAXE_TO_UPPER_DECK;
-        }
-
-        _events.ScheduleEvent(EVENT_SHIP_CAPTAIN1_SCRIPT1, 1s);
-    }
-
-    void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
-    {
-        if (pathId == _pathToSparringPartner)
-            _events.ScheduleEvent(EVENT_SHIP_CAPTAIN1_SCRIPT2, 0s);
-        else if (pathId == _pathToUpperDeck)
-            me->DespawnOrUnsummon();
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        _events.Update(diff);
-
-        while (uint32 eventId = _events.ExecuteEvent())
-        {
-            switch (eventId)
-            {
-                case EVENT_SHIP_CAPTAIN1_SCRIPT1:
-                    Talk(SAY_SPAR);
-                    me->GetMotionMaster()->MovePath(_pathToSparringPartner, false);
-                    break;
-                case EVENT_SHIP_CAPTAIN1_SCRIPT2:
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
-                    _events.ScheduleEvent(EVENT_SHIP_CAPTAIN1_SCRIPT3, 3s);
-                    break;
-                case EVENT_SHIP_CAPTAIN1_SCRIPT3:
-                    me->GetMotionMaster()->MovePath(_pathToUpperDeck, false);
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-private:
-    EventMap _events;
-    uint32 _pathToSparringPartner;
-    uint32 _pathToUpperDeck;
+    std::string_view StringId;
+    Position ActorPosition;
 };
 
-enum BraceForImpactShip
+static std::vector<ActorData> const ActorDataMap[2] =
 {
+    // TEAM_ALLIANCE
+    {
+        { "q58208_garrick",  { 35.5643f, -1.19837f, 12.1479f, 3.3272014f }    },
+        { "q58208_richter",  { -1.84858f, -8.38776f, 5.10018f, 1.5184366f }   },
+        { "q58208_keela",    { -15.3642f, 6.5793f, 5.5026f, 3.1415925f }      },
+        { "q58208_bjorn",    { 12.8406f, -8.49553f, 4.98031f, 4.8520155f }    },
+        { "q58208_austin",   { -4.48607f, 9.89729f, 5.07851f, 1.5184366f }    },
+        { "q58208_cole",     { -13.3396f, 0.702157f, 5.57996f, 0.087266445f } },
+    },
+    // TEAM_HORDE
+    {
+        { "q59928_grimaxe",  { 25.5237f, 0.283005f, 26.5455f, 3.3526998f }   },
+        { "q59928_throg",    { -10.8399f, 11.9039f, 8.88028f, 6.2308254f }   },
+        { "q59928_mithdran", { -24.4763f, -4.48273f, 9.13471f, 0.62831855f } },
+        { "q59928_lana",     { -5.1971f, -15.0268f, 8.992f, 4.712389f }      },
+        { "q59928_bo",       { -22.1559f, 5.58041f, 9.09176f, 6.143559f }    },
+        { "q59928_jinhake",  { -31.9464f, 7.5772f, 10.6408f, 6.0737457f }    },
+    }
+};
+
+static std::unordered_map<Races, std::string_view> const ActorPetData =
+{
+    { RACE_HUMAN,             "q58208_wolf"         },
+    { RACE_DWARF,             "q58208_bear"         },
+    { RACE_NIGHTELF,          "q58208_tiger"        },
+    { RACE_GNOME,             "q58208_bunny"        },
+    { RACE_DRAENEI,           "q58208_moth"         },
+    { RACE_WORGEN,            "q58208_dog"          },
+    { RACE_PANDAREN_ALLIANCE, "q58208_turtle"       },
+    { RACE_ORC,               "q59928_wolf"         },
+    { RACE_UNDEAD_PLAYER,     "q59928_bat"          },
+    { RACE_TAUREN,            "q59928_plainstrider" },
+    { RACE_TROLL,             "q59928_raptor"       },
+    { RACE_GOBLIN,            "q59928_scorpion"     },
+    { RACE_BLOODELF,          "q59928_dragonhawk"   },
+    { RACE_PANDAREN_HORDE,    "q59928_turtle"       }
+};
+
+enum BraceForImpactData
+{
+    QUEST_BRACE_FOR_IMPACT_ALLIANCE = 58208,
+    QUEST_BRACE_FOR_IMPACT_HORDE    = 59928,
+
     EVENT_SHIP_CAPTAIN2_SCRIPT1     = 1,
     EVENT_SHIP_CAPTAIN2_SCRIPT2,
+    EVENT_FIRST_MATE_1              = 1,
+    EVENT_FIRST_MATE_2,
 
     PATH_GARRICK_FROM_UPPER_DECK    = 10505890,
     PATH_GARRICK_TO_LOWER_DECK      = 10505891,
     PATH_GRIMAXE_FROM_UPPER_DECK    = 10501910,
     PATH_GRIMAXE_TO_LOWER_DECK      = 10501911,
+    PATH_COLE_BRACE_FOR_IMPACT      = 10501461,
+    PATH_THROG_BRACE_FOR_IMPACT     = 10501871,
 
-    SAY_GET_TO_POSITIONS            = 1
+    PATH_RICHTER_BRACE_FOR_IMPACT   = 10501770,
+    PATH_KEE_LA_BRACE_FOR_IMPACT    = 10501800,
+    PATH_BJORN_BRACE_FOR_IMPACT     = 10501790,
+    PATH_AUSTIN_BRACE_FOR_IMPACT    = 10501780,
+
+    PATH_BO_BRACE_FOR_IMPACT        = 10502010,
+    PATH_MITHDRAN_BRACE_FOR_IMPACT  = 10501990,
+    PATH_LANA_BRACE_FOR_IMPACT      = 10501980,
+    PATH_JIN_HAKE_BRACE_FOR_IMPACT  = 10502000,
+
+    SAY_GET_TO_POSITIONS            = 1,
+    SAY_STORM                       = 0,
+
+    NPC_PRIVATE_COLE                = 160664,
+    NPC_GRUNT_THROG                 = 166583,
+
+    NPC_QUARTERMASTER_RICHTER       = 157042,
+    NPC_KEE_LA                      = 157043,
+    NPC_BJORN_STOUTHANDS            = 157044,
+    NPC_AUSTIN_HUXWORTH             = 157046,
+
+    NPC_BO                          = 166585,
+    NPC_MITHDRAN_DAWNTRACKER        = 166590,
+    NPC_LANA_JORDAN                 = 166794,
+    NPC_PROVISONER_JIN_HAKE         = 166799,
+};
+
+// 58208 - Brace For Impact
+// 59928 - Brace For Impact
+class quest_brace_for_impact : public QuestScript
+{
+public:
+    quest_brace_for_impact() : QuestScript("quest_brace_for_impact") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* quest, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        if (newStatus != QUEST_STATUS_COMPLETE)
+            return;
+
+        TeamId team = TEAM_NEUTRAL;
+        Position petSpawnPos;
+
+        if (quest->GetQuestId() == QUEST_BRACE_FOR_IMPACT_ALLIANCE)
+        {
+            team = TEAM_ALLIANCE;
+            petSpawnPos = { -1.4492f, 8.06887f,  5.10348f, 2.6005409f };
+        }
+        else if (quest->GetQuestId() == QUEST_BRACE_FOR_IMPACT_HORDE)
+        {
+            team = TEAM_HORDE;
+            petSpawnPos = { -22.8374f, -3.08287f, 9.12613f, 3.857178f };
+        }
+
+        if (team == TEAM_NEUTRAL)
+            return;
+
+        SpawnActors(player, team, petSpawnPos);
+    }
+
+    void SpawnActors(Player* player, TeamId team, Position petSpawnPos)
+    {
+        for (ActorData const& actor : ActorDataMap[team])
+            SpawnActor(player, FindCreatureIgnorePhase(player, actor.StringId, 50.0f), actor.ActorPosition);
+
+        SpawnPet(player, petSpawnPos);
+    }
+
+    void SpawnPet(Player* player, Position const& position)
+    {
+        if (player->GetClass() != CLASS_HUNTER)
+            return;
+
+        if (std::string_view const* stringId = Trinity::Containers::MapGetValuePtr(ActorPetData, Races(player->GetRace())))
+        {
+            Creature* pet = FindCreatureIgnorePhase(player, *stringId, 25.0f);
+            if (!pet)
+                return;
+
+            SpawnActor(player, pet, position);
+        }
+    }
+
+    void SpawnActor(Player* player, Creature* creature, Position const& position)
+    {
+        TransportBase const* transport = player->GetDirectTransport();
+
+        if (!transport || !creature)
+            return;
+
+        float x, y, z, o;
+        position.GetPosition(x, y, z, o);
+        transport->CalculatePassengerPosition(x, y, z, &o);
+        creature->SummonPersonalClone({ x, y, z, o }, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+    }
 };
 
 // 156280 - Captain Garrick
@@ -625,42 +695,6 @@ private:
 
 // 160664 - Private Cole
 // 166583 - Grunt Throg
-struct npc_first_mate_stand_your_ground : public ScriptedAI
-{
-    npc_first_mate_stand_your_ground(Creature* creature) : ScriptedAI(creature) { }
-
-    void OnQuestAccept(Player* player, Quest const* quest) override
-    {
-        uint32 summonSpellId = SPELL_SUMMON_COLE;
-        switch (quest->GetQuestId())
-        {
-            case QUEST_STAND_YOUR_GROUND_HORDE:
-                summonSpellId = SPELL_SUMMON_THROG;
-                break;
-            default:
-                break;
-        }
-        player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
-        player->CastSpell(player, summonSpellId);
-    }
-};
-
-enum FirstMate
-{
-    EVENT_FIRST_MATE_1          = 1,
-    EVENT_FIRST_MATE_2,
-
-    NPC_PRIVATE_COLE            = 160664,
-    NPC_GRUNT_THROG             = 166583,
-
-    PATH_COLE_BRACE_FOR_IMPACT  = 10501461,
-    PATH_THROG_BRACE_FOR_IMPACT = 10501871,
-
-    SAY_STORM                   = 0
-};
-
-// 160664 - Private Cole
-// 166583 - Grunt Throg
 struct npc_first_mate_brace_for_impact_private : public ScriptedAI
 {
     npc_first_mate_brace_for_impact_private(Creature* creature) : ScriptedAI(creature), _path(0) { }
@@ -704,32 +738,6 @@ struct npc_first_mate_brace_for_impact_private : public ScriptedAI
 private:
     EventMap _events;
     uint32 _path;
-};
-
-// This script is used to script crew for quest "Brace For Impact" Alliance and Horde
-// by private entries: 157042,157043,157044,157046,166585,166590,166794,166799
-
-enum CrewShipBraceForImpact
-{
-    NPC_QUARTERMASTER_RICHTER       = 157042,
-    NPC_KEE_LA                      = 157043,
-    NPC_BJORN_STOUTHANDS            = 157044,
-    NPC_AUSTIN_HUXWORTH             = 157046,
-
-    NPC_BO                          = 166585,
-    NPC_MITHDRAN_DAWNTRACKER        = 166590,
-    NPC_LANA_JORDAN                 = 166794,
-    NPC_PROVISONER_JIN_HAKE         = 166799,
-
-    PATH_RICHTER_BRACE_FOR_IMPACT   = 10501770,
-    PATH_KEE_LA_BRACE_FOR_IMPACT    = 10501800,
-    PATH_BJORN_BRACE_FOR_IMPACT     = 10501790,
-    PATH_AUSTIN_BRACE_FOR_IMPACT    = 10501780,
-
-    PATH_BO_BRACE_FOR_IMPACT        = 10502010,
-    PATH_MITHDRAN_BRACE_FOR_IMPACT  = 10501990,
-    PATH_LANA_BRACE_FOR_IMPACT      = 10501980,
-    PATH_JIN_HAKE_BRACE_FOR_IMPACT  = 10502000
 };
 
 // 157042 - Quartermaster Richter
@@ -849,13 +857,17 @@ private:
     uint32 _path;
 };
 
-enum PlayerScriptHordeShipCrash
+enum ExilesReachShipCrashData
 {
-    MOVIE_ALLIANCE_SHIP_CRASH = 895,
-    MOVIE_HORDE_SHIP_CRASH    = 931,
+    MOVIE_ALLIANCE_SHIP_CRASH       = 895,
+    MOVIE_HORDE_SHIP_CRASH          = 931,
 
-    SPELL_ALLIANCE_SHIP_CRASH = 305446,
-    SPELL_HORDE_SHIP_CRASH    = 325133
+    SPELL_ALLIANCE_SHIP_CRASH       = 305446,
+    SPELL_HORDE_SHIP_CRASH          = 325133,
+    SPELL_BEGIN_TUTORIAL            = 295600,
+    SPELL_KNOCKED_DOWN              = 305445,
+    SPELL_CRASHED_LANDED_ALLIANCE   = 305464,
+    SPELL_CRASHED_LANDED_HORDE      = 325136
 };
 
 class player_exiles_reach_ship_crash : public PlayerScript
@@ -877,14 +889,6 @@ public:
                 break;
         }
     }
-};
-
-enum AllianceHordeShipSceneSpells
-{
-    SPELL_BEGIN_TUTORIAL          = 295600,
-    SPELL_KNOCKED_DOWN            = 305445,
-    SPELL_CRASHED_LANDED_ALLIANCE = 305464,
-    SPELL_CRASHED_LANDED_HORDE    = 325136
 };
 
 class scene_alliance_and_horde_ship : public SceneScript
@@ -909,37 +913,11 @@ public:
     }
 };
 
-// 303065 - Summon Cole - Combat Training (DNT)
-// 325108 - Summon Throg - Combat Training (DNT)
-class spell_summon_sparing_partner : public SpellScript
-{
-    PrepareSpellScript(spell_summon_sparing_partner);
-
-    void SelectTarget(WorldObject*& target)
-    {
-        Player* caster = GetCaster()->ToPlayer();
-        if (!caster)
-            return;
-
-        Creature* partner = caster->FindNearestCreatureWithOptions(10.0f, FindCreatureOptions().SetIgnorePhases(true).SetStringId(caster->GetTeam() == ALLIANCE ? "q58209_cole" : "q59927_throg"));
-        if (!partner)
-            return;
-
-        target = partner;
-    }
-
-    void Register() override
-    {
-        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_summon_sparing_partner::SelectTarget, EFFECT_0, TARGET_DEST_NEARBY_ENTRY_OR_DB);
-    }
-};
-
 // ***************************************************************
 // * Scripting in this section occurs after teleporting to beach *
 // ***************************************************************
 
 // Script scene for washed up on beach to cast spells Alliance and Horde
-
 class scene_alliance_and_horde_crash : public SceneScript
 {
 public:
