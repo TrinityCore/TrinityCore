@@ -661,7 +661,7 @@ enum BraceForImpactCaptainData
 // 166827 - Warlord Breka Grimaxe
 struct npc_ship_captain_brace_for_impact_private : public ScriptedAI
 {
-    npc_ship_captain_brace_for_impact_private(Creature* creature) : ScriptedAI(creature), _pathPreTalk(0), _pathPostTalk(0) { }
+    npc_ship_captain_brace_for_impact_private(Creature* creature) : ScriptedAI(creature), _pathPreTalk(0), _pathPostTalk(0), _waitTime(0s){ }
 
     void JustAppeared() override
     {
