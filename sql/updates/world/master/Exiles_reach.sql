@@ -124,24 +124,23 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (32,5,166827,0,0,47,0,59928,2,0,0,0,0,'','Spawn of creature with entry 166827 requires Quest 59928 complete');
 
 -- Phase conditions
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (15284,15286,15514,15287,15516) AND `SourceEntry`=13377;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (15284,15514,15287,15516) AND `SourceEntry`=13377;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(26,15284,13377,0,0,47,0,59927,8,0,1,0,0,'','Allow Phase 15284 if Quest 59927 is not inprogress'),
-(26,15284,13377,0,0,47,0,59928,2,0,1,0,0,'','Allow Phase 15284 if Quest 59928 is not complete'),
-(26,15286,13377,0,0,47,0,59928,2,0,1,0,0,'','Allow Phase 15286 if Quest 59928 is not complete'),
-(26,15514,13377,0,0,47,0,59928,2,0,1,0,0,'','Allow Phase 15514 if Quest 59928 is not Complete'),
-(26,15287,13377,0,0,47,0,59928,2,0,0,0,0,'','Allow Phase 15287 if Quest 59928 is complete'),
-(26,15516,13377,0,0,47,0,59928,2,0,0,0,0,'','Allow Phase 15516 if Quest 59928 is Complete');
+(26,15284,13377,0,0,47,0,59927,8,0,1,0,0,'','Allow Phase 15284 if Quest 59927 (Stand Your Ground) is not inprogress'),
+(26,15284,13377,0,0,47,0,59928,2,0,1,0,0,'','Allow Phase 15284 if Quest 59928 (Brace for Impact) is not complete'),
+(26,15514,13377,0,0,47,0,59928,2,0,1,0,0,'','Allow Phase 15514 if Quest 59928 (Brace for Impact) is not Complete'),
+(26,15287,13377,0,0,47,0,59928,2,0,0,0,0,'','Allow Phase 15287 if Quest 59928 (Brace for Impact) is complete'),
+(26,15516,13377,0,0,47,0,59928,2,0,0,0,0,'','Allow Phase 15516 if Quest 59928 (Brace for Impact) is Complete');
 
 -- Fix condition showing Alliance quest phase on horde on ship
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (13861,14350,14353) AND `SourceEntry`=10639;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(26,13861,10639,0,0,47,0,54933,2,0,0,0,0,'','Apply Phase 13861 if Quest 54933 is complete'),
-(26,14350,10639,0,0,47,0,56775,64,0,0,0,0,'','Apply Phase 14350 if Quest 56775 is rewarded'),
-(26,14350,10639,0,0,47,0,58208,2,0,1,0,0,'','Apply Phase 14350 if Quest 58208 is not complete'),
-(26,14353,10639,0,0,47,0,58208,2,0,0,0,0,'','Allow Phase 14353 if Quest 58208 is complete');
+(26,13861,10639,0,0,47,0,54933,2,0,0,0,0,'','Apply Phase 13861 if Quest 54933 (Freeing the Light) is complete'),
+(26,14350,10639,0,0,47,0,56775,64,0,0,0,0,'','Apply Phase 14350 if Quest 56775 (Warming Up) is rewarded'),
+(26,14350,10639,0,0,47,0,58208,2,0,1,0,0,'','Apply Phase 14350 if Quest 58208 (Brace for Impact) is not complete'),
+(26,14353,10639,0,0,47,0,58208,2,0,0,0,0,'','Allow Phase 14353 if Quest 58208 (Brace for Impact) is complete');
 
-UPDATE `conditions` SET `ConditionValue1`=58208, `Comment`='Apply Phase 13861 if Quest 58208 is complete' WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup`=13861 AND `SourceEntry`=10639;
+UPDATE `conditions` SET `ConditionValue1`=58208, `Comment`='Apply Phase 13861 if Quest 58208 (Brace for Impact) is complete' WHERE `SourceTypeOrReferenceId`=26 AND `SourceGroup`=13861 AND `SourceEntry`=10639;
 
 -- *** Spells ***
 
