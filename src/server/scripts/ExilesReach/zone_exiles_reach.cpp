@@ -55,21 +55,6 @@ static Creature* FindCreatureIgnorePhase(WorldObject const* obj, std::string_vie
 
 enum WarmingUpData
 {
-    NPC_WARLORD_BREKA_GRIMAXE2      = 166824,
-    NPC_WARLORD_BREKA_GRIMAXE3      = 166827,
-    NPC_CAPTAIN_GARRICK             = 156280,
-
-    EVENT_SHIP_CAPTAIN1_SCRIPT1     = 1,
-    EVENT_SHIP_CAPTAIN1_SCRIPT2,
-    EVENT_SHIP_CAPTAIN1_SCRIPT3,
-
-    PATH_GARRICK_TO_COLE            = 10501450,
-    PATH_GARRICK_TO_UPPER_DECK      = 10501451,
-    PATH_GRIMAXE_TO_THROG           = 10501900,
-    PATH_GRIMAXE_TO_UPPER_DECK      = 10501901,
-
-    SAY_SPAR                        = 0,
-
     CONVERSATION_WARMING_UP         = 12798,
 };
 
@@ -129,6 +114,24 @@ public:
             grimaxeUpperDeck->SummonPersonalClone(*grimaxeLowerDeck, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
         }
     }
+};
+
+enum WarmingUpCaptainData
+{
+    NPC_WARLORD_BREKA_GRIMAXE2      = 166824,
+    NPC_WARLORD_BREKA_GRIMAXE3      = 166827,
+    NPC_CAPTAIN_GARRICK             = 156280,
+
+    PATH_GARRICK_TO_COLE            = 10501450,
+    PATH_GARRICK_TO_UPPER_DECK      = 10501451,
+    PATH_GRIMAXE_TO_THROG           = 10501900,
+    PATH_GRIMAXE_TO_UPPER_DECK      = 10501901,
+
+    EVENT_SHIP_CAPTAIN1_SCRIPT1     = 1,
+    EVENT_SHIP_CAPTAIN1_SCRIPT2,
+    EVENT_SHIP_CAPTAIN1_SCRIPT3,
+
+    SAY_SPAR                        = 0,
 };
 
 // 156280 - Captain Garrick
@@ -198,41 +201,37 @@ private:
 
 enum StandYourGroundData
 {
-    ACTOR_ID_ALLIANCE               = 68598,
-    ACTOR_ID_HORDE                  = 75920,
+    ACTOR_ID_ALLIANCE                   = 68598,
+    ACTOR_ID_HORDE                      = 75920,
 
-    CONVERSATION_PREFIGHT           = 14422,
-    CONVERSATION_AGGRO              = 14423,
-    CONVERSATION_JUMP               = 14424,
+    CONVERSATION_PREFIGHT               = 14422,
+    CONVERSATION_AGGRO                  = 14423,
+    CONVERSATION_JUMP                   = 14424,
 
-    EQUIPMENT_SWORD                 = 108493,
-    EQUIPMENT_AXE                   = 175161,
+    EQUIPMENT_SWORD                     = 108493,
+    EQUIPMENT_AXE                       = 175161,
 
-    EVENT_MOVE_TO_A_POSITION        = 1,
+    EVENT_MOVE_TO_A_POSITION            = 1,
     EVENT_PREFIGHT_CONVERSATION,
     EVENT_WALK_BACK,
 
-    PATH_ALLIANCE_SPARING_PARTNER   = 10501460,
-    PATH_HORDE_SPARING_PARTNER      = 10501870,
+    PATH_ALLIANCE_SPARING_PARTNER       = 10501460,
+    PATH_HORDE_SPARING_PARTNER          = 10501870,
 
-    POSITION_SPARPOINT_ADVERTISMENT = 1,
-    POSITION_SPARPOINT_READY        = 2,
+    POSITION_SPARPOINT_ADVERTISMENT     = 1,
+    POSITION_SPARPOINT_READY            = 2,
 
-    QUEST_STAND_YOUR_GROUND_HORDE   = 59927,
+    TALK_SPARING_COMPLETE               = 0,
 
-    TALK_SPARING_COMPLETE           = 0,
+    NPC_ALLIANCE_SPARING_PARTNER        = 157051,
+    NPC_HORDE_SPARING_PARTNER           = 166814,
+    NPC_SPAR_POINT_ADVERTISMENT         = 174971,
+    NPC_KILL_CREDIT                     = 155607,
 
-    NPC_ALLIANCE_SPARING_PARTNER    = 157051,
-    NPC_HORDE_SPARING_PARTNER       = 166814,
-    NPC_SPAR_POINT_ADVERTISMENT     = 174971,
-    NPC_KILL_CREDIT                 = 155607,
-
-    SPELL_COMBAT_TRAINING_COMPLETE  = 303120,
-    SPELL_JUMP_BEHIND               = 312757,
-    SPELL_COMBAT_TRAINING           = 323071,
-    SPELL_UPDATE_PHASE_SHIFT        = 82238,
-    SPELL_SUMMON_COLE               = 303064,
-    SPELL_SUMMON_THROG              = 325107,
+    SPELL_COMBAT_TRAINING_COMPLETE      = 303120,
+    SPELL_JUMP_BEHIND                   = 312757,
+    SPELL_COMBAT_TRAINING               = 323071,
+    SPELL_UPDATE_PHASE_SHIFT            = 82238,
 };
 
 // 58209 - Stand Your Ground
@@ -454,6 +453,14 @@ private:
     ObjectGuid _playerGUID;
 };
 
+enum FirstMateStandYourGroundData
+{
+    QUEST_STAND_YOUR_GROUND_ALLIANCE    = 58209,
+    QUEST_STAND_YOUR_GROUND_HORDE       = 59927,
+
+    SPELL_SUMMON_COLE                   = 303064,
+    SPELL_SUMMON_THROG                  = 325107,
+};
 
 // 160664 - Private Cole
 // 166583 - Grunt Throg
@@ -463,17 +470,16 @@ struct npc_first_mate_stand_your_ground : public ScriptedAI
 
     void OnQuestAccept(Player* player, Quest const* quest) override
     {
-        uint32 summonSpellId = SPELL_SUMMON_COLE;
-        switch (quest->GetQuestId())
+        if (quest->GetQuestId() == QUEST_STAND_YOUR_GROUND_ALLIANCE)
         {
-            case QUEST_STAND_YOUR_GROUND_HORDE:
-                summonSpellId = SPELL_SUMMON_THROG;
-                break;
-            default:
-                break;
+            player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+            player->CastSpell(player, SPELL_SUMMON_COLE);
         }
-        player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
-        player->CastSpell(player, summonSpellId);
+        else if (quest->GetQuestId() == QUEST_STAND_YOUR_GROUND_HORDE)
+        {
+            player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+            player->CastSpell(player, SPELL_SUMMON_THROG);
+        }
     }
 };
 
@@ -527,44 +533,6 @@ enum BraceForImpactData
 {
     QUEST_BRACE_FOR_IMPACT_ALLIANCE = 58208,
     QUEST_BRACE_FOR_IMPACT_HORDE    = 59928,
-
-    EVENT_SHIP_CAPTAIN2_SCRIPT1     = 1,
-    EVENT_SHIP_CAPTAIN2_SCRIPT2,
-    EVENT_FIRST_MATE_1              = 1,
-    EVENT_FIRST_MATE_2,
-
-    PATH_GARRICK_FROM_UPPER_DECK    = 10505890,
-    PATH_GARRICK_TO_LOWER_DECK      = 10505891,
-    PATH_GRIMAXE_FROM_UPPER_DECK    = 10501910,
-    PATH_GRIMAXE_TO_LOWER_DECK      = 10501911,
-    PATH_COLE_BRACE_FOR_IMPACT      = 10501461,
-    PATH_THROG_BRACE_FOR_IMPACT     = 10501871,
-
-    PATH_RICHTER_BRACE_FOR_IMPACT   = 10501770,
-    PATH_KEE_LA_BRACE_FOR_IMPACT    = 10501800,
-    PATH_BJORN_BRACE_FOR_IMPACT     = 10501790,
-    PATH_AUSTIN_BRACE_FOR_IMPACT    = 10501780,
-
-    PATH_BO_BRACE_FOR_IMPACT        = 10502010,
-    PATH_MITHDRAN_BRACE_FOR_IMPACT  = 10501990,
-    PATH_LANA_BRACE_FOR_IMPACT      = 10501980,
-    PATH_JIN_HAKE_BRACE_FOR_IMPACT  = 10502000,
-
-    SAY_GET_TO_POSITIONS            = 1,
-    SAY_STORM                       = 0,
-
-    NPC_PRIVATE_COLE                = 160664,
-    NPC_GRUNT_THROG                 = 166583,
-
-    NPC_QUARTERMASTER_RICHTER       = 157042,
-    NPC_KEE_LA                      = 157043,
-    NPC_BJORN_STOUTHANDS            = 157044,
-    NPC_AUSTIN_HUXWORTH             = 157046,
-
-    NPC_BO                          = 166585,
-    NPC_MITHDRAN_DAWNTRACKER        = 166590,
-    NPC_LANA_JORDAN                 = 166794,
-    NPC_PROVISONER_JIN_HAKE         = 166799,
 };
 
 // 58208 - Brace For Impact
@@ -636,11 +604,24 @@ public:
     }
 };
 
+enum BraceForImpactCaptainData
+{
+    PATH_GARRICK_FROM_UPPER_DECK    = 10505890,
+    PATH_GARRICK_TO_LOWER_DECK      = 10505891,
+    PATH_GRIMAXE_FROM_UPPER_DECK    = 10501910,
+    PATH_GRIMAXE_TO_LOWER_DECK      = 10501911,
+
+    EVENT_SHIP_CAPTAIN2_SCRIPT1     = 1,
+    EVENT_SHIP_CAPTAIN2_SCRIPT2,
+
+    SAY_GET_TO_POSITIONS            = 1,
+};
+
 // 156280 - Captain Garrick
 // 166827 - Warlord Breka Grimaxe
 struct npc_ship_captain_brace_for_impact_private : public ScriptedAI
 {
-    npc_ship_captain_brace_for_impact_private(Creature* creature) : ScriptedAI(creature) { }
+    npc_ship_captain_brace_for_impact_private(Creature* creature) : ScriptedAI(creature), _pathPreTalk(0), _pathPostTalk(0) { }
 
     void JustAppeared() override
     {
@@ -689,8 +670,22 @@ struct npc_ship_captain_brace_for_impact_private : public ScriptedAI
     }
 private:
     EventMap _events;
-    uint32 _pathPreTalk = 0;
-    uint32 _pathPostTalk = 0;
+    uint32 _pathPreTalk;
+    uint32 _pathPostTalk;
+};
+
+enum BraceForImpactFirstMateData
+{
+    NPC_PRIVATE_COLE                = 160664,
+    NPC_GRUNT_THROG                 = 166583,
+
+    PATH_COLE_BRACE_FOR_IMPACT      = 10501461,
+    PATH_THROG_BRACE_FOR_IMPACT     = 10501871,
+
+    EVENT_FIRST_MATE_1              = 1,
+    EVENT_FIRST_MATE_2,
+
+    SAY_STORM = 0,
 };
 
 // 160664 - Private Cole
@@ -738,6 +733,29 @@ struct npc_first_mate_brace_for_impact_private : public ScriptedAI
 private:
     EventMap _events;
     uint32 _path;
+};
+
+enum BraceForImpactCrewData
+{
+    NPC_QUARTERMASTER_RICHTER       = 157042,
+    NPC_KEE_LA                      = 157043,
+    NPC_BJORN_STOUTHANDS            = 157044,
+    NPC_AUSTIN_HUXWORTH             = 157046,
+
+    NPC_BO                          = 166585,
+    NPC_MITHDRAN_DAWNTRACKER        = 166590,
+    NPC_LANA_JORDAN                 = 166794,
+    NPC_PROVISONER_JIN_HAKE         = 166799,
+
+    PATH_RICHTER_BRACE_FOR_IMPACT   = 10501770,
+    PATH_KEE_LA_BRACE_FOR_IMPACT    = 10501800,
+    PATH_BJORN_BRACE_FOR_IMPACT     = 10501790,
+    PATH_AUSTIN_BRACE_FOR_IMPACT    = 10501780,
+
+    PATH_BO_BRACE_FOR_IMPACT        = 10502010,
+    PATH_MITHDRAN_BRACE_FOR_IMPACT  = 10501990,
+    PATH_LANA_BRACE_FOR_IMPACT      = 10501980,
+    PATH_JIN_HAKE_BRACE_FOR_IMPACT  = 10502000,
 };
 
 // 157042 - Quartermaster Richter
@@ -793,7 +811,7 @@ private:
     uint32 _path;
 };
 
-enum PetShipBraceForImpact
+enum BraceForImpactPetData
 {
     EVENT_PET_SHIP_RUN_TO_POSITION = 1,
 
@@ -865,9 +883,6 @@ enum ExilesReachShipCrashData
     SPELL_ALLIANCE_SHIP_CRASH       = 305446,
     SPELL_HORDE_SHIP_CRASH          = 325133,
     SPELL_BEGIN_TUTORIAL            = 295600,
-    SPELL_KNOCKED_DOWN              = 305445,
-    SPELL_CRASHED_LANDED_ALLIANCE   = 305464,
-    SPELL_CRASHED_LANDED_HORDE      = 325136
 };
 
 class player_exiles_reach_ship_crash : public PlayerScript
@@ -917,6 +932,13 @@ public:
 // * Scripting in this section occurs after teleporting to beach *
 // ***************************************************************
 
+enum ExilesReachShipCrashBeachData
+{
+    SPELL_KNOCKED_DOWN              = 305445,
+    SPELL_CRASHED_LANDED_ALLIANCE   = 305464,
+    SPELL_CRASHED_LANDED_HORDE      = 325136
+};
+
 // Script scene for washed up on beach to cast spells Alliance and Horde
 class scene_alliance_and_horde_crash : public SceneScript
 {
@@ -954,7 +976,11 @@ CreatureAI* CaptainGarrickShipAISelector(Creature* creature)
 void AddSC_zone_exiles_reach()
 {
     // Ship
+    new q59926_warming_up();
+    new q56775_warming_up();
+    new quest_stand_your_ground();
     RegisterCreatureAI(npc_sparring_partner);
+    RegisterSpellScript(spell_summon_sparing_partner);
     new FactoryCreatureScript<CreatureAI, &CaptainGarrickShipAISelector>("npc_captain_garrick_ship");
     RegisterPrivatePublicCreatureAIPair("npc_warlord_grimaxe_lower_ship", npc_ship_captain_warming_up_private, NullCreatureAI);
     RegisterPrivatePublicCreatureAIPair("npc_warlord_grimaxe_upper_ship", npc_ship_captain_brace_for_impact_private, NullCreatureAI);
@@ -962,13 +988,10 @@ void AddSC_zone_exiles_reach()
     RegisterPrivatePublicCreatureAIPair("npc_throg_ship", npc_first_mate_brace_for_impact_private, npc_first_mate_stand_your_ground);
     RegisterPrivatePublicCreatureAIPair("npc_crew_ship", npc_crew_ship_private, NullCreatureAI);
     RegisterPrivatePublicCreatureAIPair("npc_pet_ship", npc_pet_ship_private, NullCreatureAI);
-    new q59926_warming_up();
-    new q56775_warming_up();
-    new quest_stand_your_ground();
     new quest_brace_for_impact();
+
     new player_exiles_reach_ship_crash();
     new scene_alliance_and_horde_ship();
-    RegisterSpellScript(spell_summon_sparing_partner);
 
     // Beach
     new scene_alliance_and_horde_crash();
