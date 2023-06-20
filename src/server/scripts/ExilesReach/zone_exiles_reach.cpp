@@ -344,8 +344,11 @@ struct npc_sparring_partner : public ScriptedAI
         }
     }
 
-    void WaypointPathEnded(uint32 /*nodeId*/, uint32 /*pathId*/) override
+    void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
     {
+        if (pathId != _path)
+            return;
+
         if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
         {
             me->DespawnOrUnsummon();
@@ -572,6 +575,7 @@ public:
             return;
 
         SpawnActors(player, team, petSpawnPos);
+        player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
     }
 
     void SpawnActors(Player* player, TeamId team, Position petSpawnPos)
