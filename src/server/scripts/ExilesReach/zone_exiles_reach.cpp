@@ -298,7 +298,7 @@ struct npc_sparring_partner : public ScriptedAI
             _actorId = ACTOR_ID_HORDE;
             _actorIndex = 1;
         }
-
+        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
         _events.ScheduleEvent(EVENT_MOVE_TO_A_POSITION, 1s);
     }
 
@@ -427,7 +427,6 @@ struct npc_sparring_partner : public ScriptedAI
                     if (Creature* sparPoint = GetRandomSparPoint())
                         me->GetMotionMaster()->MovePoint(POSITION_SPARPOINT_ADVERTISMENT, sparPoint->GetPosition());
 
-                    me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
                     _events.ScheduleEvent(EVENT_PREFIGHT_CONVERSATION, 1s);
                     break;
                 }
