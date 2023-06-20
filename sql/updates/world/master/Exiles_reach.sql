@@ -146,8 +146,8 @@ UPDATE `conditions` SET `ConditionValue1`=58208, `Comment`='Apply Phase 13861 if
 
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (303065,325108);
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
-(303065,'spell_summon_sparing_partner'),
-(325108,'spell_summon_sparing_partner');
+(303065,'spell_summon_sparring_partner'),
+(325108,'spell_summon_sparring_partner');
 
 -- Crash movie spell cast on player for "Brace for Impact" quest rewarded Alliance and Horde
 DELETE FROM `spell_area` WHERE `spell` IN (346797,346799);
@@ -164,17 +164,12 @@ INSERT INTO `spell_target_position` (`ID`,`EffectIndex`,`MapID`,`PositionX`,`Pos
 (305425,4,2175,-462.4,-2619.8,0.4,45745),
 (325131,3,2175,-462.4,-2619.8,0.4,45745);
 
--- @TODO move me to spellscript, this table is deprecated
--- Spell linking for enter ship and arrive at beach "Horde only tested atm"
-DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (-290901,-305445);
-INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment`) VALUES
-(-290901,290903,0,'Removing aura Attention! cast DEBUG - Look Right'),
-(-305445,344889,0,'Knocked Down (DNT) removal triggers Knocked Down (DNT)');
-
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (305464,325136);
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (305464,325136,290901,305445);
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (305464,'spell_crash_landed_alliance'),
-(325136,'spell_crash_landed_horde');
+(325136,'spell_crash_landed_horde'),
+(290901,'spell_attention_exiles_reach_tutorial'),
+(305445,'spell_knocked_down_exiles_reach_beach');
 
 -- *** Scenes ***
 
@@ -246,7 +241,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 UPDATE `creature_template` SET `ScriptName`="npc_captain_garrick_ship" WHERE entry IN (156280);
 UPDATE `creature_template` SET `ScriptName`="npc_warlord_grimaxe_lower_ship" WHERE entry IN (166824);
 UPDATE `creature_template` SET `ScriptName`="npc_warlord_grimaxe_upper_ship" WHERE entry IN (166827);
-UPDATE `creature_template` SET `ScriptName`='npc_sparring_partner' WHERE `entry` IN (157051,166814);
+UPDATE `creature_template` SET `ScriptName`='npc_sparring_partner_exiles_reach' WHERE `entry` IN (157051,166814);
 UPDATE `creature_template` SET `ScriptName`="npc_cole_ship" WHERE entry IN (160664);
 UPDATE `creature_template` SET `ScriptName`="npc_throg_ship" WHERE entry IN (166583);
 UPDATE `creature_template` SET `ScriptName`="npc_crew_ship" WHERE entry IN (157042,157043,157044,157046,166585,166590,166794,166799);

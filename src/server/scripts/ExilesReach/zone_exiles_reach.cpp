@@ -53,9 +53,36 @@ static Creature* FindCreatureIgnorePhase(WorldObject const* obj, std::string_vie
  // * Scripting in this section occurs on ship *
  // ********************************************
 
+enum AttentionExilesReachData
+{
+    SPELL_DEBUG_LOOK_RIGHT = 290903
+};
+
+// 290901 - Attention!
+class spell_attention_exiles_reach_tutorial : public AuraScript
+{
+    PrepareAuraScript(spell_attention_exiles_reach_tutorial);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DEBUG_LOOK_RIGHT });
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_DEBUG_LOOK_RIGHT, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_attention_exiles_reach_tutorial::OnRemove, EFFECT_0, SPELL_AURA_MOD_ROOT, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 enum WarmingUpData
 {
-    CONVERSATION_WARMING_UP         = 12798,
+    CONVERSATION_WARMING_UP_ACCEPT          = 12818,
+    CONVERSATION_WARMING_UP_COMPLETE        = 12798,
 };
 
 class BaseQuestWarmingUp : public QuestScript
@@ -65,8 +92,10 @@ public:
 
     void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus)
     {
-        if(newStatus == QUEST_STATUS_COMPLETE)
-            Conversation::CreateConversation(CONVERSATION_WARMING_UP, player, *player, player->GetGUID(), nullptr);
+        if (newStatus == QUEST_STATUS_INCOMPLETE)
+            Conversation::CreateConversation(CONVERSATION_WARMING_UP_ACCEPT, player, *player, player->GetGUID(), nullptr);
+        else if (newStatus == QUEST_STATUS_COMPLETE)
+            Conversation::CreateConversation(CONVERSATION_WARMING_UP_COMPLETE, player, *player, player->GetGUID(), nullptr);
     }
 };
 
@@ -253,9 +282,9 @@ public:
 
 // 303065 - Summon Cole - Combat Training (DNT)
 // 325108 - Summon Throg - Combat Training (DNT)
-class spell_summon_sparing_partner : public SpellScript
+class spell_summon_sparring_partner : public SpellScript
 {
-    PrepareSpellScript(spell_summon_sparing_partner);
+    PrepareSpellScript(spell_summon_sparring_partner);
 
     void SelectTarget(WorldObject*& target)
     {
@@ -272,15 +301,15 @@ class spell_summon_sparing_partner : public SpellScript
 
     void Register() override
     {
-        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_summon_sparing_partner::SelectTarget, EFFECT_0, TARGET_DEST_NEARBY_ENTRY_OR_DB);
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_summon_sparring_partner::SelectTarget, EFFECT_0, TARGET_DEST_NEARBY_ENTRY_OR_DB);
     }
 };
 
 // 157051 - Alliance Sparring Partner
 // 166814 - Horde Sparring Partner
-struct npc_sparring_partner : public ScriptedAI
+struct npc_sparring_partner_exiles_reach : public ScriptedAI
 {
-    npc_sparring_partner(Creature* creature) : ScriptedAI(creature), _jumped(false), _actorIndex(0), _actorId(0), _path(0) { }
+    npc_sparring_partner_exiles_reach(Creature* creature) : ScriptedAI(creature), _jumped(false), _actorIndex(0), _actorId(0), _path(0) { }
 
     void JustAppeared() override
     {
@@ -943,6 +972,32 @@ public:
 // * Scripting in this section occurs after teleporting to beach *
 // ***************************************************************
 
+enum KnockedDownExilesReachData
+{
+    SPELL_KNOCKED_DOWN_STUN2 = 344889
+};
+
+// 305445 - Knocked Down!
+class spell_knocked_down_exiles_reach_beach : public AuraScript
+{
+    PrepareAuraScript(spell_knocked_down_exiles_reach_beach);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_KNOCKED_DOWN_STUN2 });
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(nullptr, SPELL_KNOCKED_DOWN_STUN2, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_knocked_down_exiles_reach_beach::OnRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 enum ExilesReachShipCrashBeachData
 {
     SPELL_KNOCKED_DOWN              = 305445,
@@ -987,11 +1042,12 @@ CreatureAI* CaptainGarrickShipAISelector(Creature* creature)
 void AddSC_zone_exiles_reach()
 {
     // Ship
+    RegisterSpellScript(spell_attention_exiles_reach_tutorial);
     new q59926_warming_up();
     new q56775_warming_up();
     new quest_stand_your_ground();
-    RegisterCreatureAI(npc_sparring_partner);
-    RegisterSpellScript(spell_summon_sparing_partner);
+    RegisterCreatureAI(npc_sparring_partner_exiles_reach);
+    RegisterSpellScript(spell_summon_sparring_partner);
     new FactoryCreatureScript<CreatureAI, &CaptainGarrickShipAISelector>("npc_captain_garrick_ship");
     RegisterPrivatePublicCreatureAIPair("npc_warlord_grimaxe_lower_ship", npc_ship_captain_warming_up_private, NullCreatureAI);
     RegisterPrivatePublicCreatureAIPair("npc_warlord_grimaxe_upper_ship", npc_ship_captain_brace_for_impact_private, NullCreatureAI);
@@ -1005,5 +1061,6 @@ void AddSC_zone_exiles_reach()
     new scene_alliance_and_horde_ship();
 
     // Beach
+    RegisterSpellScript(spell_knocked_down_exiles_reach_beach);
     new scene_alliance_and_horde_crash();
 }
