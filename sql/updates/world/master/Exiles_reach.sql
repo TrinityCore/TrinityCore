@@ -2,33 +2,33 @@
 
 SET @CGUID := 100000000;
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+25;
-INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
-(@CGUID+0,174971,2369,10424,13377,'0',0,0,-1,0,0,-17.644917,-6.061374,9.000128,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
-(@CGUID+1,174971,2369,10424,13377,'0',0,0,-1,0,0,-16.248755,-2.245914,8.885136,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
-(@CGUID+2,174971,2369,10424,13377,'0',0,0,-1,0,0,-4.609498,-7.722448,8.843941,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
-(@CGUID+3,174971,2369,10424,13377,'0',0,0,-1,0,0,-17.633347,5.349984,8.993013,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
-(@CGUID+4,174971,2369,10424,13377,'0',0,0,-1,0,0,-7.1927896,-1.4265188,9.105859,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
-(@CGUID+5,174971,2369,10424,13377,'0',0,0,-1,0,0,-3.5559115,-6.8839636,8.878474,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
-(@CGUID+6,174971,2369,10424,13377,'0',0,0,-1,0,0,-16.220743,-7.592815,8.926627,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
-(@CGUID+7,174971,2369,10424,13377,'0',0,0,-1,0,0,-17.212137,0.9415215,8.992922,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
-(@CGUID+8,174971,2369,10424,13377,'0',0,0,-1,0,0,-7.1881604,4.13693,8.805241,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
-(@CGUID+9,174971,2369,10424,13377,'0',0,0,-1,0,0,-3.8145015,-9.154231,8.854396,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
-(@CGUID+10,168039,2369,10424,13377,'0',0,0,-1,0,0,-10.630922,-11.896218,8.97435,1.7062142,120,0,0,1,0,0,0,0,0,45745), -- hBoat
-(@CGUID+11,174971,2261,10424,10639,'0',0,0,-1,0,0,3.8316922,5.474146,5.2092524,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
-(@CGUID+12,174971,2261,10424,10639,'0',0,0,-1,0,0,2.6647408,6.4705987,5.1801515,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
-(@CGUID+13,174971,2261,10424,10639,'0',0,0,-1,0,0,9.56842,4.517551,5.1502733,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
-(@CGUID+14,174971,2261,10424,10639,'0',0,0,-1,0,0,6.701894,6.1971374,5.194476,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
-(@CGUID+15,174971,2261,10424,10639,'0',0,0,-1,0,0,7.199659,-5.407894,5.216199,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
-(@CGUID+16,174971,2261,10424,10639,'0',0,0,-1,0,0,0.4600576,-6.25066,5.2069707,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
-(@CGUID+17,174971,2261,10424,10639,'0',0,0,-1,0,0,3.8914397,-6.136929,5.1904373,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
-(@CGUID+18,174971,2261,10424,10639,'0',0,0,-1,0,0,0.9357995,5.2422814,5.221966,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
-(@CGUID+19,174971,2261,10424,10639,'0',0,0,-1,0,0,6.4270716,4.5759077,5.2394466,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
-(@CGUID+20,174971,2261,10424,10639,'0',0,0,-1,0,0,-9.461674,-4.971889,5.456243,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
-(@CGUID+21,174971,2261,10424,10639,'0',0,0,-1,0,0,-7.5362535,4.9206376,5.2989116,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
-(@CGUID+22,174971,2261,10424,10639,'0',0,0,-1,0,0,-6.4343257,-4.8330746,5.2104034,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
-(@CGUID+23,174971,2261,10424,10639,'0',0,0,-1,0,0,8.676258,-4.551461,5.2418213,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
-(@CGUID+24,174971,2261,10424,10639,'0',0,0,-1,0,0,-3.2766402,-5.403929,5.293099,0,120,0,0,1,0,0,0,0,0,45745), -- Spar Point Advertisement
-(@CGUID+25,156403,2261,10424,10639,'0',0,0,-1,0,0,8.402318,-0.14915128,5.2594776,3.2919948,120,0,0,1,0,0,0,0,0,45745); -- aBoat
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `terrainSwapMap`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `VerifiedBuild`) VALUES
+(@CGUID+0,174971,2369,10424,13377,'0',0,0,-1,0,0,-17.644917,-6.061374,9.000128,0,120,0,0,1,0,0,0,0,45745), -- Spar Point Advertisement
+(@CGUID+1,174971,2369,10424,13377,'0',0,0,-1,0,0,-16.248755,-2.245914,8.885136,0,120,0,0,1,0,0,0,0,45745), -- Spar Point Advertisement
+(@CGUID+2,174971,2369,10424,13377,'0',0,0,-1,0,0,-4.609498,-7.722448,8.843941,0,120,0,0,1,0,0,0,0,45745), -- Spar Point Advertisement
+(@CGUID+3,174971,2369,10424,13377,'0',0,0,-1,0,0,-17.633347,5.349984,8.993013,0,120,0,0,1,0,0,0,0,45745), -- Spar Point Advertisement
+(@CGUID+4,174971,2369,10424,13377,'0',0,0,-1,0,0,-7.1927896,-1.4265188,9.105859,0,120,0,0,1,0,0,0,0,45745), -- Spar Point Advertisement
+(@CGUID+5,174971,2369,10424,13377,'0',0,0,-1,0,0,-3.5559115,-6.8839636,8.878474,0,120,0,0,1,0,0,0,0,45745), -- Spar Point Advertisement
+(@CGUID+6,174971,2369,10424,13377,'0',0,0,-1,0,0,-16.220743,-7.592815,8.926627,0,120,0,0,1,0,0,0,0,45745), -- Spar Point Advertisement
+(@CGUID+7,174971,2369,10424,13377,'0',0,0,-1,0,0,-17.212137,0.9415215,8.992922,0,120,0,0,1,0,0,0,0,45745), -- Spar Point Advertisement
+(@CGUID+8,174971,2369,10424,13377,'0',0,0,-1,0,0,-7.1881604,4.13693,8.805241,0,120,0,0,1,0,0,0,0,45745), -- Spar Point Advertisement
+(@CGUID+9,174971,2369,10424,13377,'0',0,0,-1,0,0,-3.8145015,-9.154231,8.854396,0,120,0,0,1,0,0,0,0,45745), -- Spar Point Advertisement
+(@CGUID+10,168039,2369,10424,13377,'0',0,0,-1,0,0,-10.630922,-11.896218,8.97435,1.7062142,120,0,0,1,0,0,0,0,45745), -- hBoat
+(@CGUID+11,174971,2261,10424,10639,'0',0,0,-1,0,0,3.8316922,5.474146,5.2092524,0,120,0,0,1,0,0,0,0,45745), -- Spar Point Advertisement
+(@CGUID+12,174971,2261,10424,10639,'0',0,0,-1,0,0,2.6647408,6.4705987,5.1801515,0,120,0,0,1,0,0,0,0,45745), -- Spar Point Advertisement
+(@CGUID+13,174971,2261,10424,10639,'0',0,0,-1,0,0,9.56842,4.517551,5.1502733,0,120,0,0,1,0,0,0,0,45745), -- Spar Point Advertisement
+(@CGUID+14,174971,2261,10424,10639,'0',0,0,-1,0,0,6.701894,6.1971374,5.194476,0,120,0,0,1,0,0,0,0,45745), -- Spar Point Advertisement
+(@CGUID+15,174971,2261,10424,10639,'0',0,0,-1,0,0,7.199659,-5.407894,5.216199,0,120,0,0,1,0,0,0,0,45745), -- Spar Point Advertisement
+(@CGUID+16,174971,2261,10424,10639,'0',0,0,-1,0,0,0.4600576,-6.25066,5.2069707,0,120,0,0,1,0,0,0,0,45745), -- Spar Point Advertisement
+(@CGUID+17,174971,2261,10424,10639,'0',0,0,-1,0,0,3.8914397,-6.136929,5.1904373,0,120,0,0,1,0,0,0,0,45745), -- Spar Point Advertisement
+(@CGUID+18,174971,2261,10424,10639,'0',0,0,-1,0,0,0.9357995,5.2422814,5.221966,0,120,0,0,1,0,0,0,0,45745), -- Spar Point Advertisement
+(@CGUID+19,174971,2261,10424,10639,'0',0,0,-1,0,0,6.4270716,4.5759077,5.2394466,0,120,0,0,1,0,0,0,0,45745), -- Spar Point Advertisement
+(@CGUID+20,174971,2261,10424,10639,'0',0,0,-1,0,0,-9.461674,-4.971889,5.456243,0,120,0,0,1,0,0,0,0,45745), -- Spar Point Advertisement
+(@CGUID+21,174971,2261,10424,10639,'0',0,0,-1,0,0,-7.5362535,4.9206376,5.2989116,0,120,0,0,1,0,0,0,0,45745), -- Spar Point Advertisement
+(@CGUID+22,174971,2261,10424,10639,'0',0,0,-1,0,0,-6.4343257,-4.8330746,5.2104034,0,120,0,0,1,0,0,0,0,45745), -- Spar Point Advertisement
+(@CGUID+23,174971,2261,10424,10639,'0',0,0,-1,0,0,8.676258,-4.551461,5.2418213,0,120,0,0,1,0,0,0,0,45745), -- Spar Point Advertisement
+(@CGUID+24,174971,2261,10424,10639,'0',0,0,-1,0,0,-3.2766402,-5.403929,5.293099,0,120,0,0,1,0,0,0,0,45745), -- Spar Point Advertisement
+(@CGUID+25,156403,2261,10424,10639,'0',0,0,-1,0,0,8.402318,-0.14915128,5.2594776,3.2919948,120,0,0,1,0,0,0,0,45745); -- aBoat
 
 DELETE FROM `spawn_group` WHERE `spawnId` BETWEEN @CGUID+0 AND @CGUID+25;
 INSERT INTO `spawn_group` (`groupId`,`spawnType`,`spawnId`) VALUES
@@ -61,14 +61,9 @@ INSERT INTO `spawn_group` (`groupId`,`spawnType`,`spawnId`) VALUES
 
 -- *** Creature Fixes ***
 
--- Phase updates
-UPDATE `creature` SET `PhaseId`=0 WHERE `id` IN (166573,166824); -- Warlord Breka Grimaxe
-UPDATE `creature` SET `PhaseId`=0 WHERE `id`=166827; -- Warlord Breka Grimaxe
-
 -- Misc creature and template fixes
 UPDATE `creature` SET `equipment_id`=1 WHERE `guid`=1050189;
 UPDATE `creature` SET `spawntimesecs`=120 WHERE `map`=2369 AND `spawntimesecs`=7200;
-UPDATE `creature` SET `curhealth`=1 WHERE `map`=2369;
 UPDATE `creature_template` SET `npcflag`=2 WHERE `entry`=166827;
 UPDATE `creature_template` SET `flags_extra`=128 WHERE `entry` IN (174971,168039);
 UPDATE `creature_template` SET `faction`=35,`unit_flags`=33554432,`unit_flags2`=2048,`unit_flags3`=524320 WHERE `entry`=166814;
@@ -170,6 +165,7 @@ INSERT INTO `spell_target_position` (`ID`,`EffectIndex`,`MapID`,`PositionX`,`Pos
 (305425,4,2175,-462.4,-2619.8,0.4,45745),
 (325131,3,2175,-462.4,-2619.8,0.4,45745);
 
+-- @TODO move me to spellscript, this table is deprecated
 -- Spell linking for enter ship and arrive at beach "Horde only tested atm"
 DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (-290901,-305445);
 INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment`) VALUES
