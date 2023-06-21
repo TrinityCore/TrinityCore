@@ -1632,6 +1632,21 @@ void Spell::SelectImplicitTargetDestTargets(SpellEffectInfo const& spellEffectIn
         case TARGET_DEST_TARGET_ANY:
         case TARGET_DEST_TARGET_ALLY:
             break;
+        case TARGET_DEST_TARGET_CASTER_FRONT:
+        {
+            if (!target)
+                break;
+
+            float dist = spellEffectInfo.CalcRadius(m_caster);
+            float angle = target->GetAbsoluteAngle(m_caster) - target->GetOrientation();
+
+            Position pos = dest._position;
+            target->MovePositionToFirstCollision(pos, dist, angle);
+            pos.SetOrientation(m_caster->GetOrientation());
+
+            dest.Relocate(pos);
+            break;
+        }
         default:
         {
             float angle = targetType.CalcDirectionAngle();
