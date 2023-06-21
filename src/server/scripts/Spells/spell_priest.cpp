@@ -481,7 +481,7 @@ public:
     {
         for (Unit* summon : caster->m_Controlled)
         {
-            if (!summon || !summon->IsCreature() || summon->GetEntry() != NPC_PRIEST_DIVINE_IMAGE)
+            if (summon->GetEntry() != NPC_PRIEST_DIVINE_IMAGE)
                 continue;
 
             return summon->GetGUID();
@@ -547,7 +547,7 @@ class spell_pri_divine_image_spell_triggered : public spell_pri_divine_image
         if (!divineImage)
             return;
 
-        divineImage->CastSpell(eventInfo.GetProcTarget(), RetrieveDivineImageSpell(eventInfo.GetSpellInfo()->Id), aurEff);
+        divineImage->CastSpell(eventInfo.GetProcTarget(), GetDivineImageSpell(eventInfo.GetSpellInfo()->Id), aurEff);
     }
 
     void HandleAfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -556,27 +556,22 @@ class spell_pri_divine_image_spell_triggered : public spell_pri_divine_image
             caster->RemoveAura(SPELL_PRIEST_DIVINE_IMAGE_EMPOWER_STACK);
     }
 
-    uint32 RetrieveDivineImageSpell(uint32 spellProc)
+    uint32 GetDivineImageSpell(uint32 spellId)
     {
-        uint32 spellToTrigger = 0;
-
-        switch (spellProc)
+        switch (spellId)
         {
             case SPELL_PRIEST_RENEW:
-                spellToTrigger = SPELL_PRIEST_TRANQUIL_LIGHT;
-                break;
+                return SPELL_PRIEST_TRANQUIL_LIGHT;
             case SPELL_PRIEST_POWER_WORD_SHIELD:
             case SPELL_PRIEST_POWER_WORD_LIFE:
             case SPELL_PRIEST_FLASH_HEAL:
             case SPELL_PRIEST_HEAL:
             case SPELL_PRIEST_GREATER_HEAL:
             case SPELL_PRIEST_HOLY_WORD_SERENITY:
-                spellToTrigger = SPELL_PRIEST_HEALING_LIGHT;
-                break;
+                return SPELL_PRIEST_HEALING_LIGHT;
             case SPELL_PRIEST_PRAYER_OF_MENDING:
             case SPELL_PRIEST_PRAYER_OF_MENDING_HEAL:
-                spellToTrigger = SPELL_PRIEST_BLESSED_LIGHT;
-                break;
+                return SPELL_PRIEST_BLESSED_LIGHT;
             case SPELL_PRIEST_PRAYER_OF_HEALING:
             case SPELL_PRIEST_CIRCLE_OF_HEALING:
             case SPELL_PRIEST_HALO_HOLY:
@@ -585,21 +580,17 @@ class spell_pri_divine_image_spell_triggered : public spell_pri_divine_image
             case SPELL_PRIEST_DIVINE_HYMN_HEAL:
             case SPELL_PRIEST_HOLY_WORD_SANCTIFY:
             case SPELL_PRIEST_HOLY_WORD_SALVATION:
-                spellToTrigger = SPELL_PRIEST_DAZZLING_LIGHT;
-                break;
+                return SPELL_PRIEST_DAZZLING_LIGHT;
             case SPELL_PRIEST_SMITE:
             case SPELL_PRIEST_HOLY_FIRE:
             case SPELL_PRIEST_HOLY_WORD_CHASTISE:
-                spellToTrigger = SPELL_PRIEST_SEARING_LIGHT;
-                break;
+                return SPELL_PRIEST_SEARING_LIGHT;
             case SPELL_PRIEST_HOLY_NOVA:
-                spellToTrigger = SPELL_PRIEST_LIGHT_ERUPTION;
-                break;
+                return SPELL_PRIEST_LIGHT_ERUPTION;
             default:
                 break;
         }
-
-        return spellToTrigger;
+        return 0;
     }
 
     void Register() override

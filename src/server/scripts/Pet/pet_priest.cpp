@@ -57,13 +57,13 @@ struct npc_pet_pri_shadowfiend : public PetAI
 {
     npc_pet_pri_shadowfiend(Creature* creature) : PetAI(creature) { }
 
-    void IsSummonedBy(WorldObject* summoner) override
+    void IsSummonedBy(WorldObject* summonerWO) override
     {
-        Unit* owner = summoner->ToUnit();
-        if (!owner)
+        Unit* summoner = summonerWO->ToUnit();
+        if (!summoner)
             return;
 
-        if (owner->HasAura(SPELL_PRIEST_GLYPH_OF_SHADOWFIEND))
+        if (summoner->HasAura(SPELL_PRIEST_GLYPH_OF_SHADOWFIEND))
             DoCastAOE(SPELL_PRIEST_SHADOWFIEND_DEATH);
     }
 };
@@ -75,7 +75,7 @@ struct npc_pet_pri_divine_image : public PetAI
 
     void IsSummonedBy(WorldObject* /*summoner*/) override
     {
-        me->SetReactState(ReactStates::REACT_PASSIVE);
+        me->SetReactState(REACT_PASSIVE);
     }
 
     void OnDespawn() override
