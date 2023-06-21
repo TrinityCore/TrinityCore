@@ -1632,7 +1632,7 @@ void Spell::SelectImplicitTargetDestTargets(SpellEffectInfo const& spellEffectIn
         case TARGET_DEST_TARGET_ANY:
         case TARGET_DEST_TARGET_ALLY:
             break;
-        case TARGET_DEST_TARGET_CASTER_FRONT:
+        case TARGET_DEST_TARGET_TOWARDS_CASTER:
         {
             if (!target)
                 break;
