@@ -3016,90 +3016,200 @@ void BonusData::AddBonus(uint32 type, std::array<int32, 4> const& values)
             break;
     }
 }
-
-bool Item::AA_LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, uint32 entry)
+bool Item::AA_LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, uint32 entry)
 {
-    ////                                                    0                1      2         3        4      5             6                 7           8           9    10
-    ////result = CharacterDatabase.PQuery("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text FROM item_instance WHERE guid = '%u'", guid);
+    //           0          1            2                3      4         5        6      7             8                  9          10          11    12
+    // SELECT guid, itemEntry, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomBonusListId, durability, playedTime, text,
+    //                        13                  14              15                  16       17            18
+    //        battlePetSpeciesId, battlePetBreedData, battlePetLevel, battlePetDisplayId, context, bonusListIDs,
+    //                                    19                           20                           21                           22                           23                           24
+    //        itemModifiedAppearanceAllSpecs, itemModifiedAppearanceSpec1, itemModifiedAppearanceSpec2, itemModifiedAppearanceSpec3, itemModifiedAppearanceSpec4, itemModifiedAppearanceSpec5,
+    //                                  25                         26                         27                         28                         29                         30
+    //        spellItemEnchantmentAllSpecs, spellItemEnchantmentSpec1, spellItemEnchantmentSpec2, spellItemEnchantmentSpec3, spellItemEnchantmentSpec4, spellItemEnchantmentSpec5,
+    //                                             31                                    32                                    33
+    //        secondaryItemModifiedAppearanceAllSpecs, secondaryItemModifiedAppearanceSpec1, secondaryItemModifiedAppearanceSpec2,
+    //                                          34                                    35                                    36
+    //        secondaryItemModifiedAppearanceSpec3, secondaryItemModifiedAppearanceSpec4, secondaryItemModifiedAppearanceSpec5,
+    //                37           38           39                40          41           42           43                44          45           46           47                48
+    //        gemItemId1, gemBonuses1, gemContext1, gemScalingLevel1, gemItemId2, gemBonuses2, gemContext2, gemScalingLevel2, gemItemId3, gemBonuses3, gemContext3, gemScalingLevel3
+    //                       49                      50
+    //        fixedScalingLevel, artifactKnowledgeLevel FROM item_instance
 
-    //// create item before any checks for store correct guid
-    //// and allow use "FSetState(ITEM_REMOVED); SaveToDB();" for deleting item from DB
-    //AA_Item_Instance conf = aaCenter.aa_item_instances[guid];
-    //if (conf.guid == 0 || conf.weizhi == "") {
-    //    return false;
-    //}
-    //Object::_Create(ObjectGuid::Create<HighGuid::Item>(guid));
+    // create item before any checks for store correct guid
+    // and allow use "FSetState(ITEM_REMOVED); SaveToDB();" for deleting item from DB
 
-    //// Set entry, MUST be before proto check
-    //SetEntry(entry);
-    //SetObjectScale(1.0f);
+    QueryResult result = CharacterDatabase.PQuery("SELECT ii.guid, ii.itemEntry, ii.creatorGuid, ii.giftCreatorGuid, ii.count, ii.duration, ii.charges, ii.flags, ii.enchantments, ii.randomBonusListId, " \
+        "ii.durability, ii.playedTime, ii.text, ii.battlePetSpeciesId, ii.battlePetBreedData, ii.battlePetLevel, ii.battlePetDisplayId, ii.context, ii.bonusListIDs, " \
+        "iit.itemModifiedAppearanceAllSpecs, iit.itemModifiedAppearanceSpec1, iit.itemModifiedAppearanceSpec2, iit.itemModifiedAppearanceSpec3, iit.itemModifiedAppearanceSpec4, iit.itemModifiedAppearanceSpec5, " \
+        "iit.spellItemEnchantmentAllSpecs, iit.spellItemEnchantmentSpec1, iit.spellItemEnchantmentSpec2, iit.spellItemEnchantmentSpec3, iit.spellItemEnchantmentSpec4, iit.spellItemEnchantmentSpec5, " \
+        "iit.secondaryItemModifiedAppearanceAllSpecs, iit.secondaryItemModifiedAppearanceSpec1, iit.secondaryItemModifiedAppearanceSpec2, iit.secondaryItemModifiedAppearanceSpec3, iit.secondaryItemModifiedAppearanceSpec4, iit.itemModifiedAppearanceSpec5, " \
+        "ig.gemItemId1, ig.gemBonuses1, ig.gemContext1, ig.gemScalingLevel1, ig.gemItemId2, ig.gemBonuses2, ig.gemContext2, ig.gemScalingLevel2, ig.gemItemId3, ig.gemBonuses3, ig.gemContext3, ig.gemScalingLevel3, " \
+        "im.fixedScalingLevel, im.artifactKnowledgeLevel, bag, slot FROM character_inventory ci JOIN item_instance ii ON ci.item = ii.guid LEFT JOIN item_instance_gems ig ON ii.guid = ig.itemGuid LEFT JOIN item_instance_transmog iit ON ii.guid = iit.itemGuid LEFT JOIN item_instance_modifiers im ON ii.guid = im.itemGuid WHERE ii.guid = {}", guid);
 
-    //ItemTemplate const* proto = GetTemplate();
-    //if (!proto)
-    //    return false;
+    uint32 count = 0;
 
-    //// set owner (not if item is only loaded for gbank/auction/mail
-    //if (owner_guid)
-    //    SetOwnerGUID(owner_guid);
+    AA_Item_Instance conf = aaCenter.aa_item_instances[guid];
+    if (conf.guid == 0 || conf.weizhi == "") {
+        return false;
+    }
+    Object::_Create(ObjectGuid::Create<HighGuid::Item>(guid));
 
-    //bool need_save = false;                                 // need explicit save data at load fixes
-    //SetGuidValue(ITEM_FIELD_CREATOR, ObjectGuid::Create<HighGuid::Player>(conf.creatorGuid));
-    //SetGuidValue(ITEM_FIELD_GIFTCREATOR, ObjectGuid::Create<HighGuid::Player>(conf.giftCreatorGuid));
-    //SetCount(conf.count);
+    // Set entry, MUST be before proto check
+    SetEntry(entry);
+    SetObjectScale(1.0f);
 
-    //uint32 duration = conf.duration;
-    //SetUInt32Value(ITEM_FIELD_DURATION, duration);
-    //// update duration if need, and remove if not need
-    //if ((proto->Duration == 0) != (duration == 0))
-    //{
-    //    SetUInt32Value(ITEM_FIELD_DURATION, proto->Duration);
-    //    need_save = true;
-    //}
-    //std::vector<std::string_view> tokens = Acore::Tokenize(conf.charges, ' ', false);
-    ////Tokenizer tokens(conf.charges, ' ', MAX_ITEM_PROTO_SPELLS);
-    //if (tokens.size() == MAX_ITEM_PROTO_SPELLS)
-    //    for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
-    //        SetSpellCharges(i, atoi(static_cast<std::string>(tokens[i]).c_str()));
+    ItemTemplate const* proto = GetTemplate();
+    if (!proto)
+    {
+        TC_LOG_ERROR("entities.item", "Invalid entry {} for item {}. Refusing to load.", GetEntry(), GetGUID().ToString());
+        return false;
+    }
 
-    //SetUInt32Value(ITEM_FIELD_FLAGS, conf.flags);
-    //// Remove bind flag for items vs NO_BIND set
-    //if (IsSoulBound() && proto->Bonding == NO_BIND && sScriptMgr->CanApplySoulboundFlag(this, proto))
-    //{
-    //    ApplyModFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_SOULBOUND, false);
-    //    need_save = true;
-    //}
+    _bonusData.Initialize(proto);
 
-    //std::string enchants = conf.enchantments;
-    //_LoadIntoDataField(enchants.c_str(), ITEM_FIELD_ENCHANTMENT_1_1, MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET);
-    //SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, conf.randomPropertyId);
-    //// recalculate suffix factor
-    //if (GetItemRandomPropertyId() < 0)
-    //    UpdateItemSuffixFactor();
+    // set owner (not if item is only loaded for gbank/auction/mail
+    if (!ownerGuid.IsEmpty())
+        SetOwnerGUID(ownerGuid);
 
-    //uint32 durability = conf.durability;
-    //SetUInt32Value(ITEM_FIELD_DURABILITY, durability);
+    uint32 itemFlags = conf.flags;
+    bool need_save = false;                                 // need explicit save data at load fixes
+    if (uint64 creator = conf.creatorGuid)
+    {
+        if (!(itemFlags & ITEM_FIELD_FLAG_CHILD))
+            SetCreator(ObjectGuid::Create<HighGuid::Player>(creator));
+        else
+            SetCreator(ObjectGuid::Create<HighGuid::Item>(creator));
+    }
+    if (uint64 giftCreator = conf.giftCreatorGuid)
+        SetGiftCreator(ObjectGuid::Create<HighGuid::Player>(giftCreator));
+    SetCount(conf.count);
 
-    //// update max durability (and durability) if need
-    //// xinef: do not overwrite durability for wrapped items!!
-    //SetUInt32Value(ITEM_FIELD_MAXDURABILITY, proto->MaxDurability);
-    //if (durability > proto->MaxDurability && !HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_WRAPPED))
-    //{
-    //    SetUInt32Value(ITEM_FIELD_DURABILITY, proto->MaxDurability);
-    //    need_save = true;
-    //}
+    uint32 duration = conf.duration;
+    SetExpiration(duration);
+    // update duration if need, and remove if not need
+    if ((proto->GetDuration() == 0) != (duration == 0))
+    {
+        SetExpiration(proto->GetDuration());
+        need_save = true;
+    }
 
-    //SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, conf.playedTime);
-    //SetText(conf.text);
+    ReplaceAllItemFlags(ItemFieldFlags(itemFlags));
 
-    //if (need_save)                                           // normal item changed state set not work at loading
-    //{
-    //    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_INSTANCE_ON_LOAD);
-    //    stmt->SetData(0, GetUInt32Value(ITEM_FIELD_DURATION));
-    //    stmt->SetData(1, GetUInt32Value(ITEM_FIELD_FLAGS));
-    //    stmt->SetData(2, GetUInt32Value(ITEM_FIELD_DURABILITY));
-    //    stmt->SetData(3, guid);
-    //    CharacterDatabase.Execute(stmt);
-    //}
+    uint32 durability = conf.durability;
+    SetDurability(durability);
+    // update max durability (and durability) if need
+    SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::MaxDurability), proto->MaxDurability);
+
+    // do not overwrite durability for wrapped items
+    if (durability > proto->MaxDurability && !IsWrapped())
+    {
+        SetDurability(proto->MaxDurability);
+        need_save = true;
+    }
+
+    SetCreatePlayedTime(conf.playedTime);
+    SetText(conf.text);
+
+    SetModifier(ITEM_MODIFIER_BATTLE_PET_SPECIES_ID, conf.battlePetSpeciesId);
+    SetModifier(ITEM_MODIFIER_BATTLE_PET_BREED_DATA, conf.battlePetBreedData);
+    SetModifier(ITEM_MODIFIER_BATTLE_PET_LEVEL, conf.battlePetLevel);
+    SetModifier(ITEM_MODIFIER_BATTLE_PET_DISPLAY_ID, conf.battlePetDisplayId);
+
+    SetContext(ItemContext(conf.context));
+     
+    Field* fields = nullptr;
+    if (result)
+    {
+        fields = result->Fetch();
+    }
+
+    std::vector<std::string_view> bonusListString = Trinity::Tokenize(conf.bonusListIDs, ' ', false);
+    std::vector<int32> bonusListIDs;
+    bonusListIDs.reserve(bonusListString.size());
+    for (std::string_view token : bonusListString)
+        if (Optional<int32> bonusListID = Trinity::StringTo<int32>(token))
+            bonusListIDs.push_back(*bonusListID);
+    SetBonuses(std::move(bonusListIDs));
+
+    // load charges after bonuses, they can add more item effects
+    std::vector<std::string_view> tokens = Trinity::Tokenize(conf.charges, ' ', false);
+    for (uint8 i = 0; i < m_itemData->SpellCharges.size() && i < _bonusData.EffectCount && i < tokens.size(); ++i)
+        SetSpellCharges(i, Trinity::StringTo<int32>(tokens[i]).value_or(0));
+
+    if (fields) {
+        SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS, fields[19].GetUInt32());
+        SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_1, fields[20].GetUInt32());
+        SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_2, fields[21].GetUInt32());
+        SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_3, fields[22].GetUInt32());
+        SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_4, fields[23].GetUInt32());
+        SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_5, fields[24].GetUInt32());
+
+        SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_ALL_SPECS, fields[25].GetUInt32());
+        SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_1, fields[26].GetUInt32());
+        SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_2, fields[27].GetUInt32());
+        SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_3, fields[28].GetUInt32());
+        SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_4, fields[29].GetUInt32());
+        SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_5, fields[30].GetUInt32());
+
+        SetModifier(ITEM_MODIFIER_TRANSMOG_SECONDARY_APPEARANCE_ALL_SPECS, fields[31].GetUInt32());
+        SetModifier(ITEM_MODIFIER_TRANSMOG_SECONDARY_APPEARANCE_SPEC_1, fields[32].GetUInt32());
+        SetModifier(ITEM_MODIFIER_TRANSMOG_SECONDARY_APPEARANCE_SPEC_2, fields[33].GetUInt32());
+        SetModifier(ITEM_MODIFIER_TRANSMOG_SECONDARY_APPEARANCE_SPEC_3, fields[34].GetUInt32());
+        SetModifier(ITEM_MODIFIER_TRANSMOG_SECONDARY_APPEARANCE_SPEC_4, fields[35].GetUInt32());
+        SetModifier(ITEM_MODIFIER_TRANSMOG_SECONDARY_APPEARANCE_SPEC_5, fields[36].GetUInt32());
+
+        uint32 const gemFields = 4;
+        ItemDynamicFieldGems gemData[MAX_GEM_SOCKETS];
+        memset(gemData, 0, sizeof(gemData));
+        for (uint32 i = 0; i < MAX_GEM_SOCKETS; ++i)
+        {
+            gemData[i].ItemId = fields[37 + i * gemFields].GetUInt32();
+            std::vector<std::string_view> gemBonusListIDs = Trinity::Tokenize(fields[38 + i * gemFields].GetStringView(), ' ', false);
+            uint32 b = 0;
+            for (std::string_view token : gemBonusListIDs)
+                if (Optional<uint16> bonusListID = Trinity::StringTo<uint16>(token))
+                    gemData[i].BonusListIDs[b++] = *bonusListID;
+
+            gemData[i].Context = fields[39 + i * gemFields].GetUInt8();
+            if (gemData[i].ItemId)
+                SetGem(i, &gemData[i], fields[40 + i * gemFields].GetUInt32());
+        }
+
+        SetModifier(ITEM_MODIFIER_TIMEWALKER_LEVEL, fields[49].GetUInt32());
+        SetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL, fields[50].GetUInt32());
+
+        // Enchants must be loaded after all other bonus/scaling data
+        std::vector<std::string_view> enchantmentTokens = Trinity::Tokenize(fields[8].GetStringView(), ' ', false);
+        if (enchantmentTokens.size() == MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET)
+        {
+            for (uint32 i = 0; i < MAX_ENCHANTMENT_SLOT; ++i)
+            {
+                auto enchantmentField = m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Enchantment, i);
+                SetUpdateFieldValue(enchantmentField.ModifyValue(&UF::ItemEnchantment::ID), Trinity::StringTo<int32>(enchantmentTokens[i * MAX_ENCHANTMENT_OFFSET + 0]).value_or(0));
+                SetUpdateFieldValue(enchantmentField.ModifyValue(&UF::ItemEnchantment::Duration), Trinity::StringTo<uint32>(enchantmentTokens[i * MAX_ENCHANTMENT_OFFSET + 1]).value_or(0));
+                SetUpdateFieldValue(enchantmentField.ModifyValue(&UF::ItemEnchantment::Charges), Trinity::StringTo<int16>(enchantmentTokens[i * MAX_ENCHANTMENT_OFFSET + 2]).value_or(0));
+            }
+        }
+    }
+    m_randomBonusListId = conf.randomBonusListId;
+
+    // Remove bind flag for items vs BIND_NONE set
+    if (IsSoulBound() && GetBonding() == BIND_NONE)
+    {
+        RemoveItemFlag(ITEM_FIELD_FLAG_SOULBOUND);
+        need_save = true;
+    }
+
+    if (need_save)                                           // normal item changed state set not work at loading
+    {
+        uint8 index = 0;
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_INSTANCE_ON_LOAD);
+        stmt->setUInt32(index++, m_itemData->Expiration);
+        stmt->setUInt32(index++, m_itemData->DynamicFlags);
+        stmt->setUInt32(index++, m_itemData->Durability);
+        stmt->setUInt64(index++, guid);
+        CharacterDatabase.Execute(stmt);
+    }
 
     return true;
 }

@@ -20675,8 +20675,6 @@ void Player::SaveToDB(bool create /*=false*/)
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     LoginDatabaseTransaction loginTransaction = LoginDatabase.BeginTransaction();
 
-    SaveToDB(loginTransaction, trans, create);
-
     sAAData->AA_REP_Character_Juanxian(this, trans);
     sAAData->AA_UPD_Character_Paihang(this, trans);
     sAAData->AA_REP_Character_Instance(this, trans);
@@ -20697,10 +20695,11 @@ void Player::SaveToDB(bool create /*=false*/)
     sAAData->AA_REP_Map_Instance_Value(trans);
 
     sAAData->AA_REP_Item_Instance(trans);
+    sAAData->AA_REP_Account(this, loginTransaction);
+
+    SaveToDB(loginTransaction, trans, create);
 
     CharacterDatabase.CommitTransaction(trans);
-
-    sAAData->AA_REP_Account(this, loginTransaction);
     LoginDatabase.CommitTransaction(loginTransaction);
 }
 

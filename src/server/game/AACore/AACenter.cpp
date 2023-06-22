@@ -1204,8 +1204,8 @@ std::string AACenter::AA_GetItemLink(uint32 itemid)
     }
     std::string name = temp->GetName(LOCALE_zhCN);
     std::ostringstream oss;
-    oss << "|c" << std::hex << ItemQualityColors[temp->GetQuality()] << "|Hitem:" << itemid << ":0:0:0:0:0:0:0:" << temp->GetBaseItemLevel()
-        << ":0:0:0:0:0|h[" << name << "]|h|r";
+    oss << "|c" << std::hex << ItemQualityColors[temp->GetQuality()] << "|Hitem:" << std::to_string(itemid) << "::::::::" << temp->GetBaseItemLevel()
+        << ":::::::::::|h[" << name << "]|h|r";
     return oss.str();
 }
 std::string AACenter::AA_GetItemLinkJd(Item* item)
@@ -1224,8 +1224,7 @@ std::string AACenter::AA_GetItemLinkJd(Item* item)
 
     uint32 color = ItemQualityColors[pProto->GetQuality()];
     std::ostringstream itemStr;
-    itemStr << "|c" << std::hex << color << "|Hitem:" << itemId << ":0:0:0:0:0:0:0:" << pProto->GetBaseItemLevel()
-        << ":0:0:0:0:" << guid << "|h[" << name << "]|h|r";
+    itemStr << "|c" << std::hex << color << "|Hitem:" << std::to_string(itemId) << ":::::::::::::" << guid << "::::::|h[" << name << "]|h|r";
 
     try {
         uint32 itemId = pProto->GetId();
@@ -1253,7 +1252,7 @@ std::string AACenter::AA_GetItemLinkJd(Item* item)
         else {
             name = q_color + "[" + name + "]|r";
         }
-        std::string itemlink = "|Hitem:" + std::to_string(itemId) + ":0:0:0:0:0:0:0:" + std::to_string(pProto->GetBaseItemLevel()) + ":0:0:0:0:" + std::to_string(guid) + "|h[" + name + "]|h|r";
+        std::string itemlink = "|Hitem:" + std::to_string(itemId) + ":::::::::::::" + std::to_string(guid) + "::::::|h[" + name + "]|h|r";
         return itemlink;
     }
     catch (std::exception const& e) {}
@@ -1534,11 +1533,11 @@ void AACenter::AA_SendMessage(Player* p, int type, const char* Text, ...)
             sWorld->SendServerMessage(SERVER_MSG_STRING, Text, p);
         }
         else if (type == 1) { //屏幕中央
-            sWorld->SendGlobalText(Text, p->GetSession());
+            p->GetSession()->SendNotification("%s", Text);
         }
         else if (type == 2) {
             sWorld->SendServerMessage(SERVER_MSG_STRING, Text, p);
-            sWorld->SendGlobalText(Text, p->GetSession());
+            p->GetSession()->SendNotification("%s", Text);
         }
     }
 }
@@ -10037,10 +10036,10 @@ void _AA_Shizhuang_3023(Player *player, uint32 lan)
             }
             std::string itemlink = "";
             if (guidlow > 0) {
-                itemlink = "|Hitem:" + std::to_string(conf.item) + ":0:0:0:0:0:0:0:" + std::to_string(pProto->GetBaseItemLevel()) + ":0:0:0:0:" + std::to_string(guidlow) + "|h[" + pProto->GetName(LOCALE_zhCN) + "]|h|r";
+                itemlink = "|Hitem:" + std::to_string(conf.item) + ":::::::::::::" + std::to_string(guidlow) + "::::::|h[" + pProto->GetName(LOCALE_zhCN) + "]|h|r";
             }
             else {
-                itemlink = "|Hitem:" + std::to_string(conf.item) + ":0:0:0:0:0:0:0:" + std::to_string(pProto->GetBaseItemLevel()) + ":0:0:0:0:0|h[" + pProto->GetName(LOCALE_zhCN) + "]|h|r";
+                itemlink = "|Hitem:" + std::to_string(conf.item) + ":::::::::::::::::::|h[" + pProto->GetName(LOCALE_zhCN) + "]|h|r";
             }
             if (isconf) {
                 result += ",[";
@@ -10141,10 +10140,10 @@ void _AA_Shenqi_3031(Player* player, uint32 lan)
                     name = pProto1->GetName(LOCALE_zhCN);
                 }
                 if (guidlow > 0) { //已经激活，如果有下一级，显示升级。如果没有下一级，显示已满级
-                    itemlink = "|Hitem:" + std::to_string(conf.item) + ":0:0:0:0:0:0:0:" + std::to_string(pProto->GetBaseItemLevel()) + ":0:0:0:0:" + std::to_string(guidlow) + "|h[" + name + "]|h|r";
+                    itemlink = "|Hitem:" + std::to_string(conf.item) + ":::::::::::::" + std::to_string(guidlow) + "::::::|h[" + name + "]|h|r";
                 }
                 else { //没有激活，显示激活
-                    itemlink = "|Hitem:" + std::to_string(conf.item) + ":0:0:0:0:0:0:0:" + std::to_string(pProto->GetBaseItemLevel()) + ":0:0:0:0:0|h[" + name + "]|h|r";
+                    itemlink = "|Hitem:" + std::to_string(conf.item) + ":::::::::::::::::::|h[" + name + "]|h|r";
                 }
                 result += std::to_string(conf.id); result += "]={\"";
                 result += itemlink; result += "\",\"";
@@ -10980,7 +10979,7 @@ void AACenter::AA_ReceiveAddon(Player* player, std::string& prefix, std::string&
                             }
                         }
                         conf.enchantments = ssEnchants.str();
-                        conf.randomPropertyId = item->GetItemRandomBonusListId();
+                        conf.randomBonusListId = item->GetItemRandomBonusListId();
                         conf.durability = item->m_itemData->Durability;
                         uint32 playedTime = item->m_itemData->CreatePlayedTime;
                         std::string text = item->GetText();
@@ -11112,11 +11111,14 @@ void AACenter::AA_ReceiveAddon(Player* player, std::string& prefix, std::string&
                         }
                     }
                     conf.enchantments = ssEnchants.str();
-                    conf.randomPropertyId = item->GetItemRandomBonusListId();
+                    conf.randomBonusListId = item->GetItemRandomBonusListId();
                     conf.durability = item->m_itemData->Durability;
-                    uint32 playedTime = item->m_itemData->CreatePlayedTime;
-                    std::string text = item->GetText();
-
+                    conf.playedTime = item->m_itemData->CreatePlayedTime;
+                    conf.text = item->GetText();
+                    conf.battlePetSpeciesId = item->GetModifier(ITEM_MODIFIER_BATTLE_PET_SPECIES_ID);
+                    conf.battlePetBreedData = item->GetModifier(ITEM_MODIFIER_BATTLE_PET_BREED_DATA);
+                    conf.battlePetLevel = item->GetModifier(ITEM_MODIFIER_BATTLE_PET_LEVEL);
+                    conf.battlePetDisplayId = item->GetModifier(ITEM_MODIFIER_BATTLE_PET_DISPLAY_ID);
                     std::string weizhi = std::to_string(lan) + " " + std::to_string(index);
                     conf.weizhi = weizhi;
                     conf.update_time = timep;
@@ -11331,7 +11333,7 @@ void AACenter::AA_ReceiveAddon(Player* player, std::string& prefix, std::string&
                         }
                     }
                     conf.enchantments = ssEnchants.str();
-                    conf.randomPropertyId = item->GetItemRandomBonusListId();
+                    conf.randomBonusListId = item->GetItemRandomBonusListId();
                     conf.durability = item->m_itemData->Durability;
                     uint32 playedTime = item->m_itemData->CreatePlayedTime;
                     std::string text = item->GetText();
@@ -12494,12 +12496,20 @@ void AACenter::LoadAAData_Characters()
                 conf.charges = fields[7].GetString();
                 conf.flags = fields[8].GetUInt32();
                 conf.enchantments = fields[9].GetString();
-                conf.randomPropertyId = fields[10].GetInt16();
+                conf.randomBonusListId = fields[10].GetInt16();
                 conf.durability = fields[11].GetUInt16();
                 conf.playedTime = fields[12].GetUInt32();
                 conf.text = fields[13].GetString();
-                conf.weizhi = fields[14].GetString();
-                conf.update_time = fields[15].GetUInt32();
+                conf.transmogrification = fields[14].GetUInt32();
+                conf.enchantIllusion = fields[15].GetUInt32();
+                conf.battlePetSpeciesId = fields[16].GetUInt32();
+                conf.battlePetBreedData = fields[17].GetUInt32();
+                conf.battlePetLevel = fields[18].GetUInt16();
+                conf.battlePetDisplayId = fields[19].GetUInt32();
+                conf.context = fields[20].GetUInt8();
+                conf.bonusListIDs = fields[21].GetString();
+                conf.weizhi = fields[22].GetString();
+                conf.update_time = fields[23].GetUInt32();
                 aa_item_instances[conf.guid] = conf;
                 aa_item_instance_owner[conf.owner_guid].push_back(conf.guid);
             } while (result->NextRow());

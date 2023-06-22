@@ -806,8 +806,8 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(_AA_REP_Map_Zone_Value, "insert into _数据地图zone (zone, 布尔变量, 数值变量, update_time) VALUES(?,?,?,?) ON DUPLICATE KEY UPDATE 布尔变量 = ?, 数值变量 = ?, update_time = ?", CONNECTION_ASYNC);
     PrepareStatement(_AA_REP_Map_Area_Value, "insert into _数据地图area (area, 布尔变量, 数值变量, update_time) VALUES(?,?,?,?) ON DUPLICATE KEY UPDATE 布尔变量 = ?, 数值变量 = ?, update_time = ?", CONNECTION_ASYNC);
     PrepareStatement(_AA_REP_Map_Instance_Value, "insert into _数据地图instance (instance, 布尔变量, 数值变量, update_time) VALUES(?,?,?,?) ON DUPLICATE KEY UPDATE 布尔变量 = ?, 数值变量 = ?, update_time = ?", CONNECTION_ASYNC);
-    
-    PrepareStatement(_AA_REP_Item_Instance, "replace into _玩家双甲数据x (guid, itemEntry, owner_guid, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomBonusListId, durability, playedTime, text, transmogrification, enchantIllusion, battlePetSpeciesId, battlePetBreedData, battlePetLevel, battlePetDisplayId, context, bonusListIDs, 装备位置, update_time) VALUES(? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? )", CONNECTION_ASYNC);
+
+    PrepareStatement(_AA_REP_Item_Instance, "replace into _玩家双甲数据x (guid, itemEntry, owner_guid, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomBonusListId, durability, playedTime, text, transmogrification, enchantIllusion, battlePetSpeciesId, battlePetBreedData, battlePetLevel, battlePetDisplayId, context, bonusListIDs, 装备位置, update_time) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", CONNECTION_ASYNC);
 }
 
 CharacterDatabaseConnection::CharacterDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo)
