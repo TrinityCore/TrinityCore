@@ -8902,7 +8902,7 @@ bool Spell::IsWithinLOS(WorldObject const* source, WorldObject const* target, bo
 
     WorldObject const* src = targetAsSourceLocation ? target : source;
     WorldObject const* dst = targetAsSourceLocation ? source : target;
-    src->IsWithinLOSInMap(dst, LINEOFSIGHT_ALL_CHECKS, ignoreFlags);
+    return src->IsWithinLOSInMap(dst, LINEOFSIGHT_ALL_CHECKS, ignoreFlags);
 }
 
 bool Spell::IsWithinLOS(WorldObject const* source, Position pos, VMAP::ModelIgnoreFlags ignoreFlags) const
