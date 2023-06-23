@@ -407,57 +407,6 @@ struct areatrigger_stormwind_teleport_unit : AreaTriggerAI
     }
 };
 
-struct areatrigger_find_the_lost_expedition : AreaTriggerAI
-{
-    enum MiscIds
-    {
-        QUEST_FINDING_THE_LOST_EXPEDITION_ALLIANCE = 54952,
-        QUEST_FINDING_THE_LOST_EXPEDITION_HORDE    = 59931,
-
-        SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN      = 297295,
-        SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN      = 325075,
-        SPELL_GARRICK_PING                         = 313664
-    };
-
-    areatrigger_find_the_lost_expedition(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
-
-    void OnUnitEnter(Unit* unit) override
-    {
-        Player* player = unit->ToPlayer();
-        if (!player)
-            return;
-
-        if (player->GetQuestStatus(QUEST_FINDING_THE_LOST_EXPEDITION_ALLIANCE) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_FINDING_THE_LOST_EXPEDITION_HORDE) == QUEST_STATUS_INCOMPLETE)
-            player->CastSpell(unit, SPELL_GARRICK_PING);
-    }
-};
-
-struct areatrigger_find_the_lost_expedition_follow : AreaTriggerAI
-{
-    enum MiscIds
-    {
-        QUEST_FINDING_THE_LOST_EXPEDITION_ALLIANCE = 54952,
-        QUEST_FINDING_THE_LOST_EXPEDITION_HORDE    = 59931,
-
-        SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN      = 297295,
-        SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN      = 325075,
-        SPELL_GARRICK_PING                         = 313664
-    };
-
-    areatrigger_find_the_lost_expedition_follow(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
-
-    void OnUnitEnter(Unit* unit) override
-    {
-        Player* player = unit->ToPlayer();
-        if (!player)
-            return;
-
-        if (player->GetQuestStatus(QUEST_FINDING_THE_LOST_EXPEDITION_ALLIANCE) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_FINDING_THE_LOST_EXPEDITION_HORDE) == QUEST_STATUS_INCOMPLETE)
-            if (!player->HasAura(SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN) && !player->HasAura(SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN))
-                player->CastSpell(player, player->GetTeam() == ALLIANCE ? SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN : SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN);
-    }
-};
-
 void AddSC_areatrigger_scripts()
 {
     new AreaTrigger_at_coilfang_waterfall();
@@ -469,6 +418,4 @@ void AddSC_areatrigger_scripts()
     new AreaTrigger_at_area_52_entrance();
     new AreaTrigger_at_frostgrips_hollow();
     RegisterAreaTriggerAI(areatrigger_stormwind_teleport_unit);
-    RegisterAreaTriggerAI(areatrigger_find_the_lost_expedition);
-    RegisterAreaTriggerAI(areatrigger_find_the_lost_expedition_follow);
 }
