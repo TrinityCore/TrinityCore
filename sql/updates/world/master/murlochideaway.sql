@@ -1,4 +1,5 @@
 -- Misc
+UPDATE `conditions` SET `ElseGroup`=0 WHERE `SourceTypeOrReferenceId`=32 AND `SourceGroup`=5 AND `SourceEntry` IN (149917,156622);
 UPDATE `creature_template` SET `RegenHealth`=0 WHERE `entry` IN (149917,156622,156612,156609,156610,166784,166800,166786,166791,166796);
 UPDATE `creature_template` SET `npcflag`=2, `unit_flags`=768, `unit_flags2`=34816 WHERE entry=156626;
 
@@ -133,12 +134,12 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 
 -- Pathing for Mithdran Dawntracker "Emergency First Aid"
 SET @PATH := 1052022 * 10;
-DELETE FROM `waypoint_data` WHERE `id` IN (@PATH,@PATH+1);
+DELETE FROM `waypoint_data` WHERE `id` IN (@PATH);
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
 (@PATH,1,-436.05557,-2607.8057,0.39855957,NULL,0,1,0,100,0);
 
 -- Pathing for Lana Jordan "Emergency First Aid"
 SET @PATH := 1052023 * 10;
-DELETE FROM `waypoint_data` WHERE `id` IN (@PATH,@PATH+1);
+DELETE FROM `waypoint_data` WHERE `id` IN (@PATH);
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
 (@PATH,1,-433.9479,-2608.7449,0.5111084,NULL,0,1,0,100,0);
