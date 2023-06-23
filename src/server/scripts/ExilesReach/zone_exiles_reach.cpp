@@ -1213,7 +1213,7 @@ struct npc_captain_garrick_beach : public ScriptedAI
                 Conversation::CreateConversation(CONVERSATION_QUEST_MURLOC_MANIA_ALLIANCE, player, *player, player->GetGUID(), nullptr);
                 break;
             case QUEST_EMERGENCY_FIRST_AID_ALLIANCE:
-                {    
+                {
                     Creature* cole = FindCreatureIgnorePhase(player, "private_cole_beach", 50.0f);
                     Creature* richter = FindCreatureIgnorePhase(player, "quartermaster_richter_beach", 50.0f);
                     if (!cole || !richter)
@@ -1395,19 +1395,12 @@ enum AllianceSurvivorsBeach
     CONVERSATION_HUXWORTH_BEACH           = 12128,
     CONVERSATION_KEE_LA_BEACH             = 12127,
 
-    EVENT_SURVIVORS_ALLIANCE_SALUTE       = 1,
-    EVENT_SURVIVORS_ALLIANCE_LEAVE_BEACH,
-
     NPC_BJORN_STOUTHANDS_LAYING           = 156609,
     NPC_AUSTIN_HUXWORTH_LAYING            = 156610,
     NPC_KEE_LA_LAYING                     = 156612,
     NPC_KEE_LA_STANDING                   = 151088,
     NPC_BJORN_STOUTHANDS_STANDING         = 151089,
     NPC_AUSTIN_HUXWORTH_STANDING          = 154170,
-
-    PATH_KEE_LA_STANDING = 90200060,
-    PATH_BJORN_STOUTHANDS_STANDING        = 10520130,
-    PATH_AUSTIN_HUXWORTH_STANDING         = 10520140,
 
     SPELL_BANDAGING_QUEST                 = 297415
 };
@@ -1446,6 +1439,147 @@ struct npc_alliance_survivors_beach_laying : public ScriptedAI
     }
 private:
     uint32 _convo;
+};
+
+enum HordeSurvivorsBeach
+{
+    EVENT_SURVIVORS_HORDE_STAND_AND_TALK   = 1,
+    EVENT_SURVIVORS_HORDE_MOVE_TO_GRIMAXE,
+
+    NPC_BO_LAYING_LAYING                   = 166786,
+    NPC_MITHDRAN_LAYING                    = 166791,
+    NPC_LANA_JORDAN_LAYING                 = 166796,
+    NPC_BO_STANDING                        = 166787,
+    NPC_MITHDRAN_STANDING                  = 166792,
+    NPC_LANA_JORDAN_STANDING               = 166797,
+
+    PATH_BO_TO_GRIMAXE                     = 10520210,
+    PATH_MITHDRAN_TO_GRIMAXE               = 10520220,
+    PATH_LANA_JORDAN_TO_GRIMAXE            = 10520230,
+
+    TALK_HORDE_BEACH_THANK_PLAYER          = 0
+};
+
+struct npc_horde_survivors_beach_laying : public ScriptedAI
+{
+    npc_horde_survivors_beach_laying(Creature* creature) : ScriptedAI(creature) { }
+
+    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+    {
+        const Position boPos = { -448.816f, -2606.11f, 0.512277f, 6.17441f };
+        const Position mithranPos = { -428.477f, -2593.97f, 0.07061f, 4.849576f };
+        const Position lanaPos = { -420.628f, -2600.23f, 0.482769f, 4.046853f };
+
+        if (spellInfo->Id != SPELL_BANDAGING_QUEST)
+            return;
+
+        if (Player* player = caster->ToPlayer())
+        {
+            player->KilledMonsterCredit(me->GetEntry());
+
+            switch (me->GetEntry())
+            {
+            case NPC_BO_LAYING_LAYING:
+                Spawn(player, "bo_beach", boPos);
+                break;
+            case NPC_MITHDRAN_LAYING:
+                Spawn(player, "mithran_beach", mithranPos);
+                break;
+            case NPC_LANA_JORDAN_LAYING:
+                Spawn(player, "lana_jordan_beach", lanaPos);
+                break;
+            default:
+                break;
+            }
+
+            player->UpdateObjectVisibility();
+        }
+    }
+
+    void Spawn(Player* player, std::string_view stringId, Position pos)
+    {
+        if (Creature* survivor = player->FindNearestCreatureWithOptions(50.0f, FindCreatureOptions().SetStringId(stringId).SetIgnorePhases(true)))
+        {
+            survivor->SummonPersonalClone(pos, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+        }
+    }
+};
+
+struct npc_Horde_survivors_beach_q59930_private : public ScriptedAI
+{
+    npc_Horde_survivors_beach_q59930_private(Creature* creature) : ScriptedAI(creature), _path(0)
+    {
+        Initialize();
+    }
+
+    void Initialize()
+    {
+        me->SetStandState(UNIT_STAND_STATE_SLEEP);
+    }
+
+    void JustAppeared() override
+    {
+        switch (me->GetEntry())
+        {
+        case NPC_BO_STANDING:
+            me->SetScriptStringId("spawn_check");
+            _path = PATH_BO_TO_GRIMAXE;
+            break;
+        case NPC_MITHDRAN_STANDING:
+            _path = PATH_MITHDRAN_TO_GRIMAXE;
+            break;
+        case NPC_LANA_JORDAN_STANDING:
+            _path = PATH_LANA_JORDAN_TO_GRIMAXE;
+            break;
+        default:
+            break;
+        }
+
+        _events.ScheduleEvent(EVENT_SURVIVORS_HORDE_STAND_AND_TALK, 1s);
+    }
+
+    void WaypointPathEnded(uint32 /*nodeId*/, uint32 /*pathId*/) override
+    {
+        me->DespawnOrUnsummon();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+            case EVENT_SURVIVORS_HORDE_STAND_AND_TALK:
+                Talk(TALK_HORDE_BEACH_THANK_PLAYER);
+                me->SetStandState(UNIT_STAND_STATE_STAND);
+                _events.ScheduleEvent(EVENT_SURVIVORS_HORDE_MOVE_TO_GRIMAXE, 6s);
+                break;
+            case EVENT_SURVIVORS_HORDE_MOVE_TO_GRIMAXE:
+                me->GetMotionMaster()->MovePath(_path, false);
+                break;
+            default:
+                break;
+            }
+        }
+    }
+private:
+    EventMap _events;
+    uint32 _path;
+};
+
+CreatureAI* HordeSurvivorsAISelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+    {
+        if (Player* privateObjectOwner = ObjectAccessor::GetPlayer(*creature, creature->GetPrivateObjectOwner()))
+        {
+             return new npc_Horde_survivors_beach_q59930_private(creature);
+        }
+    }
+
+    return new NullCreatureAI(creature);
 };
 
 class quest_emergency_first_aid : public QuestScript
@@ -1488,5 +1622,7 @@ void AddSC_zone_exiles_reach()
     new FactoryCreatureScript<CreatureAI, &WarlordGrimaxeBeachAISelector>("npc_warlord_grimaxe_beach");
     new FactoryCreatureScript<CreatureAI, &HealedByLeaderAISelector>("npc_healed_by_leader_beach");
     RegisterCreatureAI(npc_alliance_survivors_beach_laying);
+    RegisterCreatureAI(npc_horde_survivors_beach_laying);
+    new FactoryCreatureScript<CreatureAI, &HordeSurvivorsAISelector>("npc_horde_survivors_beach_standing");
     new quest_emergency_first_aid();
 }

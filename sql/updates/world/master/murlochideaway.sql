@@ -44,10 +44,10 @@ INSERT INTO `conversation_actors` (`ConversationId`,`ConversationActorId`,`Conve
 (12043,71223,1052006,0,0,0,0,0,45745), -- Alliance
 (12044,0,0,0,0,0,0,1,45745),
 (12044,69830,0,1,0,0,0,0,45745),
-(12127,71535,10520012,1,0,0,0,0,45745),
-(11685,71536,10520013,1,0,0,0,0,45745),
-(12128,71534,10520014,1,0,0,0,0,45745),
-(14432,75904,10520015,1,0,0,0,0,45745), -- Horde
+(12127,71535,1052012,1,0,0,0,0,45745),
+(11685,71536,1052013,1,0,0,0,0,45745),
+(12128,71534,1052014,1,0,0,0,0,45745),
+(14432,75904,1052015,1,0,0,0,0,45745), -- Horde
 (14437,76283,0,2,0,0,0,0,45745), -- Horde
 (12058,71297,0,0,0,0,0,0,45745), -- Alliance
 (12058,69830,0,1,0,0,0,0,45745), -- Alliance
@@ -109,7 +109,7 @@ UPDATE `creature_template` SET `ScriptName`="npc_horde_survivors_beach_standing"
 
 -- Pathing
 
--- Pathing for Private Cole 149917
+-- Pathing for Private Cole 149917 and Grunt Throg 166784 "Emergency First Aid"
 SET @PATH := 1052007 * 10;
 DELETE FROM `waypoint_data` WHERE `id` IN (@PATH);
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
@@ -118,35 +118,12 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,3,-405.7066,-2599.0903,1.5887985,NULL,0,0,0,100,0),
 (@PATH,4,-396.3125,-2595.6328,2.8700066,NULL,0,0,0,100,0);
 
--- Pathing for Quartermaster Richter 156622
+-- Pathing for Quartermaster Richter 156622 and Provisioner Jin'hake 166800 "Emergency First Aid"
 SET @PATH := 1052008 * 10;
 DELETE FROM `waypoint_data` WHERE `id` IN (@PATH);
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
 (@PATH,1,-399.375,-2597.3906,2.019909,NULL,0,0,0,100,0),
 (@PATH,2,-391.84723,-2593.486,3.8800163,NULL,0,0,0,100,0);
-
--- Pathing for Kee-La 151088
-SET @PATH := 1052012 * 10;
-DELETE FROM `waypoint_data` WHERE `id` IN (@PATH);
-INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
-(@PATH,1,-425.92883,-2603.427,0.48476708,NULL,0,1,0,100,0),
-(@PATH,2,-415.217,-2603.8403,0.7445327,NULL,0,1,0,100,0),
-(@PATH,3,-404.86633,-2599.4375,1.6478806,NULL,0,1,0,100,0),
-(@PATH,4,-395.08508,-2594.441,3.153698,NULL,0,1,0,100,0);
-
--- Pathing for Bjorn Stouthands 151089
-SET @PATH := 1052013 * 10;
-DELETE FROM `waypoint_data` WHERE `id` IN (@PATH);
-INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
-(@PATH,1,-398.3889,-2596.2883,2.3895378,NULL,0,1,0,100,0),
-(@PATH,2,-391.7795,-2592.915,3.9566765,NULL,0,1,0,100,0);
-
--- Pathing for Austin Huxworth 154170
-SET @PATH := 1052014 * 10;
-DELETE FROM `waypoint_data` WHERE `id` IN (@PATH);
-INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
-(@PATH,1,-409.20898,-2599.4922,1.2894821,NULL,0,1,0,100,0),
-(@PATH,2,-397.875,-2595.2622,2.6358757,NULL,0,1,0,100,0);
 
 -- Pathing for Bo quest "Emergency First Aid"
 SET @PATH := 1052021 * 10;
@@ -154,13 +131,13 @@ DELETE FROM `waypoint_data` WHERE `id` IN (@PATH);
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
 (@PATH,1,-437.55035,-2610.1511,0.5548096,NULL,0,1,0,100,0);
 
--- Pathing for Mithdran Dawntracker "Emergency First Aid" and "Finding the Lost Expedition"
+-- Pathing for Mithdran Dawntracker "Emergency First Aid"
 SET @PATH := 1052022 * 10;
 DELETE FROM `waypoint_data` WHERE `id` IN (@PATH,@PATH+1);
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
 (@PATH,1,-436.05557,-2607.8057,0.39855957,NULL,0,1,0,100,0);
 
--- Pathing for Lana Jordan "Emergency First Aid" and "Finding the Lost Expedition"
+-- Pathing for Lana Jordan "Emergency First Aid"
 SET @PATH := 1052023 * 10;
 DELETE FROM `waypoint_data` WHERE `id` IN (@PATH,@PATH+1);
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
