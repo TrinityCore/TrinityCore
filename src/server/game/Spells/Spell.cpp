@@ -1674,6 +1674,18 @@ void Spell::SelectImplicitDestDestTargets(SpellEffectInfo const& spellEffectInfo
         case TARGET_DEST_DEST_GROUND:
             dest._position.m_positionZ = m_caster->GetMapHeight(dest._position.GetPositionX(), dest._position.GetPositionY(), dest._position.GetPositionZ());
             break;
+        case TARGET_DEST_DEST_TARGET_TOWARDS_CASTER:
+        {
+            float dist = spellEffectInfo.CalcRadius(m_caster);
+            Position pos = dest._position;
+            float angle = pos.GetAbsoluteAngle(m_caster) - m_caster->GetOrientation();
+
+            m_caster->MovePositionToFirstCollision(pos, dist, angle);
+            pos.SetOrientation(m_caster->GetAbsoluteAngle(dest._position));
+
+            dest.Relocate(pos);
+            break;
+        }
         default:
         {
             float angle = targetType.CalcDirectionAngle();
