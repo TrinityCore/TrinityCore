@@ -49,6 +49,18 @@ static Creature* FindCreatureIgnorePhase(WorldObject const* obj, std::string_vie
     return obj->FindNearestCreatureWithOptions(range, FindCreatureOptions().SetIgnorePhases(true).SetStringId(stringId));
 }
 
+static void RemovePersonalSpawns(Player* player, float range = 100.0f)
+{
+    std::list<Creature*> creatureList;
+    player->GetCreatureListWithOptionsInGrid(creatureList, range, FindCreatureOptions().SetIgnoreNotOwnedPrivateObjects(true).SetIgnorePhases(true));
+
+    for (Creature* creature : creatureList)
+    {
+        if (creature->IsPrivateObject())
+            creature->DespawnOrUnsummon();
+    }
+}
+
  // ********************************************
  // * Scripting in this section occurs on ship *
  // ********************************************
@@ -1042,6 +1054,412 @@ CreatureAI* CaptainGarrickShipAISelector(Creature* creature)
     return new NullCreatureAI(creature);
 };
 
+// Script spell to summon personal Garrick or Grimaxe for player Alliance and Horde arriving on beach
+
+enum SpellCrashLanded
+{
+    NPC_CAPTAIN_GARRICK_BEACH       = 156626,
+    NPC_WARLORD_BREKA_GRIMAXE_BEACH = 166782
+};
+
+template<uint32 NpcId>
+class spell_crash_landed_generic : public SpellScript
+{
+    PrepareSpellScript(spell_crash_landed_generic);
+
+    void HandleEffect(SpellEffIndex /*effIndex*/)
+    {
+        Player* player = GetCaster()->ToPlayer();
+
+        if (!player)
+            return;
+
+        if (Creature* creature = player->FindNearestCreature(NpcId, 50.0f))
+            creature->SummonPersonalClone(creature->GetPosition(), TempSummonType(TEMPSUMMON_MANUAL_DESPAWN), 0s, 0, 0, player);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_crash_landed_generic::HandleEffect, EFFECT_0, SPELL_EFFECT_SEND_EVENT);
+    }
+};
+
+enum CaptainsBeach
+{
+    CONVERSATION_QUEST_MURLOC_MANIA_ALLIANCE               = 12043,
+    CONVERSATION_QUEST_MURLOC_MANIA_HORDE                  = 14432,
+
+    EVENT_EMERGENCY_FIRST_AID_SCRIPT_SHEATH                = 1,
+    EVENT_EMERGENCY_FIRST_AID_SCRIPT_BANDAGE,
+    EVENT_EMERGENCY_FIRST_AID_SCRIPT_MOVE_SECOND_SURVIVOR,
+    EVENT_EMERGENCY_FIRST_AID_SCRIPT_MOVE_HOME_BEACH,
+
+    MOVE_TO_SECOND_SURVIVOR                                = 0,
+    MOVE_TO_BEACH_HOME                                     = 1,
+
+    QUEST_MURLOC_MANIA_ALLIANCE                            = 55122,
+    QUEST_EMERGENCY_FIRST_AID_ALLIANCE                     = 54951,
+    QUEST_MURLOC_MANIA_HORDE                               = 59929,
+    QUEST_EMERGENCY_FIRST_AID_HORDE                        = 59930,
+
+    SPELL_BANDAGING                                        = 305584,
+
+    TALK_ARRIVED_AT_BEACH                                  = 0
+};
+
+// This script is used by Captain Garrick private spawn & Warlord Grimaxe private spawn on beach when player arrives
+struct npc_captain_warloard_beach_arrive_private : public ScriptedAI
+{
+    npc_captain_warloard_beach_arrive_private(Creature* creature) : ScriptedAI(creature) { }
+
+    void IsSummonedBy(WorldObject* summonerWO) override
+    {
+        Player* summoner = summonerWO->ToPlayer();
+        if (!summoner)
+            return;
+
+        me->SetFacingToObject(summoner);
+        Talk(TALK_ARRIVED_AT_BEACH, summoner);
+        me->DespawnOrUnsummon(5s);
+    }
+};
+
+// This script is used by Captain Garrick private spawn & Warlord Grimaxe private spawn on beach for Emergency first aid quest 54951
+struct npc_captain_warloard_first_aid_private : public ScriptedAI
+{
+    npc_captain_warloard_first_aid_private(Creature* creature) : ScriptedAI(creature) { }
+
+    void InitializeAI() override
+    {
+        me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
+    }
+
+    void IsSummonedBy(WorldObject* summonerWO) override
+    {
+        Player* summoner = summonerWO->ToPlayer();
+        if (!summoner)
+            return;
+
+        _events.ScheduleEvent(EVENT_EMERGENCY_FIRST_AID_SCRIPT_SHEATH, 2s);
+    }
+
+    void MovementInform(uint32 uiType, uint32 uiId) override
+    {
+        if (uiType != POINT_MOTION_TYPE)
+            return;
+
+        switch (uiId)
+        {
+            case MOVE_TO_SECOND_SURVIVOR:
+                if (Creature* mate = ObjectAccessor::GetCreature(*me, me->GetEntry() == NPC_CAPTAIN_GARRICK_BEACH ? RichterGUID : JinhakeGUID))
+                    me->CastSpell(mate, SPELL_BANDAGING);
+                _events.ScheduleEvent(EVENT_EMERGENCY_FIRST_AID_SCRIPT_MOVE_HOME_BEACH, 6s);
+                break;
+            case MOVE_TO_BEACH_HOME:
+                me->DespawnOrUnsummon();
+                break;
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_EMERGENCY_FIRST_AID_SCRIPT_SHEATH:
+                    me->SetSheath(SHEATH_STATE_UNARMED);
+                    _events.ScheduleEvent(EVENT_EMERGENCY_FIRST_AID_SCRIPT_BANDAGE, 1s);
+                    break;
+                case EVENT_EMERGENCY_FIRST_AID_SCRIPT_BANDAGE:
+                    if (Creature* mate = ObjectAccessor::GetCreature(*me, me->GetEntry() == NPC_CAPTAIN_GARRICK_BEACH ? ColeGUID : ThrogGUID))
+                        me->CastSpell(mate, SPELL_BANDAGING);
+                    _events.ScheduleEvent(EVENT_EMERGENCY_FIRST_AID_SCRIPT_MOVE_SECOND_SURVIVOR, 5s);
+                    break;
+                case EVENT_EMERGENCY_FIRST_AID_SCRIPT_MOVE_SECOND_SURVIVOR:
+                    me->GetMotionMaster()->MovePoint(0, -414.15277f, -2605.2014f, 0.91079247f, false);
+                    break;
+                case EVENT_EMERGENCY_FIRST_AID_SCRIPT_MOVE_HOME_BEACH:
+                    me->GetMotionMaster()->MovePoint(1, -435.15277f, -2610.9915f, 0.649292f, false);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+private:
+    EventMap _events;
+public:
+    ObjectGuid ColeGUID;
+    ObjectGuid RichterGUID;
+    ObjectGuid ThrogGUID;
+    ObjectGuid JinhakeGUID;
+};
+
+// This script is used by the default spawn of Captain Garrick on beach
+struct npc_captain_garrick_beach : public ScriptedAI
+{
+    npc_captain_garrick_beach(Creature* creature) : ScriptedAI(creature) { }
+
+    void OnQuestAccept(Player* player, Quest const* quest) override
+    {
+        switch (quest->GetQuestId())
+        {
+            case QUEST_MURLOC_MANIA_ALLIANCE:
+                Conversation::CreateConversation(CONVERSATION_QUEST_MURLOC_MANIA_ALLIANCE, player, *player, player->GetGUID(), nullptr);
+                break;
+            case QUEST_EMERGENCY_FIRST_AID_ALLIANCE:
+                {    
+                    Creature* cole = FindCreatureIgnorePhase(player, "private_cole_beach", 50.0f);
+                    Creature* richter = FindCreatureIgnorePhase(player, "quartermaster_richter_beach", 50.0f);
+                    if (!cole || !richter)
+                        return;
+
+                    Creature* colePersonal = cole->SummonPersonalClone(cole->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+                    Creature* richterPersonal = richter->SummonPersonalClone(richter->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+                    Creature* mePersonal = me->SummonPersonalClone(me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+                    if (!colePersonal || !richterPersonal || !mePersonal)
+                        return;
+
+                    if (npc_captain_warloard_first_aid_private* personalAI = CAST_AI(npc_captain_warloard_first_aid_private, mePersonal->AI()))
+                    {
+                        personalAI->ColeGUID = colePersonal->GetGUID();
+                        personalAI->RichterGUID = richterPersonal->GetGUID();
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+    }
+};
+
+// This script is used by the default spawn of Warlord Grimaxe on beach
+struct npc_warlord_grimaxe_beach : public ScriptedAI
+{
+    npc_warlord_grimaxe_beach(Creature* creature) : ScriptedAI(creature) { }
+
+    void OnQuestAccept(Player* player, Quest const* quest) override
+    {
+        switch (quest->GetQuestId())
+        {
+            case QUEST_MURLOC_MANIA_HORDE:
+                Conversation::CreateConversation(CONVERSATION_QUEST_MURLOC_MANIA_HORDE, player, *player, player->GetGUID(), nullptr);
+                break;
+            case QUEST_EMERGENCY_FIRST_AID_HORDE:
+                {
+                    Creature* throg = FindCreatureIgnorePhase(player, "grunt_throg_beach", 50.0f);
+                    Creature* jinhake = FindCreatureIgnorePhase(player, "jin_hake_beach", 50.0f);
+                    if (!throg || !jinhake)
+                        return;
+
+                    Creature* throgPersonal = throg->SummonPersonalClone(throg->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+                    Creature* jinhakePersonal = jinhake->SummonPersonalClone(jinhake->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+                    Creature* mePersonal = me->SummonPersonalClone(me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+                    if (!throgPersonal || !jinhakePersonal || !mePersonal)
+                        return;
+
+                    if (npc_captain_warloard_first_aid_private* personalAI = CAST_AI(npc_captain_warloard_first_aid_private, mePersonal->AI()))
+                    {
+                        personalAI->ThrogGUID = throgPersonal->GetGUID();
+                        personalAI->JinhakeGUID = jinhakePersonal->GetGUID();
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+    }
+};
+
+CreatureAI* CaptainGarrickBeachAISelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+    {
+        if (Player* privateObjectOwner = ObjectAccessor::GetPlayer(*creature, creature->GetPrivateObjectOwner()))
+        {
+            if (privateObjectOwner->GetQuestStatus(QUEST_MURLOC_MANIA_ALLIANCE) == QUEST_STATUS_NONE)
+                return new npc_captain_warloard_beach_arrive_private(creature);
+            else
+                return new npc_captain_warloard_first_aid_private(creature);
+        }
+    }
+    return new npc_captain_garrick_beach(creature);
+};
+
+CreatureAI* WarlordGrimaxeBeachAISelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+    {
+        if (Player* privateObjectOwner = ObjectAccessor::GetPlayer(*creature, creature->GetPrivateObjectOwner()))
+        {
+            if (privateObjectOwner->GetQuestStatus(QUEST_MURLOC_MANIA_HORDE) == QUEST_STATUS_NONE)
+                return new npc_captain_warloard_beach_arrive_private(creature);
+            else
+                return new npc_captain_warloard_first_aid_private(creature);
+        }
+    }
+    return new npc_warlord_grimaxe_beach(creature);
+};
+
+enum HealedByLeaderBeach
+{
+    EVENT_SALUTE       = 1,
+    EVENT_LEAVE_BEACH,
+
+    NPC_COLE_BEACH     = 149917,
+    NPC_RICHTER_BEACH  = 156622,
+    NPC_THROG_BEACH    = 166784,
+    NPC_JINHAKE_BEACH  = 166800,
+
+    PATH_LONG_BEACH    = 10520070,
+    PATH_SHORT_BEACH   = 10520080
+};
+
+// This script is used by Private Cole, Richter, Grunt Throg, and Provisioner Jin'hake private spawns to leave beach for Emergency first aid quest
+struct npc_survivors_healed_by_leader_beach_private : public ScriptedAI
+{
+    npc_survivors_healed_by_leader_beach_private(Creature* creature) : ScriptedAI(creature), _path(0), _wait(0s) { }
+
+    void InitializeAI() override
+    {
+        me->SetStandState(UNIT_STAND_STATE_SLEEP);
+    }
+
+    void JustAppeared() override
+    {
+        if (me->GetEntry() == NPC_COLE_BEACH || me->GetEntry() == NPC_THROG_BEACH)
+        {
+            _path = PATH_LONG_BEACH;
+            _wait = 16s;
+        }
+        else if (me->GetEntry() == NPC_RICHTER_BEACH || me->GetEntry() == NPC_JINHAKE_BEACH)
+        {
+            _path = PATH_SHORT_BEACH;
+            _wait = 9s;
+        }
+    }
+
+    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id != SPELL_BANDAGING)
+            return;
+
+        _casterGUID = caster->GetGUID();
+        me->SetStandState(UNIT_STAND_STATE_STAND);
+        _events.ScheduleEvent(EVENT_SALUTE, 2s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_SALUTE:
+                    if (Creature* caster = ObjectAccessor::GetCreature(*me, _casterGUID))
+                        me->SetFacingToObject(caster);
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
+                    _events.ScheduleEvent(EVENT_LEAVE_BEACH, 2s);
+                    break;
+                case EVENT_LEAVE_BEACH:
+                    me->GetMotionMaster()->MovePath(_path, false);
+                    me->DespawnOrUnsummon(_wait);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+private:
+    EventMap _events;
+    ObjectGuid _casterGUID;
+    uint32 _path;
+    Seconds _wait;
+};
+
+CreatureAI* HealedByLeaderAISelector(Creature* creature)
+{
+    return creature->IsPrivateObject() ? new npc_survivors_healed_by_leader_beach_private(creature) : (CreatureAI*)new NullCreatureAI(creature);
+};
+
+enum AllianceSurvivorsBeach
+{
+    CONVERSATION_STOUTHANDS_BEACH         = 11685,
+    CONVERSATION_HUXWORTH_BEACH           = 12128,
+    CONVERSATION_KEE_LA_BEACH             = 12127,
+
+    EVENT_SURVIVORS_ALLIANCE_SALUTE       = 1,
+    EVENT_SURVIVORS_ALLIANCE_LEAVE_BEACH,
+
+    NPC_BJORN_STOUTHANDS_LAYING           = 156609,
+    NPC_AUSTIN_HUXWORTH_LAYING            = 156610,
+    NPC_KEE_LA_LAYING                     = 156612,
+    NPC_KEE_LA_STANDING                   = 151088,
+    NPC_BJORN_STOUTHANDS_STANDING         = 151089,
+    NPC_AUSTIN_HUXWORTH_STANDING          = 154170,
+
+    PATH_KEE_LA_STANDING = 90200060,
+    PATH_BJORN_STOUTHANDS_STANDING        = 10520130,
+    PATH_AUSTIN_HUXWORTH_STANDING         = 10520140,
+
+    SPELL_BANDAGING_QUEST                 = 297415
+};
+
+struct npc_alliance_survivors_beach_laying : public ScriptedAI
+{
+    npc_alliance_survivors_beach_laying(Creature* creature) : ScriptedAI(creature), _convo(0) { }
+
+    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id != SPELL_BANDAGING_QUEST)
+            return;
+
+        if (Player* player = caster->ToPlayer())
+        {
+            player->KilledMonsterCredit(me->GetEntry());
+            player->UpdateObjectVisibility();
+
+            switch (me->GetEntry())
+            {
+                case NPC_BJORN_STOUTHANDS_LAYING:
+                    _convo = CONVERSATION_STOUTHANDS_BEACH;
+                    break;
+                case NPC_AUSTIN_HUXWORTH_LAYING:
+                    _convo = CONVERSATION_HUXWORTH_BEACH;
+                    break;
+                case NPC_KEE_LA_LAYING:
+                    _convo = CONVERSATION_KEE_LA_BEACH;
+                    break;
+                default:
+                    break;
+            }
+
+            Conversation::CreateConversation(_convo, player, *player, player->GetGUID(), nullptr);
+        }
+    }
+private:
+    uint32 _convo;
+};
+
+class quest_emergency_first_aid : public QuestScript
+{
+public:
+    quest_emergency_first_aid() : QuestScript("quest_emergency_first_aid") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        if (newStatus == QUEST_STATUS_NONE)
+            player->UpdateObjectVisibility();
+    }
+};
+
 void AddSC_zone_exiles_reach()
 {
     // Ship
@@ -1059,11 +1477,16 @@ void AddSC_zone_exiles_reach()
     RegisterPrivatePublicCreatureAIPair("npc_crew_ship", npc_crew_ship_private, NullCreatureAI);
     RegisterPrivatePublicCreatureAIPair("npc_pet_ship", npc_pet_ship_private, NullCreatureAI);
     new quest_brace_for_impact();
-
     new player_exiles_reach_ship_crash();
     new scene_alliance_and_horde_ship();
-
     // Beach
     RegisterSpellScript(spell_knocked_down_exiles_reach_beach);
     new scene_alliance_and_horde_crash();
+    RegisterSpellScriptWithArgs(spell_crash_landed_generic<NPC_CAPTAIN_GARRICK_BEACH>, "spell_crash_landed_alliance");
+    RegisterSpellScriptWithArgs(spell_crash_landed_generic<NPC_WARLORD_BREKA_GRIMAXE_BEACH>, "spell_crash_landed_horde");
+    new FactoryCreatureScript<CreatureAI, &CaptainGarrickBeachAISelector>("npc_captain_garrick_beach");
+    new FactoryCreatureScript<CreatureAI, &WarlordGrimaxeBeachAISelector>("npc_warlord_grimaxe_beach");
+    new FactoryCreatureScript<CreatureAI, &HealedByLeaderAISelector>("npc_healed_by_leader_beach");
+    RegisterCreatureAI(npc_alliance_survivors_beach_laying);
+    new quest_emergency_first_aid();
 }
