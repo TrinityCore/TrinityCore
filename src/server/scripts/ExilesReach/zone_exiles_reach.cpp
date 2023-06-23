@@ -33,6 +33,7 @@
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "Transport.h"
+#include "Loot.h"
 
 template<class privateAI, class publicAI>
 CreatureAI* GetPrivatePublicPairAISelector(Creature* creature)
@@ -1577,6 +1578,43 @@ CreatureAI* HordeSurvivorsAISelector(Creature* creature)
     return new NullCreatureAI(creature);
 };
 
+enum Murlocs
+{
+    ITEM_STITCHED_CLOTH_SHOES           = 174791,
+    ITEM_STITCHED_LEATHER_BOOTS         = 174792,
+    ITEM_LINKED_MAIL_BOOTS              = 174793,
+    ITEM_DENTED_PLATE_BOOTS             = 174794,
+
+    QUEST_MURLOC_HIDEAWAY_BOOTS_DROPPED = 58883
+};
+
+// This script is used by Murloc Spearhunters and Watershapers
+struct npc_murloc_spearhunter_watershaper : public ScriptedAI
+{
+    npc_murloc_spearhunter_watershaper(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        for (auto const& [playerGuid, loot] : me->m_personalLoot)
+        {
+            for (LootItem const& lootItem : loot->items)
+            {
+                if (lootItem.itemid == ITEM_STITCHED_CLOTH_SHOES || lootItem.itemid == ITEM_STITCHED_LEATHER_BOOTS || lootItem.itemid == ITEM_LINKED_MAIL_BOOTS || lootItem.itemid == ITEM_DENTED_PLATE_BOOTS)
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, playerGuid))
+                        player->SetRewardedQuest(QUEST_MURLOC_HIDEAWAY_BOOTS_DROPPED);
+            }
+        }
+    }
+
+    void UpdateAI(uint32 /*diff*/) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+};
+
 class quest_emergency_first_aid : public QuestScript
 {
 public:
@@ -1622,5 +1660,6 @@ void AddSC_zone_exiles_reach()
     RegisterCreatureAI(npc_alliance_survivors_beach_laying);
     RegisterCreatureAI(npc_horde_survivors_beach_laying);
     new FactoryCreatureScript<CreatureAI, &HordeSurvivorsAISelector>("npc_horde_survivors_beach_standing");
+    RegisterCreatureAI(npc_murloc_spearhunter_watershaper);
     new quest_emergency_first_aid();
 }
