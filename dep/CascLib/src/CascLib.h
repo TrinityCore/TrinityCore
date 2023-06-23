@@ -75,6 +75,7 @@ extern "C" {
 //-----------------------------------------------------------------------------
 // Defines
 
+// Version information
 #define CASCLIB_VERSION                 0x0300  // CascLib version - integral (3.0)
 #define CASCLIB_VERSION_STRING           "3.0"  // CascLib version - string
 
@@ -110,11 +111,18 @@ extern "C" {
 #define CASC_LOCALE_PTPT            0x00010000
 
 // Content flags on WoW
+#define CASC_CFLAG_INSTALL                0x04
 #define CASC_CFLAG_LOAD_ON_WINDOWS        0x08
 #define CASC_CFLAG_LOAD_ON_MAC            0x10
+#define CASC_CFLAG_X86_32                 0x20
+#define CASC_CFLAG_X86_64                 0x40
 #define CASC_CFLAG_LOW_VIOLENCE           0x80
 #define CASC_CFLAG_DONT_LOAD             0x100
+#define CASC_CFLAG_UPDATE_PLUGIN         0x800
+#define CASC_CFLAG_ARM64                0x8000
+#define CASC_CFLAG_ENCRYPTED         0x8000000
 #define CASC_CFLAG_NO_NAME_HASH     0x10000000
+#define CASC_CFLAG_UNCMN_RESOLUTION 0x20000000      // Uncommon resolution
 #define CASC_CFLAG_BUNDLE           0x40000000
 #define CASC_CFLAG_NO_COMPRESSION   0x80000000
 
@@ -152,6 +160,9 @@ extern "C" {
 
 // Maximum length of encryption key
 #define CASC_KEY_LENGTH 0x10
+
+// Default format string for the file ID
+#define CASC_FILEID_FORMAT          "FILE%08X.dat"
 
 //-----------------------------------------------------------------------------
 // Structures
@@ -191,7 +202,7 @@ typedef enum _CASC_FILE_INFO_CLASS
 typedef enum _CASC_NAME_TYPE
 {
     CascNameFull,                               // Fully qualified file name
-    CascNameDataId,                             // Name created from file data id (FILE%08X.dat)
+    CascNameDataId,                             // Name created from file data id (CASC_FILEID_FORMAT)
     CascNameCKey,                               // Name created as string representation of CKey
     CascNameEKey                                // Name created as string representation of EKey
 } CASC_NAME_TYPE, *PCASC_NAME_TYPE;
@@ -363,6 +374,7 @@ bool   WINAPI CascCloseStorage(HANDLE hStorage);
 bool   WINAPI CascOpenFile(HANDLE hStorage, const void * pvFileName, DWORD dwLocaleFlags, DWORD dwOpenFlags, HANDLE * PtrFileHandle);
 bool   WINAPI CascOpenLocalFile(LPCTSTR szFileName, DWORD dwOpenFlags, HANDLE * PtrFileHandle);
 bool   WINAPI CascGetFileInfo(HANDLE hFile, CASC_FILE_INFO_CLASS InfoClass, void * pvFileInfo, size_t cbFileInfo, size_t * pcbLengthNeeded);
+bool   WINAPI CascSetFileFlags(HANDLE hFile, DWORD dwOpenFlags);
 bool   WINAPI CascGetFileSize64(HANDLE hFile, PULONGLONG PtrFileSize);
 bool   WINAPI CascSetFilePointer64(HANDLE hFile, LONGLONG DistanceToMove, PULONGLONG PtrNewPos, DWORD dwMoveMethod);
 bool   WINAPI CascReadFile(HANDLE hFile, void * lpBuffer, DWORD dwToRead, PDWORD pdwRead);

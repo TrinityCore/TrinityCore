@@ -104,7 +104,7 @@ class CASC_ARRAY
         // Make sure we have array large enough
         if(!EnlargeArray(ItemIndex + 1, true))
             return NULL;
-        
+
         // Get the items range
         pbLastItem = m_pItemArray + (m_ItemCount * m_ItemSize);
         pbNewItem = m_pItemArray + (ItemIndex * m_ItemSize);
@@ -170,7 +170,7 @@ class CASC_ARRAY
         m_ItemCountMax = m_ItemCount = m_ItemSize = 0;
     }
 
-#ifdef _DEBUG
+#ifdef CASCLIB_DEBUG
     size_t BytesAllocated()
     {
         return m_ItemCountMax * m_ItemSize;
