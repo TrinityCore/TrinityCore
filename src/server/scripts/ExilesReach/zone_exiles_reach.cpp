@@ -1572,12 +1572,7 @@ private:
 CreatureAI* HordeSurvivorsAISelector(Creature* creature)
 {
     if (creature->IsPrivateObject())
-    {
-        if (Player* privateObjectOwner = ObjectAccessor::GetPlayer(*creature, creature->GetPrivateObjectOwner()))
-        {
-             return new npc_Horde_survivors_beach_q59930_private(creature);
-        }
-    }
+        return new npc_Horde_survivors_beach_q59930_private(creature);
 
     return new NullCreatureAI(creature);
 };
