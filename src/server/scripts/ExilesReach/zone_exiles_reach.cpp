@@ -1590,7 +1590,10 @@ public:
     void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
     {
         if (newStatus == QUEST_STATUS_NONE)
+        {
+            RemovePersonalSpawns(player);
             player->UpdateObjectVisibility();
+        }
     }
 };
 
