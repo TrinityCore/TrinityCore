@@ -58,7 +58,6 @@ enum PriestSpells
     SPELL_PRIEST_DARK_REPRIMAND_HEALING             = 400187,
     SPELL_PRIEST_DAZZLING_LIGHT                     = 196810,
     SPELL_PRIEST_DIVINE_BLESSING                    = 40440,
-    SPELL_PRIEST_DIVINE_HYMN                        = 64843,
     SPELL_PRIEST_DIVINE_HYMN_HEAL                   = 64844,
     SPELL_PRIEST_DIVINE_IMAGE_SUMMON                = 392990,
     SPELL_PRIEST_DIVINE_IMAGE_EMPOWER               = 409387,
@@ -514,7 +513,7 @@ class spell_pri_divine_image_spell_triggered : public spell_pri_divine_image
             SPELL_PRIEST_CIRCLE_OF_HEALING,
             SPELL_PRIEST_HALO_HOLY,
             SPELL_PRIEST_DIVINE_STAR_HOLY_HEAL,
-            SPELL_PRIEST_DIVINE_HYMN,
+            SPELL_PRIEST_DIVINE_HYMN_HEAL,
             SPELL_PRIEST_HOLY_WORD_SANCTIFY,
             SPELL_PRIEST_HOLY_WORD_SALVATION,
             SPELL_PRIEST_SMITE,
@@ -583,7 +582,6 @@ class spell_pri_divine_image_spell_triggered : public spell_pri_divine_image
             case SPELL_PRIEST_CIRCLE_OF_HEALING:
             case SPELL_PRIEST_HALO_HOLY:
             case SPELL_PRIEST_DIVINE_STAR_HOLY_HEAL:
-            case SPELL_PRIEST_DIVINE_HYMN:
             case SPELL_PRIEST_DIVINE_HYMN_HEAL:
             case SPELL_PRIEST_HOLY_WORD_SANCTIFY:
             case SPELL_PRIEST_HOLY_WORD_SALVATION:
