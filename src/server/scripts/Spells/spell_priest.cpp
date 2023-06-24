@@ -96,6 +96,8 @@ enum PriestSpells
     SPELL_PRIEST_MASOCHISM_TALENT                   = 193063,
     SPELL_PRIEST_MASOCHISM_PERIODIC_HEAL            = 193065,
     SPELL_PRIEST_MASTERY_GRACE                      = 271534,
+    SPELL_PRIEST_MINDGAMES                          = 375901,
+    SPELL_PRIEST_MINDGAMES_VENTHYR                  = 323673,
     SPELL_PRIEST_MIND_BOMB_STUN                     = 226943,
     SPELL_PRIEST_ORACULAR_HEAL                      = 26170,
     SPELL_PRIEST_PENANCE                            = 47540,
@@ -120,6 +122,7 @@ enum PriestSpells
     SPELL_PRIEST_SAY_YOUR_PRAYERS                   = 391186,
     SPELL_PRIEST_SEARING_LIGHT                      = 196811,
     SPELL_PRIEST_SHADOW_MEND_DAMAGE                 = 186439,
+    SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32379,
     SPELL_PRIEST_SHADOW_MEND_PERIODIC_DUMMY         = 187464,
     SPELL_PRIEST_SHADOW_WORD_PAIN                   = 589,
     SPELL_PRIEST_SHIELD_DISCIPLINE_ENERGIZE         = 47755,
@@ -516,6 +519,10 @@ class spell_pri_divine_image_spell_triggered : public spell_pri_divine_image
             SPELL_PRIEST_HOLY_WORD_SALVATION,
             SPELL_PRIEST_SMITE,
             SPELL_PRIEST_HOLY_FIRE,
+            SPELL_PRIEST_SHADOW_WORD_DEATH,
+            SPELL_PRIEST_SHADOW_WORD_PAIN,
+            SPELL_PRIEST_MINDGAMES,
+            SPELL_PRIEST_MINDGAMES_VENTHYR,
             SPELL_PRIEST_HOLY_WORD_CHASTISE,
             SPELL_PRIEST_HOLY_NOVA,
             SPELL_PRIEST_TRANQUIL_LIGHT,
@@ -581,15 +588,20 @@ class spell_pri_divine_image_spell_triggered : public spell_pri_divine_image
             case SPELL_PRIEST_HOLY_WORD_SANCTIFY:
             case SPELL_PRIEST_HOLY_WORD_SALVATION:
                 return SPELL_PRIEST_DAZZLING_LIGHT;
+            case SPELL_PRIEST_SHADOW_WORD_PAIN:
             case SPELL_PRIEST_SMITE:
             case SPELL_PRIEST_HOLY_FIRE:
+            case SPELL_PRIEST_SHADOW_WORD_DEATH:
             case SPELL_PRIEST_HOLY_WORD_CHASTISE:
+            case SPELL_PRIEST_MINDGAMES:
+            case SPELL_PRIEST_MINDGAMES_VENTHYR:
                 return SPELL_PRIEST_SEARING_LIGHT;
             case SPELL_PRIEST_HOLY_NOVA:
                 return SPELL_PRIEST_LIGHT_ERUPTION;
             default:
                 break;
         }
+
         return 0;
     }
 
