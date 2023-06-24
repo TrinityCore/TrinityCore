@@ -5,7 +5,7 @@ SET @POOL := 202482; -- Set by TDB team (1)
 
 DELETE FROM `gameobject` WHERE `id`=202083 AND `guid` BETWEEN @GUID+0 AND @GUID+3;
 INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES
--- https://github.com/TrinityCore/TrinityCore/commit/205cb06df9c3535e186b2e7fae10c72ab5de9e3c
+-- https://github.com/KitronCore/KitronCore/commit/205cb06df9c3535e186b2e7fae10c72ab5de9e3c
 (@GUID+0,202083,0,1,1,-2944.48,-3277.68,62.27,3.32798,0,0,0.995661,-0.093059,18000,100,1),
 -- https://www.youtube.com/watch?v=c1Dz_-ycIuU#t=124s
 (@GUID+1,202083,0,1,1,-3000.93,-3329.01,64.9771,4.10851,0,0,0.885393,-0.464843,18000,100,1),

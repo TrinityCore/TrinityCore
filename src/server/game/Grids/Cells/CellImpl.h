@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_CELLIMPL_H
-#define TRINITY_CELLIMPL_H
+#ifndef Kitron_CELLIMPL_H
+#define Kitron_CELLIMPL_H
 
 #include <cmath>
 
@@ -36,7 +36,7 @@ inline Cell::Cell(CellCoord const& p)
 
 inline Cell::Cell(float x, float y)
 {
-    CellCoord p = Trinity::ComputeCellCoord(x, y);
+    CellCoord p = Kitron::ComputeCellCoord(x, y);
     data.Part.grid_x = p.x_coord / MAX_NUMBER_OF_CELLS;
     data.Part.grid_y = p.y_coord / MAX_NUMBER_OF_CELLS;
     data.Part.cell_x = p.x_coord % MAX_NUMBER_OF_CELLS;
@@ -49,12 +49,12 @@ inline CellArea Cell::CalculateCellArea(float x, float y, float radius)
 {
     if (radius <= 0.0f)
     {
-        CellCoord center = Trinity::ComputeCellCoord(x, y).normalize();
+        CellCoord center = Kitron::ComputeCellCoord(x, y).normalize();
         return CellArea(center, center);
     }
 
-    CellCoord centerX = Trinity::ComputeCellCoord(x - radius, y - radius).normalize();
-    CellCoord centerY = Trinity::ComputeCellCoord(x + radius, y + radius).normalize();
+    CellCoord centerX = Kitron::ComputeCellCoord(x - radius, y - radius).normalize();
+    CellCoord centerY = Kitron::ComputeCellCoord(x + radius, y + radius).normalize();
 
     return CellArea(centerX, centerY);
 }
@@ -180,7 +180,7 @@ inline void Cell::VisitCircle(TypeContainerVisitor<T, CONTAINER>& visitor, Map& 
 template<class T>
 inline void Cell::VisitGridObjects(WorldObject const* center_obj, T& visitor, float radius, bool dont_load /*= true*/)
 {
-    CellCoord p(Trinity::ComputeCellCoord(center_obj->GetPositionX(), center_obj->GetPositionY()));
+    CellCoord p(Kitron::ComputeCellCoord(center_obj->GetPositionX(), center_obj->GetPositionY()));
     Cell cell(p);
     if (dont_load)
         cell.SetNoCreate();
@@ -192,7 +192,7 @@ inline void Cell::VisitGridObjects(WorldObject const* center_obj, T& visitor, fl
 template<class T>
 inline void Cell::VisitWorldObjects(WorldObject const* center_obj, T& visitor, float radius, bool dont_load /*= true*/)
 {
-    CellCoord p(Trinity::ComputeCellCoord(center_obj->GetPositionX(), center_obj->GetPositionY()));
+    CellCoord p(Kitron::ComputeCellCoord(center_obj->GetPositionX(), center_obj->GetPositionY()));
     Cell cell(p);
     if (dont_load)
         cell.SetNoCreate();
@@ -204,7 +204,7 @@ inline void Cell::VisitWorldObjects(WorldObject const* center_obj, T& visitor, f
 template<class T>
 inline void Cell::VisitAllObjects(WorldObject const* center_obj, T& visitor, float radius, bool dont_load /*= true*/)
 {
-    CellCoord p(Trinity::ComputeCellCoord(center_obj->GetPositionX(), center_obj->GetPositionY()));
+    CellCoord p(Kitron::ComputeCellCoord(center_obj->GetPositionX(), center_obj->GetPositionY()));
     Cell cell(p);
     if (dont_load)
         cell.SetNoCreate();
@@ -218,7 +218,7 @@ inline void Cell::VisitAllObjects(WorldObject const* center_obj, T& visitor, flo
 template<class T>
 inline void Cell::VisitGridObjects(float x, float y, Map* map, T& visitor, float radius, bool dont_load /*= true*/)
 {
-    CellCoord p(Trinity::ComputeCellCoord(x, y));
+    CellCoord p(Kitron::ComputeCellCoord(x, y));
     Cell cell(p);
     if (dont_load)
         cell.SetNoCreate();
@@ -230,7 +230,7 @@ inline void Cell::VisitGridObjects(float x, float y, Map* map, T& visitor, float
 template<class T>
 inline void Cell::VisitWorldObjects(float x, float y, Map* map, T& visitor, float radius, bool dont_load /*= true*/)
 {
-    CellCoord p(Trinity::ComputeCellCoord(x, y));
+    CellCoord p(Kitron::ComputeCellCoord(x, y));
     Cell cell(p);
     if (dont_load)
         cell.SetNoCreate();
@@ -242,7 +242,7 @@ inline void Cell::VisitWorldObjects(float x, float y, Map* map, T& visitor, floa
 template<class T>
 inline void Cell::VisitAllObjects(float x, float y, Map* map, T& visitor, float radius, bool dont_load /*= true*/)
 {
-    CellCoord p(Trinity::ComputeCellCoord(x, y));
+    CellCoord p(Kitron::ComputeCellCoord(x, y));
     Cell cell(p);
     if (dont_load)
         cell.SetNoCreate();

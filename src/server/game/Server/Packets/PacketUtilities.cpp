@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -47,7 +47,7 @@ bool WorldPackets::Strings::Utf8::Validate(std::string const& value)
 
 bool WorldPackets::Strings::Hyperlinks::Validate(std::string const& value)
 {
-    if (!Trinity::Hyperlinks::CheckAllLinks(value))
+    if (!Kitron::Hyperlinks::CheckAllLinks(value))
         throw InvalidHyperlinkException(value);
     return true;
 }

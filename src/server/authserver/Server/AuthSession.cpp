@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -75,9 +75,9 @@ static_assert(sizeof(sAuthLogonChallenge_C) == (1 + 1 + 2 + 4 + 1 + 1 + 1 + 2 + 
 typedef struct AUTH_LOGON_PROOF_C
 {
     uint8   cmd;
-    Trinity::Crypto::SRP6::EphemeralKey A;
-    Trinity::Crypto::SHA1::Digest clientM;
-    Trinity::Crypto::SHA1::Digest crc_hash;
+    Kitron::Crypto::SRP6::EphemeralKey A;
+    Kitron::Crypto::SHA1::Digest clientM;
+    Kitron::Crypto::SHA1::Digest crc_hash;
     uint8   number_of_keys;
     uint8   securityFlags;
 } sAuthLogonProof_C;
@@ -87,7 +87,7 @@ typedef struct AUTH_LOGON_PROOF_S
 {
     uint8   cmd;
     uint8   error;
-    Trinity::Crypto::SHA1::Digest M2;
+    Kitron::Crypto::SHA1::Digest M2;
     uint32  AccountFlags;
     uint32  SurveyId;
     uint16  LoginFlags;
@@ -98,7 +98,7 @@ typedef struct AUTH_LOGON_PROOF_S_OLD
 {
     uint8   cmd;
     uint8   error;
-    Trinity::Crypto::SHA1::Digest M2;
+    Kitron::Crypto::SHA1::Digest M2;
     uint32  unk2;
 } sAuthLogonProof_S_Old;
 static_assert(sizeof(sAuthLogonProof_S_Old) == (1 + 1 + 20 + 4));
@@ -107,7 +107,7 @@ typedef struct AUTH_RECONNECT_PROOF_C
 {
     uint8   cmd;
     uint8   R1[16];
-    Trinity::Crypto::SHA1::Digest R2, R3;
+    Kitron::Crypto::SHA1::Digest R2, R3;
     uint8   number_of_keys;
 } sAuthReconnectProof_C;
 static_assert(sizeof(sAuthReconnectProof_C) == (1 + 16 + 20 + 20 + 1));
@@ -386,7 +386,7 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
         _totpSecret = fields[9].GetBinary();
         if (auto const& secret = sSecretMgr->GetSecret(SECRET_TOTP_MASTER_KEY))
         {
-            bool success = Trinity::Crypto::AEDecrypt<Trinity::Crypto::AES>(*_totpSecret, *secret);
+            bool success = Kitron::Crypto::AEDecrypt<Kitron::Crypto::AES>(*_totpSecret, *secret);
             if (!success)
             {
                 pkt << uint8(WOW_FAIL_DB_BUSY);
@@ -399,8 +399,8 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
 
     _srp6.emplace(
         _accountInfo.Login,
-        fields[10].GetBinary<Trinity::Crypto::SRP6::SALT_LENGTH>(),
-        fields[11].GetBinary<Trinity::Crypto::SRP6::VERIFIER_LENGTH>()
+        fields[10].GetBinary<Kitron::Crypto::SRP6::SALT_LENGTH>(),
+        fields[11].GetBinary<Kitron::Crypto::SRP6::VERIFIER_LENGTH>()
     );
 
     // Fill the response packet with the result
@@ -477,7 +477,7 @@ bool AuthSession::HandleLogonProof()
             GetReadBuffer().ReadCompleted(sizeof(size) + size);
 
             uint32 incomingToken = atoi(token.c_str());
-            tokenSuccess = Trinity::Crypto::TOTP::ValidateToken(*_totpSecret, incomingToken);
+            tokenSuccess = Kitron::Crypto::TOTP::ValidateToken(*_totpSecret, incomingToken);
             memset(_totpSecret->data(), 0, _totpSecret->size());
         }
         else if (!sentToken && !_totpSecret)
@@ -517,7 +517,7 @@ bool AuthSession::HandleLogonProof()
         LoginDatabase.DirectExecute(stmt);
 
         // Finish SRP6 and send the final result to the client
-        Trinity::Crypto::SHA1::Digest M2 = Trinity::Crypto::SRP6::GetSessionVerifier(logonProof->A, logonProof->clientM, _sessionKey);
+        Kitron::Crypto::SHA1::Digest M2 = Kitron::Crypto::SRP6::GetSessionVerifier(logonProof->A, logonProof->clientM, _sessionKey);
 
         ByteBuffer packet;
         if (_expversion & POST_BC_EXP_FLAG)                 // 2.x and 3.x clients
@@ -660,7 +660,7 @@ void AuthSession::ReconnectChallengeCallback(PreparedQueryResult result)
 
     _accountInfo.LoadResult(fields);
     _sessionKey = fields[9].GetBinary<SESSION_KEY_LENGTH>();
-    Trinity::Crypto::GetRandomBytes(_reconnectProof);
+    Kitron::Crypto::GetRandomBytes(_reconnectProof);
     _status = STATUS_RECONNECT_PROOF;
 
     pkt << uint8(WOW_SUCCESS);
@@ -680,7 +680,7 @@ bool AuthSession::HandleReconnectProof()
     if (_accountInfo.Login.empty())
         return false;
 
-    Trinity::Crypto::SHA1 sha;
+    Kitron::Crypto::SHA1 sha;
     sha.UpdateData(_accountInfo.Login);
     sha.UpdateData(reconnectProof->R1, 16);
     sha.UpdateData(_reconnectProof);
@@ -827,13 +827,13 @@ void AuthSession::RealmListCallback(PreparedQueryResult result)
     _status = STATUS_AUTHED;
 }
 
-bool AuthSession::VerifyVersion(uint8 const* a, int32 aLength, Trinity::Crypto::SHA1::Digest const& versionProof, bool isReconnect)
+bool AuthSession::VerifyVersion(uint8 const* a, int32 aLength, Kitron::Crypto::SHA1::Digest const& versionProof, bool isReconnect)
 {
     if (!sConfigMgr->GetBoolDefault("StrictVersionCheck", false))
         return true;
 
-    Trinity::Crypto::SHA1::Digest zeros = { };
-    Trinity::Crypto::SHA1::Digest const* versionHash = nullptr;
+    Kitron::Crypto::SHA1::Digest zeros = { };
+    Kitron::Crypto::SHA1::Digest const* versionHash = nullptr;
     if (!isReconnect)
     {
         RealmBuildInfo const* buildInfo = sRealmList->GetBuildInfo(_build);
@@ -854,7 +854,7 @@ bool AuthSession::VerifyVersion(uint8 const* a, int32 aLength, Trinity::Crypto::
     else
         versionHash = &zeros;
 
-    Trinity::Crypto::SHA1 version;
+    Kitron::Crypto::SHA1 version;
     version.UpdateData(a, aLength);
     version.UpdateData(*versionHash);
     version.Finalize();

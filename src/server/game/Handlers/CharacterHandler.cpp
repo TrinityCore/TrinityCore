@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -2070,14 +2070,14 @@ void WorldSession::HandleCharFactionOrRaceChangeCallback(std::shared_ptr<Charact
             // Title conversion
             if (!knownTitlesStr.empty())
             {
-                std::vector<std::string_view> tokens = Trinity::Tokenize(knownTitlesStr, ' ', false);
+                std::vector<std::string_view> tokens = Kitron::Tokenize(knownTitlesStr, ' ', false);
                 std::array<uint32, KNOWN_TITLES_SIZE * 2> knownTitles;
 
                 for (uint32 index = 0; index < knownTitles.size(); ++index)
                 {
                     Optional<uint32> thisMask;
                     if (index < tokens.size())
-                        thisMask = Trinity::StringTo<uint32>(tokens[index]);
+                        thisMask = Kitron::StringTo<uint32>(tokens[index]);
 
                     if (thisMask)
                         knownTitles[index] = *thisMask;

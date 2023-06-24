@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -34,8 +34,8 @@ class TC_COMMON_API AuthCrypt
         bool IsInitialized() const { return _initialized; }
 
     private:
-        Trinity::Crypto::ARC4 _clientDecrypt;
-        Trinity::Crypto::ARC4 _serverEncrypt;
+        Kitron::Crypto::ARC4 _clientDecrypt;
+        Kitron::Crypto::ARC4 _serverEncrypt;
         bool _initialized;
 };
 #endif

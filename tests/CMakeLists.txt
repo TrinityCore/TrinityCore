@@ -1,4 +1,4 @@
-# This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+# This file is part of the KitronCore Project. See AUTHORS file for Copyright information
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -19,7 +19,7 @@ add_executable(tests ${TEST_SOURCES})
 
 target_link_libraries(tests
   PRIVATE
-    trinity-core-interface
+    Kitron-core-interface
     game
     Catch2::Catch2)
 

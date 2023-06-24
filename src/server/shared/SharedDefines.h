@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_SHAREDDEFINES_H
-#define TRINITY_SHAREDDEFINES_H
+#ifndef Kitron_SHAREDDEFINES_H
+#define Kitron_SHAREDDEFINES_H
 
 #include "DBCEnums.h"
 #include "Define.h"
@@ -3869,7 +3869,7 @@ enum WorldState : uint32
     WS_DAILY_CALENDAR_DELETION_OLD_EVENTS_TIME = 20009,      // Next daily calendar deletions of old events time
 };
 
-namespace Trinity
+namespace Kitron
 {
 namespace Impl
 {
@@ -3880,7 +3880,7 @@ namespace Impl
     };
 }
 }
-#define THIS_SERVER_PROCESS (Trinity::Impl::CurrentServerProcessHolder::type())
+#define THIS_SERVER_PROCESS (Kitron::Impl::CurrentServerProcessHolder::type())
 
 #define MAX_CREATURE_SPELL_DATA_SLOT 4
 

@@ -1628,8 +1628,8 @@
         "allValue": null,
         "current": {
           "selected": true,
-          "text": "Trinity",
-          "value": "Trinity"
+          "text": "Kitron",
+          "value": "Kitron"
         },
         "datasource": "Influx",
         "definition": "show tag values from events with key = realm",

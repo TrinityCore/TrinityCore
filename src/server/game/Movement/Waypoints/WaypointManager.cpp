@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -47,8 +47,8 @@ void WaypointMgr::Load()
         if (!fields[5].IsNull())
             o = fields[5].GetFloat();
 
-        Trinity::NormalizeMapCoord(x);
-        Trinity::NormalizeMapCoord(y);
+        Kitron::NormalizeMapCoord(x);
+        Kitron::NormalizeMapCoord(y);
 
         WaypointNode waypoint;
         waypoint.id = fields[1].GetUInt32();
@@ -106,8 +106,8 @@ void WaypointMgr::ReloadPath(uint32 id)
         if (!fields[4].IsNull())
             o = fields[4].GetFloat();
 
-        Trinity::NormalizeMapCoord(x);
-        Trinity::NormalizeMapCoord(y);
+        Kitron::NormalizeMapCoord(x);
+        Kitron::NormalizeMapCoord(y);
 
         WaypointNode waypoint;
         waypoint.id = fields[0].GetUInt32();

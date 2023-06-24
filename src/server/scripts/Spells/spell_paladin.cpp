@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -663,7 +663,7 @@ class spell_pal_glyph_of_holy_light : public SpellScript
         targets.remove(GetCaster());
         if (targets.size() > maxTargets)
         {
-            targets.sort(Trinity::HealthPctOrderPred());
+            targets.sort(Kitron::HealthPctOrderPred());
             targets.resize(maxTargets);
         }
     }
@@ -1493,7 +1493,7 @@ class spell_pal_righteous_defense : public SpellScript
             auto const& attackers = target->getAttackers();
 
             std::vector<Unit*> list(attackers.cbegin(), attackers.cend());
-            Trinity::Containers::RandomResize(list, 3);
+            Kitron::Containers::RandomResize(list, 3);
 
             for (Unit* attacker : list)
                 GetCaster()->CastSpell(attacker, SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT, TRIGGERED_FULL_MASK);

@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1443,7 +1443,7 @@ class spell_borean_tundra_nerubar_web_random_unit_not_on_quest_dummy : public Sp
         // Do nothing if has 3 soldiers
         Aura* aura = caster->GetAura(SPELL_FREED_SOLDIER_DEBUFF);
         if (!aura || aura->GetStackAmount() < 3)
-            caster->CastSpell(caster, Trinity::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
+            caster->CastSpell(caster, Kitron::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
     }
 
     void Register() override
@@ -1469,7 +1469,7 @@ class spell_borean_tundra_nerubar_web_random_unit_on_quest_dummy : public SpellS
         // Always summon peon if has 3 soldiers
         Aura* aura = caster->GetAura(SPELL_FREED_SOLDIER_DEBUFF);
         if ((!aura || aura->GetStackAmount() < 3) && roll_chance_i(75))
-            caster->CastSpell(caster, Trinity::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
+            caster->CastSpell(caster, Kitron::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
         else
             caster->CastSpell(nullptr, SPELL_FREED_WARSONG_PEON, true);
     }

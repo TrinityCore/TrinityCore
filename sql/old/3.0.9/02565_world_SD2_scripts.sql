@@ -338,6 +338,6 @@ INSERT INTO script_waypoint VALUES
 -- Henry Stern
 UPDATE `creature_template` SET `ScriptName`='npc_henry_stern' WHERE `entry`=8696;
 
-DELETE FROM `trinity_string` WHERE `entry` IN (59);
-INSERT INTO `trinity_string` VALUES
+DELETE FROM `Kitron_string` WHERE `entry` IN (59);
+INSERT INTO `Kitron_string` VALUES
 (59,'Using creature EventAI: %s',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);

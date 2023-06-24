@@ -1,4 +1,4 @@
-# This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+# This file is part of the KitronCore Project. See AUTHORS file for Copyright information
 # Copyright 2019 Josua Mayer <josua.mayer97@gmail.com>
 #
 # This file is free software; as a special exception the author gives
@@ -76,8 +76,8 @@ endif ()
 
 set_target_properties(sfmt PROPERTIES LINKER_LANGUAGE CXX)
 
-# inherit trinitycore generic build options (e.g. fPIC)
-target_link_libraries(sfmt PRIVATE trinity-dependency-interface)
+# inherit Kitroncore generic build options (e.g. fPIC)
+target_link_libraries(sfmt PRIVATE Kitron-dependency-interface)
 
 set_target_properties(sfmt
     PROPERTIES

@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -255,5 +255,5 @@ void LoadM2Cameras(std::string const& dataPath)
 
 std::vector<FlyByCamera> const* GetFlyByCameras(uint32 cinematicCameraId)
 {
-    return Trinity::Containers::MapGetValuePtr(sFlyByCameraStore, cinematicCameraId);
+    return Kitron::Containers::MapGetValuePtr(sFlyByCameraStore, cinematicCameraId);
 }

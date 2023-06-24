@@ -22,7 +22,7 @@ UPDATE `creature_loot_template` SET `ChanceOrQuestChance`=6 WHERE (`entry`=7463 
 DELETE FROM `gameobject` WHERE (`guid`=45065); -- Remove duplicate of GUID=4596
 DELETE FROM `gossip_menu_option` WHERE `menu_id` IN (6668,6669,6670) AND `id`=0;
 INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`box_coded`,`box_money`,`box_text`) VALUES
--- source: https://github.com/TrinityCore/TrinityCore/issues/6653#issuecomment-6956847 ( thanks frostmourne ) + http://thottbot.com/item=21107#comments:id=885246 + http://thottbot.com/item=21106#comments:id=1159575
+-- source: https://github.com/KitronCore/KitronCore/issues/6653#issuecomment-6956847 ( thanks frostmourne ) + http://thottbot.com/item=21107#comments:id=885246 + http://thottbot.com/item=21106#comments:id=1159575
 (6668,0,0,'<Take this book for the good of Azeroth!>',1,1,0,0,0,0,NULL),
 (6669,0,0,'<Take this book for the good of Azeroth!>',1,1,0,0,0,0,NULL),
 (6670,0,0,'<Take this book for the good of Azeroth!>',1,1,0,0,0,0,NULL);

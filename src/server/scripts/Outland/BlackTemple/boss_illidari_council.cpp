@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -129,7 +129,7 @@ static uint32 GetRandomBossExcept(uint32 exception)
         if (data != exception)
             bossData.emplace_back(data);
 
-    return Trinity::Containers::SelectRandomContainerElement(bossData);
+    return Kitron::Containers::SelectRandomContainerElement(bossData);
 }
 
 struct boss_illidari_council : public BossAI
@@ -321,13 +321,13 @@ struct boss_gathios_the_shatterer : public IllidariCouncilBossAI
             case EVENT_BLESS:
             {
                 std::list<Unit*> TargetList;
-                Trinity::AnyFriendlyUnitInObjectRangeCheck checker(me, me, 100.0f);
-                Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(me, TargetList, checker);
+                Kitron::AnyFriendlyUnitInObjectRangeCheck checker(me, me, 100.0f);
+                Kitron::UnitListSearcher<Kitron::AnyFriendlyUnitInObjectRangeCheck> searcher(me, TargetList, checker);
                 Cell::VisitAllObjects(me, searcher, 100.0f);
 
                 if (!TargetList.empty())
                 {
-                    Unit* target = Trinity::Containers::SelectRandomContainerElement(TargetList);
+                    Unit* target = Kitron::Containers::SelectRandomContainerElement(TargetList);
                     DoCast(target, RAND(SPELL_BLESS_PROTECTION, SPELL_BLESS_SPELL_WARDING));
                 }
                 events.Repeat(Seconds(30), Seconds(45));

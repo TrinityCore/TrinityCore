@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -217,14 +217,14 @@ struct boss_festergut : public BossAI
                         if (melee.empty())
                             break;
 
-                        Unit* target = Trinity::Containers::SelectRandomContainerElement(melee);
+                        Unit* target = Kitron::Containers::SelectRandomContainerElement(melee);
                         ranged.push_back(target);
                         melee.remove(target);
                     }
 
                     if (!ranged.empty())
                     {
-                        Trinity::Containers::RandomResize(ranged, RAID_MODE<uint32>(1, 3, 1, 3));
+                        Kitron::Containers::RandomResize(ranged, RAID_MODE<uint32>(1, 3, 1, 3));
                         for (std::list<Unit*>::iterator itr = ranged.begin(); itr != ranged.end(); ++itr)
                             DoCast(*itr, SPELL_VILE_GAS);
                     }

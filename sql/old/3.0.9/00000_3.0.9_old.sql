@@ -152,8 +152,8 @@ INSERT INTO `command` VALUES
 ('learn',3,'Syntax: .learn #spell [all]\r\n\r\nSelected character learn a spell of id #spell. If \'all\' provided then all ranks learned.'),
 ('unlearn',3,'Syntax: .unlearn #spell [all]\r\n\r\nUnlearn for selected player a spell #spell.  If \'all\' provided then all ranks unlearned.');
 
--- 1094_mangos_7193_01_world_trinity_string
-UPDATE trinity_string SET content_default = 'Unit Flags: %u.\nDynamic Flags: %u.\nFaction Template: %u.' WHERE entry = 542;
+-- 1094_mangos_7193_01_world_Kitron_string
+UPDATE Kitron_string SET content_default = 'Unit Flags: %u.\nDynamic Flags: %u.\nFaction Template: %u.' WHERE entry = 542;
 
 -- 1108_mangos_7196_02_world_spell_bonus_data
 -- ----------------------------
@@ -420,9 +420,9 @@ INSERT INTO `command` VALUES
 ('npc phase',3,'Syntax: .npc phase #phasemask\r\n\r\nSelected unit or pet phasemask changed to #phasemask with related world vision update for players. In creature case state saved to DB and persistent. In pet case change active until in game phase changed for owner, owner re-login, or GM-mode enable/disable..'),
 ('gobject phase',3,'Syntax: .gobject phase #guid #phasemask\r\n\r\nGameobject with DB guid #guid phasemask changed to #phasemask with related world vision update for players. Gameobject state saved to DB and persistent.');
 
--- 1185_mangos_7214_02_world_trinity_string
-DELETE FROM `trinity_string` WHERE entry = 101;
-INSERT INTO `trinity_string` VALUES
+-- 1185_mangos_7214_02_world_Kitron_string
+DELETE FROM `Kitron_string` WHERE entry = 101;
+INSERT INTO `Kitron_string` VALUES
 (101,'Map: %u (%s) Zone: %u (%s) Area: %u (%s) Phase: %u\nX: %f Y: %f Z: %f Orientation: %f\ngrid[%u,%u]cell[%u,%u] InstanceID: %u\n ZoneX: %f ZoneY: %f\nGroundZ: %f FloorZ: %f Have height data (Map: %u VMap: %u)',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 
 -- 1185_mangos_7214_03_world_spell_proc_event
@@ -1329,9 +1329,9 @@ INSERT INTO `command` VALUES
 ('debug arena',3,'Syntax: .debug arena\r\n\r\nToggle debug mode for arenas. In debug mode GM can start arena with single player.'),
 ('debug bg',3,'Syntax: .debug bg\r\n\r\nToggle debug mode for battlegrounds. In debug mode GM can start battleground with single player.');
 
--- 1296_mangos_7252_02_world_trinity_string
-DELETE FROM `trinity_string` WHERE entry IN (737,738,739,740,741,742,743,744,745,746);
-INSERT INTO `trinity_string` VALUES
+-- 1296_mangos_7252_02_world_Kitron_string
+DELETE FROM `Kitron_string` WHERE entry IN (737,738,739,740,741,742,743,744,745,746);
+INSERT INTO `Kitron_string` VALUES
 (737,'Arenas are set to 1v1 for debugging. So, don\'t join as group.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (738,'Arenas are set to normal playercount.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (739,'Battlegrounds are set to 1v0 for debugging.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
@@ -1364,8 +1364,8 @@ ALTER TABLE `creature_template` ADD COLUMN `spell7` mediumint(8) unsigned NOT NU
 ALTER TABLE `creature_template` ADD COLUMN `spell8` mediumint(8) unsigned NOT NULL default '0' AFTER `spell7`;
 
 -- 1351_world
-DROP TABLE IF EXISTS `trinity_string`;
-CREATE TABLE IF NOT EXISTS `trinity_string` (
+DROP TABLE IF EXISTS `Kitron_string`;
+CREATE TABLE IF NOT EXISTS `Kitron_string` (
   `entry` mediumint(8) unsigned NOT NULL default '0',
   `content_default` text NOT NULL,
   `content_loc1` text,
@@ -1383,7 +1383,7 @@ CREATE TABLE IF NOT EXISTS `trinity_string` (
 -- Dumping data for table `mangos_string`
 --
 
-INSERT INTO `trinity_string` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`) VALUES
+INSERT INTO `Kitron_string` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`) VALUES
 (1, 'You should select a character or a creature.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (2, 'You should select a creature.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (3, '|cffff0000[System Message]: %s|r', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
@@ -1516,7 +1516,7 @@ INSERT INTO `trinity_string` (`entry`, `content_default`, `content_loc1`, `conte
 (173, 'You changed runic power of %s to %i/%i.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (174, '%s changed your runic power to %i/%i.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
-INSERT INTO `trinity_string` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`) VALUES
+INSERT INTO `Kitron_string` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`) VALUES
 (200, 'No selection.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (201, 'Object GUID is: lowpart %u highpart %X', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (202, 'The name was too long by %i characters.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
@@ -1763,7 +1763,7 @@ INSERT INTO `trinity_string` (`entry`, `content_default`, `content_loc1`, `conte
 (498, 'You need to provide a guild name!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (499, 'Player not found!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
-INSERT INTO `trinity_string` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`) VALUES
+INSERT INTO `Kitron_string` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`) VALUES
 (500, 'Player already has a guild!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (501, 'Guild not created! (already exists?)', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (502, 'No items from itemset ''%u'' found.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
@@ -1933,7 +1933,7 @@ INSERT INTO `trinity_string` (`entry`, `content_default`, `content_loc1`, `conte
 (709, 'Do not Disturb', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (710, 'Away from Keyboard', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
-INSERT INTO `trinity_string` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`) VALUES
+INSERT INTO `Kitron_string` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`) VALUES
 (711, 'Queue status for %s (Lvl: %u to %u)\nQueued alliances: %u (Need at least %u more)\nQueued hordes: %u (Need at least %u more)', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (712, '|cffff0000[BG Queue Announcer]:|r %s -- [%u-%u] A: %u/%u, H: %u/%u|r', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (713, 'You must be level %u to join an arena team!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
@@ -2051,7 +2051,7 @@ INSERT INTO `trinity_string` (`entry`, `content_default`, `content_loc1`, `conte
 (1231,'The Frostwolf General is Dead!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (1232,'The Stormpike General is Dead!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 
-INSERT INTO `trinity_string` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`) VALUES
+INSERT INTO `Kitron_string` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`) VALUES
 (2000, '|cff00ff00New ticket from|r|cffff00ff %s.|r |cff00ff00Ticket entry:|r|cffff00ff %d.|r', '', '', '', '', '', '', '', ''),
 (2001, '|cff00ff00Character|r|cffff00ff %s |r|cff00ff00edited his/her ticket:|r|cffff00ff %d.|r', '', '', '', '', '', '', '', ''),
 (2002, '|cff00ff00Character|r|cffff00ff %s |r|cff00ff00abandoned ticket entry:|r|cffff00ff %d.|r', '', '', '', '', '', '', '', ''),
@@ -2339,9 +2339,9 @@ UPDATE `creature_template` SET `ScriptName`='' WHERE `entry` IN (15273,15274,152
 UPDATE `creature_template` SET `ScriptName`='mob_broggok_poisoncloud' WHERE `entry`=17662;
 -- UPDATE `creature_template` SET `ScriptName`='npc_draenei_survivor' WHERE `entry`=16483;
 
--- 1495_mangos_7312_01_world_trinity_string
-DELETE FROM `trinity_string` WHERE entry = 810;
-INSERT INTO `trinity_string` VALUES
+-- 1495_mangos_7312_01_world_Kitron_string
+DELETE FROM `Kitron_string` WHERE entry = 810;
+INSERT INTO `Kitron_string` VALUES
 (810,'|Hplayer:$N|h[$N]|h has earned the achievement $a!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 
 -- 1525_world_scripts
@@ -2474,8 +2474,8 @@ ALTER TABLE quest_template
 INSERT INTO `spell_proc_event` VALUES (17619, 0x00, 13, 0x00000000, 0x00000000, 0x00000000, 0x00008000, 0x00000000, 0.000000, 0.000000, 0);
 
 -- 1657_world
-DELETE FROM `trinity_string` WHERE `entry`=1010;
-INSERT INTO `trinity_string` (`entry`, `content_default`) VALUES(1010, "|    Account    |       Character      |       IP        | GM | EXP |");
+DELETE FROM `Kitron_string` WHERE `entry`=1010;
+INSERT INTO `Kitron_string` (`entry`, `content_default`) VALUES(1010, "|    Account    |       Character      |       IP        | GM | EXP |");
 
 -- 1661_world
 -- Death Strike
@@ -2593,9 +2593,9 @@ DELETE FROM `spell_bonus_data` WHERE `entry` = 18790;
 INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`comments`) VALUES
 ('18790','0','0','0','Warlock - Fel Stamina');
 
--- 1697_mangos_7388_01_world_trinity_string
-DELETE FROM `trinity_string` WHERE `entry` IN (750,751);
-INSERT INTO `trinity_string` VALUES
+-- 1697_mangos_7388_01_world_Kitron_string
+DELETE FROM `Kitron_string` WHERE `entry` IN (750,751);
+INSERT INTO `Kitron_string` VALUES
 (750,'Not enough players. This game will close in %u mins.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (751,'Not enough players. This game will close in %u seconds.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 
@@ -2744,9 +2744,9 @@ UPDATE `areatrigger_teleport` SET `access_id` = '52' WHERE `id` IN ('4352','4354
 ALTER TABLE `game_event`
   ADD COLUMN `holiday` mediumint(8) unsigned NOT NULL default '0' COMMENT 'Client side holiday id' AFTER `length`;
 
--- 1724_mangos_7399_01_world_trinity_string
-DELETE FROM `trinity_string` WHERE `entry` IN (753, 754, 755);
-INSERT INTO `trinity_string` VALUES
+-- 1724_mangos_7399_01_world_Kitron_string
+DELETE FROM `Kitron_string` WHERE `entry` IN (753, 754, 755);
+INSERT INTO `Kitron_string` VALUES
 (753,'The battle for Warsong Gulch begins in 2 minutes.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (754,'The battle for Arathi Basin begins in 2 minutes.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (755,'The battle for Eye of the Storm begins in 2 minutes.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
@@ -2807,9 +2807,9 @@ DELETE FROM spell_proc_event WHERE entry IN (33182,33174);
 INSERT INTO `spell_proc_event` VALUES (33182, 0x00, 6, 32, 0x00000000, 0x00000000, 0x00004000, 0x00000000, 0.000000, 0.000000, 0);
 INSERT INTO `spell_proc_event` VALUES (33174, 0x00, 6, 32, 0x00000000, 0x00000000, 0x00004000, 0x00000000, 0.000000, 0.000000, 0);
 
--- 1791_mangos_7422_01_world_trinity_string
-DELETE FROM `trinity_string` WHERE `entry` IN (811, 812, 813, 814, 815);
-INSERT INTO `trinity_string` VALUES
+-- 1791_mangos_7422_01_world_Kitron_string
+DELETE FROM `Kitron_string` WHERE `entry` IN (811, 812, 813, 814, 815);
+INSERT INTO `Kitron_string` VALUES
 (811,'Guild Master',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (812,'Officer',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (813,'Veteran',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
@@ -2832,13 +2832,13 @@ INSERT INTO `spell_linked_spell` VALUES (48265, 49772, 2, 'Unholy Presence');
 INSERT INTO `spell_linked_spell` VALUES (49772, 55222, 2, 'Unholy Presence');
 INSERT INTO `spell_linked_spell` VALUES (48263, 61261, 2, 'Frost Presence');
 
--- 1877_mangos_7439_01_world_trinity_string
-DELETE FROM `trinity_string` WHERE `entry` IN (175);
-INSERT INTO `trinity_string` VALUES
+-- 1877_mangos_7439_01_world_Kitron_string
+DELETE FROM `Kitron_string` WHERE `entry` IN (175);
+INSERT INTO `Kitron_string` VALUES
 (175,'Liquid level: %f, ground: %f, type: %d, status: %d',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 
 -- 1884_world
-DELETE FROM `trinity_string` WHERE `entry` IN (10056, 10057);
+DELETE FROM `Kitron_string` WHERE `entry` IN (10056, 10057);
 
 -- 1886_world
 DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (61847,61846);
@@ -2892,9 +2892,9 @@ INSERT INTO `spell_proc_event` VALUES
 (46910, 0x00, 0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x0000001, 5.5000000, 0.000000, 0),
 (46911, 0x00, 0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x0000001, 7.5000000, 0.000000, 0);
 
--- 1962_mangos_7472_01_world_trinity_string
-DELETE FROM trinity_string WHERE entry >= 667 and entry <= 687 or entry = 614 or entry = 615;
-INSERT INTO trinity_string VALUES
+-- 1962_mangos_7472_01_world_Kitron_string
+DELETE FROM Kitron_string WHERE entry >= 667 and entry <= 687 or entry = 614 or entry = 615;
+INSERT INTO Kitron_string VALUES
 (614,'The Alliance flag is now placed at its base.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (615,'The Horde flag is now placed at its base.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (667,'The Alliance has taken control of the Mage Tower!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
@@ -2946,9 +2946,9 @@ INSERT INTO `command` VALUES
 ('gobject near',2,'Syntax: .gobject near  [#distance]\r\n\r\nOutput gameobjects at distance #distance from player. Output gameobject guids and coordinates sorted by distance from character. If #distance not provided use 10 as default value.'),
 ('gobject setphase',2,'Syntax: .gobject setphase #guid #phasemask\r\n\r\nGameobject with DB guid #guid phasemask changed to #phasemask with related world vision update for players. Gameobject state saved to DB and persistent.');
 
--- 2025_mangos_7495_01_world_trinity_string
-DELETE FROM `trinity_string` WHERE `entry` IN (276,277,524);
-INSERT INTO `trinity_string` VALUES
+-- 2025_mangos_7495_01_world_Kitron_string
+DELETE FROM `Kitron_string` WHERE `entry` IN (276,277,524);
+INSERT INTO `Kitron_string` VALUES
 (276,'Game Object |cffffffff|Hgameobject:%d|h[%s]|h|r (GUID: %u) turned',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (277,'Game Object |cffffffff|Hgameobject:%d|h[%s]|h|r (GUID: %u) moved',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (524,'Selected object:\n|cffffffff|Hgameobject:%d|h[%s]|h|r GUID: %u ID: %u\nX: %f Y: %f Z: %f MapId: %u\nOrientation: %f',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
@@ -2967,8 +2967,8 @@ INSERT INTO `spell_bonus_data` VALUES
 (34299, 0, 0, 0, 'Improved Leader of the Pack');
 
 -- 2064_world
-DELETE FROM `trinity_string` WHERE `entry` IN (7523,7524);
-INSERT INTO `trinity_string` VALUES
+DELETE FROM `Kitron_string` WHERE `entry` IN (7523,7524);
+INSERT INTO `Kitron_string` VALUES
 (7523,'WORLD: Denying connections.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (7524,'WORLD: Accepting connections.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 DELETE FROM `command` WHERE `name` IN ('server set closed');
@@ -3117,9 +3117,9 @@ INSERT INTO `command` VALUES
 ('wp show',2,'Syntax: .wp show $option\nOptions:\non $pathid (or selected creature with loaded path) - Show path\noff - Hide path\ninfo $slected_waypoint - Show info for selected waypoint.'),
 ('wp mod',2,'Syntax: .wp mod\nType .path mod to see the list of possible subcommands or .help path mod $subcommand to see info on subcommands.');
 
--- 2274_mangos_7558_01_world_trinity_string
-DELETE FROM `trinity_string` WHERE `entry` IN (1123,1124,1125,1126,1127);
-INSERT INTO `trinity_string` VALUES
+-- 2274_mangos_7558_01_world_Kitron_string
+DELETE FROM `Kitron_string` WHERE `entry` IN (1123,1124,1125,1126,1127);
+INSERT INTO `Kitron_string` VALUES
 (1123,'Not pet found',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (1124,'Wrong pet type',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (1125,'Your pet learned all talents',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
@@ -3135,9 +3135,9 @@ INSERT INTO `command` VALUES
 ALTER TABLE gameobject_template
   ADD COLUMN IconName varchar(100) NOT NULL default '' AFTER name;
 
--- 2280_mangos_7565_01_world_trinity_string
-DELETE FROM `trinity_string` WHERE `entry` IN (1010,1011,1012,1013,1014);
-INSERT INTO `trinity_string` VALUES
+-- 2280_mangos_7565_01_world_Kitron_string
+DELETE FROM `Kitron_string` WHERE `entry` IN (1010,1011,1012,1013,1014);
+INSERT INTO `Kitron_string` VALUES
 (1010,'|    Account    |       Character      |       IP        | GM | Expansion |',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (1011,'|<Error>        | %20s |<Error>          |<Er>| <Error>   |',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (1012,'===========================================================================',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
@@ -3191,8 +3191,8 @@ DELETE FROM `command` WHERE `name` LIKE "ahbotoption %";
 DELETE FROM `command` WHERE `name` LIKE "ahbotoptions %";
 
 -- 2412_world
-UPDATE `trinity_string` SET `content_default` = 'id: %d effmask: %d charges: %d stack: %d slot %d duration: %d maxduration: %d' WHERE `entry` =468;
-UPDATE `trinity_string` SET `content_default` = 'id: %d eff: %d amount: %d' WHERE `trinity_string`.`entry` =470;
+UPDATE `Kitron_string` SET `content_default` = 'id: %d effmask: %d charges: %d stack: %d slot %d duration: %d maxduration: %d' WHERE `entry` =468;
+UPDATE `Kitron_string` SET `content_default` = 'id: %d eff: %d amount: %d' WHERE `Kitron_string`.`entry` =470;
 
 -- 2432_mangos_7615_01_world_command
 DELETE FROM `command` WHERE `name` IN ('senditems','sendmail','sendmoney','sendmessage','send items','send mail','send money','send message');
@@ -3202,9 +3202,9 @@ INSERT INTO `command` VALUES
 ('send message',3,'Syntax: .send message $playername $message\r\n\r\nSend screen message to player from ADMINISTRATOR.'),
 ('send money','3','Syntax: .send money #playername "#subject" "#text" #money\r\n\r\nSend mail with money to a player. Subject and mail text must be in "".');
 
--- 2433_mangos_7616_01_world_trinity_string
-DELETE FROM `trinity_string` WHERE `entry` IN (1200,1201);
-INSERT INTO `trinity_string` VALUES
+-- 2433_mangos_7616_01_world_Kitron_string
+DELETE FROM `Kitron_string` WHERE `entry` IN (1200,1201);
+INSERT INTO `Kitron_string` VALUES
 (1200,'You try to view cinemitic %u but it doesn\'t exist.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (1201,'You try to view movie %u but it doesn\'t exist.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 
@@ -3230,8 +3230,8 @@ INSERT INTO `command` VALUES
 ('reload spell_linked_spell','3','Usage: .reload spell_linked_spell\r\nReloads the spell_linked_spell DB table.');
 
 -- 2479_world
-DELETE FROM `trinity_string` WHERE `entry` = 5007;
-INSERT INTO `trinity_string` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`) VALUES (5007, 'You must be in a raid group to enter this instance.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+DELETE FROM `Kitron_string` WHERE `entry` = 5007;
+INSERT INTO `Kitron_string` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`) VALUES (5007, 'You must be in a raid group to enter this instance.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- 2492_mangos_7622_01_world_creature_ai_scripts
 DROP TABLE IF EXISTS `creature_ai_scripts`;
@@ -3671,8 +3671,8 @@ INSERT INTO script_waypoint VALUES
 (3850, 6, -239.89, 2156.06, 90.62, 20000, 'SAY_FREE');
 -- Henry Stern
 UPDATE `creature_template` SET `ScriptName`='npc_henry_stern' WHERE `entry`=8696;
-DELETE FROM `trinity_string` WHERE `entry` IN (59);
-INSERT INTO `trinity_string` VALUES
+DELETE FROM `Kitron_string` WHERE `entry` IN (59);
+INSERT INTO `Kitron_string` VALUES
 (59,'Using creature EventAI: %s',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 
 -- 2570_world_spell_linked_spell
@@ -3771,9 +3771,9 @@ INSERT INTO script_texts (entry,content_default,sound,type,language,emote,commen
 (-1033007,'About time someone killed the wretch.',0,0,1,1,'prisoner adamant SAY_BOSS_DIE_AD'),
 (-1033008,'For once I agree with you... scum.',0,0,7,1,'prisoner ashcrombe SAY_BOSS_DIE_AS');
 
--- 2683_world_trinity_string
-DELETE FROM `trinity_string` WHERE `entry`=2025;
-INSERT INTO `trinity_string` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`) VALUES
+-- 2683_world_Kitron_string
+DELETE FROM `Kitron_string` WHERE `entry`=2025;
+INSERT INTO `Kitron_string` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`) VALUES
 ('2025','|cff00ff00Created|r:|cff00ccff %s ago|r ',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 
 -- 2685_world_spell_proc_event
@@ -3818,8 +3818,8 @@ CREATE TABLE `creature_linked_respawn` (
   `linkedGuid` int(10) unsigned NOT NULL COMMENT 'master creature',
   PRIMARY KEY (`guid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Creature Respawn Link System';
-DELETE FROM `trinity_string` WHERE `entry` = '750';
-INSERT INTO `trinity_string` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`) VALUES
+DELETE FROM `Kitron_string` WHERE `entry` = '750';
+INSERT INTO `Kitron_string` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`) VALUES
 ('750', 'linkGUID: %u, Entry: %u (%s)', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- 2724_TC1_world_1371_script
@@ -4055,7 +4055,7 @@ INSERT INTO `spell_proc_event` VALUES
 DELETE FROM `spell_proc_event` WHERE `entry` IN (34456);
 INSERT INTO `spell_proc_event` VALUES
 (19615, 0x00, 0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x0000002, 0.000000, 0.000000, 0);
-INSERT INTO trinity_string (entry, content_default)VALUES (6616 , "Pet spells will reset for all players at login. Strongly recommend re-login!");
+INSERT INTO Kitron_string (entry, content_default)VALUES (6616 , "Pet spells will reset for all players at login. Strongly recommend re-login!");
 
 -- 2907_mangos_7705_01_world_command
 DELETE FROM `command` WHERE `name` IN
@@ -4083,9 +4083,9 @@ DELETE FROM `command` WHERE `name` IN ('character level');
 INSERT INTO `command` VALUES
 ('character level',3,'Syntax: .character level [$playername] [#level]\r\n\r\nSet the level of character with $playername (or the selected if not name provided) by #numberoflevels Or +1 if no #numberoflevels provided). If #numberoflevels is omitted, the level will be increase by 1. If #numberoflevels is 0, the same level will be restarted. If no character is selected and name not provided, increase your level. Command can be used for offline character. All stats and dependent values recalculated. At level decrease talents can be reset if need. Also at level decrease equipped items with greater level requirement can be lost.');
 
--- 2938_mangos_7720_01_world_trinity_string
-DELETE FROM trinity_string WHERE entry IN(557,558,559);
-INSERT INTO trinity_string VALUES
+-- 2938_mangos_7720_01_world_Kitron_string
+DELETE FROM Kitron_string WHERE entry IN(557,558,559);
+INSERT INTO Kitron_string VALUES
 (557,'%s level up you to (%i)',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (558,'%s level down you to (%i)',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (559,'%s reset your level progress.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
@@ -4277,17 +4277,17 @@ UPDATE `creature_template` SET `ScriptName`='boss_entropius' WHERE `entry`=25840
 UPDATE `creature_template` SET `ScriptName`='npc_muru_portal' WHERE `entry`=25770;
 UPDATE `creature_template` SET `AIName`='EventAI' WHERE `entry`=25798;
 
--- 2996_world_trinity_string
-DELETE FROM `trinity_string` WHERE `entry` IN (750,751);
-INSERT INTO `trinity_string` VALUES
+-- 2996_world_Kitron_string
+DELETE FROM `Kitron_string` WHERE `entry` IN (750,751);
+INSERT INTO `Kitron_string` VALUES
 (750,'Not enough players. This game will close in %u mins.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (751,'Not enough players. This game will close in %u seconds.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
-DELETE FROM `trinity_string` WHERE `entry` BETWEEN 1200 AND 1232;
-INSERT INTO `trinity_string` VALUES
+DELETE FROM `Kitron_string` WHERE `entry` BETWEEN 1200 AND 1232;
+INSERT INTO `Kitron_string` VALUES
 (1200, 'You try to view cinemitic %u but it doesn''t exist.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (1201, 'You try to view movie %u but it doesn''t exist.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-DELETE FROM `trinity_string` WHERE `entry` BETWEEN 1300 AND 1332;
-INSERT INTO `trinity_string` VALUES
+DELETE FROM `Kitron_string` WHERE `entry` BETWEEN 1300 AND 1332;
+INSERT INTO `Kitron_string` VALUES
 (1300, 'Alliance', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (1301, 'Horde', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (1302, '%s was destroyed by the %s!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
@@ -4322,7 +4322,7 @@ INSERT INTO `trinity_string` VALUES
 (1331, 'The Frostwolf General is Dead!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (1332, 'The Stormpike General is Dead!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
--- 2997_world_trinity_string
-DELETE FROM `trinity_string` WHERE `entry` = 5010;
-INSERT INTO `trinity_string` VALUES
+-- 2997_world_Kitron_string
+DELETE FROM `Kitron_string` WHERE `entry` = 5010;
+INSERT INTO `Kitron_string` VALUES
 (5010,'linkGUID: %u, Entry: %u (%s)',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);

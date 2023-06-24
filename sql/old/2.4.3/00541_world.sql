@@ -2,9 +2,9 @@ DELETE FROM `command` WHERE `name` = "flusharenapoints";
 INSERT INTO `command` (`name`, `security`, `help`) VALUES
 ('flusharenapoints','3','Syntax: .flusharenapoints\r\n\r\nUse it to distribute arena points based on arena team ratings, and start a new week.');
 
-DELETE FROM trinity_string WHERE entry BETWEEN 1122 AND 1138;
+DELETE FROM Kitron_string WHERE entry BETWEEN 1122 AND 1138;
 
-INSERT INTO trinity_string (entry, content_default) VALUES
+INSERT INTO Kitron_string (entry, content_default) VALUES
     (1122,'Your group is too large for this battleground. Please regroup to join.'),
     (1123,'Your group is too large for this arena. Please regroup to join.'),
     (1124,'Your group has members not in your arena team. Please regroup to join.'),
@@ -23,4 +23,4 @@ INSERT INTO trinity_string (entry, content_default) VALUES
     (1137, 'You must be in GM mode to teleport to a player in a battleground.'),
     (1138, 'You cannot teleport to a battleground from another battleground. Please leave the current battleground first.');
 
-DELETE FROM trinity_string WHERE entry = 714 OR entry = 716;
+DELETE FROM Kitron_string WHERE entry = 714 OR entry = 716;

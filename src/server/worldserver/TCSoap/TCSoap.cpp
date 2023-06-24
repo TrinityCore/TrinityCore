@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -30,7 +30,7 @@ void TCSoapThread(const std::string& host, uint16 port)
     soap_set_imode(&soap, SOAP_C_UTFSTRING);
     soap_set_omode(&soap, SOAP_C_UTFSTRING);
 
-#if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
+#if Kitron_PLATFORM != Kitron_PLATFORM_WINDOWS
     soap.bind_flags = SO_REUSEADDR;
 #endif
 

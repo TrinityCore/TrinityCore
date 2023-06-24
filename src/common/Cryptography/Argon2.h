@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,15 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_ARGON2_H
-#define TRINITY_ARGON2_H
+#ifndef Kitron_ARGON2_H
+#define Kitron_ARGON2_H
 
 #include "BigNumber.h"
 #include "Define.h"
 #include "Optional.h"
 #include <string>
 
-namespace Trinity::Crypto
+namespace Kitron::Crypto
 {
     struct TC_COMMON_API Argon2
     {

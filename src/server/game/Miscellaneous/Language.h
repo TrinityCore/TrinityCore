@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TRINITY_LANGUAGE_H
-#define __TRINITY_LANGUAGE_H
+#ifndef __Kitron_LANGUAGE_H
+#define __Kitron_LANGUAGE_H
 
 enum BroadcastTextIds
 {
@@ -25,7 +25,7 @@ enum BroadcastTextIds
     BROADCAST_TEXT_FLEE_FOR_ASSIST        = 1150
 };
 
-enum TrinityStrings
+enum KitronStrings
 {
     // for chat commands
     LANG_SELECT_CHAR_OR_CREATURE          = 1,
@@ -1048,7 +1048,7 @@ enum TrinityStrings
     LANG_COMMAND_TICKETLISTRESPONSE       = 2029,
     LANG_COMMAND_TICKETCOMPLETED          = 2030,
 
-    // Trinity strings                      5000-9999
+    // Kitron strings                      5000-9999
     LANG_COMMAND_FREEZE                   = 5000,
     LANG_COMMAND_FREEZE_ERROR             = 5001,
     LANG_COMMAND_FREEZE_WRONG             = 5002,
@@ -1148,7 +1148,7 @@ enum TrinityStrings
     LANG_NPCINFO_PHASE_IDS                = 5087, // master branch ONLY
     LANG_SCENARIO                         = 5088, // master branch ONLY
 
-    // Room for more Trinity strings        5089-6603
+    // Room for more Kitron strings        5089-6603
 
     // Level requirement notifications
     LANG_SAY_REQ                          = 6604,

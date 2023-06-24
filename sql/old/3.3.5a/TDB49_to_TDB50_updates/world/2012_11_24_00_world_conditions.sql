@@ -2,7 +2,7 @@ ALTER TABLE `conditions`
   ADD COLUMN `ErrorType` MEDIUMINT(8) UNSIGNED DEFAULT 0 NOT NULL AFTER `NegativeCondition`;
 
 /*
- * trinity_string
+ * Kitron_string
  * 63    - You can't do that right now.                  -> SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW = 173
  * 64    - You cannot use that item here.                -> SPELL_CUSTOM_ERROR_CANT_USE_THAT_ITEM = 56
  *                                                          SPELL_FAILED_INCORRECT_AREA = 39
@@ -31,4 +31,4 @@ UPDATE `conditions` SET `ErrorType`=111, `ErrorTextId`=0 WHERE `ErrorType`=0 AND
 UPDATE `conditions` SET `ErrorTextId`=0 WHERE `ErrorType`=0 AND `ErrorTextId`=97;
 UPDATE `conditions` SET `ErrorTextId`=0 WHERE `ErrorType`=0 AND `SourceTypeOrReferenceId`=13;
 
-DELETE FROM `trinity_string` WHERE `entry` IN (63,64,65,97,1334,1335);
+DELETE FROM `Kitron_string` WHERE `entry` IN (63,64,65,97,1334,1335);

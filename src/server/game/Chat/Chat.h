@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITYCORE_CHAT_H
-#define TRINITYCORE_CHAT_H
+#ifndef KitronCORE_CHAT_H
+#define KitronCORE_CHAT_H
 
 #include "Common.h"
 #include "ChatCommand.h"
@@ -59,7 +59,7 @@ class TC_GAME_API ChatHandler
         static char* LineFromMessage(char*& pos) { char* start = strtok(pos, "\n"); pos = nullptr; return start; }
 
         // function with different implementation for chat/console
-        virtual char const* GetTrinityString(uint32 entry) const;
+        virtual char const* GetKitronString(uint32 entry) const;
         virtual void SendSysMessage(std::string_view str, bool escapeCharacters = false);
 
         void SendSysMessage(uint32 entry);
@@ -67,7 +67,7 @@ class TC_GAME_API ChatHandler
         template<typename... Args>
         void PSendSysMessage(char const* fmt, Args&&... args)
         {
-            SendSysMessage(Trinity::StringFormat(fmt, std::forward<Args>(args)...).c_str());
+            SendSysMessage(Kitron::StringFormat(fmt, std::forward<Args>(args)...).c_str());
         }
 
         template<typename... Args>
@@ -79,7 +79,7 @@ class TC_GAME_API ChatHandler
         template<typename... Args>
         std::string PGetParseString(uint32 entry, Args&&... args) const
         {
-            return Trinity::StringFormat(GetTrinityString(entry), std::forward<Args>(args)...);
+            return Kitron::StringFormat(GetKitronString(entry), std::forward<Args>(args)...);
         }
 
         bool _ParseCommands(std::string_view text);
@@ -141,7 +141,7 @@ class TC_GAME_API CliHandler : public ChatHandler
         explicit CliHandler(void* callbackArg, Print* zprint) : m_callbackArg(callbackArg), m_print(zprint) { }
 
         // overwrite functions
-        char const* GetTrinityString(uint32 entry) const override;
+        char const* GetKitronString(uint32 entry) const override;
         bool HasPermission(uint32 /*permission*/) const override { return true; }
         void SendSysMessage(std::string_view, bool escapeCharacters) override;
         bool ParseCommands(std::string_view str) override;

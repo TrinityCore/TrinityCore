@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -349,8 +349,8 @@ struct boss_onyxia : public BossAI
                         DoCastVictim(SPELL_BELLOWING_ROAR);
                         // Eruption
                         GameObject* Floor = nullptr;
-                        Trinity::GameObjectInRangeCheck check(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 15);
-                        Trinity::GameObjectLastSearcher<Trinity::GameObjectInRangeCheck> searcher(me, Floor, check);
+                        Kitron::GameObjectInRangeCheck check(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 15);
+                        Kitron::GameObjectLastSearcher<Kitron::GameObjectInRangeCheck> searcher(me, Floor, check);
                         Cell::VisitGridObjects(me, searcher, 30.0f);
                         if (Floor)
                             instance->SetGuidData(DATA_FLOOR_ERUPTION_GUID, Floor->GetGUID());

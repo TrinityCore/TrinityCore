@@ -1,6 +1,6 @@
-DELETE FROM trinity_string WHERE entry IN (1119,1120,1121);
+DELETE FROM Kitron_string WHERE entry IN (1119,1120,1121);
 
-INSERT INTO trinity_string VALUES
+INSERT INTO Kitron_string VALUES
 (1119,'You must use male or female as gender.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (1120,'You change gender of %s to %s.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (1121,'Your gender changed to %s by %s.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
@@ -23,7 +23,7 @@ insert into `command` (`name`, `security`, `help`) values
 ('sendmoney',3,'Syntax: .sendmoney #playername "#subject" "#text" #money\r\n\r\nSend mail with money to a player. Subject and mail text must be in "".');
 
 
-DELETE FROM trinity_string WHERE entry IN (453);
+DELETE FROM Kitron_string WHERE entry IN (453);
 
 
 DROP TABLE IF EXISTS `db_script_string`;
@@ -55,7 +55,7 @@ DELETE FROM `command` WHERE `name` IN (
 );
 
 INSERT INTO `command` (`name`, `security`, `help`) VALUES
-('server exit',4,'Syntax: .server exit\r\n\r\nTerminate trinity-core NOW. Exit code 0.'),
+('server exit',4,'Syntax: .server exit\r\n\r\nTerminate Kitron-core NOW. Exit code 0.'),
 ('server idleshutdown',3,'Syntax: .server idleshutdown #delay [#exist_code]\r\n\r\nShut the server down after #delay seconds if no active connections are present (no players). Use #exist_code or 0 as program exist code.'),
 ('server idleshutdown cancel',3,'Syntax: .server idleshutdown cancel\r\n\r\nCancel the restart/shutdown timer if any.'),
 ('server idlerestart',3,'Syntax: .server idlerestart #delay\r\n\r\nRestart the server after #delay seconds if no active connections are present (no players). Use #exist_code or 2 as program exist code.'),
@@ -65,8 +65,8 @@ INSERT INTO `command` (`name`, `security`, `help`) VALUES
 ('server shutdown',3,'Syntax: .server shutdown #delay [#exist_code]\r\n\r\nShut the server down after #delay seconds. Use #exist_code or 0 as program exist code.'),
 ('server shutdown cancel',3,'Syntax: .server shutdown cancel\r\n\r\nCancel the restart/shutdown timer if any.');
 
-DELETE FROM trinity_string WHERE entry IN (251);
-INSERT INTO trinity_string VALUES
+DELETE FROM Kitron_string WHERE entry IN (251);
+INSERT INTO Kitron_string VALUES
 (251,'Text%d (ID: %i): %s',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 ALTER TABLE event_scripts
   DROP datatext,

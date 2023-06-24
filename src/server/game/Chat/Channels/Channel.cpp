@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -74,9 +74,9 @@ Channel::Channel(std::string const& name, uint32 team /*= 0*/, std::string const
     _channelPassword(),
     _zoneEntry(nullptr)
 {
-    for (std::string_view guid : Trinity::Tokenize(banList, ' ', false))
+    for (std::string_view guid : Kitron::Tokenize(banList, ' ', false))
     {
-        ObjectGuid banned(Trinity::StringTo<uint64>(guid).value_or(0));
+        ObjectGuid banned(Kitron::StringTo<uint64>(guid).value_or(0));
         if (!banned)
             continue;
 
@@ -93,9 +93,9 @@ void Channel::GetChannelName(std::string& channelName, uint32 channelId, LocaleC
         if (!(channelEntry->Flags & CHANNEL_DBC_FLAG_GLOBAL))
         {
             if (channelEntry->Flags & CHANNEL_DBC_FLAG_CITY_ONLY)
-                channelName = Trinity::StringFormat(channelEntry->Name[locale], sObjectMgr->GetTrinityString(LANG_CHANNEL_CITY, locale));
+                channelName = Kitron::StringFormat(channelEntry->Name[locale], sObjectMgr->GetKitronString(LANG_CHANNEL_CITY, locale));
             else
-                channelName = Trinity::StringFormat(channelEntry->Name[locale], ASSERT_NOTNULL(zoneEntry)->AreaName[locale]);
+                channelName = Kitron::StringFormat(channelEntry->Name[locale], ASSERT_NOTNULL(zoneEntry)->AreaName[locale]);
         }
         else
             channelName = channelEntry->Name[locale];
@@ -861,7 +861,7 @@ void Channel::LeaveNotify(ObjectGuid guid) const
 template<class Builder>
 void Channel::SendToAll(Builder& builder, ObjectGuid guid /*= ObjectGuid::Empty*/) const
 {
-    Trinity::LocalizedPacketDo<Builder> localizer(builder);
+    Kitron::LocalizedPacketDo<Builder> localizer(builder);
 
     for (PlayerContainer::const_iterator i = _playersStore.begin(); i != _playersStore.end(); ++i)
         if (Player* player = ObjectAccessor::FindConnectedPlayer(i->first))
@@ -872,7 +872,7 @@ void Channel::SendToAll(Builder& builder, ObjectGuid guid /*= ObjectGuid::Empty*
 template<class Builder>
 void Channel::SendToAllButOne(Builder& builder, ObjectGuid who) const
 {
-    Trinity::LocalizedPacketDo<Builder> localizer(builder);
+    Kitron::LocalizedPacketDo<Builder> localizer(builder);
 
     for (PlayerContainer::const_iterator i = _playersStore.begin(); i != _playersStore.end(); ++i)
         if (i->first != who)
@@ -883,7 +883,7 @@ void Channel::SendToAllButOne(Builder& builder, ObjectGuid who) const
 template<class Builder>
 void Channel::SendToOne(Builder& builder, ObjectGuid who) const
 {
-    Trinity::LocalizedPacketDo<Builder> localizer(builder);
+    Kitron::LocalizedPacketDo<Builder> localizer(builder);
 
     if (Player* player = ObjectAccessor::FindConnectedPlayer(who))
         localizer(player);

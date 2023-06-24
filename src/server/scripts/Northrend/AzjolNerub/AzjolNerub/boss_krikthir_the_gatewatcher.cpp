@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -832,7 +832,7 @@ class spell_gatewatcher_subboss_trigger : public SpellScript
         if (!targetList.empty())
         {
             // If there are, pick one of them at random
-            target = Trinity::Containers::SelectRandomContainerElement(targetList);
+            target = Kitron::Containers::SelectRandomContainerElement(targetList);
         }
         // And hit only that one
         targetList.clear();

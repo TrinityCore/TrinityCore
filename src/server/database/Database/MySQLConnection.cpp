@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -32,7 +32,7 @@
 
 MySQLConnectionInfo::MySQLConnectionInfo(std::string const& infoString)
 {
-    std::vector<std::string_view> tokens = Trinity::Tokenize(infoString, ';', true);
+    std::vector<std::string_view> tokens = Kitron::Tokenize(infoString, ';', true);
 
     if (tokens.size() != 5 && tokens.size() != 6)
         return;

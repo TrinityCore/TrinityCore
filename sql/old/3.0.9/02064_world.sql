@@ -1,5 +1,5 @@
-DELETE FROM `trinity_string` WHERE `entry` IN (7523,7524);
-INSERT INTO `trinity_string` VALUES
+DELETE FROM `Kitron_string` WHERE `entry` IN (7523,7524);
+INSERT INTO `Kitron_string` VALUES
 (7523,'WORLD: Denying connections.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (7524,'WORLD: Accepting connections.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 

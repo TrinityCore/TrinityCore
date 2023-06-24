@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -103,7 +103,7 @@ struct boss_urom : public BossAI
         for (uint8 i = 0; i < 3; ++i)
             _group.push_back(i);
 
-        Trinity::Containers::RandomShuffle(_group);
+        Kitron::Containers::RandomShuffle(_group);
     }
 
     void EnterEvadeMode(EvadeReason why) override

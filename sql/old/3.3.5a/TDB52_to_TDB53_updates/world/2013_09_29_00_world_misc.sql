@@ -1,10 +1,10 @@
-DELETE FROM `trinity_string` WHERE `entry` IN (65, 66, 67, 68, 69, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 93, 94);
-UPDATE `trinity_string` SET `entry` = 65 WHERE `entry` = 90;
-UPDATE `trinity_string` SET `entry` = 66 WHERE `entry` = 91;
-UPDATE `trinity_string` SET `entry` = 68 WHERE `entry` = 95;
-UPDATE `trinity_string` SET `entry` = `entry` - 10 WHERE `entry` BETWEEN 82 AND 89;
+DELETE FROM `Kitron_string` WHERE `entry` IN (65, 66, 67, 68, 69, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 93, 94);
+UPDATE `Kitron_string` SET `entry` = 65 WHERE `entry` = 90;
+UPDATE `Kitron_string` SET `entry` = 66 WHERE `entry` = 91;
+UPDATE `Kitron_string` SET `entry` = 68 WHERE `entry` = 95;
+UPDATE `Kitron_string` SET `entry` = `entry` - 10 WHERE `entry` BETWEEN 82 AND 89;
 
-INSERT INTO `trinity_string` (`entry`, `content_default`) VALUES
+INSERT INTO `Kitron_string` (`entry`, `content_default`) VALUES
 (67, 'Account %u (%s) inherited permissions by sec level %u:'),
 (69, 'Linked permissions:');
 

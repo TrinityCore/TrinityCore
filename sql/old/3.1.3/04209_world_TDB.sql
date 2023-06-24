@@ -1,4 +1,4 @@
-DELETE FROM trinity_string WHERE `entry` = 6616;
+DELETE FROM Kitron_string WHERE `entry` = 6616;
 DELETE FROM `command` WHERE `name` IN ('reset all','reset talents');
 INSERT INTO `command` VALUES
 ('reset all',3,'Syntax: .reset all spells\r\n\r\nSyntax: .reset all talents\r\n\r\nRequest reset spells or talents (including talents for all character\'s pets if any) at next login each existed character.'),

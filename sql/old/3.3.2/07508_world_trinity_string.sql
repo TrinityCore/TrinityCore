@@ -1,5 +1,5 @@
-DELETE FROM `trinity_string` WHERE `entry` IN (6604,6605,6606,6607,6608,6609,6610,6611,6612);
-INSERT INTO `trinity_string` (`entry`,`content_default`) VALUES
+DELETE FROM `Kitron_string` WHERE `entry` IN (6604,6605,6606,6607,6608,6609,6610,6611,6612);
+INSERT INTO `Kitron_string` (`entry`,`content_default`) VALUES
 (6604, 'You cannot say, yell or emote until you become level %d.'),
 (6605, 'You cannot whisper until you become level %d.'),
 (6606, 'You cannot write to channels until you become level %d.'),

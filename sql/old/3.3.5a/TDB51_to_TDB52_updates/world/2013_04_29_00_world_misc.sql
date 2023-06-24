@@ -4,8 +4,8 @@ INSERT INTO `command` (`name`, `security`, `help`) VALUES
 
 SET @ENTRY  := 98;
 SET @ENTRY1 := 167;
-DELETE FROM `trinity_string` WHERE `entry` IN (@ENTRY, @ENTRY+1, @ENTRY1);
-INSERT INTO `trinity_string` (`entry`, `content_default`) VALUES
+DELETE FROM `Kitron_string` WHERE `entry` IN (@ENTRY, @ENTRY+1, @ENTRY1);
+INSERT INTO `Kitron_string` (`entry`, `content_default`) VALUES
 (@ENTRY,   '\'%s\' already exists as character name, choose another one'),
 (@ENTRY+1, 'Player \'%s\' forced rename to \'%s\''),
 (@ENTRY1,  'This name is reserved, choose another one');

@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -690,8 +690,8 @@ public:
 
                     //Find Sironas and make it respawn if needed
                     Creature* sironas = nullptr;
-                    Trinity::AllCreaturesOfEntryInRange check(me, NPC_SIRONAS, SIZE_OF_GRIDS);
-                    Trinity::CreatureSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, sironas, check);
+                    Kitron::AllCreaturesOfEntryInRange check(me, NPC_SIRONAS, SIZE_OF_GRIDS);
+                    Kitron::CreatureSearcher<Kitron::AllCreaturesOfEntryInRange> searcher(me, sironas, check);
                     Cell::VisitAllObjects(me, searcher, SIZE_OF_GRIDS);
 
                     if (sironas)
@@ -791,7 +791,7 @@ class spell_free_webbed : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetCaster(), Trinity::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
+        GetCaster()->CastSpell(GetCaster(), Kitron::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
     }
 
     void Register() override
@@ -818,7 +818,7 @@ class spell_free_webbed_on_quest : public SpellScript
         Unit* target = GetHitUnit();
 
         if (roll_chance_i(66))
-            caster->CastSpell(caster, Trinity::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
+            caster->CastSpell(caster, Kitron::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
         else
             target->CastSpell(caster, SPELL_FREE_WEBBED_11, true);
     }

@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -44,7 +44,7 @@ EndScriptData */
 #include "World.h"
 #include "WorldSession.h"
 
-using namespace Trinity::ChatCommands;
+using namespace Kitron::ChatCommands;
 
 using CreatureSpawnId = Variant<Hyperlink<creature>, ObjectGuid::LowType>;
 using CreatureEntry = Variant<Hyperlink<creature_entry>, uint32>;
@@ -653,7 +653,7 @@ public:
 
         if (!sCreatureDisplayInfoStore.LookupEntry(displayId))
         {
-            handler->PSendSysMessage(LANG_COMMAND_INVALID_PARAM, Trinity::ToString(displayId).c_str());
+            handler->PSendSysMessage(LANG_COMMAND_INVALID_PARAM, Kitron::ToString(displayId).c_str());
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -1122,7 +1122,7 @@ public:
                 continue;
             ObjectGuid guid = ObjectGuid::Create<HighGuid::Player>(pair.first);
             Player const* player = ObjectAccessor::FindConnectedPlayer(guid);
-            handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_SUBLABEL, player ? player->GetName() : Trinity::StringFormat("Offline player (GuidLow 0x%08x)", pair.first).c_str(), pair.second->size());
+            handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_SUBLABEL, player ? player->GetName() : Kitron::StringFormat("Offline player (GuidLow 0x%08x)", pair.first).c_str(), pair.second->size());
 
             for (auto it = pair.second->cbegin(); it != pair.second->cend(); ++it)
             {

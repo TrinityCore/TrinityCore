@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -49,7 +49,7 @@ WardenWin::WardenWin() : Warden(), _serverTicks(0)
     {
         auto& [checks, checksIt] = _checks[category];
         checks = sWardenCheckMgr->GetAvailableChecks(category);
-        Trinity::Containers::RandomShuffle(checks);
+        Kitron::Containers::RandomShuffle(checks);
         checksIt = checks.begin();
     }
 }
@@ -58,7 +58,7 @@ void WardenWin::Init(WorldSession* session, SessionKey const& K)
 {
     _session = session;
     // Generate Warden Key
-    SessionKeyGenerator<Trinity::Crypto::SHA1> WK(K);
+    SessionKeyGenerator<Kitron::Crypto::SHA1> WK(K);
     WK.Generate(_inputKey.data(), _inputKey.size());
     WK.Generate(_outputKey.data(), _outputKey.size());
 
@@ -164,7 +164,7 @@ void WardenWin::RequestHash()
 void WardenWin::HandleHashResult(ByteBuffer &buff)
 {
     // Verify key
-    Trinity::Crypto::SHA1::Digest response;
+    Kitron::Crypto::SHA1::Digest response;
     buff.read(response);
     if (response != Module.ClientKeySeedHash)
     {
@@ -194,7 +194,7 @@ static constexpr uint8 GetCheckPacketBaseSize(WardenCheckType type)
         case MPQ_CHECK: return 1;
         case PAGE_CHECK_A: return (4 + 1);
         case PAGE_CHECK_B: return (4 + 1);
-        case MODULE_CHECK: return (4 + Trinity::Crypto::HMAC_SHA1::DIGEST_LENGTH);
+        case MODULE_CHECK: return (4 + Kitron::Crypto::HMAC_SHA1::DIGEST_LENGTH);
         case MEM_CHECK: return (1 + 4 + 1);
         default: return 0;
     }
@@ -221,7 +221,7 @@ void WardenWin::RequestChecks()
         if ((checksIt == checks.end()) && !checks.empty())
         {
             TC_LOG_DEBUG("warden", "Finished all %s checks, re-shuffling", EnumUtils::ToConstant(category));
-            Trinity::Containers::RandomShuffle(checks);
+            Kitron::Containers::RandomShuffle(checks);
             checksIt = checks.begin();
         }
     }
@@ -247,10 +247,10 @@ void WardenWin::RequestChecks()
         }
     }
 
-    Trinity::Containers::RandomShuffle(_currentChecks);
+    Kitron::Containers::RandomShuffle(_currentChecks);
 
     uint16 expectedSize = 4;
-    Trinity::Containers::EraseIf(_currentChecks,
+    Kitron::Containers::EraseIf(_currentChecks,
         [&expectedSize](uint16 id)
         {
             uint8 const thisSize = GetCheckPacketSize(sWardenCheckMgr->GetCheckData(id));
@@ -325,9 +325,9 @@ void WardenWin::RequestChecks()
             }
             case MODULE_CHECK:
             {
-                std::array<uint8, 4> seed = Trinity::Crypto::GetRandomBytes<4>();
+                std::array<uint8, 4> seed = Kitron::Crypto::GetRandomBytes<4>();
                 buff.append(seed);
-                buff.append(Trinity::Crypto::HMAC_SHA1::GetDigestOf(seed, check.Str));
+                buff.append(Kitron::Crypto::HMAC_SHA1::GetDigestOf(seed, check.Str));
                 break;
             }
             /*case PROC_CHECK:
@@ -501,7 +501,7 @@ void WardenWin::HandleCheckResult(ByteBuffer &buff)
                 }
 
                 std::vector<uint8> result;
-                result.resize(Trinity::Crypto::SHA1::DIGEST_LENGTH);
+                result.resize(Kitron::Crypto::SHA1::DIGEST_LENGTH);
                 buff.read(result.data(), result.size());
                 if (result != sWardenCheckMgr->GetCheckResult(id)) // SHA1
                 {

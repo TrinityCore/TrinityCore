@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -293,7 +293,7 @@ void PoolGroup<T>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 trig
                 return object.guid == triggerFrom || !spawns.IsActiveObject<T>(object.guid);
             });
 
-            Trinity::Containers::RandomResize(rolledObjects, count);
+            Kitron::Containers::RandomResize(rolledObjects, count);
         }
 
         // try to spawn rolled objects

@@ -29,9 +29,9 @@ CHANGEME 3.3.5, master or both
 **TC rev. hash/commit:** 
 
 CHANGEME Copy the first line of the `worldserver`, `authserver` or `bnetserver` startup.
-For example: TrinityCore rev. 0000000000 2000-01-09 11:31:41 +0100 (my branch) (Win64, RelWithDebInfo, Static) (bnetserver)
+For example: KitronCore rev. 0000000000 2000-01-09 11:31:41 +0100 (my branch) (Win64, RelWithDebInfo, Static) (bnetserver)
 
-**TDB version:**  CHANGEME Version of the TrinityCore database
+**TDB version:**  CHANGEME Version of the KitronCore database
 
 **Operating system:** CHANGEME OS
 

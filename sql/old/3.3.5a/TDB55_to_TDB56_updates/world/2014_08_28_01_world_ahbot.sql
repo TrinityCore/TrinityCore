@@ -18,8 +18,8 @@ INSERT INTO `command` (`name`, `permission`, `help`) VALUES
 ('ahbot reload',         @id+14, 'Syntax: .ahbot reload\r\n\r\nReload AHBot settings from configuration file.'),
 ('ahbot status',         @id+15, 'Syntax: .ahbot status [all]\r\n\r\nShow current ahbot state data in short form, and with "all" with details.');
 
-DELETE FROM `trinity_string` WHERE `entry` BETWEEN 1157 AND 1176;
-INSERT INTO `trinity_string` (`entry`, `content_default`) VALUES
+DELETE FROM `Kitron_string` WHERE `entry` BETWEEN 1157 AND 1176;
+INSERT INTO `Kitron_string` (`entry`, `content_default`) VALUES
 (1157, 'All config are reloaded from configuration file.'),
 (1158, '=========================================================='),
 (1159, '|--------------------------------------------------------|'),

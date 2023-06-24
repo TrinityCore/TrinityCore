@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_CHATCOMMANDARGS_H
-#define TRINITY_CHATCOMMANDARGS_H
+#ifndef Kitron_CHATCOMMANDARGS_H
+#define Kitron_CHATCOMMANDARGS_H
 
 #include "ChatCommandHelpers.h"
 #include "ChatCommandTags.h"
@@ -31,7 +31,7 @@
 
 struct GameTele;
 
-namespace Trinity::Impl::ChatCommands
+namespace Kitron::Impl::ChatCommands
 {
 
     /************************** ARGUMENT HANDLERS *******************************************\
@@ -47,7 +47,7 @@ namespace Trinity::Impl::ChatCommands
     |*                                                                                      *|
     \****************************************************************************************/
     template <typename T, typename = void>
-    struct ArgInfo { static_assert(Trinity::dependant_false_v<T>, "Invalid command parameter type - see ChatCommandArgs.h for possible types"); };
+    struct ArgInfo { static_assert(Kitron::dependant_false_v<T>, "Invalid command parameter type - see ChatCommandArgs.h for possible types"); };
 
     // catch-all for number types
     template <typename T>
@@ -62,12 +62,12 @@ namespace Trinity::Impl::ChatCommands
             if (Optional<T> v = StringTo<T>(token, 0))
                 val = *v;
             else
-                return FormatTrinityString(handler, LANG_CMDPARSER_STRING_VALUE_INVALID, STRING_VIEW_FMT_ARG(token), GetTypeName<T>().c_str());
+                return FormatKitronString(handler, LANG_CMDPARSER_STRING_VALUE_INVALID, STRING_VIEW_FMT_ARG(token), GetTypeName<T>().c_str());
 
             if constexpr (std::is_floating_point_v<T>)
             {
                 if (!std::isfinite(val))
-                    return FormatTrinityString(handler, LANG_CMDPARSER_STRING_VALUE_INVALID, STRING_VIEW_FMT_ARG(token), GetTypeName<T>().c_str());
+                    return FormatKitronString(handler, LANG_CMDPARSER_STRING_VALUE_INVALID, STRING_VIEW_FMT_ARG(token), GetTypeName<T>().c_str());
             }
 
             return tail;
@@ -116,7 +116,7 @@ namespace Trinity::Impl::ChatCommands
                 if (Utf8toWStr(utf8view, val))
                     return next;
                 else
-                    return GetTrinityString(handler, LANG_CMDPARSER_INVALID_UTF8);
+                    return GetKitronString(handler, LANG_CMDPARSER_INVALID_UTF8);
             }
             else
                 return std::nullopt;
@@ -200,7 +200,7 @@ namespace Trinity::Impl::ChatCommands
             }
 
             if (next1)
-                return FormatTrinityString(handler, LANG_CMDPARSER_STRING_VALUE_INVALID, STRING_VIEW_FMT_ARG(strVal), GetTypeName<T>().c_str());
+                return FormatKitronString(handler, LANG_CMDPARSER_STRING_VALUE_INVALID, STRING_VIEW_FMT_ARG(strVal), GetTypeName<T>().c_str());
             else
                 return next1;
         }
@@ -252,13 +252,13 @@ namespace Trinity::Impl::ChatCommands
 
     // variant
     template <typename... Ts>
-    struct ArgInfo<Trinity::ChatCommands::Variant<Ts...>>
+    struct ArgInfo<Kitron::ChatCommands::Variant<Ts...>>
     {
         using V = std::variant<Ts...>;
         static constexpr size_t N = std::variant_size_v<V>;
 
         template <size_t I>
-        static ChatCommandResult TryAtIndex([[maybe_unused]] Trinity::ChatCommands::Variant<Ts...>& val, [[maybe_unused]] ChatHandler const* handler, [[maybe_unused]] std::string_view args)
+        static ChatCommandResult TryAtIndex([[maybe_unused]] Kitron::ChatCommands::Variant<Ts...>& val, [[maybe_unused]] ChatHandler const* handler, [[maybe_unused]] std::string_view args)
         {
             if constexpr (I < N)
             {
@@ -273,20 +273,20 @@ namespace Trinity::Impl::ChatCommands
                     if (!nestedResult.HasErrorMessage())
                         return thisResult;
                     if (StringStartsWith(nestedResult.GetErrorMessage(), "\""))
-                        return Trinity::StringFormat("\"%s\"\n%s %s", thisResult.GetErrorMessage().c_str(), GetTrinityString(handler, LANG_CMDPARSER_OR), nestedResult.GetErrorMessage().c_str());
+                        return Kitron::StringFormat("\"%s\"\n%s %s", thisResult.GetErrorMessage().c_str(), GetKitronString(handler, LANG_CMDPARSER_OR), nestedResult.GetErrorMessage().c_str());
                     else
-                        return Trinity::StringFormat("\"%s\"\n%s \"%s\"", thisResult.GetErrorMessage().c_str(), GetTrinityString(handler, LANG_CMDPARSER_OR), nestedResult.GetErrorMessage().c_str());
+                        return Kitron::StringFormat("\"%s\"\n%s \"%s\"", thisResult.GetErrorMessage().c_str(), GetKitronString(handler, LANG_CMDPARSER_OR), nestedResult.GetErrorMessage().c_str());
                 }
             }
             else
                 return std::nullopt;
         }
 
-        static ChatCommandResult TryConsume(Trinity::ChatCommands::Variant<Ts...>& val, ChatHandler const* handler, std::string_view args)
+        static ChatCommandResult TryConsume(Kitron::ChatCommands::Variant<Ts...>& val, ChatHandler const* handler, std::string_view args)
         {
             ChatCommandResult result = TryAtIndex<0>(val, handler, args);
             if (result.HasErrorMessage() && (result.GetErrorMessage().find('\n') != std::string::npos))
-                return Trinity::StringFormat("%s %s", GetTrinityString(handler, LANG_CMDPARSER_EITHER), result.GetErrorMessage().c_str());
+                return Kitron::StringFormat("%s %s", GetKitronString(handler, LANG_CMDPARSER_EITHER), result.GetErrorMessage().c_str());
             return result;
         }
     };

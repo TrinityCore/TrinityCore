@@ -1,5 +1,5 @@
-DELETE FROM `trinity_string` WHERE `entry` IN (1151, 1152, 1153, 1154, 1155, 1156);
-INSERT INTO `trinity_string` (`entry`,`content_default`) VALUES
+DELETE FROM `Kitron_string` WHERE `entry` IN (1151, 1152, 1153, 1154, 1155, 1156);
+INSERT INTO `Kitron_string` (`entry`,`content_default`) VALUES
 (1151, 'Mail List Info: # of mails: %u, Player: %s(%u)'),
 (1152, 'Mail Id: %u Title: \"%s\" Money: %ug%us%uc'),
 (1153, 'Sender: %s(%u), Receiver: %s(%u)'),

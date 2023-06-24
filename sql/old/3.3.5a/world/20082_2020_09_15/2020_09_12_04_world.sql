@@ -1,6 +1,6 @@
 -- 
-DELETE FROM `trinity_string` WHERE `entry` BETWEEN 1500 AND 1515;
-INSERT INTO `trinity_string` (`entry`,`content_default`) VALUES
+DELETE FROM `Kitron_string` WHERE `entry` BETWEEN 1500 AND 1515;
+INSERT INTO `Kitron_string` (`entry`,`content_default`) VALUES
 (1500, 'Either:'),
 (1501, 'Or:    '),
 (1502, 'Value \'%.*s\' is not valid for type %s.'),

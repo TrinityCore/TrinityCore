@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -108,7 +108,7 @@ struct npc_cameron : public ScriptedAI
             { -9377.477f, -67.8297f, 69.201965f, 0.296706f }
         };
 
-        Trinity::Containers::RandomShuffle(MovePosPositions);
+        Kitron::Containers::RandomShuffle(MovePosPositions);
 
         // first we break formation because children will need to move on their own now
         for (auto guid : _childrenGUIDs)

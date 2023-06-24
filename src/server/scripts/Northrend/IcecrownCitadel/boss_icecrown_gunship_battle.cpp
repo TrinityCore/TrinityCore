@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1438,8 +1438,8 @@ struct npc_gunship_boarding_addAI : public gunship_npc_AI
             me->GetSpellHistory()->AddCooldown(BurningPitchId, 0, std::chrono::seconds(3));
 
             std::list<Player*> players;
-            Trinity::UnitAuraCheck check(true, Instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE ? SPELL_ON_ORGRIMS_HAMMER_DECK : SPELL_ON_SKYBREAKER_DECK);
-            Trinity::PlayerListSearcher<Trinity::UnitAuraCheck> searcher(me, players, check);
+            Kitron::UnitAuraCheck check(true, Instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE ? SPELL_ON_ORGRIMS_HAMMER_DECK : SPELL_ON_SKYBREAKER_DECK);
+            Kitron::PlayerListSearcher<Kitron::UnitAuraCheck> searcher(me, players, check);
             Cell::VisitWorldObjects(me, searcher, 200.0f);
 
             players.remove_if([this](Player* player)
@@ -1449,7 +1449,7 @@ struct npc_gunship_boarding_addAI : public gunship_npc_AI
 
             if (!players.empty())
             {
-                players.sort(Trinity::ObjectDistanceOrderPred(me));
+                players.sort(Kitron::ObjectDistanceOrderPred(me));
                 for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
                     AddThreat(*itr, 1.0f);
 
@@ -1502,8 +1502,8 @@ struct npc_gunship_boarding_addAI : public gunship_npc_AI
     bool HasAttackablePlayerNearby()
     {
         std::list<Player*> players;
-        Trinity::UnitAuraCheck check(true, Instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE ? SPELL_ON_ORGRIMS_HAMMER_DECK : SPELL_ON_SKYBREAKER_DECK);
-        Trinity::PlayerListSearcher<Trinity::UnitAuraCheck> searcher(me, players, check);
+        Kitron::UnitAuraCheck check(true, Instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE ? SPELL_ON_ORGRIMS_HAMMER_DECK : SPELL_ON_SKYBREAKER_DECK);
+        Kitron::PlayerListSearcher<Kitron::UnitAuraCheck> searcher(me, players, check);
         Cell::VisitWorldObjects(me, searcher,200.0f );
 
         players.remove_if([this](Player* player)
@@ -2029,7 +2029,7 @@ class spell_igb_burning_pitch_selector : public SpellScript
 
         if (!targets.empty())
         {
-            WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+            WorldObject* target = Kitron::Containers::SelectRandomContainerElement(targets);
             targets.clear();
             targets.push_back(target);
         }
@@ -2077,7 +2077,7 @@ class spell_igb_rocket_artillery : public SpellScript
     {
         if (!targets.empty())
         {
-            WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+            WorldObject* target = Kitron::Containers::SelectRandomContainerElement(targets);
             targets.clear();
             targets.push_back(target);
         }

@@ -2,7 +2,7 @@ from re import compile, MULTILINE
 from os import walk, getcwd
 
 notice = ('''/*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -109,7 +109,7 @@ def processFile(path, filename):
     output.write('#include "SmartEnum.h"\n')
     output.write('#include <stdexcept>\n')
     output.write('\n')
-    output.write('namespace Trinity::Impl::EnumUtilsImpl\n')
+    output.write('namespace Kitron::Impl::EnumUtilsImpl\n')
     output.write('{\n')
     for name, prefix, values in enums:
         tag = ('data for enum \'%s\' in \'%s.h\' auto-generated' % (name, filename))

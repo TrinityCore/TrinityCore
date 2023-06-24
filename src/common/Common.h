@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITYCORE_COMMON_H
-#define TRINITYCORE_COMMON_H
+#ifndef KitronCORE_COMMON_H
+#define KitronCORE_COMMON_H
 
 #include "Define.h"
 #include <array>
@@ -24,14 +24,14 @@
 #include <string>
 #include <utility>
 
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#if Kitron_PLATFORM == Kitron_PLATFORM_WINDOWS
 #  include <ws2tcpip.h>
 
-#  if TRINITY_COMPILER == TRINITY_COMPILER_INTEL
+#  if Kitron_COMPILER == Kitron_COMPILER_INTEL
 #    if !defined(BOOST_ASIO_HAS_MOVE)
 #      define BOOST_ASIO_HAS_MOVE
 #    endif // !defined(BOOST_ASIO_HAS_MOVE)
-#  endif // if TRINITY_COMPILER == TRINITY_COMPILER_INTEL
+#  endif // if Kitron_COMPILER == Kitron_COMPILER_INTEL
 #else
 #  include <sys/types.h>
 #  include <sys/ioctl.h>
@@ -42,7 +42,7 @@
 #  include <cstdlib>
 #endif
 
-#if TRINITY_COMPILER == TRINITY_COMPILER_MICROSOFT
+#if Kitron_COMPILER == Kitron_COMPILER_MICROSOFT
 
 #define atoll _atoi64
 #define llabs _abs64

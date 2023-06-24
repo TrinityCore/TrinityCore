@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -65,10 +65,10 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level
 bool PlayerTaxi::LoadTaxiMask(std::string const& data)
 {
     bool warn = false;
-    std::vector<std::string_view> tokens = Trinity::Tokenize(data, ' ', false);
+    std::vector<std::string_view> tokens = Kitron::Tokenize(data, ' ', false);
     for (uint8 index = 0; (index < TaxiMaskSize) && (index < tokens.size()); ++index)
     {
-        if (Optional<uint32> mask = Trinity::StringTo<uint32>(tokens[index]))
+        if (Optional<uint32> mask = Kitron::StringTo<uint32>(tokens[index]))
         {
             // load and set bits only for existing taxi nodes
             m_taximask[index] = sTaxiNodesMask[index] & *mask;
@@ -102,11 +102,11 @@ bool PlayerTaxi::LoadTaxiDestinationsFromString(const std::string& values, uint3
 {
     ClearTaxiDestinations();
 
-    std::vector<std::string_view> tokens = Trinity::Tokenize(values, ' ', false);
+    std::vector<std::string_view> tokens = Kitron::Tokenize(values, ' ', false);
     auto itr = tokens.begin();
     if (itr != tokens.end())
     {
-        if (Optional<uint32> faction = Trinity::StringTo<uint32>(*itr))
+        if (Optional<uint32> faction = Kitron::StringTo<uint32>(*itr))
             m_flightMasterFactionId = *faction;
         else
             return false;
@@ -116,7 +116,7 @@ bool PlayerTaxi::LoadTaxiDestinationsFromString(const std::string& values, uint3
 
     while ((++itr) != tokens.end())
     {
-        if (Optional<uint32> node = Trinity::StringTo<uint32>(*itr))
+        if (Optional<uint32> node = Kitron::StringTo<uint32>(*itr))
             AddTaxiDestination(*node);
         else
             return false;

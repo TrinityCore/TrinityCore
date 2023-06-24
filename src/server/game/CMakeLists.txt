@@ -1,4 +1,4 @@
-# This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+# This file is part of the KitronCore Project. See AUTHORS file for Copyright information
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -20,7 +20,7 @@ endif()
 
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
-add_definitions(-DTRINITY_API_EXPORT_GAME)
+add_definitions(-DKitron_API_EXPORT_GAME)
 
 CollectIncludeDirectories(
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -50,7 +50,7 @@ target_include_directories(game
 
 target_link_libraries(game
   PRIVATE
-    trinity-core-interface
+    Kitron-core-interface
     efsw
   PUBLIC
     game-interface)

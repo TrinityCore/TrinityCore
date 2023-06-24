@@ -1,5 +1,5 @@
 -- Fix up formation from last commit
--- https://github.com/TrinityCore/TrinityCore/commit/bbcf8f58e69d361c3df1c37fa79d1efa3e52bc54
+-- https://github.com/KitronCore/KitronCore/commit/bbcf8f58e69d361c3df1c37fa79d1efa3e52bc54
 DELETE FROM `creature_formations` WHERE `leaderGUID`=57594;
 INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`) VALUES
 (57594, 57594, 0, 0, 2),

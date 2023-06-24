@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -37,7 +37,7 @@ using boost::asio::ip::tcp;
 WorldSocket::WorldSocket(tcp::socket&& socket)
     : Socket(std::move(socket)), _OverSpeedPings(0), _worldSession(nullptr), _authed(false), _sendBufferSize(4096)
 {
-    Trinity::Crypto::GetRandomBytes(_authSeed);
+    Kitron::Crypto::GetRandomBytes(_authSeed);
     _headerBuffer.Resize(sizeof(ClientPktHeader));
 }
 
@@ -130,7 +130,7 @@ void WorldSocket::HandleSendAuthSession()
     packet << uint32(1);                                    // 1...31
     packet.append(_authSeed);
 
-    packet.append(Trinity::Crypto::GetRandomBytes<32>());               // new encryption seeds
+    packet.append(Kitron::Crypto::GetRandomBytes<32>());               // new encryption seeds
 
     SendPacketAndLogOpcode(packet);
 }
@@ -237,7 +237,7 @@ struct AuthSession
     uint32 LoginServerID = 0;
     uint32 RegionID = 0;
     uint64 DosResponse = 0;
-    Trinity::Crypto::SHA1::Digest Digest = {};
+    Kitron::Crypto::SHA1::Digest Digest = {};
     std::string Account;
     ByteBuffer AddonInfo;
 };
@@ -508,7 +508,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
     // Check that Key and account name are the same on client and server
     uint8 t[4] = { 0x00,0x00,0x00,0x00 };
 
-    Trinity::Crypto::SHA1 sha;
+    Kitron::Crypto::SHA1 sha;
     sha.UpdateData(authSession->Account);
     sha.UpdateData(t);
     sha.UpdateData(authSession->LocalChallenge);

@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -383,12 +383,12 @@ class npc_chromie_start : public CreatureScript
                         for (uint32 state = 1; state <= COMPLETE; state = state << 1)
                         {
                             if (GetStableStateFor(COSProgressStates(state)) == state)
-                                AddGossipItemFor(player, GOSSIP_ICON_INTERACT_1, Trinity::StringFormat("Set instance progress to 0x%05X", state).c_str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + GOSSIP_OFFSET_GM_INITIAL + state);
+                                AddGossipItemFor(player, GOSSIP_ICON_INTERACT_1, Kitron::StringFormat("Set instance progress to 0x%05X", state).c_str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + GOSSIP_OFFSET_GM_INITIAL + state);
                         }
                         for (uint32 state = 1; state <= COMPLETE; state = state << 1)
                         {
                             if (GetStableStateFor(COSProgressStates(state)) != state)
-                                AddGossipItemFor(player, GOSSIP_ICON_INTERACT_1, Trinity::StringFormat("Force state to 0x%05X (UNSTABLE)", state).c_str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + GOSSIP_OFFSET_GM_INITIAL + state);
+                                AddGossipItemFor(player, GOSSIP_ICON_INTERACT_1, Kitron::StringFormat("Force state to 0x%05X (UNSTABLE)", state).c_str(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + GOSSIP_OFFSET_GM_INITIAL + state);
                         }
                         SendGossipMenuFor(player, GOSSIP_TEXT_SKIP_1, me->GetGUID());
                         break;

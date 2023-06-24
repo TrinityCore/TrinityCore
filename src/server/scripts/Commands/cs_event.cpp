@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -30,7 +30,7 @@ EndScriptData */
 #include "Player.h"
 #include "RBAC.h"
 
-using namespace Trinity::ChatCommands;
+using namespace Kitron::ChatCommands;
 
 class event_commandscript : public CommandScript
 {
@@ -60,7 +60,7 @@ public:
         GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
         GameEventMgr::ActiveEvents const& activeEvents = sGameEventMgr->GetActiveEventList();
 
-        char const* active = handler->GetTrinityString(LANG_ACTIVE);
+        char const* active = handler->GetKitronString(LANG_ACTIVE);
 
         for (uint16 eventId : activeEvents)
         {
@@ -102,7 +102,7 @@ public:
 
         GameEventMgr::ActiveEvents const& activeEvents = sGameEventMgr->GetActiveEventList();
         bool active = activeEvents.find(eventId) != activeEvents.end();
-        char const* activeStr = active ? handler->GetTrinityString(LANG_ACTIVE) : "";
+        char const* activeStr = active ? handler->GetKitronString(LANG_ACTIVE) : "";
 
         std::string startTimeStr = TimeToTimestampStr(eventData.start);
         std::string endTimeStr = TimeToTimestampStr(eventData.end);

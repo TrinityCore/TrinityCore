@@ -1,1 +1,1 @@
-DELETE FROM `trinity_string` WHERE `entry`=810;
+DELETE FROM `Kitron_string` WHERE `entry`=810;

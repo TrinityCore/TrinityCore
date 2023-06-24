@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -57,7 +57,7 @@ static char const* nullStr = "";
 
 char* DBCDatabaseLoader::Load(uint32& records, char**& indexTable)
 {
-    std::string query = Trinity::StringFormat("SELECT * FROM %s ORDER BY %s DESC;", _sqlTableName, _indexName);
+    std::string query = Kitron::StringFormat("SELECT * FROM %s ORDER BY %s DESC;", _sqlTableName, _indexName);
 
     // no error if empty set
     QueryResult result = WorldDatabase.Query(query.c_str());

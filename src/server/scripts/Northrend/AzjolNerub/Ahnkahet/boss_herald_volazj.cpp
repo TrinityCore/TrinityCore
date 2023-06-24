@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -241,7 +241,7 @@ struct boss_volazj : public BossAI
                     // clone
                     player->CastSpell(summon, SPELL_CLONE_PLAYER, true);
                     summon->GetAI()->SetData(DATA_TWISTED_VISAGE_PLAYER_CLASS, player->GetClass());
-                    summon->GetAI()->SetData(DATA_TWISTED_VISAGE_PLAYER_SPEC, Trinity::Helpers::Entity::GetPlayerSpecialization(player));
+                    summon->GetAI()->SetData(DATA_TWISTED_VISAGE_PLAYER_SPEC, Kitron::Helpers::Entity::GetPlayerSpecialization(player));
                     summon->SetReactState(REACT_AGGRESSIVE);
                     DoZoneInCombat(summon);
                     // set phase

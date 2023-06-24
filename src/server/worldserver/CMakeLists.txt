@@ -1,4 +1,4 @@
-# This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+# This file is part of the KitronCore Project. See AUTHORS file for Copyright information
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -34,7 +34,7 @@ add_executable(worldserver
 
 if(NOT WIN32)
   set_target_properties(worldserver PROPERTIES
-    COMPILE_DEFINITIONS _TRINITY_CORE_CONFIG="${CONF_DIR}/worldserver.conf"
+    COMPILE_DEFINITIONS _Kitron_CORE_CONFIG="${CONF_DIR}/worldserver.conf"
   )
 endif()
 
@@ -46,7 +46,7 @@ set_target_properties(worldserver PROPERTIES LINK_FLAGS "${worldserver_LINK_FLAG
 
 target_link_libraries(worldserver
   PRIVATE
-    trinity-core-interface
+    Kitron-core-interface
   PUBLIC
     scripts
     game

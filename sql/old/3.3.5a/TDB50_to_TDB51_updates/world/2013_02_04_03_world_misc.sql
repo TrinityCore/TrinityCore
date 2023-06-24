@@ -1,5 +1,5 @@
-DELETE FROM `trinity_string` WHERE `entry` BETWEEN 63 AND 95;
-INSERT INTO trinity_string (entry, content_default) VALUES
+DELETE FROM `Kitron_string` WHERE `entry` BETWEEN 63 AND 95;
+INSERT INTO Kitron_string (entry, content_default) VALUES
 (63, "Wrong parameter id: %u, does not exist"),
 (64, "Wrong parameter realmId: %d"),
 (65, "Couldn't add group %u (%s) realmId %d. Account %u (%s) already has that group"),

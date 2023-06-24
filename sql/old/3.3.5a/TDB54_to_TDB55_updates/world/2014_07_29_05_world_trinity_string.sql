@@ -1,1 +1,1 @@
-DELETE FROM `trinity_string` WHERE `entry` BETWEEN 10001 AND 10048;
+DELETE FROM `Kitron_string` WHERE `entry` BETWEEN 10001 AND 10048;

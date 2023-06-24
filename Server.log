@@ -1,4 +1,4 @@
-TrinityCore rev. b536709110e1+ 2023-06-10 18:29:54 +0200 (develop branch) (Unix, Debug, Static) (worldserver-daemon)
+KitronCore rev. b536709110e1+ 2023-06-10 18:29:54 +0200 (develop branch) (Unix, Debug, Static) (worldserver-daemon)
 <Ctrl-C> to stop.
 
  ______                       __
@@ -9,7 +9,7 @@ TrinityCore rev. b536709110e1+ 2023-06-10 18:29:54 +0200 (develop branch) (Unix,
      \ \_\ \_\  \ \_\ \_\ \_\ \_\ \__\\/`____ \
       \/_/\/_/   \/_/\/_/\/_/\/_/\/__/ `/___/> \
                                  C O R E  /\___/
-http://TrinityCore.org                    \/__/
+http://KitronCore.org                    \/__/
 
 Using configuration file src/server/worldserver/worldserver.conf.
 Using SSL version: OpenSSL 1.1.1f  31 Mar 2020 (library: OpenSSL 1.1.1f  31 Mar 2020)
@@ -28,8 +28,8 @@ Using DataDir /home/alekitto/projects/enturion/client_data/
 WORLD: MMap data directory is: /home/alekitto/projects/enturion/client_data/mmaps
 VMap support included. LineOfSight: 1, getHeight: 1, indoorCheck: 1
 VMap data directory is: /home/alekitto/projects/enturion/client_data/vmaps
-Loading Trinity strings...
->> Loaded 1020 trinity strings in 6 ms
+Loading Kitron strings...
+>> Loaded 1020 Kitron strings in 6 ms
 Initialize data stores...
 >> Initialized 114 data stores in 992 ms
 Using enUS DBC Locale as default. All available DBC locales: enUS 
@@ -474,4 +474,4 @@ Calculate deletion of old calendar events time...
 Calculate guild limitation(s) reset time...
 World initialized in 0 minutes 15 seconds
 Starting up anti-freeze thread (60 seconds max stuck time)...
-TrinityCore rev. b536709110e1+ 2023-06-10 18:29:54 +0200 (develop branch) (Unix, Debug, Static) (worldserver-daemon) ready...
+KitronCore rev. b536709110e1+ 2023-06-10 18:29:54 +0200 (develop branch) (Unix, Debug, Static) (worldserver-daemon) ready...

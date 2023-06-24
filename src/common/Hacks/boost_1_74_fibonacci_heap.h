@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,7 +21,7 @@
 #include "CompilerDefs.h"
 #include <boost/version.hpp>
 
-#if TRINITY_COMPILER == TRINITY_COMPILER_MICROSOFT && BOOST_VERSION == 107400
+#if Kitron_COMPILER == Kitron_COMPILER_MICROSOFT && BOOST_VERSION == 107400
 #define BOOST_1_74_FIBONACCI_HEAP_MSVC_COMPILE_FIX(T)                                           \
 namespace boost::heap::detail                                                                   \
 {                                                                                               \

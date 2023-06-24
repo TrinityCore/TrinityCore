@@ -16,9 +16,9 @@ Specify \'off\' to disable two-factor authentication for the account.');
 
 
 
-DELETE FROM `trinity_string` WHERE `entry` BETWEEN 88 AND 95;
-DELETE FROM `trinity_string` WHERE `entry` BETWEEN 188 AND 190;
-INSERT INTO `trinity_string` (`entry`,`content_default`) VALUES
+DELETE FROM `Kitron_string` WHERE `entry` BETWEEN 88 AND 95;
+DELETE FROM `Kitron_string` WHERE `entry` BETWEEN 188 AND 190;
+INSERT INTO `Kitron_string` (`entry`,`content_default`) VALUES
 (88, "Two-factor authentication commands are not properly setup."),
 (89, "Two-factor authentication is already enabled for this account."),
 (90, "Invalid two-factor authentication token specified."),

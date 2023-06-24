@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -37,11 +37,11 @@ RealmList* RealmList::Instance()
 }
 
 // Load the realm list from the database
-void RealmList::Initialize(Trinity::Asio::IoContext& ioContext, uint32 updateInterval)
+void RealmList::Initialize(Kitron::Asio::IoContext& ioContext, uint32 updateInterval)
 {
     _updateInterval = updateInterval;
-    _updateTimer = std::make_unique<Trinity::Asio::DeadlineTimer>(ioContext);
-    _resolver = std::make_unique<Trinity::Asio::Resolver>(ioContext);
+    _updateTimer = std::make_unique<Kitron::Asio::DeadlineTimer>(ioContext);
+    _resolver = std::make_unique<Kitron::Asio::Resolver>(ioContext);
 
     LoadBuildInfo();
     // Get the content of the realmlist table in the database

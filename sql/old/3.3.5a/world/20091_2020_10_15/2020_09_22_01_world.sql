@@ -1,8 +1,8 @@
 -- 
 DELETE FROM `command` WHERE `name` LIKE 'account%';
 
-DELETE FROM `trinity_string` WHERE `entry` BETWEEN 366 AND 382;
-INSERT INTO `trinity_string` (`entry`,`content_default`) VALUES
+DELETE FROM `Kitron_string` WHERE `entry` BETWEEN 366 AND 382;
+INSERT INTO `Kitron_string` (`entry`,`content_default`) VALUES
 (366, '### USAGE: .account set addon [<accountname>] <expansion>
 Sets the specified account\'s, or targeted player\'s account\'s expansion level. 0 = WoW, 1 = TBC, 2 = WotLK.'),
 (367, '### USAGE: .account set sec regmail <accountname> <email> <confirm email>

@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_CRYPTO_GENERICS_HPP
-#define TRINITY_CRYPTO_GENERICS_HPP
+#ifndef Kitron_CRYPTO_GENERICS_HPP
+#define Kitron_CRYPTO_GENERICS_HPP
 
 #include "BigNumber.h"
 #include "CryptoRandom.h"
@@ -25,7 +25,7 @@
 #include <iterator>
 #include <vector>
 
-namespace Trinity::Impl
+namespace Kitron::Impl
 {
     struct CryptoGenericsImpl
     {
@@ -33,7 +33,7 @@ namespace Trinity::Impl
         static typename Cipher::IV GenerateRandomIV()
         {
             typename Cipher::IV iv;
-            Trinity::Crypto::GetRandomBytes(iv);
+            Kitron::Crypto::GetRandomBytes(iv);
             return iv;
         }
 
@@ -56,7 +56,7 @@ namespace Trinity::Impl
     };
 }
 
-namespace Trinity::Crypto
+namespace Kitron::Crypto
 {
     template <typename Cipher>
     void AEEncryptWithRandomIV(std::vector<uint8>& data, typename Cipher::Key const& key)
@@ -64,7 +64,7 @@ namespace Trinity::Crypto
         using IV = typename Cipher::IV;
         using Tag = typename Cipher::Tag;
         // select random IV
-        IV iv = Trinity::Impl::CryptoGenericsImpl::GenerateRandomIV<Cipher>();
+        IV iv = Kitron::Impl::CryptoGenericsImpl::GenerateRandomIV<Cipher>();
         Tag tag;
 
         // encrypt data
@@ -74,8 +74,8 @@ namespace Trinity::Crypto
         ASSERT(success);
 
         // append trailing IV and tag
-        Trinity::Impl::CryptoGenericsImpl::AppendToBack(data, iv);
-        Trinity::Impl::CryptoGenericsImpl::AppendToBack(data, tag);
+        Kitron::Impl::CryptoGenericsImpl::AppendToBack(data, iv);
+        Kitron::Impl::CryptoGenericsImpl::AppendToBack(data, tag);
     }
 
     template <typename Cipher>
@@ -92,8 +92,8 @@ namespace Trinity::Crypto
         // extract trailing IV and tag
         IV iv;
         Tag tag;
-        Trinity::Impl::CryptoGenericsImpl::SplitFromBack(data, tag);
-        Trinity::Impl::CryptoGenericsImpl::SplitFromBack(data, iv);
+        Kitron::Impl::CryptoGenericsImpl::SplitFromBack(data, tag);
+        Kitron::Impl::CryptoGenericsImpl::SplitFromBack(data, iv);
 
         // decrypt data
         Cipher cipher(false);

@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -256,8 +256,8 @@ void EscortAI::UpdateEscortAI(uint32 /*diff*/)
 
 void EscortAI::AddWaypoint(uint32 id, float x, float y, float z, float orientation/* = 0*/, Milliseconds waitTime/* = 0s*/)
 {
-    Trinity::NormalizeMapCoord(x);
-    Trinity::NormalizeMapCoord(y);
+    Kitron::NormalizeMapCoord(x);
+    Kitron::NormalizeMapCoord(y);
 
     WaypointNode waypoint;
     waypoint.id = id;
@@ -446,8 +446,8 @@ void EscortAI::FillPointMovementListForCreature()
     for (WaypointNode const& value : path->nodes)
     {
         WaypointNode node = value;
-        Trinity::NormalizeMapCoord(node.x);
-        Trinity::NormalizeMapCoord(node.y);
+        Kitron::NormalizeMapCoord(node.x);
+        Kitron::NormalizeMapCoord(node.y);
         node.moveType = _running ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
 
         _path.nodes.push_back(std::move(node));

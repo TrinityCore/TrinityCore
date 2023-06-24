@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,23 +27,23 @@
 #include "ScriptMgr.h"
 #include "WorldSession.h"
 
-using ChatSubCommandMap = std::map<std::string_view, Trinity::Impl::ChatCommands::ChatCommandNode, StringCompareLessI_T>;
+using ChatSubCommandMap = std::map<std::string_view, Kitron::Impl::ChatCommands::ChatCommandNode, StringCompareLessI_T>;
 
-void Trinity::Impl::ChatCommands::ChatCommandNode::LoadFromBuilder(ChatCommandBuilder const& builder)
+void Kitron::Impl::ChatCommands::ChatCommandNode::LoadFromBuilder(ChatCommandBuilder const& builder)
 {
     if (std::holds_alternative<ChatCommandBuilder::InvokerEntry>(builder._data))
     {
         ASSERT(!_invoker, "Duplicate blank sub-command.");
-        TrinityStrings help;
+        KitronStrings help;
         std::tie(_invoker, help, _permission) = *(std::get<ChatCommandBuilder::InvokerEntry>(builder._data));
         if (help)
-            _help.emplace<TrinityStrings>(help);
+            _help.emplace<KitronStrings>(help);
     }
     else
         LoadCommandsIntoMap(this, _subCommands, std::get<ChatCommandBuilder::SubCommandEntry>(builder._data));
 }
 
-/*static*/ void Trinity::Impl::ChatCommands::ChatCommandNode::LoadCommandsIntoMap(ChatCommandNode* blank, ChatSubCommandMap& map, Trinity::ChatCommands::ChatCommandTable const& commands)
+/*static*/ void Kitron::Impl::ChatCommands::ChatCommandNode::LoadCommandsIntoMap(ChatCommandNode* blank, ChatSubCommandMap& map, Kitron::ChatCommands::ChatCommandTable const& commands)
 {
     for (ChatCommandBuilder const& builder : commands)
     {
@@ -54,7 +54,7 @@ void Trinity::Impl::ChatCommands::ChatCommandNode::LoadFromBuilder(ChatCommandBu
         }
         else
         {
-            std::vector<std::string_view> const tokens = Trinity::Tokenize(builder._name, COMMAND_DELIMITER, false);
+            std::vector<std::string_view> const tokens = Kitron::Tokenize(builder._name, COMMAND_DELIMITER, false);
             ASSERT(!tokens.empty(), "Invalid command name '" STRING_VIEW_FMT "'.", STRING_VIEW_FMT_ARG(builder._name));
             ChatSubCommandMap* subMap = &map;
             for (size_t i = 0, n = (tokens.size() - 1); i < n; ++i)
@@ -65,14 +65,14 @@ void Trinity::Impl::ChatCommands::ChatCommandNode::LoadFromBuilder(ChatCommandBu
 }
 
 static ChatSubCommandMap COMMAND_MAP;
-/*static*/ ChatSubCommandMap const& Trinity::Impl::ChatCommands::ChatCommandNode::GetTopLevelMap()
+/*static*/ ChatSubCommandMap const& Kitron::Impl::ChatCommands::ChatCommandNode::GetTopLevelMap()
 {
     if (COMMAND_MAP.empty())
         LoadCommandMap();
     return COMMAND_MAP;
 }
-/*static*/ void Trinity::Impl::ChatCommands::ChatCommandNode::InvalidateCommandMap() { COMMAND_MAP.clear(); }
-/*static*/ void Trinity::Impl::ChatCommands::ChatCommandNode::LoadCommandMap()
+/*static*/ void Kitron::Impl::ChatCommands::ChatCommandNode::InvalidateCommandMap() { COMMAND_MAP.clear(); }
+/*static*/ void Kitron::Impl::ChatCommands::ChatCommandNode::LoadCommandMap()
 {
     InvalidateCommandMap();
     LoadCommandsIntoMap(nullptr, COMMAND_MAP, sScriptMgr->GetChatCommands());
@@ -87,7 +87,7 @@ static ChatSubCommandMap COMMAND_MAP;
 
             ChatCommandNode* cmd = nullptr;
             ChatSubCommandMap* map = &COMMAND_MAP;
-            for (std::string_view key : Trinity::Tokenize(name, COMMAND_DELIMITER, false))
+            for (std::string_view key : Kitron::Tokenize(name, COMMAND_DELIMITER, false))
             {
                 auto it = map->find(key);
                 if (it != map->end())
@@ -112,7 +112,7 @@ static ChatSubCommandMap COMMAND_MAP;
             if (std::holds_alternative<std::monostate>(cmd->_help))
                 cmd->_help.emplace<std::string>(help);
             else
-                TC_LOG_ERROR("sql.sql", "Table `command` contains legacy help text for command '" STRING_VIEW_FMT "', which uses `trinity_string`. Skipped.", STRING_VIEW_FMT_ARG(name));
+                TC_LOG_ERROR("sql.sql", "Table `command` contains legacy help text for command '" STRING_VIEW_FMT "', which uses `Kitron_string`. Skipped.", STRING_VIEW_FMT_ARG(name));
         } while (result->NextRow());
     }
 
@@ -120,7 +120,7 @@ static ChatSubCommandMap COMMAND_MAP;
         cmd.ResolveNames(std::string(name));
 }
 
-void Trinity::Impl::ChatCommands::ChatCommandNode::ResolveNames(std::string name)
+void Kitron::Impl::ChatCommands::ChatCommandNode::ResolveNames(std::string name)
 {
     if (_invoker && std::holds_alternative<std::monostate>(_help))
         TC_LOG_WARN("sql.sql", "Table `command` is missing help text for command '" STRING_VIEW_FMT "'.", STRING_VIEW_FMT_ARG(name));
@@ -166,13 +166,13 @@ static void LogCommandUsage(WorldSession const& session, uint32 permission, std:
         targetGuid.ToString().c_str());
 }
 
-void Trinity::Impl::ChatCommands::ChatCommandNode::SendCommandHelp(ChatHandler& handler) const
+void Kitron::Impl::ChatCommands::ChatCommandNode::SendCommandHelp(ChatHandler& handler) const
 {
     bool const hasInvoker = IsInvokerVisible(handler);
     if (hasInvoker)
     {
-        if (std::holds_alternative<TrinityStrings>(_help))
-            handler.SendSysMessage(std::get<TrinityStrings>(_help));
+        if (std::holds_alternative<KitronStrings>(_help))
+            handler.SendSysMessage(std::get<KitronStrings>(_help));
         else if (std::holds_alternative<std::string>(_help))
             handler.SendSysMessage(std::get<std::string>(_help));
         else
@@ -199,7 +199,7 @@ void Trinity::Impl::ChatCommands::ChatCommandNode::SendCommandHelp(ChatHandler& 
     }
 }
 
-namespace Trinity::Impl::ChatCommands
+namespace Kitron::Impl::ChatCommands
 {
     struct FilteredCommandListIterator
     {
@@ -240,7 +240,7 @@ namespace Trinity::Impl::ChatCommands
     };
 }
 
-/*static*/ bool Trinity::Impl::ChatCommands::ChatCommandNode::TryExecuteCommand(ChatHandler& handler, std::string_view cmdStr)
+/*static*/ bool Kitron::Impl::ChatCommands::ChatCommandNode::TryExecuteCommand(ChatHandler& handler, std::string_view cmdStr)
 {
     ChatCommandNode const* cmd = nullptr;
     ChatSubCommandMap const* map = &GetTopLevelMap();
@@ -307,11 +307,11 @@ namespace Trinity::Impl::ChatCommands
     return false;
 }
 
-/*static*/ void Trinity::Impl::ChatCommands::ChatCommandNode::SendCommandHelpFor(ChatHandler& handler, std::string_view cmdStr)
+/*static*/ void Kitron::Impl::ChatCommands::ChatCommandNode::SendCommandHelpFor(ChatHandler& handler, std::string_view cmdStr)
 {
     ChatCommandNode const* cmd = nullptr;
     ChatSubCommandMap const* map = &GetTopLevelMap();
-    for (std::string_view token : Trinity::Tokenize(cmdStr, COMMAND_DELIMITER, false))
+    for (std::string_view token : Kitron::Tokenize(cmdStr, COMMAND_DELIMITER, false))
     {
         FilteredCommandListIterator it1(*map, handler, token);
         if (!it1)
@@ -369,7 +369,7 @@ namespace Trinity::Impl::ChatCommands
         handler.PSendSysMessage(LANG_CMD_INVALID, STRING_VIEW_FMT_ARG(cmdStr));
 }
 
-/*static*/ std::vector<std::string> Trinity::Impl::ChatCommands::ChatCommandNode::GetAutoCompletionsFor(ChatHandler const& handler, std::string_view cmdStr)
+/*static*/ std::vector<std::string> Kitron::Impl::ChatCommands::ChatCommandNode::GetAutoCompletionsFor(ChatHandler const& handler, std::string_view cmdStr)
 {
     std::string path;
     ChatCommandNode const* cmd = nullptr;
@@ -401,12 +401,12 @@ namespace Trinity::Impl::ChatCommands
                 {
                     if (prefix.empty())
                     {
-                        return Trinity::StringFormat(STRING_VIEW_FMT "%c" STRING_VIEW_FMT,
+                        return Kitron::StringFormat(STRING_VIEW_FMT "%c" STRING_VIEW_FMT,
                             STRING_VIEW_FMT_ARG(match), COMMAND_DELIMITER, STRING_VIEW_FMT_ARG(suffix));
                     }
                     else
                     {
-                        return Trinity::StringFormat(STRING_VIEW_FMT "%c" STRING_VIEW_FMT "%c" STRING_VIEW_FMT,
+                        return Kitron::StringFormat(STRING_VIEW_FMT "%c" STRING_VIEW_FMT "%c" STRING_VIEW_FMT,
                             STRING_VIEW_FMT_ARG(prefix), COMMAND_DELIMITER, STRING_VIEW_FMT_ARG(match), COMMAND_DELIMITER, STRING_VIEW_FMT_ARG(suffix));
                     }
                 });
@@ -425,7 +425,7 @@ namespace Trinity::Impl::ChatCommands
             path.assign(it1->first);
         else
         {
-            path = Trinity::StringFormat(STRING_VIEW_FMT "%c" STRING_VIEW_FMT,
+            path = Kitron::StringFormat(STRING_VIEW_FMT "%c" STRING_VIEW_FMT,
                 STRING_VIEW_FMT_ARG(path), COMMAND_DELIMITER, STRING_VIEW_FMT_ARG(it1->first));
         }
         cmd = &it1->second;
@@ -439,7 +439,7 @@ namespace Trinity::Impl::ChatCommands
         if (cmd)
         { /* if we matched a command at some point, auto-complete it */
             return {
-                Trinity::StringFormat(STRING_VIEW_FMT "%c" STRING_VIEW_FMT,
+                Kitron::StringFormat(STRING_VIEW_FMT "%c" STRING_VIEW_FMT,
                     STRING_VIEW_FMT_ARG(path), COMMAND_DELIMITER, STRING_VIEW_FMT_ARG(oldTail))
             };
         }
@@ -454,7 +454,7 @@ namespace Trinity::Impl::ChatCommands
                 return std::string(match);
             else
             {
-                return Trinity::StringFormat(STRING_VIEW_FMT "%c" STRING_VIEW_FMT,
+                return Kitron::StringFormat(STRING_VIEW_FMT "%c" STRING_VIEW_FMT,
                     STRING_VIEW_FMT_ARG(prefix), COMMAND_DELIMITER, STRING_VIEW_FMT_ARG(match));
             }
         });
@@ -466,16 +466,16 @@ namespace Trinity::Impl::ChatCommands
     }
 }
 
-bool Trinity::Impl::ChatCommands::ChatCommandNode::IsInvokerVisible(ChatHandler const& who) const
+bool Kitron::Impl::ChatCommands::ChatCommandNode::IsInvokerVisible(ChatHandler const& who) const
 {
     if (!_invoker)
         return false;
-    if (who.IsConsole() && (_permission.AllowConsole == Trinity::ChatCommands::Console::No))
+    if (who.IsConsole() && (_permission.AllowConsole == Kitron::ChatCommands::Console::No))
         return false;
     return who.HasPermission(_permission.RequiredPermission);
 }
 
-bool Trinity::Impl::ChatCommands::ChatCommandNode::HasVisibleSubCommands(ChatHandler const& who) const
+bool Kitron::Impl::ChatCommands::ChatCommandNode::HasVisibleSubCommands(ChatHandler const& who) const
 {
     for (auto it = _subCommands.begin(); it != _subCommands.end(); ++it)
         if (it->second.IsVisible(who))
@@ -483,8 +483,8 @@ bool Trinity::Impl::ChatCommands::ChatCommandNode::HasVisibleSubCommands(ChatHan
     return false;
 }
 
-void Trinity::ChatCommands::LoadCommandMap() { Trinity::Impl::ChatCommands::ChatCommandNode::LoadCommandMap(); }
-void Trinity::ChatCommands::InvalidateCommandMap() { Trinity::Impl::ChatCommands::ChatCommandNode::InvalidateCommandMap(); }
-bool Trinity::ChatCommands::TryExecuteCommand(ChatHandler& handler, std::string_view cmd) { return Trinity::Impl::ChatCommands::ChatCommandNode::TryExecuteCommand(handler, cmd); }
-void Trinity::ChatCommands::SendCommandHelpFor(ChatHandler& handler, std::string_view cmd) { Trinity::Impl::ChatCommands::ChatCommandNode::SendCommandHelpFor(handler, cmd); }
-std::vector<std::string> Trinity::ChatCommands::GetAutoCompletionsFor(ChatHandler const& handler, std::string_view cmd) { return Trinity::Impl::ChatCommands::ChatCommandNode::GetAutoCompletionsFor(handler, cmd); }
+void Kitron::ChatCommands::LoadCommandMap() { Kitron::Impl::ChatCommands::ChatCommandNode::LoadCommandMap(); }
+void Kitron::ChatCommands::InvalidateCommandMap() { Kitron::Impl::ChatCommands::ChatCommandNode::InvalidateCommandMap(); }
+bool Kitron::ChatCommands::TryExecuteCommand(ChatHandler& handler, std::string_view cmd) { return Kitron::Impl::ChatCommands::ChatCommandNode::TryExecuteCommand(handler, cmd); }
+void Kitron::ChatCommands::SendCommandHelpFor(ChatHandler& handler, std::string_view cmd) { Kitron::Impl::ChatCommands::ChatCommandNode::SendCommandHelpFor(handler, cmd); }
+std::vector<std::string> Kitron::ChatCommands::GetAutoCompletionsFor(ChatHandler const& handler, std::string_view cmd) { return Kitron::Impl::ChatCommands::ChatCommandNode::GetAutoCompletionsFor(handler, cmd); }

@@ -13,8 +13,8 @@ run
 if $_isvoid($_exitcode)
   echo \n--- DEBUG: BACKTRACE FULL\n
   # print assertion message if this is ASSERT crash
-  if TrinityAssertionFailedMessage != 0
-    printf "%s\n", TrinityAssertionFailedMessage
+  if KitronAssertionFailedMessage != 0
+    printf "%s\n", KitronAssertionFailedMessage
   end
   echo \n
   backtrace full

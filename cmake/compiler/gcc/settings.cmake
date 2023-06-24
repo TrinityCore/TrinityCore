@@ -1,25 +1,25 @@
 # Set build-directive (used in core to tell which buildtype we used)
-target_compile_definitions(trinity-compile-option-interface
+target_compile_definitions(Kitron-compile-option-interface
   INTERFACE
     -D_BUILD_DIRECTIVE="$<CONFIG>")
 
 set(GCC_EXPECTED_VERSION 8.3.0)
 
 if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS GCC_EXPECTED_VERSION)
-  message(FATAL_ERROR "GCC: TrinityCore requires version ${GCC_EXPECTED_VERSION} to build but found ${CMAKE_CXX_COMPILER_VERSION}")
+  message(FATAL_ERROR "GCC: KitronCore requires version ${GCC_EXPECTED_VERSION} to build but found ${CMAKE_CXX_COMPILER_VERSION}")
 else()
   message(STATUS "GCC: Minimum version required is ${GCC_EXPECTED_VERSION}, found ${CMAKE_CXX_COMPILER_VERSION} - ok!")
 endif()
 
 if(PLATFORM EQUAL 32)
   # Required on 32-bit systems to enable SSE2 (standard on x64)
-  target_compile_options(trinity-compile-option-interface
+  target_compile_options(Kitron-compile-option-interface
     INTERFACE
       -msse2
       -mfpmath=sse)
 endif()
 if(NOT CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
-  target_compile_definitions(trinity-compile-option-interface
+  target_compile_definitions(Kitron-compile-option-interface
     INTERFACE
       -DHAVE_SSE2
       -D__SSE2__)
@@ -27,7 +27,7 @@ if(NOT CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
 endif()
 
 if(WITH_WARNINGS)
-  target_compile_options(trinity-warning-interface
+  target_compile_options(Kitron-warning-interface
     INTERFACE
       -W
       -Wall
@@ -41,7 +41,7 @@ if(WITH_WARNINGS)
 endif()
 
 if(WITH_COREDEBUG)
-  target_compile_options(trinity-compile-option-interface
+  target_compile_options(Kitron-compile-option-interface
     INTERFACE
       -g3)
 
@@ -49,14 +49,14 @@ if(WITH_COREDEBUG)
 endif()
 
 if(ASAN)
-  target_compile_options(trinity-compile-option-interface
+  target_compile_options(Kitron-compile-option-interface
     INTERFACE
       -fno-omit-frame-pointer
       -fsanitize=address
       -fsanitize-recover=address
       -fsanitize-address-use-after-scope)
 
-  target_link_options(trinity-compile-option-interface
+  target_link_options(Kitron-compile-option-interface
     INTERFACE
       -fno-omit-frame-pointer
       -fsanitize=address
@@ -67,16 +67,16 @@ if(ASAN)
 endif()
 
 if(BUILD_SHARED_LIBS)
-  target_compile_options(trinity-compile-option-interface
+  target_compile_options(Kitron-compile-option-interface
     INTERFACE
       -fPIC
       -Wno-attributes)
 
-  target_compile_options(trinity-hidden-symbols-interface
+  target_compile_options(Kitron-hidden-symbols-interface
     INTERFACE
       -fvisibility=hidden)
 
-  # Should break the build when there are TRINITY_*_API macros missing
+  # Should break the build when there are Kitron_*_API macros missing
   # but it complains about missing references in precompiled headers.
   # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wl,--no-undefined")
   # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--no-undefined")

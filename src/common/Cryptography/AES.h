@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,14 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Trinity_AES_h__
-#define Trinity_AES_h__
+#ifndef Kitron_AES_h__
+#define Kitron_AES_h__
 
 #include "Define.h"
 #include <array>
 #include <openssl/evp.h>
 
-namespace Trinity::Crypto
+namespace Kitron::Crypto
 {
     class TC_COMMON_API AES
     {
@@ -48,4 +48,4 @@ namespace Trinity::Crypto
     };
 }
 
-#endif // Trinity_AES_h__
+#endif // Kitron_AES_h__

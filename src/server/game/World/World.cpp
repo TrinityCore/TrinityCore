@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1376,7 +1376,7 @@ void World::LoadConfigSettings(bool reload)
     if (dataPath.empty() || (dataPath.at(dataPath.length()-1) != '/' && dataPath.at(dataPath.length()-1) != '\\'))
         dataPath.push_back('/');
 
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_UNIX || TRINITY_PLATFORM == TRINITY_PLATFORM_APPLE
+#if Kitron_PLATFORM == Kitron_PLATFORM_UNIX || Kitron_PLATFORM == Kitron_PLATFORM_APPLE
     if (dataPath[0] == '~')
     {
         char const* home = getenv("HOME");
@@ -1602,8 +1602,8 @@ void World::SetInitialWorldSettings()
 
     ///- Loading strings. Getting no records means core load has to be canceled because no error message can be output.
 
-    TC_LOG_INFO("server.loading", "Loading Trinity strings...");
-    if (!sObjectMgr->LoadTrinityStrings())
+    TC_LOG_INFO("server.loading", "Loading Kitron strings...");
+    if (!sObjectMgr->LoadKitronStrings())
         exit(1);                                            // Error message displayed in function already
 
     ///- Update the realm entry in the database with the realm type from the config file
@@ -2104,7 +2104,7 @@ void World::SetInitialWorldSettings()
     sObjectMgr->InitializeQueriesData(QUERY_DATA_ALL);
 
     TC_LOG_INFO("server.loading", "Initialize commands...");
-    Trinity::ChatCommands::LoadCommandMap();
+    Kitron::ChatCommands::LoadCommandMap();
 
     ///- Initialize game time and timers
     TC_LOG_INFO("server.loading", "Initialize game time and timers");
@@ -2628,7 +2628,7 @@ void World::SendGlobalGMMessage(WorldPacket const* packet, WorldSession* self, u
     }
 }
 
-namespace Trinity
+namespace Kitron
 {
     class WorldWorldTextBuilder
     {
@@ -2637,7 +2637,7 @@ namespace Trinity
             explicit WorldWorldTextBuilder(uint32 textId, va_list* args = nullptr) : i_textId(textId), i_args(args) { }
             void operator()(WorldPacketList& data_list, LocaleConstant loc_idx)
             {
-                char const* text = sObjectMgr->GetTrinityString(i_textId, loc_idx);
+                char const* text = sObjectMgr->GetKitronString(i_textId, loc_idx);
 
                 if (i_args)
                 {
@@ -2670,7 +2670,7 @@ namespace Trinity
             uint32 i_textId;
             va_list* i_args;
     };
-}                                                           // namespace Trinity
+}                                                           // namespace Kitron
 
 /// Send a System Message to all players (except self if mentioned)
 void World::SendWorldText(uint32 string_id, ...)
@@ -2678,8 +2678,8 @@ void World::SendWorldText(uint32 string_id, ...)
     va_list ap;
     va_start(ap, string_id);
 
-    Trinity::WorldWorldTextBuilder wt_builder(string_id, &ap);
-    Trinity::LocalizedPacketListDo<Trinity::WorldWorldTextBuilder> wt_do(wt_builder);
+    Kitron::WorldWorldTextBuilder wt_builder(string_id, &ap);
+    Kitron::LocalizedPacketListDo<Kitron::WorldWorldTextBuilder> wt_do(wt_builder);
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
     {
         if (!itr->second || !itr->second->GetPlayer() || !itr->second->GetPlayer()->IsInWorld())
@@ -2697,8 +2697,8 @@ void World::SendGMText(uint32 string_id, ...)
     va_list ap;
     va_start(ap, string_id);
 
-    Trinity::WorldWorldTextBuilder wt_builder(string_id, &ap);
-    Trinity::LocalizedPacketListDo<Trinity::WorldWorldTextBuilder> wt_do(wt_builder);
+    Kitron::WorldWorldTextBuilder wt_builder(string_id, &ap);
+    Kitron::LocalizedPacketListDo<Kitron::WorldWorldTextBuilder> wt_do(wt_builder);
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
     {
         // Session should have permissions to receive global gm messages

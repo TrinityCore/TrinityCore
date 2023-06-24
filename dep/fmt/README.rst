@@ -385,7 +385,7 @@ Projects using this library
 
 * `Touch Surgery <https://www.touchsurgery.com/>`_: surgery simulator
 
-* `TrinityCore <https://github.com/TrinityCore/TrinityCore>`_: open-source
+* `KitronCore <https://github.com/KitronCore/KitronCore>`_: open-source
   MMORPG framework
 
 * `Windows Terminal <https://github.com/microsoft/terminal>`_: the new Windows

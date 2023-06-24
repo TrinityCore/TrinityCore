@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrinityCore_Regex_h__
-#define TrinityCore_Regex_h__
+#ifndef KitronCore_Regex_h__
+#define KitronCore_Regex_h__
 
 #ifndef TC_HAS_BROKEN_WSTRING_REGEX
 #include <regex>
@@ -27,7 +27,7 @@
 #endif
 
 // regex compatibility layer, required for clang building with libstdc++-4.9
-namespace Trinity
+namespace Kitron
 {
     using regex = TC_REGEX_NAMESPACE :: regex;
     using wregex = TC_REGEX_NAMESPACE :: wregex;
@@ -36,4 +36,4 @@ namespace Trinity
     using :: TC_REGEX_NAMESPACE :: regex_search;
 }
 
-#endif // TrinityCore_Regex_h__
+#endif // KitronCore_Regex_h__

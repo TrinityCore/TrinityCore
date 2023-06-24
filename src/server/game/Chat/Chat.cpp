@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -36,9 +36,9 @@
 
 Player* ChatHandler::GetPlayer() const { return m_session ? m_session->GetPlayer() : nullptr; }
 
-char const* ChatHandler::GetTrinityString(uint32 entry) const
+char const* ChatHandler::GetKitronString(uint32 entry) const
 {
-    return m_session->GetTrinityString(entry);
+    return m_session->GetKitronString(entry);
 }
 
 bool ChatHandler::HasPermission(uint32 permission) const
@@ -108,7 +108,7 @@ void ChatHandler::SendSysMessage(std::string_view str, bool escapeCharacters)
     // Replace every "|" with "||" in msg
     if (escapeCharacters && msg.find('|') != std::string::npos)
     {
-        std::vector<std::string_view> tokens = Trinity::Tokenize(msg, '|', true);
+        std::vector<std::string_view> tokens = Kitron::Tokenize(msg, '|', true);
         std::ostringstream stream;
         for (size_t i = 0; i < tokens.size() - 1; ++i)
             stream << tokens[i] << "||";
@@ -118,7 +118,7 @@ void ChatHandler::SendSysMessage(std::string_view str, bool escapeCharacters)
     }
 
     WorldPacket data;
-    for (std::string_view line : Trinity::Tokenize(str, '\n', true))
+    for (std::string_view line : Kitron::Tokenize(str, '\n', true))
     {
         BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
         m_session->SendPacket(&data);
@@ -128,7 +128,7 @@ void ChatHandler::SendSysMessage(std::string_view str, bool escapeCharacters)
 void ChatHandler::SendGlobalSysMessage(const char *str)
 {
     WorldPacket data;
-    for (std::string_view line : Trinity::Tokenize(str, '\n', true))
+    for (std::string_view line : Kitron::Tokenize(str, '\n', true))
     {
         BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
         sWorld->SendGlobalMessage(&data);
@@ -138,7 +138,7 @@ void ChatHandler::SendGlobalSysMessage(const char *str)
 void ChatHandler::SendGlobalGMSysMessage(const char *str)
 {
     WorldPacket data;
-    for (std::string_view line : Trinity::Tokenize(str, '\n', true))
+    for (std::string_view line : Kitron::Tokenize(str, '\n', true))
     {
         BuildChatPacket(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
         sWorld->SendGlobalGMMessage(&data);
@@ -147,12 +147,12 @@ void ChatHandler::SendGlobalGMSysMessage(const char *str)
 
 void ChatHandler::SendSysMessage(uint32 entry)
 {
-    SendSysMessage(GetTrinityString(entry));
+    SendSysMessage(GetKitronString(entry));
 }
 
 bool ChatHandler::_ParseCommands(std::string_view text)
 {
-    if (Trinity::ChatCommands::TryExecuteCommand(*this, text))
+    if (Kitron::ChatCommands::TryExecuteCommand(*this, text))
         return true;
 
     // Pretend commands don't exist for regular players
@@ -182,7 +182,7 @@ bool ChatHandler::ParseCommands(std::string_view text)
         return false;
 
     // ignore messages with separator after .
-    if (text[1] == Trinity::Impl::ChatCommands::COMMAND_DELIMITER)
+    if (text[1] == Kitron::Impl::ChatCommands::COMMAND_DELIMITER)
         return false;
 
     return _ParseCommands(text.substr(1));
@@ -478,8 +478,8 @@ GameObject* ChatHandler::GetNearbyGameObject()
 
     Player* pl = m_session->GetPlayer();
     GameObject* obj = nullptr;
-    Trinity::NearestGameObjectCheck check(*pl);
-    Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectCheck> searcher(pl, obj, check);
+    Kitron::NearestGameObjectCheck check(*pl);
+    Kitron::GameObjectLastSearcher<Kitron::NearestGameObjectCheck> searcher(pl, obj, check);
     Cell::VisitGridObjects(pl, searcher, SIZE_OF_GRIDS);
     return obj;
 }
@@ -772,9 +772,9 @@ std::string ChatHandler::GetNameLink(Player* chr) const
     return playerLink(chr->GetName());
 }
 
-char const* CliHandler::GetTrinityString(uint32 entry) const
+char const* CliHandler::GetKitronString(uint32 entry) const
 {
-    return sObjectMgr->GetTrinityStringForDBCLocale(entry);
+    return sObjectMgr->GetKitronStringForDBCLocale(entry);
 }
 
 void CliHandler::SendSysMessage(std::string_view str, bool /*escapeCharacters*/)
@@ -795,7 +795,7 @@ bool CliHandler::ParseCommands(std::string_view str)
 
 std::string CliHandler::GetNameLink() const
 {
-    return GetTrinityString(LANG_CONSOLE_COMMAND);
+    return GetKitronString(LANG_CONSOLE_COMMAND);
 }
 
 bool CliHandler::needReportToTarget(Player* /*chr*/) const
@@ -861,7 +861,7 @@ bool AddonChannelCommandHandler::ParseCommands(std::string_view str)
 {
     if (str.length() < 17)
         return false;
-    if (!StringStartsWith(str, "TrinityCore\t"))
+    if (!StringStartsWith(str, "KitronCore\t"))
         return false;
     char opcode = str[12];
     echo = &str[13];
@@ -909,7 +909,7 @@ void AddonChannelCommandHandler::Send(std::string const& msg)
 void AddonChannelCommandHandler::SendAck() // a Command acknowledged, no body
 {
     ASSERT(echo);
-    char ack[18] = "TrinityCore\ta";
+    char ack[18] = "KitronCore\ta";
     memcpy(ack+13, echo, 4);
     ack[17] = '\0';
     Send(ack);
@@ -919,7 +919,7 @@ void AddonChannelCommandHandler::SendAck() // a Command acknowledged, no body
 void AddonChannelCommandHandler::SendOK() // o Command OK, no body
 {
     ASSERT(echo);
-    char ok[18] = "TrinityCore\to";
+    char ok[18] = "KitronCore\to";
     memcpy(ok+13, echo, 4);
     ok[17] = '\0';
     Send(ok);
@@ -928,7 +928,7 @@ void AddonChannelCommandHandler::SendOK() // o Command OK, no body
 void AddonChannelCommandHandler::SendFailed() // f Command failed, no body
 {
     ASSERT(echo);
-    char fail[18] = "TrinityCore\tf";
+    char fail[18] = "KitronCore\tf";
     memcpy(fail + 13, echo, 4);
     fail[17] = '\0';
     Send(fail);
@@ -941,7 +941,7 @@ void AddonChannelCommandHandler::SendSysMessage(std::string_view str, bool escap
     if (!hadAck)
         SendAck();
 
-    std::string msg = "TrinityCore\tm";
+    std::string msg = "KitronCore\tm";
     msg.append(echo, 4);
     std::string body(str);
     if (escapeCharacters)

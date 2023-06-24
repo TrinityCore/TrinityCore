@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1753,7 +1753,7 @@ class spell_pursue : public SpellScriptLoader
             // EFFECT #0 - select target
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                Trinity::Containers::RandomResize(targets, FlameLeviathanPursuedTargetSelector(), 1);
+                Kitron::Containers::RandomResize(targets, FlameLeviathanPursuedTargetSelector(), 1);
                 if (targets.empty())
                 {
                     if (Unit* caster = GetCaster())
@@ -1807,8 +1807,8 @@ class spell_vehicle_throw_passenger : public SpellScriptLoader
                         {
                             // use 99 because it is 3d search
                             std::list<WorldObject*> targetList;
-                            Trinity::WorldObjectSpellAreaTargetCheck check(99, GetExplTargetDest(), GetCaster(), GetCaster(), GetSpellInfo(), TARGET_CHECK_DEFAULT, nullptr);
-                            Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> searcher(GetCaster(), targetList, check);
+                            Kitron::WorldObjectSpellAreaTargetCheck check(99, GetExplTargetDest(), GetCaster(), GetCaster(), GetSpellInfo(), TARGET_CHECK_DEFAULT, nullptr);
+                            Kitron::WorldObjectListSearcher<Kitron::WorldObjectSpellAreaTargetCheck> searcher(GetCaster(), targetList, check);
                             Cell::VisitAllObjects(GetCaster(), searcher, 99.0f);
                             float minDist = 99 * 99;
                             Unit* target = nullptr;

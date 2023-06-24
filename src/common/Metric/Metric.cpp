@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,12 +25,12 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/asio/ip/tcp.hpp>
 
-void Metric::Initialize(std::string const& realmName, Trinity::Asio::IoContext& ioContext, std::function<void()> overallStatusLogger)
+void Metric::Initialize(std::string const& realmName, Kitron::Asio::IoContext& ioContext, std::function<void()> overallStatusLogger)
 {
     _dataStream = std::make_unique<boost::asio::ip::tcp::iostream>();
     _realmName = FormatInfluxDBTagValue(realmName);
-    _batchTimer = std::make_unique<Trinity::Asio::DeadlineTimer>(ioContext);
-    _overallStatusTimer = std::make_unique<Trinity::Asio::DeadlineTimer>(ioContext);
+    _batchTimer = std::make_unique<Kitron::Asio::DeadlineTimer>(ioContext);
+    _overallStatusTimer = std::make_unique<Kitron::Asio::DeadlineTimer>(ioContext);
     _overallStatusLogger = overallStatusLogger;
     LoadFromConfigs();
 }
@@ -89,7 +89,7 @@ void Metric::LoadFromConfigs()
             return;
         }
 
-        std::vector<std::string_view> tokens = Trinity::Tokenize(connectionInfo, ';', true);
+        std::vector<std::string_view> tokens = Kitron::Tokenize(connectionInfo, ';', true);
         if (tokens.size() != 3)
         {
             TC_LOG_ERROR("metric", "'Metric.ConnectionInfo' specified with wrong format in configuration file.");
@@ -236,7 +236,7 @@ void Metric::ScheduleSend()
 void Metric::Unload()
 {
     // Send what's queued only if IoContext is stopped (so only on shutdown)
-    if (_enabled && Trinity::Asio::get_io_context(*_batchTimer).stopped())
+    if (_enabled && Kitron::Asio::get_io_context(*_batchTimer).stopped())
     {
         _enabled = false;
         SendBatch();

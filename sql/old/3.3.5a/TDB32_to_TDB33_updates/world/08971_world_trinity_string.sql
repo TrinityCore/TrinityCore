@@ -1,5 +1,5 @@
-DELETE FROM trinity_string WHERE entry IN (1016, 1017, 1018, 1019, 1020, 1021, 1022, 1023, 1024, 1025, 1026);
-INSERT INTO trinity_string VALUES
+DELETE FROM Kitron_string WHERE entry IN (1016, 1017, 1018, 1019, 1020, 1021, 1022, 1023, 1024, 1025, 1026);
+INSERT INTO Kitron_string VALUES
 (1016, '| GUID       | Name                 | Account                      | Delete Date         |', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (1017, '| %10u | %20s | %15s (%10u) | %19s |', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (1018, '==========================================================================================', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),

@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -87,7 +87,7 @@ bool Corpse::Create(ObjectGuid::LowType guidlow, Player* owner)
     SetObjectScale(1.0f);
     SetGuidValue(CORPSE_FIELD_OWNER, owner->GetGUID());
 
-    _cellCoord = Trinity::ComputeCellCoord(GetPositionX(), GetPositionY());
+    _cellCoord = Kitron::ComputeCellCoord(GetPositionX(), GetPositionY());
 
     return true;
 }
@@ -194,7 +194,7 @@ bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
         return false;
     }
 
-    _cellCoord = Trinity::ComputeCellCoord(GetPositionX(), GetPositionY());
+    _cellCoord = Kitron::ComputeCellCoord(GetPositionX(), GetPositionY());
     return true;
 }
 

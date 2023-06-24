@@ -1,5 +1,5 @@
-DELETE FROM `trinity_string` WHERE `entry` IN (5057, 5058);
-INSERT INTO `trinity_string` (`entry`, `content_default`) VALUES
+DELETE FROM `Kitron_string` WHERE `entry` IN (5057, 5058);
+INSERT INTO `Kitron_string` (`entry`, `content_default`) VALUES
 (5057, 'Boss id %i state is now set to %i.'),
 (5058, 'Boss id %i state is %i.');
 

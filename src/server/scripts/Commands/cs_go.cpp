@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -36,7 +36,7 @@ EndScriptData */
 #include "Util.h"
 #include "WorldSession.h"
 
-using namespace Trinity::ChatCommands;
+using namespace Kitron::ChatCommands;
 
 class go_commandscript : public CommandScript
 {
@@ -488,7 +488,7 @@ public:
             }
 
             // remove any matches without spawns
-            Trinity::Containers::EraseIf(matches, [&spawnLookup](decltype(matches)::value_type const& pair) { return spawnLookup[pair.second->Entry].empty(); });
+            Kitron::Containers::EraseIf(matches, [&spawnLookup](decltype(matches)::value_type const& pair) { return spawnLookup[pair.second->Entry].empty(); });
         }
 
         // check if we even have any matches left

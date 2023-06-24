@@ -1,8 +1,8 @@
 -- 
 DELETE FROM `command` WHERE (`name` LIKE 'learn%') OR (`name` = 'unlearn');
 
-DELETE FROM `trinity_string` WHERE `entry` BETWEEN 383 AND 394;
-INSERT INTO `trinity_string` (`entry`,`content_default`) VALUES
+DELETE FROM `Kitron_string` WHERE `entry` BETWEEN 383 AND 394;
+INSERT INTO `Kitron_string` (`entry`,`content_default`) VALUES
 (383, '### USAGE: .learn <spell> [all]
 Teaches the specified spell.
 If \'all\' is specified, teaches all ranks of the spell instead.'),

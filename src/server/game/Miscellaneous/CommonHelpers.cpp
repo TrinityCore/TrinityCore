@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -245,7 +245,7 @@ static const uint32 PlayerSpecializationIconicSpells[MAX_CLASSES][MAX_TALENT_TRE
     }
 };
 
-uint8 Trinity::Helpers::Entity::GetPlayerSpecialization(Player const* who)
+uint8 Kitron::Helpers::Entity::GetPlayerSpecialization(Player const* who)
 {
     if (!who)
         return 0;
@@ -261,7 +261,7 @@ uint8 Trinity::Helpers::Entity::GetPlayerSpecialization(Player const* who)
     return 0;
 }
 
-bool Trinity::Helpers::Entity::IsPlayerHealer(Player const* who)
+bool Kitron::Helpers::Entity::IsPlayerHealer(Player const* who)
 {
     if (!who)
         return false;
@@ -277,17 +277,17 @@ bool Trinity::Helpers::Entity::IsPlayerHealer(Player const* who)
         default:
             return false;
         case CLASS_PALADIN:
-            return (Trinity::Helpers::Entity::GetPlayerSpecialization(who) == SPEC_PALADIN_HOLY);
+            return (Kitron::Helpers::Entity::GetPlayerSpecialization(who) == SPEC_PALADIN_HOLY);
         case CLASS_PRIEST:
-            return (Trinity::Helpers::Entity::GetPlayerSpecialization(who) != SPEC_PRIEST_SHADOW);
+            return (Kitron::Helpers::Entity::GetPlayerSpecialization(who) != SPEC_PRIEST_SHADOW);
         case CLASS_SHAMAN:
-            return (Trinity::Helpers::Entity::GetPlayerSpecialization(who) == SPEC_SHAMAN_RESTORATION);
+            return (Kitron::Helpers::Entity::GetPlayerSpecialization(who) == SPEC_SHAMAN_RESTORATION);
         case CLASS_DRUID:
-            return (Trinity::Helpers::Entity::GetPlayerSpecialization(who) == SPEC_DRUID_RESTORATION);
+            return (Kitron::Helpers::Entity::GetPlayerSpecialization(who) == SPEC_DRUID_RESTORATION);
     }
 }
 
-bool Trinity::Helpers::Entity::IsPlayerRangedAttacker(Player const* who)
+bool Kitron::Helpers::Entity::IsPlayerRangedAttacker(Player const* who)
 {
     if (!who)
         return false;
@@ -315,10 +315,10 @@ bool Trinity::Helpers::Entity::IsPlayerRangedAttacker(Player const* who)
             return false;
         }
         case CLASS_PRIEST:
-            return (Trinity::Helpers::Entity::GetPlayerSpecialization(who) == SPEC_PRIEST_SHADOW);
+            return (Kitron::Helpers::Entity::GetPlayerSpecialization(who) == SPEC_PRIEST_SHADOW);
         case CLASS_SHAMAN:
-            return (Trinity::Helpers::Entity::GetPlayerSpecialization(who) == SPEC_SHAMAN_ELEMENTAL);
+            return (Kitron::Helpers::Entity::GetPlayerSpecialization(who) == SPEC_SHAMAN_ELEMENTAL);
         case CLASS_DRUID:
-            return (Trinity::Helpers::Entity::GetPlayerSpecialization(who) == SPEC_DRUID_BALANCE);
+            return (Kitron::Helpers::Entity::GetPlayerSpecialization(who) == SPEC_DRUID_BALANCE);
     }
 }

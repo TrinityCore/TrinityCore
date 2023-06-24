@@ -1,4 +1,4 @@
-DELETE FROM `trinity_string` WHERE `entry` BETWEEN 12050 AND 12072;
+DELETE FROM `Kitron_string` WHERE `entry` BETWEEN 12050 AND 12072;
 DELETE FROM `creature_text` WHERE `entry`=15214 AND (`groupid`=0 OR `groupid` BETWEEN 27 AND 38);
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (15214, 27, 0, 'The Battle for Lake Wintergrasp is about to begin!', 41, 0, 100, 0, 0, 0, 30960, 2, 'Invisible Stalker'),

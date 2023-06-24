@@ -1,6 +1,6 @@
 --
-DELETE FROM `trinity_string` WHERE `entry` BETWEEN 288 AND 295;
-INSERT INTO `trinity_string` (`entry`,`content_default`) VALUES
+DELETE FROM `Kitron_string` WHERE `entry` BETWEEN 288 AND 295;
+INSERT INTO `Kitron_string` (`entry`,`content_default`) VALUES
   (288, '%s either isn\'t dead or has no loot available.'),
   (289, 'LOOT INFO: %s (%d)'),
   (290, '├ %s (%d items):'),

@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -452,7 +452,7 @@ struct npc_zealot_lorkhan : public ScriptedAI
                 {
                     Unit* target = nullptr;
                     LorKhanSelectTargetToHeal check(me, 100.0f);
-                    Trinity::UnitLastSearcher<LorKhanSelectTargetToHeal> searcher(me, target, check);
+                    Kitron::UnitLastSearcher<LorKhanSelectTargetToHeal> searcher(me, target, check);
                     Cell::VisitAllObjects(me, searcher, 100.0f);
 
                     if (target)

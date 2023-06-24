@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -325,7 +325,7 @@ class spell_gurtogg_bloodboil_bloodboil : public SpellScript
             return;
 
         // Sort the list of players
-        targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster(), false));
+        targets.sort(Kitron::ObjectDistanceOrderPred(GetCaster(), false));
         // Resize so we only get top 5
         targets.resize(5);
     }
@@ -348,7 +348,7 @@ class spell_gurtogg_bloodboil_insignificance : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_FEL_RAGE_TARGET));
+        targets.remove_if(Kitron::UnitAuraCheck(true, SPELL_FEL_RAGE_TARGET));
     }
 
     void Register() override

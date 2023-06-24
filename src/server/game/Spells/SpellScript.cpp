@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -66,11 +66,11 @@ void _SpellScript::_Init(std::string const* scriptname, uint32 spellId)
     m_scriptName = scriptname;
     m_scriptSpellId = spellId;
 
-#ifdef TRINITY_API_USE_DYNAMIC_LINKING
+#ifdef Kitron_API_USE_DYNAMIC_LINKING
     // Acquire a strong reference to the binary code
     // to keep it loaded until all spells are destroyed.
     m_moduleReference = sScriptMgr->AcquireModuleReferenceOfScriptName(*scriptname);
-#endif // #ifndef TRINITY_API_USE_DYNAMIC_LINKING
+#endif // #ifndef Kitron_API_USE_DYNAMIC_LINKING
 }
 
 std::string const* _SpellScript::_GetScriptName() const

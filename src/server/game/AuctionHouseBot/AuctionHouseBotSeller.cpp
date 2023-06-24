@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -860,10 +860,10 @@ void AuctionBotSeller::AddNewAuctions(SellerConfiguration& config)
         --items;
 
         // Select random position from missed items table
-        ItemToSell const& sellItem = Trinity::Containers::SelectRandomContainerElement(itemsToSell);
+        ItemToSell const& sellItem = Kitron::Containers::SelectRandomContainerElement(itemsToSell);
 
         // Set itemId with random item ID for selected categories and color, from _itemPool table
-        uint32 itemId = Trinity::Containers::SelectRandomContainerElement(_itemPool[sellItem.Color][sellItem.Itemclass]);
+        uint32 itemId = Kitron::Containers::SelectRandomContainerElement(_itemPool[sellItem.Color][sellItem.Itemclass]);
         ++allItems[sellItem.Color][sellItem.Itemclass]; // Helper table to avoid rescan from DB in this loop. (has we add item in random orders)
 
         if (!itemId)

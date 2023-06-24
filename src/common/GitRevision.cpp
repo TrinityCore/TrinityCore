@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -68,30 +68,30 @@ char const* GitRevision::GetFullDatabase()
     return _FULL_DATABASE;
 }
 
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#if Kitron_PLATFORM == Kitron_PLATFORM_WINDOWS
 #  ifdef _WIN64
-#    define TRINITY_PLATFORM_STR "Win64"
+#    define Kitron_PLATFORM_STR "Win64"
 #  else
-#    define TRINITY_PLATFORM_STR "Win32"
+#    define Kitron_PLATFORM_STR "Win32"
 #  endif
-#elif TRINITY_PLATFORM == TRINITY_PLATFORM_APPLE
-#  define TRINITY_PLATFORM_STR "MacOSX"
-#elif TRINITY_PLATFORM == TRINITY_PLATFORM_INTEL
-#  define TRINITY_PLATFORM_STR "Intel"
-#else // TRINITY_PLATFORM_UNIX
-#  define TRINITY_PLATFORM_STR "Unix"
+#elif Kitron_PLATFORM == Kitron_PLATFORM_APPLE
+#  define Kitron_PLATFORM_STR "MacOSX"
+#elif Kitron_PLATFORM == Kitron_PLATFORM_INTEL
+#  define Kitron_PLATFORM_STR "Intel"
+#else // Kitron_PLATFORM_UNIX
+#  define Kitron_PLATFORM_STR "Unix"
 #endif
 
-#ifndef TRINITY_API_USE_DYNAMIC_LINKING
-#  define TRINITY_LINKAGE_TYPE_STR "Static"
+#ifndef Kitron_API_USE_DYNAMIC_LINKING
+#  define Kitron_LINKAGE_TYPE_STR "Static"
 #else
-#  define TRINITY_LINKAGE_TYPE_STR "Dynamic"
+#  define Kitron_LINKAGE_TYPE_STR "Dynamic"
 #endif
 
 char const* GitRevision::GetFullVersion()
 {
-  return "TrinityCore rev. " VER_PRODUCTVERSION_STR
-    " (" TRINITY_PLATFORM_STR ", " _BUILD_DIRECTIVE ", " TRINITY_LINKAGE_TYPE_STR ")";
+  return "KitronCore rev. " VER_PRODUCTVERSION_STR
+    " (" Kitron_PLATFORM_STR ", " _BUILD_DIRECTIVE ", " Kitron_LINKAGE_TYPE_STR ")";
 }
 
 char const* GitRevision::GetCompanyNameStr()

@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_CONTAINERS_H
-#define TRINITY_CONTAINERS_H
+#ifndef Kitron_CONTAINERS_H
+#define Kitron_CONTAINERS_H
 
 #include "Define.h"
 #include "Random.h"
@@ -27,7 +27,7 @@
 #include <utility>
 #include <vector>
 
-namespace Trinity
+namespace Kitron
 {
     template<class T>
     constexpr inline T* AddressOrSelf(T* ptr)
@@ -76,7 +76,7 @@ namespace Trinity
         template<class C>
         void RandomResize(C& container, std::size_t requestedSize)
         {
-            static_assert(std::is_base_of<std::forward_iterator_tag, typename std::iterator_traits<typename C::iterator>::iterator_category>::value, "Invalid container passed to Trinity::Containers::RandomResize");
+            static_assert(std::is_base_of<std::forward_iterator_tag, typename std::iterator_traits<typename C::iterator>::iterator_category>::value, "Invalid container passed to Kitron::Containers::RandomResize");
             if (std::size(container) <= requestedSize)
                 return;
             auto keepIt = std::begin(container), curIt = std::begin(container);
@@ -167,7 +167,7 @@ namespace Trinity
         }
 
         /**
-         * @fn void Trinity::Containers::RandomShuffle(C& container)
+         * @fn void Kitron::Containers::RandomShuffle(C& container)
          *
          * @brief Reorder the elements of the container randomly.
          *
@@ -180,7 +180,7 @@ namespace Trinity
         }
 
         /**
-         * @fn bool Trinity::Containers::Intersects(Iterator first1, Iterator last1, Iterator first2, Iterator last2)
+         * @fn bool Kitron::Containers::Intersects(Iterator first1, Iterator last1, Iterator first2, Iterator last2)
          *
          * @brief Checks if two SORTED containers have a common element
          *
@@ -260,6 +260,6 @@ namespace Trinity
     }
     //! namespace Containers
 }
-//! namespace Trinity
+//! namespace Kitron
 
-#endif //! #ifdef TRINITY_CONTAINERS_H
+#endif //! #ifdef Kitron_CONTAINERS_H

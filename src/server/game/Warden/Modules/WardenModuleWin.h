@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -36,7 +36,7 @@ struct Module_79C0768D657977D697E10BAD956CCED1
     std::array<uint8, 16> Seed;
     std::array<uint8, 16> ServerKeySeed;
     std::array<uint8, 16> ClientKeySeed;
-    Trinity::Crypto::SHA1::Digest ClientKeySeedHash;
+    Kitron::Crypto::SHA1::Digest ClientKeySeedHash;
 } Module =
 {
     {

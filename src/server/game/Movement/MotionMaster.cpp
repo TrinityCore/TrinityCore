@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1260,7 +1260,7 @@ void MotionMaster::ClearBaseUnitState(MovementGenerator const* movement)
     if (!movement || !movement->BaseUnitState)
         return;
 
-    Trinity::Containers::MultimapErasePair(_baseUnitStatesMap, movement->BaseUnitState, movement);
+    Kitron::Containers::MultimapErasePair(_baseUnitStatesMap, movement->BaseUnitState, movement);
     if (_baseUnitStatesMap.count(movement->BaseUnitState) == 0)
         _owner->ClearUnitState(movement->BaseUnitState);
 }

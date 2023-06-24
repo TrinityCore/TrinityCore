@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrinityCore_Optional_h__
-#define TrinityCore_Optional_h__
+#ifndef KitronCore_Optional_h__
+#define KitronCore_Optional_h__
 
 #include <optional>
 
@@ -24,4 +24,4 @@
 template <class T>
 using Optional = std::optional<T>;
 
-#endif // TrinityCore_Optional_h__
+#endif // KitronCore_Optional_h__

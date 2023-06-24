@@ -102,7 +102,7 @@ INSERT INTO `rbac_permissions` (`id`, `name`) VALUES
 (@id+94, 'reload spell_target_position'),
 (@id+95, 'reload spell_threats'),
 (@id+96, 'reload spell_group_stack_rules'),
-(@id+97, 'reload trinity_string'),
+(@id+97, 'reload Kitron_string'),
 (@id+98, 'reload warden_action'),
 (@id+99, 'reload waypoint_scripts'),
 (@id+100, 'reload waypoint_data'),

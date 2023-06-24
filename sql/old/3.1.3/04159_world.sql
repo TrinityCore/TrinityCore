@@ -1,5 +1,5 @@
-DELETE FROM `trinity_string` WHERE `entry` BETWEEN 5012 AND 5019;
-INSERT INTO `trinity_string` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`) VALUES
+DELETE FROM `Kitron_string` WHERE `entry` BETWEEN 5012 AND 5019;
+INSERT INTO `Kitron_string` (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`) VALUES
 (5012, 'No maps found!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (5013, '[Continent]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (5014, '[Instance]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),

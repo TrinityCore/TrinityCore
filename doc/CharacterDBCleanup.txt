@@ -31,4 +31,4 @@ from this, and that you are (as the owner of the database), responsible
 for doing proper backups prior to doing the above in case of anything 
 going wrong.
 
--- The TrinityCore developer team
+-- The KitronCore developer team

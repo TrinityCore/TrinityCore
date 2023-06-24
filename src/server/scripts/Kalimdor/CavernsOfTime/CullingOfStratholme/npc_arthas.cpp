@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1103,9 +1103,9 @@ public:
                                 EMOTE_ONESHOT_ROAR
                             };
 
-                            Creature* victim = Trinity::Containers::SelectRandomContainerElement(nearbyVictims);
+                            Creature* victim = Kitron::Containers::SelectRandomContainerElement(nearbyVictims);
                             if (victim->IsAlive())
-                                victim->HandleEmoteCommand(Trinity::Containers::SelectRandomContainerElement(emotes));
+                                victim->HandleEmoteCommand(Kitron::Containers::SelectRandomContainerElement(emotes));
                         }
                         break;
                     }

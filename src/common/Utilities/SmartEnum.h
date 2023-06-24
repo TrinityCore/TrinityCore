@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_SMARTENUM_H
-#define TRINITY_SMARTENUM_H
+#ifndef Kitron_SMARTENUM_H
+#define Kitron_SMARTENUM_H
 
 #include "IteratorPair.h"
 #include <iterator>
@@ -32,7 +32,7 @@ struct EnumText
     char const* const Description;
 };
 
-namespace Trinity::Impl::EnumUtilsImpl
+namespace Kitron::Impl::EnumUtilsImpl
 {
     template <typename Enum>
     struct EnumUtils
@@ -48,20 +48,20 @@ class EnumUtils
 {
     public:
         template <typename Enum>
-        static size_t Count() { return Trinity::Impl::EnumUtilsImpl::EnumUtils<Enum>::Count(); }
+        static size_t Count() { return Kitron::Impl::EnumUtilsImpl::EnumUtils<Enum>::Count(); }
         template <typename Enum>
-        static EnumText ToString(Enum value) { return Trinity::Impl::EnumUtilsImpl::EnumUtils<Enum>::ToString(value); }
+        static EnumText ToString(Enum value) { return Kitron::Impl::EnumUtilsImpl::EnumUtils<Enum>::ToString(value); }
         template <typename Enum>
-        static Enum FromIndex(size_t index) { return Trinity::Impl::EnumUtilsImpl::EnumUtils<Enum>::FromIndex(index); }
+        static Enum FromIndex(size_t index) { return Kitron::Impl::EnumUtilsImpl::EnumUtils<Enum>::FromIndex(index); }
         template <typename Enum>
-        static uint32 ToIndex(Enum value) { return Trinity::Impl::EnumUtilsImpl::EnumUtils<Enum>::ToIndex(value);}
+        static uint32 ToIndex(Enum value) { return Kitron::Impl::EnumUtilsImpl::EnumUtils<Enum>::ToIndex(value);}
 
         template<typename Enum>
         static bool IsValid(Enum value)
         {
             try
             {
-                Trinity::Impl::EnumUtilsImpl::EnumUtils<Enum>::ToIndex(value);
+                Kitron::Impl::EnumUtilsImpl::EnumUtils<Enum>::ToIndex(value);
                 return true;
             } catch (...)
             {
@@ -117,7 +117,7 @@ class EnumUtils
         static Iterator<Enum> End() { return Iterator<Enum>(); }
 
         template <typename Enum>
-        static Trinity::IteratorPair<Iterator<Enum>> Iterate() { return { Begin<Enum>(), End<Enum>() }; }
+        static Kitron::IteratorPair<Iterator<Enum>> Iterate() { return { Begin<Enum>(), End<Enum>() }; }
 
         template <typename Enum>
         static char const* ToConstant(Enum value) { return ToString(value).Constant; }

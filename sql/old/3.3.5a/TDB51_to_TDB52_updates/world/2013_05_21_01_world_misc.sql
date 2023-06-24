@@ -7,8 +7,8 @@ INSERT INTO `command` (`name`, `security`, `help`) VALUES
 ('arena info', 2, 'Syntax: .arena info #TeamID\n\nA command that show info about arena team'),
 ('arena lookup', 2, 'Syntax: .arena lookup $name\n\nA command that give a list of arenateam with the given $name');
 
-DELETE FROM `trinity_string` WHERE `entry` BETWEEN 857 AND 870;
-INSERT INTO `trinity_string` (`entry`, `content_default`) VALUES
+DELETE FROM `Kitron_string` WHERE `entry` BETWEEN 857 AND 870;
+INSERT INTO `Kitron_string` (`entry`, `content_default`) VALUES
 (857, 'Arena team [%u] not found'),
 (858, 'There is already an arena team named \"%s\"'),
 (859, '%s is already in an arena team of that size'),

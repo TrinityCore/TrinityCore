@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -348,7 +348,7 @@ struct boss_jedoga_shadowseeker : public BossAI
                     if (_volunteerGUIDS.empty())
                         break;
 
-                    _selectedVolunteerGUID = Trinity::Containers::SelectRandomContainerElement(_volunteerGUIDS);
+                    _selectedVolunteerGUID = Kitron::Containers::SelectRandomContainerElement(_volunteerGUIDS);
                     if (Creature* volunteer = ObjectAccessor::GetCreature(*me, _selectedVolunteerGUID))
                         volunteer->AI()->DoAction(ACTION_CHOSEN);
                     break;

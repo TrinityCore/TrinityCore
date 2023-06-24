@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_GRIDNOTIFIERS_H
-#define TRINITY_GRIDNOTIFIERS_H
+#ifndef Kitron_GRIDNOTIFIERS_H
+#define Kitron_GRIDNOTIFIERS_H
 
 #include "Creature.h"
 #include "Corpse.h"
@@ -30,7 +30,7 @@
 #include "UnitAI.h"
 #include "UpdateData.h"
 
-namespace Trinity
+namespace Kitron
 {
     struct TC_GAME_API VisibleNotifier
     {

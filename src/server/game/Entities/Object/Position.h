@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Trinity_game_Position_h__
-#define Trinity_game_Position_h__
+#ifndef Kitron_game_Position_h__
+#define Kitron_game_Position_h__
 
 #include "Define.h"
 #include <string>
@@ -227,4 +227,4 @@ struct TaggedPosition
     Position Pos;
 };
 
-#endif // Trinity_game_Position_h__
+#endif // Kitron_game_Position_h__

@@ -1,5 +1,5 @@
 --
--- trinity_script_texts.sql Contains data for table `script_texts` mainly used in C++ parts.
+-- Kitron_script_texts.sql Contains data for table `script_texts` mainly used in C++ parts.
 -- valid entries for table are between -1000000 and -1999999
 --
 
@@ -10,7 +10,7 @@ TRUNCATE `script_texts`;
 --
 
 INSERT INTO `script_texts` (`entry`,`content_default`,`sound`,`type`,`language`,`comment`) VALUES
-(-1000000,'<TrinityScript Text Entry Missing!>',0,0,0,'DEFAULT_TEXT');
+(-1000000,'<KitronScript Text Entry Missing!>',0,0,0,'DEFAULT_TEXT');
 
 --
 -- Normal text entries. Say/Yell/Whisper/Emote for any regular world object.

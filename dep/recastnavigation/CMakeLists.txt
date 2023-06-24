@@ -1,4 +1,4 @@
-# This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+# This file is part of the KitronCore Project. See AUTHORS file for Copyright information
 # Copyright (C) 2005-2011 MaNGOS project <http://getmangos.com/>
 #
 # This program is free software; you can redistribute it and/or modify

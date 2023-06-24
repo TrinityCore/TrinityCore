@@ -28,4 +28,4 @@ to do the following :
 
 Happy compiling, and have a nice day!
 
--- The TrinityCore developers
+-- The KitronCore developers

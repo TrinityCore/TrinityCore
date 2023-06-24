@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,7 +24,7 @@
 #include <vector>
 #include <string>
 
-namespace Trinity
+namespace Kitron
 {
 
 /// Starts a process with the given arguments and parameters and will block
@@ -65,6 +65,6 @@ TC_COMMON_API std::shared_ptr<AsyncProcessResult>
 /// and returns a non-empty string when it was found.
 TC_COMMON_API std::string SearchExecutableInPath(std::string const& filename);
 
-} // namespace Trinity
+} // namespace Kitron
 
 #endif // Process_h__

@@ -1,19 +1,19 @@
-target_compile_definitions(trinity-compile-option-interface
+target_compile_definitions(Kitron-compile-option-interface
   INTERFACE
     -D_BUILD_DIRECTIVE="$<CONFIG>")
 
 if(PLATFORM EQUAL 32)
-  target_compile_options(trinity-compile-option-interface
+  target_compile_options(Kitron-compile-option-interface
     INTERFACE
       -axSSE2)
 else()
-  target_compile_options(trinity-compile-option-interface
+  target_compile_options(Kitron-compile-option-interface
     INTERFACE
       -xSSE2)
 endif()
 
 if(WITH_WARNINGS)
-  target_compile_options(trinity-warning-interface
+  target_compile_options(Kitron-warning-interface
     INTERFACE
       -w1)
 
@@ -21,7 +21,7 @@ if(WITH_WARNINGS)
 endif()
 
 if(WITH_COREDEBUG)
-  target_compile_options(trinity-compile-option-interface
+  target_compile_options(Kitron-compile-option-interface
     INTERFACE
       -g)
   message(STATUS "ICC: Debug-flag set (-g)")

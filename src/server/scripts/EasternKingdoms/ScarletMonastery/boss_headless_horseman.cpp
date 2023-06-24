@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -596,7 +596,7 @@ struct boss_headless_horseman : public ScriptedAI
                     _events.Repeat(30s);
                     break;
                 case EVENT_RANDOM_LAUGH:
-                    DoPlaySoundToSet(me, Trinity::Containers::SelectRandomContainerElement(HeadlessHorsemanRandomLaughSound));
+                    DoPlaySoundToSet(me, Kitron::Containers::SelectRandomContainerElement(HeadlessHorsemanRandomLaughSound));
                     _events.Repeat(30s, 60s);
                     break;
                 default:

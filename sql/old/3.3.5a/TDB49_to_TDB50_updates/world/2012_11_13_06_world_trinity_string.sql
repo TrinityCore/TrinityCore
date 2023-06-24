@@ -1,2 +1,2 @@
-DELETE FROM `trinity_string` WHERE `entry` IN (5018,5019);
-UPDATE `trinity_string` SET `content_default`= '[Raid]' WHERE `entry`=5017;
+DELETE FROM `Kitron_string` WHERE `entry` IN (5018,5019);
+UPDATE `Kitron_string` SET `content_default`= '[Raid]' WHERE `entry`=5017;

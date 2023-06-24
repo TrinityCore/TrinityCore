@@ -56,8 +56,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceEntry`,`ConditionType
 (17,62767,19,33303,0,0,@ERROR1, 'Break Curse of Ice Required Target Maiden of Winter''s Breath Lake'),
 (17,62767,1,45776,0,1,@ERROR2, 'Break Curse of Ice Required Target Needs Aura Ice Block');
 -- Add Error Strings
-DELETE FROM `trinity_string` WHERE `entry` IN (@ERROR1,@ERROR2);
-INSERT INTO `trinity_string` (`entry`,`content_default`) VALUES
+DELETE FROM `Kitron_string` WHERE `entry` IN (@ERROR1,@ERROR2);
+INSERT INTO `Kitron_string` (`entry`,`content_default`) VALUES
 (@ERROR1, 'Requires Maiden of Winter''s Breath Lake'),
 (@ERROR2, 'You can''t use that right now');
 

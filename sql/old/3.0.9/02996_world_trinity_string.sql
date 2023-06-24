@@ -1,15 +1,15 @@
-DELETE FROM `trinity_string` WHERE `entry` IN (750,751);
-INSERT INTO `trinity_string` VALUES
+DELETE FROM `Kitron_string` WHERE `entry` IN (750,751);
+INSERT INTO `Kitron_string` VALUES
 (750,'Not enough players. This game will close in %u mins.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 (751,'Not enough players. This game will close in %u seconds.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 
-DELETE FROM `trinity_string` WHERE `entry` BETWEEN 1200 AND 1232;
-INSERT INTO `trinity_string` VALUES
+DELETE FROM `Kitron_string` WHERE `entry` BETWEEN 1200 AND 1232;
+INSERT INTO `Kitron_string` VALUES
 (1200, 'You try to view cinemitic %u but it doesn''t exist.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (1201, 'You try to view movie %u but it doesn''t exist.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
-DELETE FROM `trinity_string` WHERE `entry` BETWEEN 1300 AND 1332;
-INSERT INTO `trinity_string` VALUES
+DELETE FROM `Kitron_string` WHERE `entry` BETWEEN 1300 AND 1332;
+INSERT INTO `Kitron_string` VALUES
 (1300, 'Alliance', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (1301, 'Horde', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (1302, '%s was destroyed by the %s!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),

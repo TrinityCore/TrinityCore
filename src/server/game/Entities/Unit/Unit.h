@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1986,7 +1986,7 @@ class TC_GAME_API Unit : public WorldObject
         /* Player Movement fields END*/
 };
 
-namespace Trinity
+namespace Kitron
 {
     // Binary predicate for sorting Units based on percent value of a power
     class PowerPctOrderPred

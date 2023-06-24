@@ -5,4 +5,4 @@ Automatic database updates are disabled for all databases!
 Opening DatabasePool 'auth'. Asynchronous connections: 1, synchronous connections: 1.
 Could not connect to MySQL database at 127.0.0.1: Can't connect to MySQL server on '127.0.0.1:32768' (111)
 
-DatabasePool Login NOT opened. There were errors opening the MySQL connections. Check your SQLDriverLogFile for specific errors. Read wiki at http://www.trinitycore.info/display/tc/TrinityCore+Home
+DatabasePool Login NOT opened. There were errors opening the MySQL connections. Check your SQLDriverLogFile for specific errors. Read wiki at http://www.Kitroncore.info/display/tc/KitronCore+Home

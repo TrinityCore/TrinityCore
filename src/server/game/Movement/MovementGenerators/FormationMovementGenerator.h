@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_FORMATIONMOVEMENTGENERATOR_H
-#define TRINITY_FORMATIONMOVEMENTGENERATOR_H
+#ifndef Kitron_FORMATIONMOVEMENTGENERATOR_H
+#define Kitron_FORMATIONMOVEMENTGENERATOR_H
 
 #include "AbstractFollower.h"
 #include "MovementGenerator.h"
@@ -54,4 +54,4 @@ class FormationMovementGenerator : public MovementGeneratorMedium<Creature, Form
         TimeTracker _nextMoveTimer;
 };
 
-#endif // TRINITY_FORMATIONMOVEMENTGENERATOR_H
+#endif // Kitron_FORMATIONMOVEMENTGENERATOR_H

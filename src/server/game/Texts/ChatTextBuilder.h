@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,7 +25,7 @@
 class WorldObject;
 class WorldPacket;
 
-namespace Trinity
+namespace Kitron
 {
     class BroadcastTextBuilder
     {
@@ -61,10 +61,10 @@ namespace Trinity
             WorldObject const* _target;
     };
 
-    class TrinityStringChatBuilder
+    class KitronStringChatBuilder
     {
         public:
-            TrinityStringChatBuilder(WorldObject const* obj, ChatMsg msgType, uint32 textId, WorldObject const* target = nullptr, va_list* args = nullptr)
+            KitronStringChatBuilder(WorldObject const* obj, ChatMsg msgType, uint32 textId, WorldObject const* target = nullptr, va_list* args = nullptr)
                 : _source(obj), _msgType(msgType), _textId(textId), _target(target), _args(args) { }
 
             void operator()(WorldPacket& data, LocaleConstant locale) const;
@@ -77,6 +77,6 @@ namespace Trinity
             va_list* _args;
     };
 }
-// namespace Trinity
+// namespace Kitron
 
 #endif // __CHATTEXT_BUILDER_H

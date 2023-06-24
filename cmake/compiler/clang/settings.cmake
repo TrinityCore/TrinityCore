@@ -1,12 +1,12 @@
 # Set build-directive (used in core to tell which buildtype we used)
-target_compile_definitions(trinity-compile-option-interface
+target_compile_definitions(Kitron-compile-option-interface
   INTERFACE
     -D_BUILD_DIRECTIVE="$<CONFIG>")
 
 set(CLANG_EXPECTED_VERSION 7.0.0)
 
 if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS CLANG_EXPECTED_VERSION)
-  message(FATAL_ERROR "Clang: TrinityCore requires version ${CLANG_EXPECTED_VERSION} to build but found ${CMAKE_CXX_COMPILER_VERSION}")
+  message(FATAL_ERROR "Clang: KitronCore requires version ${CLANG_EXPECTED_VERSION} to build but found ${CMAKE_CXX_COMPILER_VERSION}")
 else()
   message(STATUS "Clang: Minimum version required is ${CLANG_EXPECTED_VERSION}, found ${CMAKE_CXX_COMPILER_VERSION} - ok!")
 endif()
@@ -31,13 +31,13 @@ int main()
 
 if (NOT CLANG_HAVE_PROPER_CHARCONV)
   message(STATUS "Clang: Detected from_chars bug for 64-bit integers, workaround enabled")
-  target_compile_definitions(trinity-compile-option-interface
+  target_compile_definitions(Kitron-compile-option-interface
   INTERFACE
-    -DTRINITY_NEED_CHARCONV_WORKAROUND)
+    -DKitron_NEED_CHARCONV_WORKAROUND)
 endif()
 
 if(WITH_WARNINGS)
-  target_compile_options(trinity-warning-interface
+  target_compile_options(Kitron-warning-interface
     INTERFACE
       -W
       -Wall
@@ -52,7 +52,7 @@ if(WITH_WARNINGS)
 endif()
 
 if(WITH_COREDEBUG)
-  target_compile_options(trinity-compile-option-interface
+  target_compile_options(Kitron-compile-option-interface
     INTERFACE
       -g3)
 
@@ -60,14 +60,14 @@ if(WITH_COREDEBUG)
 endif()
 
 if(ASAN)
-  target_compile_options(trinity-compile-option-interface
+  target_compile_options(Kitron-compile-option-interface
     INTERFACE
       -fno-omit-frame-pointer
       -fsanitize=address
       -fsanitize-recover=address
       -fsanitize-address-use-after-scope)
 
-  target_link_options(trinity-compile-option-interface
+  target_link_options(Kitron-compile-option-interface
     INTERFACE
       -fno-omit-frame-pointer
       -fsanitize=address
@@ -78,7 +78,7 @@ if(ASAN)
 endif()
 
 if(MSAN)
-  target_compile_options(trinity-compile-option-interface
+  target_compile_options(Kitron-compile-option-interface
     INTERFACE
       -fno-omit-frame-pointer
       -fsanitize=memory
@@ -86,7 +86,7 @@ if(MSAN)
       -mllvm
       -msan-keep-going=1)
 
-  target_link_options(trinity-compile-option-interface
+  target_link_options(Kitron-compile-option-interface
     INTERFACE
       -fno-omit-frame-pointer
       -fsanitize=memory
@@ -96,12 +96,12 @@ if(MSAN)
 endif()
 
 if(UBSAN)
-  target_compile_options(trinity-compile-option-interface
+  target_compile_options(Kitron-compile-option-interface
     INTERFACE
       -fno-omit-frame-pointer
       -fsanitize=undefined)
 
-  target_link_options(trinity-compile-option-interface
+  target_link_options(Kitron-compile-option-interface
     INTERFACE
       -fno-omit-frame-pointer
       -fsanitize=undefined)
@@ -110,12 +110,12 @@ if(UBSAN)
 endif()
 
 if(TSAN)
-  target_compile_options(trinity-compile-option-interface
+  target_compile_options(Kitron-compile-option-interface
     INTERFACE
       -fno-omit-frame-pointer
       -fsanitize=thread)
 
-  target_link_options(trinity-compile-option-interface
+  target_link_options(Kitron-compile-option-interface
     INTERFACE
       -fno-omit-frame-pointer
       -fsanitize=thread)
@@ -126,7 +126,7 @@ endif()
 # -Wno-narrowing needed to suppress a warning in g3d
 # -Wno-deprecated-register is needed to suppress 185 gsoap warnings on Unix systems.
 # -Wno-deprecated-copy needed to suppress a warning in g3d
-target_compile_options(trinity-compile-option-interface
+target_compile_options(Kitron-compile-option-interface
   INTERFACE
     -Wno-narrowing
     -Wno-deprecated-register)
@@ -134,16 +134,16 @@ target_compile_options(trinity-compile-option-interface
 if(BUILD_SHARED_LIBS)
   # -fPIC is needed to allow static linking in shared libs.
   # -fvisibility=hidden sets the default visibility to hidden to prevent exporting of all symbols.
-  target_compile_options(trinity-compile-option-interface
+  target_compile_options(Kitron-compile-option-interface
     INTERFACE
       -fPIC)
 
-  target_compile_options(trinity-hidden-symbols-interface
+  target_compile_options(Kitron-hidden-symbols-interface
     INTERFACE
       -fvisibility=hidden)
 
   # --no-undefined to throw errors when there are undefined symbols
-  # (caused through missing TRINITY_*_API macros).
+  # (caused through missing Kitron_*_API macros).
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --no-undefined")
 
   message(STATUS "Clang: Disallow undefined symbols")

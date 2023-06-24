@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -34,16 +34,16 @@
     terminates the application.
  */
 
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#if Kitron_PLATFORM == Kitron_PLATFORM_WINDOWS
 #include <Windows.h>
 #define Crash(message) \
     ULONG_PTR execeptionArgs[] = { reinterpret_cast<ULONG_PTR>(strdup(message)), reinterpret_cast<ULONG_PTR>(_ReturnAddress()) }; \
     RaiseException(EXCEPTION_ASSERTION_FAILURE, 0, 2, execeptionArgs);
 #else
 // should be easily accessible in gdb
-extern "C" { TC_COMMON_API char const* TrinityAssertionFailedMessage = nullptr; }
+extern "C" { TC_COMMON_API char const* KitronAssertionFailedMessage = nullptr; }
 #define Crash(message) \
-    TrinityAssertionFailedMessage = strdup(message); \
+    KitronAssertionFailedMessage = strdup(message); \
     *((volatile int*)nullptr) = 0; \
     exit(1);
 #endif
@@ -66,7 +66,7 @@ namespace
     }
 }
 
-namespace Trinity
+namespace Kitron
 {
 
 void Assert(char const* file, int line, char const* function, std::string debugInfo, char const* message)
@@ -151,10 +151,10 @@ void AbortHandler(int sigval)
     Crash(formattedMessage.c_str());
 }
 
-} // namespace Trinity
+} // namespace Kitron
 
 extern "C" void AbortHandler() {
-    Trinity::AbortHandler(SIGABRT);
+    Kitron::AbortHandler(SIGABRT);
 }
 
 std::string GetDebugInfo()

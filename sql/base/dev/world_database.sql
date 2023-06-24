@@ -3690,13 +3690,13 @@ CREATE TABLE `transports` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `trinity_string`
+-- Table structure for table `Kitron_string`
 --
 
-DROP TABLE IF EXISTS `trinity_string`;
+DROP TABLE IF EXISTS `Kitron_string`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `trinity_string` (
+CREATE TABLE `Kitron_string` (
   `entry` int unsigned NOT NULL DEFAULT '0',
   `content_default` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
   `content_loc1` mediumtext COLLATE utf8mb4_unicode_ci,

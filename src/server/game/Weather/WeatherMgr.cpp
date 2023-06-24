@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -38,7 +38,7 @@ namespace
 
 WeatherData const* GetWeatherData(uint32 zone_id)
 {
-    return Trinity::Containers::MapGetValuePtr(_weatherData, zone_id);
+    return Kitron::Containers::MapGetValuePtr(_weatherData, zone_id);
 }
 
 void LoadWeatherData()

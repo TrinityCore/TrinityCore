@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -207,7 +207,7 @@ struct boss_reliquary_of_souls : public BossAI
             return;
 
         //Get random creatures
-        Trinity::Containers::RandomShuffle(_worldTriggerList);
+        Kitron::Containers::RandomShuffle(_worldTriggerList);
         _worldTriggerList.resize(21);
 
         for (uint8 i = 0; i < 21; i++)

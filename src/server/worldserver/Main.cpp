@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,7 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// \addtogroup Trinityd Trinity Daemon
+/// \addtogroup Kitrond Kitron Daemon
 /// @{
 /// \file
 
@@ -65,15 +65,15 @@
 using namespace boost::program_options;
 namespace fs = boost::filesystem;
 
-#ifndef _TRINITY_CORE_CONFIG
-    #define _TRINITY_CORE_CONFIG  "worldserver.conf"
+#ifndef _Kitron_CORE_CONFIG
+    #define _Kitron_CORE_CONFIG  "worldserver.conf"
 #endif
 
 #ifdef _WIN32
 #include "ServiceWin32.h"
 char serviceName[] = "worldserver";
-char serviceLongName[] = "TrinityCore world service";
-char serviceDescription[] = "TrinityCore World of Warcraft emulator world service";
+char serviceLongName[] = "KitronCore world service";
+char serviceDescription[] = "KitronCore World of Warcraft emulator world service";
 /*
  * -1 - not in service mode
  *  0 - stopped
@@ -89,7 +89,7 @@ int m_ServiceStatus = -1;
 class FreezeDetector
 {
     public:
-    FreezeDetector(Trinity::Asio::IoContext& ioContext, uint32 maxCoreStuckTime)
+    FreezeDetector(Kitron::Asio::IoContext& ioContext, uint32 maxCoreStuckTime)
         : _timer(ioContext), _worldLoopCounter(0), _lastChangeMsTime(getMSTime()), _maxCoreStuckTimeInMs(maxCoreStuckTime) { }
 
         static void Start(std::shared_ptr<FreezeDetector> const& freezeDetector)
@@ -104,29 +104,29 @@ class FreezeDetector
         static void Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, boost::system::error_code const& error);
 
     private:
-        Trinity::Asio::DeadlineTimer _timer;
+        Kitron::Asio::DeadlineTimer _timer;
         uint32 _worldLoopCounter;
         uint32 _lastChangeMsTime;
         uint32 _maxCoreStuckTimeInMs;
 };
 
 void SignalHandler(boost::system::error_code const& error, int signalNumber);
-AsyncAcceptor* StartRaSocketAcceptor(Trinity::Asio::IoContext& ioContext);
+AsyncAcceptor* StartRaSocketAcceptor(Kitron::Asio::IoContext& ioContext);
 bool StartDB();
 void StopDB();
 void WorldUpdateLoop();
 void ClearOnlineAccounts();
 void ShutdownCLIThread(std::thread* cliThread);
-bool LoadRealmInfo(Trinity::Asio::IoContext& ioContext);
+bool LoadRealmInfo(Kitron::Asio::IoContext& ioContext);
 variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, std::string& configService);
 
-/// Launch the Trinity server
+/// Launch the Kitron server
 extern int main(int argc, char** argv)
 {
-    Trinity::Impl::CurrentServerProcessHolder::_type = SERVER_PROCESS_WORLDSERVER;
-    signal(SIGABRT, &Trinity::AbortHandler);
+    Kitron::Impl::CurrentServerProcessHolder::_type = SERVER_PROCESS_WORLDSERVER;
+    signal(SIGABRT, &Kitron::AbortHandler);
 
-    auto configFile = fs::absolute(_TRINITY_CORE_CONFIG);
+    auto configFile = fs::absolute(_Kitron_CORE_CONFIG);
     std::string configService;
 
     auto vm = GetConsoleArguments(argc, argv, configFile, configService);
@@ -188,7 +188,7 @@ extern int main(int argc, char** argv)
         return 1;
     }
 
-    std::shared_ptr<Trinity::Asio::IoContext> ioContext = std::make_shared<Trinity::Asio::IoContext>();
+    std::shared_ptr<Kitron::Asio::IoContext> ioContext = std::make_shared<Kitron::Asio::IoContext>();
 
     sLog->RegisterAppender<AppenderDB>();
     // If logs are supposed to be handled async then we need to pass the IoContext into the Log singleton
@@ -222,7 +222,7 @@ extern int main(int argc, char** argv)
 
     // Set signal handlers (this must be done before starting IoContext threads, because otherwise they would unblock and exit)
     boost::asio::signal_set signals(*ioContext, SIGINT, SIGTERM);
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#if Kitron_PLATFORM == Kitron_PLATFORM_WINDOWS
     signals.add(SIGBREAK);
 #endif
     signals.async_wait(SignalHandler);
@@ -232,7 +232,7 @@ extern int main(int argc, char** argv)
     if (numThreads < 1)
         numThreads = 1;
 
-    std::shared_ptr<Trinity::ThreadPool> threadPool = std::make_shared<Trinity::ThreadPool>(numThreads);
+    std::shared_ptr<Kitron::ThreadPool> threadPool = std::make_shared<Kitron::ThreadPool>(numThreads);
 
     for (int i = 0; i < numThreads; ++i)
         threadPool->PostWork([ioContext]() { ioContext->run(); });
@@ -388,7 +388,7 @@ extern int main(int argc, char** argv)
 
     // 0 - normal shutdown
     // 1 - shutdown at error
-    // 2 - restart command used, this code can be used by restarter for restart Trinityd
+    // 2 - restart command used, this code can be used by restarter for restart Kitrond
 
     return World::GetExitCode();
 }
@@ -543,7 +543,7 @@ void FreezeDetector::Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, bo
     }
 }
 
-AsyncAcceptor* StartRaSocketAcceptor(Trinity::Asio::IoContext& ioContext)
+AsyncAcceptor* StartRaSocketAcceptor(Kitron::Asio::IoContext& ioContext)
 {
     uint16 raPort = uint16(sConfigMgr->GetIntDefault("Ra.Port", 3443));
     std::string raListener = sConfigMgr->GetStringDefault("Ra.IP", "0.0.0.0");
@@ -560,13 +560,13 @@ AsyncAcceptor* StartRaSocketAcceptor(Trinity::Asio::IoContext& ioContext)
     return acceptor;
 }
 
-bool LoadRealmInfo(Trinity::Asio::IoContext& ioContext)
+bool LoadRealmInfo(Kitron::Asio::IoContext& ioContext)
 {
     QueryResult result = LoginDatabase.PQuery("SELECT id, name, address, localAddress, localSubnetMask, port, icon, flag, timezone, allowedSecurityLevel, population, gamebuild FROM realmlist WHERE id = %u", realm.Id.Realm);
     if (!result)
         return false;
 
-    Trinity::Asio::Resolver resolver(ioContext);
+    Kitron::Asio::Resolver resolver(ioContext);
 
     Field* fields = result->Fetch();
     realm.Name = fields[1].GetString();
@@ -677,7 +677,7 @@ variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, s
     all.add_options()
         ("help,h", "print usage message")
         ("version,v", "print version build info")
-        ("config,c", value<fs::path>(&configFile)->default_value(fs::absolute(_TRINITY_CORE_CONFIG)),
+        ("config,c", value<fs::path>(&configFile)->default_value(fs::absolute(_Kitron_CORE_CONFIG)),
                      "use <arg> as configuration file")
         ("update-databases-only,u", "updates databases only")
         ;

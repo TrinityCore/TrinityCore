@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -62,7 +62,7 @@ void Appender::write(LogMessage* message)
         ss << message->getTimeStr() << ' ';
 
     if (flags & APPENDER_FLAGS_PREFIX_LOGLEVEL)
-        ss << Trinity::StringFormat("%-5s ", Appender::getLogLevelString(message->level));
+        ss << Kitron::StringFormat("%-5s ", Appender::getLogLevelString(message->level));
 
     if (flags & APPENDER_FLAGS_PREFIX_LOGFILTERTYPE)
         ss << '[' << message->type << "] ";

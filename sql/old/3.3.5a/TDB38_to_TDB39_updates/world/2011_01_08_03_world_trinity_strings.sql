@@ -1,6 +1,6 @@
 -- strings used by the BG
-DELETE FROM trinity_string WHERE entry > 1204 AND entry <1225;
-INSERT INTO trinity_string (`entry`,`content_default`) VALUES
+DELETE FROM Kitron_string WHERE entry > 1204 AND entry <1225;
+INSERT INTO Kitron_string (`entry`,`content_default`) VALUES
 (1205,'The battle will begin in two minutes.'),
 (1206,'The battle will begin in 1 minute.'),
 (1208,'The battle has begun!'),

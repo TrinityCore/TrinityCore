@@ -1,5 +1,5 @@
-DELETE FROM `trinity_string` WHERE `entry` IN (300, 301);
-INSERT INTO `trinity_string` (`entry`, `content_default`)VALUES
+DELETE FROM `Kitron_string` WHERE `entry` IN (300, 301);
+INSERT INTO `Kitron_string` (`entry`, `content_default`)VALUES
 ('300', 'Your chat has been disabled for %u minutes. Reason: %s.'),
 ('301', 'You have disabled %s\'s chat for %u minutes. Reason: %s.');
 

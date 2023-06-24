@@ -1,20 +1,20 @@
-= TrinityCore -- Linux installation =
-This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+= KitronCore -- Linux installation =
+This file is part of the KitronCore Project. See AUTHORS file for Copyright information
 
 =========================================================
 WARNING: THIS DOCUMENTATION IS NOT ALWAYS UP TO DATE.
-FOR MORE UP-TO-DATE INFORMATION, CHECK THE TRINITY WIKI.
+FOR MORE UP-TO-DATE INFORMATION, CHECK THE Kitron WIKI.
 =========================================================
 
-CHECK https://www.trinitycore.info/ FOR FURTHER HELP.
+CHECK https://www.Kitroncore.info/ FOR FURTHER HELP.
 
 These are the instructions for installation in a Linux environment.
-If you are using Windows, refer to https://www.trinitycore.info/ .
+If you are using Windows, refer to https://www.Kitroncore.info/ .
 
-Installing TrinityCore is fairly simple on a Linux machine,
+Installing KitronCore is fairly simple on a Linux machine,
 assuming you have all the required applications installed:
 
-https://www.trinitycore.info/display/tc/Requirements
+https://www.Kitroncore.info/display/tc/Requirements
 
 Most of these are included on common Linux distros, you may have to
 install others by yourself. Please check your distro's repo for specifics.
@@ -22,9 +22,9 @@ install others by yourself. Please check your distro's repo for specifics.
 Make a directory to build in, you can call it anything you want (like
 build or bin etc.), then go into the directory and use cmake and make.
 E.g. you created a dir named build and want to have your final compiled product
-installed in /home/trinity/server/. An example sequence of commands can be:
+installed in /home/Kitron/server/. An example sequence of commands can be:
 
-    cmake ../ -DCMAKE_INSTALL_PREFIX=/home/trinity/server -DTOOLS=1 -DWITH_WARNINGS=1
+    cmake ../ -DCMAKE_INSTALL_PREFIX=/home/Kitron/server -DTOOLS=1 -DWITH_WARNINGS=1
     make
     make install
 
@@ -48,9 +48,9 @@ CMakeLists.txt in the main folder and take a look at some of the flags like
                             Release, MinSizeRel, RelWithDebInfo, Debug
 
 Of course, replace the paths in CMAKE_INSTALL_PREFIX with the directory you wish to
-install TrinityCore to. The datadir is where maps, DBCs, and SQLs are stored.
+install KitronCore to. The datadir is where maps, DBCs, and SQLs are stored.
 The sysconfdir is where configuration files are stored.
 
-Once TrinityCore is installed, you will need to apply database updates
+Once KitronCore is installed, you will need to apply database updates
 where necessary. Furthermore, you must configure your installation by
 editing the config files in the sysconfdir.

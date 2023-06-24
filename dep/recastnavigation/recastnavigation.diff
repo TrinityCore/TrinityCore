@@ -1,7 +1,7 @@
 From 3790dbcc9cd4bdebbd3257ac8f3f9f28a0cf0485 Mon Sep 17 00:00:00 2001
 From: jackpoz <giacomopoz@gmail.com>
 Date: Fri, 20 Jun 2014 23:15:04 +0200
-Subject: [PATCH] Add custom trinitycore changes
+Subject: [PATCH] Add custom Kitroncore changes
 
 ---
  Detour/Include/DetourNavMesh.h       | 24 ++++++++++++++++++------

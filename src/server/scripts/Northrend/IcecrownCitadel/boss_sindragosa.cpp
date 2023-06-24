@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1101,7 +1101,7 @@ class spell_sindragosa_unchained_magic : public SpellScript
             if (!player)
                 continue;
 
-            if (Trinity::Helpers::Entity::IsPlayerHealer(player))
+            if (Kitron::Helpers::Entity::IsPlayerHealer(player))
             {
                 healers.push_back(target);
                 continue;
@@ -1115,11 +1115,11 @@ class spell_sindragosa_unchained_magic : public SpellScript
                     casters.push_back(target);
                     break;
                 case CLASS_SHAMAN:
-                    if (Trinity::Helpers::Entity::GetPlayerSpecialization(player) != SPEC_SHAMAN_ENHANCEMENT)
+                    if (Kitron::Helpers::Entity::GetPlayerSpecialization(player) != SPEC_SHAMAN_ENHANCEMENT)
                         casters.push_back(target);
                     break;
                 case CLASS_DRUID:
-                    if (Trinity::Helpers::Entity::GetPlayerSpecialization(player) != SPEC_DRUID_FERAL)
+                    if (Kitron::Helpers::Entity::GetPlayerSpecialization(player) != SPEC_DRUID_FERAL)
                         casters.push_back(target);
                     break;
                 default:
@@ -1132,7 +1132,7 @@ class spell_sindragosa_unchained_magic : public SpellScript
         bool const is25ManRaid = GetCaster()->GetMap()->Is25ManRaid();
         if (!healers.empty())
         {
-            Trinity::Containers::RandomResize(healers, size_t(is25ManRaid ? 3 : 1));
+            Kitron::Containers::RandomResize(healers, size_t(is25ManRaid ? 3 : 1));
             while (!healers.empty())
             {
                 targets.push_back(healers.back());
@@ -1141,7 +1141,7 @@ class spell_sindragosa_unchained_magic : public SpellScript
         }
         if (!casters.empty())
         {
-            Trinity::Containers::RandomShuffle(casters);
+            Kitron::Containers::RandomShuffle(casters);
             size_t const maxSize = is25ManRaid ? 6 : 2;
             while (!casters.empty() && targets.size() < maxSize)
             {
@@ -1397,11 +1397,11 @@ class spell_frostwarden_handler_order_whelp : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        targets.remove_if(Trinity::ObjectTypeIdCheck(TYPEID_PLAYER, false));
+        targets.remove_if(Kitron::ObjectTypeIdCheck(TYPEID_PLAYER, false));
         if (targets.empty())
             return;
 
-        WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+        WorldObject* target = Kitron::Containers::SelectRandomContainerElement(targets);
         targets.clear();
         targets.push_back(target);
     }
@@ -1418,7 +1418,7 @@ class spell_frostwarden_handler_order_whelp : public SpellScript
         if (unitList.empty())
             return;
 
-        Trinity::Containers::SelectRandomContainerElement(unitList)->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
+        Kitron::Containers::SelectRandomContainerElement(unitList)->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
     }
 
     void Register() override

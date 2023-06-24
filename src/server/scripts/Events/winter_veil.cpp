@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -95,7 +95,7 @@ class spell_winter_veil_px_238_winter_wondervolt : public SpellScript
                 if (target->HasAura(spell))
                     return;
 
-            target->CastSpell(target, Trinity::Containers::SelectRandomContainerElement(WonderboltTransformSpells), true);
+            target->CastSpell(target, Kitron::Containers::SelectRandomContainerElement(WonderboltTransformSpells), true);
         }
     }
 

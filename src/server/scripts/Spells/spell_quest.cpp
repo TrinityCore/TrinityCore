@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -765,8 +765,8 @@ class spell_q11010_q11102_q11023_choose_loc : public SpellScript
         Unit* caster = GetCaster();
         // Check for player that is in 65 y range
         std::list<Player*> playerList;
-        Trinity::AnyPlayerInObjectRangeCheck checker(caster, 65.0f);
-        Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(caster, playerList, checker);
+        Kitron::AnyPlayerInObjectRangeCheck checker(caster, 65.0f);
+        Kitron::PlayerListSearcher<Kitron::AnyPlayerInObjectRangeCheck> searcher(caster, playerList, checker);
         Cell::VisitWorldObjects(caster, searcher, 65.0f);
         for (std::list<Player*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
             // Check if found player target is on fly mount or using flying form

@@ -4,7 +4,7 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=17 AND `SourceEntry`=43
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 -- (13, 0, 43315, 0, 18, 1, 24238, 5, 0, '', 'Only use Insult on Bjorn Halgurdsson'),
 -- (18, 0, 33581, 0, 24, 1, 24238, 0, 0, '', 'Only use Insult on Bjorn Halgurdsson'),
-(17, 0, 43315, 0, 19, 24238, 0, 0, 63, '', 'Vrykul Insult - Bjorn Halgurdsson'), -- "Invalid Target" trinity_string
+(17, 0, 43315, 0, 19, 24238, 0, 0, 63, '', 'Vrykul Insult - Bjorn Halgurdsson'), -- "Invalid Target" Kitron_string
 (13, 0, 43371, 0, 18, 1, 0, 0, 0, '', 'Bjorn Kill Credit - Players');
 
 DELETE FROM `creature_text` WHERE `entry`=24238;

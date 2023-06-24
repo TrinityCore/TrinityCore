@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,25 +19,25 @@
 #include "Errors.h"
 #include <limits>
 
-Trinity::Crypto::AES::AES(bool encrypting) : _ctx(EVP_CIPHER_CTX_new()), _encrypting(encrypting)
+Kitron::Crypto::AES::AES(bool encrypting) : _ctx(EVP_CIPHER_CTX_new()), _encrypting(encrypting)
 {
     EVP_CIPHER_CTX_init(_ctx);
     int status = EVP_CipherInit_ex(_ctx, EVP_aes_128_gcm(), nullptr, nullptr, nullptr, _encrypting ? 1 : 0);
     ASSERT(status);
 }
 
-Trinity::Crypto::AES::~AES()
+Kitron::Crypto::AES::~AES()
 {
     EVP_CIPHER_CTX_free(_ctx);
 }
 
-void Trinity::Crypto::AES::Init(Key const& key)
+void Kitron::Crypto::AES::Init(Key const& key)
 {
     int status = EVP_CipherInit_ex(_ctx, nullptr, nullptr, key.data(), nullptr, -1);
     ASSERT(status);
 }
 
-bool Trinity::Crypto::AES::Process(IV const& iv, uint8* data, size_t length, Tag& tag)
+bool Kitron::Crypto::AES::Process(IV const& iv, uint8* data, size_t length, Tag& tag)
 {
     ASSERT(length <= static_cast<size_t>(std::numeric_limits<int>::max()));
     int len = static_cast<int>(length);

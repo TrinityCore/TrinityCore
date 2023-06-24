@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -150,8 +150,8 @@ class boss_nalorakk : public CreatureScript
             {
                 std::vector<Creature*> tempList;
 
-                Trinity::AllFriendlyCreaturesInGrid check(me);
-                Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid> searcher(me, tempList, check);
+                Kitron::AllFriendlyCreaturesInGrid check(me);
+                Kitron::CreatureListSearcher<Kitron::AllFriendlyCreaturesInGrid> searcher(me, tempList, check);
                 Cell::VisitGridObjects(me, searcher, 25.0f);
 
                 if (tempList.empty())

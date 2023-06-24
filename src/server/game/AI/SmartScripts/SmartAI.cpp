@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -91,8 +91,8 @@ bool SmartAI::LoadPath(uint32 entry)
     _path.nodes = path->nodes;
     for (WaypointNode& waypoint : _path.nodes)
     {
-        Trinity::NormalizeMapCoord(waypoint.x);
-        Trinity::NormalizeMapCoord(waypoint.y);
+        Kitron::NormalizeMapCoord(waypoint.x);
+        Kitron::NormalizeMapCoord(waypoint.y);
         waypoint.moveType = _run ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
     }
 

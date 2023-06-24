@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -54,7 +54,7 @@ void FormationMgr::AddCreatureToGroup(ObjectGuid::LowType leaderSpawnId, Creatur
 
         // With dynamic spawn the creature may have just respawned
         // we need to find previous instance of creature and delete it from the formation, as it'll be invalidated
-        auto bounds = Trinity::Containers::MapEqualRange(map->GetCreatureBySpawnIdStore(), creature->GetSpawnId());
+        auto bounds = Kitron::Containers::MapEqualRange(map->GetCreatureBySpawnIdStore(), creature->GetSpawnId());
         for (auto const& pair : bounds)
         {
             Creature* other = pair.second;
@@ -173,7 +173,7 @@ void FormationMgr::LoadCreatureFormations()
 
 FormationInfo* FormationMgr::GetFormationInfo(ObjectGuid::LowType spawnId)
 {
-    return Trinity::Containers::MapGetValuePtr(_creatureGroupMap, spawnId);
+    return Kitron::Containers::MapGetValuePtr(_creatureGroupMap, spawnId);
 }
 
 void FormationMgr::AddFormationMember(ObjectGuid::LowType spawnId, float followAng, float followDist, ObjectGuid::LowType leaderSpawnId, uint32 groupAI)

@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -69,7 +69,7 @@ namespace WorldPackets
     template<std::size_t MaxBytesWithoutNullTerminator, typename... Validators>
     class String
     {
-        using ValidatorList = std::conditional_t<!Trinity::has_type<Strings::RawBytes, std::tuple<Validators...>>::value,
+        using ValidatorList = std::conditional_t<!Kitron::has_type<Strings::RawBytes, std::tuple<Validators...>>::value,
             std::tuple<Strings::ByteSize<MaxBytesWithoutNullTerminator>, Strings::Utf8, Validators...>,
             std::tuple<Strings::ByteSize<MaxBytesWithoutNullTerminator>, Validators...>>;
 

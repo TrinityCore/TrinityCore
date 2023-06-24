@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -500,7 +500,7 @@ class boss_voice_of_yogg_saron : public CreatureScript
                 bool clockwise = false;
                 std::list<TempSummon*> clouds;
                 me->SummonCreatureGroup(CREATURE_GROUP_CLOUDS, &clouds);
-                clouds.sort(Trinity::ObjectDistanceOrderPred(me, true));
+                clouds.sort(Kitron::ObjectDistanceOrderPred(me, true));
                 for (std::list<TempSummon*>::const_iterator itr = clouds.begin(); itr != clouds.end(); ++itr)
                 {
                     (*itr)->AI()->DoAction(int32(clockwise));
@@ -2042,7 +2042,7 @@ class spell_yogg_saron_psychosis : public SpellScriptLoader      // 63795, 65301
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(HighSanityTargetSelector());
-                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_ILLUSION_ROOM));
+                targets.remove_if(Kitron::UnitAuraCheck(true, SPELL_ILLUSION_ROOM));
             }
 
             void Register() override
@@ -2075,7 +2075,7 @@ class spell_yogg_saron_malady_of_the_mind : public SpellScriptLoader    // 63830
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(HighSanityTargetSelector());
-                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_ILLUSION_ROOM));
+                targets.remove_if(Kitron::UnitAuraCheck(true, SPELL_ILLUSION_ROOM));
             }
 
             void Register() override
@@ -2144,7 +2144,7 @@ class spell_yogg_saron_brain_link : public SpellScriptLoader    // 63802
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_ILLUSION_ROOM));
+                targets.remove_if(Kitron::UnitAuraCheck(true, SPELL_ILLUSION_ROOM));
 
                 if (targets.size() != 2)
                 {

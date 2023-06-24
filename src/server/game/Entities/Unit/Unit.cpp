@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1796,7 +1796,7 @@ void Unit::HandleEmoteCommand(Emote emoteId)
     // We're going to call functions which can modify content of the list during iteration over it's elements
     // Let's copy the list so we can prevent iterator invalidation
     AuraEffectList vSchoolAbsorbCopy(damageInfo.GetVictim()->GetAuraEffectsByType(SPELL_AURA_SCHOOL_ABSORB));
-    vSchoolAbsorbCopy.sort(Trinity::AbsorbAuraOrderPred());
+    vSchoolAbsorbCopy.sort(Kitron::AbsorbAuraOrderPred());
 
     // absorb without mana cost
     for (AuraEffectList::iterator itr = vSchoolAbsorbCopy.begin(); (itr != vSchoolAbsorbCopy.end()) && (damageInfo.GetDamage() > 0); ++itr)
@@ -7679,7 +7679,7 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo, WorldObject const* caste
 
     auto hasImmunity = [requireImmunityPurgesEffectAttribute](SpellImmuneContainer const& container, uint32 key)
     {
-        Trinity::IteratorPair<SpellImmuneContainer::const_iterator> range = Trinity::Containers::MapEqualRange(container, key);
+        Kitron::IteratorPair<SpellImmuneContainer::const_iterator> range = Kitron::Containers::MapEqualRange(container, key);
         if (!requireImmunityPurgesEffectAttribute)
             return range.begin() != range.end();
 
@@ -7803,7 +7803,7 @@ bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo co
 
     auto hasImmunity = [requireImmunityPurgesEffectAttribute](SpellImmuneContainer const& container, uint32 key)
     {
-        Trinity::IteratorPair<SpellImmuneContainer::const_iterator> range = Trinity::Containers::MapEqualRange(container, key);
+        Kitron::IteratorPair<SpellImmuneContainer::const_iterator> range = Kitron::Containers::MapEqualRange(container, key);
         if (!requireImmunityPurgesEffectAttribute)
             return range.begin() != range.end();
 
@@ -9932,15 +9932,15 @@ void CharmInfo::LoadPetActionBar(const std::string& data)
 {
     InitPetActionBar();
 
-    std::vector<std::string_view> tokens = Trinity::Tokenize(data, ' ', false);
+    std::vector<std::string_view> tokens = Kitron::Tokenize(data, ' ', false);
     if (tokens.size() != (ACTION_BAR_INDEX_END-ACTION_BAR_INDEX_START) * 2)
         return;                                             // non critical, will reset to default
 
     auto iter = tokens.begin();
     for (uint8 index = ACTION_BAR_INDEX_START; index < ACTION_BAR_INDEX_END; ++index)
     {
-        Optional<uint8> type = Trinity::StringTo<uint8>(*(iter++));
-        Optional<uint32> action = Trinity::StringTo<uint32>(*(iter++));
+        Optional<uint8> type = Kitron::StringTo<uint8>(*(iter++));
+        Optional<uint32> action = Kitron::StringTo<uint32>(*(iter++));
 
         if (!type || !action)
             continue;
@@ -10568,8 +10568,8 @@ void Unit::UpdateReactives(uint32 p_time)
 Unit* Unit::SelectNearbyTarget(Unit* exclude, float dist) const
 {
     std::list<Unit*> targets;
-    Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(this, this, dist);
-    Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(this, targets, u_check);
+    Kitron::AnyUnfriendlyUnitInObjectRangeCheck u_check(this, this, dist);
+    Kitron::UnitListSearcher<Kitron::AnyUnfriendlyUnitInObjectRangeCheck> searcher(this, targets, u_check);
     Cell::VisitAllObjects(this, searcher, dist);
 
     // remove current target
@@ -10593,7 +10593,7 @@ Unit* Unit::SelectNearbyTarget(Unit* exclude, float dist) const
         return nullptr;
 
     // select random
-    return Trinity::Containers::SelectRandomContainerElement(targets);
+    return Kitron::Containers::SelectRandomContainerElement(targets);
 }
 
 void ApplyPercentModFloatVar(float& var, float val, bool apply)
@@ -12206,7 +12206,7 @@ void Unit::UpdateObjectVisibility(bool forced)
     {
         WorldObject::UpdateObjectVisibility(true);
         // call MoveInLineOfSight for nearby creatures
-        Trinity::AIRelocationNotifier notifier(*this);
+        Kitron::AIRelocationNotifier notifier(*this);
         Cell::VisitAllObjects(this, notifier, GetVisibilityRange());
     }
 }
@@ -12911,7 +12911,7 @@ void Unit::SendTeleportPacket(Position const& pos, bool teleportingTransport /*=
 bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool teleport)
 {
     // prevent crash when a bad coord is sent by the client
-    if (!Trinity::IsValidMapCoord(x, y, z, orientation))
+    if (!Kitron::IsValidMapCoord(x, y, z, orientation))
     {
         TC_LOG_DEBUG("entities.unit", "Unit::UpdatePosition(%f, %f, %f) .. bad coordinates!", x, y, z);
         return false;
@@ -13650,9 +13650,9 @@ bool Unit::IsHighestExclusiveAuraEffect(SpellInfo const* spellInfo, AuraType aur
 
 void Unit::Talk(std::string_view text, ChatMsg msgType, Language language, float textRange, WorldObject const* target)
 {
-    Trinity::CustomChatTextBuilder builder(this, msgType, text, language, target);
-    Trinity::LocalizedPacketDo<Trinity::CustomChatTextBuilder> localizer(builder);
-    Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::CustomChatTextBuilder> > worker(this, textRange, localizer);
+    Kitron::CustomChatTextBuilder builder(this, msgType, text, language, target);
+    Kitron::LocalizedPacketDo<Kitron::CustomChatTextBuilder> localizer(builder);
+    Kitron::PlayerDistWorker<Kitron::LocalizedPacketDo<Kitron::CustomChatTextBuilder> > worker(this, textRange, localizer);
     Cell::VisitWorldObjects(this, worker, textRange);
 }
 
@@ -13706,9 +13706,9 @@ void Unit::Talk(uint32 textId, ChatMsg msgType, float textRange, WorldObject con
         return;
     }
 
-    Trinity::BroadcastTextBuilder builder(this, msgType, textId, GetGender(), target);
-    Trinity::LocalizedPacketDo<Trinity::BroadcastTextBuilder> localizer(builder);
-    Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::BroadcastTextBuilder> > worker(this, textRange, localizer);
+    Kitron::BroadcastTextBuilder builder(this, msgType, textId, GetGender(), target);
+    Kitron::LocalizedPacketDo<Kitron::BroadcastTextBuilder> localizer(builder);
+    Kitron::PlayerDistWorker<Kitron::LocalizedPacketDo<Kitron::BroadcastTextBuilder> > worker(this, textRange, localizer);
     Cell::VisitWorldObjects(this, worker, textRange);
 }
 

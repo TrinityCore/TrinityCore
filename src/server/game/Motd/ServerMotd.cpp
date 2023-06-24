@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -36,7 +36,7 @@ void Motd::SetMotd(std::string motd)
 
     WorldPacket data(SMSG_MOTD);                     // new in 2.0.1
 
-    std::vector<std::string_view> motdTokens = Trinity::Tokenize(motd, '@', true);
+    std::vector<std::string_view> motdTokens = Kitron::Tokenize(motd, '@', true);
     data << uint32(motdTokens.size()); // line count
 
     for (std::string_view token : motdTokens)

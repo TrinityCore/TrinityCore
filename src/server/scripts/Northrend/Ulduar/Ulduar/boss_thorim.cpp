@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -862,12 +862,12 @@ class boss_thorim : public CreatureScript
 
                 if (count == 1)
                 {
-                    Creature* bunny = Trinity::Containers::SelectRandomContainerElement(triggerList);
+                    Creature* bunny = Kitron::Containers::SelectRandomContainerElement(triggerList);
                     triggerList.clear();
                     triggerList.push_back(bunny);
                 }
                 else
-                    Trinity::Containers::RandomResize(triggerList, count);
+                    Kitron::Containers::RandomResize(triggerList, count);
             }
 
             void SummonWave()
@@ -1043,7 +1043,7 @@ struct npc_thorim_trashAI : public ScriptedAI
 
             Unit* target = nullptr;
             MostHPMissingInRange checker(caster, range, heal);
-            Trinity::UnitLastSearcher<MostHPMissingInRange> searcher(caster, target, checker);
+            Kitron::UnitLastSearcher<MostHPMissingInRange> searcher(caster, target, checker);
             Cell::VisitGridObjects(caster, searcher, range);
 
             return target;
@@ -1790,7 +1790,7 @@ class spell_thorim_charge_orb : public SpellScriptLoader
                 if (targets.empty())
                     return;
 
-                WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+                WorldObject* target = Kitron::Containers::SelectRandomContainerElement(targets);
                 targets.clear();
                 targets.push_back(target);
             }
@@ -1920,7 +1920,7 @@ class spell_thorim_stormhammer : public SpellScriptLoader
                     return;
                 }
 
-                WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+                WorldObject* target = Kitron::Containers::SelectRandomContainerElement(targets);
                 targets.clear();
                 targets.push_back(target);
             }
@@ -2097,12 +2097,12 @@ class spell_thorim_activate_lightning_orb_periodic : public SpellScriptLoader
                 std::vector<Creature*> triggers;
 
                 UpperOrbCheck check;
-                Trinity::CreatureListSearcher<UpperOrbCheck> searcher(caster, triggers, check);
+                Kitron::CreatureListSearcher<UpperOrbCheck> searcher(caster, triggers, check);
                 Cell::VisitGridObjects(caster, searcher, 100.f);
 
                 if (!triggers.empty())
                 {
-                    Creature* target = Trinity::Containers::SelectRandomContainerElement(triggers);
+                    Creature* target = Kitron::Containers::SelectRandomContainerElement(triggers);
                     if (Creature* thorim = instance->GetCreature(DATA_THORIM))
                         thorim->AI()->SetGUID(target->GetGUID(), DATA_CHARGED_PILLAR);
                 }

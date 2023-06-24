@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,7 +21,7 @@
 #include "Language.h"
 #include "RBAC.h"
 
-using namespace Trinity::ChatCommands;
+using namespace Kitron::ChatCommands;
 
 static std::unordered_map<AuctionQuality, uint32> const ahbotQualityLangIds =
 {
@@ -83,7 +83,7 @@ public:
         sAuctionBot->SetItemsAmount(items);
 
         for (AuctionQuality quality : EnumUtils::Iterate<AuctionQuality>())
-            handler->PSendSysMessage(LANG_AHBOT_ITEMS_AMOUNT, handler->GetTrinityString(ahbotQualityLangIds.at(quality)), sAuctionBotConfig->GetConfigItemQualityAmount(quality));
+            handler->PSendSysMessage(LANG_AHBOT_ITEMS_AMOUNT, handler->GetKitronString(ahbotQualityLangIds.at(quality)), sAuctionBotConfig->GetConfigItemQualityAmount(quality));
 
         return true;
     }
@@ -92,7 +92,7 @@ public:
     static bool HandleAHBotItemsAmountQualityCommand(ChatHandler* handler, uint32 amount)
     {
         sAuctionBot->SetItemsAmountForQuality(Q, amount);
-        handler->PSendSysMessage(LANG_AHBOT_ITEMS_AMOUNT, handler->GetTrinityString(ahbotQualityLangIds.at(Q)),
+        handler->PSendSysMessage(LANG_AHBOT_ITEMS_AMOUNT, handler->GetKitronString(ahbotQualityLangIds.at(Q)),
             sAuctionBotConfig->GetConfigItemQualityAmount(Q));
 
         return true;
@@ -146,7 +146,7 @@ public:
 
         uint32 fmtId = session ? LANG_AHBOT_STATUS_FORMAT_CHAT : LANG_AHBOT_STATUS_FORMAT_CONSOLE;
 
-        handler->PSendSysMessage(fmtId, handler->GetTrinityString(LANG_AHBOT_STATUS_ITEM_COUNT),
+        handler->PSendSysMessage(fmtId, handler->GetKitronString(LANG_AHBOT_STATUS_ITEM_COUNT),
             statusInfo[AUCTION_HOUSE_ALLIANCE].ItemsCount,
             statusInfo[AUCTION_HOUSE_HORDE].ItemsCount,
             statusInfo[AUCTION_HOUSE_NEUTRAL].ItemsCount,
@@ -156,7 +156,7 @@ public:
 
         if (all)
         {
-            handler->PSendSysMessage(fmtId, handler->GetTrinityString(LANG_AHBOT_STATUS_ITEM_RATIO),
+            handler->PSendSysMessage(fmtId, handler->GetKitronString(LANG_AHBOT_STATUS_ITEM_RATIO),
                 sAuctionBotConfig->GetConfig(CONFIG_AHBOT_ALLIANCE_ITEM_AMOUNT_RATIO),
                 sAuctionBotConfig->GetConfig(CONFIG_AHBOT_HORDE_ITEM_AMOUNT_RATIO),
                 sAuctionBotConfig->GetConfig(CONFIG_AHBOT_NEUTRAL_ITEM_AMOUNT_RATIO),
@@ -174,7 +174,7 @@ public:
                 handler->SendSysMessage(LANG_AHBOT_STATUS_TITLE2_CHAT);
 
             for (AuctionQuality quality : EnumUtils::Iterate<AuctionQuality>())
-                handler->PSendSysMessage(fmtId, handler->GetTrinityString(ahbotQualityLangIds.at(quality)),
+                handler->PSendSysMessage(fmtId, handler->GetKitronString(ahbotQualityLangIds.at(quality)),
                     statusInfo[AUCTION_HOUSE_ALLIANCE].QualityInfo.at(quality),
                     statusInfo[AUCTION_HOUSE_HORDE].QualityInfo.at(quality),
                     statusInfo[AUCTION_HOUSE_NEUTRAL].QualityInfo.at(quality),

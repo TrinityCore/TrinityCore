@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
- #ifndef TRINITY_THREATMANAGER_H
- #define TRINITY_THREATMANAGER_H
+ #ifndef Kitron_THREATMANAGER_H
+ #define Kitron_THREATMANAGER_H
 
 #include "Common.h"
 #include "IteratorPair.h"
@@ -118,11 +118,11 @@ class TC_GAME_API ThreatManager
         size_t GetThreatListSize() const { return _sortedThreatList.size(); }
         // fastest of the three threat list getters - gets the threat list in "arbitrary" order
         // iterators will invalidate on adding/removing entries from the threat list; slightly less finicky than GetSorted.
-        Trinity::IteratorPair<ThreatListIterator> GetUnsortedThreatList() const { return { _myThreatListEntries.begin(), _myThreatListEntries.end() }; }
+        Kitron::IteratorPair<ThreatListIterator> GetUnsortedThreatList() const { return { _myThreatListEntries.begin(), _myThreatListEntries.end() }; }
         // slightly slower than GetUnsorted, but, well...sorted - only use it if you need the sorted property, of course
         // this iterator pair will invalidate on any modification (even indirect) of the threat list; spell casts and similar can all induce this!
         // note: current tank is NOT guaranteed to be the first entry in this list - check GetLastVictim separately if you want that!
-        Trinity::IteratorPair<threat_list_heap::ordered_iterator> GetSortedThreatList() const { return { _sortedThreatList.ordered_begin(), _sortedThreatList.ordered_end() }; }
+        Kitron::IteratorPair<threat_list_heap::ordered_iterator> GetSortedThreatList() const { return { _sortedThreatList.ordered_begin(), _sortedThreatList.ordered_end() }; }
         // slowest of the three threat list getters (by far), but lets you modify the threat references - this is also sorted
         std::vector<ThreatReference*> GetModifiableThreatList();
 

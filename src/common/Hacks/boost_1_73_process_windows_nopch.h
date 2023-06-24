@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,7 +21,7 @@
 #include "CompilerDefs.h"
 #include <boost/version.hpp>
 
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS && BOOST_VERSION >= 107300 && BOOST_VERSION < 107800
+#if Kitron_PLATFORM == Kitron_PLATFORM_WINDOWS && BOOST_VERSION >= 107300 && BOOST_VERSION < 107800
 // __kernel_entry for boost/process/detail/windows/handle_workaround.hpp
 // DWORD for boost/process/detail/windows/handles.hpp
 #include <windows.h>

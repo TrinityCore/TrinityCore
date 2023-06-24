@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,10 +20,10 @@
 #include <openssl/evp.h>
 #include <openssl/hmac.h>
 
-constexpr std::size_t Trinity::Crypto::TOTP::RECOMMENDED_SECRET_LENGTH;
+constexpr std::size_t Kitron::Crypto::TOTP::RECOMMENDED_SECRET_LENGTH;
 static constexpr uint32 TOTP_INTERVAL = 30;
 static constexpr uint32 HMAC_RESULT_SIZE = 20;
-/*static*/ uint32 Trinity::Crypto::TOTP::GenerateToken(Secret const& secret, time_t timestamp)
+/*static*/ uint32 Kitron::Crypto::TOTP::GenerateToken(Secret const& secret, time_t timestamp)
 {
     timestamp /= TOTP_INTERVAL;
     unsigned char challenge[8];
@@ -40,7 +40,7 @@ static constexpr uint32 HMAC_RESULT_SIZE = 20;
     return (truncated % 1000000);
 }
 
-/*static*/ bool Trinity::Crypto::TOTP::ValidateToken(Secret const& secret, uint32 token)
+/*static*/ bool Kitron::Crypto::TOTP::ValidateToken(Secret const& secret, uint32 token)
 {
     time_t now = time(nullptr);
     return (

@@ -4,7 +4,7 @@ INSERT INTO `command` (`name`, `security`, `help`) VALUES
 
 SET @ENTRY1 := 96;
 SET @ENTRY2 := 97;
-DELETE FROM `trinity_string` WHERE `entry` IN (@ENTRY1, @ENTRY2);
-INSERT INTO `trinity_string` (`entry`, `content_default`) VALUES
+DELETE FROM `Kitron_string` WHERE `entry` IN (@ENTRY1, @ENTRY2);
+INSERT INTO `Kitron_string` (`entry`, `content_default`) VALUES
 (@ENTRY1, 'The guild name \'%s\' is already taken'),
 (@ENTRY2, 'Changed guild name \'%s\' to \'%s\'');

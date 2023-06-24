@@ -2,7 +2,7 @@
 
 =========================================================
 WARNING: THIS DOCUMENTATION IS NOT ALWAYS UP TO DATE.
-FOR MORE UP-TO-DATE INFORMATION, CHECK THE TRINITY WIKI.
+FOR MORE UP-TO-DATE INFORMATION, CHECK THE Kitron WIKI.
 =========================================================
 
 1 - create a file myscript.cpp in the scripts/custom folder.

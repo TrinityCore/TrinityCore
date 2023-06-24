@@ -55,4 +55,4 @@ INSERT INTO `spell_area` (`spell`,`area`,`autocast`) VALUES
 (60027, 4384, 1),
 (60028, 4384, 1);
 
-DELETE FROM `trinity_string` WHERE (`entry` BETWEEN 10059 AND 10062) OR (`entry` BETWEEN 10067 and 10073);
+DELETE FROM `Kitron_string` WHERE (`entry` BETWEEN 10059 AND 10062) OR (`entry` BETWEEN 10067 and 10073);

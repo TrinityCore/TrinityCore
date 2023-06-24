@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -106,9 +106,9 @@ void LoadDisables()
 
                 if (flags & SPELL_DISABLE_MAP)
                 {
-                    for (std::string_view mapStr : Trinity::Tokenize(params_0, ',', true))
+                    for (std::string_view mapStr : Kitron::Tokenize(params_0, ',', true))
                     {
-                        if (Optional<uint32> mapId = Trinity::StringTo<uint32>(mapStr))
+                        if (Optional<uint32> mapId = Kitron::StringTo<uint32>(mapStr))
                             data.params[0].insert(*mapId);
                         else
                             TC_LOG_ERROR("sql.sql", "Disable map '%s' for spell %u is invalid, skipped.", std::string(mapStr).c_str(), entry);
@@ -117,9 +117,9 @@ void LoadDisables()
 
                 if (flags & SPELL_DISABLE_AREA)
                 {
-                    for (std::string_view areaStr : Trinity::Tokenize(params_1, ',', true))
+                    for (std::string_view areaStr : Kitron::Tokenize(params_1, ',', true))
                     {
-                        if (Optional<uint32> areaId = Trinity::StringTo<uint32>(areaStr))
+                        if (Optional<uint32> areaId = Kitron::StringTo<uint32>(areaStr))
                             data.params[1].insert(*areaId);
                         else
                             TC_LOG_ERROR("sql.sql", "Disable area '%s' for spell %u is invalid, skipped.", std::string(areaStr).c_str(), entry);

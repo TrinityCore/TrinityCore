@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_HYPERLINKS_H
-#define TRINITY_HYPERLINKS_H
+#ifndef Kitron_HYPERLINKS_H
+#define Kitron_HYPERLINKS_H
 
 #include "ObjectGuid.h"
 #include "StringConvert.h"
@@ -36,7 +36,7 @@ class SpellInfo;
 class Quest;
 struct TalentEntry;
 
-namespace Trinity::Hyperlinks
+namespace Kitron::Hyperlinks
 {
 
     struct AchievementLinkData
@@ -121,7 +121,7 @@ namespace Trinity::Hyperlinks
             template <typename T>
             static std::enable_if_t<std::is_integral_v<T>, bool> StoreTo(T& val, std::string_view data)
             {
-                if (Optional<T> res = Trinity::StringTo<T>(data))
+                if (Optional<T> res = Kitron::StringTo<T>(data))
                 {
                     val = *res;
                     return true;
@@ -132,7 +132,7 @@ namespace Trinity::Hyperlinks
 
             static bool StoreTo(ObjectGuid& val, std::string_view data)
             {
-                if (Optional<uint64> res = Trinity::StringTo<uint64>(data, 16))
+                if (Optional<uint64> res = Kitron::StringTo<uint64>(data, 16))
                 {
                     val.Set(*res);
                     return true;

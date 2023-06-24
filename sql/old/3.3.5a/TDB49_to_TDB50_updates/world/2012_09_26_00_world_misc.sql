@@ -321,7 +321,7 @@ INSERT INTO `creature_transport` (`guid`,`transport_entry`,`npc_entry`,`TransOff
 -- Zeppelin: <The Zephyr>
 UPDATE `creature_transport` SET `emote`=173 WHERE `transport_entry`=190549 AND `npc_entry`=34719;
 
--- Fix flight masters around the Dark Portal in Outland (16.11.2011) by SignFinder ( https://github.com/TrinityCore/TrinityCore/issues/2596#issuecomment-4450115 ) Closes #6401
+-- Fix flight masters around the Dark Portal in Outland (16.11.2011) by SignFinder ( https://github.com/KitronCore/KitronCore/issues/2596#issuecomment-4450115 ) Closes #6401
 
 -- Vlagga Freyfeather SAI
 SET @NPC := 18930;

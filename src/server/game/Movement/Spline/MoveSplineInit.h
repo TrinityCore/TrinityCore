@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef TRINITYSERVER_MOVESPLINEINIT_H
-#define TRINITYSERVER_MOVESPLINEINIT_H
+#ifndef KitronSERVER_MOVESPLINEINIT_H
+#define KitronSERVER_MOVESPLINEINIT_H
 
 #include "MoveSplineInitArgs.h"
 
@@ -173,4 +173,4 @@ namespace Movement
 
     inline void MoveSplineInit::DisableTransportPathTransformations() { args.TransformForTransport = false; }
 }
-#endif // TRINITYSERVER_MOVESPLINEINIT_H
+#endif // KitronSERVER_MOVESPLINEINIT_H

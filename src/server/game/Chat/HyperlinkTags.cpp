@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -37,13 +37,13 @@ class HyperlinkDataTokenizer
 
             if (size_t off = _str.find(HYPERLINK_DATA_DELIMITER); off != std::string_view::npos)
             {
-                if (!Trinity::Hyperlinks::LinkTags::base_tag::StoreTo(val, _str.substr(0, off)))
+                if (!Kitron::Hyperlinks::LinkTags::base_tag::StoreTo(val, _str.substr(0, off)))
                     return false;
                 _str = _str.substr(off+1);
             }
             else
             {
-                if (!Trinity::Hyperlinks::LinkTags::base_tag::StoreTo(val, _str))
+                if (!Kitron::Hyperlinks::LinkTags::base_tag::StoreTo(val, _str))
                     return false;
                 _str = std::string_view();
             }
@@ -56,7 +56,7 @@ class HyperlinkDataTokenizer
         std::string_view _str;
 };
 
-bool Trinity::Hyperlinks::LinkTags::achievement::StoreTo(AchievementLinkData& val, std::string_view text)
+bool Kitron::Hyperlinks::LinkTags::achievement::StoreTo(AchievementLinkData& val, std::string_view text)
 {
     HyperlinkDataTokenizer t(text);
 
@@ -85,7 +85,7 @@ bool Trinity::Hyperlinks::LinkTags::achievement::StoreTo(AchievementLinkData& va
     return (t.TryConsumeTo(val.Criteria[0]) && t.TryConsumeTo(val.Criteria[1]) && t.TryConsumeTo(val.Criteria[2]) && t.TryConsumeTo(val.Criteria[3]) && t.IsEmpty());
 }
 
-bool Trinity::Hyperlinks::LinkTags::enchant::StoreTo(SpellInfo const*& val, std::string_view text)
+bool Kitron::Hyperlinks::LinkTags::enchant::StoreTo(SpellInfo const*& val, std::string_view text)
 {
     HyperlinkDataTokenizer t(text);
     uint32 spellId;
@@ -94,7 +94,7 @@ bool Trinity::Hyperlinks::LinkTags::enchant::StoreTo(SpellInfo const*& val, std:
     return (val = sSpellMgr->GetSpellInfo(spellId)) && val->HasAttribute(SPELL_ATTR0_TRADESPELL);
 }
 
-bool Trinity::Hyperlinks::LinkTags::glyph::StoreTo(GlyphLinkData& val, std::string_view text)
+bool Kitron::Hyperlinks::LinkTags::glyph::StoreTo(GlyphLinkData& val, std::string_view text)
 {
     HyperlinkDataTokenizer t(text);
     uint32 slot, prop;
@@ -107,7 +107,7 @@ bool Trinity::Hyperlinks::LinkTags::glyph::StoreTo(GlyphLinkData& val, std::stri
     return true;
 }
 
-bool Trinity::Hyperlinks::LinkTags::item::StoreTo(ItemLinkData& val, std::string_view text)
+bool Kitron::Hyperlinks::LinkTags::item::StoreTo(ItemLinkData& val, std::string_view text)
 {
     HyperlinkDataTokenizer t(text);
     uint32 itemId, dummy;
@@ -171,7 +171,7 @@ bool Trinity::Hyperlinks::LinkTags::item::StoreTo(ItemLinkData& val, std::string
     return true;
 }
 
-bool Trinity::Hyperlinks::LinkTags::quest::StoreTo(QuestLinkData& val, std::string_view text)
+bool Kitron::Hyperlinks::LinkTags::quest::StoreTo(QuestLinkData& val, std::string_view text)
 {
     HyperlinkDataTokenizer t(text);
     uint32 questId;
@@ -180,7 +180,7 @@ bool Trinity::Hyperlinks::LinkTags::quest::StoreTo(QuestLinkData& val, std::stri
     return (val.Quest = sObjectMgr->GetQuestTemplate(questId)) && t.TryConsumeTo(val.QuestLevel) && (val.QuestLevel >= -1) && t.IsEmpty();
 }
 
-bool Trinity::Hyperlinks::LinkTags::spell::StoreTo(SpellInfo const*& val, std::string_view text)
+bool Kitron::Hyperlinks::LinkTags::spell::StoreTo(SpellInfo const*& val, std::string_view text)
 {
     HyperlinkDataTokenizer t(text);
     uint32 spellId;
@@ -189,7 +189,7 @@ bool Trinity::Hyperlinks::LinkTags::spell::StoreTo(SpellInfo const*& val, std::s
     return !!(val = sSpellMgr->GetSpellInfo(spellId));
 }
 
-bool Trinity::Hyperlinks::LinkTags::talent::StoreTo(TalentLinkData& val, std::string_view text)
+bool Kitron::Hyperlinks::LinkTags::talent::StoreTo(TalentLinkData& val, std::string_view text)
 {
     HyperlinkDataTokenizer t(text);
     uint32 talentId;
@@ -218,7 +218,7 @@ bool Trinity::Hyperlinks::LinkTags::talent::StoreTo(TalentLinkData& val, std::st
     return true;
 }
 
-bool Trinity::Hyperlinks::LinkTags::trade::StoreTo(TradeskillLinkData& val, std::string_view text)
+bool Kitron::Hyperlinks::LinkTags::trade::StoreTo(TradeskillLinkData& val, std::string_view text)
 {
     HyperlinkDataTokenizer t(text);
     uint32 spellId;

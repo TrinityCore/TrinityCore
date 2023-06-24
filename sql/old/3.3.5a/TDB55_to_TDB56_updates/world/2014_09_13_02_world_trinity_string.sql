@@ -1,1 +1,1 @@
-DELETE FROM `trinity_string` WHERE `entry` IN (28634,28635);
+DELETE FROM `Kitron_string` WHERE `entry` IN (28634,28635);

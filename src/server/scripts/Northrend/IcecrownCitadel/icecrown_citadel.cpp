@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -669,7 +669,7 @@ struct npc_icc_orb_controller : public ScriptedAI
         {
             std::vector<Creature*> creatures;
             ICCOrbControllerMinionSearch check(me, false);
-            Trinity::CreatureListSearcher<ICCOrbControllerMinionSearch> searcher(me, creatures, check);
+            Kitron::CreatureListSearcher<ICCOrbControllerMinionSearch> searcher(me, creatures, check);
             Cell::VisitGridObjects(me, searcher, 10.0f);
 
             if (creatures.empty())
@@ -689,7 +689,7 @@ struct npc_icc_orb_controller : public ScriptedAI
     {
         _scheduler.Schedule(evading ? 5s : 1s, [this](TaskContext visual)
         {
-            ObjectGuid guid = Trinity::Containers::SelectRandomContainerElement(_minionGuids);
+            ObjectGuid guid = Kitron::Containers::SelectRandomContainerElement(_minionGuids);
             if (Unit* minion = ObjectAccessor::GetUnit(*me, guid))
                 minion->CastSpell(nullptr, SPELL_BLOOD_ORB_VISUAL);
             visual.Repeat(_isLongRepeat ? 21s : 3s);
@@ -745,7 +745,7 @@ struct npc_icc_orb_controller : public ScriptedAI
                     minion->AI()->DoZoneInCombat(darkfallen);
         }
 
-        if (Unit* minion = ObjectAccessor::GetUnit(*me, Trinity::Containers::SelectRandomContainerElement(_minionGuids)))
+        if (Unit* minion = ObjectAccessor::GetUnit(*me, Kitron::Containers::SelectRandomContainerElement(_minionGuids)))
             minion->CastSpell(nullptr, SPELL_SIPHON_ESSENCE);
     }
 
@@ -796,17 +796,17 @@ struct DarkFallenAI : public ScriptedAI
             {
                 std::vector<Creature*> creatures;
                 ICCOrbControllerMinionSearch check(me, true);
-                Trinity::CreatureListSearcher<ICCOrbControllerMinionSearch> searcher(me, creatures, check);
+                Kitron::CreatureListSearcher<ICCOrbControllerMinionSearch> searcher(me, creatures, check);
                 Cell::VisitGridObjects(me, searcher, 10.0f);
                 if (!creatures.empty())
                 {
-                    Creature* friendly = Trinity::Containers::SelectRandomContainerElement(creatures);
+                    Creature* friendly = Kitron::Containers::SelectRandomContainerElement(creatures);
                     DoCast(friendly, SPELL_POLYMORPH_ALLY);
                 }
             }
             Scheduler.Schedule(1s, [this](TaskContext /*emote*/)
             {
-                me->HandleEmoteCommand(Trinity::Containers::SelectRandomContainerElement(DarkFallensEmotes));
+                me->HandleEmoteCommand(Kitron::Containers::SelectRandomContainerElement(DarkFallensEmotes));
             });
             emote.Repeat(15s, 30s);
         });
@@ -1084,8 +1084,8 @@ struct npc_icc_nerubar_broodkeeper : public ScriptedAI
                 {
                     // Select a friendly target between 1% and 75% hp
                     Unit* target = nullptr;
-                    Trinity::MostHPPercentMissingInRange u_check(me, 40.0f, 1, 75);
-                    Trinity::UnitLastSearcher<Trinity::MostHPPercentMissingInRange> searcher(me, target, u_check);
+                    Kitron::MostHPPercentMissingInRange u_check(me, 40.0f, 1, 75);
+                    Kitron::UnitLastSearcher<Kitron::MostHPPercentMissingInRange> searcher(me, target, u_check);
                     Cell::VisitGridObjects(me, searcher, 40.0f);
 
                     if (target)
@@ -1255,7 +1255,7 @@ class spell_darkfallen_blood_mirror : public SpellScript
             return;
 
         _targets = targets;
-        Trinity::Containers::RandomResize(_targets, 2);
+        Kitron::Containers::RandomResize(_targets, 2);
     }
 
     void HandleMirror(SpellEffIndex /*effIndex*/)
@@ -1369,7 +1369,7 @@ class spell_icc_sprit_alarm : public SpellScript
 
         std::list<Creature*> wards;
         GetGObjCaster()->GetCreatureListWithEntryInGrid(wards, NPC_DEATHBOUND_WARD, 150.0f);
-        wards.sort(Trinity::ObjectDistanceOrderPred(GetGObjCaster()));
+        wards.sort(Kitron::ObjectDistanceOrderPred(GetGObjCaster()));
         for (std::list<Creature*>::iterator itr = wards.begin(); itr != wards.end(); ++itr)
         {
             if ((*itr)->IsAlive() && (*itr)->HasAura(SPELL_STONEFORM))
@@ -1535,7 +1535,7 @@ class at_icc_saurfang_portal : public AreaTriggerScript
                 instance->SetData(DATA_COLDFLAME_JETS, IN_PROGRESS);
                 std::list<Creature*> traps;
                 GetCreatureListWithEntryInGrid(traps, player, NPC_FROST_FREEZE_TRAP, 120.0f);
-                traps.sort(Trinity::ObjectDistanceOrderPred(player));
+                traps.sort(Kitron::ObjectDistanceOrderPred(player));
                 bool instant = false;
                 for (std::list<Creature*>::iterator itr = traps.begin(); itr != traps.end(); ++itr)
                 {

@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -573,7 +573,7 @@ class spell_dk_corpse_explosion : public SpellScript
                 FinishCast(SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW);
                 return;
             }
-            target = Trinity::Containers::SelectRandomContainerElement(targets);
+            target = Kitron::Containers::SelectRandomContainerElement(targets);
             targets.clear();
             targets.push_back(target);
         }
@@ -1640,7 +1640,7 @@ class spell_dk_raise_dead : public SpellScript
             return;
         }
 
-        WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+        WorldObject* target = Kitron::Containers::SelectRandomContainerElement(targets);
         targets.clear();
         targets.push_back(target);
         _corpse = true;

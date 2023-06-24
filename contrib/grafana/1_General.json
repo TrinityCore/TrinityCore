@@ -1155,7 +1155,7 @@
             {
               "key": "realm",
               "operator": "=",
-              "value": "Trinity"
+              "value": "Kitron"
             }
           ]
         },
@@ -1258,8 +1258,8 @@
         "allValue": null,
         "current": {
           "selected": false,
-          "text": "Trinity",
-          "value": "Trinity"
+          "text": "Kitron",
+          "value": "Kitron"
         },
         "datasource": "Influx",
         "definition": "",

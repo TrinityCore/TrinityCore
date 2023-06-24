@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -31,13 +31,13 @@
 #include <ctime>
 #include <boost/core/demangle.hpp>
 
-#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#if Kitron_COMPILER == Kitron_COMPILER_GNU
   #include <sys/socket.h>
   #include <netinet/in.h>
   #include <arpa/inet.h>
 #endif
 
-std::vector<std::string_view> Trinity::Tokenize(std::string_view str, char sep, bool keepEmpty)
+std::vector<std::string_view> Kitron::Tokenize(std::string_view str, char sep, bool keepEmpty)
 {
     std::vector<std::string_view> tokens;
 
@@ -106,13 +106,13 @@ std::string secsToTimeString(uint64 timeInSecs, TimeFormat timeFormat, bool hour
     if (timeFormat == TimeFormat::Numeric)
     {
         if (days)
-            return Trinity::StringFormat("%u:%02u:%02u:%02u", days, hours, minutes, secs);
+            return Kitron::StringFormat("%u:%02u:%02u:%02u", days, hours, minutes, secs);
         else if (hours)
-            return Trinity::StringFormat("%u:%02u:%02u", hours, minutes, secs);
+            return Kitron::StringFormat("%u:%02u:%02u", hours, minutes, secs);
         else if (minutes)
-            return Trinity::StringFormat("%u:%02u", minutes, secs);
+            return Kitron::StringFormat("%u:%02u", minutes, secs);
         else
-            return Trinity::StringFormat("0:%02u", secs);
+            return Kitron::StringFormat("0:%02u", secs);
     }
 
     std::ostringstream ss;
@@ -205,7 +205,7 @@ Optional<int32> MoneyStringToMoney(std::string const& moneyString)
     bool hadS = false;
     bool hadC = false;
 
-    for (std::string_view token : Trinity::Tokenize(moneyString, ' ', false))
+    for (std::string_view token : Kitron::Tokenize(moneyString, ' ', false))
     {
         uint32 unit;
         switch (token[token.length() - 1])
@@ -229,7 +229,7 @@ Optional<int32> MoneyStringToMoney(std::string const& moneyString)
                 return std::nullopt;
         }
 
-        Optional<uint32> amount = Trinity::StringTo<uint32>(token.substr(0, token.length() - 1));
+        Optional<uint32> amount = Kitron::StringTo<uint32>(token.substr(0, token.length() - 1));
         if (amount)
             money += (unit * *amount);
         else
@@ -281,7 +281,7 @@ std::string TimeToTimestampStr(time_t t)
     //       HH     hour (2 digits 00-23)
     //       MM     minutes (2 digits 00-59)
     //       SS     seconds (2 digits 00-59)
-    return Trinity::StringFormat("%04d-%02d-%02d_%02d-%02d-%02d", aTm.tm_year + 1900, aTm.tm_mon + 1, aTm.tm_mday, aTm.tm_hour, aTm.tm_min, aTm.tm_sec);
+    return Kitron::StringFormat("%04d-%02d-%02d_%02d-%02d-%02d", aTm.tm_year + 1900, aTm.tm_mon + 1, aTm.tm_mday, aTm.tm_hour, aTm.tm_min, aTm.tm_sec);
 }
 
 std::string TimeToHumanReadable(time_t t)
@@ -300,7 +300,7 @@ bool IsIPAddress(char const* ipaddress)
         return false;
 
     boost::system::error_code error;
-    Trinity::Net::make_address(ipaddress, error);
+    Kitron::Net::make_address(ipaddress, error);
     return !error;
 }
 
@@ -368,7 +368,7 @@ bool Utf8toWStr(char const* utf8str, size_t csize, wchar_t* wstr, size_t& wsize)
 {
     try
     {
-        Trinity::CheckedBufferOutputIterator<wchar_t> out(wstr, wsize);
+        Kitron::CheckedBufferOutputIterator<wchar_t> out(wstr, wsize);
         out = utf8::utf8to16(utf8str, utf8str+csize, out);
         wsize -= out.remaining(); // remaining unused space
         wstr[wsize] = L'\0';
@@ -516,7 +516,7 @@ std::wstring GetMainPartOfName(std::wstring const& wname, uint32 declension)
 
 bool utf8ToConsole(std::string_view utf8str, std::string& conStr)
 {
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#if Kitron_PLATFORM == Kitron_PLATFORM_WINDOWS
     std::wstring wstr;
     if (!Utf8toWStr(utf8str, wstr))
         return false;
@@ -533,7 +533,7 @@ bool utf8ToConsole(std::string_view utf8str, std::string& conStr)
 
 bool consoleToUtf8(std::string_view conStr, std::string& utf8str)
 {
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#if Kitron_PLATFORM == Kitron_PLATFORM_WINDOWS
     std::wstring wstr;
     wstr.resize(conStr.size());
     OemToCharBuffW(&conStr[0], &wstr[0], uint32(conStr.size()));
@@ -572,7 +572,7 @@ void utf8printf(FILE* out, const char *str, ...)
 
 void vutf8printf(FILE* out, const char *str, va_list* ap)
 {
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#if Kitron_PLATFORM == Kitron_PLATFORM_WINDOWS
     char temp_buf[32 * 1024];
     wchar_t wtemp_buf[32 * 1024];
 
@@ -602,7 +602,7 @@ bool Utf8ToUpperOnlyLatin(std::string& utf8String)
     return WStrToUtf8(wstr, utf8String);
 }
 
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#if Kitron_PLATFORM == Kitron_PLATFORM_WINDOWS
 bool ReadWinConsole(std::string& str, size_t size /*= 256*/)
 {
     wchar_t* commandbuf = new wchar_t[size + 1];
@@ -645,7 +645,7 @@ TC_COMMON_API Optional<std::size_t> RemoveCRLF(std::string & str)
     return nextLineIndex;
 }
 
-std::string Trinity::Impl::ByteArrayToHexStr(uint8 const* bytes, size_t arrayLen, bool reverse /* = false */)
+std::string Kitron::Impl::ByteArrayToHexStr(uint8 const* bytes, size_t arrayLen, bool reverse /* = false */)
 {
     int32 init = 0;
     int32 end = arrayLen;
@@ -669,7 +669,7 @@ std::string Trinity::Impl::ByteArrayToHexStr(uint8 const* bytes, size_t arrayLen
     return ss.str();
 }
 
-void Trinity::Impl::HexStrToByteArray(std::string_view str, uint8* out, size_t outlen, bool reverse /*= false*/)
+void Kitron::Impl::HexStrToByteArray(std::string_view str, uint8* out, size_t outlen, bool reverse /*= false*/)
 {
     ASSERT(str.size() == (2 * outlen));
 

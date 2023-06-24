@@ -1,4 +1,4 @@
-# This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+# This file is part of the KitronCore Project. See AUTHORS file for Copyright information
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -100,27 +100,27 @@ GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 # it to the variable arguments
 function(ConfigureScriptLoader SCRIPTLOADER_NAME LOADER_OUT IS_DYNAMIC_SCRIPTLOADER)
   # Deduces following variables which are referenced by thge template:
-  # TRINITY_IS_DYNAMIC_SCRIPTLOADER
-  # TRINITY_SCRIPTS_FORWARD_DECL
-  # TRINITY_SCRIPTS_INVOKE
-  # TRINITY_CURRENT_SCRIPT_PROJECT
+  # Kitron_IS_DYNAMIC_SCRIPTLOADER
+  # Kitron_SCRIPTS_FORWARD_DECL
+  # Kitron_SCRIPTS_INVOKE
+  # Kitron_CURRENT_SCRIPT_PROJECT
 
   # To generate export macros
-  set(TRINITY_IS_DYNAMIC_SCRIPTLOADER ${IS_DYNAMIC_SCRIPTLOADER})
+  set(Kitron_IS_DYNAMIC_SCRIPTLOADER ${IS_DYNAMIC_SCRIPTLOADER})
   # To generate forward declarations of the loading functions
-  unset(TRINITY_SCRIPTS_FORWARD_DECL)
-  unset(TRINITY_SCRIPTS_INVOKE)
+  unset(Kitron_SCRIPTS_FORWARD_DECL)
+  unset(Kitron_SCRIPTS_INVOKE)
   # The current script project which is built in
-  set(TRINITY_CURRENT_SCRIPT_PROJECT ${SCRIPTLOADER_NAME})
+  set(Kitron_CURRENT_SCRIPT_PROJECT ${SCRIPTLOADER_NAME})
   foreach(LOCALE_SCRIPT_MODULE ${ARGN})
     # Determine the loader function ("Add##${NameOfDirectory}##Scripts()")
     set(LOADER_FUNCTION
       "Add${LOCALE_SCRIPT_MODULE}Scripts()")
     # Generate the funciton call and the forward declarations
-    set(TRINITY_SCRIPTS_FORWARD_DECL
-      "${TRINITY_SCRIPTS_FORWARD_DECL}void ${LOADER_FUNCTION};\n")
-    set(TRINITY_SCRIPTS_INVOKE
-      "${TRINITY_SCRIPTS_INVOKE}    ${LOADER_FUNCTION};\n")
+    set(Kitron_SCRIPTS_FORWARD_DECL
+      "${Kitron_SCRIPTS_FORWARD_DECL}void ${LOADER_FUNCTION};\n")
+    set(Kitron_SCRIPTS_INVOKE
+      "${Kitron_SCRIPTS_INVOKE}    ${LOADER_FUNCTION};\n")
   endforeach()
   set(GENERATED_LOADER ${CMAKE_CURRENT_BINARY_DIR}/gen_scriptloader/${SCRIPTLOADER_NAME}/ScriptLoader.cpp)
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/ScriptLoader.cpp.in.cmake ${GENERATED_LOADER})
@@ -163,7 +163,7 @@ foreach(SCRIPT_MODULE ${SCRIPT_MODULE_LIST})
       ${SCRIPT_MODULE_PRIVATE_SCRIPTLOADER})
     target_link_libraries(${SCRIPT_MODULE_PROJECT_NAME}
       PRIVATE
-        trinity-core-interface
+        Kitron-core-interface
       PUBLIC
         game)
 
@@ -210,7 +210,7 @@ add_library(scripts STATIC
 
 target_link_libraries(scripts
   PRIVATE
-    trinity-core-interface
+    Kitron-core-interface
   PUBLIC
     game-interface)
 

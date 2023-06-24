@@ -1,6 +1,6 @@
 <?php
 /*
- * Project Name: Config File Merge For Mangos/Trinity Server
+ * Project Name: Config File Merge For Mangos/Kitron Server
  * Date: 01.01.2010 inital version (0.0.1a)
  * Author: Paradox
  * Copyright: Paradox
@@ -23,7 +23,7 @@ if (!empty($_FILES['File1']) && !empty($_FILES['File2']))
         mkdir($basedir."/".session_id());
     $upload1 = $basedir."/".session_id()."/".basename($_FILES['File1']['name']);
     $upload2 = $basedir."/".session_id()."/".basename($_FILES['File2']['name']);
-    $newconfig = $basedir."/".session_id()."/trinitycore.conf.merged";
+    $newconfig = $basedir."/".session_id()."/Kitroncore.conf.merged";
     $out_file = fopen($newconfig, w);
     $success = false;
     if (move_uploaded_file($_FILES['File1']['tmp_name'], $upload1))

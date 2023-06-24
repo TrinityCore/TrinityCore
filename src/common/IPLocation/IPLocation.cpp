@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -100,11 +100,11 @@ void IpLocationStore::Load()
 IpLocationRecord const* IpLocationStore::GetLocationRecord(std::string const& ipAddress) const
 {
     boost::system::error_code error;
-    boost::asio::ip::address_v4 address = Trinity::Net::make_address_v4(ipAddress, error);
+    boost::asio::ip::address_v4 address = Kitron::Net::make_address_v4(ipAddress, error);
     if (error)
         return nullptr;
 
-    uint32 ip = Trinity::Net::address_to_uint(address);
+    uint32 ip = Kitron::Net::address_to_uint(address);
     auto itr = std::upper_bound(_ipLocationStore.begin(), _ipLocationStore.end(), ip, [](uint32 ip, IpLocationRecord const& loc) { return ip < loc.IpTo; });
     if (itr == _ipLocationStore.end())
         return nullptr;

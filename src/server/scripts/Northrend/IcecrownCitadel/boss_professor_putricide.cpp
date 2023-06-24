@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -452,7 +452,7 @@ struct boss_professor_putricide : public BossAI
                     list.remove_if(RotfaceHeightCheck(rotface));
                     if (list.size() > 4)
                     {
-                        list.sort(Trinity::ObjectDistanceOrderPred(rotface));
+                        list.sort(Kitron::ObjectDistanceOrderPred(rotface));
                         do
                         {
                             list.pop_back();
@@ -877,7 +877,7 @@ class spell_putricide_ooze_channel : public SpellScript
             return;
         }
 
-        WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+        WorldObject* target = Kitron::Containers::SelectRandomContainerElement(targets);
         targets.clear();
         targets.push_back(target);
         _target = target;
@@ -1090,8 +1090,8 @@ class spell_putricide_unbound_plague : public SpellScript
             }
         }
 
-        targets.remove_if(Trinity::UnitAuraCheck(true, sSpellMgr->GetSpellIdForDifficulty(SPELL_UNBOUND_PLAGUE, GetCaster())));
-        Trinity::Containers::RandomResize(targets, 1);
+        targets.remove_if(Kitron::UnitAuraCheck(true, sSpellMgr->GetSpellIdForDifficulty(SPELL_UNBOUND_PLAGUE, GetCaster())));
+        Kitron::Containers::RandomResize(targets, 1);
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
@@ -1143,7 +1143,7 @@ class spell_putricide_eat_ooze : public SpellScript
         if (targets.empty())
             return;
 
-        targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
+        targets.sort(Kitron::ObjectDistanceOrderPred(GetCaster()));
         WorldObject* target = targets.front();
         targets.clear();
         targets.push_back(target);

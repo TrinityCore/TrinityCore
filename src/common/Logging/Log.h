@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITYCORE_LOG_H
-#define TRINITYCORE_LOG_H
+#ifndef KitronCORE_LOG_H
+#define KitronCORE_LOG_H
 
 #include "Define.h"
 #include "AsioHacksFwd.h"
@@ -31,7 +31,7 @@ class Appender;
 class Logger;
 struct LogMessage;
 
-namespace Trinity
+namespace Kitron
 {
     namespace Asio
     {
@@ -64,7 +64,7 @@ class TC_COMMON_API Log
     public:
         static Log* instance();
 
-        void Initialize(Trinity::Asio::IoContext* ioContext);
+        void Initialize(Kitron::Asio::IoContext* ioContext);
         void SetSynchronous();  // Not threadsafe - should only be called from main() after all threads are joined
         void LoadFromConfig();
         void Close();
@@ -74,7 +74,7 @@ class TC_COMMON_API Log
         template<typename Format, typename... Args>
         inline void outMessage(std::string const& filter, LogLevel const level, Format&& fmt, Args&&... args)
         {
-            outMessage(filter, level, Trinity::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...));
+            outMessage(filter, level, Kitron::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...));
         }
 
         template<typename Format, typename... Args>
@@ -83,7 +83,7 @@ class TC_COMMON_API Log
             if (!ShouldLog("commands.gm", LOG_LEVEL_INFO))
                 return;
 
-            outCommand(Trinity::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...), std::to_string(account));
+            outCommand(Kitron::StringFormat(std::forward<Format>(fmt), std::forward<Args>(args)...), std::to_string(account));
         }
 
         void outCharDump(char const* str, uint32 account_id, uint64 guid, char const* name);
@@ -123,8 +123,8 @@ class TC_COMMON_API Log
         std::string m_logsDir;
         std::string m_logsTimestamp;
 
-        Trinity::Asio::IoContext* _ioContext;
-        Trinity::Asio::Strand* _strand;
+        Kitron::Asio::IoContext* _ioContext;
+        Kitron::Asio::Strand* _strand;
 };
 
 #define sLog Log::instance()
@@ -144,7 +144,7 @@ class TC_COMMON_API Log
 
 #ifdef PERFORMANCE_PROFILING
 #define TC_LOG_MESSAGE_BODY(filterType__, level__, ...) ((void)0)
-#elif TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
+#elif Kitron_PLATFORM != Kitron_PLATFORM_WINDOWS
 void check_args(char const*, ...) ATTR_PRINTF(1, 2);
 void check_args(std::string const&, ...);
 

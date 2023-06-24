@@ -1,5 +1,5 @@
-DELETE FROM `trinity_string` WHERE `entry` IN (5045, 5046, 5047, 5048, 5049, 5050, 5051, 5052, 5053, 5054, 5055, 5056);
-INSERT INTO `trinity_string` (`entry`, `content_default`) VALUES
+DELETE FROM `Kitron_string` WHERE `entry` IN (5045, 5046, 5047, 5048, 5049, 5050, 5051, 5052, 5053, 5054, 5055, 5056);
+INSERT INTO `Kitron_string` (`entry`, `content_default`) VALUES
 (5045, 'Map: %d inst: %d perm: %s diff: %d canReset: %s TTR: %s'),
 (5046, 'Player binds: %d'),
 (5047, 'Group binds: %d'),

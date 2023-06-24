@@ -1,5 +1,5 @@
 -- //1// Prevent Whitebark dying before awarding quest - http://old.wowhead.com/quest=10166
--- Closes: https://github.com/TrinityCore/TrinityCore/issues/4840
+-- Closes: https://github.com/KitronCore/KitronCore/issues/4840
 SET @WHITEBARK := 19456;
 
 -- SAI support
@@ -23,6 +23,6 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (@WHITEBARK,1,0,'What good does this violence serve? What is done is done. I have failed my people.',12,0,100,0,1000,0,'Whitebark\'s Spirit - 19456');
 
 -- //2// Change quest end npc for http://www.wowhead.com/quest=24872/respite-for-a-tormented-soul
--- Closes: https://github.com/TrinityCore/TrinityCore/issues/6478
+-- Closes: https://github.com/KitronCore/KitronCore/issues/6478
 UPDATE `creature_involvedrelation` SET `id`=38017 WHERE `id`=38589 AND `quest`=24872;
 UPDATE `creature_template` SET `npcflag`=0x00000002 WHERE `entry`=38017; -- add quest giver flag

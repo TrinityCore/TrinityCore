@@ -1,4 +1,4 @@
-# This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+# This file is part of the KitronCore Project. See AUTHORS file for Copyright information
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -36,13 +36,13 @@ add_executable(authserver
 
 if(NOT WIN32)
   set_target_properties(authserver PROPERTIES
-    COMPILE_DEFINITIONS _TRINITY_REALM_CONFIG="${CONF_DIR}/authserver.conf"
+    COMPILE_DEFINITIONS _Kitron_REALM_CONFIG="${CONF_DIR}/authserver.conf"
   )
 endif()
 
 target_link_libraries(authserver
   PRIVATE
-    trinity-core-interface
+    Kitron-core-interface
     enturion_authserver
   PUBLIC
     shared)

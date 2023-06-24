@@ -630,8 +630,8 @@
         "allFormat": "regex values",
         "allValue": null,
         "current": {
-          "text": "Trinity",
-          "value": "Trinity"
+          "text": "Kitron",
+          "value": "Kitron"
         },
         "datasource": "Influx",
         "definition": "",

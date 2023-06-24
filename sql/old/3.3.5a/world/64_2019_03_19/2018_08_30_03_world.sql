@@ -1,6 +1,6 @@
 --
-DELETE FROM `trinity_string` WHERE `entry` BETWEEN 1189 AND 1197;
-INSERT INTO `trinity_string` (`entry`,`content_default`) VALUES
+DELETE FROM `Kitron_string` WHERE `entry` BETWEEN 1189 AND 1197;
+INSERT INTO `Kitron_string` (`entry`,`content_default`) VALUES
 (1189, "No instances were found matching your input"),
 (1190, "Multiple instances match your input - please be more specific:"),
 (1191, "│ %03u - %s"),

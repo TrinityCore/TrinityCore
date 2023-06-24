@@ -1,4 +1,4 @@
-# This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+# This file is part of the KitronCore Project. See AUTHORS file for Copyright information
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -45,11 +45,11 @@ target_include_directories(database
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
 
-add_definitions(-DTRINITY_API_EXPORT_DATABASE)
+add_definitions(-DKitron_API_EXPORT_DATABASE)
 
 target_link_libraries(database
   PRIVATE
-    trinity-core-interface
+    Kitron-core-interface
     mysql
   PUBLIC
     common)

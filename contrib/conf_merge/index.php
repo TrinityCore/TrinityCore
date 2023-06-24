@@ -1,6 +1,6 @@
 <?php
 /*
- * Project Name: Config File Merge For Mangos/Trinity Server
+ * Project Name: Config File Merge For Mangos/Kitron Server
  * Date: 01.01.2010 inital version (0.0.1a)
  * Author: Paradox
  * Copyright: Paradox

@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -167,10 +167,10 @@ bool RASession::CheckPassword(const std::string& user, const std::string& pass)
 
     if (PreparedQueryResult result = LoginDatabase.Query(stmt))
     {
-        Trinity::Crypto::SRP6::Salt salt = (*result)[0].GetBinary<Trinity::Crypto::SRP6::SALT_LENGTH>();
-        Trinity::Crypto::SRP6::Verifier verifier = (*result)[1].GetBinary<Trinity::Crypto::SRP6::VERIFIER_LENGTH>();
+        Kitron::Crypto::SRP6::Salt salt = (*result)[0].GetBinary<Kitron::Crypto::SRP6::SALT_LENGTH>();
+        Kitron::Crypto::SRP6::Verifier verifier = (*result)[1].GetBinary<Kitron::Crypto::SRP6::VERIFIER_LENGTH>();
 
-        if (Trinity::Crypto::SRP6::CheckLogin(safe_user, safe_pass, salt, verifier))
+        if (Kitron::Crypto::SRP6::CheckLogin(safe_user, safe_pass, salt, verifier))
             return true;
     }
 

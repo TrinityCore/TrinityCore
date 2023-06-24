@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -215,7 +215,7 @@ struct boss_anub_arak : public BossAI
                     me->GetCreatureListWithEntryInGrid(triggers, NPC_WORLD_TRIGGER);
                     if (!triggers.empty())
                     {
-                        Creature* trigger = Trinity::Containers::SelectRandomContainerElement(triggers);
+                        Creature* trigger = Kitron::Containers::SelectRandomContainerElement(triggers);
                         trigger->CastSpell(trigger, SPELL_SUMMON_DARTER, true);
 
                         events.Repeat(11s);

@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,21 +20,21 @@
 #include "Chat.h"
 #include "ChatCommand.h"
 
-using namespace Trinity::ChatCommands;
+using namespace Kitron::ChatCommands;
 using namespace std::string_view_literals;
 
 struct DummyChatHandler : ChatHandler
 {
     DummyChatHandler() : ChatHandler(nullptr) {}
     void SendSysMessage(std::string_view, bool) override {}
-    char const* GetTrinityString(uint32) const override { return ""; }
+    char const* GetKitronString(uint32) const override { return ""; }
 };
 
 template <typename F>
 static void TestChatCommand(std::string_view c, F f, Optional<bool> expected = true)
 {
     DummyChatHandler handler;
-    bool r = Trinity::Impl::ChatCommands::CommandInvoker(*+f)(&handler, c);
+    bool r = Kitron::Impl::ChatCommands::CommandInvoker(*+f)(&handler, c);
     if (expected)
         REQUIRE(r == *expected);
 }

@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_SRP6_H
-#define TRINITY_SRP6_H
+#ifndef Kitron_SRP6_H
+#define Kitron_SRP6_H
 
 #include "AuthDefines.h"
 #include "BigNumber.h"
@@ -26,7 +26,7 @@
 #include <array>
 #include <optional>
 
-namespace Trinity::Crypto
+namespace Kitron::Crypto
 {
     class TC_COMMON_API SRP6
     {

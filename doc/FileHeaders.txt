@@ -6,7 +6,7 @@ To make things look uniform here's the headers we use for sourcefiles.
 
 --- SNIP ---
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -26,4 +26,4 @@ To make things look uniform here's the headers we use for sourcefiles.
 Thank you for using these headers when you add new files/modify already existing
 files!
 
- - The TrinityCore developers
+ - The KitronCore developers

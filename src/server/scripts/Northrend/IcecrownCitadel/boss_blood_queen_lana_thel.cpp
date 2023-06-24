@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -408,7 +408,7 @@ struct boss_blood_queen_lana_thel : public BossAI
                 {
                     std::list<Player*> targets;
                     SelectRandomTarget(false, &targets);
-                    Trinity::Containers::RandomResize(targets, Is25ManRaid() ? 3 : 2);
+                    Kitron::Containers::RandomResize(targets, Is25ManRaid() ? 3 : 2);
                     if (targets.size() > 1)
                     {
                         Talk(SAY_PACT_OF_THE_DARKFALLEN);
@@ -431,7 +431,7 @@ struct boss_blood_queen_lana_thel : public BossAI
                 {
                     std::list<Player*> targets;
                     SelectRandomTarget(false, &targets);
-                    Trinity::Containers::RandomResize(targets, uint32(Is25ManRaid() ? 4 : 2));
+                    Kitron::Containers::RandomResize(targets, uint32(Is25ManRaid() ? 4 : 2));
                     for (std::list<Player*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
                         DoCast(*itr, SPELL_TWILIGHT_BLOODBOLT);
                     DoCast(me, SPELL_TWILIGHT_BLOODBOLT_TARGET);
@@ -498,11 +498,11 @@ private:
 
         if (includeOfftank)
         {
-            tempTargets.sort(Trinity::ObjectDistanceOrderPred(me->GetVictim()));
+            tempTargets.sort(Kitron::ObjectDistanceOrderPred(me->GetVictim()));
             return tempTargets.front();
         }
 
-        return Trinity::Containers::SelectRandomContainerElement(tempTargets);
+        return Kitron::Containers::SelectRandomContainerElement(tempTargets);
     }
 
     GuidSet _vampires;
@@ -644,7 +644,7 @@ class spell_blood_queen_bloodbolt : public SpellScript
     {
         uint32 targetCount = (targets.size() + 2) / 3;
         targets.remove_if(BloodboltHitCheck(static_cast<LanaThelAI*>(GetCaster()->GetAI())));
-        Trinity::Containers::RandomResize(targets, targetCount);
+        Kitron::Containers::RandomResize(targets, targetCount);
         // mark targets now, effect hook has missile travel time delay (might cast next in that time)
         for (std::list<WorldObject*>::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
             GetCaster()->GetAI()->SetGUID((*itr)->GetGUID(), GUID_BLOODBOLT);
@@ -698,7 +698,7 @@ class spell_blood_queen_pact_of_the_darkfallen : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        targets.remove_if(Trinity::UnitAuraCheck(false, SPELL_PACT_OF_THE_DARKFALLEN));
+        targets.remove_if(Kitron::UnitAuraCheck(false, SPELL_PACT_OF_THE_DARKFALLEN));
 
         bool remove = true;
         std::list<WorldObject*>::const_iterator itrEnd = targets.end(), itr, itr2;
@@ -765,7 +765,7 @@ class spell_blood_queen_pact_of_the_darkfallen_dmg_target : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& unitList)
     {
-        unitList.remove_if(Trinity::UnitAuraCheck(true, SPELL_PACT_OF_THE_DARKFALLEN));
+        unitList.remove_if(Kitron::UnitAuraCheck(true, SPELL_PACT_OF_THE_DARKFALLEN));
         unitList.push_back(GetCaster());
     }
 

@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -471,8 +471,8 @@ public:
         {
             // Returns true if no nearby player has aura "Test Ribbon Pole Channel".
             std::list<Player*> players;
-            Trinity::UnitAuraCheck check(true, SPELL_RIBBON_DANCE_COSMETIC);
-            Trinity::PlayerListSearcher<Trinity::UnitAuraCheck> searcher(me, players, check);
+            Kitron::UnitAuraCheck check(true, SPELL_RIBBON_DANCE_COSMETIC);
+            Kitron::PlayerListSearcher<Kitron::UnitAuraCheck> searcher(me, players, check);
             Cell::VisitWorldObjects(me, searcher, 10.0f);
 
             return players.empty();
@@ -1506,7 +1506,7 @@ struct npc_brewfest_reveler_2 : ScriptedAI
                 {
                     // Turn to random brewfest reveler within set range
                     if (!_revelerGuids.empty())
-                        if (Creature* creature = ObjectAccessor::GetCreature(*me, Trinity::Containers::SelectRandomContainerElement(_revelerGuids)))
+                        if (Creature* creature = ObjectAccessor::GetCreature(*me, Kitron::Containers::SelectRandomContainerElement(_revelerGuids)))
                             me->SetFacingToObject(creature);
 
                     _events.ScheduleEvent(EVENT_EMOTE, 2s, 6s);
@@ -1516,7 +1516,7 @@ struct npc_brewfest_reveler_2 : ScriptedAI
                     // Play random emote or dance
                     if (roll_chance_i(50))
                     {
-                        me->HandleEmoteCommand(Trinity::Containers::SelectRandomContainerElement(BrewfestRandomEmote));
+                        me->HandleEmoteCommand(Kitron::Containers::SelectRandomContainerElement(BrewfestRandomEmote));
                         _events.ScheduleEvent(EVENT_NEXT, 4s, 6s);
                     }
                     else

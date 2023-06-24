@@ -1,4 +1,4 @@
-# This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+# This file is part of the KitronCore Project. See AUTHORS file for Copyright information
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -97,7 +97,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux" AND NOT NOJEM)
 
   target_link_libraries(jemalloc
     PRIVATE
-      trinity-dependency-interface
+      Kitron-dependency-interface
     PUBLIC
       threads
       valgrind

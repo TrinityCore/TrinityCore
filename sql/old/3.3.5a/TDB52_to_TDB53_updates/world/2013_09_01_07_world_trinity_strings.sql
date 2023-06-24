@@ -1,5 +1,5 @@
-DELETE FROM `trinity_string` WHERE `entry` IN (749, 872, 873, 874, 875, 876, 877, 878, 879, 880, 881);
-INSERT INTO `trinity_string` (`entry`, `content_default`) VALUES
+DELETE FROM `Kitron_string` WHERE `entry` IN (749, 872, 873, 874, 875, 876, 877, 878, 879, 880, 881);
+INSERT INTO `Kitron_string` (`entry`, `content_default`) VALUES
 (749,'│ OS: %s - Latency: %u ms'),
 (872, 'Entered email is not equal to registration email, check input'),
 (873, 'The new emails do not match'),

@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_CHATCOMMANDHELPERS_H
-#define TRINITY_CHATCOMMANDHELPERS_H
+#ifndef Kitron_CHATCOMMANDHELPERS_H
+#define Kitron_CHATCOMMANDHELPERS_H
 
 #include "Define.h"
 #include "Language.h"
@@ -29,7 +29,7 @@
 
 class ChatHandler;
 
-namespace Trinity::Impl::ChatCommands
+namespace Kitron::Impl::ChatCommands
 {
     /***************** HELPERS *************************\
     |* These really aren't for outside use...          *|
@@ -121,11 +121,11 @@ namespace Trinity::Impl::ChatCommands
     };
 
     TC_GAME_API void SendErrorMessageToHandler(ChatHandler* handler, std::string_view str);
-    TC_GAME_API char const* GetTrinityString(ChatHandler const* handler, TrinityStrings which);
+    TC_GAME_API char const* GetKitronString(ChatHandler const* handler, KitronStrings which);
     template <typename... Ts>
-    std::string FormatTrinityString(ChatHandler const* handler, TrinityStrings which, Ts&&... args)
+    std::string FormatKitronString(ChatHandler const* handler, KitronStrings which, Ts&&... args)
     {
-        return Trinity::StringFormat(GetTrinityString(handler, which), std::forward<Ts>(args)...);
+        return Kitron::StringFormat(GetKitronString(handler, which), std::forward<Ts>(args)...);
     }
 }
 

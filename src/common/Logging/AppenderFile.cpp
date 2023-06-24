@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -30,7 +30,7 @@ AppenderFile::AppenderFile(uint8 id, std::string const& name, LogLevel level, Ap
     _fileSize(0)
 {
     if (args.size() < 4)
-        throw InvalidAppenderArgsException(Trinity::StringFormat("Log::CreateAppenderFromConfig: Missing file name for appender %s", name.c_str()));
+        throw InvalidAppenderArgsException(Kitron::StringFormat("Log::CreateAppenderFromConfig: Missing file name for appender %s", name.c_str()));
 
     _fileName.assign(args[3]);
 
@@ -49,10 +49,10 @@ AppenderFile::AppenderFile(uint8 id, std::string const& name, LogLevel level, Ap
 
     if (5 < args.size())
     {
-        if (Optional<uint32> size = Trinity::StringTo<uint32>(args[5]))
+        if (Optional<uint32> size = Kitron::StringTo<uint32>(args[5]))
             _maxFileSize = *size;
         else
-            throw InvalidAppenderArgsException(Trinity::StringFormat("Log::CreateAppenderFromConfig: Invalid size '%s' for appender %s", std::string(args[5]).c_str(), name.c_str()));
+            throw InvalidAppenderArgsException(Kitron::StringFormat("Log::CreateAppenderFromConfig: Invalid size '%s' for appender %s", std::string(args[5]).c_str(), name.c_str()));
     }
 
     _dynamicName = std::string::npos != _fileName.find("%s");
@@ -73,8 +73,8 @@ void AppenderFile::_write(LogMessage const* message)
 
     if (_dynamicName)
     {
-        char namebuf[TRINITY_PATH_MAX];
-        snprintf(namebuf, TRINITY_PATH_MAX, _fileName.c_str(), message->param1.c_str());
+        char namebuf[Kitron_PATH_MAX];
+        snprintf(namebuf, Kitron_PATH_MAX, _fileName.c_str(), message->param1.c_str());
         // always use "a" with dynamic name otherwise it could delete the log we wrote in last _write() call
         FILE* file = OpenFile(namebuf, "a", _backup || exceedMaxSize);
         if (!file)

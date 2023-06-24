@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,7 +23,7 @@
 #include "Util.h"
 #include <sstream>
 
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#if Kitron_PLATFORM == Kitron_PLATFORM_WINDOWS
   #include <Windows.h>
 #endif
 
@@ -45,20 +45,20 @@ void AppenderConsole::InitColors(std::string const& name, std::string_view str)
         return;
     }
 
-    std::vector<std::string_view> colorStrs = Trinity::Tokenize(str, ' ', false);
+    std::vector<std::string_view> colorStrs = Kitron::Tokenize(str, ' ', false);
     if (colorStrs.size() != NUM_ENABLED_LOG_LEVELS)
     {
-        throw InvalidAppenderArgsException(Trinity::StringFormat("Log::CreateAppenderFromConfig: Invalid color data '%s' for console appender %s (expected %u entries, got %zu)",
+        throw InvalidAppenderArgsException(Kitron::StringFormat("Log::CreateAppenderFromConfig: Invalid color data '%s' for console appender %s (expected %u entries, got %zu)",
             std::string(str).c_str(), name.c_str(), NUM_ENABLED_LOG_LEVELS, colorStrs.size()));
     }
 
     for (uint8 i = 0; i < NUM_ENABLED_LOG_LEVELS; ++i)
     {
-        if (Optional<uint8> color = Trinity::StringTo<uint8>(colorStrs[i]); color && EnumUtils::IsValid<ColorTypes>(*color))
+        if (Optional<uint8> color = Kitron::StringTo<uint8>(colorStrs[i]); color && EnumUtils::IsValid<ColorTypes>(*color))
             _colors[i] = static_cast<ColorTypes>(*color);
         else
         {
-            throw InvalidAppenderArgsException(Trinity::StringFormat("Log::CreateAppenderFromConfig: Invalid color '%s' for log level %s on console appender %s",
+            throw InvalidAppenderArgsException(Kitron::StringFormat("Log::CreateAppenderFromConfig: Invalid color '%s' for log level %s on console appender %s",
                 std::string(colorStrs[i]).c_str(), EnumUtils::ToTitle(static_cast<LogLevel>(i)), name.c_str()));
         }
     }
@@ -68,7 +68,7 @@ void AppenderConsole::InitColors(std::string const& name, std::string_view str)
 
 void AppenderConsole::SetColor(bool stdout_stream, ColorTypes color)
 {
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#if Kitron_PLATFORM == Kitron_PLATFORM_WINDOWS
     static WORD WinColorFG[NUM_COLOR_TYPES] =
     {
         0,                                                  // BLACK
@@ -155,7 +155,7 @@ void AppenderConsole::SetColor(bool stdout_stream, ColorTypes color)
 
 void AppenderConsole::ResetColor(bool stdout_stream)
 {
-    #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+    #if Kitron_PLATFORM == Kitron_PLATFORM_WINDOWS
     HANDLE hConsole = GetStdHandle(stdout_stream ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE);
     SetConsoleTextAttribute(hConsole, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED);
     #else
@@ -165,7 +165,7 @@ void AppenderConsole::ResetColor(bool stdout_stream)
 
 void AppenderConsole::Print(std::string const& str, bool error)
 {
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#if Kitron_PLATFORM == Kitron_PLATFORM_WINDOWS
     WriteWinConsole(str + "\n", error);
 #else
     utf8printf(error ? stderr : stdout, "%s\n", str.c_str());

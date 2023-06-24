@@ -1,6 +1,6 @@
 -- 
-DELETE FROM `trinity_string` WHERE `entry` IN (6,7,8,191,192,193,194);
-INSERT INTO `trinity_string` (`entry`,`content_default`) VALUES
+DELETE FROM `Kitron_string` WHERE `entry` IN (6,7,8,191,192,193,194);
+INSERT INTO `Kitron_string` (`entry`,`content_default`) VALUES
 (6, 'Command \'%.*s\' does not exist'),
 (7, 'Subcommand \'%.*s\' is ambiguous:'),
 (8, 'Possible subcommands:'),

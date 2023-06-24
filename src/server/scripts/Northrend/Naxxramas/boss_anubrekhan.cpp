@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -187,7 +187,7 @@ struct boss_anubrekhan : public BossAI
                 case EVENT_SCARABS:
                     if (!guardCorpses.empty())
                     {
-                        if (ObjectGuid target = Trinity::Containers::SelectRandomContainerElement(guardCorpses))
+                        if (ObjectGuid target = Kitron::Containers::SelectRandomContainerElement(guardCorpses))
                             if (Creature* creatureTarget = ObjectAccessor::GetCreature(*me, target))
                             {
                                 creatureTarget->CastSpell(creatureTarget, SPELL_SUMMON_CORPSE_SCARABS_MOB, me->GetGUID());

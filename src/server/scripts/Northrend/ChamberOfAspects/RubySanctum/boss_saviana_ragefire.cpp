@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -221,7 +221,7 @@ class spell_saviana_conflagration_init : public SpellScript
         targets.remove_if(ConflagrationTargetSelector());
         uint8 maxSize = uint8(GetCaster()->GetMap()->GetSpawnMode() & 1 ? 6 : 3);
         if (targets.size() > maxSize)
-            Trinity::Containers::RandomResize(targets, maxSize);
+            Kitron::Containers::RandomResize(targets, maxSize);
     }
 
     void HandleDummy(SpellEffIndex effIndex)

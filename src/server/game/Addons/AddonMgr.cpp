@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -82,8 +82,8 @@ void LoadFromDB()
             std::string name = fields[1].GetString();
             std::string version = fields[2].GetString();
 
-            addon.NameMD5 = Trinity::Crypto::MD5::GetDigestOf(name);
-            addon.VersionMD5 = Trinity::Crypto::MD5::GetDigestOf(version);
+            addon.NameMD5 = Kitron::Crypto::MD5::GetDigestOf(name);
+            addon.VersionMD5 = Kitron::Crypto::MD5::GetDigestOf(version);
 
             m_bannedAddons.push_back(addon);
 

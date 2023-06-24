@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,12 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_DEFINE_H
-#define TRINITY_DEFINE_H
+#ifndef Kitron_DEFINE_H
+#define Kitron_DEFINE_H
 
 #include "CompilerDefs.h"
 
-#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#if Kitron_COMPILER == Kitron_COMPILER_GNU
 #  if !defined(__STDC_FORMAT_MACROS)
 #    define __STDC_FORMAT_MACROS
 #  endif
@@ -43,44 +43,44 @@
 #include <cinttypes>
 #include <climits>
 
-#define TRINITY_LITTLEENDIAN 0
-#define TRINITY_BIGENDIAN    1
+#define Kitron_LITTLEENDIAN 0
+#define Kitron_BIGENDIAN    1
 
-#if !defined(TRINITY_ENDIAN)
+#if !defined(Kitron_ENDIAN)
 #  if defined (BOOST_BIG_ENDIAN)
-#    define TRINITY_ENDIAN TRINITY_BIGENDIAN
+#    define Kitron_ENDIAN Kitron_BIGENDIAN
 #  else
-#    define TRINITY_ENDIAN TRINITY_LITTLEENDIAN
+#    define Kitron_ENDIAN Kitron_LITTLEENDIAN
 #  endif
 #endif
 
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
-#  define TRINITY_PATH_MAX 260
+#if Kitron_PLATFORM == Kitron_PLATFORM_WINDOWS
+#  define Kitron_PATH_MAX 260
 #  define _USE_MATH_DEFINES
-#else // TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
-#  define TRINITY_PATH_MAX PATH_MAX
-#endif // TRINITY_PLATFORM
+#else // Kitron_PLATFORM != Kitron_PLATFORM_WINDOWS
+#  define Kitron_PATH_MAX PATH_MAX
+#endif // Kitron_PLATFORM
 
 #if !defined(COREDEBUG)
-#  define TRINITY_INLINE inline
+#  define Kitron_INLINE inline
 #else //COREDEBUG
-#  if !defined(TRINITY_DEBUG)
-#    define TRINITY_DEBUG
-#  endif //TRINITY_DEBUG
-#  define TRINITY_INLINE
+#  if !defined(Kitron_DEBUG)
+#    define Kitron_DEBUG
+#  endif //Kitron_DEBUG
+#  define Kitron_INLINE
 #endif //!COREDEBUG
 
-#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#if Kitron_COMPILER == Kitron_COMPILER_GNU
 #  define ATTR_PRINTF(F, V) __attribute__ ((__format__ (__printf__, F, V)))
-#else //TRINITY_COMPILER != TRINITY_COMPILER_GNU
+#else //Kitron_COMPILER != Kitron_COMPILER_GNU
 #  define ATTR_PRINTF(F, V)
-#endif //TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#endif //Kitron_COMPILER == Kitron_COMPILER_GNU
 
-#ifdef TRINITY_API_USE_DYNAMIC_LINKING
-#  if TRINITY_COMPILER == TRINITY_COMPILER_MICROSOFT
+#ifdef Kitron_API_USE_DYNAMIC_LINKING
+#  if Kitron_COMPILER == Kitron_COMPILER_MICROSOFT
 #    define TC_API_EXPORT __declspec(dllexport)
 #    define TC_API_IMPORT __declspec(dllimport)
-#  elif TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#  elif Kitron_COMPILER == Kitron_COMPILER_GNU
 #    define TC_API_EXPORT __attribute__((visibility("default")))
 #    define TC_API_IMPORT
 #  else
@@ -91,25 +91,25 @@
 #  define TC_API_IMPORT
 #endif
 
-#ifdef TRINITY_API_EXPORT_COMMON
+#ifdef Kitron_API_EXPORT_COMMON
 #  define TC_COMMON_API TC_API_EXPORT
 #else
 #  define TC_COMMON_API TC_API_IMPORT
 #endif
 
-#ifdef TRINITY_API_EXPORT_DATABASE
+#ifdef Kitron_API_EXPORT_DATABASE
 #  define TC_DATABASE_API TC_API_EXPORT
 #else
 #  define TC_DATABASE_API TC_API_IMPORT
 #endif
 
-#ifdef TRINITY_API_EXPORT_SHARED
+#ifdef Kitron_API_EXPORT_SHARED
 #  define TC_SHARED_API TC_API_EXPORT
 #else
 #  define TC_SHARED_API TC_API_IMPORT
 #endif
 
-#ifdef TRINITY_API_EXPORT_GAME
+#ifdef Kitron_API_EXPORT_GAME
 #  define TC_GAME_API TC_API_EXPORT
 #else
 #  define TC_GAME_API TC_API_IMPORT
@@ -135,4 +135,4 @@ typedef uint32_t uint32;
 typedef uint16_t uint16;
 typedef uint8_t uint8;
 
-#endif //TRINITY_DEFINE_H
+#endif //Kitron_DEFINE_H

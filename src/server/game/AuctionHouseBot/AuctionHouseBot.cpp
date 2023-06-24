@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -320,7 +320,7 @@ uint32 AuctionBotConfig::GetRandChar() const
     if (_AHBotCharacters.empty())
         return 0;
 
-    return Trinity::Containers::SelectRandomContainerElement(_AHBotCharacters);
+    return Kitron::Containers::SelectRandomContainerElement(_AHBotCharacters);
 }
 
 // Picks a random AHBot character, but excludes a specific one. This is used
@@ -340,7 +340,7 @@ uint32 AuctionBotConfig::GetRandCharExclude(uint32 exclude) const
     if (filteredCharacters.empty())
         return 0;
 
-    return Trinity::Containers::SelectRandomContainerElement(filteredCharacters);
+    return Kitron::Containers::SelectRandomContainerElement(filteredCharacters);
 }
 
 bool AuctionBotConfig::IsBotChar(uint32 characterID) const

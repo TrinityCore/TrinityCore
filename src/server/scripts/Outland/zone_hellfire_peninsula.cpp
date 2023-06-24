@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -677,8 +677,8 @@ struct npc_watch_commander_leonus : public ScriptedAI
                     std::list<Creature*> dummies;
                     for (uint32 entry : { NPC_INFERNAL_RAIN, NPC_FEAR_CONTROLLER })
                     {
-                        Trinity::AllCreaturesOfEntryInRange pred(me, entry);
-                        Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, dummies, pred);
+                        Kitron::AllCreaturesOfEntryInRange pred(me, entry);
+                        Kitron::CreatureListSearcher<Kitron::AllCreaturesOfEntryInRange> searcher(me, dummies, pred);
                         Cell::VisitAllObjects(me, searcher, 500.0f);
                     }
 
@@ -719,8 +719,8 @@ struct npc_infernal_rain_hellfire : public ScriptedAI
         _targets.clear();
 
         std::vector<Creature*> others;
-        Trinity::AllCreaturesOfEntryInRange pred(me, NPC_INFERNAL_RAIN);
-        Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, others, pred);
+        Kitron::AllCreaturesOfEntryInRange pred(me, NPC_INFERNAL_RAIN);
+        Kitron::CreatureListSearcher<Kitron::AllCreaturesOfEntryInRange> searcher(me, others, pred);
         Cell::VisitAllObjects(me, searcher, 500.0f);
         for (Creature* other : others)
             if (other->GetCreatureData()->movementType == 2)
@@ -737,7 +737,7 @@ struct npc_infernal_rain_hellfire : public ScriptedAI
             {
                 case EVENT_CAST:
                 {
-                    if (Creature* target = ObjectAccessor::GetCreature(*me, Trinity::Containers::SelectRandomContainerElement(_targets)))
+                    if (Creature* target = ObjectAccessor::GetCreature(*me, Kitron::Containers::SelectRandomContainerElement(_targets)))
                     {
                         CastSpellExtraArgs args;
                         args.AddSpellMod(SPELLVALUE_MAX_TARGETS, 1);

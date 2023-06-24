@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -52,15 +52,15 @@ using boost::asio::ip::tcp;
 using namespace boost::program_options;
 namespace fs = boost::filesystem;
 
-#ifndef _TRINITY_REALM_CONFIG
-# define _TRINITY_REALM_CONFIG  "authserver.conf"
+#ifndef _Kitron_REALM_CONFIG
+# define _Kitron_REALM_CONFIG  "authserver.conf"
 #endif
 
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#if Kitron_PLATFORM == Kitron_PLATFORM_WINDOWS
 #include "ServiceWin32.h"
 char serviceName[] = "authserver";
-char serviceLongName[] = "TrinityCore auth service";
-char serviceDescription[] = "TrinityCore World of Warcraft emulator auth service";
+char serviceLongName[] = "KitronCore auth service";
+char serviceDescription[] = "KitronCore World of Warcraft emulator auth service";
 /*
 * -1 - not in service mode
 *  0 - stopped
@@ -69,7 +69,7 @@ char serviceDescription[] = "TrinityCore World of Warcraft emulator auth service
 */
 int m_ServiceStatus = -1;
 
-void ServiceStatusWatcher(std::weak_ptr<Trinity::Asio::DeadlineTimer> serviceStatusWatchTimerRef, std::weak_ptr<Trinity::Asio::IoContext> ioContextRef, boost::system::error_code const& error);
+void ServiceStatusWatcher(std::weak_ptr<Kitron::Asio::DeadlineTimer> serviceStatusWatchTimerRef, std::weak_ptr<Kitron::Asio::IoContext> ioContextRef, boost::system::error_code const& error);
 #endif
 
 bool StartDB();
@@ -85,16 +85,16 @@ int main(int argc, char** argv)
 {
     AuthServerRsInit();
 
-    Trinity::Impl::CurrentServerProcessHolder::_type = SERVER_PROCESS_AUTHSERVER;
+    Kitron::Impl::CurrentServerProcessHolder::_type = SERVER_PROCESS_AUTHSERVER;
 
-    auto configFile = fs::absolute(_TRINITY_REALM_CONFIG);
+    auto configFile = fs::absolute(_Kitron_REALM_CONFIG);
     std::string configService;
     auto vm = GetConsoleArguments(argc, argv, configFile, configService);
     // exit if help or version is enabled
     if (vm.count("help") || vm.count("version"))
         return 0;
 
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#if Kitron_PLATFORM == Kitron_PLATFORM_WINDOWS
     if (configService.compare("install") == 0)
         return WinServiceInstall() == true ? 0 : 1;
     else if (configService.compare("uninstall") == 0)
@@ -146,7 +146,7 @@ int main(int argc, char** argv)
 
     std::shared_ptr<void> dbHandle(nullptr, [](void*) { StopDB(); });
 
-    std::shared_ptr<Trinity::Asio::IoContext> ioContext = std::make_shared<Trinity::Asio::IoContext>();
+    std::shared_ptr<Kitron::Asio::IoContext> ioContext = std::make_shared<Kitron::Asio::IoContext>();
 
     // Get the list of realms for the server
     sRealmList->Initialize(*ioContext, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 20));
@@ -187,15 +187,15 @@ int main(int argc, char** argv)
     int32 banExpiryCheckInterval = sConfigMgr->GetIntDefault("BanExpiryCheckInterval", 60);
     CreateTimer(banExpiryCheckInterval * 60, &BanExpiryHandler);
 
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
-    std::shared_ptr<Trinity::Asio::DeadlineTimer> serviceStatusWatchTimer;
+#if Kitron_PLATFORM == Kitron_PLATFORM_WINDOWS
+    std::shared_ptr<Kitron::Asio::DeadlineTimer> serviceStatusWatchTimer;
     if (m_ServiceStatus != -1)
     {
-        serviceStatusWatchTimer = std::make_shared<Trinity::Asio::DeadlineTimer>(*ioContext);
+        serviceStatusWatchTimer = std::make_shared<Kitron::Asio::DeadlineTimer>(*ioContext);
         serviceStatusWatchTimer->expires_from_now(boost::posix_time::seconds(1));
         serviceStatusWatchTimer->async_wait(std::bind(&ServiceStatusWatcher,
-            std::weak_ptr<Trinity::Asio::DeadlineTimer>(serviceStatusWatchTimer),
-            std::weak_ptr<Trinity::Asio::IoContext>(ioContext),
+            std::weak_ptr<Kitron::Asio::DeadlineTimer>(serviceStatusWatchTimer),
+            std::weak_ptr<Kitron::Asio::IoContext>(ioContext),
             std::placeholders::_1));
     }
 #endif
@@ -254,16 +254,16 @@ void BanExpiryHandler()
     LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_UPD_EXPIRED_ACCOUNT_BANS));
 }
 
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
-void ServiceStatusWatcher(std::weak_ptr<Trinity::Asio::DeadlineTimer> serviceStatusWatchTimerRef, std::weak_ptr<Trinity::Asio::IoContext> ioContextRef, boost::system::error_code const& error)
+#if Kitron_PLATFORM == Kitron_PLATFORM_WINDOWS
+void ServiceStatusWatcher(std::weak_ptr<Kitron::Asio::DeadlineTimer> serviceStatusWatchTimerRef, std::weak_ptr<Kitron::Asio::IoContext> ioContextRef, boost::system::error_code const& error)
 {
     if (!error)
     {
-        if (std::shared_ptr<Trinity::Asio::IoContext> ioContext = ioContextRef.lock())
+        if (std::shared_ptr<Kitron::Asio::IoContext> ioContext = ioContextRef.lock())
         {
             if (m_ServiceStatus == 0)
                 ioContext->stop();
-            else if (std::shared_ptr<Trinity::Asio::DeadlineTimer> serviceStatusWatchTimer = serviceStatusWatchTimerRef.lock())
+            else if (std::shared_ptr<Kitron::Asio::DeadlineTimer> serviceStatusWatchTimer = serviceStatusWatchTimerRef.lock())
             {
                 serviceStatusWatchTimer->expires_from_now(boost::posix_time::seconds(1));
                 serviceStatusWatchTimer->async_wait(std::bind(&ServiceStatusWatcher, serviceStatusWatchTimerRef, ioContextRef, std::placeholders::_1));
@@ -279,10 +279,10 @@ variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, s
     all.add_options()
         ("help,h", "print usage message")
         ("version,v", "print version build info")
-        ("config,c", value<fs::path>(&configFile)->default_value(fs::absolute(_TRINITY_REALM_CONFIG)),
+        ("config,c", value<fs::path>(&configFile)->default_value(fs::absolute(_Kitron_REALM_CONFIG)),
                      "use <arg> as configuration file")
         ;
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#if Kitron_PLATFORM == Kitron_PLATFORM_WINDOWS
     options_description win("Windows platform specific options");
     win.add_options()
         ("service,s", value<std::string>(&configService)->default_value(""), "Windows service options: [install | uninstall]")

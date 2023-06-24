@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,9 +27,9 @@
 #include "World.h"
 #include "WorldSession.h"
 
-using namespace Trinity::Impl::ChatCommands;
+using namespace Kitron::Impl::ChatCommands;
 
-ChatCommandResult Trinity::ChatCommands::QuotedString::TryConsume(ChatHandler const* handler, std::string_view args)
+ChatCommandResult Kitron::ChatCommands::QuotedString::TryConsume(ChatHandler const* handler, std::string_view args)
 {
     if (args.empty())
         return std::nullopt;
@@ -60,10 +60,10 @@ ChatCommandResult Trinity::ChatCommands::QuotedString::TryConsume(ChatHandler co
     return std::nullopt;
 }
 
-Trinity::ChatCommands::AccountIdentifier::AccountIdentifier(WorldSession& session)
+Kitron::ChatCommands::AccountIdentifier::AccountIdentifier(WorldSession& session)
     : _id(session.GetAccountId()), _name(session.GetAccountName()), _session(&session) {}
 
-ChatCommandResult Trinity::ChatCommands::AccountIdentifier::TryConsume(ChatHandler const* handler, std::string_view args)
+ChatCommandResult Kitron::ChatCommands::AccountIdentifier::TryConsume(ChatHandler const* handler, std::string_view args)
 {
     std::string_view text;
     ChatCommandResult next = ArgInfo<std::string_view>::TryConsume(text, handler, args);
@@ -73,26 +73,26 @@ ChatCommandResult Trinity::ChatCommands::AccountIdentifier::TryConsume(ChatHandl
     // first try parsing as account name
     _name.assign(text);
     if (!Utf8ToUpperOnlyLatin(_name))
-        return GetTrinityString(handler, LANG_CMDPARSER_INVALID_UTF8);
+        return GetKitronString(handler, LANG_CMDPARSER_INVALID_UTF8);
     _id = AccountMgr::GetId(_name);
     _session = sWorld->FindSession(_id);
     if (_id) // account with name exists, we are done
         return next;
 
     // try parsing as account id instead
-    Optional<uint32> id = Trinity::StringTo<uint32>(text, 10);
+    Optional<uint32> id = Kitron::StringTo<uint32>(text, 10);
     if (!id)
-        return FormatTrinityString(handler, LANG_CMDPARSER_ACCOUNT_NAME_NO_EXIST, STRING_VIEW_FMT_ARG(_name));
+        return FormatKitronString(handler, LANG_CMDPARSER_ACCOUNT_NAME_NO_EXIST, STRING_VIEW_FMT_ARG(_name));
     _id = *id;
     _session = sWorld->FindSession(_id);
 
     if (AccountMgr::GetName(_id, _name))
         return next;
     else
-        return FormatTrinityString(handler, LANG_CMDPARSER_ACCOUNT_ID_NO_EXIST, _id);
+        return FormatKitronString(handler, LANG_CMDPARSER_ACCOUNT_ID_NO_EXIST, _id);
 }
 
-Optional<Trinity::ChatCommands::AccountIdentifier> Trinity::ChatCommands::AccountIdentifier::FromTarget(ChatHandler* handler)
+Optional<Kitron::ChatCommands::AccountIdentifier> Kitron::ChatCommands::AccountIdentifier::FromTarget(ChatHandler* handler)
 {
     if (Player* player = handler->GetPlayer())
         if (Player* target = player->GetSelectedPlayer())
@@ -101,7 +101,7 @@ Optional<Trinity::ChatCommands::AccountIdentifier> Trinity::ChatCommands::Accoun
     return std::nullopt;
 }
 
-ChatCommandResult Trinity::ChatCommands::PlayerIdentifier::TryConsume(ChatHandler const* handler, std::string_view args)
+ChatCommandResult Kitron::ChatCommands::PlayerIdentifier::TryConsume(ChatHandler const* handler, std::string_view args)
 {
     Variant<Hyperlink<player>, ObjectGuid::LowType, std::string_view> val;
     ChatCommandResult next = ArgInfo<decltype(val)>::TryConsume(val, handler, args);
@@ -114,7 +114,7 @@ ChatCommandResult Trinity::ChatCommands::PlayerIdentifier::TryConsume(ChatHandle
         if ((_player = ObjectAccessor::FindPlayerByLowGUID(_guid.GetCounter())))
             _name = _player->GetName();
         else if (!sCharacterCache->GetCharacterNameByGuid(_guid, _name))
-            return FormatTrinityString(handler, LANG_CMDPARSER_CHAR_GUID_NO_EXIST, _guid.ToString().c_str());
+            return FormatKitronString(handler, LANG_CMDPARSER_CHAR_GUID_NO_EXIST, _guid.ToString().c_str());
         return next;
     }
     else
@@ -125,20 +125,20 @@ ChatCommandResult Trinity::ChatCommands::PlayerIdentifier::TryConsume(ChatHandle
             _name.assign(val.get<std::string_view>());
 
         if (!normalizePlayerName(_name))
-            return FormatTrinityString(handler, LANG_CMDPARSER_CHAR_NAME_INVALID, STRING_VIEW_FMT_ARG(_name));
+            return FormatKitronString(handler, LANG_CMDPARSER_CHAR_NAME_INVALID, STRING_VIEW_FMT_ARG(_name));
 
         if ((_player = ObjectAccessor::FindPlayerByName(_name)))
             _guid = _player->GetGUID();
         else if (!(_guid = sCharacterCache->GetCharacterGuidByName(_name)))
-            return FormatTrinityString(handler, LANG_CMDPARSER_CHAR_NAME_NO_EXIST, STRING_VIEW_FMT_ARG(_name));
+            return FormatKitronString(handler, LANG_CMDPARSER_CHAR_NAME_NO_EXIST, STRING_VIEW_FMT_ARG(_name));
         return next;
     }
 }
 
-Trinity::ChatCommands::PlayerIdentifier::PlayerIdentifier(Player& player)
+Kitron::ChatCommands::PlayerIdentifier::PlayerIdentifier(Player& player)
     : _name(player.GetName()), _guid(player.GetGUID()), _player(&player) {}
 
-/*static*/ Optional<Trinity::ChatCommands::PlayerIdentifier> Trinity::ChatCommands::PlayerIdentifier::FromTarget(ChatHandler* handler)
+/*static*/ Optional<Kitron::ChatCommands::PlayerIdentifier> Kitron::ChatCommands::PlayerIdentifier::FromTarget(ChatHandler* handler)
 {
     if (Player* player = handler->GetPlayer())
         if (Player* target = player->GetSelectedPlayer())
@@ -147,7 +147,7 @@ Trinity::ChatCommands::PlayerIdentifier::PlayerIdentifier(Player& player)
 
 }
 
-/*static*/ Optional<Trinity::ChatCommands::PlayerIdentifier> Trinity::ChatCommands::PlayerIdentifier::FromSelf(ChatHandler* handler)
+/*static*/ Optional<Kitron::ChatCommands::PlayerIdentifier> Kitron::ChatCommands::PlayerIdentifier::FromSelf(ChatHandler* handler)
 {
     if (Player* player = handler->GetPlayer())
         return { *player };

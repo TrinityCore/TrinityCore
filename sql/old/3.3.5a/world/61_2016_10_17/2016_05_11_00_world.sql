@@ -27,7 +27,7 @@ DELETE FROM `command` WHERE `permission`=838;
 INSERT INTO `command` (`name`,`permission`,`help`) VALUES ("pet level",838,"Syntax: .pet level #dLevel
 Increases/decreases the pet's level by #dLevel. Pet's level cannot exceed the owner's level.");
 
-DELETE FROM `trinity_string` WHERE `entry` IN (11015,11016);
-INSERT INTO `trinity_string` (`entry`,`content_default`) VALUES
+DELETE FROM `Kitron_string` WHERE `entry` IN (11015,11016);
+INSERT INTO `Kitron_string` (`entry`,`content_default`) VALUES
 (11015,"This creature does not have an active CreatureAI assigned to it."),
 (11016,"Select a player or player pet.");

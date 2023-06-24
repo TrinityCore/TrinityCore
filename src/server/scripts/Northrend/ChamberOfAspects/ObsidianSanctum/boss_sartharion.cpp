@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -391,14 +391,14 @@ struct boss_sartharion : public BossAI
     void CastLavaStrikeOnTarget(Unit* target)
     {
         std::list<Creature*> fireCyclonesList;
-        Trinity::AllCreaturesOfEntryInRange checker(me, NPC_FIRE_CYCLONE, 200.0f);
-        Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, fireCyclonesList, checker);
+        Kitron::AllCreaturesOfEntryInRange checker(me, NPC_FIRE_CYCLONE, 200.0f);
+        Kitron::CreatureListSearcher<Kitron::AllCreaturesOfEntryInRange> searcher(me, fireCyclonesList, checker);
         Cell::VisitAllObjects(me, searcher, 200.0f);
 
         if (fireCyclonesList.empty())
             return;
 
-        Trinity::Containers::SelectRandomContainerElement(fireCyclonesList)->CastSpell(target, SPELL_LAVA_STRIKE, true);
+        Kitron::Containers::SelectRandomContainerElement(fireCyclonesList)->CastSpell(target, SPELL_LAVA_STRIKE, true);
     }
 
     void UpdateAI(uint32 diff) override

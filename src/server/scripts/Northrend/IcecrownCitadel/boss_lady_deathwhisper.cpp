@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -561,7 +561,7 @@ struct boss_lady_deathwhisper : public BossAI
         if (_cultistQueue.empty())
             return;
 
-        _cultistGUID = Trinity::Containers::SelectRandomContainerElement(_cultistQueue);
+        _cultistGUID = Kitron::Containers::SelectRandomContainerElement(_cultistQueue);
         _cultistQueue.remove(_cultistGUID);
         Creature* cultist = ObjectAccessor::GetCreature(*me, _cultistGUID);
         if (!cultist)

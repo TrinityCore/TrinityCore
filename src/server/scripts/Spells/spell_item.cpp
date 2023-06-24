@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -373,7 +373,7 @@ class spell_item_aura_of_madness : public AuraScript
 
         PreventDefaultAction();
         Unit* caster = eventInfo.GetActor();
-        uint32 spellId = Trinity::Containers::SelectRandomContainerElement(triggeredSpells[caster->GetClass()]);
+        uint32 spellId = Kitron::Containers::SelectRandomContainerElement(triggeredSpells[caster->GetClass()]);
         caster->CastSpell(caster, spellId, aurEff);
 
         if (roll_chance_i(10))
@@ -626,7 +626,7 @@ class spell_item_deathbringers_will : public SpellScriptLoader
                 if (randomSpells.empty())
                     return;
 
-                uint32 spellId = Trinity::Containers::SelectRandomContainerElement(randomSpells);
+                uint32 spellId = Kitron::Containers::SelectRandomContainerElement(randomSpells);
                 caster->CastSpell(caster, spellId, aurEff);
             }
 
@@ -996,7 +996,7 @@ class spell_item_echoes_of_light : public SpellScript
         if (targets.size() < 2)
             return;
 
-        targets.sort(Trinity::HealthPctOrderPred());
+        targets.sort(Kitron::HealthPctOrderPred());
 
         WorldObject* target = targets.front();
         targets.clear();
@@ -1570,7 +1570,7 @@ class spell_item_mingos_fortune_generator : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetCaster(), Trinity::Containers::SelectRandomContainerElement(CreateFortuneSpells), true);
+        GetCaster()->CastSpell(GetCaster(), Kitron::Containers::SelectRandomContainerElement(CreateFortuneSpells), true);
     }
 
     void Register() override
@@ -3942,7 +3942,7 @@ class spell_item_taunt_flag_targeting : public SpellScript
             return;
         }
 
-        Trinity::Containers::RandomResize(targets, 1);
+        Kitron::Containers::RandomResize(targets, 1);
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -4184,7 +4184,7 @@ class spell_item_mad_alchemists_potion : public SpellScript
         if (target->GetPowerType() == POWER_MANA)
             availableElixirs.push_back(28509); // Elixir of Major Mageblood (22840)
 
-        uint32 chosenElixir = Trinity::Containers::SelectRandomContainerElement(availableElixirs);
+        uint32 chosenElixir = Kitron::Containers::SelectRandomContainerElement(availableElixirs);
 
         bool useElixir = true;
 
@@ -4247,7 +4247,7 @@ class spell_item_crazy_alchemists_potion : public SpellScript
         if (target->GetPowerType() == POWER_MANA)
             availableElixirs.push_back(43186); // Runic Mana Potion(33448)
 
-        uint32 chosenElixir = Trinity::Containers::SelectRandomContainerElement(availableElixirs);
+        uint32 chosenElixir = Kitron::Containers::SelectRandomContainerElement(availableElixirs);
 
         target->CastSpell(target, chosenElixir, GetCastItem());
     }

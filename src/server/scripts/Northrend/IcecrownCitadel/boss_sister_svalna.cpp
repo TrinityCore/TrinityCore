@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -669,7 +669,7 @@ struct npc_crok_scourgebane : public EscortAI
                 // get all nearby vrykul
                 std::list<Creature*> temp;
                 FrostwingVrykulSearcher check(me, 80.0f);
-                Trinity::CreatureListSearcher<FrostwingVrykulSearcher> searcher(me, temp, check);
+                Kitron::CreatureListSearcher<FrostwingVrykulSearcher> searcher(me, temp, check);
                 Cell::VisitGridObjects(me, searcher, 80.0f);
 
                 _aliveTrash.clear();
@@ -695,8 +695,8 @@ struct npc_crok_scourgebane : public EscortAI
         {
             _wipeCheckTimer = 1000;
             Player* player = nullptr;
-            Trinity::AnyPlayerInObjectRangeCheck check(me, 60.0f);
-            Trinity::PlayerSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, player, check);
+            Kitron::AnyPlayerInObjectRangeCheck check(me, 60.0f);
+            Kitron::PlayerSearcher<Kitron::AnyPlayerInObjectRangeCheck> searcher(me, player, check);
             Cell::VisitWorldObjects(me, searcher, 60.0f);
             // wipe
             if (!player)
@@ -705,7 +705,7 @@ struct npc_crok_scourgebane : public EscortAI
                 if (damage >= me->GetHealth())
                 {
                     FrostwingGauntletRespawner respawner;
-                    Trinity::CreatureWorker<FrostwingGauntletRespawner> worker(me, respawner);
+                    Kitron::CreatureWorker<FrostwingGauntletRespawner> worker(me, respawner);
                     Cell::VisitGridObjects(me, worker, 333.0f);
                     Talk(SAY_CROK_DEATH);
                 }
@@ -972,7 +972,7 @@ struct npc_captain_arnath : public npc_argent_captainAI
                 {
                     std::list<Creature*> targets = DoFindFriendlyMissingBuff(40.0f, SPELL_POWER_WORD_SHIELD);
                     if (!targets.empty())
-                        DoCast(Trinity::Containers::SelectRandomContainerElement(targets), SPELL_POWER_WORD_SHIELD);
+                        DoCast(Kitron::Containers::SelectRandomContainerElement(targets), SPELL_POWER_WORD_SHIELD);
                     Events.ScheduleEvent(EVENT_ARNATH_PW_SHIELD, 15s, 20s);
                     break;
                 }
@@ -1000,8 +1000,8 @@ private:
     Creature* FindFriendlyCreature() const
     {
         Creature* target = nullptr;
-        Trinity::MostHPMissingInRange u_check(me, 60.0f, 0);
-        Trinity::CreatureLastSearcher<Trinity::MostHPMissingInRange> searcher(me, target, u_check);
+        Kitron::MostHPMissingInRange u_check(me, 60.0f, 0);
+        Kitron::CreatureLastSearcher<Kitron::MostHPMissingInRange> searcher(me, target, u_check);
         Cell::VisitGridObjects(me, searcher, 60.0f);
         return target;
     }
@@ -1436,7 +1436,7 @@ class spell_svalna_revive_champion : public SpellScript
     void RemoveAliveTarget(std::list<WorldObject*>& targets)
     {
         targets.remove_if(ICCSvalnaAliveCheck());
-        Trinity::Containers::RandomResize(targets, 2);
+        Kitron::Containers::RandomResize(targets, 2);
     }
 
     void Land(SpellEffIndex /*effIndex*/)

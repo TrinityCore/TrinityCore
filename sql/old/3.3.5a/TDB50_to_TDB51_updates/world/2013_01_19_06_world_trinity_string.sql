@@ -1,5 +1,5 @@
-DELETE FROM `trinity_string` WHERE `entry` BETWEEN 820 AND 842;
-INSERT INTO `trinity_string`(`entry`,`content_default`) VALUES
+DELETE FROM `Kitron_string` WHERE `entry` BETWEEN 820 AND 842;
+INSERT INTO `Kitron_string`(`entry`,`content_default`) VALUES
 (820,'* has gossip (%u)'),
 (821,'* is quest giver (%u)'),
 (822,'* is class trainer (%u)'),
@@ -24,5 +24,5 @@ INSERT INTO `trinity_string`(`entry`,`content_default`) VALUES
 (841,'* is mailbox (%u)'),
 (842,'* is player vehicle (%u)');
 
-UPDATE `trinity_string` SET `content_default`='* is vendor (%u)' WHERE `entry`=545;
-UPDATE `trinity_string` SET `content_default`='* is trainer (%u)' WHERE `entry`=546;
+UPDATE `Kitron_string` SET `content_default`='* is vendor (%u)' WHERE `entry`=545;
+UPDATE `Kitron_string` SET `content_default`='* is trainer (%u)' WHERE `entry`=546;

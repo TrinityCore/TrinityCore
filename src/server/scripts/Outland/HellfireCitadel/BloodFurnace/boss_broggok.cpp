@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -164,7 +164,7 @@ struct BroggokPrisionersAI : public ScriptedAI
         scheduler.CancelAll();
         scheduler.Schedule(1s, 5s, [this](TaskContext emote)
         {
-            me->HandleEmoteCommand(Trinity::Containers::SelectRandomContainerElement(PrisionersEmotes));
+            me->HandleEmoteCommand(Kitron::Containers::SelectRandomContainerElement(PrisionersEmotes));
             emote.Repeat(6s, 9s);
         });
     }

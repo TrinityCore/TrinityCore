@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,14 +18,14 @@
 // This file was created automatically from your script configuration!
 // Use CMake to reconfigure this file, never change it on your own!
 
-#cmakedefine TRINITY_IS_DYNAMIC_SCRIPTLOADER
+#cmakedefine Kitron_IS_DYNAMIC_SCRIPTLOADER
 
 #include "Define.h"
 #include <vector>
 #include <string>
 
-@TRINITY_SCRIPTS_FORWARD_DECL@
-#ifdef TRINITY_IS_DYNAMIC_SCRIPTLOADER
+@Kitron_SCRIPTS_FORWARD_DECL@
+#ifdef Kitron_IS_DYNAMIC_SCRIPTLOADER
 #  include "revision_data.h"
 #  define TC_SCRIPT_API TC_API_EXPORT
 extern "C" {
@@ -40,7 +40,7 @@ TC_SCRIPT_API char const* GetScriptModuleRevisionHash()
 /// contained in this shared library.
 TC_SCRIPT_API char const* GetScriptModule()
 {
-    return "@TRINITY_CURRENT_SCRIPT_PROJECT@";
+    return "@Kitron_CURRENT_SCRIPT_PROJECT@";
 }
 
 #else
@@ -51,7 +51,7 @@ TC_SCRIPT_API char const* GetScriptModule()
 /// Exposed in script modules to register all scripts to the ScriptMgr.
 TC_SCRIPT_API void AddScripts()
 {
-@TRINITY_SCRIPTS_INVOKE@}
+@Kitron_SCRIPTS_INVOKE@}
 
 /// Exposed in script modules to get the build directive of the module.
 TC_SCRIPT_API char const* GetBuildDirective()
@@ -59,6 +59,6 @@ TC_SCRIPT_API char const* GetBuildDirective()
     return _BUILD_DIRECTIVE;
 }
 
-#ifdef TRINITY_IS_DYNAMIC_SCRIPTLOADER
+#ifdef Kitron_IS_DYNAMIC_SCRIPTLOADER
 } // extern "C"
 #endif

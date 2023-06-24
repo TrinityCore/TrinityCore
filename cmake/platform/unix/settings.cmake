@@ -39,7 +39,7 @@ elseif(CMAKE_C_COMPILER MATCHES "icc")
 elseif(CMAKE_C_COMPILER MATCHES "clang" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
   include(${CMAKE_SOURCE_DIR}/cmake/compiler/clang/settings.cmake)
 else()
-  target_compile_definitions(trinity-compile-option-interface
+  target_compile_definitions(Kitron-compile-option-interface
     INTERFACE
       -D_BUILD_DIRECTIVE="${CMAKE_BUILD_TYPE}")
 endif()

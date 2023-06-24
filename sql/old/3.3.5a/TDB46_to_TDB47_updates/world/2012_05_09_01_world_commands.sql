@@ -1,5 +1,5 @@
-DELETE FROM `trinity_string` WHERE `entry` = 555;
-INSERT INTO `trinity_string` (`entry`,`content_default`) VALUES
+DELETE FROM `Kitron_string` WHERE `entry` = 555;
+INSERT INTO `Kitron_string` (`entry`,`content_default`) VALUES
 (555,"SetData performed on [GUID: %u, entry: %u, name: %s] Field: %u, Data: %u, with %s");
 
 DELETE FROM `command` WHERE `name` = "npc set data";

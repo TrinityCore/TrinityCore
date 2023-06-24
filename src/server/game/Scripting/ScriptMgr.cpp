@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -872,17 +872,17 @@ class ScriptRegistrySwapHooks<CommandScript, Base>
 public:
     void BeforeReleaseContext(std::string const& /*context*/) final override
     {
-        Trinity::ChatCommands::InvalidateCommandMap();
+        Kitron::ChatCommands::InvalidateCommandMap();
     }
 
     void BeforeSwapContext(bool /*initialize*/) override
     {
-        Trinity::ChatCommands::InvalidateCommandMap();
+        Kitron::ChatCommands::InvalidateCommandMap();
     }
 
     void BeforeUnload() final override
     {
-        Trinity::ChatCommands::InvalidateCommandMap();
+        Kitron::ChatCommands::InvalidateCommandMap();
     }
 };
 
@@ -1103,7 +1103,7 @@ void ScriptMgr::ReleaseScriptContext(std::string const& context)
 std::shared_ptr<ModuleReference>
     ScriptMgr::AcquireModuleReferenceOfScriptName(std::string const& scriptname) const
 {
-#ifdef TRINITY_API_USE_DYNAMIC_LINKING
+#ifdef Kitron_API_USE_DYNAMIC_LINKING
     // Returns the reference to the module of the given scriptname
     return ScriptReloadMgr::AcquireModuleReferenceOfContext(
         sScriptRegistryCompositum->GetScriptContextOfScriptName(scriptname));
@@ -1112,7 +1112,7 @@ std::shared_ptr<ModuleReference>
     // Something went wrong when this function is used in
     // a static linked context.
     WPAbort();
-#endif // #ifndef TRINITY_API_USE_DYNAMIC_LINKING
+#endif // #ifndef Kitron_API_USE_DYNAMIC_LINKING
 }
 
 void ScriptMgr::Unload()
@@ -1618,13 +1618,13 @@ OutdoorPvP* ScriptMgr::CreateOutdoorPvP(uint32 scriptId)
     return tmpscript->GetOutdoorPvP();
 }
 
-Trinity::ChatCommands::ChatCommandTable ScriptMgr::GetChatCommands()
+Kitron::ChatCommands::ChatCommandTable ScriptMgr::GetChatCommands()
 {
-    Trinity::ChatCommands::ChatCommandTable table;
+    Kitron::ChatCommands::ChatCommandTable table;
 
     FOR_SCRIPTS(CommandScript, itr, end)
     {
-        Trinity::ChatCommands::ChatCommandTable cmds = itr->second->GetCommands();
+        Kitron::ChatCommands::ChatCommandTable cmds = itr->second->GetCommands();
         std::move(cmds.begin(), cmds.end(), std::back_inserter(table));
     }
 

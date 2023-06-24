@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -319,7 +319,7 @@ class spell_fjord_rivenwood_captives_not_on_quest : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetCaster(), Trinity::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
+        GetHitUnit()->CastSpell(GetCaster(), Kitron::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
     }
 
     void Register() override
@@ -344,7 +344,7 @@ class spell_fjord_rivenwood_captives_on_quest : public SpellScript
         Unit* target = GetHitUnit();
 
         if (roll_chance_i(80))
-            target->CastSpell(caster, Trinity::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
+            target->CastSpell(caster, Kitron::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
         else
             target->CastSpell(caster, SPELL_SUMMON_FREED_MIST_WHISPER_SCOUT, true);
     }

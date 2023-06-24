@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -68,7 +68,7 @@ void Log::CreateAppenderFromConfig(std::string const& appenderName)
     // if type = Console. optional1 = Color
     std::string options = sConfigMgr->GetStringDefault(appenderName, "");
 
-    std::vector<std::string_view> tokens = Trinity::Tokenize(options, ',', true);
+    std::vector<std::string_view> tokens = Kitron::Tokenize(options, ',', true);
 
     size_t const size = tokens.size();
     std::string name = appenderName.substr(9);
@@ -80,8 +80,8 @@ void Log::CreateAppenderFromConfig(std::string const& appenderName)
     }
 
     AppenderFlags flags = APPENDER_FLAGS_NONE;
-    AppenderType type = AppenderType(Trinity::StringTo<uint8>(tokens[0]).value_or(APPENDER_INVALID));
-    LogLevel level = LogLevel(Trinity::StringTo<uint8>(tokens[1]).value_or(LOG_LEVEL_INVALID));
+    AppenderType type = AppenderType(Kitron::StringTo<uint8>(tokens[0]).value_or(APPENDER_INVALID));
+    LogLevel level = LogLevel(Kitron::StringTo<uint8>(tokens[1]).value_or(LOG_LEVEL_INVALID));
 
     auto factoryFunction = appenderFactory.find(type);
     if (factoryFunction == appenderFactory.end())
@@ -98,7 +98,7 @@ void Log::CreateAppenderFromConfig(std::string const& appenderName)
 
     if (size > 2)
     {
-        if (Optional<uint8> flagsVal = Trinity::StringTo<uint8>(tokens[2]))
+        if (Optional<uint8> flagsVal = Kitron::StringTo<uint8>(tokens[2]))
             flags = AppenderFlags(*flagsVal);
         else
         {
@@ -134,7 +134,7 @@ void Log::CreateLoggerFromConfig(std::string const& appenderName)
         return;
     }
 
-    std::vector<std::string_view> tokens = Trinity::Tokenize(options, ',', true);
+    std::vector<std::string_view> tokens = Kitron::Tokenize(options, ',', true);
 
     if (tokens.size() != 2)
     {
@@ -149,7 +149,7 @@ void Log::CreateLoggerFromConfig(std::string const& appenderName)
         return;
     }
 
-    level = LogLevel(Trinity::StringTo<uint8>(tokens[0]).value_or(LOG_LEVEL_INVALID));
+    level = LogLevel(Kitron::StringTo<uint8>(tokens[0]).value_or(LOG_LEVEL_INVALID));
     if (level > NUM_ENABLED_LOG_LEVELS)
     {
         fprintf(stderr, "Log::CreateLoggerFromConfig: Wrong Log Level '%s' for logger %s\n", std::string(tokens[0]).c_str(), name.c_str());
@@ -162,7 +162,7 @@ void Log::CreateLoggerFromConfig(std::string const& appenderName)
     logger = std::make_unique<Logger>(name, level);
     //fprintf(stdout, "Log::CreateLoggerFromConfig: Created Logger %s, Level %u\n", name.c_str(), level);
 
-    for (std::string_view appenderName : Trinity::Tokenize(tokens[1], ' ', false))
+    for (std::string_view appenderName : Kitron::Tokenize(tokens[1], ' ', false))
     {
         if (Appender* appender = GetAppenderByName(appenderName))
         {
@@ -232,7 +232,7 @@ void Log::write(std::unique_ptr<LogMessage>&& msg) const
     if (_ioContext)
     {
         std::shared_ptr<LogOperation> logOperation = std::make_shared<LogOperation>(logger, std::move(msg));
-        Trinity::Asio::post(*_ioContext, Trinity::Asio::bind_executor(*_strand, [logOperation]() { logOperation->call(); }));
+        Kitron::Asio::post(*_ioContext, Kitron::Asio::bind_executor(*_strand, [logOperation]() { logOperation->call(); }));
     }
     else
         logger->write(msg.get());
@@ -268,7 +268,7 @@ std::string Log::GetTimestampStr()
     //       HH     hour (2 digits 00-23)
     //       MM     minutes (2 digits 00-59)
     //       SS     seconds (2 digits 00-59)
-    return Trinity::StringFormat("%04d-%02d-%02d_%02d-%02d-%02d",
+    return Kitron::StringFormat("%04d-%02d-%02d_%02d-%02d-%02d",
         aTm.tm_year + 1900, aTm.tm_mon + 1, aTm.tm_mday, aTm.tm_hour, aTm.tm_min, aTm.tm_sec);
 }
 
@@ -359,12 +359,12 @@ Log* Log::instance()
     return &instance;
 }
 
-void Log::Initialize(Trinity::Asio::IoContext* ioContext)
+void Log::Initialize(Kitron::Asio::IoContext* ioContext)
 {
     if (ioContext)
     {
         _ioContext = ioContext;
-        _strand = new Trinity::Asio::Strand(*ioContext);
+        _strand = new Kitron::Asio::Strand(*ioContext);
     }
 
     LoadFromConfig();

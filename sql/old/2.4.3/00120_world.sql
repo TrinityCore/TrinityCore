@@ -1,10 +1,10 @@
 -- Add/Edit/Move lang strings
-DELETE FROM `trinity_string` WHERE `entry` IN (25,52,54,55,56,171,401,413,438,593,594,595,596,597,598,599,614,615,636,637,638,809,1000,1001,1002,1003,1004,1005,1006,1007,1008,1009,1010,1011,1100,1101,1102,1103,1104,1105,1106,1107,1108,1109,1110,1111,1112,1113,1114,1115,1116,1117,1118);
-DELETE FROM `trinity_string` WHERE `entry` BETWEEN '667' AND '687';
-DELETE FROM `trinity_string` WHERE `entry` BETWEEN '711' AND '716';
-DELETE FROM `trinity_string` WHERE `entry` BETWEEN '730' AND '747';
-DELETE FROM `trinity_string` WHERE `entry` BETWEEN '5000' AND '5006';
-INSERT INTO trinity_string VALUES
+DELETE FROM `Kitron_string` WHERE `entry` IN (25,52,54,55,56,171,401,413,438,593,594,595,596,597,598,599,614,615,636,637,638,809,1000,1001,1002,1003,1004,1005,1006,1007,1008,1009,1010,1011,1100,1101,1102,1103,1104,1105,1106,1107,1108,1109,1110,1111,1112,1113,1114,1115,1116,1117,1118);
+DELETE FROM `Kitron_string` WHERE `entry` BETWEEN '667' AND '687';
+DELETE FROM `Kitron_string` WHERE `entry` BETWEEN '711' AND '716';
+DELETE FROM `Kitron_string` WHERE `entry` BETWEEN '730' AND '747';
+DELETE FROM `Kitron_string` WHERE `entry` BETWEEN '5000' AND '5006';
+INSERT INTO Kitron_string VALUES
 ('25','Password not changed (unknown error)!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
 ('52', 'Invaid item count (%u) for item %u', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 ('54','The new passwords do not match',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
@@ -156,7 +156,7 @@ INSERT INTO command VALUES
 ('gm online',0,'Syntax: .gm online\r\n\r\nDisplay a list of available Game Masters.'),
 ('sendmessage',3,'Syntax: .sendmessage $playername $message\r\n\r\nSend screen message to player from ADMINISTRATOR.'),
 ('server corpses',2,'Syntax: .server corpses\r\n\r\nTriggering corpses expire check in world.'),
-('server exit',4,'Syntax: .server exit\r\n\r\nTerminate Trinity NOW.'),
+('server exit',4,'Syntax: .server exit\r\n\r\nTerminate Kitron NOW.'),
 ('server motd',0,'Syntax: .server motd\r\n\r\nShow server Message of the day.'),
 ('server set loglevel',4,'Syntax: .server set loglevel #level\r\n\r\nSet server log level (0 - errors only, 1 - basic, 2 - detail, 3 - debug).'),
 ('server set motd',3,'Syntax: .server set motd $MOTD\r\n\r\nSet server Message of the day.');

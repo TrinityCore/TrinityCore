@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_CHATCOMMANDTAGS_H
-#define TRINITY_CHATCOMMANDTAGS_H
+#ifndef Kitron_CHATCOMMANDTAGS_H
+#define Kitron_CHATCOMMANDTAGS_H
 
 #include "advstd.h"
 #include "ChatCommandHelpers.h"
@@ -40,11 +40,11 @@ class ChatHandler;
 class Player;
 class WorldSession;
 
-namespace Trinity::Impl::ChatCommands
+namespace Kitron::Impl::ChatCommands
 {
     struct ContainerTag
     {
-        using ChatCommandResult = Trinity::Impl::ChatCommands::ChatCommandResult;
+        using ChatCommandResult = Kitron::Impl::ChatCommands::ChatCommandResult;
     };
 
     template <typename T>
@@ -61,7 +61,7 @@ namespace Trinity::Impl::ChatCommands
     }
 
 #define CHATCOMMANDS_IMPL_SPLIT_LITERAL_EXTRACT_CHAR(z, i, strliteral) \
-        BOOST_PP_COMMA_IF(i) Trinity::Impl::ChatCommands::GetChar(strliteral, i)
+        BOOST_PP_COMMA_IF(i) Kitron::Impl::ChatCommands::GetChar(strliteral, i)
 
 #define CHATCOMMANDS_IMPL_SPLIT_LITERAL_CONSTRAINED(maxlen, strliteral)  \
         BOOST_PP_REPEAT(maxlen, CHATCOMMANDS_IMPL_SPLIT_LITERAL_EXTRACT_CHAR, strliteral)
@@ -70,11 +70,11 @@ namespace Trinity::Impl::ChatCommands
 #define CHATCOMMANDS_IMPL_SPLIT_LITERAL(strliteral) CHATCOMMANDS_IMPL_SPLIT_LITERAL_CONSTRAINED(25, strliteral)
 }
 
-namespace Trinity::ChatCommands
+namespace Kitron::ChatCommands
 {
     /************************** CONTAINER TAGS **********************************************\
     |* Simple holder classes to differentiate between extraction methods                    *|
-    |* Must inherit from Trinity::Impl::ChatCommands::ContainerTag                          *|
+    |* Must inherit from Kitron::Impl::ChatCommands::ContainerTag                          *|
     |* Must implement the following:                                                        *|
     |* - TryConsume: ChatHandler const*, std::string_view -> ChatCommandResult              *|
     |*   - on match, returns tail of the provided argument string (as std::string_view)     *|
@@ -87,7 +87,7 @@ namespace Trinity::ChatCommands
     \****************************************************************************************/
 
     template <char... chars>
-    struct ExactSequence : Trinity::Impl::ChatCommands::ContainerTag
+    struct ExactSequence : Kitron::Impl::ChatCommands::ContainerTag
     {
         using value_type = void;
 
@@ -98,12 +98,12 @@ namespace Trinity::ChatCommands
             std::string_view start = args.substr(0, _string.length());
             if (StringEqualI(start, _string))
             {
-                auto [remainingToken, tail] = Trinity::Impl::ChatCommands::tokenize(args.substr(_string.length()));
+                auto [remainingToken, tail] = Kitron::Impl::ChatCommands::tokenize(args.substr(_string.length()));
                 if (remainingToken.empty()) // if this is not empty, then we did not consume the full token
                     return tail;
                 start = args.substr(0, _string.length() + remainingToken.length());
             }
-            return Trinity::Impl::ChatCommands::FormatTrinityString(handler, LANG_CMDPARSER_EXACT_SEQ_MISMATCH, STRING_VIEW_FMT_ARG(_string), STRING_VIEW_FMT_ARG(start));
+            return Kitron::Impl::ChatCommands::FormatKitronString(handler, LANG_CMDPARSER_EXACT_SEQ_MISMATCH, STRING_VIEW_FMT_ARG(_string), STRING_VIEW_FMT_ARG(start));
         }
 
         private:
@@ -112,9 +112,9 @@ namespace Trinity::ChatCommands
             static constexpr std::string_view _string = { _storage.data(), std::string_view::traits_type::length(_storage.data()) };
     };
 
-#define EXACT_SEQUENCE(str) Trinity::ChatCommands::ExactSequence<CHATCOMMANDS_IMPL_SPLIT_LITERAL(str)>
+#define EXACT_SEQUENCE(str) Kitron::ChatCommands::ExactSequence<CHATCOMMANDS_IMPL_SPLIT_LITERAL(str)>
 
-    struct Tail : std::string_view, Trinity::Impl::ChatCommands::ContainerTag
+    struct Tail : std::string_view, Kitron::Impl::ChatCommands::ContainerTag
     {
         using value_type = std::string_view;
 
@@ -127,7 +127,7 @@ namespace Trinity::ChatCommands
         }
     };
 
-    struct WTail : std::wstring, Trinity::Impl::ChatCommands::ContainerTag
+    struct WTail : std::wstring, Kitron::Impl::ChatCommands::ContainerTag
     {
         using value_type = std::wstring;
 
@@ -138,18 +138,18 @@ namespace Trinity::ChatCommands
             if (Utf8toWStr(args, *this))
                 return std::string_view();
             else
-                return Trinity::Impl::ChatCommands::GetTrinityString(handler, LANG_CMDPARSER_INVALID_UTF8);
+                return Kitron::Impl::ChatCommands::GetKitronString(handler, LANG_CMDPARSER_INVALID_UTF8);
         }
     };
 
-    struct QuotedString : std::string, Trinity::Impl::ChatCommands::ContainerTag
+    struct QuotedString : std::string, Kitron::Impl::ChatCommands::ContainerTag
     {
         using value_type = std::string;
 
         TC_GAME_API ChatCommandResult TryConsume(ChatHandler const* handler, std::string_view args);
     };
 
-    struct TC_GAME_API AccountIdentifier : Trinity::Impl::ChatCommands::ContainerTag
+    struct TC_GAME_API AccountIdentifier : Kitron::Impl::ChatCommands::ContainerTag
     {
         using value_type = uint32;
 
@@ -175,7 +175,7 @@ namespace Trinity::ChatCommands
             WorldSession* _session;
     };
 
-    struct TC_GAME_API PlayerIdentifier : Trinity::Impl::ChatCommands::ContainerTag
+    struct TC_GAME_API PlayerIdentifier : Kitron::Impl::ChatCommands::ContainerTag
     {
         using value_type = Player*;
 
@@ -210,7 +210,7 @@ namespace Trinity::ChatCommands
     };
 
     template <typename linktag>
-    struct Hyperlink : Trinity::Impl::ChatCommands::ContainerTag
+    struct Hyperlink : Kitron::Impl::ChatCommands::ContainerTag
     {
         using value_type = typename linktag::value_type;
         using storage_type = advstd::remove_cvref_t<value_type>;
@@ -221,7 +221,7 @@ namespace Trinity::ChatCommands
 
         ChatCommandResult TryConsume(ChatHandler const* handler, std::string_view args)
         {
-            Trinity::Hyperlinks::HyperlinkInfo info = Trinity::Hyperlinks::ParseSingleHyperlink(args);
+            Kitron::Hyperlinks::HyperlinkInfo info = Kitron::Hyperlinks::ParseSingleHyperlink(args);
             // invalid hyperlinks cannot be consumed
             if (!info)
                 return std::nullopt;
@@ -232,10 +232,10 @@ namespace Trinity::ChatCommands
 
             // store value
             if (!linktag::StoreTo(val, info.data))
-                return Trinity::Impl::ChatCommands::GetTrinityString(handler, LANG_CMDPARSER_LINKDATA_INVALID);
+                return Kitron::Impl::ChatCommands::GetKitronString(handler, LANG_CMDPARSER_LINKDATA_INVALID);
 
             // finally, skip any potential delimiters
-            auto [token, next] = Trinity::Impl::ChatCommands::tokenize(info.tail);
+            auto [token, next] = Kitron::Impl::ChatCommands::tokenize(info.tail);
             if (token.empty()) /* empty token = first character is delimiter, skip past it */
                 return next;
             else
@@ -247,10 +247,10 @@ namespace Trinity::ChatCommands
     };
 
     // pull in link tags for user convenience
-    using namespace ::Trinity::Hyperlinks::LinkTags;
+    using namespace ::Kitron::Hyperlinks::LinkTags;
 }
 
-namespace Trinity::Impl
+namespace Kitron::Impl
 {
     template <typename T>
     struct CastToVisitor
@@ -260,20 +260,20 @@ namespace Trinity::Impl
     };
 }
 
-namespace Trinity::ChatCommands
+namespace Kitron::ChatCommands
 {
     template <typename T1, typename... Ts>
     struct Variant : public std::variant<T1, Ts...>
     {
         using base = std::variant<T1, Ts...>;
 
-        using first_type = Trinity::Impl::ChatCommands::tag_base_t<T1>;
-        static constexpr bool have_operators = Trinity::Impl::ChatCommands::are_all_assignable<first_type, Trinity::Impl::ChatCommands::tag_base_t<Ts>...>::value;
+        using first_type = Kitron::Impl::ChatCommands::tag_base_t<T1>;
+        static constexpr bool have_operators = Kitron::Impl::ChatCommands::are_all_assignable<first_type, Kitron::Impl::ChatCommands::tag_base_t<Ts>...>::value;
 
         template <bool C = have_operators>
         std::enable_if_t<C, first_type> operator*() const
         {
-            return visit(Trinity::Impl::CastToVisitor<first_type>());
+            return visit(Kitron::Impl::CastToVisitor<first_type>());
         }
 
         template <bool C = have_operators>
@@ -312,7 +312,7 @@ namespace Trinity::ChatCommands
         constexpr bool holds_alternative() const { return std::holds_alternative<T>(static_cast<base const&>(*this)); }
 
         template <bool C = have_operators>
-        friend std::enable_if_t<C, std::ostream&> operator<<(std::ostream& os, Trinity::ChatCommands::Variant<T1, Ts...> const& v)
+        friend std::enable_if_t<C, std::ostream&> operator<<(std::ostream& os, Kitron::ChatCommands::Variant<T1, Ts...> const& v)
         {
             return (os << *v);
         }

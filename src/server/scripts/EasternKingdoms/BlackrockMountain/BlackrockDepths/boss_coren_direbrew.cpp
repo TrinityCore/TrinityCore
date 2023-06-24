@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -460,7 +460,7 @@ class spell_send_mug_target_picker : public SpellScript
     {
         Unit* caster = GetCaster();
 
-        targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_HAS_DARK_BREWMAIDENS_BREW));
+        targets.remove_if(Kitron::UnitAuraCheck(true, SPELL_HAS_DARK_BREWMAIDENS_BREW));
 
         if (targets.size() > 1)
             targets.remove_if([caster](WorldObject* obj)
@@ -473,7 +473,7 @@ class spell_send_mug_target_picker : public SpellScript
         if (targets.empty())
             return;
 
-        WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+        WorldObject* target = Kitron::Containers::SelectRandomContainerElement(targets);
         targets.clear();
         targets.push_back(target);
     }

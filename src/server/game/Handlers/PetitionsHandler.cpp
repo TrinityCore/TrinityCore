@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -264,7 +264,7 @@ void WorldSession::HandleQueryPetition(WorldPacket& recvData)
 
     ObjectGuid::LowType guildguid;
     ObjectGuid petitionguid;
-    recvData >> guildguid;                                 // in Trinity always same as GUID_LOPART(petitionguid)
+    recvData >> guildguid;                                 // in Kitron always same as GUID_LOPART(petitionguid)
     recvData >> petitionguid;                              // petition guid
     TC_LOG_DEBUG("network", "CMSG_PETITION_QUERY Petition %s Guild GUID %u", petitionguid.ToString().c_str(), guildguid);
 
@@ -281,7 +281,7 @@ void WorldSession::SendPetitionQueryOpcode(ObjectGuid petitionguid)
     }
 
     WorldPacket data(SMSG_PETITION_QUERY_RESPONSE, (4+8+petition->PetitionName.size()+1+1+4*12+2+10));
-    data << uint32(petitionguid.GetCounter());              // guild/team guid (in Trinity always same as GUID_LOPART(petition guid)
+    data << uint32(petitionguid.GetCounter());              // guild/team guid (in Kitron always same as GUID_LOPART(petition guid)
     data << uint64(petition->OwnerGuid);                    // charter owner guid
     data << petition->PetitionName;                         // name (guild/arena team)
     data << uint8(0);                                       // some string

@@ -1,6 +1,6 @@
-REVOKE ALL PRIVILEGES, GRANT OPTION FROM 'trinity'@'localhost';
+REVOKE ALL PRIVILEGES, GRANT OPTION FROM 'Kitron'@'localhost';
 
-DROP USER 'trinity'@'localhost';
+DROP USER 'Kitron'@'localhost';
 
 DROP DATABASE IF EXISTS `world`;
 

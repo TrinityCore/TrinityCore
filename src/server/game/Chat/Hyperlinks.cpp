@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,11 +27,11 @@
 #include "QuestDef.h"
 #include "World.h"
 
-using namespace Trinity::Hyperlinks;
+using namespace Kitron::Hyperlinks;
 
 inline uint8 toHex(char c) { return (c >= '0' && c <= '9') ? c - '0' + 0x10 : (c >= 'a' && c <= 'f') ? c - 'a' + 0x1a : 0x00; }
 // Validates a single hyperlink
-HyperlinkInfo Trinity::Hyperlinks::ParseSingleHyperlink(std::string_view str)
+HyperlinkInfo Kitron::Hyperlinks::ParseSingleHyperlink(std::string_view str)
 {
     uint32 color = 0;
     std::string_view tag;
@@ -364,7 +364,7 @@ static bool ValidateLinkInfo(HyperlinkInfo const& info)
 }
 
 // Validates all hyperlinks and control sequences contained in str
-bool Trinity::Hyperlinks::CheckAllLinks(std::string_view str)
+bool Kitron::Hyperlinks::CheckAllLinks(std::string_view str)
 {
     // Step 1: Disallow all control sequences except ||, |H, |h, |c and |r
     {

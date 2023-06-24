@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -210,7 +210,7 @@ void WorldSession::SendPacket(WorldPacket const* packet)
     if (!m_Socket)
         return;
 
-#ifdef TRINITY_DEBUG
+#ifdef Kitron_DEBUG
     // Code for network use statistic
     static uint64 sendPacketCount = 0;
     static uint64 sendPacketBytes = 0;
@@ -242,7 +242,7 @@ void WorldSession::SendPacket(WorldPacket const* packet)
         sendLastPacketCount = 1;
         sendLastPacketBytes = packet->wpos();               // wpos is real written size
     }
-#endif                                                      // !TRINITY_DEBUG
+#endif                                                      // !Kitron_DEBUG
 
     sScriptMgr->OnPacketSend(this, *packet);
 
@@ -645,7 +645,7 @@ void WorldSession::KickPlayer(std::string const& reason)
 
 bool WorldSession::ValidateHyperlinksAndMaybeKick(std::string const& str)
 {
-    if (Trinity::Hyperlinks::CheckAllLinks(str))
+    if (Kitron::Hyperlinks::CheckAllLinks(str))
         return true;
 
     TC_LOG_ERROR("network", "Player %s%s sent a message with an invalid link:\n%s", GetPlayer()->GetName().c_str(),
@@ -690,7 +690,7 @@ void WorldSession::SendNotification(const char *format, ...)
 
 void WorldSession::SendNotification(uint32 string_id, ...)
 {
-    char const* format = GetTrinityString(string_id);
+    char const* format = GetKitronString(string_id);
     if (format)
     {
         va_list ap;
@@ -711,9 +711,9 @@ bool WorldSession::CanSpeak() const
     return m_muteTime <= GameTime::GetGameTime();
 }
 
-char const* WorldSession::GetTrinityString(uint32 entry) const
+char const* WorldSession::GetKitronString(uint32 entry) const
 {
-    return sObjectMgr->GetTrinityString(entry, GetSessionDbLocaleIndex());
+    return sObjectMgr->GetKitronString(entry, GetSessionDbLocaleIndex());
 }
 
 void WorldSession::ResetTimeOutTime(bool onlyActive)
@@ -922,7 +922,7 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
 
     //! Anti-cheat checks. Please keep them in seperate if () blocks to maintain a clear overview.
     //! Might be subject to latency, so just remove improper flags.
-    #ifdef TRINITY_DEBUG
+    #ifdef Kitron_DEBUG
     #define REMOVE_VIOLATING_FLAGS(check, maskToRemove) \
     { \
         if (check) \

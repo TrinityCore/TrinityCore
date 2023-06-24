@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -59,7 +59,7 @@ void OpenSSLCrypto::threadsSetup([[maybe_unused]] boost::filesystem::path const&
     (void)&lockingCallback;
     CRYPTO_set_locking_callback(lockingCallback);
 #elif OPENSSL_VERSION_NUMBER >= 0x30000000L
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#if Kitron_PLATFORM == Kitron_PLATFORM_WINDOWS
     OSSL_PROVIDER_set_default_search_path(nullptr, providerModulePath.string().c_str());
 #endif
     LegacyProvider = OSSL_PROVIDER_load(nullptr, "legacy");

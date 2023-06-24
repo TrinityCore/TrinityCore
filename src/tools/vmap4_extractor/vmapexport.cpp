@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -154,7 +154,7 @@ bool ExtractSingleWmo(std::string& fname)
             strncpy(temp, fname.c_str(), 1024);
             temp[fname.length()-4] = 0;
 
-            WMOGroup fgroup(Trinity::StringFormat("%s_%03u.wmo", temp, i));
+            WMOGroup fgroup(Kitron::StringFormat("%s_%03u.wmo", temp, i));
             if (!fgroup.open(&froot))
             {
                 printf("Could not open all Group file for: %s\n", plain_name);
@@ -316,7 +316,7 @@ bool fillArchiveNameVector(std::vector<std::string>& pArchiveNames)
 
     // now, scan for the patch levels in the core dir
     printf("Scanning patch levels from data directory.\n");
-    if (!scan_patches(Trinity::StringFormat("%spatch", input_path).c_str(), pArchiveNames))
+    if (!scan_patches(Kitron::StringFormat("%spatch", input_path).c_str(), pArchiveNames))
         return(false);
 
     // now, scan for the patch levels in locale dirs
@@ -325,7 +325,7 @@ bool fillArchiveNameVector(std::vector<std::string>& pArchiveNames)
     for (std::string const& locale : locales)
     {
         printf("Locale: %s\n", locale.c_str());
-        if(scan_patches(Trinity::StringFormat("%s%s/patch-%s", input_path, locale.c_str(), locale.c_str()).c_str(), pArchiveNames))
+        if(scan_patches(Kitron::StringFormat("%s%s/patch-%s", input_path, locale.c_str(), locale.c_str()).c_str(), pArchiveNames))
             foundOne = true;
     }
 
@@ -406,7 +406,7 @@ bool processArgv(int argc, char ** argv, const char *versionString)
 
 int main(int argc, char ** argv)
 {
-    Trinity::Banner::Show("VMAP data extractor", [](char const* text) { printf("%s\n", text); }, nullptr);
+    Kitron::Banner::Show("VMAP data extractor", [](char const* text) { printf("%s\n", text); }, nullptr);
 
     bool success = true;
     const char *versionString = "V4.00 2012_02";

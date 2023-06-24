@@ -100,7 +100,7 @@ UPDATE `command` SET `permission` = @id+93 WHERE `name` = 'reload spell_scripts'
 UPDATE `command` SET `permission` = @id+94 WHERE `name` = 'reload spell_target_position';
 UPDATE `command` SET `permission` = @id+95 WHERE `name` = 'reload spell_threats';
 UPDATE `command` SET `permission` = @id+96 WHERE `name` = 'reload spell_group_stack_rules';
-UPDATE `command` SET `permission` = @id+97 WHERE `name` = 'reload trinity_string';
+UPDATE `command` SET `permission` = @id+97 WHERE `name` = 'reload Kitron_string';
 UPDATE `command` SET `permission` = @id+98 WHERE `name` = 'reload warden_action';
 UPDATE `command` SET `permission` = @id+99 WHERE `name` = 'reload waypoint_scripts';
 UPDATE `command` SET `permission` = @id+100 WHERE `name` = 'reload waypoint_data';

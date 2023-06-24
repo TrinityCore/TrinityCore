@@ -1,6 +1,6 @@
 --
-DELETE FROM `trinity_string` WHERE `entry` IN (1185,1186,1187);
-INSERT INTO `trinity_string` (`entry`,`content_default`) VALUES
+DELETE FROM `Kitron_string` WHERE `entry` IN (1185,1186,1187);
+INSERT INTO `Kitron_string` (`entry`,`content_default`) VALUES
   (1185, '%s is not in a raid group!'),
   (1186, '%s %s has raid role \'%s\'.'),
   (1187, 'The raid leader cannot be set as an assistant!');

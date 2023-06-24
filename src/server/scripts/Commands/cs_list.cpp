@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -40,7 +40,7 @@ EndScriptData */
 #include "SpellAuraEffects.h"
 #include "WorldSession.h"
 
-using namespace Trinity::ChatCommands;
+using namespace Kitron::ChatCommands;
 
 class list_commandscript : public CommandScript
 {
@@ -464,8 +464,8 @@ public:
 
         wstrToLower(namePart);
 
-        char const* talentStr = handler->GetTrinityString(LANG_TALENT);
-        char const* passiveStr = handler->GetTrinityString(LANG_PASSIVE);
+        char const* talentStr = handler->GetKitronString(LANG_TALENT);
+        char const* passiveStr = handler->GetKitronString(LANG_PASSIVE);
 
         Unit::AuraApplicationMap const& auras = unit->GetAppliedAuras();
         handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURAS, auras.size());
@@ -674,7 +674,7 @@ public:
         Map const* map = player->GetMap();
 
         LocaleConstant locale = handler->GetSession()->GetSessionDbcLocale();
-        char const* stringOverdue = sObjectMgr->GetTrinityString(LANG_LIST_RESPAWNS_OVERDUE, locale);
+        char const* stringOverdue = sObjectMgr->GetKitronString(LANG_LIST_RESPAWNS_OVERDUE, locale);
 
         uint32 zoneId = player->GetZoneId();
         char const* zoneName = GetZoneName(zoneId, locale);

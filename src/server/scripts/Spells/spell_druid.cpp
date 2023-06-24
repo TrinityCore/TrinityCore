@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1319,7 +1319,7 @@ class spell_dru_starfall_dummy : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        Trinity::Containers::RandomResize(targets, 2);
+        Kitron::Containers::RandomResize(targets, 2);
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -1771,7 +1771,7 @@ class spell_dru_t10_restoration_4p_bonus : public SpellScript
                 return;
             }
 
-            Unit* target = Trinity::Containers::SelectRandomContainerElement(tempTargets);
+            Unit* target = Kitron::Containers::SelectRandomContainerElement(tempTargets);
             targets.clear();
             targets.push_back(target);
         }
@@ -1864,7 +1864,7 @@ class spell_dru_wild_growth : public SpellScript
 
         if (targets.size() > maxTargets)
         {
-            targets.sort(Trinity::HealthPctOrderPred());
+            targets.sort(Kitron::HealthPctOrderPred());
             targets.resize(maxTargets);
         }
 

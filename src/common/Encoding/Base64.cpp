@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -46,12 +46,12 @@ struct B64Impl
     }
 };
 
-/*static*/ std::string Trinity::Encoding::Base64::Encode(std::vector<uint8> const& data)
+/*static*/ std::string Kitron::Encoding::Base64::Encode(std::vector<uint8> const& data)
 {
-    return Trinity::Impl::GenericBaseEncoding<B64Impl>::Encode(data);
+    return Kitron::Impl::GenericBaseEncoding<B64Impl>::Encode(data);
 }
 
-/*static*/ Optional<std::vector<uint8>> Trinity::Encoding::Base64::Decode(std::string const& data)
+/*static*/ Optional<std::vector<uint8>> Kitron::Encoding::Base64::Decode(std::string const& data)
 {
-    return Trinity::Impl::GenericBaseEncoding<B64Impl>::Decode(data);
+    return Kitron::Impl::GenericBaseEncoding<B64Impl>::Decode(data);
 }

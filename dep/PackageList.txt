@@ -1,4 +1,4 @@
-TrinityCore uses (parts of or in whole) the following opensource software:
+KitronCore uses (parts of or in whole) the following opensource software:
 
 Boost (external)
   http://www.boost.org
@@ -63,7 +63,7 @@ gSOAP (a portable development toolkit for C and C++ XML Web services and XML dat
 recastnavigation (Recast is state of the art navigation mesh construction toolset for games)
   https://github.com/recastnavigation/recastnavigation
   Version: 54bb0943e5174a71eeeca11919920f685760a4f0
-  Custom changes: https://github.com/TrinityCore/recastnavigation/tree/3.3.5
+  Custom changes: https://github.com/KitronCore/recastnavigation/tree/3.3.5
   
 argon2
   https://github.com/P-H-C/phc-winner-argon2

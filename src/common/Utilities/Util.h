@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -37,7 +37,7 @@ enum class TimeFormat : uint8
     Numeric         // 1:2:3:4
 };
 
-namespace Trinity
+namespace Kitron
 {
     TC_COMMON_API std::vector<std::string_view> Tokenize(std::string_view str, char sep, bool keepEmpty);
 
@@ -292,7 +292,7 @@ TC_COMMON_API void utf8printf(FILE* out, const char *str, ...);
 TC_COMMON_API void vutf8printf(FILE* out, const char *str, va_list* ap);
 TC_COMMON_API bool Utf8ToUpperOnlyLatin(std::string& utf8String);
 
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#if Kitron_PLATFORM == Kitron_PLATFORM_WINDOWS
 TC_COMMON_API bool ReadWinConsole(std::string& str, size_t size = 256);
 TC_COMMON_API bool WriteWinConsole(std::string_view str, bool error = false);
 #endif
@@ -304,7 +304,7 @@ TC_COMMON_API bool IsIPAddress(char const* ipaddress);
 TC_COMMON_API uint32 CreatePIDFile(std::string const& filename);
 TC_COMMON_API uint32 GetPID();
 
-namespace Trinity::Impl
+namespace Kitron::Impl
 {
     TC_COMMON_API std::string ByteArrayToHexStr(uint8 const* bytes, size_t length, bool reverse = false);
     TC_COMMON_API void HexStrToByteArray(std::string_view str, uint8* out, size_t outlen, bool reverse = false);
@@ -313,13 +313,13 @@ namespace Trinity::Impl
 template <typename Container>
 std::string ByteArrayToHexStr(Container const& c, bool reverse = false)
 {
-    return Trinity::Impl::ByteArrayToHexStr(std::data(c), std::size(c), reverse);
+    return Kitron::Impl::ByteArrayToHexStr(std::data(c), std::size(c), reverse);
 }
 
 template <size_t Size>
 void HexStrToByteArray(std::string_view str, std::array<uint8, Size>& buf, bool reverse = false)
 {
-    Trinity::Impl::HexStrToByteArray(str, buf.data(), Size, reverse);
+    Kitron::Impl::HexStrToByteArray(str, buf.data(), Size, reverse);
 }
 template <size_t Size>
 std::array<uint8, Size> HexStrToByteArray(std::string_view str, bool reverse = false)
@@ -334,7 +334,7 @@ inline std::vector<uint8> HexStrToByteVector(std::string_view str, bool reverse 
     std::vector<uint8> buf;
     size_t const sz = (str.size() / 2);
     buf.resize(sz);
-    Trinity::Impl::HexStrToByteArray(str, buf.data(), sz, reverse);
+    Kitron::Impl::HexStrToByteArray(str, buf.data(), sz, reverse);
     return buf;
 }
 

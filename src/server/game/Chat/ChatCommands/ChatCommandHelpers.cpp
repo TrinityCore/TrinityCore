@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,13 +19,13 @@
 #include "Chat.h"
 #include "ObjectMgr.h"
 
-void Trinity::Impl::ChatCommands::SendErrorMessageToHandler(ChatHandler* handler, std::string_view str)
+void Kitron::Impl::ChatCommands::SendErrorMessageToHandler(ChatHandler* handler, std::string_view str)
 {
     handler->SendSysMessage(str);
     handler->SetSentErrorMessage(true);
 }
 
-char const* Trinity::Impl::ChatCommands::GetTrinityString(ChatHandler const* handler, TrinityStrings which)
+char const* Kitron::Impl::ChatCommands::GetKitronString(ChatHandler const* handler, KitronStrings which)
 {
-    return handler->GetTrinityString(which);
+    return handler->GetKitronString(which);
 }

@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,7 +18,7 @@
 #include "ARC4.h"
 #include "Errors.h"
 
-Trinity::Crypto::ARC4::ARC4() : _ctx(EVP_CIPHER_CTX_new())
+Kitron::Crypto::ARC4::ARC4() : _ctx(EVP_CIPHER_CTX_new())
 {
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
     _cipher = EVP_CIPHER_fetch(nullptr, "RC4", nullptr);
@@ -31,7 +31,7 @@ Trinity::Crypto::ARC4::ARC4() : _ctx(EVP_CIPHER_CTX_new())
     ASSERT(result == 1);
 }
 
-Trinity::Crypto::ARC4::~ARC4()
+Kitron::Crypto::ARC4::~ARC4()
 {
     EVP_CIPHER_CTX_free(_ctx);
 
@@ -40,7 +40,7 @@ Trinity::Crypto::ARC4::~ARC4()
 #endif
 }
 
-void Trinity::Crypto::ARC4::Init(uint8 const* seed, size_t len)
+void Kitron::Crypto::ARC4::Init(uint8 const* seed, size_t len)
 {
     int result1 = EVP_CIPHER_CTX_set_key_length(_ctx, len);
     ASSERT(result1 == 1);
@@ -48,7 +48,7 @@ void Trinity::Crypto::ARC4::Init(uint8 const* seed, size_t len)
     ASSERT(result2 == 1);
 }
 
-void Trinity::Crypto::ARC4::UpdateData(uint8* data, size_t len)
+void Kitron::Crypto::ARC4::UpdateData(uint8* data, size_t len)
 {
     int outlen = 0;
     int result1 = EVP_EncryptUpdate(_ctx, data, &outlen, data, len);

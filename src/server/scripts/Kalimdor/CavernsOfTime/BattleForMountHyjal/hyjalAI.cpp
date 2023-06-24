@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -910,8 +910,8 @@ void hyjalAI::HideNearPos(float x, float y)
 {
     // First get all creatures.
     std::list<Creature*> creatures;
-    Trinity::AllFriendlyCreaturesInGrid creature_check(me);
-    Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid> creature_searcher(me, creatures, creature_check);
+    Kitron::AllFriendlyCreaturesInGrid creature_check(me);
+    Kitron::CreatureListSearcher<Kitron::AllFriendlyCreaturesInGrid> creature_searcher(me, creatures, creature_check);
     Cell::VisitGridObjects(x, y, me->GetMap(), creature_searcher, me->GetGridActivationRange());
 
     if (!creatures.empty())
@@ -926,8 +926,8 @@ void hyjalAI::HideNearPos(float x, float y)
 
 void hyjalAI::RespawnNearPos(float x, float y)
 {
-    Trinity::RespawnDo u_do;
-    Trinity::WorldObjectWorker<Trinity::RespawnDo> worker(me, u_do);
+    Kitron::RespawnDo u_do;
+    Kitron::WorldObjectWorker<Kitron::RespawnDo> worker(me, u_do);
     Cell::VisitGridObjects(x, y, me->GetMap(), worker, me->GetGridActivationRange());
 }
 
@@ -954,8 +954,8 @@ void hyjalAI::WaypointReached(uint32 waypointId, uint32 /*pathId*/)
         //all alive guards walk near here
         // First get all creatures.
         std::list<Creature*> creatures;
-        Trinity::AllFriendlyCreaturesInGrid creature_check(me);
-        Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid> creature_searcher(me, creatures, creature_check);
+        Kitron::AllFriendlyCreaturesInGrid creature_check(me);
+        Kitron::CreatureListSearcher<Kitron::AllFriendlyCreaturesInGrid> creature_searcher(me, creatures, creature_check);
         Cell::VisitGridObjects(me, creature_searcher, me->GetGridActivationRange());
 
         if (!creatures.empty())
@@ -986,8 +986,8 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
         if (TeleportTimer <= diff)
         {
             std::list<Creature*> creatures;
-            Trinity::AllFriendlyCreaturesInGrid creature_check(me);
-            Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid> creature_searcher(me, creatures, creature_check);
+            Kitron::AllFriendlyCreaturesInGrid creature_check(me);
+            Kitron::CreatureListSearcher<Kitron::AllFriendlyCreaturesInGrid> creature_searcher(me, creatures, creature_check);
             Cell::VisitGridObjects(me, creature_searcher, me->GetGridActivationRange());
 
             if (!creatures.empty())

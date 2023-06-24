@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -77,8 +77,8 @@ class spell_love_is_in_the_air_romantic_picnic : public AuraScript
         // For nearby players, check if they have the same aura. If so, cast Romantic Picnic (45123)
         // required by achievement and "hearts" visual
         std::list<Player*> playerList;
-        Trinity::AnyPlayerInObjectRangeCheck checker(target, INTERACTION_DISTANCE*2);
-        Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(target, playerList, checker);
+        Kitron::AnyPlayerInObjectRangeCheck checker(target, INTERACTION_DISTANCE*2);
+        Kitron::PlayerListSearcher<Kitron::AnyPlayerInObjectRangeCheck> searcher(target, playerList, checker);
         Cell::VisitWorldObjects(target, searcher, INTERACTION_DISTANCE * 2);
         for (std::list<Player*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
         {
@@ -139,7 +139,7 @@ class spell_love_is_in_the_air_create_heart_candy : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetCaster(), Trinity::Containers::SelectRandomContainerElement(CreateHeartCandySpells));
+        GetCaster()->CastSpell(GetCaster(), Kitron::Containers::SelectRandomContainerElement(CreateHeartCandySpells));
     }
 
     void Register() override

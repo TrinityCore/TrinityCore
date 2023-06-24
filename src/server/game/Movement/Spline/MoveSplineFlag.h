@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITYSERVER_MOVESPLINEFLAG_H
-#define TRINITYSERVER_MOVESPLINEFLAG_H
+#ifndef KitronSERVER_MOVESPLINEFLAG_H
+#define KitronSERVER_MOVESPLINEFLAG_H
 
 #include "MovementTypedefs.h"
 
@@ -131,4 +131,4 @@ namespace Movement
 #pragma pack(pop)
 }
 
-#endif // TRINITYSERVER_MOVESPLINEFLAG_H
+#endif // KitronSERVER_MOVESPLINEFLAG_H

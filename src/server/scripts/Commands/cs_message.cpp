@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -36,7 +36,7 @@ EndScriptData */
 #include "World.h"
 #include "WorldSession.h"
 
-using namespace Trinity::ChatCommands;
+using namespace Kitron::ChatCommands;
 
 class message_commandscript : public CommandScript
 {
@@ -151,7 +151,7 @@ public:
         if (message.empty())
             return false;
 
-        sWorld->SendServerMessage(SERVER_MSG_STRING, Trinity::StringFormat(handler->GetTrinityString(LANG_SYSTEMMESSAGE), message.data()).c_str());
+        sWorld->SendServerMessage(SERVER_MSG_STRING, Kitron::StringFormat(handler->GetKitronString(LANG_SYSTEMMESSAGE), message.data()).c_str());
         return true;
     }
 
@@ -171,7 +171,7 @@ public:
         if (message.empty())
             return false;
 
-        std::string str = handler->GetTrinityString(LANG_GLOBAL_NOTIFY);
+        std::string str = handler->GetKitronString(LANG_GLOBAL_NOTIFY);
         str += message;
 
         WorldPacket data(SMSG_NOTIFICATION, (str.size() + 1));
@@ -187,7 +187,7 @@ public:
         if (message.empty())
             return false;
 
-        std::string str = handler->GetTrinityString(LANG_GM_NOTIFY);
+        std::string str = handler->GetKitronString(LANG_GM_NOTIFY);
         str += message;
 
         WorldPacket data(SMSG_NOTIFICATION, (str.size() + 1));
@@ -202,7 +202,7 @@ public:
     {
         if (!operationArg)
         {
-            handler->PSendSysMessage(LANG_COMMAND_WHISPERACCEPTING, handler->GetSession()->GetPlayer()->isAcceptWhispers() ?  handler->GetTrinityString(LANG_ON) : handler->GetTrinityString(LANG_OFF));
+            handler->PSendSysMessage(LANG_COMMAND_WHISPERACCEPTING, handler->GetSession()->GetPlayer()->isAcceptWhispers() ?  handler->GetKitronString(LANG_ON) : handler->GetKitronString(LANG_OFF));
             return true;
         }
 

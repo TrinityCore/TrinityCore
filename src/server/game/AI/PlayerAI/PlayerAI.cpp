@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -393,9 +393,9 @@ enum Spells
 };
 
 PlayerAI::PlayerAI(Player* player) : UnitAI(player), me(player),
-    _selfSpec(Trinity::Helpers::Entity::GetPlayerSpecialization(player)),
-    _isSelfHealer(Trinity::Helpers::Entity::IsPlayerHealer(player)),
-    _isSelfRangedAttacker(Trinity::Helpers::Entity::IsPlayerRangedAttacker(player))
+    _selfSpec(Kitron::Helpers::Entity::GetPlayerSpecialization(player)),
+    _isSelfHealer(Kitron::Helpers::Entity::IsPlayerHealer(player)),
+    _isSelfRangedAttacker(Kitron::Helpers::Entity::IsPlayerRangedAttacker(player))
 {
 }
 
@@ -408,17 +408,17 @@ Creature* PlayerAI::GetCharmer() const
 
 uint8 PlayerAI::GetSpec(Player const * who) const
 {
-    return (!who || who == me) ? _selfSpec : Trinity::Helpers::Entity::GetPlayerSpecialization(who);
+    return (!who || who == me) ? _selfSpec : Kitron::Helpers::Entity::GetPlayerSpecialization(who);
 }
 
 bool PlayerAI::IsHealer(Player const * who) const
 {
-    return (!who || who == me) ? _isSelfHealer : Trinity::Helpers::Entity::IsPlayerHealer(who);
+    return (!who || who == me) ? _isSelfHealer : Kitron::Helpers::Entity::IsPlayerHealer(who);
 }
 
 bool PlayerAI::IsRangedAttacker(Player const * who) const
 {
-    return (!who || who == me) ? _isSelfRangedAttacker : Trinity::Helpers::Entity::IsPlayerRangedAttacker(who);
+    return (!who || who == me) ? _isSelfRangedAttacker : Kitron::Helpers::Entity::IsPlayerRangedAttacker(who);
 }
 
 PlayerAI::TargetedSpell PlayerAI::VerifySpellCast(uint32 spellId, Unit* target)

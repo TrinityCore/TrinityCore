@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -30,7 +30,7 @@
 #include <unordered_map>
 #include <utility>
 
-namespace Trinity
+namespace Kitron
 {
     namespace Asio
     {
@@ -72,8 +72,8 @@ private:
     std::iostream& GetDataStream() { return *_dataStream; }
     std::unique_ptr<std::iostream> _dataStream;
     MPSCQueue<MetricData, &MetricData::QueueLink> _queuedData;
-    std::unique_ptr<Trinity::Asio::DeadlineTimer> _batchTimer;
-    std::unique_ptr<Trinity::Asio::DeadlineTimer> _overallStatusTimer;
+    std::unique_ptr<Kitron::Asio::DeadlineTimer> _batchTimer;
+    std::unique_ptr<Kitron::Asio::DeadlineTimer> _overallStatusTimer;
     int32 _updateInterval = 0;
     int32 _overallStatusTimerInterval = 0;
     bool _enabled = false;
@@ -108,7 +108,7 @@ public:
     ~Metric();
     static Metric* instance();
 
-    void Initialize(std::string const& realmName, Trinity::Asio::IoContext& ioContext, std::function<void()> overallStatusLogger);
+    void Initialize(std::string const& realmName, Kitron::Asio::IoContext& ioContext, std::function<void()> overallStatusLogger);
     void LoadFromConfigs();
     void Update();
     bool ShouldLog(std::string const& category, int64 value) const;
@@ -180,7 +180,7 @@ Optional<MetricStopWatch<LoggerType>> MakeMetricStopWatch(LoggerType&& loggerFun
 #define TC_METRIC_DETAILED_TIMER(category, ...) ((void)0)
 #define TC_METRIC_DETAILED_NO_THRESHOLD_TIMER(category, ...) ((void)0)
 #else
-#  if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
+#  if Kitron_PLATFORM != Kitron_PLATFORM_WINDOWS
 #define TC_METRIC_EVENT(category, title, description)                  \
         do {                                                           \
             if (sMetric->IsEnabled())                                  \

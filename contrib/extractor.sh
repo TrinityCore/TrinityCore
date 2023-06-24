@@ -47,7 +47,7 @@ done
 
 show_header() {
 echo "======================================================"
-echo "Trinitycore (3.3.5) DBC, Maps, VMaps & MMaps Extractor"
+echo "Kitroncore (3.3.5) DBC, Maps, VMaps & MMaps Extractor"
 echo "======================================================"
 echo
 echo

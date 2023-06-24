@@ -1,2 +1,2 @@
 -- 
-DELETE FROM `trinity_string` WHERE `entry` IN (5081,5082,5084);
+DELETE FROM `Kitron_string` WHERE `entry` IN (5081,5082,5084);

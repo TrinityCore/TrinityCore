@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_INSTANCE_DATA_H
-#define TRINITY_INSTANCE_DATA_H
+#ifndef Kitron_INSTANCE_DATA_H
+#define Kitron_INSTANCE_DATA_H
 
 #include "ZoneScript.h"
 #include "Common.h"
@@ -315,12 +315,12 @@ class TC_GAME_API InstanceScript : public ZoneScript
         std::vector<InstanceSpawnGroupInfo> const* const _instanceSpawnGroups;
         std::unordered_set<uint32> _activatedAreaTriggers;
 
-    #ifdef TRINITY_API_USE_DYNAMIC_LINKING
+    #ifdef Kitron_API_USE_DYNAMIC_LINKING
         // Strong reference to the associated script module
         std::shared_ptr<ModuleReference> module_reference;
-    #endif // #ifndef TRINITY_API_USE_DYNAMIC_LINKING
+    #endif // #ifndef Kitron_API_USE_DYNAMIC_LINKING
 
         friend class debug_commandscript;
 };
 
-#endif // TRINITY_INSTANCE_DATA_H
+#endif // Kitron_INSTANCE_DATA_H

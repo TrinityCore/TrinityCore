@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,15 +27,15 @@
 
 using boost::asio::ip::tcp;
 
-#define TRINITY_MAX_LISTEN_CONNECTIONS boost::asio::socket_base::max_listen_connections
+#define Kitron_MAX_LISTEN_CONNECTIONS boost::asio::socket_base::max_listen_connections
 
 class AsyncAcceptor
 {
 public:
     typedef void(*AcceptCallback)(tcp::socket&& newSocket, uint32 threadIndex);
 
-    AsyncAcceptor(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port) :
-        _acceptor(ioContext), _endpoint(Trinity::Net::make_address(bindIp), port),
+    AsyncAcceptor(Kitron::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port) :
+        _acceptor(ioContext), _endpoint(Kitron::Net::make_address(bindIp), port),
         _socket(ioContext), _closed(false), _socketFactory(std::bind(&AsyncAcceptor::DefeaultSocketFactory, this))
     {
     }
@@ -80,7 +80,7 @@ public:
             return false;
         }
 
-#if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
+#if Kitron_PLATFORM != Kitron_PLATFORM_WINDOWS
         _acceptor.set_option(boost::asio::ip::tcp::acceptor::reuse_address(true), errorCode);
         if (errorCode)
         {
@@ -96,7 +96,7 @@ public:
             return false;
         }
 
-        _acceptor.listen(TRINITY_MAX_LISTEN_CONNECTIONS, errorCode);
+        _acceptor.listen(Kitron_MAX_LISTEN_CONNECTIONS, errorCode);
         if (errorCode)
         {
             TC_LOG_INFO("network", "Failed to start listening on %s:%u %s", _endpoint.address().to_string().c_str(), _endpoint.port(), errorCode.message().c_str());

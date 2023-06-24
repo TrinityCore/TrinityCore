@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -75,10 +75,10 @@ class DatabaseWorkerPool
         template<typename Format, typename... Args>
         void PExecute(Format&& sql, Args&&... args)
         {
-            if (Trinity::IsFormatEmptyOrNull(sql))
+            if (Kitron::IsFormatEmptyOrNull(sql))
                 return;
 
-            Execute(Trinity::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...).c_str());
+            Execute(Kitron::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...).c_str());
         }
 
         //! Enqueues a one-way SQL operation in prepared statement format that will be executed asynchronously.
@@ -98,10 +98,10 @@ class DatabaseWorkerPool
         template<typename Format, typename... Args>
         void DirectPExecute(Format&& sql, Args&&... args)
         {
-            if (Trinity::IsFormatEmptyOrNull(sql))
+            if (Kitron::IsFormatEmptyOrNull(sql))
                 return;
 
-            DirectExecute(Trinity::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...).c_str());
+            DirectExecute(Kitron::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...).c_str());
         }
 
         //! Directly executes a one-way SQL operation in prepared statement format, that will block the calling thread until finished.
@@ -121,10 +121,10 @@ class DatabaseWorkerPool
         template<typename Format, typename... Args>
         QueryResult PQuery(Format&& sql, T* conn, Args&&... args)
         {
-            if (Trinity::IsFormatEmptyOrNull(sql))
+            if (Kitron::IsFormatEmptyOrNull(sql))
                 return QueryResult(nullptr);
 
-            return Query(Trinity::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...).c_str(), conn);
+            return Query(Kitron::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...).c_str(), conn);
         }
 
         //! Directly executes an SQL query in string format -with variable args- that will block the calling thread until finished.
@@ -132,10 +132,10 @@ class DatabaseWorkerPool
         template<typename Format, typename... Args>
         QueryResult PQuery(Format&& sql, Args&&... args)
         {
-            if (Trinity::IsFormatEmptyOrNull(sql))
+            if (Kitron::IsFormatEmptyOrNull(sql))
                 return QueryResult(nullptr);
 
-            return Query(Trinity::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...).c_str());
+            return Query(Kitron::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...).c_str());
         }
 
         //! Directly executes an SQL query in prepared format that will block the calling thread until finished.
@@ -208,7 +208,7 @@ class DatabaseWorkerPool
 
         void WarnAboutSyncQueries([[maybe_unused]] bool warn)
         {
-#ifdef TRINITY_DEBUG
+#ifdef Kitron_DEBUG
             _warnSyncQueries = warn;
 #endif
         }
@@ -234,7 +234,7 @@ class DatabaseWorkerPool
         std::unique_ptr<MySQLConnectionInfo> _connectionInfo;
         std::vector<uint8> _preparedStatementSize;
         uint8 _async_threads, _synch_threads;
-#ifdef TRINITY_DEBUG
+#ifdef Kitron_DEBUG
         static inline thread_local bool _warnSyncQueries = false;
 #endif
 };

@@ -1,4 +1,4 @@
-DELETE FROM `trinity_string` WHERE (`entry` BETWEEN 1302 AND 1325) OR (`entry` IN (1331,1332));
+DELETE FROM `Kitron_string` WHERE (`entry` BETWEEN 1302 AND 1325) OR (`entry` IN (1331,1332));
 
 DELETE FROM `creature_text` WHERE `entry`=14848;
 DELETE FROM `creature_text` WHERE `entry`=11946 AND `groupid`=3 AND `id`=5;

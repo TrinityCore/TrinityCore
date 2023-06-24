@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * This file is part of the KitronCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -152,13 +152,13 @@ struct boss_xevozz : public BossAI
 
             std::list<uint8> summonSpells = { 0, 1, 2 };
 
-            uint8 spell = Trinity::Containers::SelectRandomContainerElement(summonSpells);
+            uint8 spell = Kitron::Containers::SelectRandomContainerElement(summonSpells);
             DoCast(me, EtherealSphereSummonSpells[spell]);
             summonSpells.remove(spell);
 
             if (IsHeroic())
             {
-                spell = Trinity::Containers::SelectRandomContainerElement(summonSpells);
+                spell = Kitron::Containers::SelectRandomContainerElement(summonSpells);
                 task.Schedule(Milliseconds(2500), [this, spell](TaskContext /*task*/)
                 {
                     DoCast(me, EtherealSphereHeroicSummonSpells[spell]);
