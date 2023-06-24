@@ -1615,6 +1615,16 @@ struct npc_murloc_spearhunter_watershaper : public ScriptedAI
     }
 };
 
+struct npc_murloc_spearhunter_watershaper_higher_ground : public npc_murloc_spearhunter_watershaper
+{
+    npc_murloc_spearhunter_watershaper_higher_ground(Creature* creature) : npc_murloc_spearhunter_watershaper(creature) { }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        me->GetMotionMaster()->MoveJump(who->GetPosition(), 16.0f, 6.2f);
+    }
+};
+
 class quest_emergency_first_aid : public QuestScript
 {
 public:
@@ -1661,5 +1671,6 @@ void AddSC_zone_exiles_reach()
     RegisterCreatureAI(npc_horde_survivors_beach_laying);
     new FactoryCreatureScript<CreatureAI, &HordeSurvivorsAISelector>("npc_horde_survivors_beach_standing");
     RegisterCreatureAI(npc_murloc_spearhunter_watershaper);
+    RegisterCreatureAI(npc_murloc_spearhunter_watershaper_higher_ground);
     new quest_emergency_first_aid();
 }

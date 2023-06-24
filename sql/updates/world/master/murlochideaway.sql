@@ -108,6 +108,7 @@ UPDATE `creature_template` SET `ScriptName`="npc_alliance_survivors_beach_standi
 UPDATE `creature_template` SET `ScriptName`="npc_horde_survivors_beach_laying" WHERE `entry` IN (166786,166791,166796);
 UPDATE `creature_template` SET `ScriptName`="npc_horde_survivors_beach_standing" WHERE `entry` IN (166787,166792,166797);
 UPDATE `creature_template` SET `ScriptName`="npc_murloc_spearhunter_watershaper" WHERE `entry` IN (150228,150229);
+UPDATE `creature` SET `ScriptName`='npc_murloc_spearhunter_watershaper_higher_ground' WHERE `guid` IN(1051092, 1051082, 1051068, 1051081, 1051120, 1051117, 1051094, 1051084, 1051102);
 
 -- Pathing
 
