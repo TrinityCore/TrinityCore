@@ -6696,24 +6696,17 @@ void AACenter::M_GetSpellText(Player* player, std::vector<uint32> spellIds, std:
         for (int i = 0; i < count; i++) {
             uint32 spellid = spellIds[i];
             uint32 time1 = spellTimes[i];
-            AA_Spell conf;
-            QueryResult result = WorldDatabase.PQuery("SELECT id,客户端显示,update_time FROM _模板_物品技能 where id = {} and update_time != {} ORDER BY id", spellid, time1);
-            if (result) {
-                Field* fields = result->Fetch();
-                conf.id = fields[0].GetUInt32();
-                conf.text = fields[1].GetString();
-                conf.update_time = fields[2].GetUInt32();
-                if (conf.id > 0 && conf.text != "") {
-                    std::string spell = "";
-                    spell += "[";
-                    spell += std::to_string(conf.id);
-                    spell += "]={\"";
-                    spell += conf.text;
-                    spell += "\",";
-                    spell += std::to_string(conf.update_time);
-                    spell += "},";
-                    spells += spell;
-                }
+            AA_Spell conf = aaCenter.aa_spells[spellid];
+            if (conf.id > 0 && conf.text != "") {
+                std::string spell = "";
+                spell += "[";
+                spell += std::to_string(conf.id);
+                spell += "]={\"";
+                spell += conf.text;
+                spell += "\",";
+                spell += std::to_string(conf.update_time);
+                spell += "},";
+                spells += spell;
             }
             if ((j > 10 || i == (count - 1)) && spells != "{") {
                 spells += "}";
@@ -13717,8 +13710,8 @@ void AACenter::LoadAAData_World()
             do {
                 Field* fields = result->Fetch();
                 AA_Spell conf;
-                int i = 2;
-                conf.text = "";
+                int i = 1;
+                conf.text = fields[i++].GetString();
                 conf.id = fields[i++].GetUInt32();
                 conf.zu = fields[i++].GetUInt32();
                 conf.class1 = fields[i++].GetString();

@@ -12117,30 +12117,29 @@ InventoryResult Player::CanUseItem(Item* pItem, bool not_loading, ObjectGuid::Lo
             AA_Character_Instance conf = aaCenter.aa_character_instances[pItem->GetGUIDLow()];
             InventoryResult res = CanUseItem(pProto, true);
             if (res == EQUIP_ERR_OK) {
-                Player* player = const_cast<Player*>(this);
-                AA_Map_Player_Conf conf1 = aaCenter.AA_GetAA_Map_Player_Conf(player);
-                if (conf1.jywupin != "" && conf1.jywupin != "0") {
-                    std::vector<int32> items; items.clear();
-                    aaCenter.AA_StringToVectorInt(conf1.jywupin, items, ",");
-                    if (std::find(items.begin(), items.end(), pProto->GetId()) != items.end()) {
-                        aaCenter.AA_SendMessage(player, 1, "|cff00FFFF[系统提示]|cffFF0000该地图中禁用此物品|r");
-                        return EQUIP_ERR_ITEM_NOT_FOUND;
-                    }
-                }
-                if (pProto && conf.jd_id > 0) {
-                    AA_Item_Nonsuch i_conf = aaCenter.aa_item_nonsuchs[conf.jd_id];
-                    if (i_conf.chuandai > 0) {
-                        if (!aaCenter.M_CanNeed(player, i_conf.chuandai)) {
-                            return EQUIP_ERR_ITEM_NOT_FOUND;
+                if (not_loading) {
+                    Player* player = const_cast<Player*>(this);
+                    AA_Map_Player_Conf conf1 = aaCenter.AA_GetAA_Map_Player_Conf(player);
+                    if (conf1.jywupin != "" && conf1.jywupin != "0") {
+                        std::vector<int32> items; items.clear();
+                        aaCenter.AA_StringToVectorInt(conf1.jywupin, items, ",");
+                        if (std::find(items.begin(), items.end(), pProto->GetId()) != items.end()) {
+                            aaCenter.AA_SendMessage(player, 1, "|cff00FFFF[系统提示]|cffFF0000该地图中禁用此物品|r");
+                            return EQUIP_ERR_CANT_EQUIP_EVER;
                         }
                     }
+                    if (pProto && conf.jd_id > 0) {
+                        AA_Item_Nonsuch i_conf = aaCenter.aa_item_nonsuchs[conf.jd_id];
+                        if (i_conf.chuandai > 0) {
+                            if (!aaCenter.M_CanNeed(player, i_conf.chuandai)) {
+                                return EQUIP_ERR_CANT_EQUIP_EVER;
+                            }
+                        }
+                    }
+                    if (!aaCenter.M_CanNeed(player, aaCenter.aa_item_use_needs[pProto->GetId()].need, 1, true, guidlow)) {
+                        return EQUIP_ERR_CANT_EQUIP_EVER;
+                    }
                 }
-
-
-                if (!aaCenter.M_CanNeed(player, aaCenter.aa_item_use_needs[pProto->GetId()].need, 1, true, guidlow)) {
-                    return EQUIP_ERR_ITEM_NOT_FOUND;
-                }
-
             }
             else {
                 return res;
@@ -12172,18 +12171,20 @@ InventoryResult Player::CanUseItem(Item* pItem, bool not_loading, ObjectGuid::Lo
                 if (!allowEquip && GetSkillValue(itemSkill) == 0)
                     return EQUIP_ERR_PROFICIENCY_NEEDED;
             }
-
-            if (pProto && conf.jd_id > 0) {
-                AA_Item_Nonsuch i_conf = aaCenter.aa_item_nonsuchs[conf.jd_id];
-                if (i_conf.chuandai > 0) {
-                    Player* player = const_cast<Player*>(this);
-                    aaCenter.M_Need(player, i_conf.chuandai);
+            if (not_loading)
+            {
+                if (pProto && conf.jd_id > 0) {
+                    AA_Item_Nonsuch i_conf = aaCenter.aa_item_nonsuchs[conf.jd_id];
+                    if (i_conf.chuandai > 0) {
+                        Player* player = const_cast<Player*>(this);
+                        aaCenter.M_Need(player, i_conf.chuandai);
+                    }
                 }
-            }
 
-            if (pProto && aaCenter.aa_item_use_needs[pProto->GetId()].need > 0) {
-                Player* player = const_cast<Player*>(this);
-                aaCenter.M_Need(player, aaCenter.aa_item_use_needs[pProto->GetId()].need);
+                if (pProto && aaCenter.aa_item_use_needs[pProto->GetId()].need > 0) {
+                    Player* player = const_cast<Player*>(this);
+                    aaCenter.M_Need(player, aaCenter.aa_item_use_needs[pProto->GetId()].need);
+                }
             }
 
             return EQUIP_ERR_OK;
