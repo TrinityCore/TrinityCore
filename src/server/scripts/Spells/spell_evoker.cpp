@@ -152,7 +152,7 @@ class spell_evo_pyre : public SpellScript
 
     void HandleDamage(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_EVOKER_PYRE_DAMAGE, true);
+        GetCaster()->CastSpell(GetHitUnit()->GetPosition(), SPELL_EVOKER_PYRE_DAMAGE, true);
     }
 
     void Register() override
