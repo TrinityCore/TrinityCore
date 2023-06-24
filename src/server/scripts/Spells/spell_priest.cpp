@@ -1812,40 +1812,44 @@ class spell_pri_trail_of_light : public AuraScript
         return ValidateSpellInfo({ SPELL_PRIEST_TRAIL_OF_LIGHT_HEAL });
     }
 
-    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    bool CheckProc(ProcEventInfo& eventInfo)
     {
-        Unit* caster = GetTarget();
-        Unit* target = eventInfo.GetActionTarget();
-        if (!target)
-            return;
-
-        if (_healQueue.empty() || _healQueue.back() != target->GetGUID())
-            _healQueue.push(target->GetGUID());
+        if (_healQueue.empty() || _healQueue.back() != eventInfo.GetActionTarget()->GetGUID())
+            _healQueue.push(eventInfo.GetActionTarget()->GetGUID());
 
         if (_healQueue.size() > 2)
             _healQueue.pop();
 
         if (_healQueue.size() == 2)
-        {
-            Unit* oldTarget = ObjectAccessor::GetUnit(*caster, _healQueue.front());
+            return true;
 
-            // Note: old target may not be friendly anymore due to charm and faction change effects.
-            if (!oldTarget || !caster->IsValidAssistTarget(oldTarget))
-                return;
+        return false;
+    }
 
-            // Note: distance may be greater than the heal's spell range.
-            if (!caster->IsWithinDist(oldTarget, 100.0f))
-                return;
+    void HandleOnProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    {
+        Unit* caster = GetTarget();
+        Unit* oldTarget = ObjectAccessor::GetUnit(*caster, _healQueue.front());
+        if (!oldTarget)
+            return;
 
-            uint32 healAmount = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount());
+        // Note: old target may not be friendly anymore due to charm and faction change effects.
+        if (!caster->IsValidAssistTarget(oldTarget))
+            return;
 
-            caster->CastSpell(oldTarget, SPELL_PRIEST_TRAIL_OF_LIGHT_HEAL, CastSpellExtraArgs(aurEff).AddSpellBP0(healAmount));
-        }
+        // Note: distance may be greater than the heal's spell range.
+        if (!caster->IsWithinDist(oldTarget, 100.0f))
+            return;
+
+        uint32 healAmount = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount());
+
+        caster->CastSpell(oldTarget, SPELL_PRIEST_TRAIL_OF_LIGHT_HEAL, CastSpellExtraArgs(aurEff).AddSpellBP0(healAmount));
     }
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_pri_trail_of_light::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        DoCheckProc += AuraCheckProcFn(spell_pri_trail_of_light::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_pri_trail_of_light::HandleOnProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 
 private:
