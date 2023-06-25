@@ -232,8 +232,6 @@ public:
             { "fp" ,AA_fanpai, LANG_AA_fanpai, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
             { "打开网址" ,AA_www, LANG_AA_www, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
             { "dkwz" ,AA_www, LANG_AA_www, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
-            { "野外挑战开始" ,AA_yewaitiaozhankaishi, LANG_AA_yewaitiaozhankaishi, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
-            { "ywtzks" ,AA_yewaitiaozhankaishi, LANG_AA_yewaitiaozhankaishi, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
             { "清理缓存" ,AA_qinglihuancun, LANG_AA_qinglihuancun, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
             { "qlhc" ,AA_qinglihuancun, LANG_AA_qinglihuancun, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
             { "变量" ,AA_bianliang, LANG_AA_bianliang, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
@@ -1146,82 +1144,6 @@ public:
         aaCenter.DeleteAAData_Characters();
         TC_LOG_INFO("server.loading", "开始加载特色数据...");
         aaCenter.LoadAAData_Characters();
-        return true;
-    }
-
-    static bool AA_yewaitiaozhankaishi(ChatHandler* handler, const char* args)
-    {
-        Player* player = handler->getSelectedPlayerOrSelf();
-        if (!player || !player->IsInWorld()) {
-            return false;
-        }
-        char* confidstr = strtok((char*)args, " ");
-        char* isokstr = strtok(nullptr, " ");
-        if (!confidstr)
-        {
-            ChatHandler(handler->GetSession()).PSendSysMessage("语法格式:.野外挑战开始 _属性调整_地图_id 是否强制开始0否1是");
-            return false;
-        }
-        uint32 confid = uint32(std::atoi(confidstr));
-        bool isOk = false;
-        if (isokstr) {
-            isOk = std::atoi(isokstr);
-        }
-        if (!confid) {
-            ChatHandler(handler->GetSession()).PSendSysMessage("语法格式:.野外挑战开始 _属性调整_地图_id 是否强制开始0否1是");
-        }
-        AA_Map_Player_Conf conf = aaCenter.aa_map_player_confs[confid];
-        if (conf.id == 0 || conf.xianzhitime <= 0) {
-            return false;
-        }
-        if (conf.area != -1) {
-            if (isOk || (!isOk && aaCenter.aa_mareavalues[conf.area][1] == 0)) {
-                aaCenter.aa_map_area_values.erase(conf.area);
-                aaCenter.aa_player_area_values.erase(conf.area);
-                CharacterDatabase.DirectPExecute("delete from _数据地图area where area = {}", conf.area);
-                CharacterDatabase.DirectPExecute("delete from _数据玩家area where area = {}", conf.area);
-                aaCenter.aa_mareavalues.erase(conf.area);
-                aaCenter.aa_mareabools.erase(conf.area);
-                aaCenter.aa_pareavalues.erase(conf.area);
-                aaCenter.aa_pareabools.erase(conf.area);
-                aaCenter.aa_mareavalues[conf.area][0] = conf.id;
-                aaCenter.aa_mareavalues[conf.area][1] = 1;
-                aaCenter.aa_mareavalues[conf.area][3] = 2;
-                aaCenter.AA_UpdateValueBools(conf.area, 2, true);
-            }
-        }
-        else if (conf.zone != -1) {
-            if (isOk || (!isOk && aaCenter.aa_mzonevalues[conf.zone][1] == 0)) {
-                aaCenter.aa_map_zone_values.erase(conf.zone);
-                aaCenter.aa_player_zone_values.erase(conf.zone);
-                CharacterDatabase.DirectPExecute("delete from _数据地图zone where zone = {}", conf.zone);
-                CharacterDatabase.DirectPExecute("delete from _数据玩家zone where zone = {}", conf.zone);
-                aaCenter.aa_mzonevalues.erase(conf.zone);
-                aaCenter.aa_mzonebools.erase(conf.zone);
-                aaCenter.aa_pzonevalues.erase(conf.zone);
-                aaCenter.aa_pzonebools.erase(conf.zone);
-                aaCenter.aa_mzonevalues[conf.zone][0] = conf.id;
-                aaCenter.aa_mzonevalues[conf.zone][1] = 1;
-                aaCenter.aa_mzonevalues[conf.zone][3] = 2;
-                aaCenter.AA_UpdateValueBools(conf.zone, 1, true);
-            }
-        }
-        else if (conf.map != -1 || (conf.area == -1 && conf.zone == -1 && conf.map == -1)) {
-            if (isOk || (!isOk && aaCenter.aa_mmapvalues[conf.map][1] == 0)) {
-                aaCenter.aa_map_map_values.erase(conf.map);
-                aaCenter.aa_player_map_values.erase(conf.map);
-                CharacterDatabase.DirectPExecute("delete from _数据地图map where map = {}", conf.map);
-                CharacterDatabase.DirectPExecute("delete from _数据玩家map where map = {}", conf.map);
-                aaCenter.aa_mmapvalues.erase(conf.map);
-                aaCenter.aa_mmapbools.erase(conf.map);
-                aaCenter.aa_pmapvalues.erase(conf.map);
-                aaCenter.aa_pmapbools.erase(conf.map);
-                aaCenter.aa_mmapvalues[conf.map][0] = conf.id;
-                aaCenter.aa_mmapvalues[conf.map][1] = 1;
-                aaCenter.aa_mmapvalues[conf.map][3] = 0;
-                aaCenter.AA_UpdateValueBools(conf.map, 1, true);
-            }
-        }
         return true;
     }
     static bool AA_npcWuqi(ChatHandler* handler, const char* args)

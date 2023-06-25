@@ -2898,6 +2898,7 @@ void World::Update(uint32 diff)
     aa_minute_5 += diff;
     aa_minute_10 += diff;
     aa_minute_60 += diff;
+    aa_minute_180 += diff;
     aa_jiarenTime += diff;
 
     // 比武大会
@@ -3324,7 +3325,10 @@ void World::Update(uint32 diff)
     }
     if (aa_minute_60 > 3600000) {
         aa_minute_60 = 0;
-        {//1小时清理一次缓存
+    }
+    if (aa_minute_180 > 10800000) {
+        aa_minute_180 = 0;
+        {//3小时清理一次缓存
             TC_LOG_INFO("server.loading", "开始保存玩家数据...");
             ObjectAccessor::SaveAllPlayers();
             TC_LOG_INFO("server.loading", "开始清理垃圾数据...");

@@ -850,9 +850,8 @@ class TC_GAME_API World
         void ResetGuildCap();
         void ResetCurrencyWeekCap();
     private:
-        uint32 aa_second_2 = 0, aa_second_20 = 0, aa_minute_1 = 0, aa_minute_2 = 0, aa_minute_5 = 0, aa_minute_10 = 0, aa_minute_60 = 0, aa_jiarenTime = 0;
+        uint32 aa_second_2 = 0, aa_second_20 = 0, aa_minute_1 = 0, aa_minute_2 = 0, aa_minute_5 = 0, aa_minute_10 = 0, aa_minute_60 = 0, aa_minute_180 = 0, aa_jiarenTime = 0;
         std::map<uint32, uint32> aa_alertTimes;
-        std::map<uint32, uint32> aa_yewai_alertTimes;
 
         bool meirijifen = false;
         bool isPaihang = false;

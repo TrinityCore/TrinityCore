@@ -1,4 +1,4 @@
-﻿/*
+/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1149,8 +1149,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::string aa_namesuf_temp = "";
         ObjectGuid::LowType aa_jijie_guidlow = 0;
         bool isKuangbao = false;
-        std::unordered_map<uint32,uint32> aa_yewai_types;
-        bool aa_yewai_teleport = false;
         std::unordered_map<uint32,bool> aa_lj_times;
         uint32 aa_lj_time = 0;
         uint32 jindu_time = 0;
