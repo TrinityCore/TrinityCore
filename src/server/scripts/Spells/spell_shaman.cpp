@@ -226,33 +226,25 @@ class spell_sha_ascendance_restoration : public AuraScript
 
     bool CheckProc(ProcEventInfo& procInfo)
     {
-        if (!procInfo.GetHealInfo() || !procInfo.GetSpellInfo())
-            return false;
-
-        if (procInfo.GetSpellInfo()->Id == SPELL_SHAMAN_RESTORATIVE_MISTS)
-            return false;
-
-        if (!procInfo.GetHealInfo()->GetHeal())
-            return false;
-
-        return true;
+        return procInfo.GetHealInfo() && procInfo.GetHealInfo()->GetHeal();
     }
 
-    void OnProc(AuraEffect* aurEff, ProcEventInfo& procInfo)
+    void OnProcHeal(AuraEffect* aurEff, ProcEventInfo& procInfo)
     {
         int32 heal = procInfo.GetHealInfo()->GetHeal();
         if (heal > 0)
         {
             CastSpellExtraArgs args(aurEff);
-            args.AddSpellMod(SPELLVALUE_BASE_POINT0, heal);
+            args.AddSpellBP0(heal);
             procInfo.GetActor()->CastSpell(procInfo.GetActionTarget(), SPELL_SHAMAN_RESTORATIVE_MISTS, args);
+            heal = 0;
         }
     }
 
     void Register() override
     {
         DoCheckProc += AuraCheckProcFn(spell_sha_ascendance_restoration::CheckProc);
-        OnEffectProc += AuraEffectProcFn(spell_sha_ascendance_restoration::OnProc, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_sha_ascendance_restoration::OnProcHeal, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
