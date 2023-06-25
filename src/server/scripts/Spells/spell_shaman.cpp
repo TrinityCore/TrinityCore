@@ -96,6 +96,7 @@ enum ShamanSpells
     SPELL_SHAMAN_PATH_OF_FLAMES_SPREAD          = 210621,
     SPELL_SHAMAN_PATH_OF_FLAMES_TALENT          = 201909,
     SPELL_SHAMAN_POWER_SURGE                    = 40466,
+    SPELL_SHAMAN_RESTORATIVE_MISTS              = 114083,
     SPELL_SHAMAN_SPIRIT_WOLF_TALENT             = 260878,
     SPELL_SHAMAN_SPIRIT_WOLF_PERIODIC           = 260882,
     SPELL_SHAMAN_SPIRIT_WOLF_AURA               = 260881,
@@ -114,7 +115,7 @@ enum ShamanSpells
 
 enum MiscNpcs
 {
-    NPC_HEALING_RAIN_INVISIBLE_STALKER          = 73400,
+    NPC_HEALING_RAIN_INVISIBLE_STALKER          = 73400
 };
 
 // 273221 - Aftershock
@@ -210,6 +211,48 @@ class spell_sha_ancestral_guidance_heal : public SpellScript
     void Register() override
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_ancestral_guidance_heal::ResizeTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+    }
+};
+
+// 114052 - Ascendance (Restoration)
+class spell_sha_ascendance_restoration : public AuraScript
+{
+    PrepareAuraScript(spell_sha_ascendance_restoration);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_RESTORATIVE_MISTS });
+    }
+
+    bool CheckProc(ProcEventInfo& procInfo)
+    {
+        if (!procInfo.GetHealInfo() || !procInfo.GetSpellInfo())
+            return false;
+
+        if (procInfo.GetSpellInfo()->Id == SPELL_SHAMAN_RESTORATIVE_MISTS)
+            return false;
+
+        if (!procInfo.GetHealInfo()->GetHeal())
+            return false;
+
+        return true;
+    }
+
+    void OnProc(AuraEffect* aurEff, ProcEventInfo& procInfo)
+    {
+        int32 heal = procInfo.GetHealInfo()->GetHeal();
+        if (heal > 0)
+        {
+            CastSpellExtraArgs args(aurEff);
+            args.AddSpellMod(SPELLVALUE_BASE_POINT0, heal);
+            procInfo.GetActor()->CastSpell(procInfo.GetActionTarget(), SPELL_SHAMAN_RESTORATIVE_MISTS, args);
+        }
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_sha_ascendance_restoration::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_sha_ascendance_restoration::OnProc, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -1299,6 +1342,32 @@ class spell_sha_path_of_flames_spread : public SpellScript
     }
 };
 
+// 114083 - Restorative Mists
+class spell_sha_restorative_mists : public SpellScript
+{
+    PrepareSpellScript(spell_sha_restorative_mists);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        _targetCount = uint32(targets.size());
+    }
+
+    void HandleHeal(SpellEffIndex /*effIndex*/)
+    {
+        if (_targetCount)
+            SetHitHeal(GetHitHeal() / _targetCount);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_restorative_mists::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+        OnEffectHitTarget += SpellEffectFn(spell_sha_restorative_mists::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+    }
+
+private:
+    uint32 _targetCount = 0;
+};
+
 // 2645 - Ghost Wolf
 // 260878 - Spirit Wolf
 class spell_sha_spirit_wolf : public AuraScript
@@ -1734,6 +1803,7 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_aftershock);
     RegisterSpellScript(spell_sha_ancestral_guidance);
     RegisterSpellScript(spell_sha_ancestral_guidance_heal);
+    RegisterSpellScript(spell_sha_ascendance_restoration);
     RegisterSpellScript(spell_sha_chain_lightning);
     RegisterSpellScript(spell_sha_chain_lightning_overload);
     RegisterSpellScript(spell_sha_crash_lightning);
@@ -1767,6 +1837,7 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_mastery_elemental_overload_proc);
     RegisterSpellScript(spell_sha_natures_guardian);
     RegisterSpellScript(spell_sha_path_of_flames_spread);
+    RegisterSpellScript(spell_sha_restorative_mists);
     RegisterSpellScript(spell_sha_spirit_wolf);
     RegisterSpellScript(spell_sha_tidal_waves);
     RegisterSpellScript(spell_sha_t3_6p_bonus);
