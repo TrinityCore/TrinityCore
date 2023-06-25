@@ -2275,6 +2275,8 @@ void Creature::ForcedDespawn(uint32 timeMSToDespawn, Seconds forceRespawnTimer)
         return;
     }
 
+    FIRE_ID(GetCreatureTemplate()->events.id, Creature, OnDespawn, TSCreature(this), TSWorldObject(nullptr));
+
     if (m_respawnCompatibilityMode)
     {
         uint32 corpseDelay = GetCorpseDelay();

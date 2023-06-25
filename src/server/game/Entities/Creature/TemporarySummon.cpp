@@ -275,6 +275,7 @@ void TempSummon::UnSummon(uint32 msTime)
         return;
     }
 
+    FIRE_ID(GetCreatureTemplate()->events.id, Creature, OnDespawn, TSCreature(this), TSWorldObject(GetSummoner()));
     if (WorldObject * owner = GetSummoner())
     {
         // @tswow-begin
@@ -284,6 +285,7 @@ void TempSummon::UnSummon(uint32 msTime)
             FIRE_ID(c->GetCreatureTemplate()->events.id,Creature,OnSummonDespawn,TSCreature(c),TSCreature(this));
             // @tswow-end
         }
+
         // @tswow-end
         if (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsAIEnabled())
             owner->ToCreature()->AI()->SummonedCreatureDespawn(this);
