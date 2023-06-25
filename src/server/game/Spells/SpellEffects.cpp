@@ -653,7 +653,7 @@ void Spell::EffectTriggerSpell()
         if (spellInfo->NeedsToBeTriggeredByCaster(m_spellInfo) && (effectInfo->GetProvidedTargetMask() & TARGET_FLAG_UNIT_MASK))
             return;
 
-        if (spellInfo->GetExplicitTargetMask() & TARGET_FLAG_DEST_LOCATION)
+        if (spellInfo->GetExplicitTargetMask() & TARGET_FLAG_DEST_LOCATION && m_targets.HasDst())
             targets.SetDst(m_targets);
 
         if (Unit* target = m_targets.GetUnitTarget())
