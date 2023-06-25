@@ -425,6 +425,19 @@ class spell_pri_divine_hymn : public SpellScript
     }
 };
 
+Optional<ObjectGuid> GetDivineImageGUID(Unit* caster)
+{
+    for (Unit* summon : caster->m_Controlled)
+    {
+        if (summon->GetEntry() != NPC_PRIEST_DIVINE_IMAGE)
+            continue;
+
+        return summon->GetGUID();
+    }
+
+    return std::nullopt;
+}
+
 // 392988 - Divine Image
 class spell_pri_divine_image : public AuraScript
 {
@@ -477,24 +490,10 @@ class spell_pri_divine_image : public AuraScript
     {
         OnEffectProc += AuraEffectProcFn(spell_pri_divine_image::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
-
-public:
-    Optional<ObjectGuid> GetDivineImageGUID(Unit* caster)
-    {
-        for (Unit* summon : caster->m_Controlled)
-        {
-            if (summon->GetEntry() != NPC_PRIEST_DIVINE_IMAGE)
-                continue;
-
-            return summon->GetGUID();
-        }
-
-        return std::nullopt;
-    }
 };
 
 // 405216 - Divine Image (Spell Cast Check)
-class spell_pri_divine_image_spell_triggered : public spell_pri_divine_image
+class spell_pri_divine_image_spell_triggered : public AuraScript
 {
     PrepareAuraScript(spell_pri_divine_image_spell_triggered);
 
