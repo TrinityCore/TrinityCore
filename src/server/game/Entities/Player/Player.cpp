@@ -304,8 +304,6 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
 
     m_isActive = true;
 
-    m_runes = nullptr;
-
     m_lastFallTime = 0;
     m_lastFallZ = 0;
 
