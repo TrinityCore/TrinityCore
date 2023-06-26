@@ -5462,6 +5462,8 @@ bool AACenter::M_NonsuchItemFmValue(Player* player, Item* pItem, uint32 nonsuchI
                 }
             }
             std::vector<uint32> confids = aaCenter.aa_stat_zus[fmval_statzu];
+            //获取总chance，分母
+            uint32 chanceMax = 0;
             for (auto it = confids.begin(); it != confids.end();)
             {
                 AA_Stat stat_conf = aaCenter.aa_stats[*it];
@@ -5474,16 +5476,11 @@ bool AACenter::M_NonsuchItemFmValue(Player* player, Item* pItem, uint32 nonsuchI
                 }
                 else {
                     it++;
+                    chanceMax += stat_conf.chance;
                 }
             }
             if (confids.size() == 0) { break; }
-            //获取总chance，分母
-            uint32 chanceMax = 0;
-            for (auto it = confids.begin(); it != confids.end(); it++)
-            {
-                AA_Stat conf = aaCenter.aa_stats[*it];
-                chanceMax += conf.chance;
-            }
+
             if (chanceMax == 0) { chanceMax = 1; }
             //获取随机chance，分子
             uint32 chanceVal = rand() % chanceMax; uint32 max = 0; uint32 min = 0;
@@ -5555,7 +5552,7 @@ bool AACenter::M_NonsuchItemFmSpell(Player* player, Item* pItem, uint32 nonsuchI
     ItemTemplate const* pProto = pItem->GetTemplate();
     if (!pProto) return false;
 
-    AA_Item_Nonsuch conf = aaCenter.aa_item_nonsuchs[nonsuchId];
+    AA_Item_Nonsuch iconf = aaCenter.aa_item_nonsuchs[nonsuchId];
     AA_Character_Instance a_conf = aaCenter.aa_character_instances[pItem->GetGUIDLow()];
     if (type == 0) { //重铸
         if (a_conf.chongzhu_count == 0) {
@@ -5579,19 +5576,29 @@ bool AACenter::M_NonsuchItemFmSpell(Player* player, Item* pItem, uint32 nonsuchI
     //1、覆盖技能
     std::vector<int32> values; values.clear();
     uint32 last_count = 0;
-    if (conf.fmspell_count1 > 0 || conf.fmspell_count2 > 0) {
+    if (iconf.fmspell_count1 > 0 || iconf.fmspell_count2 > 0) {
         std::vector<uint32> confids; confids.clear();
         std::vector<int32> fmspell_spellzus; fmspell_spellzus.clear();
-        aaCenter.AA_StringToVectorInt(conf.fmspell_spellzu, fmspell_spellzus, ",");
-        bool isOneSpellInZu = conf.fmspell_count1 == conf.fmspell_count2 && conf.fmspell_only == 1 && conf.fmspell_count1 == fmspell_spellzus.size();
-        if (isOneSpellInZu) {
-            //if (conf.fmspell_only == 1 && fmspell_count == confidsCount && fmspell_count == fmspell_zuCount) {//当不重复附魔时，附魔数量等于附魔技能数组时，直接排序
-            //    sort(values.begin(), values.end());
-            //}
-            uint32 fmspell_count = conf.fmspell_count1;
+        std::vector<uint32> confids1; confids1.clear();
+        aaCenter.AA_StringToVectorInt(iconf.fmspell_spellzu, fmspell_spellzus, ",");
+        uint32 fmspell_count = iconf.fmspell_count1;
+        uint32 last_count_pre = 0;
+        bool isOk = true;
+        while (isOk)
+        {
             for (auto fmspell_spellzu : fmspell_spellzus) {
+                if (last_count >= fmspell_count) {
+                    isOk = false;
+                    break;
+                }
+                if (last_count_pre > 0 && last_count_pre == last_count) {
+                    isOk = false;
+                    break;
+                }
+                last_count_pre = last_count;
                 std::vector<uint32> confids1 = aaCenter.aa_spell_zus[fmspell_spellzu];
                 std::vector<uint32> tmp_confids; tmp_confids.clear();
+                uint32 chanceMax = 0;
                 for (auto it : confids1) {
                     AA_Spell conf = aaCenter.aa_spells[it];
                     if (conf.class1 != "-1") {
@@ -5618,17 +5625,17 @@ bool AACenter::M_NonsuchItemFmSpell(Player* player, Item* pItem, uint32 nonsuchI
                             continue;
                         }
                     }
+                    if (iconf.fmspell_only == 1) {
+                        if (std::find(values.begin(), values.end(), it) != values.end()) {
+                            continue;
+                        }
+                    }
+                    //获取总chance，分母
                     tmp_confids.push_back(it);
+                    chanceMax += conf.chance;
                 }
                 if (tmp_confids.size() == 0) {
                     break;
-                }
-                //获取总chance，分母
-                uint32 chanceMax = 0;
-                for (auto it = tmp_confids.begin(); it != tmp_confids.end(); it++)
-                {
-                    AA_Spell conf = aaCenter.aa_spells[*it];
-                    chanceMax += conf.chance;
                 }
                 if (chanceMax == 0) { chanceMax = 1; }
                 //获取随机chance，分子
@@ -5648,88 +5655,8 @@ bool AACenter::M_NonsuchItemFmSpell(Player* player, Item* pItem, uint32 nonsuchI
                 values.push_back(*rit);
                 last_count++;
             }
-            sort(values.begin(), values.end());
         }
-        else {
-            for (auto fmspell_spellzu : fmspell_spellzus) {
-                std::vector<uint32> confids1 = aaCenter.aa_spell_zus[fmspell_spellzu];
-                for (auto it : confids1) {
-                    AA_Spell conf = aaCenter.aa_spells[it];
-                    if (conf.class1 != "-1") {
-                        std::vector<int32> spells; spells.clear();
-                        aaCenter.AA_StringToVectorInt(conf.class1, spells, ",");
-                        if (std::find(spells.begin(), spells.end(), pProto->GetClass()) == spells.end())
-                        {
-                            continue;
-                        }
-                    }
-                    if (conf.subclass != "-1") {
-                        std::vector<int32> spells; spells.clear();
-                        aaCenter.AA_StringToVectorInt(conf.subclass, spells, ",");
-                        if (std::find(spells.begin(), spells.end(), pProto->GetSubClass()) == spells.end())
-                        {
-                            continue;
-                        }
-                    }
-                    if (conf.inventoryType != "-1") {
-                        std::vector<int32> inventoryTypes; inventoryTypes.clear();
-                        aaCenter.AA_StringToVectorInt(conf.inventoryType, inventoryTypes, ",");
-                        if (std::find(inventoryTypes.begin(), inventoryTypes.end(), pProto->GetInventoryType()) == inventoryTypes.end())
-                        {
-                            continue;
-                        }
-                    }
-                    confids.push_back(it);
-                }
-            }
-            uint32 fmspell_count = 0;
-            if (conf.fmspell_count1 >= conf.fmspell_count2) {
-                fmspell_count = conf.fmspell_count1;
-            }
-            else {
-                fmspell_count = (rand() % (conf.fmspell_count2 - conf.fmspell_count1 + 1)) + conf.fmspell_count1;
-            }
-            std::set<uint32> eraseid; eraseid.clear();
-            for (uint32 i = 0; i < fmspell_count; i++) {
-                for (auto it = confids.begin(); it != confids.end();)
-                {
-                    if (std::find(eraseid.begin(), eraseid.end(), *it) != eraseid.end()) {
-                        it = confids.erase(it);
-                    }
-                    else {
-                        it++;
-                    }
-                }
-                if (confids.size() == 0) { break; }
-                //获取总chance，分母
-                uint32 chanceMax = 0;
-                for (auto it = confids.begin(); it != confids.end(); it++)
-                {
-                    AA_Spell conf = aaCenter.aa_spells[*it];
-                    chanceMax += conf.chance;
-                }
-                if (chanceMax == 0) { chanceMax = 1; }
-                //获取随机chance，分子
-                uint32 chanceVal = rand() % chanceMax; uint32 max = 0; uint32 min = 0;
-                std::vector<uint32>::iterator rit;
-                for (auto it = confids.begin(); it != confids.end(); it++)
-                {
-                    AA_Spell conf = aaCenter.aa_spells[*it];
-                    max = conf.chance + max; min = 0;
-                    if (it == confids.begin()) { min = 0; }
-                    else {
-                        AA_Spell conf = aaCenter.aa_spells[*it - 1];
-                        min = conf.chance + min;
-                    }
-                    if (min <= chanceVal && chanceVal < max) { rit = it; break; }
-                }
-                values.push_back(*rit);
-                last_count++;
-                if (conf.fmspell_only == 1) {
-                    eraseid.insert(*rit);
-                }
-            }
-        }
+        sort(values.begin(), values.end());
         ObjectGuid::LowType guidlow = pItem->GetGUIDLow();
         time_t timep;
         time(&timep); /*当前time_t类型UTC时间*/
