@@ -5581,7 +5581,7 @@ bool AACenter::M_NonsuchItemFmSpell(Player* player, Item* pItem, uint32 nonsuchI
         std::vector<int32> fmspell_spellzus; fmspell_spellzus.clear();
         std::vector<uint32> confids1; confids1.clear();
         aaCenter.AA_StringToVectorInt(iconf.fmspell_spellzu, fmspell_spellzus, ",");
-        uint32 fmspell_count = iconf.fmspell_count1;
+        uint32 fmspell_count = (rand() % (iconf.fmspell_count2 - iconf.fmspell_count1 + 1)) + iconf.fmspell_count1;
         uint32 last_count_pre = 0;
         bool isOk = true;
         while (isOk)
