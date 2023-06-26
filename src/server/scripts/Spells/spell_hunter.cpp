@@ -439,25 +439,39 @@ class spell_hun_rapid_fire : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo(
-        {
-            SPELL_HUNTER_RAPID_FIRE_DAMAGE,
-            SPELL_HUNTER_RAPID_FIRE_ENERGIZE
-        });
+        return ValidateSpellInfo({ SPELL_HUNTER_RAPID_FIRE_DAMAGE });
     }
 
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
         if (Unit* caster = GetCaster())
-        {
             caster->CastSpell(GetTarget(), SPELL_HUNTER_RAPID_FIRE_DAMAGE, true);
-            caster->CastSpell(nullptr, SPELL_HUNTER_RAPID_FIRE_ENERGIZE, true);
-        }
     }
 
     void Register() override
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_rapid_fire::HandlePeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 257045 - Rapid Fire Damage
+class spell_hun_rapid_fire_damage : public SpellScript
+{
+    PrepareSpellScript(spell_hun_rapid_fire_damage);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_RAPID_FIRE_ENERGIZE });
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(nullptr, SPELL_HUNTER_RAPID_FIRE_ENERGIZE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_hun_rapid_fire_damage::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -675,6 +689,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_pet_heart_of_the_phoenix);
     RegisterSpellScript(spell_hun_posthaste);
     RegisterSpellScript(spell_hun_rapid_fire);
+    RegisterSpellScript(spell_hun_rapid_fire_damage);
     RegisterSpellScript(spell_hun_roar_of_sacrifice);
     RegisterSpellScript(spell_hun_scatter_shot);
     RegisterSpellScript(spell_hun_steady_shot);
