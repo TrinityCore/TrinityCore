@@ -443,6 +443,11 @@ class spell_dk_death_pact : public AuraScript
 {
     PrepareAuraScript(spell_dk_death_pact);
 
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
+    }
+
     void HandleCalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
     {
         if (Unit* caster = GetCaster())
