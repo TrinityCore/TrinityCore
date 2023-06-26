@@ -29,6 +29,7 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "World.h"
+#include "ObjectAccessor.h"
 
 void WorldSession::HandleSplitItemOpcode(WorldPackets::Item::SplitItem& splitItem)
 {
@@ -389,7 +390,11 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
     if (packet.ItemGUID.IsEmpty())
         return;
 
-    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(packet.VendorGUID, UNIT_NPC_FLAG_VENDOR, UNIT_NPC_FLAG_2_NONE);
+    Creature* creature = ObjectAccessor::GetCreatureOrPetOrVehicle(*GetPlayer(), aaCenter.aa_vendor_guid[_player->GetGUID()]);
+    if (!creature || creature->aa_vendor_entrys[_player->GetGUID()] == 0) {
+        creature = GetPlayer()->GetNPCIfCanInteractWith(packet.VendorGUID, UNIT_NPC_FLAG_VENDOR, UNIT_NPC_FLAG_2_NONE);
+    }
+
     if (!creature)
     {
         TC_LOG_DEBUG("network", "WORLD: HandleSellItemOpcode - {} not found or you can not interact with him.", packet.VendorGUID.ToString());
@@ -510,7 +515,11 @@ void WorldSession::HandleBuybackItem(WorldPackets::Item::BuyBackItem& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_BUYBACK_ITEM: Vendor {}, Slot: {}", packet.VendorGUID.ToString(), packet.Slot);
 
-    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(packet.VendorGUID, UNIT_NPC_FLAG_VENDOR, UNIT_NPC_FLAG_2_NONE);
+    Creature* creature = ObjectAccessor::GetCreatureOrPetOrVehicle(*GetPlayer(), aaCenter.aa_vendor_guid[_player->GetGUID()]);
+    if (!creature || creature->aa_vendor_entrys[_player->GetGUID()] == 0) {
+        creature = GetPlayer()->GetNPCIfCanInteractWith(packet.VendorGUID, UNIT_NPC_FLAG_VENDOR, UNIT_NPC_FLAG_2_NONE);
+    }
+
     if (!creature)
     {
         TC_LOG_DEBUG("network", "WORLD: HandleBuybackItem - Unit ({}) not found or you can not interact with him.", packet.VendorGUID.ToString());

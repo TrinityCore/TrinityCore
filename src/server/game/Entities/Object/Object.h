@@ -492,7 +492,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         uint32 aa_zhenshi_time = 0; //觉醒真实伤害间隔
         uint32 aa_xixue_time = 0; //觉醒吸血间隔
         uint32 aa_die_time = 0; //光环阻止死亡冷却
-        uint32 aa_vendor_entry = 0; //随身商人
+        std::unordered_map<uint32, uint32> aa_stat_values; //记录临时属性
+
+        std::unordered_map<ObjectGuid, uint32> aa_vendor_entrys; //随身商人
 
         std::map<uint32, std::set<uint32>> aa_auras;
 

@@ -12513,7 +12513,33 @@ void AACenter::LoadAAData_Characters()
 
 void AACenter::LoadAAData_World()
 {
-
+    {
+        TC_LOG_INFO("server.loading", "正在加载 _活动_答题x...");
+        uint32 oldMSTime = getMSTime();
+        aa_dati_confs.clear();
+        aa_dati_conf_zus.clear();
+        QueryResult result = WorldDatabase.Query("SELECT * FROM _活动_答题x ORDER BY id");
+        if (result) {
+            do {
+                Field* fields = result->Fetch();
+                AA_Dati_Conf conf;
+                conf.id = 0;// ` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '答题id',
+                conf.zu = 0;// 组` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '对应GM命令（.答题提问 组 限制答题时间秒）',
+                conf.chance = 0;// 随机几率` int(10) unsigned NOT NULL DEFAULT '100' COMMENT '公式：当前几率除以一个组的几率之和',
+                conf.title = "";// 题目内容` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+                conf.result = "";// 正确答案` enum('A', 'B', 'C', 'D') CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT 'A',
+                conf.a = "";// 选项A` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+                conf.b = "";// 选项B` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+                conf.c = "";// 选项C` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+                conf.d = "";// 选项D` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+                conf.gm_win = "";// 回答正确触发GM命令` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+                conf.gm_lose = "";// 回答错误触发GM命令`
+                aa_dati_confs[conf.id] = conf;
+                aa_dati_conf_zus[conf.zu].push_back(conf.id);
+            } while (result->NextRow());
+            TC_LOG_INFO("server.loading", ">> 成功加载 {}条 _活动_答题x 用时 {} 毫秒", (unsigned long)aa_dati_confs.size(), GetMSTimeDiffToNow(oldMSTime));
+        }
+    }
     {
         TC_LOG_INFO("server.loading", "正在加载 _模板_光环...");
         uint32 oldMSTime = getMSTime();
@@ -12882,6 +12908,7 @@ void AACenter::LoadAAData_World()
                 conf.die = fields[11].GetUInt32();
                 conf.dietime = fields[12].GetUInt32();
                 conf.zu = fields[13].GetUInt32();
+                conf.items = fields[14].GetString();
                 aa_aura_conf_zus[conf.zu].push_back(conf.spellid);
                 if (conf.die == 1) {
                     aaCenter.aa_aura_conf_dies.insert(conf.spellid);
@@ -14566,10 +14593,10 @@ void AACenter::LoadAAData_World()
                     aa_player_stats_conf_areas[conf.area][conf.class1] = conf.id;
                 }
                 if (conf.zone != -1) {
-                    aa_player_stats_conf_zones[conf.area][conf.class1] = conf.id;
+                    aa_player_stats_conf_zones[conf.zone][conf.class1] = conf.id;
                 }
                 if (conf.map != -1) {
-                    aa_player_stats_conf_maps[conf.area][conf.class1] = conf.id;
+                    aa_player_stats_conf_maps[conf.map][conf.class1] = conf.id;
                 }
                 if (conf.area == -1 && conf.zone == -1 && conf.map == -1) {
                     aa_player_stats_conf_alls[conf.class1] = conf.id;
@@ -18421,14 +18448,14 @@ bool AACenter::AA_Item_Shuangjia_Chaixie(Player* player, int32 lan, int32 index,
                                     }
                                 }
                             }
-                            player->ApplyItemEquipSpell(pItem, false);
-                            player->ApplyEnchantment(pItem, false);
                             pItem->SetOwnerGUID(player->GetGUID());
                             pItem->FSetState(ITEM_NEW);
                             player->StoreItem(dest, pItem, true);
                             pItem->SetState(ITEM_CHANGED, player);
                             pItem->SetBinding(true);
                         }
+                        player->ApplyItemEquipSpell(pItem, false);
+                        player->ApplyEnchantment(pItem, false);
                         aaCenter.aa_item_instances[guid].weizhi = "";
                         aaCenter.aa_item_instances[guid].update_time = timep;
                         aaCenter.aa_item_instances[guid].isUpdate = true;
@@ -18582,6 +18609,10 @@ std::unordered_map<uint32, AA_Biwu_Team> AACenter::AA_Biwu_Fenzu()
             aaCenter.aa_biwu_score[p->GetGUIDLow()] += 2;
             std::string msg = "|cff00FFFF[比武擂台]|cffFFFF00恭喜你，获得躺赢资格，请等待下一轮开始。";
             aaCenter.AA_SendMessage(p, 0, msg.c_str());
+            AA_Biwu_Conf conf = aaCenter.aa_biwu_confs[aaCenter.aa_biwu_event_id];
+            if (conf.gm_win != "" && conf.gm_win != "0") {
+                aaCenter.AA_DoCommand(p, conf.gm_win.c_str());
+            }
         }
         i++;
     }

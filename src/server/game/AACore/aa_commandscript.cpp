@@ -235,9 +235,97 @@ public:
             { "清理缓存" ,AA_qinglihuancun, LANG_AA_qinglihuancun, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
             { "qlhc" ,AA_qinglihuancun, LANG_AA_qinglihuancun, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
             { "变量" ,AA_bianliang, LANG_AA_bianliang, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
-            { "bl" ,AA_bianliang, LANG_AA_bianliang, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes}
+            { "bl" ,AA_bianliang, LANG_AA_bianliang, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes},
+            { "答题" ,AA_dati, LANG_AA_dati, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes },
+            { "dt" ,AA_dati, LANG_AA_dati, rbac::RBAC_ROLE_GAMEMASTER, Console::Yes }
         };
         return commandTable;
+    }
+
+    static bool AA_dati(ChatHandler* handler, const char* args)
+    {
+        Player* player = handler->GetSession()->GetPlayer();
+        if (!player)
+        {
+            handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+        if (!aaCenter.AA_VerifyCode("a400b")) {
+            aaCenter.AA_SendMessage(player, 1, "|cff00FFFF[系统提示]|cffFF0000请联系QQ643125009开通!");
+            return false;
+        }
+
+        char* zustr = strtok((char*)args, " ");
+        char* typestr = strtok(nullptr, " ");
+
+        if (!zustr) {
+            ChatHandler(handler->GetSession()).PSendSysMessage("语法格式:.答题 参数1（_活动_答题x_组） 参数2（限制时间 单位秒，不填默认30秒）");
+            return false;
+        }
+
+        uint32 time = 30;
+        if (typestr) {
+            time = uint32(std::atoi(typestr));
+        }
+
+        int32 zu = int32(std::atoi(zustr));
+        AA_Dati_Conf conf;
+        std::vector<uint32> conf_ids = aaCenter.aa_dati_conf_zus[zu];
+        //获取总chance，分母
+        int count = conf_ids.size();
+        if (count) {
+            uint32 chanceMax = 0;
+            for (int i = 0; i < count; i++) {
+                uint32 id = conf_ids[i];
+                AA_Dati_Conf conf = aaCenter.aa_dati_confs[id];
+                chanceMax += conf.chance;
+            }
+            if (chanceMax == 0) { chanceMax = 1; }
+            //获取随机chance，分子
+            uint32 chanceVal = rand() % chanceMax;
+            //获取Index
+            uint32 max = 0;
+            uint32 min = 0;
+            int index = -1;
+            for (int i = 0; i < count; i++) {
+                uint32 id = conf_ids[i];
+                AA_Dati_Conf conf = aaCenter.aa_dati_confs[id];
+                max = conf.chance + max;
+                min = 0;
+                if (i == 0) {
+                    min = 0;
+                }
+                else {
+                    uint32 id = conf_ids[i - 1];
+                    AA_Dati_Conf conf = aaCenter.aa_dati_confs[id];
+                    min = conf.chance + min;
+                }
+
+                if (min <= chanceVal && chanceVal < max) {
+                    index = i;
+                    break;
+                }
+            }
+            uint32 id = conf_ids[index];
+            conf = aaCenter.aa_dati_confs[id];
+        }
+
+        if (conf.id > 0) {
+            aaCenter.aa_dati_ok.clear();
+            aaCenter.aa_dati_first_name = "";
+            aaCenter.aa_dati_id = conf.id;
+            aaCenter.aa_dati_Time = time * 1000;
+            aaCenter.AA_SendMessage(nullptr, 0, "╔┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈╗");
+            aaCenter.AA_SendMessage(nullptr, 0, "· 有奖问答：请在聊天框输入答案：A，B，C，D");
+            std::string timestr = "· 你有" + std::to_string(time) + "秒的作答时间。";
+            aaCenter.AA_SendMessage(nullptr, 0, timestr.c_str());
+            std::string title = "· 问：" + conf.title;
+            aaCenter.AA_SendMessage(nullptr, 0, title.c_str());
+            aaCenter.AA_SendMessage(nullptr, 0, "╚┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈╝");
+        }
+
+        return true;
     }
     static bool AA_HandleCastCommand(ChatHandler* handler, const char* args)
     {
@@ -2920,6 +3008,10 @@ public:
         if (vip_conf.reward > 0) {
             aaCenter.M_Reward(player, vip_conf.reward);
         }
+        time_t timep;
+        time(&timep);
+        aaCenter.aa_accounts[accountid].update_time = timep;
+        aaCenter.aa_accounts[accountid].isUpdate = true;
         if (vip_conf.notice > 0) {
             AA_Message aa_message;
             AA_Notice notice = aaCenter.aa_notices[vip_conf.notice];
@@ -4235,7 +4327,7 @@ public:
 
         player->GetSession()->SendTrainerList(unit, entry);
 
-        unit->aa_vendor_entry = entry;
+        unit->aa_vendor_entrys[player->GetGUID()] = entry;
         return true;
     }
 
@@ -4293,7 +4385,7 @@ public:
         player->GetSession()->SendListInventory(vendor->GetGUID(), entry);
 
         aaCenter.aa_vendor_guid[player->GetGUID()] = pet->GetGUID();
-        pet->aa_vendor_entry = entry;
+        pet->aa_vendor_entrys[player->GetGUID()] = entry;
         return true;
     };
     static bool AA_xianshishangren(ChatHandler* handler, char const* args)
@@ -4326,8 +4418,8 @@ public:
         }
 
         player->GetSession()->SendListInventory(vendor->GetGUID(), entry);
-        
-        vendor->aa_vendor_entry = entry;
+
+        vendor->aa_vendor_entrys[player->GetGUID()] = entry;
         return true;
     };
 

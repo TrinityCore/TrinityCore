@@ -23753,7 +23753,7 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
         return false;
 
     Creature* creature = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, aaCenter.aa_vendor_guid[GetGUID()]);
-    if (!creature || creature->aa_vendor_entry == 0) {
+    if (!creature || creature->aa_vendor_entrys[GetGUID()] == 0) {
         creature = GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR, UNIT_NPC_FLAG_2_NONE);
     }
 

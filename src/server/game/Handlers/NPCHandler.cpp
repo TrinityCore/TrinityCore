@@ -126,7 +126,7 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPackets::NPC::TrainerBuySpel
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_TRAINER_BUY_SPELL {}, learn spell id is: {}", packet.TrainerGUID.ToString(), packet.SpellID);
 
     Creature* npc = ObjectAccessor::GetCreatureOrPetOrVehicle(*GetPlayer(), aaCenter.aa_vendor_guid[_player->GetGUID()]);
-    if (!npc || npc->aa_vendor_entry == 0) {
+    if (!npc || npc->aa_vendor_entrys[GetPlayer()->GetGUID()] == 0) {
         npc = GetPlayer()->GetNPCIfCanInteractWith(packet.TrainerGUID, UNIT_NPC_FLAG_TRAINER, UNIT_NPC_FLAG_2_NONE);
     }
 
@@ -195,8 +195,8 @@ void WorldSession::HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet)
         _player->SendPreparedGossip(unit);
     }
 
-    if (unit->aa_vendor_entry > 0 && unit->ToCreature() && unit->ToCreature()->GetEntry() == 36911) {
-        std::string gm = ".组合 *.展示商人 " + std::to_string(unit->aa_vendor_entry) + "<$自身>";
+    if (unit->aa_vendor_entrys[_player->GetGUID()] > 0 && unit->ToCreature() && unit->ToCreature()->GetEntry() == 36911) {
+        std::string gm = ".组合 *.展示商人 " + std::to_string(unit->aa_vendor_entrys[_player->GetGUID()]) + "<$自身>";
         aaCenter.AA_DoCommand(_player, gm.c_str());
     }
 }

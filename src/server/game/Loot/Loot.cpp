@@ -34,6 +34,7 @@
 #include "World.h"
 #include "WorldSession.h"
 #include "GameObject.h"
+#include "SpellAuras.h"
 
 //
 // --------- LootItem ---------
@@ -947,6 +948,33 @@ void Loot::AddItem(LootStoreItem const& item)
 
                 if (aaCenter.AA_FindMapValueUint32(p->aa_fm_values, 402) > 0) {
                     shuliang += aaCenter.AA_FindMapValueUint32(p->aa_fm_values, 402);
+                }
+            }
+
+            //如果光环对物品多倍掉落有筛选要求。
+            Unit::AuraApplicationMap const& Auras = p->GetAppliedAuras();
+            for (Unit::AuraApplicationMap::const_iterator itr = Auras.begin(); itr != Auras.end(); ++itr)
+            {
+                // we assume that all auras are applied now, aurastate was modfied MANUALY preventing any apply/unapply state switching
+                Aura* aura = itr->second->GetBase();
+                SpellInfo const* m_spellInfo = aura->GetSpellInfo();
+                if (m_spellInfo && m_spellInfo->Id > 0) {
+                    AA_Aura_Conf conf = aaCenter.aa_aura_confs[m_spellInfo->Id];
+                    if (conf.items != "" && conf.items != "0") {
+                        if (conf.values != "" && conf.values != "0") {
+                            std::map<int32, int32> m; m.clear();
+                            aaCenter.AA_StringToMap(conf.values, m);
+                            float shuliang_chance1 = m[403];
+                            float shuliang1 = m[402];
+                            if (shuliang_chance1 > chance && shuliang1 > 0) {
+                                std::vector<int32> entrys; entrys.clear();
+                                aaCenter.AA_StringToVectorInt(conf.items, entrys, ",");
+                                if (std::find(entrys.begin(), entrys.end(), item.itemid) != entrys.end()) {
+                                    shuliang = shuliang1;
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -328,6 +328,18 @@ void Player::UpdateMaxHealth()
     value *= GetPctModifierValue(unitMod, BASE_PCT);
     //aawow 职业属性平衡,耐力加血量开关
     if (aaCenter.aa_world_confs[17].value1 == 1) {
+        if (aaCenter.aa_world_confs[17].value2 != "" && aaCenter.aa_world_confs[17].value2 != "0") {
+            if (aaCenter.AA_VerifyCode("a401b")) {
+                //耐力加血量百分比
+                float v = std::atof(aaCenter.aa_world_confs[17].value2.c_str());
+                if (v > 0) {
+                    value += GetFlatModifierValue(unitMod, TOTAL_VALUE) + GetStat(STAT_STAMINA) * v;
+                }
+            }
+        }
+        else {
+            value += GetFlatModifierValue(unitMod, TOTAL_VALUE) + GetHealthBonusFromStamina();
+        }
         value += GetFlatModifierValue(unitMod, TOTAL_VALUE) + GetHealthBonusFromStamina();
     }
     else {
@@ -792,6 +804,14 @@ void Player::UpdateDodgePercentage()
     AA_Player_Stats_Conf conf = aaCenter.AA_GetPlayerStatConfWithMap(this);
     if (aaCenter.aa_world_confs[13].value1 == 1) {
         GetDodgeFromAgility(diminishing, nondiminishing);
+    }
+
+    if (aaCenter.AA_VerifyCode("a401b")) {
+        //敏捷加躲闪百分比
+        float v = std::atof(aaCenter.aa_world_confs[13].value2.c_str());
+        if (v > 0) {
+            diminishing = GetStat(STAT_AGILITY) * v;
+        }
     }
 
     // Dodge from SPELL_AURA_MOD_DODGE_PERCENT aura

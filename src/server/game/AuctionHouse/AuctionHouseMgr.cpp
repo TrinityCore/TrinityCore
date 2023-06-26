@@ -1871,6 +1871,7 @@ void AuctionHouseObject::SendAuctionSold(AuctionPosting const* auction, Player* 
             time_t timep;
             time(&timep); /*当前time_t类型UTC时间*/
             aaCenter.aa_accounts[accountid].update_time = timep;
+            aaCenter.aa_accounts[accountid].isUpdate = true;
             if (owner && owner->IsInWorld()) {
                 std::string jf = "|cff00FFFF["+danwei+"拍卖]|你获得了"+aaCenter.aa_color_blue+"["+aaCenter.aa_world_confs[63].value2+"]|r"+aaCenter.aa_color_yellow+" x "+std::to_string(token)+"|r";
                 aaCenter.AA_SendMessage(owner, 2, jf.c_str());
@@ -1880,6 +1881,7 @@ void AuctionHouseObject::SendAuctionSold(AuctionPosting const* auction, Player* 
             time_t timep;
             time(&timep); /*当前time_t类型UTC时间*/
             aaCenter.aa_accounts[accountid].update_time = timep;
+            aaCenter.aa_accounts[accountid].isUpdate = true;
             if (owner && owner->IsInWorld()) {
                 std::string jf = "|cff00FFFF["+danwei+"拍卖]|你获得了"+aaCenter.aa_color_blue+"["+aaCenter.aa_world_confs[64].value2+"]|r"+aaCenter.aa_color_yellow+" x "+std::to_string(token)+"|r";
                 aaCenter.AA_SendMessage(owner, 2, jf.c_str());
@@ -1889,6 +1891,7 @@ void AuctionHouseObject::SendAuctionSold(AuctionPosting const* auction, Player* 
             time_t timep;
             time(&timep); /*当前time_t类型UTC时间*/
             aaCenter.aa_accounts[accountid].update_time = timep;
+            aaCenter.aa_accounts[accountid].isUpdate = true;
             if (owner && owner->IsInWorld()) {
                 std::string jf = "|cff00FFFF["+danwei+"拍卖]|你获得了"+aaCenter.aa_color_blue+"["+aaCenter.aa_world_confs[65].value2+"]|r"+aaCenter.aa_color_yellow+" x "+std::to_string(token)+"|r";
                 aaCenter.AA_SendMessage(owner, 2, jf.c_str());

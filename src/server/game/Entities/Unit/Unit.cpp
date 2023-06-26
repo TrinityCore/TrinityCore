@@ -956,6 +956,24 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
             // 杀人触发
             {
                 if (attacker && victim) {
+                    //比武大赛，有一定几率出Bug，把人打死
+                    {
+                        Player* attacker_a = victim->ToPlayer();
+                        Player* attacker_v = attacker->ToPlayer();
+                        if (attacker_a && attacker_v) {
+                            if (attacker_a->aa_biwu_teamid > 0 && attacker_v->aa_biwu_teamid > 0)
+                            {
+                                aaCenter.aa_biwu_score[attacker_a->GetGUIDLow()] += 2;
+                                aaCenter.aa_biwu_score[attacker_v->GetGUIDLow()] += 1;
+                                if (attacker_v) {
+                                    attacker_v->DuelComplete(DUEL_FLED);
+                                }
+                                aaCenter.aa_biwu_winners.erase(attacker_v->GetGUIDLow());
+                                return 0;
+                            }
+                        }
+                    }
+
                     Player* attacker_a = nullptr;
                     Player* attacker_v = victim->ToPlayer();
                     if (Creature *c = victim->ToCreature()) {
@@ -1660,6 +1678,11 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                     if (conf.jnshsx > 0 && damage > conf.jnshsx) {
                         damageInfo->damage = conf.jnshsx;
                     }
+                    conf = aaCenter.AA_GetPlayerStatConfWithMap(victim);
+                    //职业调整 pvp减伤
+                    if (conf.jianshangpvp != 0 && conf.jianshangpvp != 100) {
+                        damageInfo->damage *= (conf.jianshangpvp / 100.0);
+                    }
                 }
             }
             else {
@@ -1699,6 +1722,11 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                     }
                     if (conf.jnshsx > 0 && damageInfo->damage > conf.jnshsx) {
                         damageInfo->damage = conf.jnshsx;
+                    }
+                    conf = aaCenter.AA_GetPlayerStatConfWithMap(victim);
+                    //职业调整 pve减伤
+                    if (conf.jianshangpve != 0 && conf.jianshangpve != 100) {
+                        damageInfo->damage *= (conf.jianshangpve / 100.0);
                     }
                 }
             }
@@ -6907,6 +6935,45 @@ void Unit::SetMinion(Minion *minion, bool apply)
         minion->SetOwnerGUID(GetGUID());
 
         m_Controlled.insert(minion);
+
+        if (GetTypeId() == TYPEID_PLAYER)
+        {
+            Pet* pet = minion->ToPet();
+            if (pet) {
+                AA_Pet_Conf p_conf;
+                float minjie = GetStat(STAT_AGILITY);
+                float liliang = GetStat(STAT_STRENGTH);
+                float zhili = GetStat(STAT_INTELLECT);
+                float naili = GetStat(STAT_STAMINA);
+                float hujia = GetArmor();
+                float mana = GetCreateMana();
+                p_conf = aaCenter.aa_pet_confs[GetClass()];
+                if (p_conf.class1 > 0) {
+                    minjie = p_conf.agility > 0 ? minjie * p_conf.agility * 0.01 : minjie;
+                    liliang = p_conf.strength > 0 ? liliang * p_conf.strength * 0.01 : liliang;
+                    zhili = p_conf.intellect > 0 ? zhili * p_conf.intellect * 0.01 : zhili;
+                    naili = p_conf.stamina > 0 ? naili * p_conf.stamina * 0.01 : naili;
+
+                    float baseStam = naili < 20 ? naili : 20;
+                    float moreStam = naili - baseStam;
+                    pet->SetCreateHealth(baseStam + (moreStam * 10.0f));
+                    pet->SetStatFlatModifier(UNIT_MOD_HEALTH, BASE_VALUE, pet->GetCreateHealth());
+                    pet->SetCreateMana(mana);
+                    pet->SetStatFlatModifier(UNIT_MOD_MANA, BASE_VALUE, pet->GetCreateMana());
+                    pet->SetStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, hujia);
+
+                    pet->SetCreateStat(STAT_STRENGTH, liliang);
+                    pet->SetCreateStat(STAT_AGILITY, minjie);
+                    pet->SetCreateStat(STAT_STAMINA, naili);
+                    pet->SetCreateStat(STAT_INTELLECT, zhili);
+
+                    pet->UpdateStats(STAT_STRENGTH);
+                    pet->UpdateStats(STAT_AGILITY);
+                    pet->UpdateStats(STAT_STAMINA);
+                    pet->UpdateStats(STAT_INTELLECT);
+                }
+            }
+        }
 
         if (GetTypeId() == TYPEID_PLAYER)
         {

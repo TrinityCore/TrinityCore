@@ -829,6 +829,7 @@ struct AA_Aura_Conf
     uint32 die = 0;
     uint32 dietime = 0;
     uint32 zu = 0; //光环唯一组
+    std::string items = "";
 };
 
 struct AA_Spell_Conf
@@ -2272,6 +2273,10 @@ public:
     //答题
     std::unordered_map<uint32, AA_Dati_Conf> aa_dati_confs;
     std::unordered_map<uint32, std::vector<uint32>> aa_dati_conf_zus;
+    std::unordered_map<ObjectGuid, bool> aa_dati_ok;
+    std::string aa_dati_first_name = "";
+    uint32 aa_dati_id = 0;
+    uint32 aa_dati_Time = 0;
 
 private:
     AACenter() {

@@ -137,19 +137,37 @@ public:
                     break;
                 }
             }
-            if (isOk) {
-                show_teleport(player, item, action);
-            }
-            else {
-                show_teleport(player, item, sender);
-            }
 
-            aaCenter.AA_TelScript(player, conf);
             if (conf.notice > 0) {
                 AA_Message aa_message;
                 AA_Notice notice = aaCenter.aa_notices[conf.notice];
                 aaCenter.AA_SendNotice(player, notice, true, aa_message);
             }
+
+            aaCenter.AA_TelScript(player, conf);
+
+            if (conf.gm.find("展示商人") != std::string::npos || conf.gm.find("展示训练师") != std::string::npos ||
+                conf.gm.find("随身商人") != std::string::npos ||
+                conf.gm.find("个人银行") != std::string::npos || conf.gm.find("个人邮箱") != std::string::npos ||
+                conf.gm.find("zssr") != std::string::npos || conf.gm.find("zsxls") != std::string::npos ||
+                conf.gm.find("sssr") != std::string::npos ||
+                conf.gm.find("gryh") != std::string::npos || conf.gm.find("gryx") != std::string::npos) {
+                return true;
+            }
+
+            if (item && item->IsInWorld()) {
+                if (isOk) {
+                    show_teleport(player, item, action);
+                }
+                else {
+                    show_teleport(player, item, sender);
+                }
+            }
+            else {
+                CloseGossipMenuFor(player);
+                return true;
+            }
+
             // 需要关闭页面
             if (conf.script == "宝石拆卸1号" ||
                 conf.script == "宝石拆卸2号" ||

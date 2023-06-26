@@ -2817,6 +2817,18 @@ void World::SetInitialWorldSettings()
         else {
             TC_LOG_INFO("server.loading", ">> 『 UI集结号 』 → 验证失败  〔2.0k    特制功能   定制用户：AA〕");
         }
+        if (aaCenter.AA_VerifyCode("a400b")) {
+            TC_LOG_INFO("server.loading", ">> 『 答题活动 』 → 验证通过  〔1.0k    特制功能   定制用户：蚂蚁〕");
+        }
+        else {
+            TC_LOG_INFO("server.loading", ">> 『 答题活动 』 → 验证失败  〔1.0k    特制功能   定制用户：蚂蚁〕");
+        }
+        if (aaCenter.AA_VerifyCode("a401b")) {
+            TC_LOG_INFO("server.loading", ">> 『 属性配置 』 → 验证通过  〔1.0k    特制功能   定制用户：酸酸〕");
+        }
+        else {
+            TC_LOG_INFO("server.loading", ">> 『 属性配置 』 → 验证失败  〔1.0k    特制功能   定制用户：酸酸〕");
+        }
         TC_LOG_INFO("server.loading", ">> 其他众多脑洞功能，都可以通过功能之间的相互搭配来自由创作，比如：『 国战玩法 』，『 罪魂之塔 』，『 公会战系统 』，『 阵营战系统 』，『 跑酷玩法 』，『 温泉泡点 』，『 空中比赛 』");
 
         TC_LOG_INFO("server.loading", ">> QQ:643125009，声明：本模拟器不做任何商业盈利用途。只用作个人爱好研究 如有使用本模拟器商业非法盈利产生不法行为概不负责。");
@@ -2907,6 +2919,15 @@ void World::Update(uint32 diff)
     std::set<Player*> players = aaCenter.GetOnlinePlayers();
 
     if (aa_second_2 >= 2000) {
+        //答题
+        if (aaCenter.aa_dati_confs.size() > 0) {
+            if (aaCenter.aa_dati_Time > 0) {
+                aaCenter.aa_dati_Time = aaCenter.aa_dati_Time > aa_second_2 ? aaCenter.aa_dati_Time - aa_second_2 : 0;
+                if (aaCenter.aa_dati_Time == 0) {
+                    aaCenter.aa_dati_id = 0;
+                }
+            }
+        }
         // 自动组队
         if (aaCenter.aa_xitong_groups.size() > 0) {
             for (auto itr : aaCenter.aa_xitong_groups) {
@@ -3058,7 +3079,7 @@ void World::Update(uint32 diff)
                         }
                         for (auto p : ps) {
                             //执行gm命令
-                            if (conf.gm != "" && conf.gm != "") {
+                            if (conf.gm != "" && conf.gm != "0") {
                                 aaCenter.AA_DoCommand(p, conf.gm.c_str());
                             }
                         }
@@ -3225,27 +3246,31 @@ void World::Update(uint32 diff)
     if (aa_minute_1 > 60000) {
         //排行奖励
         if (aaCenter.AA_VerifyCode("a200b")) {
-            time_t time1 = time(NULL);//获取系统时间，单位为秒;
-            struct tm* time = localtime(&time1);//转换成tm类型的结构体;
-            if (time->tm_hour == int(aaCenter.aa_world_confs[72].value1)) {
-                if (isPaihang == false) {
-                    aaCenter.AA_PaihangReward();
-                    aaCenter.aa_jishas.clear();
-                    aaCenter.aa_renwus.clear();
-                    CharacterDatabase.Execute("UPDATE _玩家排行数据x set 每日战场击杀 = 0, 每日完成任务 = 0");
-                    isPaihang = true;
-                    std::string msg = "|cff00FFFF[系统提示]|排行奖励已经全部发放，下次发放时间为次日" + std::to_string(aaCenter.aa_world_confs[72].value1) + "点";
-                    aaCenter.AA_SendMessage(nullptr, 2, msg.c_str());
-                    aaCenter.AA_SendMessage(nullptr, 2, msg.c_str());
-                    aaCenter.AA_SendMessage(nullptr, 2, msg.c_str());
+            if (aaCenter.aa_paihangxs.size() > 0 ||
+                aaCenter.aa_paihangx_guids.size() > 0 ||
+                aaCenter.aa_paihangx_accounts.size() > 0) {
+                time_t time1 = time(NULL);//获取系统时间，单位为秒;
+                struct tm* time = localtime(&time1);//转换成tm类型的结构体;
+                if (time->tm_hour == int(aaCenter.aa_world_confs[72].value1)) {
+                    if (isPaihang == false) {
+                        aaCenter.AA_PaihangReward();
+                        aaCenter.aa_jishas.clear();
+                        aaCenter.aa_renwus.clear();
+                        CharacterDatabase.Execute("UPDATE _玩家排行数据x set 每日战场击杀 = 0, 每日完成任务 = 0");
+                        isPaihang = true;
+                        std::string msg = "|cff00FFFF[系统提示]|排行奖励已经全部发放，下次发放时间为次日" + std::to_string(aaCenter.aa_world_confs[72].value1) + "点";
+                        aaCenter.AA_SendMessage(nullptr, 2, msg.c_str());
+                        aaCenter.AA_SendMessage(nullptr, 2, msg.c_str());
+                        aaCenter.AA_SendMessage(nullptr, 2, msg.c_str());
+                    }
                 }
-            }
-            else {
-                isPaihang = false;
-            }
+                else {
+                    isPaihang = false;
+                }
 
-            if (aaCenter.AA_VerifyCode("a207b")) {
-                aaCenter.AA_PaihangReward(true);
+                if (aaCenter.AA_VerifyCode("a207b")) {
+                    aaCenter.AA_PaihangReward(true);
+                }
             }
         }
 
