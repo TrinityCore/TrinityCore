@@ -899,13 +899,13 @@ void ObjectMgr::LoadCreatureTemplateSparring()
 
         if (!sObjectMgr->GetCreatureTemplate(entry))
         {
-            TC_LOG_ERROR("sql.sql", "Creature template (Entry: %u) does not exist but has a record in `creature_template_sparring`", entry);
+            TC_LOG_ERROR("sql.sql", "Creature template (Entry: {}) does not exist but has a record in `creature_template_sparring`", entry);
             continue;
         }
 
         if (noNPCDamageBelowHealthPct <= 0 || noNPCDamageBelowHealthPct > 100)
         {
-            TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has invalid NoNPCDamageBelowHealthPct (%f) defined in `creature_template_sparring`. Skipping",
+            TC_LOG_ERROR("sql.sql", "Creature (Entry: {}) has invalid NoNPCDamageBelowHealthPct (%f) defined in `creature_template_sparring`. Skipping",
                 entry, noNPCDamageBelowHealthPct);
             continue;
         }
@@ -914,7 +914,7 @@ void ObjectMgr::LoadCreatureTemplateSparring()
         ++count;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u creature template sparring rows in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} creature template sparring rows in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadCreatureTemplateDifficulty()

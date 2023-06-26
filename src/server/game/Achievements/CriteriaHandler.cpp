@@ -2017,7 +2017,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             return false;
         case ModifierTreeType::WorldStateExpression: // 67
             if (WorldStateExpressionEntry const* worldStateExpression = sWorldStateExpressionStore.LookupEntry(reqValue))
-                return ConditionMgr::IsPlayerMeetingExpression(referencePlayer, worldStateExpression);
+                return ConditionMgr::IsMeetingWorldStateExpression(referencePlayer->GetMap(), worldStateExpression);
             return false;
         case ModifierTreeType::DungeonDifficulty: // 68
             if (referencePlayer->GetMap()->GetDifficultyID() != reqValue)
