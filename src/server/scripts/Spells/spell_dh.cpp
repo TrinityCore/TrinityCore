@@ -161,6 +161,7 @@ enum DemonHunterSpells
     SPELL_DH_SOUL_CLEAVE                           = 228477,
     SPELL_DH_SOUL_CLEAVE_DMG                       = 228478,
     SPELL_DH_SOUL_FRAGMENT_COUNTER                 = 203981,
+    SPELL_DH_SOUL_FURNACE_DAMAGE_BUFF              = 391172,
     SPELL_DH_SOUL_RENDING                          = 204909,
     SPELL_DH_SPIRIT_BOMB_DAMAGE                    = 218677,
     SPELL_DH_SPIRIT_BOMB_HEAL                      = 227255,
@@ -443,6 +444,58 @@ class spell_dh_glide_timer : public AuraScript
     }
 };
 
+// 391166 - Soul Furnace
+class spell_dh_soul_furnace : public AuraScript
+{
+    PrepareAuraScript(spell_dh_soul_furnace);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_SOUL_FURNACE_DAMAGE_BUFF });
+    }
+
+    void CalculateSpellMod(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetStackAmount() == GetAura()->CalcMaxStackAmount())
+        {
+            GetTarget()->CastSpell(GetTarget(), SPELL_DH_SOUL_FURNACE_DAMAGE_BUFF, true);
+            Remove();
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_dh_soul_furnace::CalculateSpellMod, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+    }
+};
+
+// 339424 - Soul Furnace
+class spell_dh_soul_furnace_conduit : public AuraScript
+{
+    PrepareAuraScript(spell_dh_soul_furnace_conduit);
+
+    void CalculateSpellMod(AuraEffect const* aurEff, SpellModifier*& spellMod)
+    {
+        if (aurEff->GetAmount() == 10)
+        {
+            if (!spellMod)
+            {
+                spellMod = new SpellModifierByClassMask(GetAura());
+                spellMod->op = SpellModOp::HealingAndDamage;
+                spellMod->type = SPELLMOD_PCT;
+                spellMod->spellId = GetId();
+                static_cast<SpellModifierByClassMask*>(spellMod)->mask = flag128(0x80000000);
+                static_cast<SpellModifierByClassMask*>(spellMod)->value = GetEffect(EFFECT_1)->GetAmount() + 1;
+            }
+        }
+    }
+
+    void Register() override
+    {
+        DoEffectCalcSpellMod += AuraEffectCalcSpellModFn(spell_dh_soul_furnace_conduit::CalculateSpellMod, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_demon_hunter_spell_scripts()
 {
     RegisterSpellScript(spell_dh_chaos_strike);
@@ -468,9 +521,14 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_blade_dance);
     RegisterSpellScript(spell_dh_blade_dance_damage);
 
+    // Vengeance
+    RegisterSpellScript(spell_dh_soul_furnace);
+
     // Vengeance & Havoc
 
     RegisterSpellAndAuraScriptPair(spell_dh_glide, spell_dh_glide_AuraScript);
     RegisterSpellScript(spell_dh_glide_timer);
 
+    // Soulbind conduits
+    RegisterSpellScript(spell_dh_soul_furnace_conduit);
 }

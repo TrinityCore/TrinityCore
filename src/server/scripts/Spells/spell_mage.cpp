@@ -57,7 +57,9 @@ enum MageSpells
     SPELL_MAGE_CONJURE_REFRESHMENT               = 116136,
     SPELL_MAGE_CONJURE_REFRESHMENT_TABLE         = 167145,
     SPELL_MAGE_DRAGONHAWK_FORM                   = 32818,
+    SPELL_MAGE_ETHEREAL_BLINK                    = 410939,
     SPELL_MAGE_EVERWARM_SOCKS                    = 320913,
+    SPELL_MAGE_FEEL_THE_BURN                     = 383391,
     SPELL_MAGE_FINGERS_OF_FROST                  = 44544,
     SPELL_MAGE_FIRE_BLAST                        = 108853,
     SPELL_MAGE_FIRESTARTER                       = 205026,
@@ -71,6 +73,7 @@ enum MageSpells
     SPELL_MAGE_LIVING_BOMB_PERIODIC              = 217694,
     SPELL_MAGE_MANA_SURGE                        = 37445,
     SPELL_MAGE_MASTER_OF_TIME                    = 342249,
+    SPELL_MAGE_RADIANT_SPARK_PROC_BLOCKER        = 376105,
     SPELL_MAGE_RAY_OF_FROST_BONUS                = 208141,
     SPELL_MAGE_RAY_OF_FROST_FINGERS_OF_FROST     = 269748,
     SPELL_MAGE_REVERBERATE                       = 281482,
@@ -79,7 +82,10 @@ enum MageSpells
     SPELL_MAGE_RING_OF_FROST_SUMMON              = 113724,
     SPELL_MAGE_SERPENT_FORM                      = 32817,
     SPELL_MAGE_SHEEP_FORM                        = 32820,
+    SPELL_MAGE_SHIMMER                           = 212653,
+    SPELL_MAGE_SLOW                              = 31589,
     SPELL_MAGE_SQUIRREL_FORM                     = 32813,
+    SPELL_MAGE_SUPERNOVA                         = 157980,
     SPELL_MAGE_WORGEN_FORM                       = 32819,
     SPELL_PET_NETHERWINDS_FATIGUED               = 160455,
     SPELL_MAGE_ICE_LANCE_TRIGGER                 = 228598,
@@ -589,6 +595,121 @@ class spell_mage_conjure_refreshment : public SpellScript
     }
 };
 
+// 410939 - Ethereal Blink
+class spell_mage_ethereal_blink : public AuraScript
+{
+    PrepareAuraScript(spell_mage_ethereal_blink);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_BLINK, SPELL_MAGE_SHIMMER });
+    }
+
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& procInfo)
+    {
+        PreventDefaultAction();
+
+        // this proc only works for players because teleport relocation happens after an ACK
+        GetTarget()->CastSpell(*procInfo.GetProcSpell()->m_targets.GetDst(), aurEff->GetSpellEffectInfo().TriggerSpell, CastSpellExtraArgs(aurEff)
+            .SetTriggeringSpell(procInfo.GetProcSpell())
+            .SetCustomArg(GetTarget()->GetPosition()));
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_mage_ethereal_blink::HandleProc, EFFECT_1, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
+// 410941 - Ethereal Blink
+class spell_mage_ethereal_blink_triggered : public SpellScript
+{
+    PrepareSpellScript(spell_mage_ethereal_blink_triggered);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_BLINK, SPELL_MAGE_SHIMMER, SPELL_MAGE_SLOW })
+            && ValidateSpellEffect({ { SPELL_MAGE_ETHEREAL_BLINK, EFFECT_3 } });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        Position const* src = std::any_cast<Position>(&GetSpell()->m_customArg);
+        WorldLocation const* dst = GetExplTargetDest();
+        if (!src || !dst)
+        {
+            targets.clear();
+            return;
+        }
+
+        targets.remove_if([&](WorldObject* target)
+        {
+            return !target->IsInBetween(*src, *dst, (target->GetCombatReach() + GetCaster()->GetCombatReach()) / 2.0f);
+        });
+
+
+        AuraEffect const* reductionEffect = GetCaster()->GetAuraEffect(SPELL_MAGE_ETHEREAL_BLINK, EFFECT_2);
+        if (!reductionEffect)
+            return;
+
+        Seconds reduction = Seconds(reductionEffect->GetAmount()) * targets.size();
+
+        if (AuraEffect const* cap = GetCaster()->GetAuraEffect(SPELL_MAGE_ETHEREAL_BLINK, EFFECT_3))
+            if (reduction > Seconds(cap->GetAmount()))
+                reduction = Seconds(cap->GetAmount());
+
+        if (reduction > 0s)
+        {
+            GetCaster()->GetSpellHistory()->ModifyCooldown(SPELL_MAGE_BLINK, -reduction);
+            GetCaster()->GetSpellHistory()->ModifyCooldown(SPELL_MAGE_SHIMMER, -reduction);
+        }
+    }
+
+    void TriggerSlow(SpellEffIndex /*effIndex*/)
+    {
+        int32 effectivenessPct = 100;
+        if (AuraEffect const* effectivenessEffect = GetCaster()->GetAuraEffect(SPELL_MAGE_ETHEREAL_BLINK, EFFECT_1))
+            effectivenessPct = effectivenessEffect->GetAmount();
+
+        int32 slowPct = sSpellMgr->AssertSpellInfo(SPELL_MAGE_SLOW, DIFFICULTY_NONE)->GetEffect(EFFECT_0).CalcBaseValue(GetCaster(), GetHitUnit(), 0, -1);
+        ApplyPct(slowPct, effectivenessPct);
+
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_MAGE_SLOW, CastSpellExtraArgs(GetSpell())
+            .AddSpellMod(SPELLVALUE_BASE_POINT0, slowPct));
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mage_ethereal_blink_triggered::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_mage_ethereal_blink_triggered::TriggerSlow, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 383395 - Feel the Burn
+class spell_mage_feel_the_burn : public AuraScript
+{
+    PrepareAuraScript(spell_mage_feel_the_burn);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_FEEL_THE_BURN });
+    }
+
+    void CalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    {
+        if (Unit* caster = GetCaster())
+            if (AuraEffect const* valueHolder = caster->GetAuraEffect(SPELL_MAGE_FEEL_THE_BURN, EFFECT_0))
+                amount = valueHolder->GetAmount();
+
+        canBeRecalculated = false;
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_feel_the_burn::CalcAmount, EFFECT_0, SPELL_AURA_MASTERY);
+    }
+};
+
 // 112965 - Fingers of Frost
 class spell_mage_fingers_of_frost : public AuraScript
 {
@@ -715,6 +836,27 @@ class spell_mage_frostbolt : public SpellScript
     void Register() override
     {
         OnHit += SpellHitFn(spell_mage_frostbolt::HandleChilled);
+    }
+};
+
+// 386737 - Hyper Impact
+class spell_mage_hyper_impact : public AuraScript
+{
+    PrepareAuraScript(spell_mage_hyper_impact);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_SUPERNOVA });
+    }
+
+    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_MAGE_SUPERNOVA, true);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_mage_hyper_impact::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -1104,6 +1246,38 @@ class spell_mage_prismatic_barrier : public AuraScript
     }
 };
 
+// 376103 - Radiant Spark
+class spell_mage_radiant_spark : public AuraScript
+{
+    PrepareAuraScript(spell_mage_radiant_spark);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_RADIANT_SPARK_PROC_BLOCKER });
+    }
+
+    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& procInfo)
+    {
+        return !procInfo.GetProcTarget()->HasAura(SPELL_MAGE_RADIANT_SPARK_PROC_BLOCKER, GetCasterGUID());
+    }
+
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& procInfo)
+    {
+        Aura* vulnerability = procInfo.GetProcTarget()->GetAura(aurEff->GetSpellEffectInfo().TriggerSpell, GetCasterGUID());
+        if (vulnerability && vulnerability->GetStackAmount() == vulnerability->CalcMaxStackAmount())
+        {
+            PreventDefaultAction();
+            vulnerability->Remove();
+            GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_RADIANT_SPARK_PROC_BLOCKER, true);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_mage_radiant_spark::HandleProc, EFFECT_2, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
 // 205021 - Ray of Frost
 class spell_mage_ray_of_frost : public SpellScript
 {
@@ -1372,11 +1546,15 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_comet_storm_damage);
     RegisterSpellScript(spell_mage_cone_of_cold);
     RegisterSpellScript(spell_mage_conjure_refreshment);
+    RegisterSpellScript(spell_mage_ethereal_blink);
+    RegisterSpellScript(spell_mage_ethereal_blink_triggered);
+    RegisterSpellScript(spell_mage_feel_the_burn);
     RegisterSpellScript(spell_mage_fingers_of_frost);
     RegisterSpellScript(spell_mage_firestarter);
     RegisterSpellScript(spell_mage_firestarter_dots);
     RegisterSpellScript(spell_mage_flame_on);
     RegisterSpellScript(spell_mage_frostbolt);
+    RegisterSpellScript(spell_mage_hyper_impact);
     RegisterSpellScript(spell_mage_ice_barrier);
     RegisterSpellScript(spell_mage_ice_block);
     RegisterSpellScript(spell_mage_ice_lance);
@@ -1389,6 +1567,7 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_living_bomb_periodic);
     RegisterSpellScript(spell_mage_polymorph_visual);
     RegisterSpellScript(spell_mage_prismatic_barrier);
+    RegisterSpellScript(spell_mage_radiant_spark);
     RegisterSpellAndAuraScriptPair(spell_mage_ray_of_frost, spell_mage_ray_of_frost_aura);
     RegisterSpellScript(spell_mage_ring_of_frost);
     RegisterSpellAndAuraScriptPair(spell_mage_ring_of_frost_freeze, spell_mage_ring_of_frost_freeze_AuraScript);

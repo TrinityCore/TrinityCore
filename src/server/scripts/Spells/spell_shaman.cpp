@@ -47,6 +47,7 @@ enum ShamanSpells
     SPELL_SHAMAN_CHAIN_LIGHTNING_OVERLOAD_ENERGIZE = 218558,
     SPELL_SHAMAN_CHAINED_HEAL                   = 70809,
     SPELL_SHAMAN_CRASH_LIGHTNING_CLEAVE         = 187878,
+    SPELL_SHAMAN_DOOM_WINDS_LEGENDARY_COOLDOWN  = 335904,
     SPELL_SHAMAN_EARTHQUAKE                     = 61882,
     SPELL_SHAMAN_EARTHQUAKE_KNOCKING_DOWN       = 77505,
     SPELL_SHAMAN_EARTHQUAKE_TICK                = 77478,
@@ -54,6 +55,8 @@ enum ShamanSpells
     SPELL_SHAMAN_EARTHEN_RAGE_PASSIVE           = 170374,
     SPELL_SHAMAN_EARTHEN_RAGE_PERIODIC          = 170377,
     SPELL_SHAMAN_EARTHEN_RAGE_DAMAGE            = 170379,
+    SPELL_SHAMAN_ECHOES_OF_GREAT_SUNDERING_LEGENDARY = 336217,
+    SPELL_SHAMAN_ECHOES_OF_GREAT_SUNDERING_TALENT = 384088,
     SPELL_SHAMAN_ELECTRIFIED                    = 64930,
     SPELL_SHAMAN_ELEMENTAL_BLAST                = 117014,
     SPELL_SHAMAN_ELEMENTAL_BLAST_CRIT           = 118522,
@@ -100,16 +103,23 @@ enum ShamanSpells
     SPELL_SHAMAN_SPIRIT_WOLF_PERIODIC           = 260882,
     SPELL_SHAMAN_SPIRIT_WOLF_AURA               = 260881,
     SPELL_SHAMAN_STORMKEEPER                    = 191634,
+    SPELL_SHAMAN_T29_2P_ELEMENTAL_DAMAGE_BUFF   = 394651,
     SPELL_SHAMAN_TIDAL_WAVES                    = 53390,
+    SPELL_SHAMAN_TOTEMIC_POWER_ARMOR            = 28827,
+    SPELL_SHAMAN_TOTEMIC_POWER_ATTACK_POWER     = 28826,
     SPELL_SHAMAN_TOTEMIC_POWER_MP5              = 28824,
     SPELL_SHAMAN_TOTEMIC_POWER_SPELL_POWER      = 28825,
-    SPELL_SHAMAN_TOTEMIC_POWER_ATTACK_POWER     = 28826,
-    SPELL_SHAMAN_TOTEMIC_POWER_ARMOR            = 28827,
     SPELL_SHAMAN_UNDULATION_PROC                = 216251,
     SPELL_SHAMAN_UNLIMITED_POWER_BUFF           = 272737,
+    SPELL_SHAMAN_VOLCANIC_SURGE                 = 408572,
     SPELL_SHAMAN_WINDFURY_ATTACK                = 25504,
     SPELL_SHAMAN_WINDFURY_ENCHANTMENT           = 334302,
     SPELL_SHAMAN_WIND_RUSH                      = 192082
+};
+
+enum ShamanSpellLabels
+{
+    SPELL_LABEL_SHAMAN_WINDFURY_TOTEM           = 1038,
 };
 
 enum MiscNpcs
@@ -298,6 +308,34 @@ class spell_sha_crash_lightning : public SpellScript
     size_t _targetsHit = 0;
 };
 
+// 335902 - Doom Winds
+class spell_sha_doom_winds_legendary : public AuraScript
+{
+    PrepareAuraScript(spell_sha_doom_winds_legendary);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_DOOM_WINDS_LEGENDARY_COOLDOWN });
+    }
+
+    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& procInfo)
+    {
+        if (GetTarget()->HasAura(SPELL_SHAMAN_DOOM_WINDS_LEGENDARY_COOLDOWN))
+            return false;
+
+        SpellInfo const* spellInfo = procInfo.GetSpellInfo();
+        if (!spellInfo)
+            return false;
+
+        return spellInfo->HasLabel(SPELL_LABEL_SHAMAN_WINDFURY_TOTEM);
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_sha_doom_winds_legendary::CheckProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
 // 207778 - Downpour
 class spell_sha_downpour : public SpellScript
 {
@@ -368,6 +406,31 @@ class spell_sha_earth_shield : public AuraScript
     }
 };
 
+// 8042 - Earth Shock
+class spell_sha_earth_shock : public SpellScript
+{
+    PrepareSpellScript(spell_sha_earth_shock);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_SHAMAN_T29_2P_ELEMENTAL_DAMAGE_BUFF, EFFECT_0 } });
+    }
+
+    void AddScriptedDamageMods()
+    {
+        if (AuraEffect* t29 = GetCaster()->GetAuraEffect(SPELL_SHAMAN_T29_2P_ELEMENTAL_DAMAGE_BUFF, EFFECT_0))
+        {
+            SetHitDamage(CalculatePct(GetHitDamage(), 100 + t29->GetAmount()));
+            t29->GetBase()->Remove();
+        }
+    }
+
+    void Register() override
+    {
+        OnHit += SpellHitFn(spell_sha_earth_shock::AddScriptedDamageMods);
+    }
+};
+
 // 170374 - Earthen Rage (Passive)
 class spell_sha_earthen_rage_passive : public AuraScript
 {
@@ -434,13 +497,17 @@ class spell_sha_earthen_rage_proc_aura : public AuraScript
 //  8382 - AreaTriggerId
 struct areatrigger_sha_earthquake : AreaTriggerAI
 {
-    areatrigger_sha_earthquake(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger), _refreshTimer(0s), _period(1s) { }
+    areatrigger_sha_earthquake(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger), _refreshTimer(0s), _period(1s), _damageMultiplier(1.0f) { }
 
-    void OnCreate(Spell const* /*creatingSpell*/) override
+    void OnCreate(Spell const* creatingSpell) override
     {
         if (Unit* caster = at->GetCaster())
             if (AuraEffect const* earthquake = caster->GetAuraEffect(SPELL_SHAMAN_EARTHQUAKE, EFFECT_1))
                 _period = Milliseconds(earthquake->GetPeriod());
+
+        if (creatingSpell)
+            if (float const* damageMultiplier = std::any_cast<float>(&creatingSpell->m_customArg))
+                _damageMultiplier = *damageMultiplier;
     }
 
     void OnUpdate(uint32 diff) override
@@ -450,7 +517,8 @@ struct areatrigger_sha_earthquake : AreaTriggerAI
         {
             if (Unit* caster = at->GetCaster())
                 caster->CastSpell(at->GetPosition(), SPELL_SHAMAN_EARTHQUAKE_TICK, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                    .SetOriginalCaster(at->GetGUID()));
+                    .SetOriginalCaster(at->GetGUID())
+                    .AddSpellMod(SPELLVALUE_BASE_POINT0, caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_NATURE) * 0.213f * _damageMultiplier));
 
             _refreshTimer += _period;
         }
@@ -466,6 +534,46 @@ private:
     Milliseconds _refreshTimer;
     Milliseconds _period;
     GuidUnorderedSet _stunnedUnits;
+    float _damageMultiplier;
+};
+
+// 61882 - Earthquake
+class spell_sha_earthquake : public SpellScript
+{
+    PrepareSpellScript(spell_sha_earthquake);
+
+    static constexpr std::array<std::pair<uint32, SpellEffIndex>, 3> DamageBuffs =
+    { {
+        { SPELL_SHAMAN_ECHOES_OF_GREAT_SUNDERING_LEGENDARY, EFFECT_1 },
+        { SPELL_SHAMAN_ECHOES_OF_GREAT_SUNDERING_TALENT, EFFECT_0 },
+        { SPELL_SHAMAN_T29_2P_ELEMENTAL_DAMAGE_BUFF, EFFECT_0 }
+    } };
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect(DamageBuffs);
+    }
+
+    void SnapshotDamageMultiplier(SpellEffIndex /*effIndex*/)
+    {
+        float damageMultiplier = 1.0f;
+        for (auto const& [spellId, effect] : DamageBuffs)
+        {
+            if (AuraEffect* buff = GetCaster()->GetAuraEffect(spellId, effect))
+            {
+                AddPct(damageMultiplier, buff->GetAmount());
+                buff->GetBase()->Remove();
+            }
+        }
+
+        if (damageMultiplier != 1.0f)
+            GetSpell()->m_customArg = damageMultiplier;
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_sha_earthquake::SnapshotDamageMultiplier, EFFECT_2, SPELL_EFFECT_CREATE_AREATRIGGER);
+    }
 };
 
 // 77478 - Earthquake tick
@@ -477,11 +585,6 @@ class spell_sha_earthquake_tick : public SpellScript
     {
         return ValidateSpellInfo({ SPELL_SHAMAN_EARTHQUAKE_KNOCKING_DOWN })
             && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
-    }
-
-    void HandleDamageCalc(SpellEffIndex /*effIndex*/)
-    {
-        SetEffectValue(GetCaster()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_NATURE) * 0.391f);
     }
 
     void HandleOnHit()
@@ -505,7 +608,6 @@ class spell_sha_earthquake_tick : public SpellScript
 
     void Register() override
     {
-        OnEffectLaunchTarget += SpellEffectFn(spell_sha_earthquake_tick::HandleDamageCalc, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
         OnHit += SpellHitFn(spell_sha_earthquake_tick::HandleOnHit);
     }
 };
@@ -527,7 +629,10 @@ class spell_sha_elemental_blast : public SpellScript
             SPELL_SHAMAN_ELEMENTAL_BLAST_MASTERY,
             SPELL_SHAMAN_ELEMENTAL_BLAST_ENERGIZE,
             SPELL_SHAMAN_MAELSTROM_CONTROLLER
-        }) && ValidateSpellEffect({ { SPELL_SHAMAN_MAELSTROM_CONTROLLER, EFFECT_10 } });
+        }) && ValidateSpellEffect({
+            { SPELL_SHAMAN_MAELSTROM_CONTROLLER, EFFECT_10 },
+            { SPELL_SHAMAN_T29_2P_ELEMENTAL_DAMAGE_BUFF, EFFECT_0 }
+        });
     }
 
     void HandleEnergize(SpellEffIndex /*effIndex*/)
@@ -548,10 +653,20 @@ class spell_sha_elemental_blast : public SpellScript
         GetCaster()->CastSpell(GetCaster(), spellId, TRIGGERED_FULL_MASK);
     }
 
+    void AddScriptedDamageMods()
+    {
+        if (AuraEffect* t29 = GetCaster()->GetAuraEffect(SPELL_SHAMAN_T29_2P_ELEMENTAL_DAMAGE_BUFF, EFFECT_0))
+        {
+            SetHitDamage(CalculatePct(GetHitDamage(), 100 + t29->GetAmount()));
+            t29->GetBase()->Remove();
+        }
+    }
+
     void Register() override
     {
         OnEffectLaunch += SpellEffectFn(spell_sha_elemental_blast::HandleEnergize, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
         AfterCast += SpellCastFn(spell_sha_elemental_blast::TriggerBuff);
+        OnHit += SpellHitFn(spell_sha_elemental_blast::AddScriptedDamageMods);
     }
 };
 
@@ -1685,6 +1800,35 @@ class spell_sha_windfury_weapon_proc : public AuraScript
     }
 };
 
+// 378269 - Windspeaker's Lava Resurgence
+class spell_sha_windspeakers_lava_resurgence : public SpellScript
+{
+    PrepareSpellScript(spell_sha_windspeakers_lava_resurgence);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_VOLCANIC_SURGE });
+    }
+
+    void PreventLavaSurge(SpellEffIndex effIndex)
+    {
+        if (GetCaster()->HasAura(SPELL_SHAMAN_VOLCANIC_SURGE))
+            PreventHitDefaultEffect(effIndex);
+    }
+
+    void PreventVolcanicSurge(SpellEffIndex effIndex)
+    {
+        if (!GetCaster()->HasAura(SPELL_SHAMAN_VOLCANIC_SURGE))
+            PreventHitDefaultEffect(effIndex);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_sha_windspeakers_lava_resurgence::PreventLavaSurge, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
+        OnEffectLaunch += SpellEffectFn(spell_sha_windspeakers_lava_resurgence::PreventVolcanicSurge, EFFECT_2, SPELL_EFFECT_TRIGGER_SPELL);
+    }
+};
+
 // 192078 - Wind Rush Totem (Spell)
 //  12676 - AreaTriggerId
 struct areatrigger_sha_wind_rush_totem : AreaTriggerAI
@@ -1737,11 +1881,14 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_chain_lightning);
     RegisterSpellScript(spell_sha_chain_lightning_overload);
     RegisterSpellScript(spell_sha_crash_lightning);
+    RegisterSpellScript(spell_sha_doom_winds_legendary);
     RegisterSpellScript(spell_sha_downpour);
     RegisterSpellScript(spell_sha_earth_shield);
+    RegisterSpellScript(spell_sha_earth_shock);
     RegisterSpellScript(spell_sha_earthen_rage_passive);
     RegisterSpellScript(spell_sha_earthen_rage_proc_aura);
     RegisterAreaTriggerAI(areatrigger_sha_earthquake);
+    RegisterSpellScript(spell_sha_earthquake);
     RegisterSpellScript(spell_sha_earthquake_tick);
     RegisterSpellScript(spell_sha_elemental_blast);
     RegisterSpellScript(spell_sha_flametongue_weapon);
@@ -1779,5 +1926,6 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_undulation_passive);
     RegisterSpellScript(spell_sha_windfury_weapon);
     RegisterSpellScript(spell_sha_windfury_weapon_proc);
+    RegisterSpellScript(spell_sha_windspeakers_lava_resurgence);
     RegisterAreaTriggerAI(areatrigger_sha_wind_rush_totem);
 }

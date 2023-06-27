@@ -44,6 +44,7 @@ enum DeathKnightSpells
     SPELL_DK_BLOOD_PLAGUE                       = 55078,
     SPELL_DK_BLOOD_SHIELD_ABSORB                = 77535,
     SPELL_DK_BLOOD_SHIELD_MASTERY               = 77513,
+    SPELL_DK_BREATH_OF_SINDRAGOSA               = 152279,
     SPELL_DK_CORPSE_EXPLOSION_TRIGGERED         = 43999,
     SPELL_DK_DEATH_AND_DECAY_DAMAGE             = 52212,
     SPELL_DK_DEATH_COIL_DAMAGE                  = 47632,
@@ -64,6 +65,7 @@ enum DeathKnightSpells
     SPELL_DK_NECROSIS_EFFECT                    = 216974,
     SPELL_DK_OBLITERATION                       = 281238,
     SPELL_DK_OBLITERATION_RUNE_ENERGIZE         = 281327,
+    SPELL_DK_PILLAR_OF_FROST                    = 51271,
     SPELL_DK_RAISE_DEAD_SUMMON                  = 52150,
     SPELL_DK_RECENTLY_USED_DEATH_STRIKE         = 180612,
     SPELL_DK_RUNIC_POWER_ENERGIZE               = 49088,
@@ -881,6 +883,52 @@ class spell_dk_rime : public AuraScript
     }
 };
 
+// 242057 - Rune Empowered
+class spell_dk_t20_2p_rune_empowered : public AuraScript
+{
+    PrepareAuraScript(spell_dk_t20_2p_rune_empowered);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_PILLAR_OF_FROST, SPELL_DK_BREATH_OF_SINDRAGOSA });
+    }
+
+    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& procInfo)
+    {
+        Spell const* procSpell = procInfo.GetProcSpell();
+        if (!procSpell)
+            return;
+
+        Aura* pillarOfFrost = GetTarget()->GetAura(SPELL_DK_PILLAR_OF_FROST);
+        if (!pillarOfFrost)
+            return;
+
+        _runicPowerSpent += procSpell->GetPowerTypeCostAmount(POWER_RUNIC_POWER).value_or(0);
+        // Breath of Sindragosa special case
+        SpellInfo const* breathOfSindragosa = sSpellMgr->AssertSpellInfo(SPELL_DK_BREATH_OF_SINDRAGOSA, DIFFICULTY_NONE);
+        if (procSpell->IsTriggeredByAura(breathOfSindragosa))
+        {
+            auto powerItr = std::find_if(breathOfSindragosa->PowerCosts.begin(), breathOfSindragosa->PowerCosts.end(),
+                [](SpellPowerEntry const* power) { return power->PowerType == POWER_RUNIC_POWER && power->PowerPctPerSecond > 0.0f; });
+            if (powerItr != breathOfSindragosa->PowerCosts.end())
+                _runicPowerSpent += CalculatePct(GetTarget()->GetMaxPower(POWER_RUNIC_POWER), (*powerItr)->PowerPctPerSecond);
+        }
+
+        if (_runicPowerSpent >= 600)
+        {
+            pillarOfFrost->SetDuration(pillarOfFrost->GetDuration() + 1000);
+            _runicPowerSpent -= 600;
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_dk_t20_2p_rune_empowered::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+
+    int32 _runicPowerSpent = 0;
+};
+
 // 55233 - Vampiric Blood
 class spell_dk_vampiric_blood : public AuraScript
 {
@@ -923,5 +971,6 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_pvp_4p_bonus);
     RegisterSpellScript(spell_dk_raise_dead);
     RegisterSpellScript(spell_dk_rime);
+    RegisterSpellScript(spell_dk_t20_2p_rune_empowered);
     RegisterSpellScript(spell_dk_vampiric_blood);
 }
