@@ -100,6 +100,7 @@ enum ShamanSpells
     SPELL_SHAMAN_PATH_OF_FLAMES_TALENT          = 201909,
     SPELL_SHAMAN_POWER_SURGE                    = 40466,
     SPELL_SHAMAN_RESTORATIVE_MISTS              = 114083,
+    SPELL_SHAMAN_RESTORATIVE_MISTS_INITIAL      = 294020,
     SPELL_SHAMAN_SPIRIT_WOLF_TALENT             = 260878,
     SPELL_SHAMAN_SPIRIT_WOLF_PERIODIC           = 260882,
     SPELL_SHAMAN_SPIRIT_WOLF_AURA               = 260881,
@@ -236,7 +237,7 @@ class spell_sha_ascendance_restoration : public AuraScript
 
     bool CheckProc(ProcEventInfo& procInfo)
     {
-        return procInfo.GetHealInfo() && procInfo.GetHealInfo()->GetOriginalHeal();
+        return procInfo.GetHealInfo() && procInfo.GetHealInfo()->GetOriginalHeal() && procInfo.GetSpellInfo()->Id != SPELL_SHAMAN_RESTORATIVE_MISTS_INITIAL;
     }
 
     void OnProcHeal(AuraEffect* /*aurEff*/, ProcEventInfo& procInfo)
@@ -1458,6 +1459,7 @@ class spell_sha_path_of_flames_spread : public SpellScript
 };
 
 // 114083 - Restorative Mists
+// 294020 - Restorative Mists
 class spell_sha_restorative_mists : public SpellScript
 {
     PrepareSpellScript(spell_sha_restorative_mists);
