@@ -436,7 +436,7 @@ struct areatrigger_sha_earthquake : AreaTriggerAI
 {
     areatrigger_sha_earthquake(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger), _refreshTimer(0s), _period(1s) { }
 
-    void OnCreate() override
+    void OnCreate(Spell const* /*creatingSpell*/) override
     {
         if (Unit* caster = at->GetCaster())
             if (AuraEffect const* earthquake = caster->GetAuraEffect(SPELL_SHAMAN_EARTHQUAKE, EFFECT_1))

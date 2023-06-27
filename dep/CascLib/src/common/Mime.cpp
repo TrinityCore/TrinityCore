@@ -331,7 +331,7 @@ DWORD CASC_MIME_ELEMENT::Load(char * mime_data_begin, char * mime_data_end, cons
             // Otherwise, we decode the data to the end of the document
             if(boundary_ptr != NULL)
             {
-                // Find the end of the current data by the boundary. It is 2 characters before the next boundary 
+                // Find the end of the current data by the boundary. It is 2 characters before the next boundary
                 content.end = strstr(content.ptr, boundary_ptr);
                 if(content.end == NULL)
                     return ERROR_BAD_FORMAT;
@@ -362,7 +362,7 @@ DWORD CASC_MIME_ELEMENT::Load(char * mime_data_begin, char * mime_data_end, cons
                 case MimeEncodingBase64:
                     dwErrCode = DecodeBase64(content.ptr, content.end, data);
                     break;
-                    
+
                 default:
                     dwErrCode = ERROR_NOT_SUPPORTED;
                     assert(false);
@@ -379,7 +379,7 @@ DWORD CASC_MIME_ELEMENT::Load(char * mime_data_begin, char * mime_data_end, cons
     return dwErrCode;
 }
 
-#ifdef _DEBUG
+#ifdef CASCLIB_DEBUG
 #define MAX_LEVEL 0x10
 void CASC_MIME_ELEMENT::Print(size_t nLevel, size_t nIndex)
 {
@@ -473,7 +473,7 @@ bool CASC_MIME_ELEMENT::ExtractBoundary(const char * line)
     {
         // Set begin of the boundary
         begin = begin + 10;
-        
+
         // Is there also end?
         if((end = strchr(begin, '\"')) != NULL)
         {
@@ -647,7 +647,7 @@ DWORD CASC_MIME::Load(char * data, CASC_MIME_RESPONSE & MimeResponse)
         return ERROR_BAD_FORMAT;
 
     // Debug: dump the MIME data to file
-#ifdef _DEBUG
+#ifdef CASCLIB_DEBUG
     //CascDumpData("E:\\mime_raw_data.txt", data, MimeResponse.response_length);
 #endif
 
@@ -667,7 +667,7 @@ DWORD CASC_MIME::Load(char * data, CASC_MIME_RESPONSE & MimeResponse)
     return root.Load(data, data + MimeResponse.response_length);
 }
 
-#ifdef _DEBUG
+#ifdef CASCLIB_DEBUG
 void CASC_MIME::Print()
 {
     root.Print(0, 0);

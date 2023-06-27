@@ -78,11 +78,11 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         bool IsNeverVisibleFor(WorldObject const* seer, bool allowServersideObjects = false) const override;
 
     private:
-        bool Create(uint32 areaTriggerCreatePropertiesId, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, int32 duration, SpellCastVisual spellVisual, ObjectGuid const& castId, AuraEffect const* aurEff);
+        bool Create(uint32 areaTriggerCreatePropertiesId, Unit* caster, Unit* target, SpellInfo const* spellInfo, Position const& pos, int32 duration, SpellCastVisual spellVisual, Spell const* spell, AuraEffect const* aurEff);
         bool CreateServer(Map* map, AreaTriggerTemplate const* areaTriggerTemplate, AreaTriggerSpawn const& position);
 
     public:
-        static AreaTrigger* CreateAreaTrigger(uint32 areaTriggerCreatePropertiesId, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, int32 duration, SpellCastVisual spellVisual, ObjectGuid const& castId = ObjectGuid::Empty, AuraEffect const* aurEff = nullptr);
+        static AreaTrigger* CreateAreaTrigger(uint32 areaTriggerCreatePropertiesId, Unit* caster, Unit* target, SpellInfo const* spellInfo, Position const& pos, int32 duration, SpellCastVisual spellVisual, Spell const* spell = nullptr, AuraEffect const* aurEff = nullptr);
         static ObjectGuid CreateNewMovementForceId(Map* map, uint32 areaTriggerId);
         bool LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap, bool allowDuplicate);
 

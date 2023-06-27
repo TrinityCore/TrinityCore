@@ -518,6 +518,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         time_t _lastDamagedTime; // Part of Evade mechanics
         CreatureTextRepeatGroup m_textRepeat;
 
+        void ApplyAllStaticFlags(CreatureStaticFlagsHolder const& flags);
+
         CreatureStaticFlagsHolder _staticFlags;
 
         // Regenerate health

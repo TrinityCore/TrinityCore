@@ -1153,16 +1153,16 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 aa_lj_time = 0;
         uint32 jindu_time = 0;
         uint32 aa_usedTalentCount = 0; //官方天赋数量
-        
+
         //副本模式
         int32 aa_teleport_map = -2;
         int32 aa_teleport_nandu = -2;
         int32 aa_teleport_moshi = -2;
-        
+
         //防外挂-定高次数
         uint32 aa_wg_dinggao = 0;
         uint32 aa_wg_chaosu = 0;
-        
+
         //拾取次数，防脚本验证
         uint32 lootcount = 0;
         uint32 codeindex = 0;
@@ -1174,9 +1174,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         Item *aa_target_item = nullptr;
         uint32 aa_menuId = 0;
         int32 vendorSummonTime = 0; // 随身商人临时召唤时间
-        
+
         Position aa_lastPos;
-        
+
         std::unordered_map<std::string,bool> m_guajis;  //防挂机检测条件
         uint32 guajiTime = 0; // 防挂机时间
         uint32 combatTime = 0; // 解除战斗时间
@@ -1186,7 +1186,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         ObjectGuid::LowType GetGUIDLow() const { return GetGUID().GetCounter(); }
         void AA_SendLoot(Loot& loot, bool aeLooting = false);
         void AA_ApplyItem(Item* pItem, bool apply);
-    
+
         explicit Player(WorldSession* session);
         ~Player();
 
@@ -1479,7 +1479,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         InventoryResult CanUseItem(ItemTemplate const* pItem, bool skipRequiredLevelCheck = false) const;
         InventoryResult CanRollNeedForItem(ItemTemplate const* item, Map const* map, bool restrictOnlyLfg) const;
         //aawow 拾取鉴定，需要知道loot 从哪里过来的 怪物掉落，队长分配还是队伍分配，还是哪
-        Item* StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool update, ItemRandomBonusListId randomBonusListId = 0, GuidSet const& allowedLooters = GuidSet(), ItemContext context = ItemContext::NONE, std::vector<int32> const& bonusListIDs = std::vector<int32>(), bool addToCollection = true, Loot* loot = nullptr);
+        Item* StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool update, ItemRandomBonusListId randomBonusListId = 0, GuidSet const& allowedLooters = GuidSet(),
+            ItemContext context = ItemContext::NONE, std::vector<int32> const* bonusListIDs = nullptr, bool addToCollection = true, Loot* loot = nullptr);
         Item* StoreItem(ItemPosCountVec const& pos, Item* pItem, bool update);
         Item* EquipNewItem(uint16 pos, uint32 item, ItemContext context, bool update);
         Item* EquipItem(uint16 pos, Item* pItem, bool update);
@@ -1630,7 +1631,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetQuestMoneyReward(Quest const* quest) const;
         uint32 GetQuestXPReward(Quest const* quest);
         bool CanSelectQuestPackageItem(QuestPackageItemEntry const* questPackageItem) const;
-        void RewardQuestPackage(uint32 questPackageId, uint32 onlyItemId = 0);
+        void RewardQuestPackage(uint32 questPackageId, ItemContext context, uint32 onlyItemId = 0);
         void RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rewardId, Object* questGiver, bool announce = true);
         void SetRewardedQuest(uint32 quest_id);
         void FailQuest(uint32 quest_id);

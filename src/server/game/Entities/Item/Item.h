@@ -175,7 +175,7 @@ class TC_GAME_API Item : public Object
         virtual bool AA_LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, uint32 entry);
         ObjectGuid::LowType GetGUIDLow() { return GetGUID().GetCounter(); }
 
-        static Item* CreateItem(uint32 itemEntry, uint32 count, ItemContext context, Player const* player = nullptr);
+        static Item* CreateItem(uint32 itemEntry, uint32 count, ItemContext context, Player const* player = nullptr, bool addDefaultBonuses = true);
         Item* CloneItem(uint32 count, Player const* player = nullptr) const;
 
         Item();

@@ -460,7 +460,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPackets::Loot::MasterLootItem
         }
 
         // now move item from loot to target inventory
-        Item* newitem = target->StoreNewItem(dest, item.itemid, true, item.randomBonusListId, item.GetAllowedLooters(), item.context, item.BonusListIDs);
+        Item* newitem = target->StoreNewItem(dest, item.itemid, true, item.randomBonusListId, item.GetAllowedLooters(), item.context, &item.BonusListIDs);
         aeResult.Add(newitem, item.count, loot->loot_type, loot->GetDungeonEncounterId());
 
         // mark as looted

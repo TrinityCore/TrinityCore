@@ -165,7 +165,7 @@ struct areatrigger_pal_ashen_hallow : AreaTriggerAI
         }
     }
 
-    void OnCreate() override
+    void OnCreate(Spell const* /*creatingSpell*/) override
     {
         RefreshPeriod();
         _refreshTimer = _period;

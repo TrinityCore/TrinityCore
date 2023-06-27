@@ -22,6 +22,7 @@
 #include "Battleground.h"
 #include "BattlePetMgr.h"
 #include "CellImpl.h"
+#include "CollectionMgr.h"
 #include "CombatLogPackets.h"
 #include "Common.h"
 #include "ConditionMgr.h"
@@ -489,6 +490,8 @@ public:
     void Abort(uint64 e_time) override;
     bool IsDeletable() const override;
     Spell const* GetSpell() const { return m_Spell; }
+
+    std::string GetDebugInfo() const { return m_Spell->GetDebugInfo(); }
 
 protected:
     Spell* m_Spell;
@@ -1671,6 +1674,18 @@ void Spell::SelectImplicitDestDestTargets(SpellEffectInfo const& spellEffectInfo
         case TARGET_DEST_DEST_GROUND:
             dest._position.m_positionZ = m_caster->GetMapHeight(dest._position.GetPositionX(), dest._position.GetPositionY(), dest._position.GetPositionZ());
             break;
+        case TARGET_DEST_DEST_TARGET_TOWARDS_CASTER:
+        {
+            float dist = spellEffectInfo.CalcRadius(m_caster);
+            Position pos = dest._position;
+            float angle = pos.GetAbsoluteAngle(m_caster) - m_caster->GetOrientation();
+
+            m_caster->MovePositionToFirstCollision(pos, dist, angle);
+            pos.SetOrientation(m_caster->GetAbsoluteAngle(dest._position));
+
+            dest.Relocate(pos);
+            break;
+        }
         default:
         {
             float angle = targetType.CalcDirectionAngle();
@@ -6549,6 +6564,16 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                         *param1 = talent->SpellID;
                     return SPELL_FAILED_CANT_UNTALENT;
                 }
+                break;
+            }
+            case SPELL_EFFECT_CREATE_HEIRLOOM_ITEM:
+            {
+                if (!m_caster->IsPlayer())
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                if (!m_caster->ToPlayer()->GetSession()->GetCollectionMgr()->HasHeirloom(m_misc.Raw.Data[0]))
+                    return SPELL_FAILED_BAD_TARGETS;
+
                 break;
             }
             case SPELL_EFFECT_GIVE_ARTIFACT_POWER:

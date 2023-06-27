@@ -19,6 +19,7 @@
 #include "Containers.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "ItemBonusMgr.h"
 #include "ItemTemplate.h"
 #include "Log.h"
 #include "ObjectMgr.h"
@@ -58,7 +59,7 @@ void LoadItemRandomBonusListTemplates()
             uint32 bonusListId = fields[1].GetUInt32();
             float chance = fields[2].GetFloat();
 
-            if (!sDB2Manager.GetItemBonusList(bonusListId))
+            if (ItemBonusMgr::GetItemBonuses(bonusListId).empty())
             {
                 TC_LOG_ERROR("sql.sql", "Bonus list {} used in `item_random_bonus_list_template` by id {} doesn't have exist in ItemBonus.db2", bonusListId, id);
                 continue;

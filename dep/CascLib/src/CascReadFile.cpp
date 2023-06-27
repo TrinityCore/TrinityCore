@@ -116,7 +116,7 @@ static DWORD OpenDataStream(TCascFile * hf, PCASC_FILE_SPAN pFileSpan, PCASC_CKE
     }
 }
 
-#ifdef _DEBUG
+#ifdef CASCLIB_DEBUG
 static unsigned int table_16C57A8[0x10] =
 {
     0x049396B8, 0x72A82A9B, 0xEE626CCA, 0x9917754F,
@@ -182,7 +182,7 @@ static DWORD ParseBlteHeader(PCASC_FILE_SPAN pFileSpan, PCASC_CKEY_ENTRY pCKeyEn
         if(pEncodedHeader->EncodedSize != pCKeyEntry->EncodedSize)
             return ERROR_BAD_FORMAT;
 
-#ifdef _DEBUG
+#ifdef CASCLIB_DEBUG
         // Not really needed, it's here just for explanation of what the values mean
         //assert(memcmp(pCKeyEntry->EKey, pEncodedHeader->EKey.Value, MD5_HASH_SIZE) == 0);
         VerifyHeaderSpan(pEncodedHeader, HeaderOffset);
@@ -203,7 +203,7 @@ static DWORD ParseBlteHeader(PCASC_FILE_SPAN pFileSpan, PCASC_CKEY_ENTRY pCKeyEn
     {
         if(pBlteHeader->MustBe0F != 0x0F)
             return ERROR_BAD_FORMAT;
-        
+
         // Verify the header size
         FrameCount = ConvertBytesToInteger_3(pBlteHeader->FrameCount);
         ExpectedHeaderSize = 0x0C + FrameCount * sizeof(BLTE_FRAME);
@@ -587,7 +587,7 @@ static DWORD DecodeFileFrame(
         switch(pbEncoded[0])
         {
             case 'E':   // Encrypted files
-                
+
                 // The work buffer should not have been allocated by any step
                 assert(pbWorkBuffer == NULL && cbWorkBuffer == 0);
 
@@ -613,7 +613,7 @@ static DWORD DecodeFileFrame(
                 break;
 
             case 'Z':   // ZLIB compressed files
-                
+
                 // If we decompressed less than expected, we simply fill the rest with zeros
                 // Example: INSTALL file from the TACT CASC storage
                 cbDecodedExpected = cbDecoded;
@@ -784,7 +784,7 @@ static DWORD ReadFile_WholeFile(TCascFile * hf, LPBYTE pbBuffer)
         ULONGLONG ByteOffset = pFileSpan->ArchiveOffs + pFileSpan->HeaderSize;
         DWORD EncodedSize = pCKeyEntry->EncodedSize - pFileSpan->HeaderSize;
 
-        // Allocate the buffer for the entire encoded span 
+        // Allocate the buffer for the entire encoded span
         pbEncodedPtr = pbEncoded = CASC_ALLOC<BYTE>(EncodedSize);
         if(pbEncoded == NULL)
         {
@@ -1020,6 +1020,29 @@ bool WINAPI CascGetFileInfo(HANDLE hFile, CASC_FILE_INFO_CLASS InfoClass, void *
     return (pbOutputValue != NULL);
 }
 
+bool WINAPI CascSetFileFlags(HANDLE hFile, DWORD dwOpenFlags)
+{
+    TCascFile * hf;
+
+    // Validate the file handle
+    if((hf = TCascFile::IsValid(hFile)) == NULL)
+    {
+        SetCascError(ERROR_INVALID_HANDLE);
+        return false;
+    }
+
+    // Currently, only CASC_OVERCOME_ENCRYPTED can be changed
+    if(dwOpenFlags & ~CASC_OVERCOME_ENCRYPTED)
+    {
+        SetCascError(ERROR_INVALID_PARAMETER);
+        return false;
+    }
+
+    // Set "overcome encrypted" flag. Will apply on next CascReadFile
+    hf->bOvercomeEncrypted = (dwOpenFlags & CASC_OVERCOME_ENCRYPTED) != 0;
+    return true;
+}
+
 //
 // THE FILE SIZE PROBLEM
 //
@@ -1031,7 +1054,7 @@ bool WINAPI CascGetFileInfo(HANDLE hFile, CASC_FILE_INFO_CLASS InfoClass, void *
 // HotS(29049)  ENCODING  0x0024BA45 - 0x0024b98a  0x0024BA45  n/a         0x0024BA45  n/a
 // HotS(29049)  ROOT      0x00193340 - 0x00193340  0x0010db65  0x00193340  0x0010db65  n/a
 // HotS(29049)  (other)   0x00001080 - 0x00001080  0x000008eb  0x00001080  0x000008eb  0x00001080
-//                                                             
+//
 // WoW(18888)   ENCODING  0x030d487b - 0x030dee79  0x030d487b  n/a         0x030d487b  n/a
 // WoW(18888)   ROOT      0x016a9800 - n/a         0x0131313d  0x016a9800  0x0131313d  n/a
 // WoW(18888)   (other)   0x000007d0 - 0x000007d0  0x00000397  0x000007d0  0x00000397  n/a
@@ -1042,6 +1065,13 @@ bool WINAPI CascGetFileSize64(HANDLE hFile, PULONGLONG PtrFileSize)
     TCascFile * hf;
     DWORD dwErrCode;
 
+    // Validate the file pointer
+    if(PtrFileSize == NULL)
+    {
+        SetCascError(ERROR_INVALID_PARAMETER);
+        return false;
+    }
+
     // Validate the file handle
     if((hf = TCascFile::IsValid(hFile)) == NULL)
     {
@@ -1049,11 +1079,11 @@ bool WINAPI CascGetFileSize64(HANDLE hFile, PULONGLONG PtrFileSize)
         return false;
     }
 
-    // Validate the file pointer
-    if(PtrFileSize == NULL)
+    // If the content key is zeros, we treat the file as a file with size of 0
+    if(hf->ContentSize == 0)
     {
-        SetCascError(ERROR_INVALID_PARAMETER);
-        return false;
+        PtrFileSize[0] = 0;
+        return true;
     }
 
     // ENCODING on older storages: Content size is not present in the BUILD file
@@ -1157,7 +1187,7 @@ DWORD WINAPI CascSetFilePointer(HANDLE hFile, LONG lFilePos, LONG * PtrFilePosHi
 {
     ULONGLONG NewPos = 0;
     LONGLONG DistanceToMove;
-    
+
     // Assemble the 64-bit distance to move
     DistanceToMove = (PtrFilePosHigh != NULL) ? MAKE_OFFSET64(PtrFilePosHigh[0], lFilePos) : (LONGLONG)(LONG)lFilePos;
 
@@ -1194,6 +1224,13 @@ bool WINAPI CascReadFile(HANDLE hFile, void * pvBuffer, DWORD dwBytesToRead, PDW
     {
         SetCascError(ERROR_INVALID_HANDLE);
         return false;
+    }
+
+    // Check files with zero size
+    if(hf->ContentSize == 0)
+    {
+        PtrBytesRead[0] = 0;
+        return true;
     }
 
     // If we don't have file frames loaded, we need to do it now.
@@ -1242,7 +1279,7 @@ bool WINAPI CascReadFile(HANDLE hFile, void * pvBuffer, DWORD dwBytesToRead, PDW
     {
         // No caching at all. The entire file will be read directly to the user buffer
         // Used for loading internal files, where we need to read the whole file
-        case CascCacheNothing:  
+        case CascCacheNothing:
             dwBytesRead2 = ReadFile_NonCached(hf, pbBuffer, StartOffset, EndOffset);
             break;
 
@@ -1268,7 +1305,7 @@ bool WINAPI CascReadFile(HANDLE hFile, void * pvBuffer, DWORD dwBytesToRead, PDW
         if(PtrBytesRead != NULL)
             PtrBytesRead[0] = 0;
         hf->FilePointer = SaveFilePointer;
-        
+
         // If 0 bytes were requested, it's actually a success
         return (dwBytesToRead == 0);
     }

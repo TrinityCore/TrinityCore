@@ -237,15 +237,17 @@ void WorldSession::HandleWhoOpcode(WorldPackets::Who::WhoRequestPkt& whoRequest)
     SendPacket(response.Write());
 }
 
-void WorldSession::HandleLogoutRequestOpcode(WorldPackets::Character::LogoutRequest& /*logoutRequest*/)
+void WorldSession::HandleLogoutRequestOpcode(WorldPackets::Character::LogoutRequest& logoutRequest)
 {
     AA_Map_Player_Conf map_conf = aaCenter.AA_GetAA_Map_Player_Conf(GetPlayer());
 
     if (!GetPlayer()->GetLootGUID().IsEmpty())
         GetPlayer()->SendLootReleaseAll();
 
-    bool instantLogout = (GetPlayer()->HasPlayerFlag(PLAYER_FLAGS_RESTING) && !GetPlayer()->IsInCombat()) ||
-                         GetPlayer()->IsInFlight() || HasPermission(rbac::RBAC_PERM_INSTANT_LOGOUT) || map_conf.PvpType == "安全区" || map_conf.PvpType == "绝对安全区";
+    bool instantLogout = GetPlayer()->IsInFlight();
+    if (!logoutRequest.IdleLogout)
+        instantLogout |= (GetPlayer()->HasPlayerFlag(PLAYER_FLAGS_RESTING) && !GetPlayer()->IsInCombat())
+            || HasPermission(rbac::RBAC_PERM_INSTANT_LOGOUT) || map_conf.PvpType == "安全区" || map_conf.PvpType == "绝对安全区";
 
     /// TODO: Possibly add RBAC permission to log out in combat
     bool canLogoutInCombat = GetPlayer()->HasPlayerFlag(PLAYER_FLAGS_RESTING);
@@ -511,7 +513,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
     if (sScriptMgr->OnAreaTrigger(player, atEntry, packet.Entered))
         return;
 
-    if (player->IsAlive())
+    if (player->IsAlive() && packet.Entered)
     {
         // not using Player::UpdateQuestObjectiveProgress, ObjectID in quest_objectives can be set to -1, areatrigger_involvedrelation then holds correct id
         if (std::unordered_set<uint32> const* quests = sObjectMgr->GetQuestsForAreaTrigger(packet.AreaTriggerID))
@@ -559,10 +561,18 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
     if (sObjectMgr->IsTavernAreaTrigger(packet.AreaTriggerID))
     {
         // set resting flag we are in the inn
-        player->GetRestMgr().SetRestFlag(REST_FLAG_IN_TAVERN, atEntry->ID);
+        if (packet.Entered)
+            player->GetRestMgr().SetRestFlag(REST_FLAG_IN_TAVERN, atEntry->ID);
+        else
+            player->GetRestMgr().RemoveRestFlag(REST_FLAG_IN_TAVERN);
 
         if (sWorld->IsFFAPvPRealm())
-            player->RemovePvpFlag(UNIT_BYTE2_FLAG_FFA_PVP);
+        {
+            if (packet.Entered)
+                player->RemovePvpFlag(UNIT_BYTE2_FLAG_FFA_PVP);
+            else
+                player->SetPvpFlag(UNIT_BYTE2_FLAG_FFA_PVP);
+        }
 
         return;
     }
@@ -573,6 +583,9 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
     if (OutdoorPvP* pvp = player->GetOutdoorPvP())
         if (pvp->HandleAreaTrigger(_player, packet.AreaTriggerID, packet.Entered))
             return;
+
+    if (!packet.Entered)
+        return;
 
     AreaTriggerStruct const* at = sObjectMgr->GetAreaTrigger(packet.AreaTriggerID);
     if (!at)

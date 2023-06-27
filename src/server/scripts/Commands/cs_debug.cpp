@@ -1579,7 +1579,7 @@ public:
         if (!wsExpressionEntry)
             return false;
 
-        if (ConditionMgr::IsPlayerMeetingExpression(target, wsExpressionEntry))
+        if (ConditionMgr::IsMeetingWorldStateExpression(target->GetMap(), wsExpressionEntry))
             handler->PSendSysMessage("Expression %u meet", expressionId);
         else
             handler->PSendSysMessage("Expression %u not meet", expressionId);

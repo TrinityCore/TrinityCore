@@ -809,7 +809,7 @@ void WorldSession::HandlePlayerChoiceResponse(WorldPackets::Quest::ChoiceRespons
             _player->SetTitle(sCharTitlesStore.AssertEntry(playerChoiceResponse->Reward->TitleId), false);
 
         if (playerChoiceResponse->Reward->PackageId)
-            _player->RewardQuestPackage(playerChoiceResponse->Reward->PackageId);
+            _player->RewardQuestPackage(playerChoiceResponse->Reward->PackageId, ItemContext::NONE);
 
         if (playerChoiceResponse->Reward->SkillLineId && _player->HasSkill(playerChoiceResponse->Reward->SkillLineId))
             _player->UpdateSkillPro(playerChoiceResponse->Reward->SkillLineId, 1000, playerChoiceResponse->Reward->SkillPointCount);
@@ -828,7 +828,7 @@ void WorldSession::HandlePlayerChoiceResponse(WorldPackets::Quest::ChoiceRespons
             ItemPosCountVec dest;
             if (_player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item.Id, item.Quantity) == EQUIP_ERR_OK)
             {
-                Item* newItem = _player->StoreNewItem(dest, item.Id, true, GenerateItemRandomBonusListId(item.Id), {}, ItemContext::Quest_Reward, item.BonusListIDs);
+                Item* newItem = _player->StoreNewItem(dest, item.Id, true, GenerateItemRandomBonusListId(item.Id), {}, ItemContext::Quest_Reward, &item.BonusListIDs);
                 _player->SendNewItem(newItem, item.Quantity, true, false);
             }
         }
