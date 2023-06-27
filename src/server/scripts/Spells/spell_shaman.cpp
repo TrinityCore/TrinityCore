@@ -226,26 +226,34 @@ class spell_sha_ascendance_restoration : public AuraScript
 
     bool CheckProc(ProcEventInfo& procInfo)
     {
-        return procInfo.GetHealInfo() && procInfo.GetHealInfo()->GetHeal();
+        return procInfo.GetHealInfo() && procInfo.GetHealInfo()->GetOriginalHeal();
     }
 
-    void OnProcHeal(AuraEffect* aurEff, ProcEventInfo& procInfo)
+    void OnProcHeal(AuraEffect* /*aurEff*/, ProcEventInfo& procInfo)
     {
-        int32 heal = procInfo.GetHealInfo()->GetHeal();
-        if (heal > 0)
-        {
-            CastSpellExtraArgs args(aurEff);
-            args.AddSpellBP0(heal);
-            procInfo.GetActor()->CastSpell(procInfo.GetActionTarget(), SPELL_SHAMAN_RESTORATIVE_MISTS, args);
-            heal = 0;
-        }
+        _healToDistribute += procInfo.GetHealInfo()->GetOriginalHeal();
+    }
+
+    void HandleEffectPeriodic(AuraEffect const* aurEff)
+    {
+        if (!_healToDistribute)
+            return;
+
+        CastSpellExtraArgs args(aurEff);
+        args.AddSpellBP0(_healToDistribute);
+        GetTarget()->CastSpell(nullptr, SPELL_SHAMAN_RESTORATIVE_MISTS, args);
+        _healToDistribute = 0;
     }
 
     void Register() override
     {
         DoCheckProc += AuraCheckProcFn(spell_sha_ascendance_restoration::CheckProc);
         OnEffectProc += AuraEffectProcFn(spell_sha_ascendance_restoration::OnProcHeal, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_ascendance_restoration::HandleEffectPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
     }
+
+private:
+    uint32 _healToDistribute = 0;
 };
 
 // 188443 - Chain Lightning
