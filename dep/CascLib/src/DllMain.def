@@ -17,6 +17,7 @@ EXPORTS
     CascOpenFile
     CascOpenLocalFile
     CascGetFileInfo
+    CascSetFileFlags
     CascGetFileSize
     CascGetFileSize64
     CascSetFilePointer

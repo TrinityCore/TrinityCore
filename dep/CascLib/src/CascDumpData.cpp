@@ -12,7 +12,7 @@
 #include "CascLib.h"
 #include "CascCommon.h"
 
-#ifdef _DEBUG       // The entire feature is only valid for debug purposes
+#ifdef CASCLIB_DEBUG       // The entire feature is only valid for debug purposes
 
 //-----------------------------------------------------------------------------
 // Forward definitions
@@ -78,7 +78,7 @@ static void DumpKey(FILE * fp, const char * szInFormat, LPBYTE pbData, size_t cb
         // If there will be more lines, then we clear the entire part until "%s"
         if(szFormatSpec != NULL)
             memset(szFormat, ' ', (szFormatSpec - szFormat));
-        
+
         // Move pointers
         pbData += MD5_HASH_SIZE;
     }
@@ -541,9 +541,9 @@ void CascDumpStorage(HANDLE hStorage, const char * szDumpFile)
     }
 }
 
-#else // _DEBUG
+#else // CASCLIB_DEBUG
 
 // so linker won't mind this .cpp file is empty in non-DEBUG builds
 void unused_symbol() { }
 
-#endif // _DEBUG
+#endif // CASCLIB_DEBUG

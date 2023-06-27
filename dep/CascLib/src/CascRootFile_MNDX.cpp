@@ -660,7 +660,7 @@ class TBitEntryArray : public TGenericArray<DWORD>
 #define INDEX_TO_GROUP(val)   (val >> 9)
 #define GROUP_TO_INDEX(grp)   (grp << 9)
 
-// For each 0x200-th bit, this contains information about amount of "1" bits 
+// For each 0x200-th bit, this contains information about amount of "1" bits
 typedef struct _BASEVALS
 {
     DWORD BaseValue200;             // Item value of every 0x200-th item
@@ -791,7 +791,7 @@ class TSparseArray
         if(index & 0x20)
             IntValue += GetNumberOfSetBits32(ItemBits[(index >> 0x05) - 1]);
 
-        // 4) Count the bits in the current DWORD (masked by bit index mask) 
+        // 4) Count the bits in the current DWORD (masked by bit index mask)
         BitMask = (1 << (index & 0x1F)) - 1;
         return IntValue + GetNumberOfSetBits32(ItemBits[index >> 0x05] & BitMask);
     }
@@ -888,7 +888,7 @@ class TSparseArray
         DWORD bitGroup;
         DWORD edx = index;
 
-#ifdef _DEBUG
+#ifdef CASCLIB_DEBUG
         //if(TotalItemCount > 0x200)
         //{
         //    FILE * fp = fopen("e:\\Ladik\\Appdir\\CascLib\\doc\\mndx-sparse-array.txt", "wt");
@@ -1177,7 +1177,7 @@ class TSparseArray
         return table_1BA1818[bitGroup + distFromBase] + itemIndex;
     }
 
-#ifdef _DEBUG
+#ifdef CASCLIB_DEBUG
     void Dump(FILE * fp)
     {
         size_t * ArrayNormal;
@@ -1868,7 +1868,7 @@ class TFileNameDatabase
             // Get the hasn table item
             pHashEntry = &HashTable[TableIndex & HashTableMask];
 
-            // 
+            //
             if(TableIndex == pHashEntry->NextIndex)
             {
                 // HOTS: 01957BB4
@@ -2467,7 +2467,7 @@ class TFileNameDatabase
 
     TSparseArray CollisionTable;                // Table of valid collisions, indexed by NodeIndex
     TSparseArray FileNameIndexes;               // Array of file name indexes
-    TSparseArray CollisionHiBitsIndexes;        // Table of indexes of high bits (above 8 bits) for collisions 
+    TSparseArray CollisionHiBitsIndexes;        // Table of indexes of high bits (above 8 bits) for collisions
 
     // This pair of arrays serves for fast conversion from node index to FragmentOffset / FragmentChar
     TGenericArray<BYTE> LoBitsTable;            // Array of lower 8 bits of name fragment offset

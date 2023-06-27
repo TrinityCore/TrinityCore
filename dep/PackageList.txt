@@ -63,7 +63,7 @@ catch2
 
 CascLib (An open-source implementation of library for reading CASC storage from Blizzard games since 2014)
   https://github.com/ladislav-zezula/CascLib
-  Version: a5080b5794027a25d98aa6024b2bef17d06fe0ea
+  Version: ebd79e8fd43279343c543a27fce620f6b1b53cb9
 
 rapidjson (A fast JSON parser/generator for C++ with both SAX/DOM style API http://rapidjson.org/)
   https://github.com/Tencent/rapidjson

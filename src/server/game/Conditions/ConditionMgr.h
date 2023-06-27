@@ -308,7 +308,7 @@ class TC_GAME_API ConditionMgr
 
         static uint32 GetPlayerConditionLfgValue(Player const* player, PlayerConditionLfgStatus status);
         static bool IsPlayerMeetingCondition(Player const* player, PlayerConditionEntry const* condition);
-        static bool IsPlayerMeetingExpression(Player const* player, WorldStateExpressionEntry const* expression);
+        static bool IsMeetingWorldStateExpression(Map const* map, WorldStateExpressionEntry const* expression);
         static bool IsUnitMeetingCondition(Unit const* unit, Unit const* otherUnit, UnitConditionEntry const* condition);
 
         struct ConditionTypeInfo

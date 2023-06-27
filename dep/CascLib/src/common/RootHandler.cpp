@@ -83,8 +83,8 @@ PCASC_CKEY_ENTRY TFileTreeRoot::Search(TCascSearch * pSearch, PCASC_FIND_DATA pF
         pFileNode = FileTree.PathAt(pFindData->szFileName, MAX_PATH, pSearch->nFileIndex++);
         if(pFileNode != NULL)
         {
-            // Ignore folders and mount points
-            if(!(pFileNode->Flags & CFN_FLAG_FOLDER))
+            // Ignore folders, but report mount points. These can and should be able to open and read
+            if((pFileNode->Flags & (CFN_FLAG_FOLDER | CFN_FLAG_MOUNT_POINT)) != CFN_FLAG_FOLDER)
             {
                 // Check the wildcard
                 if(CascCheckWildCard(pFindData->szFileName, pSearch->szMask))

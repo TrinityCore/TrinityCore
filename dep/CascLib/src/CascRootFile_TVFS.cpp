@@ -105,8 +105,8 @@ struct TVFS_DIRECTORY_HEADER
 // In-memory layout of the path table entry
 typedef struct _TVFS_PATH_TABLE_ENTRY
 {
-    LPBYTE pbNamePtr;                               // Pointer to the begin of the node name
-    LPBYTE pbNameEnd;                               // Pointer to the end of the file name
+    char * m_pNamePtr;                              // Pointer to the begin of the node name
+    char * m_pNameEnd;                              // Pointer to the end of the file name
     DWORD NodeFlags;                                // TVFS_PTE_XXX
     DWORD NodeValue;                                // Node value
 } TVFS_PATH_TABLE_ENTRY, *PTVFS_PATH_TABLE_ENTRY;
@@ -156,8 +156,8 @@ struct TRootHandler_TVFS : public TFileTreeRoot
             PathBuffer.AppendChar('/');
 
         // Append the name fragment, if any
-        if(PathEntry.pbNameEnd > PathEntry.pbNamePtr)
-            PathBuffer.AppendStringN((const char *)PathEntry.pbNamePtr, (PathEntry.pbNameEnd - PathEntry.pbNamePtr), false);
+        if(PathEntry.m_pNameEnd > PathEntry.m_pNamePtr)
+            PathBuffer.AppendStringN(PathEntry.m_pNamePtr, (PathEntry.m_pNameEnd - PathEntry.m_pNamePtr), false);
 
         // Append the postfix separator, if needed
         if(PathEntry.NodeFlags & TVFS_PTE_PATH_SEPARATOR_POST)
@@ -312,8 +312,8 @@ struct TRootHandler_TVFS : public TFileTreeRoot
     LPBYTE CapturePathEntry(TVFS_PATH_TABLE_ENTRY & PathEntry, LPBYTE pbPathTablePtr, LPBYTE pbPathTableEnd)
     {
         // Reset the path entry structure
-        PathEntry.pbNamePtr = pbPathTablePtr;
-        PathEntry.pbNameEnd = pbPathTablePtr;
+        PathEntry.m_pNamePtr = (char *)(pbPathTablePtr);
+        PathEntry.m_pNameEnd = (char *)(pbPathTablePtr);
         PathEntry.NodeFlags = 0;
         PathEntry.NodeValue = 0;
 
@@ -332,8 +332,8 @@ struct TRootHandler_TVFS : public TFileTreeRoot
 
             if((pbPathTablePtr + nLength) > pbPathTableEnd)
                 return NULL;
-            PathEntry.pbNamePtr = pbPathTablePtr;
-            PathEntry.pbNameEnd = pbPathTablePtr + nLength;
+            PathEntry.m_pNamePtr = (char *)(pbPathTablePtr);
+            PathEntry.m_pNameEnd = (char *)(pbPathTablePtr + nLength);
             pbPathTablePtr += nLength;
         }
 
@@ -535,6 +535,11 @@ struct TRootHandler_TVFS : public TFileTreeRoot
                                 return ERROR_NOT_ENOUGH_MEMORY;
                             }
                         }
+
+                        //BREAKIF(strcmp((const char *)PathBuffer, "Base") == 0);
+                        //BREAKIF(strcmp((const char *)PathBuffer, "base") == 0);
+                        //BREAKIF(strcmp((const char *)PathBuffer, "base:ComplexTypeDescriptorSizes.dat") == 0);
+                        //BREAKIF(strcmp((const char *)PathBuffer, "DivideAndConquer.w3m:war3map.doo") == 0);
 
                         // We need to check whether this is another TVFS directory file
                         if(IsVfsSubDirectory(hs, DirHeader, SubHeader, SpanEntry.EKey, SpanEntry.ContentSize) == ERROR_SUCCESS)
