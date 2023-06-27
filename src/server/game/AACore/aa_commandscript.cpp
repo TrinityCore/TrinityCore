@@ -3077,7 +3077,6 @@ public:
                     aaCenter.AA_DoCommand(target, gm.c_str());
                 }
             }
-            aaCenter.aa_bianshen3[target->GetGUIDLow()] = time * 1000;
         }
         return true;
     }

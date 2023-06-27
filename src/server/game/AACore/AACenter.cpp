@@ -440,22 +440,12 @@ void AACenter::Update(Unit* unit, uint32 diff)
             }
         }
 
-        if (aaCenter.aa_bianshen3[p->GetGUIDLow()] > 1) {
-            if (aaCenter.aa_bianshen3[p->GetGUIDLow()] > diff) {
-                aaCenter.aa_bianshen3[p->GetGUIDLow()] -= diff;
-            }
-            else {
-                aaCenter.aa_bianshen3[p->GetGUIDLow()] = 1;
-            }
-        }
-        if (aaCenter.aa_bianshen3[p->GetGUIDLow()] == 0 || aaCenter.aa_bianshen3[p->GetGUIDLow()] > 1) { //0永久变身 1临时变身
-            if (uint32 displayid = aa_bianshen1[p->GetGUIDLow()]) {
-                if (displayid != p->GetDisplayId()) { //变身
-                    p->SetDisplayId(displayid);
-                    float scale = aa_bianshen2[p->GetGUIDLow()];
-                    if (scale > 0) {
-                        p->SetObjectScale(scale);
-                    }
+        if (uint32 displayid = aa_bianshen1[p->GetGUIDLow()]) {
+            if (displayid != p->GetDisplayId()) { //变身
+                p->SetDisplayId(displayid);
+                float scale = aa_bianshen2[p->GetGUIDLow()];
+                if (scale > 0) {
+                    p->SetObjectScale(scale);
                 }
             }
         }
@@ -9990,7 +9980,8 @@ void _AA_Shizhuang_3023(Player *player, uint32 lan)
             }
             result += items; result += "\",";
             result += std::to_string(lan); result += ",";
-            result += std::to_string(ids.size()); result += "}";
+            result += std::to_string(ids.size()); result += ",";
+            result += std::to_string(conf.modelid); result += "}";
             isconf = true;
         }
     }
@@ -11070,13 +11061,17 @@ void AACenter::AA_ReceiveAddon(Player* player, std::string& prefix, std::string&
                 }
                 _AA_Shizhuang_3023(player, lan);
                 if (uiconf.modelid > 0) {
-                    aaCenter.aa_bianshen1[player->GetGUIDLow()] = 0;
-                    aaCenter.aa_bianshen2[player->GetGUIDLow()] = 0;
-                    aaCenter.aa_bianshen3[player->GetGUIDLow()] = 0;
-                    player->RestoreDisplayId();
-                    player->SetObjectScale(1);
-                    std::string gm = ".组合 *.变身 " + std::to_string(uiconf.modelid) + " " + std::to_string(uiconf.scale) + "<$自身>";
-                    aaCenter.AA_DoCommand(player, gm.c_str());
+
+                    CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(uiconf.modelid);
+                    if (ci)
+                    {
+                        aaCenter.aa_bianshen1[player->GetGUIDLow()] = 0;
+                        aaCenter.aa_bianshen2[player->GetGUIDLow()] = 0;
+                        player->RestoreDisplayId();
+                        player->SetObjectScale(1);
+                        std::string gm = ".组合 *.变身 " + std::to_string(ci->GetModelByIdx(0)->CreatureDisplayID) + " " + std::to_string(uiconf.scale) + "<$自身>";
+                        aaCenter.AA_DoCommand(player, gm.c_str());
+                    }
                 }
             }
         }
@@ -11112,42 +11107,34 @@ void AACenter::AA_ReceiveAddon(Player* player, std::string& prefix, std::string&
             }
             if (isOk) {
                 if (conf.modelid > 0) {
-                    aaCenter.aa_bianshen1[player->GetGUIDLow()] = 0;
-                    aaCenter.aa_bianshen2[player->GetGUIDLow()] = 0;
-                    aaCenter.aa_bianshen3[player->GetGUIDLow()] = 0;
-                    player->RestoreDisplayId();
-                    player->SetObjectScale(1);
-                    std::string gm = ".组合 *.变身 " + std::to_string(conf.modelid) + " " + std::to_string(conf.scale) + "<$自身>";
-                    aaCenter.AA_DoCommand(player, gm.c_str());
+
+                    CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(conf.modelid);
+                    if (ci && ci->GetModelByIdx(0)->CreatureDisplayID != player->GetDisplayId())
+                    {
+                        aaCenter.aa_bianshen1[player->GetGUIDLow()] = 0;
+                        aaCenter.aa_bianshen2[player->GetGUIDLow()] = 0;
+                        player->RestoreDisplayId();
+                        player->SetObjectScale(1);
+                        std::string gm = ".组合 *.变身 " + std::to_string(ci->GetModelByIdx(0)->CreatureDisplayID) + " " + std::to_string(conf.scale) + "<$自身>";
+                        aaCenter.AA_DoCommand(player, gm.c_str());
+                        aaCenter.AA_SendMessage(player, 1, "|cff00FFFF[系统提示]|cffFFFF00变身成功，再次保存外观可以取消变身！");
+                    }
+                    else {
+                        aaCenter.aa_bianshen1[player->GetGUIDLow()] = 0;
+                        aaCenter.aa_bianshen2[player->GetGUIDLow()] = 0;
+                        player->RestoreDisplayId();
+                        player->SetObjectScale(1);
+
+                        std::string gm = ".组合 *.变量 角色 modelid =0<$自身>";
+                        aaCenter.AA_DoCommand(player, gm.c_str());
+                        gm = ".组合 *.变量 角色 scale =0<$自身>";
+                        aaCenter.AA_DoCommand(player, gm.c_str());
+                    }
                 }
             }
             else {
                 aaCenter.AA_SendMessage(player, 1, "|cff00FFFF[系统提示]|cffFF0000无法保存外观，没有激活!");
             }
-        }
-        else if (prefix == "3022") { //自定义ui时装点击切换外观
-            if (!aaCenter.AA_VerifyCode("a301b")) {
-                aaCenter.AA_SendMessage(player, 1, "|cff00FFFF[系统提示]|cffFF0000请联系QQ643125009开通!");
-                return;
-            }
-            if (msgs.size() < 2) { return; }
-            uint32 lan = aaCenter.AA_StringUint32(msgs[0]);
-            uint32 index = aaCenter.AA_StringUint32(msgs[1]);
-            if (lan < 101 || index < 1) {
-                return;
-            }
-            ObjectGuid::LowType ownerguidlow = player->GetGUIDLow();
-            AA_UI_Shizhuang conf = aaCenter.aa_ui_shizhuangs[lan - 101 + 1][index];
-            if (conf.modelid == 0) {
-                return;
-            }
-            aaCenter.aa_bianshen1[player->GetGUIDLow()] = 0;
-            aaCenter.aa_bianshen2[player->GetGUIDLow()] = 0;
-            aaCenter.aa_bianshen3[player->GetGUIDLow()] = 0;
-            player->RestoreDisplayId();
-            player->SetObjectScale(1);
-            std::string gm = ".组合 *.变身 " + std::to_string(conf.modelid) + " " + std::to_string(conf.scale) + " " + "5<$自身>";
-            aaCenter.AA_DoCommand(player, gm.c_str());
         }
         else if (prefix == "3023") { //自定义ui时装 获取一页数据
             if (!aaCenter.AA_VerifyCode("a301b")) {

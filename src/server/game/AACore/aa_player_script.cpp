@@ -14,11 +14,24 @@ class aa_player_script : public PlayerScript
 {
 public:
     aa_player_script() : PlayerScript("aa_player_script") { }
+
     // CHARACTER_LOGIN = 8
     void OnLogin(Player* player, bool firstLogin) override
     {
         if (!player || !player->IsInWorld()/* || player->GetSession()->IsBot()*/) {
             return;
+        }
+
+        //发送时装、商城Creature
+        {
+            //for (auto itr : aaCenter.aa_ui_shizhuangs) {
+            //    std::map<uint32, AA_UI_Shizhuang> it = itr.second;
+            //    for (auto i : it) {
+            //        if (i.second.modelid > 0) {
+            //            _SendCreature(player, i.second.modelid);
+            //        }
+            //    }
+            //}
         }
 
         if (firstLogin) {
@@ -86,8 +99,10 @@ public:
                 std::string scalestr = mdiy_guids["scale"];
                 float scale = aaCenter.AA_StringFloat(scalestr);
                 if (displayid > 0 && displayid != player->GetDisplayId()) { //变身
+                    aaCenter.aa_bianshen1[guidlow] = displayid;
                     player->SetDisplayId(displayid);
                     if (scale > 0) {
+                        aaCenter.aa_bianshen2[guidlow] = scale;
                         player->SetObjectScale(scale);
                     }
                 }
