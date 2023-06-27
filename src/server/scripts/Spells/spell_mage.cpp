@@ -647,7 +647,6 @@ class spell_mage_ethereal_blink_triggered : public SpellScript
             return !target->IsInBetween(*src, *dst, (target->GetCombatReach() + GetCaster()->GetCombatReach()) / 2.0f);
         });
 
-
         AuraEffect const* reductionEffect = GetCaster()->GetAuraEffect(SPELL_MAGE_ETHEREAL_BLINK, EFFECT_2);
         if (!reductionEffect)
             return;
