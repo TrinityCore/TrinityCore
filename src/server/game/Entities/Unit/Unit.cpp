@@ -2020,12 +2020,9 @@ void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinit
     if (!healInfo.GetHeal())
         return;
 
-    // Need remove expired auras after
-    bool existExpired = false;
-
-    // absorb without mana cost
-    AuraEffectList const& vHealAbsorb = healInfo.GetTarget()->GetAuraEffectsByType(SPELL_AURA_SCHOOL_HEAL_ABSORB);
-    for (AuraEffectList::const_iterator i = vHealAbsorb.begin(); i != vHealAbsorb.end() && healInfo.GetHeal() > 0; ++i)
+    std::vector<AuraEffect*> vHealAbsorb(healInfo.GetTarget()->GetAuraEffectsByType(SPELL_AURA_SCHOOL_HEAL_ABSORB).begin(),
+        healInfo.GetTarget()->GetAuraEffectsByType(SPELL_AURA_SCHOOL_HEAL_ABSORB).end());
+    for (auto i = vHealAbsorb.begin(); i != vHealAbsorb.end() && healInfo.GetHeal() > 0; ++i)
     {
         AuraEffect* absorbAurEff = *i;
         // Check if aura was removed during iteration - we don't need to work on such auras
@@ -2065,7 +2062,7 @@ void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinit
                 absorbAurEff->ChangeAmount(absorbAurEff->GetAmount() - currentAbsorb);
                 // Aura cannot absorb anything more - remove it
                 if (absorbAurEff->GetAmount() <= 0)
-                    existExpired = true;
+                    absorbAurEff->GetBase()->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
             }
         }
 
@@ -2080,23 +2077,6 @@ void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinit
             absorbLog.Absorbed = currentAbsorb;
             absorbLog.OriginalHeal = healInfo.GetOriginalHeal();
             healInfo.GetTarget()->SendMessageToSet(absorbLog.Write(), true);
-        }
-    }
-
-    // Remove all expired absorb auras
-    if (existExpired)
-    {
-        for (AuraEffectList::const_iterator i = vHealAbsorb.begin(); i != vHealAbsorb.end();)
-        {
-            AuraEffect* auraEff = *i;
-            ++i;
-            if (auraEff->GetAmount() <= 0)
-            {
-                uint32 removedAuras = healInfo.GetTarget()->m_removedAurasCount;
-                auraEff->GetBase()->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
-                if (removedAuras + 1 < healInfo.GetTarget()->m_removedAurasCount)
-                    i = vHealAbsorb.begin();
-            }
         }
     }
 }
