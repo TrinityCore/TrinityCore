@@ -5645,6 +5645,10 @@ bool AACenter::M_NonsuchItemFmSpell(Player* player, Item* pItem, uint32 nonsuchI
                 values.push_back(*rit);
                 last_count++;
             }
+            //找了一圈都没有，退出循环
+            if (last_count == 0) {
+                isOk = false;
+            }
         }
         sort(values.begin(), values.end());
         ObjectGuid::LowType guidlow = pItem->GetGUIDLow();
