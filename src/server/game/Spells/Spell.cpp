@@ -577,6 +577,7 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
     m_damage = 0;
     m_healing = 0;
     m_hitMask = PROC_HIT_NONE;
+    m_procSpellType = PROC_SPELL_TYPE_NONE;
     focusObject = nullptr;
     m_castId = ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, m_caster->GetMapId(), m_spellInfo->Id, m_caster->GetMap()->GenerateLowGuid<HighGuid::Cast>());
     m_originalCastId = originalCastId;
@@ -2941,6 +2942,7 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
 
         // set hitmask for finish procs
         spell->m_hitMask |= hitMask;
+        spell->m_procSpellType |= procSpellType;
 
         // Do not take combo points on dodge and miss
         if (MissCondition != SPELL_MISS_NONE && spell->m_needComboPoints && spell->m_targets.GetUnitTargetGUID() == TargetGUID)
@@ -3977,7 +3979,10 @@ void Spell::handle_immediate()
 
     // consider spell hit for some spells without target, so they may proc on finish phase correctly
     if (m_UniqueTargetInfo.empty())
+    {
         m_hitMask = PROC_HIT_NORMAL;
+        m_procSpellType = PROC_SPELL_TYPE_NO_DMG_HEAL;
+    }
     else
         DoProcessTargetContainer(m_UniqueTargetInfo);
 
@@ -4169,7 +4174,7 @@ void Spell::_handle_finish_phase()
     }
 
     if (!m_spellInfo->HasAttribute(SPELL_ATTR3_SUPPRESS_CASTER_PROCS))
-        Unit::ProcSkillsAndAuras(m_originalCaster, nullptr, procAttacker, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_FINISH, m_hitMask, this, nullptr, nullptr);
+        Unit::ProcSkillsAndAuras(m_originalCaster, nullptr, procAttacker, PROC_FLAG_NONE, m_procSpellType, PROC_SPELL_PHASE_FINISH, m_hitMask, this, nullptr, nullptr);
 }
 
 void Spell::SendSpellCooldown()
