@@ -99,6 +99,7 @@ enum PaladinSpells
     SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT        = 31790,
     SPELL_PALADIN_RIGHTEOUS_VERDICT_AURA         = 267611,
     SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS          = 25742,
+    SPELL_PALADIN_SHIELD_OF_VENGEANCE_DAMAGE     = 184689,
     SPELL_PALADIN_TEMPLAR_VERDICT_DAMAGE         = 224266,
     SPELL_PALADIN_T30_2P_HEARTFIRE_DAMAGE        = 408399,
     SPELL_PALADIN_T30_2P_HEARTFIRE_HEAL          = 408400,
@@ -1427,6 +1428,62 @@ class spell_pal_selfless_healer : public AuraScript
     }
 };
 
+// 184662 - Shield of Vengeance
+class spell_pal_shield_of_vengeance : public AuraScript
+{
+    PrepareAuraScript(spell_pal_shield_of_vengeance);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_SHIELD_OF_VENGEANCE_DAMAGE })
+            && ValidateSpellEffect({
+            { spellInfo->Id, EFFECT_0 },
+            { spellInfo->Id, EFFECT_1 }
+        });
+    }
+
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        amount = CalculatePct(GetUnitOwner()->GetMaxHealth(), GetSpellInfo()->GetEffect(EFFECT_1).CalcValue());
+    }
+
+    void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_SHIELD_OF_VENGEANCE_DAMAGE, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellBP0(aurEff->GetAmount()));
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pal_shield_of_vengeance::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        OnEffectRemove += AuraEffectApplyFn(spell_pal_shield_of_vengeance::HandleRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 184689 - Shield of Vengeance (damage)
+class spell_pal_shield_of_vengeance_damage : public SpellScript
+{
+    PrepareSpellScript(spell_pal_shield_of_vengeance_damage);
+
+    uint8 targetsCount = 0;
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        targetsCount = targets.size();
+    }
+
+    void HandleDamage(SpellEffIndex /*effectIndex*/)
+    {
+        if (targetsCount)
+            SetHitDamage(GetHitDamage() / targetsCount);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_shield_of_vengeance_damage::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_pal_shield_of_vengeance_damage::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 // 85256 - Templar's Verdict
 class spell_pal_templar_s_verdict : public SpellScript
 {
@@ -1663,6 +1720,8 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_righteous_protector);
     RegisterSpellScript(spell_pal_righteous_verdict);
     RegisterSpellScript(spell_pal_selfless_healer);
+    RegisterSpellScript(spell_pal_shield_of_vengeance);
+    RegisterSpellScript(spell_pal_shield_of_vengeance_damage);
     RegisterSpellScript(spell_pal_templar_s_verdict);
     RegisterSpellScript(spell_pal_t3_6p_bonus);
     RegisterSpellScript(spell_pal_t8_2p_bonus);
