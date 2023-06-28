@@ -2388,6 +2388,7 @@ void World::LoadAutobroadcasts()
 void World::Update(uint32 diff)
 {
     ZoneScopedC(WORLD_UPDATE_COLOR)
+    clear_lua_garbage();
     TC_METRIC_TIMER("world_update_time_total");
     ///- Update the game time and check for shutdown time
     _UpdateGameTime();
