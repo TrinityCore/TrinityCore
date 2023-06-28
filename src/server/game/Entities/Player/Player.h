@@ -1240,7 +1240,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         // Played Time Stuff
         time_t m_logintime;
         time_t m_Last_tick;
-        uint32 m_Played_time[MAX_PLAYED_TIME_INDEX];
+        std::array<uint32, MAX_PLAYED_TIME_INDEX> m_Played_time;
         uint32 GetTotalPlayedTime() const { return m_Played_time[PLAYED_TIME_TOTAL]; }
         uint32 GetLevelPlayedTime() const { return m_Played_time[PLAYED_TIME_LEVEL]; }
 
@@ -1524,7 +1524,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         TradeData* GetTradeData() const { return m_trade; }
         void TradeCancel(bool sendback);
 
-        CinematicMgr* GetCinematicMgr() const { return _cinematicMgr; }
+        CinematicMgr* GetCinematicMgr() const { return _cinematicMgr.get(); }
 
         void UpdateEnchantTime(uint32 time);
         void UpdateSoulboundTradeItems();
@@ -2397,7 +2397,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void SendAurasForTarget(Unit* target) const;
 
-        PlayerMenu* PlayerTalkClass;
+        std::unique_ptr<PlayerMenu> PlayerTalkClass;
         std::vector<ItemSetEffect*> ItemSetEff;
 
         void SendLoot(Loot& loot, bool aeLooting = false);
@@ -2546,7 +2546,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         template<class T>
         void UpdateVisibilityOf(T* target, UpdateData& data, std::set<Unit*>& visibleNow);
 
-        uint8 m_forced_speed_changes[MAX_MOVE_TYPE];
+        std::array<uint8, MAX_MOVE_TYPE> m_forced_speed_changes;
         uint8 m_movementForceModMagnitudeChanges;
 
         bool HasAtLoginFlag(AtLoginFlags f) const { return (m_atLoginFlags & f) != 0; }
@@ -2650,7 +2650,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         bool isAllowedToLoot(Creature const* creature) const;
 
-        DeclinedName const* GetDeclinedNames() const { return m_declinedname; }
+        DeclinedName const* GetDeclinedNames() const { return m_declinedname.get(); }
         uint8 GetRunesState() const;
         uint32 GetRuneCooldown(uint8 index) const { return m_runes->Cooldown[index]; }
         uint32 GetRuneBaseCooldown() const;
@@ -2884,7 +2884,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         TimePoint m_regenInterruptTimestamp;
         uint32 m_regenTimerCount;
         uint32 m_foodEmoteTimerCount;
-        float m_powerFraction[MAX_POWERS_PER_CLASS];
+        std::array<float, MAX_POWERS_PER_CLASS> m_powerFraction;
         uint32 m_contestedPvPTimer;
 
         /*********************************************************/
@@ -3057,9 +3057,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         ActionButtonList m_actionButtons;
 
-        float m_auraBaseFlatMod[BASEMOD_END];
-        float m_auraBasePctMod[BASEMOD_END];
-        int16 m_baseRatingValue[MAX_COMBAT_RATING];
+        std::array<float, BASEMOD_END> m_auraBaseFlatMod;
+        std::array<float, BASEMOD_END> m_auraBasePctMod;
+        std::array<int16, MAX_COMBAT_RATING> m_baseRatingValue;
         uint32 m_baseSpellPower;
         uint32 m_baseManaRegen;
         uint32 m_baseHealthRegen;
@@ -3133,8 +3133,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         WorldLocation m_recall_location;
         uint32 m_recall_instanceId;
 
-        DeclinedName *m_declinedname;
-        Runes *m_runes;
+        std::unique_ptr<DeclinedName> m_declinedname;
+        std::unique_ptr<Runes> m_runes;
         EquipmentSetContainer _equipmentSets;
 
         bool CanNeverSee(WorldObject const* obj) const override;
@@ -3156,7 +3156,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         Item* _StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool update);
         Item* _LoadItem(CharacterDatabaseTransaction trans, uint32 zoneId, uint32 timeDiff, Field* fields);
 
-        CinematicMgr* _cinematicMgr;
+        std::unique_ptr<CinematicMgr> _cinematicMgr;
 
         GuidSet m_refundableItems;
         void SendRefundInfo(Item* item);
@@ -3178,7 +3178,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 m_lastFallTime;
         float  m_lastFallZ;
 
-        int32 m_MirrorTimer[MAX_TIMERS];
+        std::array<int32, MAX_TIMERS> m_MirrorTimer;
         uint8 m_MirrorTimerFlags;
         uint8 m_MirrorTimerFlagsLast;
 
@@ -3199,8 +3199,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 m_temporaryUnsummonedPetNumber;
         uint32 m_oldpetspell;
 
-        PlayerAchievementMgr* m_achievementMgr;
-        ReputationMgr*  m_reputationMgr;
+        std::unique_ptr<PlayerAchievementMgr> m_achievementMgr;
+        std::unique_ptr<ReputationMgr> m_reputationMgr;
         std::unique_ptr<QuestObjectiveCriteriaMgr> m_questObjectiveCriteriaMgr;
 
         uint32 m_ChampioningFaction;

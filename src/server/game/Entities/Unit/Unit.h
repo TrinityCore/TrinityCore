@@ -769,6 +769,8 @@ class TC_GAME_API Unit : public WorldObject
         struct VisibleAuraSlotCompare { bool operator()(AuraApplication* left, AuraApplication* right) const; };
         typedef std::set<AuraApplication*, VisibleAuraSlotCompare> VisibleAuraContainer;
 
+        static std::vector<AuraEffect*> CopyAuraEffectList(AuraEffectList const& list);
+
         virtual ~Unit();
 
         bool IsAIEnabled() const { return (i_AI != nullptr); }

@@ -92,7 +92,7 @@ class CASC_MIME_ELEMENT
 
     CASC_MIME_ELEMENT * GetChild()  { return folder.pChild; }
 
-#ifdef _DEBUG
+#ifdef CASCLIB_DEBUG
     void Print(size_t nLevel, size_t nIndex);
 #endif
 
@@ -127,7 +127,7 @@ class CASC_MIME
 
     DWORD Load(char * data, CASC_MIME_RESPONSE & MimeResponse);
 
-#ifdef _DEBUG
+#ifdef CASCLIB_DEBUG
     void Print();
 #endif
 
