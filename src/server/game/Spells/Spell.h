@@ -654,7 +654,7 @@ class TC_GAME_API Spell
         void CallScriptOnResistAbsorbCalculateHandlers(DamageInfo const& damageInfo, uint32& resistAmount, int32& absorbAmount);
 
         bool IsWithinLOS(WorldObject const* source, WorldObject const* target, bool targetAsSourceLocation, VMAP::ModelIgnoreFlags ignoreFlags) const;
-        bool IsWithinLOS(WorldObject const* source, Position pos, VMAP::ModelIgnoreFlags ignoreFlags) const;
+        bool IsWithinLOS(WorldObject const* source, Position const& target, VMAP::ModelIgnoreFlags ignoreFlags) const;
 
     protected:
         bool HasGlobalCooldown() const;

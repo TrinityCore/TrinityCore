@@ -5782,13 +5782,8 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
 
     // Check for line of sight for spells with dest
     if (m_targets.HasDst())
-    {
-        float x, y, z;
-        m_targets.GetDstPos()->GetPosition(x, y, z);
-
-        if (!IsWithinLOS(m_caster, { x, y, z }, VMAP::ModelIgnoreFlags::M2))
+        if (!IsWithinLOS(m_caster, *m_targets.GetDstPos(), VMAP::ModelIgnoreFlags::M2))
             return SPELL_FAILED_LINE_OF_SIGHT;
-    }
 
     // check pet presence
     if (Unit* unitCaster = m_caster->ToUnit())
@@ -8029,7 +8024,7 @@ bool Spell::CheckEffectTarget(Unit const* target, SpellEffectInfo const& spellEf
             }
 
             if (losPosition)
-                if (!IsWithinLOS(target, { losPosition->GetPositionX(), losPosition->GetPositionY(), losPosition->GetPositionZ() }, VMAP::ModelIgnoreFlags::M2))
+                if (!IsWithinLOS(target, *losPosition, VMAP::ModelIgnoreFlags::M2))
                     return false;
         }
     }
@@ -8917,7 +8912,7 @@ bool Spell::IsWithinLOS(WorldObject const* source, WorldObject const* target, bo
     return src->IsWithinLOSInMap(dst, LINEOFSIGHT_ALL_CHECKS, ignoreFlags);
 }
 
-bool Spell::IsWithinLOS(WorldObject const* source, Position pos, VMAP::ModelIgnoreFlags ignoreFlags) const
+bool Spell::IsWithinLOS(WorldObject const* source, Position const& target, VMAP::ModelIgnoreFlags ignoreFlags) const
 {
     if (m_spellInfo->HasAttribute(SPELL_ATTR2_IGNORE_LINE_OF_SIGHT))
         return true;
@@ -8925,7 +8920,7 @@ bool Spell::IsWithinLOS(WorldObject const* source, Position pos, VMAP::ModelIgno
     if (DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, nullptr, SPELL_DISABLE_LOS))
         return true;
 
-    return source->IsWithinLOS(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), LINEOFSIGHT_ALL_CHECKS, ignoreFlags);
+    return source->IsWithinLOS(target.GetPositionX(), target.GetPositionY(), target.GetPositionZ(), LINEOFSIGHT_ALL_CHECKS, ignoreFlags);
 }
 
 namespace Trinity
