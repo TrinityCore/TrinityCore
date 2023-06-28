@@ -20,6 +20,7 @@
 
 #include "ConditionMgr.h"
 #include "DBCEnums.h"
+#include "ModelIgnoreFlags.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "Position.h"
@@ -651,6 +652,9 @@ class TC_GAME_API Spell
 
         std::string GetDebugInfo() const;
         void CallScriptOnResistAbsorbCalculateHandlers(DamageInfo const& damageInfo, uint32& resistAmount, int32& absorbAmount);
+
+        bool IsWithinLOS(WorldObject const* source, WorldObject const* target, bool targetAsSourceLocation, VMAP::ModelIgnoreFlags ignoreFlags) const;
+        bool IsWithinLOS(WorldObject const* source, Position const& target, VMAP::ModelIgnoreFlags ignoreFlags) const;
 
     protected:
         bool HasGlobalCooldown() const;
