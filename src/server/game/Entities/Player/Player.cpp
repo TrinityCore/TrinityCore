@@ -17116,7 +17116,6 @@ void Player::_LoadDeclinedNames(PreparedQueryResult result)
     if (!result)
         return;
 
-    m_declinedname.reset();
     m_declinedname = std::make_unique<DeclinedName>();
     for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
         m_declinedname->name[i] = (*result)[i].GetString();
