@@ -1523,7 +1523,7 @@ class spell_sha_riptide : public SpellScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo
-        ({ 
+        ({
            SPELL_SHAMAN_DEEPLY_ROOTED_ELEMENTS,
            SPELL_SHAMAN_ASCENDANCE_RESTORATION
         }) && ValidateSpellEffect({
@@ -1593,7 +1593,7 @@ class spell_sha_stormstrike : public SpellScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo
-        ({ 
+        ({
            SPELL_SHAMAN_DEEPLY_ROOTED_ELEMENTS,
            SPELL_SHAMAN_ASCENDANCE_ENHANCEMENT
         }) && ValidateSpellEffect({
