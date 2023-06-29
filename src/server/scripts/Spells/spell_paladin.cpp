@@ -51,6 +51,7 @@ enum PaladinSpells
     SPELL_PALADIN_CONSECRATION                   = 26573,
     SPELL_PALADIN_CONSECRATION_DAMAGE            = 81297,
     SPELL_PALADIN_CONSECRATION_PROTECTION_AURA   = 188370,
+    SPELL_PALADIN_CRUSADING_STRIKES_ENERGIZE     = 406834,
     SPELL_PALADIN_DIVINE_PURPOSE_TRIGGERED       = 223819,
     SPELL_PALADIN_DIVINE_STEED_HUMAN             = 221883,
     SPELL_PALADIN_DIVINE_STEED_DWARF             = 276111,
@@ -99,6 +100,8 @@ enum PaladinSpells
     SPELL_PALADIN_RIGHTEOUS_VERDICT_AURA         = 267611,
     SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS          = 25742,
     SPELL_PALADIN_TEMPLAR_VERDICT_DAMAGE         = 224266,
+    SPELL_PALADIN_T30_2P_HEARTFIRE_DAMAGE        = 408399,
+    SPELL_PALADIN_T30_2P_HEARTFIRE_HEAL          = 408400,
     SPELL_PALADIN_ZEAL_AURA                      = 269571
 };
 
@@ -121,6 +124,11 @@ enum PaladinSpellVisual
     PALADIN_VISUAL_SPELL_HOLY_SHOCK_DAMAGE_CRIT  = 83881,
     PALADIN_VISUAL_SPELL_HOLY_SHOCK_HEAL         = 83732,
     PALADIN_VISUAL_SPELL_HOLY_SHOCK_HEAL_CRIT    = 83880,
+};
+
+enum PaladinSpellLabel
+{
+    SPELL_LABEL_PALADIN_T30_2P_HEARTFIRE         = 2598
 };
 
 // 267344 - Art of War
@@ -468,6 +476,33 @@ class spell_pal_crusader_might : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_pal_crusader_might::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 406833 - Crusading Strikes
+class spell_pal_crusading_strikes : public AuraScript
+{
+    PrepareAuraScript(spell_pal_crusading_strikes);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_CRUSADING_STRIKES_ENERGIZE });
+    }
+
+    void HandleEffectProc(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetStackAmount() == 2)
+        {
+            GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_CRUSADING_STRIKES_ENERGIZE, aurEff);
+
+            // this spell has weird proc order dependency set up in db2 data so we do removal manually
+            Remove();
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_pal_crusading_strikes::HandleEffectProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
     }
 };
 
@@ -1507,6 +1542,64 @@ class spell_pal_t8_2p_bonus : public AuraScript
     }
 };
 
+// 405547 - Paladin Protection 10.1 Class Set 2pc
+class spell_pal_t30_2p_protection_bonus : public AuraScript
+{
+    PrepareAuraScript(spell_pal_t30_2p_protection_bonus);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_T30_2P_HEARTFIRE_DAMAGE });
+    }
+
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& procInfo)
+    {
+        PreventDefaultAction();
+
+        Unit* caster = procInfo.GetActor();
+        uint32 ticks = sSpellMgr->AssertSpellInfo(SPELL_PALADIN_T30_2P_HEARTFIRE_DAMAGE, DIFFICULTY_NONE)->GetMaxTicks();
+        uint32 damage = CalculatePct(procInfo.GetDamageInfo()->GetOriginalDamage(), aurEff->GetAmount()) / ticks;
+
+        caster->CastSpell(procInfo.GetActionTarget(), SPELL_PALADIN_T30_2P_HEARTFIRE_DAMAGE, CastSpellExtraArgs(aurEff)
+            .SetTriggeringSpell(procInfo.GetProcSpell())
+            .AddSpellMod(SPELLVALUE_BASE_POINT0, damage));
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_pal_t30_2p_protection_bonus::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
+    }
+};
+
+// 408461 - Heartfire
+class spell_pal_t30_2p_protection_bonus_heal : public AuraScript
+{
+    PrepareAuraScript(spell_pal_t30_2p_protection_bonus_heal);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_T30_2P_HEARTFIRE_HEAL });
+    }
+
+    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& procInfo)
+    {
+        return procInfo.GetDamageInfo() && procInfo.GetSpellInfo() && procInfo.GetSpellInfo()->HasLabel(SPELL_LABEL_PALADIN_T30_2P_HEARTFIRE);
+    }
+
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& procInfo)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_T30_2P_HEARTFIRE_HEAL, CastSpellExtraArgs(aurEff)
+            .SetTriggeringSpell(procInfo.GetProcSpell())
+            .AddSpellMod(SPELLVALUE_BASE_POINT0, procInfo.GetDamageInfo()->GetOriginalDamage()));
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_pal_t30_2p_protection_bonus_heal::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_pal_t30_2p_protection_bonus_heal::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 269569 - Zeal
 class spell_pal_zeal : public AuraScript
 {
@@ -1540,6 +1633,7 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_blessing_of_protection);
     RegisterSpellScript(spell_pal_blinding_light);
     RegisterSpellScript(spell_pal_crusader_might);
+    RegisterSpellScript(spell_pal_crusading_strikes);
     RegisterSpellScript(spell_pal_consecration);
     RegisterAreaTriggerAI(areatrigger_pal_consecration);
     RegisterSpellScript(spell_pal_divine_purpose);
@@ -1572,5 +1666,7 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_templar_s_verdict);
     RegisterSpellScript(spell_pal_t3_6p_bonus);
     RegisterSpellScript(spell_pal_t8_2p_bonus);
+    RegisterSpellScript(spell_pal_t30_2p_protection_bonus);
+    RegisterSpellScript(spell_pal_t30_2p_protection_bonus_heal);
     RegisterSpellScript(spell_pal_zeal);
 }

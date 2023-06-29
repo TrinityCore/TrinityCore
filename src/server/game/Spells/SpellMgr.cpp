@@ -1813,6 +1813,7 @@ void SpellMgr::LoadSpellProcs()
         procEntry.SpellPhaseMask  = PROC_SPELL_PHASE_HIT;
         procEntry.HitMask         = PROC_HIT_NONE; // uses default proc @see SpellMgr::CanSpellTriggerProcOnEvent
 
+        bool triggersSpell = false;
         for (SpellEffectInfo const& spellEffectInfo : spellInfo.GetEffects())
         {
             if (!spellEffectInfo.IsAura())
@@ -1838,6 +1839,10 @@ void SpellMgr::LoadSpellProcs()
                     if (spellEffectInfo.CalcValue() <= -100)
                         procEntry.HitMask = PROC_HIT_MISS;
                     break;
+                case SPELL_AURA_PROC_TRIGGER_SPELL:
+                case SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE:
+                    triggersSpell = spellEffectInfo.TriggerSpell != 0;
+                    break;
                 default:
                     continue;
             }
@@ -1855,6 +1860,22 @@ void SpellMgr::LoadSpellProcs()
         procEntry.Chance          = spellInfo.ProcChance;
         procEntry.Cooldown        = Milliseconds(spellInfo.ProcCooldown);
         procEntry.Charges         = spellInfo.ProcCharges;
+
+        if (spellInfo.HasAttribute(SPELL_ATTR3_CAN_PROC_FROM_PROCS) && !procEntry.SpellFamilyMask
+            && procEntry.Chance >= 100
+            && spellInfo.ProcBasePPM <= 0.0f
+            && procEntry.Cooldown <= 0ms
+            && procEntry.Charges <= 0
+            && procEntry.ProcFlags & (PROC_FLAG_DEAL_MELEE_ABILITY | PROC_FLAG_DEAL_RANGED_ATTACK | PROC_FLAG_DEAL_RANGED_ABILITY | PROC_FLAG_DEAL_HELPFUL_ABILITY
+                | PROC_FLAG_DEAL_HARMFUL_ABILITY | PROC_FLAG_DEAL_HELPFUL_SPELL | PROC_FLAG_DEAL_HARMFUL_SPELL | PROC_FLAG_DEAL_HARMFUL_PERIODIC
+                | PROC_FLAG_DEAL_HELPFUL_PERIODIC)
+            && triggersSpell)
+        {
+            TC_LOG_ERROR("sql.sql", "Spell Id {} has SPELL_ATTR3_CAN_PROC_FROM_PROCS attribute and no restriction on what spells can cause it to proc and no cooldown. "
+                "This spell can cause infinite proc loops. Proc data for this spell was not generated, data in `spell_proc` table is required for it to function!",
+                spellInfo.Id);
+            continue;
+        }
 
         mSpellProcMap[{ spellInfo.Id, spellInfo.Difficulty }] = procEntry;
         ++count;
