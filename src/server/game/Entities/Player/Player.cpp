@@ -209,7 +209,7 @@ Player::Player(WorldSession* session): Unit(true)
     m_DelayedOperations = 0;
     m_bCanDelayTeleport = false;
     m_bHasDelayedTeleport = false;
-    m_teleport_options = 0;
+    m_teleport_options = TELE_TO_NONE;
 
     m_trade = nullptr;
 
@@ -1420,7 +1420,7 @@ uint8 Player::GetChatTag() const
     return tag;
 }
 
-bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options /*= 0*/, Optional<uint32> instanceId /*= {}*/)
+bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientation, TeleportToOptions options /*= TELE_TO_NONE*/, Optional<uint32> instanceId /*= {}*/)
 {
     if (!MapManager::IsValidMapCoord(mapid, x, y, z, orientation))
     {
@@ -1670,7 +1670,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     return true;
 }
 
-bool Player::TeleportTo(WorldLocation const& loc, uint32 options /*= 0*/, Optional<uint32> instanceId /*= {}*/)
+bool Player::TeleportTo(WorldLocation const& loc, TeleportToOptions options /*= TELE_TO_NONE*/, Optional<uint32> instanceId /*= {}*/)
 {
     return TeleportTo(loc.GetMapId(), loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation(), options, instanceId);
 }
@@ -23748,7 +23748,7 @@ void Player::SummonIfPossible(bool agree)
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ACCEPTED_SUMMONINGS, 1);
     RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Summon);
 
-    TeleportTo(m_summon_location, 0, m_summon_instanceId);
+    TeleportTo(m_summon_location, TELE_TO_NONE, m_summon_instanceId);
 }
 
 void Player::RemoveItemDurations(Item* item)

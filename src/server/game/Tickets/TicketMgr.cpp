@@ -255,7 +255,7 @@ void GmTicket::SetGmAction(uint32 needResponse, bool needMoreHelp)
 
 void GmTicket::TeleportTo(Player* player) const
 {
-    player->TeleportTo(_mapId, _posX, _posY, _posZ, 0.0f, 0);
+    player->TeleportTo(_mapId, _posX, _posY, _posZ, 0.0f);
 }
 
 void GmTicket::SetChatLog(std::list<uint32> time, std::string const& log)
