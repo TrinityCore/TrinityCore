@@ -81,34 +81,30 @@ INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`ScriptNa
 (14437,36149,0,'',45745),
 (12058,29322,0,'',45745);
 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=29 AND `SourceEntry` IN (29262,29263,29305,29559,29556,29561,29322,34645,36134,36151,36152,36153);
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(29,0,29262,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 29262 if team is Alliance'), -- Alliance
-(29,0,29263,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 29263 if team is Alliance'),
-(29,0,29305,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 29305 if team is Alliance'),
-(29,0,29556,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 29557 if team is Alliance'),
-(29,0,29559,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 29559 if team is Alliance'),
-(29,0,29561,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 29561 if team is Alliance'),
-(29,0,29322,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 29322 if team is Alliance'),
-(29,0,34645,0,0,6,0,469,0,0,0,0,0,'','Allow conversation line 34645 if team is Alliance'),
-(29,0,36134,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36134 if team is Horde'), -- Horde
-(29,0,36151,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36151 if team is Horde'),
-(29,0,36152,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36152 if team is Horde'),
-(29,0,36153,0,0,6,0,67,0,0,0,0,0,'','Allow conversation line 36153 if team is Horde');
-
 -- Beach alliance scripting
 UPDATE `creature_template` SET `npcflag`=2, `unit_flags`=768, `unit_flags2`=34816, AIName="",`ScriptName`="npc_captain_garrick_beach" WHERE entry=156626;
 UPDATE `creature_template` SET `ScriptName`="npc_warlord_grimaxe_beach" WHERE `entry`=166782;
-UPDATE `creature_template` SET `ScriptName`="npc_healed_by_leader_beach" WHERE `entry` IN (149917,156622,166784,166800);
+UPDATE `creature_template` SET `ScriptName`="npc_healed_by_leader_alliance_beach" WHERE `entry` IN (149917,156622);
+UPDATE `creature_template` SET `ScriptName`="npc_healed_by_leader_horde_beach" WHERE `entry` IN (166784,166800);
 UPDATE `quest_template_addon` SET `ScriptName`='quest_emergency_first_aid' WHERE `ID` IN (54951,59930);
-UPDATE `quest_template_addon` SET `ScriptName`='quest_finding_the_lost_expedition' WHERE `ID` IN (54952,59931);
-UPDATE `creature_template` SET `ScriptName`="npc_leader_summoned_survivor_beach" WHERE `entry` IN (165359,166805);
-UPDATE `creature_template` SET `ScriptName`="npc_alliance_survivors_beach_laying" WHERE `entry` IN (156609,156610,156612);
-UPDATE `creature_template` SET `ScriptName`="npc_alliance_survivors_beach_standing" WHERE `entry` IN (151088,151089,154170);
-UPDATE `creature_template` SET `ScriptName`="npc_horde_survivors_beach_laying" WHERE `entry` IN (166786,166791,166796);
-UPDATE `creature_template` SET `ScriptName`="npc_horde_survivors_beach_standing" WHERE `entry` IN (166787,166792,166797);
+UPDATE `creature_template` SET `ScriptName`="npc_bjorn_stouthands_beach_laying" WHERE `entry`=156609;
+UPDATE `creature_template` SET `ScriptName`="npc_austin_huxworth_beach_laying" WHERE `entry`=156610;
+UPDATE `creature_template` SET `ScriptName`="npc_kee_la_beach_laying" WHERE `entry`=156612;
+
+UPDATE `creature_template` SET `ScriptName`="npc_bo_beach_laying" WHERE `entry`=166786;
+UPDATE `creature_template` SET `ScriptName`="npc_mithran_dawntracker_beach_laying" WHERE `entry`=166791;
+UPDATE `creature_template` SET `ScriptName`="npc_lana_jordan_beach_laying" WHERE `entry`=166796;
+UPDATE `creature_template` SET `ScriptName`="npc_bo_beach_standing" WHERE `entry`=166787;
+UPDATE `creature_template` SET `ScriptName`="npc_mithdran_dawntracker_beach_standing" WHERE `entry`=166792;
+UPDATE `creature_template` SET `ScriptName`="npc_lana_jordan_beach_standing" WHERE `entry`=166797;
+
 UPDATE `creature_template` SET `ScriptName`="npc_murloc_spearhunter_watershaper" WHERE `entry` IN (150228,150229);
 UPDATE `creature` SET `ScriptName`='npc_murloc_spearhunter_watershaper_higher_ground' WHERE `guid` IN(1051092, 1051082, 1051068, 1051081, 1051120, 1051117, 1051094, 1051084, 1051102);
+
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (305464,325136);
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+(305464,'spell_crash_landed_alliance'),
+(325136,'spell_crash_landed_horde');
 
 -- Pathing
 
