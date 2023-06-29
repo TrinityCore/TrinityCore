@@ -1803,6 +1803,7 @@ class TC_GAME_API Unit : public WorldObject
         // proc trigger system
         bool CanProc() const { return !m_procDeep; }
         void SetCantProc(bool apply);
+        int32 GetProcChainLength() const { return m_procChainLength; }
 
         uint32 GetModelForForm(ShapeshiftForm form, uint32 spellId) const;
 
@@ -1950,7 +1951,8 @@ class TC_GAME_API Unit : public WorldObject
 
         DeathState m_deathState;
 
-        int32 m_procDeep;
+        int32 m_procDeep;               // tracked for proc system correctness (what spells should proc what)
+        int32 m_procChainLength;        // tracked to protect against infinite proc loops (hard limit, will disallow procs even if they should happen)
 
         typedef std::list<DynamicObject*> DynObjectList;
         DynObjectList m_dynObj;

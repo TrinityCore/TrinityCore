@@ -584,6 +584,7 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
     memset(m_misc.Raw.Data, 0, sizeof(m_misc.Raw.Data));
     m_SpellVisual.SpellXSpellVisualID = caster->GetCastSpellXSpellVisualId(m_spellInfo);
     m_triggeredByAuraSpell  = nullptr;
+    m_procChainLength = caster->IsUnit() ? caster->ToUnit()->GetProcChainLength() : 0;
     _spellAura = nullptr;
     _dynObjAura = nullptr;
 

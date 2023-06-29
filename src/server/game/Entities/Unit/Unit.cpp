@@ -303,7 +303,7 @@ SpellNonMeleeDamage::SpellNonMeleeDamage(Unit* _attacker, Unit* _target, SpellIn
 
 Unit::Unit(bool isWorldObject) :
     WorldObject(isWorldObject), m_lastSanctuaryTime(0), LastCharmerGUID(), movespline(new Movement::MoveSpline()),
-    m_ControlledByPlayer(false), m_procDeep(0), m_transformSpell(0),
+    m_ControlledByPlayer(false), m_procDeep(0), m_procChainLength(0), m_transformSpell(0),
     m_removedAurasCount(0), m_interruptMask(SpellAuraInterruptFlags::None), m_interruptMask2(SpellAuraInterruptFlags2::None),
     m_unitMovedByMe(nullptr), m_playerMovingMe(nullptr), m_charmer(nullptr), m_charmed(nullptr),
     i_motionMaster(new MotionMaster(this)), m_regenTimer(0), m_vehicle(nullptr),
@@ -5320,6 +5320,13 @@ void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage const* log)
                                          ProcFlagsSpellType spellTypeMask, ProcFlagsSpellPhase spellPhaseMask, ProcFlagsHit hitMask,
                                          Spell* spell, DamageInfo* damageInfo, HealInfo* healInfo)
 {
+    static constexpr int32 ProcChainHardLimit = 10;
+    if (spell && spell->GetProcChainLength() >= ProcChainHardLimit)
+    {
+        TC_LOG_ERROR("spells.aura.effect", "Unit::ProcSkillsAndAuras: Possible infinite proc loop detected, current triggering spell {}", spell->GetDebugInfo().c_str());
+        return;
+    }
+
     WeaponAttackType attType = damageInfo ? damageInfo->GetAttackType() : BASE_ATTACK;
     if (typeMaskActor && actor)
         actor->ProcSkillsAndReactives(false, actionTarget, typeMaskActor, hitMask, attType);
@@ -10020,6 +10027,9 @@ void Unit::TriggerAurasProcOnEvent(ProcEventInfo& eventInfo, AuraApplicationProc
 {
     Spell const* triggeringSpell = eventInfo.GetProcSpell();
     bool const disableProcs = triggeringSpell && triggeringSpell->IsProcDisabled();
+
+    int32 oldProcChainLength = std::exchange(m_procChainLength, std::max(m_procChainLength + 1, triggeringSpell ? triggeringSpell->GetProcChainLength() : 0));
+
     if (disableProcs)
         SetCantProc(true);
 
@@ -10033,6 +10043,8 @@ void Unit::TriggerAurasProcOnEvent(ProcEventInfo& eventInfo, AuraApplicationProc
 
     if (disableProcs)
         SetCantProc(false);
+
+    m_procChainLength = oldProcChainLength;
 }
 
 ///----------Pet responses methods-----------------
