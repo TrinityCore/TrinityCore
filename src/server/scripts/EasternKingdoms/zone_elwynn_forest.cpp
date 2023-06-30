@@ -24,6 +24,7 @@
 #include "ObjectAccessor.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "TemporarySummon.h"
 
 enum COG_Paths
