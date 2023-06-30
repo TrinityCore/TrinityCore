@@ -15,13 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
+#include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
 #include "Containers.h"
 #include "CreatureAIImpl.h"
 #include "CreatureGroups.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
+#include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 enum COG_Paths
 {
@@ -273,7 +276,282 @@ private:
     GuidVector _childrenGUIDs;
 };
 
+enum AnUnlikelyInformantData
+{
+    QUEST_AN_UNLIKELY_INFORMANT         = 72405,
+
+    GOSSIP_MENU_SIGNAL_INFORMANT        = 30224,
+    GOSSIP_OPTION_SIGNAL_INFORMANT      = 0,
+
+    CONV_SIGNAL_INFORMANT_LOS_OOC       = 20340,
+    CONV_SIGNAL_INFORMANT_EVENT         = 20342,
+
+    CONV_LINE_VANESSA_TELEPORT          = 53702,
+    CONV_LINE_VANESSA_MOVEMENT          = 52465,
+    CONV_LINE_MATHIAS_QUEST_CREDIT      = 52466,
+
+    CONV_IDX_MATHIAS                    = 0,
+    CONV_IDX_VANESSA                    = 1,
+
+    NPC_MATHIAS_SHAW                    = 198896,
+    NPC_VANESSA_VANCLEEF                = 198883,
+
+    VANESSA_POINT_FINISH                = 1,
+
+    DISPLAY_VANESSA_INVISIBLE           = 71887,
+    DISPLAY_VANESSA_VISIBLE             = 110980,
+
+    SPELL_VANESSA_STEALTH               = 228928,
+    SPELL_VANESSA_TELEPORT_BEHIND       = 396357,
+    SPELL_VANESSA_CHEAP_SHOT            = 396359,
+};
+
+enum AnUnlikelyInformantEvents
+{
+    EVENT_VANESSA_TELEPORT = 1,
+    EVENT_VANESSA_MOVE,
+    EVENT_VANESSA_CLONE_LEAN,
+    EVENT_MATHIAS_QUEST_CREDIT,
+    EVENT_MATHIAS_CLONE_DESPAWN
+};
+
+enum WindowToThePastData
+{
+    GOSSIP_MENU_WINDOW_TO_THE_PAST      = 30224,
+    GOSSIP_OPTION_WINDOW_TO_THE_PAST    = 2,
+
+    SPELL_PLAY_ONYXIA_SCENE             = 402962
+};
+
+Position const VanessaClonePosition = { -9462.44f, -11.7101f, 50.161f, 2.99500f };
+Position const VanessaStaticPosition = { -9468.16f, -3.6128f, 49.876f, 4.47226f };
+
+// 198896 - Master Mathias Shaw
+struct npc_master_mathias_shaw_human_heritage_lions_pride_inn_basement : public ScriptedAI
+{
+    npc_master_mathias_shaw_human_heritage_lions_pride_inn_basement(Creature* creature) : ScriptedAI(creature) { }
+
+    bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+    {
+        // Quest 72408 - A Window to the Past
+        if (menuId == GOSSIP_MENU_WINDOW_TO_THE_PAST && gossipListId == GOSSIP_OPTION_WINDOW_TO_THE_PAST)
+        {
+            CloseGossipMenuFor(player);
+
+            player->CastSpell(nullptr, SPELL_PLAY_ONYXIA_SCENE, true);
+        }
+
+        // Quest 72405 - An Unlikely Informant
+        else if (menuId == GOSSIP_MENU_SIGNAL_INFORMANT && gossipListId == GOSSIP_OPTION_SIGNAL_INFORMANT)
+        {
+            CloseGossipMenuFor(player);
+
+            Conversation* convo = Conversation::CreateConversation(CONV_SIGNAL_INFORMANT_EVENT, player, *player, player->GetGUID(), nullptr, false);
+            if (!convo)
+                return true;
+        }
+        return true;
+    }
+};
+
+// 198883 - Vanessa VanCleef
+struct npc_vanessa_vancleef_human_heritage_lions_pride_inn_basement : public ScriptedAI
+{
+    npc_vanessa_vancleef_human_heritage_lions_pride_inn_basement(Creature* creature) : ScriptedAI(creature) { }
+
+    void MovementInform(uint32 /*type*/, uint32 pointId) override
+    {
+        if (pointId == VANESSA_POINT_FINISH)
+            _events.ScheduleEvent(EVENT_VANESSA_CLONE_LEAN, 1s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_VANESSA_CLONE_LEAN:
+                    me->SetFacingTo(4.47226f);
+                    me->HandleEmoteCommand(EMOTE_STATE_WALEAN02);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+private:
+    EventMap _events;
+};
+
+struct at_human_heritage_lions_pride_inn_basement_enter : AreaTriggerAI
+{
+    at_human_heritage_lions_pride_inn_basement_enter(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        Player* player = unit->ToPlayer();
+        if (!player || player->GetQuestStatus(QUEST_AN_UNLIKELY_INFORMANT) != QUEST_STATUS_INCOMPLETE)
+            return;
+
+        Conversation::CreateConversation(CONV_SIGNAL_INFORMANT_LOS_OOC, unit, unit->GetPosition(), unit->GetGUID());
+    }
+};
+
+class conversation_an_unlikely_informant : public ConversationScript
+{
+public:
+    conversation_an_unlikely_informant() : ConversationScript("conversation_an_unlikely_informant") { }
+
+    void OnConversationCreate(Conversation* conversation, Unit* creator) override
+    {
+        Creature* mathiasObject = GetClosestCreatureWithOptions(creator, 15.0f, FindCreatureOptions().SetIgnorePhases(true).SetCreatureId(NPC_MATHIAS_SHAW));
+        Creature* vanessaObject = GetClosestCreatureWithOptions(creator, 15.0f, FindCreatureOptions().SetIgnorePhases(true).SetCreatureId(NPC_VANESSA_VANCLEEF));
+        if (!mathiasObject || !vanessaObject)
+            return;
+
+        TempSummon* mathiasClone = mathiasObject->SummonPersonalClone(mathiasObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
+        TempSummon* vanessaClone = vanessaObject->SummonPersonalClone(VanessaClonePosition, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
+        if (!mathiasClone || !vanessaClone)
+            return;
+
+        _vanessaGUID = vanessaClone->GetGUID();
+        _mathiasGUID = mathiasClone->GetGUID();
+        mathiasClone->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
+        vanessaClone->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_QUESTGIVER));
+
+        conversation->AddActor(CONV_SIGNAL_INFORMANT_EVENT, CONV_IDX_MATHIAS, mathiasClone->GetGUID());
+        conversation->AddActor(CONV_SIGNAL_INFORMANT_EVENT, CONV_IDX_VANESSA, vanessaClone->GetGUID());
+        conversation->Start();
+    }
+
+    void OnConversationStart(Conversation* conversation) override
+    {
+        LocaleConstant privateOwnerLocale = LOCALE_enUS;
+        if (Player* owner = ObjectAccessor::GetPlayer(*conversation, conversation->GetPrivateObjectOwner()))
+            privateOwnerLocale = owner->GetSession()->GetSessionDbLocaleIndex();
+
+        if (Milliseconds const* teleportLineStartTime = conversation->GetLineStartTime(privateOwnerLocale, CONV_LINE_VANESSA_TELEPORT))
+            _events.ScheduleEvent(EVENT_VANESSA_TELEPORT, *teleportLineStartTime);
+
+        if (Milliseconds const* movementLineStartTime = conversation->GetLineStartTime(privateOwnerLocale, CONV_LINE_VANESSA_MOVEMENT))
+            _events.ScheduleEvent(EVENT_VANESSA_MOVE, *movementLineStartTime);
+
+        if (Milliseconds const* movementLineStartTime = conversation->GetLineStartTime(privateOwnerLocale, CONV_LINE_MATHIAS_QUEST_CREDIT))
+            _events.ScheduleEvent(EVENT_MATHIAS_QUEST_CREDIT, *movementLineStartTime);
+
+        _events.ScheduleEvent(EVENT_MATHIAS_CLONE_DESPAWN, conversation->GetLastLineEndTime(privateOwnerLocale));
+    }
+
+    void OnConversationUpdate(Conversation* conversation, uint32 diff) override
+    {
+        _events.Update(diff);
+
+        switch (_events.ExecuteEvent())
+        {
+            case EVENT_VANESSA_TELEPORT:
+            {
+                Unit* privateObjectOwner = ObjectAccessor::GetUnit(*conversation, conversation->GetPrivateObjectOwner());
+                if (!privateObjectOwner)
+                    return;
+
+                Creature* vanessaClone = ObjectAccessor::GetCreature(*conversation, _vanessaGUID);
+                if (!vanessaClone)
+                    return;
+
+                vanessaClone->CastSpell(privateObjectOwner, SPELL_VANESSA_TELEPORT_BEHIND, true);
+                vanessaClone->CastSpell(privateObjectOwner, SPELL_VANESSA_CHEAP_SHOT, true);
+                vanessaClone->RemoveAurasDueToSpell(SPELL_VANESSA_STEALTH);
+                vanessaClone->SetEmoteState(EMOTE_STATE_READY1H);
+                break;
+            }
+            case EVENT_VANESSA_MOVE:
+            {
+                Creature* vanessaClone = ObjectAccessor::GetCreature(*conversation, _vanessaGUID);
+                if (!vanessaClone)
+                    return;
+
+                vanessaClone->SetWalk(true);
+                vanessaClone->SetEmoteState(EMOTE_STATE_NONE);
+                vanessaClone->GetMotionMaster()->MovePoint(VANESSA_POINT_FINISH, VanessaStaticPosition);
+                break;
+            }
+            case EVENT_MATHIAS_QUEST_CREDIT:
+            {
+                Unit* privateObjectOwner = ObjectAccessor::GetUnit(*conversation, conversation->GetPrivateObjectOwner());
+                if (!privateObjectOwner)
+                    return;
+
+                Creature* vanessaClone = ObjectAccessor::GetCreature(*conversation, _vanessaGUID);
+                if (!vanessaClone)
+                    return;
+
+                Creature* mathiasClone = ObjectAccessor::GetCreature(*conversation, _mathiasGUID);
+                if (!mathiasClone)
+                    return;
+
+                privateObjectOwner->ToPlayer()->KilledMonsterCredit(NPC_MATHIAS_SHAW);
+                vanessaClone->DespawnOrUnsummon();
+                mathiasClone->SetNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
+                break;
+            }
+            case EVENT_MATHIAS_CLONE_DESPAWN:
+            {
+                Creature* mathiasClone = ObjectAccessor::GetCreature(*conversation, _mathiasGUID);
+                if (!mathiasClone)
+                    return;
+
+                mathiasClone->DespawnOrUnsummon();
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+private:
+    ObjectGuid _vanessaGUID;
+    ObjectGuid _mathiasGUID;
+    EventMap _events;
+};
+
+// 228928 - Stealth
+class spell_stealth_vanessa_human_heritage : public AuraScript
+{
+    PrepareAuraScript(spell_stealth_vanessa_human_heritage);
+
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->SetDisplayId(DISPLAY_VANESSA_INVISIBLE);
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->SetDisplayId(DISPLAY_VANESSA_VISIBLE);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectRemoveFn(spell_stealth_vanessa_human_heritage::OnApply, EFFECT_1, SPELL_AURA_ANIM_REPLACEMENT_SET, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_stealth_vanessa_human_heritage::OnRemove, EFFECT_1, SPELL_AURA_ANIM_REPLACEMENT_SET, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_elwynn_forest()
 {
+    // Creature
     RegisterCreatureAI(npc_cameron);
+    RegisterCreatureAI(npc_master_mathias_shaw_human_heritage_lions_pride_inn_basement);
+    RegisterCreatureAI(npc_vanessa_vancleef_human_heritage_lions_pride_inn_basement);
+
+    // Spells
+    RegisterSpellScript(spell_stealth_vanessa_human_heritage);
+
+    // Conversation
+    new conversation_an_unlikely_informant();
+
+    // AreaTrigger
+    RegisterAreaTriggerAI(at_human_heritage_lions_pride_inn_basement_enter);
 }
