@@ -41,6 +41,9 @@ enum ShamanSpells
     SPELL_SHAMAN_AFTERSHOCK_ENERGIZE            = 210712,
     SPELL_SHAMAN_ANCESTRAL_GUIDANCE             = 108281,
     SPELL_SHAMAN_ANCESTRAL_GUIDANCE_HEAL        = 114911,
+    SPELL_SHAMAN_ASCENDANCE_ELEMENTAL           = 114050,
+    SPELL_SHAMAN_ASCENDANCE_ENHANCEMENT         = 114051,
+    SPELL_SHAMAN_ASCENDANCE_RESTORATION         = 114052,
     SPELL_SHAMAN_CHAIN_LIGHTNING                = 188443,
     SPELL_SHAMAN_CHAIN_LIGHTNING_ENERGIZE       = 195897,
     SPELL_SHAMAN_CHAIN_LIGHTNING_OVERLOAD       = 45297,
@@ -101,10 +104,12 @@ enum ShamanSpells
     SPELL_SHAMAN_POWER_SURGE                    = 40466,
     SPELL_SHAMAN_RESTORATIVE_MISTS              = 114083,
     SPELL_SHAMAN_RESTORATIVE_MISTS_INITIAL      = 294020,
+    SPELL_SHAMAN_RIPTIDE                        = 61295,
     SPELL_SHAMAN_SPIRIT_WOLF_TALENT             = 260878,
     SPELL_SHAMAN_SPIRIT_WOLF_PERIODIC           = 260882,
     SPELL_SHAMAN_SPIRIT_WOLF_AURA               = 260881,
     SPELL_SHAMAN_STORMKEEPER                    = 191634,
+    SPELL_SHAMAN_STORMSTRIKE                    = 17364,
     SPELL_SHAMAN_T29_2P_ELEMENTAL_DAMAGE_BUFF   = 394651,
     SPELL_SHAMAN_TIDAL_WAVES                    = 53390,
     SPELL_SHAMAN_TOTEMIC_POWER_ARMOR            = 28827,
@@ -350,6 +355,78 @@ class spell_sha_crash_lightning : public SpellScript
     }
 
     size_t _targetsHit = 0;
+};
+
+// 378270 - Deeply Rooted Elements
+class spell_sha_deeply_rooted_elements : public AuraScript
+{
+    PrepareAuraScript(spell_sha_deeply_rooted_elements);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_LAVA_BURST, SPELL_SHAMAN_STORMSTRIKE, SPELL_SHAMAN_RIPTIDE,
+                SPELL_SHAMAN_ASCENDANCE_ELEMENTAL, SPELL_SHAMAN_ASCENDANCE_ENHANCEMENT, SPELL_SHAMAN_ASCENDANCE_RESTORATION })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } })
+            && spellInfo->GetEffect(EFFECT_0).IsAura();
+    }
+
+    bool Load() override
+    {
+        return GetUnitOwner()->IsPlayer();
+    }
+
+    template<uint32 requiredSpellId>
+    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& procInfo)
+    {
+        if (!procInfo.GetSpellInfo())
+            return false;
+
+        if (procInfo.GetSpellInfo()->Id != requiredSpellId)
+            return false;
+
+        return roll_chance_i(_procAttempts++ - 2);
+    }
+
+    template<uint32 ascendanceSpellId>
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    {
+        _procAttempts = 0;
+
+        Unit* target = eventInfo.GetActor();
+
+        int32 duration = GetEffect(EFFECT_0)->GetAmount();
+        if (Aura const* ascendanceAura = target->GetAura(ascendanceSpellId))
+            duration += ascendanceAura->GetDuration();
+
+        target->CastSpell(target, ascendanceSpellId,
+            CastSpellExtraArgs(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)
+            .SetTriggeringAura(aurEff)
+            .SetTriggeringSpell(eventInfo.GetProcSpell())
+            .AddSpellMod(SPELLVALUE_DURATION, duration));
+    }
+
+    void Register() override
+    {
+        if (!GetAura() || GetUnitOwner()->ToPlayer()->GetPrimarySpecialization() == TALENT_SPEC_SHAMAN_ELEMENTAL)
+        {
+            DoCheckEffectProc += AuraCheckEffectProcFn(spell_sha_deeply_rooted_elements::CheckProc<SPELL_SHAMAN_LAVA_BURST>, EFFECT_1, SPELL_AURA_DUMMY);
+            OnEffectProc += AuraEffectProcFn(spell_sha_deeply_rooted_elements::HandleProc<SPELL_SHAMAN_ASCENDANCE_ELEMENTAL>, EFFECT_1, SPELL_AURA_DUMMY);
+        }
+
+        if (!GetAura() || GetUnitOwner()->ToPlayer()->GetPrimarySpecialization() == TALENT_SPEC_SHAMAN_ENHANCEMENT)
+        {
+            DoCheckEffectProc += AuraCheckEffectProcFn(spell_sha_deeply_rooted_elements::CheckProc<SPELL_SHAMAN_STORMSTRIKE>, EFFECT_2, SPELL_AURA_DUMMY);
+            OnEffectProc += AuraEffectProcFn(spell_sha_deeply_rooted_elements::HandleProc<SPELL_SHAMAN_ASCENDANCE_ENHANCEMENT>, EFFECT_2, SPELL_AURA_DUMMY);
+        }
+
+        if (!GetAura() || GetUnitOwner()->ToPlayer()->GetPrimarySpecialization() == TALENT_SPEC_SHAMAN_RESTORATION)
+        {
+            DoCheckEffectProc += AuraCheckEffectProcFn(spell_sha_deeply_rooted_elements::CheckProc<SPELL_SHAMAN_RIPTIDE>, EFFECT_3, SPELL_AURA_DUMMY);
+            OnEffectProc += AuraEffectProcFn(spell_sha_deeply_rooted_elements::HandleProc<SPELL_SHAMAN_ASCENDANCE_RESTORATION>, EFFECT_3, SPELL_AURA_DUMMY);
+        }
+    }
+
+    int32 _procAttempts = 0;
 };
 
 // 335902 - Doom Winds
@@ -1953,6 +2030,7 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_chain_lightning);
     RegisterSpellScript(spell_sha_chain_lightning_overload);
     RegisterSpellScript(spell_sha_crash_lightning);
+    RegisterSpellScript(spell_sha_deeply_rooted_elements);
     RegisterSpellScript(spell_sha_doom_winds_legendary);
     RegisterSpellScript(spell_sha_downpour);
     RegisterSpellScript(spell_sha_earth_shield);
