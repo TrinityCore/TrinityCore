@@ -773,7 +773,7 @@ class spell_sha_flametongue_weapon : public SpellScript
     {
         Player* player = GetCaster()->ToPlayer();
         uint8 slot = EQUIPMENT_SLOT_MAINHAND;
-        if (player->GetPrimarySpecialization() == TALENT_SPEC_SHAMAN_ENHANCEMENT)
+        if (player->GetPrimarySpecialization() == ChrSpecialization::ShamanEnhancement)
             slot = EQUIPMENT_SLOT_OFFHAND;
 
         Item* targetItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot);

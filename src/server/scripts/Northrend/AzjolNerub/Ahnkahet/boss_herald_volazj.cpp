@@ -443,7 +443,7 @@ struct npc_twisted_visage : public ScriptedAI
                 case CLASS_WARRIOR:
                     switch (data)
                     {
-                        case TALENT_SPEC_WARRIOR_ARMS:
+                        case ChrSpecialization::WarriorArms:
                             _scheduler.Schedule(3s, [this](TaskContext mortalStrike)
                             {
                                 DoCastVictim(SPELL_TWISTED_VISAGE_MORTAL_STRIKE);
@@ -455,7 +455,7 @@ struct npc_twisted_visage : public ScriptedAI
                             });
                             break;
                         default:
-                        case TALENT_SPEC_WARRIOR_FURY:
+                        case ChrSpecialization::WarriorFury:
                             _scheduler.Schedule(2s, [this](TaskContext intercept)
                             {
                                 if (!me->IsWithinCombatRange(me->GetVictim(), 8.0f))
@@ -471,7 +471,7 @@ struct npc_twisted_visage : public ScriptedAI
                                 bloodthirst.Repeat(3s, 5s);
                             });
                             break;
-                        case TALENT_SPEC_WARRIOR_PROTECTION:
+                        case ChrSpecialization::WarriorProtection:
                             _scheduler.Schedule(5s, [this](TaskContext thunderClap)
                             {
                                 DoCastSelf(SPELL_TWISTED_VISAGE_THUNDER_CLAP);
@@ -487,7 +487,7 @@ struct npc_twisted_visage : public ScriptedAI
                 case CLASS_PALADIN:
                     switch (data)
                     {
-                        case TALENT_SPEC_PALADIN_PROTECTION:
+                        case ChrSpecialization::PaladinProtection:
                             _scheduler.Schedule(5s, [this](TaskContext consecration)
                             {
                                 DoCastSelf(SPELL_TWISTED_VISAGE_CONSECRATION);
@@ -499,7 +499,7 @@ struct npc_twisted_visage : public ScriptedAI
                             });
                             break;
                         default:
-                        case TALENT_SPEC_PALADIN_RETRIBUTION:
+                        case ChrSpecialization::PaladinRetribution:
                             _scheduler.Schedule(5s, [this](TaskContext consecration)
                             {
                                 DoCastSelf(SPELL_TWISTED_VISAGE_CONSECRATION);
@@ -546,7 +546,7 @@ struct npc_twisted_visage : public ScriptedAI
                 case CLASS_PRIEST:
                     switch (data)
                     {
-                        case TALENT_SPEC_PRIEST_SHADOW:
+                        case ChrSpecialization::PriestShadow:
                             _scheduler.Schedule(5s, [this](TaskContext shadowWordPain)
                             {
                                 DoCastVictim(SPELL_TWISTED_VISAGE_SHADOW_WORD_PAIN);
@@ -600,7 +600,7 @@ struct npc_twisted_visage : public ScriptedAI
                     switch (data)
                     {
                         default:
-                        case TALENT_SPEC_SHAMAN_ELEMENTAL:
+                        case ChrSpecialization::ShamanElemental:
                             _scheduler.Schedule(5s, [this](TaskContext thunderstorm)
                             {
                                 DoCastSelf(SPELL_TWISTED_VISAGE_THUNDERSTORM);
@@ -611,14 +611,14 @@ struct npc_twisted_visage : public ScriptedAI
                                 lightningBolt.Repeat(3s, 5s);
                             });
                             break;
-                        case TALENT_SPEC_SHAMAN_ENHANCEMENT:
+                        case ChrSpecialization::ShamanEnhancement:
                             _scheduler.Schedule(2s, [this](TaskContext earthShock)
                             {
                                 DoCastVictim(SPELL_TWISTED_VISAGE_EARTH_SHOCK);
                                 earthShock.Repeat(3s, 5s);
                             });
                             break;
-                        case TALENT_SPEC_SHAMAN_RESTORATION:
+                        case ChrSpecialization::ShamanRestoration:
                             _scheduler.Schedule(2s, [this](TaskContext earthShield)
                             {
                                 if (Unit* target = DoSelectLowestHpFriendly(40.f))
@@ -666,7 +666,7 @@ struct npc_twisted_visage : public ScriptedAI
                 case CLASS_DRUID:
                     switch (data)
                     {
-                        case TALENT_SPEC_DRUID_BALANCE:
+                        case ChrSpecialization::DruidBalance:
                             _scheduler.Schedule(2s, [this](TaskContext moonfire)
                             {
                                 DoCastVictim(SPELL_TWISTED_VISAGE_MOONFIRE);
@@ -677,8 +677,8 @@ struct npc_twisted_visage : public ScriptedAI
                                 wrath.Repeat(3s, 5s);
                             });
                             break;
-                        case TALENT_SPEC_DRUID_BEAR:
-                        case TALENT_SPEC_DRUID_CAT:
+                        case ChrSpecialization::DruidGuardian:
+                        case ChrSpecialization::DruidFeral:
                             _scheduler.Schedule(1ms, [this](TaskContext /*catForm*/)
                             {
                                 DoCastSelf(SPELL_TWISTED_VISAGE_CAT_FORM);
@@ -693,7 +693,7 @@ struct npc_twisted_visage : public ScriptedAI
                             });
                             break;
                         default:
-                        case TALENT_SPEC_DRUID_RESTORATION:
+                        case ChrSpecialization::DruidRestoration:
                             _scheduler.Schedule(2s, [this](TaskContext lifebloom)
                             {
                                 if (Unit* target = DoSelectLowestHpFriendly(40.f))

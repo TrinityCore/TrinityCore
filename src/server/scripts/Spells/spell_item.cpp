@@ -4342,7 +4342,7 @@ class spell_item_amalgams_seventh_spine : public AuraScript
         if (!target)
             return;
 
-        auto updateAuraIfInCorrectSpec = [&](TalentSpecialization spec, AmalgamsSeventhSpine aura)
+        auto updateAuraIfInCorrectSpec = [&](ChrSpecialization spec, AmalgamsSeventhSpine aura)
         {
             if (target->GetPrimarySpecialization() != uint32(spec))
                 target->RemoveAurasDueToSpell(aura);
@@ -4353,20 +4353,20 @@ class spell_item_amalgams_seventh_spine : public AuraScript
         switch (target->GetClass())
         {
             case CLASS_MONK:
-                updateAuraIfInCorrectSpec(TALENT_SPEC_MONK_MISTWEAVER, SPELL_FRAGILE_ECHOES_MONK);
+                updateAuraIfInCorrectSpec(ChrSpecialization::MonkMistweaver, SPELL_FRAGILE_ECHOES_MONK);
                 break;
             case CLASS_SHAMAN:
-                updateAuraIfInCorrectSpec(TALENT_SPEC_SHAMAN_RESTORATION, SPELL_FRAGILE_ECHOES_SHAMAN);
+                updateAuraIfInCorrectSpec(ChrSpecialization::ShamanRestoration, SPELL_FRAGILE_ECHOES_SHAMAN);
                 break;
             case CLASS_PRIEST:
-                updateAuraIfInCorrectSpec(TALENT_SPEC_PRIEST_DISCIPLINE, SPELL_FRAGILE_ECHOES_PRIEST_DISCIPLINE);
-                updateAuraIfInCorrectSpec(TALENT_SPEC_PRIEST_HOLY, SPELL_FRAGILE_ECHOES_PRIEST_HOLY);
+                updateAuraIfInCorrectSpec(ChrSpecialization::PriestDiscipline, SPELL_FRAGILE_ECHOES_PRIEST_DISCIPLINE);
+                updateAuraIfInCorrectSpec(ChrSpecialization::PriestHoly, SPELL_FRAGILE_ECHOES_PRIEST_HOLY);
                 break;
             case CLASS_PALADIN:
-                updateAuraIfInCorrectSpec(TALENT_SPEC_PALADIN_HOLY, SPELL_FRAGILE_ECHOES_PALADIN);
+                updateAuraIfInCorrectSpec(ChrSpecialization::PaladinHoly, SPELL_FRAGILE_ECHOES_PALADIN);
                 break;
             case CLASS_DRUID:
-                updateAuraIfInCorrectSpec(TALENT_SPEC_DRUID_RESTORATION, SPELL_FRAGILE_ECHOES_DRUID);
+                updateAuraIfInCorrectSpec(ChrSpecialization::DruidRestoration, SPELL_FRAGILE_ECHOES_DRUID);
                 break;
             default:
                 break;
