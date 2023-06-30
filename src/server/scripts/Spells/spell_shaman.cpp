@@ -356,6 +356,51 @@ class spell_sha_crash_lightning : public SpellScript
     size_t _targetsHit = 0;
 };
 
+// 378270 - Deeply Rooted Elements
+class spell_sha_deeply_rooted_elements : public AuraScript
+{
+    PrepareAuraScript(spell_sha_deeply_rooted_elements);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_LAVA_BURST, SPELL_SHAMAN_ASCENDANCE_ELEMENTAL, SPELL_SHAMAN_ASCENDANCE_ENHANCEMENT, SPELL_SHAMAN_ASCENDANCE_RESTORATION })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } });
+    }
+
+    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& procInfo)
+    {
+        if (procInfo.GetSpellInfo()->Id == SPELL_SHAMAN_LAVA_BURST && procInfo.GetActor()->ToPlayer()->GetPrimarySpecialization() != TALENT_SPEC_SHAMAN_ELEMENTAL)
+            return false;
+
+        return true;
+    }
+
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    {
+        Unit* target = eventInfo.GetActor();
+
+        uint32 ascendanceSpecSpell = 0;
+        switch (target->ToPlayer()->GetPrimarySpecialization())
+        {
+            case TALENT_SPEC_SHAMAN_ELEMENTAL:   ascendanceSpecSpell = SPELL_SHAMAN_ASCENDANCE_ELEMENTAL; break;
+            case TALENT_SPEC_SHAMAN_ENHANCEMENT: ascendanceSpecSpell = SPELL_SHAMAN_ASCENDANCE_ENHANCEMENT; break;
+            case TALENT_SPEC_SHAMAN_RESTORATION: ascendanceSpecSpell = SPELL_SHAMAN_ASCENDANCE_RESTORATION; break;
+            default:
+                break;
+        }
+        target->CastSpell(target, ascendanceSpecSpell, true);
+
+        if (Aura* ascendanceAura = target->GetAura(ascendanceSpecSpell))
+            ascendanceAura->SetDuration(aurEff->GetAmount());
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_sha_deeply_rooted_elements::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_sha_deeply_rooted_elements::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 335902 - Doom Winds
 class spell_sha_doom_winds_legendary : public AuraScript
 {
@@ -1084,40 +1129,14 @@ class spell_sha_lava_burst : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo
-        ({ SPELL_SHAMAN_PATH_OF_FLAMES_TALENT,
-           SPELL_SHAMAN_PATH_OF_FLAMES_SPREAD,
-           SPELL_SHAMAN_LAVA_SURGE,
-           SPELL_SHAMAN_DEEPLY_ROOTED_ELEMENTS,
-           SPELL_SHAMAN_ASCENDANCE_ELEMENTAL
-        }) && ValidateSpellEffect({
-            { SPELL_SHAMAN_DEEPLY_ROOTED_ELEMENTS, EFFECT_0 },
-            { SPELL_SHAMAN_DEEPLY_ROOTED_ELEMENTS, EFFECT_1 }
-        });
+        return ValidateSpellInfo({ SPELL_SHAMAN_PATH_OF_FLAMES_TALENT, SPELL_SHAMAN_PATH_OF_FLAMES_SPREAD, SPELL_SHAMAN_LAVA_SURGE });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        Unit* caster = GetCaster();
-
-        if (caster)
-        {
+        if (Unit* caster = GetCaster())
             if (caster->HasAura(SPELL_SHAMAN_PATH_OF_FLAMES_TALENT))
                 caster->CastSpell(GetHitUnit(), SPELL_SHAMAN_PATH_OF_FLAMES_SPREAD, GetSpell());
-
-            if (caster->ToPlayer()->GetPrimarySpecialization() == TALENT_SPEC_SHAMAN_ELEMENTAL)
-            {
-                if (AuraEffect const* ascendanceDuration = caster->GetAuraEffect(SPELL_SHAMAN_DEEPLY_ROOTED_ELEMENTS, EFFECT_0))
-                    if (AuraEffect const* ascendanceChance = caster->GetAuraEffect(SPELL_SHAMAN_DEEPLY_ROOTED_ELEMENTS, EFFECT_1))
-                        if (roll_chance_i(ascendanceChance->GetAmount()))
-                        {
-                            caster->CastSpell(caster, SPELL_SHAMAN_ASCENDANCE_ELEMENTAL, true);
-
-                            if (Aura* ascendanceAura = caster->GetAura(SPELL_SHAMAN_ASCENDANCE_ELEMENTAL))
-                                ascendanceAura->SetDuration(ascendanceDuration->GetAmount());
-                        }
-            }
-        }
     }
 
     void EnsureLavaSurgeCanBeImmediatelyConsumed()
@@ -1515,45 +1534,6 @@ private:
     uint32 _targetCount = 0;
 };
 
-// 61295 - Riptide
-class spell_sha_riptide : public SpellScript
-{
-    PrepareSpellScript(spell_sha_riptide);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo
-        ({
-           SPELL_SHAMAN_DEEPLY_ROOTED_ELEMENTS,
-           SPELL_SHAMAN_ASCENDANCE_RESTORATION
-        }) && ValidateSpellEffect({
-            { SPELL_SHAMAN_DEEPLY_ROOTED_ELEMENTS, EFFECT_0 },
-            { SPELL_SHAMAN_DEEPLY_ROOTED_ELEMENTS, EFFECT_3 }
-        });
-    }
-
-    void HandleAscendance(SpellEffIndex /*effIndex*/)
-    {
-        Unit* caster = GetCaster();
-
-        if (caster)
-            if (AuraEffect const* ascendanceDuration = caster->GetAuraEffect(SPELL_SHAMAN_DEEPLY_ROOTED_ELEMENTS, EFFECT_0))
-                if (AuraEffect const* ascendanceChance = caster->GetAuraEffect(SPELL_SHAMAN_DEEPLY_ROOTED_ELEMENTS, EFFECT_3))
-                    if (roll_chance_i(ascendanceChance->GetAmount()))
-                    {
-                        caster->CastSpell(caster, SPELL_SHAMAN_ASCENDANCE_RESTORATION, true);
-
-                        if (Aura* ascendanceAura = caster->GetAura(SPELL_SHAMAN_ASCENDANCE_RESTORATION))
-                            ascendanceAura->SetDuration(ascendanceDuration->GetAmount());
-                    }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_sha_riptide::HandleAscendance, EFFECT_0, SPELL_EFFECT_HEAL);
-    }
-};
-
 // 2645 - Ghost Wolf
 // 260878 - Spirit Wolf
 class spell_sha_spirit_wolf : public AuraScript
@@ -1582,45 +1562,6 @@ class spell_sha_spirit_wolf : public AuraScript
     {
         AfterEffectApply += AuraEffectApplyFn(spell_sha_spirit_wolf::OnApply, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
         AfterEffectRemove += AuraEffectRemoveFn(spell_sha_spirit_wolf::OnRemove, EFFECT_0, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
-// 17364 - Stormstrike
-class spell_sha_stormstrike : public SpellScript
-{
-    PrepareSpellScript(spell_sha_stormstrike);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo
-        ({
-           SPELL_SHAMAN_DEEPLY_ROOTED_ELEMENTS,
-           SPELL_SHAMAN_ASCENDANCE_ENHANCEMENT
-        }) && ValidateSpellEffect({
-            { SPELL_SHAMAN_DEEPLY_ROOTED_ELEMENTS, EFFECT_0 },
-            { SPELL_SHAMAN_DEEPLY_ROOTED_ELEMENTS, EFFECT_2 }
-        });
-    }
-
-    void HandleAscendance(SpellEffIndex /*effIndex*/)
-    {
-        Unit* caster = GetCaster();
-
-        if (caster)
-            if (AuraEffect const* ascendanceDuration = caster->GetAuraEffect(SPELL_SHAMAN_DEEPLY_ROOTED_ELEMENTS, EFFECT_0))
-                if (AuraEffect const* ascendanceChance = caster->GetAuraEffect(SPELL_SHAMAN_DEEPLY_ROOTED_ELEMENTS, EFFECT_2))
-                    if (roll_chance_i(ascendanceChance->GetAmount()))
-                    {
-                        caster->CastSpell(caster, SPELL_SHAMAN_ASCENDANCE_ENHANCEMENT, true);
-
-                        if (Aura* ascendanceAura = caster->GetAura(SPELL_SHAMAN_ASCENDANCE_ENHANCEMENT))
-                            ascendanceAura->SetDuration(ascendanceDuration->GetAmount());
-                    }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_sha_stormstrike::HandleAscendance, EFFECT_0, SPELL_EFFECT_TRIGGER_SPELL);
     }
 };
 
@@ -2061,6 +2002,7 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_chain_lightning);
     RegisterSpellScript(spell_sha_chain_lightning_overload);
     RegisterSpellScript(spell_sha_crash_lightning);
+    RegisterSpellScript(spell_sha_deeply_rooted_elements);
     RegisterSpellScript(spell_sha_doom_winds_legendary);
     RegisterSpellScript(spell_sha_downpour);
     RegisterSpellScript(spell_sha_earth_shield);
@@ -2095,9 +2037,7 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_natures_guardian);
     RegisterSpellScript(spell_sha_path_of_flames_spread);
     RegisterSpellScript(spell_sha_restorative_mists);
-    RegisterSpellScript(spell_sha_riptide);
     RegisterSpellScript(spell_sha_spirit_wolf);
-    RegisterSpellScript(spell_sha_stormstrike);
     RegisterSpellScript(spell_sha_tidal_waves);
     RegisterSpellScript(spell_sha_t3_6p_bonus);
     RegisterSpellScript(spell_sha_t3_8p_bonus);
