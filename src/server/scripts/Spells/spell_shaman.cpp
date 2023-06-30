@@ -387,10 +387,17 @@ class spell_sha_deeply_rooted_elements : public AuraScript
             default:
                 break;
         }
-        target->CastSpell(target, ascendanceSpecSpell, true);
 
         if (Aura* ascendanceAura = target->GetAura(ascendanceSpecSpell))
-            ascendanceAura->SetDuration(aurEff->GetAmount());
+        {
+            ascendanceAura->SetDuration(ascendanceAura->GetDuration() + aurEff->GetAmount());
+            ascendanceAura->SetMaxDuration(ascendanceAura->GetMaxDuration() + aurEff->GetAmount());
+        }
+        else
+            target->CastSpell(target, ascendanceSpecSpell,
+                CastSpellExtraArgs(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD)
+                .SetTriggeringSpell(eventInfo.GetProcSpell())
+                .AddSpellMod(SPELLVALUE_DURATION, aurEff->GetAmount()));
     }
 
     void Register() override
