@@ -104,10 +104,12 @@ enum ShamanSpells
     SPELL_SHAMAN_POWER_SURGE                    = 40466,
     SPELL_SHAMAN_RESTORATIVE_MISTS              = 114083,
     SPELL_SHAMAN_RESTORATIVE_MISTS_INITIAL      = 294020,
+    SPELL_SHAMAN_RIPTIDE                        = 61295,
     SPELL_SHAMAN_SPIRIT_WOLF_TALENT             = 260878,
     SPELL_SHAMAN_SPIRIT_WOLF_PERIODIC           = 260882,
     SPELL_SHAMAN_SPIRIT_WOLF_AURA               = 260881,
     SPELL_SHAMAN_STORMKEEPER                    = 191634,
+    SPELL_SHAMAN_STORMSTRIKE                    = 17364,
     SPELL_SHAMAN_T29_2P_ELEMENTAL_DAMAGE_BUFF   = 394651,
     SPELL_SHAMAN_TIDAL_WAVES                    = 53390,
     SPELL_SHAMAN_TOTEMIC_POWER_ARMOR            = 28827,
@@ -362,49 +364,69 @@ class spell_sha_deeply_rooted_elements : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_SHAMAN_LAVA_BURST, SPELL_SHAMAN_ASCENDANCE_ELEMENTAL, SPELL_SHAMAN_ASCENDANCE_ENHANCEMENT, SPELL_SHAMAN_ASCENDANCE_RESTORATION })
-            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } });
+        return ValidateSpellInfo({ SPELL_SHAMAN_LAVA_BURST, SPELL_SHAMAN_STORMSTRIKE, SPELL_SHAMAN_RIPTIDE,
+                SPELL_SHAMAN_ASCENDANCE_ELEMENTAL, SPELL_SHAMAN_ASCENDANCE_ENHANCEMENT, SPELL_SHAMAN_ASCENDANCE_RESTORATION })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } })
+            && spellInfo->GetEffect(EFFECT_0).IsAura();
     }
 
+    bool Load() override
+    {
+        return GetUnitOwner()->IsPlayer();
+    }
+
+    template<uint32 requiredSpellId>
     bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& procInfo)
     {
-        if (procInfo.GetSpellInfo()->Id == SPELL_SHAMAN_LAVA_BURST && procInfo.GetActor()->ToPlayer()->GetPrimarySpecialization() != TALENT_SPEC_SHAMAN_ELEMENTAL)
+        if (!procInfo.GetSpellInfo())
             return false;
 
-        return true;
+        if (procInfo.GetSpellInfo()->Id != requiredSpellId)
+            return false;
+
+        return roll_chance_i(_procAttempts++ - 2);
     }
 
+    template<uint32 ascendanceSpellId>
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
+        _procAttempts = 0;
+
         Unit* target = eventInfo.GetActor();
 
-        uint32 ascendanceSpecSpell = 0;
-        switch (target->ToPlayer()->GetPrimarySpecialization())
-        {
-            case TALENT_SPEC_SHAMAN_ELEMENTAL:   ascendanceSpecSpell = SPELL_SHAMAN_ASCENDANCE_ELEMENTAL; break;
-            case TALENT_SPEC_SHAMAN_ENHANCEMENT: ascendanceSpecSpell = SPELL_SHAMAN_ASCENDANCE_ENHANCEMENT; break;
-            case TALENT_SPEC_SHAMAN_RESTORATION: ascendanceSpecSpell = SPELL_SHAMAN_ASCENDANCE_RESTORATION; break;
-            default:
-                break;
-        }
+        int32 duration = GetEffect(EFFECT_0)->GetAmount();
+        if (Aura const* ascendanceAura = target->GetAura(ascendanceSpellId))
+            duration += ascendanceAura->GetDuration();
 
-        if (Aura* ascendanceAura = target->GetAura(ascendanceSpecSpell))
-        {
-            ascendanceAura->SetDuration(ascendanceAura->GetDuration() + aurEff->GetAmount());
-            ascendanceAura->SetMaxDuration(ascendanceAura->GetMaxDuration() + aurEff->GetAmount());
-        }
-        else
-            target->CastSpell(target, ascendanceSpecSpell,
-                CastSpellExtraArgs(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD)
-                .SetTriggeringSpell(eventInfo.GetProcSpell())
-                .AddSpellMod(SPELLVALUE_DURATION, aurEff->GetAmount()));
+        target->CastSpell(target, ascendanceSpellId,
+            CastSpellExtraArgs(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)
+            .SetTriggeringAura(aurEff)
+            .SetTriggeringSpell(eventInfo.GetProcSpell())
+            .AddSpellMod(SPELLVALUE_DURATION, duration));
     }
 
     void Register() override
     {
-        DoCheckEffectProc += AuraCheckEffectProcFn(spell_sha_deeply_rooted_elements::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
-        OnEffectProc += AuraEffectProcFn(spell_sha_deeply_rooted_elements::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        if (!GetAura() || GetUnitOwner()->ToPlayer()->GetPrimarySpecialization() == TALENT_SPEC_SHAMAN_ELEMENTAL)
+        {
+            DoCheckEffectProc += AuraCheckEffectProcFn(spell_sha_deeply_rooted_elements::CheckProc<SPELL_SHAMAN_LAVA_BURST>, EFFECT_1, SPELL_AURA_DUMMY);
+            OnEffectProc += AuraEffectProcFn(spell_sha_deeply_rooted_elements::HandleProc<SPELL_SHAMAN_ASCENDANCE_ELEMENTAL>, EFFECT_1, SPELL_AURA_DUMMY);
+        }
+
+        if (!GetAura() || GetUnitOwner()->ToPlayer()->GetPrimarySpecialization() == TALENT_SPEC_SHAMAN_ENHANCEMENT)
+        {
+            DoCheckEffectProc += AuraCheckEffectProcFn(spell_sha_deeply_rooted_elements::CheckProc<SPELL_SHAMAN_STORMSTRIKE>, EFFECT_2, SPELL_AURA_DUMMY);
+            OnEffectProc += AuraEffectProcFn(spell_sha_deeply_rooted_elements::HandleProc<SPELL_SHAMAN_ASCENDANCE_ENHANCEMENT>, EFFECT_2, SPELL_AURA_DUMMY);
+        }
+
+        if (!GetAura() || GetUnitOwner()->ToPlayer()->GetPrimarySpecialization() == TALENT_SPEC_SHAMAN_RESTORATION)
+        {
+            DoCheckEffectProc += AuraCheckEffectProcFn(spell_sha_deeply_rooted_elements::CheckProc<SPELL_SHAMAN_RIPTIDE>, EFFECT_3, SPELL_AURA_DUMMY);
+            OnEffectProc += AuraEffectProcFn(spell_sha_deeply_rooted_elements::HandleProc<SPELL_SHAMAN_ASCENDANCE_RESTORATION>, EFFECT_3, SPELL_AURA_DUMMY);
+        }
     }
+
+    int32 _procAttempts = 0;
 };
 
 // 335902 - Doom Winds
