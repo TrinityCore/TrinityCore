@@ -4819,37 +4819,30 @@ void Player::RepopAtGraveyard()
         SpawnCorpseBones();
     }
 
-    WorldSafeLocsEntry const* ClosestGrave;
-
-    // Special handle for battleground maps
+    WorldSafeLocsEntry const* closestGrave = nullptr;
     if (Battleground* bg = GetBattleground())
-        ClosestGrave = bg->GetClosestGraveyard(this);
+        closestGrave = bg->GetClosestGraveyard(this);
     else if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetMap(), GetZoneId()))
-        ClosestGrave = bf->GetClosestGraveyard(this);
+        closestGrave = bf->GetClosestGraveyard(this);
     else if (InstanceScript* instance = GetInstanceScript())
-    {
-        uint32 entrance = instance->GetEntranceLocation();
-        if (entrance != 0)
-            ClosestGrave = sObjectMgr->GetWorldSafeLoc(entrance);
-        else
-            ClosestGrave = sObjectMgr->GetClosestGraveyard(*this, GetTeam(), this);
-    }
-    else
-        ClosestGrave = sObjectMgr->GetClosestGraveyard(*this, GetTeam(), this);
+        closestGrave = sObjectMgr->GetWorldSafeLoc(instance->GetEntranceLocation());
+
+    if (!closestGrave)
+        closestGrave = sObjectMgr->GetClosestGraveyard(*this, GetTeam(), this);
 
     // stop countdown until repop
     m_deathTimer = 0;
 
     // if no grave found, stay at the current location
     // and don't show spirit healer location
-    if (ClosestGrave)
+    if (closestGrave)
     {
-        TeleportTo(ClosestGrave->Loc, shouldResurrect ? TELE_REVIVE_AT_TELEPORT : TELE_TO_NONE);
+        TeleportTo(closestGrave->Loc, shouldResurrect ? TELE_REVIVE_AT_TELEPORT : TELE_TO_NONE);
         if (isDead())                                        // not send if alive, because it used in TeleportTo()
         {
             WorldPackets::Misc::DeathReleaseLoc packet;
-            packet.MapID = ClosestGrave->Loc.GetMapId();
-            packet.Loc = ClosestGrave->Loc;
+            packet.MapID = closestGrave->Loc.GetMapId();
+            packet.Loc = closestGrave->Loc;
             SendDirectMessage(packet.Write());
         }
     }
