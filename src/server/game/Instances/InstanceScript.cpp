@@ -523,6 +523,11 @@ void InstanceScript::Create()
     );
     FIRE_ID(
           instance->GetEntry()->ID
+        , Instance,OnLoad
+        , TSInstance(instance, this), true
+    );
+    FIRE_ID(
+          instance->GetEntry()->ID
         , Instance,OnReload
         , TSInstance(instance, this)
     );
@@ -553,6 +558,11 @@ void InstanceScript::Load(char const* data)
     FIRE_ID(
           instance->GetEntry()->ID
         , Instance,OnLoad
+        , TSInstance(instance, this), false
+    );
+    FIRE_ID(
+        instance->GetEntry()->ID
+        , Instance, OnReload
         , TSInstance(instance, this)
     );
     // @tswow-end
