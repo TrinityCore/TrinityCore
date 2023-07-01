@@ -456,7 +456,7 @@ void AreaTrigger::SearchUnitInBox(std::vector<Unit*>& targetList)
 
     targetList.erase(std::remove_if(targetList.begin(), targetList.end(), [boxCenter, extentsX, extentsY, extentsZ](Unit* unit) -> bool
     {
-        return !unit->IsWithinBox(boxCenter, extentsX, extentsY, extentsZ);
+        return !unit->IsWithinBox(boxCenter, extentsX, extentsY, extentsZ/2);
     }), targetList.end());
 }
 
