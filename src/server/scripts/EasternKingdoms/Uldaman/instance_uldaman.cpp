@@ -448,7 +448,7 @@ class instance_uldaman : public InstanceMapScript
                 FIRE_ID(
                     instance->GetEntry()->ID
                     , Instance,OnLoad
-                    , TSInstance(instance,this)
+                    , TSInstance(instance,this), false
                 );
                 // @tswow-end
                 OUT_LOAD_INST_DATA_COMPLETE;

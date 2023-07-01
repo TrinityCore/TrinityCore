@@ -363,7 +363,7 @@ class instance_serpent_shrine : public InstanceMapScript
                 FIRE_ID(
                     instance->GetEntry()->ID
                     , Instance,OnLoad
-                    , TSInstance(instance, this)
+                    , TSInstance(instance, this), false
                 );
                 // @tswow-end
                 stream >> TrashCount;
