@@ -219,7 +219,12 @@ void BattlegroundAB::ProcessEvent(WorldObject* /*source*/, uint32 eventId, World
     switch (eventId)
     {
         case AB_EVENT_START_BATTLE:
-            for (ObjectGuid const& guid : _ghostGates)
+        {
+            for (ObjectGuid const& guid : _creaturesToRemoveOnMatchStart)
+                if (Creature* creature = GetBgMap()->GetCreature(guid))
+                    creature->DespawnOrUnsummon();
+
+            for (ObjectGuid const& guid : _gameobjectsToRemoveOnMatchStart)
                 if (GameObject* gameObject = GetBgMap()->GetGameObject(guid))
                     gameObject->DespawnOrUnsummon();
 
@@ -232,6 +237,7 @@ void BattlegroundAB::ProcessEvent(WorldObject* /*source*/, uint32 eventId, World
                 }
             }
             break;
+        }
         case AB_EVENT_CONTESTED_BLACKSMITH_ALLIANCE:
             UpdateWorldState(BG_AB_WS_BLACKSMITH_ALLIANCE_CONTROL_STATE, 1);
             UpdateWorldState(BG_AB_WS_BLACKSMITH_HORDE_CONTROL_STATE, 0);
@@ -418,6 +424,19 @@ void BattlegroundAB::ProcessEvent(WorldObject* /*source*/, uint32 eventId, World
     }
 }
 
+void BattlegroundAB::OnCreatureCreate(Creature* creature)
+{
+    switch (creature->GetEntry())
+    {
+        case BG_AB_NPC_THE_BLACK_BRIDE:
+        case BG_AB_NPC_RADULF_LEDER:
+            _creaturesToRemoveOnMatchStart.push_back(creature->GetGUID());
+            break;
+        default:
+            break;
+    }
+}
+
 void BattlegroundAB::OnGameObjectCreate(GameObject* gameObject)
 {
     if (gameObject->GetGOInfo()->type == GAMEOBJECT_TYPE_CAPTURE_POINT)
@@ -426,7 +445,7 @@ void BattlegroundAB::OnGameObjectCreate(GameObject* gameObject)
     switch (gameObject->GetEntry())
     {
         case BG_AB_OBJECTID_GHOST_GATE:
-            _ghostGates.push_back(gameObject->GetGUID());
+            _gameobjectsToRemoveOnMatchStart.push_back(gameObject->GetGUID());
             break;
         case BG_AB_OBJECTID_ALLIANCE_DOOR:
         case BG_AB_OBJECTID_HORDE_DOOR:
@@ -462,7 +481,8 @@ void BattlegroundAB::Reset()
     m_HonorTics = (isBGWeekend) ? BG_AB_ABBGWeekendHonorTicks : BG_AB_NotABBGWeekendHonorTicks;
     m_ReputationTics = (isBGWeekend) ? BG_AB_ABBGWeekendReputationTicks : BG_AB_NotABBGWeekendReputationTicks;
 
-    _ghostGates.clear();
+    _creaturesToRemoveOnMatchStart.clear();
+    _gameobjectsToRemoveOnMatchStart.clear();
     _doors.clear();
     _capturePoints.clear();
 }

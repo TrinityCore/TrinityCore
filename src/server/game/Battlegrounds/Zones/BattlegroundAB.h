@@ -92,6 +92,12 @@ enum BG_AB_ObjectTypes
     BG_AB_OBJECTID_HORDE_DOOR                   = 322274
 };
 
+enum BG_AB_Creatures
+{
+    BG_AB_NPC_THE_BLACK_BRIDE                   = 150501,
+    BG_AB_NPC_RADULF_LEDER                      = 150505
+};
+
 enum BG_AB_Score
 {
     BG_AB_WARNING_NEAR_VICTORY_SCORE    = 1200,
@@ -149,55 +155,61 @@ enum BG_AB_ExploitTeleportLocations
 #define BG_AB_NotABBGWeekendReputationTicks 160
 #define BG_AB_ABBGWeekendReputationTicks    120
 
-constexpr uint32 AB_EVENT_START_BATTLE = 9158; // Achievement: Let's Get This Done
+enum BG_AB_Events
+{
+    AB_EVENT_START_BATTLE                       = 9158, // Achievement: Let's Get This Done
 
-constexpr uint32 AB_EVENT_CONTESTED_STABLES_HORDE = 28523;
-constexpr uint32 AB_EVENT_CAPTURE_STABLES_HORDE = 28527;
-constexpr uint32 AB_EVENT_DEFENDED_STABLES_HORDE = 28525;
-constexpr uint32 AB_EVENT_CONTESTED_STABLES_ALLIANCE = 28522;
-constexpr uint32 AB_EVENT_CAPTURE_STABLES_ALLIANCE = 28526;
-constexpr uint32 AB_EVENT_DEFENDED_STABLES_ALLIANCE = 28524;
+    AB_EVENT_CONTESTED_STABLES_HORDE            = 28523,
+    AB_EVENT_CAPTURE_STABLES_HORDE              = 28527,
+    AB_EVENT_DEFENDED_STABLES_HORDE             = 28525,
+    AB_EVENT_CONTESTED_STABLES_ALLIANCE         = 28522,
+    AB_EVENT_CAPTURE_STABLES_ALLIANCE           = 28526,
+    AB_EVENT_DEFENDED_STABLES_ALLIANCE          = 28524,
 
-constexpr uint32 AB_EVENT_CONTESTED_BLACKSMITH_HORDE = 8876;
-constexpr uint32 AB_EVENT_CAPTURE_BLACKSMITH_HORDE = 8773;
-constexpr uint32 AB_EVENT_DEFENDED_BLACKSMITH_HORDE = 8770;
-constexpr uint32 AB_EVENT_CONTESTED_BLACKSMITH_ALLIANCE = 8874;
-constexpr uint32 AB_EVENT_CAPTURE_BLACKSMITH_ALLIANCE = 8769;
-constexpr uint32 AB_EVENT_DEFENDED_BLACKSMITH_ALLIANCE = 8774;
+    AB_EVENT_CONTESTED_BLACKSMITH_HORDE         = 8876,
+    AB_EVENT_CAPTURE_BLACKSMITH_HORDE           = 8773,
+    AB_EVENT_DEFENDED_BLACKSMITH_HORDE          = 8770,
+    AB_EVENT_CONTESTED_BLACKSMITH_ALLIANCE      = 8874,
+    AB_EVENT_CAPTURE_BLACKSMITH_ALLIANCE        = 8769,
+    AB_EVENT_DEFENDED_BLACKSMITH_ALLIANCE       = 8774,
 
-constexpr uint32 AB_EVENT_CONTESTED_FARM_HORDE = 39398;
-constexpr uint32 AB_EVENT_CAPTURE_FARM_HORDE = 39399;
-constexpr uint32 AB_EVENT_DEFENDED_FARM_HORDE = 39400;
-constexpr uint32 AB_EVENT_CONTESTED_FARM_ALLIANCE = 39401;
-constexpr uint32 AB_EVENT_CAPTURE_FARM_ALLIANCE = 39402;
-constexpr uint32 AB_EVENT_DEFENDED_FARM_ALLIANCE = 39403;
+    AB_EVENT_CONTESTED_FARM_HORDE               = 39398,
+    AB_EVENT_CAPTURE_FARM_HORDE                 = 39399,
+    AB_EVENT_DEFENDED_FARM_HORDE                = 39400,
+    AB_EVENT_CONTESTED_FARM_ALLIANCE            = 39401,
+    AB_EVENT_CAPTURE_FARM_ALLIANCE              = 39402,
+    AB_EVENT_DEFENDED_FARM_ALLIANCE             = 39403,
 
-constexpr uint32 AB_EVENT_CONTESTED_GOLD_MINE_HORDE = 39404;
-constexpr uint32 AB_EVENT_CAPTURE_GOLD_MINE_HORDE = 39405;
-constexpr uint32 AB_EVENT_DEFENDED_GOLD_MINE_HORDE = 39406;
-constexpr uint32 AB_EVENT_CONTESTED_GOLD_MINE_ALLIANCE = 39407;
-constexpr uint32 AB_EVENT_CAPTURE_GOLD_MINE_ALLIANCE = 39408;
-constexpr uint32 AB_EVENT_DEFENDED_GOLD_MINE_ALLIANCE = 39409;
+    AB_EVENT_CONTESTED_GOLD_MINE_HORDE          = 39404,
+    AB_EVENT_CAPTURE_GOLD_MINE_HORDE            = 39405,
+    AB_EVENT_DEFENDED_GOLD_MINE_HORDE           = 39406,
+    AB_EVENT_CONTESTED_GOLD_MINE_ALLIANCE       = 39407,
+    AB_EVENT_CAPTURE_GOLD_MINE_ALLIANCE         = 39408,
+    AB_EVENT_DEFENDED_GOLD_MINE_ALLIANCE        = 39409,
 
-constexpr uint32 AB_EVENT_CONTESTED_LUMBER_MILL_HORDE = 39387;
-constexpr uint32 AB_EVENT_CAPTURE_LUMBER_MILL_HORDE = 39388;
-constexpr uint32 AB_EVENT_DEFENDED_LUMBER_MILL_HORDE = 39389;
-constexpr uint32 AB_EVENT_CONTESTED_LUMBER_MILL_ALLIANCE = 39390;
-constexpr uint32 AB_EVENT_CAPTURE_LUMBER_MILL_ALLIANCE = 39391;
-constexpr uint32 AB_EVENT_DEFENDED_LUMBER_MILL_ALLIANCE = 39392;
+    AB_EVENT_CONTESTED_LUMBER_MILL_HORDE        = 39387,
+    AB_EVENT_CAPTURE_LUMBER_MILL_HORDE          = 39388,
+    AB_EVENT_DEFENDED_LUMBER_MILL_HORDE         = 39389,
+    AB_EVENT_CONTESTED_LUMBER_MILL_ALLIANCE     = 39390,
+    AB_EVENT_CAPTURE_LUMBER_MILL_ALLIANCE       = 39391,
+    AB_EVENT_DEFENDED_LUMBER_MILL_ALLIANCE      = 39392
+};
 
 // Tick intervals and given points: case 0, 1, 2, 3, 4, 5 captured nodes
 const uint32 BG_AB_TickInterval = 2000;
 const uint32 BG_AB_TickPoints[6] = { 0, 2, 3, 4, 7, 60 };
 
 // WorldSafeLocs ids for 5 nodes, and for ally, and horde starting location
-constexpr uint32 AB_GRAVEYARD_ALLIANCE_BASE = 7251;
-constexpr uint32 AB_GRAVEYARD_STABLES       = 7252;
-constexpr uint32 AB_GRAVEYARD_GOLD_MINE     = 7253;
-constexpr uint32 AB_GRAVEYARD_LUMBER_MILL   = 7254;
-constexpr uint32 AB_GRAVEYARD_HORDE_BASE    = 7255;
-constexpr uint32 AB_GRAVEYARD_FARM          = 7256;
-constexpr uint32 AB_GRAVEYARD_BLACKSMITH    = 7257;
+enum BG_AB_Graveyards
+{
+    AB_GRAVEYARD_ALLIANCE_BASE = 7251,
+    AB_GRAVEYARD_STABLES       = 7252,
+    AB_GRAVEYARD_GOLD_MINE     = 7253,
+    AB_GRAVEYARD_LUMBER_MILL   = 7254,
+    AB_GRAVEYARD_HORDE_BASE    = 7255,
+    AB_GRAVEYARD_FARM          = 7256,
+    AB_GRAVEYARD_BLACKSMITH    = 7257
+};
 
 const uint32 BG_AB_GraveyardIds[BG_AB_ALL_NODES_COUNT] =
 {
@@ -271,6 +283,7 @@ class BattlegroundAB : public Battleground
 
         void ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject* invoker = nullptr) override;
 
+        void OnCreatureCreate(Creature* creature) override;
         void OnGameObjectCreate(GameObject* gameObject) override;
     private:
         void PostUpdateImpl(uint32 diff) override;
@@ -284,7 +297,8 @@ class BattlegroundAB : public Battleground
         uint32              m_HonorTics;
         uint32              m_ReputationTics;
 
-        GuidVector          _ghostGates;
+        GuidVector          _gameobjectsToRemoveOnMatchStart;
+        GuidVector          _creaturesToRemoveOnMatchStart;
         GuidVector          _doors;
         GuidVector          _capturePoints;
 };
