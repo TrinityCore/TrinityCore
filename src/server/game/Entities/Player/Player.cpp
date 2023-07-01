@@ -3293,6 +3293,7 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled /*= false*/, bool learn_
 
     bool cur_active    = itr->second.active;
     bool cur_dependent = itr->second.dependent;
+    Optional<int32> traitDefinitionId = itr->second.TraitDefinitionId;
 
     if (disabled)
     {
@@ -3404,6 +3405,10 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled /*= false*/, bool learn_
             }
         }
     }
+
+    if (traitDefinitionId)
+        if (TraitDefinitionEntry const* traitDefinition = sTraitDefinitionStore.LookupEntry(*traitDefinitionId))
+            RemoveOverrideSpell(traitDefinition->OverridesSpellID, spell_id);
 
     m_overrideSpells.erase(spell_id);
 
