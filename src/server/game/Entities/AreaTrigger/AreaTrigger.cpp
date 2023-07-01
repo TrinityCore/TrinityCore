@@ -756,8 +756,14 @@ void AreaTrigger::DoActions(Unit* unit)
                     case AREATRIGGER_ACTION_TELEPORT:
                     {
                         if (WorldSafeLocsEntry const* safeLoc = sObjectMgr->GetWorldSafeLoc(action.Param))
+                        {
                             if (Player* player = caster->ToPlayer())
+                            {
+                                if (WorldSafeLocsEntry const* instanceEntrance = player->GetInstanceEntrance(safeLoc->Loc.GetMapId()))
+                                    safeLoc = instanceEntrance;
                                 player->TeleportTo(safeLoc->Loc);
+                            }
+                        }
                         break;
                     }
                     default:
