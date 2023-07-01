@@ -19540,6 +19540,9 @@ void Player::AddInstanceEnterTime(uint32 instanceId, time_t enterTime)
 
 WorldSafeLocsEntry const* Player::GetInstanceEntrance(uint32 targetMapId)
 {
+    if (GetMapId() == targetMapId)
+        return nullptr;
+
     WorldSafeLocsEntry const* entranceLocation = nullptr;
     MapEntry const* mapEntry = sMapStore.AssertEntry(targetMapId);
 
