@@ -351,9 +351,7 @@ struct npc_master_mathias_shaw_human_heritage_lions_pride_inn_basement : public 
         {
             CloseGossipMenuFor(player);
 
-            Conversation* convo = Conversation::CreateConversation(CONV_SIGNAL_INFORMANT_EVENT, player, *player, player->GetGUID(), nullptr, false);
-            if (!convo)
-                return true;
+            Conversation::CreateConversation(CONV_SIGNAL_INFORMANT_EVENT, player, *player, player->GetGUID(), nullptr, false);
         }
         return true;
     }
