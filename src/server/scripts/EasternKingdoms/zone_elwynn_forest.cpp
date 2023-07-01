@@ -18,6 +18,7 @@
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "Containers.h"
+#include "Conversation.h"
 #include "CreatureAIImpl.h"
 #include "CreatureGroups.h"
 #include "MotionMaster.h"
