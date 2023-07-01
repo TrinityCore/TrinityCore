@@ -1837,8 +1837,12 @@ class spell_pri_trail_of_light : public AuraScript
         if (!caster->IsValidAssistTarget(oldTarget))
             return;
 
+        SpellInfo const* healSpellInfo = sSpellMgr->GetSpellInfo(SPELL_PRIEST_TRAIL_OF_LIGHT_HEAL, DIFFICULTY_NONE);
+        if (!healSpellInfo)
+            return;
+
         // Note: distance may be greater than the heal's spell range.
-        if (!caster->IsWithinDist(oldTarget, 100.0f))
+        if (!caster->IsWithinDist(oldTarget, healSpellInfo->GetMaxRange(true, caster)))
             return;
 
         uint32 healAmount = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount());
