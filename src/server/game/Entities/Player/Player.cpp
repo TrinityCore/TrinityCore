@@ -16192,6 +16192,25 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object const* questgiver) const
     return result;
 }
 
+void Player::DespawnPersonalSpawnsForQuest(uint32 questId)
+{
+    std::list<Creature*> creatureList;
+    GetCreatureListWithOptionsInGrid(creatureList, 100.0f, FindCreatureOptions().SetIgnoreNotOwnedPrivateObjects(true).SetIgnorePhases(true).SetPrivateObjectOwner(GetGUID()));
+
+    for (Creature* creature : creatureList)
+    {
+        CreatureSummonedData const* summonedData = sObjectMgr->GetCreatureSummonedData(creature->GetEntry());
+        if (!summonedData)
+            continue;
+
+        if (summonedData->QuestsToDespawnOnQuestRemove)
+        {
+            if (std::find(summonedData->QuestsToDespawnOnQuestRemove->begin(), summonedData->QuestsToDespawnOnQuestRemove->end(), questId) != summonedData->QuestsToDespawnOnQuestRemove->end())
+                creature->DespawnOrUnsummon();
+        }
+    }
+}
+
 // not used in Trinity, but used in scripting code
 uint16 Player::GetReqKillOrCastCurrentCount(uint32 quest_id, int32 entry) const
 {
@@ -24409,6 +24428,7 @@ void Player::DailyReset()
         SetQuestSlot(slot, 0);
         AbandonQuest(questId);
         RemoveActiveQuest(questId);
+        DespawnPersonalSpawnsForQuest(questId);
 
         if (quest->GetLimitTime())
             RemoveTimedQuest(questId);
@@ -24444,6 +24464,7 @@ void Player::ResetWeeklyQuestStatus()
         SetQuestSlot(slot, 0);
         AbandonQuest(questId);
         RemoveActiveQuest(questId);
+        DespawnPersonalSpawnsForQuest(questId);
 
         if (quest->GetLimitTime())
             RemoveTimedQuest(questId);

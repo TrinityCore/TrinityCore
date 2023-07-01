@@ -678,8 +678,8 @@ void ObjectMgr::LoadCreatureSummonedData()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0           1                            2                     3
-    QueryResult result = WorldDatabase.Query("SELECT CreatureID, CreatureIDVisibleToSummoner, GroundMountDisplayID, FlyingMountDisplayID FROM creature_summoned_data");
+    //                                               0           1                            2                     3                     4
+    QueryResult result = WorldDatabase.Query("SELECT CreatureID, CreatureIDVisibleToSummoner, GroundMountDisplayID, FlyingMountDisplayID, QuestsToDespawnOnQuestRemove FROM creature_summoned_data");
 
     if (!result)
     {
@@ -730,6 +730,19 @@ void ObjectMgr::LoadCreatureSummonedData()
                 TC_LOG_ERROR("sql.sql", "Table `creature_summoned_data` references non-existing display id {} in FlyingMountDisplayID for creature {}, set to 0",
                     *summonedData.FlyingMountDisplayID, creatureId);
                 summonedData.GroundMountDisplayID.reset();
+            }
+        }
+
+        if (!fields[4].IsNull())
+        {
+            for (std::string_view questStr : Trinity::Tokenize(fields[4].GetStringView(), ',', false))
+            {
+                if (Optional<uint32> questId = Trinity::StringTo<uint32>(questStr))
+                {
+                    // quests aren't loaded yet, we cannot validate them
+                    summonedData.QuestsToDespawnOnQuestRemove.emplace();
+                    summonedData.QuestsToDespawnOnQuestRemove->push_back(*questId);
+                }
             }
         }
 
