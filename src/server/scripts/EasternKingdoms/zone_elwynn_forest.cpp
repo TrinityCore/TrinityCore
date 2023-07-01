@@ -28,6 +28,7 @@
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "TemporarySummon.h"
+#include "WorldSession.h"
 
 enum COG_Paths
 {
