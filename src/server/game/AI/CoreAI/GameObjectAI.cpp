@@ -31,7 +31,7 @@ GameObjectAI::GameObjectAI(GameObject* go, uint32 scriptId) : _scriptId(scriptId
     ASSERT(_scriptId, "A GameObjectAI was initialized with an invalid scriptId!");
 }
 
-Optional<QuestGiverStatus> GameObjectAI::GetDialogStatus(Player* /*player*/)
+Optional<QuestGiverStatus> GameObjectAI::GetDialogStatus(Player const* /*player*/)
 {
     return {};
 }

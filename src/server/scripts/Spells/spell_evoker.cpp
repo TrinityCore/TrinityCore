@@ -38,7 +38,14 @@ enum EvokerSpells
     SPELL_EVOKER_LIVING_FLAME              = 361469,
     SPELL_EVOKER_LIVING_FLAME_DAMAGE       = 361500,
     SPELL_EVOKER_LIVING_FLAME_HEAL         = 361509,
+    SPELL_EVOKER_PERMEATING_CHILL_TALENT   = 370897,
+    SPELL_EVOKER_PYRE_DAMAGE               = 357212,
     SPELL_EVOKER_SOAR_RACIAL               = 369536
+};
+
+enum EvokerSpellLabels
+{
+    SPELL_LABEL_EVOKER_BLUE                 = 1465,
 };
 
 // 362969 - Azure Strike (blue)
@@ -56,6 +63,22 @@ class spell_evo_azure_strike : public SpellScript
     void Register() override
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_evo_azure_strike::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
+    }
+};
+
+// 370455 - Charged Blast
+class spell_evo_charged_blast : public AuraScript
+{
+    PrepareAuraScript(spell_evo_charged_blast);
+
+    bool CheckProc(ProcEventInfo& procInfo)
+    {
+        return procInfo.GetSpellInfo() && procInfo.GetSpellInfo()->HasLabel(SPELL_LABEL_EVOKER_BLUE);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_evo_charged_blast::CheckProc);
     }
 };
 
@@ -139,9 +162,65 @@ class spell_evo_living_flame : public SpellScript
     }
 };
 
+// 381773 - Permeating Chill
+class spell_evo_permeating_chill : public AuraScript
+{
+    PrepareAuraScript(spell_evo_permeating_chill);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_EVOKER_PERMEATING_CHILL_TALENT });
+    }
+
+    bool CheckProc(ProcEventInfo& procInfo)
+    {
+        SpellInfo const* spellInfo = procInfo.GetSpellInfo();
+        if (!spellInfo)
+            return false;
+
+        if (!spellInfo->HasLabel(SPELL_LABEL_EVOKER_BLUE))
+            return false;
+
+        if (!procInfo.GetActor()->HasAura(SPELL_EVOKER_PERMEATING_CHILL_TALENT))
+            if (!spellInfo->IsAffected(SPELLFAMILY_EVOKER, { 0x40, 0, 0, 0 })) // disintegrate
+                return false;
+
+        return true;
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_evo_permeating_chill::CheckProc);
+    }
+};
+
+// 393568 - Pyre
+class spell_evo_pyre : public SpellScript
+{
+    PrepareSpellScript(spell_evo_pyre);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo ({ SPELL_EVOKER_PYRE_DAMAGE });
+    }
+
+    void HandleDamage(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit()->GetPosition(), SPELL_EVOKER_PYRE_DAMAGE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_evo_pyre::HandleDamage, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_evoker_spell_scripts()
 {
     RegisterSpellScript(spell_evo_azure_strike);
+    RegisterSpellScript(spell_evo_charged_blast);
     RegisterSpellScript(spell_evo_glide);
     RegisterSpellScript(spell_evo_living_flame);
+    RegisterSpellScript(spell_evo_permeating_chill);
+    RegisterSpellScript(spell_evo_pyre);
 }

@@ -1414,7 +1414,7 @@ class spell_borean_tundra_nerubar_web_random_unit_not_on_quest : public SpellScr
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return !spellInfo->GetEffects().empty() && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
@@ -1489,7 +1489,7 @@ class spell_borean_tundra_dispel_freed_soldier_debuff : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return !spellInfo->GetEffects().empty() && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)

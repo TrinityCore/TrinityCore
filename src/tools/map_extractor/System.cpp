@@ -148,7 +148,8 @@ void CreateDir(boost::filesystem::path const& path)
     if (fs::exists(path))
         return;
 
-    if (!fs::create_directory(path))
+    boost::system::error_code err;
+    if (!fs::create_directory(path, err) || err)
         throw std::runtime_error("Unable to create directory" + path.string());
 }
 

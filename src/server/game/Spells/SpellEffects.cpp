@@ -653,7 +653,7 @@ void Spell::EffectTriggerSpell()
         if (spellInfo->NeedsToBeTriggeredByCaster(m_spellInfo) && (effectInfo->GetProvidedTargetMask() & TARGET_FLAG_UNIT_MASK))
             return;
 
-        if (spellInfo->GetExplicitTargetMask() & TARGET_FLAG_DEST_LOCATION)
+        if (spellInfo->GetExplicitTargetMask() & TARGET_FLAG_DEST_LOCATION && m_targets.HasDst())
             targets.SetDst(m_targets);
 
         if (Unit* target = m_targets.GetUnitTarget())
@@ -897,6 +897,23 @@ void Spell::EffectJumpDest()
     unitCaster->GetMotionMaster()->MoveJump(*destTarget, speedXY, speedZ, EVENT_JUMP, !m_targets.GetObjectTargetGUID().IsEmpty(), &arrivalCast);
 }
 
+TeleportToOptions GetTeleportOptions(WorldObject const* caster, Unit const* unitTarget, SpellDestination const& targetDest)
+{
+    TeleportToOptions options = TELE_TO_NONE;
+    if (caster == unitTarget)
+        options |= TELE_TO_SPELL;
+
+    if (targetDest._position.GetMapId() == unitTarget->GetMapId())
+    {
+        options |= TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET;
+
+        if (unitTarget->GetTransGUID() == targetDest._transportGUID)
+            options |= TELE_TO_NOT_LEAVE_TRANSPORT;
+    }
+
+    return options;
+}
+
 void Spell::EffectTeleportUnits()
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
@@ -924,32 +941,33 @@ void Spell::EffectTeleportUnits()
 
     // Custom loading screen
     if (player)
+    {
         if (uint32 customLoadingScreenId = effectInfo->MiscValue)
             player->SendDirectMessage(WorldPackets::Spells::CustomLoadScreen(m_spellInfo->Id, customLoadingScreenId).Write());
 
-    if (targetDest.GetMapId() == unitTarget->GetMapId())
-        unitTarget->NearTeleportTo(targetDest, unitTarget == m_caster);
-    else if (player)
-        player->TeleportTo(targetDest, unitTarget == m_caster ? TELE_TO_SPELL : 0);
-    else
-    {
-        TC_LOG_ERROR("spells", "Spell::EffectTeleportUnits - spellId {} attempted to teleport creature to a different map.", m_spellInfo->Id);
-        return;
+        TeleportToOptions options = GetTeleportOptions(m_caster, unitTarget, m_destTargets[effectInfo->EffectIndex]);
+
+        player->TeleportTo(targetDest, options);
+
     }
+    else if (targetDest.GetMapId() == unitTarget->GetMapId())
+        unitTarget->NearTeleportTo(targetDest, unitTarget == m_caster);
+    else
+        TC_LOG_ERROR("spells", "Spell::EffectTeleportUnits - spellId {} attempted to teleport creature to a different map.", m_spellInfo->Id);
 }
 
 class DelayedSpellTeleportEvent : public BasicEvent
 {
 public:
-    explicit DelayedSpellTeleportEvent(Unit* target, WorldLocation const& targetDest, uint32 options, uint32 spellId)
+    explicit DelayedSpellTeleportEvent(Unit* target, WorldLocation const& targetDest, TeleportToOptions options, uint32 spellId)
         : _target(target), _targetDest(targetDest), _options(options), _spellId(spellId){ }
 
     bool Execute(uint64 /*e_time*/, uint32 /*p_time*/) override
     {
-        if (_targetDest.GetMapId() == _target->GetMapId())
-            _target->NearTeleportTo(_targetDest, (_options & TELE_TO_SPELL) != 0);
-        else if (Player* player = _target->ToPlayer())
+        if (Player* player = _target->ToPlayer())
             player->TeleportTo(_targetDest, _options);
+        else if (_targetDest.GetMapId() == _target->GetMapId())
+            _target->NearTeleportTo(_targetDest, (_options & TELE_TO_SPELL) != TELE_TO_NONE);
         else
             TC_LOG_ERROR("spells", "Spell::EffectTeleportUnitsWithVisualLoadingScreen - spellId {} attempted to teleport creature to a different map.", _spellId);
 
@@ -959,7 +977,7 @@ public:
 private:
     Unit* _target;
     WorldLocation _targetDest;
-    uint32 _options;
+    TeleportToOptions _options;
     uint32 _spellId;
 };
 
@@ -990,7 +1008,8 @@ void Spell::EffectTeleportUnitsWithVisualLoadingScreen()
         if (Player* playerTarget = unitTarget->ToPlayer())
             playerTarget->SendDirectMessage(WorldPackets::Spells::SpellVisualLoadScreen(effectInfo->MiscValueB, effectInfo->MiscValue).Write());
 
-    unitTarget->m_Events.AddEventAtOffset(new DelayedSpellTeleportEvent(unitTarget, targetDest, unitTarget == m_caster ? TELE_TO_SPELL : 0, m_spellInfo->Id),
+    TeleportToOptions options = GetTeleportOptions(m_caster, unitTarget, m_destTargets[effectInfo->EffectIndex]);
+    unitTarget->m_Events.AddEventAtOffset(new DelayedSpellTeleportEvent(unitTarget, targetDest, options, m_spellInfo->Id),
         Milliseconds(effectInfo->MiscValue));
 }
 
@@ -1252,7 +1271,7 @@ void Spell::EffectHealthLeech()
     }
 }
 
-void Spell::DoCreateItem(uint32 itemId, ItemContext context /*= ItemContext::NONE*/, std::vector<int32> const& bonusListIDs /*= std::vector<int32>()*/)
+void Spell::DoCreateItem(uint32 itemId, ItemContext context /*= ItemContext::NONE*/, std::vector<int32> const* bonusListIDs /*= nullptr*/)
 {
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
@@ -2131,6 +2150,8 @@ void Spell::EffectDispel()
     m_caster->SendMessageToSet(spellDispellLog.Write(), true);
 
     CallScriptSuccessfulDispel(SpellEffIndex(effectInfo->EffectIndex));
+
+    m_hitMask |= PROC_HIT_DISPEL;
 }
 
 void Spell::EffectDualWield()
@@ -2175,7 +2196,7 @@ void Spell::EffectPickPocket()
         creature->StartPickPocketRefillTimer();
 
         creature->m_loot.reset(new Loot(creature->GetMap(), creature->GetGUID(), LOOT_PICKPOCKETING, nullptr));
-        if (uint32 lootid = creature->GetCreatureTemplate()->pickpocketLootId)
+        if (uint32 lootid = creature->GetCreatureDifficulty()->PickPocketLootID)
             creature->m_loot->FillLoot(lootid, LootTemplates_Pickpocketing, player, true);
 
         // Generate extra money for pick pocket loot
@@ -3631,7 +3652,7 @@ void Spell::EffectQuestComplete()
         uint16 logSlot = player->FindQuestSlot(questId);
         if (logSlot < MAX_QUEST_LOG_SIZE)
             player->AreaExploredOrEventHappens(questId);
-        else if (quest->HasFlag(QUEST_FLAGS_TRACKING))  // Check if the quest is used as a serverside flag.
+        else if (quest->HasFlag(QUEST_FLAGS_TRACKING_EVENT))  // Check if the quest is used as a serverside flag.
             player->SetRewardedQuest(questId);          // If so, set status to rewarded without broadcasting it to client.
     }
 }
@@ -3723,13 +3744,13 @@ void Spell::EffectSkinning()
     Creature* creature = unitTarget->ToCreature();
     int32 targetLevel = creature->GetLevelForTarget(m_caster);
 
-    uint32 skill = creature->GetCreatureTemplate()->GetRequiredLootSkill();
+    uint32 skill = creature->GetCreatureDifficulty()->GetRequiredLootSkill();
 
     creature->SetUnitFlag3(UNIT_FLAG3_ALREADY_SKINNED);
     creature->SetDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
     Loot* loot = new Loot(creature->GetMap(), creature->GetGUID(), LOOT_SKINNING, nullptr);
     creature->m_personalLoot[player->GetGUID()].reset(loot);
-    loot->FillLoot(creature->GetCreatureTemplate()->SkinLootId, LootTemplates_Skinning, player, true);
+    loot->FillLoot(creature->GetCreatureDifficulty()->SkinLootID, LootTemplates_Skinning, player, true);
     player->SendLoot(*loot);
 
     if (!IsPartOfSkillLine(skill, m_spellInfo->Id))
@@ -4105,8 +4126,13 @@ void Spell::EffectDispelMechanic()
                 dispel_list.emplace_back(aura->GetId(), aura->GetCasterGUID());
     }
 
+    if (dispel_list.empty())
+        return;
+
     for (auto itr = dispel_list.begin(); itr != dispel_list.end(); ++itr)
         unitTarget->RemoveAura(itr->first, itr->second, 0, AURA_REMOVE_BY_ENEMY_SPELL);
+
+    m_hitMask |= PROC_HIT_DISPEL;
 }
 
 void Spell::EffectResurrectPet()
@@ -4645,6 +4671,8 @@ void Spell::EffectStealBeneficialBuff()
     }
 
     m_caster->SendMessageToSet(spellDispellLog.Write(), true);
+
+    m_hitMask |= PROC_HIT_DISPEL;
 }
 
 void Spell::EffectKillCreditPersonal()
@@ -5026,7 +5054,7 @@ void Spell::EffectCastButtons()
             continue;
 
         CastSpellExtraArgs args;
-        args.TriggerFlags = TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_CAST_DIRECTLY | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        args.TriggerFlags = TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_CAST_DIRECTLY | TRIGGERED_DONT_REPORT_CAST_ERROR;
         args.OriginalCastId = m_castId;
         args.CastDifficulty = GetCastDifficulty();
         m_caster->CastSpell(m_caster, spellInfo->Id, args);
@@ -5093,7 +5121,7 @@ void Spell::EffectTeleportToReturnPoint()
 
     if (Player* player = unitTarget->ToPlayer())
         if (WorldLocation const* dest = player->GetStoredAuraTeleportLocation(effectInfo->MiscValue))
-            player->TeleportTo(*dest, unitTarget == m_caster ? TELE_TO_SPELL | TELE_TO_NOT_LEAVE_COMBAT : 0);
+            player->TeleportTo(*dest, unitTarget == m_caster ? TELE_TO_SPELL | TELE_TO_NOT_LEAVE_COMBAT : TELE_TO_NONE);
 }
 
 void Spell::EffectIncreaseCurrencyCap()
@@ -5225,7 +5253,7 @@ void Spell::EffectCreateAreaTrigger()
 
     int32 duration = GetSpellInfo()->CalcDuration(GetCaster());
 
-    AreaTrigger::CreateAreaTrigger(effectInfo->MiscValue, unitCaster, nullptr, GetSpellInfo(), destTarget->GetPosition(), duration, m_SpellVisual, m_castId);
+    AreaTrigger::CreateAreaTrigger(effectInfo->MiscValue, unitCaster, nullptr, GetSpellInfo(), destTarget->GetPosition(), duration, m_SpellVisual, this);
 }
 
 void Spell::EffectRemoveTalent()
@@ -5355,7 +5383,7 @@ void Spell::EffectCreateHeirloomItem()
     std::vector<int32> bonusList;
     bonusList.push_back(collectionMgr->GetHeirloomBonus(m_misc.Raw.Data[0]));
 
-    DoCreateItem(m_misc.Raw.Data[0], ItemContext::NONE, bonusList);
+    DoCreateItem(m_misc.Raw.Data[0], ItemContext::NONE, &bonusList);
     ExecuteLogEffectCreateItem(SpellEffectName(effectInfo->Effect), m_misc.Raw.Data[0]);
 }
 
@@ -5817,14 +5845,13 @@ void Spell::EffectLearnAzeriteEssencePower()
 
 void Spell::EffectCreatePrivateConversation()
 {
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    Unit* unitCaster = GetUnitCasterForEffectHandlers();
-    if (!unitCaster || unitCaster->GetTypeId() != TYPEID_PLAYER)
+    if (unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    Conversation::CreateConversation(effectInfo->MiscValue, unitCaster, destTarget->GetPosition(), unitCaster->GetGUID(), GetSpellInfo());
+    Conversation::CreateConversation(effectInfo->MiscValue, unitTarget, destTarget->GetPosition(), unitTarget->GetGUID(), GetSpellInfo());
 }
 
 void Spell::EffectSendChatMessage()

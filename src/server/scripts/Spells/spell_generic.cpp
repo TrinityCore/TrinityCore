@@ -256,7 +256,7 @@ class spell_gen_arena_drink : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        if (spellInfo->GetEffects().empty() || !spellInfo->GetEffect(EFFECT_0).IsAura(SPELL_AURA_MOD_POWER_REGEN))
+        if (!ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) || !spellInfo->GetEffect(EFFECT_0).IsAura(SPELL_AURA_MOD_POWER_REGEN))
         {
             TC_LOG_ERROR("spells", "Aura {} structure has been changed - first aura is no longer SPELL_AURA_MOD_POWER_REGEN", GetId());
             return false;
@@ -337,7 +337,7 @@ class spell_gen_aura_of_fear : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return !spellInfo->GetEffects().empty() && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
     }
 
     void PeriodicTick(AuraEffect const* aurEff)
@@ -774,7 +774,8 @@ class spell_gen_burning_depths_necrolyte_image : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return spellInfo->GetEffects().size() > EFFECT_2 && ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_2).CalcValue()) });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } })
+            && ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_2).CalcValue()) });
     }
 
     void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -2019,7 +2020,7 @@ class spell_gen_gift_of_naaru : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return spellInfo->GetEffects().size() > EFFECT_1;
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
     void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
@@ -2637,7 +2638,7 @@ class spell_gen_oracle_wolvar_reputation : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return spellInfo->GetEffects().size() > EFFECT_1;
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
     bool Load() override
@@ -3088,7 +3089,7 @@ class spell_gen_remove_on_health_pct : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return spellInfo->GetEffects().size() > EFFECT_1;
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
     void PeriodicTick(AuraEffect const* /*aurEff*/)
@@ -3980,7 +3981,7 @@ class spell_gen_eject_passenger : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        if (spellInfo->GetEffects().empty())
+        if (!ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }))
             return false;
         if (spellInfo->GetEffect(EFFECT_0).CalcValue() < 1)
             return false;
@@ -4201,7 +4202,7 @@ class spell_gen_mixology_bonus : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_MIXOLOGY }) && !spellInfo->GetEffects().empty();
+        return ValidateSpellInfo({ SPELL_MIXOLOGY }) && ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } });
     }
 
     bool Load() override
@@ -4857,7 +4858,8 @@ class spell_gen_face_rage : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_FACE_RAGE }) && spellInfo->GetEffects().size() > EFFECT_2;
+        return ValidateSpellInfo({ SPELL_FACE_RAGE })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
     }
 
     void OnRemove(AuraEffect const* /*effect*/, AuraEffectHandleModes /*mode*/)
@@ -4889,6 +4891,31 @@ class spell_gen_impatient_mind : public AuraScript
     void Register() override
     {
         OnEffectRemove += AuraEffectRemoveFn(spell_gen_impatient_mind::OnRemove, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 209352 - Boost 2.0 [Paladin+Priest] - Watch for Shield
+class spell_gen_boost_2_0_paladin_priest_watch_for_shield : public AuraScript
+{
+    PrepareAuraScript(spell_gen_boost_2_0_paladin_priest_watch_for_shield);
+
+    static constexpr uint32 SPELL_POWER_WORD_SHIELD = 17;
+    static constexpr uint32 SPELL_DIVINE_SHIELD = 642;
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_POWER_WORD_SHIELD, SPELL_DIVINE_SHIELD });
+    }
+
+    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& procInfo)
+    {
+        SpellInfo const* spellInfo = procInfo.GetSpellInfo();
+        return spellInfo && (spellInfo->Id == SPELL_POWER_WORD_SHIELD || spellInfo->Id == SPELL_DIVINE_SHIELD);
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_gen_boost_2_0_paladin_priest_watch_for_shield::CheckProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
 
@@ -5678,6 +5705,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_azgalor_rain_of_fire_hellfire_citadel);
     RegisterSpellScript(spell_gen_face_rage);
     RegisterSpellScript(spell_gen_impatient_mind);
+    RegisterSpellScript(spell_gen_boost_2_0_paladin_priest_watch_for_shield);
     RegisterSpellScript(spell_gen_war_mode_enlisted);
     RegisterSpellScript(spell_defender_of_azeroth_death_gate_selector);
     RegisterSpellScript(spell_defender_of_azeroth_speak_with_mograine);

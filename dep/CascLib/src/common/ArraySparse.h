@@ -229,7 +229,7 @@ class CASC_SPARSE_ARRAY
         return (m_pLevel0 != NULL);
     }
 
-#ifdef _DEBUG
+#ifdef CASCLIB_DEBUG
     size_t BytesAllocated()
     {
         return m_LevelsAllocated * sizeof(CASC_ARRAY_256);

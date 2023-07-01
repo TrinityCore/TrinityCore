@@ -267,6 +267,8 @@ enum TriggerCastFlags : uint32
     TRIGGERED_FULL_DEBUG_MASK                       = 0xFFFFFFFF
 };
 
+DEFINE_ENUM_FLAG(TriggerCastFlags);
+
 enum SpellCastTargetFlags : uint32
 {
     TARGET_FLAG_NONE            = 0x00000000,
@@ -421,6 +423,11 @@ struct TC_GAME_API CastSpellTargetArg
         Targets->SetItemTarget(itemTarget);
     }
     CastSpellTargetArg(Position const& dest)
+    {
+        Targets.emplace();
+        Targets->SetDst(dest);
+    }
+    CastSpellTargetArg(SpellDestination const& dest)
     {
         Targets.emplace();
         Targets->SetDst(dest);

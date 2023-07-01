@@ -254,7 +254,7 @@ class spell_occuthar_eyes_of_occuthar : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                return !spellInfo->GetEffects().empty() && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+                return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
             }
 
             bool Load() override

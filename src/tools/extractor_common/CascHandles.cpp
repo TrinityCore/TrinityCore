@@ -47,6 +47,7 @@ char const* CASC::HumanReadableCASCError(uint32 error)
         case ERROR_ACCESS_DENIED: return "ACCESS_DENIED";
         case ERROR_FILE_NOT_FOUND: return "FILE_NOT_FOUND";
         case ERROR_FILE_ENCRYPTED: return "FILE_ENCRYPTED";
+        case ERROR_FILE_OFFLINE: return "FILE_OFFLINE";
         default: return "UNKNOWN";
     }
 }
@@ -207,6 +208,15 @@ CASC::Storage* CASC::Storage::OpenRemote(boost::filesystem::path const& path, ui
         printf("Error opening remote casc storage: %s\n", HumanReadableCASCError(lastError));
         CascCloseStorage(handle);
         SetCascError(lastError);
+        return nullptr;
+    }
+
+    DWORD features = 0;
+    if (!GetStorageInfo(handle, CascStorageFeatures, &features) || !(features & CASC_FEATURE_ONLINE))
+    {
+        printf("Local casc storage detected in cache path \"%s\" (or its parent directory). Remote storage not opened!\n", args.szLocalPath);
+        CascCloseStorage(handle);
+        SetCascError(ERROR_FILE_OFFLINE);
         return nullptr;
     }
 

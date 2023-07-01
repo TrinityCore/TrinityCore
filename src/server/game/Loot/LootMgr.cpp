@@ -19,6 +19,7 @@
 #include "Containers.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "ItemBonusMgr.h"
 #include "ItemTemplate.h"
 #include "Log.h"
 #include "Loot.h"
@@ -947,7 +948,8 @@ bool LootTemplate::isReference(uint32 id)
 }
 
 std::unordered_map<ObjectGuid, std::unique_ptr<Loot>> GenerateDungeonEncounterPersonalLoot(uint32 dungeonEncounterId, uint32 lootId, LootStore const& store,
-    LootType type, WorldObject const* lootOwner, uint32 minMoney, uint32 maxMoney, uint16 lootMode, ItemContext context, std::vector<Player*> const& tappers)
+    LootType type, WorldObject const* lootOwner, uint32 minMoney, uint32 maxMoney, uint16 lootMode, MapDifficultyEntry const* mapDifficulty,
+    std::vector<Player*> const& tappers)
 {
     std::unordered_map<Player*, std::unique_ptr<Loot>> tempLoot;
 
@@ -958,7 +960,7 @@ std::unordered_map<ObjectGuid, std::unique_ptr<Loot>> GenerateDungeonEncounterPe
 
         std::unique_ptr<Loot>& loot = tempLoot[tapper];
         loot.reset(new Loot(lootOwner->GetMap(), lootOwner->GetGUID(), type, nullptr));
-        loot->SetItemContext(context);
+        loot->SetItemContext(ItemBonusMgr::GetContextForPlayer(mapDifficulty, tapper));
         loot->SetDungeonEncounterId(dungeonEncounterId);
         loot->generateMoneyLoot(minMoney, maxMoney);
     }
@@ -993,12 +995,15 @@ void LoadLootTemplates_Creature()
     CreatureTemplateContainer const& ctc = sObjectMgr->GetCreatureTemplates();
     for (auto const& creatureTemplatePair : ctc)
     {
-        if (uint32 lootid = creatureTemplatePair.second.lootid)
+        for (auto const& [difficulty, creatureDifficulty] : creatureTemplatePair.second.difficultyStore)
         {
-            if (!lootIdSet.count(lootid))
-                LootTemplates_Creature.ReportNonExistingId(lootid, "Creature", creatureTemplatePair.first);
-            else
-                lootIdSetUsed.insert(lootid);
+            if (uint32 lootid = creatureDifficulty.LootID)
+            {
+                if (!lootIdSet.count(lootid))
+                    LootTemplates_Creature.ReportNonExistingId(lootid, "Creature", creatureTemplatePair.first);
+                else
+                    lootIdSetUsed.insert(lootid);
+            }
         }
     }
 
@@ -1182,12 +1187,15 @@ void LoadLootTemplates_Pickpocketing()
     CreatureTemplateContainer const& ctc = sObjectMgr->GetCreatureTemplates();
     for (auto const& creatureTemplatePair : ctc)
     {
-        if (uint32 lootid = creatureTemplatePair.second.pickpocketLootId)
+        for (auto const& [difficulty, creatureDifficulty] : creatureTemplatePair.second.difficultyStore)
         {
-            if (!lootIdSet.count(lootid))
-                LootTemplates_Pickpocketing.ReportNonExistingId(lootid, "Creature", creatureTemplatePair.first);
-            else
-                lootIdSetUsed.insert(lootid);
+            if (uint32 lootid = creatureDifficulty.PickPocketLootID)
+            {
+                if (!lootIdSet.count(lootid))
+                    LootTemplates_Pickpocketing.ReportNonExistingId(lootid, "Creature", creatureTemplatePair.first);
+                else
+                    lootIdSetUsed.insert(lootid);
+            }
         }
     }
 
@@ -1269,12 +1277,15 @@ void LoadLootTemplates_Skinning()
     CreatureTemplateContainer const& ctc = sObjectMgr->GetCreatureTemplates();
     for (auto const& creatureTemplatePair : ctc)
     {
-        if (uint32 lootid = creatureTemplatePair.second.SkinLootId)
+        for (auto const& [difficulty, creatureDifficulty] : creatureTemplatePair.second.difficultyStore)
         {
-            if (!lootIdSet.count(lootid))
-                LootTemplates_Skinning.ReportNonExistingId(lootid, "Creature", creatureTemplatePair.first);
-            else
-                lootIdSetUsed.insert(lootid);
+            if (uint32 lootid = creatureDifficulty.SkinLootID)
+            {
+                if (!lootIdSet.count(lootid))
+                    LootTemplates_Skinning.ReportNonExistingId(lootid, "Creature", creatureTemplatePair.first);
+                else
+                    lootIdSetUsed.insert(lootid);
+            }
         }
     }
 

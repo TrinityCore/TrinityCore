@@ -177,7 +177,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPackets::Quest::QuestG
         {
             _player->AddQuestAndCheckCompletion(quest, object);
 
-            if (quest->HasFlag(QUEST_FLAGS_PARTY_ACCEPT))
+            if (quest->IsPushedToPartyOnAccept())
             {
                 if (Group* group = _player->GetGroup())
                 {
@@ -202,6 +202,21 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPackets::Quest::QuestG
             }
 
             _player->PlayerTalkClass->SendCloseGossip();
+
+            if (quest->HasFlag(QUEST_FLAGS_LAUNCH_GOSSIP_ACCEPT))
+            {
+                auto launchGossip = [&](WorldObject* worldObject)
+                {
+                    _player->PlayerTalkClass->ClearMenus();
+                    _player->PrepareGossipMenu(worldObject, _player->GetGossipMenuForSource(worldObject), true);
+                    _player->SendPreparedGossip(worldObject);
+                };
+
+                if (Creature* creature = object->ToCreature())
+                    launchGossip(creature);
+                else if (GameObject* go = object->ToGameObject())
+                    launchGossip(go);
+            }
 
             return;
         }
@@ -230,7 +245,7 @@ void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPackets::Quest::QuestGi
         if (quest->IsAutoAccept() && _player->CanAddQuest(quest, true))
             _player->AddQuestAndCheckCompletion(quest, object);
 
-        if (quest->IsAutoComplete())
+        if (quest->IsTurnIn())
             _player->PlayerTalkClass->SendQuestGiverRequestItems(quest, object->GetGUID(), _player->CanCompleteQuest(quest->GetQuestId()), true);
         else
             _player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, object->GetGUID(), true, false);
@@ -359,7 +374,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::Quest
 
     Object* object = _player;
 
-    if (!quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE))
+    if (!quest->HasFlag(QUEST_FLAGS_AUTO_COMPLETE))
     {
         object = ObjectAccessor::GetObjectByTypeMask(*_player, packet.QuestGiverGUID, TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT);
         if (!object || !object->hasInvolvedQuest(packet.QuestID))
@@ -371,7 +386,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::Quest
     }
 
     if ((!_player->CanSeeStartQuest(quest) &&  _player->GetQuestStatus(packet.QuestID) == QUEST_STATUS_NONE) ||
-        (_player->GetQuestStatus(packet.QuestID) != QUEST_STATUS_COMPLETE && !quest->IsAutoComplete()))
+        (_player->GetQuestStatus(packet.QuestID) != QUEST_STATUS_COMPLETE && !quest->IsTurnIn()))
     {
         TC_LOG_ERROR("network", "Error in QUEST_STATUS_COMPLETE: player {} {} tried to complete quest {}, but is not allowed to do so (possible packet-hacking or high latency)",
             _player->GetName(), _player->GetGUID().ToString(), packet.QuestID);
@@ -430,6 +445,11 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPackets::Quest::QuestLogRemove
 
             if (quest)
             {
+                if (quest->HasFlagEx(QUEST_FLAGS_EX_NO_ABANDON_ONCE_BEGUN))
+                    for (QuestObjective const& objective : quest->Objectives)
+                        if (_player->IsQuestObjectiveComplete(packet.Entry, quest, objective))
+                            return;
+
                 if (quest->GetLimitTime())
                     _player->RemoveTimedQuest(questId);
 
@@ -438,7 +458,6 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPackets::Quest::QuestLogRemove
                     _player->pvpInfo.IsHostile = _player->pvpInfo.IsInHostileArea || _player->HasPvPForcingQuest();
                     _player->UpdatePvPState();
                 }
-
             }
 
             _player->SetQuestSlot(packet.Entry, 0);
@@ -474,34 +493,34 @@ void WorldSession::HandleQuestConfirmAccept(WorldPackets::Quest::QuestConfirmAcc
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUEST_CONFIRM_ACCEPT questId = {}", packet.QuestID);
 
-    if (Quest const* quest = sObjectMgr->GetQuestTemplate(packet.QuestID))
-    {
-        if (!quest->HasFlag(QUEST_FLAGS_PARTY_ACCEPT))
-            return;
-
-        Player* originalPlayer = ObjectAccessor::FindPlayer(_player->GetPlayerSharingQuest());
-        if (!originalPlayer)
-            return;
-
-        if (!_player->IsInSameRaidWith(originalPlayer))
-            return;
-
-        if (!originalPlayer->IsActiveQuest(packet.QuestID))
-            return;
-
-        if (!_player->CanTakeQuest(quest, true))
-            return;
-
-        if (_player->CanAddQuest(quest, true))
-        {
-            _player->AddQuestAndCheckCompletion(quest, nullptr); // NULL, this prevent DB script from duplicate running
-
-            if (quest->GetSrcSpell() > 0)
-                _player->CastSpell(_player, quest->GetSrcSpell(), true);
-        }
-    }
+    if (_player->GetSharedQuestID() != uint32(packet.QuestID))
+        return;
 
     _player->ClearQuestSharingInfo();
+    Quest const* quest = sObjectMgr->GetQuestTemplate(packet.QuestID);
+    if (!quest)
+        return;
+
+    Player* originalPlayer = ObjectAccessor::FindPlayer(_player->GetPlayerSharingQuest());
+    if (!originalPlayer)
+        return;
+
+    if (!_player->IsInSameRaidWith(originalPlayer))
+        return;
+
+    if (!originalPlayer->IsActiveQuest(packet.QuestID))
+        return;
+
+    if (!_player->CanTakeQuest(quest, true))
+        return;
+
+    if (!_player->CanAddQuest(quest, true))
+        return;
+
+    _player->AddQuestAndCheckCompletion(quest, nullptr); // NULL, this prevent DB script from duplicate running
+
+    if (quest->GetSrcSpell() > 0)
+        _player->CastSpell(_player, quest->GetSrcSpell(), true);
 }
 
 void WorldSession::HandleQuestgiverCompleteQuest(WorldPackets::Quest::QuestGiverCompleteQuest& packet)
@@ -514,9 +533,6 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPackets::Quest::QuestGiver
     if (!quest)
         return;
 
-    if (autoCompleteMode && !quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE))
-        return;
-
     Object* object = nullptr;
     if (autoCompleteMode)
         object = _player;
@@ -526,7 +542,7 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPackets::Quest::QuestGiver
     if (!object)
         return;
 
-    if (!autoCompleteMode)
+    if (!quest->HasFlag(QUEST_FLAGS_AUTO_COMPLETE))
     {
         if (!object->hasInvolvedQuest(packet.QuestID))
             return;
@@ -716,7 +732,7 @@ void WorldSession::HandlePushQuestToParty(WorldPackets::Quest::PushQuestToParty&
 
         sender->SendPushToPartyResponse(receiver, QuestPushReason::Success);
 
-        if (quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly())
+        if (quest->IsTurnIn() && quest->IsRepeatable() && !quest->IsDailyOrWeekly())
             receiver->PlayerTalkClass->SendQuestGiverRequestItems(quest, sender->GetGUID(), receiver->CanCompleteRepeatableQuest(quest), true);
         else
         {
@@ -793,7 +809,7 @@ void WorldSession::HandlePlayerChoiceResponse(WorldPackets::Quest::ChoiceRespons
             _player->SetTitle(sCharTitlesStore.AssertEntry(playerChoiceResponse->Reward->TitleId), false);
 
         if (playerChoiceResponse->Reward->PackageId)
-            _player->RewardQuestPackage(playerChoiceResponse->Reward->PackageId);
+            _player->RewardQuestPackage(playerChoiceResponse->Reward->PackageId, ItemContext::NONE);
 
         if (playerChoiceResponse->Reward->SkillLineId && _player->HasSkill(playerChoiceResponse->Reward->SkillLineId))
             _player->UpdateSkillPro(playerChoiceResponse->Reward->SkillLineId, 1000, playerChoiceResponse->Reward->SkillPointCount);
@@ -812,7 +828,7 @@ void WorldSession::HandlePlayerChoiceResponse(WorldPackets::Quest::ChoiceRespons
             ItemPosCountVec dest;
             if (_player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item.Id, item.Quantity) == EQUIP_ERR_OK)
             {
-                Item* newItem = _player->StoreNewItem(dest, item.Id, true, GenerateItemRandomBonusListId(item.Id), {}, ItemContext::Quest_Reward, item.BonusListIDs);
+                Item* newItem = _player->StoreNewItem(dest, item.Id, true, GenerateItemRandomBonusListId(item.Id), {}, ItemContext::Quest_Reward, &item.BonusListIDs);
                 _player->SendNewItem(newItem, item.Quantity, true, false);
             }
         }

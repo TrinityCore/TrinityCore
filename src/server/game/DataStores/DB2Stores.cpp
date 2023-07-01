@@ -86,6 +86,7 @@ DB2Storage<BattlemasterListEntry>               sBattlemasterListStore("Battlema
 DB2Storage<BroadcastTextEntry>                  sBroadcastTextStore("BroadcastText.db2", &BroadcastTextLoadInfo::Instance);
 DB2Storage<BroadcastTextDurationEntry>          sBroadcastTextDurationStore("BroadcastTextDuration.db2", &BroadcastTextDurationLoadInfo::Instance);
 DB2Storage<Cfg_RegionsEntry>                    sCfgRegionsStore("Cfg_Regions.db2", &CfgRegionsLoadInfo::Instance);
+DB2Storage<ChallengeModeItemBonusOverrideEntry> sChallengeModeItemBonusOverrideStore("ChallengeModeItemBonusOverride.db2", &ChallengeModeItemBonusOverrideLoadInfo::Instance);
 DB2Storage<CharTitlesEntry>                     sCharTitlesStore("CharTitles.db2", &CharTitlesLoadInfo::Instance);
 DB2Storage<CharacterLoadoutEntry>               sCharacterLoadoutStore("CharacterLoadout.db2", &CharacterLoadoutLoadInfo::Instance);
 DB2Storage<CharacterLoadoutItemEntry>           sCharacterLoadoutItemStore("CharacterLoadoutItem.db2", &CharacterLoadoutItemLoadInfo::Instance);
@@ -105,8 +106,10 @@ DB2Storage<ChrRacesEntry>                       sChrRacesStore("ChrRaces.db2", &
 DB2Storage<ChrSpecializationEntry>              sChrSpecializationStore("ChrSpecialization.db2", &ChrSpecializationLoadInfo::Instance);
 DB2Storage<CinematicCameraEntry>                sCinematicCameraStore("CinematicCamera.db2", &CinematicCameraLoadInfo::Instance);
 DB2Storage<CinematicSequencesEntry>             sCinematicSequencesStore("CinematicSequences.db2", &CinematicSequencesLoadInfo::Instance);
+DB2Storage<ConditionalContentTuningEntry>       sConditionalContentTuningStore("ConditionalContentTuning.db2", &ConditionalContentTuningLoadInfo::Instance);
 DB2Storage<ContentTuningEntry>                  sContentTuningStore("ContentTuning.db2", &ContentTuningLoadInfo::Instance);
 DB2Storage<ContentTuningXExpectedEntry>         sContentTuningXExpectedStore("ContentTuningXExpected.db2", &ContentTuningXExpectedLoadInfo::Instance);
+DB2Storage<ContentTuningXLabelEntry>            sContentTuningXLabelStore("ContentTuningXLabel.db2", &ContentTuningXLabelLoadInfo::Instance);
 DB2Storage<ConversationLineEntry>               sConversationLineStore("ConversationLine.db2", &ConversationLineLoadInfo::Instance);
 DB2Storage<CorruptionEffectsEntry>              sCorruptionEffectsStore("CorruptionEffects.db2", &CorruptionEffectsLoadInfo::Instance);
 DB2Storage<CreatureDisplayInfoEntry>            sCreatureDisplayInfoStore("CreatureDisplayInfo.db2", &CreatureDisplayInfoLoadInfo::Instance);
@@ -172,10 +175,13 @@ DB2Storage<ItemArmorShieldEntry>                sItemArmorShieldStore("ItemArmor
 DB2Storage<ItemArmorTotalEntry>                 sItemArmorTotalStore("ItemArmorTotal.db2", &ItemArmorTotalLoadInfo::Instance);
 DB2Storage<ItemBagFamilyEntry>                  sItemBagFamilyStore("ItemBagFamily.db2", &ItemBagFamilyLoadInfo::Instance);
 DB2Storage<ItemBonusEntry>                      sItemBonusStore("ItemBonus.db2", &ItemBonusLoadInfo::Instance);
+DB2Storage<ItemBonusListGroupEntryEntry>        sItemBonusListGroupEntryStore("ItemBonusListGroupEntry.db2", &ItemBonusListGroupEntryLoadInfo::Instance);
 DB2Storage<ItemBonusListLevelDeltaEntry>        sItemBonusListLevelDeltaStore("ItemBonusListLevelDelta.db2", &ItemBonusListLevelDeltaLoadInfo::Instance);
+DB2Storage<ItemBonusTreeEntry>                  sItemBonusTreeStore("ItemBonusTree.db2", &ItemBonusTreeLoadInfo::Instance);
 DB2Storage<ItemBonusTreeNodeEntry>              sItemBonusTreeNodeStore("ItemBonusTreeNode.db2", &ItemBonusTreeNodeLoadInfo::Instance);
 DB2Storage<ItemChildEquipmentEntry>             sItemChildEquipmentStore("ItemChildEquipment.db2", &ItemChildEquipmentLoadInfo::Instance);
 DB2Storage<ItemClassEntry>                      sItemClassStore("ItemClass.db2", &ItemClassLoadInfo::Instance);
+DB2Storage<ItemContextPickerEntryEntry>         sItemContextPickerEntryStore("ItemContextPickerEntry.db2", &ItemContextPickerEntryLoadInfo::Instance);
 DB2Storage<ItemCurrencyCostEntry>               sItemCurrencyCostStore("ItemCurrencyCost.db2", &ItemCurrencyCostLoadInfo::Instance);
 DB2Storage<ItemDamageAmmoEntry>                 sItemDamageAmmoStore("ItemDamageAmmo.db2", &ItemDamageAmmoLoadInfo::Instance);
 DB2Storage<ItemDamageOneHandEntry>              sItemDamageOneHandStore("ItemDamageOneHand.db2", &ItemDamageOneHandLoadInfo::Instance);
@@ -227,6 +233,7 @@ DB2Storage<MountEntry>                          sMountStore("Mount.db2", &MountL
 DB2Storage<MountTypeXCapabilityEntry>           sMountTypeXCapabilityStore("MountTypeXCapability.db2", &MountTypeXCapabilityLoadInfo::Instance);
 DB2Storage<MountXDisplayEntry>                  sMountXDisplayStore("MountXDisplay.db2", &MountXDisplayLoadInfo::Instance);
 DB2Storage<MovieEntry>                          sMovieStore("Movie.db2", &MovieLoadInfo::Instance);
+DB2Storage<MythicPlusSeasonEntry>               sMythicPlusSeasonStore("MythicPlusSeason.db2", &MythicPlusSeasonLoadInfo::Instance);
 DB2Storage<NameGenEntry>                        sNameGenStore("NameGen.db2", &NameGenLoadInfo::Instance);
 DB2Storage<NamesProfanityEntry>                 sNamesProfanityStore("NamesProfanity.db2", &NamesProfanityLoadInfo::Instance);
 DB2Storage<NamesReservedEntry>                  sNamesReservedStore("NamesReserved.db2", &NamesReservedLoadInfo::Instance);
@@ -242,6 +249,7 @@ DB2Storage<PowerTypeEntry>                      sPowerTypeStore("PowerType.db2",
 DB2Storage<PrestigeLevelInfoEntry>              sPrestigeLevelInfoStore("PrestigeLevelInfo.db2", &PrestigeLevelInfoLoadInfo::Instance);
 DB2Storage<PVPDifficultyEntry>                  sPVPDifficultyStore("PVPDifficulty.db2", &PvpDifficultyLoadInfo::Instance);
 DB2Storage<PVPItemEntry>                        sPVPItemStore("PVPItem.db2", &PvpItemLoadInfo::Instance);
+DB2Storage<PvpSeasonEntry>                      sPvpSeasonStore("PvpSeason.db2", &PvpSeasonLoadInfo::Instance);
 DB2Storage<PvpTalentEntry>                      sPvpTalentStore("PvpTalent.db2", &PvpTalentLoadInfo::Instance);
 DB2Storage<PvpTalentCategoryEntry>              sPvpTalentCategoryStore("PvpTalentCategory.db2", &PvpTalentCategoryLoadInfo::Instance);
 DB2Storage<PvpTalentSlotUnlockEntry>            sPvpTalentSlotUnlockStore("PvpTalentSlotUnlock.db2", &PvpTalentSlotUnlockLoadInfo::Instance);
@@ -371,15 +379,6 @@ TaxiPathNodesByPath                             sTaxiPathNodesByPath;
 
 DEFINE_DB2_SET_COMPARATOR(ChrClassesXPowerTypesEntry)
 
-struct ItemLevelSelectorQualityEntryComparator
-{
-    bool operator()(ItemLevelSelectorQualityEntry const* left, ItemLevelSelectorQualityEntry const* right) const { return Compare(left, right); }
-    bool operator()(ItemLevelSelectorQualityEntry const* left, ItemQualities quality) const { return left->Quality < quality; }
-    static bool Compare(ItemLevelSelectorQualityEntry const* left, ItemLevelSelectorQualityEntry const* right);
-};
-
-void LoadAzeriteEmpoweredItemUnlockMappings(std::unordered_map<int32, std::vector<AzeriteUnlockMappingEntry const*>> const& azeriteUnlockMappingsBySet, uint32 itemId);
-
 typedef std::map<uint32 /*hash*/, DB2StorageBase*> StorageMap;
 typedef std::unordered_map<uint32 /*areaGroupId*/, std::vector<uint32/*areaId*/>> AreaGroupMemberContainer;
 typedef std::unordered_map<uint32, std::vector<ArtifactPowerEntry const*>> ArtifactPowersContainer;
@@ -392,15 +391,10 @@ typedef std::unordered_map<uint32, std::vector<uint32>> FactionTeamContainer;
 typedef std::unordered_map<uint32, HeirloomEntry const*> HeirloomItemsContainer;
 typedef std::unordered_map<uint32 /*glyphPropertiesId*/, std::vector<uint32>> GlyphBindableSpellsContainer;
 typedef std::unordered_map<uint32 /*glyphPropertiesId*/, std::vector<uint32>> GlyphRequiredSpecsContainer;
-typedef std::unordered_map<uint32 /*bonusListId*/, DB2Manager::ItemBonusList> ItemBonusListContainer;
-typedef std::unordered_map<int16, uint32> ItemBonusListLevelDeltaContainer;
-typedef std::unordered_multimap<uint32 /*itemId*/, uint32 /*bonusTreeId*/> ItemToBonusTreeContainer;
 typedef std::unordered_map<uint32 /*itemId*/, ItemChildEquipmentEntry const*> ItemChildEquipmentContainer;
 typedef std::array<ItemClassEntry const*, 20> ItemClassByOldEnumContainer;
 typedef std::unordered_map<uint32, std::vector<ItemLimitCategoryConditionEntry const*>> ItemLimitCategoryConditionContainer;
-typedef std::set<ItemLevelSelectorQualityEntry const*, ItemLevelSelectorQualityEntryComparator> ItemLevelSelectorQualities;
 typedef std::unordered_map<uint32 /*itemId | appearanceMod << 24*/, ItemModifiedAppearanceEntry const*> ItemModifiedAppearanceByItemContainer;
-typedef std::unordered_map<uint32, std::set<ItemBonusTreeNodeEntry const*>> ItemBonusTreeContainer;
 typedef std::unordered_map<uint32, std::vector<ItemSetSpellEntry const*>> ItemSetSpellContainer;
 typedef std::unordered_map<uint32, std::vector<ItemSpecOverrideEntry const*>> ItemSpecOverridesContainer;
 typedef std::unordered_map<uint32, std::unordered_map<uint32, MapDifficultyEntry const*>> MapDifficultyContainer;
@@ -450,7 +444,6 @@ namespace
     std::array<AzeriteItemMilestonePowerEntry const*, MAX_AZERITE_ESSENCE_SLOT> _azeriteItemMilestonePowerByEssenceSlot;
     std::unordered_map<uint32 /*azeritePowerSetId*/, std::vector<AzeritePowerSetMemberEntry const*>> _azeritePowers;
     std::unordered_map<std::pair<uint32 /*azeriteUnlockSetId*/, ItemContext>, std::array<uint8, MAX_AZERITE_EMPOWERED_TIER>> _azeriteTierUnlockLevels;
-    std::unordered_map<std::pair<uint32 /*itemId*/, ItemContext>, AzeriteUnlockMappingEntry const*> _azeriteUnlockMappings;
     std::unordered_map<std::pair<int32 /*broadcastTextId*/, CascLocaleBit /*cascLocaleBit*/>, int32> _broadcastTextDurations;
     std::array<ChrClassUIDisplayEntry const*, MAX_CLASSES> _uiDisplayByClass;
     std::array<std::array<uint32, MAX_POWERS>, MAX_CLASSES> _powersByClass;
@@ -460,6 +453,8 @@ namespace
     std::unordered_map<std::pair<uint8 /*race*/, uint8/*gender*/>, std::vector<ChrCustomizationOptionEntry const*>> _chrCustomizationOptionsByRaceAndGender;
     std::unordered_map<uint32 /*chrCustomizationReqId*/, std::vector<std::pair<uint32 /*chrCustomizationOptionId*/, std::vector<uint32>>>> _chrCustomizationRequiredChoices;
     ChrSpecializationByIndexContainer _chrSpecializationsByIndex;
+    std::unordered_multimap<uint32, ConditionalContentTuningEntry const*> _conditionalContentTuning;
+    std::unordered_set<std::pair<uint32, int32>> _contentTuningLabels;
     std::unordered_multimap<uint32, CurrencyContainerEntry const*> _currencyContainers;
     CurvePointsContainer _curvePoints;
     EmotesTextSoundContainer _emoteTextSounds;
@@ -470,16 +465,11 @@ namespace
     HeirloomItemsContainer _heirlooms;
     GlyphBindableSpellsContainer _glyphBindableSpells;
     GlyphRequiredSpecsContainer _glyphRequiredSpecs;
-    ItemBonusListContainer _itemBonusLists;
-    ItemBonusListLevelDeltaContainer _itemLevelDeltaToBonusListContainer;
-    ItemBonusTreeContainer _itemBonusTrees;
     ItemChildEquipmentContainer _itemChildEquipment;
     ItemClassByOldEnumContainer _itemClassByOldEnum;
     std::unordered_set<uint32> _itemsWithCurrencyCost;
     ItemLimitCategoryConditionContainer _itemCategoryConditions;
-    std::unordered_map<uint32 /*itemLevelSelectorQualitySetId*/, ItemLevelSelectorQualities> _itemLevelQualitySelectorQualities;
     ItemModifiedAppearanceByItemContainer _itemModifiedAppearancesByItem;
-    ItemToBonusTreeContainer _itemToBonusTree;
     ItemSetSpellContainer _itemSetSpells;
     ItemSpecOverridesContainer _itemSpecOverrides;
     std::vector<JournalTierEntry const*> _journalTiersByIndex;
@@ -689,6 +679,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sBroadcastTextStore);
     LOAD_DB2(sBroadcastTextDurationStore);
     LOAD_DB2(sCfgRegionsStore);
+    LOAD_DB2(sChallengeModeItemBonusOverrideStore);
     LOAD_DB2(sCharTitlesStore);
     LOAD_DB2(sCharacterLoadoutStore);
     LOAD_DB2(sCharacterLoadoutItemStore);
@@ -708,8 +699,10 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sChrSpecializationStore);
     LOAD_DB2(sCinematicCameraStore);
     LOAD_DB2(sCinematicSequencesStore);
+    LOAD_DB2(sConditionalContentTuningStore);
     LOAD_DB2(sContentTuningStore);
     LOAD_DB2(sContentTuningXExpectedStore);
+    LOAD_DB2(sContentTuningXLabelStore);
     LOAD_DB2(sConversationLineStore);
     LOAD_DB2(sCorruptionEffectsStore);
     LOAD_DB2(sCreatureDisplayInfoStore);
@@ -775,10 +768,13 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sItemArmorTotalStore);
     LOAD_DB2(sItemBagFamilyStore);
     LOAD_DB2(sItemBonusStore);
+    LOAD_DB2(sItemBonusListGroupEntryStore);
     LOAD_DB2(sItemBonusListLevelDeltaStore);
+    LOAD_DB2(sItemBonusTreeStore);
     LOAD_DB2(sItemBonusTreeNodeStore);
     LOAD_DB2(sItemChildEquipmentStore);
     LOAD_DB2(sItemClassStore);
+    LOAD_DB2(sItemContextPickerEntryStore);
     LOAD_DB2(sItemCurrencyCostStore);
     LOAD_DB2(sItemDamageAmmoStore);
     LOAD_DB2(sItemDamageOneHandStore);
@@ -830,6 +826,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sMountTypeXCapabilityStore);
     LOAD_DB2(sMountXDisplayStore);
     LOAD_DB2(sMovieStore);
+    LOAD_DB2(sMythicPlusSeasonStore);
     LOAD_DB2(sNameGenStore);
     LOAD_DB2(sNamesProfanityStore);
     LOAD_DB2(sNamesReservedStore);
@@ -845,6 +842,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sPrestigeLevelInfoStore);
     LOAD_DB2(sPVPDifficultyStore);
     LOAD_DB2(sPVPItemStore);
+    LOAD_DB2(sPvpSeasonStore);
     LOAD_DB2(sPvpTalentStore);
     LOAD_DB2(sPvpTalentCategoryStore);
     LOAD_DB2(sPvpTalentSlotUnlockStore);
@@ -1042,10 +1040,6 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     for (AzeriteTierUnlockEntry const* azeriteTierUnlock : sAzeriteTierUnlockStore)
         _azeriteTierUnlockLevels[std::pair<uint32, ItemContext>{ azeriteTierUnlock->AzeriteTierUnlockSetID, ItemContext(azeriteTierUnlock->ItemCreationContext) }][azeriteTierUnlock->Tier] = azeriteTierUnlock->AzeriteLevel;
 
-    std::unordered_map<int32, std::vector<AzeriteUnlockMappingEntry const*>> azeriteUnlockMappings;
-    for (AzeriteUnlockMappingEntry const* azeriteUnlockMapping : sAzeriteUnlockMappingStore)
-        azeriteUnlockMappings[azeriteUnlockMapping->AzeriteUnlockMappingSetID].push_back(azeriteUnlockMapping);
-
     for (BattlemasterListEntry const* battlemaster : sBattlemasterListStore)
     {
         if (battlemaster->MaxLevel < battlemaster->MinLevel)
@@ -1196,9 +1190,15 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
         _chrSpecializationsByIndex[storageIndex][chrSpec->OrderIndex] = chrSpec;
     }
 
+    for (ConditionalContentTuningEntry const* conditionalContentTuning : sConditionalContentTuningStore)
+        _conditionalContentTuning.emplace(conditionalContentTuning->ParentContentTuningID, conditionalContentTuning);
+
     for (ContentTuningXExpectedEntry const* contentTuningXExpectedStat : sContentTuningXExpectedStore)
         if (sExpectedStatModStore.LookupEntry(contentTuningXExpectedStat->ExpectedStatModID))
             _expectedStatModsByContentTuning[contentTuningXExpectedStat->ContentTuningID].push_back(contentTuningXExpectedStat);
+
+    for (ContentTuningXLabelEntry const* contentTuningXLabel : sContentTuningXLabelStore)
+        _contentTuningLabels.emplace(contentTuningXLabel->ContentTuningID, contentTuningXLabel->LabelID);
 
     for (CurrencyContainerEntry const* currencyContainer : sCurrencyContainerStore)
         _currencyContainers.emplace(currencyContainer->CurrencyTypesID, currencyContainer);
@@ -1242,15 +1242,6 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     for (GlyphRequiredSpecEntry const* glyphRequiredSpec : sGlyphRequiredSpecStore)
         _glyphRequiredSpecs[glyphRequiredSpec->GlyphPropertiesID].push_back(glyphRequiredSpec->ChrSpecializationID);
 
-    for (ItemBonusEntry const* bonus : sItemBonusStore)
-        _itemBonusLists[bonus->ParentItemBonusListID].push_back(bonus);
-
-    for (ItemBonusListLevelDeltaEntry const* itemBonusListLevelDelta : sItemBonusListLevelDeltaStore)
-        _itemLevelDeltaToBonusListContainer[itemBonusListLevelDelta->ItemLevelDelta] = itemBonusListLevelDelta->ID;
-
-    for (ItemBonusTreeNodeEntry const* bonusTreeNode : sItemBonusTreeNodeStore)
-        _itemBonusTrees[bonusTreeNode->ParentItemBonusTreeID].insert(bonusTreeNode);
-
     for (ItemChildEquipmentEntry const* itemChildEquipment : sItemChildEquipmentStore)
     {
         ASSERT(_itemChildEquipment.find(itemChildEquipment->ParentItemID) == _itemChildEquipment.end(), "Item must have max 1 child item.");
@@ -1270,9 +1261,6 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     for (ItemLimitCategoryConditionEntry const* condition : sItemLimitCategoryConditionStore)
         _itemCategoryConditions[condition->ParentItemLimitCategoryID].push_back(condition);
 
-    for (ItemLevelSelectorQualityEntry const* itemLevelSelectorQuality : sItemLevelSelectorQualityStore)
-        _itemLevelQualitySelectorQualities[itemLevelSelectorQuality->ParentILSQualitySetID].insert(itemLevelSelectorQuality);
-
     for (ItemModifiedAppearanceEntry const* appearanceMod : sItemModifiedAppearanceStore)
     {
         ASSERT(appearanceMod->ItemID <= 0xFFFFFF);
@@ -1284,12 +1272,6 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
 
     for (ItemSpecOverrideEntry const* itemSpecOverride : sItemSpecOverrideStore)
         _itemSpecOverrides[itemSpecOverride->ItemID].push_back(itemSpecOverride);
-
-    for (ItemXBonusTreeEntry const* itemBonusTreeAssignment : sItemXBonusTreeStore)
-        _itemToBonusTree.insert({ itemBonusTreeAssignment->ItemID, itemBonusTreeAssignment->ItemBonusTreeID });
-
-    for (auto&& kvp : _azeriteEmpoweredItems)
-        LoadAzeriteEmpoweredItemUnlockMappings(azeriteUnlockMappings, kvp.first);
 
     for (JournalTierEntry const* journalTier : sJournalTierStore)
         _journalTiersByIndex.push_back(journalTier);
@@ -2058,9 +2040,18 @@ ChrSpecializationEntry const* DB2Manager::GetDefaultChrSpecializationForClass(ui
     return GetChrSpecializationByIndex(class_, INITIAL_SPECIALIZATION_INDEX);
 }
 
-Optional<ContentTuningLevels> DB2Manager::GetContentTuningData(uint32 contentTuningId, uint32 /*replacementConditionMask*/, bool forItem /*= false*/) const
+uint32 DB2Manager::GetRedirectedContentTuningId(uint32 contentTuningId, uint32 redirectFlag) const
 {
-    ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(contentTuningId);
+    for (auto [_, conditionalContentTuning] : Trinity::Containers::MapEqualRange(_conditionalContentTuning, contentTuningId))
+        if (conditionalContentTuning->RedirectFlag & redirectFlag)
+            return conditionalContentTuning->RedirectContentTuningID;
+
+    return contentTuningId;
+}
+
+Optional<ContentTuningLevels> DB2Manager::GetContentTuningData(uint32 contentTuningId, uint32 redirectFlag, bool forItem /*= false*/) const
+{
+    ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(GetRedirectedContentTuningId(contentTuningId, redirectFlag));
     if (!contentTuning)
         return {};
 
@@ -2103,6 +2094,11 @@ Optional<ContentTuningLevels> DB2Manager::GetContentTuningData(uint32 contentTun
         levels.TargetLevelMax = levels.MaxLevelWithDelta;
 
     return levels;
+}
+
+bool DB2Manager::HasContentTuningLabel(uint32 contentTuningId, int32 label) const
+{
+    return _contentTuningLabels.contains({ contentTuningId, label });
 }
 
 char const* DB2Manager::GetCreatureFamilyPetName(uint32 petfamily, LocaleConstant locale)
@@ -2304,28 +2300,30 @@ EmotesTextSoundEntry const* DB2Manager::GetTextSoundEmoteFor(uint32 emote, uint8
 template<float(ExpectedStatModEntry::*field)>
 struct ExpectedStatModReducer
 {
-    float operator()(float mod, ContentTuningXExpectedEntry const* contentTuningXExpected)
+    explicit ExpectedStatModReducer(int32 mythicPlusMilestoneSeason) : ActiveMilestoneSeason(mythicPlusMilestoneSeason) { }
+
+    float operator()(float mod, ContentTuningXExpectedEntry const* contentTuningXExpected) const
     {
         if (!contentTuningXExpected)
             return mod;
 
-        //if (contentTuningXExpected->MinMythicPlusSeasonID)
-        //    if (MythicPlusSeasonEntry const* mythicPlusSeason = sMythicPlusSeasonStore.LookupEntry(contentTuningXExpected->MinMythicPlusSeasonID))
-        //        if (MythicPlusSubSeason < mythicPlusSeason->SubSeason)
-        //            return mod;
+        if (contentTuningXExpected->MinMythicPlusSeasonID)
+            if (MythicPlusSeasonEntry const* mythicPlusSeason = sMythicPlusSeasonStore.LookupEntry(contentTuningXExpected->MinMythicPlusSeasonID))
+                if (ActiveMilestoneSeason < mythicPlusSeason->MilestoneSeason)
+                    return mod;
 
-        //if (contentTuningXExpected->MaxMythicPlusSeasonID)
-        //    if (MythicPlusSeasonEntry const* mythicPlusSeason = sMythicPlusSeasonStore.LookupEntry(contentTuningXExpected->MaxMythicPlusSeasonID))
-        //        if (MythicPlusSubSeason >= mythicPlusSeason->SubSeason)
-        //            return mod;
+        if (contentTuningXExpected->MaxMythicPlusSeasonID)
+            if (MythicPlusSeasonEntry const* mythicPlusSeason = sMythicPlusSeasonStore.LookupEntry(contentTuningXExpected->MaxMythicPlusSeasonID))
+                if (ActiveMilestoneSeason >= mythicPlusSeason->MilestoneSeason)
+                    return mod;
 
         return mod * sExpectedStatModStore.AssertEntry(contentTuningXExpected->ExpectedStatModID)->*field;
     }
 
-    // int32 MythicPlusSubSeason = 0;
+    int32 ActiveMilestoneSeason = 0;
 };
 
-float DB2Manager::EvaluateExpectedStat(ExpectedStatType stat, uint32 level, int32 expansion, uint32 contentTuningId, Classes unitClass) const
+float DB2Manager::EvaluateExpectedStat(ExpectedStatType stat, uint32 level, int32 expansion, uint32 contentTuningId, Classes unitClass, int32 mythicPlusMilestoneSeason) const
 {
     auto expectedStatItr = _expectedStatsByLevel.find(std::make_pair(level, expansion));
     if (expectedStatItr == _expectedStatsByLevel.end())
@@ -2360,56 +2358,64 @@ float DB2Manager::EvaluateExpectedStat(ExpectedStatType stat, uint32 level, int3
         case ExpectedStatType::CreatureHealth:
             value = expectedStatItr->second->CreatureHealth;
             if (contentTuningMods)
-                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f, ExpectedStatModReducer<&ExpectedStatModEntry::CreatureHealthMod>());
+                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f,
+                    ExpectedStatModReducer<&ExpectedStatModEntry::CreatureHealthMod>(mythicPlusMilestoneSeason));
             if (classMod)
                 value *= classMod->CreatureHealthMod;
             break;
         case ExpectedStatType::PlayerHealth:
             value = expectedStatItr->second->PlayerHealth;
             if (contentTuningMods)
-                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f, ExpectedStatModReducer<&ExpectedStatModEntry::PlayerHealthMod>());
+                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f,
+                    ExpectedStatModReducer<&ExpectedStatModEntry::PlayerHealthMod>(mythicPlusMilestoneSeason));
             if (classMod)
                 value *= classMod->PlayerHealthMod;
             break;
         case ExpectedStatType::CreatureAutoAttackDps:
             value = expectedStatItr->second->CreatureAutoAttackDps;
             if (contentTuningMods)
-                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f, ExpectedStatModReducer<&ExpectedStatModEntry::CreatureAutoAttackDPSMod>());
+                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f,
+                    ExpectedStatModReducer<&ExpectedStatModEntry::CreatureAutoAttackDPSMod>(mythicPlusMilestoneSeason));
             if (classMod)
                 value *= classMod->CreatureAutoAttackDPSMod;
             break;
         case ExpectedStatType::CreatureArmor:
             value = expectedStatItr->second->CreatureArmor;
             if (contentTuningMods)
-                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f, ExpectedStatModReducer<&ExpectedStatModEntry::CreatureArmorMod>());
+                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f,
+                    ExpectedStatModReducer<&ExpectedStatModEntry::CreatureArmorMod>(mythicPlusMilestoneSeason));
             if (classMod)
                 value *= classMod->CreatureArmorMod;
             break;
         case ExpectedStatType::PlayerMana:
             value = expectedStatItr->second->PlayerMana;
             if (contentTuningMods)
-                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f, ExpectedStatModReducer<&ExpectedStatModEntry::PlayerManaMod>());
+                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f,
+                    ExpectedStatModReducer<&ExpectedStatModEntry::PlayerManaMod>(mythicPlusMilestoneSeason));
             if (classMod)
                 value *= classMod->PlayerManaMod;
             break;
         case ExpectedStatType::PlayerPrimaryStat:
             value = expectedStatItr->second->PlayerPrimaryStat;
             if (contentTuningMods)
-                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f, ExpectedStatModReducer<&ExpectedStatModEntry::PlayerPrimaryStatMod>());
+                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f,
+                    ExpectedStatModReducer<&ExpectedStatModEntry::PlayerPrimaryStatMod>(mythicPlusMilestoneSeason));
             if (classMod)
                 value *= classMod->PlayerPrimaryStatMod;
             break;
         case ExpectedStatType::PlayerSecondaryStat:
             value = expectedStatItr->second->PlayerSecondaryStat;
             if (contentTuningMods)
-                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f, ExpectedStatModReducer<&ExpectedStatModEntry::PlayerSecondaryStatMod>());
+                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f,
+                    ExpectedStatModReducer<&ExpectedStatModEntry::PlayerSecondaryStatMod>(mythicPlusMilestoneSeason));
             if (classMod)
                 value *= classMod->PlayerSecondaryStatMod;
             break;
         case ExpectedStatType::ArmorConstant:
             value = expectedStatItr->second->ArmorConstant;
             if (contentTuningMods)
-                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f, ExpectedStatModReducer<&ExpectedStatModEntry::ArmorConstantMod>());
+                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f,
+                    ExpectedStatModReducer<&ExpectedStatModEntry::ArmorConstantMod>(mythicPlusMilestoneSeason));
             if (classMod)
                 value *= classMod->ArmorConstantMod;
             break;
@@ -2418,7 +2424,8 @@ float DB2Manager::EvaluateExpectedStat(ExpectedStatType stat, uint32 level, int3
         case ExpectedStatType::CreatureSpellDamage:
             value = expectedStatItr->second->CreatureSpellDamage;
             if (contentTuningMods)
-                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f, ExpectedStatModReducer<&ExpectedStatModEntry::CreatureSpellDamageMod>());
+                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f,
+                    ExpectedStatModReducer<&ExpectedStatModEntry::CreatureSpellDamageMod>(mythicPlusMilestoneSeason));
             if (classMod)
                 value *= classMod->CreatureSpellDamageMod;
             break;
@@ -2461,171 +2468,6 @@ std::vector<uint32> const* DB2Manager::GetGlyphRequiredSpecs(uint32 glyphPropert
 HeirloomEntry const* DB2Manager::GetHeirloomByItemId(uint32 itemId) const
 {
     return Trinity::Containers::MapGetValuePtr(_heirlooms, itemId);
-}
-
-DB2Manager::ItemBonusList const* DB2Manager::GetItemBonusList(uint32 bonusListId) const
-{
-    return Trinity::Containers::MapGetValuePtr(_itemBonusLists, bonusListId);
-}
-
-uint32 DB2Manager::GetItemBonusListForItemLevelDelta(int16 delta) const
-{
-    auto itr = _itemLevelDeltaToBonusListContainer.find(delta);
-    if (itr != _itemLevelDeltaToBonusListContainer.end())
-        return itr->second;
-
-    return 0;
-}
-
-template<typename Visitor>
-void VisitItemBonusTree(uint32 itemBonusTreeId, bool visitChildren, Visitor visitor)
-{
-    auto treeItr = _itemBonusTrees.find(itemBonusTreeId);
-    if (treeItr == _itemBonusTrees.end())
-        return;
-
-    for (ItemBonusTreeNodeEntry const* bonusTreeNode : treeItr->second)
-    {
-        visitor(bonusTreeNode);
-        if (visitChildren && bonusTreeNode->ChildItemBonusTreeID)
-            VisitItemBonusTree(bonusTreeNode->ChildItemBonusTreeID, true, visitor);
-    }
-}
-
-std::set<uint32> DB2Manager::GetDefaultItemBonusTree(uint32 itemId, ItemContext itemContext) const
-{
-    std::set<uint32> bonusListIDs;
-
-    ItemSparseEntry const* proto = sItemSparseStore.LookupEntry(itemId);
-    if (!proto)
-        return bonusListIDs;
-
-    auto itemIdRange = _itemToBonusTree.equal_range(itemId);
-    if (itemIdRange.first == itemIdRange.second)
-        return bonusListIDs;
-
-    uint16 itemLevelSelectorId = 0;
-    for (auto itemTreeItr = itemIdRange.first; itemTreeItr != itemIdRange.second; ++itemTreeItr)
-    {
-        uint32 matchingNodes = 0;
-        VisitItemBonusTree(itemTreeItr->second, false, [itemContext, &matchingNodes](ItemBonusTreeNodeEntry const* bonusTreeNode)
-        {
-            if (ItemContext(bonusTreeNode->ItemContext) == ItemContext::NONE || itemContext == ItemContext(bonusTreeNode->ItemContext))
-                ++matchingNodes;
-        });
-
-        if (matchingNodes != 1)
-            continue;
-
-        VisitItemBonusTree(itemTreeItr->second, true, [itemContext, &bonusListIDs, &itemLevelSelectorId](ItemBonusTreeNodeEntry const* bonusTreeNode)
-        {
-            ItemContext requiredContext = ItemContext(bonusTreeNode->ItemContext) != ItemContext::Force_to_NONE ? ItemContext(bonusTreeNode->ItemContext) : ItemContext::NONE;
-            if (ItemContext(bonusTreeNode->ItemContext) != ItemContext::NONE && itemContext != requiredContext)
-                return;
-
-            if (bonusTreeNode->ChildItemBonusListID)
-            {
-                bonusListIDs.insert(bonusTreeNode->ChildItemBonusListID);
-            }
-            else if (bonusTreeNode->ChildItemLevelSelectorID)
-            {
-                itemLevelSelectorId = bonusTreeNode->ChildItemLevelSelectorID;
-            }
-        });
-    }
-
-    if (ItemLevelSelectorEntry const* selector = sItemLevelSelectorStore.LookupEntry(itemLevelSelectorId))
-    {
-        int16 delta = int16(selector->MinItemLevel) - proto->ItemLevel;
-
-        if (uint32 bonus = GetItemBonusListForItemLevelDelta(delta))
-            bonusListIDs.insert(bonus);
-
-        if (ItemLevelSelectorQualitySetEntry const* selectorQualitySet = sItemLevelSelectorQualitySetStore.LookupEntry(selector->ItemLevelSelectorQualitySetID))
-        {
-            auto itemSelectorQualities = _itemLevelQualitySelectorQualities.find(selector->ItemLevelSelectorQualitySetID);
-            if (itemSelectorQualities != _itemLevelQualitySelectorQualities.end())
-            {
-                ItemQualities quality = ITEM_QUALITY_UNCOMMON;
-                if (selector->MinItemLevel >= selectorQualitySet->IlvlEpic)
-                    quality = ITEM_QUALITY_EPIC;
-                else if (selector->MinItemLevel >= selectorQualitySet->IlvlRare)
-                    quality = ITEM_QUALITY_RARE;
-
-                auto itemSelectorQuality = std::lower_bound(itemSelectorQualities->second.begin(), itemSelectorQualities->second.end(),
-                    quality, ItemLevelSelectorQualityEntryComparator{});
-
-                if (itemSelectorQuality != itemSelectorQualities->second.end())
-                    bonusListIDs.insert((*itemSelectorQuality)->QualityItemBonusListID);
-            }
-        }
-
-        if (AzeriteUnlockMappingEntry const* azeriteUnlockMapping = Trinity::Containers::MapGetValuePtr(_azeriteUnlockMappings, std::make_pair(proto->ID, itemContext)))
-        {
-            switch (proto->InventoryType)
-            {
-                case INVTYPE_HEAD:
-                    bonusListIDs.insert(azeriteUnlockMapping->ItemBonusListHead);
-                    break;
-                case INVTYPE_SHOULDERS:
-                    bonusListIDs.insert(azeriteUnlockMapping->ItemBonusListShoulders);
-                    break;
-                case INVTYPE_CHEST:
-                case INVTYPE_ROBE:
-                    bonusListIDs.insert(azeriteUnlockMapping->ItemBonusListChest);
-                    break;
-            }
-        }
-    }
-
-    return bonusListIDs;
-}
-
-std::set<uint32> DB2Manager::GetAllItemBonusTreeBonuses(uint32 itemBonusTreeId) const
-{
-    std::set<uint32> bonusListIDs;
-    VisitItemBonusTree(itemBonusTreeId, true, [&bonusListIDs](ItemBonusTreeNodeEntry const* bonusTreeNode)
-    {
-        if (bonusTreeNode->ChildItemBonusListID)
-            bonusListIDs.insert(bonusTreeNode->ChildItemBonusListID);
-    });
-    return bonusListIDs;
-}
-
-void LoadAzeriteEmpoweredItemUnlockMappings(std::unordered_map<int32, std::vector<AzeriteUnlockMappingEntry const*>> const& azeriteUnlockMappingsBySet, uint32 itemId)
-{
-    auto itemIdRange = _itemToBonusTree.equal_range(itemId);
-    if (itemIdRange.first == itemIdRange.second)
-        return;
-
-    for (auto itemTreeItr = itemIdRange.first; itemTreeItr != itemIdRange.second; ++itemTreeItr)
-    {
-        VisitItemBonusTree(itemTreeItr->second, true, [&azeriteUnlockMappingsBySet, itemId](ItemBonusTreeNodeEntry const* bonusTreeNode)
-        {
-            if (!bonusTreeNode->ChildItemBonusListID && bonusTreeNode->ChildItemLevelSelectorID)
-            {
-                ItemLevelSelectorEntry const* selector = sItemLevelSelectorStore.LookupEntry(bonusTreeNode->ChildItemLevelSelectorID);
-                if (!selector)
-                    return;
-
-                if (std::vector<AzeriteUnlockMappingEntry const*> const* azeriteUnlockMappings = Trinity::Containers::MapGetValuePtr(azeriteUnlockMappingsBySet, selector->AzeriteUnlockMappingSet))
-                {
-                    AzeriteUnlockMappingEntry const* selectedAzeriteUnlockMapping = nullptr;
-                    for (AzeriteUnlockMappingEntry const* azeriteUnlockMapping : *azeriteUnlockMappings)
-                    {
-                        if (azeriteUnlockMapping->ItemLevel > selector->MinItemLevel ||
-                            (selectedAzeriteUnlockMapping != nullptr && selectedAzeriteUnlockMapping->ItemLevel > azeriteUnlockMapping->ItemLevel))
-                            continue;
-
-                        selectedAzeriteUnlockMapping = azeriteUnlockMapping;
-                    }
-
-                    if (selectedAzeriteUnlockMapping)
-                        _azeriteUnlockMappings[std::make_pair(itemId, ItemContext(bonusTreeNode->ItemContext))] = selectedAzeriteUnlockMapping;
-                }
-            }
-        });
-    }
 }
 
 ItemChildEquipmentEntry const* DB2Manager::GetItemChildEquipment(uint32 itemId) const
@@ -3488,11 +3330,6 @@ bool ChrClassesXPowerTypesEntryComparator::Compare(ChrClassesXPowerTypesEntry co
     if (left->ClassID != right->ClassID)
         return left->ClassID < right->ClassID;
     return left->PowerType < right->PowerType;
-}
-
-bool ItemLevelSelectorQualityEntryComparator::Compare(ItemLevelSelectorQualityEntry const* left, ItemLevelSelectorQualityEntry const* right)
-{
-    return left->Quality < right->Quality;
 }
 
 TaxiMask::TaxiMask()

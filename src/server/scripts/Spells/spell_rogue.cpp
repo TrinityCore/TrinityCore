@@ -102,7 +102,7 @@ class spell_rog_backstab : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return spellInfo->GetEffects().size() > EFFECT_3;
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_3 } });
     }
 
     void HandleHitDamage(SpellEffIndex /*effIndex*/)
@@ -452,6 +452,22 @@ class spell_rog_killing_spree : public SpellScript
     }
 };
 
+// 385627 - Kingsbane
+class spell_rog_kingsbane : public AuraScript
+{
+    PrepareAuraScript(spell_rog_kingsbane);
+
+    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& procInfo)
+    {
+        return procInfo.GetActionTarget()->HasAura(GetId(), GetCasterGUID());
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_rog_kingsbane::CheckProc, EFFECT_4, SPELL_AURA_PROC_TRIGGER_SPELL);;
+    }
+};
+
 // 76806 - Mastery: Main Gauche
 class spell_rog_mastery_main_gauche : public AuraScript
 {
@@ -677,7 +693,7 @@ class spell_rog_shadowstrike : public SpellScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ROGUE_PREMEDITATION_AURA, SPELL_ROGUE_SLICE_AND_DICE, SPELL_ROGUE_PREMEDITATION_PASSIVE })
-            && sSpellMgr->AssertSpellInfo(SPELL_ROGUE_PREMEDITATION_PASSIVE, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_0;
+            && ValidateSpellEffect({ { SPELL_ROGUE_PREMEDITATION_PASSIVE, EFFECT_0 } });
     }
 
     SpellCastResult HandleCheckCast()
@@ -1040,6 +1056,7 @@ void AddSC_rogue_spell_scripts()
     RegisterSpellScript(spell_rog_grand_melee);
     RegisterSpellScript(spell_rog_honor_among_thieves);
     RegisterSpellAndAuraScriptPair(spell_rog_killing_spree, spell_rog_killing_spree_aura);
+    RegisterSpellScript(spell_rog_kingsbane);
     RegisterSpellScript(spell_rog_mastery_main_gauche);
     RegisterSpellScript(spell_rog_pickpocket);
     RegisterSpellScript(spell_rog_restless_blades);

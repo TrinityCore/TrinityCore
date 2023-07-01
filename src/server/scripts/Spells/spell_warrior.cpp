@@ -26,6 +26,7 @@
 #include "MoveSpline.h"
 #include "PathGenerator.h"
 #include "Player.h"
+#include "Spell.h"
 #include "SpellMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
@@ -43,6 +44,7 @@ enum WarriorSpells
     SPELL_WARRIOR_CHARGE_SLOW_EFFECT                = 236027,
     SPELL_WARRIOR_COLOSSUS_SMASH                    = 167105,
     SPELL_WARRIOR_COLOSSUS_SMASH_AURA               = 208086,
+    SPELL_WARRIOR_CRITICAL_THINKING_ENERGIZE        = 392776,
     SPELL_WARRIOR_EXECUTE                           = 20647,
     SPELL_WARRIOR_FUELED_BY_VIOLENCE_HEAL           = 383104,
     SPELL_WARRIOR_GLYPH_OF_THE_BLAZING_TRAIL        = 123779,
@@ -228,7 +230,7 @@ class spell_warr_colossus_smash : public SpellScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_WARRIOR_COLOSSUS_SMASH_AURA, SPELL_WARRIOR_IN_FOR_THE_KILL, SPELL_WARRIOR_IN_FOR_THE_KILL_HASTE })
-            && sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_IN_FOR_THE_KILL, DIFFICULTY_NONE)->GetEffects().size() > EFFECT_2;
+            && ValidateSpellEffect({ { SPELL_WARRIOR_IN_FOR_THE_KILL, EFFECT_2 } });
     }
 
     void HandleHit()
@@ -270,6 +272,29 @@ class spell_warr_colossus_smash : public SpellScript
 
 private:
     bool _bonusHaste = false;
+};
+
+// 389306 - Critical Thinking
+class spell_warr_critical_thinking : public AuraScript
+{
+    PrepareAuraScript(spell_warr_critical_thinking);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_CRITICAL_THINKING_ENERGIZE });
+    }
+
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    {
+        if (Optional<int32> rageCost = eventInfo.GetProcSpell()->GetPowerTypeCostAmount(POWER_RAGE))
+            GetTarget()->CastSpell(nullptr, SPELL_WARRIOR_CRITICAL_THINKING_ENERGIZE, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
+                .AddSpellBP0(CalculatePct(*rageCost, aurEff->GetAmount())));
+    }
+
+    void Register() override
+    {
+        AfterEffectProc += AuraEffectProcFn(spell_warr_critical_thinking::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
+    }
 };
 
 // 383103  - Fueled by Violence
@@ -442,7 +467,7 @@ class spell_warr_item_t10_prot_4p_bonus : public AuraScript
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ SPELL_WARRIOR_STOICISM })
-            && spellInfo->GetEffects().size() > EFFECT_1;
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
     void HandleProc(ProcEventInfo& eventInfo)
@@ -562,10 +587,8 @@ class spell_warr_shockwave : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        if (!ValidateSpellInfo({ SPELL_WARRIOR_SHOCKWAVE, SPELL_WARRIOR_SHOCKWAVE_STUN }))
-            return false;
-
-        return spellInfo->GetEffects().size() > EFFECT_3;
+        return !ValidateSpellInfo({ SPELL_WARRIOR_SHOCKWAVE, SPELL_WARRIOR_SHOCKWAVE_STUN })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_3 } });
     }
 
     bool Load() override
@@ -796,6 +819,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_charge_drop_fire_periodic);
     RegisterSpellScript(spell_warr_charge_effect);
     RegisterSpellScript(spell_warr_colossus_smash);
+    RegisterSpellScript(spell_warr_critical_thinking);
     RegisterSpellScript(spell_warr_fueled_by_violence);
     RegisterSpellScript(spell_warr_heroic_leap);
     RegisterSpellScript(spell_warr_heroic_leap_jump);

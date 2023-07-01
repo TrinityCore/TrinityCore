@@ -315,7 +315,7 @@ class spell_gruul_shatter_effect : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                return !spellInfo->GetEffects().empty();
+                return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } });
             }
 
             void CalculateDamage()
