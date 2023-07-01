@@ -35,11 +35,6 @@
 #include "Transport.h"
 #include "Loot.h"
 
-enum ExilesReachGenericData
-{
-    SPELL_UPDATE_PHASE_SHIFT = 82238,
-};
-
 template<class privateAI, class publicAI>
 CreatureAI* GetPrivatePublicPairAISelector(Creature* creature)
 {
@@ -268,6 +263,7 @@ enum StandYourGroundData
     SPELL_JUMP_LEFT                     = 312757,
     SPELL_JUMP_BEHIND                   = 312755,
     SPELL_COMBAT_TRAINING               = 323071,
+    SPELL_UPDATE_PHASE_SHIFT            = 82238,
 };
 
 // 58209 - Stand Your Ground
