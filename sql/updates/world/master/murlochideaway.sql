@@ -86,7 +86,6 @@ UPDATE `creature_template` SET `npcflag`=2, `unit_flags`=768, `unit_flags2`=3481
 UPDATE `creature_template` SET `ScriptName`="npc_warlord_grimaxe_beach" WHERE `entry`=166782;
 UPDATE `creature_template` SET `ScriptName`="npc_healed_by_leader_alliance_beach" WHERE `entry` IN (149917,156622);
 UPDATE `creature_template` SET `ScriptName`="npc_healed_by_leader_horde_beach" WHERE `entry` IN (166784,166800);
-UPDATE `quest_template_addon` SET `ScriptName`='quest_emergency_first_aid' WHERE `ID` IN (54951,59930);
 UPDATE `creature_template` SET `ScriptName`="npc_bjorn_stouthands_beach_laying" WHERE `entry`=156609;
 UPDATE `creature_template` SET `ScriptName`="npc_austin_huxworth_beach_laying" WHERE `entry`=156610;
 UPDATE `creature_template` SET `ScriptName`="npc_kee_la_beach_laying" WHERE `entry`=156612;

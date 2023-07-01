@@ -55,19 +55,6 @@ static Creature* FindCreatureIgnorePhase(WorldObject const* obj, std::string_vie
     return obj->FindNearestCreatureWithOptions(range, FindCreatureOptions().SetIgnorePhases(true).SetStringId(stringId));
 }
 
-static void DespawnPersonalSpawns(Player* player, float range, std::function<bool(uint32)> const& entryCheck)
-{
-    std::list<Creature*> creatureList;
-    player->GetCreatureListWithOptionsInGrid(creatureList, range, FindCreatureOptions().SetIgnoreNotOwnedPrivateObjects(true).SetIgnorePhases(true).SetPrivateObjectOwner(player->GetGUID()));
-
-    for (Creature* creature : creatureList)
-    {
-        if (entryCheck(creature->GetEntry()))
-            creature->DespawnOrUnsummon();
-    }
-    player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
-}
-
  // ********************************************
  // * Scripting in this section occurs on ship *
  // ********************************************
@@ -1600,43 +1587,6 @@ CreatureAI* LanaJordanBeachStandingAISelector(Creature* creature)
     return new NullCreatureAI(creature);
 };
 
-// 54951 - Emergency First Aid
-// 59930 - Emergency First Aid
-class quest_emergency_first_aid : public QuestScript
-{
-public:
-    quest_emergency_first_aid() : QuestScript("quest_emergency_first_aid") { }
-
-    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
-    {
-        if (newStatus == QUEST_STATUS_NONE)
-        {
-            static auto despawnCreatureEntry = [](uint32 entry) -> bool
-            {
-                switch (entry)
-                {
-                    case NPC_BO_STANDING:
-                    case NPC_MITHDRAN_STANDING:
-                    case NPC_LANA_JORDAN_STANDING:
-                    case NPC_KEE_LA_STANDING:
-                    case NPC_BJORN_STOUTHANDS_STANDING:
-                    case NPC_AUSTIN_HUXWORTH_STANDING:
-                    case NPC_CAPTAIN_GARRICK_BEACH:
-                    case NPC_WARLORD_BREKA_GRIMAXE_BEACH:
-                    case NPC_COLE_BEACH:
-                    case NPC_RICHTER_BEACH:
-                    case NPC_THROG_BEACH:
-                    case NPC_JINHAKE_BEACH:
-                        return true;
-                    default:
-                        return false;
-                }
-            };
-            DespawnPersonalSpawns(player, 100.0f, despawnCreatureEntry);
-        }
-    }
-};
-
 enum ExilesReachMurlocsData
 {
     ITEM_STITCHED_CLOTH_SHOES           = 174791,
@@ -1728,5 +1678,4 @@ void AddSC_zone_exiles_reach()
     new FactoryCreatureScript<CreatureAI, &LanaJordanBeachStandingAISelector>("npc_lana_jordan_beach_standing");
     RegisterCreatureAI(npc_murloc_spearhunter_watershaper);
     RegisterCreatureAI(npc_murloc_spearhunter_watershaper_higher_ground);
-    new quest_emergency_first_aid();
 }
