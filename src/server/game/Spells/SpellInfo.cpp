@@ -4574,6 +4574,7 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, SpellEffectInfo const& ef
                 default:
                     break;
             }
+            break;
         default:
             break;
     }
