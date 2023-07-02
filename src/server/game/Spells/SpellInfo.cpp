@@ -4566,6 +4566,14 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, SpellEffectInfo const& ef
             if ((spellInfo->SpellFamilyFlags[0] & 0x20200000) != 0)
                 return false;
             break;
+        case SPELLFAMILY_WARLOCK:
+            switch (spellInfo->Id)
+            {
+                case 111400: // Burning Rush
+                    return true;
+                default:
+                    break;
+            }
         default:
             break;
     }
