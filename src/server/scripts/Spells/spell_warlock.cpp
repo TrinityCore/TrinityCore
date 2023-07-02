@@ -107,9 +107,9 @@ private:
 };
 
 // 111400 - Burning Rush
-class spell_warl_legion_burning_rush : public SpellScript
+class spell_warl_burning_rush : public SpellScript
 {
-    PrepareSpellScript(spell_warl_legion_burning_rush);
+    PrepareSpellScript(spell_warl_burning_rush);
 
     bool Validate(SpellInfo const* spellInfo) override
     {
@@ -137,13 +137,13 @@ class spell_warl_legion_burning_rush : public SpellScript
 
     void Register() override
     {
-        OnCheckCast += SpellCheckCastFn(spell_warl_legion_burning_rush::CheckApplyAura);
+        OnCheckCast += SpellCheckCastFn(spell_warl_burning_rush::CheckApplyAura);
     }
 };
 
-class spell_warl_legion_burning_rush_aura : public AuraScript
+class spell_warl_burning_rush_aura : public AuraScript
 {
-    PrepareAuraScript(spell_warl_legion_burning_rush_aura);
+    PrepareAuraScript(spell_warl_burning_rush_aura);
 
     void PeriodicTick(AuraEffect const* aurEff)
     {
@@ -156,7 +156,7 @@ class spell_warl_legion_burning_rush_aura : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_legion_burning_rush_aura::PeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_burning_rush_aura::PeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
     }
 };
 
@@ -1049,7 +1049,7 @@ class spell_warl_rain_of_fire : public AuraScript
 void AddSC_warlock_spell_scripts()
 {
     RegisterSpellScript(spell_warl_banish);
-    RegisterSpellAndAuraScriptPair(spell_warl_legion_burning_rush, spell_warl_legion_burning_rush_aura);
+    RegisterSpellAndAuraScriptPair(spell_warl_burning_rush, spell_warl_burning_rush_aura);
     RegisterSpellScript(spell_warl_chaos_bolt);
     RegisterSpellScript(spell_warl_chaotic_energies);
     RegisterSpellScript(spell_warl_create_healthstone);
