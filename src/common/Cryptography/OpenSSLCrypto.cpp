@@ -15,8 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <OpenSSLCrypto.h>
+#include "OpenSSLCrypto.h"
 #include <openssl/crypto.h>
+
+#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x1010000fL
 #include <vector>
 #include <thread>
 #include <mutex>
@@ -62,3 +64,5 @@ void OpenSSLCrypto::threadsCleanup()
     }
     cryptoLocks.resize(0);
 }
+
+#endif
