@@ -365,10 +365,7 @@ struct npc_vanessa_vancleef_human_heritage_lions_pride_inn_basement : public Scr
     void MovementInform(uint32 /*type*/, uint32 pointId) override
     {
         if (pointId == POINT_VANESSA_FINISH)
-        {
-            me->SetVirtualItem(1, 0);
             _events.ScheduleEvent(EVENT_VANESSA_CLONE_LEAN, 1s);
-        }
     }
 
     void UpdateAI(uint32 diff) override
@@ -380,6 +377,8 @@ struct npc_vanessa_vancleef_human_heritage_lions_pride_inn_basement : public Scr
             switch (eventId)
             {
                 case EVENT_VANESSA_CLONE_LEAN:
+                    me->SetVirtualItem(1, 0);
+                    me->SetNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
                     me->SetFacingTo(4.47226f);
                     me->HandleEmoteCommand(EMOTE_STATE_WALEAN02);
                     break;
