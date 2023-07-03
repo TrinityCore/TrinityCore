@@ -365,7 +365,10 @@ struct npc_vanessa_vancleef_human_heritage_lions_pride_inn_basement : public Scr
     void MovementInform(uint32 /*type*/, uint32 pointId) override
     {
         if (pointId == POINT_VANESSA_FINISH)
+        {
+            me->SetVirtualItem(1, 0);
             _events.ScheduleEvent(EVENT_VANESSA_CLONE_LEAN, 1s);
+        }
     }
 
     void UpdateAI(uint32 diff) override
@@ -424,7 +427,8 @@ public:
         _vanessaGUID = vanessaClone->GetGUID();
         _mathiasGUID = mathiasClone->GetGUID();
         mathiasClone->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
-        vanessaClone->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_QUESTGIVER));
+        vanessaClone->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
+        vanessaClone->SetVirtualItem(1, vanessaClone->GetVirtualItemId(0)); // add 2nd dagger to hands
 
         conversation->AddActor(CONVO_AN_UNLIKELY_INFORMANT, CONVO_ACTOR_IDX_MATHIAS, mathiasClone->GetGUID());
         conversation->AddActor(CONVO_AN_UNLIKELY_INFORMANT, CONVO_ACTOR_IDX_VANESSA, vanessaClone->GetGUID());
