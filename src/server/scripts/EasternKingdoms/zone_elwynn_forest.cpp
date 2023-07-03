@@ -288,20 +288,20 @@ enum AnUnlikelyInformantData
     GOSSIP_MENU_SIGNAL_INFORMANT        = 30224,
     GOSSIP_OPTION_SIGNAL_INFORMANT      = 0,
 
-    CONV_SIGNAL_INFORMANT_LOS_OOC       = 20340,
-    CONV_SIGNAL_INFORMANT_EVENT         = 20342,
+    CONVO_AN_UNLIKELY_INFORMANT_HELLO   = 20340,
+    CONVO_AN_UNLIKELY_INFORMANT         = 20342,
 
-    CONV_LINE_VANESSA_TELEPORT          = 53702,
-    CONV_LINE_VANESSA_MOVEMENT          = 52465,
-    CONV_LINE_MATHIAS_QUEST_CREDIT      = 52466,
+    CONVO_LINE_VANESSA_TELEPORT         = 53702,
+    CONVO_LINE_VANESSA_MOVEMENT         = 52465,
+    CONVO_LINE_MATHIAS_QUEST_CREDIT     = 52466,
 
-    CONV_IDX_MATHIAS                    = 0,
-    CONV_IDX_VANESSA                    = 1,
+    CONVO_ACTOR_IDX_MATHIAS             = 0,
+    CONVO_ACTOR_IDX_VANESSA             = 1,
 
     NPC_MATHIAS_SHAW                    = 198896,
     NPC_VANESSA_VANCLEEF                = 198883,
 
-    VANESSA_POINT_FINISH                = 1,
+    POINT_VANESSA_FINISH                = 1,
 
     DISPLAY_VANESSA_INVISIBLE           = 71887,
     DISPLAY_VANESSA_VISIBLE             = 110980,
@@ -351,7 +351,7 @@ struct npc_master_mathias_shaw_human_heritage_lions_pride_inn_basement : public 
         {
             CloseGossipMenuFor(player);
 
-            Conversation::CreateConversation(CONV_SIGNAL_INFORMANT_EVENT, player, *player, player->GetGUID(), nullptr, false);
+            Conversation::CreateConversation(CONVO_AN_UNLIKELY_INFORMANT, player, *player, player->GetGUID(), nullptr, false);
         }
         return true;
     }
@@ -364,7 +364,7 @@ struct npc_vanessa_vancleef_human_heritage_lions_pride_inn_basement : public Scr
 
     void MovementInform(uint32 /*type*/, uint32 pointId) override
     {
-        if (pointId == VANESSA_POINT_FINISH)
+        if (pointId == POINT_VANESSA_FINISH)
             _events.ScheduleEvent(EVENT_VANESSA_CLONE_LEAN, 1s);
     }
 
@@ -399,10 +399,11 @@ struct at_human_heritage_lions_pride_inn_basement_enter : AreaTriggerAI
         if (!player || player->GetQuestStatus(QUEST_AN_UNLIKELY_INFORMANT) != QUEST_STATUS_INCOMPLETE)
             return;
 
-        Conversation::CreateConversation(CONV_SIGNAL_INFORMANT_LOS_OOC, unit, unit->GetPosition(), unit->GetGUID());
+        Conversation::CreateConversation(CONVO_AN_UNLIKELY_INFORMANT_HELLO, unit, unit->GetPosition(), unit->GetGUID());
     }
 };
 
+// 20342 - Conversation
 class conversation_an_unlikely_informant : public ConversationScript
 {
 public:
@@ -425,8 +426,8 @@ public:
         mathiasClone->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
         vanessaClone->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_QUESTGIVER));
 
-        conversation->AddActor(CONV_SIGNAL_INFORMANT_EVENT, CONV_IDX_MATHIAS, mathiasClone->GetGUID());
-        conversation->AddActor(CONV_SIGNAL_INFORMANT_EVENT, CONV_IDX_VANESSA, vanessaClone->GetGUID());
+        conversation->AddActor(CONVO_AN_UNLIKELY_INFORMANT, CONVO_ACTOR_IDX_MATHIAS, mathiasClone->GetGUID());
+        conversation->AddActor(CONVO_AN_UNLIKELY_INFORMANT, CONVO_ACTOR_IDX_VANESSA, vanessaClone->GetGUID());
         conversation->Start();
     }
 
@@ -436,14 +437,14 @@ public:
         if (Player* owner = ObjectAccessor::GetPlayer(*conversation, conversation->GetPrivateObjectOwner()))
             privateOwnerLocale = owner->GetSession()->GetSessionDbLocaleIndex();
 
-        if (Milliseconds const* teleportLineStartTime = conversation->GetLineStartTime(privateOwnerLocale, CONV_LINE_VANESSA_TELEPORT))
+        if (Milliseconds const* teleportLineStartTime = conversation->GetLineStartTime(privateOwnerLocale, CONVO_LINE_VANESSA_TELEPORT))
             _events.ScheduleEvent(EVENT_VANESSA_TELEPORT, *teleportLineStartTime);
 
-        if (Milliseconds const* movementLineStartTime = conversation->GetLineStartTime(privateOwnerLocale, CONV_LINE_VANESSA_MOVEMENT))
-            _events.ScheduleEvent(EVENT_VANESSA_MOVE, *movementLineStartTime);
+        if (Milliseconds const* movementStartTime = conversation->GetLineStartTime(privateOwnerLocale, CONVO_LINE_VANESSA_MOVEMENT))
+            _events.ScheduleEvent(EVENT_VANESSA_MOVE, *movementStartTime);
 
-        if (Milliseconds const* movementLineStartTime = conversation->GetLineStartTime(privateOwnerLocale, CONV_LINE_MATHIAS_QUEST_CREDIT))
-            _events.ScheduleEvent(EVENT_MATHIAS_QUEST_CREDIT, *movementLineStartTime);
+        if (Milliseconds const* questCreditStartTime = conversation->GetLineStartTime(privateOwnerLocale, CONVO_LINE_MATHIAS_QUEST_CREDIT))
+            _events.ScheduleEvent(EVENT_MATHIAS_QUEST_CREDIT, *questCreditStartTime);
 
         _events.ScheduleEvent(EVENT_MATHIAS_CLONE_DESPAWN, conversation->GetLastLineEndTime(privateOwnerLocale));
     }
@@ -458,11 +459,11 @@ public:
             {
                 Unit* privateObjectOwner = ObjectAccessor::GetUnit(*conversation, conversation->GetPrivateObjectOwner());
                 if (!privateObjectOwner)
-                    return;
+                    break;
 
                 Creature* vanessaClone = ObjectAccessor::GetCreature(*conversation, _vanessaGUID);
                 if (!vanessaClone)
-                    return;
+                    break;
 
                 vanessaClone->CastSpell(privateObjectOwner, SPELL_VANESSA_TELEPORT_BEHIND, true);
                 vanessaClone->CastSpell(privateObjectOwner, SPELL_VANESSA_CHEAP_SHOT, true);
@@ -474,26 +475,26 @@ public:
             {
                 Creature* vanessaClone = ObjectAccessor::GetCreature(*conversation, _vanessaGUID);
                 if (!vanessaClone)
-                    return;
+                    break;
 
                 vanessaClone->SetWalk(true);
                 vanessaClone->SetEmoteState(EMOTE_STATE_NONE);
-                vanessaClone->GetMotionMaster()->MovePoint(VANESSA_POINT_FINISH, VanessaStaticPosition);
+                vanessaClone->GetMotionMaster()->MovePoint(POINT_VANESSA_FINISH, VanessaStaticPosition);
                 break;
             }
             case EVENT_MATHIAS_QUEST_CREDIT:
             {
                 Unit* privateObjectOwner = ObjectAccessor::GetUnit(*conversation, conversation->GetPrivateObjectOwner());
                 if (!privateObjectOwner)
-                    return;
+                    break;
 
                 Creature* vanessaClone = ObjectAccessor::GetCreature(*conversation, _vanessaGUID);
                 if (!vanessaClone)
-                    return;
+                    break;
 
                 Creature* mathiasClone = ObjectAccessor::GetCreature(*conversation, _mathiasGUID);
                 if (!mathiasClone)
-                    return;
+                    break;
 
                 privateObjectOwner->ToPlayer()->KilledMonsterCredit(NPC_MATHIAS_SHAW);
                 vanessaClone->DespawnOrUnsummon();
@@ -504,7 +505,7 @@ public:
             {
                 Creature* mathiasClone = ObjectAccessor::GetCreature(*conversation, _mathiasGUID);
                 if (!mathiasClone)
-                    return;
+                    break;
 
                 mathiasClone->DespawnOrUnsummon();
                 break;
