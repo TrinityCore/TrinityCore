@@ -197,6 +197,7 @@ void Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
         lineField.UiCameraID = line->UiCameraID;
         lineField.ActorIndex = line->ActorIdx;
         lineField.Flags = line->Flags;
+        lineField.ChatType = line->ChatType;
 
         ConversationLineEntry const* convoLine = sConversationLineStore.LookupEntry(line->Id); // never null for conversationTemplate->Lines
 
