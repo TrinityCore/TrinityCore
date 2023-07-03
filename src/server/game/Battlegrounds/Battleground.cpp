@@ -1664,7 +1664,6 @@ void Battleground::HandleTriggerBuff(ObjectGuid go_guid)
         index--;
     if (index < 0)
     {
-        obj->DespawnOrUnsummon();
         TC_LOG_ERROR("bg.battleground", "Battleground::HandleTriggerBuff: cannot find buff gameobject ({}, entry: {}, type: {}) in internal data for BG (map: {}, instance id: {})!",
             go_guid.ToString(), obj->GetEntry(), obj->GetGoType(), GetMapId(), m_InstanceID);
         return;
