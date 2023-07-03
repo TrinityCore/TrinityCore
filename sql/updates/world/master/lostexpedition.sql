@@ -1,0 +1,109 @@
+-- Areatrigger
+
+SET @ID := 24; -- needs assigning
+SET @SPAWNID := 24;  -- needs assigning
+-- Create new serverside areatrigger for entering Exile's Reach Abandoned Camp for follower spawn
+DELETE FROM `areatrigger` WHERE `SpawnId`=@SPAWNID;
+INSERT INTO `areatrigger` (`SpawnId`,`AreaTriggerId`,`IsServerSide`,`MapId`,`PosX`,`PosY`,`PosZ`,`Orientation`,`PhaseUseFlags`,`PhaseId`,`PhaseGroup`,`Shape`,`ShapeData0`,`ShapeData1`,`ShapeData2`,`ShapeData3`,`ShapeData4`,`ShapeData5`,`ShapeData6`,`ShapeData7`,`ScriptName`,`Comment`) VALUES
+(@SPAWNID,@ID,1,2175,-299,-2500,20,0,0,0,0,1,2,50,30,2,50,30,0,0,'areatrigger_find_the_lost_expedition_follower','Exiles Reach - Lost Camp Missing follower check');
+-- Add new serverside areatrigger for Exile's Reach Abandoned Camp to template
+DELETE FROM `areatrigger_template` WHERE `Id`=@ID;
+INSERT INTO `areatrigger_template` (`Id`,`IsServerSide`,`Type`,`Flags`,`Data0`,`Data1`,`Data2`,`Data3`,`Data4`,`Data5`,`Data6`,`Data7`,`VerifiedBuild`) VALUES
+(@ID,1,1,0,2,50,30,2,50,30,0,0,0);
+
+-- Misc
+
+DELETE FROM `creature_equip_template` WHERE `CreatureID` IN (165359,166805);
+INSERT INTO `creature_equip_template` (`CreatureID`,`ID`,`ItemID1`,`AppearanceModID1`,`ItemVisual1`,`ItemID2`,`AppearanceModID2`,`ItemVisual2`,`ItemID3`,`AppearanceModID3`,`ItemVisual3`,`VerifiedBuild`) VALUES
+(165359,1,163887,0,0,163891,0,0,0,0,0,45745),
+(166805,1,165616,0,0,0,0,0,0,0,0,45745);
+
+DELETE FROM `creature_summoned_data` WHERE `CreatureID` IN (165359);
+INSERT INTO `creature_summoned_data` (`CreatureID`,`CreatureIDVisibleToSummoner`,`GroundMountDisplayID`,`FlyingMountDisplayID`) VALUES
+(165359,153168,NULL,NULL);
+
+UPDATE `creature` SET `StringId`="alaria_camp" WHERE `guid`=1051209;
+UPDATE `creature` SET `StringId`="wonza_camp" WHERE `guid`=1051211;
+
+-- Scripting
+
+UPDATE `creature_template` SET `ScriptName`="npc_kee_la_beach_standing" WHERE `entry` IN (151088);
+UPDATE `creature_template` SET `ScriptName`="npc_bjorn_dawntracker_beach_standing" WHERE `entry` IN (151089);
+UPDATE `creature_template` SET `ScriptName`="npc_austin_jordan_beach_standing" WHERE `entry` IN (154170);
+UPDATE `creature_template` SET `ScriptName`="npc_garrick_summoned_beach" WHERE `entry` IN (165359);
+UPDATE `creature_template` SET `ScriptName`="npc_grimaxe_summoned_beach" WHERE `entry` IN (166805);
+UPDATE `areatrigger` SET `ScriptName`='areatrigger_find_the_lost_expedition' WHERE `SpawnId`=23;
+UPDATE `quest_template_addon` SET `ScriptName`='quest_finding_the_lost_expedition' WHERE `ID` IN (54952,59931);
+
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (305596,325076);
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+(305596,'spell_summon_survivor_beach'),
+(325076,'spell_summon_survivor_beach');
+
+-- Questing
+
+DELETE FROM `creature_queststarter` WHERE `id`=156626 AND `quest` IN (54952);
+DELETE FROM `creature_queststarter` WHERE `id`=166782 AND `quest` IN (59931);
+INSERT INTO `creature_queststarter` (`id`, `quest`, `VerifiedBuild`) VALUES
+(156626, 54952, 45745), -- Alliance
+(166782, 59931, 46455); -- Horde
+
+DELETE FROM `creature_questender` WHERE `id`=156607 AND `quest` IN (54952);
+DELETE FROM `creature_questender` WHERE `id`=166854 AND `quest` IN (59931);
+INSERT INTO `creature_questender` (`id`, `quest`, `VerifiedBuild`) VALUES
+(156607, 54952, 45745), -- Alliance
+(166854, 59931, 46455); -- Horde
+
+DELETE FROM `quest_template_addon` WHERE `ID` IN (54952,59931);
+INSERT INTO `quest_template_addon` (`ID`,`NextQuestID`) VALUES
+(54952,55174), -- Alliance
+(59931,59932); -- Horde
+
+-- Pathing
+
+-- Pathing for Kee-La 151088 "Finding the Lost Expedition"
+SET @PATH := 1052012 * 10;
+DELETE FROM `waypoint_data` WHERE `id` IN (@PATH);
+INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
+(@PATH,1,-425.92883,-2603.427,0.48476708,NULL,0,1,0,100,0),
+(@PATH,2,-415.217,-2603.8403,0.7445327,NULL,0,1,0,100,0),
+(@PATH,3,-404.86633,-2599.4375,1.6478806,NULL,0,1,0,100,0),
+(@PATH,4,-395.08508,-2594.441,3.153698,NULL,0,1,0,100,0);
+
+-- Pathing for Bjorn Stouthands 151089 "Finding the Lost Expedition"
+SET @PATH := 1052013 * 10;
+DELETE FROM `waypoint_data` WHERE `id` IN (@PATH);
+INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
+(@PATH,1,-398.3889,-2596.2883,2.3895378,NULL,0,1,0,100,0),
+(@PATH,2,-391.7795,-2592.915,3.9566765,NULL,0,1,0,100,0);
+
+-- Pathing for Austin Huxworth 154170 "Finding the Lost Expedition"
+SET @PATH := 1052014 * 10;
+DELETE FROM `waypoint_data` WHERE `id` IN (@PATH);
+INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
+(@PATH,1,-409.20898,-2599.4922,1.2894821,NULL,0,1,0,100,0),
+(@PATH,2,-397.875,-2595.2622,2.6358757,NULL,0,1,0,100,0);
+
+-- Pathing for Bo quest "Finding the Lost Expedition"
+SET @PATH := 1052021 * 10;
+DELETE FROM `waypoint_data` WHERE `id` IN (@PATH+1);
+INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
+(@PATH+1,1,-415.217,-2603.8403,0.7445327,NULL,0,1,0,100,0),
+(@PATH+1,2,-404.86633,-2599.4375,1.6478806,NULL,0,1,0,100,0),
+(@PATH+1,3,-395.08508,-2594.441,3.153698,NULL,0,1,0,100,0);
+
+-- Pathing for Mithdran Dawntracker "Finding the Lost Expedition"
+SET @PATH := 1052022 * 10;
+DELETE FROM `waypoint_data` WHERE `id` IN (@PATH+1);
+INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
+(@PATH+1,1,-422.13196,-2598.1216,0.28313446,NULL,0,1,0,100,0),
+(@PATH+1,2,-409.20898,-2599.4922,1.2894821,NULL,0,1,0,100,0),
+(@PATH+1,3,-397.875,-2595.2622,2.6358757,NULL,0,1,0,100,0);
+
+-- Pathing for Lana Jordan "Finding the Lost Expedition"
+SET @PATH := 1052023 * 10;
+DELETE FROM `waypoint_data` WHERE `id` IN (@PATH+1);
+INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
+(@PATH+1,1,-407.13715,-2599.2344,1.3998337,NULL,0,1,0,100,0),
+(@PATH+1,2,-398.3889,-2596.2883,2.3895378,NULL,0,1,0,100,0),
+(@PATH+1,3,-391.7795,-2592.915,3.9566765,NULL,0,1,0,100,0);
