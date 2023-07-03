@@ -34,6 +34,7 @@
 #include "TemporarySummon.h"
 #include "Transport.h"
 #include "Loot.h"
+#include "ScriptedEscortAI.h"
 
 template<class privateAI, class publicAI>
 CreatureAI* GetPrivatePublicPairAISelector(Creature* creature)
