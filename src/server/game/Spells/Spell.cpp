@@ -884,7 +884,7 @@ void Spell::UpdateDelayMomentForUnitTarget(Unit* unit, uint64 hitDelay)
         // if new hit delay is greater than old delay for this target we must check all other spell targets to see if m_delayMoment can be increased
         auto minDelayTargetItr = std::min_element(m_UniqueTargetInfo.begin(), m_UniqueTargetInfo.end(), [](Spell::TargetInfo const& itr, Spell::TargetInfo const& smallest)
         {
-            return itr.TimeDelay < smallest.TimeDelay;
+            return itr.TimeDelay && itr.TimeDelay < smallest.TimeDelay;
         });
 
         m_delayMoment = minDelayTargetItr->TimeDelay;
