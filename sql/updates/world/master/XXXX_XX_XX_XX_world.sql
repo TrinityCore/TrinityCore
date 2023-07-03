@@ -47,14 +47,14 @@ INSERT INTO `conversation_actors` (`ConversationId`, `ConversationActorId`, `Con
 (20340, 0, 0, 0, 0, 0, 0, 1, 49801); -- Full: 0x0800040000000000FFFFFFFFFFFFFFFF Player/0 R1/S16777215 Map: 0 (Eastern Kingdoms) Low: 1099511627775
 
 DELETE FROM `conversation_line_template` WHERE `Id` IN (52469, 52468, 52466, 52465, 52464, 53702, 52462, 52461, 52458, 52459);
-INSERT INTO `conversation_line_template` (`Id`, `UiCameraID`, `ActorIdx`, `Flags`, `VerifiedBuild`) VALUES
-(52469, 0, 1, 0, 49801),
-(52468, 0, 0, 0, 49801),
-(52466, 0, 0, 0, 49801),
-(52465, 0, 1, 0, 49801),
-(52464, 0, 0, 0, 49801),
-(53702, 0, 1, 0, 49801),
-(52462, 0, 0, 0, 49801),
-(52461, 0, 0, 0, 49801),
-(52458, 0, 1, 0, 49801),
-(52459, 0, 0, 0, 49801);
+INSERT INTO `conversation_line_template` (`Id`, `UiCameraID`, `ActorIdx`, `Flags`, `ChatType`, `VerifiedBuild`) VALUES
+(52469, 0, 1, 0, 0, 49801),
+(52468, 0, 0, 0, 0, 49801),
+(52466, 0, 0, 0, 0, 49801),
+(52465, 0, 1, 0, 0, 49801),
+(52464, 0, 0, 0, 0, 49801),
+(53702, 0, 1, 0, 0, 49801),
+(52462, 0, 0, 0, 0, 49801),
+(52461, 0, 0, 0, 2, 49801),
+(52458, 0, 1, 0, 0, 49801),
+(52459, 0, 0, 0, 0, 49801);
