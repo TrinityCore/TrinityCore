@@ -205,7 +205,7 @@ class spell_warl_dark_pact : public AuraScript
             float extraAmount = caster->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask()) * 2.5f;
             int32 absorb = caster->CountPctFromCurHealth(GetEffectInfo(EFFECT_1).CalcValue(caster));
             caster->SetHealth(caster->GetHealth() - absorb);
-            amount = CalculatePct(absorb, GetEffectInfo(EFFECT_2).CalcValue()) + extraAmount;
+            amount = CalculatePct(absorb, GetEffectInfo(EFFECT_2).CalcValue(caster)) + extraAmount;
         }
     }
 
