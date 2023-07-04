@@ -1,5 +1,5 @@
 SET @ATID := 23;
-SET @ATIDSPAWN := 25;
+SET @ATIDSPAWN := 24;
 
 -- Creature
 UPDATE `creature_template` SET `AIName` = '', `ScriptName` = 'npc_master_mathias_shaw_human_heritage_lions_pride_inn_basement' WHERE `entry` = 198896;
