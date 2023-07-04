@@ -268,7 +268,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 (@CGUID+129, 149792, 2107, 10053, 10521, '0', '0', 0, 0, 0, 1098.4041748046875, 565.98858642578125, 51.28850555419921875, 4.761273860931396484, 7200, 10, 0, 4294, 0, 1, 0, 0, '', 44325), -- Arathi Rager (Area: Defiler's Den - Difficulty: 0) (possible waypoints or random movement)
 (@CGUID+130, 149795, 2107, 10053, 10521, '0', '0', 0, 0, 0, 850.741943359375, 1258.933837890625, 21.20541000366210937, 2.685371637344360351, 7200, 10, 0, 27, 0, 1, 0, 0, '', 44325), -- Basin Beaver (Area: Defiler's Den - Difficulty: 0) (possible waypoints or random movement)
 (@CGUID+131, 149793, 2107, 10053, 10521, '0', '0', 0, 0, 0, 1080.3509521484375, 576.28143310546875, 57.54082489013671875, 2.838066816329956054, 7200, 10, 0, 4579, 0, 1, 0, 0, '', 44325), -- Bound Arathi Rager (Area: Defiler's Den - Difficulty: 0) (possible waypoints or random movement)
-(@CGUID+132, 150403, 2107, 10053, 10521, '0', '0', 0, 0, 0, 1305.1944580078125, 1349.1754150390625, -10.5335168838500976, 4.780579566955566406, 7200, 0, 0, 11791, 0, 0, 0, 0, 'npc_bg_ab_arathor_watchman_drinking_1', 44325), -- Arathor Watchman (Area: Defiler's Den - Difficulty: 0)
+(@CGUID+132, 150403, 2107, 10053, 10521, '0', '0', 0, 0, 0, 1305.1944580078125, 1349.1754150390625, -10.5335168838500976, 4.780579566955566406, 7200, 0, 0, 11791, 0, 0, 0, 0, '', 44325), -- Arathor Watchman (Area: Defiler's Den - Difficulty: 0)
 (@CGUID+133, 150403, 2107, 10053, 10521, '0', '0', 0, 0, 0, 1358.060791015625, 1335.842041015625, 0.412317454814910888, 3.52324533462524414, 7200, 0, 0, 11791, 0, 0, 0, 0, '', 44325), -- Arathor Watchman (Area: Defiler's Den - Difficulty: 0)
 (@CGUID+134, 149794, 2107, 10053, 10521, '0', '0', 0, 0, 0, 1076.629150390625, 1162.1763916015625, -61.3454360961914062, 4.583348274230957031, 7200, 10, 0, 27, 0, 1, 0, 0, '', 44325), -- Highland Hare (Area: Defiler's Den - Difficulty: 0) (possible waypoints or random movement)
 (@CGUID+135, 149794, 2107, 10053, 10521, '0', '0', 0, 0, 0, 1380.107666015625, 1362.15625, 0.848607659339904785, 0.126308128237724304, 7200, 10, 0, 27, 0, 1, 0, 0, '', 44325), -- Highland Hare (Area: Defiler's Den - Difficulty: 0) (possible waypoints or random movement)
@@ -284,7 +284,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 (@CGUID+145, 150449, 2107, 10053, 10521, '0', '0', 0, 0, 0, 1356.857666015625, 892.73089599609375, 15.06451225280761718, 2.954025030136108398, 7200, 0, 0, 916, 0, 0, 0, 0, '', 44325), -- Highland Bristleback (Area: Defiler's Den - Difficulty: 0)
 (@CGUID+146, 150403, 2107, 10053, 10521, '0', '0', 0, 0, 0, 1331.4132080078125, 1329.59375, 13.7649688720703125, 4.857148170471191406, 7200, 0, 0, 11791, 0, 0, 0, 0, '', 44325), -- Arathor Watchman (Area: Defiler's Den - Difficulty: 0) (Auras: 271087 - Cosmetic - Human Male Kul Tiran Spyglass) (possible waypoints or random movement)
 (@CGUID+147, 150461, 2107, 10053, 10521, '0', '0', 0, 0, 0, 633.95489501953125, 389.423614501953125, 171.862152099609375, 1.21834874153137207, 7200, 0, 0, 4579, 0, 0, 0, 0, '', 44325), -- Spell Bunny (Area: Defiler's Den - Difficulty: 0)
-(@CGUID+148, 150403, 2107, 10053, 10521, '0', '0', 0, 0, 0, 1299.8072509765625, 1338.8646240234375, -10.6652584075927734, 3.047743797302246093, 7200, 0, 0, 11791, 0, 0, 0, 0, 'npc_bg_ab_arathor_watchman_drinking_1', 44325), -- Arathor Watchman (Area: Defiler's Den - Difficulty: 0)
+(@CGUID+148, 150403, 2107, 10053, 10521, '0', '0', 0, 0, 0, 1299.8072509765625, 1338.8646240234375, -10.6652584075927734, 3.047743797302246093, 7200, 0, 0, 11791, 0, 0, 0, 0, '', 44325), -- Arathor Watchman (Area: Defiler's Den - Difficulty: 0)
 (@CGUID+149, 149794, 2107, 10053, 10521, '0', '0', 0, 0, 0, 678.849853515625, 793.946044921875, -19.0406970977783203, 5.245444297790527343, 7200, 10, 0, 27, 0, 1, 0, 0, '', 44325), -- Highland Hare (Area: Defiler's Den - Difficulty: 0) (possible waypoints or random movement)
 (@CGUID+150, 149794, 2107, 10053, 10521, '0', '0', 0, 0, 0, 1262, 1284.045166015625, -22.2945213317871093, 0, 7200, 10, 0, 27, 0, 1, 0, 0, '', 44325), -- Highland Hare (Area: Defiler's Den - Difficulty: 0) (possible waypoints or random movement)
 (@CGUID+151, 149794, 2107, 10053, 10521, '0', '0', 0, 0, 0, 1308.410400390625, 1364.8486328125, -9.66704940795898437, 5.814202308654785156, 7200, 10, 0, 27, 0, 1, 0, 0, '', 44325), -- Highland Hare (Area: Defiler's Den - Difficulty: 0) (possible waypoints or random movement)
@@ -299,7 +299,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 (@CGUID+160, 14848, 2107, 10053, 10521, '0', '0', 0, 0, 2, 1304.2584228515625, 1322.562744140625, 43.8479156494140625, 0.645771801471710205, 7200, 0, 0, 176865, 0, 0, 0, 0, '', 44325), -- Herald (Area: Defiler's Den - Difficulty: 0)
 (@CGUID+161, 149785, 2107, 10053, 10521, '0', '0', 0, 0, 0, 1087.740478515625, 610.6932373046875, 40.4268035888671875, 2.534158229827880859, 7200, 10, 0, 6869, 0, 1, 0, 0, '', 44325), -- Highland Thrasher (Area: Defiler's Den - Difficulty: 0) (possible waypoints or random movement)
 (@CGUID+162, 150403, 2107, 10053, 10521, '0', '0', 0, 0, 0, 643.58856201171875, 673.51739501953125, -9.29238128662109375, 0.675543844699859619, 7200, 0, 0, 11791, 0, 0, 0, 0, '', 44325), -- Arathor Watchman (Area: Defiler's Den - Difficulty: 0) (Auras: 145363 - Permanent Feign Death (Stun, Untrackable, Immune))
-(@CGUID+163, 150403, 2107, 10053, 10521, '0', '0', 0, 0, 0, 1295.5347900390625, 1344.095458984375, -10.5542268753051757, 4.780579566955566406, 7200, 0, 0, 11791, 0, 0, 0, 0, 'npc_bg_ab_arathor_watchman_drinking_1', 44325), -- Arathor Watchman (Area: Defiler's Den - Difficulty: 0)
+(@CGUID+163, 150403, 2107, 10053, 10521, '0', '0', 0, 0, 0, 1295.5347900390625, 1344.095458984375, -10.5542268753051757, 4.780579566955566406, 7200, 0, 0, 11791, 0, 0, 0, 0, '', 44325), -- Arathor Watchman (Area: Defiler's Den - Difficulty: 0)
 (@CGUID+164, 149794, 2107, 10053, 10521, '0', '0', 0, 0, 0, 1337.89794921875, 1272.5301513671875, -10.4476747512817382, 3.465642213821411132, 7200, 10, 0, 27, 0, 1, 0, 0, '', 44325), -- Highland Hare (Area: Defiler's Den - Difficulty: 0) (possible waypoints or random movement)
 (@CGUID+165, 150647, 2107, 10053, 10521, '0', '0', 0, 0, 0, 662.10418701171875, 645.953125, -12.0993022918701171, 1.804074406623840332, 7200, 10, 0, 27, 0, 1, 0, 0, '', 44325), -- Basin Rat (Area: Defiler's Den - Difficulty: 0) (possible waypoints or random movement)
 (@CGUID+166, 149794, 2107, 10053, 10521, '0', '0', 0, 0, 0, 1350, 1287.5, -10.2733583450317382, 5.15164947509765625, 7200, 10, 0, 27, 0, 1, 0, 0, '', 44325), -- Highland Hare (Area: Defiler's Den - Difficulty: 0) (possible waypoints or random movement)
@@ -1693,6 +1693,9 @@ UPDATE `creature_template` SET `AIName`='', `ScriptName`='' WHERE `entry`=150505
 UPDATE `creature` SET `wander_distance`=0, `MovementType`=2 WHERE `guid`=@CGUID+38;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=150505 AND `source_type`=0;
 
+-- Bat/Gryphon Leaders
+UPDATE `creature` SET `wander_distance`=0, `MovementType`=2 WHERE `guid` IN (@CGUID+51, @CGUID+65);
+
 -- Dominic Masonwrite
 SET @DOMINIC_GUID := -(@CGUID+140);
 SET @ENTRY := 150622;
@@ -1700,15 +1703,15 @@ UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `en
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @DOMINIC_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (15062200, 15062201);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@DOMINIC_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ENTRY * 100 + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #15062201 (update always)'),
-(@DOMINIC_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @WAYPOINT+62, 0, 0, 80, @ENTRY * 100, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000062 ended - Self: Start timed action list id #15062200 (update always) // -inline'),
-(@DOMINIC_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @WAYPOINT+63, 0, 0, 80, @ENTRY * 100 + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000063 ended - Self: Start timed action list id #15062202 (update always) // -inline'),
+(@DOMINIC_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ENTRY * 100 + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', (@ENTRY * 100 + 1), ' (update always)')),
+(@DOMINIC_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @WAYPOINT+62, 0, 0, 80, @ENTRY * 100, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@WAYPOINT+62), ' ended - Self: Start timed action list id #', (@ENTRY * 100), ' (update always) // -inline')),
+(@DOMINIC_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @WAYPOINT+63, 0, 0, 80, @ENTRY * 100 + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@WAYPOINT+63), ' ended - Self: Start timed action list id #', (@ENTRY * 100 + 1), ' (update always) // -inline')),
 (@ENTRY * 100, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 122236, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 122236 on Self'),
 (@ENTRY * 100, 9, 1, 0, 0, 0, 100, 0, 20000, 20000, 0, 0, 28, 122236, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 20 seconds - Self: Remove aura due to spell 122236'),
-(@ENTRY * 100, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @WAYPOINT+63, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000063, walk, do not repeat, Passive'),
+(@ENTRY * 100, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @WAYPOINT+63, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@WAYPOINT+63), ', walk, do not repeat, Passive')),
 (@ENTRY * 100 + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 122236, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 122236 on Self'),
 (@ENTRY * 100 + 1, 9, 1, 0, 0, 0, 100, 0, 20000, 20000, 0, 0, 28, 122236, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 20 seconds - Self: Remove aura due to spell 122236'),
-(@ENTRY * 100 + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @WAYPOINT+62, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000062, walk, do not repeat, Passive');
+(@ENTRY * 100 + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @WAYPOINT+62, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@WAYPOINT+62), ', walk, do not repeat, Passive'));
 
 -- Kevin Young
 SET @ENTRY := 149755;
@@ -1716,14 +1719,14 @@ DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = -(@CGUID
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (14975500, 14975501);
 UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(-(@CGUID+27), 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ENTRY * 100, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #14975500 (update always)'),
-(-(@CGUID+27), 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @WAYPOINT+0, 0, 0, 80, @ENTRY * 100, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000000 ended - Self: Start timed action list id #14975500 (update always) // -inline'),
-(-(@CGUID+27), 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @WAYPOINT+1, 0, 0, 80, @ENTRY * 100 + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000001 ended - Self: Start timed action list id #14975501 (update always) // -inline'),
+(-(@CGUID+27), 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ENTRY * 100, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', (@ENTRY * 100), ' (update always)')),
+(-(@CGUID+27), 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @WAYPOINT+0, 0, 0, 80, @ENTRY * 100, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@WAYPOINT+0), ' ended - Self: Start timed action list id #', (@ENTRY * 100), ' (update always) // -inline')),
+(-(@CGUID+27), 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @WAYPOINT+1, 0, 0, 80, @ENTRY * 100 + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@WAYPOINT+1), ' ended - Self: Start timed action list id #', (@ENTRY * 100 + 1), ' (update always) // -inline')),
 (@ENTRY * 100, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 17, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Set emote state to 69'),
 (@ENTRY * 100, 9, 1, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 17, 470, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 2 seconds - Self: Set emote state to 470'),
-(@ENTRY * 100, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @WAYPOINT+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000001, walk, do not repeat, Passive'),
+(@ENTRY * 100, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @WAYPOINT+1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@WAYPOINT+1), ', walk, do not repeat, Passive')),
 (@ENTRY * 100 + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 261985, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 261985 on Self'),
-(@ENTRY * 100 + 1, 9, 1, 0, 0, 0, 100, 0, 10000, 20000, 0, 0, 53, 0, @WAYPOINT+0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 10 - 20 seconds - Self: Start path #800000000, walk, do not repeat, Passive');
+(@ENTRY * 100 + 1, 9, 1, 0, 0, 0, 100, 0, 10000, 20000, 0, 0, 53, 0, @WAYPOINT+0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 10 - 20 seconds - Self: Start path #', (@WAYPOINT+0), ', walk, do not repeat, Passive'));
 
 -- Defiler Combatant
 SET @ENTRY := 150429;
@@ -1731,9 +1734,9 @@ DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = -(@CGUID
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ENTRY * 100);
 UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(-(@CGUID+14), 0, 0, 0, 60, 0, 100, 1, 60000, 60000, 0, 0, 53, 0, @WAYPOINT+32, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Time = 60 seconds - Self: Start path #800000032, walk, do not repeat, Passive'),
-(-(@CGUID+14), 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @WAYPOINT+32, 0, 0, 80, @ENTRY * 100, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000032 ended - Self: Start timed action list id #15042900 (update always) // -inline'),
-(@ENTRY * 100, 9, 0, 0, 0, 0, 100, 0, 10000, 10000, 0, 0, 53, 0, @WAYPOINT+32, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 10 seconds - Self: Start path #800000032, walk, do not repeat, Passive');
+(-(@CGUID+14), 0, 0, 0, 60, 0, 100, 1, 60000, 60000, 0, 0, 53, 0, @WAYPOINT+32, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('Time = 60 seconds - Self: Start path #', (@WAYPOINT+32), ', walk, do not repeat, Passive')),
+(-(@CGUID+14), 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @WAYPOINT+32, 0, 0, 80, @ENTRY * 100, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@WAYPOINT+32), ' ended - Self: Start timed action list id #', (@ENTRY * 100), ' (update always) // -inline')),
+(@ENTRY * 100, 9, 0, 0, 0, 0, 100, 0, 10000, 10000, 0, 0, 53, 0, @WAYPOINT+32, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 10 seconds - Self: Start path #', (@WAYPOINT+32), ', walk, do not repeat, Passive'));
 
 -- Defiler Combatant
 SET @ENTRY := 150429;
@@ -1741,7 +1744,7 @@ DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = -(@CGUID
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ENTRY * 100 + 1);
 UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(-(@CGUID+99), 0, 0, 0, 60, 0, 100, 0, 10000, 10000, 10000, 10000, 80, @ENTRY * 100 + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Every 10 seconds - Self: Start timed action list id #15042900 (update always) // -inline'),
+(-(@CGUID+99), 0, 0, 0, 60, 0, 100, 0, 10000, 10000, 10000, 10000, 80, @ENTRY * 100 + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('Every 10 seconds - Self: Start timed action list id #', (@ENTRY * 100 + 1), ' (update always) // -inline')),
 (@ENTRY * 100 + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 28, 282578, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Remove aura due to spell 282578'),
 (@ENTRY * 100 + 1, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 9, 149760, 0, 20, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 0 on Creature 149760 in 0 - 20 yards'),
 (@ENTRY * 100 + 1, 9, 2, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 11, 282578, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 1 seconds - Self: Cast spell 282578 on Self');
@@ -1754,13 +1757,16 @@ DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = -(@CGUID
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ENTRY * 100);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
 (-(@CGUID+62), 0, 0, 1, 60, 0, 100, 0, 5000, 15000, 5000, 15000, 128, 2358, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Every 5 - 15 seconds - Self: Plays Anim with ID 2358'),
-(-(@CGUID+62), 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 80, @ENTRY * 100, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Every 5 - 15 seconds - Self: Start timed action list id #15040300 (update always) // -inline'),
+(-(@CGUID+62), 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 80, @ENTRY * 100, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('Every 5 - 15 seconds - Self: Start timed action list id #', (@ENTRY * 100), ' (update always) // -inline')),
 (@ENTRY * 100, 9, 0, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 3 seconds - Self: Plays Anim with ID 0');
 
 -- Arathor Watchman Drink
-DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = -(@CGUID+71);
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` IN(-(@CGUID+71), -(@CGUID+132), -(@CGUID+148), -(@CGUID+163));
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(-(@CGUID+71), 0, 0, 0, 60, 0, 100, 0, 5000, 15000, 5000, 15000, 128, 17347, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Every 5 - 15 seconds - Self: Plays Anim with ID 17347');
+(-(@CGUID+71), 0, 0, 0, 60, 0, 100, 0, 5000, 15000, 5000, 15000, 128, 17347, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Every 5 - 15 seconds - Self: Plays Anim with ID 17347'),
+(-(@CGUID+132), 0, 0, 0, 60, 0, 100, 0, 5000, 15000, 5000, 15000, 128, 17347, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Every 5 - 15 seconds - Self: Plays Anim with ID 17347'),
+(-(@CGUID+148), 0, 0, 0, 60, 0, 100, 0, 5000, 15000, 5000, 15000, 128, 17347, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Every 5 - 15 seconds - Self: Plays Anim with ID 17347'),
+(-(@CGUID+163), 0, 0, 0, 60, 0, 100, 0, 5000, 15000, 5000, 15000, 128, 17347, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Every 5 - 15 seconds - Self: Plays Anim with ID 17347');
 
 -- Arathor Watchman Talk
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` IN(-(@CGUID+80), -(@CGUID+82));
@@ -1773,15 +1779,15 @@ SET @PATROL_GUID := -(@CGUID+146);
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @PATROL_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ENTRY * 100 + 1, @ENTRY * 100 + 2);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@PATROL_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, 15040301, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #15040301 (update always) // -inline'),
-(@PATROL_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @WAYPOINT+6, 0, 0, 80, @ENTRY * 100 + 2, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000036 ended - Self: Start timed action list id #15040302 (update always) // -inline'),
-(@PATROL_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @WAYPOINT+7, 0, 0, 80, @ENTRY * 100 + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000037 ended - Self: Start timed action list id #15040300 (update always)'),
+(@PATROL_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, 15040301, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', (15040301), ' (update always) // -inline')),
+(@PATROL_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @WAYPOINT+6, 0, 0, 80, @ENTRY * 100 + 2, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@WAYPOINT+6), ' ended - Self: Start timed action list id #', (@ENTRY * 100 + 2), ' (update always) // -inline')),
+(@PATROL_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @WAYPOINT+7, 0, 0, 80, @ENTRY * 100 + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@WAYPOINT+7), ' ended - Self: Start timed action list id #', (@ENTRY * 100 + 1), ' (update always)')),
 (@ENTRY * 100 + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 271087, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 271087 on Self'),
 (@ENTRY * 100 + 1, 9, 1, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 28, 271087, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 seconds - Self: Remove aura due to spell 271087'),
-(@ENTRY * 100 + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @WAYPOINT+36, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000036, walk, do not repeat, Passive'),
+(@ENTRY * 100 + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @WAYPOINT+36, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@WAYPOINT+36), ', walk, do not repeat, Passive')),
 (@ENTRY * 100 + 2, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 271087, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 271087 on Self'),
 (@ENTRY * 100 + 2, 9, 1, 0, 0, 0, 100, 0, 10000, 10000, 0, 0, 28, 271087, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 10 seconds - Self: Remove aura due to spell 271087'),
-(@ENTRY * 100 + 2, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @WAYPOINT+37, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000037, walk, do not repeat, Passive');
+(@ENTRY * 100 + 2, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @WAYPOINT+37, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@WAYPOINT+37), ', walk, do not repeat, Passive'));
 
 -- Derek Darkmetal
 SET @ENTRY := 149718;
@@ -1789,26 +1795,26 @@ UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `en
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ENTRY * 100, @ENTRY * 100 + 1, @ENTRY * 100 + 2, @ENTRY * 100 + 3);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@ENTRY, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ENTRY * 100, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #14971800 (update always) // -inline'),
+(@ENTRY, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ENTRY * 100, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', (@ENTRY * 100), ' (update always) // -inline')),
 (@ENTRY * 100, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 17, 613, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Set emote state to 613'),
 (@ENTRY * 100, 9, 1, 0, 0, 0, 100, 0, 20000, 20000, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 20 seconds - Self: Set emote state to 0'),
-(@ENTRY * 100, 9, 2, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @WAYPOINT+33, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 1 seconds - Self: Start path #800000033, walk, do not repeat, Passive'),
-(@ENTRY, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @WAYPOINT+33, 0, 0, 80, @ENTRY * 100 + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000033 ended - Self: Start timed action list id #14971801 (update always) // -inline'),
+(@ENTRY * 100, 9, 2, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @WAYPOINT+33, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 1 seconds - Self: Start path #', (@WAYPOINT+33), ', walk, do not repeat, Passive')),
+(@ENTRY, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @WAYPOINT+33, 0, 0, 80, @ENTRY * 100 + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@WAYPOINT+33), ' ended - Self: Start timed action list id #', (@ENTRY * 100 + 1), ' (update always) // -inline')),
 (@ENTRY * 100 + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 17, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Set emote state to 69'),
 (@ENTRY * 100 + 1, 9, 1, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 seconds - Self: Set emote state to 0'),
 (@ENTRY * 100 + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 71, 0, 0, 0, 10825, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Equip items 0, 10825, 0'),
-(@ENTRY * 100 + 1, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @WAYPOINT+34, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000034, walk, do not repeat, Passive'),
-(@ENTRY, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @WAYPOINT+34, 0, 0, 80, @ENTRY * 100 + 2, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000034 ended - Self: Start timed action list id #14971802 (update always) // -inline'),
+(@ENTRY * 100 + 1, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @WAYPOINT+34, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@WAYPOINT+34), ', walk, do not repeat, Passive')),
+(@ENTRY, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @WAYPOINT+34, 0, 0, 80, @ENTRY * 100 + 2, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@WAYPOINT+34), ' ended - Self: Start timed action list id #', (@ENTRY * 100 + 2), ' (update always) // -inline')),
 (@ENTRY * 100 + 2, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 148, 0, 0, 0, 0, 0, 0, 9, 149760, 0, 20, 0, 0, 0, 0, 'After 0 seconds - Self: Add Creature 149760 in 0 - 20 yards to storedTarget[0]'),
 (@ENTRY * 100 + 2, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 86, 0, 0, 12, 0, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - storedTarget[0]: Cast spell 0 at storedTarget[0]'),
 (@ENTRY * 100 + 2, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, 17343, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 17343'),
 (@ENTRY * 100 + 2, 9, 3, 0, 0, 0, 100, 0, 6000, 6000, 0, 0, 41, 0, 0, 0, 0, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 'After 6 seconds - storedTarget[0]: Despawn instantly'),
-(@ENTRY * 100 + 2, 9, 4, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @WAYPOINT+35, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000035, walk, do not repeat, Passive'),
-(@ENTRY, 0, 3, 0, 58, 0, 100, 0, 0xFFFFFFFF, @WAYPOINT+35, 0, 0, 80, @ENTRY * 100 + 3, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000035 ended - Self: Start timed action list id #14971803 (update always) // -inline'),
+(@ENTRY * 100 + 2, 9, 4, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @WAYPOINT+35, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@WAYPOINT+35), ', walk, do not repeat, Passive')),
+(@ENTRY, 0, 3, 0, 58, 0, 100, 0, 0xFFFFFFFF, @WAYPOINT+35, 0, 0, 80, @ENTRY * 100 + 3, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@WAYPOINT+35), ' ended - Self: Start timed action list id #', (@ENTRY * 100 + 3), ' (update always) // -inline')),
 (@ENTRY * 100 + 3, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 71, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 1 seconds - Self: Take off all equipped items'),
 (@ENTRY * 100 + 3, 9, 1, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 17, 613, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 3 seconds - Self: Set emote state to 613'),
 (@ENTRY * 100 + 3, 9, 2, 0, 0, 0, 100, 0, 20000, 20000, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 20 seconds - Self: Set emote state to 0'),
-(@ENTRY * 100 + 3, 9, 3, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @WAYPOINT+33, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 1 seconds - Self: Start path #800000033, walk, do not repeat, Passive');
+(@ENTRY * 100 + 3, 9, 3, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @WAYPOINT+33, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 1 seconds - Self: Start path #', (@WAYPOINT+33), ', walk, do not repeat, Passive'));
 
 -- Groundskeeper Olivia
 SET @ENTRY := 150655;
@@ -1816,15 +1822,15 @@ UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `en
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (15065500, 15065501);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@ENTRY, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ENTRY * 100, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #15065500 (update always) // -inline'),
+(@ENTRY, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ENTRY * 100, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', (@ENTRY * 100), ' (update always) // -inline')),
 (@ENTRY * 100, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, 17436, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 17436'),
 (@ENTRY * 100, 9, 1, 0, 0, 0, 100, 0, 10000, 10000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 10 seconds - Self: Plays Anim with ID 0'),
-(@ENTRY * 100, 9, 2, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @WAYPOINT+39, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 1 seconds - Self: Start path #800000039, walk, do not repeat, Passive'),
-(@ENTRY, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @WAYPOINT+39, 0, 0, 80, @ENTRY * 100 + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000039 ended - Self: Start timed action list id #15065501 (update always) // -inline'),
+(@ENTRY * 100, 9, 2, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @WAYPOINT+39, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 1 seconds - Self: Start path #', (@WAYPOINT+39), ', walk, do not repeat, Passive')),
+(@ENTRY, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @WAYPOINT+39, 0, 0, 80, @ENTRY * 100 + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@WAYPOINT+39), ' ended - Self: Start timed action list id #', (@ENTRY * 100 + 1), ' (update always) // -inline')),
 (@ENTRY * 100 + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, 4760, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 4760'),
 (@ENTRY * 100 + 1, 9, 1, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 seconds - Self: Plays Anim with ID 0'),
-(@ENTRY * 100 + 1, 9, 2, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @WAYPOINT+40, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 1 seconds - Self: Start path #800000040, walk, do not repeat, Passive'),
-(@ENTRY, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @WAYPOINT+40, 0, 0, 80, @ENTRY * 100, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000040 ended - Self: Start timed action list id #15065500 (update always)');
+(@ENTRY * 100 + 1, 9, 2, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @WAYPOINT+40, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 1 seconds - Self: Start path #', (@WAYPOINT+40), ', walk, do not repeat, Passive')),
+(@ENTRY, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @WAYPOINT+40, 0, 0, 80, @ENTRY * 100, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@WAYPOINT+40), ' ended - Self: Start timed action list id #', (@ENTRY * 100), ' (update always)'));
 
 -- ---------------------------------------------------------------
 -- Horde Lumber Mill
@@ -1841,20 +1847,20 @@ UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `en
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @LUMBERJACK_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@LUMBERJACK_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #1508900 (update always) // -inline'),
+(@LUMBERJACK_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', @ACTIONLIST_START, ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 71, 0, 0, 109579, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Equip items 109579, 0, 0'),
 (@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 290604, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 290604 on Self'),
 (@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 10000, 10000, 0, 0, 28, 290604, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 10 seconds - Self: Remove aura due to spell 290604'),
 (@ACTIONLIST_START, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 71, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Take off all equipped items'),
 (@ACTIONLIST_START, 9, 4, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 244453, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 244453 on Self'),
-(@ACTIONLIST_START, 9, 5, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @LUMBERJACK_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 1 seconds - Self: Start path #800000042, walk, do not repeat, Passive'),
-(@LUMBERJACK_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @LUMBERJACK_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000042 ended - Self: Start timed action list id #1508901 (update always) // -inline'),
+(@ACTIONLIST_START, 9, 5, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @LUMBERJACK_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 1 seconds - Self: Start path #', @LUMBERJACK_PATH1, ', walk, do not repeat, Passive')),
+(@LUMBERJACK_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @LUMBERJACK_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', @LUMBERJACK_PATH1, ' ended - Self: Start timed action list id #', @ACTIONLIST_START, ' (update always) // -inline')),
 (@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 28, 244453, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Remove aura due to spell 244453'),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 90, 8, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Set stand state to KNEEL'),
 (@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 3500, 3500, 0, 0, 90, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 3.5 seconds - Self: Set stand state to STAND'),
 (@ACTIONLIST_START + 1, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 5, 707, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Play emote 707'),
-(@ACTIONLIST_START + 1, 9, 4, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @LUMBERJACK_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000043, walk, do not repeat, Passive'),
-(@LUMBERJACK_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @LUMBERJACK_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000043 ended - Self: Start timed action list id #1508999 (update always)');
+(@ACTIONLIST_START + 1, 9, 4, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @LUMBERJACK_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', @LUMBERJACK_PATH2, ', walk, do not repeat, Passive')),
+(@LUMBERJACK_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @LUMBERJACK_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', @LUMBERJACK_PATH2, ' ended - Self: Start timed action list id #', @ACTIONLIST_START, ' (update always)'));
 
 -- Forsaken Lumberjack Carrier 2 Horde
 SET @ENTRY := 15089;
@@ -1866,20 +1872,20 @@ SET @ACTIONLIST_START := @ENTRY * 100 + @LUMBERJACK_ID * 2;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @LUMBERJACK_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@LUMBERJACK_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #1508900 (update always) // -inline'),
+(@LUMBERJACK_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', @ACTIONLIST_START, ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 71, 0, 0, 109579, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Equip items 109579, 0, 0'),
 (@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 290604, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 290604 on Self'),
 (@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 10000, 10000, 0, 0, 28, 290604, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 10 seconds - Self: Remove aura due to spell 290604'),
 (@ACTIONLIST_START, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 71, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Take off all equipped items'),
 (@ACTIONLIST_START, 9, 4, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 244453, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 244453 on Self'),
-(@ACTIONLIST_START, 9, 5, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @LUMBERJACK_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 1 seconds - Self: Start path #800000042, walk, do not repeat, Passive'),
-(@LUMBERJACK_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @LUMBERJACK_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000042 ended - Self: Start timed action list id #1508901 (update always) // -inline'),
+(@ACTIONLIST_START, 9, 5, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @LUMBERJACK_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 1 seconds - Self: Start path #', @LUMBERJACK_PATH1, ', walk, do not repeat, Passive')),
+(@LUMBERJACK_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @LUMBERJACK_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', @LUMBERJACK_PATH1, ' ended - Self: Start timed action list id #', @ACTIONLIST_START, ' (update always) // -inline')),
 (@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 28, 244453, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Remove aura due to spell 244453'),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 90, 8, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Set stand state to KNEEL'),
 (@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 3500, 3500, 0, 0, 90, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 3.5 seconds - Self: Set stand state to STAND'),
 (@ACTIONLIST_START + 1, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 5, 707, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Play emote 707'),
-(@ACTIONLIST_START + 1, 9, 4, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @LUMBERJACK_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000043, walk, do not repeat, Passive'),
-(@LUMBERJACK_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @LUMBERJACK_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000043 ended - Self: Start timed action list id #1508999 (update always)');
+(@ACTIONLIST_START + 1, 9, 4, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @LUMBERJACK_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', @LUMBERJACK_PATH2, ', walk, do not repeat, Passive')),
+(@LUMBERJACK_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @LUMBERJACK_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', @LUMBERJACK_PATH2, ' ended - Self: Start timed action list id #', @ACTIONLIST_START, ' (update always)'));
 
 -- Forsaken Lumberjack Carrier 3 Horde
 SET @ENTRY := 15089;
@@ -1891,20 +1897,20 @@ SET @ACTIONLIST_START := @ENTRY * 100 + @LUMBERJACK_ID * 2;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @LUMBERJACK_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@LUMBERJACK_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #1508900 (update always) // -inline'),
+(@LUMBERJACK_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', @ACTIONLIST_START, ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 71, 0, 0, 109579, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Equip items 109579, 0, 0'),
 (@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 290604, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 290604 on Self'),
 (@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 10000, 10000, 0, 0, 28, 290604, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 10 seconds - Self: Remove aura due to spell 290604'),
 (@ACTIONLIST_START, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 71, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Take off all equipped items'),
 (@ACTIONLIST_START, 9, 4, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 244453, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 244453 on Self'),
-(@ACTIONLIST_START, 9, 5, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @LUMBERJACK_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 1 seconds - Self: Start path #800000042, walk, do not repeat, Passive'),
-(@LUMBERJACK_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @LUMBERJACK_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000042 ended - Self: Start timed action list id #1508901 (update always) // -inline'),
+(@ACTIONLIST_START, 9, 5, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @LUMBERJACK_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 1 seconds - Self: Start path #', @LUMBERJACK_PATH1, ', walk, do not repeat, Passive')),
+(@LUMBERJACK_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @LUMBERJACK_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', @LUMBERJACK_PATH1, ' ended - Self: Start timed action list id #', @ACTIONLIST_START, ' (update always) // -inline')),
 (@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 28, 244453, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Remove aura due to spell 244453'),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 90, 8, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Set stand state to KNEEL'),
 (@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 3500, 3500, 0, 0, 90, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 3.5 seconds - Self: Set stand state to STAND'),
 (@ACTIONLIST_START + 1, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 5, 707, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Play emote 707'),
-(@ACTIONLIST_START + 1, 9, 4, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @LUMBERJACK_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000043, walk, do not repeat, Passive'),
-(@LUMBERJACK_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @LUMBERJACK_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000043 ended - Self: Start timed action list id #1508999 (update always)');
+(@ACTIONLIST_START + 1, 9, 4, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @LUMBERJACK_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', @LUMBERJACK_PATH2, ', walk, do not repeat, Passive')),
+(@LUMBERJACK_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @LUMBERJACK_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', @LUMBERJACK_PATH2, ' ended - Self: Start timed action list id #', @ACTIONLIST_START, ' (update always)'));
 
 -- Forsaken Lumberjack Carrier 4 Horde
 SET @ENTRY := 15089;
@@ -1916,20 +1922,20 @@ SET @ACTIONLIST_START := @ENTRY * 100 + @LUMBERJACK_ID * 2;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @LUMBERJACK_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@LUMBERJACK_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #1508900 (update always) // -inline'),
+(@LUMBERJACK_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', @ACTIONLIST_START, ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 71, 0, 0, 109579, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Equip items 109579, 0, 0'),
 (@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 290604, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 290604 on Self'),
 (@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 10000, 10000, 0, 0, 28, 290604, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 10 seconds - Self: Remove aura due to spell 290604'),
 (@ACTIONLIST_START, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 71, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Take off all equipped items'),
 (@ACTIONLIST_START, 9, 4, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 244453, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 244453 on Self'),
-(@ACTIONLIST_START, 9, 5, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @LUMBERJACK_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 1 seconds - Self: Start path #800000042, walk, do not repeat, Passive'),
-(@LUMBERJACK_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @LUMBERJACK_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000042 ended - Self: Start timed action list id #1508901 (update always) // -inline'),
+(@ACTIONLIST_START, 9, 5, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @LUMBERJACK_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 1 seconds - Self: Start path #', @LUMBERJACK_PATH1, ', walk, do not repeat, Passive')),
+(@LUMBERJACK_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @LUMBERJACK_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', @LUMBERJACK_PATH1, ' ended - Self: Start timed action list id #', @ACTIONLIST_START, ' (update always) // -inline')),
 (@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 28, 244453, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Remove aura due to spell 244453'),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 90, 8, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Set stand state to KNEEL'),
 (@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 3500, 3500, 0, 0, 90, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 3.5 seconds - Self: Set stand state to STAND'),
 (@ACTIONLIST_START + 1, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 5, 707, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Play emote 707'),
-(@ACTIONLIST_START + 1, 9, 4, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @LUMBERJACK_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000043, walk, do not repeat, Passive'),
-(@LUMBERJACK_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @LUMBERJACK_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000043 ended - Self: Start timed action list id #1508999 (update always)');
+(@ACTIONLIST_START + 1, 9, 4, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @LUMBERJACK_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', @LUMBERJACK_PATH2, ', walk, do not repeat, Passive')),
+(@LUMBERJACK_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @LUMBERJACK_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', @LUMBERJACK_PATH2, ' ended - Self: Start timed action list id #', @ACTIONLIST_START, ' (update always)'));
 
 -- Forsaken Lumberjack Wanderer Horde
 SET @ENTRY := 15089;
@@ -1938,14 +1944,14 @@ SET @ACTIONLIST_START := @ENTRY * 100 + 8;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @LUMBERJACK_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@LUMBERJACK_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #1508900 (update always) // -inline'),
+(@LUMBERJACK_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', @ACTIONLIST_START, ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 5000, 10000, 0, 0, 5, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 10 seconds - Self: Play emote 1'),
-(@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 3500, 3500, 0, 0, 53, 0, @WAYPOINT + 50, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 3.5 seconds - Self: Start path #800000050, walk, do not repeat, Passive'),
-(@LUMBERJACK_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @WAYPOINT + 50, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000050 ended - Self: Start timed action list id #1508901 (update always) // -inline'),
+(@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 3500, 3500, 0, 0, 53, 0, @WAYPOINT + 50, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 3.5 seconds - Self: Start path #', (@WAYPOINT + 50), ', walk, do not repeat, Passive')),
+(@LUMBERJACK_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @WAYPOINT + 50, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@WAYPOINT + 50), ' ended - Self: Start timed action list id #', @ACTIONLIST_START, ' (update always) // -inline')),
 (@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 17, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Set emote state to 69'),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 6000, 6000, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 6 seconds - Self: Set emote state to 0'),
-(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @WAYPOINT + 51, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000051, walk, do not repeat, Passive'),
-(@LUMBERJACK_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @WAYPOINT + 51, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000051 ended - Self: Start timed action list id #1508999 (update always)');
+(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @WAYPOINT + 51, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@WAYPOINT + 51), ', walk, do not repeat, Passive')),
+(@LUMBERJACK_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @WAYPOINT + 51, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@WAYPOINT + 51), ' ended - Self: Start timed action list id #', @ACTIONLIST_START, ' (update always)'));
 
 -- Forsaken Lumberjack Passive Horde
 SET @LUMBERJACK_GUID := -(@CGUID+203);
@@ -1974,20 +1980,20 @@ UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `en
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @LUMBERJACK_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@LUMBERJACK_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #1508900 (update always) // -inline'),
+(@LUMBERJACK_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', @ACTIONLIST_START, ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 71, 0, 0, 109579, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Equip items 109579, 0, 0'),
 (@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 290604, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 290604 on Self'),
 (@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 10000, 10000, 0, 0, 28, 290604, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 10 seconds - Self: Remove aura due to spell 290604'),
 (@ACTIONLIST_START, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 71, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Take off all equipped items'),
 (@ACTIONLIST_START, 9, 4, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 244453, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 244453 on Self'),
-(@ACTIONLIST_START, 9, 5, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @LUMBERJACK_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 1 seconds - Self: Start path #800000042, walk, do not repeat, Passive'),
-(@LUMBERJACK_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @LUMBERJACK_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000042 ended - Self: Start timed action list id #1508901 (update always) // -inline'),
+(@ACTIONLIST_START, 9, 5, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @LUMBERJACK_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 1 seconds - Self: Start path #', @LUMBERJACK_PATH1, ', walk, do not repeat, Passive')),
+(@LUMBERJACK_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @LUMBERJACK_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', @LUMBERJACK_PATH1, ' ended - Self: Start timed action list id #', @ACTIONLIST_START, ' (update always) // -inline')),
 (@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 28, 244453, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Remove aura due to spell 244453'),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 90, 8, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Set stand state to KNEEL'),
 (@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 3500, 3500, 0, 0, 90, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 3.5 seconds - Self: Set stand state to STAND'),
 (@ACTIONLIST_START + 1, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 5, 707, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Play emote 707'),
-(@ACTIONLIST_START + 1, 9, 4, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @LUMBERJACK_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000043, walk, do not repeat, Passive'),
-(@LUMBERJACK_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @LUMBERJACK_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000043 ended - Self: Start timed action list id #1508999 (update always)');
+(@ACTIONLIST_START + 1, 9, 4, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @LUMBERJACK_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', @LUMBERJACK_PATH2, ', walk, do not repeat, Passive')),
+(@LUMBERJACK_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @LUMBERJACK_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', @LUMBERJACK_PATH2, ' ended - Self: Start timed action list id #', @ACTIONLIST_START, ' (update always)'));
 
 -- Arathi Lumberjack Carrier 2 Alliance
 SET @ENTRY := 15062;
@@ -1999,20 +2005,20 @@ SET @ACTIONLIST_START := @ENTRY * 100 + @LUMBERJACK_ID * 2;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @LUMBERJACK_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@LUMBERJACK_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #1508900 (update always) // -inline'),
+(@LUMBERJACK_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', @ACTIONLIST_START, ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 71, 0, 0, 109579, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Equip items 109579, 0, 0'),
 (@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 290604, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 290604 on Self'),
 (@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 10000, 10000, 0, 0, 28, 290604, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 10 seconds - Self: Remove aura due to spell 290604'),
 (@ACTIONLIST_START, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 71, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Take off all equipped items'),
 (@ACTIONLIST_START, 9, 4, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 244453, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 244453 on Self'),
-(@ACTIONLIST_START, 9, 5, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @LUMBERJACK_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 1 seconds - Self: Start path #800000042, walk, do not repeat, Passive'),
-(@LUMBERJACK_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @LUMBERJACK_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000042 ended - Self: Start timed action list id #1508901 (update always) // -inline'),
+(@ACTIONLIST_START, 9, 5, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @LUMBERJACK_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 1 seconds - Self: Start path #', @LUMBERJACK_PATH1, ', walk, do not repeat, Passive')),
+(@LUMBERJACK_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @LUMBERJACK_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', @LUMBERJACK_PATH1, ' ended - Self: Start timed action list id #', @ACTIONLIST_START, ' (update always) // -inline')),
 (@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 28, 244453, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Remove aura due to spell 244453'),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 90, 8, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Set stand state to KNEEL'),
 (@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 3500, 3500, 0, 0, 90, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 3.5 seconds - Self: Set stand state to STAND'),
 (@ACTIONLIST_START + 1, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 5, 707, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Play emote 707'),
-(@ACTIONLIST_START + 1, 9, 4, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @LUMBERJACK_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000043, walk, do not repeat, Passive'),
-(@LUMBERJACK_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @LUMBERJACK_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000043 ended - Self: Start timed action list id #1508999 (update always)');
+(@ACTIONLIST_START + 1, 9, 4, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @LUMBERJACK_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', @LUMBERJACK_PATH2, ', walk, do not repeat, Passive')),
+(@LUMBERJACK_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @LUMBERJACK_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', @LUMBERJACK_PATH2, ' ended - Self: Start timed action list id #', @ACTIONLIST_START, ' (update always)'));
 
 -- Arathi Lumberjack Carrier 3 Alliance
 SET @ENTRY := 15062;
@@ -2024,20 +2030,20 @@ SET @ACTIONLIST_START := @ENTRY * 100 + @LUMBERJACK_ID * 2;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @LUMBERJACK_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@LUMBERJACK_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #1508900 (update always) // -inline'),
+(@LUMBERJACK_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', @ACTIONLIST_START, ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 71, 0, 0, 109579, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Equip items 109579, 0, 0'),
 (@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 290604, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 290604 on Self'),
 (@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 10000, 10000, 0, 0, 28, 290604, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 10 seconds - Self: Remove aura due to spell 290604'),
 (@ACTIONLIST_START, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 71, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Take off all equipped items'),
 (@ACTIONLIST_START, 9, 4, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 244453, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 244453 on Self'),
-(@ACTIONLIST_START, 9, 5, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @LUMBERJACK_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 1 seconds - Self: Start path #800000042, walk, do not repeat, Passive'),
-(@LUMBERJACK_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @LUMBERJACK_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000042 ended - Self: Start timed action list id #1508901 (update always) // -inline'),
+(@ACTIONLIST_START, 9, 5, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @LUMBERJACK_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 1 seconds - Self: Start path #', @LUMBERJACK_PATH1, ', walk, do not repeat, Passive')),
+(@LUMBERJACK_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @LUMBERJACK_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', @LUMBERJACK_PATH1, ' ended - Self: Start timed action list id #', @ACTIONLIST_START, ' (update always) // -inline')),
 (@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 28, 244453, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Remove aura due to spell 244453'),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 90, 8, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Set stand state to KNEEL'),
 (@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 3500, 3500, 0, 0, 90, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 3.5 seconds - Self: Set stand state to STAND'),
 (@ACTIONLIST_START + 1, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 5, 707, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Play emote 707'),
-(@ACTIONLIST_START + 1, 9, 4, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @LUMBERJACK_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000043, walk, do not repeat, Passive'),
-(@LUMBERJACK_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @LUMBERJACK_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000043 ended - Self: Start timed action list id #1508999 (update always)');
+(@ACTIONLIST_START + 1, 9, 4, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @LUMBERJACK_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', @LUMBERJACK_PATH2, ', walk, do not repeat, Passive')),
+(@LUMBERJACK_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @LUMBERJACK_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', @LUMBERJACK_PATH2, ' ended - Self: Start timed action list id #', @ACTIONLIST_START, ' (update always)'));
 
 -- Arathi Lumberjack Carrier 4 Alliance
 SET @ENTRY := 15062;
@@ -2049,20 +2055,20 @@ SET @ACTIONLIST_START := @ENTRY * 100 + @LUMBERJACK_ID * 2;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @LUMBERJACK_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@LUMBERJACK_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #1508900 (update always) // -inline'),
+(@LUMBERJACK_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', @ACTIONLIST_START, ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 71, 0, 0, 109579, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Equip items 109579, 0, 0'),
 (@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 290604, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 290604 on Self'),
 (@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 10000, 10000, 0, 0, 28, 290604, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 10 seconds - Self: Remove aura due to spell 290604'),
 (@ACTIONLIST_START, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 71, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Take off all equipped items'),
 (@ACTIONLIST_START, 9, 4, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 244453, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 244453 on Self'),
-(@ACTIONLIST_START, 9, 5, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @LUMBERJACK_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 1 seconds - Self: Start path #800000042, walk, do not repeat, Passive'),
-(@LUMBERJACK_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @LUMBERJACK_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000042 ended - Self: Start timed action list id #1508901 (update always) // -inline'),
+(@ACTIONLIST_START, 9, 5, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @LUMBERJACK_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 1 seconds - Self: Start path #', @LUMBERJACK_PATH1, ', walk, do not repeat, Passive')),
+(@LUMBERJACK_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @LUMBERJACK_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', @LUMBERJACK_PATH1, ' ended - Self: Start timed action list id #', @ACTIONLIST_START, ' (update always) // -inline')),
 (@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 28, 244453, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Remove aura due to spell 244453'),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 90, 8, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Set stand state to KNEEL'),
 (@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 3500, 3500, 0, 0, 90, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 3.5 seconds - Self: Set stand state to STAND'),
 (@ACTIONLIST_START + 1, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 5, 707, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Play emote 707'),
-(@ACTIONLIST_START + 1, 9, 4, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @LUMBERJACK_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000043, walk, do not repeat, Passive'),
-(@LUMBERJACK_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @LUMBERJACK_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000043 ended - Self: Start timed action list id #1508999 (update always)');
+(@ACTIONLIST_START + 1, 9, 4, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @LUMBERJACK_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', @LUMBERJACK_PATH2, ', walk, do not repeat, Passive')),
+(@LUMBERJACK_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @LUMBERJACK_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', @LUMBERJACK_PATH2, ' ended - Self: Start timed action list id #', @ACTIONLIST_START, ' (update always)'));
 
 -- Arathi Lumberjack Wanderer Alliance
 SET @ENTRY := 15062;
@@ -2071,14 +2077,14 @@ SET @ACTIONLIST_START := @ENTRY * 100 + 8;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @LUMBERJACK_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@LUMBERJACK_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #1508900 (update always) // -inline'),
+(@LUMBERJACK_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', @ACTIONLIST_START, ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 5000, 10000, 0, 0, 5, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 10 seconds - Self: Play emote 1'),
-(@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 3500, 3500, 0, 0, 53, 0, @WAYPOINT + 50, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 3.5 seconds - Self: Start path #800000050, walk, do not repeat, Passive'),
-(@LUMBERJACK_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @WAYPOINT + 50, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000050 ended - Self: Start timed action list id #1508901 (update always) // -inline'),
+(@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 3500, 3500, 0, 0, 53, 0, @WAYPOINT + 50, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 3.5 seconds - Self: Start path #', (@WAYPOINT + 50), ', walk, do not repeat, Passive')),
+(@LUMBERJACK_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @WAYPOINT + 50, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@WAYPOINT + 50), ' ended - Self: Start timed action list id #', @ACTIONLIST_START, ' (update always) // -inline')),
 (@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 17, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Set emote state to 69'),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 6000, 6000, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 6 seconds - Self: Set emote state to 0'),
-(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @WAYPOINT + 51, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000051, walk, do not repeat, Passive'),
-(@LUMBERJACK_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @WAYPOINT + 51, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000051 ended - Self: Start timed action list id #1508999 (update always)');
+(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @WAYPOINT + 51, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@WAYPOINT + 51), ', walk, do not repeat, Passive')),
+(@LUMBERJACK_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @WAYPOINT + 51, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@WAYPOINT + 51), ' ended - Self: Start timed action list id #', @ACTIONLIST_START, ' (update always)'));
 
 -- Arathi Lumberjack Passive Alliance
 SET @LUMBERJACK_GUID := -(@CGUID+268);
@@ -2126,14 +2132,14 @@ DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @BLACKSM
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@BLACKSMITH_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #1506400 (update always) // -inline'),
+(@BLACKSMITH_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 261985, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 261985 on Self'),
-(@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 10000, 20000, 0, 0, 53, 0, @BLACKSMITH_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 10 - 20 seconds - Self: Start path #800000052, walk, do not repeat, Passive'),
-(@BLACKSMITH_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @BLACKSMITH_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000052 ended - Self: Start timed action list id #1506401 (update always) // -inline'),
+(@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 10000, 20000, 0, 0, 53, 0, @BLACKSMITH_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 10 - 20 seconds - Self: Start path #', (@BLACKSMITH_PATH1), ', walk, do not repeat, Passive')),
+(@BLACKSMITH_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @BLACKSMITH_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@BLACKSMITH_PATH1), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START + 1), ' (update always) // -inline')),
 (@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 124, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Force load EquipmentId 0'),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 seconds - Self: Set emote state to 0'),
-(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @BLACKSMITH_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000053, walk, do not repeat, Passive'),
-(@BLACKSMITH_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @BLACKSMITH_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000053 ended - Self: Start timed action list id #1506499 (update always)');
+(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @BLACKSMITH_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@BLACKSMITH_PATH2), ', walk, do not repeat, Passive')),
+(@BLACKSMITH_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @BLACKSMITH_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@BLACKSMITH_PATH2), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always)'));
 
 -- Forsaken Blacksmith Working 2
 SET @BLACKSMITH_GUID := -(@CGUID+229);
@@ -2145,13 +2151,13 @@ DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @BLACKSM
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@BLACKSMITH_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #1506400 (update always) // -inline'),
+(@BLACKSMITH_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 261985, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 261985 on Self'),
-(@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 10000, 20000, 0, 0, 53, 0, @BLACKSMITH_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 10 - 20 seconds - Self: Start path #800000052, walk, do not repeat, Passive'),
-(@BLACKSMITH_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @BLACKSMITH_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000052 ended - Self: Start timed action list id #1506401 (update always) // -inline'),
+(@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 10000, 20000, 0, 0, 53, 0, @BLACKSMITH_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 10 - 20 seconds - Self: Start path #', (@BLACKSMITH_PATH1), ', walk, do not repeat, Passive')),
+(@BLACKSMITH_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @BLACKSMITH_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@BLACKSMITH_PATH1), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START + 1), ' (update always) // -inline')),
 (@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 seconds - Self: Set emote state to 0'),
-(@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @BLACKSMITH_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000053, walk, do not repeat, Passive'),
-(@BLACKSMITH_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @BLACKSMITH_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000053 ended - Self: Start timed action list id #1506499 (update always)');
+(@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @BLACKSMITH_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@BLACKSMITH_PATH2), ', walk, do not repeat, Passive')),
+(@BLACKSMITH_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @BLACKSMITH_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@BLACKSMITH_PATH2), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always)'));
 
 -- Forsaken Blacksmith Carrier
 SET @BLACKSMITH_GUID := -(@CGUID+232);
@@ -2162,17 +2168,17 @@ DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` =  @BLACKS
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@BLACKSMITH_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #1506400 (update always) // -inline'),
+(@BLACKSMITH_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 17, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Set emote state to 69'),
 (@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 seconds - Self: Set emote state to 0'),
 (@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 282906, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 282906 on Self'),
-(@ACTIONLIST_START, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @BLACKSMITH_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000056, walk, do not repeat, Passive'),
-(@BLACKSMITH_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @BLACKSMITH_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000056 ended - Self: Start timed action list id #1506401 (update always) // -inline'),
+(@ACTIONLIST_START, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @BLACKSMITH_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@BLACKSMITH_PATH1), ', walk, do not repeat, Passive')),
+(@BLACKSMITH_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @BLACKSMITH_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@BLACKSMITH_PATH1), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START + 1), ' (update always) // -inline')),
 (@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 28, 282906, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Remove aura due to spell 282906'),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 17, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Set emote state to 69'),
 (@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 seconds - Self: Set emote state to 0'),
-(@ACTIONLIST_START + 1, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @BLACKSMITH_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000057, walk, do not repeat, Passive'),
-(@BLACKSMITH_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @BLACKSMITH_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000057 ended - Self: Start timed action list id #1506499 (update always)');
+(@ACTIONLIST_START + 1, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @BLACKSMITH_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@BLACKSMITH_PATH2), ', walk, do not repeat, Passive')),
+(@BLACKSMITH_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @BLACKSMITH_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@BLACKSMITH_PATH2), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always)'));
 
 -- ---------------------------------------------------------------
 -- Alliance Blacksmith
@@ -2208,14 +2214,14 @@ DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @BLACKSM
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@BLACKSMITH_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #1506400 (update always) // -inline'),
+(@BLACKSMITH_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 261985, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 261985 on Self'),
-(@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 10000, 20000, 0, 0, 53, 0, @BLACKSMITH_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 10 - 20 seconds - Self: Start path #800000052, walk, do not repeat, Passive'),
-(@BLACKSMITH_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @BLACKSMITH_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000052 ended - Self: Start timed action list id #1506401 (update always) // -inline'),
+(@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 10000, 20000, 0, 0, 53, 0, @BLACKSMITH_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 10 - 20 seconds - Self: Start path #', (@BLACKSMITH_PATH1), ', walk, do not repeat, Passive')),
+(@BLACKSMITH_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @BLACKSMITH_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@BLACKSMITH_PATH1), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START + 1), ' (update always) // -inline')),
 (@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 124, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Force load EquipmentId 0'),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 seconds - Self: Set emote state to 0'),
-(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @BLACKSMITH_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000053, walk, do not repeat, Passive'),
-(@BLACKSMITH_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @BLACKSMITH_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000053 ended - Self: Start timed action list id #1506499 (update always)');
+(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @BLACKSMITH_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@BLACKSMITH_PATH2), ', walk, do not repeat, Passive')),
+(@BLACKSMITH_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @BLACKSMITH_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@BLACKSMITH_PATH2), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always)'));
 
 -- Arathi Blacksmith Working 2
 SET @BLACKSMITH_GUID := -(@CGUID+237);
@@ -2227,13 +2233,13 @@ DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @BLACKSM
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@BLACKSMITH_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #1506400 (update always) // -inline'),
+(@BLACKSMITH_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 261985, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 261985 on Self'),
-(@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 10000, 20000, 0, 0, 53, 0, @BLACKSMITH_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 10 - 20 seconds - Self: Start path #800000052, walk, do not repeat, Passive'),
-(@BLACKSMITH_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @BLACKSMITH_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000052 ended - Self: Start timed action list id #1506401 (update always) // -inline'),
+(@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 10000, 20000, 0, 0, 53, 0, @BLACKSMITH_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 10 - 20 seconds - Self: Start path #', (@BLACKSMITH_PATH1), ', walk, do not repeat, Passive')),
+(@BLACKSMITH_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @BLACKSMITH_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@BLACKSMITH_PATH1), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START + 1), ' (update always) // -inline')),
 (@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 seconds - Self: Set emote state to 0'),
-(@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @BLACKSMITH_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000053, walk, do not repeat, Passive'),
-(@BLACKSMITH_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @BLACKSMITH_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000053 ended - Self: Start timed action list id #1506499 (update always)');
+(@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @BLACKSMITH_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@BLACKSMITH_PATH2), ', walk, do not repeat, Passive')),
+(@BLACKSMITH_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @BLACKSMITH_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@BLACKSMITH_PATH2), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always)'));
 
 -- Arathi Blacksmith Carrier
 SET @BLACKSMITH_GUID := -(@CGUID+238);
@@ -2244,17 +2250,17 @@ DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` =  @BLACKS
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@BLACKSMITH_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #1506400 (update always) // -inline'),
+(@BLACKSMITH_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 17, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Set emote state to 69'),
 (@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 seconds - Self: Set emote state to 0'),
 (@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 282906, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 282906 on Self'),
-(@ACTIONLIST_START, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @BLACKSMITH_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000056, walk, do not repeat, Passive'),
-(@BLACKSMITH_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @BLACKSMITH_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000056 ended - Self: Start timed action list id #1506401 (update always) // -inline'),
+(@ACTIONLIST_START, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @BLACKSMITH_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@BLACKSMITH_PATH1), ', walk, do not repeat, Passive')),
+(@BLACKSMITH_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @BLACKSMITH_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@BLACKSMITH_PATH1), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START + 1), ' (update always) // -inline')),
 (@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 28, 282906, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Remove aura due to spell 282906'),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 17, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Set emote state to 69'),
 (@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 seconds - Self: Set emote state to 0'),
-(@ACTIONLIST_START + 1, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @BLACKSMITH_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000057, walk, do not repeat, Passive'),
-(@BLACKSMITH_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @BLACKSMITH_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000057 ended - Self: Start timed action list id #1506499 (update always)');
+(@ACTIONLIST_START + 1, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @BLACKSMITH_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@BLACKSMITH_PATH2), ', walk, do not repeat, Passive')),
+(@BLACKSMITH_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @BLACKSMITH_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@BLACKSMITH_PATH2), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always)'));
 
 -- ---------------------------------------------------------------
 -- Horde Stables
@@ -2329,15 +2335,15 @@ SET @ACTIONLIST_START := @ENTRY * 100 + @FARMER_ID * 2;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @FARMER_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #1504600 (update always) // -inline'),
+(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 4760'),
 (@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 5000, 15000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 15 seconds - Self: Plays Anim with ID 0'),
-(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 2 seconds - Self: Start path #800000004, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000004 ended - Self: Start timed action list id #1504601 (update always) // -inline'),
-(@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 4760'),
+(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 2 seconds - Self: Start path #', (@FARMER_PATH1), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH1), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START + 1), ' (update always) // -inline')),
+(@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Plays Anim with ID ', @AIANIMKIT)),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 5000, 15000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 15 seconds - Self: Plays Anim with ID 0'),
-(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000005, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000005 ended - Self: Start timed action list id #1504699 (update always)');
+(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@FARMER_PATH2), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH2), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always)'));
 
 -- Forsaken Farmer Working 2
 SET @FARMER_GUID := -(@CGUID + 199);
@@ -2349,15 +2355,15 @@ SET @ACTIONLIST_START := @ENTRY * 100 + @FARMER_ID * 2;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @FARMER_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #1504600 (update always) // -inline'),
+(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 4760'),
 (@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 5000, 15000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 15 seconds - Self: Plays Anim with ID 0'),
-(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 2 seconds - Self: Start path #800000004, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000004 ended - Self: Start timed action list id #1504601 (update always) // -inline'),
-(@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 4760'),
+(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 2 seconds - Self: Start path #', (@FARMER_PATH1), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH1), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START + 1), ' (update always) // -inline')),
+(@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Plays Anim with ID ', @AIANIMKIT)),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 5000, 15000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 15 seconds - Self: Plays Anim with ID 0'),
-(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000005, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000005 ended - Self: Start timed action list id #1504699 (update always)');
+(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@FARMER_PATH2), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH2), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always)'));
 
 -- Forsaken Farmer Working 3
 SET @FARMER_GUID := -(@CGUID + 196);
@@ -2369,15 +2375,15 @@ SET @ACTIONLIST_START := @ENTRY * 100 + @FARMER_ID * 2;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @FARMER_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #1504600 (update always) // -inline'),
+(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 4760'),
 (@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 5000, 15000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 15 seconds - Self: Plays Anim with ID 0'),
-(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 2 seconds - Self: Start path #800000004, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000004 ended - Self: Start timed action list id #1504601 (update always) // -inline'),
-(@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 4760'),
+(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 2 seconds - Self: Start path #', (@FARMER_PATH1), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH1), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START + 1), ' (update always) // -inline')),
+(@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Plays Anim with ID ', @AIANIMKIT)),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 5000, 15000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 15 seconds - Self: Plays Anim with ID 0'),
-(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000005, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000005 ended - Self: Start timed action list id #1504699 (update always)');
+(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@FARMER_PATH2), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH2), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always)'));
 
 -- Forsaken Farmer Working 4
 SET @FARMER_GUID := -(@CGUID + 185);
@@ -2389,15 +2395,15 @@ SET @ACTIONLIST_START := @ENTRY * 100 + @FARMER_ID * 2;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @FARMER_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #1504600 (update always) // -inline'),
+(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 4760'),
 (@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 5000, 15000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 15 seconds - Self: Plays Anim with ID 0'),
-(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 2 seconds - Self: Start path #800000004, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000004 ended - Self: Start timed action list id #1504601 (update always) // -inline'),
-(@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 4760'),
+(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 2 seconds - Self: Start path #', (@FARMER_PATH1), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH1), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START + 1), ' (update always) // -inline')),
+(@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Plays Anim with ID ', @AIANIMKIT)),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 5000, 15000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 15 seconds - Self: Plays Anim with ID 0'),
-(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000005, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000005 ended - Self: Start timed action list id #1504699 (update always)');
+(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@FARMER_PATH2), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH2), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always)'));
 
 -- Forsaken Farmer Working 5
 SET @FARMER_GUID := -(@CGUID + 190);
@@ -2409,15 +2415,15 @@ SET @ACTIONLIST_START := @ENTRY * 100 + @FARMER_ID * 2;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @FARMER_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #1504600 (update always) // -inline'),
+(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 4760'),
 (@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 5000, 15000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 15 seconds - Self: Plays Anim with ID 0'),
-(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 2 seconds - Self: Start path #800000004, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000004 ended - Self: Start timed action list id #1504601 (update always) // -inline'),
-(@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 4760'),
+(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 2 seconds - Self: Start path #', (@FARMER_PATH1), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH1), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START + 1), ' (update always) // -inline')),
+(@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Plays Anim with ID ', @AIANIMKIT)),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 5000, 15000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 15 seconds - Self: Plays Anim with ID 0'),
-(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000005, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000005 ended - Self: Start timed action list id #1504699 (update always)');
+(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@FARMER_PATH2), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH2), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always)'));
 
 -- Forsaken Farmer Working 6
 SET @FARMER_GUID := -(@CGUID + 189);
@@ -2429,15 +2435,15 @@ SET @ACTIONLIST_START := @ENTRY * 100 + @FARMER_ID * 2;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @FARMER_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #1504600 (update always) // -inline'),
+(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 4760'),
 (@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 5000, 15000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 15 seconds - Self: Plays Anim with ID 0'),
-(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 2 seconds - Self: Start path #800000004, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000004 ended - Self: Start timed action list id #1504601 (update always) // -inline'),
-(@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 4760'),
+(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 2 seconds - Self: Start path #', (@FARMER_PATH1), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH1), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START + 1), ' (update always) // -inline')),
+(@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Plays Anim with ID ', @AIANIMKIT)),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 5000, 15000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 15 seconds - Self: Plays Anim with ID 0'),
-(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000005, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000005 ended - Self: Start timed action list id #1504699 (update always)');
+(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@FARMER_PATH2), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH2), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always)'));
 
 -- Forsaken Farmer Working 7
 SET @FARMER_GUID := -(@CGUID + 202);
@@ -2449,15 +2455,15 @@ SET @ACTIONLIST_START := @ENTRY * 100 + @FARMER_ID * 2;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @FARMER_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #1504600 (update always) // -inline'),
+(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 4760'),
 (@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 5000, 15000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 15 seconds - Self: Plays Anim with ID 0'),
-(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 2 seconds - Self: Start path #800000004, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000004 ended - Self: Start timed action list id #1504601 (update always) // -inline'),
-(@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 4760'),
+(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 2 seconds - Self: Start path #', (@FARMER_PATH1), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH1), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START + 1), ' (update always) // -inline')),
+(@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Plays Anim with ID ', @AIANIMKIT)),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 5000, 15000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 15 seconds - Self: Plays Anim with ID 0'),
-(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000005, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000005 ended - Self: Start timed action list id #1504699 (update always)');
+(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@FARMER_PATH2), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH2), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always)'));
 
 -- Forsaken Farmer Working 8
 SET @FARMER_GUID := -(@CGUID + 200);
@@ -2469,15 +2475,15 @@ SET @ACTIONLIST_START := @ENTRY * 100 + @FARMER_ID * 2;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @FARMER_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #1504600 (update always) // -inline'),
+(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 4760'),
 (@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 5000, 15000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 15 seconds - Self: Plays Anim with ID 0'),
-(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 2 seconds - Self: Start path #800000004, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000004 ended - Self: Start timed action list id #1504601 (update always) // -inline'),
-(@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 4760'),
+(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 2 seconds - Self: Start path #', (@FARMER_PATH1), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH1), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START + 1), ' (update always) // -inline')),
+(@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Plays Anim with ID ', @AIANIMKIT)),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 5000, 15000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 15 seconds - Self: Plays Anim with ID 0'),
-(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000005, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000005 ended - Self: Start timed action list id #1504699 (update always)');
+(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@FARMER_PATH2), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH2), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always)'));
 
 -- Forsaken Farmer Wanderer
 SET @FARMER_GUID := -(@CGUID + 195);
@@ -2487,15 +2493,15 @@ SET @ACTIONLIST_START := @ENTRY * 100 + 16;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @FARMER_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #1504600 (update always) // -inline'),
+(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 17, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Set emote state to 69'),
 (@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 5000, 10000, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 10 seconds - Self: Set emote state to 0'),
-(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000020, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000020 ended - Self: Start timed action list id #1504601 (update always) // -inline'),
+(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@FARMER_PATH1), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH1), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START + 1), ' (update always) // -inline')),
 (@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 17, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Set emote state to 69'),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 5000, 10000, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 10 seconds - Self: Set emote state to 0'),
-(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000021, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000021 ended - Self: Start timed action list id #1504699 (update always)');
+(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@FARMER_PATH2), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH2), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always)'));
 
 -- ---------------------------------------------------------------
 -- Alliance Farm
@@ -2529,15 +2535,15 @@ SET @ACTIONLIST_START := @ENTRY * 100 + @FARMER_ID * 2;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @FARMER_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #1504600 (update always) // -inline'),
+(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 4760'),
 (@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 5000, 15000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 15 seconds - Self: Plays Anim with ID 0'),
-(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 2 seconds - Self: Start path #800000004, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000004 ended - Self: Start timed action list id #1504601 (update always) // -inline'),
-(@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 4760'),
+(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 2 seconds - Self: Start path #', (@FARMER_PATH1), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH1), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START + 1), ' (update always) // -inline')),
+(@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Plays Anim with ID ', @AIANIMKIT)),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 5000, 15000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 15 seconds - Self: Plays Anim with ID 0'),
-(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000005, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000005 ended - Self: Start timed action list id #1504699 (update always)');
+(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@FARMER_PATH2), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH2), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always)'));
 
 -- Arathi Farmer Working 2
 SET @FARMER_GUID := -(@CGUID + 281);
@@ -2549,15 +2555,15 @@ SET @ACTIONLIST_START := @ENTRY * 100 + @FARMER_ID * 2;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @FARMER_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #1504600 (update always) // -inline'),
+(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 4760'),
 (@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 5000, 15000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 15 seconds - Self: Plays Anim with ID 0'),
-(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 2 seconds - Self: Start path #800000004, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000004 ended - Self: Start timed action list id #1504601 (update always) // -inline'),
-(@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 4760'),
+(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 2 seconds - Self: Start path #', (@FARMER_PATH1), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH1), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START + 1), ' (update always) // -inline')),
+(@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Plays Anim with ID ', @AIANIMKIT)),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 5000, 15000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 15 seconds - Self: Plays Anim with ID 0'),
-(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000005, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000005 ended - Self: Start timed action list id #1504699 (update always)');
+(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@FARMER_PATH2), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH2), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always)'));
 
 -- Arathi Farmer Working 3
 SET @FARMER_GUID := -(@CGUID + 285);
@@ -2569,15 +2575,15 @@ SET @ACTIONLIST_START := @ENTRY * 100 + @FARMER_ID * 2;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @FARMER_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #1504600 (update always) // -inline'),
+(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 4760'),
 (@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 5000, 15000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 15 seconds - Self: Plays Anim with ID 0'),
-(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 2 seconds - Self: Start path #800000004, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000004 ended - Self: Start timed action list id #1504601 (update always) // -inline'),
-(@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 4760'),
+(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 2 seconds - Self: Start path #', (@FARMER_PATH1), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH1), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START + 1), ' (update always) // -inline')),
+(@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Plays Anim with ID ', @AIANIMKIT)),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 5000, 15000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 15 seconds - Self: Plays Anim with ID 0'),
-(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000005, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000005 ended - Self: Start timed action list id #1504699 (update always)');
+(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@FARMER_PATH2), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH2), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always)'));
 
 -- Arathi Farmer Working 4
 SET @FARMER_GUID := -(@CGUID + 286);
@@ -2589,15 +2595,15 @@ SET @ACTIONLIST_START := @ENTRY * 100 + @FARMER_ID * 2;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @FARMER_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #1504600 (update always) // -inline'),
+(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 4760'),
 (@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 5000, 15000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 15 seconds - Self: Plays Anim with ID 0'),
-(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 2 seconds - Self: Start path #800000004, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000004 ended - Self: Start timed action list id #1504601 (update always) // -inline'),
-(@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 4760'),
+(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 2 seconds - Self: Start path #', (@FARMER_PATH1), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH1), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START + 1), ' (update always) // -inline')),
+(@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Plays Anim with ID ', @AIANIMKIT)),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 5000, 15000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 15 seconds - Self: Plays Anim with ID 0'),
-(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000005, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000005 ended - Self: Start timed action list id #1504699 (update always)');
+(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@FARMER_PATH2), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH2), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always)'));
 
 -- Arathi Farmer Working 5
 SET @FARMER_GUID := -(@CGUID + 279);
@@ -2609,15 +2615,15 @@ SET @ACTIONLIST_START := @ENTRY * 100 + @FARMER_ID * 2;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @FARMER_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #1504600 (update always) // -inline'),
+(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 4760'),
 (@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 5000, 15000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 15 seconds - Self: Plays Anim with ID 0'),
-(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 2 seconds - Self: Start path #800000004, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000004 ended - Self: Start timed action list id #1504601 (update always) // -inline'),
-(@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 4760'),
+(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 2 seconds - Self: Start path #', (@FARMER_PATH1), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH1), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START + 1), ' (update always) // -inline')),
+(@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Plays Anim with ID ', @AIANIMKIT)),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 5000, 15000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 15 seconds - Self: Plays Anim with ID 0'),
-(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000005, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000005 ended - Self: Start timed action list id #1504699 (update always)');
+(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@FARMER_PATH2), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH2), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always)'));
 
 -- Arathi Farmer Working 6
 SET @FARMER_GUID := -(@CGUID + 278);
@@ -2629,15 +2635,15 @@ SET @ACTIONLIST_START := @ENTRY * 100 + @FARMER_ID * 2;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @FARMER_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #1504600 (update always) // -inline'),
+(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 4760'),
 (@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 5000, 15000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 15 seconds - Self: Plays Anim with ID 0'),
-(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 2 seconds - Self: Start path #800000004, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000004 ended - Self: Start timed action list id #1504601 (update always) // -inline'),
-(@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 4760'),
+(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 2 seconds - Self: Start path #', (@FARMER_PATH1), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH1), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START + 1), ' (update always) // -inline')),
+(@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Plays Anim with ID ', @AIANIMKIT)),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 5000, 15000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 15 seconds - Self: Plays Anim with ID 0'),
-(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000005, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000005 ended - Self: Start timed action list id #1504699 (update always)');
+(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@FARMER_PATH2), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH2), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always)'));
 
 -- Arathi Farmer Working 7
 SET @FARMER_GUID := -(@CGUID + 280);
@@ -2649,15 +2655,15 @@ SET @ACTIONLIST_START := @ENTRY * 100 + @FARMER_ID * 2;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @FARMER_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #1504600 (update always) // -inline'),
+(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 4760'),
 (@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 5000, 15000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 15 seconds - Self: Plays Anim with ID 0'),
-(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 2 seconds - Self: Start path #800000004, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000004 ended - Self: Start timed action list id #1504601 (update always) // -inline'),
-(@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 4760'),
+(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 2 seconds - Self: Start path #', (@FARMER_PATH1), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH1), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START + 1), ' (update always) // -inline')),
+(@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Plays Anim with ID ', @AIANIMKIT)),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 5000, 15000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 15 seconds - Self: Plays Anim with ID 0'),
-(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000005, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000005 ended - Self: Start timed action list id #1504699 (update always)');
+(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@FARMER_PATH2), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH2), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always)'));
 
 -- Arathi Farmer Working 8
 SET @FARMER_GUID := -(@CGUID + 287);
@@ -2669,15 +2675,15 @@ SET @ACTIONLIST_START := @ENTRY * 100 + @FARMER_ID * 2;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @FARMER_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #1504600 (update always) // -inline'),
+(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 4760'),
 (@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 5000, 15000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 15 seconds - Self: Plays Anim with ID 0'),
-(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 2 seconds - Self: Start path #800000004, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000004 ended - Self: Start timed action list id #1504601 (update always) // -inline'),
-(@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 4760'),
+(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 2 seconds - Self: Start path #', (@FARMER_PATH1), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH1), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START + 1), ' (update always) // -inline')),
+(@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, @AIANIMKIT, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Plays Anim with ID ', @AIANIMKIT)),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 5000, 15000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 15 seconds - Self: Plays Anim with ID 0'),
-(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000005, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000005 ended - Self: Start timed action list id #1504699 (update always)');
+(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@FARMER_PATH2), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH2), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always)'));
 
 -- Arathi Farmer Wanderer
 SET @FARMER_GUID := -(@CGUID + 283);
@@ -2687,15 +2693,15 @@ SET @ACTIONLIST_START := @ENTRY * 100 + 16;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @FARMER_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start timed action list id #1504600 (update always) // -inline'),
+(@FARMER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 17, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Set emote state to 69'),
 (@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 5000, 10000, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 10 seconds - Self: Set emote state to 0'),
-(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000020, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000020 ended - Self: Start timed action list id #1504601 (update always) // -inline'),
+(@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@FARMER_PATH1), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH1, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH1), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START + 1), ' (update always) // -inline')),
 (@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 17, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Set emote state to 69'),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 5000, 10000, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 10 seconds - Self: Set emote state to 0'),
-(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000021, walk, do not repeat, Passive'),
-(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000021 ended - Self: Start timed action list id #1504699 (update always)');
+(@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @FARMER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@FARMER_PATH2), ', walk, do not repeat, Passive')),
+(@FARMER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @FARMER_PATH2, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@FARMER_PATH2), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always)'));
 
 -- ---------------------------------------------------------------
 -- Horde Mine
@@ -2726,18 +2732,18 @@ SET @ACTIONLIST_START := @ENTRY * 100 + @MINER_ID * 2;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @MINER_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@MINER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 53, 0, @MINER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start path #800000022, walk, do not repeat, Passive'),
-(@MINER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH1, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000022 ended - Self: Start timed action list id #1507400 (update always) // -inline'),
+(@MINER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 53, 0, @MINER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start path #', (@MINER_PATH1), ', walk, do not repeat, Passive')),
+(@MINER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH1, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@MINER_PATH1), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, 1320, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 1320'),
 (@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 5000, 10000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 10 seconds - Self: Plays Anim with ID 0'),
 (@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 175121, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 175121 on Self'),
-(@ACTIONLIST_START, 9, 3, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @MINER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 1 seconds - Self: Start path #800000023, walk, do not repeat, Passive'),
-(@MINER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH2, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000023 ended - Self: Start timed action list id #1507401 (update always) // -inline'),
+(@ACTIONLIST_START, 9, 3, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @MINER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 1 seconds - Self: Start path #', (@MINER_PATH2), ', walk, do not repeat, Passive')),
+(@MINER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH2, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@MINER_PATH2), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START + 1), ' (update always) // -inline')),
 (@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 28, 175121, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Remove aura due to spell 175121'),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 17, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Set emote state to 69'),
 (@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 10000, 10000, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 10 seconds - Self: Set emote state to 0'),
-(@ACTIONLIST_START + 1, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @MINER_PATH3, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000023, walk, do not repeat, Passive'),
-(@MINER_GUID, 0, 3, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH3, 0, 0, 53, 0, @MINER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000024 ended - Self: Start path #800000022, walk, do not repeat, Passive');
+(@ACTIONLIST_START + 1, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @MINER_PATH3, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@MINER_PATH3), ', walk, do not repeat, Passive')),
+(@MINER_GUID, 0, 3, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH3, 0, 0, 53, 0, @MINER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@MINER_PATH3), ' ended - Self: Start path #', (@MINER_PATH1), ', walk, do not repeat, Passive'));
 
 -- Forsaken Miner Working 2
 SET @MINER_GUID := -(@CGUID + 294);
@@ -2749,18 +2755,18 @@ SET @ACTIONLIST_START := @ENTRY * 100 + @MINER_ID * 2;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @MINER_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@MINER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 53, 0, @MINER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start path #800000022, walk, do not repeat, Passive'),
-(@MINER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH1, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000022 ended - Self: Start timed action list id #1507400 (update always) // -inline'),
+(@MINER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 53, 0, @MINER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start path #', (@MINER_PATH1), ', walk, do not repeat, Passive')),
+(@MINER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH1, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@MINER_PATH1), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, 1320, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 1320'),
 (@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 5000, 10000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 10 seconds - Self: Plays Anim with ID 0'),
 (@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 175121, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 175121 on Self'),
-(@ACTIONLIST_START, 9, 3, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @MINER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 1 seconds - Self: Start path #800000023, walk, do not repeat, Passive'),
-(@MINER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH2, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000023 ended - Self: Start timed action list id #1507401 (update always) // -inline'),
+(@ACTIONLIST_START, 9, 3, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @MINER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 1 seconds - Self: Start path #', (@MINER_PATH2), ', walk, do not repeat, Passive')),
+(@MINER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH2, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@MINER_PATH2), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START + 1), ' (update always) // -inline')),
 (@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 28, 175121, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Remove aura due to spell 175121'),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 17, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Set emote state to 69'),
 (@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 10000, 10000, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 10 seconds - Self: Set emote state to 0'),
-(@ACTIONLIST_START + 1, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @MINER_PATH3, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000023, walk, do not repeat, Passive'),
-(@MINER_GUID, 0, 3, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH3, 0, 0, 53, 0, @MINER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000024 ended - Self: Start path #800000022, walk, do not repeat, Passive');
+(@ACTIONLIST_START + 1, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @MINER_PATH3, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@MINER_PATH3), ', walk, do not repeat, Passive')),
+(@MINER_GUID, 0, 3, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH3, 0, 0, 53, 0, @MINER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@MINER_PATH3), ' ended - Self: Start path #', (@MINER_PATH1), ', walk, do not repeat, Passive'));
 
 -- Forsaken Miner Working 2
 SET @MINER_GUID := -(@CGUID + 293);
@@ -2772,18 +2778,18 @@ SET @ACTIONLIST_START := @ENTRY * 100 + @MINER_ID * 2;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @MINER_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@MINER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 53, 0, @MINER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start path #800000022, walk, do not repeat, Passive'),
-(@MINER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH1, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000022 ended - Self: Start timed action list id #1507400 (update always) // -inline'),
+(@MINER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 53, 0, @MINER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start path #', (@MINER_PATH1), ', walk, do not repeat, Passive')),
+(@MINER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH1, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@MINER_PATH1), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, 1320, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 1320'),
 (@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 5000, 10000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 10 seconds - Self: Plays Anim with ID 0'),
 (@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 175121, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 175121 on Self'),
-(@ACTIONLIST_START, 9, 3, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @MINER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 1 seconds - Self: Start path #800000023, walk, do not repeat, Passive'),
-(@MINER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH2, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000023 ended - Self: Start timed action list id #1507401 (update always) // -inline'),
+(@ACTIONLIST_START, 9, 3, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @MINER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 1 seconds - Self: Start path #', (@MINER_PATH2), ', walk, do not repeat, Passive')),
+(@MINER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH2, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@MINER_PATH2), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START + 1), ' (update always) // -inline')),
 (@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 28, 175121, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Remove aura due to spell 175121'),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 17, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Set emote state to 69'),
 (@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 10000, 10000, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 10 seconds - Self: Set emote state to 0'),
-(@ACTIONLIST_START + 1, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @MINER_PATH3, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000023, walk, do not repeat, Passive'),
-(@MINER_GUID, 0, 3, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH3, 0, 0, 53, 0, @MINER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000024 ended - Self: Start path #800000022, walk, do not repeat, Passive');
+(@ACTIONLIST_START + 1, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @MINER_PATH3, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@MINER_PATH3), ', walk, do not repeat, Passive')),
+(@MINER_GUID, 0, 3, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH3, 0, 0, 53, 0, @MINER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@MINER_PATH3), ' ended - Self: Start path #', (@MINER_PATH1), ', walk, do not repeat, Passive'));
 
 -- ---------------------------------------------------------------
 -- Alliance Mine
@@ -2814,18 +2820,18 @@ SET @ACTIONLIST_START := @ENTRY * 100 + @MINER_ID * 2;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @MINER_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@MINER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 53, 0, @MINER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start path #800000022, walk, do not repeat, Passive'),
-(@MINER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH1, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000022 ended - Self: Start timed action list id #1507400 (update always) // -inline'),
+(@MINER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 53, 0, @MINER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start path #', (@MINER_PATH1), ', walk, do not repeat, Passive')),
+(@MINER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH1, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@MINER_PATH1), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, 1320, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 1320'),
 (@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 5000, 10000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 10 seconds - Self: Plays Anim with ID 0'),
 (@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 175121, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 175121 on Self'),
-(@ACTIONLIST_START, 9, 3, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @MINER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 1 seconds - Self: Start path #800000023, walk, do not repeat, Passive'),
-(@MINER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH2, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000023 ended - Self: Start timed action list id #1507401 (update always) // -inline'),
+(@ACTIONLIST_START, 9, 3, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @MINER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 1 seconds - Self: Start path #', (@MINER_PATH2), ', walk, do not repeat, Passive')),
+(@MINER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH2, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@MINER_PATH2), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START + 1), ' (update always) // -inline')),
 (@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 28, 175121, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Remove aura due to spell 175121'),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 17, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Set emote state to 69'),
 (@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 10000, 10000, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 10 seconds - Self: Set emote state to 0'),
-(@ACTIONLIST_START + 1, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @MINER_PATH3, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000023, walk, do not repeat, Passive'),
-(@MINER_GUID, 0, 3, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH3, 0, 0, 53, 0, @MINER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000024 ended - Self: Start path #800000022, walk, do not repeat, Passive');
+(@ACTIONLIST_START + 1, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @MINER_PATH3, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@MINER_PATH3), ', walk, do not repeat, Passive')),
+(@MINER_GUID, 0, 3, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH3, 0, 0, 53, 0, @MINER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@MINER_PATH3), ' ended - Self: Start path #', (@MINER_PATH1), ', walk, do not repeat, Passive'));
 
 -- Arathi Miner Working 2
 SET @MINER_GUID := -(@CGUID + 224);
@@ -2837,18 +2843,18 @@ SET @ACTIONLIST_START := @ENTRY * 100 + @MINER_ID * 2;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @MINER_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@MINER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 53, 0, @MINER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start path #800000022, walk, do not repeat, Passive'),
-(@MINER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH1, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000022 ended - Self: Start timed action list id #1507400 (update always) // -inline'),
+(@MINER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 53, 0, @MINER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start path #', (@MINER_PATH1), ', walk, do not repeat, Passive')),
+(@MINER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH1, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@MINER_PATH1), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, 1320, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 1320'),
 (@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 5000, 10000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 10 seconds - Self: Plays Anim with ID 0'),
 (@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 175121, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 175121 on Self'),
-(@ACTIONLIST_START, 9, 3, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @MINER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 1 seconds - Self: Start path #800000023, walk, do not repeat, Passive'),
-(@MINER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH2, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000023 ended - Self: Start timed action list id #1507401 (update always) // -inline'),
+(@ACTIONLIST_START, 9, 3, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @MINER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 1 seconds - Self: Start path #', (@MINER_PATH2), ', walk, do not repeat, Passive')),
+(@MINER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH2, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@MINER_PATH2), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START + 1), ' (update always) // -inline')),
 (@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 28, 175121, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Remove aura due to spell 175121'),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 17, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Set emote state to 69'),
 (@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 10000, 10000, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 10 seconds - Self: Set emote state to 0'),
-(@ACTIONLIST_START + 1, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @MINER_PATH3, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000023, walk, do not repeat, Passive'),
-(@MINER_GUID, 0, 3, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH3, 0, 0, 53, 0, @MINER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000024 ended - Self: Start path #800000022, walk, do not repeat, Passive');
+(@ACTIONLIST_START + 1, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @MINER_PATH3, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@MINER_PATH3), ', walk, do not repeat, Passive')),
+(@MINER_GUID, 0, 3, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH3, 0, 0, 53, 0, @MINER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@MINER_PATH3), ' ended - Self: Start path #', (@MINER_PATH1), ', walk, do not repeat, Passive'));
 
 -- Arathi Miner Working 2
 SET @MINER_GUID := -(@CGUID + 219);
@@ -2860,18 +2866,18 @@ SET @ACTIONLIST_START := @ENTRY * 100 + @MINER_ID * 2;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @MINER_GUID;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (@ACTIONLIST_START, @ACTIONLIST_START + 1);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
-(@MINER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 53, 0, @MINER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start path #800000022, walk, do not repeat, Passive'),
-(@MINER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH1, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000022 ended - Self: Start timed action list id #1507400 (update always) // -inline'),
+(@MINER_GUID, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 53, 0, @MINER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start path #', (@MINER_PATH1), ', walk, do not repeat, Passive')),
+(@MINER_GUID, 0, 1, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH1, 0, 0, 80, @ACTIONLIST_START, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@MINER_PATH1), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START), ' (update always) // -inline')),
 (@ACTIONLIST_START, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, 1320, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Plays Anim with ID 1320'),
 (@ACTIONLIST_START, 9, 1, 0, 0, 0, 100, 0, 5000, 10000, 0, 0, 128, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 5 - 10 seconds - Self: Plays Anim with ID 0'),
 (@ACTIONLIST_START, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 175121, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 175121 on Self'),
-(@ACTIONLIST_START, 9, 3, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @MINER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 1 seconds - Self: Start path #800000023, walk, do not repeat, Passive'),
-(@MINER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH2, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000023 ended - Self: Start timed action list id #1507401 (update always) // -inline'),
+(@ACTIONLIST_START, 9, 3, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 53, 0, @MINER_PATH2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 1 seconds - Self: Start path #', (@MINER_PATH2), ', walk, do not repeat, Passive')),
+(@MINER_GUID, 0, 2, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH2, 0, 0, 80, @ACTIONLIST_START + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@MINER_PATH2), ' ended - Self: Start timed action list id #', (@ACTIONLIST_START + 1), ' (update always) // -inline')),
 (@ACTIONLIST_START + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 28, 175121, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Remove aura due to spell 175121'),
 (@ACTIONLIST_START + 1, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 17, 69, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Set emote state to 69'),
 (@ACTIONLIST_START + 1, 9, 2, 0, 0, 0, 100, 0, 10000, 10000, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 10 seconds - Self: Set emote state to 0'),
-(@ACTIONLIST_START + 1, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @MINER_PATH3, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Start path #800000023, walk, do not repeat, Passive'),
-(@MINER_GUID, 0, 3, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH3, 0, 0, 53, 0, @MINER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 800000024 ended - Self: Start path #800000022, walk, do not repeat, Passive');
+(@ACTIONLIST_START + 1, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 0, @MINER_PATH3, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('After 0 seconds - Self: Start path #', (@MINER_PATH3), ', walk, do not repeat, Passive')),
+(@MINER_GUID, 0, 3, 0, 58, 0, 100, 0, 0xFFFFFFFF, @MINER_PATH3, 0, 0, 53, 0, @MINER_PATH1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On any waypoint of path #', (@MINER_PATH3), ' ended - Self: Start path #', (@MINER_PATH1), ', walk, do not repeat, Passive'));
 
 -- Elemental Skirmish
 UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` IN(150426, 149793);
