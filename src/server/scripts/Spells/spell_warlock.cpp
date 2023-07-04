@@ -24,6 +24,7 @@
 #include "ScriptMgr.h"
 #include "Creature.h"
 #include "GameObject.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "Random.h"
