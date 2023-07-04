@@ -497,7 +497,7 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
 
     m_creatureInfo = creatureInfo;
     SetEntry(entry);
-    m_creatureDifficulty = creatureInfo->GetDifficulty(GetMap()->GetDifficultyID());
+    m_creatureDifficulty = creatureInfo->GetDifficulty(!IsPet() ? GetMap()->GetDifficultyID() : DIFFICULTY_NONE);
 
     // equal to player Race field, but creature does not have race
     SetRace(RACE_NONE);
