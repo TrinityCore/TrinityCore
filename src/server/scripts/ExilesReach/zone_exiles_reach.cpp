@@ -2005,7 +2005,6 @@ public:
                 player->RemoveAura(player->GetTeam() == ALLIANCE ? SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN : SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN);
                 player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
                 player->UpdateObjectVisibility();
-                // RemovePersonalSpawns(player); Waiting for new system to handle
                 break;
             default:
                 break;
