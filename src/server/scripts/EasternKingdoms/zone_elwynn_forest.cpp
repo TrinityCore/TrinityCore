@@ -328,7 +328,7 @@ enum WindowToThePastData
     SPELL_PLAY_ONYXIA_SCENE             = 402962
 };
 
-enum RottenOldMemories
+enum RottenOldMemoriesData
 {
     QUEST_ROTTEN_OLD_MEMORIES   = 72409,
 
