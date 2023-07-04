@@ -328,6 +328,13 @@ enum WindowToThePastData
     SPELL_PLAY_ONYXIA_SCENE             = 402962
 };
 
+enum RottenOldMemoriesData
+{
+    QUEST_ROTTEN_OLD_MEMORIES   = 72409,
+
+    CONVO_ROTTEN_OLD_MEMORIES   = 20345
+};
+
 Position const VanessaClonePosition = { -9462.44f, -11.7101f, 50.161f, 2.99500f };
 Position const VanessaStaticPosition = { -9468.16f, -3.6128f, 49.876f, 4.47226f };
 
@@ -366,6 +373,12 @@ struct npc_vanessa_vancleef_human_heritage_lions_pride_inn_basement : public Scr
     {
         if (pointId == POINT_VANESSA_FINISH)
             _events.ScheduleEvent(EVENT_VANESSA_CLONE_LEAN, 1s);
+    }
+
+    void OnQuestAccept(Player* player, Quest const* quest) override
+    {
+        if (quest->GetQuestId() == QUEST_ROTTEN_OLD_MEMORIES)
+            Conversation::CreateConversation(CONVO_ROTTEN_OLD_MEMORIES, player, *player, player->GetGUID(), nullptr);
     }
 
     void UpdateAI(uint32 diff) override
