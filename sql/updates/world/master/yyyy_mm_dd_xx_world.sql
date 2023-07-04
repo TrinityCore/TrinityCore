@@ -659,8 +659,8 @@ INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `StandState`, `AnimTie
 (@CGUID+14, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '282578'), -- Defiler Combatant - 282578 - Hold Torch
 (@CGUID+16, @WAYPOINT+38, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '282578'), -- Arathor Watchman - 282578 - Hold Torch
 (@CGUID+21, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '282578'), -- Arathor Watchman - 282578 - Hold Torch
-(@CGUID+24, @WAYPOINT+61, 10719, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, ''), -- The Black Bride
-(@CGUID+38, @WAYPOINT+60, 14337, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, ''), -- Radulf Leder
+(@CGUID+24, 0, 10719, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, ''), -- The Black Bride
+(@CGUID+38, 0, 14337, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, ''), -- Radulf Leder
 (@CGUID+59, 0, 0, 0, 0, 4, 1, 0, 0, 0, 0, 0, 0, '145363'), -- Arathor Watchman - 145363 - Permanent Feign Death (Stun, Untrackable, Immune)
 (@CGUID+51, @WAYPOINT+59, 47166, 0, 3, 0, 1, 0, 0, 0, 0, 0, 4, ''), -- Arathor Gryphon Rider
 (@CGUID+62, 0, 0, 0, 0, 0, 1, 0, 461, 0, 0, 0, 0, ''), -- Arathor Watchman
@@ -1683,15 +1683,20 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (@WAYPOINT+63, 9, 684.04517, 676.04100, -14.635073, 4.539567470550537109, 1, 0);
 
 -- smart scripts
+
 -- The Black Bride
-UPDATE `creature_template` SET `AIName`='', `ScriptName`='' WHERE `entry`=150501;
-UPDATE `creature` SET `wander_distance`=0, `MovementType`=2 WHERE `guid`=@CGUID+24;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=150501 AND `source_type`=0;
+SET @ENTRY := 150501;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
+(@ENTRY, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 53, 0, @WAYPOINT+61, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start path #', (@WAYPOINT+61), ', walk, do not repeat, Passive'));
 
 -- Radulf Leder
-UPDATE `creature_template` SET `AIName`='', `ScriptName`='' WHERE `entry`=150505;
-UPDATE `creature` SET `wander_distance`=0, `MovementType`=2 WHERE `guid`=@CGUID+38;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=150505 AND `source_type`=0;
+SET @ENTRY := 150505;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
+(@ENTRY, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 53, 0, @WAYPOINT+60, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('On respawn - Self: Start path #', (@WAYPOINT+60), ', walk, do not repeat, Passive'));
 
 -- Bat/Gryphon Leaders
 UPDATE `creature` SET `wander_distance`=0, `MovementType`=2 WHERE `guid` IN (@CGUID+51, @CGUID+65);
