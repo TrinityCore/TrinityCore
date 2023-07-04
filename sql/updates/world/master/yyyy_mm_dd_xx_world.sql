@@ -1746,8 +1746,12 @@ UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `en
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
 (-(@CGUID+99), 0, 0, 0, 60, 0, 100, 0, 10000, 10000, 10000, 10000, 80, @ENTRY * 100 + 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, CONCAT('Every 10 seconds - Self: Start timed action list id #', (@ENTRY * 100 + 1), ' (update always) // -inline')),
 (@ENTRY * 100 + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 28, 282578, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Remove aura due to spell 282578'),
-(@ENTRY * 100 + 1, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 9, 149760, 0, 20, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 0 on Creature 149760 in 0 - 20 yards'),
+(@ENTRY * 100 + 1, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 291606, 0, 0, 0, 0, 0, 9, 149760, 0, 20, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 291606 on Creature Spell Bunny (149760) in 0 - 20 yards'),
 (@ENTRY * 100 + 1, 9, 2, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 11, 282578, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 1 seconds - Self: Cast spell 282578 on Self');
+
+DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId` = 13) AND (`SourceEntry` IN (291606));
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `Comment`) VALUES 
+(13, 1, 291606, 0, 0, 31, 0, 3, 149760, 0, 0, 'Potential target of the spell is creature, entry is Spell Bunny (149760)');
 
 -- Arathor Watchman Drink
 SET @ENTRY := 150403;
