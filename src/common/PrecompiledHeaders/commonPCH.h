@@ -29,7 +29,7 @@
 #include "VMapDefinitions.h"
 #include "WorldModel.h"
 #include <G3D/Ray.h>
-#include <G3D/Vector3.h>
+#include <G3D/Vector4.h>
 #include <algorithm>
 #include <cstring>
 #include <memory>

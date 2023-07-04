@@ -18,6 +18,7 @@
 #include "Field.h"
 #include "Log.h"
 #include "MySQLHacks.h"
+#include <cstring>
 
 Field::Field()
 {

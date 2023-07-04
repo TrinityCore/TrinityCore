@@ -18,6 +18,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits>
+#include <cstring>
 
 #include "DBCFileLoader.h"
 #include "Errors.h"

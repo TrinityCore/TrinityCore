@@ -1,11 +1,16 @@
 # set up output paths for executable binaries (.exe-files, and .dll-files on DLL-capable platforms)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-set(MSVC_EXPECTED_VERSION 19.24)
-set(MSVC_EXPECTED_VERSION_STRING "Microsoft Visual Studio 2019 16.4")
+set(MSVC_EXPECTED_VERSION 19.30)
+set(MSVC_EXPECTED_VERSION_STRING "Microsoft Visual Studio 2022 17")
 
-if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS MSVC_EXPECTED_VERSION)
-  message(FATAL_ERROR "MSVC: TrinityCore requires version ${MSVC_EXPECTED_VERSION} (${MSVC_EXPECTED_VERSION_STRING}) to build but found ${CMAKE_CXX_COMPILER_VERSION}")
+# This file is also used by compilers that pretend to be MSVC but report their own version number - don't version check them
+if(NOT CMAKE_CXX_COMPILER_FRONTEND_VARIANT)
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS MSVC_EXPECTED_VERSION)
+    message(FATAL_ERROR "MSVC: TrinityCore requires version ${MSVC_EXPECTED_VERSION} (${MSVC_EXPECTED_VERSION_STRING}) to build but found ${CMAKE_CXX_COMPILER_VERSION}")
+  else()
+    message(STATUS "MSVC: Minimum version required is ${MSVC_EXPECTED_VERSION}, found ${CMAKE_CXX_COMPILER_VERSION} - ok!")
+  endif()
 endif()
 
 # CMake sets warning flags by default, however we manage it manually
@@ -20,6 +25,11 @@ string(REGEX REPLACE "/W[0-4]$" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
 target_compile_options(trinity-warning-interface
   INTERFACE
     /W3)
+
+# disable permissive mode to make msvc more eager to reject code that other compilers don't already accept
+target_compile_options(trinity-compile-option-interface
+  INTERFACE
+    /permissive-)
 
 # set up output paths ofr static libraries etc (commented out - shown here as an example only)
 #set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -77,12 +87,9 @@ endif()
 # that the program will eventually be linked with a conforming operator new implementation,
 # and can omit all of these extra null checks from your program.
 # http://blogs.msdn.com/b/vcblog/archive/2015/08/06/new-in-vs-2015-zc-throwingnew.aspx
-if(NOT (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0.23026.0))
-  # makes this flag a requirement to build TC at all
-  target_compile_options(trinity-compile-option-interface
-    INTERFACE
-      /Zc:throwingNew)
-endif()
+target_compile_options(trinity-compile-option-interface
+  INTERFACE
+    /Zc:throwingNew)
 
 # Define _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES - eliminates the warning by changing the strcpy call to strcpy_s, which prevents buffer overruns
 target_compile_definitions(trinity-compile-option-interface

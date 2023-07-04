@@ -20,7 +20,6 @@
 
 #include "DatabaseEnvFwd.h"
 #include "Define.h"
-#include "MySQLWorkaround.h"
 #include <string>
 #include <vector>
 

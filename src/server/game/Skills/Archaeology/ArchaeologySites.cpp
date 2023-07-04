@@ -103,17 +103,17 @@ void Archaeology::UseSite()
     float ground = _player->GetMap()->GetHeight(_player->GetPhaseShift(), x, y, z + 5.0f);
     float angle = 0.0f;
 
-    if (dist > DIST_CLOSE)
+    if (dist > float(DIST_CLOSE))
     {
         angle = std::atan2(_site[position].Y - _player->GetPositionY(), _site[position].X - _player->GetPositionX());
         static float const pi = float(M_PI);
 
-        if (dist < DIST_MED)
+        if (dist < float(DIST_MED))
         {
             surveyGoID = CLOSE_SURVEYBOT;     // within the med radius -> green light
             angle += frand(-pi / 12.f, pi / 12.f);
         }
-        else if (dist < DIST_FAR)
+        else if (dist < float(DIST_FAR))
         {
             surveyGoID = MED_SURVEYBOT;       // within the far radius -> yellow light
             angle += frand(-pi / 6.f, pi / 6.f);

@@ -17,3 +17,11 @@ G3D-v9.0 hotfix4.diff - 2015-07-02 - backport G3D10 fix
 G3D-v9.0 hotfix5.diff - 2015-07-31 - fix MSVC 2015 warning: dep/g3dlite/include/G3D/Quat.h(352): warning C4458: declaration of 'x' hides class member
 G3D-v9.0 hotfix6.diff - 2015-11-04 - fix adding std::shared_ptr, std::weak_ptr, std::dynamic_pointer_cast, std::static_pointer_cast and std::enable_shared_from_this to global namespace
 G3D-v9.0 hotfix7.diff - 2016-10-10 - fix warning on clang 3.8 backported from G3D 10
+G3D-v9.0 hotfix8.diff - 2017-03-07 - fix MSVC 2017 build
+G3D-v9.0 hotfix9.diff - 2020-07-13 - warning fixes
+G3D-v9.0 hotfix10.diff - 2017-11-11 - static analysis issue fix
+G3D-v9.0 hotfix11.diff - 2017-11-11 - static analysis issue fix
+G3D-v9.0 hotfix12.diff - 2020-02-23 - ARM64 build fix
+G3D-v9.0 hotfix13.diff - 2020-08-04 - MSVC build fix with /permissive-
+G3D-v9.0 hotfix14.diff - 2022-01-16 - warning fixes
+G3D-v9.0 hotfix16.diff - 2022-02-11 - Fix *BSD compile errors

@@ -46,10 +46,10 @@ struct MovementInfo
 
         ObjectGuid guid;
         Position pos;
-        int8 seat;
-        uint32 time;
-        uint32 time2;
-        uint32 vehicleId;
+        int8 seat = -1;
+        uint32 time = 0;
+        uint32 time2 = 0;
+        uint32 vehicleId = 0;
     } transport;
 
     // swimming/flying

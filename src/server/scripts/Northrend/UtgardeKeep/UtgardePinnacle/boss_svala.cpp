@@ -260,7 +260,7 @@ class boss_svala : public CreatureScript
                     {
                         case EVENT_INTRO_SVALA_TALK_0:
                             Talk(SAY_SVALA_INTRO_0);
-                            events.ScheduleEvent(EVENT_INTRO_ARTHAS_TALK_0, 8.1 * IN_MILLISECONDS, 0, INTRO);
+                            events.ScheduleEvent(EVENT_INTRO_ARTHAS_TALK_0, 8.1 * AsUnderlyingType(IN_MILLISECONDS), 0, INTRO);
                             break;
                         case EVENT_INTRO_ARTHAS_TALK_0:
                             if (Creature* arthas = ObjectAccessor::GetCreature(*me, _arthasGUID))
@@ -287,12 +287,12 @@ class boss_svala : public CreatureScript
                                     (*itr)->GetMotionMaster()->MovePoint(1, spectatorWP[0]);
                                 }
                             }
-                            events.ScheduleEvent(EVENT_INTRO_TRANSFORM_1, 4.2 * IN_MILLISECONDS, 0, INTRO);
+                            events.ScheduleEvent(EVENT_INTRO_TRANSFORM_1, 4.2 * AsUnderlyingType(IN_MILLISECONDS), 0, INTRO);
                             break;
                         }
                         case EVENT_INTRO_TRANSFORM_1:
                             me->CastSpell(me, SPELL_SVALA_TRANSFORMING1, false);
-                            events.ScheduleEvent(EVENT_INTRO_TRANSFORM_2, 6.2 * IN_MILLISECONDS, 0, INTRO);
+                            events.ScheduleEvent(EVENT_INTRO_TRANSFORM_2, 6.2 * AsUnderlyingType(IN_MILLISECONDS), 0, INTRO);
                             break;
                         case EVENT_INTRO_TRANSFORM_2:
                             me->CastSpell(me, SPELL_SVALA_TRANSFORMING2, false);
@@ -320,7 +320,7 @@ class boss_svala : public CreatureScript
                             me->SetFacingTo(1.58f);
                             if (Creature* arthas = ObjectAccessor::GetCreature(*me, _arthasGUID))
                                 arthas->SetVisible(false);
-                            events.ScheduleEvent(EVENT_INTRO_RELOCATE_SVALA, 13.8 * IN_MILLISECONDS, 0, INTRO);
+                            events.ScheduleEvent(EVENT_INTRO_RELOCATE_SVALA, 13.8 * AsUnderlyingType(IN_MILLISECONDS), 0, INTRO);
                             break;
                         case EVENT_INTRO_RELOCATE_SVALA:
                         {

@@ -21,6 +21,7 @@
 #include "Database/DatabaseEnv.h"
 #include "Errors.h"
 #include "Log.h"
+#include <cstring>
 
 DB2FileLoader::DB2FileLoader()
 {

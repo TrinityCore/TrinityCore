@@ -35,6 +35,9 @@
 #   include <fnmatch.h>
 #   include <unistd.h>
 #   define _getcwd getcwd
+#   if defined(__DragonFly__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
+#     define stat64 stat
+#   endif
 #   define _stat stat
 #   define stricmp strcasecmp 
 #   define strnicmp strncasecmp 

@@ -22,6 +22,7 @@
 #include "mpqfile.h"
 #include "vmapexport.h"
 #include "Banner.h"
+#include <algorithm>
 #include <sys/stat.h>
 
 #ifdef _WIN32

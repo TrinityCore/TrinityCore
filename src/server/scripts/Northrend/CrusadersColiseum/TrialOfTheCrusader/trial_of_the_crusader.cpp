@@ -378,12 +378,12 @@ class boss_lich_king_toc : public CreatureScript
                         case 5060:
                             Talk(SAY_STAGE_4_05);
                             me->HandleEmoteCommand(EMOTE_ONESHOT_KNEEL);
-                            _updateTimer = 2.5*IN_MILLISECONDS;
+                            _updateTimer = 2.5* AsUnderlyingType(IN_MILLISECONDS);
                             _instance->SetData(TYPE_EVENT, 5070);
                             break;
                         case 5070:
                             me->CastSpell(me, 68198, false);
-                            _updateTimer = 1.5*IN_MILLISECONDS;
+                            _updateTimer = 1.5* AsUnderlyingType(IN_MILLISECONDS);
                             _instance->SetData(TYPE_EVENT, 5080);
                             break;
                         case 5080:

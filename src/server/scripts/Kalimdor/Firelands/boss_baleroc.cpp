@@ -144,11 +144,11 @@ class boss_baleroc : public CreatureScript
                 BossAI::JustEngagedWith(who);
                 Talk(EMOTE_AGGRO);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-                events.ScheduleEvent(EVENT_INCENDIARY_SOUL, 8.5*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_INCENDIARY_SOUL, 8.5 * AsUnderlyingType(IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_SHARDS_OF_TORMENT, 5 * IN_MILLISECONDS);
                 if (me->GetMap()->IsHeroic())
                     events.ScheduleEvent(EVENT_COUNTDOWN, 26 * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_BLADE, 30.5*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_BLADE, 30.5 * AsUnderlyingType(IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_BERSERK, 6 * MINUTE*IN_MILLISECONDS);
 
                 //Reset our achievement list. We do this here and not in reset, as the debuff may have been spread after the boss has reset.
@@ -265,7 +265,7 @@ class boss_baleroc : public CreatureScript
                                 DoCast(me->GetVictim(), SPELL_BLAZE_OF_GLORY, false);
                                 DoCast(SPELL_INCENDIARY_SOUL);
                             }
-                            events.ScheduleEvent(EVENT_INCENDIARY_SOUL, 11.5*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_INCENDIARY_SOUL, 11.5 * AsUnderlyingType(IN_MILLISECONDS));
                             break;
                         case EVENT_SHARDS_OF_TORMENT:
                             Talk(EMOTE_SHARDS_OF_TORMENT);

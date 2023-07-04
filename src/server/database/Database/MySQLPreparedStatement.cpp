@@ -20,6 +20,7 @@
 #include "Log.h"
 #include "MySQLHacks.h"
 #include "PreparedStatement.h"
+#include <cstring>
 #include <sstream>
 
 MySQLPreparedStatement::MySQLPreparedStatement(MySQLStmt* stmt, std::string queryString) :
