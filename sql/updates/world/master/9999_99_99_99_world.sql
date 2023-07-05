@@ -1,3 +1,5 @@
+-- Finding the lost expedition Quest Alliance and Horde
+
 -- Areatrigger
 
 SET @ID := 24; -- needs assigning
@@ -15,8 +17,8 @@ INSERT INTO `areatrigger_template` (`Id`,`IsServerSide`,`Type`,`Flags`,`Data0`,`
 
 DELETE FROM `creature_equip_template` WHERE `CreatureID` IN (165359,166805);
 INSERT INTO `creature_equip_template` (`CreatureID`,`ID`,`ItemID1`,`AppearanceModID1`,`ItemVisual1`,`ItemID2`,`AppearanceModID2`,`ItemVisual2`,`ItemID3`,`AppearanceModID3`,`ItemVisual3`,`VerifiedBuild`) VALUES
-(165359,1,163887,0,0,163891,0,0,0,0,0,45745),
-(166805,1,165616,0,0,0,0,0,0,0,0,45745);
+(165359,1,163887,0,0,163891,0,0,0,0,0,50000),
+(166805,1,165616,0,0,0,0,0,0,0,0,50000);
 
 DELETE FROM `creature_summoned_data` WHERE `CreatureID` IN (165359);
 INSERT INTO `creature_summoned_data` (`CreatureID`,`CreatureIDVisibleToSummoner`,`GroundMountDisplayID`,`FlyingMountDisplayID`) VALUES
@@ -28,12 +30,11 @@ UPDATE `creature` SET `StringId`="wonza_camp" WHERE `guid`=1051211;
 -- Scripting
 
 UPDATE `creature_template` SET `ScriptName`="npc_kee_la_beach_standing" WHERE `entry` IN (151088);
-UPDATE `creature_template` SET `ScriptName`="npc_bjorn_dawntracker_beach_standing" WHERE `entry` IN (151089);
-UPDATE `creature_template` SET `ScriptName`="npc_austin_jordan_beach_standing" WHERE `entry` IN (154170);
+UPDATE `creature_template` SET `ScriptName`="npc_bjorn_stouthands_beach_standing" WHERE `entry` IN (151089);
+UPDATE `creature_template` SET `ScriptName`="npc_austin_huxworth_beach_standing" WHERE `entry` IN (154170);
 UPDATE `creature_template` SET `ScriptName`="npc_garrick_summoned_beach" WHERE `entry` IN (165359);
 UPDATE `creature_template` SET `ScriptName`="npc_grimaxe_summoned_beach" WHERE `entry` IN (166805);
 UPDATE `areatrigger` SET `ScriptName`='areatrigger_find_the_lost_expedition' WHERE `SpawnId`=23;
-UPDATE `quest_template_addon` SET `ScriptName`='quest_finding_the_lost_expedition' WHERE `ID` IN (54952,59931);
 
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (305596,325076);
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
@@ -55,9 +56,9 @@ INSERT INTO `creature_questender` (`id`, `quest`, `VerifiedBuild`) VALUES
 (166854, 59931, 46455); -- Horde
 
 DELETE FROM `quest_template_addon` WHERE `ID` IN (54952,59931);
-INSERT INTO `quest_template_addon` (`ID`,`NextQuestID`) VALUES
-(54952,55174), -- Alliance
-(59931,59932); -- Horde
+INSERT INTO `quest_template_addon` (`ID`,`NextQuestID`,`ScriptName`) VALUES
+(54952,55174,'quest_finding_the_lost_expedition'), -- Alliance
+(59931,59932,'quest_finding_the_lost_expedition'); -- Horde
 
 -- Pathing
 
@@ -107,3 +108,74 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH+1,1,-407.13715,-2599.2344,1.3998337,NULL,0,1,0,100,0),
 (@PATH+1,2,-398.3889,-2596.2883,2.3895378,NULL,0,1,0,100,0),
 (@PATH+1,3,-391.7795,-2592.915,3.9566765,NULL,0,1,0,100,0);
+
+-- Cooking Meat Quest Alliance and Horde
+
+-- Creature scripts
+
+UPDATE `creature_template` SET `ScriptName`="npc_captain_garrick_camp" WHERE `entry` IN (156651);
+UPDATE `creature_template` SET `ScriptName`="npc_warlord_grimaxe_camp" WHERE `entry` IN (166906);
+
+-- Creature String Ids
+
+UPDATE `creature` SET `StringId`="garrick_camp" WHERE `guid`=1051210;
+UPDATE `creature` SET `StringId`="grimaxe_camp" WHERE `guid`=1051212;
+UPDATE `creature` SET `StringId`="alaria_standing_camp" WHERE `guid`=1051266;
+UPDATE `creature` SET `StringId`="wonza_standing_camp" WHERE `guid`=1051269;
+
+-- Questing
+
+DELETE FROM `creature_queststarter` WHERE `id`=156651 AND `quest` IN (55174);
+DELETE FROM `creature_queststarter` WHERE `id`=166906 AND `quest` IN (59932);
+INSERT INTO `creature_queststarter` (`id`, `quest`, `VerifiedBuild`) VALUES
+(156651, 55174, 50000), -- Alliance
+(166906, 59932, 50000); -- Horde
+
+DELETE FROM `creature_questender` WHERE `id`=156607 AND `quest` IN (55174);
+DELETE FROM `creature_questender` WHERE `id`=166854 AND `quest` IN (59932);
+INSERT INTO `creature_questender` (`id`, `quest`, `VerifiedBuild`) VALUES
+(156607, 55174, 50000), -- Alliance
+(166854, 59932, 50000); -- Horde
+
+DELETE FROM `quest_template_addon` WHERE `ID` IN (54952,59931);
+INSERT INTO `quest_template_addon` (`ID`,`NextQuestID`) VALUES
+(54952,55174), -- Alliance
+(59931,59932); -- Horde
+
+DELETE FROM `quest_template_addon` WHERE `ID` IN (55174,59932);
+INSERT INTO `quest_template_addon` (`ID`,`ScriptName`) VALUES
+(55174,'quest_cooking_meat'), -- Alliance
+(59932,'quest_cooking_meat'); -- Horde
+
+-- Conversations
+
+DELETE FROM `conversation_actors` WHERE `ConversationId` IN (11696,12863,14439,14611);
+INSERT INTO `conversation_actors` (`ConversationId`,`ConversationActorId`,`ConversationActorGuid`,`Idx`,`CreatureId`,`CreatureDisplayInfoId`,`NoActorObject`,`ActivePlayerObject`,`VerifiedBuild`) VALUES
+(11696,71297,0,0,0,0,0,0,50000), -- Alliance
+(11696,71309,0,1,0,0,0,0,50000), -- Alliance
+(12863,71297,0,0,0,0,0,0,50000), -- Alliance
+(12863,71309,0,1,0,0,0,0,50000), -- Alliance
+(14439,76284,0,0,0,0,0,0,50000), -- Horde
+(14439,75956,0,1,0,0,0,0,50000), -- Horde
+(14611,76284,0,0,0,0,0,0,50000), -- Horde
+(14611,75956,0,1,0,0,0,0,50000); -- Horde
+
+DELETE FROM `conversation_line_template` WHERE `Id` IN (28241,28242,29333,31623,34646,36157,36158,36159,36595,36596);
+INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`VerifiedBuild`) VALUES
+(28241,0,0,0,50000), -- Alliance
+(28242,0,1,0,50000), -- Alliance
+(29333,0,1,0,50000), -- Alliance
+(31623,0,0,0,50000), -- Alliance
+(34646,0,1,0,50000), -- Alliance
+(36157,0,0,0,50000), -- Horde
+(36158,0,1,0,50000), -- Horde
+(36159,0,1,0,50000), -- Horde
+(36595,0,0,0,50000), -- Horde
+(36596,0,1,0,50000); -- Horde
+
+DELETE FROM `conversation_template` WHERE `Id` IN (11696,12863,14439,14611);
+INSERT INTO `conversation_template` (`Id`,`FirstLineId`,`TextureKitId`,`ScriptName`,`VerifiedBuild`) VALUES
+(11696,28241,0,'',50000), -- Alliance
+(12863,31623,0,'',50000), -- Alliance
+(14439,36157,0,'',50000), -- Horde
+(14611,36595,0,'',50000); -- Horde

@@ -1782,11 +1782,13 @@ struct npc_garrick_summoned_beach : public EscortAI
 
         if (Player* player = caster->ToPlayer())
         {
-            Creature* alaria = FindCreatureIgnorePhase(player, "alaria_camp", 50.0f);
-            Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP, player, *player, _playerGUID, nullptr, false);
-            conversation->AddActor(ACTOR_ID_ALLIANCE_ALARIA, ACTOR_INDEX_SURVIVOR_ZERO, alaria->GetGUID());
-            conversation->AddActor(ACTOR_ID_ALLIANCE_SURVIVOR, ACTOR_INDEX_SURVIVOR_ONE, me->GetGUID());
-            conversation->Start();
+            if (Creature* alaria = FindCreatureIgnorePhase(player, "alaria_camp", 50.0f))
+            {
+                Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP, player, *player, _playerGUID, nullptr, false);
+                conversation->AddActor(ACTOR_ID_ALLIANCE_ALARIA, ACTOR_INDEX_SURVIVOR_ZERO, alaria->GetGUID());
+                conversation->AddActor(ACTOR_ID_ALLIANCE_SURVIVOR, ACTOR_INDEX_SURVIVOR_ONE, me->GetGUID());
+                conversation->Start();
+            }
 
             me->GetMotionMaster()->Remove(FOLLOW_MOTION_TYPE);
             me->GetMotionMaster()->MovePoint(0, -249.059006f, -2492.520020f, 18.0742f, false);
@@ -1820,7 +1822,7 @@ struct npc_garrick_summoned_beach : public EscortAI
                         if (!player)
                             break;
 
-                        Creature* survivor = player->FindNearestCreatureWithOptions(25.0f, FindCreatureOptions().SetIgnorePhases(false).SetStringId("spawn_check"));
+                        Creature* survivor = FindCreatureIgnorePhase(player, "spawn_check");
 
                         if (!survivor)
                         {
@@ -1882,11 +1884,13 @@ struct npc_grimaxe_summoned_beach : public EscortAI
 
         if (Player* player = caster->ToPlayer())
         {
-            Creature* wonza = FindCreatureIgnorePhase(player, "wonza_camp", 50.0f);
-            Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP, player, *player, _playerGUID, nullptr, false);
-            conversation->AddActor(ACTOR_ID_HORDE_WONZA, ACTOR_INDEX_SURVIVOR_TWO, wonza->GetGUID());
-            conversation->AddActor(ACTOR_ID_HORDE_SURVIVOR, ACTOR_INDEX_SURVIVOR_THREE, me->GetGUID());
-            conversation->Start();
+            if (Creature* wonza = FindCreatureIgnorePhase(player, "wonza_camp", 50.0f))
+            {
+                Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP, player, *player, _playerGUID, nullptr, false);
+                conversation->AddActor(ACTOR_ID_HORDE_WONZA, ACTOR_INDEX_SURVIVOR_TWO, wonza->GetGUID());
+                conversation->AddActor(ACTOR_ID_HORDE_SURVIVOR, ACTOR_INDEX_SURVIVOR_THREE, me->GetGUID());
+                conversation->Start();
+            }
 
             me->GetMotionMaster()->Remove(FOLLOW_MOTION_TYPE);
             me->GetMotionMaster()->MovePoint(0, -249.20117f, -2492.6191f, 17.964903f, false);
@@ -1920,7 +1924,7 @@ struct npc_grimaxe_summoned_beach : public EscortAI
                         if (!player)
                             break;
 
-                        Creature* survivor = player->FindNearestCreatureWithOptions(25.0f, FindCreatureOptions().SetIgnorePhases(false).SetStringId("spawn_check"));
+                        Creature* survivor = FindCreatureIgnorePhase(player, "spawn_check");
 
                         if (!survivor)
                         {
@@ -2032,6 +2036,128 @@ class spell_summon_survivor_beach : public SpellScript
     }
 };
 
+// ******************************************************************
+// * Scripting in this section occurs after reaching Abandoned Camp *
+// ******************************************************************
+
+enum CaptainGarrickCamp
+{
+    ACTOR_ID_ALLIANCE_GARRICK_CAMP                    = 71309,
+
+    CONVERSATION_QUEST_COOKING_MEAT_ACCEPT_ALLIANCE   = 11696,
+    CONVERSATION_QUEST_COOKING_MEAT_COMPLETE_ALLIANCE = 12863,
+
+    QUEST_COOKING_MEAT_ALLIANCE                       = 55174
+};
+
+struct npc_captain_garrick_camp : public ScriptedAI
+{
+    npc_captain_garrick_camp(Creature* creature) : ScriptedAI(creature) { }
+
+    void OnQuestAccept(Player* player, Quest const* quest) override
+    {
+        if (quest->GetQuestId() == QUEST_COOKING_MEAT_ALLIANCE)
+        {
+            if (Creature* alaria = FindCreatureIgnorePhase(player, "alaria_camp"))
+            {
+                Conversation* conversation = Conversation::CreateConversation(CONVERSATION_QUEST_COOKING_MEAT_ACCEPT_ALLIANCE, player, *player, player->GetGUID(), nullptr, false);
+                conversation->AddActor(ACTOR_ID_ALLIANCE_ALARIA, ACTOR_INDEX_SURVIVOR_ZERO, alaria->GetGUID());
+                conversation->AddActor(ACTOR_ID_ALLIANCE_GARRICK_CAMP, ACTOR_INDEX_SURVIVOR_ONE, me->GetGUID());
+                conversation->Start();
+            }
+        }
+    }
+};
+
+enum WarlordGrimaxeCamp
+{
+    ACTOR_ID_HORDE_GRIMAXE_CAMP                    = 75956,
+
+    CONVERSATION_QUEST_COOKING_MEAT_ACCEPT_HORDE   = 14439,
+    CONVERSATION_QUEST_COOKING_MEAT_COMPLETE_HORDE = 14611,
+
+    QUEST_COOKING_MEAT_HORDE                       = 59932
+};
+
+struct npc_warlord_grimaxe_camp : public ScriptedAI
+{
+    npc_warlord_grimaxe_camp(Creature* creature) : ScriptedAI(creature) { }
+
+    void OnQuestAccept(Player* player, Quest const* quest) override
+    {
+        if (quest->GetQuestId() == QUEST_COOKING_MEAT_HORDE)
+        {
+            if (Creature* wonza = FindCreatureIgnorePhase(player, "wonza_camp"))
+            {
+                Conversation* conversation = Conversation::CreateConversation(CONVERSATION_QUEST_COOKING_MEAT_ACCEPT_HORDE, player, *player, player->GetGUID(), nullptr, false);
+                conversation->AddActor(ACTOR_ID_HORDE_WONZA, ACTOR_INDEX_SURVIVOR_ZERO, wonza->GetGUID());
+                conversation->AddActor(ACTOR_ID_HORDE_GRIMAXE_CAMP, ACTOR_INDEX_SURVIVOR_ONE, me->GetGUID());
+                conversation->Start();
+            }
+        }
+    }
+};
+
+enum CookingMeatQuest
+{
+    ANIMATION_KIT_INJURED = 14432
+};
+
+class quest_cooking_meat : public QuestScript
+{
+public:
+    quest_cooking_meat() : QuestScript("quest_cooking_meat") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* quest, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        switch (newStatus)
+        {
+            case QUEST_STATUS_COMPLETE:
+                {
+                    if (quest->GetQuestId() == QUEST_COOKING_MEAT_ALLIANCE)
+                    {
+                        Creature* alaria = FindCreatureIgnorePhase(player, "alaria_camp");
+                        Creature* garrick = FindCreatureIgnorePhase(player, "garrick_camp");
+                        if (!alaria || !garrick)
+                            break;
+
+                        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_QUEST_COOKING_MEAT_COMPLETE_ALLIANCE, player, *player, player->GetGUID(), nullptr, false);
+                        conversation->AddActor(ACTOR_ID_ALLIANCE_ALARIA, ACTOR_INDEX_SURVIVOR_ZERO, alaria->GetGUID());
+                        conversation->AddActor(ACTOR_ID_ALLIANCE_GARRICK_CAMP, ACTOR_INDEX_SURVIVOR_ONE, garrick->GetGUID());
+                        conversation->Start();
+                    }
+                    else if (quest->GetQuestId() == QUEST_COOKING_MEAT_HORDE)
+                    {
+                        Creature* wonza = FindCreatureIgnorePhase(player, "wonza_camp");
+                        Creature* grimaxe = FindCreatureIgnorePhase(player, "grimaxe_camp");
+                        if (!wonza || !grimaxe)
+                            break;
+
+                        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_QUEST_COOKING_MEAT_COMPLETE_HORDE, player, *player, player->GetGUID(), nullptr, false);
+                        conversation->AddActor(ACTOR_ID_HORDE_WONZA, ACTOR_INDEX_SURVIVOR_ZERO, wonza->GetGUID());
+                        conversation->AddActor(ACTOR_ID_HORDE_GRIMAXE_CAMP, ACTOR_INDEX_SURVIVOR_ONE, grimaxe->GetGUID());
+                        conversation->Start();
+                    }
+                }
+                break;
+            case QUEST_STATUS_REWARDED:
+                {
+                    Creature* injured = FindCreatureIgnorePhase(player, player->GetTeam() == ALLIANCE ? "alaria_standing_camp" : "wonza_standing_camp");
+                    if (!injured)
+                        break;
+                    Creature* injuredPresonal = injured->SummonPersonalClone({ -245.40973f, -2492.0886f, 18.404648f, 2.4754f }, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+                    if (!injuredPresonal)
+                        break;
+                    injuredPresonal->SetAIAnimKitId(ANIMATION_KIT_INJURED);
+                    injuredPresonal->DespawnOrUnsummon(2s);
+                }
+                break;
+            default:
+                break;
+        }
+    }
+};
+
 void AddSC_zone_exiles_reach()
 {
     // Ship
@@ -2080,4 +2206,9 @@ void AddSC_zone_exiles_reach()
     RegisterCreatureAI(npc_grimaxe_summoned_beach);
     new quest_finding_the_lost_expedition();
     RegisterSpellScript(spell_summon_survivor_beach);
+
+    // Abandoned Camp
+    RegisterCreatureAI(npc_captain_garrick_camp);
+    RegisterCreatureAI(npc_warlord_grimaxe_camp);
+    new quest_cooking_meat();
 }
