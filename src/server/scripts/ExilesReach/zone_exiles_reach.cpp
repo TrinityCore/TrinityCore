@@ -1757,7 +1757,7 @@ enum LostExpeditionFollowerData
 // This script is used by Captian Garrick 165359 Follower for Finding the Lost Expedition quest
 struct npc_garrick_summoned_beach : public EscortAI
 {
-    npc_garrick_summoned_beach(Creature* creature) : EscortAI(creature) {}
+    npc_garrick_summoned_beach(Creature* creature) : EscortAI(creature), _reachedCamp(false) {}
 
     void IsSummonedBy(WorldObject* summoner) override
     {
@@ -1766,8 +1766,6 @@ struct npc_garrick_summoned_beach : public EscortAI
 
         Player* player = summoner->ToPlayer();
         _playerGUID = player->GetGUID();
-
-        _reachedCamp = false;
 
         _events.ScheduleEvent(EVENT_INITIAL_SPAWN_CHECK, 1s);
     }
@@ -1859,7 +1857,7 @@ private:
 // This script is used by Warlord Grimaxe 166805 Follower for Finding the Lost Expedition quest
 struct npc_grimaxe_summoned_beach : public EscortAI
 {
-    npc_grimaxe_summoned_beach(Creature* creature) : EscortAI(creature) {}
+    npc_grimaxe_summoned_beach(Creature* creature) : EscortAI(creature), _reachedCamp(false) {}
 
     void IsSummonedBy(WorldObject* summoner) override
     {
@@ -1881,8 +1879,6 @@ struct npc_grimaxe_summoned_beach : public EscortAI
 
         if (_reachedCamp)
             return;
-
-        _reachedCamp = true;
 
         if (Player* player = caster->ToPlayer())
         {
