@@ -106,7 +106,7 @@ target_link_libraries(game
     # tswow-begin
     nlohmann_json::nlohmann_json
     liblua
-    sourcemaps
+    # sourcemaps
     TracyClient
     # tswow-end
     game-interface

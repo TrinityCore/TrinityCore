@@ -47,25 +47,27 @@ target_compile_definitions(sol2 INTERFACE SOL_NO_CHECK_NUMBER_PRECISION)
 #
 # sourcemap
 #
-FetchContent_Declare (sourcemap
-  GIT_REPOSITORY https://github.com/tswow/sourcemap.cpp.git
-  GIT_TAG 79a901a367fdc1482306661eadfbb7d0ec50f2c2
-)
-FetchContent_MakeAvailable (sourcemap)
-file(GLOB SOURCEMAP_SRC
-    ${sourcemap_SOURCE_DIR}/src/*
-    ${sourcemap_SOURCE_DIR}/src/format/*
-    ${sourcemap_SOURCE_DIR}/deps/json/*
-    ${sourcemap_SOURCE_DIR}/deps/cencode/*
-)
-add_library(sourcemaps STATIC ${SOURCEMAP_SRC})
-target_include_directories(sourcemaps PUBLIC
-    ${sourcemap_SOURCE_DIR}/src
-    ${sourcemap_SOURCE_DIR}/deps/json
-    ${sourcemap_SOURCE_DIR}/deps/cencode
-)
-if(NOT WIN32)
-    target_compile_options(sourcemaps PUBLIC -fPIC)
+if(FALSE)
+  FetchContent_Declare (sourcemap
+    GIT_REPOSITORY https://github.com/tswow/sourcemap.cpp.git
+    GIT_TAG 79a901a367fdc1482306661eadfbb7d0ec50f2c2
+  )
+  FetchContent_MakeAvailable (sourcemap)
+  file(GLOB SOURCEMAP_SRC
+      ${sourcemap_SOURCE_DIR}/src/*
+      ${sourcemap_SOURCE_DIR}/src/format/*
+      ${sourcemap_SOURCE_DIR}/deps/json/*
+      ${sourcemap_SOURCE_DIR}/deps/cencode/*
+  )
+  add_library(sourcemaps STATIC ${SOURCEMAP_SRC})
+  target_include_directories(sourcemaps PUBLIC
+      ${sourcemap_SOURCE_DIR}/src
+      ${sourcemap_SOURCE_DIR}/deps/json
+      ${sourcemap_SOURCE_DIR}/deps/cencode
+  )
+  if(NOT WIN32)
+      target_compile_options(sourcemaps PUBLIC -fPIC)
+  endif()
 endif()
 
 #
