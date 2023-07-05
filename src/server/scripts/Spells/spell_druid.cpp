@@ -993,7 +993,7 @@ class spell_dru_shooting_stars : public AuraScript
                     caster->CastSpell(GetTarget(), SPELL_DRUID_SHOOTING_STARS_DAMAGE, true);
     }
 
-    void Register()
+    void Register() override
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_shooting_stars::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
     }
