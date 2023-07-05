@@ -35,6 +35,14 @@ struct Loot;
 struct TransportAnimation;
 enum TriggerCastFlags : uint32;
 
+enum class FlagState : uint8
+{
+    InBase,
+    Taken,
+    Dropped,
+    Respawning
+};
+
 namespace WorldPackets
 {
     namespace Battleground
@@ -60,6 +68,7 @@ public:
     virtual void Update([[maybe_unused]] uint32 diff) { }
     virtual void OnStateChanged([[maybe_unused]] GOState oldState, [[maybe_unused]] GOState newState) { }
     virtual void OnRelocated() { }
+    virtual bool IsNeverVisibleFor([[maybe_unused]] WorldObject const* seer, [[maybe_unused]] bool allowServersideObjects) const { return false; }
 
 protected:
     GameObject& _owner;
@@ -76,6 +85,17 @@ public:
 
 private:
     bool _on;
+};
+
+class TC_GAME_API SetNewFlagState : public GameObjectTypeBase::CustomCommand
+{
+public:
+    explicit SetNewFlagState(FlagState state);
+
+    void Execute(GameObjectTypeBase& type) const override;
+
+private:
+    FlagState _state;
 };
 }
 

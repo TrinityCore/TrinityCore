@@ -503,6 +503,36 @@ void SetTransportAutoCycleBetweenStopFrames::Execute(GameObjectTypeBase& type) c
     if (Transport* transport = dynamic_cast<Transport*>(&type))
         transport->SetAutoCycleBetweenStopFrames(_on);
 }
+
+class NewFlag : public GameObjectTypeBase
+{
+public:
+    explicit NewFlag(GameObject& owner) : GameObjectTypeBase(owner), _state(FlagState::InBase) { }
+
+    void SetState(FlagState newState)
+    {
+        _state = newState;
+        _owner.UpdateObjectVisibility();
+    }
+
+    bool IsNeverVisibleFor([[maybe_unused]] WorldObject const* seer, [[maybe_unused]] bool allowServersideObjects) const override
+    {
+        return _state != FlagState::InBase;
+    }
+
+private:
+    FlagState _state;
+};
+
+SetNewFlagState::SetNewFlagState(FlagState state) : _state(state)
+{
+}
+
+void SetNewFlagState::Execute(GameObjectTypeBase& type) const
+{
+    if (NewFlag* newFlag = dynamic_cast<NewFlag*>(&type))
+        newFlag->SetState(_state);
+}
 }
 
 GameObject::GameObject() : WorldObject(false), MapObject(),
@@ -796,6 +826,9 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
                 m_invisibility.AddFlag(INVISIBILITY_TRAP);
                 m_invisibility.AddValue(INVISIBILITY_TRAP, 300);
             }
+            break;
+        case GAMEOBJECT_TYPE_NEW_FLAG:
+            m_goTypeImpl = std::make_unique<GameObjectType::NewFlag>(*this);
             break;
         case GAMEOBJECT_TYPE_PHASEABLE_MO:
             RemoveFlag(GameObjectFlags(0xF00));
@@ -1806,6 +1839,9 @@ bool GameObject::IsNeverVisibleFor(WorldObject const* seer, bool allowServerside
 
     if (!GetDisplayId() && GetGOInfo()->IsDisplayMandatory())
         return true;
+
+    if (m_goTypeImpl)
+        return m_goTypeImpl->IsNeverVisibleFor(seer, allowServersideObjects);
 
     return false;
 }
@@ -2891,6 +2927,8 @@ void GameObject::Use(Unit* user)
             if (user->GetTypeId() != TYPEID_PLAYER)
                 return;
 
+            //HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Taken));
+
             spellId = info->newflag.pickupSpell;
             spellCaster = nullptr;
             break;
@@ -2912,13 +2950,12 @@ void GameObject::Use(Unit* user)
                     bool defenderInteract = !owner->IsFriendlyTo(user);
                     if (defenderInteract && owner->GetGOInfo()->newflag.ReturnonDefenderInteract)
                     {
-                        // TODO respawn owner gameobject
                         Delete();
+                        HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::InBase));
                         return;
                     }
                     else
                     {
-                        // in sniffs the aura is added to player, no spell go is send (maybe because owner is invisible)
                         CastSpellExtraArgs args;
                         args.SetTriggerFlags(TRIGGERED_FULL_MASK);
                         // we let the owner cast the spell for now
@@ -2927,6 +2964,7 @@ void GameObject::Use(Unit* user)
                         if (result == SPELL_CAST_OK)
                         {
                             Delete();
+                            HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Taken));
                             return;
                         }
                     }
@@ -3089,7 +3127,13 @@ void GameObject::Use(Unit* user)
     if (spellCaster)
         spellCaster->CastSpell(user, spellId, triggered);
     else
-        CastSpell(user, spellId);
+    {
+        SpellCastResult castResult = CastSpell(user, spellId);
+        if (castResult == SPELL_FAILED_SUCCESS)
+        {
+            HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Taken));
+        }
+    }
 }
 
 void GameObject::SendCustomAnim(uint32 anim)
@@ -4108,6 +4152,9 @@ SpellInfo const* GameObject::GetSpellForLock(Player const* player) const
 
 bool ForcedGameObjectDespawnDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 {
+    if (GameObject* go = m_owner.GetMap()->GetGameObject(m_owner.GetOwnerGUID()))
+        go->HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::InBase));
+
     m_owner.DespawnOrUnsummon(0s, m_respawnTimer);
     return true;
 }
