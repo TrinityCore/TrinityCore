@@ -753,7 +753,7 @@ public:
 
 
         target->SetObjectScale(Scale);
-        WorldDatabase.DirectPExecute("Update creature_template Set scale = {} WHERE entry = {}", Scale, target->GetEntry());
+        WorldDatabase.DirectPExecute("Update creature_template_model Set DisplayScale = {} WHERE CreatureID = {} and Idx = 0", Scale, target->GetEntry());
         ChatHandler(handler->GetSession()).PSendSysMessage("[%s][Scale]设置为%f", target->GetName().c_str(), Scale);
 
         std::string gm = ".reload creature_template " + std::to_string(target->GetEntry());
@@ -776,7 +776,7 @@ public:
         }
 
         target->SetDisplayId(displayId);
-        WorldDatabase.DirectPExecute("Update creature_template Set modelid1 = {},modelid2 = 0,modelid3 = 0,modelid4 = 0 WHERE entry = {}", displayId, target->GetEntry());
+        WorldDatabase.DirectPExecute("Update creature_template_model Set CreatureDisplayID = {} WHERE CreatureID = {} and Idx = 0", displayId, target->GetEntry());
         ChatHandler(handler->GetSession()).PSendSysMessage("[%s][DisplayId]设置为%d", target->GetName().c_str(), displayId);
 
         std::string gm = ".reload creature_template " + std::to_string(target->GetEntry());
@@ -1261,7 +1261,7 @@ public:
         {
             int32 isOk = int32(std::atoi(isstr));
             if (isOk) {
-                WorldDatabase.DirectPExecute("INSERT INTO creature_equip_template (CreatureID, ID, ItemID1, AppearanceModID1, ItemVisual1, ItemID2, AppearanceModID2, ItemVisual2, ItemID3, AppearanceModID3, ItemVisual3, VerifiedBuild) VALUES (?, 1, ?, 0, 0, ?, 0, 0, ?, 0, 0, 18019) ON DUPLICATE KEY UPDATE ItemID1 = ?, ItemID2 = ?, ItemID3 = ?", target->GetEntry(), zu1, zu2, zu3, zu1, zu2, zu3);
+                WorldDatabase.DirectPExecute("INSERT INTO creature_equip_template (CreatureID, ID, ItemID1, AppearanceModID1, ItemVisual1, ItemID2, AppearanceModID2, ItemVisual2, ItemID3, AppearanceModID3, ItemVisual3, VerifiedBuild) VALUES (?, 1, ?, 0, 0, ?, 0, 0, ?, 0, 0, 48069) ON DUPLICATE KEY UPDATE ItemID1 = ?, ItemID2 = ?, ItemID3 = ?", target->GetEntry(), zu1, zu2, zu3, zu1, zu2, zu3);
                 sObjectMgr->LoadEquipmentTemplates();
             }
         }

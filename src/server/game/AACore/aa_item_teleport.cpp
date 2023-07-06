@@ -224,7 +224,7 @@ public:
 
     void OnGossipSelect(Player* player, Item* item, uint32 sender, uint32 gossipListId) override
     {
-        uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+        uint32 const action = gossipListId;
         //执行功能
         AA_Teleport_Conf conf = aaCenter.aa_teleports[action];
         if (player->IsInCombat() && (conf.gm.find("解除战斗") == std::string::npos && conf.is_zhandou == 0)) {

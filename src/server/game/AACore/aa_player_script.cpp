@@ -22,6 +22,11 @@ public:
             return;
         }
 
+        //10x BUG，上线学习200749
+        if (!player->HasSpell(200749)) {
+            player->LearnSpell(200749, true);
+        }
+        
         //发送时装、商城Creature
         {
             //for (auto itr : aaCenter.aa_ui_shizhuangs) {

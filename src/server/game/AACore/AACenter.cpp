@@ -3871,9 +3871,25 @@ bool AACenter::M_CanNeedDo(Player* player, std::string& needstr, uint32 needid, 
     }
     if (conf.race > 0) {
         if (conf.race != player->GetRace()) {
-            needstr = needstr + aa_color_blues + "· [种族] " + aa_color_yellow + aaCenter.GetPlayerRace(player) + "|r\n";
+            //熊猫人
+            if (conf.race == RACE_PANDAREN_NEUTRAL || conf.race == RACE_PANDAREN_ALLIANCE || conf.race == RACE_PANDAREN_HORDE) {
+                if (player->GetRace() != RACE_PANDAREN_NEUTRAL && player->GetRace() != RACE_PANDAREN_ALLIANCE && player->GetRace() != RACE_PANDAREN_HORDE) {
+                    needstr = needstr + aa_color_blues + "· [种族] " + aa_color_yellow + aaCenter.GetPlayerRace(player) + "|r\n";
+                    isOk = false;
+                }
+            }
+            //龙希尔
+            else if (conf.race == RACE_DRACTHYR_ALLIANCE || conf.race == RACE_DRACTHYR_HORDE) {
+                if (player->GetRace() != RACE_DRACTHYR_ALLIANCE && player->GetRace() != RACE_DRACTHYR_HORDE) {
+                    needstr = needstr + aa_color_blues + "· [种族] " + aa_color_yellow + aaCenter.GetPlayerRace(player) + "|r\n";
+                    isOk = false;
+                }
+            }
+            else {
+                needstr = needstr + aa_color_blues + "· [种族] " + aa_color_yellow + aaCenter.GetPlayerRace(player) + "|r\n";
+                isOk = false;
+            }
             //            return "种族不匹配";
-            isOk = false;
         }
     }
     if (conf.class1 > 0 && conf.class1 != player->GetClass()) {

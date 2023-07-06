@@ -140,19 +140,19 @@ enum Gender
 enum Classes : uint8
 {
     CLASS_NONE          = 0,  // SKIP
-    CLASS_WARRIOR       = 1,  // TITLE Warrior
-    CLASS_PALADIN       = 2,  // TITLE Paladin
-    CLASS_HUNTER        = 3,  // TITLE Hunter
-    CLASS_ROGUE         = 4,  // TITLE Rogue
-    CLASS_PRIEST        = 5,  // TITLE Priest
-    CLASS_DEATH_KNIGHT  = 6,  // TITLE Death Knight
-    CLASS_SHAMAN        = 7,  // TITLE Shaman
-    CLASS_MAGE          = 8,  // TITLE Mage
-    CLASS_WARLOCK       = 9,  // TITLE Warlock
-    CLASS_MONK          = 10, // TITLE Monk
-    CLASS_DRUID         = 11, // TITLE Druid
-    CLASS_DEMON_HUNTER  = 12, // TITLE Demon Hunter
-    CLASS_EVOKER        = 13, // TITLE Evoker
+    CLASS_WARRIOR       = 1,  // TITLE Warrior 战士
+    CLASS_PALADIN       = 2,  // TITLE Paladin 圣骑士
+    CLASS_HUNTER        = 3,  // TITLE Hunter 猎人
+    CLASS_ROGUE         = 4,  // TITLE Rogue 潜行者
+    CLASS_PRIEST        = 5,  // TITLE Priest 牧师
+    CLASS_DEATH_KNIGHT  = 6,  // TITLE Death Knight 死亡骑士
+    CLASS_SHAMAN        = 7,  // TITLE Shaman 萨满祭司
+    CLASS_MAGE          = 8,  // TITLE Mage 法师
+    CLASS_WARLOCK       = 9,  // TITLE Warlock 术士
+    CLASS_MONK          = 10, // TITLE Monk 武僧
+    CLASS_DRUID         = 11, // TITLE Druid 德鲁伊
+    CLASS_DEMON_HUNTER  = 12, // TITLE Demon Hunter 恶魔猎手
+    CLASS_EVOKER        = 13, // TITLE Evoker 唤魔师
     CLASS_ADVENTURER    = 14  // TITLE Adventurer
 };
 
