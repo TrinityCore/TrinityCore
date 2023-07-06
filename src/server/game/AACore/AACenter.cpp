@@ -6948,110 +6948,6 @@ void AACenter::M_SendAA_Conf(Player* player, std::string prefix)
             std::to_string(aaCenter.aa_world_confs[80].value1) + "}";
         aaCenter.M_SendClientAddonData(player, prefix, result);
     }
-    else if (prefix == "19") { //获取needconf
-        std::string result = "{";//{[id]={1,"2",3}, [id]={1,3,"3"}}
-        int j = 0; size_t i = 0;
-        for (auto& it : aaCenter.aa_needs)
-        {
-            i++; j++;
-            if (it.second.text != "") {
-                result += "["; result += std::to_string(it.first); result += "]=\"";
-                result += it.second.text; result += "\",";
-            }
-            else {
-                result += "["; result += std::to_string(it.first); result += "]={";
-                result += std::to_string(it.second.level); result += ",";
-                result += std::to_string(it.second.jxlevel); result += ",";
-                result += std::to_string(it.second.dqlevel); result += ",";
-                result += std::to_string(it.second.dflevel); result += ",";
-                result += std::to_string(it.second.viplevel); result += ",";
-                result += std::to_string(it.second.jifen_all); result += ",";
-                result += std::to_string(it.second.money); result += ",";
-                result += std::to_string(it.second.paodian); result += ",";
-                result += std::to_string(it.second.mobi); result += ",";
-                result += std::to_string(it.second.jifen); result += ",";
-                result += std::to_string(it.second.battlecore); result += ",";
-                result += std::to_string(it.second.honorcore); result += ",";
-                result += std::to_string(0); result += ",";
-                result += std::to_string(it.second.deplete); result += ",";
-                result += "\""; result += it.second.items; result += "\",";
-                result += std::to_string(it.second.level_item_ItemLevel); result += ","; //物品ItemLevel
-                result += std::to_string(it.second.level_item_Quality); result += ","; //物品Quality
-                result += std::to_string(it.second.level_item_jd); result += ","; //物品鉴定等级
-                result += std::to_string(it.second.level_item_qh); result += ","; //物品强化等级
-                result += std::to_string(it.second.level_item_cz); result += ","; //物品成长等级
-                result += std::to_string(it.second.level_item_jxsx); result += ","; //物品觉醒属性等级
-                result += std::to_string(it.second.level_item_jxjn); result += ","; //物品觉醒技能等级
-                result += std::to_string(it.second.level_pet_jh); result += ","; //宠物进化等级
-                result += std::to_string(it.second.level_pet_qh); result += ","; //宠物强化等级
-                result += std::to_string(it.second.level_pet_jx); result += ","; //宠物觉醒等级
-                result += "\""; result += it.second.quests; result += "\",";
-                result += "\""; result += it.second.achievements; result += "\",";
-                result += "\""; result += it.second.spells; result += "\",";
-                result += "\""; result += it.second.buffs; result += "\",";
-                result += std::to_string(it.second.gender); result += ",";
-                result += std::to_string(it.second.team); result += ",";
-                result += std::to_string(it.second.race); result += ",";
-                result += std::to_string(it.second.class1); result += ",";
-                result += std::to_string(it.second.guild); result += ",";
-                result += std::to_string(it.second.mapid); result += ",";
-                result += std::to_string(it.second.areaid); result += ",";
-                result += std::to_string(it.second.zoneid); result += "},";
-            }
-            if (j > 10 || i == aaCenter.aa_needs.size()) {
-                result += "}";
-                aaCenter.AA_StringReplaceLast(result, ",}", "}");
-                aaCenter.M_SendClientAddonData(player, prefix, result);
-                result = "{";
-                j = 0;
-            }
-        }
-    }
-    else if (prefix == "20") { //获取rewardconf
-        std::string result = "{";//{[id]="text",[id]="text"}
-        int j = 0; size_t i = 0;
-        for (auto& it : aaCenter.aa_rewards)
-        {
-            i++; j++;
-            if (it.second.text != "") {
-                result += "["; result += std::to_string(it.first); result += "]=\"";
-                result += it.second.text; result += "\",";
-            }
-            else {
-                result += "["; result += std::to_string(it.first); result += "]={";
-                result += std::to_string(it.second.chance); result += ",";
-                result += std::to_string(it.second.exp); result += ",";
-                result += std::to_string(it.second.jxexp); result += ",";
-                result += std::to_string(it.second.dqexp); result += ",";
-                result += std::to_string(it.second.dfexp); result += ",";
-                result += std::to_string(it.second.czexp); result += ",";
-                result += std::to_string(it.second.money); result += ",";
-                result += std::to_string(it.second.paodian); result += ",";
-                result += std::to_string(it.second.mobi); result += ",";
-                result += std::to_string(it.second.jifen); result += ",";
-                result += std::to_string(it.second.battlecore); result += ",";
-                result += std::to_string(it.second.honorcore); result += ",";
-                result += "\""; result += it.second.items; result += "\",";
-                result += "\""; result += it.second.spells; result += "\",";
-                result += "\""; result += it.second.buffs; result += "\",";
-                result += std::to_string(it.second.teleport_id); result += ",";
-                result += std::to_string(it.second.vip_level); result += ",";
-                result += std::to_string(it.second.tianfu); result += ",";
-                result += std::to_string(it.second.jxds); result += ",";
-                result += std::to_string(it.second.dqds); result += ",";
-                result += std::to_string(it.second.dfds); result += ",";
-                result += std::to_string(it.second.touxian); result += ",";
-                result += "\""; result += it.second.gm; result += "\"},";
-            }
-            if (j > 10 || i == aaCenter.aa_rewards.size()) {
-                result += "}";
-                aaCenter.AA_StringReplaceLast(result, ",}", "}");
-                aaCenter.M_SendClientAddonData(player, prefix, result);
-                result = "{";
-                j = 0;
-            }
-        }
-    }
     else if (prefix == "21") {
         std::string result = "{";//{[id]="aa_spellid",[id]="aa_spellid"}
         int j = 0; size_t i = 0;
@@ -10439,10 +10335,98 @@ void AACenter::AA_ReceiveAddon(Player* player, std::string& prefix, std::string&
             aaCenter.M_SendAA_Conf(player, prefix);
         }
         else if (prefix == "19") { //获取needconf
-            aaCenter.M_SendAA_Conf(player, prefix);
+            if (msgs.size() < 1) { return; }
+            uint32 id = aaCenter.AA_StringUint32(msgs[0]);
+            std::string result = "{";//{[id]={1,"2",3}, [id]={1,3,"3"}}
+            AA_Need_Conf conf = aaCenter.aa_needs[id];
+            if (conf.id == 0) {
+                return;
+            }
+            if (conf.text != "") {
+                result += "["; result += std::to_string(conf.id); result += "]=\"";
+                result += conf.text; result += "\"}";
+            }
+            else {
+                result += "["; result += std::to_string(conf.id); result += "]={";
+                result += std::to_string(conf.level); result += ",";
+                result += std::to_string(conf.jxlevel); result += ",";
+                result += std::to_string(conf.dqlevel); result += ",";
+                result += std::to_string(conf.dflevel); result += ",";
+                result += std::to_string(conf.viplevel); result += ",";
+                result += std::to_string(conf.jifen_all); result += ",";
+                result += std::to_string(conf.money); result += ",";
+                result += std::to_string(conf.paodian); result += ",";
+                result += std::to_string(conf.mobi); result += ",";
+                result += std::to_string(conf.jifen); result += ",";
+                result += std::to_string(conf.battlecore); result += ",";
+                result += std::to_string(conf.honorcore); result += ",";
+                result += std::to_string(0); result += ",";
+                result += std::to_string(conf.deplete); result += ",";
+                result += "\""; result += conf.items; result += "\",";
+                result += std::to_string(conf.level_item_ItemLevel); result += ","; //物品ItemLevel
+                result += std::to_string(conf.level_item_Quality); result += ","; //物品Quality
+                result += std::to_string(conf.level_item_jd); result += ","; //物品鉴定等级
+                result += std::to_string(conf.level_item_qh); result += ","; //物品强化等级
+                result += std::to_string(conf.level_item_cz); result += ","; //物品成长等级
+                result += std::to_string(conf.level_item_jxsx); result += ","; //物品觉醒属性等级
+                result += std::to_string(conf.level_item_jxjn); result += ","; //物品觉醒技能等级
+                result += std::to_string(conf.level_pet_jh); result += ","; //宠物进化等级
+                result += std::to_string(conf.level_pet_qh); result += ","; //宠物强化等级
+                result += std::to_string(conf.level_pet_jx); result += ","; //宠物觉醒等级
+                result += "\""; result += conf.quests; result += "\",";
+                result += "\""; result += conf.achievements; result += "\",";
+                result += "\""; result += conf.spells; result += "\",";
+                result += "\""; result += conf.buffs; result += "\",";
+                result += std::to_string(conf.gender); result += ",";
+                result += std::to_string(conf.team); result += ",";
+                result += std::to_string(conf.race); result += ",";
+                result += std::to_string(conf.class1); result += ",";
+                result += std::to_string(conf.guild); result += ",";
+                result += std::to_string(conf.mapid); result += ",";
+                result += std::to_string(conf.areaid); result += ",";
+                result += std::to_string(conf.zoneid); result += "}}";
+            }
+            aaCenter.M_SendClientAddonData(player, prefix, result);
         }
         else if (prefix == "20") { //获取rewardconf
-            aaCenter.M_SendAA_Conf(player, prefix);
+            if (msgs.size() < 1) { return; }
+            uint32 id = aaCenter.AA_StringUint32(msgs[0]);
+            AA_Reward_Conf conf = aaCenter.aa_rewards[id];
+            if (conf.id == 0) {
+                return;
+            }
+            std::string result = "{";//{[id]="text",[id]="text"}
+            if (conf.text != "") {
+                result += "["; result += std::to_string(conf.id); result += "]=\"";
+                result += conf.text; result += "\"}";
+            }
+            else {
+                result += "["; result += std::to_string(conf.id); result += "]={";
+                result += std::to_string(conf.chance); result += ",";
+                result += std::to_string(conf.exp); result += ",";
+                result += std::to_string(conf.jxexp); result += ",";
+                result += std::to_string(conf.dqexp); result += ",";
+                result += std::to_string(conf.dfexp); result += ",";
+                result += std::to_string(conf.czexp); result += ",";
+                result += std::to_string(conf.money); result += ",";
+                result += std::to_string(conf.paodian); result += ",";
+                result += std::to_string(conf.mobi); result += ",";
+                result += std::to_string(conf.jifen); result += ",";
+                result += std::to_string(conf.battlecore); result += ",";
+                result += std::to_string(conf.honorcore); result += ",";
+                result += "\""; result += conf.items; result += "\",";
+                result += "\""; result += conf.spells; result += "\",";
+                result += "\""; result += conf.buffs; result += "\",";
+                result += std::to_string(conf.teleport_id); result += ",";
+                result += std::to_string(conf.vip_level); result += ",";
+                result += std::to_string(conf.tianfu); result += ",";
+                result += std::to_string(conf.jxds); result += ",";
+                result += std::to_string(conf.dqds); result += ",";
+                result += std::to_string(conf.dfds); result += ",";
+                result += std::to_string(conf.touxian); result += ",";
+                result += "\""; result += conf.gm; result += "\"}}";
+            }
+            aaCenter.M_SendClientAddonData(player, prefix, result);
         }
         else if (prefix == "21") { //获取符文物品
             aaCenter.M_SendAA_Conf(player, prefix);
