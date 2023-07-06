@@ -1350,6 +1350,9 @@ void GameObject::Update(uint32 diff)
             else if (!GetOwnerGUID().IsEmpty() || GetSpellId())
             {
                 SetRespawnTime(0);
+                if (GameObject* go = GetMap()->GetGameObject(GetOwnerGUID()))
+                    go->HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::InBase));
+
                 Delete();
                 return;
             }
@@ -2951,7 +2954,7 @@ void GameObject::Use(Unit* user)
                     if (defenderInteract && owner->GetGOInfo()->newflag.ReturnonDefenderInteract)
                     {
                         Delete();
-                        HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::InBase));
+                        owner->HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::InBase));
                         return;
                     }
                     else
@@ -2964,7 +2967,7 @@ void GameObject::Use(Unit* user)
                         if (result == SPELL_CAST_OK)
                         {
                             Delete();
-                            HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Taken));
+                            owner->HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Taken));
                             return;
                         }
                     }
@@ -4148,13 +4151,4 @@ SpellInfo const* GameObject::GetSpellForLock(Player const* player) const
     }
 
     return nullptr;
-}
-
-bool ForcedGameObjectDespawnDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
-{
-    if (GameObject* go = m_owner.GetMap()->GetGameObject(m_owner.GetOwnerGUID()))
-        go->HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::InBase));
-
-    m_owner.DespawnOrUnsummon(0s, m_respawnTimer);
-    return true;
 }

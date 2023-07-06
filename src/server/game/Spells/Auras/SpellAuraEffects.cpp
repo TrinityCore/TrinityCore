@@ -3303,13 +3303,8 @@ void AuraEffect::HandleAuraModEffectImmunity(AuraApplication const* aurApp, uint
         {
             gameObjectCaster->HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Dropped));
             if (gameObjectCaster->GetGoType() == GAMEOBJECT_TYPE_NEW_FLAG)
-            {
                 if (GameObject* droppedFlag = gameObjectCaster->SummonGameObject(gameObjectCaster->GetGOInfo()->newflag.FlagDrop, player->GetPosition(), QuaternionData::fromEulerAnglesZYX(player->GetOrientation(), 0.f, 0.f), Seconds(gameObjectCaster->GetGOInfo()->newflag.ExpireDuration / 1000), GO_SUMMON_TIMED_DESPAWN))
-                {
-                    droppedFlag->m_Events.AddEvent(new ForcedGameObjectDespawnDelayEvent(*droppedFlag, 0s), Milliseconds(gameObjectCaster->GetGOInfo()->newflag.ExpireDuration));
                     droppedFlag->SetOwnerGUID(gameObjectCaster->GetGUID());
-                }
-            }
         }
     }
 }
