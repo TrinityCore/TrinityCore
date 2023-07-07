@@ -18,6 +18,7 @@
 #include "WorldPacket.h"
 #include "Errors.h"
 #include "Log.h"
+#include "Util.h"
 #include "World.h"
 #include <zlib.h>
 
