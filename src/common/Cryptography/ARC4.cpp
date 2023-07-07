@@ -27,7 +27,7 @@ ARC4::ARC4(uint32 len) : _ctx(EVP_CIPHER_CTX_new())
 #endif
 
     EVP_CIPHER_CTX_init(_ctx);
-    EVP_EncryptInit_ex(_ctx, EVP_rc4(), nullptr, nullptr, nullptr);
+    EVP_EncryptInit_ex(_ctx, _cipher, nullptr, nullptr, nullptr);
     EVP_CIPHER_CTX_set_key_length(_ctx, len);
 }
 
@@ -40,7 +40,7 @@ ARC4::ARC4(uint8* seed, uint32 len) : _ctx(EVP_CIPHER_CTX_new())
 #endif
 
     EVP_CIPHER_CTX_init(_ctx);
-    EVP_EncryptInit_ex(_ctx, EVP_rc4(), nullptr, nullptr, nullptr);
+    EVP_EncryptInit_ex(_ctx, _cipher, nullptr, nullptr, nullptr);
     EVP_CIPHER_CTX_set_key_length(_ctx, len);
     EVP_EncryptInit_ex(_ctx, nullptr, nullptr, seed, nullptr);
 }
