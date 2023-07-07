@@ -20,20 +20,21 @@
 #include <cstring>
 #include <stdarg.h>
 
-SHA256Hash::SHA256Hash()
+SHA256Hash::SHA256Hash() : _ctx(EVP_MD_CTX_create())
 {
-    SHA256_Init(&mC);
+    EVP_DigestInit_ex(_ctx, EVP_sha256(), nullptr);
     memset(mDigest, 0, SHA256_DIGEST_LENGTH * sizeof(uint8));
 }
 
 SHA256Hash::~SHA256Hash()
 {
-    SHA256_Init(&mC);
+    EVP_MD_CTX_destroy(_ctx);
+    _ctx = nullptr;
 }
 
 void SHA256Hash::UpdateData(const uint8 *dta, int len)
 {
-    SHA256_Update(&mC, dta, len);
+    EVP_DigestUpdate(_ctx, dta, len);
 }
 
 void SHA256Hash::UpdateData(const std::string &str)
@@ -58,10 +59,12 @@ void SHA256Hash::UpdateBigNumbers(BigNumber* bn0, ...)
 
 void SHA256Hash::Initialize()
 {
-    SHA256_Init(&mC);
+    EVP_DigestInit_ex(_ctx, EVP_sha256(), nullptr);
 }
 
 void SHA256Hash::Finalize(void)
 {
-    SHA256_Final(mDigest, &mC);
+    uint32 length = SHA256_DIGEST_LENGTH;
+    EVP_DigestFinal_ex(_ctx, mDigest, &length);
+    ASSERT(length == SHA256_DIGEST_LENGTH);
 }
