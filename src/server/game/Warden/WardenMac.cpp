@@ -251,11 +251,13 @@ void WardenMac::HandleData(ByteBuffer &buff)
         //found = true;
     }
 
-    MD5_CTX ctx;
-    MD5_Init(&ctx);
-    MD5_Update(&ctx, str.c_str(), str.size());
+    EVP_MD_CTX* mdctx = EVP_MD_CTX_new();
+    EVP_DigestInit_ex(mdctx, EVP_md5(), nullptr);
+    EVP_DigestUpdate(mdctx, str.c_str(), str.size());
     uint8 ourMD5Hash[16];
-    MD5_Final(ourMD5Hash, &ctx);
+    uint32 mg5DigestLength = EVP_MD_size(EVP_md5());
+    EVP_DigestFinal_ex(mdctx, ourMD5Hash, &mg5DigestLength);
+    EVP_MD_CTX_free(mdctx);
 
     uint8 theirsMD5Hash[16];
     buff.read(theirsMD5Hash, 16);
