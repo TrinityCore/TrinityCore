@@ -17,6 +17,7 @@
 
 #include "SHA256.h"
 #include "BigNumber.h"
+#include "Errors.h"
 #include <cstring>
 #include <stdarg.h>
 
