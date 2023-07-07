@@ -675,7 +675,8 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
 
     if (!teleported)
     {
-        if (WorldSafeLocsEntry const* entranceLocation = player->GetInstanceEntrance(at->target_mapId))
+        WorldSafeLocsEntry const* entranceLocation = player->GetInstanceEntrance(at->target_mapId);
+        if (entranceLocation && player->GetMapId() != at->target_mapId)
             player->TeleportTo(entranceLocation->Loc, TELE_TO_NOT_LEAVE_TRANSPORT);
         else
             player->TeleportTo(at->target_mapId, at->target_X, at->target_Y, at->target_Z, at->target_Orientation, TELE_TO_NOT_LEAVE_TRANSPORT);

@@ -759,8 +759,11 @@ void AreaTrigger::DoActions(Unit* unit)
                         {
                             if (Player* player = caster->ToPlayer())
                             {
-                                if (WorldSafeLocsEntry const* instanceEntrance = player->GetInstanceEntrance(safeLoc->Loc.GetMapId()))
-                                    safeLoc = instanceEntrance;
+                                if (player->GetMapId() != safeLoc->Loc.GetMapId())
+                                {
+                                    if (WorldSafeLocsEntry const* instanceEntrance = player->GetInstanceEntrance(safeLoc->Loc.GetMapId()))
+                                        safeLoc = instanceEntrance;
+                                }
                                 player->TeleportTo(safeLoc->Loc);
                             }
                         }
