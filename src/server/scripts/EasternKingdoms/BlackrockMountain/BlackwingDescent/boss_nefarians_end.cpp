@@ -423,7 +423,7 @@ struct boss_nefarians_end : public BossAI
         if (events.IsInPhase(PHASE_TWO) && !_elevatorLowered)
             instance->SetData(DATA_RESET_ELEVATOR, events.GetTimeUntilEvent(EVENT_ELEVATOR_LOWERED));
         else if (GameObject* transport = GetElevator())
-            transport->SetGoState(GOState(GO_STATE_TRANSPORT_ACTIVE + TRANSPORT_STOP_FRAME_RAISED));
+            transport->SetGoState(GOState(GO_STATE_TRANSPORT_ACTIVE + AsUnderlyingType(TRANSPORT_STOP_FRAME_RAISED)));
 
         if (Creature* onyxia = instance->GetCreature(DATA_ONYXIA))
             if (onyxia->IsAlive())
@@ -891,7 +891,7 @@ private:
         events.ScheduleEvent(EVENT_SAY_PHASE_THREE, 14s + 700ms);
         events.ScheduleEvent(EVENT_PREPARE_LANDING, 15s + 500ms, 0, PHASE_THREE);
         if (GameObject* elevator = GetElevator())
-            elevator->SetGoState(GOState(GO_STATE_TRANSPORT_ACTIVE + TRANSPORT_STOP_FRAME_RAISED));
+            elevator->SetGoState(GOState(GO_STATE_TRANSPORT_ACTIVE + AsUnderlyingType(TRANSPORT_STOP_FRAME_RAISED)));
 
         for (ObjectGuid guid : summons)
         {
@@ -1118,7 +1118,7 @@ struct npc_nefarians_end_lord_victor_nefarius : public PassiveAI
                     break;
                 case EVENT_RAISE_ELEVATOR:
                     if (GameObject* elevator = _instance->GetGameObject(DATA_BLACKWING_ELEVATOR_ONYXIA))
-                        elevator->SetGoState(GOState(GO_STATE_TRANSPORT_ACTIVE + TRANSPORT_STOP_FRAME_RAISED));
+                        elevator->SetGoState(GOState(GO_STATE_TRANSPORT_ACTIVE + AsUnderlyingType(TRANSPORT_STOP_FRAME_RAISED)));
                     break;
                 case EVENT_CAST_TRANSFORM_VISUAL:
                     if (Creature* stalker = me->FindNearestCreature(NPC_INVISIBLE_STALKER_CATACLYSM_BOSS, 1.0f))
