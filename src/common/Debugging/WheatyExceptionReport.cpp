@@ -16,6 +16,18 @@
 #include <comdef.h>
 #include <WbemIdl.h>
 
+// @tswow-begin
+#include <filesystem>
+std::string pdb_paths = []() {
+    char filename[256];
+    // todo: unicode?
+    GetModuleFileName(nullptr, filename, 256);
+    std::filesystem::path binary_dir = std::filesystem::absolute(std::filesystem::path(filename).parent_path());
+    std::filesystem::path libraries_dir = std::filesystem::absolute(std::filesystem::current_path() / "lib" / binary_dir.filename());
+    return binary_dir.string() + ";" + libraries_dir.string();
+}();
+// @tswow-end
+
 #define CrashFolder _T("Crashes")
 #pragma comment(linker, "/DEFAULTLIB:dbghelp.lib")
 #pragma comment(linker, "/DEFAULTLIB:wbemuuid.lib")
@@ -718,7 +730,9 @@ PEXCEPTION_POINTERS pExceptionInfo)
         SymSetOptions(SYMOPT_DEFERRED_LOADS);
 
         // Initialize DbgHelp
-        if (!SymInitialize(GetCurrentProcess(), nullptr, TRUE))
+        // @tswow-begin add our pdb paths
+        if (!SymInitialize(GetCurrentProcess(), pdb_paths.c_str(), TRUE))
+        // @tswow-end
         {
             Log(_T("\r\n"));
             Log(_T("----\r\n"));
