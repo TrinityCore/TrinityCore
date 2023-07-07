@@ -5185,18 +5185,14 @@ void Spell::TakePower()
     }
 
     Powers powerType = Powers(m_spellInfo->PowerType);
-    bool hit = true;
     if (unitCaster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->HasAttribute(SPELL_ATTR1_DISCOUNT_POWER_ON_MISS))
     {
-        if (ObjectGuid targetGUID = m_targets.GetUnitTargetGUID())
+        ObjectGuid targetGUID = m_targets.GetUnitTargetGUID();
+        if (!targetGUID.IsEmpty())
         {
-            auto ihit = std::find_if(std::begin(m_UniqueTargetInfo), std::end(m_UniqueTargetInfo), [&](TargetInfo const& targetInfo)
-            {
-                return targetInfo.TargetGUID == targetGUID && targetInfo.MissCondition != SPELL_MISS_NONE;
-            });
+            auto ihit = std::find_if(std::begin(m_UniqueTargetInfo), std::end(m_UniqueTargetInfo), [&](TargetInfo const& targetInfo) { return targetInfo.TargetGUID == targetGUID && targetInfo.MissCondition != SPELL_MISS_NONE; });
             if (ihit != std::end(m_UniqueTargetInfo))
             {
-                hit = false;
                 //lower spell cost on fail (by talent aura)
                 if (Player* modOwner = unitCaster->GetSpellModOwner())
                     modOwner->ApplySpellMod(m_spellInfo->Id, SpellModOp::PowerCostOnMiss, m_powerCost);
