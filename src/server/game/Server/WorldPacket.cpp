@@ -25,7 +25,7 @@
 void WorldPacket::Compress(z_stream* compressionStream)
 {
     OpcodeServer uncompressedOpcode = OpcodeServer(GetOpcode());
-    if (uncompressedOpcode & COMPRESSED_OPCODE_MASK)
+    if (uncompressedOpcode & AsUnderlyingType(COMPRESSED_OPCODE_MASK))
     {
         TC_LOG_ERROR("network", "Packet with opcode 0x%04X is already compressed!", uncompressedOpcode);
         return;

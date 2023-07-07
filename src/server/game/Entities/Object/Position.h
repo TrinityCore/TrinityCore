@@ -58,9 +58,9 @@ private:
     float m_orientation;
 
 public:
-    bool operator==(Position const& a);
+    bool operator==(Position const& a) const;
 
-    inline bool operator!=(Position const& a)
+    inline bool operator!=(Position const& a) const
     {
         return !(operator==(a));
     }
