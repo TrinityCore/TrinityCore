@@ -174,18 +174,6 @@ uint8 const MpqToWowLocale[LOCALES_COUNT] =
     LOCALE_itIT
 };
 
-static char const* const LocalesT[LOCALES_COUNT] =
-{
-    "enGB", "enUS",
-    "deDE", "esES",
-    "frFR", "koKR",
-    "zhCN", "zhTW",
-    "enCN", "enTW",
-    "esMX", "ruRU",
-    "ptBR", "ptPT",
-    "itIT"
-};
-
 void CreateDir(boost::filesystem::path const& path)
 {
     namespace fs = boost::filesystem;
@@ -1262,19 +1250,19 @@ void ExtractCameraFiles()
 
 bool LoadLocaleMPQFile(int locale)
 {
-    std::string fileName = Trinity::StringFormat("%s/Data/%s/locale-%s.MPQ", input_path.string(), LocalesT[locale], LocalesT[locale]);
+    std::string fileName = Trinity::StringFormat("%s/Data/%s/locale-%s.MPQ", input_path.string(), Locales[locale], Locales[locale]);
 
     if (!SFileOpenArchive(fileName.c_str(), 0, MPQ_OPEN_READ_ONLY, &LocaleMpq))
     {
         if (GetLastError() != ERROR_PATH_NOT_FOUND)
         {
-            printf("\nLoading %s locale MPQs\n", LocalesT[locale]);
+            printf("\nLoading %s locale MPQs\n", Locales[locale]);
             printf("Cannot open archive %s\n", fileName.c_str());
         }
         return false;
     }
 
-    printf("\nLoading %s locale MPQs\n", LocalesT[locale]);
+    printf("\nLoading %s locale MPQs\n", Locales[locale]);
     char const* prefix = nullptr;
     for (int i = 0; Builds[i] && Builds[i] <= CLIENT_BUILD; ++i)
     {
@@ -1288,7 +1276,7 @@ bool LoadLocaleMPQFile(int locale)
         if (Builds[i] > LAST_DBC_IN_DATA_BUILD)
         {
             prefix = "";
-            fileName = Trinity::StringFormat("%s/Data/%s/wow-update-%s-%u.MPQ", input_path.string(), LocalesT[locale], LocalesT[locale], Builds[i]);
+            fileName = Trinity::StringFormat("%s/Data/%s/wow-update-%s-%u.MPQ", input_path.string(), Locales[locale], Locales[locale], Builds[i]);
         }
         else
         {
