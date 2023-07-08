@@ -38,11 +38,11 @@ class spell_azerite_gen_aura_calc_from_2nd_effect_triggered_spell : public AuraS
     {
         if (Unit* caster = GetCaster())
         {
-            if (AuraEffect const* trait = caster->GetAuraEffect(GetEffectInfo(EFFECT_1).TriggerSpell, EFFECT_0))
-            {
-                amount = trait->GetAmount();
-                canBeRecalculated = false;
-            }
+            amount = 0;
+            canBeRecalculated = false;
+            for (auto const& [_, aurApp] : Trinity::Containers::MapEqualRange(caster->GetAppliedAuras(), GetEffectInfo(EFFECT_1).TriggerSpell))
+                if (aurApp->HasEffect(EFFECT_0))
+                    amount += aurApp->GetBase()->GetEffect(EFFECT_0)->GetAmount();
         }
     }
 
@@ -271,6 +271,42 @@ class spell_item_trample_the_weak : public AuraScript
     {
         DoCheckEffectProc += AuraCheckEffectProcFn(spell_item_trample_the_weak::CheckHealthPct, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
+};
+
+// 272892 - Wracking Brilliance
+class spell_item_wracking_brilliance : public AuraScript
+{
+    PrepareAuraScript(spell_item_wracking_brilliance);
+
+    enum
+    {
+        SPELL_AGONY_SOUL_SHARD_GAIN = 210067
+    };
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_AGONY_SOUL_SHARD_GAIN });
+    }
+
+    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+        if (!spellInfo)
+            return false;
+
+        if (spellInfo->Id != SPELL_AGONY_SOUL_SHARD_GAIN)
+            return false;
+
+        _canTrigger = !_canTrigger; // every other soul shard gain
+        return _canTrigger;
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_item_wracking_brilliance::CheckProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+
+    bool _canTrigger = true;
 };
 
 enum OrbitalPrecision
@@ -635,6 +671,7 @@ void AddSC_azerite_item_spell_scripts()
     RegisterSpellScript(spell_item_bracing_chill_proc);
     RegisterSpellScript(spell_item_bracing_chill_search_jump_target);
     RegisterSpellScript(spell_item_trample_the_weak);
+    RegisterSpellScript(spell_item_wracking_brilliance);
     RegisterSpellScript(spell_item_orbital_precision);
     RegisterSpellScript(spell_item_blur_of_talons);
     RegisterSpellScript(spell_item_divine_right);

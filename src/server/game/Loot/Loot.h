@@ -305,6 +305,7 @@ struct TC_GAME_API Loot
     void SetDungeonEncounterId(uint32 dungeonEncounterId) { _dungeonEncounterId = dungeonEncounterId; }
 
     bool isLooted() const { return gold == 0 && unlootedCount == 0; }
+    bool IsChanged() const { return _changed; }
 
     void NotifyLootList(Map const* map) const;
     void NotifyItemRemoved(uint8 lootListId, Map const* map);
@@ -324,6 +325,7 @@ struct TC_GAME_API Loot
 
     bool AutoStore(Player* player, uint8 bag, uint8 slot, bool broadcast = false, bool createdByPlayer = false);
 
+    void LootMoney();
     LootItem const* GetItemInSlot(uint32 lootListId) const;
     LootItem* LootItemInSlot(uint32 lootListId, Player const* player, NotNormalLootItem** ffaItem = nullptr);
     bool hasItemForAll() const;
@@ -348,6 +350,7 @@ private:
     ObjectGuid _lootMaster;
     GuidUnorderedSet _allowedLooters;
     bool _wasOpened;                                                // true if at least one player received the loot content
+    bool _changed;
     uint32 _dungeonEncounterId;
 };
 

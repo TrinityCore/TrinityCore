@@ -303,7 +303,7 @@ SpellNonMeleeDamage::SpellNonMeleeDamage(Unit* _attacker, Unit* _target, SpellIn
 
 Unit::Unit(bool isWorldObject) :
     WorldObject(isWorldObject), m_lastSanctuaryTime(0), LastCharmerGUID(), movespline(new Movement::MoveSpline()),
-    m_ControlledByPlayer(false), m_procDeep(0), m_transformSpell(0),
+    m_ControlledByPlayer(false), m_procDeep(0), m_procChainLength(0), m_transformSpell(0),
     m_removedAurasCount(0), m_interruptMask(SpellAuraInterruptFlags::None), m_interruptMask2(SpellAuraInterruptFlags2::None),
     m_unitMovedByMe(nullptr), m_playerMovingMe(nullptr), m_charmer(nullptr), m_charmed(nullptr),
     i_motionMaster(new MotionMaster(this)), m_regenTimer(0), m_vehicle(nullptr),
@@ -762,6 +762,14 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
         damage *= attacker->GetDamageMultiplierForTarget(victim);
 }
 
+/*static*/ AuraEffectVector Unit::CopyAuraEffectList(Unit::AuraEffectList const& list)
+{
+    AuraEffectVector effects;
+    effects.resize(list.size());
+    std::copy(list.begin(), list.end(), effects.begin());
+    return effects;
+}
+
 /*static*/ uint32 Unit::DealDamage(Unit* attacker, Unit* victim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellInfo const* spellProto, bool durabilityLoss)
 {
     uint32 damageDone = damage;
@@ -830,9 +838,9 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
 
         // We're going to call functions which can modify content of the list during iteration over it's elements
         // Let's copy the list so we can prevent iterator invalidation
-        AuraEffectList vCopyDamageCopy(victim->GetAuraEffectsByType(SPELL_AURA_SHARE_DAMAGE_PCT));
+        AuraEffectVector vCopyDamageCopy = CopyAuraEffectList(victim->GetAuraEffectsByType(SPELL_AURA_SHARE_DAMAGE_PCT));
         // copy damage to casters of this aura
-        for (AuraEffectList::iterator i = vCopyDamageCopy.begin(); i != vCopyDamageCopy.end(); ++i)
+        for (auto i = vCopyDamageCopy.begin(); i != vCopyDamageCopy.end(); ++i)
         {
             // Check if aura was removed during iteration - we don't need to work on such auras
             if (!((*i)->GetBase()->IsAppliedOnTarget(victim->GetGUID())))
@@ -941,7 +949,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
 
         if (damagetype != NODAMAGE && damagetype != SELF_DAMAGE && victim->HasAuraType(SPELL_AURA_SCHOOL_ABSORB_OVERKILL))
         {
-            AuraEffectList vAbsorbOverkill = victim->GetAuraEffectsByType(SPELL_AURA_SCHOOL_ABSORB_OVERKILL);
+            AuraEffectVector vAbsorbOverkill = CopyAuraEffectList(victim->GetAuraEffectsByType(SPELL_AURA_SCHOOL_ABSORB_OVERKILL));
             DamageInfo damageInfo = DamageInfo(attacker, victim, damageTaken, spellProto, damageSchoolMask, damagetype,
                 cleanDamage ? cleanDamage->attackType : BASE_ATTACK);
             for (AuraEffect* absorbAurEff : vAbsorbOverkill)
@@ -1535,7 +1543,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
     {
         // We're going to call functions which can modify content of the list during iteration over it's elements
         // Let's copy the list so we can prevent iterator invalidation
-        AuraEffectList vDamageShieldsCopy(victim->GetAuraEffectsByType(SPELL_AURA_DAMAGE_SHIELD));
+        AuraEffectVector vDamageShieldsCopy = CopyAuraEffectList(victim->GetAuraEffectsByType(SPELL_AURA_DAMAGE_SHIELD));
         for (AuraEffect const* aurEff : vDamageShieldsCopy)
         {
             SpellInfo const* spellInfo = aurEff->GetSpellInfo();
@@ -1807,11 +1815,11 @@ void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinit
 
     // We're going to call functions which can modify content of the list during iteration over it's elements
     // Let's copy the list so we can prevent iterator invalidation
-    AuraEffectList vSchoolAbsorbCopy(damageInfo.GetVictim()->GetAuraEffectsByType(SPELL_AURA_SCHOOL_ABSORB));
-    vSchoolAbsorbCopy.sort(Trinity::AbsorbAuraOrderPred());
+    AuraEffectVector vSchoolAbsorbCopy = CopyAuraEffectList(damageInfo.GetVictim()->GetAuraEffectsByType(SPELL_AURA_SCHOOL_ABSORB));
+    std::sort(vSchoolAbsorbCopy.begin(), vSchoolAbsorbCopy.end(), Trinity::AbsorbAuraOrderPred());
 
     // absorb without mana cost
-    for (AuraEffectList::iterator itr = vSchoolAbsorbCopy.begin(); (itr != vSchoolAbsorbCopy.end()) && (damageInfo.GetDamage() > 0); ++itr)
+    for (auto itr = vSchoolAbsorbCopy.begin(); (itr != vSchoolAbsorbCopy.end()) && (damageInfo.GetDamage() > 0); ++itr)
     {
         AuraEffect* absorbAurEff = *itr;
         // Check if aura was removed during iteration - we don't need to work on such auras
@@ -1877,8 +1885,8 @@ void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinit
     }
 
     // absorb by mana cost
-    AuraEffectList vManaShieldCopy(damageInfo.GetVictim()->GetAuraEffectsByType(SPELL_AURA_MANA_SHIELD));
-    for (AuraEffectList::const_iterator itr = vManaShieldCopy.begin(); (itr != vManaShieldCopy.end()) && (damageInfo.GetDamage() > 0); ++itr)
+    AuraEffectVector vManaShieldCopy = CopyAuraEffectList(damageInfo.GetVictim()->GetAuraEffectsByType(SPELL_AURA_MANA_SHIELD));
+    for (auto itr = vManaShieldCopy.begin(); (itr != vManaShieldCopy.end()) && (damageInfo.GetDamage() > 0); ++itr)
     {
         AuraEffect* absorbAurEff = *itr;
         // Check if aura was removed during iteration - we don't need to work on such auras
@@ -1958,8 +1966,8 @@ void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinit
     {
         // We're going to call functions which can modify content of the list during iteration over it's elements
         // Let's copy the list so we can prevent iterator invalidation
-        AuraEffectList vSplitDamagePctCopy(damageInfo.GetVictim()->GetAuraEffectsByType(SPELL_AURA_SPLIT_DAMAGE_PCT));
-        for (AuraEffectList::iterator itr = vSplitDamagePctCopy.begin(); itr != vSplitDamagePctCopy.end() && damageInfo.GetDamage() > 0; ++itr)
+        AuraEffectVector vSplitDamagePctCopy = CopyAuraEffectList(damageInfo.GetVictim()->GetAuraEffectsByType(SPELL_AURA_SPLIT_DAMAGE_PCT));
+        for (auto itr = vSplitDamagePctCopy.begin(); itr != vSplitDamagePctCopy.end() && damageInfo.GetDamage() > 0; ++itr)
         {
             // Check if aura was removed during iteration - we don't need to work on such auras
             AuraApplication const* aurApp = (*itr)->GetBase()->GetApplicationOfTarget(damageInfo.GetVictim()->GetGUID());
@@ -2020,12 +2028,8 @@ void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinit
     if (!healInfo.GetHeal())
         return;
 
-    // Need remove expired auras after
-    bool existExpired = false;
-
-    // absorb without mana cost
-    AuraEffectList const& vHealAbsorb = healInfo.GetTarget()->GetAuraEffectsByType(SPELL_AURA_SCHOOL_HEAL_ABSORB);
-    for (AuraEffectList::const_iterator i = vHealAbsorb.begin(); i != vHealAbsorb.end() && healInfo.GetHeal() > 0; ++i)
+    AuraEffectVector vHealAbsorb = CopyAuraEffectList(healInfo.GetTarget()->GetAuraEffectsByType(SPELL_AURA_SCHOOL_HEAL_ABSORB));
+    for (auto i = vHealAbsorb.begin(); i != vHealAbsorb.end() && healInfo.GetHeal() > 0; ++i)
     {
         AuraEffect* absorbAurEff = *i;
         // Check if aura was removed during iteration - we don't need to work on such auras
@@ -2065,7 +2069,7 @@ void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinit
                 absorbAurEff->ChangeAmount(absorbAurEff->GetAmount() - currentAbsorb);
                 // Aura cannot absorb anything more - remove it
                 if (absorbAurEff->GetAmount() <= 0)
-                    existExpired = true;
+                    absorbAurEff->GetBase()->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
             }
         }
 
@@ -2080,23 +2084,6 @@ void Unit::HandleEmoteCommand(Emote emoteId, Player* target /*=nullptr*/, Trinit
             absorbLog.Absorbed = currentAbsorb;
             absorbLog.OriginalHeal = healInfo.GetOriginalHeal();
             healInfo.GetTarget()->SendMessageToSet(absorbLog.Write(), true);
-        }
-    }
-
-    // Remove all expired absorb auras
-    if (existExpired)
-    {
-        for (AuraEffectList::const_iterator i = vHealAbsorb.begin(); i != vHealAbsorb.end();)
-        {
-            AuraEffect* auraEff = *i;
-            ++i;
-            if (auraEff->GetAmount() <= 0)
-            {
-                uint32 removedAuras = healInfo.GetTarget()->m_removedAurasCount;
-                auraEff->GetBase()->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
-                if (removedAuras + 1 < healInfo.GetTarget()->m_removedAurasCount)
-                    i = vHealAbsorb.begin();
-            }
         }
     }
 }
@@ -2136,15 +2123,11 @@ void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extr
         victim = GetMeleeHitRedirectTarget(victim);
 
         AuraEffectList const& meleeAttackOverrides = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_AUTOATTACK_WITH_MELEE_SPELL);
-        AuraEffect const* meleeAttackAuraEffect = nullptr;
         uint32 meleeAttackSpellId = 0;
         if (attType == BASE_ATTACK)
         {
             if (!meleeAttackOverrides.empty())
-            {
-                meleeAttackAuraEffect = meleeAttackOverrides.front();
-                meleeAttackSpellId = meleeAttackAuraEffect->GetSpellEffectInfo().TriggerSpell;
-            }
+                meleeAttackSpellId = meleeAttackOverrides.front()->GetSpellEffectInfo().TriggerSpell;
         }
         else
         {
@@ -2153,13 +2136,10 @@ void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extr
                 return aurEff->GetSpellEffectInfo().MiscValue != 0;
             });
             if (itr != meleeAttackOverrides.end())
-            {
-                meleeAttackAuraEffect = *itr;
-                meleeAttackSpellId = meleeAttackAuraEffect->GetSpellEffectInfo().MiscValue;
-            }
+                meleeAttackSpellId = (*itr)->GetSpellEffectInfo().MiscValue;
         }
 
-        if (!meleeAttackAuraEffect)
+        if (!meleeAttackSpellId)
         {
             CalcDamageInfo damageInfo;
             CalculateMeleeDamage(victim, &damageInfo, attType);
@@ -2187,7 +2167,7 @@ void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extr
         }
         else
         {
-            CastSpell(victim, meleeAttackSpellId, meleeAttackAuraEffect);
+            CastSpell(victim, meleeAttackSpellId, true);
 
             uint32 hitInfo = HITINFO_AFFECTS_VICTIM | HITINFO_NO_ANIMATION;
             if (attType == OFF_ATTACK)
@@ -5333,6 +5313,13 @@ void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage const* log)
                                          ProcFlagsSpellType spellTypeMask, ProcFlagsSpellPhase spellPhaseMask, ProcFlagsHit hitMask,
                                          Spell* spell, DamageInfo* damageInfo, HealInfo* healInfo)
 {
+    static constexpr int32 ProcChainHardLimit = 10;
+    if (spell && spell->GetProcChainLength() >= ProcChainHardLimit)
+    {
+        TC_LOG_ERROR("spells.aura.effect", "Unit::ProcSkillsAndAuras: Possible infinite proc loop detected, current triggering spell {}", spell->GetDebugInfo().c_str());
+        return;
+    }
+
     WeaponAttackType attType = damageInfo ? damageInfo->GetAttackType() : BASE_ATTACK;
     if (typeMaskActor && actor)
         actor->ProcSkillsAndReactives(false, actionTarget, typeMaskActor, hitMask, attType);
@@ -7912,7 +7899,7 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
 
 void Unit::UpdateMountCapability()
 {
-    AuraEffectList mounts = GetAuraEffectsByType(SPELL_AURA_MOUNTED);
+    AuraEffectVector mounts = CopyAuraEffectList(GetAuraEffectsByType(SPELL_AURA_MOUNTED));
     for (AuraEffect* aurEff : mounts)
     {
         aurEff->RecalculateAmount();
@@ -8094,7 +8081,7 @@ void Unit::TriggerOnHealthChangeAuras(uint64 oldVal, uint64 newVal)
     if (!HasAuraType(SPELL_AURA_TRIGGER_SPELL_ON_HEALTH_PCT))
         return;
 
-    AuraEffectList effects = GetAuraEffectsByType(SPELL_AURA_TRIGGER_SPELL_ON_HEALTH_PCT);
+    AuraEffectVector effects = CopyAuraEffectList(GetAuraEffectsByType(SPELL_AURA_TRIGGER_SPELL_ON_HEALTH_PCT));
     for (AuraEffect const* effect : effects)
     {
         uint32 triggerHealthPct = effect->GetAmount();
@@ -9284,44 +9271,46 @@ void Unit::SetMaxPower(Powers power, int32 val)
 
 void Unit::TriggerOnPowerChangeAuras(Powers power, int32 oldVal, int32 newVal)
 {
-    AuraEffectList effects       = GetAuraEffectsByType(SPELL_AURA_TRIGGER_SPELL_ON_POWER_PCT);
-    AuraEffectList effectsAmount = GetAuraEffectsByType(SPELL_AURA_TRIGGER_SPELL_ON_POWER_AMOUNT);
-    effects.splice(effects.end(), effectsAmount);
-
-    for (AuraEffect const* effect : effects)
+    auto processAuras = [&](AuraEffectVector const& effects)
     {
-        if (effect->GetMiscValue() == power)
+        for (AuraEffect const* effect : effects)
         {
-            uint32 effectAmount = effect->GetAmount();
-            uint32 triggerSpell = effect->GetSpellEffectInfo().TriggerSpell;
-
-            float oldValueCheck = oldVal;
-            float newValueCheck = newVal;
-
-            if (effect->GetAuraType() == SPELL_AURA_TRIGGER_SPELL_ON_POWER_PCT)
+            if (effect->GetMiscValue() == power)
             {
-                int32 maxPower = GetMaxPower(power);
-                oldValueCheck = GetPctOf(oldVal, maxPower);
-                newValueCheck = GetPctOf(newVal, maxPower);
-            }
+                uint32 effectAmount = effect->GetAmount();
+                uint32 triggerSpell = effect->GetSpellEffectInfo().TriggerSpell;
 
-            switch (AuraTriggerOnPowerChangeDirection(effect->GetMiscValueB()))
-            {
-                case AuraTriggerOnPowerChangeDirection::Gain:
-                    if (oldValueCheck >= effect->GetAmount() || newValueCheck < effectAmount)
-                        continue;
-                    break;
-                case AuraTriggerOnPowerChangeDirection::Loss:
-                    if (oldValueCheck <= effect->GetAmount() || newValueCheck > effectAmount)
-                        continue;
-                    break;
-                default:
-                    break;
-            }
+                float oldValueCheck = oldVal;
+                float newValueCheck = newVal;
 
-            CastSpell(this, triggerSpell, effect);
+                if (effect->GetAuraType() == SPELL_AURA_TRIGGER_SPELL_ON_POWER_PCT)
+                {
+                    int32 maxPower = GetMaxPower(power);
+                    oldValueCheck = GetPctOf(oldVal, maxPower);
+                    newValueCheck = GetPctOf(newVal, maxPower);
+                }
+
+                switch (AuraTriggerOnPowerChangeDirection(effect->GetMiscValueB()))
+                {
+                    case AuraTriggerOnPowerChangeDirection::Gain:
+                        if (oldValueCheck >= effect->GetAmount() || newValueCheck < effectAmount)
+                            continue;
+                        break;
+                    case AuraTriggerOnPowerChangeDirection::Loss:
+                        if (oldValueCheck <= effect->GetAmount() || newValueCheck > effectAmount)
+                            continue;
+                        break;
+                    default:
+                        break;
+                }
+
+                CastSpell(this, triggerSpell, effect);
+            }
         }
-    }
+    };
+
+    processAuras(CopyAuraEffectList(GetAuraEffectsByType(SPELL_AURA_TRIGGER_SPELL_ON_POWER_PCT)));
+    processAuras(CopyAuraEffectList(GetAuraEffectsByType(SPELL_AURA_TRIGGER_SPELL_ON_POWER_AMOUNT)));
 }
 
 void Unit::AIUpdateTick(uint32 diff)
@@ -10031,6 +10020,9 @@ void Unit::TriggerAurasProcOnEvent(ProcEventInfo& eventInfo, AuraApplicationProc
 {
     Spell const* triggeringSpell = eventInfo.GetProcSpell();
     bool const disableProcs = triggeringSpell && triggeringSpell->IsProcDisabled();
+
+    int32 oldProcChainLength = std::exchange(m_procChainLength, std::max(m_procChainLength + 1, triggeringSpell ? triggeringSpell->GetProcChainLength() : 0));
+
     if (disableProcs)
         SetCantProc(true);
 
@@ -10044,6 +10036,8 @@ void Unit::TriggerAurasProcOnEvent(ProcEventInfo& eventInfo, AuraApplicationProc
 
     if (disableProcs)
         SetCantProc(false);
+
+    m_procChainLength = oldProcChainLength;
 }
 
 ///----------Pet responses methods-----------------

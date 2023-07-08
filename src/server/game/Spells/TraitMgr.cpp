@@ -392,7 +392,7 @@ void FillOwnedCurrenciesMap(WorldPackets::Traits::TraitConfig const& traitConfig
                     currencies[currency->ID] += player.GetCurrencyQuantity(currency->CurrencyTypesID);
                     break;
                 case TraitCurrencyType::TraitSourced:
-                    if (std::vector<TraitCurrencySourceEntry const*>* currencySources = Trinity::Containers::MapGetValuePtr(_traitCurrencySourcesByCurrency, currency->ID))
+                    if (std::vector<TraitCurrencySourceEntry const*> const* currencySources = Trinity::Containers::MapGetValuePtr(_traitCurrencySourcesByCurrency, currency->ID))
                     {
                         for (TraitCurrencySourceEntry const* currencySource : *currencySources)
                         {
@@ -667,7 +667,6 @@ LearnResult ValidateConfig(WorldPackets::Traits::TraitConfig const& traitConfig,
         int32* grantedCount = Trinity::Containers::MapGetValuePtr(grantedCurrencies, traitCurrencyId);
         if (!grantedCount || *grantedCount < spentAmount)
             return LearnResult::NotEnoughTalentsInPrimaryTree;
-
     }
 
     if (requireSpendingAllCurrencies && traitConfig.Type == TraitConfigType::Combat)

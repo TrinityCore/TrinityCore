@@ -1210,19 +1210,21 @@ void GameObject::Update(uint32 diff)
                     break;
                 case GAMEOBJECT_TYPE_CHEST:
                     if (m_loot)
+                    {
                         m_loot->Update();
+
+                        // Non-consumable chest was partially looted and restock time passed, restock all loot now
+                        if (GetGOInfo()->chest.consumable == 0 && GetGOInfo()->chest.chestRestockTime && GameTime::GetGameTime() >= m_restockTime)
+                        {
+                            m_restockTime = 0;
+                            m_lootState = GO_READY;
+                            ClearLoot();
+                            UpdateDynamicFlagsForNearbyPlayers();
+                        }
+                    }
 
                     for (auto&& [playerOwner, loot] : m_personalLoot)
                         loot->Update();
-
-                    // Non-consumable chest was partially looted and restock time passed, restock all loot now
-                    if (GetGOInfo()->chest.consumable == 0 && GetGOInfo()->chest.chestRestockTime && GameTime::GetGameTime() >= m_restockTime)
-                    {
-                        m_restockTime = 0;
-                        m_lootState = GO_READY;
-                        ClearLoot();
-                        UpdateDynamicFlagsForNearbyPlayers();
-                    }
                     break;
                 case GAMEOBJECT_TYPE_TRAP:
                 {
@@ -3310,7 +3312,7 @@ void GameObject::SetLootState(LootState state, Unit* unit)
     AI()->OnLootStateChanged(state, unit);
 
     // Start restock timer if the chest is partially looted or not looted at all
-    if (GetGoType() == GAMEOBJECT_TYPE_CHEST && state == GO_ACTIVATED && GetGOInfo()->chest.chestRestockTime > 0 && m_restockTime == 0)
+    if (GetGoType() == GAMEOBJECT_TYPE_CHEST && state == GO_ACTIVATED && GetGOInfo()->chest.chestRestockTime > 0 && m_restockTime == 0 && m_loot && m_loot->IsChanged())
         m_restockTime = GameTime::GetGameTime() + GetGOInfo()->chest.chestRestockTime;
 
     if (GetGoType() == GAMEOBJECT_TYPE_DOOR) // only set collision for doors on SetGoState

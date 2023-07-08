@@ -64,6 +64,8 @@ void Conversation::RemoveFromWorld()
 
 void Conversation::Update(uint32 diff)
 {
+    sScriptMgr->OnConversationUpdate(this, diff);
+
     if (GetDuration() > Milliseconds(diff))
     {
         _duration -= Milliseconds(diff);
@@ -195,6 +197,7 @@ void Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
         lineField.UiCameraID = line->UiCameraID;
         lineField.ActorIndex = line->ActorIdx;
         lineField.Flags = line->Flags;
+        lineField.ChatType = line->ChatType;
 
         ConversationLineEntry const* convoLine = sConversationLineStore.LookupEntry(line->Id); // never null for conversationTemplate->Lines
 
@@ -239,6 +242,7 @@ bool Conversation::Start()
     if (!GetMap()->AddToMap(this))
         return false;
 
+    sScriptMgr->OnConversationStart(this);
     return true;
 }
 
