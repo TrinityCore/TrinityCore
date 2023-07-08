@@ -238,7 +238,7 @@ bool ArchaeologyMgr::isSiteValid(SiteData* sites, uint16 entry)
     return true;
 }
 
-uint16 ArchaeologyMgr::GetNewSite(Continent continent, SiteData* sites, bool extended, uint32 playerLevel)
+uint16 ArchaeologyMgr::GetNewSite(Continent continent, std::array<SiteData, 16>& sites, bool extended, uint32 playerLevel)
 {
     std::vector<SiteEntry>* siteList;
     uint32 offset = continent* CONTINENT_SITES;
