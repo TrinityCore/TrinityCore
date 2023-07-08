@@ -21,6 +21,7 @@
 #include "Log.h"
 #include "Timer.h"
 #include <openssl/md5.h>
+#include <openssl/hmac.h>
 
 namespace AddonMgr
 {
@@ -35,6 +36,22 @@ namespace
     SavedAddonsList m_knownAddons;
 
     BannedAddonList m_bannedAddons;
+}
+
+void MakeMD5(uint8 const* buf, uint32 length, uint8* md)
+{
+    EVP_MD_CTX* mdctx;
+
+    // MD5_Init
+    mdctx = EVP_MD_CTX_new();
+    EVP_DigestInit_ex(mdctx, EVP_md5(), nullptr);
+
+    // MD5_Update
+    EVP_DigestUpdate(mdctx, buf, length);
+
+    // MD5_Final
+    EVP_DigestFinal_ex(mdctx, md, &length);
+    EVP_MD_CTX_free(mdctx);
 }
 
 void LoadFromDB()
@@ -82,8 +99,8 @@ void LoadFromDB()
             std::string name = fields[1].GetString();
             std::string version = fields[2].GetString();
 
-            MD5(reinterpret_cast<uint8 const*>(name.c_str()), name.length(), addon.NameMD5);
-            MD5(reinterpret_cast<uint8 const*>(version.c_str()), version.length(), addon.VersionMD5);
+            MakeMD5(reinterpret_cast<uint8 const*>(name.c_str()), name.length(), addon.NameMD5);
+            MakeMD5(reinterpret_cast<uint8 const*>(version.c_str()), version.length(), addon.VersionMD5);
 
             m_bannedAddons.push_back(addon);
 
