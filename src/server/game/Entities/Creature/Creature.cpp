@@ -276,8 +276,7 @@ m_formation(nullptr), m_triggerJustAppeared(true), m_respawnCompatibilityMode(fa
 {
     m_valuesCount = UNIT_END;
 
-    for (uint8 i = 0; i < MAX_CREATURE_SPELLS; ++i)
-        m_spells[i] = 0;
+    m_spells = { };
 
     DisableReputationGain = false;
 

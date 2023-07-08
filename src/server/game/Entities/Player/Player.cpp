@@ -184,9 +184,7 @@ Player::Player(WorldSession* session): Unit(true)
 
     m_nextSave = sWorld->getIntConfig(CONFIG_INTERVAL_SAVE);
 
-    _resurrectionData = nullptr;
-
-    memset(m_items, 0, sizeof(Item*)*PLAYER_SLOTS_COUNT);
+    m_items.fill(nullptr);
 
     m_social = nullptr;
 
@@ -216,21 +214,17 @@ Player::Player(WorldSession* session): Unit(true)
     m_cinematic = 0;
     m_movie = 0;
 
-    PlayerTalkClass = new PlayerMenu(GetSession());
+    PlayerTalkClass = std::make_unique<PlayerMenu>(GetSession());
     m_currentBuybackSlot = BUYBACK_SLOT_START;
 
     m_DailyQuestChanged = false;
     m_lastDailyQuestTime = 0;
 
     // Init rune flags
-    for (uint8 i = 0; i < MAX_RUNES; ++i)
-    {
-        SetRuneTimer(i, 0xFFFFFFFF);
-        SetLastRuneGraceTimer(i, 0);
-    }
+    m_runeGraceCooldown.fill(0xFFFFFFFF);
+    m_lastRuneGraceTimers = { };
 
-    for (uint8 i=0; i < MAX_TIMERS; i++)
-        m_MirrorTimer[i] = DISABLED_MIRROR_TIMER;
+    m_MirrorTimer.fill(DISABLED_MIRROR_TIMER);
 
     m_MirrorTimerFlags = UNDERWATER_NONE;
     m_MirrorTimerFlagsLast = UNDERWATER_NONE;
@@ -249,8 +243,7 @@ Player::Player(WorldSession* session): Unit(true)
 
     m_logintime = GameTime::GetGameTime();
     m_Last_tick = m_logintime;
-    m_Played_time[PLAYED_TIME_TOTAL] = 0;
-    m_Played_time[PLAYED_TIME_LEVEL] = 0;
+    m_Played_time = { };
     m_WeaponProficiency = 0;
     m_ArmorProficiency = 0;
     m_canParry = false;
@@ -289,16 +282,12 @@ Player::Player(WorldSession* session): Unit(true)
     m_raidMapDifficulty = RAID_DIFFICULTY_10MAN_NORMAL;
 
     m_lastPotionId = 0;
-    _talentMgr = new PlayerTalentInfo();
+    _talentMgr = std::make_unique<PlayerTalentInfo>();
 
-    for (uint8 i = 0; i < BASEMOD_END; ++i)
-    {
-        m_auraBaseFlatMod[i] = 0.0f;
-        m_auraBasePctMod[i] = 1.0f;
-    }
+    m_auraBaseFlatMod.fill(0.0f);
+    m_auraBasePctMod.fill(1.0f);
 
-    for (uint8 i = 0; i < MAX_COMBAT_RATING; i++)
-        m_baseRatingValue[i] = 0;
+    m_baseRatingValue = { };
 
     m_baseSpellPower = 0;
     m_baseManaRegen = 0;
@@ -318,7 +307,6 @@ Player::Player(WorldSession* session): Unit(true)
 
     m_seer = this;
 
-
     m_homebindMapId = 0;
     m_homebindAreaId = 0;
     m_homebindX = 0;
@@ -327,11 +315,7 @@ Player::Player(WorldSession* session): Unit(true)
 
     m_contestedPvPTimer = 0;
 
-    m_declinedname = nullptr;
-
     m_isActive = true;
-
-    m_runes = nullptr;
 
     m_lastFallTime = 0;
     m_lastFallZ = 0;
@@ -363,14 +347,13 @@ Player::Player(WorldSession* session): Unit(true)
 
     _maxPersonalArenaRate = 0;
 
-    memset(_voidStorageItems, 0, VOID_STORAGE_MAX_SLOT * sizeof(VoidStorageItem*));
+    _voidStorageItems.fill(nullptr);
 
-    _cinematicMgr = new CinematicMgr(this);
-
-    m_achievementMgr = new AchievementMgr<Player>(this);
-    m_reputationMgr = new ReputationMgr(this);
+    _cinematicMgr = std::make_unique<CinematicMgr>(this);
+    m_achievementMgr = std::make_unique<AchievementMgr<Player>>(this);
+    m_reputationMgr = std::make_unique<ReputationMgr>(this);
     _hasValidLFGLeavePoint = false;
-    _archaeology = new Archaeology(this);
+    _archaeology = std::make_unique<Archaeology>(this);
     m_petScalingSynchTimer.Reset(1000);
     m_groupUpdateTimer.Reset(5000);
 }
@@ -384,8 +367,6 @@ Player::~Player()
     for (uint8 i = 0; i < PLAYER_SLOTS_COUNT; ++i)
         delete m_items[i];
 
-    delete _talentMgr;
-
     //all mailed items should be deleted, also all mail should be deallocated
     for (PlayerMails::iterator itr = m_mail.begin(); itr != m_mail.end(); ++itr)
         delete *itr;
@@ -393,19 +374,10 @@ Player::~Player()
     for (ItemMap::iterator iter = mMitems.begin(); iter != mMitems.end(); ++iter)
         delete iter->second;                                //if item is duplicated... then server may crash ... but that item should be deallocated
 
-    delete PlayerTalkClass;
-
     for (size_t x = 0; x < ItemSetEff.size(); x++)
         delete ItemSetEff[x];
 
-    delete m_declinedname;
-    delete m_runes;
-    delete m_achievementMgr;
-    delete m_reputationMgr;
-    delete _cinematicMgr;
-    delete _archaeology;
-
-    for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
+    for (size_t i = 0; i < _voidStorageItems.size(); ++i)
         delete _voidStorageItems[i];
 
     for (uint8 i = 0; i < PlayerPetDataStore.size(); i++)
@@ -446,8 +418,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
         return false;
     }
 
-    for (uint8 i = 0; i < PLAYER_SLOTS_COUNT; i++)
-        m_items[i] = nullptr;
+    m_items.fill(nullptr);
 
     Relocate(info->positionX, info->positionY, info->positionZ, info->orientation);
 
@@ -13321,10 +13292,8 @@ void Player::SendNewItem(Item* item, uint32 count, bool received, bool created, 
 
 void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool showQuests /*= false*/)
 {
-    PlayerMenu* menu = PlayerTalkClass;
-    menu->ClearMenus();
-
-    menu->GetGossipMenu().SetMenuId(menuId);
+    PlayerTalkClass->ClearMenus();
+    PlayerTalkClass->GetGossipMenu().SetMenuId(menuId);
 
     GossipMenuItemsMapBounds menuItemBounds = sObjectMgr->GetGossipMenuItemsMapBounds(menuId);
 
@@ -13461,8 +13430,8 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                 }
             }
 
-            menu->GetGossipMenu().AddMenuItem(itr->second.OptionID, itr->second.OptionIcon, strOptionText, 0, itr->second.OptionType, strBoxText, itr->second.BoxMoney, itr->second.BoxCoded);
-            menu->GetGossipMenu().AddGossipMenuItemData(itr->second.OptionID, itr->second.ActionMenuID, itr->second.ActionPoiID);
+            PlayerTalkClass->GetGossipMenu().AddMenuItem(itr->second.OptionID, itr->second.OptionIcon, strOptionText, 0, itr->second.OptionType, strBoxText, itr->second.BoxMoney, itr->second.BoxCoded);
+            PlayerTalkClass->GetGossipMenu().AddGossipMenuItemData(itr->second.OptionID, itr->second.ActionMenuID, itr->second.ActionPoiID);
         }
     }
 }
@@ -16211,8 +16180,7 @@ void Player::_LoadDeclinedNames(PreparedQueryResult result)
     if (!result)
         return;
 
-    delete m_declinedname;
-    m_declinedname = new DeclinedName;
+    m_declinedname = std::make_unique<DeclinedName>();
     for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
         m_declinedname->name[i] = (*result)[i].GetString();
 }
@@ -19439,7 +19407,7 @@ void Player::_SaveVoidStorage(CharacterDatabaseTransaction& trans)
     CharacterDatabasePreparedStatement* stmt = nullptr;
     uint32 lowGuid = GetGUID().GetCounter();
 
-    for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
+    for (size_t i = 0; i < _voidStorageItems.size(); ++i)
     {
         if (!_voidStorageItems[i]) // unused item
         {
@@ -21988,7 +21956,7 @@ void Player::UpdatePotionCooldown(Spell* spell)
 void Player::SetResurrectRequestData(WorldObject const* caster, uint32 health, uint32 mana, uint32 appliedAura)
 {
     ASSERT(!IsResurrectRequested());
-    _resurrectionData = new ResurrectionData();
+    _resurrectionData = std::make_unique<ResurrectionData>();
     _resurrectionData->GUID = caster->GetGUID();
     _resurrectionData->Location.WorldRelocate(*caster);
     _resurrectionData->Health = health;
@@ -24844,7 +24812,7 @@ void Player::InitRunes()
     if (getClass() != CLASS_DEATH_KNIGHT)
         return;
 
-    m_runes = new Runes;
+    m_runes = std::make_unique<Runes>();
 
     m_runes->runeState = 0;
     m_runes->lastUsedRune = RUNE_BLOOD;
@@ -26953,7 +26921,7 @@ void Player::UpdateArmorSpecialization()
 
 uint8 Player::GetNextVoidStorageFreeSlot() const
 {
-    for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
+    for (size_t i = 0; i < _voidStorageItems.size(); ++i)
         if (!_voidStorageItems[i]) // unused item
             return i;
 
@@ -26964,7 +26932,7 @@ uint8 Player::GetNumOfVoidStorageFreeSlots() const
 {
     uint8 count = 0;
 
-    for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
+    for (size_t i = 0; i < _voidStorageItems.size(); ++i)
         if (!_voidStorageItems[i])
             count++;
 
@@ -27039,7 +27007,7 @@ VoidStorageItem* Player::GetVoidStorageItem(uint8 slot) const
 
 VoidStorageItem* Player::GetVoidStorageItem(uint64 id, uint8& slot) const
 {
-    for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
+    for (size_t i = 0; i < _voidStorageItems.size(); ++i)
     {
         if (_voidStorageItems[i] && _voidStorageItems[i]->ItemId == id)
         {
