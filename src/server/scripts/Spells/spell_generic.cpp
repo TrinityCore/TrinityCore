@@ -4894,6 +4894,31 @@ class spell_gen_impatient_mind : public AuraScript
     }
 };
 
+// 209352 - Boost 2.0 [Paladin+Priest] - Watch for Shield
+class spell_gen_boost_2_0_paladin_priest_watch_for_shield : public AuraScript
+{
+    PrepareAuraScript(spell_gen_boost_2_0_paladin_priest_watch_for_shield);
+
+    static constexpr uint32 SPELL_POWER_WORD_SHIELD = 17;
+    static constexpr uint32 SPELL_DIVINE_SHIELD = 642;
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_POWER_WORD_SHIELD, SPELL_DIVINE_SHIELD });
+    }
+
+    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& procInfo)
+    {
+        SpellInfo const* spellInfo = procInfo.GetSpellInfo();
+        return spellInfo && (spellInfo->Id == SPELL_POWER_WORD_SHIELD || spellInfo->Id == SPELL_DIVINE_SHIELD);
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_gen_boost_2_0_paladin_priest_watch_for_shield::CheckProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
 // 269083 - Enlisted
 // 282559 - Enlisted
 class spell_gen_war_mode_enlisted : public AuraScript
@@ -5680,6 +5705,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_azgalor_rain_of_fire_hellfire_citadel);
     RegisterSpellScript(spell_gen_face_rage);
     RegisterSpellScript(spell_gen_impatient_mind);
+    RegisterSpellScript(spell_gen_boost_2_0_paladin_priest_watch_for_shield);
     RegisterSpellScript(spell_gen_war_mode_enlisted);
     RegisterSpellScript(spell_defender_of_azeroth_death_gate_selector);
     RegisterSpellScript(spell_defender_of_azeroth_speak_with_mograine);

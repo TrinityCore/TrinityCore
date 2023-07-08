@@ -230,7 +230,11 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     if (petInfo->Type == HUNTER_PET)
     {
         CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(petInfo->CreatureId);
-        if (!creatureInfo || !creatureInfo->IsTameable(owner->CanTameExoticPets(), GetCreatureDifficulty()))
+        if (!creatureInfo)
+            return false;
+
+        CreatureDifficulty const* creatureDifficulty = creatureInfo->GetDifficulty(DIFFICULTY_NONE);
+        if (!creatureDifficulty || !creatureInfo->IsTameable(owner->CanTameExoticPets(), creatureDifficulty))
             return false;
     }
 

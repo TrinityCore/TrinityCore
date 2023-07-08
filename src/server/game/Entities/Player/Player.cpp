@@ -214,17 +214,16 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
 
     m_movie = 0;
 
-    PlayerTalkClass = new PlayerMenu(GetSession());
+    PlayerTalkClass = std::make_unique<PlayerMenu>(GetSession());
     m_currentBuybackSlot = BUYBACK_SLOT_START;
 
     m_DailyQuestChanged = false;
     m_lastDailyQuestTime = 0;
 
-    for (uint8 i=0; i < MAX_TIMERS; i++)
-        m_MirrorTimer[i] = DISABLED_MIRROR_TIMER;
-
+    m_MirrorTimer.fill(DISABLED_MIRROR_TIMER);
     m_MirrorTimerFlags = UNDERWATER_NONE;
     m_MirrorTimerFlagsLast = UNDERWATER_NONE;
+
     m_hostileReferenceCheckTimer = 0;
     m_drunkTimer = 0;
     m_deathTimer = 0;
@@ -241,8 +240,7 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
 
     m_logintime = GameTime::GetGameTime();
     m_Last_tick = m_logintime;
-    m_Played_time[PLAYED_TIME_TOTAL] = 0;
-    m_Played_time[PLAYED_TIME_LEVEL] = 0;
+    m_Played_time = { };
     m_WeaponProficiency = 0;
     m_ArmorProficiency = 0;
     m_canParry = false;
@@ -263,8 +261,7 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
 
     m_itemUpdateQueueBlocked = false;
 
-    for (uint8 i = 0; i < MAX_MOVE_TYPE; ++i)
-        m_forced_speed_changes[i] = 0;
+    m_forced_speed_changes = { };
 
     m_movementForceModMagnitudeChanges = 0;
 
@@ -278,14 +275,9 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
 
     m_lastPotionId = 0;
 
-    for (uint8 i = 0; i < BASEMOD_END; ++i)
-    {
-        m_auraBaseFlatMod[i] = 0.0f;
-        m_auraBasePctMod[i] = 1.0f;
-    }
-
-    for (uint8 i = 0; i < MAX_COMBAT_RATING; i++)
-        m_baseRatingValue[i] = 0;
+    m_auraBaseFlatMod.fill(0.0f);
+    m_auraBasePctMod.fill(1.0f);
+    m_baseRatingValue = { };
 
     m_baseSpellPower = 0;
     m_baseManaRegen = 0;
@@ -311,11 +303,7 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
 
     m_contestedPvPTimer = 0;
 
-    m_declinedname = nullptr;
-
     m_isActive = true;
-
-    m_runes = nullptr;
 
     m_lastFallTime = 0;
     m_lastFallZ = 0;
@@ -328,8 +316,7 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
 
     m_ChampioningFaction = 0;
 
-    for (uint8 i = 0; i < MAX_POWERS_PER_CLASS; ++i)
-        m_powerFraction[i] = 0;
+    m_powerFraction.fill(0.0f);
 
     isDebugAreaTriggers = false;
 
@@ -345,10 +332,10 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
 
     memset(_voidStorageItems, 0, VOID_STORAGE_MAX_SLOT * sizeof(VoidStorageItem*));
 
-    _cinematicMgr = new CinematicMgr(this);
+    _cinematicMgr = std::make_unique<CinematicMgr>(this);
 
-    m_achievementMgr = new PlayerAchievementMgr(this);
-    m_reputationMgr = new ReputationMgr(this);
+    m_achievementMgr = std::make_unique<PlayerAchievementMgr>(this);
+    m_reputationMgr = std::make_unique<ReputationMgr>(this);
     m_questObjectiveCriteriaMgr = std::make_unique<QuestObjectiveCriteriaMgr>(this);
 
     for (uint8 i = 0; i < MAX_CUF_PROFILES; ++i)
@@ -379,16 +366,8 @@ Player::~Player()
     for (ItemMap::iterator iter = mMitems.begin(); iter != mMitems.end(); ++iter)
         delete iter->second;                                //if item is duplicated... then server may crash ... but that item should be deallocated
 
-    delete PlayerTalkClass;
-
     for (size_t x = 0; x < ItemSetEff.size(); x++)
         delete ItemSetEff[x];
-
-    delete m_declinedname;
-    delete m_runes;
-    delete m_achievementMgr;
-    delete m_reputationMgr;
-    delete _cinematicMgr;
 
     for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
         delete _voidStorageItems[i];
@@ -3503,6 +3482,7 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled /*= false*/, bool learn_
 
     bool cur_active    = itr->second.active;
     bool cur_dependent = itr->second.dependent;
+    Optional<int32> traitDefinitionId = itr->second.TraitDefinitionId;
 
     if (disabled)
     {
@@ -3618,6 +3598,10 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled /*= false*/, bool learn_
             }
         }
     }
+
+    if (traitDefinitionId)
+        if (TraitDefinitionEntry const* traitDefinition = sTraitDefinitionStore.LookupEntry(*traitDefinitionId))
+            RemoveOverrideSpell(traitDefinition->OverridesSpellID, spell_id);
 
     m_overrideSpells.erase(spell_id);
 
@@ -5035,32 +5019,30 @@ void Player::RepopAtGraveyard()
         SpawnCorpseBones();
     }
 
-    WorldSafeLocsEntry const* ClosestGrave;
-
-    // Special handle for battleground maps
+    WorldSafeLocsEntry const* closestGrave = nullptr;
     if (Battleground* bg = GetBattleground())
-        ClosestGrave = bg->GetClosestGraveyard(this);
-    else
-    {
-        if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetMap(), GetZoneId()))
-            ClosestGrave = bf->GetClosestGraveyard(this);
-        else
-            ClosestGrave = sObjectMgr->GetClosestGraveyard(*this, GetTeam(), this);
-    }
+        closestGrave = bg->GetClosestGraveyard(this);
+    else if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetMap(), GetZoneId()))
+        closestGrave = bf->GetClosestGraveyard(this);
+    else if (InstanceScript* instance = GetInstanceScript())
+        closestGrave = sObjectMgr->GetWorldSafeLoc(instance->GetEntranceLocation());
+
+    if (!closestGrave)
+        closestGrave = sObjectMgr->GetClosestGraveyard(*this, GetTeam(), this);
 
     // stop countdown until repop
     m_deathTimer = 0;
 
     // if no grave found, stay at the current location
     // and don't show spirit healer location
-    if (ClosestGrave)
+    if (closestGrave)
     {
-        TeleportTo(ClosestGrave->Loc, shouldResurrect ? TELE_REVIVE_AT_TELEPORT : TELE_TO_NONE);
+        TeleportTo(closestGrave->Loc, shouldResurrect ? TELE_REVIVE_AT_TELEPORT : TELE_TO_NONE);
         if (isDead())                                        // not send if alive, because it used in TeleportTo()
         {
             WorldPackets::Misc::DeathReleaseLoc packet;
-            packet.MapID = ClosestGrave->Loc.GetMapId();
-            packet.Loc = ClosestGrave->Loc;
+            packet.MapID = closestGrave->Loc.GetMapId();
+            packet.Loc = closestGrave->Loc;
             SendDirectMessage(packet.Write());
         }
     }
@@ -6042,7 +6024,9 @@ void Player::SetSkill(uint32 id, uint16 step, uint16 newVal, uint16 maxVal)
             {
                 if (currVal == 0)   // activated skill, mark as new to save into database
                 {
-                    itr->second.uState = SKILL_NEW;
+                    itr->second.uState = itr->second.uState != SKILL_DELETED
+                        ? SKILL_NEW
+                        : SKILL_CHANGED; // skills marked as SKILL_DELETED already exist in database, mark as changed instead of new
 
                     // Set profession line
                     int32 freeProfessionSlot = FindEmptyProfessionSlotFor(id);
@@ -6098,7 +6082,9 @@ void Player::SetSkill(uint32 id, uint16 step, uint16 newVal, uint16 maxVal)
             SetSkillPermBonus(itr->second.pos, 0);
 
             // mark as deleted so the next save will delete the data from the database
-            itr->second.uState = SKILL_DELETED;
+            itr->second.uState = itr->second.uState != SKILL_NEW
+                ? SKILL_DELETED
+                : SKILL_UNCHANGED; // skills marked as SKILL_NEW don't exist in database (this distinction is not neccessary for deletion but for re-learning the same skill before save to db happens)
 
             // remove all spells that related to this skill
             if (std::vector<SkillLineAbilityEntry const*> const* skillLineAbilities = sDB2Manager.GetSkillLineAbilitiesBySkill(id))
@@ -14930,10 +14916,8 @@ void Player::SendNewItem(Item* item, uint32 quantity, bool pushed, bool created,
 
 void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId, bool showQuests /*= false*/)
 {
-    PlayerMenu* menu = PlayerTalkClass;
-    menu->ClearMenus();
-
-    menu->GetGossipMenu().SetMenuId(menuId);
+    PlayerTalkClass->ClearMenus();
+    PlayerTalkClass->GetGossipMenu().SetMenuId(menuId);
 
     Trinity::IteratorPair menuItemBounds = sObjectMgr->GetGossipMenuItemsMapBounds(menuId);
 
@@ -15026,7 +15010,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId, bool showQues
         }
 
         if (canTalk)
-            menu->GetGossipMenu().AddMenuItem(gossipMenuItem, gossipMenuItem.MenuID, gossipMenuItem.OrderIndex);
+            PlayerTalkClass->GetGossipMenu().AddMenuItem(gossipMenuItem, gossipMenuItem.MenuID, gossipMenuItem.OrderIndex);
     }
 }
 
@@ -16356,6 +16340,9 @@ void Player::SetRewardedQuest(uint32 quest_id)
 {
     m_RewardedQuests.insert(quest_id);
     m_RewardedQuestsSave[quest_id] = QUEST_DEFAULT_SAVE_TYPE;
+
+    if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(quest_id))
+        SetQuestCompletedBit(questBit, true);
 }
 
 void Player::FailQuest(uint32 questId)
@@ -18142,8 +18129,7 @@ void Player::_LoadDeclinedNames(PreparedQueryResult result)
     if (!result)
         return;
 
-    delete m_declinedname;
-    m_declinedname = new DeclinedName;
+    m_declinedname = std::make_unique<DeclinedName>();
     for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
         m_declinedname->name[i] = (*result)[i].GetString();
 }
@@ -27104,7 +27090,7 @@ void Player::InitRunes()
     if (runeIndex == MAX_POWERS)
         return;
 
-    m_runes = new Runes();
+    m_runes = std::make_unique<Runes>();
     m_runes->RuneState = 0;
 
     for (uint8 i = 0; i < MAX_RUNES; ++i)

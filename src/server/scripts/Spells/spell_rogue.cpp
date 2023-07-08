@@ -452,6 +452,22 @@ class spell_rog_killing_spree : public SpellScript
     }
 };
 
+// 385627 - Kingsbane
+class spell_rog_kingsbane : public AuraScript
+{
+    PrepareAuraScript(spell_rog_kingsbane);
+
+    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& procInfo)
+    {
+        return procInfo.GetActionTarget()->HasAura(GetId(), GetCasterGUID());
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_rog_kingsbane::CheckProc, EFFECT_4, SPELL_AURA_PROC_TRIGGER_SPELL);;
+    }
+};
+
 // 76806 - Mastery: Main Gauche
 class spell_rog_mastery_main_gauche : public AuraScript
 {
@@ -1040,6 +1056,7 @@ void AddSC_rogue_spell_scripts()
     RegisterSpellScript(spell_rog_grand_melee);
     RegisterSpellScript(spell_rog_honor_among_thieves);
     RegisterSpellAndAuraScriptPair(spell_rog_killing_spree, spell_rog_killing_spree_aura);
+    RegisterSpellScript(spell_rog_kingsbane);
     RegisterSpellScript(spell_rog_mastery_main_gauche);
     RegisterSpellScript(spell_rog_pickpocket);
     RegisterSpellScript(spell_rog_restless_blades);
