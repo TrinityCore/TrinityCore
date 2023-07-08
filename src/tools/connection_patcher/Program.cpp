@@ -258,8 +258,6 @@ int main(int argc, char** argv)
 #ifdef _WIN32
         wchar_t* commonAppData(nullptr);
         SHGetKnownFolderPath(FOLDERID_ProgramData, 0, nullptr, &commonAppData);
-#else
-        const wchar_t* commonAppData(L".");
 #endif
 
         std::cout << "Creating patched binary..." << std::endl;
