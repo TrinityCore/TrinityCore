@@ -1354,7 +1354,7 @@ void GameObject::Update(uint32 diff)
             {
                 SetRespawnTime(0);
                 if (GameObject* go = GetMap()->GetGameObject(GetOwnerGUID()))
-                    go->HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::InBase));
+                    go->HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::InBase, nullptr));
 
                 Delete();
                 return;

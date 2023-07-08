@@ -98,7 +98,7 @@ public:
 
 private:
     FlagState _state;
-    Player* _player
+    Player* _player;
 };
 }
 
