@@ -353,9 +353,7 @@ public:
             _preparingPulsesChecker = 0;
             _arcaneOverloadGUID.Clear();
             _lastHitByArcaneBarrageGUID.Clear();
-            for (ObjectGuid& guid : _surgeTargetGUID)
-                guid.Clear();
-
+            _surgeTargetGUID.fill(ObjectGuid::Empty);
             _killSpamFilter = false;
             _executingVortex = false;
             _arcaneReinforcements = true;
@@ -949,7 +947,7 @@ public:
                         }
                         else if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
                         {
-                            memset(_surgeTargetGUID, 0, sizeof(_surgeTargetGUID));
+                            _surgeTargetGUID.fill(ObjectGuid::Empty);
                             DoCastAOE(SPELL_SURGE_OF_POWER_WARNING_SELECTOR_25, true);
                         }
 
@@ -993,7 +991,7 @@ public:
         uint8 _preparingPulsesChecker; // In retail they use 2 preparing pulses with 7 sec CD, after they pass 2 seconds.
         ObjectGuid _arcaneOverloadGUID; // Last Arcane Overload summoned to know to which should visual be cast to (the purple ball, not bubble).
         ObjectGuid _lastHitByArcaneBarrageGUID; // Last hit player by Arcane Barrage, will be removed if targets > 1.
-        ObjectGuid _surgeTargetGUID[3]; // All these three are used to keep current tagets to which warning should be sent.
+        std::array<ObjectGuid, 3> _surgeTargetGUID; // All these three are used to keep current tagets to which warning should be sent.
 
         bool _killSpamFilter; // Prevent text spamming on killed player by helping implement a CD.
         bool _despawned; // Checks if boss pass through evade on reset.

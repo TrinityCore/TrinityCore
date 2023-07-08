@@ -68,7 +68,7 @@ class Archaeology
 
         // Site Functionality
         ContinentState _continentState[CONTINENT_SITES];
-        SiteData _site[CONTINENT_SITES * COUNT_CONT];
+        std::array<SiteData, CONTINENT_SITES* COUNT_CONT> _site;
 
         void LoadSitesFromDB();
         void VerifySites();

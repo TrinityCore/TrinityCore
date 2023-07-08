@@ -703,7 +703,7 @@ class spell_dk_pestilence : public SpellScript
                 float donePct = aurOld->GetDonePct();
                 float critChance = aurOld->GetCritChance();
 
-                if (AuraEffect* aurEffOld = aurOld->GetEffect(EFFECT_0))
+                if (aurOld->GetEffect(EFFECT_0))
                 {
                     caster->CastSpell(hitUnit, SPELL_DK_BLOOD_PLAGUE, true); // Spread the disease to hitUnit.
 

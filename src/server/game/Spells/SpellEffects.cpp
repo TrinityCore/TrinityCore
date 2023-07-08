@@ -4924,7 +4924,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
     QuaternionData rot = QuaternionData::fromEulerAnglesZYX(fo, 0.f, 0.f);
 
     GameObject* go = new GameObject;
-    if (!go->Create(cMap->GenerateLowGuid<HighGuid::GameObject>(), name_id, cMap, Position(fx, fy, fz, m_caster->GetOrientation()), rot, 255, GO_STATE_READY))
+    if (!go->Create(cMap->GenerateLowGuid<HighGuid::GameObject>(), name_id, cMap, pos, rot, 255, GO_STATE_READY))
     {
         delete go;
         return;

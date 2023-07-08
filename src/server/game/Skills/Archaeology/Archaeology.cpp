@@ -21,8 +21,6 @@
 
 Archaeology::Archaeology(Player* player): _player(player)
 {
-    memset(_site, 0, sizeof(SiteData) * CONTINENT_SITES * COUNT_CONT);
-
     _continentState[CONT_EASTERN] = STATE_NULL;
     _continentState[CONT_KALIMDOR] = STATE_NULL;
     _continentState[CONT_OUTLAND] = STATE_NULL;

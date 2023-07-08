@@ -217,7 +217,7 @@ public:
             IsFinalForm = false;
             NeedThreatReset = false;
             EnrageUsed = false;
-            memset(InnderDemon, 0, sizeof(InnderDemon));
+            InnderDemon.fill(ObjectGuid::Empty);
             InnerDemon_Count = 0;
         }
 
@@ -238,7 +238,7 @@ public:
         bool EnrageUsed;
         float x, y, z;
 
-        ObjectGuid InnderDemon[5];
+        std::array<ObjectGuid, 5> InnderDemon;
         uint32 InnerDemon_Count;
         ObjectGuid Demon;
         ObjectGuid SpellBinderGUID[3];
