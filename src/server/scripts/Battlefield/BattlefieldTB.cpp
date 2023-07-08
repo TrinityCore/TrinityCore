@@ -587,7 +587,7 @@ void BattlefieldTB::UpdateNPCsAndGameObjects()
         door->SetGoState(GetState() == AsUnderlyingType(BATTLEFIELD_INACTIVE) ? GO_STATE_ACTIVE : GO_STATE_READY);
 
     // Decide which cellblock and questgiver will be active.
-    m_iCellblockRandom = GetState() == AsUnderlyingType(BATTLEFIELD_INACTIVE) ? urand(0, CELLBLOCK_MAX - 1) : CELLBLOCK_NONE;
+    m_iCellblockRandom = GetState() == AsUnderlyingType(BATTLEFIELD_INACTIVE) ? urand(0, CELLBLOCK_MAX - 1) : uint8(CELLBLOCK_NONE);
 
     // To The Hole gate
     if (GameObject* door = GetGameObject(m_gateToTheHoleGUID))
