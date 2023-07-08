@@ -2845,10 +2845,10 @@ void World::SetInitialWorldSettings()
         }
         aaCenter.aa_version.version = "20230409";
         if (aaCenter.aa_version.uuid != "") {
-            TC_LOG_INFO("server.loading", ">> Version:{}-{}", aaCenter.aa_version.version.c_str(), aaCenter.aa_version.uuid.c_str());
+            TC_LOG_INFO("server.loading", ">> 当前版本号:{}-{}", aaCenter.aa_version.version.c_str(), aaCenter.aa_version.uuid.c_str());
         }
         else {
-            TC_LOG_INFO("server.loading", ">> Version:{}", aaCenter.aa_version.version.c_str());
+            TC_LOG_INFO("server.loading", ">> 当前版本号:{}", aaCenter.aa_version.version.c_str());
         }
     }
 
