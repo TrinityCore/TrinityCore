@@ -580,26 +580,26 @@ void BattlefieldTB::UpdateNPCsAndGameObjects()
 
     // Tol Barad gates - closed during warmup
     if (GameObject* gates = GetGameObject(TBGatesGUID))
-        gates->SetGoState(GetState() == BATTLEFIELD_WARMUP ? GO_STATE_READY : GO_STATE_ACTIVE);
+        gates->SetGoState(GetState() == AsUnderlyingType(BATTLEFIELD_WARMUP) ? GO_STATE_READY : GO_STATE_ACTIVE);
 
     // Baradin Hold door - open when inactive
     if (GameObject* door = GetGameObject(TBDoorGUID))
-        door->SetGoState(GetState() == BATTLEFIELD_INACTIVE ? GO_STATE_ACTIVE : GO_STATE_READY);
+        door->SetGoState(GetState() == AsUnderlyingType(BATTLEFIELD_INACTIVE) ? GO_STATE_ACTIVE : GO_STATE_READY);
 
     // Decide which cellblock and questgiver will be active.
-    m_iCellblockRandom = GetState() == BATTLEFIELD_INACTIVE ? urand(0, CELLBLOCK_MAX - 1) : CELLBLOCK_NONE;
+    m_iCellblockRandom = GetState() == AsUnderlyingType(BATTLEFIELD_INACTIVE) ? urand(0, CELLBLOCK_MAX - 1) : CELLBLOCK_NONE;
 
     // To The Hole gate
     if (GameObject* door = GetGameObject(m_gateToTheHoleGUID))
-        door->SetGoState(m_iCellblockRandom == CELLBLOCK_THE_HOLE ? GO_STATE_ACTIVE : GO_STATE_READY);
+        door->SetGoState(m_iCellblockRandom == AsUnderlyingType(CELLBLOCK_THE_HOLE) ? GO_STATE_ACTIVE : GO_STATE_READY);
 
     // D-Block gate
     if (GameObject* door = GetGameObject(m_gateDBlockGUID))
-        door->SetGoState(m_iCellblockRandom == CELLBLOCK_D_BLOCK ? GO_STATE_ACTIVE : GO_STATE_READY);
+        door->SetGoState(m_iCellblockRandom == AsUnderlyingType(CELLBLOCK_D_BLOCK) ? GO_STATE_ACTIVE : GO_STATE_READY);
 
     // Cursed Depths gate
     if (GameObject* door = GetGameObject(m_gateCursedDepthsGUID))
-        door->SetGoState(m_iCellblockRandom == CELLBLOCK_CURSED_DEPTHS ? GO_STATE_ACTIVE : GO_STATE_READY);
+        door->SetGoState(m_iCellblockRandom == AsUnderlyingType(CELLBLOCK_CURSED_DEPTHS) ? GO_STATE_ACTIVE : GO_STATE_READY);
 
     if (GetState() == BATTLEFIELD_INACTIVE)
     {
@@ -749,23 +749,23 @@ void BattlefieldTB::OnGameObjectCreate(GameObject* go)
     {
         case GO_TOLBARAD_GATES:
             TBGatesGUID = go->GetGUID();
-            go->SetGoState(GetState() == BATTLEFIELD_WARMUP ? GO_STATE_READY : GO_STATE_ACTIVE);
+            go->SetGoState(GetState() == AsUnderlyingType(BATTLEFIELD_WARMUP) ? GO_STATE_READY : GO_STATE_ACTIVE);
             break;
         case GO_TOLBARAD_DOOR:
             TBDoorGUID = go->GetGUID();
-            go->SetGoState(GetState() == BATTLEFIELD_INACTIVE ? GO_STATE_ACTIVE : GO_STATE_READY);
+            go->SetGoState(GetState() == AsUnderlyingType(BATTLEFIELD_INACTIVE) ? GO_STATE_ACTIVE : GO_STATE_READY);
             break;
         case GO_GATE_TO_THE_HOLE:
             m_gateToTheHoleGUID = go->GetGUID();
-            go->SetGoState(m_iCellblockRandom == CELLBLOCK_THE_HOLE ? GO_STATE_ACTIVE : GO_STATE_READY);
+            go->SetGoState(m_iCellblockRandom == AsUnderlyingType(CELLBLOCK_THE_HOLE) ? GO_STATE_ACTIVE : GO_STATE_READY);
             break;
         case GO_GATE_D_BLOCK:
             m_gateDBlockGUID = go->GetGUID();
-            go->SetGoState(m_iCellblockRandom == CELLBLOCK_D_BLOCK ? GO_STATE_ACTIVE : GO_STATE_READY);
+            go->SetGoState(m_iCellblockRandom == AsUnderlyingType(CELLBLOCK_D_BLOCK) ? GO_STATE_ACTIVE : GO_STATE_READY);
             break;
         case GO_CURSED_DEPTHS_GATE:
             m_gateCursedDepthsGUID = go->GetGUID();
-            go->SetGoState(m_iCellblockRandom == CELLBLOCK_CURSED_DEPTHS ? GO_STATE_ACTIVE : GO_STATE_READY);
+            go->SetGoState(m_iCellblockRandom == AsUnderlyingType(CELLBLOCK_CURSED_DEPTHS) ? GO_STATE_ACTIVE : GO_STATE_READY);
             break;
         case GO_CRATE_OF_CELLBLOCK_RATIONS:
         case GO_CURSED_SHACKLES:
