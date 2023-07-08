@@ -615,6 +615,8 @@ void WorldSession::LogoutPlayer(bool save)
         ///- Clear whisper whitelist
         _player->ClearWhisperWhiteList();
 
+        _player->FailQuestsWithFlag(QUEST_FLAGS_FAIL_ON_LOGOUT);
+
         ///- empty buyback items and save the player in the database
         // some save parts only correctly work in case player present in map/player_lists (pets, etc)
         if (save)

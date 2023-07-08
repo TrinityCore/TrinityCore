@@ -717,7 +717,7 @@ class spell_dru_innervate : public SpellScript
         if (caster != GetHitUnit())
             if (AuraEffect const* innervateR2 = caster->GetAuraEffect(SPELL_DRUID_INNERVATE_RANK_2, EFFECT_0))
                 caster->CastSpell(caster, SPELL_DRUID_INNERVATE,
-                    CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD | TRIGGERED_IGNORE_CAST_IN_PROGRESS))
+                    CastSpellExtraArgs(TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)
                     .SetTriggeringSpell(GetSpell())
                     .AddSpellMod(SPELLVALUE_BASE_POINT0, -innervateR2->GetAmount()));
 
@@ -1033,6 +1033,31 @@ class spell_dru_starfall_dummy : public SpellScript
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_starfall_dummy::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
         OnEffectHitTarget += SpellEffectFn(spell_dru_starfall_dummy::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 340694 - Sudden Ambush
+// 384667 - Sudden Ambush
+class spell_dru_sudden_ambush : public AuraScript
+{
+    PrepareAuraScript(spell_dru_sudden_ambush);
+
+    bool CheckProc(AuraEffect const* aurEff, ProcEventInfo& procInfo)
+    {
+        Spell const* procSpell = procInfo.GetProcSpell();
+        if (!procSpell)
+            return false;
+
+        Optional<int32> comboPoints = procSpell->GetPowerTypeCostAmount(POWER_COMBO_POINTS);
+        if (!comboPoints)
+            return false;
+
+        return roll_chance_i(*comboPoints * aurEff->GetAmount());
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_dru_sudden_ambush::CheckProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
 
@@ -1640,6 +1665,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_skull_bash);
     RegisterSpellScript(spell_dru_stampeding_roar);
     RegisterSpellScript(spell_dru_starfall_dummy);
+    RegisterSpellScript(spell_dru_sudden_ambush);
     RegisterSpellScript(spell_dru_sunfire);
     RegisterSpellScript(spell_dru_survival_instincts);
     RegisterSpellScript(spell_dru_swift_flight_passive);

@@ -2753,7 +2753,7 @@ enum Targets
     TARGET_UNK_145                              = 145,
     TARGET_UNK_146                              = 146,
     TARGET_UNK_147                              = 147,
-    TARGET_UNK_148                              = 148,
+    TARGET_DEST_DEST_TARGET_TOWARDS_CASTER      = 148,
     TARGET_UNK_149                              = 149,
     TARGET_UNIT_OWN_CRITTER                     = 150, // own battle pet from UNIT_FIELD_CRITTER
     TARGET_UNK_151                              = 151,
@@ -5060,11 +5060,15 @@ enum HolidayIds
 
 enum QuestType
 {
-    QUEST_TYPE_AUTOCOMPLETE         = 0,
-    QUEST_TYPE_DISABLED             = 1,
+    QUEST_TYPE_TURNIN               = 0,
+    QUEST_TYPE_WITH_MAX_LEVEL       = 1,
     QUEST_TYPE_NORMAL               = 2,
     QUEST_TYPE_TASK                 = 3,
-    MAX_QUEST_TYPES                 = 4
+    MAX_DB_ALLOWED_QUEST_TYPES      = 4,
+
+    // values used in quest menu packets
+    QUEST_TYPE_IN_PROGRESS          = 4,
+    QUEST_TYPE_TASK_IN_PROGRESS     = 5
 };
 
 // QuestInfo.dbc (9.0.2.37176)

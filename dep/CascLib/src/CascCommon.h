@@ -21,6 +21,10 @@
     #include <zlib.h>
 #endif
 
+#if defined(_DEBUG) && !defined(CASCLIB_NODEBUG)
+#define CASCLIB_DEBUG
+#endif
+
 #include "CascPort.h"
 #include "common/Common.h"
 #include "common/Array.h"
@@ -48,7 +52,7 @@
 //-----------------------------------------------------------------------------
 // CascLib private defines
 
-#ifdef _DEBUG
+#if defined(CASCLIB_DEBUG) && defined(CASCLIB_DEV)
 #define BREAK_ON_XKEY3(CKey, v0, v1, v2) if(CKey[0] == v0 && CKey[1] == v1 && CKey[2] == v2) { __debugbreak(); }
 #define BREAKIF(condition)               if(condition)  { __debugbreak(); }
 #else
@@ -60,7 +64,7 @@
 #define CASC_MAGIC_FILE     0x454C494643534143      // 'CASCFILE'
 #define CASC_MAGIC_FIND     0x444E494643534143      // 'CASCFIND'
 
-// The maximum size of an inline file
+// The maximum size of an online file
 #define CASC_MAX_ONLINE_FILE_SIZE   0x40000000
 
 //-----------------------------------------------------------------------------
@@ -456,7 +460,7 @@ DWORD GetFileSpanInfo(PCASC_CKEY_ENTRY pCKeyEntry, PULONGLONG PtrContentSize, PU
 DWORD FetchCascFile(TCascStorage * hs, CPATH_TYPE PathType, LPBYTE pbEKey, LPCTSTR szExtension, CASC_PATH<TCHAR> & LocalPath, PCASC_ARCHIVE_INFO pArchiveInfo = NULL);
 DWORD CheckCascBuildFileExact(CASC_BUILD_FILE & BuildFile, LPCTSTR szLocalPath);
 DWORD CheckCascBuildFileDirs(CASC_BUILD_FILE & BuildFile, LPCTSTR szLocalPath);
-DWORD CheckOnlineStorage(PCASC_OPEN_STORAGE_ARGS pArgs, CASC_BUILD_FILE & BuildFile, DWORD dwFeatures);
+DWORD CheckOnlineStorage(PCASC_OPEN_STORAGE_ARGS pArgs, CASC_BUILD_FILE & BuildFile, bool bOnlineStorage);
 DWORD CheckArchiveFilesDirectories(TCascStorage * hs);
 DWORD CheckDataFilesDirectory(TCascStorage * hs);
 DWORD LoadMainFile(TCascStorage * hs);
@@ -506,7 +510,7 @@ DWORD RootHandler_CreateInstall(TCascStorage * hs, CASC_BLOB & InstallFile);
 //-----------------------------------------------------------------------------
 // Dumpers (CascDumpData.cpp)
 
-#ifdef _DEBUG
+#ifdef CASCLIB_DEBUG
 void CascDumpData(LPCSTR szFileName, const void * pvData, size_t cbData);
 void CascDumpFile(HANDLE hFile, const char * szDumpFile = NULL);
 void CascDumpStorage(HANDLE hStorage, const char * szDumpFile = NULL);

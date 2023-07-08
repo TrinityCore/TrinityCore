@@ -324,7 +324,7 @@ bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
     return true;
 }
 
-Optional<QuestGiverStatus> CreatureAI::GetDialogStatus(Player* /*player*/)
+Optional<QuestGiverStatus> CreatureAI::GetDialogStatus(Player const* /*player*/)
 {
     return {};
 }

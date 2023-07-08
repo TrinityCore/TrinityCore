@@ -32,6 +32,7 @@ class LootTemplate;
 class Player;
 struct Loot;
 struct LootItem;
+struct MapDifficultyEntry;
 enum LootType : uint8;
 enum class ItemContext : uint8;
 
@@ -142,7 +143,7 @@ class TC_GAME_API LootTemplate
 std::unordered_map<ObjectGuid, std::unique_ptr<Loot>> GenerateDungeonEncounterPersonalLoot(uint32 dungeonEncounterId,
     uint32 lootId, LootStore const& store, LootType type, WorldObject const* lootOwner,
     uint32 minMoney, uint32 maxMoney,
-    uint16 lootMode, ItemContext context,
+    uint16 lootMode, MapDifficultyEntry const* mapDifficulty,
     std::vector<Player*> const& tappers);
 
 //=====================================================

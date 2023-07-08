@@ -49,7 +49,7 @@ namespace VMAP
     TileAssembler::TileAssembler(const std::string& pSrcDirName, const std::string& pDestDirName)
         : iDestDir(pDestDirName), iSrcDir(pSrcDirName)
     {
-        boost::filesystem::create_directory(iDestDir);
+        boost::filesystem::create_directories(iDestDir);
     }
 
     TileAssembler::~TileAssembler()
