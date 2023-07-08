@@ -116,7 +116,7 @@ void Battlenet::WoWRealm::ListUpdate::Write()
     _stream.Write(UpdateState, 1);
     if (UpdateState == UPDATE)
     {
-        _stream.Write(Type + -std::numeric_limits<int32>::min(), 32);
+        _stream.Write(uint32(Type + std::numeric_limits<int32>::max()), 32);
         _stream.WriteFloat(Population);
         _stream.Write(Flags, 8);
         _stream.Write(Lock, 8);
