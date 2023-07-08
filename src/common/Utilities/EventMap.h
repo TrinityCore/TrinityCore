@@ -107,7 +107,7 @@ public:
     * @brief Deactivates the given phase (bitwise).
     * @param phase Phase which should be deactivated. Values: 1 - 8.
     */
-    void RemovePhase(uint8 phase)
+    void RemovePhase(uint16 phase)
     {
         if (phase && phase <= 16)
             _phase &= uint16(~(1 << (phase - 1)));
