@@ -35,9 +35,11 @@ struct Loot;
 struct TransportAnimation;
 enum TriggerCastFlags : uint32;
 
+// enum for GAMEOBJECT_TYPE_NEW_FLAG
+// values taken from world state
 enum class FlagState : uint8
 {
-    InBase,
+    InBase = 1,
     Taken,
     Dropped,
     Respawning

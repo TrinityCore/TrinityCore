@@ -509,10 +509,13 @@ class NewFlag : public GameObjectTypeBase
 public:
     explicit NewFlag(GameObject& owner) : GameObjectTypeBase(owner), _state(FlagState::InBase) { }
 
-    void SetState(FlagState newState)
+    void SetState(FlagState newState, Player* player)
     {
+        FlagState oldState = _state;
         _state = newState;
         _owner.UpdateObjectVisibility();
+        if (ZoneScript* zoneScript = _owner.GetZoneScript())
+            zoneScript->OnFlagStateChange(&_owner, oldState, _state, player);
     }
 
     bool IsNeverVisibleFor([[maybe_unused]] WorldObject const* seer, [[maybe_unused]] bool allowServersideObjects) const override
@@ -524,14 +527,14 @@ private:
     FlagState _state;
 };
 
-SetNewFlagState::SetNewFlagState(FlagState state) : _state(state)
+SetNewFlagState::SetNewFlagState(FlagState state, Player* player) : _state(state), _player(player)
 {
 }
 
 void SetNewFlagState::Execute(GameObjectTypeBase& type) const
 {
     if (NewFlag* newFlag = dynamic_cast<NewFlag*>(&type))
-        newFlag->SetState(_state);
+        newFlag->SetState(_state, _player);
 }
 }
 
@@ -2954,7 +2957,7 @@ void GameObject::Use(Unit* user)
                     if (defenderInteract && owner->GetGOInfo()->newflag.ReturnonDefenderInteract)
                     {
                         Delete();
-                        owner->HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::InBase));
+                        owner->HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::InBase, user->ToPlayer()));
                         return;
                     }
                     else
@@ -2967,7 +2970,7 @@ void GameObject::Use(Unit* user)
                         if (result == SPELL_CAST_OK)
                         {
                             Delete();
-                            owner->HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Taken));
+                            owner->HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Taken, user->ToPlayer()));
                             return;
                         }
                     }
@@ -3134,7 +3137,7 @@ void GameObject::Use(Unit* user)
         SpellCastResult castResult = CastSpell(user, spellId);
         if (castResult == SPELL_FAILED_SUCCESS)
         {
-            HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Taken));
+            HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Taken, user->ToPlayer()));
         }
     }
 }
