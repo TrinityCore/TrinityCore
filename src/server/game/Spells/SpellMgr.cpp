@@ -2243,6 +2243,7 @@ void SpellMgr::LoadPetDefaultSpells()
     for (SpellInfo const& spellEntry : mSpellInfoMap)
     {
         if (spellEntry.Difficulty != DIFFICULTY_NONE)
+            continue;
 
         for (SpellEffectInfo const& spellEffectInfo : spellEntry.GetEffects())
         {
