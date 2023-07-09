@@ -507,7 +507,7 @@ void SetTransportAutoCycleBetweenStopFrames::Execute(GameObjectTypeBase& type) c
 class NewFlag : public GameObjectTypeBase
 {
 public:
-    explicit NewFlag(GameObject& owner) : GameObjectTypeBase(owner), _state(FlagState::InBase) { }
+    explicit NewFlag(GameObject& owner) : GameObjectTypeBase(owner), _state(FlagState::InBase), _respawnTime(0) { }
 
     void SetState(FlagState newState, Player* player)
     {
@@ -516,6 +516,17 @@ public:
         _owner.UpdateObjectVisibility();
         if (ZoneScript* zoneScript = _owner.GetZoneScript())
             zoneScript->OnFlagStateChange(&_owner, oldState, _state, player);
+
+        if (newState == FlagState::Respawning)
+            _respawnTime = GameTime::GetGameTimeMS() + _owner.GetGOInfo()->newflag.RespawnTime;
+        else
+            _respawnTime = 0;
+    }
+
+    void Update([[maybe_unused]] uint32 diff) override
+    {
+        if (_state == FlagState::Respawning && GameTime::GetGameTimeMS() >= _respawnTime)
+            SetState(FlagState::InBase, nullptr);
     }
 
     bool IsNeverVisibleFor([[maybe_unused]] WorldObject const* seer, [[maybe_unused]] bool allowServersideObjects) const override
@@ -525,6 +536,7 @@ public:
 
 private:
     FlagState _state;
+    time_t _respawnTime;
 };
 
 SetNewFlagState::SetNewFlagState(FlagState state, Player* player) : _state(state), _player(player)
@@ -2932,8 +2944,6 @@ void GameObject::Use(Unit* user)
 
             if (user->GetTypeId() != TYPEID_PLAYER)
                 return;
-
-            //HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Taken));
 
             spellId = info->newflag.pickupSpell;
             spellCaster = nullptr;
