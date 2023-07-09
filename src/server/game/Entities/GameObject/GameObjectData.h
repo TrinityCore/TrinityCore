@@ -24,6 +24,7 @@
 #include "SpawnData.h"
 #include "WorldPacket.h"
 #include <array>
+#include <set>
 #include <string>
 
 // from `gameobject_template`
