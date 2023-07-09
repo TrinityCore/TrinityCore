@@ -5832,24 +5832,24 @@ void ObjectMgr::LoadSpellScripts()
     }
 }
 
-void ObjectMgr::LoadEventScripts()
+void ObjectMgr::LoadEventSet()
 {
-    LoadScripts(SCRIPTS_EVENT);
+    _eventStore.clear();
 
-    std::set<uint32> evt_scripts;
-    // Load all possible script entries from gameobjects
+    // Load all possible event ids from gameobjects
     for (auto const& gameObjectTemplatePair : _gameObjectTemplateStore)
         if (uint32 eventId = gameObjectTemplatePair.second.GetEventScriptId())
-            evt_scripts.insert(eventId);
+            _eventStore.insert(eventId);
 
-    // Load all possible script entries from spells
+    // Load all possible event ids from spells
     for (SpellNameEntry const* spellNameEntry : sSpellNameStore)
         if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(spellNameEntry->ID, DIFFICULTY_NONE))
             for (SpellEffectInfo const& spellEffectInfo : spell->GetEffects())
                 if (spellEffectInfo.IsEffect(SPELL_EFFECT_SEND_EVENT))
                     if (spellEffectInfo.MiscValue)
-                        evt_scripts.insert(spellEffectInfo.MiscValue);
+                        _eventStore.insert(spellEffectInfo.MiscValue);
 
+    // Load all possible event ids from taxi path nodes
     for (size_t path_idx = 0; path_idx < sTaxiPathNodesByPath.size(); ++path_idx)
     {
         for (size_t node_idx = 0; node_idx < sTaxiPathNodesByPath[path_idx].size(); ++node_idx)
@@ -5857,21 +5857,58 @@ void ObjectMgr::LoadEventScripts()
             TaxiPathNodeEntry const* node = sTaxiPathNodesByPath[path_idx][node_idx];
 
             if (node->ArrivalEventID)
-                evt_scripts.insert(node->ArrivalEventID);
+                _eventStore.insert(node->ArrivalEventID);
 
             if (node->DepartureEventID)
-                evt_scripts.insert(node->DepartureEventID);
+                _eventStore.insert(node->DepartureEventID);
         }
     }
+}
+
+void ObjectMgr::LoadEventScripts()
+{
+    // Set of valid events referenced in several sources
+    LoadEventSet();
+
+    // Deprecated
+    LoadScripts(SCRIPTS_EVENT);
 
     // Then check if all scripts are in above list of possible script entries
     for (ScriptMapMap::const_iterator itr = sEventScripts.begin(); itr != sEventScripts.end(); ++itr)
     {
-        std::set<uint32>::const_iterator itr2 = evt_scripts.find(itr->first);
-        if (itr2 == evt_scripts.end())
-            TC_LOG_ERROR("sql.sql", "Table `event_scripts` has script (Id: {}) not referring to any gameobject_template type 10 data2 field, type 3 data6 field, type 13 data 2 field or any spell effect {}",
+        if (!IsValidEvent(itr->first))
+            TC_LOG_ERROR("sql.sql", "Table `event_scripts` has script (Id: {}) not referring to any gameobject_template (type 3 data6 field, type 7 data3 field, type 10 data2 field, type 13 data2 field, type 50 data7 field), any taxi path node or any spell effect {}",
                 itr->first, SPELL_EFFECT_SEND_EVENT);
     }
+
+    uint32 oldMSTime = getMSTime();
+
+    _eventScriptStore.clear(); // Reload case
+
+    QueryResult result = WorldDatabase.Query("SELECT Id, ScriptName FROM event_script_names");
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 event scripts. DB table `event_script_names` is empty.");
+        return;
+    }
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 eventId = fields[0].GetUInt32();
+        std::string const scriptName = fields[1].GetString();
+
+        if (!IsValidEvent(eventId))
+        {
+            TC_LOG_ERROR("sql.sql", "Event (ID: {}) not referring to any gameobject_template (type 3 data6 field, type 7 data3 field, type 10 data2 field, type 13 data2 field, type 50 data7 field), any taxi path node or any spell effect {}",
+                eventId, SPELL_EFFECT_SEND_EVENT);
+            continue;
+        }
+        _eventScriptStore[eventId] = GetScriptId(scriptName);
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded {} event scripts in {} ms", _eventScriptStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 //Load WP Scripts
@@ -8980,6 +9017,14 @@ uint32 ObjectMgr::GetAreaTriggerScriptId(uint32 trigger_id) const
 SpellScriptsBounds ObjectMgr::GetSpellScriptsBounds(uint32 spellId)
 {
     return SpellScriptsBounds(_spellScriptsStore.equal_range(spellId));
+}
+
+uint32 ObjectMgr::GetEventScriptId(uint32 eventId) const
+{
+    EventScriptContainer::const_iterator i = _eventScriptStore.find(eventId);
+    if (i != _eventScriptStore.end())
+        return i->second;
+    return 0;
 }
 
 // this allows calculating base reputations to offline players, just by race and class

@@ -990,6 +990,20 @@ class TC_GAME_API WorldStateScript : public ScriptObject
         virtual void OnValueChange(int32 worldStateId, int32 oldValue, int32 newValue, Map const* map);
 };
 
+class TC_GAME_API EventScript : public ScriptObject
+{
+    protected:
+
+        explicit EventScript(char const* name);
+
+    public:
+
+        ~EventScript();
+
+        // Called when a game event is triggered
+        virtual void OnTrigger(WorldObject* object, WorldObject* invoker, uint32 eventId);
+};
+
 // Manages registration, loading, and execution of scripts.
 class TC_GAME_API ScriptMgr
 {
@@ -1295,6 +1309,10 @@ class TC_GAME_API ScriptMgr
     public: /* WorldStateScript */
 
         void OnWorldStateValueChange(WorldStateTemplate const* worldStateTemplate, int32 oldValue, int32 newValue, Map const* map);
+
+    public: /* EventScript */
+
+        void OnEventTrigger(WorldObject* object, WorldObject* invoker, uint32 eventId);
 
     private:
         uint32 _scriptCount;
