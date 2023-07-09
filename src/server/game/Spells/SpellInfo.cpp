@@ -1982,7 +1982,7 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
         std::vector<uint32> areaGroupMembers = sDB2Manager.GetAreasForGroup(RequiredAreasID);
         for (uint32 areaId : areaGroupMembers)
         {
-            if (areaId == zone_id || areaId == area_id)
+            if (DB2Manager::IsInArea(area_id, areaId))
             {
                 found = true;
                 break;

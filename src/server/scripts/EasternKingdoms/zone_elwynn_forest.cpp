@@ -436,8 +436,6 @@ public:
         if (!mathiasClone || !vanessaClone)
             return;
 
-        _vanessaGUID = vanessaClone->GetGUID();
-        _mathiasGUID = mathiasClone->GetGUID();
         mathiasClone->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
         vanessaClone->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
         vanessaClone->SetVirtualItem(1, vanessaClone->GetVirtualItemId(0)); // add 2nd dagger to hands
@@ -449,9 +447,7 @@ public:
 
     void OnConversationStart(Conversation* conversation) override
     {
-        LocaleConstant privateOwnerLocale = LOCALE_enUS;
-        if (Player* owner = ObjectAccessor::GetPlayer(*conversation, conversation->GetPrivateObjectOwner()))
-            privateOwnerLocale = owner->GetSession()->GetSessionDbLocaleIndex();
+        LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
 
         if (Milliseconds const* teleportLineStartTime = conversation->GetLineStartTime(privateOwnerLocale, CONVO_LINE_VANESSA_TELEPORT))
             _events.ScheduleEvent(EVENT_VANESSA_TELEPORT, *teleportLineStartTime);
@@ -477,7 +473,7 @@ public:
                 if (!privateObjectOwner)
                     break;
 
-                Creature* vanessaClone = ObjectAccessor::GetCreature(*conversation, _vanessaGUID);
+                Creature* vanessaClone = conversation->GetActorCreature(CONVO_ACTOR_IDX_VANESSA);
                 if (!vanessaClone)
                     break;
 
@@ -489,7 +485,7 @@ public:
             }
             case EVENT_VANESSA_MOVE:
             {
-                Creature* vanessaClone = ObjectAccessor::GetCreature(*conversation, _vanessaGUID);
+                Creature* vanessaClone = conversation->GetActorCreature(CONVO_ACTOR_IDX_VANESSA);
                 if (!vanessaClone)
                     break;
 
@@ -504,11 +500,11 @@ public:
                 if (!privateObjectOwner)
                     break;
 
-                Creature* vanessaClone = ObjectAccessor::GetCreature(*conversation, _vanessaGUID);
+                Creature* vanessaClone = conversation->GetActorCreature(CONVO_ACTOR_IDX_VANESSA);
                 if (!vanessaClone)
                     break;
 
-                Creature* mathiasClone = ObjectAccessor::GetCreature(*conversation, _mathiasGUID);
+                Creature* mathiasClone = conversation->GetActorCreature(CONVO_ACTOR_IDX_MATHIAS);
                 if (!mathiasClone)
                     break;
 
@@ -519,7 +515,7 @@ public:
             }
             case EVENT_MATHIAS_CLONE_DESPAWN:
             {
-                Creature* mathiasClone = ObjectAccessor::GetCreature(*conversation, _mathiasGUID);
+                Creature* mathiasClone = conversation->GetActorCreature(CONVO_ACTOR_IDX_MATHIAS);
                 if (!mathiasClone)
                     break;
 
@@ -532,8 +528,6 @@ public:
     }
 
 private:
-    ObjectGuid _vanessaGUID;
-    ObjectGuid _mathiasGUID;
     EventMap _events;
 };
 

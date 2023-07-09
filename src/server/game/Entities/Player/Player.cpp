@@ -15337,6 +15337,9 @@ void Player::SetRewardedQuest(uint32 quest_id)
 {
     m_RewardedQuests.insert(quest_id);
     m_RewardedQuestsSave[quest_id] = QUEST_DEFAULT_SAVE_TYPE;
+
+    if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(quest_id))
+        SetQuestCompletedBit(questBit, true);
 }
 
 void Player::FailQuest(uint32 questId)

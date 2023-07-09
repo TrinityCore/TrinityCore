@@ -78,6 +78,12 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
 
         Milliseconds const* GetLineStartTime(LocaleConstant locale, int32 lineId) const;
         Milliseconds GetLastLineEndTime(LocaleConstant locale) const;
+        static int32 GetLineDuration(LocaleConstant locale, int32 lineId);
+        Milliseconds GetLineEndTime(LocaleConstant locale, int32 lineId) const;
+
+        LocaleConstant GetPrivateObjectOwnerLocale() const;
+        Unit* GetActorUnit(uint32 actorIdx) const;
+        Creature* GetActorCreature(uint32 actorIdx) const;
 
         uint32 GetScriptId() const;
 

@@ -270,7 +270,7 @@ public:
                     }
                 }();
                 if (eventId)
-                    GameEvents::Trigger(eventId, &_owner, nullptr);
+                    GameEvents::Trigger(eventId, &_owner, &_owner);
 
                 if (_autoCycleBetweenStopFrames)
                 {

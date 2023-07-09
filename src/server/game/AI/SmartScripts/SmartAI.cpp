@@ -1242,10 +1242,26 @@ public:
     }
 };
 
+class SmartEventTrigger : public EventScript
+{
+public:
+    SmartEventTrigger() : EventScript("SmartEventTrigger") { }
+
+    void OnTrigger(WorldObject* object, WorldObject* invoker, uint32 eventId) override
+    {
+        TC_LOG_DEBUG("scripts.ai", "Event {} is using SmartEventTrigger script", eventId);
+        SmartScript script;
+        // Set invoker as BaseObject if there isn't target for GameEvents::Trigger
+        script.OnInitialize(Coalesce<WorldObject>(object, invoker), nullptr, nullptr, nullptr, eventId);
+        script.ProcessEventsFor(SMART_EVENT_SEND_EVENT_TRIGGER, invoker->ToUnit(), 0, 0, false, nullptr, invoker->ToGameObject());
+    }
+};
+
 void AddSC_SmartScripts()
 {
     new SmartTrigger();
     new SmartAreaTriggerEntityScript();
     new SmartScene();
     new SmartQuest();
+    new SmartEventTrigger();
 }
