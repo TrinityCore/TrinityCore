@@ -35,13 +35,15 @@ void EventMap::SetPhase(uint16 phase)
 
 void EventMap::ScheduleEvent(uint32 eventId, Milliseconds time, uint16 group /*= 0*/, uint16 phase /*= 0*/)
 {
+    uint64 internalEventId = uint64(eventId);
+
     if (group && group < 16)
-        eventId |= (1LL << (group + 31));
+        internalEventId |= (1LL << (group + 31));
 
     if (phase && phase < 16)
-        eventId |= (1LL << (phase + 47));
+        internalEventId |= (1LL << (phase + 47));
 
-    _eventMap.insert(EventStore::value_type(_time + time, eventId));
+    _eventMap.insert(EventStore::value_type(_time + time, internalEventId));
 }
 
 void EventMap::ScheduleEvent(uint32 eventId, Milliseconds minTime, Milliseconds maxTime, uint16 group /*= 0*/, uint16 phase /*= 0*/)
