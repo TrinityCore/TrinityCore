@@ -6958,16 +6958,8 @@ SpellCastResult Spell::CheckCasterAuras(int32* param1) const
     // Get unit state
     uint32 const unitflag = unitCaster->m_unitData->Flags;
 
-    // this check should only be done when player does cast directly
-    // (ie not when it's called from a script) Breaks for example PlayerAI when charmed
-    /*
-    if (!unitCaster->GetCharmerGUID().IsEmpty())
-    {
-        if (Unit* charmer = unitCaster->GetCharmer())
-            if (charmer->GetUnitBeingMoved() != unitCaster && !CheckSpellCancelsCharm(param1))
-                result = SPELL_FAILED_CHARMED;
-    }
-    */
+    if (m_fromClient && unitCaster->IsCharmed() && unitCaster->IsPlayer() && !CheckSpellCancelsCharm(param1))
+        result = SPELL_FAILED_CHARMED;
 
     // spell has attribute usable while having a cc state, check if caster has allowed mechanic auras, another mechanic types must prevent cast spell
     auto mechanicCheck = [&](AuraType type) -> SpellCastResult
