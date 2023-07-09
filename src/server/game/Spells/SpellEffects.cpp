@@ -1989,7 +1989,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                 }
                 break;
             case SummonPropertiesParamType::RideSpell:
-                if (sSpellMgr->GetSpellInfo(damage))
+                if (sSpellMgr->GetSpellInfo(damage) && sSpellMgr->GetSpellInfo(damage)->HasAura(SPELL_AURA_CONTROL_VEHICLE))
                     extraArgs.RideSpell = damage;
                 else // There is one spell with RecID 161 (52200) that uses bp as ride spell while most spells do not so we can assume that this parameter falls back to the hardcoded spell
                     extraArgs.RideSpell = VEHICLE_SPELL_RIDE_HARDCODED;
