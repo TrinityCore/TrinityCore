@@ -22,18 +22,18 @@ DELETE FROM `world_state` WHERE `ID` IN (20348, 20346, 20545, 20546, 20547, 2054
 INSERT INTO `world_state` (`ID`, `DefaultValue`, `MapIDs`, `AreaIDs`, `ScriptName`, `Comment`) VALUES 
 (20348, 1, '2450', NULL, '', 'Sanctum of Domination - Sylvanas Windrunner - Encounter phase'),
 (20346, 0, '2450', NULL, '', 'Sanctum of Domination - Sylvanas Windrunner - Encounter started'),
-(20545, 0, '-1', NULL, '', 'Sanctum of Domination - Normal difficulty - Testing State'),
-(20546, 0, '-1', NULL, '', 'Sanctum of Domination - Heroic difficulty - Testing State'),
-(20547, 0, '-1', NULL, '', 'Sanctum of Domination - Mythic difficulty - Testing State'),
-(20549, 0, '-1', NULL, '', 'Sanctum of Domination - LFR difficulty: The Jailer\'s Vanguard - Testing State'),
-(20550, 0, '-1', NULL, '', 'Sanctum of Domination - LFR difficulty: The Dark Bastille - Testing State'),
-(20551, 0, '-1', NULL, '', 'Sanctum of Domination - LFR difficulty: Shackles of Fate - Testing State'),
-(20552, 0, '-1', NULL, '', 'Sanctum of Domination - LFR difficulty: The Reckoning - Testing State'),
-(20554, 1, '-1', NULL, '', 'Sanctum of Domination - Normal and Heroic difficulties - Open State'),
-(20555, 1, '-1', NULL, '', 'Sanctum of Domination - Mythic difficulty and LFR difficulty: The Jailer\'s Vanguard - Open State'),
-(20556, 1, '-1', NULL, '', 'Sanctum of Domination - LFR difficulty: The Dark Bastille - Open State'),
-(20557, 1, '-1', NULL, '', 'Sanctum of Domination - LFR difficulty: Shackles of Fate - Open State'),
-(20558, 1, '-1', NULL, '', 'Sanctum of Domination - LFR difficulty: The Reckoning - Open State');
+(20545, 0, 'NULL', NULL, '', 'Sanctum of Domination - Normal difficulty - Testing State'),
+(20546, 0, 'NULL', NULL, '', 'Sanctum of Domination - Heroic difficulty - Testing State'),
+(20547, 0, 'NULL', NULL, '', 'Sanctum of Domination - Mythic difficulty - Testing State'),
+(20549, 0, 'NULL', NULL, '', 'Sanctum of Domination - LFR difficulty: The Jailer\'s Vanguard - Testing State'),
+(20550, 0, 'NULL', NULL, '', 'Sanctum of Domination - LFR difficulty: The Dark Bastille - Testing State'),
+(20551, 0, 'NULL', NULL, '', 'Sanctum of Domination - LFR difficulty: Shackles of Fate - Testing State'),
+(20552, 0, 'NULL', NULL, '', 'Sanctum of Domination - LFR difficulty: The Reckoning - Testing State'),
+(20554, 1, 'NULL', NULL, '', 'Sanctum of Domination - Normal and Heroic difficulties - Open State'),
+(20555, 1, 'NULL', NULL, '', 'Sanctum of Domination - Mythic difficulty and LFR difficulty: The Jailer\'s Vanguard - Open State'),
+(20556, 1, 'NULL', NULL, '', 'Sanctum of Domination - LFR difficulty: The Dark Bastille - Open State'),
+(20557, 1, 'NULL', NULL, '', 'Sanctum of Domination - LFR difficulty: Shackles of Fate - Open State'),
+(20558, 1, 'NULL', NULL, '', 'Sanctum of Domination - LFR difficulty: The Reckoning - Open State');
 
 -- Spikes (Pinnacle of Domination)
 DELETE FROM `gameobject_template_addon` WHERE `entry` IN (368743, 368744, 368745, 368746, 368747, 368748, 368749, 368750, 368751, 368752, 368753, 368754);
