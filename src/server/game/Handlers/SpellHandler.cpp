@@ -67,10 +67,6 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     /// @todo add targets.read() check
     Player* pUser = _player;
 
-    // ignore for remote control state
-    if (pUser->IsCharming())
-        return;
-
     uint8 bagIndex, slot, castFlags;
     uint8 castCount;                                        // next cast if exists (single or not)
     ObjectGuid itemGUID;
@@ -179,7 +175,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
     Player* player = GetPlayer();
 
     // ignore for remote control state
-    if (player->IsCharming())
+    if (player->IsCharmed())
         return;
 
     // additional check, client outputs message on its own
@@ -299,7 +295,7 @@ void WorldSession::HandleGameObjectUseOpcode(WorldPacket& recvData)
     if (GameObject* obj = GetPlayer()->GetGameObjectIfCanInteractWith(guid))
     {
         // ignore for remote control state
-        if (GetPlayer()->IsCharming())
+        if (GetPlayer()->IsCharmed())
             if (!(GetPlayer()->IsOnVehicle(GetPlayer()->GetCharmed()) || GetPlayer()->IsMounted()) && !obj->GetGOInfo()->IsUsableMounted())
                 return;
 
@@ -315,7 +311,7 @@ void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_GAMEOBJ_REPORT_USE Message [%s]", guid.ToString().c_str());
 
     // ignore for remote control state
-    if (_player->IsCharming())
+    if (_player->IsCharmed())
         return;
 
     if (GameObject* go = GetPlayer()->GetGameObjectIfCanInteractWith(guid))
@@ -336,14 +332,6 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
 
     TC_LOG_DEBUG("network", "WORLD: got cast spell packet, castCount: %u, spellId: %u, castFlags: %u, data length = %u", castCount, spellId, castFlags, (uint32)recvPacket.size());
 
-    // ignore for remote control state (for player case)
-    Unit* mover = GetGameClient()->GetActivelyMovedUnit();
-    if (!mover || (mover != _player && mover->GetTypeId() == TYPEID_PLAYER))
-    {
-        recvPacket.rfinish(); // prevent spam at ignore packet
-        return;
-    }
-
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
     {
@@ -358,37 +346,23 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    Unit* caster = mover;
-    if (caster->GetTypeId() == TYPEID_UNIT && !caster->ToCreature()->HasSpell(spellId))
-    {
-        // If the vehicle creature does not have the spell but it allows the passenger to cast own spells
-        // change caster to player and let him cast
-        if (!_player->IsOnVehicle(caster) || spellInfo->CheckVehicle(_player) != SPELL_CAST_OK)
-        {
-            recvPacket.rfinish(); // prevent spam at ignore packet
-            return;
-        }
-
-        caster = _player;
-    }
-
     // client provided targets
     SpellCastTargets targets;
-    targets.Read(recvPacket, caster);
+    targets.Read(recvPacket, _player);
     HandleClientCastFlags(recvPacket, castFlags, targets);
 
     // not have spell in spellbook
-    if (caster->GetTypeId() == TYPEID_PLAYER && !caster->ToPlayer()->HasActiveSpell(spellId))
+    if (_player->GetTypeId() == TYPEID_PLAYER && !_player->ToPlayer()->HasActiveSpell(spellId))
     {
         bool allow = false;
 
         // allow casting of unknown spells for special lock cases
         if (GameObject *go = targets.GetGOTarget())
-            if (go->GetSpellForLock(caster->ToPlayer()) == spellInfo)
+            if (go->GetSpellForLock(_player->ToPlayer()) == spellInfo)
                 allow = true;
 
         // allow casting of spells triggered by clientside periodic trigger auras
-        if (caster->HasAuraTypeWithTriggerSpell(SPELL_AURA_PERIODIC_TRIGGER_SPELL_FROM_CLIENT, spellId))
+        if (_player->HasAuraTypeWithTriggerSpell(SPELL_AURA_PERIODIC_TRIGGER_SPELL_FROM_CLIENT, spellId))
         {
             allow = true;
             triggerFlag = TRIGGERED_FULL_MASK;
@@ -398,16 +372,12 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
             return;
     }
 
-    // can't use our own spells when we're in possession of another unit,
-    if (_player->isPossessing())
-        return;
-
     // Client is resending autoshot cast opcode when other spell is cast during shoot rotation
     // Skip it to prevent "interrupt" message
     // Also check targets! target may have changed and we need to interrupt current spell
     if (spellInfo->IsAutoRepeatRangedSpell())
     {
-        if (Spell* spell = caster->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
+        if (Spell* spell = _player->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
         {
             if (spell->m_spellInfo == spellInfo && spell->m_targets.GetUnitTargetGUID() == targets.GetUnitTargetGUID())
             {
@@ -429,13 +399,17 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
                 spellInfo = actualSpellInfo;
         }
 
-    Spell* spell = new Spell(caster, spellInfo, triggerFlag);
+    Spell* spell = new Spell(_player, spellInfo, triggerFlag);
+    spell->m_fromClient = true;
     spell->m_cast_count = castCount;                       // set count of casts
     spell->prepare(targets);
 }
 
 void WorldSession::HandleCancelCastOpcode(WorldPackets::Spells::CancelCast& cancelCast)
 {
+    if (_player->IsCharmed())
+        return;
+
     if (_player->IsNonMeleeSpellCast(false))
         _player->InterruptNonMeleeSpells(false, cancelCast.SpellID, false);
 }
@@ -571,7 +545,7 @@ void WorldSession::HandleCancelChanneling(WorldPackets::Spells::CancelChannellin
 void WorldSession::HandleTotemDestroyed(WorldPackets::Totem::TotemDestroyed& totemDestroyed)
 {
     // ignore for remote control state
-    if (_player->IsCharming())
+    if (_player->IsCharmed())
         return;
 
     uint8 slotId = totemDestroyed.Slot;
