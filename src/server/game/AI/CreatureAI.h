@@ -98,6 +98,9 @@ class TC_GAME_API CreatureAI : public UnitAI
         // Called for reaction when initially engaged - this will always happen _after_ JustEnteredCombat
         virtual void JustEngagedWith(Unit* /*who*/) { }
 
+        // Called when unit can't die but has reached 1 hp
+        virtual void OnDeathPrevented(Unit* /*attacker*/) { }
+
         // Called when the creature is killed
         virtual void JustDied(Unit* /*killer*/) { }
 
