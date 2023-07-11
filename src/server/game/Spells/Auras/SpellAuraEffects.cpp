@@ -3298,14 +3298,6 @@ void AuraEffect::HandleAuraModEffectImmunity(AuraApplication const* aurApp, uint
         }
         else
             sOutdoorPvPMgr->HandleDropFlag(player, GetSpellInfo()->Id);
-
-        if (GameObject* gameObjectCaster = player->GetMap()->GetGameObject(GetCasterGUID()))
-        {
-            gameObjectCaster->HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Dropped, player));
-            if (gameObjectCaster->GetGoType() == GAMEOBJECT_TYPE_NEW_FLAG)
-                if (GameObject* droppedFlag = gameObjectCaster->SummonGameObject(gameObjectCaster->GetGOInfo()->newflag.FlagDrop, player->GetPosition(), QuaternionData::fromEulerAnglesZYX(player->GetOrientation(), 0.f, 0.f), Seconds(gameObjectCaster->GetGOInfo()->newflag.ExpireDuration / 1000), GO_SUMMON_TIMED_DESPAWN))
-                    droppedFlag->SetOwnerGUID(gameObjectCaster->GetGUID());
-        }
     }
 }
 
@@ -6242,7 +6234,16 @@ void AuraEffect::HandleBattlegroundPlayerPosition(AuraApplication const* aurApp,
         bg->AddPlayerPosition(playerPosition);
     }
     else
+    {
         bg->RemovePlayerPosition(target->GetGUID());
+        if (GameObject* gameObjectCaster = battlegroundMap->GetGameObject(GetCasterGUID()))
+        {
+            gameObjectCaster->HandleCustomTypeCommand(GameObjectType::SetNewFlagState(FlagState::Dropped, target));
+            if (gameObjectCaster->GetGoType() == GAMEOBJECT_TYPE_NEW_FLAG)
+                if (GameObject* droppedFlag = gameObjectCaster->SummonGameObject(gameObjectCaster->GetGOInfo()->newflag.FlagDrop, target->GetPosition(), QuaternionData::fromEulerAnglesZYX(target->GetOrientation(), 0.f, 0.f), Seconds(gameObjectCaster->GetGOInfo()->newflag.ExpireDuration / 1000), GO_SUMMON_TIMED_DESPAWN))
+                    droppedFlag->SetOwnerGUID(gameObjectCaster->GetGUID());
+        }
+    }
 }
 
 void AuraEffect::HandleStoreTeleportReturnPoint(AuraApplication const* aurApp, uint8 mode, bool apply) const
