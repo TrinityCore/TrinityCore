@@ -147,7 +147,8 @@ target_compile_options(trinity-compile-option-interface
     /w34100  # C4100 'identifier' : unreferenced formal parameter
     /w34101  # C4101: 'identifier' : unreferenced local variable
     /w34189  # C4189: 'identifier' : local variable is initialized but not referenced
-    /w34389) # C4189: 'equality-operator' : signed/unsigned mismatch
+    /w34389  # C4389: 'equality-operator' : signed/unsigned mismatch
+	/w35054) # C5054: 'operator 'operator-name': deprecated between enumerations of different types'
 
 # Enable and treat as errors the following warnings to easily detect virtual function signature failures:
 # 'function' : member function does not override any base class virtual member function
