@@ -60,8 +60,19 @@ void UnitAI::AttackStartCaster(Unit* victim, float dist)
 
 void UnitAI::DoMeleeAttackIfReady()
 {
-    if (me->HasUnitState(UNIT_STATE_CASTING) || (me->IsCreature() && !me->ToCreature()->CanMelee()))
+    if (me->IsCreature() && !me->ToCreature()->CanMelee())
         return;
+
+    if (me->HasUnitState(UNIT_STATE_CASTING))
+    {
+        if (Spell* channeledSpell = me->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
+        {
+            if (!channeledSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_ALLOW_ACTIONS_DURING_CHANNEL))
+                return;
+        }
+        else
+            return;
+    }
 
     Unit* victim = me->GetVictim();
 

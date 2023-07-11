@@ -2096,6 +2096,17 @@ void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extr
     if (HasUnitState(UNIT_STATE_CANNOT_AUTOATTACK) && !extra)
         return;
 
+    if (HasUnitState(UNIT_STATE_CASTING))
+    {
+        if (Spell* channeledSpell = GetCurrentSpell(CURRENT_CHANNELED_SPELL))
+        {
+            if (!channeledSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_ALLOW_ACTIONS_DURING_CHANNEL))
+                return;
+        }
+        else
+            return;
+    }
+
     if (HasAuraType(SPELL_AURA_DISABLE_ATTACKING_EXCEPT_ABILITIES))
         return;
 
