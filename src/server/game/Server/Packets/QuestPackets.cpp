@@ -316,7 +316,7 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
     _worldPacket << int32(Info.RewardNextQuest);
     _worldPacket << uint32(Info.RewardXPDifficulty);
 
-    if ((Info.Flags & QUEST_FLAGS_HIDDEN_REWARDS) != 0)
+    if ((Info.Flags & QUEST_FLAGS_HIDE_REWARD) != 0)
         _worldPacket << int32(0);
     else
         _worldPacket << int32(Info.RewardMoney);
@@ -339,7 +339,7 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
     _worldPacket << uint32(Info.PortraitGiver);
     _worldPacket << uint32(Info.PortraitTurnIn);
 
-    if ((Info.Flags & QUEST_FLAGS_HIDDEN_REWARDS) != 0)
+    if ((Info.Flags & QUEST_FLAGS_HIDE_REWARD) != 0)
     {
         for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
             _worldPacket << int32(0) << uint32(0);

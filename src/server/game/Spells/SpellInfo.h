@@ -474,6 +474,7 @@ class TC_GAME_API SpellInfo
         bool HasAura(AuraType aura) const;
         bool HasAreaAuraEffect() const;
         bool HasOnlyDamageEffects() const;
+        bool HasTargetType(::Targets target) const;
 
         inline bool HasAttribute(SpellAttr0 attribute)  const { return !!(Attributes & attribute); }
         inline bool HasAttribute(SpellAttr1 attribute)  const { return !!(AttributesEx & attribute); }

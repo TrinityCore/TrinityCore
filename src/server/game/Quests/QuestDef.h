@@ -131,40 +131,40 @@ enum QuestGiverStatus
 
 };
 
-enum QuestFlags
+enum QuestFlags : uint32
 {
     QUEST_FLAGS_NONE                        = 0x00000000,
-    QUEST_FLAGS_STAY_ALIVE                  = 0x00000001,   // Not used currently
-    QUEST_FLAGS_PARTY_ACCEPT                = 0x00000002,   // Not used currently. If player in party, all players that can accept this quest will receive confirmation box to accept quest CMSG_QUEST_CONFIRM_ACCEPT/SMSG_QUEST_CONFIRM_ACCEPT
-    QUEST_FLAGS_EXPLORATION                 = 0x00000004,   // Not used currently
+    QUEST_FLAGS_COMPLETION_NO_DEATH         = 0x00000001,
+    QUEST_FLAGS_COMPLETION_EVENT            = 0x00000002,
+    QUEST_FLAGS_COMPLETION_AREA_TRIGGER     = 0x00000004,
     QUEST_FLAGS_SHARABLE                    = 0x00000008,   // Can be shared: Player::CanShareQuest()
     QUEST_FLAGS_HAS_CONDITION               = 0x00000010,   // Not used currently
-    QUEST_FLAGS_HIDE_REWARD_POI             = 0x00000020,   // Not used currently: Unsure of content
-    QUEST_FLAGS_RAID                        = 0x00000040,   // Can be completed while in raid
-    QUEST_FLAGS_TBC                         = 0x00000080,   // Not used currently: Available if TBC expansion enabled only
-    QUEST_FLAGS_NO_MONEY_FROM_XP            = 0x00000100,   // Not used currently: Experience is not converted to gold at max level
-    QUEST_FLAGS_HIDDEN_REWARDS              = 0x00000200,   // Items and money rewarded only sent in SMSG_QUESTGIVER_OFFER_REWARD (not in SMSG_QUESTGIVER_QUEST_DETAILS or in client quest log(SMSG_QUEST_QUERY_RESPONSE))
-    QUEST_FLAGS_TRACKING                    = 0x00000400,   // These quests are automatically rewarded on quest complete and they will never appear in quest log client side.
+    QUEST_FLAGS_HIDE_REWARD_POI             = 0x00000020,   // Hides questgiver turn-in minimap icon
+    QUEST_FLAGS_RAID_GROUP_OK               = 0x00000040,   // Can be completed while in raid
+    QUEST_FLAGS_EXPANSION_ONLY              = 0x00000080,   // Not used currently
+    QUEST_FLAGS_NO_MONEY_FOR_XP             = 0x00000100,   // Experience is not converted to gold at max level
+    QUEST_FLAGS_HIDE_REWARD                 = 0x00000200,   // Items and money rewarded only sent in SMSG_QUESTGIVER_OFFER_REWARD (not in SMSG_QUEST_GIVER_QUEST_DETAILS or in client quest log(SMSG_QUEST_QUERY_RESPONSE))
+    QUEST_FLAGS_TRACKING_EVENT              = 0x00000400,   // These quests are automatically rewarded on quest complete and they will never appear in quest log client side.
     QUEST_FLAGS_DEPRECATE_REPUTATION        = 0x00000800,   // Not used currently
     QUEST_FLAGS_DAILY                       = 0x00001000,   // Used to know quest is Daily one
     QUEST_FLAGS_FLAGS_PVP                   = 0x00002000,   // Having this quest in log forces PvP flag
-    QUEST_FLAGS_UNAVAILABLE                 = 0x00004000,   // Used on quests that are not generically available
+    QUEST_FLAGS_DEPRECATED                  = 0x00004000,   // Used on quests that are not generally available
     QUEST_FLAGS_WEEKLY                      = 0x00008000,
-    QUEST_FLAGS_AUTOCOMPLETE                = 0x00010000,   // Quests with this flag player submit automatically by special button in player gui
+    QUEST_FLAGS_AUTO_COMPLETE               = 0x00010000,   // Quests with this flag player submit automatically by special button in player gui
     QUEST_FLAGS_DISPLAY_ITEM_IN_TRACKER     = 0x00020000,   // Displays usable item in quest tracker
-    QUEST_FLAGS_OBJ_TEXT                    = 0x00040000,   // use Objective text as Complete text
+    QUEST_FLAGS_DISABLE_COMPLETION_TEXT     = 0x00040000,   // use Objective text as Complete text
     QUEST_FLAGS_AUTO_ACCEPT                 = 0x00080000,   // The client recognizes this flag as auto-accept.
-    QUEST_FLAGS_PLAYER_CAST_ON_ACCEPT       = 0x00100000,
-    QUEST_FLAGS_PLAYER_CAST_ON_COMPLETE     = 0x00200000,
-    QUEST_FLAGS_UPDATE_PHASE_SHIFT          = 0x00400000,
+    QUEST_FLAGS_PLAYER_CAST_ACCEPT          = 0x00100000,
+    QUEST_FLAGS_PLAYER_CAST_COMPLETE        = 0x00200000,
+    QUEST_FLAGS_UPDATE_PHASESHIFT           = 0x00400000,
     QUEST_FLAGS_SOR_WHITELIST               = 0x00800000,
     QUEST_FLAGS_LAUNCH_GOSSIP_COMPLETE      = 0x01000000,
-    QUEST_FLAGS_REMOVE_EXTRA_GET_ITEMS      = 0x02000000,
-    QUEST_FLAGS_HIDE_UNTIL_DISCOVERED       = 0x04000000,
+    QUEST_FLAGS_REMOVE_SURPLUS_ITEMS        = 0x02000000,   // Remove all items from inventory that have the same id as the objective, not just the amount required by quest
+    QUEST_FLAGS_WELL_KNOWN                  = 0x04000000,
     QUEST_FLAGS_PORTRAIT_IN_QUEST_LOG       = 0x08000000,
     QUEST_FLAGS_SHOW_ITEM_WHEN_COMPLETED    = 0x10000000,
     QUEST_FLAGS_LAUNCH_GOSSIP_ACCEPT        = 0x20000000,
-    QUEST_FLAGS_ITEMS_GLOW_WHEN_DONE        = 0x40000000,
+    QUEST_FLAGS_ITEMS_GLOW_WHEN_COMPLETE    = 0x40000000,
     QUEST_FLAGS_FAIL_ON_LOGOUT              = 0x80000000
 };
 
@@ -173,14 +173,14 @@ enum QuestSpecialFlags
     QUEST_SPECIAL_FLAGS_NONE                 = 0x000,
     // Trinity flags for set SpecialFlags in DB if required but used only at server
     QUEST_SPECIAL_FLAGS_REPEATABLE           = 0x001,   // Set by 1 in SpecialFlags from DB
-    QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT = 0x002,   // Set by 2 in SpecialFlags from DB (if required area explore, spell SPELL_EFFECT_QUEST_COMPLETE casting, table `FECT_QUEST_COMPLETE casting, table `*_script` command SCRIPT_COMMAND_QUEST_EXPLORED use, set from script)
+    QUEST_SPECIAL_FLAGS_AUTO_PUSH_TO_PARTY   = 0x002,   // Set by 2 in SpecialFlags from DB will make quest be pushed to entire party when one member accepts it
     QUEST_SPECIAL_FLAGS_AUTO_ACCEPT          = 0x004,   // Set by 4 in SpecialFlags in DB if the quest is to be auto-accepted.
     QUEST_SPECIAL_FLAGS_DF_QUEST             = 0x008,   // Set by 8 in SpecialFlags in DB if the quest is used by Dungeon Finder.
     QUEST_SPECIAL_FLAGS_MONTHLY              = 0x010,   // Set by 16 in SpecialFlags in DB if the quest is reset at the begining of the month
     QUEST_SPECIAL_FLAGS_CAST                 = 0x020,   // Set by 32 in SpecialFlags in DB if the quest requires RequiredOrNpcGo killcredit but NOT kill (a spell cast)
     // room for more custom flags
 
-    QUEST_SPECIAL_FLAGS_DB_ALLOWED = QUEST_SPECIAL_FLAGS_REPEATABLE | QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT | QUEST_SPECIAL_FLAGS_AUTO_ACCEPT | QUEST_SPECIAL_FLAGS_DF_QUEST | QUEST_SPECIAL_FLAGS_MONTHLY | QUEST_SPECIAL_FLAGS_CAST,
+    QUEST_SPECIAL_FLAGS_DB_ALLOWED = QUEST_SPECIAL_FLAGS_REPEATABLE | QUEST_SPECIAL_FLAGS_AUTO_ACCEPT | QUEST_SPECIAL_FLAGS_DF_QUEST | QUEST_SPECIAL_FLAGS_MONTHLY | QUEST_SPECIAL_FLAGS_CAST,
 
     QUEST_SPECIAL_FLAGS_DELIVER              = 0x080,   // Internal flag computed only
     QUEST_SPECIAL_FLAGS_SPEAKTO              = 0x100,   // Internal flag computed only
@@ -242,20 +242,23 @@ class TC_GAME_API Quest
         bool HasFlag(uint32 flag) const { return (_flags & flag) != 0; }
         void SetFlag(uint32 flag) { _flags |= flag; }
 
-        bool HasSpecialFlag(uint32 flag) const { return (_specialFlags & flag) != 0; }
-        void SetSpecialFlag(uint32 flag) { _specialFlags |= flag; }
+        bool HasSpecialFlag(QuestSpecialFlags flag) const { return (_specialFlags & flag) != 0; }
+        void SetSpecialFlag(QuestSpecialFlags flag) { _specialFlags |= flag; }
+
+        // Possibly deprecated flag
+        bool IsUnavailable() const { return HasFlag(QUEST_FLAGS_DEPRECATED); }
 
         // whether the quest is globally enabled (spawned by pool, game event active etc.)
         static bool IsTakingQuestEnabled(uint32 questId);
 
         // table data accessors:
         uint32 GetQuestId() const { return _id; }
-        uint32 GetQuestMethod() const { return _method; }
+        uint32 GetQuestType() const { return _type; }
         int32  GetZoneOrSort() const { return _zoneOrSort; }
         uint32 GetMinLevel() const { return _minLevel; }
         uint32 GetMaxLevel() const { return _maxLevel; }
         int32  GetQuestLevel() const { return _level; }
-        uint32 GetType() const { return _type; }
+        uint32 GetQuestInfoId() const { return _questInfoId; }
         uint32 GetAllowableClasses() const { return _allowableClasses; }
         uint32 GetAllowableRaces() const { return _allowableRaces; }
         uint32 GetRequiredSkill() const { return _requiredSkillId; }
@@ -312,9 +315,9 @@ class TC_GAME_API Quest
         uint32 GetSoundTurnIn() const { return _soundTurnIn; }
         uint32 GetIncompleteEmote() const { return _emoteOnIncomplete; }
         uint32 GetCompleteEmote() const { return _emoteOnComplete; }
-        bool   IsRepeatable() const { return _specialFlags & QUEST_SPECIAL_FLAGS_REPEATABLE; }
-        bool   IsAutoAccept() const;
-        bool   IsAutoComplete() const;
+        bool IsRepeatable() const { return _specialFlags & QUEST_SPECIAL_FLAGS_REPEATABLE; }
+        bool IsAutoAccept() const;
+        bool IsTurnIn() const;
         uint32 GetFlags() const { return _flags; }
         uint32 GetSpecialFlags() const { return _specialFlags; }
         uint32 GetMinimapTargetMark() const { return _minimapTargetMark; }
@@ -323,17 +326,18 @@ class TC_GAME_API Quest
         uint32 GetRewardReputationMask() const { return _rewardReputationMask; }
         uint32 GetQuestGiverPortrait() const { return _questGiverPortrait; }
         uint32 GetQuestTurnInPortrait() const { return _questTurnInPortrait; }
-        bool   IsDaily() const { return (_flags & QUEST_FLAGS_DAILY) != 0; }
-        bool   IsWeekly() const { return (_flags & QUEST_FLAGS_WEEKLY) != 0; }
-        bool   IsMonthly() const { return (_specialFlags & QUEST_SPECIAL_FLAGS_MONTHLY) != 0; }
-        bool   IsSeasonal() const { return (_zoneOrSort == -QUEST_SORT_SEASONAL || _zoneOrSort == -QUEST_SORT_SPECIAL || _zoneOrSort == -QUEST_SORT_LUNAR_FESTIVAL || _zoneOrSort == -QUEST_SORT_MIDSUMMER || _zoneOrSort == -QUEST_SORT_BREWFEST || _zoneOrSort == -QUEST_SORT_LOVE_IS_IN_THE_AIR || _zoneOrSort == -QUEST_SORT_NOBLEGARDEN) && !IsRepeatable(); }
-        bool   IsDailyOrWeekly() const { return (_flags & (QUEST_FLAGS_DAILY | QUEST_FLAGS_WEEKLY)) != 0; }
-        bool   IsRaidQuest(Difficulty difficulty) const;
-        bool   IsAllowedInRaid(Difficulty difficulty) const;
-        bool   IsDFQuest() const { return (_specialFlags & QUEST_SPECIAL_FLAGS_DF_QUEST) != 0; }
+        bool IsDaily() const { return (_flags & QUEST_FLAGS_DAILY) != 0; }
+        bool IsWeekly() const { return (_flags & QUEST_FLAGS_WEEKLY) != 0; }
+        bool IsMonthly() const { return (_specialFlags & QUEST_SPECIAL_FLAGS_MONTHLY) != 0; }
+        bool IsSeasonal() const { return (_zoneOrSort == -QUEST_SORT_SEASONAL || _zoneOrSort == -QUEST_SORT_SPECIAL || _zoneOrSort == -QUEST_SORT_LUNAR_FESTIVAL || _zoneOrSort == -QUEST_SORT_MIDSUMMER || _zoneOrSort == -QUEST_SORT_BREWFEST || _zoneOrSort == -QUEST_SORT_LOVE_IS_IN_THE_AIR || _zoneOrSort == -QUEST_SORT_NOBLEGARDEN) && !IsRepeatable(); }
+        bool IsDailyOrWeekly() const { return (_flags & (QUEST_FLAGS_DAILY | QUEST_FLAGS_WEEKLY)) != 0; }
+        bool IsRaidQuest(Difficulty difficulty) const;
+        bool IsAllowedInRaid(Difficulty difficulty) const;
+        bool IsDFQuest() const { return (_specialFlags & QUEST_SPECIAL_FLAGS_DF_QUEST) != 0; }
+        bool IsPushedToPartyOnAccept() const { return HasSpecialFlag(QUEST_SPECIAL_FLAGS_AUTO_PUSH_TO_PARTY); }
         uint32 CalculateHonorGain(uint8 level) const;
-        bool   CanIncreaseRewardedQuestCounters() const;
-        bool   IsStartAtAreaTrigger() const { return _startsAtAreaTrigger; }
+        bool CanIncreaseRewardedQuestCounters() const;
+        bool IsStartAtAreaTrigger() const { return _startsAtAreaTrigger; }
 
         // multiple values
         std::string ObjectiveText[QUEST_OBJECTIVES_COUNT];
@@ -395,11 +399,11 @@ class TC_GAME_API Quest
 
         // table data
         uint32 _id = 0;
-        uint32 _method = 0;
+        uint32 _type = 0;
         int32  _zoneOrSort = 0;
         uint32 _minLevel = 0;
         int32  _level = 0;
-        uint32 _type = 0;
+        uint32 _questInfoId = 0;
         uint32 _requiredFactionId1 = 0;
         int32  _requiredFactionValue1 = 0;
         uint32 _requiredFactionId2 = 0;

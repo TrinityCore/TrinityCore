@@ -29,11 +29,11 @@
 Quest::Quest(Field* questRecord)
 {
     _id = questRecord[0].GetUInt32();
-    _method = questRecord[1].GetUInt8();
+    _type = questRecord[1].GetUInt8();
     _level = questRecord[2].GetInt16();
     _minLevel = questRecord[3].GetInt16();
     _zoneOrSort = questRecord[4].GetInt16();
-    _type = questRecord[5].GetUInt16();
+    _questInfoId = questRecord[5].GetUInt16();
     _suggestedPlayers = questRecord[6].GetUInt8();
     _requiredFactionId1 = questRecord[7].GetUInt16();
     _requiredFactionId2 = questRecord[8].GetUInt16();
@@ -339,7 +339,7 @@ void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player
 uint32 Quest::GetRewMoneyMaxLevel() const
 {
     // If Quest has flag to not give money on max level, it's 0
-    if (HasFlag(QUEST_FLAGS_NO_MONEY_FROM_XP))
+    if (HasFlag(QUEST_FLAGS_NO_MONEY_FOR_XP))
         return 0;
 
     // Else, return the rewarded copper sum modified by the rate
@@ -351,26 +351,26 @@ bool Quest::IsAutoAccept() const
     return !sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_ACCEPT) && HasFlag(QUEST_FLAGS_AUTO_ACCEPT);
 }
 
-bool Quest::IsAutoComplete() const
+bool Quest::IsTurnIn() const
 {
-    return !sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_COMPLETE) && _method == 0;
+    return !sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_COMPLETE) && _type == QUEST_TYPE_TURNIN;
 }
 
 bool Quest::IsRaidQuest(Difficulty difficulty) const
 {
-    switch (_type)
+    switch (_questInfoId)
     {
-        case QUEST_TYPE_RAID:
-            return true;
-        case QUEST_TYPE_RAID_10:
-            return !(difficulty & RAID_DIFFICULTY_MASK_25MAN);
-        case QUEST_TYPE_RAID_25:
-            return difficulty & RAID_DIFFICULTY_MASK_25MAN;
-        default:
-            break;
+    case QUEST_INFO_RAID:
+        return true;
+    case QUEST_INFO_RAID_10:
+        return difficulty == RAID_DIFFICULTY_10MAN_NORMAL || difficulty == RAID_DIFFICULTY_10MAN_HEROIC;
+    case QUEST_INFO_RAID_25:
+        return difficulty == RAID_DIFFICULTY_25MAN_NORMAL || difficulty == RAID_DIFFICULTY_25MAN_HEROIC;
+    default:
+        break;
     }
 
-    if ((_flags & QUEST_FLAGS_RAID) != 0)
+    if ((_flags & QUEST_FLAGS_RAID_GROUP_OK) != 0)
         return true;
 
     return false;
@@ -470,11 +470,11 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc) const
             ObjectMgr::GetLocaleString(localeData->ObjectiveText[i], loc, locQuestObjectiveText[i]);
     }
 
-    response.Info.QuestType = GetQuestMethod();
+    response.Info.QuestType = GetQuestType();
     response.Info.QuestLevel = GetQuestLevel();
     response.Info.QuestMinLevel = GetMinLevel();
     response.Info.QuestSortID = GetZoneOrSort();
-    response.Info.QuestInfoID = GetType();
+    response.Info.QuestInfoID = GetQuestInfoId();
 
     response.Info.SuggestedGroupNum = GetSuggestedPlayers();
 

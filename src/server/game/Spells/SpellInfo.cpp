@@ -1103,6 +1103,20 @@ bool SpellInfo::HasOnlyDamageEffects() const
     return true;
 }
 
+bool SpellInfo::HasTargetType(::Targets target) const
+{
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        if (!Effects[i].IsEffect())
+            continue;
+
+        if (Effects[i].TargetA.GetTarget() == target || Effects[i].TargetB.GetTarget() == target)
+            return true;
+    }
+
+    return false;
+}
+
 bool SpellInfo::CanBeInterrupted(Unit const* interruptTarget, bool ignoreImmunity /*= false*/) const
 {
     return HasAttribute(SPELL_ATTR7_CAN_ALWAYS_BE_INTERRUPTED)

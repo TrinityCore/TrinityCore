@@ -196,7 +196,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPackets::Quest::QuestG
         {
             _player->AddQuestAndCheckCompletion(quest, object);
 
-            if (quest->HasFlag(QUEST_FLAGS_PARTY_ACCEPT))
+            if (quest->IsPushedToPartyOnAccept())
             {
                 if (Group* group = _player->GetGroup())
                 {
@@ -221,6 +221,21 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPackets::Quest::QuestG
             }
 
             _player->PlayerTalkClass->SendCloseGossip();
+
+            if (quest->HasFlag(QUEST_FLAGS_LAUNCH_GOSSIP_ACCEPT))
+            {
+                auto launchGossip = [&](WorldObject* worldObject)
+                {
+                    _player->PlayerTalkClass->ClearMenus();
+                    _player->PrepareGossipMenu(worldObject, _player->GetDefaultGossipMenuForSource(worldObject), true);
+                    _player->SendPreparedGossip(worldObject);
+                };
+
+                if (Creature* creature = object->ToCreature())
+                    launchGossip(creature);
+                else if (GameObject* go = object->ToGameObject())
+                    launchGossip(go);
+            }
 
             if (quest->GetSrcSpell() > 0)
                 _player->CastSpell(_player, quest->GetSrcSpell(), true);
@@ -258,7 +273,7 @@ void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPackets::Quest::QuestGi
         if (quest->IsAutoAccept() && _player->CanAddQuest(quest, true))
             _player->AddQuestAndCheckCompletion(quest, object);
 
-        if (quest->IsAutoComplete())
+        if (quest->IsTurnIn())
             _player->PlayerTalkClass->SendQuestGiverRequestItems(quest, object->GetGUID(), _player->CanCompleteQuest(quest->GetQuestId()), true);
         else
         {
@@ -295,7 +310,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::Quest
 
     Object* object = _player;
 
-    if (!quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE))
+    if (!quest->HasFlag(QUEST_FLAGS_AUTO_COMPLETE))
     {
         object = ObjectAccessor::GetObjectByTypeMask(*_player, packet.QuestGiverGUID, TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT);
         if (!object || !object->hasInvolvedQuest(packet.QuestID))
@@ -307,70 +322,17 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::Quest
     }
 
     if ((!_player->CanSeeStartQuest(quest) &&  _player->GetQuestStatus(packet.QuestID) == QUEST_STATUS_NONE) ||
-        (_player->GetQuestStatus(packet.QuestID) != QUEST_STATUS_COMPLETE && !quest->IsAutoComplete()))
+        (_player->GetQuestStatus(packet.QuestID) != QUEST_STATUS_COMPLETE && !quest->IsTurnIn()))
     {
         TC_LOG_ERROR("entities.player.cheat", "Error in QUEST_STATUS_COMPLETE: player %s (guid %u) tried to complete quest %u, but is not allowed to do so (possible packet-hacking or high latency)",
                         _player->GetName().c_str(), _player->GetGUID().GetCounter(), packet.QuestID);
         return;
     }
 
-    if (_player->CanRewardQuest(quest, packet.ItemChoiceID, true))
+    if (_player->CanRewardQuest(quest, true))
     {
-        _player->RewardQuest(quest, packet.ItemChoiceID, object);
-
-        switch (object->GetTypeId())
-        {
-            case TYPEID_UNIT:
-            case TYPEID_PLAYER:
-            {
-                // Send next quest
-                if (Quest const* nextQuest = _player->GetNextQuest(packet.QuestGiverGUID, quest))
-                {
-                    // Only send the quest to the player if the conditions are met
-                    if (_player->CanTakeQuest(nextQuest, false))
-                    {
-                        if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true))
-                            _player->AddQuestAndCheckCompletion(nextQuest, object);
-
-                        // Previous quest has been rewarded via popup. The player may now accept the follow quest from himself.
-                        if (object->IsPlayer() && quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE) && !nextQuest->IsAutoAccept())
-                            _player->SetPopupQuestId(nextQuest->GetQuestId());
-                        else
-                            _player->SetPopupQuestId(0);
-
-                        _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, packet.QuestGiverGUID, true, false);
-                    }
-                }
-
-                _player->PlayerTalkClass->ClearMenus();
-                if (Creature* creatureQGiver = object->ToCreature())
-                    creatureQGiver->AI()->QuestReward(_player, quest, packet.ItemChoiceID);
-                break;
-            }
-            case TYPEID_GAMEOBJECT:
-            {
-                // Send next quest
-                if (Quest const* nextQuest = _player->GetNextQuest(packet.QuestGiverGUID, quest))
-                {
-                    // Only send the quest to the player if the conditions are met
-                    if (_player->CanTakeQuest(nextQuest, false))
-                    {
-                        if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true))
-                            _player->AddQuestAndCheckCompletion(nextQuest, object);
-
-                        _player->SetPopupQuestId(0);
-                        _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, packet.QuestGiverGUID, true, false);
-                    }
-                }
-
-                _player->PlayerTalkClass->ClearMenus();
-                if (GameObject* questGiver = object->ToGameObject())
-                    questGiver->AI()->QuestReward(_player, quest, packet.ItemChoiceID);
-                break;
-            }
-            default:
-                break;
-        }
+        if (_player->CanRewardQuest(quest, packet.ItemChoiceID, true))
+            _player->RewardQuest(quest, packet.ItemChoiceID, object);
     }
     else
         _player->PlayerTalkClass->SendQuestGiverOfferReward(quest, packet.QuestGiverGUID, true);
@@ -473,49 +435,48 @@ void WorldSession::HandleQuestConfirmAccept(WorldPackets::Quest::QuestConfirmAcc
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUEST_CONFIRM_ACCEPT QuestID = %u", packet.QuestID);
 
-    if (Quest const* quest = sObjectMgr->GetQuestTemplate(packet.QuestID))
-    {
-        if (!quest->HasFlag(QUEST_FLAGS_PARTY_ACCEPT))
-            return;
-
-        Player* originalPlayer = ObjectAccessor::FindPlayer(_player->GetPlayerSharingQuest());
-        if (!originalPlayer)
-            return;
-
-        if (!_player->IsInSameRaidWith(originalPlayer))
-            return;
-
-        if (!originalPlayer->IsActiveQuest(packet.QuestID))
-            return;
-
-        if (!_player->CanTakeQuest(quest, true))
-            return;
-
-        if (_player->CanAddQuest(quest, true))
-        {
-            _player->AddQuestAndCheckCompletion(quest, nullptr); // nullptr, this prevent DB script from duplicate running
-
-            if (quest->GetSrcSpell() > 0)
-                _player->CastSpell(_player, quest->GetSrcSpell(), true);
-        }
-    }
+    if (_player->GetSharedQuestID() != uint32(packet.QuestID))
+        return;
 
     _player->ClearQuestSharingInfo();
+    Quest const* quest = sObjectMgr->GetQuestTemplate(packet.QuestID);
+    if (!quest)
+        return;
+
+    Player* originalPlayer = ObjectAccessor::FindPlayer(_player->GetPlayerSharingQuest());
+    if (!originalPlayer)
+        return;
+
+    if (!_player->IsInSameRaidWith(originalPlayer))
+        return;
+
+    if (!originalPlayer->IsActiveQuest(packet.QuestID))
+        return;
+
+    if (!_player->CanTakeQuest(quest, true))
+        return;
+
+    if (!_player->CanAddQuest(quest, true))
+        return;
+
+    _player->AddQuestAndCheckCompletion(quest, nullptr); // NULL, this prevent DB script from duplicate running
+
+    if (quest->GetSrcSpell() > 0)
+        _player->CastSpell(_player, quest->GetSrcSpell(), true);
 }
 
 void WorldSession::HandleQuestgiverCompleteQuest(WorldPackets::Quest::QuestGiverCompleteQuest& packet)
 {
+    bool autoCompleteMode = packet.FromScript; // 0 - standart complete quest mode with npc, 1 - auto-complete mode
+
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUESTGIVER_COMPLETE_QUEST npc = %s, questId = %u self-complete: %u", packet.QuestGiverGUID.ToString().c_str(), packet.QuestID, packet.FromScript ? 1 : 0);
 
     Quest const* quest = sObjectMgr->GetQuestTemplate(packet.QuestID);
     if (!quest)
         return;
 
-    if (packet.FromScript && !quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE))
-        return;
-
     Object* object = nullptr;
-    if (packet.FromScript)
+    if (autoCompleteMode)
         object = _player;
     else
         object = ObjectAccessor::GetObjectByTypeMask(*_player, packet.QuestGiverGUID, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT);
@@ -523,7 +484,7 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPackets::Quest::QuestGiver
     if (!object)
         return;
 
-    if (!packet.FromScript)
+    if (!quest->HasFlag(QUEST_FLAGS_AUTO_COMPLETE))
     {
         if (!object->hasInvolvedQuest(packet.QuestID))
             return;
@@ -641,7 +602,7 @@ void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
         if (quest->IsAutoAccept() && receiver->CanAddQuest(quest, true) && receiver->CanTakeQuest(quest, true))
             receiver->AddQuestAndCheckCompletion(quest, sender);
 
-        if (quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly())
+        if (quest->IsTurnIn() && quest->IsRepeatable() && !quest->IsDailyOrWeekly())
             receiver->PlayerTalkClass->SendQuestGiverRequestItems(quest, sender->GetGUID(), receiver->CanCompleteRepeatableQuest(quest), true);
         else
         {
