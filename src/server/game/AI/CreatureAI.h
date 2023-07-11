@@ -98,8 +98,8 @@ class TC_GAME_API CreatureAI : public UnitAI
         // Called for reaction when initially engaged - this will always happen _after_ JustEnteredCombat
         virtual void JustEngagedWith(Unit* /*who*/) { }
 
-        // Called when unkillable creature reached 1 hp for the first time
-        virtual void OnDeathPrevented(Unit* /*attacker*/) { }
+        // Called when the creature reaches 0 health (or 1 if unkillable).
+        virtual void OnHealthDepleted(Unit* /*attacker*/) { }
 
         // Called when the creature is killed
         virtual void JustDied(Unit* /*killer*/) { }
