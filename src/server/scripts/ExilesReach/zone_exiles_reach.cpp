@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AreaTriggerAI.h"
 #include "Conversation.h"
 #include "CreatureAIImpl.h"
 #include "Map.h"
@@ -45,6 +46,11 @@ CreatureAI* GetPrivatePublicPairAISelector(Creature* creature)
 }
 
 #define RegisterPrivatePublicCreatureAIPair(scriptName, privateAI, publicAI) new FactoryCreatureScript<CreatureAI, &GetPrivatePublicPairAISelector<privateAI, publicAI>>(scriptName);
+
+static Creature* FindCreatureIgnorePhase(WorldObject const* obj, char* stringId, float range = 100.0f)
+{
+    return obj->FindNearestCreatureWithOptions(range, FindCreatureOptions().SetIgnorePhases(true).SetStringId(std::string_view(stringId)));
+}
 
 static Creature* FindCreatureIgnorePhase(WorldObject const* obj, std::string_view stringId, float range = 100.0f)
 {
@@ -1401,9 +1407,9 @@ enum ExilesReachAllianceSurvivorsBeachData
     NPC_BJORN_STOUTHANDS_STANDING         = 151089,
     NPC_AUSTIN_HUXWORTH_STANDING          = 154170,
 
-    PATH_KEE_LA_STANDING                  = 10520120,
-    PATH_BJORN_STOUTHANDS_STANDING        = 10520130,
-    PATH_AUSTIN_HUXWORTH_STANDING         = 10520140,
+    PATH_KEE_LA_STANDING                  = ((1052012 * 10) + 1) << 3,
+    PATH_BJORN_STOUTHANDS_STANDING        = ((1052013 * 10) + 1) << 3,
+    PATH_AUSTIN_HUXWORTH_STANDING         = ((1052014 * 10) + 1) << 3,
 
     SPELL_BANDAGING_QUEST                 = 297415
 };
@@ -1433,30 +1439,31 @@ struct npc_alliance_survivors_beach_laying : public ScriptedAI
 
 enum ExilesReachHordeSurvivorsBeachData
 {
-    EVENT_SURVIVORS_HORDE_STAND_AND_TALK    = 1,
+    EVENT_SURVIVORS_HORDE_STAND_AND_TALK        = 1,
     EVENT_SURVIVORS_HORDE_MOVE_TO_GRIMAXE,
 
-    EVENT_SURVIVORS_SALUTE                  = 1,
+    EVENT_SURVIVORS_SALUTE                      = 1,
     EVENT_SURVIVORS_LEAVE_BEACH,
 
-    NPC_BO_LAYING_LAYING                    = 166786,
-    NPC_MITHDRAN_LAYING                     = 166791,
-    NPC_LANA_JORDAN_LAYING                  = 166796,
-    NPC_BO_STANDING                         = 166787,
-    NPC_MITHDRAN_STANDING                   = 166792,
-    NPC_LANA_JORDAN_STANDING                = 166797,
+    NPC_BO_LAYING_LAYING                        = 166786,
+    NPC_MITHDRAN_LAYING                         = 166791,
+    NPC_LANA_JORDAN_LAYING                      = 166796,
+    NPC_BO_STANDING                             = 166787,
+    NPC_MITHDRAN_STANDING                       = 166792,
+    NPC_LANA_JORDAN_STANDING                    = 166797,
 
-    QUEST_FINDING_THE_LOST_EXPEDITION_HORDE = 59931,
+    QUEST_FINDING_THE_LOST_EXPEDITION_HORDE     = 59931,
+    QUEST_FINDING_THE_LOST_EXPEDITION_ALLIANCE  = 54952,
 
-    PATH_BO_TO_GRIMAXE                      = 10520210,
-    PATH_MITHDRAN_TO_GRIMAXE                = 10520220,
-    PATH_LANA_JORDAN_TO_GRIMAXE             = 10520230,
+    PATH_BO_TO_GRIMAXE                          = 10520210,
+    PATH_MITHDRAN_TO_GRIMAXE                    = 10520220,
+    PATH_LANA_JORDAN_TO_GRIMAXE                 = 10520230,
 
-    PATH_BO_LEAVE_BEACH                     = 10520211,
-    PATH_MITHDRAN_LEAVE_BEACH               = 10520221,
-    PATH_LANA_JORDAN_LEAVE_BEACH            = 10520231,
+    PATH_BO_LEAVE_BEACH                         = ((1052021 * 10) + 1) << 3,
+    PATH_MITHDRAN_LEAVE_BEACH                   = ((1052022 * 10) + 1) << 3,
+    PATH_LANA_JORDAN_LEAVE_BEACH                = ((1052023 * 10) + 1) << 3,
 
-    TALK_HORDE_BEACH_THANK_PLAYER           = 0
+    TALK_HORDE_BEACH_THANK_PLAYER               = 0
 };
 
 // 166786 - Bo
@@ -1714,57 +1721,67 @@ CreatureAI* LanaJordanBeachStandingAISelector(Creature* creature)
 
 CreatureAI* KeeLaBeachStandingAISelector(Creature* creature)
 {
-    return creature->IsPrivateObject() ? new npc_survivors_beach_leave_private<PATH_KEE_LA_STANDING, 7 * IN_MILLISECONDS>(creature) : nullptr;
+    if (creature->IsPrivateObject())
+        return new npc_survivors_beach_leave_private<PATH_KEE_LA_STANDING, 7 * IN_MILLISECONDS>(creature);
+    return new NullCreatureAI(creature);
 };
 
 CreatureAI* BjornBeachStandingAISelector(Creature* creature)
 {
-    return creature->IsPrivateObject() ? new npc_survivors_beach_leave_private<PATH_BJORN_STOUTHANDS_STANDING, 4 * IN_MILLISECONDS>(creature) : nullptr;
+    if (creature->IsPrivateObject())
+        return new npc_survivors_beach_leave_private<PATH_BJORN_STOUTHANDS_STANDING, 4 * IN_MILLISECONDS>(creature);
+    return new NullCreatureAI(creature);
 };
 
 CreatureAI* AustinBeachStandingAISelector(Creature* creature)
 {
-    return creature->IsPrivateObject() ? new npc_survivors_beach_leave_private<PATH_AUSTIN_HUXWORTH_STANDING, 5 * IN_MILLISECONDS>(creature) : nullptr;
+    if (creature->IsPrivateObject())
+        return new npc_survivors_beach_leave_private<PATH_AUSTIN_HUXWORTH_STANDING, 5 * IN_MILLISECONDS>(creature);
+    return new NullCreatureAI(creature);
 };
 
 enum LostExpeditionFollowerData
 {
-    ACTOR_ID_EMPTY                             = 0,
-    ACTOR_ID_ALLIANCE_ALARIA                   = 71297,
-    ACTOR_ID_ALLIANCE_SURVIVOR                 = 69830,
-    ACTOR_ID_HORDE_WONZA                       = 76284,
-    ACTOR_ID_HORDE_SURVIVOR                    = 76283,
+    ACTOR_ID_EMPTY                              = 0,
+    ACTOR_ID_ALLIANCE_SURVIVOR                  = 69830,
+    ACTOR_ID_HORDE_SURVIVOR                     = 76283,
 
-    ACTOR_INDEX_SURVIVOR_ZERO                  = 0,
+    ACTOR_INDEX_SURVIVOR_ZERO                   = 0,
     ACTOR_INDEX_SURVIVOR_ONE,
     ACTOR_INDEX_SURVIVOR_TWO,
     ACTOR_INDEX_SURVIVOR_THREE,
 
-    AREA_ABANDONED_CAMP                        = 10452,
+    AREA_ABANDONED_CAMP                         = 10452,
 
-    CONVERSATION_LINE_ESCORT_ALLIANCE_SURVIVOR = 12044,
-    CONVERSATION_LINE_ESCORT_HORDE_SURVIVOR    = 14437,
-    CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP     = 12058,
+    CONVERSATION_LINE_ESCORT_ALLIANCE_SURVIVOR  = 12044,
+    CONVERSATION_LINE_ESCORT_HORDE_SURVIVOR     = 14437,
+    CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP      = 12058,
 
-    EVENT_INITIAL_SPAWN_CHECK                  = 1,
+    EVENT_INITIAL_SPAWN_CHECK                   = 1,
     EVENT_FOLLOW_PLAYER,
 
-    SPELL_GARRICK_PING                         = 313664,
-    SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN      = 297295,
-    SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN      = 325075
+    SPELL_GARRICK_PING                          = 313664,
+    SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN       = 297295,
+    SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN       = 325075,
+
+    POINT_CAMP_POSITION                         = 0,
 };
 
-// This script is used by Captian Garrick 165359 Follower for Finding the Lost Expedition quest
+Position const GarrickAbandonedCampPosition = { -249.059006f, -2492.520020f, 18.0742f };
+Position const GrimaxeAbandonedCampPosition = { -249.20117f, -2492.6191f, 17.964903f };
+
+// 165359 - Captain Garrick
+// This script is used by Captian Garrick Follower for Finding the Lost Expedition quest
 struct npc_garrick_summoned_beach : public EscortAI
 {
     npc_garrick_summoned_beach(Creature* creature) : EscortAI(creature), _reachedCamp(false) {}
 
     void IsSummonedBy(WorldObject* summoner) override
     {
-        if (summoner->GetTypeId() != TYPEID_PLAYER)
+        Player* player = summoner->ToPlayer();
+        if (!player)
             return;
 
-        Player* player = summoner->ToPlayer();
         _playerGUID = player->GetGUID();
 
         _events.ScheduleEvent(EVENT_INITIAL_SPAWN_CHECK, 1s);
@@ -1785,25 +1802,24 @@ struct npc_garrick_summoned_beach : public EscortAI
             if (Creature* alaria = FindCreatureIgnorePhase(player, "alaria_camp", 50.0f))
             {
                 Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP, player, *player, _playerGUID, nullptr, false);
-                conversation->AddActor(ACTOR_ID_ALLIANCE_ALARIA, ACTOR_INDEX_SURVIVOR_ZERO, alaria->GetGUID());
                 conversation->AddActor(ACTOR_ID_ALLIANCE_SURVIVOR, ACTOR_INDEX_SURVIVOR_ONE, me->GetGUID());
                 conversation->Start();
             }
 
             me->GetMotionMaster()->Remove(FOLLOW_MOTION_TYPE);
-            me->GetMotionMaster()->MovePoint(0, -249.059006f, -2492.520020f, 18.0742f, false);
+            me->GetMotionMaster()->MovePoint(POINT_CAMP_POSITION, GarrickAbandonedCampPosition, false);
         }
     }
 
-    void MovementInform(uint32 uiType, uint32 /*uiId*/) override
+    void MovementInform(uint32 uiType, uint32 uiId) override
     {
-        if (uiType != POINT_MOTION_TYPE)
+        if (uiType != POINT_MOTION_TYPE || uiId != POINT_CAMP_POSITION)
             return;
 
         if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
         {
             player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
-            player->UpdateObjectVisibility();
+            player->UpdateObjectVisibility(); // @TODO: required?
             player->RemoveAura(SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN);
         }
     }
@@ -1817,30 +1833,30 @@ struct npc_garrick_summoned_beach : public EscortAI
             switch (eventId)
             {
                 case EVENT_INITIAL_SPAWN_CHECK:
+                {
+                    Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID);
+                    if (!player)
+                        break;
+
+                    Creature* survivor = FindCreatureIgnorePhase(player, "spawn_check");
+
+                    if (!survivor)
                     {
-                        Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID);
-                        if (!player)
-                            break;
-
-                        Creature* survivor = FindCreatureIgnorePhase(player, "spawn_check");
-
-                        if (!survivor)
-                        {
-                            if (player->GetAreaId() != AREA_ABANDONED_CAMP)
-                                player->RemoveAura(SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN);
-                            else
-                                _events.ScheduleEvent(EVENT_FOLLOW_PLAYER, 0s);
-                        }
+                        if (player->GetAreaId() != AREA_ABANDONED_CAMP)
+                            player->RemoveAura(SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN);
                         else
-                        {
-                            Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_ALLIANCE_SURVIVOR, player, *player, _playerGUID, nullptr, false);
-                            conversation->AddActor(ACTOR_ID_ALLIANCE_SURVIVOR, ACTOR_INDEX_SURVIVOR_ONE, me->GetGUID());
-                            conversation->Start();
+                            _events.ScheduleEvent(EVENT_FOLLOW_PLAYER, 0s);
+                    }
+                    else
+                    {
+                        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_ALLIANCE_SURVIVOR, player, *player, _playerGUID, nullptr, false);
+                        conversation->AddActor(ACTOR_ID_ALLIANCE_SURVIVOR, ACTOR_INDEX_SURVIVOR_ONE, me->GetGUID());
+                        conversation->Start();
 
-                            _events.ScheduleEvent(EVENT_FOLLOW_PLAYER, 2s);
-                        }
+                        _events.ScheduleEvent(EVENT_FOLLOW_PLAYER, 2s);
                     }
                     break;
+                }
                 case EVENT_FOLLOW_PLAYER:
                     if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                         me->GetMotionMaster()->MoveFollow(player, 0.0f, 0.0f);
@@ -1856,19 +1872,19 @@ private:
     bool _reachedCamp;
 };
 
-// This script is used by Warlord Grimaxe 166805 Follower for Finding the Lost Expedition quest
+// 166805 - Warlord Breka Grimaxe
+// This script is used by Warlord Grimaxe Follower for Finding the Lost Expedition quest
 struct npc_grimaxe_summoned_beach : public EscortAI
 {
     npc_grimaxe_summoned_beach(Creature* creature) : EscortAI(creature), _reachedCamp(false) {}
 
     void IsSummonedBy(WorldObject* summoner) override
     {
-        if (summoner->GetTypeId() != TYPEID_PLAYER)
+        Player* player = summoner->ToPlayer();
+        if (!player)
             return;
 
-        Player* player = summoner->ToPlayer();
         _playerGUID = player->GetGUID();
-
         _reachedCamp = false;
 
         _events.ScheduleEvent(EVENT_INITIAL_SPAWN_CHECK, 1s);
@@ -1884,28 +1900,24 @@ struct npc_grimaxe_summoned_beach : public EscortAI
 
         if (Player* player = caster->ToPlayer())
         {
-            if (Creature* wonza = FindCreatureIgnorePhase(player, "wonza_camp", 50.0f))
-            {
-                Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP, player, *player, _playerGUID, nullptr, false);
-                conversation->AddActor(ACTOR_ID_HORDE_WONZA, ACTOR_INDEX_SURVIVOR_TWO, wonza->GetGUID());
-                conversation->AddActor(ACTOR_ID_HORDE_SURVIVOR, ACTOR_INDEX_SURVIVOR_THREE, me->GetGUID());
-                conversation->Start();
-            }
+            Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP, player, *player, _playerGUID, nullptr, false);
+            conversation->AddActor(ACTOR_ID_HORDE_SURVIVOR, ACTOR_INDEX_SURVIVOR_THREE, me->GetGUID());
+            conversation->Start();
 
             me->GetMotionMaster()->Remove(FOLLOW_MOTION_TYPE);
-            me->GetMotionMaster()->MovePoint(0, -249.20117f, -2492.6191f, 17.964903f, false);
+            me->GetMotionMaster()->MovePoint(POINT_CAMP_POSITION, GrimaxeAbandonedCampPosition, false);
         }
     }
 
-    void MovementInform(uint32 uiType, uint32 /*uiId*/) override
+    void MovementInform(uint32 uiType, uint32 uiId) override
     {
-        if (uiType != POINT_MOTION_TYPE)
+        if (uiType != POINT_MOTION_TYPE || uiId != POINT_CAMP_POSITION)
             return;
 
         if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
         {
             player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
-            player->UpdateObjectVisibility();
+            player->UpdateObjectVisibility(); // @TODO: required?
             player->RemoveAura(SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN);
         }
     }
@@ -1919,30 +1931,30 @@ struct npc_grimaxe_summoned_beach : public EscortAI
             switch (eventId)
             {
                 case EVENT_INITIAL_SPAWN_CHECK:
+                {
+                    Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID);
+                    if (!player)
+                        break;
+
+                    Creature* survivor = FindCreatureIgnorePhase(player, "spawn_check");
+
+                    if (!survivor)
                     {
-                        Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID);
-                        if (!player)
-                            break;
-
-                        Creature* survivor = FindCreatureIgnorePhase(player, "spawn_check");
-
-                        if (!survivor)
-                        {
-                            if (player->GetAreaId() != AREA_ABANDONED_CAMP)
-                                player->RemoveAura(SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN);
-                            else
-                                _events.ScheduleEvent(EVENT_FOLLOW_PLAYER, 0s);
-                        }
+                        if (player->GetAreaId() != AREA_ABANDONED_CAMP)
+                            player->RemoveAura(SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN);
                         else
-                        {
-                            Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_HORDE_SURVIVOR, player, *player, _playerGUID, nullptr, false);
-                            conversation->AddActor(ACTOR_ID_HORDE_SURVIVOR, ACTOR_INDEX_SURVIVOR_TWO, me->GetGUID());
-                            conversation->Start();
+                            _events.ScheduleEvent(EVENT_FOLLOW_PLAYER, 0s);
+                    }
+                    else
+                    {
+                        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_LINE_ESCORT_HORDE_SURVIVOR, player, *player, _playerGUID, nullptr, false);
+                        conversation->AddActor(ACTOR_ID_HORDE_SURVIVOR, ACTOR_INDEX_SURVIVOR_TWO, me->GetGUID());
+                        conversation->Start();
 
-                            _events.ScheduleEvent(EVENT_FOLLOW_PLAYER, 2s);
-                        }
+                        _events.ScheduleEvent(EVENT_FOLLOW_PLAYER, 2s);
                     }
                     break;
+                }
                 case EVENT_FOLLOW_PLAYER:
                     if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                         me->GetMotionMaster()->MoveFollow(player, 0.0f, 0.0f);
@@ -1958,53 +1970,36 @@ private:
     bool _reachedCamp;
 };
 
-// Quest 54952 Alliance and Quest 59931 Horde
+// 54952 - Finding the Lost Expedition
+// 59931 - Finding the Lost Expedition
 class quest_finding_the_lost_expedition : public QuestScript
 {
 public:
-    quest_finding_the_lost_expedition() : QuestScript("quest_finding_the_lost_expedition") { }
+    quest_finding_the_lost_expedition(char const* script) : QuestScript(script) { }
 
-    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    void HandleQuestStatusChange(Player* player, QuestStatus newStatus, uint32 summonSpellId, std::string_view survivor1StringId, std::string_view survivor2StringId, std::string_view survivor3StringId)
     {
         switch (newStatus)
         {
             case QUEST_STATUS_INCOMPLETE:
                 player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
+                player->CastSpell(player, summonSpellId);
 
-                if (player->GetTeam() == ALLIANCE)
+                if (Creature* survivor1 = player->FindNearestCreatureWithOptions(25.0f, FindCreatureOptions().SetStringId(survivor1StringId).SetIgnorePhases(true)))
                 {
-                    player->CastSpell(player, SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN);
-
-                    if (Creature* keela = player->FindNearestCreatureWithOptions(25.0f, FindCreatureOptions().SetStringId("kee_la_beach").SetIgnorePhases(true)))
-                    {
-                        Creature* check = keela->SummonPersonalClone(keela->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
-                        check->SetScriptStringId("spawn_check");
-                    }
-                    if (Creature* bjorn = player->FindNearestCreatureWithOptions(25.0f, FindCreatureOptions().SetStringId("bjorn_stouthands_beach").SetIgnorePhases(true)))
-                        bjorn->SummonPersonalClone(bjorn->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
-                    if (Creature* survivor_three = player->FindNearestCreatureWithOptions(25.0f, FindCreatureOptions().SetStringId("austin_huxworth_beach").SetIgnorePhases(true)))
-                        survivor_three->SummonPersonalClone(survivor_three->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+                    Creature* survivor1Personal = survivor1->SummonPersonalClone(survivor1->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+                    survivor1Personal->SetScriptStringId("spawn_check");
                 }
-                else
-                {
-                    player->CastSpell(player, SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN);
+                if (Creature* survivor2 = player->FindNearestCreatureWithOptions(25.0f, FindCreatureOptions().SetStringId(survivor2StringId).SetIgnorePhases(true)))
+                    survivor2->SummonPersonalClone(survivor2->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+                if (Creature* survivor3 = player->FindNearestCreatureWithOptions(25.0f, FindCreatureOptions().SetStringId(survivor3StringId).SetIgnorePhases(true)))
+                    survivor3->SummonPersonalClone(survivor3->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
 
-                    if (Creature* bo = player->FindNearestCreatureWithOptions(25.0f, FindCreatureOptions().SetStringId("bo_beach").SetIgnorePhases(true)))
-                    {
-                        Creature* check = bo->SummonPersonalClone(bo->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
-                        check->SetScriptStringId("spawn_check");
-                    }
-                    if (Creature* mithran = player->FindNearestCreatureWithOptions(25.0f, FindCreatureOptions().SetStringId("mithran_beach").SetIgnorePhases(true)))
-                        mithran->SummonPersonalClone(mithran->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
-
-                    if (Creature* lana = player->FindNearestCreatureWithOptions(25.0f, FindCreatureOptions().SetStringId("lana_jordan_beach").SetIgnorePhases(true)))
-                        lana->SummonPersonalClone(lana->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
-                }
                 break;
             case QUEST_STATUS_NONE:
-                player->RemoveAura(player->GetTeam() == ALLIANCE ? SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN : SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN);
+                player->RemoveAura(summonSpellId);
                 player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
-                player->UpdateObjectVisibility();
+                player->UpdateObjectVisibility(); // @Todo: remove?
                 break;
             default:
                 break;
@@ -2012,7 +2007,40 @@ public:
     }
 };
 
-// Spell 305596 Alliance and Spell 325076 Horde
+// 54952 - Finding the Lost Expedition
+class quest_finding_the_lost_expedition_alliance : public quest_finding_the_lost_expedition
+{
+public:
+    quest_finding_the_lost_expedition_alliance() : quest_finding_the_lost_expedition("quest_finding_the_lost_expedition_alliance") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        HandleQuestStatusChange(player, newStatus,
+            SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN,
+            "kee_la_beach",
+            "bjorn_stouthands_beach",
+            "austin_huxworth_beach");
+    }
+};
+
+// 59931 - Finding the Lost Expedition
+class quest_finding_the_lost_expedition_horde : public quest_finding_the_lost_expedition
+{
+public:
+    quest_finding_the_lost_expedition_horde() : quest_finding_the_lost_expedition("quest_finding_the_lost_expedition_horde") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        HandleQuestStatusChange(player, newStatus,
+            SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN,
+            "bo_beach",
+            "mithran_beach",
+            "lana_jordan_beach");
+    }
+};
+
+// 305596 - Summon Admiral Garrick Guardian
+// 325076 - Summon Warlord Grimaxe
 class spell_summon_survivor_beach : public SpellScript
 {
     PrepareSpellScript(spell_summon_survivor_beach);
@@ -2040,120 +2068,152 @@ class spell_summon_survivor_beach : public SpellScript
 // * Scripting in this section occurs after reaching Abandoned Camp *
 // ******************************************************************
 
-enum CaptainGarrickCamp
+enum CaptainGarrickAbandonedCampData
 {
-    ACTOR_ID_ALLIANCE_GARRICK_CAMP                    = 71309,
+    CONVERSATION_QUEST_COOKING_MEAT_ACCEPT_ALLIANCE     = 11696,
+    CONVERSATION_QUEST_COOKING_MEAT_COMPLETE_ALLIANCE   = 12863,
 
-    CONVERSATION_QUEST_COOKING_MEAT_ACCEPT_ALLIANCE   = 11696,
-    CONVERSATION_QUEST_COOKING_MEAT_COMPLETE_ALLIANCE = 12863,
-
-    QUEST_COOKING_MEAT_ALLIANCE                       = 55174
+    QUEST_COOKING_MEAT_ALLIANCE                         = 55174
 };
 
-struct npc_captain_garrick_camp : public ScriptedAI
+enum WarlordGrimaxeAbandonedCampData
 {
-    npc_captain_garrick_camp(Creature* creature) : ScriptedAI(creature) { }
+    CONVERSATION_QUEST_COOKING_MEAT_ACCEPT_HORDE        = 14439,
+    CONVERSATION_QUEST_COOKING_MEAT_COMPLETE_HORDE      = 14611,
+
+    QUEST_COOKING_MEAT_HORDE                            = 59932
+};
+
+
+template<uint32 QuestId, uint32 ConversationId>
+struct npc_captain_abandoned_camp_exiles_reach : public ScriptedAI
+{
+    npc_captain_abandoned_camp_exiles_reach(Creature* creature) : ScriptedAI(creature) { }
 
     void OnQuestAccept(Player* player, Quest const* quest) override
     {
-        if (quest->GetQuestId() == QUEST_COOKING_MEAT_ALLIANCE)
-        {
-            if (Creature* alaria = FindCreatureIgnorePhase(player, "alaria_camp"))
-            {
-                Conversation* conversation = Conversation::CreateConversation(CONVERSATION_QUEST_COOKING_MEAT_ACCEPT_ALLIANCE, player, *player, player->GetGUID(), nullptr, false);
-                conversation->AddActor(ACTOR_ID_ALLIANCE_ALARIA, ACTOR_INDEX_SURVIVOR_ZERO, alaria->GetGUID());
-                conversation->AddActor(ACTOR_ID_ALLIANCE_GARRICK_CAMP, ACTOR_INDEX_SURVIVOR_ONE, me->GetGUID());
-                conversation->Start();
-            }
-        }
+        if (quest->GetQuestId() != QuestId)
+            return;
+
+        Conversation::CreateConversation(ConversationId, player, *player, player->GetGUID());
     }
 };
 
-enum WarlordGrimaxeCamp
-{
-    ACTOR_ID_HORDE_GRIMAXE_CAMP                    = 75956,
-
-    CONVERSATION_QUEST_COOKING_MEAT_ACCEPT_HORDE   = 14439,
-    CONVERSATION_QUEST_COOKING_MEAT_COMPLETE_HORDE = 14611,
-
-    QUEST_COOKING_MEAT_HORDE                       = 59932
-};
-
-struct npc_warlord_grimaxe_camp : public ScriptedAI
-{
-    npc_warlord_grimaxe_camp(Creature* creature) : ScriptedAI(creature) { }
-
-    void OnQuestAccept(Player* player, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_COOKING_MEAT_HORDE)
-        {
-            if (Creature* wonza = FindCreatureIgnorePhase(player, "wonza_camp"))
-            {
-                Conversation* conversation = Conversation::CreateConversation(CONVERSATION_QUEST_COOKING_MEAT_ACCEPT_HORDE, player, *player, player->GetGUID(), nullptr, false);
-                conversation->AddActor(ACTOR_ID_HORDE_WONZA, ACTOR_INDEX_SURVIVOR_ZERO, wonza->GetGUID());
-                conversation->AddActor(ACTOR_ID_HORDE_GRIMAXE_CAMP, ACTOR_INDEX_SURVIVOR_ONE, me->GetGUID());
-                conversation->Start();
-            }
-        }
-    }
-};
-
-enum CookingMeatQuest
+enum CookingMeatQuestData
 {
     ANIMATION_KIT_INJURED = 14432
 };
 
+Position const InjuredNpcPositionAbandonedCamp = { -245.40973f, -2492.0886f, 18.404648f, 2.4754f };
+
+// 55174 - Cooking Meat
+// 59932 - Cooking Meat
 class quest_cooking_meat : public QuestScript
 {
 public:
-    quest_cooking_meat() : QuestScript("quest_cooking_meat") { }
+    quest_cooking_meat(char const* script) : QuestScript(script) { }
 
-    void OnQuestStatusChange(Player* player, Quest const* quest, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    void HandleQuestStatusChange(Player* player, QuestStatus newStatus, uint32 completeConversationId, std::string_view injuredStringId)
     {
         switch (newStatus)
         {
             case QUEST_STATUS_COMPLETE:
-                {
-                    if (quest->GetQuestId() == QUEST_COOKING_MEAT_ALLIANCE)
-                    {
-                        Creature* alaria = FindCreatureIgnorePhase(player, "alaria_camp");
-                        Creature* garrick = FindCreatureIgnorePhase(player, "garrick_camp");
-                        if (!alaria || !garrick)
-                            break;
-
-                        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_QUEST_COOKING_MEAT_COMPLETE_ALLIANCE, player, *player, player->GetGUID(), nullptr, false);
-                        conversation->AddActor(ACTOR_ID_ALLIANCE_ALARIA, ACTOR_INDEX_SURVIVOR_ZERO, alaria->GetGUID());
-                        conversation->AddActor(ACTOR_ID_ALLIANCE_GARRICK_CAMP, ACTOR_INDEX_SURVIVOR_ONE, garrick->GetGUID());
-                        conversation->Start();
-                    }
-                    else if (quest->GetQuestId() == QUEST_COOKING_MEAT_HORDE)
-                    {
-                        Creature* wonza = FindCreatureIgnorePhase(player, "wonza_camp");
-                        Creature* grimaxe = FindCreatureIgnorePhase(player, "grimaxe_camp");
-                        if (!wonza || !grimaxe)
-                            break;
-
-                        Conversation* conversation = Conversation::CreateConversation(CONVERSATION_QUEST_COOKING_MEAT_COMPLETE_HORDE, player, *player, player->GetGUID(), nullptr, false);
-                        conversation->AddActor(ACTOR_ID_HORDE_WONZA, ACTOR_INDEX_SURVIVOR_ZERO, wonza->GetGUID());
-                        conversation->AddActor(ACTOR_ID_HORDE_GRIMAXE_CAMP, ACTOR_INDEX_SURVIVOR_ONE, grimaxe->GetGUID());
-                        conversation->Start();
-                    }
-                }
+            {
+                Conversation::CreateConversation(completeConversationId, player, *player, player->GetGUID());
                 break;
+            }
             case QUEST_STATUS_REWARDED:
-                {
-                    Creature* injured = FindCreatureIgnorePhase(player, player->GetTeam() == ALLIANCE ? "alaria_standing_camp" : "wonza_standing_camp");
-                    if (!injured)
-                        break;
-                    Creature* injuredPresonal = injured->SummonPersonalClone({ -245.40973f, -2492.0886f, 18.404648f, 2.4754f }, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
-                    if (!injuredPresonal)
-                        break;
-                    injuredPresonal->SetAIAnimKitId(ANIMATION_KIT_INJURED);
-                    injuredPresonal->DespawnOrUnsummon(2s);
-                }
+            {
+                Creature* injured = FindCreatureIgnorePhase(player, injuredStringId);
+                if (!injured)
+                    break;
+
+                Creature* injuredPersonal = injured->SummonPersonalClone(InjuredNpcPositionAbandonedCamp, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+                if (!injuredPersonal)
+                    break;
+
+                injuredPersonal->SetAIAnimKitId(ANIMATION_KIT_INJURED);
+                injuredPersonal->DespawnOrUnsummon(2s);
                 break;
+            }
             default:
                 break;
+        }
+    }
+};
+
+// 55174 - Cooking Meat
+class quest_cooking_meat_alliance : public quest_cooking_meat
+{
+public:
+    quest_cooking_meat_alliance() : quest_cooking_meat("quest_cooking_meat_alliance") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        HandleQuestStatusChange(player, newStatus,
+            CONVERSATION_QUEST_COOKING_MEAT_COMPLETE_ALLIANCE,
+            "alaria_standing_camp");
+    }
+};
+
+// 59932 - Cooking Meat
+class quest_cooking_meat_horde : public quest_cooking_meat
+{
+public:
+    quest_cooking_meat_horde() : quest_cooking_meat("quest_cooking_meat_horde") { }
+
+    void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+    {
+        HandleQuestStatusChange(player, newStatus,
+            CONVERSATION_QUEST_COOKING_MEAT_COMPLETE_HORDE,
+            "wonza_standing_camp");
+    }
+};
+
+struct areatrigger_find_the_lost_expedition : AreaTriggerAI
+{
+    areatrigger_find_the_lost_expedition(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        Player* player = unit->ToPlayer();
+        if (!player)
+            return;
+
+        if (player->GetQuestStatus(QUEST_FINDING_THE_LOST_EXPEDITION_ALLIANCE) == QUEST_STATUS_COMPLETE || player->GetQuestStatus(QUEST_FINDING_THE_LOST_EXPEDITION_HORDE) == QUEST_STATUS_INCOMPLETE)
+            player->CastSpell(player, SPELL_GARRICK_PING);
+    }
+};
+
+struct areatrigger_find_the_lost_expedition_follower : AreaTriggerAI
+{
+    areatrigger_find_the_lost_expedition_follower(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        Player* player = unit->ToPlayer();
+        if (!player)
+            return;
+
+        if (player->GetTeam() == ALLIANCE)
+        {
+            if (player->GetQuestStatus(QUEST_FINDING_THE_LOST_EXPEDITION_ALLIANCE) != QUEST_STATUS_INCOMPLETE)
+                return;
+
+            if (player->HasAura(SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN))
+                return;
+
+            player->CastSpell(player, SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN);
+        }
+        else
+        {
+            if (player->GetQuestStatus(QUEST_FINDING_THE_LOST_EXPEDITION_HORDE) != QUEST_STATUS_INCOMPLETE)
+                return;
+
+            if (player->HasAura(SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN))
+                return;
+
+            player->CastSpell(player, SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN);
         }
     }
 };
@@ -2204,11 +2264,15 @@ void AddSC_zone_exiles_reach()
     new FactoryCreatureScript<CreatureAI, &AustinBeachStandingAISelector>("npc_austin_huxworth_beach_standing");
     RegisterCreatureAI(npc_garrick_summoned_beach);
     RegisterCreatureAI(npc_grimaxe_summoned_beach);
-    new quest_finding_the_lost_expedition();
+    new quest_finding_the_lost_expedition_alliance();
+    new quest_finding_the_lost_expedition_horde();
     RegisterSpellScript(spell_summon_survivor_beach);
 
     // Abandoned Camp
-    RegisterCreatureAI(npc_captain_garrick_camp);
-    RegisterCreatureAI(npc_warlord_grimaxe_camp);
-    new quest_cooking_meat();
+    new GenericCreatureScript<npc_captain_abandoned_camp_exiles_reach<QUEST_COOKING_MEAT_ALLIANCE, CONVERSATION_QUEST_COOKING_MEAT_ACCEPT_ALLIANCE>>("npc_captain_garrick_abandoned_camp");
+    new GenericCreatureScript<npc_captain_abandoned_camp_exiles_reach<QUEST_COOKING_MEAT_HORDE, CONVERSATION_QUEST_COOKING_MEAT_ACCEPT_HORDE>>("npc_warlord_grimaxe_abandoned_camp");
+    new quest_cooking_meat_alliance();
+    new quest_cooking_meat_horde();
+    RegisterAreaTriggerAI(areatrigger_find_the_lost_expedition);
+    RegisterAreaTriggerAI(areatrigger_find_the_lost_expedition_follower);
 }

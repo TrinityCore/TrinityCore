@@ -3,7 +3,8 @@
 -- Areatrigger
 
 SET @ID := 24; -- needs assigning
-SET @SPAWNID := 24;  -- needs assigning
+SET @SPAWNID := 24;  -- needs assigning 
+
 -- Create new serverside areatrigger for entering Exile's Reach Abandoned Camp for follower spawn
 DELETE FROM `areatrigger` WHERE `SpawnId`=@SPAWNID;
 INSERT INTO `areatrigger` (`SpawnId`,`AreaTriggerId`,`IsServerSide`,`MapId`,`PosX`,`PosY`,`PosZ`,`Orientation`,`PhaseUseFlags`,`PhaseId`,`PhaseGroup`,`Shape`,`ShapeData0`,`ShapeData1`,`ShapeData2`,`ShapeData3`,`ShapeData4`,`ShapeData5`,`ShapeData6`,`ShapeData7`,`ScriptName`,`Comment`) VALUES
@@ -55,15 +56,10 @@ INSERT INTO `creature_questender` (`id`, `quest`, `VerifiedBuild`) VALUES
 (156607, 54952, 45745), -- Alliance
 (166854, 59931, 46455); -- Horde
 
-DELETE FROM `quest_template_addon` WHERE `ID` IN (54952,59931);
-INSERT INTO `quest_template_addon` (`ID`,`NextQuestID`,`ScriptName`) VALUES
-(54952,55174,'quest_finding_the_lost_expedition'), -- Alliance
-(59931,59932,'quest_finding_the_lost_expedition'); -- Horde
-
 -- Pathing
 
 -- Pathing for Kee-La 151088 "Finding the Lost Expedition"
-SET @PATH := 1052012 * 10;
+SET @PATH := ((1052012 * 10) + 1) << 3;
 DELETE FROM `waypoint_data` WHERE `id` IN (@PATH);
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
 (@PATH,1,-425.92883,-2603.427,0.48476708,NULL,0,1,0,100,0),
@@ -72,49 +68,49 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,4,-395.08508,-2594.441,3.153698,NULL,0,1,0,100,0);
 
 -- Pathing for Bjorn Stouthands 151089 "Finding the Lost Expedition"
-SET @PATH := 1052013 * 10;
+SET @PATH := ((1052013 * 10) + 1) << 3;
 DELETE FROM `waypoint_data` WHERE `id` IN (@PATH);
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
 (@PATH,1,-398.3889,-2596.2883,2.3895378,NULL,0,1,0,100,0),
 (@PATH,2,-391.7795,-2592.915,3.9566765,NULL,0,1,0,100,0);
 
 -- Pathing for Austin Huxworth 154170 "Finding the Lost Expedition"
-SET @PATH := 1052014 * 10;
+SET @PATH := ((1052014 * 10) + 1) << 3;
 DELETE FROM `waypoint_data` WHERE `id` IN (@PATH);
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
 (@PATH,1,-409.20898,-2599.4922,1.2894821,NULL,0,1,0,100,0),
 (@PATH,2,-397.875,-2595.2622,2.6358757,NULL,0,1,0,100,0);
 
 -- Pathing for Bo quest "Finding the Lost Expedition"
-SET @PATH := 1052021 * 10;
-DELETE FROM `waypoint_data` WHERE `id` IN (@PATH+1);
+SET @PATH := ((1052021 * 10) + 1) << 3;
+DELETE FROM `waypoint_data` WHERE `id` IN (@PATH);
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
-(@PATH+1,1,-415.217,-2603.8403,0.7445327,NULL,0,1,0,100,0),
-(@PATH+1,2,-404.86633,-2599.4375,1.6478806,NULL,0,1,0,100,0),
-(@PATH+1,3,-395.08508,-2594.441,3.153698,NULL,0,1,0,100,0);
+(@PATH,1,-415.217,-2603.8403,0.7445327,NULL,0,1,0,100,0),
+(@PATH,2,-404.86633,-2599.4375,1.6478806,NULL,0,1,0,100,0),
+(@PATH,3,-395.08508,-2594.441,3.153698,NULL,0,1,0,100,0);
 
 -- Pathing for Mithdran Dawntracker "Finding the Lost Expedition"
-SET @PATH := 1052022 * 10;
-DELETE FROM `waypoint_data` WHERE `id` IN (@PATH+1);
+SET @PATH := ((1052022 * 10) + 1) << 3;
+DELETE FROM `waypoint_data` WHERE `id` IN (@PATH);
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
-(@PATH+1,1,-422.13196,-2598.1216,0.28313446,NULL,0,1,0,100,0),
-(@PATH+1,2,-409.20898,-2599.4922,1.2894821,NULL,0,1,0,100,0),
-(@PATH+1,3,-397.875,-2595.2622,2.6358757,NULL,0,1,0,100,0);
+(@PATH,1,-422.13196,-2598.1216,0.28313446,NULL,0,1,0,100,0),
+(@PATH,2,-409.20898,-2599.4922,1.2894821,NULL,0,1,0,100,0),
+(@PATH,3,-397.875,-2595.2622,2.6358757,NULL,0,1,0,100,0);
 
 -- Pathing for Lana Jordan "Finding the Lost Expedition"
-SET @PATH := 1052023 * 10;
-DELETE FROM `waypoint_data` WHERE `id` IN (@PATH+1);
+SET @PATH := ((1052023 * 10) + 1) << 3;
+DELETE FROM `waypoint_data` WHERE `id` IN (@PATH);
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
-(@PATH+1,1,-407.13715,-2599.2344,1.3998337,NULL,0,1,0,100,0),
-(@PATH+1,2,-398.3889,-2596.2883,2.3895378,NULL,0,1,0,100,0),
-(@PATH+1,3,-391.7795,-2592.915,3.9566765,NULL,0,1,0,100,0);
+(@PATH,1,-407.13715,-2599.2344,1.3998337,NULL,0,1,0,100,0),
+(@PATH,2,-398.3889,-2596.2883,2.3895378,NULL,0,1,0,100,0),
+(@PATH,3,-391.7795,-2592.915,3.9566765,NULL,0,1,0,100,0);
 
 -- Cooking Meat Quest Alliance and Horde
 
 -- Creature scripts
 
-UPDATE `creature_template` SET `ScriptName`="npc_captain_garrick_camp" WHERE `entry` IN (156651);
-UPDATE `creature_template` SET `ScriptName`="npc_warlord_grimaxe_camp" WHERE `entry` IN (166906);
+UPDATE `creature_template` SET `ScriptName`="npc_captain_garrick_abandoned_camp" WHERE `entry` IN (156651);
+UPDATE `creature_template` SET `ScriptName`="npc_warlord_grimaxe_abandoned_camp" WHERE `entry` IN (166906);
 
 -- Creature String Ids
 
@@ -138,27 +134,30 @@ INSERT INTO `creature_questender` (`id`, `quest`, `VerifiedBuild`) VALUES
 (166854, 59932, 50000); -- Horde
 
 DELETE FROM `quest_template_addon` WHERE `ID` IN (54952,59931);
-INSERT INTO `quest_template_addon` (`ID`,`NextQuestID`) VALUES
-(54952,55174), -- Alliance
-(59931,59932); -- Horde
+INSERT INTO `quest_template_addon` (`ID`,`NextQuestID`,`ScriptName`) VALUES
+(54952,55174,'quest_finding_the_lost_expedition_alliance'), -- Alliance
+(59931,59932,'quest_finding_the_lost_expedition_horde'); -- Horde
 
 DELETE FROM `quest_template_addon` WHERE `ID` IN (55174,59932);
 INSERT INTO `quest_template_addon` (`ID`,`ScriptName`) VALUES
-(55174,'quest_cooking_meat'), -- Alliance
-(59932,'quest_cooking_meat'); -- Horde
+(55174,'quest_cooking_meat_alliance'), -- Alliance
+(59932,'quest_cooking_meat_horde'); -- Horde
 
 -- Conversations
 
 DELETE FROM `conversation_actors` WHERE `ConversationId` IN (11696,12863,14439,14611);
 INSERT INTO `conversation_actors` (`ConversationId`,`ConversationActorId`,`ConversationActorGuid`,`Idx`,`CreatureId`,`CreatureDisplayInfoId`,`NoActorObject`,`ActivePlayerObject`,`VerifiedBuild`) VALUES
-(11696,71297,0,0,0,0,0,0,50000), -- Alliance
-(11696,71309,0,1,0,0,0,0,50000), -- Alliance
-(12863,71297,0,0,0,0,0,0,50000), -- Alliance
-(12863,71309,0,1,0,0,0,0,50000), -- Alliance
-(14439,76284,0,0,0,0,0,0,50000), -- Horde
-(14439,75956,0,1,0,0,0,0,50000), -- Horde
-(14611,76284,0,0,0,0,0,0,50000), -- Horde
-(14611,75956,0,1,0,0,0,0,50000); -- Horde
+(11696,71297,1051209,0,0,0,0,0,50000), -- Alliance
+(11696,71309,1051210,1,0,0,0,0,50000), -- Alliance
+(12863,71297,1051209,0,0,0,0,0,50000), -- Alliance
+(12863,71309,1051210,1,0,0,0,0,50000), -- Alliance
+(14439,76284,1051211,0,0,0,0,0,50000), -- Horde
+(14439,75956,1051212,1,0,0,0,0,50000), -- Horde
+(14611,76284,1051211,0,0,0,0,0,50000), -- Horde
+(14611,75956,1051212,1,0,0,0,0,50000); -- Horde
+
+UPDATE `conversation_actors` SET `ConversationActorGuid`=1051209 WHERE `ConversationId`=12058 AND `ConversationActorId`=71297; -- CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP Alaria
+UPDATE `conversation_actors` SET `ConversationActorGuid`=1051209 WHERE `ConversationId`=12058 AND `ConversationActorId`=76284; -- CONVERSATION_LINE_ESCORT_SURVIVOR_CAMP Wonza
 
 DELETE FROM `conversation_line_template` WHERE `Id` IN (28241,28242,29333,31623,34646,36157,36158,36159,36595,36596);
 INSERT INTO `conversation_line_template` (`Id`,`UiCameraID`,`ActorIdx`,`Flags`,`VerifiedBuild`) VALUES
