@@ -8443,9 +8443,6 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
 
         loot = &item->loot;
 
-        // Store container id
-        loot->containerID = item->GetGUID().GetCounter();
-
         // If item doesn't already have loot, attempt to load it. If that
         // fails then this is first time opening, generate loot
         if (!item->m_lootGenerated && !sLootItemStorage->LoadStoredLoot(item, this))
@@ -8471,7 +8468,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
                     // Force save the loot and money items that were just rolled
                     //  Also saves the container item ID in Loot struct (not to DB)
                     if (loot->gold > 0 || loot->unlootedCount > 0)
-                        sLootItemStorage->AddNewStoredLoot(loot, this);
+                        sLootItemStorage->AddNewStoredLoot(item->GetGUID().GetCounter(), loot, this);
 
                     break;
             }
@@ -24910,7 +24907,7 @@ void Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore cons
     }
 }
 
-void Player::StoreLootItem(uint8 lootSlot, Loot* loot, GameObject* go)
+void Player::StoreLootItem(ObjectGuid lootWorldObjectGuid, uint8 lootSlot, Loot* loot, GameObject* go)
 {
     NotNormalLootItem* qitem = nullptr;
     NotNormalLootItem* ffaitem = nullptr;
@@ -24997,8 +24994,8 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, GameObject* go)
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CATCH_FROM_POOL, item->itemid, item->count, 0, nullptr, go);
 
         // LootItem is being removed (looted) from the container, delete it from the DB.
-        if (loot->containerID > 0)
-            sLootItemStorage->RemoveStoredLootItemForContainer(loot->containerID, item->itemid, item->count, item->itemIndex);
+        if (lootWorldObjectGuid.IsItem() && loot->loot_type == LOOT_CORPSE)
+            sLootItemStorage->RemoveStoredLootItemForContainer(lootWorldObjectGuid.GetCounter(), item->itemid, item->count, item->itemIndex);
 
     }
     else

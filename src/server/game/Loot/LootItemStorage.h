@@ -79,7 +79,7 @@ class LootItemStorage
         void RemoveStoredMoneyForContainer(uint32 containerId);
         void RemoveStoredLootForContainer(uint32 containerId);
         void RemoveStoredLootItemForContainer(uint32 containerId, uint32 itemId, uint32 count, uint32 itemIndex);
-        void AddNewStoredLoot(Loot* loot, Player* player);
+        void AddNewStoredLoot(uint32 containerId, Loot* loot, Player* player);
 
     private:
         LootItemStorage() { }
