@@ -199,6 +199,16 @@ ByteBuffer& operator<<(ByteBuffer& data, SpellCastVisual const& visual)
 
     return data;
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, SpellSupportInfo const& supportInfo)
+{
+    data << supportInfo.CasterGUID;
+    data << int32(supportInfo.SpellID);
+    data << int32(supportInfo.Amount);
+    data << float(supportInfo.Percentage);
+
+    return data;
+}
 }
 }
 

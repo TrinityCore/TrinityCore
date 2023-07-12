@@ -783,7 +783,7 @@ WorldPacket const* WorldPackets::Misc::DisplayToast::Write()
             _worldPacket.WriteBit(BonusRoll);
             _worldPacket << Item;
             _worldPacket << int32(LootSpec);
-            _worldPacket << int32(Gender);
+            _worldPacket << int8(Gender);
             break;
         case DisplayToastType::NewCurrency:
             _worldPacket << uint32(CurrencyID);

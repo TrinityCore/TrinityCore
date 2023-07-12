@@ -17,7 +17,6 @@
 
 #include "WorldSession.h"
 #include "Battleground.h"
-#include "BattlegroundMgr.h"
 #include "Common.h"
 #include "Creature.h"
 #include "CreatureAI.h"
@@ -39,17 +38,6 @@
 #include "SpellInfo.h"
 #include "Trainer.h"
 #include "WorldPacket.h"
-
-enum class StableResult : uint8
-{
-    NotEnoughMoney        = 1,                              // "you don't have enough money"
-    InvalidSlot           = 3,                              // "That slot is locked"
-    StableSuccess         = 8,                              // stable success
-    UnstableSuccess       = 9,                              // unstable/swap success
-    BuySlotSuccess        = 10,                             // buy slot success
-    CantControlExotic     = 11,                             // "you are unable to control exotic creatures"
-    InternalError         = 12,                             // "Internal pet error"
-};
 
 void WorldSession::HandleTabardVendorActivateOpcode(WorldPackets::NPC::Hello& packet)
 {
@@ -351,55 +339,7 @@ void WorldSession::HandleRequestStabledPets(WorldPackets::NPC::RequestStabledPet
     if (GetPlayer()->IsMounted())
         GetPlayer()->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
-    SendStablePet(packet.StableMaster);
-}
-
-void WorldSession::SendStablePet(ObjectGuid guid)
-{
-    WorldPackets::Pet::PetStableList packet;
-
-    packet.StableMaster = guid;
-
-    PetStable* petStable = GetPlayer()->GetPetStable();
-    if (!petStable)
-    {
-        SendPacket(packet.Write());
-        return;
-    }
-
-    for (uint32 petSlot = 0; petSlot < petStable->ActivePets.size(); ++petSlot)
-    {
-        if (!petStable->ActivePets[petSlot])
-            continue;
-
-        PetStable::PetInfo const& pet = *petStable->ActivePets[petSlot];
-        WorldPackets::Pet::PetStableInfo& stableEntry = packet.Pets.emplace_back();
-        stableEntry.PetSlot = petSlot + PET_SAVE_FIRST_ACTIVE_SLOT;
-        stableEntry.PetNumber = pet.PetNumber;
-        stableEntry.CreatureID = pet.CreatureId;
-        stableEntry.DisplayID = pet.DisplayId;
-        stableEntry.ExperienceLevel = pet.Level;
-        stableEntry.PetFlags = PET_STABLE_ACTIVE;
-        stableEntry.PetName = pet.Name;
-    }
-
-    for (uint32 petSlot = 0; petSlot < petStable->StabledPets.size(); ++petSlot)
-    {
-        if (!petStable->StabledPets[petSlot])
-            continue;
-
-        PetStable::PetInfo const& pet = *petStable->StabledPets[petSlot];
-        WorldPackets::Pet::PetStableInfo& stableEntry = packet.Pets.emplace_back();
-        stableEntry.PetSlot = petSlot + PET_SAVE_FIRST_STABLE_SLOT;
-        stableEntry.PetNumber = pet.PetNumber;
-        stableEntry.CreatureID = pet.CreatureId;
-        stableEntry.DisplayID = pet.DisplayId;
-        stableEntry.ExperienceLevel = pet.Level;
-        stableEntry.PetFlags = PET_STABLE_INACTIVE;
-        stableEntry.PetName = pet.Name;
-    }
-
-    SendPacket(packet.Write());
+    _player->SetStableMaster(packet.StableMaster);
 }
 
 void WorldSession::SendPetStableResult(StableResult result)
@@ -417,142 +357,7 @@ void WorldSession::HandleSetPetSlot(WorldPackets::NPC::SetPetSlot& setPetSlot)
         return;
     }
 
-    GetPlayer()->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Interacting);
-
-    PetStable* petStable = GetPlayer()->GetPetStable();
-    if (!petStable)
-    {
-        SendPetStableResult(StableResult::InternalError);
-        return;
-    }
-
-    auto [srcPet, srcPetSlot] = Pet::GetLoadPetInfo(*petStable, 0, setPetSlot.PetNumber, {});
-    PetSaveMode dstPetSlot = PetSaveMode(setPetSlot.DestSlot);
-    PetStable::PetInfo const* dstPet = Pet::GetLoadPetInfo(*petStable, 0, 0, dstPetSlot).first;
-
-    if (!srcPet || srcPet->Type != HUNTER_PET)
-    {
-        SendPetStableResult(StableResult::InternalError);
-        return;
-    }
-
-    if (dstPet && dstPet->Type != HUNTER_PET)
-    {
-        SendPetStableResult(StableResult::InternalError);
-        return;
-    }
-
-    Optional<PetStable::PetInfo>* src = nullptr;
-    Optional<PetStable::PetInfo>* dst = nullptr;
-    Optional<uint32> newActivePetIndex;
-
-    if (IsActivePetSlot(srcPetSlot) && IsActivePetSlot(dstPetSlot))
-    {
-        // active<->active: only swap ActivePets and CurrentPetIndex (do not despawn pets)
-        src = &petStable->ActivePets[srcPetSlot - PET_SAVE_FIRST_ACTIVE_SLOT];
-        dst = &petStable->ActivePets[dstPetSlot - PET_SAVE_FIRST_ACTIVE_SLOT];
-
-        if (petStable->GetCurrentActivePetIndex() == uint32_t(srcPetSlot))
-            newActivePetIndex = dstPetSlot;
-        else if (petStable->GetCurrentActivePetIndex() == uint32(dstPetSlot))
-            newActivePetIndex = srcPetSlot;
-    }
-    else if (IsStabledPetSlot(srcPetSlot) && IsStabledPetSlot(dstPetSlot))
-    {
-        // stabled<->stabled: only swap StabledPets
-        src = &petStable->StabledPets[srcPetSlot - PET_SAVE_FIRST_STABLE_SLOT];
-        dst = &petStable->StabledPets[dstPetSlot - PET_SAVE_FIRST_STABLE_SLOT];
-    }
-    else if (IsActivePetSlot(srcPetSlot) && IsStabledPetSlot(dstPetSlot))
-    {
-        // active<->stabled: swap petStable contents and despawn active pet if it is involved in swap
-        if (petStable->CurrentPetIndex == uint32(srcPetSlot))
-        {
-            Pet* oldPet = _player->GetPet();
-            if (oldPet && !oldPet->IsAlive())
-            {
-                SendPetStableResult(StableResult::InternalError);
-                return;
-            }
-
-            _player->RemovePet(oldPet, PET_SAVE_NOT_IN_SLOT);
-        }
-
-        if (dstPet)
-        {
-            CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(dstPet->CreatureId);
-            if (!creatureInfo || !creatureInfo->IsTameable(_player->CanTameExoticPets(), creatureInfo->GetDifficulty(DIFFICULTY_NONE)))
-            {
-                SendPetStableResult(StableResult::CantControlExotic);
-                return;
-            }
-        }
-
-        src = &petStable->ActivePets[srcPetSlot - PET_SAVE_FIRST_ACTIVE_SLOT];
-        dst = &petStable->StabledPets[dstPetSlot - PET_SAVE_FIRST_STABLE_SLOT];
-    }
-    else if (IsStabledPetSlot(srcPetSlot) && IsActivePetSlot(dstPetSlot))
-    {
-        // stabled<->active: swap petStable contents and despawn active pet if it is involved in swap
-        if (petStable->CurrentPetIndex == uint32(dstPetSlot))
-        {
-            Pet* oldPet = _player->GetPet();
-            if (oldPet && !oldPet->IsAlive())
-            {
-                SendPetStableResult(StableResult::InternalError);
-                return;
-            }
-
-            _player->RemovePet(oldPet, PET_SAVE_NOT_IN_SLOT);
-        }
-
-        CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(srcPet->CreatureId);
-        if (!creatureInfo || !creatureInfo->IsTameable(_player->CanTameExoticPets(), creatureInfo->GetDifficulty(DIFFICULTY_NONE)))
-        {
-            SendPetStableResult(StableResult::CantControlExotic);
-            return;
-        }
-
-        src = &petStable->StabledPets[srcPetSlot - PET_SAVE_FIRST_STABLE_SLOT];
-        dst = &petStable->ActivePets[dstPetSlot - PET_SAVE_FIRST_ACTIVE_SLOT];
-    }
-
-    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
-    stmt->setInt16(0, dstPetSlot);
-    stmt->setUInt64(1, _player->GetGUID().GetCounter());
-    stmt->setUInt32(2, srcPet->PetNumber);
-    trans->Append(stmt);
-
-    if (dstPet)
-    {
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
-        stmt->setInt16(0, srcPetSlot);
-        stmt->setUInt64(1, _player->GetGUID().GetCounter());
-        stmt->setUInt32(2, dstPet->PetNumber);
-        trans->Append(stmt);
-    }
-
-    AddTransactionCallback(CharacterDatabase.AsyncCommitTransaction(trans)).AfterComplete(
-        [this, currentPlayerGuid = _player->GetGUID(), src, dst, newActivePetIndex](bool success)
-    {
-        if (_player && _player->GetGUID() == currentPlayerGuid)
-        {
-            if (success)
-            {
-                std::swap(*src, *dst);
-                if (newActivePetIndex)
-                    GetPlayer()->GetPetStable()->SetCurrentActivePetIndex(*newActivePetIndex);
-
-                SendPetStableResult(StableResult::StableSuccess);
-            }
-            else
-            {
-                SendPetStableResult(StableResult::InternalError);
-            }
-        }
-    });
+    _player->SetPetSlot(setPetSlot.PetNumber, PetSaveMode(setPetSlot.DestSlot));
 }
 
 void WorldSession::HandleRepairItemOpcode(WorldPackets::Item::RepairItem& packet)

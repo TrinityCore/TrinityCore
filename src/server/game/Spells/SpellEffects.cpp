@@ -393,7 +393,7 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectCreateTraitTreeConfig,                    //303 SPELL_EFFECT_CREATE_TRAIT_TREE_CONFIG
     &Spell::EffectChangeActiveCombatTraitConfig,            //304 SPELL_EFFECT_CHANGE_ACTIVE_COMBAT_TRAIT_CONFIG
     &Spell::EffectNULL,                                     //305 SPELL_EFFECT_305
-    &Spell::EffectNULL,                                     //306 SPELL_EFFECT_306
+    &Spell::EffectNULL,                                     //306 SPELL_EFFECT_UPDATE_INTERACTIONS
     &Spell::EffectNULL,                                     //307 SPELL_EFFECT_307
     &Spell::EffectNULL,                                     //308 SPELL_EFFECT_CANCEL_PRELOAD_WORLD
     &Spell::EffectNULL,                                     //309 SPELL_EFFECT_PRELOAD_WORLD
@@ -402,6 +402,7 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectNULL,                                     //312 SPELL_EFFECT_312
     &Spell::EffectNULL,                                     //313 SPELL_EFFECT_CHANGE_ITEM_BONUSES_2
     &Spell::EffectNULL,                                     //314 SPELL_EFFECT_ADD_SOCKET_BONUS
+    &Spell::EffectNULL,                                     //315 SPELL_EFFECT_LEARN_TRANSMOG_APPEARANCE_FROM_ITEM_MOD_APPEARANCE_GROUP
 };
 
 void Spell::EffectNULL()

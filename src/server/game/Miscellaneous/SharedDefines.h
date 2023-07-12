@@ -1440,7 +1440,7 @@ enum SpellEffectName
     SPELL_EFFECT_CREATE_TRAIT_TREE_CONFIG           = 303, // MiscValue[0] = TraitTreeID
     SPELL_EFFECT_CHANGE_ACTIVE_COMBAT_TRAIT_CONFIG  = 304,
     SPELL_EFFECT_305                                = 305,
-    SPELL_EFFECT_306                                = 306,
+    SPELL_EFFECT_UPDATE_INTERACTIONS                = 306,
     SPELL_EFFECT_307                                = 307,
     SPELL_EFFECT_CANCEL_PRELOAD_WORLD               = 308,
     SPELL_EFFECT_PRELOAD_WORLD                      = 309,
@@ -1449,6 +1449,7 @@ enum SpellEffectName
     SPELL_EFFECT_312                                = 312,
     SPELL_EFFECT_CHANGE_ITEM_BONUSES_2              = 313, // MiscValue[0] = ItemBonusTreeID to preserve
     SPELL_EFFECT_ADD_SOCKET_BONUS                   = 314, // MiscValue[0] = required ItemBonusTreeID
+    SPELL_EFFECT_LEARN_TRANSMOG_APPEARANCE_FROM_ITEM_MOD_APPEARANCE_GROUP = 315, // MiscValue[0] = ItemModAppearanceGroupID (not in db2)
     TOTAL_SPELL_EFFECTS
 };
 
@@ -1774,7 +1775,9 @@ enum SpellCastResult : int32
     SPELL_FAILED_CANT_BE_RECRAFTED                              = 316,
     SPELL_FAILED_PASSIVE_REPLACED                               = 317,
     SPELL_FAILED_CANT_FLY_HERE                                  = 318,
-    SPELL_FAILED_UNKNOWN                                        = 319,
+    SPELL_FAILED_DRAGONRIDING_RIDING_REQUIREMENT                = 319,
+    SPELL_FAILED_ITEM_MOD_APPEARANCE_GROUP_ALREADY_KNOWN        = 320,
+    SPELL_FAILED_UNKNOWN                                        = 321,
 
     // ok cast value - here in case a future version removes SPELL_FAILED_SUCCESS and we need to use a custom value (not sent to client either way)
     SPELL_CAST_OK                                               = SPELL_FAILED_SUCCESS  // SKIP
@@ -2408,8 +2411,11 @@ enum SpellCustomErrors
     SPELL_CUSTOM_ERROR_REQUIRES_A_DJARADIN_PILLAR_SHARD                 = 831, // Requires a Djaradin Pillar Shard.
     SPELL_CUSTOM_ERROR_REQUIRES_A_RESILIENT_STONE                       = 832, // Requires a Resilient Stone.
     SPELL_CUSTOM_ERROR_MYRRIT_CANNOT_CARRY_ANY_MORE_MAPS                = 835, // Myrrit cannot carry any more maps. Go on a dig with him!
+    SPELL_CUSTOM_ERROR_SOME_GIFTSS_ARE_BETTER_LEFT_UNDELIVERED          = 836, // Some gifts are better left undelivered.
     SPELL_CUSTOM_ERROR_REQUIRES_NIFFEN_CAVE_DIVE_KEYAND_SHIELD_DISABLED = 850, // Requires Niffen Cave Dive Key and shield disabled.
     SPELL_CUSTOM_ERROR_ELUSIVE_CREATURE_BAIT_WAS_RECENTLY_USED          = 851, // You cannot lure anything in this area for a few minutes. Elusive Creature Bait was recently used.
+    SPELL_CUSTOM_ERROR_MUST_BE_IN_QUIET_PLACE_WITHIN_CAER_DARROW        = 852, // Must be in a suitably quiet place within Caer Darrow.
+    SPELL_CUSTOM_ERROR_YOU_DONT_HAVE_ANY_GLIMMER_OF_LIGHTS_ACTIVE       = 856, // You don't have any Glimmer of Lights active.
     SPELL_CUSTOM_ERROR_YOU_DONT_HAVE_THE_SWIRLING_MOJO_STONE            = 999, // You don't have the Swirling Mojo Stone equipped.
     SPELL_CUSTOM_ERROR_YOU_MUST_BE_NEAR_A_DRAGONFLIGHT_OATHSTONE        = 1000, // You must be near one of the five dragonflight oathstones in the Dragon Isles.
     SPELL_CUSTOM_ERROR_CAN_ONLY_USE_THIS_ITEM_WHILE_AIRBORNE            = 1001, // You can only use this item while airborne.
@@ -8034,12 +8040,13 @@ enum class GameError : uint32
     ERR_CROSS_FACTION_GROUP_JOINED                                  = 1114,
     ERR_CANT_TARGET_UNFRIENDLY_IN_OVERWORLD                         = 1115,
     ERR_EQUIPABLESPELLS_SLOTS_FULL                                  = 1116,
-    ERR_WOW_LABS_PARTY_ERROR_TYPE_PARTY_IS_FULL                     = 1117,
-    ERR_WOW_LABS_PARTY_ERROR_TYPE_MAX_INVITE_SENT                   = 1118,
-    ERR_WOW_LABS_PARTY_ERROR_TYPE_PLAYER_ALREADY_INVITED            = 1119,
-    ERR_WOW_LABS_PARTY_ERROR_TYPE_PARTY_INVITE_INVALID              = 1120,
-    ERR_WOW_LABS_LOBBY_MATCHMAKER_ERROR_ENTER_QUEUE_FAILED          = 1121,
-    ERR_WOW_LABS_LOBBY_MATCHMAKER_ERROR_LEAVE_QUEUE_FAILED          = 1122,
+    ERR_ITEM_MOD_APPEARANCE_GROUP_ALREADY_KNOWN                     = 1117,
+    ERR_WOW_LABS_PARTY_ERROR_TYPE_PARTY_IS_FULL                     = 1118,
+    ERR_WOW_LABS_PARTY_ERROR_TYPE_MAX_INVITE_SENT                   = 1119,
+    ERR_WOW_LABS_PARTY_ERROR_TYPE_PLAYER_ALREADY_INVITED            = 1120,
+    ERR_WOW_LABS_PARTY_ERROR_TYPE_PARTY_INVITE_INVALID              = 1121,
+    ERR_WOW_LABS_LOBBY_MATCHMAKER_ERROR_ENTER_QUEUE_FAILED          = 1122,
+    ERR_WOW_LABS_LOBBY_MATCHMAKER_ERROR_LEAVE_QUEUE_FAILED          = 1123,
 };
 
 enum class MountResult : uint32

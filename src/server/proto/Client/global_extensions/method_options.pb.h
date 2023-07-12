@@ -26,6 +26,7 @@
 #include <google/protobuf/unknown_field_set.h>
 #include "google/protobuf/descriptor.pb.h"
 #include "global_extensions/routing.pb.h"
+#include "global_extensions/register_method_types.pb.h"
 #include "Define.h" // for TC_PROTO_API
 // @@protoc_insertion_point(includes)
 
@@ -166,6 +167,25 @@ class TC_PROTO_API BGSMethodOptions : public ::google::protobuf::Message {
   inline bool obsolete() const;
   inline void set_obsolete(bool value);
 
+  // optional .bgs.protocol.ClientRegisterMethodType client_register_type = 11;
+  inline bool has_client_register_type() const;
+  inline void clear_client_register_type();
+  static const int kClientRegisterTypeFieldNumber = 11;
+  inline ::bgs::protocol::ClientRegisterMethodType client_register_type() const;
+  inline void set_client_register_type(::bgs::protocol::ClientRegisterMethodType value);
+
+  // optional string forward_key_proto_file = 12;
+  inline bool has_forward_key_proto_file() const;
+  inline void clear_forward_key_proto_file();
+  static const int kForwardKeyProtoFileFieldNumber = 12;
+  inline const ::std::string& forward_key_proto_file() const;
+  inline void set_forward_key_proto_file(const ::std::string& value);
+  inline void set_forward_key_proto_file(const char* value);
+  inline void set_forward_key_proto_file(const char* value, size_t size);
+  inline ::std::string* mutable_forward_key_proto_file();
+  inline ::std::string* release_forward_key_proto_file();
+  inline void set_allocated_forward_key_proto_file(::std::string* forward_key_proto_file);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.BGSMethodOptions)
  private:
   inline void set_has_id();
@@ -188,6 +208,10 @@ class TC_PROTO_API BGSMethodOptions : public ::google::protobuf::Message {
   inline void clear_has_explicit_region_routing();
   inline void set_has_obsolete();
   inline void clear_has_obsolete();
+  inline void set_has_client_register_type();
+  inline void clear_has_client_register_type();
+  inline void set_has_forward_key_proto_file();
+  inline void clear_has_forward_key_proto_file();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -203,6 +227,8 @@ class TC_PROTO_API BGSMethodOptions : public ::google::protobuf::Message {
   bool explicit_region_routing_;
   bool obsolete_;
   ::std::string* custom_region_resolver_;
+  ::std::string* forward_key_proto_file_;
+  int client_register_type_;
   friend void TC_PROTO_API protobuf_AddDesc_global_5fextensions_2fmethod_5foptions_2eproto();
   friend void protobuf_AssignDesc_global_5fextensions_2fmethod_5foptions_2eproto();
   friend void protobuf_ShutdownFile_global_5fextensions_2fmethod_5foptions_2eproto();
@@ -618,6 +644,107 @@ inline void BGSMethodOptions::set_obsolete(bool value) {
   set_has_obsolete();
   obsolete_ = value;
   // @@protoc_insertion_point(field_set:bgs.protocol.BGSMethodOptions.obsolete)
+}
+
+// optional .bgs.protocol.ClientRegisterMethodType client_register_type = 11;
+inline bool BGSMethodOptions::has_client_register_type() const {
+  return (_has_bits_[0] & 0x00000400u) != 0;
+}
+inline void BGSMethodOptions::set_has_client_register_type() {
+  _has_bits_[0] |= 0x00000400u;
+}
+inline void BGSMethodOptions::clear_has_client_register_type() {
+  _has_bits_[0] &= ~0x00000400u;
+}
+inline void BGSMethodOptions::clear_client_register_type() {
+  client_register_type_ = 0;
+  clear_has_client_register_type();
+}
+inline ::bgs::protocol::ClientRegisterMethodType BGSMethodOptions::client_register_type() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.BGSMethodOptions.client_register_type)
+  return static_cast< ::bgs::protocol::ClientRegisterMethodType >(client_register_type_);
+}
+inline void BGSMethodOptions::set_client_register_type(::bgs::protocol::ClientRegisterMethodType value) {
+  assert(::bgs::protocol::ClientRegisterMethodType_IsValid(value));
+  set_has_client_register_type();
+  client_register_type_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.BGSMethodOptions.client_register_type)
+}
+
+// optional string forward_key_proto_file = 12;
+inline bool BGSMethodOptions::has_forward_key_proto_file() const {
+  return (_has_bits_[0] & 0x00000800u) != 0;
+}
+inline void BGSMethodOptions::set_has_forward_key_proto_file() {
+  _has_bits_[0] |= 0x00000800u;
+}
+inline void BGSMethodOptions::clear_has_forward_key_proto_file() {
+  _has_bits_[0] &= ~0x00000800u;
+}
+inline void BGSMethodOptions::clear_forward_key_proto_file() {
+  if (forward_key_proto_file_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    forward_key_proto_file_->clear();
+  }
+  clear_has_forward_key_proto_file();
+}
+inline const ::std::string& BGSMethodOptions::forward_key_proto_file() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.BGSMethodOptions.forward_key_proto_file)
+  return *forward_key_proto_file_;
+}
+inline void BGSMethodOptions::set_forward_key_proto_file(const ::std::string& value) {
+  set_has_forward_key_proto_file();
+  if (forward_key_proto_file_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    forward_key_proto_file_ = new ::std::string;
+  }
+  forward_key_proto_file_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.BGSMethodOptions.forward_key_proto_file)
+}
+inline void BGSMethodOptions::set_forward_key_proto_file(const char* value) {
+  set_has_forward_key_proto_file();
+  if (forward_key_proto_file_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    forward_key_proto_file_ = new ::std::string;
+  }
+  forward_key_proto_file_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.BGSMethodOptions.forward_key_proto_file)
+}
+inline void BGSMethodOptions::set_forward_key_proto_file(const char* value, size_t size) {
+  set_has_forward_key_proto_file();
+  if (forward_key_proto_file_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    forward_key_proto_file_ = new ::std::string;
+  }
+  forward_key_proto_file_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.BGSMethodOptions.forward_key_proto_file)
+}
+inline ::std::string* BGSMethodOptions::mutable_forward_key_proto_file() {
+  set_has_forward_key_proto_file();
+  if (forward_key_proto_file_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    forward_key_proto_file_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.BGSMethodOptions.forward_key_proto_file)
+  return forward_key_proto_file_;
+}
+inline ::std::string* BGSMethodOptions::release_forward_key_proto_file() {
+  clear_has_forward_key_proto_file();
+  if (forward_key_proto_file_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = forward_key_proto_file_;
+    forward_key_proto_file_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void BGSMethodOptions::set_allocated_forward_key_proto_file(::std::string* forward_key_proto_file) {
+  if (forward_key_proto_file_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete forward_key_proto_file_;
+  }
+  if (forward_key_proto_file) {
+    set_has_forward_key_proto_file();
+    forward_key_proto_file_ = forward_key_proto_file;
+  } else {
+    clear_has_forward_key_proto_file();
+    forward_key_proto_file_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.BGSMethodOptions.forward_key_proto_file)
 }
 
 // @@protoc_insertion_point(namespace_scope)

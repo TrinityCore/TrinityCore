@@ -106,6 +106,7 @@ DB2Storage<ChrRacesEntry>                       sChrRacesStore("ChrRaces.db2", &
 DB2Storage<ChrSpecializationEntry>              sChrSpecializationStore("ChrSpecialization.db2", &ChrSpecializationLoadInfo::Instance);
 DB2Storage<CinematicCameraEntry>                sCinematicCameraStore("CinematicCamera.db2", &CinematicCameraLoadInfo::Instance);
 DB2Storage<CinematicSequencesEntry>             sCinematicSequencesStore("CinematicSequences.db2", &CinematicSequencesLoadInfo::Instance);
+DB2Storage<ConditionalChrModelEntry>            sConditionalChrModelStore("ConditionalChrModel.db2", &ConditionalChrModelLoadInfo::Instance);
 DB2Storage<ConditionalContentTuningEntry>       sConditionalContentTuningStore("ConditionalContentTuning.db2", &ConditionalContentTuningLoadInfo::Instance);
 DB2Storage<ContentTuningEntry>                  sContentTuningStore("ContentTuning.db2", &ContentTuningLoadInfo::Instance);
 DB2Storage<ContentTuningXExpectedEntry>         sContentTuningXExpectedStore("ContentTuningXExpected.db2", &ContentTuningXExpectedLoadInfo::Instance);
@@ -699,6 +700,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sChrSpecializationStore);
     LOAD_DB2(sCinematicCameraStore);
     LOAD_DB2(sCinematicSequencesStore);
+    LOAD_DB2(sConditionalChrModelStore);
     LOAD_DB2(sConditionalContentTuningStore);
     LOAD_DB2(sContentTuningStore);
     LOAD_DB2(sContentTuningXExpectedStore);

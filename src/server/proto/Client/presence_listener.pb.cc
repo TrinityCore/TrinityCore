@@ -41,9 +41,10 @@ void protobuf_AssignDesc_presence_5flistener_2eproto() {
       "presence_listener.proto");
   GOOGLE_CHECK(file != NULL);
   SubscribeNotification_descriptor_ = file->message_type(0);
-  static const int SubscribeNotification_offsets_[2] = {
+  static const int SubscribeNotification_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SubscribeNotification, subscriber_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SubscribeNotification, state_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SubscribeNotification, subscriber_program_),
   };
   SubscribeNotification_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -57,9 +58,10 @@ void protobuf_AssignDesc_presence_5flistener_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(SubscribeNotification));
   StateChangedNotification_descriptor_ = file->message_type(1);
-  static const int StateChangedNotification_offsets_[2] = {
+  static const int StateChangedNotification_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StateChangedNotification, subscriber_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StateChangedNotification, state_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StateChangedNotification, subscriber_program_),
   };
   StateChangedNotification_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -112,22 +114,23 @@ void protobuf_AddDesc_presence_5flistener_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\027presence_listener.proto\022\030bgs.protocol."
     "presence.v1\032\024presence_types.proto\032\023accou"
-    "nt_types.proto\032\017rpc_types.proto\"\212\001\n\025Subs"
+    "nt_types.proto\032\017rpc_types.proto\"\246\001\n\025Subs"
     "cribeNotification\0229\n\rsubscriber_id\030\001 \001(\013"
     "2\".bgs.protocol.account.v1.AccountId\0226\n\005"
     "state\030\002 \003(\0132\'.bgs.protocol.presence.v1.P"
-    "resenceState\"\215\001\n\030StateChangedNotificatio"
-    "n\0229\n\rsubscriber_id\030\001 \001(\0132\".bgs.protocol."
-    "account.v1.AccountId\0226\n\005state\030\002 \003(\0132\'.bg"
-    "s.protocol.presence.v1.PresenceState2\234\002\n"
-    "\020PresenceListener\022c\n\013OnSubscribe\022/.bgs.p"
-    "rotocol.presence.v1.SubscribeNotificatio"
-    "n\032\031.bgs.protocol.NO_RESPONSE\"\010\202\371+\004\010\0018\001\022i"
-    "\n\016OnStateChanged\0222.bgs.protocol.presence"
-    ".v1.StateChangedNotification\032\031.bgs.proto"
-    "col.NO_RESPONSE\"\010\202\371+\004\010\0028\001\0328\202\371+.\n*bnet.pr"
-    "otocol.presence.v1.PresenceListener8\001\212\371+"
-    "\002\010\001B\002H\002", 687);
+    "resenceState\022\032\n\022subscriber_program\030\003 \001(\r"
+    "\"\251\001\n\030StateChangedNotification\0229\n\rsubscri"
+    "ber_id\030\001 \001(\0132\".bgs.protocol.account.v1.A"
+    "ccountId\0226\n\005state\030\002 \003(\0132\'.bgs.protocol.p"
+    "resence.v1.PresenceState\022\032\n\022subscriber_p"
+    "rogram\030\003 \001(\r2\234\002\n\020PresenceListener\022c\n\013OnS"
+    "ubscribe\022/.bgs.protocol.presence.v1.Subs"
+    "cribeNotification\032\031.bgs.protocol.NO_RESP"
+    "ONSE\"\010\202\371+\004\010\0018\001\022i\n\016OnStateChanged\0222.bgs.p"
+    "rotocol.presence.v1.StateChangedNotifica"
+    "tion\032\031.bgs.protocol.NO_RESPONSE\"\010\202\371+\004\010\0028"
+    "\001\0328\202\371+.\n*bnet.protocol.presence.v1.Prese"
+    "nceListener8\001\212\371+\002\010\001B\002H\002", 743);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "presence_listener.proto", &protobuf_RegisterTypes);
   SubscribeNotification::default_instance_ = new SubscribeNotification();
@@ -148,6 +151,7 @@ struct StaticDescriptorInitializer_presence_5flistener_2eproto {
 #ifndef _MSC_VER
 const int SubscribeNotification::kSubscriberIdFieldNumber;
 const int SubscribeNotification::kStateFieldNumber;
+const int SubscribeNotification::kSubscriberProgramFieldNumber;
 #endif  // !_MSC_VER
 
 SubscribeNotification::SubscribeNotification()
@@ -170,6 +174,7 @@ SubscribeNotification::SubscribeNotification(const SubscribeNotification& from)
 void SubscribeNotification::SharedCtor() {
   _cached_size_ = 0;
   subscriber_id_ = NULL;
+  subscriber_program_ = 0u;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -223,6 +228,7 @@ void SubscribeNotification::Swap(SubscribeNotification* other) {
 #ifndef _MSC_VER
 const int StateChangedNotification::kSubscriberIdFieldNumber;
 const int StateChangedNotification::kStateFieldNumber;
+const int StateChangedNotification::kSubscriberProgramFieldNumber;
 #endif  // !_MSC_VER
 
 StateChangedNotification::StateChangedNotification()
@@ -245,6 +251,7 @@ StateChangedNotification::StateChangedNotification(const StateChangedNotificatio
 void StateChangedNotification::SharedCtor() {
   _cached_size_ = 0;
   subscriber_id_ = NULL;
+  subscriber_program_ = 0u;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 

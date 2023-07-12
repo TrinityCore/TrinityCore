@@ -639,6 +639,7 @@ enum class CriteriaType : uint8
     FulfillCraftingOrderType                       = 246, /*NYI*/ // {CraftingOrderType}
 
     PerksProgramMonthComplete                      = 249, /*NYI*/
+    CompleteTrackingQuest                          = 250, /*NYI*/
     Count
 };
 
@@ -1534,7 +1535,7 @@ enum class ModifierTreeType : int32
     PlayerAuraWithLabelStackCountEqualOrGreaterThan                     = 335, // Player has at least {#Stacks} stacks of aura "{Label}"
     PlayerAuraWithLabelStackCountEqual                                  = 336, // Target has exactly {#Stacks} stacks of aura with label "{Label}"
     PlayerAuraWithLabelStackCountEqualOrLessThan                        = 337, // Player has at most {#Stacks} stacks of aura "{Label}"
-    PlayerIsInCrossFactionGroup                                         = 338, // Player is in a cross faction group
+    PlayerIsInCrossFactionGroup                                         = 338, // PlayeOr is in a cross faction group
 
     PlayerHasTraitNodeEntryInActiveConfig                               = 340, // Player has {TraitNodeEntry} node in currently active config
     PlayerHasTraitNodeEntryInActiveConfigRankGreaterOrEqualThan         = 341, // Player has at least {#Rank} for {TraitNodeEntry} node in currently active config
@@ -1547,9 +1548,29 @@ enum class ModifierTreeType : int32
 
     PlayerHasPerksProgramPendingReward                                  = 350,
     PlayerCanUseItem                                                    = 351, // Player can use item {#Item}
+    PlayerSummonedBattlePetSpecies                                      = 352,
+    PlayerSummonedBattlePetIsMaxLevel                                   = 353,
 
     PlayerHasAtLeastProfPathRanks                                       = 355, // Player has purchased or granted at least {#Count} ranks in {SkillLine} config
     PlayerHasAtLeastMissingProfPathRanks                                = 356, /*NYI*/ // Player is missing least {#Count} ranks in {SkillLine} config
+
+    PlayerHasItemTransmogrifiedToItemModifiedAppearance                 = 358, // Player has item with {ItemModifiedAppearance} transmog
+    ItemHasBonusList                                                    = 359, /*NYI*/ // Item has {ItemBonusList} (used by ItemCondition)
+    ItemHasBonusListFromGroup                                           = 360, /*NYI*/ // Item has a bonus list from {ItemBonusListGroup} (used by ItemCondition)
+    ItemHasContext                                                      = 361, /*NYI*/ // Item has {ItemContext}
+    ItemHasItemLevelBetween                                             = 362, /*NYI*/ // Item has item level between {#Min} and {#Max}
+    ItemHasContentTuningID                                              = 363, /*NYI*/ // Item has {ContentTuning} (modifier 28)
+    ItemHasInventoryType                                                = 364, /*NYI*/ // Item has inventory type
+    ItemWasCraftedWithReagentInSlot                                     = 365, /*NYI*/ // Item was crafted with reagent item {Item} in slot {ModifiedCraftingReagentSlot}
+    PlayerHasCompletedDungeonEncounterInDifficulty                      = 366, // Player has completed {DungeonEncounter} on {Difficulty}
+    PlayerCurrencyIsRelOpFromMax                                        = 367, /*NYI*/ // Player {CurrencyTypes} is {RelOp} {#Amount} from currency limit
+    ItemHasModifiedCraftingReagentSlot                                  = 368, /*NYI*/ // Item has {ModifiedCraftingReagentSlot}
+    PlayerIsBetweenQuests                                               = 369, // Player has previously completed quest or is on "{QuestV2}" but not "{QuestV2}" (SecondaryAsset)
+    PlayerIsOnQuestWithLabel                                            = 370, /*NYI*/ // Player is on quest with {QuestLabel}
+    PlayerScenarioStepID                                                = 371, // Player is on scenario step number {ScenarioStep}
+    PlayerHasCompletedQuestWithLabel                                    = 372, /*NYI*/ // Player has previously completed quest with {QuestLabel}
+    LegacyLootIsEnabled                                                 = 373, /*NYI*/
+    PlayerZPositionBelow                                                = 374,
 };
 
 enum class ModifierTreeOperator : int8
@@ -1820,7 +1841,7 @@ enum SpellProcsPerMinuteModType
     SPELL_PPM_MOD_BATTLEGROUND  = 7
 };
 
-constexpr std::size_t MAX_POWERS_PER_SPELL = 4;
+constexpr std::size_t MAX_POWERS_PER_SPELL = 5;
 
 enum class SpellShapeshiftFormFlags : int32
 {

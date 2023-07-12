@@ -1177,6 +1177,9 @@ void WorldSession::HandleCloseInteraction(WorldPackets::Misc::CloseInteraction& 
 {
     if (_player->PlayerTalkClass->GetInteractionData().SourceGuid == closeInteraction.SourceGuid)
         _player->PlayerTalkClass->GetInteractionData().Reset();
+
+    if (_player->GetStableMaster() == closeInteraction.SourceGuid)
+        _player->SetStableMaster(ObjectGuid::Empty);
 }
 
 void WorldSession::HandleConversationLineStarted(WorldPackets::Misc::ConversationLineStarted& conversationLineStarted)

@@ -36,13 +36,15 @@ class Player;
 
 enum MailMessageType
 {
-    MAIL_NORMAL           = 0,
-    MAIL_AUCTION          = 2,
-    MAIL_CREATURE         = 3,                              // client send CMSG_CREATURE_QUERY on this mailmessagetype
-    MAIL_GAMEOBJECT       = 4,                              // client send CMSG_GAMEOBJECT_QUERY on this mailmessagetype
-    MAIL_CALENDAR         = 5,
-    MAIL_BLACKMARKET      = 6,
-    MAIL_COMMERCE_AUCTION = 7                               // wow token auction
+    MAIL_NORMAL                 = 0,
+    MAIL_AUCTION                = 2,
+    MAIL_CREATURE               = 3,                        // client send CMSG_CREATURE_QUERY on this mailmessagetype
+    MAIL_GAMEOBJECT             = 4,                        // client send CMSG_GAMEOBJECT_QUERY on this mailmessagetype
+    MAIL_CALENDAR               = 5,
+    MAIL_BLACKMARKET            = 6,
+    MAIL_COMMERCE_AUCTION       = 7,                        // wow token auction
+    MAIL_AUCTION_2              = 8,
+    MAIL_ARTISANS_CONSORTIUM    = 9                         // crafting orders
 };
 
 enum MailCheckMask

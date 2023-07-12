@@ -30,7 +30,7 @@ class Quest;
 class SpellInfo;
 class Unit;
 class WorldObject;
-enum class QuestGiverStatus : uint32;
+enum class QuestGiverStatus : uint64;
 
 namespace WorldPackets
 {

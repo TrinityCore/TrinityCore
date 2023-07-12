@@ -109,10 +109,19 @@ class TC_PROTO_API SubscribeNotification : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::presence::v1::PresenceState >*
       mutable_state();
 
+  // optional uint32 subscriber_program = 3;
+  inline bool has_subscriber_program() const;
+  inline void clear_subscriber_program();
+  static const int kSubscriberProgramFieldNumber = 3;
+  inline ::google::protobuf::uint32 subscriber_program() const;
+  inline void set_subscriber_program(::google::protobuf::uint32 value);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.presence.v1.SubscribeNotification)
  private:
   inline void set_has_subscriber_id();
   inline void clear_has_subscriber_id();
+  inline void set_has_subscriber_program();
+  inline void clear_has_subscriber_program();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -120,6 +129,7 @@ class TC_PROTO_API SubscribeNotification : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::bgs::protocol::account::v1::AccountId* subscriber_id_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::presence::v1::PresenceState > state_;
+  ::google::protobuf::uint32 subscriber_program_;
   friend void TC_PROTO_API protobuf_AddDesc_presence_5flistener_2eproto();
   friend void protobuf_AssignDesc_presence_5flistener_2eproto();
   friend void protobuf_ShutdownFile_presence_5flistener_2eproto();
@@ -190,10 +200,19 @@ class TC_PROTO_API StateChangedNotification : public ::google::protobuf::Message
   inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::presence::v1::PresenceState >*
       mutable_state();
 
+  // optional uint32 subscriber_program = 3;
+  inline bool has_subscriber_program() const;
+  inline void clear_subscriber_program();
+  static const int kSubscriberProgramFieldNumber = 3;
+  inline ::google::protobuf::uint32 subscriber_program() const;
+  inline void set_subscriber_program(::google::protobuf::uint32 value);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.presence.v1.StateChangedNotification)
  private:
   inline void set_has_subscriber_id();
   inline void clear_has_subscriber_id();
+  inline void set_has_subscriber_program();
+  inline void clear_has_subscriber_program();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -201,6 +220,7 @@ class TC_PROTO_API StateChangedNotification : public ::google::protobuf::Message
   mutable int _cached_size_;
   ::bgs::protocol::account::v1::AccountId* subscriber_id_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::presence::v1::PresenceState > state_;
+  ::google::protobuf::uint32 subscriber_program_;
   friend void TC_PROTO_API protobuf_AddDesc_presence_5flistener_2eproto();
   friend void protobuf_AssignDesc_presence_5flistener_2eproto();
   friend void protobuf_ShutdownFile_presence_5flistener_2eproto();
@@ -310,6 +330,30 @@ SubscribeNotification::mutable_state() {
   return &state_;
 }
 
+// optional uint32 subscriber_program = 3;
+inline bool SubscribeNotification::has_subscriber_program() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void SubscribeNotification::set_has_subscriber_program() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void SubscribeNotification::clear_has_subscriber_program() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void SubscribeNotification::clear_subscriber_program() {
+  subscriber_program_ = 0u;
+  clear_has_subscriber_program();
+}
+inline ::google::protobuf::uint32 SubscribeNotification::subscriber_program() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.presence.v1.SubscribeNotification.subscriber_program)
+  return subscriber_program_;
+}
+inline void SubscribeNotification::set_subscriber_program(::google::protobuf::uint32 value) {
+  set_has_subscriber_program();
+  subscriber_program_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.presence.v1.SubscribeNotification.subscriber_program)
+}
+
 // -------------------------------------------------------------------
 
 // StateChangedNotification
@@ -383,6 +427,30 @@ inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::presence::v1::Pres
 StateChangedNotification::mutable_state() {
   // @@protoc_insertion_point(field_mutable_list:bgs.protocol.presence.v1.StateChangedNotification.state)
   return &state_;
+}
+
+// optional uint32 subscriber_program = 3;
+inline bool StateChangedNotification::has_subscriber_program() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void StateChangedNotification::set_has_subscriber_program() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void StateChangedNotification::clear_has_subscriber_program() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void StateChangedNotification::clear_subscriber_program() {
+  subscriber_program_ = 0u;
+  clear_has_subscriber_program();
+}
+inline ::google::protobuf::uint32 StateChangedNotification::subscriber_program() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.presence.v1.StateChangedNotification.subscriber_program)
+  return subscriber_program_;
+}
+inline void StateChangedNotification::set_subscriber_program(::google::protobuf::uint32 value) {
+  set_has_subscriber_program();
+  subscriber_program_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.presence.v1.StateChangedNotification.subscriber_program)
 }
 
 // @@protoc_insertion_point(namespace_scope)

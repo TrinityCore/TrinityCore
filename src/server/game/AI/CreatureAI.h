@@ -32,7 +32,7 @@ class GameObject;
 class PlayerAI;
 class WorldObject;
 struct Position;
-enum class QuestGiverStatus : uint32;
+enum class QuestGiverStatus : uint64;
 
 typedef std::vector<AreaBoundary const*> CreatureBoundary;
 

@@ -567,6 +567,10 @@ void AreaTrigger::HandleUnitEnterExit(std::vector<Unit*> const& newTargetList)
             _ai->OnUnitExit(leavingUnit);
         }
     }
+
+    SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::NumUnitsInside), _insideUnits.size());
+    SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::NumPlayersInside),
+        std::count_if(_insideUnits.begin(), _insideUnits.end(), [](ObjectGuid const& guid) { return guid.IsPlayer(); }));
 }
 
 AreaTriggerTemplate const* AreaTrigger::GetTemplate() const
@@ -856,6 +860,8 @@ void AreaTrigger::InitOrbit(AreaTriggerOrbitInfo const& orbit, uint32 timeToTarg
         SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::TimeToTarget), timeToTarget);
         const_cast<UF::AreaTriggerData&>(*m_areaTriggerData).ClearChanged(&UF::AreaTriggerData::TimeToTarget);
     });
+
+    SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::OrbitPathTarget), orbit.PathTarget.value_or(ObjectGuid::Empty));
 
     _orbitInfo = orbit;
 

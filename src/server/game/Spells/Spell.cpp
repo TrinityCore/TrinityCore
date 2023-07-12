@@ -5691,7 +5691,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
             if (m_spellInfo->ExcludeCasterAuraType && unitCaster->HasAuraType(m_spellInfo->ExcludeCasterAuraType))
                 return SPELL_FAILED_CASTER_AURASTATE;
 
-            if (reqCombat && unitCaster->IsInCombat() && !m_spellInfo->CanBeUsedInCombat())
+            if (reqCombat && unitCaster->IsInCombat() && !m_spellInfo->CanBeUsedInCombat(unitCaster))
                 return SPELL_FAILED_AFFECTING_COMBAT;
         }
 

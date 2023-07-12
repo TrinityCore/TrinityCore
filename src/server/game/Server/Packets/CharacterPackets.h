@@ -639,6 +639,7 @@ namespace WorldPackets
             uint8 NewSex = 0;
             Array<ChrCustomizationChoice, 125> Customizations;
             int32 CustomizedRace = 0;
+            int32 CustomizedChrModelID = 0;
         };
 
         class BarberShopResult final : public ServerPacket
