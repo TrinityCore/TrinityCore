@@ -1535,7 +1535,7 @@ enum class ModifierTreeType : int32
     PlayerAuraWithLabelStackCountEqualOrGreaterThan                     = 335, // Player has at least {#Stacks} stacks of aura "{Label}"
     PlayerAuraWithLabelStackCountEqual                                  = 336, // Target has exactly {#Stacks} stacks of aura with label "{Label}"
     PlayerAuraWithLabelStackCountEqualOrLessThan                        = 337, // Player has at most {#Stacks} stacks of aura "{Label}"
-    PlayerIsInCrossFactionGroup                                         = 338, // PlayeOr is in a cross faction group
+    PlayerIsInCrossFactionGroup                                         = 338, // Player is in a cross faction group
 
     PlayerHasTraitNodeEntryInActiveConfig                               = 340, // Player has {TraitNodeEntry} node in currently active config
     PlayerHasTraitNodeEntryInActiveConfigRankGreaterOrEqualThan         = 341, // Player has at least {#Rank} for {TraitNodeEntry} node in currently active config
