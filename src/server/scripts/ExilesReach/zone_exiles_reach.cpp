@@ -1425,7 +1425,6 @@ struct npc_alliance_survivors_beach_laying : public ScriptedAI
         if (Player* player = caster->ToPlayer())
         {
             player->KilledMonsterCredit(me->GetEntry());
-            player->UpdateObjectVisibility();
 
             Conversation::CreateConversation(ConversationId, player, *player, player->GetGUID(), nullptr);
         }
@@ -1814,7 +1813,6 @@ struct npc_garrick_summoned_beach : public EscortAI
         if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
         {
             player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
-            player->UpdateObjectVisibility(); // @TODO: required?
             player->RemoveAura(SPELL_SUMMON_ADMIRAL_GARRICK_GUARDIAN);
         }
     }
@@ -1912,7 +1910,6 @@ struct npc_grimaxe_summoned_beach : public EscortAI
         if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
         {
             player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
-            player->UpdateObjectVisibility(); // @TODO: required?
             player->RemoveAura(SPELL_SUMMON_WARLORD_GRIMAXE_GUARDIAN);
         }
     }
@@ -1994,7 +1991,6 @@ public:
             case QUEST_STATUS_NONE:
                 player->RemoveAura(summonSpellId);
                 player->CastSpell(player, SPELL_UPDATE_PHASE_SHIFT);
-                player->UpdateObjectVisibility(); // @Todo: remove?
                 break;
             default:
                 break;
@@ -2122,12 +2118,12 @@ public:
                 if (!injured)
                     break;
 
-                Creature* injuredPersonal = injured->SummonPersonalClone(InjuredNpcPositionAbandonedCamp, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+                Creature* injuredPersonal = injured->SummonPersonalClone(InjuredNpcPositionAbandonedCamp, TEMPSUMMON_TIMED_DESPAWN, 2s, 0, 0, player);
                 if (!injuredPersonal)
                     break;
 
-                injuredPersonal->SetAIAnimKitId(ANIMATION_KIT_INJURED);
-                injuredPersonal->DespawnOrUnsummon(2s);
+                player->UpdateObjectVisibility(); // required, otherwise animation isn't played (spawn packet is sent later than PlayOneShotAnimKitId)
+                injuredPersonal->PlayOneShotAnimKitId(ANIMATION_KIT_INJURED);
                 break;
             }
             default:
