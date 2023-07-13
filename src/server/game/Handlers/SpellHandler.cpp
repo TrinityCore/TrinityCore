@@ -352,13 +352,13 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     HandleClientCastFlags(recvPacket, castFlags, targets);
 
     // not have spell in spellbook
-    if (_player->GetTypeId() == TYPEID_PLAYER && !_player->ToPlayer()->HasActiveSpell(spellId))
+    if (!_player->HasActiveSpell(spellId))
     {
         bool allow = false;
 
         // allow casting of unknown spells for special lock cases
-        if (GameObject *go = targets.GetGOTarget())
-            if (go->GetSpellForLock(_player->ToPlayer()) == spellInfo)
+        if (GameObject* go = targets.GetGOTarget())
+            if (go->GetSpellForLock(_player) == spellInfo)
                 allow = true;
 
         // allow casting of spells triggered by clientside periodic trigger auras
