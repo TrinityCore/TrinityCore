@@ -974,8 +974,8 @@ class spell_dru_savage_roar_aura : public AuraScript
     }
 };
 
-// 202342 - Shooting Stars
-// Called by Sunfire (Dot) - 164815 and Moonfire (Dot) - 164812
+// 164815 - Sunfire
+// 164812 - Moonfire
 class spell_dru_shooting_stars : public AuraScript
 {
     PrepareAuraScript(spell_dru_shooting_stars);
