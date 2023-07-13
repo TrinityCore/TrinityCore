@@ -106,6 +106,61 @@ private:
     }
 };
 
+// 111400 - Burning Rush
+class spell_warl_burning_rush : public SpellScript
+{
+    PrepareSpellScript(spell_warl_burning_rush);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
+    }
+
+    SpellCastResult CheckApplyAura()
+    {
+        Unit* caster = GetCaster();
+
+        if (caster->HasAura(GetSpellInfo()->Id))
+        {
+            caster->RemoveAura(GetSpellInfo()->Id);
+            return SPELL_FAILED_DONT_REPORT;
+        }
+
+        if (caster->GetHealthPct() <= float(GetEffectInfo(EFFECT_1).CalcValue(caster)))
+        {
+            SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_YOU_DONT_HAVE_ENOUGH_HEALTH);
+            return SPELL_FAILED_CUSTOM_ERROR;
+        }
+
+        return SPELL_CAST_OK;
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_warl_burning_rush::CheckApplyAura);
+    }
+};
+
+// 111400 - Burning Rush
+class spell_warl_burning_rush_aura : public AuraScript
+{
+    PrepareAuraScript(spell_warl_burning_rush_aura);
+
+    void PeriodicTick(AuraEffect const* aurEff)
+    {
+        if (GetTarget()->GetHealthPct() <= float(aurEff->GetAmount()))
+        {
+            PreventDefaultAction();
+            Remove();
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_burning_rush_aura::PeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
+    }
+};
+
 // 116858 - Chaos Bolt
 class spell_warl_chaos_bolt : public SpellScript
 {
@@ -1023,6 +1078,7 @@ class spell_warl_rain_of_fire : public AuraScript
 void AddSC_warlock_spell_scripts()
 {
     RegisterSpellScript(spell_warl_banish);
+    RegisterSpellAndAuraScriptPair(spell_warl_burning_rush, spell_warl_burning_rush_aura);
     RegisterSpellScript(spell_warl_chaos_bolt);
     RegisterSpellScript(spell_warl_chaotic_energies);
     RegisterSpellScript(spell_warl_create_healthstone);

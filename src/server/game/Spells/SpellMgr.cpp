@@ -4717,6 +4717,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx &= ~SPELL_ATTR1_IS_CHANNELLED;
     });
 
+    // Burning Rush
+    ApplySpellFix({ 111400 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx4 |= SPELL_ATTR4_AURA_IS_BUFF;
+    });
+
     for (SpellInfo const& s : mSpellInfoMap)
     {
         SpellInfo* spellInfo = &const_cast<SpellInfo&>(s);
