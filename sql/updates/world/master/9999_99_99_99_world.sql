@@ -3,7 +3,7 @@
 -- Areatrigger
 
 SET @ID := 24; -- needs assigning
-SET @SPAWNID := 24;  -- needs assigning 
+SET @SPAWNID := 24;  -- needs assigning
 
 -- Create new serverside areatrigger for entering Exile's Reach Abandoned Camp for follower spawn
 DELETE FROM `areatrigger` WHERE `SpawnId`=@SPAWNID;

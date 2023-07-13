@@ -47,11 +47,6 @@ CreatureAI* GetPrivatePublicPairAISelector(Creature* creature)
 
 #define RegisterPrivatePublicCreatureAIPair(scriptName, privateAI, publicAI) new FactoryCreatureScript<CreatureAI, &GetPrivatePublicPairAISelector<privateAI, publicAI>>(scriptName);
 
-static Creature* FindCreatureIgnorePhase(WorldObject const* obj, char* stringId, float range = 100.0f)
-{
-    return obj->FindNearestCreatureWithOptions(range, FindCreatureOptions().SetIgnorePhases(true).SetStringId(std::string_view(stringId)));
-}
-
 static Creature* FindCreatureIgnorePhase(WorldObject const* obj, std::string_view stringId, float range = 100.0f)
 {
     return obj->FindNearestCreatureWithOptions(range, FindCreatureOptions().SetIgnorePhases(true).SetStringId(stringId));
@@ -2083,7 +2078,6 @@ enum WarlordGrimaxeAbandonedCampData
 
     QUEST_COOKING_MEAT_HORDE                            = 59932
 };
-
 
 template<uint32 QuestId, uint32 ConversationId>
 struct npc_captain_abandoned_camp_exiles_reach : public ScriptedAI
