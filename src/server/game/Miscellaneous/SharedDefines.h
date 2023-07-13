@@ -3214,7 +3214,7 @@ enum TextEmotes
     TEXT_EMOTE_MAGNIFICENT          = 626,
 };
 
-// Emotes.db2 (9.0.2.37176)
+// Emotes.db2 (10.1.5.50232)
 // EnumUtils: DESCRIBE THIS
 enum Emote : uint32
 {
@@ -3630,6 +3630,14 @@ enum Emote : uint32
     EMOTE_STATE_EMOTETALK                        = 1006,
     EMOTE_STATE_WAINTERACTION                    = 1007,
     EMOTE_ONESHOT_TAKE_OFF_START                 = 1009,
+    EMOTE_ONESHOT_BATTLEROAR_NO_SOUND            = 1010,
+    EMOTE_STATE_WAWEAPONSHARPEN                  = 1011,
+    EMOTE_ONESHOT_ROLLSTART                      = 1012,
+    EMOTE_ONESHOT_ROLLEND                        = 1013,
+    EMOTE_ONESHOT_WAREACT02                      = 1014,
+    EMOTE_ONESHOT_WATHREATEN                     = 1015,
+    EMOTE_ARTOFFLOOP                             = 1016,
+    EMOTE_STATE_READYSPELLOMNI_NOSHEATH          = 1017,
 };
 
 // AnimationData.db2 (6.0.2.18988)

@@ -3954,12 +3954,20 @@ TC_API_EXPORT EnumText EnumUtils<Emote>::ToString(Emote value)
         case EMOTE_STATE_EMOTETALK: return { "EMOTE_STATE_EMOTETALK", "EMOTE_STATE_EMOTETALK", "" };
         case EMOTE_STATE_WAINTERACTION: return { "EMOTE_STATE_WAINTERACTION", "EMOTE_STATE_WAINTERACTION", "" };
         case EMOTE_ONESHOT_TAKE_OFF_START: return { "EMOTE_ONESHOT_TAKE_OFF_START", "EMOTE_ONESHOT_TAKE_OFF_START", "" };
+        case EMOTE_ONESHOT_BATTLEROAR_NO_SOUND: return { "EMOTE_ONESHOT_BATTLEROAR_NO_SOUND", "EMOTE_ONESHOT_BATTLEROAR_NO_SOUND", "" };
+        case EMOTE_STATE_WAWEAPONSHARPEN: return { "EMOTE_STATE_WAWEAPONSHARPEN", "EMOTE_STATE_WAWEAPONSHARPEN", "" };
+        case EMOTE_ONESHOT_ROLLSTART: return { "EMOTE_ONESHOT_ROLLSTART", "EMOTE_ONESHOT_ROLLSTART", "" };
+        case EMOTE_ONESHOT_ROLLEND: return { "EMOTE_ONESHOT_ROLLEND", "EMOTE_ONESHOT_ROLLEND", "" };
+        case EMOTE_ONESHOT_WAREACT02: return { "EMOTE_ONESHOT_WAREACT02", "EMOTE_ONESHOT_WAREACT02", "" };
+        case EMOTE_ONESHOT_WATHREATEN: return { "EMOTE_ONESHOT_WATHREATEN", "EMOTE_ONESHOT_WATHREATEN", "" };
+        case EMOTE_ARTOFFLOOP: return { "EMOTE_ARTOFFLOOP", "EMOTE_ARTOFFLOOP", "" };
+        case EMOTE_STATE_READYSPELLOMNI_NOSHEATH: return { "EMOTE_STATE_READYSPELLOMNI_NOSHEATH", "EMOTE_STATE_READYSPELLOMNI_NOSHEATH", "" };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<Emote>::Count() { return 410; }
+TC_API_EXPORT size_t EnumUtils<Emote>::Count() { return 418; }
 
 template <>
 TC_API_EXPORT Emote EnumUtils<Emote>::FromIndex(size_t index)
@@ -4376,6 +4384,14 @@ TC_API_EXPORT Emote EnumUtils<Emote>::FromIndex(size_t index)
         case 407: return EMOTE_STATE_EMOTETALK;
         case 408: return EMOTE_STATE_WAINTERACTION;
         case 409: return EMOTE_ONESHOT_TAKE_OFF_START;
+        case 410: return EMOTE_ONESHOT_BATTLEROAR_NO_SOUND;
+        case 411: return EMOTE_STATE_WAWEAPONSHARPEN;
+        case 412: return EMOTE_ONESHOT_ROLLSTART;
+        case 413: return EMOTE_ONESHOT_ROLLEND;
+        case 414: return EMOTE_ONESHOT_WAREACT02;
+        case 415: return EMOTE_ONESHOT_WATHREATEN;
+        case 416: return EMOTE_ARTOFFLOOP;
+        case 417: return EMOTE_STATE_READYSPELLOMNI_NOSHEATH;
         default: throw std::out_of_range("index");
     }
 }
@@ -4795,6 +4811,14 @@ TC_API_EXPORT size_t EnumUtils<Emote>::ToIndex(Emote value)
         case EMOTE_STATE_EMOTETALK: return 407;
         case EMOTE_STATE_WAINTERACTION: return 408;
         case EMOTE_ONESHOT_TAKE_OFF_START: return 409;
+        case EMOTE_ONESHOT_BATTLEROAR_NO_SOUND: return 410;
+        case EMOTE_STATE_WAWEAPONSHARPEN: return 411;
+        case EMOTE_ONESHOT_ROLLSTART: return 412;
+        case EMOTE_ONESHOT_ROLLEND: return 413;
+        case EMOTE_ONESHOT_WAREACT02: return 414;
+        case EMOTE_ONESHOT_WATHREATEN: return 415;
+        case EMOTE_ARTOFFLOOP: return 416;
+        case EMOTE_STATE_READYSPELLOMNI_NOSHEATH: return 417;
         default: throw std::out_of_range("value");
     }
 }
