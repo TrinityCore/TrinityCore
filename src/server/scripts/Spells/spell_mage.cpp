@@ -62,6 +62,7 @@ enum MageSpells
     SPELL_MAGE_FEEL_THE_BURN                     = 383391,
     SPELL_MAGE_FINGERS_OF_FROST                  = 44544,
     SPELL_MAGE_FIRE_BLAST                        = 108853,
+    SPELL_MAGE_FLURRY_DAMAGE                     = 228596,
     SPELL_MAGE_FIRESTARTER                       = 205026,
     SPELL_MAGE_FROST_NOVA                        = 122,
     SPELL_MAGE_GIRAFFE_FORM                      = 32816,
@@ -94,6 +95,7 @@ enum MageSpells
     SPELL_MAGE_CHAIN_REACTION_DUMMY              = 278309,
     SPELL_MAGE_CHAIN_REACTION                    = 278310,
     SPELL_MAGE_TOUCH_OF_THE_MAGI_EXPLODE         = 210833,
+    SPELL_MAGE_WINTERS_CHILL                     = 228358
 };
 
 // 110909 - Alter Time Aura
@@ -770,6 +772,81 @@ class spell_mage_flame_on : public AuraScript
    {
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_flame_on::CalculateAmount, EFFECT_1, SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER);
    }
+};
+
+class FlurryEvent : public BasicEvent
+{
+    public:
+        FlurryEvent(Unit* caster, ObjectGuid const& targetGUID, uint8 count) : _caster(caster), _targetGUID(targetGUID), _count(count) { }
+
+        bool Execute(uint64 time, uint32 /*diff*/) override
+        {
+            Unit* target = ObjectAccessor::GetUnit(*_caster, _targetGUID);
+
+            if (!target)
+                return true;
+
+            _caster->CastSpell(target, SPELL_MAGE_FLURRY_DAMAGE, true);
+
+            if (!--_count)
+                return true;
+
+            _caster->m_Events.AddEvent(this, Milliseconds(time) + randtime(200ms, 300ms));
+            return false;
+        }
+
+    private:
+        Unit* _caster;
+        ObjectGuid _targetGUID;
+        uint8 _count;
+};
+
+// 44614 - Flurry
+class spell_mage_flurry : public SpellScript
+{
+    PrepareSpellScript(spell_mage_flurry);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_MAGE_FLURRY_DAMAGE
+        });
+    }
+
+    void EffectHit(SpellEffIndex)
+    {
+        GetCaster()->m_Events.AddEventAtOffset(new FlurryEvent(GetCaster(), GetHitUnit()->GetGUID(), GetEffectValue() - 1), randtime(200ms, 300ms));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_mage_flurry::EffectHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 228354 - Flurry (damage)
+class spell_mage_flurry_damage : public SpellScript
+{
+    PrepareSpellScript(spell_mage_flurry_damage);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_MAGE_WINTERS_CHILL
+        });
+    }
+
+    void HandleDamage(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_MAGE_WINTERS_CHILL, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_mage_flurry_damage::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
 };
 
 // 116 - Frostbolt
@@ -1467,6 +1544,8 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_firestarter);
     RegisterSpellScript(spell_mage_firestarter_dots);
     RegisterSpellScript(spell_mage_flame_on);
+    RegisterSpellScript(spell_mage_flurry);
+    RegisterSpellScript(spell_mage_flurry_damage);
     RegisterSpellScript(spell_mage_frostbolt);
     RegisterSpellScript(spell_mage_hyper_impact);
     RegisterSpellScript(spell_mage_ice_barrier);
