@@ -120,12 +120,6 @@ class spell_warl_burning_rush : public SpellScript
     {
         Unit* caster = GetCaster();
 
-        if (caster->HasAura(GetSpellInfo()->Id))
-        {
-            caster->RemoveAura(GetSpellInfo()->Id);
-            return SPELL_FAILED_DONT_REPORT;
-        }
-
         if (caster->GetHealthPct() <= float(GetEffectInfo(EFFECT_1).CalcValue(caster)))
         {
             SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_YOU_DONT_HAVE_ENOUGH_HEALTH);
