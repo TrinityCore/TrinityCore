@@ -35,7 +35,6 @@
 #include "TemporarySummon.h"
 #include "Transport.h"
 #include "Loot.h"
-#include "ScriptedEscortAI.h"
 
 template<class privateAI, class publicAI>
 CreatureAI* GetPrivatePublicPairAISelector(Creature* creature)
@@ -1766,9 +1765,9 @@ Position const GrimaxeAbandonedCampPosition = { -249.20117f, -2492.6191f, 17.964
 
 // 165359 - Captain Garrick
 // This script is used by Captian Garrick Follower for Finding the Lost Expedition quest
-struct npc_garrick_summoned_beach : public EscortAI
+struct npc_garrick_summoned_beach : public ScriptedAI
 {
-    npc_garrick_summoned_beach(Creature* creature) : EscortAI(creature), _reachedCamp(false) {}
+    npc_garrick_summoned_beach(Creature* creature) : ScriptedAI(creature), _reachedCamp(false) {}
 
     void IsSummonedBy(WorldObject* summoner) override
     {
@@ -1867,9 +1866,9 @@ private:
 
 // 166805 - Warlord Breka Grimaxe
 // This script is used by Warlord Grimaxe Follower for Finding the Lost Expedition quest
-struct npc_grimaxe_summoned_beach : public EscortAI
+struct npc_grimaxe_summoned_beach : public ScriptedAI
 {
-    npc_grimaxe_summoned_beach(Creature* creature) : EscortAI(creature), _reachedCamp(false) {}
+    npc_grimaxe_summoned_beach(Creature* creature) : ScriptedAI(creature), _reachedCamp(false) {}
 
     void IsSummonedBy(WorldObject* summoner) override
     {
@@ -2118,12 +2117,7 @@ public:
                 if (!injured)
                     break;
 
-                Creature* injuredPersonal = injured->SummonPersonalClone(InjuredNpcPositionAbandonedCamp, TEMPSUMMON_TIMED_DESPAWN, 2s, 0, 0, player);
-                if (!injuredPersonal)
-                    break;
-
-                player->UpdateObjectVisibility(); // required, otherwise animation isn't played (spawn packet is sent later than PlayOneShotAnimKitId)
-                injuredPersonal->PlayOneShotAnimKitId(ANIMATION_KIT_INJURED);
+                injured->SummonPersonalClone(InjuredNpcPositionAbandonedCamp, TEMPSUMMON_TIMED_DESPAWN, 2s, 0, 0, player);
                 break;
             }
             default:
@@ -2142,7 +2136,7 @@ public:
     {
         HandleQuestStatusChange(player, newStatus,
             CONVERSATION_QUEST_COOKING_MEAT_COMPLETE_ALLIANCE,
-            "alaria_standing_camp");
+            "alaria_standing_abandoned_camp");
     }
 };
 
@@ -2156,7 +2150,7 @@ public:
     {
         HandleQuestStatusChange(player, newStatus,
             CONVERSATION_QUEST_COOKING_MEAT_COMPLETE_HORDE,
-            "wonza_standing_camp");
+            "wonza_standing_abandoned_camp");
     }
 };
 

@@ -56,6 +56,10 @@ INSERT INTO `creature_questender` (`id`, `quest`, `VerifiedBuild`) VALUES
 (156607, 54952, 45745), -- Alliance
 (166854, 59931, 46455); -- Horde
 
+DELETE FROM `quest_request_items` WHERE `ID`=59932;
+INSERT INTO `quest_request_items` (`ID`, `EmoteOnComplete`, `EmoteOnIncomplete`, `EmoteOnCompleteDelay`, `EmoteOnIncompleteDelay`, `CompletionText`, `VerifiedBuild`) VALUES
+(59932, 0, 0, 0, 0, 'Please... I be needin\'... food...', 50401); -- Cooking Meat
+
 -- Pathing
 
 -- Pathing for Kee-La 151088 "Finding the Lost Expedition"
@@ -109,15 +113,27 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 
 -- Creature scripts
 
-UPDATE `creature_template` SET `ScriptName`="npc_captain_garrick_abandoned_camp" WHERE `entry` IN (156651);
-UPDATE `creature_template` SET `ScriptName`="npc_warlord_grimaxe_abandoned_camp" WHERE `entry` IN (166906);
+UPDATE `creature_template` SET `AIName`='', `ScriptName`="npc_captain_garrick_abandoned_camp" WHERE `entry` IN (156651);
+UPDATE `creature_template` SET `AIName`='', `ScriptName`="npc_warlord_grimaxe_abandoned_camp" WHERE `entry` IN (166906);
+
+ -- Won'sa smart ai
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` IN(175030, 175031);
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` IN(175030, 175031);
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
+(175030, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 128, 14432, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Plays Anim with ID 14432'),
+(175031, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 128, 14432, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Plays Anim with ID 14432');
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceEntry` IN(175030, 175031) AND `SourceId` = 0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `Comment`) VALUES 
+(22, 1, 175030, 0, 0, 57, 1, 0, 0, 0, 0, 'Object is personal object'),
+(22, 1, 175031, 0, 0, 57, 1, 0, 0, 0, 0, 'Object is personal object');
 
 -- Creature String Ids
 
 UPDATE `creature` SET `StringId`="garrick_camp" WHERE `guid`=1051210;
 UPDATE `creature` SET `StringId`="grimaxe_camp" WHERE `guid`=1051212;
-UPDATE `creature` SET `StringId`="alaria_standing_camp" WHERE `guid`=1051266;
-UPDATE `creature` SET `StringId`="wonza_standing_camp" WHERE `guid`=1051269;
+UPDATE `creature` SET `StringId`="alaria_standing_abandoned_camp" WHERE `guid`=1051266;
+UPDATE `creature` SET `StringId`="wonza_standing_abandoned_camp" WHERE `guid`=1051269;
 
 -- Questing
 
