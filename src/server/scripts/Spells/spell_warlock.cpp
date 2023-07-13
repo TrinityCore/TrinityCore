@@ -141,6 +141,7 @@ class spell_warl_burning_rush : public SpellScript
     }
 };
 
+// 111400 - Burning Rush
 class spell_warl_burning_rush_aura : public AuraScript
 {
     PrepareAuraScript(spell_warl_burning_rush_aura);
