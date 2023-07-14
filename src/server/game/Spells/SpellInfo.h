@@ -491,7 +491,7 @@ class TC_GAME_API SpellInfo
         bool IsRequiringDeadTarget() const;
         bool IsAllowingDeadTarget() const;
         bool IsGroupBuff() const;
-        bool CanBeUsedInCombat() const;
+        bool CanBeUsedInCombat(Unit const* caster) const;
         bool IsPositive() const;
         bool IsPositiveEffect(uint8 effIndex) const;
         bool IsChanneled() const;

@@ -420,7 +420,8 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid Guid;
-            uint32 DeliveryDelay = 0;
+            uint32 PurchasedItemDeliveryDelay = 0;
+            uint32 CancelledItemDeliveryDelay = 0;
             bool OpenForBusiness = true;
         };
 

@@ -1068,7 +1068,6 @@ class TC_GAME_API WorldSession
 
         // Pet
         void SendQueryPetNameResponse(ObjectGuid guid);
-        void SendStablePet(ObjectGuid guid);
         void SendPetStableResult(StableResult result);
         bool CheckStableMaster(ObjectGuid guid);
 
@@ -1199,7 +1198,7 @@ class TC_GAME_API WorldSession
         void HandleGetUndeleteCooldownStatus(WorldPackets::Character::GetUndeleteCharacterCooldownStatus& /*getCooldown*/);
         void HandleUndeleteCooldownStatusCallback(PreparedQueryResult result);
         void HandleCharUndeleteOpcode(WorldPackets::Character::UndeleteCharacter& undeleteInfo);
-        bool MeetsChrCustomizationReq(ChrCustomizationReqEntry const* req, Classes playerClass,
+        bool MeetsChrCustomizationReq(ChrCustomizationReqEntry const* req, Races race, Classes playerClass,
             bool checkRequiredDependentChoices, Trinity::IteratorPair<UF::ChrCustomizationChoice const*> selectedChoices) const;
         bool ValidateAppearance(Races race, Classes playerClass, Gender gender,
             Trinity::IteratorPair<UF::ChrCustomizationChoice const*> customizations); // customizations must be sorted

@@ -3870,6 +3870,14 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 return false;
             break;
         }
+        case ModifierTreeType::PlayerSummonedBattlePetSpecies: // 352
+            if (referencePlayer->m_playerData->CurrentBattlePetSpeciesID != int32(reqValue))
+                return false;
+            break;
+        case ModifierTreeType::PlayerSummonedBattlePetIsMaxLevel: // 353
+            if (referencePlayer->m_unitData->WildBattlePetLevel != BattlePets::MAX_BATTLE_PET_LEVEL)
+                return false;
+            break;
         case ModifierTreeType::PlayerHasAtLeastProfPathRanks: // 355
         {
             auto traitNodeEntryRankCount = [referencePlayer, secondaryAsset]()
@@ -3893,6 +3901,50 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 return false;
             break;
         }
+        case ModifierTreeType::PlayerHasItemTransmogrifiedToItemModifiedAppearance: // 358
+        {
+            ItemModifiedAppearanceEntry const* itemModifiedAppearance = sItemModifiedAppearanceStore.LookupEntry(reqValue);
+
+            bool bagScanReachedEnd = referencePlayer->ForEachItem(ItemSearchLocation::Inventory, [referencePlayer, itemModifiedAppearance](Item const* item)
+            {
+                if (item->GetVisibleAppearanceModId(referencePlayer) == itemModifiedAppearance->ID)
+                    return ItemSearchCallbackResult::Stop;
+
+                if (int32(item->GetEntry()) == itemModifiedAppearance->ItemID)
+                    return ItemSearchCallbackResult::Stop;
+
+                return ItemSearchCallbackResult::Continue;
+            });
+            if (bagScanReachedEnd)
+                return false;
+            break;
+        }
+        case ModifierTreeType::PlayerHasCompletedDungeonEncounterInDifficulty: // 366
+            if (!referencePlayer->IsLockedToDungeonEncounter(reqValue, Difficulty(secondaryAsset)))
+                return false;
+            break;
+        case ModifierTreeType::PlayerIsBetweenQuests: // 369
+        {
+            QuestStatus status = referencePlayer->GetQuestStatus(reqValue);
+            if (status == QUEST_STATUS_NONE || status == QUEST_STATUS_FAILED)
+                return false;
+            if (referencePlayer->IsQuestRewarded(secondaryAsset))
+                return false;
+            break;
+        }
+        case ModifierTreeType::PlayerScenarioStepID: // 371
+        {
+            Scenario const* scenario = referencePlayer->GetScenario();
+            if (!scenario)
+                return false;
+            if (scenario->GetStep()->ID != reqValue)
+                return false;
+            break;
+        }
+        case ModifierTreeType::PlayerZPositionBelow: // 374
+            if (referencePlayer->GetPositionZ() >= reqValue)
+                return false;
+            break;
         default:
             return false;
     }

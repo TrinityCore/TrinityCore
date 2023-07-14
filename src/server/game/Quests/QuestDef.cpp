@@ -113,7 +113,7 @@ Quest::Quest(Field* questRecord)
     _soundAccept = questRecord[98].GetUInt32();
     _soundTurnIn = questRecord[99].GetUInt32();
     _areaGroupID = questRecord[100].GetUInt32();
-    _limitTime = questRecord[101].GetUInt32();
+    _limitTime = questRecord[101].GetInt64();
     _allowableRaces.RawValue = questRecord[102].GetUInt64();
     _treasurePickerID = questRecord[103].GetInt32();
     _expansion = questRecord[104].GetInt32();
@@ -462,6 +462,14 @@ Optional<QuestTagType> Quest::GetQuestTag() const
         return static_cast<QuestTagType>(questInfo->Type);
 
     return {};
+}
+
+bool Quest::IsImportant() const
+{
+    if (QuestInfoEntry const* questInfo = sQuestInfoStore.LookupEntry(GetQuestInfoID()))
+        return (questInfo->Modifiers & 0x400) != 0;
+
+    return false;
 }
 
 void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player) const
